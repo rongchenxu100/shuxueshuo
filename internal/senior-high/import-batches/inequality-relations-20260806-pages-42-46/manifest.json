@@ -1,0 +1,28 @@
+{
+  "batchId": "inequality-relations-20260806-pages-42-46",
+  "importedAt": "2026-08-06",
+  "chapterId": "inequalities",
+  "sectionId": "inequality-relations",
+  "topicId": "inequality-relations",
+  "sourceImages": [
+    "internal/senior-high/source-images/inequality-relations-20260806-pages-42-46/source-page-42.png",
+    "internal/senior-high/source-images/inequality-relations-20260806-pages-42-46/source-page-43.png",
+    "internal/senior-high/source-images/inequality-relations-20260806-pages-42-46/source-page-44.png",
+    "internal/senior-high/source-images/inequality-relations-20260806-pages-42-46/source-page-45.png",
+    "internal/senior-high/source-images/inequality-relations-20260806-pages-42-46/source-page-46.png"
+  ],
+  "publishedModuleIds": ["inequality-relations"],
+  "pendingModuleIds": ["solving-inequalities", "basic-inequalities"],
+  "lessonIds": [
+    "inequality-property-q01",
+    "inequality-property-q02",
+    "inequality-range-q01",
+    "inequality-range-q02",
+    "inequality-compare-q01",
+    "inequality-compare-q02",
+    "inequality-compare-q03",
+    "inequality-compare-q04",
+    "inequality-compare-q05"
+  ],
+  "notes": "印刷教材为内容依据；手写批注只作答案复核。后续模块待补教材图片后发布。"
+}

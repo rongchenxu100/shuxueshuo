@@ -1,0 +1,92 @@
+{
+  "meta": {
+    "id": "inequality-practice-q05",
+    "outputPath": "site/problems/senior-high/inequalities/inequality-relations/inequality-practice-q05.html",
+    "pageTitle": "比较两个对称多项式",
+    "pageDescription": "比较两个对称多项式的逐步解析。",
+    "breadcrumbTitle": "实战演练 · 第 5 题",
+    "breadcrumbLabel": "解不等式与基本不等式",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=inequalities&section=inequality-relations&module=inequality-practice"
+  },
+  "problem": {
+    "source": "高一暑假目标班 · 第4讲",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "作差并把结果分解成符号可控的因式。",
+      "items": [
+        "计算 M-N。",
+        "注意 a=b 时是否能取等号。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "5. 已知 \\(a，b\\) 均为正实数，若 \\(M=a^3+b^3，N=a^2b+ab^2\\)，则（　　）"
+      },
+      {
+        "text": "A. \\(M<N\\)　　B. \\(M\\le N\\)　　C. \\(M>N\\)　　D. \\(M\\ge N\\)"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "作差比较",
+      "title": "把差拆成两个符号可控的因式",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "difference-factor-sign",
+        "title": "比较大小先作差，再只看每个因式的符号",
+        "difference": "\\(M-N=a^3+b^3-a^2b-ab^2\\)",
+        "factorization": "\\((a+b)(a-b)^2\\)",
+        "factors": [
+          {
+            "label": "正数条件",
+            "expression": "\\(a+b\\)",
+            "sign": "\\(a+b>0\\)"
+          },
+          {
+            "label": "平方非负",
+            "expression": "\\((a-b)^2\\)",
+            "sign": "\\((a-b)^2\\ge0\\)"
+          }
+        ],
+        "conclusion": "\\(M-N\\ge0\\Rightarrow M\\ge N\\)",
+        "equality": "当且仅当 \\(a=b\\) 时取等号"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "作差并因式分解：M-N=(a+b)(a-b)²"
+        },
+        {
+          "kind": "because",
+          "text": "a、b 为正数，所以 a+b>0；平方项 (a-b)²≥0"
+        },
+        {
+          "kind": "therefore",
+          "text": "M-N≥0，即 M≥N；a=b 时取等号，选择 D"
+        }
+      ],
+      "derive": [
+        [
+          "答案",
+          "D"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 把差拆成两个符号可控的因式"
+  }
+}

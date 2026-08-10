@@ -1,0 +1,100 @@
+{
+  "meta": {
+    "id": "inequality-practice-q09",
+    "outputPath": "site/problems/senior-high/inequalities/inequality-relations/inequality-practice-q09.html",
+    "pageTitle": "移项通分解分式不等式",
+    "pageDescription": "移项通分解分式不等式的逐步解析。",
+    "breadcrumbTitle": "实战演练 · 第 9 题",
+    "breadcrumbLabel": "解不等式与基本不等式",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=inequalities&section=inequality-relations&module=inequality-practice"
+  },
+  "problem": {
+    "source": "高一暑假目标班 · 第4讲",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "先移项通分，再判断分式的非正区间。",
+      "items": [
+        "x=1/2 是禁值点。",
+        "x=-2 是允许取到的零点。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "9. 不等式 \\(\\frac{3x+1}{2x-1}\\le1\\) 的解集为　　　　。"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "分式不等式",
+      "title": "移到一侧，再用穿针图读取非正区域",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "rational-threading-graph",
+        "title": "右边不是 0：先移项，不能直接交叉相乘",
+        "intro": "通分后再把分子零点和分母禁值点一起放入穿针图。",
+        "standardized": "\\(\\frac{3x+1}{2x-1}\\le1\\iff(x+2)(2x-1)\\le0，x\\ne\\frac{1}{2}\\)",
+        "roots": [
+          {
+            "label": "−2",
+            "kind": "numerator",
+            "included": true
+          },
+          {
+            "label": "1/2",
+            "kind": "denominator",
+            "included": false
+          }
+        ],
+        "signs": [
+          "+",
+          "-",
+          "+"
+        ],
+        "selectSign": "-",
+        "target": "取非正区域",
+        "solution": "\\([-2,\\frac{1}{2})\\)",
+        "facts": [
+          "−2 使通分后的分子为 0，可以取。",
+          "1/2 使原分母为 0，必须排除。"
+        ],
+        "caption": "实心点表示可取的分子零点；带叉空心点表示永远排除的分母禁值。"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "\\(\\frac{3x+1}{2x-1}-1=\\frac{x+2}{2x-1}\\le0\\iff(x+2)(2x-1)\\le0，x\\ne\\frac{1}{2}\\)"
+        },
+        {
+          "kind": "because",
+          "text": "两个一次分界点之间乘积为负"
+        },
+        {
+          "kind": "therefore",
+          "text": "−2 可取，1/2 是禁值，解集为 [-2,1/2)"
+        }
+      ],
+      "derive": [
+        [
+          "解集",
+          "[-2,1/2)"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 移到一侧，再用穿针图读取非正区域"
+  }
+}

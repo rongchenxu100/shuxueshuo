@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>倒数和定值求线性式的最小值 | 数学说</title>
+  <meta name="description" content="倒数和定值求线性式的最小值的逐步解析。" />
+  <meta property="og:title" content="倒数和定值求线性式的最小值 | 数学说" />
+  <meta property="og:description" content="倒数和定值求线性式的最小值的逐步解析。" />
+  <meta property="og:image" content="../../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css?v=23" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../../senior-high/index.html?chapter=inequalities&section=inequality-relations&module=basic-inequalities">解不等式与基本不等式</a>
+    <span class="lesson-title">基本不等式 · 练习 8-3</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          <div class="problem-full">
+            <div class="problem-line"><span>3. 已知正实数 <span class="inline-math">x，y</span> 满足 <span class="inline-math"><span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">x</span></span>+<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">y</span></span>=1</span>，则 <span class="inline-math">x+4y</span> 最小值为　　　　。</span><span class="answer-chip" id="answerI">答案：<span class="inline-math">9</span></span></div>
+          </div>
+        </section>
+
+        <aside class="lesson-key-points" aria-label="解题要点"><div class="lesson-key-points-title">解题要点</div><div class="lesson-key-points-content"><p class="lesson-key-points-lead">求正项和的最小值时，先检查原两项是否定积；若不固定，就从题设中寻找能消去变量的因子构造定积。</p><ol><li>看目标：正项和求最小值，先寻找固定乘积。</li><li>查定积：x·4y=4xy 不固定，原两项不能直接使用基本不等式。</li><li>找线索：条件整体等于 1 且含倒数，可以乘入并消去变量。</li><li>验等号：构造出的两个正项相等，并且满足原条件。</li></ol></div></aside>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../../assets/js/lesson-page-runtime.js?v=33"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"s1","section":"基本不等式","title":"从目标出发构造固定乘积","t":0,"showDiagram":false,"reasoning":[{"kind":"because","text":"\\((x+4y)(\\frac1x+\\frac1y)=5+\\frac{x}{y}+\\frac{4y}{x}\\)"},{"kind":"because","text":"\\(\\frac{x}{y}>0，\\frac{4y}{x}>0\\)，且两项乘积为 \\(4\\)，所以它们的和不小于 \\(4\\)"},{"kind":"therefore","text":"由 \\(\\frac1x+\\frac1y=1\\) 得 \\(x+4y\\ge5+4=9\\)"},{"kind":"therefore","text":"当 \\(\\frac{x}{y}=\\frac{4y}{x}\\)，即 \\(x=2y\\) 时取等号；代入条件得 \\(x=3，y=\\frac32\\)"}],"derive":[["最小值","9"],["等号条件","x=3，y=3/2"]],"visual":{"kind":"fixed-product-construction-flow","title":"原两项没有定积，如何构造出定积？","methodTag":"构造型｜寻找固定乘积","goal":{"expression":"\\(x+4y\\)","task":"求正项和的最小值"},"strategy":"想办法构造定积","initialCheck":{"terms":["\\(x\\)","\\(4y\\)"],"product":"\\(x\\cdot4y=4xy\\)","verdict":"乘积不固定，不能直接使用"},"clue":{"question":"题设中有什么能让变量相消？","condition":"\\(\\frac1x+\\frac1y=1\\)","observation":"条件含有 \\(x、y\\) 的倒数，并且整体等于 \\(1\\)：乘入它不会改变目标式。"},"construction":{"label":"乘入等于 1 的条件","identity":"\\(x+4y=(x+4y)(\\frac1x+\\frac1y)\\)","expanded":"\\(=1+\\frac{x}{y}+\\frac{4y}{x}+4=5+\\frac{x}{y}+\\frac{4y}{x}\\)","rows":["\\(x\\)","\\(4y\\)"],"columns":["\\(\\frac1x\\)","\\(\\frac1y\\)"],"cells":[[{"text":"\\(1\\)","role":"constant"},{"text":"\\(\\frac{x}{y}\\)","role":"constructed"}],[{"text":"\\(\\frac{4y}{x}\\)","role":"constructed"},{"text":"\\(4\\)","role":"constant"}]],"constantSum":"常数项：\\(1+4=5\\)"},"fixedPair":{"question":"观察展开后的式子，是否可以找到定积？","terms":["\\(\\frac{x}{y}\\)","\\(\\frac{4y}{x}\\)"],"product":"\\(\\frac{x}{y}\\cdot\\frac{4y}{x}=4\\cdot\\frac{x}{x}\\cdot\\frac{y}{y}=4\\)","verdict":"定积构造成功"},"application":{"template":"\\(a+b\\ge2\\sqrt{ab}\\)","mappings":[{"slot":"\\(a\\)","value":"\\(\\frac{x}{y}\\)"},{"slot":"\\(b\\)","value":"\\(\\frac{4y}{x}\\)"}],"inequality":"\\(\\frac{x}{y}+\\frac{4y}{x}\\ge2\\sqrt4=4\\)","combine":"\\(x+4y=5+\\frac{x}{y}+\\frac{4y}{x}\\ge9\\)","conclusion":"最小值为 \\(9\\)"},"equality":{"condition":"\\(\\frac{x}{y}=\\frac{4y}{x}\\)","relation":"\\(x=2y\\)","result":"\\(x=3，y=\\frac32\\)"},"caption":"先以“构造定积”为目标寻找倒数，再通过展开后的交叉项发现固定乘积。"}}];
+    var STEP_LABELS = {"s1":"1 从目标出发构造固定乘积"};
+    var POLICIES   = {"s1":{"movable":false,"range":[0,0]}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 滑块主参数与派生参数的联动文案格式化器 */
+    var __LESSON_PARAM_LABEL_FORMATTER__;
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script>
+  function diagramMarkupFor() { return ''; }
+  function diagramMarkupForFrame() { return ''; }
+  function drawMini() { return ''; }
+  function groupTitle(section) { return section; }
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      diagramMarkupForFrame: typeof diagramMarkupForFrame === "function" ? diagramMarkupForFrame : undefined,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "参数",
+      paramLabelPrefix: "",
+      paramLabelFormatter: typeof __LESSON_PARAM_LABEL_FORMATTER__ === "function" ? __LESSON_PARAM_LABEL_FORMATTER__ : undefined,
+      goToProblemMode: "doubleScroll"
+    });
+  </script>
+</body>
+</html>

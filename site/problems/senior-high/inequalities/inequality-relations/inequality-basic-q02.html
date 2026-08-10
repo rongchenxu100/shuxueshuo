@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>倒数和定值求积的最小值 | 数学说</title>
+  <meta name="description" content="倒数和定值求积的最小值的逐步解析。" />
+  <meta property="og:title" content="倒数和定值求积的最小值 | 数学说" />
+  <meta property="og:description" content="倒数和定值求积的最小值的逐步解析。" />
+  <meta property="og:image" content="../../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css?v=23" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../../senior-high/index.html?chapter=inequalities&section=inequality-relations&module=basic-inequalities">解不等式与基本不等式</a>
+    <span class="lesson-title">基本不等式 · 练习 8-2</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          <div class="problem-full">
+            <div class="problem-line"><span>2. 已知正实数 <span class="inline-math">x，y</span> 满足 <span class="inline-math"><span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">x</span></span>+<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">y</span></span>=1</span>，则 <span class="inline-math">xy</span> 最小值为　　　　。</span><span class="answer-chip" id="answerI">答案：<span class="inline-math">4</span></span></div>
+          </div>
+        </section>
+
+        <aside class="lesson-key-points" aria-label="解题要点"><div class="lesson-key-points-title">解题要点</div><div class="lesson-key-points-content"><p class="lesson-key-points-lead">原条件不能直接代入基本不等式，先把倒数和转成和积关系，再代入并核对等号条件。</p><ol><li>一正：参与基本不等式的各项必须为正。</li><li>二定：和或积中必须有一个是定值。</li><li>三相等：只有各项相等时才能取得等号。</li></ol></div></aside>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../../assets/js/lesson-page-runtime.js?v=33"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"s1","section":"基本不等式","title":"把倒数条件转成和积关系","t":0,"showDiagram":false,"reasoning":[{"kind":"because","text":"\\(x>0，y>0\\)，且 \\(\\frac{x+y}{xy}=1\\)，所以 \\(x+y=xy\\)"},{"kind":"because","text":"基本不等式给出 \\(x+y\\ge2\\sqrt{xy}\\)，故 \\(xy\\ge2\\sqrt{xy}\\)"},{"kind":"therefore","text":"除以正数 \\(\\sqrt{xy}\\) 得 \\(\\sqrt{xy}\\ge2\\)，所以 \\(xy\\ge4\\)"},{"kind":"therefore","text":"当 \\(x=y=2\\) 时条件成立并取等号，最小值为 \\(4\\)"}],"derive":[["最小值","4"],["等号条件","x=y=2"]],"visual":{"kind":"basic-inequality-mapping","title":"把题目中的正数放进基本不等式","methodTag":"转化型｜倒数和转和积关系","conditionFlowLabel":"先把倒数和转成和积关系","conditionFlow":["\\(\\frac1x+\\frac1y=1\\)","\\(\\frac{x+y}{xy}=1\\)","\\(x+y=xy\\)"],"template":"\\(\\frac{a+b}{2}\\ge\\sqrt{ab}\\)","mappings":[{"slot":"a","value":"x","condition":"\\(x>0\\)"},{"slot":"b","value":"y","condition":"\\(y>0\\)"}],"mapped":"\\(\\frac{x+y}{2}\\ge\\sqrt{xy}\\)","stageLabel":"代入和积关系","fixedSourceLabel":"等价条件","fixedCondition":"\\(x+y=xy\\)","replacementText":"把 \\(x+y\\) 换成 \\(xy\\)","replaced":"\\(\\frac{xy}{2}\\ge\\sqrt{xy}\\)","simplifyLabel":"同除以正数 \\(\\sqrt{xy}\\)","substituted":"\\(\\sqrt{xy}\\ge2\\)","conclusionLabel":"平方后得到下界","conclusion":"\\(xy\\ge4\\)","equalityTemplate":"\\(a=b\\)","equalityMapped":"\\(x=y\\)","equalityContextLabel":"结合原条件","equalityResult":"\\(x=y=2\\)","caption":"先把倒数条件化为 \\(x+y=xy\\)，再将题目变量与公式槽位对应，最后核对等号条件。"}}];
+    var STEP_LABELS = {"s1":"1 把倒数条件转成和积关系"};
+    var POLICIES   = {"s1":{"movable":false,"range":[0,0]}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 滑块主参数与派生参数的联动文案格式化器 */
+    var __LESSON_PARAM_LABEL_FORMATTER__;
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script>
+  function diagramMarkupFor() { return ''; }
+  function diagramMarkupForFrame() { return ''; }
+  function drawMini() { return ''; }
+  function groupTitle(section) { return section; }
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      diagramMarkupForFrame: typeof diagramMarkupForFrame === "function" ? diagramMarkupForFrame : undefined,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "参数",
+      paramLabelPrefix: "",
+      paramLabelFormatter: typeof __LESSON_PARAM_LABEL_FORMATTER__ === "function" ? __LESSON_PARAM_LABEL_FORMATTER__ : undefined,
+      goToProblemMode: "doubleScroll"
+    });
+  </script>
+</body>
+</html>

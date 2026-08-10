@@ -126,6 +126,7 @@
         ["\\nRightarrow", "⇏"],
         ["\\Rightarrow", "⇒"],
         ["\\Leftrightarrow", "⇔"],
+        ["\\leftarrow", "←"],
         ["\\left", ""],
         ["\\right", ""],
         ["\\not=", "≠"],
@@ -627,6 +628,884 @@
       const visual = step && step.visual;
       if (!visual || !visual.kind) return "";
       const ariaLabel = esc(visual.ariaLabel || "解题示意图");
+
+      if (visual.kind === "fixed-product-construction-flow") {
+        const goal = visual.goal || {};
+        const initialCheck = visual.initialCheck || {};
+        const clue = visual.clue || {};
+        const construction = visual.construction || {};
+        const fixedPair = visual.fixedPair || {};
+        const application = visual.application || {};
+        const equality = visual.equality || {};
+        const rows = Array.isArray(construction.rows) ? construction.rows : [];
+        const columns = Array.isArray(construction.columns) ? construction.columns : [];
+        const cells = Array.isArray(construction.cells) ? construction.cells : [];
+        const matrixRows = rows.map(function (row, rowIndex) {
+          return '<tr><th scope="row">' + renderFormulaText(row) + '</th>' + columns.map(function (_column, columnIndex) {
+            const cell = cells[rowIndex] && cells[rowIndex][columnIndex] ? cells[rowIndex][columnIndex] : {};
+            const role = cell.role === "constructed" ? "is-constructed" : "is-constant";
+            return '<td class="' + role + '">' + renderFormulaText(cell.text || "") + '</td>';
+          }).join("") + '</tr>';
+        }).join("");
+        const substitutions = Array.isArray(construction.substitutions) ? construction.substitutions : [];
+        const constructionBody = construction.kind === "completion"
+          ? '<div class="fixed-flow-completion-board">' +
+              '<div class="fixed-flow-completion-pair"><span>分母提示配对项</span><b>' + renderFormulaText(construction.givenTerm || "") + '</b><i aria-hidden="true">↔</i><strong>' + renderFormulaText(construction.matchingTerm || "") + '</strong></div>' +
+              '<div class="fixed-flow-completion-step"><span>原式补出这个正项</span><b>' + renderFormulaText(construction.identity || "") + '</b></div>' +
+              (construction.expanded ? '<p class="fixed-flow-expanded">' + renderFormulaText(construction.expanded) + '</p>' : '') +
+              '<div class="fixed-flow-substitution-focus"><span>乘积固定的正项和</span><b>' + renderFormulaText(construction.focus || "") + '</b><i aria-hidden="true">+</i><span>保留常数</span><strong>' + renderFormulaText(construction.constant || "") + '</strong></div>' +
+              (construction.simplification ? '<p class="fixed-flow-completion-note"><span>换元只做简写</span>' + renderFormulaText(construction.simplification) + '</p>' : '') +
+            '</div>'
+          : construction.kind === "substitution"
+            ? '<div class="fixed-flow-substitution-board">' +
+              '<div class="fixed-flow-substitution-maps">' + substitutions.map(function (item) {
+                return '<div><b>' + renderFormulaText(item.source || "") + '</b><span aria-hidden="true">→</span><strong>' + renderFormulaText(item.target || "") + '</strong><small>' + renderFormulaText(item.note || "") + '</small></div>';
+              }).join("") + '</div>' +
+              '<p class="fixed-flow-identity">' + renderFormulaText(construction.identity || "") + '</p>' +
+              (construction.expanded ? '<p class="fixed-flow-expanded">' + renderFormulaText(construction.expanded) + '</p>' : '') +
+              '<div class="fixed-flow-substitution-focus"><span>新的正项和</span><b>' + renderFormulaText(construction.focus || "") + '</b><i aria-hidden="true">+</i><span>保留常数</span><strong>' + renderFormulaText(construction.constant || "") + '</strong></div>' +
+              '</div>'
+            : '<p class="fixed-flow-identity">' + renderFormulaText(construction.identity || "") + '</p>' +
+              (construction.expanded ? '<p class="fixed-flow-expanded">' + renderFormulaText(construction.expanded) + '</p>' : '') +
+              '<div class="fixed-flow-matrix-wrap"><table><thead><tr><th></th>' + columns.map(function (column) { return '<th scope="col">' + renderFormulaText(column) + '</th>'; }).join("") + '</tr></thead><tbody>' + matrixRows + '</tbody></table></div>' +
+              '<p class="fixed-flow-constant-sum">' + renderFormulaText(construction.constantSum || "") + '<span>交叉项是接下来要检查的新正项</span></p>';
+        const termProduct = Array.isArray(initialCheck.terms)
+          ? initialCheck.terms.map(function (term) { return '<b>' + renderFormulaText(term) + '</b>'; }).join('<span aria-hidden="true">×</span>')
+          : "";
+        const fixedTerms = Array.isArray(fixedPair.terms)
+          ? fixedPair.terms.map(function (term) { return '<b>' + renderFormulaText(term) + '</b>'; }).join('<span aria-hidden="true">×</span>')
+          : "";
+        const applicationMappings = Array.isArray(application.mappings) ? application.mappings : [];
+        return (
+          '<figure class="lesson-step-visual lesson-step-fixed-product-flow" role="group" aria-label="' + ariaLabel + '">' +
+            '<div class="fixed-flow-heading"><h3>' + renderFormulaText(visual.title || "构造固定乘积") + '</h3>' +
+              (visual.methodTag ? '<span>' + esc(visual.methodTag) + '</span>' : '') +
+            '</div>' +
+            '<div class="fixed-flow-intro">' +
+              '<section><small>01 看目标</small><strong>' + renderFormulaText(goal.expression || "") + '</strong><p>' + esc(goal.task || "") + '</p></section>' +
+              '<i aria-hidden="true">→</i>' +
+              '<section class="is-strategy"><small>02 定策略</small><strong>' + esc(visual.strategy || "构造定积") + '</strong><p>基本不等式需要两个正项的乘积固定</p></section>' +
+              '<i aria-hidden="true">→</i>' +
+              '<section class="is-obstacle"><small>03 查定积</small><div class="fixed-flow-term-product">' + termProduct + '</div><strong>' + renderFormulaText(initialCheck.product || "") + '</strong><p>' + esc(initialCheck.verdict || "") + '</p></section>' +
+            '</div>' +
+            '<div class="fixed-flow-down" aria-hidden="true">↓</div>' +
+            '<section class="fixed-flow-clue"><header><small>04 找线索</small><strong>' + esc(clue.question || "") + '</strong></header>' +
+              '<div><b>' + renderFormulaText(clue.condition || "") + '</b><p>' + renderFormulaText(clue.observation || "") + '</p></div>' +
+            '</section>' +
+            '<div class="fixed-flow-down" aria-hidden="true">↓</div>' +
+            '<section class="fixed-flow-construction"><header><small>05 做构造</small><strong>' + esc(construction.label || "") + '</strong></header>' +
+              constructionBody +
+            '</section>' +
+            '<div class="fixed-flow-down" aria-hidden="true">↓</div>' +
+            '<section class="fixed-flow-discovery"><header><small>06 找定积</small><strong>' + esc(fixedPair.question || "") + '</strong></header>' +
+              '<div class="fixed-flow-pair">' + fixedTerms + '</div>' +
+              '<p>' + renderFormulaText(fixedPair.product || "") + '</p><b class="fixed-flow-success">' + esc(fixedPair.verdict || "定积构造成功") + '</b>' +
+            '</section>' +
+            '<div class="fixed-flow-down" aria-hidden="true">↓</div>' +
+            '<div class="fixed-flow-finish">' +
+              '<section><small>07 用基本不等式</small>' +
+                (application.template ? '<div class="fixed-flow-amgm-template"><span>公式模板</span><b>' + renderFormulaText(application.template) + '</b></div>' : '') +
+                (applicationMappings.length ? '<div class="fixed-flow-amgm-mappings">' + applicationMappings.map(function (mapping) {
+                  return '<div><b>' + renderFormulaText(mapping.slot || "") + '</b><span aria-hidden="true">←</span><strong>' + renderFormulaText(mapping.value || "") + '</strong></div>';
+                }).join("") + '</div>' : '') +
+                '<p>' + renderFormulaText(application.inequality || "") + '</p><p>' + renderFormulaText(application.combine || "") + '</p><strong>' + renderFormulaText(application.conclusion || "") + '</strong></section>' +
+              '<section class="is-equality"><small>08 验等号</small><p>' + renderFormulaText(equality.condition || "") + '</p><span aria-hidden="true">→</span><p>' + renderFormulaText(equality.relation || "") + '</p><span aria-hidden="true">→</span><strong>' + renderFormulaText(equality.result || "") + '</strong></section>' +
+            '</div>' +
+            (visual.caption ? '<figcaption>' + renderFormulaText(visual.caption) + '</figcaption>' : '') +
+          '</figure>'
+        );
+      }
+
+      if (visual.kind === "basic-inequality-mapping") {
+        const mappings = Array.isArray(visual.mappings) ? visual.mappings : [];
+        const firstMapping = mappings[0] || { slot: "a", value: "m", condition: "\\(m>0\\)" };
+        const secondMapping = mappings[1] || { slot: "b", value: "n", condition: "\\(n>0\\)" };
+        const firstSlot = esc(firstMapping.slot || "a");
+        const secondSlot = esc(secondMapping.slot || "b");
+        const firstValue = esc(firstMapping.value || "m");
+        const secondValue = esc(secondMapping.value || "n");
+        const conditionFlow = Array.isArray(visual.conditionFlow) ? visual.conditionFlow : [];
+        const templateFormula =
+          '<div class="basic-map-formula-layout" aria-hidden="true">' +
+            '<div class="basic-map-fraction-cluster">' +
+              '<div class="basic-map-numerator-grid">' +
+                '<span class="basic-map-variable is-first is-target">' + firstSlot + '</span>' +
+                '<span class="basic-map-operator">+</span>' +
+                '<span class="basic-map-variable is-second is-target">' + secondSlot + '</span>' +
+              '</div>' +
+              '<span class="basic-map-fraction-line"></span><span class="basic-map-denominator">2</span>' +
+              '<div class="basic-map-source-grid">' +
+                '<div class="basic-map-source is-first"><span class="basic-map-short-arrow">↑</span><strong>' + firstValue + '</strong><em>' + renderFormulaText(firstMapping.condition) + ' ✓</em></div>' +
+                '<span aria-hidden="true"></span>' +
+                '<div class="basic-map-source is-second"><span class="basic-map-short-arrow">↑</span><strong>' + secondValue + '</strong><em>' + renderFormulaText(secondMapping.condition) + ' ✓</em></div>' +
+              '</div>' +
+            '</div>' +
+            '<span class="basic-map-formula-tail"><span class="basic-map-relation">≥</span><span class="math-radical"><span class="math-radical-symbol">√</span><span class="math-radicand">' +
+              '<span class="basic-map-variable is-first">' + firstSlot + '</span>' +
+              '<span class="basic-map-variable is-second">' + secondSlot + '</span>' +
+            '</span></span></span>' +
+          '</div>';
+        const mappedFormula =
+          '<div class="basic-map-formula-layout basic-map-formula-layout-fixed" aria-hidden="true">' +
+            '<div class="basic-map-fixed-fraction">' +
+              '<span class="basic-map-sum-target">' + firstValue + '+' + secondValue + '</span>' +
+              '<span class="basic-map-fraction-line"></span><span class="basic-map-denominator">2</span>' +
+              '<div class="basic-map-fixed-source"><span class="basic-map-short-arrow">↑</span><small>' + esc(visual.fixedSourceLabel || "已知") + '</small><strong>' + renderFormulaText(visual.fixedCondition || "") + '</strong></div>' +
+            '</div>' +
+            '<span class="basic-map-formula-tail"><span class="basic-map-relation">≥</span><span class="math-radical"><span class="math-radical-symbol">√</span><span class="math-radicand">' +
+              firstValue + secondValue +
+            '</span></span></span>' +
+          '</div>';
+        return (
+          '<figure class="lesson-step-visual lesson-step-basic-inequality-map" role="group" aria-label="' + ariaLabel + '">' +
+          '<div class="basic-map-heading"><h3>' + renderFormulaText(visual.title || "基本不等式映射") + '</h3>' +
+            (visual.methodTag ? '<span>' + esc(visual.methodTag) + '</span>' : '') +
+          '</div>' +
+          (conditionFlow.length ? '<div class="basic-map-condition-flow">' +
+            '<strong>' + esc(visual.conditionFlowLabel || "先整理条件") + '</strong>' +
+            '<div>' + conditionFlow.map(function (item, index) {
+              return (index ? '<span aria-hidden="true">→</span>' : '') + '<b>' + renderFormulaText(item) + '</b>';
+            }).join("") + '</div>' +
+          '</div>' : '') +
+          '<div class="basic-map-variable-board">' +
+            '<div class="basic-map-board-heading"><span>公式模板</span><span class="basic-map-screen-reader">' + renderFormulaText(visual.template || "") + '</span></div>' +
+            '<div class="basic-map-template-formula">' + templateFormula + '</div>' +
+          '</div>' +
+          '<div class="basic-map-fixed-board">' +
+            '<div class="basic-map-board-heading"><span>' + esc(visual.stageLabel || "代入关系") + '</span><span class="basic-map-screen-reader">' + renderFormulaText(visual.mapped || "") + '</span></div>' +
+            '<div class="basic-map-fixed-formula">' + mappedFormula + '</div>' +
+          '</div>' +
+          '<div class="basic-map-deduction">' +
+            '<div><small>' + renderFormulaText(visual.replacementText || "代入关系") + '</small><strong>' + renderFormulaText(visual.replaced || "") + '</strong></div>' +
+            '<span aria-hidden="true">→</span>' +
+            '<div><small>' + renderFormulaText(visual.simplifyLabel || "化简") + '</small><strong>' + renderFormulaText(visual.substituted || "") + '</strong></div>' +
+            '<span aria-hidden="true">→</span>' +
+            '<div class="is-result"><small>' + renderFormulaText(visual.conclusionLabel || "得到界值") + '</small><strong>' + renderFormulaText(visual.conclusion || "") + '</strong></div>' +
+          '</div>' +
+          '<div class="basic-map-equality"><span>等号条件</span><div><strong>' + renderFormulaText(visual.equalityTemplate || "") + '</strong><i>映射为</i><strong>' + renderFormulaText(visual.equalityMapped || "") + '</strong><i>' + esc(visual.equalityContextLabel || "结合条件") + '</i><b>' + renderFormulaText(visual.equalityResult || "") + '</b></div></div>' +
+          (visual.caption ? '<figcaption>' + renderFormulaText(visual.caption) + '</figcaption>' : '') +
+          '</figure>'
+        );
+      }
+
+      if (visual.kind === "inequality-sign-chart") {
+        const columns = Array.isArray(visual.columns) ? visual.columns : [];
+        const rows = Array.isArray(visual.rows) ? visual.rows : [];
+        const body = rows.map(function (row) {
+          const selected = new Set(Array.isArray(row.selectedIndices) ? row.selectedIndices : []);
+          return '<tr><th scope="row">' + renderFormulaText(row.label || "") + '</th>' +
+            (Array.isArray(row.values) ? row.values : []).map(function (value, index) {
+              return '<td class="' + (selected.has(index) ? 'is-selected' : '') + '">' + renderFormulaText(value) + '</td>';
+            }).join("") + '</tr>';
+        }).join("");
+        const notes = Array.isArray(visual.notes) && visual.notes.length
+          ? '<ol class="lesson-sign-chart-notes">' + visual.notes.map(function (note) {
+            return '<li>' + renderFormulaText(note) + '</li>';
+          }).join("") + '</ol>'
+          : "";
+        return (
+          '<figure class="lesson-step-visual lesson-step-sign-chart" role="group" aria-label="' + ariaLabel + '">' +
+          (visual.title ? '<h3>' + renderFormulaText(visual.title) + '</h3>' : '') +
+          '<div class="lesson-sign-chart-scroll"><table class="lesson-sign-chart-table"><thead><tr>' +
+          columns.map(function (column) { return '<th scope="col">' + renderFormulaText(column) + '</th>'; }).join("") +
+          '</tr></thead><tbody>' + body + '</tbody></table></div>' +
+          (visual.solution ? '<p class="lesson-sign-chart-solution"><strong>解集：</strong>' + renderFormulaText(visual.solution) + '</p>' : '') +
+          notes +
+          (visual.caption ? '<figcaption>' + renderFormulaText(visual.caption) + '</figcaption>' : '') +
+          '</figure>'
+        );
+      }
+
+      if (visual.kind === "option-counterexample-review") {
+        const rows = Array.isArray(visual.rows) ? visual.rows : [];
+        return (
+          '<figure class="lesson-step-visual lesson-step-option-review" role="group" aria-label="' + ariaLabel + '">' +
+          '<header><span>逐项验证</span><h3>' + renderFormulaText(visual.title || "用反例淘汰错误结论") + '</h3></header>' +
+          (visual.intro ? '<p class="lesson-option-review-intro">' + renderFormulaText(visual.intro) + '</p>' : '') +
+          '<div class="lesson-option-review-grid">' + rows.map(function (row) {
+            const state = row.correct ? "is-correct" : "is-counterexample";
+            return '<article class="' + state + '"><div class="lesson-option-review-option"><b>' + esc(row.option || "") + '</b><span>' + (row.correct ? "成立" : "反例") + '</span></div>' +
+              '<p class="lesson-option-review-claim">' + renderFormulaText(row.judgment || "") + '</p>' +
+              '<div class="lesson-option-review-example"><small>' + (row.correct ? "性质依据" : "代入数值") + '</small><strong>' + renderFormulaText(row.example || "") + '</strong></div>' +
+              '<p class="lesson-option-review-calculation">' + renderFormulaText(row.calculation || "") + '</p></article>';
+          }).join("") + '</div>' +
+          (visual.caption ? '<figcaption>' + renderFormulaText(visual.caption) + '</figcaption>' : '') +
+          '</figure>'
+        );
+      }
+
+      if (visual.kind === "absolute-direct-rule-map") {
+        const rules = Array.isArray(visual.rules) ? visual.rules : [];
+        const ruleMarkup = rules.map(function (rule) {
+          const mappings = Array.isArray(rule.mappings) ? rule.mappings : [];
+          return (
+            '<article class="lesson-absolute-direct-rule-card">' +
+            '<header><span>' + esc(rule.index || "") + '</span><h4>' + esc(rule.name || "直接法") + '</h4></header>' +
+            '<div class="lesson-absolute-direct-template"><small>公式模板</small><strong>' + renderFormulaText(rule.template || "") + '</strong></div>' +
+            '<div class="lesson-absolute-direct-slots"><small>题目变量对号入座</small><div>' + mappings.map(function (mapping) {
+              return '<b>' + renderFormulaText(mapping) + '</b>';
+            }).join('<i aria-hidden="true">＋</i>') + '</div></div>' +
+            '<div class="lesson-absolute-direct-substitute"><span>代入</span><strong>' + renderFormulaText(rule.substituted || "") + '</strong></div>' +
+            '<div class="lesson-absolute-direct-solve"><span>解一次不等式</span><strong>' + renderFormulaText(rule.solved || "") + '</strong></div>' +
+            '<p class="lesson-absolute-direct-set"><span>解集</span><b>' + renderFormulaText(rule.solution || "") + '</b></p>' +
+            '</article>'
+          );
+        }).join("");
+        const intersection = visual.intersection;
+        const intersectionMarkup = intersection ? (
+          '<section class="lesson-absolute-direct-intersection">' +
+          '<span>' + esc(intersection.label || "取交集") + '</span>' +
+          '<strong>' + renderFormulaText(intersection.expression || "") + '</strong>' +
+          '<i aria-hidden="true">↓</i>' +
+          '<b>' + renderFormulaText(intersection.result || "") + '</b>' +
+          '</section>'
+        ) : "";
+        return (
+          '<figure class="lesson-step-visual lesson-step-absolute-direct-map is-' + esc(visual.mode || "single") + '" role="group" aria-label="' + ariaLabel + '">' +
+          '<header class="lesson-absolute-direct-map-header"><span>' + esc(visual.method || "直接法") + '</span><h3>' + esc(visual.title || "绝对值不等式直接法") + '</h3></header>' +
+          (visual.intro ? '<p class="lesson-absolute-direct-map-intro">' + renderFormulaText(visual.intro) + '</p>' : '') +
+          '<section class="lesson-absolute-direct-original"><span>题目结构</span><strong>' + renderFormulaText(visual.original || "") + '</strong></section>' +
+          '<div class="lesson-absolute-direct-rule-grid">' + ruleMarkup + '</div>' +
+          intersectionMarkup +
+          (visual.caption ? '<figcaption>' + renderFormulaText(visual.caption) + '</figcaption>' : '') +
+          '</figure>'
+        );
+      }
+
+      if (visual.kind === "number-line-reasoning") {
+        const ticks = Array.isArray(visual.ticks) ? visual.ticks : [];
+        const rows = Array.isArray(visual.rows) ? visual.rows : [];
+        const xFor = function (position) { return 48 + Math.max(0, Math.min(1, Number(position))) * 464; };
+        const rowMarkup = rows.map(function (row) {
+          const y = 48;
+          const segments = Array.isArray(row.segments) ? row.segments : [];
+          const segmentMarkup = segments.map(function (segment) {
+            const x1 = xFor(segment.start);
+            const x2 = xFor(segment.end);
+            const leftRay = segment.left === "ray";
+            const rightRay = segment.right === "ray";
+            const leftPoint = leftRay ? '<path class="lesson-number-line-ray" d="M' + x1 + ' ' + y + 'l12-7v14z"></path>' : '<circle class="lesson-number-line-endpoint ' + (segment.left === "closed" ? "is-closed" : "is-open") + '" cx="' + x1 + '" cy="' + y + '" r="7"></circle>';
+            const rightPoint = rightRay ? '<path class="lesson-number-line-ray" d="M' + x2 + ' ' + y + 'l-12-7v14z"></path>' : '<circle class="lesson-number-line-endpoint ' + (segment.right === "closed" ? "is-closed" : "is-open") + '" cx="' + x2 + '" cy="' + y + '" r="7"></circle>';
+            return '<line class="lesson-number-line-selected" x1="' + x1 + '" y1="' + y + '" x2="' + x2 + '" y2="' + y + '"></line>' + leftPoint + rightPoint;
+          }).join("");
+          const tickMarkup = ticks.map(function (tick) {
+            const x = xFor(tick.position);
+            return '<line class="lesson-number-line-tick" x1="' + x + '" y1="39" x2="' + x + '" y2="57"></line><text x="' + x + '" y="78">' + esc(tick.label) + '</text>';
+          }).join("");
+          return '<article><header><span>' + esc(row.label || "") + '</span><strong>' + renderFormulaText(row.condition || "") + '</strong></header><svg viewBox="0 0 560 92" role="img" aria-label="' + esc(row.ariaLabel || row.label || "解集数轴") + '"><line class="lesson-number-line-axis" x1="34" y1="48" x2="530" y2="48"></line><path class="lesson-number-line-axis-arrow" d="M530 48l-9-6m9 6l-9 6"></path><g>' + segmentMarkup + '</g><g class="lesson-number-line-ticks">' + tickMarkup + '</g></svg><p>' + renderFormulaText(row.set || "") + '</p></article>';
+        }).join("");
+        const implication = visual.implicationCheck;
+        const implicationMarkup = implication && Array.isArray(implication.directions) ? (
+          '<section class="lesson-implication-check" aria-label="充分条件和必要条件的双向检验">' +
+          '<header><span>双向检验</span><h4>' + renderFormulaText(implication.title || "两个方向分别判断") + '</h4></header>' +
+          '<div class="lesson-implication-map">' +
+          '<svg viewBox="0 0 640 280" role="img" aria-label="条件之间的充分性与必要性双向箭头图">' +
+          '<defs>' +
+          '<marker id="lessonImplicationArrowTrue" markerWidth="11" markerHeight="11" refX="9" refY="5.5" orient="auto"><path d="M0 0L11 5.5L0 11z"></path></marker>' +
+          '<marker id="lessonImplicationArrowFalse" markerWidth="11" markerHeight="11" refX="9" refY="5.5" orient="auto"><path d="M0 0L11 5.5L0 11z"></path></marker>' +
+          '</defs>' +
+          implication.directions.map(function (direction, index) {
+            const state = direction.holds ? "is-true" : "is-false";
+            const path = index === 0 ? "M142 132 C220 38 420 38 498 132" : "M498 148 C420 242 220 242 142 148";
+            const markX = index === 0 ? 424 : 216;
+            const markY = index === 0 ? 67 : 213;
+            const markPath = direction.holds
+              ? '<path d="M' + (markX - 7) + ' ' + markY + 'l5 5 10-12"></path>'
+              : '<path d="M' + (markX - 6) + ' ' + (markY - 6) + 'l12 12m0-12l-12 12"></path>';
+            return '<path class="lesson-implication-curve ' + state + '" d="' + path + '" marker-end="url(#lessonImplicationArrow' + (direction.holds ? "True" : "False") + ')"></path>' +
+              '<g class="lesson-implication-mark ' + state + '"><circle cx="' + markX + '" cy="' + markY + '" r="15"></circle>' + markPath + '</g>';
+          }).join("") +
+          '</svg>' +
+          '<b class="lesson-implication-node is-left">' + esc(implication.directions[0].from || "") + '</b>' +
+          '<b class="lesson-implication-node is-right">' + esc(implication.directions[0].to || "") + '</b>' +
+          implication.directions.map(function (direction, index) {
+            const state = direction.holds ? "is-true" : "is-false";
+            const conditionKind = /充分/.test(direction.question || "") ? "充分？" : (/必要/.test(direction.question || "") ? "必要？" : "是否成立？");
+            return '<article class="lesson-implication-direction ' + (index === 0 ? "is-top " : "is-bottom ") + state + '">' +
+              '<p><b>' + esc(direction.from || "") + ' ⇒ ' + esc(direction.to || "") + '</b><span>' + conditionKind + '</span><em>' + (direction.holds ? "成立 ✓" : "不成立 ✕") + '</em></p>' +
+              '<div><strong>' + renderFormulaText(direction.setRelation || "") + '</strong><span>' + renderFormulaText(direction.reasoning || "") + '</span></div>' +
+              '</article>';
+          }).join("") +
+          '</div>' +
+          (implication.conclusion ? '<p class="lesson-implication-conclusion">' + renderFormulaText(implication.conclusion) + '</p>' : '') +
+          '</section>'
+        ) : "";
+        return (
+          '<figure class="lesson-step-visual lesson-step-number-line-reasoning" role="group" aria-label="' + ariaLabel + '">' +
+          '<header><span>' + esc(visual.method || "数轴") + '</span><h3>' + renderFormulaText(visual.title || "把条件画成解集") + '</h3></header>' +
+          (visual.intro ? '<p class="lesson-number-line-reasoning-intro">' + renderFormulaText(visual.intro) + '</p>' : '') +
+          '<div class="lesson-number-line-reasoning-rows">' + rowMarkup + '</div>' +
+          implicationMarkup +
+          (visual.relation ? '<p class="lesson-number-line-relation">' + renderFormulaText(visual.relation) + '</p>' : '') +
+          (visual.caption ? '<figcaption>' + renderFormulaText(visual.caption) + '</figcaption>' : '') +
+          '</figure>'
+        );
+      }
+
+      if (visual.kind === "quadratic-integer-window") {
+        const integers = Array.isArray(visual.integers) ? visual.integers : [];
+        const pointXs = [156, 280, 404];
+        return (
+          '<figure class="lesson-step-visual lesson-step-quadratic-window" role="group" aria-label="' + ariaLabel + '">' +
+          '<header><span>数形结合</span><h3>' + renderFormulaText(visual.title || "抛物线不高于 x 轴的区间") + '</h3></header>' +
+          '<div class="lesson-quadratic-window-formulas"><b>' + renderFormulaText(visual.original || "") + '</b><span aria-hidden="true">⇔</span><strong>' + renderFormulaText(visual.completedSquare || "") + '</strong></div>' +
+          '<svg viewBox="0 0 560 270" role="img" aria-label="开口向上的抛物线与整数点 2、3、4"><line class="lesson-quadratic-window-axis" x1="36" y1="154" x2="524" y2="154"></line><path class="lesson-number-line-axis-arrow" d="M524 154l-9-6m9 6l-9 6"></path><path class="lesson-quadratic-window-curve" d="M78 42 Q280 308 482 42"></path><line class="lesson-quadratic-window-band" x1="156" y1="154" x2="404" y2="154"></line><circle class="lesson-quadratic-window-root" cx="156" cy="154" r="7"></circle><circle class="lesson-quadratic-window-root" cx="404" cy="154" r="7"></circle>' + integers.map(function (value, index) { return '<circle class="lesson-quadratic-window-integer" cx="' + pointXs[index] + '" cy="214" r="9"></circle><text class="lesson-quadratic-window-integer-label" x="' + pointXs[index] + '" y="218">' + esc(value) + '</text>'; }).join("") + '<text class="lesson-quadratic-window-root-label" x="156" y="179">2</text><text class="lesson-quadratic-window-root-label" x="404" y="179">4</text><text class="lesson-quadratic-window-caption" x="280" y="252">闭区间 [2,4] 中恰有 2、3、4 三个整数</text></svg>' +
+          '<p class="lesson-quadratic-window-result">' + renderFormulaText(visual.conclusion || "") + '</p>' +
+          '</figure>'
+        );
+      }
+
+      if (visual.kind === "quadratic-symmetric-integer-window") {
+        const included = Array.isArray(visual.included) ? visual.included : [];
+        const excluded = Array.isArray(visual.excluded) ? visual.excluded : [];
+        const checks = Array.isArray(visual.checks) ? visual.checks : [];
+        const points = [excluded[0]].concat(included, [excluded[1]]);
+        const pointXs = [100, 210, 320, 430, 540];
+        const pointMarkup = points.map(function (value, index) {
+          const x = pointXs[index];
+          const isIncluded = included.indexOf(value) >= 0;
+          return isIncluded
+            ? '<circle class="lesson-symmetric-window-point is-included" cx="' + x + '" cy="174" r="8"></circle><text class="lesson-symmetric-window-point-label" x="' + x + '" y="202">' + esc(value || "") + '</text>'
+            : '<g class="lesson-symmetric-window-point is-excluded"><path d="M' + (x - 7) + ' 167l14 14m0-14l-14 14"></path></g><text class="lesson-symmetric-window-point-label" x="' + x + '" y="202">' + esc(value || "") + '</text>';
+        }).join("");
+        return (
+          '<figure class="lesson-step-visual lesson-step-quadratic-symmetric-window" role="group" aria-label="利用抛物线对称轴确定整数解和参数范围">' +
+          '<header><span>数形结合</span><h3>' + renderFormulaText(visual.title || "由对称轴锁定整数解") + '</h3></header>' +
+          '<section class="lesson-symmetric-window-axis"><div><span>01 找对称轴</span><strong>' + renderFormulaText(visual.function || "") + '</strong></div><div><b>' + renderFormulaText(visual.axis || "") + '</b><p>' + renderFormulaText(visual.movement || "") + '</p></div></section>' +
+          '<section class="lesson-symmetric-window-plot"><header><span>02 锁定整数解</span><strong>' + renderFormulaText(visual.lockStatement || "由对称性确定应保留的整数点") + '</strong></header>' +
+          '<svg viewBox="0 0 640 275" role="img" aria-label="对称轴为 3 的抛物线示意图，整数 2、3、4 在解集中，1、5 被排除">' +
+          '<line class="lesson-symmetric-window-x-axis" x1="52" y1="174" x2="588" y2="174"></line><path class="lesson-number-line-axis-arrow" d="M588 174l-9-6m9 6l-9 6"></path>' +
+          '<line class="lesson-symmetric-window-symmetry-axis" x1="320" y1="28" x2="320" y2="238"></line><text class="lesson-symmetric-window-axis-label" x="333" y="46">对称轴</text>' +
+          '<path class="lesson-symmetric-window-curve" d="M66 34 Q320 408 574 34"></path>' +
+          '<line class="lesson-symmetric-window-band" x1="210" y1="174" x2="430" y2="174"></line>' + pointMarkup +
+          '<path class="lesson-symmetric-window-pair is-inner" d="M210 224 Q320 254 430 224"></path><text class="lesson-symmetric-window-pair-label is-inner" x="320" y="262">' + esc(visual.innerPairLabel || "内侧对称点") + '</text>' +
+          '<path class="lesson-symmetric-window-pair is-outer" d="M100 148 Q320 76 540 148"></path><text class="lesson-symmetric-window-pair-label is-outer" x="320" y="88">' + esc(visual.outerPairLabel || "外侧对称点") + '</text>' +
+          '</svg><p><b>●</b> 保留 ' + esc(included.join("、")) + '　　<em>×</em> 排除相邻的 ' + esc(excluded.join("、")) + '</p></section>' +
+          '<section class="lesson-symmetric-window-checks"><header><span>03 检查边界</span><strong>利用对称性，每一对只需检查一侧</strong></header><div>' + checks.map(function (check) {
+            return '<article><span>' + esc(check.role || "边界点") + '</span><h4>' + renderFormulaText(check.condition || "") + '</h4><p>' + renderFormulaText(check.symmetry || "") + '</p><div>' + renderFormulaText(check.calculation || "") + '<i aria-hidden="true">⇒</i><b>' + renderFormulaText(check.result || "") + '</b></div></article>';
+          }).join("") + '</div></section>' +
+          '<div class="lesson-symmetric-window-result"><span>' + renderFormulaText(visual.range || "") + '</span><i aria-hidden="true">＋</i><span>' + renderFormulaText(visual.integerValues || "") + '</span><i aria-hidden="true">⇒</i><strong>' + renderFormulaText(visual.conclusion || "") + '</strong></div>' +
+          '<figcaption>' + renderFormulaText(visual.caption || "先由对称性锁定整数点，再用内外边界确定参数。") + '</figcaption>' +
+          '</figure>'
+        );
+      }
+
+      if (visual.kind === "difference-factor-sign") {
+        const factors = Array.isArray(visual.factors) ? visual.factors : [];
+        return (
+          '<figure class="lesson-step-visual lesson-step-factor-sign" role="group" aria-label="' + ariaLabel + '">' +
+          '<header><span>作差法</span><h3>' + renderFormulaText(visual.title || "把差化成符号明确的因式") + '</h3></header>' +
+          '<div class="lesson-factor-sign-chain"><b>' + renderFormulaText(visual.difference || "") + '</b><span aria-hidden="true">=</span><strong>' + renderFormulaText(visual.factorization || "") + '</strong></div>' +
+          '<div class="lesson-factor-sign-cards">' + factors.map(function (factor) { return '<article><span>' + esc(factor.label || "因式") + '</span><strong>' + renderFormulaText(factor.expression || "") + '</strong><p>' + renderFormulaText(factor.sign || "") + '</p></article>'; }).join("") + '</div>' +
+          '<div class="lesson-factor-sign-conclusion"><span aria-hidden="true">⇒</span><strong>' + renderFormulaText(visual.conclusion || "") + '</strong><p>' + renderFormulaText(visual.equality || "") + '</p></div>' +
+          '</figure>'
+        );
+      }
+
+      if (visual.kind === "product-range-plane") {
+        return (
+          '<figure class="lesson-step-visual lesson-step-product-plane" role="group" aria-label="' + ariaLabel + '">' +
+          '<header><span>二维范围</span><h3>' + renderFormulaText(visual.title || "在取值矩形的角点寻找乘积极值") + '</h3></header>' +
+          '<p class="lesson-product-plane-intro">' + renderFormulaText(visual.intro || "") + '</p>' +
+          '<svg viewBox="0 0 560 320" role="img" aria-label="a 从负 2 到负 1、b 从 1 到 3 的开矩形及四个角点乘积"><defs><marker id="product-plane-arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z"></path></marker></defs><line class="lesson-product-plane-axis" x1="52" y1="260" x2="520" y2="260"></line><line class="lesson-product-plane-axis" x1="420" y1="286" x2="420" y2="36"></line><path class="lesson-number-line-axis-arrow" d="M520 260l-9-6m9 6l-9 6"></path><path class="lesson-number-line-axis-arrow" d="M420 36l-6 9m6-9l6 9"></path><rect class="lesson-product-plane-region" x="154" y="78" width="188" height="142" rx="4"></rect><g class="lesson-product-plane-corners"><circle cx="154" cy="78" r="7"></circle><circle cx="342" cy="78" r="7"></circle><circle cx="154" cy="220" r="7"></circle><circle cx="342" cy="220" r="7"></circle></g><g class="lesson-product-plane-labels"><text x="154" y="282">−2</text><text x="342" y="282">−1</text><text x="438" y="224">1</text><text x="438" y="82">3</text><text x="506" y="248">a</text><text x="438" y="48">b</text><text x="116" y="65">(−2)·3→−6</text><text x="364" y="65">(−1)·3→−3</text><text x="112" y="246">(−2)·1→−2</text><text x="354" y="246">(−1)·1→−1</text></g><path class="lesson-product-plane-min-arrow" d="M280 144 C238 119 202 98 166 83"></path><path class="lesson-product-plane-max-arrow" d="M280 164 C311 188 328 204 338 216"></path><text class="lesson-product-plane-min-text" x="266" y="125">最小端</text><text class="lesson-product-plane-max-text" x="286" y="197">最大端</text></svg>' +
+          '<div class="lesson-product-plane-result"><b>' + renderFormulaText(visual.lower || "") + '</b><span aria-hidden="true">＜ ab ＜</span><b>' + renderFormulaText(visual.upper || "") + '</b></div>' +
+          '<figcaption>' + renderFormulaText(visual.caption || "边界未取到，所以乘积的两个端点也不取。") + '</figcaption>' +
+          '</figure>'
+        );
+      }
+
+      if (visual.kind === "positive-interval-product-chain") {
+        const normalize = visual.normalize || {};
+        const multiply = visual.multiply || {};
+        const restore = visual.restore || {};
+        const multiplyRows = Array.isArray(multiply.rows) ? multiply.rows : [];
+        const transformCard = function (number, title, source, factor, rule, result, className) {
+          return '<section class="lesson-interval-product-transform ' + className + '"><header><span>' + number + '</span><h4>' + title + '</h4></header><div><strong>' + renderFormulaText(source || "") + '</strong><aside><b>' + renderFormulaText(factor || "") + '</b><small>' + renderFormulaText(rule || "") + '</small><i aria-hidden="true">⇒</i></aside><strong>' + renderFormulaText(result || "") + '</strong></div></section>';
+        };
+        return (
+          '<figure class="lesson-step-visual lesson-step-positive-interval-product" role="group" aria-label="把负区间正化后使用同向正不等式相乘">' +
+          '<header><span>不等式性质</span><h3>' + renderFormulaText(visual.title || "正化后相乘，再还原符号") + '</h3></header>' +
+          transformCard("01", "正化负区间", normalize.source, normalize.factor, normalize.rule, normalize.result, "is-normalize") +
+          '<section class="lesson-interval-product-multiply"><header><span>02</span><h4>同向正不等式相乘</h4></header>' +
+          '<div class="lesson-interval-product-positive"><span>先检查正数条件</span><b>' + renderFormulaText(multiply.positivity || "") + '</b><em>✓</em></div>' +
+          '<div class="lesson-interval-product-rows">' + multiplyRows.map(function (row) { return '<strong>' + renderFormulaText(row) + '</strong>'; }).join("") + '</div>' +
+          '<p class="lesson-interval-product-rule"><span>性质</span>' + renderFormulaText(multiply.rule || "") + '</p>' +
+          '<div class="lesson-interval-product-product"><strong>' + renderFormulaText(multiply.expanded || "") + '</strong><i aria-hidden="true">⇒</i><b>' + renderFormulaText(multiply.result || "") + '</b></div>' +
+          '</section>' +
+          transformCard("03", "还原乘积符号", restore.source, restore.factor, restore.rule, restore.result, "is-restore") +
+          '<p class="lesson-interval-product-conclusion"><span>取值范围</span><strong>' + renderFormulaText(visual.conclusion || "") + '</strong></p>' +
+          '<figcaption>' + renderFormulaText(visual.caption || "") + '</figcaption>' +
+          '</figure>'
+        );
+      }
+
+      if (visual.kind === "absolute-case-analysis") {
+        const breakpoints = Array.isArray(visual.breakpoints) ? visual.breakpoints : [];
+        const cases = Array.isArray(visual.cases) ? visual.cases : [];
+        const graph = visual.graph || {};
+        const xRange = Array.isArray(graph.xRange) ? graph.xRange : [-1, 1];
+        const yRange = Array.isArray(graph.yRange) ? graph.yRange : [-1, 1];
+        const pieces = Array.isArray(graph.pieces) ? graph.pieces : [];
+        const ticks = Array.isArray(graph.ticks) ? graph.ticks : [];
+        const solutionSegments = Array.isArray(graph.solutionSegments) ? graph.solutionSegments : [];
+        const threshold = graph.threshold || {};
+        const xMin = Number(xRange[0]);
+        const xMax = Number(xRange[1]);
+        const yMin = Number(yRange[0]);
+        const yMax = Number(yRange[1]);
+        const xFor = function (value) { return 54 + (Number(value) - xMin) / (xMax - xMin) * 452; };
+        const yFor = function (value) { return 24 + (yMax - Number(value)) / (yMax - yMin) * 166; };
+        const zeroX = xFor(Math.max(xMin, Math.min(xMax, 0)));
+        const zeroY = yFor(Math.max(yMin, Math.min(yMax, 0)));
+        const piecePaths = pieces.map(function (piece) {
+          return 'M' + xFor(piece.from) + ' ' + yFor(piece.slope * piece.from + piece.intercept) +
+            ' L' + xFor(piece.to) + ' ' + yFor(piece.slope * piece.to + piece.intercept);
+        }).join(" ");
+        const thresholdIntersections = [];
+        pieces.forEach(function (piece) {
+          if (Math.abs(piece.slope) < 1e-9) return;
+          const value = (Number(threshold.value) - piece.intercept) / piece.slope;
+          if (value >= piece.from - 1e-9 && value <= piece.to + 1e-9 && !thresholdIntersections.some(function (item) { return Math.abs(item - value) < 1e-8; })) {
+            thresholdIntersections.push(value);
+          }
+        });
+        const breakpointMarkup = breakpoints.map(function (point, index) {
+          return '<article><span>零点 ' + (index + 1) + '</span><strong>' + renderFormulaText(point.equation || "") + '</strong><i aria-hidden="true">⇒</i><b>' + renderFormulaText(point.value || "") + '</b></article>';
+        }).join("");
+        const caseMarkup = cases.map(function (item) {
+          return '<tr><th scope="row"><span>' + esc(item.index || "") + '</span><strong>' + renderFormulaText(item.interval || "") + '</strong></th>' +
+            '<td>' + renderFormulaText(item.signs || "") + '</td><td>' + renderFormulaText(item.rewrite || "") + '</td>' +
+            '<td><span>' + renderFormulaText(item.inequality || "") + '</span><b>' + renderFormulaText(item.result || "") + '</b></td></tr>';
+        }).join("");
+        const solutionMarkup = solutionSegments.map(function (segment) {
+          const start = segment.start === null ? xMin : segment.start;
+          const end = segment.end === null ? xMax : segment.end;
+          const x1 = xFor(start);
+          const x2 = xFor(end);
+          const left = segment.left === "ray"
+            ? '<path class="lesson-absolute-case-ray" d="M' + x1 + ' 226l12-7v14z"></path>'
+            : '<circle class="lesson-absolute-case-endpoint ' + (segment.left === "closed" ? "is-closed" : "is-open") + '" cx="' + x1 + '" cy="226" r="6"></circle>';
+          const right = segment.right === "ray"
+            ? '<path class="lesson-absolute-case-ray" d="M' + x2 + ' 226l-12-7v14z"></path>'
+            : '<circle class="lesson-absolute-case-endpoint ' + (segment.right === "closed" ? "is-closed" : "is-open") + '" cx="' + x2 + '" cy="226" r="6"></circle>';
+          return '<line class="lesson-absolute-case-solution-line" x1="' + x1 + '" y1="226" x2="' + x2 + '" y2="226"></line>' + left + right;
+        }).join("");
+        const graphMarkup = (
+          '<section class="lesson-absolute-case-graph"><header><span>03 图像核对</span><h4>把分段函数画出来，检查交点与解集</h4></header>' +
+          '<svg viewBox="0 0 560 250" role="img" aria-label="由分类讨论结果绘制的分段函数图像与阈值线"><line class="lesson-absolute-case-axis" x1="34" y1="' + zeroY + '" x2="526" y2="' + zeroY + '"></line><line class="lesson-absolute-case-axis" x1="' + zeroX + '" y1="204" x2="' + zeroX + '" y2="16"></line><path class="lesson-number-line-axis-arrow" d="M526 ' + zeroY + 'l-9-6m9 6l-9 6"></path><path class="lesson-number-line-axis-arrow" d="M' + zeroX + ' 16l-6 9m6-9l6 9"></path>' +
+          '<line class="lesson-absolute-case-threshold" x1="40" y1="' + yFor(threshold.value) + '" x2="520" y2="' + yFor(threshold.value) + '"></line><text class="lesson-absolute-case-threshold-label" x="510" y="' + (yFor(threshold.value) - 7) + '">' + esc(threshold.label || "") + '</text>' +
+          '<path class="lesson-absolute-case-function" d="' + piecePaths + '"></path>' +
+          '<g class="lesson-absolute-case-guides">' + breakpoints.map(function (point) { const x = xFor(point.numeric); return '<line x1="' + x + '" y1="26" x2="' + x + '" y2="204"></line>'; }).join("") + '</g>' +
+          '<g class="lesson-absolute-case-intersections">' + thresholdIntersections.map(function (value) { return '<circle cx="' + xFor(value) + '" cy="' + yFor(threshold.value) + '" r="6"></circle>'; }).join("") + '</g>' +
+          '<g class="lesson-absolute-case-ticks">' + ticks.map(function (tick) { const x = xFor(tick.value); return '<line x1="' + x + '" y1="' + (zeroY - 6) + '" x2="' + x + '" y2="' + (zeroY + 6) + '"></line><text x="' + x + '" y="' + (zeroY + 20) + '">' + esc(tick.label || "") + '</text>'; }).join("") + '</g>' +
+          '<g class="lesson-absolute-case-solution">' + solutionMarkup + '</g><text class="lesson-absolute-case-axis-label" x="520" y="' + (zeroY - 10) + '">x</text><text class="lesson-absolute-case-axis-label" x="' + (zeroX + 10) + '" y="24">y</text></svg>' +
+          '<p>交点由分段函数计算，不单独手填位置。</p></section>'
+        );
+        return (
+          '<figure class="lesson-step-visual lesson-step-absolute-case-analysis" role="group" aria-label="绝对值不等式分类讨论与函数图像核对">' +
+          '<header><span>' + esc(visual.method || "分类讨论法") + '</span><h3>' + esc(visual.title || "找零点分区，逐段去绝对值") + '</h3></header>' +
+          (visual.intro ? '<p class="lesson-absolute-case-intro">' + renderFormulaText(visual.intro) + '</p>' : '') +
+          '<section class="lesson-absolute-case-original"><span>题目结构</span><strong>' + renderFormulaText(visual.original || "") + '</strong></section>' +
+          '<section class="lesson-absolute-case-breakpoints"><header><span>01 找零点</span><h4>零点把数轴切成 ' + (breakpoints.length + 1) + ' 个区间</h4></header><div>' + breakpointMarkup + '</div></section>' +
+          '<section class="lesson-absolute-case-table"><header><span>02 分类讨论</span><h4>逐段判断符号、去绝对值并求解</h4></header><div><table><thead><tr><th>区间</th><th>内部符号</th><th>去绝对值</th><th>段内结果</th></tr></thead><tbody>' + caseMarkup + '</tbody></table></div></section>' +
+          graphMarkup +
+          '<section class="lesson-absolute-case-merge"><span>' + esc(visual.merge?.label || "合并各段") + '</span><strong>' + renderFormulaText(visual.merge?.result || "") + '</strong></section>' +
+          (visual.caption ? '<figcaption>' + renderFormulaText(visual.caption) + '</figcaption>' : '') +
+          '</figure>'
+        );
+      }
+
+      if (visual.kind === "piecewise-threshold-graph") {
+        const points = Array.isArray(visual.points) ? visual.points : [];
+        const ticks = Array.isArray(visual.ticks) ? visual.ticks : [];
+        const intersections = Array.isArray(visual.intersections) ? visual.intersections : [];
+        const segments = Array.isArray(visual.solutionSegments) ? visual.solutionSegments : [];
+        const xFor = function (value) { return 42 + Number(value) * 476; };
+        const yFor = function (value) { return 32 + (1 - Number(value)) * 164; };
+        const path = points.map(function (point, index) { return (index ? "L" : "M") + xFor(point.x) + " " + yFor(point.y); }).join(" ");
+        return (
+          '<figure class="lesson-step-visual lesson-step-piecewise-threshold" role="group" aria-label="' + ariaLabel + '">' +
+          '<header><span>分段函数图像</span><h3>' + renderFormulaText(visual.title || "画出绝对值函数并与阈值比较") + '</h3></header>' +
+          '<div class="lesson-piecewise-threshold-formulas">' + (visual.transformations || []).map(function (line) { return '<p>' + renderFormulaText(line) + '</p>'; }).join("") + '</div>' +
+          '<svg viewBox="0 0 560 260" role="img" aria-label="' + esc(visual.graphAriaLabel || "分段折线与阈值线") + '"><line class="lesson-piecewise-x-axis" x1="30" y1="196" x2="532" y2="196"></line><line class="lesson-piecewise-y-axis" x1="280" y1="218" x2="280" y2="20"></line><path class="lesson-number-line-axis-arrow" d="M532 196l-9-6m9 6l-9 6"></path><path class="lesson-number-line-axis-arrow" d="M280 20l-6 9m6-9l6 9"></path><line class="lesson-piecewise-threshold-line" x1="38" y1="' + yFor(visual.thresholdY) + '" x2="522" y2="' + yFor(visual.thresholdY) + '"></line><text class="lesson-piecewise-threshold-label" x="500" y="' + (yFor(visual.thresholdY) - 8) + '">' + esc(visual.thresholdLabel || "") + '</text><path class="lesson-piecewise-function-line" d="' + path + '"></path><g class="lesson-piecewise-intersections">' + intersections.map(function (point) { return '<circle cx="' + xFor(point.x) + '" cy="' + yFor(point.y) + '" r="6"></circle>'; }).join("") + '</g><g class="lesson-piecewise-ticks">' + ticks.map(function (tick) { const x=xFor(tick.x); return '<line x1="' + x + '" y1="188" x2="' + x + '" y2="204"></line><text x="' + x + '" y="224">' + esc(tick.label) + '</text>'; }).join("") + '</g><g class="lesson-piecewise-solution-segments">' + segments.map(function (segment) { const x1=xFor(segment.start), x2=xFor(segment.end); return '<line x1="' + x1 + '" y1="242" x2="' + x2 + '" y2="242"></line>' + (segment.left === "ray" ? '<path d="M' + x1 + ' 242l12-7v14z"></path>' : '<circle class="' + (segment.left === "closed" ? "is-closed" : "is-open") + '" cx="' + x1 + '" cy="242" r="7"></circle>') + (segment.right === "ray" ? '<path d="M' + x2 + ' 242l-12-7v14z"></path>' : '<circle class="' + (segment.right === "closed" ? "is-closed" : "is-open") + '" cx="' + x2 + '" cy="242" r="7"></circle>'); }).join("") + '</g><text class="lesson-piecewise-axis-label" x="524" y="185">x</text><text class="lesson-piecewise-axis-label" x="293" y="28">y</text></svg>' +
+          '<p class="lesson-piecewise-result"><span>读图</span><strong>' + renderFormulaText(visual.solution || "") + '</strong></p>' +
+          '<figcaption>' + renderFormulaText(visual.caption || "") + '</figcaption>' +
+          '</figure>'
+        );
+      }
+
+      if (visual.kind === "polynomial-threading-graph") {
+        const roots = Array.isArray(visual.roots) ? visual.roots : [];
+        const signs = Array.isArray(visual.signs) ? visual.signs : [];
+        const axisY = 96;
+        const startX = 32;
+        const endX = 528;
+        const firstRootX = roots.length === 1 ? 280 : 118;
+        const lastRootX = roots.length === 1 ? 280 : 442;
+        const rootXs = roots.map(function (_root, index) {
+          if (roots.length === 1) return firstRootX;
+          return firstRootX + (lastRootX - firstRootX) * index / (roots.length - 1);
+        });
+        const signY = function (sign) { return sign === "+" ? 43 : 149; };
+        const controlY = function (sign) { return sign === "+" ? 4 : 188; };
+        const curveParts = [];
+        if (rootXs.length) {
+          curveParts.push(
+            "M" + startX + " " + signY(signs[0]) +
+            " C" + (rootXs[0] - 52) + " " + signY(signs[0]) +
+            " " + (rootXs[0] - 24) + " " + axisY +
+            " " + rootXs[0] + " " + axisY,
+          );
+          for (let index = 0; index < rootXs.length - 1; index += 1) {
+            const middleX = (rootXs[index] + rootXs[index + 1]) / 2;
+            curveParts.push(
+              " Q" + middleX + " " + controlY(signs[index + 1]) +
+              " " + rootXs[index + 1] + " " + axisY,
+            );
+          }
+          const lastSign = signs[signs.length - 1];
+          curveParts.push(
+            " C" + (rootXs[rootXs.length - 1] + 24) + " " + axisY +
+            " " + (endX - 52) + " " + signY(lastSign) +
+            " " + endX + " " + signY(lastSign),
+          );
+        }
+        const intervalBounds = [startX].concat(rootXs, [endX]);
+        const selectedIntervals = signs.map(function (sign, index) {
+          return sign === visual.selectSign ? index : -1;
+        }).filter(function (index) { return index >= 0; });
+        const intervalCurvePath = function (index) {
+          if (index === 0) {
+            return "M" + startX + " " + signY(signs[0]) +
+              " C" + (rootXs[0] - 52) + " " + signY(signs[0]) +
+              " " + (rootXs[0] - 24) + " " + axisY +
+              " " + rootXs[0] + " " + axisY +
+              " L" + startX + " " + axisY + " Z";
+          }
+          if (index === roots.length) {
+            const lastRootX = rootXs[rootXs.length - 1];
+            return "M" + lastRootX + " " + axisY +
+              " C" + (lastRootX + 24) + " " + axisY +
+              " " + (endX - 52) + " " + signY(signs[index]) +
+              " " + endX + " " + signY(signs[index]) +
+              " L" + endX + " " + axisY + " Z";
+          }
+          const leftX = rootXs[index - 1];
+          const rightX = rootXs[index];
+          return "M" + leftX + " " + axisY +
+            " Q" + ((leftX + rightX) / 2) + " " + controlY(signs[index]) +
+            " " + rightX + " " + axisY +
+            " L" + leftX + " " + axisY + " Z";
+        };
+        const shades = selectedIntervals.map(function (index) {
+          return '<path d="' + intervalCurvePath(index) + '"></path>';
+        }).join("");
+        const solutionSegments = selectedIntervals.map(function (index) {
+          return '<line x1="' + intervalBounds[index] + '" y1="' + axisY + '" x2="' + intervalBounds[index + 1] + '" y2="' + axisY + '"></line>';
+        }).join("");
+        const rootPoints = roots.map(function (root, index) {
+          return '<circle class="' + (visual.inclusive ? 'is-included' : 'is-excluded') + '" cx="' + rootXs[index] + '" cy="' + axisY + '" r="6"></circle>' +
+            (root.multiplicity % 2 === 0 ? '<circle class="lesson-threading-even-ring" cx="' + rootXs[index] + '" cy="' + axisY + '" r="11"></circle>' : '');
+        }).join("");
+        const rootLabels = roots.map(function (root, index) {
+          const parity = root.multiplicity % 2 === 0 ? "偶" : "奇";
+          return '<text class="lesson-threading-root-value" x="' + rootXs[index] + '" y="122">' + esc(root.label) + '</text>' +
+            '<text class="lesson-threading-root-order" x="' + rootXs[index] + '" y="139">（' + root.multiplicity + '次·' + parity + '）</text>';
+        }).join("");
+        const intervalSignXs = intervalBounds.slice(0, -1).map(function (left, index) {
+          return (left + intervalBounds[index + 1]) / 2;
+        });
+        const signLabels = signs.map(function (sign, index) {
+          return '<text x="' + intervalSignXs[index] + '" y="' + (sign === "+" ? 31 : 173) + '">' + (sign === "+" ? "+" : "−") + '</text>';
+        }).join("");
+        const facts = Array.isArray(visual.facts) && visual.facts.length
+          ? '<ol class="lesson-threading-facts">' + visual.facts.map(function (fact) {
+            return '<li>' + renderFormulaText(fact) + '</li>';
+          }).join("") + '</ol>'
+          : "";
+        return (
+          '<figure class="lesson-step-visual lesson-step-polynomial-threading" role="group" aria-label="' + ariaLabel + '">' +
+          (visual.title ? '<h3>' + renderFormulaText(visual.title) + '</h3>' : '') +
+          (visual.intro ? '<p class="lesson-threading-intro">' + renderFormulaText(visual.intro) + '</p>' : '') +
+          '<p class="lesson-threading-standard"><span>标准化</span>' + renderFormulaText(visual.standardized || "") + '</p>' +
+          '<svg viewBox="0 0 560 190" role="img" aria-label="' + ariaLabel + '">' +
+          '<g class="lesson-threading-shades">' + shades + '</g>' +
+          '<line class="lesson-threading-axis" x1="20" y1="' + axisY + '" x2="542" y2="' + axisY + '"></line>' +
+          '<path class="lesson-threading-axis-arrow" d="M542 ' + axisY + 'l-9-6m9 6l-9 6"></path>' +
+          '<g class="lesson-threading-solutions">' + solutionSegments + '</g>' +
+          '<path class="lesson-threading-curve" d="' + curveParts.join("") + '"></path>' +
+          '<g class="lesson-threading-start"><text x="402" y="16">从最右侧开始穿</text><path d="M520 22 C500 27 478 39 458 55"></path><path d="M458 55l4-10m-4 10l10-2"></path></g>' +
+          '<g class="lesson-threading-points">' + rootPoints + '</g>' +
+          '<g class="lesson-threading-labels">' + rootLabels + '</g>' +
+          '<g class="lesson-threading-signs">' + signLabels + '</g>' +
+          '</svg>' +
+          facts +
+          '<p class="lesson-threading-result"><span>' + renderFormulaText(visual.target || "") + '</span><strong>解集：' + renderFormulaText(visual.solution || "") + '</strong></p>' +
+          (visual.caption ? '<figcaption>' + renderFormulaText(visual.caption) + '</figcaption>' : '') +
+          '</figure>'
+        );
+      }
+
+      if (visual.kind === "rational-threading-graph") {
+        const roots = Array.isArray(visual.roots) ? visual.roots : [];
+        const signs = Array.isArray(visual.signs) ? visual.signs : [];
+        const axisY = 96;
+        const startX = 32;
+        const endX = 528;
+        const firstRootX = roots.length === 1 ? 280 : 118;
+        const lastRootX = roots.length === 1 ? 280 : 442;
+        const rootXs = roots.map(function (_root, index) {
+          if (roots.length === 1) return firstRootX;
+          return firstRootX + (lastRootX - firstRootX) * index / (roots.length - 1);
+        });
+        const signY = function (sign) { return sign === "+" ? 42 : 150; };
+        const controlY = function (sign) { return sign === "+" ? 4 : 188; };
+        const curveParts = [];
+        if (rootXs.length) {
+          curveParts.push("M" + startX + " " + signY(signs[0]) + " C" + (rootXs[0] - 52) + " " + signY(signs[0]) + " " + (rootXs[0] - 24) + " " + axisY + " " + rootXs[0] + " " + axisY);
+          for (let index = 0; index < rootXs.length - 1; index += 1) {
+            curveParts.push(" Q" + ((rootXs[index] + rootXs[index + 1]) / 2) + " " + controlY(signs[index + 1]) + " " + rootXs[index + 1] + " " + axisY);
+          }
+          const lastSign = signs[signs.length - 1];
+          curveParts.push(" C" + (rootXs[rootXs.length - 1] + 24) + " " + axisY + " " + (endX - 52) + " " + signY(lastSign) + " " + endX + " " + signY(lastSign));
+        }
+        const curvePath = curveParts.join("");
+        const intervalBounds = [startX].concat(rootXs, [endX]);
+        const intervalPath = function (index) {
+          if (index === 0) return "M" + startX + " " + signY(signs[0]) + " C" + (rootXs[0] - 52) + " " + signY(signs[0]) + " " + (rootXs[0] - 24) + " " + axisY + " " + rootXs[0] + " " + axisY + " L" + startX + " " + axisY + " Z";
+          if (index === roots.length) {
+            const lastRootX = rootXs[rootXs.length - 1];
+            return "M" + lastRootX + " " + axisY + " C" + (lastRootX + 24) + " " + axisY + " " + (endX - 52) + " " + signY(signs[index]) + " " + endX + " " + signY(signs[index]) + " L" + endX + " " + axisY + " Z";
+          }
+          const leftX = rootXs[index - 1];
+          const rightX = rootXs[index];
+          return "M" + leftX + " " + axisY + " Q" + ((leftX + rightX) / 2) + " " + controlY(signs[index]) + " " + rightX + " " + axisY + " L" + leftX + " " + axisY + " Z";
+        };
+        const selectedIntervals = signs.map(function (sign, index) {
+          return sign === visual.selectSign ? index : -1;
+        }).filter(function (index) { return index >= 0; });
+        const shades = selectedIntervals.map(function (index) {
+          return '<path d="' + intervalPath(index) + '"></path>';
+        }).join("");
+        const solutionSegments = selectedIntervals.map(function (index) {
+          return '<line x1="' + intervalBounds[index] + '" y1="96" x2="' + intervalBounds[index + 1] + '" y2="96"></line>';
+        }).join("");
+        const rootPoints = roots.map(function (root, index) {
+          const pointClass = root.kind === "denominator"
+            ? "is-forbidden"
+            : root.included
+              ? "is-included"
+              : "is-excluded";
+          const forbiddenMark = root.kind === "denominator"
+            ? '<path class="lesson-rational-forbidden-mark" d="M' + (rootXs[index] - 5) + ' 91l10 10m-10 0l10-10"></path>'
+            : "";
+          return '<circle class="' + pointClass + '" cx="' + rootXs[index] + '" cy="96" r="7"></circle>' + forbiddenMark;
+        }).join("");
+        const rootLabels = roots.map(function (root, index) {
+          const kindLabel = root.kind === "denominator" ? "分母·禁值" : "分子·零点";
+          return '<text class="lesson-threading-root-value" x="' + rootXs[index] + '" y="124">' + esc(root.label) + '</text>' +
+            '<text class="lesson-rational-root-kind ' + (root.kind === "denominator" ? 'is-forbidden' : 'is-zero') + '" x="' + rootXs[index] + '" y="141">（' + kindLabel + '）</text>';
+        }).join("");
+        const signXs = intervalBounds.slice(0, -1).map(function (left, index) { return (left + intervalBounds[index + 1]) / 2; });
+        const signLabels = signs.map(function (sign, index) {
+          return '<text x="' + signXs[index] + '" y="' + (sign === "+" ? 31 : 174) + '">' + (sign === "+" ? "+" : "−") + '</text>';
+        }).join("");
+        const denominatorEvidence = visual.denominatorEvidence
+          ? '<aside class="lesson-rational-denominator-evidence">' +
+            '<div><span>辅助判断</span><strong>' + renderFormulaText(visual.denominatorEvidence.expression) + '</strong><p>' + renderFormulaText(visual.denominatorEvidence.conclusion) + '</p></div>' +
+            '<svg viewBox="0 0 180 105" role="img" aria-label="分母对应的二次函数恒在 x 轴上方">' +
+            '<line x1="12" y1="76" x2="168" y2="76"></line><path class="lesson-rational-mini-axis-arrow" d="M168 76l-8-5m8 5l-8 5"></path>' +
+            '<line x1="90" y1="94" x2="90" y2="10"></line><path class="lesson-rational-mini-axis-arrow" d="M90 10l-5 8m5-8l5 8"></path>' +
+            '<path class="lesson-rational-mini-curve" d="M24 18 Q90 74 156 18"></path>' +
+            '<text x="158" y="69">x</text><text x="100" y="16">y</text><text class="lesson-rational-mini-note" x="90" y="100">a&gt;0，Δ&lt;0</text>' +
+            '</svg></aside>'
+          : "";
+        const facts = Array.isArray(visual.facts) && visual.facts.length
+          ? '<ol class="lesson-threading-facts">' + visual.facts.map(function (fact) {
+            return '<li>' + renderFormulaText(fact) + '</li>';
+          }).join("") + '</ol>'
+          : "";
+        return (
+          '<figure class="lesson-step-visual lesson-step-polynomial-threading lesson-step-rational-threading" role="group" aria-label="' + ariaLabel + '">' +
+          (visual.title ? '<h3>' + renderFormulaText(visual.title) + '</h3>' : '') +
+          (visual.intro ? '<p class="lesson-threading-intro">' + renderFormulaText(visual.intro) + '</p>' : '') +
+          denominatorEvidence +
+          '<p class="lesson-threading-standard"><span>移项通分</span>' + renderFormulaText(visual.standardized || "") + '</p>' +
+          '<svg viewBox="0 0 560 190" role="img" aria-label="' + ariaLabel + '">' +
+          '<g class="lesson-threading-shades">' + shades + '</g>' +
+          '<line class="lesson-threading-axis" x1="20" y1="96" x2="542" y2="96"></line>' +
+          '<path class="lesson-threading-axis-arrow" d="M542 96l-9-6m9 6l-9 6"></path>' +
+          '<g class="lesson-threading-solutions">' + solutionSegments + '</g>' +
+          '<path class="lesson-threading-curve" d="' + curvePath + '"></path>' +
+          '<g class="lesson-threading-start"><text x="402" y="16">从最右侧开始穿</text><path d="M520 22 C500 27 478 39 458 55"></path><path d="M458 55l4-10m-4 10l10-2"></path></g>' +
+          '<g class="lesson-threading-points lesson-rational-points">' + rootPoints + '</g>' +
+          '<g class="lesson-threading-labels">' + rootLabels + '</g>' +
+          '<g class="lesson-threading-signs">' + signLabels + '</g>' +
+          '</svg>' +
+          facts +
+          '<p class="lesson-threading-result"><span>' + renderFormulaText(visual.target || "") + '</span><strong>解集：' + renderFormulaText(visual.solution || "") + '</strong></p>' +
+          (visual.caption ? '<figcaption>' + renderFormulaText(visual.caption) + '</figcaption>' : '') +
+          '</figure>'
+        );
+      }
+
+      if (visual.kind === "absolute-inequality-visual") {
+        const transformations = Array.isArray(visual.transformations) && visual.transformations.length
+          ? '<div class="lesson-absolute-transformations"><span>转化</span><div>' + visual.transformations.map(function (line) {
+            return '<p>' + renderFormulaText(line) + '</p>';
+          }).join("") + '</div></div>'
+          : "";
+        const facts = Array.isArray(visual.facts) && visual.facts.length
+          ? '<ol class="lesson-threading-facts lesson-absolute-facts">' + visual.facts.map(function (fact) {
+            return '<li>' + renderFormulaText(fact) + '</li>';
+          }).join("") + '</ol>'
+          : "";
+        let graph = "";
+        if (visual.mode === "direct-inclusion") {
+          const tickLabels = visual.tickLabels;
+          graph = (
+            '<div class="lesson-absolute-set-legend"><div><span>条件 p</span>' + renderFormulaText(visual.outerCondition) + '</div><div><span>条件 q</span>' + renderFormulaText(visual.innerCondition) + '</div></div>' +
+            '<svg class="lesson-absolute-direct-graph" viewBox="0 0 560 190" role="img" aria-label="两个条件解集的数轴包含关系">' +
+            '<text class="lesson-absolute-row-label" x="32" y="57">p</text><line class="lesson-threading-axis" x1="72" y1="52" x2="530" y2="52"></line><path class="lesson-threading-axis-arrow" d="M530 52l-8-5m8 5l-8 5"></path>' +
+            '<g class="lesson-absolute-set-segments is-outer"><line x1="76" y1="52" x2="190" y2="52"></line><line x1="330" y1="52" x2="526" y2="52"></line></g>' +
+            '<g class="lesson-absolute-set-points is-open"><circle cx="190" cy="52" r="6"></circle><circle cx="330" cy="52" r="6"></circle></g>' +
+            '<text class="lesson-absolute-row-label" x="32" y="127">q</text><line class="lesson-threading-axis" x1="72" y1="122" x2="530" y2="122"></line><path class="lesson-threading-axis-arrow" d="M530 122l-8-5m8 5l-8 5"></path>' +
+            '<g class="lesson-absolute-set-segments is-inner"><line x1="330" y1="122" x2="458" y2="122"></line></g>' +
+            '<g class="lesson-absolute-set-points is-open"><circle cx="330" cy="122" r="6"></circle><circle cx="458" cy="122" r="6"></circle></g>' +
+            '<g class="lesson-absolute-tick-labels"><text x="190" y="76">' + esc(tickLabels[0]) + '</text><text x="330" y="146">' + esc(tickLabels[1]) + '</text><text x="458" y="146">' + esc(tickLabels[2]) + '</text></g>' +
+            '<path class="lesson-absolute-containment-arrow" d="M416 103 C403 88 387 78 365 67"></path><path class="lesson-absolute-containment-arrow" d="M365 67l5 10m-5-10l11 1"></path>' +
+            '<text class="lesson-absolute-containment-label" x="426" y="90">q ⊊ p</text>' +
+            '<text class="lesson-absolute-set-caption" x="280" y="178">q 的每个取值都属于 p，但 p 还包含更多取值</text>' +
+            '</svg>'
+          );
+        } else if (visual.mode === "rhs-sign-classification") {
+          const branches = visual.branches;
+          const tickLabels = visual.tickLabels;
+          graph = (
+            '<div class="lesson-absolute-branch-grid">' + branches.map(function (branch, index) {
+              return '<article class="' + (index === 0 ? 'is-automatic' : 'is-split') + '"><span>' + renderFormulaText(branch.condition) + '</span><strong>' + renderFormulaText(branch.result) + '</strong><p>' + renderFormulaText(branch.explanation) + '</p></article>';
+            }).join("") + '</div>' +
+            '<svg class="lesson-absolute-classification-graph" viewBox="0 0 560 145" role="img" aria-label="分类讨论后合并得到的解集数轴">' +
+            '<line class="lesson-threading-axis" x1="28" y1="70" x2="532" y2="70"></line><path class="lesson-threading-axis-arrow" d="M532 70l-8-5m8 5l-8 5"></path>' +
+            '<g class="lesson-absolute-solution-band"><line x1="32" y1="70" x2="340" y2="70"></line><line x1="446" y1="70" x2="528" y2="70"></line></g>' +
+            '<g class="lesson-absolute-set-points is-open"><circle cx="340" cy="70" r="7"></circle><circle cx="446" cy="70" r="7"></circle></g>' +
+            '<line class="lesson-absolute-classification-tick" x1="188" y1="60" x2="188" y2="80"></line>' +
+            '<g class="lesson-absolute-tick-labels"><text x="188" y="99">' + esc(tickLabels[0]) + '</text><text x="340" y="99">' + esc(tickLabels[1]) + '</text><text x="446" y="99">' + esc(tickLabels[2]) + '</text></g>' +
+            '<text class="lesson-absolute-classification-note" x="188" y="119">分类点，不切断解集</text><text class="lesson-absolute-set-caption" x="280" y="137">合并各分支后读取青色数轴段</text>' +
+            '</svg>'
+          );
+        } else {
+          const breakpoints = visual.breakpoints;
+          const intersections = visual.intersections;
+          graph = (
+            '<svg class="lesson-absolute-piecewise-graph" viewBox="0 0 560 230" role="img" aria-label="绝对值和的分段折线与阈值交点图">' +
+            '<line class="lesson-absolute-piecewise-x-axis" x1="26" y1="178" x2="536" y2="178"></line><path class="lesson-threading-axis-arrow" d="M536 178l-8-5m8 5l-8 5"></path>' +
+            '<line class="lesson-absolute-piecewise-y-axis" x1="280" y1="190" x2="280" y2="12"></line><path class="lesson-threading-axis-arrow" d="M280 12l-5 9m5-9l5 9"></path>' +
+            '<line class="lesson-absolute-threshold" x1="38" y1="70" x2="522" y2="70"></line><text class="lesson-absolute-threshold-label" x="506" y="62">y=' + esc(visual.threshold) + '</text>' +
+            '<path class="lesson-absolute-piecewise-line" d="M42 18 L210 146 L350 146 L518 18"></path>' +
+            '<g class="lesson-absolute-piecewise-intersections"><circle cx="110" cy="70" r="6"></circle><circle cx="460" cy="70" r="6"></circle></g>' +
+            '<g class="lesson-absolute-break-lines"><line x1="210" y1="136" x2="210" y2="188"></line><line x1="350" y1="136" x2="350" y2="188"></line></g>' +
+            '<g class="lesson-absolute-piecewise-labels"><text x="110" y="204">' + esc(intersections[0]) + '</text><text x="210" y="204">' + esc(breakpoints[0]) + '</text><text x="350" y="204">' + esc(breakpoints[1]) + '</text><text x="460" y="204">' + esc(intersections[1]) + '</text></g>' +
+            '<g class="lesson-absolute-piecewise-solution"><line x1="110" y1="178" x2="460" y2="178"></line><circle cx="110" cy="178" r="7"></circle><circle cx="460" cy="178" r="7"></circle></g>' +
+            '<text class="lesson-absolute-axis-label" x="528" y="169">x</text><text class="lesson-absolute-axis-label" x="292" y="22">y</text>' +
+            '<text class="lesson-absolute-set-caption" x="280" y="224">折线不高于 y=' + esc(visual.threshold) + ' 的部分对应青色闭区间</text>' +
+            '</svg>'
+          );
+        }
+        return (
+          '<figure class="lesson-step-visual lesson-step-absolute-visual is-' + esc(visual.mode) + '" role="group" aria-label="' + ariaLabel + '">' +
+          '<header class="lesson-absolute-header"><span>' + esc(visual.method || "方法") + '</span><h3>' + renderFormulaText(visual.title || "") + '</h3></header>' +
+          (visual.intro ? '<p class="lesson-absolute-intro">' + renderFormulaText(visual.intro) + '</p>' : '') +
+          transformations + graph + facts +
+          '<p class="lesson-threading-result lesson-absolute-result"><span>结论</span><strong>' + renderFormulaText(visual.solution || "") + '</strong></p>' +
+          (visual.caption ? '<figcaption>' + renderFormulaText(visual.caption) + '</figcaption>' : '') +
+          '</figure>'
+        );
+      }
+
+      if (visual.kind === "quadratic-function-sign-graphs") {
+        const graphs = Array.isArray(visual.graphs) ? visual.graphs : [];
+        const curvePaths = {
+          up: {
+            positive: "M72 40 Q260 416 448 40",
+            zero: "M72 40 Q260 320 448 40",
+            negative: "M72 40 Q260 250 448 40",
+          },
+          down: {
+            positive: "M72 320 Q260 -56 448 320",
+            zero: "M72 320 Q260 40 448 320",
+            negative: "M72 320 Q260 110 448 320",
+          },
+        };
+        const rootPositions = {
+          positive: [165, 355],
+          zero: [260],
+          negative: [],
+        };
+        const renderSolutionSegments = function (mode) {
+          const segment = function (x1, x2) {
+            return '<line class="lesson-quadratic-solution-segment" x1="' + x1 + '" y1="180" x2="' + x2 + '" y2="180"></line>';
+          };
+          const endpoint = function (x, closed) {
+            return '<circle class="lesson-quadratic-solution-endpoint ' + (closed ? 'is-closed' : 'is-open') + '" cx="' + x + '" cy="180" r="8"></circle>';
+          };
+          if (mode === "middle-open" || mode === "middle-closed") {
+            return segment(165, 355) + endpoint(165, mode === "middle-closed") + endpoint(355, mode === "middle-closed");
+          }
+          if (mode === "outside-open" || mode === "outside-closed") {
+            return segment(45, 165) + segment(355, 475) + endpoint(165, mode === "outside-closed") + endpoint(355, mode === "outside-closed");
+          }
+          if (mode === "except-root") {
+            return segment(45, 252) + segment(268, 475) + endpoint(260, false);
+          }
+          if (mode === "all") return segment(45, 475);
+          return "";
+        };
+        const cards = graphs.map(function (item, index) {
+          const opening = item.opening === "down" ? "down" : "up";
+          const discriminant = new Set(["positive", "zero", "negative"]).has(item.discriminant)
+            ? item.discriminant
+            : "positive";
+          const roots = Array.isArray(item.roots) ? item.roots : [];
+          const positions = rootPositions[discriminant];
+          const rootsIncluded = item.solutionMode === "middle-closed" || item.solutionMode === "outside-closed";
+          const rootMarkup = positions.map(function (x, rootIndex) {
+            const label = roots[rootIndex] || (discriminant === "zero" ? "x₀" : rootIndex === 0 ? "x₁" : "x₂");
+            return '<circle class="lesson-quadratic-root' + (rootsIncluded ? ' is-included' : '') + '" cx="' + x + '" cy="180" r="5"></circle>' +
+              '<text class="lesson-quadratic-root-label" x="' + x + '" y="207">' + esc(label) + '</text>';
+          }).join("");
+          const facts = Array.isArray(item.facts) && item.facts.length
+            ? '<ol class="lesson-quadratic-graph-facts">' + item.facts.map(function (fact) {
+              return '<li>' + renderFormulaText(fact) + '</li>';
+            }).join("") + '</ol>'
+            : "";
+          const emptyLabel = item.solutionMode === "none"
+            ? '<text class="lesson-quadratic-empty-label" x="260" y="268">目标区域不存在</text>'
+            : "";
+          return (
+            '<article class="lesson-quadratic-graph-card">' +
+            '<header><span>' + esc(item.label || String(index + 1)) + '</span><strong>' + renderFormulaText(item.expression || "") + '</strong></header>' +
+            facts +
+            '<svg viewBox="0 0 520 330" role="img" aria-label="' + esc(item.ariaLabel || item.label || "二次函数图像") + '">' +
+            '<g class="lesson-quadratic-solution-regions">' + renderSolutionSegments(item.solutionMode) + '</g>' +
+            '<g class="lesson-quadratic-axes"><line x1="32" y1="180" x2="492" y2="180"></line><path d="M492 180l-10-6m10 6l-10 6"></path><line x1="260" y1="310" x2="260" y2="20"></line><path d="M260 20l-6 10m6-10l6 10"></path><text x="486" y="169">x</text><text x="270" y="31">y</text></g>' +
+            '<path class="lesson-quadratic-curve is-' + opening + '" d="' + curvePaths[opening][discriminant] + '"></path>' +
+            '<g class="lesson-quadratic-roots">' + rootMarkup + '</g>' +
+            emptyLabel +
+            '</svg>' +
+            '<footer><span>' + renderFormulaText(item.target || "") + '</span><strong>' + renderFormulaText(item.solution || "") + '</strong></footer>' +
+            '</article>'
+          );
+        }).join("");
+        return (
+          '<figure class="lesson-step-visual lesson-step-quadratic-graphs" role="group" aria-label="' + ariaLabel + '">' +
+          (visual.title ? '<h3>' + renderFormulaText(visual.title) + '</h3>' : '') +
+          (visual.intro ? '<p class="lesson-quadratic-graph-intro">' + renderFormulaText(visual.intro) + '</p>' : '') +
+          '<div class="lesson-quadratic-graph-grid is-' + Math.min(graphs.length, 4) + '">' + cards + '</div>' +
+          (visual.caption ? '<figcaption>' + renderFormulaText(visual.caption) + '</figcaption>' : '') +
+          '</figure>'
+        );
+      }
 
       if (visual.kind === "implication-condition-pairs") {
         const cases = Array.isArray(visual.cases) ? visual.cases : [];

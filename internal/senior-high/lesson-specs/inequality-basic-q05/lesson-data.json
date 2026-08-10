@@ -1,0 +1,144 @@
+{
+  "meta": {
+    "id": "inequality-basic-q05",
+    "outputPath": "site/problems/senior-high/inequalities/inequality-relations/inequality-basic-q05.html",
+    "pageTitle": "补项构造定积求最小值",
+    "pageDescription": "补项构造定积求最小值的逐步解析。",
+    "breadcrumbTitle": "基本不等式 · 练习 8-5",
+    "breadcrumbLabel": "解不等式与基本不等式",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=inequalities&section=inequality-relations&module=basic-inequalities"
+  },
+  "problem": {
+    "source": "高一暑假目标班 · 第4讲",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "原式中的 x 未必为正，不能直接使用基本不等式；核心是由分母 x+1 反推配对正项，再用补 1、减 1 构造固定乘积，换元只负责简化书写。",
+      "items": [
+        "看目标：求和的最小值，寻找两个乘积固定的正项。",
+        "逆看分母：4/(x+1) 应与正项 x+1 配对，二者乘积恒为 4。",
+        "补项构造：把 x 写成 (x+1)-1，补出的 1 在括号外减回。",
+        "验等号：先令两个配对正项相等，再求出原变量 x。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "5. 已知 \\(x>-1\\)，则 \\(x+\\frac{4}{x+1}\\) 的最小值为　　　　，此时 \\(x\\) 的值是　　　　。"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "基本不等式",
+      "title": "围绕分母补项构造固定乘积",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "fixed-product-construction-flow",
+        "title": "分母已经给出线索，如何补出它的配对项？",
+        "methodTag": "构造型｜补项凑定积",
+        "goal": {
+          "expression": "\\(x+\\frac{4}{x+1}\\)",
+          "task": "求含一次项与倒数项的最小值"
+        },
+        "strategy": "围绕分母凑出定积",
+        "initialCheck": {
+          "terms": [
+            "\\(x\\)",
+            "\\(\\frac{4}{x+1}\\)"
+          ],
+          "product": "\\(x\\cdot\\frac{4}{x+1}=\\frac{4x}{x+1}\\)",
+          "verdict": "乘积不固定，且 x 未必为正"
+        },
+        "clue": {
+          "question": "分母 x+1 应与哪个正项配对？",
+          "condition": "\\(x>-1\\Rightarrow x+1>0\\)",
+          "observation": "\\(x+1\\) 是正项，并且与 \\(\\frac{4}{x+1}\\) 相乘时分母正好约掉，乘积恒为 \\(4\\)。"
+        },
+        "construction": {
+          "kind": "completion",
+          "label": "补 1、减 1，补出配对正项",
+          "givenTerm": "\\(\\frac{4}{x+1}\\)",
+          "matchingTerm": "\\(x+1\\)",
+          "identity": "\\(x=(x+1)-1\\)",
+          "expanded": "\\(x+\\frac{4}{x+1}=\\left[(x+1)+\\frac{4}{x+1}\\right]-1\\)",
+          "focus": "\\((x+1)+\\frac{4}{x+1}\\)",
+          "constant": "\\(-1\\)",
+          "simplification": "令 \\(t=x+1>0\\)，可简写为 \\(t+\\frac{4}{t}-1\\)"
+        },
+        "fixedPair": {
+          "question": "补出的两个正项，其乘积是否固定？",
+          "terms": [
+            "\\(x+1\\)",
+            "\\(\\frac{4}{x+1}\\)"
+          ],
+          "product": "\\((x+1)\\cdot\\frac{4}{x+1}=4\\)，且两项均为正",
+          "verdict": "定积构造成功"
+        },
+        "application": {
+          "template": "\\(u+v\\ge2\\sqrt{uv}\\)",
+          "mappings": [
+            {
+              "slot": "\\(u\\)",
+              "value": "\\(x+1\\)"
+            },
+            {
+              "slot": "\\(v\\)",
+              "value": "\\(\\frac{4}{x+1}\\)"
+            }
+          ],
+          "inequality": "\\((x+1)+\\frac{4}{x+1}\\ge2\\sqrt4=4\\)",
+          "combine": "\\(x+\\frac{4}{x+1}=\\left[(x+1)+\\frac{4}{x+1}\\right]-1\\ge3\\)",
+          "conclusion": "最小值为 \\(3\\)"
+        },
+        "equality": {
+          "condition": "\\(x+1=\\frac{4}{x+1}\\)",
+          "relation": "\\(x+1=2\\)",
+          "result": "\\(x=1\\)"
+        },
+        "caption": "先由分母反推配对正项，再用补 1、减 1 构造定积；换元只用于简化书写。"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "由 \\(x>-1\\) 得 \\(x+1>0\\)，而 \\(x=(x+1)-1\\)"
+        },
+        {
+          "kind": "because",
+          "text": "原式 \\(=(x+1)+\\frac{4}{x+1}-1\\)，其中 \\((x+1)\\cdot\\frac{4}{x+1}=4\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\((x+1)+\\frac{4}{x+1}\\ge4\\)，所以原式不小于 \\(3\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "当 \\(x+1=\\frac{4}{x+1}\\)，即 \\(x+1=2\\) 时取等号，因此 \\(x=1\\)"
+        }
+      ],
+      "derive": [
+        [
+          "最小值",
+          "3"
+        ],
+        [
+          "x",
+          "1"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 围绕分母补项构造固定乘积"
+  }
+}

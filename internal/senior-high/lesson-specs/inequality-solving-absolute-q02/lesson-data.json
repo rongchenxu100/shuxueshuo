@@ -1,0 +1,128 @@
+{
+  "meta": {
+    "id": "inequality-solving-absolute-q02",
+    "outputPath": "site/problems/senior-high/inequalities/inequality-relations/inequality-solving-absolute-q02.html",
+    "pageTitle": "分类解含二次式的绝对值不等式",
+    "pageDescription": "分类解含二次式的绝对值不等式的逐步解析。",
+    "breadcrumbTitle": "解不等式 · 练习 7-2",
+    "breadcrumbLabel": "解不等式与基本不等式",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=inequalities&section=inequality-relations&module=solving-inequalities"
+  },
+  "problem": {
+    "source": "高一暑假目标班 · 第4讲",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "引用绝对值不等式知识点：右侧 2x 的符号不确定，不能直接平方，应先按 2x 的正负分类。",
+      "items": [
+        "x<0 时，|x²−3|≥0>2x，不等式自动成立。",
+        "x≥0 时右侧非负，才能使用 |A|>B ⇔ A>B 或 A<−B。",
+        "分别解两个二次不等式，再把各分类所得解集取并集。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "解不等式 \\(|x^2-3|>2x\\)。"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "绝对值不等式",
+      "title": "按右侧符号分类并合并",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "absolute-inequality-visual",
+        "mode": "rhs-sign-classification",
+        "method": "分类讨论法",
+        "title": "先看右侧 2x 的符号，再拆绝对值",
+        "intro": "右侧不是固定正常数，第一步必须检查它的符号。",
+        "transformations": [
+          "\\(x<0：|x^2-3|\\ge0>2x\\)，自动成立",
+          "\\(x\\ge0：|x^2-3|>2x\\iff x^2-3>2x\\text{ 或 }x^2-3<-2x\\)"
+        ],
+        "branches": [
+          {
+            "condition": "\\(x<0\\)",
+            "result": "全部成立",
+            "explanation": "得到 \\(( -\\infty,0)\\)。"
+          },
+          {
+            "condition": "\\(x\\ge0\\)",
+            "result": "\\([0,1)\\cup(3,+\\infty)\\)",
+            "explanation": "两支分别得到 \\(x>3\\) 与 \\(0\\le x<1\\)。"
+          }
+        ],
+        "tickLabels": [
+          "0",
+          "1",
+          "3"
+        ],
+        "solution": "\\(( -\\infty,1)\\cup(3,+\\infty)\\)",
+        "facts": [
+          "0 是分类点，但它落在第二类的解集中，因此合并后左段连续到 1。",
+          "x=1、3 都使原不等式取等号，题目是严格大于，所以两个端点均不取。"
+        ],
+        "caption": "先按右侧符号分流，再在右侧非负的分支中使用绝对值等价转化。"
+      },
+      "table": {
+        "headers": [
+          "分类",
+          "化简",
+          "所得范围"
+        ],
+        "rows": [
+          [
+            "x<0",
+            "自动成立",
+            "(−∞,0)"
+          ],
+          [
+            "x≥0 且 x²−3>2x",
+            "(x−3)(x+1)>0",
+            "(3,+∞)"
+          ],
+          [
+            "x≥0 且 x²−3<−2x",
+            "(x−1)(x+3)<0",
+            "[0,1)"
+          ]
+        ]
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "根据分类讨论法，先检查右侧 2x 的符号；x<0 时，\\(|x^2-3|\\ge0>2x\\)，所以该分支全部成立"
+        },
+        {
+          "kind": "because",
+          "text": "x≥0 时，\\(|x^2-3|>2x\\iff x^2-3>2x\\) 或 \\(x^2-3<-2x\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "合并得到 \\(( -\\infty,1)\\cup(3,+\\infty)\\)"
+        }
+      ],
+      "derive": [
+        [
+          "解集",
+          "(−∞,1)∪(3,+∞)"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 分类讨论并合并解集"
+  }
+}

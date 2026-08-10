@@ -1,0 +1,43 @@
+{
+  "batchId": "basic-inequalities-20260806-pages-52-55",
+  "importedAt": "2026-08-06",
+  "chapterId": "inequalities",
+  "sectionId": "inequality-relations",
+  "topicId": "inequality-relations",
+  "sourceImages": [
+    "internal/senior-high/source-images/basic-inequalities-20260806-pages-52-55/source-page-52.png",
+    "internal/senior-high/source-images/basic-inequalities-20260806-pages-52-55/source-page-53.png",
+    "internal/senior-high/source-images/basic-inequalities-20260806-pages-52-55/source-page-54.png",
+    "internal/senior-high/source-images/basic-inequalities-20260806-pages-52-55/source-page-55.png"
+  ],
+  "publishedModuleIds": [
+    "basic-inequalities",
+    "inequality-practice"
+  ],
+  "lessonIds": [
+    "inequality-basic-q01",
+    "inequality-basic-q02",
+    "inequality-basic-q03",
+    "inequality-basic-q04",
+    "inequality-basic-q05",
+    "inequality-basic-q06",
+    "inequality-practice-q01",
+    "inequality-practice-q02",
+    "inequality-practice-q03",
+    "inequality-practice-q04",
+    "inequality-practice-q05",
+    "inequality-practice-q06",
+    "inequality-practice-q07",
+    "inequality-practice-q08",
+    "inequality-practice-q09",
+    "inequality-practice-q10",
+    "inequality-practice-q11",
+    "inequality-practice-q12",
+    "inequality-practice-q13"
+  ],
+  "notes": [
+    "本批发布基本不等式核心知识、练习 8 的 6 道题和实战演练 13 道题。",
+    "手写批注仅作核对，所有答案均按印刷题干独立验算。",
+    "基本不等式详情页逐题核对正项、定值与等号条件；分式和绝对值题使用符号表或分段表。"
+  ]
+}

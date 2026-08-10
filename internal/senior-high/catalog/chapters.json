@@ -31,6 +31,21 @@
       ]
     },
     {
+      "id": "inequalities",
+      "label": "不等式",
+      "symbol": "≤",
+      "order": 8,
+      "sections": [
+        {
+          "id": "inequality-relations",
+          "label": "解不等式与基本不等式",
+          "order": 10,
+          "presentation": "learning",
+          "topicId": "inequality-relations"
+        }
+      ]
+    },
+    {
       "id": "functions",
       "label": "函数",
       "symbol": "f(x)",

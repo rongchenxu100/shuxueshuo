@@ -1,0 +1,169 @@
+{
+  "meta": {
+    "id": "inequality-basic-q04",
+    "outputPath": "site/problems/senior-high/inequalities/inequality-relations/inequality-basic-q04.html",
+    "pageTitle": "线性约束下求倒数和的最小值",
+    "pageDescription": "线性约束下求倒数和的最小值的逐步解析。",
+    "breadcrumbTitle": "基本不等式 · 练习 8-4",
+    "breadcrumbLabel": "解不等式与基本不等式",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=inequalities&section=inequality-relations&module=basic-inequalities"
+  },
+  "problem": {
+    "source": "高一暑假目标班 · 第4讲",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "求倒数和的最小值时，若原两项乘积不固定，就把定和条件乘入目标式，通过展开寻找乘积固定的交叉项。",
+      "items": [
+        "看目标：正项和求最小值，先检查两项乘积是否固定。",
+        "乘定和：a+3b=2 是定值，乘入目标式会把分母约成比值。",
+        "找定积：展开后检查两个交叉项，它们的乘积恒为 36。",
+        "验等号：构造出的两个正项相等，并且满足原条件。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "4. 已知 \\(a>0，b>0\\)，且 \\(a+3b=2\\)，则 \\(\\frac{3}{a}+\\frac{4}{b}\\) 的最小值是　　　　。"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "基本不等式",
+      "title": "从定和出发构造固定乘积",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "fixed-product-construction-flow",
+        "title": "原两项没有定积，如何借助定和构造？",
+        "methodTag": "构造型｜乘入定和",
+        "goal": {
+          "expression": "\\(\\frac{3}{a}+\\frac{4}{b}\\)",
+          "task": "求正项和的最小值"
+        },
+        "strategy": "想办法构造定积",
+        "initialCheck": {
+          "terms": [
+            "\\(\\frac{3}{a}\\)",
+            "\\(\\frac{4}{b}\\)"
+          ],
+          "product": "\\(\\frac{3}{a}\\cdot\\frac{4}{b}=\\frac{12}{ab}\\)",
+          "verdict": "乘积不固定，不能直接使用"
+        },
+        "clue": {
+          "question": "题设中哪个定值能约去分母？",
+          "condition": "\\(a+3b=2\\)",
+          "observation": "条件是含有 \\(a、b\\) 的定和。把它乘入目标式，可约出常数项与交叉比值。"
+        },
+        "construction": {
+          "label": "乘入定和 a+3b=2",
+          "identity": "\\(2(\\frac{3}{a}+\\frac{4}{b})=(\\frac{3}{a}+\\frac{4}{b})(a+3b)\\)",
+          "expanded": "\\(=3+\\frac{9b}{a}+\\frac{4a}{b}+12=15+\\frac{9b}{a}+\\frac{4a}{b}\\)",
+          "rows": [
+            "\\(\\frac{3}{a}\\)",
+            "\\(\\frac{4}{b}\\)"
+          ],
+          "columns": [
+            "\\(a\\)",
+            "\\(3b\\)"
+          ],
+          "cells": [
+            [
+              {
+                "text": "\\(3\\)",
+                "role": "constant"
+              },
+              {
+                "text": "\\(\\frac{9b}{a}\\)",
+                "role": "constructed"
+              }
+            ],
+            [
+              {
+                "text": "\\(\\frac{4a}{b}\\)",
+                "role": "constructed"
+              },
+              {
+                "text": "\\(12\\)",
+                "role": "constant"
+              }
+            ]
+          ],
+          "constantSum": "常数项：\\(3+12=15\\)"
+        },
+        "fixedPair": {
+          "question": "观察展开后的式子，是否可以找到定积？",
+          "terms": [
+            "\\(\\frac{9b}{a}\\)",
+            "\\(\\frac{4a}{b}\\)"
+          ],
+          "product": "\\(\\frac{9b}{a}\\cdot\\frac{4a}{b}=36\\cdot\\frac{a}{a}\\cdot\\frac{b}{b}=36\\)",
+          "verdict": "定积构造成功"
+        },
+        "application": {
+          "template": "\\(u+v\\ge2\\sqrt{uv}\\)",
+          "mappings": [
+            {
+              "slot": "\\(u\\)",
+              "value": "\\(\\frac{9b}{a}\\)"
+            },
+            {
+              "slot": "\\(v\\)",
+              "value": "\\(\\frac{4a}{b}\\)"
+            }
+          ],
+          "inequality": "\\(\\frac{9b}{a}+\\frac{4a}{b}\\ge2\\sqrt{36}=12\\)",
+          "combine": "\\(2(\\frac{3}{a}+\\frac{4}{b})=15+\\frac{9b}{a}+\\frac{4a}{b}\\ge27\\)",
+          "conclusion": "最小值为 \\(\\frac{27}{2}\\)"
+        },
+        "equality": {
+          "condition": "\\(\\frac{9b}{a}=\\frac{4a}{b}\\)",
+          "relation": "\\(3b=2a\\)",
+          "result": "\\(a=\\frac{2}{3}，b=\\frac{4}{9}\\)"
+        },
+        "caption": "先把定和乘入目标式，再从展开后的交叉项中发现固定乘积。"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "\\((\\frac{3}{a}+\\frac{4}{b})(a+3b)=15+\\frac{9b}{a}+\\frac{4a}{b}\\)"
+        },
+        {
+          "kind": "because",
+          "text": "\\(\\frac{9b}{a}>0，\\frac{4a}{b}>0\\)，两项乘积为 \\(36\\)，所以两项和不小于 \\(12\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(2(\\frac{3}{a}+\\frac{4}{b})\\ge27\\)，故 \\(\\frac{3}{a}+\\frac{4}{b}\\ge\\frac{27}{2}\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "等号要求 \\(\\frac{9b}{a}=\\frac{4a}{b}\\)，结合 \\(a+3b=2\\) 得 \\(a=\\frac{2}{3}，b=\\frac{4}{9}\\)"
+        }
+      ],
+      "derive": [
+        [
+          "最小值",
+          "27/2"
+        ],
+        [
+          "等号条件",
+          "a=2/3，b=4/9"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 从定和出发构造固定乘积"
+  }
+}

@@ -1109,11 +1109,539 @@
         </table>
       </div>
     ` : "";
+    const quadraticCaseMeta = {
+      positive: { label: "Δ > 0", note: "两个交点" },
+      zero: { label: "Δ = 0", note: "一个切点" },
+      negative: { label: "Δ < 0", note: "没有交点" },
+    };
+    const renderQuadraticGraph = (opening, discriminant) => {
+      const paths = {
+        up: {
+          positive: "M30 21 Q110 175 190 21",
+          zero: "M30 20 Q110 132 190 20",
+          negative: "M30 22 Q110 98 190 22",
+        },
+        down: {
+          positive: "M30 111 Q110 13 190 111",
+          zero: "M30 108 Q110 44 190 108",
+          negative: "M30 112 Q110 70 190 112",
+        },
+      };
+      const rootMarks = discriminant === "positive"
+        ? `<circle cx="67" cy="76" r="3"></circle><circle cx="153" cy="76" r="3"></circle>
+           <text x="58" y="94">x₁</text><text x="146" y="94">x₂</text>`
+        : discriminant === "zero"
+          ? `<circle cx="110" cy="76" r="3"></circle><text x="101" y="94">x₀</text>`
+          : "";
+      const meta = quadraticCaseMeta[discriminant];
+      const openingLabel = opening === "up" ? "开口向上" : "开口向下";
+      return `
+        <svg class="quadratic-inequality-graph" viewBox="0 0 220 116" role="img" aria-label="${openingLabel}的抛物线，${meta.label}，${meta.note}">
+          <line class="quadratic-graph-axis" x1="14" y1="76" x2="207" y2="76"></line>
+          <path class="quadratic-graph-axis-arrow" d="M207 76l-7-4m7 4l-7 4"></path>
+          <line class="quadratic-graph-axis" x1="110" y1="106" x2="110" y2="8"></line>
+          <path class="quadratic-graph-axis-arrow" d="M110 8l-4 7m4-7l4 7"></path>
+          <text class="quadratic-graph-axis-label" x="204" y="69">x</text>
+          <text class="quadratic-graph-axis-label" x="117" y="15">y</text>
+          <path class="quadratic-graph-curve" d="${paths[opening][discriminant]}"></path>
+          <g class="quadratic-graph-roots">${rootMarks}</g>
+        </svg>
+      `;
+    };
+    const renderQuadraticInequalityTables = (tables) => tables ? `
+      <div class="quadratic-inequality-tables" aria-label="一元二次不等式的图像与解集对照表">
+        ${tables.map((quadraticTable) => `
+          <div class="quadratic-inequality-table-shell is-${quadraticTable.opening}">
+            <table class="quadratic-inequality-table">
+              <caption>${quadraticTable.titleHtml}</caption>
+              <thead>
+                <tr>
+                  <th scope="col"><span>判别式</span><strong>Δ = b² − 4ac</strong></th>
+                  ${quadraticTable.cases.map((quadraticCase) => `<th scope="col">${quadraticCaseMeta[quadraticCase.discriminant].label}</th>`).join("")}
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="quadratic-graph-row">
+                  <th scope="row">函数图像<br><span>y = f(x)</span></th>
+                  ${quadraticTable.cases.map((quadraticCase) => `<td>${renderQuadraticGraph(quadraticTable.opening, quadraticCase.discriminant)}</td>`).join("")}
+                </tr>
+                <tr>
+                  <th scope="row">方程的根<br><span>f(x) = 0</span></th>
+                  ${quadraticTable.cases.map((quadraticCase) => `<td>${quadraticCase.rootHtml}</td>`).join("")}
+                </tr>
+                <tr>
+                  <th scope="row"><span class="quadratic-sign is-positive">f(x) &gt; 0</span></th>
+                  ${quadraticTable.cases.map((quadraticCase) => `<td>${quadraticCase.positiveSolutionHtml}</td>`).join("")}
+                </tr>
+                <tr>
+                  <th scope="row"><span class="quadratic-sign is-negative">f(x) &lt; 0</span></th>
+                  ${quadraticTable.cases.map((quadraticCase) => `<td>${quadraticCase.negativeSolutionHtml}</td>`).join("")}
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        `).join("")}
+        <p class="quadratic-inequality-reading"><strong>读图：</strong>图像在 x 轴上方取正，在 x 轴下方取负；若不等号含等号，再把相应实根并入解集。</p>
+      </div>
+    ` : "";
+    const threadingLineMeta = {
+      "simple-strict": {
+        label: "基本穿法",
+        note: "三个一次因式，经过每个根时符号交替。",
+        curve: "M38 118 C76 118 98 96 120 72 C150 40 238 40 280 72 C322 104 398 106 440 72 C470 44 502 30 530 22",
+        signs: ["−", "+", "−", "+"],
+        inclusive: false,
+        mixed: false,
+      },
+      "simple-inclusive": {
+        label: "含等号",
+        note: "穿法不变；因为含等号，三个根都用实心点。",
+        curve: "M38 118 C76 118 98 96 120 72 C150 40 238 40 280 72 C322 104 398 106 440 72 C470 44 502 30 530 22",
+        signs: ["−", "+", "−", "+"],
+        inclusive: true,
+        mixed: false,
+      },
+      "mixed-multiplicity": {
+        label: "奇穿偶不穿",
+        note: "奇数重根 0、2 处穿过数轴；偶数重根 −1、1 处接触数轴后返回。",
+        curve: "M30 34 C55 28 78 32 92 50 C96 56 98 72 100 72 C102 72 106 56 112 50 C140 28 190 30 220 72 C250 110 310 108 332 94 C337 88 338 72 340 72 C342 72 345 88 350 94 C385 116 430 108 460 72 C485 42 510 30 535 24",
+        signs: ["+", "+", "−", "−", "+"],
+        inclusive: false,
+        mixed: true,
+      },
+    };
+    const renderThreadingLineGraph = (kind) => {
+      const meta = threadingLineMeta[kind];
+      const pointClass = meta.inclusive ? " is-closed" : " is-open";
+      const highlights = meta.mixed
+        ? `<line x1="220" y1="72" x2="333" y2="72"></line><line x1="347" y1="72" x2="460" y2="72"></line>`
+        : `<line x1="120" y1="72" x2="280" y2="72"></line><line x1="440" y1="72" x2="532" y2="72"></line>`;
+      const shades = meta.mixed
+        ? `<path d="M220 72 C250 110 310 108 332 94 C337 88 338 72 340 72 L220 72 Z"></path>
+           <path d="M340 72 C342 72 345 88 350 94 C385 116 430 108 460 72 L340 72 Z"></path>`
+        : `<path d="M120 72 C150 40 238 40 280 72 L120 72 Z"></path>
+           <path d="M440 72 C470 44 502 30 530 22 L530 72 L440 72 Z"></path>`;
+      const rootPoints = meta.mixed
+        ? `<circle cx="100" cy="72" r="5"></circle><circle cx="220" cy="72" r="5"></circle><circle cx="340" cy="72" r="5"></circle><circle cx="460" cy="72" r="5"></circle>`
+        : `<circle cx="120" cy="72" r="5"></circle><circle cx="280" cy="72" r="5"></circle><circle cx="440" cy="72" r="5"></circle>`;
+      const rootLabels = meta.mixed
+        ? `<text x="92" y="92">−1</text><text x="216" y="92">0</text><text x="336" y="92">1</text><text x="456" y="92">2</text>
+           <text class="threading-line-root-multiplicity" x="70" y="108">（4次·偶）</text>
+           <text class="threading-line-root-multiplicity" x="190" y="108">（5次·奇）</text>
+           <text class="threading-line-root-multiplicity" x="310" y="108">（2次·偶）</text>
+           <text class="threading-line-root-multiplicity" x="430" y="108">（3次·奇）</text>`
+        : `<text x="109" y="92">−2</text><text x="276" y="92">1</text><text x="436" y="92">3</text>`;
+      const signXs = meta.mixed ? [48, 154, 274, 394, 504] : [72, 194, 354, 494];
+      const directionPaths = meta.mixed
+        ? `<path d="M525 29 C500 32 480 46 468 64"></path><path d="M468 64 L472 54 M468 64 L478 62"></path>`
+        : `<path d="M520 27 C490 31 464 48 448 66"></path><path d="M448 66 L452 56 M448 66 L458 64"></path>`;
+      return `
+        <svg class="threading-line-graph" viewBox="0 0 560 148" role="img" aria-label="${meta.label}的穿针引线图">
+          <g class="threading-line-shade">${shades}</g>
+          <line class="threading-line-axis" x1="24" y1="72" x2="538" y2="72"></line>
+          <path class="threading-line-arrow" d="M538 72l-8-5m8 5l-8 5"></path>
+          <g class="threading-line-solution">${highlights}</g>
+          <path class="threading-line-curve" d="${meta.curve}"></path>
+          <g class="threading-line-direction" aria-hidden="true">
+            <text x="438" y="14">从最右侧开始</text>
+            ${directionPaths}
+          </g>
+          <g class="threading-line-points${pointClass}">${rootPoints}</g>
+          ${meta.mixed ? `<circle class="threading-line-even-ring" cx="100" cy="72" r="9"></circle><circle class="threading-line-even-ring" cx="340" cy="72" r="9"></circle>` : ""}
+          <g class="threading-line-root-labels">${rootLabels}</g>
+          <g class="threading-line-signs">
+            ${meta.signs.map((sign, index) => `<text x="${signXs[index]}" y="${sign === "+" ? 30 : 126}">${sign}</text>`).join("")}
+          </g>
+        </svg>
+      `;
+    };
+    const renderThreadingLineTable = (table) => table ? `
+      <div class="threading-line-table-shell">
+        <table class="threading-line-table">
+          <thead>
+            <tr><th scope="col">不等式、图形与解集</th><th scope="col">这一行说明的原则</th></tr>
+          </thead>
+          <tbody>
+            ${table.rows.map((row, index) => {
+              const meta = threadingLineMeta[row.kind];
+              return `<tr>
+                <td>
+                  <div class="threading-line-example-heading"><span>${String(index + 1).padStart(2, "0")}</span><strong>${meta.label}</strong>${row.inequalityHtml}</div>
+                  ${renderThreadingLineGraph(row.kind)}
+                  <div class="threading-line-result"><span>解集</span><strong>${row.solutionHtml}</strong></div>
+                  <p>${meta.note}</p>
+                </td>
+                <td>
+                  <ol>${row.principlesHtml.map((principle) => `<li>${principle}</li>`).join("")}</ol>
+                </td>
+              </tr>`;
+            }).join("")}
+          </tbody>
+        </table>
+      </div>
+    ` : "";
+    const rationalThreadingMeta = {
+      "direct-strict": {
+        label: "直接判号",
+        note: "两个临界点都不取，解集在数轴两端。",
+        leftRoot: "−3",
+        rightRoot: "1",
+        numeratorClosed: false,
+        solution: "outside",
+      },
+      "inclusive-endpoints": {
+        label: "端点辨析",
+        note: "分母零点仍空心，只有分子零点因含等号而变为实心。",
+        leftRoot: "−1/3",
+        rightRoot: "1/2",
+        numeratorClosed: true,
+        solution: "outside",
+      },
+      "move-to-zero": {
+        label: "先移项通分",
+        note: "化为右边是 0 的标准形式后，再读取阴影区间。",
+        leftRoot: "−3",
+        rightRoot: "−1/2",
+        numeratorClosed: false,
+        solution: "inside",
+      },
+    };
+    const renderRationalThreadingGraph = (kind) => {
+      const meta = rationalThreadingMeta[kind];
+      const outside = meta.solution === "outside";
+      const highlights = outside
+        ? `<line x1="28" y1="72" x2="180" y2="72"></line><line x1="400" y1="72" x2="532" y2="72"></line>`
+        : `<line x1="180" y1="72" x2="400" y2="72"></line>`;
+      const shades = outside
+        ? `<path d="M35 28 C100 30 150 45 180 72 L35 72 Z"></path><path d="M400 72 C440 38 490 27 530 24 L530 72 L400 72 Z"></path>`
+        : `<path d="M180 72 C220 112 350 112 400 72 L180 72 Z"></path>`;
+      return `
+        <svg class="rational-threading-graph" viewBox="0 0 560 142" role="img" aria-label="${meta.label}的分式不等式穿针图">
+          <g class="threading-line-shade">${shades}</g>
+          <line class="threading-line-axis" x1="24" y1="72" x2="538" y2="72"></line>
+          <path class="threading-line-arrow" d="M538 72l-8-5m8 5l-8 5"></path>
+          <g class="threading-line-solution">${highlights}</g>
+          <path class="threading-line-curve" d="M35 28 C100 30 150 45 180 72 C220 112 350 112 400 72 C440 38 490 27 530 24"></path>
+          <g class="threading-line-direction" aria-hidden="true">
+            <text x="438" y="14">从最右侧开始</text>
+            <path d="M520 28 C478 31 438 47 408 66"></path>
+            <path d="M408 66 L413 56 M408 66 L418 64"></path>
+          </g>
+          <circle class="rational-critical-point is-forbidden" cx="180" cy="72" r="6"></circle>
+          <path class="rational-forbidden-slash" d="M174 79 L186 65"></path>
+          <circle class="rational-critical-point${meta.numeratorClosed ? " is-closed" : " is-open"}" cx="400" cy="72" r="6"></circle>
+          <g class="rational-root-labels">
+            <text x="164" y="93">${meta.leftRoot}</text><text x="390" y="93">${meta.rightRoot}</text>
+            <text class="rational-root-kind is-forbidden" x="139" y="109">（分母·禁值）</text>
+            <text class="rational-root-kind" x="363" y="109">（分子·零点）</text>
+          </g>
+          <g class="threading-line-signs">
+            <text x="91" y="30">+</text><text x="284" y="126">−</text><text x="478" y="30">+</text>
+          </g>
+        </svg>
+      `;
+    };
+    const renderRationalThreadingTable = (table) => table ? `
+      <div class="threading-line-table-shell rational-threading-table-shell">
+        <table class="threading-line-table rational-threading-table">
+          <thead><tr><th scope="col">分式、标准化与穿针图</th><th scope="col">这一行说明的原则</th></tr></thead>
+          <tbody>
+            ${table.rows.map((row, index) => {
+              const meta = rationalThreadingMeta[row.kind];
+              return `<tr>
+                <td>
+                  <div class="threading-line-example-heading"><span>${String(index + 1).padStart(2, "0")}</span><strong>${meta.label}</strong>${row.inequalityHtml}</div>
+                  <div class="rational-equivalent"><span>化为</span><strong>${row.equivalentHtml}</strong></div>
+                  ${renderRationalThreadingGraph(row.kind)}
+                  <div class="threading-line-result"><span>解集</span><strong>${row.solutionHtml}</strong></div>
+                  <p>${meta.note}</p>
+                </td>
+                <td><ol>${row.principlesHtml.map((principle) => `<li>${principle}</li>`).join("")}</ol></td>
+              </tr>`;
+            }).join("")}
+          </tbody>
+        </table>
+      </div>
+    ` : "";
+    const absoluteInequalityMeta = {
+      direct: {
+        label: "直接法",
+        note: "单个绝对值小于正常数，解集是两个边界之间的区间。",
+      },
+      squaring: {
+        label: "平方法（快捷）",
+        note: "两个绝对值均非负，平方后转化为整式不等式，解集取两端。",
+      },
+      classification: {
+        label: "分类讨论法",
+        note: "在分界点 −2、1 处分段，图像在 x 轴上方的部分对应原不等式。",
+      },
+    };
+    const renderAbsoluteInequalityGraph = (kind) => {
+      if (kind === "direct") return `
+        <svg class="absolute-method-graph" viewBox="0 0 560 118" role="img" aria-label="直接法得到负一到零之间的开区间">
+          <rect class="absolute-solution-band" x="200" y="49" width="160" height="34" rx="17"></rect>
+          <line class="threading-line-axis" x1="24" y1="66" x2="538" y2="66"></line>
+          <path class="threading-line-arrow" d="M538 66l-8-5m8 5l-8 5"></path>
+          <g class="threading-line-solution"><line x1="200" y1="66" x2="360" y2="66"></line></g>
+          <g class="threading-line-points is-open"><circle cx="200" cy="66" r="6"></circle><circle cx="360" cy="66" r="6"></circle></g>
+          <g class="absolute-root-labels"><text x="190" y="88">−1</text><text x="356" y="88">0</text></g>
+          <text class="absolute-graph-caption" x="243" y="35">小于取中间</text>
+        </svg>`;
+      if (kind === "squaring") return `
+        <svg class="absolute-method-graph" viewBox="0 0 560 130" role="img" aria-label="平方后整式不等式的符号图">
+          <g class="threading-line-shade"><path d="M40 25 Q110 30 180 66 L40 66 Z"></path><path d="M380 66 Q450 30 520 25 L520 66 Z"></path></g>
+          <line class="threading-line-axis" x1="24" y1="66" x2="538" y2="66"></line>
+          <path class="threading-line-arrow" d="M538 66l-8-5m8 5l-8 5"></path>
+          <g class="threading-line-solution"><line x1="28" y1="66" x2="180" y2="66"></line><line x1="380" y1="66" x2="532" y2="66"></line></g>
+          <path class="threading-line-curve" d="M40 25 Q280 124 520 25"></path>
+          <g class="threading-line-points is-open"><circle cx="180" cy="66" r="6"></circle><circle cx="380" cy="66" r="6"></circle></g>
+          <g class="absolute-root-labels"><text x="170" y="88">−2</text><text x="376" y="88">0</text></g>
+          <g class="threading-line-signs"><text x="96" y="28">+</text><text x="276" y="112">−</text><text x="464" y="28">+</text></g>
+          <text class="absolute-graph-caption" x="208" y="124">平方后：x(x+2) &gt; 0</text>
+        </svg>`;
+      return `
+        <svg class="absolute-method-graph is-classification" viewBox="0 0 560 146" role="img" aria-label="分类讨论所得分段函数图像">
+          <g class="threading-line-shade"><path d="M50 20 L140 74 L50 74 Z"></path><path d="M408 74 L500 20 L500 74 Z"></path></g>
+          <line class="threading-line-axis" x1="24" y1="74" x2="538" y2="74"></line>
+          <path class="threading-line-arrow" d="M538 74l-8-5m8 5l-8 5"></path>
+          <line class="absolute-y-axis" x1="280" y1="126" x2="280" y2="10"></line>
+          <path class="absolute-y-axis-arrow" d="M280 10l-5 8m5-8l5 8"></path>
+          <g class="threading-line-solution"><line x1="28" y1="74" x2="140" y2="74"></line><line x1="408" y1="74" x2="532" y2="74"></line></g>
+          <path class="absolute-piecewise-curve" d="M50 20 L190 108 L350 108 L500 20"></path>
+          <g class="absolute-break-lines"><line x1="190" y1="68" x2="190" y2="116"></line><line x1="350" y1="68" x2="350" y2="116"></line></g>
+          <g class="threading-line-points is-closed"><circle cx="140" cy="74" r="6"></circle><circle cx="408" cy="74" r="6"></circle></g>
+          <g class="absolute-root-labels"><text x="130" y="94">−3</text><text x="403" y="94">2</text><text class="is-break" x="181" y="127">−2</text><text class="is-break" x="346" y="127">1</text></g>
+          <text class="absolute-axis-label" x="290" y="18">y</text><text class="absolute-axis-label" x="526" y="67">x</text>
+        </svg>`;
+    };
+    const renderAbsoluteInequalityTable = (table) => table ? `
+      <div class="threading-line-table-shell absolute-inequality-table-shell">
+        <table class="threading-line-table absolute-inequality-table">
+          <thead><tr><th scope="col">绝对值不等式、转化与图形</th><th scope="col">适用原则</th></tr></thead>
+          <tbody>
+            ${table.rows.map((row, index) => {
+              const meta = absoluteInequalityMeta[row.kind];
+              return `<tr>
+                <td>
+                  <div class="threading-line-example-heading"><span>${String(index + 1).padStart(2, "0")}</span><strong>${meta.label}</strong>${row.inequalityHtml}</div>
+                  <div class="absolute-transformations"><span>转化</span><div>${row.transformationsHtml.map((transformation) => `<p>${transformation}</p>`).join("")}</div></div>
+                  ${renderAbsoluteInequalityGraph(row.kind)}
+                  <div class="threading-line-result"><span>解集</span><strong>${row.solutionHtml}</strong></div>
+                  <p>${meta.note}</p>
+                </td>
+                <td><ol>${row.principlesHtml.map((principle) => `<li>${principle}</li>`).join("")}</ol></td>
+              </tr>`;
+            }).join("")}
+          </tbody>
+        </table>
+      </div>
+    ` : "";
+    const mathFraction = (numerator, denominator) => `<span class="math-fraction"><span class="math-numerator">${numerator}</span><span class="math-denominator">${denominator}</span></span>`;
+    const mathRadical = (radicand) => `<span class="math-radical"><span class="math-radical-symbol">√</span><span class="math-radicand">${radicand}</span></span>`;
+    const inlineMath = (content) => `<span class="inline-math">${content}</span>`;
+    const renderBasicInequalityAreaFigure = () => `
+      <svg class="basic-inequality-figure is-area" viewBox="0 0 450 286" role="img" aria-label="四个全等直角三角形拼成正方形，中间留下一个小正方形">
+        <rect class="basic-area-outer" x="50" y="24" width="250" height="250"></rect>
+        <polygon class="basic-area-triangle" points="50,24 300,24 210,144"></polygon>
+        <polygon class="basic-area-triangle" points="300,24 300,274 180,184"></polygon>
+        <polygon class="basic-area-triangle" points="300,274 50,274 140,154"></polygon>
+        <polygon class="basic-area-triangle" points="50,274 50,24 170,114"></polygon>
+        <polygon class="basic-area-center" points="210,144 180,184 140,154 170,114"></polygon>
+        <path class="basic-area-right-angle" d="M197.2 134.4 L206.8 121.6 L219.6 131.2"></path>
+        <text class="basic-area-point" x="38" y="19">A</text><text class="basic-area-point" x="304" y="19">B</text>
+        <text class="basic-area-point" x="304" y="283">C</text><text class="basic-area-point" x="36" y="283">D</text>
+        <text class="basic-area-point is-center" x="213" y="144">E</text><text class="basic-area-point is-center" x="183" y="199">F</text>
+        <text class="basic-area-point is-center" x="124" y="157">G</text><text class="basic-area-point is-center" x="157" y="108">H</text>
+        <g class="basic-area-leg-label"><text x="113" y="92">√a</text><text x="240" y="90">√b</text></g>
+        <text class="basic-area-center-label" x="155" y="153">EFGH</text>
+        <g class="basic-area-legend" transform="translate(322 72)">
+          <rect class="is-triangle" width="18" height="18" rx="4"></rect><text x="27" y="14">全等直角三角形</text>
+          <rect class="is-center" y="38" width="18" height="18" rx="4"></rect><text x="27" y="52">非负的面积</text>
+        </g>
+      </svg>`;
+    const renderBasicInequalitySemicircleFigure = () => `
+      <svg class="basic-inequality-figure is-semicircle" viewBox="0 0 520 260" role="img" aria-label="半圆中几何平均数是高，算术平均数是半径">
+        <path class="basic-semicircle-arc" d="M80 192 A180 180 0 0 1 440 192"></path>
+        <line class="basic-semicircle-diameter" x1="80" y1="192" x2="440" y2="192"></line>
+        <polygon class="basic-semicircle-triangle is-left" points="80,192 205,192 205,21"></polygon>
+        <polygon class="basic-semicircle-triangle is-right" points="205,192 440,192 205,21"></polygon>
+        <line class="basic-semicircle-side" x1="80" y1="192" x2="205" y2="21"></line>
+        <line class="basic-semicircle-side" x1="205" y1="21" x2="440" y2="192"></line>
+        <line class="basic-semicircle-height" x1="205" y1="192" x2="205" y2="21"></line>
+        <line class="basic-semicircle-radius" x1="260" y1="192" x2="205" y2="21"></line>
+        <path class="basic-semicircle-right-angle" d="M205 178h14v14"></path>
+        <circle class="basic-semicircle-point" cx="80" cy="192" r="4"></circle><circle class="basic-semicircle-point" cx="205" cy="192" r="4"></circle>
+        <circle class="basic-semicircle-point" cx="260" cy="192" r="4"></circle><circle class="basic-semicircle-point" cx="440" cy="192" r="4"></circle>
+        <circle class="basic-semicircle-point" cx="205" cy="21" r="4"></circle>
+        <g class="basic-semicircle-labels"><text x="65" y="214">A</text><text x="196" y="214">C</text><text x="254" y="214">O</text><text x="443" y="214">B</text><text x="193" y="15">D</text>
+          <text x="136" y="184">a</text><text x="326" y="184">b</text><text class="is-height" x="214" y="104">√ab</text>
+          <text class="is-radius" x="238" y="91">(a+b)/2</text>
+        </g>
+      </svg>`;
+    const renderBasicInequalityVisual = (block) => block?.basicInequalityVisual ? `
+      <div class="basic-inequality-visual">
+        <section class="basic-inequality-theorem" aria-label="基本不等式的结论与条件">
+          <div class="basic-inequality-theorem-copy">
+            <span class="basic-inequality-domain">a &gt; 0，b &gt; 0</span>
+            <strong>两个正数的算术平均数不小于它们的几何平均数</strong>
+          </div>
+          <div class="basic-inequality-theorem-formula">
+            <span class="basic-mean is-arithmetic"><small>算术平均数</small>${inlineMath(mathFraction("a+b", "2"))}</span>
+            <span class="basic-inequality-relation">≥</span>
+            <span class="basic-mean is-geometric"><small>几何平均数</small>${inlineMath(mathRadical("ab"))}</span>
+          </div>
+          <div class="basic-inequality-equivalents">
+            <span>等价形式 ${inlineMath(`a+b≥2${mathRadical("ab")}`)}</span>
+            <span>当且仅当 ${inlineMath("a=b")} 时取等号</span>
+          </div>
+        </section>
+        <div class="basic-inequality-proof-table-shell">
+          <table class="basic-inequality-proof-table">
+            <thead><tr><th scope="col">三种推导，一眼看懂</th><th scope="col">关键关系</th></tr></thead>
+            <tbody>
+              <tr>
+                <td>
+                  <div class="basic-inequality-method-heading"><span>01</span><strong>面积几何证明</strong><em>面积不会是负数</em></div>
+                  ${renderBasicInequalityAreaFigure()}
+                </td>
+                <td>
+                  <div class="basic-inequality-reasoning">
+                    <p><b>直角边：</b>${inlineMath(mathRadical("a"))} 与 ${inlineMath(mathRadical("b"))}</p>
+                    <p><b>外正方形面积：</b>${inlineMath("S<sub>ABCD</sub>=a+b")}</p>
+                    <p><b>四个三角形面积：</b>${inlineMath(`4×${mathFraction("1", "2")}×${mathRadical("a")}×${mathRadical("b")}=2${mathRadical("ab")}`)}</p>
+                    <p class="is-conclusion"><b>中间正方形：</b>${inlineMath(`S<sub>EFGH</sub>=a+b−2${mathRadical("ab")}≥0`)}</p>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="basic-inequality-method-heading"><span>02</span><strong>完全平方证明</strong><em>把两种平均数作差</em></div>
+                  <div class="basic-inequality-algebra-flow" aria-label="算术平均数减几何平均数化成完全平方">
+                    <span>${inlineMath(`${mathFraction("a+b", "2")}−${mathRadical("ab")}`)}</span><i>＝</i>
+                    <span>${inlineMath(mathFraction(`a+b−2${mathRadical("ab")}`, "2"))}</span><i>＝</i>
+                    <strong>${inlineMath(mathFraction(`(${mathRadical("a")}−${mathRadical("b")})<sup>2</sup>`, "2"))}</strong>
+                  </div>
+                </td>
+                <td>
+                  <div class="basic-inequality-reasoning is-algebra">
+                    <p>对任意实数，完全平方都满足 ${inlineMath(`(${mathRadical("a")}−${mathRadical("b")})<sup>2</sup>≥0`)}。</p>
+                    <p class="is-conclusion">因此 ${inlineMath(`${mathFraction("a+b", "2")}−${mathRadical("ab")}≥0`)}。</p>
+                    <p>等号成立 ⇔ ${inlineMath(`${mathRadical("a")}=${mathRadical("b")}`)} ⇔ ${inlineMath("a=b")}。</p>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="basic-inequality-method-heading"><span>03</span><strong>半圆几何证明</strong><em>直角三角形中斜边最长</em></div>
+                  ${renderBasicInequalitySemicircleFigure()}
+                </td>
+                <td>
+                  <div class="basic-inequality-reasoning">
+                    <p>${inlineMath("△ACD∽△DCB")}，所以 ${inlineMath(`${mathFraction("AC", "CD")}=${mathFraction("CD", "CB")}`)}。</p>
+                    <p>${inlineMath("CD<sup>2</sup>=AC·CB=ab")}，即 ${inlineMath(`CD=${mathRadical("ab")}`)}。</p>
+                    <p>${inlineMath(`OD=${mathFraction("AB", "2")}=${mathFraction("a+b", "2")}`)}；在直角三角形 ${inlineMath("OCD")} 中，斜边 ${inlineMath("OD≥CD")}。</p>
+                    <p class="is-conclusion">所以 ${inlineMath(`${mathFraction("a+b", "2")}≥${mathRadical("ab")}`)}。</p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    ` : "";
+    const renderBasicInequalityConditions = (block) => {
+      if (!block?.basicInequalityConditions) return "";
+      const meta = [
+        { number: "一", title: "一正", note: "先确认参与配凑的每一项都是正数" },
+        { number: "二", title: "二定", note: "再确认和或积中存在可确定的定值" },
+        { number: "三", title: "三相等", note: "最后验证等号条件能在原题中取得" },
+      ];
+      return `<div class="basic-inequality-conditions">
+        ${meta.map((item, index) => `<article>
+          <span>${item.number}</span><div><strong>${item.title}</strong><p>${item.note}</p><small>${(block.bodyHtml[index] || "").replace(/^[^：]+：/, "")}</small></div>
+        </article>`).join("")}
+      </div>`;
+    };
+    const renderFixedProductGoal = () => `
+      <div class="fixed-product-goal" aria-label="基本不等式应用的共同目标">
+        <span>共同目标</span><strong>构造两个正项 ${inlineMath("U，V")}</strong><i aria-hidden="true">→</i>
+        <b>${inlineMath("UV=定值")}</b><i aria-hidden="true">→</i><em>${inlineMath("U+V")} 有最小值</em>
+      </div>`;
+    const renderFixedProductMatrix = ({ label, title, target, condition, columns, rows, cells, product }) => `
+      <article class="fixed-product-route">
+        <header><span>${label}</span><strong>${title}</strong></header>
+        <div class="fixed-product-inputs"><p><small>目标</small>${target}</p><i aria-hidden="true">×</i><p><small>条件</small>${condition}</p></div>
+        <div class="fixed-product-matrix" aria-label="乘法展开表">
+          <span></span><b>${columns[0]}</b><b>${columns[1]}</b>
+          <b>${rows[0]}</b><span class="is-constant">${cells[0][0]}</span><span class="is-cross">${cells[0][1]}</span>
+          <b>${rows[1]}</b><span class="is-cross">${cells[1][0]}</span><span class="is-constant">${cells[1][1]}</span>
+        </div>
+        <p class="fixed-product-found"><span>交叉项定积</span><strong>${product}</strong></p>
+      </article>`;
+    const renderFixedProductConditionVisual = (block) => block?.fixedProductConditionVisual ? `
+      <div class="fixed-product-knowledge is-condition">
+        ${renderFixedProductGoal()}
+        <div class="fixed-product-routes">
+          ${renderFixedProductMatrix({
+            label: "路径 A",
+            title: "乘入等于 1 的倒数条件",
+            target: inlineMath("x+4y"),
+            condition: inlineMath(`${mathFraction("1", "x")}+${mathFraction("1", "y")}=1`),
+            columns: [inlineMath(mathFraction("1", "x")), inlineMath(mathFraction("1", "y"))],
+            rows: [inlineMath("x"), inlineMath("4y")],
+            cells: [[inlineMath("1"), inlineMath(mathFraction("x", "y"))], [inlineMath(mathFraction("4y", "x")), inlineMath("4")]],
+            product: inlineMath(`${mathFraction("x", "y")}·${mathFraction("4y", "x")}=4`),
+          })}
+          ${renderFixedProductMatrix({
+            label: "路径 B",
+            title: "乘入题设给出的定和",
+            target: inlineMath(`${mathFraction("3", "a")}+${mathFraction("4", "b")}`),
+            condition: inlineMath("a+3b=2"),
+            columns: [inlineMath("a"), inlineMath("3b")],
+            rows: [inlineMath(mathFraction("3", "a")), inlineMath(mathFraction("4", "b"))],
+            cells: [[inlineMath("3"), inlineMath(mathFraction("9b", "a"))], [inlineMath(mathFraction("4a", "b")), inlineMath("12")]],
+            product: inlineMath(`${mathFraction("9b", "a")}·${mathFraction("4a", "b")}=36`),
+          })}
+        </div>
+        <div class="fixed-product-principle"><span>观察展开式</span><strong>条件 × 目标 ＝ 常数项 ＋ 两个交叉正项</strong><b>再检查交叉项乘积</b></div>
+      </div>` : "";
+    const renderFixedProductCompletionVisual = (block) => block?.fixedProductCompletionVisual ? `
+      <div class="fixed-product-knowledge is-completion">
+        ${renderFixedProductGoal()}
+        <div class="fixed-product-completion-flow" aria-label="围绕分母补项构造定积">
+          <section><span>01 看分母</span><strong>${inlineMath(mathFraction("k", "x+c"))}</strong><p>倒数项已经暴露配对结构</p></section>
+          <i aria-hidden="true">→</i>
+          <section><span>02 反推配对</span><strong>${inlineMath("p(x+c)")}</strong><p>它与倒数项相乘可消去变量</p></section>
+          <i aria-hidden="true">→</i>
+          <section><span>03 补项减回</span><strong>${inlineMath("px=p(x+c)−pc")}</strong><p>补出配对项，多补的常数减回</p></section>
+          <i aria-hidden="true">→</i>
+          <section><span>04 定积出现</span><strong>${inlineMath(`p(x+c)·${mathFraction("k", "x+c")}=pk`)}</strong><p>得到两个乘积固定的正项</p></section>
+        </div>
+        <div class="fixed-product-general-formula">
+          <span>统一结构</span>
+          <strong>${inlineMath(`px+${mathFraction("k", "x+c")}`)}</strong><i>＝</i>
+          <b>${inlineMath(`[p(x+c)+${mathFraction("k", "x+c")}]−pc`)}</b>
+        </div>
+        <div class="fixed-product-completion-examples">
+          <article><span>练习 8-5</span><p>${inlineMath(`x+${mathFraction("4", "x+1")}`)}</p><i aria-hidden="true">→</i><strong>${inlineMath(`[(x+1)+${mathFraction("4", "x+1")}]−1`)}</strong><small>框内两项乘积为 4</small></article>
+          <article><span>练习 8-6</span><p>${inlineMath(`2x+${mathFraction("1", "x+3")}`)}</p><i aria-hidden="true">→</i><strong>${inlineMath(`[2(x+3)+${mathFraction("1", "x+3")}]−6`)}</strong><small>框内两项乘积为 2</small></article>
+        </div>
+        <p class="fixed-product-tool-note"><span>换元只做简写</span>令 ${inlineMath("t=x+c>0")}，可把配对结构写成 ${inlineMath(`pt+${mathFraction("k", "t")}`)}。</p>
+      </div>` : "";
     const renderKnowledgeItems = (blocks) => blocks.map((block) => `
-      <article class="senior-learning-knowledge-item${block.table ? " has-table" : ""}">
+      <article class="senior-learning-knowledge-item${block.table || block.quadraticInequalityTables || block.threadingLineTable || block.rationalThreadingTable || block.absoluteInequalityTable || block.basicInequalityVisual || block.basicInequalityConditions || block.fixedProductConditionVisual || block.fixedProductCompletionVisual ? " has-table" : ""}${block.basicInequalityVisual ? " is-basic-inequality-visual" : ""}${block.basicInequalityConditions ? " is-basic-inequality-conditions" : ""}${block.fixedProductConditionVisual || block.fixedProductCompletionVisual ? " is-fixed-product-visual" : ""}">
         <h4>${escapeHtml(block.title)}</h4>
-        ${renderKnowledgeBody(block)}
+        ${block.basicInequalityVisual || block.basicInequalityConditions || block.fixedProductConditionVisual || block.fixedProductCompletionVisual ? "" : renderKnowledgeBody(block)}
         ${renderKnowledgeTable(block.table)}
+        ${renderQuadraticInequalityTables(block.quadraticInequalityTables)}
+        ${renderThreadingLineTable(block.threadingLineTable)}
+        ${renderRationalThreadingTable(block.rationalThreadingTable)}
+        ${renderAbsoluteInequalityTable(block.absoluteInequalityTable)}
+        ${renderBasicInequalityVisual(block)}
+        ${renderBasicInequalityConditions(block)}
+        ${renderFixedProductConditionVisual(block)}
+        ${renderFixedProductCompletionVisual(block)}
       </article>
     `).join("");
     const renderKnowledgeVisual = (group) => {
@@ -1177,11 +1705,21 @@
     const examplesForCategory = (category) => module.examples.filter(
       (example) => learningExampleCategory(example) === category,
     );
-    const exerciseHrefForCategory = (category) => {
-      const firstExample = examplesForCategory(category)[0];
+    const examplesForKnowledgeGroup = (group) => {
+      const exactGroupExamples = module.examples.filter((example) => example.group === group.title);
+      return exactGroupExamples.length ? exactGroupExamples : examplesForCategory(group.category);
+    };
+    const exerciseHrefForKnowledgeGroup = (group) => {
+      const firstExample = examplesForKnowledgeGroup(group)[0];
       return firstExample
         ? `#exercises-${learningGroupSlug(firstExample.group)}`
         : "#worked-examples-heading";
+    };
+    const knowledgeBlocksForGroup = (group) => {
+      const explicitlyGrouped = module.knowledgeBlocks.filter((block) => block.groupId === group.id);
+      return explicitlyGrouped.length
+        ? explicitlyGrouped
+        : module.knowledgeBlocks.filter((block) => !block.groupId && block.category === group.category);
     };
     return `
       <article class="senior-learning-topic">
@@ -1197,25 +1735,21 @@
           </div>
           <div class="senior-learning-knowledge-groups">
             ${(module.knowledgeGroups || []).map((group) => `
-              <article id="knowledge-${escapeHtml(group.category)}" class="senior-learning-knowledge-group is-${escapeHtml(group.category)} has-${module.knowledgeBlocks.filter(
-                (block) => block.category === group.category,
-              ).length}-items${module.knowledgeBlocks.some((block) => block.category === group.category && block.table) ? " has-table" : ""}">
+              <article id="knowledge-${escapeHtml(group.category)}" class="senior-learning-knowledge-group is-${escapeHtml(group.category)} has-${knowledgeBlocksForGroup(group).length}-items${knowledgeBlocksForGroup(group).some((block) => block.table || block.quadraticInequalityTables || block.threadingLineTable || block.rationalThreadingTable || block.absoluteInequalityTable || block.basicInequalityVisual || block.basicInequalityConditions || block.fixedProductConditionVisual || block.fixedProductCompletionVisual) ? " has-table" : ""}">
                 <div class="senior-learning-knowledge-group-heading">
                   <span>${escapeHtml(group.number)}</span>
                   <div>
                     <p>${escapeHtml(group.eyebrow)}</p>
                     <h3>${escapeHtml(group.title)}</h3>
-                    ${examplesForCategory(group.category).length ? `<a class="senior-learning-exercise-anchor" href="${escapeHtml(exerciseHrefForCategory(group.category))}">
+                    ${examplesForKnowledgeGroup(group).length ? `<a class="senior-learning-exercise-anchor" href="${escapeHtml(exerciseHrefForKnowledgeGroup(group))}">
                       <span>对应练习</span>
-                      <strong>${examplesForCategory(group.category).length} 题</strong>
+                      <strong>${group.lessonCount || examplesForKnowledgeGroup(group).length} 题</strong>
                       <span aria-hidden="true">↓</span>
                     </a>` : ""}
                   </div>
                 </div>
                 <div class="senior-learning-knowledge-items">
-                  ${renderKnowledgeItems(module.knowledgeBlocks.filter(
-                    (block) => block.category === group.category,
-                  ))}
+                  ${renderKnowledgeItems(knowledgeBlocksForGroup(group))}
                 </div>
                 ${renderKnowledgeVisual(group)}
               </article>

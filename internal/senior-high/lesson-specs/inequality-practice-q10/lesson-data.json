@@ -1,0 +1,106 @@
+{
+  "meta": {
+    "id": "inequality-practice-q10",
+    "outputPath": "site/problems/senior-high/inequalities/inequality-relations/inequality-practice-q10.html",
+    "pageTitle": "解因式型分式不等式",
+    "pageDescription": "解因式型分式不等式的逐步解析。",
+    "breadcrumbTitle": "实战演练 · 第 10 题",
+    "breadcrumbLabel": "解不等式与基本不等式",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=inequalities&section=inequality-relations&module=inequality-practice"
+  },
+  "problem": {
+    "source": "高一暑假目标班 · 第4讲",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "按顺序排列两个零点和一个禁值点。",
+      "items": [
+        "x=-4 是禁值点。",
+        "x=-1、2 是分子零点。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "10. 不等式 \\(\\frac{(x+1)(2-x)}{x+4}\\ge0\\) 的解集为　　　　。"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "分式不等式",
+      "title": "三个分界点按顺序穿线",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "rational-threading-graph",
+        "title": "三个分界点：禁值也参与穿线，但绝不进入解集",
+        "intro": "把最高次项系数化正后，从最右侧正号开始依次穿过 2、−1、−4。",
+        "standardized": "\\(\\frac{(x+1)(2-x)}{x+4}\\ge0\\iff(x+4)(x+1)(x-2)\\le0，x\\ne-4\\)",
+        "roots": [
+          {
+            "label": "−4",
+            "kind": "denominator",
+            "included": false
+          },
+          {
+            "label": "−1",
+            "kind": "numerator",
+            "included": true
+          },
+          {
+            "label": "2",
+            "kind": "numerator",
+            "included": true
+          }
+        ],
+        "signs": [
+          "-",
+          "+",
+          "-",
+          "+"
+        ],
+        "selectSign": "-",
+        "target": "取负号区域",
+        "solution": "\\(( -\\infty,-4)\\cup[-1,2]\\)",
+        "facts": [
+          "−4 是分母禁值，用带叉空心点排除。",
+          "−1、2 是分子零点，题目含等号，所以并入解集。"
+        ],
+        "caption": "实心点表示可取的分子零点；带叉空心点表示永远排除的分母禁值。"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "\\(\\frac{(x+1)(2-x)}{x+4}\\ge0\\iff(x+4)(x+1)(x-2)\\le0，x\\ne-4\\)"
+        },
+        {
+          "kind": "because",
+          "text": "−4、−1、2 都是单根，穿过每个点符号交替"
+        },
+        {
+          "kind": "therefore",
+          "text": "取负号区域，排除禁值 −4，保留分子零点 −1、2，得到 (-∞,-4)∪[-1,2]"
+        }
+      ],
+      "derive": [
+        [
+          "解集",
+          "(-∞,-4)∪[-1,2]"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 三个分界点按顺序穿线"
+  }
+}

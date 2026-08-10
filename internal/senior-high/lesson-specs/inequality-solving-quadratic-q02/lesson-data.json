@@ -1,0 +1,111 @@
+{
+  "meta": {
+    "id": "inequality-solving-quadratic-q02",
+    "outputPath": "site/problems/senior-high/inequalities/inequality-relations/inequality-solving-quadratic-q02.html",
+    "pageTitle": "判断恒无解的二次不等式",
+    "pageDescription": "判断恒无解的二次不等式的逐步解析。",
+    "breadcrumbTitle": "解不等式 · 练习 4-2",
+    "breadcrumbLabel": "解不等式与基本不等式",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=inequalities&section=inequality-relations&module=solving-inequalities"
+  },
+  "problem": {
+    "source": "高一暑假目标班 · 第4讲",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "引用核心知识：先看 a 的符号确定抛物线开口，再看 Δ 与实根确定图像和 x 轴的位置关系。",
+      "items": [
+        "令 y=-x²+2x-3；a<0，所以抛物线开口向下。",
+        "Δ<0，图像与 x 轴没有交点；结合开口方向可知整个图像在 x 轴下方。",
+        "题目要求 y>0，因此解集为空集。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "一元二次不等式 \\(-x^2+2x-3>0\\) 的解集是（　　）"
+      },
+      {
+        "text": "A. \\(\\varnothing\\)　B. \\((-3,1)\\)　C. \\((-1,3)\\)　D. \\((-3,-1)\\)"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "一元二次不等式",
+      "title": "配方判断整段符号",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "quadratic-function-sign-graphs",
+        "ariaLabel": "二次函数 y 等于负 x 平方加 2x 减 3 的图像，开口向下且与 x 轴没有交点，整个图像位于 x 轴下方",
+        "title": "开口向下且没有交点：图像恒在 x 轴下方",
+        "intro": "Δ<0 只说明没有交点；还要结合 a<0 的开口方向判断图像位于 x 轴哪一侧。",
+        "graphs": [
+          {
+            "label": "原不等式",
+            "expression": "\\(y=-x^2+2x-3\\)",
+            "opening": "down",
+            "discriminant": "negative",
+            "roots": [],
+            "facts": [
+              "\\(a=-1<0\\)，抛物线开口向下",
+              "\\(\\Delta=2^2-4×(-1)×(-3)=-8<0\\)，与 x 轴无交点",
+              "顶点纵坐标为 \\(-2\\)，整个图像在 x 轴下方"
+            ],
+            "target": "\\(f(x)>0\\)",
+            "solutionMode": "none",
+            "solution": "\\(\\varnothing\\)"
+          }
+        ],
+        "caption": "图像上不存在位于 x 轴上方的点，所以不等式无解。"
+      },
+      "table": {
+        "headers": [
+          "二次式",
+          "最大值",
+          "与 0 的关系"
+        ],
+        "rows": [
+          [
+            "−(x−1)²−2",
+            "−2",
+            "恒小于 0"
+          ]
+        ]
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "\\(-x^2+2x-3=-(x-1)^2-2<0\\) 对任意实数 x 成立"
+        },
+        {
+          "kind": "because",
+          "text": "从二次函数图像看，\\(a<0\\) 且 \\(\\Delta<0\\)，抛物线开口向下并且与 x 轴没有交点，所以图像恒在 x 轴下方"
+        },
+        {
+          "kind": "therefore",
+          "text": "不存在使 \\(-x^2+2x-3>0\\) 成立的 x，解集为空集，选择 A"
+        }
+      ],
+      "derive": [
+        [
+          "答案",
+          "A（空集）"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 化标准式并判断符号"
+  }
+}

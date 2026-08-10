@@ -1,0 +1,6 @@
+{
+  "meta":{"id":"inequality-compare-q03","outputPath":"site/problems/senior-high/inequalities/inequality-relations/inequality-compare-q03.html","pageTitle":"提取公因式比较大小","pageDescription":"明确使用作差法，把两个双线性式的差分解成正因式乘积。","breadcrumbTitle":"不等关系 · 练习 3-3","breadcrumbLabel":"不等关系","breadcrumbPath":"site/senior-high/index.html","breadcrumbSearch":"?chapter=inequalities&section=inequality-relations&module=inequality-relations"},
+  "problem":{"source":"培训教材 · 不等关系","keyPoints":{"title":"解题要点","lead":"明确使用作差法：用“前式减后式”，再判断差与 0 的关系。","items":["作差后提取公因式；","利用 \\(a_2-a_1>0\\)、\\(b_2-b_1>0\\) 判断乘积符号。"]},"lines":[{"text":"若 \\(a_1<a_2\\)，\\(b_1<b_2\\)，则 \\(a_1b_1+a_2b_2\\) 与 \\(a_1b_2+a_2b_1\\) 的大小关系是______。"}]},
+  "steps":[{"id":"s1","section":"比大小","title":"作差法：因式分解并判断符号","t":0,"showDiagram":false,"reasoning":[{"kind":"because","text":"使用作差法，用前式减后式：\\((a_1b_1+a_2b_2)-(a_1b_2+a_2b_1)\\)。"},{"kind":"because","text":"因式分解得 \\((a_1b_1+a_2b_2)-(a_1b_2+a_2b_1)=(a_2-a_1)(b_2-b_1)\\)。"},{"kind":"because","text":"由 \\(a_1<a_2\\)、\\(b_1<b_2\\)，得 \\(a_2-a_1>0\\)、\\(b_2-b_1>0\\)，所以差大于 0。"},{"kind":"therefore","text":"前式减后式大于 0，因此 \\(a_1b_1+a_2b_2>a_1b_2+a_2b_1\\)。"}],"derive":[["使用方法","作差法"],["差的符号",">0"],["关系符号",">"]]}],
+  "policies":{"s1":{"movable":false,"range":[0,0]}},"stepLabels":{"s1":"1 作差法：分解判号"}
+}

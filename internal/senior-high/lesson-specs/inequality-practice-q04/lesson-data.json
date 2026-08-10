@@ -1,0 +1,118 @@
+{
+  "meta": {
+    "id": "inequality-practice-q04",
+    "outputPath": "site/problems/senior-high/inequalities/inequality-relations/inequality-practice-q04.html",
+    "pageTitle": "由整数解个数确定参数",
+    "pageDescription": "由整数解个数确定参数的逐步解析。",
+    "breadcrumbTitle": "实战演练 · 第 4 题",
+    "breadcrumbLabel": "解不等式与基本不等式",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=inequalities&section=inequality-relations&module=inequality-practice"
+  },
+  "problem": {
+    "source": "高一暑假目标班 · 第4讲",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "先利用对称轴锁定三个整数解，再检查最内侧解点与相邻排除点。",
+      "items": [
+        "参数 a 只让抛物线上下平移，对称轴始终是 x=3。",
+        "恰有三个整数解时，关于 3 对称的整数只能是 2、3、4。",
+        "含等号的内侧点要保留，相邻外侧点必须排除。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "4. 若关于 \\(x\\) 的一元二次不等式 \\(x^2-6x+a\\le0\\ (a\\in\\mathbb Z)\\) 的解集中有且仅有 3 个整数，则 \\(a\\) 的取值可以是（　　）"
+      },
+      {
+        "text": "A. 4　　　B. 5　　　C. 8　　　D. 9"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "参数不等式",
+      "title": "由对称轴锁定整数解，再检查边界",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "quadratic-symmetric-integer-window",
+        "title": "对称轴先锁定整数解，边界点再确定参数",
+        "function": "\\(f(x)=x^2-6x+a\\)",
+        "axis": "\\(x=3\\)",
+        "movement": "参数 \\(a\\) 只使图像上下平移",
+        "included": [
+          "2",
+          "3",
+          "4"
+        ],
+        "excluded": [
+          "1",
+          "5"
+        ],
+        "lockStatement": "恰有 3 个整数解，只能取关于对称轴成对的 2、3、4",
+        "innerPairLabel": "f(2)=f(4)",
+        "outerPairLabel": "f(1)=f(5)",
+        "checks": [
+          {
+            "role": "最外侧解点",
+            "point": "2",
+            "symmetry": "\\(f(4)=f(2)\\)",
+            "condition": "\\(f(2)\\le0\\)",
+            "calculation": "\\(4-12+a\\le0\\)",
+            "result": "\\(a\\le8\\)"
+          },
+          {
+            "role": "相邻排除点",
+            "point": "1",
+            "symmetry": "\\(f(5)=f(1)\\)",
+            "condition": "\\(f(1)>0\\)",
+            "calculation": "\\(1-6+a>0\\)",
+            "result": "\\(a>5\\)"
+          }
+        ],
+        "range": "\\(5<a\\le8\\)",
+        "integerValues": "\\(a\\in\\{6,7,8\\}\\)",
+        "conclusion": "选项中可以取 \\(a=8\\)，选择 C",
+        "caption": "关于整数对称轴，奇数个整数解由中心点和若干对称点对组成。"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "令 f(x)=x²-6x+a，抛物线开口向上且对称轴恒为 x=3；解集关于 3 对称"
+        },
+        {
+          "kind": "because",
+          "text": "解集中恰有 3 个整数，所以只能是 2、3、4；因此 f(2)≤0，而相邻的 1 必须排除，即 f(1)>0"
+        },
+        {
+          "kind": "because",
+          "text": "f(2)≤0 得 a≤8，f(1)>0 得 a>5，所以 5<a≤8"
+        },
+        {
+          "kind": "therefore",
+          "text": "a∈Z，所以 a∈{6,7,8}；选项中可以取 8，选择 C"
+        }
+      ],
+      "derive": [
+        [
+          "答案",
+          "C"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 由对称轴锁定整数解，再检查边界"
+  }
+}

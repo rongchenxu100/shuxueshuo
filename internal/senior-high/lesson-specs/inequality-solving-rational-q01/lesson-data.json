@@ -1,0 +1,90 @@
+{
+  "meta": {
+    "id": "inequality-solving-rational-q01",
+    "outputPath": "site/problems/senior-high/inequalities/inequality-relations/inequality-solving-rational-q01.html",
+    "pageTitle": "解分式不等式（含等号）",
+    "pageDescription": "解分式不等式（含等号）的逐步解析。",
+    "breadcrumbTitle": "解不等式 · 练习 6-1",
+    "breadcrumbLabel": "解不等式与基本不等式",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=inequalities&section=inequality-relations&module=solving-inequalities"
+  },
+  "problem": {
+    "source": "高一暑假目标班 · 第4讲",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "引用分式不等式知识点：先转化为整式乘积判号，同时始终保留分母不为 0 的禁值条件。",
+      "items": [
+        "当 \\(b\\ne0\\) 时，\\(\\frac{a}{b}\\ge0\\iff ab\\ge0\\)；分式与分子、分母乘积同号。",
+        "分子零点 −3 因含等号可以取，用实心点；分母零点 2 永远是禁值点，用带叉空心点。",
+        "把分界点从小到大标在数轴上，从最右侧开始穿并读取非负区域。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "解不等式 \\(\\frac{x+3}{2-x}\\ge0\\)。"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "分式不等式",
+      "title": "移项通分并标出禁值点",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "rational-threading-graph",
+        "ariaLabel": "分子零点负 3 为实心点，分母禁值 2 为带叉空心点，负号阴影位于负 3 到 2",
+        "title": "分子零点可取，分母禁值永远排除",
+        "intro": "先按知识点把分式转化为乘积判号，再把分子零点和分母禁值点一起放入穿针图。",
+        "standardized": "\\(\\frac{x+3}{2-x}\\ge0\\iff(x+3)(x-2)\\le0，x\\ne2\\)",
+        "roots": [
+          { "label": "−3", "kind": "numerator", "included": true },
+          { "label": "2", "kind": "denominator", "included": false }
+        ],
+        "signs": ["+", "-", "+"],
+        "selectSign": "-",
+        "target": "取负号区间并保留允许的等号点",
+        "solution": "\\([-3,2)\\)",
+        "facts": [
+          "分子在 x=−3 时为 0，题目含等号，所以 −3 并入解集。",
+          "分母在 x=2 时为 0，原分式无意义，无论是否含等号都必须排除。"
+        ],
+        "caption": "实心点表示允许取到的分子零点；红色带叉空心点表示分母禁值。"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "引用知识点：\\(\\frac{x+3}{2-x}\\ge0\\iff(x+3)(2-x)\\ge0\\)，同时必须满足 \\(x\\ne2\\)"
+        },
+        {
+          "kind": "because",
+          "text": "将乘积最高次项系数化正，得 \\((x+3)(x-2)\\le0\\)；从最右侧正号开始穿，负号区间位于 −3 与 2 之间"
+        },
+        {
+          "kind": "therefore",
+          "text": "−3 是可取的分子零点，2 是不可取的分母禁值，因此解集为 \\([-3,2)\\)"
+        }
+      ],
+      "derive": [
+        [
+          "解集",
+          "[-3,2)"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 化标准式并判断符号"
+  }
+}

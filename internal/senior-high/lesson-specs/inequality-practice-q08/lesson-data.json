@@ -1,0 +1,100 @@
+{
+  "meta": {
+    "id": "inequality-practice-q08",
+    "outputPath": "site/problems/senior-high/inequalities/inequality-relations/inequality-practice-q08.html",
+    "pageTitle": "解含等号的分式不等式",
+    "pageDescription": "解含等号的分式不等式的逐步解析。",
+    "breadcrumbTitle": "实战演练 · 第 8 题",
+    "breadcrumbLabel": "解不等式与基本不等式",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=inequalities&section=inequality-relations&module=inequality-practice"
+  },
+  "problem": {
+    "source": "高一暑假目标班 · 第4讲",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "分别标出分子零点与分母禁值点。",
+      "items": [
+        "x=-3 可以取。",
+        "x=2 不能取。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "8. 不等式 \\(\\frac{x+3}{2-x}\\ge0\\) 的解集为　　　　。"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "分式不等式",
+      "title": "转化为乘积后穿针判号",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "rational-threading-graph",
+        "title": "同一条数轴区分零点与禁值点",
+        "intro": "先转成整式乘积判号，再单独保留分母不为 0 的条件。",
+        "standardized": "\\(\\frac{x+3}{2-x}\\ge0\\iff(x+3)(x-2)\\le0，x\\ne2\\)",
+        "roots": [
+          {
+            "label": "−3",
+            "kind": "numerator",
+            "included": true
+          },
+          {
+            "label": "2",
+            "kind": "denominator",
+            "included": false
+          }
+        ],
+        "signs": [
+          "+",
+          "-",
+          "+"
+        ],
+        "selectSign": "-",
+        "target": "取负号区间",
+        "solution": "\\([-3,2)\\)",
+        "facts": [
+          "−3 是分子零点，题目含等号，所以并入解集。",
+          "2 是分母禁值，永远排除。"
+        ],
+        "caption": "实心点表示可取的分子零点；带叉空心点表示永远排除的分母禁值。"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "\\(\\frac{x+3}{2-x}\\ge0\\iff(x+3)(x-2)\\le0，x\\ne2\\)"
+        },
+        {
+          "kind": "because",
+          "text": "从最右侧正号开始，两个单根之间为负"
+        },
+        {
+          "kind": "therefore",
+          "text": "−3 可取，2 是禁值，解集为 [-3,2)"
+        }
+      ],
+      "derive": [
+        [
+          "解集",
+          "[-3,2)"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 转化为乘积后穿针判号"
+  }
+}

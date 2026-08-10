@@ -1,0 +1,102 @@
+{
+  "meta": {
+    "id": "inequality-practice-q06",
+    "outputPath": "site/problems/senior-high/inequalities/inequality-relations/inequality-practice-q06.html",
+    "pageTitle": "求两个区间变量乘积的范围",
+    "pageDescription": "求两个区间变量乘积的范围的逐步解析。",
+    "breadcrumbTitle": "实战演练 · 第 6 题",
+    "breadcrumbLabel": "解不等式与基本不等式",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=inequalities&section=inequality-relations&module=inequality-practice"
+  },
+  "problem": {
+    "source": "高一暑假目标班 · 第4讲",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "先把负数区间正化，再用同向正不等式的可乘法则，最后还原乘积符号。",
+      "items": [
+        "同乘负数时，不等号方向改变。",
+        "两组同向不等式对应相乘前，必须确认各项均为正数。",
+        "开区间的端点不能取到。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "6. 已知实数 \\(a，b\\) 满足 \\(-2<a<-1，1<b<3\\)，则 \\(a\\cdot b\\) 的取值范围是　　　　。"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "范围计算",
+      "title": "正化后相乘，再还原符号",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "positive-interval-product-chain",
+        "title": "先把负区间正化，再使用同向正不等式相乘",
+        "normalize": {
+          "source": "\\(-2<a<-1\\)",
+          "factor": "\\(×(-1)\\)",
+          "rule": "同乘负数，方向改变",
+          "result": "\\(1<-a<2\\)"
+        },
+        "multiply": {
+          "rows": [
+            "\\(1<-a<2\\)",
+            "\\(1<b<3\\)"
+          ],
+          "positivity": "\\(-a>0，b>0\\)",
+          "rule": "同向正不等式对应相乘",
+          "expanded": "\\(1×1<(-a)b<2×3\\)",
+          "result": "\\(1<-ab<6\\)"
+        },
+        "restore": {
+          "source": "\\(1<-ab<6\\)",
+          "factor": "\\(×(-1)\\)",
+          "rule": "同乘负数，方向改变并按从小到大重排",
+          "result": "\\(-6<ab<-1\\)"
+        },
+        "conclusion": "\\(ab\\in(-6,-1)\\)",
+        "caption": "两个变量在开区间内独立连续变化，中间值均可取得，两个端点不能取到。"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "由 -2<a<-1 各部分同乘 -1 并改变方向，整理得 1<-a<2"
+        },
+        {
+          "kind": "because",
+          "text": "-a 与 b 都是正数；将 1<-a<2 和 1<b<3 的下界、上界分别相乘，得 1<(-a)b<6，即 1<-ab<6"
+        },
+        {
+          "kind": "because",
+          "text": "各部分同乘 -1，不等号再次改变方向，整理得 -6<ab<-1"
+        },
+        {
+          "kind": "therefore",
+          "text": "a、b 独立连续变化且原区间均为开区间，所以取值范围为 (-6,-1)"
+        }
+      ],
+      "derive": [
+        [
+          "取值范围",
+          "(-6,-1)"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 正化后相乘，再还原符号"
+  }
+}

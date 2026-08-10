@@ -1,0 +1,4 @@
+interface:
+  display_name: "高中不等式互动课"
+  short_description: "依据教材构建高中不等关系、解不等式与基本不等式互动专题"
+  default_prompt: "Use $senior-high-inequality-lesson to turn these high-school inequality materials into a structured learning topic with interactive exercises."

@@ -1,0 +1,108 @@
+{
+  "meta": {
+    "id": "inequality-practice-q02",
+    "outputPath": "site/problems/senior-high/inequalities/inequality-relations/inequality-practice-q02.html",
+    "pageTitle": "判断恒成立的不等式推论",
+    "pageDescription": "判断恒成立的不等式推论的逐步解析。",
+    "breadcrumbTitle": "实战演练 · 第 2 题",
+    "breadcrumbLabel": "解不等式与基本不等式",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=inequalities&section=inequality-relations&module=inequality-practice"
+  },
+  "problem": {
+    "source": "高一暑假目标班 · 第4讲",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "先找出前提中暗含的非零和正数条件。",
+      "items": [
+        "不等式严格成立可排除 c=0。",
+        "没有符号约束时不能直接取倒数或相乘。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "2. 如果 \\(a，b，c，d\\in\\mathbb R\\)，则正确的是（　　）"
+      },
+      {
+        "text": "A. 若 \\(a>b\\)，则 \\(\\frac{1}{a}<\\frac{1}{b}\\)　　B. 若 \\(a>b，c>d\\)，则 \\(a-c>b-d\\)　　C. 若 \\(ac^2>bc^2\\)，则 \\(a>b\\)　　D. 若 \\(a>b，c>d\\)，则 \\(ac>bd\\)"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "性质辨析",
+      "title": "正确项证明，错误项用反例击破",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "option-counterexample-review",
+        "title": "先检查条件，再决定能否使用不等式性质",
+        "intro": "每个错误选项都给出一组满足前提的数值，并完整算出结论为何失败。",
+        "rows": [
+          {
+            "option": "A",
+            "correct": false,
+            "judgment": "未保证 \\(a、b\\) 非零同号",
+            "example": "\\(a=1，b=-1\\)",
+            "calculation": "\\(1>-1\\)，但 \\(\\frac{1}{a}=1>-1=\\frac{1}{b}\\)，不是 \\(\\frac{1}{a}<\\frac{1}{b}\\)"
+          },
+          {
+            "option": "B",
+            "correct": false,
+            "judgment": "\\(a>b、c>d\\) 不能直接相减",
+            "example": "\\(a=4，b=3，c=5，d=1\\)",
+            "calculation": "\\(a-c=-1<2=b-d\\)，题设结论不成立"
+          },
+          {
+            "option": "C",
+            "correct": true,
+            "judgment": "严格不等式自动给出 \\(c^2>0\\)",
+            "example": "\\(ac^2>bc^2\\)",
+            "calculation": "\\((a-b)c^2>0\\Rightarrow c\\ne0\\Rightarrow c^2>0\\Rightarrow a>b\\)"
+          },
+          {
+            "option": "D",
+            "correct": false,
+            "judgment": "两组大小关系不能直接相乘",
+            "example": "\\(a=1，b=0，c=0，d=-1\\)",
+            "calculation": "\\(1>0，0>-1\\)，但 \\(ac=0=bd\\)，不是 \\(ac>bd\\)"
+          }
+        ],
+        "caption": "先由前提读出正负和非零信息，再选择可加性、可乘性或反例。"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "由 ac²>bc² 可知 c≠0，所以 c²>0；同除以 c²，方向不变，得到 a>b"
+        },
+        {
+          "kind": "because",
+          "text": "A、B、D 分别缺少同号、同向相加与乘数符号条件，可用具体数值反驳"
+        },
+        {
+          "kind": "therefore",
+          "text": "选择 C"
+        }
+      ],
+      "derive": [
+        [
+          "答案",
+          "C"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 正确项证明，错误项用反例击破"
+  }
+}

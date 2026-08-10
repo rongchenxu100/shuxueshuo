@@ -1,0 +1,169 @@
+{
+  "meta": {
+    "id": "inequality-basic-q03",
+    "outputPath": "site/problems/senior-high/inequalities/inequality-relations/inequality-basic-q03.html",
+    "pageTitle": "倒数和定值求线性式的最小值",
+    "pageDescription": "倒数和定值求线性式的最小值的逐步解析。",
+    "breadcrumbTitle": "基本不等式 · 练习 8-3",
+    "breadcrumbLabel": "解不等式与基本不等式",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=inequalities&section=inequality-relations&module=basic-inequalities"
+  },
+  "problem": {
+    "source": "高一暑假目标班 · 第4讲",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "求正项和的最小值时，先检查原两项是否定积；若不固定，就从题设中寻找能消去变量的因子构造定积。",
+      "items": [
+        "看目标：正项和求最小值，先寻找固定乘积。",
+        "查定积：x·4y=4xy 不固定，原两项不能直接使用基本不等式。",
+        "找线索：条件整体等于 1 且含倒数，可以乘入并消去变量。",
+        "验等号：构造出的两个正项相等，并且满足原条件。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "3. 已知正实数 \\(x，y\\) 满足 \\(\\frac{1}{x}+\\frac{1}{y}=1\\)，则 \\(x+4y\\) 最小值为　　　　。"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "基本不等式",
+      "title": "从目标出发构造固定乘积",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "fixed-product-construction-flow",
+        "title": "原两项没有定积，如何构造出定积？",
+        "methodTag": "构造型｜寻找固定乘积",
+        "goal": {
+          "expression": "\\(x+4y\\)",
+          "task": "求正项和的最小值"
+        },
+        "strategy": "想办法构造定积",
+        "initialCheck": {
+          "terms": [
+            "\\(x\\)",
+            "\\(4y\\)"
+          ],
+          "product": "\\(x\\cdot4y=4xy\\)",
+          "verdict": "乘积不固定，不能直接使用"
+        },
+        "clue": {
+          "question": "题设中有什么能让变量相消？",
+          "condition": "\\(\\frac{1}{x}+\\frac{1}{y}=1\\)",
+          "observation": "条件含有 \\(x、y\\) 的倒数，并且整体等于 \\(1\\)：乘入它不会改变目标式。"
+        },
+        "construction": {
+          "label": "乘入等于 1 的条件",
+          "identity": "\\(x+4y=(x+4y)(\\frac{1}{x}+\\frac{1}{y})\\)",
+          "expanded": "\\(=1+\\frac{x}{y}+\\frac{4y}{x}+4=5+\\frac{x}{y}+\\frac{4y}{x}\\)",
+          "rows": [
+            "\\(x\\)",
+            "\\(4y\\)"
+          ],
+          "columns": [
+            "\\(\\frac{1}{x}\\)",
+            "\\(\\frac{1}{y}\\)"
+          ],
+          "cells": [
+            [
+              {
+                "text": "\\(1\\)",
+                "role": "constant"
+              },
+              {
+                "text": "\\(\\frac{x}{y}\\)",
+                "role": "constructed"
+              }
+            ],
+            [
+              {
+                "text": "\\(\\frac{4y}{x}\\)",
+                "role": "constructed"
+              },
+              {
+                "text": "\\(4\\)",
+                "role": "constant"
+              }
+            ]
+          ],
+          "constantSum": "常数项：\\(1+4=5\\)"
+        },
+        "fixedPair": {
+          "question": "观察展开后的式子，是否可以找到定积？",
+          "terms": [
+            "\\(\\frac{x}{y}\\)",
+            "\\(\\frac{4y}{x}\\)"
+          ],
+          "product": "\\(\\frac{x}{y}\\cdot\\frac{4y}{x}=4\\cdot\\frac{x}{x}\\cdot\\frac{y}{y}=4\\)",
+          "verdict": "定积构造成功"
+        },
+        "application": {
+          "template": "\\(a+b\\ge2\\sqrt{ab}\\)",
+          "mappings": [
+            {
+              "slot": "\\(a\\)",
+              "value": "\\(\\frac{x}{y}\\)"
+            },
+            {
+              "slot": "\\(b\\)",
+              "value": "\\(\\frac{4y}{x}\\)"
+            }
+          ],
+          "inequality": "\\(\\frac{x}{y}+\\frac{4y}{x}\\ge2\\sqrt4=4\\)",
+          "combine": "\\(x+4y=5+\\frac{x}{y}+\\frac{4y}{x}\\ge9\\)",
+          "conclusion": "最小值为 \\(9\\)"
+        },
+        "equality": {
+          "condition": "\\(\\frac{x}{y}=\\frac{4y}{x}\\)",
+          "relation": "\\(x=2y\\)",
+          "result": "\\(x=3，y=\\frac{3}{2}\\)"
+        },
+        "caption": "先以“构造定积”为目标寻找倒数，再通过展开后的交叉项发现固定乘积。"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "\\((x+4y)(\\frac{1}{x}+\\frac{1}{y})=5+\\frac{x}{y}+\\frac{4y}{x}\\)"
+        },
+        {
+          "kind": "because",
+          "text": "\\(\\frac{x}{y}>0，\\frac{4y}{x}>0\\)，且两项乘积为 \\(4\\)，所以它们的和不小于 \\(4\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "由 \\(\\frac{1}{x}+\\frac{1}{y}=1\\) 得 \\(x+4y\\ge5+4=9\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "当 \\(\\frac{x}{y}=\\frac{4y}{x}\\)，即 \\(x=2y\\) 时取等号；代入条件得 \\(x=3，y=\\frac{3}{2}\\)"
+        }
+      ],
+      "derive": [
+        [
+          "最小值",
+          "9"
+        ],
+        [
+          "等号条件",
+          "x=3，y=3/2"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 从目标出发构造固定乘积"
+  }
+}

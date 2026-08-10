@@ -79,7 +79,7 @@ test("validates the real senior-high catalog and its published assets", () => {
 test("builds the first set learning topic with three published knowledge modules", () => {
   const catalog = validateCatalog(chapterSource, problemSource, repoRoot);
   const topics = validateLearningTopics(catalog, learningTopicSource, repoRoot);
-  assert.equal(topics.length, 3);
+  assert.equal(topics.length, 4);
   const topic = topics[0];
   assert.equal(topic.title, "集合的概念和表示");
   assert.deepEqual(
@@ -194,6 +194,259 @@ test("builds the first set learning topic with three published knowledge modules
       "problems/senior-high/sets/set-concepts-and-representation/",
     ),
   ));
+});
+
+test("builds the complete inequality topic with four published modules", () => {
+  const catalog = validateCatalog(chapterSource, problemSource, repoRoot);
+  const topics = validateLearningTopics(catalog, learningTopicSource, repoRoot);
+  const topic = topics.find((item) => item.id === "inequality-relations");
+  assert.ok(topic);
+  assert.equal(topic.mapRootLabel, "不等关系");
+  assert.deepEqual(
+    topic.modules.map((module) => [module.id, module.status]),
+    [
+      ["inequality-relations", "published"],
+      ["solving-inequalities", "published"],
+      ["basic-inequalities", "published"],
+      ["inequality-practice", "published"],
+    ],
+  );
+  assert.equal(topic.modules[0].examples.length, 9);
+  assert.equal(topic.modules[1].examples.length, 13);
+  assert.equal(topic.modules[2].examples.length, 6);
+  assert.equal(topic.modules[3].items.length, 13);
+  const basicVisualKnowledge = topic.modules[2].knowledgeBlocks.find(
+    (block) => block.basicInequalityVisual,
+  );
+  const basicConditionsKnowledge = topic.modules[2].knowledgeBlocks.find(
+    (block) => block.basicInequalityConditions,
+  );
+  assert.equal(basicVisualKnowledge?.groupId, "basic-theorem");
+  assert.equal(basicConditionsKnowledge?.groupId, "basic-theorem");
+  assert.deepEqual(
+    topic.modules[2].knowledgeGroups.map((group) => group.title),
+    ["基本不等式与等号条件", "乘入条件，展开找定积", "围绕分母补项凑定积"],
+  );
+  const conditionConstructionKnowledge = topic.modules[2].knowledgeBlocks.find(
+    (block) => block.fixedProductConditionVisual,
+  );
+  const completionConstructionKnowledge = topic.modules[2].knowledgeBlocks.find(
+    (block) => block.fixedProductCompletionVisual,
+  );
+  assert.equal(conditionConstructionKnowledge?.groupId, "fixed-transform");
+  assert.equal(completionConstructionKnowledge?.groupId, "substitution");
+  assert.match(conditionConstructionKnowledge.body.join(""), /交叉正项.*乘积/);
+  assert.match(completionConstructionKnowledge.body.join(""), /换元.*简化书写/);
+  assert.deepEqual(
+    topic.modules[1].knowledgeGroups.map((group) => group.lessonCount),
+    [3, 3, 4, 3],
+  );
+  const quadraticKnowledge = topic.modules[1].knowledgeBlocks.find(
+    (block) => block.groupId === "quadratic-inequalities",
+  );
+  assert.ok(quadraticKnowledge);
+  assert.deepEqual(
+    quadraticKnowledge.quadraticInequalityTables.map((table) => table.opening),
+    ["up", "down"],
+  );
+  assert.ok(quadraticKnowledge.quadraticInequalityTables.every(
+    (table) => table.cases.map((quadraticCase) => quadraticCase.discriminant).join(",")
+      === "positive,zero,negative",
+  ));
+  assert.deepEqual(
+    quadraticKnowledge.quadraticInequalityTables[0].cases.map(
+      (quadraticCase) => [quadraticCase.positiveSolution, quadraticCase.negativeSolution],
+    ),
+    [
+      ["\\((-\\infty,x_1)\\cup(x_2,+\\infty)\\)", "\\((x_1,x_2)\\)"],
+      ["\\(\\mathbb{R}\\setminus\\{x_0\\}\\)", "\\(\\varnothing\\)"],
+      ["\\(\\mathbb{R}\\)", "\\(\\varnothing\\)"],
+    ],
+  );
+  assert.deepEqual(
+    quadraticKnowledge.quadraticInequalityTables[1].cases.map(
+      (quadraticCase) => [quadraticCase.positiveSolution, quadraticCase.negativeSolution],
+    ),
+    [
+      ["\\((x_1,x_2)\\)", "\\((-\\infty,x_1)\\cup(x_2,+\\infty)\\)"],
+      ["\\(\\varnothing\\)", "\\(\\mathbb{R}\\setminus\\{x_0\\}\\)"],
+      ["\\(\\varnothing\\)", "\\(\\mathbb{R}\\)"],
+    ],
+  );
+  const learningClient = fs.readFileSync(
+    path.join(repoRoot, "site/assets/js/senior-high-library.js"),
+    "utf8",
+  );
+  assert.match(learningClient, /quadratic-inequality-table/);
+  assert.match(learningClient, /quadratic-graph-curve/);
+  assert.match(learningClient, /knowledgeBlocksForGroup/);
+  assert.match(learningClient, /basic-inequality-proof-table/);
+  assert.match(learningClient, /renderBasicInequalitySemicircleFigure/);
+  assert.match(learningClient, /renderFixedProductConditionVisual/);
+  assert.match(learningClient, /renderFixedProductCompletionVisual/);
+  const polynomialKnowledge = topic.modules[1].knowledgeBlocks.find(
+    (block) => block.groupId === "polynomial-inequalities",
+  );
+  assert.ok(polynomialKnowledge);
+  assert.deepEqual(
+    polynomialKnowledge.threadingLineTable.rows.map((row) => row.kind),
+    ["simple-strict", "simple-inclusive", "mixed-multiplicity"],
+  );
+  assert.match(
+    polynomialKnowledge.threadingLineTable.rows[1].principles.join(""),
+    /空心点.*实心点/,
+  );
+  assert.match(
+    polynomialKnowledge.threadingLineTable.rows[2].principles.join(""),
+    /奇数重根.*偶数重根/,
+  );
+  assert.match(
+    polynomialKnowledge.threadingLineTable.rows[2].inequality,
+    /x\^5.*\(x-1\)\^2.*\(x-2\)\^3.*\(x\+1\)\^4/,
+  );
+  assert.equal(
+    polynomialKnowledge.threadingLineTable.rows[2].solution,
+    "\\(x∈(0,1)\\cup(1,2)\\)",
+  );
+  assert.ok(polynomialKnowledge.threadingLineTable.rows.every(
+    (row) => !row.inequality.includes("\\frac") && !row.inequality.includes("/"),
+  ));
+  assert.match(learningClient, /threading-line-table/);
+  assert.match(learningClient, /threading-line-shade/);
+  assert.match(learningClient, /threading-line-even-ring/);
+  assert.match(learningClient, /4次·偶.*5次·奇.*2次·偶.*3次·奇/s);
+  assert.match(learningClient, /threading-line-direction/);
+  assert.match(learningClient, /从最右侧开始/);
+  const rationalKnowledge = topic.modules[1].knowledgeBlocks.find(
+    (block) => block.groupId === "rational-inequalities",
+  );
+  assert.ok(rationalKnowledge);
+  assert.deepEqual(
+    rationalKnowledge.rationalThreadingTable.rows.map((row) => row.kind),
+    ["direct-strict", "inclusive-endpoints", "move-to-zero"],
+  );
+  assert.match(
+    rationalKnowledge.rationalThreadingTable.rows[0].principles.join(""),
+    /\\frac\{a\}\{b\}>0\\iff ab>0/,
+  );
+  assert.match(
+    rationalKnowledge.rationalThreadingTable.rows[1].principles.join(""),
+    /\\frac\{a\}\{b\}\\ge0\\iff ab\\ge0.*分母零点.*空心禁值点/,
+  );
+  assert.match(
+    rationalKnowledge.rationalThreadingTable.rows[2].principles.join(""),
+    /F\(x\)>G\(x\)\\iff F\(x\)-G\(x\)>0.*\\frac\{-2x-1\}\{x\+3\}>0/,
+  );
+  assert.equal(
+    rationalKnowledge.rationalThreadingTable.rows[2].solution,
+    "\\(x∈(-3,-\\frac12)\\)",
+  );
+  assert.match(learningClient, /rational-threading-table/);
+  assert.match(learningClient, /rational-critical-point is-forbidden/);
+  assert.match(learningClient, /分母·禁值/);
+  const absoluteKnowledge = topic.modules[1].knowledgeBlocks.find(
+    (block) => block.groupId === "absolute-inequalities",
+  );
+  assert.ok(absoluteKnowledge);
+  assert.deepEqual(
+    absoluteKnowledge.absoluteInequalityTable.rows.map((row) => row.kind),
+    ["direct", "squaring", "classification"],
+  );
+  assert.match(
+    absoluteKnowledge.absoluteInequalityTable.rows[0].principles.join(""),
+    /\|x\|<a\\iff-a<x<a.*\|x\|>a\\iff x<-a/,
+  );
+  assert.match(
+    absoluteKnowledge.absoluteInequalityTable.rows[1].principles.join(""),
+    /\|f\(x\)\|>\|g\(x\)\|\\iff f\(x\)\^2>g\(x\)\^2/,
+  );
+  assert.equal(absoluteKnowledge.absoluteInequalityTable.rows[2].transformations.length, 4);
+  assert.equal(
+    absoluteKnowledge.absoluteInequalityTable.rows[2].solution,
+    "\\(x∈(-\\infty,-3]\\cup[2,+\\infty)\\)",
+  );
+  assert.match(absoluteKnowledge.body.join(""), /平方法是高效的特殊技巧.*分类讨论法最通用/);
+  assert.match(learningClient, /absolute-inequality-table/);
+  assert.match(learningClient, /absolute-piecewise-curve/);
+  assert.deepEqual(
+    topic.modules[0].knowledgeBlocks.map((block) => block.title),
+    [
+      "实数的符号与运算结果",
+      "不等式的基本性质",
+      "不等式的运算性质",
+      "作差法",
+      "作商法",
+      "中间量法",
+    ],
+  );
+  assert.match(topic.modules[0].knowledgeBlocks[2].body.join(""), /可加法则.*可乘法则.*可乘方性/);
+  assert.match(topic.modules[0].knowledgeBlocks[3].body.join(""), /a-b>0.*a-b<0.*a-b=0/);
+  assert.match(topic.modules[0].knowledgeBlocks[4].body.join(""), /a\/b>1.*a\/b<1.*a\/b=1/);
+  assert.match(topic.modules[0].knowledgeBlocks[5].body.join(""), /中间量.*0 或 1/);
+  assert.ok(topic.modules[1].examples.every(
+    (example) => example.lesson.solutionPath.startsWith(
+      "problems/senior-high/inequalities/inequality-relations/",
+    ),
+  ));
+  assert.deepEqual(
+    topic.modules[2].knowledgeGroups.map((group) => group.lessonCount),
+    [2, 2, 2],
+  );
+  assert.deepEqual(
+    topic.modules[3].items.map((item) => item.answerSchema.type),
+    [
+      "single-choice",
+      "single-choice",
+      "single-choice",
+      "single-choice",
+      "single-choice",
+      "exact-expression",
+      "exact-expression",
+      "exact-expression",
+      "exact-expression",
+      "exact-expression",
+      "exact-expression",
+      "multipart-exact",
+      "multipart-exact",
+    ],
+  );
+  assert.ok(topic.modules[2].examples.every(
+    (example) => example.lesson.solutionPath.startsWith(
+      "problems/senior-high/inequalities/inequality-relations/",
+    ),
+  ));
+  assert.ok(topic.modules[3].items.every(
+    (item) => item.lesson.solutionPath.startsWith(
+      "problems/senior-high/inequalities/inequality-relations/",
+    ),
+  ));
+  assert.deepEqual(
+    topic.modules[2].examples.slice(0, 4).map((example) => example.answerSchema.expected[0]),
+    ["1", "4", "9", "27/2"],
+  );
+  assert.deepEqual(
+    topic.modules[3].items.slice(0, 5).map((item) => item.answerSchema.expected),
+    ["D", "C", "B", "C", "D"],
+  );
+  assert.deepEqual(
+    topic.modules[3].items.slice(5, 11).map((item) => item.answerSchema.expected[0]),
+    [
+      "(-6,-1)",
+      "(2,5]",
+      "[-3,2)",
+      "[-2,1/2)",
+      "(-∞,-4)∪[-1,2]",
+      "[23/5,5)",
+    ],
+  );
+  assert.deepEqual(
+    topic.modules[3].items[11].answerSchema.expected.map((part) => part.aliases[0]),
+    ["(-∞,-6/5]∪[2,+∞)", "[-2,0]∪[4,6]"],
+  );
+  assert.deepEqual(
+    topic.modules[3].items[12].answerSchema.expected.map((part) => part.aliases[0]),
+    ["(-∞,-3/2]∪[3/2,+∞)", "(1/2,+∞)"],
+  );
 });
 
 test("builds the second set topic with published relations and operations", () => {
@@ -734,7 +987,8 @@ test("learning page keeps compact exercise anchors and the shared back-to-top co
     "utf8",
   );
   assert.match(runtime, /<span>对应练习<\/span>/);
-  assert.match(runtime, /examplesForCategory\(group\.category\)\.length \? `<a class="senior-learning-exercise-anchor"/);
+  assert.match(runtime, /examplesForKnowledgeGroup\(group\)\.length \? `<a class="senior-learning-exercise-anchor"/);
+  assert.match(runtime, /group\.lessonCount \|\| examplesForKnowledgeGroup\(group\)\.length/);
   assert.match(runtime, /senior-learning-knowledge-table/);
   assert.doesNotMatch(runtime, /去做对应练习/);
   assert.match(page, /class="back-to-top"/);

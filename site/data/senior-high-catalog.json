@@ -31,6 +31,21 @@
       ]
     },
     {
+      "id": "inequalities",
+      "label": "不等式",
+      "symbol": "≤",
+      "order": 8,
+      "sections": [
+        {
+          "id": "inequality-relations",
+          "label": "解不等式与基本不等式",
+          "order": 10,
+          "presentation": "learning",
+          "topicId": "inequality-relations"
+        }
+      ]
+    },
+    {
       "id": "functions",
       "label": "函数",
       "symbol": "f(x)",
@@ -7395,6 +7410,2362 @@
                   ]
                 },
                 "solutionPath": "problems/senior-high/sets/common-logical-language/logic-practice-q09.html"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "inequality-relations",
+      "chapterId": "inequalities",
+      "sectionId": "inequality-relations",
+      "title": "解不等式与基本不等式",
+      "mapRootLabel": "不等关系",
+      "eyebrow": "第四讲",
+      "introduction": [
+        "不等关系刻画两个量之间的大小次序。不等式的性质是不等式同解变形的依据，比较大小则要把问题转化为能够判断符号的代数式。",
+        "本专题依次学习不等式性质与比较方法、常见不等式的求解、基本不等式及综合应用。变形前先审查定义域与符号，求最值时还要同时核对定值条件和等号条件。"
+      ],
+      "introductionHtml": [
+        "不等关系刻画两个量之间的大小次序。不等式的性质是不等式同解变形的依据，比较大小则要把问题转化为能够判断符号的代数式。",
+        "本专题依次学习不等式性质与比较方法、常见不等式的求解、基本不等式及综合应用。变形前先审查定义域与符号，求最值时还要同时核对定值条件和等号条件。"
+      ],
+      "mapNodes": [
+        {
+          "id": "inequality-properties",
+          "label": "不等式的性质",
+          "moduleId": "inequality-relations",
+          "children": [
+            "实数的符号法则",
+            "基本性质",
+            "运算性质"
+          ]
+        },
+        {
+          "id": "comparison",
+          "label": "比大小",
+          "moduleId": "inequality-relations",
+          "children": [
+            "作差法"
+          ]
+        },
+        {
+          "id": "solving",
+          "label": "解不等式",
+          "moduleId": "solving-inequalities",
+          "children": [
+            "解一元二次不等式",
+            "解高次不等式",
+            "解分式不等式",
+            "解绝对值不等式"
+          ]
+        },
+        {
+          "id": "basic-inequalities",
+          "label": "基本不等式",
+          "moduleId": "basic-inequalities",
+          "children": [
+            "均值不等式",
+            "一正、二定、三相等",
+            "配凑与换元"
+          ]
+        },
+        {
+          "id": "inequality-practice",
+          "label": "实战演练",
+          "moduleId": "inequality-practice",
+          "children": [
+            "性质辨析",
+            "范围与参数",
+            "分式与绝对值不等式"
+          ]
+        }
+      ],
+      "modules": [
+        {
+          "id": "inequality-relations",
+          "label": "不等关系",
+          "type": "knowledge",
+          "status": "published",
+          "description": "掌握实数符号法则、不等式的基本性质和运算性质，并用作差法、作商法与中间量法比较大小。",
+          "knowledgeGroups": [
+            {
+              "id": "sign-rules",
+              "number": "01",
+              "eyebrow": "符号基础",
+              "title": "实数的符号法则",
+              "category": "concept",
+              "lessonCount": 0
+            },
+            {
+              "id": "inequality-properties",
+              "number": "02",
+              "eyebrow": "等价变形",
+              "title": "不等式的性质",
+              "category": "property",
+              "lessonCount": 4
+            },
+            {
+              "id": "comparison-methods",
+              "number": "03",
+              "eyebrow": "方法选择",
+              "title": "比较两个代数式的大小",
+              "category": "description",
+              "lessonCount": 5
+            }
+          ],
+          "knowledgeBlocks": [
+            {
+              "groupId": "sign-rules",
+              "category": "concept",
+              "title": "实数的符号与运算结果",
+              "ordered": false,
+              "body": [
+                "① 任意实数 x，x>0、x=0、x<0 三种情况有且只有一种成立。",
+                "② 两个同号实数相乘，积为正数；两个异号实数相乘，积为负数。",
+                "③ 两个正数相加仍为正数，两个负数相加仍为负数。",
+                "④ 对任意实数 x，都有 x²≥0；且 x=0 当且仅当 x²=0。"
+              ],
+              "bodyHtml": [
+                "① 任意实数 x，x&gt;0、x=0、x&lt;0 三种情况有且只有一种成立。",
+                "② 两个同号实数相乘，积为正数；两个异号实数相乘，积为负数。",
+                "③ 两个正数相加仍为正数，两个负数相加仍为负数。",
+                "④ 对任意实数 x，都有 x²≥0；且 x=0 当且仅当 x²=0。"
+              ]
+            },
+            {
+              "groupId": "inequality-properties",
+              "category": "property",
+              "title": "不等式的基本性质",
+              "ordered": false,
+              "body": [
+                "① 对称性：a>b ⇔ b<a。",
+                "② 传递性：a>b，b>c ⇒ a>c。",
+                "③ 可加性：a>b ⇔ a+c>b+c（c∈R）。",
+                "④ 可乘性：若 a>b，则 c>0 ⇒ ac>bc；c=0 ⇒ ac=bc；c<0 ⇒ ac<bc。"
+              ],
+              "bodyHtml": [
+                "① 对称性：a&gt;b ⇔ b&lt;a。",
+                "② 传递性：a&gt;b，b&gt;c ⇒ a&gt;c。",
+                "③ 可加性：a&gt;b ⇔ a+c&gt;b+c（c∈R）。",
+                "④ 可乘性：若 a&gt;b，则 c&gt;0 ⇒ ac&gt;bc；c=0 ⇒ ac=bc；c&lt;0 ⇒ ac&lt;bc。"
+              ]
+            },
+            {
+              "groupId": "inequality-properties",
+              "category": "property",
+              "title": "不等式的运算性质",
+              "ordered": false,
+              "body": [
+                "① 可加法则：a>b，c>d ⇒ a+c>b+d。",
+                "② 可乘法则：a>b>0，c>d>0 ⇒ ac>bd>0。",
+                "③ 可乘方性：a>b>0，n∈N* ⇒ aⁿ>bⁿ>0。",
+                "可加法则是把两个同向不等式相加；可乘法则要求参与比较的四个量均为正数。"
+              ],
+              "bodyHtml": [
+                "① 可加法则：a&gt;b，c&gt;d ⇒ a+c&gt;b+d。",
+                "② 可乘法则：a&gt;b&gt;0，c&gt;d&gt;0 ⇒ ac&gt;bd&gt;0。",
+                "③ 可乘方性：a&gt;b&gt;0，n∈N* ⇒ aⁿ&gt;bⁿ&gt;0。",
+                "可加法则是把两个同向不等式相加；可乘法则要求参与比较的四个量均为正数。"
+              ]
+            },
+            {
+              "groupId": "comparison-methods",
+              "category": "description",
+              "title": "作差法",
+              "ordered": false,
+              "body": [
+                "任意两个代数式 a、b，先作差 a-b，再比较 a-b 与 0 的关系。",
+                "① a-b>0 ⇔ a>b。",
+                "② a-b<0 ⇔ a<b。",
+                "③ a-b=0 ⇔ a=b。"
+              ],
+              "bodyHtml": [
+                "任意两个代数式 a、b，先作差 a-b，再比较 a-b 与 0 的关系。",
+                "① a-b&gt;0 ⇔ a&gt;b。",
+                "② a-b&lt;0 ⇔ a&lt;b。",
+                "③ a-b=0 ⇔ a=b。"
+              ]
+            },
+            {
+              "groupId": "comparison-methods",
+              "category": "description",
+              "title": "作商法",
+              "ordered": false,
+              "body": [
+                "当 a、b 都为正数时，可以作商 a/b，再与 1 比较。",
+                "① a/b>1 ⇔ a>b。",
+                "② a/b<1 ⇔ a<b。",
+                "③ a/b=1 ⇔ a=b。"
+              ],
+              "bodyHtml": [
+                "当 a、b 都为正数时，可以作商 a/b，再与 1 比较。",
+                "① a/b&gt;1 ⇔ a&gt;b。",
+                "② a/b&lt;1 ⇔ a&lt;b。",
+                "③ a/b=1 ⇔ a=b。"
+              ]
+            },
+            {
+              "groupId": "comparison-methods",
+              "category": "description",
+              "title": "中间量法",
+              "ordered": false,
+              "body": [
+                "若 a>b 且 b>c，则 a>c；中间量法的本质是不等式的传递性。",
+                "比较两个代数式 A、B 时，可以寻找中间量 m，分别证明 A>m 与 m>B，从而得到 A>B。",
+                "中间量一般选择 0 或 1；选择前要先确认各式的定义域与符号。"
+              ],
+              "bodyHtml": [
+                "若 a&gt;b 且 b&gt;c，则 a&gt;c；中间量法的本质是不等式的传递性。",
+                "比较两个代数式 A、B 时，可以寻找中间量 m，分别证明 A&gt;m 与 m&gt;B，从而得到 A&gt;B。",
+                "中间量一般选择 0 或 1；选择前要先确认各式的定义域与符号。"
+              ]
+            }
+          ],
+          "examples": [
+            {
+              "group": "不等式性质",
+              "knowledgeCategory": "property",
+              "title": "辨析不等式性质",
+              "numberLabel": "练习 1 · 1",
+              "display": "featured",
+              "hints": [
+                "逐项引用基本性质·可乘性或运算性质·可加法则。",
+                "对错误选项构造反例；C 中 c≠0，所以 c²>0。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "C"
+              },
+              "lesson": {
+                "id": "inequality-property-q01",
+                "title": "辨析不等式性质",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "下列说法正确的是（　　）",
+                      "html": "下列说法正确的是（　　）"
+                    },
+                    {
+                      "text": "A. 若 \\(a>b\\)，则 \\(\\frac1a<\\frac1b\\)　　B. 若 \\(a<b<0\\)，则 \\(a^2<ab\\)　　C. 若 \\(\\frac{a}{c^2}>\\frac{b}{c^2}\\)，则 \\(a>b\\)　　D. 若 \\(a>b,c>d\\)，则 \\(a-c>b-d\\)",
+                      "html": "A. 若 <span class=\"inline-math\">a&gt;b</span>，则 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">a</span></span>&lt;<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">b</span></span></span>　　B. 若 <span class=\"inline-math\">a&lt;b&lt;0</span>，则 <span class=\"inline-math\">a<sup>2</sup>&lt;ab</span>　　C. 若 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">a</span><span class=\"math-denominator\">c<sup>2</sup></span></span>&gt;<span class=\"math-fraction\"><span class=\"math-numerator\">b</span><span class=\"math-denominator\">c<sup>2</sup></span></span></span>，则 <span class=\"inline-math\">a&gt;b</span>　　D. 若 <span class=\"inline-math\">a&gt;b,c&gt;d</span>，则 <span class=\"inline-math\">a-c&gt;b-d</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-property-q01.html"
+              }
+            },
+            {
+              "group": "不等式性质",
+              "knowledgeCategory": "property",
+              "title": "判断恒成立的不等式",
+              "numberLabel": "练习 1 · 2",
+              "display": "featured",
+              "hints": [
+                "逐项引用实数的符号法则和基本性质·可乘性。",
+                "对错误选项构造反例；只有 c²+1 对任意实数 c 始终为正。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "C"
+              },
+              "lesson": {
+                "id": "inequality-property-q02",
+                "title": "判断恒成立的不等式",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "若 \\(a,b,c\\in\\mathbb R\\)，\\(a>b\\)，则下列不等式恒成立的是（　　）",
+                      "html": "若 <span class=\"inline-math\">a,b,c∈<span class=\"math-blackboard\">ℝ</span></span>，<span class=\"inline-math\">a&gt;b</span>，则下列不等式恒成立的是（　　）"
+                    },
+                    {
+                      "text": "A. \\(\\frac1a<\\frac1b\\)　　B. \\(\\frac1{ab^2}>\\frac1{a^2b}\\)　　C. \\(\\frac{a}{c^2+1}>\\frac{b}{c^2+1}\\)　　D. \\(a|c|>b|c|\\)",
+                      "html": "A. <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">a</span></span>&lt;<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">b</span></span></span>　　B. <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">ab<sup>2</sup></span></span>&gt;<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">a<sup>2</sup>b</span></span></span>　　C. <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">a</span><span class=\"math-denominator\">c<sup>2</sup>+1</span></span>&gt;<span class=\"math-fraction\"><span class=\"math-numerator\">b</span><span class=\"math-denominator\">c<sup>2</sup>+1</span></span></span>　　D. <span class=\"inline-math\">a|c|&gt;b|c|</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-property-q02.html"
+              }
+            },
+            {
+              "group": "不等式范围计算",
+              "knowledgeCategory": "property",
+              "title": "三步求代数式范围",
+              "numberLabel": "练习 2 · 1",
+              "display": "featured",
+              "hints": [
+                "重组：用待定系数法把 3a+2b 表成 a+b 与 a-b 的线性组合。",
+                "求界：根据组合系数的正负，利用可乘性分别求两部分的新范围。",
+                "相加：利用可加法则对应相加，并检查端点能否同时取到。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "[2,11]",
+                  "2≤3a+2b≤11"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写取值范围",
+                  "keyboard": [
+                    "interval",
+                    "brackets",
+                    "comma",
+                    "less-equal",
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-range-q01",
+                "title": "利用不等式性质求代数式取值范围",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知 \\(1\\le a+b\\le4\\)，\\(-1\\le a-b\\le2\\)，则 \\(3a+2b\\) 的取值范围是______。",
+                      "html": "已知 <span class=\"inline-math\">1≤ a+b≤4</span>，<span class=\"inline-math\">-1≤ a-b≤2</span>，则 <span class=\"inline-math\">3a+2b</span> 的取值范围是______。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-range-q01.html"
+              }
+            },
+            {
+              "group": "不等式范围计算",
+              "knowledgeCategory": "property",
+              "title": "迁移三步法求范围",
+              "numberLabel": "练习 2 · 2",
+              "display": "featured",
+              "hints": [
+                "重组：用待定系数法把 10a-5b 表成 2a+b 与 a-2b 的线性组合。",
+                "求界：系数 3、4 都为正，分别求 3(2a+b) 与 4(a-2b) 的范围。",
+                "相加：利用可加法则对应相加，并检查端点能否同时取到。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "[-1,20]",
+                  "-1≤10a-5b≤20"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写取值范围",
+                  "keyboard": [
+                    "interval",
+                    "brackets",
+                    "comma",
+                    "less-equal",
+                    "negative",
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-range-q02",
+                "title": "利用不等式性质求代数式取值范围",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知 \\(1\\le2a+b\\le4\\)，\\(-1\\le a-2b\\le2\\)，求 \\(10a-5b\\) 的取值范围。",
+                      "html": "已知 <span class=\"inline-math\">1≤2a+b≤4</span>，<span class=\"inline-math\">-1≤ a-2b≤2</span>，求 <span class=\"inline-math\">10a-5b</span> 的取值范围。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-range-q02.html"
+              }
+            },
+            {
+              "group": "比大小",
+              "knowledgeCategory": "description",
+              "title": "作差法：配方比较大小",
+              "numberLabel": "练习 3 · 1",
+              "display": "featured",
+              "hints": [
+                "使用作差法计算 M-N。",
+                "把差配成完全平方，再判断它与 0 的关系。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "B"
+              },
+              "lesson": {
+                "id": "inequality-compare-q01",
+                "title": "用完全平方比较大小",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "若 \\(M=2a^2-3a+5\\)，\\(N=a^2-a+4\\)，则 M 与 N 的大小关系为（　　）",
+                      "html": "若 <span class=\"inline-math\">M=2a<sup>2</sup>-3a+5</span>，<span class=\"inline-math\">N=a<sup>2</sup>-a+4</span>，则 M 与 N 的大小关系为（　　）"
+                    },
+                    {
+                      "text": "A. M>N　　B. M≥N　　C. M<N　　D. M≤N",
+                      "html": "A. M&gt;N　　B. M≥N　　C. M&lt;N　　D. M≤N"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-compare-q01.html"
+              }
+            },
+            {
+              "group": "比大小",
+              "knowledgeCategory": "description",
+              "title": "作差法：负平方判号",
+              "numberLabel": "练习 3 · 2",
+              "display": "featured",
+              "hints": [
+                "使用作差法计算 M-N。",
+                "把差化为负的完全平方，并保留等号情况。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "≤",
+                  "<="
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写关系符号",
+                  "keyboard": [
+                    "less-equal"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-compare-q02",
+                "title": "由负平方比较大小",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知 \\(M=m-4\\)，\\(N=m^2-3m\\)，则 M 与 N 的大小关系为 \\(M\\)______\\(N\\)。",
+                      "html": "已知 <span class=\"inline-math\">M=m-4</span>，<span class=\"inline-math\">N=m<sup>2</sup>-3m</span>，则 M 与 N 的大小关系为 <span class=\"inline-math\">M</span>______<span class=\"inline-math\">N</span>。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-compare-q02.html"
+              }
+            },
+            {
+              "group": "比大小",
+              "knowledgeCategory": "description",
+              "title": "作差法：因式分解判号",
+              "numberLabel": "练习 3 · 3",
+              "display": "featured",
+              "hints": [
+                "使用作差法，用前式减后式。",
+                "把差分解为 (a₂-a₁)(b₂-b₁)，再判断乘积符号。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  ">"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写关系符号",
+                  "keyboard": [
+                    "greater"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-compare-q03",
+                "title": "提取公因式比较大小",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "若 \\(a_1<a_2\\)，\\(b_1<b_2\\)，则 \\(a_1b_1+a_2b_2\\) 与 \\(a_1b_2+a_2b_1\\) 的大小关系是______。",
+                      "html": "若 <span class=\"inline-math\">a<sub>1</sub>&lt;a<sub>2</sub></span>，<span class=\"inline-math\">b<sub>1</sub>&lt;b<sub>2</sub></span>，则 <span class=\"inline-math\">a<sub>1</sub>b<sub>1</sub>+a<sub>2</sub>b<sub>2</sub></span> 与 <span class=\"inline-math\">a<sub>1</sub>b<sub>2</sub>+a<sub>2</sub>b<sub>1</sub></span> 的大小关系是______。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-compare-q03.html"
+              }
+            },
+            {
+              "group": "比大小",
+              "knowledgeCategory": "description",
+              "title": "作差法：结合区间判号",
+              "numberLabel": "练习 3 · 4",
+              "display": "featured",
+              "hints": [
+                "使用作差法计算 M-N 并因式分解。",
+                "0<a₁,a₂<1，所以 1-a₁、1-a₂ 都为正。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "A"
+              },
+              "lesson": {
+                "id": "inequality-compare-q04",
+                "title": "利用区间判断因式符号",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知 \\(a_1,a_2\\in(0,1)\\)，记 \\(M=a_1a_2\\)，\\(N=a_1+a_2-1\\)，则 M 与 N 的关系是（　　）",
+                      "html": "已知 <span class=\"inline-math\">a<sub>1</sub>,a<sub>2</sub>∈(0,1)</span>，记 <span class=\"inline-math\">M=a<sub>1</sub>a<sub>2</sub></span>，<span class=\"inline-math\">N=a<sub>1</sub>+a<sub>2</sub>-1</span>，则 M 与 N 的关系是（　　）"
+                    },
+                    {
+                      "text": "A. M>N　　B. M<N　　C. M=N　　D. 不确定",
+                      "html": "A. M&gt;N　　B. M&lt;N　　C. M=N　　D. 不确定"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-compare-q04.html"
+              }
+            },
+            {
+              "group": "比大小",
+              "knowledgeCategory": "description",
+              "title": "作差法：比较两个分式",
+              "numberLabel": "练习 3 · 5",
+              "display": "featured",
+              "hints": [
+                "使用作差法，用右式减左式。",
+                "先确认公分母为正，再通过通分、因式分解判断差的符号。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "<"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写关系符号",
+                  "keyboard": [
+                    "less"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-compare-q05",
+                "title": "用作差法比较两个分式",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知 \\(a>b>0\\)，\\(m>0\\)，判断 \\(\\frac{b}{a}\\) 与 \\(\\frac{a+m}{b+m}\\) 的大小关系，并证明。",
+                      "html": "已知 <span class=\"inline-math\">a&gt;b&gt;0</span>，<span class=\"inline-math\">m&gt;0</span>，判断 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">b</span><span class=\"math-denominator\">a</span></span></span> 与 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">a+m</span><span class=\"math-denominator\">b+m</span></span></span> 的大小关系，并证明。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-compare-q05.html"
+              }
+            }
+          ],
+          "summary": "不等式变形必须先审查定义域与符号；范围计算先把目标式表示成条件式的线性组合；比较大小优先作差并因式分解，正数情形也可作商或选择中间量。",
+          "summaryHtml": "不等式变形必须先审查定义域与符号；范围计算先把目标式表示成条件式的线性组合；比较大小优先作差并因式分解，正数情形也可作商或选择中间量。"
+        },
+        {
+          "id": "solving-inequalities",
+          "label": "解不等式",
+          "type": "knowledge",
+          "status": "published",
+          "description": "用判别式、穿针引线、符号表和分类讨论解一元二次、高次、分式与绝对值不等式。",
+          "knowledgeGroups": [
+            {
+              "id": "quadratic-inequalities",
+              "number": "01",
+              "eyebrow": "判别式与开口",
+              "title": "一元二次不等式",
+              "category": "property",
+              "lessonCount": 3
+            },
+            {
+              "id": "polynomial-inequalities",
+              "number": "02",
+              "eyebrow": "穿针引线",
+              "title": "高次不等式",
+              "category": "description",
+              "lessonCount": 3
+            },
+            {
+              "id": "rational-inequalities",
+              "number": "03",
+              "eyebrow": "禁值点",
+              "title": "分式不等式",
+              "category": "property",
+              "lessonCount": 4
+            },
+            {
+              "id": "absolute-inequalities",
+              "number": "04",
+              "eyebrow": "分类去绝对值",
+              "title": "绝对值不等式",
+              "category": "description",
+              "lessonCount": 3
+            }
+          ],
+          "knowledgeBlocks": [
+            {
+              "groupId": "quadratic-inequalities",
+              "category": "property",
+              "title": "判别式决定二次不等式的解集",
+              "ordered": false,
+              "body": [
+                "设 \\(f(x)=ax^2+bx+c\\)，先看 \\(a\\) 的符号确定抛物线开口，再看 \\(\\Delta=b^2-4ac\\) 确定它与 \\(x\\) 轴的交点。",
+                "图像在 \\(x\\) 轴上方对应 \\(f(x)>0\\)，在 \\(x\\) 轴下方对应 \\(f(x)<0\\)。"
+              ],
+              "bodyHtml": [
+                "设 <span class=\"inline-math\">f(x)=ax<sup>2</sup>+bx+c</span>，先看 <span class=\"inline-math\">a</span> 的符号确定抛物线开口，再看 <span class=\"inline-math\">Δ=b<sup>2</sup>-4ac</span> 确定它与 <span class=\"inline-math\">x</span> 轴的交点。",
+                "图像在 <span class=\"inline-math\">x</span> 轴上方对应 <span class=\"inline-math\">f(x)&gt;0</span>，在 <span class=\"inline-math\">x</span> 轴下方对应 <span class=\"inline-math\">f(x)&lt;0</span>。"
+              ],
+              "quadraticInequalityTables": [
+                {
+                  "title": "\\(a>0\\)：抛物线开口向上",
+                  "titleHtml": "<span class=\"inline-math\">a&gt;0</span>：抛物线开口向上",
+                  "opening": "up",
+                  "cases": [
+                    {
+                      "discriminant": "positive",
+                      "root": "两个相异实根 \\(x_1<x_2\\)",
+                      "rootHtml": "两个相异实根 <span class=\"inline-math\">x<sub>1</sub>&lt;x<sub>2</sub></span>",
+                      "positiveSolution": "\\((-\\infty,x_1)\\cup(x_2,+\\infty)\\)",
+                      "positiveSolutionHtml": "<span class=\"inline-math\">(-∞,x<sub>1</sub>)∪(x<sub>2</sub>,+∞)</span>",
+                      "negativeSolution": "\\((x_1,x_2)\\)",
+                      "negativeSolutionHtml": "<span class=\"inline-math\">(x<sub>1</sub>,x<sub>2</sub>)</span>"
+                    },
+                    {
+                      "discriminant": "zero",
+                      "root": "两个相等实根 \\(x_0\\)",
+                      "rootHtml": "两个相等实根 <span class=\"inline-math\">x<sub>0</sub></span>",
+                      "positiveSolution": "\\(\\mathbb{R}\\setminus\\{x_0\\}\\)",
+                      "positiveSolutionHtml": "<span class=\"inline-math\"><span class=\"math-blackboard\">ℝ</span>∖{x<sub>0</sub>}</span>",
+                      "negativeSolution": "\\(\\varnothing\\)",
+                      "negativeSolutionHtml": "<span class=\"inline-math\">∅</span>"
+                    },
+                    {
+                      "discriminant": "negative",
+                      "root": "无实根",
+                      "rootHtml": "无实根",
+                      "positiveSolution": "\\(\\mathbb{R}\\)",
+                      "positiveSolutionHtml": "<span class=\"inline-math\"><span class=\"math-blackboard\">ℝ</span></span>",
+                      "negativeSolution": "\\(\\varnothing\\)",
+                      "negativeSolutionHtml": "<span class=\"inline-math\">∅</span>"
+                    }
+                  ]
+                },
+                {
+                  "title": "\\(a<0\\)：抛物线开口向下",
+                  "titleHtml": "<span class=\"inline-math\">a&lt;0</span>：抛物线开口向下",
+                  "opening": "down",
+                  "cases": [
+                    {
+                      "discriminant": "positive",
+                      "root": "两个相异实根 \\(x_1<x_2\\)",
+                      "rootHtml": "两个相异实根 <span class=\"inline-math\">x<sub>1</sub>&lt;x<sub>2</sub></span>",
+                      "positiveSolution": "\\((x_1,x_2)\\)",
+                      "positiveSolutionHtml": "<span class=\"inline-math\">(x<sub>1</sub>,x<sub>2</sub>)</span>",
+                      "negativeSolution": "\\((-\\infty,x_1)\\cup(x_2,+\\infty)\\)",
+                      "negativeSolutionHtml": "<span class=\"inline-math\">(-∞,x<sub>1</sub>)∪(x<sub>2</sub>,+∞)</span>"
+                    },
+                    {
+                      "discriminant": "zero",
+                      "root": "两个相等实根 \\(x_0\\)",
+                      "rootHtml": "两个相等实根 <span class=\"inline-math\">x<sub>0</sub></span>",
+                      "positiveSolution": "\\(\\varnothing\\)",
+                      "positiveSolutionHtml": "<span class=\"inline-math\">∅</span>",
+                      "negativeSolution": "\\(\\mathbb{R}\\setminus\\{x_0\\}\\)",
+                      "negativeSolutionHtml": "<span class=\"inline-math\"><span class=\"math-blackboard\">ℝ</span>∖{x<sub>0</sub>}</span>"
+                    },
+                    {
+                      "discriminant": "negative",
+                      "root": "无实根",
+                      "rootHtml": "无实根",
+                      "positiveSolution": "\\(\\varnothing\\)",
+                      "positiveSolutionHtml": "<span class=\"inline-math\">∅</span>",
+                      "negativeSolution": "\\(\\mathbb{R}\\)",
+                      "negativeSolutionHtml": "<span class=\"inline-math\"><span class=\"math-blackboard\">ℝ</span></span>"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "groupId": "polynomial-inequalities",
+              "category": "description",
+              "title": "穿针引线法与根的重数",
+              "ordered": false,
+              "body": [
+                "先把整式因式分解，并把最高次项系数化为正数；再在数轴上从右向左依次判断符号。",
+                "下面三幅图分别说明基本穿法、端点空心与实心、奇次根与偶次根。"
+              ],
+              "bodyHtml": [
+                "先把整式因式分解，并把最高次项系数化为正数；再在数轴上从右向左依次判断符号。",
+                "下面三幅图分别说明基本穿法、端点空心与实心、奇次根与偶次根。"
+              ],
+              "threadingLineTable": {
+                "rows": [
+                  {
+                    "kind": "simple-strict",
+                    "inequality": "\\((x+2)(x-1)(x-3)>0\\)",
+                    "inequalityHtml": "<span class=\"inline-math\">(x+2)(x-1)(x-3)&gt;0</span>",
+                    "solution": "\\(x∈(-2,1)\\cup(3,+\\infty)\\)",
+                    "solutionHtml": "<span class=\"inline-math\">x∈(-2,1)∪(3,+∞)</span>",
+                    "principles": [
+                      "最高次项系数为正，最右侧从“+”开始。",
+                      "三个根都是奇次根，每经过一个根，曲线穿过数轴并改变符号。"
+                    ],
+                    "principlesHtml": [
+                      "最高次项系数为正，最右侧从“+”开始。",
+                      "三个根都是奇次根，每经过一个根，曲线穿过数轴并改变符号。"
+                    ]
+                  },
+                  {
+                    "kind": "simple-inclusive",
+                    "inequality": "\\((x+2)(x-1)(x-3)\\ge 0\\)",
+                    "inequalityHtml": "<span class=\"inline-math\">(x+2)(x-1)(x-3)≥ 0</span>",
+                    "solution": "\\(x∈[-2,1]\\cup[3,+\\infty)\\)",
+                    "solutionHtml": "<span class=\"inline-math\">x∈[-2,1]∪[3,+∞)</span>",
+                    "principles": [
+                      "严格不等式用空心点，不取使整式等于 0 的根。",
+                      "不等号含等号时用实心点，并把符合要求的根并入解集。"
+                    ],
+                    "principlesHtml": [
+                      "严格不等式用空心点，不取使整式等于 0 的根。",
+                      "不等号含等号时用实心点，并把符合要求的根并入解集。"
+                    ]
+                  },
+                  {
+                    "kind": "mixed-multiplicity",
+                    "inequality": "\\(x^5(x-1)^2(x-2)^3(x+1)^4<0\\)",
+                    "inequalityHtml": "<span class=\"inline-math\">x<sup>5</sup>(x-1)<sup>2</sup>(x-2)<sup>3</sup>(x+1)<sup>4</sup>&lt;0</span>",
+                    "solution": "\\(x∈(0,1)\\cup(1,2)\\)",
+                    "solutionHtml": "<span class=\"inline-math\">x∈(0,1)∪(1,2)</span>",
+                    "principles": [
+                      "五次根 0、三次根 2 都是奇数重根：曲线穿过数轴，符号改变。",
+                      "四次根 -1、二次根 1 都是偶数重根：曲线接触数轴后返回，符号不变；严格不等式仍不取这些根。"
+                    ],
+                    "principlesHtml": [
+                      "五次根 0、三次根 2 都是奇数重根：曲线穿过数轴，符号改变。",
+                      "四次根 -1、二次根 1 都是偶数重根：曲线接触数轴后返回，符号不变；严格不等式仍不取这些根。"
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "groupId": "rational-inequalities",
+              "category": "property",
+              "title": "分式不等式与禁值点",
+              "ordered": false,
+              "body": [
+                "先把不等式整理成右边为 \\(0\\) 的形式，再将分子零点和分母零点一起标在数轴上进行穿针判号。",
+                "分母零点始终是禁值点；分子零点只有在不等号含等号时才可能取到。"
+              ],
+              "bodyHtml": [
+                "先把不等式整理成右边为 <span class=\"inline-math\">0</span> 的形式，再将分子零点和分母零点一起标在数轴上进行穿针判号。",
+                "分母零点始终是禁值点；分子零点只有在不等号含等号时才可能取到。"
+              ],
+              "rationalThreadingTable": {
+                "rows": [
+                  {
+                    "kind": "direct-strict",
+                    "inequality": "\\(\\frac{x-1}{x+3}>0\\)",
+                    "inequalityHtml": "<span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">x-1</span><span class=\"math-denominator\">x+3</span></span>&gt;0</span>",
+                    "equivalent": "\\((x-1)(x+3)>0，x\\ne-3\\)",
+                    "equivalentHtml": "<span class=\"inline-math\">(x-1)(x+3)&gt;0，x≠-3</span>",
+                    "solution": "\\(x∈(-\\infty,-3)\\cup(1,+\\infty)\\)",
+                    "solutionHtml": "<span class=\"inline-math\">x∈(-∞,-3)∪(1,+∞)</span>",
+                    "principles": [
+                      "\\(\\frac{a}{b}>0\\iff ab>0\\)，其中 \\(b\\ne0\\)。",
+                      "本题：\\(\\frac{x-1}{x+3}>0\\iff(x-1)(x+3)>0\\)，并保留禁值条件 \\(x\\ne-3\\)；严格不等式也不取分子零点 \\(x=1\\)。"
+                    ],
+                    "principlesHtml": [
+                      "<span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">a</span><span class=\"math-denominator\">b</span></span>&gt;0⇔ ab&gt;0</span>，其中 <span class=\"inline-math\">b≠0</span>。",
+                      "本题：<span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">x-1</span><span class=\"math-denominator\">x+3</span></span>&gt;0⇔(x-1)(x+3)&gt;0</span>，并保留禁值条件 <span class=\"inline-math\">x≠-3</span>；严格不等式也不取分子零点 <span class=\"inline-math\">x=1</span>。"
+                    ]
+                  },
+                  {
+                    "kind": "inclusive-endpoints",
+                    "inequality": "\\(\\frac{2x-1}{3x+1}\\ge0\\)",
+                    "inequalityHtml": "<span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">2x-1</span><span class=\"math-denominator\">3x+1</span></span>≥0</span>",
+                    "equivalent": "\\((2x-1)(3x+1)\\ge0，3x+1\\ne0\\)",
+                    "equivalentHtml": "<span class=\"inline-math\">(2x-1)(3x+1)≥0，3x+1≠0</span>",
+                    "solution": "\\(x∈(-\\infty,-\\frac13)\\cup[\\frac12,+\\infty)\\)",
+                    "solutionHtml": "<span class=\"inline-math\">x∈(-∞,-<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">3</span></span>)∪[<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">2</span></span>,+∞)</span>",
+                    "principles": [
+                      "\\(\\frac{a}{b}\\ge0\\iff ab\\ge0\\) 且 \\(b\\ne0\\)。分子零点可以取到，用实心点。",
+                      "本题：\\(\\frac{2x-1}{3x+1}\\ge0\\iff(2x-1)(3x+1)\\ge0\\)，但分母零点 \\(x=-\\frac13\\) 仍是空心禁值点。"
+                    ],
+                    "principlesHtml": [
+                      "<span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">a</span><span class=\"math-denominator\">b</span></span>≥0⇔ ab≥0</span> 且 <span class=\"inline-math\">b≠0</span>。分子零点可以取到，用实心点。",
+                      "本题：<span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">2x-1</span><span class=\"math-denominator\">3x+1</span></span>≥0⇔(2x-1)(3x+1)≥0</span>，但分母零点 <span class=\"inline-math\">x=-<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">3</span></span></span> 仍是空心禁值点。"
+                    ]
+                  },
+                  {
+                    "kind": "move-to-zero",
+                    "inequality": "\\(\\frac{2-x}{x+3}>1\\)",
+                    "inequalityHtml": "<span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">2-x</span><span class=\"math-denominator\">x+3</span></span>&gt;1</span>",
+                    "equivalent": "\\(\\frac{-2x-1}{x+3}>0\\iff(2x+1)(x+3)<0，x\\ne-3\\)",
+                    "equivalentHtml": "<span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">-2x-1</span><span class=\"math-denominator\">x+3</span></span>&gt;0⇔(2x+1)(x+3)&lt;0，x≠-3</span>",
+                    "solution": "\\(x∈(-3,-\\frac12)\\)",
+                    "solutionHtml": "<span class=\"inline-math\">x∈(-3,-<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">2</span></span>)</span>",
+                    "principles": [
+                      "右边不是 \\(0\\) 时，先用 \\(F(x)>G(x)\\iff F(x)-G(x)>0\\) 移项，再通分、因式分解。",
+                      "本题：\\(\\frac{2-x}{x+3}>1\\iff\\frac{-2x-1}{x+3}>0\\iff(2x+1)(x+3)<0\\)，且 \\(x\\ne-3\\)。"
+                    ],
+                    "principlesHtml": [
+                      "右边不是 <span class=\"inline-math\">0</span> 时，先用 <span class=\"inline-math\">F(x)&gt;G(x)⇔ F(x)-G(x)&gt;0</span> 移项，再通分、因式分解。",
+                      "本题：<span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">2-x</span><span class=\"math-denominator\">x+3</span></span>&gt;1⇔<span class=\"math-fraction\"><span class=\"math-numerator\">-2x-1</span><span class=\"math-denominator\">x+3</span></span>&gt;0⇔(2x+1)(x+3)&lt;0</span>，且 <span class=\"inline-math\">x≠-3</span>。"
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "groupId": "absolute-inequalities",
+              "category": "description",
+              "title": "绝对值不等式的分类讨论",
+              "ordered": false,
+              "body": [
+                "先观察结构选择方法：单个绝对值与正常数比较用直接法；两个绝对值比较可用平方法；多个绝对值通常用零点分区、分类讨论。",
+                "平方法是高效的特殊技巧，适用于两边均能确认非负的情形；分类讨论法最通用。"
+              ],
+              "bodyHtml": [
+                "先观察结构选择方法：单个绝对值与正常数比较用直接法；两个绝对值比较可用平方法；多个绝对值通常用零点分区、分类讨论。",
+                "平方法是高效的特殊技巧，适用于两边均能确认非负的情形；分类讨论法最通用。"
+              ],
+              "absoluteInequalityTable": {
+                "rows": [
+                  {
+                    "kind": "direct",
+                    "inequality": "\\(|2x+1|<1\\)",
+                    "inequalityHtml": "<span class=\"inline-math\">|2x+1|&lt;1</span>",
+                    "transformations": [
+                      "\\(|2x+1|<1\\iff-1<2x+1<1\\)",
+                      "\\(-1<x<0\\)"
+                    ],
+                    "transformationsHtml": [
+                      "<span class=\"inline-math\">|2x+1|&lt;1⇔-1&lt;2x+1&lt;1</span>",
+                      "<span class=\"inline-math\">-1&lt;x&lt;0</span>"
+                    ],
+                    "solution": "\\(x∈(-1,0)\\)",
+                    "solutionHtml": "<span class=\"inline-math\">x∈(-1,0)</span>",
+                    "principles": [
+                      "当 \\(a>0\\) 时，\\(|x|<a\\iff-a<x<a\\)：小于取中间。",
+                      "当 \\(a>0\\) 时，\\(|x|>a\\iff x<-a\\) 或 \\(x>a\\)：大于取两边。"
+                    ],
+                    "principlesHtml": [
+                      "当 <span class=\"inline-math\">a&gt;0</span> 时，<span class=\"inline-math\">|x|&lt;a⇔-a&lt;x&lt;a</span>：小于取中间。",
+                      "当 <span class=\"inline-math\">a&gt;0</span> 时，<span class=\"inline-math\">|x|&gt;a⇔ x&lt;-a</span> 或 <span class=\"inline-math\">x&gt;a</span>：大于取两边。"
+                    ]
+                  },
+                  {
+                    "kind": "squaring",
+                    "inequality": "\\(|2x+1|>|x-1|\\)",
+                    "inequalityHtml": "<span class=\"inline-math\">|2x+1|&gt;|x-1|</span>",
+                    "transformations": [
+                      "\\(|2x+1|>|x-1|\\iff(2x+1)^2>(x-1)^2\\)",
+                      "\\(x(x+2)>0\\)"
+                    ],
+                    "transformationsHtml": [
+                      "<span class=\"inline-math\">|2x+1|&gt;|x-1|⇔(2x+1)<sup>2</sup>&gt;(x-1)<sup>2</sup></span>",
+                      "<span class=\"inline-math\">x(x+2)&gt;0</span>"
+                    ],
+                    "solution": "\\(x∈(-\\infty,-2)\\cup(0,+\\infty)\\)",
+                    "solutionHtml": "<span class=\"inline-math\">x∈(-∞,-2)∪(0,+∞)</span>",
+                    "principles": [
+                      "两边都是非负数时，\\(|f(x)|>|g(x)|\\iff f(x)^2>g(x)^2\\)。",
+                      "再用平方差：\\(f(x)^2-g(x)^2=[f(x)-g(x)][f(x)+g(x)]\\)，转化为整式不等式判号。"
+                    ],
+                    "principlesHtml": [
+                      "两边都是非负数时，<span class=\"inline-math\">|f(x)|&gt;|g(x)|⇔ f(x)<sup>2</sup>&gt;g(x)<sup>2</sup></span>。",
+                      "再用平方差：<span class=\"inline-math\">f(x)<sup>2</sup>-g(x)<sup>2</sup>=[f(x)-g(x)][f(x)+g(x)]</span>，转化为整式不等式判号。"
+                    ]
+                  },
+                  {
+                    "kind": "classification",
+                    "inequality": "\\(|x-1|+|x+2|\\ge5\\)",
+                    "inequalityHtml": "<span class=\"inline-math\">|x-1|+|x+2|≥5</span>",
+                    "transformations": [
+                      "分界点：\\(x=-2，1\\)",
+                      "\\(x\\le-2：y=-2x-6\\)",
+                      "\\(-2<x<1：y=-2\\)",
+                      "\\(x\\ge1：y=2x-4\\)"
+                    ],
+                    "transformationsHtml": [
+                      "分界点：<span class=\"inline-math\">x=-2，1</span>",
+                      "<span class=\"inline-math\">x≤-2：y=-2x-6</span>",
+                      "<span class=\"inline-math\">-2&lt;x&lt;1：y=-2</span>",
+                      "<span class=\"inline-math\">x≥1：y=2x-4</span>"
+                    ],
+                    "solution": "\\(x∈(-\\infty,-3]\\cup[2,+\\infty)\\)",
+                    "solutionHtml": "<span class=\"inline-math\">x∈(-∞,-3]∪[2,+∞)</span>",
+                    "principles": [
+                      "令 \\(y=|x-1|+|x+2|-5\\)，先求绝对值内部为 0 的点 \\(x=-2，1\\)，据此分区。",
+                      "各区间分别去绝对值并与本区间取交集，最后取并集；也可从分段函数图像读取 \\(y\\ge0\\) 的部分。"
+                    ],
+                    "principlesHtml": [
+                      "令 <span class=\"inline-math\">y=|x-1|+|x+2|-5</span>，先求绝对值内部为 0 的点 <span class=\"inline-math\">x=-2，1</span>，据此分区。",
+                      "各区间分别去绝对值并与本区间取交集，最后取并集；也可从分段函数图像读取 <span class=\"inline-math\">y≥0</span> 的部分。"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "examples": [
+            {
+              "group": "一元二次不等式",
+              "knowledgeCategory": "property",
+              "title": "用解集判断必要条件",
+              "numberLabel": "练习 4 · 1",
+              "display": "featured",
+              "hints": [
+                "先解 2x²-5x-3<0。",
+                "必要条件对应原解集包含于条件解集；必要不充分时应为真包含。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "B"
+              },
+              "lesson": {
+                "id": "inequality-solving-quadratic-q01",
+                "title": "由必要条件反查二次不等式解集",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "不等式 \\(2x^2-5x-3<0\\) 的一个必要不充分条件是（　　）",
+                      "html": "不等式 <span class=\"inline-math\">2x<sup>2</sup>-5x-3&lt;0</span> 的一个必要不充分条件是（　　）"
+                    },
+                    {
+                      "text": "A. \\(-3<x<\\frac12\\)　B. \\(-1<x<6\\)　C. \\(-\\frac12<x<0\\)　D. \\(-\\frac12<x<3\\)",
+                      "html": "A. <span class=\"inline-math\">-3&lt;x&lt;<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">2</span></span></span>　B. <span class=\"inline-math\">-1&lt;x&lt;6</span>　C. <span class=\"inline-math\">-<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">2</span></span>&lt;x&lt;0</span>　D. <span class=\"inline-math\">-<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">2</span></span>&lt;x&lt;3</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-solving-quadratic-q01.html"
+              }
+            },
+            {
+              "group": "一元二次不等式",
+              "knowledgeCategory": "property",
+              "title": "判别恒负二次式",
+              "numberLabel": "练习 4 · 2",
+              "display": "featured",
+              "hints": [
+                "把二次式配方。",
+                "观察最大值是否仍小于 0。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "A"
+              },
+              "lesson": {
+                "id": "inequality-solving-quadratic-q02",
+                "title": "判断恒无解的二次不等式",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "一元二次不等式 \\(-x^2+2x-3>0\\) 的解集是（　　）",
+                      "html": "一元二次不等式 <span class=\"inline-math\">-x<sup>2</sup>+2x-3&gt;0</span> 的解集是（　　）"
+                    },
+                    {
+                      "text": "A. \\(\\varnothing\\)　B. \\((-3,1)\\)　C. \\((-1,3)\\)　D. \\((-3,-1)\\)",
+                      "html": "A. <span class=\"inline-math\">∅</span>　B. <span class=\"inline-math\">(-3,1)</span>　C. <span class=\"inline-math\">(-1,3)</span>　D. <span class=\"inline-math\">(-3,-1)</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-solving-quadratic-q02.html"
+              }
+            },
+            {
+              "group": "一元二次不等式",
+              "knowledgeCategory": "property",
+              "title": "分类解一元二次不等式",
+              "numberLabel": "练习 4 · 3",
+              "display": "featured",
+              "hints": [
+                "先因式分解或计算判别式。",
+                "结合开口方向与是否含等号写解集。"
+              ],
+              "answerSchema": {
+                "type": "multipart-exact",
+                "layout": "per-part",
+                "expected": [
+                  {
+                    "label": "（1）",
+                    "prompt": "\\(x^2-5x+6\\le 0\\)",
+                    "aliases": [
+                      "[2,3]"
+                    ],
+                    "promptHtml": "<span class=\"inline-math\">x<sup>2</sup>-5x+6≤ 0</span>"
+                  },
+                  {
+                    "label": "（2）",
+                    "prompt": "\\(-2x^2+5x-3\\le 0\\)",
+                    "aliases": [
+                      "(-∞,1]∪[3/2,+∞)",
+                      "(-∞,1]∪[1.5,+∞)"
+                    ],
+                    "promptHtml": "<span class=\"inline-math\">-2x<sup>2</sup>+5x-3≤ 0</span>"
+                  },
+                  {
+                    "label": "（3）",
+                    "prompt": "\\(x^2-6x+9>0\\)",
+                    "aliases": [
+                      "ℝ∖{3}",
+                      "R∖{3}",
+                      "(-∞,3)∪(3,+∞)"
+                    ],
+                    "promptHtml": "<span class=\"inline-math\">x<sup>2</sup>-6x+9&gt;0</span>"
+                  },
+                  {
+                    "label": "（4）",
+                    "prompt": "\\(x^2+x+1>0\\)",
+                    "aliases": [
+                      "ℝ",
+                      "R",
+                      "(-∞,+∞)"
+                    ],
+                    "promptHtml": "<span class=\"inline-math\">x<sup>2</sup>+x+1&gt;0</span>"
+                  }
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写对应小题的解集",
+                  "keyboard": [
+                    "R",
+                    "setminus",
+                    "braces",
+                    "interval",
+                    "brackets",
+                    "comma",
+                    "union",
+                    "negative",
+                    "fraction",
+                    "infinity",
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-solving-quadratic-q03",
+                "title": "求四个一元二次不等式的解集",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "求下列不等式的解集：",
+                      "html": "求下列不等式的解集："
+                    },
+                    {
+                      "text": "（1）\\(x^2-5x+6\\le 0\\)；（2）\\(-2x^2+5x-3\\le0\\)；",
+                      "html": "（1）<span class=\"inline-math\">x<sup>2</sup>-5x+6≤ 0</span>；（2）<span class=\"inline-math\">-2x<sup>2</sup>+5x-3≤0</span>；"
+                    },
+                    {
+                      "text": "（3）\\(x^2-6x+9>0\\)；（4）\\(x^2+x+1>0\\)。",
+                      "html": "（3）<span class=\"inline-math\">x<sup>2</sup>-6x+9&gt;0</span>；（4）<span class=\"inline-math\">x<sup>2</sup>+x+1&gt;0</span>。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-solving-quadratic-q03.html"
+              }
+            },
+            {
+              "group": "高次不等式",
+              "knowledgeCategory": "description",
+              "title": "用穿针引线法解高次不等式",
+              "numberLabel": "练习 5 · 1",
+              "display": "featured",
+              "hints": [
+                "按从小到大标出所有实根。",
+                "注意偶数重根两侧不变号。"
+              ],
+              "answerSchema": {
+                "type": "multipart-exact",
+                "layout": "per-part",
+                "expected": [
+                  {
+                    "label": "（1）",
+                    "prompt": "\\((x-1)(x-2)(x-3)>0\\)",
+                    "aliases": [
+                      "(1,2)∪(3,+∞)"
+                    ],
+                    "promptHtml": "<span class=\"inline-math\">(x-1)(x-2)(x-3)&gt;0</span>"
+                  },
+                  {
+                    "label": "（2）",
+                    "prompt": "\\((x-1)(x+2)(3-x)>0\\)",
+                    "aliases": [
+                      "(-∞,-2)∪(1,3)"
+                    ],
+                    "promptHtml": "<span class=\"inline-math\">(x-1)(x+2)(3-x)&gt;0</span>"
+                  },
+                  {
+                    "label": "（3）",
+                    "prompt": "\\((x-2)(x+3)(x^2-2x+1)>0\\)",
+                    "aliases": [
+                      "(-∞,-3)∪(2,+∞)"
+                    ],
+                    "promptHtml": "<span class=\"inline-math\">(x-2)(x+3)(x<sup>2</sup>-2x+1)&gt;0</span>"
+                  }
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写对应小题的解集",
+                  "keyboard": [
+                    "interval",
+                    "brackets",
+                    "comma",
+                    "union",
+                    "negative",
+                    "infinity",
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-solving-polynomial-q01",
+                "title": "用穿针引线法解三个高次不等式",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "求下列不等式：",
+                      "html": "求下列不等式："
+                    },
+                    {
+                      "text": "（1）\\((x-1)(x-2)(x-3)>0\\)；",
+                      "html": "（1）<span class=\"inline-math\">(x-1)(x-2)(x-3)&gt;0</span>；"
+                    },
+                    {
+                      "text": "（2）\\((x-1)(x+2)(3-x)>0\\)；",
+                      "html": "（2）<span class=\"inline-math\">(x-1)(x+2)(3-x)&gt;0</span>；"
+                    },
+                    {
+                      "text": "（3）\\((x-2)(x+3)(x^2-2x+1)>0\\)。",
+                      "html": "（3）<span class=\"inline-math\">(x-2)(x+3)(x<sup>2</sup>-2x+1)&gt;0</span>。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-solving-polynomial-q01.html"
+              }
+            },
+            {
+              "group": "高次不等式",
+              "knowledgeCategory": "description",
+              "title": "选择高次不等式解集",
+              "numberLabel": "练习 5 · 2",
+              "display": "featured",
+              "hints": [
+                "零点依次为 -1、1、2。",
+                "从最右侧正号开始逐根变号。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "D"
+              },
+              "lesson": {
+                "id": "inequality-solving-polynomial-q02",
+                "title": "穿针引线法判断三次不等式",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "\\((x+1)(x-1)(x-2)>0\\) 的解集是（　　）",
+                      "html": "<span class=\"inline-math\">(x+1)(x-1)(x-2)&gt;0</span> 的解集是（　　）"
+                    },
+                    {
+                      "text": "A. \\(-1<x<2\\)　B. \\(x<-1\\) 或 \\(1<x<2\\)　C. \\(-1<x<1\\) 或 \\(1<x<2\\)　D. \\(-1<x<1\\) 或 \\(x>2\\)",
+                      "html": "A. <span class=\"inline-math\">-1&lt;x&lt;2</span>　B. <span class=\"inline-math\">x&lt;-1</span> 或 <span class=\"inline-math\">1&lt;x&lt;2</span>　C. <span class=\"inline-math\">-1&lt;x&lt;1</span> 或 <span class=\"inline-math\">1&lt;x&lt;2</span>　D. <span class=\"inline-math\">-1&lt;x&lt;1</span> 或 <span class=\"inline-math\">x&gt;2</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-solving-polynomial-q02.html"
+              }
+            },
+            {
+              "group": "高次不等式",
+              "knowledgeCategory": "description",
+              "title": "处理高次式中的重根",
+              "numberLabel": "练习 5 · 3",
+              "display": "featured",
+              "hints": [
+                "先分解成 (x+1)(x-3)(x-2)²。",
+                "经过 x=2 时符号不改变。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "D"
+              },
+              "lesson": {
+                "id": "inequality-solving-polynomial-q03",
+                "title": "识别偶次根的高次不等式",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "不等式 \\((x^2-2x-3)(x^2-4x+4)<0\\) 的解集是（　　）",
+                      "html": "不等式 <span class=\"inline-math\">(x<sup>2</sup>-2x-3)(x<sup>2</sup>-4x+4)&lt;0</span> 的解集是（　　）"
+                    },
+                    {
+                      "text": "A. \\(x<-1\\) 或 \\(x>3\\)　B. \\(-1<x<3\\)　C. \\(x<-3\\) 或 \\(x>1\\)　D. \\(-1<x<2\\) 或 \\(2<x<3\\)",
+                      "html": "A. <span class=\"inline-math\">x&lt;-1</span> 或 <span class=\"inline-math\">x&gt;3</span>　B. <span class=\"inline-math\">-1&lt;x&lt;3</span>　C. <span class=\"inline-math\">x&lt;-3</span> 或 <span class=\"inline-math\">x&gt;1</span>　D. <span class=\"inline-math\">-1&lt;x&lt;2</span> 或 <span class=\"inline-math\">2&lt;x&lt;3</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-solving-polynomial-q03.html"
+              }
+            },
+            {
+              "group": "分式不等式",
+              "knowledgeCategory": "property",
+              "title": "解基础分式不等式",
+              "numberLabel": "练习 6 · 1",
+              "display": "featured",
+              "hints": [
+                "分子零点为 -3，分母禁值点为 2。",
+                "含等号只允许取分子零点。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "[-3,2)"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写解集",
+                  "keyboard": [
+                    "interval",
+                    "brackets",
+                    "comma",
+                    "negative",
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-solving-rational-q01",
+                "title": "解分式不等式（含等号）",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "解不等式 \\(\\frac{x+3}{2-x}\\ge0\\)。",
+                      "html": "解不等式 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">x+3</span><span class=\"math-denominator\">2-x</span></span>≥0</span>。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-solving-rational-q01.html"
+              }
+            },
+            {
+              "group": "分式不等式",
+              "knowledgeCategory": "property",
+              "title": "移项通分解分式不等式",
+              "numberLabel": "练习 6 · 2",
+              "display": "featured",
+              "hints": [
+                "把右侧 1 移到左侧后通分。",
+                "分母为 0 的点不能取。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "[-2,1/2)",
+                  "[-2,0.5)"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写解集",
+                  "keyboard": [
+                    "interval",
+                    "brackets",
+                    "comma",
+                    "negative",
+                    "fraction",
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-solving-rational-q02",
+                "title": "移项通分解分式不等式",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "解不等式 \\(\\frac{3x+1}{2x-1}\\le1\\)。",
+                      "html": "解不等式 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">3x+1</span><span class=\"math-denominator\">2x-1</span></span>≤1</span>。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-solving-rational-q02.html"
+              }
+            },
+            {
+              "group": "分式不等式",
+              "knowledgeCategory": "property",
+              "title": "判别恒正分母",
+              "numberLabel": "练习 6 · 3",
+              "display": "featured",
+              "hints": [
+                "先把 1 移到左侧并通分。",
+                "分母 x²+x+1 恒为正。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "(-∞,-1)∪(3,+∞)"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写解集",
+                  "keyboard": [
+                    "interval",
+                    "comma",
+                    "union",
+                    "negative",
+                    "infinity",
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-solving-rational-q03",
+                "title": "判断恒正分母的分式不等式",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "解不等式 \\(\\frac{2x^2-x-2}{x^2+x+1}>1\\)。",
+                      "html": "解不等式 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">2x<sup>2</sup>-x-2</span><span class=\"math-denominator\">x<sup>2</sup>+x+1</span></span>&gt;1</span>。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-solving-rational-q03.html"
+              }
+            },
+            {
+              "group": "分式不等式",
+              "knowledgeCategory": "property",
+              "title": "解含参数位置的分式不等式",
+              "numberLabel": "练习 6 · 4",
+              "display": "featured",
+              "hints": [
+                "先移项通分得到 (4-5x)/(3x-2)>0。",
+                "比较零点 2/3 与 4/5 的顺序。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "(2/3,4/5)"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写解集",
+                  "keyboard": [
+                    "interval",
+                    "comma",
+                    "fraction",
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-solving-rational-q04",
+                "title": "通分后判断分子分母符号",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "解不等式 \\(\\frac{x}{3x-2}>2\\)。",
+                      "html": "解不等式 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">x</span><span class=\"math-denominator\">3x-2</span></span>&gt;2</span>。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-solving-rational-q04.html"
+              }
+            },
+            {
+              "group": "绝对值不等式",
+              "knowledgeCategory": "description",
+              "title": "用解集包含判断条件关系",
+              "numberLabel": "练习 7 · 1",
+              "display": "featured",
+              "hints": [
+                "分别求两个条件的解集。",
+                "比较两解集的包含方向。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "B"
+              },
+              "lesson": {
+                "id": "inequality-solving-absolute-q01",
+                "title": "比较绝对值条件的充分必要性",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "设 \\(x\\in\\mathbb R\\)，则“\\(x<-2\\) 或 \\(x>1\\)”是“\\(|x-2|<1\\)”的（　　）",
+                      "html": "设 <span class=\"inline-math\">x∈<span class=\"math-blackboard\">ℝ</span></span>，则“<span class=\"inline-math\">x&lt;-2</span> 或 <span class=\"inline-math\">x&gt;1</span>”是“<span class=\"inline-math\">|x-2|&lt;1</span>”的（　　）"
+                    },
+                    {
+                      "text": "A. 充分而不必要条件　B. 必要而不充分条件　C. 充要条件　D. 既不充分也不必要条件",
+                      "html": "A. 充分而不必要条件　B. 必要而不充分条件　C. 充要条件　D. 既不充分也不必要条件"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-solving-absolute-q01.html"
+              }
+            },
+            {
+              "group": "绝对值不等式",
+              "knowledgeCategory": "description",
+              "title": "分类解含二次式的绝对值不等式",
+              "numberLabel": "练习 7 · 2",
+              "display": "featured",
+              "hints": [
+                "按 x²-3 的正负分类。",
+                "也要注意右侧 2x 的符号。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "(-∞,1)∪(3,+∞)"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写解集",
+                  "keyboard": [
+                    "interval",
+                    "comma",
+                    "union",
+                    "infinity",
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-solving-absolute-q02",
+                "title": "分类解含二次式的绝对值不等式",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "解不等式 \\(|x^2-3|>2x\\)。",
+                      "html": "解不等式 <span class=\"inline-math\">|x<sup>2</sup>-3|&gt;2x</span>。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-solving-absolute-q02.html"
+              }
+            },
+            {
+              "group": "绝对值不等式",
+              "knowledgeCategory": "description",
+              "title": "分段解两个绝对值之和",
+              "numberLabel": "练习 7 · 3",
+              "display": "featured",
+              "hints": [
+                "分界点为 -1 和 2。",
+                "分三段去绝对值后与对应区间取交集。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "[-9/2,11/2]",
+                  "[-4.5,5.5]"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写解集",
+                  "keyboard": [
+                    "interval",
+                    "brackets",
+                    "comma",
+                    "negative",
+                    "fraction",
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-solving-absolute-q03",
+                "title": "按零点分类解绝对值和不等式",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "关于 x 的不等式 \\(|x-2|+|x+1|\\le10\\) 的解集为　　　　。",
+                      "html": "关于 x 的不等式 <span class=\"inline-math\">|x-2|+|x+1|≤10</span> 的解集为　　　　。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-solving-absolute-q03.html"
+              }
+            }
+          ],
+          "summary": "解不等式要把符号变化完整落在数轴或符号表上：二次不等式看开口与判别式，高次不等式看根的重数，分式不等式额外排除禁值点，绝对值不等式分段后取并集并核对端点。",
+          "summaryHtml": "解不等式要把符号变化完整落在数轴或符号表上：二次不等式看开口与判别式，高次不等式看根的重数，分式不等式额外排除禁值点，绝对值不等式分段后取并集并核对端点。"
+        },
+        {
+          "id": "basic-inequalities",
+          "label": "基本不等式",
+          "type": "knowledge",
+          "status": "published",
+          "description": "掌握两个正数的基本不等式，围绕“一正、二定、三相等”判断能否求得最值，并学会通过条件参与或目标重构，构造两个乘积固定的正项。",
+          "knowledgeGroups": [
+            {
+              "id": "basic-theorem",
+              "number": "01",
+              "eyebrow": "均值关系",
+              "title": "基本不等式与等号条件",
+              "category": "property",
+              "lessonCount": 2
+            },
+            {
+              "id": "fixed-transform",
+              "number": "02",
+              "eyebrow": "条件参与型",
+              "title": "乘入条件，展开找定积",
+              "category": "description",
+              "lessonCount": 2
+            },
+            {
+              "id": "substitution",
+              "number": "03",
+              "eyebrow": "目标重构型",
+              "title": "围绕分母补项凑定积",
+              "category": "enumeration",
+              "lessonCount": 2
+            }
+          ],
+          "knowledgeBlocks": [
+            {
+              "groupId": "basic-theorem",
+              "category": "property",
+              "title": "两个正数的基本不等式",
+              "ordered": false,
+              "body": [
+                "如果 a>0，b>0，那么 \\(\\frac{a+b}{2}\\ge\\sqrt{ab}\\)，也可写成 \\(a+b\\ge2\\sqrt{ab}\\)。",
+                "当且仅当 a=b 时等号成立。这个结论又称均值不等式或基本不等式。",
+                "定和求积：a+b 为定值时，ab 在 a=b 时取得最大值；定积求和：ab 为定值时，a+b 在 a=b 时取得最小值。"
+              ],
+              "bodyHtml": [
+                "如果 a&gt;0，b&gt;0，那么 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">a+b</span><span class=\"math-denominator\">2</span></span>≥<span class=\"math-radical\"><span class=\"math-radical-symbol\">√</span><span class=\"math-radicand\">ab</span></span></span>，也可写成 <span class=\"inline-math\">a+b≥2<span class=\"math-radical\"><span class=\"math-radical-symbol\">√</span><span class=\"math-radicand\">ab</span></span></span>。",
+                "当且仅当 a=b 时等号成立。这个结论又称均值不等式或基本不等式。",
+                "定和求积：a+b 为定值时，ab 在 a=b 时取得最大值；定积求和：ab 为定值时，a+b 在 a=b 时取得最小值。"
+              ],
+              "basicInequalityVisual": true
+            },
+            {
+              "groupId": "basic-theorem",
+              "category": "description",
+              "title": "使用条件：一正、二定、三相等",
+              "ordered": false,
+              "body": [
+                "一正：应用基本不等式的每一项都必须为正数；若符号不明，要先转化或分类。",
+                "二定：和或积中必须有一个能够由题设确定，才能从不等式得到固定的上界或下界。",
+                "三相等：必须验证各项相等时是否满足原题条件；若等号无法取得，所得界就不是最值。"
+              ],
+              "bodyHtml": [
+                "一正：应用基本不等式的每一项都必须为正数；若符号不明，要先转化或分类。",
+                "二定：和或积中必须有一个能够由题设确定，才能从不等式得到固定的上界或下界。",
+                "三相等：必须验证各项相等时是否满足原题条件；若等号无法取得，所得界就不是最值。"
+              ],
+              "basicInequalityConditions": true
+            },
+            {
+              "groupId": "fixed-transform",
+              "category": "description",
+              "title": "条件参与型：乘入条件，展开找定积",
+              "ordered": false,
+              "body": [
+                "当目标中的原两项乘积不固定时，先检查题设是否给出了可以参与运算的定值条件。",
+                "将目标式与条件相乘并完整展开，常数项先合并，重点观察两个交叉正项的乘积能否消去变量。",
+                "找到定积后使用基本不等式，最后由两个交叉正项相等反求变量并核对原条件。"
+              ],
+              "bodyHtml": [
+                "当目标中的原两项乘积不固定时，先检查题设是否给出了可以参与运算的定值条件。",
+                "将目标式与条件相乘并完整展开，常数项先合并，重点观察两个交叉正项的乘积能否消去变量。",
+                "找到定积后使用基本不等式，最后由两个交叉正项相等反求变量并核对原条件。"
+              ],
+              "fixedProductConditionVisual": true
+            },
+            {
+              "groupId": "substitution",
+              "category": "enumeration",
+              "title": "目标重构型：围绕分母补项凑定积",
+              "ordered": false,
+              "body": [
+                "看到 \\(\\frac{k}{x+c}\\) 时，先反推它需要与正项 \\(p(x+c)\\) 配对，而不是先机械换元。",
+                "利用 \\(px=p(x+c)-pc\\) 补出配对正项，并把多补的常数减回；此时两项乘积恒为 \\(pk\\)。",
+                "换元 \\(t=x+c>0\\) 只用于简化书写，核心仍是围绕分母补项构造定积。"
+              ],
+              "bodyHtml": [
+                "看到 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">k</span><span class=\"math-denominator\">x+c</span></span></span> 时，先反推它需要与正项 <span class=\"inline-math\">p(x+c)</span> 配对，而不是先机械换元。",
+                "利用 <span class=\"inline-math\">px=p(x+c)-pc</span> 补出配对正项，并把多补的常数减回；此时两项乘积恒为 <span class=\"inline-math\">pk</span>。",
+                "换元 <span class=\"inline-math\">t=x+c&gt;0</span> 只用于简化书写，核心仍是围绕分母补项构造定积。"
+              ],
+              "fixedProductCompletionVisual": true
+            }
+          ],
+          "examples": [
+            {
+              "group": "基本不等式",
+              "knowledgeCategory": "property",
+              "title": "定和求积的最大值",
+              "numberLabel": "练习 8 · 1",
+              "display": "featured",
+              "hints": [
+                "m、n 都是正数，可以直接应用基本不等式。",
+                "检查 m=n 时是否满足 m+n=2。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "1"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写最大值",
+                  "keyboard": [
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-basic-q01",
+                "title": "定和求积的最大值",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "1. 设正实数 \\(m，n\\) 满足 \\(m+n=2\\)，则 \\(mn\\) 的最大值为　　　　。",
+                      "html": "1. 设正实数 <span class=\"inline-math\">m，n</span> 满足 <span class=\"inline-math\">m+n=2</span>，则 <span class=\"inline-math\">mn</span> 的最大值为　　　　。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-basic-q01.html"
+              }
+            },
+            {
+              "group": "基本不等式",
+              "knowledgeCategory": "property",
+              "title": "倒数和定值求积的最小值",
+              "numberLabel": "练习 8 · 2",
+              "display": "featured",
+              "hints": [
+                "把倒数和通分为 (x+y)/(xy)。",
+                "用 x+y≥2√xy 建立关于 √xy 的不等式。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "4"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写最小值",
+                  "keyboard": [
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-basic-q02",
+                "title": "倒数和定值求积的最小值",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "2. 已知正实数 \\(x，y\\) 满足 \\(\\frac1x+\\frac1y=1\\)，则 \\(xy\\) 最小值为　　　　。",
+                      "html": "2. 已知正实数 <span class=\"inline-math\">x，y</span> 满足 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">x</span></span>+<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">y</span></span>=1</span>，则 <span class=\"inline-math\">xy</span> 最小值为　　　　。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-basic-q02.html"
+              }
+            },
+            {
+              "group": "乘入条件，展开找定积",
+              "knowledgeCategory": "description",
+              "title": "倒数和定值求线性式的最小值",
+              "numberLabel": "练习 8 · 3",
+              "display": "featured",
+              "hints": [
+                "把 x+4y 乘以已知的倒数和 1。",
+                "展开后检查 x/y 与 4y/x 的乘积。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "9"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写最小值",
+                  "keyboard": [
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-basic-q03",
+                "title": "倒数和定值求线性式的最小值",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "3. 已知正实数 \\(x，y\\) 满足 \\(\\frac1x+\\frac1y=1\\)，则 \\(x+4y\\) 最小值为　　　　。",
+                      "html": "3. 已知正实数 <span class=\"inline-math\">x，y</span> 满足 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">x</span></span>+<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">y</span></span>=1</span>，则 <span class=\"inline-math\">x+4y</span> 最小值为　　　　。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-basic-q03.html"
+              }
+            },
+            {
+              "group": "乘入条件，展开找定积",
+              "knowledgeCategory": "description",
+              "title": "线性约束下求倒数和的最小值",
+              "numberLabel": "练习 8 · 4",
+              "display": "featured",
+              "hints": [
+                "把目标式乘以定和 a+3b。",
+                "展开后检查 9b/a 与 4a/b 的乘积。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "27/2",
+                  "13.5"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写最小值",
+                  "keyboard": [
+                    "fraction",
+                    "digits",
+                    "decimal"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-basic-q04",
+                "title": "线性约束下求倒数和的最小值",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "4. 已知 \\(a>0，b>0\\)，且 \\(a+3b=2\\)，则 \\(\\frac3a+\\frac4b\\) 的最小值是　　　　。",
+                      "html": "4. 已知 <span class=\"inline-math\">a&gt;0，b&gt;0</span>，且 <span class=\"inline-math\">a+3b=2</span>，则 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">3</span><span class=\"math-denominator\">a</span></span>+<span class=\"math-fraction\"><span class=\"math-numerator\">4</span><span class=\"math-denominator\">b</span></span></span> 的最小值是　　　　。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-basic-q04.html"
+              }
+            },
+            {
+              "group": "围绕分母补项凑定积",
+              "knowledgeCategory": "enumeration",
+              "title": "补项构造定积求最小值",
+              "numberLabel": "练习 8 · 5",
+              "display": "featured",
+              "hints": [
+                "由分母 x+1 反推配对正项。",
+                "把 x 写成 (x+1)-1，补出的常数在括号外减回。"
+              ],
+              "answerSchema": {
+                "type": "multipart-exact",
+                "layout": "per-part",
+                "expected": [
+                  {
+                    "label": "最小值",
+                    "prompt": "原式的最小值",
+                    "aliases": [
+                      "3"
+                    ],
+                    "promptHtml": "原式的最小值"
+                  },
+                  {
+                    "label": "x",
+                    "prompt": "取得最小值时 x 的值",
+                    "aliases": [
+                      "1"
+                    ],
+                    "promptHtml": "取得最小值时 x 的值"
+                  }
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "分别填写答案",
+                  "keyboard": [
+                    "digits",
+                    "negative"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-basic-q05",
+                "title": "补项构造定积求最小值",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "5. 已知 \\(x>-1\\)，则 \\(x+\\frac4{x+1}\\) 的最小值为　　　　，此时 \\(x\\) 的值是　　　　。",
+                      "html": "5. 已知 <span class=\"inline-math\">x&gt;-1</span>，则 <span class=\"inline-math\">x+<span class=\"math-fraction\"><span class=\"math-numerator\">4</span><span class=\"math-denominator\">x+1</span></span></span> 的最小值为　　　　，此时 <span class=\"inline-math\">x</span> 的值是　　　　。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-basic-q05.html"
+              }
+            },
+            {
+              "group": "围绕分母补项凑定积",
+              "knowledgeCategory": "enumeration",
+              "title": "补项构造一次项与倒数项的定积",
+              "numberLabel": "练习 8 · 6",
+              "display": "featured",
+              "hints": [
+                "由分母 x+3 反推配对正项 2(x+3)。",
+                "把 2x 写成 2(x+3)-6。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "B"
+              },
+              "lesson": {
+                "id": "inequality-basic-q06",
+                "title": "换元求含一次项和倒数项的最小值",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "6. 若 \\(x>-3\\)，则 \\(2x+\\frac1{x+3}\\) 的最小值是（　　）",
+                      "html": "6. 若 <span class=\"inline-math\">x&gt;-3</span>，则 <span class=\"inline-math\">2x+<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">x+3</span></span></span> 的最小值是（　　）"
+                    },
+                    {
+                      "text": "A. \\(2\\sqrt2+6\\)　　B. \\(2\\sqrt2-6\\)　　C. \\(2\\sqrt2\\)　　D. \\(2\\sqrt2+2\\)",
+                      "html": "A. <span class=\"inline-math\">2<span class=\"math-radical\"><span class=\"math-radical-symbol\">√</span><span class=\"math-radicand\">2</span></span>+6</span>　　B. <span class=\"inline-math\">2<span class=\"math-radical\"><span class=\"math-radical-symbol\">√</span><span class=\"math-radicand\">2</span></span>-6</span>　　C. <span class=\"inline-math\">2<span class=\"math-radical\"><span class=\"math-radical-symbol\">√</span><span class=\"math-radicand\">2</span></span></span>　　D. <span class=\"inline-math\">2<span class=\"math-radical\"><span class=\"math-radical-symbol\">√</span><span class=\"math-radicand\">2</span></span>+2</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-basic-q06.html"
+              }
+            }
+          ],
+          "summary": "基本不等式不是见到正数就直接套用：先确认正项，再以构造定积为目标。原目标缺少定积时，可以让题设条件参与运算，也可以围绕分母补出配对正项；最后必须验证等号能否在原条件下取得。",
+          "summaryHtml": "基本不等式不是见到正数就直接套用：先确认正项，再以构造定积为目标。原目标缺少定积时，可以让题设条件参与运算，也可以围绕分母补出配对正项；最后必须验证等号能否在原条件下取得。"
+        },
+        {
+          "id": "inequality-practice",
+          "label": "实战演练",
+          "type": "assessment",
+          "status": "published",
+          "description": "综合练习不等式性质、条件关系、参数与范围、分式不等式和绝对值不等式。",
+          "items": [
+            {
+              "number": 1,
+              "status": "published",
+              "numberLabel": "第 1 题",
+              "hints": [
+                "逐项检查乘数、除数与等号退化情形。",
+                "错误结论只需找到一个反例。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "D"
+              },
+              "lesson": {
+                "id": "inequality-practice-q01",
+                "title": "辨析不等式结论",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "1. 若 \\(a，b，c\\) 为实数，下列结论正确的是（　　）",
+                      "html": "1. 若 <span class=\"inline-math\">a，b，c</span> 为实数，下列结论正确的是（　　）"
+                    },
+                    {
+                      "text": "A. 若 \\(|a|>b\\)，则 \\(a^2>b^2\\)　　B. 若 \\(a<b<0\\)，则 \\(\\frac ba>\\frac ab\\)　　C. 若 \\(a>b\\)，则 \\(ac^2>bc^2\\)　　D. 若 \\(a>b>0\\)，则 \\(a^2>ab>b^2\\)",
+                      "html": "A. 若 <span class=\"inline-math\">|a|&gt;b</span>，则 <span class=\"inline-math\">a<sup>2</sup>&gt;b<sup>2</sup></span>　　B. 若 <span class=\"inline-math\">a&lt;b&lt;0</span>，则 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\"> </span><span class=\"math-denominator\">b</span></span>a&gt;<span class=\"math-fraction\"><span class=\"math-numerator\"> </span><span class=\"math-denominator\">a</span></span>b</span>　　C. 若 <span class=\"inline-math\">a&gt;b</span>，则 <span class=\"inline-math\">ac<sup>2</sup>&gt;bc<sup>2</sup></span>　　D. 若 <span class=\"inline-math\">a&gt;b&gt;0</span>，则 <span class=\"inline-math\">a<sup>2</sup>&gt;ab&gt;b<sup>2</sup></span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-practice-q01.html"
+              }
+            },
+            {
+              "number": 2,
+              "status": "published",
+              "numberLabel": "第 2 题",
+              "hints": [
+                "由 ac²>bc² 可以反推出 c≠0。",
+                "此时 c² 是严格正数。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "C"
+              },
+              "lesson": {
+                "id": "inequality-practice-q02",
+                "title": "判断恒成立的不等式推论",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "2. 如果 \\(a，b，c，d\\in\\mathbb R\\)，则正确的是（　　）",
+                      "html": "2. 如果 <span class=\"inline-math\">a，b，c，d∈<span class=\"math-blackboard\">ℝ</span></span>，则正确的是（　　）"
+                    },
+                    {
+                      "text": "A. 若 \\(a>b\\)，则 \\(\\frac1a<\\frac1b\\)　　B. 若 \\(a>b，c>d\\)，则 \\(a-c>b-d\\)　　C. 若 \\(ac^2>bc^2\\)，则 \\(a>b\\)　　D. 若 \\(a>b，c>d\\)，则 \\(ac>bd\\)",
+                      "html": "A. 若 <span class=\"inline-math\">a&gt;b</span>，则 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">a</span></span>&lt;<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">b</span></span></span>　　B. 若 <span class=\"inline-math\">a&gt;b，c&gt;d</span>，则 <span class=\"inline-math\">a-c&gt;b-d</span>　　C. 若 <span class=\"inline-math\">ac<sup>2</sup>&gt;bc<sup>2</sup></span>，则 <span class=\"inline-math\">a&gt;b</span>　　D. 若 <span class=\"inline-math\">a&gt;b，c&gt;d</span>，则 <span class=\"inline-math\">ac&gt;bd</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-practice-q02.html"
+              }
+            },
+            {
+              "number": 3,
+              "status": "published",
+              "numberLabel": "第 3 题",
+              "hints": [
+                "分别求两个条件的解集。",
+                "用真包含关系判断充分性与必要性。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "B"
+              },
+              "lesson": {
+                "id": "inequality-practice-q03",
+                "title": "比较两个条件的充分必要性",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "3. 设 \\(x\\in\\mathbb R\\)，则“\\(x^2+x-2>0\\)”是“\\(|x-2|<1\\)”的（　　）",
+                      "html": "3. 设 <span class=\"inline-math\">x∈<span class=\"math-blackboard\">ℝ</span></span>，则“<span class=\"inline-math\">x<sup>2</sup>+x-2&gt;0</span>”是“<span class=\"inline-math\">|x-2|&lt;1</span>”的（　　）"
+                    },
+                    {
+                      "text": "A. 充分而不必要条件　　B. 必要而不充分条件　　C. 充要条件　　D. 既不充分也不必要条件",
+                      "html": "A. 充分而不必要条件　　B. 必要而不充分条件　　C. 充要条件　　D. 既不充分也不必要条件"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-practice-q03.html"
+              }
+            },
+            {
+              "number": 4,
+              "status": "published",
+              "numberLabel": "第 4 题",
+              "hints": [
+                "把二次式配方为 (x-3)²+a-9。",
+                "逐项统计闭区间中的整数。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "C"
+              },
+              "lesson": {
+                "id": "inequality-practice-q04",
+                "title": "由整数解个数确定参数",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "4. 若关于 \\(x\\) 的一元二次不等式 \\(x^2-6x+a\\le0\\ (a\\in\\mathbb Z)\\) 的解集中有且仅有 3 个整数，则 \\(a\\) 的取值可以是（　　）",
+                      "html": "4. 若关于 <span class=\"inline-math\">x</span> 的一元二次不等式 <span class=\"inline-math\">x<sup>2</sup>-6x+a≤0\\ (a∈<span class=\"math-blackboard\">ℤ</span>)</span> 的解集中有且仅有 3 个整数，则 <span class=\"inline-math\">a</span> 的取值可以是（　　）"
+                    },
+                    {
+                      "text": "A. 4　　　B. 5　　　C. 8　　　D. 9",
+                      "html": "A. 4　　　B. 5　　　C. 8　　　D. 9"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-practice-q04.html"
+              }
+            },
+            {
+              "number": 5,
+              "status": "published",
+              "numberLabel": "第 5 题",
+              "hints": [
+                "计算 M-N。",
+                "把差分解为 (a+b)(a-b)²。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "D"
+              },
+              "lesson": {
+                "id": "inequality-practice-q05",
+                "title": "比较两个对称多项式",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "5. 已知 \\(a，b\\) 均为正实数，若 \\(M=a^3+b^3，N=a^2b+ab^2\\)，则（　　）",
+                      "html": "5. 已知 <span class=\"inline-math\">a，b</span> 均为正实数，若 <span class=\"inline-math\">M=a<sup>3</sup>+b<sup>3</sup>，N=a<sup>2</sup>b+ab<sup>2</sup></span>，则（　　）"
+                    },
+                    {
+                      "text": "A. \\(M<N\\)　　B. \\(M\\le N\\)　　C. \\(M>N\\)　　D. \\(M\\ge N\\)",
+                      "html": "A. <span class=\"inline-math\">M&lt;N</span>　　B. <span class=\"inline-math\">M≤ N</span>　　C. <span class=\"inline-math\">M&gt;N</span>　　D. <span class=\"inline-math\">M≥ N</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-practice-q05.html"
+              }
+            },
+            {
+              "number": 6,
+              "status": "published",
+              "numberLabel": "第 6 题",
+              "hints": [
+                "先确定 a<0、b>0。",
+                "注意原条件都是严格不等式，端点不能取得。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "(-6,-1)",
+                  "-6<ab<-1"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写 a·b 的取值范围",
+                  "keyboard": [
+                    "interval",
+                    "comma",
+                    "negative",
+                    "less",
+                    "a",
+                    "b",
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-practice-q06",
+                "title": "求两个区间变量乘积的范围",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "6. 已知实数 \\(a，b\\) 满足 \\(-2<a<-1，1<b<3\\)，则 \\(a\\cdot b\\) 的取值范围是　　　　。",
+                      "html": "6. 已知实数 <span class=\"inline-math\">a，b</span> 满足 <span class=\"inline-math\">-2&lt;a&lt;-1，1&lt;b&lt;3</span>，则 <span class=\"inline-math\">a· b</span> 的取值范围是　　　　。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-practice-q06.html"
+              }
+            },
+            {
+              "number": 7,
+              "status": "published",
+              "numberLabel": "第 7 题",
+              "hints": [
+                "移项通分成 (5-x)/(x-2)≥0。",
+                "x=2 是禁值点，x=5 可以取。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "(2,5]"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写解集",
+                  "keyboard": [
+                    "interval",
+                    "brackets",
+                    "comma",
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-practice-q07",
+                "title": "解基础分式不等式",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "7. 不等式 \\(\\frac3{x-2}\\ge1\\) 的解集为　　　　（用区间表示）。",
+                      "html": "7. 不等式 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">3</span><span class=\"math-denominator\">x-2</span></span>≥1</span> 的解集为　　　　（用区间表示）。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-practice-q07.html"
+              }
+            },
+            {
+              "number": 8,
+              "status": "published",
+              "numberLabel": "第 8 题",
+              "hints": [
+                "分子零点是 -3。",
+                "分母零点 2 必须排除。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "[-3,2)"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写解集",
+                  "keyboard": [
+                    "interval",
+                    "brackets",
+                    "comma",
+                    "negative",
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-practice-q08",
+                "title": "解含等号的分式不等式",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "8. 不等式 \\(\\frac{x+3}{2-x}\\ge0\\) 的解集为　　　　。",
+                      "html": "8. 不等式 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">x+3</span><span class=\"math-denominator\">2-x</span></span>≥0</span> 的解集为　　　　。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-practice-q08.html"
+              }
+            },
+            {
+              "number": 9,
+              "status": "published",
+              "numberLabel": "第 9 题",
+              "hints": [
+                "先把右侧 1 移到左侧并通分。",
+                "分母零点 1/2 不能取。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "[-2,1/2)",
+                  "[-2,0.5)"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写解集",
+                  "keyboard": [
+                    "interval",
+                    "brackets",
+                    "comma",
+                    "negative",
+                    "fraction",
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-practice-q09",
+                "title": "移项通分解分式不等式",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "9. 不等式 \\(\\frac{3x+1}{2x-1}\\le1\\) 的解集为　　　　。",
+                      "html": "9. 不等式 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">3x+1</span><span class=\"math-denominator\">2x-1</span></span>≤1</span> 的解集为　　　　。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-practice-q09.html"
+              }
+            },
+            {
+              "number": 10,
+              "status": "published",
+              "numberLabel": "第 10 题",
+              "hints": [
+                "分界点依次为 -4、-1、2。",
+                "-4 是禁值点，另两个点是分子零点。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "(-∞,-4)∪[-1,2]"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写解集",
+                  "keyboard": [
+                    "interval",
+                    "brackets",
+                    "comma",
+                    "union",
+                    "negative",
+                    "infinity",
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-practice-q10",
+                "title": "解因式型分式不等式",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "10. 不等式 \\(\\frac{(x+1)(2-x)}{x+4}\\ge0\\) 的解集为　　　　。",
+                      "html": "10. 不等式 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">(x+1)(2-x)</span><span class=\"math-denominator\">x+4</span></span>≥0</span> 的解集为　　　　。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-practice-q10.html"
+              }
+            },
+            {
+              "number": 11,
+              "status": "published",
+              "numberLabel": "第 11 题",
+              "hints": [
+                "把 4 移到左侧后通分。",
+                "比较 23/5 与禁值点 5。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "[23/5,5)",
+                  "[4.6,5)"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写解集",
+                  "keyboard": [
+                    "interval",
+                    "brackets",
+                    "comma",
+                    "fraction",
+                    "decimal",
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-practice-q11",
+                "title": "解右侧含常数的分式不等式",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "11. 不等式 \\(\\frac{x-3}{5-x}\\ge4\\) 的解集是　　　　。",
+                      "html": "11. 不等式 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">x-3</span><span class=\"math-denominator\">5-x</span></span>≥4</span> 的解集是　　　　。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-practice-q11.html"
+              }
+            },
+            {
+              "number": 12,
+              "status": "published",
+              "numberLabel": "第 12 题",
+              "hints": [
+                "第（1）题拆成两个一次不等式。",
+                "第（2）题表示 x 到 2 的距离介于 2 和 4 之间。"
+              ],
+              "answerSchema": {
+                "type": "multipart-exact",
+                "layout": "per-part",
+                "expected": [
+                  {
+                    "label": "（1）",
+                    "prompt": "\\(|5x-2|\\ge8\\)",
+                    "aliases": [
+                      "(-∞,-6/5]∪[2,+∞)",
+                      "x≤-6/5或x≥2"
+                    ],
+                    "promptHtml": "<span class=\"inline-math\">|5x-2|≥8</span>"
+                  },
+                  {
+                    "label": "（2）",
+                    "prompt": "\\(2\\le|x-2|\\le4\\)",
+                    "aliases": [
+                      "[-2,0]∪[4,6]"
+                    ],
+                    "promptHtml": "<span class=\"inline-math\">2≤|x-2|≤4</span>"
+                  }
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写对应小题的解集",
+                  "keyboard": [
+                    "interval",
+                    "brackets",
+                    "comma",
+                    "union",
+                    "negative",
+                    "fraction",
+                    "infinity",
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-practice-q12",
+                "title": "解两个基础绝对值不等式",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "12. 解下列不等式：",
+                      "html": "12. 解下列不等式："
+                    },
+                    {
+                      "text": "（1）\\(|5x-2|\\ge8\\)；",
+                      "html": "（1）<span class=\"inline-math\">|5x-2|≥8</span>；"
+                    },
+                    {
+                      "text": "（2）\\(2\\le|x-2|\\le4\\)。",
+                      "html": "（2）<span class=\"inline-math\">2≤|x-2|≤4</span>。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-practice-q12.html"
+              }
+            },
+            {
+              "number": 13,
+              "status": "published",
+              "numberLabel": "第 13 题",
+              "hints": [
+                "第（1）题以 -1、1 为分界点。",
+                "第（2）题以 -1、3 为分界点，每段都要与本段范围取交集。"
+              ],
+              "answerSchema": {
+                "type": "multipart-exact",
+                "layout": "per-part",
+                "expected": [
+                  {
+                    "label": "（1）",
+                    "prompt": "\\(|x+1|+|x-1|\\ge3\\)",
+                    "aliases": [
+                      "(-∞,-3/2]∪[3/2,+∞)",
+                      "x≤-3/2或x≥3/2"
+                    ],
+                    "promptHtml": "<span class=\"inline-math\">|x+1|+|x-1|≥3</span>"
+                  },
+                  {
+                    "label": "（2）",
+                    "prompt": "\\(|x-3|-|x+1|<1\\)",
+                    "aliases": [
+                      "(1/2,+∞)",
+                      "x>1/2"
+                    ],
+                    "promptHtml": "<span class=\"inline-math\">|x-3|-|x+1|&lt;1</span>"
+                  }
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写对应小题的解集",
+                  "keyboard": [
+                    "interval",
+                    "brackets",
+                    "comma",
+                    "union",
+                    "negative",
+                    "fraction",
+                    "infinity",
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-practice-q13",
+                "title": "分段解绝对值不等式",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "13. 解下列不等式：",
+                      "html": "13. 解下列不等式："
+                    },
+                    {
+                      "text": "（1）\\(|x+1|+|x-1|\\ge3\\)；",
+                      "html": "（1）<span class=\"inline-math\">|x+1|+|x-1|≥3</span>；"
+                    },
+                    {
+                      "text": "（2）\\(|x-3|-|x+1|<1\\)。",
+                      "html": "（2）<span class=\"inline-math\">|x-3|-|x+1|&lt;1</span>。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-practice-q13.html"
               }
             }
           ]

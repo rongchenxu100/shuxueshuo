@@ -1,0 +1,29 @@
+{
+  "postType": "知识点型",
+  "slides": [
+    {
+      "png": "01-cover.png",
+      "mode": "svg",
+      "source": "01-cover.svg"
+    },
+    {
+      "png": "02-question.png",
+      "mode": "svg",
+      "source": "02-question.svg"
+    },
+    {
+      "png": "03-explanation.png",
+      "mode": "hybrid",
+      "source": "03-explanation.svg"
+    },
+    {
+      "png": "04-summary.png",
+      "mode": "imagegen"
+    },
+    {
+      "png": "05-interactive-cta.png",
+      "mode": "svg",
+      "source": "05-interactive-cta.svg"
+    }
+  ]
+}

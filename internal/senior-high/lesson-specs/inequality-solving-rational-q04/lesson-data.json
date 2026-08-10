@@ -1,0 +1,90 @@
+{
+  "meta": {
+    "id": "inequality-solving-rational-q04",
+    "outputPath": "site/problems/senior-high/inequalities/inequality-relations/inequality-solving-rational-q04.html",
+    "pageTitle": "通分后判断分子分母符号",
+    "pageDescription": "通分后判断分子分母符号的逐步解析。",
+    "breadcrumbTitle": "解不等式 · 练习 6-4",
+    "breadcrumbLabel": "解不等式与基本不等式",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=inequalities&section=inequality-relations&module=solving-inequalities"
+  },
+  "problem": {
+    "source": "高一暑假目标班 · 第4讲",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "引用分式不等式知识点：先移项通分并化成正首项乘积，再把分母禁值点与分子零点共同穿针。",
+      "items": [
+        "移项通分得 \\(\\frac{4-5x}{3x-2}>0\\)，不能直接乘符号未知的 \\(3x-2\\)。",
+        "转化为正首项标准式 \\((5x-4)(3x-2)<0\\)，同时保留 \\(x\\ne\\frac23\\)。",
+        "先比较 \\(\\frac23<\\frac45\\)：左端是分母禁值点，右端是分子零点；严格不等式两点均不取。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "解不等式 \\(\\frac{x}{3x-2}>2\\)。"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "分式不等式",
+      "title": "移项通分并标出禁值点",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "rational-threading-graph",
+        "ariaLabel": "分母禁值三分之二为带叉空心点，分子零点五分之四为空心点，负号阴影位于两点之间",
+        "title": "先比较两个分界点，再从右侧穿针",
+        "intro": "正首项标准式从最右侧“+”开始，两个一次分界点之间为负。",
+        "standardized": "\\(\\frac{x}{3x-2}>2\\iff(5x-4)(3x-2)<0，x\\ne\\frac23\\)",
+        "roots": [
+          { "label": "2/3", "kind": "denominator", "included": false },
+          { "label": "4/5", "kind": "numerator", "included": false }
+        ],
+        "signs": ["+", "-", "+"],
+        "selectSign": "-",
+        "target": "取负号区间",
+        "solution": "\\((\\frac23,\\frac45)\\)",
+        "facts": [
+          "\\(\\frac23\\) 使分母为 0，是红色带叉禁值点；\\(\\frac45\\) 使分子为 0。",
+          "题目是严格大于 0，转化后的乘积严格小于 0，因此两个分界点都不取。"
+        ],
+        "caption": "根的类型不同，但两个一次分界点处都发生符号改变；端点能否取则分别判断。"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "移项通分得 \\(\\frac{x}{3x-2}-2=\\frac{4-5x}{3x-2}>0\\)，并保留 \\(x\\ne\\frac23\\)"
+        },
+        {
+          "kind": "because",
+          "text": "引用知识点，将分式转化为 \\((5x-4)(3x-2)<0\\)；两个分界点满足 \\(\\frac23<\\frac45\\)，从最右侧正号开始穿，中间区间为负"
+        },
+        {
+          "kind": "therefore",
+          "text": "取负号阴影并排除分母禁值与分子零点，解集为 \\((\\frac23,\\frac45)\\)"
+        }
+      ],
+      "derive": [
+        [
+          "解集",
+          "(2/3,4/5)"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 化标准式并判断符号"
+  }
+}

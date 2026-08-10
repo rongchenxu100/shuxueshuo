@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>判断恒无解的二次不等式 | 数学说</title>
+  <meta name="description" content="判断恒无解的二次不等式的逐步解析。" />
+  <meta property="og:title" content="判断恒无解的二次不等式 | 数学说" />
+  <meta property="og:description" content="判断恒无解的二次不等式的逐步解析。" />
+  <meta property="og:image" content="../../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css?v=12" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../../senior-high/index.html?chapter=inequalities&section=inequality-relations&module=solving-inequalities">解不等式与基本不等式</a>
+    <span class="lesson-title">解不等式 · 练习 4-2</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          <div class="problem-full">
+            <div class="problem-line"><span>一元二次不等式 <span class="inline-math">-x<sup>2</sup>+2x-3&gt;0</span> 的解集是（　　）</span></div>
+<div class="problem-line"><span></span><span class="answer-chip" id="answerI">答案：A</span></div>
+<div class="problem-options"><div class="problem-option"><span class="problem-option-label">A.</span><span><span class="inline-math">∅</span></span></div><div class="problem-option"><span class="problem-option-label">B.</span><span><span class="inline-math">(-3,1)</span></span></div><div class="problem-option"><span class="problem-option-label">C.</span><span><span class="inline-math">(-1,3)</span></span></div><div class="problem-option"><span class="problem-option-label">D.</span><span><span class="inline-math">(-3,-1)</span></span></div></div>
+          </div>
+        </section>
+
+        <aside class="lesson-key-points" aria-label="解题要点"><div class="lesson-key-points-title">解题要点</div><div class="lesson-key-points-content"><p class="lesson-key-points-lead">引用核心知识：先看 a 的符号确定抛物线开口，再看 Δ 与实根确定图像和 x 轴的位置关系。</p><ol><li>令 y=-x²+2x-3；a&lt;0，所以抛物线开口向下。</li><li>Δ&lt;0，图像与 x 轴没有交点；结合开口方向可知整个图像在 x 轴下方。</li><li>题目要求 y&gt;0，因此解集为空集。</li></ol></div></aside>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../../assets/js/lesson-page-runtime.js?v=21"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"s1","section":"一元二次不等式","title":"配方判断整段符号","t":0,"showDiagram":false,"visual":{"kind":"quadratic-function-sign-graphs","ariaLabel":"二次函数 y 等于负 x 平方加 2x 减 3 的图像，开口向下且与 x 轴没有交点，整个图像位于 x 轴下方","title":"开口向下且没有交点：图像恒在 x 轴下方","intro":"Δ<0 只说明没有交点；还要结合 a<0 的开口方向判断图像位于 x 轴哪一侧。","graphs":[{"label":"原不等式","expression":"\\(y=-x^2+2x-3\\)","opening":"down","discriminant":"negative","roots":[],"facts":["\\(a=-1<0\\)，抛物线开口向下","\\(\\Delta=2^2-4×(-1)×(-3)=-8<0\\)，与 x 轴无交点","顶点纵坐标为 \\(-2\\)，整个图像在 x 轴下方"],"target":"\\(f(x)>0\\)","solutionMode":"none","solution":"\\(\\varnothing\\)"}],"caption":"图像上不存在位于 x 轴上方的点，所以不等式无解。"},"table":{"headers":["二次式","最大值","与 0 的关系"],"rows":[["−(x−1)²−2","−2","恒小于 0"]]},"reasoning":[{"kind":"because","text":"\\(-x^2+2x-3=-(x-1)^2-2<0\\) 对任意实数 x 成立"},{"kind":"because","text":"从二次函数图像看，\\(a<0\\) 且 \\(\\Delta<0\\)，抛物线开口向下并且与 x 轴没有交点，所以图像恒在 x 轴下方"},{"kind":"therefore","text":"不存在使 \\(-x^2+2x-3>0\\) 成立的 x，解集为空集，选择 A"}],"derive":[["答案","A（空集）"]]}];
+    var STEP_LABELS = {"s1":"1 化标准式并判断符号"};
+    var POLICIES   = {"s1":{"movable":false,"range":[0,0]}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 滑块主参数与派生参数的联动文案格式化器 */
+    var __LESSON_PARAM_LABEL_FORMATTER__;
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script>
+  function diagramMarkupFor() { return ''; }
+  function diagramMarkupForFrame() { return ''; }
+  function drawMini() { return ''; }
+  function groupTitle(section) { return section; }
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      diagramMarkupForFrame: typeof diagramMarkupForFrame === "function" ? diagramMarkupForFrame : undefined,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "参数",
+      paramLabelPrefix: "",
+      paramLabelFormatter: typeof __LESSON_PARAM_LABEL_FORMATTER__ === "function" ? __LESSON_PARAM_LABEL_FORMATTER__ : undefined,
+      goToProblemMode: "doubleScroll"
+    });
+  </script>
+</body>
+</html>

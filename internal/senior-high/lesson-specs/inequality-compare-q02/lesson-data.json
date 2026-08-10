@@ -1,0 +1,6 @@
+{
+  "meta":{"id":"inequality-compare-q02","outputPath":"site/problems/senior-high/inequalities/inequality-relations/inequality-compare-q02.html","pageTitle":"由负平方比较大小","pageDescription":"明确使用作差法，作差得到负的完全平方，判断 M 与 N 的关系。","breadcrumbTitle":"不等关系 · 练习 3-2","breadcrumbLabel":"不等关系","breadcrumbPath":"site/senior-high/index.html","breadcrumbSearch":"?chapter=inequalities&section=inequality-relations&module=inequality-relations"},
+  "problem":{"source":"培训教材 · 不等关系","keyPoints":{"title":"解题要点","lead":"明确使用作差法：比较 \\(M-N\\) 与 0 的关系。","items":["先作差 \\(M-N\\)；","化成负的完全平方，并保留等号成立的情况。"]},"lines":[{"text":"已知 \\(M=m-4\\)，\\(N=m^2-3m\\)，则 M 与 N 的大小关系为 \\(M\\)______\\(N\\)。"}]},
+  "steps":[{"id":"s1","section":"比大小","title":"作差法：把差式化为负平方","t":0,"showDiagram":false,"reasoning":[{"kind":"because","text":"使用作差法，先计算 \\(M-N=(m-4)-(m^2-3m)\\)。"},{"kind":"because","text":"化简并配方，得 \\(M-N=-m^2+4m-4=-(m-2)^2\\le0\\)。"},{"kind":"therefore","text":"因为 \\(M-N\\le0\\)，所以 \\(M\\le N\\)；当 \\(m=2\\) 时取等号。"}],"derive":[["使用方法","作差法"],["M-N","-(m-2)²≤0"],["关系符号","≤"]]}],
+  "policies":{"s1":{"movable":false,"range":[0,0]}},"stepLabels":{"s1":"1 作差法：配方判号"}
+}

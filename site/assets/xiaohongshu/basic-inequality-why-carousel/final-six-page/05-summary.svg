@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1440" viewBox="0 0 1080 1440">
+  <defs>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M48 0H0V48" fill="none" stroke="#AFCBC6" stroke-width="1" opacity="0.27"/>
+    </pattern>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#164D50" flood-opacity="0.10"/>
+    </filter>
+    <style>
+      .cn{font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+      .math{font-family:"Times New Roman","STIX Two Math",serif;font-style:italic}
+      .teal{fill:#0B5157}
+    </style>
+  </defs>
+
+  <rect width="1080" height="1440" fill="#FBF8EF"/>
+  <rect width="1080" height="1440" fill="url(#grid)"/>
+
+  <!-- Header -->
+  <circle cx="310" cy="89" r="9" fill="#ED9E00"/>
+  <rect x="338" y="48" width="404" height="82" rx="41" fill="#EAF3EE" stroke="#0B5157" stroke-width="3.5"/>
+  <circle cx="770" cy="89" r="9" fill="#ED9E00"/>
+  <text x="540" y="101" text-anchor="middle" class="cn teal" font-size="35" font-weight="700">05 ｜ 数学之美</text>
+
+  <text x="540" y="218" text-anchor="middle" class="cn teal" font-size="70" font-weight="800">同一个结论</text>
+  <text x="540" y="300" text-anchor="middle" class="cn teal" font-size="61" font-weight="780">三种数学语言</text>
+
+  <!-- Three visual languages. No repeated derivations. -->
+  <g filter="url(#shadow)">
+    <rect x="48" y="355" width="306" height="405" rx="30" fill="#F4FAF6" stroke="#0B5157" stroke-width="3"/>
+    <rect x="387" y="355" width="306" height="405" rx="30" fill="#F4FAF6" stroke="#0B5157" stroke-width="3"/>
+    <rect x="726" y="355" width="306" height="405" rx="30" fill="#F4FAF6" stroke="#0B5157" stroke-width="3"/>
+  </g>
+
+  <!-- Area language -->
+  <text x="201" y="415" text-anchor="middle" class="cn teal" font-size="31" font-weight="780">面积语言</text>
+  <g>
+    <polygon points="86,590 221,670 301,535 166,455" fill="#B6DDD1" stroke="#0B5157" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="86,590 221,670 221,590" fill="#B6DDD1" stroke="#0B5157" stroke-width="2.4"/>
+    <polygon points="221,670 301,535 221,535" fill="#B6DDD1" stroke="#0B5157" stroke-width="2.4"/>
+    <polygon points="301,535 166,455 166,535" fill="#B6DDD1" stroke="#0B5157" stroke-width="2.4"/>
+    <polygon points="166,455 86,590 166,590" fill="#B6DDD1" stroke="#0B5157" stroke-width="2.4"/>
+    <rect x="166" y="535" width="55" height="55" fill="#F56C5F" stroke="#0B5157" stroke-width="2.8"/>
+  </g>
+  <rect x="127" y="692" width="148" height="46" rx="23" fill="#E8F4EF"/>
+  <text x="201" y="724" text-anchor="middle" class="cn teal" font-size="26" font-weight="800">拼出来</text>
+
+  <!-- Algebra language -->
+  <text x="540" y="415" text-anchor="middle" class="cn teal" font-size="31" font-weight="780">代数语言</text>
+  <text x="540" y="548" text-anchor="middle" class="math" font-size="53" fill="#F56C5F">(√<tspan text-decoration="overline">a</tspan>−√<tspan text-decoration="overline">b</tspan>)²</text>
+  <line x1="455" y1="587" x2="625" y2="587" stroke="#ED9E00" stroke-width="8" stroke-linecap="round"/>
+  <text x="540" y="650" text-anchor="middle" class="math teal" font-size="50">≥ 0</text>
+  <rect x="466" y="692" width="148" height="46" rx="23" fill="#FFF5E5"/>
+  <text x="540" y="724" text-anchor="middle" class="cn" font-size="26" font-weight="800" fill="#C98200">算出来</text>
+
+  <!-- Geometric language -->
+  <text x="879" y="415" text-anchor="middle" class="cn teal" font-size="31" font-weight="780">几何语言</text>
+  <g>
+    <path d="M755 620A124 124 0 0 1 1003 620" fill="#EAF5F1" stroke="#0B7774" stroke-width="4"/>
+    <line x1="755" y1="620" x2="1003" y2="620" stroke="#0B5157" stroke-width="4"/>
+    <polygon points="755,620 838,620 838,528" fill="#F56C5F" fill-opacity="0.22"/>
+    <polygon points="838,528 838,620 1003,620" fill="#EDAE35" fill-opacity="0.20"/>
+    <line x1="838" y1="528" x2="838" y2="620" stroke="#F56C5F" stroke-width="5"/>
+    <line x1="838" y1="528" x2="879" y2="620" stroke="#ED9E00" stroke-width="5"/>
+    <circle cx="838" cy="620" r="6" fill="#0B5157"/>
+    <circle cx="879" cy="620" r="6" fill="#0B5157"/>
+    <circle cx="838" cy="528" r="6" fill="#0B5157"/>
+  </g>
+  <rect x="805" y="692" width="148" height="46" rx="23" fill="#FFF1ED"/>
+  <text x="879" y="724" text-anchor="middle" class="cn" font-size="26" font-weight="800" fill="#E85C51">看出来</text>
+
+  <!-- Bridge sentence -->
+  <text x="540" y="837" text-anchor="middle" class="cn teal" font-size="34" font-weight="760">形给直觉，数给证明</text>
+  <line x1="260" y1="868" x2="820" y2="868" stroke="#ED9E00" stroke-width="3" stroke-dasharray="10 9"/>
+
+  <!-- The theorem: the only formal conclusion on this page. -->
+  <g filter="url(#shadow)">
+    <rect x="82" y="905" width="916" height="350" rx="38" fill="#F5FAF7" stroke="#0B7774" stroke-width="3.2"/>
+  </g>
+  <rect x="416" y="936" width="248" height="45" rx="22.5" fill="#E8F4EF" stroke="#89C4B5" stroke-width="1.8"/>
+  <text x="540" y="967" text-anchor="middle" class="cn teal" font-size="23" font-weight="800">基本不等式</text>
+
+  <text x="540" y="1036" text-anchor="middle" class="cn teal" font-size="34" font-weight="760">两个正数的算术平均数</text>
+  <text x="540" y="1084" text-anchor="middle" class="cn teal" font-size="34" font-weight="760">不小于它们的几何平均数</text>
+
+  <!-- Stacked fraction and fully extended radical. -->
+  <g class="math">
+    <text x="404" y="1152" text-anchor="middle" font-size="54" fill="#E49A00">a+b</text>
+    <line x1="337" y1="1168" x2="471" y2="1168" stroke="#E49A00" stroke-width="3.2"/>
+    <text x="404" y="1215" text-anchor="middle" font-size="52" fill="#E49A00">2</text>
+    <text x="552" y="1186" text-anchor="middle" font-size="68" fill="#0B5157">≥</text>
+    <text x="705" y="1186" text-anchor="middle" font-size="62" fill="#F56C5F">√<tspan text-decoration="overline">ab</tspan></text>
+  </g>
+  <text x="540" y="1233" text-anchor="middle" class="cn" font-size="26" font-weight="750" fill="#E85C51">当且仅当 a=b 时，等号成立</text>
+
+  <!-- Emotional close -->
+  <rect x="245" y="1305" width="590" height="76" rx="38" fill="#FFF8ED" stroke="#ED9E00" stroke-width="2.8" stroke-dasharray="10 8"/>
+  <text x="540" y="1355" text-anchor="middle" class="cn" font-size="31" font-weight="800" fill="#C98200">殊途同归，是数学的美</text>
+</svg>

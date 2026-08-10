@@ -1,0 +1,76 @@
+{
+  "meta": {
+    "id": "inequality-basic-q06",
+    "outputPath": "site/problems/senior-high/inequalities/inequality-relations/inequality-basic-q06.html",
+    "pageTitle": "换元求含一次项和倒数项的最小值",
+    "pageDescription": "换元求含一次项和倒数项的最小值的逐步解析。",
+    "breadcrumbTitle": "基本不等式 · 练习 8-6",
+    "breadcrumbLabel": "解不等式与基本不等式",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=inequalities&section=inequality-relations&module=basic-inequalities"
+  },
+  "problem": {
+    "source": "高一暑假目标班 · 第4讲",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "先检查各项为正，再使用基本不等式，并单独核对等号条件。",
+      "items": [
+        "令 t=x+3>0。",
+        "把原式写成 2t+1/t-6。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "6. 若 \\(x>-3\\)，则 \\(2x+\\frac{1}{x+3}\\) 的最小值是（　　）"
+      },
+      {
+        "text": "A. \\(2\\sqrt2+6\\)　　B. \\(2\\sqrt2-6\\)　　C. \\(2\\sqrt2\\)　　D. \\(2\\sqrt2+2\\)"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "基本不等式",
+      "title": "换元后应用基本不等式",
+      "t": 0,
+      "showDiagram": false,
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "令 \\(t=x+3>0\\)，则原式 \\(=2t+\\frac{1}{t}-6\\)"
+        },
+        {
+          "kind": "because",
+          "text": "\\(2t+\\frac{1}{t}\\ge2\\sqrt{2t\\cdot\\frac{1}{t}}=2\\sqrt2\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "最小值为 \\(2\\sqrt2-6\\)，选择 B"
+        }
+      ],
+      "derive": [
+        [
+          "答案",
+          "B"
+        ],
+        [
+          "最小值",
+          "2√2−6"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 换元后应用基本不等式"
+  }
+}

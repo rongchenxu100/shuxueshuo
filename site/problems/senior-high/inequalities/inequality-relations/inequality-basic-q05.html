@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>补项构造定积求最小值 | 数学说</title>
+  <meta name="description" content="围绕分母补项构造固定乘积，并用基本不等式求最小值。" />
+  <meta property="og:title" content="补项构造定积求最小值 | 数学说" />
+  <meta property="og:description" content="围绕分母补项构造固定乘积，并用基本不等式求最小值。" />
+  <meta property="og:image" content="../../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css?v=23" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../../senior-high/index.html?chapter=inequalities&section=inequality-relations&module=basic-inequalities">解不等式与基本不等式</a>
+    <span class="lesson-title">基本不等式 · 练习 8-5</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          <div class="problem-full">
+            <div class="problem-line"><span>5. 已知 <span class="inline-math">x&gt;-1</span>，则 <span class="inline-math">x+<span class="math-fraction"><span class="math-numerator">4</span><span class="math-denominator">x+1</span></span></span> 的最小值为　　　　，此时 <span class="inline-math">x</span> 的值是　　　　。</span><span class="answer-chip" id="answerI">答案：最小值<span class="inline-math">3</span>；x<span class="inline-math">1</span></span></div>
+          </div>
+        </section>
+
+        <aside class="lesson-key-points" aria-label="解题要点"><div class="lesson-key-points-title">解题要点</div><div class="lesson-key-points-content"><p class="lesson-key-points-lead">原式中的 x 未必为正，不能直接使用基本不等式；核心是由分母 x+1 反推配对正项，再用补 1、减 1 构造固定乘积，换元只负责简化书写。</p><ol><li>看目标：求和的最小值，寻找两个乘积固定的正项。</li><li>逆看分母：4/(x+1) 应与正项 x+1 配对，二者乘积恒为 4。</li><li>补项构造：把 x 写成 (x+1)-1，补出的 1 在括号外减回。</li><li>验等号：先令两个配对正项相等，再求出原变量 x。</li></ol></div></aside>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../../assets/js/lesson-page-runtime.js?v=33"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"s1","section":"基本不等式","title":"围绕分母补项构造固定乘积","t":0,"showDiagram":false,"reasoning":[{"kind":"because","text":"由 \\(x>-1\\) 得 \\(x+1>0\\)，而 \\(x=(x+1)-1\\)"},{"kind":"because","text":"原式 \\(=(x+1)+\\frac4{x+1}-1\\)，其中 \\((x+1)\\cdot\\frac4{x+1}=4\\)"},{"kind":"therefore","text":"\\((x+1)+\\frac4{x+1}\\ge4\\)，所以原式不小于 \\(3\\)"},{"kind":"therefore","text":"当 \\(x+1=\\frac4{x+1}\\)，即 \\(x+1=2\\) 时取等号，因此 \\(x=1\\)"}],"derive":[["最小值","3"],["x","1"]],"visual":{"kind":"fixed-product-construction-flow","title":"分母已经给出线索，如何补出它的配对项？","methodTag":"构造型｜补项凑定积","goal":{"expression":"\\(x+\\frac4{x+1}\\)","task":"求含一次项与倒数项的最小值"},"strategy":"围绕分母凑出定积","initialCheck":{"terms":["\\(x\\)","\\(\\frac4{x+1}\\)"],"product":"\\(x\\cdot\\frac4{x+1}=\\frac{4x}{x+1}\\)","verdict":"乘积不固定，且 x 未必为正"},"clue":{"question":"分母 x+1 应与哪个正项配对？","condition":"\\(x>-1\\Rightarrow x+1>0\\)","observation":"\\(x+1\\) 是正项，并且与 \\(\\frac4{x+1}\\) 相乘时分母正好约掉，乘积恒为 \\(4\\)。"},"construction":{"kind":"completion","label":"补 1、减 1，补出配对正项","givenTerm":"\\(\\frac4{x+1}\\)","matchingTerm":"\\(x+1\\)","identity":"\\(x=(x+1)-1\\)","expanded":"\\(x+\\frac4{x+1}=\\left[(x+1)+\\frac4{x+1}\\right]-1\\)","focus":"\\((x+1)+\\frac4{x+1}\\)","constant":"\\(-1\\)","simplification":"令 \\(t=x+1>0\\)，可简写为 \\(t+\\frac4t-1\\)"},"fixedPair":{"question":"补出的两个正项，其乘积是否固定？","terms":["\\(x+1\\)","\\(\\frac4{x+1}\\)"],"product":"\\((x+1)\\cdot\\frac4{x+1}=4\\)，且两项均为正","verdict":"定积构造成功"},"application":{"template":"\\(u+v\\ge2\\sqrt{uv}\\)","mappings":[{"slot":"\\(u\\)","value":"\\(x+1\\)"},{"slot":"\\(v\\)","value":"\\(\\frac4{x+1}\\)"}],"inequality":"\\((x+1)+\\frac4{x+1}\\ge2\\sqrt4=4\\)","combine":"\\(x+\\frac4{x+1}=\\left[(x+1)+\\frac4{x+1}\\right]-1\\ge3\\)","conclusion":"最小值为 \\(3\\)"},"equality":{"condition":"\\(x+1=\\frac4{x+1}\\)","relation":"\\(x+1=2\\)","result":"\\(x=1\\)"},"caption":"先由分母反推配对正项，再用补 1、减 1 构造定积；换元只用于简化书写。"}}];
+    var STEP_LABELS = {"s1":"1 围绕分母补项构造固定乘积"};
+    var POLICIES   = {"s1":{"movable":false,"range":[0,0]}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 滑块主参数与派生参数的联动文案格式化器 */
+    var __LESSON_PARAM_LABEL_FORMATTER__;
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script>
+  function diagramMarkupFor() { return ''; }
+  function diagramMarkupForFrame() { return ''; }
+  function drawMini() { return ''; }
+  function groupTitle(section) { return section; }
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      diagramMarkupForFrame: typeof diagramMarkupForFrame === "function" ? diagramMarkupForFrame : undefined,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "参数",
+      paramLabelPrefix: "",
+      paramLabelFormatter: typeof __LESSON_PARAM_LABEL_FORMATTER__ === "function" ? __LESSON_PARAM_LABEL_FORMATTER__ : undefined,
+      goToProblemMode: "doubleScroll"
+    });
+  </script>
+</body>
+</html>

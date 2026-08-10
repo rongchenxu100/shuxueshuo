@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>利用不等式性质求代数式取值范围 | 数学说</title>
+  <meta name="description" content="迁移“重组—求界—相加”三步法求目标代数式的取值范围。" />
+  <meta property="og:title" content="利用不等式性质求代数式取值范围 | 数学说" />
+  <meta property="og:description" content="迁移“重组—求界—相加”三步法求目标代数式的取值范围。" />
+  <meta property="og:image" content="../../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css?v=11" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../../senior-high/index.html?chapter=inequalities&section=inequality-relations&module=inequality-relations">不等关系</a>
+    <span class="lesson-title">不等关系 · 练习 2-2</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          <div class="problem-full">
+            <div class="problem-line"><span>已知 <span class="inline-math">1≤2a+b≤4</span>，<span class="inline-math">-1≤ a-2b≤2</span>，求 <span class="inline-math">10a-5b</span> 的取值范围。</span><span class="answer-chip" id="answerI">答案：<span class="inline-math">[-1,20]</span></span></div>
+          </div>
+        </section>
+
+        <aside class="lesson-method-map" aria-label="同类题固定三步"><h2>同类题固定三步</h2><p class="lesson-method-map-lead">已知两个代数式的范围，求目标代数式的范围。</p><div class="lesson-range-flow-input"><span class="lesson-range-flow-input-label">输入</span><span class="lesson-range-flow-input-chip">已知：<span class="inline-math">U,V</span> 的范围</span><span class="lesson-range-flow-input-chip">目标：求 <span class="inline-math">T</span> 的范围</span></div><div class="lesson-range-flow-track"><article class="lesson-range-flow-stage"><header><span class="lesson-range-flow-stage-index">1</span><div><strong>重组</strong><small>待定系数法</small></div></header><div class="lesson-range-flow-visual is-regroup" aria-hidden="true"><span class="lesson-range-target">目标</span><span class="lesson-range-down">↓</span><div class="lesson-range-parts"><span class="lesson-range-part is-first"><i>p×</i><b>①</b></span><span class="lesson-range-plus">+</span><span class="lesson-range-part is-second"><i>q×</i><b>②</b></span></div></div><div class="lesson-range-flow-stage-content"><p>把目标写成</p><p><span class="inline-math">T=pU+qV</span></p></div></article><div class="lesson-range-flow-arrow" aria-hidden="true"><span>→</span></div><article class="lesson-range-flow-stage"><header><span class="lesson-range-flow-stage-index">2</span><div><strong>求界</strong><small>基本性质·可乘性</small></div></header><div class="lesson-range-flow-visual is-bound" aria-hidden="true"><div class="lesson-range-line-row"><span>p×①</span><i class="lesson-range-line is-first"></i></div><div class="lesson-range-line-row"><span>q×②</span><i class="lesson-range-line is-second"></i></div></div><div class="lesson-range-flow-stage-content"><p>先判断 <span class="inline-math">p,q</span> 的符号</p><p>分别求 <span class="inline-math">pU,qV</span> 的新范围</p></div></article><div class="lesson-range-flow-arrow" aria-hidden="true"><span>→</span></div><article class="lesson-range-flow-stage"><header><span class="lesson-range-flow-stage-index">3</span><div><strong>相加</strong><small>运算性质·可加法则</small></div></header><div class="lesson-range-flow-visual is-add" aria-hidden="true"><div class="lesson-range-add-source"><i class="lesson-range-line is-first"></i><b>+</b><i class="lesson-range-line is-second"></i></div><span class="lesson-range-down">↓</span><i class="lesson-range-line is-target"></i></div><div class="lesson-range-flow-stage-content"><p>左端加左端，右端加右端</p><p>检查端点能否同时取到</p></div></article></div><div class="lesson-range-flow-result"><span>输出</span><strong>得到 <span class="inline-math">T</span> 的取值范围</strong></div><p class="lesson-method-map-caption">绿色表示第一部分，橙色表示第二部分，深青色表示目标范围；系数为负时要交换对应端点。</p></aside>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../../assets/js/lesson-page-runtime.js?v=20"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"s1","section":"不等式范围计算","title":"重组：用待定系数法表示目标式","t":0,"showDiagram":false,"reasoning":[{"kind":"because","text":"设 \\(10a-5b=p(2a+b)+q(a-2b)\\)。"},{"kind":"because","text":"展开右边并比较 \\(a,b\\) 的系数，得 \\(2p+q=10\\)，\\(p-2q=-5\\)。"},{"kind":"therefore","text":"解得 \\(p=3\\)，\\(q=4\\)，所以 \\(10a-5b=3(2a+b)+4(a-2b)\\)。"}],"derive":[["组合系数","p=3，q=4"]]},{"id":"s2","section":"不等式范围计算","title":"求界：分别求两部分的新范围","t":0,"showDiagram":false,"table":{"headers":["部分","原范围","所乘正数","乘后范围"],"rows":[["3(2a+b)","1≤2a+b≤4","3","3≤3(2a+b)≤12"],["4(a-2b)","-1≤a-2b≤2","4","-4≤4(a-2b)≤8"]]},"reasoning":[{"kind":"because","text":"\\(3>0\\)。根据基本性质·可乘性，将 \\(1\\le2a+b\\le4\\) 各项同乘 \\(3\\)，方向不变：\\(3\\le3(2a+b)\\le12\\)。"},{"kind":"because","text":"\\(4>0\\)。同理，将 \\(-1\\le a-2b\\le2\\) 各项同乘 \\(4\\)，得 \\(-4\\le4(a-2b)\\le8\\)。"},{"kind":"therefore","text":"目标式的两部分已经分别得到同向的上、下界。"}],"derive":[["第一部分","[3,12]"],["第二部分","[-4,8]"]]},{"id":"s3","section":"不等式范围计算","title":"相加：对应端点相加得到目标范围","t":0,"showDiagram":false,"reasoning":[{"kind":"because","text":"根据运算性质·可加法则，两个同向不等式可以对应相加。下界为 \\(3+(-4)=-1\\)，上界为 \\(12+8=20\\)。"},{"kind":"because","text":"又因为给定任意 \\(u=2a+b\\)、\\(v=a-2b\\)，都可取 \\(a=\\frac{2u+v}{5}\\)、\\(b=\\frac{u-2v}{5}\\)，所以两组端点能同时取到。"},{"kind":"therefore","text":"\\(-1\\le3(2a+b)+4(a-2b)=10a-5b\\le20\\)，故取值范围为 \\([-1,20]\\)。"}],"derive":[["取值范围","[-1,20]"]]}];
+    var STEP_LABELS = {"s1":"1 重组：表示目标式","s2":"2 求界：分别求新范围","s3":"3 相加：得到目标范围"};
+    var POLICIES   = {"s1":{"movable":false,"range":[0,0]},"s2":{"movable":false,"range":[0,0]},"s3":{"movable":false,"range":[0,0]}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 滑块主参数与派生参数的联动文案格式化器 */
+    var __LESSON_PARAM_LABEL_FORMATTER__;
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script>
+  function diagramMarkupFor() { return ''; }
+  function diagramMarkupForFrame() { return ''; }
+  function drawMini() { return ''; }
+  function groupTitle(section) { return section; }
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      diagramMarkupForFrame: typeof diagramMarkupForFrame === "function" ? diagramMarkupForFrame : undefined,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "参数",
+      paramLabelPrefix: "",
+      paramLabelFormatter: typeof __LESSON_PARAM_LABEL_FORMATTER__ === "function" ? __LESSON_PARAM_LABEL_FORMATTER__ : undefined,
+      goToProblemMode: "doubleScroll"
+    });
+  </script>
+</body>
+</html>

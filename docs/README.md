@@ -22,6 +22,7 @@
 
 - `explanation-builder-design.md`：verified solver artifact 到 LessonIR。
 - `visual-step-ir-design.md`：LessonIR 到声明式视觉状态。
+- `inequality-visual-component-refactor-design.md`：不等式 KnowledgePoint、Family、Problem 知识图谱以及 Method/Recipe 与共享视觉组件的确定性绑定协议。
 - `frontend-parallel-development-with-mock-api-plan.md`：创作后台和 API 契约。
 - `student-tutor-chat-system-design.md`：学生对话式导师边界。
 

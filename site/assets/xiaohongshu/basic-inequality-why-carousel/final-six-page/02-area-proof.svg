@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1440" viewBox="0 0 1080 1440">
+  <defs>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M48 0H0V48" fill="none" stroke="#AFCBC6" stroke-width="1" opacity="0.27"/>
+    </pattern>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#164D50" flood-opacity="0.10"/>
+    </filter>
+    <style>
+      .cn{font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+      .math{font-family:"Times New Roman","STIX Two Math",serif;font-style:italic}
+      .teal{fill:#0B5157}.stroke{stroke:#0B5157}
+    </style>
+  </defs>
+  <rect width="1080" height="1440" fill="#FBF8EF"/>
+  <rect width="1080" height="1440" fill="url(#grid)"/>
+
+  <circle cx="310" cy="89" r="9" fill="#ED9E00"/>
+  <rect x="338" y="48" width="404" height="82" rx="41" fill="#FBFBF7" stroke="#0B5157" stroke-width="3.5"/>
+  <circle cx="770" cy="89" r="9" fill="#ED9E00"/>
+  <text x="540" y="101" text-anchor="middle" class="cn teal" font-size="35" font-weight="700">02 ｜ 面积证明</text>
+
+  <text x="540" y="220" text-anchor="middle" class="cn teal" font-size="74" font-weight="800">面积不会为负</text>
+  <text x="540" y="301" text-anchor="middle" class="cn teal" font-size="58" font-weight="760">基本不等式自然成立</text>
+
+  <g filter="url(#shadow)">
+    <rect x="52" y="342" width="976" height="620" rx="34" fill="#F4FAF6" stroke="#0B5157" stroke-width="3.2"/>
+  </g>
+
+  <!-- 正方形 ABCD 中的四个全等直角三角形。 -->
+  <g>
+    <polygon points="105,650 345,795 345,650" fill="#B6DDD1" stroke="#0B5157" stroke-width="3"/>
+    <polygon points="345,795 490,555 345,555" fill="#B6DDD1" stroke="#0B5157" stroke-width="3"/>
+    <polygon points="490,555 250,410 250,555" fill="#B6DDD1" stroke="#0B5157" stroke-width="3"/>
+    <polygon points="250,410 105,650 250,650" fill="#B6DDD1" stroke="#0B5157" stroke-width="3"/>
+    <rect x="250" y="555" width="95" height="95" fill="#F56C5F" stroke="#0B5157" stroke-width="3.2"/>
+    <polygon points="105,650 345,795 490,555 250,410" fill="none" stroke="#0B5157" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M325 650V670H345" fill="none" stroke="#0B5157" stroke-width="3"/>
+
+    <text x="84" y="661" class="math teal" font-size="27">A</text>
+    <text x="337" y="828" class="math teal" font-size="27">B</text>
+    <text x="500" y="562" class="math teal" font-size="27">C</text>
+    <text x="240" y="395" class="math teal" font-size="27">D</text>
+    <text x="353" y="657" class="math teal" font-size="23">E</text>
+    <text x="353" y="552" class="math teal" font-size="23">F</text>
+    <text x="225" y="552" class="math teal" font-size="23">G</text>
+    <text x="220" y="642" class="math teal" font-size="23">H</text>
+
+    <g transform="translate(223 685)">
+      <path d="M-26 0l7 9 9-25" fill="none" stroke="#0B5157" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="-10" y1="-16" x2="30" y2="-16" stroke="#0B5157" stroke-width="2.6"/>
+      <text x="6" y="11" text-anchor="middle" class="math teal" font-size="31">a</text>
+    </g>
+    <g transform="translate(380 724)">
+      <path d="M-26 0l7 9 9-25" fill="none" stroke="#0B5157" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="-10" y1="-16" x2="30" y2="-16" stroke="#0B5157" stroke-width="2.6"/>
+      <text x="6" y="11" text-anchor="middle" class="math teal" font-size="31">b</text>
+    </g>
+    <g transform="translate(205 753) rotate(31)">
+      <rect x="-76" y="-28" width="152" height="50" rx="10" fill="#F4FAF6"/>
+      <path d="M-65 0l7 9 10-27" fill="none" stroke="#0B5157" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="-48" y1="-18" x2="74" y2="-18" stroke="#0B5157" stroke-width="2.6"/>
+      <text x="8" y="11" text-anchor="middle" class="math teal" font-size="27">(a+b)</text>
+    </g>
+    <text x="296" y="875" text-anchor="middle" class="cn teal" font-size="24" font-weight="700">正方形ABCD中4个全等的直角三角形</text>
+  </g>
+
+  <g class="cn">
+    <rect x="560" y="385" width="420" height="116" rx="22" fill="#E9F5F0" stroke="#89C4B5" stroke-width="2.5"/>
+    <text x="590" y="425" class="teal" font-size="25" font-weight="700">① 三角形直角边长</text>
+    <text x="770" y="475" text-anchor="middle" class="math teal" font-size="40">√<tspan text-decoration="overline">a</tspan>，√<tspan text-decoration="overline">b</tspan></text>
+
+    <rect x="560" y="518" width="420" height="136" rx="22" fill="#FFF7E9" stroke="#EDAE35" stroke-width="2.5"/>
+    <text x="590" y="558" class="teal" font-size="25" font-weight="700">② 正方形ABCD面积</text>
+    <text x="590" y="604" class="teal" font-size="25">边长 <tspan class="math">√<tspan text-decoration="overline">(a+b)</tspan></tspan>，面积 <tspan class="math">a+b</tspan></text>
+    <text x="590" y="636" class="teal" font-size="21">（边长的平方就是面积）</text>
+
+    <rect x="560" y="671" width="420" height="128" rx="22" fill="#FFF6E6" stroke="#ED9E00" stroke-width="2.5"/>
+    <text x="590" y="711" class="teal" font-size="25" font-weight="700">③ 四个直角三角形面积</text>
+    <text x="770" y="762" text-anchor="middle" class="math" font-size="34" fill="#D88B00">4×½×√<tspan text-decoration="overline">a</tspan>×√<tspan text-decoration="overline">b</tspan> = 2√<tspan text-decoration="overline">ab</tspan></text>
+
+    <rect x="560" y="816" width="420" height="116" rx="22" fill="#FFF0ED" stroke="#F56C5F" stroke-width="2.5"/>
+    <text x="590" y="856" class="teal" font-size="25" font-weight="700">④ 正方形EFGH面积</text>
+    <text x="770" y="907" text-anchor="middle" class="math" font-size="34" fill="#E85C51">a+b−2√<tspan text-decoration="overline">ab</tspan> ≥ 0</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="78" y="1000" width="924" height="286" rx="34" fill="#F5FAF7" stroke="#0B5157" stroke-width="3"/>
+  </g>
+  <text x="540" y="1060" text-anchor="middle" class="cn teal" font-size="29" font-weight="700">正方形EFGH面积不可能为负</text>
+  <text x="540" y="1135" text-anchor="middle" class="math teal" font-size="47">a+b−2√<tspan text-decoration="overline">ab</tspan> = (√<tspan text-decoration="overline">a</tspan>−√<tspan text-decoration="overline">b</tspan>)² ≥ 0</text>
+  <line x1="150" y1="1170" x2="930" y2="1170" stroke="#AFCBC6" stroke-width="2" stroke-dasharray="9 9"/>
+  <text x="420" y="1242" text-anchor="middle" class="math" font-size="59" fill="#E49A00">(a+b)/2</text>
+  <text x="555" y="1242" text-anchor="middle" class="math teal" font-size="63">≥</text>
+  <g transform="translate(680 1228)">
+    <path d="M-56 0l12 15 17-47" fill="none" stroke="#F56C5F" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <line x1="-27" y1="-32" x2="63" y2="-32" stroke="#F56C5F" stroke-width="4"/>
+    <text x="18" y="17" text-anchor="middle" class="math" font-size="58" fill="#F56C5F">ab</text>
+  </g>
+
+  <rect x="220" y="1320" width="640" height="76" rx="38" fill="#FFF8ED" stroke="#ED9E00" stroke-width="2.8" stroke-dasharray="10 8"/>
+  <text x="540" y="1370" text-anchor="middle" class="cn" font-size="29" font-weight="700" fill="#C98200">中间正方形缩成一点 ⇔ a=b</text>
+</svg>

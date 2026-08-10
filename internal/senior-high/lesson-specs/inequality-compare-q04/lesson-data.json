@@ -1,0 +1,6 @@
+{
+  "meta":{"id":"inequality-compare-q04","outputPath":"site/problems/senior-high/inequalities/inequality-relations/inequality-compare-q04.html","pageTitle":"利用区间判断因式符号","pageDescription":"明确使用作差法，并由 0 到 1 的取值范围判断两个因式均为正。","breadcrumbTitle":"不等关系 · 练习 3-4","breadcrumbLabel":"不等关系","breadcrumbPath":"site/senior-high/index.html","breadcrumbSearch":"?chapter=inequalities&section=inequality-relations&module=inequality-relations"},
+  "problem":{"source":"培训教材 · 不等关系","keyPoints":{"title":"解题要点","lead":"明确使用作差法：比较 \\(M-N\\) 与 0 的关系。","items":["作差后把差式因式分解；","由 \\(0<a_1,a_2<1\\) 判断 \\(1-a_1\\)、\\(1-a_2\\) 的符号。"]},"lines":[{"text":"已知 \\(a_1,a_2\\in(0,1)\\)，记 \\(M=a_1a_2\\)，\\(N=a_1+a_2-1\\)，则 M 与 N 的关系是（　　）"},{"text":"A. M>N　　B. M<N　　C. M=N　　D. 不确定"}]},
+  "steps":[{"id":"s1","section":"比大小","title":"作差法：结合取值范围判断因式符号","t":0,"showDiagram":false,"reasoning":[{"kind":"because","text":"使用作差法，先计算 \\(M-N=a_1a_2-(a_1+a_2-1)\\)。"},{"kind":"because","text":"因式分解得 \\(M-N=a_1a_2-a_1-a_2+1=(1-a_1)(1-a_2)\\)。"},{"kind":"because","text":"由 \\(a_1,a_2\\in(0,1)\\)，得 \\(1-a_1>0\\)、\\(1-a_2>0\\)，所以 \\(M-N>0\\)。"},{"kind":"therefore","text":"因为 \\(M-N>0\\)，所以 \\(M>N\\)，选择 A。"}],"derive":[["使用方法","作差法"],["M-N","(1-a₁)(1-a₂)>0"],["答案","A"]]}],
+  "policies":{"s1":{"movable":false,"range":[0,0]}},"stepLabels":{"s1":"1 作差法：分解判号"}
+}
