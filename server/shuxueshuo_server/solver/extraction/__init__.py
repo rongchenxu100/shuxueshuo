@@ -81,6 +81,16 @@ from shuxueshuo_server.solver.extraction.problem_solver_bundle import (
     VerifiedSolverProblemBundle,
     VerifiedSolverProblemBundleLoader,
 )
+from shuxueshuo_server.solver.extraction.problem_planning_context import (
+    PROBLEM_PLANNING_CONTEXT_CONTRACT,
+    PlanningReadAuthority,
+    ProblemPlanningContext,
+    ProblemPlanningContextError,
+    ProblemPlanningContextProjector,
+    ProblemPlanningGoalView,
+    ProblemPlanningScope,
+    problem_planning_context_prompt_schema,
+)
 from shuxueshuo_server.solver.extraction.problem_domain_service import (
     ProblemDomainExtractionAttemptResult,
     ProblemDomainExtractionRunResult,
@@ -132,6 +142,14 @@ __all__ = [
     "ProblemDomainValidator",
     "ProblemGraph",
     "ProblemPromotionService",
+    "ProblemPlanningContext",
+    "ProblemPlanningContextError",
+    "ProblemPlanningContextProjector",
+    "ProblemPlanningGoalView",
+    "ProblemPlanningScope",
+    "problem_planning_context_prompt_schema",
+    "PlanningReadAuthority",
+    "PROBLEM_PLANNING_CONTEXT_CONTRACT",
     "ProblemRepairPatch",
     "ProblemRepairService",
     "RuntimeProjectionIndex",

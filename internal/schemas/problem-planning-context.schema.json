@@ -1,0 +1,211 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "problem-planning-context.schema.json",
+  "title": "ProblemPlanningContext prompt payload",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "problem_id",
+    "family_id",
+    "source",
+    "shared_context",
+    "goal_views"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "problem-planning-context/v1"
+    },
+    "problem_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "family_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source": {
+      "type": "object",
+      "required": [
+        "question_number",
+        "score"
+      ],
+      "properties": {
+        "question_number": {
+          "type": "string"
+        },
+        "score": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "shared_context": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/scope"
+      }
+    },
+    "goal_views": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "goal",
+          "scope_path",
+          "visible_shared_scope_ids",
+          "local_context",
+          "semantic_reads"
+        ],
+        "properties": {
+          "goal": {
+            "type": "object",
+            "required": [
+              "kind",
+              "answer_key",
+              "answer_ref",
+              "payload"
+            ],
+            "properties": {
+              "kind": {
+                "type": "string",
+                "minLength": 1
+              },
+              "answer_key": {
+                "type": "string",
+                "minLength": 1
+              },
+              "answer_ref": {
+                "$ref": "#/$defs/semantic_ref"
+              },
+              "payload": {
+                "type": "object",
+                "minProperties": 1
+              }
+            },
+            "additionalProperties": false
+          },
+          "scope_path": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "visible_shared_scope_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "local_context": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/scope"
+            }
+          },
+          "semantic_reads": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/semantic_ref"
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "$defs": {
+    "semantic_ref": {
+      "type": "object",
+      "required": [
+        "ref",
+        "kind"
+      ],
+      "properties": {
+        "ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "value_type": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "scope": {
+      "type": "object",
+      "required": [
+        "scope_id",
+        "parent_scope_id",
+        "label",
+        "source_text",
+        "entities",
+        "facts",
+        "available_refs"
+      ],
+      "properties": {
+        "scope_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "parent_scope_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "label": {
+          "type": "string"
+        },
+        "source_text": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "entities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "minProperties": 1
+          }
+        },
+        "facts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "minProperties": 1
+          }
+        },
+        "available_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/semantic_ref"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

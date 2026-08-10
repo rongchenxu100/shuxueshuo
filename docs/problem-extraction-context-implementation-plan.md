@@ -25,7 +25,8 @@ Track F把题目来源转换为可追溯、可局部修复并可确定投影到S
 | F3 Domain extraction | `COMPLETE` |
 | F4 Validation / patch retry authority | `COMPLETE` |
 | F5-A Bundle authority | `COMPLETE` |
-| F5-B–E Scoped planning / Solver lifecycle | `NEXT` |
+| F5-B Scope-native planning projection | `COMPLETE` |
+| F5-C–E Planner binding / Solver lifecycle | `NEXT` |
 
 系统尚未上线。Extraction只支持当前schema，不保留旧candidate、整份ProblemIR retry或Context迁移链。
 
@@ -329,24 +330,51 @@ Context v3的JSON wire仍使用历史字段`solver_problem_ir_artifact_id`，但
 
 ```text
 ProblemPlanningContext
-  problem_revision_id
-  problem_semantic_hash
-  family_id
-  shared_ancestor_units[]
+  planning_context_id
+  bundle_authority_token
+  problem_revision_id / problem_semantic_hash（token只读投影）
+  problem_id / family_id / source
+  scopes[]
   goal_views[]
+  ref_authorities{}
+
+ProblemPlanningScope
+  source_scope_unit_id（authority only）
+  scope_id / parent_scope_id
+  source_text[] / entities[] / facts[]
+  available_refs[]
+  visible_goal_unit_ids[]（authority only）
 
 ProblemPlanningGoalView
-  goal_unit_id
-  scope_path
-  visible_entity_units[]
-  visible_fact_units[]
+  goal_unit_id（authority only）
+  owner_scope_id / scope_path[] / visible_scope_ids[]
+  answer_ref
   semantic_reads[]
-  excluded_sibling_scope_ids[]
+  goal_payload
+
+PlanningReadAuthority
+  semantic_ref
+  runtime_node_id / source_unit_ids[]（authority only）
+  owner_scope_id / visible_goal_unit_ids[]
+  usage = input | answer
 ```
 
-每个Goal视图只能看到当前scope及祖先scope。sibling中的Entity状态和Fact不会进入prompt或binding catalog；共享根Entity可以被多个Goal引用，但各子问的`symbol_value`、coordinate和constraint仍生成不同scope-local `StateVersion`。
+`to_prompt_payload()`不直接序列化上述authority形状，而输出：
 
-`FunctionalPlan`继续使用`functional_plan/v1`和现有`SemanticRef`。Planner收到的catalog sidecar为每个ref携带`source_unit_id`与对应ProblemIR handle，response schema只暴露当前Goal视图允许的scope/ref。LLM不决定scope promotion：call的声明scope由Goal视图锚定，现有B2 placement根据typed dependencies和LCA计算实际`execution_scope_id`。
+```text
+problem-planning-context/v1
+  family_id
+  source
+  shared_context[]
+  goal_views[]
+    goal / scope_path / semantic_reads
+    visible_shared_scope_ids[]
+    local_context[]
+```
+
+每个Goal视图只能看到当前scope及祖先scope。可见性采用正向allowlist，不额外持久化`excluded_sibling_scope_ids`；Entity和Fact直接保存在对应scope切片中，不重复生成`visible_entity_units`/`visible_fact_units`数组。sibling中的Entity状态和Fact不会进入该Goal的prompt切片或binding catalog；共享根Entity可以被多个Goal引用，但各子问的`symbol_value`、coordinate和constraint仍生成不同scope-local `StateVersion`。
+
+`FunctionalPlan`继续使用`functional_plan/v1`和现有`SemanticRef`。F5-C只能通过`input_authorities_for_goal(goal_unit_id)`取得当前Goal的输入catalog，并通过`answer_authority_for_goal(goal_unit_id)`取得唯一return authority；禁止遍历全局`ref_authorities`后自行过滤。Planner response schema只暴露当前Goal视图允许的scope/ref。LLM不决定scope promotion：call的声明scope由Goal视图锚定，现有B2 placement根据typed dependencies和LCA计算实际`execution_scope_id`。
 
 ### 8.3 分步实现
 
@@ -356,10 +384,15 @@ ProblemPlanningGoalView
    - blocked、pending和任一artifact漂移不得进入Planner。历史accepted Context是有效不可变快照；只有显式expected authority token不匹配时才判stale。
    - 五题bundle可确定重放，F0–F5-A联合回归`318 passed`；加载阶段OCR、LLM、domain projector、Planner和完整Solver调用数均为0。
 
-2. **F5-B Scope-native planning projection**
-   - 从VerifiedProblem建立scope index、共享祖先摘要和逐Goal可见unit集合。
-   - 视图排序与hash确定；机械数组重排不改变结果。
-   - Planner prompt不再把扁平ProblemIR的全量entities/facts数组作为唯一语义上下文。
+2. **F5-B Scope-native planning projection（COMPLETE）**
+   - 从VerifiedProblem建立一个全题`ProblemPlanningContext`、共享祖先scope和逐Goal可见视图；一道题仍只对应一次未来Planner调用。
+   - 每个GoalView严格包含owner scope及祖先；跨sibling source/runtime mapping、漏Goal、漏scope或漏runtime node均fail loud。
+   - 每个非scope runtime node恰有一个稳定SemanticRef；answer ref仅对自己的Goal可见，folded Fact仍保留在source视图，combined Fact保留一对多provenance。
+   - GoalView的`semantic_reads`必须与可见scope中`available_refs`的并集完全一致；F5-C只能调用按Goal过滤的authority API。
+   - prompt payload不暴露source unit、runtime handle、artifact、Bundle token、MathObjectId或StateVersionId；shared scope只序列化一次。
+   - prompt形状由checked-in `problem-planning-context.schema.json`与Python schema双源门禁锁定；authority payload不作为外部wire。
+   - 五题GoalView数量为`6/4/3/3/3`；F5-A/B定向联合门禁`81 passed`，全量Solver回归`1587 passed, 12 skipped`。
+   - 本阶段未修改`StrategyPayloadBuilder`或生产Planner输入；默认切换留到F5-E。
 
 3. **F5-C FunctionalPlan binding**
    - reconciliation按`SemanticRef -> source_unit_id -> ProblemIR handle -> MathObjectId/StateVersion`绑定。
@@ -381,10 +414,14 @@ ProblemPlanningGoalView
 ```text
 planner.problem_bundle_invalid
 planner.problem_projection_manifest_drift
-planner.problem_scope_visibility_violation
-planner.problem_source_binding_unresolved
+planner.problem_planning_context_invalid
+planner.problem_planning_projection_drift
+planner.problem_planning_ref_ambiguous
+planner.problem_scope_visibility_drift
 planner.problem_revision_drift
 ```
+
+`planner.problem_source_binding_unresolved`属于F5-C binding阶段，待该阶段实现时加入正式错误码集合。
 
 ### 8.4 测试与退出门禁
 
