@@ -9,3 +9,9 @@ internal/solver-runs/strategy-planner-deepseek-*/
 internal/solver-runs/explanation-builder-deepseek-*/
 internal/solver-runs/visual-builder-deepseek-*/
 internal/solver-runs/problem-extraction/
+
+# Local Manim video experiments and rendered deliverables
+videos/basic-inequality-proof/
+site/assets/xiaohongshu/basic-inequality-why-carousel/basic-inequality-proof.mp4
+site/assets/xiaohongshu/basic-inequality-why-carousel/basic-inequality-proof.srt
+site/assets/xiaohongshu/basic-inequality-why-carousel/basic-inequality-proof-cover.png

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>线性约束下求倒数和的最小值 | 数学说</title>
+  <meta name="description" content="线性约束下求倒数和的最小值的逐步解析。" />
+  <meta property="og:title" content="线性约束下求倒数和的最小值 | 数学说" />
+  <meta property="og:description" content="线性约束下求倒数和的最小值的逐步解析。" />
+  <meta property="og:image" content="../../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css?v=23" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../../senior-high/index.html?chapter=inequalities&section=inequality-relations&module=basic-inequalities">解不等式与基本不等式</a>
+    <span class="lesson-title">基本不等式 · 练习 8-4</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          <div class="problem-full">
+            <div class="problem-line"><span>4. 已知 <span class="inline-math">a&gt;0，b&gt;0</span>，且 <span class="inline-math">a+3b=2</span>，则 <span class="inline-math"><span class="math-fraction"><span class="math-numerator">3</span><span class="math-denominator">a</span></span>+<span class="math-fraction"><span class="math-numerator">4</span><span class="math-denominator">b</span></span></span> 的最小值是　　　　。</span><span class="answer-chip" id="answerI">答案：<span class="inline-math">27/2</span></span></div>
+          </div>
+        </section>
+
+        <aside class="lesson-key-points" aria-label="解题要点"><div class="lesson-key-points-title">解题要点</div><div class="lesson-key-points-content"><p class="lesson-key-points-lead">求倒数和的最小值时，若原两项乘积不固定，就把定和条件乘入目标式，通过展开寻找乘积固定的交叉项。</p><ol><li>看目标：正项和求最小值，先检查两项乘积是否固定。</li><li>乘定和：a+3b=2 是定值，乘入目标式会把分母约成比值。</li><li>找定积：展开后检查两个交叉项，它们的乘积恒为 36。</li><li>验等号：构造出的两个正项相等，并且满足原条件。</li></ol></div></aside>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../../assets/js/lesson-page-runtime.js?v=33"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"s1","section":"基本不等式","title":"从定和出发构造固定乘积","t":0,"showDiagram":false,"reasoning":[{"kind":"because","text":"\\((\\frac3a+\\frac4b)(a+3b)=15+\\frac{9b}{a}+\\frac{4a}{b}\\)"},{"kind":"because","text":"\\(\\frac{9b}{a}>0，\\frac{4a}{b}>0\\)，两项乘积为 \\(36\\)，所以两项和不小于 \\(12\\)"},{"kind":"therefore","text":"\\(2(\\frac3a+\\frac4b)\\ge27\\)，故 \\(\\frac3a+\\frac4b\\ge\\frac{27}{2}\\)"},{"kind":"therefore","text":"等号要求 \\(\\frac{9b}{a}=\\frac{4a}{b}\\)，结合 \\(a+3b=2\\) 得 \\(a=\\frac23，b=\\frac49\\)"}],"derive":[["最小值","27/2"],["等号条件","a=2/3，b=4/9"]],"visual":{"kind":"fixed-product-construction-flow","title":"原两项没有定积，如何借助定和构造？","methodTag":"构造型｜乘入定和","goal":{"expression":"\\(\\frac3a+\\frac4b\\)","task":"求正项和的最小值"},"strategy":"想办法构造定积","initialCheck":{"terms":["\\(\\frac3a\\)","\\(\\frac4b\\)"],"product":"\\(\\frac3a\\cdot\\frac4b=\\frac{12}{ab}\\)","verdict":"乘积不固定，不能直接使用"},"clue":{"question":"题设中哪个定值能约去分母？","condition":"\\(a+3b=2\\)","observation":"条件是含有 \\(a、b\\) 的定和。把它乘入目标式，可约出常数项与交叉比值。"},"construction":{"label":"乘入定和 a+3b=2","identity":"\\(2(\\frac3a+\\frac4b)=(\\frac3a+\\frac4b)(a+3b)\\)","expanded":"\\(=3+\\frac{9b}{a}+\\frac{4a}{b}+12=15+\\frac{9b}{a}+\\frac{4a}{b}\\)","rows":["\\(\\frac3a\\)","\\(\\frac4b\\)"],"columns":["\\(a\\)","\\(3b\\)"],"cells":[[{"text":"\\(3\\)","role":"constant"},{"text":"\\(\\frac{9b}{a}\\)","role":"constructed"}],[{"text":"\\(\\frac{4a}{b}\\)","role":"constructed"},{"text":"\\(12\\)","role":"constant"}]],"constantSum":"常数项：\\(3+12=15\\)"},"fixedPair":{"question":"观察展开后的式子，是否可以找到定积？","terms":["\\(\\frac{9b}{a}\\)","\\(\\frac{4a}{b}\\)"],"product":"\\(\\frac{9b}{a}\\cdot\\frac{4a}{b}=36\\cdot\\frac{a}{a}\\cdot\\frac{b}{b}=36\\)","verdict":"定积构造成功"},"application":{"template":"\\(u+v\\ge2\\sqrt{uv}\\)","mappings":[{"slot":"\\(u\\)","value":"\\(\\frac{9b}{a}\\)"},{"slot":"\\(v\\)","value":"\\(\\frac{4a}{b}\\)"}],"inequality":"\\(\\frac{9b}{a}+\\frac{4a}{b}\\ge2\\sqrt{36}=12\\)","combine":"\\(2(\\frac3a+\\frac4b)=15+\\frac{9b}{a}+\\frac{4a}{b}\\ge27\\)","conclusion":"最小值为 \\(\\frac{27}{2}\\)"},"equality":{"condition":"\\(\\frac{9b}{a}=\\frac{4a}{b}\\)","relation":"\\(3b=2a\\)","result":"\\(a=\\frac23，b=\\frac49\\)"},"caption":"先把定和乘入目标式，再从展开后的交叉项中发现固定乘积。"}}];
+    var STEP_LABELS = {"s1":"1 从定和出发构造固定乘积"};
+    var POLICIES   = {"s1":{"movable":false,"range":[0,0]}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 滑块主参数与派生参数的联动文案格式化器 */
+    var __LESSON_PARAM_LABEL_FORMATTER__;
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script>
+  function diagramMarkupFor() { return ''; }
+  function diagramMarkupForFrame() { return ''; }
+  function drawMini() { return ''; }
+  function groupTitle(section) { return section; }
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      diagramMarkupForFrame: typeof diagramMarkupForFrame === "function" ? diagramMarkupForFrame : undefined,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "参数",
+      paramLabelPrefix: "",
+      paramLabelFormatter: typeof __LESSON_PARAM_LABEL_FORMATTER__ === "function" ? __LESSON_PARAM_LABEL_FORMATTER__ : undefined,
+      goToProblemMode: "doubleScroll"
+    });
+  </script>
+</body>
+</html>

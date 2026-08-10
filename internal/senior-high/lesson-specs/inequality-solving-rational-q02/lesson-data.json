@@ -1,0 +1,90 @@
+{
+  "meta": {
+    "id": "inequality-solving-rational-q02",
+    "outputPath": "site/problems/senior-high/inequalities/inequality-relations/inequality-solving-rational-q02.html",
+    "pageTitle": "移项通分解分式不等式",
+    "pageDescription": "移项通分解分式不等式的逐步解析。",
+    "breadcrumbTitle": "解不等式 · 练习 6-2",
+    "breadcrumbLabel": "解不等式与基本不等式",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=inequalities&section=inequality-relations&module=solving-inequalities"
+  },
+  "problem": {
+    "source": "高一暑假目标班 · 第4讲",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "引用分式不等式知识点：先移项通分为与 0 比较的标准式，再把分子零点和分母禁值点共同穿针判号。",
+      "items": [
+        "先算 \\(\\frac{3x+1}{2x-1}-1=\\frac{x+2}{2x-1}\\)，不能直接在原式两边乘符号未知的分母。",
+        "由 \\(\\frac{a}{b}\\le0\\iff ab\\le0\\) 且 \\(b\\ne0\\)，转化为整式乘积判号。",
+        "分子零点 −2 因含等号可以取；分母禁值 \\(\\frac12\\) 必须排除。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "解不等式 \\(\\frac{3x+1}{2x-1}\\le1\\)。"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "分式不等式",
+      "title": "移项通分并标出禁值点",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "rational-threading-graph",
+        "ariaLabel": "分子零点负 2 为实心点，分母禁值二分之一为带叉空心点，负号阴影位于两点之间",
+        "title": "先移项通分，再区分零点与禁值点",
+        "intro": "通分后的分式与 0 比较，才可以使用分式穿针图。",
+        "standardized": "\\(\\frac{x+2}{2x-1}\\le0\\iff(x+2)(2x-1)\\le0，x\\ne\\frac12\\)",
+        "roots": [
+          { "label": "−2", "kind": "numerator", "included": true },
+          { "label": "1/2", "kind": "denominator", "included": false }
+        ],
+        "signs": ["+", "-", "+"],
+        "selectSign": "-",
+        "target": "取负号区间并保留允许的等号点",
+        "solution": "\\([-2,\\frac12)\\)",
+        "facts": [
+          "两个分界点都是一次因式，穿过时符号改变，负号区域位于两点之间。",
+          "−2 使分子为 0，可以取；\\(\\frac12\\) 使分母为 0，必须排除。"
+        ],
+        "caption": "分式不等式含等号，不等于所有端点都实心；必须先判断端点来自分子还是分母。"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "移项通分得 \\(\\frac{3x+1}{2x-1}-1=\\frac{x+2}{2x-1}\\le0\\)，并保留禁值条件 \\(x\\ne\\frac12\\)"
+        },
+        {
+          "kind": "because",
+          "text": "引用知识点，将分子零点 −2 与分母禁值 \\(\\frac12\\) 标在数轴上；从最右侧正号开始穿，两点之间为负"
+        },
+        {
+          "kind": "therefore",
+          "text": "取非正区域，包含分子零点 −2、排除分母禁值 \\(\\frac12\\)，解集为 \\([-2,\\frac12)\\)"
+        }
+      ],
+      "derive": [
+        [
+          "解集",
+          "[-2,1/2)"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 化标准式并判断符号"
+  }
+}

@@ -1389,6 +1389,281 @@
           ]
         }
       ]
+    },
+    {
+      "id": "inequality-relations",
+      "chapterId": "inequalities",
+      "sectionId": "inequality-relations",
+      "title": "解不等式与基本不等式",
+      "eyebrow": "第四讲",
+      "mapRootLabel": "不等关系",
+      "introduction": [
+        "不等关系刻画两个量之间的大小次序。不等式的性质是不等式同解变形的依据，比较大小则要把问题转化为能够判断符号的代数式。",
+        "本专题依次学习不等式性质与比较方法、常见不等式的求解、基本不等式及综合应用。变形前先审查定义域与符号，求最值时还要同时核对定值条件和等号条件。"
+      ],
+      "mapNodes": [
+        {"id":"inequality-properties","label":"不等式的性质","moduleId":"inequality-relations","children":["实数的符号法则","基本性质","运算性质"]},
+        {"id":"comparison","label":"比大小","moduleId":"inequality-relations","children":["作差法"]},
+        {"id":"solving","label":"解不等式","moduleId":"solving-inequalities","children":["解一元二次不等式","解高次不等式","解分式不等式","解绝对值不等式"]},
+        {"id":"basic-inequalities","label":"基本不等式","moduleId":"basic-inequalities","children":["均值不等式","一正、二定、三相等","配凑与换元"]},
+        {"id":"inequality-practice","label":"实战演练","moduleId":"inequality-practice","children":["性质辨析","范围与参数","分式与绝对值不等式"]}
+      ],
+      "modules": [
+        {
+          "id": "inequality-relations",
+          "label": "不等关系",
+          "type": "knowledge",
+          "status": "published",
+          "description": "掌握实数符号法则、不等式的基本性质和运算性质，并用作差法、作商法与中间量法比较大小。",
+          "knowledgeGroups": [
+            {"id":"sign-rules","number":"01","eyebrow":"符号基础","title":"实数的符号法则","category":"concept","lessonCount":0},
+            {"id":"inequality-properties","number":"02","eyebrow":"等价变形","title":"不等式的性质","category":"property","lessonCount":4},
+            {"id":"comparison-methods","number":"03","eyebrow":"方法选择","title":"比较两个代数式的大小","category":"description","lessonCount":5}
+          ],
+          "knowledgeBlocks": [
+            {
+              "groupId":"sign-rules","category":"concept","title":"实数的符号与运算结果",
+              "body":["① 任意实数 x，x>0、x=0、x<0 三种情况有且只有一种成立。","② 两个同号实数相乘，积为正数；两个异号实数相乘，积为负数。","③ 两个正数相加仍为正数，两个负数相加仍为负数。","④ 对任意实数 x，都有 x²≥0；且 x=0 当且仅当 x²=0。"]
+            },
+            {
+              "groupId":"inequality-properties","category":"property","title":"不等式的基本性质",
+              "body":["① 对称性：a>b ⇔ b<a。","② 传递性：a>b，b>c ⇒ a>c。","③ 可加性：a>b ⇔ a+c>b+c（c∈R）。","④ 可乘性：若 a>b，则 c>0 ⇒ ac>bc；c=0 ⇒ ac=bc；c<0 ⇒ ac<bc。"]
+            },
+            {
+              "groupId":"inequality-properties","category":"property","title":"不等式的运算性质",
+              "body":["① 可加法则：a>b，c>d ⇒ a+c>b+d。","② 可乘法则：a>b>0，c>d>0 ⇒ ac>bd>0。","③ 可乘方性：a>b>0，n∈N* ⇒ aⁿ>bⁿ>0。","可加法则是把两个同向不等式相加；可乘法则要求参与比较的四个量均为正数。"]
+            },
+            {
+              "groupId":"comparison-methods","category":"description","title":"作差法",
+              "body":["任意两个代数式 a、b，先作差 a-b，再比较 a-b 与 0 的关系。","① a-b>0 ⇔ a>b。","② a-b<0 ⇔ a<b。","③ a-b=0 ⇔ a=b。"]
+            },
+            {
+              "groupId":"comparison-methods","category":"description","title":"作商法",
+              "body":["当 a、b 都为正数时，可以作商 a/b，再与 1 比较。","① a/b>1 ⇔ a>b。","② a/b<1 ⇔ a<b。","③ a/b=1 ⇔ a=b。"]
+            },
+            {
+              "groupId":"comparison-methods","category":"description","title":"中间量法",
+              "body":["若 a>b 且 b>c，则 a>c；中间量法的本质是不等式的传递性。","比较两个代数式 A、B 时，可以寻找中间量 m，分别证明 A>m 与 m>B，从而得到 A>B。","中间量一般选择 0 或 1；选择前要先确认各式的定义域与符号。"]
+            }
+          ],
+          "examples": [
+            {"lessonId":"inequality-property-q01","group":"不等式性质","knowledgeCategory":"property","numberLabel":"练习 1 · 1","title":"辨析不等式性质","hints":["逐项引用基本性质·可乘性或运算性质·可加法则。","对错误选项构造反例；C 中 c≠0，所以 c²>0。"],"answerSchema":{"type":"single-choice","expected":"C"}},
+            {"lessonId":"inequality-property-q02","group":"不等式性质","knowledgeCategory":"property","numberLabel":"练习 1 · 2","title":"判断恒成立的不等式","hints":["逐项引用实数的符号法则和基本性质·可乘性。","对错误选项构造反例；只有 c²+1 对任意实数 c 始终为正。"],"answerSchema":{"type":"single-choice","expected":"C"}},
+            {"lessonId":"inequality-range-q01","group":"不等式范围计算","knowledgeCategory":"property","numberLabel":"练习 2 · 1","title":"三步求代数式范围","hints":["重组：用待定系数法把 3a+2b 表成 a+b 与 a-b 的线性组合。","求界：根据组合系数的正负，利用可乘性分别求两部分的新范围。","相加：利用可加法则对应相加，并检查端点能否同时取到。"],"answerSchema":{"type":"exact-expression","expected":["[2,11]","2≤3a+2b≤11"],"input":{"mode":"math-expression","placeholder":"填写取值范围","keyboard":["interval","brackets","comma","less-equal","digits"]}}},
+            {"lessonId":"inequality-range-q02","group":"不等式范围计算","knowledgeCategory":"property","numberLabel":"练习 2 · 2","title":"迁移三步法求范围","hints":["重组：用待定系数法把 10a-5b 表成 2a+b 与 a-2b 的线性组合。","求界：系数 3、4 都为正，分别求 3(2a+b) 与 4(a-2b) 的范围。","相加：利用可加法则对应相加，并检查端点能否同时取到。"],"answerSchema":{"type":"exact-expression","expected":["[-1,20]","-1≤10a-5b≤20"],"input":{"mode":"math-expression","placeholder":"填写取值范围","keyboard":["interval","brackets","comma","less-equal","negative","digits"]}}},
+            {"lessonId":"inequality-compare-q01","group":"比大小","knowledgeCategory":"description","numberLabel":"练习 3 · 1","title":"作差法：配方比较大小","hints":["使用作差法计算 M-N。","把差配成完全平方，再判断它与 0 的关系。"],"answerSchema":{"type":"single-choice","expected":"B"}},
+            {"lessonId":"inequality-compare-q02","group":"比大小","knowledgeCategory":"description","numberLabel":"练习 3 · 2","title":"作差法：负平方判号","hints":["使用作差法计算 M-N。","把差化为负的完全平方，并保留等号情况。"],"answerSchema":{"type":"exact-expression","expected":["≤","<="],"input":{"mode":"math-expression","placeholder":"填写关系符号","keyboard":["less-equal"]}}},
+            {"lessonId":"inequality-compare-q03","group":"比大小","knowledgeCategory":"description","numberLabel":"练习 3 · 3","title":"作差法：因式分解判号","hints":["使用作差法，用前式减后式。","把差分解为 (a₂-a₁)(b₂-b₁)，再判断乘积符号。"],"answerSchema":{"type":"exact-expression","expected":[">"],"input":{"mode":"math-expression","placeholder":"填写关系符号","keyboard":["greater"]}}},
+            {"lessonId":"inequality-compare-q04","group":"比大小","knowledgeCategory":"description","numberLabel":"练习 3 · 4","title":"作差法：结合区间判号","hints":["使用作差法计算 M-N 并因式分解。","0<a₁,a₂<1，所以 1-a₁、1-a₂ 都为正。"],"answerSchema":{"type":"single-choice","expected":"A"}},
+            {"lessonId":"inequality-compare-q05","group":"比大小","knowledgeCategory":"description","numberLabel":"练习 3 · 5","title":"作差法：比较两个分式","hints":["使用作差法，用右式减左式。","先确认公分母为正，再通过通分、因式分解判断差的符号。"],"answerSchema":{"type":"exact-expression","expected":["<"],"input":{"mode":"math-expression","placeholder":"填写关系符号","keyboard":["less"]}}}
+          ],
+          "summary":"不等式变形必须先审查定义域与符号；范围计算先把目标式表示成条件式的线性组合；比较大小优先作差并因式分解，正数情形也可作商或选择中间量。"
+        },
+        {
+          "id": "solving-inequalities",
+          "label": "解不等式",
+          "type": "knowledge",
+          "status": "published",
+          "description": "用判别式、穿针引线、符号表和分类讨论解一元二次、高次、分式与绝对值不等式。",
+          "knowledgeGroups": [
+            {"id":"quadratic-inequalities","number":"01","eyebrow":"判别式与开口","title":"一元二次不等式","category":"property","lessonCount":3},
+            {"id":"polynomial-inequalities","number":"02","eyebrow":"穿针引线","title":"高次不等式","category":"description","lessonCount":3},
+            {"id":"rational-inequalities","number":"03","eyebrow":"禁值点","title":"分式不等式","category":"property","lessonCount":4},
+            {"id":"absolute-inequalities","number":"04","eyebrow":"分类去绝对值","title":"绝对值不等式","category":"description","lessonCount":3}
+          ],
+          "knowledgeBlocks": [
+            {
+              "groupId":"quadratic-inequalities","category":"property","title":"判别式决定二次不等式的解集",
+              "body":["设 \\(f(x)=ax^2+bx+c\\)，先看 \\(a\\) 的符号确定抛物线开口，再看 \\(\\Delta=b^2-4ac\\) 确定它与 \\(x\\) 轴的交点。","图像在 \\(x\\) 轴上方对应 \\(f(x)>0\\)，在 \\(x\\) 轴下方对应 \\(f(x)<0\\)。"],
+              "quadraticInequalityTables":[
+                {
+                  "title":"\\(a>0\\)：抛物线开口向上",
+                  "opening":"up",
+                  "cases":[
+                    {"discriminant":"positive","root":"两个相异实根 \\(x_1<x_2\\)","positiveSolution":"\\((-\\infty,x_1)\\cup(x_2,+\\infty)\\)","negativeSolution":"\\((x_1,x_2)\\)"},
+                    {"discriminant":"zero","root":"两个相等实根 \\(x_0\\)","positiveSolution":"\\(\\mathbb{R}\\setminus\\{x_0\\}\\)","negativeSolution":"\\(\\varnothing\\)"},
+                    {"discriminant":"negative","root":"无实根","positiveSolution":"\\(\\mathbb{R}\\)","negativeSolution":"\\(\\varnothing\\)"}
+                  ]
+                },
+                {
+                  "title":"\\(a<0\\)：抛物线开口向下",
+                  "opening":"down",
+                  "cases":[
+                    {"discriminant":"positive","root":"两个相异实根 \\(x_1<x_2\\)","positiveSolution":"\\((x_1,x_2)\\)","negativeSolution":"\\((-\\infty,x_1)\\cup(x_2,+\\infty)\\)"},
+                    {"discriminant":"zero","root":"两个相等实根 \\(x_0\\)","positiveSolution":"\\(\\varnothing\\)","negativeSolution":"\\(\\mathbb{R}\\setminus\\{x_0\\}\\)"},
+                    {"discriminant":"negative","root":"无实根","positiveSolution":"\\(\\varnothing\\)","negativeSolution":"\\(\\mathbb{R}\\)"}
+                  ]
+                }
+              ]
+            },
+            {
+              "groupId":"polynomial-inequalities","category":"description","title":"穿针引线法与根的重数",
+              "body":["先把整式因式分解，并把最高次项系数化为正数；再在数轴上从右向左依次判断符号。","下面三幅图分别说明基本穿法、端点空心与实心、奇次根与偶次根。"],
+              "threadingLineTable":{
+                "rows":[
+                  {
+                    "kind":"simple-strict",
+                    "inequality":"\\((x+2)(x-1)(x-3)>0\\)",
+                    "solution":"\\(x∈(-2,1)\\cup(3,+\\infty)\\)",
+                    "principles":["最高次项系数为正，最右侧从“+”开始。","三个根都是奇次根，每经过一个根，曲线穿过数轴并改变符号。"]
+                  },
+                  {
+                    "kind":"simple-inclusive",
+                    "inequality":"\\((x+2)(x-1)(x-3)\\ge 0\\)",
+                    "solution":"\\(x∈[-2,1]\\cup[3,+\\infty)\\)",
+                    "principles":["严格不等式用空心点，不取使整式等于 0 的根。","不等号含等号时用实心点，并把符合要求的根并入解集。"]
+                  },
+                  {
+                    "kind":"mixed-multiplicity",
+                    "inequality":"\\(x^5(x-1)^2(x-2)^3(x+1)^4<0\\)",
+                    "solution":"\\(x∈(0,1)\\cup(1,2)\\)",
+                    "principles":["五次根 0、三次根 2 都是奇数重根：曲线穿过数轴，符号改变。","四次根 -1、二次根 1 都是偶数重根：曲线接触数轴后返回，符号不变；严格不等式仍不取这些根。"]
+                  }
+                ]
+              }
+            },
+            {
+              "groupId":"rational-inequalities","category":"property","title":"分式不等式与禁值点",
+              "body":["先把不等式整理成右边为 \\(0\\) 的形式，再将分子零点和分母零点一起标在数轴上进行穿针判号。","分母零点始终是禁值点；分子零点只有在不等号含等号时才可能取到。"],
+              "rationalThreadingTable":{
+                "rows":[
+                  {
+                    "kind":"direct-strict",
+                    "inequality":"\\(\\frac{x-1}{x+3}>0\\)",
+                    "equivalent":"\\((x-1)(x+3)>0，x\\ne-3\\)",
+                    "solution":"\\(x∈(-\\infty,-3)\\cup(1,+\\infty)\\)",
+                    "principles":["\\(\\frac{a}{b}>0\\iff ab>0\\)，其中 \\(b\\ne0\\)。","本题：\\(\\frac{x-1}{x+3}>0\\iff(x-1)(x+3)>0\\)，并保留禁值条件 \\(x\\ne-3\\)；严格不等式也不取分子零点 \\(x=1\\)。"]
+                  },
+                  {
+                    "kind":"inclusive-endpoints",
+                    "inequality":"\\(\\frac{2x-1}{3x+1}\\ge0\\)",
+                    "equivalent":"\\((2x-1)(3x+1)\\ge0，3x+1\\ne0\\)",
+                    "solution":"\\(x∈(-\\infty,-\\frac13)\\cup[\\frac12,+\\infty)\\)",
+                    "principles":["\\(\\frac{a}{b}\\ge0\\iff ab\\ge0\\) 且 \\(b\\ne0\\)。分子零点可以取到，用实心点。","本题：\\(\\frac{2x-1}{3x+1}\\ge0\\iff(2x-1)(3x+1)\\ge0\\)，但分母零点 \\(x=-\\frac13\\) 仍是空心禁值点。"]
+                  },
+                  {
+                    "kind":"move-to-zero",
+                    "inequality":"\\(\\frac{2-x}{x+3}>1\\)",
+                    "equivalent":"\\(\\frac{-2x-1}{x+3}>0\\iff(2x+1)(x+3)<0，x\\ne-3\\)",
+                    "solution":"\\(x∈(-3,-\\frac12)\\)",
+                    "principles":["右边不是 \\(0\\) 时，先用 \\(F(x)>G(x)\\iff F(x)-G(x)>0\\) 移项，再通分、因式分解。","本题：\\(\\frac{2-x}{x+3}>1\\iff\\frac{-2x-1}{x+3}>0\\iff(2x+1)(x+3)<0\\)，且 \\(x\\ne-3\\)。"]
+                  }
+                ]
+              }
+            },
+            {
+              "groupId":"absolute-inequalities","category":"description","title":"绝对值不等式的分类讨论",
+              "body":["先观察结构选择方法：单个绝对值与正常数比较用直接法；两个绝对值比较可用平方法；多个绝对值通常用零点分区、分类讨论。","平方法是高效的特殊技巧，适用于两边均能确认非负的情形；分类讨论法最通用。"],
+              "absoluteInequalityTable":{
+                "rows":[
+                  {
+                    "kind":"direct",
+                    "inequality":"\\(|2x+1|<1\\)",
+                    "transformations":["\\(|2x+1|<1\\iff-1<2x+1<1\\)","\\(-1<x<0\\)"],
+                    "solution":"\\(x∈(-1,0)\\)",
+                    "principles":["当 \\(a>0\\) 时，\\(|x|<a\\iff-a<x<a\\)：小于取中间。","当 \\(a>0\\) 时，\\(|x|>a\\iff x<-a\\) 或 \\(x>a\\)：大于取两边。"]
+                  },
+                  {
+                    "kind":"squaring",
+                    "inequality":"\\(|2x+1|>|x-1|\\)",
+                    "transformations":["\\(|2x+1|>|x-1|\\iff(2x+1)^2>(x-1)^2\\)","\\(x(x+2)>0\\)"],
+                    "solution":"\\(x∈(-\\infty,-2)\\cup(0,+\\infty)\\)",
+                    "principles":["两边都是非负数时，\\(|f(x)|>|g(x)|\\iff f(x)^2>g(x)^2\\)。","再用平方差：\\(f(x)^2-g(x)^2=[f(x)-g(x)][f(x)+g(x)]\\)，转化为整式不等式判号。"]
+                  },
+                  {
+                    "kind":"classification",
+                    "inequality":"\\(|x-1|+|x+2|\\ge5\\)",
+                    "transformations":["分界点：\\(x=-2，1\\)","\\(x\\le-2：y=-2x-6\\)","\\(-2<x<1：y=-2\\)","\\(x\\ge1：y=2x-4\\)"],
+                    "solution":"\\(x∈(-\\infty,-3]\\cup[2,+\\infty)\\)",
+                    "principles":["令 \\(y=|x-1|+|x+2|-5\\)，先求绝对值内部为 0 的点 \\(x=-2，1\\)，据此分区。","各区间分别去绝对值并与本区间取交集，最后取并集；也可从分段函数图像读取 \\(y\\ge0\\) 的部分。"]
+                  }
+                ]
+              }
+            }
+          ],
+          "examples": [
+            {"lessonId":"inequality-solving-quadratic-q01","group":"一元二次不等式","knowledgeCategory":"property","numberLabel":"练习 4 · 1","title":"用解集判断必要条件","hints":["先解 2x²-5x-3<0。","必要条件对应原解集包含于条件解集；必要不充分时应为真包含。"],"answerSchema":{"type":"single-choice","expected":"B"}},
+            {"lessonId":"inequality-solving-quadratic-q02","group":"一元二次不等式","knowledgeCategory":"property","numberLabel":"练习 4 · 2","title":"判别恒负二次式","hints":["把二次式配方。","观察最大值是否仍小于 0。"],"answerSchema":{"type":"single-choice","expected":"A"}},
+            {"lessonId":"inequality-solving-quadratic-q03","group":"一元二次不等式","knowledgeCategory":"property","numberLabel":"练习 4 · 3","title":"分类解一元二次不等式","hints":["先因式分解或计算判别式。","结合开口方向与是否含等号写解集。"],"answerSchema":{"type":"multipart-exact","layout":"per-part","expected":[{"label":"（1）","prompt":"\\(x^2-5x+6\\le 0\\)","aliases":["[2,3]"]},{"label":"（2）","prompt":"\\(-2x^2+5x-3\\le 0\\)","aliases":["(-∞,1]∪[3/2,+∞)","(-∞,1]∪[1.5,+∞)"]},{"label":"（3）","prompt":"\\(x^2-6x+9>0\\)","aliases":["ℝ∖{3}","R∖{3}","(-∞,3)∪(3,+∞)"]},{"label":"（4）","prompt":"\\(x^2+x+1>0\\)","aliases":["ℝ","R","(-∞,+∞)"]}],"input":{"mode":"math-expression","placeholder":"填写对应小题的解集","keyboard":["R","setminus","braces","interval","brackets","comma","union","negative","fraction","infinity","digits"]}}},
+            {"lessonId":"inequality-solving-polynomial-q01","group":"高次不等式","knowledgeCategory":"description","numberLabel":"练习 5 · 1","title":"用穿针引线法解高次不等式","hints":["按从小到大标出所有实根。","注意偶数重根两侧不变号。"],"answerSchema":{"type":"multipart-exact","layout":"per-part","expected":[{"label":"（1）","prompt":"\\((x-1)(x-2)(x-3)>0\\)","aliases":["(1,2)∪(3,+∞)"]},{"label":"（2）","prompt":"\\((x-1)(x+2)(3-x)>0\\)","aliases":["(-∞,-2)∪(1,3)"]},{"label":"（3）","prompt":"\\((x-2)(x+3)(x^2-2x+1)>0\\)","aliases":["(-∞,-3)∪(2,+∞)"]}],"input":{"mode":"math-expression","placeholder":"填写对应小题的解集","keyboard":["interval","brackets","comma","union","negative","infinity","digits"]}}},
+            {"lessonId":"inequality-solving-polynomial-q02","group":"高次不等式","knowledgeCategory":"description","numberLabel":"练习 5 · 2","title":"选择高次不等式解集","hints":["零点依次为 -1、1、2。","从最右侧正号开始逐根变号。"],"answerSchema":{"type":"single-choice","expected":"D"}},
+            {"lessonId":"inequality-solving-polynomial-q03","group":"高次不等式","knowledgeCategory":"description","numberLabel":"练习 5 · 3","title":"处理高次式中的重根","hints":["先分解成 (x+1)(x-3)(x-2)²。","经过 x=2 时符号不改变。"],"answerSchema":{"type":"single-choice","expected":"D"}},
+            {"lessonId":"inequality-solving-rational-q01","group":"分式不等式","knowledgeCategory":"property","numberLabel":"练习 6 · 1","title":"解基础分式不等式","hints":["分子零点为 -3，分母禁值点为 2。","含等号只允许取分子零点。"],"answerSchema":{"type":"exact-expression","expected":["[-3,2)"],"input":{"mode":"math-expression","placeholder":"填写解集","keyboard":["interval","brackets","comma","negative","digits"]}}},
+            {"lessonId":"inequality-solving-rational-q02","group":"分式不等式","knowledgeCategory":"property","numberLabel":"练习 6 · 2","title":"移项通分解分式不等式","hints":["把右侧 1 移到左侧后通分。","分母为 0 的点不能取。"],"answerSchema":{"type":"exact-expression","expected":["[-2,1/2)","[-2,0.5)"],"input":{"mode":"math-expression","placeholder":"填写解集","keyboard":["interval","brackets","comma","negative","fraction","digits"]}}},
+            {"lessonId":"inequality-solving-rational-q03","group":"分式不等式","knowledgeCategory":"property","numberLabel":"练习 6 · 3","title":"判别恒正分母","hints":["先把 1 移到左侧并通分。","分母 x²+x+1 恒为正。"],"answerSchema":{"type":"exact-expression","expected":["(-∞,-1)∪(3,+∞)"],"input":{"mode":"math-expression","placeholder":"填写解集","keyboard":["interval","comma","union","negative","infinity","digits"]}}},
+            {"lessonId":"inequality-solving-rational-q04","group":"分式不等式","knowledgeCategory":"property","numberLabel":"练习 6 · 4","title":"解含参数位置的分式不等式","hints":["先移项通分得到 (4-5x)/(3x-2)>0。","比较零点 2/3 与 4/5 的顺序。"],"answerSchema":{"type":"exact-expression","expected":["(2/3,4/5)"],"input":{"mode":"math-expression","placeholder":"填写解集","keyboard":["interval","comma","fraction","digits"]}}},
+            {"lessonId":"inequality-solving-absolute-q01","group":"绝对值不等式","knowledgeCategory":"description","numberLabel":"练习 7 · 1","title":"用解集包含判断条件关系","hints":["分别求两个条件的解集。","比较两解集的包含方向。"],"answerSchema":{"type":"single-choice","expected":"B"}},
+            {"lessonId":"inequality-solving-absolute-q02","group":"绝对值不等式","knowledgeCategory":"description","numberLabel":"练习 7 · 2","title":"分类解含二次式的绝对值不等式","hints":["按 x²-3 的正负分类。","也要注意右侧 2x 的符号。"],"answerSchema":{"type":"exact-expression","expected":["(-∞,1)∪(3,+∞)"],"input":{"mode":"math-expression","placeholder":"填写解集","keyboard":["interval","comma","union","infinity","digits"]}}},
+            {"lessonId":"inequality-solving-absolute-q03","group":"绝对值不等式","knowledgeCategory":"description","numberLabel":"练习 7 · 3","title":"分段解两个绝对值之和","hints":["分界点为 -1 和 2。","分三段去绝对值后与对应区间取交集。"],"answerSchema":{"type":"exact-expression","expected":["[-9/2,11/2]","[-4.5,5.5]"],"input":{"mode":"math-expression","placeholder":"填写解集","keyboard":["interval","brackets","comma","negative","fraction","digits"]}}}
+          ],
+          "summary":"解不等式要把符号变化完整落在数轴或符号表上：二次不等式看开口与判别式，高次不等式看根的重数，分式不等式额外排除禁值点，绝对值不等式分段后取并集并核对端点。"
+        },
+        {
+          "id":"basic-inequalities",
+          "label":"基本不等式",
+          "type":"knowledge",
+          "status":"published",
+          "description":"掌握两个正数的基本不等式，围绕“一正、二定、三相等”判断能否求得最值，并学会通过条件参与或目标重构，构造两个乘积固定的正项。",
+          "knowledgeGroups":[
+            {"id":"basic-theorem","number":"01","eyebrow":"均值关系","title":"基本不等式与等号条件","category":"property","lessonCount":2},
+            {"id":"fixed-transform","number":"02","eyebrow":"条件参与型","title":"乘入条件，展开找定积","category":"description","lessonCount":2},
+            {"id":"substitution","number":"03","eyebrow":"目标重构型","title":"围绕分母补项凑定积","category":"enumeration","lessonCount":2}
+          ],
+          "knowledgeBlocks":[
+            {
+              "groupId":"basic-theorem","category":"property","title":"两个正数的基本不等式",
+              "basicInequalityVisual":true,
+              "body":["如果 a>0，b>0，那么 \\(\\frac{a+b}{2}\\ge\\sqrt{ab}\\)，也可写成 \\(a+b\\ge2\\sqrt{ab}\\)。","当且仅当 a=b 时等号成立。这个结论又称均值不等式或基本不等式。","定和求积：a+b 为定值时，ab 在 a=b 时取得最大值；定积求和：ab 为定值时，a+b 在 a=b 时取得最小值。"]
+            },
+            {
+              "groupId":"basic-theorem","category":"description","title":"使用条件：一正、二定、三相等",
+              "basicInequalityConditions":true,
+              "body":["一正：应用基本不等式的每一项都必须为正数；若符号不明，要先转化或分类。","二定：和或积中必须有一个能够由题设确定，才能从不等式得到固定的上界或下界。","三相等：必须验证各项相等时是否满足原题条件；若等号无法取得，所得界就不是最值。"]
+            },
+            {
+              "groupId":"fixed-transform","category":"description","title":"条件参与型：乘入条件，展开找定积",
+              "fixedProductConditionVisual":true,
+              "body":["当目标中的原两项乘积不固定时，先检查题设是否给出了可以参与运算的定值条件。","将目标式与条件相乘并完整展开，常数项先合并，重点观察两个交叉正项的乘积能否消去变量。","找到定积后使用基本不等式，最后由两个交叉正项相等反求变量并核对原条件。"]
+            },
+            {
+              "groupId":"substitution","category":"enumeration","title":"目标重构型：围绕分母补项凑定积",
+              "fixedProductCompletionVisual":true,
+              "body":["看到 \\(\\frac{k}{x+c}\\) 时，先反推它需要与正项 \\(p(x+c)\\) 配对，而不是先机械换元。","利用 \\(px=p(x+c)-pc\\) 补出配对正项，并把多补的常数减回；此时两项乘积恒为 \\(pk\\)。","换元 \\(t=x+c>0\\) 只用于简化书写，核心仍是围绕分母补项构造定积。"]
+            }
+          ],
+          "examples":[
+            {"lessonId":"inequality-basic-q01","group":"基本不等式","knowledgeCategory":"property","numberLabel":"练习 8 · 1","title":"定和求积的最大值","hints":["m、n 都是正数，可以直接应用基本不等式。","检查 m=n 时是否满足 m+n=2。"],"answerSchema":{"type":"exact-expression","expected":["1"],"input":{"mode":"math-expression","placeholder":"填写最大值","keyboard":["digits"]}}},
+            {"lessonId":"inequality-basic-q02","group":"基本不等式","knowledgeCategory":"property","numberLabel":"练习 8 · 2","title":"倒数和定值求积的最小值","hints":["把倒数和通分为 (x+y)/(xy)。","用 x+y≥2√xy 建立关于 √xy 的不等式。"],"answerSchema":{"type":"exact-expression","expected":["4"],"input":{"mode":"math-expression","placeholder":"填写最小值","keyboard":["digits"]}}},
+            {"lessonId":"inequality-basic-q03","group":"乘入条件，展开找定积","knowledgeCategory":"description","numberLabel":"练习 8 · 3","title":"倒数和定值求线性式的最小值","hints":["把 x+4y 乘以已知的倒数和 1。","展开后检查 x/y 与 4y/x 的乘积。"],"answerSchema":{"type":"exact-expression","expected":["9"],"input":{"mode":"math-expression","placeholder":"填写最小值","keyboard":["digits"]}}},
+            {"lessonId":"inequality-basic-q04","group":"乘入条件，展开找定积","knowledgeCategory":"description","numberLabel":"练习 8 · 4","title":"线性约束下求倒数和的最小值","hints":["把目标式乘以定和 a+3b。","展开后检查 9b/a 与 4a/b 的乘积。"],"answerSchema":{"type":"exact-expression","expected":["27/2","13.5"],"input":{"mode":"math-expression","placeholder":"填写最小值","keyboard":["fraction","digits","decimal"]}}},
+            {"lessonId":"inequality-basic-q05","group":"围绕分母补项凑定积","knowledgeCategory":"enumeration","numberLabel":"练习 8 · 5","title":"补项构造定积求最小值","hints":["由分母 x+1 反推配对正项。","把 x 写成 (x+1)-1，补出的常数在括号外减回。"],"answerSchema":{"type":"multipart-exact","layout":"per-part","expected":[{"label":"最小值","prompt":"原式的最小值","aliases":["3"]},{"label":"x","prompt":"取得最小值时 x 的值","aliases":["1"]}],"input":{"mode":"math-expression","placeholder":"分别填写答案","keyboard":["digits","negative"]}}},
+            {"lessonId":"inequality-basic-q06","group":"围绕分母补项凑定积","knowledgeCategory":"enumeration","numberLabel":"练习 8 · 6","title":"补项构造一次项与倒数项的定积","hints":["由分母 x+3 反推配对正项 2(x+3)。","把 2x 写成 2(x+3)-6。"],"answerSchema":{"type":"single-choice","expected":"B"}}
+          ],
+          "summary":"基本不等式不是见到正数就直接套用：先确认正项，再以构造定积为目标。原目标缺少定积时，可以让题设条件参与运算，也可以围绕分母补出配对正项；最后必须验证等号能否在原条件下取得。"
+        },
+        {
+          "id":"inequality-practice",
+          "label":"实战演练",
+          "type":"assessment",
+          "status":"published",
+          "description":"综合练习不等式性质、条件关系、参数与范围、分式不等式和绝对值不等式。",
+          "items":[
+            {"number":1,"lessonId":"inequality-practice-q01","hints":["逐项检查乘数、除数与等号退化情形。","错误结论只需找到一个反例。"],"answerSchema":{"type":"single-choice","expected":"D"}},
+            {"number":2,"lessonId":"inequality-practice-q02","hints":["由 ac²>bc² 可以反推出 c≠0。","此时 c² 是严格正数。"],"answerSchema":{"type":"single-choice","expected":"C"}},
+            {"number":3,"lessonId":"inequality-practice-q03","hints":["分别求两个条件的解集。","用真包含关系判断充分性与必要性。"],"answerSchema":{"type":"single-choice","expected":"B"}},
+            {"number":4,"lessonId":"inequality-practice-q04","hints":["把二次式配方为 (x-3)²+a-9。","逐项统计闭区间中的整数。"],"answerSchema":{"type":"single-choice","expected":"C"}},
+            {"number":5,"lessonId":"inequality-practice-q05","hints":["计算 M-N。","把差分解为 (a+b)(a-b)²。"],"answerSchema":{"type":"single-choice","expected":"D"}},
+            {"number":6,"lessonId":"inequality-practice-q06","hints":["先确定 a<0、b>0。","注意原条件都是严格不等式，端点不能取得。"],"answerSchema":{"type":"exact-expression","expected":["(-6,-1)","-6<ab<-1"],"input":{"mode":"math-expression","placeholder":"填写 a·b 的取值范围","keyboard":["interval","comma","negative","less","a","b","digits"]}}},
+            {"number":7,"lessonId":"inequality-practice-q07","hints":["移项通分成 (5-x)/(x-2)≥0。","x=2 是禁值点，x=5 可以取。"],"answerSchema":{"type":"exact-expression","expected":["(2,5]"],"input":{"mode":"math-expression","placeholder":"填写解集","keyboard":["interval","brackets","comma","digits"]}}},
+            {"number":8,"lessonId":"inequality-practice-q08","hints":["分子零点是 -3。","分母零点 2 必须排除。"],"answerSchema":{"type":"exact-expression","expected":["[-3,2)"],"input":{"mode":"math-expression","placeholder":"填写解集","keyboard":["interval","brackets","comma","negative","digits"]}}},
+            {"number":9,"lessonId":"inequality-practice-q09","hints":["先把右侧 1 移到左侧并通分。","分母零点 1/2 不能取。"],"answerSchema":{"type":"exact-expression","expected":["[-2,1/2)","[-2,0.5)"],"input":{"mode":"math-expression","placeholder":"填写解集","keyboard":["interval","brackets","comma","negative","fraction","digits"]}}},
+            {"number":10,"lessonId":"inequality-practice-q10","hints":["分界点依次为 -4、-1、2。","-4 是禁值点，另两个点是分子零点。"],"answerSchema":{"type":"exact-expression","expected":["(-∞,-4)∪[-1,2]"],"input":{"mode":"math-expression","placeholder":"填写解集","keyboard":["interval","brackets","comma","union","negative","infinity","digits"]}}},
+            {"number":11,"lessonId":"inequality-practice-q11","hints":["把 4 移到左侧后通分。","比较 23/5 与禁值点 5。"],"answerSchema":{"type":"exact-expression","expected":["[23/5,5)","[4.6,5)"],"input":{"mode":"math-expression","placeholder":"填写解集","keyboard":["interval","brackets","comma","fraction","decimal","digits"]}}},
+            {"number":12,"lessonId":"inequality-practice-q12","hints":["第（1）题拆成两个一次不等式。","第（2）题表示 x 到 2 的距离介于 2 和 4 之间。"],"answerSchema":{"type":"multipart-exact","layout":"per-part","expected":[{"label":"（1）","prompt":"\\(|5x-2|\\ge8\\)","aliases":["(-∞,-6/5]∪[2,+∞)","x≤-6/5或x≥2"]},{"label":"（2）","prompt":"\\(2\\le|x-2|\\le4\\)","aliases":["[-2,0]∪[4,6]"]}],"input":{"mode":"math-expression","placeholder":"填写对应小题的解集","keyboard":["interval","brackets","comma","union","negative","fraction","infinity","digits"]}}},
+            {"number":13,"lessonId":"inequality-practice-q13","hints":["第（1）题以 -1、1 为分界点。","第（2）题以 -1、3 为分界点，每段都要与本段范围取交集。"],"answerSchema":{"type":"multipart-exact","layout":"per-part","expected":[{"label":"（1）","prompt":"\\(|x+1|+|x-1|\\ge3\\)","aliases":["(-∞,-3/2]∪[3/2,+∞)","x≤-3/2或x≥3/2"]},{"label":"（2）","prompt":"\\(|x-3|-|x+1|<1\\)","aliases":["(1/2,+∞)","x>1/2"]}],"input":{"mode":"math-expression","placeholder":"填写对应小题的解集","keyboard":["interval","brackets","comma","union","negative","fraction","infinity","digits"]}}}
+          ]
+        }
+      ]
     }
   ]
 }

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>分段解绝对值不等式 | 数学说</title>
+  <meta name="description" content="分段解绝对值不等式的逐步解析。" />
+  <meta property="og:title" content="分段解绝对值不等式 | 数学说" />
+  <meta property="og:description" content="分段解绝对值不等式的逐步解析。" />
+  <meta property="og:image" content="../../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css?v=31" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../../senior-high/index.html?chapter=inequalities&section=inequality-relations&module=inequality-practice">解不等式与基本不等式</a>
+    <span class="lesson-title">实战演练 · 第 13 题</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          <div class="problem-full">
+            <div class="problem-line"><span>13. 解下列不等式：</span></div>
+<div class="problem-line"><span>（1）<span class="inline-math">|x+1|+|x-1|≥3</span>；</span></div>
+<div class="problem-line"><span>（2）<span class="inline-math">|x-3|-|x+1|&lt;1</span>。</span><span class="answer-chip" id="answerI">答案：（1）<span class="inline-math">(-∞,-3/2]∪[3/2,+∞)</span>；（2）<span class="inline-math">(1/2,+∞)</span></span></div>
+          </div>
+        </section>
+
+        <aside class="lesson-key-points" aria-label="解题要点"><div class="lesson-key-points-title">解题要点</div><div class="lesson-key-points-content"><p class="lesson-key-points-lead">多个绝对值先找零点分区，再在每个区间内去绝对值。</p><ol><li>零点只负责划分区间。</li><li>每段结果要与本段范围取交集，最后合并。</li></ol></div></aside>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../../assets/js/lesson-page-runtime.js?v=42"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"s1","section":"绝对值不等式","title":"（1）找零点分区，逐段去绝对值","t":0,"showDiagram":false,"visual":{"kind":"absolute-case-analysis","method":"分类讨论法","title":"找零点分区，逐段去绝对值","intro":"零点只负责切分区间；每一段都要重新判断绝对值内部的符号。","original":"\\(|x+1|+|x-1|\\ge3\\)","breakpoints":[{"equation":"\\(x+1=0\\)","value":"\\(x=-1\\)","numeric":-1},{"equation":"\\(x-1=0\\)","value":"\\(x=1\\)","numeric":1}],"cases":[{"index":"01","interval":"\\(x\\le-1\\)","signs":"\\(x+1\\le0，x-1<0\\)","rewrite":"\\(-(x+1)-(x-1)=-2x\\)","inequality":"\\(-2x\\ge3\\)","result":"\\(x\\le-\\frac{3}{2}\\)"},{"index":"02","interval":"\\(-1<x<1\\)","signs":"\\(x+1>0，x-1<0\\)","rewrite":"\\((x+1)-(x-1)=2\\)","inequality":"\\(2\\ge3\\)","result":"\\(\\varnothing\\)"},{"index":"03","interval":"\\(x\\ge1\\)","signs":"\\(x+1>0，x-1\\ge0\\)","rewrite":"\\((x+1)+(x-1)=2x\\)","inequality":"\\(2x\\ge3\\)","result":"\\(x\\ge\\frac{3}{2}\\)"}],"graph":{"xRange":[-3,3],"yRange":[0,6],"pieces":[{"from":-3,"to":-1,"slope":-2,"intercept":0},{"from":-1,"to":1,"slope":0,"intercept":2},{"from":1,"to":3,"slope":2,"intercept":0}],"threshold":{"value":3,"label":"y=3","relation":"ge"},"ticks":[{"value":-1.5,"label":"−3/2"},{"value":-1,"label":"−1"},{"value":1,"label":"1"},{"value":1.5,"label":"3/2"}],"solutionSegments":[{"start":null,"end":-1.5,"left":"ray","right":"closed"},{"start":1.5,"end":null,"left":"closed","right":"ray"}]},"merge":{"label":"合并各段","result":"\\(( -\\infty,-\\frac{3}{2}]\\cup[\\frac{3}{2},+\\infty)\\)"},"caption":"函数图像只用于核对：阈值交点由分段函数自动计算，必须落在对应线段上。"},"reasoning":[{"kind":"because","text":"绝对值内部在 x=-1、1 处为零，因此分成三个区间讨论"},{"kind":"because","text":"各段根据内部符号去绝对值，并把求得结果与本段范围取交集"},{"kind":"therefore","text":"合并三个区间的结果，得 (-∞,-3/2]∪[3/2,+∞)"}],"derive":[["（1）","(-∞,-3/2]∪[3/2,+∞)"]]},{"id":"s2","section":"绝对值不等式","title":"（2）逐段求解，再合并解集","t":0,"showDiagram":false,"visual":{"kind":"absolute-case-analysis","method":"分类讨论法","title":"分段判断符号，段内求解","intro":"先按零点分区，再逐段去绝对值；不要从最终图像反猜代数过程。","original":"\\(|x-3|-|x+1|<1\\)","breakpoints":[{"equation":"\\(x+1=0\\)","value":"\\(x=-1\\)","numeric":-1},{"equation":"\\(x-3=0\\)","value":"\\(x=3\\)","numeric":3}],"cases":[{"index":"01","interval":"\\(x<-1\\)","signs":"\\(x-3<0，x+1<0\\)","rewrite":"\\(-(x-3)+ (x+1)=4\\)","inequality":"\\(4<1\\)","result":"\\(\\varnothing\\)"},{"index":"02","interval":"\\(-1\\le x<3\\)","signs":"\\(x-3<0，x+1\\ge0\\)","rewrite":"\\(-(x-3)-(x+1)=2-2x\\)","inequality":"\\(2-2x<1\\)","result":"\\(\\frac{1}{2}<x<3\\)"},{"index":"03","interval":"\\(x\\ge3\\)","signs":"\\(x-3\\ge0，x+1>0\\)","rewrite":"\\((x-3)-(x+1)=-4\\)","inequality":"\\(-4<1\\)","result":"\\([3,+\\infty)\\)"}],"graph":{"xRange":[-3,5],"yRange":[-5,5],"pieces":[{"from":-3,"to":-1,"slope":0,"intercept":4},{"from":-1,"to":3,"slope":-2,"intercept":2},{"from":3,"to":5,"slope":0,"intercept":-4}],"threshold":{"value":1,"label":"y=1","relation":"lt"},"ticks":[{"value":-1,"label":"−1"},{"value":0.5,"label":"1/2"},{"value":3,"label":"3"}],"solutionSegments":[{"start":0.5,"end":null,"left":"open","right":"ray"}]},"merge":{"label":"合并各段","result":"\\((\\frac{1}{2},+\\infty)\\)"},"caption":"图像核对中，x=1/2 是中间线段与 y=1 的真实交点。"},"reasoning":[{"kind":"because","text":"绝对值内部在 x=-1、3 处为零，分成三个区间"},{"kind":"because","text":"前一段不成立，中间段得到 x>1/2，后一段恒成立"},{"kind":"therefore","text":"分别与各自区间取交集后合并，解集为 (1/2,+∞)"}],"derive":[["（2）","(1/2,+∞)"]]}];
+    var STEP_LABELS = {"s1":"1 （1）找零点分区，逐段去绝对值","s2":"2 （2）逐段求解，再合并解集"};
+    var POLICIES   = {"s1":{"movable":false,"range":[0,0]},"s2":{"movable":false,"range":[0,0]}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 滑块主参数与派生参数的联动文案格式化器 */
+    var __LESSON_PARAM_LABEL_FORMATTER__;
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script>
+  function diagramMarkupFor() { return ''; }
+  function diagramMarkupForFrame() { return ''; }
+  function drawMini() { return ''; }
+  function groupTitle(section) { return section; }
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      diagramMarkupForFrame: typeof diagramMarkupForFrame === "function" ? diagramMarkupForFrame : undefined,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "参数",
+      paramLabelPrefix: "",
+      paramLabelFormatter: typeof __LESSON_PARAM_LABEL_FORMATTER__ === "function" ? __LESSON_PARAM_LABEL_FORMATTER__ : undefined,
+      goToProblemMode: "doubleScroll"
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,100 @@
+{
+  "meta": {
+    "id": "inequality-practice-q11",
+    "outputPath": "site/problems/senior-high/inequalities/inequality-relations/inequality-practice-q11.html",
+    "pageTitle": "解右侧含常数的分式不等式",
+    "pageDescription": "解右侧含常数的分式不等式的逐步解析。",
+    "breadcrumbTitle": "实战演练 · 第 11 题",
+    "breadcrumbLabel": "解不等式与基本不等式",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=inequalities&section=inequality-relations&module=inequality-practice"
+  },
+  "problem": {
+    "source": "高一暑假目标班 · 第4讲",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "移项通分时保留分母符号，不直接交叉相乘。",
+      "items": [
+        "把 4 移到左侧。",
+        "x=5 是禁值点。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "11. 不等式 \\(\\frac{x-3}{5-x}\\ge4\\) 的解集是　　　　。"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "分式不等式",
+      "title": "移项通分后穿线读取正号区域",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "rational-threading-graph",
+        "title": "先统一到一侧为 0，再区分零点和禁值",
+        "intro": "不要在不知道分母正负时直接乘以 5−x。",
+        "standardized": "\\(\\frac{x-3}{5-x}\\ge4\\iff(5x-23)(x-5)\\le0，x\\ne5\\)",
+        "roots": [
+          {
+            "label": "23/5",
+            "kind": "numerator",
+            "included": true
+          },
+          {
+            "label": "5",
+            "kind": "denominator",
+            "included": false
+          }
+        ],
+        "signs": [
+          "+",
+          "-",
+          "+"
+        ],
+        "selectSign": "-",
+        "target": "取负号区域",
+        "solution": "\\([\\frac{23}{5},5)\\)",
+        "facts": [
+          "23/5 是分子零点，题目含等号，可以取。",
+          "5 使原分母为 0，必须排除。"
+        ],
+        "caption": "实心点表示可取的分子零点；带叉空心点表示永远排除的分母禁值。"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "\\(\\frac{x-3}{5-x}-4=\\frac{5x-23}{5-x}\\ge0\\iff(5x-23)(x-5)\\le0，x\\ne5\\)"
+        },
+        {
+          "kind": "because",
+          "text": "两个分界点 23/5、5 之间乘积为负"
+        },
+        {
+          "kind": "therefore",
+          "text": "23/5 可取，5 是禁值，解集为 [23/5,5)"
+        }
+      ],
+      "derive": [
+        [
+          "解集",
+          "[23/5,5)"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 移项通分后穿线读取正号区域"
+  }
+}

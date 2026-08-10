@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>移项通分解分式不等式 | 数学说</title>
+  <meta name="description" content="移项通分解分式不等式的逐步解析。" />
+  <meta property="og:title" content="移项通分解分式不等式 | 数学说" />
+  <meta property="og:description" content="移项通分解分式不等式的逐步解析。" />
+  <meta property="og:image" content="../../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css?v=14" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../../senior-high/index.html?chapter=inequalities&section=inequality-relations&module=solving-inequalities">解不等式与基本不等式</a>
+    <span class="lesson-title">解不等式 · 练习 6-2</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          <div class="problem-full">
+            <div class="problem-line"><span>解不等式 <span class="inline-math"><span class="math-fraction"><span class="math-numerator">3x+1</span><span class="math-denominator">2x-1</span></span>≤1</span>。</span><span class="answer-chip" id="answerI">答案：<span class="inline-math">[-2,1/2)</span></span></div>
+          </div>
+        </section>
+
+        <aside class="lesson-key-points" aria-label="解题要点"><div class="lesson-key-points-title">解题要点</div><div class="lesson-key-points-content"><p class="lesson-key-points-lead">引用分式不等式知识点：先移项通分为与 0 比较的标准式，再把分子零点和分母禁值点共同穿针判号。</p><ol><li>先算 <span class="inline-math"><span class="math-fraction"><span class="math-numerator">3x+1</span><span class="math-denominator">2x-1</span></span>-1=<span class="math-fraction"><span class="math-numerator">x+2</span><span class="math-denominator">2x-1</span></span></span>，不能直接在原式两边乘符号未知的分母。</li><li>由 <span class="inline-math"><span class="math-fraction"><span class="math-numerator">a</span><span class="math-denominator">b</span></span>≤0⇔ ab≤0</span> 且 <span class="inline-math">b≠0</span>，转化为整式乘积判号。</li><li>分子零点 −2 因含等号可以取；分母禁值 <span class="inline-math"><span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">2</span></span></span> 必须排除。</li></ol></div></aside>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../../assets/js/lesson-page-runtime.js?v=23"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"s1","section":"分式不等式","title":"移项通分并标出禁值点","t":0,"showDiagram":false,"visual":{"kind":"rational-threading-graph","ariaLabel":"分子零点负 2 为实心点，分母禁值二分之一为带叉空心点，负号阴影位于两点之间","title":"先移项通分，再区分零点与禁值点","intro":"通分后的分式与 0 比较，才可以使用分式穿针图。","standardized":"\\(\\frac{x+2}{2x-1}\\le0\\iff(x+2)(2x-1)\\le0，x\\ne\\frac12\\)","roots":[{"label":"−2","kind":"numerator","included":true},{"label":"1/2","kind":"denominator","included":false}],"signs":["+","-","+"],"selectSign":"-","target":"取负号区间并保留允许的等号点","solution":"\\([-2,\\frac12)\\)","facts":["两个分界点都是一次因式，穿过时符号改变，负号区域位于两点之间。","−2 使分子为 0，可以取；\\(\\frac12\\) 使分母为 0，必须排除。"],"caption":"分式不等式含等号，不等于所有端点都实心；必须先判断端点来自分子还是分母。"},"reasoning":[{"kind":"because","text":"移项通分得 \\(\\frac{3x+1}{2x-1}-1=\\frac{x+2}{2x-1}\\le0\\)，并保留禁值条件 \\(x\\ne\\frac12\\)"},{"kind":"because","text":"引用知识点，将分子零点 −2 与分母禁值 \\(\\frac12\\) 标在数轴上；从最右侧正号开始穿，两点之间为负"},{"kind":"therefore","text":"取非正区域，包含分子零点 −2、排除分母禁值 \\(\\frac12\\)，解集为 \\([-2,\\frac12)\\)"}],"derive":[["解集","[-2,1/2)"]]}];
+    var STEP_LABELS = {"s1":"1 化标准式并判断符号"};
+    var POLICIES   = {"s1":{"movable":false,"range":[0,0]}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 滑块主参数与派生参数的联动文案格式化器 */
+    var __LESSON_PARAM_LABEL_FORMATTER__;
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script>
+  function diagramMarkupFor() { return ''; }
+  function diagramMarkupForFrame() { return ''; }
+  function drawMini() { return ''; }
+  function groupTitle(section) { return section; }
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      diagramMarkupForFrame: typeof diagramMarkupForFrame === "function" ? diagramMarkupForFrame : undefined,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "参数",
+      paramLabelPrefix: "",
+      paramLabelFormatter: typeof __LESSON_PARAM_LABEL_FORMATTER__ === "function" ? __LESSON_PARAM_LABEL_FORMATTER__ : undefined,
+      goToProblemMode: "doubleScroll"
+    });
+  </script>
+</body>
+</html>

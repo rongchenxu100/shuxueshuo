@@ -1,0 +1,104 @@
+{
+  "meta": {
+    "id": "inequality-solving-quadratic-q01",
+    "outputPath": "site/problems/senior-high/inequalities/inequality-relations/inequality-solving-quadratic-q01.html",
+    "pageTitle": "由必要条件反查二次不等式解集",
+    "pageDescription": "由必要条件反查二次不等式解集的逐步解析。",
+    "breadcrumbTitle": "解不等式 · 练习 4-1",
+    "breadcrumbLabel": "解不等式与基本不等式",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=inequalities&section=inequality-relations&module=solving-inequalities"
+  },
+  "problem": {
+    "source": "高一暑假目标班 · 第4讲",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "引用核心知识：先看 a 的符号确定抛物线开口，再看 Δ 与实根确定图像和 x 轴的位置关系。",
+      "items": [
+        "令 y=2x²-5x-3，因式分解求出图像与 x 轴的两个交点。",
+        "图像在 x 轴上方取正、下方取负；本题从两根之间的下方区域读取原解集。",
+        "必要条件对应原解集的真超集。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "不等式 \\(2x^2-5x-3<0\\) 的一个必要不充分条件是（　　）"
+      },
+      {
+        "text": "A. \\(-3<x<\\frac12\\)　B. \\(-1<x<6\\)　C. \\(-\\frac12<x<0\\)　D. \\(-\\frac12<x<3\\)"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "一元二次不等式",
+      "title": "因式分解并比较集合包含",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "quadratic-function-sign-graphs",
+        "ariaLabel": "二次函数 y 等于 2x 平方减 5x 减 3 的图像，开口向上，与 x 轴交于负二分之一和 3，两根之间图像在 x 轴下方",
+        "title": "用二次函数图像读取原不等式的解集",
+        "intro": "先看开口，再看交点；图像在 x 轴上方取正，在 x 轴下方取负。",
+        "graphs": [
+          {
+            "label": "原不等式",
+            "expression": "\\(y=2x^2-5x-3\\)",
+            "opening": "up",
+            "discriminant": "positive",
+            "roots": [
+              "−1/2",
+              "3"
+            ],
+            "facts": [
+              "\\(a=2>0\\)，抛物线开口向上",
+              "\\(\\Delta=49>0\\)，与 x 轴交于 \\(x=-\\frac12、3\\)",
+              "两根之间的图像位于 x 轴下方"
+            ],
+            "target": "\\(f(x)<0\\)",
+            "solutionMode": "middle-open",
+            "solution": "\\((-\\frac12,3)\\)"
+          }
+        ],
+        "caption": "读图得到原解集后，再比较各选项区间与原解集的包含关系。"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "\\(2x^2-5x-3=(2x+1)(x-3)\\)"
+        },
+        {
+          "kind": "because",
+          "text": "引用一元二次不等式知识点：\\(a=2>0\\)，抛物线开口向上；两个实根为 \\(-\\frac12\\) 与 \\(3\\)，图像在两根之间位于 x 轴下方"
+        },
+        {
+          "kind": "therefore",
+          "text": "由图像读取 \\(2x^2-5x-3<0\\) 的完整解集为 \\((-\\frac12,3)\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "选项 B 对应区间 \\((-1,6)\\)，且 \\((-\\frac12,3)\\subsetneq(-1,6)\\)，它能覆盖原解集但还包含原不等式不成立的取值，因此 B 是必要不充分条件"
+        }
+      ],
+      "derive": [
+        [
+          "答案",
+          "B"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 化标准式并判断符号"
+  }
+}

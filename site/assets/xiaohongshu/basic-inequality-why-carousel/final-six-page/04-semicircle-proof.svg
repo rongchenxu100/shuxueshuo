@@ -1,0 +1,125 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1440" viewBox="0 0 1080 1440">
+  <defs>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M48 0H0V48" fill="none" stroke="#AFCBC6" stroke-width="1" opacity="0.27"/>
+    </pattern>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#164D50" flood-opacity="0.10"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10Z" fill="#0B7774"/>
+    </marker>
+    <style>
+      .cn{font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+      .math{font-family:"Times New Roman","STIX Two Math",serif;font-style:italic}
+      .teal{fill:#0B5157}
+    </style>
+  </defs>
+
+  <rect width="1080" height="1440" fill="#FBF8EF"/>
+  <rect width="1080" height="1440" fill="url(#grid)"/>
+
+  <!-- Header -->
+  <circle cx="310" cy="89" r="9" fill="#ED9E00"/>
+  <rect x="338" y="48" width="404" height="82" rx="41" fill="#EAF3EE" stroke="#0B5157" stroke-width="3.5"/>
+  <circle cx="770" cy="89" r="9" fill="#ED9E00"/>
+  <text x="540" y="101" text-anchor="middle" class="cn teal" font-size="35" font-weight="700">04 ｜ 半圆证明</text>
+
+  <text x="540" y="219" text-anchor="middle" class="cn teal" font-size="67" font-weight="800">算术平均数是半径</text>
+  <text x="540" y="302" text-anchor="middle" class="cn teal" font-size="61" font-weight="800">几何平均数是高</text>
+
+  <!-- Exact semicircle construction: O is the midpoint of AB. -->
+  <g filter="url(#shadow)">
+    <rect x="55" y="345" width="970" height="555" rx="34" fill="#F7FBF8" stroke="#0B5157" stroke-width="3.2"/>
+  </g>
+
+  <!-- Similar triangles are filled with two distinct colors. -->
+  <polygon points="150,770 395,770 395,408" fill="#F56C5F" fill-opacity="0.25"/>
+  <polygon points="395,408 395,770 930,770" fill="#EDAE35" fill-opacity="0.22"/>
+
+  <!-- Semicircle and construction lines. -->
+  <path d="M150 770A390 390 0 0 1 930 770" fill="none" stroke="#0B7774" stroke-width="4"/>
+  <line x1="150" y1="770" x2="930" y2="770" stroke="#0B5157" stroke-width="4"/>
+  <line x1="150" y1="770" x2="395" y2="408" stroke="#E85C51" stroke-width="3.2" stroke-dasharray="11 9"/>
+  <line x1="395" y1="408" x2="930" y2="770" stroke="#C98200" stroke-width="3.2" stroke-dasharray="11 9"/>
+  <line x1="395" y1="408" x2="395" y2="770" stroke="#E85C51" stroke-width="4.2"/>
+  <line x1="395" y1="408" x2="540" y2="770" stroke="#C98200" stroke-width="4.2"/>
+  <path d="M395 739H426V770" fill="none" stroke="#0B7774" stroke-width="3"/>
+
+  <g fill="#0B5157">
+    <circle cx="150" cy="770" r="8"/><circle cx="395" cy="770" r="8"/>
+    <circle cx="540" cy="770" r="8"/><circle cx="930" cy="770" r="8"/>
+    <circle cx="395" cy="408" r="8"/>
+  </g>
+
+  <g class="math" fill="#111827" font-size="38">
+    <text x="130" y="815">A</text><text x="378" y="815">C</text>
+    <text x="521" y="815">O</text><text x="913" y="815">B</text>
+    <text x="379" y="388">D</text>
+  </g>
+
+  <!-- Segment labels. -->
+  <g class="math" fill="#E85C51">
+    <text x="208" y="590" font-size="38">CD=√<tspan text-decoration="overline">ab</tspan></text>
+    <text x="230" y="706" font-size="25">△ACD</text>
+  </g>
+  <rect x="480" y="476" width="218" height="116" rx="16" fill="#FFF3D5" fill-opacity="0.94"/>
+  <g class="math" fill="#C98200">
+    <text x="497" y="548" font-size="36">OD=</text>
+    <text x="588" y="522" font-size="36">a+b</text>
+    <line x1="580" y1="536" x2="668" y2="536" stroke="#C98200" stroke-width="2.5"/>
+    <text x="619" y="577" font-size="35">2</text>
+    <text x="715" y="706" font-size="25">△DCB</text>
+  </g>
+
+  <!-- AC=a and CB=b. O is visibly the midpoint of AB. -->
+  <line x1="155" y1="845" x2="389" y2="845" stroke="#0B7774" stroke-width="2.5" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <line x1="401" y1="845" x2="925" y2="845" stroke="#0B7774" stroke-width="2.5" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <rect x="248" y="824" width="50" height="42" rx="18" fill="#F7FBF8"/>
+  <rect x="645" y="824" width="50" height="42" rx="18" fill="#F7FBF8"/>
+  <text x="273" y="854" text-anchor="middle" class="math teal" font-size="35">a</text>
+  <text x="670" y="854" text-anchor="middle" class="math teal" font-size="35">b</text>
+
+  <!-- Three concise proof steps. -->
+  <g filter="url(#shadow)">
+    <rect x="70" y="935" width="250" height="245" rx="28" fill="#FFF2EF" stroke="#F56C5F" stroke-width="2.6"/>
+    <rect x="337" y="935" width="405" height="245" rx="28" fill="#F2F8F4" stroke="#89C4B5" stroke-width="2.6"/>
+    <rect x="759" y="935" width="251" height="245" rx="28" fill="#FFF7E9" stroke="#EDAE35" stroke-width="2.6"/>
+  </g>
+
+  <text x="195" y="982" text-anchor="middle" class="cn teal" font-size="23" font-weight="800">① △ABD是直角三角形</text>
+  <text x="195" y="1036" text-anchor="middle" class="cn" font-size="21" fill="#6A5653">AB是直径</text>
+  <text x="195" y="1076" text-anchor="middle" class="math" font-size="25" fill="#E85C51">⇒ ∠ADB=90°</text>
+  <text x="195" y="1122" text-anchor="middle" class="math" font-size="23" fill="#0B5157">CD⊥AB</text>
+  <text x="195" y="1160" text-anchor="middle" class="math" font-size="24" fill="#E85C51">⇒ △ACD∽△DCB</text>
+
+  <text x="540" y="980" text-anchor="middle" class="cn teal" font-size="25" font-weight="800">② 由相似比例求 CD</text>
+  <!-- AC/CD = CD/CB -->
+  <g class="math teal" font-size="31">
+    <text x="430" y="1026" text-anchor="middle">AC</text>
+    <line x1="398" y1="1038" x2="462" y2="1038" stroke="#0B5157" stroke-width="2.2"/>
+    <text x="430" y="1072" text-anchor="middle">CD</text>
+    <text x="540" y="1057" text-anchor="middle" font-size="42">=</text>
+    <text x="650" y="1026" text-anchor="middle">CD</text>
+    <line x1="618" y1="1038" x2="682" y2="1038" stroke="#0B5157" stroke-width="2.2"/>
+    <text x="650" y="1072" text-anchor="middle">CB</text>
+  </g>
+  <text x="540" y="1112" text-anchor="middle" class="math teal" font-size="29">⇒ CD²=AC·CB=ab</text>
+  <text x="540" y="1153" text-anchor="middle" class="math" font-size="32" fill="#E85C51">⇒ CD=√<tspan text-decoration="overline">ab</tspan></text>
+
+  <text x="885" y="984" text-anchor="middle" class="cn teal" font-size="25" font-weight="800">③ 比较两条长度</text>
+  <text x="885" y="1035" text-anchor="middle" class="math" font-size="30" fill="#C98200">OD=(a+b)/2</text>
+  <text x="885" y="1087" text-anchor="middle" class="math teal" font-size="34">OD≥CD</text>
+  <text x="885" y="1135" text-anchor="middle" class="cn" font-size="21" fill="#6B5A3A">斜边不短于直角边</text>
+
+  <!-- Conclusion -->
+  <g filter="url(#shadow)">
+    <rect x="105" y="1205" width="870" height="190" rx="34" fill="#F5FAF7" stroke="#0B7774" stroke-width="3" stroke-dasharray="11 7"/>
+  </g>
+  <rect x="350" y="1218" width="380" height="42" rx="21" fill="#E8F4EF" stroke="#89C4B5" stroke-width="1.8"/>
+  <text x="540" y="1247" text-anchor="middle" class="cn teal" font-size="21" font-weight="750">算术平均数 ≥ 几何平均数</text>
+  <text x="350" y="1320" text-anchor="middle" class="math" font-size="57" fill="#E49A00">(a+b)/2</text>
+  <text x="540" y="1320" text-anchor="middle" class="math teal" font-size="67">≥</text>
+  <text x="695" y="1320" text-anchor="middle" class="math" font-size="58" fill="#F56C5F">√<tspan text-decoration="overline">ab</tspan></text>
+  <text x="540" y="1375" text-anchor="middle" class="cn" font-size="27" font-weight="750" fill="#E85C51">C与O重合 ⇔ a=b，此时等号成立</text>
+</svg>

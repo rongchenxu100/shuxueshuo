@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>解两个基础绝对值不等式 | 数学说</title>
+  <meta name="description" content="解两个基础绝对值不等式的逐步解析。" />
+  <meta property="og:title" content="解两个基础绝对值不等式 | 数学说" />
+  <meta property="og:description" content="解两个基础绝对值不等式的逐步解析。" />
+  <meta property="og:image" content="../../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css?v=30" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../../senior-high/index.html?chapter=inequalities&section=inequality-relations&module=inequality-practice">解不等式与基本不等式</a>
+    <span class="lesson-title">实战演练 · 第 12 题</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          <div class="problem-full">
+            <div class="problem-line"><span>12. 解下列不等式：</span></div>
+<div class="problem-line"><span>（1）<span class="inline-math">|5x-2|≥8</span>；</span></div>
+<div class="problem-line"><span>（2）<span class="inline-math">2≤|x-2|≤4</span>。</span><span class="answer-chip" id="answerI">答案：（1）<span class="inline-math">(-∞,-6/5]∪[2,+∞)</span>；（2）<span class="inline-math">[-2,0]∪[4,6]</span></span></div>
+          </div>
+        </section>
+
+        <aside class="lesson-key-points" aria-label="解题要点"><div class="lesson-key-points-title">解题要点</div><div class="lesson-key-points-content"><p class="lesson-key-points-lead">先认出单个绝对值与正常数的比较，再直接套用对应规则。</p><ol><li>大于取两边：|u|≥a⇔u≤−a 或 u≥a。</li><li>小于取中间：|u|≤a⇔−a≤u≤a；双边限制分别求解后取交集。</li></ol></div></aside>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../../assets/js/lesson-page-runtime.js?v=41"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"s1","section":"绝对值不等式","title":"（1）直接套用“大于取两边”","t":0,"showDiagram":false,"visual":{"kind":"absolute-direct-rule-map","mode":"single","method":"直接法","title":"认准结构，大于取两边","intro":"把题目中的绝对值内部整体放进公式槽位，不需要先改写成距离。","original":"\\(|5x-2|\\ge8\\)","rules":[{"index":"01","name":"大于取两边","template":"\\(|u|\\ge a\\iff u\\le-a\\text{ 或 }u\\ge a\\)","mappings":["\\(u←5x-2\\)","\\(a←8\\)"],"substituted":"\\(5x-2\\le-8\\text{ 或 }5x-2\\ge8\\)","solved":"\\(x\\le-\\frac{6}{5}\\text{ 或 }x\\ge2\\)","solution":"\\(( -\\infty,-\\frac{6}{5}]\\cup[2,+\\infty)\\)"}],"caption":"公式中的 u 是一个整体；先对号入座，再分别解两边的一元一次不等式。"},"reasoning":[{"kind":"because","text":"令 u=5x−2，a=8，由 |u|≥a⇔u≤−a 或 u≥a"},{"kind":"because","text":"代入得 5x−2≤−8 或 5x−2≥8"},{"kind":"therefore","text":"解得 x≤−6/5 或 x≥2"}],"derive":[["（1）","(-∞,-6/5]∪[2,+∞)"]]},{"id":"s2","section":"绝对值不等式","title":"（2）分别直接求解，再取交集","t":0,"showDiagram":false,"visual":{"kind":"absolute-direct-rule-map","mode":"intersection","method":"直接法","title":"双边限制：拆成两条，再取交集","intro":"一个 x 要同时满足左右两侧限制，所以先把连写不等式拆成“且”。","original":"\\(2\\le|x-2|\\le4\\)","rules":[{"index":"01","name":"大于取两边","template":"\\(|u|\\ge a\\iff u\\le-a\\text{ 或 }u\\ge a\\)","mappings":["\\(u←x-2\\)","\\(a←2\\)"],"substituted":"\\(x-2\\le-2\\text{ 或 }x-2\\ge2\\)","solved":"\\(x\\le0\\text{ 或 }x\\ge4\\)","solution":"\\(( -\\infty,0]\\cup[4,+\\infty)\\)"},{"index":"02","name":"小于取中间","template":"\\(|u|\\le a\\iff-a\\le u\\le a\\)","mappings":["\\(u←x-2\\)","\\(a←4\\)"],"substituted":"\\(-4\\le x-2\\le4\\)","solved":"\\(-2\\le x\\le6\\)","solution":"\\([-2,6]\\)"}],"intersection":{"label":"同时成立＝取交集","expression":"\\((( -\\infty,0]\\cup[4,+\\infty))\\cap[-2,6]\\)","result":"\\([-2,0]\\cup[4,6]\\)"},"caption":"双边绝对值不等式的关键不是分类讨论，而是把两条直接法结果取交集。"},"reasoning":[{"kind":"because","text":"2≤|x−2|≤4 等价于 |x−2|≥2 且 |x−2|≤4"},{"kind":"because","text":"大于取两边得 x≤0 或 x≥4；小于取中间得 −2≤x≤6"},{"kind":"therefore","text":"两个解集取交集，得到 [-2,0]∪[4,6]"}],"derive":[["（2）","[-2,0]∪[4,6]"]]}];
+    var STEP_LABELS = {"s1":"1 （1）直接套用“大于取两边”","s2":"2 （2）分别直接求解，再取交集"};
+    var POLICIES   = {"s1":{"movable":false,"range":[0,0]},"s2":{"movable":false,"range":[0,0]}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 滑块主参数与派生参数的联动文案格式化器 */
+    var __LESSON_PARAM_LABEL_FORMATTER__;
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script>
+  function diagramMarkupFor() { return ''; }
+  function diagramMarkupForFrame() { return ''; }
+  function drawMini() { return ''; }
+  function groupTitle(section) { return section; }
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      diagramMarkupForFrame: typeof diagramMarkupForFrame === "function" ? diagramMarkupForFrame : undefined,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "参数",
+      paramLabelPrefix: "",
+      paramLabelFormatter: typeof __LESSON_PARAM_LABEL_FORMATTER__ === "function" ? __LESSON_PARAM_LABEL_FORMATTER__ : undefined,
+      goToProblemMode: "doubleScroll"
+    });
+  </script>
+</body>
+</html>

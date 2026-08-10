@@ -1,0 +1,100 @@
+{
+  "meta": {
+    "id": "inequality-practice-q07",
+    "outputPath": "site/problems/senior-high/inequalities/inequality-relations/inequality-practice-q07.html",
+    "pageTitle": "解基础分式不等式",
+    "pageDescription": "解基础分式不等式的逐步解析。",
+    "breadcrumbTitle": "实战演练 · 第 7 题",
+    "breadcrumbLabel": "解不等式与基本不等式",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=inequalities&section=inequality-relations&module=inequality-practice"
+  },
+  "problem": {
+    "source": "高一暑假目标班 · 第4讲",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "移项通分后，把分子零点和分母禁值点放入同一符号表。",
+      "items": [
+        "x=2 是禁值点。",
+        "不等号含等号，可取分子零点 x=5。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "7. 不等式 \\(\\frac{3}{x-2}\\ge1\\) 的解集为　　　　（用区间表示）。"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "分式不等式",
+      "title": "移项通分后在数轴上穿线",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "rational-threading-graph",
+        "title": "分子零点可取，分母禁值必须排除",
+        "intro": "把零点和禁值点放在同一条穿针图上，阴影直接对应目标负号区域。",
+        "standardized": "\\(\\frac{3}{x-2}\\ge1\\iff(x-5)(x-2)\\le0，x\\ne2\\)",
+        "roots": [
+          {
+            "label": "2",
+            "kind": "denominator",
+            "included": false
+          },
+          {
+            "label": "5",
+            "kind": "numerator",
+            "included": true
+          }
+        ],
+        "signs": [
+          "+",
+          "-",
+          "+"
+        ],
+        "selectSign": "-",
+        "target": "取负号区域，并保留允许的等号点",
+        "solution": "\\((2,5]\\)",
+        "facts": [
+          "x=2 使原分母为 0，用带叉空心点排除。",
+          "x=5 使分子为 0，题目含等号，用实心点并入。"
+        ],
+        "caption": "实心点表示可取的分子零点；带叉空心点表示永远排除的分母禁值。"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "\\(\\frac{3}{x-2}-1=\\frac{5-x}{x-2}\\ge0\\iff(x-5)(x-2)\\le0，x\\ne2\\)"
+        },
+        {
+          "kind": "because",
+          "text": "从最右侧正号开始穿，负号区域位于 2 与 5 之间"
+        },
+        {
+          "kind": "therefore",
+          "text": "2 是分母禁值排除，5 是分子零点可取，解集为 (2,5]"
+        }
+      ],
+      "derive": [
+        [
+          "解集",
+          "(2,5]"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 移项通分后在数轴上穿线"
+  }
+}

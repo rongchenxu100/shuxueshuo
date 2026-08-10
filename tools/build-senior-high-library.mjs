@@ -618,6 +618,17 @@ export function validateLearningTopics(catalog, topicSource, root = repoRoot) {
             if (block.ordered !== undefined && typeof block.ordered !== "boolean") {
               throw new Error(`${context}.ordered 必须是布尔值`);
             }
+            for (const flag of ["basicInequalityVisual", "basicInequalityConditions", "fixedProductConditionVisual", "fixedProductCompletionVisual"]) {
+              if (block[flag] !== undefined && block[flag] !== true) {
+                throw new Error(`${context}.${flag} 只能设为 true`);
+              }
+            }
+            if (block.groupId !== undefined) {
+              requireText(block.groupId, `${context}.groupId`);
+              if (!module.knowledgeGroups.some((group) => group.id === block.groupId)) {
+                throw new Error(`${context}.groupId 未对应 knowledgeGroups`);
+              }
+            }
             let table;
             if (block.table !== undefined) {
               if (!block.table || !Array.isArray(block.table.rows) || block.table.rows.length === 0) {
@@ -635,13 +646,175 @@ export function validateLearningTopics(catalog, topicSource, root = repoRoot) {
                 rowsHtml: block.table.rows.map((row) => row.map((cell) => renderInlineMathText(cell))),
               };
             }
+            let quadraticInequalityTables;
+            if (block.quadraticInequalityTables !== undefined) {
+              if (!Array.isArray(block.quadraticInequalityTables)
+                || block.quadraticInequalityTables.length !== 2) {
+                throw new Error(`${context}.quadraticInequalityTables 必须包含 a>0 与 a<0 两张表`);
+              }
+              const expectedOpenings = ["up", "down"];
+              quadraticInequalityTables = block.quadraticInequalityTables.map((quadraticTable, tableIndex) => {
+                const tableContext = `${context}.quadraticInequalityTables[${tableIndex}]`;
+                requireText(quadraticTable.title, `${tableContext}.title`);
+                if (quadraticTable.opening !== expectedOpenings[tableIndex]) {
+                  throw new Error(`${tableContext}.opening 必须是 ${expectedOpenings[tableIndex]}`);
+                }
+                if (!Array.isArray(quadraticTable.cases) || quadraticTable.cases.length !== 3) {
+                  throw new Error(`${tableContext}.cases 必须包含 Δ>0、Δ=0、Δ<0 三种情况`);
+                }
+                const expectedCases = ["positive", "zero", "negative"];
+                const cases = quadraticTable.cases.map((quadraticCase, caseIndex) => {
+                  const caseContext = `${tableContext}.cases[${caseIndex}]`;
+                  if (quadraticCase.discriminant !== expectedCases[caseIndex]) {
+                    throw new Error(`${caseContext}.discriminant 必须是 ${expectedCases[caseIndex]}`);
+                  }
+                  ["root", "positiveSolution", "negativeSolution"].forEach((field) => {
+                    requireText(quadraticCase[field], `${caseContext}.${field}`);
+                  });
+                  return {
+                    discriminant: quadraticCase.discriminant,
+                    root: quadraticCase.root,
+                    rootHtml: renderInlineMathText(quadraticCase.root),
+                    positiveSolution: quadraticCase.positiveSolution,
+                    positiveSolutionHtml: renderInlineMathText(quadraticCase.positiveSolution),
+                    negativeSolution: quadraticCase.negativeSolution,
+                    negativeSolutionHtml: renderInlineMathText(quadraticCase.negativeSolution),
+                  };
+                });
+                return {
+                  title: quadraticTable.title,
+                  titleHtml: renderInlineMathText(quadraticTable.title),
+                  opening: quadraticTable.opening,
+                  cases,
+                };
+              });
+            }
+            let threadingLineTable;
+            if (block.threadingLineTable !== undefined) {
+              const rows = block.threadingLineTable?.rows;
+              if (!Array.isArray(rows) || rows.length !== 3) {
+                throw new Error(`${context}.threadingLineTable.rows 必须包含三个示例`);
+              }
+              const expectedKinds = ["simple-strict", "simple-inclusive", "mixed-multiplicity"];
+              threadingLineTable = {
+                rows: rows.map((row, rowIndex) => {
+                  const rowContext = `${context}.threadingLineTable.rows[${rowIndex}]`;
+                  if (row.kind !== expectedKinds[rowIndex]) {
+                    throw new Error(`${rowContext}.kind 必须是 ${expectedKinds[rowIndex]}`);
+                  }
+                  requireText(row.inequality, `${rowContext}.inequality`);
+                  requireText(row.solution, `${rowContext}.solution`);
+                  if (!Array.isArray(row.principles) || row.principles.length !== 2) {
+                    throw new Error(`${rowContext}.principles 必须包含两条原则`);
+                  }
+                  row.principles.forEach((principle, principleIndex) => {
+                    requireText(principle, `${rowContext}.principles[${principleIndex}]`);
+                  });
+                  return {
+                    kind: row.kind,
+                    inequality: row.inequality,
+                    inequalityHtml: renderInlineMathText(row.inequality),
+                    solution: row.solution,
+                    solutionHtml: renderInlineMathText(row.solution),
+                    principles: row.principles,
+                    principlesHtml: row.principles.map((principle) => renderInlineMathText(principle)),
+                  };
+                }),
+              };
+            }
+            let rationalThreadingTable;
+            if (block.rationalThreadingTable !== undefined) {
+              const rows = block.rationalThreadingTable?.rows;
+              if (!Array.isArray(rows) || rows.length !== 3) {
+                throw new Error(`${context}.rationalThreadingTable.rows 必须包含三个示例`);
+              }
+              const expectedKinds = ["direct-strict", "inclusive-endpoints", "move-to-zero"];
+              rationalThreadingTable = {
+                rows: rows.map((row, rowIndex) => {
+                  const rowContext = `${context}.rationalThreadingTable.rows[${rowIndex}]`;
+                  if (row.kind !== expectedKinds[rowIndex]) {
+                    throw new Error(`${rowContext}.kind 必须是 ${expectedKinds[rowIndex]}`);
+                  }
+                  ["inequality", "equivalent", "solution"].forEach((field) => {
+                    requireText(row[field], `${rowContext}.${field}`);
+                  });
+                  if (!Array.isArray(row.principles) || row.principles.length !== 2) {
+                    throw new Error(`${rowContext}.principles 必须包含两条原则`);
+                  }
+                  row.principles.forEach((principle, principleIndex) => {
+                    requireText(principle, `${rowContext}.principles[${principleIndex}]`);
+                  });
+                  return {
+                    kind: row.kind,
+                    inequality: row.inequality,
+                    inequalityHtml: renderInlineMathText(row.inequality),
+                    equivalent: row.equivalent,
+                    equivalentHtml: renderInlineMathText(row.equivalent),
+                    solution: row.solution,
+                    solutionHtml: renderInlineMathText(row.solution),
+                    principles: row.principles,
+                    principlesHtml: row.principles.map((principle) => renderInlineMathText(principle)),
+                  };
+                }),
+              };
+            }
+            let absoluteInequalityTable;
+            if (block.absoluteInequalityTable !== undefined) {
+              const rows = block.absoluteInequalityTable?.rows;
+              if (!Array.isArray(rows) || rows.length !== 3) {
+                throw new Error(`${context}.absoluteInequalityTable.rows 必须包含三个示例`);
+              }
+              const expectedKinds = ["direct", "squaring", "classification"];
+              absoluteInequalityTable = {
+                rows: rows.map((row, rowIndex) => {
+                  const rowContext = `${context}.absoluteInequalityTable.rows[${rowIndex}]`;
+                  if (row.kind !== expectedKinds[rowIndex]) {
+                    throw new Error(`${rowContext}.kind 必须是 ${expectedKinds[rowIndex]}`);
+                  }
+                  requireText(row.inequality, `${rowContext}.inequality`);
+                  requireText(row.solution, `${rowContext}.solution`);
+                  if (!Array.isArray(row.transformations) || row.transformations.length < 2) {
+                    throw new Error(`${rowContext}.transformations 至少包含两步`);
+                  }
+                  row.transformations.forEach((transformation, transformationIndex) => {
+                    requireText(transformation, `${rowContext}.transformations[${transformationIndex}]`);
+                  });
+                  if (!Array.isArray(row.principles) || row.principles.length !== 2) {
+                    throw new Error(`${rowContext}.principles 必须包含两条原则`);
+                  }
+                  row.principles.forEach((principle, principleIndex) => {
+                    requireText(principle, `${rowContext}.principles[${principleIndex}]`);
+                  });
+                  return {
+                    kind: row.kind,
+                    inequality: row.inequality,
+                    inequalityHtml: renderInlineMathText(row.inequality),
+                    transformations: row.transformations,
+                    transformationsHtml: row.transformations.map((transformation) => renderInlineMathText(transformation)),
+                    solution: row.solution,
+                    solutionHtml: renderInlineMathText(row.solution),
+                    principles: row.principles,
+                    principlesHtml: row.principles.map((principle) => renderInlineMathText(principle)),
+                  };
+                }),
+              };
+            }
             return {
+              ...(block.groupId ? { groupId: block.groupId } : {}),
               category: block.category,
               title: block.title,
               ordered: block.ordered === true,
               body: block.body,
               bodyHtml: block.body.map((line) => renderInlineMathText(line)),
               ...(table ? { table } : {}),
+              ...(quadraticInequalityTables ? { quadraticInequalityTables } : {}),
+              ...(threadingLineTable ? { threadingLineTable } : {}),
+              ...(rationalThreadingTable ? { rationalThreadingTable } : {}),
+              ...(absoluteInequalityTable ? { absoluteInequalityTable } : {}),
+              ...(block.basicInequalityVisual ? { basicInequalityVisual: true } : {}),
+              ...(block.basicInequalityConditions ? { basicInequalityConditions: true } : {}),
+              ...(block.fixedProductConditionVisual ? { fixedProductConditionVisual: true } : {}),
+              ...(block.fixedProductCompletionVisual ? { fixedProductCompletionVisual: true } : {}),
             };
           }),
           examples,

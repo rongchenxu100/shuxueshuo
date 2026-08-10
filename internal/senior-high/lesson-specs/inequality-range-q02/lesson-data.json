@@ -1,0 +1,48 @@
+{
+  "meta":{"id":"inequality-range-q02","outputPath":"site/problems/senior-high/inequalities/inequality-relations/inequality-range-q02.html","pageTitle":"利用不等式性质求代数式取值范围","pageDescription":"迁移“重组—求界—相加”三步法求目标代数式的取值范围。","breadcrumbTitle":"不等关系 · 练习 2-2","breadcrumbLabel":"不等关系","breadcrumbPath":"site/senior-high/index.html","breadcrumbSearch":"?chapter=inequalities&section=inequality-relations&module=inequality-relations"},
+  "problem":{"source":"培训教材 · 不等关系","keyPoints":{"kind":"linear-combination-range-flow","title":"同类题固定三步","lead":"已知两个代数式的范围，求目标代数式的范围。","inputs":["已知：\\(U,V\\) 的范围","目标：求 \\(T\\) 的范围"],"stages":[{"label":"重组","visual":"regroup","method":"待定系数法","content":["把目标写成","\\(T=pU+qV\\)"]},{"label":"求界","visual":"bound","method":"基本性质·可乘性","content":["先判断 \\(p,q\\) 的符号","分别求 \\(pU,qV\\) 的新范围"]},{"label":"相加","visual":"add","method":"运算性质·可加法则","content":["左端加左端，右端加右端","检查端点能否同时取到"]}],"result":"得到 \\(T\\) 的取值范围","caption":"绿色表示第一部分，橙色表示第二部分，深青色表示目标范围；系数为负时要交换对应端点。"},"lines":[{"text":"已知 \\(1\\le2a+b\\le4\\)，\\(-1\\le a-2b\\le2\\)，求 \\(10a-5b\\) 的取值范围。"}]},
+  "steps":[
+    {
+      "id":"s1",
+      "section":"不等式范围计算",
+      "title":"重组：用待定系数法表示目标式",
+      "t":0,
+      "showDiagram":false,
+      "reasoning":[
+        {"kind":"because","text":"设 \\(10a-5b=p(2a+b)+q(a-2b)\\)。"},
+        {"kind":"because","text":"展开右边并比较 \\(a,b\\) 的系数，得 \\(2p+q=10\\)，\\(p-2q=-5\\)。"},
+        {"kind":"therefore","text":"解得 \\(p=3\\)，\\(q=4\\)，所以 \\(10a-5b=3(2a+b)+4(a-2b)\\)。"}
+      ],
+      "derive":[["组合系数","p=3，q=4"]]
+    },
+    {
+      "id":"s2",
+      "section":"不等式范围计算",
+      "title":"求界：分别求两部分的新范围",
+      "t":0,
+      "showDiagram":false,
+      "table":{"headers":["部分","原范围","所乘正数","乘后范围"],"rows":[["3(2a+b)","1≤2a+b≤4","3","3≤3(2a+b)≤12"],["4(a-2b)","-1≤a-2b≤2","4","-4≤4(a-2b)≤8"]]},
+      "reasoning":[
+        {"kind":"because","text":"\\(3>0\\)。根据基本性质·可乘性，将 \\(1\\le2a+b\\le4\\) 各项同乘 \\(3\\)，方向不变：\\(3\\le3(2a+b)\\le12\\)。"},
+        {"kind":"because","text":"\\(4>0\\)。同理，将 \\(-1\\le a-2b\\le2\\) 各项同乘 \\(4\\)，得 \\(-4\\le4(a-2b)\\le8\\)。"},
+        {"kind":"therefore","text":"目标式的两部分已经分别得到同向的上、下界。"}
+      ],
+      "derive":[["第一部分","[3,12]"],["第二部分","[-4,8]"]]
+    },
+    {
+      "id":"s3",
+      "section":"不等式范围计算",
+      "title":"相加：对应端点相加得到目标范围",
+      "t":0,
+      "showDiagram":false,
+      "reasoning":[
+        {"kind":"because","text":"根据运算性质·可加法则，两个同向不等式可以对应相加。下界为 \\(3+(-4)=-1\\)，上界为 \\(12+8=20\\)。"},
+        {"kind":"because","text":"又因为给定任意 \\(u=2a+b\\)、\\(v=a-2b\\)，都可取 \\(a=\\frac{2u+v}{5}\\)、\\(b=\\frac{u-2v}{5}\\)，所以两组端点能同时取到。"},
+        {"kind":"therefore","text":"\\(-1\\le3(2a+b)+4(a-2b)=10a-5b\\le20\\)，故取值范围为 \\([-1,20]\\)。"}
+      ],
+      "derive":[["取值范围","[-1,20]"]]
+    }
+  ],
+  "policies":{"s1":{"movable":false,"range":[0,0]},"s2":{"movable":false,"range":[0,0]},"s3":{"movable":false,"range":[0,0]}},
+  "stepLabels":{"s1":"1 重组：表示目标式","s2":"2 求界：分别求新范围","s3":"3 相加：得到目标范围"}
+}

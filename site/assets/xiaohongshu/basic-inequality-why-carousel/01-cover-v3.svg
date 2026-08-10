@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1440" viewBox="0 0 1080 1440">
+  <defs>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M 48 0 L 0 0 0 48" fill="none" stroke="#AFCBC6" stroke-width="1" opacity="0.28"/>
+    </pattern>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#164D50" flood-opacity="0.10"/>
+    </filter>
+    <style>
+      .cn { font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; }
+      .math { font-family: "Times New Roman", "STIX Two Math", serif; font-style: italic; }
+      .teal { fill: #0B5157; }
+      .stroke-teal { stroke: #0B5157; }
+    </style>
+  </defs>
+
+  <rect width="1080" height="1440" fill="#FBF8EF"/>
+  <rect width="1080" height="1440" fill="url(#grid)"/>
+
+  <!-- category -->
+  <rect x="286" y="42" width="508" height="70" rx="35" fill="#E7F3EE" stroke="#0B5157" stroke-width="2.5"/>
+  <text x="540" y="88" text-anchor="middle" class="cn teal" font-size="29" font-weight="650">高一数学｜基本不等式</text>
+
+  <!-- headline -->
+  <text x="540" y="210" text-anchor="middle" class="cn teal" font-size="78" font-weight="800" letter-spacing="2">基本不等式推导</text>
+  <text x="540" y="304" text-anchor="middle" class="cn teal" font-size="64" font-weight="760">收藏这一篇就够了</text>
+
+  <!-- formula -->
+  <g transform="translate(208 360)">
+    <text x="134" y="74" text-anchor="middle" class="math" font-size="70" fill="#E9A620">a+b</text>
+    <line x1="52" y1="92" x2="216" y2="92" stroke="#E9A620" stroke-width="5" stroke-linecap="round"/>
+    <text x="134" y="156" text-anchor="middle" class="math" font-size="66" fill="#E9A620">2</text>
+    <text x="320" y="118" text-anchor="middle" class="math teal" font-size="92" font-style="normal">≥</text>
+    <text x="490" y="118" text-anchor="middle" class="math" font-size="82" fill="#EF6D5F">√ab</text>
+  </g>
+
+  <!-- left geometry card -->
+  <g filter="url(#shadow)">
+    <rect x="46" y="582" width="476" height="626" rx="38" fill="#F8FCF9" stroke="#0B5157" stroke-width="3.5"/>
+  </g>
+  <text x="284" y="637" text-anchor="middle" class="cn teal" font-size="29" font-weight="700">面积证明</text>
+
+  <!-- Exact windmill: outer boundary is 344 × 344 -->
+  <!-- A=(112,682), B=(456,682), C=(456,1026), D=(112,1026) -->
+  <!-- P=(361.81,835.29), Q=(302.71,931.81), R=(206.19,872.71), T=(265.29,776.19) -->
+  <g>
+    <polygon points="112,682 456,682 361.81,835.29" fill="#A8D9C9" stroke="#0B5157" stroke-width="3" stroke-linejoin="round"/>
+    <polygon points="456,682 456,1026 302.71,931.81" fill="#A8D9C9" stroke="#0B5157" stroke-width="3" stroke-linejoin="round"/>
+    <polygon points="456,1026 112,1026 206.19,872.71" fill="#A8D9C9" stroke="#0B5157" stroke-width="3" stroke-linejoin="round"/>
+    <polygon points="112,1026 112,682 265.29,776.19" fill="#A8D9C9" stroke="#0B5157" stroke-width="3" stroke-linejoin="round"/>
+    <polygon points="361.81,835.29 302.71,931.81 206.19,872.71 265.29,776.19" fill="#F37666" stroke="#0B5157" stroke-width="3.5" stroke-linejoin="round"/>
+    <rect x="112" y="682" width="344" height="344" fill="none" stroke="#0B5157" stroke-width="5"/>
+
+    <!-- The actual perpendicular legs of the top triangle, highlighted from their true endpoints -->
+    <line x1="112" y1="682" x2="361.81" y2="835.29" stroke="#0B5157" stroke-width="6" stroke-linecap="round"/>
+    <line x1="361.81" y1="835.29" x2="456" y2="682" stroke="#0B5157" stroke-width="6" stroke-linecap="round"/>
+    <!-- right-angle marker at P; its arms are parallel to PA and PB -->
+    <path d="M 343.39 823.99 L 351.95 810.05 L 365.89 818.61" fill="none" stroke="#FFF9EF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- dimension ticks, placed perpendicular to the exact leg directions -->
+    <line x1="105.73" y1="692.22" x2="118.27" y2="671.78" stroke="#0B5157" stroke-width="4"/>
+    <line x1="355.54" y1="845.51" x2="368.08" y2="825.07" stroke="#0B5157" stroke-width="4"/>
+    <line x1="351.59" y1="829.02" x2="372.03" y2="841.56" stroke="#0B5157" stroke-width="4"/>
+    <line x1="445.78" y1="675.73" x2="466.22" y2="688.27" stroke="#0B5157" stroke-width="4"/>
+
+    <text x="224" y="732" text-anchor="middle" class="math teal" font-size="42" font-weight="700" transform="rotate(31.5 224 732)">√a</text>
+    <text x="420" y="759" text-anchor="middle" class="math teal" font-size="42" font-weight="700" transform="rotate(-58.5 420 759)">√b</text>
+    <text x="284" y="859" text-anchor="middle" class="math" font-size="36" font-weight="700" fill="#FFF9EF">|√a−√b|</text>
+  </g>
+  <text x="284" y="1163" text-anchor="middle" class="cn teal" font-size="25" font-weight="650">四个全等直角三角形</text>
+
+  <!-- right geometry card -->
+  <g filter="url(#shadow)">
+    <rect x="558" y="582" width="476" height="626" rx="38" fill="#F8FCF9" stroke="#0B5157" stroke-width="3.5"/>
+  </g>
+  <text x="796" y="637" text-anchor="middle" class="cn teal" font-size="29" font-weight="700">半圆模型</text>
+
+  <!-- Exact semicircle: A=(616,962), B=(976,962), O=((616+976)/2,962)=(796,962) -->
+  <!-- C=(736,962), D=(736,792.294); radius=180 -->
+  <g>
+    <path d="M 616 962 A 180 180 0 0 1 976 962" fill="#EAF5F1" stroke="#0B5157" stroke-width="5"/>
+    <line x1="616" y1="962" x2="976" y2="962" stroke="#0B5157" stroke-width="5" stroke-linecap="round"/>
+    <line x1="616" y1="962" x2="736" y2="792.294" stroke="#0B5157" stroke-width="3.5" stroke-dasharray="10 10" opacity="0.75"/>
+    <line x1="736" y1="792.294" x2="976" y2="962" stroke="#0B5157" stroke-width="3.5" stroke-dasharray="10 10" opacity="0.75"/>
+    <line x1="736" y1="792.294" x2="736" y2="962" stroke="#EF6D5F" stroke-width="6" stroke-linecap="round"/>
+    <line x1="796" y1="962" x2="736" y2="792.294" stroke="#E9A620" stroke-width="6" stroke-linecap="round"/>
+    <path d="M 736 944 L 754 944 L 754 962" fill="none" stroke="#0B5157" stroke-width="3.5"/>
+
+    <circle cx="616" cy="962" r="6" fill="#0B5157"/>
+    <circle cx="736" cy="962" r="6" fill="#0B5157"/>
+    <circle cx="796" cy="962" r="7" fill="#E9A620" stroke="#0B5157" stroke-width="2.5"/>
+    <circle cx="976" cy="962" r="6" fill="#0B5157"/>
+    <circle cx="736" cy="792.294" r="6" fill="#EF6D5F"/>
+
+    <text x="602" y="1003" class="math teal" font-size="31">A</text>
+    <text x="727" y="1003" class="math teal" font-size="31">C</text>
+    <text x="786" y="1003" class="math teal" font-size="31" font-weight="700">O</text>
+    <text x="972" y="1003" class="math teal" font-size="31">B</text>
+    <text x="718" y="777" class="math" font-size="31" fill="#EF6D5F">D</text>
+
+    <text x="650" y="939" class="math teal" font-size="34" font-weight="700">a</text>
+    <text x="861" y="939" class="math teal" font-size="34" font-weight="700">b</text>
+    <text x="681" y="874" class="math" font-size="34" font-weight="700" fill="#EF6D5F">√ab</text>
+    <g transform="translate(819 824) rotate(-70.56)">
+      <text x="0" y="0" text-anchor="middle" class="math" font-size="29" font-weight="700" fill="#B47A00">a+b</text>
+      <line x1="-31" y1="8" x2="31" y2="8" stroke="#B47A00" stroke-width="2.6"/>
+      <text x="0" y="38" text-anchor="middle" class="math" font-size="28" font-weight="700" fill="#B47A00">2</text>
+    </g>
+  </g>
+  <text x="796" y="1163" text-anchor="middle" class="cn teal" font-size="25" font-weight="650">几何平均数 ≤ 算术平均数</text>
+
+  <!-- equality condition -->
+  <rect x="170" y="1270" width="740" height="98" rx="49" fill="#0B5157"/>
+  <text x="540" y="1332" text-anchor="middle" class="cn" font-size="34" font-weight="700" fill="#FFF9EF">a&gt;0，b&gt;0；a=b 时等号成立</text>
+</svg>

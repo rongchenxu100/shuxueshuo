@@ -1,0 +1,95 @@
+{
+  "meta": {
+    "id": "inequality-solving-polynomial-q02",
+    "outputPath": "site/problems/senior-high/inequalities/inequality-relations/inequality-solving-polynomial-q02.html",
+    "pageTitle": "穿针引线法判断三次不等式",
+    "pageDescription": "穿针引线法判断三次不等式的逐步解析。",
+    "breadcrumbTitle": "解不等式 · 练习 5-2",
+    "breadcrumbLabel": "解不等式与基本不等式",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=inequalities&section=inequality-relations&module=solving-inequalities"
+  },
+  "problem": {
+    "source": "高一暑假目标班 · 第4讲",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "引用高次不等式知识点，用穿针引线法把根、区间符号和解集放在同一幅图中。",
+      "items": [
+        "最高次项系数为正，最右侧区间从“+”开始起线。",
+        "按 −1、1、2 排列根；三个根都是一次根，所以每经过一个根都穿过数轴并变号。",
+        "题目取正号区域，严格不等式的三个根均用空心点排除。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "\\((x+1)(x-1)(x-2)>0\\) 的解集是（　　）"
+      },
+      {
+        "text": "A. \\(-1<x<2\\)　B. \\(x<-1\\) 或 \\(1<x<2\\)　C. \\(-1<x<1\\) 或 \\(1<x<2\\)　D. \\(-1<x<1\\) 或 \\(x>2\\)"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "高次不等式",
+      "title": "按根划分区间",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "polynomial-threading-graph",
+        "ariaLabel": "从最右侧开始依次穿过根 2、1、负 1，阴影位于负 1 到 1 以及 2 的右侧",
+        "title": "三个一次根：从最右侧正号开始逐根穿过",
+        "intro": "正首项决定最右侧为正；奇数重根决定每经过一个根就改变符号。",
+        "standardized": "\\((x+1)(x-1)(x-2)>0\\)",
+        "roots": [
+          { "label": "−1", "multiplicity": 1 },
+          { "label": "1", "multiplicity": 1 },
+          { "label": "2", "multiplicity": 1 }
+        ],
+        "signs": ["-", "+", "-", "+"],
+        "selectSign": "+",
+        "inclusive": false,
+        "target": "取正号区间",
+        "solution": "\\((-1,1)\\cup(2,+\\infty)\\)",
+        "facts": [
+          "从最右侧“+”开始向左穿，经过 2、1、−1 时依次变为 −、+、−。",
+          "正号阴影为 \\((-1,1)\\) 与 \\((2,+\\infty)\\)，对应选项 D。"
+        ],
+        "caption": "穿针图同时给出区间符号、端点取舍和选项依据。"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "标准式的最高次项系数为正，根从小到大为 \\(-1、1、2\\)，且都是一次根"
+        },
+        {
+          "kind": "because",
+          "text": "引用穿针引线法，从最右侧正号开始，每经过一个奇数重根都穿过数轴并改变符号"
+        },
+        {
+          "kind": "therefore",
+          "text": "阴影显示正号区间为 \\((-1,1)\\cup(2,+\\infty)\\)，所以选择 D"
+        }
+      ],
+      "derive": [
+        [
+          "答案",
+          "D"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 化标准式并判断符号"
+  }
+}

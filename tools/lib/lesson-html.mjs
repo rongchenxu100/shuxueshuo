@@ -347,7 +347,70 @@ export function splitChoiceText(value) {
   };
 }
 
+function buildRangeFlowVisual(kind) {
+  if (kind === "regroup") {
+    return '<div class="lesson-range-flow-visual is-regroup" aria-hidden="true">'
+      + '<span class="lesson-range-target">目标</span><span class="lesson-range-down">↓</span>'
+      + '<div class="lesson-range-parts">'
+      + '<span class="lesson-range-part is-first"><i>p×</i><b>①</b></span>'
+      + '<span class="lesson-range-plus">+</span>'
+      + '<span class="lesson-range-part is-second"><i>q×</i><b>②</b></span>'
+      + "</div></div>";
+  }
+  if (kind === "bound") {
+    return '<div class="lesson-range-flow-visual is-bound" aria-hidden="true">'
+      + '<div class="lesson-range-line-row"><span>p×①</span><i class="lesson-range-line is-first"></i></div>'
+      + '<div class="lesson-range-line-row"><span>q×②</span><i class="lesson-range-line is-second"></i></div>'
+      + "</div>";
+  }
+  if (kind === "add") {
+    return '<div class="lesson-range-flow-visual is-add" aria-hidden="true">'
+      + '<div class="lesson-range-add-source">'
+      + '<i class="lesson-range-line is-first"></i><b>+</b><i class="lesson-range-line is-second"></i>'
+      + '</div><span class="lesson-range-down">↓</span>'
+      + '<i class="lesson-range-line is-target"></i></div>';
+  }
+  return "";
+}
+
 export function buildKeyPointsHtml(keyPoints) {
+  if (keyPoints?.kind === "linear-combination-range-flow") {
+    const inputs = Array.isArray(keyPoints.inputs) ? keyPoints.inputs : [];
+    const stages = Array.isArray(keyPoints.stages) ? keyPoints.stages : [];
+    const stageMarkup = stages.map((stage, index) => {
+      const arrow = index === 0
+        ? ""
+        : '<div class="lesson-range-flow-arrow" aria-hidden="true"><span>→</span></div>';
+      const lines = Array.isArray(stage.content)
+        ? stage.content.map((line) => `<p>${renderInlineMathText(line)}</p>`).join("")
+        : "";
+      const visual = buildRangeFlowVisual(stage.visual);
+      return arrow
+        + '<article class="lesson-range-flow-stage">'
+        + `<header><span class="lesson-range-flow-stage-index">${index + 1}</span>`
+        + `<div><strong>${renderInlineMathText(stage.label || "")}</strong>`
+        + `<small>${renderInlineMathText(stage.method || "")}</small></div></header>`
+        + visual
+        + `<div class="lesson-range-flow-stage-content">${lines}</div>`
+        + "</article>";
+    }).join("");
+    const title = keyPoints.title || "方法总览";
+    const lead = keyPoints.lead
+      ? `<p class="lesson-method-map-lead">${renderInlineMathText(keyPoints.lead)}</p>`
+      : "";
+    const caption = keyPoints.caption
+      ? `<p class="lesson-method-map-caption">${renderInlineMathText(keyPoints.caption)}</p>`
+      : "";
+    return '<aside class="lesson-method-map" aria-label="' + esc(title) + '">'
+      + `<h2>${esc(title)}</h2>${lead}`
+      + '<div class="lesson-range-flow-input"><span class="lesson-range-flow-input-label">输入</span>'
+      + inputs.map((item) => `<span class="lesson-range-flow-input-chip">${renderInlineMathText(item)}</span>`).join("")
+      + "</div>"
+      + `<div class="lesson-range-flow-track">${stageMarkup}</div>`
+      + '<div class="lesson-range-flow-result"><span>输出</span><strong>'
+      + renderInlineMathText(keyPoints.result || "")
+      + `</strong></div>${caption}</aside>`;
+  }
   if (!keyPoints || !Array.isArray(keyPoints.items) || keyPoints.items.length === 0) return "";
   const title = keyPoints.title || "解题要点";
   const lead = keyPoints.lead

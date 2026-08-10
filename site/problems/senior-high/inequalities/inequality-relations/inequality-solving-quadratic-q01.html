@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>由必要条件反查二次不等式解集 | 数学说</title>
+  <meta name="description" content="由必要条件反查二次不等式解集的逐步解析。" />
+  <meta property="og:title" content="由必要条件反查二次不等式解集 | 数学说" />
+  <meta property="og:description" content="由必要条件反查二次不等式解集的逐步解析。" />
+  <meta property="og:image" content="../../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css?v=12" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../../senior-high/index.html?chapter=inequalities&section=inequality-relations&module=solving-inequalities">解不等式与基本不等式</a>
+    <span class="lesson-title">解不等式 · 练习 4-1</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          <div class="problem-full">
+            <div class="problem-line"><span>不等式 <span class="inline-math">2x<sup>2</sup>-5x-3&lt;0</span> 的一个必要不充分条件是（　　）</span></div>
+<div class="problem-line"><span></span><span class="answer-chip" id="answerI">答案：B</span></div>
+<div class="problem-options"><div class="problem-option"><span class="problem-option-label">A.</span><span><span class="inline-math">-3&lt;x&lt;<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">2</span></span></span></span></div><div class="problem-option"><span class="problem-option-label">B.</span><span><span class="inline-math">-1&lt;x&lt;6</span></span></div><div class="problem-option"><span class="problem-option-label">C.</span><span><span class="inline-math">-<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">2</span></span>&lt;x&lt;0</span></span></div><div class="problem-option"><span class="problem-option-label">D.</span><span><span class="inline-math">-<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">2</span></span>&lt;x&lt;3</span></span></div></div>
+          </div>
+        </section>
+
+        <aside class="lesson-key-points" aria-label="解题要点"><div class="lesson-key-points-title">解题要点</div><div class="lesson-key-points-content"><p class="lesson-key-points-lead">引用核心知识：先看 a 的符号确定抛物线开口，再看 Δ 与实根确定图像和 x 轴的位置关系。</p><ol><li>令 y=2x²-5x-3，因式分解求出图像与 x 轴的两个交点。</li><li>图像在 x 轴上方取正、下方取负；本题从两根之间的下方区域读取原解集。</li><li>必要条件对应原解集的真超集。</li></ol></div></aside>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../../assets/js/lesson-page-runtime.js?v=21"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"s1","section":"一元二次不等式","title":"因式分解并比较集合包含","t":0,"showDiagram":false,"visual":{"kind":"quadratic-function-sign-graphs","ariaLabel":"二次函数 y 等于 2x 平方减 5x 减 3 的图像，开口向上，与 x 轴交于负二分之一和 3，两根之间图像在 x 轴下方","title":"用二次函数图像读取原不等式的解集","intro":"先看开口，再看交点；图像在 x 轴上方取正，在 x 轴下方取负。","graphs":[{"label":"原不等式","expression":"\\(y=2x^2-5x-3\\)","opening":"up","discriminant":"positive","roots":["−1/2","3"],"facts":["\\(a=2>0\\)，抛物线开口向上","\\(\\Delta=49>0\\)，与 x 轴交于 \\(x=-\\frac12、3\\)","两根之间的图像位于 x 轴下方"],"target":"\\(f(x)<0\\)","solutionMode":"middle-open","solution":"\\((-\\frac12,3)\\)"}],"caption":"读图得到原解集后，再比较各选项区间与原解集的包含关系。"},"reasoning":[{"kind":"because","text":"\\(2x^2-5x-3=(2x+1)(x-3)\\)"},{"kind":"because","text":"引用一元二次不等式知识点：\\(a=2>0\\)，抛物线开口向上；两个实根为 \\(-\\frac12\\) 与 \\(3\\)，图像在两根之间位于 x 轴下方"},{"kind":"therefore","text":"由图像读取 \\(2x^2-5x-3<0\\) 的完整解集为 \\((-\\frac12,3)\\)"},{"kind":"therefore","text":"选项 B 对应区间 \\((-1,6)\\)，且 \\((-\\frac12,3)\\subsetneq(-1,6)\\)，它能覆盖原解集但还包含原不等式不成立的取值，因此 B 是必要不充分条件"}],"derive":[["答案","B"]]}];
+    var STEP_LABELS = {"s1":"1 化标准式并判断符号"};
+    var POLICIES   = {"s1":{"movable":false,"range":[0,0]}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 滑块主参数与派生参数的联动文案格式化器 */
+    var __LESSON_PARAM_LABEL_FORMATTER__;
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script>
+  function diagramMarkupFor() { return ''; }
+  function diagramMarkupForFrame() { return ''; }
+  function drawMini() { return ''; }
+  function groupTitle(section) { return section; }
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      diagramMarkupForFrame: typeof diagramMarkupForFrame === "function" ? diagramMarkupForFrame : undefined,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "参数",
+      paramLabelPrefix: "",
+      paramLabelFormatter: typeof __LESSON_PARAM_LABEL_FORMATTER__ === "function" ? __LESSON_PARAM_LABEL_FORMATTER__ : undefined,
+      goToProblemMode: "doubleScroll"
+    });
+  </script>
+</body>
+</html>

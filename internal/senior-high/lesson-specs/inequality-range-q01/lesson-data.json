@@ -1,0 +1,48 @@
+{
+  "meta":{"id":"inequality-range-q01","outputPath":"site/problems/senior-high/inequalities/inequality-relations/inequality-range-q01.html","pageTitle":"利用不等式性质求代数式取值范围","pageDescription":"按“重组—求界—相加”三步求目标代数式的取值范围。","breadcrumbTitle":"不等关系 · 练习 2-1","breadcrumbLabel":"不等关系","breadcrumbPath":"site/senior-high/index.html","breadcrumbSearch":"?chapter=inequalities&section=inequality-relations&module=inequality-relations"},
+  "problem":{"source":"培训教材 · 不等关系","keyPoints":{"kind":"linear-combination-range-flow","title":"同类题固定三步","lead":"已知两个代数式的范围，求目标代数式的范围。","inputs":["已知：\\(U,V\\) 的范围","目标：求 \\(T\\) 的范围"],"stages":[{"label":"重组","visual":"regroup","method":"待定系数法","content":["把目标写成","\\(T=pU+qV\\)"]},{"label":"求界","visual":"bound","method":"基本性质·可乘性","content":["先判断 \\(p,q\\) 的符号","分别求 \\(pU,qV\\) 的新范围"]},{"label":"相加","visual":"add","method":"运算性质·可加法则","content":["左端加左端，右端加右端","检查端点能否同时取到"]}],"result":"得到 \\(T\\) 的取值范围","caption":"绿色表示第一部分，橙色表示第二部分，深青色表示目标范围；系数为负时要交换对应端点。"},"lines":[{"text":"已知 \\(1\\le a+b\\le4\\)，\\(-1\\le a-b\\le2\\)，则 \\(3a+2b\\) 的取值范围是______。"}]},
+  "steps":[
+    {
+      "id":"s1",
+      "section":"不等式范围计算",
+      "title":"重组：用待定系数法表示目标式",
+      "t":0,
+      "showDiagram":false,
+      "reasoning":[
+        {"kind":"because","text":"设 \\(3a+2b=λ(a+b)+μ(a-b)\\)。"},
+        {"kind":"because","text":"展开右边并比较 \\(a,b\\) 的系数，得 \\(λ+μ=3\\)，\\(λ-μ=2\\)。"},
+        {"kind":"therefore","text":"解得 \\(λ=\\frac52\\)，\\(μ=\\frac12\\)，所以 \\(3a+2b=\\frac52(a+b)+\\frac12(a-b)\\)。"}
+      ],
+      "derive":[["待定系数","λ=5/2，μ=1/2"]]
+    },
+    {
+      "id":"s2",
+      "section":"不等式范围计算",
+      "title":"求界：分别求两部分的新范围",
+      "t":0,
+      "showDiagram":false,
+      "table":{"headers":["部分","原范围","所乘正数","乘后范围"],"rows":[["(5/2)(a+b)","1≤a+b≤4","5/2","5/2≤(5/2)(a+b)≤10"],["(1/2)(a-b)","-1≤a-b≤2","1/2","-1/2≤(1/2)(a-b)≤1"]]},
+      "reasoning":[
+        {"kind":"because","text":"\\(\\frac52>0\\)。根据基本性质·可乘性，将 \\(1\\le a+b\\le4\\) 各项同乘 \\(\\frac52\\)，方向不变：\\(\\frac52\\le\\frac52(a+b)\\le10\\)。"},
+        {"kind":"because","text":"\\(\\frac12>0\\)。同理，将 \\(-1\\le a-b\\le2\\) 各项同乘 \\(\\frac12\\)，得 \\(-\\frac12\\le\\frac12(a-b)\\le1\\)。"},
+        {"kind":"therefore","text":"目标式的两部分已经分别得到同向的上、下界。"}
+      ],
+      "derive":[["第一部分","[5/2,10]"],["第二部分","[-1/2,1]"]]
+    },
+    {
+      "id":"s3",
+      "section":"不等式范围计算",
+      "title":"相加：对应端点相加得到目标范围",
+      "t":0,
+      "showDiagram":false,
+      "reasoning":[
+        {"kind":"because","text":"根据运算性质·可加法则，两个同向不等式可以对应相加。下界为 \\(\\frac52+(-\\frac12)=2\\)，上界为 \\(10+1=11\\)。"},
+        {"kind":"because","text":"又因为给定任意 \\(u=a+b\\)、\\(v=a-b\\)，都可取 \\(a=\\frac{u+v}{2}\\)、\\(b=\\frac{u-v}{2}\\)，所以两组端点能同时取到。"},
+        {"kind":"therefore","text":"\\(2\\le\\frac52(a+b)+\\frac12(a-b)=3a+2b\\le11\\)，故取值范围为 \\([2,11]\\)。"}
+      ],
+      "derive":[["取值范围","[2,11]"]]
+    }
+  ],
+  "policies":{"s1":{"movable":false,"range":[0,0]},"s2":{"movable":false,"range":[0,0]},"s3":{"movable":false,"range":[0,0]}},
+  "stepLabels":{"s1":"1 重组：表示目标式","s2":"2 求界：分别求新范围","s3":"3 相加：得到目标范围"}
+}

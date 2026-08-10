@@ -1,0 +1,216 @@
+{
+  "meta": {
+    "id": "inequality-solving-polynomial-q01",
+    "outputPath": "site/problems/senior-high/inequalities/inequality-relations/inequality-solving-polynomial-q01.html",
+    "pageTitle": "用穿针引线法解三个高次不等式",
+    "pageDescription": "用穿针引线法解三个高次不等式的逐步解析。",
+    "breadcrumbTitle": "解不等式 · 练习 5-1",
+    "breadcrumbLabel": "解不等式与基本不等式",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=inequalities&section=inequality-relations&module=solving-inequalities"
+  },
+  "problem": {
+    "source": "高一暑假目标班 · 第4讲",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "引用高次不等式知识点，按“正首项、定根、右起、奇穿偶不穿、读阴影”完成穿针引线。",
+      "items": [
+        "先把整式最高次项系数化为正；若整体乘以 −1，不等号必须改变方向。",
+        "把所有实根从小到大标在数轴上，并注明每个根的重数。",
+        "从最右侧开始穿：正首项从数轴上方起线，奇数重根穿过，偶数重根接触后返回。",
+        "给符合目标符号的区间加阴影；严格不等式的根用空心点并排除。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "求下列不等式："
+      },
+      {
+        "text": "（1）\\((x-1)(x-2)(x-3)>0\\)；"
+      },
+      {
+        "text": "（2）\\((x-1)(x+2)(3-x)>0\\)；"
+      },
+      {
+        "text": "（3）\\((x-2)(x+3)(x^2-2x+1)>0\\)。"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "高次不等式",
+      "title": "（1）三个单根逐个变号",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "polynomial-threading-graph",
+        "ariaLabel": "从最右侧开始，依次穿过根 3、2、1 的穿针引线图，阴影位于 1 到 2 以及 3 的右侧",
+        "title": "（1）三个单根：经过每个根都穿过数轴",
+        "intro": "最高次项系数为正，所以从最右侧的“+”区间起线。",
+        "standardized": "\\((x-1)(x-2)(x-3)>0\\)",
+        "roots": [
+          { "label": "1", "multiplicity": 1 },
+          { "label": "2", "multiplicity": 1 },
+          { "label": "3", "multiplicity": 1 }
+        ],
+        "signs": ["-", "+", "-", "+"],
+        "selectSign": "+",
+        "inclusive": false,
+        "target": "取正号区间",
+        "solution": "\\((1,2)\\cup(3,+\\infty)\\)",
+        "facts": [
+          "三个根都是一次根（奇数重根），每经过一个根，曲线都穿过数轴并变号。",
+          "题目是严格大于 0，三个根都用空心点，不并入解集。"
+        ],
+        "caption": "阴影和加粗数轴段就是乘积为正的区间。"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "最高次项系数为正，引用穿针引线法，从最右侧正号区间开始向左穿"
+        },
+        {
+          "kind": "because",
+          "text": "根 1、2、3 都是一次根，属于奇数重根，所以每经过一个根都穿过数轴并改变符号"
+        },
+        {
+          "kind": "therefore",
+          "text": "（1）的解集为 \\((1,2)\\cup(3,+\\infty)\\)"
+        }
+      ],
+      "derive": [
+        [
+          "（1）",
+          "(1,2)∪(3,+∞)"
+        ]
+      ]
+    },
+    {
+      "id": "s2",
+      "section": "高次不等式",
+      "title": "（2）先处理负的最高次项",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "polynomial-threading-graph",
+        "ariaLabel": "把负首项化正后，从最右侧开始依次穿过根 3、1、负 2，阴影位于负 2 左侧以及 1 到 3",
+        "title": "（2）先把最高次项系数化为正",
+        "intro": "把 \\(3-x\\) 写成 \\(-(x-3)\\)，整体乘以 −1 时同步改变不等号方向。",
+        "standardized": "\\((x+2)(x-1)(x-3)<0\\)",
+        "roots": [
+          { "label": "−2", "multiplicity": 1 },
+          { "label": "1", "multiplicity": 1 },
+          { "label": "3", "multiplicity": 1 }
+        ],
+        "signs": ["-", "+", "-", "+"],
+        "selectSign": "-",
+        "inclusive": false,
+        "target": "标准式取负号区间",
+        "solution": "\\((-\\infty,-2)\\cup(1,3)\\)",
+        "facts": [
+          "标准式的最高次项系数为正，仍从最右侧“+”开始穿。",
+          "三个根都是一次根，符号依次交替；目标已变为小于 0，所以读取负号阴影。"
+        ],
+        "caption": "先化正首项再穿线，可以始终使用同一个“最右侧从正号开始”的规则。"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "\\(3-x=-(x-3)\\)，所以原不等式等价于 \\((x+2)(x-1)(x-3)<0\\)"
+        },
+        {
+          "kind": "because",
+          "text": "标准式为正首项，根 \\(-2、1、3\\) 都是一次根；从最右侧正号开始，每经过一个根都穿过并变号"
+        },
+        {
+          "kind": "therefore",
+          "text": "（2）的解集为 \\(( -\\infty,-2)\\cup(1,3)\\)"
+        }
+      ],
+      "derive": [
+        [
+          "（2）",
+          "(−∞,-2)∪(1,3)"
+        ]
+      ]
+    },
+    {
+      "id": "s3",
+      "section": "高次不等式",
+      "title": "（3）偶次根不改变符号",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "polynomial-threading-graph",
+        "ariaLabel": "在根负 3 和 2 处穿过数轴，在二重根 1 处接触数轴后返回，阴影位于负 3 左侧和 2 右侧",
+        "title": "（3）奇数重根穿过，偶数重根不穿",
+        "intro": "先把平方因式写成 \\((x-1)^2\\)，再把根和重数一起标在数轴上。",
+        "standardized": "\\((x+3)(x-1)^2(x-2)>0\\)",
+        "roots": [
+          { "label": "−3", "multiplicity": 1 },
+          { "label": "1", "multiplicity": 2 },
+          { "label": "2", "multiplicity": 1 }
+        ],
+        "signs": ["+", "-", "-", "+"],
+        "selectSign": "+",
+        "inclusive": false,
+        "target": "取正号区间",
+        "solution": "\\((-\\infty,-3)\\cup(2,+\\infty)\\)",
+        "facts": [
+          "根 −3、2 都是一次根：曲线穿过数轴并变号。",
+          "根 1 是二次根：曲线接触数轴后返回，两侧均为负；严格不等式仍不取 1。"
+        ],
+        "caption": "虚线外环强调偶数重根；曲线在这里回弹而不改变符号。"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "\\(x^2-2x+1=(x-1)^2\\)，根从小到大为 \\(-3、1、2\\)，重数依次为 1、2、1"
+        },
+        {
+          "kind": "because",
+          "text": "从最右侧正号开始：经过一次根 2 时穿过并变负；经过二次根 1 时接触后返回，符号仍为负；经过一次根 −3 时再次穿过并变正"
+        },
+        {
+          "kind": "therefore",
+          "text": "（3）的解集为 \\(( -\\infty,-3)\\cup(2,+\\infty)\\)"
+        }
+      ],
+      "derive": [
+        [
+          "（3）",
+          "(−∞,-3)∪(2,+∞)"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    },
+    "s2": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    },
+    "s3": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 三个单根",
+    "s2": "2 处理负号",
+    "s3": "3 识别偶次根"
+  }
+}

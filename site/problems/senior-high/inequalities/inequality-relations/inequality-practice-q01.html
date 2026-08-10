@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>辨析不等式结论 | 数学说</title>
+  <meta name="description" content="辨析不等式结论的逐步解析。" />
+  <meta property="og:title" content="辨析不等式结论 | 数学说" />
+  <meta property="og:description" content="辨析不等式结论的逐步解析。" />
+  <meta property="og:image" content="../../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css?v=24" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../../senior-high/index.html?chapter=inequalities&section=inequality-relations&module=inequality-practice">解不等式与基本不等式</a>
+    <span class="lesson-title">实战演练 · 第 1 题</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          <div class="problem-full">
+            <div class="problem-line"><span>1. 若 <span class="inline-math">a，b，c</span> 为实数，下列结论正确的是（　　）</span></div>
+<div class="problem-line"><span></span><span class="answer-chip" id="answerI">答案：D</span></div>
+<div class="problem-options is-stacked"><div class="problem-option"><span class="problem-option-label">A.</span><span>若 <span class="inline-math">|a|&gt;b</span>，则 <span class="inline-math">a<sup>2</sup>&gt;b<sup>2</sup></span></span></div><div class="problem-option"><span class="problem-option-label">B.</span><span>若 <span class="inline-math">a&lt;b&lt;0</span>，则 <span class="inline-math"><span class="math-fraction"><span class="math-numerator">b</span><span class="math-denominator">a</span></span>&gt;<span class="math-fraction"><span class="math-numerator">a</span><span class="math-denominator">b</span></span></span></span></div><div class="problem-option"><span class="problem-option-label">C.</span><span>若 <span class="inline-math">a&gt;b</span>，则 <span class="inline-math">ac<sup>2</sup>&gt;bc<sup>2</sup></span></span></div><div class="problem-option"><span class="problem-option-label">D.</span><span>若 <span class="inline-math">a&gt;b&gt;0</span>，则 <span class="inline-math">a<sup>2</sup>&gt;ab&gt;b<sup>2</sup></span></span></div></div>
+          </div>
+        </section>
+
+        <aside class="lesson-key-points" aria-label="解题要点"><div class="lesson-key-points-title">解题要点</div><div class="lesson-key-points-content"><p class="lesson-key-points-lead">逐项检查符号、非零条件与等号退化情形。</p><ol><li>给错误选项构造反例。</li><li>乘法或除法前先确定乘数、除数的符号。</li></ol></div></aside>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../../assets/js/lesson-page-runtime.js?v=34"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"s1","section":"性质辨析","title":"把反例数值真正代入计算","t":0,"showDiagram":false,"visual":{"kind":"option-counterexample-review","title":"反例要同时满足前提，并算出矛盾","intro":"不要只说“条件不足”，把具体数值代入前提与结论，错误会一眼显现。","rows":[{"option":"A","correct":false,"judgment":"\\(|a|>b\\nRightarrow a^2>b^2\\)","example":"\\(a=0，b=-1\\)","calculation":"\\(|0|=0>-1\\)，但 \\(0^2=0<1=(-1)^2\\)"},{"option":"B","correct":false,"judgment":"负数取倒数不能照搬正数结论","example":"\\(a=-2，b=-1\\)","calculation":"\\(-2<-1<0\\)，但 \\(\\frac{b}{a}=\\frac{1}{2}<2=\\frac{a}{b}\\)，与题设结论相反"},{"option":"C","correct":false,"judgment":"乘以 \\(c^2\\) 可能退化为 0","example":"\\(a=2，b=1，c=0\\)","calculation":"\\(2>1\\)，但 \\(ac^2=bc^2=0\\)，并非严格大于"},{"option":"D","correct":true,"judgment":"引用基本性质·可乘性","example":"\\(a>b>0\\)","calculation":"同乘 \\(a>0\\) 得 \\(a^2>ab\\)；同乘 \\(b>0\\) 得 \\(ab>b^2\\)"}],"caption":"反例负责否定，性质负责证明；两种证据不要混在一句话里。"},"reasoning":[{"kind":"because","text":"错误的恒成立结论，只需一个满足前提、却不满足结论的反例即可推翻"},{"kind":"because","text":"D 中 a>b>0，同乘正数 a 与 b 分别得到 a²>ab 与 ab>b²"},{"kind":"therefore","text":"A、B、C 均被反例推翻，选择 D"}],"derive":[["答案","D"]]}];
+    var STEP_LABELS = {"s1":"1 把反例数值真正代入计算"};
+    var POLICIES   = {"s1":{"movable":false,"range":[0,0]}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 滑块主参数与派生参数的联动文案格式化器 */
+    var __LESSON_PARAM_LABEL_FORMATTER__;
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script>
+  function diagramMarkupFor() { return ''; }
+  function diagramMarkupForFrame() { return ''; }
+  function drawMini() { return ''; }
+  function groupTitle(section) { return section; }
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      diagramMarkupForFrame: typeof diagramMarkupForFrame === "function" ? diagramMarkupForFrame : undefined,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "参数",
+      paramLabelPrefix: "",
+      paramLabelFormatter: typeof __LESSON_PARAM_LABEL_FORMATTER__ === "function" ? __LESSON_PARAM_LABEL_FORMATTER__ : undefined,
+      goToProblemMode: "doubleScroll"
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+{
+  "batchId": "solving-inequalities-20260806-pages-47-51",
+  "importedAt": "2026-08-06",
+  "chapterId": "inequalities",
+  "sectionId": "inequality-relations",
+  "topicId": "inequality-relations",
+  "sourceImages": [
+    "internal/senior-high/source-images/solving-inequalities-20260806-pages-47-51/source-page-47.png",
+    "internal/senior-high/source-images/solving-inequalities-20260806-pages-47-51/source-page-48.png",
+    "internal/senior-high/source-images/solving-inequalities-20260806-pages-47-51/source-page-49.png",
+    "internal/senior-high/source-images/solving-inequalities-20260806-pages-47-51/source-page-50.png",
+    "internal/senior-high/source-images/solving-inequalities-20260806-pages-47-51/source-page-51.png"
+  ],
+  "publishedModuleIds": [
+    "solving-inequalities"
+  ],
+  "pendingModuleIds": [
+    "basic-inequalities"
+  ],
+  "lessonIds": [
+    "inequality-solving-quadratic-q01",
+    "inequality-solving-quadratic-q02",
+    "inequality-solving-quadratic-q03",
+    "inequality-solving-polynomial-q01",
+    "inequality-solving-polynomial-q02",
+    "inequality-solving-polynomial-q03",
+    "inequality-solving-rational-q01",
+    "inequality-solving-rational-q02",
+    "inequality-solving-rational-q03",
+    "inequality-solving-rational-q04",
+    "inequality-solving-absolute-q01",
+    "inequality-solving-absolute-q02",
+    "inequality-solving-absolute-q03"
+  ],
+  "notes": [
+    "本批覆盖一元二次、高次、分式和绝对值不等式。",
+    "详情页使用统一符号表展示零点、禁值点、重根与分段结论。",
+    "基本不等式未提供教材页，继续保持待补状态。"
+  ]
+}

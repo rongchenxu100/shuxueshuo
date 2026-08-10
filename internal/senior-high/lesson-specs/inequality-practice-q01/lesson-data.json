@@ -1,0 +1,108 @@
+{
+  "meta": {
+    "id": "inequality-practice-q01",
+    "outputPath": "site/problems/senior-high/inequalities/inequality-relations/inequality-practice-q01.html",
+    "pageTitle": "辨析不等式结论",
+    "pageDescription": "辨析不等式结论的逐步解析。",
+    "breadcrumbTitle": "实战演练 · 第 1 题",
+    "breadcrumbLabel": "解不等式与基本不等式",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=inequalities&section=inequality-relations&module=inequality-practice"
+  },
+  "problem": {
+    "source": "高一暑假目标班 · 第4讲",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "逐项检查符号、非零条件与等号退化情形。",
+      "items": [
+        "给错误选项构造反例。",
+        "乘法或除法前先确定乘数、除数的符号。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "1. 若 \\(a，b，c\\) 为实数，下列结论正确的是（　　）"
+      },
+      {
+        "text": "A. 若 \\(|a|>b\\)，则 \\(a^2>b^2\\)　　B. 若 \\(a<b<0\\)，则 \\(\\frac{b}{a}>\\frac{a}{b}\\)　　C. 若 \\(a>b\\)，则 \\(ac^2>bc^2\\)　　D. 若 \\(a>b>0\\)，则 \\(a^2>ab>b^2\\)"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "性质辨析",
+      "title": "把反例数值真正代入计算",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "option-counterexample-review",
+        "title": "反例要同时满足前提，并算出矛盾",
+        "intro": "不要只说“条件不足”，把具体数值代入前提与结论，错误会一眼显现。",
+        "rows": [
+          {
+            "option": "A",
+            "correct": false,
+            "judgment": "\\(|a|>b\\nRightarrow a^2>b^2\\)",
+            "example": "\\(a=0，b=-1\\)",
+            "calculation": "\\(|0|=0>-1\\)，但 \\(0^2=0<1=(-1)^2\\)"
+          },
+          {
+            "option": "B",
+            "correct": false,
+            "judgment": "负数取倒数不能照搬正数结论",
+            "example": "\\(a=-2，b=-1\\)",
+            "calculation": "\\(-2<-1<0\\)，但 \\(\\frac{b}{a}=\\frac{1}{2}<2=\\frac{a}{b}\\)，与题设结论相反"
+          },
+          {
+            "option": "C",
+            "correct": false,
+            "judgment": "乘以 \\(c^2\\) 可能退化为 0",
+            "example": "\\(a=2，b=1，c=0\\)",
+            "calculation": "\\(2>1\\)，但 \\(ac^2=bc^2=0\\)，并非严格大于"
+          },
+          {
+            "option": "D",
+            "correct": true,
+            "judgment": "引用基本性质·可乘性",
+            "example": "\\(a>b>0\\)",
+            "calculation": "同乘 \\(a>0\\) 得 \\(a^2>ab\\)；同乘 \\(b>0\\) 得 \\(ab>b^2\\)"
+          }
+        ],
+        "caption": "反例负责否定，性质负责证明；两种证据不要混在一句话里。"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "错误的恒成立结论，只需一个满足前提、却不满足结论的反例即可推翻"
+        },
+        {
+          "kind": "because",
+          "text": "D 中 a>b>0，同乘正数 a 与 b 分别得到 a²>ab 与 ab>b²"
+        },
+        {
+          "kind": "therefore",
+          "text": "A、B、C 均被反例推翻，选择 D"
+        }
+      ],
+      "derive": [
+        [
+          "答案",
+          "D"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 把反例数值真正代入计算"
+  }
+}

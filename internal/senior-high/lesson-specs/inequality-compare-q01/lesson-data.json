@@ -1,0 +1,6 @@
+{
+  "meta":{"id":"inequality-compare-q01","outputPath":"site/problems/senior-high/inequalities/inequality-relations/inequality-compare-q01.html","pageTitle":"用完全平方比较大小","pageDescription":"明确使用作差法，作差后配成完全平方判断 M 与 N 的关系。","breadcrumbTitle":"不等关系 · 练习 3-1","breadcrumbLabel":"不等关系","breadcrumbPath":"site/senior-high/index.html","breadcrumbSearch":"?chapter=inequalities&section=inequality-relations&module=inequality-relations"},
+  "problem":{"source":"培训教材 · 不等关系","keyPoints":{"title":"解题要点","lead":"明确使用作差法：比较 \\(M-N\\) 与 0 的关系。","items":["先作差 \\(M-N\\)；","配成完全平方并判断差的符号。"]},"lines":[{"text":"若 \\(M=2a^2-3a+5\\)，\\(N=a^2-a+4\\)，则 M 与 N 的大小关系为（　　）"},{"text":"A. M>N　　B. M≥N　　C. M<N　　D. M≤N"}]},
+  "steps":[{"id":"s1","section":"比大小","title":"作差法：作差、配方并判断符号","t":0,"showDiagram":false,"reasoning":[{"kind":"because","text":"使用作差法，先计算 \\(M-N=(2a^2-3a+5)-(a^2-a+4)\\)。"},{"kind":"because","text":"化简并配方，得 \\(M-N=a^2-2a+1=(a-1)^2\\ge0\\)。"},{"kind":"therefore","text":"因为 \\(M-N\\ge0\\)，所以 \\(M\\ge N\\)，选择 B；当 \\(a=1\\) 时取等号。"}],"derive":[["使用方法","作差法"],["M-N","(a-1)²≥0"],["答案","B"]]}],
+  "policies":{"s1":{"movable":false,"range":[0,0]}},"stepLabels":{"s1":"1 作差法：配方判号"}
+}

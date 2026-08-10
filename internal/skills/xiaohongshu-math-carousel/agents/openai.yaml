@@ -1,0 +1,4 @@
+interface:
+  display_name: "小红书数学轮播内容"
+  short_description: "生成知识点、解题方法或题型轮播，并用 SVG 精确绘制数学图像"
+  default_prompt: "Use $xiaohongshu-math-carousel to turn this math lesson into a Xiaohongshu carousel with the correct content type, precise SVG mathematics, post copy, and website CTA."

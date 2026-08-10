@@ -1,0 +1,120 @@
+{
+  "meta": {
+    "id": "inequality-solving-absolute-q03",
+    "outputPath": "site/problems/senior-high/inequalities/inequality-relations/inequality-solving-absolute-q03.html",
+    "pageTitle": "按零点分类解绝对值和不等式",
+    "pageDescription": "按零点分类解绝对值和不等式的逐步解析。",
+    "breadcrumbTitle": "解不等式 · 练习 7-3",
+    "breadcrumbLabel": "解不等式与基本不等式",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=inequalities&section=inequality-relations&module=solving-inequalities"
+  },
+  "problem": {
+    "source": "高一暑假目标班 · 第4讲",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "引用绝对值不等式知识点：多个绝对值用分类讨论法，以各绝对值内部的零点分段，写出分段函数并读图。",
+      "items": [
+        "x=−1、2 是两个绝对值内部的零点，把数轴分成三段。",
+        "三段函数分别是 1−2x、3、2x−1，图像是一条中间水平的折线。",
+        "折线不高于 y=10 的部分位于两个交点之间，等号成立所以端点取到。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "关于 x 的不等式 \\(|x-2|+|x+1|\\le10\\) 的解集为　　　　。"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "绝对值不等式",
+      "title": "按零点分段并用折线读解集",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "absolute-inequality-visual",
+        "mode": "piecewise-sum",
+        "method": "分类讨论法",
+        "title": "分界点定折线，与 y=10 的交点定解集",
+        "intro": "多个绝对值先找内部零点，分段去绝对值后再用函数图像统一读取。",
+        "transformations": [
+          "\\(x=-1、2\\) 是两个绝对值内部的零点",
+          "\\(x\\le-1：y=1-2x\\)，\\(-1\\le x\\le2：y=3\\)，\\(x\\ge2：y=2x-1\\)"
+        ],
+        "breakpoints": [
+          "−1",
+          "2"
+        ],
+        "intersections": [
+          "−9/2",
+          "11/2"
+        ],
+        "threshold": "10",
+        "solution": "\\([ -\\frac92,\\frac{11}{2}]\\)",
+        "facts": [
+          "在 [−1,2] 上函数恒为 3，这是整条折线的最低部分。",
+          "y=10 与左右两段分别交于 x=−9/2、x=11/2。"
+        ],
+        "caption": "图像位于 y=10 下方或线上的横坐标，就是原不等式的解集。"
+      },
+      "table": {
+        "headers": [
+          "区间",
+          "去绝对值后",
+          "本段解"
+        ],
+        "rows": [
+          [
+            "x≤−1",
+            "1−2x≤10",
+            "[−9/2,−1]"
+          ],
+          [
+            "−1≤x≤2",
+            "3≤10",
+            "[−1,2]"
+          ],
+          [
+            "x≥2",
+            "2x−1≤10",
+            "[2,11/2]"
+          ]
+        ]
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "根据分类讨论法，以 x=−1、2 分段：x≤−1 时 y=1−2x；−1≤x≤2 时 y=3；x≥2 时 y=2x−1"
+        },
+        {
+          "kind": "because",
+          "text": "分段折线与 y=10 交于 x=−9/2、x=11/2，折线不高于 y=10 的部分位于两个交点之间，且端点取到"
+        },
+        {
+          "kind": "therefore",
+          "text": "三段合并为 \\([ -\\frac92,\\frac{11}{2}]\\)"
+        }
+      ],
+      "derive": [
+        [
+          "解集",
+          "[−9/2,11/2]"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 分类分段并读图"
+  }
+}

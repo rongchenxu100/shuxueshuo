@@ -1,0 +1,117 @@
+{
+  "meta": {
+    "id": "inequality-basic-q02",
+    "outputPath": "site/problems/senior-high/inequalities/inequality-relations/inequality-basic-q02.html",
+    "pageTitle": "倒数和定值求积的最小值",
+    "pageDescription": "倒数和定值求积的最小值的逐步解析。",
+    "breadcrumbTitle": "基本不等式 · 练习 8-2",
+    "breadcrumbLabel": "解不等式与基本不等式",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=inequalities&section=inequality-relations&module=basic-inequalities"
+  },
+  "problem": {
+    "source": "高一暑假目标班 · 第4讲",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "原条件不能直接代入基本不等式，先把倒数和转成和积关系，再代入并核对等号条件。",
+      "items": [
+        "一正：参与基本不等式的各项必须为正。",
+        "二定：和或积中必须有一个是定值。",
+        "三相等：只有各项相等时才能取得等号。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "2. 已知正实数 \\(x，y\\) 满足 \\(\\frac{1}{x}+\\frac{1}{y}=1\\)，则 \\(xy\\) 最小值为　　　　。"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "基本不等式",
+      "title": "把倒数条件转成和积关系",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-mapping",
+        "title": "把题目中的正数放进基本不等式",
+        "methodTag": "转化型｜倒数和转和积关系",
+        "conditionFlowLabel": "先把倒数和转成和积关系",
+        "conditionFlow": [
+          "\\(\\frac{1}{x}+\\frac{1}{y}=1\\)",
+          "\\(\\frac{x+y}{xy}=1\\)",
+          "\\(x+y=xy\\)"
+        ],
+        "template": "\\(\\frac{a+b}{2}\\ge\\sqrt{ab}\\)",
+        "mappings": [
+          {
+            "slot": "a",
+            "value": "x",
+            "condition": "\\(x>0\\)"
+          },
+          {
+            "slot": "b",
+            "value": "y",
+            "condition": "\\(y>0\\)"
+          }
+        ],
+        "mapped": "\\(\\frac{x+y}{2}\\ge\\sqrt{xy}\\)",
+        "stageLabel": "代入和积关系",
+        "fixedSourceLabel": "等价条件",
+        "fixedCondition": "\\(x+y=xy\\)",
+        "replacementText": "把 \\(x+y\\) 换成 \\(xy\\)",
+        "replaced": "\\(\\frac{xy}{2}\\ge\\sqrt{xy}\\)",
+        "simplifyLabel": "同除以正数 \\(\\sqrt{xy}\\)",
+        "substituted": "\\(\\sqrt{xy}\\ge2\\)",
+        "conclusionLabel": "平方后得到下界",
+        "conclusion": "\\(xy\\ge4\\)",
+        "equalityTemplate": "\\(a=b\\)",
+        "equalityMapped": "\\(x=y\\)",
+        "equalityContextLabel": "结合原条件",
+        "equalityResult": "\\(x=y=2\\)",
+        "caption": "先把倒数条件化为 \\(x+y=xy\\)，再将题目变量与公式槽位对应，最后核对等号条件。"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "\\(x>0，y>0\\)，且 \\(\\frac{x+y}{xy}=1\\)，所以 \\(x+y=xy\\)"
+        },
+        {
+          "kind": "because",
+          "text": "基本不等式给出 \\(x+y\\ge2\\sqrt{xy}\\)，故 \\(xy\\ge2\\sqrt{xy}\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "除以正数 \\(\\sqrt{xy}\\) 得 \\(\\sqrt{xy}\\ge2\\)，所以 \\(xy\\ge4\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "当 \\(x=y=2\\) 时条件成立并取等号，最小值为 \\(4\\)"
+        }
+      ],
+      "derive": [
+        [
+          "最小值",
+          "4"
+        ],
+        [
+          "等号条件",
+          "x=y=2"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 把倒数条件转成和积关系"
+  }
+}
