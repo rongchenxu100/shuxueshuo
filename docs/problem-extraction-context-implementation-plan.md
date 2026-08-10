@@ -27,7 +27,8 @@ Track F把题目来源转换为可追溯、可局部修复并可确定投影到S
 | F5-A Bundle authority | `COMPLETE` |
 | F5-B Scope-native planning projection | `COMPLETE` |
 | F5-C Goal-scoped typed binding | `COMPLETE` |
-| F5-D–E Retry provenance / Solver cold path | `NEXT` |
+| F5-D Retry provenance / Goal-scoped retry | `COMPLETE` |
+| F5-E Solver cold path | `NEXT` |
 
 系统尚未上线。Extraction只支持当前schema，不保留旧candidate、整份ProblemIR retry或Context迁移链。
 
@@ -407,14 +408,19 @@ problem-planning-context/v1
    - F5-C专项`26 passed`，F5-B/C与C3/transaction/C0.5联合门禁`115 passed`，全量Solver回归`1613 passed, 12 skipped`。
    - 保留B1 allocation、B2 placement、B3 finalization、C3 binding ledger和C4/C5 symbolic closure。F5-C当前仍由显式`problem_binding_catalog`接线启用；缺参时旧Planner路径仍存在，默认Planner prompt与强制切换到F5-E完成。
 
-4. **F5-D Retry与provenance**
-   - call、checkpoint、write和result记录`problem_revision_id`、`problem_semantic_hash`和实际消费的source unit ids。
-   - retry只展示当前Goal视图、稳定call、repair cone和runtime root issues，不回退到扁平全题baseline。
-   - Solver retry不得重新运行OCR、豆包、domain canonicalizer或projector，也不得切回authored fixture。
+4. **F5-D Retry与provenance（COMPLETE）**
+   - `ProblemCallSourceProvenance`只能从F5-C sidecar派生，记录planning context、problem revision/hash、canonical call、Goal集合、call binding signature和该call直接读取的Problem source units。`CallResultRef`与compiler selector不计入直接source read，跨call来源由typed dependency DAG恢复。
+   - direct compile后、method执行前为全部versioned、value-only、companion与answer-alias write/result统一盖章；commit前审计missing、revision和per-return drift，失败整call回滚。`PlannerStateContext` hydrate保留实际write authority，checkpoint不得补造或覆盖缺失字段。
+   - retry契约升级为`functional-retry-graph-checkpoint/v2`。顶层`problem_authority`固定PlanningContext与Problem revision，`problem_call_authorities`覆盖所有F5-C canonical calls；committed call、verified version和value-only result均携带同一call provenance。v1及其他旧checkpoint版本硬拒绝，不提供hydrate迁移；缺legacy binding signature只允许降为不锁call的`runtime_verified`证据。
+   - locked call恢复时Goal、直接source units及完整input/return sidecar形成的call signature必须完全一致；即使wire微调后C3选源相同，也采用刻意的fail-loud。repair call可重编排，但不得越出原repair Goal集合。revision/hash漂移报`planner.retry_problem_revision_drift`，Goal/source/signature漂移报`planner.retry_problem_source_binding_drift`，不从SemanticRef、handle或错误文本恢复identity。
+   - `ProblemPlanningRetryProjector`按repair call的Goal并集从可信PlanningContext重新生成视图，只展示这些Goal、祖先scope和去重shared context。source unit仅进入内部authority payload和projection signature，不进入prompt；revision/hash、runtime node、StateVersion和Bundle token同样隐藏。prompt审计采用结构化字段遍历，题面`source_text`碰巧等于内部ID不会误报；稳定call结果仍由既有typed issue dependency选择器按需提供。
+   - answer-check撤销commit后，runtime result及其Problem provenance保留为`runtime_verified` provisional evidence，但committed call为空。五题transaction、checkpoint与retry view可确定重放，F5-D专项`31 passed`，指定联合门禁`146 passed`，全量Solver回归`1644 passed, 12 skipped`。
+   - F5-D不重新运行OCR、豆包、domain canonicalizer/projector、Planner或完整Solver，也不切回authored fixture。scope-native接线仍为内部显式参数，生产默认切换留到F5-E。
 
 5. **F5-E Production cold path**
    - 默认`solve_problem`入口直接消费accepted bundle。
    - Planner使用ProblemPlanningContext；ContextBuilder与transactional runtime使用已保存的Solver ProblemIR。
+   - 强制传入F5-C BindingCatalog和F5-D ProblemPlanningContext；不再接受`problem_authority=null`，也不迁移v1 retry checkpoint。
    - 删除Planner仅消费扁平ProblemIR并自行恢复scope的旧入口；保留ProblemIR作为runtime contract。
 
 首批typed错误：
@@ -429,6 +435,10 @@ planner.problem_scope_visibility_drift
 planner.problem_revision_drift
 planner.problem_source_binding_unresolved
 planner.problem_source_binding_drift
+planner.runtime_problem_provenance_missing
+planner.runtime_problem_provenance_drift
+planner.retry_problem_revision_drift
+planner.retry_problem_source_binding_drift
 functional.semantic_ref_not_visible_for_goal
 functional.answer_ref_goal_mismatch
 functional.call_goal_unresolved

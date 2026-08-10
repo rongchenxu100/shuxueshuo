@@ -436,12 +436,40 @@ class ProblemPlanningContext:
             )
         return matches[0]
 
-    def to_prompt_payload(self) -> dict[str, Any]:
+    def to_prompt_payload(
+        self,
+        *,
+        goal_unit_ids: Sequence[str] | None = None,
+    ) -> dict[str, Any]:
+        selected_goal_ids = (
+            {item.goal_unit_id for item in self.goal_views}
+            if goal_unit_ids is None
+            else set(goal_unit_ids)
+        )
+        known_goal_ids = {item.goal_unit_id for item in self.goal_views}
+        if not selected_goal_ids or not selected_goal_ids <= known_goal_ids:
+            raise _error(
+                "planner.problem_planning_context_invalid",
+                "$.goal_views",
+                "prompt projection references unknown or empty Goal authority",
+            )
+        selected_goals = tuple(
+            item
+            for item in self.goal_views
+            if item.goal_unit_id in selected_goal_ids
+        )
         scopes_by_id = {scope.scope_id: scope for scope in self.scopes}
+        visible_goal_count_by_scope = {
+            scope.scope_id: sum(
+                scope.scope_id in goal.visible_scope_ids
+                for goal in selected_goals
+            )
+            for scope in self.scopes
+        }
         shared_scope_ids = {
             scope.scope_id
             for scope in self.scopes
-            if len(scope.visible_goal_unit_ids) >= 2
+            if visible_goal_count_by_scope[scope.scope_id] >= 2
         }
         shared_context = [
             scope.to_prompt_payload()
@@ -449,7 +477,7 @@ class ProblemPlanningContext:
             if scope.scope_id in shared_scope_ids
         ]
         goal_payloads: list[dict[str, Any]] = []
-        for goal in self.goal_views:
+        for goal in selected_goals:
             local_context = [
                 scopes_by_id[scope_id].to_prompt_payload()
                 for scope_id in goal.visible_scope_ids

@@ -29,6 +29,13 @@ from shuxueshuo_server.solver.extraction.problem_solver_bundle import (
 from shuxueshuo_server.solver.runtime.handle_registry import (
     CanonicalHandleRegistry,
 )
+from shuxueshuo_server.solver.runtime.context import ContextBuilder
+from shuxueshuo_server.solver.runtime.functional_call_memory import (
+    build_functional_call_memory,
+)
+from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
+    FunctionalCapabilityCatalog,
+)
 from shuxueshuo_server.solver.runtime.functional_plan_reconciliation import (
     FunctionalPlanReconciler,
 )
@@ -38,7 +45,13 @@ from shuxueshuo_server.solver.runtime.functional_plan_validation import (
 from shuxueshuo_server.solver.runtime.planner_state_context import (
     initial_planner_state_context,
 )
+from shuxueshuo_server.solver.runtime.functional_retry_versions import (
+    build_functional_retry_graph_checkpoint,
+)
 from shuxueshuo_server.solver.runtime.projection import problem_to_llm_payload
+from shuxueshuo_server.solver.runtime.strategy_replay import (
+    PlannerRetryReplayService,
+)
 from shuxueshuo_server.solver.runtime.strategy_payload import (
     build_strategy_probe_inputs,
 )
@@ -189,3 +202,66 @@ def scope_native_reconciliation_fixture(
         problem_binding_catalog=binding_catalog,
     )
     return (*fixture, plan, validation, reconciliation)
+
+
+def scope_native_retry_checkpoint_fixture(
+    tmp_path: Path,
+    *,
+    case: str = CASES[0],
+):
+    fixture = scope_native_reconciliation_fixture(tmp_path, case=case)
+    (
+        _bundle,
+        _planning_context,
+        problem,
+        inputs,
+        problem_payload,
+        registry,
+        planner_context,
+        catalog,
+        plan,
+        validation,
+        _reconciliation,
+    ) = fixture
+    replay = PlannerRetryReplayService(
+        functional_transaction_mode="context_authoritative",
+        functional_symbolic_closure_mode="authoritative",
+    ).replay_functional_plan(
+        plan,
+        inputs=inputs,
+        handle_registry=registry,
+        context=ContextBuilder().build(problem),
+        attempt=1,
+        problem_payload=problem_payload,
+        planner_state_context=planner_context,
+        validation_report=validation,
+        problem_binding_catalog=catalog,
+    )
+    attempt_result = replay.transactional_attempt_result
+    assert attempt_result is not None
+    diagnostic = attempt_result.diagnostic
+    verified_call_ids = tuple(
+        item.call_id
+        for item in attempt_result.execution_report.call_states
+        if item.status == "verified"
+    )
+    call_memory = build_functional_call_memory(
+        replay.functional_reconciliation,
+        catalog=FunctionalCapabilityCatalog.from_family_spec(
+            inputs.family_spec,
+            inputs.method_specs,
+        ),
+        runtime_verified_call_ids=verified_call_ids,
+        runtime_results=diagnostic.runtime_results,
+        provenance=diagnostic.state_write_provenance,
+        goal_report=attempt_result.goal_report,
+        active_issues=(),
+        attempt=1,
+    )
+    checkpoint = build_functional_retry_graph_checkpoint(
+        context=planner_context,
+        reconciliation=replay.functional_reconciliation,
+        call_memory=call_memory,
+        provenance=diagnostic.state_write_provenance,
+    )
+    return (*fixture, replay, checkpoint)

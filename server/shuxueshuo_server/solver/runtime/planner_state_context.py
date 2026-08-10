@@ -48,6 +48,9 @@ from shuxueshuo_server.solver.runtime.state_identity import (
     StateVersionId,
 )
 from shuxueshuo_server.solver.runtime.planner import PlannerInputs
+from shuxueshuo_server.solver.runtime.problem_source_provenance import (
+    ProblemCallSourceProvenance,
+)
 from shuxueshuo_server.solver.runtime.strategy_models import (
     PlannerReplayDepth,
     PlannerRetryLayer,
@@ -229,6 +232,7 @@ class StateWriteVersion:
     result_form: str | None = None
     runtime_destination: RuntimeDestinationKey | None = None
     symbolic_closure_provenance: SymbolicClosureProvenance | None = None
+    problem_source_provenance: ProblemCallSourceProvenance | None = None
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -276,6 +280,11 @@ class StateWriteVersion:
             "symbolic_closure_provenance": (
                 self.symbolic_closure_provenance.to_payload()
                 if self.symbolic_closure_provenance is not None
+                else None
+            ),
+            "problem_source_provenance": (
+                self.problem_source_provenance.to_payload()
+                if self.problem_source_provenance is not None
                 else None
             ),
         }
@@ -1379,6 +1388,60 @@ class PlannerStateContextBuilder:
                     else None
                 )
                 if checkpoint_record is not None:
+                    expected_problem_source = checkpoint_record.get(
+                        "problem_source_provenance"
+                    )
+                    observed_problem_source = payload.get(
+                        "problem_source_provenance"
+                    )
+                    if expected_problem_source is not None:
+                        if observed_problem_source is None:
+                            raise StrategyDraftValidationError(
+                                "planner_configuration_error: "
+                                "planner.runtime_problem_provenance_missing: "
+                                f"state={payload.get('produced_handle')}"
+                            )
+                        try:
+                            expected_problem = (
+                                ProblemCallSourceProvenance.from_payload(
+                                    dict(expected_problem_source)
+                                )
+                            )
+                            observed_problem = (
+                                ProblemCallSourceProvenance.from_payload(
+                                    dict(observed_problem_source)
+                                )
+                            )
+                        except (KeyError, TypeError, ValueError) as exc:
+                            raise StrategyDraftValidationError(
+                                "planner_configuration_error: "
+                                "planner.runtime_problem_provenance_drift: "
+                                f"state={payload.get('produced_handle')}, "
+                                f"{exc}"
+                            ) from exc
+                        if (
+                            expected_problem.semantic_signature()
+                            != observed_problem.semantic_signature()
+                        ):
+                            code = (
+                                "planner.retry_problem_revision_drift"
+                                if (
+                                    expected_problem.planning_context_id
+                                    != observed_problem.planning_context_id
+                                    or expected_problem.problem_revision_id
+                                    != observed_problem.problem_revision_id
+                                    or expected_problem.problem_semantic_hash
+                                    != observed_problem.problem_semantic_hash
+                                )
+                                else (
+                                    "planner.retry_problem_source_binding_drift"
+                                )
+                            )
+                            raise StrategyDraftValidationError(
+                                "planner_configuration_error: "
+                                f"{code}: "
+                                f"state={payload.get('produced_handle')}"
+                            )
                     payload["state_effect_key"] = checkpoint_record.get(
                         "state_effect_key"
                     )
@@ -2323,6 +2386,34 @@ def _apply_state_write_provenance(
         if isinstance(closure_payload, Mapping)
         else None
     )
+    problem_source_payload = payload.get("problem_source_provenance")
+    try:
+        problem_source_provenance = (
+            ProblemCallSourceProvenance.from_payload(
+                dict(problem_source_payload)
+            )
+            if isinstance(problem_source_payload, Mapping)
+            else None
+        )
+    except (KeyError, TypeError, ValueError) as exc:
+        raise StrategyDraftValidationError(
+            "planner_configuration_error: "
+            "planner.runtime_problem_provenance_drift: "
+            f"state={produced_handle}, {exc}"
+        ) from exc
+    if (
+        require_typed_authority
+        and problem_source_provenance is not None
+        and isinstance(canonical_producer_call_id, str)
+        and canonical_producer_call_id
+        and problem_source_provenance.canonical_call_id
+        != canonical_producer_call_id
+    ):
+        raise StrategyDraftValidationError(
+            "planner_configuration_error: "
+            "planner.runtime_problem_provenance_drift: "
+            f"state={produced_handle}, producer call mismatch"
+        )
     if (
         require_typed_authority
         and selected_version_id is not None
@@ -2409,6 +2500,7 @@ def _apply_state_write_provenance(
             payload.get("runtime_destination_key")
         ),
         symbolic_closure_provenance=symbolic_closure,
+        problem_source_provenance=problem_source_provenance,
     )
     if version not in histories:
         histories.append(version)

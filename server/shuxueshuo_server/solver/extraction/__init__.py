@@ -91,6 +91,11 @@ from shuxueshuo_server.solver.extraction.problem_planning_context import (
     ProblemPlanningScope,
     problem_planning_context_prompt_schema,
 )
+from shuxueshuo_server.solver.extraction.problem_planning_retry import (
+    ProblemPlanningRetryError,
+    ProblemPlanningRetryProjection,
+    ProblemPlanningRetryProjector,
+)
 from shuxueshuo_server.solver.extraction.problem_domain_service import (
     ProblemDomainExtractionAttemptResult,
     ProblemDomainExtractionRunResult,
@@ -147,6 +152,9 @@ __all__ = [
     "ProblemPlanningContextProjector",
     "ProblemPlanningGoalView",
     "ProblemPlanningScope",
+    "ProblemPlanningRetryError",
+    "ProblemPlanningRetryProjection",
+    "ProblemPlanningRetryProjector",
     "problem_planning_context_prompt_schema",
     "PlanningReadAuthority",
     "PROBLEM_PLANNING_CONTEXT_CONTRACT",

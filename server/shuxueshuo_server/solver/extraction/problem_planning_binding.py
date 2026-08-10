@@ -35,6 +35,9 @@ from shuxueshuo_server.solver.runtime.planner_state_context import (
     PlannerStateContext,
     StateSlot,
 )
+from shuxueshuo_server.solver.runtime.problem_source_provenance import (
+    ProblemCallSourceProvenance,
+)
 from shuxueshuo_server.solver.runtime.semantic_reads import (
     SemanticReadCatalogItem,
 )
@@ -705,6 +708,59 @@ class FunctionalProblemBindingContext:
     ) -> tuple[FunctionalProblemReturnBinding, ...]:
         return tuple(
             item for item in self.return_bindings if item.call_id == call_id
+        )
+
+    def call_binding_signature(self, call_id: str) -> str:
+        goal_ids = self.call_goal_bindings.get(call_id)
+        if not goal_ids:
+            raise _error(
+                "functional.call_goal_unresolved",
+                f"$.calls[{call_id!r}]",
+                "call has no Goal authority",
+            )
+        return stable_hash(
+            {
+                "planning_context_id": self.planning_context_id,
+                "problem_revision_id": self.problem_revision_id,
+                "problem_semantic_hash": self.problem_semantic_hash,
+                "call_id": call_id,
+                "goal_unit_ids": list(goal_ids),
+                "inputs": [
+                    item.to_payload()
+                    for item in self.inputs_for_call(call_id)
+                ],
+                "returns": [
+                    item.to_payload()
+                    for item in self.returns_for_call(call_id)
+                ],
+            }
+        )
+
+    def source_provenance_for_call(
+        self,
+        call_id: str,
+    ) -> ProblemCallSourceProvenance:
+        goal_ids = self.call_goal_bindings.get(call_id)
+        if not goal_ids:
+            raise _error(
+                "functional.call_goal_unresolved",
+                f"$.calls[{call_id!r}]",
+                "call has no Goal authority",
+            )
+        source_unit_ids = {
+            source_unit_id
+            for item in self.inputs_for_call(call_id)
+            if item.source_kind == "problem_source"
+            for source_unit_id in item.source_unit_ids
+        }
+        return ProblemCallSourceProvenance(
+            planning_context_id=self.planning_context_id,
+            problem_revision_id=self.problem_revision_id,
+            problem_semantic_hash=self.problem_semantic_hash,
+            canonical_call_id=call_id,
+            goal_unit_ids=tuple(goal_ids),
+            input_source_unit_ids=tuple(sorted(source_unit_ids)),
+            call_binding_signature=self.call_binding_signature(call_id),
         )
 
     def to_payload(self) -> dict[str, Any]:

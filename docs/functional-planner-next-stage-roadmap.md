@@ -32,7 +32,7 @@
 | F2：Source observation | `COMPLETE` | Layout、OCR、公式、笔迹、artifact ledger、review pack |
 | F3：Domain extraction | `COMPLETE` | 豆包完整题图提取、嵌套 scope、不可变 ProblemDraft |
 | F4：Validation / patch authority | `COMPLETE` | freeze、局部 patch retry、VerifiedProblem、Context v3 |
-| F5：Scoped planning / Solver lifecycle | `IN PROGRESS` | F5-A/B/C完成，下一步为retry/checkpoint/provenance消费 |
+| F5：Scoped planning / Solver lifecycle | `IN PROGRESS` | F5-A/B/C/D完成，下一步为默认cold path切换 |
 | G：Post-solver Context | `AFTER F5` | Explanation、Diagram、Voiceover、Animation Context |
 | E：End-to-end optimization | `AFTER F/G` | 最终 artifact cache、最小失效、条件式 Best-of-N |
 
@@ -104,10 +104,10 @@ F5不修改提取语义，也不改写现有扁平Solver ProblemIR。它建立�
 1. **F5-A Bundle authority（COMPLETE）**：从accepted Context加载VerifiedProblem、内嵌manifest的Solver projection envelope和validation report；交叉校验artifact、revision、semantic hash、family与完整source/runtime映射。pending、blocked或authority token漂移全部fail loud。
 2. **F5-B Scoped planning view（COMPLETE）**：从嵌套scope树生成一个全题PlanningContext、共享祖先摘要与逐Goal视图；每个Goal只声明owner到root的可见scope，`semantic_reads`与可见scope refs严格相等，F5-C通过按Goal authority API消费；source/runtime覆盖与跨sibling来源在投影时fail loud。
 3. **F5-C Planner binding（COMPLETE）**：从F5-B的按Goal authority确定映射SemanticRef、runtime node、source unit与typed Context identity；call按answer producer和CallResult依赖绑定Goal，共享call只读取Goal allowlist交集。source snapshot固定为未演进typed slot的ordinal 0，Catalog不得从mid-planning latest重建，动态值只允许CallResultRef；answer authority不能作为C3 input。跨sibling、answer串线、多Goal target、未知source unit、sidecar/C3版本或revision漂移均在direct compile前失败。Catalog与sidecar各有strict schema snapshot。
-4. **F5-D Retry/provenance**：checkpoint、repair cone和result记录problem revision/hash及实际消费的source units；Solver retry不重新提取题目。
+4. **F5-D Retry/provenance（COMPLETE）**：`ProblemCallSourceProvenance`把每个call的Goal、revision/hash、binding signature和直接Problem source reads写入runtime write/result、PlannerStateContext与`functional-retry-graph-checkpoint/v2`。`CallResultRef`的传递来源只由typed DAG表达，不复制上游source unit。checkpoint restore对locked call执行完整authority比较；repair call不得越出原Goal集合。retry prompt从可信PlanningContext和checkpoint重新生成，仅包含repair call对应GoalView及祖先scope；source unit只参与内部signature/authority，不暴露给Planner，revision、runtime node和StateVersion同样不进入prompt。旧checkpoint版本不可hydrate。Solver retry不重新运行OCR、豆包、domain projector或完整Solver。
 5. **F5-E Cold path**：默认入口从accepted bundle运行Planner与transactional Solver，并删除Planner只读扁平ProblemIR的旧prompt路径。
 
-F5-A/B/C当前证据：五题accepted Context可确定加载并各生成一个`problem-planning-context/v1`；南开/和平二模分别生成6/4个GoalView，其余三题各3个。五份scope-native recorded FunctionalPlan已通过validation、reconciliation、direct compile、authoritative closure和transaction，SemanticRef到runtime/source/typed identity覆盖缺口为0。F5-C专项`26 passed`，F5-B/C与C3/transaction/C0.5联合门禁`115 passed`，全量Solver回归`1613 passed, 12 skipped`。PlanningContext与BindingCatalog均不调用OCR、豆包、domain projector、Planner或完整Solver；F5-C不调用全局semantic catalog，不使用alias fallback，也不对source StateVersion选择隐式latest。F5-C当前仍是显式`problem_binding_catalog`接线；未提供Catalog时旧全局读取路径仍存在，生产强制切换与删除旧路径留到F5-E。
+F5-A/B/C/D当前证据：五题accepted Context可确定加载并各生成一个`problem-planning-context/v1`；南开/和平二模分别生成6/4个GoalView，其余三题各3个。五份scope-native recorded FunctionalPlan已通过validation、reconciliation、direct compile、authoritative closure、transaction、checkpoint v2和Goal-scoped retry projection，SemanticRef到runtime/source/typed identity及write/result/checkpoint provenance覆盖缺口为0。F5-D新增专项`31 passed`，F5-D指定联合门禁`146 passed`，全量Solver回归`1644 passed, 12 skipped`。missing、revision、Goal、source unit与call signature mutation及repair foreign-Goal mutation均fail loud；answer-check撤销commit后只保留带authority的provisional runtime evidence，不产生locked checkpoint；失败事务ghost write为0。PlanningContext、BindingCatalog和retry projector均不调用OCR、豆包、domain projector、Planner或完整Solver。scope-native入口当前仍由显式`problem_binding_catalog`和`problem_planning_context`接线；未提供时旧扁平Planner读取路径仍存在，生产强制切换与删除旧路径留到F5-E。
 
 退出条件是五题各3份完成图片到verified Solver结果的冷路径，且answer、protocol、runtime、binding、closure和provenance gate全部通过；提取模型不被重复调用，跨scope identity drift和失败事务幽灵write均为0。
 

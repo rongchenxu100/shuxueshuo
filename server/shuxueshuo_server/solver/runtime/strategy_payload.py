@@ -16,6 +16,12 @@ from shuxueshuo_server.solver.family import (
 )
 from shuxueshuo_server.solver.problem_models import ProblemIR
 from shuxueshuo_server.solver.question_goals import extract_question_goals
+from shuxueshuo_server.solver.extraction.problem_planning_context import (
+    ProblemPlanningContext,
+)
+from shuxueshuo_server.solver.extraction.problem_planning_retry import (
+    ProblemPlanningRetryProjector,
+)
 from shuxueshuo_server.solver.runtime._paths import repo_root
 from shuxueshuo_server.solver.runtime.context import ContextBuilder
 from shuxueshuo_server.solver.runtime.context_inventory import ContextInventory
@@ -109,6 +115,7 @@ class StrategyPayloadBuilder:
         *,
         problem_payload: dict[str, Any] | None = None,
         planner_state_context: ContextSemanticReadSource | None = None,
+        problem_planning_context: ProblemPlanningContext | None = None,
     ) -> dict[str, Any]:
         """生成唯一的 FunctionalPlan prompt payload。"""
         problem_payload = problem_payload or self.problem_payload
@@ -157,7 +164,8 @@ class StrategyPayloadBuilder:
             "few_shot_examples": few_shot_examples,
             "functional_few_shot_selection": few_shot_selection,
             "previous_attempt_state": _functional_previous_attempt_state(
-                previous_attempts
+                previous_attempts,
+                problem_planning_context=problem_planning_context,
             ),
             "output_json_schema": FUNCTIONAL_PLAN_JSON_SCHEMA,
         }
@@ -197,6 +205,8 @@ class StrategyPayloadBuilder:
 
 def _functional_previous_attempt_state(
     previous_attempts: list[Any],
+    *,
+    problem_planning_context: ProblemPlanningContext | None = None,
 ) -> dict[str, Any]:
     """Project only formal call-level retry memory into the Functional prompt."""
     latest_attempt = next(
@@ -244,6 +254,27 @@ def _functional_previous_attempt_state(
         else None
     )
     has_typed_checkpoint = checkpoint is not None
+    if checkpoint is not None and checkpoint.problem_authority is not None:
+        if problem_planning_context is None:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.retry_problem_revision_drift: "
+                "authoritative retry requires ProblemPlanningContext"
+            )
+        repair_call_ids = selected.get("repair_call_ids")
+        if isinstance(repair_call_ids, list) and repair_call_ids:
+            projection = ProblemPlanningRetryProjector().project(
+                problem_planning_context,
+                checkpoint,
+                tuple(
+                    item
+                    for item in repair_call_ids
+                    if isinstance(item, str) and item
+                ),
+            )
+            selected["problem_retry_context"] = (
+                projection.to_prompt_payload()
+            )
     selected["locked_call_ids"] = (
         list(checkpoint.committed_call_ids)
         if has_typed_checkpoint

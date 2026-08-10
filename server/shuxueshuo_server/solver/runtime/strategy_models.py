@@ -19,7 +19,11 @@ from shuxueshuo_server.solver.runtime.state_identity import (
     StateSlotId,
     StateVersionId,
 )
+from shuxueshuo_server.solver.runtime.problem_source_provenance import (
+    ProblemCallSourceProvenance,
+)
 from shuxueshuo_server.solver.state_semantics import StateSemanticLineage
+
 
 @dataclass(frozen=True)
 class SymbolicClosureProvenance:
@@ -996,6 +1000,7 @@ class StateWriteProvenance:
     valid_scope_id: str | None = None
     result_form: str | None = None
     symbolic_closure_provenance: SymbolicClosureProvenance | None = None
+    problem_source_provenance: ProblemCallSourceProvenance | None = None
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -1078,6 +1083,11 @@ class StateWriteProvenance:
                 if self.symbolic_closure_provenance is not None
                 else None
             ),
+            "problem_source_provenance": (
+                self.problem_source_provenance.to_payload()
+                if self.problem_source_provenance is not None
+                else None
+            ),
         }
 
 
@@ -1093,6 +1103,7 @@ class FunctionalRuntimeResult:
     runtime_type: str
     value: Any | None = None
     value_omitted_reason: str | None = None
+    problem_source_provenance: ProblemCallSourceProvenance | None = None
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -1107,6 +1118,17 @@ class FunctionalRuntimeResult:
             payload["value"] = self.value
         if self.value_omitted_reason is not None:
             payload["value_omitted_reason"] = self.value_omitted_reason
+        return payload
+
+    def authority_payload(self) -> dict[str, Any]:
+        """Return debug/checkpoint data without changing prompt-safe payloads."""
+
+        payload = self.to_payload()
+        payload["problem_source_provenance"] = (
+            self.problem_source_provenance.to_payload()
+            if self.problem_source_provenance is not None
+            else None
+        )
         return payload
 
 

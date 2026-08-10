@@ -86,6 +86,10 @@ from shuxueshuo_server.solver.runtime.planner import PlannerInputs
 from shuxueshuo_server.solver.runtime.planner_state_context import (
     PlannerStateContext,
 )
+from shuxueshuo_server.solver.runtime.problem_source_provenance import (
+    ProblemCallSourceProvenance,
+    ProblemSourceProvenanceError,
+)
 from shuxueshuo_server.solver.runtime.recipe_compiler import (
     ExactCompiledStep,
     FunctionalCapabilityCompiler,
@@ -136,6 +140,8 @@ class SymbolicClosureProvenanceError(RuntimeError):
 
 
 FunctionalCallTransactionStatus = Literal["verified", "failed"]
+
+
 @dataclass(frozen=True)
 class PreparedFunctionalCall:
     """One canonical public call with call-time typed state reads."""
@@ -194,6 +200,7 @@ class CompiledFunctionalCall:
     replay_plans: tuple[StepPlan, ...] = ()
     binding_consumption_decisions: tuple[dict[str, Any], ...] = ()
     compile_mismatches: tuple[dict[str, Any], ...] = ()
+    problem_source_provenance: ProblemCallSourceProvenance | None = None
 
 
 @dataclass(frozen=True)
@@ -1026,11 +1033,20 @@ class FunctionalCallCompilerService:
             if classified is exc:
                 raise
             raise classified from exc
-        return _wrap_exact_compiled_call(
+        wrapped = _wrap_exact_compiled_call(
             compiled,
             prepared_call=prepared_call,
             capability_catalog=capability_catalog,
         )
+        problem_context = reconciliation.functional_problem_binding_context
+        if isinstance(problem_context, FunctionalProblemBindingContext):
+            wrapped = _stamp_compiled_problem_source_provenance(
+                wrapped,
+                problem_context.source_provenance_for_call(
+                    prepared_call.call_id
+                ),
+            )
+        return wrapped
 
 
 def build_functional_runtime_arg_bindings(
@@ -1230,7 +1246,82 @@ def _compiled_call_signature(
             )
             for item in compiled.public_returns
         ),
+        (
+            compiled.problem_source_provenance.semantic_signature()
+            if compiled.problem_source_provenance is not None
+            else None
+        ),
     )
+
+
+def _stamp_compiled_problem_source_provenance(
+    compiled: CompiledFunctionalCall,
+    provenance: ProblemCallSourceProvenance,
+) -> CompiledFunctionalCall:
+    if provenance.canonical_call_id != compiled.call_id:
+        raise ProblemSourceProvenanceError(
+            "planner.runtime_problem_provenance_drift",
+            f"call={compiled.call_id}, authority call mismatch"
+        )
+    return replace(
+        compiled,
+        public_returns=tuple(
+            replace(
+                returned,
+                expected_write=(
+                    replace(
+                        returned.expected_write,
+                        problem_source_provenance=provenance,
+                    )
+                    if returned.expected_write is not None
+                    else None
+                ),
+            )
+            for returned in compiled.public_returns
+        ),
+        problem_source_provenance=provenance,
+    )
+
+
+def _audit_compiled_problem_source_provenance(
+    compiled: CompiledFunctionalCall,
+) -> None:
+    expected = compiled.problem_source_provenance
+    observed = tuple(
+        returned.expected_write.problem_source_provenance
+        for returned in compiled.public_returns
+        if returned.expected_write is not None
+    )
+    if expected is None:
+        if any(item is not None for item in observed):
+            raise ProblemSourceProvenanceError(
+                "planner.runtime_problem_provenance_drift",
+                f"call={compiled.call_id}, unexpected write authority"
+            )
+        return
+    if not observed or any(item is None for item in observed):
+        raise ProblemSourceProvenanceError(
+            "planner.runtime_problem_provenance_missing",
+            f"call={compiled.call_id}",
+        )
+    expected_signature = expected.semantic_signature()
+    for item in observed:
+        if item is None:
+            continue
+        if (
+            item.planning_context_id != expected.planning_context_id
+            or item.problem_revision_id != expected.problem_revision_id
+            or item.problem_semantic_hash != expected.problem_semantic_hash
+        ):
+            raise ProblemSourceProvenanceError(
+                "planner.problem_revision_drift",
+                f"call={compiled.call_id}, Problem revision drift",
+            )
+        if item.semantic_signature() != expected_signature:
+            raise ProblemSourceProvenanceError(
+                "planner.runtime_problem_provenance_drift",
+                f"call={compiled.call_id}, companion return authority drift"
+            )
 
 
 def _prepared_path_rewrites(
@@ -1273,6 +1364,7 @@ class FunctionalRuntimeWriteCommitter:
         dict[StateVersionId, TypedValue],
         tuple[PlannerRetryIssue, ...],
     ]:
+        _audit_compiled_problem_source_provenance(compiled)
         wire_call = next(
             (item for item in plan.calls if item.call_id == compiled.call_id),
             None,
@@ -1626,6 +1718,7 @@ class FunctionalTransactionalInterpreter:
                     ),
                     committed_calls=tuple(compiled_calls),
                 )
+                _audit_compiled_problem_source_provenance(compiled)
                 branch = current_context.fork()
                 _apply_missing_declarations(branch, compiled.declarations)
                 for plan in compiled.plans:
@@ -1902,7 +1995,9 @@ class FunctionalTransactionalInterpreter:
                     )
                 )
             except Exception as exc:
-                if isinstance(exc, SymbolicClosureProvenanceError):
+                if isinstance(exc, ProblemSourceProvenanceError):
+                    issue_code = exc.code
+                elif isinstance(exc, SymbolicClosureProvenanceError):
                     issue_code = exc.code
                 elif isinstance(exc, SymbolicClosureRuntimeDriftError):
                     issue_code = "planner.contract_runtime_symbol_drift"
@@ -3301,6 +3396,7 @@ def _runtime_result(
             value_omitted_reason=(
                 f"unsupported_transaction_snapshot:{type(exc).__name__}"
             ),
+            problem_source_provenance=write.problem_source_provenance,
         )
     return FunctionalRuntimeResult(
         step_id=write.step_id,
@@ -3310,6 +3406,7 @@ def _runtime_result(
         output_key=write.output_key,
         runtime_type=write.runtime_type,
         value=projected,
+        problem_source_provenance=write.problem_source_provenance,
     )
 
 
