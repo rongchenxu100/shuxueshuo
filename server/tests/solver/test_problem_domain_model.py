@@ -556,3 +556,29 @@ def test_semantic_hash_strips_only_the_root_header_not_its_body() -> None:
     changed = json.loads(json.dumps(with_header, ensure_ascii=False))
     changed["root"]["source_text"] = ["（25）（本小题12分）另一道题的正文"]
     assert ProblemDraft.create(changed).graph.semantic_hash != plain_graph.semantic_hash
+
+
+def test_semantic_hash_ignores_scope_local_question_markers() -> None:
+    payload = json.loads(
+        (
+            ROOT
+            / "internal/problem-domain-fixtures"
+            / "tj-2026-nankai-yimo-25.json"
+        ).read_text(encoding="utf-8")
+    )
+    without_markers = deepcopy(payload)
+    part_i, part_ii = without_markers["root"]["children"]
+    part_i["source_text"][0] = part_i["source_text"][0].removeprefix("（Ⅰ）")
+    part_ii["source_text"][0] = part_ii["source_text"][0].removeprefix("（Ⅱ）")
+    part_ii["children"][0]["source_text"][0] = part_ii["children"][0][
+        "source_text"
+    ][0].removeprefix("①")
+    part_ii["children"][1]["source_text"][0] = part_ii["children"][1][
+        "source_text"
+    ][0].removeprefix("②")
+
+    expected = ProblemDraft.create(payload)
+    actual = ProblemDraft.create(without_markers)
+
+    assert actual.revision_id != expected.revision_id
+    assert actual.semantic_hash == expected.semantic_hash

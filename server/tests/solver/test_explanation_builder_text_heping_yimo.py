@@ -9,6 +9,8 @@ from types import SimpleNamespace
 
 import pytest
 
+from _problem_planning_support import cached_planning_binding_fixture
+
 from shuxueshuo_server.solver import load_expected_answers, load_problem_ir
 from shuxueshuo_server.solver.explanation import (
     ExplanationBuilder,
@@ -1289,7 +1291,10 @@ def _solve_recorded_heping() -> tuple[RuntimeOrchestrator, object]:
         default_planner_provider=config.build_default_planner_provider(),
         max_attempts=config.max_llm_attempts,
     )
-    result = orchestrator.solve(load_problem_ir(HEPING_FIXTURE))
+    bundle, *_ = cached_planning_binding_fixture(
+        "tj-2026-heping-yimo-25"
+    )
+    result = orchestrator.solve_verified(bundle)
     return orchestrator, result
 
 

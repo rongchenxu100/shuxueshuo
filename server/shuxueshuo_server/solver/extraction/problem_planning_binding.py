@@ -35,6 +35,9 @@ from shuxueshuo_server.solver.runtime.planner_state_context import (
     PlannerStateContext,
     StateSlot,
 )
+from shuxueshuo_server.solver.runtime.runtime_type_compatibility import (
+    runtime_type_compatible,
+)
 from shuxueshuo_server.solver.runtime.problem_source_provenance import (
     ProblemCallSourceProvenance,
 )
@@ -482,12 +485,20 @@ def functional_problem_binding_context_schema() -> dict[str, Any]:
 class ProblemPlanningBindingError(ValueError):
     """A problem authority cannot be bound without guessing."""
 
-    retryable = False
-
-    def __init__(self, code: str, path: str, message: str) -> None:
+    def __init__(
+        self,
+        code: str,
+        path: str,
+        message: str,
+        *,
+        retryable: bool = False,
+        details: Mapping[str, Any] | None = None,
+    ) -> None:
         self.code = code
         self.path = path
         self.message = message
+        self.retryable = retryable
+        self.details = MappingProxyType(dict(details or {}))
         super().__init__(f"{code} at {path}: {message}")
 
 
@@ -888,6 +899,20 @@ class ProblemPlanningBindingCatalog:
                 )
         return tuple(result)
 
+    def identity_only_ref_keys(self) -> frozenset[tuple[str, str]]:
+        """Return prompt refs that name an object but carry no source state."""
+
+        return frozenset(
+            (binding.semantic_ref.ref, binding.semantic_ref.kind)
+            for binding in self.bindings.values()
+            if binding.usage == "input"
+            and binding.typed_sources
+            and all(
+                source.kind == "math_object"
+                for source in binding.typed_sources
+            )
+        )
+
     def source_units_for_identity(
         self,
         *,
@@ -1079,6 +1104,34 @@ def build_functional_problem_binding_context(
                     ),
                     f"SemanticRef {wire_ref.ref!r} is outside Goal authority",
                 )
+            if binding.source.kind == "call_result":
+                _audit_implicit_same_object_call_result(
+                    source_binding=source_binding,
+                    source=binding.source,
+                    consumer_call_id=call_id,
+                    consumer_goal_binding=call_goals,
+                    reconciled_calls=reconciled,
+                    goal_bindings=goal_bindings,
+                    catalog=catalog,
+                    path=(
+                        f"$.calls[{call_id!r}].args"
+                        f"[{binding.key.arg_name!r}]"
+                        f"[{binding.key.item_index}]"
+                    ),
+                )
+                inputs.append(
+                    FunctionalProblemInputBinding(
+                        call_id=call_id,
+                        arg_name=binding.key.arg_name,
+                        item_index=binding.key.item_index,
+                        source_kind="call_result",
+                        selection_policy=binding.selection_policy,
+                        semantic_ref=wire_ref,
+                        runtime_node_id=source_binding.runtime_node_id,
+                        typed_source=binding.source,
+                    )
+                )
+                continue
             source_units = set(source_binding.source_unit_ids)
             if not _binding_accepts_c3_source(
                 source_binding,
@@ -1634,6 +1687,130 @@ def _binding_for_semantic_ref(
     return binding
 
 
+def _audit_implicit_same_object_call_result(
+    *,
+    source_binding: ProblemPlanningSourceBinding,
+    source: FunctionalArgSourceIdentity,
+    consumer_call_id: str,
+    consumer_goal_binding: ProblemCallGoalBinding,
+    reconciled_calls: Mapping[str, FunctionalCallReconciliation],
+    goal_bindings: ProblemPlanGoalBindings,
+    catalog: ProblemPlanningBindingCatalog,
+    path: str,
+) -> None:
+    """Authorize a SemanticRef lowered to one exact prior object state."""
+
+    producer_call_id = source.source_call_id
+    producer_return_name = source.source_return_name
+    call_order = tuple(reconciled_calls)
+    if (
+        producer_call_id is None
+        or producer_return_name is None
+        or producer_call_id not in reconciled_calls
+        or consumer_call_id not in reconciled_calls
+        or call_order.index(producer_call_id)
+        >= call_order.index(consumer_call_id)
+    ):
+        raise _error(
+            "planner.problem_source_binding_drift",
+            path,
+            "implicit dynamic source is not one exact earlier call result",
+        )
+
+    allocations = tuple(
+        item
+        for item in reconciled_calls[producer_call_id].returns
+        if item.return_name == producer_return_name
+    )
+    if len(allocations) != 1 or allocations[0].math_object_id is None:
+        raise _error(
+            "planner.problem_source_binding_drift",
+            path,
+            "implicit dynamic source has no unique object-bearing return",
+        )
+    allocation = allocations[0]
+    source_object_ids = {
+        item.math_object_id
+        for item in source_binding.typed_sources
+        if item.math_object_id is not None
+    }
+    if (
+        source_binding.usage != "input"
+        or len(source_object_ids) != 1
+        or allocation.math_object_id not in source_object_ids
+    ):
+        raise _error(
+            "planner.problem_source_binding_drift",
+            path,
+            "computed return does not preserve the SemanticRef object identity",
+        )
+
+    consumer_goal_ids = set(
+        consumer_goal_binding.effective_goal_unit_ids
+    )
+    producer_goal_binding = goal_bindings.calls.get(producer_call_id)
+    if (
+        producer_goal_binding is None
+        or not consumer_goal_ids.issubset(
+            producer_goal_binding.effective_goal_unit_ids
+        )
+    ):
+        raise _error(
+            "planner.problem_scope_visibility_drift",
+            path,
+            "computed return is outside the consumer call Goal authority",
+        )
+    invisible_goals = tuple(
+        sorted(
+            goal_id
+            for goal_id in consumer_goal_ids
+            if allocation.valid_scope
+            not in catalog.goal_visible_scope_ids.get(goal_id, ())
+        )
+    )
+    if invisible_goals:
+        raise _error(
+            "planner.problem_scope_visibility_drift",
+            path,
+            (
+                "computed return scope is not visible to consumer Goals: "
+                f"{list(invisible_goals)}"
+            ),
+        )
+
+    compatible_prior_results = tuple(
+        (candidate_call_id, candidate.return_name)
+        for candidate_call_id in call_order[: call_order.index(consumer_call_id)]
+        for candidate_goal_binding in (
+            goal_bindings.calls.get(candidate_call_id),
+        )
+        if candidate_goal_binding is not None
+        and consumer_goal_ids.issubset(
+            candidate_goal_binding.effective_goal_unit_ids
+        )
+        for candidate in reconciled_calls[candidate_call_id].returns
+        if candidate.math_object_id == allocation.math_object_id
+        and runtime_type_compatible(
+            allocation.runtime_type,
+            candidate.runtime_type,
+        )
+        and all(
+            candidate.valid_scope
+            in catalog.goal_visible_scope_ids.get(goal_id, ())
+            for goal_id in consumer_goal_ids
+        )
+    )
+    if not compatible_prior_results or compatible_prior_results[-1] != (
+        producer_call_id,
+        producer_return_name,
+    ):
+        raise _error(
+            "planner.problem_source_binding_drift",
+            path,
+            "implicit dynamic source is not the latest Goal-visible object state",
+        )
+
+
 def _typed_source_matches_c3(
     source: ProblemTypedSourceIdentity,
     c3_source: FunctionalArgSourceIdentity,
@@ -1807,6 +1984,15 @@ def _bind_plan_goals(
                     "call is not anchored to any GoalView",
                     call_id=call_id,
                     scope_id=scopes.get(call_id),
+                    details={
+                        "repair_action": "connect_to_goal_or_remove_call",
+                        "repair_call_ids": [call_id],
+                        "repair_guidance": (
+                            "If this computation is required, connect one of "
+                            "its returns to a downstream Goal-producing call "
+                            "with CallResultRef. Otherwise remove the call."
+                        ),
+                    },
                 )
             )
             allowed: set[tuple[str, str]] = set()
@@ -1823,6 +2009,15 @@ def _bind_plan_goals(
                     "retained call does not contribute to a required Goal",
                     call_id=call_id,
                     scope_id=scopes.get(call_id),
+                    details={
+                        "repair_action": "connect_to_goal_or_remove_call",
+                        "repair_call_ids": [call_id],
+                        "repair_guidance": (
+                            "A retained call must reach an answer producer "
+                            "through CallResultRef dependencies. Connect its "
+                            "return to that chain or delete the unused call."
+                        ),
+                    },
                 )
             )
         for arg_name, values in call.args.items():
@@ -1881,8 +2076,21 @@ def _bind_plan_goals(
     return ProblemPlanGoalBindings(result, tuple(issues))
 
 
-def _error(code: str, path: str, message: str) -> ProblemPlanningBindingError:
-    return ProblemPlanningBindingError(code, path, message)
+def _error(
+    code: str,
+    path: str,
+    message: str,
+    *,
+    retryable: bool = False,
+    details: Mapping[str, Any] | None = None,
+) -> ProblemPlanningBindingError:
+    return ProblemPlanningBindingError(
+        code,
+        path,
+        message,
+        retryable=retryable,
+        details=details,
+    )
 
 
 __all__ = [

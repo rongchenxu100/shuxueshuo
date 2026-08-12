@@ -24,6 +24,7 @@ from shuxueshuo_server.solver.runtime.functional_few_shots import (
     validate_functional_few_shot_asset,
     validate_functional_few_shot_prompt_payload,
     validate_functional_plan_fixture,
+    default_scope_native_functional_plan_fixture_dir,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
@@ -41,6 +42,11 @@ from shuxueshuo_server.solver.runtime.strategy_runtime_planner import (
     strategy_planner_provider,
 )
 
+from _problem_planning_support import (
+    cached_planning_binding_fixture,
+    cached_scope_native_payload_args,
+)
+
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 PROBLEM_DIR = REPO_ROOT / "internal" / "solver-fixtures"
@@ -53,6 +59,16 @@ PROBLEM_IDS = (
     "tj-2026-heping-yimo-25",
     "tj-2026-heping-ermo-25",
 )
+
+
+def _build_scope_native_payload(
+    builder: StrategyPayloadBuilder,
+    inputs,
+) -> dict[str, Any]:
+    return builder.build(
+        inputs,
+        **cached_scope_native_payload_args(inputs.problem_id),
+    )
 
 
 def test_five_problem_catalogs_project_supported_result_form_domains() -> None:
@@ -104,8 +120,13 @@ class _FixtureFunctionalClient:
 def test_complete_functional_plan_fixture_replays_to_expected_answers(
     problem_id: str,
 ) -> None:
-    plan = load_functional_plan_fixture(problem_id)
-    problem = load_problem_ir(PROBLEM_DIR / f"{problem_id}.json")
+    plan = load_functional_plan_fixture(
+        problem_id,
+        fixture_dir=default_scope_native_functional_plan_fixture_dir(),
+    )
+    bundle, _planning_context, problem, *_ = cached_planning_binding_fixture(
+        problem_id
+    )
     expected = load_expected_answers(
         EXPECTED_DIR / f"{problem_id}.expected.json"
     )
@@ -119,7 +140,7 @@ def test_complete_functional_plan_fixture_replays_to_expected_answers(
         max_attempts=1,
     )
 
-    result = orchestrator.solve(problem)
+    result = orchestrator.solve_verified(bundle)
 
     assert result.status == "ok", result.errors
     assert result.answers == expected
@@ -271,13 +292,17 @@ def test_explicit_functional_mode_wins_over_legacy_boolean() -> None:
     )
     inputs = build_strategy_probe_inputs(problem)
 
-    legacy = StrategyPayloadBuilder(
-        allow_same_problem_few_shot=False,
-    ).build(inputs)
-    explicit = StrategyPayloadBuilder(
-        allow_same_problem_few_shot=False,
-        functional_few_shot_mode="new_problem",
-    ).build(inputs)
+    legacy = _build_scope_native_payload(
+        StrategyPayloadBuilder(allow_same_problem_few_shot=False),
+        inputs,
+    )
+    explicit = _build_scope_native_payload(
+        StrategyPayloadBuilder(
+            allow_same_problem_few_shot=False,
+            functional_few_shot_mode="new_problem",
+        ),
+        inputs,
+    )
 
     assert legacy["functional_few_shot_selection"]["mode"] == "strict_test"
     assert legacy["functional_few_shot_selection"]["example_id"] == (
@@ -308,7 +333,8 @@ def test_retry_restores_locked_example_without_prompting_selection_metadata() ->
         ],
     )
 
-    payload = StrategyPayloadBuilder().build(
+    payload = _build_scope_native_payload(
+        StrategyPayloadBuilder(),
         retry_inputs,
     )
     prompt = StrategyPromptRenderer().render(payload).user
@@ -318,13 +344,11 @@ def test_retry_restores_locked_example_without_prompting_selection_metadata() ->
         "right_angle_equal_length_construct_and_select",
         "quadratic_from_constraints",
     ]
-    for hidden in (
-        locked.example_id,
-        locked.source_problem_id,
-        locked.family_id,
-        locked.selection_tier,
-    ):
-        assert hidden not in prompt
+    assert locked.example_id not in prompt
+    assert locked.selection_tier not in prompt
+    assert '"functional_few_shot_selection"' not in prompt
+    assert '"source_problem_id"' not in prompt
+    assert '"selection_tier"' not in prompt
 
 
 def test_functional_few_shot_annotation_rejects_duplicate_exclusions() -> None:
@@ -435,9 +459,8 @@ def test_same_problem_uses_neutralized_mechanism_example(
     expected_tier: str,
 ) -> None:
     problem = load_problem_ir(PROBLEM_DIR / f"{problem_id}.json")
-    payload = StrategyPayloadBuilder(
-        allow_same_problem_few_shot=False
-    ).build(
+    payload = _build_scope_native_payload(
+        StrategyPayloadBuilder(allow_same_problem_few_shot=False),
         build_strategy_probe_inputs(problem),
     )
 
@@ -458,7 +481,8 @@ def test_nankai_core_annotation_is_rendered_before_strict_plan() -> None:
     problem = load_problem_ir(
         PROBLEM_DIR / "tj-2026-nankai-yimo-25.json"
     )
-    payload = StrategyPayloadBuilder().build(
+    payload = _build_scope_native_payload(
+        StrategyPayloadBuilder(),
         build_strategy_probe_inputs(problem),
     )
 
@@ -518,9 +542,8 @@ def test_missing_functional_selection_fails_before_prompt_render(
         ValueError,
         match="planner_configuration_error: no compatible functional few-shot",
     ):
-        StrategyPayloadBuilder(
-            functional_few_shot_dir=tmp_path,
-        ).build(
+        _build_scope_native_payload(
+            StrategyPayloadBuilder(functional_few_shot_dir=tmp_path),
             build_strategy_probe_inputs(problem),
         )
 
@@ -541,9 +564,8 @@ def test_explicit_functional_examples_take_precedence() -> None:
             ],
         }
     ]
-    payload = StrategyPayloadBuilder(
-        functional_few_shot_examples=explicit,
-    ).build(
+    payload = _build_scope_native_payload(
+        StrategyPayloadBuilder(functional_few_shot_examples=explicit),
         build_strategy_probe_inputs(problem),
     )
 

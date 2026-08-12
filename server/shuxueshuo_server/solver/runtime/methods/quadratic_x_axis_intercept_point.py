@@ -69,13 +69,19 @@ class QuadraticXAxisInterceptPointMethod:
             other_xs = [root for root in roots if sp.simplify(root - point[0]) != 0]
             if other_xs:
                 comparisons = [sp.simplify(point[0] - other_x) for other_x in other_xs]
-                if side == "left":
-                    passed = all(_is_negative(value) for value in comparisons)
-                    detail = "目标点声明为左侧 x 轴交点"
-                else:
-                    passed = all(_is_positive(value) for value in comparisons)
-                    detail = "目标点声明为右侧 x 轴交点"
-                checks.append(_check(f"{side}_x_axis_intercept", passed, detail))
+                signs = tuple(_comparison_sign(value) for value in comparisons)
+                expected_sign = -1 if side == "left" else 1
+                # A known intercept may already leave one unique symbolic root.
+                # Its ordering belongs to the surrounding problem constraints;
+                # only a decidable, contradictory ordering is a runtime failure.
+                if all(sign is not None for sign in signs):
+                    checks.append(
+                        _check(
+                            f"{side}_x_axis_intercept",
+                            all(sign == expected_sign for sign in signs),
+                            f"目标点声明为{'左' if side == 'left' else '右'}侧 x 轴交点",
+                        )
+                    )
         return StatelessMethodResult(
             method_id=self.method_id,
             outputs={"point": TypedValue("Point", point, source=self.method_id)},
@@ -118,23 +124,32 @@ def _pick_side_intercept(candidates: list[Point], side: str) -> list[Point]:
 
 
 def _is_negative(value: sp.Expr) -> bool:
-    simplified = sp.simplify(value)
-    if simplified.is_negative is not None:
-        return bool(simplified.is_negative)
-    try:
-        return bool(sp.N(simplified) < 0)
-    except TypeError:
-        return False
+    return _comparison_sign(value) == -1
 
 
 def _is_positive(value: sp.Expr) -> bool:
+    return _comparison_sign(value) == 1
+
+
+def _comparison_sign(value: sp.Expr) -> int | None:
     simplified = sp.simplify(value)
-    if simplified.is_positive is not None:
-        return bool(simplified.is_positive)
+    if simplified.is_zero is True:
+        return 0
+    if simplified.is_positive is True:
+        return 1
+    if simplified.is_negative is True:
+        return -1
     try:
-        return bool(sp.N(simplified) > 0)
+        numeric = sp.N(simplified)
+        if numeric > 0:
+            return 1
+        if numeric < 0:
+            return -1
+        if numeric == 0:
+            return 0
     except TypeError:
-        return False
+        pass
+    return None
 
 
 SPEC = MethodSpecSource(

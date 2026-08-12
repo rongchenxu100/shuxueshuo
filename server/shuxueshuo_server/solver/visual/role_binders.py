@@ -3117,6 +3117,9 @@ def _angle_equality_fact_belongs_to_step(
 
 
 def _reference_angle_value(value: dict[str, Any]) -> str:
+    explicit = str(value.get("reference_angle_value") or "").strip()
+    if explicit:
+        return explicit if explicit.endswith("°") else f"{explicit}°"
     source = str(value.get("source") or "")
     match = re.search(r"=\s*([0-9]+)\s*°", source)
     if match:

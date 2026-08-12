@@ -66,7 +66,7 @@ class FunctionalBatchCase:
         return (
             REPO_ROOT
             / "internal"
-            / "functional-plan-fixtures"
+            / "functional-plan-scope-native-fixtures"
             / f"{self.problem_id}.functional-plan.json"
         )
 

@@ -101,6 +101,10 @@ C0.5 oracle 系统覆盖：
 - committed/provisional retry；
 - role/binding 与 closure checkpoint。
 
+F5-F不能仅复用旧adapter并宣称覆盖。C0.5需增加scope-native生产入口维度：Problem/Plan/Retry三棵scope树逐项对齐、唯一前序producer自动绑定、显式CallResult、多个producer歧义、sibling producer拒绝、scope-local answer规范化，以及shared/单Goal replacement。增量执行还必须覆盖前缀成功后第`k`个step失败、dependent suffix阻断、独立Goal继续并整体冻结、shared producer影响多个Goal、失败Goal完整替换不修改solved Goal和provisional write零提交。Reference model仍独立于生产实现；生产adapter必须经过PlanningContext、F5-C binding和Goal execution checkpoint。
+
+C5 symbolic closure门禁仍然有效，它验证的是参数闭合、分支数、残余自由元和checkpoint语义，不依赖LLM是否输出scope。F5-F高层路径macro接入后，C5需补macro内部closure与Goal/source provenance，同时断言内部`PathTransformation`不会出现在Planner wire；还要验证method实际产生结果但closure失败时，retry接收真实残余自由元而不是泛化编译错误，且独立Goal的closure checkpoint可继续冻结。不得用新macro替换或删减原有unique/ambiguous/inconsistent/underdetermined场景。
+
 生成式门禁必须覆盖真实维度，不能只统计场景数量。比较器必须 fail closed，缺字段、缺 owner、多余边和错误 issue 都应失败。
 
 ### Metamorphic tests
@@ -142,13 +146,15 @@ C0.5 oracle 系统覆盖：
 
 ## 8. Retry 设计
 
-- committed goal closure 使用 B4 checkpoint hard-lock；
-- provisional runtime result 可进入精简反馈，但不冻结；
-- blocked dependents 不生成次生 root issue；
-- repair cone 沿 typed version dependencies 计算；
-- runtime actual value/form/free symbols 优先于静态预测；
-- closure feedback说明 target、status、branch count、剩余自由元和来源；
-- prompt 不暴露 typed ids、runtime path 或 expected answer。
+- freeze的权威单位是完成全部answer/runtime/closure/provenance gate的Goal，以及独立验证通过的shared-scope execution block；
+- retry始终发送上一版完整canonical `functional_plan/v2`，包含全部scope、shared steps和Goal plans；执行树通过`step_id`关联，不重复复制计划定义；
+- solved Goal在retry执行树中携带逐step实际输入、输出、状态、错误和`published_results`，但标记`editable=false`；
+- failed Goal的逐step实际输入、输出、状态、typed error及blocked suffix全部进入反馈；该Goal内部没有call级冻结，模型可以完整重写全部steps；
+- blocked dependents不生成次生root issue，独立sibling Goal继续执行；
+- shared block失败时按typed dependency确定consumer Goal repair group，不因共享根Entity扩大范围；
+- runtime actual value/form/free symbols优先于静态预测；compile失败不得伪造输出，closure feedback说明target、status、branch count、剩余自由元和来源；
+- retry payload按Problem的scope/Goal树组织，不再暴露平面的repair/validated/locked call列表；
+- prompt不暴露typed ids、runtime path或expected answer，跨Goal绑定只允许使用`published_results`。
 
 ## 9. Prompt 成本策略
 

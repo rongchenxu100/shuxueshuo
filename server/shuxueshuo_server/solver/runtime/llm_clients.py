@@ -193,13 +193,20 @@ class DeepSeekPlannerClient(OpenAICompatiblePlannerClient):
         self,
         payload: dict[str, Any],
     ) -> dict[str, Any]:
-        """Use low-effort thinking and JSON Output for every planner pass."""
-        del payload
-        return {
+        """Use direct JSON on pass 1 and low thinking only for semantic repair."""
+        planner_attempt = payload.get("planner_attempt", 1)
+        options: dict[str, Any] = {
             "response_format": {"type": "json_object"},
-            "reasoning_effort": "low",
-            "extra_body": {"thinking": {"type": "enabled"}},
+            "extra_body": {"thinking": {"type": "disabled"}},
         }
+        if isinstance(planner_attempt, int) and planner_attempt > 1:
+            options.update(
+                {
+                    "reasoning_effort": "low",
+                    "extra_body": {"thinking": {"type": "enabled"}},
+                }
+            )
+        return options
 
 
 class DoubaoPlannerClient(OpenAICompatiblePlannerClient):

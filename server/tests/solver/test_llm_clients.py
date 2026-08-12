@@ -70,9 +70,9 @@ def test_deepseek_client_uses_openai_compatible_arguments() -> None:
         "type": "json_object"
     }
     assert fake_client.create_kwargs["extra_body"] == {
-        "thinking": {"type": "enabled"}
+        "thinking": {"type": "disabled"}
     }
-    assert fake_client.create_kwargs["reasoning_effort"] == "low"
+    assert "reasoning_effort" not in fake_client.create_kwargs
     assert "temperature" not in fake_client.create_kwargs
     assert fake_client.create_kwargs["messages"][0]["role"] == "system"
     assert "QuadraticPathMinimumSolver" in fake_client.create_kwargs["messages"][1]["content"]
@@ -93,8 +93,8 @@ def test_deepseek_client_uses_openai_compatible_arguments() -> None:
         "finish_reason": None,
         "visible_content": True,
         "response_format": "json_object",
-        "thinking_mode": "enabled",
-        "reasoning_effort": "low",
+        "thinking_mode": "disabled",
+        "reasoning_effort": None,
     }
 
 
@@ -231,13 +231,10 @@ def test_reasoning_only_empty_response_retries_inside_one_provider_call() -> Non
     assert len(fake_client.requests) == 2
     assert "立即输出严格 JSON" in fake_client.requests[1]["messages"][-1]["content"]
     assert all(
-        request["extra_body"] == {"thinking": {"type": "enabled"}}
+        request["extra_body"] == {"thinking": {"type": "disabled"}}
         for request in fake_client.requests
     )
-    assert all(
-        request["reasoning_effort"] == "low"
-        for request in fake_client.requests
-    )
+    assert all("reasoning_effort" not in request for request in fake_client.requests)
     assert all(
         request["response_format"] == {"type": "json_object"}
         for request in fake_client.requests

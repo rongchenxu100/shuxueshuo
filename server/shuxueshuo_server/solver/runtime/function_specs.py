@@ -595,9 +595,10 @@ def identity_safe_parameter_value_expansion(
     ParameterValue expansion resolves its Symbol from write provenance and
     therefore emits the canonical runtime path for both members of the pair.
     If another selector has already bound a different ``parameter``, retaining
-    only the value would create an invalid cross-Symbol substitution.  The
-    expansion is optional, so discard that pair and let the method preserve its
-    open symbolic state.
+    only the value would create an invalid cross-Symbol substitution.  An
+    explicit ParameterValue makes that mismatch a malformed call and must fail
+    loud.  A legacy optional expansion may still be discarded when no explicit
+    value was selected.
     """
     result = dict(expanded)
     parameter_value = result.get("parameter_value")
@@ -609,6 +610,12 @@ def identity_safe_parameter_value_expansion(
         and existing_parameter is not None
         and existing_parameter != expanded_parameter
     ):
+        if existing_inputs.get("parameter_value") is not None:
+            raise StrategyDraftValidationError(
+                "function.parameter_value_object_mismatch: "
+                f"parameter={existing_parameter}, "
+                f"parameter_value_owner={expanded_parameter}"
+            )
         result.pop("parameter", None)
         result.pop("parameter_value", None)
     return result

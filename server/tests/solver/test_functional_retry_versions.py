@@ -321,6 +321,46 @@ def test_prompt_closure_summary_is_compact_and_hides_typed_identity() -> None:
     assert "closure" not in projected[0]["results"][0]
 
 
+def test_prompt_runtime_result_removes_nested_canonical_object_refs() -> None:
+    projected = _compact_functional_runtime_verified(
+        [
+            {
+                "call_id": "reduce_path",
+                "execution_status": "runtime_verified",
+                "results": [
+                    {
+                        "return": "path_transformation",
+                        "type": "PathTransformation",
+                        "value": {
+                            "auxiliary_point_name": "T",
+                            "auxiliary_point_ref": "point:problem:T",
+                            "linked_fixed_endpoint_ref": "point:ii:D",
+                            "moving_point_name": "M",
+                            "moving_point_ref": "point:ii_2:M",
+                            "original_path": "2*DM+AM",
+                        },
+                        "object_roles": {
+                            "moving_object": ["point:ii_2:M"],
+                            "fixed_endpoint_1": ["point:ii:D"],
+                        },
+                    }
+                ],
+            }
+        ],
+        issues=[],
+    )
+
+    result = projected[0]["results"][0]
+    assert result["value"] == {
+        "auxiliary_point_name": "T",
+        "moving_point_name": "M",
+        "original_path": "2*DM+AM",
+    }
+    assert result["structure"]["moving_object"] == ["M"]
+    assert result["structure"]["fixed_endpoint_1"] == ["D"]
+    assert "point:" not in str(projected)
+
+
 @pytest.mark.parametrize("closure_value", ("c", "1"))
 def test_prompt_closure_summary_does_not_use_substring_deduplication(
     closure_value: str,

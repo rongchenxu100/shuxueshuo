@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from copy import deepcopy
 from dataclasses import replace
 
 import pytest
@@ -36,6 +37,26 @@ from _problem_planning_support import (
 CASE = "tj-2026-nankai-yimo-25"
 
 
+def _prompt_scopes(payload: dict) -> tuple[dict, ...]:
+    result: list[dict] = []
+
+    def visit(scope: dict) -> None:
+        result.append(scope)
+        for child in scope.get("children", []):
+            visit(child)
+
+    visit(payload["root_scope"])
+    return tuple(result)
+
+
+def _prompt_goals(payload: dict) -> tuple[dict, ...]:
+    return tuple(
+        goal
+        for scope in _prompt_scopes(payload)
+        for goal in scope.get("goals", [])
+    )
+
+
 @pytest.mark.parametrize("case", CASES)
 def test_five_case_goal_retry_projection_is_deterministic(
     tmp_path,
@@ -49,7 +70,7 @@ def test_five_case_goal_retry_projection_is_deterministic(
         _problem_payload,
         _registry,
         planner_context,
-        _catalog,
+        catalog,
         _plan,
         _validation,
         reconciliation,
@@ -93,7 +114,7 @@ def test_single_goal_repair_projects_only_its_goal_view(tmp_path) -> None:
         _problem_payload,
         _registry,
         planner_context,
-        _catalog,
+        catalog,
         _plan,
         _validation,
         reconciliation,
@@ -120,15 +141,9 @@ def test_single_goal_repair_projects_only_its_goal_view(tmp_path) -> None:
     assert projected.to_prompt_payload() == planning_context.to_prompt_payload(
         goal_unit_ids=goal_ids,
     )
-    assert len(projected.to_prompt_payload()["goal_views"]) == 1
+    assert len(_prompt_goals(projected.to_prompt_payload())) == 1
     prompt = projected.to_prompt_payload()
-    emitted_scope_ids = {
-        item["scope_id"] for item in prompt["shared_context"]
-    } | {
-        item["scope_id"]
-        for goal in prompt["goal_views"]
-        for item in goal["local_context"]
-    }
+    emitted_scope_ids = {item["id"] for item in _prompt_scopes(prompt)}
     selected_goal = next(
         item
         for item in planning_context.goal_views
@@ -152,7 +167,7 @@ def test_shared_call_projects_goal_union_and_deduplicates_shared_scope(
         _problem_payload,
         _registry,
         planner_context,
-        _catalog,
+        catalog,
         _plan,
         _validation,
         reconciliation,
@@ -173,9 +188,9 @@ def test_shared_call_projects_goal_union_and_deduplicates_shared_scope(
     prompt = projected.to_prompt_payload()
 
     assert set(projected.goal_unit_ids) == set(goal_ids)
-    assert len(prompt["goal_views"]) == len(goal_ids)
-    shared_scope_ids = [item["scope_id"] for item in prompt["shared_context"]]
-    assert len(shared_scope_ids) == len(set(shared_scope_ids))
+    assert len(_prompt_goals(prompt)) == len(goal_ids)
+    scope_ids = [item["id"] for item in _prompt_scopes(prompt)]
+    assert len(scope_ids) == len(set(scope_ids))
 
 
 def test_shared_source_identity_does_not_expand_repair_goals(tmp_path) -> None:
@@ -231,7 +246,7 @@ def test_strategy_payload_rebuilds_goal_retry_context_from_authority(
         problem_payload,
         _registry,
         planner_context,
-        _catalog,
+        catalog,
         _plan,
         _validation,
         reconciliation,
@@ -263,17 +278,54 @@ def test_strategy_payload_rebuilds_goal_retry_context_from_authority(
         problem_payload=problem_payload,
         planner_state_context=planner_context,
         problem_planning_context=planning_context,
+        problem_binding_catalog=catalog,
     )
 
     retry_payload = payload["previous_attempt_state"]["latest_retry_state"]
     expected_goals = sidecar.call_goal_bindings[call_id]
-    assert retry_payload["problem_retry_context"] == (
-        planning_context.to_prompt_payload(goal_unit_ids=expected_goals)
+    prompt_context = deepcopy(payload["problem_planning_context"])
+    assert prompt_context == planning_context.to_prompt_payload(
+        goal_unit_ids=expected_goals
     )
+    assert "problem_retry_context" not in retry_payload
     _assert_prompt_hides_authority(
-        retry_payload["problem_retry_context"],
+        payload["problem_planning_context"],
         planning_context=planning_context,
     )
+
+
+def test_strategy_payload_without_checkpoint_keeps_full_planning_context(
+    tmp_path,
+) -> None:
+    (
+        _bundle,
+        planning_context,
+        _problem,
+        inputs,
+        problem_payload,
+        _registry,
+        planner_context,
+        catalog,
+        _plan,
+        _validation,
+        _reconciliation,
+    ) = scope_native_reconciliation_fixture(tmp_path, case=CASE)
+    retry_inputs = replace(
+        inputs,
+        previous_errors=[{"code": "extraction.problem_ir_invalid_json"}],
+    )
+
+    payload = StrategyPayloadBuilder().build(
+        retry_inputs,
+        problem_payload=problem_payload,
+        planner_state_context=planner_context,
+        problem_planning_context=planning_context,
+        problem_binding_catalog=catalog,
+    )
+
+    prompt_context = deepcopy(payload["problem_planning_context"])
+    assert prompt_context == planning_context.to_prompt_payload()
+    assert payload["previous_attempt_state"]["latest_retry_state"] is None
 
 
 def test_goal_retry_projection_rejects_revision_and_call_authority_drift(

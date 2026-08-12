@@ -345,6 +345,31 @@ def test_angle_sum_equal_angle_candidates_method_heping_geometry() -> None:
     assert all(check.ok for check in result.checks)
 
 
+def test_angle_sum_equal_angle_candidates_accepts_symbolic_axis_points() -> None:
+    kernel = SympyKernel()
+    parameter = sp.Symbol("a", positive=True)
+
+    result = AngleSumEqualAngleCandidatesMethod().run(
+        {
+            "condition": {
+                "type": "angle_sum",
+                "description": "∠CBE+∠ACO=45°",
+                "angle_terms": ["CBE", "ACO"],
+                "value": "45",
+            },
+            "x_axis_point": (parameter, sp.Integer(0)),
+            "y_axis_point": (sp.Integer(0), -parameter),
+            "reference_x_axis_point": (sp.Integer(-1), sp.Integer(0)),
+            "origin": (sp.Integer(0), sp.Integer(0)),
+            "target": PointRef("F", "$subquestion.i_2.points.F"),
+        },
+        kernel,
+    )
+
+    assert result.outputs["angle_equality"].type == "AngleEquality"
+    assert all(check.ok for check in result.checks)
+
+
 def test_angle_sum_equal_angle_candidates_rejects_degenerate_axis_roles() -> None:
     kernel = SympyKernel()
 
@@ -1080,6 +1105,25 @@ def test_select_point_by_quadrant_constraint_uses_explicit_m_greater_than_2() ->
     assert all(check.ok for check in result.checks)
 
 
+def test_select_point_by_quadrant_constraint_accepts_canonical_english_quadrant() -> None:
+    kernel = SympyKernel()
+    m = kernel.symbols(["m"])["m"]
+
+    result = SelectPointByQuadrantConstraintMethod().run(
+        {
+            "candidates": [(sp.Integer(2), 1 - m), (sp.Integer(0), m - 1)],
+            "target": PointRef("N", "$question.ii.points.N"),
+            "quadrant": {"quadrant": "fourth"},
+            "parameter": m,
+            "parameter_constraint": {"operator": ">", "value": sp.Integer(2)},
+        },
+        kernel,
+    )
+
+    assert result.outputs["selected_point"].value == (2, 1 - m)
+    assert all(check.ok for check in result.checks)
+
+
 def test_select_point_by_quadrant_constraint_rejects_ambiguous_candidates() -> None:
     kernel = SympyKernel()
     m = kernel.symbols(["m"])["m"]
@@ -1415,6 +1459,30 @@ def test_quadratic_x_axis_intercept_point_method_returns_other_root() -> None:
 
     assert result.outputs["point"].value == (b + 1, 0)
     assert all(check.ok for check in result.checks)
+
+
+def test_quadratic_x_axis_intercept_point_accepts_unique_symbolic_other_root() -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["x", "b"])
+    x, b = symbols["x"], symbols["b"]
+
+    result = QuadraticXAxisInterceptPointMethod().run(
+        {
+            "quadratic": -x**2 + b * x + b + 1,
+            "x": x,
+            "target": PointRef(
+                "B",
+                "$question.ii.points.B",
+                definition={"definition": "x_axis_intercept", "side": "right"},
+            ),
+            "known_point": (-1, 0),
+        },
+        kernel,
+    )
+
+    assert result.outputs["point"].value == (b + 1, 0)
+    assert all(check.ok for check in result.checks)
+    assert "right_x_axis_intercept" not in {item.name for item in result.checks}
 
 
 def test_quadratic_x_axis_intercept_point_method_uses_left_target_side() -> None:

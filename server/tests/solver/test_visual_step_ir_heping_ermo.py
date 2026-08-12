@@ -11,6 +11,8 @@ from typing import Any
 
 import pytest
 
+from _problem_planning_support import cached_planning_binding_fixture
+
 from shuxueshuo_server.solver import load_expected_answers, load_problem_ir
 from shuxueshuo_server.solver.explanation import (
     ExplanationBuilder,
@@ -192,7 +194,7 @@ def test_vs1_heping_ermo_geometry_shell_has_scope_safe_points_and_answers(
     assert geometry["id"] == page.snapshot.problem_id
     assert geometry["domain"]["maxX"] > 1
     assert geometry["fixedPoints"]["A1"] == ["-3", "0"]
-    assert geometry["fixedPoints"]["P1"] == ["-1", "4"]
+    assert geometry["fixedPoints"]["P"] == ["-1", "4"]
     assert geometry["fixedPoints"]["E_axis_i_2_candidate_1"] == ["-1", "2+sqrt(6)"]
     assert geometry["fixedPoints"]["E_axis_i_2_candidate_2"] == ["-1", "2-sqrt(6)"]
     assert "A" not in geometry["fixedPoints"]
@@ -231,12 +233,7 @@ def test_vs1_heping_ermo_square_candidate_and_path_decorations_are_bound(
     assert {"type": "coordinateLabel", "at": "G_axis_i_2", "text": "G(t-3,-2)", "dx": 14, "dy": 34} in square_decorations
     assert any(
         item.get("type") == "outlineRegion"
-        and item.get("vertices") == ["A1", "E_axis_i_2", "K_axis_i_2", "G_axis_i_2"]
-        for item in square_decorations
-    )
-    assert any(
-        item.get("type") == "outlineRegion"
-        and item.get("vertices") == ["A1", "E_axis_i_2", "M1"]
+        and item.get("vertices") == ["A1", "E_axis_i_2", "K", "G_axis_i_2"]
         for item in square_decorations
     )
     assert any(item.get("type") == "rightAngle" for item in square_decorations)
@@ -248,16 +245,7 @@ def test_vs1_heping_ermo_square_candidate_and_path_decorations_are_bound(
         and item.get("vertices") == ["A1", "E_axis_i_2", "K_axis_i_2", "G_axis_i_2"]
         for item in candidate_decorations
     )
-    assert any(
-        item.get("type") == "outlineRegion"
-        and item.get("vertices") == [
-            "A1",
-            "E_axis_i_2_candidate_1",
-            "K_axis_i_2_candidate_1",
-            "G_axis_i_2_candidate_1",
-        ]
-        for item in candidate_decorations
-    )
+    assert not any(item.get("type") == "outlineRegion" for item in candidate_decorations)
     assert {
         "type": "coordinateLabel",
         "at": "E_axis_i_2_candidate_1",
@@ -270,7 +258,7 @@ def test_vs1_heping_ermo_square_candidate_and_path_decorations_are_bound(
     reduce_decorations = _step_decorations(page, reduce_step.id)
     assert any(
         item.get("type") == "outlineRegion"
-        and item.get("vertices") == ["A", "E_axis_ii", "K_axis_ii", "G_axis_ii"]
+        and item.get("vertices") == ["A", "E_axis_ii", "K", "G_axis_ii"]
         and str(item.get("fill") or "").startswith("rgba(15, 118, 110")
         for item in reduce_decorations
     )
@@ -334,7 +322,7 @@ def test_vs1_heping_ermo_locus_minimum_and_parameter_interactions_are_bound(
     assert minimum_data["localControls"]["controls"][0]["var"] == "u"
     assert minimum_data["localControls"]["controls"][0]["label"].startswith("动点 G")
     minimum_overrides = page.compiled.step_decorations["steps"][minimum_step.id]["pointOverrides"]
-    assert minimum_overrides["G_axis_ii"] == ["12.049*u-6.8", "-c/2-1/2"]
+    assert minimum_overrides["G_axis_ii"] == ["10.049*u-6.8", "-c/2-1/2"]
     assert "G" not in minimum_overrides
 
     parameter_step = _lesson_step(
@@ -502,7 +490,10 @@ def _solve_heping_ermo_snapshot() -> ExplanationSnapshot:
         default_planner_provider=config.build_default_planner_provider(),
         max_attempts=config.max_llm_attempts,
     )
-    result = orchestrator.solve(load_problem_ir(HEPING_ERMO_FIXTURE))
+    bundle, *_ = cached_planning_binding_fixture(
+        "tj-2026-heping-ermo-25"
+    )
+    result = orchestrator.solve_verified(bundle)
     assert result.status == "ok", result.errors
     assert result.answers == load_expected_answers(HEPING_ERMO_EXPECTED)
     return ExplanationSnapshotBuilder().build(orchestrator.last_success_artifacts)

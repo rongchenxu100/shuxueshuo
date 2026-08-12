@@ -35,11 +35,12 @@ from shuxueshuo_server.solver.runtime.capability_contracts import (
     effective_contract_by_id,
     project_method_contract,
 )
-from shuxueshuo_server.solver.runtime.projection import problem_to_llm_payload
 from shuxueshuo_server.solver.runtime.strategy_planner import (
     StrategyPayloadBuilder,
     build_strategy_probe_inputs,
 )
+
+from _problem_planning_support import cached_scope_native_payload_args
 
 
 NANKAI_FIXTURE = "../internal/solver-fixtures/tj-2026-nankai-yimo-25.json"
@@ -547,7 +548,7 @@ def test_pack_bound_methods_enter_functional_capability_catalog() -> None:
     inputs = build_strategy_probe_inputs(problem)
     payload = StrategyPayloadBuilder().build(
         inputs,
-        problem_payload=problem_to_llm_payload(problem),
+        **cached_scope_native_payload_args(problem.problem_id),
     )
     capability_ids = {
         capability["capability_id"]
@@ -572,7 +573,7 @@ def test_functional_catalog_only_exposes_executable_contracts_for_real_families(
         inputs = build_strategy_probe_inputs(problem)
         payload = StrategyPayloadBuilder().build(
             inputs,
-            problem_payload=problem_to_llm_payload(problem),
+            **cached_scope_native_payload_args(problem.problem_id),
         )
         capability_ids = {
             capability["capability_id"]
@@ -628,7 +629,7 @@ def test_functional_catalog_hides_catalog_only_contracts() -> None:
     )
     payload = StrategyPayloadBuilder().build(
         replace(inputs, family_spec=family),
-        problem_payload=problem_to_llm_payload(problem),
+        **cached_scope_native_payload_args(problem.problem_id),
     )
     capability_ids = {
         capability["capability_id"]

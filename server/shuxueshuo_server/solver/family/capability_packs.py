@@ -858,7 +858,10 @@ PARAMETER_SOLVING_CONTRACTS = (
                 "value",
                 "ParameterValue",
                 object_kind="symbol",
-                description="用于消去点坐标中自由符号的已求参数值。",
+                description=(
+                    "用于消去点坐标中同一 Symbol 身份自由参数的已求值；不能用"
+                    "曲线系数值代替动点独立的位置参数。"
+                ),
             ),
         ),
         slot_writes=(

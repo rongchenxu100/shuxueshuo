@@ -70,22 +70,18 @@ _EXACT_SELECTOR_SEMANTICS: dict[str, SelectorSemantics] = {
     "angle_sum:x_axis_point": SelectorSemantics(
         mechanical=True,
         requires_materialized_state=True,
-        requires_closed_state=True,
     ),
     "angle_sum:y_axis_point": SelectorSemantics(
         mechanical=True,
         requires_materialized_state=True,
-        requires_closed_state=True,
     ),
     "angle_sum:reference_x_axis_point": SelectorSemantics(
         mechanical=True,
         requires_materialized_state=True,
-        requires_closed_state=True,
     ),
     "angle_sum:origin": SelectorSemantics(
         mechanical=True,
         requires_materialized_state=True,
-        requires_closed_state=True,
     ),
     "angle_sum:target": SelectorSemantics(
         mechanical=True,
@@ -94,22 +90,18 @@ _EXACT_SELECTOR_SEMANTICS: dict[str, SelectorSemantics] = {
     "angle_equality:x_axis_point": SelectorSemantics(
         mechanical=True,
         requires_materialized_state=True,
-        requires_closed_state=True,
     ),
     "angle_equality:y_axis_point": SelectorSemantics(
         mechanical=True,
         requires_materialized_state=True,
-        requires_closed_state=True,
     ),
     "angle_equality:reference_x_axis_point": SelectorSemantics(
         mechanical=True,
         requires_materialized_state=True,
-        requires_closed_state=True,
     ),
     "angle_equality:origin": SelectorSemantics(
         mechanical=True,
         requires_materialized_state=True,
-        requires_closed_state=True,
     ),
     "angle_equality:target": SelectorSemantics(mechanical=True),
     "fact:length_condition:Condition": SelectorSemantics(

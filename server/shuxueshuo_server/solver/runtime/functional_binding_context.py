@@ -911,16 +911,16 @@ def _projected_source_payload(
 ) -> dict[str, Any]:
     if item.condition_id is not None:
         return {"kind": "condition", "condition_id": item.condition_id}
-    if item.state_version_id is not None:
-        return {
-            "kind": "state_version",
-            "state_version_id": item.state_version_id.to_payload(),
-        }
     if item.source_call_id is not None and item.source_return_name is not None:
         return {
             "kind": "call_result",
             "source_call_id": item.source_call_id,
             "source_return_name": item.source_return_name,
+        }
+    if item.state_version_id is not None:
+        return {
+            "kind": "state_version",
+            "state_version_id": item.state_version_id.to_payload(),
         }
     if item.math_object_id is not None:
         return {

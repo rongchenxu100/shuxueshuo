@@ -12,11 +12,20 @@ import json
 from pathlib import Path
 from typing import Any, Literal
 
-from shuxueshuo_server.solver.problem_models import ProblemIR
+from shuxueshuo_server.solver.extraction.problem_planner_authority import (
+    VerifiedPlannerProblemAuthority,
+)
+from shuxueshuo_server.solver.extraction.problem_planning_binding import (
+    ProblemPlanningBindingCatalog,
+    ProblemPlanningBindingCatalogBuilder,
+)
+from shuxueshuo_server.solver.extraction.problem_solver_bundle import (
+    ProblemBundleAuthorityError,
+)
 from shuxueshuo_server.solver.runtime.context import RuntimeContext
 from shuxueshuo_server.solver.runtime.functional_few_shots import (
     FunctionalFewShotSelectionMode,
-    default_functional_plan_fixture_dir,
+    default_scope_native_functional_plan_fixture_dir,
     load_functional_plan_fixture,
 )
 from shuxueshuo_server.solver.runtime.functional_repair_feedback import (
@@ -29,14 +38,16 @@ from shuxueshuo_server.solver.runtime.llm_clients import (
 )
 from shuxueshuo_server.solver.runtime.models import PlannerOutput
 from shuxueshuo_server.solver.runtime.planner_state_context import (
+    PlannerStateContext,
     initial_planner_state_context,
 )
 from shuxueshuo_server.solver.runtime.functional_retry_versions import (
+    FunctionalRetryGraphCheckpoint,
     latest_functional_retry_graph_checkpoint,
     validate_checkpoint_manifest,
 )
 from shuxueshuo_server.solver.runtime.planner import PlannerInputs
-from shuxueshuo_server.solver.runtime.projection import RuntimeProjection
+from shuxueshuo_server.solver.runtime.projection import problem_to_llm_payload
 from shuxueshuo_server.solver.runtime.session import (
     PlannerExecutionError,
     StructuredSolveError,
@@ -79,6 +90,9 @@ class StrategyPlannerArtifacts:
     validation_report: object | None = None
     retry_replay_result: PlannerRetryReplayResult | None = None
     output: PlannerOutput | None = None
+    problem_authority: VerifiedPlannerProblemAuthority | None = None
+    problem_binding_catalog: ProblemPlanningBindingCatalog | None = None
+    initial_planner_state_context: PlannerStateContext | None = None
 
 
 class StrategyPlanner:
@@ -88,23 +102,29 @@ class StrategyPlanner:
         self,
         context: RuntimeContext,
         *,
+        problem_authority: VerifiedPlannerProblemAuthority,
         mode: StrategyPlannerMode = "recorded",
         client: LLMPlannerClient | None = None,
-        projection: RuntimeProjection | None = None,
         payload_builder: StrategyPayloadBuilder | None = None,
         prompt_renderer: StrategyPromptRenderer | None = None,
         functional_plan_fixture_dir: Path | str | None = None,
     ) -> None:
+        if problem_authority is None:
+            raise ProblemBundleAuthorityError(
+                "planner.problem_bundle_required",
+                "$.problem_authority",
+                "Strategy planning requires VerifiedSolverProblemBundle authority",
+            )
         self.context = context
+        self.problem_authority = problem_authority
         self.mode = mode
         self.client = client
-        self.projection = projection or RuntimeProjection(context.problem)
         self.payload_builder = payload_builder or StrategyPayloadBuilder()
         self.prompt_renderer = prompt_renderer or StrategyPromptRenderer()
         self.functional_plan_fixture_dir = (
             Path(functional_plan_fixture_dir)
             if functional_plan_fixture_dir is not None
-            else default_functional_plan_fixture_dir()
+            else default_scope_native_functional_plan_fixture_dir()
         )
         self.artifacts = StrategyPlannerArtifacts()
 
@@ -135,8 +155,21 @@ class StrategyPlanner:
 
     def plan(self, inputs: PlannerInputs) -> PlannerOutput:
         """生成 PlannerOutput，但不执行 method、不收集答案。"""
-        problem_payload = self.projection.to_llm_problem_payload()
-        handle_registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+        (
+            problem_payload,
+            handle_registry,
+            planner_state_context,
+            retry_checkpoint,
+            problem_binding_catalog,
+        ) = self._prepare_problem_authority(inputs)
+        payload = self.payload_builder.build(
+            inputs,
+            problem_payload=problem_payload,
+            planner_state_context=planner_state_context,
+            problem_planning_context=self.problem_authority.planning_context,
+            problem_binding_catalog=problem_binding_catalog,
+        )
+        prompt = self.prompt_renderer.render(payload)
         if self.mode == "recorded":
             raw_response = json.dumps(
                 load_functional_plan_fixture(
@@ -150,15 +183,21 @@ class StrategyPlanner:
                 inputs=inputs,
                 handle_registry=handle_registry,
                 problem_payload=problem_payload,
+                planner_state_context=planner_state_context,
+                retry_checkpoint=retry_checkpoint,
+                problem_binding_catalog=problem_binding_catalog,
             )
-            payload: dict[str, Any] | None = None
-            prompt: StrategyPrompt | None = None
         elif self.mode == "deepseek":
-            payload, prompt, raw_response, replay_result = (
+            raw_response, replay_result = (
                 self._deepseek_functional_replay(
                     inputs,
+                    payload=payload,
+                    prompt=prompt,
                     problem_payload=problem_payload,
                     handle_registry=handle_registry,
+                    planner_state_context=planner_state_context,
+                    retry_checkpoint=retry_checkpoint,
+                    problem_binding_catalog=problem_binding_catalog,
                 )
             )
         else:
@@ -171,6 +210,9 @@ class StrategyPlanner:
             planner_inputs=inputs,
             validation_report=validation_report,
             retry_replay_result=replay_result,
+            problem_authority=self.problem_authority,
+            problem_binding_catalog=problem_binding_catalog,
+            initial_planner_state_context=planner_state_context,
         )
         output = replay_result.output
         goal_issue = _goal_verification_issue(replay_result)
@@ -183,6 +225,8 @@ class StrategyPlanner:
                 validation_report=validation_report,
                 retry_replay_result=replay_result,
                 output=output,
+                problem_binding_catalog=problem_binding_catalog,
+                initial_planner_state_context=planner_state_context,
             )
             raise _functional_planner_execution_error(
                 replay_result,
@@ -197,6 +241,8 @@ class StrategyPlanner:
                 validation_report=validation_report,
                 retry_replay_result=replay_result,
                 output=None,
+                problem_binding_catalog=problem_binding_catalog,
+                initial_planner_state_context=planner_state_context,
             )
             blocker = replay_result.diagnostic.first_blocker if replay_result.diagnostic else None
             raise _functional_planner_execution_error(
@@ -211,6 +257,8 @@ class StrategyPlanner:
             validation_report=validation_report,
             retry_replay_result=replay_result,
             output=output,
+            problem_binding_catalog=problem_binding_catalog,
+            initial_planner_state_context=planner_state_context,
         )
         return output
 
@@ -229,7 +277,9 @@ class StrategyPlanner:
             and errors
             and self.artifacts.planner_inputs is not None
         ):
-            problem_payload = self.projection.to_llm_problem_payload()
+            problem_payload = problem_to_llm_payload(
+                self.problem_authority.bundle.build_solver_problem()
+            )
             handle_registry = CanonicalHandleRegistry.from_problem_payload(
                 problem_payload
             )
@@ -282,6 +332,9 @@ class StrategyPlanner:
         inputs: PlannerInputs,
         handle_registry: CanonicalHandleRegistry,
         problem_payload: dict[str, Any],
+        planner_state_context: PlannerStateContext,
+        retry_checkpoint: FunctionalRetryGraphCheckpoint | None,
+        problem_binding_catalog: ProblemPlanningBindingCatalog,
     ) -> PlannerRetryReplayResult:
         return PlannerRetryReplayService(
             functional_transaction_mode="context_authoritative",
@@ -294,42 +347,26 @@ class StrategyPlanner:
             attempt=len(inputs.previous_errors),
             errors=(),
             problem_payload=problem_payload,
+            planner_state_context=planner_state_context,
+            retry_checkpoint=retry_checkpoint,
+            problem_binding_catalog=problem_binding_catalog,
         )
 
     def _deepseek_functional_replay(
         self,
         inputs: PlannerInputs,
         *,
+        payload: dict[str, Any],
+        prompt: StrategyPrompt,
         problem_payload: dict[str, Any],
         handle_registry: CanonicalHandleRegistry,
-    ) -> tuple[
-        dict[str, Any],
-        StrategyPrompt,
-        str,
-        PlannerRetryReplayResult,
-    ]:
+        planner_state_context: PlannerStateContext,
+        retry_checkpoint: FunctionalRetryGraphCheckpoint | None,
+        problem_binding_catalog: ProblemPlanningBindingCatalog,
+    ) -> tuple[str, PlannerRetryReplayResult]:
         """Call the strict FunctionalPlan protocol and replay its projection."""
         if self.client is None:
             raise StrategyDraftValidationError("deepseek strategy planner requires client")
-        planner_state_context = initial_planner_state_context(
-            inputs,
-            problem_payload=problem_payload,
-            handle_registry=handle_registry,
-        )
-        retry_checkpoint = latest_functional_retry_graph_checkpoint(
-            inputs.previous_errors
-        )
-        if retry_checkpoint is not None:
-            validate_checkpoint_manifest(
-                retry_checkpoint,
-                context=planner_state_context,
-            )
-        payload = self.payload_builder.build(
-            inputs,
-            problem_payload=problem_payload,
-            planner_state_context=planner_state_context,
-        )
-        prompt = self.prompt_renderer.render(payload)
         try:
             raw_response = self.client.complete(
                 {
@@ -380,6 +417,9 @@ class StrategyPlanner:
                 inputs=inputs,
                 handle_registry=handle_registry,
                 problem_payload=problem_payload,
+                planner_state_context=planner_state_context,
+                retry_checkpoint=retry_checkpoint,
+                problem_binding_catalog=problem_binding_catalog,
             )
         except StrategyDraftValidationError as exc:
             raise _functional_draft_validation_error(exc) from exc
@@ -403,7 +443,72 @@ class StrategyPlanner:
                     },
                 ),
             ) from exc
-        return payload, prompt, raw_response, replay
+        return raw_response, replay
+
+    def _prepare_problem_authority(
+        self,
+        inputs: PlannerInputs,
+    ) -> tuple[
+        dict[str, Any],
+        CanonicalHandleRegistry,
+        PlannerStateContext,
+        FunctionalRetryGraphCheckpoint | None,
+        ProblemPlanningBindingCatalog,
+    ]:
+        """Pin one Bundle, PlanningContext and initial typed state snapshot."""
+        bundle = self.problem_authority.bundle
+        planning_context = self.problem_authority.planning_context
+        if inputs.problem_id != planning_context.problem_id:
+            raise ProblemBundleAuthorityError(
+                "planner.problem_revision_drift",
+                "$.problem_id",
+                "Planner inputs do not belong to the authenticated problem",
+            )
+        if inputs.family_spec.family_id != planning_context.family_id:
+            raise ProblemBundleAuthorityError(
+                "planner.problem_revision_drift",
+                "$.family_id",
+                "Planner family differs from the authenticated problem",
+            )
+        problem_payload = problem_to_llm_payload(bundle.build_solver_problem())
+        if problem_to_llm_payload(self.context.problem) != problem_payload:
+            raise ProblemBundleAuthorityError(
+                "planner.problem_revision_drift",
+                "$.runtime_context.problem",
+                "RuntimeContext was not built from the authenticated bundle",
+            )
+        handle_registry = CanonicalHandleRegistry.from_problem_payload(
+            problem_payload
+        )
+        # Every attempt starts from the immutable source snapshot. Dynamic
+        # committed state is restored exclusively from checkpoint v2.
+        planner_state_context = initial_planner_state_context(
+            inputs,
+            problem_payload=problem_payload,
+            handle_registry=handle_registry,
+        )
+        retry_checkpoint = latest_functional_retry_graph_checkpoint(
+            inputs.previous_errors
+        )
+        if retry_checkpoint is not None:
+            validate_checkpoint_manifest(
+                retry_checkpoint,
+                context=planner_state_context,
+            )
+        problem_binding_catalog = ProblemPlanningBindingCatalogBuilder().build(
+            bundle,
+            planning_context,
+            planner_state_context,
+            handle_registry,
+            expected_token=bundle.authority_token,
+        )
+        return (
+            problem_payload,
+            handle_registry,
+            planner_state_context,
+            retry_checkpoint,
+            problem_binding_catalog,
+        )
 
     def _capture(
         self,
@@ -415,6 +520,8 @@ class StrategyPlanner:
         validation_report: object | None,
         retry_replay_result: PlannerRetryReplayResult | None,
         output: PlannerOutput | None,
+        problem_binding_catalog: ProblemPlanningBindingCatalog,
+        initial_planner_state_context: PlannerStateContext,
     ) -> None:
         """保存最近一次规划产物，供 Orchestrator debug 或测试读取。"""
         self.artifacts = StrategyPlannerArtifacts(
@@ -425,6 +532,9 @@ class StrategyPlanner:
             validation_report=validation_report,
             retry_replay_result=retry_replay_result,
             output=output,
+            problem_authority=self.problem_authority,
+            problem_binding_catalog=problem_binding_catalog,
+            initial_planner_state_context=initial_planner_state_context,
         )
 
 
@@ -435,17 +545,28 @@ def strategy_planner_provider(
     functional_plan_fixture_dir: Path | str | None = None,
     allow_same_problem_few_shot: bool = True,
     functional_few_shot_mode: FunctionalFewShotSelectionMode | None = None,
-) -> "Callable[[RuntimeContext], StrategyPlanner]":
+) -> "Callable[..., StrategyPlanner]":
     """构造 Orchestrator 可用的单一 Strategy provider。"""
     from collections.abc import Callable
 
-    def provider(context: RuntimeContext) -> StrategyPlanner:
+    def provider(
+        context: RuntimeContext,
+        *,
+        problem_authority: VerifiedPlannerProblemAuthority | None = None,
+    ) -> StrategyPlanner:
+        if problem_authority is None:
+            raise ProblemBundleAuthorityError(
+                "planner.problem_bundle_required",
+                "$.problem_authority",
+                "Strategy planning requires VerifiedSolverProblemBundle authority",
+            )
         payload_builder = StrategyPayloadBuilder(
             allow_same_problem_few_shot=allow_same_problem_few_shot,
             functional_few_shot_mode=functional_few_shot_mode,
         )
         return StrategyPlanner(
             context,
+            problem_authority=problem_authority,
             mode=mode,
             client=client,
             payload_builder=payload_builder,
@@ -524,11 +645,15 @@ def _functional_planner_execution_error(
             },
         )
     elif blocker is not None:
+        blocker_code = str(blocker.code)
+        planner_repairable = blocker_code.startswith(
+            ("functional.", "function.", "macro.")
+        )
         primary = StructuredSolveError(
             stage=str(blocker.stage),
-            code=str(blocker.code),
+            code=blocker_code,
             message=str(blocker.message),
-            retryable=bool(blocker.retryable)
+            retryable=(bool(blocker.retryable) or planner_repairable)
             and not _has_configuration_failure(issues),
             step_id=blocker.step_id,
             method_id=blocker.capability_id,

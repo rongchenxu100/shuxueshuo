@@ -192,6 +192,13 @@ from shuxueshuo_server.solver.state_semantics import (
     state_semantic_lineage,
 )
 
+from _problem_planning_support import (
+    SCOPE_NATIVE_FIXTURES,
+    cached_planning_binding_fixture,
+    cached_problem_planner_authority,
+    cached_scope_native_payload_args,
+)
+
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 NANKAI_FIXTURE = (
@@ -242,6 +249,26 @@ NANKAI_FUNCTIONAL_PLAN = (
     / "functional-plan-fixtures"
     / "tj-2026-nankai-yimo-25.functional-plan.json"
 )
+
+
+def _build_scope_native_payload(
+    builder: StrategyPayloadBuilder,
+    inputs,
+    *,
+    case: str = "tj-2026-nankai-yimo-25",
+) -> dict[str, Any]:
+    return builder.build(
+        inputs,
+        **cached_scope_native_payload_args(case),
+    )
+
+
+def _scope_native_plan(case: str = "tj-2026-nankai-yimo-25") -> dict[str, Any]:
+    return json.loads(
+        (SCOPE_NATIVE_FIXTURES / f"{case}.functional-plan.json").read_text(
+            encoding="utf-8"
+        )
+    )
 
 
 def _problem():
@@ -2552,9 +2579,11 @@ def test_functional_schema_and_catalog_are_prompt_safe() -> None:
     assert "capability catalog" in schema_call["properties"]["args"][
         "description"
     ]
-    assert "普通中间结果" in schema_call["properties"]["return_bindings"][
+    return_binding_description = schema_call["properties"]["return_bindings"][
         "description"
     ]
+    assert "explicit_answer_or_existing_object" in return_binding_description
+    assert "真正匿名" in return_binding_description
     assert "return_expectations" in schema_call["properties"]
     assert "return_expectations" not in schema_call["required"]
     assert catalog.get("quadratic_axis_from_relation") is not None
@@ -3838,6 +3867,72 @@ def test_closed_internal_return_expectation_blocks_open_runtime_state() -> None:
     assert canonical.calls[0].return_expectations == {
         "straightened_endpoint_2": "closed_state"
     }
+
+
+def test_point_parameter_form_mismatch_reports_symbol_identity_guidance() -> None:
+    call = FunctionalCall(
+        call_id="evaluate_moving_point",
+        capability_id="evaluate_point_at_parameter",
+        args={},
+        return_bindings={},
+        strategy="substitute a solved parameter",
+        reason="exercise parameter identity guidance",
+        return_expectations={"evaluated_point": "closed_state"},
+    )
+    plan = FunctionalPlan(
+        scopes=(FunctionalScope("ii", "ii", (call,)),),
+    )
+    allocation = FunctionalReturnAllocation(
+        call_id=call.call_id,
+        return_name="evaluated_point",
+        handle="fact:ii:evaluated_point",
+        runtime_type="Point",
+        valid_scope="ii",
+        state_slot_id="point:ii:E.coordinate@ii",
+        object_ref="point:ii:E",
+        identity_policy="same_object",
+        write_mode="transition",
+    )
+    reconciliation = FunctionalPlanReconciliationResult(
+        plan=plan,
+        calls=(
+            FunctionalCallReconciliation(
+                call_id=call.call_id,
+                scope_id="ii",
+                capability_id=call.capability_id,
+                resolved_args={},
+                returns=(allocation,),
+            ),
+        ),
+    )
+    diagnostic = FunctionalExecutionDiagnostic(
+        ok=True,
+        state_write_provenance=(
+            StateWriteProvenance(
+                step_id=call.call_id,
+                scope_id="ii",
+                capability_id=call.capability_id,
+                produced_handle=allocation.handle,
+                output_key=allocation.return_name,
+                runtime_type="Point",
+                object_ref=allocation.object_ref,
+                identity_policy="same_object",
+                identity_role="evaluated_point",
+                write_mode="transition",
+                free_symbol_names=("_axis_param_E",),
+            ),
+        ),
+    )
+
+    _events, issues = verify_functional_result_forms(
+        plan,
+        reconciliation,
+        diagnostic,
+    )
+
+    assert [item.code for item in issues] == ["functional.return_form_mismatch"]
+    assert "_axis_param_E" in " ".join(issues[0].hints)
+    assert "unrelated curve coefficient" in " ".join(issues[0].hints)
 
 
 def test_runtime_closed_form_updates_canonical_functional_plan() -> None:
@@ -8091,15 +8186,12 @@ def test_hidden_condition_object_state_is_blocked_by_failed_producer() -> None:
 def test_functional_payload_is_the_only_strategy_payload() -> None:
     inputs = _base_inputs()
     builder = StrategyPayloadBuilder()
-    functional = builder.build(
-        inputs,
-        problem_payload=_problem_payload(),
-    )
+    functional = _build_scope_native_payload(builder, inputs)
     assert set(functional) == {
         "planner_protocol",
         "problem_id",
         "family_id",
-        "problem_ir",
+        "problem_planning_context",
         "strategy_principles",
         "functional_capability_catalog",
         "few_shot_examples",
@@ -8112,40 +8204,67 @@ def test_functional_payload_is_the_only_strategy_payload() -> None:
     assert "naming_conventions" not in functional
     assert "semantic_read_catalog" not in functional
     assert "family_principles" not in functional
+    assert "problem_ir" not in functional
     assert functional["strategy_principles"]
-    assert not {
-        "display",
-        "pattern",
-        "problem_id",
-        "problem_type",
-        "purpose",
-        "title",
-    } & set(functional["problem_ir"])
-    assert functional["problem_ir"]["original_text"]
-    assert functional["problem_ir"]["facts"]
-    assert functional["problem_ir"]["question_goals"]
+    planning = functional["problem_planning_context"]
+    assert planning["schema_version"] == "planner-problem-view/v1"
+    assert planning["root_scope"]
+    assert "shared_context" not in planning
+    assert "goal_views" not in planning
+    serialized = json.dumps(planning, ensure_ascii=False)
+    assert "source_unit_id" not in serialized
+    assert "runtime_node_id" not in serialized
+
+    def prompt_refs(scope):
+        return {
+            item["ref"]
+            for key in ("entities", "facts")
+            for item in scope.get(key, [])
+        } | {
+            ref
+            for child in scope.get("children", [])
+            for ref in prompt_refs(child)
+        }
+
+    assert "N" in prompt_refs(planning["root_scope"])
+    hexi = _build_scope_native_payload(
+        StrategyPayloadBuilder(),
+        build_strategy_probe_inputs(load_problem_ir(HEXI_FIXTURE)),
+        case="tj-2026-hexi-yimo-25",
+    )
+    assert "M" in prompt_refs(
+        hexi["problem_planning_context"]["root_scope"]
+    )
     assert functional["planner_protocol"] == "functional_plan/v1"
     assert not CANONICAL_REF_RE.search(json.dumps(functional, ensure_ascii=False))
     prompt = StrategyPromptRenderer().render(functional)
     assert "FunctionalPlan" in prompt.system
+    assert "ProblemIR" not in prompt.system
     assert "Semantic Read Catalog" not in prompt.user
-    assert "ProblemIR 中的 `semantic_ref`" in prompt.system
+    assert "Planner Problem View 的嵌套 scope 树" in prompt.system
     assert "完成题目" in prompt.system
     assert "先按 `title/use_when`" in prompt.system
     assert "do_not_use_when" in prompt.system
     assert "title/use_when" not in prompt.user
     assert "title/description" not in prompt.user
-    assert "scope 表示调用的数学归属" in prompt.system
+    assert "表示调用的数学归属" in prompt.system
     assert "最近公共父 scope" in prompt.system
-    assert "可共享的开放表达式" in prompt.system
-    assert "各子 scope 的求值 call" in prompt.system
+    assert "由一个子问私有 Fact" in prompt.system
+    assert "绝不能用于回答 sibling 子问" in prompt.system
+    assert "各子问也必须分别从本问条件建立自己的状态链" in prompt.system
     assert "同一对象状态" in prompt.system
     assert "输入版本、自由符号或闭合状态不同" in prompt.system
+    assert "`binding=explicit_answer_or_existing_object`" in prompt.system
+    assert "CallResultRef 只证明数据流，不建立对象身份" in prompt.system
+    assert "真正匿名、call-local" in prompt.system
     assert "## Output Requirements" not in prompt.user
     assert "scope_id` 表示数学归属" not in prompt.user
     assert "\n  \"" not in prompt.user
     assert "common_goal_types" not in prompt.user
-    assert '"family_id"' not in prompt.user
+    prompt_text = f"{prompt.system}\n{prompt.user}"
+    assert "planner-state-context/v2" not in prompt_text
+    assert '"state_slots"' not in prompt_text
+    assert '"functional_binding_decisions"' not in prompt_text
     for internal_term in (
         "FunctionalCompileStep",
         "StateSlot",
@@ -13152,7 +13271,7 @@ def test_angle_sum_auto_arg_selects_latest_point_state_version() -> None:
     assert value.handle == "fact:i_2:B_evaluated_coordinate"
 
 
-def test_angle_sum_auto_arg_defers_declared_closed_producer_to_runtime() -> None:
+def test_angle_sum_auto_arg_accepts_declared_symbolic_producer() -> None:
     problem = load_problem_ir(HEPING_FIXTURE)
     inputs = build_strategy_probe_inputs(problem)
     problem_payload = problem_to_llm_payload(problem)
@@ -13219,10 +13338,10 @@ def test_angle_sum_auto_arg_defers_declared_closed_producer_to_runtime() -> None
     assert issue is None
     assert value == planned_point
     assert repair is not None
-    assert repair.action == "defer_closed_state_check_to_runtime"
+    assert repair.action == "resolve_angle_sum_role_state"
 
 
-def test_angle_sum_open_state_issue_repairs_producer_and_consumer() -> None:
+def test_angle_sum_auto_arg_accepts_open_symbolic_state() -> None:
     problem = load_problem_ir(HEPING_FIXTURE)
     inputs = build_strategy_probe_inputs(problem)
     problem_payload = problem_to_llm_payload(problem)
@@ -13284,15 +13403,10 @@ def test_angle_sum_open_state_issue_repairs_producer_and_consumer() -> None:
         )
     )
 
-    assert value is None
-    assert repair is None
-    assert issue is not None
-    assert issue.code == "functional.arg_state_open"
-    assert issue.details["producer_call_id"] == "derive_B_open"
-    assert issue.details["repair_call_ids"] == [
-        "derive_B_open",
-        "derive_angle_relation",
-    ]
+    assert issue is None
+    assert value == open_point
+    assert repair is not None
+    assert repair.action == "resolve_angle_sum_role_state"
 
 
 def test_closed_state_requirement_does_not_accept_open_context_state() -> None:
@@ -13343,7 +13457,7 @@ def test_closed_state_requirement_does_not_accept_open_context_state() -> None:
     )
 
 
-def test_hidden_closed_state_dependency_prefers_planned_closed_producer() -> None:
+def test_hidden_symbolic_state_does_not_require_planned_closed_producer() -> None:
     problem = load_problem_ir(HEPING_FIXTURE)
     inputs = build_strategy_probe_inputs(problem)
     problem_payload = problem_to_llm_payload(problem)
@@ -13435,7 +13549,7 @@ def test_hidden_closed_state_dependency_prefers_planned_closed_producer() -> Non
         )
     )
 
-    assert graph["derive_angle_relation"] == ("derive_B_closed",)
+    assert graph["derive_angle_relation"] == ()
 
 
 def test_explicit_symbol_values_do_not_depend_on_future_symbol_writes() -> None:
@@ -16538,6 +16652,336 @@ def test_legacy_functional_retry_does_not_restore_without_checkpoint() -> None:
     assert merged["scopes"][0]["calls"] == []
 
 
+def test_retry_restores_calls_outside_explicit_repair_cone() -> None:
+    baseline = _axis_plan_payload(strategy="verified")
+    stable_call = baseline["scopes"][0]["calls"][0]
+    repair_call = json.loads(json.dumps(stable_call))
+    repair_call["call_id"] = "repair_me"
+    repair_call["strategy"] = "broken"
+    baseline["scopes"][0]["calls"].append(repair_call)
+
+    candidate = _axis_plan_payload(strategy="model changed a stable call")
+    repaired = json.loads(json.dumps(repair_call))
+    repaired["strategy"] = "fixed"
+    candidate["scopes"][0]["calls"] = [repaired]
+    attempts = [
+        {
+            "context_derived_retry_state": {
+                "baseline_candidate": baseline,
+                "repair_call_ids": ["repair_me"],
+                "validated_call_ids": [stable_call["call_id"]],
+            }
+        }
+    ]
+
+    merged = json.loads(
+        prepare_functional_plan_raw_response(
+            json.dumps(candidate),
+            previous_attempts=attempts,
+        )
+    )
+
+    calls = merged["scopes"][0]["calls"]
+    assert [item["call_id"] for item in calls] == [
+        stable_call["call_id"],
+        "repair_me",
+    ]
+    assert calls[0] == stable_call
+    assert calls[1]["strategy"] == "fixed"
+
+
+def test_retry_restores_entire_scope_without_repair_calls() -> None:
+    baseline = _axis_plan_payload(strategy="verified")
+    stable_call = baseline["scopes"][0]["calls"][0]
+    repair_call = json.loads(json.dumps(stable_call))
+    repair_call["call_id"] = "repair_me"
+    repair_call["return_bindings"]["axis_point"]["ref"] = "ii.other"
+    baseline["scopes"].append(
+        {"scope_id": "ii", "label": "ii", "calls": [repair_call]}
+    )
+
+    changed_stable = json.loads(json.dumps(stable_call))
+    changed_stable["strategy"] = "model changed stable branch"
+    unrelated_addition = json.loads(json.dumps(stable_call))
+    unrelated_addition["call_id"] = "unrelated_addition"
+    unrelated_addition["return_bindings"]["axis_point"]["ref"] = "i.extra"
+    repaired = json.loads(json.dumps(repair_call))
+    repaired["strategy"] = "fixed"
+    candidate = {
+        "format": "functional_plan/v1",
+        "scopes": [
+            {
+                "scope_id": "i",
+                "label": "i",
+                "calls": [changed_stable, unrelated_addition],
+            },
+            {"scope_id": "ii", "label": "ii", "calls": [repaired]},
+        ],
+    }
+    attempts = [
+        {
+            "context_derived_retry_state": {
+                "baseline_candidate": baseline,
+                "repair_call_ids": ["repair_me"],
+                "validated_call_ids": [stable_call["call_id"]],
+            }
+        }
+    ]
+
+    merged = json.loads(
+        prepare_functional_plan_raw_response(
+            json.dumps(candidate),
+            previous_attempts=attempts,
+        )
+    )
+
+    calls_by_scope = {
+        scope["scope_id"]: scope["calls"] for scope in merged["scopes"]
+    }
+    assert calls_by_scope["i"] == [stable_call]
+    assert calls_by_scope["ii"][0]["strategy"] == "fixed"
+
+
+def test_retry_keeps_only_typed_or_dependency_authorized_additions() -> None:
+    baseline = _axis_plan_payload(strategy="verified")
+    stable_call = baseline["scopes"][0]["calls"][0]
+    repair_call = json.loads(json.dumps(stable_call))
+    repair_call["call_id"] = "repair_me"
+    repair_call["args"]["source"] = {
+        "from_call": "dependency_addition",
+        "return": "axis_point",
+    }
+    baseline["scopes"][0]["calls"].append(repair_call)
+
+    dependency_addition = json.loads(json.dumps(stable_call))
+    dependency_addition["call_id"] = "dependency_addition"
+    dependency_addition["return_bindings"]["axis_point"] = {
+        "kind": "point",
+        "ref": "i.dependency",
+    }
+    recommended_addition = json.loads(json.dumps(stable_call))
+    recommended_addition["call_id"] = "recommended_addition"
+    recommended_addition["capability_id"] = "quadratic_axis_x_intercept_point"
+    recommended_addition["return_bindings"] = {
+        "axis_point": {"kind": "point", "ref": "M"}
+    }
+    unrelated_addition = json.loads(json.dumps(stable_call))
+    unrelated_addition["call_id"] = "unrelated_addition"
+    candidate = {
+        "format": "functional_plan/v1",
+        "scopes": [
+            {
+                "scope_id": "i",
+                "label": "i",
+                "calls": [
+                    stable_call,
+                    dependency_addition,
+                    recommended_addition,
+                    unrelated_addition,
+                    repair_call,
+                ],
+            }
+        ],
+    }
+    attempts = [
+        {
+            "context_derived_retry_state": {
+                "baseline_candidate": baseline,
+                "repair_call_ids": ["repair_me"],
+                "validated_call_ids": [stable_call["call_id"]],
+                "issues": [
+                    {
+                        "details": {
+                            "recommended_producer": {
+                                "capability_id": (
+                                    "quadratic_axis_x_intercept_point"
+                                ),
+                                "return_name": "axis_point",
+                                "return_binding": {
+                                    "kind": "point",
+                                    "ref": "M",
+                                },
+                            }
+                        }
+                    }
+                ],
+            }
+        }
+    ]
+
+    merged = json.loads(
+        prepare_functional_plan_raw_response(
+            json.dumps(candidate),
+            previous_attempts=attempts,
+        )
+    )
+
+    call_ids = [item["call_id"] for item in merged["scopes"][0]["calls"]]
+    assert "dependency_addition" in call_ids
+    assert "recommended_addition" in call_ids
+    assert "unrelated_addition" not in call_ids
+
+
+def test_reconciliation_retry_marks_valid_calls_outside_repair_cone() -> None:
+    inputs = _base_inputs()
+    payload = json.loads(NANKAI_FUNCTIONAL_PLAN.read_text(encoding="utf-8"))
+    failing_call = next(
+        call
+        for scope in payload["scopes"]
+        for call in scope["calls"]
+        if call["call_id"] == "ii_2_derive_G"
+    )
+    failing_call["args"]["line1_p2"] = json.loads(
+        json.dumps(failing_call["args"]["line1_p1"])
+    )
+    plan, validation = _validate(payload, inputs)
+    assert validation.ok and plan is not None
+
+    replay = PlannerRetryReplayService().replay_functional_plan(
+        plan,
+        inputs=inputs,
+        handle_registry=_registry(),
+        context=ContextBuilder().build(_problem()),
+        attempt=1,
+        problem_payload=_problem_payload(),
+        validation_report=validation,
+    )
+
+    assert replay.retry_state is not None
+    assert replay.functional_reconciliation is not None
+    repair_ids = set(replay.retry_state.repair_call_ids)
+    expected = tuple(
+        report.call_id
+        for report in replay.functional_reconciliation.call_reports
+        if report.status == "valid" and report.call_id not in repair_ids
+    )
+    assert expected
+    assert replay.retry_state.validated_call_ids == expected
+    assert "ii_2_derive_G" not in replay.retry_state.validated_call_ids
+
+
+def test_retry_drops_renamed_writer_for_frozen_return_target() -> None:
+    baseline = _axis_plan_payload(strategy="verified")
+    stable_call = baseline["scopes"][0]["calls"][0]
+    repair_call = json.loads(json.dumps(stable_call))
+    repair_call["call_id"] = "repair_me"
+    repair_call["return_bindings"]["axis_point"]["ref"] = "i.other"
+    baseline["scopes"][0]["calls"].append(repair_call)
+
+    duplicate = json.loads(json.dumps(stable_call))
+    duplicate["call_id"] = "renamed_stable_writer"
+    repaired = json.loads(json.dumps(repair_call))
+    repaired["strategy"] = "fixed"
+    repaired["args"]["source"] = {
+        "from_call": "renamed_stable_writer",
+        "return": "axis_point",
+    }
+    candidate = _axis_plan_payload(strategy="unused")
+    candidate["scopes"][0]["calls"] = [duplicate, repaired]
+    attempts = [
+        {
+            "context_derived_retry_state": {
+                "baseline_candidate": baseline,
+                "repair_call_ids": ["repair_me"],
+                "validated_call_ids": [stable_call["call_id"]],
+            }
+        }
+    ]
+
+    merged = json.loads(
+        prepare_functional_plan_raw_response(
+            json.dumps(candidate),
+            previous_attempts=attempts,
+        )
+    )
+
+    calls = merged["scopes"][0]["calls"]
+    assert [item["call_id"] for item in calls] == [
+        stable_call["call_id"],
+        "repair_me",
+    ]
+    assert calls[0] == stable_call
+    assert calls[1]["strategy"] == "fixed"
+    assert calls[1]["args"]["source"]["from_call"] == stable_call["call_id"]
+
+
+def test_retry_restores_frozen_call_only_in_authoritative_scope() -> None:
+    baseline = _axis_plan_payload(strategy="verified")
+    stable_call = baseline["scopes"][0]["calls"][0]
+    repair_call = json.loads(json.dumps(stable_call))
+    repair_call["call_id"] = "repair_me"
+    repair_call["return_bindings"]["axis_point"]["ref"] = "i.other"
+    baseline["scopes"][0]["calls"].append(repair_call)
+
+    misplaced = json.loads(json.dumps(stable_call))
+    misplaced["strategy"] = "model moved the frozen call"
+    repaired = json.loads(json.dumps(repair_call))
+    repaired["strategy"] = "fixed"
+    candidate = {
+        "format": "functional_plan/v1",
+        "scopes": [
+            {"scope_id": "i", "label": "i", "calls": [repaired]},
+            {"scope_id": "ii", "label": "ii", "calls": [misplaced]},
+        ],
+    }
+    attempts = [
+        {
+            "context_derived_retry_state": {
+                "baseline_candidate": baseline,
+                "repair_call_ids": ["repair_me"],
+                "validated_call_ids": [stable_call["call_id"]],
+            }
+        }
+    ]
+
+    merged = json.loads(
+        prepare_functional_plan_raw_response(
+            json.dumps(candidate),
+            previous_attempts=attempts,
+        )
+    )
+
+    calls_by_scope = {
+        scope["scope_id"]: scope["calls"] for scope in merged["scopes"]
+    }
+    assert [item["call_id"] for item in calls_by_scope["i"]] == [
+        stable_call["call_id"],
+        "repair_me",
+    ]
+    assert calls_by_scope["i"][0] == stable_call
+    assert "ii" not in calls_by_scope
+
+
+def test_retry_does_not_freeze_unverified_baseline_calls() -> None:
+    baseline = _axis_plan_payload(strategy="broken baseline")
+    stable_call = baseline["scopes"][0]["calls"][0]
+    repair_call = json.loads(json.dumps(stable_call))
+    repair_call["call_id"] = "repair_me"
+    baseline["scopes"][0]["calls"].append(repair_call)
+
+    candidate = _axis_plan_payload(strategy="model replacement")
+    candidate["scopes"][0]["calls"][0]["call_id"] = "replacement"
+    attempts = [
+        {
+            "context_derived_retry_state": {
+                "baseline_candidate": baseline,
+                "repair_call_ids": ["repair_me"],
+                "validated_call_ids": [],
+                "stable_candidate_calls": [],
+            }
+        }
+    ]
+
+    merged = json.loads(
+        prepare_functional_plan_raw_response(
+            json.dumps(candidate),
+            previous_attempts=attempts,
+        )
+    )
+
+    assert merged == candidate
+
+
 def test_functional_replay_preserves_named_line_intersection_arguments() -> None:
     inputs = _base_inputs()
     payload = json.loads(NANKAI_FUNCTIONAL_PLAN.read_text(encoding="utf-8"))
@@ -17620,7 +18064,9 @@ def test_functional_repair_fallback_requests_functional_plan() -> None:
 
 
 def test_functional_retry_keeps_the_first_attempt_few_shot_selection() -> None:
-    inputs = _inputs_for_goal(0)
+    bundle, _planning_context, problem, inputs, *_ = (
+        cached_planning_binding_fixture()
+    )
 
     class InvalidClient:
         def complete(self, payload: dict) -> str:
@@ -17629,7 +18075,8 @@ def test_functional_retry_keeps_the_first_attempt_few_shot_selection() -> None:
             )
 
     planner = StrategyPlanner(
-        ContextBuilder().build(_problem()),
+        ContextBuilder().build(problem),
+        problem_authority=cached_problem_planner_authority(),
         mode="deepseek",
         client=InvalidClient(),
         payload_builder=StrategyPayloadBuilder(
@@ -17648,11 +18095,9 @@ def test_functional_retry_keeps_the_first_attempt_few_shot_selection() -> None:
     assert repair is not None
     assert repair["functional_few_shot_selection"] == first_selection
 
-    retry_payload = StrategyPayloadBuilder(
-        functional_few_shot_mode="strict_test"
-    ).build(
+    retry_payload = _build_scope_native_payload(
+        StrategyPayloadBuilder(functional_few_shot_mode="strict_test"),
         replace(inputs, previous_errors=[repair]),
-        problem_payload=_problem_payload(),
     )
     assert retry_payload["functional_few_shot_selection"] == first_selection
     assert retry_payload["few_shot_examples"] == first_payload["few_shot_examples"]
@@ -17679,8 +18124,12 @@ def test_functional_configuration_failure_crosses_typed_planner_boundary(
         "replay_functional_raw_json",
         fail_replay,
     )
+    _bundle, _planning_context, problem, inputs, *_ = (
+        cached_planning_binding_fixture()
+    )
     planner = StrategyPlanner(
-        ContextBuilder().build(_problem()),
+        ContextBuilder().build(problem),
+        problem_authority=cached_problem_planner_authority(),
         mode="deepseek",
         client=Client(),
         payload_builder=StrategyPayloadBuilder(
@@ -17689,7 +18138,7 @@ def test_functional_configuration_failure_crosses_typed_planner_boundary(
     )
 
     with pytest.raises(PlannerExecutionError) as raised:
-        planner.plan(_inputs_for_goal(0))
+        planner.plan(inputs)
 
     assert raised.value.primary.stage == "planner"
     assert raised.value.primary.code == "planner_configuration_error"
@@ -17714,8 +18163,12 @@ def test_functional_projection_failure_crosses_typed_planner_boundary(
         "replay_functional_raw_json",
         fail_replay,
     )
+    _bundle, _planning_context, problem, inputs, *_ = (
+        cached_planning_binding_fixture()
+    )
     planner = StrategyPlanner(
-        ContextBuilder().build(_problem()),
+        ContextBuilder().build(problem),
+        problem_authority=cached_problem_planner_authority(),
         mode="deepseek",
         client=Client(),
         payload_builder=StrategyPayloadBuilder(
@@ -17724,7 +18177,7 @@ def test_functional_projection_failure_crosses_typed_planner_boundary(
     )
 
     with pytest.raises(PlannerExecutionError) as raised:
-        planner.plan(_inputs_for_goal(0))
+        planner.plan(inputs)
 
     assert raised.value.primary.stage == "normalization"
     assert (
@@ -17818,10 +18271,7 @@ def test_functional_prompt_retry_state_never_exposes_step_intent_baseline() -> N
         inputs,
         previous_errors=[{"context_derived_retry_state": retry_state}],
     )
-    payload = StrategyPayloadBuilder().build(
-        inputs,
-        problem_payload=_problem_payload(),
-    )
+    payload = _build_scope_native_payload(StrategyPayloadBuilder(), inputs)
     latest = payload["previous_attempt_state"]["latest_retry_state"]
 
     assert latest["baseline_candidate"] == _axis_plan_payload()
@@ -17863,9 +18313,9 @@ def test_functional_prompt_retry_state_never_exposes_step_intent_baseline() -> N
     assert '"locked_call_ids"' in prompt.user
     assert '"runtime_verified"' in prompt.user
     assert '"free":[' in prompt.user
-    assert "可以修改、替换或删除" in prompt.system
-    assert "任何不在 `locked_call_ids` 中的调用" in prompt.system
-    assert "只修复 `repair_call_ids`" not in prompt.system
+    assert "只修改 `repair_call_ids`" in prompt.system
+    assert "已验证的无关分支" in prompt.system
+    assert "任何不在 `locked_call_ids` 中的调用" not in prompt.system
     assert "StateSlot" not in json.dumps(latest, ensure_ascii=False)
     assert "runtime path" not in json.dumps(latest, ensure_ascii=False)
 
@@ -18217,10 +18667,7 @@ def test_functional_prompt_projects_retry_handles_to_semantic_refs() -> None:
         ],
     )
 
-    payload = StrategyPayloadBuilder().build(
-        inputs,
-        problem_payload=_problem_payload(),
-    )
+    payload = _build_scope_native_payload(StrategyPayloadBuilder(), inputs)
     latest = payload["previous_attempt_state"]["latest_retry_state"]
     serialized = json.dumps(latest, ensure_ascii=False)
 
@@ -18237,35 +18684,43 @@ def test_functional_prompt_projects_retry_handles_to_semantic_refs() -> None:
 
 
 def test_fake_llm_functional_plan_compiles_through_existing_runtime() -> None:
-    inputs = _inputs_for_goal(0)
+    _bundle, _planning_context, problem, inputs, *_ = (
+        cached_planning_binding_fixture()
+    )
+    scope_native_plan = _scope_native_plan()
 
     class FakeClient:
         request: dict | None = None
 
         def complete(self, payload: dict) -> str:
             self.request = payload
-            return json.dumps(_axis_plan_payload())
+            return json.dumps(scope_native_plan)
 
     client = FakeClient()
     planner = StrategyPlanner(
-        ContextBuilder().build(_problem()),
+        ContextBuilder().build(problem),
+        problem_authority=cached_problem_planner_authority(),
         mode="deepseek",
         client=client,
     )
 
     output = planner.plan(inputs)
 
-    invocation = output.step_plans[0].invocations[0]
-    assert invocation.method_id == "quadratic_axis_from_relation"
-    assert invocation.inputs == {
-        "coefficient_relation": "$problem.equations.coefficient_relation",
-        "a": "$problem.symbols.a",
-        "b": "$problem.symbols.b",
-        "target": "$problem.points.D",
-    }
+    invocations = [
+        invocation
+        for plan in output.step_plans
+        for invocation in plan.invocations
+    ]
+    assert invocations
+    assert any(
+        invocation.method_id == "quadratic_axis_from_relation"
+        for invocation in invocations
+    )
     assert client.request is not None
     assert client.request["planner_protocol"] == "functional_plan/v1"
     assert client.request["planner_attempt"] == 1
+    assert "problem_planning_context" in client.request["planner_payload"]
+    assert "problem_ir" not in client.request["planner_payload"]
     raw_candidate = planner.last_raw_response or ""
     assert not CANONICAL_REF_RE.search(raw_candidate)
     assert "creates" not in raw_candidate and "produces" not in raw_candidate
@@ -18639,7 +19094,19 @@ def test_runtime_macro_arg_failure_becomes_typed_functional_work_order() -> None
     assert issue.details["state_requirement"].startswith(
         "materialized Point state"
     )
-    assert "structured endpoint" in issue.details["repair_guidance"]
+    assert issue.details["repair_action"] == "materialize_required_point_state"
+    assert issue.details["recommended_producer"] == {
+        "source_definition": "axis_x_intercept",
+        "capability_id": "quadratic_axis_x_intercept_point",
+        "return_name": "axis_point",
+        "input_requirement": "computed Parabola state for the definition owner",
+        "placement_requirement": (
+            "before the dependent call in the same scope or a visible ancestor"
+        ),
+        "definition_owner": "function:problem:parabola",
+        "return_binding": {"kind": "point", "ref": "M"},
+    }
+    assert "recommended producer" in issue.details["repair_guidance"]
     assert not any(
         item.code in {
             "functional.auto_arg_unresolved",
@@ -18666,36 +19133,83 @@ def test_runtime_macro_arg_failure_becomes_typed_functional_work_order() -> None
     assert straighten_report.blocked_by == ("reduce_path",)
 
 
+def test_unique_required_call_result_omits_broad_candidate_lists() -> None:
+    issue = PlannerRetryIssue(
+        layer="functional_reconciliation",
+        code="functional.arg_state_unavailable",
+        details={
+            "required_call_result": {
+                "from_call": "construct_n",
+                "return": "point",
+            },
+            "compatible_refs": ["N"],
+            "compatible_call_results": [
+                {"from_call": "construct_n", "return": "point"}
+            ],
+            "later_compatible_call_results": [
+                {"from_call": "late_n", "return": "point"}
+            ],
+        },
+    )
+
+    compact = strategy_replay_module._compact_required_call_result_diagnostics(
+        issue
+    )
+
+    assert compact.details == {
+        "required_call_result": {
+            "from_call": "construct_n",
+            "return": "point",
+        }
+    }
+
+
 def test_functional_debug_artifacts_omit_retired_step_intents(tmp_path: Path) -> None:
-    inputs = _inputs_for_goal(0)
-    plan, report = _validate(_axis_plan_payload(), inputs)
-    assert plan is not None
+    (
+        _bundle,
+        _planning_context,
+        problem,
+        inputs,
+        problem_payload,
+        registry,
+        planner_context,
+        binding_catalog,
+    ) = cached_planning_binding_fixture()
+    authority = cached_problem_planner_authority()
+    source_plan = _scope_native_plan()
+    plan, report = FunctionalPlanValidator().validate_payload_with_report(
+        source_plan,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+    assert report.ok and plan is not None
     replay = PlannerRetryReplayService().replay_functional_plan(
         plan,
         inputs=inputs,
-        handle_registry=_registry(),
-        context=ContextBuilder().build(_problem()),
+        handle_registry=registry,
+        context=ContextBuilder().build(problem),
         attempt=0,
-        problem_payload=_problem_payload(),
+        problem_payload=problem_payload,
+        planner_state_context=planner_context,
         validation_report=report,
+        problem_binding_catalog=binding_catalog,
     )
-    payload = StrategyPayloadBuilder().build(
-        inputs,
-        problem_payload=_problem_payload(),
-    )
+    payload = _build_scope_native_payload(StrategyPayloadBuilder(), inputs)
     prompt = StrategyPromptRenderer().render(payload)
 
     write_strategy_debug_artifacts(
         tmp_path,
         payload=payload,
         prompt=prompt,
-        raw_response=json.dumps(_axis_plan_payload()),
+        raw_response=json.dumps(source_plan),
         report=replay.functional_validation_report,
         execution_diagnostic=replay.diagnostic,
         planner_retry_state=replay.retry_state,
         planner_state_context=replay.planner_state_context,
         functional_plan=replay.functional_plan,
         functional_reconciliation=replay.functional_reconciliation,
+        problem_authority=authority,
+        problem_binding_catalog=binding_catalog,
     )
 
     assert json.loads((tmp_path / "functional-plan.json").read_text())["format"] == (
@@ -18742,4 +19256,4 @@ def test_functional_debug_artifacts_omit_retired_step_intents(tmp_path: Path) ->
     assert selection == payload["functional_few_shot_selection"]
     assert not (tmp_path / "payload.semantic_read_catalog.json").exists()
     assert not (tmp_path / "semantic-read-catalog.json").exists()
-    assert (tmp_path / "context-semantic-read-catalog.json").exists()
+    assert not (tmp_path / "context-semantic-read-catalog.json").exists()

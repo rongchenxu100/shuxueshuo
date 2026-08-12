@@ -85,6 +85,8 @@ _QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         "由定义可直接求出的基础点坐标也要用独立 method step 表达，例如 y 轴交点和平移点；不要让后续函数求解 step 隐式解析这些点。",
         "本 family 的路径最值优先使用初中生能理解的几何构造法，而不是把两个动点全部参数化后做复杂解析几何最值。",
         "等长射线路径最值的标准路线是：优先使用 equal_length_ray_path_reduction recipe，把“两动点线段距离和”转化为“单动点/单线段距离”的最小值表达式；辅助点由 recipe 内部构造，FunctionalPlan 不声明内部辅助点。",
+        "每个子问的参数闭合链必须留在该子问：路径最值问从本问 minimum_target/minimum_value 求出的 ParameterValue 只能服务本问，不能代入 sibling 子问的抛物线或点；同名参数在不同子问中也要分别由各自事实求值。",
+        "公共 scope 只保存所有相关子问从一开始就共享的题面函数模板或开放状态；只要某次求值读取了子问私有 Fact，它的结果就不是公共状态，不能通过 CallResultRef 跨 sibling 复用。",
         "不要单独 produces M_coordinate_expr、N_coordinate_expr、OM_distance_expr、BN_distance_expr 这类参数化/分段距离 utility fact；这些不是初中生优先的解题步骤，也不是本 family 的可执行标准路线。",
         "不要把含参系数缓存、纯文字全等说明或最终讲解段落作为独立 produces；这些可以放在 strategy/reason 中。",
     ),

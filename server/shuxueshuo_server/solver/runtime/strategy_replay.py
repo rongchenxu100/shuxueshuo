@@ -288,17 +288,25 @@ class PlannerRetryReplayService:
         attempt: int,
         errors: tuple[str, ...] = (),
         problem_payload: dict[str, Any] | None = None,
+        planner_state_context: PlannerStateContext | None = None,
+        retry_checkpoint: FunctionalRetryGraphCheckpoint | None = None,
+        problem_binding_catalog: ProblemPlanningBindingCatalog | None = None,
     ) -> PlannerRetryReplayResult:
         """Parse and replay a strict FunctionalPlan response."""
-        planner_state_context = _initial_planner_state_context(
-            inputs=inputs,
-            handle_registry=handle_registry,
-            problem_payload=problem_payload,
-            attempt=attempt,
-            previous_attempts=inputs.previous_errors,
+        planner_state_context = (
+            planner_state_context
+            or _initial_planner_state_context(
+                inputs=inputs,
+                handle_registry=handle_registry,
+                problem_payload=problem_payload,
+                attempt=attempt,
+                previous_attempts=inputs.previous_errors,
+            )
         )
-        retry_checkpoint = latest_functional_retry_graph_checkpoint(
-            inputs.previous_errors
+        retry_checkpoint = (
+            retry_checkpoint
+            if retry_checkpoint is not None
+            else latest_functional_retry_graph_checkpoint(inputs.previous_errors)
         )
         if retry_checkpoint is not None:
             validate_checkpoint_manifest(
@@ -357,6 +365,7 @@ class PlannerRetryReplayService:
             planner_state_context=planner_state_context,
             validation_report=report,
             retry_checkpoint=retry_checkpoint,
+            problem_binding_catalog=problem_binding_catalog,
         )
 
     def replay_functional_plan(
@@ -880,6 +889,7 @@ def _functional_retry_state(
         )
         for issue in issues
     )
+    retry_issues = _unique_retry_issues(retry_issues)
     if not retry_issues and errors:
         retry_issues = tuple(
             PlannerRetryIssue(
@@ -1075,12 +1085,26 @@ def _functional_feedback_retry_state(
             ),
         )
     )
+    repair_call_ids = _ordered_functional_repair_cone(
+        roots,
+        reconciliation=reconciliation,
+    )
+    repair_call_id_set = set(repair_call_ids)
+    structurally_verified_call_ids = tuple(
+        report.call_id
+        for report in reconciliation.call_reports
+        if report.status == "valid"
+        and report.call_id not in repair_call_id_set
+    )
     return replace(
         retry_state,
         issues=issues,
-        repair_call_ids=_ordered_functional_repair_cone(
-            roots,
-            reconciliation=reconciliation,
+        repair_call_ids=repair_call_ids,
+        validated_call_ids=structurally_verified_call_ids,
+        preserve_policy=(
+            "preserve_graph"
+            if structurally_verified_call_ids
+            else retry_state.preserve_policy
         ),
     )
 
@@ -1632,6 +1656,105 @@ def _enrich_functional_retry_issues(
         )
         error_code = details.get("error_code") or issue.code
         if (
+            error_code == "functional.path_transformation_state_unavailable"
+            and call is not None
+        ):
+            object_ref = details.get("object_ref")
+            point_label = (
+                object_ref.rsplit(":", 1)[-1]
+                if isinstance(object_ref, str)
+                else "the required point"
+            )
+            compatible_results = [
+                {
+                    "from_call": prior.call_id,
+                    "return": allocation.return_name,
+                    "value_type": allocation.runtime_type,
+                }
+                for prior in reconciliation.calls
+                if call_order.get(prior.call_id, -1)
+                < call_order.get(call.call_id, -1)
+                for allocation in prior.returns
+                if allocation.runtime_type == "Point"
+                and isinstance(object_ref, str)
+                and allocation.object_ref == object_ref
+            ]
+            compatible_results = list(
+                {
+                    (item["from_call"], item["return"]): item
+                    for item in compatible_results
+                }.values()
+            )
+            details.update(
+                {
+                    "repair_action": "materialize_required_point_state",
+                    "repair_call_ids": list(
+                        unique_ordered(
+                            (
+                                *(
+                                    item["from_call"]
+                                    for item in compatible_results
+                                ),
+                                call.call_id,
+                            )
+                        )
+                    ),
+                }
+            )
+            producer_contract = _point_materialization_producer_contract(
+                object_ref,
+                semantic_index=semantic_index,
+            )
+            if producer_contract is not None:
+                details["recommended_producer"] = producer_contract
+            if compatible_results:
+                details["compatible_call_results"] = compatible_results
+            if len(compatible_results) == 1:
+                required = {
+                    key: compatible_results[0][key]
+                    for key in ("from_call", "return")
+                }
+                details["required_call_result"] = required
+                details["repair_guidance"] = (
+                    "Retain the Point producer and make the dynamic dependency "
+                    "explicit with required_call_result. Do not substitute the "
+                    "same-name SemanticRef."
+                )
+                message = (
+                    f"call {call.call_id} requires the computed Point state "
+                    f"for {point_label}; use {required['from_call']}."
+                    f"{required['return']} as a CallResultRef"
+                )
+            else:
+                if producer_contract is not None:
+                    details["repair_guidance"] = (
+                        "Insert the recommended producer before this call in "
+                        "the same scope or a visible ancestor. Bind its Point "
+                        f"return to {point_label}; use the current-scope "
+                        "computed inputs named by the producer contract."
+                    )
+                else:
+                    details["repair_guidance"] = (
+                        "Add or retain exactly one earlier call that "
+                        f"materializes Point {point_label}, then connect its "
+                        "Point return to the dependent call with CallResultRef."
+                    )
+                message = (
+                    f"call {call.call_id} requires a computed Point state for "
+                    f"{point_label}, but no unique earlier Point producer is "
+                    "available"
+                )
+            result.append(
+                replace(
+                    issue,
+                    step_id=call.call_id,
+                    repair_target="functional_call",
+                    message=message,
+                    details=details,
+                )
+            )
+            continue
+        if (
             error_code == "function.transition_dependency_missing"
             and call is not None
         ):
@@ -2089,7 +2212,71 @@ def _enrich_functional_retry_issues(
                 details=details,
             )
         )
-    return tuple(result)
+    return tuple(
+        _compact_required_call_result_diagnostics(issue) for issue in result
+    )
+
+
+def _point_materialization_producer_contract(
+    object_ref: object,
+    *,
+    semantic_index: FunctionalSemanticIndex,
+) -> dict[str, Any] | None:
+    """Describe a source-declared Point producer without guessing by label."""
+
+    if not isinstance(object_ref, str):
+        return None
+    payload = semantic_index.entity_payloads.get(object_ref, {})
+    definition = payload.get("definition")
+    contracts = {
+        "axis_x_intercept": (
+            "quadratic_axis_x_intercept_point",
+            "axis_point",
+            "computed Parabola state for the definition owner",
+        ),
+    }
+    contract = contracts.get(definition)
+    if contract is None:
+        return None
+    capability_id, return_name, input_requirement = contract
+    target_refs = unique_ordered(
+        item.ref
+        for item in semantic_index.views
+        if item.handle == object_ref and item.kind == "point"
+    )
+    result: dict[str, Any] = {
+        "source_definition": definition,
+        "capability_id": capability_id,
+        "return_name": return_name,
+        "input_requirement": input_requirement,
+        "placement_requirement": (
+            "before the dependent call in the same scope or a visible ancestor"
+        ),
+    }
+    owner = payload.get("of")
+    if isinstance(owner, str) and owner:
+        result["definition_owner"] = owner
+    if len(target_refs) == 1:
+        result["return_binding"] = {
+            "kind": "point",
+            "ref": target_refs[0],
+        }
+    return result
+
+
+def _compact_required_call_result_diagnostics(
+    issue: PlannerRetryIssue,
+) -> PlannerRetryIssue:
+    details = issue.details
+    if not isinstance(details, Mapping) or not isinstance(
+        details.get("required_call_result"), Mapping
+    ):
+        return issue
+    compact = dict(details)
+    compact.pop("compatible_refs", None)
+    compact.pop("compatible_call_results", None)
+    compact.pop("later_compatible_call_results", None)
+    return replace(issue, details=compact)
 
 
 def _declared_compatible_call_results(

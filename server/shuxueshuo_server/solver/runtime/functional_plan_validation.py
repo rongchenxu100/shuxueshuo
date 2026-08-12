@@ -200,13 +200,13 @@ FUNCTIONAL_PLAN_JSON_SCHEMA: dict[str, Any] = {
     "$defs": {
         "semantic_ref": {
             "type": "object",
-            "description": "引用 ProblemIR 中已有的 semantic_ref。",
+            "description": "引用 Planner Problem View 中已有的 ref。",
             "additionalProperties": False,
             "required": ["ref", "kind"],
             "properties": {
                 "ref": {
                     "type": "string",
-                    "description": "ProblemIR 中原样出现的 semantic_ref。",
+                    "description": "Planner Problem View 中原样出现的 ref。",
                     "minLength": 1,
                     "pattern": (
                         r"^(?!(?:point|line|segment|ray|function|symbol|angle|"
@@ -260,7 +260,7 @@ FUNCTIONAL_PLAN_JSON_SCHEMA: dict[str, Any] = {
         "format": {"const": "functional_plan/v1"},
         "scopes": {
             "type": "array",
-            "description": "按 ProblemIR scope 组织调用。",
+            "description": "按 Planner Problem View 的嵌套 scope 组织调用。",
             "minItems": 1,
             "items": {
                 "type": "object",
@@ -279,7 +279,7 @@ FUNCTIONAL_PLAN_JSON_SCHEMA: dict[str, Any] = {
                             "和依赖子问私有参数的求值结果；应拆成父 scope 的公共表达式"
                             "call 与各子 scope 的求值 call。已经在子问中安全产生、且输入"
                             "也可在公共范围成立的结果可通过 CallResultRef 引用。scope_id "
-                            "必须来自 ProblemIR。"
+                            "必须来自 Planner Problem View。"
                         ),
                     },
                     "label": {
@@ -331,8 +331,10 @@ FUNCTIONAL_PLAN_JSON_SCHEMA: dict[str, Any] = {
                                 "return_bindings": {
                                     "type": "object",
                                     "description": (
-                                        "只绑定最终答案或 ProblemIR 中已有对象；"
-                                        "普通中间结果保持为空。"
+                                        "只绑定最终答案或 Planner Problem View 中已有对象；"
+                                        "catalog 标记 explicit_answer_or_existing_object 时，"
+                                        "即使是中间状态也必须绑定对应已有对象。只有 internal_only "
+                                        "或真正匿名、call-local 的中间结果保持为空。"
                                     ),
                                     "additionalProperties": {
                                         "$ref": "#/$defs/semantic_ref"

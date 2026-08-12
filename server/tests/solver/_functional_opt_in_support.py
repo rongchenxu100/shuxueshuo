@@ -15,7 +15,6 @@ from shuxueshuo_server.solver.deepseek_functional_batch import (
     FUNCTIONAL_BATCH_CASES,
     FunctionalBatchCase,
 )
-from shuxueshuo_server.solver.fixtures import load_problem_ir
 from shuxueshuo_server.solver.functional_parity import (
     provenance_parity_signature,
 )
@@ -30,6 +29,8 @@ from shuxueshuo_server.solver.runtime.strategy_payload import (
 from shuxueshuo_server.solver.runtime.strategy_runtime_planner import (
     strategy_planner_provider,
 )
+
+from _problem_planning_support import planning_binding_fixture
 
 
 RUN_FUNCTIONAL = (
@@ -52,7 +53,10 @@ def run_deepseek_functional_opt_in(case: FunctionalOptInCase) -> None:
     if not config.deepseek_api_key:
         pytest.skip("DEEPSEEK_API_KEY is not configured")
     client = config.build_llm_client()
-    problem = load_problem_ir(case.problem_fixture_path)
+    bundle, *_ = planning_binding_fixture(
+        debug_dir / "_bundle-authority",
+        case=case.problem_id,
+    )
     expected = load_expected_answers(case.expected_path)
     orchestrator = RuntimeOrchestrator(
         planner_providers={},
@@ -65,7 +69,7 @@ def run_deepseek_functional_opt_in(case: FunctionalOptInCase) -> None:
         debug_dir=debug_dir,
     )
 
-    result = orchestrator.solve(problem)
+    result = orchestrator.solve_verified(bundle)
     answer_mismatch = _answer_mismatch(result.answers, expected)
     attempt_count = (
         len(orchestrator.last_session.attempts)
@@ -118,6 +122,14 @@ def run_deepseek_functional_opt_in(case: FunctionalOptInCase) -> None:
     if success is not None:
         artifacts = success.planner.artifacts
         replay = artifacts.retry_replay_result
+        _record_gate(
+            gate_checks,
+            "problem_authority",
+            success.problem_authority is not None
+            and success.problem_binding_catalog is not None
+            and success.planner_state_context is not None,
+            "missing Bundle, PlanningContext, BindingCatalog, or PlannerStateContext",
+        )
         if replay is not None:
             transaction_report = replay.transactional_execution_report
             if (
@@ -152,6 +164,8 @@ def run_deepseek_functional_opt_in(case: FunctionalOptInCase) -> None:
                 planner_state_context=replay.planner_state_context,
                 functional_plan=replay.functional_plan,
                 functional_reconciliation=replay.functional_reconciliation,
+                problem_authority=success.problem_authority,
+                problem_binding_catalog=success.problem_binding_catalog,
                 llm_metadata={
                     "provider": "deepseek",
                     "request_model": getattr(client, "model", None),
@@ -421,6 +435,9 @@ def _assert_attempt_protocol(debug_dir: Path, *, attempt_count: int) -> None:
         planner_protocol = _read_json_value(
             prefix.with_suffix(".payload.planner_protocol.json")
         )
+        problem_planning_context = _read_json_value(
+            prefix.with_suffix(".payload.problem_planning_context.json")
+        )
         few_shot_examples = _read_json_value(
             prefix.with_suffix(".payload.few_shot_examples.json")
         )
@@ -430,6 +447,7 @@ def _assert_attempt_protocol(debug_dir: Path, *, attempt_count: int) -> None:
         _assert_prompt_is_functional_and_safe(
             {
                 "planner_protocol": planner_protocol,
+                "problem_planning_context": problem_planning_context,
                 "functional_few_shot_selection": selection,
                 "few_shot_examples": few_shot_examples,
             },
@@ -450,6 +468,10 @@ def _assert_prompt_is_functional_and_safe(payload: dict[str, Any], prompt: Any) 
     assert payload.get("planner_protocol") == "functional_plan/v1", (
         "planner_protocol is not functional_plan/v1"
     )
+    assert "problem_ir" not in payload, "flat ProblemIR leaked into planner payload"
+    problem_context = payload.get("problem_planning_context")
+    assert isinstance(problem_context, dict), "scope-native planning context is missing"
+    assert problem_context.get("schema_version") == "planner-problem-view/v1"
     assert "expected_answers" not in json.dumps(payload, ensure_ascii=False), (
         "expected answers leaked into the planner payload"
     )
@@ -463,6 +485,10 @@ def _assert_prompt_is_functional_and_safe(payload: dict[str, Any], prompt: Any) 
         '"creates"',
         '"produces"',
         '"format": "step_intent"',
+        '"problem_ir"',
+        '"example_id"',
+        '"source_problem_id"',
+        '"selection_tier"',
     ):
         assert forbidden not in serialized, (
             f"Functional prompt leaked forbidden token: {forbidden}"
@@ -474,14 +500,6 @@ def _assert_prompt_is_functional_and_safe(payload: dict[str, Any], prompt: Any) 
     assert canonical_handle.search(serialized) is None, (
         "Functional prompt leaked a canonical handle"
     )
-    selection = payload.get("functional_few_shot_selection")
-    if isinstance(selection, dict):
-        for key in ("source_problem_id", "family_id", "selection_tier"):
-            value = selection.get(key)
-            if isinstance(value, str) and value:
-                assert json.dumps(value, ensure_ascii=False) not in user_prompt, (
-                    f"Functional prompt leaked few-shot retrieval metadata: {key}"
-                )
 
 
 def _assert_no_few_shot_retrieval_metadata(value: Any) -> None:

@@ -14,10 +14,17 @@ from shuxueshuo_server.solver.extraction.problem_domain_projection import (
 from shuxueshuo_server.solver.extraction.problem_planning_binding import (
     ProblemPlanningBindingCatalogBuilder,
     ProblemPlanningBindingError,
+    build_functional_problem_binding_context,
     functional_problem_binding_context_schema,
     problem_planning_binding_catalog_schema,
 )
 from shuxueshuo_server.solver.runtime.context import ContextBuilder
+from shuxueshuo_server.solver.runtime.binding_index import (
+    CanonicalRuntimeBindingIndex,
+)
+from shuxueshuo_server.solver.runtime.binding_rules import (
+    parameter_substitution_pairs_from_reads,
+)
 from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
     FunctionalTransactionalInterpreter,
 )
@@ -28,6 +35,11 @@ from shuxueshuo_server.solver.runtime.strategy_replay import (
     PlannerRetryReplayService,
 )
 from shuxueshuo_server.solver.runtime.state_identity import StateVersionId
+from shuxueshuo_server.solver.runtime.strategy_models import (
+    FunctionalCompileStep,
+    ProjectedStateDependency,
+    ProjectedStateWrite,
+)
 
 from _problem_planning_support import (
     CASES,
@@ -38,6 +50,65 @@ from _problem_planning_support import (
 
 
 ROOT = Path(__file__).resolve().parents[3]
+
+
+def _xiqing_parameter_evaluation_payload(*, parameter_ref: str = "b") -> dict:
+    case = "tj-2026-xiqing-yimo-25"
+    payload = json.loads(
+        (SCOPE_NATIVE_FIXTURES / f"{case}.functional-plan.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    first_scope = next(
+        scope for scope in payload["scopes"] if scope["scope_id"] == "i"
+    )
+    first_scope["calls"] = [
+        {
+            "call_id": "build_open_parabola_i",
+            "capability_id": "quadratic_from_constraints",
+            "args": {
+                "curve_point": {"kind": "point", "ref": "A"},
+                "free_parameters": {"kind": "symbol", "ref": "b"},
+            },
+            "return_bindings": {},
+            "strategy": "建立保留参数 b 的抛物线。",
+            "reason": "先保留题面动态参数。",
+        },
+        {
+            "call_id": "evaluate_parabola_i",
+            "capability_id": "evaluate_expression_at_parameter",
+            "args": {
+                "expression": {
+                    "from_call": "build_open_parabola_i",
+                    "return": "parabola",
+                },
+                "parameter": {"kind": "symbol", "ref": parameter_ref},
+                "parameter_value": {
+                    "kind": "fact",
+                    "ref": "symbol_value_b",
+                },
+            },
+            "return_bindings": {},
+            "strategy": "代入本问给定的参数值。",
+            "reason": "闭合抛物线状态。",
+        },
+        {
+            "call_id": "derive_vertex_i",
+            "capability_id": "quadratic_vertex_point",
+            "args": {
+                "parabola": {
+                    "from_call": "evaluate_parabola_i",
+                    "return": "evaluated_parabola",
+                }
+            },
+            "return_bindings": {
+                "point": {"kind": "answer", "ref": "i.vertex"}
+            },
+            "strategy": "求闭合抛物线的顶点。",
+            "reason": "回答第一问。",
+        },
+    ]
+    return payload
 
 
 @pytest.mark.parametrize("case", CASES)
@@ -348,6 +419,216 @@ def test_state_fact_binds_exact_source_snapshot_and_sidecar_provenance(
     assert coordinate_slot.runtime_path == "$question.ii.points.A"
 
 
+def test_parameter_value_compiles_from_exact_problem_source_identity(
+    tmp_path,
+) -> None:
+    case = "tj-2026-xiqing-yimo-25"
+    (
+        _bundle,
+        _planning_context,
+        problem,
+        inputs,
+        problem_payload,
+        registry,
+        planner_context,
+        _catalog,
+        plan,
+        _validation,
+        reconciliation,
+    ) = scope_native_reconciliation_fixture(
+        tmp_path,
+        case=case,
+        plan_payload=_xiqing_parameter_evaluation_payload(),
+    )
+
+    assert reconciliation.ok, reconciliation.to_payload()
+    dependency = next(
+        item
+        for item in reconciliation.state_dependencies
+        if item.step_id == "evaluate_parabola_i"
+        and item.arg_name == "parameter_value"
+    )
+    assert dependency.state_version_id is not None
+    assert dependency.state_version_id.ordinal == 0
+    assert dependency.object_ref == "symbol:problem:b"
+
+    attempt = FunctionalTransactionalInterpreter(
+        symbolic_closure_mode="authoritative"
+    ).execute_attempt(
+        raw_plan=plan,
+        reconciliation=reconciliation,
+        runtime_context=ContextBuilder().build(problem),
+        parent_context=planner_context,
+        inputs=inputs,
+        handle_registry=registry,
+        problem_payload=problem_payload,
+    )
+
+    assert attempt.compiled_output is not None, [
+        (issue.code, issue.message) for issue in attempt.root_issues
+    ]
+    invocation = next(
+        invocation
+        for step in attempt.compiled_output.step_plans
+        if step.step_id == "evaluate_parabola_i"
+        for invocation in step.invocations
+        if invocation.method_id == "evaluate_expression_at_parameter"
+    )
+    assert invocation.inputs["parameter"].endswith(".symbols.b")
+    assert "parameter_values.b" in invocation.inputs["parameter_value"]
+
+
+def test_parameter_value_rejects_an_explicit_different_symbol(tmp_path) -> None:
+    case = "tj-2026-xiqing-yimo-25"
+    (
+        _bundle,
+        _planning_context,
+        problem,
+        inputs,
+        problem_payload,
+        registry,
+        planner_context,
+        _catalog,
+        plan,
+        _validation,
+        reconciliation,
+    ) = scope_native_reconciliation_fixture(
+        tmp_path,
+        case=case,
+        plan_payload=_xiqing_parameter_evaluation_payload(parameter_ref="c"),
+    )
+
+    assert reconciliation.ok, reconciliation.to_payload()
+    attempt = FunctionalTransactionalInterpreter(
+        symbolic_closure_mode="authoritative"
+    ).execute_attempt(
+        raw_plan=plan,
+        reconciliation=reconciliation,
+        runtime_context=ContextBuilder().build(problem),
+        parent_context=planner_context,
+        inputs=inputs,
+        handle_registry=registry,
+        problem_payload=problem_payload,
+    )
+
+    assert attempt.compiled_output is None
+    assert any(
+        "function.parameter_value_object_mismatch" in issue.message
+        for issue in attempt.root_issues
+    )
+
+
+def test_call_result_parameter_value_keeps_its_symbol_object_identity(
+    tmp_path,
+) -> None:
+    (
+        _bundle,
+        _planning_context,
+        problem,
+        inputs,
+        _problem_payload,
+        registry,
+        _planner_context,
+        catalog,
+    ) = planning_binding_fixture(
+        tmp_path,
+        case="tj-2026-xiqing-yimo-25",
+    )
+    object_id = catalog.bindings["b"].typed_sources[0].math_object_id
+    assert object_id is not None
+    dynamic_handle = "fact:i:dynamic_b_value"
+    index = CanonicalRuntimeBindingIndex.from_context(
+        ContextBuilder().build(problem),
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+        functional_consumer_identity_mode="authoritative",
+        problem_binding_authority=True,
+    )
+    index.register(
+        dynamic_handle,
+        "$step.solve_b.parameter_value",
+        "ParameterValue",
+        source="step:solve_b",
+    )
+    index.register_projected_state_writes(
+        (
+            ProjectedStateWrite(
+                step_id="solve_b",
+                produced_handle=dynamic_handle,
+                state_slot_id="symbol:problem:b.value@i:ParameterValue",
+                write_mode="value",
+                runtime_type="ParameterValue",
+                object_ref=object_id.value,
+                return_name="parameter_value",
+                math_object_id=object_id,
+            ),
+        ),
+        dependencies=(
+            ProjectedStateDependency(
+                step_id="consume_b",
+                state_slot_id="symbol:problem:b.value@i:ParameterValue",
+                produced_handle=dynamic_handle,
+                runtime_type="ParameterValue",
+                object_ref=object_id.value,
+                arg_name="parameter_value",
+                source="wire",
+                source_step_id="solve_b",
+                source_return_name="parameter_value",
+            ),
+        ),
+    )
+    step = FunctionalCompileStep(
+        scope_id="i",
+        step_id="consume_b",
+        recipe_hint="evaluate_expression_at_parameter",
+        goal_type="",
+        target="",
+        strategy="",
+        reads=(dynamic_handle,),
+    )
+
+    pairs = parameter_substitution_pairs_from_reads(step, index)
+
+    assert pairs == (
+        (
+            index.bindings[object_id.value].path,
+            "$step.solve_b.parameter_value",
+        ),
+    )
+
+
+def test_parameter_value_from_sibling_scope_is_not_visible(tmp_path) -> None:
+    case = "tj-2026-hexi-yimo-25"
+    payload = json.loads(
+        (SCOPE_NATIVE_FIXTURES / f"{case}.functional-plan.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    first_call = next(
+        call
+        for scope in payload["scopes"]
+        if scope["scope_id"] == "i"
+        for call in scope["calls"]
+    )
+    first_call["args"]["known_coefficients"] = {
+        "kind": "fact",
+        "ref": "ii.symbol_value_a",
+    }
+
+    *_, reconciliation = scope_native_reconciliation_fixture(
+        tmp_path,
+        case=case,
+        plan_payload=payload,
+    )
+
+    assert not reconciliation.ok
+    assert any(
+        issue.code == "functional.semantic_ref_not_visible_for_goal"
+        and issue.call_id == first_call["call_id"]
+        for issue in reconciliation.issues
+    )
+
+
 def test_catalog_rebuild_rejects_evolved_source_state(tmp_path) -> None:
     (
         bundle,
@@ -423,6 +704,393 @@ def test_answer_authority_cannot_be_used_as_call_input(tmp_path) -> None:
         and issue.call_id == "derive_parametric_parabola_ii"
         for issue in reconciliation.issues
     )
+
+
+def test_goal_answer_name_used_as_identity_input_recovers_source_target(
+    tmp_path,
+) -> None:
+    case = "tj-2026-hexi-yimo-25"
+    payload = json.loads(
+        (SCOPE_NATIVE_FIXTURES / f"{case}.functional-plan.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    calls = {
+        call["call_id"]: call
+        for scope in payload["scopes"]
+        for call in scope["calls"]
+    }
+    calls["derive_right_angle_candidates_ii"]["args"]["target"] = {
+        "ref": "ii.D",
+        "kind": "point",
+    }
+    calls["select_curve_candidate_ii"]["args"]["target_point"] = {
+        "ref": "ii.D",
+        "kind": "point",
+    }
+
+    *_, reconciliation = scope_native_reconciliation_fixture(
+        tmp_path,
+        case=case,
+        plan_payload=payload,
+    )
+
+    assert reconciliation.ok, reconciliation.to_payload()
+    effective_calls = {
+        call.call_id: call
+        for scope in reconciliation.plan.scopes
+        for call in scope.calls
+    }
+    assert effective_calls["derive_right_angle_candidates_ii"].args[
+        "target"
+    ][0].ref == "D"
+    assert effective_calls["select_curve_candidate_ii"].args[
+        "target_point"
+    ][0].ref == "D"
+    assert reconciliation.elaboration is not None
+    assert {
+        repair["call_id"]
+        for repair in reconciliation.elaboration["deterministic_repairs"]
+        if repair["action"] == "replace_answer_ref_with_goal_target"
+    } == {
+        "derive_right_angle_candidates_ii",
+        "select_curve_candidate_ii",
+    }
+    assert "derive_y_intercept_ii" in reconciliation.dependency_graph[
+        "derive_right_angle_candidates_ii"
+    ]
+
+
+def test_goal_answer_target_recovery_does_not_cross_scope(tmp_path) -> None:
+    case = "tj-2026-hexi-yimo-25"
+    payload = json.loads(
+        (SCOPE_NATIVE_FIXTURES / f"{case}.functional-plan.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    call = next(
+        call
+        for scope in payload["scopes"]
+        for call in scope["calls"]
+        if call["call_id"] == "derive_right_angle_candidates_ii"
+    )
+    call["args"]["target"] = {"ref": "i.P", "kind": "point"}
+
+    *_, reconciliation = scope_native_reconciliation_fixture(
+        tmp_path,
+        case=case,
+        plan_payload=payload,
+    )
+
+    assert not reconciliation.ok
+    assert any(
+        issue.code == "functional.semantic_ref_not_visible_for_goal"
+        and issue.call_id == "derive_right_angle_candidates_ii"
+        for issue in reconciliation.issues
+    )
+
+
+def test_square_path_hidden_endpoint_uses_consumer_scope_producer(
+    tmp_path,
+) -> None:
+    case = "tj-2026-heping-ermo-25"
+    payload = json.loads(
+        (SCOPE_NATIVE_FIXTURES / f"{case}.functional-plan.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    sibling_scope = next(
+        scope for scope in payload["scopes"] if scope["scope_id"] == "i_1"
+    )
+    sibling_scope["calls"].append(
+        {
+            "call_id": "derive_axis_point_M_i",
+            "capability_id": "quadratic_axis_x_intercept_point",
+            "args": {
+                "parabola": {
+                    "from_call": "derive_parabola_i",
+                    "return": "parabola",
+                }
+            },
+            "return_bindings": {
+                "axis_point": {"ref": "M", "kind": "point"}
+            },
+            "strategy": "构造当前分支的轴点。",
+            "reason": "制造同对象的 sibling producer 以验证作用域选择。",
+        }
+    )
+
+    *_, reconciliation = scope_native_reconciliation_fixture(
+        tmp_path,
+        case=case,
+        plan_payload=payload,
+    )
+
+    dependencies = reconciliation.dependency_graph["reduce_square_path_ii"]
+    assert "derive_axis_point_M_ii" in dependencies
+    assert "derive_axis_point_M_i" not in dependencies
+
+
+def test_hidden_sibling_dependency_does_not_propagate_foreign_goal_authority(
+    tmp_path,
+) -> None:
+    case = "tj-2026-heping-ermo-25"
+    payload = json.loads(
+        (SCOPE_NATIVE_FIXTURES / f"{case}.functional-plan.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    ii_scope = next(
+        scope for scope in payload["scopes"] if scope["scope_id"] == "ii"
+    )
+    ii_scope["calls"] = [
+        call
+        for call in ii_scope["calls"]
+        if call["call_id"] != "derive_axis_point_M_ii"
+    ]
+    sibling_scope = next(
+        scope for scope in payload["scopes"] if scope["scope_id"] == "i_1"
+    )
+    sibling_scope["calls"].append(
+        {
+            "call_id": "derive_axis_point_M_i",
+            "capability_id": "quadratic_axis_x_intercept_point",
+            "args": {
+                "parabola": {
+                    "from_call": "derive_parabola_i",
+                    "return": "parabola",
+                }
+            },
+            "return_bindings": {
+                "axis_point": {"ref": "M", "kind": "point"}
+            },
+            "strategy": "构造 sibling 分支的轴点。",
+            "reason": "验证隐式状态依赖不能跨 sibling。",
+        }
+    )
+
+    fixture = scope_native_reconciliation_fixture(
+        tmp_path,
+        case=case,
+        plan_payload=payload,
+    )
+    registry = fixture[5]
+    reconciliation = fixture[-1]
+
+    assert "i_1" not in registry.ancestor_scopes("ii")
+    assert "derive_axis_point_M_i" in reconciliation.dependency_graph.get(
+        "reduce_square_path_ii",
+        (),
+    )
+    assert not any(
+        issue.code == "functional.call_scope_not_visible_for_goal"
+        and issue.call_id == "derive_axis_point_M_i"
+        for issue in reconciliation.issues
+    )
+
+
+def test_square_path_hidden_endpoint_keeps_goal_authority_when_upstream_invalid(
+    tmp_path,
+) -> None:
+    case = "tj-2026-heping-ermo-25"
+    payload = json.loads(
+        (SCOPE_NATIVE_FIXTURES / f"{case}.functional-plan.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    parabola_call = next(
+        call
+        for scope in payload["scopes"]
+        for call in scope["calls"]
+        if call["call_id"] == "derive_parametric_parabola_ii"
+    )
+    parabola_call["args"]["free_parameters"] = {
+        "ref": "b",
+        "kind": "symbol",
+    }
+    parabola_call["args"]["target_parameter"] = {
+        "ref": "b",
+        "kind": "symbol",
+    }
+
+    *_, reconciliation = scope_native_reconciliation_fixture(
+        tmp_path,
+        case=case,
+        plan_payload=payload,
+    )
+
+    assert not reconciliation.ok
+    assert any(
+        issue.code == "functional.arg_distinctness_violation"
+        and issue.call_id == "derive_parametric_parabola_ii"
+        for issue in reconciliation.issues
+    )
+    unexpected_goal_issues = [
+        issue
+        for issue in reconciliation.issues
+        if issue.code == "functional.call_goal_unresolved"
+        and issue.call_id in {"derive_axis_point_M_ii", "reduce_square_path_ii"}
+    ]
+    assert not unexpected_goal_issues, [
+        (issue.code, issue.call_id, issue.details)
+        for issue in unexpected_goal_issues
+    ]
+
+
+def test_dynamic_point_semantic_ref_binds_unique_prior_same_object_state(
+    tmp_path,
+) -> None:
+    case = "tj-2026-nankai-yimo-25"
+    payload = json.loads(
+        (SCOPE_NATIVE_FIXTURES / f"{case}.functional-plan.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    calls = {
+        item["call_id"]: item
+        for scope in payload["scopes"]
+        for item in scope["calls"]
+    }
+    calls["ii_derive_parabola"]["args"]["curve_points"][1] = {
+        "kind": "point",
+        "ref": "N",
+    }
+    calls["ii_1_solve_m"]["args"]["p2"] = {
+        "kind": "point",
+        "ref": "N",
+    }
+    calls["ii_2_derive_G"]["args"]["line2_p2"] = {
+        "kind": "point",
+        "ref": "N",
+    }
+
+    (
+        _bundle,
+        _planning_context,
+        problem,
+        inputs,
+        problem_payload,
+        registry,
+        planner_context,
+        _catalog,
+        plan,
+        _validation,
+        reconciliation,
+    ) = scope_native_reconciliation_fixture(
+        tmp_path,
+        case=case,
+        plan_payload=payload,
+    )
+
+    assert reconciliation.ok, [item.to_payload() for item in reconciliation.issues]
+    sidecar = reconciliation.functional_problem_binding_context
+    assert sidecar is not None
+    expected_keys = {
+        ("ii_derive_parabola", "curve_points", 1),
+        ("ii_1_solve_m", "p2", 0),
+        ("ii_2_derive_G", "line2_p2", 0),
+    }
+    bindings = {
+        (item.call_id, item.arg_name, item.item_index): item
+        for item in sidecar.input_bindings
+        if (item.call_id, item.arg_name, item.item_index) in expected_keys
+    }
+    assert set(bindings) == expected_keys
+    for item in bindings.values():
+        assert item.source_kind == "call_result"
+        assert item.semantic_ref is not None
+        assert item.semantic_ref.to_payload() == {"kind": "point", "ref": "N"}
+        assert item.runtime_node_id is not None
+        assert item.source_unit_ids == ()
+        assert item.typed_source is not None
+        assert item.typed_source.source_call_id == "ii_construct_N"
+        assert item.typed_source.source_return_name == "selected_target_point"
+
+    attempt = FunctionalTransactionalInterpreter(
+        symbolic_closure_mode="authoritative"
+    ).execute_attempt(
+        raw_plan=plan,
+        reconciliation=reconciliation,
+        runtime_context=ContextBuilder().build(problem),
+        parent_context=planner_context,
+        inputs=inputs,
+        handle_registry=registry,
+        problem_payload=problem_payload,
+    )
+    assert attempt.compiled_output is not None, [
+        (issue.code, issue.message) for issue in attempt.root_issues
+    ]
+    assert not attempt.root_issues
+
+
+def test_dynamic_point_semantic_ref_rejects_different_object_result(
+    tmp_path,
+) -> None:
+    case = "tj-2026-nankai-yimo-25"
+    payload = json.loads(
+        (SCOPE_NATIVE_FIXTURES / f"{case}.functional-plan.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    consumer = next(
+        item
+        for scope in payload["scopes"]
+        for item in scope["calls"]
+        if item["call_id"] == "ii_1_solve_m"
+    )
+    consumer["args"]["p2"] = {"kind": "point", "ref": "N"}
+    (
+        _bundle,
+        _planning_context,
+        _problem,
+        _inputs,
+        _problem_payload,
+        _registry,
+        _planner_context,
+        catalog,
+        plan,
+        _validation,
+        reconciliation,
+    ) = scope_native_reconciliation_fixture(
+        tmp_path,
+        case=case,
+        plan_payload=payload,
+    )
+    binding_context = reconciliation.functional_binding_context
+    target = binding_context.binding_for("ii_1_solve_m", "p2", 0)
+    assert target is not None and target.source.kind == "call_result"
+    drifted_target = replace(
+        target,
+        source=replace(
+            target.source,
+            source_call_id="ii_compute_F",
+            source_return_name="midpoint",
+        ),
+    )
+    drifted_context = replace(
+        binding_context,
+        bindings=tuple(
+            drifted_target if item is target else item
+            for item in binding_context.bindings
+        ),
+    )
+    goal_bindings = catalog.bind_plan(
+        plan,
+        require_goal_reachable=True,
+        additional_dependencies=reconciliation.dependency_graph,
+    )
+
+    with pytest.raises(
+        ProblemPlanningBindingError,
+        match="planner.problem_source_binding_drift",
+    ):
+        build_functional_problem_binding_context(
+            catalog,
+            plan,
+            reconciliation.calls,
+            drifted_context,
+            goal_bindings=goal_bindings,
+        )
 
 
 def test_answer_authority_rejects_multiple_goal_source_units(tmp_path) -> None:
@@ -542,8 +1210,90 @@ def test_cross_scope_answer_swap_is_rejected_before_compile(tmp_path) -> None:
 
     assert not reconciliation.ok
     assert any(
-        issue.code == "planner.problem_scope_visibility_drift"
+        issue.code == "functional.call_scope_not_visible_for_goal"
         and issue.call_id == "derive_parametric_parabola_ii"
+        for issue in reconciliation.issues
+    )
+
+
+def test_scope_local_bare_answer_refs_are_qualified_without_retry(
+    tmp_path,
+) -> None:
+    case = "tj-2026-heping-ermo-25"
+    payload = json.loads(
+        (SCOPE_NATIVE_FIXTURES / f"{case}.functional-plan.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    calls = {
+        call["call_id"]: call
+        for scope in payload["scopes"]
+        for call in scope["calls"]
+    }
+    calls["solve_axis_point_candidates_i"]["return_bindings"][
+        "candidates"
+    ] = {"ref": "E", "kind": "answer", "value_type": "PointList"}
+    calls["recover_target_point_E_ii"]["return_bindings"]["point"] = {
+        "ref": "E",
+        "kind": "answer",
+        "value_type": "Point",
+    }
+
+    *_, reconciliation = scope_native_reconciliation_fixture(
+        tmp_path,
+        case=case,
+        plan_payload=payload,
+    )
+
+    assert reconciliation.ok, reconciliation.to_payload()
+    effective_calls = {
+        call.call_id: call
+        for scope in reconciliation.plan.scopes
+        for call in scope.calls
+    }
+    assert effective_calls["solve_axis_point_candidates_i"].return_bindings[
+        "candidates"
+    ].ref == "i_2.E"
+    assert effective_calls["recover_target_point_E_ii"].return_bindings[
+        "point"
+    ].ref == "ii.E"
+    assert reconciliation.elaboration is not None
+    assert {
+        repair["call_id"]
+        for repair in reconciliation.elaboration["deterministic_repairs"]
+        if repair["action"] == "qualify_scope_local_answer_binding"
+    } == {"solve_axis_point_candidates_i", "recover_target_point_E_ii"}
+
+
+def test_scope_local_answer_qualification_does_not_cross_scope(tmp_path) -> None:
+    case = "tj-2026-heping-ermo-25"
+    payload = json.loads(
+        (SCOPE_NATIVE_FIXTURES / f"{case}.functional-plan.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    call = next(
+        call
+        for scope in payload["scopes"]
+        for call in scope["calls"]
+        if call["call_id"] == "solve_axis_point_candidates_i"
+    )
+    call["return_bindings"]["candidates"] = {
+        "ref": "P",
+        "kind": "answer",
+        "value_type": "PointList",
+    }
+
+    *_, reconciliation = scope_native_reconciliation_fixture(
+        tmp_path,
+        case=case,
+        plan_payload=payload,
+    )
+
+    assert not reconciliation.ok
+    assert any(
+        issue.code == "functional.answer_ref_goal_mismatch"
+        and issue.call_id == "solve_axis_point_candidates_i"
         for issue in reconciliation.issues
     )
 
@@ -709,3 +1459,40 @@ def test_f5c_binding_path_does_not_reproject_or_call_global_catalog(
     )
 
     assert reconciliation.ok
+
+
+def test_unique_goal_visible_condition_role_binds_to_exact_ref(tmp_path) -> None:
+    case = "tj-2026-heping-yimo-25"
+    payload = json.loads(
+        (SCOPE_NATIVE_FIXTURES / f"{case}.functional-plan.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    reduction = next(
+        call
+        for scope in payload["scopes"]
+        for call in scope["calls"]
+        if call["capability_id"] == "equal_length_ray_path_reduction"
+    )
+    exact_ref = reduction["args"]["path_minimum_target"]["ref"]
+    reduction["args"]["path_minimum_target"]["ref"] = (
+        "path_minimum_target"
+    )
+
+    *_, reconciliation = scope_native_reconciliation_fixture(
+        tmp_path,
+        case=case,
+        plan_payload=payload,
+    )
+
+    assert reconciliation.ok, reconciliation.to_payload()
+    effective = next(
+        call
+        for call in reconciliation.effective_plan.calls
+        if call.capability_id == "equal_length_ray_path_reduction"
+    )
+    assert effective.args["path_minimum_target"][0].ref == exact_ref
+    assert any(
+        item["action"] == "bind_unique_condition_role"
+        for item in reconciliation.elaboration["deterministic_repairs"]
+    )

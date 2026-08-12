@@ -338,6 +338,14 @@ def default_functional_plan_fixture_dir() -> Path:
     return repo_root(Path(__file__)) / "internal" / "functional-plan-fixtures"
 
 
+def default_scope_native_functional_plan_fixture_dir() -> Path:
+    return (
+        repo_root(Path(__file__))
+        / "internal"
+        / "functional-plan-scope-native-fixtures"
+    )
+
+
 def default_functional_few_shot_dir() -> Path:
     return repo_root(Path(__file__)) / "internal" / "functional-few-shots"
 

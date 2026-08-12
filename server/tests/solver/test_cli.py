@@ -3,6 +3,8 @@ import os
 import subprocess
 import sys
 
+from _problem_planning_support import accepted_bundle_fixture
+
 
 FIXTURE = "../internal/solver-fixtures/tj-2026-nankai-yimo-25.json"
 ALT_FIXTURE = "../internal/solver-fixtures/tj-2026-nankai-yimo-25-alt-labels.json"
@@ -41,6 +43,8 @@ def test_solve_problem_cli_outputs_json() -> None:
             "shuxueshuo_server.solver.solve_problem",
             "--fixture",
             FIXTURE,
+            "--planner",
+            "deterministic",
         ],
         check=False,
         capture_output=True,
@@ -65,6 +69,8 @@ def test_solve_problem_cli_resolves_repo_fixture_paths() -> None:
             "shuxueshuo_server.solver.solve_problem",
             "--fixture",
             "../../internal/solver-fixtures/tj-2026-nankai-yimo-25.json",
+            "--planner",
+            "deterministic",
         ],
         check=False,
         capture_output=True,
@@ -77,7 +83,7 @@ def test_solve_problem_cli_resolves_repo_fixture_paths() -> None:
     assert payload["status"] == "ok"
 
 
-def test_solve_problem_cli_routes_same_family_alt_labels_to_functional_planner() -> None:
+def test_solve_problem_cli_rejects_strategy_problem_ir_fixture() -> None:
     completed = subprocess.run(
         [
             sys.executable,
@@ -85,6 +91,8 @@ def test_solve_problem_cli_routes_same_family_alt_labels_to_functional_planner()
             "shuxueshuo_server.solver.solve_problem",
             "--fixture",
             ALT_FIXTURE,
+            "--planner",
+            "strategy",
         ],
         check=False,
         capture_output=True,
@@ -93,11 +101,9 @@ def test_solve_problem_cli_routes_same_family_alt_labels_to_functional_planner()
     )
 
     assert completed.returncode != 0
-    payload = json.loads(completed.stdout)
-    assert payload["problem_id"] == "tj-2026-nankai-yimo-25-alt-labels"
-    assert payload["status"] == "failed"
-    assert payload["solver_family"] == "QuadraticPathMinimumSolver"
-    assert any("functional-plan-fixtures" in error for error in payload["errors"])
+    assert completed.returncode == 2
+    assert "planner.problem_bundle_required" in completed.stderr
+    assert completed.stdout == ""
 
 
 def test_solve_problem_cli_solves_hexi_weighted_25() -> None:
@@ -108,6 +114,8 @@ def test_solve_problem_cli_solves_hexi_weighted_25() -> None:
             "shuxueshuo_server.solver.solve_problem",
             "--fixture",
             OTHER_REAL_25_FIXTURE,
+            "--planner",
+            "deterministic",
         ],
         check=False,
         capture_output=True,
@@ -127,18 +135,30 @@ def test_solve_problem_cli_solves_hexi_weighted_25() -> None:
         "iii": {"b": "2"},
     }
     assert "weighted_axis_path_triangle_transform" in payload["methods_used"]
-    assert "linked_broken_path_minimum_expression" in payload["methods_used"]
-    assert "parameter_from_expression_value" in payload["methods_used"]
+    assert "linked_broken_path_geometric_minimum" in payload["methods_used"]
 
 
-def test_solve_problem_cli_strategy_recorded_explicit() -> None:
+def test_solve_problem_cli_strategy_recorded_explicit(tmp_path) -> None:
+    root, parent, accepted, store, *_ = accepted_bundle_fixture(tmp_path)
+    root_path = tmp_path / "root-context.json"
+    parent_path = tmp_path / "f2-context.json"
+    accepted_path = tmp_path / "accepted-context.json"
+    _write_json(root_path, root.to_payload())
+    _write_json(parent_path, parent.to_payload())
+    _write_json(accepted_path, accepted.to_payload())
     completed = subprocess.run(
         [
             sys.executable,
             "-m",
             "shuxueshuo_server.solver.solve_problem",
-            "--fixture",
-            FIXTURE,
+            "--accepted-context",
+            str(accepted_path),
+            "--ancestor-context",
+            str(root_path),
+            "--ancestor-context",
+            str(parent_path),
+            "--artifact-root",
+            str(store.root),
             "--planner",
             "strategy",
             "--llm-provider",
@@ -156,14 +176,27 @@ def test_solve_problem_cli_strategy_recorded_explicit() -> None:
     assert payload["answers"]["ii_2"]["G"] == ["4", "-13/3"]
 
 
-def test_solve_problem_cli_strategy_deepseek_requires_key() -> None:
+def test_solve_problem_cli_strategy_deepseek_requires_key(tmp_path) -> None:
+    root, parent, accepted, store, *_ = accepted_bundle_fixture(tmp_path)
+    root_path = tmp_path / "root-context.json"
+    parent_path = tmp_path / "f2-context.json"
+    accepted_path = tmp_path / "accepted-context.json"
+    _write_json(root_path, root.to_payload())
+    _write_json(parent_path, parent.to_payload())
+    _write_json(accepted_path, accepted.to_payload())
     completed = subprocess.run(
         [
             sys.executable,
             "-m",
             "shuxueshuo_server.solver.solve_problem",
-            "--fixture",
-            FIXTURE,
+            "--accepted-context",
+            str(accepted_path),
+            "--ancestor-context",
+            str(root_path),
+            "--ancestor-context",
+            str(parent_path),
+            "--artifact-root",
+            str(store.root),
             "--planner",
             "strategy",
             "--llm-provider",
@@ -178,3 +211,10 @@ def test_solve_problem_cli_strategy_deepseek_requires_key() -> None:
     assert completed.returncode == 2
     assert "DEEPSEEK_API_KEY" in completed.stderr
     assert completed.stdout == ""
+
+
+def _write_json(path, payload) -> None:
+    path.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )

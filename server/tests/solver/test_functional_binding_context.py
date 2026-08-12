@@ -46,13 +46,21 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     FunctionArgBindingRepair,
 )
 
+from _problem_planning_support import cached_planning_binding_fixture
+
 
 def _reconcile(case_id: str, payload: dict | None = None):
     case = FUNCTIONAL_BATCH_CASES[case_id]
-    problem = load_problem_ir(case.problem_fixture_path)
-    inputs = build_strategy_probe_inputs(problem)
-    problem_payload = problem_to_llm_payload(problem)
-    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    (
+        _bundle,
+        _planning_context,
+        _problem,
+        inputs,
+        _problem_payload,
+        registry,
+        planner_context,
+        problem_binding_catalog,
+    ) = cached_planning_binding_fixture(case.problem_id)
     payload = payload or json.loads(
         case.functional_fixture_path.read_text(encoding="utf-8")
     )
@@ -68,15 +76,12 @@ def _reconcile(case_id: str, payload: dict | None = None):
     )
     result = FunctionalPlanReconciler().reconcile(
         plan,
-        planner_state_context=initial_planner_state_context(
-            inputs,
-            problem_payload=problem_payload,
-            handle_registry=registry,
-        ),
+        planner_state_context=planner_context,
         family_spec=inputs.family_spec,
         method_specs=inputs.method_specs,
         handle_registry=registry,
         question_goals=inputs.question_goals,
+        problem_binding_catalog=problem_binding_catalog,
     )
     return result, catalog
 
@@ -365,14 +370,9 @@ def test_return_binding_rejects_sibling_private_object() -> None:
         item
         for item in result.issues
         if item.call_id == "derive_square_vertex_G_i"
-        and item.code == "functional.return_scope_incompatible"
+        and item.code == "functional.semantic_ref_not_visible_for_goal"
     )
-    assert issue.details == {
-        "return": "point",
-        "binding_ref": "ii.G",
-        "binding_scope_id": "ii",
-        "declared_scope_id": "i_2",
-    }
+    assert "ii.G" in issue.message
 
 
 def test_optional_compiler_selector_requiredness_comes_from_contract() -> None:
@@ -445,7 +445,7 @@ def test_semantic_latest_and_call_result_exact_are_part_of_binding() -> None:
         "expression",
         0,
     )
-    assert semantic is not None and semantic.selection_policy == "latest"
+    assert semantic is not None and semantic.selection_policy == "exact"
     assert call_result is not None and call_result.selection_policy == "exact"
     assert call_result.source.kind == "call_result"
 

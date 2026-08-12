@@ -811,7 +811,11 @@ def parameter_substitution_pairs_from_reads(
         binding = index.bindings.get(handle)
         if binding is None or binding.value_type != "ParameterValue":
             continue
-        symbol_path = _parameter_symbol_path_for_value(handle, index)
+        symbol_path = _parameter_symbol_path_for_value(
+            handle,
+            index,
+            step=step,
+        )
         candidates.append((symbol_path, binding.path))
     candidates = list(dict.fromkeys(candidates))
     values_by_symbol: dict[str, set[str]] = {}
@@ -1492,7 +1496,11 @@ def _parameter_value_if_read(
     parameter_value = _parameter_value_handle(step, index)
     if parameter_value is None:
         return {}
-    parameter_path = _parameter_symbol_path_for_value(parameter_value, index)
+    parameter_path = _parameter_symbol_path_for_value(
+        parameter_value,
+        index,
+        step=step,
+    )
     return {
         "parameter": parameter_path,
         "parameter_value": index.path_for(parameter_value, expected_type="ParameterValue"),
@@ -1502,8 +1510,95 @@ def _parameter_value_if_read(
 def _parameter_symbol_path_for_value(
     parameter_value_handle: str,
     index: CanonicalRuntimeBindingIndex,
+    *,
+    step: FunctionalCompileStepView,
 ) -> str:
-    """Resolve ParameterValue to its input Symbol through write provenance."""
+    """Resolve a ParameterValue through its typed state/object identity.
+
+    F5-C pins every problem-source value to an exact StateVersionId.  The
+    logical key of that version owns the Symbol identity, even when the value
+    is stored in a child scope.  Dynamic CallResult values carry the same
+    identity on their projected producer write.  Only non-F5 compatibility
+    callers may fall back to the older write-provenance lookup.
+    """
+    dependencies = tuple(
+        item
+        for item in index.projected_state_dependencies
+        if item.step_id == step.step_id
+        and item.produced_handle == parameter_value_handle
+        and item.runtime_type == "ParameterValue"
+    )
+    object_ids = set()
+    for dependency in dependencies:
+        if dependency.state_version_id is not None:
+            logical_key = dependency.state_version_id.slot_id.logical_key
+            if (
+                logical_key.state_kind != "value"
+                or logical_key.runtime_type != "ParameterValue"
+                or (
+                    dependency.object_ref is not None
+                    and dependency.object_ref != logical_key.object_id.value
+                )
+            ):
+                raise StrategyDraftValidationError(
+                    "planner_configuration_error: "
+                    "planner.runtime_state_binding_drift: "
+                    f"consumer={step.step_id}.parameter_value, "
+                    f"handle={parameter_value_handle}, "
+                    "reason=typed_parameter_value_identity_drift"
+                )
+            object_ids.add(logical_key.object_id)
+            continue
+        producer_writes = tuple(
+            item
+            for item in index.projected_state_writes
+            if dependency.source_step_id is not None
+            and item.step_id == dependency.source_step_id
+            and item.produced_handle == dependency.produced_handle
+            and (
+                dependency.source_return_name is None
+                or item.return_name == dependency.source_return_name
+            )
+            and item.runtime_type == "ParameterValue"
+        )
+        for write in producer_writes:
+            if write.math_object_id is not None:
+                object_ids.add(write.math_object_id)
+            elif write.logical_state_key is not None:
+                object_ids.add(write.logical_state_key.object_id)
+    if dependencies:
+        if len(object_ids) != 1:
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: "
+                "planner.runtime_state_binding_drift: "
+                f"consumer={step.step_id}.parameter_value, "
+                f"handle={parameter_value_handle}, "
+                f"object_identity_count={len(object_ids)}"
+            )
+        object_id = next(iter(object_ids))
+        if object_id.kind != "symbol":
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: "
+                "planner.runtime_state_binding_drift: "
+                f"consumer={step.step_id}.parameter_value, "
+                f"handle={parameter_value_handle}, "
+                f"object_kind={object_id.kind}"
+            )
+        return index.runtime_path_for_object_identity(
+            object_id,
+            expected_type="Symbol",
+            consumer_scope_id=step.scope_id,
+            consumer=f"{step.step_id}.parameter_value_symbol",
+        )
+    if index.problem_binding_authority:
+        raise StrategyDraftValidationError(
+            "planner_configuration_error: "
+            "planner.runtime_state_binding_drift: "
+            f"consumer={step.step_id}.parameter_value, "
+            f"handle={parameter_value_handle}, "
+            "reason=typed_parameter_value_dependency_missing"
+        )
+
     provenance = next(
         (
             item

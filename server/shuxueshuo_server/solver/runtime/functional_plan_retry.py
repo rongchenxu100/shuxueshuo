@@ -24,6 +24,7 @@ def retry_state_from_attempt(item: Mapping[str, Any]) -> dict[str, Any] | None:
     state = item.get("planner_retry_state")
     return state if isinstance(state, dict) else None
 
+
 def prepare_functional_plan_raw_response(
     raw_response: str,
     *,
@@ -58,9 +59,304 @@ def prepare_functional_plan_raw_response(
     if checkpoint is not None:
         restored = restore_committed_calls(candidate, checkpoint)
         return json.dumps(restored, ensure_ascii=False)
-    # Legacy Functional retry payloads are readable as provisional memory, but
-    # only a typed checkpoint grants hard restore authority.
+    if isinstance(retry_state, dict):
+        candidate = _restore_calls_outside_repair_cone(
+            candidate,
+            baseline=retry_state.get("baseline_candidate"),
+            repair_call_ids=retry_state.get("repair_call_ids"),
+            frozen_call_ids=_retry_frozen_call_ids(retry_state),
+        )
+    # The repair-cone merge freezes plan structure only. A typed checkpoint is
+    # still the sole authority for restoring executed calls and runtime state.
     return json.dumps(candidate, ensure_ascii=False)
+
+
+def _restore_calls_outside_repair_cone(
+    candidate: dict[str, Any],
+    *,
+    baseline: object,
+    repair_call_ids: object,
+    frozen_call_ids: object,
+) -> dict[str, Any]:
+    """Freeze the structurally unaffected part of a failed candidate graph.
+
+    Before a runtime checkpoint exists, reconciliation can still identify an
+    explicit repair cone. Calls outside that cone are not model repair output:
+    restoring them prevents a later full-plan response from undoing an earlier
+    deterministic correction. This is deliberately narrower than checkpoint
+    restoration and activates only when a non-empty typed repair cone exists.
+    """
+
+    if (
+        not isinstance(baseline, dict)
+        or not isinstance(repair_call_ids, list)
+        or not isinstance(frozen_call_ids, (list, tuple, set, frozenset))
+    ):
+        return candidate
+    repair_ids = {
+        item for item in repair_call_ids if isinstance(item, str) and item
+    }
+    if not repair_ids:
+        return candidate
+    explicitly_frozen = {
+        item for item in frozen_call_ids if isinstance(item, str) and item
+    } - repair_ids
+    if not explicitly_frozen:
+        return candidate
+    baseline_scopes = baseline.get("scopes")
+    candidate_scopes = candidate.get("scopes")
+    if not isinstance(baseline_scopes, list) or not isinstance(candidate_scopes, list):
+        return candidate
+
+    result = json.loads(json.dumps(candidate))
+    result_scopes = result["scopes"]
+    baseline_call_ids = {
+        call["call_id"]
+        for baseline_scope in baseline_scopes
+        if isinstance(baseline_scope, dict)
+        and isinstance(baseline_scope.get("calls"), list)
+        for call in baseline_scope["calls"]
+        if isinstance(call, dict)
+        and isinstance(call.get("call_id"), str)
+        and call["call_id"] in explicitly_frozen
+    }
+    if baseline_call_ids != explicitly_frozen:
+        return candidate
+    frozen_call_ids = baseline_call_ids
+    frozen_targets = {
+        target
+        for baseline_scope in baseline_scopes
+        if isinstance(baseline_scope, dict)
+        and isinstance(baseline_scope.get("calls"), list)
+        for call in baseline_scope["calls"]
+        if isinstance(call, dict)
+        and isinstance(call.get("call_id"), str)
+        and call["call_id"] in frozen_call_ids
+        for target in _return_binding_targets(call)
+    }
+    frozen_writers_by_target: dict[tuple[str, str], set[str]] = {}
+    for baseline_scope in baseline_scopes:
+        if not isinstance(baseline_scope, dict):
+            continue
+        for call in baseline_scope.get("calls", ()):
+            if (
+                not isinstance(call, dict)
+                or call.get("call_id") not in frozen_call_ids
+            ):
+                continue
+            for target in _return_binding_targets(call):
+                frozen_writers_by_target.setdefault(target, set()).add(
+                    str(call["call_id"])
+                )
+    frozen_scope_by_id = {
+        call["call_id"]: baseline_scope.get("scope_id")
+        for baseline_scope in baseline_scopes
+        if isinstance(baseline_scope, dict)
+        and isinstance(baseline_scope.get("scope_id"), str)
+        and isinstance(baseline_scope.get("calls"), list)
+        for call in baseline_scope["calls"]
+        if isinstance(call, dict)
+        and isinstance(call.get("call_id"), str)
+        and call["call_id"] in frozen_call_ids
+    }
+    for scope in result_scopes:
+        if not isinstance(scope, dict):
+            continue
+        scope_id = scope.get("scope_id")
+        calls = scope.get("calls")
+        if not isinstance(calls, list):
+            continue
+        calls[:] = [
+            call
+            for call in calls
+            if not (
+                isinstance(call, dict)
+                and isinstance(call.get("call_id"), str)
+                and call["call_id"] in frozen_scope_by_id
+                and scope_id != frozen_scope_by_id[call["call_id"]]
+            )
+        ]
+    if frozen_targets:
+        renamed_call_ids: dict[str, str] = {}
+        for scope in result_scopes:
+            if not isinstance(scope, dict):
+                continue
+            calls = scope.get("calls")
+            if not isinstance(calls, list):
+                continue
+            retained_calls: list[Any] = []
+            for call in calls:
+                should_drop = (
+                    isinstance(call, dict)
+                    and isinstance(call.get("call_id"), str)
+                    and call["call_id"] not in frozen_call_ids
+                    and call["call_id"] not in repair_ids
+                    and bool(
+                        set(_return_binding_targets(call)) & frozen_targets
+                    )
+                )
+                if not should_drop:
+                    retained_calls.append(call)
+                    continue
+                overlapping_targets = (
+                    set(_return_binding_targets(call)) & frozen_targets
+                )
+                writers = {
+                    writer
+                    for target in overlapping_targets
+                    for writer in frozen_writers_by_target.get(target, ())
+                }
+                if len(writers) == 1:
+                    renamed_call_ids[str(call["call_id"])] = next(
+                        iter(writers)
+                    )
+            calls[:] = retained_calls
+    scopes_by_id = {
+        scope.get("scope_id"): scope
+        for scope in result_scopes
+        if isinstance(scope, dict) and isinstance(scope.get("scope_id"), str)
+    }
+    for baseline_scope in baseline_scopes:
+        if not isinstance(baseline_scope, dict):
+            continue
+        scope_id = baseline_scope.get("scope_id")
+        baseline_calls = baseline_scope.get("calls")
+        if not isinstance(scope_id, str) or not isinstance(baseline_calls, list):
+            continue
+        frozen_calls = [
+            call
+            for call in baseline_calls
+            if isinstance(call, dict)
+            and isinstance(call.get("call_id"), str)
+            and call["call_id"] not in repair_ids
+        ]
+        if not frozen_calls:
+            continue
+        scope = scopes_by_id.get(scope_id)
+        if scope is None:
+            scope = {
+                "scope_id": scope_id,
+                "label": baseline_scope.get("label", scope_id),
+                "calls": [],
+            }
+            result_scopes.append(scope)
+            scopes_by_id[scope_id] = scope
+        calls = scope.get("calls")
+        if not isinstance(calls, list):
+            continue
+
+        baseline_ids_in_scope = {
+            call["call_id"]
+            for call in baseline_calls
+            if isinstance(call, dict)
+            and isinstance(call.get("call_id"), str)
+        }
+        if (
+            baseline_ids_in_scope
+            and baseline_ids_in_scope.issubset(frozen_call_ids)
+            and not baseline_ids_in_scope.intersection(repair_ids)
+        ):
+            scope["calls"] = json.loads(json.dumps(baseline_calls))
+            continue
+
+        frozen_by_id = {call["call_id"]: call for call in frozen_calls}
+        for index, call in enumerate(tuple(calls)):
+            if isinstance(call, dict) and call.get("call_id") in frozen_by_id:
+                calls[index] = json.loads(
+                    json.dumps(frozen_by_id[str(call["call_id"])])
+                )
+
+        present_ids = {
+            call.get("call_id")
+            for call in calls
+            if isinstance(call, dict) and isinstance(call.get("call_id"), str)
+        }
+        frozen_order = [call["call_id"] for call in frozen_calls]
+        for frozen_index, frozen_call in enumerate(frozen_calls):
+            call_id = frozen_call["call_id"]
+            if call_id in present_ids:
+                continue
+            insertion = _frozen_call_insertion_index(
+                calls,
+                frozen_order=frozen_order,
+                frozen_index=frozen_index,
+            )
+            calls.insert(
+                insertion,
+                json.loads(json.dumps(frozen_call)),
+            )
+            present_ids.add(call_id)
+    if frozen_targets and renamed_call_ids:
+        _rewrite_functional_call_result_refs(result, renamed_call_ids)
+    result["scopes"] = [
+        scope
+        for scope in result_scopes
+        if not isinstance(scope, dict)
+        or not isinstance(scope.get("calls"), list)
+        or bool(scope["calls"])
+    ]
+    return result
+
+
+def _retry_frozen_call_ids(retry_state: Mapping[str, Any]) -> tuple[str, ...]:
+    result: list[str] = []
+    for key in ("validated_call_ids", "runtime_verified_calls"):
+        values = retry_state.get(key)
+        if not isinstance(values, list):
+            continue
+        result.extend(item for item in values if isinstance(item, str))
+    for key in ("stable_candidate_calls", "committed_candidate_calls"):
+        values = retry_state.get(key)
+        if not isinstance(values, list):
+            continue
+        for item in values:
+            if isinstance(item, str):
+                result.append(item)
+                continue
+            if not isinstance(item, Mapping):
+                continue
+            call = item.get("call")
+            call_id = (
+                call.get("call_id")
+                if isinstance(call, Mapping)
+                else item.get("call_id")
+            )
+            if isinstance(call_id, str):
+                result.append(call_id)
+    return tuple(dict.fromkeys(result))
+
+
+def _return_binding_targets(call: Mapping[str, Any]) -> tuple[tuple[str, str], ...]:
+    bindings = call.get("return_bindings")
+    if not isinstance(bindings, dict):
+        return ()
+    return tuple(
+        (str(binding.get("kind")), str(binding.get("ref")))
+        for binding in bindings.values()
+        if isinstance(binding, dict)
+        and isinstance(binding.get("kind"), str)
+        and isinstance(binding.get("ref"), str)
+    )
+
+
+def _frozen_call_insertion_index(
+    calls: Sequence[Any],
+    *,
+    frozen_order: Sequence[str],
+    frozen_index: int,
+) -> int:
+    positions = {
+        call.get("call_id"): index
+        for index, call in enumerate(calls)
+        if isinstance(call, dict) and isinstance(call.get("call_id"), str)
+    }
+    for predecessor in reversed(frozen_order[:frozen_index]):
+        if predecessor in positions:
+            return positions[predecessor] + 1
+    for successor in frozen_order[frozen_index + 1 :]:
+        if successor in positions:
+            return positions[successor]
+    return min(frozen_index, len(calls))
 
 
 def _normalize_flat_scoped_calls(

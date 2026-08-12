@@ -81,6 +81,10 @@ def test_symbolic_closure_counts_include_failed_attempt_artifacts(
 def test_prompt_metadata_guard_allows_capability_prefixed_by_example_id() -> None:
     payload = {
         "planner_protocol": "functional_plan/v1",
+        "problem_planning_context": {
+            "schema_version": "planner-problem-view/v1",
+            "root_scope": {"id": "problem", "text": ["x"]},
+        },
         "functional_few_shot_selection": {
             "example_id": "broken_path_straightening",
             "source_problem_id": "synthetic-source",

@@ -1,6 +1,10 @@
 import sympy as sp
 
-from shuxueshuo_server.solver import load_expected_answers, load_problem_ir, solve_problem
+from shuxueshuo_server.solver import (
+    load_expected_answers,
+    load_problem_ir,
+    solve_problem_ir_debug,
+)
 from shuxueshuo_server.solver.family import QUADRATIC_PATH_MINIMUM_FAMILY
 from shuxueshuo_server.solver.runtime.config import SolverRuntimeConfig
 from shuxueshuo_server.solver.runtime.orchestrator import RuntimeOrchestrator
@@ -47,7 +51,7 @@ HEXI_METHODS_USED = [
 def test_runtime_orchestrator_solves_nankai_25_with_v15_runtime() -> None:
     problem = load_problem_ir(FIXTURE)
     expected = load_expected_answers(EXPECTED)
-    result = solve_problem(
+    result = solve_problem_ir_debug(
         problem,
         runtime_config=SolverRuntimeConfig(planner_mode="deterministic"),
     )
@@ -87,7 +91,7 @@ def test_runtime_orchestrator_solves_nankai_25_with_v15_runtime() -> None:
 def test_runtime_orchestrator_solves_hexi_25_with_weighted_runtime() -> None:
     problem = load_problem_ir(HEXI_FIXTURE)
     expected = load_expected_answers(HEXI_EXPECTED)
-    result = solve_problem(
+    result = solve_problem_ir_debug(
         problem,
         runtime_config=SolverRuntimeConfig(planner_mode="deterministic"),
     )
@@ -120,7 +124,7 @@ def test_unsupported_problem_returns_unsupported() -> None:
         symbols=problem.symbols,
     )
 
-    result = solve_problem(unsupported)
+    result = solve_problem_ir_debug(unsupported)
 
     assert result.status == "unsupported"
     assert result.solver_family is None

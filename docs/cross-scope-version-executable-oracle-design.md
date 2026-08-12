@@ -27,6 +27,8 @@ CrossScopeVersionScenario
 - committed restore、provisional replacement 与 repair cone；
 - logical graph order、failed root 与 blocked dependent；
 - closure checkpoint semantic signature。
+- scope-native SemanticRef到唯一前序producer、显式CallResult和多producer歧义；
+- scope-local answer规范化、Goal子图repair cone与pre-runtime reconciliation checkpoint。
 
 ## 独立性
 
@@ -51,6 +53,7 @@ Reference model 位于 `tests/solver/support`，禁止导入生产的 allocation
 - B4：committed restore、provisional 不恢复、version/closure signature。
 - B5：exact/latest typed read 与 visibility。
 - C0：edge kind、canonical order、root failure 与 blocked set。
+- F5-F adapter：PlanningContext visibility、F5-C source authority、pre-runtime/runtime-verified状态、冻结call集合、blocked suffix与Goal repair cone。
 
 后续 stage 只在前序 authority 接受 scenario 时比较；dependent blocking 是独立 lifecycle probe，即使 B3 拒绝也必须验证。
 
@@ -77,3 +80,5 @@ uv run pytest \
 ```
 
 新增 scope/version/retry 缺陷必须先匿名化进入该 oracle，再修生产实现。该模型是测试 oracle，不进入生产包。
+
+C5 symbolic closure不是C0.5的替代品：C0.5负责scope、版本、依赖、增量lifecycle和retry authority，C5负责数学闭合与closure checkpoint。F5-F必须让两套门禁都经过v2 adapter。Reference model要区分`pre_runtime_verified / runtime_verified / failed / blocked`，并验证失败call只阻断其后代、独立Goal继续、补丁只使语义依赖后代失效以及最终commit前Context write为0。高层macro内部状态可以隐藏于Planner wire，但其closure、实际残余自由元与provenance仍需由C5观察。

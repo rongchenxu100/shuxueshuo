@@ -320,13 +320,14 @@ def _point_matches_quadrant_under_lower_bound(
 
 def _quadrant_sign_requirements(quadrant: str) -> tuple[bool, bool] | None:
     """返回象限对应的 x/y 正负要求。"""
-    if quadrant in ("第一象限", "1", "I"):
+    normalized = quadrant.strip().lower()
+    if normalized in ("第一象限", "1", "i", "first"):
         return (True, True)
-    if quadrant in ("第二象限", "2", "II"):
+    if normalized in ("第二象限", "2", "ii", "second"):
         return (False, True)
-    if quadrant in ("第三象限", "3", "III"):
+    if normalized in ("第三象限", "3", "iii", "third"):
         return (False, False)
-    if quadrant in ("第四象限", "4", "IV"):
+    if normalized in ("第四象限", "4", "iv", "fourth"):
         return (True, False)
     return None
 

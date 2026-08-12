@@ -55,7 +55,12 @@ def generated_lesson_shell(
 ) -> JsonObject:
     problem = snapshot.problem or {}
     display = problem.get("display") if isinstance(problem.get("display"), dict) else {}
-    title = str(problem.get("title") or snapshot.problem_id)
+    authored_title = str(problem.get("title") or "").strip()
+    title = (
+        authored_title
+        if authored_title and authored_title != snapshot.problem_id
+        else _fallback_problem_title(problem, snapshot.problem_id)
+    )
     lines = _problem_original_lines(problem, snapshot.problem_id)
     problem_lines = _problem_lines_with_answers(
         title=title,
@@ -459,6 +464,20 @@ def _problem_summary(*, title: str, problem: JsonObject, lines: list[str]) -> st
     topic_text = topics[0] if len(topics) == 1 else f"{'、'.join(topics[:-1])}与{topics[-1]}"
     topic_text = topic_text.replace("与OM", "与 OM")
     return f"{prefix}{family}：{topic_text}。"
+
+
+def _fallback_problem_title(problem: JsonObject, problem_id: str) -> str:
+    display = problem.get("display")
+    if isinstance(display, dict):
+        number = str(display.get("number") or "").strip()
+        source = str(display.get("source") or "").strip()
+        if source and number:
+            return f"{source} 第 {number} 题"
+        if number:
+            return f"第 {number} 题"
+        if source:
+            return source
+    return problem_id
 
 
 def _path_minimum_text(text: str) -> str:

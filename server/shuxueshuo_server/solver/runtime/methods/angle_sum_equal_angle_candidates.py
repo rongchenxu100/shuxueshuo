@@ -82,6 +82,7 @@ class AngleSumEqualAngleCandidatesMethod:
             "right_angle_points": list(reference),
             "shared_angle": shared,
             "reference_angle": f"{shared[0]}{shared[1]}{origin_name}",
+            "reference_angle_value": str(condition.get("value") or "45"),
             "source": condition.get("description") or condition.get("source") or "angle_sum",
         }
 
@@ -143,10 +144,13 @@ SPEC = MethodSpecSource(
         "当题面给出两个角之和为 45°，且 angle_terms 的结构能够确定一个"
         "非退化的坐标轴等腰直角参考三角形时，消去公共角并输出 AngleEquality。"
         "只需提供结构化角和条件；水平轴点、竖直轴点、参考点和原点由代码从"
-        "角的顶点顺序确定。本能力只推出等角事实，不计算目标点坐标。"
+        "角的顶点顺序确定。点坐标可以含未定参数，只要坐标轴关系与等腰关系"
+        "能够被符号恒等验证；无需先求出参数。本能力只推出等角事实，不计算"
+        "目标点坐标。"
     ),
     do_not_use_when=(
         "角和不是 45°，或两个角的点顺序不能构成所需的坐标轴参考三角形。",
+        "坐标轴关系或等腰关系只在某个尚未求出的参数值下成立，而不是符号恒等时。",
         "不要手工交换水平轴点、竖直轴点、参考点和原点；这些机械角色由结构化 angle_terms 决定。",
         "目标是直接求坐标时不能跳过等角事实的后续消费能力。",
     ),

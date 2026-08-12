@@ -79,6 +79,15 @@ def test_attempt_protocol_requires_functional_format_and_locked_few_shot(
             json.dumps("functional_plan/v1"),
             encoding="utf-8",
         )
+        (tmp_path / f"attempt-{attempt}.payload.problem_planning_context.json").write_text(
+            json.dumps(
+                {
+                    "schema_version": "planner-problem-view/v1",
+                    "root_scope": {"id": "problem", "text": ["x"]},
+                }
+            ),
+            encoding="utf-8",
+        )
         (tmp_path / f"attempt-{attempt}.prompt.user.md").write_text(
             '{"format":"functional_plan/v1","scopes":[]}',
             encoding="utf-8",
@@ -97,6 +106,10 @@ def test_attempt_protocol_requires_functional_format_and_locked_few_shot(
 def test_prompt_safety_distinguishes_error_codes_from_canonical_handles() -> None:
     payload = {
         "planner_protocol": "functional_plan/v1",
+        "problem_planning_context": {
+            "schema_version": "planner-problem-view/v1",
+            "root_scope": {"id": "problem", "text": ["x"]},
+        },
         "functional_few_shot_selection": {
             "mode": "strict_test",
             "example_id": "hidden_example",
@@ -112,6 +125,12 @@ def test_prompt_safety_distinguishes_error_codes_from_canonical_handles() -> Non
 
     _assert_prompt_is_functional_and_safe(payload, prompt)
 
+    with pytest.raises(AssertionError, match="source_problem_id"):
+        _assert_prompt_is_functional_and_safe(
+            payload,
+            SimpleNamespace(user='{"source_problem_id":"hidden_problem"}'),
+        )
+
     with pytest.raises(AssertionError):
         _assert_prompt_is_functional_and_safe(
             payload,
@@ -122,6 +141,10 @@ def test_prompt_safety_distinguishes_error_codes_from_canonical_handles() -> Non
 def test_prompt_safety_allows_call_id_equal_to_hidden_example_id() -> None:
     payload = {
         "planner_protocol": "functional_plan/v1",
+        "problem_planning_context": {
+            "schema_version": "planner-problem-view/v1",
+            "root_scope": {"id": "problem", "text": ["x"]},
+        },
         "functional_few_shot_selection": {
             "mode": "strict_test",
             "example_id": "broken_path_straightening",
@@ -145,3 +168,33 @@ def test_prompt_safety_allows_call_id_equal_to_hidden_example_id() -> None:
     payload["few_shot_examples"][0]["example_id"] = "leaked"
     with pytest.raises(AssertionError, match="retrieval fields"):
         _assert_prompt_is_functional_and_safe(payload, prompt)
+
+
+def test_prompt_safety_allows_problem_family_to_equal_hidden_selection_family() -> None:
+    payload = {
+        "planner_protocol": "functional_plan/v1",
+        "problem_planning_context": {
+            "schema_version": "planner-problem-view/v1",
+            "problem_id": "current_problem",
+            "family_id": "quadratic_path_minimum",
+            "root_scope": {"id": "problem", "text": ["x"]},
+        },
+        "functional_few_shot_selection": {
+            "mode": "new_problem",
+            "example_id": "hidden_example",
+            "source_problem_id": "hidden_problem",
+            "family_id": "quadratic_path_minimum",
+            "selection_tier": "same_family",
+        },
+        "few_shot_examples": [
+            {"format": "functional_plan/v1", "scopes": []}
+        ],
+    }
+    prompt = SimpleNamespace(
+        user=(
+            '{"problem_planning_context":{"family_id":'
+            '"quadratic_path_minimum"}}'
+        )
+    )
+
+    _assert_prompt_is_functional_and_safe(payload, prompt)

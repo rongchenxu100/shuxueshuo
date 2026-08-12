@@ -206,7 +206,7 @@ def _audit_prompt_payload(
                 visit(
                     item,
                     f"{path}.{key}",
-                    authored_source_text=(normalized == "source_text"),
+                    authored_source_text=(normalized == "text"),
                 )
             return
         if isinstance(value, Sequence) and not isinstance(

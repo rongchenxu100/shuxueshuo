@@ -127,6 +127,15 @@ def verify_functional_result_forms(
             )
             if status != "mismatch":
                 continue
+            hints = (
+                _point_parameter_mismatch_hints(free_symbols)
+                if call.capability_id == "evaluate_point_at_parameter"
+                else (
+                    "Keep this result open for a later parameter-solving call, or "
+                    "supply the missing ParameterValue states before requesting a "
+                    "closed result.",
+                )
+            )
             issues.append(
                 PlannerRetryIssue(
                     layer="goal_verification",
@@ -139,11 +148,7 @@ def verify_functional_result_forms(
                         f"return {call.call_id}.{allocation.return_name} was expected "
                         f"to be {expected} but its runtime state is {actual}"
                     ),
-                    hints=(
-                        "Keep this result open for a later parameter-solving call, or "
-                        "supply the missing ParameterValue states before requesting a "
-                        "closed result.",
-                    ),
+                    hints=hints,
                     related_handles=(allocation.handle,),
                     details={
                         "return": allocation.return_name,
@@ -155,6 +160,20 @@ def verify_functional_result_forms(
                 )
             )
     return tuple(events), tuple(issues)
+
+
+def _point_parameter_mismatch_hints(
+    free_symbols: tuple[str, ...],
+) -> tuple[str, ...]:
+    remaining = ", ".join(free_symbols) or "unknown"
+    return (
+        "evaluate_point_at_parameter only substitutes a ParameterValue whose "
+        "Symbol identity occurs in the input Point coordinates; the result still "
+        f"contains [{remaining}].",
+        "Do not substitute an unrelated curve coefficient for a moving Point's "
+        "independent position parameter. Derive the extremal moving-point state "
+        "first, then recover the requested Point through the declared geometry.",
+    )
 
 
 def _allocation_write(

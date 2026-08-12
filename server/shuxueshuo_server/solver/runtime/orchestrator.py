@@ -20,6 +20,16 @@ from pathlib import Path
 import time
 from typing import Any
 
+from shuxueshuo_server.solver.extraction.problem_planner_authority import (
+    VerifiedPlannerProblemAuthority,
+)
+from shuxueshuo_server.solver.extraction.problem_planning_binding import (
+    ProblemPlanningBindingCatalog,
+)
+from shuxueshuo_server.solver.extraction.problem_solver_bundle import (
+    VerifiedSolverProblemBundle,
+)
+
 from shuxueshuo_server.solver.family import (
     DEFAULT_FAMILY_REGISTRY,
     QUADRATIC_PATH_MINIMUM_FAMILY,
@@ -46,6 +56,7 @@ from shuxueshuo_server.solver.runtime.planner import (
     PlannerInputs,
 )
 from shuxueshuo_server.solver.runtime.result_builder import ResultBuilder
+from shuxueshuo_server.solver.runtime.planner_state_context import PlannerStateContext
 from shuxueshuo_server.solver.runtime.session import (
     LLMCallRecord,
     SolveAttemptRecord,
@@ -58,7 +69,7 @@ from shuxueshuo_server.solver.runtime.strategy_runtime_planner import (
 )
 
 
-PlannerProvider = Callable[[RuntimeContext], GenericPlanner]
+PlannerProvider = Callable[..., GenericPlanner]
 
 
 @dataclass(frozen=True)
@@ -73,6 +84,9 @@ class RuntimeSuccessArtifacts:
     execution: PlanExecutionResult
     question_goals: tuple[QuestionGoal, ...]
     solver_result: SolverResult
+    problem_authority: VerifiedPlannerProblemAuthority | None = None
+    problem_binding_catalog: ProblemPlanningBindingCatalog | None = None
+    planner_state_context: PlannerStateContext | None = None
 
 
 def _nankai25_planner_provider(context: RuntimeContext) -> GenericPlanner:
@@ -139,7 +153,32 @@ class RuntimeOrchestrator:
         self.last_success_artifacts: RuntimeSuccessArtifacts | None = None
 
     def solve(self, problem: ProblemIR) -> SolverResult:
-        """求解 ProblemIR，并返回统一 SolverResult。"""
+        """运行显式配置的deterministic/debug ProblemIR链路。
+
+        该低层方法没有Problem Bundle authority，不能用于Strategy生产求解。使用
+        默认Strategy provider调用时会稳定失败；生产调用方必须使用
+        ``solve_verified()``，公开API则使用``engine.solve_problem()``。
+        """
+        return self._solve(problem, problem_authority=None)
+
+    def solve_verified(
+        self,
+        bundle: VerifiedSolverProblemBundle,
+    ) -> SolverResult:
+        """从authenticated Bundle运行唯一的Strategy cold path。"""
+        authority = VerifiedPlannerProblemAuthority.from_bundle(bundle)
+        return self._solve(
+            bundle.build_solver_problem(),
+            problem_authority=authority,
+        )
+
+    def _solve(
+        self,
+        problem: ProblemIR,
+        *,
+        problem_authority: VerifiedPlannerProblemAuthority | None,
+    ) -> SolverResult:
+        """运行共享runtime循环；Strategy调用必须携带Problem authority。"""
         self.last_success_artifacts = None
         family = self.family_registry.match(problem)
         if family is None:
@@ -150,6 +189,19 @@ class RuntimeOrchestrator:
                 errors=[
                     f"no solver for pattern={problem.pattern}, type={problem.problem_type}"
                 ],
+            )
+        if (
+            problem_authority is not None
+            and family.family_id != problem_authority.bundle.verified_problem.family_id
+        ):
+            from shuxueshuo_server.solver.extraction.problem_solver_bundle import (
+                ProblemBundleAuthorityError,
+            )
+
+            raise ProblemBundleAuthorityError(
+                "planner.problem_revision_drift",
+                "$.family_id",
+                "runtime family differs from the authenticated problem bundle",
             )
         provider = (
             self.planner_providers.get(problem.problem_id)
@@ -175,29 +227,38 @@ class RuntimeOrchestrator:
         previous_errors: list[object] = []
 
         for attempt_index in range(1, self.max_attempts + 1):
+            attempt_problem = (
+                problem_authority.bundle.build_solver_problem()
+                if problem_authority is not None
+                else problem
+            )
             attempt_started = time.perf_counter()
             stage = "context"
             planner: GenericPlanner | None = None
             llm_call: LLMCallRecord | None = None
             try:
                 # Repair 采用整体重生成 plan，因此每轮都从干净 RuntimeContext 开始。
-                context = ContextBuilder(kernel).build(problem)
+                context = ContextBuilder(kernel).build(attempt_problem)
                 specs = MethodSpecRegistry.load_from_code()
                 context_inventory = ContextInventoryBuilder().build(context, specs)
-                question_goals = extract_question_goals(problem)
-                planner = provider(context)
+                question_goals = extract_question_goals(attempt_problem)
+                planner = (
+                    provider(context, problem_authority=problem_authority)
+                    if problem_authority is not None
+                    else provider(context)
+                )
                 if not isinstance(planner, GenericPlanner):
                     raise TypeError(
                         f"planner provider for family_id={family.family_id} returned invalid planner"
                     )
                 planner_inputs = PlannerInputs(
-                    problem_id=problem.problem_id,
+                    problem_id=attempt_problem.problem_id,
                     family_spec=family,
                     question_goals=question_goals,
                     context_inventory=context_inventory,
                     method_specs=specs,
-                    problem=problem,
-                    original_text=dict(problem.original_text),
+                    problem=attempt_problem,
+                    original_text=dict(attempt_problem.original_text),
                     previous_errors=list(previous_errors),
                 )
                 stage = "planner"
@@ -256,7 +317,7 @@ class RuntimeOrchestrator:
                         continue
                     session.final_status = "failed"
                     return _failed_result_from_execution(
-                        problem,
+                        attempt_problem,
                         family.family_id,
                         execution,
                         [error.message],
@@ -296,7 +357,7 @@ class RuntimeOrchestrator:
                     continue
                 session.final_status = "failed"
                 return SolverResult(
-                    problem_id=problem.problem_id,
+                    problem_id=attempt_problem.problem_id,
                     status="failed",
                     solver_family=family.family_id,
                     errors=[error.message],
@@ -316,13 +377,13 @@ class RuntimeOrchestrator:
             )
             session.final_status = "ok"
             trace = DerivationTrace(
-                problem_id=problem.problem_id,
-                pattern=problem.pattern,
+                problem_id=attempt_problem.problem_id,
+                pattern=attempt_problem.pattern,
                 methods=execution.methods_used,
                 steps=execution.trace_fragments,
             )
             result = SolverResult(
-                problem_id=problem.problem_id,
+                problem_id=attempt_problem.problem_id,
                 status="ok",
                 solver_family=family.family_id,
                 methods_used=execution.methods_used,
@@ -334,7 +395,7 @@ class RuntimeOrchestrator:
                 run_log=_run_log(session),
             )
             self.last_success_artifacts = RuntimeSuccessArtifacts(
-                problem=problem,
+                problem=attempt_problem,
                 family=family,
                 planner=planner,
                 planner_output=planner_output,
@@ -342,6 +403,21 @@ class RuntimeOrchestrator:
                 execution=execution,
                 question_goals=tuple(question_goals),
                 solver_result=result,
+                problem_authority=problem_authority,
+                problem_binding_catalog=getattr(
+                    getattr(planner, "artifacts", None),
+                    "problem_binding_catalog",
+                    None,
+                ),
+                planner_state_context=getattr(
+                    getattr(
+                        getattr(planner, "artifacts", None),
+                        "retry_replay_result",
+                        None,
+                    ),
+                    "planner_state_context",
+                    None,
+                ),
             )
             return result
 
@@ -539,6 +615,23 @@ def _write_debug_attempt(
                 debug_dir / f"{prefix}.payload.{key}.json",
                 value,
             )
+    planner_artifacts = getattr(planner, "artifacts", None)
+    problem_authority = getattr(planner_artifacts, "problem_authority", None)
+    problem_binding_catalog = getattr(
+        planner_artifacts,
+        "problem_binding_catalog",
+        None,
+    )
+    if problem_authority is not None:
+        _write_json(
+            debug_dir / f"{prefix}.problem-bundle-authority.json",
+            problem_authority.authority_payload(),
+        )
+    if problem_binding_catalog is not None:
+        _write_json(
+            debug_dir / f"{prefix}.problem-planning-binding-catalog.json",
+            problem_binding_catalog.authority_payload(),
+        )
     raw_response = getattr(planner, "last_raw_response", None)
     if raw_response is not None:
         (debug_dir / f"{prefix}.raw-response.txt").write_text(

@@ -63,6 +63,8 @@ SPEC = MethodSpecSource(
     ),
     do_not_use_when=(
         "目标是构造另一个几何点；本能力只把参数值代入同一 Point 的已有坐标状态，不改变对象身份。",
+        "ParameterValue 对应的 Symbol 不是该 Point 坐标中的未定参数；例如曲线系数 c 不能代替轴上动点自己的位置参数。",
+        "最终答案点需要先由路径极值点经过正方形、旋转、中点或其它几何关系恢复；应先求极值状态，再做几何状态转移。",
     ),
     solves=("evaluate_point_at_parameter",),
     inputs={
@@ -114,6 +116,7 @@ SPEC = MethodSpecSource(
             "message": "最终答案点不能由当前参数代入直接得到；缺少从极值状态动点恢复目标点的几何状态转移。",
             "next_actions": (
                 "先产生极值状态 moving point，再读取题设几何条件把该状态转移到最终目标点。",
+                "核对 ParameterValue 的 Symbol 身份；它必须与输入 Point 坐标中本次要消去的自由符号相同。",
                 "从当前 catalog 中选择返回角色、对象身份和 scope 均满足这些缺失状态的能力。",
             ),
             "do_not": (

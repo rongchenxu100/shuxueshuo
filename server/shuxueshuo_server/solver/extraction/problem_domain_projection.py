@@ -255,7 +255,76 @@ class ResolvedDomainEntity:
     scope: ProblemScope
     entity: ProblemEntity
     canonical_scope_id: str
+    runtime_tail: str
     handle: str
+
+
+def _roman_scope_component(position: int) -> str:
+    if position <= 0:
+        raise ValueError("scope position must be positive")
+    values = (
+        (1000, "m"),
+        (900, "cm"),
+        (500, "d"),
+        (400, "cd"),
+        (100, "c"),
+        (90, "xc"),
+        (50, "l"),
+        (40, "xl"),
+        (10, "x"),
+        (9, "ix"),
+        (5, "v"),
+        (4, "iv"),
+        (1, "i"),
+    )
+    remainder = position
+    parts: list[str] = []
+    for value, token in values:
+        count, remainder = divmod(remainder, value)
+        parts.extend(token for _ in range(count))
+    return "".join(parts)
+
+
+def _canonical_runtime_scope_ids(root: ProblemScope) -> dict[str, str]:
+    """Assign runtime scopes from source order, independent of LLM-local ids."""
+
+    result = {root.path_id: "problem"}
+
+    def visit(parent: ProblemScope) -> None:
+        parent_runtime_id = result[parent.path_id]
+        for position, child in enumerate(parent.children, start=1):
+            result[child.path_id] = (
+                _roman_scope_component(position)
+                if parent is root
+                else f"{parent_runtime_id}_{position}"
+            )
+            visit(child)
+
+    visit(root)
+    return result
+
+
+def _source_runtime_tail(scope: ProblemScope, entity: ProblemEntity) -> str:
+    tail = _handle_tail(entity)
+    if entity.kind != "point":
+        return tail
+    label = re.sub(r"\s+", "", entity.label)
+    if re.fullmatch(r"[A-Za-z][A-Za-z0-9_]*", label):
+        return tail
+    construction = next(
+        (
+            str(fact.attributes.get("construction"))
+            for fact in scope.facts
+            if fact.kind == "point_construction"
+            and fact.attributes.get("point") == entity.local_id
+        ),
+        None,
+    )
+    if construction == "vertex":
+        return "vertex"
+    if construction == "origin":
+        return "O"
+    return tail
 
 
 class ProblemDomainIndex:
@@ -272,17 +341,7 @@ class ProblemDomainIndex:
             )
             for scope in scopes
         }
-        local_scope_counts: dict[str, int] = {}
-        for scope in scopes:
-            local_scope_counts[scope.local_id] = local_scope_counts.get(scope.local_id, 0) + 1
-        self.canonical_scope_ids = {
-            scope.path_id: (
-                scope.local_id
-                if local_scope_counts[scope.local_id] == 1
-                else "_".join(scope.path)
-            )
-            for scope in scopes
-        }
+        self.canonical_scope_ids = _canonical_runtime_scope_ids(graph.root_scope)
         self.entities_by_scope: dict[str, dict[str, ProblemEntity]] = {}
         self.entity_by_unit_id: dict[str, ResolvedDomainEntity] = {}
         self.entity_by_handle: dict[str, ResolvedDomainEntity] = {}
@@ -291,12 +350,13 @@ class ProblemDomainIndex:
             self.entities_by_scope[scope.path_id] = local
             for entity in scope.entities:
                 runtime_kind = _ENTITY_RUNTIME_KIND.get(entity.kind, entity.kind)
-                tail = _handle_tail(entity)
+                tail = _source_runtime_tail(scope, entity)
                 handle = f"{runtime_kind}:{self.canonical_scope_ids[scope.path_id]}:{tail}"
                 resolved = ResolvedDomainEntity(
                     scope=scope,
                     entity=entity,
                     canonical_scope_id=self.canonical_scope_ids[scope.path_id],
+                    runtime_tail=tail,
                     handle=handle,
                 )
                 self.entity_by_unit_id[entity.unit_id] = resolved
@@ -444,6 +504,117 @@ class ProblemDomainIndex:
         )
 
 
+def _canonical_goal_answer_keys(
+    index: ProblemDomainIndex,
+    scope: ProblemScope,
+) -> dict[str, str]:
+    bases: dict[str, list[ProblemGoal]] = {}
+    for goal in scope.goals:
+        attrs = thaw_json(goal.attributes)
+        if goal.kind == "point_coordinate":
+            target = index.resolve_kind(
+                scope.path_id, str(attrs["target"]), ("point",)
+            )
+            base = target.runtime_tail
+        elif goal.kind == "quadratic_equation":
+            target = index.resolve_kind(
+                scope.path_id,
+                str(attrs["target"]),
+                ("quadratic_function",),
+            )
+            base = target.runtime_tail
+        elif goal.kind == "parameter_value":
+            target = index.resolve_kind(
+                scope.path_id, str(attrs["target"]), ("symbol",)
+            )
+            base = target.runtime_tail
+        elif goal.kind == "minimum_value":
+            base = "min_value"
+        else:
+            raise ProblemDomainError(
+                "extraction.problem_projection_failed",
+                f"$.root[{scope.path_id}].goals",
+                f"unsupported goal kind {goal.kind!r}",
+            )
+        bases.setdefault(base, []).append(goal)
+
+    result: dict[str, str] = {}
+    for base, goals in bases.items():
+        ordered = sorted(goals, key=lambda item: item.unit_id.rsplit(":", 1)[-1])
+        for position, goal in enumerate(ordered, start=1):
+            result[goal.unit_id] = base if len(ordered) == 1 else f"{base}_{position}"
+    return result
+
+
+def _canonical_math_text(
+    index: ProblemDomainIndex,
+    scope_path: str,
+    value: Any,
+) -> str:
+    replacements: dict[str, str] = {}
+    for candidate_path in reversed(index.ancestor_paths(scope_path)):
+        for entity in index.entities_by_scope[candidate_path].values():
+            if entity.kind != "symbol":
+                continue
+            canonical = index.entity_by_unit_id[entity.unit_id].runtime_tail
+            replacements[entity.local_id] = canonical
+            replacements[entity.label] = canonical
+    result = str(value)
+    for source, target in sorted(
+        replacements.items(),
+        key=lambda item: len(item[0]),
+        reverse=True,
+    ):
+        result = re.sub(
+            rf"(?<![A-Za-z0-9_]){re.escape(source)}(?![A-Za-z0-9_])",
+            target,
+            result,
+        )
+    return result
+
+
+def _runtime_symbol_role(
+    resolved: ResolvedDomainEntity,
+    *,
+    facts_by_scope: Mapping[str, tuple[ProblemFact, ...]],
+    index: ProblemDomainIndex,
+) -> str:
+    """Derive coefficient authority from the verified function expression.
+
+    ``primary_parameter`` describes how a symbol is eventually solved, while
+    ``quadratic_coefficient`` describes its role in RuntimeContext. A symbol
+    can be both. The domain semantic hash intentionally treats those authoring
+    labels as equivalent, so projection must choose the runtime role from the
+    expression rather than preserve a model-local preference.
+    """
+
+    entity = resolved.entity
+    role = str(entity.attributes["role"])
+    if role == "function_variable":
+        return role
+    owner_scope_path = resolved.scope.path_id
+    for fact_scope_path, facts in facts_by_scope.items():
+        if owner_scope_path not in index.ancestor_paths(fact_scope_path):
+            continue
+        for fact in facts:
+            if fact.kind != "function_expression":
+                continue
+            expression = _canonical_math_text(
+                index,
+                fact_scope_path,
+                fact.attributes["expression"],
+            )
+            try:
+                free_symbol_names = {
+                    symbol.name for symbol in sp.sympify(expression).free_symbols
+                }
+            except (TypeError, ValueError, sp.SympifyError):
+                continue
+            if resolved.runtime_tail in free_symbol_names:
+                return "quadratic_coefficient"
+    return role
+
+
 class ProblemDomainProjector:
     def project(self, problem: VerifiedProblem) -> SolverProblemProjection:
         return self.project_graph(
@@ -549,12 +720,18 @@ class ProblemDomainProjector:
 
         canonical_entities.extend(segments.entities)
 
+        answer_keys_by_scope = {
+            scope.path_id: _canonical_goal_answer_keys(index, scope)
+            for scope in graph.root_scope.iter_scopes()
+        }
         canonical_goals: list[dict[str, Any]] = []
         for scope in graph.root_scope.iter_scopes():
+            answer_keys = answer_keys_by_scope[scope.path_id]
             for goal in scope.goals:
                 projected = self._project_goal(
                     scope,
                     goal,
+                    answer_key=answer_keys[goal.unit_id],
                     index=index,
                     segments=segments,
                     family_id=graph.family_id,
@@ -573,7 +750,12 @@ class ProblemDomainProjector:
                     else None
                 ),
                 **(
-                    {"asks": [goal.answer_key for goal in scope.goals]}
+                    {
+                        "asks": [
+                            answer_keys_by_scope[scope.path_id][goal.unit_id]
+                            for goal in scope.goals
+                        ]
+                    }
                     if scope.goals
                     else {}
                 ),
@@ -659,13 +841,17 @@ class ProblemDomainProjector:
         base: dict[str, Any] = {
             "handle": resolved.handle,
             "entity_type": _ENTITY_RUNTIME_KIND[entity.kind],
-            "name": _handle_tail(entity),
+            "name": resolved.runtime_tail,
             "scope_id": resolved.canonical_scope_id,
             "description": entity.label,
         }
         attrs = entity.attributes
         if entity.kind == "symbol":
-            base["role"] = str(attrs["role"])
+            base["role"] = _runtime_symbol_role(
+                resolved,
+                facts_by_scope=facts_by_scope,
+                index=index,
+            )
             return base, tuple(sorted(source_unit_ids))
         if entity.kind == "quadratic_function":
             expression_fact = _visible_fact_for_entity(
@@ -685,7 +871,11 @@ class ProblemDomainProjector:
             base.update(
                 {
                     "function_type": "quadratic",
-                    "expression": str(expression_fact.attributes["expression"]),
+                    "expression": _canonical_math_text(
+                        index,
+                        scope_path,
+                        expression_fact.attributes["expression"],
+                    ),
                 }
             )
             equation = next(
@@ -698,7 +888,11 @@ class ProblemDomainProjector:
                 None,
             )
             if equation is not None:
-                base["coefficient_relation"] = str(equation.attributes["expression"])
+                base["coefficient_relation"] = _canonical_math_text(
+                    index,
+                    scope_path,
+                    equation.attributes["expression"],
+                )
                 source_unit_ids.add(equation.unit_id)
             return base, tuple(sorted(source_unit_ids))
         if entity.kind == "named_ray":
@@ -727,7 +921,11 @@ class ProblemDomainProjector:
             )
             return base, tuple(sorted(source_unit_ids))
         if entity.kind == "scalar_expression":
-            base["expression"] = str(attrs["expression"])
+            base["expression"] = _canonical_math_text(
+                index,
+                scope_path,
+                attrs["expression"],
+            )
             return base, tuple(sorted(source_unit_ids))
         if entity.kind != "point":
             return base, tuple(sorted(source_unit_ids))
@@ -785,7 +983,11 @@ class ProblemDomainProjector:
             return {
                 **base,
                 "type": "coefficient_relation",
-                "equation": str(attrs["expression"]),
+                "equation": _canonical_math_text(
+                    index,
+                    scope.path_id,
+                    attrs["expression"],
+                ),
                 "subjects": [
                     index.resolve_kind(scope.path_id, str(item), ("symbol",)).handle
                     for item in attrs["symbols"]
@@ -799,7 +1001,11 @@ class ProblemDomainProjector:
                     scope.path_id, str(attrs["symbol"]), ("symbol",)
                 ).handle,
                 "operator": str(attrs["operator"]),
-                "value": str(attrs["value"]),
+                "value": _canonical_math_text(
+                    index,
+                    scope.path_id,
+                    attrs["value"],
+                ),
             }
         if kind == "symbol_value":
             return {
@@ -808,7 +1014,11 @@ class ProblemDomainProjector:
                 "subject": index.resolve_kind(
                     scope.path_id, str(attrs["symbol"]), ("symbol",)
                 ).handle,
-                "value": str(attrs["value"]),
+                "value": _canonical_math_text(
+                    index,
+                    scope.path_id,
+                    attrs["value"],
+                ),
             }
         if kind == "point_coordinate":
             return {
@@ -817,7 +1027,10 @@ class ProblemDomainProjector:
                 "subject": index.resolve_kind(
                     scope.path_id, str(attrs["point"]), ("point",)
                 ).handle,
-                "value": [str(item) for item in attrs["value"]],
+                "value": [
+                    _canonical_math_text(index, scope.path_id, item)
+                    for item in attrs["value"]
+                ],
             }
         if kind == "point_construction":
             if attrs.get("construction") != "curve_at_x":
@@ -875,7 +1088,10 @@ class ProblemDomainProjector:
                 "point": index.resolve_kind(scope.path_id, str(attrs["point"]), ("point",)).handle,
                 "curve": index.resolve_kind(scope.path_id, str(attrs["curve"]), ("quadratic_function",)).handle,
                 "x_symbol": index.resolve_kind(scope.path_id, str(attrs["x_symbol"]), ("symbol",)).handle,
-                "x_range": [str(item) for item in attrs["x_range"]],
+                "x_range": [
+                    _canonical_math_text(index, scope.path_id, item)
+                    for item in attrs["x_range"]
+                ],
             }
         if kind == "point_on_axis":
             if attrs["axis"] == "symmetry":
@@ -927,7 +1143,11 @@ class ProblemDomainProjector:
                 "angle_terms": [
                     _angle_name(index, scope.path_id, item) for item in attrs["angles"]
                 ],
-                "value": str(attrs["value"]),
+                "value": _canonical_math_text(
+                    index,
+                    scope.path_id,
+                    attrs["value"],
+                ),
             }
         if kind == "equal_length":
             return {
@@ -938,11 +1158,21 @@ class ProblemDomainProjector:
             }
         if kind == "length_value":
             segment_handle = segments.materialize(scope, attrs["segment"], fact.unit_id)
+            length_value = _canonical_math_text(
+                index,
+                scope.path_id,
+                attrs["value"],
+            )
             if int(attrs["power"]) == 2:
-                return {**base, "type": "length_squared", "segment": segment_handle, "value": str(attrs["value"])}
+                return {
+                    **base,
+                    "type": "length_squared",
+                    "segment": segment_handle,
+                    "value": length_value,
+                }
             try:
                 squared_value = sp.sstr(
-                    sp.simplify(sp.sympify(str(attrs["value"])) ** 2)
+                    sp.simplify(sp.sympify(length_value) ** 2)
                 )
             except (TypeError, ValueError, sp.SympifyError) as exc:
                 raise ProblemDomainError(
@@ -961,8 +1191,16 @@ class ProblemDomainProjector:
             right = attrs["right"]
             left_handle = segments.materialize(scope, left["segment"], fact.unit_id)
             right_handle = segments.materialize(scope, right["segment"], fact.unit_id)
-            left_scale = str(left["scale"])
-            right_scale = str(right["scale"])
+            left_scale = _canonical_math_text(
+                index,
+                scope.path_id,
+                left["scale"],
+            )
+            right_scale = _canonical_math_text(
+                index,
+                scope.path_id,
+                right["scale"],
+            )
             if _is_one(left_scale) and not _is_one(right_scale):
                 return {
                     **base,
@@ -1036,7 +1274,11 @@ class ProblemDomainProjector:
                 **base,
                 "type": "minimum_value",
                 "path": _length_sum_name(segments, scope, attrs["expression"]),
-                "value": str(attrs["value"]),
+                "value": _canonical_math_text(
+                    index,
+                    scope.path_id,
+                    attrs["value"],
+                ),
             }
         return None
 
@@ -1045,19 +1287,20 @@ class ProblemDomainProjector:
         scope: ProblemScope,
         goal: ProblemGoal,
         *,
+        answer_key: str,
         index: ProblemDomainIndex,
         segments: "_SegmentMaterializer",
         family_id: str,
         canonical_facts: Sequence[Mapping[str, Any]],
     ) -> dict[str, Any]:
         scope_id = index.canonical_scope_ids[scope.path_id]
-        handle = f"answer:{scope_id}.{goal.answer_key}"
+        handle = f"answer:{scope_id}.{answer_key}"
         base: dict[str, Any] = {
             "handle": handle,
             "scope_id": scope_id,
-            "answer_key": goal.answer_key,
+            "answer_key": answer_key,
             "required": True,
-            "description": f"{scope.label}输出{goal.answer_key}",
+            "description": f"{scope.label}输出{answer_key}",
         }
         attrs = thaw_json(goal.attributes)
         if goal.kind == "point_coordinate":
@@ -1072,13 +1315,12 @@ class ProblemDomainProjector:
             )
             return {**base, "value_type": value_type, "target_handle": target.handle}
         if goal.kind == "quadratic_equation":
-            target = index.resolve_kind(
+            index.resolve_kind(
                 scope.path_id, str(attrs["target"]), ("quadratic_function",)
             )
             return {
                 **base,
                 "value_type": "Parabola",
-                "valid_scope": target.canonical_scope_id,
             }
         if goal.kind == "parameter_value":
             index.resolve_kind(
@@ -1281,7 +1523,11 @@ def _apply_point_construction(
         if key in attrs:
             payload[key] = deepcopy(attrs[key])
     if construction == "curve_at_x":
-        payload["x"] = str(attrs["x_expression"])
+        payload["x"] = _canonical_math_text(
+            index,
+            scope_path,
+            attrs["x_expression"],
+        )
 
 
 def _apply_relation_owned_point_definition(
@@ -1301,7 +1547,10 @@ def _apply_relation_owned_point_definition(
                 "x_symbol": index.resolve_kind(
                     scope_path, str(attrs["x_symbol"]), ("symbol",)
                 ).handle,
-                "x_range": deepcopy(attrs["x_range"]),
+                "x_range": [
+                    _canonical_math_text(index, scope_path, item)
+                    for item in attrs["x_range"]
+                ],
             }
         )
     elif fact.kind == "point_on_segment":
@@ -1355,7 +1604,7 @@ def _angle_handles(
 
 def _angle_name(index: ProblemDomainIndex, scope_path: str, value: Any) -> str:
     return "".join(
-        _handle_tail(index.entity_by_handle[handle].entity)
+        index.entity_by_handle[handle].runtime_tail
         for handle in _angle_handles(index, scope_path, value)
     )
 
@@ -1369,14 +1618,14 @@ def _ray_handle_from_term(
     through = index.resolve_kind(scope.path_id, str(value["through"]), ("point",))
     return (
         f"ray:{index.canonical_scope_ids[scope.path_id]}:"
-        f"{_handle_tail(origin.entity)}{_handle_tail(through.entity)}"
+        f"{origin.runtime_tail}{through.runtime_tail}"
     )
 
 
 def _segment_name_from_handles(
     index: ProblemDomainIndex, endpoints: Sequence[str]
 ) -> str:
-    return "".join(_handle_tail(index.entity_by_handle[item].entity) for item in endpoints)
+    return "".join(index.entity_by_handle[item].runtime_tail for item in endpoints)
 
 
 def _scaled_length_name(
@@ -1385,7 +1634,11 @@ def _scaled_length_name(
     value: Mapping[str, Any],
 ) -> str:
     name = segments.name(scope, value["segment"])
-    scale = str(value["scale"])
+    scale = _canonical_math_text(
+        segments.index,
+        scope.path_id,
+        value["scale"],
+    )
     return name if _is_one(scale) else f"{scale}*{name}"
 
 
@@ -1412,7 +1665,10 @@ def _combined_fact_handle(
     second: ProblemFact,
 ) -> str:
     scope_id = index.canonical_scope_ids[scope.path_id]
-    digest = stable_hash(sorted((first.unit_id, second.unit_id)))[:12]
+    source_signatures = sorted(
+        item.unit_id.rsplit(":", 1)[-1] for item in (first, second)
+    )
+    digest = stable_hash(source_signatures)[:12]
     return f"fact:{scope_id}:right_angle_equal_length_{digest}"
 
 

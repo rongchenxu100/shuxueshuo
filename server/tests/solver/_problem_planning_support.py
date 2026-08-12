@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+import tempfile
 
 from shuxueshuo_server.solver.extraction.context import (
     ExtractionAttemptLedger,
@@ -22,6 +23,9 @@ from shuxueshuo_server.solver.extraction.problem_planning_binding import (
 )
 from shuxueshuo_server.solver.extraction.problem_planning_context import (
     ProblemPlanningContextProjector,
+)
+from shuxueshuo_server.solver.extraction.problem_planner_authority import (
+    VerifiedPlannerProblemAuthority,
 )
 from shuxueshuo_server.solver.extraction.problem_solver_bundle import (
     VerifiedSolverProblemBundleLoader,
@@ -70,6 +74,8 @@ CASES = (
     "tj-2026-heping-yimo-25",
 )
 
+_PLANNING_AUTHORITY_CACHE: dict[str, tuple] = {}
+
 
 def domain_payload(case: str) -> dict:
     return json.loads(
@@ -87,10 +93,11 @@ def accepted_bundle_fixture(
     verified_ref_update=None,
     projection_ref_update=None,
     validation_ref_update=None,
+    domain_payload_override: dict | None = None,
 ):
     fixture, _, context, store, _ = make_f3_fixture(tmp_path)
     validation = ProblemDomainValidator().validate(
-        ProblemDraft.create(domain_payload(case))
+        ProblemDraft.create(domain_payload_override or domain_payload(case))
     )
     assert validation.report.ok and validation.projection is not None
     verified = ProblemPromotionService().promote(validation.draft)
@@ -161,6 +168,51 @@ def planning_binding_fixture(tmp_path: Path, *, case: str = CASES[0]):
         registry,
         planner_context,
         binding_catalog,
+    )
+
+
+def cached_planning_binding_fixture(case: str = CASES[0]):
+    """Build one immutable F5-E authority fixture for tests without tmp_path."""
+
+    cached = _PLANNING_AUTHORITY_CACHE.get(case)
+    if cached is not None:
+        return cached
+    with tempfile.TemporaryDirectory(prefix="f5e-authority-") as directory:
+        fixture = planning_binding_fixture(Path(directory), case=case)
+    _PLANNING_AUTHORITY_CACHE[case] = fixture
+    return fixture
+
+
+def cached_scope_native_payload_args(case: str = CASES[0]) -> dict:
+    """Return the complete authenticated input set for Strategy payload tests."""
+
+    (
+        _bundle,
+        planning_context,
+        _problem,
+        _inputs,
+        problem_payload,
+        _registry,
+        planner_context,
+        binding_catalog,
+    ) = cached_planning_binding_fixture(case)
+    return {
+        "problem_payload": problem_payload,
+        "planner_state_context": planner_context,
+        "problem_planning_context": planning_context,
+        "problem_binding_catalog": binding_catalog,
+    }
+
+
+def cached_problem_planner_authority(
+    case: str = CASES[0],
+) -> VerifiedPlannerProblemAuthority:
+    """Return the authenticated Bundle/PlanningContext pair for Strategy tests."""
+
+    bundle, planning_context, *_ = cached_planning_binding_fixture(case)
+    return VerifiedPlannerProblemAuthority(
+        bundle=bundle,
+        planning_context=planning_context,
     )
 
 

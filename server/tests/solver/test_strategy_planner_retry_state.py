@@ -1,7 +1,11 @@
 """Functional retry payload regression tests."""
 
 from shuxueshuo_server.solver.runtime.strategy_replay import (
+    _functional_retry_state,
     transactional_repair_attempt_payload_from_replay,
+)
+from shuxueshuo_server.solver.runtime.functional_plan_models import (
+    FunctionalPlanIssue,
 )
 from shuxueshuo_server.solver.deepseek_functional_batch import FUNCTIONAL_BATCH_CASES
 from shuxueshuo_server.solver.fixtures import load_problem_ir
@@ -39,6 +43,30 @@ def test_retry_result_serialization_has_no_legacy_draft_snapshots() -> None:
     assert "raw_draft" not in payload
     assert "normalized_draft" not in payload
     assert "effective_draft" not in payload
+
+
+def test_reconciliation_retry_deduplicates_identical_tickets() -> None:
+    issue = FunctionalPlanIssue(
+        layer="functional_reconciliation",
+        code="functional.answer_ref_goal_mismatch",
+        message="answer ref 'E' is not owned by a GoalView",
+        call_id="solve_E",
+        scope_id="i_2",
+        details={"semantic_ref": {"ref": "E", "kind": "answer"}},
+    )
+
+    retry = _functional_retry_state(
+        attempt=0,
+        issues=(issue, issue),
+        baseline_candidate={"format": "functional_plan/v1", "scopes": []},
+        errors=(),
+    )
+
+    assert retry.issues == (retry.issues[0],)
+    assert len(retry.issues) == 1
+    assert "Resolve all 1 structured repair tickets" in (
+        retry.repair_instruction
+    )
 
 
 def _answer_check_retry_payload(replay):

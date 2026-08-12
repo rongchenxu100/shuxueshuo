@@ -343,12 +343,16 @@ SPEC = MethodSpecSource(
     summary=(
         "仅用于原目标路径恰好由三段组成，并且正方形边、中点、中心或对角线"
         "交点关系能够通过斜边中线与三角形中位线把其中两段合并为一段的结构。"
+        "路径中的结构化固定端点必须先由其题面定义在当前 scope 或祖先 scope"
+        "物化为 Point state；PointRef 或点名本身不是可执行坐标。"
         "输出等价的单动点两段 PathTransformation，不负责拉直或求最小值；"
         "输出不携带动点轨迹，后续必须先求 PathTransformation 声明动点的 Line。"
     ),
     do_not_use_when=(
         "原路径只有两段，或不需要正方形的中点和中心关系即可完成等长/比例替换。",
         "缺少三段路径、正方形、中点、中心或对角线交点中的必要结构化条件。",
+        "路径固定端点只有 PointRef、定义或点名而没有已计算 Point state；应先用"
+        "与题面构造匹配的 capability 物化该点，不能拿任意可见 Point 代替。",
         "目标是处理线段与射线等长、加权距离，或已经完成降维的普通两段折线路径。",
     ),
     solves=("reduce_square_path_dimension", "derive_path_transformation"),
@@ -366,6 +370,7 @@ SPEC = MethodSpecSource(
         "midpoint_condition 指向正方形一边的中点",
         "square_center_condition 指向该正方形中心或对角线交点",
         "中点到另一固定点的半边关系已有直角三角形斜边中线依据",
+        "两个结构化固定端点都已有当前 scope 可见的 Point state",
     ),
     postconditions=(
         "输出 transformed_path 是两段共享同一动点的折线路径",

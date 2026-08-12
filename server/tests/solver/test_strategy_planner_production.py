@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-import json
-from pathlib import Path
-
+import pytest
 import sympy as sp
 
 from shuxueshuo_server.solver import load_expected_answers, load_problem_ir, solve_problem
 from shuxueshuo_server.solver.runtime.config import SolverRuntimeConfig
-from shuxueshuo_server.solver.runtime.projection import problem_from_canonical_input
+
+from _problem_planning_support import planning_binding_fixture
 
 
 NANKAI_FIXTURE = "../internal/solver-fixtures/tj-2026-nankai-yimo-25.json"
@@ -22,7 +21,10 @@ HEPING_ERMO_FIXTURE = "../internal/solver-fixtures/tj-2026-heping-ermo-25.json"
 HEPING_ERMO_EXPECTED = "tests/solver/expected/tj-2026-heping-ermo-25.expected.json"
 
 
-def test_strategy_recorded_solves_nankai_without_deterministic_planner(monkeypatch) -> None:
+def test_strategy_recorded_solves_nankai_without_deterministic_planner(
+    monkeypatch,
+    tmp_path,
+) -> None:
     """生产 Strategy recorded 路径不应调用南开 deterministic template。"""
     from shuxueshuo_server.solver.runtime.quadratic_path_planner import (
         QuadraticPathMinimumPlannerV15,
@@ -35,8 +37,12 @@ def test_strategy_recorded_solves_nankai_without_deterministic_planner(monkeypat
             AssertionError("deterministic Nankai planner must not run")
         ),
     )
+    bundle, *_ = planning_binding_fixture(
+        tmp_path,
+        case="tj-2026-nankai-yimo-25",
+    )
     result = solve_problem(
-        load_problem_ir(NANKAI_FIXTURE),
+        bundle,
         runtime_config=SolverRuntimeConfig(
             planner_mode="strategy",
             llm_provider="recorded",
@@ -53,7 +59,10 @@ def test_strategy_recorded_solves_nankai_without_deterministic_planner(monkeypat
     assert result.answers["ii_2"]["G"] == expected["ii_2"]["G"]
 
 
-def test_strategy_recorded_solves_hexi_without_deterministic_planner(monkeypatch) -> None:
+def test_strategy_recorded_solves_hexi_without_deterministic_planner(
+    monkeypatch,
+    tmp_path,
+) -> None:
     """生产 Strategy recorded 路径不应调用河西 deterministic template。"""
     from shuxueshuo_server.solver.runtime.hexi_weighted_path_planner import (
         Hexi25WeightedPathPlannerV15,
@@ -66,8 +75,12 @@ def test_strategy_recorded_solves_hexi_without_deterministic_planner(monkeypatch
             AssertionError("deterministic Hexi planner must not run")
         ),
     )
+    bundle, *_ = planning_binding_fixture(
+        tmp_path,
+        case="tj-2026-hexi-yimo-25",
+    )
     result = solve_problem(
-        load_problem_ir(HEXI_FIXTURE),
+        bundle,
         runtime_config=SolverRuntimeConfig(
             planner_mode="strategy",
             llm_provider="recorded",
@@ -80,7 +93,10 @@ def test_strategy_recorded_solves_hexi_without_deterministic_planner(monkeypatch
     assert "linked_broken_path_minimum_expression" in result.methods_used
 
 
-def test_strategy_recorded_solves_xiqing_without_deterministic_planner(monkeypatch) -> None:
+def test_strategy_recorded_solves_xiqing_without_deterministic_planner(
+    monkeypatch,
+    tmp_path,
+) -> None:
     """西青只通过 Strategy recorded 链路求解，不新增 deterministic slice。"""
     from shuxueshuo_server.solver.runtime.hexi_weighted_path_planner import (
         Hexi25WeightedPathPlannerV15,
@@ -93,8 +109,12 @@ def test_strategy_recorded_solves_xiqing_without_deterministic_planner(monkeypat
             AssertionError("deterministic Hexi planner must not run")
         ),
     )
+    bundle, *_ = planning_binding_fixture(
+        tmp_path,
+        case="tj-2026-xiqing-yimo-25",
+    )
     result = solve_problem(
-        load_problem_ir(XIQING_FIXTURE),
+        bundle,
         runtime_config=SolverRuntimeConfig(
             planner_mode="strategy",
             llm_provider="recorded",
@@ -109,10 +129,16 @@ def test_strategy_recorded_solves_xiqing_without_deterministic_planner(monkeypat
     assert "parameter_from_expression_value" in result.methods_used
 
 
-def test_strategy_recorded_solves_heping_without_deterministic_planner() -> None:
+def test_strategy_recorded_solves_heping_without_deterministic_planner(
+    tmp_path,
+) -> None:
     """和平只通过 Strategy recorded 链路求解，不新增 deterministic slice。"""
+    bundle, *_ = planning_binding_fixture(
+        tmp_path,
+        case="tj-2026-heping-yimo-25",
+    )
     result = solve_problem(
-        load_problem_ir(HEPING_FIXTURE),
+        bundle,
         runtime_config=SolverRuntimeConfig(
             planner_mode="strategy",
             llm_provider="recorded",
@@ -127,10 +153,16 @@ def test_strategy_recorded_solves_heping_without_deterministic_planner() -> None
     assert "equal_length_ray_point" in result.methods_used
 
 
-def test_strategy_recorded_solves_heping_ermo_without_deterministic_planner() -> None:
+def test_strategy_recorded_solves_heping_ermo_without_deterministic_planner(
+    tmp_path,
+) -> None:
     """和平二模只通过 Strategy recorded 链路求解，不新增 deterministic slice。"""
+    bundle, *_ = planning_binding_fixture(
+        tmp_path,
+        case="tj-2026-heping-ermo-25",
+    )
     result = solve_problem(
-        load_problem_ir(HEPING_ERMO_FIXTURE),
+        bundle,
         runtime_config=SolverRuntimeConfig(
             planner_mode="strategy",
             llm_provider="recorded",
@@ -153,22 +185,12 @@ def test_strategy_recorded_solves_heping_ermo_without_deterministic_planner() ->
     assert "square_reflection_extremal_axis_point" not in result.methods_used
 
 
-def test_strategy_recorded_rejects_point_goal_for_point_list_return() -> None:
-    raw = json.loads(Path(HEPING_ERMO_FIXTURE).read_text(encoding="utf-8"))["input"]
-    for goal in raw["question_goals"]:
-        if goal["handle"] == "answer:i_2.E":
-            goal["value_type"] = "Point"
-            goal["target_handle"] = "point:i_2:E"
-            goal["description"] = "第（Ⅰ）②问输出点 E 的坐标"
-            break
-    problem = problem_from_canonical_input(raw)
-    result = solve_problem(
-        problem,
-        runtime_config=SolverRuntimeConfig(
-            planner_mode="strategy",
-            llm_provider="recorded",
-        ),
-    )
-
-    assert result.status == "failed"
-    assert result.errors == ["return PointList cannot satisfy answer:i_2.E"]
+def test_strategy_rejects_bare_problem_ir() -> None:
+    with pytest.raises(ValueError, match="planner.problem_bundle_required"):
+        solve_problem(
+            load_problem_ir(HEPING_ERMO_FIXTURE),
+            runtime_config=SolverRuntimeConfig(
+                planner_mode="strategy",
+                llm_provider="recorded",
+            ),
+        )

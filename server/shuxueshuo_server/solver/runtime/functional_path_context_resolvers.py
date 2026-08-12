@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from dataclasses import replace
-from typing import Mapping
+from dataclasses import dataclass, replace
+from typing import Any, Mapping, Sequence
 
 from shuxueshuo_server.solver.runtime.context_closure import (
     ContextClosureResolverSpec,
@@ -55,6 +55,104 @@ ContextClosureResolution = tuple[
     tuple[FunctionalPlanIssue, ...],
     bool,
 ]
+
+
+@dataclass(frozen=True)
+class SquarePathTransformationRoles:
+    """Structured object roles shared by dependency and value resolution."""
+
+    fixed_endpoint_1: str
+    moving_object: str
+    fixed_endpoint_2: str
+
+
+class SquarePathTransformationRoleError(ValueError):
+    def __init__(
+        self,
+        message: str,
+        *,
+        details: Mapping[str, Any],
+    ) -> None:
+        super().__init__(message)
+        self.details = dict(details)
+
+
+def infer_square_path_transformation_roles(
+    conditions: Sequence[Any],
+    *,
+    scope_id: str,
+    handle_registry: CanonicalHandleRegistry,
+) -> SquarePathTransformationRoles | None:
+    """Infer path roles without requiring any endpoint runtime state."""
+
+    square = next(
+        (
+            value
+            for value in conditions
+            if handle_registry.fact_types.get(value.handle) == "square"
+        ),
+        None,
+    )
+    path_target = next(
+        (
+            value
+            for value in conditions
+            if handle_registry.fact_types.get(value.handle)
+            == "path_minimum_target"
+        ),
+        None,
+    )
+    if square is None or path_target is None:
+        return None
+
+    square_roles = dict(square.object_roles)
+    fixed_1_refs = square_roles.get("vertex_1", ())
+    moving_refs = square_roles.get("vertex_4", ())
+    if len(fixed_1_refs) != 1 or len(moving_refs) != 1:
+        raise SquarePathTransformationRoleError(
+            "square path transformation requires ordered square vertices",
+            details={
+                "roles": ["fixed_endpoint_1", "moving_object"],
+            },
+        )
+
+    point_by_name = _visible_points_by_name(
+        scope_id=scope_id,
+        handle_registry=handle_registry,
+    )
+    terms = parse_path_terms(
+        handle_registry.fact_payloads.get(path_target.handle, {}),
+        point_names=point_by_name,
+        resolve_point=lambda name: _resolve_unique_path_point(
+            name,
+            point_by_name,
+        ),
+    )
+    moving_ref = moving_refs[0]
+    moving_terms = tuple(
+        term
+        for term in terms
+        if moving_ref in (term.start, term.end)
+    )
+    if len(moving_terms) != 1:
+        raise SquarePathTransformationRoleError(
+            "square path must identify one segment incident to the moving object",
+            details={
+                "role": "fixed_endpoint_2",
+                "moving_object": moving_ref,
+            },
+        )
+    moving_term = moving_terms[0]
+    fixed_2_ref = (
+        moving_term.end
+        if moving_term.start == moving_ref
+        else moving_term.start
+    )
+    return SquarePathTransformationRoles(
+        fixed_endpoint_1=fixed_1_refs[0],
+        moving_object=moving_ref,
+        fixed_endpoint_2=fixed_2_ref,
+    )
 
 
 def resolve_equal_length_ray_path_args(
@@ -463,14 +561,6 @@ def resolve_square_path_transformation_args(
         for value in values
         if value.runtime_type == "Condition"
     )
-    square = next(
-        (
-            value
-            for value in conditions
-            if handle_registry.fact_types.get(value.handle) == "square"
-        ),
-        None,
-    )
     path_target = next(
         (
             value
@@ -480,47 +570,13 @@ def resolve_square_path_transformation_args(
         ),
         None,
     )
-    if square is None or path_target is None:
+    if path_target is None:
         return {}, (), (), False
-    square_roles = dict(square.object_roles)
-    # These are normalized ProblemIR roles for this transformation profile:
-    # vertex_1 is the fixed anchor and vertex_4 is the moving square vertex.
-    # Diagram orientation and point labels must be normalized upstream.
-    fixed_1_refs = square_roles.get("vertex_1", ())
-    moving_refs = square_roles.get("vertex_4", ())
-    if len(fixed_1_refs) != 1 or len(moving_refs) != 1:
-        return (
-            {},
-            (),
-            (
-                _issue(
-                    "functional_elaboration",
-                    "functional.path_transformation_role_missing",
-                    (
-                        "square path transformation requires ordered "
-                        "square vertices"
-                    ),
-                    call_id=call_id,
-                    scope_id=scope_id,
-                    details={
-                        "roles": ["fixed_endpoint_1", "moving_object"],
-                    },
-                ),
-            ),
-            False,
-        )
-    point_by_name = _visible_points_by_name(
-        scope_id=scope_id,
-        handle_registry=handle_registry,
-    )
     try:
-        terms = parse_path_terms(
-            handle_registry.fact_payloads.get(path_target.handle, {}),
-            point_names=point_by_name,
-            resolve_point=lambda name: _resolve_unique_path_point(
-                name,
-                point_by_name,
-            ),
+        roles = infer_square_path_transformation_roles(
+            conditions,
+            scope_id=scope_id,
+            handle_registry=handle_registry,
         )
     except PathTermParseError as exc:
         return _path_term_issue(
@@ -528,13 +584,7 @@ def resolve_square_path_transformation_args(
             call_id=call_id,
             scope_id=scope_id,
         )
-    moving_ref = moving_refs[0]
-    moving_terms = tuple(
-        term
-        for term in terms
-        if moving_ref in (term.start, term.end)
-    )
-    if len(moving_terms) != 1:
+    except SquarePathTransformationRoleError as exc:
         return (
             {},
             (),
@@ -542,31 +592,21 @@ def resolve_square_path_transformation_args(
                 _issue(
                     "functional_elaboration",
                     "functional.path_transformation_role_missing",
-                    (
-                        "square path must identify one segment incident "
-                        "to the moving object"
-                    ),
+                    str(exc),
                     call_id=call_id,
                     scope_id=scope_id,
-                    details={
-                        "role": "fixed_endpoint_2",
-                        "moving_object": moving_ref,
-                    },
+                    details=exc.details,
                 ),
             ),
             False,
         )
-    moving_term = moving_terms[0]
-    fixed_2_ref = (
-        moving_term.end
-        if moving_term.start == moving_ref
-        else moving_term.start
-    )
+    if roles is None:
+        return {}, (), (), False
     additions: dict[str, tuple[ResolvedFunctionalValue, ...]] = {}
     issues: list[FunctionalPlanIssue] = []
     for role, object_ref in (
-        ("fixed_endpoint_1", fixed_1_refs[0]),
-        ("fixed_endpoint_2", fixed_2_ref),
+        ("fixed_endpoint_1", roles.fixed_endpoint_1),
+        ("fixed_endpoint_2", roles.fixed_endpoint_2),
     ):
         arg_name = resolver.arg_name(
             role,
@@ -618,8 +658,9 @@ def resolve_square_path_transformation_args(
                 "project_square_path_transformation_roles",
                 path_target.handle,
                 (
-                    f"moving={moving_ref},fixed_1={fixed_1_refs[0]},"
-                    f"fixed_2={fixed_2_ref}"
+                    f"moving={roles.moving_object},"
+                    f"fixed_1={roles.fixed_endpoint_1},"
+                    f"fixed_2={roles.fixed_endpoint_2}"
                 ),
             ),
         ),
@@ -830,6 +871,9 @@ def _path_term_issue(
 
 __all__ = [
     "ContextClosureResolution",
+    "SquarePathTransformationRoleError",
+    "SquarePathTransformationRoles",
+    "infer_square_path_transformation_roles",
     "resolve_equal_length_ray_path_args",
     "resolve_path_reduction_args",
     "resolve_square_path_transformation_args",

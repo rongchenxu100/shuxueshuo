@@ -44,6 +44,19 @@ def _validated(case: str):
     return result
 
 
+def _rename_scope_ids(scope: dict, *, local_id: str = "root") -> None:
+    scope["id"] = local_id
+    for position, child in enumerate(scope["children"], start=1):
+        _rename_scope_ids(child, local_id=f"{local_id}_part{position}")
+
+
+def _rename_goal_answer_keys(scope: dict, *, prefix: str = "answer") -> None:
+    for position, goal in enumerate(scope["goals"], start=1):
+        goal["answer_key"] = f"{prefix}_{position}"
+    for position, child in enumerate(scope["children"], start=1):
+        _rename_goal_answer_keys(child, prefix=f"{prefix}_{position}")
+
+
 @pytest.mark.parametrize("case", CASES)
 def test_verified_domain_projects_to_constructible_solver_problem(case: str) -> None:
     validation = _validated(case)
@@ -63,6 +76,62 @@ def test_verified_domain_projects_to_constructible_solver_problem(case: str) -> 
     )
     assert ContextBuilder().build(projection.problem) is not None
     assert VerifiedProblem.from_payload(verified.to_payload()).to_payload() == verified.to_payload()
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_runtime_scope_identity_does_not_depend_on_model_local_scope_ids(
+    case: str,
+) -> None:
+    expected = _validated(case)
+    payload = json.loads(
+        (DOMAIN_FIXTURES / f"{case}.json").read_text(encoding="utf-8")
+    )
+    _rename_scope_ids(payload["root"])
+
+    actual = ProblemDomainValidator().validate(ProblemDraft.create(payload))
+
+    assert actual.report.ok, actual.report.to_payload()
+    assert expected.projection is not None and actual.projection is not None
+    assert actual.projection.canonical_input == expected.projection.canonical_input
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_runtime_answer_identity_is_derived_from_goal_semantics(case: str) -> None:
+    expected = _validated(case)
+    payload = json.loads(
+        (DOMAIN_FIXTURES / f"{case}.json").read_text(encoding="utf-8")
+    )
+    _rename_goal_answer_keys(payload["root"])
+
+    actual = ProblemDomainValidator().validate(ProblemDraft.create(payload))
+
+    assert actual.report.ok, actual.report.to_payload()
+    assert expected.projection is not None and actual.projection is not None
+    assert actual.projection.canonical_input == expected.projection.canonical_input
+
+
+def test_primary_parameter_in_function_projects_as_quadratic_coefficient() -> None:
+    case = "tj-2026-heping-yimo-25"
+    expected = _validated(case)
+    payload = json.loads(
+        (DOMAIN_FIXTURES / f"{case}.json").read_text(encoding="utf-8")
+    )
+    parameter = next(
+        entity for entity in payload["root"]["entities"] if entity["id"] == "a"
+    )
+    parameter["role"] = "primary_parameter"
+
+    actual = ProblemDomainValidator().validate(ProblemDraft.create(payload))
+
+    assert actual.report.ok, actual.report.to_payload()
+    assert expected.projection is not None and actual.projection is not None
+    assert actual.projection.canonical_input == expected.projection.canonical_input
+    runtime_context = ContextBuilder().build(actual.projection.problem)
+    coefficients = runtime_context.read_path(
+        "$problem.symbol_lists.quadratic_coefficients",
+        from_scope_id="problem",
+    ).value
+    assert [symbol.name for symbol in coefficients] == ["a", "b"]
 
 
 @pytest.mark.parametrize("case", CASES)
