@@ -12,6 +12,8 @@ from shuxueshuo_server.solver.family.models import (
     CapabilityDependencyPolicy,
     CapabilityStateClosurePolicy,
     FunctionalArgBindingAuthority,
+    FunctionalSemanticRefRole,
+    FunctionalOutputTargetSelectorSpec,
     StateIdentityConstraintSpec,
     StateLineageClosureSpec,
     StateObjectRoleProjectionSpec,
@@ -50,6 +52,7 @@ FunctionalIssueLayer = Literal[
     "functional_reconciliation",
 ]
 FunctionalArgMode = Literal["explicit", "optional", "auto"]
+FunctionalReturnExpectationPolicy = Literal["selectable", "omit"]
 FunctionalAggregation = Literal[
     "none",
     "coefficients_by_symbol",
@@ -208,6 +211,7 @@ class FunctionalCapabilityArg:
         repr=False,
     )
     consumption_mode: str = field(default="runtime_input", repr=False)
+    semantic_ref_role: FunctionalSemanticRefRole = "value"
 
     def to_prompt_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -217,6 +221,7 @@ class FunctionalCapabilityArg:
             ),
             "required": self.required,
             "cardinality": self.cardinality,
+            "semantic_ref_role": self.semantic_ref_role,
         }
         if self.accepted_condition_kinds:
             payload["fact_types"] = list(
@@ -228,8 +233,17 @@ class FunctionalCapabilityArg:
             )
         if self.requires_materialized_state:
             payload["requires_computed_value"] = True
-        if self.description:
-            payload["desc"] = self.description
+        description = self.description
+        if self.semantic_ref_role == "object_identity":
+            identity_guidance = (
+                "使用Goal的target_ref或可见Entity ref表示题面对象身份；"
+                "不得使用goal_ref。"
+            )
+            description = " ".join(
+                item for item in (description, identity_guidance) if item
+            )
+        if description:
+            payload["desc"] = description
         if self.input_closure_policy == "closed_only":
             payload["accepted_forms"] = ["closed_state"]
             payload["max_independent_free_parameters"] = 0
@@ -281,17 +295,24 @@ class FunctionalCapabilityReturn:
     return_binding: str = "auto"
     result_form_ignored_input_args: tuple[str, ...] = ()
     free_symbol_return_names: tuple[str, ...] = ()
+    output_target_selector: FunctionalOutputTargetSelectorSpec | None = None
 
     @property
     def binding_mode(self) -> str:
         """Return the wire-level destination policy exposed to the planner."""
         return _prompt_return_binding(self)
 
+    @property
+    def return_expectation_policy(self) -> FunctionalReturnExpectationPolicy:
+        """Declare whether the planner may author an open/closed form hint."""
+        return "selectable" if self.possible_forms else "omit"
+
     def to_prompt_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
             "name": self.name,
             "type": self.runtime_type,
             "binding": self.binding_mode,
+            "return_expectation_policy": self.return_expectation_policy,
         }
         if _is_aggregate_return_type(self.runtime_type):
             payload["value_cardinality"] = "aggregate"
@@ -316,6 +337,10 @@ class FunctionalCapabilityReturn:
             payload["same_state_as"] = self.equivalent_to
         if self.provides_semantic_roles:
             payload["provides"] = list(self.provides_semantic_roles)
+        if self.output_target_selector is not None:
+            payload["target_selection"] = (
+                self.output_target_selector.to_payload()
+            )
         return payload
 
 

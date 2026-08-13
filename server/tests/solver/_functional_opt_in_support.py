@@ -471,7 +471,7 @@ def _assert_prompt_is_functional_and_safe(payload: dict[str, Any], prompt: Any) 
     assert "problem_ir" not in payload, "flat ProblemIR leaked into planner payload"
     problem_context = payload.get("problem_planning_context")
     assert isinstance(problem_context, dict), "scope-native planning context is missing"
-    assert problem_context.get("schema_version") == "planner-problem-view/v1"
+    assert problem_context.get("schema_version") == "planner-problem-view/v2"
     assert "expected_answers" not in json.dumps(payload, ensure_ascii=False), (
         "expected answers leaked into the planner payload"
     )

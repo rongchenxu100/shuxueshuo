@@ -12,7 +12,7 @@
   ],
   "properties": {
     "schema_version": {
-      "const": "planner-problem-view/v1"
+      "const": "planner-problem-view/v2"
     },
     "problem_id": {
       "type": "string",
@@ -72,24 +72,78 @@
       "type": "object",
       "required": [
         "kind",
-        "answer_ref",
+        "goal_ref",
         "answer_type"
       ],
       "properties": {
         "kind": {
-          "type": "string",
-          "minLength": 1
+          "enum": [
+            "point_coordinate",
+            "quadratic_equation",
+            "parameter_value",
+            "minimum_value"
+          ]
         },
-        "answer_ref": {
+        "goal_ref": {
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "description": "The unique Goal identity. FunctionalPlan.goal_ref must copy this value exactly; a scope id or target name is not a Goal identity."
+        },
+        "target_ref": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The visible Problem object answered by this Goal. Use this SemanticRef for capability object-identity inputs; goal_ref is not an input SemanticRef."
+        },
+        "expression": {
+          "type": "object",
+          "minProperties": 1
         },
         "answer_type": {
           "type": "string",
           "minLength": 1
         }
       },
-      "additionalProperties": true
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "point_coordinate",
+                  "quadratic_equation",
+                  "parameter_value"
+                ]
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "target_ref"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "minimum_value"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "expression"
+            ]
+          }
+        }
+      ],
+      "additionalProperties": false
     },
     "scope": {
       "type": "object",

@@ -29,7 +29,7 @@ from shuxueshuo_server.solver.runtime.strategy_models import SemanticRef
 
 
 PROBLEM_PLANNING_CONTEXT_CONTRACT = "problem-planning-context/v1"
-PLANNER_PROBLEM_VIEW_CONTRACT = "planner-problem-view/v1"
+PLANNER_PROBLEM_VIEW_CONTRACT = "planner-problem-view/v2"
 
 
 def planner_problem_view_schema() -> dict[str, Any]:
@@ -47,14 +47,62 @@ def planner_problem_view_schema() -> dict[str, Any]:
     }
     goal = {
         "type": "object",
-        "required": ["kind", "answer_ref", "answer_type"],
+        "required": ["kind", "goal_ref", "answer_type"],
         "properties": {
-            "kind": {"type": "string", "minLength": 1},
-            "answer_ref": {"type": "string", "minLength": 1},
+            "kind": {
+                "enum": [
+                    "point_coordinate",
+                    "quadratic_equation",
+                    "parameter_value",
+                    "minimum_value",
+                ]
+            },
+            "goal_ref": {
+                "type": "string",
+                "minLength": 1,
+                "description": (
+                    "The unique Goal identity. FunctionalPlan.goal_ref must "
+                    "copy this value exactly; a scope id or target name is "
+                    "not a Goal identity."
+                ),
+            },
+            "target_ref": {
+                "type": "string",
+                "minLength": 1,
+                "description": (
+                    "The visible Problem object answered by this Goal. Use "
+                    "this SemanticRef for capability object-identity inputs; "
+                    "goal_ref is not an input SemanticRef."
+                ),
+            },
+            "expression": {"type": "object", "minProperties": 1},
             "answer_type": {"type": "string", "minLength": 1},
         },
-        # Goal-specific target/expression fields come from the verified Goal union.
-        "additionalProperties": True,
+        "allOf": [
+            {
+                "if": {
+                    "properties": {
+                        "kind": {
+                            "enum": [
+                                "point_coordinate",
+                                "quadratic_equation",
+                                "parameter_value",
+                            ]
+                        }
+                    },
+                    "required": ["kind"],
+                },
+                "then": {"required": ["target_ref"]},
+            },
+            {
+                "if": {
+                    "properties": {"kind": {"const": "minimum_value"}},
+                    "required": ["kind"],
+                },
+                "then": {"required": ["expression"]},
+            },
+        ],
+        "additionalProperties": False,
     }
     scope = {
         "type": "object",
@@ -163,6 +211,27 @@ class ProblemPlanningSourceUnit:
 
 
 @dataclass(frozen=True)
+class ScopedSourceRefKey:
+    owner_scope_id: str
+    local_ref: str
+    kind: str
+
+    def __post_init__(self) -> None:
+        if not self.owner_scope_id or not self.local_ref or not self.kind:
+            raise TypeError("scoped source ref key fields must be non-empty")
+
+    def sort_key(self) -> tuple[str, str, str]:
+        return (self.owner_scope_id, self.local_ref, self.kind)
+
+    def to_payload(self) -> dict[str, str]:
+        return {
+            "owner_scope_id": self.owner_scope_id,
+            "local_ref": self.local_ref,
+            "kind": self.kind,
+        }
+
+
+@dataclass(frozen=True)
 class PlanningReadAuthority:
     semantic_ref: SemanticRef
     runtime_node_id: str
@@ -194,6 +263,14 @@ class PlanningReadAuthority:
             "visible_goal_unit_ids": list(self.visible_goal_unit_ids),
             "usage": self.usage,
         }
+
+    @property
+    def scoped_key(self) -> ScopedSourceRefKey:
+        return ScopedSourceRefKey(
+            self.owner_scope_id,
+            self.semantic_ref.ref,
+            self.semantic_ref.kind,
+        )
 
 
 @dataclass(frozen=True)
@@ -277,7 +354,7 @@ class ProblemPlanningContext:
     source: Mapping[str, FrozenJson]
     scopes: tuple[ProblemPlanningScope, ...]
     goal_views: tuple[ProblemPlanningGoalView, ...]
-    ref_authorities: Mapping[str, PlanningReadAuthority]
+    ref_authorities: Mapping[ScopedSourceRefKey, PlanningReadAuthority]
 
     def __post_init__(self) -> None:
         frozen_source = freeze_json(self.source)
@@ -289,7 +366,14 @@ class ProblemPlanningContext:
         object.__setattr__(
             self,
             "ref_authorities",
-            MappingProxyType(dict(sorted(self.ref_authorities.items()))),
+            MappingProxyType(
+                dict(
+                    sorted(
+                        self.ref_authorities.items(),
+                        key=lambda item: item[0].sort_key(),
+                    )
+                )
+            ),
         )
 
     def authority_payload(self) -> dict[str, Any]:
@@ -304,10 +388,10 @@ class ProblemPlanningContext:
             "source": thaw_json(self.source),
             "scopes": [scope.authority_payload() for scope in self.scopes],
             "goal_views": [goal.authority_payload() for goal in self.goal_views],
-            "ref_authorities": {
-                key: value.authority_payload()
-                for key, value in self.ref_authorities.items()
-            },
+            "ref_authorities": [
+                value.authority_payload()
+                for value in self.ref_authorities.values()
+            ],
         }
 
     @property
@@ -348,18 +432,76 @@ class ProblemPlanningContext:
         """Return the unique answer authority for one Goal."""
 
         goal = self._goal_view(goal_unit_id)
-        authority = self.ref_authorities.get(goal.answer_ref.ref)
-        if (
-            authority is None
-            or authority.usage != "answer"
-            or authority.visible_goal_unit_ids != (goal_unit_id,)
-        ):
+        matches = tuple(
+            authority
+            for authority in self.ref_authorities.values()
+            if authority.usage == "answer"
+            and authority.visible_goal_unit_ids == (goal_unit_id,)
+            and authority.semantic_ref == goal.answer_ref
+        )
+        if len(matches) != 1:
             raise _error(
                 "planner.problem_planning_projection_drift",
                 "$.ref_authorities",
                 f"Goal {goal_unit_id!r} answer authority has drifted",
             )
-        return authority
+        return matches[0]
+
+    def resolve_input_authority(
+        self,
+        *,
+        scope_id: str,
+        local_ref: str,
+        goal_unit_ids: Sequence[str] = (),
+    ) -> PlanningReadAuthority:
+        """Resolve one prompt SourceRef through lexical scope authority."""
+
+        scope_parents = {
+            scope.scope_id: scope.parent_scope_id for scope in self.scopes
+        }
+        if scope_id not in scope_parents:
+            raise _error(
+                "planner.problem_scope_visibility_drift",
+                "$.scopes",
+                f"unknown SourceRef resolution scope {scope_id!r}",
+            )
+        scope_path: list[str] = []
+        current: str | None = scope_id
+        while current is not None:
+            scope_path.append(current)
+            current = scope_parents[current]
+        goal_ids = frozenset(goal_unit_ids)
+        matches = tuple(
+            authority
+            for authority in self.ref_authorities.values()
+            if authority.usage == "input"
+            and authority.semantic_ref.ref == local_ref
+            and authority.owner_scope_id in scope_path
+            and (
+                not goal_ids
+                or goal_ids.issubset(authority.visible_goal_unit_ids)
+            )
+        )
+        if len(matches) != 1:
+            code = (
+                "planner.problem_source_binding_unresolved"
+                if not matches
+                else "planner.problem_planning_ref_ambiguous"
+            )
+            raise _error(
+                code,
+                "$.ref_authorities",
+                (
+                    f"SourceRef {local_ref!r} has no visible authority from "
+                    f"scope {scope_id!r}"
+                    if not matches
+                    else (
+                        f"SourceRef {local_ref!r} resolves to multiple "
+                        f"authorities from scope {scope_id!r}"
+                    )
+                ),
+            )
+        return matches[0]
 
     def _goal_view(self, goal_unit_id: str) -> ProblemPlanningGoalView:
         matches = [item for item in self.goal_views if item.goal_unit_id == goal_unit_id]
@@ -638,20 +780,17 @@ def _prompt_goal(goal: ProblemPlanningGoalView) -> dict[str, Any]:
     source = thaw_json(goal.goal_payload)
     assert isinstance(source, dict)
     result: dict[str, Any] = {"kind": goal.goal_kind}
-    result.update(
-        {
-            key: value
-            for key, value in source.items()
-            if key not in {"answer_key", "kind"}
-        }
-    )
+    for key, value in source.items():
+        if key in {"answer_key", "kind"}:
+            continue
+        result["target_ref" if key == "target" else key] = value
     if not goal.answer_ref.value_type:
         raise _error(
             "planner.problem_planning_projection_drift",
             "$.goal_views",
             f"Goal {goal.goal_unit_id!r} has no answer value type",
         )
-    result["answer_ref"] = goal.answer_ref.ref
+    result["goal_ref"] = goal.answer_ref.ref
     result["answer_type"] = goal.answer_ref.value_type
     return result
 
@@ -727,6 +866,7 @@ class ProblemPlanningContextProjector:
         authorities = _materialize_ref_authorities(
             candidates,
             visible_goals_by_scope=visible_goals_by_scope,
+            scope_paths=scope_path_by_runtime_id,
         )
         prompt_source_payloads = _canonical_prompt_source_payloads(
             graph.root_scope,
@@ -819,10 +959,10 @@ class ProblemPlanningContextProjector:
             "source": graph.source.to_payload(),
             "scopes": [item.authority_payload() for item in planning_scopes],
             "goal_views": [item.authority_payload() for item in goal_views],
-            "ref_authorities": {
-                key: value.authority_payload()
-                for key, value in authorities.items()
-            },
+            "ref_authorities": [
+                value.authority_payload()
+                for value in authorities.values()
+            ],
         }
         context = ProblemPlanningContext(
             schema_version=PROBLEM_PLANNING_CONTEXT_CONTRACT,
@@ -1281,7 +1421,7 @@ def _canonical_prompt_source_payloads(
     *,
     bundle: VerifiedSolverProblemBundle,
     runtime_nodes: Mapping[str, _RuntimeNode],
-    authorities: Mapping[str, PlanningReadAuthority],
+    authorities: Mapping[ScopedSourceRefKey, PlanningReadAuthority],
 ) -> Mapping[str, Mapping[str, Any]]:
     authority_by_runtime_id = {
         authority.runtime_node_id: authority for authority in authorities.values()
@@ -1378,23 +1518,21 @@ def _materialize_ref_authorities(
     candidates: Sequence[_RefCandidate],
     *,
     visible_goals_by_scope: Mapping[str, tuple[str, ...]],
-) -> Mapping[str, PlanningReadAuthority]:
-    grouped: dict[str, list[_RefCandidate]] = {}
+    scope_paths: Mapping[str, tuple[str, ...]],
+) -> Mapping[ScopedSourceRefKey, PlanningReadAuthority]:
+    grouped: dict[tuple[str, str, str], list[_RefCandidate]] = {}
     for item in candidates:
-        grouped.setdefault(item.base_ref, []).append(item)
-
-    prefixed: dict[str, list[_RefCandidate]] = {}
-    for base_ref, items in grouped.items():
-        for item in items:
-            name = (
-                base_ref
-                if len(items) == 1
-                else f"{item.runtime_node.owner_scope_id}.{base_ref}"
-            )
-            prefixed.setdefault(name, []).append(item)
+        grouped.setdefault(
+            (
+                item.runtime_node.owner_scope_id,
+                item.base_ref,
+                item.usage,
+            ),
+            [],
+        ).append(item)
 
     final_names: dict[str, str] = {}
-    for name, items in prefixed.items():
+    for (_scope_id, name, _usage), items in grouped.items():
         ordered = sorted(
             items,
             key=lambda item: (
@@ -1409,22 +1547,30 @@ def _materialize_ref_authorities(
                 name if len(ordered) == 1 else f"{name}_{index}"
             )
 
-    result: dict[str, PlanningReadAuthority] = {}
+    result: dict[ScopedSourceRefKey, PlanningReadAuthority] = {}
     for item in candidates:
         runtime_id = item.runtime_node.runtime_node_id
         ref_name = final_names[runtime_id]
-        if ref_name in result:
+        key = ScopedSourceRefKey(
+            item.runtime_node.owner_scope_id,
+            ref_name,
+            item.kind,
+        )
+        if key in result:
             raise _error(
                 "planner.problem_planning_ref_ambiguous",
                 "$.ref_authorities",
-                f"SemanticRef {ref_name!r} maps to multiple runtime nodes",
+                (
+                    f"SourceRef {ref_name!r} maps to multiple runtime nodes "
+                    f"inside scope {key.owner_scope_id!r}"
+                ),
             )
         visible_goals = (
             (item.source_unit_ids[0],)
             if item.usage == "answer"
             else visible_goals_by_scope[item.runtime_node.owner_scope_id]
         )
-        result[ref_name] = PlanningReadAuthority(
+        result[key] = PlanningReadAuthority(
             semantic_ref=SemanticRef(
                 ref=ref_name,
                 kind=item.kind,
@@ -1436,14 +1582,42 @@ def _materialize_ref_authorities(
             visible_goal_unit_ids=visible_goals,
             usage=item.usage,
         )
-    return MappingProxyType(dict(sorted(result.items())))
+
+    input_names_by_scope: dict[str, set[str]] = {}
+    for authority in result.values():
+        if authority.usage == "input":
+            input_names_by_scope.setdefault(authority.owner_scope_id, set()).add(
+                authority.semantic_ref.ref
+            )
+    for authority in result.values():
+        if authority.usage != "input":
+            continue
+        path = scope_paths[authority.owner_scope_id]
+        shadowed_ancestors = tuple(
+            scope_id
+            for scope_id in path[:-1]
+            if authority.semantic_ref.ref in input_names_by_scope.get(scope_id, set())
+        )
+        if shadowed_ancestors:
+            raise _error(
+                "planner.problem_planning_ref_ambiguous",
+                "$.ref_authorities",
+                (
+                    f"SourceRef {authority.semantic_ref.ref!r} in scope "
+                    f"{authority.owner_scope_id!r} shadows ancestor scope "
+                    f"{shadowed_ancestors[-1]!r}"
+                ),
+            )
+    return MappingProxyType(
+        dict(sorted(result.items(), key=lambda item: item[0].sort_key()))
+    )
 
 
 def _goal_view(
     goal: _GoalRecord,
     *,
     scope_records: Sequence[_ScopeRecord],
-    authorities: Mapping[str, PlanningReadAuthority],
+    authorities: Mapping[ScopedSourceRefKey, PlanningReadAuthority],
     scope_path_by_runtime_id: Mapping[str, tuple[str, ...]],
     prompt_source_payloads: Mapping[str, Mapping[str, Any]],
 ) -> ProblemPlanningGoalView:
@@ -1520,7 +1694,7 @@ def _audit_source_coverage(
 
 
 def _audit_authority_visibility(
-    authorities: Mapping[str, PlanningReadAuthority],
+    authorities: Mapping[ScopedSourceRefKey, PlanningReadAuthority],
     *,
     scope_path_by_runtime_id: Mapping[str, tuple[str, ...]],
     records: Mapping[str, ProblemUnitRecord],
@@ -1529,12 +1703,12 @@ def _audit_authority_visibility(
     runtime_scope_by_source_path = {
         item.source_scope.path_id: item.scope_id for item in scope_records
     }
-    for ref_name, authority in authorities.items():
-        if ref_name != authority.semantic_ref.ref:
+    for scoped_key, authority in authorities.items():
+        if scoped_key != authority.scoped_key:
             raise _error(
                 "planner.problem_planning_ref_ambiguous",
                 "$.ref_authorities",
-                "SemanticRef authority key differs from its ref",
+                "scoped SourceRef authority key differs from its payload",
             )
         owner_path = scope_path_by_runtime_id[authority.owner_scope_id]
         for source_unit_id in authority.source_unit_ids:
@@ -1574,7 +1748,7 @@ def _audit_goal_read_catalog(
     *,
     planning_scopes: Sequence[ProblemPlanningScope],
     goal_views: Sequence[ProblemPlanningGoalView],
-    authorities: Mapping[str, PlanningReadAuthority],
+    authorities: Mapping[ScopedSourceRefKey, PlanningReadAuthority],
 ) -> None:
     scopes = {item.scope_id: item for item in planning_scopes}
     for goal in goal_views:
@@ -1591,12 +1765,15 @@ def _audit_goal_read_catalog(
                 f"Goal {goal.goal_unit_id!r} read catalog differs from visible scopes",
             )
         for ref in goal.semantic_reads:
-            authority = authorities.get(ref.ref)
-            if (
-                authority is None
-                or authority.usage != "input"
-                or goal.goal_unit_id not in authority.visible_goal_unit_ids
-            ):
+            matches = tuple(
+                authority
+                for authority in authorities.values()
+                if authority.semantic_ref == ref
+                and authority.usage == "input"
+                and authority.owner_scope_id in goal.visible_scope_ids
+                and goal.goal_unit_id in authority.visible_goal_unit_ids
+            )
+            if len(matches) != 1:
                 raise _error(
                     "planner.problem_scope_visibility_drift",
                     "$.goal_views",

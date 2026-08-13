@@ -8,7 +8,7 @@ layer in between.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Any, Callable, Literal, Mapping
 
 from shuxueshuo_server.solver.contracts import (
@@ -43,6 +43,8 @@ from shuxueshuo_server.solver.family.models import (
     CapabilityContextRoleBindingSpec,
     CapabilityStateClosurePolicy,
     FunctionalArgBindingAuthority,
+    FunctionalSemanticRefRole,
+    FunctionalOutputTargetSelectorSpec,
     FunctionalReturnBindingPolicy,
     MethodBindingRuleSpec,
     PathTransformationConsumerSpec,
@@ -95,6 +97,7 @@ class FunctionArgSpec:
     description: str = ""
     provides_semantic_roles: tuple[str, ...] = ()
     input_closure_policy: CapabilityStateClosurePolicy = "any"
+    semantic_ref_role: FunctionalSemanticRefRole = "value"
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -118,6 +121,8 @@ class FunctionArgSpec:
             )
         if self.input_closure_policy != "any":
             payload["input_closure_policy"] = self.input_closure_policy
+        if self.semantic_ref_role != "value":
+            payload["semantic_ref_role"] = self.semantic_ref_role
         return payload
 
 
@@ -141,6 +146,7 @@ class FunctionReturnSpec:
     object_role_projections: tuple[StateObjectRoleProjectionSpec, ...] = ()
     lineage_closures: tuple[StateLineageClosureSpec, ...] = ()
     return_binding: FunctionalReturnBindingPolicy = "auto"
+    output_target_selector: FunctionalOutputTargetSelectorSpec | None = None
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -177,6 +183,10 @@ class FunctionReturnSpec:
             ]
         if self.return_binding != "auto":
             payload["return_binding"] = self.return_binding
+        if self.output_target_selector is not None:
+            payload["output_target_selector"] = (
+                self.output_target_selector.to_payload()
+            )
         return payload
 
 
@@ -244,6 +254,11 @@ class FunctionAdapterSpec:
     """Runtime adapter for compiling a FunctionSpec to MethodInvocation inputs."""
 
     adapter_id: str
+    functional_input_names: tuple[tuple[str, str], ...] = ()
+    functional_output_names: tuple[tuple[str, str], ...] = ()
+    functional_output_target_selectors: tuple[
+        FunctionalOutputTargetSelectorSpec, ...
+    ] = ()
     input_bindings: tuple[FunctionInputBindingSpec, ...] = ()
     aggregate_input_bindings: tuple[FunctionAggregateInputBindingSpec, ...] = ()
     scalar_aggregate_lowerings: tuple[
@@ -255,6 +270,16 @@ class FunctionAdapterSpec:
     def to_payload(self) -> dict[str, Any]:
         return {
             "adapter_id": self.adapter_id,
+            "functional_input_names": [
+                list(item) for item in self.functional_input_names
+            ],
+            "functional_output_names": [
+                list(item) for item in self.functional_output_names
+            ],
+            "functional_output_target_selectors": [
+                item.to_payload()
+                for item in self.functional_output_target_selectors
+            ],
             "input_bindings": [item.to_payload() for item in self.input_bindings],
             "aggregate_input_bindings": [
                 item.to_payload() for item in self.aggregate_input_bindings
@@ -366,6 +391,10 @@ class FunctionSpecRegistry:
         method_specs: MethodSpecRegistry,
     ) -> "FunctionSpecRegistry":
         contracts = effective_contract_by_id(family_spec, method_specs)
+        family_binding_rules = {
+            rule.method_id: rule
+            for rule in family_spec.method_binding_rules
+        }
         specs: dict[str, FunctionSpec] = {}
         for method_id in family_spec.method_ids:
             try:
@@ -374,15 +403,28 @@ class FunctionSpecRegistry:
                 continue
             contract = contracts.get(method_id)
             adapter = GENERIC_FUNCTION_ADAPTERS.get(method_id)
+            projection_adapter = adapter
+            if projection_adapter is None and method_id in family_binding_rules:
+                projection_adapter = function_adapter_from_binding_rule(
+                    family_binding_rules[method_id]
+                )
             _validate_constraint_analyzer_consistency(
                 method_spec,
                 contract=contract,
-                adapter=adapter,
+                adapter=projection_adapter,
             )
-            specs[method_id] = function_spec_from_method(
+            projected = function_spec_from_method(
                 method_spec,
                 contract=contract,
-                adapter=adapter,
+                adapter=projection_adapter,
+            )
+            # Family binding rules may rename the public Function facade while
+            # the method remains on the legacy binding-rule execution path.
+            # Preserve that execution classification after projecting names.
+            specs[method_id] = (
+                replace(projected, adapter=None)
+                if adapter is None and projection_adapter is not None
+                else projected
             )
         return cls(specs)
 
@@ -688,8 +730,57 @@ def function_spec_from_method(
         )
         notes.extend(contract.notes)
         notes.extend(_contract_return_notes(contract, method_spec.outputs))
+    functional_input_name_pairs = (
+        adapter.functional_input_names if adapter is not None else ()
+    )
+    functional_output_name_pairs = (
+        adapter.functional_output_names if adapter is not None else ()
+    )
+    _validate_functional_name_mapping(
+        functional_input_name_pairs,
+        runtime_names=tuple(method_spec.inputs),
+        kind="input",
+        method_id=method_spec.method_id,
+    )
+    _validate_functional_name_mapping(
+        functional_output_name_pairs,
+        runtime_names=tuple(method_spec.outputs),
+        kind="output",
+        method_id=method_spec.method_id,
+    )
+    functional_input_names = dict(functional_input_name_pairs)
+    functional_output_names = dict(functional_output_name_pairs)
+    output_target_selectors = {
+        item.output_name: item
+        for item in (
+            adapter.functional_output_target_selectors
+            if adapter is not None
+            else ()
+        )
+    }
+    if len(output_target_selectors) != len(
+        adapter.functional_output_target_selectors if adapter is not None else ()
+    ):
+        raise ValueError(
+            "functional.capability_contract_invalid: duplicate output target "
+            f"selector: {method_spec.method_id}"
+        )
+    unknown_selector_outputs = sorted(
+        set(output_target_selectors) - set(method_spec.outputs)
+    )
+    if unknown_selector_outputs:
+        raise ValueError(
+            "functional.capability_contract_invalid: output target selector "
+            f"references unknown outputs: {method_spec.method_id}: "
+            f"{unknown_selector_outputs}"
+        )
     args = tuple(
-        _arg_spec_from_method_input(name, input_spec, contract=contract)
+        _arg_spec_from_method_input(
+            name,
+            input_spec,
+            contract=contract,
+            functional_name=functional_input_names.get(name),
+        )
         for name, input_spec in method_spec.inputs.items()
     )
     returns: list[FunctionReturnSpec] = []
@@ -716,7 +807,7 @@ def function_spec_from_method(
         )
         returns.append(
             FunctionReturnSpec(
-                name=output_name,
+                name=functional_output_names.get(output_name, output_name),
                 output_key=output_name,
                 runtime_type=output_type,
                 state_kind=(
@@ -777,6 +868,32 @@ def function_spec_from_method(
                     if contract_write is not None
                     else "auto"
                 ),
+                output_target_selector=(
+                    replace(
+                        output_target_selectors[output_name],
+                        output_name=functional_output_names.get(
+                            output_name,
+                            output_name,
+                        ),
+                        related_arg=(
+                            functional_input_names.get(
+                                output_target_selectors[
+                                    output_name
+                                ].related_arg,
+                                output_target_selectors[
+                                    output_name
+                                ].related_arg,
+                            )
+                            if output_target_selectors[
+                                output_name
+                            ].related_arg
+                            is not None
+                            else None
+                        ),
+                    )
+                    if output_name in output_target_selectors
+                    else None
+                ),
             )
         )
     return FunctionSpec(
@@ -817,6 +934,40 @@ def function_spec_from_method(
         symbolic_closure=method_spec.symbolic_closure,
         notes=tuple(unique_ordered(notes)),
     )
+
+
+def _validate_functional_name_mapping(
+    pairs: tuple[tuple[str, str], ...],
+    *,
+    runtime_names: tuple[str, ...],
+    kind: str,
+    method_id: str,
+) -> None:
+    runtime_keys = [item[0] for item in pairs]
+    public_values = [item[1] for item in pairs]
+    unknown = sorted(set(runtime_keys) - set(runtime_names))
+    duplicate_runtime = sorted(
+        name for name in set(runtime_keys) if runtime_keys.count(name) > 1
+    )
+    mapping = dict(pairs)
+    projected_names = [mapping.get(name, name) for name in runtime_names]
+    duplicate_public = sorted(
+        name
+        for name in set(projected_names)
+        if projected_names.count(name) > 1
+    )
+    if (
+        unknown
+        or duplicate_runtime
+        or duplicate_public
+        or any(not name.strip() for name in public_values)
+    ):
+        raise ValueError(
+            "function.functional_name_mapping_invalid: "
+            f"{method_id}.{kind}: unknown={unknown}, "
+            f"duplicate_runtime={duplicate_runtime}, "
+            f"duplicate_public={duplicate_public}"
+        )
 
 
 def _validate_internal_output_contract(
@@ -1096,6 +1247,7 @@ def _arg_spec_from_method_input(
     input_spec: Any,
     *,
     contract: CapabilityContractSpec | None,
+    functional_name: str | None = None,
 ) -> FunctionArgSpec:
     runtime_type = str(input_spec.type)
     runtime_types = split_runtime_types(runtime_type)
@@ -1110,7 +1262,7 @@ def _arg_spec_from_method_input(
     if kind == "symbol" and contract_slot is not None:
         kind = "slot_read"
     return FunctionArgSpec(
-        name=name,
+        name=functional_name or name,
         method_input=name,
         kind=kind,
         runtime_type=runtime_type,
@@ -1265,6 +1417,11 @@ def function_adapter_from_binding_rule(
     )
     return FunctionAdapterSpec(
         adapter_id=rule.method_id,
+        functional_input_names=rule.functional_input_names,
+        functional_output_names=rule.functional_output_names,
+        functional_output_target_selectors=(
+            rule.functional_output_target_selectors
+        ),
         input_bindings=tuple(input_bindings),
         aggregate_input_bindings=aggregate_input_bindings,
         scalar_aggregate_lowerings=scalar_aggregate_lowerings,

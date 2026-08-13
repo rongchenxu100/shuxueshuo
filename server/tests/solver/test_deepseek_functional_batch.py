@@ -82,7 +82,7 @@ def test_prompt_metadata_guard_allows_capability_prefixed_by_example_id() -> Non
     payload = {
         "planner_protocol": "functional_plan/v1",
         "problem_planning_context": {
-            "schema_version": "planner-problem-view/v1",
+            "schema_version": "planner-problem-view/v2",
             "root_scope": {"id": "problem", "text": ["x"]},
         },
         "functional_few_shot_selection": {

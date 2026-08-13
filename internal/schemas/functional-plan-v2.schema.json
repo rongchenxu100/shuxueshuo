@@ -1,0 +1,293 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "functional-plan-v2.schema.json",
+  "title": "Scope-native FunctionalPlan v2",
+  "type": "object",
+  "required": [
+    "format",
+    "root_scope"
+  ],
+  "properties": {
+    "format": {
+      "const": "functional_plan/v2"
+    },
+    "root_scope": {
+      "$ref": "#/$defs/scope_level_0"
+    }
+  },
+  "$defs": {
+    "source_ref": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Copy a scope-local visible Entity or Fact ref from Planner Problem View exactly, without adding a scope prefix. A string never denotes a value produced by a plan step."
+    },
+    "step_result_ref": {
+      "type": "object",
+      "description": "Read one named return from an earlier visible step. Use this for anonymous results, non-latest states, or ambiguous producers.",
+      "required": [
+        "step_id",
+        "return"
+      ],
+      "properties": {
+        "step_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+        },
+        "return": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Copy the producer capability's public return name exactly; its type must be accepted by the consuming argument."
+        }
+      },
+      "additionalProperties": false
+    },
+    "functional_ref": {
+      "description": "Use a SourceRef string for the verified problem snapshot, or a StepResultRef object for one exact return from an earlier step.",
+      "oneOf": [
+        {
+          "$ref": "#/$defs/source_ref"
+        },
+        {
+          "$ref": "#/$defs/step_result_ref"
+        }
+      ]
+    },
+    "step": {
+      "type": "object",
+      "required": [
+        "step_id",
+        "capability_id",
+        "args"
+      ],
+      "properties": {
+        "step_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+        },
+        "capability_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "args": {
+          "type": "object",
+          "description": "Capability inputs keyed by public catalog arg names; values are exact visible SourceRefs or earlier StepResultRefs. Never invent a string name for a value produced by a step.",
+          "additionalProperties": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/functional_ref"
+              },
+              {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "$ref": "#/$defs/functional_ref"
+                }
+              }
+            ]
+          }
+        },
+        "output_targets": {
+          "type": "object",
+          "minProperties": 1,
+          "description": "Bind non-answer returns to existing visible Problem objects; keys are public capability return roles.",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "return_expectations": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "enum": [
+              "open_expression",
+              "closed_value",
+              "open_state",
+              "closed_state"
+            ]
+          }
+        },
+        "intent": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "answer_from": {
+      "type": "object",
+      "description": "The single step return that produces this Goal answer. Its public return name must be copied exactly and its type must match the Goal answer_type.",
+      "required": [
+        "step_id",
+        "return"
+      ],
+      "properties": {
+        "step_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+        },
+        "return": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Copy the producer capability's public return name exactly; its type must match this Goal's answer_type."
+        }
+      },
+      "additionalProperties": false
+    },
+    "goal": {
+      "type": "object",
+      "required": [
+        "goal_ref",
+        "answer_from"
+      ],
+      "properties": {
+        "goal_ref": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Copy the owning Goal's goal_ref from Planner Problem View exactly. Do not use its scope id, target, or a new name. A scope may own multiple Goals."
+        },
+        "steps": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/step"
+          }
+        },
+        "answer_from": {
+          "$ref": "#/$defs/answer_from"
+        }
+      },
+      "additionalProperties": false
+    },
+    "scope_level_0": {
+      "type": "object",
+      "required": [
+        "scope_ref"
+      ],
+      "properties": {
+        "scope_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "steps": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/step"
+          }
+        },
+        "goals": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/goal"
+          }
+        },
+        "children": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/scope_level_1"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "scope_level_1": {
+      "type": "object",
+      "required": [
+        "scope_ref"
+      ],
+      "properties": {
+        "scope_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "steps": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/step"
+          }
+        },
+        "goals": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/goal"
+          }
+        },
+        "children": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/scope_level_2"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "scope_level_2": {
+      "type": "object",
+      "required": [
+        "scope_ref"
+      ],
+      "properties": {
+        "scope_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "steps": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/step"
+          }
+        },
+        "goals": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/goal"
+          }
+        },
+        "children": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/scope_level_3"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "scope_level_3": {
+      "type": "object",
+      "required": [
+        "scope_ref"
+      ],
+      "properties": {
+        "scope_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "steps": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/step"
+          }
+        },
+        "goals": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/goal"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

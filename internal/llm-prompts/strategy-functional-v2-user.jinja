@@ -1,0 +1,46 @@
+请根据以下数据输出完整的 `functional_plan/v2` JSON；协议规则以 system message 为准。
+
+## Planner Problem View
+
+按这里给出的 scope/Goal 树原样建立计划骨架。每个 `goal_ref` 必须逐字复制，但它不是step输入。
+Entity和Fact的`ref`以及Goal的 `target_ref` 是可用的题面输入。
+
+{{ payload.problem_planning_context | compact_json }}
+
+## Strategy Principles
+
+{{ payload.strategy_principles | compact_json }}
+
+## Functional Capability Catalog
+
+{{ payload.functional_capability_catalog | compact_json }}
+
+{% if payload.few_shot_examples %}
+## FunctionalPlan v2 Mechanism Example
+
+示例只用于理解 step 粒度、依赖和 Goal 归属，不得复制示例对象名或调用数量。
+
+{% for example in payload.few_shot_examples %}
+### 机制说明
+
+- 用途：{{ example.annotation.purpose }}
+- 适用条件：{{ example.annotation.use_when }}
+- 关键思路：{{ example.annotation.key_idea }}
+- 不适用情况：
+{% for item in example.annotation.do_not_use_when %}
+  - {{ item }}
+{% endfor %}
+
+### 计划示例
+
+{% if example.get("problem_goal") %}
+Goal身份与目标对象示例：
+
+{{ example.problem_goal | compact_json }}
+
+其中`goal_ref`只标识Goal，`target_ref`才是step可读取的题面对象。
+
+{% endif %}
+{{ example | scoped_functional_few_shot_plan | compact_json }}
+{% endfor %}
+{% endif %}

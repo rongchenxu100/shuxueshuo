@@ -167,7 +167,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         "planner_model": config.llm_model or config.deepseek_model,
         "planner_protocol": "functional_plan/v1",
         "problem_authority": "verified-solver-problem-bundle/v1",
-        "planning_context": "planner-problem-view/v1",
+        "planning_context": "planner-problem-view/v2",
         "retry_checkpoint": "functional-retry-graph-checkpoint/v2",
         "f2_input_dir": str(f2_root),
     }
@@ -404,7 +404,7 @@ def _scope_native_prompt_ok(planner_dir: Path) -> bool:
             payload = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError):
             return False
-        if payload.get("schema_version") != "planner-problem-view/v1":
+        if payload.get("schema_version") != "planner-problem-view/v2":
             return False
     return True
 

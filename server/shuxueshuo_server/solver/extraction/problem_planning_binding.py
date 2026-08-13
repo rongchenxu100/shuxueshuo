@@ -9,6 +9,7 @@ from typing import Any, Literal, Mapping, Sequence
 from shuxueshuo_server.solver.extraction.problem_planning_context import (
     PlanningReadAuthority,
     ProblemPlanningContext,
+    ScopedSourceRefKey,
 )
 from shuxueshuo_server.solver.extraction.problem_domain_projection import (
     ProblemDomainIndex,
@@ -212,10 +213,15 @@ def _problem_binding_schema_defs() -> dict[str, Any]:
         "semantic_ref": semantic_ref,
         "problem_typed_source": problem_typed_source,
         "functional_source": functional_source,
-        "semantic_ref_key": {
-            "type": "array",
-            "prefixItems": [nonempty_string, nonempty_string],
-            "items": False,
+        "scoped_source_ref_key": {
+            "type": "object",
+            "required": ["owner_scope_id", "local_ref", "kind"],
+            "properties": {
+                "owner_scope_id": nonempty_string,
+                "local_ref": nonempty_string,
+                "kind": nonempty_string,
+            },
+            "additionalProperties": False,
         },
     }
 
@@ -276,6 +282,7 @@ def problem_planning_binding_catalog_schema() -> dict[str, Any]:
             "goal_input_refs",
             "goal_answer_refs",
             "goal_visible_scope_ids",
+            "scope_parent_ids",
             "binding_signature",
         ],
         "properties": {
@@ -308,23 +315,23 @@ def problem_planning_binding_catalog_schema() -> dict[str, Any]:
             "problem_id": nonempty_string,
             "family_id": nonempty_string,
             "bindings": {
-                "type": "object",
-                "minProperties": 1,
-                "additionalProperties": binding,
+                "type": "array",
+                "minItems": 1,
+                "items": binding,
             },
             "goal_input_refs": {
                 "type": "object",
                 "minProperties": 1,
                 "additionalProperties": {
                     "type": "array",
-                    "items": {"$ref": "#/$defs/semantic_ref_key"},
+                    "items": {"$ref": "#/$defs/scoped_source_ref_key"},
                 },
             },
             "goal_answer_refs": {
                 "type": "object",
                 "minProperties": 1,
                 "additionalProperties": {
-                    "$ref": "#/$defs/semantic_ref_key"
+                    "$ref": "#/$defs/scoped_source_ref_key"
                 },
             },
             "goal_visible_scope_ids": {
@@ -335,6 +342,13 @@ def problem_planning_binding_catalog_schema() -> dict[str, Any]:
                     "minItems": 1,
                     "uniqueItems": True,
                     "items": nonempty_string,
+                },
+            },
+            "scope_parent_ids": {
+                "type": "object",
+                "minProperties": 1,
+                "additionalProperties": {
+                    "anyOf": [nonempty_string, {"type": "null"}],
                 },
             },
             "binding_signature": {
@@ -570,6 +584,14 @@ class ProblemPlanningSourceBinding:
             "typed_sources": [item.to_payload() for item in self.typed_sources],
         }
 
+    @property
+    def scoped_key(self) -> ScopedSourceRefKey:
+        return ScopedSourceRefKey(
+            self.owner_scope_id,
+            self.semantic_ref.ref,
+            self.semantic_ref.kind,
+        )
+
 
 @dataclass(frozen=True)
 class ProblemPlanBindingIssue:
@@ -585,7 +607,7 @@ class ProblemCallGoalBinding:
     call_id: str
     goal_unit_ids: tuple[str, ...]
     effective_goal_unit_ids: tuple[str, ...]
-    allowed_ref_keys: tuple[tuple[str, str], ...]
+    allowed_ref_keys: tuple[ScopedSourceRefKey, ...]
 
     @property
     def goal_reachable(self) -> bool:
@@ -605,7 +627,7 @@ class ProblemPlanGoalBindings:
 
     def allowed_ref_keys_by_call(
         self,
-    ) -> Mapping[str, frozenset[tuple[str, str]]]:
+    ) -> Mapping[str, frozenset[ScopedSourceRefKey]]:
         return MappingProxyType(
             {
                 call_id: frozenset(item.allowed_ref_keys)
@@ -802,15 +824,25 @@ class ProblemPlanningBindingCatalog:
     planner_state_context_id: str
     problem_id: str
     family_id: str
-    bindings: Mapping[str, ProblemPlanningSourceBinding]
-    goal_input_refs: Mapping[str, tuple[tuple[str, str], ...]]
-    goal_answer_refs: Mapping[str, tuple[str, str]]
+    bindings: Mapping[ScopedSourceRefKey, ProblemPlanningSourceBinding]
+    goal_input_refs: Mapping[str, tuple[ScopedSourceRefKey, ...]]
+    goal_answer_refs: Mapping[str, ScopedSourceRefKey]
     goal_visible_scope_ids: Mapping[str, tuple[str, ...]]
+    scope_parent_ids: Mapping[str, str | None]
     binding_signature: str
 
     def __post_init__(self) -> None:
         object.__setattr__(
-            self, "bindings", MappingProxyType(dict(sorted(self.bindings.items())))
+            self,
+            "bindings",
+            MappingProxyType(
+                dict(
+                    sorted(
+                        self.bindings.items(),
+                        key=lambda item: item[0].sort_key(),
+                    )
+                )
+            ),
         )
         object.__setattr__(
             self,
@@ -826,6 +858,11 @@ class ProblemPlanningBindingCatalog:
             self,
             "goal_visible_scope_ids",
             MappingProxyType(dict(sorted(self.goal_visible_scope_ids.items()))),
+        )
+        object.__setattr__(
+            self,
+            "scope_parent_ids",
+            MappingProxyType(dict(sorted(self.scope_parent_ids.items()))),
         )
 
     @property
@@ -844,23 +881,102 @@ class ProblemPlanningBindingCatalog:
             "planner_state_context_id": self.planner_state_context_id,
             "problem_id": self.problem_id,
             "family_id": self.family_id,
-            "bindings": {
-                key: value.authority_payload()
-                for key, value in self.bindings.items()
-            },
+            "bindings": [
+                value.authority_payload()
+                for value in self.bindings.values()
+            ],
             "goal_input_refs": {
-                key: [list(item) for item in value]
+                key: [item.to_payload() for item in value]
                 for key, value in self.goal_input_refs.items()
             },
             "goal_answer_refs": {
-                key: list(value) for key, value in self.goal_answer_refs.items()
+                key: value.to_payload()
+                for key, value in self.goal_answer_refs.items()
             },
             "goal_visible_scope_ids": {
                 key: list(value)
                 for key, value in self.goal_visible_scope_ids.items()
             },
+            "scope_parent_ids": dict(self.scope_parent_ids),
             "binding_signature": self.binding_signature,
         }
+
+    def resolve_input_binding(
+        self,
+        *,
+        scope_id: str,
+        local_ref: str,
+        goal_unit_ids: Sequence[str] = (),
+    ) -> ProblemPlanningSourceBinding:
+        path = self._scope_path(scope_id)
+        goal_ids = frozenset(goal_unit_ids)
+        matches = tuple(
+            binding
+            for key, binding in self.bindings.items()
+            if binding.usage == "input"
+            and key.local_ref == local_ref
+            and key.owner_scope_id in path
+            and (
+                not goal_ids
+                or goal_ids.issubset(binding.visible_goal_unit_ids)
+            )
+        )
+        if len(matches) != 1:
+            code = (
+                "planner.problem_source_binding_unresolved"
+                if not matches
+                else "planner.problem_source_binding_drift"
+            )
+            raise _error(
+                code,
+                "$.bindings",
+                (
+                    f"SourceRef {local_ref!r} has no visible binding from "
+                    f"scope {scope_id!r}"
+                    if not matches
+                    else (
+                        f"SourceRef {local_ref!r} resolves to multiple "
+                        f"bindings from scope {scope_id!r}"
+                    )
+                ),
+            )
+        return matches[0]
+
+    def answer_binding_for_goal(
+        self,
+        goal_unit_id: str,
+    ) -> ProblemPlanningSourceBinding:
+        key = self.goal_answer_refs.get(goal_unit_id)
+        binding = self.bindings.get(key) if key is not None else None
+        if binding is None or binding.usage != "answer":
+            raise _error(
+                "planner.problem_source_binding_unresolved",
+                "$.goal_answer_refs",
+                f"Goal {goal_unit_id!r} has no answer binding",
+            )
+        return binding
+
+    def _scope_path(self, scope_id: str) -> tuple[str, ...]:
+        if scope_id not in self.scope_parent_ids:
+            raise _error(
+                "planner.problem_scope_visibility_drift",
+                "$.scope_parent_ids",
+                f"unknown binding resolution scope {scope_id!r}",
+            )
+        result: list[str] = []
+        seen: set[str] = set()
+        current: str | None = scope_id
+        while current is not None:
+            if current in seen or current not in self.scope_parent_ids:
+                raise _error(
+                    "planner.problem_scope_visibility_drift",
+                    "$.scope_parent_ids",
+                    "binding catalog scope ancestry is invalid",
+                )
+            seen.add(current)
+            result.append(current)
+            current = self.scope_parent_ids[current]
+        return tuple(reversed(result))
 
     def semantic_read_items(self) -> tuple[SemanticReadCatalogItem, ...]:
         result: list[SemanticReadCatalogItem] = []
@@ -895,16 +1011,17 @@ class ProblemPlanningBindingCatalog:
                         source_context_id=self.planner_state_context_id,
                         math_object_id=source.math_object_id,
                         state_version_id=source.state_version_id,
+                        authority_scope_id=binding.owner_scope_id,
                     )
                 )
         return tuple(result)
 
-    def identity_only_ref_keys(self) -> frozenset[tuple[str, str]]:
+    def identity_only_ref_keys(self) -> frozenset[ScopedSourceRefKey]:
         """Return prompt refs that name an object but carry no source state."""
 
         return frozenset(
-            (binding.semantic_ref.ref, binding.semantic_ref.kind)
-            for binding in self.bindings.values()
+            key
+            for key, binding in self.bindings.items()
             if binding.usage == "input"
             and binding.typed_sources
             and all(
@@ -942,12 +1059,14 @@ class ProblemPlanningBindingCatalog:
         *,
         require_goal_reachable: bool = False,
         additional_dependencies: Mapping[str, Sequence[str]] | None = None,
+        authored_goal_unit_ids: Mapping[str, Sequence[str]] | None = None,
     ) -> ProblemPlanGoalBindings:
         return _bind_plan_goals(
             self,
             plan,
             require_goal_reachable=require_goal_reachable,
             additional_dependencies=additional_dependencies,
+            authored_goal_unit_ids=authored_goal_unit_ids,
         )
 
 
@@ -975,8 +1094,11 @@ class ProblemPlanningBindingCatalogBuilder:
         )
         runtime_nodes = _canonical_runtime_nodes(bundle.canonical_solver_input)
         goal_target_handles = _goal_target_handles(bundle)
-        bindings: dict[str, ProblemPlanningSourceBinding] = {}
-        for ref, authority in sorted(authorities.items()):
+        bindings: dict[ScopedSourceRefKey, ProblemPlanningSourceBinding] = {}
+        for ref_key, authority in sorted(
+            authorities.items(),
+            key=lambda item: item[0].sort_key(),
+        ):
             node = runtime_nodes.get(authority.runtime_node_id)
             if node is None:
                 raise _error(
@@ -989,7 +1111,7 @@ class ProblemPlanningBindingCatalogBuilder:
             if owner_scope_id != authority.owner_scope_id:
                 raise _error(
                     "planner.problem_scope_visibility_drift",
-                    f"$.ref_authorities[{ref!r}]",
+                    f"$.ref_authorities[{ref_key.local_ref!r}]",
                     "runtime node owner differs from planning authority",
                 )
             typed_sources = _typed_sources_for_node(
@@ -1002,7 +1124,7 @@ class ProblemPlanningBindingCatalogBuilder:
                     goal_target_handles,
                 ),
             )
-            bindings[ref] = ProblemPlanningSourceBinding(
+            bindings[ref_key] = ProblemPlanningSourceBinding(
                 semantic_ref=authority.semantic_ref,
                 runtime_node_id=authority.runtime_node_id,
                 source_unit_ids=authority.source_unit_ids,
@@ -1020,19 +1142,27 @@ class ProblemPlanningBindingCatalogBuilder:
             ),
             "problem_id": planning_context.problem_id,
             "family_id": planning_context.family_id,
-            "bindings": {
-                key: value.authority_payload()
-                for key, value in sorted(bindings.items())
-            },
+            "bindings": [
+                value.authority_payload()
+                for _key, value in sorted(
+                    bindings.items(),
+                    key=lambda item: item[0].sort_key(),
+                )
+            ],
             "goal_input_refs": {
-                key: [list(item) for item in value]
+                key: [item.to_payload() for item in value]
                 for key, value in sorted(goal_inputs.items())
             },
             "goal_answer_refs": {
-                key: list(value) for key, value in sorted(goal_answers.items())
+                key: value.to_payload()
+                for key, value in sorted(goal_answers.items())
             },
             "goal_visible_scope_ids": {
                 key: list(value) for key, value in sorted(goal_scopes.items())
+            },
+            "scope_parent_ids": {
+                scope.scope_id: scope.parent_scope_id
+                for scope in planning_context.scopes
             },
         }
         return ProblemPlanningBindingCatalog(
@@ -1045,6 +1175,10 @@ class ProblemPlanningBindingCatalogBuilder:
             goal_input_refs=goal_inputs,
             goal_answer_refs=goal_answers,
             goal_visible_scope_ids=goal_scopes,
+            scope_parent_ids={
+                scope.scope_id: scope.parent_scope_id
+                for scope in planning_context.scopes
+            },
             binding_signature=stable_hash(payload),
         )
 
@@ -1055,6 +1189,8 @@ def build_functional_problem_binding_context(
     calls: Sequence[FunctionalCallReconciliation],
     functional_binding_context: FunctionalBindingContext,
     goal_bindings: ProblemPlanGoalBindings | None = None,
+    *,
+    allow_implicit_same_object_call_result: bool = True,
 ) -> FunctionalProblemBindingContext:
     goal_bindings = goal_bindings or catalog.bind_plan(
         plan,
@@ -1068,6 +1204,11 @@ def build_functional_problem_binding_context(
             first.message,
         )
     wire_calls = {call.call_id: call for call in plan.calls}
+    call_scopes = {
+        call.call_id: scope.scope_id
+        for scope in plan.scopes
+        for call in scope.calls
+    }
     reconciled = {call.call_id: call for call in calls}
     inputs: list[FunctionalProblemInputBinding] = []
     for binding in functional_binding_context.bindings:
@@ -1091,11 +1232,13 @@ def build_functional_problem_binding_context(
             else None
         )
         if isinstance(wire_ref, SemanticRef):
-            source_binding = _binding_for_semantic_ref(catalog, wire_ref)
-            if (
-                wire_ref.ref,
-                wire_ref.kind,
-            ) not in call_goals.allowed_ref_keys:
+            source_binding = _binding_for_semantic_ref(
+                catalog,
+                wire_ref,
+                scope_id=call_scopes[call_id],
+                goal_unit_ids=call_goals.effective_goal_unit_ids,
+            )
+            if source_binding.scoped_key not in call_goals.allowed_ref_keys:
                 raise _error(
                     "functional.semantic_ref_not_visible_for_goal",
                     (
@@ -1105,6 +1248,36 @@ def build_functional_problem_binding_context(
                     f"SemanticRef {wire_ref.ref!r} is outside Goal authority",
                 )
             if binding.source.kind == "call_result":
+                if not allow_implicit_same_object_call_result:
+                    raise _error(
+                        "functional.dynamic_source_ref_requires_step_result",
+                        (
+                            f"$.calls[{call_id!r}].args"
+                            f"[{binding.key.arg_name!r}]"
+                            f"[{binding.key.item_index}]"
+                        ),
+                        (
+                            "a FunctionalPlan v2 SourceRef resolved to a "
+                            "dynamic call result; use an explicit "
+                            "StepResultRef"
+                        ),
+                        retryable=True,
+                        details={
+                            "localizable_step_issue": True,
+                            "stage": "reconciliation_binding",
+                            "step_id": call_id,
+                            "call_id": call_id,
+                            "arg_name": binding.key.arg_name,
+                            "item_index": binding.key.item_index,
+                            "source_ref": wire_ref.ref,
+                            "required_step_result": {
+                                "step_id": binding.source.source_call_id,
+                                "return": (
+                                    binding.source.source_return_name
+                                ),
+                            },
+                        },
+                    )
                 _audit_implicit_same_object_call_result(
                     source_binding=source_binding,
                     source=binding.source,
@@ -1238,7 +1411,7 @@ def build_functional_problem_binding_context(
         )
 
     answer_to_goal = {
-        ref_key: goal_id
+        (ref_key.local_ref, ref_key.kind): goal_id
         for goal_id, ref_key in catalog.goal_answer_refs.items()
     }
     returns: list[FunctionalProblemReturnBinding] = []
@@ -1256,9 +1429,11 @@ def build_functional_problem_binding_context(
                     f"$.calls[{call_id!r}].returns[{return_name!r}]",
                     "B1 allocation has no MathObjectId",
                 )
-            source_binding = _binding_for_semantic_ref(
+            source_binding = _binding_for_return_semantic_ref(
                 catalog,
                 semantic_ref,
+                scope_id=call_scopes[call_id],
+                goal_unit_ids=call_goals.effective_goal_unit_ids,
             )
             expected_object_ids = {
                 item.math_object_id
@@ -1404,35 +1579,38 @@ def _audit_authority_inputs(
 def _planning_authorities(
     planning_context: ProblemPlanningContext,
 ) -> tuple[
-    dict[str, PlanningReadAuthority],
-    dict[str, tuple[tuple[str, str], ...]],
-    dict[str, tuple[str, str]],
+    dict[ScopedSourceRefKey, PlanningReadAuthority],
+    dict[str, tuple[ScopedSourceRefKey, ...]],
+    dict[str, ScopedSourceRefKey],
     dict[str, tuple[str, ...]],
 ]:
-    authorities: dict[str, PlanningReadAuthority] = {}
-    goal_inputs: dict[str, tuple[tuple[str, str], ...]] = {}
-    goal_answers: dict[str, tuple[str, str]] = {}
+    authorities: dict[ScopedSourceRefKey, PlanningReadAuthority] = {}
+    goal_inputs: dict[str, tuple[ScopedSourceRefKey, ...]] = {}
+    goal_answers: dict[str, ScopedSourceRefKey] = {}
     goal_scopes: dict[str, tuple[str, ...]] = {}
     for goal in planning_context.goal_views:
         inputs = planning_context.input_authorities_for_goal(goal.goal_unit_id)
         answer = planning_context.answer_authority_for_goal(goal.goal_unit_id)
         goal_inputs[goal.goal_unit_id] = tuple(
-            sorted((item.semantic_ref.ref, item.semantic_ref.kind) for item in inputs)
+            sorted(
+                (item.scoped_key for item in inputs),
+                key=ScopedSourceRefKey.sort_key,
+            )
         )
-        goal_answers[goal.goal_unit_id] = (
-            answer.semantic_ref.ref,
-            answer.semantic_ref.kind,
-        )
+        goal_answers[goal.goal_unit_id] = answer.scoped_key
         goal_scopes[goal.goal_unit_id] = tuple(goal.visible_scope_ids)
         for item in (*inputs, answer):
-            previous = authorities.get(item.semantic_ref.ref)
+            previous = authorities.get(item.scoped_key)
             if previous is not None and previous != item:
                 raise _error(
                     "planner.problem_source_binding_drift",
                     "$.ref_authorities",
-                    f"SemanticRef {item.semantic_ref.ref!r} has conflicting authority",
+                    (
+                        f"SourceRef {item.semantic_ref.ref!r} has conflicting "
+                        f"authority in scope {item.owner_scope_id!r}"
+                    ),
                 )
-            authorities[item.semantic_ref.ref] = item
+            authorities[item.scoped_key] = item
     return authorities, goal_inputs, goal_answers, goal_scopes
 
 
@@ -1676,15 +1854,46 @@ def _goal_target_handle_for_authority(
 def _binding_for_semantic_ref(
     catalog: ProblemPlanningBindingCatalog,
     ref: SemanticRef,
+    *,
+    scope_id: str,
+    goal_unit_ids: Sequence[str],
 ) -> ProblemPlanningSourceBinding:
-    binding = catalog.bindings.get(ref.ref)
-    if binding is None or binding.semantic_ref.kind != ref.kind:
+    binding = catalog.resolve_input_binding(
+        scope_id=scope_id,
+        local_ref=ref.ref,
+        goal_unit_ids=goal_unit_ids,
+    )
+    if binding.semantic_ref.kind != ref.kind:
         raise _error(
             "planner.problem_source_binding_unresolved",
             f"$.bindings[{ref.ref!r}]",
             "SemanticRef has no exact Problem authority",
         )
     return binding
+
+
+def _binding_for_return_semantic_ref(
+    catalog: ProblemPlanningBindingCatalog,
+    ref: SemanticRef,
+    *,
+    scope_id: str,
+    goal_unit_ids: Sequence[str],
+) -> ProblemPlanningSourceBinding:
+    answer_matches = tuple(
+        catalog.answer_binding_for_goal(goal_id)
+        for goal_id in goal_unit_ids
+        if goal_id in catalog.goal_answer_refs
+        and catalog.goal_answer_refs[goal_id].local_ref == ref.ref
+        and catalog.goal_answer_refs[goal_id].kind == ref.kind
+    )
+    if len(answer_matches) == 1:
+        return answer_matches[0]
+    return _binding_for_semantic_ref(
+        catalog,
+        ref,
+        scope_id=scope_id,
+        goal_unit_ids=goal_unit_ids,
+    )
 
 
 def _audit_implicit_same_object_call_result(
@@ -1914,6 +2123,7 @@ def _bind_plan_goals(
     *,
     require_goal_reachable: bool,
     additional_dependencies: Mapping[str, Sequence[str]] | None,
+    authored_goal_unit_ids: Mapping[str, Sequence[str]] | None,
 ) -> ProblemPlanGoalBindings:
     calls = {call.call_id: call for call in plan.calls}
     scopes = {
@@ -1922,7 +2132,7 @@ def _bind_plan_goals(
         for call in scope.calls
     }
     answer_to_goal = {
-        ref_key: goal_id
+        (ref_key.local_ref, ref_key.kind): goal_id
         for goal_id, ref_key in catalog.goal_answer_refs.items()
     }
     goals_by_call: dict[str, set[str]] = {call_id: set() for call_id in calls}
@@ -1934,6 +2144,29 @@ def _bind_plan_goals(
             producer_id for producer_id in producer_ids if producer_id in calls
         )
     issues: list[ProblemPlanBindingIssue] = []
+    for call_id, goal_ids in (authored_goal_unit_ids or {}).items():
+        if call_id not in calls:
+            continue
+        visible_scope_ids = {
+            goal_id: self_scopes
+            for goal_id, self_scopes in catalog.goal_visible_scope_ids.items()
+        }
+        for goal_id in goal_ids:
+            if (
+                goal_id not in catalog.goal_input_refs
+                or scopes.get(call_id) not in visible_scope_ids.get(goal_id, ())
+            ):
+                issues.append(
+                    ProblemPlanBindingIssue(
+                        "planner.problem_scope_visibility_drift",
+                        "authored call Goal is outside its execution scope",
+                        call_id=call_id,
+                        scope_id=scopes.get(call_id),
+                        details={"goal_unit_id": goal_id},
+                    )
+                )
+                continue
+            goals_by_call[call_id].add(goal_id)
     for call in calls.values():
         for values in call.args.values():
             for value in values:
@@ -1995,7 +2228,7 @@ def _bind_plan_goals(
                     },
                 )
             )
-            allowed: set[tuple[str, str]] = set()
+            allowed: set[ScopedSourceRefKey] = set()
         else:
             allowed_sets = [
                 set(catalog.goal_input_refs[goal_id])
@@ -2024,7 +2257,19 @@ def _bind_plan_goals(
             for value in values:
                 if not isinstance(value, SemanticRef):
                     continue
-                if (value.ref, value.kind) not in allowed:
+                try:
+                    source_binding = catalog.resolve_input_binding(
+                        scope_id=scopes[call_id],
+                        local_ref=value.ref,
+                        goal_unit_ids=effective_goals,
+                    )
+                except ProblemPlanningBindingError:
+                    source_binding = None
+                if (
+                    source_binding is None
+                    or source_binding.semantic_ref.kind != value.kind
+                    or source_binding.scoped_key not in allowed
+                ):
                     issues.append(
                         ProblemPlanBindingIssue(
                             "functional.semantic_ref_not_visible_for_goal",
@@ -2054,24 +2299,40 @@ def _bind_plan_goals(
                             details={"return_name": return_name},
                         )
                     )
-            elif (binding.ref, binding.kind) not in allowed:
-                issues.append(
-                    ProblemPlanBindingIssue(
-                        "functional.semantic_ref_not_visible_for_goal",
-                        (
-                            f"return target {binding.ref!r} is not visible to all "
-                            f"Goals served by call {call_id!r}"
-                        ),
-                        call_id=call_id,
-                        scope_id=scopes.get(call_id),
-                        details={"return_name": return_name},
-                    )
+                continue
+            try:
+                return_target = catalog.resolve_input_binding(
+                    scope_id=scopes[call_id],
+                    local_ref=binding.ref,
+                    goal_unit_ids=effective_goals,
                 )
+            except ProblemPlanningBindingError:
+                return_target = None
+            if (
+                return_target is not None
+                and return_target.semantic_ref.kind == binding.kind
+                and return_target.scoped_key in allowed
+            ):
+                continue
+            issues.append(
+                ProblemPlanBindingIssue(
+                    "functional.semantic_ref_not_visible_for_goal",
+                    (
+                        f"return target {binding.ref!r} is not visible to all "
+                        f"Goals served by call {call_id!r}"
+                    ),
+                    call_id=call_id,
+                    scope_id=scopes.get(call_id),
+                    details={"return_name": return_name},
+                )
+            )
         result[call_id] = ProblemCallGoalBinding(
             call_id=call_id,
             goal_unit_ids=reachable,
             effective_goal_unit_ids=effective_goals,
-            allowed_ref_keys=tuple(sorted(allowed)),
+            allowed_ref_keys=tuple(
+                sorted(allowed, key=ScopedSourceRefKey.sort_key)
+            ),
         )
     return ProblemPlanGoalBindings(result, tuple(issues))
 

@@ -14,6 +14,7 @@ from __future__ import annotations
 from shuxueshuo_server.solver.family.models import (
     FamilyMatchRule,
     FamilyRuntimePreflightSpec,
+    FunctionalOutputTargetSelectorSpec,
     FamilySourceGoalContractSpec,
     FamilySourceRequirementSpec,
     MethodBindingRuleSpec,
@@ -293,6 +294,23 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         ),
         MethodBindingRuleSpec(
             method_id="quadratic_axis_parameterized_point",
+            functional_output_target_selectors=(
+                FunctionalOutputTargetSelectorSpec(
+                    output_name="point",
+                    selector_id="unique_visible_fact_target",
+                    fact_kind="point_on_axis",
+                    prompt_fact_kind="axis_membership",
+                    target_field="point",
+                    related_arg="parabola",
+                    related_field="curve",
+                    required_field_values=(("axis", "symmetry"),),
+                    description=(
+                        "若可见 axis_membership 事实唯一确定当前抛物线"
+                        "对称轴上的 Point，则代码可绑定该已有对象；存在多个"
+                        "候选时必须显式 output_targets。"
+                    ),
+                ),
+            ),
             input_bindings=(
                 MethodInputBindingSpec("parabola", "read_type:Parabola"),
                 MethodInputBindingSpec("x", "symbol:x"),
@@ -309,6 +327,7 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         ),
         MethodBindingRuleSpec(
             method_id="square_adjacent_vertex_from_side",
+            functional_output_names=(("point", "adjacent_vertex"),),
             input_bindings=(
                 MethodInputBindingSpec("side_start", "square:side_start"),
                 MethodInputBindingSpec("side_end", "square:side_end"),

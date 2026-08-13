@@ -101,7 +101,11 @@ C0.5 oracle 系统覆盖：
 - committed/provisional retry；
 - role/binding 与 closure checkpoint。
 
-F5-F不能仅复用旧adapter并宣称覆盖。C0.5需增加scope-native生产入口维度：Problem/Plan/Retry三棵scope树逐项对齐、唯一前序producer自动绑定、显式CallResult、多个producer歧义、sibling producer拒绝、scope-local answer规范化，以及shared/单Goal replacement。增量执行还必须覆盖前缀成功后第`k`个step失败、dependent suffix阻断、独立Goal继续并整体冻结、shared producer影响多个Goal、失败Goal完整替换不修改solved Goal和provisional write零提交。Reference model仍独立于生产实现；生产adapter必须经过PlanningContext、F5-C binding和Goal execution checkpoint。
+F5-F不能仅复用旧adapter并宣称覆盖。C0.5需增加scope-native生产入口维度：Problem/Plan/Retry三棵scope树逐项对齐、唯一前序producer自动绑定、显式CallResult、多个producer歧义、sibling producer拒绝、scope-local answer规范化，以及scope-level/单Goal replacement。增量执行还必须覆盖前缀成功后第`k`个step失败、dependent suffix阻断、独立Goal继续并整体冻结、ancestor-scope producer影响多个Goal、失败Goal完整替换不修改solved Goal和provisional write零提交。Reference model仍独立于生产实现；生产adapter必须经过PlanningContext、F5-C binding和Goal execution checkpoint。
+
+F5-F1.1进一步把LLM可见Function facade与Method runtime contract分离：prompt只出现稳定语义名，例如`parabola`和`adjacent_vertex`，compiler再映射到`quadratic`和`point`。确定性修复只能处理显式alias，或唯一未知输入与唯一缺失required参数之间可证明的一对一类型映射；optional参数、多个同类型参数和多对象候选不得参与猜测。输出对象也只能由显式target、Goal answer，或capability声明的source-fact selector唯一确定；selector必须同时通过scope可见性、F5-C对象authority和runtime type检查，零候选或多候选不得按名称兜底。pure scope step的提升同样必须由consumer Goal依赖、LCA可见性、对象authority和exact state共同证明。authority诊断应聚合相互独立的参数、输出身份、scope与DAG root issues，但任何issue存在时都不能产生部分lowered authority。
+
+Source-fact selector同时区分内部Domain fact kind与Planner Problem View公开kind。例如参数化对称轴点内部匹配`point_on_axis`，Prompt只展示实际可引用的`axis_membership`；两者由Function facade显式映射，避免让模型学习内部命名。真实批次若provider在请求超时窗口后仍悬挂且没有sample artifact，必须终止并记录为transport failure，不能把其余样本汇总成完整验收，也不能静默补跑后覆盖原批次。
 
 C5 symbolic closure门禁仍然有效，它验证的是参数闭合、分支数、残余自由元和checkpoint语义，不依赖LLM是否输出scope。F5-F高层路径macro接入后，C5需补macro内部closure与Goal/source provenance，同时断言内部`PathTransformation`不会出现在Planner wire；还要验证method实际产生结果但closure失败时，retry接收真实残余自由元而不是泛化编译错误，且独立Goal的closure checkpoint可继续冻结。不得用新macro替换或删减原有unique/ambiguous/inconsistent/underdetermined场景。
 
@@ -146,12 +150,12 @@ C5 symbolic closure门禁仍然有效，它验证的是参数闭合、分支数�
 
 ## 8. Retry 设计
 
-- freeze的权威单位是完成全部answer/runtime/closure/provenance gate的Goal，以及独立验证通过的shared-scope execution block；
-- retry始终发送上一版完整canonical `functional_plan/v2`，包含全部scope、shared steps和Goal plans；执行树通过`step_id`关联，不重复复制计划定义；
+- freeze的权威单位是完成全部answer/runtime/closure/provenance gate的Goal，以及独立验证通过的scope-level execution block；
+- retry始终发送上一版完整canonical `functional_plan/v2`，包含全部scope、`scope.steps`和Goal steps；执行树通过`step_id`关联，不重复复制计划定义；
 - solved Goal在retry执行树中携带逐step实际输入、输出、状态、错误和`published_results`，但标记`editable=false`；
 - failed Goal的逐step实际输入、输出、状态、typed error及blocked suffix全部进入反馈；该Goal内部没有call级冻结，模型可以完整重写全部steps；
 - blocked dependents不生成次生root issue，独立sibling Goal继续执行；
-- shared block失败时按typed dependency确定consumer Goal repair group，不因共享根Entity扩大范围；
+- scope-level步骤块失败时按typed dependency确定consumer Goal repair group，不因共享根Entity扩大范围；
 - runtime actual value/form/free symbols优先于静态预测；compile失败不得伪造输出，closure feedback说明target、status、branch count、剩余自由元和来源；
 - retry payload按Problem的scope/Goal树组织，不再暴露平面的repair/validated/locked call列表；
 - prompt不暴露typed ids、runtime path或expected answer，跨Goal绑定只允许使用`published_results`。

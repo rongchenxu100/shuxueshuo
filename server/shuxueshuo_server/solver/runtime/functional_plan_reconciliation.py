@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 import re
 from typing import Any, Mapping, Sequence
 
@@ -215,11 +215,14 @@ class _PreparedFunctionalReconciliation:
     placement_service: FunctionalCallPlacementService
     problem_binding_catalog: ProblemPlanningBindingCatalog | None = None
     problem_goal_bindings: ProblemPlanGoalBindings | None = None
+    authored_call_goal_bindings: Mapping[str, tuple[str, ...]] = field(
+        default_factory=dict
+    )
 
 
 def _stable_problem_call_authority(
     binding: ProblemCallGoalBinding,
-    allowed_ref_keys: frozenset[tuple[str, str]],
+    allowed_ref_keys: frozenset[tuple[str, str, str]],
 ) -> str:
     return stable_hash(
         {
@@ -259,6 +262,9 @@ class _NormalizeElaborateScopeStage:
         question_goals: Sequence[QuestionGoal],
         problem_binding_catalog: ProblemPlanningBindingCatalog | None = None,
         pinned_canonical_call_ids: frozenset[str] = frozenset(),
+        authored_call_goal_bindings: Mapping[str, Sequence[str]] | None = None,
+        allow_incomplete_goals: bool = False,
+        require_explicit_step_results: bool = False,
     ) -> _PreparedFunctionalReconciliation:
         if problem_binding_catalog is None:
             semantic_items = planner_state_context.semantic_read_catalog()
@@ -315,6 +321,7 @@ class _NormalizeElaborateScopeStage:
             question_goals=question_goals,
             handle_registry=handle_registry,
             semantic_items=semantic_items,
+            allow_incomplete_goals=allow_incomplete_goals,
         )
         plan, answer_target_input_repairs = (
             _normalize_goal_answer_target_input_refs(
@@ -324,7 +331,10 @@ class _NormalizeElaborateScopeStage:
             )
         )
         problem_goal_bindings = (
-            problem_binding_catalog.bind_plan(plan)
+            problem_binding_catalog.bind_plan(
+                plan,
+                authored_goal_unit_ids=authored_call_goal_bindings,
+            )
             if problem_binding_catalog is not None
             else None
         )
@@ -339,13 +349,20 @@ class _NormalizeElaborateScopeStage:
         call_authority_signatures: dict[str, str] = {}
         if problem_goal_bindings is not None:
             call_allowlists: dict[
-                str, frozenset[tuple[str, str]]
+                str, frozenset[tuple[str, str, str]]
             ] = {}
             for call_id, binding in problem_goal_bindings.calls.items():
                 # Elaboration resolves call inputs only. Answer authorities are
                 # validated separately at explicit return bindings and must
                 # never become an implicit C3 source.
-                allowed = frozenset(binding.allowed_ref_keys)
+                allowed = frozenset(
+                    (
+                        item.owner_scope_id,
+                        item.local_ref,
+                        item.kind,
+                    )
+                    for item in binding.allowed_ref_keys
+                )
                 call_allowlists[call_id] = allowed
                 call_authority_signatures[call_id] = _stable_problem_call_authority(
                     binding,
@@ -362,14 +379,24 @@ class _NormalizeElaborateScopeStage:
                 )
             )
             if unique_condition_ref_repairs:
-                problem_goal_bindings = problem_binding_catalog.bind_plan(plan)
+                problem_goal_bindings = problem_binding_catalog.bind_plan(
+                    plan,
+                    authored_goal_unit_ids=authored_call_goal_bindings,
+                )
                 problem_binding_issues = _problem_goal_binding_issues(
                     problem_goal_bindings
                 )
                 call_authority_signatures = {}
                 call_allowlists = {}
                 for call_id, binding in problem_goal_bindings.calls.items():
-                    allowed = frozenset(binding.allowed_ref_keys)
+                    allowed = frozenset(
+                        (
+                            item.owner_scope_id,
+                            item.local_ref,
+                            item.kind,
+                        )
+                        for item in binding.allowed_ref_keys
+                    )
                     call_allowlists[call_id] = allowed
                     call_authority_signatures[call_id] = (
                         _stable_problem_call_authority(binding, allowed)
@@ -381,12 +408,14 @@ class _NormalizeElaborateScopeStage:
             plan,
             catalog=catalog,
             semantic_index=semantic_index,
+            pinned_canonical_call_ids=pinned_canonical_call_ids,
         )
         plan, incomplete_transition_repairs = (
             _drop_redundant_incomplete_identity_transitions(
                 plan,
                 catalog=catalog,
                 semantic_index=semantic_index,
+                pinned_canonical_call_ids=pinned_canonical_call_ids,
             )
         )
         plan, basis_repairs = align_free_parameter_basis_with_consumers(
@@ -453,13 +482,26 @@ class _NormalizeElaborateScopeStage:
             semantic_index=semantic_index,
         )
         explicit_dependency_graph = _functional_dependency_graph(plan)
+        # Structured source facts can name runtime objects whose states must be
+        # materialized before a capability runs (for example, a midpoint used
+        # by a path-reduction fact). Keep those deterministic dependencies in
+        # v2. The F5-C binding sidecar separately rejects an ordinary SourceRef
+        # being rewritten to a dynamic latest state when an explicit
+        # StepResultRef was required.
         dependency_graph = _with_hidden_condition_object_dependencies(
             plan,
             dependency_graph=explicit_dependency_graph,
             catalog=catalog,
             semantic_index=semantic_index,
             future_return_object_hints=future_return_object_hints,
+            include_explicit_object_refs=not require_explicit_step_results,
         )
+        if require_explicit_step_results:
+            elaboration = _resolve_planned_structured_state_issues(
+                elaboration,
+                dependency_graph=dependency_graph,
+                future_return_object_hints=future_return_object_hints,
+            )
         goal_authority_dependencies = {
             call_id: tuple(
                 dependency
@@ -494,11 +536,15 @@ class _NormalizeElaborateScopeStage:
             call_scopes=call_scopes,
             call_result_consumers=consumers,
             call_execution_scopes=call_execution_scopes,
-            semantic_object_consumers=_semantic_object_consumer_scopes(
-                plan,
-                semantic_index=semantic_index,
-                catalog=catalog,
-                future_return_object_hints=future_return_object_hints,
+            semantic_object_consumers=(
+                {}
+                if require_explicit_step_results
+                else _semantic_object_consumer_scopes(
+                    plan,
+                    semantic_index=semantic_index,
+                    catalog=catalog,
+                    future_return_object_hints=future_return_object_hints,
+                )
             ),
             requested_scopes=requested_scopes,
             dependency_graph=dependency_graph,
@@ -518,6 +564,12 @@ class _NormalizeElaborateScopeStage:
             placement_service=placement_service,
             problem_binding_catalog=problem_binding_catalog,
             problem_goal_bindings=problem_goal_bindings,
+            authored_call_goal_bindings={
+                call_id: tuple(sorted(set(goal_ids)))
+                for call_id, goal_ids in (
+                    authored_call_goal_bindings or {}
+                ).items()
+            },
         )
 
 
@@ -526,6 +578,7 @@ def _drop_redundant_existing_state_creates(
     *,
     catalog: FunctionalCapabilityCatalog,
     semantic_index: FunctionalSemanticIndex,
+    pinned_canonical_call_ids: frozenset[str] = frozenset(),
 ) -> tuple[FunctionalPlan, tuple[FunctionalDeterministicRepair, ...]]:
     """Replace redundant pure creates with the existing materialized state.
 
@@ -540,6 +593,8 @@ def _drop_redundant_existing_state_creates(
     repairs: list[FunctionalDeterministicRepair] = []
     for scope in plan.scopes:
         for call in scope.calls:
+            if call.call_id in pinned_canonical_call_ids:
+                continue
             capability = catalog.get(call.capability_id)
             if (
                 capability is None
@@ -650,6 +705,7 @@ def _drop_redundant_incomplete_identity_transitions(
     *,
     catalog: FunctionalCapabilityCatalog,
     semantic_index: FunctionalSemanticIndex,
+    pinned_canonical_call_ids: frozenset[str] = frozenset(),
 ) -> tuple[FunctionalPlan, tuple[FunctionalDeterministicRepair, ...]]:
     """Replace a provable no-op transition with its existing input state.
 
@@ -664,6 +720,8 @@ def _drop_redundant_incomplete_identity_transitions(
     repairs: list[FunctionalDeterministicRepair] = []
     for scope in plan.scopes:
         for call in scope.calls:
+            if call.call_id in pinned_canonical_call_ids:
+                continue
             capability = catalog.get(call.capability_id)
             if (
                 capability is None
@@ -808,6 +866,9 @@ class FunctionalPlanReconciler:
         pinned_execution_scopes: Mapping[str, str] | None = None,
         pinned_return_scopes: Mapping[str, Mapping[str, str]] | None = None,
         pinned_resolver_arg_names: Mapping[str, Sequence[str]] | None = None,
+        authored_call_goal_bindings: Mapping[str, Sequence[str]] | None = None,
+        allow_incomplete_goals: bool = False,
+        require_explicit_step_results: bool = False,
     ) -> FunctionalPlanReconciliationResult:
         prepared = _NormalizeElaborateScopeStage().run(
             plan,
@@ -820,6 +881,9 @@ class FunctionalPlanReconciler:
             pinned_canonical_call_ids=frozenset(
                 pinned_canonical_call_ids
             ),
+            authored_call_goal_bindings=authored_call_goal_bindings,
+            allow_incomplete_goals=allow_incomplete_goals,
+            require_explicit_step_results=require_explicit_step_results,
         )
         plan = prepared.plan
         semantic_items = prepared.semantic_items
@@ -1400,6 +1464,7 @@ class FunctionalPlanReconciler:
             )
             if (
                 allocations
+                and call.call_id not in pinned_canonical_call_ids
                 and all(
                     allocation.allocation_action == "reuse"
                     for allocation in allocations
@@ -1439,19 +1504,20 @@ class FunctionalPlanReconciler:
                     "valid",
                 )
             )
-        (
-            effective_calls,
-            reconciled,
-            resolved_answer_repairs,
-        ) = _bind_unique_resolved_object_answers(
-            plan,
-            effective_calls=effective_calls,
-            reconciled=reconciled,
-            question_goals=question_goals,
-            handle_registry=handle_registry,
-            answer_bindings=answer_bindings,
-        )
-        reconciliation_repairs.extend(resolved_answer_repairs)
+        if not allow_incomplete_goals:
+            (
+                effective_calls,
+                reconciled,
+                resolved_answer_repairs,
+            ) = _bind_unique_resolved_object_answers(
+                plan,
+                effective_calls=effective_calls,
+                reconciled=reconciled,
+                question_goals=question_goals,
+                handle_registry=handle_registry,
+                answer_bindings=answer_bindings,
+            )
+            reconciliation_repairs.extend(resolved_answer_repairs)
         return _PlacementLivenessProjectionStage().run(
             plan=plan,
             elaboration=elaboration,
@@ -1496,6 +1562,11 @@ class FunctionalPlanReconciler:
             goal_authority_dependencies=(
                 prepared.goal_authority_dependencies
             ),
+            authored_call_goal_bindings=(
+                prepared.authored_call_goal_bindings
+            ),
+            allow_incomplete_goals=allow_incomplete_goals,
+            require_explicit_step_results=require_explicit_step_results,
         )
 
 
@@ -1686,6 +1757,9 @@ class _PlacementLivenessProjectionStage:
         pinned_return_scopes: Mapping[str, Mapping[str, str]],
         pinned_resolver_arg_names: Mapping[str, Sequence[str]],
         goal_authority_dependencies: Mapping[str, Sequence[str]],
+        authored_call_goal_bindings: Mapping[str, Sequence[str]],
+        allow_incomplete_goals: bool,
+        require_explicit_step_results: bool,
     ) -> FunctionalPlanReconciliationResult:
         plan = _rewrite_effective_functional_plan(
             plan,
@@ -1856,6 +1930,7 @@ class _PlacementLivenessProjectionStage:
                 plan,
                 require_goal_reachable=True,
                 additional_dependencies=goal_authority_dependencies,
+                authored_goal_unit_ids=authored_call_goal_bindings,
             )
             if problem_binding_catalog is not None
             else None
@@ -1959,47 +2034,48 @@ class _PlacementLivenessProjectionStage:
             for alias, canonical in placement.aliases.items()
             if canonical in live_call_ids
         }
-        for goal in question_goals:
-            handle = f"answer:{goal.id}"
-            scope_has_invalid_call = any(
-                report.scope_id == goal.question_id
-                and report.status != "valid"
-                for report in call_reports
-            )
-            if (
-                goal.required
-                and handle not in answer_bindings
-                and not scope_has_invalid_call
-            ):
-                producer_call_ids = _unbound_goal_producer_call_ids(
-                    plan,
-                    reconciled,
-                    goal=goal,
-                    handle_registry=handle_registry,
+        if not allow_incomplete_goals:
+            for goal in question_goals:
+                handle = f"answer:{goal.id}"
+                scope_has_invalid_call = any(
+                    report.scope_id == goal.question_id
+                    and report.status != "valid"
+                    for report in call_reports
                 )
-                issues.append(
-                    _issue(
-                        "functional_reconciliation",
-                        "functional.required_goal_unbound",
-                        f"required answer is not bound: {handle}",
-                        call_id=(
-                            producer_call_ids[0]
-                            if len(producer_call_ids) == 1
-                            else None
-                        ),
-                        scope_id=goal.question_id,
-                        details={
-                            "answer_handle": handle,
-                            "target_object_ref": (
-                                handle_registry.answer_target_handles.get(handle)
-                            ),
-                            "candidate_producer_call_ids": list(
-                                producer_call_ids
-                            ),
-                            "repair_call_ids": list(producer_call_ids),
-                        },
+                if (
+                    goal.required
+                    and handle not in answer_bindings
+                    and not scope_has_invalid_call
+                ):
+                    producer_call_ids = _unbound_goal_producer_call_ids(
+                        plan,
+                        reconciled,
+                        goal=goal,
+                        handle_registry=handle_registry,
                     )
-                )
+                    issues.append(
+                        _issue(
+                            "functional_reconciliation",
+                            "functional.required_goal_unbound",
+                            f"required answer is not bound: {handle}",
+                            call_id=(
+                                producer_call_ids[0]
+                                if len(producer_call_ids) == 1
+                                else None
+                            ),
+                            scope_id=goal.question_id,
+                            details={
+                                "answer_handle": handle,
+                                "target_object_ref": (
+                                    handle_registry.answer_target_handles.get(handle)
+                                ),
+                                "candidate_producer_call_ids": list(
+                                    producer_call_ids
+                                ),
+                                "repair_call_ids": list(producer_call_ids),
+                            },
+                        )
+                    )
         elaboration = replace(
             elaboration,
             plan=plan,
@@ -2104,6 +2180,9 @@ class _PlacementLivenessProjectionStage:
                         tuple(reconciled),
                         functional_binding_context,
                         goal_bindings=final_problem_goal_bindings,
+                        allow_implicit_same_object_call_result=(
+                            not require_explicit_step_results
+                        ),
                     )
                 )
             except ProblemPlanningBindingError as exc:
@@ -2522,13 +2601,32 @@ def _allocate_functional_returns(
         for (source_call, return_name), _consumer_scopes in context.consumers.items()
         if source_call == call.call_id
     }
-    allocations: list[FunctionalReturnAllocation] = []
-    for return_spec in active_return_specs:
-        if not (
+    selected_return_names = {
+        return_spec.name
+        for return_spec in active_return_specs
+        if (
             return_spec.required
             or return_spec.name in referenced_returns
             or return_spec.name in call.return_bindings
-        ):
+        )
+    }
+    changed = True
+    while changed:
+        changed = False
+        for return_spec in active_return_specs:
+            if return_spec.name not in selected_return_names:
+                continue
+            for projection in return_spec.object_role_projections:
+                source_return = projection.source_return
+                if (
+                    source_return is not None
+                    and source_return not in selected_return_names
+                ):
+                    selected_return_names.add(source_return)
+                    changed = True
+    allocations: list[FunctionalReturnAllocation] = []
+    for return_spec in active_return_specs:
+        if return_spec.name not in selected_return_names:
             continue
         call, allocation = _allocate_single_functional_return(
             call=call,
@@ -5119,6 +5217,7 @@ def _normalize_functional_answer_bindings(
     question_goals: Sequence[QuestionGoal],
     handle_registry: CanonicalHandleRegistry,
     semantic_items: Sequence[SemanticReadCatalogItem],
+    allow_incomplete_goals: bool = False,
 ) -> tuple[FunctionalPlan, tuple[FunctionalDeterministicRepair, ...]]:
     """Repair answer destinations that are uniquely implied by the call graph.
 
@@ -5273,49 +5372,50 @@ def _normalize_functional_answer_bindings(
     )
     repairs.extend(superseded_repairs)
 
-    bound_answer_refs = _bound_answer_refs(plan)
-    latest_return_by_scope_type = _latest_return_by_scope_type(plan, catalog)
-    candidate_by_goal: dict[str, list[tuple[str, str]]] = {}
-    for scope in plan.scopes:
-        for call in scope.calls:
-            capability = catalog.get(call.capability_id)
-            if capability is None:
-                continue
-            for return_spec in capability.returns:
-                if return_spec.identity_policy == "derived_role":
-                    continue
-                binding = call.return_bindings.get(return_spec.name)
-                if binding is not None and binding.kind == "answer":
-                    continue
-                if not (
-                    binding is not None
-                    or (call.call_id, return_spec.name) in consumers
-                    or latest_return_by_scope_type.get(
-                        (scope.scope_id, return_spec.runtime_type)
-                    )
-                    == (call.call_id, return_spec.name)
-                ):
-                    continue
-                for goal in _compatible_unbound_goals_for_return(
-                    return_spec,
-                    scope_id=scope.scope_id,
-                    question_goals=question_goals,
-                    bound_answer_refs=bound_answer_refs,
-                    handle_registry=handle_registry,
-                ):
-                    candidate_by_goal.setdefault(goal.id, []).append(
-                        (call.call_id, return_spec.name)
-                    )
-
     proposed_bindings: list[tuple[str, str, QuestionGoal]] = []
-    for goal in question_goals:
-        if not goal.required or goal.id in bound_answer_refs:
-            continue
-        candidates = candidate_by_goal.get(goal.id, [])
-        if len(candidates) != 1:
-            continue
-        call_id, return_name = candidates[0]
-        proposed_bindings.append((call_id, return_name, goal))
+    if not allow_incomplete_goals:
+        bound_answer_refs = _bound_answer_refs(plan)
+        latest_return_by_scope_type = _latest_return_by_scope_type(plan, catalog)
+        candidate_by_goal: dict[str, list[tuple[str, str]]] = {}
+        for scope in plan.scopes:
+            for call in scope.calls:
+                capability = catalog.get(call.capability_id)
+                if capability is None:
+                    continue
+                for return_spec in capability.returns:
+                    if return_spec.identity_policy == "derived_role":
+                        continue
+                    binding = call.return_bindings.get(return_spec.name)
+                    if binding is not None and binding.kind == "answer":
+                        continue
+                    if not (
+                        binding is not None
+                        or (call.call_id, return_spec.name) in consumers
+                        or latest_return_by_scope_type.get(
+                            (scope.scope_id, return_spec.runtime_type)
+                        )
+                        == (call.call_id, return_spec.name)
+                    ):
+                        continue
+                    for goal in _compatible_unbound_goals_for_return(
+                        return_spec,
+                        scope_id=scope.scope_id,
+                        question_goals=question_goals,
+                        bound_answer_refs=bound_answer_refs,
+                        handle_registry=handle_registry,
+                    ):
+                        candidate_by_goal.setdefault(goal.id, []).append(
+                            (call.call_id, return_spec.name)
+                        )
+
+        for goal in question_goals:
+            if not goal.required or goal.id in bound_answer_refs:
+                continue
+            candidates = candidate_by_goal.get(goal.id, [])
+            if len(candidates) != 1:
+                continue
+            call_id, return_name = candidates[0]
+            proposed_bindings.append((call_id, return_name, goal))
 
     proposal_counts: dict[tuple[str, str], int] = {}
     for call_id, return_name, _goal in proposed_bindings:
@@ -5574,7 +5674,14 @@ def _goal_answer_target_input_ref(
 ) -> SemanticRef | None:
     """Return one authority-backed identity ref behind an answer name."""
 
-    answer = problem_binding_catalog.bindings.get(value.ref)
+    answer_matches = tuple(
+        binding
+        for binding in problem_binding_catalog.bindings.values()
+        if binding.usage == "answer"
+        and binding.semantic_ref.ref == value.ref
+        and binding.owner_scope_id == scope_id
+    )
+    answer = answer_matches[0] if len(answer_matches) == 1 else None
     if (
         answer is None
         or answer.usage != "answer"
@@ -5586,9 +5693,9 @@ def _goal_answer_target_input_ref(
         return None
 
     goal_unit_id = answer.visible_goal_unit_ids[0]
-    if problem_binding_catalog.goal_answer_refs.get(goal_unit_id) != (
-        answer.semantic_ref.ref,
-        answer.semantic_ref.kind,
+    if (
+        problem_binding_catalog.goal_answer_refs.get(goal_unit_id)
+        != answer.scoped_key
     ):
         return None
     answer_target_ids = {
@@ -5608,11 +5715,7 @@ def _goal_answer_target_input_ref(
         if (
             candidate.usage != "input"
             or goal_unit_id not in candidate.visible_goal_unit_ids
-            or (
-                candidate.semantic_ref.ref,
-                candidate.semantic_ref.kind,
-            )
-            not in allowed_inputs
+            or candidate.scoped_key not in allowed_inputs
             or not candidate.typed_sources
             or any(
                 source.kind != "math_object"
@@ -7671,6 +7774,74 @@ def _functional_dependency_kinds(
     }
 
 
+_PLANNED_STRUCTURED_STATE_ISSUES = frozenset(
+    {
+        "functional.condition_role_state_unavailable",
+        "functional.path_reduction_point_state_unavailable",
+        "functional.square_path_point_state_unavailable",
+    }
+)
+
+
+def _resolve_planned_structured_state_issues(
+    elaboration: FunctionalPlanElaborationResult,
+    *,
+    dependency_graph: Mapping[str, tuple[str, ...]],
+    future_return_object_hints: Mapping[
+        tuple[str, str], tuple[str, ...]
+    ],
+) -> FunctionalPlanElaborationResult:
+    """Discharge missing-state issues backed by one exact planned producer.
+
+    These are context-resolver dependencies encoded inside a verified source
+    Fact, not ordinary SourceRef reads. The dependency projector has already
+    proved scope visibility, acyclicity and a unique producer. Ordinary object
+    inputs are excluded in v2 and still require an explicit CallResultRef.
+    """
+
+    producer_objects: dict[str, frozenset[str]] = {}
+    for (call_id, _return_name), object_refs in future_return_object_hints.items():
+        producer_objects[call_id] = frozenset(
+            (*producer_objects.get(call_id, frozenset()), *object_refs)
+        )
+    retained: list[FunctionalPlanIssue] = []
+    repairs = list(elaboration.deterministic_repairs)
+    for issue in elaboration.issues:
+        object_ref = (
+            str(issue.details.get("object_ref"))
+            if issue.details is not None
+            and issue.details.get("object_ref") is not None
+            else None
+        )
+        producers = tuple(
+            dependency
+            for dependency in dependency_graph.get(issue.call_id or "", ())
+            if object_ref is not None
+            and object_ref in producer_objects.get(dependency, frozenset())
+        )
+        if (
+            issue.code not in _PLANNED_STRUCTURED_STATE_ISSUES
+            or object_ref is None
+            or len(producers) != 1
+            or issue.call_id is None
+        ):
+            retained.append(issue)
+            continue
+        repairs.append(
+            FunctionalDeterministicRepair(
+                issue.call_id,
+                "bind_structured_role_to_planned_state",
+                object_ref,
+                f"{producers[0]}:{object_ref}",
+            )
+        )
+    return replace(
+        elaboration,
+        issues=tuple(retained),
+        deterministic_repairs=tuple(repairs),
+    )
+
+
 def _with_hidden_condition_object_dependencies(
     plan: FunctionalPlan,
     *,
@@ -7680,6 +7851,7 @@ def _with_hidden_condition_object_dependencies(
     future_return_object_hints: Mapping[
         tuple[str, str], tuple[str, ...]
     ],
+    include_explicit_object_refs: bool = True,
 ) -> dict[str, tuple[str, ...]]:
     """Add producer edges implied by semantic object state requirements.
 
@@ -7777,65 +7949,66 @@ def _with_hidden_condition_object_dependencies(
                     )
                     if producer is not None:
                         hidden_dependencies.append(producer)
-        args_by_name = {item.name: item for item in capability.args}
-        for arg_name, refs in call.args.items():
-            arg = args_by_name.get(arg_name)
-            accepted_item_types = (
-                arg.accepted_item_types or (arg.runtime_type,)
-                if arg is not None
-                else ()
-            )
-            consumes_point_state = any(
-                runtime_type_compatible(expected, actual)
-                for expected in accepted_item_types
-                for actual in ("Point", "PointList")
-            )
-            if arg is None or not (
-                arg.requires_materialized_state or consumes_point_state
-            ):
-                continue
-            for ref in refs:
-                if not isinstance(ref, SemanticRef) or not is_object_semantic_kind(
-                    ref.kind
-                ):
-                    continue
-                resolved, _matches = semantic_index.resolve(
-                    ref,
-                    scope_id=scope_id,
-                    accepted_types=accepted_item_types,
-                    accepted_condition_kinds=arg.accepted_condition_kinds,
+        if include_explicit_object_refs:
+            args_by_name = {item.name: item for item in capability.args}
+            for arg_name, refs in call.args.items():
+                arg = args_by_name.get(arg_name)
+                accepted_item_types = (
+                    arg.accepted_item_types or (arg.runtime_type,)
+                    if arg is not None
+                    else ()
                 )
-                if (
-                    resolved is not None
-                    and _resolved_value_satisfies_closure_policy(
-                        resolved,
-                        policy=arg.input_closure_policy,
-                    )
+                consumes_point_state = any(
+                    runtime_type_compatible(expected, actual)
+                    for expected in accepted_item_types
+                    for actual in ("Point", "PointList")
+                )
+                if arg is None or not (
+                    arg.requires_materialized_state or consumes_point_state
                 ):
                     continue
-                for object_ref in semantic_index.object_refs_for(
-                    ref,
-                    scope_id=scope_id,
-                ):
-                    if _context_has_materialized_object_state(
-                        semantic_index,
-                        object_ref=object_ref,
-                        scope_id=scope_id,
+                for ref in refs:
+                    if not isinstance(ref, SemanticRef) or not is_object_semantic_kind(
+                        ref.kind
                     ):
                         continue
-                    producer = _select_planned_state_producer(
-                        object_ref,
-                        consumer_call=call,
-                        consumer_scope_id=scope_id,
-                        producers_by_object=producers_by_object,
-                        calls_by_id=calls_by_id,
-                        dependency_graph=result,
-                        order_by_id=order_by_id,
-                        handle_registry=semantic_index.handle_registry,
-                        allow_future=object_ref not in produced_object_refs,
+                    resolved, _matches = semantic_index.resolve(
+                        ref,
+                        scope_id=scope_id,
+                        accepted_types=accepted_item_types,
+                        accepted_condition_kinds=arg.accepted_condition_kinds,
                     )
-                    if producer is not None:
-                        hidden_dependencies.append(producer)
+                    if (
+                        resolved is not None
+                        and _resolved_value_satisfies_closure_policy(
+                            resolved,
+                            policy=arg.input_closure_policy,
+                        )
+                    ):
+                        continue
+                    for object_ref in semantic_index.object_refs_for(
+                        ref,
+                        scope_id=scope_id,
+                    ):
+                        if _context_has_materialized_object_state(
+                            semantic_index,
+                            object_ref=object_ref,
+                            scope_id=scope_id,
+                        ):
+                            continue
+                        producer = _select_planned_state_producer(
+                            object_ref,
+                            consumer_call=call,
+                            consumer_scope_id=scope_id,
+                            producers_by_object=producers_by_object,
+                            calls_by_id=calls_by_id,
+                            dependency_graph=result,
+                            order_by_id=order_by_id,
+                            handle_registry=semantic_index.handle_registry,
+                            allow_future=object_ref not in produced_object_refs,
+                        )
+                        if producer is not None:
+                            hidden_dependencies.append(producer)
         if not (capability.auto_args or capability.context_resolvers):
             result[call.call_id] = unique_ordered(
                 (*result.get(call.call_id, ()), *hidden_dependencies)

@@ -108,6 +108,7 @@ class FunctionalSemanticView:
     typed_slot_id: StateSlotId | None = None
     state_version_id: StateVersionId | None = None
     source_version_ids: tuple[StateVersionId, ...] = ()
+    authority_scope_id: str | None = None
 
     def to_prompt_payload(self) -> dict[str, Any]:
         return {
@@ -1097,7 +1098,7 @@ class FunctionalSemanticIndex:
         entity_payloads: Mapping[str, Mapping[str, Any]] | None = None,
         fact_payloads: Mapping[str, Mapping[str, Any]] | None = None,
         allowed_ref_keys_by_call: Mapping[
-            str, frozenset[tuple[str, str]]
+            str, frozenset[tuple[str, str, str]]
         ] | None = None,
     ) -> None:
         self.views = tuple(views)
@@ -1129,7 +1130,7 @@ class FunctionalSemanticIndex:
         *,
         handle_registry: CanonicalHandleRegistry,
         allowed_ref_keys_by_call: Mapping[
-            str, frozenset[tuple[str, str]]
+            str, frozenset[tuple[str, str, str]]
         ] | None = None,
     ) -> "FunctionalSemanticIndex":
         state_slots = {item.slot_id: item for item in context.state.state_slots}
@@ -1169,6 +1170,7 @@ class FunctionalSemanticIndex:
                         item.handle,
                         slot.runtime_type,
                         item.valid_scope,
+                        authority_scope_id=item.authority_scope_id,
                         object_ref=slot.object_ref,
                         state_slot_id=slot.slot_id,
                         dependency_object_refs=slot.dependency_object_refs,
@@ -1243,6 +1245,7 @@ class FunctionalSemanticIndex:
                             item.handle,
                             "Condition",
                             item.valid_scope,
+                            authority_scope_id=item.authority_scope_id,
                             condition_id=item.condition_id,
                             condition_kind=fact_type,
                             object_roles=condition.object_roles,
@@ -1272,6 +1275,7 @@ class FunctionalSemanticIndex:
                             item.handle,
                             value_runtime_type,
                             item.valid_scope,
+                            authority_scope_id=item.authority_scope_id,
                             condition_id=item.condition_id,
                             object_ref=_primary_value_object_ref(
                                 fact_payload,
@@ -1328,6 +1332,7 @@ class FunctionalSemanticIndex:
                         item.handle,
                         runtime_type,
                         item.valid_scope,
+                        authority_scope_id=item.authority_scope_id,
                         object_ref=item.handle,
                         dependency_object_refs=dependencies,
                         free_symbol_refs=free_symbol_refs,
@@ -1345,6 +1350,7 @@ class FunctionalSemanticIndex:
                             object_slot.canonical_handle or item.handle,
                             object_slot.runtime_type,
                             object_slot.valid_scope or object_slot.scope_id,
+                            authority_scope_id=item.authority_scope_id,
                             object_ref=item.handle,
                             state_slot_id=object_slot.slot_id,
                             dependency_object_refs=(
@@ -1415,7 +1421,7 @@ class FunctionalSemanticIndex:
     def with_call_allowlists(
         self,
         allowed_ref_keys_by_call: Mapping[
-            str, frozenset[tuple[str, str]]
+            str, frozenset[tuple[str, str, str]]
         ],
     ) -> "FunctionalSemanticIndex":
         return FunctionalSemanticIndex(
@@ -1434,7 +1440,11 @@ class FunctionalSemanticIndex:
             tuple(
                 item
                 for item in self.views
-                if (item.ref, item.kind) in allowed
+                if (
+                    item.authority_scope_id,
+                    item.ref,
+                    item.kind,
+                ) in allowed
             ),
             handle_registry=self.handle_registry,
             entity_payloads=self.entity_payloads,

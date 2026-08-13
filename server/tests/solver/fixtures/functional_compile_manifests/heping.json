@@ -323,9 +323,9 @@
           ]
         },
         {
-          "arg": "quadratic",
+          "arg": "parabola",
           "item": 0,
-          "role": "quadratic",
+          "role": "parabola",
           "authority": "wire",
           "target": "quadratic",
           "paths": [
@@ -885,9 +885,9 @@
           ]
         },
         {
-          "arg": "quadratic",
+          "arg": "parabola",
           "item": 0,
-          "role": "quadratic",
+          "role": "parabola",
           "authority": "wire",
           "target": "quadratic",
           "paths": [

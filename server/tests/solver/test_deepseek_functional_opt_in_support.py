@@ -82,7 +82,7 @@ def test_attempt_protocol_requires_functional_format_and_locked_few_shot(
         (tmp_path / f"attempt-{attempt}.payload.problem_planning_context.json").write_text(
             json.dumps(
                 {
-                    "schema_version": "planner-problem-view/v1",
+                    "schema_version": "planner-problem-view/v2",
                     "root_scope": {"id": "problem", "text": ["x"]},
                 }
             ),
@@ -107,7 +107,7 @@ def test_prompt_safety_distinguishes_error_codes_from_canonical_handles() -> Non
     payload = {
         "planner_protocol": "functional_plan/v1",
         "problem_planning_context": {
-            "schema_version": "planner-problem-view/v1",
+            "schema_version": "planner-problem-view/v2",
             "root_scope": {"id": "problem", "text": ["x"]},
         },
         "functional_few_shot_selection": {
@@ -142,7 +142,7 @@ def test_prompt_safety_allows_call_id_equal_to_hidden_example_id() -> None:
     payload = {
         "planner_protocol": "functional_plan/v1",
         "problem_planning_context": {
-            "schema_version": "planner-problem-view/v1",
+            "schema_version": "planner-problem-view/v2",
             "root_scope": {"id": "problem", "text": ["x"]},
         },
         "functional_few_shot_selection": {
@@ -174,7 +174,7 @@ def test_prompt_safety_allows_problem_family_to_equal_hidden_selection_family() 
     payload = {
         "planner_protocol": "functional_plan/v1",
         "problem_planning_context": {
-            "schema_version": "planner-problem-view/v1",
+            "schema_version": "planner-problem-view/v2",
             "problem_id": "current_problem",
             "family_id": "quadratic_path_minimum",
             "root_scope": {"id": "problem", "text": ["x"]},

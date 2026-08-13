@@ -22,6 +22,7 @@ from shuxueshuo_server.solver.family.models import (
     GoalEvidenceTag,
     PathTransformationConsumerSpec,
     FunctionalReturnBindingPolicy,
+    FunctionalSemanticRefRole,
     RecipeExecutionSpec,
     RecipeOutputAliasSpec,
     StateIdentityPolicy,
@@ -85,6 +86,7 @@ class MacroArgSpec:
     semantic_role: str | None = None
     description: str = ""
     provides_semantic_roles: tuple[str, ...] = ()
+    semantic_ref_role: FunctionalSemanticRefRole = "value"
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -108,6 +110,8 @@ class MacroArgSpec:
             payload["provides_semantic_roles"] = list(
                 self.provides_semantic_roles
             )
+        if self.semantic_ref_role != "value":
+            payload["semantic_ref_role"] = self.semantic_ref_role
         return payload
 
 
@@ -567,6 +571,7 @@ def _slot_arg(slot: StateSlotPattern, index: int) -> MacroArgSpec:
         semantic_role=slot.semantic_role,
         description=slot.description,
         provides_semantic_roles=slot.provides_semantic_roles,
+        semantic_ref_role=slot.semantic_ref_role,
     )
 
 

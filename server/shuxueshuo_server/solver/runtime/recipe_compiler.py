@@ -1138,14 +1138,22 @@ class _RecipePlanCompiler:
                     for item in runtime_rule.input_bindings
                 }
             )
+        runtime_input_by_public_name = {
+            item.name: item.method_input or item.name
+            for item in getattr(function, "args", ())
+        }
         for item in self.projected_function_arg_bindings:
+            runtime_input_name = runtime_input_by_public_name.get(
+                item.arg_name,
+                item.arg_name,
+            )
             if (
                 item.step_id == step.step_id
-                and item.arg_name in spec.inputs
+                and runtime_input_name in spec.inputs
                 and getattr(item, "consumption_mode", "runtime_input")
                 == "runtime_input"
             ):
-                adapter_binding = adapter_bindings.get(item.arg_name)
+                adapter_binding = adapter_bindings.get(runtime_input_name)
                 declared_authority = (
                     adapter_binding.functional_authority
                     if adapter_binding is not None
@@ -1159,7 +1167,7 @@ class _RecipePlanCompiler:
                         f"sidecar_authority={item.binding_authority}, "
                         f"declared_authority={declared_authority or 'wire'}"
                     )
-                grouped.setdefault(item.arg_name, []).append(item)
+                grouped.setdefault(runtime_input_name, []).append(item)
         result: dict[str, str] = {}
         aggregate_lowerings = (
             {

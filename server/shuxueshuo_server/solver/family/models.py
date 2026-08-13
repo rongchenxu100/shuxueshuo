@@ -534,6 +534,69 @@ class MethodPrepInvocationSpec:
 
 
 @dataclass(frozen=True)
+class FunctionalOutputTargetSelectorSpec:
+    """Select one existing Problem object from visible source facts.
+
+    The selector is deliberately structural: it names a fact kind and fields,
+    never a capability id, object label, or runtime handle.  It may only be
+    used when the visible facts identify one target object.
+    """
+
+    output_name: str
+    selector_id: Literal["unique_visible_fact_target"]
+    fact_kind: str
+    target_field: str
+    prompt_fact_kind: str | None = None
+    related_arg: str | None = None
+    related_field: str | None = None
+    required_field_values: tuple[tuple[str, str], ...] = ()
+    description: str = ""
+
+    def __post_init__(self) -> None:
+        required = (
+            self.output_name,
+            self.selector_id,
+            self.fact_kind,
+            self.target_field,
+            self.description,
+        )
+        if any(not item.strip() for item in required):
+            raise ValueError("functional output target selector must be described")
+        if (self.related_arg is None) != (self.related_field is None):
+            raise ValueError(
+                "functional output target selector related arg/field must be paired"
+            )
+        if self.prompt_fact_kind is not None and not self.prompt_fact_kind.strip():
+            raise ValueError(
+                "functional output target selector prompt fact kind is empty"
+            )
+        keys = [key for key, _value in self.required_field_values]
+        if (
+            any(not key.strip() or not value.strip() for key, value in self.required_field_values)
+            or len(keys) != len(set(keys))
+        ):
+            raise ValueError(
+                "functional output target selector field constraints must be unique"
+            )
+
+    def to_payload(self) -> dict[str, object]:
+        payload: dict[str, object] = {
+            "selector": self.selector_id,
+            "fact_kind": self.prompt_fact_kind or self.fact_kind,
+            "target_field": self.target_field,
+            "description": self.description,
+        }
+        if self.related_arg is not None:
+            payload["related_arg"] = self.related_arg
+            payload["related_field"] = self.related_field
+        if self.required_field_values:
+            payload["required_fields"] = {
+                key: value for key, value in self.required_field_values
+            }
+        return payload
+
+
+@dataclass(frozen=True)
 class MethodBindingRuleSpec:
     """一个 method 的 declarative binding 规则。
 
@@ -542,6 +605,13 @@ class MethodBindingRuleSpec:
     """
 
     method_id: str
+    # Planner-facing names may be clearer than legacy method slot/output keys.
+    # Each tuple is ``(runtime_name, functional_name)`` and must be bijective.
+    functional_input_names: tuple[tuple[str, str], ...] = ()
+    functional_output_names: tuple[tuple[str, str], ...] = ()
+    functional_output_target_selectors: tuple[
+        FunctionalOutputTargetSelectorSpec, ...
+    ] = ()
     input_bindings: tuple[MethodInputBindingSpec, ...] = ()
     aggregate_input_bindings: tuple[MethodAggregateInputBindingSpec, ...] = ()
     scalar_aggregate_lowerings: tuple[
@@ -583,6 +653,7 @@ CapabilityScopePolicy = Literal["current", "current_or_visible", "problem", "sam
 CapabilityCardinality = Literal["one", "optional", "many"]
 CapabilityDependencyPolicy = Literal["explicit_args", "context_closure"]
 FunctionalArgBindingAuthority = Literal["wire", "resolver", "compiler"]
+FunctionalSemanticRefRole = Literal["value", "object_identity"]
 FunctionalReturnBindingPolicy = Literal[
     "auto",
     "internal_only",
@@ -646,6 +717,7 @@ class StateSlotPattern:
     lineage_closures: tuple[StateLineageClosureSpec, ...] = ()
     input_closure_policy: CapabilityStateClosurePolicy = "any"
     return_binding: FunctionalReturnBindingPolicy = "auto"
+    semantic_ref_role: FunctionalSemanticRefRole = "value"
 
     def to_payload(self) -> dict[str, object]:
         payload: dict[str, object] = {
@@ -666,6 +738,8 @@ class StateSlotPattern:
             payload["identity_arg"] = self.identity_arg
         if self.semantic_role is not None:
             payload["semantic_role"] = self.semantic_role
+        if self.semantic_ref_role != "value":
+            payload["semantic_ref_role"] = self.semantic_ref_role
         if self.output_key is not None:
             payload["output_key"] = self.output_key
         if self.description:

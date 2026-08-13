@@ -11,7 +11,7 @@
           "args": {
             "known_coefficients": [
               {
-                "ref": "i.symbol_value_a",
+                "ref": "symbol_value_a",
                 "kind": "fact"
               },
               {
@@ -57,11 +57,11 @@
           "capability_id": "quadratic_from_constraints",
           "args": {
             "known_coefficients": {
-              "ref": "ii.symbol_value_a",
+              "ref": "symbol_value_a",
               "kind": "fact"
             },
             "curve_point": {
-              "ref": "ii.A",
+              "ref": "A",
               "kind": "point"
             },
             "free_parameters": {
@@ -153,11 +153,11 @@
           "capability_id": "quadratic_from_constraints",
           "args": {
             "known_coefficients": {
-              "ref": "iii.symbol_value_a",
+              "ref": "symbol_value_a",
               "kind": "fact"
             },
             "curve_point": {
-              "ref": "iii.A",
+              "ref": "A",
               "kind": "point"
             },
             "free_parameters": {
@@ -196,7 +196,7 @@
               "kind": "fact"
             },
             "fixed_point": {
-              "ref": "iii.A",
+              "ref": "A",
               "kind": "point"
             },
             "moving_point": {
@@ -221,7 +221,7 @@
               "return": "auxiliary_locus"
             },
             "fixed_point": {
-              "ref": "iii.A",
+              "ref": "A",
               "kind": "point"
             },
             "curve_point": {

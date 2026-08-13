@@ -85,13 +85,13 @@
           "call_id": "derive_x_intercept_B_ii",
           "capability_id": "quadratic_x_axis_intercept_point",
           "args": {
-            "quadratic": {
-              "from_call": "derive_parametric_parabola_ii",
-              "return": "parabola"
-            },
             "known_point": {
               "ref": "A",
               "kind": "point"
+            },
+            "parabola": {
+              "from_call": "derive_parametric_parabola_ii",
+              "return": "parabola"
             }
           },
           "return_bindings": {

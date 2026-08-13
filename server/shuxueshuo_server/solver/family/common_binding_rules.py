@@ -103,6 +103,7 @@ def quadratic_x_axis_intercept_point_rule() -> MethodBindingRuleSpec:
     """Bind a solved parabola to an x-axis intercept point."""
     return MethodBindingRuleSpec(
         method_id="quadratic_x_axis_intercept_point",
+        functional_input_names=(("quadratic", "parabola"),),
         input_bindings=(
             MethodInputBindingSpec("quadratic", "read_type:Parabola"),
             MethodInputBindingSpec("x", "symbol:x"),

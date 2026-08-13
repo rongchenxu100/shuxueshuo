@@ -434,11 +434,11 @@ def test_answer_binding_rejects_preserved_identity_from_another_object() -> None
     candidate_call = calls["solve_axis_point_candidates_i"]
     candidate_call["args"]["target_point"] = {
         "from_call": "derive_square_vertex_G_i",
-        "return": "point",
+        "return": "adjacent_vertex",
     }
     candidate_call["args"]["curve_point"] = {
         "from_call": "derive_square_vertex_G_i",
-        "return": "point",
+        "return": "adjacent_vertex",
     }
 
     result = _reconcile_heping_ermo_payload(payload)
@@ -2711,17 +2711,19 @@ def test_functional_schema_and_catalog_are_prompt_safe() -> None:
     assert axis["args"] == [
         {
             "name": "coefficient_relation",
-            "accepts": ["Equation"],
-            "required": True,
-            "cardinality": "one",
-        }
-    ]
+                "accepts": ["Equation"],
+                "required": True,
+                "cardinality": "one",
+                "semantic_ref_role": "value",
+            }
+        ]
     assert axis["returns"] == [
         {
-            "name": "axis_point",
-            "type": "Point",
-            "binding": "answer_or_existing_object",
-            "desc": (
+                "name": "axis_point",
+                "type": "Point",
+                "binding": "answer_or_existing_object",
+                "return_expectation_policy": "selectable",
+                "desc": (
                 "坐标仍含未确定符号时为 open_state；不存在自由符号时为 "
                 "closed_state。重复写入同一对象时，代码会验证它是否为状态收敛。"
             ),
@@ -2859,10 +2861,10 @@ def test_heping_ermo_functional_catalog_explains_stateful_geometry_args() -> Non
         "explicit_answer_or_existing_object"
     )
     assert any(
-        "return_bindings.point" in item
+        "公开返回角色 adjacent_vertex" in item
         for item in square_vertex["do_not_use_when"]
     )
-    assert "return_bindings.point" in square_vertex["use_when"]
+    assert "公开返回角色 adjacent_vertex" in square_vertex["use_when"]
     assert "顶点顺序" in square_vertex["use_when"]
 
 
@@ -3305,7 +3307,7 @@ def test_consumed_open_point_answer_binding_becomes_existing_object_state() -> N
     }
     parameterized["return_expectations"] = {"point": "open_state"}
     final = calls["recover_target_point_E_ii"]
-    final["return_expectations"] = {"point": "closed_state"}
+    final["return_expectations"] = {"adjacent_vertex": "closed_state"}
     plan, validation = FunctionalPlanValidator().validate_payload_with_report(
         payload,
         handle_registry=registry,
@@ -3573,7 +3575,7 @@ def test_elaborator_renames_unknown_arg_to_unique_compatible_required_arg() -> N
         for item in scope["calls"]
         if item["call_id"] == "derive_x_intercept_A_i"
     )
-    call["args"]["parabola"] = call["args"].pop("quadratic")
+    call["args"]["curve"] = call["args"].pop("parabola")
     plan, validation = FunctionalPlanValidator().validate_payload_with_report(
         payload,
         handle_registry=registry,
@@ -3600,15 +3602,15 @@ def test_elaborator_renames_unknown_arg_to_unique_compatible_required_arg() -> N
         for item in first.plan.calls
         if item.call_id == "derive_x_intercept_A_i"
     )
-    assert "parabola" not in elaborated.args
-    assert elaborated.args["quadratic"] == (
+    assert "curve" not in elaborated.args
+    assert elaborated.args["parabola"] == (
         CallResultRef("derive_parabola_i", "parabola"),
     )
     assert any(
         item.call_id == elaborated.call_id
         and item.action == "rename_unique_type_compatible_required_arg"
-        and item.from_value == "parabola"
-        and item.to_value == "quadratic"
+        and item.from_value == "curve"
+        and item.to_value == "parabola"
         for item in first.deterministic_repairs
     )
 
@@ -6427,7 +6429,7 @@ def test_answer_bound_object_return_keeps_canonical_state_alias() -> None:
             replay.functional_reconciliation.functional_binding_context.bindings
         )
         if item.key.call_id == "derive_x_intercept_B_i"
-        and item.key.arg_name == "quadratic"
+        and item.key.arg_name == "parabola"
     )
     assert consumer_binding.source.state_version_id == (
         allocation.selected_version_id
@@ -6578,7 +6580,7 @@ def test_reconciler_reprojects_sibling_point_semantic_read_to_exact_version() ->
                         "call_id": "produce_B",
                         "capability_id": "quadratic_x_axis_intercept_point",
                         "args": {
-                            "quadratic": {
+                            "parabola": {
                                 "from_call": "build_curve",
                                 "return": "parabola",
                             },
@@ -6662,7 +6664,7 @@ def test_semantic_object_reads_prefer_branch_local_planned_producer() -> None:
                         "call_id": "first_intercept",
                         "capability_id": "quadratic_y_axis_intercept_point",
                         "args": {
-                            "quadratic": {
+                            "parabola": {
                                 "ref": "parabola",
                                 "kind": "function",
                             }
@@ -6712,7 +6714,7 @@ def test_semantic_object_reads_prefer_branch_local_planned_producer() -> None:
                         "call_id": "second_intercept",
                         "capability_id": "quadratic_y_axis_intercept_point",
                         "args": {
-                            "quadratic": {
+                            "parabola": {
                                 "from_call": "build_branch_curve",
                                 "return": "parabola",
                             }
@@ -7895,7 +7897,7 @@ def test_wire_point_ref_cannot_satisfy_materialized_point_argument() -> None:
                             "quadratic_x_axis_intercept_point"
                         ),
                         "args": {
-                            "quadratic": {
+                            "parabola": {
                                 "from_call": "build_closed_parabola",
                                 "return": "parabola",
                             },
@@ -7983,7 +7985,7 @@ def test_wire_point_ref_cannot_satisfy_materialized_point_argument() -> None:
                             },
                         },
                         "return_bindings": {
-                            "point": {
+                            "adjacent_vertex": {
                                 "ref": "ii.G",
                                 "kind": "point",
                             }
@@ -8207,7 +8209,7 @@ def test_functional_payload_is_the_only_strategy_payload() -> None:
     assert "problem_ir" not in functional
     assert functional["strategy_principles"]
     planning = functional["problem_planning_context"]
-    assert planning["schema_version"] == "planner-problem-view/v1"
+    assert planning["schema_version"] == "planner-problem-view/v2"
     assert planning["root_scope"]
     assert "shared_context" not in planning
     assert "goal_views" not in planning
@@ -8703,7 +8705,7 @@ def test_reconciler_does_not_treat_object_ref_as_materialized_target_state() -> 
     derive_other_vertex = json.loads(json.dumps(square_call))
     derive_other_vertex["call_id"] = "derive_other_square_vertex_i"
     derive_other_vertex["return_bindings"] = {
-        "point": {"ref": "i_2.K", "kind": "point"}
+        "adjacent_vertex": {"ref": "i_2.K", "kind": "point"}
     }
     derive_other_vertex["strategy"] = "先求同一结构中另一个已知角色的坐标。"
     derive_other_vertex["reason"] = "使剩余目标对象可由结构化角色唯一确定。"
@@ -12132,7 +12134,7 @@ def test_structured_return_roles_identify_blocked_point_producers() -> None:
                         "call_id": "derive_B",
                         "capability_id": "quadratic_x_axis_intercept_point",
                         "args": {
-                            "quadratic": {
+                            "parabola": {
                                 "ref": "parabola",
                                 "kind": "function",
                             },
@@ -13820,7 +13822,7 @@ def test_finalizer_distinguishes_overlapping_and_sibling_object_states(
                         "call_id": "derive_existing_a",
                         "capability_id": "quadratic_x_axis_intercept_point",
                         "args": {
-                            "quadratic": {
+                            "parabola": {
                                 "ref": "parabola",
                                 "kind": "function",
                             },
@@ -13857,7 +13859,7 @@ def test_finalizer_distinguishes_overlapping_and_sibling_object_states(
                         "call_id": "derive_existing_a_again",
                         "capability_id": "quadratic_x_axis_intercept_point",
                         "args": {
-                            "quadratic": {
+                            "parabola": {
                                 "from_call": "materialize_parabola",
                                 "return": "parabola",
                             },
@@ -17680,7 +17682,7 @@ def test_legacy_functional_retry_drops_stale_untyped_graph() -> None:
         "call_id": "get_A_i2",
         "capability_id": "quadratic_x_axis_intercept_point",
         "args": {
-            "quadratic": {
+            "parabola": {
                 "from_call": "old_curve",
                 "return": "parabola",
             }
@@ -17718,7 +17720,7 @@ def test_legacy_functional_retry_drops_stale_untyped_graph() -> None:
         "call_id": "a_point_from_parabola",
         "capability_id": "quadratic_x_axis_intercept_point",
         "args": {
-            "quadratic": {
+            "parabola": {
                 "from_call": "repaired_curve",
                 "return": "parabola",
             }

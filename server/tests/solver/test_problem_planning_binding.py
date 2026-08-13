@@ -186,11 +186,14 @@ def test_scope_local_symbol_values_share_object_but_not_state_version(
         case="tj-2026-hexi-yimo-25",
     )
     values = [
-        catalog.bindings[ref].typed_sources[0]
-        for ref in (
-            "i.symbol_value_a",
-            "ii.symbol_value_a",
-            "iii.symbol_value_a",
+        catalog.resolve_input_binding(
+            scope_id=scope_id,
+            local_ref="symbol_value_a",
+        ).typed_sources[0]
+        for scope_id in (
+            "i",
+            "ii",
+            "iii",
         )
     ]
 
@@ -203,6 +206,44 @@ def test_scope_local_symbol_values_share_object_but_not_state_version(
     } == {"i", "ii", "iii"}
 
 
+def test_sibling_local_refs_resolve_lexically_without_becoming_shared(
+    tmp_path,
+) -> None:
+    *_, catalog = planning_binding_fixture(
+        tmp_path,
+        case="tj-2026-hexi-yimo-25",
+    )
+
+    point_ii = catalog.resolve_input_binding(
+        scope_id="ii",
+        local_ref="A",
+    )
+    point_iii = catalog.resolve_input_binding(
+        scope_id="iii",
+        local_ref="A",
+    )
+
+    assert point_ii.owner_scope_id == "ii"
+    assert point_iii.owner_scope_id == "iii"
+    assert point_ii.scoped_key != point_iii.scoped_key
+    assert point_ii.typed_sources[0].math_object_id != (
+        point_iii.typed_sources[0].math_object_id
+    )
+    goal_ii = point_ii.visible_goal_unit_ids[0]
+    goal_iii = point_iii.visible_goal_unit_ids[0]
+    assert point_ii.scoped_key not in catalog.goal_input_refs[
+        goal_iii
+    ]
+    assert point_iii.scoped_key not in catalog.goal_input_refs[
+        goal_ii
+    ]
+    with pytest.raises(
+        ProblemPlanningBindingError,
+        match="planner.problem_source_binding_unresolved",
+    ):
+        catalog.resolve_input_binding(scope_id="problem", local_ref="A")
+
+
 def test_same_scope_symbol_values_do_not_overwrite_each_other(tmp_path) -> None:
     *_, planner_context, catalog = planning_binding_fixture(
         tmp_path,
@@ -212,11 +253,19 @@ def test_same_scope_symbol_values_do_not_overwrite_each_other(tmp_path) -> None:
         slot.canonical_handle for slot in planner_context.state.state_slots
     }
 
-    assert catalog.bindings["symbol_value_a"].runtime_node_id in state_handles
-    assert catalog.bindings["symbol_value_c"].runtime_node_id in state_handles
+    value_a = catalog.resolve_input_binding(
+        scope_id="i",
+        local_ref="symbol_value_a",
+    )
+    value_c = catalog.resolve_input_binding(
+        scope_id="i",
+        local_ref="symbol_value_c",
+    )
+    assert value_a.runtime_node_id in state_handles
+    assert value_c.runtime_node_id in state_handles
     assert (
-        catalog.bindings["symbol_value_a"].typed_sources[0].math_object_id
-        != catalog.bindings["symbol_value_c"].typed_sources[0].math_object_id
+        value_a.typed_sources[0].math_object_id
+        != value_c.typed_sources[0].math_object_id
     )
 
 
@@ -397,7 +446,10 @@ def test_state_fact_binds_exact_source_snapshot_and_sidecar_provenance(
         tmp_path,
         case="tj-2026-heping-ermo-25",
     )
-    coordinate = catalog.bindings["point_coordinate_a"].typed_sources[0]
+    coordinate = catalog.resolve_input_binding(
+        scope_id="ii",
+        local_ref="point_coordinate_a",
+    ).typed_sources[0]
     sidecar = reconciliation.functional_problem_binding_context.input_binding_for(
         "derive_parametric_parabola_ii",
         "curve_point",
@@ -534,7 +586,10 @@ def test_call_result_parameter_value_keeps_its_symbol_object_identity(
         tmp_path,
         case="tj-2026-xiqing-yimo-25",
     )
-    object_id = catalog.bindings["b"].typed_sources[0].math_object_id
+    object_id = catalog.resolve_input_binding(
+        scope_id="problem",
+        local_ref="b",
+    ).typed_sources[0].math_object_id
     assert object_id is not None
     dynamic_handle = "fact:i:dynamic_b_value"
     index = CanonicalRuntimeBindingIndex.from_context(
@@ -643,7 +698,10 @@ def test_catalog_rebuild_rejects_evolved_source_state(tmp_path) -> None:
         tmp_path,
         case="tj-2026-heping-ermo-25",
     )
-    source = catalog.bindings["point_coordinate_a"].typed_sources[0]
+    source = catalog.resolve_input_binding(
+        scope_id="ii",
+        local_ref="point_coordinate_a",
+    ).typed_sources[0]
     assert source.state_version_id is not None
     slot = next(
         item
@@ -1112,7 +1170,7 @@ def test_answer_authority_rejects_multiple_goal_source_units(tmp_path) -> None:
         first_goal.goal_unit_id
     )
     authorities = dict(planning_context.ref_authorities)
-    authorities[authority.semantic_ref.ref] = replace(
+    authorities[authority.scoped_key] = replace(
         authority,
         source_unit_ids=(
             first_goal.goal_unit_id,
@@ -1143,8 +1201,14 @@ def test_same_type_membership_facts_keep_distinct_condition_identity(
         tmp_path,
         case="tj-2026-nankai-yimo-25",
     )
-    e_membership = catalog.bindings["point_on_segment_e_dm"]
-    g_membership = catalog.bindings["point_on_segment_g_mn"]
+    e_membership = catalog.resolve_input_binding(
+        scope_id="ii",
+        local_ref="point_on_segment_e_dm",
+    )
+    g_membership = catalog.resolve_input_binding(
+        scope_id="ii",
+        local_ref="point_on_segment_g_mn",
+    )
 
     assert e_membership.runtime_node_id != g_membership.runtime_node_id
     assert e_membership.typed_sources[0].condition_id != (
@@ -1197,7 +1261,9 @@ def test_cross_scope_answer_swap_is_rejected_before_compile(tmp_path) -> None:
         "ref": "ii.E",
         "kind": "answer",
     }
-    calls["recover_target_point_E_ii"]["return_bindings"]["point"] = {
+    calls["recover_target_point_E_ii"]["return_bindings"][
+        "adjacent_vertex"
+    ] = {
         "ref": "i_1.P",
         "kind": "answer",
     }
@@ -1233,7 +1299,9 @@ def test_scope_local_bare_answer_refs_are_qualified_without_retry(
     calls["solve_axis_point_candidates_i"]["return_bindings"][
         "candidates"
     ] = {"ref": "E", "kind": "answer", "value_type": "PointList"}
-    calls["recover_target_point_E_ii"]["return_bindings"]["point"] = {
+    calls["recover_target_point_E_ii"]["return_bindings"][
+        "adjacent_vertex"
+    ] = {
         "ref": "E",
         "kind": "answer",
         "value_type": "Point",
@@ -1255,7 +1323,7 @@ def test_scope_local_bare_answer_refs_are_qualified_without_retry(
         "candidates"
     ].ref == "i_2.E"
     assert effective_calls["recover_target_point_E_ii"].return_bindings[
-        "point"
+        "adjacent_vertex"
     ].ref == "ii.E"
     assert reconciliation.elaboration is not None
     assert {

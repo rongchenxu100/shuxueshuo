@@ -18,6 +18,7 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
 )
 from shuxueshuo_server.solver.runtime.functional_plan import (
     FUNCTIONAL_PLAN_JSON_SCHEMA,
+    SCOPED_FUNCTIONAL_PLAN_CONTRACT,
     CallResultRef,
     CanonicalStateHandleFactory,
     FunctionalCall,
@@ -29,6 +30,12 @@ from shuxueshuo_server.solver.runtime.functional_plan import (
     FunctionalPlanReconciliationResult,
     FunctionalPlanValidator,
     FunctionalScope,
+    FunctionalStepScopeAuthority,
+    ScopedFunctionalPlan,
+    ScopedFunctionalPlanAuthority,
+    ScopedFunctionalPlanAuthorityAdapter,
+    ScopedFunctionalPlanValidator,
+    scoped_functional_plan_schema,
     functional_capability_catalog_payload,
     prepare_functional_plan_raw_response,
 )
@@ -82,6 +89,12 @@ from shuxueshuo_server.solver.runtime.strategy_replay import (
     PlannerRetryReplayResult,
     PlannerRetryReplayService,
     repair_attempt_payload_from_replay,
+)
+from shuxueshuo_server.solver.runtime.scoped_functional_plan_replay import (
+    ScopedFunctionalPlanAuthoringResult,
+    ScopedFunctionalPlanAuthoringService,
+    ScopedFunctionalPlanReplayResult,
+    ScopedFunctionalPlanReplayService,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_retry import (
     retry_state_from_attempt,

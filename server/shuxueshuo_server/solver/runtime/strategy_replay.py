@@ -382,8 +382,64 @@ class PlannerRetryReplayService:
         validation_report: FunctionalPlanValidationReport | None = None,
         retry_checkpoint: FunctionalRetryGraphCheckpoint | None = None,
         problem_binding_catalog: ProblemPlanningBindingCatalog | None = None,
+        preserve_scoped_step_identity: bool = False,
+        scoped_call_goal_bindings: Mapping[str, tuple[str, ...]] | None = None,
+        allow_incomplete_goals: bool = False,
     ) -> PlannerRetryReplayResult:
-        """Reconcile and execute a FunctionalPlan through typed authority."""
+        """Compose reconciliation and execution for legacy/v1 callers."""
+
+        parent_context = planner_state_context or _initial_planner_state_context(
+            inputs=inputs,
+            handle_registry=handle_registry,
+            problem_payload=problem_payload,
+            attempt=attempt,
+            previous_attempts=inputs.previous_errors,
+        )
+        prepared = self.reconcile_functional_plan(
+            plan,
+            inputs=inputs,
+            handle_registry=handle_registry,
+            context=context,
+            attempt=attempt,
+            errors=errors,
+            problem_payload=problem_payload,
+            planner_state_context=parent_context,
+            validation_report=validation_report,
+            retry_checkpoint=retry_checkpoint,
+            problem_binding_catalog=problem_binding_catalog,
+            preserve_scoped_step_identity=preserve_scoped_step_identity,
+            scoped_call_goal_bindings=scoped_call_goal_bindings,
+            allow_incomplete_goals=allow_incomplete_goals,
+        )
+        return self.execute_reconciled_functional_plan(
+            prepared,
+            raw_plan=plan,
+            parent_context=parent_context,
+            inputs=inputs,
+            handle_registry=handle_registry,
+            problem_payload=problem_payload,
+            runtime_context=context,
+        )
+
+    def reconcile_functional_plan(
+        self,
+        plan: FunctionalPlan,
+        *,
+        inputs: PlannerInputs,
+        handle_registry: CanonicalHandleRegistry,
+        context: Any,
+        attempt: int,
+        errors: tuple[str, ...] = (),
+        problem_payload: dict[str, Any] | None = None,
+        planner_state_context: PlannerStateContext | None = None,
+        validation_report: FunctionalPlanValidationReport | None = None,
+        retry_checkpoint: FunctionalRetryGraphCheckpoint | None = None,
+        problem_binding_catalog: ProblemPlanningBindingCatalog | None = None,
+        preserve_scoped_step_identity: bool = False,
+        scoped_call_goal_bindings: Mapping[str, tuple[str, ...]] | None = None,
+        allow_incomplete_goals: bool = False,
+    ) -> PlannerRetryReplayResult:
+        """Reconcile a FunctionalPlan without executing any method."""
         planner_state_context = planner_state_context or _initial_planner_state_context(
             inputs=inputs,
             handle_registry=handle_registry,
@@ -395,38 +451,74 @@ class PlannerRetryReplayService:
             inputs.family_spec,
             inputs.method_specs,
         )
-        reconciliation = FunctionalPlanReconciler().reconcile(
-            plan,
-            planner_state_context=planner_state_context,
-            family_spec=inputs.family_spec,
-            method_specs=inputs.method_specs,
-            handle_registry=handle_registry,
-            question_goals=inputs.question_goals,
-            pinned_canonical_call_ids=(
-                retry_checkpoint.committed_call_ids
-                if retry_checkpoint is not None
-                else ()
-            ),
-            pinned_execution_scopes=(
-                retry_checkpoint.pinned_execution_scopes
-                if retry_checkpoint is not None
-                else {}
-            ),
-            pinned_return_scopes=(
-                retry_checkpoint.pinned_return_scopes
-                if retry_checkpoint is not None
-                else {}
-            ),
-            pinned_resolver_arg_names=(
-                {
-                    item.canonical_call_id: item.resolver_bound_arg_names
-                    for item in retry_checkpoint.committed_calls
-                }
-                if retry_checkpoint is not None
-                else {}
-            ),
-            problem_binding_catalog=problem_binding_catalog,
+        scoped_step_ids = (
+            tuple(call.call_id for call in plan.calls)
+            if preserve_scoped_step_identity
+            else ()
         )
+        checkpoint_pins = (
+            retry_checkpoint.committed_call_ids
+            if retry_checkpoint is not None
+            else ()
+        )
+        def reconcile_candidate(
+            candidate: FunctionalPlan,
+        ) -> FunctionalPlanReconciliationResult:
+            candidate_scoped_ids = (
+                tuple(call.call_id for call in candidate.calls)
+                if preserve_scoped_step_identity
+                else scoped_step_ids
+            )
+            return FunctionalPlanReconciler().reconcile(
+                candidate,
+                planner_state_context=planner_state_context,
+                family_spec=inputs.family_spec,
+                method_specs=inputs.method_specs,
+                handle_registry=handle_registry,
+                question_goals=inputs.question_goals,
+                pinned_canonical_call_ids=tuple(
+                    dict.fromkeys((*checkpoint_pins, *candidate_scoped_ids))
+                ),
+                pinned_execution_scopes=(
+                    retry_checkpoint.pinned_execution_scopes
+                    if retry_checkpoint is not None
+                    else {}
+                ),
+                pinned_return_scopes=(
+                    retry_checkpoint.pinned_return_scopes
+                    if retry_checkpoint is not None
+                    else {}
+                ),
+                pinned_resolver_arg_names=(
+                    {
+                        item.canonical_call_id: item.resolver_bound_arg_names
+                        for item in retry_checkpoint.committed_calls
+                    }
+                    if retry_checkpoint is not None
+                    else {}
+                ),
+                problem_binding_catalog=problem_binding_catalog,
+                authored_call_goal_bindings=scoped_call_goal_bindings,
+                allow_incomplete_goals=allow_incomplete_goals,
+                require_explicit_step_results=preserve_scoped_step_identity,
+            )
+
+        reconciliation = reconcile_candidate(plan)
+        if preserve_scoped_step_identity:
+            effective_plan, pruned_call_ids = _prune_scoped_dead_pure_calls(
+                plan,
+                reconciliation=reconciliation,
+                catalog=functional_catalog,
+            )
+            if pruned_call_ids:
+                plan = effective_plan
+                reconciliation = reconcile_candidate(plan)
+                elaboration = dict(reconciliation.elaboration or {})
+                elaboration["scoped_pruned_step_ids"] = list(pruned_call_ids)
+                reconciliation = replace(
+                    reconciliation,
+                    elaboration=elaboration,
+                )
         # A retryable reconciliation issue can leave ``calls`` as a partial
         # graph. Auditing committed versions against that partial view masks
         # the actionable issue as checkpoint drift. Checkpoint structure
@@ -497,14 +589,50 @@ class PlannerRetryReplayService:
             functional_validation_report=validation_report,
             functional_reconciliation=reconciliation,
         )
+        return replace(replay, planner_state_context=planner_state_context)
+
+    def execute_reconciled_functional_plan(
+        self,
+        replay: PlannerRetryReplayResult,
+        *,
+        raw_plan: FunctionalPlan,
+        parent_context: PlannerStateContext,
+        inputs: PlannerInputs,
+        handle_registry: CanonicalHandleRegistry,
+        problem_payload: dict[str, Any] | None,
+        runtime_context: Any,
+        finalized_authority: Any | None = None,
+    ) -> PlannerRetryReplayResult:
+        """Execute one reconciled graph after optional scoped finalization."""
+
+        reconciliation = replay.functional_reconciliation
+        if finalized_authority is not None:
+            if reconciliation is None or not reconciliation.ok:
+                raise StrategyDraftValidationError(
+                    "planner_configuration_error: scoped authority cannot "
+                    "execute a failed reconciliation"
+                )
+            if reconciliation.call_aliases:
+                raise StrategyDraftValidationError(
+                    "planner_configuration_error: "
+                    "functional.scoped_step_identity_drift"
+                )
+            if (
+                finalized_authority.lowered_plan.to_payload()
+                != reconciliation.effective_plan.to_payload()
+            ):
+                raise StrategyDraftValidationError(
+                    "planner_configuration_error: "
+                    "functional.step_scope_authority_drift"
+                )
         return self._finalize_functional_replay(
             replay,
-            raw_plan=plan,
-            parent_context=planner_state_context,
+            raw_plan=raw_plan,
+            parent_context=parent_context,
             inputs=inputs,
             handle_registry=handle_registry,
             problem_payload=problem_payload,
-            runtime_context=context,
+            runtime_context=runtime_context,
         )
 
     def _finalize_functional_replay(
@@ -620,6 +748,59 @@ def _functional_state_write_manifest(
         reconciliation.effective_plan,
         reconciliation.calls,
     )
+
+
+def _prune_scoped_dead_pure_calls(
+    plan: FunctionalPlan,
+    *,
+    reconciliation: FunctionalPlanReconciliationResult,
+    catalog: FunctionalCapabilityCatalog,
+) -> tuple[FunctionalPlan, tuple[str, ...]]:
+    """Drop only typed-liveness roots that are observationally pure in v2."""
+
+    unresolved = {
+        issue.call_id
+        for issue in reconciliation.issues
+        if issue.code == "functional.call_goal_unresolved"
+        and issue.call_id is not None
+    }
+    unresolved.update(
+        str(item["call_id"])
+        for item in (reconciliation.elaboration or {}).get(
+            "deterministic_repairs",
+            (),
+        )
+        if isinstance(item, Mapping)
+        and item.get("action")
+        in {"drop_dead_invalid_call", "drop_dead_pure_function_call"}
+        and item.get("call_id") is not None
+    )
+    prunable: set[str] = set()
+    for call in plan.calls:
+        if call.call_id not in unresolved:
+            continue
+        capability = catalog.get(call.capability_id)
+        if (
+            capability is None
+            or not capability.is_pure
+            or any(binding.kind == "answer" for binding in call.return_bindings.values())
+            or any("Condition" in item.runtime_type for item in capability.returns)
+        ):
+            continue
+        prunable.add(call.call_id)
+    if not prunable:
+        return plan, ()
+    scopes = tuple(
+        replace(
+            scope,
+            calls=tuple(
+                call for call in scope.calls if call.call_id not in prunable
+            ),
+        )
+        for scope in plan.scopes
+        if any(call.call_id not in prunable for call in scope.calls)
+    )
+    return replace(plan, scopes=scopes), tuple(sorted(prunable))
 
 
 def _functional_state_dependencies(

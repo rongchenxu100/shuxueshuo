@@ -83,7 +83,7 @@
             }
           },
           "return_bindings": {
-            "point": {
+            "adjacent_vertex": {
               "ref": "moving_vertex",
               "kind": "point"
             }
@@ -97,7 +97,7 @@
           "args": {
             "point": {
               "from_call": "derive_adjacent_vertex",
-              "return": "point"
+              "return": "adjacent_vertex"
             }
           },
           "return_bindings": {},

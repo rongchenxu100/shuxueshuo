@@ -240,6 +240,7 @@ _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                     "Point",
                     object_kind="point",
                     semantic_role="target_point",
+                    semantic_ref_role="object_identity",
                     description=(
                         "候选筛选后要写入坐标的题面目标点身份；它不是 candidates "
                         "的替代输入。"

@@ -33,6 +33,7 @@ class ExpansionSelectorSemantics:
 
     arg_resolvers: tuple[tuple[str, str], ...] = ()
     suppressed_by_args: tuple[str, ...] = ()
+    runtime_inputs: tuple[str, ...] = ()
 
 
 _EXACT_SELECTOR_SEMANTICS: dict[str, SelectorSemantics] = {
@@ -171,12 +172,15 @@ _PREFIX_SELECTOR_SEMANTICS: tuple[tuple[str, SelectorSemantics], ...] = (
 _EXPANSION_SELECTOR_SEMANTICS: dict[str, ExpansionSelectorSemantics] = {
     "parameter_value_if_read": ExpansionSelectorSemantics(
         (("parameter_value", "unique_related_state"),),
+        runtime_inputs=("parameter", "parameter_value"),
     ),
     "distance_parameter_value_if_read": ExpansionSelectorSemantics(
         (("parameter_value", "unique_related_state"),),
+        runtime_inputs=("parameter", "parameter_value"),
     ),
     "intersection_parameter_value_if_read": ExpansionSelectorSemantics(
         (("parameter_value", "unique_related_state"),),
+        runtime_inputs=("parameter", "parameter_value"),
     ),
     "curve_point_if_read": ExpansionSelectorSemantics(
         suppressed_by_args=("curve_points",),

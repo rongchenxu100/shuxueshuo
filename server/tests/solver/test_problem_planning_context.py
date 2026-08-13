@@ -23,7 +23,10 @@ from shuxueshuo_server.solver.extraction.problem_planning_context import (
     PROBLEM_PLANNING_CONTEXT_CONTRACT,
     ProblemPlanningContextError,
     ProblemPlanningContextProjector,
+    _RefCandidate,
+    _RuntimeNode,
     _audit_prompt_payload,
+    _materialize_ref_authorities,
     planner_problem_view_schema,
 )
 from shuxueshuo_server.solver.extraction.problem_solver_bundle import (
@@ -218,25 +221,36 @@ def test_prompt_view_embeds_refs_once_and_omits_empty_collections(
     payload = context.to_prompt_payload()
     scopes = _prompt_scopes(payload)
     input_refs = [
-        item["ref"]
+        (scope["id"], item["ref"])
         for scope in scopes
         for key in ("entities", "facts")
         for item in scope.get(key, [])
     ]
-    answer_refs = [goal["answer_ref"] for goal in _prompt_goals(payload)]
+    goal_refs = [goal["goal_ref"] for goal in _prompt_goals(payload)]
+    for goal in _prompt_goals(payload):
+        assert "target" not in goal
+        if goal["kind"] in {
+            "point_coordinate",
+            "quadratic_equation",
+            "parameter_value",
+        }:
+            assert isinstance(goal.get("target_ref"), str)
+        if goal["kind"] == "minimum_value":
+            assert "expression" in goal
+            assert "target_ref" not in goal
 
     assert set(input_refs) == {
-        authority.semantic_ref.ref
+        (authority.owner_scope_id, authority.semantic_ref.ref)
         for authority in context.ref_authorities.values()
         if authority.usage == "input"
     }
     assert len(input_refs) == len(set(input_refs))
-    assert set(answer_refs) == {
+    assert set(goal_refs) == {
         authority.semantic_ref.ref
         for authority in context.ref_authorities.values()
         if authority.usage == "answer"
     }
-    assert len(answer_refs) == len(set(answer_refs))
+    assert len(goal_refs) == len(set(goal_refs))
     for scope in scopes:
         for key in ("entities", "facts", "goals", "children"):
             assert key not in scope or scope[key]
@@ -258,22 +272,73 @@ def test_semantic_refs_are_unique_stable_and_source_named(tmp_path) -> None:
         tmp_path,
         "tj-2026-heping-ermo-25",
     )
-    refs = tuple(context.ref_authorities)
+    keys = tuple(context.ref_authorities)
+    refs = tuple(item.local_ref for item in keys)
     non_scope_runtime_nodes = {
         runtime_id
         for runtime_id in bundle.projection_index.runtime_node_source_units
         if not runtime_id.startswith("scope:")
     }
 
-    assert len(refs) == len(set(refs))
+    assert len(keys) == len(set(keys))
     assert {item.runtime_node_id for item in context.ref_authorities.values()} == (
         non_scope_runtime_nodes
     )
     assert {"A", "B", "b", "C", "c", "parabola"}.issubset(refs)
     assert {"i_1.P", "i_1.A", "i_2.E", "ii.E"}.issubset(refs)
     assert not any(":" in ref for ref in refs)
+    assert not any(
+        "." in item.local_ref
+        for item in keys
+        if item.kind != "answer"
+    )
     assert not any(re.search(r"_[0-9a-f]{12,}$", ref) for ref in refs)
     assert "square_center_h_square_ae_a_e_k_g" in refs
+
+
+def test_scope_local_ref_allows_siblings_but_rejects_ancestor_shadow() -> None:
+    def candidate(scope_id: str, runtime_id: str) -> _RefCandidate:
+        return _RefCandidate(
+            runtime_node=_RuntimeNode(
+                runtime_node_id=runtime_id,
+                node_kind="entity",
+                owner_scope_id=scope_id,
+                payload={"kind": "point", "ref": "A"},
+            ),
+            base_ref="A",
+            kind="point",
+            value_type=None,
+            source_unit_ids=(f"unit:{scope_id}:A",),
+            usage="input",
+        )
+
+    sibling_authorities = _materialize_ref_authorities(
+        (candidate("i", "point:i:A"), candidate("ii", "point:ii:A")),
+        visible_goals_by_scope={"i": ("goal:i",), "ii": ("goal:ii",)},
+        scope_paths={"i": ("problem", "i"), "ii": ("problem", "ii")},
+    )
+    assert {(key.owner_scope_id, key.local_ref) for key in sibling_authorities} == {
+        ("i", "A"),
+        ("ii", "A"),
+    }
+
+    with pytest.raises(ProblemPlanningContextError) as error:
+        _materialize_ref_authorities(
+            (
+                candidate("problem", "point:problem:A"),
+                candidate("i", "point:i:A"),
+            ),
+            visible_goals_by_scope={
+                "problem": ("goal:i",),
+                "i": ("goal:i",),
+            },
+            scope_paths={
+                "problem": ("problem",),
+                "i": ("problem", "i"),
+            },
+        )
+
+    assert error.value.code == "planner.problem_planning_ref_ambiguous"
 
 
 def test_entity_fact_and_goal_array_reordering_does_not_drift_context(
@@ -328,7 +393,7 @@ def test_answer_refs_are_not_input_refs_or_cross_goal_visible(tmp_path) -> None:
     assert all(item.semantic_ref.ref not in scope_refs for item in answer_authorities)
     assert all(len(item.visible_goal_unit_ids) == 1 for item in answer_authorities)
     for goal in context.goal_views:
-        authority = context.ref_authorities[goal.answer_ref.ref]
+        authority = context.answer_authority_for_goal(goal.goal_unit_id)
         assert authority.visible_goal_unit_ids == (goal.goal_unit_id,)
 
 
@@ -605,7 +670,7 @@ def test_context_is_recursively_immutable_and_prompt_is_a_copy(tmp_path) -> None
     with pytest.raises(TypeError):
         context.source["question_number"] = "changed"  # type: ignore[index]
     with pytest.raises(TypeError):
-        context.ref_authorities["new"] = next(  # type: ignore[index]
+        context.ref_authorities[next(iter(context.ref_authorities))] = next(  # type: ignore[index]
             iter(context.ref_authorities.values())
         )
 
@@ -655,6 +720,15 @@ def test_prompt_schema_snapshot_matches_runtime_and_validates_five_cases(
     for case in CASES:
         _, context = _planning_fixture(tmp_path / case, case)
         assert list(validator.iter_errors(context.to_prompt_payload())) == []
+
+    _, context = _planning_fixture(tmp_path / "legacy-target", CASES[-1])
+    legacy = context.to_prompt_payload()
+    goal = _prompt_goals(legacy)[0]
+    goal["target"] = goal.pop("target_ref")
+    errors = list(validator.iter_errors(legacy))
+    assert errors
+    assert any("target_ref" in error.message for error in errors)
+    assert any("Additional properties" in error.message for error in errors)
 
 
 def test_projection_does_not_call_runtime_or_generation_services(

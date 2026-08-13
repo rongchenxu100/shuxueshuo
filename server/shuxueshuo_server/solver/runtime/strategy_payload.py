@@ -58,6 +58,13 @@ from shuxueshuo_server.solver.runtime.functional_retry_versions import (
 from shuxueshuo_server.solver.runtime.functional_plan_retry import (
     retry_state_from_attempt,
 )
+from shuxueshuo_server.solver.runtime.scoped_functional_few_shots import (
+    select_scoped_functional_few_shot,
+)
+from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
+    SCOPED_FUNCTIONAL_PLAN_CONTRACT,
+    scoped_functional_plan_schema,
+)
 from shuxueshuo_server.solver.runtime.semantic_reads import ContextSemanticReadSource
 from shuxueshuo_server.solver.runtime.strategy_models import (
     FunctionalExecutionDiagnostic,
@@ -94,6 +101,8 @@ class StrategyPayloadBuilder:
         functional_plan_fixture_dir: Path | str | None = None,
         allow_same_problem_few_shot: bool = True,
         functional_few_shot_mode: FunctionalFewShotSelectionMode | None = None,
+        scoped_functional_few_shot_examples: list[dict[str, Any]] | None = None,
+        scoped_functional_few_shot_dir: Path | str | None = None,
         problem_payload: dict[str, Any] | None = None,
     ) -> None:
         self.functional_few_shot_examples = functional_few_shot_examples
@@ -109,6 +118,14 @@ class StrategyPayloadBuilder:
         )
         self.allow_same_problem_few_shot = allow_same_problem_few_shot
         self.functional_few_shot_mode = functional_few_shot_mode
+        self.scoped_functional_few_shot_examples = (
+            scoped_functional_few_shot_examples
+        )
+        self.scoped_functional_few_shot_dir = (
+            Path(scoped_functional_few_shot_dir)
+            if scoped_functional_few_shot_dir is not None
+            else None
+        )
         self.problem_payload = problem_payload
 
     def build(
@@ -119,6 +136,7 @@ class StrategyPayloadBuilder:
         planner_state_context: ContextSemanticReadSource | None = None,
         problem_planning_context: ProblemPlanningContext | None = None,
         problem_binding_catalog: ProblemPlanningBindingCatalog | None = None,
+        _include_v1_few_shot: bool = True,
     ) -> dict[str, Any]:
         """生成唯一的 FunctionalPlan prompt payload。"""
         if problem_planning_context is None or problem_binding_catalog is None:
@@ -162,10 +180,15 @@ class StrategyPayloadBuilder:
             inputs.family_spec,
             inputs.method_specs,
         ).contextualized(semantic_index)
-        few_shot_examples, few_shot_selection = self._functional_few_shot_examples(
-            inputs,
-            functional_catalog=functional_catalog,
-        )
+        if _include_v1_few_shot:
+            few_shot_examples, few_shot_selection = (
+                self._functional_few_shot_examples(
+                    inputs,
+                    functional_catalog=functional_catalog,
+                )
+            )
+        else:
+            few_shot_examples, few_shot_selection = [], None
         previous_attempt_state = _functional_previous_attempt_state(
             previous_attempts,
             problem_planning_context=problem_planning_context,
@@ -195,6 +218,51 @@ class StrategyPayloadBuilder:
             "previous_attempt_state": previous_attempt_state,
             "output_json_schema": FUNCTIONAL_PLAN_JSON_SCHEMA,
         }
+
+    def build_scoped(
+        self,
+        inputs: PlannerInputs,
+        *,
+        problem_payload: dict[str, Any] | None = None,
+        planner_state_context: ContextSemanticReadSource | None = None,
+        problem_planning_context: ProblemPlanningContext,
+        problem_binding_catalog: ProblemPlanningBindingCatalog,
+    ) -> dict[str, Any]:
+        """Build the explicit F5-F1 prompt payload without switching v1."""
+
+        payload = self.build(
+            inputs,
+            problem_payload=problem_payload,
+            planner_state_context=planner_state_context,
+            problem_planning_context=problem_planning_context,
+            problem_binding_catalog=problem_binding_catalog,
+            _include_v1_few_shot=False,
+        )
+        examples = self.scoped_functional_few_shot_examples
+        selection = None
+        if examples is None:
+            catalog_payload = payload["functional_capability_catalog"]
+            capability_ids = {
+                item["capability_id"]
+                for item in catalog_payload["capabilities"]
+            }
+            selected, selection = select_scoped_functional_few_shot(
+                capability_ids,
+                directory=self.scoped_functional_few_shot_dir,
+            )
+            examples = [selected] if selected is not None else []
+        result = {
+            **payload,
+            "planner_protocol": SCOPED_FUNCTIONAL_PLAN_CONTRACT,
+            "problem_planning_context": (
+                problem_planning_context.to_prompt_payload()
+            ),
+            "few_shot_examples": examples,
+            "functional_few_shot_selection": selection,
+            "output_json_schema": scoped_functional_plan_schema(),
+        }
+        result.pop("previous_attempt_state", None)
+        return result
 
     def _functional_few_shot_examples(
         self,
@@ -847,6 +915,12 @@ def _functional_few_shot_plan(value: object) -> dict[str, Any]:
     return plan
 
 
+def _scoped_functional_few_shot_plan(value: object) -> dict[str, Any]:
+    if not isinstance(value, dict) or not isinstance(value.get("plan"), dict):
+        raise ValueError("scope-native FunctionalPlan example is malformed")
+    return value["plan"]
+
+
 class StrategyPromptRenderer:
     """Render the sole FunctionalPlan strategy prompt."""
 
@@ -866,6 +940,9 @@ class StrategyPromptRenderer:
         self.env.filters["functional_few_shot_plan"] = (
             _functional_few_shot_plan
         )
+        self.env.filters["scoped_functional_few_shot_plan"] = (
+            _scoped_functional_few_shot_plan
+        )
 
     def render(self, payload: dict[str, Any]) -> StrategyPrompt:
         system = self.env.get_template("strategy-functional-system.jinja").render(
@@ -874,6 +951,17 @@ class StrategyPromptRenderer:
         user = self.env.get_template("strategy-functional-user.jinja").render(
             payload=payload,
         )
+        return StrategyPrompt(system=system.strip(), user=user.strip())
+
+    def render_scoped(self, payload: dict[str, Any]) -> StrategyPrompt:
+        """Render the dedicated v2 authoring prompt for F5-F1 tests."""
+
+        system = self.env.get_template(
+            "strategy-functional-v2-system.jinja"
+        ).render(output_json_schema=scoped_functional_plan_schema())
+        user = self.env.get_template(
+            "strategy-functional-v2-user.jinja"
+        ).render(payload=payload)
         return StrategyPrompt(system=system.strip(), user=user.strip())
 
 

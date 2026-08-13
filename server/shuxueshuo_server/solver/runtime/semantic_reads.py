@@ -29,6 +29,7 @@ class SemanticReadCatalogItem:
     prompt_visible: bool = True
     math_object_id: MathObjectId | None = None
     state_version_id: StateVersionId | None = None
+    authority_scope_id: str | None = None
 
     def to_prompt_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {

@@ -378,15 +378,20 @@ def _function_capability(
         for item in (spec.adapter.input_bindings if spec.adapter is not None else ())
     }
     authority_by_input = {
-        item.name: _functional_binding_authority(
-            binding_by_input.get(item.name),
+        (item.method_input or item.name): _functional_binding_authority(
+            binding_by_input.get(item.method_input or item.name),
             contract_declares_input=_contract_declares_named_slot(
                 contract,
-                item.name,
+                item.method_input or item.name,
             ),
             public_identity_arg=(
                 item.kind == "point_ref"
-                and (binding := binding_by_input.get(item.name)) is not None
+                and (
+                    binding := binding_by_input.get(
+                        item.method_input or item.name
+                    )
+                )
+                is not None
                 and binding.selector == "right_angle:target"
             ),
             point_ref_arg=item.kind == "point_ref",
@@ -397,8 +402,8 @@ def _function_capability(
     public_source_args = tuple(
         item
         for item in spec.args
-        if method_spec.inputs[item.name].functional_exposed
-        and authority_by_input[item.name] == "wire"
+        if method_spec.inputs[item.method_input or item.name].functional_exposed
+        and authority_by_input[item.method_input or item.name] == "wire"
     )
     condition_patterns = tuple(
         getattr(contract, "condition_reads", ()) if contract is not None else ()
@@ -409,6 +414,7 @@ def _function_capability(
     )
     public_args_list: list[FunctionalCapabilityArg] = []
     for item in public_source_args:
+        runtime_input = item.method_input or item.name
         condition_pattern = None
         if item.kind == "condition_read":
             condition_pattern = next(
@@ -423,7 +429,7 @@ def _function_capability(
             )
         if condition_pattern is not None:
             remaining_condition_patterns.remove(condition_pattern)
-        binding = binding_by_input.get(item.name)
+        binding = binding_by_input.get(runtime_input)
         evidence_resolver = _semantic_evidence_resolver(
             binding.selector if binding is not None else None
         )
@@ -435,7 +441,7 @@ def _function_capability(
                 condition_pattern=condition_pattern,
                 deterministic_resolver=(
                     evidence_resolver
-                    or deterministic_resolvers.get(item.name)
+                    or deterministic_resolvers.get(runtime_input)
                 ),
                 required_override=(
                     False
@@ -452,7 +458,7 @@ def _function_capability(
                     item,
                     binding.selector if binding is not None else None,
                 ),
-                aliases=arg_aliases.get(item.name, ()),
+                aliases=arg_aliases.get(runtime_input, ()),
                 binding_authority="wire",
             )
         )
@@ -483,24 +489,48 @@ def _function_capability(
     }
     auto_args = tuple(
         FunctionalAutoArg(
-            name=item.name,
+            name=item.method_input or item.name,
             selector=binding.selector,
             required=binding.required,
-            binding_authority=authority_by_input[item.name],
+            binding_authority=authority_by_input[item.method_input or item.name],
             semantic_role=getattr(item, "semantic_role", None) or item.name,
-            runtime_input=item.name,
+            runtime_input=item.method_input or item.name,
         )
         for item in spec.args
-        if item.name not in public_names
-        and item.name not in public_runtime_inputs
-        if (binding := binding_by_input.get(item.name)) is not None
+        if (item.method_input or item.name) not in public_names
+        and (item.method_input or item.name) not in public_runtime_inputs
+        if (
+            binding := binding_by_input.get(item.method_input or item.name)
+        )
+        is not None
     )
-    returns = tuple(_function_return(item) for item in spec.returns)
+    public_output_names = dict(
+        spec.adapter.functional_output_names
+        if spec.adapter is not None
+        else ()
+    )
+    returns = tuple(
+        replace(
+            _function_return(item),
+            name=public_output_names.get(
+                item.output_key or item.name,
+                item.name,
+            ),
+        )
+        for item in spec.returns
+    )
     returns = _normalize_object_role_projection_args(
         returns,
         public_args,
     )
     returns = _optionalize_polymorphic_returns(public_args, returns)
+    _validate_function_facade_coverage(
+        spec,
+        method_spec=method_spec,
+        public_args=public_args,
+        auto_args=auto_args,
+        returns=returns,
+    )
     use_when, do_not_use_when = _usage_guidance(
         method_spec.summary or method_spec.title,
         method_spec.do_not_use_when,
@@ -551,6 +581,95 @@ def _function_capability(
     )
     _validate_identity_contract(capability)
     return capability
+
+
+def _validate_function_facade_coverage(
+    spec: FunctionSpec,
+    *,
+    method_spec: MethodSpec,
+    public_args: Sequence[FunctionalCapabilityArg],
+    auto_args: Sequence[FunctionalAutoArg],
+    returns: Sequence[FunctionalCapabilityReturn],
+) -> None:
+    input_names = [
+        item.runtime_input or item.name for item in (*public_args, *auto_args)
+    ]
+    expansion_inputs = {
+        runtime_input
+        for selector in (
+            spec.adapter.expansion_selectors
+            if spec.adapter is not None
+            else ()
+        )
+        for runtime_input in expansion_selector_semantics(
+            selector
+        ).runtime_inputs
+    }
+    required_inputs = {
+        name
+        for name, item in method_spec.inputs.items()
+        if bool(getattr(item, "required", True))
+    }
+    missing_inputs = sorted(
+        required_inputs - set(input_names) - expansion_inputs
+    )
+    duplicate_inputs = sorted(
+        name for name in set(input_names) if input_names.count(name) > 1
+    )
+    output_keys = [item.output_key or item.name for item in spec.returns]
+    required_outputs = set(method_spec.outputs) - set(
+        method_spec.internal_outputs
+    )
+    missing_outputs = sorted(required_outputs - set(output_keys))
+    unknown_outputs = sorted(set(output_keys) - set(method_spec.outputs))
+    return_names = [item.name for item in returns]
+    duplicate_returns = sorted(
+        name for name in set(return_names) if return_names.count(name) > 1
+    )
+    roles_by_type: dict[str, list[str]] = {}
+    for item in returns:
+        roles_by_type.setdefault(item.runtime_type, []).append(
+            item.semantic_role
+        )
+    ambiguous_roles = sorted(
+        runtime_type
+        for runtime_type, roles in roles_by_type.items()
+        if len(roles) > 1 and len(set(roles)) != len(roles)
+    )
+    public_arg_names = {item.name for item in public_args}
+    selector_errors = sorted(
+        item.name
+        for item in returns
+        if item.output_target_selector is not None
+        and (
+            item.output_target_selector.output_name != item.name
+            or (
+                item.output_target_selector.related_arg is not None
+                and item.output_target_selector.related_arg
+                not in public_arg_names
+            )
+            or item.binding_mode == "internal_only"
+        )
+    )
+    if (
+        missing_inputs
+        or duplicate_inputs
+        or missing_outputs
+        or unknown_outputs
+        or duplicate_returns
+        or ambiguous_roles
+        or selector_errors
+    ):
+        raise ValueError(
+            "functional.capability_contract_invalid: "
+            f"{spec.function_id}: missing_inputs={missing_inputs}, "
+            f"duplicate_inputs={duplicate_inputs}, "
+            f"missing_outputs={missing_outputs}, "
+            f"unknown_outputs={unknown_outputs}, "
+            f"duplicate_returns={duplicate_returns}, "
+            f"ambiguous_return_roles={ambiguous_roles}, "
+            f"invalid_output_target_selectors={selector_errors}"
+        )
 
 
 def _contract_declares_named_slot(contract: Any | None, name: str) -> bool:
@@ -1029,6 +1148,11 @@ def _function_arg(
         provides_semantic_roles=item.provides_semantic_roles,
         input_closure_policy=item.input_closure_policy,
         binding_authority=binding_authority,
+        semantic_ref_role=(
+            "object_identity"
+            if item.kind == "point_ref"
+            else item.semantic_ref_role
+        ),
     )
 
 
@@ -1090,6 +1214,7 @@ def _macro_arg(item: MacroArgSpec) -> FunctionalCapabilityArg:
         runtime_input=item.name,
         description=item.description,
         provides_semantic_roles=item.provides_semantic_roles,
+        semantic_ref_role=item.semantic_ref_role,
     )
 
 
@@ -1176,6 +1301,7 @@ def _function_return(item: FunctionReturnSpec) -> FunctionalCapabilityReturn:
             if item.scalar_result_form is not None
             else ()
         ),
+        item.output_target_selector,
     )
 
 

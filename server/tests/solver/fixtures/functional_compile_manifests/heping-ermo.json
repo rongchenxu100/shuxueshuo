@@ -241,9 +241,9 @@
       ],
       "bindings": [
         {
-          "arg": "quadratic",
+          "arg": "parabola",
           "item": 0,
-          "role": "quadratic",
+          "role": "parabola",
           "authority": "wire",
           "target": "quadratic",
           "paths": [
@@ -508,7 +508,7 @@
       ],
       "public_returns": [
         {
-          "name": "point",
+          "name": "adjacent_vertex",
           "runtime_type": "Point",
           "identity_policy": "target_object",
           "write_mode": "create",
@@ -518,7 +518,7 @@
       ],
       "provenance": [
         {
-          "return_name": "point",
+          "return_name": "adjacent_vertex",
           "runtime_type": "Point",
           "allocation_action": "create",
           "result_form": "open_state",
@@ -1148,7 +1148,7 @@
       ],
       "public_returns": [
         {
-          "name": "point",
+          "name": "adjacent_vertex",
           "runtime_type": "Point",
           "identity_policy": "target_object",
           "write_mode": "create",
@@ -1158,7 +1158,7 @@
       ],
       "provenance": [
         {
-          "return_name": "point",
+          "return_name": "adjacent_vertex",
           "runtime_type": "Point",
           "allocation_action": "create",
           "result_form": "open_state",
@@ -1737,7 +1737,7 @@
       ],
       "public_returns": [
         {
-          "name": "point",
+          "name": "adjacent_vertex",
           "runtime_type": "Point",
           "identity_policy": "target_object",
           "write_mode": "transition",
@@ -1747,7 +1747,7 @@
       ],
       "provenance": [
         {
-          "return_name": "point",
+          "return_name": "adjacent_vertex",
           "runtime_type": "Point",
           "allocation_action": "transition",
           "result_form": "closed_state",

@@ -70,7 +70,7 @@ def test_verified_bundle_is_the_default_recorded_strategy_entry(
     assert payload is not None
     assert "problem_ir" not in payload
     prompt_context = payload["problem_planning_context"]
-    assert prompt_context["schema_version"] == "planner-problem-view/v1"
+    assert prompt_context["schema_version"] == "planner-problem-view/v2"
     assert prompt_context["root_scope"]["id"] == "problem"
 
 

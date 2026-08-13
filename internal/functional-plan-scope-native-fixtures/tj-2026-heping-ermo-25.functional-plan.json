@@ -46,7 +46,7 @@
           "call_id": "derive_x_intercept_A_i",
           "capability_id": "quadratic_x_axis_intercept_point",
           "args": {
-            "quadratic": {
+            "parabola": {
               "from_call": "derive_parabola_i",
               "return": "parabola"
             }
@@ -102,7 +102,7 @@
             }
           },
           "return_bindings": {
-            "point": {
+            "adjacent_vertex": {
               "ref": "G",
               "kind": "point"
             }
@@ -120,7 +120,7 @@
             },
             "curve_point": {
               "from_call": "derive_square_vertex_G_i",
-              "return": "point"
+              "return": "adjacent_vertex"
             },
             "parabola": {
               "from_call": "derive_parabola_i",
@@ -238,7 +238,7 @@
             }
           },
           "return_bindings": {
-            "point": {
+            "adjacent_vertex": {
               "ref": "G",
               "kind": "point"
             }
@@ -252,7 +252,7 @@
           "args": {
             "point": {
               "from_call": "derive_square_vertex_G_ii",
-              "return": "point"
+              "return": "adjacent_vertex"
             }
           },
           "return_bindings": {},
@@ -374,7 +374,7 @@
             }
           },
           "return_bindings": {
-            "point": {
+            "adjacent_vertex": {
               "ref": "ii.E",
               "kind": "answer"
             }

@@ -29,7 +29,9 @@ Track F把题目来源转换为可追溯、可局部修复并可确定投影到S
 | F5-C Goal-scoped typed binding | `COMPLETE` |
 | F5-D Retry provenance / Goal-scoped retry | `COMPLETE` |
 | F5-E Solver cold path | `COMPLETE` |
-| F5-F Scope-derived FunctionalPlan / teaching placement | `NEXT` |
+| F5-F1 Scoped FunctionalPlan v2 authority | `COMPLETE` |
+| F5-F2 Incremental Goal execution | `COMPLETE` |
+| F5-F3 Goal replacement retry | `NEXT` |
 
 系统尚未上线。Extraction只支持当前schema，不保留旧candidate、整份ProblemIR retry或Context迁移链。
 
@@ -365,26 +367,28 @@ PlanningReadAuthority
 `to_prompt_payload()`不直接序列化上述authority形状，而输出：
 
 ```text
-planner-problem-view/v1
+planner-problem-view/v2
   family_id
   source
   root_scope
     id / text
     entities[]  # exact ref内嵌在Entity
     facts[]     # exact ref内嵌在Fact
-    goals[]
+    goals[]     # goal_ref / kind / target / answer_type
     children[]
 ```
 
-scope嵌套本身定义词法可见性：Goal只能读取自身scope及祖先scope。Prompt不再输出`available_refs`、`semantic_reads`、`identity_only_reads`、`scope_path`或shared/local重复切片；每个可用SemanticRef只在对应Entity或Fact上出现一次，Goal直接位于owner scope。空的`entities/facts/goals/children`在prompt中省略。内部authority仍完整保留逐Goal allowlist、source unit、runtime node和typed identity，sibling隔离继续由代码验证。
+scope嵌套本身定义词法可见性：Goal只能读取自身scope及祖先scope。Prompt不再输出`available_refs`、`semantic_reads`、`identity_only_reads`、`scope_path`或shared/local重复切片；每个可用SemanticRef只在对应Entity或Fact上出现一次，Goal直接位于owner scope。Prompt Goal与FunctionalPlan统一使用`goal_ref`，模型必须逐字复制；内部`answer_ref` authority保持不变。空的`entities/facts/goals/children`在prompt中省略。内部authority仍完整保留逐Goal allowlist、source unit、runtime node和typed identity，sibling隔离继续由代码验证。
+
+Scope与Goal是两个正交概念。Scope是题面语义、词法可见性和教学分段的容器，拥有本地文字、Entity、Fact及child scope；Goal是挂在某个owner scope上的原子求值要求，只声明要得到什么答案及其类型，不拥有Entity、Fact或child scope。一个scope可以没有Goal，例如全题根scope或只提供公共条件的`(II)`；可以有一个Goal；也可以有多个Goal，例如同一小问“求P、A两点坐标”对应两个独立point-coordinate Goal。因此，“Goal是需要求解的scope”可以作为单Goal题目的直观说法，但不能作为wire或authority模型：更准确的表述是“带求解任务的scope拥有一个或多个Goal”。不能为了让每个Goal看起来像scope而生成没有题面语义的人工child scope。
 
 F5-E切换默认入口时暂时继续使用`functional_plan/v1`和现有`SemanticRef`。F5-C只能通过`input_authorities_for_goal(goal_unit_id)`取得当前Goal的输入catalog，并通过`answer_authority_for_goal(goal_unit_id)`取得唯一return authority；禁止遍历全局`ref_authorities`后自行过滤。Planner response schema只暴露当前Goal视图允许的scope/ref。现有B2 placement根据typed dependencies和LCA计算实际`execution_scope_id`。
 
-F5-F将LLM输出升级为`functional_plan/v2`，并让Problem、Plan和Retry共享同一棵scope/Goal骨架。Plan不复制题面Entity/Fact，但按同样的`scope_ref`递归组织：scope下可以有共享步骤，每个Goal拥有自己的完整步骤。scope与Goal identity必须逐项匹配VerifiedProblem，模型不能创建、删除或移动scope/Goal；步骤所在Goal是authoring边界，真正的语义owner scope、execution scope、typed binding和canonical return authority仍由F5-C/B2验证和派生。具名题面对象可继续使用同一个SemanticRef，服务端选择唯一、可见、类型兼容的最近前序状态；只有匿名内部结果、非最近版本或多producer歧义才需要显式CallResultRef。
+F5-F将LLM输出升级为`functional_plan/v2`，并让Problem、Plan和Retry共享同一棵scope/Goal骨架。Plan不复制题面Entity/Fact，而是按同样的`scope_ref`嵌套组织，wire最多四层且第四层必须为叶子：普通`scope.steps`由该scope拥有，可服务一个或多个后代Goal；`goal.steps`只服务对应的原子Goal。公共性只由步骤实际 authored 的scope表达，不再使用`shared_steps`、自动call merge或lowering时迁移step。scope与Goal identity必须逐项匹配VerifiedProblem，模型不能创建、删除或移动scope/Goal；Goal是authoring与冻结边界，execution scope、typed binding和canonical return authority仍由F5-C/B2验证。字符串SourceRef始终读取题面权威snapshot或对象identity；前序step产生的新对象、新值以及题面对象的新状态都必须使用显式StepResultRef。
 
-F5-F同时把“整份计划先全部编译，再开始执行”改为增量provisional执行。JSON必须完整可解析；服务端先验证scope/Goal骨架、step identity、capability、typed dependency shell、DAG无环和Goal/answer authority。随后对ready step逐个运行preparation、direct compile、sandbox method、result type/provenance和symbolic closure校验。内部执行记录保持step粒度，但冻结边界提升为`GoalExecutionCheckpoint`和`SharedScopeExecutionCheckpoint`：Goal只有在answer、runtime、closure和provenance全部通过后才成为`solved`；失败Goal中此前成功的step只作为诊断证据，不成为模型不可修改的冻结单元。与失败Goal无依赖的sibling Goal继续执行。所有required Goal通过前不产生authoritative Context write，solved Goal结果通过当前solver run的checkpoint发布，而不是提前写入全局Context。
+F5-F同时把“整份计划先全部编译，再开始执行”改为增量provisional执行。JSON必须完整可解析；服务端先验证scope/Goal骨架、step identity、capability、typed dependency shell、DAG无环和Goal/answer authority。随后对ready step逐个运行preparation、direct compile、sandbox method、result type/provenance和symbolic closure校验。内部执行记录保持step粒度，但冻结边界提升为`GoalExecutionCheckpoint`和`ScopeExecutionCheckpoint`：Goal只有在answer、runtime、closure和provenance全部通过后才成为`solved`；scope-level步骤块只有自身通过全部runtime/provenance门禁且consumer Goal集合稳定时才可独立冻结。失败Goal中此前成功的step只作为诊断证据，不成为模型不可修改的冻结单元。与失败Goal无依赖的sibling Goal继续执行。所有required Goal通过前不产生authoritative Context write，solved Goal结果通过当前solver run的checkpoint发布，而不是提前写入全局Context。
 
-LLM本身无会话状态，F5-F retry必须显式发送三个相互对齐的完整输入：当前`planner-problem-view/v1`、上一版完整canonical `functional_plan/v2`和`planner-goal-retry-context/v1`执行树。上一版Plan不按repair cone裁剪，保留全部scope、shared steps、solved Goal与failed Goal，作为本轮思路基线；执行树只引用其中的`step_id`，不重复复制步骤定义。所有Goal同样保留在执行树中：`solved` Goal以`editable=false`提供每一步实际执行结果和可跨Goal绑定的`published_results`；`failed` Goal以`editable=true`提供每一步的实际输入、实际输出、状态、typed error、blocked suffix和Goal issues，允许模型理解失败现场并完整重写该Goal。完整step结果可以帮助推理，但只有`published_results`拥有跨Goal绑定权威。
+LLM本身无会话状态，F5-F retry必须显式发送三个相互对齐的完整输入：当前`planner-problem-view/v2`、上一版完整canonical `functional_plan/v2`和`planner-goal-retry-context/v1`执行树。上一版Plan不按repair cone裁剪，保留全部scope、`scope.steps`、solved Goal与failed Goal，作为本轮思路基线；执行树只引用其中的`step_id`，不重复复制步骤定义。所有Goal同样保留在执行树中：`solved` Goal以`editable=false`提供每一步实际执行结果和可跨Goal绑定的`published_results`；`failed` Goal以`editable=true`提供每一步的实际输入、实际输出、状态、typed error、blocked suffix和Goal issues，允许模型理解失败现场并完整重写该Goal。完整step结果可以帮助推理，但只有`published_results`拥有跨Goal绑定权威。
 
 每个`step_execution`至少包含：
 
@@ -398,22 +402,22 @@ error?                 # code、path、message及结构化prompt-safe details
 blocked_by[]?          # 直接失败step；不生成重复的次生root issue
 ```
 
-上述字段来自真实preparation/compiler/runtime/closure记录，不能由静态计划预测或错误文案反推；不得暴露MathObjectId、StateVersionId、source unit、runtime path或authority token。首轮使用严格`functional_plan/v2` response schema；建立可信plan后，retry切换到`functional-goal-repair/v1`，只接受失败Goal的完整`goal_replacements`，以及失败shared block的完整`shared_scope_replacements`。call级replacement/addition/removal、返回整份Plan、修改solved Goal、错误`base_plan_id`或越出开放Goal集合全部fail loud。
+上述字段来自真实preparation/compiler/runtime/closure记录，不能由静态计划预测或错误文案反推；不得暴露MathObjectId、StateVersionId、source unit、runtime path或authority token。首轮使用严格`functional_plan/v2` response schema；建立可信plan后，retry切换到`functional-goal-repair/v1`，只接受失败Goal的完整`goal_replacements`，以及失败scope-level步骤块的完整`scope_step_replacements`。call级replacement/addition/removal、返回整份Plan、修改solved Goal、错误`base_plan_id`或越出开放Goal/scope集合全部fail loud。
 
 三个LLM wire使用同一scope identity：
 
 ```text
-planner-problem-view/v1
+planner-problem-view/v2
   root_scope
     scope_ref / source semantics / goals / children
 
 functional_plan/v2
   root_scope
     scope_ref
-    shared_steps?[]
-    goal_plans?[]
+    steps?[]                  # 该scope拥有，可服务后代Goal
+    goals?[]
       goal_ref
-      steps[]
+      steps?[]               # 只服务该原子Goal
     children?[]
 
 planner-goal-retry-context/v1
@@ -421,7 +425,7 @@ planner-goal-retry-context/v1
   previous_plan             # 完整canonical functional_plan/v2，只出现一次
   root_scope
     scope_ref
-    shared_execution?
+    scope_step_executions?[]
     goals?[]
       goal_ref
       status = solved | failed | blocked | pending
@@ -432,7 +436,7 @@ planner-goal-retry-context/v1
     children?[]
 ```
 
-空的`shared_steps/goal_plans/goals/children`均省略。三棵树的scope与Goal集合由代码逐项对齐，不能依赖数组位置、label或LLM自由命名。
+空的`steps/goals/children/scope_step_executions`均省略。三棵树的scope与Goal集合由代码逐项对齐，不能依赖数组位置、label或LLM自由命名。一个scope拥有多少Goal与它拥有多少`scope.steps`互不绑定；scope-level步骤实际服务的Goal集合由typed dependency和answer producer反向推导。
 
 ### 8.3 分步实现
 
@@ -483,21 +487,40 @@ planner-goal-retry-context/v1
    - 新增cold-path batch，记录提取与Planner两阶段usage/latency、scope-native prompt、answer/runtime/provenance gate。默认CI继续使用recorded F2/Bundle，不加载Paddle或调用付费模型。
    - 离线证据：五题默认recorded Bundle入口全部通过，当前全量Solver回归`1707 passed, 12 skipped`。真实Planner-only v1基线为`11/15`。真实图片统一`5x1`批次中五题提取均一次accepted，domain/projection diff、完整图片输入、scope-native prompt及configuration/unclassified gate全绿，Solver为`3/5`；五题在历史定向批次中均已有完整cold-path成功样本。剩余失败集中于F5-F要替换的PathTransformation、整图pre-runtime、call级冻结和完整plan retry。因此F5-E不再为旧协议追求统一`5/5`；过渡代码清理与离线退出审计已经完成。
 
-6. **F5-F Scope-derived FunctionalPlan与教学归属（分阶段）**
+6. **F5-F Scope-derived FunctionalPlan与教学归属（F5-F1/F2 COMPLETE，分阶段）**
    - F5-F按`F1协议 -> F2增量执行 -> F3局部retry -> F4 family宏 -> F5教学归属/清理`顺序实施。每步单独跑离线门禁和5×1，不把五个authority边界绑定成一次大切换。
-   - **F5-F1 Scoped Plan v2 authority**
-   - 新增严格`functional_plan/v2`：使用与Problem一致的递归scope骨架，scope内只放`shared_steps`和逐Goal的`steps`，不复制题面Entity/Fact。scope/Goal key必须来自PlanningContext且全集一致；模型不能创建或移动scope/Goal。step保留`step_id/capability_id/args`，不再输出运行时`execution_scope_id`，也不构造完整typed return binding。需要外部对象身份的return只输出按return role组织的最小target；代码结合capability contract、Goal和返回类型生成canonical binding。
+   - **F5-F1 Scoped Plan v2 authority（COMPLETE）**
+   - 已新增严格`functional_plan/v2`、固定四层且无scope递归引用的Python/JSON schema、独立system/user prompt、五份authored fixture、七份mechanism few-shot及专用raw-response replay入口。协议使用与Problem一致的嵌套scope骨架，根scope为第一层、第四层禁止`children`；scope内只有普通`steps`和逐Goal的`steps`，不复制题面Entity/Fact，也不定义`shared_steps`。父scope中的步骤天然表示由该scope拥有；它服务一个还是多个后代Goal由代码根据answer producer和typed dependency推导。scope/Goal key必须来自PlanningContext且全集一致；模型不能创建或移动scope/Goal。step保留`step_id/capability_id/args`，不再输出运行时`execution_scope_id`，也不构造完整typed return binding。需要外部对象身份的return只输出按return role组织的最小target；代码结合capability contract、Goal和返回类型生成canonical binding。
    - scope-local裸answer key仅在owner scope、answer key和类型唯一时自动补全；跨scope、无候选或多候选稳定失败。该机械规范化不得读取call id、中文reason或模糊label。
    - answer ref反向传播得到每个call的Goal集合；SemanticRef按Goal allowlist交集验证；没有required Goal后代的call由现有liveness删除，保留后仍无Goal的call fail loud。
-   - 具名题面对象的SemanticRef默认消费唯一、可见、类型兼容的最近前序状态，并在C3 sidecar中固化为精确producer/return；不同对象、跨sibling、forward reference和多producer歧义全部fail loud。显式CallResultRef只保留给匿名内部结果、非最近版本和必要消歧。
+   - v2参数只允许两类来源：字符串`SourceRef`必须逐字复制当前scope或祖先scope可见的Problem View ref，并固定读取F5-C验证的source snapshot/object identity；对象或状态一旦由前序step产生，后续无论对象是否具名都必须使用`{step_id, return}`精确读取。代码不再从字符串SourceRef隐式选择动态latest状态，也不允许模型为step结果自造字符串ref。
    - 服务端派生`FunctionalStepScopeAuthority`，至少记录`canonical_step_id`、`goal_unit_ids`、`plan_scope_id`、`semantic_owner_scope_id`、`execution_scope_id`和binding signature。Plan中的scope位置是LLM输出的讲解/思路组织，代码仍要验证它与Goal owner一致；真正execution placement不得由该位置覆盖。
-   - **F5-F2 Incremental Goal run**
+   - v2 authority确定性lower到现有内部`FunctionalPlan/FunctionalCall`，继续复用B1/B2/B3/C3、direct compiler和transaction。五份fixture均通过完整离线replay；F5-F1/F5-C/transaction及policy专项最新联合回归`372 passed`，全量Solver回归`1770 passed, 12 skipped`。首轮递归schema真实批次schema-valid为`1/5`；四层展开schema的disabled-thinking批次为`2/5`，low-thinking单轮批次进一步达到`5/5 schema-valid`。identity/configuration/unclassified drift均为0，F5-F1仍为`LIVE 5x1 PENDING`，生产DeepSeek默认保持v1。
+   - **F5-F1.1 和平二模泛化加固（COMPLETE）**：Function facade公开名固定为`quadratic_x_axis_intercept_point.parabola`和`square_adjacent_vertex_from_side.adjacent_vertex`，runtime Method slot/output仍为`quadratic`和`point`。Catalog启动时审计required runtime input、公开return及同类型多return role覆盖；v2参数只允许显式alias或唯一required类型一对一归一，optional与多候选不补齐，归一记录进入authority debug和semantic hash。中间题面对象只能经`output_targets`绑定，Goal答案只能经`answer_from`绑定；代码只有在capability声明source-fact selector且当前scope唯一解析到F5-C可见、类型兼容对象时才记录`infer_unique_output_target`，零候选或多候选均要求显式target。共享计算必须由模型放在consumer Goal的共同祖先`scope.steps`；lowering不再自动移动step或合并兄弟调用，B2只能在保持canonical step identity的前提下验证最终execution scope。authority analyzer稳定聚合独立参数、输出、scope和DAG问题。
+   - **F5-F1.2 Goal identity同名化（COMPLETE）**：Prompt-facing Problem View升级为`planner-problem-view/v2`并把Goal字段从`answer_ref`改为`goal_ref`，与`functional_plan/v2`同名；内部GoalView/F5-C仍保留typed answer authority。Prompt和两份schema都明确禁止使用scope id、target或自造名称替代Goal ID。同scope恰有一个expected Goal、Plan也恰有一个未知Goal ID且scope树无漂移时，authority可执行`canonicalize_unique_goal_ref`；多Goal、数量不等、重复Goal及已知Goal跨scope移动继续fail loud。raw response不变，debug分别保存原始结构、归一记录、归一后Plan和最终结构报告。真实low-thinking `5x1`达到`5/5 schema-valid`、`5/5 scope/Goal tree`且五题Goal归一记录均为空，证明同名wire已让模型原生复制正确Goal；剩余`1/5`authority失败来自河西把answer ref当input ref，非Goal tree漂移。
+   - **F5-F1.3 Goal target identity与MathObject安全归一（COMPLETE）**：Prompt Goal将答案authority与题面对象identity显式分成`goal_ref`和`target_ref`。`point_coordinate/quadratic_equation/parameter_value`必须输出`target_ref`，`minimum_value`继续输出结构化`expression`；旧`target`字段由strict Problem View schema直接拒绝。Capability参数新增`semantic_ref_role=value|object_identity`，`PointRef`自动是对象identity，普通`Point`必须由Function/Macro contract显式声明；catalog说明对象identity参数只能读取Goal的`target_ref`或可见Entity ref，不能读取`goal_ref`。当且仅当Goal私有step把自己的`goal_ref`用于单值对象identity参数，且F5-C证明answer authority与唯一可见、类型兼容input ref拥有完全相同`MathObjectId`时，authority记录`canonicalize_goal_target_input_ref`并改写为`target_ref`。computed value、跨Goal、scope step、零/多候选及仅字符串/类型相似均不修；answer ref继续作为输入时报`functional.answer_ref_used_as_input`。raw response保持不变，canonical Plan/hash使用归一结果，debug展示原始Plan、MathObject归一、canonical Plan和剩余issues。
+   - F1.3后的首个真实单轮批次`f5f1-deepseek-v2-goal-target-identity-low-5x1-20260813`达到`5/5 schema-valid`、`5/5 scope/Goal tree`和`4/5 Plan authority`。西青唯一authority失败来自pure root step写入child-local `D`；修复既有LCA placement后，同一批次五份原始响应离线重放为`5/5 Plan authority`，且`find_D`被确定性记录为`plan_scope=problem / semantic_owner_scope=ii`。后续独立批次`f5f1-deepseek-v2-goal-target-scope-placement-low-5x1-20260813`仍为`5/5 schema-valid`和`5/5 tree`，但只有`1/5 Plan authority`：三题输出catalog未声明的可选`return_expectations`，和平二模没有显式区分同一`G`的两个前序producer。这些是F1.3以外的v2 authoring问题；两个批次configuration/unclassified/identity leak均为0，MathObject unsafe normalization为0，因此F1.3代码完成但live总门禁继续pending。
+   - **F5-F1.4 Return expectation policy与安全归一（COMPLETE）**：每个Prompt-facing return确定性声明`return_expectation_policy=selectable|omit`；只有contract提供非空`possible_forms`时才是`selectable`并允许模型逐字选择，fixed-form return为`omit`且不携带`possible_forms`。v2 authority按Goal、参数名和MathObject ref归一后处理expectation：合法selectable form保留，非法form和未知return role继续fail loud；模型为omit return填写的多余form则记录`drop_fixed_form_return_expectation`并从canonical Plan删除。raw response保持不变，runtime form仍由自由符号、provenance和C5验证；该机械删除不进入semantic hash，因此与模型原生省略得到相同语义身份。Debug展示本Plan实际使用的return policy、原始/保留expectation及归一记录。
+   - F1.4真实单轮批次`f5f1-deepseek-v2-return-expectation-policy-low-5x1-20260813`达到`5/5 schema-valid`、`5/5 scope/Goal tree`、`4/5 Plan authority`，configuration/unclassified/identity leak均为0。五题模型均原生遵守policy，expectation删除数和相关authority issue均为0；唯一authority失败是和平一模引用不存在的`path_minimum_target/point_on_ray/point_on_segment` SemanticRef，与return expectation无关。河西完成transaction；其余authority已通过样本的后续reconciliation/transaction诊断继续属于F5-F2/F3，不作为F1.4门禁。F1.4完成，但F5-F1总live门禁仍因`4/5 Plan authority`保持pending。
+   - `answer_from`优先归一仅在F5-C证明同return的`output_targets`与Goal answer是同一MathObject时删除冗余target并记录`drop_redundant_answer_output_target`，不同对象继续失败。真实批次`f5f1-deepseek-v2-f1-1-generalized-low-5x1-20260812`为`5/5 schema-valid`、`3/5 scope/Goal tree`、`3/5 authority`和`1/5 transaction`；和平二模两个参数化`E`身份已闭合并通过F5-F1 authority。selector Prompt术语最终统一为`axis_membership`后的批次`f5f1-deepseek-v2-f1-1-final-low-5x1-20260812`有四题落盘，其中西青全链通过，河西/和平一模漏Goal，南开空`goals`被schema拒绝；和平二模provider请求超过14分钟且未生成sample artifact，批次被显式终止、未静默重跑。当前专项`45 passed`、联合`119 passed`、全量Solver`1755 passed, 12 skipped`，live状态仍为`PENDING`。
+   - **F5-F1.5 Scope-native step identity（IMPLEMENTED）**：`step_id`就是唯一`canonical_call_id`，v2 reconciliation出现任意call alias即报`functional.scoped_step_identity_drift`。同一scope或兄弟scope中即使capability和参数相同也不自动merge；真正共享的计算必须只 authored 一次并位于Goal的共同祖先scope。`canonicalize_unique_fact_ref`只在模型复制了参数名/Fact kind、当前Goal恰有一个kind/runtime/scope/cardinality均匹配且F5-C证明为problem source的Fact ref时机械改写；已存在但Fact kind错误、零候选、多候选、Entity和动态结果一律不修。raw/canonical Plan保留无效pure branch，effective execution plan只剪除不产answer/Condition/副作用且没有Goal、StepResult或source-state consumer的dead leaf closure。
+   - **F5-F1.6 Scope-local SourceRef（COMPLETE）**：Prompt中的Entity/Fact ref改为scope-local裸名称，Goal ref仍保持全题唯一。内部使用`ScopedSourceRefKey(owner_scope_id, local_ref, kind)`，从当前scope沿祖先链解析；兄弟scope可拥有同名ref且分别绑定不同MathObject/StateVersion，父子链同名遮蔽稳定拒绝。同scope基础名冲突按semantic payload hash生成稳定本地后缀，不添加scope前缀。BindingCatalog authority payload改为有序复合键记录，Goal allowlist交集按完整复合键计算；v2 authority的args、output target、Goal target和Fact归一均禁止直接按全局字符串索引。Prompt明确只复制当前scope视图中的裸ref，不能自行添加`scope_ref.`前缀；旧前缀ref不提供alias或fallback。
+   - **F5-F2 Incremental Goal run（COMPLETE）**
    - 新增`functional-goal-execution-checkpoint/v1`。候选建立后先保存每个step的结构、Goal、typed依赖和binding signature；每次preparation/compile/sandbox/result/closure尝试都记录prompt-safe resolved inputs、实际outputs、状态、typed diagnostic、closure signature和Problem provenance。pre-runtime verified与runtime verified是不同状态，二者都不等于Goal solved。
    - 增量执行器按topological ready set工作。step依赖全部runtime verified后才可prepare/compile；compile失败记录真实resolved inputs但没有伪造输出，method失败保存typed diagnostic，result/closure失败保存实际provisional result及残余自由元；未执行suffix记录直接`blocked_by`。失败step阻断其suffix，但同一失败Goal的所有成功step只作为下一轮证据，不做硬冻结。独立Goal继续执行；通过全部answer/runtime/closure/provenance gate的Goal整体冻结。
    - solved Goal的步骤和结果保存在solver-run checkpoint中，供其他Goal查看；只有显式`published_results`可被其他Goal绑定。全题仍采用原子Context commit，避免部分成功成为ghost state。
+   - 增量服务只要求全局JSON/schema、Problem revision和scope/Goal骨架成立；随后把单step authority错误隔离为`authority_invalid`，沿显式typed DAG把suffix标成`blocked_by_dependency`，并继续执行其余topological-ready前缀和独立Goal。成功结果只进入attempt-local provisional state，不创建accepted extraction Context或authoritative跨run write。
+   - `functional-goal-execution-checkpoint/v1`使用与Problem/Plan相同的四层scope树，逐step保存authored step、prompt-safe resolved inputs、actual outputs、typed issue和blocked roots；内部authority另存revision、planning context、binding/step signature、Goal/source units与provisional state signature。Prompt payload结构化移除source unit、runtime handle、MathObject/StateVersion和Bundle token。Smoke新增authority-valid/invalid、dead-pruned、provisional-executed、blocked、transaction-attempted/ok和blocked-stage独立指标，不再把“未进入事务”算成transaction失败。
+   - **F5-F2.1 固定点增量执行（COMPLETE）**：v2所有step在preallocation、elaboration与placement阶段均保持pinned，`step_id == canonical_call_id`且alias必须为空。Replay拆为`reconcile_functional_plan()`与`execute_reconciled_functional_plan()`；v2必须先完成typed reconciliation和`finalize_reconciliation()`，finalization失败不得执行Method或写状态。增量服务在最多`step_count+1`轮内反复隔离可定位的binding错误，重算显式StepResult依赖及由`output_targets -> MathObjectId`认证出的隐式对象状态依赖，再reconcile clean subset；每轮必须新增invalid step，否则生成no-progress root issue。动态SourceRef误读以`functional.dynamic_source_ref_requires_step_result`记录step/arg/index/source ref和所需StepResult，独立Goal与有效前缀继续provisional执行。JSON/schema失败因无法建立可信scope树不生成checkpoint；一旦Plan可解析，authoring、reconciliation、placement和runtime失败都生成带stage、root issues及`all_required_goals_verified`的scope-shaped checkpoint。Bundle/revision等非retryable authority漂移仍直接fail loud。
+   - **F5-F2.2 Step三层Scope authority（COMPLETE）**：`FunctionalStepScopeAuthority`分别保存`plan_scope_id`、`semantic_owner_scope_id`和`execution_scope_id`。前两者在lower阶段确定并在finalization中冻结；B2只填写execution scope。final binding signature显式包含三层scope与consumer Goal，重复finalize和payload round-trip零漂移。后续教学placement必须消费plan/semantic scope，禁止由execution scope反推讲解归属。
+   - 最新离线基线为F5-F1/F2/PlanningContext/Binding/transaction联合`190 passed`、全量Solver`1793 passed, 12 skipped`；五份v2 fixture的step/canonical call alias均为0，和平一模坏Fact ref用例能执行9个独立有效step、隔离1个authority-invalid step并阻断其1个显式suffix。F5-F3尚未消费该checkpoint。
+   - 真实DeepSeek low-thinking单轮批次`f5f1-step-identity-incremental-low-5x1-20260813`严格保持每题一个semantic attempt且不重跑：provider response、JSON schema和scope/Goal tree均为`5/5`，Plan authority为`4/5`，prompt identity leak、configuration error、unclassified error、unsafe normalization和call alias均为0。因此F5-F1继续保持`IMPLEMENTED / LIVE 5x1 PENDING`，不能标记`COMPLETE`。唯一F1失败为河西：Problem View在同一个`i` scope中输出`i.symbol_value_a`，却输出无scope前缀的`symbol_value_b/symbol_value_c`；模型把三者规则化为`i.symbol_value_a/b/c`，后两个因此触发`functional.semantic_ref_unresolved`。这是Prompt-facing ref命名不一致诱发的模型身份错误，下一轮应只做可证明的owner-prefix规范化或统一Prompt ref命名，再以新的独立`5x1`验收，不能把本批次离线改写为通过。
+   - 同一批次的F5-F2 live诊断为：authority-valid `50`、authority-invalid `1`、blocked-by-dependency `1`、provisional runtime-verified `23`、dead-pruned `0`，transaction attempted/ok均为`2/2`。和平一模与西青分别`13/13`、`10/10` step及全部Goal通过；河西正确隔离`i_build_parabola`并阻断`i_vertex`，但另一个`iii_minimum_expression`仍用字符串`M`读取`iii_compute_M`产生的动态状态，reconciliation级`planner.problem_source_binding_drift`使其余9个ready step没有继续执行；南开的`apply_m_to_N_ii1`同样用字符串`N`读取`construct_N_ii`的动态结果，18个ready step均停在reconciliation；和平二模虽通过F1 authority，却在finalize时因`compute_A_ii`缺canonical placement抛出`functional.step_scope_authority_drift`，未生成checkpoint。失败样本均未进入authoritative transaction，未观察到ghost write；F5-F2因此继续保持`IMPLEMENTED / LIVE DIAGNOSTIC PENDING`。
+   - F1.6/F2.1修复后的真实DeepSeek批次`f5f1-scope-local-return-types-fixed-point-low-5x1-20260813`每题只调用一次模型：provider response、schema和scope/Goal tree均为`5/5`，scope前缀、call alias、identity leak、configuration/unclassified error和unsafe normalization均为0。执行服务曾把F2 reconciliation/runtime issue并入F1 report，落盘摘要因此误记`3/5 authority`；修正分层后对完全相同的五份raw response确定性重放得到`5/5 authoring authority`，原始Plan与错误均未改写，F5-F1据此标记`COMPLETE`。
+   - 同批F5-F2数据为authority-valid `63`、authority-invalid `3`、blocked-by-dependency `7`、provisional executed `60`、dead-pruned `3`、transaction attempted `5/5`、transaction clean `3/5`，且五题全部生成checkpoint。和平二模、西青完成全部Goal；和平一模和河西将动态SourceRef精确隔离到step并继续独立分支；南开完成`5/6` Goal后保留runtime失败。全题未完成时仍无authoritative partial write，下一阶段F5-F3直接消费checkpoint。
    - **F5-F3 Goal replacement retry**
    - 新增`planner-goal-retry-context/v1`和`functional-goal-repair/v1`。每次retry输入包含上一版完整canonical Plan，并按同一Problem scope递归组织所有Goal的执行状态，而不是输出平面的`repair_call_ids/validated_call_ids/locked_call_ids`。上一版Plan只出现一次，执行树以`step_id`关联，避免重复payload。solved Goal完整保留但`editable=false`；failed Goal完整提供逐step实际输入、输出、错误、blocked suffix与Goal issue并`editable=true`；blocked/pending Goal保留其归属和阻塞原因。
-   - 模型对每个开放Goal返回完整`steps`替换，可以删除、重排、替换和新增该Goal的任意step，从而真正更换思路；失败Goal内没有call级frozen mutation限制。代码原子替换Goal plan、重建该Goal DAG和typed binding，再执行。若shared block失败，则所有consumer Goal组成同一repair group，模型通过`shared_scope_replacements`重写完整shared block；solved Goal及不相关shared block不可修改。
+   - 模型对每个开放Goal返回完整`steps`替换，可以删除、重排、替换和新增该Goal的任意step，从而真正更换思路；失败Goal内没有call级frozen mutation限制。代码原子替换Goal plan、重建该Goal DAG和typed binding，再执行。若scope-level步骤块失败，则所有consumer Goal组成同一repair group，模型通过`scope_step_replacements`重写该scope的完整步骤块；solved Goal及不相关scope步骤不可修改。
    - shared或solved结果发生authority漂移时，依赖Goal重新打开；共享根Entity本身不会扩大repair group。完整step结果仅供模型理解，跨Goal数据依赖仍必须来自`published_results`，禁止根据自然语言或显示值恢复runtime identity。
    - **F5-F4 Family path macros**
    - 将`PathTransformation`从LLM协议、capability catalog prompt和领域模型中删除。公开能力不是一个带family分支的万能`two_moving_points_path_minimum`，而是由每个family声明自己的高层path-minimum macro。首批至少区分正方形中点/中心降维、射线等长替换、加权路径和linked auxiliary路径；各macro拥有独立的输入contract、`use_when/do_not_use_when`、source primitive selector和降维invocation graph。只有两个family的题面前提、降维证明和输出语义完全一致时才允许共享同一个公开macro。
@@ -506,13 +529,13 @@ planner-goal-retry-context/v1
    - 公开输出限于`minimum_expression`以及该数学机制自然产生的`optimal_moving_point_expression`或最优构型结果。根据给定最小值反求参数、代入参数和从最优动点恢复最终题面答案点默认继续使用独立通用capability；不得为了减少call数量把整个小问收进不可复用的超大macro。
    - macro内部phase必须保留method invocation、source unit、Goal和scope provenance。Explanation可以把family-specific的“建立约束→路径等价变换”与共享的“反射/拉直→得到最小表达式”展开为多个学生步骤；后续参数求解和答案点恢复使用各自provenance。Planner和Problem wire都不出现`path_transformation`或`ReducedPathWitness`。
    - **F5-F5 Teaching scope与v1退役**
-   - 新增`TeachingStepPlacement`，将compiled step确定映射到学生讲解scope。Plan已按Problem scope/Goal组织，但该位置仍需由Goal authority验证；单Goal step归入Goal owner scope，共享step若其输入对共同祖先可见则在最近共同祖先讲解一次，否则按Goal生成引用而不复制runtime计算。
+   - 新增`TeachingStepPlacement`，将compiled step确定映射到学生讲解scope。Plan已按Problem scope/Goal组织，但该位置仍需由Goal authority验证；Goal步骤归入Goal owner scope，scope-level步骤若其输入对全部consumer Goal的共同祖先可见，则在最近公共祖先讲解一次，否则按Goal生成引用而不复制runtime计算。
    - `execution_scope_id`只回答状态和method在哪里执行，`teaching_scope_id`只回答步骤在哪个题干/小问下呈现，二者分别审计，禁止Explanation用runtime placement猜教学结构。
    - ExplanationSnapshot保存call、Goal、source unit和teaching scope provenance；G阶段直接消费该sidecar组织小问、动画和对话，不重新从扁平StepPlan或中文文案推断scope。
    - 先以F5-E的scope-native prompt + v1 response建立基线，再用相同模型/参数/样本切v2。验收后物理删除`functional_plan/v1` parser/schema、scope authored fixture和兼容路径，不形成长期双协议。
    - 增加静态门禁：Planner prompt/schema/catalog不得出现`PathTransformation`、`path_transformation`或`ReducedPathWitness`；production plan不得把内部macro phase当作外部SemanticRef/CallResultRef。每个启用路径最值机制的family必须通过自己的macro contract preflight；未知profile fail loud。共享straightening实现只保留一份，测试禁止family macro复制反射、候选选择或距离计算逻辑。系统尚未上线，不保留旧path transformation alias或兼容adapter。
    - 同步删除底层reconciler/replay中的`problem_binding_catalog=None`、全局`semantic_read_catalog()`fallback及v1的`replace_answer_ref_with_goal_target`/`bind_unique_condition_role`repair；裸`RuntimeOrchestrator.solve(ProblemIR)`改为私有debug实现，deterministic入口统一为`solve_problem_ir_debug()`。`planner-problem-view`、`functional_plan/v2`和retry schema按typed union收紧item字段，所有variant使用`additionalProperties: false`。
-   - C0.5继续作为scope/version权威门禁，并新增三棵scope树对齐、`unique_prior_producer / explicit_call_result / ambiguous_producer / sibling_rejected`、scope-local answer canonicalization和Goal replacement维度；另增加“前缀成功、第k个step失败、suffix blocked”“独立sibling Goal继续并整体冻结”“shared producer失败重开consumer Goal组”“失败Goal完整替换不修改solved Goal”“provisional ghost write为0”。v2 adapter必须真正经过PlanningContext、F5-C sidecar和Goal checkpoint。
+   - C0.5继续作为scope/version权威门禁，并新增三棵scope树对齐、`unique_prior_producer / explicit_call_result / ambiguous_producer / sibling_rejected`、scope-local answer canonicalization和Goal replacement维度；另增加“前缀成功、第k个step失败、suffix blocked”“独立sibling Goal继续并整体冻结”“ancestor-scope producer失败重开consumer Goal组”“失败Goal完整替换不修改solved Goal”“provisional ghost write为0”。v2 adapter必须真正经过PlanningContext、F5-C sidecar和Goal checkpoint。
    - C5 symbolic closure继续保留；除macro内部closure、parameter identity、Goal/source provenance和“PathTransformation不泄漏”外，增加“method有实际输出但closure失败时把残余自由元写入Goal retry”“独立Goal closure冻结”“Goal replacement恢复solved Goal checkpoint”。原有unique/ambiguous/inconsistent/underdetermined数学门禁不得缩减。
    - 预期最终成功率提升可能小于Pass 1提升，因为F5-C/D当前已能拒绝scope错误；主要收益应体现在首轮成功率、retry次数、prompt/output token、scope错误归零、内部状态不再污染LLM协议，以及Explanation归属成为单一权威。
 
