@@ -329,15 +329,10 @@ class FunctionalPlanElaborator:
                 calls.append(replace(call, args=normalized_args))
             scopes.append(replace(scope, calls=tuple(calls)))
         elaborated_plan = replace(plan, scopes=tuple(scopes))
-        elaborated_plan, call_aliases = _merge_equivalent_object_calls(
-            elaborated_plan,
-            catalog=catalog,
-            repairs=repairs,
-            issues=issues,
-            semantic_index=semantic_index,
-            call_authority_signatures=call_authority_signatures,
-            pinned_canonical_call_ids=pinned_canonical_call_ids,
-        )
+        # Execution/input fingerprints are candidate-discovery metadata only.
+        # A call may be removed or aliased only after the transactional runtime
+        # has compared its actual typed result with the canonical StateVersion.
+        call_aliases: dict[str, str] = {}
         final_call_ids = {call.call_id for call in elaborated_plan.calls}
         return FunctionalPlanElaborationResult(
             raw_plan=plan,

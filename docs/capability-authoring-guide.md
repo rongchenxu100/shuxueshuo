@@ -2,6 +2,8 @@
 
 本文说明如何为 FunctionalPlan 增加可复用的数学能力。它描述当前约束，不记录历史迁移过程。
 
+本文重点是公开 Function/Macro、binding 与 return contract。底层 Python Method 作为 DSL runtime primitive 的实现规范，统一见 `docs/functional-method-dsl-authoring-guide.md`。
+
 ## 1. 基本原则
 
 FunctionalPlan 中，LLM 只负责：

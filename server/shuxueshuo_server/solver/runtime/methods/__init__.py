@@ -19,7 +19,6 @@ from .quadratic_axis_x_intercept_point import QuadraticAxisXInterceptPointMethod
 from .point_on_parabola_at_x import PointOnParabolaAtXMethod, SPEC as POINT_ON_PARABOLA_AT_X_SPEC
 from .midpoint_point import MidpointPointMethod, SPEC as MIDPOINT_POINT_SPEC
 from .parameter_from_segment_length import ParameterFromSegmentLengthMethod, SPEC as PARAMETER_FROM_SEGMENT_LENGTH_SPEC
-from .parabola_at_parameter import ParabolaAtParameterMethod, SPEC as PARABOLA_AT_PARAMETER_SPEC
 from .two_moving_points_path_reduction import TwoMovingPointsPathReductionMethod, SPEC as TWO_MOVING_POINTS_PATH_REDUCTION_SPEC
 from .broken_path_straightening_candidates import BrokenPathStraighteningCandidatesMethod, SPEC as BROKEN_PATH_STRAIGHTENING_CANDIDATES_SPEC
 from .select_straightening_candidate import SelectStraighteningCandidateMethod, SPEC as SELECT_STRAIGHTENING_CANDIDATE_SPEC
@@ -28,7 +27,6 @@ from .distance_between_points import DistanceBetweenPointsMethod, SPEC as DISTAN
 from .parameter_from_minimum_value import ParameterFromMinimumValueMethod, SPEC as PARAMETER_FROM_MINIMUM_VALUE_SPEC
 from .parameter_from_expression_value import ParameterFromExpressionValueMethod, SPEC as PARAMETER_FROM_EXPRESSION_VALUE_SPEC
 from .line_intersection_point import LineIntersectionPointMethod, SPEC as LINE_INTERSECTION_POINT_SPEC
-from .select_curve_point_candidate_and_solve_coefficients import SelectCurvePointCandidateAndSolveCoefficientsMethod, SPEC as SELECT_CURVE_POINT_CANDIDATE_AND_SOLVE_COEFFICIENTS_SPEC
 from .filter_point_candidates_by_quadratic_curve import FilterPointCandidatesByQuadraticCurveMethod, SPEC as FILTER_POINT_CANDIDATES_BY_QUADRATIC_CURVE_SPEC
 from .weighted_axis_path_triangle_transform import WeightedAxisPathTriangleTransformMethod, SPEC as WEIGHTED_AXIS_PATH_TRIANGLE_TRANSFORM_SPEC
 from .linked_broken_path_geometric_minimum import (
@@ -37,7 +35,6 @@ from .linked_broken_path_geometric_minimum import (
     MINIMUM_EXPRESSION_SPEC as LINKED_BROKEN_PATH_MINIMUM_EXPRESSION_SPEC,
     SPEC as LINKED_BROKEN_PATH_GEOMETRIC_MINIMUM_SPEC,
 )
-from .coefficient_at_parameter import CoefficientAtParameterMethod, SPEC as COEFFICIENT_AT_PARAMETER_SPEC
 from .evaluate_expression_at_parameter import EvaluateExpressionAtParameterMethod, SPEC as EVALUATE_EXPRESSION_AT_PARAMETER_SPEC
 from .evaluate_point_at_parameter import EvaluatePointAtParameterMethod, SPEC as EVALUATE_POINT_AT_PARAMETER_SPEC
 from .parameter_from_curve_point_on_quadratic import ParameterFromCurvePointOnQuadraticMethod, SPEC as PARAMETER_FROM_CURVE_POINT_ON_QUADRATIC_SPEC
@@ -65,7 +62,6 @@ ALL_METHOD_SPEC_SOURCES = (
     POINT_ON_PARABOLA_AT_X_SPEC,
     MIDPOINT_POINT_SPEC,
     PARAMETER_FROM_SEGMENT_LENGTH_SPEC,
-    PARABOLA_AT_PARAMETER_SPEC,
     TWO_MOVING_POINTS_PATH_REDUCTION_SPEC,
     BROKEN_PATH_STRAIGHTENING_CANDIDATES_SPEC,
     SELECT_STRAIGHTENING_CANDIDATE_SPEC,
@@ -74,12 +70,10 @@ ALL_METHOD_SPEC_SOURCES = (
     PARAMETER_FROM_MINIMUM_VALUE_SPEC,
     PARAMETER_FROM_EXPRESSION_VALUE_SPEC,
     LINE_INTERSECTION_POINT_SPEC,
-    SELECT_CURVE_POINT_CANDIDATE_AND_SOLVE_COEFFICIENTS_SPEC,
     FILTER_POINT_CANDIDATES_BY_QUADRATIC_CURVE_SPEC,
     WEIGHTED_AXIS_PATH_TRIANGLE_TRANSFORM_SPEC,
     LINKED_BROKEN_PATH_MINIMUM_EXPRESSION_SPEC,
     LINKED_BROKEN_PATH_GEOMETRIC_MINIMUM_SPEC,
-    COEFFICIENT_AT_PARAMETER_SPEC,
     EVALUATE_EXPRESSION_AT_PARAMETER_SPEC,
     EVALUATE_POINT_AT_PARAMETER_SPEC,
     PARAMETER_FROM_CURVE_POINT_ON_QUADRATIC_SPEC,
@@ -116,7 +110,6 @@ def default_stateless_registry() -> StatelessMethodRegistry:
         PointOnParabolaAtXMethod(),
         MidpointPointMethod(),
         ParameterFromSegmentLengthMethod(),
-        ParabolaAtParameterMethod(),
         TwoMovingPointsPathReductionMethod(),
         BrokenPathStraighteningCandidatesMethod(),
         SelectStraighteningCandidateMethod(),
@@ -125,12 +118,10 @@ def default_stateless_registry() -> StatelessMethodRegistry:
         ParameterFromMinimumValueMethod(),
         ParameterFromExpressionValueMethod(),
         LineIntersectionPointMethod(),
-        SelectCurvePointCandidateAndSolveCoefficientsMethod(),
         FilterPointCandidatesByQuadraticCurveMethod(),
         WeightedAxisPathTriangleTransformMethod(),
         LinkedBrokenPathMinimumExpressionMethod(),
         LinkedBrokenPathGeometricMinimumMethod(),
-        CoefficientAtParameterMethod(),
         EvaluateExpressionAtParameterMethod(),
         EvaluatePointAtParameterMethod(),
         ParameterFromCurvePointOnQuadraticMethod(),
@@ -166,7 +157,6 @@ __all__ = [
     "PointOnParabolaAtXMethod",
     "MidpointPointMethod",
     "ParameterFromSegmentLengthMethod",
-    "ParabolaAtParameterMethod",
     "TwoMovingPointsPathReductionMethod",
     "BrokenPathStraighteningCandidatesMethod",
     "SelectStraighteningCandidateMethod",
@@ -175,12 +165,10 @@ __all__ = [
     "ParameterFromExpressionValueMethod",
     "ParameterFromMinimumValueMethod",
     "LineIntersectionPointMethod",
-    "SelectCurvePointCandidateAndSolveCoefficientsMethod",
     "FilterPointCandidatesByQuadraticCurveMethod",
     "WeightedAxisPathTriangleTransformMethod",
     "LinkedBrokenPathMinimumExpressionMethod",
     "LinkedBrokenPathGeometricMinimumMethod",
-    "CoefficientAtParameterMethod",
     "EvaluateExpressionAtParameterMethod",
     "EvaluatePointAtParameterMethod",
     "ParameterFromCurvePointOnQuadraticMethod",

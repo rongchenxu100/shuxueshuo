@@ -13,6 +13,11 @@ from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
     SCOPED_FUNCTIONAL_PLAN_CONTRACT,
     scoped_functional_plan_schema,
 )
+from shuxueshuo_server.solver.runtime.functional_plan_content import (
+    FUNCTIONAL_PLAN_CONTENT_CONTRACT,
+    FunctionalPlanAuthorityFrame,
+    functional_plan_content_schema,
+)
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
     _validate_function_facade_coverage,
@@ -58,22 +63,41 @@ def test_v2_payload_and_prompt_use_scope_native_authority_only(tmp_path) -> None
     )
     prompt = StrategyPromptRenderer().render_scoped(payload)
 
-    assert payload["planner_protocol"] == SCOPED_FUNCTIONAL_PLAN_CONTRACT
-    assert payload["output_json_schema"] == scoped_functional_plan_schema()
+    frame = FunctionalPlanAuthorityFrame.from_planning_context(planning_context)
+    assert payload["planner_protocol"] == FUNCTIONAL_PLAN_CONTENT_CONTRACT
+    assert payload["output_json_schema"] == functional_plan_content_schema(frame)
     assert "previous_attempt_state" not in payload
+    assert payload["authoring_feedback"] == []
     assert payload["problem_planning_context"] == (
         planning_context.to_prompt_payload()
     )
-    assert SCOPED_FUNCTIONAL_PLAN_CONTRACT in prompt.system
-    assert "最多 4 层" in prompt.system
-    assert '"scope_level_0"' in prompt.system
-    assert '"scope_level_3"' in prompt.system
-    assert '"$ref":"#/$defs/scope"' not in prompt.system
+    assert FUNCTIONAL_PLAN_CONTENT_CONTRACT in prompt.system
+    assert payload["plan_authority_frame"] == frame.to_prompt_payload()
+    assert "Scope树与Goal归属完全由Plan Authority Frame拥有" in prompt.system
     assert "planner-problem-view/v2" in prompt.user
-    assert "Plan 的 `goal_ref` 必须逐字复制" in prompt.system
-    assert "不能填写 `scope_ref`" in prompt.system
-    assert "`goal_ref` 不是输入SemanticRef" in prompt.system
-    assert "Goal的 `target_ref` 是可用的题面输入" in prompt.user
+    assert "输出不得包含`root_scope`" in prompt.system
+    assert "重复的`goal_ref`" in prompt.system
+    assert "`goal_ref`不是step输入" in prompt.system
+    assert "每个Goal必须输出`answer_from={step_id, return}`" in prompt.system
+    assert "合法指针用于消歧" in prompt.system
+    assert "共享MathObject身份不等于共享StateVersion" in prompt.system
+    assert "兄弟scope使用不同局部条件" in prompt.system
+    assert "free_parameters" in prompt.system
+    assert "不能根据下游Goal希望求哪个参数" in prompt.system
+    assert "Goal的`target_ref`是可用题面输入" in prompt.user
+    assert "Full-plan Validation Feedback" in prompt.user
+    assert "Authority-bound Output JSON Schema" in prompt.user
+
+    quadratic = next(
+        item
+        for item in payload["functional_capability_catalog"]["capabilities"]
+        if item["capability_id"] == "quadratic_from_constraints"
+    )
+    assert "应用本步骤当前scope约束后" in quadratic["use_when"]
+    assert any(
+        "不能根据下游Goal希望求哪个参数" in item
+        for item in quadratic["do_not_use_when"]
+    )
 
     prompt_problem = payload["problem_planning_context"]
     serialized_problem = json.dumps(prompt_problem, ensure_ascii=False)
@@ -156,8 +180,10 @@ def test_v2_prompt_renders_only_v2_mechanism_plan(tmp_path) -> None:
     )
     prompt = StrategyPromptRenderer().render_scoped(payload)
 
-    assert '"format":"functional_plan/v2"' in prompt.user
+    assert '"format":"functional-plan-content/v2"' in prompt.user
     assert '"step_id":"solve_answer"' in prompt.user
+    assert '"goal_plans":{"example.answer"' in prompt.user
+    assert '"root_scope":{"scope_ref":"example"' not in prompt.user
     assert "functional_plan/v1" not in prompt.user
 
 
@@ -373,13 +399,11 @@ def test_v2_catalog_declares_return_expectation_policy_per_return(tmp_path) -> N
         "name": "parameter_value",
         "type": "ParameterValue",
         "binding": "same_object_as:parameter",
-        "return_expectation_policy": "omit",
     }
 
     for capability in catalog.to_prompt_payload()["capabilities"]:
         for returned in capability["returns"]:
-            policy = returned["return_expectation_policy"]
-            assert policy in {"selectable", "omit"}
-            assert (policy == "selectable") == bool(
-                returned.get("possible_forms")
-            )
+            if returned.get("possible_forms"):
+                assert returned["return_expectation_policy"] == "selectable"
+            else:
+                assert "return_expectation_policy" not in returned

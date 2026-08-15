@@ -656,7 +656,7 @@
           "allocation_action": "create",
           "result_form": "closed_state",
           "object_id": "point:ii:D",
-          "source_version_count": 2,
+          "source_version_count": 3,
           "closure_signature": null
         }
       ]

@@ -441,7 +441,11 @@ def _function_capability(
                 condition_pattern=condition_pattern,
                 deterministic_resolver=(
                     evidence_resolver
-                    or deterministic_resolvers.get(runtime_input)
+                    or (
+                        deterministic_resolvers.get(runtime_input)
+                        if item.required
+                        else None
+                    )
                 ),
                 required_override=(
                     False

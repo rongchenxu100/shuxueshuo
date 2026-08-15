@@ -19,6 +19,7 @@ from shuxueshuo_server.solver.runtime.functional_plan_models import (
     FunctionalPlanValidationReport,
     FunctionalReturnAllocation,
     FunctionalScope,
+    PublishedGoalCallResultRef,
     ResolvedFunctionalValue,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_reconciliation import (
@@ -45,6 +46,7 @@ from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
     ScopedFunctionalPlanValidator,
     ScopedFunctionalScope,
     ScopedFunctionalStep,
+    ScopedPublishedGoalResultRef,
     ScopedStepResultRef,
     scoped_functional_plan_schema,
 )
@@ -70,6 +72,7 @@ __all__ = [
     "FunctionalPlanValidator",
     "FunctionalReturnAllocation",
     "FunctionalScope",
+    "PublishedGoalCallResultRef",
     "ResolvedFunctionalValue",
     "FunctionalStepScopeAuthority",
     "ScopedFunctionalAnswerSource",
@@ -83,6 +86,7 @@ __all__ = [
     "ScopedFunctionalPlanValidator",
     "ScopedFunctionalScope",
     "ScopedFunctionalStep",
+    "ScopedPublishedGoalResultRef",
     "ScopedStepResultRef",
     "functional_capability_catalog_payload",
     "prepare_functional_plan_raw_response",

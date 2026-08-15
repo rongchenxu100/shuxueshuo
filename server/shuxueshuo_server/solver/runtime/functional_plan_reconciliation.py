@@ -60,7 +60,6 @@ from shuxueshuo_server.solver.runtime.functional_reconciliation_validators impor
     functional_reconciliation_issues,
 )
 from shuxueshuo_server.solver.runtime.functional_symbol_flow import (
-    align_free_parameter_basis_with_consumers,
     infer_unique_target_symbol_ref,
     return_free_symbol_refs,
 )
@@ -418,11 +417,6 @@ class _NormalizeElaborateScopeStage:
                 pinned_canonical_call_ids=pinned_canonical_call_ids,
             )
         )
-        plan, basis_repairs = align_free_parameter_basis_with_consumers(
-            plan,
-            catalog=catalog,
-            semantic_index=semantic_index,
-        )
         plan, target_identity_repairs = (
             _infer_symbolic_target_args_from_consumers(
                 plan,
@@ -450,7 +444,6 @@ class _NormalizeElaborateScopeStage:
                 *unique_condition_ref_repairs,
                 *existing_state_repairs,
                 *incomplete_transition_repairs,
-                *basis_repairs,
                 *target_identity_repairs,
                 *elaboration.deterministic_repairs,
             ),
@@ -485,9 +478,9 @@ class _NormalizeElaborateScopeStage:
         # Structured source facts can name runtime objects whose states must be
         # materialized before a capability runs (for example, a midpoint used
         # by a path-reduction fact). Keep those deterministic dependencies in
-        # v2. The F5-C binding sidecar separately rejects an ordinary SourceRef
-        # being rewritten to a dynamic latest state when an explicit
-        # StepResultRef was required.
+        # v2. The scoped canonicalizer resolves stable object SourceRefs to the
+        # latest visible prior write; this gate catches only unresolved,
+        # ambiguous, or explicitly historical dynamic reads.
         dependency_graph = _with_hidden_condition_object_dependencies(
             plan,
             dependency_graph=explicit_dependency_graph,
@@ -943,7 +936,6 @@ class FunctionalPlanReconciler:
         typed_identity_completeness = FunctionalTypedIdentityCompleteness()
         identity_decisions: list[dict[str, Any]] = []
         identity_comparisons: list[IdentityShadowComparison] = []
-        preallocated_aliases: dict[str, str] = {}
         scope_by_id = {scope.scope_id: scope for scope in plan.scopes}
         for scope_id, _, call in topological_scoped_calls(
             plan,
@@ -1456,34 +1448,6 @@ class FunctionalPlanReconciler:
                     )
                 )
                 continue
-            canonical_producers = unique_ordered(
-                allocation.canonical_producer_call_id
-                for allocation in allocations
-                if allocation.allocation_action == "reuse"
-                and allocation.canonical_producer_call_id is not None
-            )
-            if (
-                allocations
-                and call.call_id not in pinned_canonical_call_ids
-                and all(
-                    allocation.allocation_action == "reuse"
-                    for allocation in allocations
-                )
-                and len(canonical_producers) == 1
-                and not any(
-                    binding.kind == "answer"
-                    for binding in call.return_bindings.values()
-                )
-            ):
-                preallocated_aliases[call.call_id] = canonical_producers[0]
-                reconciliation_repairs.append(
-                    FunctionalDeterministicRepair(
-                        call.call_id,
-                        "merge_redundant_existing_state_call",
-                        call.call_id,
-                        canonical_producers[0],
-                    )
-                )
             identity_index = call_identity_index
             processed_call_ids.add(call.call_id)
             reconciled.append(
@@ -1536,7 +1500,6 @@ class FunctionalPlanReconciler:
             issues=issues,
             reconciliation_repairs=reconciliation_repairs,
             placement_service=placement_service,
-            preallocated_aliases=preallocated_aliases,
             identity_decisions=identity_decisions,
             identity_comparisons=identity_comparisons,
             typed_identity_completeness=typed_identity_completeness,
@@ -1741,7 +1704,6 @@ class _PlacementLivenessProjectionStage:
         issues: list[FunctionalPlanIssue],
         reconciliation_repairs: list[FunctionalDeterministicRepair],
         placement_service: FunctionalCallPlacementService,
-        preallocated_aliases: Mapping[str, str],
         identity_decisions: Sequence[Mapping[str, Any]],
         identity_comparisons: Sequence[IdentityShadowComparison],
         typed_identity_completeness: FunctionalTypedIdentityCompleteness,
@@ -1793,10 +1755,9 @@ class _PlacementLivenessProjectionStage:
         )
         reconciliation_repairs.extend(context_arg_repairs)
         issues.extend(context_arg_issues)
-        initial_aliases = {
-            **(elaboration.call_aliases or {}),
-            **preallocated_aliases,
-        }
+        # Static identity/computation matches only nominate runtime reuse
+        # candidates. They never authorize call deletion or aliasing.
+        initial_aliases: dict[str, str] = {}
         placement = placement_service.place(
             plan,
             source_plan=elaboration.raw_plan,
@@ -1849,12 +1810,6 @@ class _PlacementLivenessProjectionStage:
             handle_registry=handle_registry,
         )
         issues.extend(answer_identity_issues)
-        dependency_graph = _with_closed_scalar_dependencies(
-            plan,
-            reconciled=tuple(reconciled),
-            dependency_graph=placement.dependency_graph,
-            handle_registry=handle_registry,
-        )
         pre_liveness_writes = build_functional_state_write_manifest(
             plan,
             tuple(reconciled),
@@ -1865,10 +1820,39 @@ class _PlacementLivenessProjectionStage:
             catalog=catalog,
         )
         dependency_graph = expand_functional_dependency_graph(
-            dependency_graph,
+            placement.dependency_graph,
             projected_state_writes=pre_liveness_writes,
             projected_state_dependencies=pre_liveness_dependencies,
         )
+        dependency_graph = _with_closed_scalar_dependencies(
+            plan,
+            reconciled=tuple(reconciled),
+            dependency_graph=dependency_graph,
+            handle_registry=handle_registry,
+        )
+        reuse_producer_candidates = _runtime_reuse_producer_candidates(
+            reconciled
+        )
+        explicit_dependencies = _functional_dependency_graph(plan)
+        dependency_graph = _redirect_allocation_only_reuse_dependencies(
+            dependency_graph,
+            explicit_dependencies=explicit_dependencies,
+            reuse_producer_candidates=reuse_producer_candidates,
+        )
+        placed_goal_authority_dependencies = {
+            call_id: list(
+                unique_ordered(
+                    _canonical_reuse_producer(
+                        dependency,
+                        reuse_producer_candidates,
+                    )
+                    for dependency in dependencies
+                )
+            )
+            for call_id, dependencies in (
+                placed_goal_authority_dependencies.items()
+            )
+        }
         evidence_issues = _functional_evidence_preflight_issues(
             plan,
             reconciled=tuple(reconciled),
@@ -1916,11 +1900,28 @@ class _PlacementLivenessProjectionStage:
         dependency_graph = liveness.dependency_graph
         reconciliation_repairs.extend(liveness.repairs)
         retained_call_ids = frozenset(call.call_id for call in plan.calls)
+        explicit_goal_dependencies = _functional_dependency_graph(plan)
+        allocation_only_reuse_dependencies = {
+            call.call_id: {
+                allocation.canonical_producer_call_id
+                for allocation in call.returns
+                if allocation.allocation_action == "reuse"
+                and allocation.canonical_producer_call_id is not None
+            }
+            for call in reconciled
+        }
         goal_authority_dependencies = {
             call_id: unique_ordered(
-                (
+                dependency
+                for dependency in (
                     *dependency_graph.get(call_id, ()),
                     *placed_goal_authority_dependencies.get(call_id, ()),
+                )
+                if not (
+                    dependency
+                    in allocation_only_reuse_dependencies.get(call_id, ())
+                    and dependency
+                    not in explicit_goal_dependencies.get(call_id, ())
                 )
             )
             for call_id in retained_call_ids
@@ -2488,32 +2489,40 @@ def _with_closed_scalar_dependencies(
     dependency_graph: Mapping[str, tuple[str, ...]],
     handle_registry: CanonicalHandleRegistry,
 ) -> dict[str, tuple[str, ...]]:
-    """Make deterministic scalar-closure inputs visible to graph passes."""
+    """Order consumers after visible ParameterValue producers.
+
+    FunctionalPlan deliberately does not require the model to thread a solved
+    scalar through every later argument.  A runtime value can carry that
+    scalar transitively (for example ``Point(-c, 0)``), so dependencies are
+    derived from the typed free-symbol identities of every resolved input.
+    Closed-result expectations remain an additional source of requirements.
+    """
     calls = {call.call_id: call for call in plan.calls}
-    ordered_calls = tuple(
-        call
-        for _, _, call in topological_scoped_calls(
-            plan,
-            dependency_graph=dependency_graph,
-        )[0]
-    )
-    positions = {
-        call.call_id: index for index, call in enumerate(ordered_calls)
-    }
     reconciled_by_id = {item.call_id: item for item in reconciled}
-    parameter_producers: dict[
-        str,
-        list[tuple[str, FunctionalReturnAllocation]],
-    ] = {}
+    parameter_producers: list[
+        tuple[str, FunctionalReturnAllocation]
+    ] = []
     for item in reconciled:
         for allocation in item.returns:
             if (
                 allocation.runtime_type == "ParameterValue"
-                and allocation.object_ref is not None
-            ):
-                parameter_producers.setdefault(allocation.object_ref, []).append(
-                    (item.call_id, allocation)
+                and (
+                    allocation.math_object_id is not None
+                    or allocation.object_ref is not None
                 )
+            ):
+                parameter_producers.append((item.call_id, allocation))
+    producer_upstream: dict[str, frozenset[str]] = {}
+    for producer_id, _ in parameter_producers:
+        upstream: set[str] = set()
+        pending = list(dependency_graph.get(producer_id, ()))
+        while pending:
+            dependency_id = pending.pop()
+            if dependency_id in upstream:
+                continue
+            upstream.add(dependency_id)
+            pending.extend(dependency_graph.get(dependency_id, ()))
+        producer_upstream[producer_id] = frozenset(upstream)
     result = {call_id: tuple(values) for call_id, values in dependency_graph.items()}
     for call_id, call in calls.items():
         item = reconciled_by_id.get(call_id)
@@ -2523,29 +2532,50 @@ def _with_closed_scalar_dependencies(
             allocation.return_name: allocation for allocation in item.returns
         }
         dependencies = list(result.get(call_id, ()))
+        required_symbol_ids = {
+            symbol_id
+            for values in item.resolved_args.values()
+            for value in values
+            for symbol_id in value.free_symbol_ids
+        }
+        required_symbol_refs = {
+            symbol_ref
+            for values in item.resolved_args.values()
+            for value in values
+            for symbol_ref in value.free_symbol_refs
+        }
         for return_name, expectation in call.return_expectations.items():
-            if expectation != "closed_value":
+            if expectation not in {"closed_state", "closed_value"}:
                 continue
             allocation = allocations.get(return_name)
             if allocation is None:
                 continue
-            for symbol_ref in allocation.free_symbol_refs:
-                candidates = tuple(
-                    producer_id
-                    for producer_id, produced in parameter_producers.get(
-                        symbol_ref,
-                        (),
-                    )
-                    if positions.get(producer_id, len(positions))
-                    < positions.get(call_id, -1)
-                    and visible_from_valid_scope(
-                        produced.valid_scope,
-                        scope_id=item.scope_id,
-                        registry=handle_registry,
-                    )
+            required_symbol_ids.update(allocation.free_symbol_ids)
+            required_symbol_refs.update(allocation.free_symbol_refs)
+        for producer_id, produced in parameter_producers:
+            if (
+                producer_id == call_id
+                or call_id in producer_upstream[producer_id]
+            ):
+                continue
+            producer_object_id = produced.math_object_id
+            if producer_object_id is None and produced.logical_state_key is not None:
+                producer_object_id = produced.logical_state_key.object_id
+            if not (
+                producer_object_id in required_symbol_ids
+                or (
+                    produced.object_ref is not None
+                    and produced.object_ref in required_symbol_refs
                 )
-                if len(candidates) == 1:
-                    dependencies.append(candidates[0])
+            ):
+                continue
+            if not visible_from_valid_scope(
+                produced.valid_scope,
+                scope_id=item.scope_id,
+                registry=handle_registry,
+            ):
+                continue
+            dependencies.append(producer_id)
         result[call_id] = unique_ordered(dependencies)
     return result
 
@@ -3797,6 +3827,7 @@ def _materialize_functional_return(
         free_symbol_ids=free_symbol_ids,
         runtime_destination=runtime_destination,
         result_form=expected_result_form,
+        allow_runtime_equivalence_probe=True,
     )
     decision = allocation_service.allocate(
         allocation_request,
@@ -7190,9 +7221,9 @@ def _rewrite_effective_functional_plan(
             call = effective_calls.get(original_call.call_id, original_call)
             args = {
                 name: tuple(
-                    CallResultRef(
-                        ref.from_call,
-                        return_role_aliases.get(
+                    replace(
+                        ref,
+                        return_name=return_role_aliases.get(
                             (ref.from_call, ref.return_name),
                             ref.return_name,
                         ),
@@ -7684,6 +7715,77 @@ def _functional_dependency_graph(
             if isinstance(ref, CallResultRef)
         )
         for call in plan.calls
+    }
+
+
+def _runtime_reuse_producer_candidates(
+    calls: Sequence[FunctionalCallReconciliation],
+) -> dict[str, str]:
+    """Identify calls whose complete versioned write set targets one prior state.
+
+    This is dependency routing only, not merge authority. The call must still
+    execute, and only runtime value equivalence may later remove it.
+    """
+
+    result: dict[str, str] = {}
+    for call in calls:
+        versioned = tuple(
+            allocation
+            for allocation in call.returns
+            if allocation.selected_version_id is not None
+        )
+        producers = {
+            allocation.canonical_producer_call_id
+            for allocation in versioned
+            if allocation.canonical_producer_call_id is not None
+        }
+        if (
+            versioned
+            and all(
+                allocation.allocation_action == "reuse"
+                and allocation.canonical_producer_call_id is not None
+                for allocation in versioned
+            )
+            and len(producers) == 1
+        ):
+            result[call.call_id] = next(iter(producers))
+    return result
+
+
+def _canonical_reuse_producer(
+    call_id: str,
+    candidates: Mapping[str, str],
+) -> str:
+    seen: set[str] = set()
+    while call_id in candidates and call_id not in seen:
+        seen.add(call_id)
+        call_id = candidates[call_id]
+    return call_id
+
+
+def _redirect_allocation_only_reuse_dependencies(
+    dependency_graph: Mapping[str, Sequence[str]],
+    *,
+    explicit_dependencies: Mapping[str, Sequence[str]],
+    reuse_producer_candidates: Mapping[str, str],
+) -> dict[str, tuple[str, ...]]:
+    """Route implicit state reads to the selected StateVersion producer.
+
+    Explicit CallResultRef edges keep pointing at the authored call so its
+    isolated runtime output can be compared before any alias is authorized.
+    """
+
+    return {
+        consumer_id: unique_ordered(
+            dependency
+            if dependency in explicit_dependencies.get(consumer_id, ())
+            else _canonical_reuse_producer(
+                dependency,
+                reuse_producer_candidates,
+            )
+            for dependency in dependencies
+        )
+        for consumer_id, dependencies in dependency_graph.items()
     }
 
 

@@ -79,6 +79,21 @@ class CallResultRef:
         return {"from_call": self.from_call, "return": self.return_name}
 
 
+@dataclass(frozen=True)
+class PublishedGoalCallResultRef(CallResultRef):
+    """A solved Goal's final answer published to a repair consumer.
+
+    The execution wire remains a normal call-result edge.  The extra Goal
+    authority is intentionally internal so it cannot be authored by Pass 1 or
+    inferred from a display value.
+    """
+
+    published_goal_ref: str
+
+    def authority_payload(self) -> dict[str, str]:
+        return {"published_goal_ref": self.published_goal_ref}
+
+
 FunctionalRef = SemanticRef | CallResultRef
 
 
@@ -307,12 +322,24 @@ class FunctionalCapabilityReturn:
         """Declare whether the planner may author an open/closed form hint."""
         return "selectable" if self.possible_forms else "omit"
 
-    def to_prompt_payload(self) -> dict[str, Any]:
+    def to_prompt_payload(
+        self,
+        *,
+        exposed_arg_names: frozenset[str] | None = None,
+    ) -> dict[str, Any]:
+        binding_mode = self.binding_mode
+        compiler_selected_identity = (
+            exposed_arg_names is not None
+            and self.identity_policy == "preserve_input_object"
+            and self.identity_arg is not None
+            and self.identity_arg not in exposed_arg_names
+        )
+        if compiler_selected_identity:
+            binding_mode = "same_compiler_selected_object"
         payload: dict[str, Any] = {
             "name": self.name,
             "type": self.runtime_type,
-            "binding": self.binding_mode,
-            "return_expectation_policy": self.return_expectation_policy,
+            "binding": binding_mode,
         }
         if _is_aggregate_return_type(self.runtime_type):
             payload["value_cardinality"] = "aggregate"
@@ -324,10 +351,17 @@ class FunctionalCapabilityReturn:
             self.description,
             self.result_form_description,
             _aggregate_return_binding_description(self),
+            (
+                "对象身份由编译器从当前scope的题面权威中选择；"
+                "不要为此添加catalog未声明的输入参数。"
+                if compiler_selected_identity
+                else ""
+            ),
         )
         if description:
             payload["desc"] = description
         if self.possible_forms:
+            payload["return_expectation_policy"] = "selectable"
             payload["possible_forms"] = list(self.possible_forms)
         if self.max_independent_free_parameters is not None:
             payload["max_independent_free_parameters"] = (
@@ -432,12 +466,18 @@ class FunctionalCapability:
         return None
 
     def to_prompt_payload(self) -> dict[str, Any]:
+        exposed_arg_names = frozenset(item.name for item in self.args)
         payload: dict[str, Any] = {
             "capability_id": self.capability_id,
             "title": self.title,
             "use_when": self.use_when,
             "args": [item.to_prompt_payload() for item in self.args],
-            "returns": [item.to_prompt_payload() for item in self.returns],
+            "returns": [
+                item.to_prompt_payload(
+                    exposed_arg_names=exposed_arg_names,
+                )
+                for item in self.returns
+            ],
         }
         if self.do_not_use_when:
             payload["do_not_use_when"] = list(self.do_not_use_when)

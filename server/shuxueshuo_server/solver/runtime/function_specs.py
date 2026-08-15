@@ -1273,11 +1273,14 @@ def _arg_spec_from_method_input(
             else None
         ),
         object_kind=object_kind_for_runtime_type(primary_type),
-        description=_function_arg_contract_description(
-            contract,
-            name=name,
-            runtime_type=runtime_type,
-            kind=kind,
+        description=(
+            _function_arg_contract_description(
+                contract,
+                name=name,
+                runtime_type=runtime_type,
+                kind=kind,
+            )
+            or str(getattr(input_spec, "role", "")).strip()
         ),
         provides_semantic_roles=(
             contract_slot.provides_semantic_roles
@@ -1465,6 +1468,9 @@ def _analyze_quadratic_coefficient_inputs(
     from shuxueshuo_server.solver.runtime.methods.quadratic_from_constraints import (
         analyze_quadratic_constraints,
     )
+    from shuxueshuo_server.solver.runtime.symbolic_state_representation import (
+        SymbolicStateRepresentationError,
+    )
 
     runtime_inputs: dict[str, Any] = {}
     for name, path in inputs.items():
@@ -1500,10 +1506,6 @@ def _analyze_quadratic_coefficient_inputs(
             # leave the strict method invocation unchanged.
             return ConstraintAnalyzerResult(inputs)
     declared_free_parameters = _declared_free_parameters(runtime_inputs)
-    requested_free_parameter_handles = _read_quadratic_coefficient_handles(
-        step,
-        index=index,
-    )
     target_parameter = runtime_inputs.get("target_parameter")
     if target_parameter is not None:
         if target_parameter in declared_free_parameters:
@@ -1523,52 +1525,23 @@ def _analyze_quadratic_coefficient_inputs(
             key=lambda symbol: getattr(symbol, "name", str(symbol)),
         )
     )
-    analysis = analyze_quadratic_constraints(
-        {
-            name: value
-            for name, value in runtime_inputs.items()
-            if name not in {"free_parameter", "free_parameters"}
-        },
-        preferred_free_parameters=preferred_free_parameters,
-    )
-    if analysis.status == "determined":
-        normalized = {
-            name: path
-            for name, path in inputs.items()
-            if name not in {"free_parameter", "free_parameters"}
-        }
-        return ConstraintAnalyzerResult(
-            normalized,
-            _free_parameter_basis_repairs(
-                requested_free_parameter_handles,
-                selected_handles=(),
-            ),
-        )
-    if analysis.status == "single_free" and len(analysis.free_parameters) == 1:
-        symbol = analysis.free_parameters[0]
-        symbol_handle, symbol_path = _visible_symbol_binding(
-            symbol.name,
-            step=step,
-            index=index,
-        )
-        normalized = {
-            **{
-                name: path
-                for name, path in inputs.items()
+    try:
+        analysis = analyze_quadratic_constraints(
+            {
+                name: value
+                for name, value in runtime_inputs.items()
                 if name not in {"free_parameter", "free_parameters"}
             },
-            "free_parameter": symbol_path,
-        }
-        return ConstraintAnalyzerResult(
-            normalized,
-            _free_parameter_basis_repairs(
-                requested_free_parameter_handles,
-                selected_handles=(symbol_handle,),
-            ),
+            preferred_free_parameters=preferred_free_parameters,
         )
-    if analysis.status == "underdetermined":
+    except SymbolicStateRepresentationError as exc:
+        raise StrategyDraftValidationError(str(exc)) from exc
+    if analysis.status == "determined":
+        if not declared_free_parameters:
+            return ConstraintAnalyzerResult(inputs)
+    if analysis.status in {"single_free", "underdetermined"}:
         authoritative = set(analysis.free_parameters)
-        if authoritative and declared_free_parameters == authoritative:
+        if declared_free_parameters == authoritative:
             return ConstraintAnalyzerResult(inputs)
         names = ",".join(symbol.name for symbol in analysis.free_parameters)
         declared = ",".join(
@@ -1578,6 +1551,16 @@ def _analyze_quadratic_coefficient_inputs(
         raise StrategyDraftValidationError(
             "function.constraints_underdetermined: "
             f"step={step.step_id}, free_parameters={names or 'multiple'}, "
+            f"declared_free_parameters={declared or 'none'}"
+        )
+    if analysis.status == "determined":
+        declared = ",".join(
+            symbol.name
+            for symbol in sorted(declared_free_parameters, key=lambda item: item.name)
+        )
+        raise StrategyDraftValidationError(
+            "function.state_representation_mismatch: "
+            f"step={step.step_id}, free_parameters=none, "
             f"declared_free_parameters={declared or 'none'}"
         )
     raise StrategyDraftValidationError(
@@ -1602,70 +1585,6 @@ def _declared_free_parameters(runtime_inputs: Mapping[str, Any]) -> set[Any]:
 _CONSTRAINT_ANALYZERS: dict[str, ConstraintAnalyzer] = {
     "quadratic_coefficients": _analyze_quadratic_coefficient_inputs,
 }
-
-
-def _visible_symbol_binding(
-    name: str,
-    *,
-    step: FunctionalCompileStepView,
-    index: Any,
-) -> tuple[str, str]:
-    for scope_id in reversed(index.handle_registry.ancestor_scopes(step.scope_id)):
-        handle = f"symbol:{scope_id}:{name}"
-        if handle in index.bindings:
-            return handle, index.path_for(handle, expected_type="Symbol")
-    raise StrategyDraftValidationError(
-        "function.arg_missing: "
-        f"method=quadratic_from_constraints, arg=free_parameter, symbol={name}"
-    )
-
-
-def _free_parameter_basis_repairs(
-    requested_handles: tuple[str, ...],
-    *,
-    selected_handles: tuple[str, ...],
-) -> tuple[FunctionArgBindingRepair, ...]:
-    if set(requested_handles) == set(selected_handles):
-        return ()
-    return (
-        FunctionArgBindingRepair(
-            arg_name="free_parameters",
-            source_handles=selected_handles,
-            reason="normalize_constraint_free_parameter_basis",
-        ),
-    )
-
-
-def _read_quadratic_coefficient_handles(
-    step: FunctionalCompileStepView,
-    *,
-    index: Any,
-) -> tuple[str, ...]:
-    """Return explicit Symbol reads that belong to the quadratic basis."""
-
-    coefficients = set(
-        index.context.read_path(
-            "$problem.symbol_lists.quadratic_coefficients",
-            from_scope_id=step.scope_id,
-            expected_type="SymbolList",
-        ).value
-    )
-    handles: list[str] = []
-    for handle in _compile_input_handles(step):
-        binding = index.bindings.get(handle)
-        if binding is None or binding.value_type != "Symbol":
-            continue
-        try:
-            symbol = index.context.read_path(
-                binding.path,
-                from_scope_id=step.scope_id,
-                expected_type="Symbol",
-            ).value
-        except (KeyError, PermissionError, TypeError, ValueError):
-            continue
-        if symbol in coefficients:
-            handles.append(handle)
-    return unique_ordered(handles)
 
 
 def _effective_input_bindings(

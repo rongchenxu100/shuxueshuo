@@ -690,6 +690,21 @@ class CanonicalRuntimeBindingIndex:
                 return original_path
         except Exception:
             pass
+        reuse_writes = tuple(
+            write
+            for write in self.projected_state_writes
+            if write.object_ref == handle
+            and write.runtime_type == "Point"
+            and write.allocation_action == "reuse"
+            and write.math_object_id is not None
+        )
+        if len(reuse_writes) == 1:
+            # This does not approve a duplicate write. It only preserves the
+            # immutable target identity long enough for the transactional
+            # runtime-equivalence gate to execute and compare the candidate.
+            return self.immutable_point_identity_path_for(
+                reuse_writes[0].math_object_id
+            )
         raise StrategyDraftValidationError(
             "duplicate_point_coordinate_fact: "
             f"handle={handle} is already a computed Point at {binding.path}; "
@@ -758,6 +773,33 @@ class CanonicalRuntimeBindingIndex:
             name=name,
             definition={"definition": "functional_typed_object_identity"},
             scope_id=scope_id,
+            source="typed_object_identity",
+        )
+        return raw_path
+
+    def runtime_reuse_point_probe_path_for(
+        self,
+        handle: str,
+        *,
+        step_id: str,
+    ) -> str:
+        """Create a writable step-local target for runtime equivalence probes."""
+
+        kind, _scope_id, name = _require_scoped_handle(handle)
+        if kind != "point":
+            raise StrategyDraftValidationError(
+                f"point_identity_path_not_found: {handle}"
+            )
+        raw_path = f"$step.{step_id}.temp.reuse_target_{name}"
+        self.declarations[raw_path] = ContextDeclaration(
+            path=raw_path,
+            type="PointRef",
+            name=name,
+            definition={
+                "definition": "functional_runtime_equivalence_probe",
+                "canonical_handle": handle,
+            },
+            scope_id=step_id,
             source="typed_object_identity",
         )
         return raw_path

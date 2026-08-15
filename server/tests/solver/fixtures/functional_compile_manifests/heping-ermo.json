@@ -406,7 +406,6 @@
               "inputs": [
                 "parameter",
                 "parameter_constraint",
-                "parameter_value",
                 "side_end",
                 "side_end_ref",
                 "side_start",
@@ -433,16 +432,6 @@
           "target": "parameter_constraint",
           "paths": [
             "$problem.conditions.symbol_constraint_6098472a86b7"
-          ]
-        },
-        {
-          "arg": "parameter_value",
-          "item": 0,
-          "role": "parameter_value",
-          "authority": "resolver",
-          "target": "parameter_value",
-          "paths": [
-            "$subquestion.i_2.facts.__functional_transaction_derive_square_vertex_G_i_2"
           ]
         },
         {
@@ -523,7 +512,7 @@
           "allocation_action": "create",
           "result_form": "open_state",
           "object_id": "point:problem:G",
-          "source_version_count": 3,
+          "source_version_count": 2,
           "closure_signature": null
         }
       ]
@@ -542,6 +531,7 @@
               "inputs": [
                 "curve_point",
                 "parabola",
+                "parameter",
                 "target_point",
                 "x"
               ],
@@ -574,6 +564,16 @@
           "target": "parabola",
           "paths": [
             "$subquestion.i_2.facts.__functional_transaction_solve_axis_point_candidates_i_2"
+          ]
+        },
+        {
+          "arg": "parameter",
+          "item": 0,
+          "role": "parameter",
+          "authority": "wire",
+          "target": "parameter",
+          "paths": [
+            "$subquestion.i_2.facts.__functional_transaction_solve_axis_point_candidates_i_3"
           ]
         },
         {
@@ -614,7 +614,7 @@
           "allocation_action": "create",
           "result_form": "closed_state",
           "object_id": "point:problem:E",
-          "source_version_count": 3,
+          "source_version_count": 4,
           "closure_signature": null
         }
       ]
@@ -1180,6 +1180,7 @@
               "method_id": "parameterized_point_locus_line",
               "scope": "derive_locus_G_ii",
               "inputs": [
+                "parameter",
                 "point"
               ],
               "outputs": {
@@ -1193,6 +1194,16 @@
         }
       ],
       "bindings": [
+        {
+          "arg": "parameter",
+          "item": 0,
+          "role": "parameter",
+          "authority": "wire",
+          "target": "parameter",
+          "paths": [
+            "$question.ii.facts.__functional_transaction_derive_locus_G_ii_1"
+          ]
+        },
         {
           "arg": "point",
           "item": 0,
@@ -1221,7 +1232,7 @@
           "allocation_action": "call_local_value",
           "result_form": "open_state",
           "object_id": null,
-          "source_version_count": 1,
+          "source_version_count": 2,
           "closure_signature": null
         }
       ]

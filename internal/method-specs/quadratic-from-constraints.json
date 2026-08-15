@@ -1,8 +1,8 @@
 {
   "method_id": "quadratic_from_constraints",
   "title": "由二次函数约束求抛物线",
-  "description": "由题面模板建立，或继续化简当前同一对象的抛物线状态。通过已知系数、曲线点、系数关系和额外方程求当前问需要的最简抛物线。它适合在代入后能把 a,b,c 完全确定，或至少化简到只剩一个上下文有用的未知参数时使用；若 b、c 等多个参数都可作为自由参数，应结合后续长度、最值、曲线点或答案目标选择保留哪个参数，无法判断时应等待更多约束。",
-  "summary": "从题面函数模板建立抛物线，或在当前同一抛物线状态上追加已知系数、系数关系、曲线点和参数值；输出当前约束下最简的系数与抛物线。指定 target_parameter 时还可输出该系数关于 free_parameters 的开放或闭合状态。使用原则：建立曲线和继续追加约束都使用这一能力；多个已知系数使用 known_coefficients，单个运行参数代入才使用 parameter_value。题面函数模板已有多个系数值时，应把这些系数一次放入 known_coefficients，不要逐个调用表达式参数代入能力来建立抛物线。",
+  "description": "由编译器选择当前scope的题面二次函数身份与可见状态，Plan只提交当前scope新增的已知系数、曲线点、系数关系和额外方程，求该scope约束下的最简抛物线。应用本步骤当前scope约束后，free_parameters必须逐项列出仍未确定的全部系数符号；不能根据下游Goal希望求哪个参数来提前收窄自由参数。兄弟scope使用不同局部条件时，应在各自scope分别生成状态。",
+  "summary": "根据当前scope中由编译器注入的唯一题面二次函数身份与可见状态，联立本步骤新增的已知系数、系数关系、曲线点、等式或参数值，输出最简系数与抛物线。Plan只填写catalog公开的约束参数；quadratic、parabola、x和all_coefficients均由编译器确定，不得自行放入args。指定target_parameter时还可输出该系数关于free_parameters的开放或闭合状态。使用原则：多个已知系数应一次放入 known_coefficients；单个运行参数代入才使用parameter_value；free_parameters必须等于应用本步骤当前scope约束后实际剩余的全部自由系数。",
   "solves": [
     "derive_quadratic_from_constraints"
   ],
@@ -60,7 +60,8 @@
     },
     "free_parameters": {
       "type": "SymbolList",
-      "required": false
+      "required": false,
+      "role": "应用本步骤当前scope可见约束后仍未确定的全部系数符号；不得按下游Goal目标人为收窄"
     },
     "parameter": {
       "type": "Symbol",
@@ -94,18 +95,18 @@
   },
   "preconditions": [
     "输入约束必须能唯一确定除 free_parameter/free_parameters 外的缺失系数",
-    "若作为独立化简步骤，化简后应完全确定系数，或只保留一个由后续条件/目标明确需要的自由参数",
-    "当多个自由参数都可表达同一函数时，应由 Planner 结合后续条件选择参数；不能唯一判断时不要提前缓存含参系数"
+    "free_parameter/free_parameters必须完整列出应用当前scope可见约束后仍未确定的系数",
+    "局部条件属于子scope或兄弟scope时，状态producer必须位于对应局部scope，不能仅因共享同一抛物线身份而提升到祖先"
   ],
   "do_not_use_when": [
     "当前目标所需的同一抛物线状态已经由前序调用完整确定，无需用相同约束重复求解。",
-    "现有约束仍有多个自由参数，且无法唯一选择一个会被后续条件或答案目标消费的参数。",
+    "不能根据下游Goal希望求哪个参数来选择或缩减free_parameters；它必须保留当前scope约束后全部真实自由符号。",
     "要求 closed_state 时，不能遗漏当前抛物线仍含自由符号对应的 parameter_value；代码只会在 Symbol 身份唯一时确定性补全。",
     "不要把参数范围或不等式放入 extra_equation；它只接受用于求系数的等式。",
     "不要把同一个 Symbol 同时声明为 free_parameters 和 target_parameter。",
     "题面 Function 模板已有多个已知系数时，不要逐个调用 evaluate_expression_at_parameter；使用 known_coefficients 一次建立当前 Parabola 状态。",
-    "目标只是把已求出的参数值代回当前抛物线；此时应读取该抛物线状态并使用参数求值能力，而不是建立一条互不依赖的同对象状态链。",
-    "不读取当前函数状态，却再次写入同一函数对象；只有新增约束能够形成可证明的状态细化时，才应继续使用该能力。",
+    "目标只是把已求出的参数值代回前序抛物线结果；此时应通过StepResultRef读取该结果并使用参数求值能力，而不是再次建立抛物线。",
+    "不要添加quadratic、parabola、x或all_coefficients参数；这些内部输入由编译器从当前scope的题面权威中注入，且不属于公开args。",
     "新增曲线点或方程代入后成为恒等式，或只约束其他符号，却仍指定一个未出现在这些约束中的 target_parameter；该能力不能凭目标名称反求系数。"
   ],
   "postconditions": [

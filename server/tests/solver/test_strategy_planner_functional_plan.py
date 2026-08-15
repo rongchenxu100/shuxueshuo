@@ -1461,7 +1461,7 @@ def test_context_role_conflict_is_typed_retry_issue() -> None:
     }
 
 
-def test_free_parameter_basis_follows_unique_downstream_symbol_constraint() -> None:
+def test_free_parameter_basis_is_not_rewritten_from_downstream_constraint() -> None:
     inputs, registry, context, payload = _hexi_case()
     producer = next(
         call
@@ -1486,23 +1486,19 @@ def test_free_parameter_basis_follows_unique_downstream_symbol_constraint() -> N
         question_goals=inputs.question_goals,
     )
 
-    repaired = next(
+    reconciled = next(
         call
         for call in result.plan.calls
         if call.call_id == "derive_parametric_parabola_ii"
     )
-    assert repaired.args["free_parameters"] == (
-        SemanticRef(ref="b", kind="symbol"),
-    )
-    assert any(
-        item["action"]
-        == "align_free_parameter_basis_with_downstream_constraint"
-        and item["call_id"] == "derive_parametric_parabola_ii"
+    assert "free_parameters" not in reconciled.args
+    assert not any(
+        item["action"] == "align_free_parameter_basis_with_downstream_constraint"
         for item in result.elaboration["deterministic_repairs"]
     )
 
 
-def test_multiple_explicit_free_parameters_follow_unique_downstream_constraint() -> None:
+def test_explicit_free_parameters_are_not_narrowed_from_downstream_goal() -> None:
     inputs, registry, context, payload = _hexi_case()
     producer = next(
         call
@@ -1530,19 +1526,17 @@ def test_multiple_explicit_free_parameters_follow_unique_downstream_constraint()
         question_goals=inputs.question_goals,
     )
 
-    repaired = next(
+    reconciled = next(
         call
         for call in result.plan.calls
         if call.call_id == "derive_parametric_parabola_ii"
     )
-    assert repaired.args["free_parameters"] == (
+    assert reconciled.args["free_parameters"] == (
         SemanticRef(ref="b", kind="symbol"),
+        SemanticRef(ref="c", kind="symbol"),
     )
-    assert any(
-        item["action"]
-        == "align_free_parameter_basis_with_downstream_constraint"
-        and item["from"] == "b,c"
-        and item["to"] == "b"
+    assert not any(
+        item["action"] == "align_free_parameter_basis_with_downstream_constraint"
         for item in result.elaboration["deterministic_repairs"]
     )
 
@@ -1582,7 +1576,7 @@ def test_curve_candidate_direct_compile_does_not_invent_omitted_constraint() -> 
     assert "symbol_constraint" not in {item.key.arg_name for item in bindings}
 
 
-def test_free_parameter_suppresses_same_symbol_value_auto_fill() -> None:
+def test_free_parameter_does_not_auto_fill_optional_symbol_value() -> None:
     problem = load_problem_ir(HEPING_FIXTURE)
     inputs = replace(build_strategy_probe_inputs(problem), question_goals=[])
     problem_payload = problem_to_llm_payload(problem)
@@ -1667,13 +1661,13 @@ def test_free_parameter_suppresses_same_symbol_value_auto_fill() -> None:
         for item in result.functional_binding_context.bindings
         if item.key.call_id == "keep_parameter_open"
     }
-    assert any(
+    assert not any(
         item["action"] == "suppress_value_for_preserved_symbol"
         for item in result.elaboration["deterministic_repairs"]
     )
 
 
-def test_free_parameter_basis_follows_transitive_symbol_consumer() -> None:
+def test_missing_free_parameter_basis_is_not_inferred_from_transitive_consumer() -> None:
     problem = load_problem_ir(HEXI_FIXTURE)
     inputs, registry, context, payload = _hexi_case()
     producer = next(
@@ -1705,13 +1699,10 @@ def test_free_parameter_basis_follows_transitive_symbol_consumer() -> None:
         for call in result.plan.calls
         if call.call_id == "derive_parametric_parabola_iii"
     )
-    assert repaired.args["free_parameters"] == (
-        SemanticRef(ref="b", kind="symbol"),
-    )
-    assert any(
+    assert "free_parameters" not in repaired.args
+    assert not any(
         item["action"]
         == "align_free_parameter_basis_with_downstream_constraint"
-        and item["call_id"] == producer["call_id"]
         for item in result.elaboration["deterministic_repairs"]
     )
 
@@ -1724,8 +1715,15 @@ def test_free_parameter_basis_follows_transitive_symbol_consumer() -> None:
         problem_payload=problem_to_llm_payload(problem),
         validation_report=validation,
     )
-    assert replay.output is not None, replay.errors
-    assert replay.diagnostic is not None and replay.diagnostic.ok
+    assert replay.output is None
+    assert replay.diagnostic is not None and not replay.diagnostic.ok
+    assert replay.retry_state is not None
+    assert replay.transactional_attempt_result is not None
+    issue = replay.transactional_attempt_result.root_issues[0]
+    assert issue.code == "functional.transactional_call_failed"
+    assert "function.constraints_underdetermined" in issue.message
+    assert "free_parameters=c" in issue.message
+    assert "declared_free_parameters=none" in issue.message
 
 
 def test_explicit_condition_target_removes_identity_ambiguity_not_missing_state() -> None:
@@ -2331,7 +2329,7 @@ def test_explicit_target_parameter_is_not_reinferred_as_free_parameter() -> None
     assert "free_parameters" not in invocation.inputs
 
 
-def test_downstream_symbol_constraint_writes_single_free_basis_to_plan() -> None:
+def test_downstream_symbol_constraint_does_not_narrow_explicit_free_basis() -> None:
     inputs, payload, registry, _context_value = _heping_ermo_case()
     call = next(
         call
@@ -2362,7 +2360,7 @@ def test_downstream_symbol_constraint_writes_single_free_basis_to_plan() -> None
         validation_report=validation,
     )
 
-    assert replay.output is not None, replay.errors
+    assert replay.output is None
     assert replay.functional_plan is not None
     normalized = next(
         item
@@ -2370,25 +2368,33 @@ def test_downstream_symbol_constraint_writes_single_free_basis_to_plan() -> None
         if item.call_id == "derive_parametric_parabola_ii"
     )
     assert normalized.args["free_parameters"] == (
+        SemanticRef(ref="b", kind="symbol"),
         SemanticRef(ref="c", kind="symbol"),
     )
     assert replay.functional_reconciliation is not None
-    free_binding = next(
+    free_bindings = tuple(
         item
         for item in replay.functional_reconciliation.functional_binding_context.bindings
         if item.key.call_id == "derive_parametric_parabola_ii"
         and item.key.arg_name == "free_parameters"
     )
-    assert free_binding.source.math_object_id is not None
-    assert free_binding.source.math_object_id.value == "symbol:problem:c"
-    assert any(
+    assert {
+        item.source.math_object_id.value
+        for item in free_bindings
+        if item.source.math_object_id is not None
+    } == {"symbol:problem:b", "symbol:problem:c"}
+    assert not any(
         item["action"]
         == "align_free_parameter_basis_with_downstream_constraint"
-        and item["call_id"] == "derive_parametric_parabola_ii"
         for item in replay.functional_reconciliation.elaboration[
             "deterministic_repairs"
         ]
     )
+    assert replay.transactional_attempt_result is not None
+    issue = replay.transactional_attempt_result.root_issues[0]
+    assert issue.code == "functional.transactional_call_failed"
+    assert "function.constraints_ambiguous" in issue.message
+    assert "branch_count=0" in issue.message
 
 
 def test_unified_quadratic_constraint_rejects_target_in_free_basis() -> None:
@@ -3528,6 +3534,57 @@ def test_scalar_closure_appends_read_closed_substitution_before_promotion() -> N
     }
     assert list(closed.promote_outputs.values()) == [target]
     assert source not in closed.promote_outputs
+
+
+def test_scalar_closure_does_not_repeat_declared_output_substitution() -> None:
+    inputs = _base_inputs()
+    registry = ScalarResultClosureRegistry(
+        FunctionSpecRegistry.from_family_spec(
+            inputs.family_spec,
+            inputs.method_specs,
+        )
+    )
+    source = "$step.derive_value.temp.evaluated_distance"
+    target = "$question.ii_1.answers.minimum_value"
+    symbol_path = "$problem.symbols.t"
+    value_path = "$question.ii_1.outputs.t_value"
+    plan = StepPlan(
+        step_id="derive_value",
+        goal=StepGoal(
+            goal_id="derive_minimum_value:derive_value",
+            type="derive_minimum_value",
+            target_path=target,
+            scope_id="ii_1",
+        ),
+        scope="ii_1",
+        invocations=[
+            MethodInvocation(
+                invocation_id="derive_value.producer",
+                method_id="distance_between_points",
+                scope="derive_value",
+                inputs={
+                    "p1": "$question.ii.points.P",
+                    "p2": "$question.ii.points.Q",
+                    "parameter": symbol_path,
+                    "parameter_value": value_path,
+                },
+                outputs={"evaluated_distance": source},
+            )
+        ],
+        expected_outputs=[target],
+        promote_outputs={source: target},
+    )
+
+    closed = close_scalar_plan_output(
+        plan,
+        target_path=target,
+        runtime_type="MinimumExpression",
+        parameter_pairs=((symbol_path, value_path),),
+        registry=registry,
+        return_name="minimum_expression",
+    )
+
+    assert closed == plan
 
 
 def test_redundant_incompatible_optional_arg_is_dropped_by_contract_role() -> None:
@@ -10029,7 +10086,7 @@ def test_student_narrative_keeps_compiled_step_scope_scope_identity() -> None:
     assert narrative.placements[0].placement_reason == "compiled_step_scope"
 
 
-def test_nankai_duplicate_sibling_path_reduction_is_placed_and_shared() -> None:
+def test_nankai_duplicate_path_reduction_is_proved_only_at_runtime() -> None:
     inputs = _base_inputs()
     payload = json.loads(NANKAI_FUNCTIONAL_PLAN.read_text(encoding="utf-8"))
     scopes = {item["scope_id"]: item for item in payload["scopes"]}
@@ -10069,37 +10126,31 @@ def test_nankai_duplicate_sibling_path_reduction_is_placed_and_shared() -> None:
     )
 
     assert result.ok, [item.to_payload() for item in result.issues]
-    assert result.call_aliases[duplicate_id] == original_id
-    assert duplicate_id not in {call.call_id for call in result.plan.calls}
-    assert duplicate_id not in json.dumps(
-        result.to_payload()["effective_plan"],
-        sort_keys=True,
-    )
-    placement = next(
-        item for item in result.call_placements if item.canonical_call_id == original_id
-    )
-    assert placement.alias_call_ids == (duplicate_id,)
-    assert placement.declared_scope_id == "ii"
-    assert placement.execution_scope_id == "ii"
-    assert placement.return_scopes == {"path_transformation": "ii"}
-    path_return = next(
-        item
+    assert result.call_aliases == {}
+    assert {original_id, duplicate_id} <= {
+        call.call_id for call in result.plan.calls
+    }
+    placements = {
+        item.canonical_call_id: item for item in result.call_placements
+    }
+    assert placements[original_id].alias_call_ids == ()
+    assert placements[original_id].execution_scope_id == "ii"
+    assert placements[original_id].return_scopes == {
+        "path_transformation": "ii"
+    }
+    assert placements[duplicate_id].alias_call_ids == ()
+    assert placements[duplicate_id].execution_scope_id == "ii_2"
+    assert placements[duplicate_id].return_scopes == {
+        "path_transformation": "ii_2"
+    }
+    allocations = {
+        item.call_id: item.returns[0]
         for item in result.calls
-        if item.call_id == original_id
-    ).returns[0]
-    assert path_return.selected_version_id is not None
-    assert path_return.logical_state_key is not None
-    assert f'"from_call": "{duplicate_id}"' not in json.dumps(
-        result.plan.to_payload(),
-        sort_keys=True,
-    )
-    execution = next(
-        item for item in result.execution_entries if item.call_id == original_id
-    )
-    assert duplicate_id not in {item.call_id for item in result.execution_entries}
-    assert execution.alias_call_ids == (duplicate_id,)
-    assert execution.declared_scope_id == "ii"
-    assert execution.execution_scope_id == "ii"
+        if item.call_id in {original_id, duplicate_id}
+    }
+    assert allocations[original_id].allocation_action == "create"
+    assert allocations[duplicate_id].allocation_action == "reuse"
+    assert allocations[duplicate_id].canonical_producer_call_id == original_id
 
     shadow_context = PlannerStateContextBuilder.from_replay_result(
         PlannerRetryReplayResult(
@@ -10114,15 +10165,15 @@ def test_nankai_duplicate_sibling_path_reduction_is_placed_and_shared() -> None:
     timeline_call = next(
         item
         for item in shadow_context.state.functional_call_timeline
-        if item["call_id"] == original_id
+        if item["call_id"] == duplicate_id
     )
-    assert timeline_call["placement"]["alias_call_ids"] == [duplicate_id]
-    assert timeline_call["placement"]["execution_scope_id"] == "ii"
+    assert timeline_call["placement"]["alias_call_ids"] == []
+    assert timeline_call["placement"]["execution_scope_id"] == "ii_2"
     assert duplicate_id in json.dumps(
         shadow_context.state.raw_functional_plan_snapshot,
         sort_keys=True,
     )
-    assert duplicate_id not in json.dumps(
+    assert duplicate_id in json.dumps(
         shadow_context.state.functional_plan_snapshot,
         sort_keys=True,
     )
@@ -10139,14 +10190,26 @@ def test_nankai_duplicate_sibling_path_reduction_is_placed_and_shared() -> None:
     )
     assert runtime_replay.output is not None
     assert runtime_replay.functional_reconciliation is not None
-    effective_step_ids = [step.step_id for step in runtime_replay.output.step_plans]
-    assert len(effective_step_ids) == len(set(effective_step_ids))
-    assert duplicate_id not in effective_step_ids
-    assert duplicate_id not in {
+    execution_report = runtime_replay.transactional_execution_report
+    assert execution_report is not None
+    runtime_alias = next(
+        item
+        for item in execution_report.runtime_equivalent_aliases
+        if item.duplicate_call_id == duplicate_id
+    )
+    assert runtime_alias.canonical_call_id == original_id
+    duplicate_execution = next(
+        item
+        for item in execution_report.call_results
+        if item.call_id == duplicate_id
+    )
+    assert duplicate_execution.status == "verified"
+    assert duplicate_execution.state_writes == ()
+    assert duplicate_id in {
         step.step_id for step in runtime_replay.output.step_plans
     }
     assert runtime_replay.retry_state is not None
-    assert duplicate_id not in json.dumps(
+    assert duplicate_id in json.dumps(
         runtime_replay.retry_state.baseline_candidate,
         sort_keys=True,
     )
@@ -10169,7 +10232,7 @@ def test_nankai_duplicate_sibling_path_reduction_is_placed_and_shared() -> None:
     )
 
 
-def test_sibling_path_reduction_preserves_published_input_scope_when_hoisted() -> None:
+def test_sibling_path_reductions_stay_isolated_before_runtime_proof() -> None:
     inputs = _base_inputs()
     payload = json.loads(NANKAI_FUNCTIONAL_PLAN.read_text(encoding="utf-8"))
     scopes = {item["scope_id"]: item for item in payload["scopes"]}
@@ -10238,28 +10301,36 @@ def test_sibling_path_reduction_preserves_published_input_scope_when_hoisted() -
     )
 
     assert result.ok, [item.to_payload() for item in result.issues]
-    assert result.call_aliases[duplicate_id] == first_id
-    placement = next(
-        item for item in result.call_placements if item.canonical_call_id == first_id
-    )
-    assert placement.declared_scope_id == "ii_1"
-    assert placement.execution_scope_id == "ii"
-    assert placement.return_scopes == {"path_transformation": "ii"}
-    execution = next(
-        entry for entry in result.execution_entries if entry.call_id == first_id
-    )
-    assert execution.execution_scope_id == "ii"
-    allocation = next(
-        item
+    assert result.call_aliases == {}
+    placements = {
+        item.canonical_call_id: item for item in result.call_placements
+    }
+    assert placements[first_id].execution_scope_id == "ii_1"
+    assert placements[first_id].return_scopes == {
+        "path_transformation": "ii_1"
+    }
+    assert placements[duplicate_id].execution_scope_id == "ii_2"
+    assert placements[duplicate_id].return_scopes == {
+        "path_transformation": "ii_2"
+    }
+    allocations = {
+        call.call_id: next(
+            item
+            for item in call.returns
+            if item.return_name == "path_transformation"
+        )
         for call in result.calls
-        if call.call_id == first_id
-        for item in call.returns
-        if item.return_name == "path_transformation"
+        if call.call_id in {first_id, duplicate_id}
+    }
+    assert allocations[first_id].allocation_action == "create"
+    assert allocations[duplicate_id].allocation_action == "isolated"
+    assert (
+        allocations[first_id].selected_version_id
+        != allocations[duplicate_id].selected_version_id
     )
-    assert allocation.valid_scope == "ii"
 
 
-def test_nankai_redundant_existing_object_write_reuses_answer_producer() -> None:
+def test_nankai_dead_redundant_object_writes_use_liveness_not_aliases() -> None:
     inputs = _base_inputs()
     payload = json.loads(NANKAI_FUNCTIONAL_PLAN.read_text(encoding="utf-8"))
     scopes = {item["scope_id"]: item for item in payload["scopes"]}
@@ -10293,10 +10364,7 @@ def test_nankai_redundant_existing_object_write_reuses_answer_producer() -> None
     )
 
     assert result.ok, [item.to_payload() for item in result.issues]
-    assert all(
-        result.call_aliases[duplicate_id] == "i_derive_D"
-        for duplicate_id in duplicate_ids
-    )
+    assert result.call_aliases == {}
     assert not set(duplicate_ids) & {call.call_id for call in result.plan.calls}
     assert not set(duplicate_ids) & {
         entry.call_id for entry in result.execution_entries
@@ -10306,12 +10374,12 @@ def test_nankai_redundant_existing_object_write_reuses_answer_producer() -> None
         for item in result.call_placements
         if item.canonical_call_id == "i_derive_D"
     )
-    assert set(owner.alias_call_ids) == set(duplicate_ids)
+    assert owner.alias_call_ids == ()
     assert owner.execution_scope_id == "problem"
     assert owner.return_scopes == {"axis_point": "problem"}
     for duplicate_id in duplicate_ids:
         assert any(
-            item["action"].startswith("merge_")
+            item["action"] == "drop_dead_pure_function_call"
             and item["call_id"] == duplicate_id
             for item in result.elaboration["deterministic_repairs"]
         )
@@ -10865,16 +10933,15 @@ def test_typed_parameter_destinations_use_symbol_identity() -> None:
 
 
 @pytest.mark.parametrize(
-    ("first_expectation", "second_expectation", "expect_conflict"),
+    ("first_expectation", "second_expectation"),
     (
-        ("open_expression", None, False),
-        ("open_expression", "closed_value", True),
+        ("open_expression", None),
+        ("open_expression", "closed_value"),
     ),
 )
-def test_reconciler_merges_compatible_result_expectations_only(
+def test_reconciler_keeps_result_expectations_separate_until_runtime(
     first_expectation: str,
     second_expectation: str | None,
-    expect_conflict: bool,
 ) -> None:
     inputs = _base_inputs()
     payload = {
@@ -10943,38 +11010,19 @@ def test_reconciler_merges_compatible_result_expectations_only(
         question_goals=(),
     )
 
-    if expect_conflict:
-        assert "functional.return_expectation_conflict" in {
-            item.code for item in result.issues
-        }
-        assert "derive_minimum_from_call_ref" not in {
-            call.call_id for call in result.plan.calls
-        }
-        assert [call.call_id for call in result.calls].count(
-            "derive_minimum_from_object_ref"
-        ) == 1
-        assert any(
-            item["action"] == "isolate_conflicting_equivalent_call"
-            for item in result.elaboration["deterministic_repairs"]
-        )
-        return
     assert result.ok
-    assert [call.call_id for call in result.plan.calls].count(
-        "derive_minimum_from_object_ref"
-    ) == 1
-    assert "derive_minimum_from_call_ref" not in {
-        call.call_id for call in result.plan.calls
-    }
-    canonical = next(
-        call
-        for call in result.plan.calls
-        if call.call_id == "derive_minimum_from_object_ref"
-    )
-    assert canonical.return_expectations == {
+    assert result.call_aliases == {}
+    calls = {call.call_id: call for call in result.plan.calls}
+    assert calls["derive_minimum_from_object_ref"].return_expectations == {
         "path_minimum_expression": "open_expression"
     }
-    assert any(
-        item["action"] == "merge_equivalent_capability_call"
+    assert calls["derive_minimum_from_call_ref"].return_expectations == (
+        {"path_minimum_expression": second_expectation}
+        if second_expectation is not None
+        else {}
+    )
+    assert not any(
+        item["action"].startswith("merge_")
         for item in result.elaboration["deterministic_repairs"]
     )
 
@@ -12493,7 +12541,7 @@ def test_elaboration_defers_hidden_method_inputs_to_typed_placement() -> None:
     )
 
 
-def test_typed_placement_merges_sibling_state_producers_after_resolution() -> None:
+def test_typed_placement_keeps_sibling_state_producers_isolated() -> None:
     inputs = replace(_base_inputs(), question_goals=[])
 
     def construct_target(call_id: str) -> dict[str, Any]:
@@ -12594,16 +12642,25 @@ def test_typed_placement_merges_sibling_state_producers_after_resolution() -> No
     )
 
     assert result.ok, [item.to_payload() for item in result.issues]
-    assert result.call_aliases == {
-        "derive_target_2": "derive_target_1",
-        "derive_midpoint_2": "derive_midpoint_1",
-    }
+    assert result.call_aliases == {}
     placements = {
         item.canonical_call_id: item
         for item in result.call_placements
     }
-    assert placements["derive_target_1"].execution_scope_id == "ii"
-    assert placements["derive_midpoint_1"].execution_scope_id == "ii"
+    assert placements["derive_target_1"].execution_scope_id == "ii_1"
+    assert placements["derive_midpoint_1"].execution_scope_id == "ii_1"
+    assert placements["derive_target_2"].execution_scope_id == "ii_2"
+    assert placements["derive_midpoint_2"].execution_scope_id == "ii_2"
+    allocations = {
+        call.call_id: call.returns[0]
+        for call in result.calls
+        if call.call_id in {"derive_target_1", "derive_target_2"}
+    }
+    assert allocations["derive_target_1"].allocation_action == "create"
+    assert allocations["derive_target_2"].allocation_action == "reuse"
+    assert allocations["derive_target_2"].canonical_producer_call_id == (
+        "derive_target_1"
+    )
 
 
 def test_equal_length_ray_point_allocates_referenced_call_local_object() -> None:
@@ -13684,7 +13741,7 @@ def test_reconciler_prunes_unknown_arg_and_collects_remaining_contract_errors() 
     )
 
 
-def test_reconciler_reuses_pure_object_state_across_sibling_scopes() -> None:
+def test_reconciler_does_not_statically_merge_sibling_object_states() -> None:
     inputs = replace(_base_inputs(), question_goals=[])
     first = _axis_plan_payload()["scopes"][0]["calls"][0]
     first["return_bindings"] = {
@@ -13740,29 +13797,28 @@ def test_reconciler_reuses_pure_object_state_across_sibling_scopes() -> None:
     )
 
     assert result.ok, [item.to_payload() for item in result.issues]
-    assert result.calls[0].returns[0].valid_scope == "problem"
+    assert result.calls[0].returns[0].valid_scope == "i"
     assert [call.call_id for call in result.plan.calls] == [
         "derive_axis_point",
+        "derive_axis_point_again",
         "consume_shared_d",
     ]
-    assert result.call_aliases == {
-        "derive_axis_point_again": "derive_axis_point"
+    assert result.call_aliases == {}
+    placements = {
+        item.canonical_call_id: item for item in result.call_placements
     }
-    placement = result.call_placements[0]
-    assert placement.alias_call_ids == ("derive_axis_point_again",)
-    assert placement.execution_scope_id == "problem"
-    assert any(
-            item["action"] in {
-                "merge_equivalent_object_call",
-                "merge_resolved_equivalent_call",
-                "merge_typed_equivalent_call",
-            }
-        and item["call_id"] == "derive_axis_point_again"
-        for item in result.elaboration["deterministic_repairs"]
-    )
+    assert placements["derive_axis_point"].execution_scope_id == "i"
+    assert placements["derive_axis_point_again"].execution_scope_id == "ii"
+    allocations = {
+        call.call_id: call.returns[0]
+        for call in result.calls
+        if call.call_id in {"derive_axis_point", "derive_axis_point_again"}
+    }
+    assert allocations["derive_axis_point"].allocation_action == "create"
+    assert allocations["derive_axis_point_again"].allocation_action == "isolated"
 
 
-def test_reconciler_reuses_answer_producer_for_same_object_state_write() -> None:
+def test_reconciler_keeps_answer_and_object_writes_until_runtime() -> None:
     inputs = _inputs_for_goal(0)
     answer_call = _axis_plan_payload()["scopes"][0]["calls"][0]
     object_call = json.loads(json.dumps(answer_call))
@@ -13790,14 +13846,18 @@ def test_reconciler_reuses_answer_producer_for_same_object_state_write() -> None
     )
 
     assert result.ok, [item.to_payload() for item in result.issues]
-    assert result.call_aliases == {
-        "derive_axis_point_for_object": "derive_axis_point"
+    assert result.call_aliases == {}
+    assert [call.call_id for call in result.plan.calls] == [
+        "derive_axis_point",
+        "derive_axis_point_for_object",
+    ]
+    allocations = {
+        call.call_id: call.returns[0]
+        for call in result.calls
     }
-    assert [call.call_id for call in result.plan.calls] == ["derive_axis_point"]
-    assert any(
-        item["action"] == "merge_typed_equivalent_call"
-        and item["call_id"] == "derive_axis_point_for_object"
-        for item in result.elaboration["deterministic_repairs"]
+    assert allocations["derive_axis_point"].handle == "answer:i.axis_point"
+    assert allocations["derive_axis_point_for_object"].object_ref == (
+        "point:problem:D"
     )
 
 
@@ -13957,7 +14017,7 @@ def test_final_typed_allocation_orders_wire_consumer_after_producer() -> None:
     ]
 
 
-def test_reconciler_transfers_later_answer_to_earliest_object_producer() -> None:
+def test_reconciler_keeps_answer_producer_until_runtime_equivalence() -> None:
     inputs = _inputs_for_goal(0)
     answer_call = _axis_plan_payload()["scopes"][0]["calls"][0]
     global_call = json.loads(json.dumps(answer_call))
@@ -13992,34 +14052,41 @@ def test_reconciler_transfers_later_answer_to_earliest_object_producer() -> None
     )
 
     assert result.ok, [item.to_payload() for item in result.issues]
-    assert result.call_aliases == {
-        "derive_axis_point": "derive_axis_point_globally",
-        "derive_axis_point_again_in_ii": "derive_axis_point_globally",
-    }
+    assert result.call_aliases == {}
     assert [call.call_id for call in result.plan.calls] == [
-        "derive_axis_point_globally"
+        "derive_axis_point_globally",
+        "derive_axis_point",
     ]
-    owner = result.plan.calls[0]
-    assert owner.return_bindings == {
+    assert result.plan.calls[0].return_bindings == {
+        "axis_point": SemanticRef(ref="D", kind="point")
+    }
+    assert result.plan.calls[1].return_bindings == {
         "axis_point": SemanticRef(
             ref="i.axis_point",
             kind="answer",
             value_type="Point",
         )
     }
-    assert len(result.execution_entries) == 1
-    assert result.execution_entries[0].call_id == "derive_axis_point_globally"
-    allocation = result.calls[0].returns[0]
-    assert allocation.handle == "answer:i.axis_point"
-    assert allocation.state_handle == (
-        "fact:problem:derive_axis_point_globally_axis_point"
+    assert [item.call_id for item in result.execution_entries] == [
+        "derive_axis_point_globally",
+        "derive_axis_point",
+    ]
+    allocations = {
+        call.call_id: call.returns[0] for call in result.calls
+    }
+    assert allocations["derive_axis_point_globally"].allocation_action == (
+        "create"
     )
-    assert allocation.object_ref == "point:problem:D"
-    assert allocation.valid_scope == "problem"
+    answer_allocation = allocations["derive_axis_point"]
+    assert answer_allocation.handle == "answer:i.axis_point"
+    assert answer_allocation.object_ref == "point:problem:D"
+    assert answer_allocation.allocation_action == "reuse"
+    assert answer_allocation.canonical_producer_call_id == (
+        "derive_axis_point_globally"
+    )
     assert any(
-        item["action"] == "reuse_existing_state_for_answer"
-        and item["call_id"] == "derive_axis_point"
-        and item["to"] == "derive_axis_point_globally"
+        item["action"] == "drop_dead_pure_function_call"
+        and item["call_id"] == "derive_axis_point_again_in_ii"
         for item in result.elaboration["deterministic_repairs"]
     )
 
@@ -14035,6 +14102,7 @@ def test_reconciler_transfers_later_answer_to_earliest_object_producer() -> None
     assert replayed.plan.to_payload() == result.plan.to_payload()
     assert tuple(item.call_id for item in replayed.execution_entries) == (
         "derive_axis_point_globally",
+        "derive_axis_point",
     )
 
     runtime_replay = PlannerRetryReplayService().replay_functional_plan(
@@ -14048,17 +14116,23 @@ def test_reconciler_transfers_later_answer_to_earliest_object_producer() -> None
         validation_report=report,
     )
     assert runtime_replay.output is not None
+    execution_report = runtime_replay.transactional_execution_report
+    assert execution_report is not None
+    runtime_alias = next(
+        item
+        for item in execution_report.runtime_equivalent_aliases
+        if item.duplicate_call_id == "derive_axis_point"
+    )
+    assert runtime_alias.canonical_call_id == "derive_axis_point_globally"
     assert [step.step_id for step in runtime_replay.output.step_plans] == [
-        "derive_axis_point_globally"
+        "derive_axis_point_globally",
+        "derive_axis_point",
     ]
     assert runtime_replay.retry_state is not None
     baseline = runtime_replay.retry_state.baseline_candidate
     assert baseline is not None
     baseline_text = json.dumps(baseline, sort_keys=True)
-    assert "derive_axis_point" not in baseline_text.replace(
-        "derive_axis_point_globally",
-        "",
-    )
+    assert "derive_axis_point" in baseline_text
     assert "derive_axis_point_again_in_ii" not in baseline_text
     assert '"ref": "i.axis_point"' in baseline_text
 
@@ -14834,7 +14908,7 @@ def test_context_auto_override_must_match_unique_resolved_state() -> None:
     ]
 
 
-def test_elaborator_merges_calls_after_dropping_internal_return_binding() -> None:
+def test_elaborator_drops_internal_binding_without_static_call_merge() -> None:
     inputs = _inputs_for_goal(5)
     shared_args = {
         "path_transformation": _path_transformation_ref(),
@@ -14892,13 +14966,22 @@ def test_elaborator_merges_calls_after_dropping_internal_return_binding() -> Non
         ),
     )
 
-    assert len(result.plan.calls) == 2
-    assert result.plan.calls[1].call_id == "derive_minimum"
+    assert len(result.plan.calls) == 3
+    assert [call.call_id for call in result.plan.calls] == [
+        "reduce_path",
+        "derive_minimum",
+        "bind_minimum_point",
+    ]
     assert result.plan.calls[1].return_bindings == {}
-    assert result.call_aliases == {"bind_minimum_point": "derive_minimum"}
+    assert result.plan.calls[2].return_bindings == {}
+    assert result.call_aliases == {}
     assert any(
         item.action == "drop_internal_only_return_binding"
         and item.call_id == "bind_minimum_point"
+        for item in result.deterministic_repairs
+    )
+    assert not any(
+        item.action.startswith("merge_")
         for item in result.deterministic_repairs
     )
 
@@ -15475,19 +15558,23 @@ def test_reconciler_refines_latest_parabola_after_point_transitions() -> None:
                         "strategy": "evaluate N at the solved parameter",
                         "reason": "advance N to its numerical coordinate state",
                     },
-                    {
-                        "call_id": "final_numeric_parabola",
-                        "capability_id": "quadratic_from_constraints",
-                        "args": {
+                        {
+                            "call_id": "final_numeric_parabola",
+                            "capability_id": "quadratic_from_constraints",
+                            "args": {
                             "curve_points": [
                                 {"ref": "M", "kind": "point"},
                                 {"ref": "N", "kind": "point"},
                             ],
-                            "coefficient_relation": {
-                                "ref": "coefficient_relation",
-                                "kind": "fact",
+                                "coefficient_relation": {
+                                    "ref": "coefficient_relation",
+                                    "kind": "fact",
+                                },
+                                "parameter_value": {
+                                    "from_call": "solve_m",
+                                    "return": "parameter_value",
+                                },
                             },
-                        },
                         "return_bindings": {
                             "parabola": {
                                 "ref": "parabola",
@@ -15668,7 +15755,7 @@ def test_elaborator_defers_cross_scope_call_merge_to_typed_placement() -> None:
     assert not result.call_aliases
 
 
-def test_reconciler_auto_fills_unique_related_parameter_state() -> None:
+def test_reconciler_uses_explicit_related_parameter_state() -> None:
     inputs = _inputs_for_goal(2)
     payload = {
         "format": "functional_plan/v1",
@@ -15707,6 +15794,10 @@ def test_reconciler_auto_fills_unique_related_parameter_state() -> None:
                             "target_parameter": {
                                 "ref": "a",
                                 "kind": "symbol",
+                            },
+                            "parameter_value": {
+                                "from_call": "solve_parameter",
+                                "return": "parameter_value",
                             },
                         },
                         "return_bindings": {
@@ -15750,7 +15841,7 @@ def test_reconciler_auto_fills_unique_related_parameter_state() -> None:
     assert result.dependency_graph["solve_numeric_parabola"] == (
         "solve_parameter",
     )
-    assert any(
+    assert not any(
         item["action"] == "auto_fill_optional_arg"
         for item in (result.elaboration or {})["deterministic_repairs"]
     )

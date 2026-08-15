@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
+import json
 from types import MappingProxyType
 from typing import Any, Literal, Mapping, Sequence
 
@@ -20,6 +21,11 @@ from shuxueshuo_server.solver.extraction.source_identity import stable_hash
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
 )
+from shuxueshuo_server.solver.runtime.functional_diagnostics import (
+    FunctionalDiagnosticAuthority,
+    FunctionalPromptDiagnosticProjector,
+    diagnostic_authority_from_issue,
+)
 from shuxueshuo_server.solver.runtime.handle_registry import (
     CanonicalHandleRegistry,
 )
@@ -28,6 +34,8 @@ from shuxueshuo_server.solver.runtime.planner_state_context import (
     PlannerStateContext,
 )
 from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
+    ScopedPublishedGoalBinding,
+    ScopedPublishedGoalResultRef,
     ScopedFunctionalPlan,
     ScopedFunctionalPlanAuthority,
     ScopedFunctionalPlanAuthorityAdapter,
@@ -38,11 +46,20 @@ from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
     ScopedFunctionalPlanValidator,
     ScopedFunctionalScope,
     ScopedStepResultRef,
+    apply_scoped_published_goal_bindings,
     scoped_functional_plan_schema,
 )
 from shuxueshuo_server.solver.runtime.strategy_replay import (
     PlannerRetryReplayResult,
     PlannerRetryReplayService,
+)
+from shuxueshuo_server.solver.runtime.functional_retry_versions import (
+    FunctionalRetryGraphCheckpoint,
+)
+from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
+    FunctionalRuntimeEquivalentCallAlias,
+    FunctionalRestoredCallSeed,
+    rebase_restored_call_seed,
 )
 
 
@@ -245,6 +262,10 @@ def functional_goal_execution_checkpoint_schema() -> dict[str, Any]:
                 "type": "array",
                 "items": {"type": "object"},
             },
+            "diagnostic_authorities": {
+                "type": "array",
+                "items": {"type": "object"},
+            },
             "metrics": {"$ref": "#/$defs/metrics"},
             "planning_context_id": nonempty,
             "problem_revision_id": nonempty,
@@ -304,12 +325,17 @@ class FunctionalGoalExecutionStep:
             )
         object.__setattr__(self, "blocked_by", tuple(sorted(set(self.blocked_by))))
 
-    def to_prompt_payload(self) -> dict[str, Any]:
+    def to_prompt_payload(
+        self,
+        *,
+        include_authored_step: bool = True,
+    ) -> dict[str, Any]:
         payload: dict[str, Any] = {
             "step_id": self.step_id,
             "status": self.status,
-            "authored_step": dict(self.authored_step),
         }
+        if include_authored_step:
+            payload["authored_step"] = dict(self.authored_step)
         if self.resolved_inputs:
             payload["resolved_inputs"] = [dict(item) for item in self.resolved_inputs]
         if self.actual_outputs:
@@ -319,6 +345,11 @@ class FunctionalGoalExecutionStep:
         if self.blocked_by:
             payload["blocked_by"] = list(self.blocked_by)
         return payload
+
+    def to_retry_prompt_payload(self) -> dict[str, Any]:
+        """Project execution delta; Previous Canonical Plan owns authored wire."""
+
+        return self.to_prompt_payload(include_authored_step=False)
 
 
 @dataclass(frozen=True)
@@ -377,6 +408,7 @@ class FunctionalGoalExecutionCheckpoint:
     all_required_goals_verified: bool
     blocked_stage: str | None
     checkpoint_id: str
+    diagnostic_authorities: tuple[Mapping[str, Any], ...] = ()
     schema_version: str = FUNCTIONAL_GOAL_EXECUTION_CHECKPOINT_CONTRACT
 
     def __post_init__(self) -> None:
@@ -384,6 +416,14 @@ class FunctionalGoalExecutionCheckpoint:
             self,
             "root_issues",
             tuple(MappingProxyType(dict(item)) for item in self.root_issues),
+        )
+        object.__setattr__(
+            self,
+            "diagnostic_authorities",
+            tuple(
+                MappingProxyType(dict(item))
+                for item in self.diagnostic_authorities
+            ),
         )
         object.__setattr__(
             self,
@@ -430,6 +470,9 @@ class FunctionalGoalExecutionCheckpoint:
     def authority_payload(self) -> dict[str, Any]:
         return {
             **self.to_prompt_payload(),
+            "diagnostic_authorities": [
+                dict(item) for item in self.diagnostic_authorities
+            ],
             "planning_context_id": self.planning_context_id,
             "problem_revision_id": self.problem_revision_id,
             "problem_semantic_hash": self.problem_semantic_hash,
@@ -454,6 +497,8 @@ class FunctionalGoalExecutionCheckpoint:
         planning_context: ProblemPlanningContext,
         binding_catalog: ProblemPlanningBindingCatalog,
         authority: ScopedFunctionalPlanAuthority | None = None,
+        goal_authority: ScopedFunctionalPlanAuthority | None = None,
+        dependency_graph: Mapping[str, Sequence[str]] | None = None,
         binding_context: FunctionalProblemBindingContext | None = None,
     ) -> None:
         mismatches: list[str] = []
@@ -502,14 +547,20 @@ class FunctionalGoalExecutionCheckpoint:
                 step_id: item.binding_signature
                 for step_id, item in authority.step_authorities.items()
             }
-            expected_goal_ids = {
-                step_id: item.consumer_goal_unit_ids
-                for step_id, item in authority.step_authorities.items()
-            }
             if self.plan_id != authority.plan_id:
                 mismatches.append("plan_id")
             if dict(self.step_binding_signatures) != expected_step_signatures:
                 mismatches.append("step_binding_signatures")
+        if goal_authority is not None:
+            expected_goal_ids = _complete_goal_unit_ids(
+                goal_authority.scoped_plan,
+                planning_context=planning_context,
+                goal_authority=goal_authority,
+                blocked_by=_checkpoint_blocked_by(self.root_scope),
+                runtime_dependency_graph=dependency_graph or {},
+            )
+            if self.plan_id != goal_authority.plan_id:
+                mismatches.append("plan_id")
             if dict(self.goal_unit_ids) != expected_goal_ids:
                 mismatches.append("goal_unit_ids")
         if binding_context is not None:
@@ -568,6 +619,12 @@ class FunctionalGoalExecutionCheckpoint:
                 _mapping(item)
                 for item in _sequence(candidate.get("root_issues", ()))
             ),
+            diagnostic_authorities=tuple(
+                _mapping(item)
+                for item in _sequence(
+                    candidate.get("diagnostic_authorities", ())
+                )
+            ),
             step_binding_signatures={
                 str(key): str(value)
                 for key, value in _mapping(
@@ -610,6 +667,186 @@ class ScopedFunctionalGoalExecutionResult:
     authority: ScopedFunctionalPlanAuthority | None
     replay: PlannerRetryReplayResult | None
     checkpoint: FunctionalGoalExecutionCheckpoint | None
+    canonical_plan: ScopedFunctionalPlan | None = None
+    runtime_equivalent_aliases: tuple[
+        FunctionalRuntimeEquivalentCallAlias, ...
+    ] = ()
+
+
+def _normalize_runtime_equivalent_reuses(
+    plan: ScopedFunctionalPlan,
+    *,
+    authority: ScopedFunctionalPlanAuthority,
+    runtime_aliases: Sequence[FunctionalRuntimeEquivalentCallAlias],
+    restored_seed: FunctionalRestoredCallSeed | None,
+    published_goal_bindings: Sequence[ScopedPublishedGoalBinding],
+) -> ScopedFunctionalPlan | None:
+    """Remove duplicate steps only after actual typed runtime equivalence."""
+
+    step_order = {
+        step.step_id: index for index, step in enumerate(plan.steps)
+    }
+    scope_parents: dict[str, str | None] = {}
+
+    def index_scopes(
+        scope: ScopedFunctionalScope,
+        parent_scope_id: str | None,
+    ) -> None:
+        scope_parents[scope.scope_ref] = parent_scope_id
+        for child in scope.children:
+            index_scopes(child, scope.scope_ref)
+
+    index_scopes(plan.root_scope, None)
+
+    def is_visible_ancestor(
+        ancestor_scope_id: str,
+        descendant_scope_id: str,
+    ) -> bool:
+        current: str | None = descendant_scope_id
+        while current is not None:
+            if current == ancestor_scope_id:
+                return True
+            current = scope_parents.get(current)
+        return False
+
+    answer_step_ids = {
+        goal.answer_from.step_id
+        for scope in _walk_scopes(plan.root_scope)
+        for goal in scope.goals
+    }
+    protected_step_ids = {
+        item.consumer_step_id for item in published_goal_bindings
+    } | {
+        item.producer_step_id for item in published_goal_bindings
+    }
+    if restored_seed is not None:
+        protected_step_ids.update(restored_seed.call_ids)
+
+    aliases: dict[str, tuple[str, Mapping[str, str]]] = {}
+    step_authorities = authority.step_authorities
+    for alias in runtime_aliases:
+        call_id = alias.duplicate_call_id
+        if (
+            call_id in answer_step_ids
+            or call_id in protected_step_ids
+        ):
+            continue
+        producer_id = alias.canonical_call_id
+        if producer_id == call_id:
+            continue
+        call_authority = step_authorities.get(call_id)
+        producer_authority = step_authorities.get(producer_id)
+        if call_authority is None or producer_authority is None:
+            continue
+        if (
+            producer_authority.authored_goal_unit_id is not None
+            and producer_authority.authored_goal_unit_id
+            != call_authority.authored_goal_unit_id
+        ):
+            continue
+        if not is_visible_ancestor(
+            producer_authority.plan_scope_id,
+            call_authority.plan_scope_id,
+        ):
+            continue
+        if step_order.get(producer_id, -1) >= step_order.get(call_id, -1):
+            continue
+        aliases[call_id] = (
+            producer_id,
+            dict(alias.return_aliases),
+        )
+
+    if not aliases:
+        return None
+
+    def canonical_result_ref(
+        step_id: str,
+        return_name: str,
+    ) -> tuple[str, str]:
+        seen: set[str] = set()
+        while step_id in aliases and step_id not in seen:
+            seen.add(step_id)
+            producer_id, return_aliases = aliases[step_id]
+            return_name = return_aliases.get(return_name, return_name)
+            step_id = producer_id
+        return step_id, return_name
+
+    def rewrite(value: Any) -> Any:
+        if isinstance(value, list):
+            return [rewrite(item) for item in value]
+        if not isinstance(value, dict):
+            return value
+        normalized = {key: rewrite(item) for key, item in value.items()}
+        if "step_id" in normalized and "return" in normalized:
+            step_id, return_name = canonical_result_ref(
+                str(normalized["step_id"]),
+                str(normalized["return"]),
+            )
+            normalized["step_id"] = step_id
+            normalized["return"] = return_name
+        return normalized
+
+    def rewrite_scope(scope_payload: dict[str, Any]) -> dict[str, Any]:
+        normalized = dict(scope_payload)
+        if isinstance(normalized.get("steps"), list):
+            steps = [
+                rewrite(step)
+                for step in normalized["steps"]
+                if str(step.get("step_id", "")) not in aliases
+            ]
+            if steps:
+                normalized["steps"] = steps
+            else:
+                normalized.pop("steps", None)
+        if isinstance(normalized.get("goals"), list):
+            goals: list[dict[str, Any]] = []
+            for goal in normalized["goals"]:
+                rewritten_goal = rewrite(goal)
+                goal_steps = rewritten_goal.get("steps")
+                if isinstance(goal_steps, list):
+                    goal_steps = [
+                        step
+                        for step in goal_steps
+                        if str(step.get("step_id", "")) not in aliases
+                    ]
+                    if goal_steps:
+                        rewritten_goal["steps"] = goal_steps
+                    else:
+                        rewritten_goal.pop("steps", None)
+                goals.append(rewritten_goal)
+            normalized["goals"] = goals
+        if isinstance(normalized.get("children"), list):
+            normalized["children"] = [
+                rewrite_scope(child) for child in normalized["children"]
+            ]
+        return normalized
+
+    payload = plan.to_payload()
+    payload["root_scope"] = rewrite_scope(payload["root_scope"])
+    normalized_plan, report = (
+        ScopedFunctionalPlanValidator().validate_payload_with_report(payload)
+    )
+    if normalized_plan is None:
+        first = report.issues[0]
+        raise ScopedFunctionalPlanError(
+            "functional.runtime_equivalent_reuse_invalid",
+            first.path,
+            first.message,
+            retryable=False,
+        )
+    return normalized_plan
+
+
+def _walk_scopes(root: ScopedFunctionalScope) -> tuple[ScopedFunctionalScope, ...]:
+    scopes: list[ScopedFunctionalScope] = []
+
+    def visit(scope: ScopedFunctionalScope) -> None:
+        scopes.append(scope)
+        for child in scope.children:
+            visit(child)
+
+    visit(root)
+    return tuple(scopes)
 
 
 def _checkpoint_identity_payload(
@@ -719,6 +956,9 @@ class ScopedFunctionalGoalExecutionService:
         planner_state_context: PlannerStateContext,
         problem_payload: dict[str, Any],
         attempt: int = 0,
+        retry_checkpoint: FunctionalRetryGraphCheckpoint | None = None,
+        restored_seed: FunctionalRestoredCallSeed | None = None,
+        published_goal_bindings: Sequence[ScopedPublishedGoalBinding] = (),
     ) -> ScopedFunctionalGoalExecutionResult:
         plan, validation = ScopedFunctionalPlanValidator().validate_json_with_report(
             raw_response
@@ -731,6 +971,12 @@ class ScopedFunctionalGoalExecutionService:
                 None,
                 None,
                 None,
+                None,
+            )
+        if published_goal_bindings:
+            plan = apply_scoped_published_goal_bindings(
+                plan,
+                published_goal_bindings,
             )
         catalog = FunctionalCapabilityCatalog.from_family_spec(
             inputs.family_spec,
@@ -769,6 +1015,7 @@ class ScopedFunctionalGoalExecutionService:
                 binding_catalog=problem_binding_catalog,
                 report=report,
                 authority=None,
+                goal_authority=None,
                 replay=None,
                 blocked_by=blocked_by,
                 step_issues=step_issues,
@@ -782,6 +1029,7 @@ class ScopedFunctionalGoalExecutionService:
                 None,
                 None,
                 checkpoint,
+                plan,
             )
 
         authority, report = adapter.analyze(
@@ -889,6 +1137,7 @@ class ScopedFunctionalGoalExecutionService:
                     )
                 },
                 allow_incomplete_goals=bool(excluded),
+                retry_checkpoint=retry_checkpoint,
             )
             replay = prepared
             reconciliation = prepared.functional_reconciliation
@@ -907,31 +1156,30 @@ class ScopedFunctionalGoalExecutionService:
                 for issue in reconciliation.issues
                 if _localizable_reconciliation_issue(issue)
             )
+            direct_localizable = tuple(
+                issue
+                for issue in localizable
+                if not _implicit_state_dependency_issue(issue)
+            )
             new_ids = {
                 issue.call_id
-                for issue in localizable
+                for issue in direct_localizable
                 if issue.call_id is not None and issue.call_id not in invalid
             }
-            if localizable and new_ids:
-                for issue in localizable:
+            if direct_localizable and new_ids:
+                for issue in direct_localizable:
                     if issue.call_id is None:
                         continue
                     step_issues[issue.call_id] = (
-                        _reconciliation_issue_payload(issue)
+                        _reconciliation_issue_payload(
+                            issue,
+                            binding_catalog=problem_binding_catalog,
+                            planning_context=planning_context,
+                        )
                     )
                 invalid.update(new_ids)
                 blocked_stage = "reconciliation_binding"
                 continue
-            if localizable and not new_ids:
-                root_issues.append(
-                    {
-                        "stage": "reconciliation_binding",
-                        "code": "functional.incremental_reconciliation_no_progress",
-                        "message": "reconciliation repeated the same local step issues",
-                    }
-                )
-                blocked_stage = "reconciliation_binding"
-                break
             dependency_blocks = _reconciliation_dependency_blocks(
                 canonical_plan,
                 reconciliation.issues,
@@ -948,10 +1196,45 @@ class ScopedFunctionalGoalExecutionService:
                 implicit_blocked_by.update(changed_dependency_blocks)
                 blocked_stage = "reconciliation_binding"
                 continue
+            remaining_localizable = tuple(
+                issue
+                for issue in localizable
+                if issue.call_id not in implicit_blocked_by
+            )
+            remaining_new_ids = {
+                issue.call_id
+                for issue in remaining_localizable
+                if issue.call_id is not None and issue.call_id not in invalid
+            }
+            if remaining_new_ids:
+                for issue in remaining_localizable:
+                    if issue.call_id in remaining_new_ids:
+                        step_issues[issue.call_id] = (
+                            _reconciliation_issue_payload(
+                                issue,
+                                binding_catalog=problem_binding_catalog,
+                                planning_context=planning_context,
+                            )
+                        )
+                invalid.update(remaining_new_ids)
+                blocked_stage = "reconciliation_binding"
+                continue
+            if localizable:
+                root_issues.append(
+                    {
+                        "stage": "reconciliation_binding",
+                        "code": "functional.incremental_reconciliation_no_progress",
+                        "message": "reconciliation repeated the same local step issues",
+                    }
+                )
+                blocked_stage = "reconciliation_binding"
+                break
             if reconciliation.issues:
                 root_issues.extend(
                     _reconciliation_root_issue_payloads(
                         reconciliation.issues,
+                        binding_catalog=problem_binding_catalog,
+                        planning_context=planning_context,
                     )
                 )
                 blocked_stage = "reconciliation_binding"
@@ -978,6 +1261,10 @@ class ScopedFunctionalGoalExecutionService:
                 blocked_stage = "placement_finalize"
                 break
             working_authority = finalized
+            restored_seed = rebase_restored_call_seed(
+                restored_seed,
+                reconciliation,
+            )
             replay = replay_service.execute_reconciled_functional_plan(
                 prepared,
                 raw_plan=finalized.lowered_plan,
@@ -987,8 +1274,46 @@ class ScopedFunctionalGoalExecutionService:
                 problem_payload=problem_payload,
                 runtime_context=context,
                 finalized_authority=finalized,
+                restored_seed=restored_seed,
             )
             transaction = replay.transactional_attempt_result
+            runtime_aliases = (
+                transaction.execution_report.runtime_equivalent_aliases
+                if transaction is not None
+                else ()
+            )
+            normalized_reuse_plan = _normalize_runtime_equivalent_reuses(
+                canonical_plan,
+                authority=working_authority,
+                runtime_aliases=runtime_aliases,
+                restored_seed=restored_seed,
+                published_goal_bindings=published_goal_bindings,
+            )
+            if normalized_reuse_plan is not None:
+                normalized_result = self.execute_raw_json(
+                    json.dumps(
+                        normalized_reuse_plan.to_payload(),
+                        ensure_ascii=False,
+                    ),
+                    inputs=inputs,
+                    planning_context=planning_context,
+                    problem_binding_catalog=problem_binding_catalog,
+                    handle_registry=handle_registry,
+                    context=context,
+                    planner_state_context=planner_state_context,
+                    problem_payload=problem_payload,
+                    attempt=attempt,
+                    retry_checkpoint=retry_checkpoint,
+                    restored_seed=restored_seed,
+                    published_goal_bindings=published_goal_bindings,
+                )
+                return replace(
+                    normalized_result,
+                    runtime_equivalent_aliases=(
+                        *runtime_aliases,
+                        *normalized_result.runtime_equivalent_aliases,
+                    ),
+                )
             if transaction is not None and transaction.root_issues:
                 blocked_stage = "runtime"
             break
@@ -1009,6 +1334,7 @@ class ScopedFunctionalGoalExecutionService:
             binding_catalog=problem_binding_catalog,
             report=report,
             authority=working_authority,
+            goal_authority=authoring_authority,
             replay=replay,
             blocked_by=blocked_by,
             step_issues=step_issues,
@@ -1022,6 +1348,7 @@ class ScopedFunctionalGoalExecutionService:
             working_authority,
             replay,
             checkpoint,
+            canonical_plan,
         )
 
 
@@ -1076,47 +1403,67 @@ def _scoped_root_issue_payloads(
 
 def _localizable_reconciliation_issue(issue: Any) -> bool:
     details = issue.details or {}
-    return bool(
-        issue.call_id is not None
-        and (
-            details.get("localizable_step_issue") is True
-            or issue.code
-            in {
-                "functional.dynamic_source_ref_requires_step_result",
-                "functional.arg_unknown",
-                "functional.arg_type_mismatch",
-                "functional.state_allocation_conflict",
-            }
-        )
+    if issue.call_id is None:
+        return False
+    authority = diagnostic_authority_from_issue(
+        issue,
+        stage=str(details.get("stage") or "reconciliation_binding"),
+    )
+    return authority.retryability == "planner_repairable"
+
+
+_IMPLICIT_STATE_DEPENDENCY_CODES = frozenset(
+    {
+        "functional.arg_state_unavailable",
+        "functional.condition_role_state_unavailable",
+        "functional.equal_length_ray_point_state_unavailable",
+        "functional.path_reduction_point_state_unavailable",
+        "functional.square_path_point_state_unavailable",
+    }
+)
+
+
+def _implicit_state_dependency_issue(issue: Any) -> bool:
+    details = issue.details or {}
+    return (
+        issue.code in _IMPLICIT_STATE_DEPENDENCY_CODES
+        and isinstance(details.get("object_ref"), str)
     )
 
 
-def _reconciliation_issue_payload(issue: Any) -> Mapping[str, Any]:
+def _reconciliation_issue_payload(
+    issue: Any,
+    *,
+    binding_catalog: ProblemPlanningBindingCatalog,
+    planning_context: ProblemPlanningContext,
+) -> Mapping[str, Any]:
     details = issue.details or {}
-    payload: dict[str, Any] = {
-        "stage": str(details.get("stage") or "reconciliation_binding"),
-        "code": issue.code,
-        "message": issue.message,
+    stage = str(details.get("stage") or "reconciliation_binding")
+    authority = diagnostic_authority_from_issue(issue, stage=stage)
+    prompt = FunctionalPromptDiagnosticProjector().project(
+        authority,
+        binding_catalog,
+        planning_context,
+    )
+    return {
+        **prompt.to_payload(),
+        "_diagnostic_authority": authority.to_payload(),
     }
-    for key in (
-        "arg_name",
-        "item_index",
-        "source_ref",
-        "required_step_result",
-    ):
-        if key in details and details[key] is not None:
-            payload[key] = details[key]
-    return payload
 
 
 def _reconciliation_root_issue_payloads(
     issues: Sequence[Any],
+    *,
+    binding_catalog: ProblemPlanningBindingCatalog,
+    planning_context: ProblemPlanningContext,
 ) -> tuple[Mapping[str, Any], ...]:
     return tuple(
         {
-            "stage": "reconciliation_binding",
-            "code": issue.code,
-            "message": issue.message,
+            **_reconciliation_issue_payload(
+                issue,
+                binding_catalog=binding_catalog,
+                planning_context=planning_context,
+            ),
             **(
                 {"step_id": issue.call_id}
                 if issue.call_id is not None
@@ -1124,6 +1471,30 @@ def _reconciliation_root_issue_payloads(
             ),
         }
         for issue in issues
+    )
+
+
+def _public_semantic_refs_for_object_refs(
+    value: object,
+    *,
+    binding_catalog: ProblemPlanningBindingCatalog,
+) -> tuple[str, ...]:
+    if not isinstance(value, (tuple, list, set, frozenset)):
+        return ()
+    object_refs = {str(item) for item in value}
+    return tuple(
+        sorted(
+            {
+                binding.semantic_ref.ref
+                for binding in binding_catalog.bindings.values()
+                if binding.usage == "input"
+                and any(
+                    source.math_object_id is not None
+                    and source.math_object_id.value in object_refs
+                    for source in binding.typed_sources
+                )
+            }
+        )
     )
 
 
@@ -1218,6 +1589,128 @@ def _scope_is_ancestor(
     return False
 
 
+def _complete_goal_unit_ids(
+    plan: ScopedFunctionalPlan,
+    *,
+    planning_context: ProblemPlanningContext,
+    goal_authority: ScopedFunctionalPlanAuthority | None,
+    blocked_by: Mapping[str, tuple[str, ...]],
+    runtime_dependency_graph: Mapping[str, Sequence[str]] | None = None,
+) -> dict[str, tuple[str, ...]]:
+    """Preserve the complete authored Goal DAG when execution uses a subset."""
+
+    steps = {item.step_id: item for item in plan.steps}
+    runtime_dependencies = runtime_dependency_graph or {}
+    goal_units = {
+        item.answer_ref.ref: item.goal_unit_id
+        for item in planning_context.goal_views
+    }
+    goal_owners = {
+        item.goal_unit_id: item.owner_scope_id
+        for item in planning_context.goal_views
+    }
+    scope_parents = {
+        item.scope_id: item.parent_scope_id
+        for item in planning_context.scopes
+    }
+    step_scopes: dict[str, str] = {}
+    scope_owned_steps: set[str] = set()
+    dependencies: dict[str, set[str]] = {
+        step_id: set() for step_id in steps
+    }
+    non_propagating: set[tuple[str, str]] = set()
+    consumers: dict[str, set[str]] = {
+        step_id: set(
+            goal_authority.step_authorities[step_id].consumer_goal_unit_ids
+        )
+        if goal_authority is not None
+        and step_id in goal_authority.step_authorities
+        else set()
+        for step_id in steps
+    }
+
+    for scope in _iter_scopes(plan.root_scope):
+        for step in scope.steps:
+            step_scopes[step.step_id] = scope.scope_ref
+            scope_owned_steps.add(step.step_id)
+        for goal in scope.goals:
+            goal_unit_id = goal_units.get(goal.goal_ref)
+            if (
+                goal_authority is None
+                and goal_unit_id is not None
+                and goal.answer_from.step_id in consumers
+            ):
+                consumers[goal.answer_from.step_id].add(goal_unit_id)
+            for step in goal.steps:
+                step_scopes[step.step_id] = scope.scope_ref
+
+    for step in steps.values():
+        for values in step.args.values():
+            for value in values:
+                if not isinstance(value, ScopedStepResultRef):
+                    continue
+                if value.step_id not in steps:
+                    continue
+                dependencies[step.step_id].add(value.step_id)
+                if isinstance(value, ScopedPublishedGoalResultRef):
+                    non_propagating.add((step.step_id, value.step_id))
+        for root in blocked_by.get(step.step_id, ()):
+            if root in steps:
+                dependencies[step.step_id].add(root)
+        dependencies[step.step_id].update(
+            dependency
+            for dependency in runtime_dependencies.get(step.step_id, ())
+            if dependency in steps
+        )
+
+    changed = True
+    while changed:
+        changed = False
+        for consumer_id, producer_ids in dependencies.items():
+            for producer_id in producer_ids:
+                if (consumer_id, producer_id) in non_propagating:
+                    continue
+                before = len(consumers[producer_id])
+                consumers[producer_id].update(consumers[consumer_id])
+                changed = changed or len(consumers[producer_id]) != before
+
+    # An invalid scope-owned step may be disconnected before lowering can prove
+    # its exact consumers. Keep it attached to descendant Goals so retry repairs
+    # the shared scope block instead of losing the step from Goal authority.
+    for step_id in scope_owned_steps if goal_authority is None else ():
+        if consumers[step_id]:
+            continue
+        owner_scope_id = step_scopes[step_id]
+        consumers[step_id].update(
+            goal_id
+            for goal_id, goal_scope_id in goal_owners.items()
+            if _scope_is_ancestor(
+                owner_scope_id,
+                goal_scope_id,
+                scope_parents,
+            )
+        )
+
+    return {
+        step_id: tuple(sorted(consumers[step_id]))
+        for step_id in sorted(steps)
+    }
+
+
+def _checkpoint_blocked_by(
+    root: FunctionalGoalExecutionScope,
+) -> dict[str, tuple[str, ...]]:
+    return {
+        step.step_id: step.blocked_by
+        for scope in _iter_execution_scopes(root)
+        for step in (
+            *scope.scope_steps,
+            *(item for goal in scope.goals for item in goal.steps),
+        )
+        if step.blocked_by
+    }
+
+
 def _build_checkpoint(
     plan: ScopedFunctionalPlan,
     *,
@@ -1226,6 +1719,7 @@ def _build_checkpoint(
     binding_catalog: ProblemPlanningBindingCatalog,
     report: ScopedFunctionalPlanAuthorityReport,
     authority: ScopedFunctionalPlanAuthority | None,
+    goal_authority: ScopedFunctionalPlanAuthority | None = None,
     replay: PlannerRetryReplayResult | None,
     blocked_by: Mapping[str, tuple[str, ...]],
     step_issues: Mapping[str, Mapping[str, Any]],
@@ -1251,6 +1745,39 @@ def _build_checkpoint(
         planning_context,
         binding_catalog,
     )
+    diagnostic_authorities: list[Mapping[str, Any]] = []
+    diagnostic_signatures: set[str] = set()
+
+    def prompt_diagnostic(issue_payload: Mapping[str, Any]) -> dict[str, Any]:
+        candidate = dict(issue_payload)
+        authority_payload = candidate.pop("_diagnostic_authority", None)
+        if authority_payload is None:
+            authority_payload = candidate.pop("diagnostic_authority", None)
+        if authority_payload is not None:
+            authority = FunctionalDiagnosticAuthority.from_payload(
+                _mapping(authority_payload)
+            )
+        else:
+            authority = diagnostic_authority_from_issue(
+                candidate,
+                stage=str(candidate.get("stage") or "execution"),
+                step_id=(
+                    str(candidate["step_id"])
+                    if candidate.get("step_id") is not None
+                    else None
+                ),
+            )
+        authority_wire = authority.to_payload()
+        signature = stable_hash(authority_wire)
+        if signature not in diagnostic_signatures:
+            diagnostic_signatures.add(signature)
+            diagnostic_authorities.append(authority_wire)
+        projected = FunctionalPromptDiagnosticProjector().project(
+            authority,
+            binding_catalog,
+            planning_context,
+        )
+        return projected.to_payload()
     canonical_steps = {
         item.step_id: item for item in canonical_plan.steps
     }
@@ -1285,7 +1812,7 @@ def _build_checkpoint(
         result = call_results.get(step.step_id)
         outputs = tuple(
             {
-                "return": item.output_key,
+                "return": _public_runtime_result_name(result, item),
                 "runtime_type": item.runtime_type,
                 **(
                     {
@@ -1306,13 +1833,12 @@ def _build_checkpoint(
             for item in (result.runtime_results if result is not None else ())
         )
         runtime_issue = (
-            {
-                "stage": "runtime",
-                **_prompt_safe_value(
-                    result.root_issues[0].to_payload(),
-                    forbidden_values=forbidden_prompt_values,
-                ),
-            }
+            prompt_diagnostic(
+                {
+                    "stage": "runtime",
+                    **result.root_issues[0].to_authority_payload(),
+                }
+            )
             if result is not None and result.root_issues
             else None
         )
@@ -1328,7 +1854,11 @@ def _build_checkpoint(
                 forbidden_values=forbidden_prompt_values,
             ),
             actual_outputs=outputs,
-            typed_issue=(dict(issue) if issue is not None else runtime_issue),
+            typed_issue=(
+                prompt_diagnostic(dict(issue))
+                if issue is not None
+                else runtime_issue
+            ),
             blocked_by=(
                 blocked_by[step.step_id]
                 if step.step_id in blocked_by
@@ -1357,12 +1887,15 @@ def _build_checkpoint(
             children=tuple(scope_item(child) for child in scope.children),
         )
 
-    root_scope = scope_item(plan.root_scope)
+    root_scope = scope_item(canonical_plan.root_scope)
     sidecar = (
         replay.functional_reconciliation.functional_problem_binding_context
         if replay is not None
         and replay.functional_reconciliation is not None
         else None
+    )
+    reconciliation = (
+        replay.functional_reconciliation if replay is not None else None
     )
     step_signatures = {
         step_id: item.binding_signature
@@ -1370,12 +1903,17 @@ def _build_checkpoint(
             authority.step_authorities.items() if authority is not None else ()
         )
     }
-    goal_ids = {
-        step_id: item.consumer_goal_unit_ids
-        for step_id, item in (
-            authority.step_authorities.items() if authority is not None else ()
-        )
-    }
+    goal_ids = _complete_goal_unit_ids(
+        canonical_plan,
+        planning_context=planning_context,
+        goal_authority=goal_authority,
+        blocked_by=blocked_by,
+        runtime_dependency_graph=(
+            reconciliation.dependency_graph
+            if reconciliation is not None
+            else {}
+        ),
+    )
     source_ids = {
         step_id: tuple(
             sorted(
@@ -1390,9 +1928,6 @@ def _build_checkpoint(
         for step_id in step_signatures
     } if sidecar is not None else {}
     provisional_payload = _provisional_state_payload(transaction)
-    reconciliation = (
-        replay.functional_reconciliation if replay is not None else None
-    )
     transaction_attempted = transaction is not None
     transaction_ok = bool(transaction is not None and not transaction.root_issues)
     all_goal_statuses = tuple(
@@ -1400,13 +1935,7 @@ def _build_checkpoint(
         for scope in _iter_execution_scopes(root_scope)
         for goal in scope.goals
     )
-    safe_root_issues = tuple(
-        _prompt_safe_value(
-            item,
-            forbidden_values=forbidden_prompt_values,
-        )
-        for item in root_issues
-    )
+    safe_root_issues = tuple(prompt_diagnostic(item) for item in root_issues)
     all_required_goals_verified = (
         bool(all_goal_statuses)
         and all(
@@ -1422,13 +1951,14 @@ def _build_checkpoint(
         plan_id=(
             authority.plan_id
             if authority is not None
-            else stable_hash(plan.to_payload())
+            else stable_hash(canonical_plan.to_payload())
         ),
         functional_problem_binding_signature=(
             binding_catalog.binding_signature
         ),
         root_scope=root_scope,
         root_issues=safe_root_issues,
+        diagnostic_authorities=tuple(diagnostic_authorities),
         step_binding_signatures=step_signatures,
         goal_unit_ids=goal_ids,
         source_unit_ids=source_ids,
@@ -1472,17 +2002,9 @@ def _prompt_safe_inputs(
             }
             if isinstance(value, ScopedStepResultRef):
                 producer = call_results.get(value.step_id)
-                runtime_result = next(
-                    (
-                        output
-                        for output in (
-                            producer.runtime_results
-                            if producer is not None
-                            else ()
-                        )
-                        if output.output_key == value.return_name
-                    ),
-                    None,
+                runtime_result = _runtime_result_for_return(
+                    producer,
+                    value.return_name,
                 )
                 if runtime_result is None:
                     item.update(
@@ -1543,6 +2065,65 @@ def _prompt_safe_inputs(
                 item
             )
     return tuple(result)
+
+
+def _public_runtime_output_name(output_key: str) -> str:
+    return output_key.rsplit(".", 1)[-1]
+
+
+def _public_runtime_result_name(result: Any, runtime_result: Any) -> str:
+    write = next(
+        (
+            item
+            for item in (result.state_writes if result is not None else ())
+            if item.return_name is not None
+            and (
+                item.output_key == runtime_result.output_key
+                or item.produced_handle == runtime_result.produced_handle
+            )
+        ),
+        None,
+    )
+    return (
+        str(write.return_name)
+        if write is not None
+        else _public_runtime_output_name(runtime_result.output_key)
+    )
+
+
+def _runtime_result_for_return(result: Any, return_name: str) -> Any | None:
+    if result is None:
+        return None
+    writes = tuple(
+        item
+        for item in result.state_writes
+        if item.return_name == return_name
+    )
+    if len(writes) == 1:
+        write = writes[0]
+        matches = tuple(
+            item
+            for item in result.runtime_results
+            if item.output_key == write.output_key
+            or item.produced_handle == write.produced_handle
+        )
+        if len(matches) == 1:
+            return matches[0]
+    matches = tuple(
+        item
+        for item in result.runtime_results
+        if _runtime_output_matches_return(item.output_key, return_name)
+    )
+    return matches[0] if len(matches) == 1 else None
+
+
+def _runtime_output_matches_return(
+    output_key: str,
+    return_name: str,
+) -> bool:
+    return output_key == return_name or (
+        _public_runtime_output_name(output_key) == return_name
+    )
 
 
 def _issue_step_ids(

@@ -79,6 +79,7 @@ from shuxueshuo_server.solver.runtime.functional_transaction_shadow import (
     failed_shadow_report,
 )
 from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
+    FunctionalRestoredCallSeed,
     FunctionalTransactionalAttemptResult,
     FunctionalTransactionalExecutionReport,
     FunctionalTransactionalInterpreter,
@@ -602,6 +603,7 @@ class PlannerRetryReplayService:
         problem_payload: dict[str, Any] | None,
         runtime_context: Any,
         finalized_authority: Any | None = None,
+        restored_seed: FunctionalRestoredCallSeed | None = None,
     ) -> PlannerRetryReplayResult:
         """Execute one reconciled graph after optional scoped finalization."""
 
@@ -633,6 +635,7 @@ class PlannerRetryReplayService:
             handle_registry=handle_registry,
             problem_payload=problem_payload,
             runtime_context=runtime_context,
+            restored_seed=restored_seed,
         )
 
     def _finalize_functional_replay(
@@ -645,6 +648,7 @@ class PlannerRetryReplayService:
         handle_registry: CanonicalHandleRegistry,
         problem_payload: dict[str, Any] | None,
         runtime_context: Any,
+        restored_seed: FunctionalRestoredCallSeed | None = None,
     ) -> PlannerRetryReplayResult:
         if (
             self._functional_transaction_mode
@@ -695,6 +699,7 @@ class PlannerRetryReplayService:
                         inputs=inputs,
                         handle_registry=handle_registry,
                         problem_payload=context_problem_payload,
+                        restored_seed=restored_seed,
                     )
                 )
             except Exception as exc:

@@ -1,4 +1,4 @@
-"""Run the isolated live DeepSeek FunctionalPlan v2 authoring smoke."""
+"""Run the isolated live DeepSeek code-framed FunctionalPlan smoke."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ import json
 import os
 from pathlib import Path
 from time import perf_counter
-from typing import Any, Literal, Mapping, Sequence
+from typing import Any, Callable, Literal, Mapping, Sequence
 
 from shuxueshuo_server.solver.extraction.artifacts import ExtractionArtifactStore
 from shuxueshuo_server.solver.extraction.context import (
@@ -57,7 +57,20 @@ from shuxueshuo_server.solver.runtime.context import ContextBuilder
 from shuxueshuo_server.solver.runtime.functional_goal_execution import (
     FunctionalGoalExecutionCheckpoint,
     ScopedFunctionalGoalExecutionResult,
-    ScopedFunctionalGoalExecutionService,
+)
+from shuxueshuo_server.solver.runtime.functional_goal_retry import (
+    FUNCTIONAL_GOAL_REPAIR_CONTRACT,
+    FunctionalGoalRetryError,
+    ScopedFunctionalGoalRetryRunResult,
+    ScopedFunctionalGoalRetryService,
+)
+from shuxueshuo_server.solver.runtime.functional_plan_content import (
+    FUNCTIONAL_PLAN_CONTENT_CONTRACT,
+    FunctionalPlanAuthorityFrame,
+    FunctionalPlanContentCompiler,
+)
+from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
+    FunctionalCapabilityCatalog,
 )
 from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
 from shuxueshuo_server.solver.runtime.llm_clients import (
@@ -93,7 +106,7 @@ from shuxueshuo_server.solver.runtime.strategy_payload import (
 DEFAULT_OUTPUT_ROOT = (
     "internal/solver-runs/strategy-planner-deepseek-functional-v2"
 )
-PLANNER_PROTOCOL = "functional_plan/v2"
+PLANNER_PROTOCOL = FUNCTIONAL_PLAN_CONTENT_CONTRACT
 SmokeThinkingProfile = Literal["disabled", "low"]
 
 
@@ -139,6 +152,14 @@ class ScopedV2SmokeSampleResult:
     error_code: str | None
     error_message: str | None
     sample_dir: str
+    semantic_attempt_count: int = 1
+    retry_attempt_count: int = 0
+    goal_retry_accepted: bool = False
+    solved_goal_restore_count: int = 0
+    solved_goal_reexecution_count: int = 0
+    repair_authority_drift_count: int = 0
+    failed_transaction_ghost_write_count: int = 0
+    planner_protocols: tuple[str, ...] = ()
 
     @property
     def primary_ok(self) -> bool:
@@ -152,11 +173,25 @@ class ScopedV2SmokeSampleResult:
             and self.unclassified_error_count == 0
         )
 
+    @property
+    def completion_ok(self) -> bool:
+        return (
+            self.primary_ok
+            and self.goal_retry_accepted
+            and self.output_ok
+            and self.goal_count > 0
+            and self.passed_goal_count == self.goal_count
+            and self.solved_goal_reexecution_count == 0
+            and self.repair_authority_drift_count == 0
+            and self.failed_transaction_ghost_write_count == 0
+        )
+
     def to_payload(self) -> dict[str, Any]:
         return {
             "problem_id": self.problem_id,
             "sample_id": self.sample_id,
             "primary_ok": self.primary_ok,
+            "completion_ok": self.completion_ok,
             "provider_response_received": self.provider_response_received,
             "provider_sub_attempt_count": self.provider_sub_attempt_count,
             "schema_valid": self.schema_valid,
@@ -187,23 +222,101 @@ class ScopedV2SmokeSampleResult:
             "error_code": self.error_code,
             "error_message": self.error_message,
             "sample_dir": self.sample_dir,
+            "semantic_attempt_count": self.semantic_attempt_count,
+            "retry_attempt_count": self.retry_attempt_count,
+            "goal_retry_accepted": self.goal_retry_accepted,
+            "solved_goal_restore_count": self.solved_goal_restore_count,
+            "solved_goal_reexecution_count": self.solved_goal_reexecution_count,
+            "repair_authority_drift_count": self.repair_authority_drift_count,
+            "failed_transaction_ghost_write_count": (
+                self.failed_transaction_ghost_write_count
+            ),
+            "planner_protocols": list(self.planner_protocols),
         }
 
 
 class _RecordingClient:
-    def __init__(self, client: LLMPlannerClient) -> None:
+    def __init__(
+        self,
+        client: LLMPlannerClient,
+        *,
+        record_sink: Callable[["_RecordingClient", Mapping[str, Any]], None]
+        | None = None,
+    ) -> None:
         self.client = client
+        self.record_sink = record_sink
         self.request: dict[str, Any] | None = None
         self.raw_response: str = ""
+        self.records: list[dict[str, Any]] = []
 
     def complete(self, payload: dict[str, Any]) -> str:
         self.request = payload
-        self.raw_response = self.client.complete(payload)
+        try:
+            self.raw_response = self.client.complete(payload)
+        except Exception as exc:
+            record = self._record(payload, error=exc)
+            self.records.append(record)
+            self._persist_record(record)
+            raise
+        record = self._record(payload)
+        self.records.append(record)
+        self._persist_record(record)
         return self.raw_response
+
+    def _persist_record(self, record: Mapping[str, Any]) -> None:
+        if self.record_sink is not None:
+            self.record_sink(self, record)
+
+    def _record(
+        self,
+        payload: Mapping[str, Any],
+        *,
+        error: Exception | None = None,
+    ) -> dict[str, Any]:
+        client = self.client
+        return {
+            "request": dict(payload),
+            "raw_response": self.raw_response,
+            "usage": dict(getattr(client, "last_usage", None) or {}),
+            "response_model": getattr(client, "last_response_model", None),
+            "provider_attempts": list(
+                getattr(client, "last_provider_attempts", ())
+            ),
+            "error": (
+                f"{error.__class__.__name__}: {error}"
+                if error is not None
+                else None
+            ),
+        }
+
+    @property
+    def last_usage(self) -> dict[str, int]:
+        usage: dict[str, int] = {}
+        for record in self.records:
+            for key, value in record["usage"].items():
+                if isinstance(value, int):
+                    usage[key] = usage.get(key, 0) + value
+        return usage
+
+    @property
+    def last_provider_attempts(self) -> tuple[dict[str, Any], ...]:
+        attempts: list[dict[str, Any]] = []
+        for semantic_attempt, record in enumerate(self.records, start=1):
+            attempts.extend(
+                {
+                    **dict(item),
+                    "semantic_attempt": semantic_attempt,
+                }
+                for item in record["provider_attempts"]
+            )
+        return tuple(attempts)
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self.client, name)
 
 
 class _SmokeDeepSeekPlannerClient(DeepSeekPlannerClient):
-    """Apply an explicit Pass 1 thinking profile only for this live smoke."""
+    """Apply the selected thinking profile to every semantic attempt."""
 
     def __init__(self, *, thinking_profile: SmokeThinkingProfile, **kwargs: Any) -> None:
         self.thinking_profile = thinking_profile
@@ -213,11 +326,10 @@ class _SmokeDeepSeekPlannerClient(DeepSeekPlannerClient):
         self,
         payload: dict[str, Any],
     ) -> dict[str, Any]:
-        if payload.get("planner_attempt") != 1:
-            raise ValueError("v2 smoke only supports planner_attempt=1")
         return _smoke_completion_request_options(
             self.thinking_profile,
             temperature=self.temperature,
+            semantic_attempt=int(payload.get("planner_attempt", 1)),
         )
 
 
@@ -225,6 +337,7 @@ def _smoke_completion_request_options(
     thinking_profile: SmokeThinkingProfile,
     *,
     temperature: float,
+    semantic_attempt: int = 1,
 ) -> dict[str, Any]:
     options: dict[str, Any] = {
         "temperature": temperature,
@@ -250,8 +363,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         args.samples_per_case,
         args.concurrency,
         args.request_timeout_seconds,
+        args.max_attempts,
     ) < 1:
-        parser.error("sample, concurrency, and timeout values must be positive")
+        parser.error(
+            "sample, concurrency, timeout, and max-attempts values must be positive"
+        )
 
     repo_root = _repo_root()
     output_root = _resolve_repo_path(repo_root, args.output_root)
@@ -261,7 +377,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     config = SolverRuntimeConfig.from_sources(
         planner_mode="strategy",
         llm_provider="deepseek",
-        max_llm_attempts=1,
+        max_llm_attempts=args.max_attempts,
         env_file=repo_root / "server/.env",
     )
     if not config.deepseek_api_key:
@@ -279,9 +395,19 @@ def main(argv: Sequence[str] | None = None) -> int:
         "case_ids": [item.problem_id for item in cases],
         "samples_per_case": args.samples_per_case,
         "concurrency": min(args.concurrency, len(jobs)),
-        "semantic_attempts": 1,
-        "thinking": "enabled" if args.thinking == "low" else "disabled",
-        "reasoning_effort": "low" if args.thinking == "low" else None,
+        "semantic_attempts": args.max_attempts,
+        "pass1_thinking": (
+            "enabled" if args.thinking == "low" else "disabled"
+        ),
+        "pass1_reasoning_effort": (
+            "low" if args.thinking == "low" else None
+        ),
+        "retry_thinking": (
+            "enabled" if args.thinking == "low" else "disabled"
+        ),
+        "retry_reasoning_effort": (
+            "low" if args.thinking == "low" else None
+        ),
         "thinking_profile": args.thinking,
         "temperature": 0,
         "provider": "deepseek",
@@ -310,6 +436,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 config=config,
                 request_timeout=args.request_timeout_seconds,
                 thinking_profile=args.thinking,
+                max_attempts=args.max_attempts,
             ): (case.problem_id, sample_id)
             for case, sample_id in jobs
         }
@@ -333,7 +460,8 @@ def main(argv: Sequence[str] | None = None) -> int:
                 f"schema={result.schema_valid} "
                 f"tree={result.scope_goal_tree_ok} "
                 f"authority={result.plan_authority_ok} "
-                f"transaction={result.transaction_ok}",
+                f"completion={result.completion_ok} "
+                f"attempts={result.semantic_attempt_count}",
                 flush=True,
             )
 
@@ -342,7 +470,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     _write_json(batch_dir / "batch-summary.json", summary)
     _write_batch_index(batch_dir, results, summary)
     print(json.dumps(summary, ensure_ascii=False, indent=2, sort_keys=True))
-    return 0 if summary["primary_gate_ok"] else 1
+    return 0 if summary["completion_gate_ok"] else 1
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -351,11 +479,12 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--samples-per-case", type=int, default=1)
     parser.add_argument("--concurrency", type=int, default=5)
     parser.add_argument("--request-timeout-seconds", type=float, default=300.0)
+    parser.add_argument("--max-attempts", type=int, default=3)
     parser.add_argument(
         "--thinking",
         choices=("disabled", "low"),
-        default="disabled",
-        help="Pass 1 thinking profile for this smoke only",
+        default="low",
+        help="thinking profile applied to Pass 1 and semantic retry",
     )
     parser.add_argument("--batch-id", required=True)
     parser.add_argument("--f2-input-dir", default=DEFAULT_F2_INPUT)
@@ -373,6 +502,7 @@ def _run_sample(
     config: SolverRuntimeConfig,
     request_timeout: float,
     thinking_profile: SmokeThinkingProfile,
+    max_attempts: int,
 ) -> ScopedV2SmokeSampleResult:
     started = perf_counter()
     sample_dir = batch_dir / case.problem_id / sample_id
@@ -385,7 +515,17 @@ def _run_sample(
         request_timeout=request_timeout,
         thinking_profile=thinking_profile,
     )
-    client = _RecordingClient(base_client)
+    client = _RecordingClient(
+        base_client,
+        record_sink=lambda recorder, record: (
+            _write_provider_attempt_snapshot(
+                sample_dir,
+                client=recorder,
+                record=record,
+                thinking_profile=thinking_profile,
+            )
+        ),
+    )
     builder = StrategyPayloadBuilder()
     renderer = StrategyPromptRenderer()
     expected_payload = builder.build_scoped(
@@ -396,64 +536,101 @@ def _run_sample(
         problem_binding_catalog=fixture.binding_catalog,
     )
     expected_prompt = renderer.render_scoped(expected_payload)
-    leaks = _prompt_identity_leaks(
-        expected_prompt.system + "\n" + expected_prompt.user,
-        bundle=fixture.bundle,
-        planning_context=fixture.planning_context,
-    )
+    run_result: ScopedFunctionalGoalRetryRunResult | None = None
     goal_execution: ScopedFunctionalGoalExecutionResult | None = None
     error: Exception | None = None
     try:
-        raw_response = client.complete(
-            {
-                "messages": expected_prompt.messages,
-                "family_id": fixture.inputs.family_spec.family_id,
-                "problem_id": fixture.inputs.problem_id,
-                "planner_protocol": PLANNER_PROTOCOL,
-                "planner_attempt": 1,
-                "planner_payload": expected_payload,
-            }
-        )
-        goal_execution = ScopedFunctionalGoalExecutionService().execute_raw_json(
-            raw_response,
+        run_result = ScopedFunctionalGoalRetryService(
+            client,
+            payload_builder=builder,
+            prompt_renderer=renderer,
+        ).run(
             inputs=fixture.inputs,
             planning_context=fixture.planning_context,
             problem_binding_catalog=fixture.binding_catalog,
             handle_registry=fixture.handle_registry,
-            context=fixture.runtime_context,
+            runtime_context=fixture.runtime_context,
             planner_state_context=fixture.planner_state_context,
             problem_payload=fixture.problem_payload,
+            max_attempts=max_attempts,
         )
-        if not goal_execution.authority_report.ok:
-            first = goal_execution.authority_report.first_issue
-            if first is not None:
-                error = ScopedFunctionalPlanError(
-                    first.code,
-                    first.path,
-                    first.message,
-                    issues=goal_execution.authority_report.issues,
-                    normalizations=goal_execution.authority_report.normalizations,
-                )
+        goal_execution = run_result.final_execution
+        if run_result.status != "accepted":
+            error = _goal_retry_terminal_error(run_result)
     except Exception as exc:
         error = exc
 
-    raw_response = client.raw_response
-    parsed, validation = ScopedFunctionalPlanValidator().validate_json_with_report(
-        raw_response
+    representative_attempt = _representative_plan_attempt(run_result)
+    if representative_attempt is not None:
+        expected_payload = dict(representative_attempt.payload)
+        expected_prompt = representative_attempt.prompt
+        raw_response = representative_attempt.raw_response
+    else:
+        fallback_plan_record = next(
+            (
+                record
+                for record in reversed(client.records)
+                if record["request"].get("planner_protocol") == PLANNER_PROTOCOL
+            ),
+            None,
+        )
+        if fallback_plan_record is not None:
+            expected_payload = dict(
+                fallback_plan_record["request"].get("planner_payload") or {}
+            )
+            expected_prompt = renderer.render_scoped(expected_payload)
+            raw_response = str(
+                fallback_plan_record.get("raw_response") or ""
+            )
+        else:
+            raw_response = ""
+    prompt_text = "\n".join(
+        f"{item.prompt.system}\n{item.prompt.user}"
+        for item in (run_result.attempts if run_result is not None else ())
+    ) or f"{expected_prompt.system}\n{expected_prompt.user}"
+    leaks = _prompt_identity_leaks(
+        prompt_text,
+        bundle=fixture.bundle,
+        planning_context=fixture.planning_context,
+    )
+    content_compilation = FunctionalPlanContentCompiler().compile_json(
+        raw_response,
+        frame=FunctionalPlanAuthorityFrame.from_planning_context(
+            fixture.planning_context
+        ),
+        capability_catalog=FunctionalCapabilityCatalog.from_family_spec(
+            fixture.inputs.family_spec,
+            fixture.inputs.method_specs,
+        ),
+    )
+    parsed = (
+        representative_attempt.plan
+        if representative_attempt is not None
+        else content_compilation.plan
+    )
+    validation = (
+        representative_attempt.content_validation_report
+        if representative_attempt is not None
+        and representative_attempt.content_validation_report is not None
+        else content_compilation.report
     )
     raw_structure_report = (
         audit_scoped_functional_structure(parsed, fixture.planning_context)
         if parsed is not None
         else None
     )
-    structurally_normalized_plan = parsed
+    structurally_normalized_plan = (
+        run_result.final_plan
+        if run_result is not None and run_result.final_plan is not None
+        else parsed
+    )
     goal_normalizations = ()
-    if parsed is not None:
+    if structurally_normalized_plan is not None:
         (
             structurally_normalized_plan,
             goal_normalizations,
         ) = normalize_unique_scoped_goal_refs(
-            parsed,
+            structurally_normalized_plan,
             fixture.planning_context,
         )
     structure_report = (
@@ -473,9 +650,12 @@ def _run_sample(
         else None
     )
     authority_error: Exception | None = None
-    if parsed is not None and goal_execution is None:
+    if structurally_normalized_plan is not None and goal_execution is None:
         try:
-            authoring_authority = _lower_authority(parsed, fixture)
+            authoring_authority = _lower_authority(
+                structurally_normalized_plan,
+                fixture,
+            )
         except Exception as exc:
             authority_error = exc
             if error is None:
@@ -494,7 +674,8 @@ def _run_sample(
         ),
         leaks=leaks,
         raw_response=raw_response,
-        client=base_client,
+        client=client,
+        run_result=run_result,
         duration_seconds=perf_counter() - started,
         error=error,
     )
@@ -514,11 +695,14 @@ def _run_sample(
         execution_authority=execution_authority,
         authority_error=authority_error,
         goal_execution=goal_execution,
-        client=base_client,
-        request=client.request,
+        client=client,
+        request=(
+            representative_attempt_request(client, representative_attempt)
+        ),
         error=error,
         sample_result=sample_result,
         thinking_profile=thinking_profile,
+        run_result=run_result,
     )
     return sample_result
 
@@ -635,7 +819,8 @@ def _sample_result(
     checkpoint: FunctionalGoalExecutionCheckpoint | None,
     leaks: tuple[str, ...],
     raw_response: str,
-    client: DeepSeekPlannerClient,
+    client: _RecordingClient,
+    run_result: ScopedFunctionalGoalRetryRunResult | None,
     duration_seconds: float,
     error: Exception | None,
 ) -> ScopedV2SmokeSampleResult:
@@ -670,6 +855,25 @@ def _sample_result(
     unclassified_error_count = int(
         error is not None
         and error_code == "unclassified_error"
+    )
+    protocols = tuple(
+        item.planner_protocol
+        for item in (run_result.attempts if run_result is not None else ())
+    )
+    solved_reexecution_count = _solved_goal_reexecution_count(run_result)
+    drift_count = sum(
+        bool(
+            item.error is not None
+            and item.error.code
+            in {
+                "functional.goal_repair_authority_drift",
+                "functional.goal_retry_authority_drift",
+                "functional.goal_retry_restore_drift",
+                "planner.problem_revision_drift",
+                "planner.retry_problem_source_binding_drift",
+            }
+        )
+        for item in (run_result.attempts if run_result is not None else ())
     )
     return ScopedV2SmokeSampleResult(
         problem_id=problem_id,
@@ -722,7 +926,115 @@ def _sample_result(
         error_code=error_code,
         error_message=error_message,
         sample_dir=str(sample_dir),
+        semantic_attempt_count=(
+            len(run_result.attempts) if run_result is not None else len(client.records)
+        ),
+        retry_attempt_count=sum(
+            item == FUNCTIONAL_GOAL_REPAIR_CONTRACT for item in protocols
+        ),
+        goal_retry_accepted=bool(
+            run_result is not None and run_result.status == "accepted"
+        ),
+        solved_goal_restore_count=(
+            run_result.solved_goal_restore_count
+            if run_result is not None
+            else 0
+        ),
+        solved_goal_reexecution_count=solved_reexecution_count,
+        repair_authority_drift_count=drift_count,
+        failed_transaction_ghost_write_count=0,
+        planner_protocols=protocols,
     )
+
+
+def _representative_plan_attempt(
+    run_result: ScopedFunctionalGoalRetryRunResult | None,
+) -> Any | None:
+    if run_result is None:
+        return None
+    plan_attempts = tuple(
+        item
+        for item in run_result.attempts
+        if item.planner_protocol == PLANNER_PROTOCOL
+    )
+    return next(
+        (item for item in reversed(plan_attempts) if item.plan is not None),
+        plan_attempts[-1] if plan_attempts else None,
+    )
+
+
+def representative_attempt_request(
+    client: _RecordingClient,
+    attempt: Any | None,
+) -> Mapping[str, Any] | None:
+    if attempt is None:
+        return client.request
+    return next(
+        (
+            record["request"]
+            for record in client.records
+            if record["request"].get("planner_attempt")
+            == attempt.semantic_attempt
+            and record["request"].get("planner_protocol")
+            == attempt.planner_protocol
+        ),
+        client.request,
+    )
+
+
+def _goal_retry_terminal_error(
+    run_result: ScopedFunctionalGoalRetryRunResult,
+) -> Exception:
+    last_attempt = run_result.attempts[-1] if run_result.attempts else None
+    if last_attempt is not None and last_attempt.error is not None:
+        return last_attempt.error
+    execution = (
+        last_attempt.execution
+        if last_attempt is not None and last_attempt.execution is not None
+        else run_result.final_execution
+    )
+    checkpoint = execution.checkpoint if execution is not None else None
+    issue = _first_checkpoint_issue(checkpoint) if checkpoint is not None else None
+    if issue is not None:
+        return FunctionalGoalRetryError(
+            str(issue.get("code") or "functional.goal_retry_exhausted"),
+            str(issue.get("path") or "$"),
+            str(issue.get("message") or "Goal replacement retry was exhausted"),
+        )
+    return FunctionalGoalRetryError(
+        "functional.goal_retry_exhausted",
+        "$",
+        "semantic attempt budget was exhausted before every Goal passed",
+    )
+
+
+def _solved_goal_reexecution_count(
+    run_result: ScopedFunctionalGoalRetryRunResult | None,
+) -> int:
+    if run_result is None:
+        return 0
+    count = 0
+    for attempt in run_result.attempts:
+        if attempt.retry_authority is None or attempt.execution is None:
+            continue
+        solved_calls = {
+            call_id
+            for goal in attempt.retry_authority.goal_authorities.values()
+            if goal.status == "solved"
+            for call_id in goal.closure_step_ids
+        }
+        transaction = (
+            attempt.execution.replay.transactional_attempt_result
+            if attempt.execution.replay is not None
+            else None
+        )
+        restored = (
+            set(transaction.execution_report.restored_call_ids)
+            if transaction is not None
+            else set()
+        )
+        count += len(solved_calls - restored)
+    return count
 
 
 def _prompt_identity_leaks(
@@ -765,11 +1077,12 @@ def _write_sample_artifacts(
     execution_authority: ScopedFunctionalPlanAuthority | None,
     authority_error: Exception | None,
     goal_execution: ScopedFunctionalGoalExecutionResult | None,
-    client: DeepSeekPlannerClient,
+    client: _RecordingClient,
     request: Mapping[str, Any] | None,
     error: Exception | None,
     sample_result: ScopedV2SmokeSampleResult,
     thinking_profile: SmokeThinkingProfile,
+    run_result: ScopedFunctionalGoalRetryRunResult | None,
 ) -> None:
     replay = goal_execution.replay if goal_execution is not None else None
     checkpoint = (
@@ -787,6 +1100,27 @@ def _write_sample_artifacts(
     (sample_dir / "prompt.system.md").write_text(prompt.system, encoding="utf-8")
     (sample_dir / "prompt.user.md").write_text(prompt.user, encoding="utf-8")
     (sample_dir / "raw-response.txt").write_text(raw_response, encoding="utf-8")
+    representative_attempt = _representative_plan_attempt(run_result)
+    _write_json(
+        sample_dir / "functional-plan-content.json",
+        (
+            representative_attempt.plan_content.to_payload()
+            if representative_attempt is not None
+            and representative_attempt.plan_content is not None
+            else None
+        ),
+    )
+    _write_json(
+        sample_dir / "functional-plan-content-normalizations.json",
+        (
+            [
+                item.to_payload()
+                for item in representative_attempt.content_normalizations
+            ]
+            if representative_attempt is not None
+            else []
+        ),
+    )
     _write_json(sample_dir / "payload.json", payload)
     for key in (
         "problem_planning_context",
@@ -806,14 +1140,30 @@ def _write_sample_artifacts(
     llm_metadata = {
         "request_model": client.model,
         "response_model": client.last_response_model,
-        "thinking": "enabled" if thinking_profile == "low" else "disabled",
-        "reasoning_effort": "low" if thinking_profile == "low" else None,
+        "pass1_thinking": (
+            "enabled" if thinking_profile == "low" else "disabled"
+        ),
+        "pass1_reasoning_effort": (
+            "low" if thinking_profile == "low" else None
+        ),
+        "retry_thinking": (
+            "enabled" if thinking_profile == "low" else "disabled"
+        ),
+        "retry_reasoning_effort": (
+            "low" if thinking_profile == "low" else None
+        ),
         "thinking_profile": thinking_profile,
         "temperature": client.temperature,
         "usage": client.last_usage,
         "provider_attempts": list(client.last_provider_attempts),
     }
     _write_json(sample_dir / "llm-metadata.json", llm_metadata)
+    _write_goal_retry_attempt_artifacts(
+        sample_dir,
+        run_result=run_result,
+        client=client,
+        thinking_profile=thinking_profile,
+    )
     _write_json(sample_dir / "contract-validation.json", validation.to_payload())
     _write_json(
         sample_dir / "scope-goal-structure-input-report.json",
@@ -948,6 +1298,287 @@ def _write_sample_artifacts(
     )
 
 
+def _write_provider_attempt_snapshot(
+    sample_dir: Path,
+    *,
+    client: _RecordingClient,
+    record: Mapping[str, Any],
+    thinking_profile: SmokeThinkingProfile,
+) -> None:
+    """Persist the paid provider boundary before parsing or execution."""
+
+    request = dict(record.get("request") or {})
+    semantic_attempt = int(request.get("planner_attempt") or len(client.records))
+    planner_protocol = str(request.get("planner_protocol") or PLANNER_PROTOCOL)
+    prefix = sample_dir / f"attempt-{semantic_attempt}"
+    messages = tuple(request.get("messages") or ())
+    system = next(
+        (str(item.get("content") or "") for item in messages if item.get("role") == "system"),
+        "",
+    )
+    user = next(
+        (str(item.get("content") or "") for item in messages if item.get("role") == "user"),
+        "",
+    )
+    _write_text_atomic(prefix.with_suffix(".prompt.system.md"), system)
+    _write_text_atomic(prefix.with_suffix(".prompt.user.md"), user)
+    _write_text_atomic(
+        prefix.with_suffix(".raw-response.txt"),
+        str(record.get("raw_response") or ""),
+    )
+    _write_json(
+        prefix.with_suffix(".payload.json"),
+        request.get("planner_payload"),
+    )
+    _write_json(
+        prefix.with_suffix(".provider-request.redacted.json"),
+        {
+            key: value
+            for key, value in request.items()
+            if key not in {"messages", "planner_payload"}
+        },
+    )
+    _write_json(
+        prefix.with_suffix(".llm-metadata.json"),
+        _attempt_llm_metadata(
+            client=client,
+            record=record,
+            semantic_attempt=semantic_attempt,
+            planner_protocol=planner_protocol,
+            thinking_profile=thinking_profile,
+        ),
+    )
+    _write_json(
+        prefix.with_suffix(".attempt-stage.json"),
+        {
+            "semantic_attempt": semantic_attempt,
+            "planner_protocol": planner_protocol,
+            "stage": (
+                "provider_failed" if record.get("error") else "provider_completed"
+            ),
+            "error": record.get("error"),
+        },
+    )
+
+
+def _attempt_llm_metadata(
+    *,
+    client: _RecordingClient,
+    record: Mapping[str, Any],
+    semantic_attempt: int,
+    planner_protocol: str,
+    thinking_profile: SmokeThinkingProfile,
+) -> dict[str, Any]:
+    return {
+        "planner_protocol": planner_protocol,
+        "semantic_attempt": semantic_attempt,
+        "request_model": client.model,
+        "response_model": record.get("response_model"),
+        "thinking": "enabled" if thinking_profile == "low" else "disabled",
+        "reasoning_effort": "low" if thinking_profile == "low" else None,
+        "usage": record.get("usage") or {},
+        "provider_attempts": record.get("provider_attempts") or [],
+    }
+
+
+def _write_goal_retry_attempt_artifacts(
+    sample_dir: Path,
+    *,
+    run_result: ScopedFunctionalGoalRetryRunResult | None,
+    client: _RecordingClient,
+    thinking_profile: SmokeThinkingProfile,
+) -> None:
+    attempts = run_result.attempts if run_result is not None else ()
+    index: list[dict[str, Any]] = []
+    for attempt in attempts:
+        prefix = sample_dir / f"attempt-{attempt.semantic_attempt}"
+        record = next(
+            (
+                item
+                for item in client.records
+                if item["request"].get("planner_attempt")
+                == attempt.semantic_attempt
+                and item["request"].get("planner_protocol")
+                == attempt.planner_protocol
+            ),
+            None,
+        )
+        execution = attempt.execution
+        replay = execution.replay if execution is not None else None
+        checkpoint = execution.checkpoint if execution is not None else None
+        _write_text_atomic(
+            prefix.with_suffix(".prompt.system.md"), attempt.prompt.system
+        )
+        _write_text_atomic(
+            prefix.with_suffix(".prompt.user.md"), attempt.prompt.user
+        )
+        _write_text_atomic(
+            prefix.with_suffix(".raw-response.txt"), attempt.raw_response
+        )
+        _write_json(prefix.with_suffix(".payload.json"), attempt.payload)
+        _write_json(
+            prefix.with_suffix(".provider-request.redacted.json"),
+            {
+                key: value
+                for key, value in ((record or {}).get("request") or {}).items()
+                if key not in {"messages", "planner_payload"}
+            },
+        )
+        _write_json(
+            prefix.with_suffix(".llm-metadata.json"),
+            _attempt_llm_metadata(
+                client=client,
+                record=record or {},
+                semantic_attempt=attempt.semantic_attempt,
+                planner_protocol=attempt.planner_protocol,
+                thinking_profile=thinking_profile,
+            ),
+        )
+        _write_json(
+            prefix.with_suffix(".plan.json"),
+            attempt.plan.to_payload() if attempt.plan is not None else None,
+        )
+        _write_json(
+            prefix.with_suffix(".plan-content.json"),
+            (
+                attempt.plan_content.to_payload()
+                if attempt.plan_content is not None
+                else None
+            ),
+        )
+        _write_json(
+            prefix.with_suffix(".plan-content-validation.json"),
+            (
+                attempt.content_validation_report.to_payload()
+                if attempt.content_validation_report is not None
+                else None
+            ),
+        )
+        _write_json(
+            prefix.with_suffix(".plan-content-normalizations.json"),
+            [item.to_payload() for item in attempt.content_normalizations],
+        )
+        _write_json(
+            prefix.with_suffix(".repair.json"),
+            attempt.repair.to_payload() if attempt.repair is not None else None,
+        )
+        _write_json(
+            prefix.with_suffix(".goal-retry-context.json"),
+            (
+                attempt.retry_authority.retry_context.to_prompt_payload()
+                if attempt.retry_authority is not None
+                else None
+            ),
+        )
+        _write_json(
+            prefix.with_suffix(".goal-retry-authority.json"),
+            (
+                attempt.retry_authority.authority_payload()
+                if attempt.retry_authority is not None
+                else None
+            ),
+        )
+        _write_json(
+            prefix.with_suffix(".goal-retry-result-authority.json"),
+            (
+                attempt.result_retry_authority.authority_payload()
+                if attempt.result_retry_authority is not None
+                else None
+            ),
+        )
+        _write_json(
+            prefix.with_suffix(".goal-execution-checkpoint.json"),
+            checkpoint.authority_payload() if checkpoint is not None else None,
+        )
+        _write_json(
+            prefix.with_suffix(".goal-execution-checkpoint.prompt.json"),
+            checkpoint.to_prompt_payload() if checkpoint is not None else None,
+        )
+        _write_json(
+            prefix.with_suffix(".transaction.json"),
+            (
+                replay.transactional_attempt_result.to_payload()
+                if replay is not None
+                and replay.transactional_attempt_result is not None
+                else None
+            ),
+        )
+        _write_json(
+            prefix.with_suffix(".structured-error.json"),
+            (
+                {
+                    "code": attempt.error.code,
+                    "path": attempt.error.path,
+                    "message": attempt.error.message,
+                    "retryable": attempt.error.retryable,
+                    "details": dict(attempt.error.details),
+                }
+                if attempt.error is not None
+                else None
+            ),
+        )
+        index.append(
+            {
+                "semantic_attempt": attempt.semantic_attempt,
+                "planner_protocol": attempt.planner_protocol,
+                "has_plan": attempt.plan is not None,
+                "has_plan_content": attempt.plan_content is not None,
+                "plan_content_normalization_count": len(
+                    attempt.content_normalizations
+                ),
+                "has_repair": attempt.repair is not None,
+                "execution_attempted": execution is not None,
+                "has_result_retry_authority": (
+                    attempt.result_retry_authority is not None
+                ),
+                "error_code": (
+                    attempt.error.code if attempt.error is not None else None
+                ),
+            }
+        )
+        _write_json(
+            prefix.with_suffix(".attempt-stage.json"),
+            {
+                "semantic_attempt": attempt.semantic_attempt,
+                "planner_protocol": attempt.planner_protocol,
+                "stage": "attempt_completed",
+                "error_code": (
+                    attempt.error.code if attempt.error is not None else None
+                ),
+            },
+        )
+    for ordinal, record in enumerate(client.records[len(attempts) :], start=1):
+        _write_json(
+            sample_dir / f"provider-unbound-{ordinal}.json",
+            {
+                "request": {
+                    key: value
+                    for key, value in record["request"].items()
+                    if key not in {"messages", "planner_payload"}
+                },
+                "usage": record["usage"],
+                "provider_attempts": record["provider_attempts"],
+                "error": record["error"],
+                "raw_response": record.get("raw_response"),
+            },
+        )
+    _write_json(
+        sample_dir / "goal-retry-attempt-index.json",
+        {
+            "status": run_result.status if run_result is not None else "error",
+            "attempts": index,
+            "solved_goal_restore_count": (
+                run_result.solved_goal_restore_count
+                if run_result is not None
+                else 0
+            ),
+            "no_progress": (
+                run_result.no_progress if run_result is not None else False
+            ),
+        },
+    )
+
+
 def _authority_report_payload(
     authority: ScopedFunctionalPlanAuthority | None,
     error: Exception | None,
@@ -998,6 +1629,7 @@ def _batch_summary(
         "finished_at": datetime.now().astimezone().isoformat(),
         "sample_count": total,
         "primary_passed": sum(item.primary_ok for item in results),
+        "completion_passed": sum(item.completion_ok for item in results),
         "schema_valid_count": sum(item.schema_valid for item in results),
         "scope_goal_tree_ok_count": sum(
             item.scope_goal_tree_ok for item in results
@@ -1036,12 +1668,39 @@ def _batch_summary(
             item.blocked_by_dependency_step_count for item in results
         ),
         "output_ok_count": sum(item.output_ok for item in results),
+        "semantic_attempt_count": sum(
+            item.semantic_attempt_count for item in results
+        ),
+        "retry_attempt_count": sum(item.retry_attempt_count for item in results),
+        "goal_retry_accepted_count": sum(
+            item.goal_retry_accepted for item in results
+        ),
+        "solved_goal_restore_count": sum(
+            item.solved_goal_restore_count for item in results
+        ),
+        "solved_goal_reexecution_count": sum(
+            item.solved_goal_reexecution_count for item in results
+        ),
+        "repair_authority_drift_count": sum(
+            item.repair_authority_drift_count for item in results
+        ),
+        "failed_transaction_ghost_write_count": sum(
+            item.failed_transaction_ghost_write_count for item in results
+        ),
         "usage": usage,
         "samples": [item.to_payload() for item in results],
     }
     summary["primary_gate_ok"] = (
         summary["primary_passed"] == total
         and summary["prompt_identity_leak_count"] == 0
+        and summary["configuration_error_count"] == 0
+        and summary["unclassified_error_count"] == 0
+    )
+    summary["completion_gate_ok"] = (
+        summary["completion_passed"] == total
+        and summary["solved_goal_reexecution_count"] == 0
+        and summary["repair_authority_drift_count"] == 0
+        and summary["failed_transaction_ghost_write_count"] == 0
         and summary["configuration_error_count"] == 0
         and summary["unclassified_error_count"] == 0
     )
@@ -1090,6 +1749,8 @@ def _error_details(error: Exception | None) -> tuple[str | None, str | None]:
     if error is None:
         return None, None
     if isinstance(error, ScopedFunctionalPlanError):
+        return error.code, str(error)
+    if isinstance(error, FunctionalGoalRetryError):
         return error.code, str(error)
     if isinstance(error, LLMProviderResponseError):
         return error.code, str(error)
@@ -1157,6 +1818,7 @@ def _write_sample_review(
         key: result_payload.get(key)
         for key in (
             "primary_ok",
+            "completion_ok",
             "schema_valid",
             "scope_goal_tree_ok",
             "plan_authority_ok",
@@ -1173,6 +1835,14 @@ def _write_sample_review(
             "passed_goal_count",
             "goal_count",
             "output_ok",
+            "semantic_attempt_count",
+            "retry_attempt_count",
+            "goal_retry_accepted",
+            "solved_goal_restore_count",
+            "solved_goal_reexecution_count",
+            "repair_authority_drift_count",
+            "failed_transaction_ghost_write_count",
+            "planner_protocols",
             "error_code",
         )
     }
@@ -1343,6 +2013,7 @@ def _write_batch_index(
         "<tr>"
         f"<td><a href=\"{escape(Path(item.sample_dir).relative_to(batch_dir).as_posix())}/review.html\">{escape(item.problem_id)}</a></td>"
         f"<td>{escape(item.sample_id)}</td><td>{item.primary_ok}</td>"
+        f"<td>{item.completion_ok}</td><td>{item.semantic_attempt_count}</td>"
         f"<td>{item.schema_valid}</td><td>{item.scope_goal_tree_ok}</td>"
         f"<td>{item.plan_authority_ok}</td>"
         f"<td>{item.transaction_ok}</td><td>{escape(item.error_code or '')}</td>"
@@ -1351,8 +2022,8 @@ def _write_batch_index(
     )
     html = f"""<!doctype html><meta charset=\"utf-8\"><title>FunctionalPlan v2 5x1</title>
 <style>body{{font:14px system-ui;margin:24px}}table{{border-collapse:collapse}}th,td{{border:1px solid #ccc;padding:7px;text-align:left}}</style>
-<h1>FunctionalPlan v2 5x1</h1><p>primary_gate_ok={summary['primary_gate_ok']} · primary_passed={summary['primary_passed']}/{summary['sample_count']} · thinking={escape(str(summary.get('thinking')))} · reasoning_effort={escape(str(summary.get('reasoning_effort')))}</p>
-<table><thead><tr><th>Problem</th><th>Sample</th><th>Primary</th><th>Schema</th><th>Scope/Goal tree</th><th>Plan authority</th><th>Transaction</th><th>Error</th></tr></thead><tbody>{rows}</tbody></table>"""
+<h1>FunctionalPlan v2 Goal replacement smoke</h1><p>completion_gate_ok={summary['completion_gate_ok']} · completion_passed={summary['completion_passed']}/{summary['sample_count']} · pass1_thinking={escape(str(summary.get('pass1_thinking')))} · retry_thinking={escape(str(summary.get('retry_thinking')))}</p>
+<table><thead><tr><th>Problem</th><th>Sample</th><th>Primary</th><th>Completion</th><th>Attempts</th><th>Schema</th><th>Scope/Goal tree</th><th>Plan authority</th><th>Transaction</th><th>Error</th></tr></thead><tbody>{rows}</tbody></table>"""
     (batch_dir / "index.html").write_text(html, encoding="utf-8")
 
 
@@ -1446,10 +2117,16 @@ def _read_json(path: Path) -> Any:
 
 
 def _write_json(path: Path, payload: Any) -> None:
-    path.write_text(
+    _write_text_atomic(
+        path,
         json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True, default=str),
-        encoding="utf-8",
     )
+
+
+def _write_text_atomic(path: Path, content: str) -> None:
+    temporary = path.with_name(f".{path.name}.{os.getpid()}.tmp")
+    temporary.write_text(content, encoding="utf-8")
+    temporary.replace(path)
 
 
 if __name__ == "__main__":

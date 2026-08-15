@@ -22,12 +22,17 @@ class LineLocusMinimumPointMethod:
         minimum_point_2: Point = inputs["minimum_point_2"]
         target = inputs["target"]
         target_name = _target_point_name(target)
-        parameter = inputs.get("parameter")
-        parameter_value = inputs.get("parameter_value")
 
         line_p1, line_p2 = _line_points(moving_locus)
-        if parameter is not None and parameter_value is not None:
-            substitutions = {parameter: parameter_value}
+        substitutions = _optional_parameter_substitution(
+            inputs,
+            line_p1,
+            line_p2,
+            minimum_point_1,
+            minimum_point_2,
+            allow_closed_noop=True,
+        )
+        if substitutions:
             line_p1, line_p2, minimum_point_1, minimum_point_2 = (
                 _subs_point(point, substitutions)
                 for point in (line_p1, line_p2, minimum_point_1, minimum_point_2)
@@ -81,7 +86,13 @@ def _line_point(line: dict[str, Any], key: str) -> Point:
     if isinstance(raw, list) and len(raw) == 2:
         raw = tuple(raw)
     if not isinstance(raw, tuple) or len(raw) != 2:
-        raise ValueError(f"moving_locus requires 2D {key}")
+        raise method_input_invalid(
+            "moving locus requires a two-dimensional point or direction",
+            arg_name="moving_locus",
+            role=key,
+            expected={"dimension": 2},
+            observed={"value": raw},
+        )
     return (sp.simplify(raw[0]), sp.simplify(raw[1]))
 
 
@@ -93,9 +104,17 @@ def _target_point_name(target: PointRef | Point) -> str:
     """
     if isinstance(target, PointRef):
         return target.name
-    raise ValueError(
-        "line_locus_minimum_point target must be a PointRef; "
-        "executor should recover PointRef from the target runtime path before method execution"
+    raise StatelessMethodError(
+        "planner.method_contract_invalid",
+        "target must be a PointRef; target identity was not restored before "
+        "Method execution",
+        category="configuration",
+        retryability="configuration",
+        arg_name="target",
+        role="minimum_point_target",
+        expected={"type": "PointRef"},
+        observed={"type": type(target).__name__},
+        repair_action="fix_runtime_contract",
     )
 
 

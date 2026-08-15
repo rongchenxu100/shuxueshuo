@@ -95,6 +95,11 @@ A method states what mathematical relation it computes, its typed inputs and
 outputs, applicability, checks, and unsupported cases. The Python `SPEC` is the
 source of truth. Use abstract roles such as fixed point, moving point, target
 parameter, or transformed path, not exam names or concrete point letters.
+Before adding or changing a Method, follow
+`docs/functional-method-dsl-authoring-guide.md`; in particular, keep Method
+execution stateless, report expected failures through typed diagnostics, and
+leave scope, state-version selection, writes, and retry wording to the compiler
+and runtime authority layers.
 
 After changing a method, regenerate specs:
 

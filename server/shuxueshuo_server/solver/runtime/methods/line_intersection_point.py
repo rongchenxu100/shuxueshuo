@@ -21,8 +21,14 @@ class LineIntersectionPointMethod:
         p3: Point = inputs["line2_p1"]
         p4: Point = inputs["line2_p2"]
         target: PointRef = inputs["target"]
-        if "parameter" in inputs and "parameter_value" in inputs:
-            substitutions = {inputs["parameter"]: inputs["parameter_value"]}
+        substitutions = _optional_parameter_substitution(
+            inputs,
+            p1,
+            p2,
+            p3,
+            p4,
+        )
+        if substitutions:
             p1, p2, p3, p4 = (
                 _subs_point(point, substitutions)
                 for point in (p1, p2, p3, p4)

@@ -489,6 +489,7 @@ class StateAllocationRequest:
     free_symbol_ids: tuple[MathObjectId, ...] = ()
     runtime_destination: RuntimeDestinationKey | None = None
     result_form: str | None = None
+    allow_runtime_equivalence_probe: bool = False
 
 
 @dataclass(frozen=True)
@@ -1288,6 +1289,64 @@ class StateAllocationService:
             if maximal_explicit_sources
             else None
         )
+
+        if (
+            request.allow_runtime_equivalence_probe
+            and request.identity_policy
+            in {"target_object", "preserve_input_object"}
+            and request.runtime_type != "ParameterValue"
+            and request.source_version_ids
+        ):
+            previous = explicit_previous or visible
+            repeated_explicit_computation = (
+                explicit_previous is not None
+                and _computation_refines(
+                    explicit_previous.computation_key,
+                    request.computation_key,
+                    index=index,
+                )
+            )
+            if previous is not None and (
+                repeated_explicit_computation
+                or (
+                    explicit_previous is None
+                    and request.requested_write_mode != "transition"
+                )
+            ):
+                if (
+                    same_state_source_ids
+                    and not explicit_sources
+                    and previous.version_id not in same_state_source_ids
+                ):
+                    return self._conflict(
+                        request,
+                        logical_key,
+                        requested_slot,
+                        "state.transition_source_mismatch",
+                        "transition_does_not_depend_on_latest_visible_version",
+                    )
+                version_id = StateVersionId(
+                    requested_slot,
+                    index.next_ordinal(requested_slot),
+                )
+                return StateAllocationDecision(
+                    action="transition",
+                    call_id=request.call_id,
+                    return_name=request.return_name,
+                    logical_state_key=logical_key,
+                    selected_slot_id=requested_slot,
+                    selected_version_id=version_id,
+                    previous_version_id=previous.version_id,
+                    canonical_producer_call_id=request.call_id,
+                    runtime_destination=request.runtime_destination,
+                    reason_code="runtime_state_equivalence_probe",
+                    previous_producer_call_id=previous.producer_call_id,
+                    transition_kind="direct",
+                    previous_free_symbol_refs=previous.free_symbol_refs,
+                    current_free_symbol_refs=request.free_symbol_refs,
+                    previous_free_symbol_ids=previous.free_symbol_ids,
+                    current_free_symbol_ids=request.free_symbol_ids,
+                )
 
         if request.requested_write_mode == "transition":
             previous = explicit_previous or visible

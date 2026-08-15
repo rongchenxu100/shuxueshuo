@@ -21,15 +21,7 @@ class EvaluateExpressionAtParameterMethod:
         expression = sp.sympify(inputs["expression"])
         parameter = inputs["parameter"]
         parameter_value = sp.sympify(inputs["parameter_value"])
-        if expression.free_symbols and parameter not in expression.free_symbols:
-            free_symbols = "|".join(
-                sorted(symbol.name for symbol in expression.free_symbols)
-            )
-            raise ValueError(
-                "function.substitution_symbol_mismatch: "
-                f"parameter={parameter.name}, "
-                f"free_symbols={free_symbols or 'none'}"
-            )
+        _require_substitution_symbol(expression, parameter)
         evaluated = sp.simplify(expression.subs(parameter, parameter_value))
         expression_type = inputs.get("__input_types__", {}).get("expression", "Expression")
         output_by_input_type = {

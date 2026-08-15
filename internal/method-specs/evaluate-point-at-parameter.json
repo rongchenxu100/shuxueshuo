@@ -13,7 +13,7 @@
     },
     "parameter": {
       "type": "Symbol",
-      "required": true
+      "required": false
     },
     "parameter_value": {
       "type": "ParameterValue",

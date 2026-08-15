@@ -17,7 +17,8 @@
     },
     "parameter": {
       "type": "Symbol",
-      "required": false
+      "required": true,
+      "description": "驱动该Point运动的确切Symbol身份；通常直接引用产生参数化点的前序call之parameter返回值，不能由自由符号名称猜测"
     }
   },
   "outputs": {
@@ -25,7 +26,8 @@
   },
   "is_pure": true,
   "preconditions": [
-    "point 的两个坐标最多含一个公共参数，且关于该参数为一次式"
+    "parameter必须是point坐标中实际出现的同一Symbol身份",
+    "point坐标关于parameter为一次式；其他题目参数可以作为轨迹族常量保留"
   ],
   "postconditions": [
     "输出 Line 包含 start_point、direction 和 point_name"

@@ -15,8 +15,10 @@ method，再把 method output 写回 RuntimeContext。
 
 from __future__ import annotations
 
+from dataclasses import replace
 import re
 
+from shuxueshuo_server.solver.contracts import CheckResult
 from shuxueshuo_server.solver.math_kernel import SympyKernel
 from shuxueshuo_server.solver.runtime.context import RuntimeContext
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
@@ -36,6 +38,10 @@ from shuxueshuo_server.solver.runtime.models import (
 )
 from shuxueshuo_server.solver.runtime.runtime_type_declarations import (
     split_runtime_types,
+)
+from shuxueshuo_server.solver.runtime.functional_diagnostics import (
+    StatelessMethodError,
+    unexpected_method_error,
 )
 
 
@@ -355,7 +361,29 @@ class InvocationExecutor:
         """解析 invocation 输入，运行 method，并写回 invocation 输出。"""
         method = self.methods.require(invocation.method_id)
         inputs = self.resolve_inputs(context, invocation)
-        result = method.run(inputs, self.kernel)
+        try:
+            result = method.run(inputs, self.kernel)
+        except StatelessMethodError as exc:
+            raise exc.with_context(
+                method_id=invocation.method_id,
+                scope_id=invocation.scope,
+                step_id=invocation.invocation_id,
+            ) from exc
+        except Exception as exc:
+            raise unexpected_method_error(
+                exc,
+                method_id=invocation.method_id,
+                scope_id=invocation.scope,
+                step_id=invocation.invocation_id,
+            ) from exc
+        result.checks = [
+            (
+                replace(check, method_id=check.method_id or invocation.method_id)
+                if isinstance(check, CheckResult)
+                else check
+            )
+            for check in result.checks
+        ]
         missing_outputs = tuple(
             output_name
             for output_name in invocation.outputs
@@ -365,11 +393,23 @@ class InvocationExecutor:
             failed_checks = tuple(
                 check.name for check in result.checks if not check.ok
             )
-            raise ValueError(
+            raise StatelessMethodError(
+                "planner.method_contract_invalid",
                 "method_output_unavailable: "
-                f"method={invocation.method_id}, "
-                f"outputs={','.join(missing_outputs)}, "
-                f"failed_checks={','.join(failed_checks) or 'none'}"
+                f"missing_outputs={','.join(missing_outputs)}; "
+                f"failed_checks={','.join(failed_checks) or 'none'}; "
+                "method omitted outputs declared by the compiled invocation",
+                category="configuration",
+                retryability="configuration",
+                method_id=invocation.method_id,
+                scope_id=invocation.scope,
+                step_id=invocation.invocation_id,
+                expected={"outputs": list(invocation.outputs)},
+                observed={
+                    "missing_outputs": list(missing_outputs),
+                    "failed_checks": list(failed_checks),
+                },
+                repair_action="fix_runtime_contract",
             )
         for output_name, raw_path in invocation.outputs.items():
             # 输出先写入 step scope；如需成为上层 fact，必须走 promote_outputs。
@@ -426,6 +466,8 @@ class InvocationExecutor:
                 input_type=input_spec.type,
                 raw_path=raw_path,
                 typed_value=typed_value,
+                context=context,
+                from_scope_id=invocation.scope,
             )
         if input_types:
             inputs["__input_types__"] = input_types
@@ -445,6 +487,8 @@ def _method_input_value(
     input_type: str,
     raw_path: str,
     typed_value,
+    context: RuntimeContext,
+    from_scope_id: str,
 ):
     """把 RuntimeContext value 转成无状态 method 期望的 Python 输入。
 
@@ -452,15 +496,33 @@ def _method_input_value(
     写成 Point，但 method 仍只需要该点的学生可见名称。此时从 points path
     派生一个 PointRef，比要求 LLM 重新声明同名点更稳定。
     """
-    if (
+    if not (
         (input_name == "target" or input_name.endswith("_ref"))
         and "PointRef" in split_runtime_types(input_type)
-        and typed_value.type == "Point"
     ):
+        return typed_value.value
+    point_ref: PointRef | None = None
+    if typed_value.type == "Point":
         point_ref = _point_ref_from_point_value_path(raw_path)
-        if point_ref is not None:
-            return point_ref
-    return typed_value.value
+    elif typed_value.type == "PointRef":
+        point_ref = typed_value.value
+    if point_ref is None:
+        return typed_value.value
+    definition = dict(point_ref.definition)
+    coordinate_path = context.find_visible_path(
+        "points",
+        point_ref.name,
+        from_scope_id=from_scope_id,
+    )
+    if coordinate_path is not None:
+        coordinate = context.read_path(
+            coordinate_path,
+            from_scope_id=from_scope_id,
+            expected_type="Point|PointRef",
+        )
+        if coordinate.type == "Point":
+            definition["existing_coordinate"] = coordinate.value
+    return replace(point_ref, definition=definition)
 
 
 def _identity_compatible_input_type(

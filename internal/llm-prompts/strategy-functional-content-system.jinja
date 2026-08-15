@@ -1,0 +1,31 @@
+请使用给定数学能力，为全部必答目标填写一份FunctionalPlan内容。
+只输出一个`functional-plan-content/v2` JSON object，不要输出Markdown、解释或答案。
+
+必须遵守：
+
+1. Scope树与Goal归属完全由Plan Authority Frame拥有。输出不得包含`root_scope`、`children`、
+   `scope_ref`或重复的`goal_ref`。`scope_steps`的key只能是Frame中的scope；`goal_plans`的key必须
+   恰好覆盖Frame中的全部Goal。
+2. `scope_steps[scope]`属于该scope，可服务一个或多个后代Goal；`goal_plans[goal].steps`只服务该Goal。
+   后代可读取祖先scope step，祖先不能读取后代或兄弟Goal step。真正共享的producer只在共同祖先scope写一次。
+   共享MathObject身份不等于共享StateVersion：同一个题面对象可以在多个兄弟scope中由不同局部条件得到不同状态。
+   若兄弟scope使用不同局部条件、参数值或自由参数基，必须分别在各自scope生成局部状态；只有producer所需的
+   全部条件在共同祖先可见，且后代确实消费同一个状态时，才把该producer放在共同祖先。
+3. 每个Goal必须输出`answer_from={step_id, return}`，明确指出你计划中产生该Goal最终答案的return。
+   return必须来自该Goal本地步骤或可见祖先scope步骤，类型与Problem View中的`answer_type`一致，并对应
+   `target_ref`。代码会独立验证候选集合：合法指针用于消歧；指针错误但只有一个合法候选时由代码规范化；
+   零候选或多个未消歧候选会返回验证错误。Goal没有本地step时省略`steps`，但仍必须输出`answer_from`。
+   空的scope step数组与Goal step数组必须省略。
+4. `step_id`全题唯一并按依赖顺序输出。稳定题面Entity可使用SourceRef读取当前scope最近可见状态；匿名结果、
+   指定历史状态或producer消歧使用`{"step_id":"...","return":"..."}`。禁止forward reference和循环。
+5. 字符串参数只能逐字复制Problem View中当前scope或祖先可见的Entity/Fact `ref`及Goal `target_ref`。
+   `goal_ref`不是step输入，禁止scope前缀、参数名、Fact kind或自造ref。
+6. `capability_id`、args、return role、结果类型和`return_expectations`必须服从Capability Catalog。
+   `binding=same_compiler_selected_object`不允许增加catalog未声明的arg或target。
+   `free_parameters`必须表示应用本步骤当前scope可见约束后仍然未确定的全部符号；不能根据下游Goal希望求哪个参数
+   来提前删除、替换或收窄自由参数。
+7. `output_targets`只绑定题面中已有的非答案中间对象。Goal最终答案用`answer_from`选择producer；代码再根据
+   Goal authority验证其对象身份。不要为答案增加`output_targets`或自造其他绑定字段。
+8. `intent`可选，只用于简短说明数学目的。所有step必须通向至少一个必答Goal。
+
+当前题的严格、authority-bound JSON Schema位于user message末尾。

@@ -26,6 +26,10 @@ from shuxueshuo_server.solver.runtime.context import RuntimeContext
 from shuxueshuo_server.solver.runtime.functional_direct_compiler import (
     FunctionalCapabilityCompileCall,
 )
+from shuxueshuo_server.solver.runtime.functional_diagnostics import (
+    StatelessMethodError,
+    method_check_failed,
+)
 from shuxueshuo_server.solver.runtime.handle_registry import (
     CanonicalHandleRegistry,
 )
@@ -326,6 +330,18 @@ class ProblemIRRuntimeReadinessValidator:
                     expected_type=input_spec.type,
                 ).value
             result = method.run(values, runtime_context.kernel)
+        except StatelessMethodError as exc:
+            authority = exc.with_context(
+                method_id=preflight.method_id,
+                capability_id=preflight.method_id,
+                scope_id=scope_id,
+            ).authority
+            return ProblemIRRuntimeReadinessIssue(
+                "extraction.problem_ir_runtime_preflight_failed",
+                f"{trigger_path}.path",
+                _preflight_failure_message(preflight, exc),
+                retryable=authority.retryability != "configuration",
+            )
         except (KeyError, PermissionError, TypeError, ValueError) as exc:
             return ProblemIRRuntimeReadinessIssue(
                 "extraction.problem_ir_runtime_preflight_failed",
@@ -338,13 +354,22 @@ class ProblemIRRuntimeReadinessValidator:
             if getattr(check, "status", None) != "passed"
         )
         if failed_checks:
+            check_error = method_check_failed(
+                tuple(
+                    check
+                    for check in result.checks
+                    if getattr(check, "status", None) != "passed"
+                ),
+                method_id=preflight.method_id,
+            )
             return ProblemIRRuntimeReadinessIssue(
                 "extraction.problem_ir_runtime_preflight_failed",
                 f"{trigger_path}.path",
                 _preflight_failure_message(
                     preflight,
-                    ValueError(f"failed runtime checks: {failed_checks}"),
+                    check_error,
                 ),
+                retryable=check_error.retryability != "configuration",
             )
         return None
 

@@ -361,15 +361,21 @@ def _dependency_edges(
             "semantic_object",
         }
     }
-    producer_by_version = {
-        returned.selected_version_id: _canonical_call_id(
-            call.call_id,
-            aliases,
-        )
-        for call in reconciliation.calls
-        for returned in call.returns
-        if returned.selected_version_id is not None
-    }
+    producer_by_version: dict[Any, str] = {}
+    for call in reconciliation.calls:
+        for returned in call.returns:
+            if returned.selected_version_id is None:
+                continue
+            producer_call_id = (
+                returned.canonical_producer_call_id
+                if returned.allocation_action == "reuse"
+                and returned.canonical_producer_call_id is not None
+                else call.call_id
+            )
+            producer_by_version.setdefault(
+                returned.selected_version_id,
+                _canonical_call_id(producer_call_id, aliases),
+            )
     step_to_call = {
         item.call_id: _canonical_call_id(item.canonical_call_id, aliases)
         for item in reconciliation.execution_entries

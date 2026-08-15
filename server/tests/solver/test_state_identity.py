@@ -1381,6 +1381,83 @@ def test_allocation_rejects_recomputation_from_unrelated_input_version() -> None
     assert conflict.previous_producer_call_id == open_request.call_id
 
 
+def test_same_object_writer_with_different_computation_uses_runtime_probe() -> None:
+    _factory, _visibility, index = _identity()
+    service = StateAllocationService()
+    first_request = _request(computation_key=ComputationKey("from_source_fact"))
+    first = service.allocate(first_request, index)
+    indexed = service.indexed_version(
+        first_request,
+        first,
+        produced_handle="fact:ii:D_coordinate",
+    )
+    assert indexed is not None
+    index.register(indexed)
+    curve_object = MathObjectId(
+        "function:problem:parabola",
+        "function",
+        "problem",
+    )
+    curve_key = LogicalStateKey(
+        curve_object,
+        "expression",
+        "Parabola",
+    )
+    curve_version = StateVersionId(
+        StateSlotId(curve_key, "problem"),
+        0,
+    )
+    index.register(
+        IndexedStateVersion(
+            version_id=curve_version,
+            valid_scope_id="problem",
+            producer_call_id=None,
+            produced_handle="function:problem:parabola",
+        )
+    )
+
+    second_request = replace(
+        _request(
+            computation_key=ComputationKey("recompute_from_curve"),
+            source_versions=(curve_version,),
+        ),
+        allow_runtime_equivalence_probe=True,
+    )
+    decision = service.allocate(second_request, index)
+
+    assert decision.action == "transition"
+    assert decision.previous_version_id == indexed.version_id
+    assert decision.reason_code == "runtime_state_equivalence_probe"
+
+
+def test_same_object_writer_without_computation_source_stays_isolated() -> None:
+    _factory, _visibility, index = _identity()
+    service = StateAllocationService()
+    first_request = _request(
+        computation_key=ComputationKey("source_snapshot"),
+        storage_scope="problem",
+    )
+    first = service.allocate(first_request, index)
+    indexed = service.indexed_version(
+        first_request,
+        first,
+        produced_handle="fact:problem:D_coordinate",
+    )
+    assert indexed is not None
+    index.register(indexed)
+
+    decision = service.allocate(
+        replace(
+            _request(computation_key=ComputationKey("unrelated_create")),
+            allow_runtime_equivalence_probe=True,
+        ),
+        index,
+    )
+
+    assert decision.action == "isolated"
+    assert decision.previous_version_id is None
+
+
 def test_unrelated_creates_for_visible_logical_state_conflict() -> None:
     _factory, _visibility, index = _identity()
     service = StateAllocationService()
@@ -1413,6 +1490,67 @@ def test_unrelated_creates_for_visible_logical_state_conflict() -> None:
 
     assert conflict.action == "conflict"
     assert conflict.conflict_code == "state.logical_duplicate_writer"
+
+
+def test_parallel_parameter_writers_fail_before_runtime_selection() -> None:
+    _factory, _visibility, index = _identity()
+    service = StateAllocationService()
+    object_id = MathObjectId("symbol:problem:c", "symbol", "problem")
+    logical_key = LogicalStateKey(object_id, "value", "ParameterValue")
+    effect = StateEffectKey(
+        (
+            LogicalReturnEffect(
+                "parameter_value",
+                logical_key,
+                "target_object",
+                "create",
+            ),
+        )
+    )
+
+    def request(call_id: str, capability_id: str) -> StateAllocationRequest:
+        return StateAllocationRequest(
+            call_id=call_id,
+            capability_id=capability_id,
+            return_name="parameter_value",
+            object_id=object_id,
+            state_kind="value",
+            runtime_type="ParameterValue",
+            storage_scope_id="ii",
+            valid_scope_id="ii",
+            requested_write_mode="create",
+            identity_policy="target_object",
+            is_shareable=True,
+            computation_key=ComputationKey(capability_id),
+            state_effect_key=effect,
+            source_version_ids=(),
+            free_symbol_refs=(),
+            free_symbol_ids=(),
+            runtime_destination=RuntimeDestinationKey(
+                object_id,
+                "value",
+                "ParameterValue",
+            ),
+            allow_runtime_equivalence_probe=True,
+        )
+
+    first_request = request("solve_c_first", "solve_c_from_minimum")
+    first = service.allocate(first_request, index)
+    indexed = service.indexed_version(
+        first_request,
+        first,
+        produced_handle="fact:ii:c_first",
+    )
+    assert indexed is not None
+    index.register(indexed)
+
+    second = service.allocate(
+        request("solve_c_second", "solve_c_from_coordinate"),
+        index,
+    )
+
+    assert second.action == "conflict"
+    assert second.conflict_code == "state.transition_dependency_unproven"
 
 
 def test_value_only_return_remains_call_local() -> None:

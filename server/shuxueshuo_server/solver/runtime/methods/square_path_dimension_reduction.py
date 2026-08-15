@@ -31,7 +31,14 @@ class SquarePathDimensionReductionMethod:
         path = str(path_condition["path"])
         segments = _parse_path_segments(path)
         if len(segments) != 3:
-            raise ValueError("square_path_dimension_reduction requires a three-segment path")
+            raise method_precondition_failed(
+                "square path dimension reduction requires exactly three path segments",
+                arg_name="path_condition",
+                role="source_path",
+                expected={"type": "Condition", "state": "three_segments", "segment_count": 3},
+                observed={"state": "wrong_segment_count", "segment_count": len(segments)},
+                repair_action="choose_three_segment_square_path",
+            )
 
         vertices = _square_vertices(square_condition)
         typed_terms = _typed_path_terms(path_condition)
@@ -65,7 +72,14 @@ class SquarePathDimensionReductionMethod:
             center = _handle_name(str(square_center_condition["point"]))
             midpoint_of = [_handle_name(str(item)) for item in midpoint_condition.get("of", [])]
             if {side_start, side_end} != set(midpoint_of):
-                raise ValueError("midpoint condition must refer to the square side endpoints")
+                raise method_precondition_failed(
+                    "midpoint condition must refer to the selected square side endpoints",
+                    arg_name="midpoint_condition",
+                    role="square_side_midpoint",
+                    expected={"state": "midpoint_of_selected_side", "endpoints": [side_start, side_end]},
+                    observed={"state": "different_endpoints", "endpoints": midpoint_of},
+                    repair_action="choose_matching_square_midpoint",
+                )
             center_midpoint = _find_segment(segments, center, midpoint)
             midpoint_other = _segment_with_endpoint(segments, midpoint, exclude=center_midpoint)
             other_fixed = _other_segment_endpoint(midpoint_other, midpoint)
@@ -155,7 +169,14 @@ class SquarePathDimensionReductionMethod:
 def _square_vertices(condition: dict[str, Any]) -> list[str]:
     vertices = condition.get("vertices")
     if not isinstance(vertices, list) or len(vertices) < 4:
-        raise ValueError("square condition requires ordered vertices")
+        raise method_input_invalid(
+            "square condition requires at least four ordered vertices",
+            arg_name="square_condition",
+            role="square_vertices",
+            expected={"type": "Condition", "state": "ordered_vertices"},
+            observed={"type": type(vertices).__name__, "count": len(vertices) if isinstance(vertices, list) else 0},
+            repair_action="provide_square_vertex_order",
+        )
     return [str(item) for item in vertices]
 
 
@@ -180,7 +201,14 @@ def _typed_path_terms(condition: dict[str, Any]) -> list[tuple[str, str]] | None
     if raw_terms is None:
         return None
     if not isinstance(raw_terms, list):
-        raise ValueError("path_condition.terms must be a list")
+        raise method_input_invalid(
+            "path condition terms must be a list",
+            arg_name="path_condition",
+            role="typed_path_terms",
+            expected={"type": "PointPairList"},
+            observed={"type": type(raw_terms).__name__},
+            repair_action="choose_typed_path_condition",
+        )
     terms: list[tuple[str, str]] = []
     for raw in raw_terms:
         if (
@@ -188,7 +216,14 @@ def _typed_path_terms(condition: dict[str, Any]) -> list[tuple[str, str]] | None
             or len(raw) != 2
             or not all(isinstance(item, str) and item.startswith("point:") for item in raw)
         ):
-            raise ValueError("path_condition.terms must contain point-handle pairs")
+            raise method_input_invalid(
+                "path condition terms must contain point-handle pairs",
+                arg_name="path_condition",
+                role="typed_path_terms",
+                expected={"type": "PointPairList", "state": "canonical_point_handles"},
+                observed={"type": type(raw).__name__, "value": repr(raw)},
+                repair_action="choose_typed_path_condition",
+            )
         terms.append((str(raw[0]), str(raw[1])))
     return terms
 
@@ -205,13 +240,27 @@ def _typed_square_path_roles(
     """Validate the square path by exact handles, then derive display labels."""
 
     if len(typed_terms) != 3 or len(display_segments) != 3:
-        raise ValueError("square path requires three typed terms")
+        raise method_precondition_failed(
+            "square path requires three typed terms aligned with three display segments",
+            arg_name="path_condition",
+            role="source_path",
+            expected={"state": "three_typed_terms", "count": 3},
+            observed={"typed_term_count": len(typed_terms), "display_segment_count": len(display_segments)},
+            repair_action="choose_three_segment_square_path",
+        )
     side_start, side_end, _, moving_handle = vertices[:4]
     midpoint_handle = str(midpoint_condition.get("point", ""))
     midpoint_of = tuple(str(item) for item in midpoint_condition.get("of", ()))
     center_handle = str(square_center_condition.get("point", ""))
     if len(midpoint_of) != 2 or set(midpoint_of) != {side_start, side_end}:
-        raise ValueError("midpoint condition must refer to the square side endpoints")
+        raise method_precondition_failed(
+            "midpoint condition must refer to the selected square side endpoints",
+            arg_name="midpoint_condition",
+            role="square_side_midpoint",
+            expected={"state": "midpoint_of_selected_side", "endpoints": [side_start, side_end]},
+            observed={"state": "different_endpoints", "endpoints": list(midpoint_of)},
+            repair_action="choose_matching_square_midpoint",
+        )
 
     center_index = _typed_edge_index(typed_terms, center_handle, midpoint_handle)
     midpoint_indexes = [
@@ -220,7 +269,14 @@ def _typed_square_path_roles(
         if index != center_index and midpoint_handle in pair
     ]
     if len(midpoint_indexes) != 1:
-        raise ValueError("path must contain one midpoint-to-fixed segment")
+        raise method_result_ambiguous(
+            "path must contain exactly one midpoint-to-fixed segment",
+            arg_name="path_condition",
+            role="midpoint_to_fixed_segment",
+            expected={"candidate_count": 1},
+            observed={"candidate_count": len(midpoint_indexes)},
+            repair_action="choose_matching_path_segments",
+        )
     midpoint_index = midpoint_indexes[0]
     other_fixed_handle = _typed_other_endpoint(
         typed_terms[midpoint_index],
@@ -233,7 +289,14 @@ def _typed_square_path_roles(
         and set(pair) == {other_fixed_handle, moving_handle}
     ]
     if len(moving_indexes) != 1:
-        raise ValueError("path must contain the fixed-to-moving square segment")
+        raise method_result_ambiguous(
+            "path must contain exactly one fixed-to-moving square segment",
+            arg_name="path_condition",
+            role="fixed_to_moving_segment",
+            expected={"candidate_count": 1},
+            observed={"candidate_count": len(moving_indexes)},
+            repair_action="choose_matching_path_segments",
+        )
     moving_index = moving_indexes[0]
 
     labels = _typed_path_display_labels(
@@ -263,7 +326,14 @@ def _typed_edge_index(
 ) -> int:
     matches = [index for index, pair in enumerate(terms) if set(pair) == {first, second}]
     if len(matches) != 1:
-        raise ValueError("path must contain exactly one center-to-midpoint segment")
+        raise method_result_ambiguous(
+            "path must contain exactly one center-to-midpoint segment",
+            arg_name="path_condition",
+            role="center_to_midpoint_segment",
+            expected={"candidate_count": 1},
+            observed={"candidate_count": len(matches)},
+            repair_action="choose_matching_path_segments",
+        )
     return matches[0]
 
 
@@ -272,7 +342,15 @@ def _typed_other_endpoint(pair: tuple[str, str], endpoint: str) -> str:
         return pair[1]
     if pair[1] == endpoint:
         return pair[0]
-    raise ValueError("typed path pair does not contain expected endpoint")
+    raise method_input_invalid(
+        "typed path pair does not contain the expected endpoint",
+        arg_name="path_condition",
+        role="typed_path_terms",
+        internal_ref=endpoint,
+        expected={"state": "contains_endpoint"},
+        observed={"pair": list(pair)},
+        repair_action="choose_typed_path_condition",
+    )
 
 
 def _typed_path_display_labels(
@@ -307,14 +385,28 @@ def _typed_path_display_labels(
         for item in candidates
     }
     if len(unique) != 1:
-        raise ValueError("typed path terms do not uniquely map to display labels")
+        raise method_result_ambiguous(
+            "typed path terms do not map uniquely to display labels",
+            arg_name="path_condition",
+            role="path_display_mapping",
+            expected={"candidate_count": 1},
+            observed={"candidate_count": len(unique)},
+            repair_action="supply_disambiguating_constraint",
+        )
     return next(iter(unique.values()))
 
 
 def _display_segment_endpoints(segment: str) -> tuple[str, str]:
     names = "".join(char for char in segment if char.isalpha() and char.isupper())
     if len(names) != 2:
-        raise ValueError(f"cannot parse display segment endpoints from {segment!r}")
+        raise method_input_invalid(
+            f"cannot parse two display endpoints from segment {segment!r}",
+            arg_name="path_condition",
+            role="display_segment",
+            expected={"type": "SegmentLabel", "endpoint_count": 2},
+            observed={"value": segment, "endpoint_count": len(names)},
+            repair_action="choose_typed_path_condition",
+        )
     return names[0], names[1]
 
 
@@ -327,13 +419,28 @@ def _find_segment(segments: list[str], p1: str, p2: str) -> str:
     for segment in segments:
         if set(segment) == wanted:
             return segment
-    raise ValueError(f"path does not contain segment {p1}{p2}")
+    raise method_input_missing(
+        f"path does not contain required segment {p1}{p2}",
+        arg_name="path_condition",
+        role="required_path_segment",
+        expected={"state": "segment_present", "endpoints": [p1, p2]},
+        observed={"segments": segments},
+        repair_action="choose_matching_path_segments",
+    )
 
 
 def _segment_with_endpoint(segments: list[str], endpoint: str, *, exclude: str) -> str:
     matches = [segment for segment in segments if segment != exclude and endpoint in segment]
     if len(matches) != 1:
-        raise ValueError(f"path must contain exactly one remaining segment through {endpoint}")
+        raise method_result_ambiguous(
+            f"path must contain exactly one remaining segment through {endpoint}",
+            arg_name="path_condition",
+            role="remaining_path_segment",
+            internal_ref=endpoint,
+            expected={"candidate_count": 1},
+            observed={"candidate_count": len(matches), "segments": matches},
+            repair_action="choose_matching_path_segments",
+        )
     return matches[0]
 
 

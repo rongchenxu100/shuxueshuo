@@ -1,11 +1,24 @@
 from __future__ import annotations
 
 import json
+from types import SimpleNamespace
 
+from shuxueshuo_server.solver.runtime.functional_goal_retry import (
+    FUNCTIONAL_GOAL_REPAIR_CONTRACT,
+    FunctionalGoalRetryError,
+    ScopedFunctionalGoalRetryAttempt,
+    ScopedFunctionalGoalRetryRunResult,
+)
+from shuxueshuo_server.solver.runtime.functional_plan_content import (
+    FUNCTIONAL_PLAN_CONTENT_CONTRACT,
+)
 from shuxueshuo_server.solver.scoped_functional_plan_smoke import (
     ScopedV2SmokeSampleResult,
+    _RecordingClient,
     _batch_summary,
+    _goal_retry_terminal_error,
     _smoke_completion_request_options,
+    _write_provider_attempt_snapshot,
     _write_sample_review,
     main,
     rerender_existing_batch,
@@ -65,6 +78,7 @@ def test_summary_separates_primary_authority_from_runtime_diagnostics() -> None:
     assert "scope_goal_authority_count" not in summary
     assert "scope_goal_authority_ok" not in summary["samples"][0]
     assert summary["transaction_ok_count"] == 0
+    assert not summary["completion_gate_ok"]
 
 
 def test_tree_success_does_not_mask_plan_authority_failure() -> None:
@@ -87,11 +101,11 @@ def test_tree_success_does_not_mask_plan_authority_failure() -> None:
 def test_dry_run_does_not_require_live_integration_flag(capsys) -> None:
     assert main(["--batch-id", "dry-run", "--dry-run"]) == 0
     output = capsys.readouterr().out
-    assert '"planner_protocol": "functional_plan/v2"' in output
-    assert '"semantic_attempts": 1' in output
+    assert f'"planner_protocol": "{FUNCTIONAL_PLAN_CONTENT_CONTRACT}"' in output
+    assert '"semantic_attempts": 3' in output
 
 
-def test_smoke_pass1_thinking_profiles_are_explicit() -> None:
+def test_smoke_disabled_thinking_profile_is_explicit() -> None:
     assert _smoke_completion_request_options(
         "disabled", temperature=0.0
     ) == {
@@ -99,7 +113,59 @@ def test_smoke_pass1_thinking_profiles_are_explicit() -> None:
         "response_format": {"type": "json_object"},
         "extra_body": {"thinking": {"type": "disabled"}},
     }
+
+
+def test_provider_boundary_is_persisted_before_plan_execution(tmp_path) -> None:
+    class Provider:
+        model = "deepseek-v4-flash"
+        last_usage = {"prompt_tokens": 10, "completion_tokens": 2}
+        last_response_model = "deepseek-v4-flash"
+        last_provider_attempts = ({"provider_attempt": 1},)
+
+        def complete(self, _payload):
+            return '{"format":"functional-plan-content/v2"}'
+
+    client = _RecordingClient(
+        Provider(),
+        record_sink=lambda recorder, record: _write_provider_attempt_snapshot(
+            tmp_path,
+            client=recorder,
+            record=record,
+            thinking_profile="low",
+        ),
+    )
+    client.complete(
+        {
+            "planner_attempt": 1,
+            "planner_protocol": FUNCTIONAL_PLAN_CONTENT_CONTRACT,
+            "planner_payload": {"problem_planning_context": {"id": "p"}},
+            "messages": [
+                {"role": "system", "content": "system prompt"},
+                {"role": "user", "content": "user prompt"},
+            ],
+        }
+    )
+
+    assert (tmp_path / "attempt-1.raw-response.txt").read_text() == (
+        '{"format":"functional-plan-content/v2"}'
+    )
+    assert (tmp_path / "attempt-1.prompt.system.md").read_text() == (
+        "system prompt"
+    )
+    stage = json.loads((tmp_path / "attempt-1.attempt-stage.json").read_text())
+    assert stage["stage"] == "provider_completed"
+    assert stage["planner_protocol"] == FUNCTIONAL_PLAN_CONTENT_CONTRACT
     assert _smoke_completion_request_options("low", temperature=0.0) == {
+        "temperature": 0.0,
+        "response_format": {"type": "json_object"},
+        "extra_body": {"thinking": {"type": "enabled"}},
+        "reasoning_effort": "low",
+    }
+    assert _smoke_completion_request_options(
+        "low",
+        temperature=0.0,
+        semantic_attempt=2,
+    ) == {
         "temperature": 0.0,
         "response_format": {"type": "json_object"},
         "extra_body": {"thinking": {"type": "enabled"}},
@@ -107,7 +173,7 @@ def test_smoke_pass1_thinking_profiles_are_explicit() -> None:
     }
 
 
-def test_low_thinking_dry_run_remains_one_semantic_attempt(capsys) -> None:
+def test_low_thinking_dry_run_applies_to_pass1_and_retry(capsys) -> None:
     assert main(
         [
             "--batch-id",
@@ -118,10 +184,69 @@ def test_low_thinking_dry_run_remains_one_semantic_attempt(capsys) -> None:
         ]
     ) == 0
     output = capsys.readouterr().out
-    assert '"semantic_attempts": 1' in output
-    assert '"thinking": "enabled"' in output
-    assert '"reasoning_effort": "low"' in output
+    assert '"semantic_attempts": 3' in output
+    assert '"pass1_thinking": "enabled"' in output
+    assert '"pass1_reasoning_effort": "low"' in output
+    assert '"retry_thinking": "enabled"' in output
+    assert '"retry_reasoning_effort": "low"' in output
     assert '"thinking_profile": "low"' in output
+
+
+def test_terminal_error_comes_from_the_last_attempt_not_an_early_schema_error() -> None:
+    early = FunctionalGoalRetryError(
+        "functional.v2_schema_invalid",
+        "$.root_scope",
+        "early schema failure",
+    )
+    checkpoint = SimpleNamespace(
+        root_issues=(
+            {
+                "code": "functional.transactional_call_failed",
+                "path": "$.steps['latest']",
+                "message": "latest runtime failure",
+            },
+        ),
+        root_scope=SimpleNamespace(
+            scope_steps=(),
+            goals=(),
+            children=(),
+        ),
+    )
+    final_execution = SimpleNamespace(checkpoint=checkpoint)
+    attempts = (
+        ScopedFunctionalGoalRetryAttempt(
+            semantic_attempt=1,
+            planner_protocol=FUNCTIONAL_PLAN_CONTENT_CONTRACT,
+            payload={},
+            prompt=SimpleNamespace(system="", user=""),
+            raw_response="{}",
+            plan=None,
+            execution=None,
+            error=early,
+        ),
+        ScopedFunctionalGoalRetryAttempt(
+            semantic_attempt=2,
+            planner_protocol=FUNCTIONAL_GOAL_REPAIR_CONTRACT,
+            payload={},
+            prompt=SimpleNamespace(system="", user=""),
+            raw_response="{}",
+            plan=None,
+            execution=final_execution,
+        ),
+    )
+    result = ScopedFunctionalGoalRetryRunResult(
+        status="blocked",
+        attempts=attempts,
+        final_plan=None,
+        final_execution=final_execution,
+        solved_goal_restore_count=0,
+    )
+
+    error = _goal_retry_terminal_error(result)
+
+    assert isinstance(error, FunctionalGoalRetryError)
+    assert error.code == "functional.transactional_call_failed"
+    assert "latest runtime failure" in error.message
 
 
 def test_review_displays_exact_problem_view_without_internal_authority(tmp_path) -> None:

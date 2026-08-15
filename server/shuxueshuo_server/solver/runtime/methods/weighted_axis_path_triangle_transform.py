@@ -44,9 +44,20 @@ class WeightedAxisPathTriangleTransformMethod:
         )
 
         if sp.simplify(fixed_point[1]) != 0 or sp.simplify(moving_point[1]) != 0:
-            raise ValueError("weighted_axis_path_triangle_transform requires points on x-axis")
+            raise method_precondition_failed(
+                "weighted-axis transformation requires both points on the x-axis",
+                role="axis_points",
+                expected={"y_coordinates": [0, 0]},
+                observed={"y_coordinates": [fixed_point[1], moving_point[1]]},
+            )
         if sp.simplify(moving_point[0] - dynamic_parameter) != 0:
-            raise ValueError("moving point x-coordinate must be the dynamic parameter")
+            raise method_precondition_failed(
+                "moving point x-coordinate must equal the dynamic parameter",
+                arg_name="moving_point",
+                role="moving_point",
+                expected={"x": dynamic_parameter},
+                observed={"x": moving_point[0]},
+            )
 
         path_info = _parse_weighted_axis_path(str(condition["path"]), kernel)
         weight = path_info["weight"]
@@ -196,11 +207,23 @@ def _parse_weighted_axis_path(path: str, kernel: SympyKernel) -> dict[str, Any]:
     """
     terms = _parse_path_segments(path)
     if len(terms) != 2:
-        raise ValueError(f"weighted axis path must have two segments: {path}")
+        raise method_input_invalid(
+            "weighted-axis path must contain two terms",
+            arg_name="condition",
+            role="weighted_path",
+            expected={"term_count": 2},
+            observed={"term_count": len(terms), "path": path},
+        )
     weight, weighted_segment = _parse_scaled_segment(terms[0], kernel)
     axis_weight, axis_segment = _parse_scaled_segment(terms[1], kernel)
     if sp.simplify(axis_weight - 1) != 0:
-        raise ValueError(f"axis segment must not be weighted: {path}")
+        raise method_precondition_failed(
+            "the axis segment of the weighted path must be unweighted",
+            arg_name="condition",
+            role="axis_segment",
+            expected={"weight": 1},
+            observed={"weight": axis_weight, "segment": axis_segment},
+        )
     moving_name = _common_endpoint(weighted_segment, axis_segment)
     return {
         "weight": weight,

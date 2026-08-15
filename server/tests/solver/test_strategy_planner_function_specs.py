@@ -30,6 +30,9 @@ from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.methods.quadratic_from_constraints import (
     analyze_quadratic_constraints,
 )
+from shuxueshuo_server.solver.runtime.symbolic_state_representation import (
+    SymbolicStateRepresentationError,
+)
 from shuxueshuo_server.solver.runtime.recipe_compiler import _preserved_object_ref
 from shuxueshuo_server.solver.runtime.strategy_planner import (
     MethodBindingRuleRegistry,
@@ -111,6 +114,27 @@ def test_function_spec_registry_models_non_adapter_point_identity() -> None:
     assert candidates.returns[0].identity_arg == "target_point"
 
 
+def test_optional_parameter_value_requires_explicit_wire_authority() -> None:
+    problem = load_problem_ir(str(FUNCTIONAL_FIXTURES[4]))
+    inputs = build_strategy_probe_inputs(problem)
+    catalog = FunctionalCapabilityCatalog.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
+    )
+
+    for capability_id in (
+        "square_adjacent_vertex_from_side",
+        "distance_between_points",
+    ):
+        capability = catalog.items[capability_id]
+        parameter_value = next(
+            item for item in capability.args if item.name == "parameter_value"
+        )
+        assert parameter_value.required is False
+        assert parameter_value.binding_authority == "wire"
+        assert parameter_value.deterministic_resolver is None
+
+
 def test_quadratic_constraint_analyzer_declarations_are_consistent() -> None:
     problem = load_problem_ir(str(FUNCTIONAL_FIXTURES[0]))
     inputs = build_strategy_probe_inputs(problem)
@@ -144,10 +168,14 @@ def test_quadratic_constraint_analyzer_preserves_only_valid_parameterization_bas
         "p2": (2, 1 - m),
     }
 
-    invalid = analyze_quadratic_constraints(
-        base,
-        preferred_free_parameters=(a,),
-    )
+    with pytest.raises(
+        SymbolicStateRepresentationError,
+        match="function.state_representation_unresolved",
+    ):
+        analyze_quadratic_constraints(
+            base,
+            preferred_free_parameters=(a,),
+        )
     valid = analyze_quadratic_constraints(
         {
             "quadratic": a * x**2 + b * x + c,
@@ -159,8 +187,6 @@ def test_quadratic_constraint_analyzer_preserves_only_valid_parameterization_bas
         preferred_free_parameters=(b,),
     )
 
-    assert invalid.status == "determined"
-    assert invalid.free_parameters == ()
     assert valid.status == "single_free"
     assert valid.free_parameters == (b,)
 

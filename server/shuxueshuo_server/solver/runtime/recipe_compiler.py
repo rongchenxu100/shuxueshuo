@@ -142,6 +142,7 @@ from shuxueshuo_server.solver.runtime.state_identity import (
     IndexedStateVersion,
     MathObjectId,
     MathObjectRegistry,
+    StateVersionId,
 )
 from shuxueshuo_server.solver.runtime.scalar_result_closure import (
     ScalarResultClosureRegistry,
@@ -3679,20 +3680,36 @@ def _promote_outputs_for_step(
             )
         if output_name is None or output_name not in outputs:
             continue
-        target = _target_path_for_produced(
-            produced,
-            output_types[output_name],
-            index,
+        reuse_write = _projected_runtime_reuse_for_produced(
             step,
-            point_transition=(
-                point_transition
-                or _produced_is_projected_point_transition(
-                    step,
-                    produced,
-                    projected_state_writes,
-                )
-            ),
+            produced,
+            projected_state_writes,
         )
+        if reuse_write is not None:
+            # A static reuse allocation only identifies a comparison
+            # candidate. Materialize the actual method result into an
+            # isolated scope-local path; the transaction layer alone may
+            # prove it equal to the selected canonical StateVersion.
+            target = _scoped_output_path(
+                index.context,
+                step.scope_id,
+                f"runtime_reuse_{step.step_id}_{output_name}",
+            )
+        else:
+            target = _target_path_for_produced(
+                produced,
+                output_types[output_name],
+                index,
+                step,
+                point_transition=(
+                    point_transition
+                    or _produced_is_projected_point_transition(
+                        step,
+                        produced,
+                        projected_state_writes,
+                    )
+                ),
+            )
         _ensure_declaration_for_promote_target(target, output_types[output_name], index)
         source = outputs[output_name]
         source_to_produced.setdefault(source, []).append(produced)
@@ -3720,6 +3737,27 @@ def _promote_outputs_for_step(
         first_key, first_path = next(iter(outputs.items()))
         promote[first_path] = _scoped_output_path(index.context, step.scope_id, first_key)
     return promote
+
+
+def _projected_runtime_reuse_for_produced(
+    step: FunctionalCompileStepView,
+    produced: ProducedFact,
+    projected_state_writes: tuple[ProjectedStateWrite, ...],
+) -> ProjectedStateWrite | None:
+    matches = tuple(
+        write
+        for write in projected_state_writes
+        if write.step_id == step.step_id
+        and write.produced_handle == produced.handle
+        and write.allocation_action == "reuse"
+    )
+    if len(matches) > 1:
+        raise StrategyDraftValidationError(
+            "planner_configuration_error: "
+            "planner.runtime_reuse_allocation_ambiguous: "
+            f"step={step.step_id}, produced={produced.handle}"
+        )
+    return matches[0] if matches else None
 
 
 def _produced_is_projected_point_transition(
@@ -4506,6 +4544,21 @@ def _state_write_provenance(
                 if projected_write is not None
                 else None
             ),
+            projected_previous_version_id=(
+                projected_write.previous_version_id
+                if projected_write is not None
+                else None
+            ),
+            projected_allocation_action=(
+                projected_write.allocation_action
+                if projected_write is not None
+                else None
+            ),
+            projected_canonical_producer_call_id=(
+                projected_write.canonical_producer_call_id
+                if projected_write is not None
+                else None
+            ),
         )
     state_kind = state_kind_for_runtime_type(runtime_type)
     # The compiler/runtime ledger retains its legacy destination key through
@@ -5061,11 +5114,27 @@ def _validate_state_transition(
     index: CanonicalRuntimeBindingIndex,
     transition_kind: Literal["direct", "dependency_refinement"] | None,
     projected_previous_write_step_id: str | None,
+    projected_previous_version_id: StateVersionId | None,
+    projected_allocation_action: str | None,
+    projected_canonical_producer_call_id: str | None,
 ) -> None:
-    if object_ref is None or previous_write is None:
+    if object_ref is None:
         raise StrategyDraftValidationError(
             "function.transition_source_missing: "
             f"step={step.step_id}, object_ref={object_ref or 'unknown'}"
+        )
+    if previous_write is None:
+        if (
+            projected_allocation_action == "transition"
+            and projected_previous_version_id is not None
+            and projected_previous_version_id.ordinal == 0
+        ):
+            # The initial Problem state is authoritative in the typed sidecar
+            # but intentionally absent from the compiled-write ledger.
+            return
+        raise StrategyDraftValidationError(
+            "function.transition_source_missing: "
+            f"step={step.step_id}, object_ref={object_ref}"
         )
     if not index.context.is_visible(step.scope_id, previous_write.scope_id):
         raise StrategyDraftValidationError(
@@ -5079,6 +5148,13 @@ def _validate_state_transition(
                 f"step={step.step_id}, expected={previous_write.step_id}, "
                 f"actual={projected_previous_write_step_id}"
             )
+        return
+    if (
+        projected_allocation_action == "reuse"
+        and projected_canonical_producer_call_id == previous_write.step_id
+    ):
+        # Reuse is only a compile-time probe candidate. The transaction layer
+        # still has to execute and prove actual typed runtime equivalence.
         return
     if projected_previous_write_step_id == previous_write.step_id:
         # FunctionalPlan auto arguments do not become public wire arguments;

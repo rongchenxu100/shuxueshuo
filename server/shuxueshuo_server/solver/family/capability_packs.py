@@ -1964,6 +1964,17 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
                 "point_candidates_from_curve_point_condition",
                 slot_reads=(
                     _parabola_read(semantic_role="parabola"),
+                    _slot(
+                        "parameter",
+                        "Symbol",
+                        object_kind="symbol",
+                        semantic_role="parameter",
+                        description=(
+                            "target_point 与 curve_point 共享的确切运动参数；"
+                            "必须引用生成参数化点的前序 call 之 parameter 返回值，"
+                            "不能由自由符号名称猜测。"
+                        ),
+                    ),
                 ),
                 condition_reads=(_condition("point_on_curve"),),
                 slot_writes=(
@@ -1982,7 +1993,19 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
             ),
             _method_contract(
                 "parameterized_point_locus_line",
-                slot_reads=(_slot("coordinate", "Point", object_kind="point"),),
+                slot_reads=(
+                    _slot("coordinate", "Point", object_kind="point"),
+                    _slot(
+                        "parameter",
+                        "Symbol",
+                        object_kind="symbol",
+                        semantic_role="parameter",
+                        description=(
+                            "驱动该 Point 运动的确切参数；必须引用生成参数化点的"
+                            "前序 call 之 parameter 返回值。"
+                        ),
+                    ),
+                ),
                 slot_writes=(
                     _slot(
                         "locus",

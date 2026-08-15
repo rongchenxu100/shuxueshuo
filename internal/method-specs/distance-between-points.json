@@ -44,7 +44,13 @@
         "closed_value"
       ],
       "description": "代入指定参数后若仍含其他未确定参数则为 open_expression；不存在自由参数时为 closed_value。",
-      "closure_policy": "no_free_symbols"
+      "closure_policy": "no_free_symbols",
+      "applied_substitutions": [
+        [
+          "parameter",
+          "parameter_value"
+        ]
+      ]
     }
   },
   "explanation": {

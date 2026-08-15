@@ -125,6 +125,10 @@
             "parabola": {
               "from_call": "derive_parabola_i",
               "return": "parabola"
+            },
+            "parameter": {
+              "from_call": "parameterize_axis_point_E_i",
+              "return": "parameter"
             }
           },
           "return_bindings": {
@@ -253,6 +257,10 @@
             "point": {
               "from_call": "derive_square_vertex_G_ii",
               "return": "adjacent_vertex"
+            },
+            "parameter": {
+              "from_call": "parameterize_axis_point_E_ii",
+              "return": "parameter"
             }
           },
           "return_bindings": {},

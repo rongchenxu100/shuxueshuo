@@ -98,6 +98,10 @@
             "point": {
               "from_call": "derive_adjacent_vertex",
               "return": "adjacent_vertex"
+            },
+            "parameter": {
+              "from_call": "parameterize_axis_point",
+              "return": "parameter"
             }
           },
           "return_bindings": {},

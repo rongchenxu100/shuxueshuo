@@ -38,14 +38,32 @@ class QuadraticXAxisInterceptPointMethod:
                 for point in candidates
                 if sp.simplify(point[0] - known_point[0]) != 0
             ]
+        existing_coordinate = target.definition.get("existing_coordinate")
+        if len(candidates) > 1 and _is_point(existing_coordinate):
+            matching = [
+                point
+                for point in candidates
+                if _points_equivalent(point, existing_coordinate)
+            ]
+            if len(matching) == 1:
+                candidates = matching
         if len(candidates) > 1:
             side = _target_intercept_side(target)
             if side is not None:
                 candidates = _pick_side_intercept(candidates, side)
         if len(candidates) != 1:
-            raise ValueError(
-                f"x_axis_intercept cannot uniquely determine {target.name}: "
-                f"{[kernel.sstr(point[0]) for point in candidates]}"
+            raise method_result_ambiguous(
+                f"x_axis_intercept cannot uniquely determine {target.name}",
+                role="target_x_axis_intercept",
+                internal_ref=target.name,
+                expected={"candidate_count": 1, "runtime_type": "Point"},
+                observed={
+                    "candidate_count": len(candidates),
+                    "candidate_x_values": [
+                        kernel.sstr(point[0]) for point in candidates
+                    ],
+                },
+                repair_action="supply_disambiguating_constraint",
             )
         point = candidates[0]
         checks = [
@@ -106,6 +124,17 @@ def _target_intercept_side(target: PointRef) -> str | None:
         if normalized in {"left", "right"}:
             return normalized
     return None
+
+
+def _is_point(value: Any) -> bool:
+    return isinstance(value, (tuple, list)) and len(value) == 2
+
+
+def _points_equivalent(left: Point, right: Any) -> bool:
+    return _is_point(right) and all(
+        sp.simplify(left[index] - right[index]) == 0
+        for index in range(2)
+    )
 
 
 def _pick_side_intercept(candidates: list[Point], side: str) -> list[Point]:

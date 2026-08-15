@@ -40,11 +40,22 @@ class BrokenPathStraighteningCandidatesMethod:
         transformed_path = str(transformation["transformed_path"])
         segments = _parse_path_segments(transformed_path)
         if len(segments) != 2:
-            raise ValueError("broken_path_straightening_candidates requires a two-segment broken path")
+            raise method_precondition_failed(
+                "straightening requires a two-segment broken path",
+                arg_name="path_transformation",
+                role="transformed_path",
+                expected={"segment_count": 2},
+                observed={"segment_count": len(segments), "path": transformed_path},
+            )
         moving_point_name = _common_endpoint(segments[0], segments[1])
         if expected_moving is not None and moving_point_name != expected_moving:
-            raise ValueError(
-                f"path moving point {moving_point_name!r} does not match membership {expected_moving!r}"
+            raise method_result_inconsistent(
+                "path moving point conflicts with its membership condition",
+                role="moving_point",
+                internal_ref=expected_moving,
+                expected={"point": expected_moving},
+                observed={"point": moving_point_name},
+                retryability="planner_repairable",
             )
         fixed_name_1 = _other_segment_endpoint(segments[0], moving_point_name)
         fixed_name_2 = _other_segment_endpoint(segments[1], moving_point_name)
@@ -196,9 +207,26 @@ def _line_from_inputs(
             expected,
         )
     if moving_membership is None:
-        raise ValueError("broken_path_straightening_candidates requires moving_locus or moving_point_membership")
+        raise method_input_missing(
+            "straightening requires a moving locus or membership condition",
+            arg_name="moving_locus",
+            role="moving_locus",
+            expected={"one_of": ["moving_locus", "moving_point_membership"]},
+        )
     if "line_point_1" not in inputs or "line_point_2" not in inputs:
-        raise ValueError("moving_point_membership mode requires line_point_1 and line_point_2")
+        missing = [
+            key
+            for key in ("line_point_1", "line_point_2")
+            if key not in inputs
+        ]
+        raise method_input_missing(
+            "membership mode requires two materialized points on the moving line",
+            arg_name=missing[0],
+            role="moving_locus_endpoint",
+            expected={"required_args": ["line_point_1", "line_point_2"]},
+            observed={"missing_args": missing},
+            repair_action="provide_visible_point_producer",
+        )
     return (
         inputs["line_point_1"],
         inputs["line_point_2"],
@@ -212,7 +240,13 @@ def _line_point(line: dict[str, Any], key: str) -> Point:
     if isinstance(raw, list) and len(raw) == 2:
         raw = tuple(raw)
     if not isinstance(raw, tuple) or len(raw) != 2:
-        raise ValueError(f"moving_locus requires 2D {key}")
+        raise method_input_invalid(
+            "moving locus requires a two-dimensional point or direction",
+            arg_name="moving_locus",
+            role=key,
+            expected={"dimension": 2},
+            observed={"value": raw},
+        )
     return (sp.simplify(raw[0]), sp.simplify(raw[1]))
 
 

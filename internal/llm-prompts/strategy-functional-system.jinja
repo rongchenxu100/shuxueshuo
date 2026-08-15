@@ -35,6 +35,8 @@
 6. `return_bindings` 只绑定最终 answer 或题面中的已有对象/状态：
    - `binding=internal_only` 的 return 不能绑定，只能由后续 call 通过 CallResultRef 消费；
    - `binding=same_object_as:<arg>` 的 return 保持指定输入对象的身份；
+   - `binding=same_compiler_selected_object` 的 return 由编译器从当前scope权威选择对象身份和写入目标，
+     不得为此添加catalog未声明的arg或return binding；
    - `binding=aggregate_elements_same_object_as:<arg>` 的 return 是一个整体的聚合值；只有其中每个元素
      保持 `<arg>` 的对象身份，return 本身不是单个对象。绑定 required answer 时必须使用
      `kind=answer`，并令 `value_type` 等于 catalog 中的 return `type`；不得使用 `kind=point`、

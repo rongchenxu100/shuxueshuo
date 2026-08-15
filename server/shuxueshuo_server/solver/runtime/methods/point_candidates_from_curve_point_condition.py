@@ -21,8 +21,19 @@ class PointCandidatesFromCurvePointConditionMethod:
         curve_point: Point = inputs["curve_point"]
         parabola = inputs["parabola"]
         x = inputs["x"]
+        parameter = inputs["parameter"]
 
-        parameter = _unique_point_parameter(target_point, curve_point, parabola, x)
+        _require_substitution_symbol(target_point, parameter)
+        _require_substitution_symbol(curve_point, parameter)
+        if parameter in (set(parabola.free_symbols) | {x}):
+            raise method_input_invalid(
+                "point parameter must not reuse the parabola variable or coefficient Symbol",
+                arg_name="parameter",
+                role="point_parameter",
+                internal_ref=parameter.name,
+                expected={"identity": "independent point parameter"},
+                observed={"parabola_free_symbols": sorted(str(item) for item in parabola.free_symbols)},
+            )
         equation = sp.Eq(parabola.subs(x, curve_point[0]), curve_point[1])
         roots = [sp.simplify(root) for root in kernel.solve_values(equation, parameter)]
         candidates = _unique_points(
@@ -33,7 +44,12 @@ class PointCandidatesFromCurvePointConditionMethod:
             kernel,
         )
         if not candidates:
-            raise ValueError("curve point condition has no target point candidates")
+            raise method_result_empty(
+                "curve point condition produced no target point candidates",
+                role="target_point",
+                expected={"candidate_count_min": 1},
+                observed={"candidate_count": 0, "root_count": len(roots)},
+            )
 
         return StatelessMethodResult(
             method_id=self.method_id,
@@ -60,21 +76,6 @@ class PointCandidatesFromCurvePointConditionMethod:
                 )
             ],
         )
-
-
-def _unique_point_parameter(
-    target_point: Point,
-    curve_point: Point,
-    parabola: sp.Expr,
-    x: sp.Symbol,
-) -> sp.Symbol:
-    """从两个点表达式中找出唯一非曲线参数。"""
-    point_symbols = set().union(*(coord.free_symbols for coord in (*target_point, *curve_point)))
-    curve_symbols = set(parabola.free_symbols) | {x}
-    candidates = sorted(point_symbols - curve_symbols, key=lambda symbol: symbol.name)
-    if len(candidates) != 1:
-        raise ValueError("curve point condition requires exactly one point parameter")
-    return candidates[0]
 
 
 def _unique_points(points: list[Point], kernel: SympyKernel) -> list[Point]:
@@ -120,10 +121,18 @@ SPEC = MethodSpecSource(
         },
         "parabola": {"type": "Parabola", "required": True},
         "x": {"type": "Symbol", "required": True},
+        "parameter": {
+            "type": "Symbol",
+            "required": True,
+            "description": (
+                "target_point与curve_point共享的确切运动参数Symbol；应引用生成"
+                "参数化点的前序call之parameter返回值"
+            ),
+        },
     },
     outputs={"candidates": "PointList"},
     preconditions=(
-        "target_point 与 curve_point 只共享一个待定参数",
+        "parameter必须以同一Symbol身份同时出现在target_point与curve_point中",
         "parabola 已代入当前问已知条件",
         (
             "若目标答案是 P，应令 target_point=P；"

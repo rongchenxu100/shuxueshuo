@@ -1,0 +1,657 @@
+# Functional Method DSL 编写规范
+
+本文规定新增或修改 Functional Method 时必须遵守的语义边界、代码契约、诊断协议和测试门禁。
+
+核心判断是：**我们正在实现一门可验证的数学 DSL。**
+
+```text
+ProblemPlanningContext
+→ LLM 输出 FunctionalPlan
+→ 静态编译、类型绑定与 scope 校验
+→ canonical call DAG / MethodInvocation
+→ Method 运行
+→ typed outputs / checks / proposed writes
+→ transaction commit 或 rollback
+→ typed diagnostic / retry
+```
+
+不过需要精确区分三层：
+
+- LLM 直接选择的 `capability` 是 DSL 的公开源指令；
+- `Function` 或 `Macro` 是源指令到执行 IR 的 lowering 规则；
+- Python `Method` 是最终由运行时调用的确定性原语。
+
+因此，“Method 就是代码”是对的，但它更准确地说是 DSL 的 runtime primitive，而不是全部 DSL，也不是直接暴露给 LLM 的任意 Python 函数。
+
+## 1. DSL 对照表
+
+| 编译语言概念 | Functional Solver 对应物 |
+|---|---|
+| 源程序 | `functional_plan/v2` |
+| 公开指令 | `capability_id` |
+| 词法作用域 | Problem/Plan scope tree |
+| 源级引用 | `SourceRef`、`StepResultRef`、answer ref |
+| 类型系统 | capability args/returns、typed binding、result form |
+| 编译器前端 | schema、scope、authority、reference validation |
+| lowering | Function adapter 或 Macro invocation graph |
+| 执行 IR | canonical calls、typed DAG、`MethodInvocation` |
+| runtime primitive | stateless Python Method |
+| 对象与状态 | `MathObjectId`、`LogicalStateKey`、`StateVersionId` |
+| 执行结果 | `StatelessMethodResult` |
+| 编译/运行诊断 | `FunctionalDiagnosticAuthority` |
+| 事务 | branch execution、validation、commit/rollback |
+
+静态编译和运行都会“返回结果”，但结果含义不同：
+
+- 静态编译成功返回可执行 IR、精确 binding、DAG 和 provenance；失败返回 typed diagnostic。
+- Method 运行成功返回 typed values、checks 和 trace；失败返回 typed diagnostic。
+- 只有事务验证通过后，运行结果才成为权威 StateVersion 或 answer evidence。
+
+## 2. 各层职责
+
+### 2.1 LLM
+
+LLM 负责：
+
+- 选择公开 capability；
+- 组织 scope 内的数学步骤；
+- 提供题面可见的公开参数；
+- 表达真正的步骤依赖；
+- 在 retry 中根据结构化诊断改写失败 Goal。
+
+LLM 不负责：
+
+- 猜 `method_id`、runtime path 或内部 output key；
+- 分配 `MathObjectId`、`StateVersionId`；
+- 选择“最新版本”；
+- 补 compiler selector、隐藏参数或 provenance；
+- 根据异常字符串猜内部对象身份。
+
+### 2.2 静态编译与 binding
+
+静态阶段负责：
+
+- 校验 FunctionalPlan schema 和 scope tree；
+- 校验 capability 是否存在、参数名是否合法、必需参数是否齐全；
+- 解析 `SourceRef` 和 `StepResultRef`；
+- 校验 scope 可见性、类型、cardinality 和 answer authority；
+- 选择精确对象身份和 StateVersion；
+- 注入 resolver/compiler authority 的隐藏参数；
+- 构造 Function 或 Macro 的 canonical call DAG；
+- 降低为 `MethodInvocation`；
+- 在运行前拒绝循环依赖、悬空引用和 contract drift。
+
+静态阶段不得执行题目求解，也不得根据字符串、点名或数组顺序猜绑定。
+
+### 2.3 Method runtime
+
+Method 只负责一个确定性数学原语：
+
+```python
+run(resolved_typed_inputs, kernel) -> StatelessMethodResult
+```
+
+Method：
+
+- 接收 compiler/executor 已解析的 typed values；
+- 计算数学结果；
+- 检查运行时前提和结果不变量；
+- 返回 typed outputs、checks 和 trace fragments；
+- 用 typed diagnostic 描述失败现场。
+
+Method 不得：
+
+- 读取或写入 `RuntimeContext`；
+- 自行搜索 scope、handle、最新状态或替代输入；
+- 读取 fixture、gold answer、网络、LLM 或全局可变状态；
+- 直接提交 StateVersion；
+- 决定 retry prompt 文案。
+
+### 2.4 Transaction runtime
+
+Transaction 负责：
+
+- 在 branch context 中执行 Method；
+- 审计实际输入与 F5-C binding sidecar；
+- 校验 active returns、result form、checks 和 provenance；
+- 用 runtime 数值/表达式等价判断重复 writer 是复用、收敛还是冲突；
+- 成功时原子提交，失败时完整回滚；
+- 把内部诊断投影为 prompt-safe retry issue。
+
+## 3. 什么时候应该新增 Method
+
+只有同时满足以下条件时才新增 Method：
+
+1. 它表达一个可复用、确定性的数学关系或变换。
+2. 输入与输出能用当前 typed runtime contract 明确描述。
+3. 运行时可以机械验证主要前提或结果。
+4. 它不是一道题的完整固定解法。
+5. 现有 Method 不能通过合理扩展覆盖该机制。
+
+优先选择：
+
+- **复用已有 Method**：数学机制相同，只是题面对象名称不同。
+- **扩展已有 Method**：新增输入仍属于同一数学关系，且不会造成互斥语义混在一个接口中。
+- **新增 Method**：数学运算或判定机制确实不同。
+- **新增 Function**：一个公开 capability 对应一次 Method 调用。
+- **新增 Macro**：一个稳定公开动作需要多个内部 Method，且中间 wiring 不应交给 LLM。
+- **新增 family-specific Macro**：不同 family 的整体降维机制不同，但内部仍复用通用 Method。
+
+不要把“Planner 经常连错线”作为扩充 Method 的理由。先判断问题属于 prompt、capability contract、compiler binding，还是确实缺少 runtime primitive。
+
+## 4. Method 设计原则
+
+### 4.1 一个 Method 只表达一个稳定机制
+
+好的边界示例：
+
+- 由两个点计算距离；
+- 由约束求二次函数；
+- 由直角和等长关系生成候选点；
+- 按象限条件从候选中选点。
+
+不好的边界示例：
+
+- “求某区一模第25题第二问”；
+- 一次完成建系、求点、降维、取最值和反求参数；
+- 根据 problem id 选择不同算法；
+- 为了避免 Planner 连线而吞入所有可能对象。
+
+Method 可以复杂，但复杂性必须来自一个可命名、可复用的数学机制。
+
+### 4.2 纯函数、确定性、无状态
+
+相同 typed inputs 和 kernel 语义必须产生相同 outputs、checks 和 trace。Method 不得依赖：
+
+- 调用顺序；
+- 当前 wall clock；
+- 随机数；
+- 外部服务；
+- 前一轮 LLM 响应；
+- RuntimeContext 中未显式传入的值。
+
+`MethodSpecSource.is_pure` 对新 Method 默认应保持 `True`。若未来确有 stateful primitive，必须建立独立执行契约，不能偷偷在 stateless Method 中引入副作用。
+
+### 4.3 身份与数值分离
+
+Method 接收的是当前调用已绑定的值，不拥有对象身份和版本选择权。
+
+- `MathObjectId` 表示同一个数学对象；
+- `StateVersionId` 表示该对象的一个精确状态；
+- Method 只消费 executor 解析后的数值或符号表达式；
+- “取当前最新可见参数状态”属于 binding/runtime state resolution；
+- 跨 step 的动态对象结果使用 canonical dependency，不由 Method 搜索。
+
+同一个点或函数在不同 scope 中可共享对象身份，同时拥有不同局部 StateVersion。Method 不得因为 label 相同就合并，也不得因为表达式字符串不同就认定对象不同。
+
+### 4.4 runtime 等价是合并结果的语义依据
+
+跨调用去重、复用或收敛必须比较实际 runtime value：
+
+- SymPy 表达式做规范化后等价；
+- Point 比较坐标表达式；
+- 结构对象按其 typed value contract 比较；
+- 同对象的严格收敛形成新 StateVersion；
+- 等价重复 writer 复用既有版本；
+- 不等价 writer 才是冲突。
+
+step id、输入 JSON、字符串展示、capability 名称或 scope 位置只能用于定位，不能作为数学等价证明。
+
+## 5. 输入契约
+
+每个输入必须在 `MethodSpecSource.inputs` 中声明：
+
+```python
+"fixed_point": {
+    "type": "Point",
+    "required": True,
+},
+"quadratic": {
+    "type": "Expression",
+    "required": True,
+    "functional_exposed": False,
+},
+```
+
+规则：
+
+1. 参数名表达数学角色，不使用具体点名或题号。
+2. 同类型参数必须靠 role 区分，不能靠位置或名称猜测。
+3. `required=True` 的输入应尽量在静态编译期发现缺失；Method 仍需 fail closed。
+4. `functional_exposed=False` 表示由 resolver/compiler 注入，LLM 不应填写。
+5. 可选参数必须有明确的启用条件，成对参数必须同时出现或同时省略。
+6. 不要用一个含义模糊的 `data`、`context` 或任意 mapping 承载多个数学角色。
+7. 输入集合若有顺序语义必须使用有序类型；若无顺序语义，Method 应 canonicalize 后处理。
+8. Method 不得把错误类型静默转成“看起来能算”的类型。
+
+### 5.1 Optional input 的门禁
+
+只有在以下两种情况下使用 optional input：
+
+- 它真正控制同一数学机制的可选求值，例如对已得表达式代入一个参数；
+- 它是历史/特殊消歧所需，但启用条件能由 contract 精确说明。
+
+若 optional input 会改变主要算法、输出类型或数学含义，应拆成不同 Method 或不同公开 Function。避免一个 capability 声明多个互斥输入组合，让 Planner 猜实际模式。
+
+## 6. 输出契约
+
+Method 输出必须是稳定的 typed mapping：
+
+```python
+outputs = {
+    "point": TypedValue("Point", point, source=self.method_id),
+    "distance": TypedValue(
+        "MinimumExpression",
+        distance,
+        source=self.method_id,
+    ),
+}
+```
+
+规则：
+
+1. output key 是 Method contract，不随题目或数值改变。
+2. output type 必须与 `SPEC.outputs` 完全一致。
+3. Method 不写 runtime path；compiler 决定 output destination。
+4. Method 不分配对象身份或 answer identity；Function/Macro contract 和 B1/B3 负责。
+5. invocation 声明为 active 的 output 必须实际返回，否则是 `configuration` error。
+6. optional output 必须由 compiler 的 active-return contract 决定，不能靠 runtime 静默缺失。
+7. 多种 result form 使用 `scalar_result_forms` 描述，不要伪装成多个无条件候选 return。
+8. 运行值应尽量 canonicalize，便于后续做可靠的 runtime equivalence。
+
+### 6.1 Result form
+
+`open_expression`、`closed_value`、`open_state` 和 `closed_state` 描述的是实际结果状态，不是 LLM 的主观标签。
+
+- Method 返回数学值；
+- runtime 根据自由符号和类型 contract 判定实际 form；
+- Planner 可声明需要的 form；
+- compiler/runtime 校验期望与实际是否一致；
+- 不能仅因 return 名称叫 `evaluated_*` 就认定它已经闭合。
+
+## 7. Preconditions、Checks 与异常
+
+三类失败必须分开：
+
+| 场景 | 表达方式 | 例子 |
+|---|---|---|
+| 运行前提不成立 | 抛 `StatelessMethodError` | 缺点、输入状态未物化、线退化 |
+| 运算无结果/多解/矛盾 | 抛 typed result error | 候选为空、候选不唯一、约束冲突 |
+| 已产生结果但后置验算失败 | failed `CheckResult` | 点不在曲线上、长度不相等 |
+
+### 7.1 前提失败
+
+使用 `_common.py` 提供的 typed helper：
+
+- `method_input_missing`
+- `method_input_invalid`
+- `method_input_state_unavailable`
+- `method_precondition_failed`
+- `method_result_empty`
+- `method_result_ambiguous`
+- `method_result_inconsistent`
+
+新增或修改 Method 不得直接 `raise ValueError`。未迁移的旧异常会被包装为 `planner.method_contract_invalid`，属于代码配置错误，不会让 LLM 盲目 retry。
+
+### 7.2 后置检查
+
+使用 `_check(...)` 返回机器可读的 `CheckResult`。失败检查应尽量包含：
+
+- 稳定 `code`；
+- `expected` 与 `observed`；
+- 涉及的 subject role/arg；
+- `retryability`；
+- 固定 `repair_action`。
+
+`detail` 服务 debug 和展示，不是下游恢复身份或分类错误的权威。
+
+### 7.3 Contract bug
+
+以下错误必须归为 `configuration`，直接 fail loud，不消耗 semantic retry：
+
+- SPEC 与实现的输入/输出不一致；
+- Method 报成功但缺失 active output；
+- 未知异常；
+- compiler adapter 或 Macro output mapping 错误；
+- runtime type、identity、destination 或 provenance contract 漂移。
+
+不要把代码 bug 包装成“Planner 选错步骤”。
+
+## 8. 统一诊断契约
+
+所有可执行失败最终进入：
+
+```text
+FunctionalDiagnosticAuthority
+→ FunctionalPromptDiagnosticProjector
+→ FunctionalPromptDiagnostic
+```
+
+Method 应报告执行现场，不直接写 LLM 文案。至少提供：
+
+```text
+code
+category
+retryability
+subject.role
+subject.arg_name
+subject.internal_ref（若存在）
+expected
+observed
+repair_action
+```
+
+运行层会补充 `method_id`、`capability_id`、`scope_id` 和 `step_id`。Projector 再通过 BindingCatalog 将内部身份映射成 Goal 可见的 `SemanticRef`。
+
+### 8.1 Retryability
+
+| retryability | 含义 | 行为 |
+|---|---|---|
+| `planner_repairable` | 修改 Plan 可以修复 | 进入失败 Goal 的 repair prompt |
+| `problem_semantics` | 题面语义矛盾或提取错误 | 返回 Problem/extraction 边界处理 |
+| `configuration` | 代码、Spec 或 compiler contract 错误 | 立即 fail loud，不调用 Planner retry |
+
+`original_message` 只用于完整 debug。Prompt 不得解析自然语言恢复对象身份，也不得出现 `<internal-identity-omitted>` 这类失去实际修复信息的占位符。
+
+### 8.2 诊断示例
+
+```python
+raise method_input_missing(
+    "fixed endpoint is not materialized",
+    arg_name="fixed_point",
+    role="fixed_endpoint",
+    expected={"type": "Point", "state": "materialized"},
+    observed={"state": "missing"},
+    repair_action="provide_visible_point_producer",
+)
+```
+
+Method 只陈述“缺少哪个角色、期待什么、实际是什么”。若执行现场持有已绑定的内部对象身份，再通过 `internal_ref` 一并报告；是否展示为 `M`、`A` 或其他 prompt ref，仍由唯一诊断 projector 决定。
+
+## 9. SPEC 是事实源
+
+每个 Method 的实现和 `SPEC = MethodSpecSource(...)` 必须在同一 Python 文件中。`internal/method-specs/*.json` 是生成资产，不是第二份手工权威。
+
+至少认真填写：
+
+- `title`：稳定、通用的数学动作名称；
+- `summary`：Planner 选择能力所需的短说明；
+- `description`：完整适用语义；
+- `solves`：能力解决的机制标签；
+- `inputs` / `outputs`：runtime contract；
+- `preconditions` / `postconditions`：声明式条件；
+- `do_not_use_when`：相邻能力的明确排除条件；
+- `scalar_result_forms`：符号开放态/闭合态；
+- `symbolic_closure`：参数反求与代入闭包；
+- `explanation` / `visual`：稳定角色映射，而非具体点名。
+
+注意：SPEC 文案不能替代 runtime 校验。凡是代码可确定检查的条件，都必须由 compiler、Method 或 transaction 执行。
+
+更新后生成资产：
+
+```bash
+cd server
+uv run python -m shuxueshuo_server.solver.runtime.methods.generate_specs
+```
+
+并将 Method class、`SPEC` 和实例同时注册到 `runtime/methods/__init__.py`。
+
+## 10. 推荐代码骨架
+
+```python
+from __future__ import annotations
+
+from ._common import *
+from ._spec import MethodSpecSource
+
+
+class ExampleMethod:
+    """由两个已物化点计算一个可验证的几何量。"""
+
+    method_id = "example_method"
+
+    def run(
+        self,
+        inputs: dict[str, Any],
+        kernel: SympyKernel,
+    ) -> StatelessMethodResult:
+        p1: Point = inputs["p1"]
+        p2: Point = inputs["p2"]
+
+        if p1 == p2:
+            raise method_precondition_failed(
+                "the two points must be distinct",
+                arg_name="p2",
+                role="second_endpoint",
+                expected={"state": "distinct_from_p1"},
+                observed={"state": "coincident"},
+                repair_action="repair_input_binding",
+            )
+
+        value = sp.simplify(kernel.distance(p1, p2))
+        checks = [
+            _check(
+                "result_nonnegative",
+                bool(value.is_nonnegative),
+                "结果应为非负数。",
+                code="functional.method_check_failed",
+                expected={"relation": ">= 0"},
+                observed={"value": str(value)},
+                repair_action="repair_failed_step",
+            )
+        ]
+        return StatelessMethodResult(
+            method_id=self.method_id,
+            outputs={
+                "value": TypedValue(
+                    "Expression",
+                    value,
+                    source=self.method_id,
+                )
+            },
+            checks=checks,
+            trace_fragments=[
+                _step(
+                    self.method_id,
+                    "计算目标量",
+                    "得到后续步骤所需的表达式",
+                    "使用已声明的数学关系直接计算。",
+                    f"value={value}",
+                    f"目标量为 {value}",
+                )
+            ],
+        )
+
+
+SPEC = MethodSpecSource(
+    method_cls=ExampleMethod,
+    title="计算示例目标量",
+    summary="由两个不同的已物化点计算目标表达式。",
+    description="适用于两个端点均已确定且不重合的场景。",
+    solves=("derive_example_value",),
+    inputs={
+        "p1": {"type": "Point", "required": True},
+        "p2": {"type": "Point", "required": True},
+    },
+    outputs={"value": "Expression"},
+    preconditions=("两个输入点均已物化且不重合。",),
+    postconditions=("输出表达式满足该几何关系。",),
+    do_not_use_when=("题目需要候选枚举或分支选择。",),
+)
+```
+
+骨架不是复制模板。每个 Method 必须根据真实数学机制定义类型、检查、diagnostic 和 result form。
+
+## 11. Function、Macro 与 Method 的边界
+
+### Function
+
+当一个公开 capability 可以直接映射为一次 Method invocation 时使用 Function。FunctionSpec 负责：
+
+- 公开参数名与 Method input 的 adapter；
+- binding authority、role、cardinality；
+- active return 与 public return；
+- identity/write/result-form policy。
+
+### Macro
+
+当一个稳定动作需要多个内部 Method 时使用 Macro。Macro 负责：
+
+- 声明内部 invocation graph；
+- 隐藏中间 output；
+- 定义 selectors、aliases 和 public returns；
+- 保证多个内部步骤作为一个事务提交或回滚。
+
+Macro 不应固定整道题路线。family-specific path reduction 可以是 Macro；通用的距离、反射、候选筛选仍应是复用 Method。
+
+### 不要跨层补洞
+
+- LLM 选错策略：改 capability 文案、family catalog 或 retry 诊断。
+- 公开参数设计错：改 Function/Macro contract。
+- static binding 错：改 compiler/resolver。
+- 数学原语不完整：改 Method。
+- 状态复用/冲突错：改 transaction/runtime equivalence。
+- prompt 中错误信息缺失：改 diagnostic authority/projector。
+
+不要为了修复上一层问题，把下层 Method 变成会搜索、猜测和自动改 Plan 的万能函数。
+
+## 12. 明确禁止的反模式
+
+- 在 Method 中按 `problem_id`、考试名称、具体点名或答案值分支。
+- 直接抛 `ValueError`、`AssertionError` 或未分类异常表达可预期数学失败。
+- 从 message 文本解析对象身份、候选数量或 retryability。
+- 读取 RuntimeContext 并自行选择 latest state。
+- 依靠 step id、handle 后缀、数组顺序或字符串相似度绑定输入。
+- 用静态输入 JSON 相同判断两个步骤结果等价。
+- 为避免 retry 而静默补事实、替换参数或选择候选。
+- 在 Method 内写 StateVersion、answer binding 或 provenance。
+- 声明多个潜在 return，却没有 active-return 规则。
+- output type 随实际分支变化但 SPEC 不表达 union/分支。
+- 把 failed check 当 warning 后继续提交。
+- 用 trace 文本作为 runtime authority。
+- 把 expected answer、gold fixture 或 planner few-shot 放进 Method。
+
+## 13. 新增 Method 的实施顺序
+
+1. **先证明需要新原语**：检查已有 Method、Function 和 Macro。
+2. **写数学 contract**：输入角色、输出、前提、后置条件、空/多解/矛盾语义。
+3. **确定层次**：哪些参数由 LLM 提供，哪些由 resolver/compiler 注入。
+4. **先写 Method 单测**：正常、边界、空结果、歧义、冲突。
+5. **实现 Method 与 typed diagnostic**。
+6. **在同文件写 SPEC**，生成 `internal/method-specs`。
+7. **注册 Method**：class、SPEC source 和默认实例三处一致。
+8. **定义 Function 或 Macro**：补 typed adapter、returns、identity/write policy。
+9. **补静态编译测试**：错误参数、错类型、错 scope、active returns。
+10. **补 transaction 测试**：runtime result、checks、rollback、版本和 provenance。
+11. **补 retry diagnostic 测试**：prompt-safe ref、repairability、无内部身份泄漏。
+12. **补 Explanation/Visual 角色测试**，若该能力进入教学链。
+13. **运行全量回归与真实 smoke**，确认不是单 fixture 特判。
+
+## 14. 分层测试矩阵
+
+### Method 单元测试
+
+- 正常输入得到确定 outputs；
+- 输入排列在无顺序语义时不改变结果；
+- 所有 runtime precondition 都有 typed code；
+- 空、歧义、矛盾分别产生不同诊断；
+- failed check 包含 expected/observed；
+- 相同输入重复运行 hash/数学值不漂移；
+- 不读 fixture、Context、LLM 或网络。
+
+### SPEC 与生成资产
+
+- Python `SPEC` 可加载；
+- inputs/outputs 与实现一致；
+- scalar result forms 只引用已声明 output；
+- 生成 JSON 与代码源零漂移；
+- catalog 文案不包含题目特判或内部身份。
+
+### Static compiler
+
+- public args 精确映射到 Method inputs；
+- missing/unknown/wrong-type arg 在执行前失败；
+- resolver/compiler 参数不能被 LLM 覆盖；
+- scope/sibling visibility fail loud；
+- active return 集合与 invocation outputs 一致；
+- Function/Macro lowering 不做候选搜索。
+
+### Runtime transaction
+
+- 每个 active output 均被返回；
+- check failure 完整回滚；
+- 等价重复结果复用，严格收敛建新版本，冲突拒绝；
+- failed call 无 ghost write；
+- exact input version 和 provenance 不漂移；
+- companion writes/results 共享同一 call authority。
+
+### Retry diagnostic
+
+- Method 执行现场映射成正确的 prompt SemanticRef；
+- role、arg、expected/observed 和 repair action 保留；
+- configuration error 不触发 semantic retry；
+- prompt 不泄漏 `MathObjectId`、`StateVersionId`、source unit 或 runtime path；
+- 下一轮能定位失败 Goal，而不打开无关 sibling scope。
+
+## 15. 常用命令
+
+```bash
+cd server
+
+uv run python -m \
+  shuxueshuo_server.solver.runtime.methods.generate_specs
+
+uv run pytest \
+  tests/solver/test_runtime_stateless_methods.py \
+  tests/solver/test_method_spec_loader.py \
+  tests/solver/test_functional_diagnostics.py -q
+
+uv run pytest \
+  tests/solver/test_functional_direct_compiler.py \
+  tests/solver/test_functional_transaction_execution.py \
+  tests/solver/test_functional_goal_retry_execution.py -q
+
+uv run pytest tests/solver -q
+git diff --check
+```
+
+## 16. Review checklist
+
+- [ ] Method 表达通用数学原语，而非单题路线。
+- [ ] LLM 只接触 public capability，不需要知道内部 method wiring。
+- [ ] 每个 input 有唯一类型、角色、required/exposed 语义。
+- [ ] 每个 output 有稳定 key、类型和 active-return 规则。
+- [ ] open/closed result form 由 runtime value 决定。
+- [ ] Method 不读取 Context、不选 latest、不写 StateVersion。
+- [ ] 合并/复用依据 runtime 等价，不依据字符串或输入形状。
+- [ ] 所有可预期失败都有 typed diagnostic。
+- [ ] configuration error 不会进入 Planner retry。
+- [ ] failed checks 会阻止 commit 并完整回滚。
+- [ ] SPEC 与实现同文件，生成 JSON 无漂移。
+- [ ] Function/Macro adapter 不搜索候选或猜角色。
+- [ ] method/compiler/transaction/retry/provenance 均有测试。
+- [ ] 没有 problem id、具体答案、gold fixture 或点名特判。
+
+## 17. Definition of Done
+
+一个新 Method 只有在以下条件全部满足后才算完成：
+
+```text
+数学机制边界明确
+typed input/output contract 完整
+Python SPEC 与生成资产零漂移
+所有预期失败均为 typed diagnostic
+未知/配置错误 semantic retry 次数为 0
+active output 缺失数为 0
+failed transaction ghost write 为 0
+runtime equivalence 与 StateVersion 语义通过
+scope/source/provenance drift 为 0
+Method、compiler、transaction、retry 测试全部通过
+全量 Solver 回归通过
+```
+
+相关文档：
+
+- `docs/method-solver-architecture.md`：DSL 从 Problem 到 SolverResult 的整体生产链。
+- `docs/capability-authoring-guide.md`：Function、Macro、binding、return 和 closure 的公开能力规范。
+- `docs/functional-planner-next-stage-roadmap.md`：当前 Functional Planner 演进路线。

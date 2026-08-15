@@ -115,12 +115,37 @@ SPEC = MethodSpecSource(
     inputs={
         "parabola": {"type": "Parabola", "required": True},
         "x": {"type": "Symbol", "required": True},
-        "line_p1": {"type": "Point", "required": True},
-        "line_p2": {"type": "Point", "required": True},
-        "known_point": {"type": "Point", "required": True},
+        "line_p1": {
+            "type": "Point",
+            "required": True,
+            "role": (
+                "确定目标直线的第一个点；必须与 line_p2 的横坐标不同。"
+                "若该点也是抛物线已知交点，通常同时把它传给 known_point。"
+            ),
+        },
+        "line_p2": {
+            "type": "Point",
+            "required": True,
+            "role": (
+                "确定目标直线的第二个点；必须与 line_p1 的横坐标不同，"
+                "从而得到非竖直直线。"
+            ),
+        },
+        "known_point": {
+            "type": "Point",
+            "required": True,
+            "role": (
+                "目标直线与抛物线共有、并需要从联立结果中排除的已知交点；"
+                "通常直接复用 line_p1 或 line_p2，禁止传入不在目标直线上的点。"
+            ),
+        },
         "target": {"type": "PointRef", "required": True},
     },
     outputs={"point": "Point"},
+    do_not_use_when=(
+        "line_p1 与 line_p2 横坐标相同或两点重合，无法确定本方法支持的非竖直直线。",
+        "known_point 不同时位于目标直线和抛物线上；不要仅因它在抛物线上就把它作为排除点。",
+    ),
     preconditions=("line_p1 与 line_p2 不能形成竖直线", "已知交点必须在直线和抛物线上"),
     postconditions=("输出点在直线和抛物线上，且不同于 known_point",),
     explanation=MethodExplanationSpec(

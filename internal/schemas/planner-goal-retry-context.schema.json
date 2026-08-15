@@ -1,0 +1,401 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "planner-goal-retry-context.schema.json",
+  "title": "Planner Goal Retry Context v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "base_plan_id",
+    "base_retry_context_id",
+    "root_scope",
+    "published_goal_results",
+    "metrics"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "planner-goal-retry-context/v2"
+    },
+    "base_plan_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "base_retry_context_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "root_scope": {
+      "$ref": "#/$defs/scope_0"
+    },
+    "published_goal_results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "published_goal_ref",
+          "runtime_type"
+        ],
+        "properties": {
+          "published_goal_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "runtime_type": {
+            "type": "string",
+            "minLength": 1
+          },
+          "value": {},
+          "value_omitted_reason": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "required": [
+        "solved_goal_count",
+        "failed_goal_count",
+        "blocked_goal_count",
+        "editable_goal_count",
+        "editable_scope_count"
+      ],
+      "properties": {
+        "solved_goal_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "failed_goal_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "blocked_goal_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "editable_goal_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "editable_scope_count": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "previous_repair_issue": {
+      "type": "object",
+      "required": [
+        "code",
+        "path",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "details": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "step": {
+      "type": "object",
+      "required": [
+        "step_id",
+        "status"
+      ],
+      "properties": {
+        "step_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "type": "string",
+          "minLength": 1
+        },
+        "resolved_inputs": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "actual_outputs": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "typed_issue": {
+          "type": "object"
+        },
+        "blocked_by": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "goal": {
+      "type": "object",
+      "required": [
+        "goal_ref",
+        "status",
+        "editable",
+        "required_answer"
+      ],
+      "properties": {
+        "goal_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "enum": [
+            "solved",
+            "failed",
+            "blocked",
+            "pending"
+          ]
+        },
+        "editable": {
+          "type": "boolean"
+        },
+        "required_answer": {
+          "type": "object",
+          "required": [
+            "target_ref",
+            "answer_type"
+          ],
+          "properties": {
+            "target_ref": {
+              "type": "string",
+              "minLength": 1
+            },
+            "answer_type": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/step"
+          }
+        },
+        "issues": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "scope_0": {
+      "type": "object",
+      "required": [
+        "scope_ref",
+        "status"
+      ],
+      "properties": {
+        "scope_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "enum": [
+            "frozen",
+            "editable",
+            "open",
+            "context"
+          ]
+        },
+        "promoted_step_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "scope_steps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/step"
+          }
+        },
+        "goals": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/goal"
+          }
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/scope_1"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "scope_1": {
+      "type": "object",
+      "required": [
+        "scope_ref",
+        "status"
+      ],
+      "properties": {
+        "scope_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "enum": [
+            "frozen",
+            "editable",
+            "open",
+            "context"
+          ]
+        },
+        "promoted_step_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "scope_steps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/step"
+          }
+        },
+        "goals": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/goal"
+          }
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/scope_2"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "scope_2": {
+      "type": "object",
+      "required": [
+        "scope_ref",
+        "status"
+      ],
+      "properties": {
+        "scope_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "enum": [
+            "frozen",
+            "editable",
+            "open",
+            "context"
+          ]
+        },
+        "promoted_step_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "scope_steps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/step"
+          }
+        },
+        "goals": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/goal"
+          }
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/scope_3"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "scope_3": {
+      "type": "object",
+      "required": [
+        "scope_ref",
+        "status"
+      ],
+      "properties": {
+        "scope_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "enum": [
+            "frozen",
+            "editable",
+            "open",
+            "context"
+          ]
+        },
+        "promoted_step_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "scope_steps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/step"
+          }
+        },
+        "goals": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/goal"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

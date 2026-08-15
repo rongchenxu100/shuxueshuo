@@ -22,9 +22,20 @@ class EvaluatePointAtParameterMethod:
 
     def run(self, inputs: dict[str, Any], kernel: SympyKernel) -> StatelessMethodResult:
         point: Point = inputs["point"]
-        parameter = inputs["parameter"]
         parameter_value = sp.sympify(inputs["parameter_value"])
-        evaluated = _subs_point(point, {parameter: parameter_value})
+        # Re-applying a solved parameter to an already closed state is an
+        # idempotent runtime operation.  The transaction layer still compares
+        # the actual output with the prior StateVersion before suppressing a
+        # duplicate writer.
+        free_symbols = _free_symbols_in(point)
+        parameter = inputs.get("parameter")
+        if free_symbols:
+            if parameter is None:
+                raise ValueError("missing required input: parameter")
+            _require_substitution_symbol(point, parameter)
+            evaluated = _subs_point(point, {parameter: parameter_value})
+        else:
+            evaluated = point
         return StatelessMethodResult(
             method_id=self.method_id,
             outputs={
@@ -47,7 +58,11 @@ class EvaluatePointAtParameterMethod:
                     "代入参数求点坐标",
                     "求点在参数取值下的坐标",
                     "前序步骤已经确定参数值，因此直接代入点坐标并化简。",
-                    f"{parameter.name}={kernel.sstr(parameter_value)}",
+                    (
+                        f"{parameter.name}={kernel.sstr(parameter_value)}"
+                        if parameter is not None
+                        else "坐标已由当前参数状态闭合"
+                    ),
                     f"({_fmt_point(evaluated, kernel)})",
                 )
             ],
@@ -69,7 +84,7 @@ SPEC = MethodSpecSource(
     solves=("evaluate_point_at_parameter",),
     inputs={
         "point": {"type": "Point", "required": True},
-        "parameter": {"type": "Symbol", "required": True},
+        "parameter": {"type": "Symbol", "required": False},
         "parameter_value": {"type": "ParameterValue", "required": True},
     },
     outputs={"evaluated_point": "Point"},

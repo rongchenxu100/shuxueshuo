@@ -1,0 +1,2995 @@
+"""Goal-scoped replacement authority for FunctionalPlan v2 retries."""
+
+from __future__ import annotations
+
+from copy import deepcopy
+from dataclasses import dataclass, replace
+import json
+from types import MappingProxyType
+from typing import Any, Literal, Mapping, Sequence
+
+from jsonschema import Draft202012Validator
+
+from shuxueshuo_server.solver.extraction.problem_planning_binding import (
+    ProblemPlanningBindingCatalog,
+)
+from shuxueshuo_server.solver.extraction.problem_planning_context import (
+    ProblemPlanningContext,
+)
+from shuxueshuo_server.solver.extraction.source_identity import stable_hash
+from shuxueshuo_server.solver.runtime.functional_goal_execution import (
+    FunctionalGoalExecutionCheckpoint,
+    FunctionalGoalExecutionGoal,
+    FunctionalGoalExecutionScope,
+    FunctionalGoalExecutionStep,
+    ScopedFunctionalGoalExecutionResult,
+    _internal_prompt_values,
+    _prompt_safe_value,
+)
+from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
+    FunctionalCapabilityCatalog,
+)
+from shuxueshuo_server.solver.runtime.functional_retry_versions import (
+    FunctionalRetryGraphCheckpoint,
+)
+from shuxueshuo_server.solver.runtime.functional_plan_content import (
+    FUNCTIONAL_PLAN_CONTENT_CONTRACT,
+    FunctionalGoalAnswerBindingError,
+    FunctionalGoalAnswerRequirement,
+    FunctionalPlanAuthorityFrame,
+    FunctionalPlanContent,
+    FunctionalPlanContentCompiler,
+    FunctionalPlanContentNormalization,
+    decode_single_json_object,
+    derive_goal_answer_bindings,
+    functional_plan_content_from_plan,
+)
+from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
+    FunctionalRestoredCallSeed,
+    FunctionalRestoredCallBindingError,
+    functional_restored_call_binding_payload,
+    functional_restored_call_binding_signature,
+)
+from shuxueshuo_server.solver.runtime.handle_registry import (
+    CanonicalHandleRegistry,
+)
+from shuxueshuo_server.solver.runtime.llm_clients import LLMPlannerClient
+from shuxueshuo_server.solver.runtime.planner import PlannerInputs
+from shuxueshuo_server.solver.runtime.planner_state_context import (
+    PlannerStateContext,
+)
+from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
+    ScopedPublishedGoalBinding,
+    ScopedFunctionalPlan,
+    ScopedFunctionalPlanIssue,
+    ScopedFunctionalPlanValidationReport,
+    ScopedFunctionalPlanValidator,
+    ScopedFunctionalScope,
+    apply_scoped_published_goal_bindings,
+    scoped_functional_plan_authority_payload,
+    scoped_published_goal_bindings,
+    scoped_functional_plan_schema,
+)
+FUNCTIONAL_GOAL_REPAIR_CONTRACT = "functional-goal-repair/v4"
+PLANNER_GOAL_RETRY_CONTEXT_CONTRACT = "planner-goal-retry-context/v2"
+
+GoalRetryStatus = Literal["solved", "failed", "blocked", "pending"]
+ScopeRetryStatus = Literal["frozen", "editable", "open", "context"]
+
+
+class FunctionalGoalRetryError(ValueError):
+    """A retryable repair error or non-retryable authority drift."""
+
+    def __init__(
+        self,
+        code: str,
+        path: str,
+        message: str,
+        *,
+        retryable: bool = True,
+        details: Mapping[str, Any] | None = None,
+    ) -> None:
+        self.code = code
+        self.path = path
+        self.message = message
+        self.retryable = retryable
+        self.details = MappingProxyType(dict(details or {}))
+        super().__init__(f"{code} at {path}: {message}")
+
+    def to_prompt_payload(self) -> dict[str, Any]:
+        payload: dict[str, Any] = {
+            "code": self.code,
+            "path": self.path,
+            "message": self.message,
+        }
+        if self.details:
+            payload["details"] = _thaw(self.details)
+        return payload
+
+
+def functional_goal_repair_schema() -> dict[str, Any]:
+    """Return the strict full-Goal replacement response schema."""
+
+    plan_defs = deepcopy(scoped_functional_plan_schema()["$defs"])
+    nonempty = {"type": "string", "minLength": 1}
+    published_ref = {
+        "type": "object",
+        "description": (
+            "Read the final verified answer of one solved Goal. Intermediate "
+            "step returns cannot be published across Goals."
+        ),
+        "required": ["published_goal_ref"],
+        "properties": {"published_goal_ref": nonempty},
+        "additionalProperties": False,
+    }
+    repair_ref = {
+        "oneOf": [
+            {"$ref": "#/$defs/source_ref"},
+            {"$ref": "#/$defs/step_result_ref"},
+            {"$ref": "#/$defs/published_goal_result_ref"},
+        ]
+    }
+    repair_step = deepcopy(plan_defs["step"])
+    repair_step["properties"]["args"] = {
+        "type": "object",
+        "additionalProperties": {
+            "oneOf": [
+                {"$ref": "#/$defs/repair_functional_ref"},
+                {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {"$ref": "#/$defs/repair_functional_ref"},
+                },
+            ]
+        },
+    }
+    goal_replacement = {
+        "type": "object",
+        "required": ["steps", "answer_from"],
+        "properties": {
+            "steps": {
+                "type": "array",
+                "items": {"$ref": "#/$defs/repair_step"},
+            },
+            "answer_from": {"$ref": "#/$defs/answer_from"},
+        },
+        "additionalProperties": False,
+    }
+    scope_replacement = {
+        "type": "object",
+        "required": ["steps"],
+        "properties": {
+            "steps": {
+                "type": "array",
+                "items": {"$ref": "#/$defs/repair_step"},
+            },
+        },
+        "additionalProperties": False,
+    }
+    return {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "functional-goal-repair.schema.json",
+        "title": "Functional Goal Replacement Repair v4",
+        "type": "object",
+        "required": [
+            "schema_version",
+            "base_plan_id",
+            "base_retry_context_id",
+            "goal_replacements",
+            "scope_step_replacements",
+        ],
+        "properties": {
+            "schema_version": {"const": FUNCTIONAL_GOAL_REPAIR_CONTRACT},
+            "base_plan_id": nonempty,
+            "base_retry_context_id": nonempty,
+            "goal_replacements": {
+                "type": "object",
+                "additionalProperties": {
+                    "$ref": "#/$defs/goal_replacement"
+                },
+            },
+            "scope_step_replacements": {
+                "type": "object",
+                "additionalProperties": {
+                    "$ref": "#/$defs/scope_step_replacement"
+                },
+            },
+        },
+        "anyOf": [
+            {
+                "properties": {
+                    "goal_replacements": {"minProperties": 1},
+                }
+            },
+            {
+                "properties": {
+                    "scope_step_replacements": {"minProperties": 1},
+                }
+            },
+        ],
+        "$defs": {
+            "source_ref": plan_defs["source_ref"],
+            "step_result_ref": plan_defs["step_result_ref"],
+            "published_goal_result_ref": published_ref,
+            "repair_functional_ref": repair_ref,
+            "repair_step": repair_step,
+            "answer_from": plan_defs["answer_from"],
+            "goal_replacement": goal_replacement,
+            "scope_step_replacement": scope_replacement,
+        },
+        "additionalProperties": False,
+    }
+
+
+def functional_goal_repair_schema_for_authority(
+    authority: FunctionalGoalRetryAuthority,
+) -> dict[str, Any]:
+    """Bind the repair response schema to one exact retry authority."""
+
+    schema = deepcopy(functional_goal_repair_schema())
+    properties = schema["properties"]
+    properties["base_plan_id"] = {"const": authority.base_plan_id}
+    properties["base_retry_context_id"] = {
+        "const": authority.retry_context_id
+    }
+    goal_refs = tuple(sorted(authority.editable_goal_refs))
+    scope_refs = tuple(sorted(authority.editable_scope_refs))
+    goal_map = properties["goal_replacements"]
+    scope_map = properties["scope_step_replacements"]
+    prior_step_owners = authority.repair_step_owners
+    published_goal_refs = tuple(
+        sorted(item.goal_ref for item in authority.published_goal_results)
+    )
+    repair_ref_variants = schema["$defs"]["repair_functional_ref"]["oneOf"]
+    if published_goal_refs:
+        schema["$defs"]["published_goal_result_ref"]["properties"][
+            "published_goal_ref"
+        ] = {"enum": list(published_goal_refs)}
+    else:
+        schema["$defs"]["repair_functional_ref"]["oneOf"] = [
+            item
+            for item in repair_ref_variants
+            if item.get("$ref")
+            != "#/$defs/published_goal_result_ref"
+        ]
+    goal_map.update(
+        {
+            "required": list(goal_refs),
+            "properties": {
+                goal_ref: _owned_replacement_schema(
+                    definition="goal_replacement",
+                    owner_key=f"goal:{goal_ref}",
+                    prior_step_owners=prior_step_owners,
+                )
+                for goal_ref in goal_refs
+            },
+            "additionalProperties": False,
+        }
+    )
+    scope_map.update(
+        {
+            "required": list(scope_refs),
+            "properties": {
+                scope_ref: _owned_replacement_schema(
+                    definition="scope_step_replacement",
+                    owner_key=f"scope:{scope_ref}",
+                    prior_step_owners=prior_step_owners,
+                )
+                for scope_ref in scope_refs
+            },
+            "additionalProperties": False,
+        }
+    )
+    return schema
+
+
+def _owned_replacement_schema(
+    *,
+    definition: str,
+    owner_key: str,
+    prior_step_owners: Mapping[str, str],
+) -> dict[str, Any]:
+    owned = tuple(
+        sorted(
+            step_id
+            for step_id, owner in prior_step_owners.items()
+            if owner == owner_key
+        )
+    )
+    foreign = tuple(
+        sorted(
+            step_id
+            for step_id, owner in prior_step_owners.items()
+            if owner != owner_key
+        )
+    )
+    step_id_schema: dict[str, Any] = {
+        "type": "string",
+        "minLength": 1,
+        "description": (
+            f"Prior step_ids owned by {owner_key}: {list(owned)}. "
+            "These may be reused here; otherwise choose a new globally "
+            "unique step_id. Never copy a prior step_id from another Goal "
+            "or scope replacement."
+        ),
+    }
+    if foreign:
+        step_id_schema["not"] = {"enum": list(foreign)}
+    return {
+        "allOf": [
+            {"$ref": f"#/$defs/{definition}"},
+            {
+                "type": "object",
+                "properties": {
+                    "steps": {
+                        "type": "array",
+                        "items": {
+                            "allOf": [
+                                {"$ref": "#/$defs/repair_step"},
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "step_id": step_id_schema,
+                                    },
+                                },
+                            ]
+                        },
+                    },
+                },
+            },
+        ]
+    }
+
+
+def planner_goal_retry_context_schema() -> dict[str, Any]:
+    """Return the prompt-safe scope/Goal execution authority schema."""
+
+    nonempty = {"type": "string", "minLength": 1}
+    execution_step = {
+        "type": "object",
+        "required": ["step_id", "status"],
+        "properties": {
+            "step_id": nonempty,
+            "status": nonempty,
+            "resolved_inputs": {"type": "array", "items": {"type": "object"}},
+            "actual_outputs": {"type": "array", "items": {"type": "object"}},
+            "typed_issue": {"type": "object"},
+            "blocked_by": {"type": "array", "items": nonempty},
+        },
+        "additionalProperties": False,
+    }
+    goal = {
+        "type": "object",
+        "required": [
+            "goal_ref",
+            "status",
+            "editable",
+            "required_answer",
+        ],
+        "properties": {
+            "goal_ref": nonempty,
+            "status": {"enum": ["solved", "failed", "blocked", "pending"]},
+            "editable": {"type": "boolean"},
+            "required_answer": {
+                "type": "object",
+                "required": [
+                    "target_ref",
+                    "answer_type",
+                ],
+                "properties": {
+                    "target_ref": nonempty,
+                    "answer_type": nonempty,
+                },
+                "additionalProperties": False,
+            },
+            "steps": {"type": "array", "items": {"$ref": "#/$defs/step"}},
+            "issues": {"type": "array", "items": {"type": "object"}},
+        },
+        "additionalProperties": False,
+    }
+    scope_defs: dict[str, Any] = {}
+    for level in range(4):
+        properties: dict[str, Any] = {
+            "scope_ref": nonempty,
+            "status": {"enum": ["frozen", "editable", "open", "context"]},
+            "promoted_step_ids": {
+                "type": "array",
+                "items": nonempty,
+                "uniqueItems": True,
+            },
+            "scope_steps": {
+                "type": "array",
+                "items": {"$ref": "#/$defs/step"},
+            },
+            "goals": {
+                "type": "array",
+                "items": {"$ref": "#/$defs/goal"},
+            },
+        }
+        if level < 3:
+            properties["children"] = {
+                "type": "array",
+                "items": {"$ref": f"#/$defs/scope_{level + 1}"},
+            }
+        scope_defs[f"scope_{level}"] = {
+            "type": "object",
+            "required": ["scope_ref", "status"],
+            "properties": properties,
+            "additionalProperties": False,
+        }
+    return {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "planner-goal-retry-context.schema.json",
+        "title": "Planner Goal Retry Context v1",
+        "type": "object",
+        "required": [
+            "schema_version",
+            "base_plan_id",
+            "base_retry_context_id",
+            "root_scope",
+            "published_goal_results",
+            "metrics",
+        ],
+        "properties": {
+            "schema_version": {"const": PLANNER_GOAL_RETRY_CONTEXT_CONTRACT},
+            "base_plan_id": nonempty,
+            "base_retry_context_id": nonempty,
+            "root_scope": {"$ref": "#/$defs/scope_0"},
+            "published_goal_results": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "required": ["published_goal_ref", "runtime_type"],
+                    "properties": {
+                        "published_goal_ref": nonempty,
+                        "runtime_type": nonempty,
+                        "value": {},
+                        "value_omitted_reason": nonempty,
+                    },
+                    "additionalProperties": False,
+                },
+            },
+            "metrics": {
+                "type": "object",
+                "required": [
+                    "solved_goal_count",
+                    "failed_goal_count",
+                    "blocked_goal_count",
+                    "editable_goal_count",
+                    "editable_scope_count",
+                ],
+                "properties": {
+                    key: {"type": "integer", "minimum": 0}
+                    for key in (
+                        "solved_goal_count",
+                        "failed_goal_count",
+                        "blocked_goal_count",
+                        "editable_goal_count",
+                        "editable_scope_count",
+                    )
+                },
+                "additionalProperties": False,
+            },
+            "previous_repair_issue": {
+                "type": "object",
+                "required": ["code", "path", "message"],
+                "properties": {
+                    "code": nonempty,
+                    "path": nonempty,
+                    "message": nonempty,
+                    "details": {"type": "object"},
+                },
+                "additionalProperties": False,
+            },
+        },
+        "$defs": {"step": execution_step, "goal": goal, **scope_defs},
+        "additionalProperties": False,
+    }
+
+
+@dataclass(frozen=True)
+class PublishedGoalResult:
+    goal_ref: str
+    producer_step_id: str
+    return_name: str
+    runtime_type: str
+    value: Any = None
+    value_omitted_reason: str | None = None
+
+    def to_prompt_payload(self) -> dict[str, Any]:
+        payload: dict[str, Any] = {
+            "published_goal_ref": self.goal_ref,
+            "runtime_type": self.runtime_type,
+        }
+        if self.value is not None:
+            payload["value"] = _json_safe(self.value)
+        elif self.value_omitted_reason:
+            payload["value_omitted_reason"] = self.value_omitted_reason
+        return payload
+
+    def authority_payload(self) -> dict[str, Any]:
+        return {
+            **self.to_prompt_payload(),
+            "producer_step_id": self.producer_step_id,
+            "return": self.return_name,
+        }
+
+
+@dataclass(frozen=True)
+class FunctionalGoalRetryGoalAuthority:
+    goal_ref: str
+    goal_unit_id: str
+    status: GoalRetryStatus
+    editable: bool
+    answer_producer_step_id: str
+    answer_return_name: str
+    answer_target_ref: str
+    answer_type: str
+    closure_step_ids: tuple[str, ...]
+    issue_signature: str
+    issues: tuple[Mapping[str, Any], ...]
+    checks: Mapping[str, bool]
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "closure_step_ids", tuple(self.closure_step_ids))
+        object.__setattr__(
+            self,
+            "issues",
+            tuple(MappingProxyType(dict(item)) for item in self.issues),
+        )
+        object.__setattr__(self, "checks", MappingProxyType(dict(self.checks)))
+
+    def authority_payload(self) -> dict[str, Any]:
+        return {
+            "goal_ref": self.goal_ref,
+            "goal_unit_id": self.goal_unit_id,
+            "status": self.status,
+            "editable": self.editable,
+            "answer_producer_step_id": self.answer_producer_step_id,
+            "answer_return_name": self.answer_return_name,
+            "answer_target_ref": self.answer_target_ref,
+            "answer_type": self.answer_type,
+            "closure_step_ids": list(self.closure_step_ids),
+            "issue_signature": self.issue_signature,
+            "issues": [dict(item) for item in self.issues],
+            "checks": dict(self.checks),
+        }
+
+
+@dataclass(frozen=True)
+class PlannerGoalRetryContext:
+    base_plan_id: str
+    base_retry_context_id: str
+    root_scope: Mapping[str, Any]
+    published_goal_results: tuple[PublishedGoalResult, ...]
+    metrics: Mapping[str, int]
+    schema_version: str = PLANNER_GOAL_RETRY_CONTEXT_CONTRACT
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "root_scope", _freeze_mapping(self.root_scope))
+        object.__setattr__(self, "metrics", MappingProxyType(dict(self.metrics)))
+
+    def to_prompt_payload(
+        self,
+        *,
+        previous_repair_issue: Mapping[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        payload = {
+            "schema_version": self.schema_version,
+            "base_plan_id": self.base_plan_id,
+            "base_retry_context_id": self.base_retry_context_id,
+            "root_scope": _thaw(self.root_scope),
+            "published_goal_results": [
+                item.to_prompt_payload() for item in self.published_goal_results
+            ],
+            "metrics": dict(self.metrics),
+        }
+        if previous_repair_issue is not None:
+            payload["previous_repair_issue"] = dict(previous_repair_issue)
+        errors = tuple(
+            Draft202012Validator(planner_goal_retry_context_schema()).iter_errors(
+                payload
+            )
+        )
+        if errors:
+            first = sorted(errors, key=lambda item: tuple(item.absolute_path))[0]
+            raise FunctionalGoalRetryError(
+                "functional.goal_retry_context_invalid",
+                _json_path(first.absolute_path),
+                first.message,
+                retryable=False,
+            )
+        return payload
+
+
+@dataclass(frozen=True)
+class FunctionalGoalRetryAuthority:
+    planning_context_id: str
+    problem_revision_id: str
+    problem_semantic_hash: str
+    problem_binding_catalog_signature: str
+    functional_problem_binding_signature: str
+    base_plan: ScopedFunctionalPlan
+    base_plan_id: str
+    base_plan_hash: str
+    goal_execution_checkpoint_id: str
+    typed_checkpoint_hash: str
+    goal_authorities: Mapping[str, FunctionalGoalRetryGoalAuthority]
+    editable_scope_refs: tuple[str, ...]
+    frozen_scope_refs: tuple[str, ...]
+    repair_step_owners: Mapping[str, str]
+    published_goal_results: tuple[PublishedGoalResult, ...]
+    retry_context: PlannerGoalRetryContext
+    retry_context_id: str
+
+    def __post_init__(self) -> None:
+        object.__setattr__(
+            self,
+            "goal_authorities",
+            MappingProxyType(dict(sorted(self.goal_authorities.items()))),
+        )
+        object.__setattr__(self, "editable_scope_refs", tuple(self.editable_scope_refs))
+        object.__setattr__(self, "frozen_scope_refs", tuple(self.frozen_scope_refs))
+        object.__setattr__(
+            self,
+            "repair_step_owners",
+            MappingProxyType(dict(sorted(self.repair_step_owners.items()))),
+        )
+        expected_plan_hash = stable_hash(
+            scoped_functional_plan_authority_payload(self.base_plan)
+        )
+        if (
+            self.base_plan_id != expected_plan_hash
+            or self.base_plan_hash != expected_plan_hash
+        ):
+            raise FunctionalGoalRetryError(
+                "functional.goal_retry_authority_drift",
+                "$.base_plan",
+                "retry base Plan does not match its authority identity",
+                retryable=False,
+            )
+        if self.retry_context.base_plan_id != self.base_plan_id:
+            raise FunctionalGoalRetryError(
+                "functional.goal_retry_authority_drift",
+                "$.retry_context.base_plan_id",
+                "retry Context does not target the authority base Plan",
+                retryable=False,
+            )
+        if self.retry_context.base_retry_context_id != self.retry_context_id:
+            raise FunctionalGoalRetryError(
+                "functional.goal_retry_authority_drift",
+                "$.retry_context.base_retry_context_id",
+                "retry Context does not expose its current authority id",
+                retryable=False,
+            )
+
+    @property
+    def editable_goal_refs(self) -> tuple[str, ...]:
+        return tuple(
+            item.goal_ref
+            for item in self.goal_authorities.values()
+            if item.editable
+        )
+
+    @property
+    def solved_goal_refs(self) -> tuple[str, ...]:
+        return tuple(
+            item.goal_ref
+            for item in self.goal_authorities.values()
+            if item.status == "solved"
+        )
+
+    def authority_payload(self) -> dict[str, Any]:
+        return {
+            "planning_context_id": self.planning_context_id,
+            "problem_revision_id": self.problem_revision_id,
+            "problem_semantic_hash": self.problem_semantic_hash,
+            "problem_binding_catalog_signature": (
+                self.problem_binding_catalog_signature
+            ),
+            "functional_problem_binding_signature": (
+                self.functional_problem_binding_signature
+            ),
+            "base_plan_id": self.base_plan_id,
+            "base_plan_hash": self.base_plan_hash,
+            "goal_execution_checkpoint_id": self.goal_execution_checkpoint_id,
+            "typed_checkpoint_hash": self.typed_checkpoint_hash,
+            "goal_authorities": {
+                key: value.authority_payload()
+                for key, value in self.goal_authorities.items()
+            },
+            "editable_scope_refs": list(self.editable_scope_refs),
+            "frozen_scope_refs": list(self.frozen_scope_refs),
+            "repair_step_owners": dict(self.repair_step_owners),
+            "published_goal_results": [
+                item.authority_payload() for item in self.published_goal_results
+            ],
+            "retry_context_id": self.retry_context_id,
+        }
+
+
+@dataclass(frozen=True)
+class FunctionalGoalReplacement:
+    goal_ref: str
+    steps: tuple[Mapping[str, Any], ...]
+    answer_from: Mapping[str, str]
+
+    def to_payload(self) -> dict[str, Any]:
+        return {
+            "steps": [_thaw(item) for item in self.steps],
+            "answer_from": dict(self.answer_from),
+        }
+
+
+@dataclass(frozen=True)
+class FunctionalScopeStepReplacement:
+    scope_ref: str
+    steps: tuple[Mapping[str, Any], ...]
+
+    def to_payload(self) -> dict[str, Any]:
+        return {
+            "steps": [_thaw(item) for item in self.steps],
+        }
+
+
+@dataclass(frozen=True)
+class FunctionalGoalRepair:
+    base_plan_id: str
+    base_retry_context_id: str
+    goal_replacements: tuple[FunctionalGoalReplacement, ...]
+    scope_step_replacements: tuple[FunctionalScopeStepReplacement, ...]
+    schema_version: str = FUNCTIONAL_GOAL_REPAIR_CONTRACT
+
+    def to_payload(self) -> dict[str, Any]:
+        return {
+            "schema_version": self.schema_version,
+            "base_plan_id": self.base_plan_id,
+            "base_retry_context_id": self.base_retry_context_id,
+            "goal_replacements": {
+                item.goal_ref: item.to_payload()
+                for item in self.goal_replacements
+            },
+            "scope_step_replacements": {
+                item.scope_ref: item.to_payload()
+                for item in self.scope_step_replacements
+            },
+        }
+
+
+@dataclass(frozen=True)
+class FunctionalGoalRepairApplication:
+    repair: FunctionalGoalRepair
+    plan: ScopedFunctionalPlan
+    plan_hash: str
+    validation_report: ScopedFunctionalPlanValidationReport
+    published_goal_bindings: tuple[ScopedPublishedGoalBinding, ...] = ()
+    answer_rebindings: tuple["FunctionalGoalAnswerRebinding", ...] = ()
+
+
+@dataclass(frozen=True)
+class FunctionalGoalAnswerRebinding:
+    """Deterministic repair of one stale Goal answer producer identity."""
+
+    goal_ref: str
+    previous_step_id: str
+    previous_return_name: str
+    selected_step_id: str
+    selected_return_name: str
+    answer_target_ref: str
+    answer_type: str
+    match_basis: str
+
+    def to_payload(self) -> dict[str, str]:
+        return {
+            "goal_ref": self.goal_ref,
+            "previous_step_id": self.previous_step_id,
+            "previous_return_name": self.previous_return_name,
+            "selected_step_id": self.selected_step_id,
+            "selected_return_name": self.selected_return_name,
+            "answer_target_ref": self.answer_target_ref,
+            "answer_type": self.answer_type,
+            "match_basis": self.match_basis,
+        }
+
+
+@dataclass(frozen=True)
+class ScopedFunctionalGoalRetryAttempt:
+    semantic_attempt: int
+    planner_protocol: str
+    payload: Mapping[str, Any]
+    prompt: Any
+    raw_response: str
+    plan: ScopedFunctionalPlan | None
+    execution: ScopedFunctionalGoalExecutionResult | None
+    retry_authority: FunctionalGoalRetryAuthority | None = None
+    result_retry_authority: FunctionalGoalRetryAuthority | None = None
+    repair: FunctionalGoalRepair | None = None
+    error: FunctionalGoalRetryError | None = None
+    plan_content: FunctionalPlanContent | None = None
+    content_normalizations: tuple[FunctionalPlanContentNormalization, ...] = ()
+    content_validation_report: ScopedFunctionalPlanValidationReport | None = None
+
+
+@dataclass(frozen=True)
+class ScopedFunctionalGoalRetryRunResult:
+    status: Literal["accepted", "blocked"]
+    attempts: tuple[ScopedFunctionalGoalRetryAttempt, ...]
+    final_plan: ScopedFunctionalPlan | None
+    final_execution: ScopedFunctionalGoalExecutionResult | None
+    solved_goal_restore_count: int
+    no_progress: bool = False
+
+
+class ScopedFunctionalGoalRetryService:
+    """Author once, then repair failed Goals with an independent protocol."""
+
+    def __init__(
+        self,
+        client: LLMPlannerClient,
+        *,
+        payload_builder: Any | None = None,
+        prompt_renderer: Any | None = None,
+        execution_service: Any | None = None,
+    ) -> None:
+        # Lazy imports avoid a strategy_payload -> retry module import cycle.
+        if payload_builder is None or prompt_renderer is None:
+            from shuxueshuo_server.solver.runtime.strategy_payload import (
+                StrategyPayloadBuilder,
+                StrategyPromptRenderer,
+            )
+
+            payload_builder = payload_builder or StrategyPayloadBuilder()
+            prompt_renderer = prompt_renderer or StrategyPromptRenderer()
+        if execution_service is None:
+            from shuxueshuo_server.solver.runtime.functional_goal_execution import (
+                ScopedFunctionalGoalExecutionService,
+            )
+
+            execution_service = ScopedFunctionalGoalExecutionService()
+        self.client = client
+        self.payload_builder = payload_builder
+        self.prompt_renderer = prompt_renderer
+        self.execution_service = execution_service
+
+    def run(
+        self,
+        *,
+        inputs: PlannerInputs,
+        planning_context: ProblemPlanningContext,
+        problem_binding_catalog: ProblemPlanningBindingCatalog,
+        handle_registry: CanonicalHandleRegistry,
+        runtime_context: Any,
+        planner_state_context: PlannerStateContext,
+        problem_payload: dict[str, Any],
+        max_attempts: int = 3,
+    ) -> ScopedFunctionalGoalRetryRunResult:
+        if max_attempts < 1:
+            raise ValueError("max_attempts must be positive")
+        attempts: list[ScopedFunctionalGoalRetryAttempt] = []
+        current_plan: ScopedFunctionalPlan | None = None
+        current_execution: ScopedFunctionalGoalExecutionResult | None = None
+        retry_authority: FunctionalGoalRetryAuthority | None = None
+        attempt_signatures: list[tuple[str, str]] = []
+        restore_execution: ScopedFunctionalGoalExecutionResult | None = None
+        solved_restore_count = 0
+        no_progress = False
+        previous_repair_issue: dict[str, Any] | None = None
+        authoring_feedback: tuple[dict[str, Any], ...] = ()
+        previous_invalid_content: dict[str, Any] | None = None
+        plan_frame = FunctionalPlanAuthorityFrame.from_planning_context(
+            planning_context
+        )
+        capability_catalog = FunctionalCapabilityCatalog.from_family_spec(
+            inputs.family_spec,
+            inputs.method_specs,
+        )
+
+        for semantic_attempt in range(1, max_attempts + 1):
+            if current_plan is None or retry_authority is None:
+                payload = self.payload_builder.build_scoped(
+                    inputs,
+                    problem_payload=problem_payload,
+                    planner_state_context=planner_state_context,
+                    problem_planning_context=planning_context,
+                    problem_binding_catalog=problem_binding_catalog,
+                    authoring_feedback=authoring_feedback,
+                    previous_invalid_content=previous_invalid_content,
+                )
+                prompt = self.prompt_renderer.render_scoped(payload)
+                protocol = FUNCTIONAL_PLAN_CONTENT_CONTRACT
+            else:
+                payload = self.payload_builder.build_goal_repair(
+                    inputs,
+                    previous_plan=current_plan,
+                    retry_authority=retry_authority,
+                    problem_payload=problem_payload,
+                    planner_state_context=planner_state_context,
+                    problem_planning_context=planning_context,
+                    problem_binding_catalog=problem_binding_catalog,
+                    previous_repair_issue=previous_repair_issue,
+                )
+                prompt = self.prompt_renderer.render_goal_repair(payload)
+                protocol = FUNCTIONAL_GOAL_REPAIR_CONTRACT
+            raw_response = self.client.complete(
+                {
+                    "messages": prompt.messages,
+                    "family_id": inputs.family_spec.family_id,
+                    "problem_id": inputs.problem_id,
+                    "planner_protocol": protocol,
+                    "planner_attempt": semantic_attempt,
+                    "planner_payload": payload,
+                }
+            )
+            repair: FunctionalGoalRepair | None = None
+            next_plan: ScopedFunctionalPlan | None = None
+            plan_content: FunctionalPlanContent | None = None
+            content_normalizations: tuple[
+                FunctionalPlanContentNormalization, ...
+            ] = ()
+            content_validation_report: (
+                ScopedFunctionalPlanValidationReport | None
+            ) = None
+            try:
+                if protocol == FUNCTIONAL_PLAN_CONTENT_CONTRACT:
+                    compilation = FunctionalPlanContentCompiler().compile_json(
+                        raw_response,
+                        frame=plan_frame,
+                        capability_catalog=capability_catalog,
+                    )
+                    plan = compilation.plan
+                    validation = compilation.report
+                    content_validation_report = validation
+                    plan_content = compilation.content
+                    content_normalizations = compilation.normalizations
+                    if plan is None:
+                        if compilation.answer_binding_error is not None:
+                            authoring_feedback = (
+                                compilation.answer_binding_error.to_feedback_payload(),
+                            )
+                        else:
+                            authoring_feedback = tuple(
+                                item.to_payload() for item in validation.issues
+                            )
+                        previous_invalid_content = (
+                            _normalized_content_candidate(raw_response)
+                        )
+                        first = validation.issues[0]
+                        raise FunctionalGoalRetryError(
+                            first.code,
+                            first.path,
+                            first.message,
+                        )
+                    next_plan = plan
+                    authoring_feedback = ()
+                    previous_invalid_content = None
+                else:
+                    assert current_plan is not None
+                    assert retry_authority is not None
+                    application = FunctionalGoalRepairService().apply_json(
+                        raw_response,
+                        base_plan=current_plan,
+                        authority=retry_authority,
+                        capability_catalog=capability_catalog,
+                    )
+                    repair = application.repair
+                    next_plan = application.plan
+
+                restored_seed = None
+                if retry_authority is not None and restore_execution is not None:
+                    restored_seed = _restored_seed(
+                        retry_authority,
+                        restore_execution,
+                        next_plan=next_plan,
+                    )
+                    solved_restore_count += len(restored_seed.call_ids)
+                execution = self.execution_service.execute_raw_json(
+                    json.dumps(next_plan.to_payload(), ensure_ascii=False),
+                    inputs=inputs,
+                    planning_context=planning_context,
+                    problem_binding_catalog=problem_binding_catalog,
+                    handle_registry=handle_registry,
+                    context=runtime_context,
+                    planner_state_context=planner_state_context,
+                    problem_payload=problem_payload,
+                    attempt=semantic_attempt - 1,
+                    restored_seed=restored_seed,
+                    published_goal_bindings=scoped_published_goal_bindings(
+                        next_plan
+                    ),
+                )
+                current_plan = execution.canonical_plan or next_plan
+                current_execution = execution
+                previous_repair_issue = None
+                attempt_record = ScopedFunctionalGoalRetryAttempt(
+                    semantic_attempt=semantic_attempt,
+                    planner_protocol=protocol,
+                    payload=payload,
+                    prompt=prompt,
+                    raw_response=raw_response,
+                    plan=current_plan,
+                    execution=execution,
+                    retry_authority=retry_authority,
+                    repair=repair,
+                    plan_content=plan_content,
+                    content_normalizations=content_normalizations,
+                    content_validation_report=content_validation_report,
+                )
+                if _requires_complete_plan_retry(execution):
+                    attempts.append(attempt_record)
+                    authoring_feedback = _complete_plan_retry_feedback(execution)
+                    previous_invalid_content = functional_plan_content_from_plan(
+                        next_plan,
+                        frame=plan_frame,
+                    ).to_payload()
+                    current_plan = None
+                    retry_authority = None
+                    restore_execution = None
+                    continue
+
+                authoring_feedback = ()
+                previous_invalid_content = None
+                checkpoint = execution.checkpoint
+                if (
+                    checkpoint is not None
+                    and checkpoint.all_required_goals_verified
+                    and execution.replay is not None
+                    and execution.replay.output is not None
+                ):
+                    attempts.append(attempt_record)
+                    return ScopedFunctionalGoalRetryRunResult(
+                        status="accepted",
+                        attempts=tuple(attempts),
+                        final_plan=current_plan,
+                        final_execution=execution,
+                        solved_goal_restore_count=solved_restore_count,
+                    )
+                next_retry_authority = FunctionalGoalRetryProjector().project(
+                    plan=current_plan,
+                    execution=execution,
+                    planning_context=planning_context,
+                    binding_catalog=problem_binding_catalog,
+                    previous_authority=retry_authority,
+                )
+                attempt_record = replace(
+                    attempt_record,
+                    result_retry_authority=next_retry_authority,
+                )
+                attempt_signature = (
+                    stable_hash(
+                        scoped_functional_plan_authority_payload(current_plan)
+                    ),
+                    _retry_issue_signature(next_retry_authority),
+                )
+                if (
+                    attempt_signatures
+                    and attempt_signatures[-1] == attempt_signature
+                ):
+                    attempts.append(attempt_record)
+                    retry_authority = next_retry_authority
+                    current_plan = retry_authority.base_plan
+                    no_progress = True
+                    break
+                attempt_signatures.append(attempt_signature)
+                if (
+                    execution.replay is not None
+                    and execution.replay.transactional_attempt_result is not None
+                ):
+                    restore_execution = execution
+                retry_authority = next_retry_authority
+                current_plan = retry_authority.base_plan
+                attempts.append(attempt_record)
+            except FunctionalGoalRetryError as exc:
+                attempts.append(
+                    ScopedFunctionalGoalRetryAttempt(
+                        semantic_attempt=semantic_attempt,
+                        planner_protocol=protocol,
+                        payload=payload,
+                        prompt=prompt,
+                        raw_response=raw_response,
+                        plan=current_plan,
+                        execution=current_execution,
+                        retry_authority=retry_authority,
+                        repair=repair,
+                        error=exc,
+                        plan_content=plan_content,
+                        content_normalizations=content_normalizations,
+                        content_validation_report=content_validation_report,
+                    )
+                )
+                if exc.code == "functional.goal_repair_no_progress":
+                    no_progress = True
+                    break
+                if not exc.retryable:
+                    break
+                if protocol == FUNCTIONAL_PLAN_CONTENT_CONTRACT:
+                    if not authoring_feedback:
+                        authoring_feedback = (
+                            {
+                                "code": exc.code,
+                                "path": exc.path,
+                                "message": exc.message,
+                            },
+                        )
+                    if previous_invalid_content is None:
+                        previous_invalid_content = (
+                            _normalized_content_candidate(raw_response)
+                        )
+                elif (
+                    protocol == FUNCTIONAL_GOAL_REPAIR_CONTRACT
+                    and exc.retryable
+                ):
+                    previous_repair_issue = exc.to_prompt_payload()
+            except FunctionalRestoredCallBindingError as exc:
+                wrapped = FunctionalGoalRetryError(
+                    exc.code,
+                    exc.path,
+                    exc.message,
+                    retryable=False,
+                    details=exc.details,
+                )
+                attempts.append(
+                    ScopedFunctionalGoalRetryAttempt(
+                        semantic_attempt=semantic_attempt,
+                        planner_protocol=protocol,
+                        payload=payload,
+                        prompt=prompt,
+                        raw_response=raw_response,
+                        plan=next_plan or current_plan,
+                        execution=current_execution,
+                        retry_authority=retry_authority,
+                        repair=repair,
+                        error=wrapped,
+                        plan_content=plan_content,
+                        content_normalizations=content_normalizations,
+                        content_validation_report=content_validation_report,
+                    )
+                )
+                break
+
+        return ScopedFunctionalGoalRetryRunResult(
+            status="blocked",
+            attempts=tuple(attempts),
+            final_plan=current_plan,
+            final_execution=current_execution,
+            solved_goal_restore_count=solved_restore_count,
+            no_progress=no_progress,
+        )
+
+
+_COMPLETE_PLAN_RETRY_CODES = frozenset(
+    {
+        "functional.scope_tree_drift",
+        "functional.goal_tree_drift",
+    }
+)
+
+
+def _requires_complete_plan_retry(
+    execution: ScopedFunctionalGoalExecutionResult,
+) -> bool:
+    """Return whether Goal replacement lacks a stable scope/Goal authority."""
+
+    checkpoint = execution.checkpoint
+    if checkpoint is None:
+        return True
+    return any(
+        str(issue.get("code", "")) in _COMPLETE_PLAN_RETRY_CODES
+        for issue in checkpoint.root_issues
+    )
+
+
+def _complete_plan_retry_feedback(
+    execution: ScopedFunctionalGoalExecutionResult,
+) -> tuple[dict[str, str], ...]:
+    checkpoint = execution.checkpoint
+    if checkpoint is None:
+        return (
+            {
+                "code": "functional.goal_retry_authority_unavailable",
+                "path": "$.root_scope",
+                "message": "the previous full Plan did not establish a canonical scope/Goal checkpoint",
+            },
+        )
+    return tuple(
+        {
+            "code": str(issue.get("code", "functional.plan_invalid")),
+            "path": str(issue.get("path", "$.root_scope")),
+            "message": str(issue.get("message", "full Plan authority is invalid")),
+        }
+        for issue in checkpoint.root_issues
+        if str(issue.get("code", "")) in _COMPLETE_PLAN_RETRY_CODES
+    )
+
+
+def _normalized_content_candidate(raw_response: str) -> dict[str, Any] | None:
+    """Retain parseable content wire for the next authoring prompt."""
+
+    try:
+        payload, _ = decode_single_json_object(raw_response)
+    except (json.JSONDecodeError, ValueError):
+        return None
+    if payload.get("format") != FUNCTIONAL_PLAN_CONTENT_CONTRACT:
+        return None
+    return payload
+
+
+class FunctionalGoalRetryProjector:
+    """Derive strict solved/failed Goal authority from F5-F2 and F5-D."""
+
+    def project(
+        self,
+        *,
+        plan: ScopedFunctionalPlan,
+        execution: ScopedFunctionalGoalExecutionResult,
+        planning_context: ProblemPlanningContext,
+        binding_catalog: ProblemPlanningBindingCatalog,
+        previous_authority: FunctionalGoalRetryAuthority | None = None,
+    ) -> FunctionalGoalRetryAuthority:
+        plan = execution.canonical_plan or plan
+        checkpoint = execution.checkpoint
+        authority = execution.authority
+        if checkpoint is None:
+            raise FunctionalGoalRetryError(
+                "functional.goal_retry_authority_unavailable",
+                "$.checkpoint",
+                "Goal replacement retry requires a canonical Plan checkpoint",
+                retryable=False,
+            )
+        checkpoint.verify_authority(
+            planning_context=planning_context,
+            binding_catalog=binding_catalog,
+            authority=authority,
+            goal_authority=execution.authoring_authority,
+            dependency_graph=(
+                execution.replay.functional_reconciliation.dependency_graph
+                if execution.replay is not None
+                and execution.replay.functional_reconciliation is not None
+                else {}
+            ),
+            binding_context=(
+                execution.replay.functional_reconciliation
+                .functional_problem_binding_context
+                if execution.replay is not None
+                and execution.replay.functional_reconciliation is not None
+                else None
+            ),
+        )
+        configuration_diagnostics = _configuration_diagnostics(checkpoint)
+        if configuration_diagnostics:
+            first = configuration_diagnostics[0]
+            raise FunctionalGoalRetryError(
+                str(first.get("code") or "planner.method_contract_invalid"),
+                "$.checkpoint.diagnostics",
+                str(
+                    first.get("message")
+                    or "runtime configuration failure cannot be repaired by Planner"
+                ),
+                retryable=False,
+                details={"diagnostic": first},
+            )
+        binding_context = (
+            execution.replay.functional_reconciliation
+            .functional_problem_binding_context
+            if execution.replay is not None
+            and execution.replay.functional_reconciliation is not None
+            else None
+        )
+        functional_binding_signature = (
+            binding_context.binding_signature
+            if binding_context is not None
+            else checkpoint.functional_problem_binding_signature
+        )
+        typed_checkpoint = _typed_checkpoint(execution)
+        if typed_checkpoint is not None:
+            if binding_context is None:
+                raise FunctionalGoalRetryError(
+                    "functional.goal_retry_binding_context_missing",
+                    "$.functional_problem_binding_context",
+                    "a typed checkpoint requires the F5-C binding sidecar",
+                    retryable=False,
+                )
+            _verify_typed_checkpoint_authority(
+                typed_checkpoint,
+                planning_context=planning_context,
+                functional_problem_binding_signature=functional_binding_signature,
+                checkpoint=checkpoint,
+            )
+
+        goal_plans = _goal_plans(plan)
+        execution_goals = _execution_goals(checkpoint.root_scope)
+        execution_steps = _execution_steps(checkpoint.root_scope)
+        goal_views = {
+            item.answer_ref.ref: item for item in planning_context.goal_views
+        }
+        goal_report = _goal_report(execution)
+        forbidden_prompt_values = _internal_prompt_values(
+            planning_context,
+            binding_catalog,
+        )
+        call_states = _call_states(execution)
+        call_results = _call_results(execution)
+        committed = {
+            item.canonical_call_id: item
+            for item in (
+                typed_checkpoint.committed_calls
+                if typed_checkpoint is not None
+                else ()
+            )
+        }
+        provenance = {
+            item.canonical_call_id: item
+            for item in (
+                typed_checkpoint.problem_call_authorities
+                if typed_checkpoint is not None
+                else ()
+            )
+        }
+        checkpoint_root_issues = tuple(
+            dict(item) for item in checkpoint.root_issues
+        )
+        goal_authorities: dict[str, FunctionalGoalRetryGoalAuthority] = {}
+        published: list[PublishedGoalResult] = []
+        failed_scope_step_ids = _failed_scope_step_ids(
+            checkpoint.root_scope,
+            checkpoint_root_issues,
+        )
+        for goal_ref, goal_plan in sorted(goal_plans.items()):
+            goal_view = goal_views.get(goal_ref)
+            execution_goal = execution_goals.get(goal_ref)
+            if goal_view is None or execution_goal is None:
+                raise FunctionalGoalRetryError(
+                    "functional.goal_retry_authority_drift",
+                    f"$.goals[{goal_ref!r}]",
+                    "Plan Goal is missing from planning or execution authority",
+                    retryable=False,
+                )
+            closure = tuple(
+                sorted(
+                    step_id
+                    for step_id, goal_ids in checkpoint.goal_unit_ids.items()
+                    if goal_view.goal_unit_id in goal_ids
+                )
+            )
+            answer = goal_report.get(goal_ref)
+            direct_step_ids = {item.step_id for item in execution_goal.steps}
+            direct_root_issues = tuple(
+                item
+                for item in checkpoint_root_issues
+                if item.get("step_id") in direct_step_ids
+            )
+            dependency_root_issues = tuple(
+                item
+                for item in checkpoint_root_issues
+                if item.get("step_id") in closure
+                and item.get("step_id") not in direct_step_ids
+            )
+            checks = {
+                "runtime_closure_verified": bool(closure)
+                and all(call_states.get(step_id) == "verified" for step_id in closure),
+                "answer_verification_passed": answer is not None
+                and answer.get("status") == "passed",
+                "symbolic_closure_passed": _symbolic_closure_passed(
+                    closure,
+                    call_results,
+                ),
+                "provenance_complete": bool(closure)
+                and all(step_id in provenance for step_id in closure),
+                "typed_checkpoint_restorable": bool(closure)
+                and all(
+                    step_id in committed
+                    and bool(committed[step_id].binding_signature)
+                    and committed[step_id].problem_source_provenance is not None
+                    and committed[
+                        step_id
+                    ].problem_source_provenance.semantic_signature()
+                    == provenance[step_id].semantic_signature()
+                    for step_id in closure
+                ),
+            }
+            solved = all(checks.values())
+            scope_dependency_failure = bool(
+                set(closure).intersection(failed_scope_step_ids)
+            )
+            answer_failed_locally = (
+                answer is not None
+                and answer.get("status") == "failed"
+                and goal_plan.answer_from.step_id in direct_step_ids
+            )
+            direct_failure = any(
+                item.status in {"authority_invalid", "runtime_failed"}
+                for item in execution_goal.steps
+            ) or bool(direct_root_issues) or answer_failed_locally
+            blocked = any(
+                item.status == "blocked_by_dependency"
+                for item in execution_goal.steps
+            ) or bool(dependency_root_issues) or scope_dependency_failure
+            blocked = blocked and not direct_failure
+            status: GoalRetryStatus
+            if solved:
+                status = "solved"
+            elif direct_failure:
+                status = "failed"
+            elif blocked:
+                status = "blocked"
+            else:
+                status = "failed" if answer is not None else "pending"
+            issues = _goal_issue_payloads(
+                execution_goal,
+                answer,
+                root_issues=(*direct_root_issues, *dependency_root_issues),
+                forbidden_values=forbidden_prompt_values,
+            )
+            item = FunctionalGoalRetryGoalAuthority(
+                goal_ref=goal_ref,
+                goal_unit_id=goal_view.goal_unit_id,
+                status=status,
+                editable=status == "failed",
+                answer_producer_step_id=goal_plan.answer_from.step_id,
+                answer_return_name=goal_plan.answer_from.return_name,
+                answer_target_ref=(
+                    str(goal_view.goal_payload.get("target"))
+                    if isinstance(goal_view.goal_payload.get("target"), str)
+                    else goal_view.answer_ref.ref
+                ),
+                answer_type=goal_view.answer_ref.value_type or "Unknown",
+                closure_step_ids=closure,
+                issue_signature=stable_hash(issues),
+                issues=tuple(issues),
+                checks=checks,
+            )
+            goal_authorities[goal_ref] = item
+            if solved:
+                published.append(
+                    _published_goal_result(
+                        goal_plan,
+                        execution_steps,
+                        call_results,
+                    )
+                )
+
+        inherited_goal_refs = _inherit_solved_goal_authority(
+            plan,
+            goal_authorities=goal_authorities,
+            published=published,
+            previous_authority=previous_authority,
+            planning_context=planning_context,
+            binding_catalog=binding_catalog,
+        )
+
+        step_promotions = _cross_scope_repair_promotions(
+            plan,
+            checkpoint.root_scope,
+            goal_authorities,
+        )
+        repair_base_plan = _apply_step_promotions(plan, step_promotions)
+        repair_base_plan_id = stable_hash(
+            scoped_functional_plan_authority_payload(repair_base_plan)
+        )
+        editable_scopes, frozen_scopes, scope_statuses = _scope_authority(
+            checkpoint.root_scope,
+            goal_authorities=goal_authorities,
+            checkpoint=checkpoint,
+            root_issues=checkpoint_root_issues,
+            promoted_scope_refs=frozenset(step_promotions.values()),
+        )
+        if (
+            not editable_scopes
+            and not any(item.editable for item in goal_authorities.values())
+            and not all(
+                item.status == "solved" for item in goal_authorities.values()
+            )
+        ):
+            raise FunctionalGoalRetryError(
+                "functional.goal_retry_target_unresolved",
+                "$.checkpoint.root_issues",
+                "incomplete execution has no Goal or scope replacement authority",
+                retryable=False,
+            )
+        prompt_root = _retry_scope_prompt(
+            checkpoint.root_scope,
+            goal_authorities=goal_authorities,
+            scope_statuses=scope_statuses,
+            step_promotions=step_promotions,
+        )
+        metrics = {
+            "solved_goal_count": sum(
+                item.status == "solved" for item in goal_authorities.values()
+            ),
+            "failed_goal_count": sum(
+                item.status == "failed" for item in goal_authorities.values()
+            ),
+            "blocked_goal_count": sum(
+                item.status == "blocked" for item in goal_authorities.values()
+            ),
+            "editable_goal_count": sum(
+                item.editable for item in goal_authorities.values()
+            ),
+            "editable_scope_count": len(editable_scopes),
+        }
+        retry_context = PlannerGoalRetryContext(
+            base_plan_id=repair_base_plan_id,
+            base_retry_context_id="pending",
+            root_scope=prompt_root,
+            published_goal_results=tuple(published),
+            metrics=metrics,
+        )
+        retry_context_payload = retry_context.to_prompt_payload()
+        typed_checkpoint_hash = (
+            stable_hash(typed_checkpoint.to_payload())
+            if typed_checkpoint is not None
+            else (
+                previous_authority.typed_checkpoint_hash
+                if previous_authority is not None and inherited_goal_refs
+                else stable_hash(None)
+            )
+        )
+        retry_context_id = stable_hash(
+            {
+                "prompt": {
+                    **retry_context_payload,
+                    "base_retry_context_id": None,
+                },
+                "checkpoint_id": checkpoint.checkpoint_id,
+                "typed_checkpoint_hash": typed_checkpoint_hash,
+                "goals": {
+                    key: value.authority_payload()
+                    for key, value in sorted(goal_authorities.items())
+                },
+            }
+        )
+        retry_context = replace(
+            retry_context,
+            base_retry_context_id=retry_context_id,
+        )
+        return FunctionalGoalRetryAuthority(
+            planning_context_id=planning_context.planning_context_id,
+            problem_revision_id=planning_context.problem_revision_id,
+            problem_semantic_hash=planning_context.problem_semantic_hash,
+            problem_binding_catalog_signature=binding_catalog.binding_signature,
+            functional_problem_binding_signature=functional_binding_signature,
+            base_plan=repair_base_plan,
+            base_plan_id=repair_base_plan_id,
+            base_plan_hash=repair_base_plan_id,
+            goal_execution_checkpoint_id=checkpoint.checkpoint_id,
+            typed_checkpoint_hash=typed_checkpoint_hash,
+            goal_authorities=goal_authorities,
+            editable_scope_refs=editable_scopes,
+            frozen_scope_refs=frozen_scopes,
+            repair_step_owners={
+                **_plan_step_owners(repair_base_plan),
+            },
+            published_goal_results=tuple(published),
+            retry_context=retry_context,
+            retry_context_id=retry_context_id,
+        )
+
+
+class FunctionalGoalRepairService:
+    """Parse and atomically apply one full-Goal replacement response."""
+
+    def parse_json(self, raw: str) -> FunctionalGoalRepair:
+        try:
+            payload, _ = decode_single_json_object(raw)
+        except (json.JSONDecodeError, ValueError) as exc:
+            raise FunctionalGoalRetryError(
+                "functional.goal_repair_invalid_json",
+                "$",
+                str(exc),
+            ) from exc
+        errors = sorted(
+            Draft202012Validator(functional_goal_repair_schema()).iter_errors(
+                payload
+            ),
+            key=lambda item: tuple(item.absolute_path),
+        )
+        if errors:
+            first = errors[0]
+            raise FunctionalGoalRetryError(
+                "functional.goal_repair_schema_invalid",
+                _json_path(first.absolute_path),
+                first.message,
+            )
+        assert isinstance(payload, dict)
+        return FunctionalGoalRepair(
+            base_plan_id=str(payload["base_plan_id"]),
+            base_retry_context_id=str(payload["base_retry_context_id"]),
+            goal_replacements=tuple(
+                FunctionalGoalReplacement(
+                    goal_ref=str(goal_ref),
+                    steps=tuple(_freeze_mapping(step) for step in item["steps"]),
+                    answer_from=MappingProxyType(
+                        {
+                            "step_id": str(item["answer_from"]["step_id"]),
+                            "return": str(item["answer_from"]["return"]),
+                        }
+                    ),
+                )
+                for goal_ref, item in payload["goal_replacements"].items()
+            ),
+            scope_step_replacements=tuple(
+                FunctionalScopeStepReplacement(
+                    scope_ref=str(scope_ref),
+                    steps=tuple(_freeze_mapping(step) for step in item["steps"]),
+                )
+                for scope_ref, item in payload[
+                    "scope_step_replacements"
+                ].items()
+            ),
+        )
+
+    def apply_json(
+        self,
+        raw: str,
+        *,
+        base_plan: ScopedFunctionalPlan,
+        authority: FunctionalGoalRetryAuthority,
+        capability_catalog: FunctionalCapabilityCatalog | None = None,
+    ) -> FunctionalGoalRepairApplication:
+        return self.apply(
+            self.parse_json(raw),
+            base_plan=base_plan,
+            authority=authority,
+            capability_catalog=capability_catalog,
+        )
+
+    def apply(
+        self,
+        repair: FunctionalGoalRepair,
+        *,
+        base_plan: ScopedFunctionalPlan,
+        authority: FunctionalGoalRetryAuthority,
+        capability_catalog: FunctionalCapabilityCatalog | None = None,
+    ) -> FunctionalGoalRepairApplication:
+        if repair.base_plan_id != authority.base_plan_id:
+            raise FunctionalGoalRetryError(
+                "functional.goal_repair_stale_plan",
+                "$.base_plan_id",
+                "repair does not target the current canonical Plan",
+                retryable=False,
+            )
+        if repair.base_retry_context_id != authority.retry_context_id:
+            raise FunctionalGoalRetryError(
+                "functional.goal_repair_authority_drift",
+                "$.base_retry_context_id",
+                "repair does not target the current Goal retry authority",
+                retryable=False,
+            )
+        if stable_hash(
+            scoped_functional_plan_authority_payload(base_plan)
+        ) != authority.base_plan_hash:
+            raise FunctionalGoalRetryError(
+                "functional.goal_repair_stale_plan",
+                "$.previous_plan",
+                "base Plan content no longer matches repair authority",
+                retryable=False,
+            )
+
+        goal_refs = tuple(item.goal_ref for item in repair.goal_replacements)
+        scope_refs = tuple(item.scope_ref for item in repair.scope_step_replacements)
+        _require_unique(goal_refs, "$.goal_replacements", "Goal")
+        _require_unique(scope_refs, "$.scope_step_replacements", "scope")
+        if set(goal_refs) != set(authority.editable_goal_refs):
+            expected = sorted(authority.editable_goal_refs)
+            actual = sorted(goal_refs)
+            raise FunctionalGoalRetryError(
+                "functional.goal_repair_boundary_violation",
+                "$.goal_replacements",
+                "repair must replace every and only directly failed editable "
+                f"Goal; expected {expected}, got {actual}",
+            )
+        if set(scope_refs) != set(authority.editable_scope_refs):
+            expected = sorted(authority.editable_scope_refs)
+            actual = sorted(scope_refs)
+            raise FunctionalGoalRetryError(
+                "functional.goal_repair_boundary_violation",
+                "$.scope_step_replacements",
+                "repair must replace every and only directly failed scope "
+                f"block; expected {expected}, got {actual}",
+            )
+
+        publications = {
+            item.goal_ref: item for item in authority.published_goal_results
+        }
+        goal_replacements = {
+            item.goal_ref: item for item in repair.goal_replacements
+        }
+        scope_replacements = {
+            item.scope_ref: item for item in repair.scope_step_replacements
+        }
+        replaced_step_ids = {
+            step.step_id
+            for scope in _iter_scopes(base_plan.root_scope)
+            for step in (
+                scope.steps
+                if scope.scope_ref in scope_replacements
+                else ()
+            )
+        } | {
+            step.step_id
+            for scope in _iter_scopes(base_plan.root_scope)
+            for goal in scope.goals
+            if goal.goal_ref in goal_replacements
+            for step in goal.steps
+        }
+        retained_step_ids = {
+            step.step_id for step in base_plan.steps
+        } - replaced_step_ids
+        replacement_step_ids = [
+            str(step.get("step_id", ""))
+            for item in repair.goal_replacements
+            for step in item.steps
+        ] + [
+            str(step.get("step_id", ""))
+            for item in repair.scope_step_replacements
+            for step in item.steps
+        ]
+        prior_step_owners = authority.repair_step_owners
+        ownership_violations = sorted(
+            (
+                step_id,
+                prior_step_owners[step_id],
+                owner,
+            )
+            for owner, replacement_steps in (
+                *(
+                    (f"goal:{item.goal_ref}", item.steps)
+                    for item in repair.goal_replacements
+                ),
+                *(
+                    (f"scope:{item.scope_ref}", item.steps)
+                    for item in repair.scope_step_replacements
+                ),
+            )
+            for step in replacement_steps
+            for step_id in (str(step.get("step_id", "")),)
+            if step_id in prior_step_owners
+            and prior_step_owners[step_id] != owner
+        )
+        if ownership_violations:
+            raise FunctionalGoalRetryError(
+                "functional.goal_repair_step_owner_drift",
+                "$.goal_replacements",
+                "a prior step_id may only be reused in its original Goal or "
+                f"scope replacement; violations {ownership_violations}",
+            )
+        repeated_replacement_ids = sorted(
+            {
+                step_id
+                for step_id in replacement_step_ids
+                if replacement_step_ids.count(step_id) > 1
+            }
+        )
+        retained_collisions = sorted(
+            set(replacement_step_ids).intersection(retained_step_ids)
+        )
+        if repeated_replacement_ids or retained_collisions:
+            raise FunctionalGoalRetryError(
+                "functional.goal_repair_step_id_conflict",
+                "$.goal_replacements",
+                "replacement step_id values must be globally unique and may "
+                "not collide with retained Plan steps; duplicate replacements "
+                f"{repeated_replacement_ids}, retained collisions "
+                f"{retained_collisions}",
+            )
+        publication_bindings = [
+            item
+            for item in scoped_published_goal_bindings(base_plan)
+            if item.consumer_step_id not in replaced_step_ids
+        ]
+        def rebuild(scope: ScopedFunctionalScope) -> dict[str, Any]:
+            payload = scope.to_payload()
+            if scope.scope_ref in scope_replacements:
+                replacement_steps = [
+                    _resolve_published_step(
+                        _thaw(item),
+                        publications,
+                        publication_bindings,
+                    )
+                    for item in scope_replacements[scope.scope_ref].steps
+                ]
+                if replacement_steps:
+                    payload["steps"] = replacement_steps
+                else:
+                    payload.pop("steps", None)
+            goals: list[dict[str, Any]] = []
+            for goal in scope.goals:
+                replacement = goal_replacements.get(goal.goal_ref)
+                if replacement is None:
+                    goals.append(goal.to_payload())
+                    continue
+                replacement_payload: dict[str, Any] = {
+                    "goal_ref": replacement.goal_ref,
+                    "answer_from": dict(replacement.answer_from),
+                }
+                replacement_steps = [
+                    _resolve_published_step(
+                        _thaw(item),
+                        publications,
+                        publication_bindings,
+                    )
+                    for item in replacement.steps
+                ]
+                if replacement_steps:
+                    replacement_payload["steps"] = replacement_steps
+                goals.append(replacement_payload)
+            if goals:
+                payload["goals"] = goals
+            elif "goals" in payload:
+                payload.pop("goals")
+            children = [rebuild(child) for child in scope.children]
+            if children:
+                payload["children"] = children
+            elif "children" in payload:
+                payload.pop("children")
+            return payload
+
+        candidate_payload = {
+            "format": base_plan.format,
+            "root_scope": rebuild(base_plan.root_scope),
+        }
+        goal_requirements: dict[str, FunctionalGoalAnswerRequirement] = {}
+        locked_answers: dict[str, Mapping[str, str]] = {}
+        previous_answers: dict[str, Mapping[str, str]] = {}
+        authored_answers: dict[str, Mapping[str, str]] = {}
+        goal_owner_scopes: dict[str, str] = {}
+        for scope in _iter_scopes(base_plan.root_scope):
+            for goal in scope.goals:
+                goal_owner_scopes[goal.goal_ref] = scope.scope_ref
+                previous_answers[goal.goal_ref] = goal.answer_from.to_payload()
+                authored_answers[goal.goal_ref] = goal.answer_from.to_payload()
+        authored_answers.update(
+            {
+                item.goal_ref: dict(item.answer_from)
+                for item in repair.goal_replacements
+            }
+        )
+        for goal_ref, goal_authority in authority.goal_authorities.items():
+            owner_scope = goal_owner_scopes.get(goal_ref)
+            if owner_scope is None:
+                raise FunctionalGoalRetryError(
+                    "functional.goal_repair_answer_source_invalid",
+                    f"$.goals[{goal_ref!r}]",
+                    "Goal retry authority references no canonical Plan Goal",
+                    retryable=False,
+                )
+            goal_requirements[goal_ref] = FunctionalGoalAnswerRequirement(
+                goal_ref=goal_ref,
+                owner_scope_id=owner_scope,
+                target_ref=goal_authority.answer_target_ref,
+                answer_type=goal_authority.answer_type,
+            )
+            if goal_authority.status == "solved":
+                locked_answers[goal_ref] = previous_answers[goal_ref]
+        scope_parents = {
+            scope.scope_ref: parent
+            for scope, parent in _scopes_with_parent(base_plan.root_scope)
+        }
+        if capability_catalog is None:
+            raise FunctionalGoalRetryError(
+                "functional.goal_repair_answer_source_invalid",
+                "$.goal_replacements",
+                "typed Goal answer derivation requires a capability catalog",
+            )
+        try:
+            candidate_payload, answer_bindings = derive_goal_answer_bindings(
+                candidate_payload,
+                requirements=goal_requirements,
+                scope_parents=scope_parents,
+                capability_catalog=capability_catalog,
+                locked_answers=locked_answers,
+                authored_answers=authored_answers,
+            )
+        except FunctionalGoalAnswerBindingError as exc:
+            raise FunctionalGoalRetryError(
+                "functional.goal_repair_answer_source_invalid",
+                exc.path,
+                exc.message,
+                details=exc.to_feedback_payload()["details"],
+            ) from exc
+        plan, report = ScopedFunctionalPlanValidator().validate_payload_with_report(
+            candidate_payload
+        )
+        if plan is None:
+            first = report.issues[0]
+            raise FunctionalGoalRetryError(first.code, first.path, first.message)
+        answer_rebindings = tuple(
+            FunctionalGoalAnswerRebinding(
+                goal_ref=item.goal_ref,
+                previous_step_id=str(
+                    previous_answers[item.goal_ref]["step_id"]
+                ),
+                previous_return_name=str(
+                    previous_answers[item.goal_ref]["return"]
+                ),
+                selected_step_id=item.step_id,
+                selected_return_name=item.return_name,
+                answer_target_ref=item.target_ref,
+                answer_type=item.answer_type,
+                match_basis=item.match_basis,
+            )
+            for item in answer_bindings
+            if previous_answers[item.goal_ref]
+            != {"step_id": item.step_id, "return": item.return_name}
+        )
+        try:
+            plan = apply_scoped_published_goal_bindings(
+                plan,
+                publication_bindings,
+            )
+        except ValueError as exc:
+            raise FunctionalGoalRetryError(
+                "functional.published_goal_result_invalid",
+                "$.goal_replacements",
+                str(exc),
+            ) from exc
+        plan_hash = stable_hash(scoped_functional_plan_authority_payload(plan))
+        return FunctionalGoalRepairApplication(
+            repair=repair,
+            plan=plan,
+            plan_hash=plan_hash,
+            validation_report=report,
+            published_goal_bindings=tuple(publication_bindings),
+            answer_rebindings=answer_rebindings,
+        )
+
+
+def _typed_checkpoint(
+    execution: ScopedFunctionalGoalExecutionResult,
+) -> FunctionalRetryGraphCheckpoint | None:
+    replay = execution.replay
+    retry_state = replay.retry_state if replay is not None else None
+    payload = (
+        retry_state.functional_retry_graph_checkpoint
+        if retry_state is not None
+        else None
+    )
+    return (
+        FunctionalRetryGraphCheckpoint.from_payload(payload)
+        if isinstance(payload, Mapping)
+        else None
+    )
+
+
+def _restored_seed(
+    authority: FunctionalGoalRetryAuthority,
+    execution: ScopedFunctionalGoalExecutionResult,
+    *,
+    next_plan: ScopedFunctionalPlan,
+) -> FunctionalRestoredCallSeed:
+    solved_calls = {
+        step_id
+        for item in authority.goal_authorities.values()
+        if item.status == "solved"
+        for step_id in item.closure_step_ids
+    }
+    if not solved_calls:
+        return FunctionalRestoredCallSeed()
+    transaction = (
+        execution.replay.transactional_attempt_result
+        if execution.replay is not None
+        else None
+    )
+    if transaction is None:
+        raise FunctionalGoalRetryError(
+            "functional.goal_retry_typed_checkpoint_missing",
+            "$.execution",
+            "solved Goal restore has no prior transactional execution",
+            retryable=False,
+        )
+    next_step_ids = {item.step_id for item in next_plan.steps}
+    if not solved_calls <= next_step_ids:
+        raise FunctionalGoalRetryError(
+            "functional.goal_repair_boundary_violation",
+            "$.goal_replacements",
+            "repair removed a call required by a solved Goal",
+            retryable=False,
+        )
+    report = transaction.execution_report
+    reconciliation = (
+        execution.replay.functional_reconciliation
+        if execution.replay is not None
+        else None
+    )
+    if reconciliation is None:
+        raise FunctionalGoalRetryError(
+            "functional.goal_retry_restore_drift",
+            "$.execution.reconciliation",
+            "solved Goal restore has no F5-C reconciliation authority",
+            retryable=False,
+        )
+    result_by_call = {item.call_id: item for item in report.call_results}
+    compiled_by_call = {item.call_id: item for item in report.compiled_calls}
+    missing = tuple(
+        sorted(
+            call_id
+            for call_id in solved_calls
+            if call_id not in result_by_call or call_id not in compiled_by_call
+        )
+    )
+    if missing:
+        raise FunctionalGoalRetryError(
+            "functional.goal_retry_restore_drift",
+            "$.solved_goals",
+            f"solved Goal checkpoint is missing calls {list(missing)}",
+            retryable=False,
+        )
+    version_ids = {
+        version.version_id
+        for call_id in solved_calls
+        for version in result_by_call[call_id].committed_versions
+    }
+    result_keys = {
+        (call_id, item.output_key)
+        for call_id in solved_calls
+        for item in result_by_call[call_id].runtime_results
+    }
+    return FunctionalRestoredCallSeed(
+        call_results=tuple(
+            result_by_call[call_id]
+            for call_id in report.graph.canonical_order
+            if call_id in solved_calls
+        ),
+        compiled_calls=tuple(
+            compiled_by_call[call_id]
+            for call_id in report.graph.canonical_order
+            if call_id in solved_calls
+        ),
+        runtime_version_values={
+            version_id: value
+            for version_id, value in report.runtime_version_values.items()
+            if version_id in version_ids
+        },
+        runtime_version_symbol_bindings={
+            version_id: bindings
+            for version_id, bindings in (
+                report.runtime_version_symbol_bindings.items()
+            )
+            if version_id in version_ids
+        },
+        runtime_result_values={
+            key: value
+            for key, value in report.runtime_result_values.items()
+            if key in result_keys
+        },
+        call_binding_authorities={
+            call_id: functional_restored_call_binding_signature(
+                reconciliation,
+                call_id,
+            )
+            for call_id in solved_calls
+        },
+        call_binding_payloads={
+            call_id: functional_restored_call_binding_payload(
+                reconciliation,
+                call_id,
+            )
+            for call_id in solved_calls
+        },
+        allowed_consumer_goal_delta_ids=(
+            _repair_affected_goal_unit_ids(authority)
+        ),
+    )
+
+
+def _repair_affected_goal_unit_ids(
+    authority: FunctionalGoalRetryAuthority,
+) -> tuple[str, ...]:
+    """Return unsolved Goals whose consumer DAG may change during repair."""
+
+    parents = {
+        scope.scope_ref: parent
+        for scope, parent in _scopes_with_parent(
+            authority.base_plan.root_scope
+        )
+    }
+    goal_scopes = {
+        goal.goal_ref: scope.scope_ref
+        for scope in _iter_scopes(authority.base_plan.root_scope)
+        for goal in scope.goals
+    }
+    editable_scopes = set(authority.editable_scope_refs)
+    affected: set[str] = set()
+    for item in authority.goal_authorities.values():
+        if item.status == "solved":
+            continue
+        owner_scope = goal_scopes.get(item.goal_ref)
+        if item.editable or (
+            owner_scope is not None
+            and any(
+                _scope_is_descendant_of(
+                    owner_scope,
+                    editable_scope,
+                    parents,
+                )
+                for editable_scope in editable_scopes
+            )
+        ):
+            affected.add(item.goal_unit_id)
+    return tuple(sorted(affected))
+
+
+def _scope_is_descendant_of(
+    scope_ref: str,
+    ancestor_ref: str,
+    parents: Mapping[str, str | None],
+) -> bool:
+    current: str | None = scope_ref
+    while current is not None:
+        if current == ancestor_ref:
+            return True
+        current = parents.get(current)
+    return False
+
+
+def _verify_typed_checkpoint_authority(
+    typed_checkpoint: FunctionalRetryGraphCheckpoint,
+    *,
+    planning_context: ProblemPlanningContext,
+    functional_problem_binding_signature: str,
+    checkpoint: FunctionalGoalExecutionCheckpoint,
+) -> None:
+    problem = typed_checkpoint.problem_authority
+    if problem is None:
+        raise FunctionalGoalRetryError(
+            "functional.goal_retry_typed_checkpoint_missing",
+            "$.typed_checkpoint.problem_authority",
+            "typed checkpoint has no Problem authority",
+            retryable=False,
+        )
+    expected = (
+        planning_context.planning_context_id,
+        planning_context.problem_revision_id,
+        planning_context.problem_semantic_hash,
+        functional_problem_binding_signature,
+    )
+    actual = (
+        problem.planning_context_id,
+        problem.problem_revision_id,
+        problem.problem_semantic_hash,
+        problem.functional_problem_binding_signature,
+    )
+    if actual != expected:
+        raise FunctionalGoalRetryError(
+            "planner.retry_problem_revision_drift",
+            "$.typed_checkpoint.problem_authority",
+            "typed checkpoint Problem authority does not match current authority",
+            retryable=False,
+        )
+
+
+def _goal_plans(plan: ScopedFunctionalPlan) -> dict[str, Any]:
+    return {
+        goal.goal_ref: goal
+        for scope in _iter_scopes(plan.root_scope)
+        for goal in scope.goals
+    }
+
+
+def _execution_goals(
+    root: FunctionalGoalExecutionScope,
+) -> dict[str, FunctionalGoalExecutionGoal]:
+    return {
+        goal.goal_ref: goal
+        for scope in _iter_execution_scopes(root)
+        for goal in scope.goals
+    }
+
+
+def _goal_report(
+    execution: ScopedFunctionalGoalExecutionResult,
+) -> dict[str, dict[str, Any]]:
+    transaction = (
+        execution.replay.transactional_attempt_result
+        if execution.replay is not None
+        else None
+    )
+    if transaction is None:
+        return {}
+    result: dict[str, dict[str, Any]] = {}
+    for item in transaction.goal_report.goals:
+        goal_ref = item.goal_handle.removeprefix("answer:")
+        result[goal_ref] = item.to_payload()
+    return result
+
+
+def _call_states(
+    execution: ScopedFunctionalGoalExecutionResult,
+) -> dict[str, str]:
+    transaction = (
+        execution.replay.transactional_attempt_result
+        if execution.replay is not None
+        else None
+    )
+    return {
+        item.call_id: item.status
+        for item in (
+            transaction.execution_report.call_states
+            if transaction is not None
+            else ()
+        )
+    }
+
+
+def _call_results(
+    execution: ScopedFunctionalGoalExecutionResult,
+) -> dict[str, Any]:
+    transaction = (
+        execution.replay.transactional_attempt_result
+        if execution.replay is not None
+        else None
+    )
+    return {
+        item.call_id: item
+        for item in (
+            transaction.execution_report.call_results
+            if transaction is not None
+            else ()
+        )
+    }
+
+
+def _symbolic_closure_passed(
+    call_ids: Sequence[str],
+    results: Mapping[str, Any],
+) -> bool:
+    for call_id in call_ids:
+        item = results.get(call_id)
+        if item is None:
+            return False
+        closure = item.symbolic_closure
+        if closure is not None and closure.status not in {"not_applicable", "unique"}:
+            return False
+    return True
+
+
+def _goal_issue_payloads(
+    goal: FunctionalGoalExecutionGoal,
+    answer: Mapping[str, Any] | None,
+    *,
+    root_issues: Sequence[Mapping[str, Any]] = (),
+    forbidden_values: frozenset[str] = frozenset(),
+) -> list[dict[str, Any]]:
+    issues = [
+        dict(step.typed_issue)
+        for step in goal.steps
+        if step.typed_issue is not None
+    ]
+    if answer is not None:
+        issues.extend(dict(item) for item in answer.get("issues", ()))
+        if answer.get("status") != "passed" and not answer.get("issues"):
+            issues.append(
+                {
+                    "code": "functional.goal_answer_not_verified",
+                    "message": f"answer status is {answer.get('status')}",
+                }
+            )
+    issues.extend(dict(item) for item in root_issues)
+    return [
+        _prompt_safe_value(item, forbidden_values=forbidden_values)
+        for item in issues
+    ]
+
+
+def _configuration_diagnostics(
+    checkpoint: FunctionalGoalExecutionCheckpoint,
+) -> tuple[dict[str, Any], ...]:
+    diagnostics: list[dict[str, Any]] = []
+
+    def consider(value: Mapping[str, Any] | None) -> None:
+        if value is None:
+            return
+        payload = dict(value)
+        if payload.get("retryability") == "configuration":
+            diagnostics.append(payload)
+
+    def visit(scope: FunctionalGoalExecutionScope) -> None:
+        for step in scope.scope_steps:
+            consider(step.typed_issue)
+        for goal in scope.goals:
+            for step in goal.steps:
+                consider(step.typed_issue)
+        for child in scope.children:
+            visit(child)
+
+    visit(checkpoint.root_scope)
+    for item in checkpoint.root_issues:
+        consider(item)
+    return tuple(diagnostics)
+
+
+def _retry_issue_signature(
+    authority: FunctionalGoalRetryAuthority,
+) -> str:
+    """Hash only the typed failure state paired with one attempted Plan."""
+
+    step_issues: list[dict[str, Any]] = []
+
+    def visit(scope: Mapping[str, Any]) -> None:
+        for step in scope.get("scope_steps", ()):
+            if not isinstance(step, Mapping):
+                continue
+            typed_issue = step.get("typed_issue")
+            if typed_issue is not None:
+                step_issues.append(
+                    {
+                        "step_id": step.get("step_id"),
+                        "status": step.get("status"),
+                        "typed_issue": _thaw(typed_issue),
+                    }
+                )
+        for goal in scope.get("goals", ()):
+            if not isinstance(goal, Mapping):
+                continue
+            for step in goal.get("steps", ()):
+                if not isinstance(step, Mapping):
+                    continue
+                typed_issue = step.get("typed_issue")
+                if typed_issue is not None:
+                    step_issues.append(
+                        {
+                            "step_id": step.get("step_id"),
+                            "status": step.get("status"),
+                            "typed_issue": _thaw(typed_issue),
+                        }
+                    )
+        for child in scope.get("children", ()):
+            if isinstance(child, Mapping):
+                visit(child)
+
+    visit(authority.retry_context.root_scope)
+    return stable_hash(
+        {
+            "goals": {
+                goal_ref: {
+                    "status": item.status,
+                    "issue_signature": item.issue_signature,
+                }
+                for goal_ref, item in sorted(
+                    authority.goal_authorities.items()
+                )
+            },
+            "scope_step_issues": sorted(
+                step_issues,
+                key=lambda item: (
+                    str(item.get("step_id", "")),
+                    str(item.get("status", "")),
+                ),
+            ),
+        }
+    )
+
+
+def _published_goal_result(
+    goal_plan: Any,
+    execution_steps: Mapping[str, FunctionalGoalExecutionStep],
+    call_results: Mapping[str, Any],
+) -> PublishedGoalResult:
+    producer = execution_steps.get(goal_plan.answer_from.step_id)
+    if producer is None:
+        raise FunctionalGoalRetryError(
+            "functional.goal_retry_publication_missing",
+            f"$.goals[{goal_plan.goal_ref!r}]",
+            "solved Goal has no answer producer in execution tree",
+            retryable=False,
+        )
+    result = call_results.get(goal_plan.answer_from.step_id)
+    write = next(
+        (
+            item
+            for item in (
+                result.state_writes if result is not None else ()
+            )
+            if item.return_name == goal_plan.answer_from.return_name
+        ),
+        None,
+    )
+    outputs = tuple(
+        item
+        for item in (
+            result.runtime_results if result is not None else ()
+        )
+        if write is not None
+        and item.produced_handle == write.produced_handle
+    )
+    if len(outputs) != 1:
+        raise FunctionalGoalRetryError(
+            "functional.goal_retry_publication_missing",
+            f"$.goals[{goal_plan.goal_ref!r}].answer_from",
+            "solved Goal answer_from does not resolve to exactly one "
+            "prompt-safe runtime output",
+            retryable=False,
+        )
+    output = outputs[0]
+    return PublishedGoalResult(
+        goal_ref=goal_plan.goal_ref,
+        producer_step_id=goal_plan.answer_from.step_id,
+        return_name=goal_plan.answer_from.return_name,
+        runtime_type=str(output.runtime_type or "Unknown"),
+        value=output.value,
+        value_omitted_reason=(
+            str(output.value_omitted_reason)
+            if output.value_omitted_reason is not None
+            else None
+        ),
+    )
+
+
+def _inherit_solved_goal_authority(
+    plan: ScopedFunctionalPlan,
+    *,
+    goal_authorities: dict[str, FunctionalGoalRetryGoalAuthority],
+    published: list[PublishedGoalResult],
+    previous_authority: FunctionalGoalRetryAuthority | None,
+    planning_context: ProblemPlanningContext,
+    binding_catalog: ProblemPlanningBindingCatalog,
+) -> frozenset[str]:
+    """Carry forward unchanged solved Goals when this round never transacted."""
+
+    if previous_authority is None:
+        return frozenset()
+    expected = (
+        planning_context.planning_context_id,
+        planning_context.problem_revision_id,
+        planning_context.problem_semantic_hash,
+        binding_catalog.binding_signature,
+    )
+    actual = (
+        previous_authority.planning_context_id,
+        previous_authority.problem_revision_id,
+        previous_authority.problem_semantic_hash,
+        previous_authority.problem_binding_catalog_signature,
+    )
+    if actual != expected:
+        raise FunctionalGoalRetryError(
+            "functional.goal_retry_authority_drift",
+            "$.previous_authority",
+            "prior solved Goal authority belongs to another Problem revision",
+            retryable=False,
+        )
+
+    current_goals = _goal_plans(plan)
+    previous_goals = _goal_plans(previous_authority.base_plan)
+    current_steps = {item.step_id: item for item in plan.steps}
+    previous_steps = {
+        item.step_id: item for item in previous_authority.base_plan.steps
+    }
+    publication_by_goal = {item.goal_ref: item for item in published}
+    previous_publications = {
+        item.goal_ref: item
+        for item in previous_authority.published_goal_results
+    }
+    inherited: set[str] = set()
+    for goal_ref, prior in previous_authority.goal_authorities.items():
+        if prior.status != "solved":
+            continue
+        current_goal = current_goals.get(goal_ref)
+        previous_goal = previous_goals.get(goal_ref)
+        if current_goal is None or previous_goal is None:
+            raise FunctionalGoalRetryError(
+                "functional.goal_repair_boundary_violation",
+                f"$.goals[{goal_ref!r}]",
+                "repair removed a solved Goal",
+                retryable=False,
+            )
+        changed_steps = tuple(
+            sorted(
+                step_id
+                for step_id in prior.closure_step_ids
+                if _frozen_step_payload(current_steps.get(step_id))
+                != _frozen_step_payload(previous_steps.get(step_id))
+            )
+        )
+        if (
+            current_goal.answer_from != previous_goal.answer_from
+            or tuple(
+                _frozen_step_payload(item) for item in current_goal.steps
+            )
+            != tuple(
+                _frozen_step_payload(item) for item in previous_goal.steps
+            )
+            or changed_steps
+        ):
+            raise FunctionalGoalRetryError(
+                "functional.goal_repair_boundary_violation",
+                f"$.goals[{goal_ref!r}]",
+                "repair changed the answer or dependency closure of a solved Goal",
+                retryable=False,
+            )
+        if goal_authorities[goal_ref].status == "solved":
+            continue
+        publication = previous_publications.get(goal_ref)
+        if publication is None:
+            raise FunctionalGoalRetryError(
+                "functional.goal_retry_publication_missing",
+                f"$.goals[{goal_ref!r}]",
+                "prior solved Goal has no published final answer",
+                retryable=False,
+            )
+        goal_authorities[goal_ref] = prior
+        publication_by_goal[goal_ref] = publication
+        inherited.add(goal_ref)
+
+    published[:] = [
+        publication_by_goal[key]
+        for key in sorted(publication_by_goal)
+    ]
+    return frozenset(inherited)
+
+
+def _frozen_step_payload(step: Any | None) -> Mapping[str, Any] | None:
+    """Return the execution-semantic step wire used by solved boundaries."""
+
+    if step is None:
+        return None
+    payload = step.to_payload()
+    payload.pop("intent", None)
+    return payload
+
+
+def _scope_authority(
+    root: FunctionalGoalExecutionScope,
+    *,
+    goal_authorities: Mapping[str, FunctionalGoalRetryGoalAuthority],
+    checkpoint: FunctionalGoalExecutionCheckpoint,
+    root_issues: Sequence[Mapping[str, Any]] = (),
+    promoted_scope_refs: frozenset[str] = frozenset(),
+) -> tuple[tuple[str, ...], tuple[str, ...], dict[str, ScopeRetryStatus]]:
+    editable: list[str] = []
+    frozen: list[str] = []
+    statuses: dict[str, ScopeRetryStatus] = {}
+    root_issue_step_ids = {
+        str(item["step_id"])
+        for item in root_issues
+        if item.get("step_id") is not None
+    }
+    for scope in _iter_execution_scopes(root):
+        raw_direct_failure = any(
+            step.status in {"authority_invalid", "runtime_failed"}
+            or step.step_id in root_issue_step_ids
+            for step in scope.scope_steps
+        )
+        consumers = {
+            goal_id
+            for step in scope.scope_steps
+            for goal_id in checkpoint.goal_unit_ids.get(step.step_id, ())
+        }
+        consumer_states = {
+            item.status
+            for item in goal_authorities.values()
+            if item.goal_unit_id in consumers
+        }
+        unsolved_consumers = {
+            item.goal_unit_id
+            for item in goal_authorities.values()
+            if item.goal_unit_id in consumers and item.status != "solved"
+        }
+        direct_failure = raw_direct_failure and bool(unsolved_consumers)
+        goal_relevant_steps = tuple(
+            step
+            for step in scope.scope_steps
+            if checkpoint.goal_unit_ids.get(step.step_id)
+        )
+        is_frozen = (
+            bool(scope.scope_steps)
+            and consumer_states == {"solved"}
+            and bool(goal_relevant_steps)
+            and all(
+                step.status == "runtime_verified"
+                for step in goal_relevant_steps
+            )
+        )
+        if direct_failure:
+            statuses[scope.scope_ref] = "editable"
+            editable.append(scope.scope_ref)
+        elif is_frozen:
+            statuses[scope.scope_ref] = "frozen"
+            frozen.append(scope.scope_ref)
+        elif scope.scope_steps:
+            statuses[scope.scope_ref] = "open"
+        else:
+            statuses[scope.scope_ref] = "context"
+    for scope_ref in promoted_scope_refs:
+        statuses[scope_ref] = "editable"
+        editable.append(scope_ref)
+        if scope_ref in frozen:
+            frozen.remove(scope_ref)
+    return tuple(sorted(set(editable))), tuple(sorted(set(frozen))), statuses
+
+
+def _failed_scope_step_ids(
+    root: FunctionalGoalExecutionScope,
+    root_issues: Sequence[Mapping[str, Any]],
+) -> frozenset[str]:
+    root_issue_step_ids = {
+        str(item["step_id"])
+        for item in root_issues
+        if item.get("step_id") is not None
+    }
+    return frozenset(
+        step.step_id
+        for scope in _iter_execution_scopes(root)
+        for step in scope.scope_steps
+        if step.status in {"authority_invalid", "runtime_failed"}
+        or step.step_id in root_issue_step_ids
+    )
+
+
+def _cross_scope_repair_promotions(
+    plan: ScopedFunctionalPlan,
+    execution_root: FunctionalGoalExecutionScope,
+    goal_authorities: Mapping[str, FunctionalGoalRetryGoalAuthority],
+) -> dict[str, str]:
+    step_scopes = {
+        step.step_id: scope.scope_ref
+        for scope in _iter_scopes(plan.root_scope)
+        for step in (
+            *scope.steps,
+            *(item for goal in scope.goals for item in goal.steps),
+        )
+    }
+    parents = {
+        scope.scope_ref: parent
+        for scope, parent in _scopes_with_parent(plan.root_scope)
+    }
+    solved_steps = {
+        step_id
+        for authority in goal_authorities.values()
+        if authority.status == "solved"
+        for step_id in authority.closure_step_ids
+    }
+    destinations: dict[str, str] = {}
+    for step in _execution_steps(execution_root).values():
+        issue = step.typed_issue or {}
+        if issue.get("code") != "functional.step_scope_visibility_drift":
+            continue
+        consumer_scope = step_scopes.get(step.step_id)
+        if consumer_scope is None:
+            continue
+        for producer_step_id in _wire_step_result_ids(step.authored_step):
+            if producer_step_id in solved_steps:
+                continue
+            producer_scope = step_scopes.get(producer_step_id)
+            if producer_scope is None:
+                continue
+            destination = destinations.get(producer_step_id, producer_scope)
+            lca = _scope_lca(destination, consumer_scope, parents)
+            if lca != destination:
+                destinations[producer_step_id] = lca
+    return dict(sorted(destinations.items()))
+
+
+def _apply_step_promotions(
+    plan: ScopedFunctionalPlan,
+    promotions: Mapping[str, str],
+) -> ScopedFunctionalPlan:
+    """Materialize projector-approved owner changes in the repair base Plan."""
+
+    if not promotions:
+        return plan
+    steps_by_target: dict[str, list[Any]] = {}
+    for step in plan.steps:
+        target_scope = promotions.get(step.step_id)
+        if target_scope is not None:
+            steps_by_target.setdefault(target_scope, []).append(step)
+
+    known_scope_refs = {
+        scope.scope_ref for scope in _iter_scopes(plan.root_scope)
+    }
+    unknown_targets = sorted(set(steps_by_target) - known_scope_refs)
+    if unknown_targets:
+        raise FunctionalGoalRetryError(
+            "functional.goal_retry_authority_drift",
+            "$.step_promotions",
+            f"repair promotion targets unknown scopes {unknown_targets}",
+            retryable=False,
+        )
+
+    promoted_ids = frozenset(promotions)
+
+    def rebuild(scope: ScopedFunctionalScope) -> ScopedFunctionalScope:
+        return replace(
+            scope,
+            steps=(
+                *(
+                    step
+                    for step in scope.steps
+                    if step.step_id not in promoted_ids
+                ),
+                *steps_by_target.get(scope.scope_ref, ()),
+            ),
+            goals=tuple(
+                replace(
+                    goal,
+                    steps=tuple(
+                        step
+                        for step in goal.steps
+                        if step.step_id not in promoted_ids
+                    ),
+                )
+                for goal in scope.goals
+            ),
+            children=tuple(rebuild(child) for child in scope.children),
+        )
+
+    promoted_plan = ScopedFunctionalPlan(root_scope=rebuild(plan.root_scope))
+    parsed, report = ScopedFunctionalPlanValidator().validate_payload_with_report(
+        promoted_plan.to_payload()
+    )
+    if parsed is None:
+        first = report.issues[0]
+        raise FunctionalGoalRetryError(
+            "functional.goal_retry_authority_drift",
+            first.path,
+            f"repair promotion produced an invalid Plan: {first.message}",
+            retryable=False,
+        )
+    return promoted_plan
+
+
+def _scopes_with_parent(
+    scope: ScopedFunctionalScope,
+    parent: str | None = None,
+) -> tuple[tuple[ScopedFunctionalScope, str | None], ...]:
+    return (
+        (scope, parent),
+        *(
+            item
+            for child in scope.children
+            for item in _scopes_with_parent(child, scope.scope_ref)
+        ),
+    )
+
+
+def _scope_lca(
+    left: str,
+    right: str,
+    parents: Mapping[str, str | None],
+) -> str:
+    left_path: list[str] = []
+    current: str | None = left
+    while current is not None:
+        left_path.append(current)
+        current = parents.get(current)
+    right_ancestors: set[str] = set()
+    current = right
+    while current is not None:
+        right_ancestors.add(current)
+        current = parents.get(current)
+    return next(item for item in left_path if item in right_ancestors)
+
+
+def _wire_step_result_ids(value: Any) -> frozenset[str]:
+    if isinstance(value, Mapping):
+        result = {
+            str(value["step_id"])
+            if set(value) == {"step_id", "return"}
+            else ""
+        }
+        for item in value.values():
+            result.update(_wire_step_result_ids(item))
+        return frozenset(item for item in result if item)
+    if isinstance(value, (tuple, list)):
+        return frozenset(
+            item
+            for child in value
+            for item in _wire_step_result_ids(child)
+        )
+    return frozenset()
+
+
+def _retry_scope_prompt(
+    scope: FunctionalGoalExecutionScope,
+    *,
+    goal_authorities: Mapping[str, FunctionalGoalRetryGoalAuthority],
+    scope_statuses: Mapping[str, ScopeRetryStatus],
+    step_promotions: Mapping[str, str],
+) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "scope_ref": scope.scope_ref,
+        "status": scope_statuses[scope.scope_ref],
+    }
+    promoted_step_ids = sorted(
+        step_id
+        for step_id, target_scope in step_promotions.items()
+        if target_scope == scope.scope_ref
+    )
+    if promoted_step_ids:
+        payload["promoted_step_ids"] = promoted_step_ids
+    if scope.scope_steps:
+        payload["scope_steps"] = [
+            step.to_retry_prompt_payload() for step in scope.scope_steps
+        ]
+    if scope.goals:
+        goals: list[dict[str, Any]] = []
+        for goal in scope.goals:
+            authority = goal_authorities[goal.goal_ref]
+            item: dict[str, Any] = {
+                "goal_ref": goal.goal_ref,
+                "status": authority.status,
+                "editable": authority.editable,
+                "required_answer": {
+                    "target_ref": authority.answer_target_ref,
+                    "answer_type": authority.answer_type,
+                },
+            }
+            if goal.steps:
+                item["steps"] = [
+                    step.to_retry_prompt_payload() for step in goal.steps
+                ]
+            issues = [dict(issue) for issue in authority.issues]
+            if issues:
+                item["issues"] = issues
+            goals.append(item)
+        payload["goals"] = goals
+    if scope.children:
+        payload["children"] = [
+            _retry_scope_prompt(
+                child,
+                goal_authorities=goal_authorities,
+                scope_statuses=scope_statuses,
+                step_promotions=step_promotions,
+            )
+            for child in scope.children
+        ]
+    return payload
+
+
+def _resolve_published_step(
+    value: Mapping[str, Any],
+    publications: Mapping[str, PublishedGoalResult],
+    bindings: list[ScopedPublishedGoalBinding],
+) -> dict[str, Any]:
+    payload = _thaw(value)
+    step_id = str(payload.get("step_id", ""))
+    raw_args = payload.get("args", {})
+    if not isinstance(raw_args, dict):
+        return payload
+    args: dict[str, Any] = {}
+    for arg_name, raw in raw_args.items():
+        values = raw if isinstance(raw, list) else [raw]
+        resolved: list[Any] = []
+        for index, item in enumerate(values):
+            if isinstance(item, dict) and set(item) == {"published_goal_ref"}:
+                goal_ref = str(item["published_goal_ref"])
+                publication = publications.get(goal_ref)
+                if publication is None:
+                    raise FunctionalGoalRetryError(
+                        "functional.published_goal_result_unavailable",
+                        (
+                            f"$.steps[{step_id!r}].args[{str(arg_name)!r}]"
+                            f"[{index}]"
+                        ),
+                        f"Goal {goal_ref!r} is not solved and published",
+                    )
+                resolved.append(
+                    {
+                        "step_id": publication.producer_step_id,
+                        "return": publication.return_name,
+                    }
+                )
+                bindings.append(
+                    ScopedPublishedGoalBinding(
+                        consumer_step_id=step_id,
+                        arg_name=str(arg_name),
+                        item_index=index,
+                        published_goal_ref=goal_ref,
+                        producer_step_id=publication.producer_step_id,
+                        return_name=publication.return_name,
+                    )
+                )
+            else:
+                resolved.append(item)
+        args[str(arg_name)] = resolved if isinstance(raw, list) else resolved[0]
+    payload["args"] = args
+    return payload
+
+
+def _require_unique(values: Sequence[str], path: str, label: str) -> None:
+    if len(set(values)) != len(values):
+        raise FunctionalGoalRetryError(
+            "functional.goal_repair_duplicate_target",
+            path,
+            f"{label} replacement targets must be unique",
+        )
+
+
+def _iter_scopes(root: ScopedFunctionalScope) -> tuple[ScopedFunctionalScope, ...]:
+    return (root, *(item for child in root.children for item in _iter_scopes(child)))
+
+
+def _plan_step_owners(plan: ScopedFunctionalPlan) -> dict[str, str]:
+    owners: dict[str, str] = {}
+    for scope in _iter_scopes(plan.root_scope):
+        for step in scope.steps:
+            owners[step.step_id] = f"scope:{scope.scope_ref}"
+        for goal in scope.goals:
+            for step in goal.steps:
+                owners[step.step_id] = f"goal:{goal.goal_ref}"
+    return dict(sorted(owners.items()))
+
+
+def _iter_execution_scopes(
+    root: FunctionalGoalExecutionScope,
+) -> tuple[FunctionalGoalExecutionScope, ...]:
+    return (
+        root,
+        *(item for child in root.children for item in _iter_execution_scopes(child)),
+    )
+
+
+def _execution_steps(
+    root: FunctionalGoalExecutionScope,
+) -> dict[str, FunctionalGoalExecutionStep]:
+    return {
+        step.step_id: step
+        for scope in _iter_execution_scopes(root)
+        for step in (
+            *scope.scope_steps,
+            *(item for goal in scope.goals for item in goal.steps),
+        )
+    }
+
+
+def _freeze_mapping(value: Mapping[str, Any]) -> Mapping[str, Any]:
+    return MappingProxyType(
+        {
+            str(key): _freeze(item)
+            for key, item in sorted(value.items(), key=lambda pair: str(pair[0]))
+        }
+    )
+
+
+def _freeze(value: Any) -> Any:
+    if isinstance(value, Mapping):
+        return _freeze_mapping(value)
+    if isinstance(value, (tuple, list)):
+        return tuple(_freeze(item) for item in value)
+    return value
+
+
+def _thaw(value: Any) -> Any:
+    if isinstance(value, Mapping):
+        return {str(key): _thaw(item) for key, item in value.items()}
+    if isinstance(value, (tuple, list)):
+        return [_thaw(item) for item in value]
+    return value
+
+
+def _json_safe(value: Any) -> Any:
+    if value is None or isinstance(value, (bool, int, float, str)):
+        return value
+    if isinstance(value, Mapping):
+        return {str(key): _json_safe(item) for key, item in value.items()}
+    if isinstance(value, (tuple, list)):
+        return [_json_safe(item) for item in value]
+    if hasattr(value, "to_payload"):
+        return _json_safe(value.to_payload())
+    return str(value)
+
+
+def _json_path(path: Sequence[Any]) -> str:
+    return "$" + "".join(
+        f"[{item}]" if isinstance(item, int) else f".{item}" for item in path
+    )
+
+
+__all__ = [
+    "FUNCTIONAL_GOAL_REPAIR_CONTRACT",
+    "PLANNER_GOAL_RETRY_CONTEXT_CONTRACT",
+    "FunctionalGoalRepair",
+    "FunctionalGoalRepairApplication",
+    "FunctionalGoalRepairService",
+    "FunctionalGoalReplacement",
+    "FunctionalGoalRetryAuthority",
+    "FunctionalGoalRetryError",
+    "FunctionalGoalRetryProjector",
+    "FunctionalScopeStepReplacement",
+    "PlannerGoalRetryContext",
+    "PublishedGoalResult",
+    "ScopedFunctionalGoalRetryAttempt",
+    "ScopedFunctionalGoalRetryRunResult",
+    "ScopedFunctionalGoalRetryService",
+    "functional_goal_repair_schema",
+    "functional_goal_repair_schema_for_authority",
+    "planner_goal_retry_context_schema",
+]

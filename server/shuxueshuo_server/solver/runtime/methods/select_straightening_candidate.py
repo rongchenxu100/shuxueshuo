@@ -25,14 +25,29 @@ class SelectStraighteningCandidateMethod:
         candidates = list(inputs["candidates"])
         target: PointRef = inputs["target"]
         if not candidates:
-            raise ValueError("select_straightening_candidate requires at least one candidate")
+            raise method_result_empty(
+                "straightening selection requires at least one candidate",
+                arg_name="candidates",
+                role="straightening_candidates",
+                expected={"candidate_count_min": 1},
+                observed={"candidate_count": 0},
+            )
         scores = [
             (candidate["complexity_score"], candidate["id"], candidate)
             for candidate in candidates
         ]
         scores.sort(key=lambda item: (item[0], item[1]))
         if len(scores) > 1 and scores[0][0] == scores[1][0]:
-            raise ValueError("straightening candidate selection is ambiguous")
+            raise method_result_ambiguous(
+                "straightening candidates have the same minimum complexity",
+                arg_name="candidates",
+                role="straightening_candidates",
+                expected={"unique_minimum": True},
+                observed={
+                    "candidate_count": len(scores),
+                    "minimum_score": scores[0][0],
+                },
+            )
         selected = dict(scores[0][2])
         selected["auxiliary_point_name"] = target.name
         point: Point = selected["reflected_point"]

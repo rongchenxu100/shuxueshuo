@@ -99,6 +99,7 @@ def close_scalar_plan_output(
             closure=closure,
             symbol_path=symbol_path,
             value_path=value_path,
+            registry=registry,
         ):
             continue
         applied += 1
@@ -203,14 +204,43 @@ def _source_already_applies_pair(
     closure: ScalarClosureFunction,
     symbol_path: str,
     value_path: str,
+    registry: ScalarResultClosureRegistry,
 ) -> bool:
-    return any(
-        invocation.method_id == closure.method_id
-        and invocation.outputs.get(closure.output_name) == source
-        and invocation.inputs.get(closure.symbol_input) == symbol_path
-        and invocation.inputs.get(closure.parameter_value_input) == value_path
-        for invocation in invocations
-    )
+    for invocation in invocations:
+        output_names = tuple(
+            name for name, path in invocation.outputs.items() if path == source
+        )
+        if not output_names:
+            continue
+        if (
+            invocation.method_id == closure.method_id
+            and closure.output_name in output_names
+            and invocation.inputs.get(closure.symbol_input) == symbol_path
+            and invocation.inputs.get(closure.parameter_value_input) == value_path
+        ):
+            return True
+        function = registry.functions.get(invocation.method_id)
+        if function is None:
+            continue
+        for output_name in output_names:
+            result = next(
+                (
+                    item
+                    for item in function.returns
+                    if (item.output_key or item.name) == output_name
+                ),
+                None,
+            )
+            form = result.scalar_result_form if result is not None else None
+            if form is None:
+                continue
+            if any(
+                invocation.inputs.get(symbol_input) == symbol_path
+                and invocation.inputs.get(value_input) == value_path
+                for symbol_input, value_input in form.applied_substitutions
+            ):
+                return True
+    return False
 
 
 def _safe_name(value: str) -> str:

@@ -11,7 +11,8 @@
 ## Solver 与 LLM
 
 - `method-solver-architecture.md`：当前 FunctionalPlan 到 runtime 的生产链。
-- `capability-authoring-guide.md`：新增 Method、Function、Macro、Contract 的规范。
+- `functional-method-dsl-authoring-guide.md`：把 FunctionalPlan 视为 DSL 时，新增 Method 的语义边界、代码契约、诊断与测试规范。
+- `capability-authoring-guide.md`：新增 Function、Macro、binding、return 与 closure contract 的规范。
 - `llm-context-model-design.md`：Context version、dependency、stale/rebase 规范。
 - `llm-planner-reliability-engineering.md`：失败归因、指标和候选选择原则。
 - `cross-scope-version-executable-oracle-design.md`：scope/version 生成式门禁。

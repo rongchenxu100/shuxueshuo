@@ -1,0 +1,25 @@
+请根据以下数据输出完整的 `functional-goal-repair/v4` JSON；协议规则以system message为准。
+
+## Problem Planning Context
+
+{{ payload.problem_planning_context | compact_json }}
+
+## Strategy Principles
+
+{{ payload.strategy_principles | compact_json }}
+
+## Functional Capability Catalog
+
+{{ payload.functional_capability_catalog | compact_json }}
+
+## Output JSON Schema
+
+{{ payload.output_json_schema | compact_json }}
+
+## Previous Canonical Plan
+
+{{ payload.previous_plan | compact_json }}
+
+## Goal Execution And Repair Authority
+
+{{ payload.goal_retry_context | compact_json }}

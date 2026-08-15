@@ -24,10 +24,15 @@ class SquareAdjacentVertexFromSideMethod:
         side_start_ref: PointRef | None = inputs.get("side_start_ref")
         side_end_ref: PointRef | None = inputs.get("side_end_ref")
         parameter = inputs.get("parameter")
-        parameter_value = inputs.get("parameter_value")
         parameter_constraint = inputs.get("parameter_constraint")
-        if parameter is not None and parameter_value is not None:
-            substitutions = {parameter: sp.sympify(parameter_value)}
+        substitutions = _optional_parameter_substitution(
+            inputs,
+            side_start,
+            side_end,
+            allow_parameter_without_value=True,
+            allow_closed_noop=True,
+        )
+        if substitutions:
             side_start = _subs_point(side_start, substitutions)
             side_end = _subs_point(side_end, substitutions)
 
@@ -106,7 +111,14 @@ def _square_vertices(condition: dict[str, Any]) -> list[str]:
     """读取 square condition 中的顶点顺序。"""
     vertices = condition.get("vertices")
     if not isinstance(vertices, list) or len(vertices) < 4:
-        raise ValueError("square condition requires ordered vertices")
+        raise method_input_invalid(
+            "square condition requires at least four ordered vertices",
+            arg_name="square_condition",
+            role="square_vertices",
+            expected={"type": "Condition", "state": "ordered_vertices"},
+            observed={"type": type(vertices).__name__, "count": len(vertices) if isinstance(vertices, list) else 0},
+            repair_action="provide_square_vertex_order",
+        )
     return [str(item) for item in vertices]
 
 
@@ -132,7 +144,15 @@ def _target_vertex_role(
         return "from_start_counterclockwise"
     if target_name == names[2]:
         return "from_end"
-    raise ValueError(f"square target {target_name!r} is not adjacent to the declared side")
+    raise method_precondition_failed(
+        f"square target {target_name!r} is not adjacent to the declared side",
+        arg_name="target",
+        role="adjacent_vertex",
+        internal_ref=target_name,
+        expected={"type": "Point", "state": "adjacent_to_known_side"},
+        observed={"state": "not_adjacent", "ordered_vertices": names},
+        repair_action="choose_adjacent_square_vertex",
+    )
 
 
 def _target_vertex_role_from_known_side(
@@ -147,7 +167,20 @@ def _target_vertex_role_from_known_side(
         end_index = names.index(side_end_name)
         target_index = names.index(target_name)
     except ValueError as exc:
-        raise ValueError("known square side and target must be in ordered vertices") from exc
+        raise method_input_invalid(
+            "known square side and target must all occur in ordered vertices",
+            arg_name="square_condition",
+            role="square_vertices",
+            internal_ref=target_name,
+            expected={"type": "Condition", "state": "contains_known_side_and_target"},
+            observed={
+                "ordered_vertices": names,
+                "side_start": side_start_name,
+                "side_end": side_end_name,
+                "target": target_name,
+            },
+            repair_action="provide_square_vertex_order",
+        ) from exc
     size = len(names)
     next_start = (start_index + 1) % size
     prev_start = (start_index - 1) % size
@@ -163,7 +196,15 @@ def _target_vertex_role_from_known_side(
             return "from_start_counterclockwise"
         if target_index == prev_end:
             return "from_end_counterclockwise"
-    raise ValueError("square target is not adjacent to the known side")
+    raise method_precondition_failed(
+        "square target is not adjacent to the known side",
+        arg_name="target",
+        role="adjacent_vertex",
+        internal_ref=target_name,
+        expected={"type": "Point", "state": "adjacent_to_known_side"},
+        observed={"state": "not_adjacent", "ordered_vertices": names},
+        repair_action="choose_adjacent_square_vertex",
+    )
 
 
 def _handle_name(handle: str) -> str:
@@ -196,7 +237,14 @@ def _adjacent_vertex_from_role(base: Point, vector: Point, role: str) -> Point:
     elif role.endswith("_counterclockwise"):
         rotation = (-vector[1], vector[0])
     else:
-        raise ValueError(f"unsupported square adjacent role: {role}")
+        raise method_input_invalid(
+            f"unsupported square adjacent role: {role}",
+            arg_name="target",
+            role="adjacent_vertex",
+            expected={"state": "clockwise_or_counterclockwise"},
+            observed={"state": role},
+            repair_action="choose_adjacent_square_vertex",
+        )
     return (
         sp.simplify(base[0] + rotation[0]),
         sp.simplify(base[1] + rotation[1]),
@@ -238,7 +286,17 @@ def _select_by_orientation(
         ]
         if len(selected) == 1:
             return selected[0]
-    raise ValueError("square adjacent vertex orientation is not unique")
+    raise method_result_ambiguous(
+        "square adjacent vertex orientation does not select exactly one candidate",
+        arg_name="square_condition",
+        role="orientation_constraint",
+        expected={"state": "unique_orientation"},
+        observed={
+            "orientation": orientation or "unspecified",
+            "candidate_count": len(candidates),
+        },
+        repair_action="supply_disambiguating_constraint",
+    )
 
 
 def _definitely_negative(

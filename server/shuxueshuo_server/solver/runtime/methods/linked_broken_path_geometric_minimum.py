@@ -46,9 +46,37 @@ class LinkedBrokenPathGeometricMinimumMethod:
         dynamic_constraint = inputs["dynamic_constraint"]
 
         if sp.simplify(fixed_point[1]) != 0 or sp.simplify(moving_point[1]) != 0:
-            raise ValueError("linked_broken_path_geometric_minimum requires fixed/moving points on x-axis")
+            raise method_precondition_failed(
+                "linked broken path minimum requires both fixed and moving points on the x-axis",
+                subjects=(
+                    FunctionalDiagnosticSubject(
+                        arg_name="fixed_point",
+                        role="fixed_endpoint",
+                        expected_type="Point",
+                        expected_state="on_x_axis",
+                        observed_state="on_x_axis" if sp.simplify(fixed_point[1]) == 0 else "off_x_axis",
+                    ),
+                    FunctionalDiagnosticSubject(
+                        arg_name="moving_point",
+                        role="moving_endpoint",
+                        expected_type="Point",
+                        expected_state="on_x_axis",
+                        observed_state="on_x_axis" if sp.simplify(moving_point[1]) == 0 else "off_x_axis",
+                    ),
+                ),
+                expected={"state": "both_on_x_axis"},
+                observed={"fixed_y": str(fixed_point[1]), "moving_y": str(moving_point[1])},
+                repair_action="choose_axis_path_points",
+            )
         if sp.simplify(moving_point[0] - dynamic_parameter) != 0:
-            raise ValueError("moving point x-coordinate must be the dynamic parameter")
+            raise method_input_invalid(
+                "moving point x-coordinate must equal the declared dynamic parameter",
+                arg_name="moving_point",
+                role="moving_endpoint",
+                expected={"type": "Point", "state": "x_coordinate_is_dynamic_parameter"},
+                observed={"x_coordinate": str(moving_point[0]), "dynamic_parameter": str(dynamic_parameter)},
+                repair_action="choose_matching_dynamic_point",
+            )
 
         scale = _supported_transformation_scale(transformation)
 
@@ -191,9 +219,37 @@ class LinkedBrokenPathMinimumExpressionMethod:
         _dynamic_constraint = inputs["dynamic_constraint"]
 
         if sp.simplify(fixed_point[1]) != 0 or sp.simplify(moving_point[1]) != 0:
-            raise ValueError("linked_broken_path_minimum_expression requires fixed/moving points on x-axis")
+            raise method_precondition_failed(
+                "linked broken path expression requires both fixed and moving points on the x-axis",
+                subjects=(
+                    FunctionalDiagnosticSubject(
+                        arg_name="fixed_point",
+                        role="fixed_endpoint",
+                        expected_type="Point",
+                        expected_state="on_x_axis",
+                        observed_state="on_x_axis" if sp.simplify(fixed_point[1]) == 0 else "off_x_axis",
+                    ),
+                    FunctionalDiagnosticSubject(
+                        arg_name="moving_point",
+                        role="moving_endpoint",
+                        expected_type="Point",
+                        expected_state="on_x_axis",
+                        observed_state="on_x_axis" if sp.simplify(moving_point[1]) == 0 else "off_x_axis",
+                    ),
+                ),
+                expected={"state": "both_on_x_axis"},
+                observed={"fixed_y": str(fixed_point[1]), "moving_y": str(moving_point[1])},
+                repair_action="choose_axis_path_points",
+            )
         if sp.simplify(moving_point[0] - dynamic_parameter) != 0:
-            raise ValueError("moving point x-coordinate must be the dynamic parameter")
+            raise method_input_invalid(
+                "moving point x-coordinate must equal the declared dynamic parameter",
+                arg_name="moving_point",
+                role="moving_endpoint",
+                expected={"type": "Point", "state": "x_coordinate_is_dynamic_parameter"},
+                observed={"x_coordinate": str(moving_point[0]), "dynamic_parameter": str(dynamic_parameter)},
+                repair_action="choose_matching_dynamic_point",
+            )
 
         scale = _supported_transformation_scale(transformation)
 
@@ -314,7 +370,14 @@ def _locus_direction(locus: dict[str, Any]) -> tuple[sp.Expr, sp.Expr]:
     """读取辅助点运动射线方向。"""
     direction = locus.get("direction")
     if not isinstance(direction, tuple) or len(direction) != 2:
-        raise ValueError("auxiliary_locus.direction must be a 2D vector")
+        raise method_input_invalid(
+            "auxiliary locus direction must be a two-dimensional vector",
+            arg_name="auxiliary_locus",
+            role="locus_direction",
+            expected={"type": "Vector2"},
+            observed={"type": type(direction).__name__, "value": repr(direction)},
+            repair_action="provide_valid_auxiliary_locus",
+        )
     return (sp.sympify(direction[0]), sp.sympify(direction[1]))
 
 
@@ -322,7 +385,14 @@ def _locus_start(locus: dict[str, Any]) -> Point:
     """读取辅助点运动射线起点。"""
     start = locus.get("start_point")
     if not isinstance(start, tuple) or len(start) != 2:
-        raise ValueError("auxiliary_locus.start_point must be a point")
+        raise method_input_invalid(
+            "auxiliary locus start must be a materialized point",
+            arg_name="auxiliary_locus",
+            role="locus_origin",
+            expected={"type": "Point", "state": "materialized"},
+            observed={"type": type(start).__name__, "value": repr(start)},
+            repair_action="provide_valid_auxiliary_locus",
+        )
     return (sp.sympify(start[0]), sp.sympify(start[1]))
 
 
@@ -337,7 +407,14 @@ def _projection_point(point: Point, start: Point, direction: tuple[sp.Expr, sp.E
     dx, dy = direction
     denominator = sp.simplify(dx**2 + dy**2)
     if denominator == 0:
-        raise ValueError("auxiliary_locus.direction cannot be zero")
+        raise method_precondition_failed(
+            "auxiliary locus direction cannot be the zero vector",
+            arg_name="auxiliary_locus",
+            role="locus_direction",
+            expected={"type": "Vector2", "state": "nonzero"},
+            observed={"state": "zero_vector"},
+            repair_action="provide_valid_auxiliary_locus",
+        )
     t = sp.simplify(((point[0] - start[0]) * dx + (point[1] - start[1]) * dy) / denominator)
     return (
         sp.simplify(start[0] + t * dx),
@@ -415,7 +492,15 @@ def _select_dynamic_solution(
         if candidate not in unique:
             unique.append(candidate)
     if len(unique) != 1:
-        raise ValueError(f"linked broken path dynamic parameter cannot be uniquely determined: {candidates}")
+        raise method_result_ambiguous(
+            "linked broken path dynamic parameter is not uniquely determined",
+            arg_name="dynamic_parameter",
+            role="moving_point_parameter",
+            internal_ref=parameter,
+            expected={"type": "ParameterValue", "candidate_count": 1},
+            observed={"candidate_count": len(unique), "candidates": [str(item) for item in candidates]},
+            repair_action="supply_disambiguating_constraint",
+        )
     return unique[0]
 
 
@@ -437,7 +522,15 @@ def _select_parameter_value(
         ):
             valid.append(value)
     if len(valid) != 1:
-        raise ValueError(f"geometric minimum parameter value cannot be uniquely determined: {candidates}")
+        raise method_result_ambiguous(
+            "geometric minimum parameter value is not uniquely determined",
+            arg_name="parameter",
+            role="minimum_parameter",
+            internal_ref=parameter,
+            expected={"type": "ParameterValue", "candidate_count": 1},
+            observed={"candidate_count": len(valid), "candidates": [str(item) for item in candidates]},
+            repair_action="supply_disambiguating_constraint",
+        )
     return valid[0]
 
 

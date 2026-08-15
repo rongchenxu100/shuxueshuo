@@ -491,6 +491,26 @@ def _parse_scalar_result_forms(
                 f"unknown outputs for {name}: "
                 + ", ".join(unknown_symbol_outputs)
             )
+        applied_substitutions_raw = raw.get("applied_substitutions", ())
+        if not isinstance(applied_substitutions_raw, (list, tuple)):
+            raise ValueError(
+                "scalar result form applied_substitutions must be a list "
+                f"for {name}"
+            )
+        applied_substitutions: list[tuple[str, str]] = []
+        for item in applied_substitutions_raw:
+            if (
+                not isinstance(item, (list, tuple))
+                or len(item) != 2
+                or not all(isinstance(value, str) and value for value in item)
+            ):
+                raise ValueError(
+                    "scalar result form applied_substitutions entries must "
+                    f"be [symbol_input, value_input] pairs for {name}"
+                )
+            pair = (item[0], item[1])
+            if pair not in applied_substitutions:
+                applied_substitutions.append(pair)
         max_independent_free_parameters = raw.get(
             "max_independent_free_parameters"
         )
@@ -525,6 +545,7 @@ def _parse_scalar_result_forms(
                     if str(item)
                 )
             ),
+            applied_substitutions=tuple(applied_substitutions),
         )
     return result
 

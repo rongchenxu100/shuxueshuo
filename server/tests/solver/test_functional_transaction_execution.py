@@ -26,8 +26,14 @@ from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
     PreparedFunctionalArgBinding,
     PreparedFunctionalCall,
     _closure_failure_details,
+    _latest_visible_parameter_version,
     _prepared_runtime_arg_object_ids,
+    _restored_problem_source_authority_difference,
+    _unauthorized_consumer_goal_deltas,
     _validate_symbolic_closure_write_set,
+)
+from shuxueshuo_server.solver.runtime.problem_source_provenance import (
+    ProblemCallSourceProvenance,
 )
 from shuxueshuo_server.solver.runtime.functional_binding_context import (
     FunctionalArgBinding,
@@ -104,6 +110,51 @@ from _problem_planning_support import planning_binding_fixture
 _SCOPE_NATIVE_AUTHORITY: dict[str, tuple] = {}
 
 
+def test_restored_source_authority_and_goal_consumers_are_separate() -> None:
+    previous = ProblemCallSourceProvenance(
+        planning_context_id="planning:1",
+        problem_revision_id="revision:1",
+        problem_semantic_hash="semantic:1",
+        canonical_call_id="compute_F",
+        goal_unit_ids=("goal:solved", "goal:repair"),
+        input_source_unit_ids=("fact:midpoint",),
+        call_binding_signature="binding:1",
+    )
+    refined = replace(
+        previous,
+        goal_unit_ids=("goal:solved",),
+        call_binding_signature="binding:2",
+    )
+
+    assert (
+        _restored_problem_source_authority_difference(previous, refined)
+        is None
+    )
+    assert _unauthorized_consumer_goal_deltas(
+        previous,
+        refined,
+        allowed_consumer_goal_delta_ids={"goal:repair"},
+    ) == ()
+    assert _unauthorized_consumer_goal_deltas(
+        previous,
+        refined,
+        allowed_consumer_goal_delta_ids=set(),
+    ) == ("goal:repair",)
+
+    changed_source = replace(
+        refined,
+        input_source_unit_ids=("fact:sibling",),
+    )
+    assert _restored_problem_source_authority_difference(
+        previous,
+        changed_source,
+    ) == {
+        "path": "$.input_source_unit_ids",
+        "expected": ("fact:midpoint",),
+        "actual": ("fact:sibling",),
+    }
+
+
 def _authority_fixture(case_id: str):
     cached = _SCOPE_NATIVE_AUTHORITY.get(case_id)
     if cached is not None:
@@ -157,7 +208,7 @@ def _replay(
     )
 
 
-def test_constraint_analyzer_basis_repair_is_not_runtime_mapping_drift() -> None:
+def test_constraint_analyzer_rejects_incorrect_explicit_free_basis() -> None:
     case = FUNCTIONAL_BATCH_CASES["heping"]
     (
         _bundle,
@@ -204,24 +255,19 @@ def test_constraint_analyzer_basis_repair_is_not_runtime_mapping_drift() -> None
 
     report = replay.transactional_execution_report
     assert report is not None
-    compiled = next(
-        item
-        for item in report.compiled_calls
-        if item.call_id == "derive_parametric_parabola_ii"
+    assert "derive_parametric_parabola_ii" not in {
+        item.call_id for item in report.compiled_calls
+    }
+    issues = replay.retry_state.issues if replay.retry_state else ()
+    assert any(
+        "function.constraints_ambiguous" in issue.message
+        and "branch_count=0" in issue.message
+        for issue in issues
     )
-    decisions = tuple(
-        item
-        for item in compiled.binding_consumption_decisions
-        if item["arg_name"] == "free_parameters"
+    assert not any(
+        "functional_runtime_input_mapping_drift" in issue.message
+        for issue in issues
     )
-    assert len(decisions) == 2
-    assert all(item["matches"] is True for item in decisions)
-    assert all(item["deterministic_arg_repair"] for item in decisions)
-    assert not [
-        issue
-        for issue in (replay.retry_state.issues if replay.retry_state else ())
-        if "functional_runtime_input_mapping_drift" in issue.message
-    ]
 
 
 def _active_symbolic_closure_plan():
@@ -1753,6 +1799,96 @@ def test_verified_commit_is_atomic_when_version_registration_fails(
     assert not state.committed_versions
     assert not state.runtime_version_values
     assert not state.events
+
+
+class _ParameterScopeRegistry:
+    _parents = {
+        "problem": None,
+        "i": "problem",
+        "i_1": "i",
+        "i_2": "i",
+    }
+
+    def ancestor_scopes(self, scope_id: str) -> tuple[str, ...]:
+        result: list[str] = []
+        current: str | None = scope_id
+        while current is not None:
+            result.append(current)
+            current = self._parents[current]
+        return tuple(result)
+
+
+def _parameter_runtime_state(
+    *versions: IndexedStateVersion,
+) -> WorkingPlannerState:
+    index = StateIdentityIndex(
+        ScopeVisibilityResolver(_ParameterScopeRegistry())
+    )
+    runtime_values: dict[StateVersionId, TypedValue] = {}
+    for ordinal, version in enumerate(versions, start=1):
+        index.register(version)
+        runtime_values[version.version_id] = TypedValue(
+            "ParameterValue",
+            sp.Integer(ordinal + 4),
+        )
+    return WorkingPlannerState(
+        parent_context_id="parameter-runtime-test",
+        identity_index=index,
+        call_states={},
+        runtime_version_values=runtime_values,
+    )
+
+
+def _parameter_version(
+    *,
+    scope_id: str,
+    ordinal: int,
+) -> IndexedStateVersion:
+    object_id = MathObjectId("symbol:problem:c", "symbol", "problem")
+    return IndexedStateVersion(
+        version_id=StateVersionId(
+            StateSlotId(
+                LogicalStateKey(object_id, "value", "ParameterValue"),
+                scope_id,
+            ),
+            ordinal,
+        ),
+        valid_scope_id=scope_id,
+        producer_call_id=None,
+        produced_handle=f"fact:{scope_id}:c_value_{ordinal}",
+    )
+
+
+def test_sibling_parameter_state_is_not_implicitly_visible() -> None:
+    working = _parameter_runtime_state(
+        _parameter_version(scope_id="i_1", ordinal=1)
+    )
+
+    assert (
+        _latest_visible_parameter_version(
+            MathObjectId("symbol:problem:c", "symbol", "problem"),
+            consumer_scope_id="i_2",
+            working=working,
+        )
+        is None
+    )
+
+
+def test_parallel_parameter_writers_are_never_selected_by_order() -> None:
+    working = _parameter_runtime_state(
+        _parameter_version(scope_id="i", ordinal=1),
+        _parameter_version(scope_id="i", ordinal=2),
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="planner.runtime_parameter_state_ambiguous",
+    ):
+        _latest_visible_parameter_version(
+            MathObjectId("symbol:problem:c", "symbol", "problem"),
+            consumer_scope_id="i_1",
+            working=working,
+        )
 
 
 def _failure_partition(graph):

@@ -1,8 +1,9 @@
-"""Dedicated recorded/live replay boundary for FunctionalPlan v2 authoring."""
+"""Recorded/live replay boundary for code-framed FunctionalPlan authoring."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
+import json
 from typing import Any
 
 from shuxueshuo_server.solver.extraction.problem_planning_binding import (
@@ -17,6 +18,9 @@ from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
 from shuxueshuo_server.solver.runtime.functional_retry_versions import (
     FunctionalRetryGraphCheckpoint,
 )
+from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
+    FunctionalRestoredCallSeed,
+)
 from shuxueshuo_server.solver.runtime.handle_registry import (
     CanonicalHandleRegistry,
 )
@@ -25,8 +29,12 @@ from shuxueshuo_server.solver.runtime.planner import PlannerInputs
 from shuxueshuo_server.solver.runtime.planner_state_context import (
     PlannerStateContext,
 )
+from shuxueshuo_server.solver.runtime.functional_plan_content import (
+    FUNCTIONAL_PLAN_CONTENT_CONTRACT,
+    FunctionalPlanAuthorityFrame,
+    FunctionalPlanContentCompiler,
+)
 from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
-    SCOPED_FUNCTIONAL_PLAN_CONTRACT,
     ScopedFunctionalPlanAuthority,
     ScopedFunctionalPlanAuthorityAdapter,
     ScopedFunctionalPlanError,
@@ -75,6 +83,7 @@ class ScopedFunctionalPlanReplayService:
         problem_payload: dict[str, Any],
         attempt: int = 0,
         retry_checkpoint: FunctionalRetryGraphCheckpoint | None = None,
+        restored_seed: FunctionalRestoredCallSeed | None = None,
     ) -> ScopedFunctionalPlanReplayResult:
         scoped, validation = (
             ScopedFunctionalPlanValidator().validate_json_with_report(
@@ -146,6 +155,7 @@ class ScopedFunctionalPlanReplayService:
             problem_payload=problem_payload,
             runtime_context=context,
             finalized_authority=finalized,
+            restored_seed=restored_seed,
         )
         return ScopedFunctionalPlanReplayResult(
             validation_report=validation,
@@ -153,9 +163,62 @@ class ScopedFunctionalPlanReplayService:
             replay=replay,
         )
 
+    def replay_content_json(
+        self,
+        raw_response: str,
+        *,
+        inputs: PlannerInputs,
+        planning_context: ProblemPlanningContext,
+        problem_binding_catalog: ProblemPlanningBindingCatalog,
+        handle_registry: CanonicalHandleRegistry,
+        context: Any,
+        planner_state_context: PlannerStateContext,
+        problem_payload: dict[str, Any],
+        attempt: int = 0,
+        retry_checkpoint: FunctionalRetryGraphCheckpoint | None = None,
+        restored_seed: FunctionalRestoredCallSeed | None = None,
+    ) -> ScopedFunctionalPlanReplayResult:
+        """Compile provider-authored content into the code-owned Plan tree."""
+
+        compilation = FunctionalPlanContentCompiler().compile_json(
+            raw_response,
+            frame=FunctionalPlanAuthorityFrame.from_planning_context(
+                planning_context
+            ),
+            capability_catalog=FunctionalCapabilityCatalog.from_family_spec(
+                inputs.family_spec,
+                inputs.method_specs,
+            ),
+        )
+        if compilation.plan is None:
+            first = compilation.report.issues[0]
+            raise ScopedFunctionalPlanError(
+                first.code,
+                first.path,
+                first.message,
+            )
+        result = self.replay_raw_json(
+            json.dumps(compilation.plan.to_payload(), ensure_ascii=False),
+            inputs=inputs,
+            planning_context=planning_context,
+            problem_binding_catalog=problem_binding_catalog,
+            handle_registry=handle_registry,
+            context=context,
+            planner_state_context=planner_state_context,
+            problem_payload=problem_payload,
+            attempt=attempt,
+            retry_checkpoint=retry_checkpoint,
+            restored_seed=restored_seed,
+        )
+        return ScopedFunctionalPlanReplayResult(
+            validation_report=compilation.report,
+            authority=result.authority,
+            replay=result.replay,
+        )
+
 
 class ScopedFunctionalPlanAuthoringService:
-    """Explicit live v2 boundary without changing the production protocol."""
+    """Explicit provider boundary for code-framed FunctionalPlan content."""
 
     def __init__(
         self,
@@ -181,7 +244,7 @@ class ScopedFunctionalPlanAuthoringService:
         planner_state_context: PlannerStateContext,
         problem_payload: dict[str, Any],
     ) -> ScopedFunctionalPlanAuthoringResult:
-        """Call one provider attempt, then validate and replay its complete v2 plan."""
+        """Call one provider attempt, assemble its content, then replay."""
 
         payload = self.payload_builder.build_scoped(
             inputs,
@@ -196,12 +259,12 @@ class ScopedFunctionalPlanAuthoringService:
                 "messages": prompt.messages,
                 "family_id": inputs.family_spec.family_id,
                 "problem_id": inputs.problem_id,
-                "planner_protocol": SCOPED_FUNCTIONAL_PLAN_CONTRACT,
+                "planner_protocol": FUNCTIONAL_PLAN_CONTENT_CONTRACT,
                 "planner_attempt": 1,
                 "planner_payload": payload,
             }
         )
-        replay_result = self.replay_service.replay_raw_json(
+        replay_result = self.replay_service.replay_content_json(
             raw_response,
             inputs=inputs,
             planning_context=planning_context,

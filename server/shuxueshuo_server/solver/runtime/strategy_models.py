@@ -1322,9 +1322,10 @@ class PlannerRetryIssue:
     hints: tuple[str, ...] = ()
     related_handles: tuple[str, ...] = ()
     details: dict[str, Any] | None = None
+    diagnostic_authority: dict[str, Any] | None = None
 
-    def to_payload(self) -> dict[str, Any]:
-        """转成 prompt/debug JSON。"""
+    def to_authority_payload(self) -> dict[str, Any]:
+        """Serialize internal retry authority; this payload is not prompt-safe."""
         payload: dict[str, Any] = {
             "layer": self.layer,
             "code": self.code,
@@ -1338,7 +1339,14 @@ class PlannerRetryIssue:
         }
         if self.details is not None:
             payload["details"] = self.details
+        if self.diagnostic_authority is not None:
+            payload["diagnostic_authority"] = self.diagnostic_authority
         return payload
+
+    def to_payload(self) -> dict[str, Any]:
+        """Compatibility alias for internal/debug serialization only."""
+
+        return self.to_authority_payload()
 
 
 @dataclass(frozen=True)

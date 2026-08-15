@@ -98,18 +98,69 @@ def test_canonical_payload_omits_empty_collections() -> None:
     assert parsed.to_payload() == payload
 
 
-def test_empty_collection_and_v1_payload_are_rejected() -> None:
+def test_optional_empty_collections_are_removed_before_schema_validation() -> None:
     validator = ScopedFunctionalPlanValidator()
     payload = {
         "format": SCOPED_FUNCTIONAL_PLAN_CONTRACT,
-        "root_scope": {"scope_ref": "problem", "children": []},
+        "root_scope": {
+            "scope_ref": "problem",
+            "steps": [],
+            "goals": [],
+            "children": [
+                {
+                    "scope_ref": "i",
+                    "steps": [],
+                    "goals": [],
+                    "children": [],
+                }
+            ],
+        },
     }
 
     parsed, report = validator.validate_payload_with_report(payload)
-    assert parsed is None
-    assert {item.code for item in report.issues} == {
-        "functional.v2_schema_invalid"
+    assert report.ok
+    assert parsed is not None
+    assert parsed.to_payload() == {
+        "format": SCOPED_FUNCTIONAL_PLAN_CONTRACT,
+        "root_scope": {
+            "scope_ref": "problem",
+            "children": [{"scope_ref": "i"}],
+        },
     }
+
+
+def test_optional_empty_step_inputs_are_removed_before_schema_validation() -> None:
+    payload = {
+        "format": SCOPED_FUNCTIONAL_PLAN_CONTRACT,
+        "root_scope": {
+            "scope_ref": "problem",
+            "steps": [
+                {
+                    "step_id": "derive_parabola",
+                    "capability_id": "quadratic_from_constraints",
+                    "args": {"curve_points": "A", "known_coefficients": []},
+                    "output_targets": {},
+                    "return_expectations": {},
+                }
+            ],
+        },
+    }
+
+    parsed, report = ScopedFunctionalPlanValidator().validate_payload_with_report(
+        payload
+    )
+
+    assert report.ok
+    assert parsed is not None
+    assert parsed.root_scope.steps[0].to_payload() == {
+        "step_id": "derive_parabola",
+        "capability_id": "quadratic_from_constraints",
+        "args": {"curve_points": "A"},
+    }
+
+
+def test_v1_payload_is_still_rejected() -> None:
+    validator = ScopedFunctionalPlanValidator()
 
     parsed, report = validator.validate_payload_with_report(
         {"format": "functional_plan/v1", "scopes": []}

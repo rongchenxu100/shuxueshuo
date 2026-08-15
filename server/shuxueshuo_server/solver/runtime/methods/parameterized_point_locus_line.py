@@ -19,7 +19,8 @@ class ParameterizedPointLocusLineMethod:
     def run(self, inputs: dict[str, Any], kernel: SympyKernel) -> StatelessMethodResult:
         point: Point = inputs["point"]
         target: PointRef | None = inputs.get("target")
-        parameter = inputs.get("parameter") or _unique_parameter(point)
+        parameter = inputs["parameter"]
+        _require_substitution_symbol(point, parameter)
 
         start_point: Point = (
             sp.simplify(point[0].subs(parameter, 0)),
@@ -61,16 +62,6 @@ class ParameterizedPointLocusLineMethod:
         )
 
 
-def _unique_parameter(point: Point) -> sp.Symbol:
-    symbols = sorted(set(point[0].free_symbols) | set(point[1].free_symbols), key=lambda item: item.name)
-    generated_motion = [symbol for symbol in symbols if symbol.name.startswith("_axis_param_")]
-    if len(generated_motion) == 1:
-        return generated_motion[0]
-    if len(symbols) != 1:
-        raise ValueError("parameterized point locus requires exactly one free parameter")
-    return symbols[0]
-
-
 def _is_affine(point: Point, parameter: sp.Symbol) -> bool:
     for coord in point:
         try:
@@ -106,10 +97,20 @@ SPEC = MethodSpecSource(
     inputs={
         "point": {"type": "Point", "required": True},
         "target": {"type": "PointRef", "required": False},
-        "parameter": {"type": "Symbol", "required": False},
+        "parameter": {
+            "type": "Symbol",
+            "required": True,
+            "description": (
+                "驱动该Point运动的确切Symbol身份；通常直接引用产生参数化点的"
+                "前序call之parameter返回值，不能由自由符号名称猜测"
+            ),
+        },
     },
     outputs={"line": "Line"},
-    preconditions=("point 的两个坐标最多含一个公共参数，且关于该参数为一次式",),
+    preconditions=(
+        "parameter必须是point坐标中实际出现的同一Symbol身份",
+        "point坐标关于parameter为一次式；其他题目参数可以作为轨迹族常量保留",
+    ),
     postconditions=("输出 Line 包含 start_point、direction 和 point_name",),
     explanation=MethodExplanationSpec(
         role_schema={

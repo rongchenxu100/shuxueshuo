@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 import pytest
+import sympy as sp
 
 from shuxueshuo_server.solver.extraction.source_identity import stable_hash
 from shuxueshuo_server.solver.runtime.context import ContextBuilder
@@ -112,14 +113,15 @@ def test_placement_finalization_failure_still_creates_checkpoint(
     assert result.checkpoint.transaction_attempted is False
     assert result.checkpoint.transaction_ok is False
     assert result.checkpoint.all_required_goals_verified is False
-    assert result.checkpoint.root_issues == (
-        {
-            "stage": "placement_finalize",
-            "code": "functional.step_scope_authority_drift",
-            "path": "$.steps['forced']",
-            "message": "forced placement failure",
-        },
-    )
+    assert len(result.checkpoint.root_issues) == 1
+    prompt_issue = result.checkpoint.root_issues[0]
+    assert prompt_issue["schema_version"] == "functional-prompt-diagnostic/v1"
+    assert prompt_issue["stage"] == "placement_finalize"
+    assert prompt_issue["code"] == "functional.step_scope_authority_drift"
+    assert prompt_issue["retryability"] == "planner_repairable"
+    authority = result.checkpoint.diagnostic_authorities[0]
+    assert authority["original_message"] == "forced placement failure"
+    assert authority["authority_details"]["path"] == "$.steps['forced']"
 
 
 def test_bad_step_blocks_only_its_suffix_and_executes_independent_goals(
@@ -164,6 +166,8 @@ def test_bad_step_blocks_only_its_suffix_and_executes_independent_goals(
         planning_context=fixture[1],
         binding_catalog=fixture[7],
         authority=result.authority,
+        goal_authority=result.authoring_authority,
+        dependency_graph=result.replay.functional_reconciliation.dependency_graph,
         binding_context=sidecar,
     )
 
@@ -246,6 +250,65 @@ def test_checkpoint_resolved_inputs_include_actual_step_result(tmp_path) -> None
     assert "value" in source or "value_omitted_reason" in source
 
 
+def test_checkpoint_uses_public_return_roles_for_facade_runtime_outputs(
+    tmp_path,
+) -> None:
+    case = "tj-2026-heping-ermo-25"
+    result, _fixture = _execute(
+        tmp_path,
+        case,
+        load_v2_fixture_payload(case),
+    )
+
+    checkpoint = result.checkpoint
+    assert checkpoint is not None
+    steps = _checkpoint_steps(checkpoint)
+    adjacent = steps["derive_square_vertex_G_ii"]
+    assert [item["return"] for item in adjacent.actual_outputs] == [
+        "adjacent_vertex"
+    ]
+    minimum = steps["derive_path_minimum_ii"]
+    assert {
+        item["return"] for item in minimum.actual_outputs
+    } >= {
+        "straightened_endpoint_1",
+        "straightened_endpoint_2",
+        "path_minimum_expression",
+    }
+    consumer = steps["derive_minimum_point_G_ii"]
+    endpoint_inputs = tuple(
+        item
+        for item in consumer.resolved_inputs
+        if item["arg"] in {"minimum_point_1", "minimum_point_2"}
+    )
+    assert len(endpoint_inputs) == 2
+    assert all(item["resolution"] == "step_result" for item in endpoint_inputs)
+
+
+def test_stable_object_ref_uses_source_snapshot_before_any_visible_write(
+    tmp_path,
+) -> None:
+    case = "tj-2026-heping-yimo-25"
+    result, _fixture = _execute(
+        tmp_path,
+        case,
+        load_v2_fixture_payload(case),
+    )
+
+    checkpoint = result.checkpoint
+    assert checkpoint is not None
+    intercept = _checkpoint_steps(checkpoint)["derive_y_intercept_C_i"]
+    source = next(
+        item for item in intercept.resolved_inputs if item["arg"] == "quadratic"
+    )
+    assert source["source"] == "parabola"
+    assert source["resolution"] == "source_snapshot"
+    point = next(
+        item for item in intercept.actual_outputs if item["return"] == "point"
+    )
+    assert point["value"] == ["0", "-3"]
+
+
 def test_unique_fact_placeholder_refs_are_safely_canonicalized(tmp_path) -> None:
     case = "tj-2026-heping-yimo-25"
     payload = load_v2_fixture_payload(case)
@@ -295,7 +358,7 @@ def test_known_wrong_fact_ref_is_not_rewritten_by_type(tmp_path) -> None:
     )
 
 
-def test_source_ref_cannot_read_a_step_produced_latest_state(tmp_path) -> None:
+def test_unique_visible_dynamic_source_ref_becomes_exact_step_result(tmp_path) -> None:
     case = "tj-2026-heping-yimo-25"
     payload = load_v2_fixture_payload(case)
     _step(payload, "derive_translated_D_i")["args"]["source"] = "C"
@@ -307,31 +370,325 @@ def test_source_ref_cannot_read_a_step_produced_latest_state(tmp_path) -> None:
     assert result.authority_report.ok
     assert result.authoring_authority is not None
     assert result.checkpoint is not None
-    steps = _checkpoint_steps(result.checkpoint)
-    assert steps["derive_translated_D_i"].status == "authority_invalid"
-    assert steps["derive_translated_D_i"].typed_issue == {
-        "stage": "reconciliation_binding",
-        "code": "functional.dynamic_source_ref_requires_step_result",
-        "message": (
-            "a FunctionalPlan v2 SourceRef resolved to a dynamic call result; "
-            "use an explicit StepResultRef"
-        ),
-        "arg_name": "source",
-        "item_index": 0,
-        "source_ref": "C",
-        "required_step_result": {
-            "step_id": "derive_y_intercept_C_i",
-            "return": "point",
-        },
+    assert result.checkpoint.all_required_goals_verified is True
+    assert any(
+        item.action == "canonicalize_latest_dynamic_source_ref"
+        and item.step_id == "derive_translated_D_i"
+        and item.arg_name == "source"
+        and item.from_ref == "C"
+        and item.to_ref == "derive_y_intercept_C_i.point"
+        for item in result.authority_report.normalizations
+    )
+    canonical = result.canonical_plan
+    assert canonical is not None
+    assert _step(canonical.to_payload(), "derive_translated_D_i")["args"][
+        "source"
+    ] == {
+        "step_id": "derive_y_intercept_C_i",
+        "return": "point",
     }
-    assert steps["derive_parabola_i"].status == "blocked_by_dependency"
-    assert steps["derive_parametric_parabola_ii"].status == "runtime_verified"
-    assert result.checkpoint.transaction_attempted is True
-    assert result.checkpoint.all_required_goals_verified is False
-    assert result.checkpoint.blocked_stage == "reconciliation_binding"
 
 
-def test_projected_sibling_return_is_allocated_after_consumer_isolated(
+def test_answer_target_source_ref_uses_prior_scope_owned_answer_result(
+    tmp_path,
+) -> None:
+    case = "tj-2026-heping-ermo-25"
+    payload = load_v2_fixture_payload(case)
+    _step(payload, "derive_square_vertex_G_i")["args"]["side_start"] = "A"
+
+    result, _fixture = _execute(tmp_path, case, payload)
+
+    assert result.authority_report.ok
+    assert result.checkpoint is not None
+    assert result.checkpoint.all_required_goals_verified is True
+    canonical = result.canonical_plan
+    assert canonical is not None
+    assert _step(canonical.to_payload(), "derive_square_vertex_G_i")["args"][
+        "side_start"
+    ] == {
+        "step_id": "derive_x_intercept_A_i",
+        "return": "point",
+    }
+    assert any(
+        item.action == "canonicalize_latest_dynamic_source_ref"
+        and item.step_id == "derive_square_vertex_G_i"
+        and item.from_ref == "A"
+        and item.to_ref == "derive_x_intercept_A_i.point"
+        for item in result.authority_report.normalizations
+    )
+
+
+def test_latest_parameter_state_closes_transitive_point_without_llm_wiring(
+    tmp_path,
+) -> None:
+    case = "tj-2026-heping-ermo-25"
+    payload = load_v2_fixture_payload(case)
+    goal = _scope(payload["root_scope"], "ii")["goals"][0]
+    goal["steps"] = [
+        step
+        for step in goal["steps"]
+        if step["step_id"] != "evaluate_point_A_ii"
+    ]
+    solve_c = next(
+        step
+        for step in goal["steps"]
+        if step["step_id"] == "solve_parameter_c_ii"
+    )
+    goal["steps"] = [
+        step for step in goal["steps"] if step is not solve_c
+    ]
+    goal["steps"].append(solve_c)
+    recover = _step(payload, "recover_target_point_E_ii")
+    recover["args"]["side_start"] = "A"
+    recover["args"].pop("parameter_value", None)
+    derive_g = _step(payload, "derive_minimum_point_G_ii")
+    derive_g["args"].pop("parameter_value", None)
+
+    result, _fixture = _execute(tmp_path, case, payload)
+
+    checkpoint = result.checkpoint
+    assert checkpoint is not None
+    assert checkpoint.all_required_goals_verified is True
+    report = result.replay.transactional_attempt_result.execution_report
+    runtime_order = [item.call_id for item in report.call_states]
+    assert runtime_order.index("solve_parameter_c_ii") < runtime_order.index(
+        "derive_minimum_point_G_ii"
+    )
+    assert runtime_order.index("solve_parameter_c_ii") < runtime_order.index(
+        "recover_target_point_E_ii"
+    )
+    solved_c = report.runtime_result_values[
+        ("solve_parameter_c_ii", "parameter_value")
+    ]
+    recovered_e = report.runtime_result_values[
+        ("recover_target_point_E_ii", "point")
+    ]
+    assert sp.simplify(solved_c.value - 5) == 0
+    assert tuple(sp.simplify(item) for item in recovered_e.value) == (
+        sp.Integer(-2),
+        sp.Rational(3, 2),
+    )
+    c_versions = {
+        item.version_id
+        for item in report.committed_versions
+        if (
+            item.version_id.slot_id.logical_key.runtime_type
+            == "ParameterValue"
+            and item.version_id.slot_id.logical_key.object_id.value
+            == "symbol:problem:c"
+        )
+    }
+    recover_write = next(
+        write
+        for call_result in report.call_results
+        if call_result.call_id == "recover_target_point_E_ii"
+        for write in call_result.state_writes
+        if write.return_name == "adjacent_vertex"
+    )
+    assert c_versions
+    assert c_versions <= set(recover_write.source_version_ids)
+    derive_g_write = next(
+        write
+        for call_result in report.call_results
+        if call_result.call_id == "derive_minimum_point_G_ii"
+        for write in call_result.state_writes
+        if write.return_name == "point"
+    )
+    assert c_versions <= set(derive_g_write.source_version_ids)
+
+
+def test_duplicate_a_writer_is_removed_only_after_runtime_equivalence(
+    tmp_path,
+) -> None:
+    case = "tj-2026-heping-ermo-25"
+    payload = load_v2_fixture_payload(case)
+    goal = _scope(payload["root_scope"], "ii")["goals"][0]
+    source = deepcopy(_step(payload, "evaluate_point_A_ii"))
+    source["step_id"] = "evaluate_point_A_ii_duplicate"
+    source_index = next(
+        index
+        for index, step in enumerate(goal["steps"])
+        if step["step_id"] == "evaluate_point_A_ii"
+    )
+    goal["steps"].insert(source_index + 1, source)
+    _step(payload, "recover_target_point_E_ii")["args"]["side_start"] = {
+        "step_id": "evaluate_point_A_ii_duplicate",
+        "return": "evaluated_point",
+    }
+
+    result, _fixture = _execute(tmp_path, case, payload)
+
+    checkpoint = result.checkpoint
+    assert checkpoint is not None
+    assert checkpoint.all_required_goals_verified is True
+    aliases = {
+        item.duplicate_call_id: item.canonical_call_id
+        for item in result.runtime_equivalent_aliases
+    }
+    assert aliases["evaluate_point_A_ii_duplicate"] == "evaluate_point_A_ii"
+    report = result.replay.transactional_attempt_result.execution_report
+    assert not any(
+        item.producer_call_id == "evaluate_point_A_ii_duplicate"
+        for item in report.committed_versions
+    )
+
+
+def test_recomputed_source_a_is_reused_only_after_runtime_equivalence(
+    tmp_path,
+) -> None:
+    case = "tj-2026-heping-ermo-25"
+    payload = load_v2_fixture_payload(case)
+    ii_goal = _scope(payload["root_scope"], "ii")["goals"][0]
+    evaluate = _step(payload, "evaluate_point_A_ii")
+    evaluate["capability_id"] = "quadratic_x_axis_intercept_point"
+    evaluate["args"] = {
+        "parabola": {
+            "step_id": "derive_parametric_parabola_ii",
+            "return": "parabola",
+        }
+    }
+    evaluate["output_targets"] = {"point": "A"}
+    _step(payload, "recover_target_point_E_ii")["args"]["side_start"] = {
+        "step_id": "evaluate_point_A_ii",
+        "return": "point",
+    }
+    evaluate_index = next(
+        index
+        for index, step in enumerate(ii_goal["steps"])
+        if step["step_id"] == "evaluate_point_A_ii"
+    )
+    evaluate = ii_goal["steps"].pop(evaluate_index)
+    path_reduction_index = next(
+        index
+        for index, step in enumerate(ii_goal["steps"])
+        if step["step_id"] == "reduce_square_path_ii"
+    )
+    ii_goal["steps"].insert(path_reduction_index, evaluate)
+
+    result, _fixture = _execute(tmp_path, case, payload)
+
+    checkpoint = result.checkpoint
+    assert checkpoint is not None
+    assert checkpoint.all_required_goals_verified is True
+    report = result.replay.transactional_attempt_result.execution_report
+    evaluated = next(
+        item
+        for item in report.call_results
+        if item.call_id == "evaluate_point_A_ii"
+    )
+    assert evaluated.status == "verified"
+    path_minimum = next(
+        item
+        for item in report.call_results
+        if item.call_id == "derive_path_minimum_ii"
+    )
+    assert path_minimum.status == "verified"
+    assert not any(
+        item.producer_call_id == "evaluate_point_A_ii"
+        and item.version_id.slot_id.logical_key.object_id.value
+        == "point:problem:A"
+        for item in report.committed_versions
+    )
+
+
+def test_conflicting_duplicate_a_writer_fails_without_ghost_version(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    from shuxueshuo_server.solver.contracts import TypedValue
+    from shuxueshuo_server.solver.runtime.methods.evaluate_point_at_parameter import (
+        EvaluatePointAtParameterMethod,
+    )
+
+    original_run = EvaluatePointAtParameterMethod.run
+    evaluations = 0
+
+    def divergent_second_evaluation(self, inputs, kernel):
+        nonlocal evaluations
+        result = original_run(self, inputs, kernel)
+        evaluations += 1
+        if evaluations != 2:
+            return result
+        point = result.outputs["evaluated_point"]
+        return replace(
+            result,
+            outputs={
+                **result.outputs,
+                "evaluated_point": TypedValue(
+                    "Point",
+                    (point.value[0] + 1, point.value[1]),
+                    source="test_conflicting_a_writer",
+                ),
+            },
+        )
+
+    monkeypatch.setattr(
+        EvaluatePointAtParameterMethod,
+        "run",
+        divergent_second_evaluation,
+    )
+    case = "tj-2026-heping-ermo-25"
+    payload = load_v2_fixture_payload(case)
+    goal = _scope(payload["root_scope"], "ii")["goals"][0]
+    source = deepcopy(_step(payload, "evaluate_point_A_ii"))
+    source["step_id"] = "evaluate_point_A_ii_duplicate"
+    source_index = next(
+        index
+        for index, step in enumerate(goal["steps"])
+        if step["step_id"] == "evaluate_point_A_ii"
+    )
+    goal["steps"].insert(source_index + 1, source)
+    _step(payload, "recover_target_point_E_ii")["args"]["side_start"] = {
+        "step_id": "evaluate_point_A_ii_duplicate",
+        "return": "evaluated_point",
+    }
+
+    result, _fixture = _execute(tmp_path, case, payload)
+
+    checkpoint = result.checkpoint
+    assert checkpoint is not None
+    assert checkpoint.blocked_stage == "runtime"
+    transaction = result.replay.transactional_attempt_result
+    assert {
+        item.code for item in transaction.root_issues
+    } >= {"planner.runtime_state_equivalence_conflict"}
+    assert not any(
+        item.producer_call_id == "evaluate_point_A_ii_duplicate"
+        for item in transaction.execution_report.committed_versions
+    )
+
+
+def test_identity_mismatch_checkpoint_exposes_public_expected_and_actual_refs(
+    tmp_path,
+) -> None:
+    case = "tj-2026-heping-ermo-25"
+    payload = load_v2_fixture_payload(case)
+    _step(payload, "derive_locus_G_ii")["args"]["point"] = {
+        "step_id": "parameterize_axis_point_E_ii",
+        "return": "point",
+    }
+
+    result, _fixture = _execute(tmp_path, case, payload)
+
+    checkpoint = result.checkpoint
+    assert checkpoint is not None
+    failed = _checkpoint_steps(checkpoint)["derive_path_minimum_ii"]
+    assert failed.status == "authority_invalid"
+    assert failed.typed_issue is not None
+    issue = failed.typed_issue
+    assert issue["step_id"] == "derive_path_minimum_ii"
+    assert issue["observed"]["actual_object_refs"] == ["E"]
+    assert issue["expected"]["expected_object_refs"] == ["G"]
+    assert issue["expected"]["relation"] == "same_object"
+    assert issue["expected"]["requirement"]
+    assert issue["repair_call_ids"]
+    assert checkpoint.transaction_attempted is True
+    prompt = json.dumps(checkpoint.to_prompt_payload(), ensure_ascii=False)
+    assert "point:problem:E" not in prompt
+    assert "point:problem:G" not in prompt
+
+
+def test_unique_prior_same_object_result_is_canonicalized_in_goal_scope(
     tmp_path,
 ) -> None:
     case = "tj-2026-hexi-yimo-25"
@@ -344,14 +701,167 @@ def test_projected_sibling_return_is_allocated_after_consumer_isolated(
 
     checkpoint = result.checkpoint
     assert checkpoint is not None
-    steps = _checkpoint_steps(checkpoint)
-    assert steps["derive_weighted_minimum_iii"].status == "authority_invalid"
-    assert steps["derive_weighted_minimum_iii"].typed_issue["code"] == (
-        "functional.dynamic_source_ref_requires_step_result"
+    assert checkpoint.all_required_goals_verified is True
+    assert any(
+        item.action == "canonicalize_latest_dynamic_source_ref"
+        and item.step_id == "derive_weighted_minimum_iii"
+        and item.arg_name == "curve_point"
+        and item.from_ref == "M"
+        and item.to_ref == "derive_curve_point_iii.point"
+        for item in result.authority_report.normalizations
     )
-    assert steps["transform_weighted_path_iii"].status == "pruned_dead"
-    assert checkpoint.transaction_attempted is True
-    assert checkpoint.all_required_goals_verified is False
+
+
+def test_visible_same_object_result_is_rewritten_only_after_runtime_equivalence(
+    tmp_path,
+) -> None:
+    case = "tj-2026-hexi-yimo-25"
+    payload = load_v2_fixture_payload(case)
+    goal = _scope(payload["root_scope"], "iii")["goals"][0]
+    producer = deepcopy(_step(payload, "derive_curve_point_iii"))
+    producer["step_id"] = "derive_curve_point_iii_alternate"
+    consumer_index = next(
+        index
+        for index, item in enumerate(goal["steps"])
+        if item["step_id"] == "derive_weighted_minimum_iii"
+    )
+    goal["steps"].insert(consumer_index, producer)
+    _step(payload, "derive_weighted_minimum_iii")["args"][
+        "curve_point"
+    ] = "M"
+
+    result, _fixture = _execute(tmp_path, case, payload)
+
+    checkpoint = result.checkpoint
+    assert checkpoint is not None
+    assert checkpoint.all_required_goals_verified is True
+    aliases = {
+        item.duplicate_call_id: item.canonical_call_id
+        for item in result.runtime_equivalent_aliases
+    }
+    assert aliases["derive_curve_point_iii_alternate"] == (
+        "derive_curve_point_iii"
+    )
+    canonical = result.canonical_plan
+    assert canonical is not None
+    assert "derive_curve_point_iii_alternate" not in {
+        item.step_id for item in canonical.steps
+    }
+    assert _step(canonical.to_payload(), "derive_weighted_minimum_iii")["args"][
+        "curve_point"
+    ] == {
+        "step_id": "derive_curve_point_iii",
+        "return": "point",
+    }
+
+
+def test_duplicate_descendant_steps_merge_only_after_runtime_equivalence(
+    tmp_path,
+) -> None:
+    case = "tj-2026-heping-yimo-25"
+    payload = _duplicate_descendant_point_plan_payload()
+
+    result, _fixture = _execute(tmp_path, case, payload)
+
+    checkpoint = result.checkpoint
+    assert checkpoint is not None
+    assert checkpoint.blocked_stage is None, (
+        result.replay.transactional_attempt_result.root_issues[0].message
+    )
+    assert checkpoint.all_required_goals_verified is True
+    aliases = {
+        item.duplicate_call_id: item.canonical_call_id
+        for item in result.runtime_equivalent_aliases
+    }
+    assert aliases == {
+        "locate_C": "derive_y_intercept_C_i",
+        "locate_D": "derive_translated_D_i",
+    }
+    canonical = result.canonical_plan
+    assert canonical is not None
+    assert "locate_C" not in {item.step_id for item in canonical.steps}
+    assert "locate_D" not in {item.step_id for item in canonical.steps}
+    assert _step(
+        canonical.to_payload(),
+        "reduce_equal_length_ray_path_ii",
+    )["args"]["ray_point"] == {
+        "step_id": "derive_translated_D_i",
+        "return": "point",
+    }
+    final_report = result.replay.transactional_attempt_result.execution_report
+    assert final_report.runtime_equivalent_aliases == ()
+    assert not any(
+        write.step_id in {"locate_C", "locate_D"}
+        for call_result in final_report.call_results
+        for write in call_result.state_writes
+    )
+
+
+def test_duplicate_descendant_step_with_different_runtime_value_is_not_merged(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    from shuxueshuo_server.solver.contracts import TypedValue
+    from shuxueshuo_server.solver.runtime.methods.quadratic_y_axis_intercept_point import (
+        QuadraticYAxisInterceptPointMethod,
+    )
+
+    original_run = QuadraticYAxisInterceptPointMethod.run
+    intercept_calls = 0
+
+    def divergent_second_intercept(self, inputs, kernel):
+        nonlocal intercept_calls
+        result = original_run(self, inputs, kernel)
+        if inputs["target"].name != "C":
+            return result
+        intercept_calls += 1
+        if intercept_calls != 2:
+            return result
+        point = result.outputs["point"]
+        return replace(
+            result,
+            outputs={
+                **result.outputs,
+                "point": TypedValue(
+                    "Point",
+                    (point.value[0], point.value[1] + 1),
+                    source="test_divergent_runtime_probe",
+                ),
+            },
+        )
+
+    monkeypatch.setattr(
+        QuadraticYAxisInterceptPointMethod,
+        "run",
+        divergent_second_intercept,
+    )
+    case = "tj-2026-heping-yimo-25"
+    result, _fixture = _execute(
+        tmp_path,
+        case,
+        _duplicate_descendant_point_plan_payload(),
+    )
+
+    checkpoint = result.checkpoint
+    assert checkpoint is not None
+    assert checkpoint.blocked_stage == "runtime"
+    assert result.runtime_equivalent_aliases == ()
+    canonical = result.canonical_plan
+    assert canonical is not None
+    assert "locate_C" in {item.step_id for item in canonical.steps}
+    transaction = result.replay.transactional_attempt_result
+    assert {
+        issue.code for issue in transaction.root_issues
+    } >= {"planner.runtime_state_equivalence_conflict"}
+    report = transaction.execution_report
+    locate_c = next(
+        item for item in report.call_results if item.call_id == "locate_C"
+    )
+    assert locate_c.status == "failed"
+    assert not any(
+        item.producer_call_id == "locate_C"
+        for item in report.committed_versions
+    )
 
 
 def test_dead_pure_step_stays_in_authored_plan_but_not_effective_plan(
@@ -409,6 +919,34 @@ def test_v2_step_ids_remain_canonical_without_call_aliases(
         item.step_id == item.canonical_call_id
         for item in result.authority.step_authorities.values()
     )
+
+
+def _duplicate_descendant_point_plan_payload():
+    payload = load_v2_fixture_payload("tj-2026-heping-yimo-25")
+    goal = _scope(payload["root_scope"], "ii")["goals"][0]
+    goal["steps"] = [
+        {
+            "step_id": "locate_C",
+            "capability_id": "quadratic_y_axis_intercept_point",
+            "args": {"quadratic": "parabola"},
+            "output_targets": {"point": "C"},
+            "return_expectations": {"point": "closed_state"},
+        },
+        {
+            "step_id": "locate_D",
+            "capability_id": "translated_point",
+            "args": {
+                "source": {"step_id": "locate_C", "return": "point"}
+            },
+            "output_targets": {"point": "D"},
+            "return_expectations": {"point": "closed_state"},
+        },
+        *goal["steps"],
+    ]
+    _step(payload, "reduce_equal_length_ray_path_ii")["args"][
+        "ray_point"
+    ] = {"step_id": "locate_D", "return": "point"}
+    return payload
 
 
 def _execute(tmp_path, case, payload):

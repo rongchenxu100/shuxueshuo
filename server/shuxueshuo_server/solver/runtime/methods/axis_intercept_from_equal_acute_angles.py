@@ -26,32 +26,63 @@ class AxisInterceptFromEqualAcuteAnglesMethod:
         target: PointRef = inputs["target"]
 
         if sp.simplify(x_axis_point[1] - origin[1]) != 0:
-            raise ValueError("x_axis_point must lie on the horizontal axis through origin")
+            raise method_precondition_failed(
+                "x-axis point is not horizontal with the origin",
+                arg_name="x_axis_point",
+                role="x_axis_point",
+                expected={"y": origin[1]},
+                observed={"y": x_axis_point[1]},
+            )
         if sp.simplify(y_axis_point[0] - origin[0]) != 0:
-            raise ValueError("y_axis_point must lie on the vertical axis through origin")
+            raise method_precondition_failed(
+                "y-axis point is not vertical with the origin",
+                arg_name="y_axis_point",
+                role="y_axis_point",
+                expected={"x": origin[0]},
+                observed={"x": y_axis_point[0]},
+            )
         if sp.simplify(reference_x_axis_point[1] - origin[1]) != 0:
-            raise ValueError("reference_x_axis_point must lie on the horizontal axis through origin")
+            raise method_precondition_failed(
+                "reference point is not horizontal with the origin",
+                arg_name="reference_x_axis_point",
+                role="reference_x_axis_point",
+                expected={"y": origin[1]},
+                observed={"y": reference_x_axis_point[1]},
+            )
 
         ob = kernel.distance(origin, x_axis_point)
         ao = kernel.distance(origin, reference_x_axis_point)
         co = kernel.distance(origin, y_axis_point)
         if sp.simplify(ob) == 0:
-            raise ValueError(
-                "angle_role_degenerate: x_axis_point must differ from origin"
+            raise method_precondition_failed(
+                "angle_role_degenerate: x-axis point coincides with the origin",
+                arg_name="x_axis_point",
+                role="x_axis_point",
+                expected={"distance_from_origin": "nonzero"},
+                observed={"distance_from_origin": ob},
             )
         if sp.simplify(ao) == 0:
-            raise ValueError(
-                "angle_role_degenerate: reference_x_axis_point must differ "
-                "from origin"
+            raise method_precondition_failed(
+                "angle_role_degenerate: reference x-axis point coincides with the origin",
+                arg_name="reference_x_axis_point",
+                role="reference_x_axis_point",
+                expected={"distance_from_origin": "nonzero"},
+                observed={"distance_from_origin": ao},
             )
         if sp.simplify(co) == 0:
-            raise ValueError(
-                "angle_role_degenerate: y_axis_point must differ from origin"
+            raise method_precondition_failed(
+                "angle_role_degenerate: y-axis point coincides with the origin",
+                arg_name="y_axis_point",
+                role="y_axis_point",
+                expected={"distance_from_origin": "nonzero"},
+                observed={"distance_from_origin": co},
             )
         if _same_point(x_axis_point, reference_x_axis_point):
-            raise ValueError(
-                "angle_role_degenerate: x_axis_point and "
-                "reference_x_axis_point must be distinct"
+            raise method_precondition_failed(
+                "angle_role_degenerate: x-axis point and reference point must be distinct",
+                role="reference_axis_triangle",
+                expected={"distinct_points": True},
+                observed={"x_axis_point": x_axis_point, "reference_point": reference_x_axis_point},
             )
 
         vertical_direction = sp.simplify((y_axis_point[1] - origin[1]) / co)

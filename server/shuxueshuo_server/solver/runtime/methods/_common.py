@@ -33,6 +33,18 @@ from shuxueshuo_server.solver.contracts import (
     StatelessMethodResult,
     TypedValue,
 )
+from shuxueshuo_server.solver.runtime.functional_diagnostics import (
+    FunctionalDiagnosticSubject,
+    StatelessMethodError,
+    method_check_failed,
+    method_input_invalid,
+    method_input_missing,
+    method_input_state_unavailable,
+    method_precondition_failed,
+    method_result_ambiguous,
+    method_result_empty,
+    method_result_inconsistent,
+)
 
 __all__ = [
     "Any",
@@ -56,10 +68,23 @@ __all__ = [
     "PointRef",
     "StatelessMethodResult",
     "TypedValue",
+    "FunctionalDiagnosticSubject",
+    "StatelessMethodError",
+    "method_check_failed",
+    "method_input_invalid",
+    "method_input_missing",
+    "method_input_state_unavailable",
+    "method_precondition_failed",
+    "method_result_ambiguous",
+    "method_result_empty",
+    "method_result_inconsistent",
     "StatelessMethod",
     "StatelessMethodRegistry",
     "_check",
     "_step",
+    "_free_symbols_in",
+    "_require_substitution_symbol",
+    "_optional_parameter_substitution",
     "_subs_point",
     "_fmt_point",
     "_fmt_point_candidates",
@@ -114,9 +139,19 @@ class StatelessMethodRegistry:
             raise KeyError(f"stateless method not found: {method_id}") from exc
 
 
-def _check(name: str, passed: bool, detail: str) -> CheckResult:
+def _check(
+    name: str,
+    passed: bool,
+    detail: str,
+    **diagnostic: Any,
+) -> CheckResult:
     """创建 CheckResult。"""
-    return CheckResult(name=name, status="passed" if bool(passed) else "failed", detail=detail)
+    return CheckResult(
+        name=name,
+        status="passed" if bool(passed) else "failed",
+        detail=detail,
+        **diagnostic,
+    )
 
 
 def _step(
@@ -136,6 +171,97 @@ def _step(
         conclusion=conclusion,
         method_id=method_id,
     )
+
+
+def _free_symbols_in(value: Any) -> set[sp.Symbol]:
+    """Collect symbolic dependencies from nested stateless-method values."""
+
+    if isinstance(value, dict):
+        result: set[sp.Symbol] = set()
+        for item in value.values():
+            result.update(_free_symbols_in(item))
+        return result
+    if isinstance(value, (list, tuple, set, frozenset)):
+        result: set[sp.Symbol] = set()
+        for item in value:
+            result.update(_free_symbols_in(item))
+        return result
+    try:
+        expression = sp.sympify(value)
+    except (TypeError, ValueError, sp.SympifyError):
+        return set()
+    return set(getattr(expression, "free_symbols", set()))
+
+
+def _require_substitution_symbol(
+    value: Any,
+    parameter: sp.Symbol,
+) -> None:
+    """Require a substitution to target an actual dependency identity."""
+
+    if not isinstance(parameter, sp.Symbol):
+        raise method_input_invalid(
+            "substitution parameter must be a Symbol",
+            arg_name="parameter",
+            role="substitution_parameter",
+            expected={"type": "Symbol"},
+            observed={"type": type(parameter).__name__},
+        )
+    free_symbols = _free_symbols_in(value)
+    if parameter in free_symbols:
+        return
+    names = "|".join(sorted(symbol.name for symbol in free_symbols)) or "none"
+    raise method_precondition_failed(
+        "function.substitution_symbol_mismatch: "
+        f"parameter={parameter.name}, free_symbols={names}; "
+        "substitution parameter is not a dependency of the input value",
+        arg_name="parameter",
+        role="substitution_parameter",
+        internal_ref=parameter.name,
+        expected={"dependency": parameter.name},
+        observed={"free_symbols": names},
+        repair_action="repair_input_binding",
+    )
+
+
+def _optional_parameter_substitution(
+    inputs: dict[str, Any],
+    *values: Any,
+    allow_parameter_without_value: bool = False,
+    allow_closed_noop: bool = False,
+) -> dict[sp.Symbol, sp.Expr]:
+    """Build an optional, identity-checked parameter substitution."""
+
+    parameter_present = "parameter" in inputs and inputs.get("parameter") is not None
+    value_present = (
+        "parameter_value" in inputs
+        and inputs.get("parameter_value") is not None
+    )
+    if value_present and not parameter_present:
+        raise method_input_missing(
+            "function.substitution_pair_incomplete: parameter_value requires "
+            "its matching parameter Symbol",
+            arg_name="parameter",
+            role="substitution_parameter",
+            expected={"paired_arg": "parameter_value"},
+        )
+    if parameter_present and not value_present:
+        if allow_parameter_without_value:
+            return {}
+        raise method_input_missing(
+            "function.substitution_pair_incomplete: parameter requires its "
+            "matching parameter_value",
+            arg_name="parameter_value",
+            role="substitution_value",
+            expected={"paired_arg": "parameter"},
+        )
+    if not parameter_present:
+        return {}
+    parameter = inputs["parameter"]
+    if allow_closed_noop and parameter not in _free_symbols_in(values):
+        return {}
+    _require_substitution_symbol(values, parameter)
+    return {parameter: sp.sympify(inputs["parameter_value"])}
 
 
 def _fmt_point(point: Point, kernel: SympyKernel) -> str:
@@ -175,7 +301,13 @@ def _parse_scaled_segment(raw: str, kernel: SympyKernel) -> tuple[sp.Expr, str]:
     """解析 ``sqrt(2)*NG`` 为 ``(sqrt(2), "NG")``。"""
     segment = _extract_segment_name(raw)
     if len(segment) != 2:
-        raise ValueError(f"cannot parse segment name from {raw!r}")
+        raise method_input_invalid(
+            "scaled segment does not contain exactly two endpoint labels",
+            arg_name="scaled_segment",
+            role="path_segment",
+            expected={"endpoint_count": 2},
+            observed={"value": raw, "parsed_segment": segment},
+        )
     coefficient_text = raw.replace(segment, "", 1).strip().rstrip("*").strip()
     coefficient = kernel.expr(coefficient_text) if coefficient_text else sp.Integer(1)
     return sp.simplify(coefficient), segment
@@ -184,7 +316,14 @@ def _parse_scaled_segment(raw: str, kernel: SympyKernel) -> tuple[sp.Expr, str]:
 def _other_segment_endpoint(segment: str, endpoint: str) -> str:
     """给定线段名和一个端点名，返回另一个端点名。"""
     if endpoint not in segment or len(segment) != 2:
-        raise ValueError(f"segment {segment!r} does not contain endpoint {endpoint!r}")
+        raise method_precondition_failed(
+            "segment does not contain the required endpoint",
+            arg_name="segment",
+            role="path_segment",
+            internal_ref=endpoint,
+            expected={"contains_endpoint": endpoint, "endpoint_count": 2},
+            observed={"segment": segment},
+        )
     return segment[1] if segment[0] == endpoint else segment[0]
 
 
@@ -211,11 +350,31 @@ def _validate_moving_point_memberships(
 ) -> None:
     """校验两个动点所在边与绑定关系的端点一致。"""
     if fixed_name not in first_segment:
-        raise ValueError(f"fixed endpoint {fixed_name!r} is not on first moving segment")
+        raise method_precondition_failed(
+            "fixed endpoint is not on the first moving segment",
+            role="fixed_endpoint_1",
+            internal_ref=fixed_name,
+            expected={"membership": list(first_segment)},
+            observed={"endpoint": fixed_name},
+        )
     if second_fixed_name not in second_segment:
-        raise ValueError(f"fixed endpoint {second_fixed_name!r} is not on second moving segment")
+        raise method_precondition_failed(
+            "fixed endpoint is not on the second moving segment",
+            role="fixed_endpoint_2",
+            internal_ref=second_fixed_name,
+            expected={"membership": list(second_segment)},
+            observed={"endpoint": second_fixed_name},
+        )
     if not (set(first_segment) & set(second_segment)):
-        raise ValueError("two moving point segments must share one endpoint")
+        raise method_precondition_failed(
+            "the two moving-point segments do not share an endpoint",
+            role="moving_path",
+            expected={"shared_endpoint_count": 1},
+            observed={
+                "first_segment": list(first_segment),
+                "second_segment": list(second_segment),
+            },
+        )
 
 
 def _replace_segment_in_path(path: str, source: str, target: str) -> str:
@@ -225,7 +384,13 @@ def _replace_segment_in_path(path: str, source: str, target: str) -> str:
     reversed_source = source[::-1]
     if reversed_source in path:
         return path.replace(reversed_source, target[::-1], 1)
-    raise ValueError(f"path {path!r} does not contain segment {source!r}")
+    raise method_precondition_failed(
+        "path does not contain the segment selected for replacement",
+        arg_name="path",
+        role="path_expression",
+        expected={"contains_segment": source},
+        observed={"path": path},
+    )
 
 
 def _parse_path_segments(path: str) -> list[str]:
@@ -241,7 +406,15 @@ def _common_endpoint(segment1: str, segment2: str) -> str:
     """返回两条线段共有的端点名。"""
     common = sorted(set(segment1) & set(segment2))
     if len(common) != 1:
-        raise ValueError(f"segments must share exactly one endpoint: {segment1}, {segment2}")
+        raise method_precondition_failed(
+            "segments must share exactly one endpoint",
+            role="adjacent_segments",
+            expected={"shared_endpoint_count": 1},
+            observed={
+                "segments": [segment1, segment2],
+                "shared_endpoint_count": len(common),
+            },
+        )
     return common[0]
 
 

@@ -27,8 +27,9 @@ class DistanceBetweenPointsMethod:
         outputs = {"distance": TypedValue("MinimumExpression", distance, source=self.method_id)}
         checks = [_check("distance_is_nonzero", distance != 0, "距离表达式非零")]
         conclusion = f"最小值表达式为 {kernel.sstr(distance)}"
-        if "parameter" in inputs and "parameter_value" in inputs:
-            value = sp.simplify(distance.subs(inputs["parameter"], inputs["parameter_value"]))
+        substitution = _optional_parameter_substitution(inputs, distance)
+        if substitution:
+            value = sp.simplify(distance.subs(substitution))
             outputs["evaluated_distance"] = TypedValue("MinimumExpression", value, source=self.method_id)
             checks.append(_check("evaluated_distance_positive", value > 0, "代入后的最小值为正"))
             conclusion = f"最小值表达式为 {kernel.sstr(distance)}，代入后为 {kernel.sstr(value)}"
@@ -93,6 +94,7 @@ SPEC = MethodSpecSource(
                 "代入指定参数后若仍含其他未确定参数则为 open_expression；不存在自由参数时为 "
                 "closed_value。"
             ),
+            applied_substitutions=(("parameter", "parameter_value"),),
         ),
     },
     preconditions=(),

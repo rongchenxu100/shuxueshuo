@@ -55,6 +55,17 @@ class CheckResult:
     name: str
     status: CheckStatus
     detail: str
+    code: str | None = None
+    retryability: Literal[
+        "planner_repairable",
+        "problem_semantics",
+        "configuration",
+    ] = "planner_repairable"
+    expected: dict[str, Any] = field(default_factory=dict)
+    observed: dict[str, Any] = field(default_factory=dict)
+    subjects: tuple[dict[str, Any], ...] = ()
+    repair_action: str = "repair_failed_step"
+    method_id: str | None = None
 
     @property
     def ok(self) -> bool:
@@ -128,6 +139,7 @@ class ScalarResultFormSpec:
     ignored_symbol_input_args: tuple[str, ...] = ()
     max_independent_free_parameters: int | None = None
     free_symbol_output_names: tuple[str, ...] = ()
+    applied_substitutions: tuple[tuple[str, str], ...] = ()
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -147,6 +159,10 @@ class ScalarResultFormSpec:
             payload["free_symbol_output_names"] = list(
                 self.free_symbol_output_names
             )
+        if self.applied_substitutions:
+            payload["applied_substitutions"] = [
+                list(item) for item in self.applied_substitutions
+            ]
         return payload
 
 

@@ -1,0 +1,1317 @@
+"""Typed authority and prompt projection for Functional runtime diagnostics.
+
+Methods report exact execution facts through :class:`StatelessMethodError`.
+Only :class:`FunctionalPromptDiagnosticProjector` may turn those internal facts
+into Planner-visible retry guidance.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field, replace
+import json
+from types import MappingProxyType
+from typing import Any, Literal, Mapping, Sequence
+
+from jsonschema import Draft202012Validator
+
+
+FUNCTIONAL_DIAGNOSTIC_AUTHORITY_CONTRACT = (
+    "functional-diagnostic-authority/v1"
+)
+FUNCTIONAL_PROMPT_DIAGNOSTIC_CONTRACT = "functional-prompt-diagnostic/v1"
+
+FunctionalDiagnosticCategory = Literal[
+    "input",
+    "precondition",
+    "result",
+    "ambiguity",
+    "inconsistency",
+    "check",
+    "binding",
+    "configuration",
+]
+FunctionalDiagnosticRetryability = Literal[
+    "planner_repairable",
+    "problem_semantics",
+    "configuration",
+]
+
+_CONFIGURATION_CODES = frozenset(
+    {
+        "planner.method_contract_invalid",
+        "planner.transactional_configuration_error",
+        "planner.contract_runtime_symbol_drift",
+        "planner.symbolic_closure_spec_invalid",
+    }
+)
+
+_REPAIR_MESSAGES = {
+    "provide_visible_point_producer": (
+        "Add or repair a visible step that materializes the required Point."
+    ),
+    "provide_visible_state_producer": (
+        "Add or repair a visible producer for the required object state."
+    ),
+    "provide_required_input": "Provide the missing typed input.",
+    "repair_input_binding": "Bind the argument to a compatible visible source.",
+    "supply_disambiguating_constraint": (
+        "Add the missing condition needed to select one unique result."
+    ),
+    "revise_inconsistent_constraints": (
+        "Revise the failed Goal steps so their mathematical constraints agree."
+    ),
+    "choose_applicable_capability": (
+        "Choose a capability whose preconditions match the available state."
+    ),
+    "repair_failed_step": "Replace the failed Goal steps with a valid strategy.",
+    "fix_runtime_contract": (
+        "This is a runtime contract or configuration failure; do not repair the Plan."
+    ),
+}
+
+
+def _freeze(value: Any) -> Any:
+    if isinstance(value, Mapping):
+        return MappingProxyType(
+            {
+                str(key): _freeze(item)
+                for key, item in sorted(value.items(), key=lambda pair: str(pair[0]))
+            }
+        )
+    if isinstance(value, (list, tuple, set, frozenset)):
+        return tuple(_freeze(item) for item in value)
+    if hasattr(value, "to_payload") and callable(value.to_payload):
+        return _freeze(value.to_payload())
+    if value is None or isinstance(value, (bool, int, float, str)):
+        return value
+    return str(value)
+
+
+def _thaw(value: Any) -> Any:
+    if isinstance(value, Mapping):
+        return {str(key): _thaw(item) for key, item in value.items()}
+    if isinstance(value, tuple):
+        return [_thaw(item) for item in value]
+    return value
+
+
+@dataclass(frozen=True)
+class FunctionalDiagnosticSubject:
+    role: str | None = None
+    arg_name: str | None = None
+    internal_ref: str | None = None
+    expected_type: str | None = None
+    expected_state: str | None = None
+    observed_type: str | None = None
+    observed_state: str | None = None
+
+    def to_payload(self) -> dict[str, Any]:
+        return {
+            key: value
+            for key, value in {
+                "role": self.role,
+                "arg_name": self.arg_name,
+                "internal_ref": self.internal_ref,
+                "expected_type": self.expected_type,
+                "expected_state": self.expected_state,
+                "observed_type": self.observed_type,
+                "observed_state": self.observed_state,
+            }.items()
+            if value is not None
+        }
+
+    @classmethod
+    def from_payload(
+        cls,
+        payload: Mapping[str, Any],
+    ) -> "FunctionalDiagnosticSubject":
+        return cls(
+            role=_optional_string(payload.get("role")),
+            arg_name=_optional_string(payload.get("arg_name")),
+            internal_ref=_optional_string(payload.get("internal_ref")),
+            expected_type=_optional_string(payload.get("expected_type")),
+            expected_state=_optional_string(payload.get("expected_state")),
+            observed_type=_optional_string(payload.get("observed_type")),
+            observed_state=_optional_string(payload.get("observed_state")),
+        )
+
+
+@dataclass(frozen=True)
+class FunctionalDiagnosticAuthority:
+    code: str
+    category: FunctionalDiagnosticCategory
+    stage: str
+    retryability: FunctionalDiagnosticRetryability
+    method_id: str | None = None
+    capability_id: str | None = None
+    scope_id: str | None = None
+    step_id: str | None = None
+    subjects: tuple[FunctionalDiagnosticSubject, ...] = ()
+    expected: Mapping[str, Any] = field(default_factory=dict)
+    observed: Mapping[str, Any] = field(default_factory=dict)
+    repair_action: str = "repair_failed_step"
+    repair_call_ids: tuple[str, ...] = ()
+    original_message: str = ""
+    authority_details: Mapping[str, Any] = field(default_factory=dict)
+    schema_version: str = FUNCTIONAL_DIAGNOSTIC_AUTHORITY_CONTRACT
+
+    def __post_init__(self) -> None:
+        if self.schema_version != FUNCTIONAL_DIAGNOSTIC_AUTHORITY_CONTRACT:
+            raise ValueError("unsupported Functional diagnostic authority contract")
+        if not self.code or not self.stage or not self.repair_action:
+            raise ValueError("Functional diagnostic authority is incomplete")
+        object.__setattr__(self, "subjects", tuple(self.subjects))
+        object.__setattr__(self, "expected", _freeze(self.expected))
+        object.__setattr__(self, "observed", _freeze(self.observed))
+        object.__setattr__(
+            self,
+            "repair_call_ids",
+            tuple(sorted(set(self.repair_call_ids))),
+        )
+        object.__setattr__(self, "authority_details", _freeze(self.authority_details))
+
+    def to_payload(self) -> dict[str, Any]:
+        payload: dict[str, Any] = {
+            "schema_version": self.schema_version,
+            "code": self.code,
+            "category": self.category,
+            "stage": self.stage,
+            "retryability": self.retryability,
+            "subjects": [item.to_payload() for item in self.subjects],
+            "expected": _thaw(self.expected),
+            "observed": _thaw(self.observed),
+            "repair_action": self.repair_action,
+            "repair_call_ids": list(self.repair_call_ids),
+            "original_message": self.original_message,
+            "authority_details": _thaw(self.authority_details),
+        }
+        for key, value in (
+            ("method_id", self.method_id),
+            ("capability_id", self.capability_id),
+            ("scope_id", self.scope_id),
+            ("step_id", self.step_id),
+        ):
+            if value is not None:
+                payload[key] = value
+        return payload
+
+    @classmethod
+    def from_payload(
+        cls,
+        payload: Mapping[str, Any],
+    ) -> "FunctionalDiagnosticAuthority":
+        candidate = dict(payload)
+        _validate_payload(candidate, functional_diagnostic_authority_schema())
+        return cls(
+            schema_version=str(candidate["schema_version"]),
+            code=str(candidate["code"]),
+            category=str(candidate["category"]),  # type: ignore[arg-type]
+            stage=str(candidate["stage"]),
+            retryability=str(candidate["retryability"]),  # type: ignore[arg-type]
+            method_id=_optional_string(candidate.get("method_id")),
+            capability_id=_optional_string(candidate.get("capability_id")),
+            scope_id=_optional_string(candidate.get("scope_id")),
+            step_id=_optional_string(candidate.get("step_id")),
+            subjects=tuple(
+                FunctionalDiagnosticSubject.from_payload(_mapping(item))
+                for item in _sequence(candidate["subjects"])
+            ),
+            expected=_mapping(candidate["expected"]),
+            observed=_mapping(candidate["observed"]),
+            repair_action=str(candidate["repair_action"]),
+            repair_call_ids=tuple(
+                str(item) for item in _sequence(candidate["repair_call_ids"])
+            ),
+            original_message=str(candidate["original_message"]),
+            authority_details=_mapping(candidate["authority_details"]),
+        )
+
+
+class StatelessMethodError(ValueError):
+    """Typed failure reported by a stateless Method or its shared helpers."""
+
+    def __init__(
+        self,
+        code: str,
+        message: str,
+        *,
+        category: FunctionalDiagnosticCategory,
+        retryability: FunctionalDiagnosticRetryability,
+        method_id: str | None = None,
+        capability_id: str | None = None,
+        scope_id: str | None = None,
+        step_id: str | None = None,
+        subjects: Sequence[FunctionalDiagnosticSubject] = (),
+        arg_name: str | None = None,
+        role: str | None = None,
+        internal_ref: Any | None = None,
+        expected: Mapping[str, Any] | None = None,
+        observed: Mapping[str, Any] | None = None,
+        repair_action: str = "repair_failed_step",
+        repair_call_ids: Sequence[str] = (),
+        details: Mapping[str, Any] | None = None,
+    ) -> None:
+        subject_items = tuple(subjects)
+        if not subject_items and any(
+            item is not None for item in (arg_name, role, internal_ref)
+        ):
+            expected_map = dict(expected or {})
+            observed_map = dict(observed or {})
+            subject_items = (
+                FunctionalDiagnosticSubject(
+                    role=role,
+                    arg_name=arg_name,
+                    internal_ref=(
+                        _identity_string(internal_ref)
+                        if internal_ref is not None
+                        else None
+                    ),
+                    expected_type=_optional_string(expected_map.get("type")),
+                    expected_state=_optional_string(expected_map.get("state")),
+                    observed_type=_optional_string(observed_map.get("type")),
+                    observed_state=_optional_string(observed_map.get("state")),
+                ),
+            )
+        self.authority = FunctionalDiagnosticAuthority(
+            code=code,
+            category=category,
+            stage="method",
+            retryability=retryability,
+            method_id=method_id,
+            capability_id=capability_id,
+            scope_id=scope_id,
+            step_id=step_id,
+            subjects=subject_items,
+            expected=expected or {},
+            observed=observed or {},
+            repair_action=repair_action,
+            repair_call_ids=tuple(repair_call_ids),
+            original_message=message,
+            authority_details=details or {},
+        )
+        self.code = code
+        self.retryability = retryability
+        super().__init__(message)
+
+    def with_context(
+        self,
+        *,
+        method_id: str | None = None,
+        capability_id: str | None = None,
+        scope_id: str | None = None,
+        step_id: str | None = None,
+    ) -> "StatelessMethodError":
+        updated = replace(
+            self.authority,
+            method_id=method_id or self.authority.method_id,
+            capability_id=capability_id or self.authority.capability_id,
+            scope_id=scope_id or self.authority.scope_id,
+            step_id=step_id or self.authority.step_id,
+        )
+        result = StatelessMethodError(
+            updated.code,
+            updated.original_message,
+            category=updated.category,
+            retryability=updated.retryability,
+            method_id=updated.method_id,
+            capability_id=updated.capability_id,
+            scope_id=updated.scope_id,
+            step_id=updated.step_id,
+            subjects=updated.subjects,
+            expected=_thaw(updated.expected),
+            observed=_thaw(updated.observed),
+            repair_action=updated.repair_action,
+            repair_call_ids=updated.repair_call_ids,
+            details=_thaw(updated.authority_details),
+        )
+        return result
+
+
+@dataclass(frozen=True)
+class FunctionalPromptDiagnosticSubject:
+    ref: str | None = None
+    role: str | None = None
+    arg_name: str | None = None
+    expected_type: str | None = None
+    expected_state: str | None = None
+    observed_type: str | None = None
+    observed_state: str | None = None
+
+    def to_payload(self) -> dict[str, Any]:
+        return {
+            key: value
+            for key, value in {
+                "ref": self.ref,
+                "role": self.role,
+                "arg_name": self.arg_name,
+                "expected_type": self.expected_type,
+                "expected_state": self.expected_state,
+                "observed_type": self.observed_type,
+                "observed_state": self.observed_state,
+            }.items()
+            if value is not None
+        }
+
+
+@dataclass(frozen=True)
+class FunctionalPromptDiagnostic:
+    code: str
+    category: FunctionalDiagnosticCategory
+    stage: str
+    retryability: FunctionalDiagnosticRetryability
+    subjects: tuple[FunctionalPromptDiagnosticSubject, ...]
+    expected: Mapping[str, Any]
+    observed: Mapping[str, Any]
+    repair_action: str
+    message: str
+    method_id: str | None = None
+    capability_id: str | None = None
+    scope_id: str | None = None
+    step_id: str | None = None
+    repair_call_ids: tuple[str, ...] = ()
+    schema_version: str = FUNCTIONAL_PROMPT_DIAGNOSTIC_CONTRACT
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "subjects", tuple(self.subjects))
+        object.__setattr__(self, "expected", _freeze(self.expected))
+        object.__setattr__(self, "observed", _freeze(self.observed))
+        object.__setattr__(
+            self,
+            "repair_call_ids",
+            tuple(sorted(set(self.repair_call_ids))),
+        )
+
+    def to_payload(self) -> dict[str, Any]:
+        payload: dict[str, Any] = {
+            "schema_version": self.schema_version,
+            "code": self.code,
+            "category": self.category,
+            "stage": self.stage,
+            "retryability": self.retryability,
+            "subjects": [item.to_payload() for item in self.subjects],
+            "expected": _thaw(self.expected),
+            "observed": _thaw(self.observed),
+            "repair_action": self.repair_action,
+            "repair_call_ids": list(self.repair_call_ids),
+            "message": self.message,
+        }
+        for key, value in (
+            ("method_id", self.method_id),
+            ("capability_id", self.capability_id),
+            ("scope_id", self.scope_id),
+            ("step_id", self.step_id),
+        ):
+            if value is not None:
+                payload[key] = value
+        return payload
+
+    @classmethod
+    def from_payload(
+        cls,
+        payload: Mapping[str, Any],
+    ) -> "FunctionalPromptDiagnostic":
+        candidate = dict(payload)
+        _validate_payload(candidate, functional_prompt_diagnostic_schema())
+        return cls(
+            schema_version=str(candidate["schema_version"]),
+            code=str(candidate["code"]),
+            category=str(candidate["category"]),  # type: ignore[arg-type]
+            stage=str(candidate["stage"]),
+            retryability=str(candidate["retryability"]),  # type: ignore[arg-type]
+            subjects=tuple(
+                FunctionalPromptDiagnosticSubject(
+                    ref=_optional_string(item.get("ref")),
+                    role=_optional_string(item.get("role")),
+                    arg_name=_optional_string(item.get("arg_name")),
+                    expected_type=_optional_string(item.get("expected_type")),
+                    expected_state=_optional_string(item.get("expected_state")),
+                    observed_type=_optional_string(item.get("observed_type")),
+                    observed_state=_optional_string(item.get("observed_state")),
+                )
+                for item in (
+                    _mapping(raw) for raw in _sequence(candidate["subjects"])
+                )
+            ),
+            expected=_mapping(candidate["expected"]),
+            observed=_mapping(candidate["observed"]),
+            repair_action=str(candidate["repair_action"]),
+            repair_call_ids=tuple(
+                str(item) for item in _sequence(candidate["repair_call_ids"])
+            ),
+            message=str(candidate["message"]),
+            method_id=_optional_string(candidate.get("method_id")),
+            capability_id=_optional_string(candidate.get("capability_id")),
+            scope_id=_optional_string(candidate.get("scope_id")),
+            step_id=_optional_string(candidate.get("step_id")),
+        )
+
+
+class FunctionalPromptDiagnosticProjector:
+    """Project internal diagnostic identity through F5-B/C authority only."""
+
+    def project(
+        self,
+        authority: FunctionalDiagnosticAuthority,
+        binding_catalog: Any,
+        planning_context: Any,
+    ) -> FunctionalPromptDiagnostic:
+        if binding_catalog.planning_context_id != planning_context.planning_context_id:
+            return self._configuration_failure(
+                authority,
+                "diagnostic binding authority belongs to another PlanningContext",
+            )
+        input_identities = _binding_identity_index(
+            binding_catalog,
+            usage="input",
+        )
+        input_runtime_nodes = _binding_runtime_node_index(
+            binding_catalog,
+            usage="input",
+        )
+        answer_identities = _binding_identity_index(
+            binding_catalog,
+            usage="answer",
+            owner_scope_id=authority.scope_id,
+        )
+        answer_runtime_nodes = _binding_runtime_node_index(
+            binding_catalog,
+            usage="answer",
+            owner_scope_id=authority.scope_id,
+        )
+        identities = _merge_identity_indexes(
+            input_identities,
+            answer_identities,
+        )
+        public_refs = {
+            str(binding.semantic_ref.ref)
+            for binding in binding_catalog.bindings.values()
+        }
+        prompt_subjects: list[FunctionalPromptDiagnosticSubject] = []
+        unresolved: list[str] = []
+        for subject in authority.subjects:
+            public_ref: str | None = None
+            if subject.internal_ref is not None:
+                matches = _preferred_identity_matches(
+                    subject.internal_ref,
+                    input_runtime_nodes=input_runtime_nodes,
+                    answer_runtime_nodes=answer_runtime_nodes,
+                    input_identities=input_identities,
+                    answer_identities=answer_identities,
+                )
+                if len(matches) == 1:
+                    public_ref = next(iter(matches))
+                else:
+                    unresolved.append(subject.internal_ref)
+            prompt_subjects.append(
+                FunctionalPromptDiagnosticSubject(
+                    ref=public_ref,
+                    role=subject.role,
+                    arg_name=subject.arg_name,
+                    expected_type=subject.expected_type,
+                    expected_state=subject.expected_state,
+                    observed_type=subject.observed_type,
+                    observed_state=subject.observed_state,
+                )
+            )
+        if unresolved and authority.retryability == "planner_repairable":
+            return self._configuration_failure(
+                authority,
+                "planner-repairable diagnostic contains unmapped internal identity",
+            )
+        try:
+            projected_expected = _project_prompt_value(
+                authority.expected,
+                input_runtime_nodes=input_runtime_nodes,
+                answer_runtime_nodes=answer_runtime_nodes,
+                input_identities=input_identities,
+                answer_identities=answer_identities,
+            )
+            projected_observed = _project_prompt_value(
+                authority.observed,
+                input_runtime_nodes=input_runtime_nodes,
+                answer_runtime_nodes=answer_runtime_nodes,
+                input_identities=input_identities,
+                answer_identities=answer_identities,
+            )
+        except ValueError as error:
+            return self._configuration_failure(authority, str(error))
+        prompt = FunctionalPromptDiagnostic(
+            code=authority.code,
+            category=authority.category,
+            stage=authority.stage,
+            retryability=authority.retryability,
+            method_id=authority.method_id,
+            capability_id=authority.capability_id,
+            scope_id=authority.scope_id,
+            step_id=authority.step_id,
+            subjects=tuple(prompt_subjects),
+            expected=_prompt_safe_mapping(_mapping(projected_expected)),
+            observed=_prompt_safe_mapping(_mapping(projected_observed)),
+            repair_action=authority.repair_action,
+            repair_call_ids=authority.repair_call_ids,
+            message=_REPAIR_MESSAGES.get(
+                authority.repair_action,
+                _REPAIR_MESSAGES["repair_failed_step"],
+            ),
+        )
+        _audit_projected_diagnostic(
+            prompt.to_payload(),
+            forbidden_values=frozenset(set(identities) - public_refs),
+        )
+        return prompt
+
+    @staticmethod
+    def _configuration_failure(
+        authority: FunctionalDiagnosticAuthority,
+        reason: str,
+    ) -> FunctionalPromptDiagnostic:
+        return FunctionalPromptDiagnostic(
+            code="planner.method_contract_invalid",
+            category="configuration",
+            stage=authority.stage,
+            retryability="configuration",
+            method_id=authority.method_id,
+            capability_id=authority.capability_id,
+            scope_id=authority.scope_id,
+            step_id=authority.step_id,
+            subjects=tuple(
+                FunctionalPromptDiagnosticSubject(
+                    role=item.role,
+                    arg_name=item.arg_name,
+                    expected_type=item.expected_type,
+                    expected_state=item.expected_state,
+                    observed_type=item.observed_type,
+                    observed_state=item.observed_state,
+                )
+                for item in authority.subjects
+            ),
+            expected={},
+            observed={"projection_failure": reason, "source_code": authority.code},
+            repair_action="fix_runtime_contract",
+            repair_call_ids=authority.repair_call_ids,
+            message=_REPAIR_MESSAGES["fix_runtime_contract"],
+        )
+
+
+def diagnostic_authority_from_issue(
+    issue: Any,
+    *,
+    stage: str,
+    method_id: str | None = None,
+    capability_id: str | None = None,
+    scope_id: str | None = None,
+    step_id: str | None = None,
+) -> FunctionalDiagnosticAuthority:
+    """Normalize resolver/compiler/runtime issues before prompt projection."""
+
+    if isinstance(issue, Mapping):
+        code = str(issue.get("code", "planner.method_contract_invalid"))
+        message = str(issue.get("message", code))
+        details = dict(issue.get("details") or {})
+        if issue.get("path") is not None:
+            details.setdefault("path", str(issue["path"]))
+        issue_scope_id = _optional_string(issue.get("scope_id"))
+        issue_step_id = _optional_string(
+            issue.get("call_id") or issue.get("step_id")
+        )
+    else:
+        code = str(getattr(issue, "code", "planner.method_contract_invalid"))
+        message = str(getattr(issue, "message", str(issue)))
+        details = dict(getattr(issue, "details", None) or {})
+        if getattr(issue, "path", None) is not None:
+            details.setdefault("path", str(issue.path))
+        issue_scope_id = _optional_string(getattr(issue, "scope_id", None))
+        issue_step_id = _optional_string(
+            getattr(issue, "call_id", None) or getattr(issue, "step_id", None)
+        )
+    retryability = _retryability_for_code(code, details)
+    category = _category_for_code(code)
+    subjects = _subjects_from_details(details)
+    expected = _prefixed_details(
+        details,
+        ("expected", "required", "requirement", "relation"),
+    )
+    observed = _prefixed_details(details, ("actual", "observed", "candidate"))
+    repair_action = _repair_action_for(code, category, details)
+    return FunctionalDiagnosticAuthority(
+        code=code,
+        category=category,
+        stage=stage,
+        retryability=retryability,
+        method_id=method_id or _optional_string(details.get("method_id")),
+        capability_id=(
+            capability_id or _optional_string(details.get("capability_id"))
+        ),
+        scope_id=(scope_id or issue_scope_id),
+        step_id=(
+            step_id
+            or issue_step_id
+        ),
+        subjects=subjects,
+        expected=expected,
+        observed=observed,
+        repair_action=repair_action,
+        repair_call_ids=tuple(
+            str(item) for item in details.get("repair_call_ids", ())
+        ),
+        original_message=message,
+        authority_details=details,
+    )
+
+
+def unexpected_method_error(
+    error: Exception,
+    *,
+    method_id: str,
+    scope_id: str,
+    step_id: str | None = None,
+    capability_id: str | None = None,
+) -> StatelessMethodError:
+    """Wrap an untyped Method failure as a non-retryable contract bug."""
+
+    return StatelessMethodError(
+        "planner.method_contract_invalid",
+        f"{type(error).__name__}: {error}",
+        category="configuration",
+        retryability="configuration",
+        method_id=method_id,
+        capability_id=capability_id,
+        scope_id=scope_id,
+        step_id=step_id,
+        expected={"contract": "typed StatelessMethodError"},
+        observed={"exception_type": type(error).__name__},
+        repair_action="fix_runtime_contract",
+        details={"raw_error": str(error)},
+    )
+
+
+def method_input_missing(
+    message: str,
+    **kwargs: Any,
+) -> StatelessMethodError:
+    return StatelessMethodError(
+        "functional.method_input_missing",
+        message,
+        category="input",
+        retryability="planner_repairable",
+        repair_action=kwargs.pop("repair_action", "provide_required_input"),
+        **kwargs,
+    )
+
+
+def method_input_invalid(message: str, **kwargs: Any) -> StatelessMethodError:
+    return StatelessMethodError(
+        "functional.method_input_invalid",
+        message,
+        category="input",
+        retryability="planner_repairable",
+        repair_action=kwargs.pop("repair_action", "repair_input_binding"),
+        **kwargs,
+    )
+
+
+def method_input_state_unavailable(
+    message: str,
+    **kwargs: Any,
+) -> StatelessMethodError:
+    return StatelessMethodError(
+        "functional.method_input_state_unavailable",
+        message,
+        category="input",
+        retryability="planner_repairable",
+        repair_action=kwargs.pop(
+            "repair_action", "provide_visible_state_producer"
+        ),
+        **kwargs,
+    )
+
+
+def method_precondition_failed(
+    message: str,
+    **kwargs: Any,
+) -> StatelessMethodError:
+    return StatelessMethodError(
+        "functional.method_precondition_failed",
+        message,
+        category="precondition",
+        retryability=kwargs.pop("retryability", "planner_repairable"),
+        repair_action=kwargs.pop(
+            "repair_action", "choose_applicable_capability"
+        ),
+        **kwargs,
+    )
+
+
+def method_result_empty(message: str, **kwargs: Any) -> StatelessMethodError:
+    return StatelessMethodError(
+        "functional.method_result_empty",
+        message,
+        category="result",
+        retryability="planner_repairable",
+        repair_action=kwargs.pop("repair_action", "repair_failed_step"),
+        **kwargs,
+    )
+
+
+def method_result_ambiguous(message: str, **kwargs: Any) -> StatelessMethodError:
+    return StatelessMethodError(
+        "functional.method_result_ambiguous",
+        message,
+        category="ambiguity",
+        retryability="planner_repairable",
+        repair_action=kwargs.pop(
+            "repair_action", "supply_disambiguating_constraint"
+        ),
+        **kwargs,
+    )
+
+
+def method_result_inconsistent(
+    message: str,
+    **kwargs: Any,
+) -> StatelessMethodError:
+    return StatelessMethodError(
+        "functional.method_result_inconsistent",
+        message,
+        category="inconsistency",
+        retryability=kwargs.pop("retryability", "problem_semantics"),
+        repair_action=kwargs.pop(
+            "repair_action", "revise_inconsistent_constraints"
+        ),
+        **kwargs,
+    )
+
+
+def method_check_failed(
+    checks: Sequence[Any],
+    *,
+    method_id: str | None = None,
+) -> StatelessMethodError:
+    names = tuple(str(getattr(item, "name", item)) for item in checks)
+    subjects = tuple(
+        FunctionalDiagnosticSubject(
+            role=_optional_string(subject.get("role")),
+            arg_name=_optional_string(subject.get("arg_name")),
+            internal_ref=_optional_string(subject.get("internal_ref")),
+            expected_type=_optional_string(subject.get("expected_type")),
+            expected_state=_optional_string(subject.get("expected_state")),
+            observed_type=_optional_string(subject.get("observed_type")),
+            observed_state=_optional_string(subject.get("observed_state")),
+        )
+        for item in checks
+        for subject in getattr(item, "subjects", ())
+        if isinstance(subject, Mapping)
+    )
+    details = [
+        {
+            "name": str(getattr(item, "name", item)),
+            "detail": str(getattr(item, "detail", "")),
+            "code": getattr(item, "code", None),
+            "expected": dict(getattr(item, "expected", {}) or {}),
+            "observed": dict(getattr(item, "observed", {}) or {}),
+            "subjects": [
+                dict(subject)
+                for subject in getattr(item, "subjects", ())
+                if isinstance(subject, Mapping)
+            ],
+            "repair_action": getattr(
+                item,
+                "repair_action",
+                "repair_failed_step",
+            ),
+        }
+        for item in checks
+    ]
+    retryabilities = {
+        str(getattr(item, "retryability", "planner_repairable"))
+        for item in checks
+    }
+    retryability: FunctionalDiagnosticRetryability = (
+        "configuration"
+        if "configuration" in retryabilities
+        else (
+            "problem_semantics"
+            if "problem_semantics" in retryabilities
+            else "planner_repairable"
+        )
+    )
+    return StatelessMethodError(
+        "functional.method_check_failed",
+        "method runtime checks failed: " + ", ".join(names),
+        category="check",
+        retryability=retryability,
+        method_id=method_id,
+        subjects=subjects,
+        expected={"status": "passed"},
+        observed={"failed_checks": details},
+        repair_action=(
+            "fix_runtime_contract"
+            if retryability == "configuration"
+            else "repair_failed_step"
+        ),
+        details={"failed_checks": details},
+    )
+
+
+def functional_diagnostic_authority_schema() -> dict[str, Any]:
+    return _diagnostic_schema(prompt=False)
+
+
+def functional_prompt_diagnostic_schema() -> dict[str, Any]:
+    return _diagnostic_schema(prompt=True)
+
+
+def _diagnostic_schema(*, prompt: bool) -> dict[str, Any]:
+    nonempty = {"type": "string", "minLength": 1}
+    subject_properties: dict[str, Any] = {
+        "role": nonempty,
+        "arg_name": nonempty,
+        "expected_type": nonempty,
+        "expected_state": nonempty,
+        "observed_type": nonempty,
+        "observed_state": nonempty,
+    }
+    subject_properties["ref" if prompt else "internal_ref"] = nonempty
+    required = [
+        "schema_version",
+        "code",
+        "category",
+        "stage",
+        "retryability",
+        "subjects",
+        "expected",
+        "observed",
+        "repair_action",
+        "repair_call_ids",
+        "message" if prompt else "original_message",
+    ]
+    if not prompt:
+        required.append("authority_details")
+    properties: dict[str, Any] = {
+        "schema_version": {
+            "const": (
+                FUNCTIONAL_PROMPT_DIAGNOSTIC_CONTRACT
+                if prompt
+                else FUNCTIONAL_DIAGNOSTIC_AUTHORITY_CONTRACT
+            )
+        },
+        "code": nonempty,
+        "category": {
+            "enum": [
+                "input",
+                "precondition",
+                "result",
+                "ambiguity",
+                "inconsistency",
+                "check",
+                "binding",
+                "configuration",
+            ]
+        },
+        "stage": nonempty,
+        "retryability": {
+            "enum": [
+                "planner_repairable",
+                "problem_semantics",
+                "configuration",
+            ]
+        },
+        "method_id": nonempty,
+        "capability_id": nonempty,
+        "scope_id": nonempty,
+        "step_id": nonempty,
+        "subjects": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": subject_properties,
+                "additionalProperties": False,
+            },
+        },
+        "expected": {"type": "object"},
+        "observed": {"type": "object"},
+        "repair_action": nonempty,
+        "repair_call_ids": {
+            "type": "array",
+            "uniqueItems": True,
+            "items": nonempty,
+        },
+        "message" if prompt else "original_message": {"type": "string"},
+    }
+    if not prompt:
+        properties["authority_details"] = {"type": "object"}
+    return {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": (
+            "functional-prompt-diagnostic.schema.json"
+            if prompt
+            else "functional-diagnostic-authority.schema.json"
+        ),
+        "title": (
+            "Functional Prompt Diagnostic v1"
+            if prompt
+            else "Functional Diagnostic Authority v1"
+        ),
+        "type": "object",
+        "required": required,
+        "properties": properties,
+        "additionalProperties": False,
+    }
+
+
+def _binding_identity_index(
+    binding_catalog: Any,
+    *,
+    usage: str,
+    owner_scope_id: str | None = None,
+) -> dict[str, frozenset[str]]:
+    values: dict[str, set[str]] = {}
+    for binding in binding_catalog.bindings.values():
+        if binding.usage != usage:
+            continue
+        if owner_scope_id is not None and binding.owner_scope_id != owner_scope_id:
+            continue
+        ref = str(binding.semantic_ref.ref)
+        identities = {str(binding.runtime_node_id), *map(str, binding.source_unit_ids)}
+        identities.add(ref)
+        for source in binding.typed_sources:
+            if source.math_object_id is not None:
+                identities.add(str(source.math_object_id.value))
+            if source.condition_id is not None:
+                identities.add(str(source.condition_id))
+            if source.state_slot_id is not None:
+                identities.add(str(source.state_slot_id))
+            if source.state_version_id is not None:
+                identities.add(_identity_string(source.state_version_id))
+        for identity in identities:
+            values.setdefault(identity, set()).add(ref)
+    return {key: frozenset(item) for key, item in values.items()}
+
+
+def _binding_runtime_node_index(
+    binding_catalog: Any,
+    *,
+    usage: str,
+    owner_scope_id: str | None = None,
+) -> dict[str, frozenset[str]]:
+    values: dict[str, set[str]] = {}
+    for binding in binding_catalog.bindings.values():
+        if binding.usage != usage:
+            continue
+        if owner_scope_id is not None and binding.owner_scope_id != owner_scope_id:
+            continue
+        values.setdefault(str(binding.runtime_node_id), set()).add(
+            str(binding.semantic_ref.ref)
+        )
+    return {key: frozenset(item) for key, item in values.items()}
+
+
+def _preferred_identity_matches(
+    identity: str,
+    *,
+    input_runtime_nodes: Mapping[str, frozenset[str]],
+    answer_runtime_nodes: Mapping[str, frozenset[str]],
+    input_identities: Mapping[str, frozenset[str]],
+    answer_identities: Mapping[str, frozenset[str]],
+) -> frozenset[str]:
+    for index in (
+        input_runtime_nodes,
+        answer_runtime_nodes,
+        input_identities,
+        answer_identities,
+    ):
+        matches = index.get(identity, frozenset())
+        if matches:
+            return matches
+    return frozenset()
+
+
+def _merge_identity_indexes(
+    *indexes: Mapping[str, frozenset[str]],
+) -> dict[str, frozenset[str]]:
+    merged: dict[str, set[str]] = {}
+    for index in indexes:
+        for identity, refs in index.items():
+            merged.setdefault(identity, set()).update(refs)
+    return {key: frozenset(value) for key, value in merged.items()}
+
+
+def _project_prompt_value(
+    value: Any,
+    *,
+    input_runtime_nodes: Mapping[str, frozenset[str]],
+    answer_runtime_nodes: Mapping[str, frozenset[str]],
+    input_identities: Mapping[str, frozenset[str]],
+    answer_identities: Mapping[str, frozenset[str]],
+) -> Any:
+    if isinstance(value, Mapping):
+        return {
+            str(key): _project_prompt_value(
+                item,
+                input_runtime_nodes=input_runtime_nodes,
+                answer_runtime_nodes=answer_runtime_nodes,
+                input_identities=input_identities,
+                answer_identities=answer_identities,
+            )
+            for key, item in value.items()
+        }
+    if isinstance(value, (list, tuple, set, frozenset)):
+        return [
+            _project_prompt_value(
+                item,
+                input_runtime_nodes=input_runtime_nodes,
+                answer_runtime_nodes=answer_runtime_nodes,
+                input_identities=input_identities,
+                answer_identities=answer_identities,
+            )
+            for item in value
+        ]
+    if not isinstance(value, str):
+        return value
+    matches = _preferred_identity_matches(
+        value,
+        input_runtime_nodes=input_runtime_nodes,
+        answer_runtime_nodes=answer_runtime_nodes,
+        input_identities=input_identities,
+        answer_identities=answer_identities,
+    )
+    if len(matches) == 1:
+        return next(iter(matches))
+    if matches:
+        raise ValueError(
+            "diagnostic identity maps to multiple prompt-visible references"
+        )
+    return value
+
+
+def _subjects_from_details(
+    details: Mapping[str, Any],
+) -> tuple[FunctionalDiagnosticSubject, ...]:
+    refs: list[str] = []
+    for key in (
+        "object_ref",
+        "target_object_ref",
+        "actual_object_ref",
+        "expected_object_ref",
+        "moving_object",
+        "unresolved_point_ref",
+    ):
+        value = details.get(key)
+        if value is not None:
+            refs.append(_identity_string(value))
+    for key in (
+        "object_refs",
+        "actual_object_refs",
+        "expected_object_refs",
+    ):
+        value = details.get(key)
+        if isinstance(value, (list, tuple, set, frozenset)):
+            refs.extend(_identity_string(item) for item in value)
+    refs = list(dict.fromkeys(refs))
+    role = _optional_string(details.get("role") or details.get("semantic_role"))
+    arg_name = _optional_string(details.get("arg_name"))
+    expected_type = _optional_string(
+        details.get("expected_type") or details.get("runtime_type")
+    )
+    expected_state = _optional_string(
+        details.get("expected_state") or details.get("state_requirement")
+    )
+    observed_type = _optional_string(
+        details.get("actual_type") or details.get("observed_type")
+    )
+    observed_state = _optional_string(
+        details.get("actual_state") or details.get("observed_state")
+    )
+    if not refs and any(
+        item is not None
+        for item in (role, arg_name, expected_type, expected_state, observed_type)
+    ):
+        refs.append("")
+    return tuple(
+        FunctionalDiagnosticSubject(
+            role=role,
+            arg_name=arg_name,
+            internal_ref=ref or None,
+            expected_type=expected_type,
+            expected_state=expected_state,
+            observed_type=observed_type,
+            observed_state=observed_state,
+        )
+        for ref in refs
+    )
+
+
+def _category_for_code(code: str) -> FunctionalDiagnosticCategory:
+    lowered = code.lower()
+    if code in _CONFIGURATION_CODES or "configuration" in lowered:
+        return "configuration"
+    if "ambiguous" in lowered or "multiple" in lowered or "candidate" in lowered:
+        return "ambiguity"
+    if "conflict" in lowered or "inconsistent" in lowered or "drift" in lowered:
+        return "inconsistency"
+    if "check" in lowered:
+        return "check"
+    if "binding" in lowered or "ref_" in lowered:
+        return "binding"
+    if "unavailable" in lowered or "missing" in lowered or "unresolved" in lowered:
+        return "input"
+    return "precondition"
+
+
+def _retryability_for_code(
+    code: str,
+    details: Mapping[str, Any],
+) -> FunctionalDiagnosticRetryability:
+    explicit = details.get("retryability")
+    if explicit in {"planner_repairable", "problem_semantics", "configuration"}:
+        return explicit
+    if code in _CONFIGURATION_CODES or "configuration" in code:
+        return "configuration"
+    if "source_semantics" in code or "problem_semantics" in code:
+        return "problem_semantics"
+    return "planner_repairable"
+
+
+def _repair_action_for(
+    code: str,
+    category: FunctionalDiagnosticCategory,
+    details: Mapping[str, Any],
+) -> str:
+    explicit = details.get("repair_action")
+    if isinstance(explicit, str) and explicit:
+        return explicit
+    if category == "configuration":
+        return "fix_runtime_contract"
+    if "state_unavailable" in code:
+        if str(details.get("runtime_type", "")) == "Point":
+            return "provide_visible_point_producer"
+        return "provide_visible_state_producer"
+    if category == "ambiguity":
+        return "supply_disambiguating_constraint"
+    if category == "inconsistency":
+        return "revise_inconsistent_constraints"
+    if category in {"input", "binding"}:
+        return "repair_input_binding"
+    if category == "precondition":
+        return "choose_applicable_capability"
+    return "repair_failed_step"
+
+
+def _prefixed_details(
+    details: Mapping[str, Any],
+    prefixes: Sequence[str],
+) -> dict[str, Any]:
+    return {
+        str(key): _thaw(_freeze(value))
+        for key, value in details.items()
+        if any(str(key).startswith(prefix) for prefix in prefixes)
+    }
+
+
+def _prompt_safe_mapping(value: Mapping[str, Any]) -> dict[str, Any]:
+    forbidden_fragments = (
+        "artifact",
+        "binding_signature",
+        "condition_id",
+        "math_object_id",
+        "problem_revision",
+        "runtime_node",
+        "runtime_path",
+        "source_unit",
+        "state_slot",
+        "state_version",
+    )
+    return {
+        str(key): _thaw(item)
+        for key, item in value.items()
+        if not any(fragment in str(key).lower() for fragment in forbidden_fragments)
+    }
+
+
+def _audit_projected_diagnostic(
+    payload: Mapping[str, Any],
+    *,
+    forbidden_values: frozenset[str],
+) -> None:
+    text = json.dumps(payload, ensure_ascii=False, sort_keys=True)
+    leaks = tuple(
+        sorted(value for value in forbidden_values if value and value in text)
+    )
+    if leaks:
+        raise ValueError(
+            "planner.method_contract_invalid: prompt diagnostic leaked internal "
+            f"identity: {leaks[:3]}"
+        )
+    if "<internal-identity-omitted>" in text:
+        raise ValueError(
+            "planner.method_contract_invalid: prompt diagnostic used an identity "
+            "placeholder"
+        )
+
+
+def _identity_string(value: Any) -> str:
+    if isinstance(value, str):
+        return value
+    if hasattr(value, "value") and isinstance(value.value, str):
+        return value.value
+    if hasattr(value, "to_payload") and callable(value.to_payload):
+        return json.dumps(
+            value.to_payload(),
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+    return str(value)
+
+
+def _validate_payload(payload: Mapping[str, Any], schema: Mapping[str, Any]) -> None:
+    errors = sorted(
+        Draft202012Validator(schema).iter_errors(dict(payload)),
+        key=lambda item: tuple(item.absolute_path),
+    )
+    if errors:
+        first = errors[0]
+        path = "$" + "".join(
+            f"[{part}]" if isinstance(part, int) else f".{part}"
+            for part in first.absolute_path
+        )
+        raise ValueError(f"invalid Functional diagnostic at {path}: {first.message}")
+
+
+def _optional_string(value: Any) -> str | None:
+    return str(value) if value is not None else None
+
+
+def _mapping(value: Any) -> Mapping[str, Any]:
+    if not isinstance(value, Mapping):
+        raise TypeError("expected mapping")
+    return value
+
+
+def _sequence(value: Any) -> Sequence[Any]:
+    if isinstance(value, (str, bytes)) or not isinstance(value, Sequence):
+        raise TypeError("expected sequence")
+    return value
+
+
+__all__ = [
+    "FUNCTIONAL_DIAGNOSTIC_AUTHORITY_CONTRACT",
+    "FUNCTIONAL_PROMPT_DIAGNOSTIC_CONTRACT",
+    "FunctionalDiagnosticAuthority",
+    "FunctionalDiagnosticSubject",
+    "FunctionalPromptDiagnostic",
+    "FunctionalPromptDiagnosticProjector",
+    "StatelessMethodError",
+    "diagnostic_authority_from_issue",
+    "functional_diagnostic_authority_schema",
+    "functional_prompt_diagnostic_schema",
+    "method_check_failed",
+    "method_input_invalid",
+    "method_input_missing",
+    "method_input_state_unavailable",
+    "method_precondition_failed",
+    "method_result_ambiguous",
+    "method_result_empty",
+    "method_result_inconsistent",
+    "unexpected_method_error",
+]

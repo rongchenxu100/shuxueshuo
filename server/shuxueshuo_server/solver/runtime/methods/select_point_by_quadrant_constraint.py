@@ -24,7 +24,13 @@ class SelectPointByQuadrantConstraintMethod:
         quadrant_text = str(quadrant.get("quadrant", quadrant)) if isinstance(quadrant, dict) else str(quadrant)
         operator = str(parameter_constraint.get("operator", ""))
         if operator != ">":
-            raise ValueError("select_point_by_quadrant_constraint currently requires a > parameter constraint")
+            raise method_precondition_failed(
+                "quadrant selection requires a strict lower-bound constraint",
+                arg_name="parameter_constraint",
+                role="parameter_constraint",
+                expected={"operator": ">"},
+                observed={"operator": operator},
+            )
         lower_bound = sp.sympify(parameter_constraint["value"])
         matching = [
             point for point in candidates
@@ -36,8 +42,15 @@ class SelectPointByQuadrantConstraintMethod:
             )
         ]
         if len(matching) != 1:
-            raise ValueError(
-                f"quadrant constraint should select exactly one candidate, got {len(matching)}"
+            raise method_result_ambiguous(
+                "quadrant and parameter constraints do not select exactly one point",
+                arg_name="candidates",
+                role="point_candidates",
+                expected={"matching_count": 1},
+                observed={
+                    "candidate_count": len(candidates),
+                    "matching_count": len(matching),
+                },
             )
         selected = matching[0]
         condition_text = f"{target.name} 在{quadrant_text}，且 {parameter.name}>{kernel.sstr(lower_bound)}"

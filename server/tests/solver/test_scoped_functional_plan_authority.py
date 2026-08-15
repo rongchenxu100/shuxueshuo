@@ -925,6 +925,48 @@ def test_scope_step_cannot_be_authored_above_its_output_authority(tmp_path) -> N
         _lower_payload(tmp_path, case, payload)
 
 
+def test_scope_visibility_feedback_distinguishes_identity_from_local_state(
+    tmp_path,
+) -> None:
+    case = "tj-2026-hexi-yimo-25"
+    payload = load_v2_fixture_payload(case)
+    root = payload["root_scope"]
+    scope_iii = _find_scope(root, "iii")
+    goal_iii = scope_iii["goals"][0]
+    local_state_step = goal_iii["steps"].pop(0)
+    root["steps"] = [local_state_step]
+
+    fixture = scope_native_reconciliation_fixture(tmp_path, case=case)
+    scoped, validation = ScopedFunctionalPlanValidator().validate_payload_with_report(
+        payload
+    )
+    assert validation.ok and scoped is not None
+    inputs = fixture[3]
+
+    authority, report = ScopedFunctionalPlanAuthorityAdapter().analyze(
+        scoped,
+        planning_context=fixture[1],
+        binding_catalog=fixture[7],
+        capability_catalog=FunctionalCapabilityCatalog.from_family_spec(
+            inputs.family_spec,
+            inputs.method_specs,
+        ),
+    )
+
+    assert authority is None
+    issue = next(
+        item
+        for item in report.issues
+        if item.code == "functional.step_scope_visibility_drift"
+    )
+    assert "step scope 'problem'" in issue.message
+    assert "candidate owner scopes" in issue.message
+    assert "'iii'" in issue.message
+    assert "shared MathObject identity does not share scope-local state" in (
+        issue.message
+    )
+
+
 def test_authority_analysis_aggregates_independent_root_issues(tmp_path) -> None:
     case = "tj-2026-heping-ermo-25"
     payload = load_v2_fixture_payload(case)
@@ -1105,20 +1147,7 @@ def test_missing_scope_and_duplicate_goal_fail_loud(tmp_path) -> None:
         _lower_payload(tmp_path / "duplicate", case, duplicate_goal)
 
 
-def test_cross_goal_step_result_and_forward_reference_fail_loud(tmp_path) -> None:
-    case = "tj-2026-heping-ermo-25"
-    payload = load_v2_fixture_payload(case)
-    scope_i_2 = _find_scope(payload["root_scope"], "i_2")
-    scope_i_2["goals"][0]["steps"][0]["args"]["parabola"] = {
-        "step_id": "derive_vertex_P_i",
-        "return": "point",
-    }
-    with pytest.raises(
-        ScopedFunctionalPlanError,
-        match="functional.step_scope_visibility_drift",
-    ):
-        _lower_payload(tmp_path / "sibling", case, payload)
-
+def test_forward_reference_fails_loud(tmp_path) -> None:
     case = "tj-2026-xiqing-yimo-25"
     payload = load_v2_fixture_payload(case)
     scope_ii = _find_scope(payload["root_scope"], "ii")
@@ -1128,6 +1157,42 @@ def test_cross_goal_step_result_and_forward_reference_fail_loud(tmp_path) -> Non
     }
     with pytest.raises(ScopedFunctionalPlanError, match="must point backward"):
         _lower_payload(tmp_path / "forward", case, payload)
+
+
+def test_safe_cross_goal_producer_is_promoted_to_scope_lca(tmp_path) -> None:
+    case = "tj-2026-heping-yimo-25"
+    payload = load_v2_fixture_payload(case)
+    scope_i = _find_scope(payload["root_scope"], "i")
+    scope_i_1 = _find_scope(payload["root_scope"], "i_1")
+    shared = next(
+        item
+        for item in scope_i["steps"]
+        if item["step_id"] == "derive_parabola_i"
+    )
+    scope_i["steps"].remove(shared)
+    scope_i_1["goals"][0]["steps"] = [shared]
+
+    authority, _fixture = _lower_payload(tmp_path, case, payload)
+
+    canonical_i = _find_scope(
+        authority.scoped_plan.to_payload()["root_scope"],
+        "i",
+    )
+    canonical_i_1 = _find_scope(
+        authority.scoped_plan.to_payload()["root_scope"],
+        "i_1",
+    )
+    assert [item["step_id"] for item in canonical_i["steps"]] == [
+        "derive_parabola_i"
+    ]
+    assert "steps" not in canonical_i_1["goals"][0]
+    assert any(
+        item.action == "promote_shared_step_to_scope"
+        and item.step_id == "derive_parabola_i"
+        and item.from_goal_ref == "i_1.parabola"
+        and item.scope_ref == "i"
+        for item in authority.normalizations
+    )
 
 
 def test_answer_and_output_authority_fail_loud(tmp_path) -> None:
@@ -1154,7 +1219,7 @@ def test_answer_and_output_authority_fail_loud(tmp_path) -> None:
         _lower_payload(tmp_path / "output-scope", case, payload)
 
 
-def test_source_ref_does_not_select_any_dynamic_producer(tmp_path) -> None:
+def test_source_ref_selects_latest_visible_dynamic_producer(tmp_path) -> None:
     case = "tj-2026-heping-yimo-25"
     payload = load_v2_fixture_payload(case)
     root_steps = payload["root_scope"]["steps"]
@@ -1170,9 +1235,44 @@ def test_source_ref_does_not_select_any_dynamic_producer(tmp_path) -> None:
         if call.call_id == "derive_translated_D_i"
     )
     assert translated.args["source"][0].to_payload() == {
-        "ref": "C",
-        "kind": "point",
+        "from_call": "derive_y_intercept_C_again",
+        "return": "point",
     }
+    assert any(
+        item.action == "canonicalize_latest_dynamic_source_ref"
+        and item.step_id == "derive_translated_D_i"
+        and item.to_ref == "derive_y_intercept_C_again.point"
+        for item in authority.normalizations
+    )
+
+
+def test_source_ref_uses_implicit_preserve_input_object_return(tmp_path) -> None:
+    case = "tj-2026-heping-ermo-25"
+    payload = load_v2_fixture_payload(case)
+    scope_ii = _find_scope(payload["root_scope"], "ii")
+    goal = scope_ii["goals"][0]
+    steps = {item["step_id"]: item for item in goal["steps"]}
+    steps["evaluate_point_A_ii"].pop("output_targets")
+    steps["recover_target_point_E_ii"]["args"]["side_start"] = "A"
+
+    authority, _fixture = _lower_payload(tmp_path, case, payload)
+
+    recovered = next(
+        call
+        for call in authority.lowered_plan.calls
+        if call.call_id == "recover_target_point_E_ii"
+    )
+    assert recovered.args["side_start"][0].to_payload() == {
+        "from_call": "evaluate_point_A_ii",
+        "return": "evaluated_point",
+    }
+    assert any(
+        item.action == "canonicalize_latest_dynamic_source_ref"
+        and item.step_id == "recover_target_point_E_ii"
+        and item.from_ref == "A"
+        and item.to_ref == "evaluate_point_A_ii.evaluated_point"
+        for item in authority.normalizations
+    )
 
 
 def test_terminal_dead_pure_goal_step_is_available_for_pruning(tmp_path) -> None:

@@ -19,7 +19,7 @@
     "source_ref": {
       "type": "string",
       "minLength": 1,
-      "description": "Copy a scope-local visible Entity or Fact ref from Planner Problem View exactly, without adding a scope prefix. A string never denotes a value produced by a plan step."
+      "description": "Copy a scope-local visible Entity or Fact ref from Planner Problem View exactly, without adding a scope prefix. For a stable Entity, the ref reads its latest visible state at this step; a Fact remains the verified problem snapshot."
     },
     "step_result_ref": {
       "type": "object",
@@ -42,7 +42,7 @@
       "additionalProperties": false
     },
     "functional_ref": {
-      "description": "Use a SourceRef string for the verified problem snapshot, or a StepResultRef object for one exact return from an earlier step.",
+      "description": "Use a SourceRef string for a visible Fact or the current state of a stable Entity. Use StepResultRef for an anonymous result, a specific historical state, or producer disambiguation.",
       "oneOf": [
         {
           "$ref": "#/$defs/source_ref"
@@ -70,7 +70,7 @@
         },
         "args": {
           "type": "object",
-          "description": "Capability inputs keyed by public catalog arg names; values are exact visible SourceRefs or earlier StepResultRefs. Never invent a string name for a value produced by a step.",
+          "description": "Capability inputs keyed by public catalog arg names; values are exact visible SourceRefs or earlier StepResultRefs. Never invent a string name for an anonymous step result.",
           "additionalProperties": {
             "oneOf": [
               {

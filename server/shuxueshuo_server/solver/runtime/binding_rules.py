@@ -515,6 +515,25 @@ def _point_output_ref_selector(
 ) -> str:
     """读取当前 step 目标点的 PointRef。"""
     handle = _point_output_handle(step, index)
+    reuse_write = next(
+        (
+            write
+            for write in index.projected_state_writes
+            if write.step_id == step.step_id
+            and write.runtime_type == "Point"
+            and write.object_ref == handle
+            and write.allocation_action == "reuse"
+        ),
+        None,
+    )
+    if reuse_write is not None:
+        # A reuse allocation is only a candidate. Execute it against the
+        # step-local target so the transaction layer can compare the actual
+        # coordinate without overwriting the existing typed StateVersion.
+        return index.runtime_reuse_point_probe_path_for(
+            handle,
+            step_id=step.step_id,
+        )
     if any(
         write.step_id == step.step_id
         and write.runtime_type == "Point"

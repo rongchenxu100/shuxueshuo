@@ -33,6 +33,7 @@ from shuxueshuo_server.solver.runtime.functional_plan_models import (
     FunctionalCallReport,
     FunctionalPlan,
     FunctionalPlanIssue,
+    PublishedGoalCallResultRef,
     FunctionalReturnAllocation,
     ResolvedFunctionalValue,
     _issue,
@@ -156,30 +157,12 @@ class FunctionalCallPlacementService:
         issues: list[FunctionalPlanIssue] = []
         transferred_return_expectations: dict[str, dict[str, str]] = {}
         transferred_return_bindings: dict[str, dict[str, SemanticRef]] = {}
-        (
-            aliases,
-            groups,
-            reconciled_by_id,
-            typed_identity_keys,
-            typed_repairs,
-            typed_issues,
-            transferred_return_bindings,
-            transferred_return_expectations,
-        ) = _canonicalize_typed_calls(
+        typed_identity_keys = _typed_runtime_equivalence_candidate_keys(
             plan,
-            source_scopes=source_scopes,
             reconciled_by_id=reconciled_by_id,
             catalog=catalog,
             aliases=aliases,
-            groups=groups,
-            handle_registry=handle_registry,
-            pinned_canonical_call_ids=frozenset(
-                pinned_canonical_call_ids
-            ),
-            pinned_return_scopes=pinned_return_scopes,
         )
-        repairs.extend(typed_repairs)
-        issues.extend(typed_issues)
 
         aliases = _canonical_aliases(aliases)
         plan = _apply_transferred_return_bindings(
@@ -228,8 +211,19 @@ class FunctionalCallPlacementService:
                 )
             },
         )
-        consumer_scopes = _dependency_consumer_scopes(
+        placement_dependencies = _placement_dependency_graph(
+            canonical_plan,
             canonical_dependencies,
+        )
+        consumer_scopes = _dependency_consumer_scopes(
+            placement_dependencies,
+            call_scopes={
+                call_id: tuple(source_scopes[item] for item in members)
+                for call_id, members in groups.items()
+            },
+        )
+        transitive_consumer_scopes = _transitive_dependency_consumer_scopes(
+            placement_dependencies,
             call_scopes={
                 call_id: tuple(source_scopes[item] for item in members)
                 for call_id, members in groups.items()
@@ -237,7 +231,7 @@ class FunctionalCallPlacementService:
         )
         branch_private_scopes = _branch_private_state_storage_scopes(
             canonical_reconciled,
-            consumer_scopes=consumer_scopes,
+            consumer_scopes=transitive_consumer_scopes,
             registry=handle_registry,
         )
         requested_execution_scopes: dict[str, str] = {}
@@ -297,7 +291,7 @@ class FunctionalCallPlacementService:
         provisional_execution_scopes = _close_execution_scope_dependencies(
             canonical_plan,
             reconciled=canonical_reconciled,
-            dependency_graph=canonical_dependencies,
+            dependency_graph=placement_dependencies,
             requested_scopes=requested_execution_scopes,
             declared_scopes={
                 call_id: source_scopes[call_id]
@@ -589,6 +583,40 @@ def _is_shareable(
     if not capability.is_pure:
         return False
     return not any(item.runtime_type == "Condition" for item in capability.returns)
+
+
+def _typed_runtime_equivalence_candidate_keys(
+    plan: FunctionalPlan,
+    *,
+    reconciled_by_id: Mapping[str, FunctionalCallReconciliation],
+    catalog: FunctionalCapabilityCatalog,
+    aliases: Mapping[str, str],
+) -> dict[str, FunctionalCallIdentityKey]:
+    """Index possible reuse candidates without authorizing a call alias.
+
+    Typed computation/effect identity is useful for allocation and placement,
+    but it is not a semantic equality proof. The transactional interpreter
+    must execute each candidate and compare its actual runtime result before a
+    step can be merged or deleted.
+    """
+
+    result: dict[str, FunctionalCallIdentityKey] = {}
+    for call in plan.calls:
+        if call.call_id in aliases:
+            continue
+        reconciled = reconciled_by_id.get(call.call_id)
+        capability = catalog.get(call.capability_id)
+        if reconciled is None or capability is None:
+            continue
+        identity_key = _typed_call_identity_key(
+            reconciled,
+            capability=capability,
+            aliases=aliases,
+            version_aliases={},
+        )
+        if identity_key is not None:
+            result[call.call_id] = identity_key
+    return result
 
 
 def _canonicalize_typed_calls(
@@ -1758,6 +1786,7 @@ def _finalize_typed_allocations(
                 free_symbol_ids=old.free_symbol_ids,
                 runtime_destination=runtime_destination,
                 result_form=call.return_expectations.get(old.return_name),
+                allow_runtime_equivalence_probe=True,
             )
             decision = allocation_service.allocate(request, identity_index)
             if decision.action == "conflict":
@@ -2306,6 +2335,7 @@ def _typed_placement_mismatches(
                 )
             if (
                 allocation.typed_slot_id is not None
+                and allocation.allocation_action != "reuse"
                 and allocation.typed_slot_id.storage_scope_id
                 != allocation.valid_scope
                 and allocation.valid_scope
@@ -2468,9 +2498,16 @@ def _canonical_dependency_graph(
     for producer_id, item in reconciled.items():
         for allocation in item.returns:
             if allocation.selected_version_id is not None:
-                producers_by_version[
-                    allocation.selected_version_id
-                ] = producer_id
+                canonical_producer_id = (
+                    allocation.canonical_producer_call_id
+                    if allocation.allocation_action == "reuse"
+                    and allocation.canonical_producer_call_id is not None
+                    else producer_id
+                )
+                producers_by_version.setdefault(
+                    allocation.selected_version_id,
+                    canonical_producer_id,
+                )
 
     for call in plan.calls:
         dependencies = [
@@ -2491,6 +2528,7 @@ def _canonical_dependency_graph(
                 producer_id
                 for values in item.resolved_args.values()
                 for value in values
+                if value.source_call_id is None
                 for version_id in unique_ordered(
                     (value.state_version_id,)
                     if value.state_version_id is not None
@@ -2537,6 +2575,81 @@ def _dependency_consumer_scopes(
     return {
         call_id: tuple(dict.fromkeys(scopes))
         for call_id, scopes in result.items()
+    }
+
+
+def _transitive_dependency_consumer_scopes(
+    dependency_graph: Mapping[str, tuple[str, ...]],
+    *,
+    call_scopes: Mapping[str, tuple[str, ...]],
+) -> dict[str, tuple[str, ...]]:
+    """Collect every downstream scope reached through the call DAG.
+
+    Independent sibling writers stay isolated, but the first materialized
+    state may need to be published to an ancestor because one of its
+    consumers is itself shared by later Goals. Direct consumers alone miss
+    that case and can pin a producer below the scope where its dependent call
+    executes.
+    """
+
+    consumers_by_producer: dict[str, list[str]] = {}
+    for consumer_id, dependency_ids in dependency_graph.items():
+        for dependency_id in dependency_ids:
+            consumers_by_producer.setdefault(dependency_id, []).append(
+                consumer_id
+            )
+
+    result: dict[str, tuple[str, ...]] = {}
+    for producer_id in call_scopes:
+        pending = list(consumers_by_producer.get(producer_id, ()))
+        seen: set[str] = set()
+        scopes: list[str] = []
+        while pending:
+            consumer_id = pending.pop()
+            if consumer_id in seen:
+                continue
+            seen.add(consumer_id)
+            scopes.extend(call_scopes.get(consumer_id, ()))
+            pending.extend(consumers_by_producer.get(consumer_id, ()))
+        if scopes:
+            result[producer_id] = tuple(dict.fromkeys(scopes))
+    return result
+
+
+def _placement_dependency_graph(
+    plan: FunctionalPlan,
+    dependency_graph: Mapping[str, tuple[str, ...]],
+) -> dict[str, tuple[str, ...]]:
+    """Exclude published solved-Goal values from producer scope propagation.
+
+    A published Goal answer remains a real DAG edge and is still included in the
+    authoritative dependency graph. Its producer has already executed and is
+    restored from a typed checkpoint, so a sibling repair consumer may not pull
+    that producer or its private inputs to their least common ancestor.
+    """
+
+    ordinary_edges = {
+        (call.call_id, ref.from_call)
+        for call in plan.calls
+        for values in call.args.values()
+        for ref in values
+        if isinstance(ref, CallResultRef)
+        and not isinstance(ref, PublishedGoalCallResultRef)
+    }
+    published_only_edges = {
+        (call.call_id, ref.from_call)
+        for call in plan.calls
+        for values in call.args.values()
+        for ref in values
+        if isinstance(ref, PublishedGoalCallResultRef)
+    } - ordinary_edges
+    return {
+        call_id: tuple(
+            dependency
+            for dependency in dependencies
+            if (call_id, dependency) not in published_only_edges
+        )
+        for call_id, dependencies in dependency_graph.items()
     }
 
 

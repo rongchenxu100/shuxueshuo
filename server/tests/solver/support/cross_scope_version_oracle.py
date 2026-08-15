@@ -527,7 +527,6 @@ class ReferenceScopeVersionModel:
         ]
         produced_version_by_call: dict[str, str] = {}
         provisional_version_by_call: dict[str, str] = {}
-
         def resolved_source_ids(
             call: ModelCall,
             version_by_call: Mapping[str, str],
@@ -547,14 +546,48 @@ class ReferenceScopeVersionModel:
                         )
                     )
                     continue
-                producer = (
-                    read.source_call_id
-                    if read.mode == "call_result"
-                    else semantic_producers.get(
+                if read.mode == "latest":
+                    producer = semantic_producers.get(
                         (call.call_id, read.arg_name)
                     )
-                )
+                    if producer is None:
+                        continue
+                else:
+                    producer = read.source_call_id
                 if producer is not None:
+                    producer_decision = decisions.get(producer)
+                    if (
+                        producer_decision is not None
+                        and producer_decision.allocation_action == "conflict"
+                    ):
+                        # Failed/provisional writes order their dependents but
+                        # never become an exact readable StateVersion.
+                        continue
+                    if read.mode == "latest" and producer_decision is not None:
+                        producer_is_reuse = (
+                            producer_decision.allocation_action == "reuse"
+                            or producer_decision.provisional_allocation_action
+                            == "reuse"
+                        )
+                        candidate_version_id = version_by_call.get(producer)
+                        candidate_version = (
+                            versions.get(candidate_version_id or "")
+                            or provisional_versions.get(
+                                candidate_version_id or ""
+                            )
+                        )
+                        if producer_is_reuse and (
+                            candidate_version is None
+                            or not self.is_visible(
+                                candidate_version.valid_scope_id,
+                                call.declared_scope_id,
+                                scopes,
+                            )
+                        ):
+                            # The edge orders the runtime probe, but an
+                            # invisible selected StateVersion is not an
+                            # authoritative read until C2 proves equality.
+                            continue
                     result.append(
                         version_by_call.get(producer, producer)
                     )
@@ -801,7 +834,11 @@ class ReferenceScopeVersionModel:
                 call.requested_write_mode,
                 effect,
             )
-            owner = identity_owner.get(identity)
+            # C0.5 models authority only through placement. A matching typed
+            # computation key nominates a reuse candidate, but cannot make one
+            # call the canonical owner until C2 has compared actual runtime
+            # values. Keep both calls canonical at this stage.
+            owner = None
             owner_decision = (
                 decisions.get(owner) if owner is not None else None
             )
@@ -1280,9 +1317,28 @@ class ReferenceScopeVersionModel:
                 }
             )
         for (consumer, _arg_name), producer in semantic_producers.items():
+            producer_decision = decisions.get(producer)
+            selected_version = (
+                versions.get(producer_decision.selected_version_id or "")
+                if producer_decision is not None
+                else None
+            )
+            kind = "state_version"
+            if producer_decision is not None and (
+                producer_decision.allocation_action == "reuse"
+                or producer_decision.provisional_allocation_action == "reuse"
+            ) and (
+                selected_version is None
+                or not self.is_visible(
+                    selected_version.valid_scope_id,
+                    calls[consumer].declared_scope_id,
+                    scopes,
+                )
+            ):
+                kind = "semantic_object"
             dependency_kinds.setdefault(
                 (producer, consumer),
-                "state_version",
+                kind,
             )
         canonical_edge_kind_set: set[tuple[str, str, str]] = set()
         for raw_consumer, raw_producers in dependencies.items():
@@ -1857,20 +1913,40 @@ class ReferenceScopeVersionModel:
                     )
                 )
                 if len(maximal_candidates) > 1:
+                    prior_candidates = tuple(
+                        candidate
+                        for candidate in maximal_candidates
+                        if wire_rank.get(
+                            candidate.call_id,
+                            len(wire_rank),
+                        )
+                        < wire_rank.get(
+                            consumer.call_id,
+                            len(wire_rank),
+                        )
+                    )
                     identity_groups = {
                         cls._semantic_candidate_identity(candidate)
-                        for candidate in maximal_candidates
+                        for candidate in prior_candidates
                     }
-                    if len(identity_groups) == 1:
+                    if (
+                        visible_candidates
+                        and prior_candidates
+                        and len(identity_groups) == 1
+                    ):
+                        # This chooses the candidate that must execute before a
+                        # latest read; it does not alias or delete any call.
+                        # A runtime mismatch blocks the consumer at C2.
                         maximal_candidates = (
-                            min(
-                                maximal_candidates,
+                            max(
+                                prior_candidates,
                                 key=lambda item: wire_rank[item.call_id],
                             ),
                         )
                 # A transition chain can contain several writers while still
                 # having one unique maximal state. Independent maximal writers
-                # remain ambiguous; wire order must never choose between them.
+                # remain ambiguous. Matching semantic/input fingerprints and
+                # wire order are not runtime-equivalence proofs.
                 if (
                     len(maximal_candidates) == 1
                     and not depends_on(
@@ -1900,20 +1976,6 @@ class ReferenceScopeVersionModel:
         initial_versions = {
             item.version_id: item for item in scenario.initial_versions
         }
-        visible = cls.latest_visible(
-            call.output_state_key,
-            initial_versions.values(),
-            consumer_scope_id=call.declared_scope_id,
-            scopes=scopes,
-        )
-        storage_scope = call.storage_scope_id or call.declared_scope_id
-        if (
-            call.requested_write_mode == "create"
-            and visible is not None
-            and visible.storage_scope_id != storage_scope
-            and visible.version_id not in call.input_version_ids
-        ):
-            return False
         publication_scope = cls.least_common_scope(
             (valid_scope, consumer_scope_id),
             scopes,
@@ -1965,24 +2027,34 @@ class ReferenceScopeVersionModel:
                 scopes,
             ):
                 return True
-            producer_initial = cls.latest_visible(
-                producer.output_state_key,
-                initial_versions.values(),
-                consumer_scope_id=producer.declared_scope_id,
-                scopes=scopes,
+            has_transition_source = bool(
+                producer.input_version_ids
+                or any(
+                    item.consumer_call_id == producer.call_id
+                    for item in scenario.dependency_edges
+                )
             )
-            producer_storage = (
-                producer.storage_scope_id
-                or producer.declared_scope_id
-            )
-            return not (
+            if (
                 producer.requested_write_mode == "create"
-                and producer_initial is not None
-                and producer_initial.storage_scope_id
-                != producer_storage
-                and producer_initial.version_id
-                not in producer.input_version_ids
-            )
+                and not has_transition_source
+            ):
+                producer_initial = cls.latest_visible(
+                    producer.output_state_key,
+                    initial_versions.values(),
+                    consumer_scope_id=producer.declared_scope_id,
+                    scopes=scopes,
+                )
+                if producer_initial is None:
+                    return producer.is_pure
+                return cls._has_materializable_equivalent_predecessor(
+                    producer,
+                    scenario=scenario,
+                )
+            # Pure producers may execute at the LCA once every real input is
+            # visible there. The probe output remains isolated until C2 has
+            # established runtime equivalence, so this does not publish a
+            # duplicate authoritative state.
+            return producer.is_pure
 
         return producer_publishable(
             replace(
@@ -2007,6 +2079,27 @@ class ReferenceScopeVersionModel:
             call.output_state_key,
             call.requested_write_mode,
             call.free_symbols,
+        )
+
+    @classmethod
+    def _has_materializable_equivalent_predecessor(
+        cls,
+        call: ModelCall,
+        *,
+        scenario: CrossScopeVersionScenario,
+    ) -> bool:
+        serialized_order = cls._serialized_call_order(scenario)
+        call_index = serialized_order.index(call.call_id)
+        prior_call_ids = frozenset(serialized_order[:call_index])
+        return any(
+            cls._semantic_candidate_identity(candidate)
+            == cls._semantic_candidate_identity(call)
+            and cls._can_materialize_state_from_initial_context(
+                candidate,
+                scenario=scenario,
+            )
+            for candidate in scenario.calls
+            if candidate.call_id in prior_call_ids
         )
 
     @classmethod
@@ -2048,7 +2141,14 @@ class ReferenceScopeVersionModel:
             and visible is not None
             and visible.storage_scope_id == storage_scope
         ):
-            return False
+            if not cls._has_materializable_equivalent_predecessor(
+                call,
+                scenario=scenario,
+            ):
+                return False
+            # The later create is a runtime-reuse probe. It remains a viable
+            # dependency candidate, but C0.5 does not alias or delete it; C2
+            # must compare the actual typed result first.
         if call.requested_write_mode == "transition":
             explicit_sources = tuple(
                 item

@@ -62,8 +62,19 @@ from shuxueshuo_server.solver.runtime.scoped_functional_few_shots import (
     select_scoped_functional_few_shot,
 )
 from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
-    SCOPED_FUNCTIONAL_PLAN_CONTRACT,
-    scoped_functional_plan_schema,
+    ScopedFunctionalPlan,
+    scoped_functional_plan_authority_payload,
+)
+from shuxueshuo_server.solver.runtime.functional_plan_content import (
+    FUNCTIONAL_PLAN_CONTENT_CONTRACT,
+    FunctionalPlanAuthorityFrame,
+    functional_plan_content_schema,
+    functional_plan_prompt_payload,
+)
+from shuxueshuo_server.solver.runtime.functional_goal_retry import (
+    FUNCTIONAL_GOAL_REPAIR_CONTRACT,
+    FunctionalGoalRetryAuthority,
+    functional_goal_repair_schema_for_authority,
 )
 from shuxueshuo_server.solver.runtime.semantic_reads import ContextSemanticReadSource
 from shuxueshuo_server.solver.runtime.strategy_models import (
@@ -227,8 +238,10 @@ class StrategyPayloadBuilder:
         planner_state_context: ContextSemanticReadSource | None = None,
         problem_planning_context: ProblemPlanningContext,
         problem_binding_catalog: ProblemPlanningBindingCatalog,
+        authoring_feedback: tuple[Mapping[str, Any], ...] = (),
+        previous_invalid_content: Mapping[str, Any] | None = None,
     ) -> dict[str, Any]:
-        """Build the explicit F5-F1 prompt payload without switching v1."""
+        """Build code-owned Scope/Goal content authoring payload."""
 
         payload = self.build(
             inputs,
@@ -251,18 +264,81 @@ class StrategyPayloadBuilder:
                 directory=self.scoped_functional_few_shot_dir,
             )
             examples = [selected] if selected is not None else []
+        frame = FunctionalPlanAuthorityFrame.from_planning_context(
+            problem_planning_context
+        )
         result = {
             **payload,
-            "planner_protocol": SCOPED_FUNCTIONAL_PLAN_CONTRACT,
+            "planner_protocol": FUNCTIONAL_PLAN_CONTENT_CONTRACT,
             "problem_planning_context": (
                 problem_planning_context.to_prompt_payload()
             ),
+            "plan_authority_frame": frame.to_prompt_payload(),
             "few_shot_examples": examples,
             "functional_few_shot_selection": selection,
-            "output_json_schema": scoped_functional_plan_schema(),
+            "authoring_feedback": [dict(item) for item in authoring_feedback],
+            "output_json_schema": functional_plan_content_schema(frame),
         }
+        if previous_invalid_content is not None:
+            result["previous_invalid_content"] = dict(previous_invalid_content)
         result.pop("previous_attempt_state", None)
         return result
+
+    def build_goal_repair(
+        self,
+        inputs: PlannerInputs,
+        *,
+        previous_plan: ScopedFunctionalPlan,
+        retry_authority: FunctionalGoalRetryAuthority,
+        problem_payload: dict[str, Any] | None = None,
+        planner_state_context: ContextSemanticReadSource | None = None,
+        problem_planning_context: ProblemPlanningContext,
+        problem_binding_catalog: ProblemPlanningBindingCatalog,
+        previous_repair_issue: Mapping[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Build the dedicated F5-F3 Goal replacement payload."""
+
+        if retry_authority.planning_context_id != (
+            problem_planning_context.planning_context_id
+        ):
+            raise ValueError(
+                "planner.problem_revision_drift: retry and planning Context differ"
+            )
+        if retry_authority.problem_binding_catalog_signature != (
+            problem_binding_catalog.binding_signature
+        ):
+            raise ValueError(
+                "planner.retry_problem_source_binding_drift: retry and binding "
+                "catalog differ"
+            )
+        base = self.build_scoped(
+            inputs,
+            problem_payload=problem_payload,
+            planner_state_context=planner_state_context,
+            problem_planning_context=problem_planning_context,
+            problem_binding_catalog=problem_binding_catalog,
+        )
+        return {
+            "planner_protocol": FUNCTIONAL_GOAL_REPAIR_CONTRACT,
+            "problem_id": inputs.problem_id,
+            "family_id": inputs.family_spec.family_id,
+            "problem_planning_context": (
+                problem_planning_context.to_prompt_payload()
+            ),
+            "previous_plan": functional_plan_prompt_payload(previous_plan),
+            "goal_retry_context": (
+                retry_authority.retry_context.to_prompt_payload(
+                    previous_repair_issue=previous_repair_issue,
+                )
+            ),
+            "strategy_principles": base["strategy_principles"],
+            "functional_capability_catalog": (
+                base["functional_capability_catalog"]
+            ),
+            "output_json_schema": functional_goal_repair_schema_for_authority(
+                retry_authority
+            ),
+        }
 
     def _functional_few_shot_examples(
         self,
@@ -921,6 +997,46 @@ def _scoped_functional_few_shot_plan(value: object) -> dict[str, Any]:
     return value["plan"]
 
 
+def _scoped_functional_few_shot_content(value: object) -> dict[str, Any]:
+    plan = _scoped_functional_few_shot_plan(value)
+    root = plan.get("root_scope")
+    if not isinstance(root, dict):
+        raise ValueError("scope-native FunctionalPlan example has no root scope")
+    scope_steps: dict[str, Any] = {}
+    goal_plans: dict[str, Any] = {}
+
+    def visit(scope: Mapping[str, Any]) -> None:
+        scope_ref = scope.get("scope_ref")
+        if not isinstance(scope_ref, str) or not scope_ref:
+            raise ValueError("scope-native FunctionalPlan example has a bad scope")
+        if scope.get("steps"):
+            scope_steps[scope_ref] = scope["steps"]
+        for goal in scope.get("goals", ()):
+            if not isinstance(goal, Mapping):
+                raise ValueError("scope-native FunctionalPlan example has a bad Goal")
+            goal_ref = goal.get("goal_ref")
+            if not isinstance(goal_ref, str) or not goal_ref:
+                raise ValueError("scope-native FunctionalPlan example has a bad Goal ref")
+            goal_plans[goal_ref] = {
+                key: child
+                for key, child in goal.items()
+                if key != "goal_ref"
+            }
+        for child in scope.get("children", ()):
+            if not isinstance(child, Mapping):
+                raise ValueError("scope-native FunctionalPlan example has a bad child")
+            visit(child)
+
+    visit(root)
+    result: dict[str, Any] = {
+        "format": FUNCTIONAL_PLAN_CONTENT_CONTRACT,
+        "goal_plans": goal_plans,
+    }
+    if scope_steps:
+        result["scope_steps"] = scope_steps
+    return result
+
+
 class StrategyPromptRenderer:
     """Render the sole FunctionalPlan strategy prompt."""
 
@@ -943,6 +1059,9 @@ class StrategyPromptRenderer:
         self.env.filters["scoped_functional_few_shot_plan"] = (
             _scoped_functional_few_shot_plan
         )
+        self.env.filters["scoped_functional_few_shot_content"] = (
+            _scoped_functional_few_shot_content
+        )
 
     def render(self, payload: dict[str, Any]) -> StrategyPrompt:
         system = self.env.get_template("strategy-functional-system.jinja").render(
@@ -954,13 +1073,34 @@ class StrategyPromptRenderer:
         return StrategyPrompt(system=system.strip(), user=user.strip())
 
     def render_scoped(self, payload: dict[str, Any]) -> StrategyPrompt:
-        """Render the dedicated v2 authoring prompt for F5-F1 tests."""
+        """Render code-owned Scope/Goal content authoring prompt."""
 
         system = self.env.get_template(
-            "strategy-functional-v2-system.jinja"
-        ).render(output_json_schema=scoped_functional_plan_schema())
+            "strategy-functional-content-system.jinja"
+        ).render()
         user = self.env.get_template(
-            "strategy-functional-v2-user.jinja"
+            "strategy-functional-content-user.jinja"
+        ).render(payload=payload)
+        return StrategyPrompt(system=system.strip(), user=user.strip())
+
+    def render_goal_repair(self, payload: dict[str, Any]) -> StrategyPrompt:
+        """Render the independent F5-F3 Goal replacement prompt."""
+
+        if payload.get("planner_protocol") != FUNCTIONAL_GOAL_REPAIR_CONTRACT:
+            raise ValueError(
+                "functional.goal_repair_prompt_invalid: wrong planner protocol"
+            )
+        output_json_schema = payload.get("output_json_schema")
+        if not isinstance(output_json_schema, Mapping):
+            raise ValueError(
+                "functional.goal_repair_prompt_invalid: missing authority-bound "
+                "output schema"
+            )
+        system = self.env.get_template(
+            "strategy-functional-goal-repair-system.jinja"
+        ).render()
+        user = self.env.get_template(
+            "strategy-functional-goal-repair-user.jinja"
         ).render(payload=payload)
         return StrategyPrompt(system=system.strip(), user=user.strip())
 
@@ -1018,11 +1158,16 @@ def write_strategy_debug_artifacts(
     (target / "prompt.user.md").write_text(prompt.user, encoding="utf-8")
     source_keys = [
         "problem_planning_context",
+        "plan_authority_frame",
         "strategy_principles",
         "functional_capability_catalog",
         "few_shot_examples",
         "functional_few_shot_selection",
         "previous_attempt_state",
+        "authoring_feedback",
+        "previous_invalid_content",
+        "previous_plan",
+        "goal_retry_context",
     ]
     for key in source_keys:
         _write_json(target / f"payload.{key}.json", payload.get(key))
