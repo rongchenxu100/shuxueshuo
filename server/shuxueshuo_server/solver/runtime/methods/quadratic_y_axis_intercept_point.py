@@ -64,9 +64,17 @@ SPEC = MethodSpecSource(
     ),
     solves=("derive_quadratic_y_axis_intercept_point",),
     inputs={
-        "quadratic": {"type": "Expression", "required": True},
+        "quadratic": {
+            "type": "Expression",
+            "required": True,
+            "symbolic_basis_role": "state_anchor",
+        },
         "x": {"type": "Symbol", "required": True},
-        "target": {"type": "PointRef", "required": True},
+        "target": {
+            "type": "PointRef",
+            "required": True,
+            "symbolic_basis_role": "align_to_anchor",
+        },
     },
     outputs={"point": "Point"},
     scalar_result_forms={

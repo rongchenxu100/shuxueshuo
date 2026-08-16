@@ -246,7 +246,11 @@ class RuntimeContext:
         point_ref = PointRef(
             name=declaration.name,
             path=declaration.path,
-            definition=dict(declaration.definition),
+            definition=_canonicalize_point_definition(
+                declaration.definition,
+                self.kernel,
+                self.symbols,
+            ),
             scope_id=declaration.scope_id,
         )
         self.write_path(
@@ -496,7 +500,11 @@ class ContextBuilder:
             # 不能再从 fixture hints 注入。
             root.container("conditions")["path_minimum"] = TypedValue(
                 "Condition",
-                dict(path_config),
+                _canonicalize_condition_payload(
+                    path_config,
+                    context.kernel,
+                    context.symbols,
+                ),
                 locked=True,
                 source="data.path_problem",
             )
@@ -507,7 +515,11 @@ class ContextBuilder:
             if key:
                 root.container("conditions")[key] = TypedValue(
                     "Condition",
-                    dict(relation),
+                    _canonicalize_condition_payload(
+                        relation,
+                        context.kernel,
+                        context.symbols,
+                    ),
                     locked=True,
                     source="relations",
                 )
@@ -535,7 +547,11 @@ class ContextBuilder:
                 continue
             root.container("conditions")[condition_type] = TypedValue(
                 "Condition",
-                dict(fact),
+                _canonicalize_condition_payload(
+                    fact,
+                    context.kernel,
+                    context.symbols,
+                ),
                 locked=True,
                 source="canonical_facts",
             )
@@ -698,7 +714,14 @@ class ContextBuilder:
             for condition in question.get("conditions", []):
                 condition_type = str(condition.get("type", "condition"))
                 scope.container("conditions")[condition_type] = TypedValue(
-                    "Condition", dict(condition), locked=True, source=f"question:{scope.scope_id}",
+                    "Condition",
+                    _canonicalize_condition_payload(
+                        condition,
+                        context.kernel,
+                        context.symbols,
+                    ),
+                    locked=True,
+                    source=f"question:{scope.scope_id}",
                 )
 
     def _populate_canonical_fact_conditions(
@@ -740,7 +763,11 @@ class ContextBuilder:
             )
             context.get_scope(scope_id).container("conditions")[key] = TypedValue(
                 value_type,
-                dict(fact),
+                _canonicalize_condition_payload(
+                    fact,
+                    context.kernel,
+                    context.symbols,
+                ),
                 locked=True,
                 source="canonical_facts",
             )
@@ -847,7 +874,11 @@ class ContextBuilder:
                 # （handle/entity_type/scope_id/source）。这些字段是 ProblemIR
                 # 索引用的，不属于点的几何定义；写入 PointRef 前要过滤掉，
                 # 否则 ContextInventory 会把元数据误暴露成 definition 依赖。
-                definition=_point_definition_payload(raw),
+                definition=_canonicalize_point_definition(
+                    _point_definition_payload(raw),
+                    context.kernel,
+                    context.symbols,
+                ),
                 scope_id=scope_id,
             ),
             locked=False,
@@ -878,6 +909,128 @@ def _point_definition_payload(raw: Mapping[str, Any]) -> dict[str, Any]:
     if str(payload.get("source", "")).startswith("ProblemIR."):
         payload.pop("source", None)
     return payload
+
+
+_POINT_EXPRESSION_FIELDS = frozenset({"x", "x_coordinate", "dx", "dy"})
+_POINT_EXPRESSION_LIST_FIELDS = frozenset({"vector", "x_range"})
+_CONDITION_EXPRESSION_FIELDS = frozenset({"value", "scale"})
+
+
+def _canonicalize_point_definition(
+    definition: Mapping[str, Any],
+    kernel: SympyKernel,
+    symbols: Mapping[str, sp.Symbol],
+) -> dict[str, Any]:
+    """Parse source-authored point expressions against canonical Symbols."""
+
+    result: dict[str, Any] = {}
+    for key, value in definition.items():
+        if key in _POINT_EXPRESSION_FIELDS and value is not None:
+            result[key] = _canonical_runtime_expression(
+                value,
+                kernel,
+                symbols,
+                field=f"point.definition.{key}",
+            )
+        elif key in _POINT_EXPRESSION_LIST_FIELDS and isinstance(
+            value, (list, tuple)
+        ):
+            result[key] = [
+                _canonical_runtime_expression(
+                    item,
+                    kernel,
+                    symbols,
+                    field=f"point.definition.{key}[{index}]",
+                )
+                for index, item in enumerate(value)
+            ]
+        else:
+            result[key] = deepcopy(value)
+    return result
+
+
+def _canonicalize_condition_payload(
+    payload: Mapping[str, Any],
+    kernel: SympyKernel,
+    symbols: Mapping[str, sp.Symbol],
+) -> dict[str, Any]:
+    """Canonicalize algebra fields while preserving structured Condition roles."""
+
+    def visit(value: Any, *, field: str) -> Any:
+        if isinstance(value, Mapping):
+            return {
+                str(key): (
+                    _canonical_runtime_expression(
+                        child,
+                        kernel,
+                        symbols,
+                        field=f"{field}.{key}",
+                    )
+                    if str(key) in _CONDITION_EXPRESSION_FIELDS
+                    and not isinstance(child, (Mapping, list, tuple))
+                    else visit(child, field=f"{field}.{key}")
+                )
+                for key, child in value.items()
+            }
+        if isinstance(value, list):
+            return [
+                visit(item, field=f"{field}[{index}]")
+                for index, item in enumerate(value)
+            ]
+        if isinstance(value, tuple):
+            return tuple(
+                visit(item, field=f"{field}[{index}]")
+                for index, item in enumerate(value)
+            )
+        return deepcopy(value)
+
+    return visit(payload, field="condition")
+
+
+def _canonical_runtime_expression(
+    value: Any,
+    kernel: SympyKernel,
+    symbols: Mapping[str, sp.Symbol],
+    *,
+    field: str,
+) -> sp.Expr:
+    """Return an expression over symbols declared by the RuntimeContext.
+
+    SymPy symbols with the same name and assumptions are mathematical equals,
+    but they are not guaranteed to be the same Python object after an artifact
+    round-trip. Runtime identity is owned by the symbol registry, so this
+    boundary must never use ``is`` as an authority check.
+    """
+
+    aliases: dict[str, Any] = {
+        "inf": sp.oo,
+        "oo": sp.oo,
+    }
+    try:
+        expression = kernel.expr(
+            str(value).replace("^", "**") if isinstance(value, str) else value,
+            {**aliases, **dict(symbols)},
+        )
+    except (TypeError, ValueError, sp.SympifyError) as exc:
+        raise ValueError(f"invalid runtime expression at {field}: {value!r}") from exc
+
+    replacements = {
+        symbol: symbols[symbol.name]
+        for symbol in expression.free_symbols
+        if symbol.name in symbols and symbol != symbols[symbol.name]
+    }
+    if replacements:
+        expression = expression.xreplace(replacements)
+    unknown = sorted(
+        symbol.name
+        for symbol in expression.free_symbols
+        if symbol.name not in symbols
+    )
+    if unknown:
+        raise ValueError(
+            f"runtime expression at {field} uses undeclared symbols: {unknown}"
+        )
+    return expression
 
 
 def parse_equation(

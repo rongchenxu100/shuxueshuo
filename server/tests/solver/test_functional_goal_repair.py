@@ -51,6 +51,40 @@ def test_failed_goal_is_replaced_with_code_derived_answer_source(tmp_path) -> No
     assert application.plan_hash != fixture.retry_authority.base_plan_hash
 
 
+def test_repair_omits_empty_optional_many_capability_arg(tmp_path) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    payload = repair_payload(fixture)
+    step = next(
+        item
+        for item in payload["goal_replacements"][FAILED_GOAL_REF]["steps"]
+        if item["capability_id"] == "quadratic_from_constraints"
+    )
+    step["args"]["free_parameters"] = []
+
+    application = FunctionalGoalRepairService().apply_json(
+        json.dumps(payload, ensure_ascii=False),
+        base_plan=fixture.failed_plan,
+        authority=fixture.retry_authority,
+        capability_catalog=fixture.capability_catalog,
+    )
+
+    repaired_step = next(
+        item
+        for item in goal(
+            application.plan.to_payload(),
+            FAILED_GOAL_REF,
+        )["steps"]
+        if item["capability_id"] == "quadratic_from_constraints"
+    )
+    assert "free_parameters" not in repaired_step["args"]
+    assert [item.code for item in application.normalizations] == [
+        "functional.empty_optional_capability_arg_omitted"
+    ]
+    assert application.normalizations[0].path == (
+        "$.goal_replacements.ii.a.steps[0].args.free_parameters"
+    )
+
+
 def test_answer_source_changes_when_goal_producer_step_is_replaced(tmp_path) -> None:
     fixture = goal_retry_fixture(tmp_path)
     replacement = deepcopy(goal(fixture.correct_payload, FAILED_GOAL_REF))
@@ -421,8 +455,8 @@ def test_cross_sibling_producer_moves_atomically_to_editable_lca(
         planning_context=fixture[1],
         binding_catalog=fixture[7],
     )
-    assert authority.editable_goal_refs == ()
-    assert authority.goal_authorities["i_1.parabola"].status == "blocked"
+    assert authority.editable_goal_refs == ("i_1.parabola",)
+    assert authority.goal_authorities["i_1.parabola"].status == "failed"
     assert authority.goal_authorities["i_2.E"].status == "blocked"
     assert authority.editable_scope_refs == ("i",)
     assert authority.repair_step_owners["derive_parabola_i"] == "scope:i"

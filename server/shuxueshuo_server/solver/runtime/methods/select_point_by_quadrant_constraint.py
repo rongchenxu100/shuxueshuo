@@ -31,7 +31,12 @@ class SelectPointByQuadrantConstraintMethod:
                 expected={"operator": ">"},
                 observed={"operator": operator},
             )
-        lower_bound = sp.sympify(parameter_constraint["value"])
+        lower_bound = _require_canonical_runtime_expression(
+            parameter_constraint["value"],
+            kernel,
+            arg_name="parameter_constraint",
+            role="parameter_lower_bound",
+        )
         matching = [
             point for point in candidates
             if _point_matches_quadrant_under_lower_bound(

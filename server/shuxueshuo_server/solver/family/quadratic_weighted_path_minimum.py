@@ -175,6 +175,14 @@ _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                         "parameter_from_curve_point_on_quadratic.parameter_constraint",
                     ),
                 ),
+                strategy_input_targets=(
+                    "filter_point_candidates_by_quadratic_curve.x",
+                    "filter_point_candidates_by_quadratic_curve.parameter",
+                    "filter_point_candidates_by_quadratic_curve.quadratic_template",
+                    "parameter_from_curve_point_on_quadratic.x",
+                    "parameter_from_curve_point_on_quadratic.parameter",
+                    "parameter_from_curve_point_on_quadratic.quadratic_template",
+                ),
                 output_aliases=(
                     recipe_output_alias(
                         "parameter_from_curve_point_on_quadratic.point",

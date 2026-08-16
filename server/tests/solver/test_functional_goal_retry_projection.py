@@ -434,7 +434,7 @@ def test_missing_condition_role_state_is_localized_to_its_goal(tmp_path) -> None
     ] == authority.retry_context_id
 
 
-def test_failed_scope_opens_only_its_typed_consumer_goals(tmp_path) -> None:
+def test_failed_scope_opens_its_answer_goal_not_blocked_consumers(tmp_path) -> None:
     case = "tj-2026-heping-yimo-25"
     authority_fixture = planning_binding_fixture(tmp_path / case, case=case)
     payload = deepcopy(load_v2_fixture_payload(case))
@@ -467,8 +467,8 @@ def test_failed_scope_opens_only_its_typed_consumer_goals(tmp_path) -> None:
     )
 
     assert authority.editable_scope_refs == ("i",)
-    assert authority.editable_goal_refs == ()
-    assert authority.goal_authorities["i_1.parabola"].status == "blocked"
+    assert authority.editable_goal_refs == ("i_1.parabola",)
+    assert authority.goal_authorities["i_1.parabola"].status == "failed"
     assert authority.goal_authorities["i_2.E"].status == "blocked"
     assert authority.goal_authorities["ii.a"].status == "solved"
     goal_ids = {

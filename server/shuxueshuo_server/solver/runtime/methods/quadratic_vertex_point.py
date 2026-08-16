@@ -52,9 +52,17 @@ SPEC = MethodSpecSource(
     summary="输入: 抛物线表达式；输出: 顶点坐标。",
     solves=("derive_quadratic_vertex_point",),
     inputs={
-        "parabola": {"type": "Parabola", "required": True},
+        "parabola": {
+            "type": "Parabola",
+            "required": True,
+            "symbolic_basis_role": "state_anchor",
+        },
         "x": {"type": "Symbol", "required": True},
-        "target": {"type": "PointRef", "required": True},
+        "target": {
+            "type": "PointRef",
+            "required": True,
+            "symbolic_basis_role": "align_to_anchor",
+        },
     },
     outputs={"point": "Point"},
     preconditions=("parabola 必须是关于 x 的二次函数",),

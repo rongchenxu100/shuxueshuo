@@ -7,6 +7,7 @@ from typing import Any
 
 import sympy as sp
 
+from shuxueshuo_server.solver.contracts import PointRef
 from shuxueshuo_server.solver.runtime.context import RuntimeContext
 from shuxueshuo_server.solver.runtime.state_identity import (
     MathObjectId,
@@ -137,7 +138,9 @@ def runtime_free_symbols(value: Any) -> tuple[sp.Symbol, ...]:
         for item in getattr(value, "free_symbols", set())
         if isinstance(item, sp.Symbol)
     }
-    if isinstance(value, Mapping):
+    if isinstance(value, PointRef):
+        symbols.update(runtime_free_symbols(value.definition))
+    elif isinstance(value, Mapping):
         for item in value.values():
             symbols.update(runtime_free_symbols(item))
     elif isinstance(value, (list, tuple)):

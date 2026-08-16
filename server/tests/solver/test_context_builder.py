@@ -26,6 +26,8 @@ from shuxueshuo_server.solver.runtime.quadratic_path_planner import (
 
 NANKAI_FIXTURE = "../internal/solver-fixtures/tj-2026-nankai-yimo-25.json"
 HEPING_FIXTURE = "../internal/solver-fixtures/tj-2026-heping-yimo-25.json"
+HEXI_FIXTURE = "../internal/solver-fixtures/tj-2026-hexi-yimo-25.json"
+XIQING_FIXTURE = "../internal/solver-fixtures/tj-2026-xiqing-yimo-25.json"
 
 
 @pytest.fixture()
@@ -119,7 +121,7 @@ class TestContextBuilderNankaiQuestions:
         ).value
         assert length_sq["type"] == "length_squared"
         assert length_sq["segment"] == ["M", "N"]
-        assert length_sq["value"] == "10"
+        assert length_sq["value"] == sp.Integer(10)
 
         minimum = context.read_path(
             "$subquestion.ii_2.conditions.minimum_value",
@@ -128,7 +130,7 @@ class TestContextBuilderNankaiQuestions:
         ).value
         assert minimum["type"] == "minimum_value"
         assert minimum["path"] == "EG+FG"
-        assert minimum["value"] == "5*sqrt(10)/2"
+        assert minimum["value"] == 5 * sp.sqrt(10) / 2
 
     def test_global_path_conditions(self, context) -> None:
         path = context.read_path(
@@ -149,6 +151,8 @@ class TestContextBuilderNankaiQuestions:
         assert "auxiliary_points" not in path
         assert relation["left"] == "DE"
         assert relation["right"] == "sqrt(2)*NG"
+        assert relation["left_term"]["scale"] == sp.Integer(1)
+        assert relation["right_term"]["scale"] == sp.sqrt(2)
 
 
 class TestContextBuilderNankaiPoints:
@@ -323,8 +327,150 @@ class TestContextBuilderHepingPoints:
         assert isinstance(e_ref, PointRef)
         assert e_ref.scope_id == "i_2"
         assert e_ref.definition["definition"] == "point_on_curve_with_x_coordinate"
-        assert e_ref.definition["x_range"] == ["-1", "0"]
+        assert e_ref.definition["x_range"] == [sp.Integer(-1), sp.Integer(0)]
         assert "E" not in context.get_scope("i").container("points")
+
+
+class TestContextBuilderCanonicalExpressionIdentity:
+    """Problem-origin expressions bind once to RuntimeContext Symbols."""
+
+    @pytest.mark.parametrize(
+        ("fixture", "path", "symbol_name", "expected"),
+        (
+            (
+                HEXI_FIXTURE,
+                "$question.iii.points.M",
+                "b",
+                lambda b: b + sp.Rational(1, 2),
+            ),
+            (
+                XIQING_FIXTURE,
+                "$question.ii.points.D",
+                "b",
+                lambda b: b + 2,
+            ),
+        ),
+    )
+    def test_point_definition_uses_declared_canonical_symbol(
+        self,
+        kernel: SympyKernel,
+        fixture: str,
+        path: str,
+        symbol_name: str,
+        expected,
+    ) -> None:
+        context = ContextBuilder(kernel).build(load_problem_ir(fixture))
+        point_ref = context.read_path(
+            path,
+            from_scope_id=path.split(".")[1],
+            expected_type="PointRef",
+        ).value
+        symbol = context.symbols[symbol_name]
+        x_expression = point_ref.definition["x"]
+
+        assert x_expression == expected(symbol)
+        assert next(iter(x_expression.free_symbols)) == symbol
+
+    def test_vector_and_condition_scale_share_canonical_symbol(
+        self,
+        kernel: SympyKernel,
+    ) -> None:
+        problem = ProblemIR(
+            problem_id="synthetic-canonical-expression-fields",
+            pattern="path-minimum",
+            problem_type="quadratic_path_minimum",
+            symbols=["x", "a", "b", "c"],
+            data={
+                "function": {
+                    "id": "parabola",
+                    "type": "quadratic",
+                    "expression": "a*x**2 + b*x + c",
+                },
+                "entities": {
+                    "points": {
+                        "A": {"coordinate": ["0", "0"]},
+                        "D": {
+                            "definition": "translated_point",
+                            "of": "A",
+                            "vector": ["b", "0"],
+                        },
+                    }
+                },
+                "path_problem": {
+                    "type": "path_minimum_target",
+                    "path": "AD",
+                    "scale": "b + 1",
+                },
+                "relations": [],
+                "questions": [
+                    {"id": "i", "label": "第（I）问", "asks": ["D"]}
+                ],
+            },
+        )
+
+        context = ContextBuilder(kernel).build(problem)
+        symbol = context.symbols["b"]
+        point_ref = context.read_path(
+            "$question.i.points.D",
+            from_scope_id="i",
+            expected_type="PointRef",
+        ).value
+        condition = context.read_path(
+            "$problem.conditions.path_minimum",
+            from_scope_id="i",
+            expected_type="Condition",
+        ).value
+
+        assert point_ref.definition["vector"][0] == symbol
+        assert condition["scale"] == symbol + 1
+        assert next(iter(condition["scale"].free_symbols)) == symbol
+
+    def test_equal_symbol_from_artifact_round_trip_is_not_rejected(
+        self,
+        kernel: SympyKernel,
+    ) -> None:
+        """Runtime identity must not depend on one SymPy object's ``id``."""
+
+        canonical = sp.Symbol("b", real=True)
+        restored = sp.Symbol.__xnew__(sp.Symbol, "b", real=True)
+
+        assert restored == canonical
+        assert restored is not canonical
+
+        problem = ProblemIR(
+            problem_id="synthetic-restored-symbol",
+            pattern="path-minimum",
+            problem_type="quadratic_path_minimum",
+            symbols=["x", "a", "b", "c"],
+            data={
+                "function": {
+                    "id": "parabola",
+                    "type": "quadratic",
+                    "expression": "a*x**2 + b*x + c",
+                },
+                "entities": {
+                    "points": {
+                        "M": {
+                            "definition": "point_on_curve_with_x",
+                            "x": restored + sp.Rational(1, 2),
+                        }
+                    }
+                },
+                "relations": [],
+                "questions": [
+                    {"id": "i", "label": "第（I）问", "asks": ["M"]}
+                ],
+            },
+        )
+
+        context = ContextBuilder(kernel).build(problem)
+        point_ref = context.read_path(
+            "$question.i.points.M",
+            from_scope_id="i",
+            expected_type="PointRef",
+        ).value
+
+        assert point_ref.definition["x"] == context.symbols["b"] + sp.Rational(1, 2)
 
 
 class TestContextBuilderUsesInjectedKernel:

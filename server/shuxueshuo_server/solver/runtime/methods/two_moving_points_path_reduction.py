@@ -214,7 +214,14 @@ def _binding_relation_terms(
         return (
             (sp.Integer(1), _canonical_segment_name(left_segment)),
             (
-                sp.simplify(kernel.expr(str(relation.get("scale", "1")))),
+                sp.simplify(
+                    _require_canonical_runtime_expression(
+                        relation.get("scale", "1"),
+                        kernel,
+                        arg_name="binding_relation",
+                        role="segment_scale",
+                    )
+                ),
                 _canonical_segment_name(right_segment),
             ),
         )
@@ -238,7 +245,14 @@ def _structured_relation_term(
     if not isinstance(value, Mapping) or value.get("segment") is None:
         return None
     return (
-        sp.simplify(kernel.expr(str(value.get("scale", "1")))),
+        sp.simplify(
+            _require_canonical_runtime_expression(
+                value.get("scale", "1"),
+                kernel,
+                arg_name="binding_relation",
+                role="segment_scale",
+            )
+        ),
         _canonical_segment_name(value["segment"]),
     )
 

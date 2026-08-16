@@ -12,7 +12,6 @@ from shuxueshuo_server.solver.runtime.quadratic_constraint_solver import (
 )
 from shuxueshuo_server.solver.runtime.symbolic_closure_execution import (
     materialize_symbolic_closure_outputs,
-    require_unique_symbolic_closure,
     solve_symbolic_closure_math,
 )
 
@@ -43,7 +42,11 @@ class ParameterFromSegmentLengthMethod:
             args=inputs,
             kernel=kernel,
         )
-        closure = require_unique_symbolic_closure(math_result)
+        closure = _require_unique_symbolic_closure(
+            math_result,
+            arg_name="condition",
+            role="segment_length_equation",
+        )
         outputs, closure_checks = materialize_symbolic_closure_outputs(
             {
                 "parameter_value": TypedValue(

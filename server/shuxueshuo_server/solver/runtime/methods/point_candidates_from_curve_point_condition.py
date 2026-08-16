@@ -107,6 +107,7 @@ SPEC = MethodSpecSource(
         "target_point": {
             "type": "Point",
             "required": True,
+            "symbolic_basis_role": "align_to_anchor",
             "description": (
                 "需要返回候选坐标的目标 Point；candidates 列表中的每个候选"
                 "保持这个对象身份，但 candidates 本身仍是 PointList。"
@@ -115,11 +116,16 @@ SPEC = MethodSpecSource(
         "curve_point": {
             "type": "Point",
             "required": True,
+            "symbolic_basis_role": "align_to_anchor",
             "description": (
                 "代入 parabola 建立参数方程的 Point；只提供约束，不作为返回对象。"
             ),
         },
-        "parabola": {"type": "Parabola", "required": True},
+        "parabola": {
+            "type": "Parabola",
+            "required": True,
+            "symbolic_basis_role": "state_anchor",
+        },
         "x": {"type": "Symbol", "required": True},
         "parameter": {
             "type": "Symbol",

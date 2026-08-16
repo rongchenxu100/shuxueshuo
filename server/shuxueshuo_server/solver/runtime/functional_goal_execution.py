@@ -1379,6 +1379,7 @@ def _scoped_step_issue_payloads(
                 step_id,
                 {
                     "stage": stage,
+                    "step_id": step_id,
                     **issue.to_payload(),
                 },
             )

@@ -9,15 +9,18 @@
   "inputs": {
     "candidates": {
       "type": "PointList",
-      "required": true
+      "required": true,
+      "symbolic_basis_role": "align_to_anchor"
     },
     "target": {
       "type": "PointRef",
-      "required": true
+      "required": true,
+      "symbolic_basis_role": "align_to_anchor"
     },
     "parabola": {
       "type": "Parabola",
-      "required": true
+      "required": true,
+      "symbolic_basis_role": "state_anchor"
     },
     "x": {
       "type": "Symbol",
@@ -29,7 +32,8 @@
     },
     "parameter_constraint": {
       "type": "Constraint",
-      "required": false
+      "required": false,
+      "symbolic_basis_role": "align_to_anchor"
     },
     "quadratic_template": {
       "type": "Expression",
@@ -43,6 +47,12 @@
     "selected_candidate": "Point"
   },
   "is_pure": true,
+  "output_activation": {
+    "selected_candidate": {
+      "kind": "runtime_condition",
+      "runtime_condition": "exactly_one_candidate"
+    }
+  },
   "preconditions": [
     "parabola 已代入当前问能确定的已知条件",
     "candidates 来自几何构造"

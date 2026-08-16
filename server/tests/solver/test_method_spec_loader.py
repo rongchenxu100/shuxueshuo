@@ -12,6 +12,7 @@ import pytest
 
 from shuxueshuo_server.solver.runtime.method_specs import (
     MethodSpecRegistry,
+    method_output_activity,
     parse_method_spec,
 )
 from shuxueshuo_server.solver.runtime.methods import method_spec_payloads
@@ -221,6 +222,54 @@ def test_scalar_result_form_specs_round_trip_from_code() -> None:
         "evaluated_minimum_expression",
     }
     assert "evaluated_parabola" not in evaluate.scalar_result_forms
+
+
+def test_method_output_activation_is_code_owned_and_deterministic() -> None:
+    registry = MethodSpecRegistry.load_from_code()
+    distance = registry.require("distance_between_points")
+
+    assert method_output_activity(
+        distance,
+        "distance",
+        provided_input_names=frozenset({"p1", "p2"}),
+    ) == "active"
+    assert method_output_activity(
+        distance,
+        "evaluated_distance",
+        provided_input_names=frozenset({"p1", "p2"}),
+    ) == "inactive"
+    assert method_output_activity(
+        distance,
+        "evaluated_distance",
+        provided_input_names=frozenset(
+            {"p1", "p2", "parameter", "parameter_value"}
+        ),
+    ) == "active"
+
+    evaluate = registry.require("evaluate_expression_at_parameter")
+    assert method_output_activity(
+        evaluate,
+        "evaluated_parabola",
+        provided_input_names=frozenset(
+            {"expression", "parameter", "parameter_value"}
+        ),
+        input_runtime_types={"expression": "Parabola"},
+    ) == "active"
+    assert method_output_activity(
+        evaluate,
+        "evaluated_expression",
+        provided_input_names=frozenset(
+            {"expression", "parameter", "parameter_value"}
+        ),
+        input_runtime_types={"expression": "Parabola"},
+    ) == "inactive"
+
+    selector = registry.require("filter_point_candidates_by_quadratic_curve")
+    assert method_output_activity(
+        selector,
+        "selected_candidate",
+        provided_input_names=frozenset(selector.inputs),
+    ) == "runtime_conditional"
 
 
 def test_symbolic_closure_spec_round_trips_from_code() -> None:
@@ -532,5 +581,47 @@ def test_rejects_unknown_output_union_member() -> None:
                 "solves": ["derive_expression"],
                 "inputs": {"x": {"type": "Expression"}},
                 "outputs": {"value": "Expression|Unknown"},
+            }
+        )
+
+
+def test_function_state_consumers_declare_symbolic_input_view_roles() -> None:
+    specs = MethodSpecRegistry.load_from_code()
+    consumers = {
+        "filter_point_candidates_by_quadratic_curve": "parabola",
+        "line_parabola_second_intersection_point": "parabola",
+        "parameter_from_curve_point_on_quadratic": "quadratic",
+        "point_candidates_from_curve_point_condition": "parabola",
+        "point_on_parabola_at_x": "parabola",
+        "quadratic_axis_parameterized_point": "parabola",
+        "quadratic_axis_x_intercept_point": "parabola",
+        "quadratic_vertex_point": "parabola",
+        "quadratic_x_axis_intercept_point": "quadratic",
+        "quadratic_y_axis_intercept_point": "quadratic",
+    }
+
+    for method_id, anchor_name in consumers.items():
+        spec = specs.require(method_id)
+        assert spec.inputs[anchor_name].symbolic_basis_role == "state_anchor"
+        assert any(
+            item.symbolic_basis_role == "align_to_anchor"
+            for item in spec.inputs.values()
+        )
+
+
+def test_rejects_unknown_symbolic_basis_role() -> None:
+    with pytest.raises(ValueError, match="invalid symbolic_basis_role"):
+        parse_method_spec(
+            {
+                "method_id": "broken_symbolic_basis",
+                "title": "Broken symbolic basis",
+                "solves": ["derive_expression"],
+                "inputs": {
+                    "value": {
+                        "type": "Expression",
+                        "symbolic_basis_role": "guess_from_name",
+                    }
+                },
+                "outputs": {"value": "Expression"},
             }
         )

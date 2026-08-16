@@ -437,6 +437,32 @@ def recipe_output_alias(
         result_form=result_form,
     )
 
+
+RecipeInputDerivationKind = Literal["source_object_identity"]
+
+
+@dataclass(frozen=True)
+class RecipeInputDerivationSpec:
+    """Derive one hidden Method input from an explicit public Macro input.
+
+    A derivation is compiler wiring, not another Planner argument.  The first
+    supported rule preserves the object identity carried by a state value;
+    for example a ``ParameterValue`` for symbol ``m`` supplies both the value
+    input and the hidden ``Symbol`` input required by an internal Method.
+    """
+
+    source_arg: str
+    target: str
+    kind: RecipeInputDerivationKind = "source_object_identity"
+
+    def to_payload(self) -> dict[str, str]:
+        return {
+            "source_arg": self.source_arg,
+            "target": self.target,
+            "kind": self.kind,
+        }
+
+
 @dataclass(frozen=True)
 class RecipeExecutionSpec:
     """Recipe 的可执行编排规格。
@@ -457,6 +483,14 @@ class RecipeExecutionSpec:
     # method call. Custom compiler strategies must consume these aliases before
     # considering legacy read-based selectors.
     input_aliases: tuple[tuple[str, str], ...] = ()
+    # Hidden Method inputs derived from one declared public Macro input.  This
+    # keeps public-to-internal lowering auditable and prevents compiler branches
+    # from independently guessing companion identities.
+    input_derivations: tuple[RecipeInputDerivationSpec, ...] = ()
+    # Required Method inputs supplied by the named compiler strategy from
+    # context closure, target identity, or an internal role resolver.  Listing
+    # them closes the static lowering graph without exposing them to Planner.
+    strategy_input_targets: tuple[str, ...] = ()
     intermediate_wiring: tuple[tuple[str, str], ...] = ()
     output_aliases: tuple[RecipeOutputAliasSpec, ...] = ()
 

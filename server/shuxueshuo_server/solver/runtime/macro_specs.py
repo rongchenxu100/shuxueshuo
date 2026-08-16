@@ -24,6 +24,7 @@ from shuxueshuo_server.solver.family.models import (
     FunctionalReturnBindingPolicy,
     FunctionalSemanticRefRole,
     RecipeExecutionSpec,
+    RecipeInputDerivationSpec,
     RecipeOutputAliasSpec,
     StateIdentityPolicy,
     StateIdentityConstraintSpec,
@@ -51,6 +52,9 @@ from shuxueshuo_server.solver.runtime.output_type_inference import (
 )
 from shuxueshuo_server.solver.runtime.runtime_type_declarations import (
     split_runtime_types,
+)
+from shuxueshuo_server.solver.runtime.runtime_type_compatibility import (
+    runtime_type_compatible,
 )
 from shuxueshuo_server.solver.runtime.straightening_metadata import (
     canonical_straightening_endpoint_name,
@@ -208,6 +212,8 @@ class MacroAdapterSpec:
     execution_strategy: str
     creates: tuple[str, ...] = ()
     input_aliases: tuple[tuple[str, str], ...] = ()
+    input_derivations: tuple[RecipeInputDerivationSpec, ...] = ()
+    strategy_input_targets: tuple[str, ...] = ()
     intermediate_wiring: tuple[tuple[str, str], ...] = ()
     output_aliases: tuple[RecipeOutputAliasSpec, ...] = ()
 
@@ -217,6 +223,10 @@ class MacroAdapterSpec:
             "execution_strategy": self.execution_strategy,
             "creates": list(self.creates),
             "input_aliases": [list(item) for item in self.input_aliases],
+            "input_derivations": [
+                item.to_payload() for item in self.input_derivations
+            ],
+            "strategy_input_targets": list(self.strategy_input_targets),
             "intermediate_wiring": [list(item) for item in self.intermediate_wiring],
             "output_aliases": [item.to_payload() for item in self.output_aliases],
         }
@@ -316,13 +326,15 @@ class MacroSpecRegistry:
             contract = contracts.get(recipe.recipe_id)
             if contract is not None and contract.execution_status != "executable":
                 continue
-            specs[recipe.recipe_id] = macro_spec_from_recipe(
+            spec = macro_spec_from_recipe(
                 recipe,
                 execution=execution,
                 contract=contract,
                 function_specs=functions,
                 recipe_spec=recipe_specs.get(recipe.recipe_id),
             )
+            _validate_macro_lowering_contract(spec, method_specs)
+            specs[recipe.recipe_id] = spec
         return cls(specs)
 
     def get(self, macro_id: str) -> MacroSpec | None:
@@ -445,6 +457,8 @@ def macro_spec_from_recipe(
             execution_strategy=execution.execution_strategy,
             creates=execution.creates,
             input_aliases=execution.input_aliases,
+            input_derivations=execution.input_derivations,
+            strategy_input_targets=execution.strategy_input_targets,
             intermediate_wiring=execution.intermediate_wiring,
             output_aliases=execution.output_aliases,
         ),
@@ -874,6 +888,192 @@ def _contract_errors(spec: MacroSpec) -> tuple[str, ...]:
         for note in spec.notes
         if note.startswith("macro_contract_mismatch:required:")
     )
+
+
+def _validate_macro_lowering_contract(
+    spec: MacroSpec,
+    method_specs: MethodSpecRegistry,
+) -> None:
+    """Audit every public-to-internal Macro edge before it reaches runtime."""
+
+    public_args = {_macro_arg_public_name(item): item for item in spec.args}
+    internal_methods = {
+        item.capability_id
+        for item in spec.internal_calls
+    }
+    errors: list[str] = []
+
+    def target_input(target: str) -> tuple[str, str, Any] | None:
+        method_id, separator, input_name = target.partition(".")
+        if not separator or not method_id or not input_name:
+            errors.append(f"invalid target {target!r}")
+            return None
+        if method_id not in internal_methods:
+            errors.append(f"target method is outside sequence: {target}")
+            return None
+        method = method_specs.specs.get(method_id)
+        if method is None:
+            errors.append(f"target method is unknown: {method_id}")
+            return None
+        input_spec = method.inputs.get(input_name)
+        if input_spec is None:
+            errors.append(f"target input is unknown: {target}")
+            return None
+        return method_id, input_name, input_spec
+
+    target_sources: dict[str, str] = {}
+    for source_arg, target in spec.adapter.input_aliases:
+        source = public_args.get(source_arg)
+        if source is None:
+            errors.append(f"input alias source is not public: {source_arg}")
+            continue
+        resolved = target_input(target)
+        if resolved is None:
+            continue
+        _method_id, _input_name, input_spec = resolved
+        if not runtime_type_compatible(input_spec.type, source.runtime_type):
+            errors.append(
+                "input alias type mismatch: "
+                f"{source_arg}:{source.runtime_type}->{target}:{input_spec.type}"
+            )
+        previous = target_sources.setdefault(target, source_arg)
+        if previous != source_arg:
+            errors.append(
+                f"input target has multiple public sources: {target}"
+            )
+
+    for derivation in spec.adapter.input_derivations:
+        source = public_args.get(derivation.source_arg)
+        if source is None:
+            errors.append(
+                "input derivation source is not public: "
+                f"{derivation.source_arg}"
+            )
+            continue
+        resolved = target_input(derivation.target)
+        if resolved is None:
+            continue
+        _method_id, _input_name, input_spec = resolved
+        if derivation.kind != "source_object_identity":
+            errors.append(
+                f"unsupported input derivation: {derivation.kind}"
+            )
+            continue
+        source_kind = object_kind_for_runtime_type(source.runtime_type)
+        target_kinds = {
+            object_kind_for_runtime_type(runtime_type)
+            for runtime_type in split_runtime_types(input_spec.type)
+        }
+        if source_kind is None or source_kind not in target_kinds:
+            errors.append(
+                "input derivation object identity mismatch: "
+                f"{derivation.source_arg}:{source.runtime_type}->"
+                f"{derivation.target}:{input_spec.type}"
+            )
+        previous = target_sources.setdefault(
+            derivation.target,
+            derivation.source_arg,
+        )
+        if previous != derivation.source_arg:
+            errors.append(
+                "derived input target has multiple public sources: "
+                f"{derivation.target}"
+            )
+
+    for target in spec.adapter.strategy_input_targets:
+        if target_input(target) is None:
+            continue
+        previous = target_sources.setdefault(target, "<strategy>")
+        if previous != "<strategy>":
+            errors.append(
+                "strategy input duplicates another lowering edge: "
+                f"{target}"
+            )
+
+    for source, target in spec.adapter.intermediate_wiring:
+        source_method, separator, output_name = source.partition(".")
+        if not separator or source_method not in internal_methods:
+            errors.append(f"invalid intermediate source: {source}")
+            continue
+        source_spec = method_specs.specs.get(source_method)
+        output_type = (
+            source_spec.outputs.get(output_name)
+            if source_spec is not None
+            else None
+        )
+        resolved = target_input(target)
+        if output_type is None:
+            errors.append(f"intermediate output is unknown: {source}")
+        elif resolved is not None and not runtime_type_compatible(
+            resolved[2].type,
+            output_type,
+        ):
+            errors.append(
+                "intermediate type mismatch: "
+                f"{source}:{output_type}->{target}:{resolved[2].type}"
+            )
+        elif resolved is not None:
+            previous = target_sources.setdefault(target, source)
+            if previous != source:
+                errors.append(
+                    "intermediate input duplicates another lowering edge: "
+                    f"{target}"
+                )
+
+    for method_id in sorted(internal_methods):
+        method = method_specs.specs.get(method_id)
+        if method is None:
+            errors.append(f"internal method is unknown: {method_id}")
+            continue
+        for input_name, input_spec in method.inputs.items():
+            target = f"{method_id}.{input_name}"
+            if input_spec.required and target not in target_sources:
+                errors.append(
+                    "required internal input has no lowering edge: "
+                    f"{target}"
+                )
+
+    for output in spec.adapter.output_aliases:
+        method_id, separator, output_name = output.output_key.partition(".")
+        method = method_specs.specs.get(method_id)
+        actual_type = method.outputs.get(output_name) if method is not None else None
+        if not separator or method_id not in internal_methods or actual_type is None:
+            errors.append(f"output alias target is unknown: {output.output_key}")
+        elif not runtime_type_compatible(output.runtime_type, actual_type):
+            errors.append(
+                "output alias type mismatch: "
+                f"{output.output_key}:{actual_type}->{output.runtime_type}"
+            )
+        elif method is not None:
+            activation = method.output_activation.get(output_name)
+            if activation is not None and activation.kind == "requires_inputs":
+                missing_activation_inputs = tuple(
+                    input_name
+                    for input_name in activation.required_inputs
+                    if f"{method_id}.{input_name}" not in target_sources
+                )
+                if missing_activation_inputs:
+                    errors.append(
+                        "optional output has no public activation lowering: "
+                        f"{output.output_key} requires "
+                        f"{missing_activation_inputs}"
+                    )
+
+    if errors:
+        raise ValueError(
+            "planner_configuration_error: macro lowering contract invalid: "
+            f"macro={spec.macro_id}; " + "; ".join(errors)
+        )
+
+
+def _macro_arg_public_name(item: MacroArgSpec) -> str:
+    if item.semantic_role:
+        return item.semantic_role
+    if item.condition_kind:
+        return item.condition_kind
+    if item.state_kind:
+        return item.state_kind
+    return item.name
 
 
 def _macro_is_prompt_executable(spec: MacroSpec) -> bool:

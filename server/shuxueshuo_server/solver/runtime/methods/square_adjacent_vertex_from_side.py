@@ -24,7 +24,11 @@ class SquareAdjacentVertexFromSideMethod:
         side_start_ref: PointRef | None = inputs.get("side_start_ref")
         side_end_ref: PointRef | None = inputs.get("side_end_ref")
         parameter = inputs.get("parameter")
-        parameter_constraint = inputs.get("parameter_constraint")
+        parameter_constraint = _canonicalize_runtime_constraint(
+            inputs.get("parameter_constraint"),
+            kernel,
+            arg_name="parameter_constraint",
+        )
         substitutions = _optional_parameter_substitution(
             inputs,
             side_start,
@@ -345,7 +349,19 @@ def _definitely_signed_under_constraint(
         return False
     if str(parameter_constraint.get("operator", "")) != ">":
         return False
-    lower_bound = sp.sympify(parameter_constraint.get("value"))
+    lower_bound = parameter_constraint.get("value")
+    if not isinstance(lower_bound, sp.Basic):
+        raise StatelessMethodError(
+            "planner.method_contract_invalid",
+            "square parameter constraint is not a canonical runtime expression",
+            category="configuration",
+            retryability="configuration",
+            arg_name="parameter_constraint",
+            role="parameter_lower_bound",
+            expected={"state": "canonical_sympy_expression"},
+            observed={"type": type(lower_bound).__name__},
+            repair_action="fix_runtime_contract",
+        )
     try:
         poly = sp.Poly(value, parameter)
     except sp.PolynomialError:

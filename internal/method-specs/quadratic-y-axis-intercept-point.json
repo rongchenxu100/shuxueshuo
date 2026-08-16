@@ -9,7 +9,8 @@
   "inputs": {
     "quadratic": {
       "type": "Expression",
-      "required": true
+      "required": true,
+      "symbolic_basis_role": "state_anchor"
     },
     "x": {
       "type": "Symbol",
@@ -17,7 +18,8 @@
     },
     "target": {
       "type": "PointRef",
-      "required": true
+      "required": true,
+      "symbolic_basis_role": "align_to_anchor"
     }
   },
   "outputs": {

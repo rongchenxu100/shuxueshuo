@@ -21,6 +21,7 @@ from shuxueshuo_server.solver.family.models import (
     MethodCompanionOutputSpec,
     MethodInputBindingSpec,
     RecipeExecutionSpec,
+    RecipeInputDerivationSpec,
     recipe_output_alias,
     SolverFamilySpec,
     StateObjectRoleProjectionSpec,
@@ -178,6 +179,42 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                     "distance_between_points",
                 ),
                 execution_strategy="broken_path_straightening_minimum_expression",
+                input_aliases=(
+                    (
+                        "parameter_value",
+                        "distance_between_points.parameter_value",
+                    ),
+                ),
+                input_derivations=(
+                    RecipeInputDerivationSpec(
+                        "parameter_value",
+                        "distance_between_points.parameter",
+                    ),
+                ),
+                strategy_input_targets=(
+                    "broken_path_straightening_candidates.path_transformation",
+                    "broken_path_straightening_candidates.moving_point_membership",
+                    "broken_path_straightening_candidates.moving_locus",
+                    "broken_path_straightening_candidates.fixed_point_1",
+                    "broken_path_straightening_candidates.fixed_point_2",
+                    "broken_path_straightening_candidates.line_point_1",
+                    "broken_path_straightening_candidates.line_point_2",
+                    "select_straightening_candidate.target",
+                ),
+                intermediate_wiring=(
+                    (
+                        "broken_path_straightening_candidates.candidates",
+                        "select_straightening_candidate.candidates",
+                    ),
+                    (
+                        "select_straightening_candidate.minimum_point_1",
+                        "distance_between_points.p1",
+                    ),
+                    (
+                        "select_straightening_candidate.minimum_point_2",
+                        "distance_between_points.p2",
+                    ),
+                ),
                 output_aliases=(
                     recipe_output_alias(
                         "select_straightening_candidate.minimum_point_1",

@@ -13,6 +13,7 @@ import inspect
 
 from shuxueshuo_server.solver.contracts import (
     MethodExplanationSpec,
+    MethodOutputActivationSpec,
     MethodVisualSpec,
     PlanTransformerScope,
     ScalarResultFormSpec,
@@ -35,6 +36,9 @@ class MethodSpecSource:
     inputs: dict[str, dict[str, Any]]
     outputs: dict[str, str]
     internal_outputs: tuple[str, ...] = ()
+    output_activation: dict[str, MethodOutputActivationSpec] = field(
+        default_factory=dict
+    )
     scalar_result_forms: dict[str, ScalarResultFormSpec] = field(default_factory=dict)
     preconditions: tuple[str, ...] = ()
     postconditions: tuple[str, ...] = ()
@@ -76,6 +80,11 @@ class MethodSpecSource:
         }
         if self.internal_outputs:
             payload["internal_outputs"] = list(self.internal_outputs)
+        if self.output_activation:
+            payload["output_activation"] = {
+                name: spec.to_payload()
+                for name, spec in self.output_activation.items()
+            }
         if self.scalar_result_forms:
             payload["scalar_result_forms"] = {
                 name: spec.to_payload()

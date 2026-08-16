@@ -18,6 +18,7 @@ from shuxueshuo_server.solver.family.models import (
 )
 from shuxueshuo_server.solver.problem_models import QuestionGoal
 from shuxueshuo_server.solver.contracts import (
+    MethodSpec,
     PlanTransformerScope,
     PointRef,
 )
@@ -44,7 +45,10 @@ from shuxueshuo_server.solver.runtime.equal_length_ray_roles import (
     resolve_equal_length_ray_path_roles,
 )
 from shuxueshuo_server.solver.runtime._planner_helpers import single_invocation_step
-from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
+from shuxueshuo_server.solver.runtime.method_specs import (
+    MethodSpecRegistry,
+    active_method_output_names,
+)
 from shuxueshuo_server.solver.runtime.macro_specs import (
     MacroAdapterRegistry,
     MacroReturnSpec,
@@ -137,6 +141,11 @@ from shuxueshuo_server.solver.runtime.binding_rules import (
 )
 from shuxueshuo_server.solver.runtime.functional_symbol_identity import (
     runtime_free_symbol_ids,
+)
+from shuxueshuo_server.solver.runtime.functional_diagnostics import (
+    macro_contract_invalid,
+    method_input_invalid,
+    method_input_missing,
 )
 from shuxueshuo_server.solver.runtime.state_identity import (
     IndexedStateVersion,
@@ -297,7 +306,13 @@ def _projected_recipe_method_arg_bindings(
     method_id: str,
     projected_bindings: tuple[ProjectedFunctionArgBinding, ...],
 ) -> dict[str, ProjectedFunctionArgBinding]:
-    """Project declared macro arg aliases onto one internal method call."""
+    """Project direct public Macro aliases for contract-level inspection.
+
+    Runtime lowering additionally consumes exact state dependencies and
+    ``input_derivations`` in ``_projected_exact_recipe_inputs``.  This helper
+    intentionally represents only the direct alias portion of that contract.
+    """
+
     binding_by_arg: dict[str, list[ProjectedFunctionArgBinding]] = {}
     for item in projected_bindings:
         if (
@@ -306,8 +321,6 @@ def _projected_recipe_method_arg_bindings(
             == "runtime_input"
         ):
             binding_by_arg.setdefault(item.arg_name, []).append(item)
-    if not binding_by_arg:
-        return {}
     result: dict[str, ProjectedFunctionArgBinding] = {}
     for macro_arg, target in execution.input_aliases:
         target_method, separator, input_name = target.partition(".")
@@ -320,8 +333,6 @@ def _projected_recipe_method_arg_bindings(
             continue
         items = binding_by_arg.get(macro_arg, ())
         if not items:
-            # Optional macro arguments do not need a projected sidecar entry.
-            # Required method inputs are checked by the compiler/plan validator.
             continue
         if len(items) != 1:
             raise StrategyDraftValidationError(
@@ -752,6 +763,8 @@ class _RecipePlanCompiler:
         self,
         step: FunctionalCompileStepView,
         method_id: str,
+        *,
+        input_bindings: Mapping[str, str],
     ) -> tuple[dict[str, str], dict[str, str]]:
         """Compile every allocated Macro return owned by one internal method."""
         macro = self.macro_adapters.specs.get(_compile_capability_id(step) or "")
@@ -761,6 +774,17 @@ class _RecipePlanCompiler:
         produced = {item.handle: item for item in _compile_return_outputs(step)}
         selected_targets: dict[str, tuple[str, bool]] = {}
         outputs: dict[str, str] = {}
+        method_spec = self.method_specs.require(method_id)
+        active_outputs = set(
+            active_method_output_names(
+                method_spec,
+                provided_input_names=frozenset(input_bindings),
+                input_runtime_types=_input_runtime_types_for_bindings(
+                    input_bindings,
+                    self.index,
+                ),
+            )
+        )
         for write in self.projected_state_writes:
             if write.step_id != step.step_id or write.return_name is None:
                 continue
@@ -770,6 +794,39 @@ class _RecipePlanCompiler:
             owner, separator, output_name = return_spec.output_key.partition(".")
             if not separator or owner != method_id:
                 continue
+            if output_name not in active_outputs:
+                activation = method_spec.output_activation.get(output_name)
+                if activation is not None and activation.kind == "requires_inputs":
+                    raise method_input_missing(
+                        "Macro requested an output whose activating inputs are absent",
+                        method_id=method_id,
+                        capability_id=_compile_capability_id(step),
+                        scope_id=step.scope_id,
+                        step_id=step.step_id,
+                        expected={
+                            "output": output_name,
+                            "required_inputs": list(activation.required_inputs),
+                        },
+                        observed={
+                            "provided_inputs": sorted(input_bindings),
+                            "missing_inputs": [
+                                name
+                                for name in activation.required_inputs
+                                if name not in input_bindings
+                            ],
+                        },
+                        repair_action="provide_required_input",
+                    )
+                raise method_input_invalid(
+                    "Macro requested an output incompatible with its active input type",
+                    method_id=method_id,
+                    capability_id=_compile_capability_id(step),
+                    scope_id=step.scope_id,
+                    step_id=step.step_id,
+                    expected={"output": output_name},
+                    observed={"provided_inputs": sorted(input_bindings)},
+                    repair_action="repair_input_binding",
+                )
             produced_item = produced.get(write.produced_handle)
             if produced_item is None:
                 raise StrategyDraftValidationError(
@@ -923,6 +980,7 @@ class _RecipePlanCompiler:
             self.binding_rules,
             input_bindings=inputs,
             input_specs=spec.inputs,
+            method_spec=spec,
             projected_output_keys=projected_output_keys,
         )
         main_promote = _promote_outputs_for_step(
@@ -1825,58 +1883,193 @@ class _RecipePlanCompiler:
         step: FunctionalCompileStepView,
         method_id: str,
     ) -> dict[str, str]:
-        """Compile declared macro input aliases from reconciliation sidecar."""
-        if _compile_capability_id(step) is None:
+        """Lower public Macro inputs through one audited adapter contract."""
+        capability_id = _compile_capability_id(step)
+        if capability_id is None:
             return {}
-        execution = self.recipe_specs.get(_compile_capability_id(step))
-        if execution is None or not execution.input_aliases:
+        execution = self.recipe_specs.get(capability_id)
+        if execution is None or (
+            not execution.input_aliases
+            and not execution.input_derivations
+        ):
             return {}
-        bindings = _projected_recipe_method_arg_bindings(
-            execution,
-            step_id=step.step_id,
-            method_id=method_id,
-            projected_bindings=self.projected_function_arg_bindings,
-        )
         method_spec = self.method_specs.require(method_id)
+        macro_spec = self.macro_adapters.specs.require(capability_id)
+        public_types = {
+            (
+                item.semantic_role
+                or item.condition_kind
+                or item.state_kind
+                or item.name
+            ): item.runtime_type
+            for item in macro_spec.args
+        }
+        source_cache: dict[
+            tuple[str, str],
+            tuple[str, MathObjectId | None] | None,
+        ] = {}
+
+        def source_binding(
+            source_arg: str,
+            expected_type: str,
+        ) -> tuple[str, MathObjectId | None] | None:
+            cache_key = (source_arg, expected_type)
+            if cache_key not in source_cache:
+                source_type = public_types.get(source_arg)
+                if source_type is None:
+                    raise macro_contract_invalid(
+                        "Macro lowering references an undeclared public input",
+                        capability_id=capability_id,
+                        scope_id=step.scope_id,
+                        step_id=step.step_id,
+                        expected={"public_arg": source_arg},
+                        observed={"public_args": sorted(public_types)},
+                    )
+                source_cache[cache_key] = self._projected_macro_source_binding(
+                    step,
+                    source_arg=source_arg,
+                    expected_type=expected_type,
+                )
+            return source_cache[cache_key]
+
         result: dict[str, str] = {}
-        for input_name, item in bindings.items():
+        for source_arg, target in execution.input_aliases:
+            target_method, _separator, input_name = target.partition(".")
+            if target_method != method_id:
+                continue
             input_spec = method_spec.inputs.get(input_name)
             if input_spec is None:
-                raise StrategyDraftValidationError(
-                    "planner_configuration_error: recipe input alias targets "
-                    f"unknown input: {_compile_capability_id(step)}.{method_id}.{input_name}"
+                raise macro_contract_invalid(
+                    "Macro input alias targets an unknown Method input",
+                    capability_id=capability_id,
+                    scope_id=step.scope_id,
+                    step_id=step.step_id,
+                    expected={"target": target},
                 )
-            if item.runtime_type is None or not runtime_type_compatible(
-                input_spec.type,
-                item.runtime_type,
-            ):
-                raise StrategyDraftValidationError(
-                    "planner_configuration_error: recipe input alias type "
-                    f"mismatch: {_compile_capability_id(step)}.{input_name}"
+            source = source_binding(source_arg, input_spec.type)
+            if source is not None:
+                result[input_name] = source[0]
+
+        for derivation in execution.input_derivations:
+            target_method, _separator, input_name = derivation.target.partition(".")
+            if target_method != method_id:
+                continue
+            input_spec = method_spec.inputs.get(input_name)
+            source = source_binding(
+                derivation.source_arg,
+                public_types[derivation.source_arg],
+            )
+            if input_spec is None or derivation.kind != "source_object_identity":
+                raise macro_contract_invalid(
+                    "Macro input derivation is unsupported by the compiler",
+                    capability_id=capability_id,
+                    scope_id=step.scope_id,
+                    step_id=step.step_id,
+                    expected={"target": derivation.target},
                 )
-            result[input_name] = self._projected_input_path(
-                item,
+            if source is None:
+                continue
+            object_id = source[1]
+            if object_id is None:
+                raise macro_contract_invalid(
+                    "Macro public state lost the object identity needed for lowering",
+                    capability_id=capability_id,
+                    scope_id=step.scope_id,
+                    step_id=step.step_id,
+                    expected={
+                        "public_arg": derivation.source_arg,
+                        "derived_target": derivation.target,
+                    },
+                    observed={"object_identity": "missing"},
+                )
+            result[input_name] = self.index.runtime_path_for_object_identity(
+                object_id,
                 expected_type=input_spec.type,
                 consumer_scope_id=step.scope_id,
+                consumer=f"{step.step_id}.{input_name}",
             )
-            parameter_spec = method_spec.inputs.get("parameter")
-            if (
-                input_name == "parameter_value"
-                and parameter_spec is not None
-                and "parameter" not in result
-                and item.math_object_id is not None
-                and item.math_object_id.kind == "symbol"
-                and runtime_type_compatible(parameter_spec.type, "Symbol")
-            ):
-                result["parameter"] = (
-                    self.index.runtime_path_for_object_identity(
-                        item.math_object_id,
-                        expected_type=parameter_spec.type,
-                        consumer_scope_id=step.scope_id,
-                        consumer=f"{step.step_id}.parameter",
-                    )
-                )
         return result
+
+    def _projected_macro_source_binding(
+        self,
+        step: FunctionalCompileStepView,
+        *,
+        source_arg: str,
+        expected_type: str,
+    ) -> tuple[str, MathObjectId | None] | None:
+        """Resolve one public Macro input from F5-C or its exact state edge."""
+
+        wire = tuple(
+            item
+            for item in self.projected_function_arg_bindings
+            if item.step_id == step.step_id
+            and item.arg_name == source_arg
+            and item.runtime_type is not None
+            and runtime_type_compatible(expected_type, item.runtime_type)
+        )
+        if len(wire) > 1:
+            raise macro_contract_invalid(
+                "Macro public input has multiple projected bindings",
+                capability_id=_compile_capability_id(step),
+                scope_id=step.scope_id,
+                step_id=step.step_id,
+                expected={"public_arg": source_arg, "binding_count": 1},
+                observed={"binding_count": len(wire)},
+            )
+        if wire:
+            item = wire[0]
+            object_id = item.math_object_id
+            object_ref = getattr(item, "object_ref", None)
+            if object_id is None and object_ref is not None:
+                object_id = MathObjectRegistry.from_sources(
+                    self.index.handle_registry
+                ).resolve(object_ref)
+            return (
+                self._projected_input_path(
+                    item,
+                    expected_type=expected_type,
+                    consumer_scope_id=step.scope_id,
+                ),
+                object_id,
+            )
+
+        exact = tuple(
+            item
+            for item in self.projected_state_dependencies
+            if item.step_id == step.step_id
+            and item.arg_name == source_arg
+            and item.runtime_type is not None
+            and runtime_type_compatible(expected_type, item.runtime_type)
+        )
+        if len(exact) > 1:
+            raise macro_contract_invalid(
+                "Macro public input has multiple exact state dependencies",
+                capability_id=_compile_capability_id(step),
+                scope_id=step.scope_id,
+                step_id=step.step_id,
+                expected={"public_arg": source_arg, "binding_count": 1},
+                observed={"binding_count": len(exact)},
+            )
+        if not exact:
+            return None
+        dependency = exact[0]
+        if dependency.state_version_id is None:
+            raise macro_contract_invalid(
+                "Macro public state dependency lost its exact version",
+                capability_id=_compile_capability_id(step),
+                scope_id=step.scope_id,
+                step_id=step.step_id,
+                expected={"public_arg": source_arg, "state_version": "exact"},
+                observed={"state_version": "missing"},
+            )
+        return (
+            self.index.runtime_path_for_state_version(
+                dependency.state_version_id,
+                consumer_scope_id=step.scope_id,
+                consumer=f"{step.step_id}.{source_arg}",
+            ),
+            dependency.state_version_id.slot_id.logical_key.object_id,
+        )
 
     def _compile_right_angle_recipe(self, step: FunctionalCompileStepView) -> _CompiledStep:
         """编译“直角等腰候选 + 约束筛选” recipe。"""
@@ -2317,6 +2510,24 @@ class _RecipePlanCompiler:
         auxiliary_point = _temp(step.step_id, "equal_length_auxiliary_point")
         distance = _temp(step.step_id, "distance")
         minimum_target = _minimum_expression_target_path(step, self.index)
+        distance_inputs = {
+            "p1": _point_value_path_for_step(
+                roles["fixed_point"], step, self.index
+            ),
+            "p2": auxiliary_point,
+            **self._projected_exact_recipe_inputs(
+                step,
+                "distance_between_points",
+            ),
+        }
+        projected_outputs, projected_promote = (
+            self._projected_macro_method_outputs(
+                step,
+                "distance_between_points",
+                input_bindings=distance_inputs,
+            )
+        )
+        distance_outputs = projected_outputs or {"distance": distance}
         invocations = [
             MethodInvocation(
                 invocation_id=f"{step.step_id}.equal_length_ray_point",
@@ -2338,16 +2549,13 @@ class _RecipePlanCompiler:
                 invocation_id=f"{step.step_id}.distance_between_points",
                 method_id="distance_between_points",
                 scope=step.step_id,
-                inputs={
-                    "p1": _point_value_path_for_step(roles["fixed_point"], step, self.index),
-                    "p2": auxiliary_point,
-                },
-                outputs={"distance": distance},
+                inputs=distance_inputs,
+                outputs=distance_outputs,
             ),
         ]
         promote = {
             auxiliary_point: auxiliary_path,
-            distance: minimum_target,
+            **(projected_promote or {distance: minimum_target}),
         }
         plan = StepPlan(
             step_id=step.step_id,
@@ -2398,15 +2606,42 @@ class _RecipePlanCompiler:
                 "p1": self.index.path_for(point_1, expected_type="Point"),
                 "p2": self.index.path_for(point_2, expected_type="Point"),
             }
+        parameter_handle = _parameter_value_handle(step, self.index)
+        if parameter_handle is not None:
+            inputs["parameter_value"] = self.index.path_for(
+                parameter_handle,
+                expected_type="ParameterValue",
+            )
+            pairs = parameter_substitution_pairs_from_reads(step, self.index)
+            matching = [
+                symbol_path
+                for symbol_path, value_path in pairs
+                if value_path == inputs["parameter_value"]
+            ]
+            if len(matching) != 1:
+                raise method_input_invalid(
+                    "ParameterValue does not resolve to one visible Symbol identity",
+                    method_id="distance_between_points",
+                    capability_id=_compile_capability_id(step),
+                    scope_id=step.scope_id,
+                    step_id=step.step_id,
+                    arg_name="parameter_value",
+                    role="substitution_value",
+                    expected={"matching_symbol_count": 1},
+                    observed={"matching_symbol_count": len(matching)},
+                    repair_action="repair_input_binding",
+                )
+            inputs["parameter"] = matching[0]
         outputs, promote = self._projected_macro_method_outputs(
             step,
             "distance_between_points",
+            input_bindings=inputs,
         )
         projected_outputs = bool(outputs)
         if not outputs:
             output_name = (
                 "evaluated_distance"
-                if _parameter_value_handle(step, self.index)
+                if parameter_handle is not None
                 else "distance"
             )
             distance = _temp(step.step_id, output_name)
@@ -2417,13 +2652,6 @@ class _RecipePlanCompiler:
             target_path = _minimum_expression_target_path(step, self.index)
             if target_path not in promote.values():
                 target_path = next(iter(promote.values()))
-        parameter_handle = _parameter_value_handle(step, self.index)
-        if parameter_handle is not None:
-            inputs["parameter"] = self.index.parameter_symbol_path()
-            inputs["parameter_value"] = self.index.path_for(
-                parameter_handle,
-                expected_type="ParameterValue",
-            )
         plan = StepPlan(
             step_id=step.step_id,
             goal=StepGoal(
@@ -2561,6 +2789,7 @@ class _RecipePlanCompiler:
             self._projected_macro_method_outputs(
                 step,
                 "distance_between_points",
+                input_bindings=distance_inputs,
             )
         )
         distance_outputs = (
@@ -3505,6 +3734,7 @@ def _method_outputs_for_step(
     *,
     input_bindings: Mapping[str, str] | None = None,
     input_specs: Mapping[str, Any] | None = None,
+    method_spec: MethodSpec | None = None,
     projected_output_keys: Mapping[str, str] | None = None,
 ) -> dict[str, str]:
     """为 invocation 生成输出路径，避免声明 method 不会实际返回的可选输出。"""
@@ -3539,14 +3769,58 @@ def _method_outputs_for_step(
                 method_id,
                 spec_outputs,
             )
-    if not output_names:
+    input_bindings = input_bindings or {}
+    input_runtime_types = _input_runtime_types_for_bindings(input_bindings, index)
+    if method_spec is not None:
+        active_outputs = set(
+            active_method_output_names(
+                method_spec,
+                provided_input_names=frozenset(input_bindings),
+                input_runtime_types=input_runtime_types,
+            )
+        )
+        inactive_requested = sorted(set(output_names) - active_outputs)
+        if inactive_requested:
+            raise method_input_missing(
+                "Function requested outputs whose activating inputs are absent",
+                method_id=method_id,
+                scope_id=step.scope_id,
+                step_id=step.step_id,
+                expected={"active_outputs": sorted(active_outputs)},
+                observed={
+                    "inactive_requested_outputs": inactive_requested,
+                    "provided_inputs": sorted(input_bindings),
+                },
+                repair_action="provide_required_input",
+            )
+        if not output_names:
+            output_names = [
+                name for name in spec_outputs if name in active_outputs
+            ]
+    elif not output_names:
         output_names = _active_polymorphic_output_names(
             spec_outputs,
-            input_bindings=input_bindings or {},
+            input_bindings=input_bindings,
             input_specs=input_specs or {},
             index=index,
         )
     return {name: _temp(step.step_id, name) for name in _unique_ordered(output_names)}
+
+
+def _input_runtime_types_for_bindings(
+    input_bindings: Mapping[str, str],
+    index: CanonicalRuntimeBindingIndex,
+) -> dict[str, str]:
+    result: dict[str, str] = {}
+    for input_name, path in input_bindings.items():
+        candidates = {
+            binding.value_type
+            for binding in index.bindings.values()
+            if binding.path == path
+        }
+        if len(candidates) == 1:
+            result[input_name] = next(iter(candidates))
+    return result
 
 
 def _active_polymorphic_output_names(

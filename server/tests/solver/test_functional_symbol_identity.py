@@ -2,8 +2,10 @@ from types import SimpleNamespace
 
 import sympy as sp
 
+from shuxueshuo_server.solver.contracts import PointRef
 from shuxueshuo_server.solver.runtime.functional_symbol_identity import (
     runtime_free_symbol_ids,
+    runtime_free_symbols,
 )
 from shuxueshuo_server.solver.runtime.state_identity import (
     MathObjectId,
@@ -42,3 +44,15 @@ def test_method_created_symbol_uses_declared_return_identity() -> None:
     )
 
     assert actual == (expected,)
+
+
+def test_point_ref_definition_participates_in_runtime_symbol_identity() -> None:
+    b = sp.Symbol("b", real=True)
+    point_ref = PointRef(
+        "M",
+        "$question.iii.points.M",
+        definition={"x": b + sp.Rational(1, 2)},
+        scope_id="iii",
+    )
+
+    assert runtime_free_symbols(point_ref) == (b,)

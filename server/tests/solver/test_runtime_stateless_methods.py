@@ -10,6 +10,9 @@ import sympy as sp
 import pytest
 
 from shuxueshuo_server.solver.math_kernel import SympyKernel
+from shuxueshuo_server.solver.runtime.functional_diagnostics import (
+    StatelessMethodError,
+)
 from shuxueshuo_server.solver.runtime.methods import (
     AngleSumEqualAngleCandidatesMethod,
     AxisInterceptFromEqualAcuteAnglesMethod,
@@ -78,6 +81,35 @@ def test_parameter_methods_delegate_solving_to_shared_closure_core(
     assert "solve_symbolic_closure_math" in source
     assert "solve_values" not in source
     assert "pick_by_lower_bound" not in source
+
+
+@pytest.mark.parametrize(
+    "method_cls",
+    (
+        AngleSumEqualAngleCandidatesMethod,
+        LineParabolaSecondIntersectionPointMethod,
+        LinkedBrokenPathGeometricMinimumMethod,
+        ParameterFromExpressionValueMethod,
+        ParameterFromMinimumValueMethod,
+        PointOnParabolaAtXMethod,
+        SelectPointByQuadrantConstraintMethod,
+        SquareAdjacentVertexFromSideMethod,
+        TranslatedPointMethod,
+        TwoMovingPointsPathReductionMethod,
+    ),
+)
+def test_problem_expression_consumers_use_canonical_runtime_boundary(
+    method_cls,
+) -> None:
+    module = inspect.getmodule(method_cls)
+    assert module is not None
+    source = inspect.getsource(module)
+
+    assert "kernel.expr(" not in source
+    assert (
+        "_require_canonical_runtime_expression" in source
+        or "_canonicalize_runtime_constraint" in source
+    )
 
 
 def test_quadratic_axis_from_relation_method() -> None:
@@ -467,6 +499,31 @@ def test_translated_point_method_uses_target_definition_vector() -> None:
     assert all(check.ok for check in result.checks)
 
 
+def test_translated_point_rejects_malformed_vector_with_typed_diagnostic() -> None:
+    kernel = SympyKernel()
+
+    with pytest.raises(StatelessMethodError) as error:
+        TranslatedPointMethod().run(
+            {
+                "source": (sp.Integer(0), sp.Integer(-3)),
+                "target": PointRef(
+                    "D",
+                    "$problem.points.D",
+                    definition={
+                        "definition": "translated_point",
+                        "of": "C",
+                        "vector": ["2"],
+                    },
+                ),
+            },
+            kernel,
+        )
+
+    assert error.value.authority.code == "functional.method_input_invalid"
+    assert error.value.authority.retryability == "planner_repairable"
+    assert error.value.authority.subjects[0].internal_ref == "D"
+
+
 def test_line_parabola_second_intersection_point_method_heping_geometry() -> None:
     kernel = SympyKernel()
     x = kernel.symbols(["x"])["x"]
@@ -491,6 +548,42 @@ def test_line_parabola_second_intersection_point_method_heping_geometry() -> Non
     assert all(check.ok for check in result.checks)
 
 
+def test_line_parabola_second_intersection_reports_typed_precondition_and_ambiguity() -> None:
+    kernel = SympyKernel()
+    x = kernel.symbols(["x"])["x"]
+    target = PointRef("E", "$question.points.E")
+
+    with pytest.raises(StatelessMethodError) as vertical:
+        LineParabolaSecondIntersectionPointMethod().run(
+            {
+                "parabola": x**2 - 1,
+                "x": x,
+                "line_p1": (sp.Integer(0), sp.Integer(0)),
+                "line_p2": (sp.Integer(0), sp.Integer(1)),
+                "known_point": (sp.Integer(0), sp.Integer(0)),
+                "target": target,
+            },
+            kernel,
+        )
+    assert vertical.value.authority.code == "functional.method_precondition_failed"
+    assert vertical.value.authority.observed["line_state"] == "vertical"
+
+    with pytest.raises(StatelessMethodError) as ambiguous:
+        LineParabolaSecondIntersectionPointMethod().run(
+            {
+                "parabola": x**2 - 1,
+                "x": x,
+                "line_p1": (sp.Integer(0), sp.Integer(0)),
+                "line_p2": (sp.Integer(1), sp.Integer(0)),
+                "known_point": (sp.Integer(2), sp.Integer(0)),
+                "target": target,
+            },
+            kernel,
+        )
+    assert ambiguous.value.authority.code == "functional.method_result_ambiguous"
+    assert ambiguous.value.authority.observed["candidate_count"] == 2
+
+
 def test_equal_length_ray_point_method_heping_geometry() -> None:
     kernel = SympyKernel()
     a = kernel.symbols(["a"])["a"]
@@ -509,6 +602,28 @@ def test_equal_length_ray_point_method_heping_geometry() -> None:
     assert sp.simplify(point[1] + 3) == 0
     assert sp.simplify(kernel.distance_squared((0, -3), point) - (9 / a**2 + 9)) == 0
     assert all(check.ok for check in result.checks)
+
+
+def test_equal_length_ray_rejects_coincident_direction_points_with_typed_diagnostic() -> None:
+    kernel = SympyKernel()
+
+    with pytest.raises(StatelessMethodError) as error:
+        EqualLengthRayPointMethod().run(
+            {
+                "anchor": (sp.Integer(0), sp.Integer(0)),
+                "reference_point": (sp.Integer(1), sp.Integer(0)),
+                "ray_point": (sp.Integer(0), sp.Integer(0)),
+                "target": PointRef("G", "$question.ii.points.G"),
+            },
+            kernel,
+        )
+
+    assert error.value.authority.code == "functional.method_precondition_failed"
+    assert error.value.authority.retryability == "planner_repairable"
+    assert {item.arg_name for item in error.value.authority.subjects} == {
+        "anchor",
+        "ray_point",
+    }
 
 
 def test_quadratic_from_constraints_rejects_incomplete_solution() -> None:
@@ -980,6 +1095,29 @@ def test_parameter_from_curve_point_on_quadratic_method() -> None:
     assert all(check.ok for check in result.checks)
 
 
+def test_parameter_from_curve_point_requires_complete_known_substitution_pair() -> None:
+    kernel = SympyKernel()
+    x, b, c = sp.symbols("x b c")
+
+    with pytest.raises(StatelessMethodError) as error:
+        ParameterFromCurvePointOnQuadraticMethod().run(
+            {
+                "quadratic": x**2 + b * x + c,
+                "x": x,
+                "point": (sp.Integer(0), c),
+                "parameter": b,
+                "known_parameter": c,
+            },
+            kernel,
+        )
+
+    assert error.value.authority.code == "functional.method_input_missing"
+    assert error.value.authority.expected["paired_arg"] == "known_parameter"
+    assert error.value.authority.observed["missing_inputs"] == (
+        "known_parameter_value",
+    )
+
+
 def test_parameter_from_curve_point_specializes_known_symbol_before_solving() -> None:
     kernel = SympyKernel()
     symbols = kernel.symbols(["x", "u", "v"])
@@ -1207,6 +1345,27 @@ def test_quadratic_from_constraints_refines_materialized_parameterized_state() -
     assert analysis.status == "determined"
     assert result.outputs["coefficients"].value == {a: 1, b: -2, c: -2}
     assert sp.expand(result.outputs["parabola"].value) == x**2 - 2 * x - 2
+    assert all(check.ok for check in result.checks)
+
+
+def test_quadratic_from_constraints_closes_transitive_materialized_coefficients() -> None:
+    kernel = SympyKernel()
+    x, a, b, c = sp.symbols("x a b c")
+
+    result = QuadraticFromConstraintsMethod().run(
+        {
+            "quadratic": a * x**2 - 2 * a * x + c,
+            "quadratic_template": a * x**2 + b * x + c,
+            "x": x,
+            "all_coefficients": [a, b, c],
+            "known_coefficients": {a: 2, c: -5},
+            "coefficient_relation": sp.Eq(2 * a + b, 0),
+        },
+        kernel,
+    )
+
+    assert result.outputs["coefficients"].value == {a: 2, b: -4, c: -5}
+    assert sp.expand(result.outputs["parabola"].value) == 2 * x**2 - 4 * x - 5
     assert all(check.ok for check in result.checks)
 
 
@@ -1440,13 +1599,68 @@ def test_point_on_parabola_at_x_method() -> None:
             "target": PointRef(
                 "M",
                 "$question.iii.points.M",
-                definition={"definition": "point_on_parabola_at_x", "x": "b + 1/2"},
+                definition={
+                    "definition": "point_on_parabola_at_x",
+                    "x": b + sp.Rational(1, 2),
+                },
             ),
         },
         kernel,
     )
 
     assert result.outputs["point"].value == (b + sp.Rational(1, 2), -b / 2 - sp.Rational(3, 4))
+
+
+def test_point_on_parabola_rejects_unbound_symbolic_source_string() -> None:
+    kernel = SympyKernel()
+    x, b = kernel.symbols(["x", "b"]).values()
+
+    with pytest.raises(StatelessMethodError) as error:
+        PointOnParabolaAtXMethod().run(
+            {
+                "parabola": x**2 - b * x - b - 1,
+                "x": x,
+                "target": PointRef(
+                    "M",
+                    "$question.iii.points.M",
+                    definition={"x": "b + 1/2"},
+                ),
+            },
+            kernel,
+        )
+
+    assert error.value.authority.code == "planner.method_contract_invalid"
+    assert error.value.authority.retryability == "configuration"
+    assert error.value.authority.observed["free_symbols"] == ("b",)
+
+
+def test_point_on_parabola_at_x_missing_structured_x_is_planner_repairable() -> None:
+    kernel = SympyKernel()
+    x, b = sp.symbols("x b")
+
+    with pytest.raises(StatelessMethodError) as error:
+        PointOnParabolaAtXMethod().run(
+            {
+                "parabola": -x**2 + b * x + b + 1,
+                "x": x,
+                "target": PointRef(
+                    "C",
+                    "$question.ii.points.C",
+                    definition={"definition": "y_axis_intercept", "of": "parabola"},
+                ),
+            },
+            kernel,
+        )
+
+    authority = error.value.authority
+    assert authority.code == "functional.method_precondition_failed"
+    assert authority.retryability == "planner_repairable"
+    assert authority.subjects[0].internal_ref == "C"
+    assert authority.observed["construction"] == "y_axis_intercept"
+    assert (
+        authority.repair_action
+        == "choose_applicable_point_construction_capability"
+    )
 
 
 def test_quadratic_x_axis_intercept_point_method_returns_other_root() -> None:
@@ -1786,9 +2000,9 @@ def test_parameter_from_expression_value_rejects_absent_target_symbol() -> None:
     a, m = symbols["a"], symbols["m"]
 
     with pytest.raises(
-        ValueError,
+        StatelessMethodError,
         match=r"function.symbolic_closure_identity_unresolved: target=a",
-    ):
+    ) as error:
         ParameterFromExpressionValueMethod().run(
             {
                 "expression": m + 1,
@@ -1798,15 +2012,18 @@ def test_parameter_from_expression_value_rejects_absent_target_symbol() -> None:
             kernel,
         )
 
+    assert error.value.authority.code == "functional.method_input_state_unavailable"
+    assert error.value.authority.retryability == "planner_repairable"
+
 
 def test_parameter_from_expression_value_does_not_pick_first_branch() -> None:
     kernel = SympyKernel()
     parameter = kernel.symbols(["m"])["m"]
 
     with pytest.raises(
-        ValueError,
+        StatelessMethodError,
         match=r"function.symbolic_closure_ambiguous:.*branch_count=2",
-    ):
+    ) as error:
         ParameterFromExpressionValueMethod().run(
             {
                 "expression": parameter**2,
@@ -1815,6 +2032,9 @@ def test_parameter_from_expression_value_does_not_pick_first_branch() -> None:
             },
             kernel,
         )
+
+    assert error.value.authority.code == "functional.method_result_ambiguous"
+    assert error.value.authority.observed["branch_count"] == 2
 
     result = ParameterFromExpressionValueMethod().run(
         {
@@ -1932,7 +2152,7 @@ def test_weighted_axis_path_triangle_transform_rejects_unregistered_weight() -> 
     kernel = SympyKernel()
     symbols = kernel.symbols(["n"])
 
-    with pytest.raises(ValueError, match="geometry is not registered"):
+    with pytest.raises(StatelessMethodError) as error:
         WeightedAxisPathTriangleTransformMethod().run(
             {
                 "condition": {"path": "3*MN+AN", "value": "10"},
@@ -1946,6 +2166,10 @@ def test_weighted_axis_path_triangle_transform_rejects_unregistered_weight() -> 
             },
             kernel,
         )
+
+    assert error.value.authority.code == "functional.method_precondition_failed"
+    assert error.value.authority.retryability == "planner_repairable"
+    assert error.value.authority.observed["weight"] == "3"
 
 
 def test_linked_broken_path_geometric_minimum_method() -> None:
@@ -2007,7 +2231,7 @@ def test_linked_broken_path_rejects_geometry_profile_drift() -> None:
     )
     transformation["geometry_profile_id"] = "weight2_30_60"
 
-    with pytest.raises(ValueError, match="profile id does not match"):
+    with pytest.raises(StatelessMethodError) as error:
         LinkedBrokenPathMinimumExpressionMethod().run(
             {
                 "path_transformation": transformation,
@@ -2034,6 +2258,10 @@ def test_linked_broken_path_rejects_geometry_profile_drift() -> None:
             },
             kernel,
         )
+
+    assert error.value.authority.code == "planner.method_contract_invalid"
+    assert error.value.authority.retryability == "configuration"
+    assert error.value.authority.observed["field"] == "geometry_profile_id"
 
 
 def test_linked_broken_path_minimum_expression_method() -> None:
@@ -2164,6 +2392,24 @@ def test_parameterized_point_locus_line_method_allows_problem_parameter() -> Non
     assert all(check.ok for check in result.checks)
 
 
+def test_parameterized_point_locus_rejects_nonlinear_coordinates_with_typed_diagnostic() -> None:
+    kernel = SympyKernel()
+    t = sp.Symbol("t")
+
+    with pytest.raises(StatelessMethodError) as error:
+        ParameterizedPointLocusLineMethod().run(
+            {
+                "point": (t**2, t),
+                "parameter": t,
+            },
+            kernel,
+        )
+
+    assert error.value.authority.code == "functional.method_precondition_failed"
+    assert error.value.authority.retryability == "planner_repairable"
+    assert error.value.authority.expected["maximum_parameter_degree"] == 1
+
+
 def test_broken_path_straightening_candidates_accepts_locus_line() -> None:
     """将军饮马候选生成可直接读取动点轨迹 Line。"""
     kernel = SympyKernel()
@@ -2259,6 +2505,42 @@ def test_evaluate_expression_at_parameter_preserves_parabola_type() -> None:
     assert all(check.ok for check in result.checks)
 
 
+@pytest.mark.parametrize(
+    ("runtime_type", "output_name", "expression"),
+    (
+        ("Expression", "evaluated_expression", sp.Integer(7)),
+        (
+            "MinimumExpression",
+            "evaluated_minimum_expression",
+            sp.sqrt(5),
+        ),
+        ("Parabola", "evaluated_parabola", sp.Symbol("x") ** 2 - 1),
+    ),
+)
+def test_evaluate_closed_expression_is_an_idempotent_noop(
+    runtime_type: str,
+    output_name: str,
+    expression: sp.Expr,
+) -> None:
+    kernel = SympyKernel()
+    parameter = sp.Symbol("m")
+
+    result = EvaluateExpressionAtParameterMethod().run(
+        {
+            "expression": expression,
+            "parameter": parameter,
+            "parameter_value": sp.Integer(3),
+            "__input_types__": {"expression": runtime_type},
+        },
+        kernel,
+    )
+
+    assert tuple(result.outputs) == (output_name,)
+    assert result.outputs[output_name].type == runtime_type
+    assert sp.simplify(result.outputs[output_name].value - expression) == 0
+    assert all(check.ok for check in result.checks)
+
+
 def test_evaluate_expression_rejects_unrelated_parameter_identity() -> None:
     kernel = SympyKernel()
     symbols = kernel.symbols(["a", "m"])
@@ -2299,6 +2581,24 @@ def test_evaluate_point_at_parameter_method() -> None:
     assert result.outputs["evaluated_point"].type == "Point"
     assert result.outputs["evaluated_point"].value == (t - 5, 5 - t)
     assert all(check.ok for check in result.checks)
+
+
+def test_evaluate_point_reports_missing_substitution_parameter_as_typed_input() -> None:
+    kernel = SympyKernel()
+    c = sp.Symbol("c")
+
+    with pytest.raises(StatelessMethodError) as error:
+        EvaluatePointAtParameterMethod().run(
+            {
+                "point": (c, -c),
+                "parameter_value": sp.Integer(5),
+            },
+            kernel,
+        )
+
+    assert error.value.authority.code == "functional.method_input_missing"
+    assert error.value.authority.retryability == "planner_repairable"
+    assert error.value.authority.observed["free_symbols"] == ("c",)
 
 
 @pytest.mark.parametrize(

@@ -21,9 +21,29 @@ class PointOnParabolaAtXMethod:
         target: PointRef = inputs["target"]
         raw_x = target.definition.get("x") or target.definition.get("x_coordinate")
         if raw_x is None:
-            raise ValueError("point_on_parabola_at_x requires target.definition.x")
-        locals_ = {symbol.name: symbol for symbol in parabola.free_symbols | {x}}
-        x_value = kernel.expr(raw_x, locals_)
+            raise method_precondition_failed(
+                "point_on_parabola_at_x requires a structured target x-coordinate",
+                arg_name="target",
+                role="curve_point_at_known_x",
+                internal_ref=target.name,
+                expected={
+                    "type": "Point",
+                    "state": "structured_x_coordinate",
+                    "definition_keys": ["x", "x_coordinate"],
+                },
+                observed={
+                    "state": "x_coordinate_missing",
+                    "construction": target.definition.get("definition", "unspecified"),
+                    "definition_keys": sorted(target.definition),
+                },
+                repair_action="choose_applicable_point_construction_capability",
+            )
+        x_value = _require_canonical_runtime_expression(
+            raw_x,
+            kernel,
+            arg_name="target",
+            role="curve_point_at_known_x",
+        )
         point = (sp.simplify(x_value), sp.simplify(parabola.subs(x, x_value)))
         return StatelessMethodResult(
             method_id=self.method_id,
@@ -60,9 +80,17 @@ SPEC = MethodSpecSource(
     ),
     solves=("derive_point_on_parabola_at_x",),
     inputs={
-        "parabola": {"type": "Parabola", "required": True},
+        "parabola": {
+            "type": "Parabola",
+            "required": True,
+            "symbolic_basis_role": "state_anchor",
+        },
         "x": {"type": "Symbol", "required": True},
-        "target": {"type": "PointRef", "required": True},
+        "target": {
+            "type": "PointRef",
+            "required": True,
+            "symbolic_basis_role": "align_to_anchor",
+        },
     },
     outputs={"point": "Point"},
     do_not_use_when=(

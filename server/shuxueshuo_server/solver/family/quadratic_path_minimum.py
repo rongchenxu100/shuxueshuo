@@ -125,6 +125,15 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                     "select_point_by_quadrant_constraint",
                 ),
                 execution_strategy="right_angle_construct_select",
+                strategy_input_targets=(
+                    "right_angle_equal_length_candidates.anchor",
+                    "right_angle_equal_length_candidates.reference",
+                    "right_angle_equal_length_candidates.target",
+                    "select_point_by_quadrant_constraint.target",
+                    "select_point_by_quadrant_constraint.quadrant",
+                    "select_point_by_quadrant_constraint.parameter",
+                    "select_point_by_quadrant_constraint.parameter_constraint",
+                ),
                 intermediate_wiring=(
                     ("right_angle_equal_length_candidates.candidates", "select_point_by_quadrant_constraint.candidates"),
                 ),
@@ -150,6 +159,15 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 recipe_id="two_moving_points_path_reduction",
                 method_sequence=("two_moving_points_path_reduction",),
                 execution_strategy="single_method",
+                strategy_input_targets=(
+                    "two_moving_points_path_reduction.original_path",
+                    "two_moving_points_path_reduction.first_moving_membership",
+                    "two_moving_points_path_reduction.second_moving_membership",
+                    "two_moving_points_path_reduction.binding_relation",
+                    "two_moving_points_path_reduction.first_segment_start",
+                    "two_moving_points_path_reduction.joint_point",
+                    "two_moving_points_path_reduction.second_segment_end",
+                ),
                 output_aliases=(
                     recipe_output_alias(
                         "two_moving_points_path_reduction.path_transformation",
@@ -192,6 +210,16 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 ),
                 execution_strategy="straightening_candidates_select",
                 creates=("point",),
+                strategy_input_targets=(
+                    "broken_path_straightening_candidates.path_transformation",
+                    "broken_path_straightening_candidates.moving_point_membership",
+                    "broken_path_straightening_candidates.moving_locus",
+                    "broken_path_straightening_candidates.fixed_point_1",
+                    "broken_path_straightening_candidates.fixed_point_2",
+                    "broken_path_straightening_candidates.line_point_1",
+                    "broken_path_straightening_candidates.line_point_2",
+                    "select_straightening_candidate.target",
+                ),
                 intermediate_wiring=(
                     ("broken_path_straightening_candidates.candidates", "select_straightening_candidate.candidates"),
                 ),

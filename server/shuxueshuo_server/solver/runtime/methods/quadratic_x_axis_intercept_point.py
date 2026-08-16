@@ -199,10 +199,22 @@ SPEC = MethodSpecSource(
     ),
     solves=("derive_quadratic_x_axis_intercept_point",),
     inputs={
-        "quadratic": {"type": "Parabola", "required": True},
+        "quadratic": {
+            "type": "Parabola",
+            "required": True,
+            "symbolic_basis_role": "state_anchor",
+        },
         "x": {"type": "Symbol", "required": True},
-        "target": {"type": "PointRef", "required": True},
-        "known_point": {"type": "Point", "required": False},
+        "target": {
+            "type": "PointRef",
+            "required": True,
+            "symbolic_basis_role": "align_to_anchor",
+        },
+        "known_point": {
+            "type": "Point",
+            "required": False,
+            "symbolic_basis_role": "align_to_anchor",
+        },
     },
     outputs={"point": "Point"},
     preconditions=("quadratic 是关于 x 的函数表达式，可以含未定系数",),

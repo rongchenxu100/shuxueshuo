@@ -1163,6 +1163,66 @@ def test_straightened_distance_recipe_emits_base_and_evaluated_returns() -> None
     )
 
 
+def test_straightened_distance_recipe_rejects_inactive_evaluated_return() -> None:
+    inputs = _base_inputs()
+    payload = json.loads(NANKAI_FUNCTIONAL_PLAN.read_text(encoding="utf-8"))
+    scope = next(item for item in payload["scopes"] if item["scope_id"] == "ii_1")
+    scope["calls"] = [
+        call
+        for call in scope["calls"]
+        if call["call_id"] != "ii_1_evaluate_minimum"
+    ]
+    scope["calls"].append(
+        {
+            "call_id": "evaluate_without_parameter",
+            "capability_id": "path_minimum_by_straightened_distance",
+            "args": {
+                "endpoint_1": {
+                    "from_call": "ii_derive_path_model",
+                    "return": "straightened_endpoint_1",
+                },
+                "endpoint_2": {
+                    "from_call": "ii_derive_path_model",
+                    "return": "straightened_endpoint_2",
+                },
+            },
+            "return_bindings": {
+                "evaluated_path_minimum_expression": {
+                    "kind": "answer",
+                    "ref": "ii_1.minimum_value",
+                }
+            },
+            "return_expectations": {
+                "evaluated_path_minimum_expression": "closed_value",
+            },
+            "strategy": "incorrectly request an evaluated output",
+            "reason": "the activating parameter pair is deliberately absent",
+        }
+    )
+    plan, validation = _validate(payload, inputs)
+    assert validation.ok and plan is not None
+
+    replay = PlannerRetryReplayService().replay_functional_plan(
+        plan,
+        inputs=inputs,
+        handle_registry=_registry(),
+        context=ContextBuilder().build(_problem()),
+        attempt=1,
+        problem_payload=_problem_payload(),
+        validation_report=validation,
+    )
+
+    assert replay.output is None
+    assert replay.transactional_attempt_result is not None
+    issue = replay.transactional_attempt_result.root_issues[0]
+    assert issue.code == "functional.macro_input_missing"
+    assert issue.diagnostic_authority is not None
+    assert issue.diagnostic_authority["expected"]["required_args"] == [
+        "parameter_value"
+    ]
+    assert "method_id" not in issue.diagnostic_authority
+
+
 def test_direct_distance_keeps_projected_base_return_for_closed_points() -> None:
     inputs = _base_inputs()
     payload = json.loads(NANKAI_FUNCTIONAL_PLAN.read_text(encoding="utf-8"))
@@ -1567,7 +1627,18 @@ def test_curve_candidate_direct_compile_does_not_invent_omitted_constraint() -> 
         validation_report=validation,
     )
 
-    assert replay.output is not None
+    assert replay.output is None
+    assert replay.transactional_attempt_result is not None
+    issue = replay.transactional_attempt_result.root_issues[0]
+    assert issue.code == "functional.method_result_ambiguous"
+    assert issue.diagnostic_authority is not None
+    assert issue.diagnostic_authority["subjects"] == [
+        {
+            "role": "symbol_constraint",
+            "arg_name": "symbol_constraint",
+            "internal_ref": "b",
+        }
+    ]
     bindings = tuple(
         item
         for item in replay.functional_reconciliation.functional_binding_context.bindings
@@ -1720,10 +1791,14 @@ def test_missing_free_parameter_basis_is_not_inferred_from_transitive_consumer()
     assert replay.retry_state is not None
     assert replay.transactional_attempt_result is not None
     issue = replay.transactional_attempt_result.root_issues[0]
-    assert issue.code == "functional.transactional_call_failed"
-    assert "function.constraints_underdetermined" in issue.message
-    assert "free_parameters=c" in issue.message
-    assert "declared_free_parameters=none" in issue.message
+    assert issue.code == "functional.method_input_state_unavailable"
+    assert issue.diagnostic_authority is not None
+    assert issue.diagnostic_authority["expected"]["free_parameters"]
+    assert "declared free parameters" in issue.message
+    assert issue.diagnostic_authority["expected"]["free_parameters"] == ["c"]
+    assert issue.diagnostic_authority["observed"][
+        "declared_free_parameters"
+    ] == []
 
 
 def test_explicit_condition_target_removes_identity_ambiguity_not_missing_state() -> None:
@@ -2392,9 +2467,10 @@ def test_downstream_symbol_constraint_does_not_narrow_explicit_free_basis() -> N
     )
     assert replay.transactional_attempt_result is not None
     issue = replay.transactional_attempt_result.root_issues[0]
-    assert issue.code == "functional.transactional_call_failed"
-    assert "function.constraints_ambiguous" in issue.message
-    assert "branch_count=0" in issue.message
+    assert issue.code == "functional.method_result_inconsistent"
+    assert issue.diagnostic_authority is not None
+    assert issue.diagnostic_authority["observed"]["branch_count"] == 0
+    assert "no consistent branch" in issue.message
 
 
 def test_unified_quadratic_constraint_rejects_target_in_free_basis() -> None:
@@ -14483,6 +14559,92 @@ def test_macro_call_projects_required_return_and_omits_unused_optional_returns()
     ]
 
 
+def test_broken_path_macro_lowers_dynamic_parameter_value_to_method_pair() -> None:
+    inputs = _inputs_for_goal(3)
+    payload = {
+        "format": "functional_plan/v1",
+        "scopes": [
+            {
+                "scope_id": "ii_1",
+                "label": "ii_1",
+                "calls": [
+                    *_path_reduction_prerequisite_calls(),
+                    {
+                        "call_id": "solve_parameter",
+                        "capability_id": "parameter_from_segment_length",
+                        "args": {
+                            "p1": {"ref": "M", "kind": "point"},
+                            "p2": {"ref": "N", "kind": "point"},
+                            "length_squared": {
+                                "ref": "MN_length_squared_eq_10",
+                                "kind": "fact",
+                            },
+                        },
+                        "return_bindings": {
+                            "parameter_value": {
+                                "ref": "m",
+                                "kind": "symbol",
+                            }
+                        },
+                        "strategy": "solve the moving-point parameter",
+                        "reason": "close the path minimum expression",
+                    },
+                    _path_reduction_call(),
+                    {
+                        "call_id": "derive_closed_path_minimum",
+                        "capability_id": (
+                            "broken_path_straightening_minimum_expression"
+                        ),
+                        "args": {
+                            "path_transformation": _path_transformation_ref(),
+                            "parameter_value": {
+                                "from_call": "solve_parameter",
+                                "return": "parameter_value",
+                            },
+                        },
+                        "return_bindings": {
+                            "evaluated_path_minimum_expression": {
+                                "ref": "ii_1.minimum_value",
+                                "kind": "answer",
+                            }
+                        },
+                        "return_expectations": {
+                            "evaluated_path_minimum_expression": "closed_value",
+                        },
+                        "strategy": "straighten and evaluate with the solved parameter",
+                        "reason": "produce the closed minimum value",
+                    },
+                ],
+            }
+        ],
+    }
+    plan, validation = _validate(payload, inputs)
+    assert validation.ok and plan is not None
+
+    replay = PlannerRetryReplayService().replay_functional_plan(
+        plan,
+        inputs=inputs,
+        handle_registry=_registry(),
+        context=ContextBuilder().build(_problem()),
+        attempt=1,
+        problem_payload=_problem_payload(),
+        validation_report=validation,
+    )
+
+    assert replay.output is not None, replay.errors
+    invocation = next(
+        invocation
+        for step_plan in replay.output.step_plans
+        if step_plan.step_id == "derive_closed_path_minimum"
+        for invocation in step_plan.invocations
+        if invocation.method_id == "distance_between_points"
+    )
+    assert {"p1", "p2", "parameter", "parameter_value"} <= set(
+        invocation.inputs
+    )
+    assert set(invocation.outputs) == {"distance", "evaluated_distance"}
+
+
 def test_reconciler_selects_polymorphic_return_from_resolved_input_type() -> None:
     inputs = _inputs_for_goal(3)
     payload = {
@@ -14716,7 +14878,7 @@ def test_call_result_reports_inactive_polymorphic_return_variant() -> None:
         "functional.return_variant_mismatch"
     ]
     assert issues[0].details == {
-        "arg": "parabola",
+        "arg_name": "parabola",
         "accepted_item_types": ["Parabola"],
         "actual_type": "Expression",
         "requested_return": "evaluated_parabola",

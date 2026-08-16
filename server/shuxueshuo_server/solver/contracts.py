@@ -23,6 +23,15 @@ FunctionalResultForm = Literal[
 ]
 ScalarResultClosurePolicy = Literal["no_free_symbols"]
 PlanTransformerScope = Literal["single_invocation", "all_invocations"]
+MethodOutputActivationKind = Literal[
+    "requires_inputs",
+    "input_type",
+    "runtime_condition",
+]
+MethodSymbolicBasisRole = Literal[
+    "state_anchor",
+    "align_to_anchor",
+]
 
 
 @dataclass(frozen=True)
@@ -123,6 +132,35 @@ class MethodInputSpec:
     role: str = ""
     required: bool = True
     functional_exposed: bool = True
+    symbolic_basis_role: MethodSymbolicBasisRole | None = None
+
+
+@dataclass(frozen=True)
+class MethodOutputActivationSpec:
+    """Declare when one optional Method output is active.
+
+    Outputs without a declaration are unconditional. ``requires_inputs`` and
+    ``input_type`` are decidable before execution; ``runtime_condition`` is
+    intentionally decided by the Method and its structured checks.
+    """
+
+    kind: MethodOutputActivationKind
+    required_inputs: tuple[str, ...] = ()
+    input_name: str | None = None
+    input_types: tuple[str, ...] = ()
+    runtime_condition: str | None = None
+
+    def to_payload(self) -> dict[str, Any]:
+        payload: dict[str, Any] = {"kind": self.kind}
+        if self.required_inputs:
+            payload["required_inputs"] = list(self.required_inputs)
+        if self.input_name is not None:
+            payload["input_name"] = self.input_name
+        if self.input_types:
+            payload["input_types"] = list(self.input_types)
+        if self.runtime_condition is not None:
+            payload["runtime_condition"] = self.runtime_condition
+        return payload
 
 
 @dataclass(frozen=True)
@@ -314,6 +352,9 @@ class MethodSpec:
     inputs: dict[str, MethodInputSpec]
     outputs: dict[str, str]
     internal_outputs: tuple[str, ...] = ()
+    output_activation: dict[str, MethodOutputActivationSpec] = field(
+        default_factory=dict
+    )
     scalar_result_forms: dict[str, ScalarResultFormSpec] = field(default_factory=dict)
     summary: str = ""
     do_not_use_when: tuple[str, ...] = ()

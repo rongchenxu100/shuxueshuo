@@ -1468,6 +1468,12 @@ def _analyze_quadratic_coefficient_inputs(
     from shuxueshuo_server.solver.runtime.methods.quadratic_from_constraints import (
         analyze_quadratic_constraints,
     )
+    from shuxueshuo_server.solver.runtime.functional_diagnostics import (
+        method_input_invalid,
+        method_input_state_unavailable,
+        method_result_ambiguous,
+        method_result_inconsistent,
+    )
     from shuxueshuo_server.solver.runtime.symbolic_state_representation import (
         SymbolicStateRepresentationError,
     )
@@ -1509,11 +1515,18 @@ def _analyze_quadratic_coefficient_inputs(
     target_parameter = runtime_inputs.get("target_parameter")
     if target_parameter is not None:
         if target_parameter in declared_free_parameters:
-            raise StrategyDraftValidationError(
-                "function.constraints_underdetermined: "
-                f"step={step.step_id}, target_parameter="
-                f"{getattr(target_parameter, 'name', target_parameter)}, "
-                "target_parameter_must_not_be_preserved"
+            name = getattr(target_parameter, "name", str(target_parameter))
+            raise method_input_invalid(
+                "target parameter cannot also be preserved as a free parameter",
+                method_id="quadratic_from_constraints",
+                scope_id=step.scope_id,
+                step_id=step.step_id,
+                arg_name="target_parameter",
+                role="quadratic_target_parameter",
+                internal_ref=name,
+                expected={"target_parameter_not_preserved": name},
+                observed={"preserved_free_parameters": [name]},
+                repair_action="separate_target_and_free_parameters",
             )
         # Targeted closure is authoritative in the shared runtime solver. Keep
         # the explicit free basis intact instead of letting the older
@@ -1535,7 +1548,50 @@ def _analyze_quadratic_coefficient_inputs(
             preferred_free_parameters=preferred_free_parameters,
         )
     except SymbolicStateRepresentationError as exc:
-        raise StrategyDraftValidationError(str(exc)) from exc
+        expected = {
+            "requested_symbols": [
+                symbol.name for symbol in exc.requested_symbols
+            ],
+            "unique_representation": True,
+        }
+        observed = {
+            "current_symbols": [
+                symbol.name for symbol in exc.current_symbols
+            ],
+            "branch_count": exc.branch_count,
+        }
+        if exc.code == "function.state_representation_ambiguous":
+            raise method_result_ambiguous(
+                str(exc),
+                method_id="quadratic_from_constraints",
+                scope_id=step.scope_id,
+                step_id=step.step_id,
+                expected=expected,
+                observed=observed,
+                repair_action="align_symbolic_state_basis",
+            ) from exc
+        if exc.code == "function.state_representation_inconsistent":
+            raise method_result_inconsistent(
+                str(exc),
+                method_id="quadratic_from_constraints",
+                scope_id=step.scope_id,
+                step_id=step.step_id,
+                expected=expected,
+                observed=observed,
+                retryability="planner_repairable",
+                repair_action="revise_quadratic_constraints",
+            ) from exc
+        raise method_input_state_unavailable(
+            str(exc),
+            method_id="quadratic_from_constraints",
+            scope_id=step.scope_id,
+            step_id=step.step_id,
+            arg_name="free_parameters",
+            role="symbolic_state_basis",
+            expected=expected,
+            observed=observed,
+            repair_action="align_symbolic_state_basis",
+        ) from exc
     if analysis.status == "determined":
         if not declared_free_parameters:
             return ConstraintAnalyzerResult(inputs)
@@ -1548,24 +1604,56 @@ def _analyze_quadratic_coefficient_inputs(
             symbol.name
             for symbol in sorted(declared_free_parameters, key=lambda item: item.name)
         )
-        raise StrategyDraftValidationError(
-            "function.constraints_underdetermined: "
-            f"step={step.step_id}, free_parameters={names or 'multiple'}, "
-            f"declared_free_parameters={declared or 'none'}"
+        raise method_input_state_unavailable(
+            "declared free parameters do not match the runtime quadratic state",
+            method_id="quadratic_from_constraints",
+            scope_id=step.scope_id,
+            step_id=step.step_id,
+            arg_name="free_parameters",
+            role="symbolic_state_basis",
+            expected={"free_parameters": names.split(",") if names else []},
+            observed={
+                "declared_free_parameters": declared.split(",") if declared else []
+            },
+            repair_action="align_symbolic_state_basis",
         )
     if analysis.status == "determined":
         declared = ",".join(
             symbol.name
             for symbol in sorted(declared_free_parameters, key=lambda item: item.name)
         )
-        raise StrategyDraftValidationError(
-            "function.state_representation_mismatch: "
-            f"step={step.step_id}, free_parameters=none, "
-            f"declared_free_parameters={declared or 'none'}"
+        raise method_input_invalid(
+            "quadratic state is closed but the call declares free parameters",
+            method_id="quadratic_from_constraints",
+            scope_id=step.scope_id,
+            step_id=step.step_id,
+            arg_name="free_parameters",
+            role="symbolic_state_basis",
+            expected={"free_parameters": []},
+            observed={
+                "declared_free_parameters": declared.split(",") if declared else []
+            },
+            repair_action="remove_redundant_free_parameters",
         )
-    raise StrategyDraftValidationError(
-        "function.constraints_ambiguous: "
-        f"step={step.step_id}, branch_count={analysis.branch_count}"
+    if analysis.status == "inconsistent":
+        raise method_result_inconsistent(
+            "quadratic constraints have no consistent branch",
+            method_id="quadratic_from_constraints",
+            scope_id=step.scope_id,
+            step_id=step.step_id,
+            expected={"branch_count_at_least": 1},
+            observed={"branch_count": 0},
+            retryability="planner_repairable",
+            repair_action="revise_quadratic_constraints",
+        )
+    raise method_result_ambiguous(
+        "quadratic constraints retain multiple branches",
+        method_id="quadratic_from_constraints",
+        scope_id=step.scope_id,
+        step_id=step.step_id,
+        expected={"branch_count": 1},
+        observed={"branch_count": analysis.branch_count},
+        repair_action="provide_additional_quadratic_constraint",
     )
 
 

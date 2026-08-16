@@ -83,6 +83,14 @@
     "parameter_value": "ParameterValue"
   },
   "is_pure": true,
+  "output_activation": {
+    "parameter_value": {
+      "kind": "requires_inputs",
+      "required_inputs": [
+        "target_parameter"
+      ]
+    }
+  },
   "scalar_result_forms": {
     "parameter_value": {
       "possible_forms": [

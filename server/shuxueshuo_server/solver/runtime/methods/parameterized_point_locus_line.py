@@ -31,9 +31,30 @@ class ParameterizedPointLocusLineMethod:
             sp.simplify(sp.diff(point[1], parameter)),
         )
         if direction == (0, 0):
-            raise ValueError("parameterized point locus has zero direction")
+            raise method_precondition_failed(
+                "parameterized point locus has zero direction",
+                arg_name="point",
+                role="parameterized_point",
+                expected={"state": "nonconstant_in_parameter"},
+                observed={
+                    "state": "zero_direction",
+                    "parameter": parameter.name,
+                    "coordinates": [kernel.sstr(item) for item in point],
+                },
+                repair_action="provide_nonconstant_parameterized_point",
+            )
         if not _is_affine(point, parameter):
-            raise ValueError("parameterized point locus requires affine coordinates")
+            raise method_precondition_failed(
+                "parameterized point locus requires affine coordinates",
+                arg_name="point",
+                role="parameterized_point",
+                expected={"maximum_parameter_degree": 1},
+                observed={
+                    "parameter": parameter.name,
+                    "coordinates": [kernel.sstr(item) for item in point],
+                },
+                repair_action="choose_applicable_locus_capability",
+            )
         line = {
             "kind": "line",
             "point_name": target.name if target is not None else "moving_point",

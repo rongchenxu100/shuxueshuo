@@ -375,7 +375,7 @@ def test_structure_audit_is_independent_from_step_authority(tmp_path) -> None:
     planning_context = fixture[1]
     payload = load_v2_fixture_payload(case)
     scope_i = _find_scope(payload["root_scope"], "i")
-    scope_i["steps"][0]["args"]["unexpected_role"] = "parabola"
+    scope_i["steps"][1]["args"] = {"unexpected_role": "A"}
     scoped, validation = ScopedFunctionalPlanValidator().validate_payload_with_report(
         payload
     )
@@ -734,13 +734,26 @@ def test_goal_answer_ref_requires_one_proven_target_input(
     assert "not exactly one visible" in captured.value.message
 
 
-def test_optional_and_ambiguous_arg_names_are_not_type_repaired(tmp_path) -> None:
+def test_unknown_args_drop_only_after_declared_contract_is_complete(tmp_path) -> None:
     case = "tj-2026-heping-yimo-25"
     payload = load_v2_fixture_payload(case)
     step = _find_scope(payload["root_scope"], "i_2")["goals"][0]["steps"][0]
     step["args"]["mystery_point"] = step["args"].pop("known_point")
-    with pytest.raises(ScopedFunctionalPlanError, match="unknown capability args"):
-        _lower_payload(tmp_path / "optional", case, payload)
+    step["args"]["unused_hint"] = "A"
+
+    authority, _ = _lower_payload(tmp_path / "optional", case, payload)
+
+    canonical_step = _find_scope(
+        authority.scoped_plan.to_payload()["root_scope"],
+        "i_2",
+    )["goals"][0]["steps"][0]
+    assert set(canonical_step["args"]) == {"parabola"}
+    assert {
+        item.arg_name
+        for item in authority.normalizations
+        if item.action == "drop_unknown_capability_arg"
+        and item.step_id == canonical_step["step_id"]
+    } == {"mystery_point", "unused_hint"}
 
     case = "tj-2026-heping-ermo-25"
     payload = load_v2_fixture_payload(case)
@@ -971,7 +984,7 @@ def test_authority_analysis_aggregates_independent_root_issues(tmp_path) -> None
     case = "tj-2026-heping-ermo-25"
     payload = load_v2_fixture_payload(case)
     scope_i = _find_scope(payload["root_scope"], "i")
-    scope_i["steps"][1]["args"]["mystery"] = "A"
+    scope_i["steps"][1]["args"] = {"mystery": "A"}
     scope_i_2 = _find_scope(payload["root_scope"], "i_2")
     scope_i_2["goals"][0]["steps"][1].pop("output_targets")
     scope_ii = _find_scope(payload["root_scope"], "ii")
@@ -996,17 +1009,28 @@ def test_authority_analysis_aggregates_independent_root_issues(tmp_path) -> None
     )
 
     assert authority is None
-    assert [item.code for item in report.issues] == [
+    assert list(dict.fromkeys(item.code for item in report.issues)) == [
         "functional.step_contract_invalid",
         "functional.output_target_invalid",
         "functional.step_scope_visibility_drift",
     ]
-    assert [item.path for item in report.issues] == sorted(
-        (item.path for item in report.issues),
-        key=lambda path: (
-            0 if "mystery" in path else 1 if "output_targets" in path else 3,
-            path,
-        ),
+    contract_issues = tuple(
+        item
+        for item in report.issues
+        if item.code == "functional.step_contract_invalid"
+    )
+    assert len(contract_issues) == 2
+    assert {
+        tuple(item.details[key])
+        for item in contract_issues
+        for key in (
+            "observed_unknown_args",
+            "observed_missing_required_args",
+        )
+        if item.details[key]
+    } == {("mystery",), ("parabola",)}
+    assert [item.path for item in contract_issues] == sorted(
+        item.path for item in contract_issues
     )
 
 

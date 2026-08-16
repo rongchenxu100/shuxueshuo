@@ -13,6 +13,7 @@ from typing import Any, Callable, Literal, Mapping, Sequence
 
 import sympy as sp
 
+from shuxueshuo_server.solver.contracts import PointRef
 from shuxueshuo_server.solver.extraction.problem_planning_binding import (
     FunctionalProblemBindingContext,
 )
@@ -52,6 +53,7 @@ from shuxueshuo_server.solver.runtime.functional_diagnostics import (
     StatelessMethodError,
     diagnostic_authority_from_issue,
     method_check_failed,
+    normalize_macro_diagnostic_authority,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
@@ -1623,6 +1625,8 @@ def _classified_direct_compile_error(
     call_id: str,
     exc: Exception,
 ) -> Exception:
+    if isinstance(exc, StatelessMethodError):
+        return exc
     message = str(exc)
     if (
         "planner_configuration_error" in message
@@ -2666,6 +2670,21 @@ class FunctionalTransactionalInterpreter:
                         step_id=call_id,
                     )
                     diagnostic = enriched.authority
+                    if prepared is not None:
+                        failed_capability = capability_catalog.get(
+                            prepared.capability_id
+                        )
+                        if (
+                            failed_capability is not None
+                            and failed_capability.kind == "macro"
+                        ):
+                            diagnostic = normalize_macro_diagnostic_authority(
+                                diagnostic,
+                                macro_spec=failed_capability.source,
+                                provided_arg_names=tuple(
+                                    prepared.reconciliation.resolved_args
+                                ),
+                            )
                     issue_code = diagnostic.code
                 elif isinstance(exc, ProblemSourceProvenanceError):
                     issue_code = exc.code
@@ -3665,6 +3684,14 @@ def _substitute_runtime_parameters(
 ) -> Any:
     if isinstance(value, sp.Basic):
         return sp.simplify(value.subs(substitutions))
+    if isinstance(value, PointRef):
+        return replace(
+            value,
+            definition=_substitute_runtime_parameters(
+                value.definition,
+                substitutions,
+            ),
+        )
     if isinstance(value, Mapping):
         return {
             key: _substitute_runtime_parameters(item, substitutions)

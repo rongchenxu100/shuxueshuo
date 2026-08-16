@@ -27,6 +27,7 @@ from shuxueshuo_server.solver.family.models import (
     SQUARE_PATH_TRANSFORMATION_ROLES_RESOLVER,
     WEIGHTED_PATH_TRANSFORMATION_ROLES_RESOLVER,
     RecipeExecutionSpec,
+    RecipeInputDerivationSpec,
     recipe_output_alias,
     StateSlotPattern,
     StateIdentityConstraintSpec,
@@ -955,6 +956,15 @@ RIGHT_ANGLE_EQUAL_LENGTH_CONSTRUCT_AND_SELECT = StepRecipeSpec(
             "select_point_by_quadrant_constraint",
         ),
         execution_strategy="right_angle_construct_select",
+        strategy_input_targets=(
+            "right_angle_equal_length_candidates.anchor",
+            "right_angle_equal_length_candidates.reference",
+            "right_angle_equal_length_candidates.target",
+            "select_point_by_quadrant_constraint.target",
+            "select_point_by_quadrant_constraint.quadrant",
+            "select_point_by_quadrant_constraint.parameter",
+            "select_point_by_quadrant_constraint.parameter_constraint",
+        ),
         intermediate_wiring=(
             (
                 "right_angle_equal_length_candidates.candidates",
@@ -984,6 +994,15 @@ TWO_MOVING_POINTS_PATH_REDUCTION = StepRecipeSpec(
         recipe_id="two_moving_points_path_reduction",
         method_sequence=("two_moving_points_path_reduction",),
         execution_strategy="single_method",
+        strategy_input_targets=(
+            "two_moving_points_path_reduction.original_path",
+            "two_moving_points_path_reduction.first_moving_membership",
+            "two_moving_points_path_reduction.second_moving_membership",
+            "two_moving_points_path_reduction.binding_relation",
+            "two_moving_points_path_reduction.first_segment_start",
+            "two_moving_points_path_reduction.joint_point",
+            "two_moving_points_path_reduction.second_segment_end",
+        ),
         output_aliases=(
             recipe_output_alias(
                 "two_moving_points_path_reduction.path_transformation",
@@ -1026,6 +1045,16 @@ BROKEN_PATH_STRAIGHTENING_AND_SELECT = StepRecipeSpec(
         ),
         execution_strategy="straightening_candidates_select",
         creates=("point",),
+        strategy_input_targets=(
+            "broken_path_straightening_candidates.path_transformation",
+            "broken_path_straightening_candidates.moving_point_membership",
+            "broken_path_straightening_candidates.moving_locus",
+            "broken_path_straightening_candidates.fixed_point_1",
+            "broken_path_straightening_candidates.fixed_point_2",
+            "broken_path_straightening_candidates.line_point_1",
+            "broken_path_straightening_candidates.line_point_2",
+            "select_straightening_candidate.target",
+        ),
         intermediate_wiring=(
             (
                 "broken_path_straightening_candidates.candidates",
@@ -1120,6 +1149,12 @@ PATH_MINIMUM_BY_STRAIGHTENED_DISTANCE = StepRecipeSpec(
             ("endpoint_2", "distance_between_points.p2"),
             ("parameter_value", "distance_between_points.parameter_value"),
         ),
+        input_derivations=(
+            RecipeInputDerivationSpec(
+                "parameter_value",
+                "distance_between_points.parameter",
+            ),
+        ),
         output_aliases=(
             recipe_output_alias(
                 "distance_between_points.distance",
@@ -1169,6 +1204,36 @@ BROKEN_PATH_STRAIGHTENING_MINIMUM_EXPRESSION = StepRecipeSpec(
             (
                 "parameter_value",
                 "distance_between_points.parameter_value",
+            ),
+        ),
+        input_derivations=(
+            RecipeInputDerivationSpec(
+                "parameter_value",
+                "distance_between_points.parameter",
+            ),
+        ),
+        strategy_input_targets=(
+            "broken_path_straightening_candidates.path_transformation",
+            "broken_path_straightening_candidates.moving_point_membership",
+            "broken_path_straightening_candidates.moving_locus",
+            "broken_path_straightening_candidates.fixed_point_1",
+            "broken_path_straightening_candidates.fixed_point_2",
+            "broken_path_straightening_candidates.line_point_1",
+            "broken_path_straightening_candidates.line_point_2",
+            "select_straightening_candidate.target",
+        ),
+        intermediate_wiring=(
+            (
+                "broken_path_straightening_candidates.candidates",
+                "select_straightening_candidate.candidates",
+            ),
+            (
+                "select_straightening_candidate.minimum_point_1",
+                "distance_between_points.p1",
+            ),
+            (
+                "select_straightening_candidate.minimum_point_2",
+                "distance_between_points.p2",
             ),
         ),
         output_aliases=(
@@ -1272,19 +1337,24 @@ EQUAL_LENGTH_RAY_PATH_REDUCTION = StepRecipeSpec(
         method_sequence=("equal_length_ray_point", "distance_between_points"),
         execution_strategy="equal_length_ray_path_reduction",
         creates=("point",),
+        strategy_input_targets=(
+            "equal_length_ray_point.anchor",
+            "equal_length_ray_point.reference_point",
+            "equal_length_ray_point.ray_point",
+            "equal_length_ray_point.target",
+            "distance_between_points.p1",
+        ),
+        intermediate_wiring=(
+            (
+                "equal_length_ray_point.point",
+                "distance_between_points.p2",
+            ),
+        ),
         output_aliases=(
             recipe_output_alias(
                 "distance_between_points.distance",
                 "MinimumExpression",
                 "path_minimum_expression",
-                goal_evidence_tags=("path_minimum_expression",),
-            ),
-            recipe_output_alias(
-                "distance_between_points.evaluated_distance",
-                "MinimumExpression",
-                "evaluated_path_minimum_expression",
-                required=False,
-                cardinality="optional",
                 goal_evidence_tags=("path_minimum_expression",),
             ),
         ),

@@ -85,32 +85,36 @@ def build_quadratic_constraint_system(
         _materialized_coefficient_substitutions(request),
         parameter_substitutions,
     )
-    explicit_coefficients = {
+    explicit_coefficients = _resolve_substitution_values({
         **known_coefficients,
         **parameter_substitutions,
-    }
+    })
+    resolved_materialized_coefficients = _substitute_mapping_values(
+        materialized_coefficients,
+        explicit_coefficients,
+    )
     materialized_consistency = tuple(
         sp.Eq(materialized_value, explicit_coefficients[symbol])
-        for symbol, materialized_value in materialized_coefficients.items()
+        for symbol, materialized_value in resolved_materialized_coefficients.items()
         if symbol in explicit_coefficients
         and sp.simplify(
             materialized_value - explicit_coefficients[symbol]
         )
         != 0
     )
-    substitutions = {
+    substitutions = _resolve_substitution_values({
         **materialized_coefficients,
         **known_coefficients,
         **parameter_substitutions,
-    }
+    })
     expression = sp.expand(request.base_expression.subs(substitutions))
     points = tuple(
         (
             sp.simplify(
-                sp.sympify(point[0]).subs(request.parameter_substitutions)
+                sp.sympify(point[0]).subs(substitutions)
             ),
             sp.simplify(
-                sp.sympify(point[1]).subs(request.parameter_substitutions)
+                sp.sympify(point[1]).subs(substitutions)
             ),
         )
         for point in request.curve_points
@@ -254,7 +258,9 @@ def solve_quadratic_constraint_system(
         branch = branches[0]
         if any(symbol not in branch for symbol in unknowns):
             unresolved = tuple(symbol for symbol in unknowns if symbol not in branch)
-            partial_substitutions = {**substitutions, **branch}
+            partial_substitutions = _resolve_substitution_values(
+                {**substitutions, **branch}
+            )
             free_symbols = tuple(
                 dict.fromkeys((*unresolved, *preserve))
             )
@@ -274,8 +280,14 @@ def solve_quadratic_constraint_system(
                 equations=tuple(normalized),
                 representation_proof=representation_proof,
             )
-        substitutions.update(
-            {symbol: sp.simplify(value) for symbol, value in branch.items()}
+        substitutions = _resolve_substitution_values(
+            {
+                **substitutions,
+                **{
+                    symbol: sp.simplify(value)
+                    for symbol, value in branch.items()
+                },
+            }
         )
     elif any(sp.simplify(item.lhs - item.rhs) != 0 for item in normalized):
         return QuadraticConstraintSolveResult(
@@ -283,6 +295,7 @@ def solve_quadratic_constraint_system(
             equations=tuple(normalized),
         )
 
+    substitutions = _resolve_substitution_values(substitutions)
     parabola = sp.expand(request.base_expression.subs(substitutions))
     free = tuple(
         sorted(

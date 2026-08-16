@@ -132,19 +132,24 @@ _QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 method_sequence=("equal_length_ray_point", "distance_between_points"),
                 execution_strategy="equal_length_ray_path_reduction",
                 creates=("point",),
+                strategy_input_targets=(
+                    "equal_length_ray_point.anchor",
+                    "equal_length_ray_point.reference_point",
+                    "equal_length_ray_point.ray_point",
+                    "equal_length_ray_point.target",
+                    "distance_between_points.p1",
+                ),
+                intermediate_wiring=(
+                    (
+                        "equal_length_ray_point.point",
+                        "distance_between_points.p2",
+                    ),
+                ),
                 output_aliases=(
                     recipe_output_alias(
                         "distance_between_points.distance",
                         "MinimumExpression",
                         "path_minimum_expression",
-                        goal_evidence_tags=("path_minimum_expression",),
-                    ),
-                    recipe_output_alias(
-                        "distance_between_points.evaluated_distance",
-                        "MinimumExpression",
-                        "evaluated_path_minimum_expression",
-                        required=False,
-                        cardinality="optional",
                         goal_evidence_tags=("path_minimum_expression",),
                     ),
                 ),

@@ -9,7 +9,8 @@
   "inputs": {
     "quadratic": {
       "type": "Parabola",
-      "required": true
+      "required": true,
+      "symbolic_basis_role": "state_anchor"
     },
     "x": {
       "type": "Symbol",
@@ -17,11 +18,13 @@
     },
     "target": {
       "type": "PointRef",
-      "required": true
+      "required": true,
+      "symbolic_basis_role": "align_to_anchor"
     },
     "known_point": {
       "type": "Point",
-      "required": false
+      "required": false,
+      "symbolic_basis_role": "align_to_anchor"
     }
   },
   "outputs": {

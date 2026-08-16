@@ -13,6 +13,9 @@ from shuxueshuo_server.solver.fixtures import load_problem_ir
 from shuxueshuo_server.solver.runtime.context import ContextBuilder
 from shuxueshuo_server.solver.runtime.context_inventory import ContextInventoryBuilder
 from shuxueshuo_server.solver.runtime.executor import InvocationExecutor
+from shuxueshuo_server.solver.runtime.functional_diagnostics import (
+    StatelessMethodError,
+)
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.methods import (
     RightAngleEqualLengthCandidatesMethod,
@@ -185,6 +188,54 @@ def test_executor_recovers_strict_point_ref_target_from_existing_point_state() -
     assert result.trace_fragments[0].goal == "确定 B 的坐标"
 
 
+def test_executor_projects_structured_point_to_active_function_basis() -> None:
+    """A Method sees an equivalent local view without mutating Problem state."""
+
+    context = ContextBuilder().build(load_problem_ir(HEXI_FIXTURE))
+    specs = MethodSpecRegistry.load_from_code()
+    x = context.symbols["x"]
+    b = context.symbols["b"]
+    c = context.symbols["c"]
+    original = context.read_path(
+        "$question.iii.points.M",
+        from_scope_id="iii",
+        expected_type="PointRef",
+    ).value
+    context.get_scope("iii").container("outputs")["c_basis_parabola"] = TypedValue(
+        "Parabola",
+        x**2 + (c + 1) * x + c,
+        source="test",
+    )
+    invocation = MethodInvocation(
+        invocation_id="derive_M.point_on_parabola_at_x",
+        method_id="point_on_parabola_at_x",
+        scope="iii",
+        inputs={
+            "parabola": "$question.iii.outputs.c_basis_parabola",
+            "x": "$problem.symbols.x",
+            "target": "$question.iii.points.M",
+        },
+        outputs={"point": "$question.iii.outputs.M_coordinate"},
+    )
+
+    resolved = InvocationExecutor(specs).resolve_inputs(context, invocation)
+    projected = resolved["target"]
+    assert projected.definition["x"] == -c - sp.Rational(1, 2)
+
+    result = InvocationExecutor(specs).execute_invocation(context, invocation)
+
+    assert result.outputs["point"].value == (
+        -c - sp.Rational(1, 2),
+        c / 2 - sp.Rational(1, 4),
+    )
+    assert original.definition["x"] == b + sp.Rational(1, 2)
+    assert context.read_path(
+        "$question.iii.points.M",
+        from_scope_id="iii",
+        expected_type="PointRef",
+    ).value is original
+
+
 def test_executor_reports_missing_conditional_method_output() -> None:
     context = ContextBuilder().build(load_problem_ir(HEXI_FIXTURE))
     specs = MethodSpecRegistry.load_from_code()
@@ -223,14 +274,23 @@ def test_executor_reports_missing_conditional_method_output() -> None:
         },
     )
 
-    with pytest.raises(
-        ValueError,
-        match=(
-            "method_output_unavailable:.*selected_candidate.*"
-            "candidate_selection_ambiguous"
-        ),
-    ):
+    with pytest.raises(StatelessMethodError) as exc_info:
         InvocationExecutor(specs).execute_invocation(context, invocation)
+
+    error = exc_info.value
+    assert error.code == "functional.method_result_ambiguous"
+    assert error.authority.expected["outputs"] == ("selected_candidate",)
+    assert error.authority.observed["missing_outputs"] == (
+        "selected_candidate",
+    )
+    assert (
+        "candidate_selection_ambiguous"
+        in error.authority.observed["failed_checks"]
+    )
+    assert (
+        error.authority.repair_action
+        == "supply_disambiguating_constraint"
+    )
 
 
 def test_promote_outputs_can_update_unlocked_existing_point_state() -> None:

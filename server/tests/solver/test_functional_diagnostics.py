@@ -7,24 +7,35 @@ from pathlib import Path
 
 import pytest
 
-from shuxueshuo_server.solver.contracts import CheckResult
+from shuxueshuo_server.solver.contracts import CheckResult, PointRef
+from shuxueshuo_server.solver.family import DEFAULT_FAMILY_REGISTRY
 from shuxueshuo_server.solver.extraction.source_identity import stable_hash
+from shuxueshuo_server.solver.math_kernel import SympyKernel
 from shuxueshuo_server.solver.runtime.functional_diagnostics import (
     FUNCTIONAL_DIAGNOSTIC_AUTHORITY_CONTRACT,
     FUNCTIONAL_PROMPT_DIAGNOSTIC_CONTRACT,
     FunctionalDiagnosticAuthority,
     FunctionalPromptDiagnostic,
     FunctionalPromptDiagnosticProjector,
+    StatelessMethodError,
     diagnostic_authority_from_issue,
     functional_diagnostic_authority_schema,
     functional_prompt_diagnostic_schema,
     method_check_failed,
+    method_input_invalid,
     method_input_missing,
     method_result_ambiguous,
+    normalize_macro_diagnostic_authority,
     unexpected_method_error,
 )
+from shuxueshuo_server.solver.runtime.macro_specs import MacroSpecRegistry
+from shuxueshuo_server.solver.runtime.methods import PointOnParabolaAtXMethod
 from shuxueshuo_server.solver.runtime.functional_goal_execution import (
     _checkpoint_identity_payload,
+    _reconciliation_issue_payload,
+)
+from shuxueshuo_server.solver.runtime.functional_plan_models import (
+    FunctionalPlanIssue,
 )
 from shuxueshuo_server.solver.runtime.functional_goal_retry import (
     FunctionalGoalRetryError,
@@ -43,21 +54,8 @@ METHOD_ROOT = (
     / "runtime"
     / "methods"
 )
-P0_METHOD_FILES = (
-    "_common.py",
-    "square_path_dimension_reduction.py",
-    "angle_sum_equal_angle_candidates.py",
-    "linked_broken_path_geometric_minimum.py",
-    "quadratic_from_constraints.py",
-    "axis_intercept_from_equal_acute_angles.py",
-    "square_adjacent_vertex_from_side.py",
-    "broken_path_straightening_candidates.py",
-    "weighted_axis_path_triangle_transform.py",
-    "quadratic_axis_from_relation.py",
-    "line_locus_minimum_point.py",
-    "point_candidates_from_curve_point_condition.py",
-    "select_straightening_candidate.py",
-    "select_point_by_quadrant_constraint.py",
+RAW_METHOD_ERROR_NAMES = frozenset(
+    {"ValueError", "TypeError", "RuntimeError", "AssertionError"}
 )
 
 
@@ -144,6 +142,201 @@ def test_missing_m_projects_role_and_materialized_point_requirement(tmp_path) ->
     wire = json.dumps(prompt.to_payload(), ensure_ascii=False)
     assert internal_ref not in wire
     assert "<internal-identity-omitted>" not in wire
+
+
+def test_xiqing_missing_target_x_projects_c_and_applicable_capability_action(
+    tmp_path,
+) -> None:
+    (
+        _bundle,
+        planning_context,
+        _problem,
+        _inputs,
+        _problem_payload,
+        _registry,
+        _planner_context,
+        binding_catalog,
+    ) = planning_binding_fixture(
+        tmp_path,
+        case="tj-2026-xiqing-yimo-25",
+    )
+    kernel = SympyKernel()
+    x, b = kernel.symbols(["x", "b"]).values()
+
+    with pytest.raises(StatelessMethodError) as error:
+        PointOnParabolaAtXMethod().run(
+            {
+                "parabola": -x**2 + b * x + b + 1,
+                "x": x,
+                "target": PointRef(
+                    "C",
+                    "$question.ii.points.C",
+                    definition={"definition": "y_axis_intercept", "of": "parabola"},
+                ),
+            },
+            kernel,
+        )
+
+    prompt = FunctionalPromptDiagnosticProjector().project(
+        error.value.authority,
+        binding_catalog,
+        planning_context,
+    )
+
+    assert prompt.code == "functional.method_precondition_failed"
+    assert prompt.retryability == "planner_repairable"
+    assert prompt.subjects[0].ref == "C"
+    assert prompt.observed["construction"] == "y_axis_intercept"
+    assert (
+        prompt.repair_action
+        == "choose_applicable_point_construction_capability"
+    )
+
+
+def test_macro_missing_public_arg_projects_only_the_public_contract(tmp_path) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    family = next(
+        family
+        for family in DEFAULT_FAMILY_REGISTRY.families
+        if any(
+            recipe.recipe_id == "broken_path_straightening_minimum_expression"
+            for recipe in family.step_recipes
+        )
+    )
+    macro = MacroSpecRegistry.from_family_spec(
+        family,
+        fixture.inputs.method_specs,
+    ).require("broken_path_straightening_minimum_expression")
+    inner = method_input_missing(
+        "distance evaluation requires a substitution pair",
+        method_id="distance_between_points",
+        capability_id=macro.macro_id,
+        step_id="derive_closed_minimum",
+        observed={
+            "missing_inputs": ["parameter", "parameter_value"],
+            "provided_inputs": ["p1", "p2"],
+        },
+        repair_action="provide_required_input",
+    ).authority
+
+    authority = normalize_macro_diagnostic_authority(
+        inner,
+        macro_spec=macro,
+        provided_arg_names=("path_transformation",),
+    )
+    prompt = FunctionalPromptDiagnosticProjector().project(
+        authority,
+        fixture.binding_catalog,
+        fixture.planning_context,
+    )
+
+    assert prompt.code == "functional.macro_input_missing"
+    assert prompt.retryability == "planner_repairable"
+    assert prompt.method_id is None
+    assert prompt.expected == {"required_args": ("parameter_value",)}
+    assert prompt.subjects[0].arg_name == "parameter_value"
+    wire = json.dumps(prompt.to_payload(), ensure_ascii=False)
+    assert "distance_between_points" not in wire
+    assert '"arg_name": "parameter"' not in wire
+
+
+def test_supplied_macro_arg_that_fails_lowering_is_configuration_drift(
+    tmp_path,
+) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    family = next(
+        family
+        for family in DEFAULT_FAMILY_REGISTRY.families
+        if any(
+            recipe.recipe_id == "broken_path_straightening_minimum_expression"
+            for recipe in family.step_recipes
+        )
+    )
+    macro = MacroSpecRegistry.from_family_spec(
+        family,
+        fixture.inputs.method_specs,
+    ).require("broken_path_straightening_minimum_expression")
+    inner = method_input_missing(
+        "distance evaluation requires a substitution pair",
+        method_id="distance_between_points",
+        capability_id=macro.macro_id,
+        step_id="derive_closed_minimum",
+        observed={
+            "missing_inputs": ["parameter", "parameter_value"],
+            "provided_inputs": ["p1", "p2"],
+        },
+        repair_action="provide_required_input",
+    ).authority
+
+    authority = normalize_macro_diagnostic_authority(
+        inner,
+        macro_spec=macro,
+        provided_arg_names=("path_transformation", "parameter_value"),
+    )
+
+    assert authority.code == "planner.macro_contract_invalid"
+    assert authority.retryability == "configuration"
+    assert authority.method_id is None
+    assert authority.subjects == ()
+
+
+def test_macro_method_failure_keeps_public_object_role_not_hidden_arg(
+    tmp_path,
+) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    family = next(
+        family
+        for family in DEFAULT_FAMILY_REGISTRY.families
+        if any(
+            recipe.recipe_id == "broken_path_straightening_minimum_expression"
+            for recipe in family.step_recipes
+        )
+    )
+    macro = MacroSpecRegistry.from_family_spec(
+        family,
+        fixture.inputs.method_specs,
+    ).require("broken_path_straightening_minimum_expression")
+    binding = next(
+        item
+        for item in fixture.binding_catalog.bindings.values()
+        if item.usage == "input" and item.semantic_ref.ref == "M"
+    )
+    internal_ref = next(
+        source.math_object_id.value
+        for source in binding.typed_sources
+        if source.math_object_id is not None
+    )
+    inner = method_input_invalid(
+        "fixed endpoint violates the geometric precondition",
+        method_id="broken_path_straightening_candidates",
+        capability_id=macro.macro_id,
+        step_id="derive_minimum",
+        arg_name="fixed_point_1",
+        role="fixed_endpoint",
+        internal_ref=internal_ref,
+        expected={"type": "Point", "state": "materialized"},
+        observed={"state": "invalid"},
+        repair_action="repair_input_binding",
+    ).authority
+
+    authority = normalize_macro_diagnostic_authority(
+        inner,
+        macro_spec=macro,
+        provided_arg_names=("path_transformation",),
+    )
+    prompt = FunctionalPromptDiagnosticProjector().project(
+        authority,
+        fixture.binding_catalog,
+        fixture.planning_context,
+    )
+
+    assert prompt.method_id is None
+    assert prompt.subjects[0].ref == "M"
+    assert prompt.subjects[0].role == "fixed_endpoint"
+    assert prompt.subjects[0].arg_name is None
+    wire = json.dumps(prompt.to_payload(), ensure_ascii=False)
+    assert "broken_path_straightening_candidates" not in wire
+    assert "fixed_point_1" not in wire
 
 
 def test_identity_projection_prefers_problem_input_over_answer_aliases(tmp_path) -> None:
@@ -279,6 +472,47 @@ def test_all_diagnostic_stages_use_the_same_prompt_projector(
     assert prompt.observed["candidate_count"] == 2
 
 
+def test_reconciliation_type_mismatch_projects_ref_arg_and_types(
+    tmp_path,
+) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    issue = FunctionalPlanIssue(
+        layer="functional_reconciliation",
+        code="functional.arg_type_mismatch",
+        message=(
+            "semantic value_type cannot satisfy argument: "
+            "point_on_curve_parabola_a"
+        ),
+        call_id="derive_parabola",
+        scope_id="i",
+        details={
+            "arg_name": "curve_points",
+            "semantic_ref": "point_on_curve_parabola_a",
+            "accepted_item_types": ["Point"],
+            "actual_type": "point_on_curve",
+        },
+    )
+
+    payload = _reconciliation_issue_payload(
+        issue,
+        binding_catalog=fixture.binding_catalog,
+        planning_context=fixture.planning_context,
+    )
+
+    assert payload["category"] == "input"
+    assert payload["subjects"] == [
+        {
+            "ref": "point_on_curve_parabola_a",
+            "arg_name": "curve_points",
+            "expected_type": "Point",
+            "observed_type": "point_on_curve",
+        }
+    ]
+    assert payload["expected"] == {"accepted_types": ["Point"]}
+    assert payload["observed"] == {"type": "point_on_curve"}
+    assert payload["repair_action"] == "repair_input_binding"
+
+
 def test_method_check_failure_preserves_structured_check_details() -> None:
     error = method_check_failed(
         (
@@ -356,10 +590,9 @@ def test_configuration_diagnostic_prevents_goal_repair_attempt(tmp_path) -> None
     assert error.value.code == "planner.method_contract_invalid"
 
 
-def test_p0_methods_do_not_raise_raw_value_error() -> None:
+def test_all_methods_do_not_raise_raw_execution_errors() -> None:
     violations: list[str] = []
-    for name in P0_METHOD_FILES:
-        path = METHOD_ROOT / name
+    for path in sorted(METHOD_ROOT.glob("*.py")):
         tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
         for node in ast.walk(tree):
             if not isinstance(node, ast.Raise) or node.exc is None:
@@ -368,8 +601,11 @@ def test_p0_methods_do_not_raise_raw_value_error() -> None:
             if not isinstance(call, ast.Call):
                 continue
             function = call.func
-            if isinstance(function, ast.Name) and function.id == "ValueError":
-                violations.append(f"{name}:{node.lineno}")
+            if (
+                isinstance(function, ast.Name)
+                and function.id in RAW_METHOD_ERROR_NAMES
+            ):
+                violations.append(f"{path.name}:{node.lineno}:{function.id}")
     assert violations == []
 
 

@@ -26,7 +26,27 @@ class LineParabolaSecondIntersectionPointMethod:
         target: PointRef = inputs["target"]
 
         if sp.simplify(line_p1[0] - line_p2[0]) == 0:
-            raise ValueError("vertical line is not supported for line-parabola second intersection")
+            raise method_precondition_failed(
+                "line-parabola second-intersection requires a nonvertical line",
+                subjects=(
+                    FunctionalDiagnosticSubject(
+                        role="line_point_1",
+                        arg_name="line_p1",
+                        expected_type="Point",
+                    ),
+                    FunctionalDiagnosticSubject(
+                        role="line_point_2",
+                        arg_name="line_p2",
+                        expected_type="Point",
+                    ),
+                ),
+                expected={"line_state": "nonvertical"},
+                observed={
+                    "line_state": "vertical",
+                    "x_coordinate": kernel.sstr(line_p1[0]),
+                },
+                repair_action="choose_applicable_intersection_capability",
+            )
         slope = sp.simplify((line_p2[1] - line_p1[1]) / (line_p2[0] - line_p1[0]))
         line_expr = sp.simplify(line_p1[1] + slope * (x - line_p1[0]))
         roots = [
@@ -39,10 +59,27 @@ class LineParabolaSecondIntersectionPointMethod:
             if sp.simplify(root - known_point[0]) != 0
         ]
         candidates = _filter_by_x_range(candidates, target, kernel)
-        if len(candidates) != 1:
-            raise ValueError(
-                f"line/parabola second intersection cannot uniquely determine {target.name}: "
-                f"{[kernel.sstr(point[0]) for point in candidates]}"
+        candidate_x_values = [kernel.sstr(point[0]) for point in candidates]
+        if not candidates:
+            raise method_result_empty(
+                f"line/parabola second intersection cannot determine {target.name}",
+                role="target_second_intersection",
+                internal_ref=target.name,
+                expected={"candidate_count": 1, "runtime_type": "Point"},
+                observed={"candidate_count": 0, "candidate_x_values": []},
+                repair_action="repair_intersection_inputs",
+            )
+        if len(candidates) > 1:
+            raise method_result_ambiguous(
+                f"line/parabola second intersection cannot uniquely determine {target.name}",
+                role="target_second_intersection",
+                internal_ref=target.name,
+                expected={"candidate_count": 1, "runtime_type": "Point"},
+                observed={
+                    "candidate_count": len(candidates),
+                    "candidate_x_values": candidate_x_values,
+                },
+                repair_action="supply_disambiguating_constraint",
             )
         point = candidates[0]
         return StatelessMethodResult(
@@ -87,14 +124,18 @@ def _filter_by_x_range(
     raw = target.definition.get("x_range")
     if not (isinstance(raw, list) and len(raw) == 2):
         return candidates
-    locals_ = {
-        symbol.name: symbol
-        for point in candidates
-        for value in point
-        for symbol in sp.sympify(value).free_symbols
-    }
-    lower = kernel.expr(str(raw[0]), locals_)
-    upper = kernel.expr(str(raw[1]), locals_)
+    lower = _require_canonical_runtime_expression(
+        raw[0],
+        kernel,
+        arg_name="target",
+        role="x_range_lower_bound",
+    )
+    upper = _require_canonical_runtime_expression(
+        raw[1],
+        kernel,
+        arg_name="target",
+        role="x_range_upper_bound",
+    )
     return [
         point for point in candidates
         if sp.simplify(point[0] - lower) > 0 and sp.simplify(point[0] - upper) < 0
@@ -113,11 +154,16 @@ SPEC = MethodSpecSource(
         "derive_curve_intersection_point",
     ),
     inputs={
-        "parabola": {"type": "Parabola", "required": True},
+        "parabola": {
+            "type": "Parabola",
+            "required": True,
+            "symbolic_basis_role": "state_anchor",
+        },
         "x": {"type": "Symbol", "required": True},
         "line_p1": {
             "type": "Point",
             "required": True,
+            "symbolic_basis_role": "align_to_anchor",
             "role": (
                 "确定目标直线的第一个点；必须与 line_p2 的横坐标不同。"
                 "若该点也是抛物线已知交点，通常同时把它传给 known_point。"
@@ -126,6 +172,7 @@ SPEC = MethodSpecSource(
         "line_p2": {
             "type": "Point",
             "required": True,
+            "symbolic_basis_role": "align_to_anchor",
             "role": (
                 "确定目标直线的第二个点；必须与 line_p1 的横坐标不同，"
                 "从而得到非竖直直线。"
@@ -134,12 +181,17 @@ SPEC = MethodSpecSource(
         "known_point": {
             "type": "Point",
             "required": True,
+            "symbolic_basis_role": "align_to_anchor",
             "role": (
                 "目标直线与抛物线共有、并需要从联立结果中排除的已知交点；"
                 "通常直接复用 line_p1 或 line_p2，禁止传入不在目标直线上的点。"
             ),
         },
-        "target": {"type": "PointRef", "required": True},
+        "target": {
+            "type": "PointRef",
+            "required": True,
+            "symbolic_basis_role": "align_to_anchor",
+        },
     },
     outputs={"point": "Point"},
     do_not_use_when=(

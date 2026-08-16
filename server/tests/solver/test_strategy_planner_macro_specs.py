@@ -26,6 +26,8 @@ from shuxueshuo_server.solver.family.models import (
     CONDITION_OBJECT_ROLES_RESOLVER,
     PATH_REDUCTION_ROLES_RESOLVER,
 )
+from shuxueshuo_server.solver.family import DEFAULT_FAMILY_REGISTRY
+from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.projection import problem_to_llm_payload
 from shuxueshuo_server.solver.runtime.functional_direct_compiler import (
     FunctionalCapabilityCompileCall,
@@ -214,6 +216,49 @@ def test_migrated_macro_specs_have_no_required_contract_return_mismatch() -> Non
                 if note.startswith("macro_contract_mismatch:required:")
             ]
             assert required_mismatches == []
+
+
+def test_every_registered_macro_has_an_audited_lowering_contract() -> None:
+    method_specs = MethodSpecRegistry.load_from_code()
+    macros = {}
+
+    for family in DEFAULT_FAMILY_REGISTRY.families:
+        registry = MacroSpecRegistry.from_family_spec(family, method_specs)
+        for macro_id, spec in registry.specs.items():
+            macros.setdefault(macro_id, []).append(spec.to_payload())
+
+    assert set(macros) == {
+        "broken_path_straightening_and_select",
+        "broken_path_straightening_minimum_expression",
+        "curve_candidate_parameter_solve",
+        "equal_length_ray_path_reduction",
+        "path_minimum_by_straightened_distance",
+        "right_angle_equal_length_construct_and_select",
+        "two_moving_points_path_reduction",
+    }
+
+    for macro_id in (
+        "path_minimum_by_straightened_distance",
+        "broken_path_straightening_minimum_expression",
+    ):
+        for payload in macros[macro_id]:
+            adapter = payload["adapter"]
+            assert [
+                "parameter_value",
+                "distance_between_points.parameter_value",
+            ] in adapter["input_aliases"]
+            assert {
+                "kind": "source_object_identity",
+                "source_arg": "parameter_value",
+                "target": "distance_between_points.parameter",
+            } in adapter["input_derivations"]
+
+    for payload in macros["equal_length_ray_path_reduction"]:
+        equal_length_returns = {
+            item["semantic_role"]
+            for item in payload["adapter"]["output_aliases"]
+        }
+        assert equal_length_returns == {"path_minimum_expression"}
 
 
 def test_macro_adapter_reports_typed_return_failure() -> None:

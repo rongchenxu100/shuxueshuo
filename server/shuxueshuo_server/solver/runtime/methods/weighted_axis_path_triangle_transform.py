@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from shuxueshuo_server.solver.runtime.weighted_triangle_geometry import (
+    WeightedTriangleGeometryUnsupportedError,
     weighted_triangle_geometry_for_weight,
     weighted_triangle_geometry_payloads,
 )
@@ -61,7 +62,17 @@ class WeightedAxisPathTriangleTransformMethod:
 
         path_info = _parse_weighted_axis_path(str(condition["path"]), kernel)
         weight = path_info["weight"]
-        geometry = weighted_triangle_geometry_for_weight(weight)
+        try:
+            geometry = weighted_triangle_geometry_for_weight(weight)
+        except WeightedTriangleGeometryUnsupportedError as exc:
+            raise method_precondition_failed(
+                "weighted path uses an unsupported triangle geometry weight",
+                arg_name="condition",
+                role="path_weight",
+                expected={"supported_weights": list(exc.supported)},
+                observed={"weight": str(exc.weight)},
+                repair_action="choose_supported_weighted_path_capability",
+            ) from exc
 
         fixed_name = str(path_info["fixed_name"])
         moving_name = str(path_info["moving_name"])

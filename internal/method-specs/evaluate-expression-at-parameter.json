@@ -2,7 +2,7 @@
   "method_id": "evaluate_expression_at_parameter",
   "title": "代入参数化简表达式",
   "description": "把表达式中的参数替换为已求出的参数值。",
-  "summary": "对已经得到的 Expression、MinimumExpression 或 Parabola 状态代入一个同身份参数值，并输出同类型状态。输入类型决定唯一 return：Expression 输出 evaluated_expression，MinimumExpression 输出 evaluated_minimum_expression，Parabola 输出 evaluated_parabola。代入一个参数不保证其他自由参数也已闭合；最终结果形态由剩余自由符号决定。",
+  "summary": "对已经得到的 Expression、MinimumExpression 或 Parabola 状态代入一个同身份参数值，并输出同类型状态。输入类型决定唯一 return：Expression 输出 evaluated_expression，MinimumExpression 输出 evaluated_minimum_expression，Parabola 输出 evaluated_parabola。代入一个参数不保证其他自由参数也已闭合；最终结果形态由剩余自由符号决定。若输入已经完全闭合，重复求值是保持同类型和同值的安全 no-op。",
   "solves": [
     "evaluate_expression_at_parameter"
   ],
@@ -26,6 +26,29 @@
     "evaluated_parabola": "Parabola"
   },
   "is_pure": true,
+  "output_activation": {
+    "evaluated_expression": {
+      "kind": "input_type",
+      "input_name": "expression",
+      "input_types": [
+        "Expression"
+      ]
+    },
+    "evaluated_minimum_expression": {
+      "kind": "input_type",
+      "input_name": "expression",
+      "input_types": [
+        "MinimumExpression"
+      ]
+    },
+    "evaluated_parabola": {
+      "kind": "input_type",
+      "input_name": "expression",
+      "input_types": [
+        "Parabola"
+      ]
+    }
+  },
   "scalar_result_forms": {
     "evaluated_expression": {
       "possible_forms": [
@@ -51,8 +74,9 @@
     "只有 ProblemIR 中的 Function 模板、尚未得到同一函数对象的 Parabola 状态；建立抛物线应使用 quadratic_from_constraints。",
     "需要依次代入多个已知二次函数系数；应把这些系数值一次放入 quadratic_from_constraints.known_coefficients。",
     "不要假定 evaluated_expression、evaluated_minimum_expression 和 evaluated_parabola 会同时产生；实际 return 只由输入状态类型决定。",
-    "表达式不含待代入 Symbol，或 ParameterValue 属于另一个 Symbol；例如表达式只含参数 u 时，不能用参数 v 的值关闭该表达式。",
-    "试图通过代入无关参数改变或关闭函数状态；应先选择实际出现在该状态自由符号集合中的参数。"
+    "表达式仍含自由符号但不含待代入 Symbol，或 ParameterValue 属于另一个 Symbol；例如表达式只含参数 u 时，不能用参数 v 的值关闭该表达式。",
+    "试图通过代入无关参数改变或关闭函数状态；应先选择实际出现在该状态自由符号集合中的参数。",
+    "仅为了重复关闭一个已经闭合的状态而新增本步骤；运行时会安全地视为 no-op，但 Planner 通常应直接复用该状态。"
   ],
   "postconditions": [
     "输出表达式不再含 parameter，且保持输入表达式的 runtime 语义类型"

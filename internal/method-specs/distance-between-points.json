@@ -29,6 +29,15 @@
     "evaluated_distance": "MinimumExpression"
   },
   "is_pure": true,
+  "output_activation": {
+    "evaluated_distance": {
+      "kind": "requires_inputs",
+      "required_inputs": [
+        "parameter",
+        "parameter_value"
+      ]
+    }
+  },
   "scalar_result_forms": {
     "distance": {
       "possible_forms": [

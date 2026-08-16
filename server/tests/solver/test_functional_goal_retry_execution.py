@@ -14,9 +14,11 @@ from shuxueshuo_server.solver.runtime.functional_goal_execution import (
 )
 from shuxueshuo_server.solver.runtime.functional_goal_retry import (
     FUNCTIONAL_GOAL_REPAIR_CONTRACT,
+    FunctionalGoalRepairService,
     FunctionalGoalRetryError,
     FunctionalGoalRetryProjector,
     ScopedFunctionalGoalRetryService,
+    functional_goal_repair_schema_for_authority,
     _repair_affected_goal_unit_ids,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_content import (
@@ -264,6 +266,157 @@ def test_blocked_goal_in_editable_scope_allows_consumer_dag_refinement(
         for item in updated.goal_authorities.values()
         if item.status == "solved"
     )
+
+
+def test_failed_scope_owned_answer_producer_opens_goal_answer_repair(
+    tmp_path,
+) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    payload = deepcopy(fixture.correct_payload)
+    scope_ii = next(
+        item
+        for item in iter_scopes(payload["root_scope"])
+        if item["scope_ref"] == "ii"
+    )
+    goal_ii = next(
+        item for item in scope_ii["goals"] if item["goal_ref"] == FAILED_GOAL_REF
+    )
+    scope_ii["steps"] = goal_ii.pop("steps")
+    old_answer = deepcopy(goal_ii["answer_from"])
+    failed_answer_step = next(
+        item
+        for item in scope_ii["steps"]
+        if item["step_id"] == old_answer["step_id"]
+    )
+    failed_answer_step["args"]["minimum_value"] = "not_a_real_ref"
+
+    plan, validation = ScopedFunctionalPlanValidator().validate_payload_with_report(
+        payload
+    )
+    assert validation.ok and plan is not None
+    execution = ScopedFunctionalGoalExecutionService().execute_raw_json(
+        json.dumps(payload, ensure_ascii=False),
+        inputs=fixture.inputs,
+        planning_context=fixture.planning_context,
+        problem_binding_catalog=fixture.binding_catalog,
+        handle_registry=fixture.handle_registry,
+        context=ContextBuilder().build(fixture.problem),
+        planner_state_context=fixture.planner_state_context,
+        problem_payload=fixture.problem_payload,
+    )
+    authority = FunctionalGoalRetryProjector().project(
+        plan=plan,
+        execution=execution,
+        planning_context=fixture.planning_context,
+        binding_catalog=fixture.binding_catalog,
+    )
+
+    goal_authority = authority.goal_authorities[FAILED_GOAL_REF]
+    assert goal_authority.status == "failed"
+    assert goal_authority.editable is True
+    assert FAILED_GOAL_REF in authority.editable_goal_refs
+    assert "ii" in authority.editable_scope_refs
+    response_schema = functional_goal_repair_schema_for_authority(authority)
+    goal_schema = response_schema["properties"]["goal_replacements"]
+    assert goal_schema["required"] == [FAILED_GOAL_REF]
+    assert FAILED_GOAL_REF in goal_schema["properties"]
+
+    corrected_scope_steps = deepcopy(scope_ii["steps"])
+    replacement_answer_step_id = "solve_parameter_from_minimum_ii_retry"
+    corrected_answer_step = next(
+        item
+        for item in corrected_scope_steps
+        if item["step_id"] == old_answer["step_id"]
+    )
+    corrected_answer_step["step_id"] = replacement_answer_step_id
+    corrected_answer_step["args"]["minimum_value"] = "minimum_value"
+    repair_payload = {
+        "schema_version": FUNCTIONAL_GOAL_REPAIR_CONTRACT,
+        "base_plan_id": authority.base_plan_id,
+        "base_retry_context_id": authority.retry_context_id,
+        "goal_replacements": {
+            FAILED_GOAL_REF: {
+                "steps": [],
+                "answer_from": {
+                    "step_id": replacement_answer_step_id,
+                    "return": old_answer["return"],
+                },
+            }
+        },
+        "scope_step_replacements": {
+            "ii": {"steps": corrected_scope_steps},
+        },
+    }
+    application = FunctionalGoalRepairService().apply_json(
+        json.dumps(repair_payload, ensure_ascii=False),
+        base_plan=authority.base_plan,
+        authority=authority,
+        capability_catalog=fixture.capability_catalog,
+    )
+
+    repaired_payload = application.plan.to_payload()
+    repaired_goal = goal(repaired_payload, FAILED_GOAL_REF)
+    assert repaired_goal["answer_from"]["step_id"] == replacement_answer_step_id
+    assert repaired_goal["answer_from"]["return"] == old_answer["return"]
+    repaired_execution = ScopedFunctionalGoalExecutionService().execute_raw_json(
+        json.dumps(repaired_payload, ensure_ascii=False),
+        inputs=fixture.inputs,
+        planning_context=fixture.planning_context,
+        problem_binding_catalog=fixture.binding_catalog,
+        handle_registry=fixture.handle_registry,
+        context=ContextBuilder().build(fixture.problem),
+        planner_state_context=fixture.planner_state_context,
+        problem_payload=fixture.problem_payload,
+    )
+    assert repaired_execution.checkpoint is not None
+    assert repaired_execution.checkpoint.all_required_goals_verified is True
+
+
+def test_blocked_scope_owned_answer_producer_keeps_goal_read_only(
+    tmp_path,
+) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    payload = deepcopy(fixture.failed_payload)
+    scope_ii = next(
+        item
+        for item in iter_scopes(payload["root_scope"])
+        if item["scope_ref"] == "ii"
+    )
+    goal_ii = next(
+        item for item in scope_ii["goals"] if item["goal_ref"] == FAILED_GOAL_REF
+    )
+    scope_ii["steps"] = goal_ii.pop("steps")
+
+    plan, validation = ScopedFunctionalPlanValidator().validate_payload_with_report(
+        payload
+    )
+    assert validation.ok and plan is not None
+    execution = ScopedFunctionalGoalExecutionService().execute_raw_json(
+        json.dumps(payload, ensure_ascii=False),
+        inputs=fixture.inputs,
+        planning_context=fixture.planning_context,
+        problem_binding_catalog=fixture.binding_catalog,
+        handle_registry=fixture.handle_registry,
+        context=ContextBuilder().build(fixture.problem),
+        planner_state_context=fixture.planner_state_context,
+        problem_payload=fixture.problem_payload,
+    )
+    authority = FunctionalGoalRetryProjector().project(
+        plan=plan,
+        execution=execution,
+        planning_context=fixture.planning_context,
+        binding_catalog=fixture.binding_catalog,
+    )
+
+    goal_authority = authority.goal_authorities[FAILED_GOAL_REF]
+    assert goal_authority.status == "blocked"
+    assert goal_authority.editable is False
+    assert FAILED_GOAL_REF not in authority.editable_goal_refs
+    assert "ii" in authority.editable_scope_refs
+    response_schema = functional_goal_repair_schema_for_authority(authority)
+    goal_schema = response_schema["properties"]["goal_replacements"]
+    assert goal_schema["required"] == []
+    assert goal_schema["properties"] == {}
 
 
 def test_typed_duplicate_goal_producers_reuse_visible_ancestor_steps(

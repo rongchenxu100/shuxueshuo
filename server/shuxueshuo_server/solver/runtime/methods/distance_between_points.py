@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from shuxueshuo_server.solver.contracts import (
     MethodExplanationSpec,
+    MethodOutputActivationSpec,
     ScalarResultFormSpec,
 )
 
@@ -80,6 +81,12 @@ SPEC = MethodSpecSource(
     "distance": "MinimumExpression",
     "evaluated_distance": "MinimumExpression"
 },
+    output_activation={
+        "evaluated_distance": MethodOutputActivationSpec(
+            kind="requires_inputs",
+            required_inputs=("parameter", "parameter_value"),
+        ),
+    },
     scalar_result_forms={
         "distance": ScalarResultFormSpec(
             possible_forms=("open_expression", "closed_value"),

@@ -233,6 +233,95 @@ step id、输入 JSON、字符串展示、capability 名称或 scope 位置只�
 
 若 optional input 会改变主要算法、输出类型或数学含义，应拆成不同 Method 或不同公开 Function。避免一个 capability 声明多个互斥输入组合，让 Planner 猜实际模式。
 
+### 5.2 题面表达式与 Symbol identity
+
+题面 JSON 中的 `x`、`vector`、`x_range`、condition `value`、relation `scale` 等数学字符串只能在 `RuntimeContext` 构建边界解析一次。解析时必须使用该题唯一的 canonical symbol environment：
+
+```text
+Problem JSON string
+→ RuntimeContext.symbols
+→ canonical SymPy Expr
+→ state binding / latest visible parameter closure
+→ Method typed input
+```
+
+Method 不得对这些字段再次调用 `sympify()` 或 `kernel.expr()` 并临时构造 locals。SymPy 中显示名相同的 Symbol 可能具有不同 assumptions；反过来，数学上相等、assumptions 相同的 Symbol 在 artifact round-trip 后也不保证是同一个 Python 实例。`MathObjectId`/registry 才是运行时身份权威，Python 的 `is` 不是契约。二次解析会导致：
+
+- F5-C 无法把自由参数绑定到 canonical `MathObjectId`；
+- 最新可见 `ParameterValue` 无法代入 PointRef 或 Condition；
+- 表达式看似含 `b`，实际绕过 state/provenance authority；
+- Method 在错误的开放状态上继续计算，最终表现为 configuration error。
+
+新 Method 只允许两类表达式输入：
+
+1. 已绑定 canonical Symbol 的 `sp.Expr`；
+2. 没有自由 Symbol 的纯常量字面量。
+
+从 `PointRef.definition`、`Condition` 或 `Constraint` 读取标量时，使用 `_require_canonical_runtime_expression(...)` 做边界断言。若含自由变量的字符串到达 Method，必须报 `planner.method_contract_invalid`，不得在 Method 内补 locals。参数约束可使用 `_canonicalize_runtime_constraint(...)`。
+
+Method 可以创建算法内部 dummy Symbol，但必须满足：
+
+- 名称使用内部命名空间；
+- identity 由该 Method 的 typed return 显式发布；
+- 不冒充题面 Symbol；
+- 不通过名称与题面 Symbol 合并。
+
+最新参数状态的选择和代入由 transaction/runtime 在 Method 调用前完成，并递归覆盖 `PointRef.definition`、mapping、tuple 和 list。Method 看到的是当前 scope 下已闭合或仍合法开放的真实状态，不负责搜索 latest。
+
+测试至少应断言：表达式中的每个自由 Symbol 都能唯一解析到题目 registry 中的 `MathObjectId`。必须覆盖一个“数学相等但 Python `is` 为假”的 artifact round-trip Symbol，以及一个最新 `ParameterValue` 自动闭合 PointRef 表达式的用例。
+
+### 5.3 等价符号基底的 Method 输入视图
+
+同一个函数状态可以有多个等价表示。例如题面函数为：
+
+```text
+y = x² - bx + c
+```
+
+在局部约束 `b+c=-1` 下，当前状态既可以写成：
+
+```text
+x² - bx - b - 1
+```
+
+也可以写成：
+
+```text
+x² + (c+1)x + c
+```
+
+这两种表示属于同一个 Function MathObject，不应要求 Planner 为下游每个结构化输入手工选择同一字母。例如题面点 `M.x=b+1/2` 在当前 `c` 基底状态下，应由代码为本次调用投影成 `-c-1/2`。
+
+需要这种能力的 Method 在 `SPEC.inputs` 中声明：
+
+```python
+inputs={
+    "parabola": {
+        "type": "Parabola",
+        "required": True,
+        "symbolic_basis_role": "state_anchor",
+    },
+    "x": {"type": "Symbol", "required": True},
+    "target": {
+        "type": "PointRef",
+        "required": True,
+        "symbolic_basis_role": "align_to_anchor",
+    },
+}
+```
+
+规则：
+
+1. 一个 invocation 最多有一个 active `state_anchor`。
+2. anchor 必须是同一 canonical Function MathObject 的已验证运行时状态。
+3. `align_to_anchor` 可用于 `PointRef`、Point/PointList、Condition、Constraint 等携带表达式的结构值。
+4. InvocationExecutor 从 canonical source function 与当前状态的多项式系数差确定关系，只在关系唯一时生成临时输入视图。
+5. 投影只修改本次 Method 调用的 ephemeral view，不修改 Problem、PointRef、已提交 StateVersion 或 provenance。
+6. 零个证明分支或多个证明分支都 fail loud；禁止按名称、字符串相似度或“常见正根”猜测。
+7. Method 本身只消费投影后的 typed input，不得再次实现 `b→c`、`c→b` 等题型转换。
+
+新增函数状态消费者时，应先判断它是否读取题面结构中可能携带系数表达式的值。若是，应接入上述通用角色；不要在 Method 文件里增加题目点名或参数名特判。
+
 ## 6. 输出契约
 
 Method 输出必须是稳定的 typed mapping：
@@ -292,6 +381,8 @@ outputs = {
 - `method_result_inconsistent`
 
 新增或修改 Method 不得直接 `raise ValueError`。未迁移的旧异常会被包装为 `planner.method_contract_invalid`，属于代码配置错误，不会让 LLM 盲目 retry。
+
+该门禁扫描整个 `runtime/methods` 目录，不使用 P0/P1 白名单。Method 调用共享数学 helper 时也必须在 Method 边界完成分类：symbolic closure 统一经过 `_require_unique_symbolic_closure`；外部 profile/geometry helper 的预期失败必须捕获并转换为 typed diagnostic。只有注册缺失、Spec 漂移和实现未知异常可以保留为 `configuration`。
 
 ### 7.2 后置检查
 
@@ -521,6 +612,7 @@ Macro 不应固定整道题路线。family-specific path reduction 可以是 Mac
 - 直接抛 `ValueError`、`AssertionError` 或未分类异常表达可预期数学失败。
 - 从 message 文本解析对象身份、候选数量或 retryability。
 - 读取 RuntimeContext 并自行选择 latest state。
+- 在 Method 内重新解析 PointRef/Condition/Constraint 的题面数学字符串，或按名称临时创建 Symbol locals。
 - 依靠 step id、handle 后缀、数组顺序或字符串相似度绑定输入。
 - 用静态输入 JSON 相同判断两个步骤结果等价。
 - 为避免 retry 而静默补事实、替换参数或选择候选。
@@ -558,6 +650,9 @@ Macro 不应固定整道题路线。family-specific path reduction 可以是 Mac
 - failed check 包含 expected/observed；
 - 相同输入重复运行 hash/数学值不漂移；
 - 不读 fixture、Context、LLM 或网络。
+- 题面表达式中的自由 Symbol 可唯一解析到 canonical registry identity，含自由变量的原始字符串在 Method 边界 fail loud。
+- 等价函数基底的结构化输入由 invocation view 投影；零分支和多分支均 fail loud，且不改写 source/state authority。
+- 最新参数状态能在 Method 前闭合 PointRef/Condition，且不会跨 sibling scope 泄漏。
 
 ### SPEC 与生成资产
 
@@ -623,6 +718,9 @@ git diff --check
 - [ ] 每个 output 有稳定 key、类型和 active-return 规则。
 - [ ] open/closed result form 由 runtime value 决定。
 - [ ] Method 不读取 Context、不选 latest、不写 StateVersion。
+- [ ] 题面表达式只在 RuntimeContext 解析一次，Method 不重建同名 Symbol。
+- [ ] 测试验证 Symbol 可唯一解析到 canonical registry identity，并覆盖 `is` 为假的 artifact round-trip。
+- [ ] 携带函数系数表达式的结构输入声明 `state_anchor/align_to_anchor`，并覆盖唯一投影与歧义拒绝。
 - [ ] 合并/复用依据 runtime 等价，不依据字符串或输入形状。
 - [ ] 所有可预期失败都有 typed diagnostic。
 - [ ] configuration error 不会进入 Planner retry。

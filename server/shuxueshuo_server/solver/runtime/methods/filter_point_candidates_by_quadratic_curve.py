@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from shuxueshuo_server.solver.contracts import MethodOutputActivationSpec
+
 from shuxueshuo_server.solver.runtime.quadratic_constraint_solver import (
     quadratic_coefficient_expression,
     value_satisfies_constraint,
@@ -151,12 +153,28 @@ SPEC = MethodSpecSource(
     summary="输入: 候选点与抛物线；输出: 在抛物线上的候选点列表。",
     solves=("filter_point_candidates_by_quadratic_curve",),
     inputs={
-        "candidates": {"type": "PointList", "required": True},
-        "target": {"type": "PointRef", "required": True},
-        "parabola": {"type": "Parabola", "required": True},
+        "candidates": {
+            "type": "PointList",
+            "required": True,
+            "symbolic_basis_role": "align_to_anchor",
+        },
+        "target": {
+            "type": "PointRef",
+            "required": True,
+            "symbolic_basis_role": "align_to_anchor",
+        },
+        "parabola": {
+            "type": "Parabola",
+            "required": True,
+            "symbolic_basis_role": "state_anchor",
+        },
         "x": {"type": "Symbol", "required": True},
         "parameter": {"type": "Symbol", "required": True},
-        "parameter_constraint": {"type": "Constraint", "required": False},
+        "parameter_constraint": {
+            "type": "Constraint",
+            "required": False,
+            "symbolic_basis_role": "align_to_anchor",
+        },
         "quadratic_template": {
             "type": "Expression",
             "required": False,
@@ -167,6 +185,12 @@ SPEC = MethodSpecSource(
         "filtered_candidates": "PointList",
         "rejected_candidates": "PointList",
         "selected_candidate": "Point",
+    },
+    output_activation={
+        "selected_candidate": MethodOutputActivationSpec(
+            kind="runtime_condition",
+            runtime_condition="exactly_one_candidate",
+        ),
     },
     preconditions=("parabola 已代入当前问能确定的已知条件", "candidates 来自几何构造"),
     postconditions=("filtered_candidates 中每个候选在参数约束下可满足曲线条件", "若唯一保留候选，则 selected_candidate 为该候选点"),

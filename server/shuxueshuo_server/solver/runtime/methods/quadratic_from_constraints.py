@@ -11,6 +11,7 @@ from typing import Literal
 
 from shuxueshuo_server.solver.contracts import (
     MethodExplanationSpec,
+    MethodOutputActivationSpec,
     ScalarResultFormSpec,
     SymbolicClosureSpec,
 )
@@ -29,6 +30,7 @@ QuadraticConstraintStatus = Literal[
     "single_free",
     "underdetermined",
     "ambiguous",
+    "inconsistent",
 ]
 
 
@@ -70,7 +72,7 @@ def analyze_quadratic_constraints(
         kernel=SympyKernel(),
     )
     if result.status == "inconsistent":
-        return QuadraticConstraintAnalysis("ambiguous", branch_count=0)
+        return QuadraticConstraintAnalysis("inconsistent", branch_count=0)
     if result.status == "ambiguous":
         return QuadraticConstraintAnalysis(
             "ambiguous",
@@ -580,6 +582,12 @@ SPEC = MethodSpecSource(
         "coefficients": "Coefficients",
         "parabola": "Parabola",
         "parameter_value": "ParameterValue",
+    },
+    output_activation={
+        "parameter_value": MethodOutputActivationSpec(
+            kind="requires_inputs",
+            required_inputs=("target_parameter",),
+        ),
     },
     scalar_result_forms={
         "parameter_value": ScalarResultFormSpec(

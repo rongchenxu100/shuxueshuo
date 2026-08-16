@@ -38,6 +38,7 @@ FunctionalDiagnosticRetryability = Literal[
 
 _CONFIGURATION_CODES = frozenset(
     {
+        "planner.macro_contract_invalid",
         "planner.method_contract_invalid",
         "planner.transactional_configuration_error",
         "planner.contract_runtime_symbol_drift",
@@ -53,6 +54,10 @@ _REPAIR_MESSAGES = {
         "Add or repair a visible producer for the required object state."
     ),
     "provide_required_input": "Provide the missing typed input.",
+    "provide_macro_input": (
+        "Provide the listed public Macro argument; internal Method wiring is "
+        "owned by the compiler."
+    ),
     "repair_input_binding": "Bind the argument to a compatible visible source.",
     "supply_disambiguating_constraint": (
         "Add the missing condition needed to select one unique result."
@@ -63,7 +68,32 @@ _REPAIR_MESSAGES = {
     "choose_applicable_capability": (
         "Choose a capability whose preconditions match the available state."
     ),
+    "remove_unknown_capability_arg": (
+        "Remove the listed argument names that are not declared by this "
+        "capability; keep the valid declared arguments unchanged."
+    ),
+    "repair_capability_arguments": (
+        "Make the call arguments match the capability contract: provide all "
+        "required arguments and remove or rename undeclared arguments."
+    ),
     "repair_failed_step": "Replace the failed Goal steps with a valid strategy.",
+    "align_symbolic_state_basis": (
+        "Align the declared free parameters with the symbols in the current "
+        "quadratic state and its visible relations."
+    ),
+    "revise_quadratic_constraints": (
+        "Revise the quadratic constraints so they retain at least one "
+        "consistent solution branch."
+    ),
+    "provide_additional_quadratic_constraint": (
+        "Provide a visible quadratic constraint that selects one unique branch."
+    ),
+    "separate_target_and_free_parameters": (
+        "Do not declare the target parameter as a preserved free parameter."
+    ),
+    "remove_redundant_free_parameters": (
+        "Remove free parameters that are already closed by the visible state."
+    ),
     "fix_runtime_contract": (
         "This is a runtime contract or configuration failure; do not repair the Plan."
     ),
@@ -632,6 +662,27 @@ def diagnostic_authority_from_issue(
         ("expected", "required", "requirement", "relation"),
     )
     observed = _prefixed_details(details, ("actual", "observed", "candidate"))
+    accepted_types = _string_sequence(details.get("accepted_item_types"))
+    if accepted_types:
+        expected.setdefault("accepted_types", list(accepted_types))
+    accepted_condition_kinds = _string_sequence(
+        details.get("accepted_condition_kinds")
+    )
+    if accepted_condition_kinds:
+        expected.setdefault(
+            "accepted_condition_kinds",
+            list(accepted_condition_kinds),
+        )
+    available_types = _string_sequence(details.get("available_value_types"))
+    if available_types:
+        observed.setdefault("available_types", list(available_types))
+    actual_type = _optional_string(
+        details.get("actual_type") or details.get("observed_type")
+    )
+    if actual_type is not None:
+        observed.pop("actual_type", None)
+        observed.pop("observed_type", None)
+        observed.setdefault("type", actual_type)
     repair_action = _repair_action_for(code, category, details)
     return FunctionalDiagnosticAuthority(
         code=code,
@@ -707,6 +758,133 @@ def method_input_invalid(message: str, **kwargs: Any) -> StatelessMethodError:
         retryability="planner_repairable",
         repair_action=kwargs.pop("repair_action", "repair_input_binding"),
         **kwargs,
+    )
+
+
+def macro_contract_invalid(message: str, **kwargs: Any) -> StatelessMethodError:
+    """Report public-to-internal Macro lowering drift as configuration."""
+
+    return StatelessMethodError(
+        "planner.macro_contract_invalid",
+        message,
+        category="configuration",
+        retryability="configuration",
+        repair_action="fix_runtime_contract",
+        **kwargs,
+    )
+
+
+def normalize_macro_diagnostic_authority(
+    authority: FunctionalDiagnosticAuthority,
+    *,
+    macro_spec: Any,
+    provided_arg_names: Sequence[str],
+) -> FunctionalDiagnosticAuthority:
+    """Translate an inner Method failure to the public Macro boundary.
+
+    Internal Method facts remain in ``authority_details`` for debug.  Planner
+    repair sees only public Macro arguments.  If a public argument was already
+    supplied but could not reach the Method, the failure is compiler
+    configuration drift and must not consume another semantic attempt.
+    """
+
+    adapter = getattr(macro_spec, "adapter", None)
+    if adapter is None:
+        return authority
+    target_to_source = {
+        target: source
+        for source, target in getattr(adapter, "input_aliases", ())
+    }
+    target_to_source.update(
+        {
+            item.target: item.source_arg
+            for item in getattr(adapter, "input_derivations", ())
+        }
+    )
+    provided = frozenset(str(item) for item in provided_arg_names)
+    method_id = authority.method_id
+
+    def public_arg(input_name: str) -> str | None:
+        if method_id is None:
+            return None
+        return target_to_source.get(f"{method_id}.{input_name}")
+
+    missing_inputs = tuple(
+        dict.fromkeys(
+            str(item)
+            for item in (
+                authority.observed.get("missing_inputs")
+                or authority.expected.get("required_inputs")
+                or ()
+            )
+        )
+    )
+    mapped_missing = tuple(
+        dict.fromkeys(
+            source
+            for item in missing_inputs
+            if (source := public_arg(item)) is not None
+        )
+    )
+    absent_public = tuple(
+        item for item in mapped_missing if item not in provided
+    )
+    inner_details = {
+        **dict(authority.authority_details),
+        "inner_diagnostic": authority.to_payload(),
+    }
+    if missing_inputs:
+        if absent_public:
+            return replace(
+                authority,
+                code="functional.macro_input_missing",
+                category="input",
+                retryability="planner_repairable",
+                method_id=None,
+                subjects=tuple(
+                    FunctionalDiagnosticSubject(
+                        role=item,
+                        arg_name=item,
+                        expected_state="provided",
+                    )
+                    for item in absent_public
+                ),
+                expected={"required_args": absent_public},
+                observed={"provided_args": tuple(sorted(provided))},
+                repair_action="provide_macro_input",
+                authority_details=inner_details,
+            )
+        return replace(
+            authority,
+            code="planner.macro_contract_invalid",
+            category="configuration",
+            retryability="configuration",
+            method_id=None,
+            subjects=(),
+            expected={"public_args": tuple(sorted(provided))},
+            observed={"lowering": "incomplete"},
+            repair_action="fix_runtime_contract",
+            authority_details=inner_details,
+        )
+
+    subjects = tuple(
+        replace(
+            subject,
+            role=(public_arg(subject.arg_name) or subject.role),
+            # An inner Method input name is compiler-owned. Keep the semantic
+            # object role/ref, but only expose arg_name when it maps to a
+            # public Macro argument.
+            arg_name=public_arg(subject.arg_name),
+        )
+        if subject.arg_name is not None
+        else subject
+        for subject in authority.subjects
+    )
+    return replace(
+        authority,
+        method_id=None,
+        subjects=subjects,
+        authority_details=inner_details,
     )
 
 
@@ -1089,6 +1267,8 @@ def _subjects_from_details(
 ) -> tuple[FunctionalDiagnosticSubject, ...]:
     refs: list[str] = []
     for key in (
+        "semantic_ref",
+        "source_ref",
         "object_ref",
         "target_object_ref",
         "actual_object_ref",
@@ -1109,10 +1289,13 @@ def _subjects_from_details(
             refs.extend(_identity_string(item) for item in value)
     refs = list(dict.fromkeys(refs))
     role = _optional_string(details.get("role") or details.get("semantic_role"))
-    arg_name = _optional_string(details.get("arg_name"))
+    arg_name = _optional_string(details.get("arg_name") or details.get("arg"))
+    accepted_types = _string_sequence(details.get("accepted_item_types"))
     expected_type = _optional_string(
         details.get("expected_type") or details.get("runtime_type")
     )
+    if expected_type is None and len(accepted_types) == 1:
+        expected_type = accepted_types[0]
     expected_state = _optional_string(
         details.get("expected_state") or details.get("state_requirement")
     )
@@ -1153,6 +1336,8 @@ def _category_for_code(code: str) -> FunctionalDiagnosticCategory:
         return "check"
     if "binding" in lowered or "ref_" in lowered:
         return "binding"
+    if code.startswith("functional.arg_"):
+        return "input"
     if "unavailable" in lowered or "missing" in lowered or "unresolved" in lowered:
         return "input"
     return "precondition"
@@ -1206,6 +1391,12 @@ def _prefixed_details(
         for key, value in details.items()
         if any(str(key).startswith(prefix) for prefix in prefixes)
     }
+
+
+def _string_sequence(value: Any) -> tuple[str, ...]:
+    if not isinstance(value, (list, tuple, set, frozenset)):
+        return ()
+    return tuple(str(item) for item in value if str(item))
 
 
 def _prompt_safe_mapping(value: Mapping[str, Any]) -> dict[str, Any]:
@@ -1305,6 +1496,7 @@ __all__ = [
     "diagnostic_authority_from_issue",
     "functional_diagnostic_authority_schema",
     "functional_prompt_diagnostic_schema",
+    "macro_contract_invalid",
     "method_check_failed",
     "method_input_invalid",
     "method_input_missing",
@@ -1313,5 +1505,6 @@ __all__ = [
     "method_result_ambiguous",
     "method_result_empty",
     "method_result_inconsistent",
+    "normalize_macro_diagnostic_authority",
     "unexpected_method_error",
 ]

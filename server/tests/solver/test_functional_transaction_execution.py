@@ -27,8 +27,10 @@ from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
     PreparedFunctionalCall,
     _closure_failure_details,
     _latest_visible_parameter_version,
+    _materialize_runtime_parameter_closure,
     _prepared_runtime_arg_object_ids,
     _restored_problem_source_authority_difference,
+    _substitute_runtime_parameters,
     _unauthorized_consumer_goal_deltas,
     _validate_symbolic_closure_write_set,
 )
@@ -68,7 +70,7 @@ from shuxueshuo_server.solver.runtime.methods import default_stateless_registry
 from shuxueshuo_server.solver.runtime.methods.quadratic_from_constraints import (
     QuadraticFromConstraintsMethod,
 )
-from shuxueshuo_server.solver.runtime.models import Point, TypedValue
+from shuxueshuo_server.solver.runtime.models import Point, PointRef, TypedValue
 from shuxueshuo_server.solver.runtime.planner_state_context import (
     initial_planner_state_context,
 )
@@ -259,10 +261,14 @@ def test_constraint_analyzer_rejects_incorrect_explicit_free_basis() -> None:
         item.call_id for item in report.compiled_calls
     }
     issues = replay.retry_state.issues if replay.retry_state else ()
-    assert any(
-        "function.constraints_ambiguous" in issue.message
-        and "branch_count=0" in issue.message
-        for issue in issues
+    assert replay.transactional_attempt_result is not None
+    root_issue = replay.transactional_attempt_result.root_issues[0]
+    assert root_issue.code == "functional.method_result_inconsistent"
+    assert root_issue.diagnostic_authority is not None
+    assert root_issue.diagnostic_authority["observed"]["branch_count"] == 0
+    assert (
+        root_issue.diagnostic_authority["repair_action"]
+        == "revise_quadratic_constraints"
     )
     assert not any(
         "functional_runtime_input_mapping_drift" in issue.message
@@ -1807,6 +1813,7 @@ class _ParameterScopeRegistry:
         "i": "problem",
         "i_1": "i",
         "i_2": "i",
+        "iii": "problem",
     }
 
     def ancestor_scopes(self, scope_id: str) -> tuple[str, ...]:
@@ -1889,6 +1896,72 @@ def test_parallel_parameter_writers_are_never_selected_by_order() -> None:
             consumer_scope_id="i_1",
             working=working,
         )
+
+
+def test_runtime_parameter_substitution_closes_point_ref_definition() -> None:
+    b = sp.Symbol("b", real=True)
+    point_ref = PointRef(
+        "M",
+        "$question.iii.points.M",
+        definition={"x": b + sp.Rational(1, 2)},
+        scope_id="iii",
+    )
+
+    closed = _substitute_runtime_parameters(point_ref, {b: sp.Integer(2)})
+
+    assert isinstance(closed, PointRef)
+    assert closed.definition["x"] == sp.Rational(5, 2)
+    assert point_ref.definition["x"] == b + sp.Rational(1, 2)
+
+
+def test_latest_parameter_state_closes_canonical_point_ref_expression() -> None:
+    runtime_context = ContextBuilder().build(
+        load_problem_ir("../internal/solver-fixtures/tj-2026-hexi-yimo-25.json")
+    )
+    point_ref = runtime_context.read_path(
+        "$question.iii.points.M",
+        from_scope_id="iii",
+        expected_type="PointRef",
+    ).value
+    object_registry = MathObjectRegistry()
+    object_id = object_registry.register_handle("symbol:problem:b")
+    assert object_id is not None
+    version = IndexedStateVersion(
+        version_id=StateVersionId(
+            StateSlotId(
+                LogicalStateKey(object_id, "value", "ParameterValue"),
+                "iii",
+            ),
+            1,
+        ),
+        valid_scope_id="iii",
+        producer_call_id=None,
+        produced_handle="fact:iii:b_value",
+    )
+    index = StateIdentityIndex(
+        ScopeVisibilityResolver(_ParameterScopeRegistry())
+    )
+    index.register(version)
+    working = WorkingPlannerState(
+        parent_context_id="point-ref-closure-test",
+        identity_index=index,
+        call_states={},
+        runtime_version_values={
+            version.version_id: TypedValue("ParameterValue", sp.Integer(2))
+        },
+    )
+
+    closure = _materialize_runtime_parameter_closure(
+        TypedValue("PointRef", point_ref),
+        consumer_scope_id="iii",
+        working=working,
+        runtime_context=runtime_context,
+        object_registry=object_registry,
+        declared_runtime_symbols={},
+    )
+
+    assert closure.runtime_value.value.definition["x"] == sp.Rational(5, 2)
+    assert closure.parameter_versions == (version,)
 
 
 def _failure_partition(graph):

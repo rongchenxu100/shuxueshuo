@@ -29,9 +29,33 @@ class TranslatedPointMethod:
             [target.definition.get("dx", "0"), target.definition.get("dy", "0")],
         )
         if not isinstance(raw_vector, list) or len(raw_vector) != 2:
-            raise ValueError("translated point target requires 2D vector")
-        dx = kernel.expr(raw_vector[0])
-        dy = kernel.expr(raw_vector[1])
+            raise method_input_invalid(
+                "translated point target requires a two-dimensional vector",
+                arg_name="target",
+                role="translated_point",
+                internal_ref=target.name,
+                expected={"type": "Point", "vector_dimension": 2},
+                observed={
+                    "construction": target.definition.get("definition", "unspecified"),
+                    "vector_type": type(raw_vector).__name__,
+                    "vector_dimension": (
+                        len(raw_vector) if isinstance(raw_vector, list) else None
+                    ),
+                },
+                repair_action="choose_applicable_point_construction_capability",
+            )
+        dx = _require_canonical_runtime_expression(
+            raw_vector[0],
+            kernel,
+            arg_name="target",
+            role="translation_dx",
+        )
+        dy = _require_canonical_runtime_expression(
+            raw_vector[1],
+            kernel,
+            arg_name="target",
+            role="translation_dy",
+        )
         point = (sp.simplify(source[0] + dx), sp.simplify(source[1] + dy))
 
         return StatelessMethodResult(

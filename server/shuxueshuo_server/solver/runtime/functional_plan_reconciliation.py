@@ -4778,7 +4778,7 @@ def _resolve_functional_ref(
                     call_id=call_id,
                     scope_id=scope_id,
                     details={
-                        "arg": arg_name,
+                        "arg_name": arg_name,
                         "accepted_item_types": list(accepted_types),
                         "actual_type": value.runtime_type,
                         **(
@@ -4817,7 +4817,8 @@ def _resolve_functional_ref(
                 call_id=call_id,
                 scope_id=scope_id,
                 details={
-                    "arg": arg_name,
+                    "arg_name": arg_name,
+                    "semantic_ref": ref.ref,
                     "accepted_item_types": list(accepted_types),
                     "actual_type": ref.value_type,
                 },
@@ -4928,7 +4929,8 @@ def _resolve_functional_ref(
                     call_id=call_id,
                     scope_id=scope_id,
                     details={
-                        "arg": arg_name,
+                        "arg_name": arg_name,
+                        "semantic_ref": ref.ref,
                         "accepted_item_types": list(accepted_types),
                         "free_symbol_refs": list(
                             materialization.free_symbol_refs
@@ -4946,7 +4948,8 @@ def _resolve_functional_ref(
                     call_id=call_id,
                     scope_id=scope_id,
                     details={
-                        "arg": arg_name,
+                        "arg_name": arg_name,
+                        "semantic_ref": ref.ref,
                         "accepted_item_types": list(accepted_types),
                         "actual_type": ref.value_type,
                     },
@@ -5002,7 +5005,8 @@ def _resolve_functional_ref(
                 call_id=call_id,
                 scope_id=scope_id,
                 details={
-                    "arg": arg_name,
+                    "arg_name": arg_name,
+                    "semantic_ref": ref.ref,
                     "accepted_item_types": list(accepted_types),
                     "available_value_types": sorted(
                         {item.runtime_type for item in candidates}

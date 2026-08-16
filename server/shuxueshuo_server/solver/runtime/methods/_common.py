@@ -83,7 +83,10 @@ __all__ = [
     "_check",
     "_step",
     "_free_symbols_in",
+    "_canonicalize_runtime_constraint",
+    "_require_canonical_runtime_expression",
     "_require_substitution_symbol",
+    "_require_unique_symbolic_closure",
     "_optional_parameter_substitution",
     "_subs_point",
     "_fmt_point",
@@ -193,6 +196,81 @@ def _free_symbols_in(value: Any) -> set[sp.Symbol]:
     return set(getattr(expression, "free_symbols", set()))
 
 
+def _require_canonical_runtime_expression(
+    value: Any,
+    kernel: SympyKernel,
+    *,
+    arg_name: str,
+    role: str,
+) -> sp.Expr:
+    """Reject source-authored symbolic strings at the Method boundary.
+
+    Problem-origin expressions must be parsed once by ``RuntimeContext`` with
+    its canonical Symbol identities.  Constant strings remain accepted for
+    direct Method fixtures and literal metadata; a string with free symbols is
+    evidence that compiler/runtime canonicalization was skipped.
+    """
+
+    try:
+        expression = kernel.expr(
+            value.replace("^", "**") if isinstance(value, str) else value,
+            {"inf": sp.oo, "oo": sp.oo},
+        )
+    except (TypeError, ValueError, sp.SympifyError) as exc:
+        raise StatelessMethodError(
+            "planner.method_contract_invalid",
+            f"{arg_name} is not a valid canonical runtime expression",
+            category="configuration",
+            retryability="configuration",
+            arg_name=arg_name,
+            role=role,
+            expected={"state": "canonical_sympy_expression"},
+            observed={"type": type(value).__name__, "value": repr(value)},
+            repair_action="fix_runtime_contract",
+        ) from exc
+
+    if isinstance(value, str) and expression.free_symbols:
+        raise StatelessMethodError(
+            "planner.method_contract_invalid",
+            f"{arg_name} reached Method as an unbound symbolic string",
+            category="configuration",
+            retryability="configuration",
+            arg_name=arg_name,
+            role=role,
+            expected={"state": "canonical_sympy_expression"},
+            observed={
+                "type": "str",
+                "free_symbols": sorted(
+                    symbol.name for symbol in expression.free_symbols
+                ),
+            },
+            repair_action="fix_runtime_contract",
+        )
+    return expression
+
+
+def _canonicalize_runtime_constraint(
+    value: dict[str, Any] | None,
+    kernel: SympyKernel,
+    *,
+    arg_name: str,
+    role: str = "parameter_constraint",
+) -> dict[str, Any] | None:
+    """Canonicalize the scalar bound carried by a runtime Constraint."""
+
+    if value is None:
+        return None
+    result = dict(value)
+    if result.get("value") is not None:
+        result["value"] = _require_canonical_runtime_expression(
+            result["value"],
+            kernel,
+            arg_name=arg_name,
+            role=role,
+        )
+    return result
+
+
 def _require_substitution_symbol(
     value: Any,
     parameter: sp.Symbol,
@@ -224,11 +302,89 @@ def _require_substitution_symbol(
     )
 
 
+def _require_unique_symbolic_closure(
+    result: Any,
+    *,
+    arg_name: str,
+    role: str,
+) -> Any:
+    """Translate expected symbolic-closure outcomes at the Method boundary."""
+
+    if result.status == "unique" and result.target_value is not None:
+        from shuxueshuo_server.solver.runtime.symbolic_closure_execution import (
+            require_unique_symbolic_closure,
+        )
+
+        return require_unique_symbolic_closure(result)
+
+    target_name = result.target.name if result.target is not None else None
+    observed = {
+        "status": result.status,
+        "branch_count": result.branch_count,
+        "residual_symbols": [
+            symbol.name for symbol in result.residual_symbols
+        ],
+    }
+    from shuxueshuo_server.solver.runtime.symbolic_closure_execution import (
+        closure_failure_code,
+    )
+
+    residual_text = ",".join(observed["residual_symbols"]) or "<none>"
+    message = (
+        f"{closure_failure_code(result.status)}: "
+        f"target={target_name or '<unresolved>'}, "
+        f"residual_symbols={residual_text}, "
+        f"branch_count={result.branch_count}"
+    )
+    shared = {
+        "arg_name": arg_name,
+        "role": role,
+        "internal_ref": target_name,
+        "expected": {"status": "unique", "branch_count": 1},
+        "observed": observed,
+    }
+    if result.status == "ambiguous":
+        raise method_result_ambiguous(
+            message,
+            repair_action="supply_disambiguating_constraint",
+            **shared,
+        )
+    if result.status == "inconsistent":
+        raise method_result_inconsistent(
+            message,
+            retryability="planner_repairable",
+            repair_action="revise_symbolic_constraints",
+            **shared,
+        )
+    if result.status == "identity_unresolved":
+        raise method_input_state_unavailable(
+            message,
+            repair_action="repair_target_binding",
+            **shared,
+        )
+    if result.status in {"underdetermined", "not_applicable"}:
+        raise method_result_empty(
+            message,
+            repair_action="provide_additional_constraint",
+            **shared,
+        )
+    raise StatelessMethodError(
+        "planner.method_contract_invalid",
+        f"unsupported symbolic closure status: {result.status}",
+        category="configuration",
+        retryability="configuration",
+        expected={"status_contract": "known_symbolic_closure_status"},
+        observed=observed,
+        repair_action="fix_runtime_contract",
+    )
+
+
 def _optional_parameter_substitution(
     inputs: dict[str, Any],
     *values: Any,
     allow_parameter_without_value: bool = False,
     allow_closed_noop: bool = False,
+    closed_noop_ignored_symbols: Iterable[sp.Symbol] = (),
 ) -> dict[sp.Symbol, sp.Expr]:
     """Build an optional, identity-checked parameter substitution."""
 
@@ -258,7 +414,9 @@ def _optional_parameter_substitution(
     if not parameter_present:
         return {}
     parameter = inputs["parameter"]
-    if allow_closed_noop and parameter not in _free_symbols_in(values):
+    free_symbols = _free_symbols_in(values)
+    unresolved_symbols = free_symbols - set(closed_noop_ignored_symbols)
+    if allow_closed_noop and parameter not in unresolved_symbols:
         return {}
     _require_substitution_symbol(values, parameter)
     return {parameter: sp.sympify(inputs["parameter_value"])}
@@ -309,7 +467,16 @@ def _parse_scaled_segment(raw: str, kernel: SympyKernel) -> tuple[sp.Expr, str]:
             observed={"value": raw, "parsed_segment": segment},
         )
     coefficient_text = raw.replace(segment, "", 1).strip().rstrip("*").strip()
-    coefficient = kernel.expr(coefficient_text) if coefficient_text else sp.Integer(1)
+    coefficient = (
+        _require_canonical_runtime_expression(
+            coefficient_text,
+            kernel,
+            arg_name="scaled_segment",
+            role="path_scale",
+        )
+        if coefficient_text
+        else sp.Integer(1)
+    )
     return sp.simplify(coefficient), segment
 
 

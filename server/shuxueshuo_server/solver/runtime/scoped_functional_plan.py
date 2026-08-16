@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections import Counter
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 import json
 from types import MappingProxyType
 from typing import Any, Mapping, Sequence
@@ -243,13 +243,14 @@ class ScopedFunctionalPlanError(ValueError):
         retryable: bool = True,
         issues: tuple["ScopedFunctionalPlanIssue", ...] = (),
         normalizations: tuple["ScopedFunctionalPlanNormalization", ...] = (),
+        details: Mapping[str, Any] | None = None,
     ) -> None:
         self.code = code
         self.path = path
         self.message = message
         self.retryable = retryable
         self.issues = issues or (
-            ScopedFunctionalPlanIssue(code, path, message),
+            ScopedFunctionalPlanIssue(code, path, message, details or {}),
         )
         self.normalizations = tuple(normalizations)
         super().__init__(f"{code} at {path}: {message}")
@@ -260,13 +261,24 @@ class ScopedFunctionalPlanIssue:
     code: str
     path: str
     message: str
+    details: Mapping[str, Any] = field(default_factory=dict)
 
-    def to_payload(self) -> dict[str, str]:
-        return {
+    def __post_init__(self) -> None:
+        object.__setattr__(
+            self,
+            "details",
+            MappingProxyType(dict(sorted(self.details.items()))),
+        )
+
+    def to_payload(self) -> dict[str, Any]:
+        payload: dict[str, Any] = {
             "code": self.code,
             "path": self.path,
             "message": self.message,
         }
+        if self.details:
+            payload["details"] = dict(self.details)
+        return payload
 
 
 @dataclass(frozen=True)
@@ -2481,6 +2493,32 @@ def _normalize_capability_wire(
                         reason="unique_required_type_match",
                     )
                 )
+
+        unknown = sorted(set(args) - set(declared))
+        missing_required = [
+            item
+            for item in capability.args
+            if item.required and item.name not in args
+        ]
+        invalid_cardinality = [
+            name
+            for name, values in args.items()
+            if name in declared
+            and declared[name].cardinality == "one"
+            and len(values) != 1
+        ]
+        if unknown and not missing_required and not invalid_cardinality:
+            for unknown_name in unknown:
+                args.pop(unknown_name)
+                normalizations.append(
+                    ScopedFunctionalPlanNormalization(
+                        action="drop_unknown_capability_arg",
+                        step_id=step.step_id,
+                        capability_id=step.capability_id,
+                        arg_name=unknown_name,
+                        reason="declared_call_contract_complete",
+                    )
+                )
         if args != dict(step.args):
             replacements[step.step_id] = replace(step, args=args)
 
@@ -3806,11 +3844,12 @@ def _collect_independent_authority_issues(
         code: str,
         path: str,
         message: str,
+        details: Mapping[str, Any] | None = None,
     ) -> None:
         records.append(
             (
                 (stage, _scope_path(scope_id, scope_parents), step_id, path),
-                ScopedFunctionalPlanIssue(code, path, message),
+                ScopedFunctionalPlanIssue(code, path, message, details or {}),
             )
         )
 
@@ -3894,8 +3933,37 @@ def _collect_independent_authority_issues(
             )
             continue
         args = {item.name: item for item in capability.args}
+        unknown_args = tuple(sorted(set(step.args) - set(args)))
+        missing_required_args = tuple(
+            sorted(
+                name
+                for name, item in args.items()
+                if item.required and name not in step.args
+            )
+        )
+        invalid_cardinality_args = tuple(
+            sorted(
+                name
+                for name, values in step.args.items()
+                if name in args
+                and args[name].cardinality == "one"
+                and len(values) != 1
+            )
+        )
+        argument_contract_details = {
+            "capability_id": step.capability_id,
+            "expected_allowed_args": tuple(sorted(args)),
+            "expected_required_args": tuple(
+                sorted(name for name, item in args.items() if item.required)
+            ),
+            "observed_args": tuple(sorted(step.args)),
+            "observed_unknown_args": unknown_args,
+            "observed_missing_required_args": missing_required_args,
+            "observed_invalid_cardinality_args": invalid_cardinality_args,
+            "retryability": "planner_repairable",
+        }
         local_issue_count = len(records)
-        for name in sorted(set(step.args) - set(args)):
+        for name in unknown_args:
             add(
                 0,
                 location.scope_id,
@@ -3903,17 +3971,35 @@ def _collect_independent_authority_issues(
                 "functional.step_contract_invalid",
                 f"$.steps[{step.step_id!r}].args[{name!r}]",
                 f"unknown capability args: {[name]!r}",
+                {
+                    **argument_contract_details,
+                    "arg_name": name,
+                    "repair_action": (
+                        "remove_unknown_capability_arg"
+                        if not missing_required_args
+                        and not invalid_cardinality_args
+                        else "repair_capability_arguments"
+                    ),
+                },
             )
-        for name, item in sorted(args.items()):
-            if item.required and name not in step.args:
-                add(
-                    0,
-                    location.scope_id,
-                    step.step_id,
-                    "functional.step_contract_invalid",
-                    f"$.steps[{step.step_id!r}].args[{name!r}]",
-                    f"missing required capability args: {[name]!r}",
-                )
+        for name in missing_required_args:
+            add(
+                0,
+                location.scope_id,
+                step.step_id,
+                "functional.step_contract_invalid",
+                f"$.steps[{step.step_id!r}].args[{name!r}]",
+                f"missing required capability args: {[name]!r}",
+                {
+                    **argument_contract_details,
+                    "arg_name": name,
+                    "repair_action": (
+                        "repair_capability_arguments"
+                        if unknown_args
+                        else "provide_required_input"
+                    ),
+                },
+            )
         for name, values in sorted(step.args.items()):
             item = args.get(name)
             if item is not None and item.cardinality == "one" and len(values) != 1:
@@ -3924,6 +4010,13 @@ def _collect_independent_authority_issues(
                     "functional.step_contract_invalid",
                     f"$.steps[{step.step_id!r}].args[{name!r}]",
                     "argument requires exactly one value",
+                    {
+                        **argument_contract_details,
+                        "arg_name": name,
+                        "expected_cardinality": "one",
+                        "observed_count": len(values),
+                        "repair_action": "repair_input_binding",
+                    },
                 )
         returns = {item.name: item for item in capability.returns}
         for role, form in sorted(step.return_expectations.items()):
@@ -4230,20 +4323,45 @@ def _collect_independent_authority_issues(
 def _audit_step_contract(step: ScopedFunctionalStep, capability: Any) -> None:
     args = {item.name: item for item in capability.args}
     unknown = sorted(set(step.args) - set(args))
+    missing = sorted(
+        name for name, item in args.items() if item.required and name not in step.args
+    )
+    contract_details = {
+        "capability_id": step.capability_id,
+        "expected_allowed_args": tuple(sorted(args)),
+        "expected_required_args": tuple(
+            sorted(name for name, item in args.items() if item.required)
+        ),
+        "observed_args": tuple(sorted(step.args)),
+        "observed_unknown_args": tuple(unknown),
+        "observed_missing_required_args": tuple(missing),
+        "retryability": "planner_repairable",
+    }
     if unknown:
         raise _error(
             "functional.step_contract_invalid",
             f"$.steps[{step.step_id!r}].args",
             f"unknown capability args: {unknown}",
+            details={
+                **contract_details,
+                "arg_name": unknown[0],
+                "repair_action": (
+                    "repair_capability_arguments"
+                    if missing
+                    else "remove_unknown_capability_arg"
+                ),
+            },
         )
-    missing = sorted(
-        name for name, item in args.items() if item.required and name not in step.args
-    )
     if missing:
         raise _error(
             "functional.step_contract_invalid",
             f"$.steps[{step.step_id!r}].args",
             f"missing required capability args: {missing}",
+            details={
+                **contract_details,
+                "arg_name": missing[0],
+                "repair_action": "provide_required_input",
+            },
         )
     for name, values in step.args.items():
         cardinality = args[name].cardinality
@@ -4252,6 +4370,13 @@ def _audit_step_contract(step: ScopedFunctionalStep, capability: Any) -> None:
                 "functional.step_contract_invalid",
                 f"$.steps[{step.step_id!r}].args[{name!r}]",
                 "argument requires exactly one value",
+                details={
+                    **contract_details,
+                    "arg_name": name,
+                    "expected_cardinality": "one",
+                    "observed_count": len(values),
+                    "repair_action": "repair_input_binding",
+                },
             )
     returns = {item.name: item for item in capability.returns}
     for role, form in step.return_expectations.items():
@@ -5018,6 +5143,7 @@ def _error(
     retryable: bool = True,
     issues: tuple[ScopedFunctionalPlanIssue, ...] = (),
     normalizations: tuple[ScopedFunctionalPlanNormalization, ...] = (),
+    details: Mapping[str, Any] | None = None,
 ) -> ScopedFunctionalPlanError:
     return ScopedFunctionalPlanError(
         code,
@@ -5026,6 +5152,7 @@ def _error(
         retryable=retryable,
         issues=issues,
         normalizations=normalizations,
+        details=details,
     )
 
 

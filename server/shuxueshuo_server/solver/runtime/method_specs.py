@@ -11,11 +11,13 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any, cast
+from typing import Any, Literal, Mapping, cast
 
 from shuxueshuo_server.solver.contracts import (
     MethodExplanationSpec,
     MethodInputSpec,
+    MethodOutputActivationKind,
+    MethodOutputActivationSpec,
     MethodSpec,
     MethodVisualSpec,
     PlanTransformerScope,
@@ -83,6 +85,54 @@ class MethodSpecRegistry:
         ]
 
 
+MethodOutputActivity = Literal["active", "inactive", "runtime_conditional"]
+
+
+def method_output_activity(
+    spec: MethodSpec,
+    output_name: str,
+    *,
+    provided_input_names: frozenset[str],
+    input_runtime_types: Mapping[str, str] | None = None,
+) -> MethodOutputActivity:
+    """Classify one output using the code-owned MethodSpec contract."""
+    if output_name not in spec.outputs:
+        raise ValueError(f"unknown Method output: {spec.method_id}.{output_name}")
+    activation = spec.output_activation.get(output_name)
+    if activation is None:
+        return "active"
+    if activation.kind == "requires_inputs":
+        return (
+            "active"
+            if set(activation.required_inputs).issubset(provided_input_names)
+            else "inactive"
+        )
+    if activation.kind == "input_type":
+        actual_type = (input_runtime_types or {}).get(activation.input_name or "")
+        return "active" if actual_type in activation.input_types else "inactive"
+    return "runtime_conditional"
+
+
+def active_method_output_names(
+    spec: MethodSpec,
+    *,
+    provided_input_names: frozenset[str],
+    input_runtime_types: Mapping[str, str] | None = None,
+) -> tuple[str, ...]:
+    """Return statically active and runtime-conditional outputs in spec order."""
+    return tuple(
+        name
+        for name in spec.outputs
+        if method_output_activity(
+            spec,
+            name,
+            provided_input_names=provided_input_names,
+            input_runtime_types=input_runtime_types,
+        )
+        != "inactive"
+    )
+
+
 def load_method_spec(path: str | Path) -> MethodSpec:
     """加载单个 JSON 文件并解析成 MethodSpec。"""
     raw = json.loads(Path(path).read_text(encoding="utf-8"))
@@ -119,6 +169,11 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
         raw.get("scalar_result_forms", {}),
         output_names=set(outputs),
     )
+    output_activation = _parse_output_activation(
+        raw.get("output_activation", {}),
+        inputs=inputs,
+        output_names=frozenset(outputs),
+    )
     is_pure = raw.get("is_pure", False)
     if not isinstance(is_pure, bool):
         raise ValueError("MethodSpec.is_pure must be a boolean")
@@ -132,6 +187,7 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
         inputs=inputs,
         outputs=outputs,
         internal_outputs=internal_outputs,
+        output_activation=output_activation,
         scalar_result_forms=scalar_result_forms,
         summary=str(raw.get("summary", "")),
         do_not_use_when=_parse_do_not_use_when(raw.get("do_not_use_when", ())),
@@ -178,6 +234,91 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
         ),
         is_pure=is_pure,
     )
+
+
+def _parse_output_activation(
+    raw: object,
+    *,
+    inputs: dict[str, MethodInputSpec],
+    output_names: frozenset[str],
+) -> dict[str, MethodOutputActivationSpec]:
+    if raw in (None, {}):
+        return {}
+    if not isinstance(raw, dict):
+        raise ValueError("MethodSpec.output_activation must be an object")
+    input_names = frozenset(inputs)
+    result: dict[str, MethodOutputActivationSpec] = {}
+    for output_name, item in raw.items():
+        name = str(output_name)
+        if name not in output_names:
+            raise ValueError(
+                "MethodSpec.output_activation references unknown output: " + name
+            )
+        if not isinstance(item, dict):
+            raise ValueError(
+                f"MethodSpec.output_activation.{name} must be an object"
+            )
+        kind = str(item.get("kind", ""))
+        if kind not in {"requires_inputs", "input_type", "runtime_condition"}:
+            raise ValueError(
+                f"MethodSpec.output_activation.{name}.kind is invalid"
+            )
+        required_inputs = tuple(
+            str(value) for value in item.get("required_inputs", ())
+        )
+        input_name = (
+            str(item["input_name"])
+            if item.get("input_name") is not None
+            else None
+        )
+        input_types = tuple(str(value) for value in item.get("input_types", ()))
+        runtime_condition = (
+            str(item["runtime_condition"])
+            if item.get("runtime_condition") is not None
+            else None
+        )
+        if kind == "requires_inputs":
+            if not required_inputs or any(
+                value not in input_names for value in required_inputs
+            ):
+                raise ValueError(
+                    f"MethodSpec.output_activation.{name} requires known inputs"
+                )
+            if input_name is not None or input_types or runtime_condition is not None:
+                raise ValueError(
+                    f"MethodSpec.output_activation.{name} mixes activation forms"
+                )
+        elif kind == "input_type":
+            if input_name not in input_names or not input_types:
+                raise ValueError(
+                    f"MethodSpec.output_activation.{name} requires input_name/input_types"
+                )
+            if required_inputs or runtime_condition is not None:
+                raise ValueError(
+                    f"MethodSpec.output_activation.{name} mixes activation forms"
+                )
+            declared_types = set(split_runtime_types(inputs[input_name].type))
+            if not set(input_types).issubset(declared_types):
+                raise ValueError(
+                    f"MethodSpec.output_activation.{name} references undeclared input types"
+                )
+        else:
+            if not runtime_condition:
+                raise ValueError(
+                    f"MethodSpec.output_activation.{name} requires runtime_condition"
+                )
+            if required_inputs or input_name is not None or input_types:
+                raise ValueError(
+                    f"MethodSpec.output_activation.{name} mixes activation forms"
+                )
+        result[name] = MethodOutputActivationSpec(
+            kind=cast(MethodOutputActivationKind, kind),
+            required_inputs=required_inputs,
+            input_name=input_name,
+            input_types=input_types,
+            runtime_condition=runtime_condition,
+        )
+    return result
 
 
 def _parse_plan_transformer_scope(raw: object) -> PlanTransformerScope:
@@ -390,11 +531,22 @@ def _parse_inputs(raw_inputs: object) -> dict[str, MethodInputSpec]:
             role = ""
             required = True
             functional_exposed = True
+            symbolic_basis_role = None
         elif isinstance(raw, dict):
             input_type = str(raw.get("type", ""))
             role = str(raw.get("role", ""))
             required = bool(raw.get("required", True))
             functional_exposed = bool(raw.get("functional_exposed", True))
+            symbolic_basis_role = raw.get("symbolic_basis_role")
+            if symbolic_basis_role not in {
+                None,
+                "state_anchor",
+                "align_to_anchor",
+            }:
+                raise ValueError(
+                    f"invalid symbolic_basis_role for {name}: "
+                    f"{symbolic_basis_role}"
+                )
         else:
             raise ValueError(f"invalid input spec for {name}")
         if not _input_type_is_known(input_type):
@@ -405,6 +557,7 @@ def _parse_inputs(raw_inputs: object) -> dict[str, MethodInputSpec]:
             role=role,
             required=required,
             functional_exposed=functional_exposed,
+            symbolic_basis_role=symbolic_basis_role,
         )
     return inputs
 

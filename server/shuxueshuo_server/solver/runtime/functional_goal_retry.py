@@ -43,6 +43,7 @@ from shuxueshuo_server.solver.runtime.functional_plan_content import (
     decode_single_json_object,
     derive_goal_answer_bindings,
     functional_plan_content_from_plan,
+    normalize_empty_optional_capability_args,
 )
 from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
     FunctionalRestoredCallSeed,
@@ -739,6 +740,7 @@ class FunctionalGoalRepair:
     goal_replacements: tuple[FunctionalGoalReplacement, ...]
     scope_step_replacements: tuple[FunctionalScopeStepReplacement, ...]
     schema_version: str = FUNCTIONAL_GOAL_REPAIR_CONTRACT
+    normalizations: tuple[FunctionalPlanContentNormalization, ...] = ()
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -764,6 +766,7 @@ class FunctionalGoalRepairApplication:
     validation_report: ScopedFunctionalPlanValidationReport
     published_goal_bindings: tuple[ScopedPublishedGoalBinding, ...] = ()
     answer_rebindings: tuple["FunctionalGoalAnswerRebinding", ...] = ()
+    normalizations: tuple[FunctionalPlanContentNormalization, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -965,13 +968,18 @@ class ScopedFunctionalGoalRetryService:
                 else:
                     assert current_plan is not None
                     assert retry_authority is not None
-                    application = FunctionalGoalRepairService().apply_json(
+                    repair_service = FunctionalGoalRepairService()
+                    repair = repair_service.parse_json(
                         raw_response,
+                        capability_catalog=capability_catalog,
+                    )
+                    content_normalizations = repair.normalizations
+                    application = repair_service.apply(
+                        repair,
                         base_plan=current_plan,
                         authority=retry_authority,
                         capability_catalog=capability_catalog,
                     )
-                    repair = application.repair
                     next_plan = application.plan
 
                 restored_seed = None
@@ -1390,6 +1398,17 @@ class FunctionalGoalRetryProjector:
             scope_dependency_failure = bool(
                 set(closure).intersection(failed_scope_step_ids)
             )
+            answer_producer_step_id = goal_plan.answer_from.step_id
+            answer_producer = execution_steps.get(answer_producer_step_id)
+            answer_producer_has_root_issue = any(
+                item.get("step_id") == answer_producer_step_id
+                for item in checkpoint_root_issues
+            )
+            answer_producer_failed = (
+                answer_producer is not None
+                and answer_producer.status
+                in {"authority_invalid", "runtime_failed"}
+            ) or answer_producer_has_root_issue
             answer_failed_locally = (
                 answer is not None
                 and answer.get("status") == "failed"
@@ -1398,7 +1417,9 @@ class FunctionalGoalRetryProjector:
             direct_failure = any(
                 item.status in {"authority_invalid", "runtime_failed"}
                 for item in execution_goal.steps
-            ) or bool(direct_root_issues) or answer_failed_locally
+            ) or bool(direct_root_issues) or answer_failed_locally or (
+                answer_producer_failed
+            )
             blocked = any(
                 item.status == "blocked_by_dependency"
                 for item in execution_goal.steps
@@ -1424,7 +1445,7 @@ class FunctionalGoalRetryProjector:
                 goal_unit_id=goal_view.goal_unit_id,
                 status=status,
                 editable=status == "failed",
-                answer_producer_step_id=goal_plan.answer_from.step_id,
+                answer_producer_step_id=answer_producer_step_id,
                 answer_return_name=goal_plan.answer_from.return_name,
                 answer_target_ref=(
                     str(goal_view.goal_payload.get("target"))
@@ -1564,57 +1585,89 @@ class FunctionalGoalRetryProjector:
         )
 
 
+def _validate_goal_repair_payload(payload: object) -> None:
+    errors = sorted(
+        Draft202012Validator(functional_goal_repair_schema()).iter_errors(
+            payload
+        ),
+        key=lambda item: tuple(item.absolute_path),
+    )
+    if not errors:
+        return
+    first = errors[0]
+    raise FunctionalGoalRetryError(
+        "functional.goal_repair_schema_invalid",
+        _json_path(first.absolute_path),
+        first.message,
+    )
+
+
+def _goal_repair_from_payload(
+    payload: Mapping[str, Any],
+    *,
+    normalizations: Sequence[FunctionalPlanContentNormalization] = (),
+) -> FunctionalGoalRepair:
+    return FunctionalGoalRepair(
+        base_plan_id=str(payload["base_plan_id"]),
+        base_retry_context_id=str(payload["base_retry_context_id"]),
+        goal_replacements=tuple(
+            FunctionalGoalReplacement(
+                goal_ref=str(goal_ref),
+                steps=tuple(
+                    _freeze_mapping(step) for step in item["steps"]
+                ),
+                answer_from=MappingProxyType(
+                    {
+                        "step_id": str(item["answer_from"]["step_id"]),
+                        "return": str(item["answer_from"]["return"]),
+                    }
+                ),
+            )
+            for goal_ref, item in payload["goal_replacements"].items()
+        ),
+        scope_step_replacements=tuple(
+            FunctionalScopeStepReplacement(
+                scope_ref=str(scope_ref),
+                steps=tuple(
+                    _freeze_mapping(step) for step in item["steps"]
+                ),
+            )
+            for scope_ref, item in payload["scope_step_replacements"].items()
+        ),
+        normalizations=tuple(normalizations),
+    )
+
+
 class FunctionalGoalRepairService:
     """Parse and atomically apply one full-Goal replacement response."""
 
-    def parse_json(self, raw: str) -> FunctionalGoalRepair:
+    def parse_json(
+        self,
+        raw: str,
+        *,
+        capability_catalog: FunctionalCapabilityCatalog | None = None,
+    ) -> FunctionalGoalRepair:
         try:
-            payload, _ = decode_single_json_object(raw)
+            payload, normalizations = decode_single_json_object(raw)
         except (json.JSONDecodeError, ValueError) as exc:
             raise FunctionalGoalRetryError(
                 "functional.goal_repair_invalid_json",
                 "$",
                 str(exc),
             ) from exc
-        errors = sorted(
-            Draft202012Validator(functional_goal_repair_schema()).iter_errors(
-                payload
-            ),
-            key=lambda item: tuple(item.absolute_path),
-        )
-        if errors:
-            first = errors[0]
-            raise FunctionalGoalRetryError(
-                "functional.goal_repair_schema_invalid",
-                _json_path(first.absolute_path),
-                first.message,
+        if capability_catalog is not None:
+            payload, arg_normalizations = (
+                normalize_empty_optional_capability_args(
+                    payload,
+                    capability_catalog=capability_catalog,
+                )
             )
+            normalizations = (*normalizations, *arg_normalizations)
+        _validate_goal_repair_payload(payload)
         assert isinstance(payload, dict)
-        return FunctionalGoalRepair(
-            base_plan_id=str(payload["base_plan_id"]),
-            base_retry_context_id=str(payload["base_retry_context_id"]),
-            goal_replacements=tuple(
-                FunctionalGoalReplacement(
-                    goal_ref=str(goal_ref),
-                    steps=tuple(_freeze_mapping(step) for step in item["steps"]),
-                    answer_from=MappingProxyType(
-                        {
-                            "step_id": str(item["answer_from"]["step_id"]),
-                            "return": str(item["answer_from"]["return"]),
-                        }
-                    ),
-                )
-                for goal_ref, item in payload["goal_replacements"].items()
-            ),
-            scope_step_replacements=tuple(
-                FunctionalScopeStepReplacement(
-                    scope_ref=str(scope_ref),
-                    steps=tuple(_freeze_mapping(step) for step in item["steps"]),
-                )
-                for scope_ref, item in payload[
-                    "scope_step_replacements"
-                ].items()
-            ),
+        return _goal_repair_from_payload(
+            payload,
+            normalizations=normalizations,
         )
 
     def apply_json(
@@ -1626,7 +1679,10 @@ class FunctionalGoalRepairService:
         capability_catalog: FunctionalCapabilityCatalog | None = None,
     ) -> FunctionalGoalRepairApplication:
         return self.apply(
-            self.parse_json(raw),
+            self.parse_json(
+                raw,
+                capability_catalog=capability_catalog,
+            ),
             base_plan=base_plan,
             authority=authority,
             capability_catalog=capability_catalog,
@@ -1640,6 +1696,17 @@ class FunctionalGoalRepairService:
         authority: FunctionalGoalRetryAuthority,
         capability_catalog: FunctionalCapabilityCatalog | None = None,
     ) -> FunctionalGoalRepairApplication:
+        if capability_catalog is not None:
+            payload, normalizations = normalize_empty_optional_capability_args(
+                repair.to_payload(),
+                capability_catalog=capability_catalog,
+            )
+            _validate_goal_repair_payload(payload)
+            assert isinstance(payload, dict)
+            repair = _goal_repair_from_payload(
+                payload,
+                normalizations=(*repair.normalizations, *normalizations),
+            )
         if repair.base_plan_id != authority.base_plan_id:
             raise FunctionalGoalRetryError(
                 "functional.goal_repair_stale_plan",
@@ -1930,6 +1997,7 @@ class FunctionalGoalRepairService:
             validation_report=report,
             published_goal_bindings=tuple(publication_bindings),
             answer_rebindings=answer_rebindings,
+            normalizations=repair.normalizations,
         )
 
 

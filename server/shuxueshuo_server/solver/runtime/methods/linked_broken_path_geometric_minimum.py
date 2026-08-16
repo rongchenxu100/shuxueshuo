@@ -8,6 +8,8 @@ from __future__ import annotations
 
 from shuxueshuo_server.solver.contracts import ScalarResultFormSpec
 from shuxueshuo_server.solver.runtime.weighted_triangle_geometry import (
+    WeightedTriangleGeometryContractError,
+    WeightedTriangleGeometryUnsupportedError,
     weighted_triangle_geometry_for_transformation,
     weighted_triangle_geometry_payloads,
 )
@@ -42,8 +44,18 @@ class LinkedBrokenPathGeometricMinimumMethod:
         auxiliary_point: Point = inputs["auxiliary_point"]
         parameter = inputs["parameter"]
         dynamic_parameter = inputs["dynamic_parameter"]
-        parameter_constraint = inputs["parameter_constraint"]
-        dynamic_constraint = inputs["dynamic_constraint"]
+        parameter_constraint = _canonicalize_runtime_constraint(
+            inputs["parameter_constraint"],
+            kernel,
+            arg_name="parameter_constraint",
+        )
+        dynamic_constraint = _canonicalize_runtime_constraint(
+            inputs["dynamic_constraint"],
+            kernel,
+            arg_name="dynamic_constraint",
+        )
+        assert parameter_constraint is not None
+        assert dynamic_constraint is not None
 
         if sp.simplify(fixed_point[1]) != 0 or sp.simplify(moving_point[1]) != 0:
             raise method_precondition_failed(
@@ -118,7 +130,12 @@ class LinkedBrokenPathGeometricMinimumMethod:
         )
         minimum_expression = sp.simplify(scale * inner_minimum_expression)
 
-        target_value = kernel.expr(condition["value"], {parameter.name: parameter})
+        target_value = _require_canonical_runtime_expression(
+            condition["value"],
+            kernel,
+            arg_name="condition",
+            role="minimum_target_value",
+        )
         parameter_value = _select_parameter_value(
             kernel.solve_values(sp.Eq(minimum_expression, target_value), parameter),
             parameter,
@@ -215,7 +232,12 @@ class LinkedBrokenPathMinimumExpressionMethod:
         auxiliary_point: Point = inputs["auxiliary_point"]
         parameter = inputs["parameter"]
         dynamic_parameter = inputs["dynamic_parameter"]
-        parameter_constraint = inputs["parameter_constraint"]
+        parameter_constraint = _canonicalize_runtime_constraint(
+            inputs["parameter_constraint"],
+            kernel,
+            arg_name="parameter_constraint",
+        )
+        assert parameter_constraint is not None
         _dynamic_constraint = inputs["dynamic_constraint"]
 
         if sp.simplify(fixed_point[1]) != 0 or sp.simplify(moving_point[1]) != 0:
@@ -356,9 +378,29 @@ def _supported_transformation_scale(transformation: dict[str, Any]) -> sp.Expr:
     只接受已经带有受支持 geometry 标记的转化结果，再按通用点到直线距离公式求
     最短表达式。
     """
-    return weighted_triangle_geometry_for_transformation(
-        transformation
-    ).weight
+    try:
+        return weighted_triangle_geometry_for_transformation(transformation).weight
+    except WeightedTriangleGeometryUnsupportedError as exc:
+        raise method_precondition_failed(
+            "path transformation uses an unsupported triangle geometry weight",
+            arg_name="path_transformation",
+            role="geometry_profile",
+            expected={"supported_weights": list(exc.supported)},
+            observed={"weight": str(exc.weight)},
+            repair_action="choose_supported_path_transformation",
+        ) from exc
+    except WeightedTriangleGeometryContractError as exc:
+        raise StatelessMethodError(
+            "planner.method_contract_invalid",
+            "materialized path transformation drifts from its geometry profile",
+            category="configuration",
+            retryability="configuration",
+            arg_name="path_transformation",
+            role="geometry_profile",
+            expected={"field": exc.field, "value": str(exc.expected)},
+            observed={"field": exc.field, "value": str(exc.observed)},
+            repair_action="fix_runtime_contract",
+        ) from exc
 
 
 def _same_point(p1: Point, p2: Point) -> bool:
@@ -546,7 +588,20 @@ def _constraint_lower_bound(constraint: dict[str, sp.Expr | str]) -> sp.Expr | N
     """读取首版支持的严格下界约束。"""
     if str(constraint.get("operator", "")) != ">":
         return None
-    return sp.sympify(constraint["value"])
+    value = constraint["value"]
+    if not isinstance(value, sp.Basic):
+        raise StatelessMethodError(
+            "planner.method_contract_invalid",
+            "parameter constraint reached Method without canonical expression binding",
+            category="configuration",
+            retryability="configuration",
+            arg_name="parameter_constraint",
+            role="parameter_lower_bound",
+            expected={"state": "canonical_sympy_expression"},
+            observed={"type": type(value).__name__},
+            repair_action="fix_runtime_contract",
+        )
+    return value
 
 
 def _linear_positive_under_lower_bound(

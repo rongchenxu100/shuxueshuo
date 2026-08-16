@@ -358,6 +358,87 @@ def test_known_wrong_fact_ref_is_not_rewritten_by_type(tmp_path) -> None:
     )
 
 
+def test_complete_call_drops_unknown_capability_arg_before_execution(
+    tmp_path,
+) -> None:
+    case = "tj-2026-xiqing-yimo-25"
+    payload = load_v2_fixture_payload(case)
+    step = _step(payload, "derive_curve_point_D_ii")
+    step["args"]["point"] = "D"
+
+    result, _fixture = _execute(tmp_path, case, payload)
+
+    assert result.authority_report.ok, result.authority_report.to_payload()
+    assert result.checkpoint is not None
+    assert result.checkpoint.all_required_goals_verified is True
+    assert result.canonical_plan is not None
+    assert set(
+        _step(
+            result.canonical_plan.to_payload(),
+            "derive_curve_point_D_ii",
+        )["args"]
+    ) == {"parabola"}
+    assert any(
+        item.action == "drop_unknown_capability_arg"
+        and item.step_id == "derive_curve_point_D_ii"
+        and item.capability_id == "point_on_parabola_at_x"
+        and item.arg_name == "point"
+        and item.reason == "declared_call_contract_complete"
+        for item in result.authority_report.normalizations
+    )
+
+
+def test_unknown_arg_is_not_dropped_when_required_arg_is_missing(
+    tmp_path,
+) -> None:
+    case = "tj-2026-xiqing-yimo-25"
+    payload = load_v2_fixture_payload(case)
+    step = _step(payload, "derive_curve_point_D_ii")
+    step["args"] = {"point": "D"}
+
+    result, _fixture = _execute(tmp_path, case, payload)
+
+    assert not result.authority_report.ok
+    assert not any(
+        item.action == "drop_unknown_capability_arg"
+        and item.step_id == "derive_curve_point_D_ii"
+        for item in result.authority_report.normalizations
+    )
+    assert result.checkpoint is not None
+    failed = _checkpoint_steps(result.checkpoint)["derive_curve_point_D_ii"]
+    assert failed.status == "authority_invalid"
+    assert failed.typed_issue is not None
+    assert failed.typed_issue["step_id"] == "derive_curve_point_D_ii"
+    assert failed.typed_issue["capability_id"] == "point_on_parabola_at_x"
+    assert failed.typed_issue["repair_action"] == (
+        "repair_capability_arguments"
+    )
+    assert failed.typed_issue["subjects"] == [
+        {"arg_name": "parabola"}
+    ]
+    assert failed.typed_issue["expected"] == {
+        "expected_allowed_args": ["parabola"],
+        "expected_required_args": ["parabola"],
+    }
+    assert failed.typed_issue["observed"] == {
+        "observed_args": ["point"],
+        "observed_invalid_cardinality_args": [],
+        "observed_missing_required_args": ["parabola"],
+        "observed_unknown_args": ["point"],
+    }
+    authority = next(
+        item
+        for item in result.checkpoint.diagnostic_authorities
+        if item.get("step_id") == "derive_curve_point_D_ii"
+    )
+    assert authority["authority_details"]["observed_unknown_args"] == [
+        "point"
+    ]
+    assert authority["authority_details"][
+        "observed_missing_required_args"
+    ] == ["parabola"]
+
+
 def test_unique_visible_dynamic_source_ref_becomes_exact_step_result(tmp_path) -> None:
     case = "tj-2026-heping-yimo-25"
     payload = load_v2_fixture_payload(case)

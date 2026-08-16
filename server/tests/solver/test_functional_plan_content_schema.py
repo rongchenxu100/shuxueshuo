@@ -157,6 +157,87 @@ def test_empty_optional_step_maps_are_omitted_before_schema_validation(
     ]
 
 
+def test_empty_optional_many_capability_arg_is_omitted_before_schema(
+    tmp_path,
+) -> None:
+    fixture, frame, content, _ = _content_fixture(tmp_path)
+    payload = deepcopy(content.to_payload())
+    step = next(
+        item
+        for item in payload["goal_plans"]["ii.a"]["steps"]
+        if item["capability_id"] == "quadratic_from_constraints"
+    )
+    step["args"]["free_parameters"] = []
+
+    result = FunctionalPlanContentCompiler().compile_payload(
+        payload,
+        frame=frame,
+        capability_catalog=fixture.capability_catalog,
+    )
+
+    assert result.report.ok
+    assert result.content is not None
+    normalized_step = next(
+        item
+        for item in result.content.goal_plans["ii.a"]["steps"]
+        if item["capability_id"] == "quadratic_from_constraints"
+    )
+    assert "free_parameters" not in normalized_step["args"]
+    assert [item.to_payload() for item in result.normalizations] == [
+        {
+            "code": "functional.empty_optional_capability_arg_omitted",
+            "path": (
+                "$.goal_plans.ii.a.steps[0].args.free_parameters"
+            ),
+            "message": (
+                "omitted empty optional many-valued capability argument "
+                "quadratic_from_constraints.free_parameters"
+            ),
+        }
+    ]
+
+
+def test_empty_scalar_or_unknown_capability_arg_remains_schema_error(
+    tmp_path,
+) -> None:
+    fixture, frame, content, _ = _content_fixture(tmp_path)
+    compiler = FunctionalPlanContentCompiler()
+
+    scalar = deepcopy(content.to_payload())
+    scalar_step = next(
+        item
+        for item in scalar["goal_plans"]["ii.a"]["steps"]
+        if item["capability_id"] == "quadratic_from_constraints"
+    )
+    scalar_step["args"]["curve_point"] = []
+    result = compiler.compile_payload(
+        scalar,
+        frame=frame,
+        capability_catalog=fixture.capability_catalog,
+    )
+    assert result.plan is None
+    assert result.report.issues[0].code == (
+        "functional.plan_content_schema_invalid"
+    )
+
+    unknown = deepcopy(content.to_payload())
+    unknown_step = next(
+        item
+        for item in unknown["goal_plans"]["ii.a"]["steps"]
+        if item["capability_id"] == "quadratic_from_constraints"
+    )
+    unknown_step["args"]["invented"] = []
+    result = compiler.compile_payload(
+        unknown,
+        frame=frame,
+        capability_catalog=fixture.capability_catalog,
+    )
+    assert result.plan is None
+    assert result.report.issues[0].code == (
+        "functional.plan_content_schema_invalid"
+    )
+
+
 def test_required_empty_args_is_not_removed_by_content_normalization(
     tmp_path,
 ) -> None:

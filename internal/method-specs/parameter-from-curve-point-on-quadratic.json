@@ -9,7 +9,8 @@
   "inputs": {
     "quadratic": {
       "type": "Parabola",
-      "required": true
+      "required": true,
+      "symbolic_basis_role": "state_anchor"
     },
     "x": {
       "type": "Symbol",
@@ -17,7 +18,8 @@
     },
     "point": {
       "type": "Point",
-      "required": true
+      "required": true,
+      "symbolic_basis_role": "align_to_anchor"
     },
     "parameter": {
       "type": "Symbol",
@@ -25,7 +27,8 @@
     },
     "parameter_constraint": {
       "type": "Constraint",
-      "required": false
+      "required": false,
+      "symbolic_basis_role": "align_to_anchor"
     },
     "known_parameter": {
       "type": "Symbol",

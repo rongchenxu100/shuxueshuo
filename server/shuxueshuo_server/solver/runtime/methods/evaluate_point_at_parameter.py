@@ -31,7 +31,17 @@ class EvaluatePointAtParameterMethod:
         parameter = inputs.get("parameter")
         if free_symbols:
             if parameter is None:
-                raise ValueError("missing required input: parameter")
+                raise method_input_missing(
+                    "point evaluation requires the Symbol whose value is being substituted",
+                    arg_name="parameter",
+                    role="substitution_parameter",
+                    expected={"type": "Symbol", "state": "visible_dependency"},
+                    observed={
+                        "free_symbols": sorted(symbol.name for symbol in free_symbols),
+                        "provided_args": sorted(inputs),
+                    },
+                    repair_action="provide_substitution_parameter",
+                )
             _require_substitution_symbol(point, parameter)
             evaluated = _subs_point(point, {parameter: parameter_value})
         else:

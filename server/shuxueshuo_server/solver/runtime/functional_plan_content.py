@@ -469,7 +469,10 @@ class FunctionalPlanContentCompiler:
         capability_catalog: FunctionalCapabilityCatalog,
         normalizations: tuple[FunctionalPlanContentNormalization, ...] = (),
     ) -> FunctionalPlanContentCompilation:
-        payload, wire_normalizations = _normalize_content_wire(payload)
+        payload, wire_normalizations = _normalize_content_wire(
+            payload,
+            capability_catalog=capability_catalog,
+        )
         normalizations = (*normalizations, *wire_normalizations)
         errors = sorted(
             Draft202012Validator(
@@ -602,6 +605,8 @@ def functional_plan_prompt_payload(plan: ScopedFunctionalPlan) -> dict[str, Any]
 
 def _normalize_content_wire(
     payload: object,
+    *,
+    capability_catalog: FunctionalCapabilityCatalog,
 ) -> tuple[object, tuple[FunctionalPlanContentNormalization, ...]]:
     if not isinstance(payload, dict) or payload.get("format") != (
         FUNCTIONAL_PLAN_CONTENT_CONTRACT
@@ -647,6 +652,72 @@ def _normalize_content_wire(
                     goal.get("steps"),
                     ("goal_plans", goal_ref, "steps"),
                 )
+    normalized, arg_records = normalize_empty_optional_capability_args(
+        normalized,
+        capability_catalog=capability_catalog,
+    )
+    return normalized, (*records, *arg_records)
+
+
+def normalize_empty_optional_capability_args(
+    payload: object,
+    *,
+    capability_catalog: FunctionalCapabilityCatalog,
+) -> tuple[object, tuple[FunctionalPlanContentNormalization, ...]]:
+    """Omit only capability-declared optional empty collection arguments.
+
+    The generic wire schema intentionally keeps arrays non-empty. This
+    pre-schema pass tolerates a model spelling an optional many-valued input as
+    ``[]`` while leaving required, scalar, and unknown empty arguments intact
+    so the normal contract rejects them.
+    """
+
+    normalized = deepcopy(payload)
+    records: list[FunctionalPlanContentNormalization] = []
+
+    def visit(value: object, path: tuple[Any, ...]) -> None:
+        if isinstance(value, list):
+            for index, item in enumerate(value):
+                visit(item, (*path, index))
+            return
+        if not isinstance(value, dict):
+            return
+        capability_id = value.get("capability_id")
+        args = value.get("args")
+        capability = (
+            capability_catalog.get(capability_id)
+            if isinstance(capability_id, str)
+            else None
+        )
+        if capability is not None and isinstance(args, dict):
+            arg_specs = {item.name: item for item in capability.args}
+            for arg_name in tuple(args):
+                if args[arg_name] != []:
+                    continue
+                arg_spec = arg_specs.get(arg_name)
+                if (
+                    arg_spec is None
+                    or arg_spec.required
+                    or arg_spec.cardinality != "many"
+                ):
+                    continue
+                args.pop(arg_name)
+                records.append(
+                    FunctionalPlanContentNormalization(
+                        code=(
+                            "functional.empty_optional_capability_arg_omitted"
+                        ),
+                        path=_json_path((*path, "args", arg_name)),
+                        message=(
+                            "omitted empty optional many-valued capability "
+                            f"argument {capability_id}.{arg_name}"
+                        ),
+                    )
+                )
+        for key, item in tuple(value.items()):
+            visit(item, (*path, key))
+
+    visit(normalized, ())
     return normalized, tuple(records)
 
 
@@ -1206,4 +1277,5 @@ __all__ = [
     "functional_plan_content_from_plan",
     "functional_plan_prompt_payload",
     "functional_plan_content_schema",
+    "normalize_empty_optional_capability_args",
 ]

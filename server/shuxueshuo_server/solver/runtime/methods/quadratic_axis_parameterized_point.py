@@ -72,9 +72,17 @@ SPEC = MethodSpecSource(
     ),
     solves=("parameterize_point_on_quadratic_axis",),
     inputs={
-        "parabola": {"type": "Parabola", "required": True},
+        "parabola": {
+            "type": "Parabola",
+            "required": True,
+            "symbolic_basis_role": "state_anchor",
+        },
         "x": {"type": "Symbol", "required": True},
-        "target": {"type": "PointRef", "required": True},
+        "target": {
+            "type": "PointRef",
+            "required": True,
+            "symbolic_basis_role": "align_to_anchor",
+        },
     },
     outputs={"point": "Point", "parameter": "Symbol"},
     scalar_result_forms={

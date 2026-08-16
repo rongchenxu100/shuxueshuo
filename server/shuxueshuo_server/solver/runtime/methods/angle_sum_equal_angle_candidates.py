@@ -39,7 +39,13 @@ class AngleSumEqualAngleCandidatesMethod:
                 expected={"angle_count": 2, "point_count_per_angle": 3},
                 observed={"angle_terms": angle_terms},
             )
-        if sp.simplify(kernel.expr(str(condition.get("value", "45"))) - 45) != 0:
+        angle_value = _require_canonical_runtime_expression(
+            condition.get("value", "45"),
+            kernel,
+            arg_name="condition",
+            role="angle_sum_value",
+        )
+        if sp.simplify(angle_value - 45) != 0:
             raise method_precondition_failed(
                 "angle-equality reduction requires a 45 degree angle sum",
                 arg_name="condition",
