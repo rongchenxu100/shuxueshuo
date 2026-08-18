@@ -8,20 +8,42 @@
   ],
   "inputs": {
     "expression": {
-      "type": "MinimumExpression",
-      "required": true
+      "required": true,
+      "domain_type": "Expression",
+      "runtime_type": "MinimumExpression",
+      "view": {
+        "mode": "exact_result",
+        "domain_type": "Expression"
+      }
     },
     "condition": {
-      "type": "Condition",
-      "required": true
+      "required": true,
+      "domain_type": "Fact",
+      "runtime_type": "Condition",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "Fact"
+      }
     },
     "parameter": {
-      "type": "Symbol",
-      "required": true
+      "required": true,
+      "domain_type": "Symbol",
+      "runtime_type": "Symbol",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Symbol",
+        "object_kind": "symbol",
+        "state_kind": "value"
+      }
     },
     "constraint": {
-      "type": "Constraint",
-      "required": false
+      "required": false,
+      "domain_type": "Fact",
+      "runtime_type": "Constraint",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "Fact"
+      }
     }
   },
   "outputs": {

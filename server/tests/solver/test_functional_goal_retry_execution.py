@@ -6,6 +6,7 @@ import json
 from types import SimpleNamespace
 
 import pytest
+import sympy as sp
 
 from shuxueshuo_server.solver.runtime.context import ContextBuilder
 from shuxueshuo_server.solver.runtime.functional_goal_execution import (
@@ -91,6 +92,10 @@ def test_goal_repair_restores_solved_calls_without_reexecution(tmp_path) -> None
     fixture = goal_retry_fixture(tmp_path)
     client = _RepairingClient(fixture)
     service = ScopedFunctionalGoalRetryService(client)
+    previous_calls = {
+        item.call_id: item
+        for item in fixture.execution.replay.functional_reconciliation.calls
+    }
 
     result = service.run(
         inputs=fixture.inputs,
@@ -129,6 +134,12 @@ def test_goal_repair_restores_solved_calls_without_reexecution(tmp_path) -> None
     } <= restored
     assert "derive_parametric_parabola_ii" not in restored
     assert "derive_x_intercept_B_ii" not in restored
+    final_calls = {
+        item.call_id: item
+        for item in result.final_execution.replay.functional_reconciliation.calls
+    }
+    for call_id in restored:
+        assert final_calls[call_id] == previous_calls[call_id]
     assert result.solved_goal_restore_count == len(restored)
     assert result.final_execution.checkpoint.all_required_goals_verified
 
@@ -266,6 +277,69 @@ def test_blocked_goal_in_editable_scope_allows_consumer_dag_refinement(
         for item in updated.goal_authorities.values()
         if item.status == "solved"
     )
+
+
+def test_mixed_scope_repair_retains_frozen_producer_and_replaces_editable_step(
+    tmp_path,
+) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    root = fixture.retry_authority.base_plan.root_scope
+    assert len(root.steps) >= 2
+    frozen_step, editable_step = root.steps[:2]
+    authority = replace(
+        fixture.retry_authority,
+        goal_authorities={
+            key: replace(item, editable=False)
+            for key, item in fixture.retry_authority.goal_authorities.items()
+        },
+        editable_scope_refs=(root.scope_ref,),
+        frozen_scope_refs=(),
+        editable_scope_step_ids={
+            root.scope_ref: (editable_step.step_id,),
+        },
+        frozen_scope_step_ids={
+            root.scope_ref: (frozen_step.step_id,),
+        },
+    )
+    replacement = editable_step.to_payload()
+    replacement["intent"] = "重新计算可编辑的scope步骤。"
+    repair_payload = {
+        "schema_version": FUNCTIONAL_GOAL_REPAIR_CONTRACT,
+        "base_plan_id": authority.base_plan_id,
+        "base_retry_context_id": authority.retry_context_id,
+        "goal_replacements": {},
+        "scope_step_replacements": {
+            root.scope_ref: {"steps": [replacement]},
+        },
+    }
+
+    application = FunctionalGoalRepairService().apply_json(
+        json.dumps(repair_payload, ensure_ascii=False),
+        base_plan=authority.base_plan,
+        authority=authority,
+        capability_catalog=fixture.capability_catalog,
+    )
+
+    repaired_steps = application.plan.root_scope.steps
+    assert repaired_steps[0].to_payload() == frozen_step.to_payload()
+    assert repaired_steps[1].step_id == editable_step.step_id
+    assert repaired_steps[1].intent == "重新计算可编辑的scope步骤。"
+
+    illegal = deepcopy(repair_payload)
+    illegal["scope_step_replacements"][root.scope_ref]["steps"].insert(
+        0,
+        frozen_step.to_payload(),
+    )
+    with pytest.raises(
+        FunctionalGoalRetryError,
+        match="functional.goal_repair_step_id_conflict",
+    ):
+        FunctionalGoalRepairService().apply_json(
+            json.dumps(illegal, ensure_ascii=False),
+            base_plan=authority.base_plan,
+            authority=authority,
+            capability_catalog=fixture.capability_catalog,
+        )
 
 
 def test_failed_scope_owned_answer_producer_opens_goal_answer_repair(
@@ -439,31 +513,14 @@ def test_typed_duplicate_goal_producers_reuse_visible_ancestor_steps(
     local_c["step_id"] = "retry_local_C"
     local_d = deepcopy(root_steps[1])
     local_d["step_id"] = "retry_local_D"
-    local_d["args"]["source"]["step_id"] = "retry_local_C"
     local_parabola = deepcopy(scope_i_steps[0])
     local_parabola["step_id"] = "retry_local_parabola"
-    local_parabola["args"]["curve_points"][1]["step_id"] = "retry_local_D"
-
-    def replace_parent_parabola(value):
-        if isinstance(value, list):
-            return [replace_parent_parabola(item) for item in value]
-        if not isinstance(value, dict):
-            return value
-        result = {
-            key: replace_parent_parabola(item) for key, item in value.items()
-        }
-        if (
-            result.get("step_id") == "derive_parabola_i"
-            and "return" in result
-        ):
-            result["step_id"] = "retry_local_parabola"
-        return result
 
     goal_i2["steps"] = [
         local_c,
         local_d,
         local_parabola,
-        *replace_parent_parabola(goal_i2["steps"]),
+        *goal_i2["steps"],
     ]
 
     execution = ScopedFunctionalGoalExecutionService().execute_raw_json(
@@ -486,7 +543,98 @@ def test_typed_duplicate_goal_producers_reuse_visible_ancestor_steps(
     )
     assert "retry_local_parabola" in canonical_step_ids
     assert execution.checkpoint is not None
+    assert not execution.checkpoint.all_required_goals_verified
+    assert {
+        item["code"] for item in execution.checkpoint.root_issues
+    } == set()
+    assert any(
+        step.typed_issue is not None
+        and step.typed_issue.get("code") == "functional.arg_scope_invisible"
+        for scope in retry_module._iter_execution_scopes(
+            execution.checkpoint.root_scope
+        )
+        for step in (
+            *scope.scope_steps,
+            *(item for goal_item in scope.goals for item in goal_item.steps),
+        )
+    )
+
+
+def test_named_parabola_uses_latest_state_and_runtime_closes_duplicate_point(
+    tmp_path,
+) -> None:
+    """D-only closure and B=(3/a,0)->(3,0) are one state sequence."""
+
+    case = "tj-2026-heping-yimo-25"
+    fixture = planning_binding_fixture(tmp_path / case, case=case)
+    payload = load_v2_fixture_payload(case)
+    scopes = {
+        item["scope_ref"]: item
+        for item in iter_scopes(payload["root_scope"])
+    }
+    root_steps = payload["root_scope"]["steps"]
+    root_steps.insert(
+        0,
+        {
+            "step_id": "problem_state_parabola",
+            "capability_id": "quadratic_from_constraints",
+            "args": {
+                "curve_point": "A",
+                "free_parameters": "a",
+            },
+            "return_expectations": {"parabola": "open_state"},
+            "intent": "建立具名抛物线的开放参数状态。",
+        },
+    )
+    root_steps.append(
+        {
+            "step_id": "problem_open_x_intercept_B",
+            "capability_id": "quadratic_x_axis_intercept_point",
+            "args": {
+                "parabola": "parabola",
+                "known_point": "A",
+            },
+            "output_targets": {"point": "B"},
+            "return_expectations": {"point": "open_state"},
+            "intent": "在开放状态中求另一个横轴交点。",
+        }
+    )
+    scopes["i"]["steps"][0]["args"] = {"curve_point": "D"}
+    ii_steps = scopes["ii"]["goals"][0]["steps"]
+    scopes["ii"]["goals"][0]["steps"] = [
+        item
+        for item in ii_steps
+        if item["step_id"] != "derive_x_intercept_B_ii"
+    ]
+
+    execution = ScopedFunctionalGoalExecutionService().execute_raw_json(
+        json.dumps(payload, ensure_ascii=False),
+        inputs=fixture[3],
+        planning_context=fixture[1],
+        problem_binding_catalog=fixture[7],
+        handle_registry=fixture[5],
+        context=ContextBuilder().build(fixture[2]),
+        planner_state_context=fixture[6],
+        problem_payload=fixture[4],
+    )
+
+    assert execution.checkpoint is not None
     assert execution.checkpoint.all_required_goals_verified
+    attempt = execution.replay.transactional_attempt_result
+    assert not any(
+        item.code == "planner.runtime_state_equivalence_conflict"
+        for item in attempt.root_issues
+    )
+    values = attempt.execution_report.runtime_result_values
+    parabola = values[("derive_parabola_i", "parabola")].value
+    x = next(item for item in parabola.free_symbols if item.name == "x")
+    assert sp.simplify(
+        parabola - (x**2 - 2 * x - 3)
+    ) == 0
+    assert values[("derive_x_intercept_B_i", "point")].value == (
+        sp.Integer(3),
+        sp.Integer(0),
+    )
 
 
 def test_restore_source_survives_an_intermediate_nontransaction_round(
@@ -689,6 +837,106 @@ def test_unknown_scope_content_key_retries_with_authority_feedback(
     ]
     assert result.attempts[0].retry_authority is None
     assert result.attempts[1].retry_authority is None
+
+
+def test_conflicting_cross_container_step_retries_as_full_plan(
+    tmp_path,
+) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    valid_content = json.loads(_content_json(fixture, fixture.correct_payload))
+    frame = FunctionalPlanAuthorityFrame.from_planning_context(
+        fixture.planning_context
+    )
+    goal_ref = "i_2.E"
+    owner_scope = frame.goal_owners[goal_ref]
+    conflicting = deepcopy(valid_content["goal_plans"][goal_ref]["steps"][0])
+    conflicting["intent"] = "conflicting duplicate definition"
+    malformed = deepcopy(valid_content)
+    malformed.setdefault("scope_steps", {}).setdefault(owner_scope, []).append(
+        conflicting
+    )
+
+    class OwnershipRepairClient:
+        def __init__(self) -> None:
+            self.requests = []
+
+        def complete(self, payload):
+            self.requests.append(payload)
+            assert payload["planner_protocol"] == FUNCTIONAL_PLAN_CONTENT_CONTRACT
+            if len(self.requests) == 1:
+                return json.dumps(malformed, ensure_ascii=False)
+            planner_payload = payload["planner_payload"]
+            feedback = planner_payload["authoring_feedback"]
+            assert feedback[0]["code"] == "functional.step_id_conflict"
+            assert feedback[0]["details"]["owners"] == [
+                f"scope:{owner_scope}",
+                f"goal:{goal_ref}",
+            ]
+            assert planner_payload["previous_invalid_content"] == malformed
+            return json.dumps(valid_content, ensure_ascii=False)
+
+    client = OwnershipRepairClient()
+    result = ScopedFunctionalGoalRetryService(client).run(
+        inputs=fixture.inputs,
+        planning_context=fixture.planning_context,
+        problem_binding_catalog=fixture.binding_catalog,
+        handle_registry=fixture.handle_registry,
+        runtime_context=ContextBuilder().build(fixture.problem),
+        planner_state_context=fixture.planner_state_context,
+        problem_payload=fixture.problem_payload,
+        max_attempts=3,
+    )
+
+    assert result.status == "accepted"
+    assert [item.planner_protocol for item in result.attempts] == [
+        FUNCTIONAL_PLAN_CONTENT_CONTRACT,
+        FUNCTIONAL_PLAN_CONTENT_CONTRACT,
+    ]
+    assert result.attempts[0].error is not None
+    assert result.attempts[0].error.code == "functional.step_id_conflict"
+    assert result.attempts[0].plan is None
+
+
+def test_exact_cross_container_step_copy_is_normalized_without_retry(
+    tmp_path,
+) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    payload = json.loads(_content_json(fixture, fixture.correct_payload))
+    frame = FunctionalPlanAuthorityFrame.from_planning_context(
+        fixture.planning_context
+    )
+    goal_ref = "i_2.E"
+    owner_scope = frame.goal_owners[goal_ref]
+    payload.setdefault("scope_steps", {}).setdefault(owner_scope, []).append(
+        deepcopy(payload["goal_plans"][goal_ref]["steps"][0])
+    )
+
+    class DuplicateClient:
+        def __init__(self) -> None:
+            self.requests = []
+
+        def complete(self, request):
+            self.requests.append(request)
+            return json.dumps(payload, ensure_ascii=False)
+
+    client = DuplicateClient()
+    result = ScopedFunctionalGoalRetryService(client).run(
+        inputs=fixture.inputs,
+        planning_context=fixture.planning_context,
+        problem_binding_catalog=fixture.binding_catalog,
+        handle_registry=fixture.handle_registry,
+        runtime_context=ContextBuilder().build(fixture.problem),
+        planner_state_context=fixture.planner_state_context,
+        problem_payload=fixture.problem_payload,
+        max_attempts=3,
+    )
+
+    assert result.status == "accepted"
+    assert len(client.requests) == 1
+    assert any(
+        item.code == "functional.cross_container_step_duplicate_removed"
+        for item in result.attempts[0].content_normalizations
+    )
 
 
 def test_schema_failure_retries_with_feedback_and_normalized_candidate(

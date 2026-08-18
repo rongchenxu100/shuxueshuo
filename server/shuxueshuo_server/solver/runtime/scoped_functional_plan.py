@@ -60,7 +60,8 @@ def scoped_functional_plan_schema() -> dict[str, Any]:
         "type": "object",
         "description": (
             "Read one named return from an earlier visible step. Use this for "
-            "anonymous results, non-latest states, or ambiguous producers."
+            "anonymous results only. A named Math Entity must use its SourceRef; "
+            "the compiler obtains the exact input required by the capability."
         ),
         "required": ["step_id", "return"],
         "properties": {
@@ -80,16 +81,16 @@ def scoped_functional_plan_schema() -> dict[str, Any]:
         "minLength": 1,
         "description": (
             "Copy a scope-local visible Entity or Fact ref from Planner Problem "
-            "View exactly, without adding a scope prefix. For a stable Entity, "
-            "the ref reads its latest visible state at this step; a Fact remains "
+            "View exactly, without adding a scope prefix. This is the only wire "
+            "form for a named Entity. The compiler selects its identity or latest "
+            "visible state and establishes producer dependencies; a Fact remains "
             "the verified problem snapshot."
         ),
     }
     functional_ref = {
         "description": (
-            "Use a SourceRef string for a visible Fact or the current state of a "
-            "stable Entity. Use StepResultRef for an anonymous result, a specific "
-            "historical state, or producer disambiguation."
+            "Use a SourceRef string for every named Entity or visible Fact. Use "
+            "StepResultRef only for a return without a named Math Entity identity."
         ),
         "oneOf": [
             {"$ref": "#/$defs/source_ref"},
@@ -1051,6 +1052,7 @@ class ScopedFunctionalPlanAuthority:
             step.step_id: step for step in self.scoped_plan.steps
         }
         finalized: dict[str, FunctionalStepScopeAuthority] = {}
+        automatic_scope_promotions: dict[str, str] = {}
         for step_id, authority in self.step_authorities.items():
             if step_id in pruned_step_ids:
                 finalized[step_id] = authority
@@ -1099,15 +1101,67 @@ class ScopedFunctionalPlanAuthority:
             if authority.authored_goal_unit_id is not None and actual_goals != (
                 authority.authored_goal_unit_id,
             ):
+                if authority.authored_goal_unit_id in actual_goals:
+                    # The LLM placed a genuinely shared producer in one Goal.
+                    # B2 has already proven the execution LCA from the complete
+                    # typed consumer DAG, so ownership is a mechanical tree
+                    # normalization rather than a semantic repair request.
+                    automatic_scope_promotions[step_id] = (
+                        placement.execution_scope_id
+                    )
+                    finalized[step_id] = replace(
+                        authority,
+                        plan_scope_id=placement.execution_scope_id,
+                        authored_goal_ref=None,
+                        authored_goal_unit_id=None,
+                        consumer_goal_unit_ids=actual_goals,
+                        semantic_owner_scope_id=(
+                            placement.execution_scope_id
+                        ),
+                        execution_scope_id=placement.execution_scope_id,
+                        binding_signature=stable_hash(
+                            {
+                                "authoring_binding_signature": (
+                                    authority.binding_signature
+                                ),
+                                "canonical_call_id": canonical_id,
+                                "plan_scope_id": (
+                                    placement.execution_scope_id
+                                ),
+                                "semantic_owner_scope_id": (
+                                    placement.execution_scope_id
+                                ),
+                                "consumer_goal_unit_ids": list(
+                                    actual_goals
+                                ),
+                                "execution_scope_id": (
+                                    placement.execution_scope_id
+                                ),
+                                "normalization": (
+                                    "promote_shared_goal_step_to_scope"
+                                ),
+                            }
+                        ),
+                    )
+                    continue
                 issues.append(
                     ScopedFunctionalPlanIssue(
                         "functional.step_goal_mismatch",
                         f"$.steps[{step_id!r}]",
                         (
-                            "Goal-owned step does not serve exactly its owning "
-                            f"Goal: expected={authority.authored_goal_unit_id!r}, "
+                            "Goal-owned step does not serve its owning Goal: "
+                            f"expected={authority.authored_goal_unit_id!r}, "
                             f"actual={actual_goals!r}"
                         ),
+                        {
+                            "expected_goal_unit_id": (
+                                authority.authored_goal_unit_id
+                            ),
+                            "actual_goal_unit_ids": list(actual_goals),
+                            "execution_scope_id": (
+                                placement.execution_scope_id
+                            ),
+                        },
                     )
                 )
                 continue
@@ -1171,11 +1225,52 @@ class ScopedFunctionalPlanAuthority:
             for step_id in sorted(pruned_step_ids)
             if step_id not in self.pruned_step_ids
         )
+        promotion_records = tuple(
+            ScopedFunctionalPlanNormalization(
+                action="promote_shared_goal_step_to_scope",
+                reason="typed_consumer_goal_lca",
+                step_id=step_id,
+                capability_id=(
+                    scoped_steps[step_id].capability_id
+                    if step_id in scoped_steps
+                    else None
+                ),
+                scope_ref=scope_ref,
+                from_goal_ref=self.step_authorities[step_id].authored_goal_ref,
+            )
+            for step_id, scope_ref in sorted(
+                automatic_scope_promotions.items()
+            )
+        )
+        normalized_scoped_plan = _promote_goal_steps_to_scopes(
+            self.scoped_plan,
+            automatic_scope_promotions,
+        )
+        normalizations = (
+            *self.normalizations,
+            *promotion_records,
+            *pruning_records,
+        )
         finalized_authority = replace(
             self,
+            scoped_plan=normalized_scoped_plan,
             lowered_plan=reconciliation.effective_plan,
             step_authorities=finalized,
-            normalizations=(*self.normalizations, *pruning_records),
+            plan_id=(
+                stable_hash(
+                    scoped_functional_plan_authority_payload(
+                        normalized_scoped_plan
+                    )
+                )
+                if automatic_scope_promotions
+                else self.plan_id
+            ),
+            plan_semantic_hash=(
+                stable_hash(_semantic_plan_payload(normalized_scoped_plan))
+                if automatic_scope_promotions
+                else self.plan_semantic_hash
+            ),
+            normalizations=normalizations,
             pruned_step_ids=tuple(
                 sorted((*self.pruned_step_ids, *pruned_step_ids))
             ),
@@ -1183,6 +1278,67 @@ class ScopedFunctionalPlanAuthority:
         return finalized_authority, ScopedFunctionalPlanAuthorityReport(
             normalizations=finalized_authority.normalizations,
         )
+
+
+def _promote_goal_steps_to_scopes(
+    plan: ScopedFunctionalPlan,
+    promotions: Mapping[str, str],
+) -> ScopedFunctionalPlan:
+    """Move typed shared producers from Goal blocks to their LCA scopes."""
+
+    if not promotions:
+        return plan
+    known_scope_refs = {
+        scope.scope_ref for scope in _iter_scopes(plan.root_scope)
+    }
+    unknown = sorted(set(promotions.values()) - known_scope_refs)
+    if unknown:
+        raise ValueError(
+            "planner_configuration_error: "
+            "functional.step_scope_authority_drift: "
+            f"promotion targets unknown scopes {unknown}"
+        )
+    steps_by_id = {step.step_id: step for step in plan.steps}
+    missing = sorted(set(promotions) - set(steps_by_id))
+    if missing:
+        raise ValueError(
+            "planner_configuration_error: "
+            "functional.step_scope_authority_drift: "
+            f"promotion references unknown steps {missing}"
+        )
+    promoted_ids = frozenset(promotions)
+    by_target: dict[str, list[ScopedFunctionalStep]] = {}
+    for step in plan.steps:
+        target = promotions.get(step.step_id)
+        if target is not None:
+            by_target.setdefault(target, []).append(step)
+
+    def rebuild(scope: ScopedFunctionalScope) -> ScopedFunctionalScope:
+        return replace(
+            scope,
+            steps=(
+                *(
+                    step
+                    for step in scope.steps
+                    if step.step_id not in promoted_ids
+                ),
+                *by_target.get(scope.scope_ref, ()),
+            ),
+            goals=tuple(
+                replace(
+                    goal,
+                    steps=tuple(
+                        step
+                        for step in goal.steps
+                        if step.step_id not in promoted_ids
+                    ),
+                )
+                for goal in scope.goals
+            ),
+            children=tuple(rebuild(child) for child in scope.children),
+        )
+
+    return replace(plan, root_scope=rebuild(plan.root_scope))
 
 
 @dataclass(frozen=True)
@@ -1393,6 +1549,18 @@ class ScopedFunctionalPlanAuthorityAdapter:
         dependencies: dict[str, set[str]] = {
             step_id: set() for step_id in by_id
         }
+        answer_object_refs = _answer_object_refs_by_return(
+            canonical_plan,
+            goal_views=goal_views,
+            binding_catalog=binding_catalog,
+        )
+        producers_by_target = _entity_state_producers(
+            locations,
+            by_id=by_id,
+            capability_catalog=capability_catalog,
+            answer_object_refs=answer_object_refs,
+            binding_catalog=binding_catalog,
+        )
         non_propagating_dependencies: set[tuple[str, str]] = set()
         lowered_args: dict[
             str, dict[str, tuple[str | ScopedStepResultRef, ...]]
@@ -1466,6 +1634,43 @@ class ScopedFunctionalPlanAuthorityAdapter:
                             _arg_path(location, arg_name),
                             f"SemanticRef {value!r} is outside the step scope",
                         )
+                    argument = next(
+                        (
+                            item
+                            for item in capability.args
+                            if item.name == arg_name
+                        ),
+                        None,
+                    )
+                    if (
+                        argument is not None
+                        and argument.input_view_mode == "latest_state"
+                    ):
+                        object_ids = _binding_math_object_ids(binding)
+                        producer = (
+                            _nearest_target_producer(
+                                next(iter(object_ids)),
+                                location,
+                                producers_by_target,
+                                argument=argument,
+                                scope_parents=scope_parents,
+                                capability_catalog=capability_catalog,
+                                binding_catalog=binding_catalog,
+                                by_id=by_id,
+                                dependencies=dependencies,
+                            )
+                            if len(object_ids) == 1
+                            else None
+                        )
+                        if producer is not None:
+                            producer_location, return_name = producer
+                            dependencies[location.step.step_id].add(
+                                producer_location.step.step_id
+                            )
+                            value = ScopedStepResultRef(
+                                producer_location.step.step_id,
+                                return_name,
+                            )
                     normalized.append(value)
                 lowered_args[location.step.step_id][arg_name] = tuple(
                     normalized
@@ -1588,7 +1793,18 @@ class ScopedFunctionalPlanAuthorityAdapter:
                 for name, values in args.items()
             }
             return_bindings: dict[str, SemanticRef] = {}
-            for name, target in step.output_targets.items():
+            effective_output_targets = _effective_output_target_refs(
+                location,
+                capability=capability,
+                answer_return_names=frozenset(
+                    answer_by_step[step.step_id]
+                ),
+                by_id=by_id,
+                capability_catalog=capability_catalog,
+                answer_object_refs=answer_object_refs,
+                binding_catalog=binding_catalog,
+            )
+            for name, target in effective_output_targets.items():
                 target_path = (
                     f"$.steps[{step.step_id!r}].output_targets[{name!r}]"
                 )
@@ -1672,7 +1888,7 @@ class ScopedFunctionalPlanAuthorityAdapter:
                     ]
                     for name, values in lowered_args[step.step_id].items()
                 },
-                "output_targets": dict(step.output_targets),
+                "output_targets": effective_output_targets,
                 "answers": answer_by_step[step.step_id],
             }
             step_authorities[step.step_id] = FunctionalStepScopeAuthority(
@@ -1778,6 +1994,18 @@ class ScopedFunctionalPlanAuthorityAdapter:
         dependencies: dict[str, set[str]] = {
             item.step.step_id: set() for item in locations
         }
+        answer_object_refs = _answer_object_refs_by_return(
+            canonical_plan,
+            goal_views=goal_views,
+            binding_catalog=binding_catalog,
+        )
+        producers_by_target = _entity_state_producers(
+            locations,
+            by_id=by_id,
+            capability_catalog=capability_catalog,
+            answer_object_refs=answer_object_refs,
+            binding_catalog=binding_catalog,
+        )
         non_propagating_dependencies: set[tuple[str, str]] = set()
         lowered_args: dict[
             str, dict[str, tuple[str | ScopedStepResultRef, ...]]
@@ -1847,6 +2075,43 @@ class ScopedFunctionalPlanAuthorityAdapter:
                                 _arg_path(location, arg_name),
                                 f"SourceRef {value!r} is outside the step scope",
                             )
+                        argument = next(
+                            (
+                                item
+                                for item in capability.args
+                                if item.name == arg_name
+                            ),
+                            None,
+                        )
+                        if (
+                            argument is not None
+                            and argument.input_view_mode == "latest_state"
+                        ):
+                            object_ids = _binding_math_object_ids(binding)
+                            producer = (
+                                _nearest_target_producer(
+                                    next(iter(object_ids)),
+                                    location,
+                                    producers_by_target,
+                                    argument=argument,
+                                    scope_parents=scope_parents,
+                                    capability_catalog=capability_catalog,
+                                    binding_catalog=binding_catalog,
+                                    by_id=by_id,
+                                    dependencies=dependencies,
+                                )
+                                if len(object_ids) == 1
+                                else None
+                            )
+                            if producer is not None:
+                                producer_location, return_name = producer
+                                dependencies[location.step.step_id].add(
+                                    producer_location.step.step_id
+                                )
+                                value = ScopedStepResultRef(
+                                    producer_location.step.step_id,
+                                    return_name,
+                                )
                     normalized.append(value)
                 lowered_args[location.step.step_id][arg_name] = tuple(normalized)
 
@@ -1942,7 +2207,18 @@ class ScopedFunctionalPlanAuthorityAdapter:
                 for name, values in lowered_args[step.step_id].items()
             }
             return_bindings: dict[str, SemanticRef] = {}
-            for return_name, target in step.output_targets.items():
+            effective_output_targets = _effective_output_target_refs(
+                location,
+                capability=capability,
+                answer_return_names=frozenset(
+                    answer_by_step[step.step_id]
+                ),
+                by_id=by_id,
+                capability_catalog=capability_catalog,
+                answer_object_refs=answer_object_refs,
+                binding_catalog=binding_catalog,
+            )
+            for return_name, target in effective_output_targets.items():
                 return_bindings[return_name] = _input_binding(
                     binding_catalog,
                     target,
@@ -1996,6 +2272,7 @@ class ScopedFunctionalPlanAuthorityAdapter:
                     ]
                     for name, values in lowered_args[step.step_id].items()
                 },
+                "output_targets": effective_output_targets,
             }
             step_authorities[step.step_id] = FunctionalStepScopeAuthority(
                 step_id=step.step_id,
@@ -2634,7 +2911,7 @@ def _normalize_capability_wire(
             argument = declared.get(arg_name)
             if (
                 argument is None
-                or argument.semantic_ref_role != "object_identity"
+                or argument.input_view_mode not in {"identity", "latest_state"}
                 or argument.cardinality != "one"
                 or len(values) != 1
                 or not isinstance(values[0], str)
@@ -2794,117 +3071,6 @@ def _normalize_capability_wire(
     if target_replacements:
         replacements = target_replacements
         plan = normalized_plan
-        normalized_plan = ScopedFunctionalPlan(
-            root_scope=rebuild(normalized_plan.root_scope)
-        )
-
-    dynamic_ref_replacements: dict[str, ScopedFunctionalStep] = {}
-    dynamic_locations = _step_locations(normalized_plan)
-    scope_parents = {
-        item.scope_id: item.parent_scope_id
-        for item in planning_context.scopes
-    }
-    for consumer in dynamic_locations:
-        capability = capability_catalog.get(consumer.step.capability_id)
-        if capability is None:
-            continue
-        declared = {item.name: item for item in capability.args}
-        args = dict(consumer.step.args)
-        changed = False
-        for arg_name, values in consumer.step.args.items():
-            argument = declared.get(arg_name)
-            if argument is None:
-                continue
-            accepted_types = argument.accepted_item_types or (
-                argument.runtime_type,
-            )
-            normalized_values: list[ScopedFunctionalRef] = []
-            for value in values:
-                if not isinstance(value, str) or not _has_visible_input_binding(
-                    binding_catalog,
-                    scope_id=consumer.scope_id,
-                    local_ref=value,
-                ):
-                    normalized_values.append(value)
-                    continue
-                candidates: list[tuple[_StepLocation, Any]] = []
-                for producer in dynamic_locations:
-                    if producer.order >= consumer.order:
-                        continue
-                    if producer.goal_ref is not None:
-                        if producer.goal_ref != consumer.goal_ref:
-                            continue
-                    elif not _scope_visible(
-                        producer.scope_id,
-                        consumer.scope_id,
-                        scope_parents,
-                    ):
-                        continue
-                    producer_capability = capability_catalog.get(
-                        producer.step.capability_id
-                    )
-                    if producer_capability is None:
-                        continue
-                    for returned in producer_capability.returns:
-                        target_refs = _return_object_target_refs(
-                            producer,
-                            returned=returned,
-                            by_id=by_id,
-                            capability_catalog=capability_catalog,
-                            answer_object_refs=answer_object_refs,
-                        )
-                        if (
-                            value not in target_refs
-                            or not any(
-                                runtime_type_compatible(
-                                    expected,
-                                    returned.runtime_type,
-                                )
-                                for expected in accepted_types
-                            )
-                        ):
-                            continue
-                        candidates.append((producer, returned))
-                if not candidates:
-                    normalized_values.append(value)
-                    continue
-                latest_order = max(item[0].order for item in candidates)
-                latest_candidates = tuple(
-                    item for item in candidates if item[0].order == latest_order
-                )
-                if len(latest_candidates) != 1:
-                    normalized_values.append(value)
-                    continue
-                producer, returned = latest_candidates[0]
-                normalized_values.append(
-                    ScopedStepResultRef(
-                        step_id=producer.step.step_id,
-                        return_name=returned.name,
-                    )
-                )
-                changed = True
-                normalizations.append(
-                    ScopedFunctionalPlanNormalization(
-                        action="canonicalize_latest_dynamic_source_ref",
-                        reason="latest_visible_prior_output_target",
-                        step_id=consumer.step.step_id,
-                        capability_id=consumer.step.capability_id,
-                        scope_ref=consumer.scope_id,
-                        arg_name=arg_name,
-                        from_ref=value,
-                        to_ref=f"{producer.step.step_id}.{returned.name}",
-                        return_name=returned.name,
-                        goal_ref=consumer.goal_ref,
-                    )
-                )
-            args[arg_name] = tuple(normalized_values)
-        if changed:
-            dynamic_ref_replacements[consumer.step.step_id] = replace(
-                consumer.step,
-                args=args,
-            )
-    if dynamic_ref_replacements:
-        replacements = dynamic_ref_replacements
         normalized_plan = ScopedFunctionalPlan(
             root_scope=rebuild(normalized_plan.root_scope)
         )
@@ -3358,6 +3524,35 @@ def _declared_related_object_refs(
     return frozenset(result)
 
 
+def _effective_output_target_refs(
+    producer: _StepLocation,
+    *,
+    capability: Any,
+    answer_return_names: frozenset[str],
+    by_id: Mapping[str, _StepLocation],
+    capability_catalog: FunctionalCapabilityCatalog,
+    answer_object_refs: Mapping[tuple[str, str], tuple[str, ...]],
+    binding_catalog: ProblemPlanningBindingCatalog,
+) -> dict[str, str]:
+    """Complete mechanical named-return bindings before v1 reconciliation."""
+
+    result = dict(producer.step.output_targets)
+    for returned in capability.returns:
+        if returned.name in result or returned.name in answer_return_names:
+            continue
+        targets = _return_object_target_refs(
+            producer,
+            returned=returned,
+            by_id=by_id,
+            capability_catalog=capability_catalog,
+            answer_object_refs=answer_object_refs,
+            binding_catalog=binding_catalog,
+        )
+        if len(targets) == 1:
+            result[returned.name] = next(iter(targets))
+    return dict(sorted(result.items()))
+
+
 def _return_object_target_refs(
     producer: _StepLocation,
     *,
@@ -3365,13 +3560,14 @@ def _return_object_target_refs(
     by_id: Mapping[str, _StepLocation],
     capability_catalog: FunctionalCapabilityCatalog,
     answer_object_refs: Mapping[tuple[str, str], tuple[str, ...]],
+    binding_catalog: ProblemPlanningBindingCatalog,
     seen: frozenset[tuple[str, str]] = frozenset(),
 ) -> frozenset[str]:
     """Resolve the Problem object written by one public return.
 
-    Explicit output and answer authority take precedence. A transition-style
-    return can omit ``output_targets`` because its Method contract already
-    proves that it preserves the object named by ``identity_arg``.
+    Explicit output and answer authority take precedence. Declarative identity
+    constraints and transition contracts may then prove the same named object
+    without requiring the LLM to repeat compiler-owned wiring.
     """
 
     key = (producer.step.step_id, returned.name)
@@ -3383,12 +3579,27 @@ def _return_object_target_refs(
     answer_refs = answer_object_refs.get(key, ())
     if answer_refs:
         return frozenset(answer_refs)
+    capability = capability_catalog.get(producer.step.capability_id)
+    if capability is None:
+        return frozenset()
+    constrained = _constraint_return_object_target_refs(
+        producer,
+        returned=returned,
+        capability=capability,
+        by_id=by_id,
+        capability_catalog=capability_catalog,
+        answer_object_refs=answer_object_refs,
+        binding_catalog=binding_catalog,
+        seen=seen | {key},
+    )
+    if constrained:
+        return constrained
     if (
         returned.identity_policy != "preserve_input_object"
         or returned.identity_arg is None
     ):
         return frozenset()
-    return frozenset(
+    declared = frozenset(
         target
         for value in producer.step.args.get(returned.identity_arg, ())
         for target in _functional_ref_object_targets(
@@ -3396,9 +3607,245 @@ def _return_object_target_refs(
             by_id=by_id,
             capability_catalog=capability_catalog,
             answer_object_refs=answer_object_refs,
+            binding_catalog=binding_catalog,
             seen=seen | {key},
         )
     )
+    if declared:
+        return declared
+    auto_arg = next(
+        (
+            item
+            for item in capability.auto_args
+            if item.name == returned.identity_arg
+        ),
+        None,
+    )
+    if auto_arg is None:
+        return frozenset()
+    return _auto_selector_object_refs(
+        auto_arg.selector,
+        producer=producer,
+        binding_catalog=binding_catalog,
+    )
+
+
+def _constraint_return_object_target_refs(
+    producer: _StepLocation,
+    *,
+    returned: Any,
+    capability: Any,
+    by_id: Mapping[str, _StepLocation],
+    capability_catalog: FunctionalCapabilityCatalog,
+    answer_object_refs: Mapping[tuple[str, str], tuple[str, ...]],
+    binding_catalog: ProblemPlanningBindingCatalog,
+    seen: frozenset[tuple[str, str]],
+) -> frozenset[str]:
+    """Resolve a return object from declarative same-object constraints."""
+
+    return_selector = f"return:{returned.name}.object_ref"
+    resolved: list[str] = []
+    for constraint in capability.identity_constraints:
+        if constraint.relation != "same_object":
+            continue
+        if constraint.left == return_selector:
+            source_selector = constraint.right
+        elif constraint.right == return_selector:
+            source_selector = constraint.left
+        else:
+            continue
+        source = _parse_identity_arg_selector(source_selector)
+        if source is None:
+            continue
+        arg_names, object_role = source
+        selected = frozenset(
+            target
+            for arg_name in arg_names
+            for value in producer.step.args.get(arg_name, ())
+            for target in (
+                _functional_ref_object_role_targets(
+                    value,
+                    role=object_role,
+                    by_id=by_id,
+                    capability_catalog=capability_catalog,
+                    answer_object_refs=answer_object_refs,
+                    binding_catalog=binding_catalog,
+                    seen=seen,
+                )
+                if object_role is not None
+                else _functional_ref_object_targets(
+                    value,
+                    by_id=by_id,
+                    capability_catalog=capability_catalog,
+                    answer_object_refs=answer_object_refs,
+                    binding_catalog=binding_catalog,
+                    seen=seen,
+                )
+            )
+        )
+        if not selected and constraint.applicability == "when_all_present":
+            continue
+        if len(selected) != 1:
+            return frozenset()
+        resolved.extend(selected)
+    unique = frozenset(resolved)
+    return unique if len(unique) == 1 else frozenset()
+
+
+def _parse_identity_arg_selector(
+    selector: str,
+) -> tuple[tuple[str, ...], str | None] | None:
+    owner_and_names, separator, field = selector.partition(".")
+    owner, owner_separator, names = owner_and_names.partition(":")
+    if (
+        not separator
+        or not owner_separator
+        or owner not in {"arg", "args"}
+        or not names
+    ):
+        return None
+    arg_names = tuple(item for item in names.split(",") if item)
+    if not arg_names:
+        return None
+    if field == "object_ref":
+        return arg_names, None
+    role_prefix = "object_role:"
+    if field.startswith(role_prefix) and field[len(role_prefix) :]:
+        return arg_names, field[len(role_prefix) :]
+    return None
+
+
+def _functional_ref_object_role_targets(
+    value: ScopedFunctionalRef,
+    *,
+    role: str,
+    by_id: Mapping[str, _StepLocation],
+    capability_catalog: FunctionalCapabilityCatalog,
+    answer_object_refs: Mapping[tuple[str, str], tuple[str, ...]],
+    binding_catalog: ProblemPlanningBindingCatalog,
+    seen: frozenset[tuple[str, str]],
+) -> frozenset[str]:
+    """Project one declared object role through an earlier public return."""
+
+    if isinstance(value, str):
+        return frozenset()
+    producer = by_id.get(value.step_id)
+    if producer is None:
+        return frozenset()
+    key = (value.step_id, f"{value.return_name}#role:{role}")
+    if key in seen:
+        return frozenset()
+    capability = capability_catalog.get(producer.step.capability_id)
+    if capability is None:
+        return frozenset()
+    returned = next(
+        (item for item in capability.returns if item.name == value.return_name),
+        None,
+    )
+    if returned is None:
+        return frozenset()
+    result: set[str] = set()
+    for projection in returned.object_role_projections:
+        if projection.role != role:
+            continue
+        if projection.source_arg is not None:
+            for source in producer.step.args.get(projection.source_arg, ()):
+                if projection.source_object_role is None:
+                    result.update(
+                        _functional_ref_object_targets(
+                            source,
+                            by_id=by_id,
+                            capability_catalog=capability_catalog,
+                            answer_object_refs=answer_object_refs,
+                            binding_catalog=binding_catalog,
+                            seen=seen | {key},
+                        )
+                    )
+                else:
+                    result.update(
+                        _functional_ref_object_role_targets(
+                            source,
+                            role=projection.source_object_role,
+                            by_id=by_id,
+                            capability_catalog=capability_catalog,
+                            answer_object_refs=answer_object_refs,
+                            binding_catalog=binding_catalog,
+                            seen=seen | {key},
+                        )
+                    )
+            continue
+        source_return = next(
+            (
+                item
+                for item in capability.returns
+                if item.name == projection.source_return
+            ),
+            None,
+        )
+        if source_return is None:
+            continue
+        source_ref = ScopedStepResultRef(
+            producer.step.step_id,
+            source_return.name,
+        )
+        if projection.source_object_role is None:
+            result.update(
+                _functional_ref_object_targets(
+                    source_ref,
+                    by_id=by_id,
+                    capability_catalog=capability_catalog,
+                    answer_object_refs=answer_object_refs,
+                    binding_catalog=binding_catalog,
+                    seen=seen | {key},
+                )
+            )
+        else:
+            result.update(
+                _functional_ref_object_role_targets(
+                    source_ref,
+                    role=projection.source_object_role,
+                    by_id=by_id,
+                    capability_catalog=capability_catalog,
+                    answer_object_refs=answer_object_refs,
+                    binding_catalog=binding_catalog,
+                    seen=seen | {key},
+                )
+            )
+    return frozenset(result)
+
+
+def _auto_selector_object_refs(
+    selector: str,
+    *,
+    producer: _StepLocation,
+    binding_catalog: ProblemPlanningBindingCatalog,
+) -> frozenset[str]:
+    """Resolve entity selectors used by hidden identity-preserving inputs."""
+
+    selector_kind, separator, local_ref = selector.partition(":")
+    if not separator or selector_kind not in {
+        "function",
+        "point",
+        "symbol",
+        "line",
+        "ray",
+        "polygon",
+    }:
+        return frozenset()
+    try:
+        binding = binding_catalog.resolve_input_binding(
+            scope_id=producer.scope_id,
+            local_ref=local_ref,
+        )
+    except ProblemPlanningBindingError:
+        return frozenset()
+    if (
+        binding.usage != "input"
+        or binding.semantic_ref.kind != selector_kind
+        or not _binding_math_object_ids(binding)
+    ):
+        return frozenset()
+    return frozenset((binding.semantic_ref.ref,))
 
 
 def _functional_ref_object_targets(
@@ -3407,6 +3854,7 @@ def _functional_ref_object_targets(
     by_id: Mapping[str, _StepLocation],
     capability_catalog: FunctionalCapabilityCatalog,
     answer_object_refs: Mapping[tuple[str, str], tuple[str, ...]],
+    binding_catalog: ProblemPlanningBindingCatalog,
     seen: frozenset[tuple[str, str]],
 ) -> frozenset[str]:
     if isinstance(value, str):
@@ -3433,6 +3881,7 @@ def _functional_ref_object_targets(
         by_id=by_id,
         capability_catalog=capability_catalog,
         answer_object_refs=answer_object_refs,
+        binding_catalog=binding_catalog,
         seen=seen,
     )
 
@@ -4127,6 +4576,22 @@ def _collect_independent_authority_issues(
                     producer_capability = capability_catalog.get(
                         producer.step.capability_id
                     )
+                    named_target = producer.step.output_targets.get(
+                        value.return_name
+                    )
+                    if named_target is not None:
+                        add(
+                            2,
+                            location.scope_id,
+                            location.step.step_id,
+                            "functional.named_entity_requires_source_ref",
+                            path,
+                            (
+                                f"return {value.return_name!r} updates named "
+                                f"Entity {named_target!r}; use that Entity ref "
+                                "and let the Method view select its state"
+                            ),
+                        )
                     if producer_capability is None or value.return_name not in {
                         item.name for item in producer_capability.returns
                     }:
@@ -4263,7 +4728,7 @@ def _collect_independent_authority_issues(
                         )
                     elif (
                         argument is not None
-                        and argument.semantic_ref_role == "object_identity"
+                        and argument.input_view_mode == "identity"
                         and isinstance(target_ref, str)
                     ):
                         guidance = (
@@ -4707,21 +5172,197 @@ def _runtime_input_ref(ref: SemanticRef) -> SemanticRef:
     return SemanticRef(ref=ref.ref, kind=ref.kind)
 
 
-def _nearest_target_producer(
-    semantic_ref: str,
-    consumer: _StepLocation,
-    producers_by_target: Mapping[str, Sequence[_StepLocation]],
+def _answer_object_refs_by_return(
+    plan: ScopedFunctionalPlan,
     *,
+    goal_views: Mapping[str, Any],
+    binding_catalog: ProblemPlanningBindingCatalog,
+) -> dict[tuple[str, str], tuple[str, ...]]:
+    """Map authored Goal returns to their existing Problem object refs."""
+
+    result: dict[tuple[str, str], tuple[str, ...]] = {}
+    for scope in _iter_scopes(plan.root_scope):
+        for goal in scope.goals:
+            view = goal_views.get(goal.goal_ref)
+            if view is None:
+                continue
+            refs = _answer_existing_object_refs(
+                view.goal_unit_id,
+                binding_catalog=binding_catalog,
+            )
+            if refs:
+                result[(
+                    goal.answer_from.step_id,
+                    goal.answer_from.return_name,
+                )] = refs
+    return result
+
+
+def _entity_state_producers(
+    locations: Sequence[_StepLocation],
+    *,
+    by_id: Mapping[str, _StepLocation],
+    capability_catalog: FunctionalCapabilityCatalog,
+    answer_object_refs: Mapping[tuple[str, str], tuple[str, ...]],
+    binding_catalog: ProblemPlanningBindingCatalog,
+) -> dict[Any, tuple[tuple[_StepLocation, str, str], ...]]:
+    """Index named Math Entity state writers without rewriting the LLM wire."""
+
+    indexed: dict[
+        Any,
+        dict[tuple[str, str], tuple[_StepLocation, str, str]],
+    ] = {}
+    for location in locations:
+        capability = capability_catalog.get(location.step.capability_id)
+        if capability is None:
+            continue
+        for returned in capability.returns:
+            targets = _return_object_target_refs(
+                location,
+                returned=returned,
+                by_id=by_id,
+                capability_catalog=capability_catalog,
+                answer_object_refs=answer_object_refs,
+                binding_catalog=binding_catalog,
+            )
+            for target in targets:
+                try:
+                    binding = binding_catalog.resolve_input_binding(
+                        scope_id=location.scope_id,
+                        local_ref=target,
+                    )
+                except ProblemPlanningBindingError:
+                    continue
+                for object_id in _binding_math_object_ids(binding):
+                    indexed.setdefault(object_id, {})[
+                        (location.step.step_id, returned.name)
+                    ] = (
+                        location,
+                        returned.name,
+                        returned.runtime_type,
+                    )
+    return {
+        object_id: tuple(
+            sorted(
+                producers.values(),
+                key=lambda item: (item[0].order, item[1]),
+            )
+        )
+        for object_id, producers in indexed.items()
+    }
+
+
+def scoped_entity_state_dependencies(
+    plan: ScopedFunctionalPlan,
+    *,
+    planning_context: ProblemPlanningContext,
+    binding_catalog: ProblemPlanningBindingCatalog,
+    capability_catalog: FunctionalCapabilityCatalog,
+) -> dict[str, tuple[str, ...]]:
+    """Derive named-entity latest-state edges from the complete Plan."""
+
+    locations = _step_locations(plan)
+    by_id = _unique_steps(locations)
+    goal_views = {
+        item.answer_ref.ref: item for item in planning_context.goal_views
+    }
+    scope_parents = {
+        item.scope_id: item.parent_scope_id
+        for item in planning_context.scopes
+    }
+    answer_object_refs = _answer_object_refs_by_return(
+        plan,
+        goal_views=goal_views,
+        binding_catalog=binding_catalog,
+    )
+    producers_by_target = _entity_state_producers(
+        locations,
+        by_id=by_id,
+        capability_catalog=capability_catalog,
+        answer_object_refs=answer_object_refs,
+        binding_catalog=binding_catalog,
+    )
+    dependencies: dict[str, set[str]] = {
+        item.step.step_id: set() for item in locations
+    }
+    for location in locations:
+        capability = capability_catalog.get(location.step.capability_id)
+        if capability is None:
+            continue
+        arguments = {item.name: item for item in capability.args}
+        for arg_name, values in location.step.args.items():
+            argument = arguments.get(arg_name)
+            if argument is None or argument.input_view_mode != "latest_state":
+                continue
+            for value in values:
+                if not isinstance(value, str):
+                    continue
+                try:
+                    binding = _input_binding(
+                        binding_catalog,
+                        value,
+                        scope_id=location.scope_id,
+                        goal_unit_ids=(
+                            (goal_views[location.goal_ref].goal_unit_id,)
+                            if location.goal_ref in goal_views
+                            else ()
+                        ),
+                        path=_arg_path(location, arg_name),
+                    )
+                except ScopedFunctionalPlanError:
+                    continue
+                object_ids = _binding_math_object_ids(binding)
+                if len(object_ids) != 1:
+                    continue
+                producer = _nearest_target_producer(
+                    next(iter(object_ids)),
+                    location,
+                    producers_by_target,
+                    argument=argument,
+                    scope_parents=scope_parents,
+                    capability_catalog=capability_catalog,
+                    binding_catalog=binding_catalog,
+                    by_id=by_id,
+                    dependencies=dependencies,
+                )
+                if producer is not None:
+                    dependencies[location.step.step_id].add(
+                        producer[0].step.step_id
+                    )
+    return {
+        step_id: tuple(sorted(values))
+        for step_id, values in sorted(dependencies.items())
+        if values
+    }
+
+
+def _nearest_target_producer(
+    object_id: Any,
+    consumer: _StepLocation,
+    producers_by_target: Mapping[
+        Any,
+        Sequence[tuple[_StepLocation, str, str]],
+    ],
+    *,
+    argument: Any,
     scope_parents: Mapping[str, str | None],
     capability_catalog: FunctionalCapabilityCatalog,
     binding_catalog: ProblemPlanningBindingCatalog,
     by_id: Mapping[str, _StepLocation],
     dependencies: Mapping[str, set[str]],
-) -> _StepLocation | None:
+) -> tuple[_StepLocation, str] | None:
+    accepted = argument.accepted_item_types or (argument.runtime_type,)
     visible = [
-        item
-        for item in producers_by_target.get(semantic_ref, ())
+        (item, return_name)
+        for item, return_name, runtime_type in producers_by_target.get(
+            object_id,
+            (),
+        )
         if item.order < consumer.order
+        and any(
+            runtime_type_compatible(expected, runtime_type)
+            for expected in accepted
+        )
         and (
             item.goal_ref == consumer.goal_ref
             if item.goal_ref is not None
@@ -4732,93 +5373,14 @@ def _nearest_target_producer(
             )
         )
     ]
-    if len(visible) > 1:
-        raise _error(
-            "functional.step_ref_ambiguous",
-            f"$.steps[{consumer.step.step_id!r}]",
-            (
-                f"SemanticRef {semantic_ref!r} has multiple visible producers; "
-                "use an explicit step-result reference"
-            ),
-        )
     if visible:
-        return visible[0]
-    liftable = [
-        item
-        for item in producers_by_target.get(semantic_ref, ())
-        if item.order < consumer.order
-        and item.goal_ref is None
-        and (
-            capability := capability_catalog.get(item.step.capability_id)
-        )
-        is not None
-        and capability.is_pure
-        and _scope_step_can_lift_for_consumer(
-            item,
-            consumer,
-            binding_catalog=binding_catalog,
-            by_id=by_id,
-            dependencies=dependencies,
-            scope_parents=scope_parents,
-        )
-    ]
-    if len(liftable) > 1:
-        raise _error(
-            "functional.step_ref_ambiguous",
-            f"$.steps[{consumer.step.step_id!r}]",
-            (
-                f"SemanticRef {semantic_ref!r} has multiple liftable producers; "
-                "use an explicit step-result reference"
-            ),
-        )
-    return liftable[0] if liftable else None
-
-
-def _scope_step_can_lift_for_consumer(
-    producer: _StepLocation,
-    consumer: _StepLocation,
-    *,
-    binding_catalog: ProblemPlanningBindingCatalog,
-    by_id: Mapping[str, _StepLocation],
-    dependencies: Mapping[str, set[str]],
-    scope_parents: Mapping[str, str | None],
-) -> bool:
-    candidate_scope = _lowest_common_ancestor(
-        (producer.scope_id, consumer.scope_id),
-        scope_parents,
-    )
-    for values in producer.step.args.values():
-        for value in values:
-            if isinstance(value, ScopedStepResultRef):
-                dependency = by_id.get(value.step_id)
-                if (
-                    dependency is None
-                    or dependency.goal_ref is not None
-                    or not _scope_visible(
-                        dependency.scope_id,
-                        candidate_scope,
-                        scope_parents,
-                    )
-                ):
-                    return False
-                continue
-            try:
-                binding_catalog.resolve_input_binding(
-                    scope_id=candidate_scope,
-                    local_ref=value,
-                )
-            except ProblemPlanningBindingError:
-                return False
-    return all(
-        dependency_id in by_id
-        and by_id[dependency_id].goal_ref is None
-        and _scope_visible(
-            by_id[dependency_id].scope_id,
-            candidate_scope,
-            scope_parents,
-        )
-        for dependency_id in dependencies[producer.step.step_id]
-    )
+        # A scope path plus plan order is a total state sequence. Runtime still
+        # executes every retained writer and is the only authority allowed to
+        # merge equivalent states.
+        return max(visible, key=lambda item: item[0].order)
+    # Scope-local state never migrates across sibling branches. A state that
+    # should be shared must be produced in an already visible ancestor scope.
+    return None
 
 
 def _propagate_goal_consumers(

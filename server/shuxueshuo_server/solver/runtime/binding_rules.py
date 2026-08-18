@@ -387,17 +387,26 @@ def _function_parabola_selector(
     index: CanonicalRuntimeBindingIndex,
     local_outputs: Mapping[str, str],
 ) -> str:
-    """Prefer an explicitly read Parabola state, then use the IR template.
+    """Read the latest visible state of the canonical parabola object.
 
     The runtime index already contains paths reserved for the current step's
     outputs. Scanning every visible binding here can therefore select the
-    Parabola that this invocation has not produced yet. Functional
-    reconciliation puts a prior materialized state in ``reads`` when this is
-    a refinement call, so the read list is the authoritative continuation
-    signal.
+    Parabola that this invocation has not produced yet. Explicit reads remain
+    the first choice, but a named function is state-bearing: a later
+    refinement call must continue from the latest earlier typed write even
+    when the LLM only supplied the new mathematical constraint. The projected
+    state order and visible runtime bindings provide that deterministic view.
     """
     for handle in _compile_input_handles(step):
         binding = index.bindings.get(handle)
+        if binding is not None and binding.value_type == "Parabola":
+            return binding.path
+    latest = index.latest_projected_state_write(
+        "function:problem:parabola",
+        before_step_id=step.step_id,
+    )
+    if latest is not None:
+        binding = index.bindings.get(latest.produced_handle)
         if binding is not None and binding.value_type == "Parabola":
             return binding.path
     return index.path_for("function:problem:parabola", expected_type="Expression")

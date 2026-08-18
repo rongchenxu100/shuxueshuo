@@ -226,6 +226,7 @@ def test_capability_pack_expansion_deduplicates_methods_and_overrides_recipes() 
         execution=RecipeExecutionSpec(
             recipe_id="shared_recipe",
             method_sequence=("method_a",),
+            execution_mode="direct",
         ),
         do_not_use_when=("base misuse",),
     )
@@ -238,6 +239,7 @@ def test_capability_pack_expansion_deduplicates_methods_and_overrides_recipes() 
         execution=RecipeExecutionSpec(
             recipe_id="shared_recipe",
             method_sequence=("method_local",),
+            execution_mode="direct",
         ),
         do_not_use_when=("local misuse",),
     )
@@ -250,6 +252,7 @@ def test_capability_pack_expansion_deduplicates_methods_and_overrides_recipes() 
         execution=RecipeExecutionSpec(
             recipe_id="mechanism_recipe",
             method_sequence=("method_c",),
+            execution_mode="direct",
         ),
     )
     registry = CapabilityPackRegistry((

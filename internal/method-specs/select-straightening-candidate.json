@@ -8,14 +8,26 @@
   ],
   "inputs": {
     "candidates": {
-      "type": "StraighteningCandidateList",
       "required": true,
-      "description": "broken_path_straightening_candidates 生成的候选列表。"
+      "description": "broken_path_straightening_candidates 生成的候选列表。",
+      "domain_type": "StraighteningCandidateList",
+      "runtime_type": "StraighteningCandidateList",
+      "view": {
+        "mode": "exact_result",
+        "domain_type": "StraighteningCandidateList"
+      }
     },
     "target": {
-      "type": "PointRef",
       "required": true,
-      "description": "计划希望写回的辅助点引用，仅用于命名和验算选择结果。"
+      "description": "计划希望写回的辅助点引用，仅用于命名和验算选择结果。",
+      "domain_type": "Point",
+      "runtime_type": "PointRef",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     }
   },
   "outputs": {

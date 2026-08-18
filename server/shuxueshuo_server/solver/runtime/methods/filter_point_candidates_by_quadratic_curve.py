@@ -17,7 +17,7 @@ from shuxueshuo_server.solver.runtime.symbolic_target_closure import (
 )
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, declare_input_views
 
 
 class FilterPointCandidatesByQuadraticCurveMethod:
@@ -181,6 +181,12 @@ SPEC = MethodSpecSource(
             "functional_exposed": False,
         },
     },
+    input_views=declare_input_views(
+        identity=("target", "x", "parameter"),
+        latest_state=("parabola",),
+        immutable_value=("parameter_constraint", "quadratic_template"),
+        exact_result=("candidates",),
+    ),
     outputs={
         "filtered_candidates": "PointList",
         "rejected_candidates": "PointList",

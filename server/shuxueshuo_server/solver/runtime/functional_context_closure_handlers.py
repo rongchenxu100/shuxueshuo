@@ -124,6 +124,9 @@ def resolve_context_closure_args(
                 and previous != values
                 and not _same_context_object_values(previous, values)
             ):
+                if _is_runtime_search_role(capability, arg_name):
+                    additions[arg_name] = values
+                    continue
                 issues.append(
                     _issue(
                         "functional_reconciliation",
@@ -151,6 +154,20 @@ def resolve_context_closure_args(
         issues.extend(current_issues)
         reads_closed = reads_closed or closed
     return additions, tuple(repairs), tuple(issues), reads_closed
+
+
+def _is_runtime_search_role(
+    capability: FunctionalCapability,
+    arg_name: str,
+) -> bool:
+    source = capability.source
+    search = getattr(source, "search", None)
+    return (
+        capability.kind == "macro"
+        and getattr(source, "execution_mode", None) == "runtime_search"
+        and search is not None
+        and arg_name in search.searchable_roles
+    )
 
 
 def _same_context_object_values(

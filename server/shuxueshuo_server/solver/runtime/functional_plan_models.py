@@ -6,7 +6,10 @@ from dataclasses import dataclass, field
 import re
 from typing import Any, Literal, Mapping
 
-from shuxueshuo_server.solver.contracts import FunctionalResultForm
+from shuxueshuo_server.solver.contracts import (
+    FunctionalResultForm,
+    MethodInputViewMode,
+)
 from shuxueshuo_server.solver.family.models import (
     CapabilityContextResolver,
     CapabilityDependencyPolicy,
@@ -22,6 +25,10 @@ from shuxueshuo_server.solver.runtime.condition_roles import ConditionObjectRole
 from shuxueshuo_server.solver.runtime.function_specs import FunctionSpec
 from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
 from shuxueshuo_server.solver.runtime.macro_specs import MacroSpec
+from shuxueshuo_server.solver.runtime.planner_public_types import (
+    planner_output_value_type,
+    planner_prompt_text,
+)
 from shuxueshuo_server.solver.runtime.semantic_reads import SemanticReadCatalogItem
 from shuxueshuo_server.solver.runtime.state_identity import (
     ComputationKey,
@@ -208,10 +215,13 @@ class FunctionalCapabilityArg:
     required: bool
     cardinality: str
     kind: str
+    domain_type: str | None = None
+    input_view_mode: MethodInputViewMode | None = field(default=None, repr=False)
     semantic_role: str | None = None
     llm_mode: FunctionalArgMode = "explicit"
     accepted_item_types: tuple[str, ...] = ()
     accepted_condition_kinds: tuple[str, ...] = ()
+    prompt_fact_types: tuple[str, ...] = field(default=(), repr=False)
     accepted_semantic_roles: tuple[str, ...] = ()
     requires_materialized_state: bool = False
     aggregation: FunctionalAggregation = "none"
@@ -231,40 +241,24 @@ class FunctionalCapabilityArg:
     def to_prompt_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
             "name": self.name,
-            "accepts": list(
-                self.accepted_item_types or (self.runtime_type,)
-            ),
+            "domain_type": self.domain_type or self.runtime_type,
             "required": self.required,
             "cardinality": self.cardinality,
-            "semantic_ref_role": self.semantic_ref_role,
         }
-        if self.accepted_condition_kinds:
+        public_fact_types = (
+            self.prompt_fact_types or self.accepted_condition_kinds
+        )
+        if public_fact_types:
             payload["fact_types"] = list(
-                self.accepted_condition_kinds
+                public_fact_types
             )
         if self.accepted_semantic_roles:
             payload["roles"] = list(
                 self.accepted_semantic_roles
             )
-        if self.requires_materialized_state:
-            payload["requires_computed_value"] = True
         description = self.description
-        if self.semantic_ref_role == "object_identity":
-            identity_guidance = (
-                "使用Goal的target_ref或可见Entity ref表示题面对象身份；"
-                "不得使用goal_ref。"
-            )
-            description = " ".join(
-                item for item in (description, identity_guidance) if item
-            )
         if description:
-            payload["desc"] = description
-        if self.input_closure_policy == "closed_only":
-            payload["accepted_forms"] = ["closed_state"]
-            payload["max_independent_free_parameters"] = 0
-        elif self.input_closure_policy == "closed_or_single_free":
-            payload["accepted_forms"] = ["closed_state", "open_state"]
-            payload["max_independent_free_parameters"] = 1
+            payload["role"] = description
         return payload
 
 
@@ -338,7 +332,7 @@ class FunctionalCapabilityReturn:
             binding_mode = "same_compiler_selected_object"
         payload: dict[str, Any] = {
             "name": self.name,
-            "type": self.runtime_type,
+            "type": planner_output_value_type(self.runtime_type),
             "binding": binding_mode,
         }
         if _is_aggregate_return_type(self.runtime_type):
@@ -508,7 +502,7 @@ class FunctionalCapability:
         )
         if requirements:
             payload["input_requirements"] = requirements
-        return payload
+        return _planner_safe_payload(payload)
 
 
 def _prompt_return_binding(result: FunctionalCapabilityReturn) -> str:
@@ -535,6 +529,23 @@ def _prompt_return_binding(result: FunctionalCapabilityReturn) -> str:
             else "same_input_object"
         )
     return "answer_or_existing_object"
+
+
+def _planner_safe_payload(value: Any) -> Any:
+    """Remove runtime representation vocabulary at the LLM boundary."""
+
+    if isinstance(value, dict):
+        return {
+            key: _planner_safe_payload(child)
+            for key, child in value.items()
+        }
+    if isinstance(value, list):
+        return [_planner_safe_payload(item) for item in value]
+    if isinstance(value, tuple):
+        return [_planner_safe_payload(item) for item in value]
+    if not isinstance(value, str):
+        return value
+    return planner_prompt_text(value)
 
 
 def _is_aggregate_return_type(runtime_type: str) -> bool:
@@ -749,6 +760,7 @@ class FunctionalCallReconciliation:
     resolved_args: dict[str, tuple[ResolvedFunctionalValue, ...]]
     returns: tuple[FunctionalReturnAllocation, ...]
     reads_closed: bool = False
+    authored_macro_roles: tuple[tuple[str, str], ...] = ()
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -761,6 +773,10 @@ class FunctionalCallReconciliation:
             },
             "returns": [item.to_payload() for item in self.returns],
             "reads_closed": self.reads_closed,
+            "authored_macro_roles": {
+                role: object_ref
+                for role, object_ref in self.authored_macro_roles
+            },
         }
 
 

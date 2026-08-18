@@ -418,7 +418,7 @@ def test_failed_scope_and_all_consumer_goals_are_replaced_atomically(
     assert repaired_scope == correct_scope
 
 
-def test_cross_sibling_producer_moves_atomically_to_editable_lca(
+def test_cross_sibling_producer_is_not_semantically_promoted_by_code(
     tmp_path,
 ) -> None:
     case = "tj-2026-heping-yimo-25"
@@ -455,59 +455,22 @@ def test_cross_sibling_producer_moves_atomically_to_editable_lca(
         planning_context=fixture[1],
         binding_catalog=fixture[7],
     )
-    assert authority.editable_goal_refs == ("i_1.parabola",)
+    assert authority.editable_goal_refs == ("i_1.parabola", "i_2.E")
     assert authority.goal_authorities["i_1.parabola"].status == "failed"
-    assert authority.goal_authorities["i_2.E"].status == "blocked"
-    assert authority.editable_scope_refs == ("i",)
-    assert authority.repair_step_owners["derive_parabola_i"] == "scope:i"
-    retry_scope_i = _scope(
+    assert authority.goal_authorities["i_2.E"].status == "failed"
+    assert authority.editable_scope_refs == ("i_1",)
+    assert authority.repair_step_owners["derive_parabola_i"] == "scope:i_1"
+    retry_scope_i_1 = _scope(
         authority.retry_context.to_prompt_payload()["root_scope"],
-        "i",
+        "i_1",
     )
-    assert "promoted_step_ids" not in retry_scope_i
-
-    replacement_payload = {
-        "schema_version": FUNCTIONAL_GOAL_REPAIR_CONTRACT,
-        "base_plan_id": authority.base_plan_id,
-        "base_retry_context_id": authority.retry_context_id,
-        "goal_replacements": {
-            goal_ref: {
-                "steps": deepcopy(goal(correct, goal_ref).get("steps", [])),
-                "answer_from": deepcopy(
-                    goal(correct, goal_ref)["answer_from"]
-                ),
-            }
-            for goal_ref in authority.editable_goal_refs
-        },
-        "scope_step_replacements": {
-            "i": {
-                "steps": deepcopy(_scope(correct["root_scope"], "i")["steps"]),
-            },
-        },
-    }
-    with pytest.raises(FunctionalGoalRetryError) as stale:
-        FunctionalGoalRepairService().apply_json(
-            json.dumps(replacement_payload, ensure_ascii=False),
-            base_plan=failed_plan,
-            authority=authority,
-            capability_catalog=FunctionalCapabilityCatalog.from_family_spec(
-                fixture[3].family_spec,
-                fixture[3].method_specs,
-            ),
-        )
-    assert stale.value.code == "functional.goal_repair_stale_plan"
-
-    application = FunctionalGoalRepairService().apply_json(
-        json.dumps(replacement_payload, ensure_ascii=False),
-        base_plan=authority.base_plan,
-        authority=authority,
-        capability_catalog=FunctionalCapabilityCatalog.from_family_spec(
-            fixture[3].family_spec,
-            fixture[3].method_specs,
-        ),
-    )
-
-    assert application.plan.to_payload() == correct
+    assert "promoted_step_ids" not in retry_scope_i_1
+    canonical_i = _scope(authority.base_plan.to_payload()["root_scope"], "i")
+    canonical_i_1 = _scope(authority.base_plan.to_payload()["root_scope"], "i_1")
+    assert "steps" not in canonical_i
+    assert [item["step_id"] for item in canonical_i_1["steps"]] == [
+        misplaced["step_id"]
+    ]
 
 
 def _scope(scope_payload, scope_ref):

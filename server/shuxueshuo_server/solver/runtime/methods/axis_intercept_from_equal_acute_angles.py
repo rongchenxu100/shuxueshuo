@@ -9,7 +9,7 @@ from __future__ import annotations
 from shuxueshuo_server.solver.contracts import MethodExplanationSpec, MethodVisualSpec
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, declare_input_views
 
 
 class AxisInterceptFromEqualAcuteAnglesMethod:
@@ -155,6 +155,16 @@ SPEC = MethodSpecSource(
         "origin": {"type": "Point", "required": True},
         "target": {"type": "PointRef", "required": True},
     },
+    input_views=declare_input_views(
+        identity=("target",),
+        latest_state=(
+            "x_axis_point",
+            "y_axis_point",
+            "reference_x_axis_point",
+            "origin",
+        ),
+        exact_result=("angle_equality",),
+    ),
     outputs={"point": "Point"},
     preconditions=(
         "angle_equality 表示目标直角三角形锐角等于参考直角三角形锐角",

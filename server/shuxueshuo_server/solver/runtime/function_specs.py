@@ -12,6 +12,7 @@ from dataclasses import dataclass, replace
 from typing import Any, Callable, Literal, Mapping
 
 from shuxueshuo_server.solver.contracts import (
+    MethodInputViewMode,
     MethodSpec,
     PlanTransformerScope,
     ScalarResultFormSpec,
@@ -59,6 +60,9 @@ from shuxueshuo_server.solver.runtime.capability_contracts import (
     effective_contract_by_id,
 )
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
+from shuxueshuo_server.solver.runtime.planner_public_types import (
+    planner_output_value_type,
+)
 from shuxueshuo_server.solver.runtime.runtime_type_declarations import (
     split_runtime_types,
 )
@@ -89,6 +93,8 @@ class FunctionArgSpec:
     name: str
     kind: FunctionArgKind
     runtime_type: str
+    domain_type: str
+    view_mode: MethodInputViewMode
     required: bool = True
     cardinality: str = "one"
     state_kind: str | None = None
@@ -103,7 +109,9 @@ class FunctionArgSpec:
         payload: dict[str, Any] = {
             "name": self.name,
             "kind": self.kind,
+            "domain_type": self.domain_type,
             "runtime_type": self.runtime_type,
+            "view_mode": self.view_mode,
             "required": self.required,
             "cardinality": self.cardinality,
         }
@@ -504,6 +512,18 @@ class FunctionAdapterRegistry:
             input_bindings_override=input_bindings_override,
         ):
             if binding.input_name in inputs:
+                continue
+            if (
+                getattr(index, "problem_binding_authority", False)
+                and binding.functional_authority == "wire"
+                and binding.functional_resolver is None
+            ):
+                if binding.required:
+                    raise StrategyDraftValidationError(
+                        "planner_configuration_error: wire-owned Functional "
+                        "argument has no exact reconciled binding: "
+                        f"method={method_id}, arg={binding.input_name}"
+                    )
                 continue
             try:
                 value = self._select(binding.selector, step, index, local_outputs)
@@ -1266,6 +1286,8 @@ def _arg_spec_from_method_input(
         method_input=name,
         kind=kind,
         runtime_type=runtime_type,
+        domain_type=input_spec.domain_type,
+        view_mode=input_spec.view.mode,
         required=bool(getattr(input_spec, "required", True)),
         state_kind=(
             state_kind_for_runtime_type(primary_type)
@@ -1348,26 +1370,19 @@ def _arg_prompt_payload(arg: FunctionArgSpec) -> dict[str, Any]:
     payload: dict[str, Any] = {
         "name": arg.name,
         "kind": arg.kind,
-        "value_type": arg.runtime_type,
+        "domain_type": arg.domain_type,
         "required": arg.required,
         "cardinality": arg.cardinality,
     }
-    if arg.state_kind is not None:
-        payload["state_kind"] = arg.state_kind
-    if arg.object_kind is not None:
-        payload["object_kind"] = arg.object_kind
     return payload
 
 
 def _return_prompt_payload(item: FunctionReturnSpec) -> dict[str, Any]:
     payload: dict[str, Any] = {
         "name": item.name,
-        "value_type": item.runtime_type,
-        "state_kind": item.state_kind,
+        "type": planner_output_value_type(item.runtime_type),
         "required": item.required,
     }
-    if item.object_kind is not None:
-        payload["object_kind"] = item.object_kind
     return payload
 
 

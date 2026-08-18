@@ -148,6 +148,12 @@ C5 symbolic closure门禁仍然有效，它验证的是参数闭合、分支数�
 → 再跑 smoke
 ```
 
+逐个sample的证据读取顺序、输出超长诊断、semantic/provider attempt区分、逐轮
+Plan执行图和retry authority图统一遵循
+`docs/llm-sample-failure-review-guide.md`。真实失败审查不得只引用最终error；每个
+semantic attempt都必须按scope/Goal画出Plan依赖，标注实际runtime结果或明确说明
+未执行。
+
 ## 8. Retry 设计
 
 - freeze的权威单位是完成全部answer/runtime/closure/provenance gate的Goal，以及独立验证通过的scope-level execution block；

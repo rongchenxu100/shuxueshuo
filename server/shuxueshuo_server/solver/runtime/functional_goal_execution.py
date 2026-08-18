@@ -47,6 +47,7 @@ from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
     ScopedFunctionalScope,
     ScopedStepResultRef,
     apply_scoped_published_goal_bindings,
+    scoped_entity_state_dependencies,
     scoped_functional_plan_schema,
 )
 from shuxueshuo_server.solver.runtime.strategy_replay import (
@@ -983,6 +984,12 @@ class ScopedFunctionalGoalExecutionService:
             inputs.method_specs,
         )
         adapter = ScopedFunctionalPlanAuthorityAdapter()
+        entity_state_dependencies = scoped_entity_state_dependencies(
+            plan,
+            planning_context=planning_context,
+            binding_catalog=problem_binding_catalog,
+            capability_catalog=catalog,
+        )
         try:
             canonical_plan, normalizations = adapter.canonicalize(
                 plan,
@@ -1007,7 +1014,11 @@ class ScopedFunctionalGoalExecutionService:
                 report.issues,
                 stage="authoring_authority",
             )
-            blocked_by = _blocked_step_ids(plan, tuple(step_issues))
+            blocked_by = _blocked_step_ids(
+                plan,
+                tuple(step_issues),
+                additional_dependencies=entity_state_dependencies,
+            )
             checkpoint = _build_checkpoint(
                 plan,
                 canonical_plan=plan,
@@ -1031,6 +1042,12 @@ class ScopedFunctionalGoalExecutionService:
                 checkpoint,
                 plan,
             )
+        entity_state_dependencies = scoped_entity_state_dependencies(
+            canonical_plan,
+            planning_context=planning_context,
+            binding_catalog=problem_binding_catalog,
+            capability_catalog=catalog,
+        )
 
         authority, report = adapter.analyze(
             canonical_plan,
@@ -1076,6 +1093,7 @@ class ScopedFunctionalGoalExecutionService:
             blocked_by = _blocked_step_ids(
                 canonical_plan,
                 tuple((*invalid, *implicit_blocked_by)),
+                additional_dependencies=entity_state_dependencies,
             )
             blocked_by.update(implicit_blocked_by)
             excluded = frozenset((*invalid, *blocked_by))
@@ -1136,8 +1154,15 @@ class ScopedFunctionalGoalExecutionService:
                         working_authority.step_authorities.items()
                     )
                 },
+                scoped_semantic_owner_scopes={
+                    step_id: item.semantic_owner_scope_id
+                    for step_id, item in (
+                        working_authority.step_authorities.items()
+                    )
+                },
                 allow_incomplete_goals=bool(excluded),
                 retry_checkpoint=retry_checkpoint,
+                restored_seed=restored_seed,
             )
             replay = prepared
             reconciliation = prepared.functional_reconciliation
@@ -2151,9 +2176,12 @@ def _issue_step_ids(
 def _blocked_step_ids(
     plan: ScopedFunctionalPlan,
     invalid_step_ids: Sequence[str],
+    *,
+    additional_dependencies: Mapping[str, Sequence[str]] | None = None,
 ) -> dict[str, tuple[str, ...]]:
     blocked: dict[str, set[str]] = {}
     invalid = set(invalid_step_ids)
+    additional_dependencies = additional_dependencies or {}
     changed = True
     while changed:
         changed = False
@@ -2167,6 +2195,11 @@ def _blocked_step_ids(
                 if isinstance(value, ScopedStepResultRef)
                 and (value.step_id in invalid or value.step_id in blocked)
             }
+            roots.update(
+                dependency
+                for dependency in additional_dependencies.get(step.step_id, ())
+                if dependency in invalid or dependency in blocked
+            )
             roots.update(
                 root
                 for dependency in tuple(roots)

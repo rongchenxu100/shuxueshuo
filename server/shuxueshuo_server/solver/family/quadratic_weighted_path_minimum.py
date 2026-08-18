@@ -15,6 +15,7 @@ from shuxueshuo_server.solver.family.models import (
     MethodCompanionOutputSpec,
     MethodBindingRuleSpec,
     MethodInputBindingSpec,
+    MacroSearchSpec,
     RecipeExecutionSpec,
     recipe_output_alias,
     SolverFamilySpec,
@@ -75,7 +76,7 @@ _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             ),
             description=(
                 "每个 minimum_value scope 须试运行加权转化；所需 Point 须有"
-                " coordinate，PointRef 或描述不能代替。"
+                " coordinate；仅有点名或描述不能代替已计算坐标。"
             ),
         ),
     ),
@@ -130,8 +131,8 @@ _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             description=(
                 "前序几何构造已经产生一组有坐标的候选点后，用当前问含参抛物线"
                 "和参数约束筛出唯一候选点，再把该含参点代入抛物线反求参数并"
-                "代回抛物线。candidates 必须引用前序调用实际产出的 PointList，"
-                "不能把尚未求出坐标的目标 PointRef 包成单元素列表。若曲线条件"
+                "代回抛物线。candidates 必须引用前序调用实际产出的候选点集合，"
+                "不能把尚未求出坐标的目标点包成单元素伪候选列表。若曲线条件"
                 "本身不能唯一排除分支，必须显式提供与抛物线参数身份一致的 "
                 "symbol_constraint；代码不会从 Context 偷选范围条件。"
             ),
@@ -144,6 +145,12 @@ _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 method_sequence=(
                     "filter_point_candidates_by_quadratic_curve",
                     "parameter_from_curve_point_on_quadratic",
+                ),
+                execution_mode="runtime_search",
+                search=MacroSearchSpec(
+                    searchable_roles=("target_point",),
+                    candidate_builder_id="curve_role_assignments",
+                    validation_policy_id="curve_membership_and_provenance",
                 ),
                 execution_strategy="curve_candidate_parameter_solve",
                 intermediate_wiring=(
@@ -232,7 +239,7 @@ _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                     semantic_role="candidates",
                     description=(
                         "前序几何构造调用实际产出的候选点列表；每个候选都必须已有"
-                        "坐标状态。不能填写目标 PointRef，也不能填写只含目标对象的"
+                        "坐标状态。不能填写尚未求出坐标的目标点，也不能填写只含目标对象的"
                         "伪候选列表。"
                     ),
                 ),

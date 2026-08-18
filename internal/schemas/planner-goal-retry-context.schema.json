@@ -229,6 +229,22 @@
             "context"
           ]
         },
+        "editable_step_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "frozen_step_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
         "promoted_step_ids": {
           "type": "array",
           "items": {
@@ -276,6 +292,22 @@
             "open",
             "context"
           ]
+        },
+        "editable_step_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "frozen_step_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
         },
         "promoted_step_ids": {
           "type": "array",
@@ -325,6 +357,22 @@
             "context"
           ]
         },
+        "editable_step_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "frozen_step_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
         "promoted_step_ids": {
           "type": "array",
           "items": {
@@ -372,6 +420,22 @@
             "open",
             "context"
           ]
+        },
+        "editable_step_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "frozen_step_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
         },
         "promoted_step_ids": {
           "type": "array",

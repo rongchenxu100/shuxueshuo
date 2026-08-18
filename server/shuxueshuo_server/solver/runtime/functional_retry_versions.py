@@ -1098,8 +1098,30 @@ def build_functional_retry_graph_checkpoint(
                 problem_binding_context.binding_signature
             ),
         )
+        runtime_authorities: dict[str, ProblemCallSourceProvenance] = {}
+        for item in provenance:
+            authority = getattr(item, "problem_source_provenance", None)
+            if authority is None:
+                continue
+            previous = runtime_authorities.get(authority.canonical_call_id)
+            if (
+                previous is not None
+                and previous.semantic_signature()
+                != authority.semantic_signature()
+            ):
+                raise FunctionalRetryCheckpointError(
+                    "planner.retry_problem_source_binding_drift",
+                    "runtime Macro/source authority differs across returns for "
+                    f"{authority.canonical_call_id}",
+                )
+            runtime_authorities[authority.canonical_call_id] = authority
         problem_call_authorities = tuple(
-            problem_binding_context.source_provenance_for_call(call.call_id)
+            runtime_authorities.get(
+                call.call_id,
+                problem_binding_context.source_provenance_for_call(
+                    call.call_id
+                ),
+            )
             for call in reconciliation.plan.calls
         )
         problem_authority_by_call = {

@@ -200,6 +200,10 @@
             "square_center": {
               "ref": "square_center_h_square_ae_a_e_k_g",
               "kind": "fact"
+            },
+            "moving_point": {
+              "ref": "G",
+              "kind": "point"
             }
           },
           "return_bindings": {},

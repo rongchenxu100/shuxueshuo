@@ -103,6 +103,13 @@ __all__ = [
     "_point_complexity",
     "_straightening_candidate",
     "_point_matches_quadrant_under_lower_bound",
+    "is_definitely_positive",
+    "is_definitely_negative",
+    "is_definitely_nonnegative",
+    "is_definitely_nonpositive",
+    "is_definitely_zero",
+    "is_definitely_positive_under_lower_bound",
+    "is_definitely_negative_under_lower_bound",
 ]
 
 _subs_point = subs_point
@@ -724,24 +731,82 @@ def _linear_slope(expression: sp.Expr, parameter: sp.Symbol) -> sp.Expr | None:
 
 
 def _is_positive(value: sp.Expr) -> bool:
+    return is_definitely_positive(value)
+
+
+def _is_negative(value: sp.Expr) -> bool:
+    return is_definitely_negative(value)
+
+
+def _is_nonnegative(value: sp.Expr) -> bool:
+    return is_definitely_nonnegative(value)
+
+
+def _is_nonpositive(value: sp.Expr) -> bool:
+    return is_definitely_nonpositive(value)
+
+
+def _is_zero(value: sp.Expr) -> bool:
+    return is_definitely_zero(value)
+
+
+def is_definitely_positive(value: sp.Expr) -> bool:
+    """Return true only when SymPy can prove that ``value`` is positive."""
+
     value = sp.simplify(value)
     return value.is_positive is True or (value.is_number and bool(sp.N(value) > 0))
 
 
-def _is_negative(value: sp.Expr) -> bool:
+def is_definitely_negative(value: sp.Expr) -> bool:
+    """Return true only when SymPy can prove that ``value`` is negative."""
+
     value = sp.simplify(value)
     return value.is_negative is True or (value.is_number and bool(sp.N(value) < 0))
 
 
-def _is_nonnegative(value: sp.Expr) -> bool:
+def is_definitely_nonnegative(value: sp.Expr) -> bool:
+    """Return true only when SymPy can prove that ``value`` is nonnegative."""
+
     value = sp.simplify(value)
     return value.is_nonnegative is True or (value.is_number and bool(sp.N(value) >= 0))
 
 
-def _is_nonpositive(value: sp.Expr) -> bool:
+def is_definitely_nonpositive(value: sp.Expr) -> bool:
+    """Return true only when SymPy can prove that ``value`` is nonpositive."""
+
     value = sp.simplify(value)
     return value.is_nonpositive is True or (value.is_number and bool(sp.N(value) <= 0))
 
 
-def _is_zero(value: sp.Expr) -> bool:
+def is_definitely_zero(value: sp.Expr) -> bool:
+    """Return true only when symbolic simplification proves equality to zero."""
+
     return sp.simplify(value) == 0
+
+
+def is_definitely_positive_under_lower_bound(
+    expression: sp.Expr,
+    parameter: sp.Symbol,
+    lower_bound: sp.Expr,
+) -> bool:
+    """Prove positivity on ``parameter > lower_bound`` without bool(Relational)."""
+
+    return _expr_positive_under_lower_bound(
+        expression,
+        parameter,
+        lower_bound,
+    )
+
+
+def is_definitely_negative_under_lower_bound(
+    expression: sp.Expr,
+    parameter: sp.Symbol,
+    lower_bound: sp.Expr,
+) -> bool:
+    """Prove negativity on ``parameter > lower_bound`` without bool(Relational)."""
+
+    return _expr_negative_under_lower_bound(
+        expression,
+        parameter,
+        lower_bound,
+    )

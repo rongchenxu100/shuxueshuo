@@ -251,6 +251,7 @@ class _RecordingClient:
 
     def complete(self, payload: dict[str, Any]) -> str:
         self.request = payload
+        self.raw_response = ""
         try:
             self.raw_response = self.client.complete(payload)
         except Exception as exc:
@@ -281,6 +282,9 @@ class _RecordingClient:
             "response_model": getattr(client, "last_response_model", None),
             "provider_attempts": list(
                 getattr(client, "last_provider_attempts", ())
+            ),
+            "provider_reasoning": list(
+                getattr(client, "last_provider_reasoning", ())
             ),
             "error": (
                 f"{error.__class__.__name__}: {error}"
@@ -1028,12 +1032,14 @@ def _solved_goal_reexecution_count(
             if attempt.execution.replay is not None
             else None
         )
-        restored = (
-            set(transaction.execution_report.restored_call_ids)
-            if transaction is not None
-            else set()
-        )
-        count += len(solved_calls - restored)
+        if transaction is None:
+            continue
+        executed = {
+            event.call_id
+            for event in transaction.execution_report.events
+            if event.event == "running"
+        }
+        count += len(solved_calls & executed)
     return count
 
 
@@ -1326,6 +1332,19 @@ def _write_provider_attempt_snapshot(
         prefix.with_suffix(".raw-response.txt"),
         str(record.get("raw_response") or ""),
     )
+    for item in record.get("provider_reasoning") or ():
+        provider_attempt = int(item.get("provider_attempt") or 0)
+        reasoning_content = str(item.get("reasoning_content") or "")
+        if provider_attempt < 1 or not reasoning_content:
+            continue
+        _write_text_atomic(
+            sample_dir
+            / (
+                f"attempt-{semantic_attempt}.provider-attempt-"
+                f"{provider_attempt}.reasoning.txt"
+            ),
+            reasoning_content,
+        )
     _write_json(
         prefix.with_suffix(".payload.json"),
         request.get("planner_payload"),

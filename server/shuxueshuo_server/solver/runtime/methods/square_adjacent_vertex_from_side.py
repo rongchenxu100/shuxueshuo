@@ -8,7 +8,7 @@ from __future__ import annotations
 from shuxueshuo_server.solver.contracts import MethodExplanationSpec, MethodVisualSpec
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, declare_input_views
 
 
 class SquareAdjacentVertexFromSideMethod:
@@ -309,15 +309,14 @@ def _definitely_negative(
     parameter: sp.Symbol | None = None,
     parameter_constraint: dict[str, Any] | None = None,
 ) -> bool:
-    try:
-        return bool(sp.simplify(value) < 0)
-    except TypeError:
-        return _definitely_signed_under_constraint(
-            value,
-            parameter=parameter,
-            parameter_constraint=parameter_constraint,
-            want_positive=False,
-        )
+    if is_definitely_negative(value):
+        return True
+    return _definitely_signed_under_constraint(
+        value,
+        parameter=parameter,
+        parameter_constraint=parameter_constraint,
+        want_positive=False,
+    )
 
 
 def _definitely_positive(
@@ -326,15 +325,14 @@ def _definitely_positive(
     parameter: sp.Symbol | None = None,
     parameter_constraint: dict[str, Any] | None = None,
 ) -> bool:
-    try:
-        return bool(sp.simplify(value) > 0)
-    except TypeError:
-        return _definitely_signed_under_constraint(
-            value,
-            parameter=parameter,
-            parameter_constraint=parameter_constraint,
-            want_positive=True,
-        )
+    if is_definitely_positive(value):
+        return True
+    return _definitely_signed_under_constraint(
+        value,
+        parameter=parameter,
+        parameter_constraint=parameter_constraint,
+        want_positive=True,
+    )
 
 
 def _definitely_signed_under_constraint(
@@ -372,39 +370,19 @@ def _definitely_signed_under_constraint(
     at_bound = sp.simplify(value.subs(parameter, lower_bound))
     if want_positive:
         return (
-            _is_positive(slope) and _is_nonnegative(at_bound)
+            is_definitely_positive(slope)
+            and is_definitely_nonnegative(at_bound)
         ) or (
-            _is_zero(slope) and _is_positive(at_bound)
+            is_definitely_zero(slope)
+            and is_definitely_positive(at_bound)
         )
     return (
-        _is_negative(slope) and _is_nonpositive(at_bound)
+        is_definitely_negative(slope)
+        and is_definitely_nonpositive(at_bound)
     ) or (
-        _is_zero(slope) and _is_negative(at_bound)
+        is_definitely_zero(slope)
+        and is_definitely_negative(at_bound)
     )
-
-
-def _is_positive(value: sp.Expr) -> bool:
-    value = sp.simplify(value)
-    return value.is_positive is True or (value.is_number and bool(sp.N(value) > 0))
-
-
-def _is_negative(value: sp.Expr) -> bool:
-    value = sp.simplify(value)
-    return value.is_negative is True or (value.is_number and bool(sp.N(value) < 0))
-
-
-def _is_nonnegative(value: sp.Expr) -> bool:
-    value = sp.simplify(value)
-    return value.is_nonnegative is True or (value.is_number and bool(sp.N(value) >= 0))
-
-
-def _is_nonpositive(value: sp.Expr) -> bool:
-    value = sp.simplify(value)
-    return value.is_nonpositive is True or (value.is_number and bool(sp.N(value) <= 0))
-
-
-def _is_zero(value: sp.Expr) -> bool:
-    return sp.simplify(value) == 0
 
 
 SPEC = MethodSpecSource(
@@ -439,6 +417,11 @@ SPEC = MethodSpecSource(
         "parameter_value": {"type": "ParameterValue", "required": False},
         "parameter_constraint": {"type": "Constraint", "required": False},
     },
+    input_views=declare_input_views(
+        identity=("target", "side_start_ref", "side_end_ref", "parameter"),
+        latest_state=("side_start", "side_end", "parameter_value"),
+        immutable_value=("square_condition", "parameter_constraint"),
+    ),
     outputs={"point": "Point"},
     preconditions=(
         "square_condition 包含 ordered vertices；side_start、side_end 和绑定的目标点都必须对应其中的明确顶点角色",

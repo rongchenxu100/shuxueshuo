@@ -90,8 +90,8 @@ def test_stateless_methods_do_not_accept_solve_context() -> None:
     assert list(selector_signature.parameters) == ["inputs", "kernel"]
 
 
-def test_executor_recovers_point_ref_from_computed_point_output_path() -> None:
-    """PointRef|Point target 若来自 outputs/fact path，也应恢复学生可见点名。"""
+def test_executor_reads_point_identity_from_canonical_entity_path() -> None:
+    """Identity-view inputs come from the canonical entity, not a Point value."""
     context = ContextBuilder().build(load_problem_ir(NANKAI_FIXTURE))
     specs = MethodSpecRegistry.load_from_code()
     outputs = context.get_scope("ii").container("outputs")
@@ -114,11 +114,6 @@ def test_executor_recovers_point_ref_from_computed_point_output_path() -> None:
         (sp.Integer(2), sp.Integer(1)),
         source="test",
     )
-    outputs["G_coordinate"] = TypedValue(
-        "Point",
-        (sp.Integer(0), sp.Integer(0)),
-        source="test",
-    )
     invocation = MethodInvocation(
         invocation_id="derive_minimum_G_point.line_locus_minimum_point",
         method_id="line_locus_minimum_point",
@@ -127,7 +122,7 @@ def test_executor_recovers_point_ref_from_computed_point_output_path() -> None:
             "moving_locus": "$question.ii.outputs.G_locus_line",
             "minimum_point_1": "$question.ii.outputs.path_minimum_point_1",
             "minimum_point_2": "$question.ii.outputs.path_minimum_point_2",
-            "target": "$question.ii.outputs.G_coordinate",
+            "target": "$question.ii.points.G",
         },
         outputs={"point": "$question.ii.outputs.optimal_G_coordinate"},
     )
@@ -145,8 +140,8 @@ def test_executor_recovers_point_ref_from_computed_point_output_path() -> None:
     assert written.value == (sp.Integer(2), sp.Integer(0))
 
 
-def test_executor_recovers_strict_point_ref_target_from_existing_point_state() -> None:
-    """同一 MathObject 已有 Point 状态时，严格 PointRef target 仍可复用其身份。"""
+def test_executor_keeps_point_identity_separate_from_existing_point_state() -> None:
+    """An identity-view target never relies on a coordinate state's path/name."""
     context = ContextBuilder().build(load_problem_ir(NANKAI_FIXTURE))
     specs = MethodSpecRegistry.load_from_code()
     x = context.symbols["x"]
@@ -161,11 +156,6 @@ def test_executor_recovers_strict_point_ref_target_from_existing_point_state() -
         (sp.Integer(0), sp.Integer(0)),
         source="test",
     )
-    outputs["B_coordinate"] = TypedValue(
-        "Point",
-        (sp.Symbol("a"), sp.Integer(0)),
-        source="test",
-    )
     invocation = MethodInvocation(
         invocation_id="close_existing_B.quadratic_x_axis_intercept_point",
         method_id="quadratic_x_axis_intercept_point",
@@ -173,7 +163,7 @@ def test_executor_recovers_strict_point_ref_target_from_existing_point_state() -
         inputs={
             "quadratic": "$question.ii.outputs.closed_parabola",
             "x": "$problem.symbols.x",
-            "target": "$question.ii.outputs.B_coordinate",
+            "target": "$question.ii.points.G",
             "known_point": "$question.ii.outputs.known_intercept",
         },
         outputs={"point": "$question.ii.outputs.closed_B_coordinate"},
@@ -185,7 +175,7 @@ def test_executor_recovers_strict_point_ref_target_from_existing_point_state() -
         sp.Integer(2),
         sp.Integer(0),
     )
-    assert result.trace_fragments[0].goal == "确定 B 的坐标"
+    assert result.trace_fragments[0].goal == "确定 G 的坐标"
 
 
 def test_executor_projects_structured_point_to_active_function_basis() -> None:

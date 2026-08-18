@@ -9,7 +9,7 @@ from __future__ import annotations
 from shuxueshuo_server.solver.contracts import MethodExplanationSpec, MethodVisualSpec
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, declare_input_views
 
 
 class TranslatedPointMethod:
@@ -91,6 +91,10 @@ SPEC = MethodSpecSource(
         "source": {"type": "Point", "required": True},
         "target": {"type": "PointRef", "required": True},
     },
+    input_views=declare_input_views(
+        identity=("target",),
+        latest_state=("source",),
+    ),
     outputs={"point": "Point"},
     preconditions=("target.definition 包含 vector 或 dx/dy 平移信息",),
     postconditions=("输出点等于 source 加平移向量",),

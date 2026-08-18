@@ -1504,14 +1504,37 @@ def _validate_compiled_identity(
     )
     drift = [name for name, expected, observed in fields if expected != observed]
     if drift:
+        expected_values = {
+            name: _diagnostic_identity_payload(expected)
+            for name, expected, _observed in fields
+            if name in drift
+        }
+        observed_values = {
+            name: _diagnostic_identity_payload(observed)
+            for name, _expected, observed in fields
+            if name in drift
+        }
         mismatches.append(
             _mismatch(
                 "planner.contract_runtime_destination_drift",
                 "compiler state provenance differs from the B2 projection",
                 projected,
-                details={"fields": drift},
+                details={
+                    "fields": drift,
+                    "expected": expected_values,
+                    "observed": observed_values,
+                },
             )
         )
+
+
+def _diagnostic_identity_payload(value: Any) -> Any:
+    if value is None or isinstance(value, (str, int, float, bool)):
+        return value
+    to_payload = getattr(value, "to_payload", None)
+    if callable(to_payload):
+        return to_payload()
+    return repr(value)
 
 
 def _compiled_source_output_path(

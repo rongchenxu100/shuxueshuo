@@ -16,7 +16,6 @@ method，再把 method output 写回 RuntimeContext。
 from __future__ import annotations
 
 from dataclasses import replace
-import re
 
 import sympy as sp
 
@@ -26,6 +25,10 @@ from shuxueshuo_server.solver.runtime.context import RuntimeContext
 from shuxueshuo_server.solver.runtime.method_specs import (
     MethodSpecRegistry,
     method_output_activity,
+)
+from shuxueshuo_server.solver.runtime.method_input_views import (
+    MethodInputViewResolver,
+    expected_runtime_type_for_view,
 )
 from shuxueshuo_server.solver.runtime.methods import (
     StatelessMethodRegistry,
@@ -40,9 +43,6 @@ from shuxueshuo_server.solver.runtime.models import (
     StepExecutionResult,
     StepPlan,
     runtime_type_matches,
-)
-from shuxueshuo_server.solver.runtime.runtime_type_declarations import (
-    split_runtime_types,
 )
 from shuxueshuo_server.solver.runtime.functional_diagnostics import (
     StatelessMethodError,
@@ -269,10 +269,7 @@ class PlanValidator:
             if not isinstance(raw_path, str) or not raw_path.startswith("$"):
                 # 这条规则防止 Planner 把坐标答案直接塞进 invocation。
                 raise ValueError(f"input {input_name} must be a ContextPath")
-            expected_type = _identity_compatible_input_type(
-                input_name,
-                input_spec.type,
-            )
+            expected_type = expected_runtime_type_for_view(input_spec)
             if raw_path in produced_types:
                 if not runtime_type_matches(expected_type, produced_types[raw_path]):
                     raise TypeError(
@@ -535,6 +532,7 @@ class InvocationExecutor:
         inputs = {}
         input_types = {}
         typed_inputs: dict[str, TypedValue] = {}
+        view_resolver = MethodInputViewResolver()
         for input_name, input_spec in spec.inputs.items():
             raw_path = invocation.inputs.get(input_name)
             if raw_path is None:
@@ -556,26 +554,19 @@ class InvocationExecutor:
                 input_types[input_name] = input_spec.type
                 inputs[input_name] = [item.value for item in values]
                 continue
-            expected_type = _identity_compatible_input_type(
-                input_name,
-                input_spec.type,
+            resolved = view_resolver.resolve(
+                context,
+                method_id=invocation.method_id,
+                invocation_id=invocation.invocation_id,
+                scope_id=invocation.scope,
+                input_name=input_name,
+                input_spec=input_spec,
+                raw_path=raw_path,
             )
-            # read_path 会同时做 scope 可见性校验和 expected_type 校验。
-            typed_value = context.read_path(
-                raw_path,
-                from_scope_id=invocation.scope,
-                expected_type=expected_type,
-            )
+            typed_value = resolved.typed_value
             input_types[input_name] = typed_value.type
             typed_inputs[input_name] = typed_value
-            inputs[input_name] = _method_input_value(
-                input_name=input_name,
-                input_type=input_spec.type,
-                raw_path=raw_path,
-                typed_value=typed_value,
-                context=context,
-                from_scope_id=invocation.scope,
-            )
+            inputs[input_name] = resolved.value
         inputs = _materialize_symbolic_method_input_views(
             spec,
             inputs,
@@ -718,91 +709,3 @@ def _aggregate_item_type(runtime_type: str) -> str | None:
         "PointList": "Point",
         "SymbolList": "Symbol",
     }.get(runtime_type)
-
-
-def _method_input_value(
-    *,
-    input_name: str,
-    input_type: str,
-    raw_path: str,
-    typed_value,
-    context: RuntimeContext,
-    from_scope_id: str,
-):
-    """把 RuntimeContext value 转成无状态 method 期望的 Python 输入。
-
-    ``PointRef|Point`` 主要用于 target/``*_ref`` 槽位：点实体可能已经在前序步骤中被
-    写成 Point，但 method 仍只需要该点的学生可见名称。此时从 points path
-    派生一个 PointRef，比要求 LLM 重新声明同名点更稳定。
-    """
-    if not (
-        (input_name == "target" or input_name.endswith("_ref"))
-        and "PointRef" in split_runtime_types(input_type)
-    ):
-        return typed_value.value
-    point_ref: PointRef | None = None
-    if typed_value.type == "Point":
-        point_ref = _point_ref_from_point_value_path(raw_path)
-    elif typed_value.type == "PointRef":
-        point_ref = typed_value.value
-    if point_ref is None:
-        return typed_value.value
-    definition = dict(point_ref.definition)
-    coordinate_path = context.find_visible_path(
-        "points",
-        point_ref.name,
-        from_scope_id=from_scope_id,
-    )
-    if coordinate_path is not None:
-        coordinate = context.read_path(
-            coordinate_path,
-            from_scope_id=from_scope_id,
-            expected_type="Point|PointRef",
-        )
-        if coordinate.type == "Point":
-            definition["existing_coordinate"] = coordinate.value
-    return replace(point_ref, definition=definition)
-
-
-def _identity_compatible_input_type(
-    input_name: str,
-    input_type: str,
-) -> str:
-    """Allow identity slots to recover PointRef from an existing Point path."""
-    if (
-        (input_name == "target" or input_name.endswith("_ref"))
-        and "PointRef" in split_runtime_types(input_type)
-    ):
-        return "PointRef|Point"
-    return input_type
-
-
-def _point_ref_from_point_value_path(raw_path: str) -> PointRef | None:
-    """从 Point runtime path 恢复学生可见点名。"""
-    path = ContextPath.parse(raw_path)
-    name = path.key if path.container == "points" else None
-    if name is None:
-        name = _point_name_from_runtime_key(path.key)
-    if name is None and path.scope_type == "step":
-        name = _point_name_from_runtime_key(path.scope_id)
-    if name is None:
-        return None
-    return PointRef(
-        name=name,
-        path=raw_path,
-        scope_id=path.scope_id,
-    )
-
-
-def _point_name_from_runtime_key(value: str) -> str | None:
-    """从 G_coordinate / optimal_G_coordinate / derive_G_coordinate 等 key 取点名。"""
-    patterns = (
-        r"optimal_(?P<name>[A-Z][A-Za-z0-9_]*?)_coordinate(?:_expr|_value)?",
-        r"(?P<name>[A-Z][A-Za-z0-9_]*?)_(?:parametric_coordinate|numeric_coordinate|coordinate_expr|coordinate_value|coordinate|point_at_minimum)",
-        r"(?:derive|compute|evaluate)_(?:optimal_|minimum_)?(?P<name>[A-Z][A-Za-z0-9_]*?)_(?:parametric_coordinate|numeric_coordinate|coordinate_expr|coordinate_value|coordinate|point)",
-    )
-    for pattern in patterns:
-        match = re.fullmatch(pattern, value)
-        if match:
-            return match.group("name")
-    return None

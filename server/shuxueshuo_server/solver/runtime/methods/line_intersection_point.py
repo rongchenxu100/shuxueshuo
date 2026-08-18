@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, declare_input_views
 
 
 class LineIntersectionPointMethod:
@@ -89,6 +89,16 @@ SPEC = MethodSpecSource(
         "required": False
     }
 },
+    input_views=declare_input_views(
+        identity=("target", "parameter"),
+        latest_state=(
+            "line1_p1",
+            "line1_p2",
+            "line2_p1",
+            "line2_p2",
+            "parameter_value",
+        ),
+    ),
     outputs={
     "intersection": "Point"
 },

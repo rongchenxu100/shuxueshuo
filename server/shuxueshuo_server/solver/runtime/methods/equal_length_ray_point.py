@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, declare_input_views
 
 
 class EqualLengthRayPointMethod:
@@ -109,6 +109,10 @@ SPEC = MethodSpecSource(
         "ray_point": {"type": "Point", "required": True},
         "target": {"type": "PointRef", "required": True},
     },
+    input_views=declare_input_views(
+        identity=("target",),
+        latest_state=("anchor", "reference_point", "ray_point"),
+    ),
     outputs={"point": "Point"},
     preconditions=("anchor 与 ray_point 必须确定一条非零射线方向",),
     postconditions=("输出点在指定射线所在直线上，且到 anchor 的距离等于 anchor-reference",),

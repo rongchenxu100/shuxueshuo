@@ -15,7 +15,7 @@ from shuxueshuo_server.solver.runtime.weighted_triangle_geometry import (
 )
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, declare_input_views
 
 
 class LinkedBrokenPathGeometricMinimumMethod:
@@ -581,7 +581,7 @@ def _constraint_satisfied(value: sp.Expr, constraint: dict[str, sp.Expr | str]) 
     lower = _constraint_lower_bound(constraint)
     if lower is None:
         return True
-    return bool(sp.simplify(value - lower) > 0)
+    return is_definitely_positive(sp.simplify(value - lower))
 
 
 def _constraint_lower_bound(constraint: dict[str, sp.Expr | str]) -> sp.Expr | None:
@@ -612,15 +612,14 @@ def _linear_positive_under_lower_bound(
     """证明一次表达式在参数下界右侧恒正。"""
     expression = sp.simplify(expression)
     if not expression.has(parameter):
-        return bool(expression > 0)
+        return is_definitely_positive(expression)
     if lower_bound is None:
         return False
-    poly = sp.Poly(expression, parameter)
-    if poly.degree() > 1:
-        return False
-    slope = sp.simplify(poly.coeff_monomial(parameter))
-    at_bound = sp.simplify(expression.subs(parameter, lower_bound))
-    return bool(slope >= 0 and at_bound > 0)
+    return is_definitely_positive_under_lower_bound(
+        expression,
+        parameter,
+        lower_bound,
+    )
 
 
 def _simplify_abs_by_lower_bound(
@@ -663,6 +662,18 @@ SPEC = MethodSpecSource(
         "parameter_constraint": {"type": "Constraint", "required": True},
         "dynamic_constraint": {"type": "Constraint", "required": True},
     },
+    input_views=declare_input_views(
+        identity=("parameter", "dynamic_parameter"),
+        latest_state=(
+            "auxiliary_locus",
+            "fixed_point",
+            "curve_point",
+            "moving_point",
+            "auxiliary_point",
+        ),
+        immutable_value=("condition", "parameter_constraint", "dynamic_constraint"),
+        exact_result=("path_transformation",),
+    ),
     outputs={
         "parameter_value": "ParameterValue",
         "dynamic_parameter_value": "ParameterValue",
@@ -700,6 +711,18 @@ MINIMUM_EXPRESSION_SPEC = MethodSpecSource(
         "parameter_constraint": {"type": "Constraint", "required": True},
         "dynamic_constraint": {"type": "Constraint", "required": True},
     },
+    input_views=declare_input_views(
+        identity=("parameter", "dynamic_parameter"),
+        latest_state=(
+            "auxiliary_locus",
+            "fixed_point",
+            "curve_point",
+            "moving_point",
+            "auxiliary_point",
+        ),
+        immutable_value=("parameter_constraint", "dynamic_constraint"),
+        exact_result=("path_transformation",),
+    ),
     outputs={
         "minimum_expression": "MinimumExpression",
         "dynamic_parameter_expression": "Expression",

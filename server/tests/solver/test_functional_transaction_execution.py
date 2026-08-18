@@ -26,12 +26,12 @@ from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
     PreparedFunctionalArgBinding,
     PreparedFunctionalCall,
     _closure_failure_details,
+    _canonicalize_projected_state_write_versions,
     _latest_visible_parameter_version,
     _materialize_runtime_parameter_closure,
     _prepared_runtime_arg_object_ids,
     _restored_problem_source_authority_difference,
     _substitute_runtime_parameters,
-    _unauthorized_consumer_goal_deltas,
     _validate_symbolic_closure_write_set,
 )
 from shuxueshuo_server.solver.runtime.problem_source_provenance import (
@@ -85,6 +85,8 @@ from shuxueshuo_server.solver.runtime.strategy_replay import (
     transactional_repair_attempt_payload_from_replay,
 )
 from shuxueshuo_server.solver.runtime.state_identity import (
+    ArgVersionBinding,
+    ComputationKey,
     IndexedStateVersion,
     LogicalStateKey,
     MathObjectId,
@@ -100,10 +102,15 @@ from shuxueshuo_server.solver.runtime.state_finalization import (
 )
 from shuxueshuo_server.solver.runtime.strategy_models import (
     PlannerRetryIssue,
+    ProjectedStateWrite,
     StrategyDraftValidationError,
 )
 from shuxueshuo_server.solver.runtime.symbolic_closure_execution import (
     execute_symbolic_closure,
+)
+from shuxueshuo_server.solver.state_semantics import (
+    StateObjectRoleBinding,
+    StateSemanticLineage,
 )
 
 from _problem_planning_support import planning_binding_fixture
@@ -112,7 +119,74 @@ from _problem_planning_support import planning_binding_fixture
 _SCOPE_NATIVE_AUTHORITY: dict[str, tuple] = {}
 
 
-def test_restored_source_authority_and_goal_consumers_are_separate() -> None:
+def test_projected_write_canonicalizes_every_version_bearing_field() -> None:
+    object_id = MathObjectId(
+        value="point:problem:A",
+        kind="point",
+        origin_scope_id="problem",
+    )
+    logical_key = LogicalStateKey(
+        object_id=object_id,
+        state_kind="point",
+        runtime_type="Point",
+    )
+    slot_id = StateSlotId(logical_key, "ii")
+    canonical_id = StateVersionId(slot_id, 0)
+    equivalent_id = StateVersionId(slot_id, 1)
+    selected_id = StateVersionId(slot_id, 2)
+    projected = ProjectedStateWrite(
+        step_id="evaluate_A_ii",
+        produced_handle="point:problem:A",
+        state_slot_id="slot:A",
+        write_mode="transition",
+        selected_version_id=selected_id,
+        previous_version_id=equivalent_id,
+        source_version_ids=(equivalent_id,),
+        computation_key=ComputationKey(
+            capability_id="evaluate_point_at_parameter",
+            arg_bindings=(
+                ArgVersionBinding(
+                    arg_name="point",
+                    item_index=0,
+                    version_id=equivalent_id,
+                ),
+            ),
+        ),
+        lineage=StateSemanticLineage(
+            source_version_ids=(equivalent_id,),
+            object_roles=(
+                StateObjectRoleBinding(
+                    role="point",
+                    source_version_ids=(equivalent_id,),
+                ),
+            ),
+        ),
+    )
+
+    canonical = _canonicalize_projected_state_write_versions(
+        projected,
+        resolve_version_id=lambda version_id: (
+            canonical_id
+            if version_id == equivalent_id
+            else version_id
+        ),
+    )
+
+    assert canonical.selected_version_id == selected_id
+    assert canonical.previous_version_id == canonical_id
+    assert canonical.source_version_ids == (canonical_id,)
+    assert canonical.computation_key is not None
+    assert (
+        canonical.computation_key.arg_bindings[0].version_id
+        == canonical_id
+    )
+    assert canonical.lineage.source_version_ids == (canonical_id,)
+    assert canonical.lineage.object_roles[0].source_version_ids == (
+        canonical_id,
+    )
+
+
+def test_restored_source_authority_excludes_derived_goal_consumers() -> None:
     previous = ProblemCallSourceProvenance(
         planning_context_id="planning:1",
         problem_revision_id="revision:1",
@@ -132,16 +206,6 @@ def test_restored_source_authority_and_goal_consumers_are_separate() -> None:
         _restored_problem_source_authority_difference(previous, refined)
         is None
     )
-    assert _unauthorized_consumer_goal_deltas(
-        previous,
-        refined,
-        allowed_consumer_goal_delta_ids={"goal:repair"},
-    ) == ()
-    assert _unauthorized_consumer_goal_deltas(
-        previous,
-        refined,
-        allowed_consumer_goal_delta_ids=set(),
-    ) == ("goal:repair",)
 
     changed_source = replace(
         refined,

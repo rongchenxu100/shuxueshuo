@@ -584,6 +584,36 @@ def test_line_parabola_second_intersection_reports_typed_precondition_and_ambigu
     assert ambiguous.value.authority.observed["candidate_count"] == 2
 
 
+def test_line_parabola_symbolic_range_is_typed_ambiguity() -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["t", "x"])
+    t, x = symbols["t"], symbols["x"]
+
+    with pytest.raises(StatelessMethodError) as error:
+        LineParabolaSecondIntersectionPointMethod().run(
+            {
+                "parabola": (x - t) * (x - t - 1),
+                "x": x,
+                "line_p1": (sp.Integer(0), sp.Integer(0)),
+                "line_p2": (sp.Integer(1), sp.Integer(0)),
+                "known_point": (t, sp.Integer(0)),
+                "target": PointRef(
+                    "E",
+                    "$question.points.E",
+                    definition={"x_range": ["0", "2"]},
+                ),
+            },
+            kernel,
+        )
+
+    assert error.value.authority.code == "functional.method_result_ambiguous"
+    assert error.value.authority.retryability == "planner_repairable"
+    assert (
+        error.value.authority.observed["state"]
+        == "range_membership_unresolved"
+    )
+
+
 def test_equal_length_ray_point_method_heping_geometry() -> None:
     kernel = SympyKernel()
     a = kernel.symbols(["a"])["a"]
@@ -2305,6 +2335,53 @@ def test_linked_broken_path_minimum_expression_method() -> None:
     assert all(check.ok for check in result.checks)
 
 
+def test_linked_broken_path_symbolic_sign_is_typed_ambiguity() -> None:
+    """An unrelated free symbol must not be coerced to Python bool."""
+
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["b", "c", "n"])
+    b, c, n = symbols["b"], symbols["c"], symbols["n"]
+    transform = WeightedAxisPathTriangleTransformMethod().run(
+        {
+            "condition": {"path": "sqrt(2)*MN+AN", "value": "21/4"},
+            "fixed_point": (-1, 0),
+            "moving_point": (n, 0),
+            "dynamic_parameter": n,
+            "auxiliary_point_ref": PointRef("Q", "$question.iii.points.Q"),
+        },
+        kernel,
+    )
+
+    with pytest.raises(StatelessMethodError) as error:
+        LinkedBrokenPathMinimumExpressionMethod().run(
+            {
+                "path_transformation": transform.outputs[
+                    "path_transformation"
+                ].value,
+                "auxiliary_locus": transform.outputs["auxiliary_locus"].value,
+                "fixed_point": (-1, 0),
+                "curve_point": (-c - sp.Rational(1, 2), c / 2 - sp.Rational(1, 4)),
+                "moving_point": (n, 0),
+                "auxiliary_point": transform.outputs["auxiliary_point"].value,
+                "parameter": b,
+                "dynamic_parameter": n,
+                "parameter_constraint": {
+                    "operator": ">",
+                    "value": sp.Integer(0),
+                },
+                "dynamic_constraint": {
+                    "operator": ">",
+                    "value": sp.Integer(0),
+                },
+            },
+            kernel,
+        )
+
+    assert error.value.authority.code == "functional.method_result_ambiguous"
+    assert error.value.authority.retryability == "planner_repairable"
+    assert error.value.authority.subjects[0].arg_name == "dynamic_parameter"
+
+
 def test_linked_broken_path_minimum_expression_method_supports_weight_2() -> None:
     """西青 2DM+AM 的 30°/60° 转化应得到关于 b 的最小值表达式。"""
     kernel = SympyKernel()
@@ -2360,6 +2437,11 @@ def test_square_path_dimension_reduction_method() -> None:
                 "point": "point:ii:H",
                 "square": "fact:ii:square_AEKG",
             },
+            "moving_point": PointRef(
+                "G",
+                "$question.ii.points.G",
+                scope_id="ii",
+            ),
         },
         kernel,
     )
@@ -2369,6 +2451,67 @@ def test_square_path_dimension_reduction_method() -> None:
     assert transform["fixed_point_names"] == ("A", "M")
     assert transform["moving_point_name"] == "G"
     assert all(check.ok for check in result.checks)
+
+
+def test_square_path_dimension_reduction_validates_planner_selected_moving_point() -> None:
+    """相同正方形可验证另一方向，Method 不把 vertex_4 当成策略答案。"""
+    kernel = SympyKernel()
+    common = {
+        "square_condition": {
+            "vertices": [
+                "point:ii:A",
+                "point:ii:E",
+                "point:ii:K",
+                "point:ii:G",
+            ],
+        },
+        "midpoint_condition": {
+            "point": "point:ii:F",
+            "of": ["point:ii:A", "point:ii:E"],
+        },
+        "square_center_condition": {
+            "point": "point:ii:H",
+            "square": "fact:ii:square_AEKG",
+        },
+    }
+
+    result = SquarePathDimensionReductionMethod().run(
+        {
+            **common,
+            "path_condition": {"path": "HF+FM+MK"},
+            "moving_point": PointRef(
+                "K",
+                "$question.ii.points.K",
+                scope_id="ii",
+            ),
+        },
+        kernel,
+    )
+
+    transform = result.outputs["path_transformation"].value
+    assert transform["transformed_path"] == "EK+MK"
+    assert transform["moving_point_ref"] == "point:ii:K"
+
+    with pytest.raises(StatelessMethodError) as error:
+        SquarePathDimensionReductionMethod().run(
+            {
+                **common,
+                "path_condition": {"path": "HF+FM+MG"},
+                "moving_point": PointRef(
+                    "E",
+                    "$question.ii.points.E",
+                    scope_id="ii",
+                ),
+            },
+            kernel,
+        )
+
+        assert error.value.code == "functional.method_precondition_failed"
+        assert error.value.authority.subjects[0].arg_name == "moving_point"
+    assert (
+        error.value.authority.repair_action
+        == "choose_square_path_moving_point"
+    )
 
 
 def test_parameterized_point_locus_line_method_allows_problem_parameter() -> None:

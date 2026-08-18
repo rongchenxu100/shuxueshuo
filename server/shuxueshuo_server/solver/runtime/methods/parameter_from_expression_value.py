@@ -19,7 +19,7 @@ from shuxueshuo_server.solver.runtime.symbolic_closure_execution import (
 )
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, declare_input_views
 
 
 class ParameterFromExpressionValueMethod:
@@ -123,6 +123,11 @@ SPEC = MethodSpecSource(
         "parameter": {"type": "Symbol", "required": True},
         "constraint": {"type": "Constraint", "required": False},
     },
+    input_views=declare_input_views(
+        identity=("parameter",),
+        immutable_value=("condition", "constraint"),
+        exact_result=("expression",),
+    ),
     outputs={"parameter_value": "ParameterValue"},
     plan_transformer="validate_student_single_degree_of_freedom",
     plan_transformer_scope="all_invocations",

@@ -12,7 +12,7 @@ from shuxueshuo_server.solver.contracts import (
 )
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, declare_input_views
 
 
 class EvaluatePointAtParameterMethod:
@@ -97,6 +97,10 @@ SPEC = MethodSpecSource(
         "parameter": {"type": "Symbol", "required": False},
         "parameter_value": {"type": "ParameterValue", "required": True},
     },
+    input_views=declare_input_views(
+        identity=("parameter",),
+        latest_state=("point", "parameter_value"),
+    ),
     outputs={"evaluated_point": "Point"},
     plan_transformer="substitute_read_point_parameters",
     reconciliation_validators=("companion_symbol_coverage",),

@@ -53,6 +53,10 @@ _REPAIR_MESSAGES = {
     "provide_visible_state_producer": (
         "Add or repair a visible producer for the required object state."
     ),
+    "align_call_with_goal_scope": (
+        "Keep the call inside a scope visible to every listed Goal, or remove "
+        "the foreign Goal dependency."
+    ),
     "provide_required_input": "Provide the missing typed input.",
     "provide_macro_input": (
         "Provide the listed public Macro argument; internal Method wiring is "

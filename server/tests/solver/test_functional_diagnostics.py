@@ -513,6 +513,87 @@ def test_reconciliation_type_mismatch_projects_ref_arg_and_types(
     assert payload["repair_action"] == "repair_input_binding"
 
 
+def test_scope_visibility_diagnostic_projects_goal_and_scope_authority(
+    tmp_path,
+) -> None:
+    fixture = planning_binding_fixture(
+        tmp_path / "heping-ermo",
+        case="tj-2026-heping-ermo-25",
+    )
+    issue = FunctionalPlanIssue(
+        layer="functional_reconciliation",
+        code="functional.call_scope_not_visible_for_goal",
+        message="call execution scope is outside its GoalView authority",
+        call_id="i_build_parabola",
+        scope_id="i",
+        details={
+            "goal_unit_ids": ["goal:problem/ii:point_coordinate:E"],
+            "observed_goal_refs": ["ii.E"],
+            "observed_goal_scope_ids": ["ii"],
+            "actual_execution_scope": "i",
+            "expected_visible_scope_ids": ["problem", "ii"],
+            "repair_action": "align_call_with_goal_scope",
+        },
+    )
+
+    payload = _reconciliation_issue_payload(
+        issue,
+        binding_catalog=fixture[7],
+        planning_context=fixture[1],
+    )
+    authority = payload.pop("_diagnostic_authority")
+
+    assert payload["retryability"] == "planner_repairable"
+    assert payload["repair_action"] == "align_call_with_goal_scope"
+    assert payload["expected"] == {
+        "expected_visible_scope_ids": ["problem", "ii"]
+    }
+    assert payload["observed"] == {
+        "actual_execution_scope": "i",
+        "observed_goal_refs": ["ii.E"],
+        "observed_goal_scope_ids": ["ii"],
+    }
+    assert "goal:problem/ii" not in json.dumps(
+        payload,
+        ensure_ascii=False,
+    )
+    assert authority["authority_details"]["goal_unit_ids"] == [
+        "goal:problem/ii:point_coordinate:E"
+    ]
+
+
+def test_return_form_mismatch_preserves_runtime_closure_details(tmp_path) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    issue = FunctionalPlanIssue(
+        layer="trial_execution",
+        code="functional.return_form_mismatch",
+        message="return point expected closed_state but retains ['c']",
+        call_id="recover_E_ii",
+        scope_id="ii",
+        details={
+            "return": "point",
+            "expected_form": "closed_state",
+            "observed_form": "symbolic_state",
+            "observed_free_symbol_names": ["c"],
+            "repair_action": "provide_visible_state_producer",
+        },
+    )
+
+    payload = _reconciliation_issue_payload(
+        issue,
+        binding_catalog=fixture.binding_catalog,
+        planning_context=fixture.planning_context,
+    )
+    payload.pop("_diagnostic_authority")
+
+    assert payload["expected"] == {"expected_form": "closed_state"}
+    assert payload["observed"] == {
+        "observed_form": "symbolic_state",
+        "observed_free_symbol_names": ["c"],
+    }
+    assert payload["repair_action"] == "provide_visible_state_producer"
+
+
 def test_method_check_failure_preserves_structured_check_details() -> None:
     error = method_check_failed(
         (

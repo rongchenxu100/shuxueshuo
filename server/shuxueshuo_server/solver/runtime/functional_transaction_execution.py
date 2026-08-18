@@ -82,6 +82,14 @@ from shuxueshuo_server.solver.runtime.functional_transaction_shadow import (
 from shuxueshuo_server.solver.runtime.handle_registry import (
     CanonicalHandleRegistry,
 )
+from shuxueshuo_server.solver.runtime.handle_alias_index import (
+    visible_from_valid_scope,
+)
+from shuxueshuo_server.solver.runtime.macro_runtime_search import (
+    MacroRuntimeSearchReport,
+    runtime_verified_macro_report,
+)
+from shuxueshuo_server.solver.runtime.macro_specs import MacroSpec
 from shuxueshuo_server.solver.runtime.methods import default_stateless_registry
 from shuxueshuo_server.solver.runtime.models import (
     ContextDeclaration,
@@ -223,6 +231,7 @@ class CompiledFunctionalCall:
     binding_consumption_decisions: tuple[dict[str, Any], ...] = ()
     compile_mismatches: tuple[dict[str, Any], ...] = ()
     problem_source_provenance: ProblemCallSourceProvenance | None = None
+    macro_search_report: MacroRuntimeSearchReport | None = None
 
 
 @dataclass(frozen=True)
@@ -235,6 +244,7 @@ class FunctionalCallExecutionResult:
     checks: tuple[Any, ...] = ()
     root_issues: tuple[PlannerRetryIssue, ...] = ()
     symbolic_closure: SymbolicClosureExecutionResult | None = None
+    macro_search_report: MacroRuntimeSearchReport | None = None
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -252,6 +262,11 @@ class FunctionalCallExecutionResult:
             "symbolic_closure": (
                 self.symbolic_closure.to_payload()
                 if self.symbolic_closure is not None
+                else None
+            ),
+            "macro_search_report": (
+                self.macro_search_report.to_payload()
+                if self.macro_search_report is not None
                 else None
             ),
         }
@@ -293,9 +308,41 @@ class FunctionalTransactionalExecutionReport:
         repr=False,
         compare=False,
     )
+    runtime_version_aliases: Mapping[
+        StateVersionId,
+        StateVersionId,
+    ] = field(default_factory=dict, repr=False, compare=False)
     runtime_equivalent_aliases: tuple[
         "FunctionalRuntimeEquivalentCallAlias", ...
     ] = ()
+
+    @property
+    def executed_call_ids(self) -> tuple[str, ...]:
+        """Calls that actually entered the runtime, excluding restores."""
+
+        return tuple(
+            dict.fromkeys(
+                event.call_id
+                for event in self.events
+                if event.event == "running"
+            )
+        )
+
+    def resolve_runtime_version_id(
+        self,
+        version_id: StateVersionId,
+    ) -> StateVersionId:
+        current = version_id
+        visited: set[StateVersionId] = set()
+        while current in self.runtime_version_aliases:
+            if current in visited:
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.runtime_equivalent_version_alias_cycle"
+                )
+            visited.add(current)
+            current = self.runtime_version_aliases[current]
+        return current
 
     @property
     def functional_compile_count(self) -> int:
@@ -388,6 +435,8 @@ class FunctionalTransactionalExecutionReport:
             ),
             "restored_call_ids": list(self.restored_call_ids),
             "restored_call_count": len(self.restored_call_ids),
+            "executed_call_ids": list(self.executed_call_ids),
+            "executed_call_count": len(self.executed_call_ids),
             "symbolic_closure_execution_count": (
                 self.symbolic_closure_execution_count
             ),
@@ -402,6 +451,15 @@ class FunctionalTransactionalExecutionReport:
             ),
             "runtime_equivalent_aliases": [
                 item.to_payload() for item in self.runtime_equivalent_aliases
+            ],
+            "runtime_version_aliases": [
+                {
+                    "candidate_version_id": candidate.to_payload(),
+                    "canonical_version_id": canonical.to_payload(),
+                }
+                for candidate, canonical in sorted(
+                    self.runtime_version_aliases.items()
+                )
             ],
         }
 
@@ -489,7 +547,10 @@ class FunctionalRestoredCallSeed:
     call_binding_payloads: Mapping[str, Mapping[str, Any]] = field(
         default_factory=dict
     )
-    allowed_consumer_goal_delta_ids: tuple[str, ...] = ()
+    call_reconciliations: Mapping[
+        str,
+        FunctionalCallReconciliation,
+    ] = field(default_factory=dict)
 
     @property
     def call_ids(self) -> tuple[str, ...]:
@@ -540,9 +601,6 @@ def rebase_restored_call_seed(
         )
     calls = {item.call_id: item for item in reconciliation.calls}
     compiled_by_call = {item.call_id: item for item in seed.compiled_calls}
-    allowed_consumer_goal_deltas = set(
-        seed.allowed_consumer_goal_delta_ids
-    )
     rebased_results: list[FunctionalCallExecutionResult] = []
     rebased_compiled: list[CompiledFunctionalCall] = []
     for result in seed.call_results:
@@ -586,6 +644,12 @@ def rebase_restored_call_seed(
             )
         previous = compiled.problem_source_provenance
         current = binding_context.source_provenance_for_call(call_id)
+        if previous is not None and previous.macro_search_signature is not None:
+            current = current.with_macro_search(
+                search_signature=previous.macro_search_signature,
+                role_resolutions=previous.macro_role_resolutions,
+                additional_source_unit_ids=previous.input_source_unit_ids,
+            )
         source_difference = (
             {"path": "$", "expected": "present", "actual": None}
             if previous is None
@@ -601,29 +665,6 @@ def rebase_restored_call_seed(
                 details={"first_difference": source_difference},
             )
         assert previous is not None
-        unauthorized_goal_deltas = _unauthorized_consumer_goal_deltas(
-            previous,
-            current,
-            allowed_consumer_goal_delta_ids=(
-                allowed_consumer_goal_deltas
-            ),
-        )
-        if unauthorized_goal_deltas:
-            raise FunctionalRestoredCallBindingError(
-                call_id,
-                f"Problem Goal consumers changed for restored call {call_id}",
-                code="planner.retry_problem_goal_consumer_drift",
-                details={
-                    "previous_goal_unit_ids": list(previous.goal_unit_ids),
-                    "current_goal_unit_ids": list(current.goal_unit_ids),
-                    "allowed_consumer_goal_delta_ids": sorted(
-                        allowed_consumer_goal_deltas
-                    ),
-                    "unauthorized_goal_unit_ids": list(
-                        unauthorized_goal_deltas
-                    ),
-                },
-            )
         rebased_results.append(
             replace(
                 result,
@@ -822,18 +863,6 @@ def _restored_problem_source_authority_difference(
                 "actual": actual,
             }
     return None
-
-
-def _unauthorized_consumer_goal_deltas(
-    previous: ProblemCallSourceProvenance,
-    current: ProblemCallSourceProvenance,
-    *,
-    allowed_consumer_goal_delta_ids: set[str],
-) -> tuple[str, ...]:
-    """Return Goal-membership changes outside the authenticated repair cone."""
-
-    changed = set(previous.goal_unit_ids) ^ set(current.goal_unit_ids)
-    return tuple(sorted(changed - allowed_consumer_goal_delta_ids))
 
 
 class FunctionalCallPreparationService:
@@ -1388,15 +1417,13 @@ def _prepare_non_state_runtime_path(
 def _canonicalize_projected_state_dependency_version(
     dependency: ProjectedStateDependency,
     *,
-    working: WorkingPlannerState,
+    resolve_version_id: Callable[[StateVersionId], StateVersionId],
 ) -> ProjectedStateDependency:
     """Project a proven runtime-equivalent read onto its canonical version."""
 
     if dependency.state_version_id is None:
         return dependency
-    selected = working.resolve_runtime_version_id(
-        dependency.state_version_id
-    )
+    selected = resolve_version_id(dependency.state_version_id)
     if selected == dependency.state_version_id:
         return dependency
     return replace(dependency, state_version_id=selected)
@@ -1405,33 +1432,33 @@ def _canonicalize_projected_state_dependency_version(
 def _canonicalize_projected_state_write_versions(
     write: ProjectedStateWrite,
     *,
-    working: WorkingPlannerState,
+    resolve_version_id: Callable[[StateVersionId], StateVersionId],
 ) -> ProjectedStateWrite:
     """Keep projected producer provenance aligned with runtime aliases."""
 
     selected = (
-        working.resolve_runtime_version_id(write.selected_version_id)
+        resolve_version_id(write.selected_version_id)
         if write.selected_version_id is not None
         else None
     )
     previous = (
-        working.resolve_runtime_version_id(write.previous_version_id)
+        resolve_version_id(write.previous_version_id)
         if write.previous_version_id is not None
         else None
     )
     sources = tuple(
-        working.resolve_runtime_version_id(item)
+        resolve_version_id(item)
         for item in write.source_version_ids
     )
     lineage_sources = tuple(
-        working.resolve_runtime_version_id(item)
+        resolve_version_id(item)
         for item in write.lineage.source_version_ids
     )
     object_roles = tuple(
         replace(
             role,
             source_version_ids=tuple(
-                working.resolve_runtime_version_id(item)
+                resolve_version_id(item)
                 for item in role.source_version_ids
             ),
         )
@@ -1442,11 +1469,28 @@ def _canonicalize_projected_state_write_versions(
         source_version_ids=lineage_sources,
         object_roles=object_roles,
     )
+    computation_key = write.computation_key
+    if computation_key is not None:
+        computation_key = replace(
+            computation_key,
+            arg_bindings=tuple(
+                replace(
+                    binding,
+                    version_id=(
+                        resolve_version_id(binding.version_id)
+                        if binding.version_id is not None
+                        else None
+                    ),
+                )
+                for binding in computation_key.arg_bindings
+            ),
+        )
     if (
         selected == write.selected_version_id
         and previous == write.previous_version_id
         and sources == write.source_version_ids
         and lineage == write.lineage
+        and computation_key == write.computation_key
     ):
         return write
     return replace(
@@ -1455,6 +1499,7 @@ def _canonicalize_projected_state_write_versions(
         previous_version_id=previous,
         source_version_ids=sources,
         lineage=lineage,
+        computation_key=computation_key,
     )
 
 
@@ -1526,14 +1571,14 @@ class FunctionalCallCompilerService:
         all_writes = tuple(
             _canonicalize_projected_state_write_versions(
                 item,
-                working=working,
+                resolve_version_id=working.resolve_runtime_version_id,
             )
             for item in all_writes
         )
         all_dependencies = tuple(
             _canonicalize_projected_state_dependency_version(
                 item,
-                working=working,
+                resolve_version_id=working.resolve_runtime_version_id,
             )
             for item in reconciliation.state_dependencies
         )
@@ -1806,6 +1851,11 @@ def _compiled_call_signature(
             if compiled.problem_source_provenance is not None
             else None
         ),
+        (
+            compiled.macro_search_report.search_signature
+            if compiled.macro_search_report is not None
+            else None
+        ),
     )
 
 
@@ -1879,6 +1929,263 @@ def _audit_compiled_problem_source_provenance(
             )
 
 
+def _with_verified_macro_search(
+    compiled: CompiledFunctionalCall,
+    *,
+    prepared: PreparedFunctionalCall,
+    capability: Any,
+    runtime_results: tuple[FunctionalRuntimeResult, ...],
+    writes: tuple[StateWriteProvenance, ...],
+    checks: Sequence[Any],
+    method_results: Sequence[Any],
+    handle_registry: CanonicalHandleRegistry,
+) -> tuple[
+    CompiledFunctionalCall,
+    tuple[FunctionalRuntimeResult, ...],
+    tuple[StateWriteProvenance, ...],
+    MacroRuntimeSearchReport | None,
+]:
+    macro = capability.source if capability is not None else None
+    if (
+        not isinstance(macro, MacroSpec)
+        or macro.execution_mode != "runtime_search"
+        or macro.search is None
+    ):
+        return compiled, runtime_results, writes, None
+    authored_roles = _authored_macro_roles(prepared, macro)
+    selected_roles = _selected_macro_roles(prepared, macro)
+    chosen_roles = _chosen_macro_roles(
+        selected_roles,
+        runtime_results=runtime_results,
+        method_results=method_results,
+        scope_id=prepared.execution_scope_id,
+        handle_registry=handle_registry,
+    )
+    report = runtime_verified_macro_report(
+        macro_id=macro.macro_id,
+        spec=macro.search,
+        authored_roles=authored_roles,
+        chosen_roles=chosen_roles,
+        runtime_outputs=tuple(
+            item.value if item.value is not None else item.value_omitted_reason
+            for item in runtime_results
+        ),
+        check_names=tuple(
+            str(getattr(item, "name", "runtime_check")) for item in checks
+        ),
+        call_count=sum(len(item.invocations) for item in compiled.plans),
+    )
+    compiled = replace(compiled, macro_search_report=report)
+    provenance = compiled.problem_source_provenance
+    if provenance is None:
+        return compiled, runtime_results, writes, report
+    provenance = provenance.with_macro_search(
+        search_signature=report.search_signature,
+        role_resolutions=tuple(
+            (item.role, item.authored_ref, item.chosen_ref)
+            for item in report.role_resolutions
+        ),
+    )
+    compiled = _stamp_compiled_problem_source_provenance(
+        compiled,
+        provenance,
+    )
+    return (
+        compiled,
+        tuple(
+            replace(item, problem_source_provenance=provenance)
+            for item in runtime_results
+        ),
+        tuple(
+            replace(item, problem_source_provenance=provenance)
+            for item in writes
+        ),
+        report,
+    )
+
+
+def _authored_macro_roles(
+    prepared: PreparedFunctionalCall,
+    macro: MacroSpec,
+) -> dict[str, str]:
+    assert macro.search is not None
+    return dict(prepared.reconciliation.authored_macro_roles)
+
+
+def _selected_macro_roles(
+    prepared: PreparedFunctionalCall,
+    macro: MacroSpec,
+) -> dict[str, str]:
+    """Project the Macro candidate selected by lowering, before runtime checks."""
+
+    assert macro.search is not None
+    result: dict[str, str] = {}
+    for role in macro.search.searchable_roles:
+        direct = tuple(
+            value.object_ref or value.handle
+            for value in prepared.reconciliation.resolved_args.get(role, ())
+            if value.object_ref or value.handle
+        )
+        projected = tuple(
+            object_ref
+            for values in prepared.reconciliation.resolved_args.values()
+            for value in values
+            for binding in value.lineage.object_roles
+            if binding.role == role
+            for object_ref in binding.object_refs
+        )
+        legacy_projected = tuple(
+            object_ref
+            for values in prepared.reconciliation.resolved_args.values()
+            for value in values
+            for bound_role, object_refs in value.object_roles
+            if bound_role == role
+            for object_ref in object_refs
+        )
+        refs = tuple(dict.fromkeys((*direct, *projected, *legacy_projected)))
+        if len(refs) == 1:
+            result[role] = refs[0]
+    return result
+
+
+def _chosen_macro_roles(
+    selected_roles: Mapping[str, str],
+    *,
+    runtime_results: Sequence[FunctionalRuntimeResult],
+    method_results: Sequence[Any],
+    scope_id: str,
+    handle_registry: CanonicalHandleRegistry,
+) -> dict[str, str]:
+    result = dict(selected_roles)
+    result.update(
+        _runtime_macro_role_refs(
+            method_results,
+            scope_id=scope_id,
+            handle_registry=handle_registry,
+        )
+    )
+    moving_label = next(
+        (
+            label
+            for item in runtime_results
+            for label in _runtime_moving_point_labels(item.value)
+        ),
+        None,
+    )
+    if moving_label is not None:
+        resolved = _visible_point_handle_for_label(
+            moving_label,
+            scope_id=scope_id,
+            handle_registry=handle_registry,
+        )
+        if resolved is not None:
+            result["moving_point"] = resolved
+    return result
+
+
+def _runtime_macro_role_refs(
+    method_results: Sequence[Any],
+    *,
+    scope_id: str,
+    handle_registry: CanonicalHandleRegistry,
+) -> dict[str, str]:
+    """Read only explicit, structured role evidence from Method outputs."""
+
+    candidates: dict[str, list[str]] = {}
+
+    def add(role: str, value: Any) -> None:
+        if not isinstance(value, str) or not value:
+            return
+        handle = value if value.startswith("point:") else None
+        if handle is None:
+            handle = _visible_point_handle_for_label(
+                value,
+                scope_id=scope_id,
+                handle_registry=handle_registry,
+            )
+        if handle is not None:
+            candidates.setdefault(role, []).append(handle)
+
+    def visit(value: Any) -> None:
+        if isinstance(value, Mapping):
+            for key, child in value.items():
+                if key == "moving_point_ref":
+                    add("moving_point", child)
+                elif key == "replacement_moving_point":
+                    add("moving_point", child)
+                elif key == "moving_point":
+                    add("moving_point", child)
+                elif key == "reflect_source_ref":
+                    add("reflect_source", child)
+                elif key == "reflect_source":
+                    add("reflect_source", child)
+                visit(child)
+        elif isinstance(value, (list, tuple)):
+            for child in value:
+                visit(child)
+
+    for method_result in method_results:
+        for output in getattr(method_result, "outputs", {}).values():
+            if str(getattr(output, "type", "")).endswith("List"):
+                # Candidate collections describe the search space. Only the
+                # selected scalar result can authenticate a chosen role.
+                continue
+            visit(getattr(output, "value", None))
+
+    return {
+        role: refs[0]
+        for role, raw_refs in candidates.items()
+        for refs in (tuple(dict.fromkeys(raw_refs)),)
+        if len(refs) == 1
+    }
+
+
+def _runtime_moving_point_labels(value: Any) -> tuple[str, ...]:
+    if not isinstance(value, Mapping):
+        return ()
+    result: list[str] = []
+    for key in (
+        "replacement_moving_point",
+        "moving_point_name",
+        "moving_point",
+    ):
+        candidate = value.get(key)
+        if isinstance(candidate, str) and candidate:
+            result.append(candidate)
+    roles = value.get("roles")
+    if isinstance(roles, Mapping):
+        candidate = roles.get("moving_vertex") or roles.get("moving_point")
+        if isinstance(candidate, str) and candidate:
+            result.append(candidate)
+    return tuple(dict.fromkeys(result))
+
+
+def _visible_point_handle_for_label(
+    label: str,
+    *,
+    scope_id: str,
+    handle_registry: CanonicalHandleRegistry,
+) -> str | None:
+    if label in handle_registry.entity_handles:
+        return label
+    matches = tuple(
+        handle
+        for handle in handle_registry.entity_handles
+        if handle.startswith("point:")
+        and (
+            handle.rsplit(":", 1)[-1] == label
+            or handle_registry.entity_payloads.get(handle, {}).get("name")
+            == label
+        )
+        and visible_from_valid_scope(
+            handle_registry.handle_valid_scopes.get(handle, "problem"),
+            scope_id=scope_id,
+            registry=handle_registry,
+        )
+    )
+    return matches[0] if len(matches) == 1 else None
+
+
 def _prepared_path_rewrites(
     prepared_call: PreparedFunctionalCall,
 ) -> dict[str, str]:
@@ -1917,6 +2224,7 @@ class FunctionalRuntimeWriteCommitter:
         tuple[StateWriteProvenance, ...],
         tuple[IndexedStateVersion, ...],
         dict[StateVersionId, TypedValue],
+        dict[str, TypedValue],
         tuple[PlannerRetryIssue, ...],
     ]:
         _audit_compiled_problem_source_provenance(compiled)
@@ -1933,6 +2241,7 @@ class FunctionalRuntimeWriteCommitter:
         actual_writes: list[StateWriteProvenance] = []
         versions: list[IndexedStateVersion] = []
         runtime_values: dict[StateVersionId, TypedValue] = {}
+        result_values: dict[str, TypedValue] = {}
         issues: list[PlannerRetryIssue] = []
         version_rewrites = {
             item.original_version_id: item.selected_version_id
@@ -2012,6 +2321,13 @@ class FunctionalRuntimeWriteCommitter:
                         f"return {returned.return_name} expected "
                         f"{expected_form} "
                         f"but retains {list(free_symbols)}",
+                        details={
+                            "return": returned.return_name,
+                            "expected_form": expected_form,
+                            "observed_form": actual_form,
+                            "observed_free_symbol_names": list(free_symbols),
+                            "repair_action": "provide_visible_state_producer",
+                        },
                     )
                 )
                 continue
@@ -2053,6 +2369,7 @@ class FunctionalRuntimeWriteCommitter:
                 runtime_destination_key=runtime_destination,
             )
             actual_writes.append(actual_write)
+            result_values[write.output_key] = typed
             runtime_results.append(
                 _runtime_result(
                     branch,
@@ -2118,6 +2435,7 @@ class FunctionalRuntimeWriteCommitter:
                 tuple(actual_writes),
                 (),
                 {},
+                result_values,
                 tuple(issues),
             )
         return (
@@ -2125,6 +2443,7 @@ class FunctionalRuntimeWriteCommitter:
             tuple(actual_writes),
             tuple(versions),
             runtime_values,
+            result_values,
             (),
         )
 
@@ -2477,6 +2796,7 @@ class FunctionalTransactionalInterpreter:
                     writes,
                     versions,
                     runtime_values,
+                    call_result_values,
                     issues,
                 ) = committer.commit_payload(
                     compiled,
@@ -2530,7 +2850,12 @@ class FunctionalTransactionalInterpreter:
                         compiled=compiled,
                     )
                 projected_writes = tuple(
-                    item
+                    _canonicalize_projected_state_write_versions(
+                        item,
+                        resolve_version_id=(
+                            working.resolve_runtime_version_id
+                        ),
+                    )
                     for item in build_functional_state_write_manifest(
                         reconciliation.plan,
                         reconciliation.calls,
@@ -2555,6 +2880,13 @@ class FunctionalTransactionalInterpreter:
                         working=working,
                         branch=branch,
                         object_registry=object_registry,
+                        runtime_result_values={
+                            **runtime_result_values,
+                            **{
+                                (call_id, output_key): typed
+                                for output_key, typed in call_result_values.items()
+                            },
+                        },
                     )
                 )
                 if equivalence_issue is not None:
@@ -2576,6 +2908,25 @@ class FunctionalTransactionalInterpreter:
                         )
                     )
                     continue
+                (
+                    compiled,
+                    runtime_results,
+                    writes,
+                    macro_search_report,
+                ) = _with_verified_macro_search(
+                    compiled,
+                    prepared=prepared,
+                    capability=capability,
+                    runtime_results=runtime_results,
+                    writes=writes,
+                    checks=tuple(execution.checks),
+                    method_results=tuple(
+                        method_result
+                        for step_result in execution.step_results
+                        for method_result in step_result.method_results
+                    ),
+                    handle_registry=handle_registry,
+                )
                 if runtime_alias is not None:
                     # The isolated branch proved that every reused typed state
                     # is unchanged. Keep an answer alias so the Goal remains
@@ -2588,6 +2939,12 @@ class FunctionalTransactionalInterpreter:
                     )
                     working.set_status(call_id, "verified")
                     working.emit(call_id, "verified")
+                    runtime_result_values.update(
+                        {
+                            (call_id, output_key): typed
+                            for output_key, typed in call_result_values.items()
+                        }
+                    )
                     for write in writes:
                         if write.selected_version_id is None:
                             continue
@@ -2614,6 +2971,7 @@ class FunctionalTransactionalInterpreter:
                             committed_versions=(),
                             checks=tuple(execution.checks),
                             symbolic_closure=closure_result,
+                            macro_search_report=macro_search_report,
                         )
                     )
                     continue
@@ -2628,6 +2986,12 @@ class FunctionalTransactionalInterpreter:
                             call_bindings=effective_symbol_bindings,
                         )
                     ),
+                )
+                runtime_result_values.update(
+                    {
+                        (call_id, output_key): typed
+                        for output_key, typed in call_result_values.items()
+                    }
                 )
                 for write in writes:
                     destination = write.runtime_destination_key
@@ -2651,6 +3015,7 @@ class FunctionalTransactionalInterpreter:
                         committed_versions=versions,
                         checks=tuple(execution.checks),
                         symbolic_closure=closure_result,
+                        macro_search_report=macro_search_report,
                     )
                 )
             except Exception as exc:
@@ -2783,6 +3148,9 @@ class FunctionalTransactionalInterpreter:
                 )
             },
             runtime_result_values=runtime_result_values,
+            runtime_version_aliases=dict(
+                working.runtime_equivalent_version_aliases
+            ),
             runtime_equivalent_aliases=tuple(runtime_equivalent_aliases),
         )
 
@@ -2841,17 +3209,28 @@ class FunctionalTransactionalInterpreter:
             runtime_results=runtime_results,
             state_writes=state_writes,
         )
-        projected_writes = build_functional_state_write_manifest(
-            reconciliation.plan,
-            reconciliation.calls,
+        projected_writes = tuple(
+            _canonicalize_projected_state_write_versions(
+                item,
+                resolve_version_id=report.resolve_runtime_version_id,
+            )
+            for item in build_functional_state_write_manifest(
+                reconciliation.plan,
+                reconciliation.calls,
+            )
+        )
+        projected_dependencies = tuple(
+            _canonicalize_projected_state_dependency_version(
+                item,
+                resolve_version_id=report.resolve_runtime_version_id,
+            )
+            for item in reconciliation.state_dependencies
         )
         read_index = FunctionalStateReadIndex.from_sources(
             handle_registry=handle_registry,
             mode="authoritative",
             projected_state_writes=projected_writes,
-            projected_state_dependencies=(
-                reconciliation.state_dependencies
-            ),
+            projected_state_dependencies=projected_dependencies,
             state_write_provenance=state_writes,
             known_state_versions=report.known_versions,
         )
@@ -3508,9 +3887,12 @@ def _materialize_runtime_parameter_closure(
     runtime_context: RuntimeContext,
     object_registry: MathObjectRegistry,
     declared_runtime_symbols: Mapping[sp.Symbol, MathObjectId],
+    supplemental_parameter_values: Mapping[MathObjectId, Any] | None = None,
     resolving: tuple[StateVersionId, ...] = (),
+    resolving_parameter_ids: tuple[MathObjectId, ...] = (),
     ignored_parameter_ids: frozenset[MathObjectId] = frozenset(),
 ) -> _RuntimeParameterClosure:
+    supplemental_parameter_values = supplemental_parameter_values or {}
     # Symbol-valued inputs select an identity (for example the parameter to
     # solve or substitute).  Replacing that selector with its latest value
     # would change the method contract rather than materialize object state.
@@ -3533,12 +3915,42 @@ def _materialize_runtime_parameter_closure(
             )
         if object_ids[0] in ignored_parameter_ids:
             continue
+        object_id = object_ids[0]
         version = _latest_visible_parameter_version(
-            object_ids[0],
+            object_id,
             consumer_scope_id=consumer_scope_id,
             working=working,
         )
         if version is None:
+            if object_id not in supplemental_parameter_values:
+                continue
+            if object_id in resolving_parameter_ids:
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.runtime_parameter_state_cycle: "
+                    f"objects={[item.to_payload() for item in resolving_parameter_ids]}"
+                )
+            supplemental = supplemental_parameter_values[object_id]
+            if _symbolic_values_equivalent(supplemental, symbol):
+                continue
+            nested = _materialize_runtime_parameter_closure(
+                TypedValue(
+                    "ParameterValue",
+                    supplemental,
+                    source="verified_runtime_scalar_assignment",
+                ),
+                consumer_scope_id=consumer_scope_id,
+                working=working,
+                runtime_context=runtime_context,
+                object_registry=object_registry,
+                declared_runtime_symbols=declared_runtime_symbols,
+                supplemental_parameter_values=supplemental_parameter_values,
+                resolving=resolving,
+                resolving_parameter_ids=(*resolving_parameter_ids, object_id),
+                ignored_parameter_ids=ignored_parameter_ids,
+            )
+            substitutions[symbol] = nested.runtime_value.value
+            versions.extend(nested.parameter_versions)
             continue
         if version.version_id in resolving:
             raise ValueError(
@@ -3568,7 +3980,9 @@ def _materialize_runtime_parameter_closure(
                     {},
                 ),
             ),
+            supplemental_parameter_values=supplemental_parameter_values,
             resolving=(*resolving, version.version_id),
+            resolving_parameter_ids=resolving_parameter_ids,
             ignored_parameter_ids=ignored_parameter_ids,
         )
         substitutions[symbol] = nested.runtime_value.value
@@ -4307,6 +4721,7 @@ def _compare_provisional_runtime_state(
     working: WorkingPlannerState,
     branch: RuntimeContext,
     object_registry: MathObjectRegistry,
+    runtime_result_values: Mapping[tuple[str, str], TypedValue],
 ) -> tuple[
     FunctionalRuntimeEquivalentCallAlias | None,
     PlannerRetryIssue | None,
@@ -4434,39 +4849,74 @@ def _compare_provisional_runtime_state(
                 write.free_symbol_ids
             )
             if not (raw_equivalent and same_symbols):
-                materialized_existing = (
-                    _materialize_runtime_parameter_closure(
-                        existing,
-                        consumer_scope_id=(
-                            write.valid_scope_id or write.scope_id
+                consumer_scope_id = write.valid_scope_id or write.scope_id
+                existing_symbols = _runtime_value_symbol_object_ids(
+                    existing,
+                    runtime_context=branch,
+                    object_registry=object_registry,
+                    declared_runtime_symbols=_merge_runtime_symbol_bindings(
+                        declared,
+                        working.runtime_version_symbol_bindings.get(
+                            existing_version_id,
+                            {},
                         ),
+                    ),
+                )
+                candidate_symbols = _runtime_value_symbol_object_ids(
+                    candidate,
+                    runtime_context=branch,
+                    object_registry=object_registry,
+                    declared_runtime_symbols=declared,
+                )
+                supplemental_parameter_values = (
+                    _visible_runtime_scalar_assignments(
+                        consumer_scope_id=consumer_scope_id,
+                        current_call_id=call_id,
+                        runtime_result_values=runtime_result_values,
+                        reconciliation=reconciliation,
                         working=working,
                         runtime_context=branch,
                         object_registry=object_registry,
-                        declared_runtime_symbols=_merge_runtime_symbol_bindings(
-                            declared,
-                            working.runtime_version_symbol_bindings.get(
-                                existing_version_id,
-                                {},
-                            ),
-                        ),
+                        declared_runtime_symbols=declared,
                     )
                 )
-                strictly_closes_symbols = set(
-                    write.free_symbol_ids
-                ) < set(indexed.free_symbol_ids)
-                if (
-                    strictly_closes_symbols
-                    and _symbolic_values_equivalent(
-                        materialized_existing.runtime_value.value,
-                        candidate.value,
-                    )
-                ):
-                    if source_state_reuse:
-                        comparison = "equivalent_materialized_source"
-                    else:
+                materialized_existing = _materialize_runtime_parameter_closure(
+                    existing,
+                    consumer_scope_id=consumer_scope_id,
+                    working=working,
+                    runtime_context=branch,
+                    object_registry=object_registry,
+                    declared_runtime_symbols=_merge_runtime_symbol_bindings(
+                        declared,
+                        working.runtime_version_symbol_bindings.get(
+                            existing_version_id,
+                            {},
+                        ),
+                    ),
+                    supplemental_parameter_values=supplemental_parameter_values,
+                )
+                materialized_candidate = _materialize_runtime_parameter_closure(
+                    candidate,
+                    consumer_scope_id=consumer_scope_id,
+                    working=working,
+                    runtime_context=branch,
+                    object_registry=object_registry,
+                    declared_runtime_symbols=declared,
+                    supplemental_parameter_values=supplemental_parameter_values,
+                )
+                materialized_equivalent = _symbolic_values_equivalent(
+                    materialized_existing.runtime_value.value,
+                    materialized_candidate.runtime_value.value,
+                )
+                strictly_closes_symbols = (
+                    candidate_symbols < existing_symbols
+                )
+                if materialized_equivalent:
+                    if strictly_closes_symbols and not source_state_reuse:
                         comparison = "dependency_refinement"
                         refinement_seen = True
+                    else:
+                        comparison = "equivalent_after_parameter_closure"
                 else:
                     if not raw_equivalent:
                         reasons.append("runtime_value_mismatch")
@@ -4482,6 +4932,12 @@ def _compare_provisional_runtime_state(
                     "existing_version_id": existing_version_id.to_payload(),
                     "reasons": reasons,
                     "canonical_return_candidates": list(canonical_returns),
+                    "existing_value": _runtime_equivalence_value_payload(
+                        existing.value if existing is not None else None
+                    ),
+                    "candidate_value": _runtime_equivalence_value_payload(
+                        candidate.value if candidate is not None else None
+                    ),
                 }
             )
             continue
@@ -4552,6 +5008,140 @@ def _runtime_equivalence_value_payload(value: Any) -> Any:
     if hasattr(value, "to_payload"):
         return _runtime_equivalence_value_payload(value.to_payload())
     return repr(value)
+
+
+def _visible_runtime_scalar_assignments(
+    *,
+    consumer_scope_id: str,
+    current_call_id: str,
+    runtime_result_values: Mapping[tuple[str, str], TypedValue],
+    reconciliation: FunctionalPlanReconciliationResult,
+    working: WorkingPlannerState,
+    runtime_context: RuntimeContext,
+    object_registry: MathObjectRegistry,
+    declared_runtime_symbols: Mapping[sp.Symbol, MathObjectId],
+) -> dict[MathObjectId, Any]:
+    """Collect the closest verified scalar assignments for structural closure.
+
+    Some methods publish a value-only aggregate, such as ``Coefficients``,
+    instead of allocating one ``ParameterValue`` state per Symbol. Those values
+    are still verified runtime facts and must close later Point/Expression
+    states before equivalence is decided. Scope visibility and execution order
+    select the authoritative assignment; sibling results never participate.
+    """
+
+    calls = {item.call_id: item for item in reconciliation.calls}
+    placements = {
+        item.canonical_call_id: item.execution_scope_id
+        for item in reconciliation.call_placements
+    }
+    call_order = {
+        item.call_id: index for index, item in enumerate(reconciliation.calls)
+    }
+    ancestors = working.identity_index.visibility.registry.ancestor_scopes(
+        consumer_scope_id
+    )
+    scope_rank = {
+        scope_id: index for index, scope_id in enumerate(ancestors)
+    }
+    candidates: dict[
+        MathObjectId,
+        tuple[tuple[int, int], Any, str],
+    ] = {}
+    for (producer_call_id, _output_key), typed in runtime_result_values.items():
+        if typed.type != "Coefficients" or not isinstance(typed.value, Mapping):
+            continue
+        call = calls.get(producer_call_id)
+        if call is None:
+            continue
+        if producer_call_id != current_call_id:
+            state = working.call_states.get(producer_call_id)
+            if state is None or state.status != "verified":
+                continue
+        producer_scope_id = placements.get(
+            producer_call_id,
+            call.scope_id,
+        )
+        if not working.identity_index.visibility.is_visible(
+            producer_scope_id,
+            consumer_scope_id=consumer_scope_id,
+        ):
+            continue
+        rank = (
+            scope_rank.get(producer_scope_id, len(ancestors)),
+            -call_order.get(producer_call_id, -1),
+        )
+        for symbol, value in typed.value.items():
+            if not isinstance(symbol, sp.Symbol):
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.runtime_scalar_assignment_invalid: "
+                    f"call={producer_call_id}, key={symbol!r}"
+                )
+            object_ids = runtime_free_symbol_ids(
+                symbol,
+                context=runtime_context,
+                registry=object_registry,
+                declared_runtime_symbols=declared_runtime_symbols,
+            )
+            if len(object_ids) != 1:
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.runtime_symbol_identity_unresolved: "
+                    f"runtime_symbol={symbol}"
+                )
+            object_id = next(iter(object_ids))
+            existing = candidates.get(object_id)
+            if existing is None or rank < existing[0]:
+                candidates[object_id] = (rank, value, producer_call_id)
+                continue
+            if rank == existing[0] and not _symbolic_values_equivalent(
+                existing[1],
+                value,
+            ):
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.runtime_parameter_state_ambiguous: "
+                    f"object_id={object_id.to_payload()}, "
+                    f"calls={[existing[2], producer_call_id]}"
+                )
+    return {
+        object_id: candidate[1]
+        for object_id, candidate in candidates.items()
+    }
+
+
+def _runtime_value_symbol_object_ids(
+    runtime_value: TypedValue,
+    *,
+    runtime_context: RuntimeContext,
+    object_registry: MathObjectRegistry,
+    declared_runtime_symbols: Mapping[sp.Symbol, MathObjectId],
+) -> frozenset[MathObjectId]:
+    """Resolve actual runtime free symbols to canonical object identities.
+
+    State-write metadata is an audit projection and may still describe the
+    pre-materialized expression. Runtime equivalence must use the values that
+    were actually produced, otherwise a valid open-to-closed convergence can
+    be rejected solely because stale metadata retained a parameter id.
+    """
+
+    result: set[MathObjectId] = set()
+    for symbol in runtime_free_symbols(runtime_value.value):
+        object_ids = runtime_free_symbol_ids(
+            symbol,
+            context=runtime_context,
+            registry=object_registry,
+            declared_runtime_symbols=declared_runtime_symbols,
+        )
+        if len(object_ids) != 1:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.runtime_symbol_identity_unresolved: "
+                f"runtime_symbol={symbol}"
+            )
+        result.add(object_ids[0])
+    return frozenset(result)
 
 
 def _symbolic_values_equivalent(left: Any, right: Any) -> bool:
@@ -4876,7 +5466,10 @@ def _aggregate_transactional_output(
         ),
     )
     projected_writes = tuple(
-        item
+        _canonicalize_projected_state_write_versions(
+            item,
+            resolve_version_id=report.resolve_runtime_version_id,
+        )
         for item in build_functional_state_write_manifest(
             reconciliation.plan,
             reconciliation.calls,

@@ -8,7 +8,11 @@ from types import SimpleNamespace
 import pytest
 import sympy as sp
 
-from shuxueshuo_server.solver.contracts import MethodInputSpec, MethodSpec
+from shuxueshuo_server.solver.contracts import (
+    MethodInputSpec,
+    MethodInputViewSpec,
+    MethodSpec,
+)
 from shuxueshuo_server.solver.family.models import (
     CapabilityContractSpec,
     StateSlotPattern,
@@ -459,7 +463,15 @@ def test_function_spec_notes_contract_return_mismatch() -> None:
             title="Synthetic",
             solves=("derive_synthetic",),
             inputs={
-                "value": MethodInputSpec("value", "Expression"),
+                "value": MethodInputSpec(
+                    name="value",
+                    domain_type="Expression",
+                    runtime_type="Expression",
+                    view=MethodInputViewSpec(
+                        mode="immutable_value",
+                        domain_type="Expression",
+                    ),
+                ),
             },
             outputs={"expression": "Expression"},
         ),

@@ -1097,43 +1097,48 @@ class ReferenceScopeVersionModel:
                 for version_id in source_ids
             ):
                 base_execution_scope = call.declared_scope_id
-            requested_execution_scope = self.least_common_scope(
-                (
-                    base_execution_scope,
-                    *dependency_consumers.get(call.call_id, ()),
-                ),
-                scopes,
-            )
-            execution_scope = (
-                requested_execution_scope
-                if all(
-                    version_id in versions
-                    and self.is_visible(
-                        versions[version_id].valid_scope_id,
-                        requested_execution_scope,
-                        scopes,
-                    )
-                    for version_id in source_ids
+            if call.output_state_key is not None:
+                execution_scope = call.declared_scope_id
+                return_scope = call.declared_scope_id
+                storage_scope = call.declared_scope_id
+            else:
+                requested_execution_scope = self.least_common_scope(
+                    (
+                        base_execution_scope,
+                        *dependency_consumers.get(call.call_id, ()),
+                    ),
+                    scopes,
                 )
-                else base_execution_scope
-            )
-            requested_return_scope = self.least_common_scope(
-                (
-                    call.valid_scope_id or execution_scope,
-                    *dependency_consumers.get(call.call_id, ()),
-                ),
-                scopes,
-            )
-            return_scope = publishable_scope(
-                requested_scope=requested_return_scope,
-                fallback_scope=call.valid_scope_id or execution_scope,
-                source_ids=source_ids,
-            )
-            storage_scope = checkpoint_storage_scope(call.call_id) or (
-                return_scope
-                if dependency_consumers.get(call.call_id)
-                else (call.storage_scope_id or execution_scope)
-            )
+                execution_scope = (
+                    requested_execution_scope
+                    if all(
+                        version_id in versions
+                        and self.is_visible(
+                            versions[version_id].valid_scope_id,
+                            requested_execution_scope,
+                            scopes,
+                        )
+                        for version_id in source_ids
+                    )
+                    else base_execution_scope
+                )
+                requested_return_scope = self.least_common_scope(
+                    (
+                        call.valid_scope_id or execution_scope,
+                        *dependency_consumers.get(call.call_id, ()),
+                    ),
+                    scopes,
+                )
+                return_scope = publishable_scope(
+                    requested_scope=requested_return_scope,
+                    fallback_scope=call.valid_scope_id or execution_scope,
+                    source_ids=source_ids,
+                )
+                storage_scope = checkpoint_storage_scope(call.call_id) or (
+                    return_scope
+                    if dependency_consumers.get(call.call_id)
+                    else (call.storage_scope_id or execution_scope)
+                )
             (
                 _provisional_action,
                 provisional,
@@ -1255,7 +1260,8 @@ class ReferenceScopeVersionModel:
                     for version_id in producer_decision.source_version_ids
                 )
                 if (
-                    inputs_visible
+                    calls[producer_owner].output_state_key is None
+                    and inputs_visible
                     and execution_scope
                     != producer_decision.execution_scope_id
                 ):
@@ -1970,6 +1976,12 @@ class ReferenceScopeVersionModel:
         scopes = {
             item.scope_id: item.parent_scope_id for item in scenario.scopes
         }
+        if call.output_state_key is not None:
+            return cls.is_visible(
+                call.declared_scope_id,
+                consumer_scope_id,
+                scopes,
+            )
         valid_scope = call.valid_scope_id or call.declared_scope_id
         if cls.is_visible(valid_scope, consumer_scope_id, scopes):
             return True

@@ -16,7 +16,7 @@ from shuxueshuo_server.solver.runtime.symbolic_closure_execution import (
 )
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, declare_input_views
 
 
 class ParameterFromSegmentLengthMethod:
@@ -145,6 +145,11 @@ SPEC = MethodSpecSource(
         "required": False
     }
 },
+    input_views=declare_input_views(
+        identity=("parameter",),
+        latest_state=("p1", "p2", "reference_p1", "reference_p2"),
+        immutable_value=("condition", "constraint"),
+    ),
     outputs={
     "parameter_value": "ParameterValue"
 },

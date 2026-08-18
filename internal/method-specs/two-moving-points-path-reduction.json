@@ -8,39 +8,80 @@
   ],
   "inputs": {
     "original_path": {
-      "type": "Condition",
       "required": true,
-      "description": "原路径条件，例如 {\"path\": \"EG+FG\"}。"
+      "description": "原路径条件，例如 {\"path\": \"EG+FG\"}。",
+      "domain_type": "Fact",
+      "runtime_type": "Condition",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "Fact"
+      }
     },
     "first_moving_membership": {
-      "type": "Condition",
       "required": true,
-      "description": "第一个动点所在边，例如 E 在线段 DM 上。"
+      "description": "第一个动点所在边，例如 E 在线段 DM 上。",
+      "domain_type": "Fact",
+      "runtime_type": "Condition",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "Fact"
+      }
     },
     "second_moving_membership": {
-      "type": "Condition",
       "required": true,
-      "description": "第二个动点所在边，例如 G 在线段 MN 上。"
+      "description": "第二个动点所在边，例如 G 在线段 MN 上。",
+      "domain_type": "Fact",
+      "runtime_type": "Condition",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "Fact"
+      }
     },
     "binding_relation": {
-      "type": "Condition",
       "required": true,
-      "description": "两个动点的线段绑定关系，例如 DE=sqrt(2)*NG。"
+      "description": "两个动点的线段绑定关系，例如 DE=sqrt(2)*NG。",
+      "domain_type": "Fact",
+      "runtime_type": "Condition",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "Fact"
+      }
     },
     "first_segment_start": {
-      "type": "Point",
       "required": true,
-      "description": "第一条动点边上绑定线段的固定端点，例如 D。"
+      "description": "第一条动点边上绑定线段的固定端点，例如 D。",
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "joint_point": {
-      "type": "Point",
       "required": true,
-      "description": "两条动点边的公共端点，例如 M。"
+      "description": "两条动点边的公共端点，例如 M。",
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "second_segment_end": {
-      "type": "Point",
       "required": true,
-      "description": "第二条动点边上绑定线段的固定端点，例如 N。"
+      "description": "第二条动点边上绑定线段的固定端点，例如 N。",
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     }
   },
   "outputs": {

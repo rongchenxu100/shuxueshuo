@@ -130,6 +130,7 @@ from shuxueshuo_server.solver.runtime.planner_state_context import PlannerStateC
 from shuxueshuo_server.solver.runtime.semantic_reads import SemanticReadCatalogItem
 from shuxueshuo_server.solver.runtime.state_identity import (
     IdentityShadowComparison,
+    IndexedStateVersion,
     LogicalReturnEffect,
     MathObjectId,
     MathObjectRegistry,
@@ -831,6 +832,81 @@ def _drop_redundant_incomplete_identity_transitions(
     )
 
 
+def _pinned_call_reconciliation_issue(
+    call: FunctionalCall,
+    *,
+    scope_id: str,
+    pinned: FunctionalCallReconciliation,
+) -> FunctionalPlanIssue | None:
+    if (
+        pinned.call_id == call.call_id
+        and pinned.capability_id == call.capability_id
+    ):
+        return None
+    return _issue(
+        "functional_reconciliation",
+        "planner.retry_problem_source_binding_drift",
+        "restored call no longer has the checkpointed capability identity",
+        call_id=call.call_id,
+        scope_id=scope_id,
+        details={
+            "expected_call_id": pinned.call_id,
+            "actual_call_id": call.call_id,
+            "expected_capability_id": pinned.capability_id,
+            "actual_capability_id": call.capability_id,
+        },
+    )
+
+
+def _register_pinned_call_reconciliation(
+    pinned: FunctionalCallReconciliation,
+    *,
+    identity_index: StateIdentityIndex,
+    produced: dict[tuple[str, str], ResolvedFunctionalValue],
+) -> None:
+    """Publish exact checkpoint bindings without resolving latest state again."""
+
+    for allocation in pinned.returns:
+        if allocation.selected_version_id is not None:
+            identity_index.register(
+                IndexedStateVersion(
+                    version_id=allocation.selected_version_id,
+                    valid_scope_id=allocation.valid_scope,
+                    producer_call_id=pinned.call_id,
+                    produced_handle=(
+                        allocation.state_handle or allocation.handle
+                    ),
+                    computation_key=allocation.computation_key,
+                    free_symbol_refs=allocation.free_symbol_refs,
+                    free_symbol_ids=allocation.free_symbol_ids,
+                    previous_version_id=allocation.previous_version_id,
+                    source_version_ids=allocation.source_version_ids,
+                )
+            )
+        produced[(pinned.call_id, allocation.return_name)] = (
+            ResolvedFunctionalValue(
+                handle=allocation.state_handle or allocation.handle,
+                runtime_type=allocation.runtime_type,
+                valid_scope=allocation.valid_scope,
+                state_slot_id=allocation.state_slot_id,
+                source_call_id=pinned.call_id,
+                return_name=allocation.return_name,
+                object_ref=allocation.object_ref,
+                dependency_object_refs=allocation.dependency_object_refs,
+                free_symbol_refs=allocation.free_symbol_refs,
+                free_symbol_ids=allocation.free_symbol_ids,
+                source_state_slot_ids=allocation.source_state_slot_ids,
+                provides_semantic_roles=allocation.provides_semantic_roles,
+                lineage=allocation.lineage,
+                math_object_id=allocation.math_object_id,
+                logical_state_key=allocation.logical_state_key,
+                typed_slot_id=allocation.typed_slot_id,
+                state_version_id=allocation.selected_version_id,
+                source_version_ids=allocation.source_version_ids,
+            )
+        )
+
+
 class FunctionalPlanReconciler:
     """Resolve FunctionalPlan refs against Context and project canonical steps."""
 
@@ -859,6 +935,11 @@ class FunctionalPlanReconciler:
         pinned_execution_scopes: Mapping[str, str] | None = None,
         pinned_return_scopes: Mapping[str, Mapping[str, str]] | None = None,
         pinned_resolver_arg_names: Mapping[str, Sequence[str]] | None = None,
+        pinned_call_reconciliations: Mapping[
+            str,
+            FunctionalCallReconciliation,
+        ] | None = None,
+        scoped_semantic_owner_scopes: Mapping[str, str] | None = None,
         authored_call_goal_bindings: Mapping[str, Sequence[str]] | None = None,
         allow_incomplete_goals: bool = False,
         require_explicit_step_results: bool = False,
@@ -879,6 +960,9 @@ class FunctionalPlanReconciler:
             require_explicit_step_results=require_explicit_step_results,
         )
         plan = prepared.plan
+        pinned_call_reconciliations = dict(
+            pinned_call_reconciliations or {}
+        )
         semantic_items = prepared.semantic_items
         semantic_index = prepared.semantic_index
         catalog = prepared.catalog
@@ -987,6 +1071,61 @@ class FunctionalPlanReconciler:
                     )
                 )
                 continue
+            pinned_call = pinned_call_reconciliations.get(call.call_id)
+            if pinned_call is not None:
+                pin_issue = _pinned_call_reconciliation_issue(
+                    call,
+                    scope_id=scope.scope_id,
+                    pinned=pinned_call,
+                )
+                if pin_issue is not None:
+                    issues.append(pin_issue)
+                    invalid_call_ids.add(call.call_id)
+                    call_reports.append(
+                        FunctionalCallReport(
+                            call.call_id,
+                            scope.scope_id,
+                            call.capability_id,
+                            "invalid",
+                            issue_codes=(pin_issue.code,),
+                        )
+                    )
+                    continue
+                _register_pinned_call_reconciliation(
+                    pinned_call,
+                    identity_index=identity_index,
+                    produced=produced,
+                )
+                for allocation in pinned_call.returns:
+                    if (
+                        allocation.bound_ref is not None
+                        and allocation.bound_ref.kind == "answer"
+                    ):
+                        answer_bindings[allocation.handle] = call.call_id
+                dynamic_dependencies = unique_ordered(
+                    value.source_call_id
+                    for values in pinned_call.resolved_args.values()
+                    for value in values
+                    if value.source_call_id is not None
+                )
+                dependency_graph[call.call_id] = unique_ordered(
+                    (
+                        *dependency_graph.get(call.call_id, ()),
+                        *dynamic_dependencies,
+                    )
+                )
+                effective_calls[call.call_id] = call
+                processed_call_ids.add(call.call_id)
+                reconciled.append(pinned_call)
+                call_reports.append(
+                    FunctionalCallReport(
+                        call.call_id,
+                        scope.scope_id,
+                        call.capability_id,
+                        "valid",
+                    )
+                )
+                continue
             resolution_scope_id = call_execution_scopes[call.call_id]
             call_semantic_index = semantic_index.for_call(call.call_id)
             call, resolved_args = _resolve_explicit_call_args(
@@ -1001,6 +1140,10 @@ class FunctionalPlanReconciler:
                 processed_call_ids=processed_call_ids,
                 deterministic_repairs=reconciliation_repairs,
                 issues=issues,
+            )
+            authored_macro_roles = _authored_runtime_search_roles(
+                capability,
+                resolved_args,
             )
             reads_closed = False
             for (planned_call_id, arg_name), planned_object in (
@@ -1458,6 +1601,7 @@ class FunctionalPlanReconciler:
                     resolved_args=resolved_args,
                     returns=tuple(allocations),
                     reads_closed=reads_closed,
+                    authored_macro_roles=authored_macro_roles,
                 )
             )
             call_reports.append(
@@ -1522,6 +1666,10 @@ class FunctionalPlanReconciler:
                     pinned_resolver_arg_names or {}
                 ).items()
             },
+            pinned_call_reconciliations=pinned_call_reconciliations,
+            scoped_semantic_owner_scopes=dict(
+                scoped_semantic_owner_scopes or {}
+            ),
             goal_authority_dependencies=(
                 prepared.goal_authority_dependencies
             ),
@@ -1718,6 +1866,11 @@ class _PlacementLivenessProjectionStage:
         pinned_execution_scopes: Mapping[str, str],
         pinned_return_scopes: Mapping[str, Mapping[str, str]],
         pinned_resolver_arg_names: Mapping[str, Sequence[str]],
+        pinned_call_reconciliations: Mapping[
+            str,
+            FunctionalCallReconciliation,
+        ],
+        scoped_semantic_owner_scopes: Mapping[str, str],
         goal_authority_dependencies: Mapping[str, Sequence[str]],
         authored_call_goal_bindings: Mapping[str, Sequence[str]],
         allow_incomplete_goals: bool,
@@ -1755,6 +1908,11 @@ class _PlacementLivenessProjectionStage:
         )
         reconciliation_repairs.extend(context_arg_repairs)
         issues.extend(context_arg_issues)
+        if pinned_call_reconciliations:
+            reconciled = [
+                pinned_call_reconciliations.get(item.call_id, item)
+                for item in reconciled
+            ]
         # Static identity/computation matches only nominate runtime reuse
         # candidates. They never authorize call deletion or aliasing.
         initial_aliases: dict[str, str] = {}
@@ -1775,6 +1933,8 @@ class _PlacementLivenessProjectionStage:
             pinned_canonical_call_ids=pinned_canonical_call_ids,
             pinned_execution_scopes=pinned_execution_scopes,
             pinned_return_scopes=pinned_return_scopes,
+            pinned_call_reconciliations=pinned_call_reconciliations,
+            scoped_semantic_owner_scopes=scoped_semantic_owner_scopes,
         )
         plan = placement.plan
         reconciled = list(placement.calls)
@@ -1957,6 +2117,19 @@ class _PlacementLivenessProjectionStage:
                     ]
                 )
                 if invisible_goals:
+                    visible_scope_sets = [
+                        set(
+                            problem_binding_catalog.goal_visible_scope_ids[
+                                goal_id
+                            ]
+                        )
+                        for goal_id in invisible_goals
+                    ]
+                    jointly_visible_scopes = (
+                        set.intersection(*visible_scope_sets)
+                        if visible_scope_sets
+                        else set()
+                    )
                     issues.append(
                         _issue(
                             "functional_reconciliation",
@@ -1969,6 +2142,25 @@ class _PlacementLivenessProjectionStage:
                             scope_id=execution_scope,
                             details={
                                 "goal_unit_ids": list(invisible_goals),
+                                "observed_goal_refs": [
+                                    problem_binding_catalog.goal_answer_refs[
+                                        goal_id
+                                    ].local_ref
+                                    for goal_id in invisible_goals
+                                ],
+                                "observed_goal_scope_ids": [
+                                    problem_binding_catalog.goal_visible_scope_ids[
+                                        goal_id
+                                    ][-1]
+                                    for goal_id in invisible_goals
+                                ],
+                                "actual_execution_scope": execution_scope,
+                                "expected_visible_scope_ids": sorted(
+                                    jointly_visible_scopes
+                                ),
+                                "repair_action": (
+                                    "align_call_with_goal_scope"
+                                ),
                             },
                         )
                     )
@@ -3139,6 +3331,7 @@ def _resolve_allocated_return_binding(
         answer_item = _unique_answer_for_object_binding(
             bound_item,
             return_type=return_spec.runtime_type,
+            scope_id=declared_scope_id,
             question_goals=question_goals,
             semantic_items=semantic_items,
             handle_registry=handle_registry,
@@ -3238,6 +3431,14 @@ def _align_return_scope_with_binding(
                 ),
                 call_id=call.call_id,
                 scope_id=declared_scope_id,
+                details={
+                    "return": return_spec.name,
+                    "semantic_ref": bound_item.ref,
+                    "expected_destination_scope": destination_scope,
+                    "actual_declared_scope": declared_scope_id,
+                    "actual_requested_scope": requested_scope,
+                    "repair_action": "align_call_with_goal_scope",
+                },
             )
         )
         return requested_scope
@@ -3264,9 +3465,11 @@ def _align_return_scope_with_binding(
                 scope_id=declared_scope_id,
                 details={
                     "return": return_spec.name,
-                    "binding_ref": bound_item.ref,
-                    "binding_scope_id": binding_scope,
-                    "declared_scope_id": declared_scope_id,
+                    "semantic_ref": bound_item.ref,
+                    "expected_binding_scope": binding_scope,
+                    "actual_declared_scope": declared_scope_id,
+                    "actual_requested_scope": requested_scope,
+                    "repair_action": "align_call_with_goal_scope",
                 },
             )
         )
@@ -4192,6 +4395,36 @@ def _functional_evidence_preflight_issues(
     return tuple(issues)
 
 
+def _authored_runtime_search_roles(
+    capability: FunctionalCapability,
+    resolved_args: Mapping[str, tuple[ResolvedFunctionalValue, ...]],
+) -> tuple[tuple[str, str], ...]:
+    """Preserve LLM role hints before a Macro resolver selects a candidate.
+
+    The selected candidate may replace a searchable role in ``resolved_args``.
+    Keeping the authored identity separately lets runtime provenance explain a
+    correction without allowing the unverified hint to become evidence.
+    """
+
+    source = capability.source
+    if (
+        capability.kind != "macro"
+        or getattr(source, "execution_mode", None) != "runtime_search"
+        or getattr(source, "search", None) is None
+    ):
+        return ()
+    result: list[tuple[str, str]] = []
+    for role in source.search.searchable_roles:
+        refs = unique_ordered(
+            value.object_ref or value.handle
+            for value in resolved_args.get(role, ())
+            if value.object_ref or value.handle
+        )
+        if len(refs) == 1:
+            result.append((role, refs[0]))
+    return tuple(result)
+
+
 def _compatible_evidence_result_refs(
     plan: FunctionalPlan,
     *,
@@ -4604,6 +4837,7 @@ def _resolve_explicit_call_args(
                 processed_call_ids=processed_call_ids,
                 deterministic_repairs=deterministic_repairs,
                 input_closure_policy=arg.input_closure_policy,
+                semantic_ref_role=arg.semantic_ref_role,
             )
             issues.extend(ref_issues)
             if value is None:
@@ -4717,6 +4951,7 @@ def _resolve_functional_ref(
     processed_call_ids: set[str],
     deterministic_repairs: list[FunctionalDeterministicRepair],
     input_closure_policy: CapabilityStateClosurePolicy,
+    semantic_ref_role: str = "value",
 ) -> tuple[ResolvedFunctionalValue | None, tuple[FunctionalPlanIssue, ...]]:
     if isinstance(ref, CallResultRef):
         value = produced.get((ref.from_call, ref.return_name))
@@ -4829,6 +5064,72 @@ def _resolve_functional_ref(
         if is_object_semantic_kind(ref.kind)
         else set()
     )
+    if semantic_ref_role == "object_identity" and object_refs:
+        if len(object_refs) != 1:
+            return None, (
+                _issue(
+                    "functional_reconciliation",
+                    "functional.arg_ambiguous",
+                    (
+                        "semantic ref resolves to multiple object identities: "
+                        f"{ref.ref}"
+                    ),
+                    call_id=call_id,
+                    scope_id=scope_id,
+                    details={
+                        "arg_name": arg_name,
+                        "semantic_ref": ref.ref,
+                        "object_refs": sorted(object_refs),
+                    },
+                ),
+            )
+        object_ref = next(iter(object_refs))
+        identity_views = tuple(
+            item
+            for item in semantic_index.views
+            if item.ref == ref.ref
+            and item.kind == ref.kind
+            and item.object_ref == object_ref
+            and visible_from_valid_scope(
+                item.valid_scope,
+                scope_id=scope_id,
+                registry=handle_registry,
+            )
+        )
+        if identity_views:
+            identity = min(
+                identity_views,
+                key=lambda item: (
+                    item.state_version_id is not None,
+                    item.state_slot_id is not None,
+                    item.handle,
+                ),
+            )
+            deterministic_repairs.append(
+                FunctionalDeterministicRepair(
+                    call_id,
+                    "bind_object_identity",
+                    f"{ref.kind}:{ref.ref}",
+                    object_ref,
+                )
+            )
+            return (
+                ResolvedFunctionalValue(
+                    identity.handle,
+                    (
+                        "PointRef"
+                        if identity.runtime_type in {"Point", "PointRef"}
+                        else identity.runtime_type
+                    ),
+                    identity.valid_scope,
+                    object_ref=object_ref,
+                    dependency_object_refs=identity.dependency_object_refs,
+                    provides_semantic_roles=identity.provides_semantic_roles,
+                    lineage=identity.lineage,
+                    math_object_id=identity.math_object_id,
+                ),
+                (),
+            )
     dynamic_candidates = tuple(
         value
         for value in produced.values()
@@ -7278,6 +7579,12 @@ def _synchronize_wire_resolved_args(
         for spec in capability.args:
             if spec.binding_authority != "wire" or spec.name not in call.args:
                 continue
+            if _is_runtime_search_role_arg(capability, spec.name):
+                # The wire ref is an authored candidate, while resolved_args
+                # contains the candidate selected by the Macro role builder.
+                # Rebinding it to the wire value would discard search authority
+                # immediately before execution.
+                continue
             refs = call.args[spec.name]
             existing = args.get(spec.name, ())
             selected: list[ResolvedFunctionalValue] = []
@@ -7373,6 +7680,20 @@ def _synchronize_wire_resolved_args(
             )
         updated.append(replace(item, resolved_args=args))
     return updated, tuple(repairs), tuple(issues)
+
+
+def _is_runtime_search_role_arg(
+    capability: FunctionalCapability,
+    arg_name: str,
+) -> bool:
+    source = getattr(capability, "source", None)
+    search = getattr(source, "search", None)
+    return (
+        getattr(capability, "kind", None) == "macro"
+        and getattr(source, "execution_mode", None) == "runtime_search"
+        and search is not None
+        and arg_name in search.searchable_roles
+    )
 
 
 def _refresh_context_auto_args_for_effective_order(
@@ -8022,11 +8343,26 @@ def _with_hidden_condition_object_dependencies(
                     )
                     if condition is not None:
                         condition_views.append(condition)
-            try:
-                square_path_roles = infer_square_path_transformation_roles(
-                    condition_views,
+            moving_refs = call.args.get("moving_point", ())
+            moving_object_refs = (
+                semantic_index.object_refs_for(
+                    moving_refs[0],
                     scope_id=scope_id,
-                    handle_registry=semantic_index.handle_registry,
+                )
+                if len(moving_refs) == 1
+                and isinstance(moving_refs[0], SemanticRef)
+                else ()
+            )
+            try:
+                square_path_roles = (
+                    infer_square_path_transformation_roles(
+                        condition_views,
+                        moving_object_ref=moving_object_refs[0],
+                        scope_id=scope_id,
+                        handle_registry=semantic_index.handle_registry,
+                    )
+                    if len(moving_object_refs) == 1
+                    else None
                 )
             except ValueError:
                 # The context resolver owns the typed diagnostic. Dependency
@@ -10460,15 +10796,22 @@ def _unique_answer_for_object_binding(
     binding: SemanticReadCatalogItem,
     *,
     return_type: str,
+    scope_id: str,
     question_goals: Sequence[QuestionGoal],
     semantic_items: Sequence[SemanticReadCatalogItem],
     handle_registry: CanonicalHandleRegistry,
 ) -> SemanticReadCatalogItem | None:
-    """Promote an explicit terminal object binding to its unique answer slot."""
+    """Promote an object binding only to an answer owned by this scope.
+
+    One Problem MathObject may intentionally have independent answer states in
+    sibling question scopes. Object identity and return type therefore cannot
+    authorize a cross-scope answer promotion.
+    """
     compatible_handles = {
         f"answer:{goal.id}"
         for goal in question_goals
         if goal.required
+        and goal.question_id == scope_id
         and functional_answer_output_type_compatible(goal.value_type, return_type)
         and handle_registry.answer_target_handles.get(f"answer:{goal.id}")
         == binding.handle

@@ -9,13 +9,14 @@
 FunctionalPlan 中，LLM 只负责：
 
 - 选择合适的 capability；
-- 提供题目明确给出的公开参数；
+- 引用题目中的数学实体和 Fact；
 - 表达调用之间的数学依赖；
 - 将公开 return 绑定到对象或答案。
 
 代码负责：
 
 - 参数角色、隐藏参数和编译映射；
+- 按 Method input view 选择实体身份、最新状态、不可变值或匿名精确结果；
 - `MathObjectId`、`StateVersionId` 和 scope 可见性；
 - method/Macro 编译与事务执行；
 - output contract、symbolic closure、状态提交和 provenance。
@@ -54,11 +55,16 @@ MethodSpecSource
 - 中间输出不应暴露给 LLM；
 - public return 需要从内部 `output_key` 映射。
 
+每个 Macro 必须声明 `execution_mode=direct|runtime_search`。`runtime_search`还必须
+声明 `searchable_roles`、`candidate_builder_id`、`validation_policy_id`和不超过32的
+候选预算。Method 永远不能搜索；Macro 的每个候选必须在 disposable branch 中
+compile/run/check，winner 再从干净 Context 重放后提交。
+
 不要用 Macro 固定某一道题的完整路线。Macro 应表达稳定的数学机制。
 
 ## 4. 参数契约
 
-每个公开参数必须明确：
+内部 Function/Macro contract 的每个参数必须明确：
 
 | 字段 | 含义 |
 |---|---|
@@ -77,6 +83,28 @@ MethodSpecSource
 - `free_parameter` 与 `target_parameter`。
 
 不得根据 `reads` 顺序、handle 名称、scope 字符串或实际值猜角色。
+
+LLM-facing catalog 只投影：
+
+```text
+name / domain_type / required / cardinality / role
+```
+
+不得投影 `PointRef`、`ParameterValue`、`Parabola`、`PathTransformation`、
+`semantic_ref_role`、state kind、version 或 runtime path。Point、Function、Line、
+Symbol 等具名对象始终使用数学实体 ref。只有没有题面身份的候选集、路径见证和
+中间表达式才使用 `StepResultRef`。
+
+### 策略角色权威
+
+动点、映射点、反射对象、候选分支和拉直方向属于数学策略。LLM 提供数学实体
+作为首选提示；resolver 可以恢复证明所需的中点、固定端点、所属关系和 canonical
+identity，但不能用 `vertex_4`、数组位置或点名规则直接创造策略权威。
+
+`runtime_search` Macro 可以在声明的有限候选集合上隔离试跑：先验证 LLM 提示，
+提示失败时验证剩余候选。唯一 runtime-valid 替代项可以自动纠正；多个成功结果
+只有 runtime 输出等价时才能确定性选取；非等价歧义必须反馈给 Planner。最终
+authority 同时记录 authored ref、chosen ref、candidate checks 和选择原因。
 
 ### Binding authority
 

@@ -41,6 +41,10 @@
             "square_center": {
               "ref": "center_relation",
               "kind": "fact"
+            },
+            "moving_point": {
+              "ref": "moving_vertex",
+              "kind": "point"
             }
           },
           "return_bindings": {},

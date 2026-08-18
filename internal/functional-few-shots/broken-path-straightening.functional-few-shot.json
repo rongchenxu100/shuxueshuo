@@ -20,6 +20,10 @@
           "call_id": "reduce_path",
           "capability_id": "two_moving_points_path_reduction",
           "args": {
+            "moving_point": {
+              "kind": "point",
+              "ref": "moving_point"
+            },
             "path_minimum_target": {
               "kind": "fact",
               "ref": "path_goal"

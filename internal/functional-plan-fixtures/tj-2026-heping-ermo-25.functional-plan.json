@@ -200,6 +200,10 @@
             "square_center": {
               "ref": "H_square_diagonal_intersection",
               "kind": "fact"
+            },
+            "moving_point": {
+              "ref": "ii.G",
+              "kind": "point"
             }
           },
           "return_bindings": {},

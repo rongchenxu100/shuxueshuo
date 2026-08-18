@@ -22,7 +22,7 @@ from shuxueshuo_server.solver.runtime.quadratic_constraint_solver import (
 )
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, declare_input_views
 
 
 QuadraticConstraintStatus = Literal[
@@ -543,11 +543,23 @@ SPEC = MethodSpecSource(
         },
         "x": {"type": "Symbol", "required": True},
         "all_coefficients": {"type": "SymbolList", "required": True},
-        "known_coefficients": {"type": "Coefficients", "required": False},
+        "known_coefficients": {
+            "type": "Coefficients",
+            "required": False,
+            "description": (
+                "当前scope可见的零个或多个 symbol_value Fact；每个Fact提供一个"
+                "已知二次函数系数值。"
+            ),
+        },
         "coefficient_relation": {"type": "Equation", "required": False},
         "extra_equation": {"type": "Equation", "required": False},
         "curve_point": {"type": "Point", "required": False},
-        "curve_points": {"type": "PointList", "required": False},
+        "curve_points": {
+            "type": "PointList",
+            "required": False,
+            "object_kind": "point",
+            "state_kind": "coordinate",
+        },
         "p1": {
             "type": "Point",
             "required": False,
@@ -578,6 +590,25 @@ SPEC = MethodSpecSource(
             ),
         },
     },
+    input_views=declare_input_views(
+        identity=("x", "free_parameter", "parameter", "target_parameter"),
+        latest_state=(
+            "quadratic",
+            "curve_point",
+            "curve_points",
+            "p1",
+            "p2",
+            "parameter_value",
+        ),
+        immutable_value=(
+            "quadratic_template",
+            "all_coefficients",
+            "known_coefficients",
+            "coefficient_relation",
+            "extra_equation",
+            "free_parameters",
+        ),
+    ),
     outputs={
         "coefficients": "Coefficients",
         "parabola": "Parabola",

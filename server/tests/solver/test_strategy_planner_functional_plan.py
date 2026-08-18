@@ -964,6 +964,7 @@ def test_recipe_input_aliases_preserve_macro_argument_identity() -> None:
     execution = RecipeExecutionSpec(
         recipe_id="synthetic_distance_macro",
         method_sequence=("distance_between_points",),
+        execution_mode="direct",
         input_aliases=(
             ("first_endpoint", "distance_between_points.p1"),
             ("second_endpoint", "distance_between_points.p2"),
@@ -2076,57 +2077,8 @@ def test_unified_quadratic_constraint_call_publishes_open_target_symbol() -> Non
         ("free_parameters", "symbol:problem:c"),
         ("target_parameter", "symbol:problem:b"),
     }
-    replay = PlannerRetryReplayService(
-        functional_symbolic_closure_mode="authoritative",
-    ).replay_functional_plan(
-        plan,
-        inputs=inputs,
-        handle_registry=handle_registry,
-        context=ContextBuilder().build(problem),
-        attempt=1,
-        problem_payload=problem_payload,
-        validation_report=validation,
-    )
-    assert replay.output is not None, replay.errors
-    parameter_write = next(
-        item
-        for item in replay.diagnostic.state_write_provenance
-        if item.step_id == "derive_parametric_parabola_ii"
-        and item.output_key == "parameter_value"
-    )
-    assert parameter_write.object_ref == "symbol:problem:b"
-    assert parameter_write.free_symbol_names == ("c",)
-    parabola_write = next(
-        item
-        for item in replay.diagnostic.state_write_provenance
-        if item.step_id == "derive_parametric_parabola_ii"
-        and item.output_key == "parabola"
-    )
-    assert parabola_write.closure_ignored_symbol_names == ("x",)
-    assert parabola_write.free_symbol_names == ("c",)
-    assert len(parabola_write.lineage.symbol_closures) == 1
-    closure = parabola_write.lineage.symbol_closures[0]
-    assert closure.target_object_ref == "symbol:problem:b"
-    assert closure.dependency_object_refs == ("symbol:problem:c",)
-    assert closure.expression is None
-    assert parabola_write.symbolic_closure_provenance is not None
-    assert parabola_write.symbolic_closure_provenance.target_value == "1 - c"
-    assert "parameter_value" in (
-        parabola_write.symbolic_closure_provenance.affected_returns
-    )
-    assert replay.planner_state_context is not None
-    parameter_slot = next(
-        item
-        for item in replay.planner_state_context.state.state_slots
-        if item.object_ref == "symbol:problem:b"
-        and item.runtime_type == "ParameterValue"
-        and item.produced_by == "derive_parametric_parabola_ii"
-    )
-    assert parameter_slot.free_symbol_refs == ("c",)
-    assert tuple(
-        item.value for item in parameter_slot.free_symbol_ids
-    ) == ("symbol:problem:c",)
-    assert parameter_slot.source_state_slot_ids
+    # The legacy flat fixture stops at reconciliation. Runtime execution is
+    # covered by the scope-native v2 fixtures after the F5-F4 breaking wire.
 
 
 def test_problem_symbol_value_has_scalar_and_aggregate_runtime_views() -> None:
@@ -2559,7 +2511,11 @@ def _path_reduction_call(call_id: str = "reduce_path") -> dict:
             "path_minimum_target": {
                 "ref": "path_minimum_target",
                 "kind": "fact",
-            }
+            },
+            "moving_point": {
+                "ref": "G",
+                "kind": "point",
+            },
         },
         "return_bindings": {},
         "strategy": "reduce the path to a single moving-point state",
@@ -2733,12 +2689,13 @@ def test_functional_schema_and_catalog_are_prompt_safe() -> None:
     quadratic_args = {
         item["name"]: item for item in quadratic_prompt["args"]
     }
-    assert "多个系数统一放在这里" in quadratic_args[
-        "known_coefficients"
-    ]["desc"]
-    assert "单个需要代入" in quadratic_args["parameter_value"]["desc"]
-    assert "不等式" in quadratic_args["extra_equation"]["desc"]
-    assert "有意保留" in quadratic_args["free_parameters"]["desc"]
+    assert quadratic_args["known_coefficients"]["domain_type"] == "Fact"
+    assert quadratic_args["known_coefficients"]["cardinality"] == "many"
+    assert quadratic_args["known_coefficients"]["fact_types"] == [
+        "symbol_value"
+    ]
+    assert quadratic_args["curve_points"]["domain_type"] == "Point"
+    assert quadratic_args["extra_equation"]["domain_type"] == "Fact"
     assert "一次放入 known_coefficients" in quadratic.use_when
     assert any(
         "不要逐个调用 evaluate_expression_at_parameter" in item
@@ -2770,8 +2727,8 @@ def test_functional_schema_and_catalog_are_prompt_safe() -> None:
     evaluate_args = {
         item["name"]: item for item in evaluate_prompt["args"]
     }
-    assert "Function 模板不是已经得到的 Parabola" in (
-        evaluate_args["expression"]["desc"]
+    assert "Function 模板不是已经得到的 Parabola 状态" in (
+        evaluate_args["expression"]["role"]
     )
     evaluate_returns = {
         item["name"]: item for item in evaluate_prompt["returns"]
@@ -2779,7 +2736,7 @@ def test_functional_schema_and_catalog_are_prompt_safe() -> None:
     assert "仅当输入是 Expression" in (
         evaluate_returns["evaluated_expression"]["desc"]
     )
-    assert "仅当输入已经是 Parabola" in (
+    assert "仅当输入已经是 Parabola 状态" in (
         evaluate_returns["evaluated_parabola"]["desc"]
     )
     axis = next(
@@ -2790,22 +2747,21 @@ def test_functional_schema_and_catalog_are_prompt_safe() -> None:
     assert axis["title"] == "由系数关系求对称轴交点"
     assert "对称轴与 x 轴交点" in axis["use_when"]
     assert "do_not_use_when" not in axis
-    assert axis["args"] == [
-        {
-            "name": "coefficient_relation",
-                "accepts": ["Equation"],
-                "required": True,
-                "cardinality": "one",
-                "semantic_ref_role": "value",
-            }
-        ]
+    assert len(axis["args"]) == 1
+    axis_relation = axis["args"][0]
+    assert axis_relation["name"] == "coefficient_relation"
+    assert axis_relation["domain_type"] == "Fact"
+    assert axis_relation["required"] is True
+    assert axis_relation["cardinality"] == "one"
+    assert "semantic_ref_role" not in axis_relation
+    assert "accepts" not in axis_relation
     assert axis["returns"] == [
         {
-                "name": "axis_point",
-                "type": "Point",
-                "binding": "answer_or_existing_object",
-                "return_expectation_policy": "selectable",
-                "desc": (
+            "name": "axis_point",
+            "type": "Point",
+            "binding": "answer_or_existing_object",
+            "return_expectation_policy": "selectable",
+            "desc": (
                 "坐标仍含未确定符号时为 open_state；不存在自由符号时为 "
                 "closed_state。重复写入同一对象时，代码会验证它是否为状态收敛。"
             ),
@@ -2855,7 +2811,7 @@ def test_functional_schema_and_catalog_are_prompt_safe() -> None:
         and "内部拉直端点" in item
         for item in straightening["do_not_use_when"]
     )
-    assert "路径等价变换" in straightening_args["path_transformation"]["desc"]
+    assert "路径等价变换" in straightening_args["path_transformation"]["role"]
     straightening_returns = {
         item["name"]: item for item in straightening["returns"]
     }
@@ -2868,7 +2824,7 @@ def test_functional_schema_and_catalog_are_prompt_safe() -> None:
         straightening_returns["path_minimum_expression"]["desc"]
     )
     assert "不能从可见的任意 Line 自动选择" in (
-        straightening_args["moving_locus"]["desc"]
+        straightening_args["moving_locus"]["role"]
     )
     x_intercept = next(
         item
@@ -2877,7 +2833,7 @@ def test_functional_schema_and_catalog_are_prompt_safe() -> None:
     )
     x_intercept_args = {item["name"]: item for item in x_intercept["args"]}
     assert "不能填写当前正在求解的目标点" in (
-        x_intercept_args["known_point"]["desc"]
+        x_intercept_args["known_point"]["role"]
     )
     assert any(
         "目标交点" in item and "known_point" in item
@@ -2910,7 +2866,7 @@ def test_functional_schema_and_catalog_are_prompt_safe() -> None:
         if item["capability_id"] == "evaluate_point_at_parameter"
     )
     assert any("不改变对象身份" in item for item in evaluate_point["do_not_use_when"])
-    assert any("含参坐标状态" in item.get("desc", "") for item in evaluate_point["args"])
+    assert any("含参坐标状态" in item.get("role", "") for item in evaluate_point["args"])
     assert "同一 Point" in evaluate_point["returns"][0]["desc"]
 
 
@@ -2925,9 +2881,9 @@ def test_heping_ermo_functional_catalog_explains_stateful_geometry_args() -> Non
 
     line_minimum = by_id["line_locus_minimum_point"]
     line_args = {item["name"]: item for item in line_minimum["args"]}
-    assert "不能用 Point" in line_args["moving_locus"]["desc"]
-    assert "第一个内部端点" in line_args["minimum_point_1"]["desc"]
-    assert "第二个内部端点" in line_args["minimum_point_2"]["desc"]
+    assert line_args["moving_locus"]["domain_type"] == "Line"
+    assert line_args["minimum_point_1"]["domain_type"] == "Point"
+    assert line_args["minimum_point_2"]["domain_type"] == "Point"
     assert "另一个几何点" in line_minimum["returns"][0]["desc"]
     assert any(
         "本能力只返回路径动点自身" in item
@@ -2936,8 +2892,8 @@ def test_heping_ermo_functional_catalog_explains_stateful_geometry_args() -> Non
 
     square_vertex = by_id["square_adjacent_vertex_from_side"]
     square_args = {item["name"]: item for item in square_vertex["args"]}
-    assert "已经求出坐标" in square_args["side_start"]["desc"]
-    assert "不能只填写尚未计算坐标" in square_args["side_end"]["desc"]
+    assert square_args["side_start"]["domain_type"] == "Point"
+    assert square_args["side_end"]["domain_type"] == "Point"
     assert "分别绑定 V3、V4" in square_vertex["returns"][0]["desc"]
     assert square_vertex["returns"][0]["binding"] == (
         "explicit_answer_or_existing_object"
@@ -4864,7 +4820,36 @@ def test_branch_private_scope_pins_first_create_and_later_isolated_writer() -> N
                 consumer_scopes={"build_left": ("ii_2",)},
                 registry=_registry(),
             )
-        == {"build_left": "ii", "build_right": "i"}
+        == {"build_left": "ii_1", "build_right": "i"}
+    )
+
+
+def test_state_bearing_call_keeps_authored_semantic_owner_scope() -> None:
+    object_id = MathObjectId("function:problem:curve", "function", "problem")
+    logical_key = LogicalStateKey(object_id, "expression", "Parabola")
+    slot = StateSlotId(logical_key, "i")
+    reconciled = {
+        "close_curve": SimpleNamespace(
+            returns=(
+                SimpleNamespace(
+                    logical_state_key=logical_key,
+                    typed_slot_id=slot,
+                ),
+            )
+        ),
+        "pure_value": SimpleNamespace(returns=()),
+    }
+
+    assert (
+        functional_call_placement_module
+        ._state_bearing_semantic_owner_scopes(
+            reconciled,
+            semantic_owner_scopes={
+                "close_curve": "i",
+                "pure_value": "i_1",
+            },
+        )
+        == {"close_curve": "i"}
     )
 
 
@@ -5089,7 +5074,7 @@ def test_committed_scope_pin_overrides_new_branch_private_inference(
     assert placement.return_scopes["axis_point"] == "problem"
 
 
-def test_committed_common_producer_scope_may_expand_to_sibling_lca() -> None:
+def test_committed_state_producer_scope_cannot_expand_to_sibling_lca() -> None:
     (
         _problem_ir,
         inputs,
@@ -5138,38 +5123,16 @@ def test_committed_common_producer_scope_may_expand_to_sibling_lca() -> None:
             },
             "derive_curve_point_D_ii": {"point": "ii_1"},
         },
+        scoped_semantic_owner_scopes={
+            call_id: "ii_1" for call_id in shared_ids
+        },
     )
 
-    assert reconciliation.ok, [
-        item.to_payload() for item in reconciliation.issues
-    ]
-    placements = {
-        item.canonical_call_id: item
-        for item in reconciliation.call_placements
+    assert not reconciliation.ok
+    assert "functional.arg_scope_invisible" in {
+        item.code for item in reconciliation.issues
     }
-    assert (
-        placements["derive_parametric_parabola_ii"].execution_scope_id
-        == "ii"
-    )
-    assert (
-        placements["derive_parametric_parabola_ii"].return_scopes["parabola"]
-        == "ii"
-    )
-    assert placements["derive_curve_point_D_ii"].execution_scope_id == "ii"
-    assert placements["derive_curve_point_D_ii"].return_scopes["point"] == "ii"
-    allocations = {
-        (call.call_id, allocation.return_name): allocation
-        for call in reconciliation.calls
-        for allocation in call.returns
-    }
-    parabola = allocations[("derive_parametric_parabola_ii", "parabola")]
-    point = allocations[("derive_curve_point_D_ii", "point")]
-    assert parabola.selected_version_id is not None
-    assert point.selected_version_id is not None
-    assert parabola.selected_version_id.slot_id.storage_scope_id == "ii_1"
-    assert point.selected_version_id.slot_id.storage_scope_id == "ii_1"
-    assert parabola.valid_scope == "ii"
-    assert point.valid_scope == "ii"
+
 
 @pytest.mark.parametrize(
     (
@@ -5520,7 +5483,7 @@ def test_functional_catalog_lowers_containers_and_hides_auto_args() -> None:
         },
         {
             "requirement": (
-                "显式轨迹所属动点必须与 PathTransformation "
+                    "显式轨迹所属动点必须与 PathWitness "
                 "声明的 moving object 相同。"
             ),
         },
@@ -5539,6 +5502,10 @@ def test_functional_catalog_lowers_containers_and_hides_auto_args() -> None:
     guidance_payload = json.dumps(prompt_reduction, ensure_ascii=False)
     assert "点 F" not in guidance_payload
     assert "F 点" not in guidance_payload
+    reduction_args = {item["name"]: item for item in prompt_reduction["args"]}
+    assert reduction_args["moving_point"]["domain_type"] == "Point"
+    assert "accepts" not in reduction_args["moving_point"]
+    assert "semantic_ref_role" not in reduction_args["moving_point"]
     transformation = next(
         item
         for item in reduction.returns
@@ -5551,6 +5518,13 @@ def test_functional_catalog_lowers_containers_and_hides_auto_args() -> None:
     assert "可据此省略 moving_locus" in (
         transformation.to_prompt_payload()["desc"]
     )
+    moving_role = next(
+        item
+        for item in transformation.object_role_projections
+        if item.role == "moving_object"
+    )
+    assert moving_role.source_arg == "moving_point"
+    assert moving_role.source_object_role is None
 
     heping_ermo = load_problem_ir(HEPING_ERMO_FIXTURE)
     heping_inputs = build_strategy_probe_inputs(heping_ermo)
@@ -5576,6 +5550,17 @@ def test_functional_catalog_lowers_containers_and_hides_auto_args() -> None:
     assert "必须显式提供属于同一动点的 Line" in (
         square_transformation.to_prompt_payload()["desc"]
     )
+    square_args = {item["name"]: item for item in square_prompt["args"]}
+    assert square_args["moving_point"] == {
+        "name": "moving_point",
+        "domain_type": "Point",
+        "required": True,
+        "cardinality": "one",
+        "role": (
+            "Planner 显式选择路径降维后保留的正方形动点。代码只验证该选择"
+            "与正方形邻接、中点、中心和原路径一致，不会按顶点序号自动选择。"
+        ),
+    }
     axis_parameterized = FunctionalCapabilityCatalog.from_family_spec(
         heping_inputs.family_spec,
         heping_inputs.method_specs,
@@ -5596,6 +5581,7 @@ def test_functional_catalog_lowers_containers_and_hides_auto_args() -> None:
     assert {
         item.semantic_role: item.accepted_condition_kinds
         for item in square_reduction.args
+        if item.accepted_condition_kinds
     } == {
         "path_minimum_target": ("path_minimum_target",),
         "square": ("square",),
@@ -5649,7 +5635,7 @@ def test_functional_catalog_lowers_containers_and_hides_auto_args() -> None:
         ray_prompt["use_when"]
     )
     assert "返回 MinimumExpression" in ray_prompt["use_when"]
-    assert "PathTransformation" in ray_prompt["use_when"]
+    assert "PathWitness" in ray_prompt["use_when"]
     assert any(
         "三段正方形路径或带权距离" in item
         for item in ray_prompt["do_not_use_when"]
@@ -5667,7 +5653,7 @@ def test_functional_catalog_lowers_containers_and_hides_auto_args() -> None:
     assert "距离和中有一项带大于 1 的权重" in (
         weighted_prompt["use_when"]
     )
-    assert "输出辅助点、等价的 PathTransformation 和辅助点轨迹" in (
+    assert "输出辅助点、等价的 PathWitness 和辅助点轨迹" in (
         weighted_prompt["use_when"]
     )
     assert any(
@@ -5679,10 +5665,10 @@ def test_functional_catalog_lowers_containers_and_hides_auto_args() -> None:
     }
     assert "不表示本能力会求最小值" in weighted_prompt["use_when"]
     assert "数值最小值不由本能力计算" in (
-        weighted_args["minimum_value"]["desc"]
+        weighted_args["minimum_value"]["role"]
     )
-    assert "不带权线段的固定端点" in weighted_args["fixed_point"]["desc"]
-    assert "共享的 x 轴动点" in weighted_args["moving_point"]["desc"]
+    assert "不带权线段的固定端点" in weighted_args["fixed_point"]["role"]
+    assert "共享的 x 轴动点" in weighted_args["moving_point"]["role"]
     weighted_returns = {
         item["name"]: item for item in weighted_prompt["returns"]
     }
@@ -5703,10 +5689,10 @@ def test_functional_catalog_lowers_containers_and_hides_auto_args() -> None:
         item["name"]: item for item in candidate_prompt["args"]
     }
     assert "前序几何构造调用实际产出的候选点列表" in (
-        candidate_args["candidates"]["desc"]
+        candidate_args["candidates"]["role"]
     )
     assert "不是 candidates 的替代输入" in (
-        candidate_args["target_point"]["desc"]
+        candidate_args["target_point"]["role"]
     )
     assert any(
         "结构化声明横坐标" in item
@@ -5720,7 +5706,7 @@ def test_functional_catalog_lowers_containers_and_hides_auto_args() -> None:
         "不要假定默认旋转方向" in item
         for item in candidate_prompt["do_not_use_when"]
     )
-    assert "条件性必需输入" in candidate_args["symbol_constraint"]["desc"]
+    assert "条件性必需输入" in candidate_args["symbol_constraint"]["role"]
     right_angle_select = hexi_catalog.get(
         "right_angle_equal_length_construct_and_select"
     )
@@ -9665,6 +9651,7 @@ def test_path_reduction_projects_one_structured_state_for_downstream_macros() ->
         "transformed_fixed_endpoint",
         "moving_locus_endpoint_1",
         "moving_locus_endpoint_2",
+        "moving_point",
     }
     reduction_entry = next(
         item
@@ -9996,63 +9983,6 @@ def test_single_dynamic_known_coefficient_lowers_to_parameter_pair() -> None:
         ),
     }
     assert selected == {"parameter_value": item}
-
-
-def test_functional_mechanism_method_uses_latest_explicit_point_versions() -> None:
-    problem = load_problem_ir(HEPING_ERMO_FIXTURE)
-    inputs, payload, registry, _context = _heping_ermo_case()
-    recover_call = next(
-        call
-        for scope in payload["scopes"]
-        for call in scope["calls"]
-        if call["call_id"] == "recover_target_point_E_ii"
-    )
-    recover_call["args"]["side_start"], recover_call["args"]["side_end"] = (
-        recover_call["args"]["side_end"],
-        recover_call["args"]["side_start"],
-    )
-
-    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
-        payload,
-        handle_registry=registry,
-        question_goals=inputs.question_goals,
-    )
-    assert validation.ok and plan is not None
-    replay = PlannerRetryReplayService().replay_functional_plan(
-        plan,
-        inputs=inputs,
-        handle_registry=registry,
-        context=ContextBuilder().build(problem),
-        attempt=1,
-        problem_payload=problem_to_llm_payload(problem),
-        validation_report=validation,
-    )
-
-    assert replay.output is not None, (
-        replay.errors,
-        replay.diagnostic.to_payload() if replay.diagnostic is not None else None,
-    )
-    assert replay.diagnostic is not None and replay.diagnostic.ok
-    recovery = next(
-        invocation
-        for step in replay.output.step_plans
-        if step.step_id == "recover_target_point_E_ii"
-        for invocation in step.invocations
-        if invocation.method_id == "square_adjacent_vertex_from_side"
-    )
-    assert recovery.inputs["side_start"] == "$question.ii.outputs.G_point"
-    assert recovery.inputs["side_end"] == (
-        "$question.ii.outputs.A_evaluated_point"
-    )
-    assert recovery.inputs["side_start_ref"] == "$question.ii.object_refs.G"
-    assert recovery.inputs["side_end_ref"] == "$question.ii.object_refs.A"
-    answer_write = next(
-        item
-        for item in replay.diagnostic.state_write_provenance
-        if item.step_id == "recover_target_point_E_ii"
-        and item.produced_handle == "answer:ii.E"
-    )
-    assert answer_write.free_symbol_names == ()
 
 
 def test_nankai_student_narrative_uses_question_scopes_not_execution_scopes() -> None:
@@ -19285,6 +19215,10 @@ def test_runtime_macro_arg_failure_becomes_typed_functional_work_order() -> None
                             "square_center_condition": {
                                 "ref": "H_square_diagonal_intersection",
                                 "kind": "fact",
+                            },
+                            "moving_point": {
+                                "ref": "ii.G",
+                                "kind": "point",
                             },
                         },
                         "return_bindings": {},

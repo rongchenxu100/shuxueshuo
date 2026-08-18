@@ -17,6 +17,7 @@ from shuxueshuo_server.solver.scoped_functional_plan_smoke import (
     _RecordingClient,
     _batch_summary,
     _goal_retry_terminal_error,
+    _solved_goal_reexecution_count,
     _smoke_completion_request_options,
     _write_provider_attempt_snapshot,
     _write_sample_review,
@@ -121,6 +122,12 @@ def test_provider_boundary_is_persisted_before_plan_execution(tmp_path) -> None:
         last_usage = {"prompt_tokens": 10, "completion_tokens": 2}
         last_response_model = "deepseek-v4-flash"
         last_provider_attempts = ({"provider_attempt": 1},)
+        last_provider_reasoning = (
+            {
+                "provider_attempt": 1,
+                "reasoning_content": "consider the visible goal dependencies",
+            },
+        )
 
         def complete(self, _payload):
             return '{"format":"functional-plan-content/v2"}'
@@ -152,6 +159,9 @@ def test_provider_boundary_is_persisted_before_plan_execution(tmp_path) -> None:
     assert (tmp_path / "attempt-1.prompt.system.md").read_text() == (
         "system prompt"
     )
+    assert (
+        tmp_path / "attempt-1.provider-attempt-1.reasoning.txt"
+    ).read_text() == "consider the visible goal dependencies"
     stage = json.loads((tmp_path / "attempt-1.attempt-stage.json").read_text())
     assert stage["stage"] == "provider_completed"
     assert stage["planner_protocol"] == FUNCTIONAL_PLAN_CONTENT_CONTRACT
@@ -247,6 +257,67 @@ def test_terminal_error_comes_from_the_last_attempt_not_an_early_schema_error() 
     assert isinstance(error, FunctionalGoalRetryError)
     assert error.code == "functional.transactional_call_failed"
     assert "latest runtime failure" in error.message
+
+
+def test_solved_goal_reexecution_ignores_attempt_without_transaction() -> None:
+    authority = SimpleNamespace(
+        goal_authorities={
+            "goal": SimpleNamespace(
+                status="solved",
+                closure_step_ids=("solved_a", "solved_b"),
+            )
+        }
+    )
+    run_result = SimpleNamespace(
+        attempts=(
+            SimpleNamespace(
+                retry_authority=authority,
+                execution=SimpleNamespace(replay=None),
+            ),
+        )
+    )
+
+    assert _solved_goal_reexecution_count(run_result) == 0
+
+
+def test_solved_goal_reexecution_counts_only_actual_running_events() -> None:
+    authority = SimpleNamespace(
+        goal_authorities={
+            "goal": SimpleNamespace(
+                status="solved",
+                closure_step_ids=(
+                    "restored_call",
+                    "executed_call",
+                    "not_touched_call",
+                ),
+            )
+        }
+    )
+    report = SimpleNamespace(
+        restored_call_ids=("restored_call",),
+        events=(
+            SimpleNamespace(call_id="restored_call", event="verified"),
+            SimpleNamespace(call_id="executed_call", event="running"),
+            SimpleNamespace(call_id="executed_call", event="verified"),
+            SimpleNamespace(call_id="unrelated_call", event="running"),
+        ),
+    )
+    run_result = SimpleNamespace(
+        attempts=(
+            SimpleNamespace(
+                retry_authority=authority,
+                execution=SimpleNamespace(
+                    replay=SimpleNamespace(
+                        transactional_attempt_result=SimpleNamespace(
+                            execution_report=report,
+                        )
+                    )
+                ),
+            ),
+        )
+    )
+
+    assert _solved_goal_reexecution_count(run_result) == 1
 
 
 def test_review_displays_exact_problem_view_without_internal_authority(tmp_path) -> None:

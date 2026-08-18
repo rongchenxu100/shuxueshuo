@@ -8,40 +8,99 @@
   ],
   "inputs": {
     "side_start": {
-      "type": "Point",
-      "required": true
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "side_end": {
-      "type": "Point",
-      "required": true
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "square_condition": {
-      "type": "Condition",
-      "required": true
+      "required": true,
+      "domain_type": "Fact",
+      "runtime_type": "Condition",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "Fact"
+      }
     },
     "target": {
-      "type": "PointRef|Point",
-      "required": true
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "PointRef|Point",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "side_start_ref": {
-      "type": "PointRef|Point",
-      "required": false
+      "required": false,
+      "domain_type": "Point",
+      "runtime_type": "PointRef|Point",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "side_end_ref": {
-      "type": "PointRef|Point",
-      "required": false
+      "required": false,
+      "domain_type": "Point",
+      "runtime_type": "PointRef|Point",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "parameter": {
-      "type": "Symbol",
-      "required": false
+      "required": false,
+      "domain_type": "Symbol",
+      "runtime_type": "Symbol",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Symbol",
+        "object_kind": "symbol",
+        "state_kind": "value"
+      }
     },
     "parameter_value": {
-      "type": "ParameterValue",
-      "required": false
+      "required": false,
+      "domain_type": "Symbol",
+      "runtime_type": "ParameterValue",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Symbol",
+        "object_kind": "symbol",
+        "state_kind": "value"
+      }
     },
     "parameter_constraint": {
-      "type": "Constraint",
-      "required": false
+      "required": false,
+      "domain_type": "Fact",
+      "runtime_type": "Constraint",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "Fact"
+      }
     }
   },
   "outputs": {

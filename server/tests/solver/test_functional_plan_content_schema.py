@@ -59,6 +59,15 @@ def test_dynamic_schema_owns_exact_scope_and_goal_keys(tmp_path) -> None:
         and "answer_from" in item["properties"]
         for item in schema["properties"]["goal_plans"]["properties"].values()
     )
+    assert "mutually exclusive" in schema["properties"]["goal_plans"][
+        "description"
+    ]
+    assert "must not be copied" in schema["properties"]["scope_steps"][
+        "description"
+    ]
+    assert "exactly one ownership container" in schema["$defs"]["step"][
+        "properties"
+    ]["step_id"]["description"]
 
 
 def test_every_pass1_goal_requires_answer_from(tmp_path) -> None:

@@ -19,11 +19,11 @@
     "source_ref": {
       "type": "string",
       "minLength": 1,
-      "description": "Copy a scope-local visible Entity or Fact ref from Planner Problem View exactly, without adding a scope prefix. For a stable Entity, the ref reads its latest visible state at this step; a Fact remains the verified problem snapshot."
+      "description": "Copy a scope-local visible Entity or Fact ref from Planner Problem View exactly, without adding a scope prefix. This is the only wire form for a named Entity. The compiler selects its identity or latest visible state and establishes producer dependencies; a Fact remains the verified problem snapshot."
     },
     "step_result_ref": {
       "type": "object",
-      "description": "Read one named return from an earlier visible step. Use this for anonymous results, non-latest states, or ambiguous producers.",
+      "description": "Read one named return from an earlier visible step. Use this for anonymous results only. A named Math Entity must use its SourceRef; the compiler obtains the exact input required by the capability.",
       "required": [
         "step_id",
         "return"
@@ -42,7 +42,7 @@
       "additionalProperties": false
     },
     "functional_ref": {
-      "description": "Use a SourceRef string for a visible Fact or the current state of a stable Entity. Use StepResultRef for an anonymous result, a specific historical state, or producer disambiguation.",
+      "description": "Use a SourceRef string for every named Entity or visible Fact. Use StepResultRef only for a return without a named Math Entity identity.",
       "oneOf": [
         {
           "$ref": "#/$defs/source_ref"

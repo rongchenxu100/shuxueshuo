@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, declare_input_views
 
 
 class SelectStraighteningCandidateMethod:
@@ -140,6 +140,10 @@ SPEC = MethodSpecSource(
         "description": "计划希望写回的辅助点引用，仅用于命名和验算选择结果。"
     }
 },
+    input_views=declare_input_views(
+        identity=("target",),
+        exact_result=("candidates",),
+    ),
     outputs={
     "selected_candidate": "StraighteningCandidate",
     "auxiliary_point": "Point",

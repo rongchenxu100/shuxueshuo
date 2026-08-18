@@ -23,6 +23,8 @@ from shuxueshuo_server.solver.family.models import (
     PathTransformationConsumerSpec,
     FunctionalReturnBindingPolicy,
     FunctionalSemanticRefRole,
+    MacroExecutionMode,
+    MacroSearchSpec,
     RecipeExecutionSpec,
     RecipeInputDerivationSpec,
     RecipeOutputAliasSpec,
@@ -45,6 +47,11 @@ from shuxueshuo_server.solver.runtime.functional_compile_contract import (
 from shuxueshuo_server.solver.runtime.function_specs import FunctionSpecRegistry
 from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
+from shuxueshuo_server.solver.runtime.planner_public_types import (
+    planner_input_domain_type,
+    planner_output_value_type,
+    planner_prompt_text,
+)
 from shuxueshuo_server.solver.runtime.recipes._spec import RecipeSpec
 from shuxueshuo_server.solver.runtime.recipes.registry import RecipeSpecRegistry
 from shuxueshuo_server.solver.runtime.output_type_inference import (
@@ -243,6 +250,8 @@ class MacroSpec:
     returns: tuple[MacroReturnSpec, ...]
     internal_calls: tuple[MacroInternalCallSpec, ...]
     adapter: MacroAdapterSpec
+    execution_mode: MacroExecutionMode
+    search: MacroSearchSpec | None = None
     source: MacroSpecSource = "recipe_execution"
     exposes_to_llm: bool = True
     is_pure: bool = False
@@ -265,6 +274,8 @@ class MacroSpec:
             "args": [item.to_payload() for item in self.args],
             "returns": [item.to_payload() for item in self.returns],
             "internal_calls": [item.to_payload() for item in self.internal_calls],
+            "execution_mode": self.execution_mode,
+            "search": self.search.to_payload() if self.search is not None else None,
             "source": self.source,
             "exposes_to_llm": self.exposes_to_llm,
             "is_pure": self.is_pure,
@@ -297,9 +308,9 @@ class MacroSpec:
             "macro_id": self.macro_id,
             "recipe_id": self.recipe_id,
             "goal_types": list(self.goal_types),
-            "args": [item.to_payload() for item in self.args],
-            "returns": [item.to_payload() for item in self.returns],
-            "notes": list(self.notes),
+            "args": [_macro_prompt_arg(item) for item in self.args],
+            "returns": [_macro_prompt_return(item) for item in self.returns],
+            "notes": [_macro_prompt_text(item) for item in self.notes],
         }
 
 
@@ -416,6 +427,7 @@ def macro_spec_from_recipe(
     recipe_spec: RecipeSpec | None = None,
 ) -> MacroSpec:
     """Project a StepRecipeSpec and RecipeExecutionSpec into a MacroSpec."""
+    _validate_macro_execution_contract(execution)
     source: MacroSpecSource = "recipe_execution"
     notes: list[str] = []
     if contract is not None:
@@ -462,6 +474,8 @@ def macro_spec_from_recipe(
             intermediate_wiring=execution.intermediate_wiring,
             output_aliases=execution.output_aliases,
         ),
+        execution_mode=execution.execution_mode,
+        search=execution.search,
         source=source,
         exposes_to_llm=(
             contract.exposes_to_llm if contract is not None else True
@@ -494,6 +508,64 @@ def macro_spec_from_recipe(
         repair_feedback_provider_id=next(iter(provider_ids), None),
         notes=tuple(unique_ordered(notes)),
     )
+
+
+_MACRO_CANDIDATE_BUILDERS = frozenset(
+    {
+        "visible_point_role_assignments",
+        "path_role_assignments",
+        "straightening_role_assignments",
+        "equal_length_ray_role_assignments",
+        "curve_role_assignments",
+    }
+)
+_MACRO_VALIDATION_POLICIES = frozenset(
+    {
+        "method_checks_and_macro_postconditions",
+        "path_equivalence_and_provenance",
+        "minimum_expression_and_provenance",
+        "distance_equivalence_and_provenance",
+        "curve_membership_and_provenance",
+    }
+)
+
+
+def _validate_macro_execution_contract(execution: RecipeExecutionSpec) -> None:
+    search = execution.search
+    if execution.execution_mode == "direct":
+        if search is not None:
+            raise ValueError(
+                "planner_configuration_error: direct Macro must not declare search: "
+                f"{execution.recipe_id}"
+            )
+        return
+    if execution.execution_mode != "runtime_search" or search is None:
+        raise ValueError(
+            "planner_configuration_error: Macro execution mode/search mismatch: "
+            f"{execution.recipe_id}"
+        )
+    if not search.searchable_roles or len(set(search.searchable_roles)) != len(
+        search.searchable_roles
+    ):
+        raise ValueError(
+            "planner_configuration_error: Macro searchable roles must be unique: "
+            f"{execution.recipe_id}"
+        )
+    if search.candidate_builder_id not in _MACRO_CANDIDATE_BUILDERS:
+        raise ValueError(
+            "planner_configuration_error: unknown Macro candidate builder: "
+            f"{execution.recipe_id}:{search.candidate_builder_id}"
+        )
+    if search.validation_policy_id not in _MACRO_VALIDATION_POLICIES:
+        raise ValueError(
+            "planner_configuration_error: unknown Macro validation policy: "
+            f"{execution.recipe_id}:{search.validation_policy_id}"
+        )
+    if not 1 <= search.max_candidates <= 32:
+        raise ValueError(
+            "planner_configuration_error: Macro search budget must be within 1..32: "
+            f"{execution.recipe_id}:{search.max_candidates}"
+        )
 
 
 def _macro_is_pure(
@@ -551,15 +623,7 @@ def assert_no_macro_adapter_failures(events: tuple[Any, ...]) -> None:
 
 
 def _execution_for_recipe(recipe: StepRecipeSpec) -> RecipeExecutionSpec | None:
-    if recipe.execution is not None:
-        return recipe.execution
-    if len(recipe.method_ids) == 1:
-        return RecipeExecutionSpec(
-            recipe_id=recipe.recipe_id,
-            method_sequence=recipe.method_ids,
-            execution_strategy="single_method",
-        )
-    return None
+    return recipe.execution
 
 
 def _args_from_contract(contract: CapabilityContractSpec | None) -> tuple[MacroArgSpec, ...]:
@@ -587,6 +651,36 @@ def _slot_arg(slot: StateSlotPattern, index: int) -> MacroArgSpec:
         provides_semantic_roles=slot.provides_semantic_roles,
         semantic_ref_role=slot.semantic_ref_role,
     )
+
+
+def _macro_prompt_arg(item: MacroArgSpec) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "name": item.semantic_role or item.name,
+        "domain_type": planner_input_domain_type(item.runtime_type),
+        "required": item.required,
+        "cardinality": item.cardinality,
+    }
+    if item.description:
+        payload["role"] = planner_prompt_text(item.description)
+    return payload
+
+
+def _macro_prompt_return(item: MacroReturnSpec) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "name": item.name,
+        "type": planner_output_value_type(item.runtime_type),
+    }
+    if not item.required:
+        payload["required"] = False
+    if item.cardinality != "one":
+        payload["cardinality"] = item.cardinality
+    if item.description:
+        payload["desc"] = planner_prompt_text(item.description)
+    return payload
+
+
+def _macro_prompt_text(value: str) -> str:
+    return planner_prompt_text(value)
 
 
 def _condition_arg(condition: ConditionPattern, index: int) -> MacroArgSpec:

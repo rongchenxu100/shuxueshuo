@@ -19,6 +19,11 @@
   "selection_role": "core",
   "conditions": [
     {
+      "ref": "moving_point",
+      "kind": "point",
+      "description": "由解题策略选定的路径变换动点"
+    },
+    {
       "ref": "path_goal",
       "kind": "fact",
       "description": "需要求最小值的折线路径"
@@ -30,6 +35,7 @@
       "ii_derive_path_model": "derive_path_model"
     },
     "semantic_refs": {
+      "G": "moving_point",
       "path_minimum_target": "path_goal"
     },
     "text_replacements": {

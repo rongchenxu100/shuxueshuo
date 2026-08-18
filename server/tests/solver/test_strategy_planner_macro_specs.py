@@ -33,6 +33,9 @@ from shuxueshuo_server.solver.runtime.functional_direct_compiler import (
     FunctionalCapabilityCompileCall,
     FunctionalReturnOutput,
 )
+from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
+    FunctionalCapabilityCatalog,
+)
 from shuxueshuo_server.solver.runtime.strategy_planner import (
     CanonicalHandleRegistry,
     StrategyDraftValidationError,
@@ -261,6 +264,43 @@ def test_every_registered_macro_has_an_audited_lowering_contract() -> None:
         assert equal_length_returns == {"path_minimum_expression"}
 
 
+def test_every_path_transformation_uses_planner_declared_moving_point() -> None:
+    """A Function/Macro may validate a strategy role, never invent it."""
+
+    method_specs = MethodSpecRegistry.load_from_code()
+    producers = []
+    for family in DEFAULT_FAMILY_REGISTRY.families:
+        catalog = FunctionalCapabilityCatalog.from_family_spec(
+            family,
+            method_specs,
+        )
+        for capability in catalog.items.values():
+            for returned in capability.returns:
+                if returned.runtime_type != "PathTransformation":
+                    continue
+                moving = tuple(
+                    item
+                    for item in returned.object_role_projections
+                    if item.role == "moving_object"
+                )
+                assert len(moving) == 1
+                assert moving[0].source_arg == "moving_point"
+                assert moving[0].source_object_role is None
+                arg = next(
+                    item
+                    for item in capability.args
+                    if item.name == "moving_point"
+                )
+                assert arg.binding_authority == "wire"
+                producers.append(capability.capability_id)
+
+    assert set(producers) >= {
+        "square_path_dimension_reduction",
+        "two_moving_points_path_reduction",
+        "weighted_axis_path_triangle_transform",
+    }
+
+
 def test_macro_adapter_reports_typed_return_failure() -> None:
     registry = MacroAdapterRegistry(
         MacroSpecRegistry(
@@ -282,6 +322,7 @@ def test_macro_adapter_reports_typed_return_failure() -> None:
                         adapter_id="broken_macro",
                         execution_strategy="single_method",
                     ),
+                    execution_mode="direct",
                 )
             }
         )

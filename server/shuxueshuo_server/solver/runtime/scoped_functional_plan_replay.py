@@ -125,6 +125,10 @@ class ScopedFunctionalPlanReplayService:
                 step_id: item.consumer_goal_unit_ids
                 for step_id, item in authority.step_authorities.items()
             },
+            scoped_semantic_owner_scopes={
+                step_id: item.semantic_owner_scope_id
+                for step_id, item in authority.step_authorities.items()
+            },
         )
         reconciliation = prepared.functional_reconciliation
         if reconciliation is None:

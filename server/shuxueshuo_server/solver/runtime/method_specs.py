@@ -16,6 +16,7 @@ from typing import Any, Literal, Mapping, cast
 from shuxueshuo_server.solver.contracts import (
     MethodExplanationSpec,
     MethodInputSpec,
+    MethodInputViewSpec,
     MethodOutputActivationKind,
     MethodOutputActivationSpec,
     MethodSpec,
@@ -519,21 +520,18 @@ def _parse_symbolic_closure(
 def _parse_inputs(raw_inputs: object) -> dict[str, MethodInputSpec]:
     """解析 MethodSpec.inputs。
 
-    输入支持两种写法：简单字符串类型，或带 role/required 的对象。首版 JSON 使用
-    对象写法，让 planner 能根据 role 理解 anchor/reference/target 的语义。
+    新契约只接受展开后的对象写法；旧 ``type`` 和缺失view均直接拒绝。
     """
     if not isinstance(raw_inputs, dict) or not raw_inputs:
         raise ValueError("MethodSpec.inputs must be a non-empty object")
     inputs: dict[str, MethodInputSpec] = {}
     for name, raw in raw_inputs.items():
-        if isinstance(raw, str):
-            input_type = raw
-            role = ""
-            required = True
-            functional_exposed = True
-            symbolic_basis_role = None
-        elif isinstance(raw, dict):
-            input_type = str(raw.get("type", ""))
+        if isinstance(raw, dict):
+            if "type" in raw:
+                raise ValueError(f"legacy Method input type field is unsupported: {name}")
+            input_type = str(raw.get("runtime_type", ""))
+            domain_type = str(raw.get("domain_type", ""))
+            view = _parse_input_view(name, raw.get("view"), domain_type=domain_type)
             role = str(raw.get("role", ""))
             required = bool(raw.get("required", True))
             functional_exposed = bool(raw.get("functional_exposed", True))
@@ -553,13 +551,46 @@ def _parse_inputs(raw_inputs: object) -> dict[str, MethodInputSpec]:
             raise ValueError(f"unknown input type for {name}: {input_type}")
         inputs[str(name)] = MethodInputSpec(
             name=str(name),
-            type=input_type,
+            domain_type=domain_type,
+            runtime_type=input_type,
+            view=view,
             role=role,
             required=required,
             functional_exposed=functional_exposed,
             symbolic_basis_role=symbolic_basis_role,
         )
     return inputs
+
+
+def _parse_input_view(
+    name: object,
+    raw: object,
+    *,
+    domain_type: str,
+) -> MethodInputViewSpec:
+    if not domain_type:
+        raise ValueError(f"Method input domain_type is required: {name}")
+    if not isinstance(raw, dict):
+        raise ValueError(f"Method input view is required: {name}")
+    mode = str(raw.get("mode", ""))
+    if mode not in {"identity", "latest_state", "immutable_value", "exact_result"}:
+        raise ValueError(f"invalid Method input view mode for {name}: {mode}")
+    view_domain_type = str(raw.get("domain_type", ""))
+    if view_domain_type != domain_type:
+        raise ValueError(
+            f"Method input view domain_type mismatch for {name}: "
+            f"{view_domain_type} != {domain_type}"
+        )
+    object_kind = raw.get("object_kind")
+    state_kind = raw.get("state_kind")
+    if mode == "latest_state" and not state_kind:
+        raise ValueError(f"latest_state input requires state_kind: {name}")
+    return MethodInputViewSpec(
+        mode=mode,  # type: ignore[arg-type]
+        domain_type=domain_type,
+        object_kind=str(object_kind) if object_kind is not None else None,
+        state_kind=str(state_kind) if state_kind is not None else None,
+    )
 
 
 def _parse_outputs(raw_outputs: object) -> dict[str, str]:

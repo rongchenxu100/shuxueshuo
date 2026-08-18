@@ -212,6 +212,14 @@ class ProblemIRRuntimeReadinessValidator:
                     f"{preflight.description}"
                 ),
             )
+        if preflight.execution_mode == "source_structure_only":
+            return _source_structure_preflight_issue(
+                trigger,
+                trigger_path=trigger_path,
+                scope_id=scope_id,
+                handle_registry=handle_registry,
+                preflight=preflight,
+            )
         visible_handles = tuple(
             sorted(
                 handle
@@ -380,6 +388,49 @@ def _preflight_failure_message(preflight: Any, error: Exception) -> str:
         f"{error}. {preflight.description} Check the selected family's use_when, "
         "required_source_primitives, and do_not_use_when rules before changing family."
     )
+
+
+def _source_structure_preflight_issue(
+    trigger: Mapping[str, Any],
+    *,
+    trigger_path: str,
+    scope_id: str,
+    handle_registry: CanonicalHandleRegistry,
+    preflight: Any,
+) -> ProblemIRRuntimeReadinessIssue | None:
+    """Validate source syntax without choosing planner-authored roles."""
+
+    if str(trigger.get("type", "")) != "path_minimum_target":
+        return None
+    visible_scopes = set(handle_registry.ancestor_scopes(scope_id))
+    point_names = tuple(
+        sorted(
+            {
+                str(payload.get("name", ""))
+                for handle, payload in handle_registry.entity_payloads.items()
+                if handle.startswith("point:")
+                and handle_registry.handle_valid_scopes.get(handle, "problem")
+                in visible_scopes
+                and str(payload.get("name", ""))
+            }
+        )
+    )
+    try:
+        parse_path_terms(
+            trigger,
+            point_names=point_names,
+            resolve_point=lambda name: name,
+        )
+    except PathTermParseError as exc:
+        return ProblemIRRuntimeReadinessIssue(
+            "extraction.problem_ir_runtime_preflight_failed",
+            f"{trigger_path}.path",
+            (
+                f"family source structure preflight {preflight.method_id!r} "
+                f"cannot parse the path target: {exc}. {preflight.description}"
+            ),
+        )
+    return None
 
 
 def _handle_for_path(

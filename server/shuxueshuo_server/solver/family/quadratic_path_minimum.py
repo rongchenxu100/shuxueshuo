@@ -12,6 +12,7 @@ from shuxueshuo_server.solver.family.models import (
     MethodCompanionOutputSpec,
     MethodBindingRuleSpec,
     MethodInputBindingSpec,
+    MacroSearchSpec,
     RecipeExecutionSpec,
     recipe_output_alias,
     SolverFamilySpec,
@@ -124,6 +125,12 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                     "right_angle_equal_length_candidates",
                     "select_point_by_quadrant_constraint",
                 ),
+                execution_mode="runtime_search",
+                search=MacroSearchSpec(
+                    searchable_roles=("anchor", "reference", "target"),
+                    candidate_builder_id="visible_point_role_assignments",
+                    validation_policy_id="method_checks_and_macro_postconditions",
+                ),
                 execution_strategy="right_angle_construct_select",
                 strategy_input_targets=(
                     "right_angle_equal_length_candidates.anchor",
@@ -158,6 +165,12 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             execution=RecipeExecutionSpec(
                 recipe_id="two_moving_points_path_reduction",
                 method_sequence=("two_moving_points_path_reduction",),
+                execution_mode="runtime_search",
+                search=MacroSearchSpec(
+                    searchable_roles=("moving_point",),
+                    candidate_builder_id="path_role_assignments",
+                    validation_policy_id="path_equivalence_and_provenance",
+                ),
                 execution_strategy="single_method",
                 strategy_input_targets=(
                     "two_moving_points_path_reduction.original_path",
@@ -207,6 +220,12 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 method_sequence=(
                     "broken_path_straightening_candidates",
                     "select_straightening_candidate",
+                ),
+                execution_mode="runtime_search",
+                search=MacroSearchSpec(
+                    searchable_roles=("moving_point", "reflect_source"),
+                    candidate_builder_id="straightening_role_assignments",
+                    validation_policy_id="method_checks_and_macro_postconditions",
                 ),
                 execution_strategy="straightening_candidates_select",
                 creates=("point",),

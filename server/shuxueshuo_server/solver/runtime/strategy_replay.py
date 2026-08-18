@@ -385,7 +385,9 @@ class PlannerRetryReplayService:
         problem_binding_catalog: ProblemPlanningBindingCatalog | None = None,
         preserve_scoped_step_identity: bool = False,
         scoped_call_goal_bindings: Mapping[str, tuple[str, ...]] | None = None,
+        scoped_semantic_owner_scopes: Mapping[str, str] | None = None,
         allow_incomplete_goals: bool = False,
+        restored_seed: FunctionalRestoredCallSeed | None = None,
     ) -> PlannerRetryReplayResult:
         """Compose reconciliation and execution for legacy/v1 callers."""
 
@@ -410,7 +412,9 @@ class PlannerRetryReplayService:
             problem_binding_catalog=problem_binding_catalog,
             preserve_scoped_step_identity=preserve_scoped_step_identity,
             scoped_call_goal_bindings=scoped_call_goal_bindings,
+            scoped_semantic_owner_scopes=scoped_semantic_owner_scopes,
             allow_incomplete_goals=allow_incomplete_goals,
+            restored_seed=restored_seed,
         )
         return self.execute_reconciled_functional_plan(
             prepared,
@@ -438,7 +442,9 @@ class PlannerRetryReplayService:
         problem_binding_catalog: ProblemPlanningBindingCatalog | None = None,
         preserve_scoped_step_identity: bool = False,
         scoped_call_goal_bindings: Mapping[str, tuple[str, ...]] | None = None,
+        scoped_semantic_owner_scopes: Mapping[str, str] | None = None,
         allow_incomplete_goals: bool = False,
+        restored_seed: FunctionalRestoredCallSeed | None = None,
     ) -> PlannerRetryReplayResult:
         """Reconcile a FunctionalPlan without executing any method."""
         planner_state_context = planner_state_context or _initial_planner_state_context(
@@ -498,10 +504,21 @@ class PlannerRetryReplayService:
                     if retry_checkpoint is not None
                     else {}
                 ),
+                pinned_call_reconciliations=(
+                    restored_seed.call_reconciliations
+                    if restored_seed is not None
+                    else {}
+                ),
                 problem_binding_catalog=problem_binding_catalog,
+                scoped_semantic_owner_scopes=(
+                    scoped_semantic_owner_scopes
+                ),
                 authored_call_goal_bindings=scoped_call_goal_bindings,
                 allow_incomplete_goals=allow_incomplete_goals,
-                require_explicit_step_results=preserve_scoped_step_identity,
+                # Scoped v2 preserves authored step ids, but named Math
+                # Entities intentionally read their latest visible state.
+                # StepResultRef is reserved for anonymous/exact results.
+                require_explicit_step_results=False,
             )
 
         reconciliation = reconcile_candidate(plan)

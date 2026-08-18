@@ -62,6 +62,7 @@ from shuxueshuo_server.solver.runtime.planner_state_context import (
 from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
     ScopedPublishedGoalBinding,
     ScopedFunctionalPlan,
+    ScopedFunctionalPlanError,
     ScopedFunctionalPlanIssue,
     ScopedFunctionalPlanValidationReport,
     ScopedFunctionalPlanValidator,
@@ -131,6 +132,11 @@ def functional_goal_repair_schema() -> dict[str, Any]:
         ]
     }
     repair_step = deepcopy(plan_defs["step"])
+    repair_step["properties"]["step_id"]["description"] = (
+        "A globally unique step id. This complete step object must be owned by "
+        "exactly one goal_replacements.*.steps or "
+        "scope_step_replacements.*.steps container."
+    )
     repair_step["properties"]["args"] = {
         "type": "object",
         "additionalProperties": {
@@ -150,6 +156,10 @@ def functional_goal_repair_schema() -> dict[str, Any]:
         "properties": {
             "steps": {
                 "type": "array",
+                "description": (
+                    "Complete Goal-local replacement steps used only for this "
+                    "Goal answer. Do not copy Scope-owned steps here."
+                ),
                 "items": {"$ref": "#/$defs/repair_step"},
             },
             "answer_from": {"$ref": "#/$defs/answer_from"},
@@ -162,6 +172,11 @@ def functional_goal_repair_schema() -> dict[str, Any]:
         "properties": {
             "steps": {
                 "type": "array",
+                "description": (
+                    "Complete replacement for this Scope's editable step subset. "
+                    "Do not repeat frozen steps; code preserves and merges them "
+                    "from the authenticated previous Plan."
+                ),
                 "items": {"$ref": "#/$defs/repair_step"},
             },
         },
@@ -185,12 +200,22 @@ def functional_goal_repair_schema() -> dict[str, Any]:
             "base_retry_context_id": nonempty,
             "goal_replacements": {
                 "type": "object",
+                "description": (
+                    "Goal-owned replacement blocks. Their steps are local to "
+                    "one Goal and mutually exclusive with Scope-owned steps."
+                ),
                 "additionalProperties": {
                     "$ref": "#/$defs/goal_replacement"
                 },
             },
             "scope_step_replacements": {
                 "type": "object",
+                "description": (
+                    "Scope-owned replacement blocks for the editable step ids "
+                    "declared by retry authority. Frozen producers are omitted "
+                    "and retained by code. Never repeat a frozen step in a "
+                    "replacement."
+                ),
                 "additionalProperties": {
                     "$ref": "#/$defs/scope_step_replacement"
                 },
@@ -275,6 +300,10 @@ def functional_goal_repair_schema_for_authority(
                     definition="scope_step_replacement",
                     owner_key=f"scope:{scope_ref}",
                     prior_step_owners=prior_step_owners,
+                    reusable_step_ids=authority.editable_scope_step_ids.get(
+                        scope_ref,
+                        (),
+                    ),
                 )
                 for scope_ref in scope_refs
             },
@@ -289,19 +318,25 @@ def _owned_replacement_schema(
     definition: str,
     owner_key: str,
     prior_step_owners: Mapping[str, str],
+    reusable_step_ids: Sequence[str] | None = None,
 ) -> dict[str, Any]:
-    owned = tuple(
+    all_owned = tuple(
         sorted(
             step_id
             for step_id, owner in prior_step_owners.items()
             if owner == owner_key
         )
     )
+    owned = (
+        all_owned
+        if reusable_step_ids is None
+        else tuple(sorted(set(reusable_step_ids)))
+    )
     foreign = tuple(
         sorted(
             step_id
             for step_id, owner in prior_step_owners.items()
-            if owner != owner_key
+            if owner != owner_key or step_id not in owned
         )
     )
     step_id_schema: dict[str, Any] = {
@@ -309,7 +344,8 @@ def _owned_replacement_schema(
         "minLength": 1,
         "description": (
             f"Prior step_ids owned by {owner_key}: {list(owned)}. "
-            "These may be reused here; otherwise choose a new globally "
+            "Only these editable ids may be reused here; frozen ids are "
+            "retained by code. Otherwise choose a new globally "
             "unique step_id. Never copy a prior step_id from another Goal "
             "or scope replacement."
         ),
@@ -393,6 +429,16 @@ def planner_goal_retry_context_schema() -> dict[str, Any]:
         properties: dict[str, Any] = {
             "scope_ref": nonempty,
             "status": {"enum": ["frozen", "editable", "open", "context"]},
+            "editable_step_ids": {
+                "type": "array",
+                "items": nonempty,
+                "uniqueItems": True,
+            },
+            "frozen_step_ids": {
+                "type": "array",
+                "items": nonempty,
+                "uniqueItems": True,
+            },
             "promoted_step_ids": {
                 "type": "array",
                 "items": nonempty,
@@ -618,6 +664,8 @@ class FunctionalGoalRetryAuthority:
     goal_authorities: Mapping[str, FunctionalGoalRetryGoalAuthority]
     editable_scope_refs: tuple[str, ...]
     frozen_scope_refs: tuple[str, ...]
+    editable_scope_step_ids: Mapping[str, tuple[str, ...]]
+    frozen_scope_step_ids: Mapping[str, tuple[str, ...]]
     repair_step_owners: Mapping[str, str]
     published_goal_results: tuple[PublishedGoalResult, ...]
     retry_context: PlannerGoalRetryContext
@@ -631,6 +679,30 @@ class FunctionalGoalRetryAuthority:
         )
         object.__setattr__(self, "editable_scope_refs", tuple(self.editable_scope_refs))
         object.__setattr__(self, "frozen_scope_refs", tuple(self.frozen_scope_refs))
+        object.__setattr__(
+            self,
+            "editable_scope_step_ids",
+            MappingProxyType(
+                {
+                    key: tuple(values)
+                    for key, values in sorted(
+                        self.editable_scope_step_ids.items()
+                    )
+                }
+            ),
+        )
+        object.__setattr__(
+            self,
+            "frozen_scope_step_ids",
+            MappingProxyType(
+                {
+                    key: tuple(values)
+                    for key, values in sorted(
+                        self.frozen_scope_step_ids.items()
+                    )
+                }
+            ),
+        )
         object.__setattr__(
             self,
             "repair_step_owners",
@@ -701,6 +773,14 @@ class FunctionalGoalRetryAuthority:
             },
             "editable_scope_refs": list(self.editable_scope_refs),
             "frozen_scope_refs": list(self.frozen_scope_refs),
+            "editable_scope_step_ids": {
+                key: list(values)
+                for key, values in self.editable_scope_step_ids.items()
+            },
+            "frozen_scope_step_ids": {
+                key: list(values)
+                for key, values in self.frozen_scope_step_ids.items()
+            },
             "repair_step_owners": dict(self.repair_step_owners),
             "published_goal_results": [
                 item.authority_payload() for item in self.published_goal_results
@@ -1127,6 +1207,51 @@ class ScopedFunctionalGoalRetryService:
                     and exc.retryable
                 ):
                     previous_repair_issue = exc.to_prompt_payload()
+            except ScopedFunctionalPlanError as exc:
+                wrapped = FunctionalGoalRetryError(
+                    exc.code,
+                    exc.path,
+                    exc.message,
+                    retryable=exc.retryable,
+                    details=(
+                        dict(exc.issues[0].details)
+                        if exc.issues and exc.issues[0].details
+                        else None
+                    ),
+                )
+                attempts.append(
+                    ScopedFunctionalGoalRetryAttempt(
+                        semantic_attempt=semantic_attempt,
+                        planner_protocol=protocol,
+                        payload=payload,
+                        prompt=prompt,
+                        raw_response=raw_response,
+                        plan=next_plan or current_plan,
+                        execution=current_execution,
+                        retry_authority=retry_authority,
+                        repair=repair,
+                        error=wrapped,
+                        plan_content=plan_content,
+                        content_normalizations=content_normalizations,
+                        content_validation_report=(
+                            ScopedFunctionalPlanValidationReport(exc.issues)
+                        ),
+                    )
+                )
+                if not exc.retryable:
+                    break
+                if protocol == FUNCTIONAL_PLAN_CONTENT_CONTRACT:
+                    authoring_feedback = tuple(
+                        issue.to_payload() for issue in exc.issues
+                    )
+                    previous_invalid_content = (
+                        _normalized_content_candidate(raw_response)
+                    )
+                    current_plan = None
+                    retry_authority = None
+                    restore_execution = None
+                else:
+                    previous_repair_issue = wrapped.to_prompt_payload()
             except FunctionalRestoredCallBindingError as exc:
                 wrapped = FunctionalGoalRetryError(
                     exc.code,
@@ -1493,6 +1618,16 @@ class FunctionalGoalRetryProjector:
             root_issues=checkpoint_root_issues,
             promoted_scope_refs=frozenset(step_promotions.values()),
         )
+        (
+            editable_scope_step_ids,
+            frozen_scope_step_ids,
+        ) = _scope_step_authority(
+            repair_base_plan,
+            goal_authorities=goal_authorities,
+            editable_scope_refs=editable_scopes,
+            frozen_scope_refs=frozen_scopes,
+            failed_scope_step_ids=failed_scope_step_ids,
+        )
         if (
             not editable_scopes
             and not any(item.editable for item in goal_authorities.values())
@@ -1511,6 +1646,8 @@ class FunctionalGoalRetryProjector:
             goal_authorities=goal_authorities,
             scope_statuses=scope_statuses,
             step_promotions=step_promotions,
+            editable_scope_step_ids=editable_scope_step_ids,
+            frozen_scope_step_ids=frozen_scope_step_ids,
         )
         metrics = {
             "solved_goal_count": sum(
@@ -1576,6 +1713,8 @@ class FunctionalGoalRetryProjector:
             goal_authorities=goal_authorities,
             editable_scope_refs=editable_scopes,
             frozen_scope_refs=frozen_scopes,
+            editable_scope_step_ids=editable_scope_step_ids,
+            frozen_scope_step_ids=frozen_scope_step_ids,
             repair_step_owners={
                 **_plan_step_owners(repair_base_plan),
             },
@@ -1764,12 +1903,11 @@ class FunctionalGoalRepairService:
             item.scope_ref: item for item in repair.scope_step_replacements
         }
         replaced_step_ids = {
-            step.step_id
-            for scope in _iter_scopes(base_plan.root_scope)
-            for step in (
-                scope.steps
-                if scope.scope_ref in scope_replacements
-                else ()
+            step_id
+            for scope_ref in scope_replacements
+            for step_id in authority.editable_scope_step_ids.get(
+                scope_ref,
+                (),
             )
         } | {
             step.step_id
@@ -1854,8 +1992,16 @@ class FunctionalGoalRepairService:
                     )
                     for item in scope_replacements[scope.scope_ref].steps
                 ]
-                if replacement_steps:
-                    payload["steps"] = replacement_steps
+                merged_steps = _merge_scope_step_replacement(
+                    scope.steps,
+                    editable_step_ids=authority.editable_scope_step_ids.get(
+                        scope.scope_ref,
+                        (),
+                    ),
+                    replacement_steps=replacement_steps,
+                )
+                if merged_steps:
+                    payload["steps"] = merged_steps
                 else:
                     payload.pop("steps", None)
             goals: list[dict[str, Any]] = []
@@ -2067,11 +2213,18 @@ def _restored_seed(
         )
     result_by_call = {item.call_id: item for item in report.call_results}
     compiled_by_call = {item.call_id: item for item in report.compiled_calls}
+    reconciliation_by_call = {
+        item.call_id: item for item in reconciliation.calls
+    }
     missing = tuple(
         sorted(
             call_id
             for call_id in solved_calls
-            if call_id not in result_by_call or call_id not in compiled_by_call
+            if (
+                call_id not in result_by_call
+                or call_id not in compiled_by_call
+                or call_id not in reconciliation_by_call
+            )
         )
     )
     if missing:
@@ -2133,9 +2286,10 @@ def _restored_seed(
             )
             for call_id in solved_calls
         },
-        allowed_consumer_goal_delta_ids=(
-            _repair_affected_goal_unit_ids(authority)
-        ),
+        call_reconciliations={
+            call_id: reconciliation_by_call[call_id]
+            for call_id in solved_calls
+        },
     )
 
 
@@ -2664,6 +2818,73 @@ def _scope_authority(
     return tuple(sorted(set(editable))), tuple(sorted(set(frozen))), statuses
 
 
+def _scope_step_authority(
+    plan: ScopedFunctionalPlan,
+    *,
+    goal_authorities: Mapping[str, FunctionalGoalRetryGoalAuthority],
+    editable_scope_refs: Sequence[str],
+    frozen_scope_refs: Sequence[str],
+    failed_scope_step_ids: frozenset[str],
+) -> tuple[dict[str, tuple[str, ...]], dict[str, tuple[str, ...]]]:
+    """Split mixed Scope blocks into editable and retained step authority.
+
+    Goal-local blocks remain all-or-nothing. This split applies only to
+    Scope-owned producers, where one physical Scope may serve both solved and
+    unsolved Goals.
+    """
+
+    solved_closure = {
+        step_id
+        for authority in goal_authorities.values()
+        if authority.status == "solved"
+        for step_id in authority.closure_step_ids
+    }
+    repair_cone = {
+        step_id
+        for authority in goal_authorities.values()
+        if authority.status != "solved"
+        for step_id in authority.closure_step_ids
+    } | set(failed_scope_step_ids)
+    editable_scopes = set(editable_scope_refs)
+    frozen_scopes = set(frozen_scope_refs)
+    editable: dict[str, tuple[str, ...]] = {}
+    frozen: dict[str, tuple[str, ...]] = {}
+    for scope in _iter_scopes(plan.root_scope):
+        owned = tuple(step.step_id for step in scope.steps)
+        if not owned:
+            continue
+        owned_set = set(owned)
+        if scope.scope_ref in editable_scopes:
+            solved_owned = owned_set.intersection(solved_closure)
+            if solved_owned:
+                editable_ids = tuple(
+                    step_id
+                    for step_id in owned
+                    if step_id in repair_cone and step_id not in solved_owned
+                )
+            else:
+                # Preserve the original whole-block behavior when no solved
+                # Goal depends on this Scope.
+                editable_ids = owned
+            frozen_ids = tuple(
+                step_id for step_id in owned if step_id not in editable_ids
+            )
+            if not editable_ids and owned:
+                raise FunctionalGoalRetryError(
+                    "functional.goal_repair_group_expansion_required",
+                    f"$.scopes[{scope.scope_ref!r}]",
+                    "the failed Scope only contains producers frozen by solved "
+                    "Goals; expand the repair group before changing them",
+                    retryable=False,
+                    details={"frozen_step_ids": list(frozen_ids)},
+                )
+            editable[scope.scope_ref] = editable_ids
+            frozen[scope.scope_ref] = frozen_ids
+        elif scope.scope_ref in frozen_scopes:
+            frozen[scope.scope_ref] = owned
+    return editable, frozen
+
+
 def _failed_scope_step_ids(
     root: FunctionalGoalExecutionScope,
     root_issues: Sequence[Mapping[str, Any]],
@@ -2851,11 +3072,21 @@ def _retry_scope_prompt(
     goal_authorities: Mapping[str, FunctionalGoalRetryGoalAuthority],
     scope_statuses: Mapping[str, ScopeRetryStatus],
     step_promotions: Mapping[str, str],
+    editable_scope_step_ids: Mapping[str, tuple[str, ...]],
+    frozen_scope_step_ids: Mapping[str, tuple[str, ...]],
 ) -> dict[str, Any]:
     payload: dict[str, Any] = {
         "scope_ref": scope.scope_ref,
         "status": scope_statuses[scope.scope_ref],
     }
+    if scope.scope_ref in editable_scope_step_ids:
+        payload["editable_step_ids"] = list(
+            editable_scope_step_ids[scope.scope_ref]
+        )
+    if scope.scope_ref in frozen_scope_step_ids:
+        payload["frozen_step_ids"] = list(
+            frozen_scope_step_ids[scope.scope_ref]
+        )
     promoted_step_ids = sorted(
         step_id
         for step_id, target_scope in step_promotions.items()
@@ -2896,6 +3127,8 @@ def _retry_scope_prompt(
                 goal_authorities=goal_authorities,
                 scope_statuses=scope_statuses,
                 step_promotions=step_promotions,
+                editable_scope_step_ids=editable_scope_step_ids,
+                frozen_scope_step_ids=frozen_scope_step_ids,
             )
             for child in scope.children
         ]
@@ -2950,6 +3183,29 @@ def _resolve_published_step(
         args[str(arg_name)] = resolved if isinstance(raw, list) else resolved[0]
     payload["args"] = args
     return payload
+
+
+def _merge_scope_step_replacement(
+    previous_steps: Sequence[Any],
+    *,
+    editable_step_ids: Sequence[str],
+    replacement_steps: Sequence[Mapping[str, Any]],
+) -> list[dict[str, Any]]:
+    """Replace only the editable subset and retain frozen producers verbatim."""
+
+    editable = set(editable_step_ids)
+    result: list[dict[str, Any]] = []
+    inserted = False
+    for step in previous_steps:
+        if step.step_id in editable:
+            if not inserted:
+                result.extend(_thaw(item) for item in replacement_steps)
+                inserted = True
+            continue
+        result.append(step.to_payload())
+    if not inserted:
+        result.extend(_thaw(item) for item in replacement_steps)
+    return result
 
 
 def _require_unique(values: Sequence[str], path: str, label: str) -> None:

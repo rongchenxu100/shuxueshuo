@@ -339,7 +339,7 @@ class FunctionalBindingContextBuilder:
                                 "wire" if authored_on_wire else "resolver"
                             ),
                             selection_policy=(
-                                "latest"
+                                _selection_policy_for_view(spec)
                                 if item_index < len(wire_values)
                                 and isinstance(
                                     wire_values[item_index],
@@ -452,6 +452,20 @@ class FunctionalBindingContextBuilder:
             # must consume it even when the public argument was optional.
             runtime_input_required=True,
         )
+
+
+def _selection_policy_for_view(spec: Any) -> FunctionalArgSelectionPolicy:
+    mode = getattr(spec, "input_view_mode", None)
+    if mode == "identity":
+        return "identity_only"
+    if mode == "latest_state":
+        return "latest"
+    if mode in {"immutable_value", "exact_result"}:
+        return "exact"
+    raise FunctionalBindingContextError(
+        "planner.functional_arg_role_drift",
+        f"arg {getattr(spec, 'name', '<unknown>')} has no input view contract",
+    )
 
 
 def _source_identity(

@@ -94,18 +94,39 @@ def test_five_case_runtime_writes_and_results_share_call_source_authority(
         expected = sidecar.source_provenance_for_call(call_result.call_id)
         observed_calls.add(call_result.call_id)
         assert call_result.state_writes or call_result.runtime_results
-        assert all(
-            write.problem_source_provenance == expected
-            for write in call_result.state_writes
+        observed_provenance = tuple(
+            item.problem_source_provenance
+            for item in (*call_result.state_writes, *call_result.runtime_results)
         )
+        assert observed_provenance
         assert all(
-            result.problem_source_provenance == expected
-            for result in call_result.runtime_results
+            item is not None and item.extends_base_authority(expected)
+            for item in observed_provenance
         )
+        assert len(set(observed_provenance)) == 1
+        runtime_authority = observed_provenance[0]
+        assert runtime_authority is not None
+        if call_result.macro_search_report is None:
+            assert runtime_authority == expected
+        else:
+            assert (
+                runtime_authority.macro_search_signature
+                == call_result.macro_search_report.search_signature
+            )
+            assert runtime_authority.macro_role_resolutions == tuple(
+                sorted(
+                    (
+                        item.role,
+                        item.authored_ref,
+                        item.chosen_ref,
+                    )
+                    for item in call_result.macro_search_report.role_resolutions
+                )
+            )
         assert all(
             "problem_source_provenance" not in result.to_payload()
             and result.authority_payload()["problem_source_provenance"]
-            == expected.to_payload()
+            == runtime_authority.to_payload()
             for result in call_result.runtime_results
         )
         expected_direct_sources = {
@@ -128,8 +149,10 @@ def test_five_case_runtime_writes_and_results_share_call_source_authority(
     )
     assert answer_aliases
     assert all(
-        write.problem_source_provenance
-        == sidecar.source_provenance_for_call(write.step_id)
+        write.problem_source_provenance is not None
+        and write.problem_source_provenance.extends_base_authority(
+            sidecar.source_provenance_for_call(write.step_id)
+        )
         for write in answer_aliases
     )
     call_result_consumers = tuple(

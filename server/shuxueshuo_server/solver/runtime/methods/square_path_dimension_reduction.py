@@ -8,7 +8,7 @@ from __future__ import annotations
 from shuxueshuo_server.solver.contracts import MethodExplanationSpec, MethodVisualSpec
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, declare_input_views
 
 
 class SquarePathDimensionReductionMethod:
@@ -21,6 +21,7 @@ class SquarePathDimensionReductionMethod:
         square_condition: dict[str, Any] = inputs["square_condition"]
         midpoint_condition: dict[str, Any] = inputs["midpoint_condition"]
         square_center_condition: dict[str, Any] = inputs["square_center_condition"]
+        moving_point: PointRef = inputs["moving_point"]
         fixed_endpoint_1_ref: PointRef | None = inputs.get(
             "fixed_endpoint_1_ref"
         )
@@ -49,14 +50,12 @@ class SquarePathDimensionReductionMethod:
                 square_center_condition=square_center_condition,
                 typed_terms=typed_terms,
                 display_segments=segments,
+                moving_point=moving_point,
+                fixed_endpoint_1_ref=fixed_endpoint_1_ref,
                 fixed_endpoint_2_ref=fixed_endpoint_2_ref,
             )
-            side_start = (
-                fixed_endpoint_1_ref.name
-                if fixed_endpoint_1_ref is not None
-                else _source_point_label(vertices[0])
-            )
-            side_end = _source_point_label(vertices[1])
+            side_start = roles["side_start"]
+            side_end = roles["side_end"]
             moving_vertex = roles["moving_vertex"]
             midpoint = roles["midpoint"]
             center = roles["center"]
@@ -65,25 +64,45 @@ class SquarePathDimensionReductionMethod:
             midpoint_other = roles["midpoint_other"]
             other_moving = roles["other_moving"]
         else:
-            side_start = _handle_name(vertices[0])
-            side_end = _handle_name(vertices[1])
-            moving_vertex = _handle_name(vertices[3])
+            square_names = tuple(_handle_name(item) for item in vertices[:4])
+            moving_vertex = moving_point.name
             midpoint = _handle_name(str(midpoint_condition["point"]))
             center = _handle_name(str(square_center_condition["point"]))
             midpoint_of = [_handle_name(str(item)) for item in midpoint_condition.get("of", [])]
-            if {side_start, side_end} != set(midpoint_of):
+            side_start = _square_side_endpoint_for_moving_point(
+                vertices=square_names,
+                midpoint_side=midpoint_of,
+                moving_point=moving_vertex,
+            )
+            side_end = next(item for item in midpoint_of if item != side_start)
+            if (
+                fixed_endpoint_1_ref is not None
+                and fixed_endpoint_1_ref.name != side_start
+            ):
                 raise method_precondition_failed(
-                    "midpoint condition must refer to the selected square side endpoints",
-                    arg_name="midpoint_condition",
-                    role="square_side_midpoint",
-                    expected={"state": "midpoint_of_selected_side", "endpoints": [side_start, side_end]},
-                    observed={"state": "different_endpoints", "endpoints": midpoint_of},
-                    repair_action="choose_matching_square_midpoint",
+                    "computed fixed endpoint does not match the planner-selected moving point",
+                    arg_name="moving_point",
+                    role="square_path_interpretation",
+                    expected={"fixed_endpoint_1": side_start},
+                    observed={"fixed_endpoint_1": fixed_endpoint_1_ref.name},
+                    repair_action="choose_square_path_moving_point",
                 )
             center_midpoint = _find_segment(segments, center, midpoint)
             midpoint_other = _segment_with_endpoint(segments, midpoint, exclude=center_midpoint)
             other_fixed = _other_segment_endpoint(midpoint_other, midpoint)
             other_moving = _find_segment(segments, other_fixed, moving_vertex)
+            if (
+                fixed_endpoint_2_ref is not None
+                and fixed_endpoint_2_ref.name != other_fixed
+            ):
+                raise method_precondition_failed(
+                    "computed path endpoint does not match the selected transformation",
+                    arg_name="moving_point",
+                    role="square_path_interpretation",
+                    expected={"fixed_endpoint_2": other_fixed},
+                    observed={"fixed_endpoint_2": fixed_endpoint_2_ref.name},
+                    repair_action="choose_square_path_moving_point",
+                )
         if str(square_center_condition.get("square")) != str(square_condition.get("handle", square_condition.get("id", ""))):
             # Canonical fact payloads do not always carry their own handle. When absent,
             # the structural checks below still pin the same square by its vertices.
@@ -98,10 +117,12 @@ class SquarePathDimensionReductionMethod:
             "original_path": path,
             "transformed_path": transformed_path,
             "moving_point_name": moving_vertex,
-            "moving_point_ref": vertices[3],
+            "moving_point_ref": _canonical_point_ref(moving_point),
             "fixed_point_names": (side_start, other_fixed),
             "roles": {
-                "square_vertices": (side_start, side_end, _source_point_label(vertices[2]), moving_vertex),
+                "square_vertices": tuple(
+                    _source_point_label(item) for item in vertices[:4]
+                ),
                 "side_start": side_start,
                 "side_end": side_end,
                 "midpoint": midpoint,
@@ -235,6 +256,8 @@ def _typed_square_path_roles(
     square_center_condition: dict[str, Any],
     typed_terms: list[tuple[str, str]],
     display_segments: list[str],
+    moving_point: PointRef,
+    fixed_endpoint_1_ref: PointRef | None,
     fixed_endpoint_2_ref: PointRef | None,
 ) -> dict[str, str]:
     """Validate the square path by exact handles, then derive display labels."""
@@ -248,18 +271,29 @@ def _typed_square_path_roles(
             observed={"typed_term_count": len(typed_terms), "display_segment_count": len(display_segments)},
             repair_action="choose_three_segment_square_path",
         )
-    side_start, side_end, _, moving_handle = vertices[:4]
+    moving_handle = _canonical_point_ref(moving_point)
     midpoint_handle = str(midpoint_condition.get("point", ""))
     midpoint_of = tuple(str(item) for item in midpoint_condition.get("of", ()))
     center_handle = str(square_center_condition.get("point", ""))
-    if len(midpoint_of) != 2 or set(midpoint_of) != {side_start, side_end}:
+    side_start = _square_side_endpoint_for_moving_point(
+        vertices=tuple(vertices[:4]),
+        midpoint_side=midpoint_of,
+        moving_point=moving_handle,
+    )
+    side_end = next(item for item in midpoint_of if item != side_start)
+    if (
+        fixed_endpoint_1_ref is not None
+        and _canonical_point_ref(fixed_endpoint_1_ref) != side_start
+    ):
         raise method_precondition_failed(
-            "midpoint condition must refer to the selected square side endpoints",
-            arg_name="midpoint_condition",
-            role="square_side_midpoint",
-            expected={"state": "midpoint_of_selected_side", "endpoints": [side_start, side_end]},
-            observed={"state": "different_endpoints", "endpoints": list(midpoint_of)},
-            repair_action="choose_matching_square_midpoint",
+            "computed fixed endpoint does not match the planner-selected moving point",
+            arg_name="moving_point",
+            role="square_path_interpretation",
+            expected={"fixed_endpoint_1": side_start},
+            observed={
+                "fixed_endpoint_1": _canonical_point_ref(fixed_endpoint_1_ref)
+            },
+            repair_action="choose_square_path_moving_point",
         )
 
     center_index = _typed_edge_index(typed_terms, center_handle, midpoint_handle)
@@ -282,6 +316,20 @@ def _typed_square_path_roles(
         typed_terms[midpoint_index],
         midpoint_handle,
     )
+    if (
+        fixed_endpoint_2_ref is not None
+        and _canonical_point_ref(fixed_endpoint_2_ref) != other_fixed_handle
+    ):
+        raise method_precondition_failed(
+            "computed path endpoint does not match the selected transformation",
+            arg_name="moving_point",
+            role="square_path_interpretation",
+            expected={"fixed_endpoint_2": other_fixed_handle},
+            observed={
+                "fixed_endpoint_2": _canonical_point_ref(fixed_endpoint_2_ref)
+            },
+            repair_action="choose_square_path_moving_point",
+        )
     moving_indexes = [
         index
         for index, pair in enumerate(typed_terms)
@@ -303,12 +351,18 @@ def _typed_square_path_roles(
         typed_terms,
         display_segments,
         anchors=(
-            (other_fixed_handle, fixed_endpoint_2_ref.name)
-            if fixed_endpoint_2_ref is not None
-            else None
+            (moving_handle, moving_point.name),
+            *((
+                (side_start, fixed_endpoint_1_ref.name),
+            ) if fixed_endpoint_1_ref is not None else ()),
+            *((
+                (other_fixed_handle, fixed_endpoint_2_ref.name),
+            ) if fixed_endpoint_2_ref is not None else ()),
         ),
     )
     return {
+        "side_start": labels.get(side_start, _source_point_label(side_start)),
+        "side_end": labels.get(side_end, _source_point_label(side_end)),
         "center": labels[center_handle],
         "midpoint": labels[midpoint_handle],
         "other_fixed": labels[other_fixed_handle],
@@ -357,8 +411,13 @@ def _typed_path_display_labels(
     terms: list[tuple[str, str]],
     segments: list[str],
     *,
-    anchors: tuple[str, str] | None,
+    anchors: tuple[tuple[str, str], ...],
 ) -> dict[str, str]:
+    path_handles = {
+        handle
+        for pair in terms
+        for handle in pair
+    }
     candidates: list[dict[str, str]] = [{}]
     for pair, segment in zip(terms, segments):
         display = _display_segment_endpoints(segment)
@@ -375,8 +434,9 @@ def _typed_path_display_labels(
                 proposed[pair[1]] = names[1]
                 next_candidates.append(proposed)
         candidates = next_candidates
-    if anchors is not None:
-        anchor_handle, anchor_name = anchors
+    for anchor_handle, anchor_name in anchors:
+        if anchor_handle not in path_handles:
+            continue
         candidates = [
             item for item in candidates if item.get(anchor_handle) == anchor_name
         ]
@@ -412,6 +472,44 @@ def _display_segment_endpoints(segment: str) -> tuple[str, str]:
 
 def _canonical_point_ref(point_ref: PointRef) -> str:
     return f"point:{point_ref.scope_id}:{point_ref.name}"
+
+
+def _square_side_endpoint_for_moving_point(
+    *,
+    vertices: tuple[str, ...],
+    midpoint_side: tuple[str, ...] | list[str],
+    moving_point: str,
+) -> str:
+    """Validate one selected moving point against square adjacency."""
+
+    side = tuple(midpoint_side)
+    candidates: list[str] = []
+    if len(vertices) == 4 and len(side) == 2:
+        for endpoint in side:
+            if endpoint not in vertices:
+                continue
+            other = next((item for item in side if item != endpoint), None)
+            if other is None:
+                continue
+            index = vertices.index(endpoint)
+            neighbors = (vertices[(index - 1) % 4], vertices[(index + 1) % 4])
+            if other in neighbors and moving_point in neighbors and moving_point != other:
+                candidates.append(endpoint)
+    if len(candidates) != 1:
+        raise method_precondition_failed(
+            "selected moving point is incompatible with the square midpoint side",
+            arg_name="moving_point",
+            role="square_path_interpretation",
+            internal_ref=moving_point,
+            expected={"state": "adjacent_to_one_midpoint_side_endpoint"},
+            observed={
+                "moving_point": moving_point,
+                "midpoint_side": list(side),
+                "candidate_count": len(candidates),
+            },
+            repair_action="choose_square_path_moving_point",
+        )
+    return candidates[0]
 
 
 def _find_segment(segments: list[str], p1: str, p2: str) -> str:
@@ -453,7 +551,8 @@ SPEC = MethodSpecSource(
         "路径中的结构化固定端点必须先由其题面定义在当前 scope 或祖先 scope"
         "物化为 Point state；PointRef 或点名本身不是可执行坐标。"
         "输出等价的单动点两段 PathTransformation，不负责拉直或求最小值；"
-        "输出不携带动点轨迹，后续必须先求 PathTransformation 声明动点的 Line。"
+        "moving_point 必须由 Planner 显式声明，Method 只验证这一解释；输出不携带"
+        "动点轨迹，后续必须先求 PathTransformation 声明动点的 Line。"
     ),
     do_not_use_when=(
         "原路径只有两段，或不需要正方形的中点和中心关系即可完成等长/比例替换。",
@@ -468,9 +567,26 @@ SPEC = MethodSpecSource(
         "square_condition": {"type": "Condition", "required": True},
         "midpoint_condition": {"type": "Condition", "required": True},
         "square_center_condition": {"type": "Condition", "required": True},
+        "moving_point": {
+            "type": "PointRef",
+            "required": True,
+            "description": (
+                "Planner 选择的降维后单动点身份；Method 根据正方形和路径"
+                "结构验证，不按顶点序号自动选择。"
+            ),
+        },
         "fixed_endpoint_1_ref": {"type": "PointRef", "required": False},
         "fixed_endpoint_2_ref": {"type": "PointRef", "required": False},
     },
+    input_views=declare_input_views(
+        identity=("moving_point", "fixed_endpoint_1_ref", "fixed_endpoint_2_ref"),
+        immutable_value=(
+            "path_condition",
+            "square_condition",
+            "midpoint_condition",
+            "square_center_condition",
+        ),
+    ),
     outputs={"path_transformation": "PathTransformation"},
     preconditions=(
         "path_condition.path 是三段路径",
@@ -478,10 +594,11 @@ SPEC = MethodSpecSource(
         "square_center_condition 指向该正方形中心或对角线交点",
         "中点到另一固定点的半边关系已有直角三角形斜边中线依据",
         "两个结构化固定端点都已有当前 scope 可见的 Point state",
+        "moving_point 是 Planner 显式选择且通过正方形邻接与三段路径验算的对象",
     ),
     postconditions=(
         "输出 transformed_path 是两段共享同一动点的折线路径",
-        "输出 payload 包含 moving_point_name 与 fixed_point_names，供后续 planner repair 继续规划",
+        "输出 payload 保留已经验证的 moving_point_name 与 fixed_point_names，供后续调用建立同一对象身份",
     ),
     explanation=MethodExplanationSpec(
         role_schema={

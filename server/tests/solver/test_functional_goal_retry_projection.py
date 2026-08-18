@@ -14,7 +14,10 @@ from shuxueshuo_server.solver.runtime.functional_goal_execution import (
 )
 from shuxueshuo_server.solver.runtime.functional_goal_retry import (
     FunctionalGoalRetryProjector,
+    _iter_execution_scopes,
+    _retry_scope_prompt,
     _scope_authority,
+    _scope_step_authority,
 )
 from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
     ScopedFunctionalPlanValidator,
@@ -49,6 +52,56 @@ def test_strict_goal_authority_freezes_only_fully_verified_goals(tmp_path) -> No
         "typed_checkpoint_restorable"
     ] is False
     assert authority.editable_goal_refs == (FAILED_GOAL_REF,)
+
+
+def test_mixed_scope_projects_editable_and_frozen_step_ids(tmp_path) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    root = fixture.retry_authority.base_plan.root_scope
+    frozen_step, editable_step = root.steps[:2]
+    solved = next(
+        item
+        for item in fixture.retry_authority.goal_authorities.values()
+        if item.status == "solved"
+    )
+    failed = fixture.retry_authority.goal_authorities[FAILED_GOAL_REF]
+
+    editable, frozen = _scope_step_authority(
+        fixture.retry_authority.base_plan,
+        goal_authorities={
+            solved.goal_ref: replace(
+                solved,
+                closure_step_ids=(frozen_step.step_id,),
+            ),
+            failed.goal_ref: replace(
+                failed,
+                closure_step_ids=(editable_step.step_id,),
+            ),
+        },
+        editable_scope_refs=(root.scope_ref,),
+        frozen_scope_refs=(),
+        failed_scope_step_ids=frozenset({editable_step.step_id}),
+    )
+
+    assert editable == {root.scope_ref: (editable_step.step_id,)}
+    assert frozen == {root.scope_ref: (frozen_step.step_id,)}
+
+    checkpoint = fixture.execution.checkpoint
+    assert checkpoint is not None
+    statuses = {
+        scope.scope_ref: "context"
+        for scope in _iter_execution_scopes(checkpoint.root_scope)
+    }
+    statuses[root.scope_ref] = "editable"
+    prompt_scope = _retry_scope_prompt(
+        checkpoint.root_scope,
+        goal_authorities=fixture.retry_authority.goal_authorities,
+        scope_statuses=statuses,
+        step_promotions={},
+        editable_scope_step_ids=editable,
+        frozen_scope_step_ids=frozen,
+    )
+    assert prompt_scope["editable_step_ids"] == [editable_step.step_id]
+    assert prompt_scope["frozen_step_ids"] == [frozen_step.step_id]
 
 
 def test_goal_closure_keeps_implicit_materialized_state_dependencies(
@@ -266,7 +319,7 @@ def test_named_state_return_is_published_without_answer_handle_alias(
     assert authority.editable_goal_refs == ("iii.b",)
 
 
-def test_retry_authority_uses_canonical_promoted_scope_tree(tmp_path) -> None:
+def test_retry_authority_preserves_authored_scope_tree_without_promotion(tmp_path) -> None:
     case = "tj-2026-heping-yimo-25"
     authority_fixture = planning_binding_fixture(tmp_path / case, case=case)
     payload = deepcopy(load_v2_fixture_payload(case))
@@ -314,15 +367,15 @@ def test_retry_authority_uses_canonical_promoted_scope_tree(tmp_path) -> None:
     canonical_i = next(
         item for item in canonical["children"] if item["scope_ref"] == "i"
     )
-    assert [item["step_id"] for item in canonical_i["steps"]] == [
-        promoted["step_id"]
-    ]
+    assert "steps" not in canonical_i
     canonical_i_1 = next(
         item
         for item in canonical_i["children"]
         if item["scope_ref"] == "i_1"
     )
-    assert "steps" not in canonical_i_1["goals"][0]
+    assert [
+        item["step_id"] for item in canonical_i_1["goals"][0]["steps"]
+    ] == [promoted["step_id"]]
 
 
 def test_missing_typed_checkpoint_means_no_goal_is_frozen(tmp_path) -> None:

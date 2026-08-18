@@ -1307,6 +1307,7 @@ def build_functional_problem_binding_context(
                 )
                 continue
             source_units = set(source_binding.source_unit_ids)
+            effective_semantic_ref = wire_ref
             if not _binding_accepts_c3_source(
                 source_binding,
                 binding.source,
@@ -1321,15 +1322,35 @@ def build_functional_problem_binding_context(
                     ),
                 )
                 if not _same_source_object(source_binding, supporting):
-                    raise _error(
-                        "planner.problem_source_binding_drift",
-                        (
-                            f"$.calls[{call_id!r}].args"
-                            f"[{binding.key.arg_name!r}]"
-                        ),
-                        "C3 selected a state for a different source object",
+                    reconciled_call = reconciled.get(call_id)
+                    searchable_roles = (
+                        dict(reconciled_call.authored_macro_roles)
+                        if reconciled_call is not None
+                        else {}
                     )
-                source_units.update(supporting.source_unit_ids)
+                    if binding.key.arg_name not in searchable_roles:
+                        raise _error(
+                            "planner.problem_source_binding_drift",
+                            (
+                                f"$.calls[{call_id!r}].args"
+                                f"[{binding.key.arg_name!r}]"
+                            ),
+                            "C3 selected a state for a different source object",
+                        )
+                    if supporting.scoped_key not in call_goals.allowed_ref_keys:
+                        raise _error(
+                            "functional.semantic_ref_not_visible_for_goal",
+                            (
+                                f"$.calls[{call_id!r}].args"
+                                f"[{binding.key.arg_name!r}]"
+                            ),
+                            "Macro search selected an object outside Goal authority",
+                        )
+                    source_binding = supporting
+                    source_units = set(supporting.source_unit_ids)
+                    effective_semantic_ref = supporting.semantic_ref
+                else:
+                    source_units.update(supporting.source_unit_ids)
             elif binding.source.kind == "state_version":
                 for supporting in _supporting_authorities_for_c3_source(
                     catalog,
@@ -1346,7 +1367,7 @@ def build_functional_problem_binding_context(
                     item_index=binding.key.item_index,
                     source_kind="problem_source",
                     selection_policy=binding.selection_policy,
-                    semantic_ref=wire_ref,
+                    semantic_ref=effective_semantic_ref,
                     runtime_node_id=source_binding.runtime_node_id,
                     source_unit_ids=tuple(sorted(source_units)),
                     typed_source=binding.source,

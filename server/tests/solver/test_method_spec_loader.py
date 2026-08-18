@@ -451,6 +451,25 @@ def test_rejects_missing_required_field() -> None:
         parse_method_spec({"method_id": "broken"})
 
 
+def _input(
+    runtime_type: str,
+    *,
+    domain_type: str = "Expression",
+    mode: str = "latest_state",
+    **extra: object,
+) -> dict[str, object]:
+    state_kind = "expression" if mode == "latest_state" else None
+    view = {"mode": mode, "domain_type": domain_type}
+    if state_kind is not None:
+        view["state_kind"] = state_kind
+    return {
+        "runtime_type": runtime_type,
+        "domain_type": domain_type,
+        "view": view,
+        **extra,
+    }
+
+
 def test_rejects_unknown_input_type() -> None:
     with pytest.raises(ValueError, match="unknown input type"):
         parse_method_spec(
@@ -458,7 +477,7 @@ def test_rejects_unknown_input_type() -> None:
                 "method_id": "broken",
                 "title": "Broken",
                 "solves": ["derive_point_coordinate"],
-                "inputs": {"x": {"type": "Unknown"}},
+                "inputs": {"x": _input("Unknown")},
                 "outputs": {"derived_point": "Point"},
             }
         )
@@ -470,7 +489,7 @@ def test_accepts_known_output_union_type() -> None:
             "method_id": "union_output",
             "title": "Union Output",
             "solves": ["derive_expression"],
-            "inputs": {"x": {"type": "Expression|MinimumExpression"}},
+            "inputs": {"x": _input("Expression|MinimumExpression")},
             "outputs": {"value": "Expression|MinimumExpression"},
         }
     )
@@ -485,7 +504,7 @@ def test_rejects_runtime_union_with_empty_member() -> None:
                 "method_id": "broken_union",
                 "title": "Broken Union",
                 "solves": ["derive_expression"],
-                "inputs": {"x": {"type": "Expression||MinimumExpression"}},
+                "inputs": {"x": _input("Expression||MinimumExpression")},
                 "outputs": {"value": "Expression"},
             }
         )
@@ -496,7 +515,7 @@ def test_method_purity_is_explicit_and_legacy_specs_are_conservative() -> None:
         "method_id": "synthetic_method",
         "title": "Synthetic",
         "solves": ["derive_expression"],
-        "inputs": {"x": {"type": "Expression"}},
+        "inputs": {"x": _input("Expression")},
         "outputs": {"value": "Expression"},
     }
 
@@ -543,7 +562,7 @@ def test_reconciliation_validator_declarations_are_normalized() -> None:
         "method_id": "synthetic_method",
         "title": "Synthetic",
         "solves": ["derive_expression"],
-        "inputs": {"x": {"type": "Expression"}},
+        "inputs": {"x": _input("Expression")},
         "outputs": {"value": "Expression"},
         "reconciliation_validators": ["identity_check", "identity_check"],
     }
@@ -563,7 +582,7 @@ def test_plan_transformer_scope_rejects_unknown_value() -> None:
         "method_id": "synthetic_method",
         "title": "Synthetic",
         "solves": ["derive_expression"],
-        "inputs": {"x": {"type": "Expression"}},
+        "inputs": {"x": _input("Expression")},
         "outputs": {"value": "Expression"},
         "plan_transformer_scope": "some_invocations",
     }
@@ -579,7 +598,7 @@ def test_rejects_unknown_output_union_member() -> None:
                 "method_id": "broken_output",
                 "title": "Broken Output",
                 "solves": ["derive_expression"],
-                "inputs": {"x": {"type": "Expression"}},
+                "inputs": {"x": _input("Expression")},
                 "outputs": {"value": "Expression|Unknown"},
             }
         )
@@ -617,10 +636,10 @@ def test_rejects_unknown_symbolic_basis_role() -> None:
                 "title": "Broken symbolic basis",
                 "solves": ["derive_expression"],
                 "inputs": {
-                    "value": {
-                        "type": "Expression",
-                        "symbolic_basis_role": "guess_from_name",
-                    }
+                    "value": _input(
+                        "Expression",
+                        symbolic_basis_role="guess_from_name",
+                    )
                 },
                 "outputs": {"value": "Expression"},
             }

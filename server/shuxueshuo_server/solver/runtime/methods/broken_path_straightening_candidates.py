@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from ._common import *
 from ._common import _canonical_reference_name, _canonical_segment_name
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, declare_input_views
 
 
 class BrokenPathStraighteningCandidatesMethod:
@@ -175,6 +175,17 @@ SPEC = MethodSpecSource(
         "description": "动点所在直线上的第二个点。"
     }
 },
+    input_views=declare_input_views(
+        latest_state=(
+            "moving_locus",
+            "fixed_point_1",
+            "fixed_point_2",
+            "line_point_1",
+            "line_point_2",
+        ),
+        immutable_value=("moving_point_membership",),
+        exact_result=("path_transformation",),
+    ),
     outputs={
     "candidates": "StraighteningCandidateList"
 },

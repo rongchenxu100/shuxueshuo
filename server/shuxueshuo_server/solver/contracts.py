@@ -32,6 +32,12 @@ MethodSymbolicBasisRole = Literal[
     "state_anchor",
     "align_to_anchor",
 ]
+MethodInputViewMode = Literal[
+    "identity",
+    "latest_state",
+    "immutable_value",
+    "exact_result",
+]
 
 
 @dataclass(frozen=True)
@@ -124,15 +130,44 @@ class PointRef:
 
 
 @dataclass(frozen=True)
+class MethodInputViewSpec:
+    """How the compiler materializes one domain argument for a Method."""
+
+    mode: MethodInputViewMode
+    domain_type: str
+    object_kind: str | None = None
+    state_kind: str | None = None
+
+    def to_payload(self) -> dict[str, str]:
+        payload = {
+            "mode": self.mode,
+            "domain_type": self.domain_type,
+        }
+        if self.object_kind is not None:
+            payload["object_kind"] = self.object_kind
+        if self.state_kind is not None:
+            payload["state_kind"] = self.state_kind
+        return payload
+
+
+@dataclass(frozen=True)
 class MethodInputSpec:
-    """MethodSpec 中的单个输入槽位定义。"""
+    """MethodSpec 中的单个、显式view输入槽位定义。"""
 
     name: str
-    type: str
+    domain_type: str
+    runtime_type: str
+    view: MethodInputViewSpec
     role: str = ""
     required: bool = True
     functional_exposed: bool = True
     symbolic_basis_role: MethodSymbolicBasisRole | None = None
+
+    @property
+    def type(self) -> str:
+        """Internal compatibility alias; prompt code must use domain_type."""
+
+        return self.runtime_type
 
 
 @dataclass(frozen=True)

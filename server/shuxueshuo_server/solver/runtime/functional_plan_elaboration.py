@@ -1000,7 +1000,36 @@ def _semantic_ref_satisfies_arg(
         ),
         accepted_condition_kinds=arg_spec.accepted_condition_kinds,
     )
-    return resolved is not None
+    if resolved is not None:
+        return True
+    if getattr(arg_spec, "input_view_mode", None) not in {
+        "identity",
+        "latest_state",
+    }:
+        return False
+    identity_types = _domain_identity_runtime_types(
+        getattr(arg_spec, "domain_type", None)
+    )
+    if not identity_types:
+        return False
+    identity, _identity_candidates = semantic_index.resolve(
+        ref,
+        scope_id=scope_id,
+        accepted_types=identity_types,
+        accepted_condition_kinds=arg_spec.accepted_condition_kinds,
+    )
+    return identity is not None
+
+
+def _domain_identity_runtime_types(domain_type: str | None) -> tuple[str, ...]:
+    return {
+        "Point": ("PointRef", "Point"),
+        "QuadraticFunction": ("Expression", "Parabola"),
+        "Symbol": ("Symbol", "ParameterValue"),
+        "Line": ("Line",),
+        "Ray": ("Ray",),
+        "Polygon": ("Polygon",),
+    }.get(domain_type or "", ())
 
 
 def _drop_redundant_incompatible_optional_args(

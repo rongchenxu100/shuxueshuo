@@ -9,7 +9,7 @@ from __future__ import annotations
 from shuxueshuo_server.solver.contracts import MethodExplanationSpec
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, declare_input_views
 
 
 class LineParabolaSecondIntersectionPointMethod:
@@ -136,10 +136,41 @@ def _filter_by_x_range(
         arg_name="target",
         role="x_range_upper_bound",
     )
-    return [
-        point for point in candidates
-        if sp.simplify(point[0] - lower) > 0 and sp.simplify(point[0] - upper) < 0
-    ]
+    selected: list[Point] = []
+    unresolved: list[Point] = []
+    for point in candidates:
+        above_lower = sp.simplify(point[0] - lower)
+        below_upper = sp.simplify(point[0] - upper)
+        if is_definitely_positive(
+            above_lower
+        ) and is_definitely_negative(below_upper):
+            selected.append(point)
+            continue
+        if is_definitely_nonpositive(
+            above_lower
+        ) or is_definitely_nonnegative(below_upper):
+            continue
+        unresolved.append(point)
+    if not selected and unresolved:
+        raise method_result_ambiguous(
+            "line/parabola intersection x-range membership is symbolic",
+            role="target_second_intersection",
+            internal_ref=target.name,
+            expected={
+                "candidate_count": 1,
+                "x_range": [kernel.sstr(lower), kernel.sstr(upper)],
+            },
+            observed={
+                "candidate_count": len(unresolved),
+                "candidates": [
+                    [kernel.sstr(value) for value in point]
+                    for point in unresolved
+                ],
+                "state": "range_membership_unresolved",
+            },
+            repair_action="supply_disambiguating_constraint",
+        )
+    return selected
 
 
 SPEC = MethodSpecSource(
@@ -193,6 +224,10 @@ SPEC = MethodSpecSource(
             "symbolic_basis_role": "align_to_anchor",
         },
     },
+    input_views=declare_input_views(
+        identity=("x", "target"),
+        latest_state=("parabola", "line_p1", "line_p2", "known_point"),
+    ),
     outputs={"point": "Point"},
     do_not_use_when=(
         "line_p1 与 line_p2 横坐标相同或两点重合，无法确定本方法支持的非竖直直线。",

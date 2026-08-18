@@ -9,7 +9,7 @@ from __future__ import annotations
 from shuxueshuo_server.solver.contracts import MethodExplanationSpec, MethodVisualSpec
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, declare_input_views
 
 
 class AngleSumEqualAngleCandidatesMethod:
@@ -217,6 +217,16 @@ SPEC = MethodSpecSource(
         "origin": {"type": "Point", "required": True},
         "target": {"type": "PointRef", "required": True},
     },
+    input_views=declare_input_views(
+        identity=("target",),
+        latest_state=(
+            "x_axis_point",
+            "y_axis_point",
+            "reference_x_axis_point",
+            "origin",
+        ),
+        immutable_value=("condition",),
+    ),
     outputs={"angle_equality": "AngleEquality"},
     preconditions=(
         "condition 是两个角之和等于 45° 的角和事实",

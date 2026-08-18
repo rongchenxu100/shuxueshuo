@@ -13,6 +13,7 @@ from shuxueshuo_server.solver.family.models import (
     MethodBindingRuleSpec,
     MethodCompanionOutputSpec,
     MethodInputBindingSpec,
+    MacroSearchSpec,
     RecipeExecutionSpec,
     recipe_output_alias,
     SolverFamilySpec,
@@ -130,6 +131,17 @@ _QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             execution=RecipeExecutionSpec(
                 recipe_id="equal_length_ray_path_reduction",
                 method_sequence=("equal_length_ray_point", "distance_between_points"),
+                execution_mode="runtime_search",
+                search=MacroSearchSpec(
+                    searchable_roles=(
+                        "anchor",
+                        "reference_point",
+                        "ray_point",
+                        "fixed_point",
+                    ),
+                    candidate_builder_id="equal_length_ray_role_assignments",
+                    validation_policy_id="distance_equivalence_and_provenance",
+                ),
                 execution_strategy="equal_length_ray_path_reduction",
                 creates=("point",),
                 strategy_input_targets=(
@@ -169,6 +181,7 @@ _QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                     "free_parameter",
                     "free_parameter:a_if_single_curve_point",
                     required=False,
+                    functional_authority="wire",
                 ),
             ),
             expansion_selectors=(

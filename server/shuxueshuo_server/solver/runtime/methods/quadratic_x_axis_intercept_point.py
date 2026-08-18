@@ -9,7 +9,7 @@ from __future__ import annotations
 from shuxueshuo_server.solver.contracts import MethodExplanationSpec, MethodVisualSpec
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, declare_input_views
 
 
 class QuadraticXAxisInterceptPointMethod:
@@ -216,6 +216,10 @@ SPEC = MethodSpecSource(
             "symbolic_basis_role": "align_to_anchor",
         },
     },
+    input_views=declare_input_views(
+        identity=("x", "target"),
+        latest_state=("quadratic", "known_point"),
+    ),
     outputs={"point": "Point"},
     preconditions=("quadratic 是关于 x 的函数表达式，可以含未定系数",),
     postconditions=("输出点纵坐标为 0 且在曲线上；若给定 known_point，则输出另一个 x 轴交点；若目标 PointRef 声明 side=left/right，则输出对应左右交点",),

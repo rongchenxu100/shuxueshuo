@@ -95,7 +95,9 @@
         "canonical_call_id",
         "goal_unit_ids",
         "input_source_unit_ids",
-        "call_binding_signature"
+        "call_binding_signature",
+        "macro_search_signature",
+        "macro_role_resolutions"
       ],
       "properties": {
         "schema_version": {
@@ -137,6 +139,50 @@
         "call_binding_signature": {
           "type": "string",
           "minLength": 1
+        },
+        "macro_search_signature": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "macro_role_resolutions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "role",
+              "authored_ref",
+              "chosen_ref"
+            ],
+            "properties": {
+              "role": {
+                "type": "string",
+                "minLength": 1
+              },
+              "authored_ref": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "chosen_ref": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "additionalProperties": false
+          }
         }
       },
       "additionalProperties": false

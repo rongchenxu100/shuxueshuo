@@ -55,7 +55,7 @@ LLM 负责：
 
 - 选择公开 capability；
 - 组织 scope 内的数学步骤；
-- 提供题面可见的公开参数；
+- 提供题面可见的数学实体与 Fact；
 - 表达真正的步骤依赖；
 - 在 retry 中根据结构化诊断改写失败 Goal。
 
@@ -63,6 +63,7 @@ LLM 不负责：
 
 - 猜 `method_id`、runtime path 或内部 output key；
 - 分配 `MathObjectId`、`StateVersionId`；
+- 区分 `PointRef/Point`、Function identity/Parabola 或 Symbol/ParameterValue；
 - 选择“最新版本”；
 - 补 compiler selector、隐藏参数或 provenance；
 - 根据异常字符串猜内部对象身份。
@@ -199,7 +200,8 @@ step id、输入 JSON、字符串展示、capability 名称或 scope 位置只�
 
 ## 5. 输入契约
 
-每个输入必须在 `MethodSpecSource.inputs` 中声明：
+每个输入必须同时声明领域类型、runtime 类型和唯一 view。推荐使用
+`declare_input_views(...)`，由生成器把契约写入 `MethodSpec`：
 
 ```python
 "fixed_point": {
@@ -211,6 +213,11 @@ step id、输入 JSON、字符串展示、capability 名称或 scope 位置只�
     "required": True,
     "functional_exposed": False,
 },
+
+input_views=declare_input_views(
+    identity=("fixed_point",),
+    latest_state=("quadratic",),
+),
 ```
 
 规则：
@@ -224,7 +231,53 @@ step id、输入 JSON、字符串展示、capability 名称或 scope 位置只�
 7. 输入集合若有顺序语义必须使用有序类型；若无顺序语义，Method 应 canonicalize 后处理。
 8. Method 不得把错误类型静默转成“看起来能算”的类型。
 
-### 5.1 Optional input 的门禁
+### 5.1 Method input view
+
+每个内部 input 必须且只能声明一种 view：
+
+| view | 运行时含义 | LLM wire |
+|---|---|---|
+| `identity` | 稳定 MathObject 身份 | 具名数学实体 ref |
+| `latest_state` | 当前 scope 最近可见、已验证的对象状态 | 同一个具名实体 ref |
+| `immutable_value` | 不可变 Fact、Constraint 或 source 常量 | Fact/entity ref |
+| `exact_result` | 某个匿名 call return 的精确结果 | `StepResultRef` |
+
+Method 不读取 Context，也不自己寻找 latest。Function/Macro 与
+`MethodInputViewResolver`根据 view 将同一个公开实体 lower 成 Method 所需的
+runtime 表示，并自动建立 producer 依赖。一个 Method 如果同时需要对象身份和
+状态，Function/Macro 应把同一公开实体 lower 为两个内部 input。
+
+具名实体不能通过 `StepResultRef`指定普通状态。即使某个 return 的 runtime 类型
+适合 `exact_result`，只要它已通过`output_targets`绑定到题面实体，后续就必须使用
+实体 ref。`StepResultRef`只用于没有稳定题面身份的候选集、路径见证、最小值表达式
+等匿名中间结果。
+
+`latest_state`必须满足词法 scope 可见性。sibling 私有状态、多个不可比较 writer
+或不存在可见状态都必须 fail loud；不得按 label 或生成顺序猜测。
+
+#### 5.1.1 Planner 公开类型词汇
+
+LLM 看到的输入与返回值不是同一种投影：
+
+- capability input 的 `domain_type`描述模型可选择的数学实体或 Fact；
+- capability return 的 `type`描述执行后产生的 canonical 值；
+- Goal `answer_type`与 return `type`使用完全相同的词汇，必须逐字匹配。
+
+例如：
+
+| 输入实体 `domain_type` | 产生值 `type` |
+|---|---|
+| `QuadraticFunction` | `Parabola` |
+| `Symbol` | `ParameterValue` |
+| `Point` | `Point`或`PointList`，由 Method 输出决定 |
+
+因此不得把 return 的 `Parabola`重命名为`QuadraticFunction`、把
+`ParameterValue`重命名为`Symbol`，或把`PointList`重命名为
+`PointCandidates`。Function、Macro 和最终 Capability Catalog 必须统一使用
+`planner_public_types.py`投影，禁止各自维护别名表。描述文本也不得引入与
+`type`冲突的第二套返回值名称。
+
+### 5.2 Optional input 的门禁
 
 只有在以下两种情况下使用 optional input：
 
@@ -233,7 +286,7 @@ step id、输入 JSON、字符串展示、capability 名称或 scope 位置只�
 
 若 optional input 会改变主要算法、输出类型或数学含义，应拆成不同 Method 或不同公开 Function。避免一个 capability 声明多个互斥输入组合，让 Planner 猜实际模式。
 
-### 5.2 题面表达式与 Symbol identity
+### 5.3 题面表达式与 Symbol identity
 
 题面 JSON 中的 `x`、`vector`、`x_range`、condition `value`、relation `scale` 等数学字符串只能在 `RuntimeContext` 构建边界解析一次。解析时必须使用该题唯一的 canonical symbol environment：
 
@@ -270,7 +323,7 @@ Method 可以创建算法内部 dummy Symbol，但必须满足：
 
 测试至少应断言：表达式中的每个自由 Symbol 都能唯一解析到题目 registry 中的 `MathObjectId`。必须覆盖一个“数学相等但 Python `is` 为假”的 artifact round-trip Symbol，以及一个最新 `ParameterValue` 自动闭合 PointRef 表达式的用例。
 
-### 5.3 等价符号基底的 Method 输入视图
+### 5.4 等价符号基底的 Method 输入视图
 
 同一个函数状态可以有多个等价表示。例如题面函数为：
 
@@ -564,6 +617,7 @@ SPEC = MethodSpecSource(
         "p1": {"type": "Point", "required": True},
         "p2": {"type": "Point", "required": True},
     },
+    input_views=declare_input_views(latest_state=("p1", "p2")),
     outputs={"value": "Expression"},
     preconditions=("两个输入点均已物化且不重合。",),
     postconditions=("输出表达式满足该几何关系。",),
@@ -595,6 +649,30 @@ SPEC = MethodSpecSource(
 
 Macro 不应固定整道题路线。family-specific path reduction 可以是 Macro；通用的距离、反射、候选筛选仍应是复用 Method。
 
+每个 Macro 必须声明执行模式：
+
+- `direct`：唯一确定的内部调用图，不声明 search spec；
+- `runtime_search`：声明可搜索数学角色、candidate builder、validation policy 和
+  `max_candidates <= 32`。
+
+Runtime-search Macro 可以把 LLM 声明的策略角色作为首选提示，但必须在隔离 branch
+中执行有限候选并通过 Method checks、Macro postcondition、active return、identity、
+Goal 与 provenance 门禁。唯一成功候选可以纠正提示；多个成功候选只有在实际 runtime
+输出等价时才能按调用数、符号复杂度和稳定 candidate id 确定选择；非等价歧义必须
+返回给 LLM。winner 必须从干净 Context 重放后再提交，shadow 结果永不复制进事务。
+
+Function/Macro 必须区分“策略提示”和“证明 lowering”：
+
+- LLM 引用动点、映射点、反射对象、候选分支或拉直方向等数学实体；
+- compiler/resolver 恢复 canonical identity、固定端点和证明所需事实；
+- Macro 选择内部调用图并可执行有界 runtime search；
+- Method 只验证每个候选中的确定性原语；
+- output role authority 保存经过 runtime 验证的最终选择，不从点序或名称直接创造语义。
+
+因此 `vertex_4 -> moving_object` 这类位置规则不能直接成为权威。LLM 可以提示
+`moving_point=G`；Macro 必须验证 G，或在唯一 runtime-valid 替代项存在时记录
+`authored=G/chosen=...`的纠正证明。多个非等价替代项不能静默选择。
+
 ### 不要跨层补洞
 
 - LLM 选错策略：改 capability 文案、family catalog 或 retry 诊断。
@@ -605,6 +683,7 @@ Macro 不应固定整道题路线。family-specific path reduction 可以是 Mac
 - prompt 中错误信息缺失：改 diagnostic authority/projector。
 
 不要为了修复上一层问题，把下层 Method 变成会搜索、猜测和自动改 Plan 的万能函数。
+有界候选搜索只能由显式声明`runtime_search`的 Macro 执行。
 
 ## 12. 明确禁止的反模式
 
@@ -615,7 +694,8 @@ Macro 不应固定整道题路线。family-specific path reduction 可以是 Mac
 - 在 Method 内重新解析 PointRef/Condition/Constraint 的题面数学字符串，或按名称临时创建 Symbol locals。
 - 依靠 step id、handle 后缀、数组顺序或字符串相似度绑定输入。
 - 用静态输入 JSON 相同判断两个步骤结果等价。
-- 为避免 retry 而静默补事实、替换参数或选择候选。
+- 在 Method 中为避免 retry 而静默补事实、替换参数或选择候选。
+- Macro 搜索没有候选预算、隔离执行或歧义门禁。
 - 在 Method 内写 StateVersion、answer binding 或 provenance。
 - 声明多个潜在 return，却没有 active-return 规则。
 - output type 随实际分支变化但 SPEC 不表达 union/分支。
@@ -669,7 +749,8 @@ Macro 不应固定整道题路线。family-specific path reduction 可以是 Mac
 - resolver/compiler 参数不能被 LLM 覆盖；
 - scope/sibling visibility fail loud；
 - active return 集合与 invocation outputs 一致；
-- Function/Macro lowering 不做候选搜索。
+- Function lowering 不做候选搜索；Macro 仅按显式 execution/search contract 搜索。
+- Macro role 的 authored/chosen 值及 runtime checks 进入 provenance/checkpoint。
 
 ### Runtime transaction
 
@@ -714,7 +795,7 @@ git diff --check
 
 - [ ] Method 表达通用数学原语，而非单题路线。
 - [ ] LLM 只接触 public capability，不需要知道内部 method wiring。
-- [ ] 每个 input 有唯一类型、角色、required/exposed 语义。
+- [ ] 每个 input 有唯一 domain/runtime 类型、view、角色和 required/exposed 语义。
 - [ ] 每个 output 有稳定 key、类型和 active-return 规则。
 - [ ] open/closed result form 由 runtime value 决定。
 - [ ] Method 不读取 Context、不选 latest、不写 StateVersion。
@@ -726,7 +807,8 @@ git diff --check
 - [ ] configuration error 不会进入 Planner retry。
 - [ ] failed checks 会阻止 commit 并完整回滚。
 - [ ] SPEC 与实现同文件，生成 JSON 无漂移。
-- [ ] Function/Macro adapter 不搜索候选或猜角色。
+- [ ] Function 不搜索；Macro 搜索有显式模式、预算、隔离运行和歧义门禁。
+- [ ] 动点等角色只保存 LLM authored 值和 runtime 验证后的 chosen 值，不由位置规则创造。
 - [ ] method/compiler/transaction/retry/provenance 均有测试。
 - [ ] 没有 problem id、具体答案、gold fixture 或点名特判。
 
@@ -753,3 +835,4 @@ Method、compiler、transaction、retry 测试全部通过
 - `docs/method-solver-architecture.md`：DSL 从 Problem 到 SolverResult 的整体生产链。
 - `docs/capability-authoring-guide.md`：Function、Macro、binding、return 和 closure 的公开能力规范。
 - `docs/functional-planner-next-stage-roadmap.md`：当前 Functional Planner 演进路线。
+- `docs/llm-sample-failure-review-guide.md`：真实sample中定位Method、Macro、runtime和retry问题的逐轮证据与图示规范。

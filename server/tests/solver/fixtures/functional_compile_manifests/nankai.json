@@ -687,6 +687,14 @@
           "paths": []
         },
         {
+          "arg": "moving_point",
+          "item": 0,
+          "role": "moving_point",
+          "authority": "wire",
+          "target": null,
+          "paths": []
+        },
+        {
           "arg": "path_minimum_target",
           "item": 0,
           "role": "path_minimum_target",
@@ -739,7 +747,7 @@
           "runtime_type": "PathTransformation",
           "allocation_action": "create",
           "result_form": "closed_state",
-          "object_id": "path_transformation:problem:derived_01051c200f4e7c1f992de4b9",
+          "object_id": "path_transformation:problem:derived_d2a97ed248f21ab292120fe8",
           "source_version_count": 4,
           "closure_signature": null
         }
@@ -795,7 +803,7 @@
             }
           ],
           "promotions": {
-            "$step.ii_derive_path_model.temp.auxiliary_point": "$problem.points.derived_dbec5bcbaffc0bf3289508fc",
+            "$step.ii_derive_path_model.temp.auxiliary_point": "$problem.points.derived_1c0d232e88d81e541946c987",
             "$step.ii_derive_path_model.temp.candidates": "$question.ii.outputs.straightening_candidates",
             "$step.ii_derive_path_model.temp.distance": "$question.ii.outputs.minimum_expression",
             "$step.ii_derive_path_model.temp.minimum_point_1": "$question.ii.outputs.ii_derive_path_model_straightened_endpoint_1",
@@ -846,7 +854,7 @@
           "runtime_type": "Point",
           "allocation_action": "create",
           "result_form": "open_state",
-          "object_id": "point:problem:derived_dbec5bcbaffc0bf3289508fc",
+          "object_id": "point:problem:derived_1c0d232e88d81e541946c987",
           "source_version_count": 1,
           "closure_signature": null
         },
@@ -855,7 +863,7 @@
           "runtime_type": "Point",
           "allocation_action": "create",
           "result_form": "open_state",
-          "object_id": "point:problem:derived_0c4e3f9f780e93fd93f9bf45",
+          "object_id": "point:problem:derived_510743a046442f409c0d7b3d",
           "source_version_count": 1,
           "closure_signature": null
         },

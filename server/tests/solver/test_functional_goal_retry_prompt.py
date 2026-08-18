@@ -71,8 +71,18 @@ def test_pass1_and_retry_use_independent_templates_and_schemas(tmp_path) -> None
     assert "输出完整的 `functional_plan/v2`" not in retry_prompt.system
     assert "same_compiler_selected_object" in retry_prompt.system
     assert "same_compiler_selected_object" in pass1_prompt.system
-    assert "共享MathObject身份不等于共享StateVersion" in retry_prompt.system
-    assert "兄弟scope使用不同局部条件" in retry_prompt.system
+    assert "共享题面数学实体不等于共享当前数学状态" in retry_prompt.system
+    assert "兄弟scope不得直接读取彼此的step" in retry_prompt.system
+    assert "题面中有名的Entity始终使用Planner Problem View的SourceRef" in (
+        retry_prompt.system
+    )
+    assert "代码不会根据兄弟使用关系自动发明或移动数学步骤" in (
+        retry_prompt.system
+    )
+    assert "互斥的step所有权容器" in retry_prompt.system
+    assert "同一个step完整对象只能在其中一个replacement出现一次" in (
+        retry_prompt.system
+    )
     assert "不能根据下游Goal希望求哪个参数" in retry_prompt.system
     assert retry_prompt.system != pass1_prompt.system
     authority_bound_fragment = (
@@ -82,6 +92,15 @@ def test_pass1_and_retry_use_independent_templates_and_schemas(tmp_path) -> None
     assert authority_bound_fragment not in retry_prompt.system
     assert authority_bound_fragment in retry_prompt.user
     assert "## Output JSON Schema" in retry_prompt.user
+    combined = f"{retry_prompt.system}\n{retry_prompt.user}"
+    for forbidden in (
+        "PointRef",
+        "StateVersion",
+        "MathObjectId",
+        "semantic_ref_role",
+        "runtime_path",
+    ):
+        assert forbidden not in combined
 
 
 def test_retry_schema_is_bound_to_exact_authority(tmp_path) -> None:
@@ -104,6 +123,11 @@ def test_retry_schema_is_bound_to_exact_authority(tmp_path) -> None:
     assert scopes["required"] == []
     assert scopes["properties"] == {}
     assert scopes["additionalProperties"] is False
+    assert "mutually exclusive" in goals["description"]
+    assert "Never repeat" in scopes["description"]
+    assert "exactly one" in schema["$defs"]["repair_step"]["properties"][
+        "step_id"
+    ]["description"]
 
 
 def test_retry_schema_rejects_prior_step_id_from_another_owner(
@@ -301,8 +325,8 @@ def test_retry_catalog_exposes_second_intersection_geometry_contract(
     )
     args = {item["name"]: item for item in capability["args"]}
 
-    assert "横坐标不同" in args["line_p1"]["desc"]
-    assert "禁止传入不在目标直线上的点" in args["known_point"]["desc"]
+    assert "横坐标不同" in args["line_p1"]["role"]
+    assert "禁止传入不在目标直线上的点" in args["known_point"]["role"]
     assert any(
         "known_point 不同时位于目标直线和抛物线上" in item
         for item in capability["do_not_use_when"]

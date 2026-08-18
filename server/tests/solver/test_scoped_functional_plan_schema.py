@@ -27,6 +27,20 @@ def test_python_schema_matches_checked_in_snapshot() -> None:
     )
 
 
+def test_reference_schema_exposes_entity_only_state_contract() -> None:
+    definitions = scoped_functional_plan_schema()["$defs"]
+
+    source_description = definitions["source_ref"]["description"]
+    result_description = definitions["step_result_ref"]["description"]
+    functional_description = definitions["functional_ref"]["description"]
+    assert "only wire form for a named Entity" in source_description
+    assert "producer dependencies" in source_description
+    assert "anonymous results only" in result_description
+    assert "must use its SourceRef" in result_description
+    assert "every named Entity" in functional_description
+    assert "without a named Math Entity identity" in functional_description
+
+
 def test_scope_schema_is_expanded_to_four_non_recursive_levels() -> None:
     schema = scoped_functional_plan_schema()
     definitions = schema["$defs"]

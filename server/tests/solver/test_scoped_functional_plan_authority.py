@@ -43,19 +43,11 @@ def test_v2_authority_lowers_five_scope_native_plans(tmp_path, case) -> None:
         _registry,
         _planner_context,
         binding_catalog,
-        v1_plan,
+        _v1_plan,
         _validation,
         reconciliation,
     ) = scope_native_reconciliation_fixture(tmp_path / case, case=case)
-    sidecar = reconciliation.functional_problem_binding_context
-    assert sidecar is not None
-    migrated = migrate_v1_fixture_payload(
-        v1_plan,
-        planning_context,
-        dict(sidecar.call_goal_bindings),
-    )
     payload = load_v2_fixture_payload(case)
-    assert payload == migrated
     scoped, report = ScopedFunctionalPlanValidator().validate_payload_with_report(
         payload
     )
@@ -71,9 +63,8 @@ def test_v2_authority_lowers_five_scope_native_plans(tmp_path, case) -> None:
         ),
     )
 
-    assert _call_semantics(authority.lowered_plan) == _call_semantics(v1_plan)
     assert set(authority.step_authorities) == {
-        call.call_id for call in v1_plan.calls
+        step.step_id for step in scoped.steps
     }
     assert all(
         item.authored_goal_ref is None or item.authored_goal_unit_id is not None
@@ -397,31 +388,14 @@ def test_structure_audit_is_independent_from_step_authority(tmp_path) -> None:
 
 def test_unique_required_arg_type_match_is_recorded(tmp_path) -> None:
     case = "tj-2026-heping-yimo-25"
-    baseline, _ = _lower_payload(
-        tmp_path / "baseline",
-        case,
-        load_v2_fixture_payload(case),
-    )
     payload = load_v2_fixture_payload(case)
     step = _find_scope(payload["root_scope"], "i_2")["goals"][0]["steps"][0]
     step["args"]["curve_input"] = step["args"].pop("parabola")
 
-    authority, _fixture = _lower_payload(tmp_path, case, payload)
-
-    assert authority.scoped_plan.to_payload()["root_scope"]["children"][0][
-        "children"
-    ][1]["goals"][0]["steps"][0]["args"]["parabola"]
-    assert [item.to_payload() for item in authority.normalizations] == [
-        {
-            "action": "canonicalize_capability_arg_name",
-            "step_id": "derive_x_intercept_B_i",
-            "capability_id": "quadratic_x_axis_intercept_point",
-            "from_arg": "curve_input",
-            "to_arg": "parabola",
-            "reason": "unique_required_type_match",
-        }
-    ]
-    assert authority.plan_semantic_hash != baseline.plan_semantic_hash
+    with pytest.raises(ScopedFunctionalPlanError) as captured:
+        _lower_payload(tmp_path, case, payload)
+    assert captured.value.code == "functional.step_contract_invalid"
+    assert "unknown capability args: ['curve_input']" in captured.value.message
 
 
 def test_goal_answer_refs_are_canonicalized_to_exact_target_object_refs(
@@ -506,7 +480,9 @@ def test_goal_answer_refs_are_canonicalized_to_exact_target_object_refs(
     )
 
 
-def test_goal_answer_ref_is_not_repaired_for_computed_value_arg(tmp_path) -> None:
+def test_goal_answer_ref_is_canonicalized_for_same_object_latest_state_arg(
+    tmp_path,
+) -> None:
     case = "tj-2026-hexi-yimo-25"
     payload = load_v2_fixture_payload(case)
     scope_ii = _find_scope(payload["root_scope"], "ii")
@@ -517,14 +493,34 @@ def test_goal_answer_ref_is_not_repaired_for_computed_value_arg(tmp_path) -> Non
     )
     step["args"]["curve_point"] = "ii.D"
 
-    with pytest.raises(ScopedFunctionalPlanError) as captured:
-        _lower_payload(tmp_path, case, payload)
-    assert captured.value.code == "functional.answer_ref_used_as_input"
-    assert "answer authority is not a computed input" in captured.value.message
-    assert not any(
-        item.action == "canonicalize_goal_target_input_ref"
-        for item in captured.value.normalizations
+    authority, _ = _lower_payload(tmp_path, case, payload)
+    canonical_scope = _find_scope(
+        authority.scoped_plan.to_payload()["root_scope"],
+        "ii",
     )
+    canonical_step = next(
+        item
+        for item in canonical_scope["goals"][0]["steps"]
+        if item["capability_id"] == "quadratic_from_constraints"
+    )
+    assert canonical_step["args"]["curve_point"] == "D"
+    assert [
+        item.to_payload()
+        for item in authority.normalizations
+        if item.action == "canonicalize_goal_target_input_ref"
+        and item.step_id == step["step_id"]
+    ] == [
+        {
+            "action": "canonicalize_goal_target_input_ref",
+            "reason": "exact_math_object_identity",
+            "step_id": step["step_id"],
+            "capability_id": "quadratic_from_constraints",
+            "arg_name": "curve_point",
+            "from_ref": "ii.D",
+            "to_ref": "D",
+            "goal_ref": "ii.D",
+        }
+    ]
 
 
 def test_fixed_form_return_expectation_is_dropped_without_semantic_drift(
@@ -1109,17 +1105,11 @@ def test_intent_does_not_change_semantic_hash(tmp_path) -> None:
         _registry,
         _planner_context,
         binding_catalog,
-        v1_plan,
+        _v1_plan,
         _validation,
         reconciliation,
     ) = scope_native_reconciliation_fixture(tmp_path)
-    sidecar = reconciliation.functional_problem_binding_context
-    assert sidecar is not None
-    payload = migrate_v1_fixture_payload(
-        v1_plan,
-        planning_context,
-        dict(sidecar.call_goal_bindings),
-    )
+    payload = load_v2_fixture_payload("tj-2026-nankai-yimo-25")
     scoped, report = ScopedFunctionalPlanValidator().validate_payload_with_report(
         payload
     )
@@ -1179,11 +1169,12 @@ def test_forward_reference_fails_loud(tmp_path) -> None:
         "step_id": "derive_curve_point_D_ii",
         "return": "point",
     }
-    with pytest.raises(ScopedFunctionalPlanError, match="must point backward"):
+    with pytest.raises(ScopedFunctionalPlanError) as captured:
         _lower_payload(tmp_path / "forward", case, payload)
+    assert captured.value.code == "functional.named_entity_requires_source_ref"
 
 
-def test_safe_cross_goal_producer_is_promoted_to_scope_lca(tmp_path) -> None:
+def test_scope_local_producer_is_not_promoted_across_sibling_goals(tmp_path) -> None:
     case = "tj-2026-heping-yimo-25"
     payload = load_v2_fixture_payload(case)
     scope_i = _find_scope(payload["root_scope"], "i")
@@ -1206,16 +1197,104 @@ def test_safe_cross_goal_producer_is_promoted_to_scope_lca(tmp_path) -> None:
         authority.scoped_plan.to_payload()["root_scope"],
         "i_1",
     )
-    assert [item["step_id"] for item in canonical_i["steps"]] == [
-        "derive_parabola_i"
-    ]
-    assert "steps" not in canonical_i_1["goals"][0]
-    assert any(
+    assert "steps" not in canonical_i
+    assert [
+        item["step_id"] for item in canonical_i_1["goals"][0]["steps"]
+    ] == ["derive_parabola_i"]
+    assert not any(
         item.action == "promote_shared_step_to_scope"
-        and item.step_id == "derive_parabola_i"
-        and item.from_goal_ref == "i_1.parabola"
-        and item.scope_ref == "i"
         for item in authority.normalizations
+    )
+
+
+def test_goal_authored_shared_producer_is_promoted_to_typed_lca(tmp_path) -> None:
+    case = "tj-2026-heping-yimo-25"
+    canonical_payload = load_v2_fixture_payload(case)
+    authority, fixture = _lower_payload(
+        tmp_path / "canonical",
+        case,
+        canonical_payload,
+    )
+    goal_owned_payload = deepcopy(canonical_payload)
+    scope_i = _find_scope(goal_owned_payload["root_scope"], "i")
+    scope_i_1 = _find_scope(goal_owned_payload["root_scope"], "i_1")
+    shared = next(
+        item
+        for item in scope_i["steps"]
+        if item["step_id"] == "derive_parabola_i"
+    )
+    scope_i["steps"].remove(shared)
+    scope_i_1["goals"][0]["steps"] = [shared]
+
+    goal_owned_authority, _ = _lower_payload(
+        tmp_path / "goal-owned",
+        case,
+        goal_owned_payload,
+    )
+    authority = replace(
+        goal_owned_authority,
+        # Reconciliation has already produced a complete typed consumer DAG.
+        # Finalization must use that authority to normalize the authored tree;
+        # authored Goal visibility is not reinterpreted here.
+        lowered_plan=authority.lowered_plan,
+    )
+    (
+        _bundle,
+        _planning_context,
+        _problem,
+        inputs,
+        _problem_payload,
+        registry,
+        planner_context,
+        binding_catalog,
+        *_rest,
+    ) = fixture
+    reconciliation = FunctionalPlanReconciler().reconcile(
+        authority.lowered_plan,
+        planner_state_context=planner_context,
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+        problem_binding_catalog=binding_catalog,
+        pinned_canonical_call_ids=tuple(authority.step_authorities),
+        authored_call_goal_bindings={
+            step_id: item.consumer_goal_unit_ids
+            for step_id, item in authority.step_authorities.items()
+        },
+        require_explicit_step_results=True,
+    )
+    assert reconciliation.ok, [item.to_payload() for item in reconciliation.issues]
+
+    finalized, report = authority.finalize_reconciliation(reconciliation)
+
+    assert report.ok, report.to_payload()
+    assert finalized is not None
+    canonical_i = _find_scope(
+        finalized.scoped_plan.to_payload()["root_scope"],
+        "i",
+    )
+    canonical_i_1 = _find_scope(
+        finalized.scoped_plan.to_payload()["root_scope"],
+        "i_1",
+    )
+    assert "derive_parabola_i" in {
+        item["step_id"] for item in canonical_i["steps"]
+    }
+    assert "derive_parabola_i" not in {
+        item["step_id"]
+        for item in canonical_i_1["goals"][0].get("steps", [])
+    }
+    step_authority = finalized.step_authorities["derive_parabola_i"]
+    assert step_authority.authored_goal_ref is None
+    assert step_authority.authored_goal_unit_id is None
+    assert step_authority.semantic_owner_scope_id == "i"
+    assert step_authority.execution_scope_id == "i"
+    assert any(
+        item.action == "promote_shared_goal_step_to_scope"
+        and item.step_id == "derive_parabola_i"
+        and item.scope_ref == "i"
+        for item in finalized.normalizations
     )
 
 
@@ -1262,10 +1341,8 @@ def test_source_ref_selects_latest_visible_dynamic_producer(tmp_path) -> None:
         "from_call": "derive_y_intercept_C_again",
         "return": "point",
     }
-    assert any(
+    assert not any(
         item.action == "canonicalize_latest_dynamic_source_ref"
-        and item.step_id == "derive_translated_D_i"
-        and item.to_ref == "derive_y_intercept_C_again.point"
         for item in authority.normalizations
     )
 
@@ -1290,11 +1367,8 @@ def test_source_ref_uses_implicit_preserve_input_object_return(tmp_path) -> None
         "from_call": "evaluate_point_A_ii",
         "return": "evaluated_point",
     }
-    assert any(
+    assert not any(
         item.action == "canonicalize_latest_dynamic_source_ref"
-        and item.step_id == "recover_target_point_E_ii"
-        and item.from_ref == "A"
-        and item.to_ref == "evaluate_point_A_ii.evaluated_point"
         for item in authority.normalizations
     )
 

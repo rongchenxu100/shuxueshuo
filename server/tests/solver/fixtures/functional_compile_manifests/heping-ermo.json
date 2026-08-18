@@ -846,6 +846,7 @@
                 "fixed_endpoint_1_ref",
                 "fixed_endpoint_2_ref",
                 "midpoint_condition",
+                "moving_point",
                 "path_condition",
                 "square_center_condition",
                 "square_condition"
@@ -889,6 +890,16 @@
           "target": "midpoint_condition",
           "paths": [
             "$question.ii.conditions.midpoint_cedb805e7c47"
+          ]
+        },
+        {
+          "arg": "moving_point",
+          "item": 0,
+          "role": "moving_point",
+          "authority": "wire",
+          "target": "moving_point",
+          "paths": [
+            "$problem.points.G"
           ]
         },
         {
@@ -938,7 +949,7 @@
           "runtime_type": "PathTransformation",
           "allocation_action": "create",
           "result_form": "closed_state",
-          "object_id": "path_transformation:problem:derived_c36b454c703a474bc356d2f5",
+          "object_id": "path_transformation:problem:derived_3441677c556cf5c901d59c16",
           "source_version_count": 2,
           "closure_signature": null
         }
@@ -1285,7 +1296,7 @@
             }
           ],
           "promotions": {
-            "$step.derive_path_minimum_ii.temp.auxiliary_point": "$problem.points.derived_583d059d14ebfa25eeb01cd1",
+            "$step.derive_path_minimum_ii.temp.auxiliary_point": "$problem.points.derived_6e74433f47e0172f9310fc55",
             "$step.derive_path_minimum_ii.temp.candidates": "$question.ii.outputs.straightening_candidates",
             "$step.derive_path_minimum_ii.temp.distance": "$question.ii.outputs.minimum_expression",
             "$step.derive_path_minimum_ii.temp.minimum_point_1": "$question.ii.outputs.derive_path_minimum_ii_straightened_endpoint_1",
@@ -1344,7 +1355,7 @@
           "runtime_type": "Point",
           "allocation_action": "create",
           "result_form": "open_state",
-          "object_id": "point:problem:derived_583d059d14ebfa25eeb01cd1",
+          "object_id": "point:problem:derived_6e74433f47e0172f9310fc55",
           "source_version_count": 2,
           "closure_signature": null
         },
@@ -1353,7 +1364,7 @@
           "runtime_type": "Point",
           "allocation_action": "create",
           "result_form": "open_state",
-          "object_id": "point:problem:derived_9efaafdae7bc2c877c7f41ce",
+          "object_id": "point:problem:derived_048c7bc5afd22d5c9b979460",
           "source_version_count": 2,
           "closure_signature": null
         },

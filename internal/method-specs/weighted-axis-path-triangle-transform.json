@@ -8,39 +8,86 @@
   ],
   "inputs": {
     "condition": {
-      "type": "Condition",
       "required": true,
-      "description": "type=minimum_value 的题面已知最小值条件，其中必须携带加权路径；path_minimum_target 不是该输入。"
+      "description": "type=minimum_value 的题面已知最小值条件，其中必须携带加权路径；path_minimum_target 不是该输入。",
+      "domain_type": "Fact",
+      "runtime_type": "Condition",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "Fact"
+      }
     },
     "fixed_point": {
-      "type": "Point",
       "required": true,
-      "description": "x 轴上的固定端点，例如 A。"
+      "description": "x 轴上的固定端点，例如 A。",
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "moving_point": {
-      "type": "Point",
       "required": true,
-      "description": "x 轴上的动点，例如 N(n,0)。"
+      "description": "x 轴上的动点，例如 N(n,0)。",
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "moving_point_ref": {
-      "type": "PointRef",
       "required": false,
-      "description": "compiler 注入的动点对象身份。"
+      "description": "compiler 注入的动点对象身份。",
+      "domain_type": "Point",
+      "runtime_type": "PointRef",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "linked_fixed_endpoint_ref": {
-      "type": "PointRef",
       "required": false,
-      "description": "compiler 注入的联动折线路径固定端点身份。"
+      "description": "compiler 注入的联动折线路径固定端点身份。",
+      "domain_type": "Point",
+      "runtime_type": "PointRef",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "dynamic_parameter": {
-      "type": "Symbol",
       "required": true,
-      "description": "动点横坐标参数，例如 n。"
+      "description": "动点横坐标参数，例如 n。",
+      "domain_type": "Symbol",
+      "runtime_type": "Symbol",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Symbol",
+        "object_kind": "symbol",
+        "state_kind": "value"
+      }
     },
     "auxiliary_point_ref": {
-      "type": "PointRef",
       "required": true,
-      "description": "planner 声明的辅助点引用；method 使用它的点名生成路径转化。"
+      "description": "planner 声明的辅助点引用；method 使用它的点名生成路径转化。",
+      "domain_type": "Point",
+      "runtime_type": "PointRef",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     }
   },
   "outputs": {

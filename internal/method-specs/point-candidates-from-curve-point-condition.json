@@ -8,30 +8,65 @@
   ],
   "inputs": {
     "target_point": {
-      "type": "Point",
       "required": true,
       "symbolic_basis_role": "align_to_anchor",
-      "description": "需要返回候选坐标的目标 Point；candidates 列表中的每个候选保持这个对象身份，但 candidates 本身仍是 PointList。"
+      "description": "需要返回候选坐标的目标 Point；candidates 列表中的每个候选保持这个对象身份，但 candidates 本身仍是 PointList。",
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "curve_point": {
-      "type": "Point",
       "required": true,
       "symbolic_basis_role": "align_to_anchor",
-      "description": "代入 parabola 建立参数方程的 Point；只提供约束，不作为返回对象。"
+      "description": "代入 parabola 建立参数方程的 Point；只提供约束，不作为返回对象。",
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "parabola": {
-      "type": "Parabola",
       "required": true,
-      "symbolic_basis_role": "state_anchor"
+      "symbolic_basis_role": "state_anchor",
+      "domain_type": "QuadraticFunction",
+      "runtime_type": "Parabola",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "QuadraticFunction",
+        "object_kind": "function",
+        "state_kind": "expression"
+      }
     },
     "x": {
-      "type": "Symbol",
-      "required": true
+      "required": true,
+      "domain_type": "Symbol",
+      "runtime_type": "Symbol",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Symbol",
+        "object_kind": "symbol",
+        "state_kind": "value"
+      }
     },
     "parameter": {
-      "type": "Symbol",
       "required": true,
-      "description": "target_point与curve_point共享的确切运动参数Symbol；应引用生成参数化点的前序call之parameter返回值"
+      "description": "target_point与curve_point共享的确切运动参数Symbol；应引用生成参数化点的前序call之parameter返回值",
+      "domain_type": "Symbol",
+      "runtime_type": "Symbol",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Symbol",
+        "object_kind": "symbol",
+        "state_kind": "value"
+      }
     }
   },
   "outputs": {

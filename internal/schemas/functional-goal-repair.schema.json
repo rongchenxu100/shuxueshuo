@@ -24,12 +24,14 @@
     },
     "goal_replacements": {
       "type": "object",
+      "description": "Goal-owned replacement blocks. Their steps are local to one Goal and mutually exclusive with Scope-owned steps.",
       "additionalProperties": {
         "$ref": "#/$defs/goal_replacement"
       }
     },
     "scope_step_replacements": {
       "type": "object",
+      "description": "Scope-owned replacement blocks for the editable step ids declared by retry authority. Frozen producers are omitted and retained by code. Never repeat a frozen step in a replacement.",
       "additionalProperties": {
         "$ref": "#/$defs/scope_step_replacement"
       }
@@ -55,11 +57,11 @@
     "source_ref": {
       "type": "string",
       "minLength": 1,
-      "description": "Copy a scope-local visible Entity or Fact ref from Planner Problem View exactly, without adding a scope prefix. For a stable Entity, the ref reads its latest visible state at this step; a Fact remains the verified problem snapshot."
+      "description": "Copy a scope-local visible Entity or Fact ref from Planner Problem View exactly, without adding a scope prefix. This is the only wire form for a named Entity. The compiler selects its identity or latest visible state and establishes producer dependencies; a Fact remains the verified problem snapshot."
     },
     "step_result_ref": {
       "type": "object",
-      "description": "Read one named return from an earlier visible step. Use this for anonymous results, non-latest states, or ambiguous producers.",
+      "description": "Read one named return from an earlier visible step. Use this for anonymous results only. A named Math Entity must use its SourceRef; the compiler obtains the exact input required by the capability.",
       "required": [
         "step_id",
         "return"
@@ -114,7 +116,8 @@
       "properties": {
         "step_id": {
           "type": "string",
-          "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+          "description": "A globally unique step id. This complete step object must be owned by exactly one goal_replacements.*.steps or scope_step_replacements.*.steps container."
         },
         "capability_id": {
           "type": "string",
@@ -194,6 +197,7 @@
       "properties": {
         "steps": {
           "type": "array",
+          "description": "Complete Goal-local replacement steps used only for this Goal answer. Do not copy Scope-owned steps here.",
           "items": {
             "$ref": "#/$defs/repair_step"
           }
@@ -212,6 +216,7 @@
       "properties": {
         "steps": {
           "type": "array",
+          "description": "Complete replacement for this Scope's editable step subset. Do not repeat frozen steps; code preserves and merges them from the authenticated previous Plan.",
           "items": {
             "$ref": "#/$defs/repair_step"
           }

@@ -8,16 +8,35 @@
   ],
   "inputs": {
     "expression": {
-      "type": "Expression|MinimumExpression|Parabola",
-      "required": true
+      "required": true,
+      "domain_type": "Expression",
+      "runtime_type": "Expression|MinimumExpression|Parabola",
+      "view": {
+        "mode": "exact_result",
+        "domain_type": "Expression"
+      }
     },
     "parameter": {
-      "type": "Symbol",
-      "required": true
+      "required": true,
+      "domain_type": "Symbol",
+      "runtime_type": "Symbol",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Symbol",
+        "object_kind": "symbol",
+        "state_kind": "value"
+      }
     },
     "parameter_value": {
-      "type": "ParameterValue",
-      "required": true
+      "required": true,
+      "domain_type": "Symbol",
+      "runtime_type": "ParameterValue",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Symbol",
+        "object_kind": "symbol",
+        "state_kind": "value"
+      }
     }
   },
   "outputs": {

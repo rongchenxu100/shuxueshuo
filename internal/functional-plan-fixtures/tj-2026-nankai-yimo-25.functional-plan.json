@@ -128,6 +128,10 @@
             "path_minimum_target": {
               "kind": "fact",
               "ref": "path_minimum_target"
+            },
+            "moving_point": {
+              "kind": "point",
+              "ref": "G"
             }
           },
           "return_bindings": {},

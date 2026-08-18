@@ -12,7 +12,7 @@ from shuxueshuo_server.solver.contracts import (
 )
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, declare_input_views
 
 
 class EvaluateExpressionAtParameterMethod:
@@ -151,6 +151,11 @@ SPEC = MethodSpecSource(
         "parameter": {"type": "Symbol", "required": True},
         "parameter_value": {"type": "ParameterValue", "required": True},
     },
+    input_views=declare_input_views(
+        identity=("parameter",),
+        latest_state=("parameter_value",),
+        exact_result=("expression",),
+    ),
     outputs={
         "evaluated_expression": "Expression",
         "evaluated_minimum_expression": "MinimumExpression",

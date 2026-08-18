@@ -16,7 +16,7 @@ from shuxueshuo_server.solver.runtime.symbolic_closure_execution import (
 )
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, declare_input_views
 
 
 class ParameterFromCurvePointOnQuadraticMethod:
@@ -168,6 +168,11 @@ SPEC = MethodSpecSource(
         "known_parameter_value": {"type": "ParameterValue", "required": False},
         "quadratic_template": {"type": "Expression", "required": False},
     },
+    input_views=declare_input_views(
+        identity=("x", "parameter", "known_parameter"),
+        latest_state=("quadratic", "point", "known_parameter_value"),
+        immutable_value=("parameter_constraint", "quadratic_template"),
+    ),
     outputs={
         "parameter_value": "ParameterValue",
         "point": "Point",

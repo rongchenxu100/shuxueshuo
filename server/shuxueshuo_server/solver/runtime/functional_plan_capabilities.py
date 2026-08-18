@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from typing import Any, Mapping, Protocol, Sequence
 
-from shuxueshuo_server.solver.contracts import MethodSpec
+from shuxueshuo_server.solver.contracts import MethodInputViewMode, MethodSpec
 from shuxueshuo_server.solver.family.models import (
     CapabilityContextResolver,
     CapabilityInputClosureRequirement,
@@ -60,6 +60,10 @@ from shuxueshuo_server.solver.runtime.macro_specs import (
     MacroSpecRegistry,
 )
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
+from shuxueshuo_server.solver.runtime.planner_public_types import (
+    join_prompt_descriptions,
+    planner_input_domain_type,
+)
 from shuxueshuo_server.solver.runtime.runtime_type_compatibility import (
     runtime_type_compatible,
 )
@@ -435,37 +439,44 @@ def _function_capability(
         )
         if binding is not None and binding.functional_resolver is not None:
             evidence_resolver = binding.functional_resolver
-        public_args_list.append(
-            _function_arg(
+        functional_arg = _function_arg(
+            item,
+            condition_pattern=condition_pattern,
+            deterministic_resolver=(
+                evidence_resolver
+                or (
+                    deterministic_resolvers.get(runtime_input)
+                    if item.required
+                    else None
+                )
+            ),
+            required_override=(False if evidence_resolver else None),
+            accepted_semantic_roles=_selector_semantic_roles(
+                binding.selector if binding is not None else None
+            ),
+            accepted_condition_kinds=_selector_condition_kinds(
+                binding.selector if binding is not None else None
+            ),
+            requires_materialized_state=_arg_requires_materialized_state(
                 item,
-                condition_pattern=condition_pattern,
-                deterministic_resolver=(
-                    evidence_resolver
-                    or (
-                        deterministic_resolvers.get(runtime_input)
-                        if item.required
-                        else None
+                binding.selector if binding is not None else None,
+            ),
+            aliases=arg_aliases.get(runtime_input, ()),
+            binding_authority="wire",
+        )
+        contract_slot = _contract_named_slot(contract, item.name)
+        if contract_slot is not None:
+            functional_arg = replace(
+                functional_arg,
+                description=join_prompt_descriptions(
+                    (
+                        contract_slot.description.strip(),
+                        functional_arg.description.strip(),
                     )
                 ),
-                required_override=(
-                    False
-                    if evidence_resolver
-                    else None
-                ),
-                accepted_semantic_roles=_selector_semantic_roles(
-                    binding.selector if binding is not None else None
-                ),
-                accepted_condition_kinds=_selector_condition_kinds(
-                    binding.selector if binding is not None else None
-                ),
-                requires_materialized_state=_arg_requires_materialized_state(
-                    item,
-                    binding.selector if binding is not None else None,
-                ),
-                aliases=arg_aliases.get(runtime_input, ()),
-                binding_authority="wire",
+                semantic_ref_role=contract_slot.semantic_ref_role,
             )
-        )
+        public_args_list.append(functional_arg)
     represented_condition_kinds = {
         kind
         for item in public_args_list
@@ -677,11 +688,19 @@ def _validate_function_facade_coverage(
 
 
 def _contract_declares_named_slot(contract: Any | None, name: str) -> bool:
+    return _contract_named_slot(contract, name) is not None
+
+
+def _contract_named_slot(contract: Any | None, name: str) -> Any | None:
     if contract is None:
-        return False
-    return any(
-        item.semantic_role == name
-        for item in getattr(contract, "slot_reads", ())
+        return None
+    return next(
+        (
+            item
+            for item in getattr(contract, "slot_reads", ())
+            if item.semantic_role == name
+        ),
+        None,
     )
 
 
@@ -815,6 +834,8 @@ def _contract_condition_arg(pattern: Any) -> FunctionalCapabilityArg:
         required=pattern.required,
         cardinality=pattern.cardinality,
         kind="condition_read",
+        domain_type="Fact",
+        input_view_mode="immutable_value",
         semantic_role=pattern.condition_kind,
         llm_mode=("explicit" if pattern.required else "optional"),
         accepted_item_types=(pattern.runtime_type,),
@@ -911,6 +932,7 @@ def _macro_capability(
 
 
 def _validate_identity_contract(capability: FunctionalCapability) -> None:
+    public_args = {item.name: item for item in capability.args}
     arg_names = tuple(
         dict.fromkeys(
             (
@@ -942,6 +964,36 @@ def _validate_identity_contract(capability: FunctionalCapability) -> None:
                     "references unknown return: "
                     f"{capability.capability_id}."
                     f"{projection.source_return}"
+                )
+        if returned.runtime_type == "PathTransformation":
+            moving_roles = tuple(
+                projection
+                for projection in returned.object_role_projections
+                if projection.role == "moving_object"
+            )
+            if len(moving_roles) != 1:
+                raise ValueError(
+                    "planner_configuration_error: PathTransformation must "
+                    "declare exactly one planner-selected moving object: "
+                    f"{capability.capability_id}.{returned.name}"
+                )
+            moving_role = moving_roles[0]
+            moving_arg = (
+                public_args.get(moving_role.source_arg)
+                if moving_role.source_arg is not None
+                else None
+            )
+            if (
+                moving_arg is None
+                or moving_arg.binding_authority != "wire"
+                or moving_role.source_object_role is not None
+            ):
+                raise ValueError(
+                    "planner_configuration_error: PathTransformation moving "
+                    "object must come directly from an explicit wire argument; "
+                    "condition roles, vertex positions, resolver args, and "
+                    "sibling returns cannot choose it: "
+                    f"{capability.capability_id}.{returned.name}"
                 )
         for closure in returned.lineage_closures:
             missing = set(closure.source_args) - known_args
@@ -1121,12 +1173,28 @@ def _function_arg(
         if condition_pattern is not None
         else item.name
     )
+    runtime_condition_kinds = (
+        accepted_condition_kinds
+        or (
+            (condition_pattern.condition_kind,)
+            if condition_pattern is not None
+            else ()
+        )
+    )
     return FunctionalCapabilityArg(
         semantic_role,
         item.runtime_type,
         item.required if required_override is None else required_override,
         cardinality,
         item.kind,
+        domain_type=_planner_arg_domain_type(
+            item.domain_type,
+            aggregation=aggregation,
+        ),
+        input_view_mode=_public_function_arg_view_mode(
+            item.view_mode,
+            accepted_item_types=accepted_item_types,
+        ),
         semantic_role=semantic_role,
         llm_mode=(
             "explicit"
@@ -1134,13 +1202,11 @@ def _function_arg(
             else "optional"
         ),
         accepted_item_types=accepted_item_types,
-        accepted_condition_kinds=(
-            accepted_condition_kinds
-            or (
-                (condition_pattern.condition_kind,)
-                if condition_pattern is not None
-                else ()
-            )
+        accepted_condition_kinds=runtime_condition_kinds,
+        prompt_fact_types=(
+            ("symbol_value",)
+            if aggregation == "coefficients_by_symbol"
+            else ()
         ),
         accepted_semantic_roles=accepted_semantic_roles,
         requires_materialized_state=requires_materialized_state,
@@ -1208,6 +1274,11 @@ def _macro_arg(item: MacroArgSpec) -> FunctionalCapabilityArg:
         item.required,
         cardinality,
         item.kind,
+        domain_type=_planner_arg_domain_type(
+            item.runtime_type,
+            aggregation=aggregation,
+        ),
+        input_view_mode=_macro_arg_view_mode(item),
         semantic_role=semantic_role,
         llm_mode=("explicit" if item.required else "optional"),
         accepted_item_types=accepted_item_types,
@@ -1219,6 +1290,61 @@ def _macro_arg(item: MacroArgSpec) -> FunctionalCapabilityArg:
         description=item.description,
         provides_semantic_roles=item.provides_semantic_roles,
         semantic_ref_role=item.semantic_ref_role,
+    )
+
+
+def _macro_arg_view_mode(item: MacroArgSpec) -> MethodInputViewMode:
+    """Project one public Macro entity into its deterministic internal view."""
+
+    if item.kind in {"point_ref", "object_ref"}:
+        return "identity"
+    if item.kind == "condition_read":
+        return "immutable_value"
+    if item.runtime_type in {
+        "PathTransformation",
+        "StraighteningCandidate",
+        "StraighteningCandidates",
+        "PointCandidates",
+    }:
+        return "exact_result"
+    return "latest_state"
+
+
+def _public_function_arg_view_mode(
+    method_view_mode: MethodInputViewMode,
+    *,
+    accepted_item_types: Sequence[str],
+) -> MethodInputViewMode:
+    """Let a Function facade materialize named entities for exact Methods."""
+
+    if method_view_mode != "exact_result":
+        return method_view_mode
+    state_bearing_entity_types = {
+        "Expression",
+        "Line",
+        "Parabola",
+        "ParameterValue",
+        "Point",
+    }
+    if any(
+        member in state_bearing_entity_types
+        for runtime_type in accepted_item_types
+        for member in split_runtime_types(runtime_type)
+    ):
+        return "latest_state"
+    return method_view_mode
+
+
+def _planner_arg_domain_type(
+    runtime_type: str,
+    *,
+    aggregation: FunctionalAggregation,
+) -> str:
+    """Expose the domain item type for homogeneous collection arguments."""
+
+    return planner_input_domain_type(
+        runtime_type,
+        aggregation=aggregation,
     )
 
 

@@ -77,6 +77,68 @@ def condition_value_by_handle(
     )
 
 
+def object_identity_value(
+    object_ref: str,
+    *,
+    domain_runtime_types: tuple[str, ...],
+    scope_id: str,
+    semantic_index: FunctionalSemanticIndex,
+    handle_registry: CanonicalHandleRegistry,
+) -> ResolvedFunctionalValue | None:
+    """Return one visible MathObject identity without selecting a state version."""
+
+    views = tuple(
+        view
+        for view in semantic_index.compatible_views(
+            scope_id=scope_id,
+            accepted_types=domain_runtime_types,
+        )
+        if view.object_ref == object_ref
+        and visible_from_valid_scope(
+            view.valid_scope,
+            scope_id=scope_id,
+            registry=handle_registry,
+        )
+    )
+    object_ids = tuple(
+        dict.fromkeys(
+            view.math_object_id
+            for view in views
+            if view.math_object_id is not None
+        )
+    )
+    if len(object_ids) != 1:
+        return None
+    object_id = object_ids[0]
+    matching = tuple(view for view in views if view.math_object_id == object_id)
+    if not matching:
+        return None
+    selected = min(
+        matching,
+        key=lambda view: (
+            view.state_version_id is not None,
+            view.state_slot_id is not None,
+            view.handle,
+        ),
+    )
+    return ResolvedFunctionalValue(
+        handle=selected.handle,
+        runtime_type=(
+            "PointRef"
+            if "Point" in domain_runtime_types
+            or "PointRef" in domain_runtime_types
+            else selected.runtime_type
+        ),
+        valid_scope=selected.valid_scope,
+        object_ref=selected.object_ref,
+        dependency_object_refs=selected.dependency_object_refs,
+        free_symbol_refs=(),
+        provides_semantic_roles=selected.provides_semantic_roles,
+        lineage=selected.lineage,
+        math_object_id=selected.math_object_id,
+    )
+
+
 def latest_point_state_for_object(
     object_ref: str,
     *,
@@ -246,6 +308,7 @@ def latest_point_state_for_object(
 __all__ = [
     "condition_value_by_handle",
     "latest_point_state_for_object",
+    "object_identity_value",
     "resolved_value_object_ids",
     "resolved_value_object_refs",
 ]

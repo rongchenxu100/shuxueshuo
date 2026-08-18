@@ -8,22 +8,43 @@
   ],
   "inputs": {
     "anchor": {
-      "type": "Point",
       "role": "anchor",
       "required": true,
-      "description": "直角顶点，例如南开题中的 D。"
+      "description": "直角顶点，例如南开题中的 D。",
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "reference": {
-      "type": "Point",
       "role": "reference",
       "required": true,
-      "description": "已知直角边的另一个端点，例如南开题中的 M。"
+      "description": "已知直角边的另一个端点，例如南开题中的 M。",
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "target": {
-      "type": "PointRef",
       "role": "target",
       "required": true,
-      "description": "待求坐标的点引用，例如南开题中的 N。"
+      "description": "待求坐标的点引用，例如南开题中的 N。",
+      "domain_type": "Point",
+      "runtime_type": "PointRef",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     }
   },
   "outputs": {

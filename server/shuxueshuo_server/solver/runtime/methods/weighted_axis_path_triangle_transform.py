@@ -13,7 +13,7 @@ from shuxueshuo_server.solver.runtime.weighted_triangle_geometry import (
 )
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, declare_input_views
 
 
 class WeightedAxisPathTriangleTransformMethod:
@@ -320,6 +320,16 @@ SPEC = MethodSpecSource(
             "description": "planner 声明的辅助点引用；method 使用它的点名生成路径转化。",
         },
     },
+    input_views=declare_input_views(
+        identity=(
+            "moving_point_ref",
+            "linked_fixed_endpoint_ref",
+            "dynamic_parameter",
+            "auxiliary_point_ref",
+        ),
+        latest_state=("fixed_point", "moving_point"),
+        immutable_value=("condition",),
+    ),
     outputs={
         "auxiliary_point": "Point",
         "path_transformation": "PathTransformation",

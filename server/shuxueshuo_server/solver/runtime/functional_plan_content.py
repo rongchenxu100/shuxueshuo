@@ -171,6 +171,7 @@ class FunctionalPlanAuthorityFrame:
     planning_context_id: str
     root_scope: Mapping[str, FrozenJson]
     scope_parents: Mapping[str, str | None]
+    source_ref_domain_types: Mapping[str, Mapping[str, str]]
     goal_owners: Mapping[str, str]
     goal_answers: Mapping[str, FunctionalGoalAnswerRequirement]
     frame_id: str
@@ -184,6 +185,16 @@ class FunctionalPlanAuthorityFrame:
             self,
             "scope_parents",
             MappingProxyType(dict(self.scope_parents)),
+        )
+        object.__setattr__(
+            self,
+            "source_ref_domain_types",
+            MappingProxyType(
+                {
+                    scope_id: MappingProxyType(dict(values))
+                    for scope_id, values in self.source_ref_domain_types.items()
+                }
+            ),
         )
         object.__setattr__(
             self,
@@ -262,10 +273,23 @@ class FunctionalPlanAuthorityFrame:
             item.scope_id: item.parent_scope_id
             for item in planning_context.scopes
         }
+        source_ref_domain_types = {
+            item.scope_id: {
+                str(payload["id"]): _entity_kind_domain_type(
+                    str(payload["kind"])
+                )
+                for entity in item.entities
+                if isinstance((payload := thaw_json(entity.payload)), Mapping)
+                and isinstance(payload.get("id"), str)
+                and isinstance(payload.get("kind"), str)
+            }
+            for item in planning_context.scopes
+        }
         authority = {
             "planning_context_id": planning_context.planning_context_id,
             "root_scope": root_scope,
             "scope_parents": scope_parents,
+            "source_ref_domain_types": source_ref_domain_types,
             "goal_owners": goal_owners,
             "goal_answers": {
                 key: value.to_payload()
@@ -276,6 +300,7 @@ class FunctionalPlanAuthorityFrame:
             planning_context_id=planning_context.planning_context_id,
             root_scope=root_scope,
             scope_parents=scope_parents,
+            source_ref_domain_types=source_ref_domain_types,
             goal_owners=goal_owners,
             goal_answers=goal_answers,
             frame_id=stable_hash(authority),
@@ -290,13 +315,26 @@ class FunctionalPlanAuthorityFrame:
         return tuple(self.goal_owners)
 
     def to_prompt_payload(self) -> dict[str, Any]:
-        return {"root_scope": thaw_json(self.root_scope)}
+        return {
+            "root_scope": thaw_json(self.root_scope),
+            "goal_answers": {
+                key: {
+                    "target_ref": value.target_ref,
+                    "answer_type": value.answer_type,
+                }
+                for key, value in sorted(self.goal_answers.items())
+            },
+        }
 
     def authority_payload(self) -> dict[str, Any]:
         return {
             "planning_context_id": self.planning_context_id,
             "root_scope": thaw_json(self.root_scope),
             "scope_parents": dict(self.scope_parents),
+            "source_ref_domain_types": {
+                scope_id: dict(values)
+                for scope_id, values in self.source_ref_domain_types.items()
+            },
             "goal_owners": dict(self.goal_owners),
             "goal_answers": {
                 key: value.to_payload()
@@ -361,17 +399,45 @@ def functional_plan_content_schema(
     step_array = {
         "type": "array",
         "minItems": 1,
+        "description": (
+            "Steps owned by exactly one Scope or Goal container. A step object "
+            "must never be copied between scope_steps and goal_plans.*.steps."
+        ),
         "items": {"$ref": "#/$defs/step"},
     }
     goal_plan = {
         "type": "object",
         "required": ["answer_from"],
         "properties": {
-            "steps": step_array,
+            "steps": {
+                **deepcopy(step_array),
+                "description": (
+                    "Goal-local steps used only to produce this Goal. Do not "
+                    "repeat a Scope-owned shared or contextual step here."
+                ),
+            },
             "answer_from": {"$ref": "#/$defs/answer_from"},
         },
         "additionalProperties": False,
     }
+    plan_defs["step"]["properties"]["step_id"]["description"] = (
+        "A globally unique step id. The complete step object must appear in "
+        "exactly one ownership container: one scope_steps array or one "
+        "goal_plans.*.steps array."
+    )
+    goal_plan_properties: dict[str, Any] = {}
+    for goal_ref in frame.goal_refs:
+        requirement = frame.goal_answers[goal_ref]
+        bound_goal_plan = deepcopy(goal_plan)
+        bound_goal_plan["description"] = (
+            f"Goal {goal_ref!r} targets {requirement.target_ref!r} and requires "
+            f"one visible return of canonical type {requirement.answer_type!r}."
+        )
+        bound_goal_plan["properties"]["answer_from"]["description"] = (
+            f"Select the producer for target {requirement.target_ref!r}; its "
+            f"public return type must be {requirement.answer_type!r}."
+        )
+        goal_plan_properties[goal_ref] = bound_goal_plan
     return {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "$id": "functional-plan-content.schema.json",
@@ -382,19 +448,33 @@ def functional_plan_content_schema(
             "format": {"const": FUNCTIONAL_PLAN_CONTENT_CONTRACT},
             "scope_steps": {
                 "type": "object",
+                "description": (
+                    "Scope-owned steps: shared producers or contextual work "
+                    "that belongs to the Scope rather than one Goal. A Scope "
+                    "step is visible to descendant Goals and must not be copied "
+                    "into a Goal steps array."
+                ),
                 "properties": {
-                    scope_ref: deepcopy(step_array)
+                    scope_ref: {
+                        **deepcopy(step_array),
+                        "description": (
+                            f"Steps owned by Scope {scope_ref!r}; these may be "
+                            "consumed by its descendant Goals."
+                        ),
+                    }
                     for scope_ref in frame.scope_refs
                 },
                 "additionalProperties": False,
             },
             "goal_plans": {
                 "type": "object",
+                "description": (
+                    "One answer binding and optional Goal-local steps for every "
+                    "required Goal. Goal-local steps serve only that Goal and "
+                    "are mutually exclusive with Scope-owned steps."
+                ),
                 "required": list(frame.goal_refs),
-                "properties": {
-                    goal_ref: deepcopy(goal_plan)
-                    for goal_ref in frame.goal_refs
-                },
+                "properties": goal_plan_properties,
                 "additionalProperties": False,
             },
         },
@@ -471,6 +551,7 @@ class FunctionalPlanContentCompiler:
     ) -> FunctionalPlanContentCompilation:
         payload, wire_normalizations = _normalize_content_wire(
             payload,
+            frame=frame,
             capability_catalog=capability_catalog,
         )
         normalizations = (*normalizations, *wire_normalizations)
@@ -500,6 +581,14 @@ class FunctionalPlanContentCompiler:
             scope_steps=payload.get("scope_steps", {}),
             goal_plans=payload["goal_plans"],
         )
+        ownership_issues = _content_step_ownership_issues(payload)
+        if ownership_issues:
+            return FunctionalPlanContentCompilation(
+                content,
+                None,
+                ScopedFunctionalPlanValidationReport(ownership_issues),
+                normalizations,
+            )
         authored_answers = {
             str(goal_ref): dict(goal_plan["answer_from"])
             for goal_ref, goal_plan in payload["goal_plans"].items()
@@ -510,6 +599,7 @@ class FunctionalPlanContentCompiler:
                 plan_payload,
                 requirements=frame.goal_answers,
                 scope_parents=frame.scope_parents,
+                source_ref_domain_types=frame.source_ref_domain_types,
                 capability_catalog=capability_catalog,
                 authored_answers=authored_answers,
             )
@@ -606,6 +696,7 @@ def functional_plan_prompt_payload(plan: ScopedFunctionalPlan) -> dict[str, Any]
 def _normalize_content_wire(
     payload: object,
     *,
+    frame: FunctionalPlanAuthorityFrame,
     capability_catalog: FunctionalCapabilityCatalog,
 ) -> tuple[object, tuple[FunctionalPlanContentNormalization, ...]]:
     if not isinstance(payload, dict) or payload.get("format") != (
@@ -656,7 +747,219 @@ def _normalize_content_wire(
         normalized,
         capability_catalog=capability_catalog,
     )
-    return normalized, (*records, *arg_records)
+    normalized, ownership_records = (
+        _normalize_exact_cross_container_step_duplicates(
+            normalized,
+            frame=frame,
+        )
+    )
+    return normalized, (*records, *arg_records, *ownership_records)
+
+
+def _normalize_exact_cross_container_step_duplicates(
+    payload: object,
+    *,
+    frame: FunctionalPlanAuthorityFrame,
+) -> tuple[object, tuple[FunctionalPlanContentNormalization, ...]]:
+    """Remove only exact Scope/Goal copies with the same owner Scope.
+
+    Keeping the Scope-owned copy preserves visibility for every descendant
+    consumer. Duplicates inside one container, across siblings, or with any
+    content drift remain intact so the ownership audit can fail loudly.
+    """
+
+    if not isinstance(payload, dict):
+        return payload, ()
+    normalized = deepcopy(payload)
+    locations: dict[str, list[dict[str, Any]]] = {}
+    scope_steps = normalized.get("scope_steps")
+    if isinstance(scope_steps, dict):
+        for scope_ref in sorted(scope_steps):
+            steps = scope_steps[scope_ref]
+            if not isinstance(steps, list):
+                continue
+            for index, step in enumerate(steps):
+                if not isinstance(step, dict):
+                    continue
+                step_id = step.get("step_id")
+                if not isinstance(step_id, str) or not step_id:
+                    continue
+                locations.setdefault(step_id, []).append(
+                    {
+                        "kind": "scope",
+                        "container": f"scope:{scope_ref}",
+                        "scope_ref": scope_ref,
+                        "goal_ref": None,
+                        "index": index,
+                        "step": step,
+                        "path": _json_path(
+                            ("scope_steps", scope_ref, index)
+                        ),
+                    }
+                )
+    goal_plans = normalized.get("goal_plans")
+    if isinstance(goal_plans, dict):
+        for goal_ref in sorted(goal_plans):
+            goal = goal_plans[goal_ref]
+            if not isinstance(goal, dict):
+                continue
+            steps = goal.get("steps")
+            if not isinstance(steps, list):
+                continue
+            for index, step in enumerate(steps):
+                if not isinstance(step, dict):
+                    continue
+                step_id = step.get("step_id")
+                if not isinstance(step_id, str) or not step_id:
+                    continue
+                locations.setdefault(step_id, []).append(
+                    {
+                        "kind": "goal",
+                        "container": f"goal:{goal_ref}",
+                        "scope_ref": frame.goal_owners.get(goal_ref),
+                        "goal_ref": goal_ref,
+                        "index": index,
+                        "step": step,
+                        "path": _json_path(
+                            ("goal_plans", goal_ref, "steps", index)
+                        ),
+                    }
+                )
+
+    removals: dict[str, set[int]] = {}
+    records: list[FunctionalPlanContentNormalization] = []
+    for step_id in sorted(locations):
+        entries = locations[step_id]
+        if len(entries) < 2:
+            continue
+        scope_entries = [item for item in entries if item["kind"] == "scope"]
+        goal_entries = [item for item in entries if item["kind"] == "goal"]
+        if len(scope_entries) != 1 or not goal_entries:
+            continue
+        if len({item["container"] for item in entries}) != len(entries):
+            continue
+        scope_entry = scope_entries[0]
+        if any(
+            item["scope_ref"] != scope_entry["scope_ref"]
+            or item["step"] != scope_entry["step"]
+            for item in goal_entries
+        ):
+            continue
+        for item in goal_entries:
+            goal_ref = str(item["goal_ref"])
+            removals.setdefault(goal_ref, set()).add(int(item["index"]))
+            records.append(
+                FunctionalPlanContentNormalization(
+                    code=(
+                        "functional.cross_container_step_duplicate_removed"
+                    ),
+                    path=str(item["path"]),
+                    message=(
+                        f"removed exact duplicate step {step_id!r}; retained "
+                        f"the copy owned by Scope {scope_entry['scope_ref']!r}"
+                    ),
+                )
+            )
+
+    if isinstance(goal_plans, dict):
+        for goal_ref in sorted(removals):
+            goal = goal_plans.get(goal_ref)
+            if not isinstance(goal, dict) or not isinstance(
+                goal.get("steps"), list
+            ):
+                continue
+            goal["steps"] = [
+                step
+                for index, step in enumerate(goal["steps"])
+                if index not in removals[goal_ref]
+            ]
+            if not goal["steps"]:
+                goal.pop("steps")
+    return normalized, tuple(records)
+
+
+def _content_step_ownership_issues(
+    payload: Mapping[str, Any],
+) -> tuple[ScopedFunctionalPlanIssue, ...]:
+    """Report every remaining global step-id collision before assembly."""
+
+    locations: dict[str, list[tuple[str, str, Mapping[str, Any]]]] = {}
+    scope_steps = payload.get("scope_steps", {})
+    if isinstance(scope_steps, Mapping):
+        for scope_ref, steps in scope_steps.items():
+            if not isinstance(steps, Sequence):
+                continue
+            for index, step in enumerate(steps):
+                if not isinstance(step, Mapping):
+                    continue
+                step_id = step.get("step_id")
+                if isinstance(step_id, str):
+                    locations.setdefault(step_id, []).append(
+                        (
+                            f"scope:{scope_ref}",
+                            _json_path(("scope_steps", scope_ref, index)),
+                            step,
+                        )
+                    )
+    goal_plans = payload.get("goal_plans", {})
+    if isinstance(goal_plans, Mapping):
+        for goal_ref, goal in goal_plans.items():
+            if not isinstance(goal, Mapping):
+                continue
+            steps = goal.get("steps", ())
+            if not isinstance(steps, Sequence):
+                continue
+            for index, step in enumerate(steps):
+                if not isinstance(step, Mapping):
+                    continue
+                step_id = step.get("step_id")
+                if isinstance(step_id, str):
+                    locations.setdefault(step_id, []).append(
+                        (
+                            f"goal:{goal_ref}",
+                            _json_path(
+                                ("goal_plans", goal_ref, "steps", index)
+                            ),
+                            step,
+                        )
+                    )
+
+    issues: list[ScopedFunctionalPlanIssue] = []
+    for step_id in sorted(locations):
+        entries = locations[step_id]
+        if len(entries) < 2:
+            continue
+        signatures = {stable_hash(item[2]) for item in entries}
+        owners = [item[0] for item in entries]
+        paths = [item[1] for item in entries]
+        conflict = len(signatures) > 1
+        issues.append(
+            ScopedFunctionalPlanIssue(
+                (
+                    "functional.step_id_conflict"
+                    if conflict
+                    else "functional.step_id_duplicate"
+                ),
+                paths[1],
+                (
+                    f"step_id {step_id!r} has different definitions in "
+                    f"{', '.join(owners)}; author one definition in exactly "
+                    "one Scope or Goal container"
+                    if conflict
+                    else (
+                        f"step_id {step_id!r} appears more than once in "
+                        f"{', '.join(owners)}; every step must belong to "
+                        "exactly one Scope or Goal container"
+                    )
+                ),
+                {
+                    "step_id": step_id,
+                    "owners": owners,
+                    "paths": paths,
+                },
+            )
+        )
+    return tuple(issues)
 
 
 def normalize_empty_optional_capability_args(
@@ -758,6 +1061,7 @@ def derive_goal_answer_bindings(
     *,
     requirements: Mapping[str, FunctionalGoalAnswerRequirement],
     scope_parents: Mapping[str, str | None],
+    source_ref_domain_types: Mapping[str, Mapping[str, str]] | None = None,
     capability_catalog: FunctionalCapabilityCatalog,
     locked_answers: Mapping[str, Mapping[str, str]] | None = None,
     authored_answers: Mapping[str, Mapping[str, str]] | None = None,
@@ -832,9 +1136,12 @@ def derive_goal_answer_bindings(
             requirement,
             steps=steps,
             step_owners=step_owners,
+            step_scopes=step_scopes,
             allowed_step_ids=allowed_step_ids,
             consumed_refs=consumed_refs,
             capability_catalog=capability_catalog,
+            scope_parents=scope_parents,
+            source_ref_domain_types=source_ref_domain_types or {},
         )
         match_basis: str | None = None
         locked = locked_answers.get(goal_ref)
@@ -955,9 +1262,12 @@ def _goal_answer_candidates(
     *,
     steps: Mapping[str, Mapping[str, Any]],
     step_owners: Mapping[str, str],
+    step_scopes: Mapping[str, str],
     allowed_step_ids: set[str],
     consumed_refs: set[tuple[str, str]],
     capability_catalog: FunctionalCapabilityCatalog,
+    scope_parents: Mapping[str, str | None],
+    source_ref_domain_types: Mapping[str, Mapping[str, str]],
 ) -> tuple[FunctionalGoalAnswerCandidate, ...]:
     result: list[FunctionalGoalAnswerCandidate] = []
     for step_id in sorted(allowed_step_ids):
@@ -972,6 +1282,9 @@ def _goal_answer_candidates(
             steps=steps,
             capability=capability,
             capability_catalog=capability_catalog,
+            owner_scope_id=step_scopes[step_id],
+            scope_parents=scope_parents,
+            source_ref_domain_types=source_ref_domain_types,
         ):
             if returned.binding_mode == "internal_only" or not runtime_type_compatible(
                 requirement.answer_type,
@@ -1025,6 +1338,9 @@ def _active_returns_for_authored_step(
     steps: Mapping[str, Mapping[str, Any]],
     capability: FunctionalCapability,
     capability_catalog: FunctionalCapabilityCatalog,
+    owner_scope_id: str,
+    scope_parents: Mapping[str, str | None],
+    source_ref_domain_types: Mapping[str, Mapping[str, str]],
 ) -> tuple[FunctionalCapabilityReturn, ...]:
     """Filter input-type return variants when the wire proves the input type.
 
@@ -1069,6 +1385,9 @@ def _active_returns_for_authored_step(
             args.get(arg.name),
             steps=steps,
             capability_catalog=capability_catalog,
+            owner_scope_id=owner_scope_id,
+            scope_parents=scope_parents,
+            source_ref_domain_types=source_ref_domain_types,
         )
         exact_types = actual_types.intersection(variant_types)
         if not exact_types:
@@ -1095,6 +1414,9 @@ def _wire_result_runtime_types(
     *,
     steps: Mapping[str, Mapping[str, Any]],
     capability_catalog: FunctionalCapabilityCatalog,
+    owner_scope_id: str,
+    scope_parents: Mapping[str, str | None],
+    source_ref_domain_types: Mapping[str, Mapping[str, str]],
 ) -> set[str]:
     if isinstance(value, Sequence) and not isinstance(value, str | bytes):
         return {
@@ -1104,8 +1426,18 @@ def _wire_result_runtime_types(
                 item,
                 steps=steps,
                 capability_catalog=capability_catalog,
+                owner_scope_id=owner_scope_id,
+                scope_parents=scope_parents,
+                source_ref_domain_types=source_ref_domain_types,
             )
         }
+    if isinstance(value, str):
+        return _source_ref_runtime_types(
+            value,
+            owner_scope_id=owner_scope_id,
+            scope_parents=scope_parents,
+            source_ref_domain_types=source_ref_domain_types,
+        )
     if not isinstance(value, Mapping):
         return set()
     step_id = value.get("step_id")
@@ -1126,6 +1458,40 @@ def _wire_result_runtime_types(
         if returned.name == return_name
         for member in split_runtime_types(returned.runtime_type)
     }
+
+
+def _entity_kind_domain_type(kind: str) -> str:
+    return {
+        "symbol": "Symbol",
+        "point": "Point",
+        "quadratic_function": "QuadraticFunction",
+        "named_line": "Line",
+        "named_ray": "Ray",
+        "polygon": "Polygon",
+        "scalar_expression": "Expression",
+    }.get(kind, kind)
+
+
+def _source_ref_runtime_types(
+    ref: str,
+    *,
+    owner_scope_id: str,
+    scope_parents: Mapping[str, str | None],
+    source_ref_domain_types: Mapping[str, Mapping[str, str]],
+) -> set[str]:
+    current: str | None = owner_scope_id
+    while current is not None:
+        domain_type = source_ref_domain_types.get(current, {}).get(ref)
+        if domain_type is not None:
+            return {
+                {
+                    "QuadraticFunction": "Parabola",
+                    "PathWitness": "PathTransformation",
+                    "PointCandidates": "PointList",
+                }.get(domain_type, domain_type)
+            }
+        current = scope_parents.get(current)
+    return set()
 
 
 def _visible_scope_ids(

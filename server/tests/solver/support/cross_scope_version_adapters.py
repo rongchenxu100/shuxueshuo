@@ -359,6 +359,10 @@ class B2PlacementAdapter:
                     call.call_id,
                 )
             },
+            scoped_semantic_owner_scopes={
+                call.call_id: call.declared_scope_id
+                for call in converted.scenario.calls
+            },
         )
         values = {
             item.canonical_call_id: {
@@ -1931,6 +1935,8 @@ def _capability(call: ModelCall) -> FunctionalCapability:
                 "input",
                 "slot_read",
                 runtime_type,
+                runtime_type,
+                "latest_state",
                 required=False,
                 cardinality="many",
             ),
@@ -1964,6 +1970,8 @@ def _capability(call: ModelCall) -> FunctionalCapability:
                 False,
                 "many",
                 "slot_read",
+                domain_type=runtime_type,
+                input_view_mode="latest_state",
             ),
         ),
         returns=(

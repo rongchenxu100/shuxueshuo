@@ -9,36 +9,78 @@
   ],
   "inputs": {
     "parabola": {
-      "type": "Parabola",
       "required": true,
-      "symbolic_basis_role": "state_anchor"
+      "symbolic_basis_role": "state_anchor",
+      "domain_type": "QuadraticFunction",
+      "runtime_type": "Parabola",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "QuadraticFunction",
+        "object_kind": "function",
+        "state_kind": "expression"
+      }
     },
     "x": {
-      "type": "Symbol",
-      "required": true
+      "required": true,
+      "domain_type": "Symbol",
+      "runtime_type": "Symbol",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Symbol",
+        "object_kind": "symbol",
+        "state_kind": "value"
+      }
     },
     "line_p1": {
-      "type": "Point",
       "required": true,
       "symbolic_basis_role": "align_to_anchor",
-      "role": "确定目标直线的第一个点；必须与 line_p2 的横坐标不同。若该点也是抛物线已知交点，通常同时把它传给 known_point。"
+      "role": "确定目标直线的第一个点；必须与 line_p2 的横坐标不同。若该点也是抛物线已知交点，通常同时把它传给 known_point。",
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "line_p2": {
-      "type": "Point",
       "required": true,
       "symbolic_basis_role": "align_to_anchor",
-      "role": "确定目标直线的第二个点；必须与 line_p1 的横坐标不同，从而得到非竖直直线。"
+      "role": "确定目标直线的第二个点；必须与 line_p1 的横坐标不同，从而得到非竖直直线。",
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "known_point": {
-      "type": "Point",
       "required": true,
       "symbolic_basis_role": "align_to_anchor",
-      "role": "目标直线与抛物线共有、并需要从联立结果中排除的已知交点；通常直接复用 line_p1 或 line_p2，禁止传入不在目标直线上的点。"
+      "role": "目标直线与抛物线共有、并需要从联立结果中排除的已知交点；通常直接复用 line_p1 或 line_p2，禁止传入不在目标直线上的点。",
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "target": {
-      "type": "PointRef",
       "required": true,
-      "symbolic_basis_role": "align_to_anchor"
+      "symbolic_basis_role": "align_to_anchor",
+      "domain_type": "Point",
+      "runtime_type": "PointRef",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     }
   },
   "outputs": {

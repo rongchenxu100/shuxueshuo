@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, declare_input_views
 
 
 class PointOnParabolaAtXMethod:
@@ -92,6 +92,10 @@ SPEC = MethodSpecSource(
             "symbolic_basis_role": "align_to_anchor",
         },
     },
+    input_views=declare_input_views(
+        identity=("x", "target"),
+        latest_state=("parabola",),
+    ),
     outputs={"point": "Point"},
     do_not_use_when=(
         "目标点没有题面结构化横坐标定义时禁止使用；仅知道点在抛物线上、只有"

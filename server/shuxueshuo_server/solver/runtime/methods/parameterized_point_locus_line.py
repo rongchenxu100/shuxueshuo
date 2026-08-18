@@ -8,7 +8,7 @@ from __future__ import annotations
 from shuxueshuo_server.solver.contracts import MethodExplanationSpec, MethodVisualSpec
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, declare_input_views
 
 
 class ParameterizedPointLocusLineMethod:
@@ -127,6 +127,10 @@ SPEC = MethodSpecSource(
             ),
         },
     },
+    input_views=declare_input_views(
+        identity=("target", "parameter"),
+        latest_state=("point",),
+    ),
     outputs={"line": "Line"},
     preconditions=(
         "parameter必须是point坐标中实际出现的同一Symbol身份",

@@ -37,6 +37,22 @@ FEW_SHOT_DIR = (
     / "functional-few-shots-v2"
 )
 
+PROMPT_CASES = (
+    "tj-2026-heping-ermo-25",
+    "tj-2026-heping-yimo-25",
+    "tj-2026-hexi-yimo-25",
+    "tj-2026-nankai-yimo-25",
+    "tj-2026-xiqing-yimo-25",
+)
+
+INTERNAL_VIEW_TERMS = (
+    "PointRef",
+    "StateVersion",
+    "MathObjectId",
+    "semantic_ref_role",
+    "runtime_path",
+)
+
 
 def test_v2_payload_and_prompt_use_scope_native_authority_only(tmp_path) -> None:
     (
@@ -73,15 +89,27 @@ def test_v2_payload_and_prompt_use_scope_native_authority_only(tmp_path) -> None
     )
     assert FUNCTIONAL_PLAN_CONTENT_CONTRACT in prompt.system
     assert payload["plan_authority_frame"] == frame.to_prompt_payload()
+    assert payload["plan_authority_frame"]["goal_answers"] == {
+        goal_ref: {
+            "target_ref": requirement.target_ref,
+            "answer_type": requirement.answer_type,
+        }
+        for goal_ref, requirement in sorted(frame.goal_answers.items())
+    }
     assert "Scope树与Goal归属完全由Plan Authority Frame拥有" in prompt.system
     assert "planner-problem-view/v2" in prompt.user
     assert "输出不得包含`root_scope`" in prompt.system
     assert "重复的`goal_ref`" in prompt.system
     assert "`goal_ref`不是step输入" in prompt.system
     assert "每个Goal必须输出`answer_from={step_id, return}`" in prompt.system
+    assert "public return `type`必须与该Goal的`answer_type`逐字一致" in prompt.system
     assert "合法指针用于消歧" in prompt.system
-    assert "共享MathObject身份不等于共享StateVersion" in prompt.system
+    assert "共享题面数学实体不等于共享当前数学状态" in prompt.system
     assert "兄弟scope使用不同局部条件" in prompt.system
+    assert "互斥的step所有权容器" in prompt.system
+    assert "每个step完整对象只能出现一次" in prompt.system
+    assert "只为该Goal答案服务的局部推导" in prompt.system
+    assert "题面中有名的Entity始终使用SourceRef" in prompt.system
     assert "free_parameters" in prompt.system
     assert "不能根据下游Goal希望求哪个参数" in prompt.system
     assert "Goal的`target_ref`是可用题面输入" in prompt.user
@@ -113,6 +141,7 @@ def test_v2_payload_and_prompt_use_scope_native_authority_only(tmp_path) -> None
 
     combined = f"{prompt.system}\n{prompt.user}"
     for forbidden in (
+        *INTERNAL_VIEW_TERMS,
         "return_bindings",
         "execution_scope_id",
         "shared_steps",
@@ -123,6 +152,36 @@ def test_v2_payload_and_prompt_use_scope_native_authority_only(tmp_path) -> None
         planning_context.problem_semantic_hash,
     ):
         assert forbidden not in combined
+
+
+@pytest.mark.parametrize("case", PROMPT_CASES)
+def test_all_five_v2_prompts_hide_internal_input_views(tmp_path, case) -> None:
+    (
+        _bundle,
+        planning_context,
+        _problem,
+        inputs,
+        problem_payload,
+        _registry,
+        planner_context,
+        binding_catalog,
+        _plan,
+        _validation,
+        _reconciliation,
+    ) = scope_native_reconciliation_fixture(tmp_path / case, case=case)
+    payload = StrategyPayloadBuilder(
+        scoped_functional_few_shot_examples=[]
+    ).build_scoped(
+        inputs,
+        problem_payload=problem_payload,
+        planner_state_context=planner_context,
+        problem_planning_context=planning_context,
+        problem_binding_catalog=binding_catalog,
+    )
+    prompt = StrategyPromptRenderer().render_scoped(payload)
+    combined = f"{prompt.system}\n{prompt.user}"
+
+    assert all(term not in combined for term in INTERNAL_VIEW_TERMS), case
 
 
 def test_v2_prompt_renders_only_v2_mechanism_plan(tmp_path) -> None:
@@ -355,14 +414,18 @@ def test_v2_catalog_marks_problem_object_identity_args(tmp_path) -> None:
         item for item in selector.args if item.name == "target_point"
     )
     for item in (candidate_target, selector_target):
-        assert item.semantic_ref_role == "object_identity"
         prompt_arg = item.to_prompt_payload()
-        assert prompt_arg["semantic_ref_role"] == "object_identity"
-        assert "target_ref" in prompt_arg["desc"]
-        assert "goal_ref" in prompt_arg["desc"]
+        assert prompt_arg["domain_type"] == "Point"
+        assert "semantic_ref_role" not in prompt_arg
+        assert prompt_arg["role"]
+        assert "PointRef" not in prompt_arg["role"]
+        assert "target_ref" not in prompt_arg["role"]
+        assert "goal_ref" not in prompt_arg["role"]
 
     value_arg = next(item for item in selector.args if item.name == "parabola")
-    assert value_arg.to_prompt_payload()["semantic_ref_role"] == "value"
+    value_prompt = value_arg.to_prompt_payload()
+    assert value_prompt["domain_type"] == "QuadraticFunction"
+    assert "semantic_ref_role" not in value_prompt
 
 
 def test_v2_catalog_declares_return_expectation_policy_per_return(tmp_path) -> None:
@@ -400,6 +463,18 @@ def test_v2_catalog_declares_return_expectation_policy_per_return(tmp_path) -> N
         "type": "ParameterValue",
         "binding": "same_object_as:parameter",
     }
+
+    schema = functional_plan_content_schema(
+        FunctionalPlanAuthorityFrame.from_planning_context(fixture[1])
+    )
+    point_list_goal = schema["properties"]["goal_plans"]["properties"][
+        "i_2.E"
+    ]
+    assert "targets 'E'" in point_list_goal["description"]
+    assert "canonical type 'PointList'" in point_list_goal["description"]
+    assert "must be 'PointList'" in point_list_goal["properties"][
+        "answer_from"
+    ]["description"]
 
     for capability in catalog.to_prompt_payload()["capabilities"]:
         for returned in capability["returns"]:

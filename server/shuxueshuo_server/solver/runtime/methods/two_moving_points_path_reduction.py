@@ -10,7 +10,7 @@ from typing import Any, Mapping
 
 from ._common import *
 from ._common import _canonical_reference_name, _canonical_segment_name
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, declare_input_views
 
 
 class TwoMovingPointsPathReductionMethod:
@@ -188,6 +188,15 @@ SPEC = MethodSpecSource(
         "description": "第二条动点边上绑定线段的固定端点，例如 N。"
     }
 },
+    input_views=declare_input_views(
+        latest_state=("first_segment_start", "joint_point", "second_segment_end"),
+        immutable_value=(
+            "original_path",
+            "first_moving_membership",
+            "second_moving_membership",
+            "binding_relation",
+        ),
+    ),
     outputs={
     "path_transformation": "PathTransformation"
 },

@@ -16,7 +16,7 @@ from shuxueshuo_server.solver.runtime.symbolic_closure_execution import (
 )
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, declare_input_views
 
 
 class ParameterFromMinimumValueMethod:
@@ -122,6 +122,11 @@ SPEC = MethodSpecSource(
         "required": False
     }
 },
+    input_views=declare_input_views(
+        identity=("parameter",),
+        immutable_value=("condition", "constraint"),
+        exact_result=("minimum_expression",),
+    ),
     outputs={
     "parameter_value": "ParameterValue"
 },

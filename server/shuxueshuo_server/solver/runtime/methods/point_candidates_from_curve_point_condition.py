@@ -8,7 +8,7 @@ from __future__ import annotations
 from shuxueshuo_server.solver.contracts import MethodExplanationSpec, MethodVisualSpec
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, declare_input_views
 
 
 class PointCandidatesFromCurvePointConditionMethod:
@@ -136,6 +136,10 @@ SPEC = MethodSpecSource(
             ),
         },
     },
+    input_views=declare_input_views(
+        identity=("x", "parameter"),
+        latest_state=("target_point", "curve_point", "parabola"),
+    ),
     outputs={"candidates": "PointList"},
     preconditions=(
         "parameter必须以同一Symbol身份同时出现在target_point与curve_point中",

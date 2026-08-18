@@ -13,7 +13,7 @@ from shuxueshuo_server.solver.contracts import (
 )
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, declare_input_views
 
 
 class DistanceBetweenPointsMethod:
@@ -77,6 +77,10 @@ SPEC = MethodSpecSource(
         "required": False
     }
 },
+    input_views=declare_input_views(
+        identity=("parameter",),
+        latest_state=("p1", "p2", "parameter_value"),
+    ),
     outputs={
     "distance": "MinimumExpression",
     "evaluated_distance": "MinimumExpression"

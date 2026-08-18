@@ -189,7 +189,7 @@ def test_reference_reorders_consumer_before_producer_wire() -> None:
     assert outcome.canonical_order == ("create", "read")
 
 
-def test_semantic_latest_read_is_published_and_reprojected_across_siblings() -> None:
+def test_semantic_latest_read_does_not_publish_state_across_siblings() -> None:
     key = ModelStateKey("O", "coordinate", "Point")
     scenario = CrossScopeVersionScenario(
         scopes=(
@@ -230,14 +230,11 @@ def test_semantic_latest_read_is_published_and_reprojected_across_siblings() -> 
     expected = ReferenceScopeVersionModel().evaluate(scenario)
     actual = run_production_adapters(scenario)
 
-    assert expected.decision("produce").return_scope_id == "i"
-    assert expected.decision("consume").visible_read_version_ids == (
-        expected.decision("produce").selected_version_id,
-    )
+    assert expected.decision("produce").execution_scope_id == "i_1"
+    assert expected.decision("produce").return_scope_id == "i_1"
+    assert expected.decision("consume").visible_read_version_ids == ()
     assert compare_adapter_suite(expected, actual) == ()
-    assert actual.stage("B2").values["consume"]["reads"] == (
-        expected.decision("produce").selected_version_id,
-    )
+    assert actual.stage("B2").values["consume"]["reads"] == ()
 
 
 def test_child_exact_source_cannot_publish_result_to_sibling_scope() -> None:
@@ -810,7 +807,7 @@ def test_historical_anonymous_corpus_replays() -> None:
             assert forbidden not in serialized
 
 
-def test_partial_checkpoint_keeps_storage_version_when_published_to_parent() -> None:
+def test_partial_checkpoint_keeps_state_writer_in_semantic_owner_scope() -> None:
     scenario = authority_regression_scenarios()[5]
     expected = ReferenceScopeVersionModel().evaluate(scenario)
     actual = run_production_adapters(scenario)
@@ -827,8 +824,8 @@ def test_partial_checkpoint_keeps_storage_version_when_published_to_parent() -> 
         ),
     ):
         decision = expected.decision(call_id)
-        assert decision.execution_scope_id == "ii"
-        assert decision.return_scope_id == "ii"
+        assert decision.execution_scope_id == "ii_1"
+        assert decision.return_scope_id == "ii_1"
         assert decision.selected_version_id == version_id
     assert actual.stage("B4").issue_codes == ()
 

@@ -172,6 +172,12 @@ def _production_inputs(
         FunctionalCapabilityArg(
             name=arg_name,
             runtime_type=_runtime_type(role),
+            domain_type=("Symbol" if "parameter" in role else "Point"),
+            input_view_mode=(
+                "identity"
+                if scenario.source_profile == "resolver_identity"
+                else "latest_state"
+            ),
             required=True,
             cardinality=scenario.cardinality,
             kind="slot_read",

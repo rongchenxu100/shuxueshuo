@@ -15,6 +15,7 @@ from shuxueshuo_server.solver.runtime.equal_length_ray_roles import (
 from shuxueshuo_server.solver.runtime.functional_context_values import (
     condition_value_by_handle,
     latest_point_state_for_object,
+    object_identity_value,
     resolved_value_object_refs,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_elaboration import (
@@ -80,10 +81,11 @@ class SquarePathTransformationRoleError(ValueError):
 def infer_square_path_transformation_roles(
     conditions: Sequence[Any],
     *,
+    moving_object_ref: str,
     scope_id: str,
     handle_registry: CanonicalHandleRegistry,
 ) -> SquarePathTransformationRoles | None:
-    """Infer path roles without requiring any endpoint runtime state."""
+    """Validate a planner-selected moving point and derive proof-only roles."""
 
     square = next(
         (
@@ -105,14 +107,51 @@ def infer_square_path_transformation_roles(
     if square is None or path_target is None:
         return None
 
+    midpoint = next(
+        (
+            value
+            for value in conditions
+            if handle_registry.fact_types.get(value.handle)
+            == "midpoint_definition"
+        ),
+        None,
+    )
+    if midpoint is None:
+        return None
+
     square_roles = dict(square.object_roles)
-    fixed_1_refs = square_roles.get("vertex_1", ())
-    moving_refs = square_roles.get("vertex_4", ())
-    if len(fixed_1_refs) != 1 or len(moving_refs) != 1:
+    ordered_vertices = tuple(
+        square_roles.get(f"vertex_{index}", ())
+        for index in range(1, 5)
+    )
+    if any(len(refs) != 1 for refs in ordered_vertices):
         raise SquarePathTransformationRoleError(
             "square path transformation requires ordered square vertices",
             details={
-                "roles": ["fixed_endpoint_1", "moving_object"],
+                "roles": ["moving_object", "fixed_endpoint_1"],
+                "repair_action": "choose_square_path_moving_point",
+            },
+        )
+    vertices = tuple(refs[0] for refs in ordered_vertices)
+    midpoint_payload = handle_registry.fact_payloads.get(midpoint.handle, {})
+    midpoint_side = tuple(str(item) for item in midpoint_payload.get("of", ()))
+    fixed_1_refs = tuple(
+        endpoint
+        for endpoint in midpoint_side
+        if _square_external_neighbor(
+            endpoint,
+            midpoint_side=midpoint_side,
+            vertices=vertices,
+        )
+        == moving_object_ref
+    )
+    if len(fixed_1_refs) != 1:
+        raise SquarePathTransformationRoleError(
+            "selected moving point is incompatible with the square side used by the midpoint proof",
+            details={
+                "selected_moving_point": moving_object_ref,
+                "failed_check": "square_midpoint_side_adjacency",
+                "repair_action": "choose_square_path_moving_point",
             },
         )
 
@@ -128,7 +167,7 @@ def infer_square_path_transformation_roles(
             point_by_name,
         ),
     )
-    moving_ref = moving_refs[0]
+    moving_ref = moving_object_ref
     moving_terms = tuple(
         term
         for term in terms
@@ -153,6 +192,29 @@ def infer_square_path_transformation_roles(
         moving_object=moving_ref,
         fixed_endpoint_2=fixed_2_ref,
     )
+
+
+def _square_external_neighbor(
+    endpoint: str,
+    *,
+    midpoint_side: Sequence[str],
+    vertices: Sequence[str],
+) -> str | None:
+    """Return the square neighbor not lying on the selected midpoint side."""
+
+    if len(midpoint_side) != 2 or endpoint not in vertices:
+        return None
+    other_side_endpoint = next(
+        (item for item in midpoint_side if item != endpoint),
+        None,
+    )
+    if other_side_endpoint is None:
+        return None
+    index = vertices.index(endpoint)
+    neighbors = (vertices[(index - 1) % 4], vertices[(index + 1) % 4])
+    if other_side_endpoint not in neighbors:
+        return None
+    return next(item for item in neighbors if item != other_side_endpoint)
 
 
 def resolve_equal_length_ray_path_args(
@@ -413,8 +475,39 @@ def resolve_path_reduction_args(
             ),
             False,
         )
+    selected_moving_refs = resolved_value_object_refs(
+        resolved_args.get("moving_point", ())
+    )
     additions: dict[str, tuple[ResolvedFunctionalValue, ...]] = {}
     issues: list[FunctionalPlanIssue] = []
+    selected_moving = object_identity_value(
+        roles.second_moving_point,
+        domain_runtime_types=("Point", "PointRef"),
+        scope_id=scope_id,
+        semantic_index=semantic_index,
+        handle_registry=handle_registry,
+    )
+    if selected_moving is None:
+        issues.append(
+            _issue(
+                "functional_elaboration",
+                "functional.path_reduction_point_state_unavailable",
+                "path reduction requires the selected moving Point identity",
+                call_id=call_id,
+                scope_id=scope_id,
+                details={
+                    "arg": "moving_point",
+                    "object_ref": roles.second_moving_point,
+                    "state_requirement": "visible Point identity",
+                    "repair_action": "choose_visible_moving_point",
+                },
+            )
+        )
+    else:
+        # The wire value is an authored search hint.  Static lineage and the
+        # executable Macro graph must use the candidate selected by the
+        # declared role builder; runtime checks authenticate it before commit.
+        additions["moving_point"] = (selected_moving,)
     for semantic_role, handle in (
         ("first_membership", roles.first_membership),
         ("second_membership", roles.second_membership),
@@ -521,6 +614,20 @@ def resolve_path_reduction_args(
             additions[arg_name] = (point,)
     if issues:
         return additions, (), tuple(issues), False
+    role_repair = FunctionalDeterministicRepair(
+        call_id,
+        (
+            "accept_macro_role_hint"
+            if selected_moving_refs == (roles.second_moving_point,)
+            else "correct_macro_role_hint"
+        ),
+        (
+            selected_moving_refs[0]
+            if len(selected_moving_refs) == 1
+            else "<unspecified>"
+        ),
+        roles.second_moving_point,
+    )
     return (
         additions,
         (
@@ -536,6 +643,7 @@ def resolve_path_reduction_args(
                     )
                 ),
             ),
+            role_repair,
         ),
         (),
         True,
@@ -572,9 +680,33 @@ def resolve_square_path_transformation_args(
     )
     if path_target is None:
         return {}, (), (), False
+    moving_refs = resolved_value_object_refs(
+        resolved_args.get("moving_point", ())
+    )
+    if len(moving_refs) != 1:
+        return (
+            {},
+            (),
+            (
+                _issue(
+                    "functional_elaboration",
+                    "functional.path_reduction_interpretation_invalid",
+                    "square path reduction requires one planner-selected moving point",
+                    call_id=call_id,
+                    scope_id=scope_id,
+                    details={
+                        "arg": "moving_point",
+                        "selected_moving_points": list(moving_refs),
+                        "repair_action": "choose_square_path_moving_point",
+                    },
+                ),
+            ),
+            False,
+        )
     try:
         roles = infer_square_path_transformation_roles(
             conditions,
+            moving_object_ref=moving_refs[0],
             scope_id=scope_id,
             handle_registry=handle_registry,
         )

@@ -12,6 +12,7 @@ from shuxueshuo_server.solver.family.models import (
     CapabilityDependencyPolicy,
     CapabilityExecutionStatus,
     FunctionalReturnBindingPolicy,
+    FunctionalSemanticRefRole,
     CapabilityPackRegistry,
     CapabilityPackSpec,
     CapabilityStateClosurePolicy,
@@ -22,6 +23,7 @@ from shuxueshuo_server.solver.family.models import (
     GoalEvidencePolicySpec,
     MethodBindingRuleSpec,
     MethodInputBindingSpec,
+    MacroSearchSpec,
     PATH_REDUCTION_ROLES_RESOLVER,
     PathTransformationConsumerSpec,
     SQUARE_PATH_TRANSFORMATION_ROLES_RESOLVER,
@@ -70,6 +72,8 @@ TWO_MOVING_POINTS_PATH_REDUCTION_DESCRIPTION = (
     "调用前，变换所需的每个固定端点都必须已有可读取的 Point 坐标状态；"
     "定义、构造或中点 Condition 只说明对象关系，不等于已经计算出坐标。"
     "本 recipe 不创建辅助点、补算固定端点或生成辅助轨迹。"
+    "Planner 必须显式声明降维后保留的 moving_point；代码只根据题面路径、"
+    "所属关系和长度关系验证该选择并恢复证明所需的固定端点。"
 )
 TWO_MOVING_POINTS_REDUCTION_DO_NOT_USE_WHEN = (
     "目标是直接求路径最小值、最小值表达式或极值点坐标；本能力只产生后续路径处理所需的等价变换。",
@@ -136,8 +140,7 @@ PATH_TRANSFORMATION_LOCUS_IDENTITY_CONSTRAINTS = (
 TWO_MOVING_PATH_TRANSFORMATION_OBJECT_ROLES = (
     StateObjectRoleProjectionSpec(
         role="moving_object",
-        source_arg="second_moving_membership",
-        source_object_role="moving_object",
+        source_arg="moving_point",
     ),
     StateObjectRoleProjectionSpec(
         role="fixed_endpoint_1",
@@ -289,6 +292,7 @@ def _slot(
     lineage_closures: tuple[StateLineageClosureSpec, ...] = (),
     input_closure_policy: CapabilityStateClosurePolicy = "any",
     return_binding: FunctionalReturnBindingPolicy = "auto",
+    semantic_ref_role: FunctionalSemanticRefRole = "value",
 ) -> StateSlotPattern:
     resolved_required = (
         runtime_type not in TRANSIENT_OUTPUT_TYPES
@@ -317,6 +321,7 @@ def _slot(
         lineage_closures=lineage_closures,
         input_closure_policy=input_closure_policy,
         return_binding=return_binding,
+        semantic_ref_role=semantic_ref_role,
     )
 
 
@@ -601,7 +606,7 @@ QUADRATIC_CORE_CONTRACTS = (
                 required=False,
                 description=(
                     "可选的另一个 x 轴交点，必须已经具有坐标。不能填写当前正在求解"
-                    "的目标点，也不能只提供 PointRef；未知时直接省略。"
+                    "的目标点；若没有另一个已知坐标的交点则直接省略。"
                 ),
             ),
         ),
@@ -955,6 +960,12 @@ RIGHT_ANGLE_EQUAL_LENGTH_CONSTRUCT_AND_SELECT = StepRecipeSpec(
             "right_angle_equal_length_candidates",
             "select_point_by_quadrant_constraint",
         ),
+        execution_mode="runtime_search",
+        search=MacroSearchSpec(
+            searchable_roles=("anchor", "reference", "target"),
+            candidate_builder_id="visible_point_role_assignments",
+            validation_policy_id="method_checks_and_macro_postconditions",
+        ),
         execution_strategy="right_angle_construct_select",
         strategy_input_targets=(
             "right_angle_equal_length_candidates.anchor",
@@ -993,6 +1004,12 @@ TWO_MOVING_POINTS_PATH_REDUCTION = StepRecipeSpec(
     execution=RecipeExecutionSpec(
         recipe_id="two_moving_points_path_reduction",
         method_sequence=("two_moving_points_path_reduction",),
+        execution_mode="runtime_search",
+        search=MacroSearchSpec(
+            searchable_roles=("moving_point",),
+            candidate_builder_id="path_role_assignments",
+            validation_policy_id="path_equivalence_and_provenance",
+        ),
         execution_strategy="single_method",
         strategy_input_targets=(
             "two_moving_points_path_reduction.original_path",
@@ -1042,6 +1059,12 @@ BROKEN_PATH_STRAIGHTENING_AND_SELECT = StepRecipeSpec(
         method_sequence=(
             "broken_path_straightening_candidates",
             "select_straightening_candidate",
+        ),
+        execution_mode="runtime_search",
+        search=MacroSearchSpec(
+            searchable_roles=("moving_point", "reflect_source"),
+            candidate_builder_id="straightening_role_assignments",
+            validation_policy_id="method_checks_and_macro_postconditions",
         ),
         execution_strategy="straightening_candidates_select",
         creates=("point",),
@@ -1143,6 +1166,7 @@ PATH_MINIMUM_BY_STRAIGHTENED_DISTANCE = StepRecipeSpec(
     execution=RecipeExecutionSpec(
         recipe_id="path_minimum_by_straightened_distance",
         method_sequence=("distance_between_points",),
+        execution_mode="direct",
         execution_strategy="straightened_distance_minimum",
         input_aliases=(
             ("endpoint_1", "distance_between_points.p1"),
@@ -1197,6 +1221,12 @@ BROKEN_PATH_STRAIGHTENING_MINIMUM_EXPRESSION = StepRecipeSpec(
             "broken_path_straightening_candidates",
             "select_straightening_candidate",
             "distance_between_points",
+        ),
+        execution_mode="runtime_search",
+        search=MacroSearchSpec(
+            searchable_roles=("moving_point", "reflect_source"),
+            candidate_builder_id="straightening_role_assignments",
+            validation_policy_id="minimum_expression_and_provenance",
         ),
         execution_strategy="broken_path_straightening_minimum_expression",
         creates=("point",),
@@ -1335,6 +1365,17 @@ EQUAL_LENGTH_RAY_PATH_REDUCTION = StepRecipeSpec(
     execution=RecipeExecutionSpec(
         recipe_id="equal_length_ray_path_reduction",
         method_sequence=("equal_length_ray_point", "distance_between_points"),
+        execution_mode="runtime_search",
+        search=MacroSearchSpec(
+            searchable_roles=(
+                "anchor",
+                "reference_point",
+                "ray_point",
+                "fixed_point",
+            ),
+            candidate_builder_id="equal_length_ray_role_assignments",
+            validation_policy_id="distance_equivalence_and_provenance",
+        ),
         execution_strategy="equal_length_ray_path_reduction",
         creates=("point",),
         strategy_input_targets=(
@@ -1444,6 +1485,20 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
         contracts=(
             _recipe_contract(
                 "two_moving_points_path_reduction",
+                slot_reads=(
+                    _slot(
+                        "moving_point",
+                        "Point",
+                        object_kind="point",
+                        semantic_role="moving_point",
+                        description=(
+                            "Planner 选择并声明降维后两段路径共享的动点身份。"
+                            "代码会验证该点确实能由所选路径和题面关系得到，"
+                            "不会按点序或隐藏规则替 Planner 选择。"
+                        ),
+                        semantic_ref_role="object_identity",
+                    ),
+                ),
                 condition_reads=(_condition("path_minimum_target"),),
                 slot_writes=(
                     _slot(
@@ -1904,6 +1959,20 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
         contracts=(
             _method_contract(
                 "square_path_dimension_reduction",
+                slot_reads=(
+                    _slot(
+                        "moving_point",
+                        "Point",
+                        object_kind="point",
+                        semantic_role="moving_point",
+                        description=(
+                            "Planner 显式选择路径降维后保留的正方形动点。"
+                            "代码只验证该选择与正方形邻接、中点、中心和原路径"
+                            "一致，不会按顶点序号自动选择。"
+                        ),
+                        semantic_ref_role="object_identity",
+                    ),
+                ),
                 condition_reads=(
                     _condition("path_minimum_target"),
                     _condition("square"),
@@ -1923,8 +1992,7 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
                         object_role_projections=(
                             StateObjectRoleProjectionSpec(
                                 role="moving_object",
-                                source_arg="square_condition",
-                                source_object_role="vertex_4",
+                                source_arg="moving_point",
                             ),
                             StateObjectRoleProjectionSpec(
                                 role="fixed_endpoint_1",

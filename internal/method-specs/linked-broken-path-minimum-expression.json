@@ -8,44 +8,108 @@
   ],
   "inputs": {
     "path_transformation": {
-      "type": "PathTransformation",
-      "required": true
+      "required": true,
+      "domain_type": "PathTransformation",
+      "runtime_type": "PathTransformation",
+      "view": {
+        "mode": "exact_result",
+        "domain_type": "PathTransformation"
+      }
     },
     "auxiliary_locus": {
-      "type": "Line",
-      "required": true
+      "required": true,
+      "domain_type": "Line",
+      "runtime_type": "Line",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Line",
+        "object_kind": "line",
+        "state_kind": "equation"
+      }
     },
     "fixed_point": {
-      "type": "Point",
-      "required": true
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "curve_point": {
-      "type": "Point",
-      "required": true
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "moving_point": {
-      "type": "Point",
-      "required": true
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "auxiliary_point": {
-      "type": "Point",
-      "required": true
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "parameter": {
-      "type": "Symbol",
-      "required": true
+      "required": true,
+      "domain_type": "Symbol",
+      "runtime_type": "Symbol",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Symbol",
+        "object_kind": "symbol",
+        "state_kind": "value"
+      }
     },
     "dynamic_parameter": {
-      "type": "Symbol",
-      "required": true
+      "required": true,
+      "domain_type": "Symbol",
+      "runtime_type": "Symbol",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Symbol",
+        "object_kind": "symbol",
+        "state_kind": "value"
+      }
     },
     "parameter_constraint": {
-      "type": "Constraint",
-      "required": true
+      "required": true,
+      "domain_type": "Fact",
+      "runtime_type": "Constraint",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "Fact"
+      }
     },
     "dynamic_constraint": {
-      "type": "Constraint",
-      "required": true
+      "required": true,
+      "domain_type": "Fact",
+      "runtime_type": "Constraint",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "Fact"
+      }
     }
   },
   "outputs": {

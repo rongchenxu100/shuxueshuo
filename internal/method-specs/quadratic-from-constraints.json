@@ -8,73 +8,176 @@
   ],
   "inputs": {
     "quadratic": {
-      "type": "Expression",
-      "required": true
+      "required": true,
+      "domain_type": "QuadraticFunction",
+      "runtime_type": "Expression",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "QuadraticFunction",
+        "object_kind": "function",
+        "state_kind": "expression"
+      }
     },
     "quadratic_template": {
-      "type": "Expression",
       "required": false,
-      "functional_exposed": false
+      "functional_exposed": false,
+      "domain_type": "QuadraticFunction",
+      "runtime_type": "Expression",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "QuadraticFunction",
+        "object_kind": "function",
+        "state_kind": "expression"
+      }
     },
     "x": {
-      "type": "Symbol",
-      "required": true
+      "required": true,
+      "domain_type": "Symbol",
+      "runtime_type": "Symbol",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Symbol",
+        "object_kind": "symbol",
+        "state_kind": "value"
+      }
     },
     "all_coefficients": {
-      "type": "SymbolList",
-      "required": true
+      "required": true,
+      "domain_type": "SymbolList",
+      "runtime_type": "SymbolList",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "SymbolList"
+      }
     },
     "known_coefficients": {
-      "type": "Coefficients",
-      "required": false
+      "required": false,
+      "description": "当前scope可见的零个或多个 symbol_value Fact；每个Fact提供一个已知二次函数系数值。",
+      "domain_type": "Coefficients",
+      "runtime_type": "Coefficients",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "Coefficients"
+      }
     },
     "coefficient_relation": {
-      "type": "Equation",
-      "required": false
+      "required": false,
+      "domain_type": "Fact",
+      "runtime_type": "Equation",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "Fact"
+      }
     },
     "extra_equation": {
-      "type": "Equation",
-      "required": false
+      "required": false,
+      "domain_type": "Fact",
+      "runtime_type": "Equation",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "Fact"
+      }
     },
     "curve_point": {
-      "type": "Point",
-      "required": false
+      "required": false,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "curve_points": {
-      "type": "PointList",
-      "required": false
+      "required": false,
+      "domain_type": "PointList",
+      "runtime_type": "PointList",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "PointList",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "p1": {
-      "type": "Point",
       "required": false,
-      "functional_exposed": false
+      "functional_exposed": false,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "p2": {
-      "type": "Point",
       "required": false,
-      "functional_exposed": false
+      "functional_exposed": false,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "free_parameter": {
-      "type": "Symbol",
-      "required": false
+      "required": false,
+      "domain_type": "Symbol",
+      "runtime_type": "Symbol",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Symbol",
+        "object_kind": "symbol",
+        "state_kind": "value"
+      }
     },
     "free_parameters": {
-      "type": "SymbolList",
       "required": false,
-      "role": "应用本步骤当前scope可见约束后仍未确定的全部系数符号；不得按下游Goal目标人为收窄"
+      "role": "应用本步骤当前scope可见约束后仍未确定的全部系数符号；不得按下游Goal目标人为收窄",
+      "domain_type": "SymbolList",
+      "runtime_type": "SymbolList",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "SymbolList"
+      }
     },
     "parameter": {
-      "type": "Symbol",
-      "required": false
+      "required": false,
+      "domain_type": "Symbol",
+      "runtime_type": "Symbol",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Symbol",
+        "object_kind": "symbol",
+        "state_kind": "value"
+      }
     },
     "parameter_value": {
-      "type": "ParameterValue",
-      "required": false
+      "required": false,
+      "domain_type": "Symbol",
+      "runtime_type": "ParameterValue",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Symbol",
+        "object_kind": "symbol",
+        "state_kind": "value"
+      }
     },
     "target_parameter": {
-      "type": "Symbol",
       "required": false,
-      "role": "本轮希望明确求出的二次函数系数；只有提供它，parameter_value return 才具有确定的 Symbol 身份"
+      "role": "本轮希望明确求出的二次函数系数；只有提供它，parameter_value return 才具有确定的 Symbol 身份",
+      "domain_type": "Symbol",
+      "runtime_type": "Symbol",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Symbol",
+        "object_kind": "symbol",
+        "state_kind": "value"
+      }
     }
   },
   "outputs": {

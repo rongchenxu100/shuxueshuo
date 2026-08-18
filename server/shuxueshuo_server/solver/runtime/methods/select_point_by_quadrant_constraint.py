@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, declare_input_views
 
 
 class SelectPointByQuadrantConstraintMethod:
@@ -123,6 +123,11 @@ SPEC = MethodSpecSource(
         "description": "参数范围约束，例如 m > 2。"
     }
 },
+    input_views=declare_input_views(
+        identity=("target", "parameter"),
+        immutable_value=("quadrant", "parameter_constraint"),
+        exact_result=("candidates",),
+    ),
     outputs={
     "selected_point": "Point"
 },

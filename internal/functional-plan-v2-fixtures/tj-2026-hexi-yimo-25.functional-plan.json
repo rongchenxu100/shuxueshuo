@@ -1,1 +1,185 @@
-{"format":"functional_plan/v2","root_scope":{"scope_ref":"problem","children":[{"scope_ref":"i","goals":[{"goal_ref":"i.P","answer_from":{"step_id":"derive_vertex_i","return":"point"},"steps":[{"step_id":"derive_parabola_i","capability_id":"quadratic_from_constraints","args":{"known_coefficients":["symbol_value_a","symbol_value_b","symbol_value_c"]},"intent":"代入本问给定的三个系数确定抛物线。"},{"step_id":"derive_vertex_i","capability_id":"quadratic_vertex_point","args":{"parabola":{"step_id":"derive_parabola_i","return":"parabola"}},"intent":"由抛物线解析式求顶点坐标。"}]}]},{"scope_ref":"ii","goals":[{"goal_ref":"ii.D","answer_from":{"step_id":"select_curve_candidate_ii","return":"selected_curve_point"},"steps":[{"step_id":"derive_parametric_parabola_ii","capability_id":"quadratic_from_constraints","args":{"known_coefficients":"symbol_value_a","curve_point":"A","free_parameters":"b"},"intent":"代入已知系数和曲线点，把抛物线化为单参数形式。"},{"step_id":"derive_y_intercept_ii","capability_id":"quadratic_y_axis_intercept_point","args":{"quadratic":{"step_id":"derive_parametric_parabola_ii","return":"parabola"}},"output_targets":{"point":"C"},"intent":"求当前抛物线与纵轴的交点。"},{"step_id":"derive_right_angle_candidates_ii","capability_id":"right_angle_equal_length_candidates","args":{"right_angle_equal_length":"right_angle_equal_length_c_a_d_ac_ad","target":"D"},"intent":"围绕直角顶点旋转已知端点得到两个候选点。"},{"step_id":"select_curve_candidate_ii","capability_id":"curve_candidate_parameter_solve","args":{"candidates":{"step_id":"derive_right_angle_candidates_ii","return":"candidates"},"parabola":{"step_id":"derive_parametric_parabola_ii","return":"parabola"},"target_point":"D","point_on_curve":"point_on_curve_parabola_d","symbol_constraint":"symbol_constraint_b"},"intent":"用曲线条件和参数范围筛选候选点并反求参数。"}]}]},{"scope_ref":"iii","goals":[{"goal_ref":"iii.b","answer_from":{"step_id":"solve_parameter_iii","return":"parameter_value"},"steps":[{"step_id":"derive_parametric_parabola_iii","capability_id":"quadratic_from_constraints","args":{"known_coefficients":"symbol_value_a","curve_point":"A","free_parameters":"b"},"intent":"由已知系数和曲线点得到当前问含参抛物线。"},{"step_id":"derive_curve_point_iii","capability_id":"point_on_parabola_at_x","args":{"parabola":{"step_id":"derive_parametric_parabola_iii","return":"parabola"}},"output_targets":{"point":"M"},"intent":"将题面给定的横坐标代入当前抛物线。"},{"step_id":"transform_weighted_path_iii","capability_id":"weighted_axis_path_triangle_transform","args":{"minimum_value":"minimum_value","fixed_point":"A","moving_point":"N"},"intent":"用辅助直角三角形把加权路径转为普通折线路径。"},{"step_id":"derive_weighted_minimum_iii","capability_id":"linked_broken_path_minimum_expression","args":{"path_transformation":{"step_id":"transform_weighted_path_iii","return":"path_transformation"},"auxiliary_locus":{"step_id":"transform_weighted_path_iii","return":"auxiliary_locus"},"fixed_point":"A","curve_point":{"step_id":"derive_curve_point_iii","return":"point"},"moving_point":"N","auxiliary_point":{"step_id":"transform_weighted_path_iii","return":"auxiliary_point"},"dynamic_constraint":"symbol_constraint_n"},"return_expectations":{"minimum_expression":"open_expression"},"intent":"拉直转化后的联动折线，得到关于主参数的最小值表达式。"},{"step_id":"solve_parameter_iii","capability_id":"parameter_from_expression_value","args":{"expression":{"step_id":"derive_weighted_minimum_iii","return":"minimum_expression"},"minimum_value":"minimum_value","parameter":"b"},"intent":"令最小值表达式等于题设值并按参数范围取解。"}]}]}]}}
+{
+  "format": "functional_plan/v2",
+  "root_scope": {
+    "scope_ref": "problem",
+    "children": [
+      {
+        "scope_ref": "i",
+        "goals": [
+          {
+            "goal_ref": "i.P",
+            "answer_from": {
+              "step_id": "derive_vertex_i",
+              "return": "point"
+            },
+            "steps": [
+              {
+                "step_id": "derive_parabola_i",
+                "capability_id": "quadratic_from_constraints",
+                "args": {
+                  "known_coefficients": [
+                    "symbol_value_a",
+                    "symbol_value_b",
+                    "symbol_value_c"
+                  ]
+                },
+                "intent": "代入本问给定的三个系数确定抛物线。"
+              },
+              {
+                "step_id": "derive_vertex_i",
+                "capability_id": "quadratic_vertex_point",
+                "args": {
+                  "parabola": "parabola"
+                },
+                "intent": "由抛物线解析式求顶点坐标。"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "scope_ref": "ii",
+        "goals": [
+          {
+            "goal_ref": "ii.D",
+            "answer_from": {
+              "step_id": "select_curve_candidate_ii",
+              "return": "selected_curve_point"
+            },
+            "steps": [
+              {
+                "step_id": "derive_parametric_parabola_ii",
+                "capability_id": "quadratic_from_constraints",
+                "args": {
+                  "known_coefficients": "symbol_value_a",
+                  "curve_point": "A",
+                  "free_parameters": "b"
+                },
+                "intent": "代入已知系数和曲线点，把抛物线化为单参数形式。"
+              },
+              {
+                "step_id": "derive_y_intercept_ii",
+                "capability_id": "quadratic_y_axis_intercept_point",
+                "args": {
+                  "quadratic": "parabola"
+                },
+                "output_targets": {
+                  "point": "C"
+                },
+                "intent": "求当前抛物线与纵轴的交点。"
+              },
+              {
+                "step_id": "derive_right_angle_candidates_ii",
+                "capability_id": "right_angle_equal_length_candidates",
+                "args": {
+                  "right_angle_equal_length": "right_angle_equal_length_c_a_d_ac_ad",
+                  "target": "D"
+                },
+                "intent": "围绕直角顶点旋转已知端点得到两个候选点。"
+              },
+              {
+                "step_id": "select_curve_candidate_ii",
+                "capability_id": "curve_candidate_parameter_solve",
+                "args": {
+                  "candidates": {
+                    "step_id": "derive_right_angle_candidates_ii",
+                    "return": "candidates"
+                  },
+                  "parabola": "parabola",
+                  "target_point": "D",
+                  "point_on_curve": "point_on_curve_parabola_d",
+                  "symbol_constraint": "symbol_constraint_b"
+                },
+                "intent": "用曲线条件和参数范围筛选候选点并反求参数。"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "scope_ref": "iii",
+        "goals": [
+          {
+            "goal_ref": "iii.b",
+            "answer_from": {
+              "step_id": "solve_parameter_iii",
+              "return": "parameter_value"
+            },
+            "steps": [
+              {
+                "step_id": "derive_parametric_parabola_iii",
+                "capability_id": "quadratic_from_constraints",
+                "args": {
+                  "known_coefficients": "symbol_value_a",
+                  "curve_point": "A",
+                  "free_parameters": "b"
+                },
+                "intent": "由已知系数和曲线点得到当前问含参抛物线。"
+              },
+              {
+                "step_id": "derive_curve_point_iii",
+                "capability_id": "point_on_parabola_at_x",
+                "args": {
+                  "parabola": "parabola"
+                },
+                "output_targets": {
+                  "point": "M"
+                },
+                "intent": "将题面给定的横坐标代入当前抛物线。"
+              },
+              {
+                "step_id": "transform_weighted_path_iii",
+                "capability_id": "weighted_axis_path_triangle_transform",
+                "args": {
+                  "minimum_value": "minimum_value",
+                  "fixed_point": "A",
+                  "moving_point": "N"
+                },
+                "intent": "用辅助直角三角形把加权路径转为普通折线路径。"
+              },
+              {
+                "step_id": "derive_weighted_minimum_iii",
+                "capability_id": "linked_broken_path_minimum_expression",
+                "args": {
+                  "path_transformation": {
+                    "step_id": "transform_weighted_path_iii",
+                    "return": "path_transformation"
+                  },
+                  "auxiliary_locus": {
+                    "step_id": "transform_weighted_path_iii",
+                    "return": "auxiliary_locus"
+                  },
+                  "fixed_point": "A",
+                  "curve_point": "M",
+                  "moving_point": "N",
+                  "auxiliary_point": {
+                    "step_id": "transform_weighted_path_iii",
+                    "return": "auxiliary_point"
+                  },
+                  "dynamic_constraint": "symbol_constraint_n"
+                },
+                "return_expectations": {
+                  "minimum_expression": "open_expression"
+                },
+                "intent": "拉直转化后的联动折线，得到关于主参数的最小值表达式。"
+              },
+              {
+                "step_id": "solve_parameter_iii",
+                "capability_id": "parameter_from_expression_value",
+                "args": {
+                  "expression": {
+                    "step_id": "derive_weighted_minimum_iii",
+                    "return": "minimum_expression"
+                  },
+                  "minimum_value": "minimum_value",
+                  "parameter": "b"
+                },
+                "intent": "令最小值表达式等于题设值并按参数范围取解。"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

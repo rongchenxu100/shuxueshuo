@@ -13,6 +13,7 @@ import inspect
 
 from shuxueshuo_server.solver.contracts import (
     MethodExplanationSpec,
+    MethodInputViewMode,
     MethodOutputActivationSpec,
     MethodVisualSpec,
     PlanTransformerScope,
@@ -20,6 +21,35 @@ from shuxueshuo_server.solver.contracts import (
     SymbolicClosureSpec,
     TrialErrorHintSpec,
 )
+
+
+class MethodSpecContractError(RuntimeError):
+    """A code-authored MethodSpec is internally inconsistent."""
+
+
+def declare_input_views(
+    *,
+    identity: tuple[str, ...] = (),
+    latest_state: tuple[str, ...] = (),
+    immutable_value: tuple[str, ...] = (),
+    exact_result: tuple[str, ...] = (),
+) -> dict[str, MethodInputViewMode]:
+    """Declare every Method input view without name/type inference."""
+
+    result: dict[str, MethodInputViewMode] = {}
+    for mode, names in (
+        ("identity", identity),
+        ("latest_state", latest_state),
+        ("immutable_value", immutable_value),
+        ("exact_result", exact_result),
+    ):
+        for name in names:
+            if name in result:
+                raise MethodSpecContractError(
+                    f"duplicate Method input view declaration: {name}"
+                )
+            result[name] = mode
+    return result
 
 
 @dataclass(frozen=True)
@@ -34,6 +64,7 @@ class MethodSpecSource:
     title: str
     solves: tuple[str, ...]
     inputs: dict[str, dict[str, Any]]
+    input_views: dict[str, MethodInputViewMode]
     outputs: dict[str, str]
     internal_outputs: tuple[str, ...] = ()
     output_activation: dict[str, MethodOutputActivationSpec] = field(
@@ -68,13 +99,14 @@ class MethodSpecSource:
 
     def to_payload(self) -> dict[str, Any]:
         description = self.description or _first_docstring_paragraph(self.method_cls)
+        inputs = _input_payloads(self.inputs, self.input_views)
         payload: dict[str, Any] = {
             "method_id": self.method_id,
             "title": self.title,
             "description": description,
             "summary": self.summary,
             "solves": list(self.solves),
-            "inputs": self.inputs,
+            "inputs": inputs,
             "outputs": self.outputs,
             "is_pure": self.is_pure,
         }
@@ -134,6 +166,95 @@ class MethodSpecSource:
         if self.symbolic_closure is not None:
             payload["symbolic_closure"] = self.symbolic_closure.to_payload()
         return payload
+
+
+def _input_payloads(
+    inputs: dict[str, dict[str, Any]],
+    input_views: dict[str, MethodInputViewMode],
+) -> dict[str, dict[str, Any]]:
+    missing = sorted(set(inputs) - set(input_views))
+    unknown = sorted(set(input_views) - set(inputs))
+    if missing or unknown:
+        raise MethodSpecContractError(
+            "Method input view declarations must exactly cover inputs: "
+            f"missing={missing}, unknown={unknown}"
+        )
+    return {
+        name: _input_payload(name, raw, input_views[name])
+        for name, raw in inputs.items()
+    }
+
+
+def _input_payload(
+    name: str,
+    raw: dict[str, Any],
+    mode: MethodInputViewMode,
+) -> dict[str, Any]:
+    if not isinstance(raw, dict):
+        raise MethodSpecContractError(
+            f"Method input source must be an object: {name}"
+        )
+    runtime_type = str(raw.get("type", ""))
+    domain_type, object_kind, state_kind = _domain_view_metadata(
+        name,
+        runtime_type,
+        mode,
+    )
+    payload = {
+        key: value
+        for key, value in raw.items()
+        if key not in {"type", "domain_type", "object_kind", "state_kind", "view"}
+    }
+    payload.update(
+        {
+            "domain_type": str(raw.get("domain_type", domain_type)),
+            "runtime_type": runtime_type,
+            "view": {
+                "mode": mode,
+                "domain_type": str(raw.get("domain_type", domain_type)),
+            },
+        }
+    )
+    effective_object_kind = raw.get("object_kind", object_kind)
+    effective_state_kind = raw.get("state_kind", state_kind)
+    if effective_object_kind is not None:
+        payload["view"]["object_kind"] = str(effective_object_kind)
+    if effective_state_kind is not None:
+        payload["view"]["state_kind"] = str(effective_state_kind)
+    return payload
+
+
+def _domain_view_metadata(
+    name: str,
+    runtime_type: str,
+    mode: MethodInputViewMode,
+) -> tuple[str, str | None, str | None]:
+    variants = set(runtime_type.split("|"))
+    if variants <= {"Point", "PointRef"}:
+        return "Point", "point", "coordinate"
+    if variants == {"Parabola"}:
+        return "QuadraticFunction", "function", "expression"
+    if variants == {"Symbol"}:
+        return "Symbol", "symbol", "value"
+    if variants == {"ParameterValue"}:
+        return "Symbol", "symbol", "value"
+    if variants == {"Line"}:
+        return "Line", "line", "equation"
+    if variants == {"Expression"} and (
+        "quadratic" in name or name == "parabola"
+    ):
+        return "QuadraticFunction", "function", "expression"
+    if variants & {"Expression", "MinimumExpression", "Parabola"}:
+        return "Expression", None, None
+    if variants & {"Condition", "Constraint", "Equation", "AngleEquality"}:
+        return "Fact", None, None
+    if variants == {"OrientationHint"}:
+        return "Fact", None, None
+    if runtime_type.endswith("List") or "List" in runtime_type:
+        return runtime_type, None, None
+    if mode == "identity":
+        return runtime_type, runtime_type.lower(), None
+    return runtime_type, None, None
 
 
 def _first_docstring_paragraph(method_cls: type) -> str:

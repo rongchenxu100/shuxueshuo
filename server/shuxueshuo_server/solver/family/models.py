@@ -30,6 +30,25 @@ GoalEvidenceTag = Literal[
 ]
 FamilySourcePrimitiveKind = Literal["entity_type", "fact_type"]
 FamilySourceEvidenceAuthority = Literal["candidate_structure", "printed_source"]
+MacroExecutionMode = Literal["direct", "runtime_search"]
+
+
+@dataclass(frozen=True)
+class MacroSearchSpec:
+    """Bounded, auditable role search performed by a Macro runtime."""
+
+    searchable_roles: tuple[str, ...]
+    candidate_builder_id: str
+    validation_policy_id: str
+    max_candidates: int = 32
+
+    def to_payload(self) -> dict[str, object]:
+        return {
+            "searchable_roles": list(self.searchable_roles),
+            "candidate_builder_id": self.candidate_builder_id,
+            "validation_policy_id": self.validation_policy_id,
+            "max_candidates": self.max_candidates,
+        }
 
 
 @dataclass(frozen=True)
@@ -95,6 +114,8 @@ class FamilyRuntimePreflightSpec:
     required_fact_types: tuple[str, ...] = ()
     source_trigger_fact_types: tuple[str, ...] = ()
     source_required_fact_types: tuple[str, ...] = ()
+    execution_mode: Literal["method", "source_structure_only"] = "method"
+    planner_authored_roles: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
         for field_name, values in (
@@ -133,6 +154,27 @@ class FamilyRuntimePreflightSpec:
             raise ValueError(
                 "source-visible preflight guidance requires both trigger and required fact types"
             )
+        if self.execution_mode not in {"method", "source_structure_only"}:
+            raise ValueError("family runtime preflight execution mode is invalid")
+        if (
+            any(not item.strip() for item in self.planner_authored_roles)
+            or len(set(self.planner_authored_roles))
+            != len(self.planner_authored_roles)
+        ):
+            raise ValueError(
+                "family runtime preflight planner-authored roles must be unique"
+            )
+        if (
+            self.execution_mode == "source_structure_only"
+            and not self.planner_authored_roles
+        ):
+            raise ValueError(
+                "source-structure preflight must name its planner-authored roles"
+            )
+        if self.execution_mode == "method" and self.planner_authored_roles:
+            raise ValueError(
+                "method preflight cannot defer planner-authored roles"
+            )
         if (
             not self.method_id.strip()
             or not self.description.strip()
@@ -148,6 +190,8 @@ class FamilyRuntimePreflightSpec:
             "required_fact_types": list(self.required_fact_types),
             "source_input_names": list(self.source_input_names),
             "description": self.description,
+            "execution_mode": self.execution_mode,
+            "planner_authored_roles": list(self.planner_authored_roles),
         }
 
     def source_authoring_payload(self) -> dict[str, object] | None:
@@ -474,6 +518,8 @@ class RecipeExecutionSpec:
 
     recipe_id: str
     method_sequence: tuple[str, ...]
+    execution_mode: MacroExecutionMode
+    search: MacroSearchSpec | None = None
     # 执行策略名只选择通用编译器分支，例如“单 method”“构造候选后筛选”。
     # 它不是题号模板名，也不应该包含 D/M/N/F/G 这类具体点名。
     execution_strategy: str = "single_method"

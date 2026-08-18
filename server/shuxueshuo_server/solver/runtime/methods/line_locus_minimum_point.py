@@ -8,7 +8,7 @@ from __future__ import annotations
 from shuxueshuo_server.solver.contracts import MethodExplanationSpec, MethodVisualSpec
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, declare_input_views
 
 
 class LineLocusMinimumPointMethod:
@@ -138,6 +138,15 @@ SPEC = MethodSpecSource(
         "parameter": {"type": "Symbol", "required": False},
         "parameter_value": {"type": "ParameterValue", "required": False},
     },
+    input_views=declare_input_views(
+        identity=("target", "parameter"),
+        latest_state=(
+            "moving_locus",
+            "minimum_point_1",
+            "minimum_point_2",
+            "parameter_value",
+        ),
+    ),
     outputs={"point": "Point"},
     preconditions=("最短线段与 moving_locus 不平行",),
     postconditions=("输出点同时位于最短线段和 moving_locus 上",),

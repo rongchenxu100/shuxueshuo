@@ -16,6 +16,9 @@ from shuxueshuo_server.solver.runtime.functional_goal_execution import (
     ScopedFunctionalGoalExecutionService,
     functional_goal_execution_checkpoint_schema,
 )
+from shuxueshuo_server.solver.runtime.functional_plan_reconciliation import (
+    _unique_answer_for_object_binding,
+)
 from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
     ScopedFunctionalPlanAuthority,
     ScopedFunctionalPlanAuthorityReport,
@@ -241,13 +244,49 @@ def test_checkpoint_resolved_inputs_include_actual_step_result(tmp_path) -> None
     source = next(
         item for item in translated.resolved_inputs if item["arg"] == "source"
     )
-    assert source["source"] == {
-        "step_id": "derive_y_intercept_C_i",
+    assert source["source"] == "C"
+    assert source["resolution"] == "source_snapshot"
+    lowered = next(
+        item
+        for item in result.authority.lowered_plan.calls
+        if item.call_id == "derive_translated_D_i"
+    )
+    assert lowered.args["source"][0].to_payload() == {
+        "from_call": "derive_y_intercept_C_i",
         "return": "point",
     }
-    assert source["resolution"] == "step_result"
-    assert source["runtime_type"] == "Point"
-    assert "value" in source or "value_omitted_reason" in source
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_state_writers_keep_v2_semantic_owner_scope(tmp_path, case) -> None:
+    result, _fixture = _execute(
+        tmp_path,
+        case,
+        load_v2_fixture_payload(case),
+    )
+    assert result.authority is not None
+    assert result.replay is not None
+    reconciliation = result.replay.functional_reconciliation
+    assert reconciliation is not None
+    calls = {item.call_id: item for item in reconciliation.calls}
+
+    state_writer_count = 0
+    for step_id, step_authority in result.authority.step_authorities.items():
+        call = calls.get(step_id)
+        if call is None or not any(
+            allocation.logical_state_key is not None
+            and allocation.typed_slot_id is not None
+            for allocation in call.returns
+        ):
+            continue
+        state_writer_count += 1
+        assert call.scope_id == step_authority.semantic_owner_scope_id
+        assert (
+            step_authority.execution_scope_id
+            == step_authority.semantic_owner_scope_id
+        )
+
+    assert state_writer_count > 0
 
 
 def test_checkpoint_uses_public_return_roles_for_facade_runtime_outputs(
@@ -452,20 +491,18 @@ def test_unique_visible_dynamic_source_ref_becomes_exact_step_result(tmp_path) -
     assert result.authoring_authority is not None
     assert result.checkpoint is not None
     assert result.checkpoint.all_required_goals_verified is True
-    assert any(
-        item.action == "canonicalize_latest_dynamic_source_ref"
-        and item.step_id == "derive_translated_D_i"
-        and item.arg_name == "source"
-        and item.from_ref == "C"
-        and item.to_ref == "derive_y_intercept_C_i.point"
-        for item in result.authority_report.normalizations
-    )
     canonical = result.canonical_plan
     assert canonical is not None
     assert _step(canonical.to_payload(), "derive_translated_D_i")["args"][
         "source"
-    ] == {
-        "step_id": "derive_y_intercept_C_i",
+    ] == "C"
+    lowered = next(
+        item
+        for item in result.authority.lowered_plan.calls
+        if item.call_id == "derive_translated_D_i"
+    )
+    assert lowered.args["source"][0].to_payload() == {
+        "from_call": "derive_y_intercept_C_i",
         "return": "point",
     }
 
@@ -486,17 +523,16 @@ def test_answer_target_source_ref_uses_prior_scope_owned_answer_result(
     assert canonical is not None
     assert _step(canonical.to_payload(), "derive_square_vertex_G_i")["args"][
         "side_start"
-    ] == {
-        "step_id": "derive_x_intercept_A_i",
+    ] == "A"
+    lowered = next(
+        item
+        for item in result.authority.lowered_plan.calls
+        if item.call_id == "derive_square_vertex_G_i"
+    )
+    assert lowered.args["side_start"][0].to_payload() == {
+        "from_call": "derive_x_intercept_A_i",
         "return": "point",
     }
-    assert any(
-        item.action == "canonicalize_latest_dynamic_source_ref"
-        and item.step_id == "derive_square_vertex_G_i"
-        and item.from_ref == "A"
-        and item.to_ref == "derive_x_intercept_A_i.point"
-        for item in result.authority_report.normalizations
-    )
 
 
 def test_latest_parameter_state_closes_transitive_point_without_llm_wiring(
@@ -578,6 +614,87 @@ def test_latest_parameter_state_closes_transitive_point_without_llm_wiring(
     assert c_versions <= set(derive_g_write.source_version_ids)
 
 
+def test_identity_contract_drives_named_entity_latest_state_dependency(
+    tmp_path,
+) -> None:
+    case = "tj-2026-heping-ermo-25"
+    payload = load_v2_fixture_payload(case)
+    derive_g = _step(payload, "derive_minimum_point_G_ii")
+    derive_g.pop("output_targets")
+
+    result, _fixture = _execute(tmp_path, case, payload)
+
+    checkpoint = result.checkpoint
+    assert checkpoint is not None
+    assert checkpoint.all_required_goals_verified is True
+    authority = result.authority
+    assert authority is not None
+    lowered_g = next(
+        call
+        for call in authority.lowered_plan.calls
+        if call.call_id == "derive_minimum_point_G_ii"
+    )
+    assert lowered_g.return_bindings["point"].ref == "G"
+    lowered_recover = next(
+        call
+        for call in authority.lowered_plan.calls
+        if call.call_id == "recover_target_point_E_ii"
+    )
+    assert lowered_recover.args["side_end"][0].to_payload() == {
+        "from_call": "derive_minimum_point_G_ii",
+        "return": "point",
+    }
+    reconciliation = result.replay.functional_reconciliation
+    assert "derive_minimum_point_G_ii" in reconciliation.dependency_graph[
+        "recover_target_point_E_ii"
+    ]
+    runtime_values = (
+        result.replay.transactional_attempt_result.execution_report
+        .runtime_result_values
+    )
+    recovered_e = runtime_values[
+        ("recover_target_point_E_ii", "point")
+    ]
+    assert tuple(sp.simplify(item) for item in recovered_e.value) == (
+        sp.Integer(-2),
+        sp.Rational(3, 2),
+    )
+
+
+def test_existing_object_answer_promotion_never_crosses_sibling_scope(
+    tmp_path,
+) -> None:
+    fixture = planning_binding_fixture(
+        tmp_path / "heping-ermo",
+        case="tj-2026-heping-ermo-25",
+    )
+    semantic_items = fixture[7].semantic_read_items()
+    entity_e = next(
+        item
+        for item in semantic_items
+        if item.kind == "point" and item.ref == "E"
+    )
+
+    assert _unique_answer_for_object_binding(
+        entity_e,
+        return_type="Point",
+        scope_id="i_2",
+        question_goals=fixture[3].question_goals,
+        semantic_items=semantic_items,
+        handle_registry=fixture[5],
+    ) is None
+    answer = _unique_answer_for_object_binding(
+        entity_e,
+        return_type="Point",
+        scope_id="ii",
+        question_goals=fixture[3].question_goals,
+        semantic_items=semantic_items,
+        handle_registry=fixture[5],
+    )
+    assert answer is not None
+    assert answer.ref == "ii.E"
+
+
 def test_duplicate_a_writer_is_removed_only_after_runtime_equivalence(
     tmp_path,
 ) -> None:
@@ -592,10 +709,7 @@ def test_duplicate_a_writer_is_removed_only_after_runtime_equivalence(
         if step["step_id"] == "evaluate_point_A_ii"
     )
     goal["steps"].insert(source_index + 1, source)
-    _step(payload, "recover_target_point_E_ii")["args"]["side_start"] = {
-        "step_id": "evaluate_point_A_ii_duplicate",
-        "return": "evaluated_point",
-    }
+    _step(payload, "recover_target_point_E_ii")["args"]["side_start"] = "A"
 
     result, _fixture = _execute(tmp_path, case, payload)
 
@@ -614,6 +728,46 @@ def test_duplicate_a_writer_is_removed_only_after_runtime_equivalence(
     )
 
 
+def test_runtime_equivalent_version_alias_is_canonical_for_later_writer(
+    tmp_path,
+) -> None:
+    case = "tj-2026-heping-ermo-25"
+    payload = load_v2_fixture_payload(case)
+    goal = _scope(payload["root_scope"], "ii")["goals"][0]
+    source = deepcopy(_step(payload, "evaluate_point_A_ii"))
+    first_duplicate = deepcopy(source)
+    first_duplicate["step_id"] = "evaluate_point_A_ii_duplicate_1"
+    second_duplicate = deepcopy(source)
+    second_duplicate["step_id"] = "evaluate_point_A_ii_duplicate_2"
+    source_index = next(
+        index
+        for index, step in enumerate(goal["steps"])
+        if step["step_id"] == "evaluate_point_A_ii"
+    )
+    goal["steps"][source_index + 1 : source_index + 1] = [
+        first_duplicate,
+        second_duplicate,
+    ]
+    _step(payload, "recover_target_point_E_ii")["args"]["side_start"] = "A"
+
+    result, _fixture = _execute(tmp_path, case, payload)
+
+    checkpoint = result.checkpoint
+    assert checkpoint is not None
+    assert checkpoint.all_required_goals_verified is True
+    report = result.replay.transactional_attempt_result.execution_report
+    assert not any(
+        mismatch.code == "planner.contract_runtime_destination_drift"
+        for mismatch in report.compatibility_mismatches
+    )
+    assert {
+        item.duplicate_call_id for item in result.runtime_equivalent_aliases
+    } >= {
+        "evaluate_point_A_ii_duplicate_1",
+        "evaluate_point_A_ii_duplicate_2",
+    }
+
+
 def test_recomputed_source_a_is_reused_only_after_runtime_equivalence(
     tmp_path,
 ) -> None:
@@ -629,10 +783,7 @@ def test_recomputed_source_a_is_reused_only_after_runtime_equivalence(
         }
     }
     evaluate["output_targets"] = {"point": "A"}
-    _step(payload, "recover_target_point_E_ii")["args"]["side_start"] = {
-        "step_id": "evaluate_point_A_ii",
-        "return": "point",
-    }
+    _step(payload, "recover_target_point_E_ii")["args"]["side_start"] = "A"
     evaluate_index = next(
         index
         for index, step in enumerate(ii_goal["steps"])
@@ -719,10 +870,7 @@ def test_conflicting_duplicate_a_writer_fails_without_ghost_version(
         if step["step_id"] == "evaluate_point_A_ii"
     )
     goal["steps"].insert(source_index + 1, source)
-    _step(payload, "recover_target_point_E_ii")["args"]["side_start"] = {
-        "step_id": "evaluate_point_A_ii_duplicate",
-        "return": "evaluated_point",
-    }
+    _step(payload, "recover_target_point_E_ii")["args"]["side_start"] = "A"
 
     result, _fixture = _execute(tmp_path, case, payload)
 
@@ -744,10 +892,7 @@ def test_identity_mismatch_checkpoint_exposes_public_expected_and_actual_refs(
 ) -> None:
     case = "tj-2026-heping-ermo-25"
     payload = load_v2_fixture_payload(case)
-    _step(payload, "derive_locus_G_ii")["args"]["point"] = {
-        "step_id": "parameterize_axis_point_E_ii",
-        "return": "point",
-    }
+    _step(payload, "derive_locus_G_ii")["args"]["point"] = "E"
 
     result, _fixture = _execute(tmp_path, case, payload)
 
@@ -783,14 +928,15 @@ def test_unique_prior_same_object_result_is_canonicalized_in_goal_scope(
     checkpoint = result.checkpoint
     assert checkpoint is not None
     assert checkpoint.all_required_goals_verified is True
-    assert any(
-        item.action == "canonicalize_latest_dynamic_source_ref"
-        and item.step_id == "derive_weighted_minimum_iii"
-        and item.arg_name == "curve_point"
-        and item.from_ref == "M"
-        and item.to_ref == "derive_curve_point_iii.point"
-        for item in result.authority_report.normalizations
+    lowered = next(
+        item
+        for item in result.authority.lowered_plan.calls
+        if item.call_id == "derive_weighted_minimum_iii"
     )
+    assert lowered.args["curve_point"][0].to_payload() == {
+        "from_call": "derive_curve_point_iii",
+        "return": "point",
+    }
 
 
 def test_visible_same_object_result_is_rewritten_only_after_runtime_equivalence(
@@ -830,10 +976,7 @@ def test_visible_same_object_result_is_rewritten_only_after_runtime_equivalence(
     }
     assert _step(canonical.to_payload(), "derive_weighted_minimum_iii")["args"][
         "curve_point"
-    ] == {
-        "step_id": "derive_curve_point_iii",
-        "return": "point",
-    }
+    ] == "M"
 
 
 def test_duplicate_descendant_steps_merge_only_after_runtime_equivalence(
@@ -846,9 +989,7 @@ def test_duplicate_descendant_steps_merge_only_after_runtime_equivalence(
 
     checkpoint = result.checkpoint
     assert checkpoint is not None
-    assert checkpoint.blocked_stage is None, (
-        result.replay.transactional_attempt_result.root_issues[0].message
-    )
+    assert checkpoint.blocked_stage is None
     assert checkpoint.all_required_goals_verified is True
     aliases = {
         item.duplicate_call_id: item.canonical_call_id
@@ -865,10 +1006,7 @@ def test_duplicate_descendant_steps_merge_only_after_runtime_equivalence(
     assert _step(
         canonical.to_payload(),
         "reduce_equal_length_ray_path_ii",
-    )["args"]["ray_point"] == {
-        "step_id": "derive_translated_D_i",
-        "return": "point",
-    }
+    )["args"]["ray_point"] == "D"
     final_report = result.replay.transactional_attempt_result.execution_report
     assert final_report.runtime_equivalent_aliases == ()
     assert not any(
@@ -1016,9 +1154,7 @@ def _duplicate_descendant_point_plan_payload():
         {
             "step_id": "locate_D",
             "capability_id": "translated_point",
-            "args": {
-                "source": {"step_id": "locate_C", "return": "point"}
-            },
+            "args": {"source": "C"},
             "output_targets": {"point": "D"},
             "return_expectations": {"point": "closed_state"},
         },
@@ -1026,7 +1162,7 @@ def _duplicate_descendant_point_plan_payload():
     ]
     _step(payload, "reduce_equal_length_ray_path_ii")["args"][
         "ray_point"
-    ] = {"step_id": "locate_D", "return": "point"}
+    ] = "D"
     return payload
 
 

@@ -81,6 +81,86 @@ def test_content_map_reordering_does_not_change_plan_identity(tmp_path) -> None:
     )
 
 
+def test_exact_scope_goal_step_copy_is_deduplicated_before_assembly(
+    tmp_path,
+) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    frame = FunctionalPlanAuthorityFrame.from_planning_context(
+        fixture.planning_context
+    )
+    expected, report = ScopedFunctionalPlanValidator().validate_payload_with_report(
+        fixture.correct_payload
+    )
+    assert report.ok and expected is not None
+    payload = functional_plan_content_from_plan(expected, frame=frame).to_payload()
+    goal_ref = "i_2.E"
+    owner_scope = frame.goal_owners[goal_ref]
+    duplicated = deepcopy(payload["goal_plans"][goal_ref]["steps"][0])
+    payload.setdefault("scope_steps", {}).setdefault(owner_scope, []).append(
+        duplicated
+    )
+
+    compiled = FunctionalPlanContentCompiler().compile_payload(
+        payload,
+        frame=frame,
+        capability_catalog=fixture.capability_catalog,
+    )
+
+    assert compiled.report.ok and compiled.plan is not None
+    assert compiled.content is not None
+    assert any(
+        step["step_id"] == duplicated["step_id"]
+        for step in compiled.content.scope_steps[owner_scope]
+    )
+    assert all(
+        step["step_id"] != duplicated["step_id"]
+        for step in compiled.content.goal_plans[goal_ref]["steps"]
+    )
+    assert [
+        item.code
+        for item in compiled.normalizations
+        if item.code == "functional.cross_container_step_duplicate_removed"
+    ] == ["functional.cross_container_step_duplicate_removed"]
+
+
+def test_conflicting_scope_goal_step_copy_fails_with_ownership_details(
+    tmp_path,
+) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    frame = FunctionalPlanAuthorityFrame.from_planning_context(
+        fixture.planning_context
+    )
+    expected, report = ScopedFunctionalPlanValidator().validate_payload_with_report(
+        fixture.correct_payload
+    )
+    assert report.ok and expected is not None
+    payload = functional_plan_content_from_plan(expected, frame=frame).to_payload()
+    goal_ref = "i_2.E"
+    owner_scope = frame.goal_owners[goal_ref]
+    conflicting = deepcopy(payload["goal_plans"][goal_ref]["steps"][0])
+    conflicting["intent"] = "a different authored definition"
+    payload.setdefault("scope_steps", {}).setdefault(owner_scope, []).append(
+        conflicting
+    )
+
+    compiled = FunctionalPlanContentCompiler().compile_payload(
+        payload,
+        frame=frame,
+        capability_catalog=fixture.capability_catalog,
+    )
+
+    assert compiled.plan is None
+    assert compiled.report.issues[0].code == "functional.step_id_conflict"
+    assert compiled.report.issues[0].details == {
+        "step_id": conflicting["step_id"],
+        "owners": [f"scope:{owner_scope}", f"goal:{goal_ref}"],
+        "paths": [
+            f"$.scope_steps.{owner_scope}[0]",
+            f"$.goal_plans.{goal_ref}.steps[0]",
+        ],
+    }
+
+
 def test_frame_uses_problem_scope_as_root(tmp_path) -> None:
     fixture = goal_retry_fixture(tmp_path)
     frame = FunctionalPlanAuthorityFrame.from_planning_context(
