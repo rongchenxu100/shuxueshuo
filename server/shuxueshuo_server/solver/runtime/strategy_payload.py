@@ -97,6 +97,41 @@ class PlannerStateContextDebugSource(ContextSemanticReadSource, Protocol):
     def events_payload(self) -> list[dict[str, Any]]:
         """Return context event payload."""
 
+
+def _prompt_capability_catalog(
+    inputs: PlannerInputs,
+    payload: Mapping[str, Any],
+) -> FunctionalCapabilityCatalog:
+    """Recover the exact contextualized catalog represented in one prompt."""
+
+    raw_catalog = payload.get("functional_capability_catalog", {})
+    raw_items = (
+        raw_catalog.get("capabilities", ())
+        if isinstance(raw_catalog, Mapping)
+        else ()
+    )
+    capability_ids = tuple(
+        str(item.get("capability_id", ""))
+        for item in raw_items
+        if isinstance(item, Mapping) and item.get("capability_id")
+    )
+    full = FunctionalCapabilityCatalog.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
+    )
+    missing = tuple(
+        sorted(item for item in capability_ids if full.get(item) is None)
+    )
+    if missing:
+        raise ValueError(
+            "planner_configuration_error: prompt catalog contains unknown "
+            f"capabilities {list(missing)}"
+        )
+    return FunctionalCapabilityCatalog(
+        {item: full.get(item) for item in capability_ids if full.get(item) is not None}
+    )
+
+
 class StrategyPayloadBuilder:
     """把 PlannerInputs 压缩成 LLM 可读的 probe payload。
 
@@ -267,6 +302,7 @@ class StrategyPayloadBuilder:
         frame = FunctionalPlanAuthorityFrame.from_planning_context(
             problem_planning_context
         )
+        schema_catalog = _prompt_capability_catalog(inputs, payload)
         result = {
             **payload,
             "planner_protocol": FUNCTIONAL_PLAN_CONTENT_CONTRACT,
@@ -277,7 +313,10 @@ class StrategyPayloadBuilder:
             "few_shot_examples": examples,
             "functional_few_shot_selection": selection,
             "authoring_feedback": [dict(item) for item in authoring_feedback],
-            "output_json_schema": functional_plan_content_schema(frame),
+            "output_json_schema": functional_plan_content_schema(
+                frame,
+                capability_catalog=schema_catalog,
+            ),
         }
         if previous_invalid_content is not None:
             result["previous_invalid_content"] = dict(previous_invalid_content)
@@ -318,6 +357,7 @@ class StrategyPayloadBuilder:
             problem_planning_context=problem_planning_context,
             problem_binding_catalog=problem_binding_catalog,
         )
+        schema_catalog = _prompt_capability_catalog(inputs, base)
         return {
             "planner_protocol": FUNCTIONAL_GOAL_REPAIR_CONTRACT,
             "problem_id": inputs.problem_id,
@@ -336,7 +376,11 @@ class StrategyPayloadBuilder:
                 base["functional_capability_catalog"]
             ),
             "output_json_schema": functional_goal_repair_schema_for_authority(
-                retry_authority
+                retry_authority,
+                capability_catalog=schema_catalog,
+                authority_frame=FunctionalPlanAuthorityFrame.from_planning_context(
+                    problem_planning_context
+                ),
             ),
         }
 

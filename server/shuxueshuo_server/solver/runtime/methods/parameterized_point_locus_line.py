@@ -121,6 +121,7 @@ SPEC = MethodSpecSource(
         "parameter": {
             "type": "Symbol",
             "required": True,
+            "allows_anonymous_result": True,
             "description": (
                 "驱动该Point运动的确切Symbol身份；通常直接引用产生参数化点的"
                 "前序call之parameter返回值，不能由自由符号名称猜测"

@@ -10,6 +10,7 @@ from shuxueshuo_server.solver.runtime.functional_plan_models import (
 )
 from shuxueshuo_server.solver.runtime.functional_debug_aliases import (
     legacy_state_slot_aliases,
+    parse_functional_call_local_debug_alias,
 )
 from shuxueshuo_server.solver.runtime.state_identity import (
     StateIdentityFactory,
@@ -60,6 +61,31 @@ class FunctionalTypedIdentityCompleteness:
                 self.call_result_values + other.call_result_values
             ),
         )
+
+
+@dataclass(frozen=True)
+class FunctionalTypedSourceCoverage:
+    """Classify every legacy source through one exact typed identity kind."""
+
+    legacy_source_ids: tuple[str, ...] = ()
+    state_slot_ids: tuple[str, ...] = ()
+    call_result_ids: tuple[str, ...] = ()
+    condition_ids: tuple[str, ...] = ()
+    unresolved_source_ids: tuple[str, ...] = ()
+
+    @property
+    def complete(self) -> bool:
+        return not self.unresolved_source_ids
+
+    def to_payload(self) -> dict[str, object]:
+        return {
+            "complete": self.complete,
+            "legacy_source_ids": list(self.legacy_source_ids),
+            "state_slots": list(self.state_slot_ids),
+            "call_results": list(self.call_result_ids),
+            "conditions": list(self.condition_ids),
+            "unresolved": list(self.unresolved_source_ids),
+        }
 
 
 class FunctionalTypedIdentityValidator:
@@ -174,12 +200,28 @@ class FunctionalTypedIdentityValidator:
             )
         if (
             value.source_state_slot_ids
-            and not _legacy_sources_are_fully_typed(
+            and not typed_source_coverage(
                 value.source_state_slot_ids,
                 value.source_version_ids,
-            )
+                call_result_ids=value.lineage.source_call_result_ids,
+                condition_ids=(
+                    (value.condition_id,)
+                    if value.condition_id is not None
+                    else ()
+                ),
+            ).complete
             and not is_call_result
         ):
+            coverage = typed_source_coverage(
+                value.source_state_slot_ids,
+                value.source_version_ids,
+                call_result_ids=value.lineage.source_call_result_ids,
+                condition_ids=(
+                    (value.condition_id,)
+                    if value.condition_id is not None
+                    else ()
+                ),
+            )
             _raise_incomplete(
                 "planner.state_dependency_version_unresolved",
                 call_id=call_id,
@@ -190,17 +232,34 @@ class FunctionalTypedIdentityValidator:
                     f"legacy={value.source_state_slot_ids!r}, "
                     f"typed={tuple(item.to_payload() for item in value.source_version_ids)!r}, "
                     "call_results="
-                    f"{value.lineage.source_call_result_ids!r}"
+                    f"{value.lineage.source_call_result_ids!r}, "
+                    f"coverage={coverage.to_payload()!r}"
                 ),
             )
         if (
             value.lineage.source_state_slot_ids
-            and not _legacy_sources_are_fully_typed(
+            and not typed_source_coverage(
                 value.lineage.source_state_slot_ids,
                 value.lineage.source_version_ids,
-            )
+                call_result_ids=value.lineage.source_call_result_ids,
+                condition_ids=(
+                    (value.condition_id,)
+                    if value.condition_id is not None
+                    else ()
+                ),
+            ).complete
             and not is_call_result
         ):
+            coverage = typed_source_coverage(
+                value.lineage.source_state_slot_ids,
+                value.lineage.source_version_ids,
+                call_result_ids=value.lineage.source_call_result_ids,
+                condition_ids=(
+                    (value.condition_id,)
+                    if value.condition_id is not None
+                    else ()
+                ),
+            )
             _raise_incomplete(
                 "planner.state_dependency_version_unresolved",
                 call_id=call_id,
@@ -210,7 +269,8 @@ class FunctionalTypedIdentityValidator:
                     "source versions: "
                     f"legacy={value.lineage.source_state_slot_ids!r}, "
                     "typed="
-                    f"{tuple(item.to_payload() for item in value.lineage.source_version_ids)!r}"
+                    f"{tuple(item.to_payload() for item in value.lineage.source_version_ids)!r}, "
+                    f"coverage={coverage.to_payload()!r}"
                 ),
         )
         for role in value.lineage.object_roles:
@@ -340,12 +400,59 @@ def _legacy_sources_are_fully_typed(
     legacy_slot_ids: tuple[str, ...],
     version_ids: tuple[StateVersionId, ...],
 ) -> bool:
-    covered_legacy_slots = {
+    return typed_source_coverage(legacy_slot_ids, version_ids).complete
+
+
+def typed_source_coverage(
+    legacy_source_ids: tuple[str, ...],
+    version_ids: tuple[StateVersionId, ...],
+    *,
+    call_result_ids: tuple[str, ...] = (),
+    condition_ids: tuple[str, ...] = (),
+) -> FunctionalTypedSourceCoverage:
+    """Audit the transitional legacy union without conflating typed kinds.
+
+    ``source_state_slot_ids`` historically carried state slots, anonymous call
+    results, and occasionally conditions.  During migration we classify each
+    member against exact typed authority.  A call result can match its canonical
+    ``call.return`` id or the versioned legacy debug alias; no suffix or fuzzy
+    matching is allowed.
+    """
+
+    state_aliases = {
         alias
         for version_id in version_ids
         for alias in legacy_state_slot_aliases(version_id.slot_id)
     }
-    return set(legacy_slot_ids) <= covered_legacy_slots
+    canonical_call_results = set(call_result_ids)
+    canonical_conditions = set(condition_ids)
+    covered_states: list[str] = []
+    covered_results: list[str] = []
+    covered_conditions: list[str] = []
+    unresolved: list[str] = []
+    for legacy_id in dict.fromkeys(legacy_source_ids):
+        if legacy_id in state_aliases:
+            covered_states.append(legacy_id)
+            continue
+        canonical_result = (
+            legacy_id
+            if legacy_id in canonical_call_results
+            else parse_functional_call_local_debug_alias(legacy_id)
+        )
+        if canonical_result in canonical_call_results:
+            covered_results.append(str(canonical_result))
+            continue
+        if legacy_id in canonical_conditions:
+            covered_conditions.append(legacy_id)
+            continue
+        unresolved.append(legacy_id)
+    return FunctionalTypedSourceCoverage(
+        legacy_source_ids=tuple(dict.fromkeys(legacy_source_ids)),
+        state_slot_ids=tuple(covered_states),
+        call_result_ids=tuple(covered_results),
+        condition_ids=tuple(covered_conditions),
+        unresolved_source_ids=tuple(unresolved),
+    )
 
 
 def _raise_incomplete(
@@ -363,5 +470,7 @@ def _raise_incomplete(
 
 __all__ = [
     "FunctionalTypedIdentityCompleteness",
+    "FunctionalTypedSourceCoverage",
     "FunctionalTypedIdentityValidator",
+    "typed_source_coverage",
 ]

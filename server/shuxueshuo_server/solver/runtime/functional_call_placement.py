@@ -398,7 +398,30 @@ class FunctionalCallPlacementService:
                 call_id in provisional_execution_scopes
                 and call_id not in pinned_execution_scopes
                 and call_id not in restored_execution_scopes
+                and call_id not in state_owner_scopes
             ):
+                provisional_execution_scopes[call_id] = scope_id
+
+        # A branch-private storage hint may narrow a pure value producer, but
+        # it cannot override the semantic owner of a StateVersion writer.  The
+        # latter is authored scope authority, not a placement heuristic.
+        for call_id, scope_id in state_owner_scopes.items():
+            if provisional_execution_scopes.get(call_id) != scope_id:
+                issues.append(
+                    _issue(
+                        "functional_reconciliation",
+                        "planner.state_scope_authority_drift",
+                        "state writer execution scope differs from its semantic owner",
+                        call_id=call_id,
+                        scope_id=scope_id,
+                        details={
+                            "semantic_owner_scope": scope_id,
+                            "execution_scope": provisional_execution_scopes.get(
+                                call_id
+                            ),
+                        },
+                    )
+                )
                 provisional_execution_scopes[call_id] = scope_id
 
         return_consumer_scopes = _return_consumer_scopes(

@@ -52,12 +52,15 @@ class _Index:
         return self.payloads[handle]
 
 
-def _step(*reads: str) -> FunctionalCompileStep:
+def _step(
+    *reads: str,
+    target: str = "fact:part:target_coordinate",
+) -> FunctionalCompileStep:
     return FunctionalCompileStep(
         scope_id="part",
         step_id="construct_target",
         goal_type="derive_constructed_point",
-        target="fact:part:target_coordinate",
+        target=target,
         recipe_hint="right_angle_equal_length_construct_and_select",
         strategy="construct and select",
         reads=reads,
@@ -124,6 +127,30 @@ def test_condition_roles_use_structured_payload_with_multichar_point_names() -> 
 
     assert resolved.anchor == "point:problem:Anchor_Main"
     assert resolved.reference == "point:part:Known_Point_12"
+    assert resolved.target == "point:part:Target_Prime"
+
+
+def test_compiled_target_authority_wins_over_an_existing_point_state() -> None:
+    index = _index()
+    index.bindings["point:part:Target_Prime"] = _Binding(
+        "Point",
+        "$question.sibling.points.Target_Prime",
+    )
+
+    resolved = resolve_read_closed_right_angle_inputs(
+        _step(
+            "fact:part:relation_17",
+            "point:problem:Anchor_Main",
+            "point:part:Known_Point_12",
+            "point:part:Target_Prime",
+            "fact:part:target_region",
+            "symbol:problem:t",
+            "fact:problem:parameter_domain",
+            target="point:part:Target_Prime",
+        ),
+        index,
+    )
+
     assert resolved.target == "point:part:Target_Prime"
 
 

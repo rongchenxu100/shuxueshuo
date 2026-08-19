@@ -92,6 +92,12 @@
                 "from_call": "ii_construct_N",
                 "return": "selected_target_point"
               }
+            ],
+            "free_parameters": [
+              {
+                "kind": "symbol",
+                "ref": "m"
+              }
             ]
           },
           "return_bindings": {

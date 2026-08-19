@@ -38,6 +38,7 @@ MethodInputViewMode = Literal[
     "immutable_value",
     "exact_result",
 ]
+MethodInputRelationCardinality = Literal["one", "for_each"]
 
 
 @dataclass(frozen=True)
@@ -161,6 +162,8 @@ class MethodInputSpec:
     role: str = ""
     required: bool = True
     functional_exposed: bool = True
+    allows_anonymous_result: bool = False
+    allows_empty_collection: bool = False
     symbolic_basis_role: MethodSymbolicBasisRole | None = None
 
     @property
@@ -168,6 +171,33 @@ class MethodInputSpec:
         """Internal compatibility alias; prompt code must use domain_type."""
 
         return self.runtime_type
+
+
+@dataclass(frozen=True)
+class MethodInputRelationSpec:
+    """Structured Condition required when one Method consumes related entities.
+
+    The Planner still supplies only domain entities.  Reconciliation resolves
+    the exact Condition that proves their relationship before any Method input
+    state is consumed.
+    """
+
+    relation_kind: str
+    point_arg: str
+    curve_arg: str
+    cardinality: MethodInputRelationCardinality
+    accepted_condition_kinds: tuple[str, ...]
+
+    def to_payload(self) -> dict[str, Any]:
+        return {
+            "relation_kind": self.relation_kind,
+            "point_arg": self.point_arg,
+            "curve_arg": self.curve_arg,
+            "cardinality": self.cardinality,
+            "accepted_condition_kinds": list(
+                self.accepted_condition_kinds
+            ),
+        }
 
 
 @dataclass(frozen=True)
@@ -386,6 +416,7 @@ class MethodSpec:
     solves: tuple[str, ...]
     inputs: dict[str, MethodInputSpec]
     outputs: dict[str, str]
+    input_relations: tuple[MethodInputRelationSpec, ...] = ()
     internal_outputs: tuple[str, ...] = ()
     output_activation: dict[str, MethodOutputActivationSpec] = field(
         default_factory=dict

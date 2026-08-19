@@ -650,7 +650,12 @@ class CanonicalRuntimeBindingIndex:
                 )
         return binding.path
 
-    def point_ref_path_for(self, handle: str) -> str:
+    def point_ref_path_for(
+        self,
+        handle: str,
+        *,
+        step_id: str | None = None,
+    ) -> str:
         """读取点实体的 PointRef path，兼容可解析 PointRef 的 Point 绑定。
 
         problem scope 中一些定义点（如 y 轴交点、平移点）在注册时会被标成
@@ -690,20 +695,25 @@ class CanonicalRuntimeBindingIndex:
                 return original_path
         except Exception:
             pass
-        reuse_writes = tuple(
+        target_writes = tuple(
             write
             for write in self.projected_state_writes
             if write.object_ref == handle
             and write.runtime_type == "Point"
-            and write.allocation_action == "reuse"
             and write.math_object_id is not None
+            and (
+                write.step_id == step_id
+                if step_id is not None
+                else write.allocation_action == "reuse"
+            )
         )
-        if len(reuse_writes) == 1:
-            # This does not approve a duplicate write. It only preserves the
-            # immutable target identity long enough for the transactional
-            # runtime-equivalence gate to execute and compare the candidate.
+        if len(target_writes) == 1:
+            # This does not approve a duplicate write. It preserves the
+            # immutable target identity selected by B1/F5-C while coordinates
+            # remain scope-local state. Runtime equivalence still decides
+            # whether the resulting write may commit.
             return self.immutable_point_identity_path_for(
-                reuse_writes[0].math_object_id
+                target_writes[0].math_object_id
             )
         raise StrategyDraftValidationError(
             "duplicate_point_coordinate_fact: "

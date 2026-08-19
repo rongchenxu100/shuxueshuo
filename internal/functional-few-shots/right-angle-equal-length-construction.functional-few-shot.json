@@ -50,6 +50,12 @@
                 "kind": "point",
                 "ref": "constructed_point"
               }
+            ],
+            "free_parameters": [
+              {
+                "kind": "symbol",
+                "ref": "free_parameter"
+              }
             ]
           },
           "return_bindings": {

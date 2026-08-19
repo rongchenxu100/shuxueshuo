@@ -85,6 +85,7 @@ class ExplanationSnapshot:
     answers: dict[str, Any] = field(default_factory=dict)
     checks: tuple[dict[str, Any], ...] = ()
     symbolic_closures: tuple[SymbolicClosureTeachingTrace, ...] = ()
+    macro_evidence: tuple[dict[str, Any], ...] = ()
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -106,6 +107,7 @@ class ExplanationSnapshot:
             "symbolic_closures": [
                 item.to_payload() for item in self.symbolic_closures
             ],
+            "macro_evidence": [dict(item) for item in self.macro_evidence],
         }
 
 

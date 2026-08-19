@@ -652,11 +652,19 @@ SPEC = MethodSpecSource(
     inputs={
         "condition": {"type": "Condition", "required": True},
         "path_transformation": {"type": "PathTransformation", "required": True},
-        "auxiliary_locus": {"type": "Line", "required": True},
+        "auxiliary_locus": {
+            "type": "Line",
+            "required": True,
+            "allows_anonymous_result": True,
+        },
         "fixed_point": {"type": "Point", "required": True},
         "curve_point": {"type": "Point", "required": True},
         "moving_point": {"type": "Point", "required": True},
-        "auxiliary_point": {"type": "Point", "required": True},
+        "auxiliary_point": {
+            "type": "Point",
+            "required": True,
+            "allows_anonymous_result": True,
+        },
         "parameter": {"type": "Symbol", "required": True},
         "dynamic_parameter": {"type": "Symbol", "required": True},
         "parameter_constraint": {"type": "Constraint", "required": True},
@@ -701,11 +709,19 @@ MINIMUM_EXPRESSION_SPEC = MethodSpecSource(
     solves=("derive_linked_broken_path_minimum_expression",),
     inputs={
         "path_transformation": {"type": "PathTransformation", "required": True},
-        "auxiliary_locus": {"type": "Line", "required": True},
+        "auxiliary_locus": {
+            "type": "Line",
+            "required": True,
+            "allows_anonymous_result": True,
+        },
         "fixed_point": {"type": "Point", "required": True},
         "curve_point": {"type": "Point", "required": True},
         "moving_point": {"type": "Point", "required": True},
-        "auxiliary_point": {"type": "Point", "required": True},
+        "auxiliary_point": {
+            "type": "Point",
+            "required": True,
+            "allows_anonymous_result": True,
+        },
         "parameter": {"type": "Symbol", "required": True},
         "dynamic_parameter": {"type": "Symbol", "required": True},
         "parameter_constraint": {"type": "Constraint", "required": True},

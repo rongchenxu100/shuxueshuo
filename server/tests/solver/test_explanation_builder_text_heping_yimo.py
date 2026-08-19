@@ -416,11 +416,27 @@ def test_explanation_snapshot_from_recorded_heping_is_safe_and_invocation_level(
     assert snapshot.effective_steps
     assert snapshot.teaching_trace
     assert snapshot.fact_index
+    assert len(snapshot.macro_evidence) == 1
+    witness = snapshot.macro_evidence[0]
+    assert witness["macro_id"] == "equal_length_ray_path_reduction"
+    assert witness["minimum_expression"] == "3*sqrt(2*a**2 + 1)/Abs(a)"
+    assert {
+        item["role"]: item["chosen_ref"]
+        for item in witness["role_resolutions"]
+    } == {
+        "anchor": "C",
+        "reference_point": "B",
+        "ray_point": "D",
+        "fixed_point": "O",
+    }
     assert snapshot.answers == load_expected_answers(HEPING_EXPECTED)
     assert "$problem." not in serialized
     assert "$question." not in serialized
     assert "$subquestion." not in serialized
     assert "raw_response" not in serialized
+    witness_json = json.dumps(witness, ensure_ascii=False)
+    assert "point:problem:" not in witness_json
+    assert "provenance_signature" not in witness_json
     assert "expected" not in serialized
     assert "<html" not in serialized.lower()
 

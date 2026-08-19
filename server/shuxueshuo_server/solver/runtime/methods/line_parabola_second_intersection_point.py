@@ -203,6 +203,7 @@ SPEC = MethodSpecSource(
         "line_p2": {
             "type": "Point",
             "required": True,
+            "allows_anonymous_result": True,
             "symbolic_basis_role": "align_to_anchor",
             "role": (
                 "确定目标直线的第二个点；必须与 line_p1 的横坐标不同，"

@@ -55,6 +55,13 @@ from shuxueshuo_server.solver.runtime.functional_diagnostics import (
     method_check_failed,
     normalize_macro_diagnostic_authority,
 )
+from shuxueshuo_server.solver.runtime.functional_execution_authority import (
+    PathMinimumWitness,
+)
+from shuxueshuo_server.solver.runtime.equal_length_ray_path_search import (
+    EqualLengthRayPathSearchError,
+    build_equal_length_ray_path_witness,
+)
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
 )
@@ -101,6 +108,7 @@ from shuxueshuo_server.solver.runtime.models import (
 )
 from shuxueshuo_server.solver.runtime.planner import PlannerInputs
 from shuxueshuo_server.solver.runtime.planner_state_context import (
+    Condition,
     PlannerStateContext,
 )
 from shuxueshuo_server.solver.runtime.problem_source_provenance import (
@@ -232,6 +240,7 @@ class CompiledFunctionalCall:
     compile_mismatches: tuple[dict[str, Any], ...] = ()
     problem_source_provenance: ProblemCallSourceProvenance | None = None
     macro_search_report: MacroRuntimeSearchReport | None = None
+    path_minimum_witness: PathMinimumWitness | None = None
 
 
 @dataclass(frozen=True)
@@ -245,6 +254,7 @@ class FunctionalCallExecutionResult:
     root_issues: tuple[PlannerRetryIssue, ...] = ()
     symbolic_closure: SymbolicClosureExecutionResult | None = None
     macro_search_report: MacroRuntimeSearchReport | None = None
+    path_minimum_witness: PathMinimumWitness | None = None
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -267,6 +277,11 @@ class FunctionalCallExecutionResult:
             "macro_search_report": (
                 self.macro_search_report.to_payload()
                 if self.macro_search_report is not None
+                else None
+            ),
+            "path_minimum_witness": (
+                self.path_minimum_witness.authority_payload()
+                if self.path_minimum_witness is not None
                 else None
             ),
         }
@@ -304,6 +319,11 @@ class FunctionalTransactionalExecutionReport:
         Mapping[Any, MathObjectId],
     ] = field(default_factory=dict, repr=False, compare=False)
     runtime_result_values: Mapping[tuple[str, str], TypedValue] = field(
+        default_factory=dict,
+        repr=False,
+        compare=False,
+    )
+    conditions: Mapping[str, Condition] = field(
         default_factory=dict,
         repr=False,
         compare=False,
@@ -528,6 +548,58 @@ class FunctionalTransactionalAttemptResult:
 
 
 @dataclass(frozen=True)
+class FunctionalRestoredCallResult:
+    """One exact anonymous/public return restored with its typed authority."""
+
+    call_id: str
+    return_name: str
+    scope_id: str
+    runtime_type: str
+    runtime_value: TypedValue
+    problem_source_provenance: ProblemCallSourceProvenance | None = None
+
+    @property
+    def prompt_ref(self) -> dict[str, str]:
+        return {"step_id": self.call_id, "return": self.return_name}
+
+
+@dataclass(frozen=True)
+class FunctionalRestoredTypedValueIndex:
+    """Exact typed namespaces restored from one authenticated checkpoint."""
+
+    state_versions: Mapping[StateVersionId, TypedValue] = field(
+        default_factory=dict
+    )
+    call_results: Mapping[
+        tuple[str, str], FunctionalRestoredCallResult
+    ] = field(
+        default_factory=dict
+    )
+    conditions: Mapping[str, Condition] = field(default_factory=dict)
+
+    def state_value(self, version_id: StateVersionId) -> TypedValue | None:
+        return self.state_versions.get(version_id)
+
+    def call_result_value(
+        self,
+        call_id: str,
+        return_name: str,
+    ) -> TypedValue | None:
+        result = self.call_results.get((call_id, return_name))
+        return result.runtime_value if result is not None else None
+
+    def call_result(
+        self,
+        call_id: str,
+        return_name: str,
+    ) -> FunctionalRestoredCallResult | None:
+        return self.call_results.get((call_id, return_name))
+
+    def condition_value(self, condition_id: str) -> Condition | None:
+        return self.conditions.get(condition_id)
+
+
+@dataclass(frozen=True)
 class FunctionalRestoredCallSeed:
     """In-process runtime values authenticated by an F5-D checkpoint."""
 
@@ -540,13 +612,27 @@ class FunctionalRestoredCallSeed:
         StateVersionId,
         Mapping[Any, MathObjectId],
     ] = field(default_factory=dict)
-    runtime_result_values: Mapping[tuple[str, str], TypedValue] = field(
+    call_result_records: Mapping[
+        tuple[str, str], FunctionalRestoredCallResult
+    ] = field(
         default_factory=dict
     )
-    call_binding_authorities: Mapping[str, str] = field(default_factory=dict)
-    call_binding_payloads: Mapping[str, Mapping[str, Any]] = field(
+    conditions: Mapping[str, Condition] = field(
         default_factory=dict
     )
+    source_read_authorities: Mapping[str, str] = field(default_factory=dict)
+    source_read_payloads: Mapping[str, Mapping[str, Any]] = field(
+        default_factory=dict
+    )
+    runtime_write_authorities: Mapping[str, str] = field(default_factory=dict)
+    runtime_write_payloads: Mapping[str, Mapping[str, Any]] = field(
+        default_factory=dict
+    )
+    publication_authorities: Mapping[str, str] = field(default_factory=dict)
+    publication_payloads: Mapping[str, Mapping[str, Any]] = field(
+        default_factory=dict
+    )
+    mutable_publication_goal_unit_ids: tuple[str, ...] = ()
     call_reconciliations: Mapping[
         str,
         FunctionalCallReconciliation,
@@ -555,6 +641,14 @@ class FunctionalRestoredCallSeed:
     @property
     def call_ids(self) -> tuple[str, ...]:
         return tuple(item.call_id for item in self.call_results)
+
+    @property
+    def typed_value_index(self) -> FunctionalRestoredTypedValueIndex:
+        return FunctionalRestoredTypedValueIndex(
+            state_versions=self.runtime_version_values,
+            call_results=self.call_result_records,
+            conditions=self.conditions,
+        )
 
 
 class FunctionalRestoredCallBindingError(ValueError):
@@ -607,39 +701,106 @@ def rebase_restored_call_seed(
         call_id = result.call_id
         call = calls.get(call_id)
         compiled = compiled_by_call.get(call_id)
-        expected_binding = seed.call_binding_authorities.get(call_id)
-        if call is None or compiled is None or expected_binding is None:
+        expected_source = seed.source_read_authorities.get(call_id)
+        expected_write = seed.runtime_write_authorities.get(call_id)
+        expected_publication = seed.publication_authorities.get(call_id)
+        if (
+            call is None
+            or compiled is None
+            or expected_source is None
+            or expected_write is None
+            or expected_publication is None
+        ):
             raise ValueError(
                 "planner_configuration_error: "
                 "planner.retry_problem_source_binding_drift: "
                 f"restored call authority is missing for {call_id}"
             )
-        actual_binding = _restorable_call_binding_signature(
+        actual_source_payload = _restorable_call_source_read_payload(
             call,
             binding_context=binding_context,
         )
-        if actual_binding != expected_binding:
-            expected_payload = seed.call_binding_payloads.get(call_id)
-            actual_payload = _restorable_call_binding_payload(
-                call,
-                binding_context=binding_context,
-            )
+        actual_source = stable_hash(actual_source_payload)
+        if actual_source != expected_source:
+            expected_payload = seed.source_read_payloads.get(call_id)
             raise FunctionalRestoredCallBindingError(
                 call_id,
-                f"typed binding changed for restored call {call_id}",
+                f"source reads changed for restored call {call_id}",
                 details={
-                    "expected_signature": expected_binding,
-                    "actual_signature": actual_binding,
+                    "authority_kind": "source_read",
+                    "expected_signature": expected_source,
+                    "actual_signature": actual_source,
                     "first_difference": (
                         _first_payload_difference(
                             expected_payload,
-                            actual_payload,
+                            actual_source_payload,
                         )
                         if expected_payload is not None
                         else None
                     ),
                     "expected_binding": expected_payload,
-                    "actual_binding": actual_payload,
+                    "actual_binding": actual_source_payload,
+                },
+            )
+        actual_write_payload = _restorable_call_runtime_write_payload(call)
+        actual_write = stable_hash(actual_write_payload)
+        if actual_write != expected_write:
+            expected_payload = seed.runtime_write_payloads.get(call_id)
+            raise FunctionalRestoredCallBindingError(
+                call_id,
+                f"runtime writes changed for restored call {call_id}",
+                code="planner.contract_runtime_destination_drift",
+                details={
+                    "authority_kind": "runtime_write",
+                    "expected_signature": expected_write,
+                    "actual_signature": actual_write,
+                    "first_difference": (
+                        _first_payload_difference(
+                            expected_payload,
+                            actual_write_payload,
+                        )
+                        if expected_payload is not None
+                        else None
+                    ),
+                    "expected_binding": expected_payload,
+                    "actual_binding": actual_write_payload,
+                },
+            )
+        actual_publication_payload = _restorable_call_publication_payload(
+            call,
+            binding_context=binding_context,
+        )
+        comparable_actual_publication = _filter_mutable_publication_authority(
+            actual_publication_payload,
+            mutable_goal_unit_ids=seed.mutable_publication_goal_unit_ids,
+        )
+        expected_publication_payload = seed.publication_payloads.get(call_id)
+        comparable_expected_publication = _filter_mutable_publication_authority(
+            expected_publication_payload or {},
+            mutable_goal_unit_ids=seed.mutable_publication_goal_unit_ids,
+        )
+        if stable_hash(comparable_actual_publication) != stable_hash(
+            comparable_expected_publication
+        ):
+            raise FunctionalRestoredCallBindingError(
+                call_id,
+                f"answer publication changed for restored call {call_id}",
+                details={
+                    "authority_kind": "answer_publication",
+                    "expected_signature": expected_publication,
+                    "actual_signature": stable_hash(actual_publication_payload),
+                    "first_difference": _first_payload_difference(
+                        comparable_expected_publication,
+                        comparable_actual_publication,
+                    ),
+                    "expected_binding": expected_publication_payload,
+                    "actual_binding": actual_publication_payload,
+                    "comparable_expected_binding": (
+                        comparable_expected_publication
+                    ),
+                    "comparable_actual_binding": (
+                        comparable_actual_publication
+                    ),
                 },
             )
         previous = compiled.problem_source_provenance
@@ -705,11 +866,11 @@ def rebase_restored_call_seed(
     )
 
 
-def functional_restored_call_binding_signature(
+def functional_restored_call_authority_payloads(
     reconciliation: FunctionalPlanReconciliationResult,
     call_id: str,
-) -> str:
-    """Hash the immutable call binding while excluding consumer Goal growth."""
+) -> dict[str, dict[str, Any]]:
+    """Return the three independently audited restore authorities."""
 
     binding_context = reconciliation.functional_problem_binding_context
     call = next(
@@ -722,51 +883,35 @@ def functional_restored_call_binding_signature(
             "planner.retry_problem_source_binding_drift: "
             f"missing restored call binding for {call_id}"
         )
-    return stable_hash(
-        _restorable_call_binding_payload(
+    return {
+        "source_read": _restorable_call_source_read_payload(
             call,
             binding_context=binding_context,
-        )
-    )
+        ),
+        "runtime_write": _restorable_call_runtime_write_payload(call),
+        "answer_publication": _restorable_call_publication_payload(
+            call,
+            binding_context=binding_context,
+        ),
+    }
 
 
-def functional_restored_call_binding_payload(
+def functional_restored_call_authority_signatures(
     reconciliation: FunctionalPlanReconciliationResult,
     call_id: str,
 ) -> dict[str, Any]:
-    """Return the auditable binding payload authenticated by a checkpoint."""
+    """Hash each restore authority independently."""
 
-    binding_context = reconciliation.functional_problem_binding_context
-    call = next(
-        (item for item in reconciliation.calls if item.call_id == call_id),
-        None,
-    )
-    if binding_context is None or call is None:
-        raise ValueError(
-            "planner_configuration_error: "
-            "planner.retry_problem_source_binding_drift: "
-            f"missing restored call binding for {call_id}"
-        )
-    return _restorable_call_binding_payload(
-        call,
-        binding_context=binding_context,
-    )
+    return {
+        key: stable_hash(value)
+        for key, value in functional_restored_call_authority_payloads(
+            reconciliation,
+            call_id,
+        ).items()
+    }
 
 
-def _restorable_call_binding_signature(
-    call: FunctionalCallReconciliation,
-    *,
-    binding_context: FunctionalProblemBindingContext,
-) -> str:
-    return stable_hash(
-        _restorable_call_binding_payload(
-            call,
-            binding_context=binding_context,
-        )
-    )
-
-
-def _restorable_call_binding_payload(
+def _restorable_call_source_read_payload(
     call: FunctionalCallReconciliation,
     *,
     binding_context: FunctionalProblemBindingContext,
@@ -775,14 +920,81 @@ def _restorable_call_binding_payload(
         "planning_context_id": binding_context.planning_context_id,
         "problem_revision_id": binding_context.problem_revision_id,
         "problem_semantic_hash": binding_context.problem_semantic_hash,
-        "call": call.to_payload(),
+        "call_id": call.call_id,
+        "scope_id": call.scope_id,
+        "capability_id": call.capability_id,
+        "resolved_args": {
+            name: [item.to_payload() for item in values]
+            for name, values in sorted(call.resolved_args.items())
+        },
         "inputs": [
             item.to_payload()
             for item in binding_context.inputs_for_call(call.call_id)
         ],
+    }
+
+
+def _restorable_call_runtime_write_payload(
+    call: FunctionalCallReconciliation,
+) -> dict[str, Any]:
+    publication_only_fields = {"bound_ref"}
+    return {
+        "call_id": call.call_id,
+        "scope_id": call.scope_id,
+        "capability_id": call.capability_id,
+        "returns": [
+            {
+                key: value
+                for key, value in item.to_payload().items()
+                if key not in publication_only_fields
+            }
+            for item in call.returns
+        ],
+    }
+
+
+def _restorable_call_publication_payload(
+    call: FunctionalCallReconciliation,
+    *,
+    binding_context: FunctionalProblemBindingContext,
+) -> dict[str, Any]:
+    return {
+        "call_id": call.call_id,
+        "goal_unit_ids": list(
+            binding_context.call_goal_bindings.get(call.call_id, ())
+        ),
         "returns": [
             item.to_payload()
             for item in binding_context.returns_for_call(call.call_id)
+        ],
+    }
+
+
+def _filter_mutable_publication_authority(
+    payload: Mapping[str, Any],
+    *,
+    mutable_goal_unit_ids: Sequence[str],
+) -> dict[str, Any]:
+    """Keep only frozen Goal answer publications in restore comparison.
+
+    Non-answer named returns are reconstructed from the canonical runtime
+    write allocation. Their object, scope, type, and destination are already
+    covered by ``runtime_write`` authority, so a partial graph omitting and a
+    repaired graph restoring that public catalog entry are equivalent here.
+    The call-to-Goal consumer closure is likewise rebuilt from the complete
+    dependency graph; it is scheduling authority, not call identity.
+    """
+
+    mutable = set(mutable_goal_unit_ids)
+    return {
+        "call_id": payload.get("call_id"),
+        "goal_unit_ids": [],
+        "returns": [
+            item
+            for item in payload.get("returns", ())
+            if isinstance(item, Mapping)
+            and item.get("goal_unit_id") is not None
+            and item.get("goal_unit_id") not in mutable
         ],
     }
 
@@ -1250,6 +1462,7 @@ class FunctionalCallPreparationService:
             _audit_problem_binding_preparation(
                 call_id=call_id,
                 wire_call=wire_call,
+                reconciled_returns=reconciled.returns,
                 logical_bindings=logical_bindings,
                 prepared_bindings=tuple(prepared_bindings),
                 problem_binding_context=problem_binding_context,
@@ -1272,6 +1485,7 @@ def _audit_problem_binding_preparation(
     *,
     call_id: str,
     wire_call: Any | None,
+    reconciled_returns: Sequence[Any],
     logical_bindings: Sequence[FunctionalArgBinding],
     prepared_bindings: Sequence[PreparedFunctionalArgBinding],
     problem_binding_context: FunctionalProblemBindingContext,
@@ -1347,6 +1561,11 @@ def _audit_problem_binding_preparation(
         )
     expected_returns = set(
         wire_call.return_bindings if wire_call is not None else ()
+    )
+    expected_returns.update(
+        allocation.return_name
+        for allocation in reconciled_returns
+        if allocation.bound_ref is not None
     )
     sidecar_returns = {
         item.return_name
@@ -1856,6 +2075,11 @@ def _compiled_call_signature(
             if compiled.macro_search_report is not None
             else None
         ),
+        (
+            compiled.path_minimum_witness.witness_id
+            if compiled.path_minimum_witness is not None
+            else None
+        ),
     )
 
 
@@ -1977,31 +2201,235 @@ def _with_verified_macro_search(
     )
     compiled = replace(compiled, macro_search_report=report)
     provenance = compiled.problem_source_provenance
-    if provenance is None:
-        return compiled, runtime_results, writes, report
-    provenance = provenance.with_macro_search(
-        search_signature=report.search_signature,
-        role_resolutions=tuple(
-            (item.role, item.authored_ref, item.chosen_ref)
-            for item in report.role_resolutions
-        ),
-    )
-    compiled = _stamp_compiled_problem_source_provenance(
-        compiled,
-        provenance,
-    )
+    if provenance is not None:
+        provenance = provenance.with_macro_search(
+            search_signature=report.search_signature,
+            role_resolutions=tuple(
+                (item.role, item.authored_ref, item.chosen_ref)
+                for item in report.role_resolutions
+            ),
+        )
+        compiled = _stamp_compiled_problem_source_provenance(
+            compiled,
+            provenance,
+        )
+    if macro.macro_id == "equal_length_ray_path_reduction":
+        witness = _build_equal_length_ray_execution_witness(
+            compiled=compiled,
+            prepared=prepared,
+            report=report,
+            method_results=method_results,
+            handle_registry=handle_registry,
+        )
+        compiled = replace(compiled, path_minimum_witness=witness)
     return (
         compiled,
-        tuple(
-            replace(item, problem_source_provenance=provenance)
-            for item in runtime_results
+        (
+            tuple(
+                replace(item, problem_source_provenance=provenance)
+                for item in runtime_results
+            )
+            if provenance is not None
+            else runtime_results
         ),
-        tuple(
-            replace(item, problem_source_provenance=provenance)
-            for item in writes
+        (
+            tuple(
+                replace(item, problem_source_provenance=provenance)
+                for item in writes
+            )
+            if provenance is not None
+            else writes
         ),
         report,
     )
+
+
+def _build_equal_length_ray_execution_witness(
+    *,
+    compiled: CompiledFunctionalCall,
+    prepared: PreparedFunctionalCall,
+    report: MacroRuntimeSearchReport,
+    method_results: Sequence[Any],
+    handle_registry: CanonicalHandleRegistry,
+) -> PathMinimumWitness:
+    role_points: dict[str, tuple[sp.Expr, sp.Expr]] = {}
+    for role in ("anchor", "reference_point", "ray_point", "fixed_point"):
+        value = _prepared_runtime_arg_value(prepared, role)
+        if value is None:
+            raise EqualLengthRayPathSearchError(
+                "planner.macro_contract_invalid",
+                f"equal-length path role {role} has no exact runtime Point",
+                retryability="configuration",
+            )
+        role_points[role] = _runtime_point(value)
+
+    auxiliary_point: tuple[sp.Expr, sp.Expr] | None = None
+    minimum_expression: Any | None = None
+    for result in method_results:
+        method_id = str(getattr(result, "method_id", ""))
+        outputs = getattr(result, "outputs", {})
+        if method_id == "equal_length_ray_point" and "point" in outputs:
+            auxiliary_point = _runtime_point(outputs["point"])
+        if method_id == "distance_between_points" and "distance" in outputs:
+            minimum_expression = getattr(outputs["distance"], "value", None)
+    if auxiliary_point is None or minimum_expression is None:
+        raise EqualLengthRayPathSearchError(
+            "planner.macro_contract_invalid",
+            "equal-length path Macro omitted its internal winner outputs",
+            retryability="configuration",
+        )
+
+    fact_payloads: dict[str, Mapping[str, Any]] = {}
+    for arg_name in (
+        "path_minimum_target",
+        "equal_length_condition",
+        "point_on_segment",
+        "point_on_ray",
+    ):
+        values = prepared.reconciliation.resolved_args.get(arg_name, ())
+        if len(values) != 1:
+            raise EqualLengthRayPathSearchError(
+                "planner.macro_contract_invalid",
+                f"equal-length path Macro requires one {arg_name} Fact",
+                retryability="configuration",
+            )
+        try:
+            fact_payloads[arg_name] = handle_registry.fact_payloads[
+                values[0].handle
+            ]
+        except KeyError as exc:
+            raise EqualLengthRayPathSearchError(
+                "planner.macro_contract_invalid",
+                f"equal-length path Fact {arg_name} is absent from ProblemIR",
+                retryability="configuration",
+            ) from exc
+    assumptions = _problem_symbol_assumptions(
+        handle_registry,
+        values=(
+            *role_points.values(),
+            auxiliary_point,
+            minimum_expression,
+        ),
+    )
+    provenance = compiled.problem_source_provenance
+    provenance_signature = (
+        provenance.semantic_signature()
+        if provenance is not None
+        else stable_hash(
+            {
+                "call_id": compiled.call_id,
+                "search_signature": report.search_signature,
+            }
+        )
+    )
+    return build_equal_length_ray_path_witness(
+        step_id=compiled.call_id,
+        report=report,
+        role_points=role_points,
+        fact_payloads=fact_payloads,
+        entity_payloads=handle_registry.entity_payloads,
+        auxiliary_point=auxiliary_point,
+        runtime_minimum_expression=minimum_expression,
+        provenance_signature=provenance_signature,
+        assumptions=assumptions,
+    )
+
+
+def _prepared_runtime_arg_value(
+    prepared: PreparedFunctionalCall,
+    arg_name: str,
+) -> Any | None:
+    candidates = tuple(
+        item.runtime_value
+        for item in prepared.arg_bindings
+        if item.logical_binding.key.arg_name == arg_name
+        and item.runtime_value is not None
+    )
+    if len(candidates) == 1:
+        return candidates[0]
+    state_values = tuple(
+        item.runtime_value
+        for item in prepared.state_reads
+        if item.arg_name == arg_name
+    )
+    if len(state_values) == 1:
+        return state_values[0]
+    return None
+
+
+def _runtime_point(value: Any) -> tuple[sp.Expr, sp.Expr]:
+    payload = getattr(value, "value", value)
+    if (
+        not isinstance(payload, (tuple, list))
+        or len(payload) != 2
+    ):
+        raise EqualLengthRayPathSearchError(
+            "planner.macro_contract_invalid",
+            "equal-length path role did not materialize as one Point",
+            retryability="configuration",
+        )
+    return sp.sympify(payload[0]), sp.sympify(payload[1])
+
+
+def _problem_symbol_assumptions(
+    handle_registry: CanonicalHandleRegistry,
+    *,
+    values: Sequence[Any],
+) -> tuple[sp.Basic, ...]:
+    symbols = {
+        symbol.name: symbol
+        for value in values
+        for symbol in _runtime_free_symbols_for_assumptions(value)
+    }
+    result: list[sp.Basic] = []
+    for payload in handle_registry.fact_payloads.values():
+        if payload.get("type") != "symbol_constraint":
+            continue
+        subject = payload.get("subject")
+        if not isinstance(subject, str):
+            continue
+        symbol = symbols.get(subject.rsplit(":", 1)[-1])
+        if symbol is None:
+            continue
+        operator = payload.get("operator")
+        try:
+            boundary = sp.sympify(payload.get("value"))
+        except (TypeError, ValueError):
+            continue
+        if boundary != 0:
+            continue
+        if operator == ">":
+            result.append(sp.Q.positive(symbol))
+        elif operator == ">=":
+            result.append(sp.Q.nonnegative(symbol))
+        elif operator == "<":
+            result.append(sp.Q.negative(symbol))
+        elif operator == "<=":
+            result.append(sp.Q.nonpositive(symbol))
+    return tuple(result)
+
+
+def _runtime_free_symbols_for_assumptions(value: Any) -> tuple[sp.Symbol, ...]:
+    payload = getattr(value, "value", value)
+    if isinstance(payload, sp.Basic):
+        return tuple(payload.free_symbols)
+    if isinstance(payload, Mapping):
+        return tuple(
+            dict.fromkeys(
+                symbol
+                for child in payload.values()
+                for symbol in _runtime_free_symbols_for_assumptions(child)
+            )
+        )
+    if isinstance(payload, (tuple, list)):
+        return tuple(
+            dict.fromkeys(
+                symbol
+                for child in payload
+                for symbol in _runtime_free_symbols_for_assumptions(child)
+            )
+        )
+    return ()
 
 
 def _authored_macro_roles(
@@ -2528,6 +2956,10 @@ class FunctionalTransactionalInterpreter:
         results: list[FunctionalCallExecutionResult] = []
         compiled_calls: list[CompiledFunctionalCall] = []
         runtime_result_values: dict[tuple[str, str], TypedValue] = {}
+        conditions = _restored_conditions(
+            restored_seed,
+            parent_context=parent_context,
+        )
         runtime_equivalent_aliases: list[
             FunctionalRuntimeEquivalentCallAlias
         ] = []
@@ -2972,6 +3404,7 @@ class FunctionalTransactionalInterpreter:
                             checks=tuple(execution.checks),
                             symbolic_closure=closure_result,
                             macro_search_report=macro_search_report,
+                            path_minimum_witness=compiled.path_minimum_witness,
                         )
                     )
                     continue
@@ -3016,6 +3449,7 @@ class FunctionalTransactionalInterpreter:
                         checks=tuple(execution.checks),
                         symbolic_closure=closure_result,
                         macro_search_report=macro_search_report,
+                        path_minimum_witness=compiled.path_minimum_witness,
                     )
                 )
             except Exception as exc:
@@ -3052,6 +3486,8 @@ class FunctionalTransactionalInterpreter:
                             )
                     issue_code = diagnostic.code
                 elif isinstance(exc, ProblemSourceProvenanceError):
+                    issue_code = exc.code
+                elif isinstance(exc, EqualLengthRayPathSearchError):
                     issue_code = exc.code
                 elif isinstance(exc, SymbolicClosureProvenanceError):
                     issue_code = exc.code
@@ -3148,6 +3584,7 @@ class FunctionalTransactionalInterpreter:
                 )
             },
             runtime_result_values=runtime_result_values,
+            conditions=conditions,
             runtime_version_aliases=dict(
                 working.runtime_equivalent_version_aliases
             ),
@@ -3383,6 +3820,7 @@ def _restore_verified_calls(
     if seed is None:
         return frozenset()
     known = set(graph.canonical_order)
+    typed_index = seed.typed_value_index
     result_by_call = {item.call_id: item for item in seed.call_results}
     compiled_by_call = {item.call_id: item for item in seed.compiled_calls}
     if len(result_by_call) != len(seed.call_results):
@@ -3437,7 +3875,7 @@ def _restore_verified_calls(
                     "planner.retry_problem_source_binding_drift: restored write missing"
                 )
             runtime_result = runtime_result_by_return.get(write.output_key)
-            typed = seed.runtime_version_values.get(version.version_id)
+            typed = typed_index.state_value(version.version_id)
             if runtime_result is None or typed is None:
                 raise ValueError(
                     "planner_configuration_error: "
@@ -3464,16 +3902,18 @@ def _restore_verified_calls(
             if write is None:
                 continue
             key = (call_id, write.output_key)
-            typed = seed.runtime_result_values.get(key)
+            typed = typed_index.call_result_value(call_id, write.output_key)
             destination = write.runtime_destination_key
-            if (
-                typed is None
-                or destination is None
-                or destination.runtime_path is None
-            ):
+            runtime_path = (
+                destination.runtime_path
+                if destination is not None
+                and destination.runtime_path is not None
+                else _runtime_path_for_write(compiled.plans, write)
+            )
+            if typed is None or runtime_path is None:
                 continue
             current_context.write_path(
-                destination.runtime_path,
+                runtime_path,
                 typed,
                 from_scope_id=write.scope_id,
                 allow_overwrite=True,
@@ -3491,12 +3931,9 @@ def _restore_verified_calls(
                 for version_id in runtime_values
             },
         )
-        for runtime_result in result.runtime_results:
-            key = (call_id, runtime_result.output_key)
-            typed = seed.runtime_result_values.get(key)
-            if typed is None:
-                continue
-            runtime_result_values[key] = typed
+        for key, restored_result in typed_index.call_results.items():
+            if key[0] == call_id:
+                runtime_result_values[key] = restored_result.runtime_value
         results.append(result)
         compiled_calls.append(compiled)
     return restored
@@ -3547,6 +3984,29 @@ def _capture_initial_runtime_version_values(
         except (KeyError, PermissionError, TypeError, ValueError):
             continue
         working.runtime_version_values[version.version_id] = value
+
+
+def _restored_conditions(
+    seed: FunctionalRestoredCallSeed | None,
+    *,
+    parent_context: PlannerStateContext,
+) -> dict[str, Condition]:
+    """Audit exact immutable Condition records before restoring solved calls."""
+
+    current = {
+        item.condition_id: item for item in parent_context.state.conditions
+    }
+    if seed is None:
+        return current
+    for condition_id, expected in seed.conditions.items():
+        actual = current.get(condition_id)
+        if actual is None or actual.to_payload() != expected.to_payload():
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.retry_problem_source_binding_drift: "
+                f"restored condition {condition_id!r} changed"
+            )
+    return current
 
 
 def _materialize_transaction_state_reads(

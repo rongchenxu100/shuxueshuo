@@ -385,6 +385,79 @@ def test_scope_native_recorded_plan_reconciles_compiles_and_executes(
     assert attempt.execution_report.functional_compile_count > 0
 
 
+def test_intermediate_parameter_c_does_not_bind_final_goal_b(tmp_path) -> None:
+    case = "tj-2026-hexi-yimo-25"
+    payload = json.loads(
+        (SCOPE_NATIVE_FIXTURES / f"{case}.functional-plan.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    scope_iii = next(
+        scope for scope in payload["scopes"] if scope["scope_id"] == "iii"
+    )
+    original_answer = scope_iii["calls"][-1]
+    assert original_answer["call_id"] == "solve_parameter_iii"
+    solve_c = deepcopy(original_answer)
+    solve_c["call_id"] = "solve_c"
+    solve_c["args"]["parameter"] = {"kind": "symbol", "ref": "c"}
+    solve_c["return_bindings"] = {
+        "parameter_value": {"kind": "symbol", "ref": "c"}
+    }
+    solve_b = {
+        "call_id": "solve_b",
+        "capability_id": "quadratic_from_constraints",
+        "args": {
+            "known_coefficients": {
+                "kind": "fact",
+                "ref": "symbol_value_a",
+            },
+            "curve_point": {"kind": "point", "ref": "A"},
+            "parameter_value": {"kind": "symbol", "ref": "c"},
+            "target_parameter": {"kind": "symbol", "ref": "b"},
+        },
+        "return_bindings": {
+            "parameter_value": {"kind": "answer", "ref": "iii.b"}
+        },
+        "strategy": "先使用中间参数 c，再求最终目标 b。",
+        "reason": "验证中间同类型返回不会被提升成 Goal answer。",
+    }
+    scope_iii["calls"][-1:] = [solve_c, solve_b]
+
+    *_, reconciliation = scope_native_reconciliation_fixture(
+        tmp_path,
+        case=case,
+        plan_payload=payload,
+    )
+
+    assert reconciliation.ok, reconciliation.to_payload()
+    sidecar = reconciliation.functional_problem_binding_context
+    assert sidecar is not None
+    returns = {
+        (item.call_id, item.return_name): item
+        for item in sidecar.return_bindings
+    }
+    intermediate = returns[("solve_c", "parameter_value")]
+    answer = returns[("solve_b", "parameter_value")]
+    assert intermediate.semantic_ref.to_payload() == {
+        "kind": "symbol",
+        "ref": "c",
+    }
+    assert intermediate.goal_unit_id is None
+    assert answer.semantic_ref.to_payload() == {
+        "kind": "answer",
+        "ref": "iii.b",
+    }
+    assert answer.goal_unit_id is not None
+    assert intermediate.math_object_id != answer.math_object_id
+
+    c_input = sidecar.input_binding_for("solve_b", "parameter_value", 0)
+    assert c_input is not None
+    assert c_input.source_kind == "call_result"
+    assert c_input.typed_source is not None
+    assert c_input.typed_source.source_call_id == "solve_c"
+    assert c_input.typed_source.source_return_name == "parameter_value"
+
+
 def test_recorded_replay_explicitly_consumes_problem_binding_catalog(
     tmp_path,
 ) -> None:
@@ -1564,3 +1637,57 @@ def test_unique_goal_visible_condition_role_binds_to_exact_ref(tmp_path) -> None
         item["action"] == "bind_unique_condition_role"
         for item in reconciliation.elaboration["deterministic_repairs"]
     )
+
+
+def test_return_sidecar_rebuilds_named_publication_from_canonical_allocation(
+    tmp_path,
+) -> None:
+    (
+        _bundle,
+        _planning_context,
+        _problem,
+        _inputs,
+        _problem_payload,
+        _registry,
+        _planner_context,
+        catalog,
+        plan,
+        _validation,
+        reconciliation,
+    ) = scope_native_reconciliation_fixture(
+        tmp_path,
+        case="tj-2026-heping-yimo-25",
+    )
+    call_id = "derive_y_intercept_C_i"
+    modified_scopes = []
+    for scope in plan.scopes:
+        modified_scopes.append(
+            replace(
+                scope,
+                calls=tuple(
+                    replace(call, return_bindings={})
+                    if call.call_id == call_id
+                    else call
+                    for call in scope.calls
+                ),
+            )
+        )
+    modified_plan = replace(plan, scopes=tuple(modified_scopes))
+    goal_bindings = catalog.bind_plan(plan, require_goal_reachable=False)
+    assert not goal_bindings.issues
+
+    sidecar = build_functional_problem_binding_context(
+        catalog,
+        modified_plan,
+        reconciliation.calls,
+        reconciliation.functional_binding_context,
+        goal_bindings,
+    )
+
+    binding = next(
+        item
+        for item in sidecar.return_bindings
+        if item.call_id == call_id and item.return_name == "point"
+    )
+    assert binding.semantic_ref.ref == "C"
+    assert binding.goal_unit_id is None

@@ -1,1 +1,53 @@
-{"example_id":"quadratic_constraints_vertex","annotation":{"purpose":"根据约束确定二次函数，再读取其基本几何特征。","use_when":"已知条件足以唯一确定二次函数，并需要继续求顶点等基础状态。","key_idea":"先生成确定的曲线状态，再把前序结果交给顶点能力。","do_not_use_when":["曲线仍然欠定。","当前目标不是二次函数问题。","试图把曲线结果直接作为点答案。"]},"plan":{"format":"functional_plan/v2","root_scope":{"scope_ref":"example","goals":[{"goal_ref":"example.answer","steps":[{"step_id":"derive_curve","capability_id":"quadratic_from_constraints","args":{"known_coefficients":["coefficient_a","coefficient_b","coefficient_c"]},"intent":"代入已知系数确定二次函数。"},{"step_id":"derive_vertex","capability_id":"quadratic_vertex_point","args":{"parabola":{"step_id":"derive_curve","return":"parabola"}},"intent":"由函数解析式求顶点坐标。"}],"answer_from":{"step_id":"derive_vertex","return":"point"}}]}}}
+{
+  "example_id": "quadratic_constraints_vertex",
+  "annotation": {
+    "purpose": "根据约束确定二次函数，再读取其基本几何特征。",
+    "use_when": "已知条件足以唯一确定二次函数，并需要继续求顶点等基础状态。",
+    "key_idea": "先生成确定的曲线状态，再从同一题面函数的最新状态读取顶点。",
+    "do_not_use_when": [
+      "曲线仍然欠定。",
+      "当前目标不是二次函数问题。",
+      "试图把曲线结果直接作为点答案。"
+    ]
+  },
+  "plan": {
+    "format": "functional_plan/v2",
+    "root_scope": {
+      "scope_ref": "example",
+      "goals": [
+        {
+          "goal_ref": "example.answer",
+          "steps": [
+            {
+              "step_id": "derive_curve",
+              "capability_id": "quadratic_from_constraints",
+              "args": {
+                "known_coefficients": [
+                  "coefficient_a",
+                  "coefficient_b",
+                  "coefficient_c"
+                ]
+              },
+              "output_targets": {
+                "parabola": "curve"
+              },
+              "intent": "代入已知系数确定二次函数。"
+            },
+            {
+              "step_id": "derive_vertex",
+              "capability_id": "quadratic_vertex_point",
+              "args": {
+                "parabola": "curve"
+              },
+              "intent": "由函数解析式求顶点坐标。"
+            }
+          ],
+          "answer_from": {
+            "step_id": "derive_vertex",
+            "return": "point"
+          }
+        }
+      ]
+    }
+  }
+}

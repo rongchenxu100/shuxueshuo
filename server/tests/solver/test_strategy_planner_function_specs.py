@@ -24,8 +24,12 @@ from shuxueshuo_server.solver.runtime.function_specs import (
     GENERIC_FUNCTION_METHOD_IDS,
     FunctionSpec,
     FunctionSpecRegistry,
+    _analyze_quadratic_coefficient_inputs,
     function_spec_from_method,
     function_catalog_payload,
+)
+from shuxueshuo_server.solver.runtime.functional_diagnostics import (
+    StatelessMethodError,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
@@ -161,6 +165,129 @@ def test_quadratic_constraint_analyzer_declarations_are_consistent() -> None:
     assert function.adapter.constraint_analyzer == "quadratic_coefficients"
 
 
+def _run_quadratic_input_analyzer(runtime_inputs: dict[str, object]):
+    class _Context:
+        def read_path(self, path, **_kwargs):
+            return SimpleNamespace(value=runtime_inputs[path])
+
+    return _analyze_quadratic_coefficient_inputs(
+        {name: name for name in runtime_inputs},
+        SimpleNamespace(scope_id="ii", step_id="derive_parabola_ii"),
+        SimpleNamespace(context=_Context()),
+    )
+
+
+@pytest.mark.parametrize("authored_empty", [False, True])
+def test_open_quadratic_state_requires_nonempty_free_parameter_basis(
+    authored_empty: bool,
+) -> None:
+    x, b, c = sp.symbols("x b c")
+    runtime_inputs: dict[str, object] = {
+        "quadratic": x**2 - b * x + c,
+        "x": x,
+        "all_coefficients": (b, c),
+        "coefficient_relation": sp.Eq(b + c, -1),
+    }
+    if authored_empty:
+        runtime_inputs["free_parameters"] = []
+
+    with pytest.raises(StatelessMethodError) as captured:
+        _run_quadratic_input_analyzer(runtime_inputs)
+
+    diagnostic = captured.value.authority.to_payload()
+    assert diagnostic["code"] == "functional.method_input_state_unavailable"
+    assert diagnostic["retryability"] == "planner_repairable"
+    assert diagnostic["repair_action"] == (
+        "provide_or_align_symbolic_state_basis"
+    )
+    assert diagnostic["expected"] == {
+        "allowed_free_parameter_bases": [["b"], ["c"]],
+        "basis_cardinality": 1,
+    }
+    assert diagnostic["observed"] == {"declared_free_parameters": []}
+    assert "requires an explicit non-empty" in diagnostic["original_message"]
+
+
+@pytest.mark.parametrize("authored_empty", [False, True])
+def test_closed_quadratic_state_accepts_omitted_or_empty_free_parameters(
+    authored_empty: bool,
+) -> None:
+    x, b, c = sp.symbols("x b c")
+    runtime_inputs: dict[str, object] = {
+        "quadratic": x**2 - b * x + c,
+        "x": x,
+        "all_coefficients": (b, c),
+        "known_coefficients": {b: 2, c: 3},
+    }
+    if authored_empty:
+        runtime_inputs["free_parameters"] = []
+
+    result = _run_quadratic_input_analyzer(runtime_inputs)
+
+    assert result.inputs == {name: name for name in runtime_inputs}
+
+
+@pytest.mark.parametrize("basis_name", ["b", "c"])
+def test_open_quadratic_state_accepts_runtime_equivalent_authored_basis(
+    basis_name: str,
+) -> None:
+    x, b, c = sp.symbols("x b c")
+    symbols = {"b": b, "c": c}
+    runtime_inputs: dict[str, object] = {
+        "quadratic": x**2 - b * x + c,
+        "x": x,
+        "all_coefficients": (b, c),
+        "coefficient_relation": sp.Eq(b + c, -1),
+        "free_parameters": [symbols[basis_name]],
+    }
+
+    result = _run_quadratic_input_analyzer(runtime_inputs)
+
+    assert result.inputs == {name: name for name in runtime_inputs}
+
+
+def test_open_quadratic_state_rejects_dependent_or_overspecified_basis() -> None:
+    x, b, c = sp.symbols("x b c")
+    runtime_inputs: dict[str, object] = {
+        "quadratic": x**2 - b * x + c,
+        "x": x,
+        "all_coefficients": (b, c),
+        "coefficient_relation": sp.Eq(b + c, -1),
+        "free_parameters": [b, c],
+    }
+
+    with pytest.raises(StatelessMethodError) as captured:
+        _run_quadratic_input_analyzer(runtime_inputs)
+
+    diagnostic = captured.value.authority.to_payload()
+    assert diagnostic["code"] == "functional.method_input_state_unavailable"
+    assert diagnostic["expected"]["allowed_free_parameter_bases"] == [
+        ["b"],
+        ["c"],
+    ]
+    assert diagnostic["observed"]["declared_free_parameters"] == ["b", "c"]
+
+
+def test_closed_quadratic_state_rejects_nonempty_free_parameter_basis() -> None:
+    x, b, c = sp.symbols("x b c")
+    runtime_inputs: dict[str, object] = {
+        "quadratic": x**2 - b * x + c,
+        "x": x,
+        "all_coefficients": (b, c),
+        "known_coefficients": {b: 2, c: 3},
+        "free_parameters": [b],
+    }
+
+    with pytest.raises(StatelessMethodError) as captured:
+        _run_quadratic_input_analyzer(runtime_inputs)
+
+    diagnostic = captured.value.authority.to_payload()
+    assert diagnostic["code"] == "functional.method_input_invalid"
+    assert diagnostic["expected"] == {"free_parameters": []}
+    assert diagnostic["observed"] == {"declared_free_parameters": ["b"]}
+    assert diagnostic["repair_action"] == "remove_redundant_free_parameters"
+
+
 def test_quadratic_constraint_analyzer_preserves_only_valid_parameterization_basis() -> None:
     x, a, b, c, m = sp.symbols("x a b c m")
     base = {
@@ -237,6 +364,12 @@ def test_functional_catalog_hides_legacy_curve_parameter_primitive() -> None:
     assert {item.name for item in unified.args}.isdisjoint(
         {"p1", "p2", "p3"}
     )
+    free_parameters = next(
+        item for item in unified.args if item.name == "free_parameters"
+    )
+    assert free_parameters.allows_empty_collection
+    assert "开放状态必须填写非空基底" in free_parameters.description
+    assert "闭合状态可填写[]或省略" in free_parameters.description
     parameter_return = next(
         item for item in unified.returns if item.name == "parameter_value"
     )

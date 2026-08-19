@@ -24,6 +24,9 @@ from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
     ScopedFunctionalPlanIssue,
     ScopedFunctionalPlanValidationReport,
     ScopedFunctionalPlanValidator,
+    apply_scoped_published_goal_bindings,
+    scoped_published_goal_bindings,
+    scoped_functional_plan_authority_payload,
     scoped_functional_plan_schema,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
@@ -39,6 +42,14 @@ from shuxueshuo_server.solver.runtime.runtime_type_compatibility import (
 )
 from shuxueshuo_server.solver.runtime.runtime_type_declarations import (
     split_runtime_types,
+)
+from shuxueshuo_server.solver.runtime.return_object_authority import (
+    ReturnObjectAuthorityResolution,
+    ReturnObjectAuthorityResolver,
+    ReturnRoleAuthorityResolver,
+)
+from shuxueshuo_server.solver.state_semantics import (
+    object_kind_for_runtime_type,
 )
 
 
@@ -378,10 +389,209 @@ class FunctionalPlanContentCompilation:
     normalizations: tuple[FunctionalPlanContentNormalization, ...] = ()
     answer_bindings: tuple[FunctionalGoalAnswerBinding, ...] = ()
     answer_binding_error: FunctionalGoalAnswerBindingError | None = None
+    draft_only: bool = False
+
+
+@dataclass(frozen=True)
+class FunctionalFinalPlanContractValidation:
+    """Bind a canonical final Plan audit to one exact Plan identity."""
+
+    report: ScopedFunctionalPlanValidationReport
+    final_plan_id: str | None
+    round_trip_plan_id: str | None
+    content: FunctionalPlanContent | None = None
+    normalizations: tuple[FunctionalPlanContentNormalization, ...] = ()
+
+    @property
+    def ok(self) -> bool:
+        return (
+            self.report.ok
+            and self.final_plan_id is not None
+            and self.final_plan_id == self.round_trip_plan_id
+        )
+
+    def to_payload(self) -> dict[str, Any]:
+        return {
+            "schema_version": "functional-final-plan-contract-validation/v1",
+            "ok": self.ok,
+            "final_plan_id": self.final_plan_id,
+            "round_trip_plan_id": self.round_trip_plan_id,
+            "report": self.report.to_payload(),
+            "normalizations": [
+                item.to_payload() for item in self.normalizations
+            ],
+        }
+
+
+def capability_bound_step_schema(
+    *,
+    base_step_ref: str,
+    capability_catalog: FunctionalCapabilityCatalog,
+    source_ref_schema: Mapping[str, Any],
+    exact_result_ref_schema: Mapping[str, Any],
+    authority_frame: FunctionalPlanAuthorityFrame | None = None,
+) -> dict[str, Any]:
+    """Bind every public argument to its declared Method input view.
+
+    Named entities and verified source facts use SourceRef. A capability input
+    may consume an anonymous step result only when its public contract opts in
+    via ``allows_anonymous_result``. This wire choice is orthogonal to the
+    Method view used to materialize a named SourceRef at runtime.
+    """
+
+    variants: list[dict[str, Any]] = []
+    for capability_id, capability in sorted(capability_catalog.items.items()):
+        arg_properties: dict[str, Any] = {}
+        required_args: list[str] = []
+        for arg in capability.args:
+            if arg.input_view_mode is None:
+                raise ValueError(
+                    "planner_configuration_error: capability argument has no "
+                    f"input view: {capability_id}.{arg.name}"
+                )
+            item_schema = deepcopy(
+                exact_result_ref_schema
+                if arg.allows_anonymous_result
+                else source_ref_schema
+            )
+            if arg.allowed_refs:
+                item_schema = {
+                    "allOf": [item_schema],
+                    "enum": list(arg.allowed_refs),
+                }
+            if arg.cardinality == "one":
+                value_schema = item_schema
+            else:
+                value_schema = {
+                    "oneOf": [
+                        item_schema,
+                        {
+                            "type": "array",
+                            "minItems": (
+                                0 if arg.allows_empty_collection else 1
+                            ),
+                            "items": deepcopy(item_schema),
+                        },
+                    ]
+                }
+            arg_properties[arg.name] = value_schema
+            if arg.required:
+                required_args.append(arg.name)
+        args_schema: dict[str, Any] = {
+            "type": "object",
+            "properties": arg_properties,
+            "additionalProperties": False,
+        }
+        if required_args:
+            args_schema["required"] = required_args
+        target_returns = tuple(
+            item
+            for item in capability.returns
+            if item.binding_mode != "internal_only"
+        )
+        target_properties: dict[str, Any] = {}
+        for returned in target_returns:
+            candidates = (
+                _compatible_output_target_refs(
+                    authority_frame,
+                    return_runtime_type=returned.runtime_type,
+                )
+                if authority_frame is not None
+                else ()
+            )
+            if authority_frame is not None and not candidates:
+                continue
+            target_schema: dict[str, Any] = deepcopy(source_ref_schema)
+            if candidates:
+                target_schema = {
+                    "allOf": [target_schema],
+                    "enum": list(candidates),
+                }
+            target_properties[returned.name] = target_schema
+        expectation_returns = tuple(
+            item
+            for item in capability.returns
+            if item.possible_forms
+            and item.return_expectation_policy != "omit"
+        )
+        variants.append(
+            {
+                "allOf": [
+                    {"$ref": base_step_ref},
+                    {
+                        "type": "object",
+                        "properties": {
+                            "capability_id": {"const": capability_id},
+                            "args": args_schema,
+                            "output_targets": (
+                                {
+                                    "type": "object",
+                                    "minProperties": 1,
+                                    "description": (
+                                        "Optional bindings from produced return "
+                                        "roles to visible existing named objects. "
+                                        "This does not declare a return; anonymous "
+                                        "returns are consumed directly as exact "
+                                        "step results."
+                                    ),
+                                    "properties": target_properties,
+                                    "additionalProperties": False,
+                                }
+                                if target_properties
+                                else False
+                            ),
+                            "return_expectations": {
+                                "type": "object",
+                                "minProperties": 1,
+                                "properties": {
+                                    item.name: {
+                                        "enum": list(item.possible_forms)
+                                    }
+                                    for item in expectation_returns
+                                },
+                                "additionalProperties": False,
+                            },
+                        },
+                    },
+                ]
+            }
+        )
+    if not variants:
+        raise ValueError(
+            "planner_configuration_error: response schema capability catalog "
+            "is empty"
+        )
+    return {
+        "description": (
+            "A capability-bound step. Named Math Entities and source Facts use "
+            "string SourceRefs; object StepResultRefs are accepted only by "
+            "arguments declared as exact anonymous results."
+        ),
+        "oneOf": variants,
+    }
+
+
+def capability_bound_base_step_schema(
+    step_schema: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Relax only the generic array floor owned by a capability variant.
+
+    The base Scope/Goal step schema cannot know which optional collection
+    inputs accept ``[]``. Capability-bound variants do know, so the base must
+    not reject the value before the specific argument contract is evaluated.
+    """
+
+    result = deepcopy(step_schema)
+    result["properties"]["args"]["additionalProperties"]["oneOf"][1][
+        "minItems"
+    ] = 0
+    return result
 
 
 def functional_plan_content_schema(
     frame: FunctionalPlanAuthorityFrame,
+    *,
+    capability_catalog: FunctionalCapabilityCatalog | None = None,
 ) -> dict[str, Any]:
     """Return a strict schema bound to one exact Scope/Goal authority frame."""
 
@@ -425,6 +635,22 @@ def functional_plan_content_schema(
         "exactly one ownership container: one scope_steps array or one "
         "goal_plans.*.steps array."
     )
+    if capability_catalog is not None:
+        plan_defs["step_base"] = capability_bound_base_step_schema(
+            plan_defs["step"]
+        )
+        plan_defs["step"] = capability_bound_step_schema(
+            base_step_ref="#/$defs/step_base",
+            capability_catalog=capability_catalog,
+            source_ref_schema={"$ref": "#/$defs/source_ref"},
+            exact_result_ref_schema={
+                "oneOf": [
+                    {"$ref": "#/$defs/source_ref"},
+                    {"$ref": "#/$defs/step_result_ref"},
+                ]
+            },
+            authority_frame=frame,
+        )
     goal_plan_properties: dict[str, Any] = {}
     for goal_ref in frame.goal_refs:
         requirement = frame.goal_answers[goal_ref]
@@ -549,27 +775,62 @@ class FunctionalPlanContentCompiler:
         capability_catalog: FunctionalCapabilityCatalog,
         normalizations: tuple[FunctionalPlanContentNormalization, ...] = (),
     ) -> FunctionalPlanContentCompilation:
-        payload, wire_normalizations = _normalize_content_wire(
+        payload, wire_normalizations, wire_issues = _normalize_content_wire(
             payload,
             frame=frame,
             capability_catalog=capability_catalog,
         )
         normalizations = (*normalizations, *wire_normalizations)
+        if wire_issues:
+            draft = _structural_content_draft(payload, frame=frame)
+            if draft is not None:
+                content, plan = draft
+                return FunctionalPlanContentCompilation(
+                    content,
+                    plan,
+                    ScopedFunctionalPlanValidationReport(wire_issues),
+                    normalizations,
+                    draft_only=True,
+                )
         errors = sorted(
             Draft202012Validator(
-                functional_plan_content_schema(frame)
+                functional_plan_content_schema(
+                    frame,
+                    capability_catalog=capability_catalog,
+                )
             ).iter_errors(payload),
             key=lambda error: tuple(str(item) for item in error.absolute_path),
         )
         if errors:
-            issues = tuple(
+            issues = (
+                *wire_issues,
+                *tuple(
                 ScopedFunctionalPlanIssue(
                     "functional.plan_content_schema_invalid",
                     _json_path(error.absolute_path),
                     error.message,
+                    {
+                        "validator": str(error.validator),
+                        "validator_value": error.validator_value,
+                        "repair_action": "repair_capability_arguments",
+                    },
                 )
                 for error in errors
+                ),
             )
+            draft = _structural_content_draft(
+                payload,
+                frame=frame,
+            )
+            if draft is not None:
+                content, plan = draft
+                return FunctionalPlanContentCompilation(
+                    content,
+                    plan,
+                    ScopedFunctionalPlanValidationReport(issues),
+                    normalizations,
+                    draft_only=True,
+                )
             return FunctionalPlanContentCompilation(
                 None,
                 None,
@@ -609,10 +870,35 @@ class FunctionalPlanContentCompiler:
                 exc.path,
                 exc.message,
             )
+            draft_plan, draft_report = (
+                ScopedFunctionalPlanValidator().validate_payload_with_report(
+                    plan_payload
+                )
+            )
+            if draft_plan is not None:
+                return FunctionalPlanContentCompilation(
+                    content,
+                    draft_plan,
+                    ScopedFunctionalPlanValidationReport((issue,)),
+                    normalizations,
+                    answer_binding_error=exc,
+                )
             return FunctionalPlanContentCompilation(
                 content,
                 None,
-                ScopedFunctionalPlanValidationReport((issue,)),
+                ScopedFunctionalPlanValidationReport(
+                    (
+                        issue,
+                        *(
+                            ScopedFunctionalPlanIssue(
+                                "functional.plan_content_assembly_failed",
+                                item.path,
+                                item.message,
+                            )
+                            for item in draft_report.issues
+                        ),
+                    )
+                ),
                 normalizations,
                 answer_binding_error=exc,
             )
@@ -643,6 +929,137 @@ class FunctionalPlanContentCompiler:
             normalizations,
             answer_bindings,
         )
+
+    def validate_final_plan(
+        self,
+        plan: ScopedFunctionalPlan | None,
+        *,
+        frame: FunctionalPlanAuthorityFrame,
+        capability_catalog: FunctionalCapabilityCatalog,
+    ) -> FunctionalFinalPlanContractValidation:
+        """Round-trip one final Plan through the public content contract."""
+
+        if plan is None:
+            return FunctionalFinalPlanContractValidation(
+                report=ScopedFunctionalPlanValidationReport(
+                    (
+                        ScopedFunctionalPlanIssue(
+                            "functional.final_plan_missing",
+                            "$",
+                            "no canonical final Plan is available",
+                        ),
+                    )
+                ),
+                final_plan_id=None,
+                round_trip_plan_id=None,
+            )
+
+        final_plan_id = stable_hash(
+            scoped_functional_plan_authority_payload(plan)
+        )
+        try:
+            content = functional_plan_content_from_plan(plan, frame=frame)
+        except (TypeError, ValueError) as exc:
+            return FunctionalFinalPlanContractValidation(
+                report=ScopedFunctionalPlanValidationReport(
+                    (
+                        ScopedFunctionalPlanIssue(
+                            "functional.final_plan_projection_invalid",
+                            "$",
+                            str(exc),
+                        ),
+                    )
+                ),
+                final_plan_id=final_plan_id,
+                round_trip_plan_id=None,
+            )
+
+        compilation = self.compile_payload(
+            content.to_payload(),
+            frame=frame,
+            capability_catalog=capability_catalog,
+        )
+        issues = list(compilation.report.issues)
+        round_trip_plan = compilation.plan
+        publication_bindings = scoped_published_goal_bindings(plan)
+        if round_trip_plan is not None and publication_bindings:
+            try:
+                round_trip_plan = apply_scoped_published_goal_bindings(
+                    round_trip_plan,
+                    publication_bindings,
+                )
+            except ValueError as exc:
+                issues.append(
+                    ScopedFunctionalPlanIssue(
+                        "functional.final_plan_publication_drift",
+                        "$",
+                        str(exc),
+                    )
+                )
+                round_trip_plan = None
+        round_trip_plan_id = (
+            stable_hash(scoped_functional_plan_authority_payload(round_trip_plan))
+            if round_trip_plan is not None
+            else None
+        )
+        if (
+            round_trip_plan_id is not None
+            and round_trip_plan_id != final_plan_id
+        ):
+            issues.append(
+                ScopedFunctionalPlanIssue(
+                    "functional.final_plan_contract_drift",
+                    "$",
+                    "canonical Plan changed while round-tripping its content contract",
+                    {
+                        "final_plan_id": final_plan_id,
+                        "round_trip_plan_id": round_trip_plan_id,
+                    },
+                )
+            )
+        return FunctionalFinalPlanContractValidation(
+            report=ScopedFunctionalPlanValidationReport(tuple(issues)),
+            final_plan_id=final_plan_id,
+            round_trip_plan_id=round_trip_plan_id,
+            content=content,
+            normalizations=compilation.normalizations,
+        )
+
+
+def _structural_content_draft(
+    payload: object,
+    *,
+    frame: FunctionalPlanAuthorityFrame,
+) -> tuple[FunctionalPlanContent, ScopedFunctionalPlan] | None:
+    """Keep a parseable Scope/Goal tree when only capability schema is wrong.
+
+    The base content schema accepts both SourceRef and StepResultRef and still
+    enforces the exact Scope/Goal frame.  A payload that passes it is a useful
+    PlanDraft: execution authority can localize the invalid step and Goal retry
+    can replace that Goal without asking the model to regenerate siblings.
+    """
+
+    base_errors = tuple(
+        Draft202012Validator(functional_plan_content_schema(frame)).iter_errors(
+            payload
+        )
+    )
+    if base_errors or not isinstance(payload, dict):
+        return None
+    ownership_issues = _content_step_ownership_issues(payload)
+    if ownership_issues:
+        return None
+    content = FunctionalPlanContent(
+        scope_steps=payload.get("scope_steps", {}),
+        goal_plans=payload["goal_plans"],
+    )
+    plan_payload = _assemble_plan_payload(content, frame=frame)
+    plan, report = ScopedFunctionalPlanValidator().validate_payload_with_report(
+        plan_payload
+    )
+    if plan is None or not report.ok:
+        return None
+    return content, plan
 
 
 def functional_plan_content_from_plan(
@@ -698,36 +1115,24 @@ def _normalize_content_wire(
     *,
     frame: FunctionalPlanAuthorityFrame,
     capability_catalog: FunctionalCapabilityCatalog,
-) -> tuple[object, tuple[FunctionalPlanContentNormalization, ...]]:
+) -> tuple[
+    object,
+    tuple[FunctionalPlanContentNormalization, ...],
+    tuple[ScopedFunctionalPlanIssue, ...],
+]:
     if not isinstance(payload, dict) or payload.get("format") != (
         FUNCTIONAL_PLAN_CONTENT_CONTRACT
     ):
-        return payload, ()
+        return payload, (), ()
     normalized = deepcopy(payload)
     records: list[FunctionalPlanContentNormalization] = []
-
-    def normalize_steps(value: object, path: tuple[Any, ...]) -> None:
-        if not isinstance(value, list):
-            return
-        for index, step in enumerate(value):
-            if not isinstance(step, dict):
-                continue
-            for field_name in ("output_targets", "return_expectations"):
-                if step.get(field_name) != {}:
-                    continue
-                step.pop(field_name)
-                records.append(
-                    FunctionalPlanContentNormalization(
-                        code="functional.empty_optional_step_map_omitted",
-                        path=_json_path((*path, index, field_name)),
-                        message=f"omitted empty optional {field_name}",
-                    )
-                )
+    normalized, step_map_records = normalize_empty_optional_step_maps(
+        normalized
+    )
+    records.extend(step_map_records)
 
     scope_steps = normalized.get("scope_steps")
     if isinstance(scope_steps, dict):
-        for scope_ref, steps in scope_steps.items():
-            normalize_steps(steps, ("scope_steps", scope_ref))
         normalized["scope_steps"] = {
             key: value for key, value in scope_steps.items() if value != []
         }
@@ -738,13 +1143,22 @@ def _normalize_content_wire(
         for goal_ref, goal in goal_plans.items():
             if isinstance(goal, dict) and goal.get("steps") == []:
                 goal.pop("steps")
-            elif isinstance(goal, dict):
-                normalize_steps(
-                    goal.get("steps"),
-                    ("goal_plans", goal_ref, "steps"),
-                )
     normalized, arg_records = normalize_empty_optional_capability_args(
         normalized,
+        capability_catalog=capability_catalog,
+    )
+    normalized, unknown_arg_records = normalize_unknown_capability_args(
+        normalized,
+        capability_catalog=capability_catalog,
+    )
+    normalized, role_records, role_issues = normalize_capability_return_roles(
+        normalized,
+        frame=frame,
+        capability_catalog=capability_catalog,
+    )
+    normalized, named_ref_records = _normalize_named_entity_result_refs(
+        normalized,
+        frame=frame,
         capability_catalog=capability_catalog,
     )
     normalized, ownership_records = (
@@ -753,7 +1167,1062 @@ def _normalize_content_wire(
             frame=frame,
         )
     )
-    return normalized, (*records, *arg_records, *ownership_records)
+    return normalized, (
+        *records,
+        *arg_records,
+        *unknown_arg_records,
+        *role_records,
+        *named_ref_records,
+        *ownership_records,
+    ), role_issues
+
+
+def normalize_empty_optional_step_maps(
+    payload: object,
+) -> tuple[object, tuple[FunctionalPlanContentNormalization, ...]]:
+    """Drop empty optional maps from any authored step before schema checks.
+
+    Pass 1 and Goal repair embed the same step wire in different containers.
+    Recognizing the step by its public fields keeps this normalization shared
+    while leaving malformed non-step mappings untouched for strict validation.
+    """
+
+    normalized = deepcopy(payload)
+    records: list[FunctionalPlanContentNormalization] = []
+
+    def visit(value: object, path: tuple[Any, ...]) -> None:
+        if isinstance(value, list):
+            for index, item in enumerate(value):
+                visit(item, (*path, index))
+            return
+        if not isinstance(value, dict):
+            return
+        is_step = isinstance(value.get("step_id"), str) and isinstance(
+            value.get("capability_id"), str
+        )
+        if is_step:
+            for field_name in ("output_targets", "return_expectations"):
+                if value.get(field_name) != {}:
+                    continue
+                value.pop(field_name)
+                records.append(
+                    FunctionalPlanContentNormalization(
+                        code="functional.empty_optional_step_map_omitted",
+                        path=_json_path((*path, field_name)),
+                        message=f"omitted empty optional {field_name}",
+                    )
+                )
+        for key, item in tuple(value.items()):
+            visit(item, (*path, key))
+
+    visit(normalized, ())
+    return normalized, tuple(records)
+
+
+def normalize_capability_return_roles(
+    payload: object,
+    *,
+    frame: FunctionalPlanAuthorityFrame,
+    capability_catalog: FunctionalCapabilityCatalog,
+) -> tuple[
+    object,
+    tuple[FunctionalPlanContentNormalization, ...],
+    tuple[ScopedFunctionalPlanIssue, ...],
+]:
+    """Canonicalize public return roles only when typed constraints are unique."""
+
+    if not isinstance(payload, dict):
+        return payload, (), ()
+    normalized = deepcopy(payload)
+    steps, step_scopes = _content_steps_and_scopes(normalized, frame=frame)
+    step_paths = {
+        step_id: _content_step_path(normalized, step_id)
+        for step_id in steps
+    }
+    capabilities = {
+        step_id: capability_catalog.get(str(step.get("capability_id", "")))
+        for step_id, step in steps.items()
+    }
+    active_returns: dict[str, tuple[FunctionalCapabilityReturn, ...]] = {}
+    for step_id, step in steps.items():
+        capability = capabilities[step_id]
+        owner_scope_id = step_scopes.get(step_id)
+        if capability is None or owner_scope_id is None:
+            continue
+        active_returns[step_id] = _active_returns_for_authored_step(
+            step,
+            steps=steps,
+            capability=capability,
+            capability_catalog=capability_catalog,
+            owner_scope_id=owner_scope_id,
+            scope_parents=frame.scope_parents,
+            source_ref_domain_types=frame.source_ref_domain_types,
+        )
+
+    referenced_roles: dict[str, set[str]] = {
+        step_id: set() for step_id in steps
+    }
+    for step_id, step in steps.items():
+        declared = {item.name for item in active_returns.get(step_id, ())}
+        for field_name in ("output_targets", "return_expectations"):
+            value = step.get(field_name)
+            if isinstance(value, Mapping):
+                referenced_roles[step_id].update(set(value).intersection(declared))
+        for producer_id, return_name in _step_result_refs(step.get("args", {})):
+            if return_name in {
+                item.name for item in active_returns.get(producer_id, ())
+            }:
+                referenced_roles.setdefault(producer_id, set()).add(return_name)
+    goal_plans = normalized.get("goal_plans", {})
+    if isinstance(goal_plans, Mapping):
+        for goal in goal_plans.values():
+            if not isinstance(goal, Mapping):
+                continue
+            answer = goal.get("answer_from")
+            if not isinstance(answer, Mapping):
+                continue
+            producer_id = answer.get("step_id")
+            return_name = answer.get("return")
+            if not isinstance(producer_id, str) or not isinstance(
+                return_name, str
+            ):
+                continue
+            if return_name in {
+                item.name for item in active_returns.get(producer_id, ())
+            }:
+                referenced_roles.setdefault(producer_id, set()).add(return_name)
+
+    constraints: dict[tuple[str, str], set[str]] = {}
+    paths: dict[tuple[str, str], list[tuple[Any, ...]]] = {}
+    contexts: dict[tuple[str, str], set[str]] = {}
+    observed_forms: dict[tuple[str, str], set[str]] = {}
+    issues: list[ScopedFunctionalPlanIssue] = []
+
+    def constrain(
+        producer_id: str,
+        authored_role: str,
+        candidates: set[str],
+        *,
+        path: tuple[Any, ...],
+        context: str,
+        observed_form: str | None = None,
+    ) -> None:
+        key = (producer_id, authored_role)
+        if key in constraints:
+            constraints[key].intersection_update(candidates)
+        else:
+            constraints[key] = set(candidates)
+        paths.setdefault(key, []).append(path)
+        contexts.setdefault(key, set()).add(context)
+        if observed_form is not None:
+            observed_forms.setdefault(key, set()).add(observed_form)
+
+    def candidate_names(
+        producer_id: str,
+        returned: Sequence[FunctionalCapabilityReturn],
+    ) -> set[str]:
+        result = {item.name for item in returned}
+        used = result.intersection(referenced_roles.get(producer_id, set()))
+        return used if len(used) == 1 else result
+
+    for step_id, step in steps.items():
+        capability = capabilities[step_id]
+        owner_scope_id = step_scopes.get(step_id)
+        base_path = step_paths.get(step_id)
+        returned_items = active_returns.get(step_id, ())
+        if capability is None or owner_scope_id is None or base_path is None:
+            continue
+        returned_by_name = {item.name: item for item in returned_items}
+        output_targets = step.get("output_targets")
+        if isinstance(output_targets, Mapping):
+            for role, target in output_targets.items():
+                if not isinstance(role, str):
+                    continue
+                target_types = (
+                    _source_ref_runtime_types(
+                        target,
+                        owner_scope_id=owner_scope_id,
+                        scope_parents=frame.scope_parents,
+                        source_ref_domain_types=frame.source_ref_domain_types,
+                    )
+                    if isinstance(target, str)
+                    else set()
+                )
+                declared = returned_by_name.get(role)
+                if (
+                    declared is not None
+                    and declared.binding_mode != "internal_only"
+                    and (
+                        not isinstance(target, str)
+                        or _source_ref_accepts_return_type(
+                            target,
+                            declared.runtime_type,
+                            owner_scope_id=owner_scope_id,
+                            scope_parents=frame.scope_parents,
+                            source_ref_domain_types=(
+                                frame.source_ref_domain_types
+                            ),
+                        )
+                    )
+                ):
+                    continue
+                candidates = tuple(
+                    item
+                    for item in returned_items
+                    if item.binding_mode != "internal_only"
+                )
+                if target_types:
+                    candidates = tuple(
+                        item
+                        for item in candidates
+                        if not isinstance(target, str)
+                        or _source_ref_accepts_return_type(
+                            target,
+                            item.runtime_type,
+                            owner_scope_id=owner_scope_id,
+                            scope_parents=frame.scope_parents,
+                            source_ref_domain_types=(
+                                frame.source_ref_domain_types
+                            ),
+                        )
+                    )
+                candidates = tuple(
+                    item
+                    for item in candidates
+                    if not isinstance(output_targets.get(item.name), str)
+                    or output_targets[item.name] == target
+                )
+                if declared is not None and not candidates:
+                    continue
+                constrain(
+                    step_id,
+                    role,
+                    candidate_names(step_id, candidates),
+                    path=(*base_path, "output_targets", role),
+                    context="output_targets",
+                )
+        expectations = step.get("return_expectations")
+        if isinstance(expectations, Mapping):
+            for role, form in expectations.items():
+                if not isinstance(role, str) or not isinstance(form, str):
+                    continue
+                declared = returned_by_name.get(role)
+                if declared is not None and (
+                    declared.return_expectation_policy == "omit"
+                    or form in declared.possible_forms
+                ):
+                    continue
+                candidates = tuple(
+                    item
+                    for item in returned_items
+                    if item.return_expectation_policy != "omit"
+                    if form in item.possible_forms
+                    and (
+                        expectations.get(item.name) in (None, form)
+                    )
+                )
+                if declared is not None and not candidates:
+                    continue
+                constrain(
+                    step_id,
+                    role,
+                    candidate_names(step_id, candidates),
+                    path=(*base_path, "return_expectations", role),
+                    context="return_expectations",
+                    observed_form=form,
+                )
+
+    for consumer_id, consumer in steps.items():
+        capability = capabilities[consumer_id]
+        base_path = step_paths.get(consumer_id)
+        if capability is None or base_path is None:
+            continue
+        args = consumer.get("args")
+        if not isinstance(args, Mapping):
+            continue
+        declared_args = {item.name: item for item in capability.args}
+        for arg_name, value in args.items():
+            argument = declared_args.get(str(arg_name))
+            accepted_types = (
+                argument.accepted_item_types or (argument.runtime_type,)
+                if argument is not None
+                else ()
+            )
+            for producer_id, role in _step_result_refs(value):
+                returned_items = active_returns.get(producer_id, ())
+                declared = next(
+                    (item for item in returned_items if item.name == role),
+                    None,
+                )
+                if declared is not None and (
+                    not accepted_types
+                    or any(
+                        runtime_type_compatible(expected, declared.runtime_type)
+                        for expected in accepted_types
+                    )
+                ):
+                    continue
+                candidates = tuple(
+                    item
+                    for item in returned_items
+                    if not accepted_types
+                    or any(
+                        runtime_type_compatible(expected, item.runtime_type)
+                        for expected in accepted_types
+                    )
+                )
+                if declared is not None and not candidates:
+                    continue
+                constrain(
+                    producer_id,
+                    role,
+                    candidate_names(producer_id, candidates),
+                    path=(*base_path, "args", arg_name),
+                    context="step_result_ref",
+                )
+
+    if isinstance(goal_plans, Mapping):
+        for goal_ref, goal in goal_plans.items():
+            if not isinstance(goal, Mapping):
+                continue
+            answer = goal.get("answer_from")
+            requirement = frame.goal_answers.get(str(goal_ref))
+            if not isinstance(answer, Mapping) or requirement is None:
+                continue
+            producer_id = answer.get("step_id")
+            role = answer.get("return")
+            if not isinstance(producer_id, str) or not isinstance(role, str):
+                continue
+            returned_items = active_returns.get(producer_id, ())
+            declared = next(
+                (item for item in returned_items if item.name == role),
+                None,
+            )
+            if (
+                declared is not None
+                and declared.binding_mode != "internal_only"
+                and runtime_type_compatible(
+                    requirement.answer_type, declared.runtime_type
+                )
+                and (
+                    (target := _return_target_ref(
+                        producer_id,
+                        declared.name,
+                        steps=steps,
+                        capability_catalog=capability_catalog,
+                    ))
+                    in (None, requirement.target_ref)
+                )
+            ):
+                continue
+            candidates = tuple(
+                item
+                for item in returned_items
+                if item.binding_mode != "internal_only"
+                and runtime_type_compatible(
+                    requirement.answer_type, item.runtime_type
+                )
+                and (
+                    (target := _return_target_ref(
+                        producer_id,
+                        item.name,
+                        steps=steps,
+                        capability_catalog=capability_catalog,
+                    ))
+                    in (None, requirement.target_ref)
+                )
+            )
+            if declared is not None and not candidates:
+                continue
+            constrain(
+                producer_id,
+                role,
+                candidate_names(producer_id, candidates),
+                path=("goal_plans", goal_ref, "answer_from", "return"),
+                context="answer_from",
+            )
+
+    assignments: dict[tuple[str, str], str] = {}
+    unresolved: set[tuple[str, str]] = set()
+    by_producer: dict[str, set[str]] = {}
+    for producer_id, authored_role in constraints:
+        by_producer.setdefault(producer_id, set()).add(authored_role)
+    for producer_id, authored_roles in sorted(by_producer.items()):
+        remaining = set(authored_roles)
+        while remaining:
+            seed = min(remaining)
+            component = {seed}
+            component_roles = set(constraints[(producer_id, seed)])
+            changed = True
+            while changed:
+                changed = False
+                for authored_role in sorted(remaining - component):
+                    candidate_set = constraints[(producer_id, authored_role)]
+                    if component_roles.intersection(candidate_set):
+                        component.add(authored_role)
+                        component_roles.update(candidate_set)
+                        changed = True
+            remaining.difference_update(component)
+            resolution = ReturnRoleAuthorityResolver.resolve(
+                {
+                    authored_role: constraints[(producer_id, authored_role)]
+                    for authored_role in component
+                }
+            )
+            if resolution.unique:
+                assignments.update(
+                    {
+                        (producer_id, authored_role): public_role
+                        for authored_role, public_role in (
+                            resolution.assignments.items()
+                        )
+                    }
+                )
+            else:
+                unresolved.update((producer_id, item) for item in component)
+
+    records: list[FunctionalPlanContentNormalization] = []
+
+    def rename_map(
+        step_id: str,
+        field_name: str,
+        value: object,
+        *,
+        base_path: tuple[Any, ...],
+    ) -> None:
+        if not isinstance(value, dict):
+            return
+        for authored_role in tuple(value):
+            public_role = assignments.get((step_id, str(authored_role)))
+            if public_role is None or public_role == authored_role:
+                continue
+            authored_value = value[authored_role]
+            if public_role in value and value[public_role] != authored_value:
+                unresolved.add((step_id, str(authored_role)))
+                continue
+            value[public_role] = authored_value
+            value.pop(authored_role)
+            records.append(
+                FunctionalPlanContentNormalization(
+                    code="functional.return_role_normalized",
+                    path=_json_path((*base_path, field_name, authored_role)),
+                    message=(
+                        f"replaced authored return role {authored_role!r} with "
+                        f"the uniquely compatible public role {public_role!r}"
+                    ),
+                )
+            )
+
+    for step_id, step in steps.items():
+        base_path = step_paths.get(step_id)
+        if base_path is None:
+            continue
+        rename_map(
+            step_id,
+            "output_targets",
+            step.get("output_targets"),
+            base_path=base_path,
+        )
+        rename_map(
+            step_id,
+            "return_expectations",
+            step.get("return_expectations"),
+            base_path=base_path,
+        )
+
+    def rewrite_result_refs(value: object, path: tuple[Any, ...]) -> None:
+        if isinstance(value, list):
+            for index, item in enumerate(value):
+                rewrite_result_refs(item, (*path, index))
+            return
+        if not isinstance(value, dict):
+            return
+        if set(value) == {"step_id", "return"}:
+            producer_id = value.get("step_id")
+            authored_role = value.get("return")
+            if isinstance(producer_id, str) and isinstance(authored_role, str):
+                public_role = assignments.get((producer_id, authored_role))
+                if public_role is not None and public_role != authored_role:
+                    value["return"] = public_role
+                    records.append(
+                        FunctionalPlanContentNormalization(
+                            code="functional.return_role_normalized",
+                            path=_json_path((*path, "return")),
+                            message=(
+                                f"replaced authored return role {authored_role!r} "
+                                f"with the uniquely compatible public role "
+                                f"{public_role!r}"
+                            ),
+                        )
+                    )
+            return
+        for key, item in tuple(value.items()):
+            rewrite_result_refs(item, (*path, key))
+
+    rewrite_result_refs(normalized, ())
+
+    for producer_id, authored_role in sorted(unresolved):
+        capability = capabilities.get(producer_id)
+        if capability is None:
+            continue
+        key = (producer_id, authored_role)
+        candidate_roles = tuple(sorted(constraints.get(key, ())))
+        relevant_returns = active_returns.get(producer_id, ())
+        role_contexts = contexts.get(key, set())
+
+        def legal_for_context(item: FunctionalCapabilityReturn) -> bool:
+            if role_contexts.intersection(
+                {"output_targets", "answer_from", "step_result_ref"}
+            ) and item.binding_mode == "internal_only":
+                return False
+            if "return_expectations" in role_contexts and (
+                not item.possible_forms
+                or item.return_expectation_policy == "omit"
+            ):
+                return False
+            return True
+
+        fallback_roles = tuple(
+            item.name
+            for item in relevant_returns
+            if legal_for_context(item)
+        )
+        forms = tuple(sorted(observed_forms.get(key, ())))
+        issues.append(
+            _return_role_issue(
+                capability_id=capability.capability_id,
+                step_id=producer_id,
+                path=(paths.get(key) or [("steps", producer_id)])[0],
+                observed_role=authored_role,
+                expected_roles=candidate_roles or fallback_roles,
+                context="/".join(sorted(contexts.get(key, ()))) or "return",
+                observed_form=forms[0] if len(forms) == 1 else None,
+                expected_forms={
+                    item.name: item.possible_forms
+                    for item in relevant_returns
+                    if item.return_expectation_policy != "omit"
+                },
+            )
+        )
+    return normalized, tuple(records), tuple(issues)
+
+
+def _return_role_issue(
+    *,
+    capability_id: str,
+    step_id: str,
+    path: tuple[Any, ...],
+    observed_role: str,
+    expected_roles: Sequence[str],
+    context: str,
+    observed_form: str | None = None,
+    expected_forms: Mapping[str, Sequence[str]] | None = None,
+) -> ScopedFunctionalPlanIssue:
+    details: dict[str, Any] = {
+        "capability_id": capability_id,
+        "observed_role": observed_role,
+        "expected_roles": sorted(set(expected_roles)),
+        "return_context": context,
+        "retryability": "planner_repairable",
+        "repair_action": "repair_return_role",
+    }
+    if observed_form is not None:
+        details["observed_form"] = observed_form
+    if expected_forms:
+        details["expected_forms"] = {
+            role: list(forms)
+            for role, forms in sorted(expected_forms.items())
+            if forms
+        }
+    return ScopedFunctionalPlanIssue(
+        "functional.step_contract_invalid",
+        _json_path(path),
+        (
+            f"return role {observed_role!r} is not uniquely compatible with "
+            f"capability {capability_id!r}; expected one of "
+            f"{sorted(set(expected_roles))!r}"
+        ),
+        details,
+    )
+
+
+def _normalize_named_entity_result_refs(
+    payload: object,
+    *,
+    frame: FunctionalPlanAuthorityFrame,
+    capability_catalog: FunctionalCapabilityCatalog,
+) -> tuple[object, tuple[FunctionalPlanContentNormalization, ...]]:
+    """Replace a result ref with its unique named-Entity SourceRef.
+
+    A return bound through ``output_targets`` or ``identity_arg`` already has a
+    stable Problem identity.  Referring to that return as an anonymous step
+    result asks the model to choose an implementation view that the compiler
+    owns.  Normalize the wire before its capability-bound schema runs; later
+    latest-state binding recreates the producer edge from the same object.
+    """
+
+    if not isinstance(payload, dict):
+        return payload, ()
+    normalized = deepcopy(payload)
+    steps, step_scopes = _content_steps_and_scopes(normalized, frame=frame)
+    step_locations = _content_step_locations(normalized, frame=frame)
+    goal_answer_targets: dict[tuple[str, str], set[str]] = {}
+    goal_plans = normalized.get("goal_plans", {})
+    if isinstance(goal_plans, Mapping):
+        for goal_ref, goal in goal_plans.items():
+            requirement = frame.goal_answers.get(str(goal_ref))
+            answer = goal.get("answer_from") if isinstance(goal, Mapping) else None
+            if requirement is None or not isinstance(answer, Mapping):
+                continue
+            step_id = answer.get("step_id")
+            return_name = answer.get("return")
+            if isinstance(step_id, str) and isinstance(return_name, str):
+                goal_answer_targets.setdefault(
+                    (step_id, return_name), set()
+                ).add(requirement.target_ref)
+    writers_by_target: dict[
+        str,
+        list[tuple[_ContentStepLocation, str, str]],
+    ] = {}
+    for producer_step_id, producer in steps.items():
+        location = step_locations.get(producer_step_id)
+        capability = capability_catalog.get(
+            str(producer.get("capability_id", ""))
+        )
+        if location is None or capability is None:
+            continue
+        active_returns = _active_returns_for_authored_step(
+            producer,
+            steps=steps,
+            capability=capability,
+            capability_catalog=capability_catalog,
+            owner_scope_id=location.scope_id,
+            scope_parents=frame.scope_parents,
+            source_ref_domain_types=frame.source_ref_domain_types,
+        )
+        for returned in active_returns:
+            target_ref = _wire_return_object_resolution(
+                producer_step_id,
+                returned.name,
+                steps=steps,
+                step_scopes=step_scopes,
+                frame=frame,
+                capability_catalog=capability_catalog,
+                goal_answer_targets=goal_answer_targets,
+            ).unique_target_ref
+            if target_ref is not None:
+                writers_by_target.setdefault(target_ref, []).append(
+                    (location, returned.name, returned.runtime_type)
+                )
+    records: list[FunctionalPlanContentNormalization] = []
+
+    def normalize_value(
+        value: object,
+        *,
+        consumer_scope_id: str,
+        consumer_step_id: str,
+        accepted_runtime_types: Sequence[str],
+        path: tuple[Any, ...],
+    ) -> object:
+        if isinstance(value, list):
+            return [
+                normalize_value(
+                    item,
+                    consumer_scope_id=consumer_scope_id,
+                    consumer_step_id=consumer_step_id,
+                    accepted_runtime_types=accepted_runtime_types,
+                    path=(*path, index),
+                )
+                for index, item in enumerate(value)
+            ]
+        if not isinstance(value, dict) or set(value) != {"step_id", "return"}:
+            return value
+        producer_step_id = value.get("step_id")
+        return_name = value.get("return")
+        if not isinstance(producer_step_id, str) or not isinstance(
+            return_name, str
+        ):
+            return value
+        producer = steps.get(producer_step_id)
+        capability = (
+            capability_catalog.get(str(producer.get("capability_id", "")))
+            if producer is not None
+            else None
+        )
+        returned = (
+            next(
+                (
+                    item
+                    for item in capability.returns
+                    if item.name == return_name
+                ),
+                None,
+            )
+            if capability is not None
+            else None
+        )
+        if returned is None or returned.binding_mode == "internal_only":
+            return value
+        target_ref = _wire_return_object_resolution(
+            producer_step_id,
+            return_name,
+            steps=steps,
+            step_scopes=step_scopes,
+            frame=frame,
+            capability_catalog=capability_catalog,
+            goal_answer_targets=goal_answer_targets,
+        ).unique_target_ref
+        if target_ref is None or not _source_ref_visible_from_scope(
+            target_ref,
+            owner_scope_id=consumer_scope_id,
+            scope_parents=frame.scope_parents,
+            source_ref_domain_types=frame.source_ref_domain_types,
+        ):
+            return value
+        if not _source_ref_accepts_return_type(
+            target_ref,
+            returned.runtime_type,
+            owner_scope_id=consumer_scope_id,
+            scope_parents=frame.scope_parents,
+            source_ref_domain_types=frame.source_ref_domain_types,
+        ):
+            return value
+        consumer_location = step_locations.get(consumer_step_id)
+        if consumer_location is None:
+            return value
+        compatible_writers = [
+            (location, role)
+            for location, role, runtime_type in writers_by_target.get(
+                target_ref, ()
+            )
+            if _content_writer_visible_to_consumer(
+                location,
+                consumer_location,
+                scope_parents=frame.scope_parents,
+            )
+            and (
+                not accepted_runtime_types
+                or any(
+                    runtime_type_compatible(expected, runtime_type)
+                    for expected in accepted_runtime_types
+                )
+            )
+        ]
+        if not compatible_writers:
+            return value
+        latest_order = max(item[0].order for item in compatible_writers)
+        latest = {
+            (item.step_id, role)
+            for item, role in compatible_writers
+            if item.order == latest_order
+        }
+        if latest != {(producer_step_id, return_name)}:
+            return value
+        records.append(
+            FunctionalPlanContentNormalization(
+                code="functional.named_entity_result_ref_normalized",
+                path=_json_path(path),
+                message=(
+                    f"replaced {producer_step_id}.{return_name} with named "
+                    f"Entity SourceRef {target_ref!r}; latest-state binding "
+                    "preserves the producer dependency"
+                ),
+            )
+        )
+        return target_ref
+
+    for step_id in sorted(steps):
+        step = steps[step_id]
+        args = step.get("args")
+        scope_id = step_scopes[step_id]
+        if not isinstance(args, dict):
+            continue
+        base_path = _content_step_path(normalized, step_id)
+        if base_path is None:
+            continue
+        capability = capability_catalog.get(str(step.get("capability_id", "")))
+        declared_args = {
+            item.name: item
+            for item in (capability.args if capability is not None else ())
+        }
+        for arg_name, value in tuple(args.items()):
+            argument = declared_args.get(str(arg_name))
+            if argument is None or argument.input_view_mode != "latest_state":
+                continue
+            accepted_runtime_types = (
+                argument.accepted_item_types or (argument.runtime_type,)
+            )
+            args[arg_name] = normalize_value(
+                value,
+                consumer_scope_id=scope_id,
+                consumer_step_id=step_id,
+                accepted_runtime_types=accepted_runtime_types,
+                path=(*base_path, "args", arg_name),
+            )
+    return normalized, tuple(records)
+
+
+def _wire_return_object_resolution(
+    step_id: str,
+    return_name: str,
+    *,
+    steps: Mapping[str, Mapping[str, Any]],
+    step_scopes: Mapping[str, str],
+    frame: FunctionalPlanAuthorityFrame,
+    capability_catalog: FunctionalCapabilityCatalog,
+    goal_answer_targets: Mapping[tuple[str, str], set[str]] | None = None,
+) -> ReturnObjectAuthorityResolution:
+    """Resolve raw-wire return identity with the shared authority precedence."""
+
+    step = steps.get(step_id)
+    owner_scope_id = step_scopes.get(step_id)
+    if step is None or owner_scope_id is None:
+        return ReturnObjectAuthorityResolver.resolve()
+    capability = capability_catalog.get(str(step.get("capability_id", "")))
+    if capability is None:
+        return ReturnObjectAuthorityResolver.resolve()
+    returned = next(
+        (item for item in capability.returns if item.name == return_name),
+        None,
+    )
+    if returned is None:
+        return ReturnObjectAuthorityResolver.resolve()
+    output_targets = step.get("output_targets", {})
+    explicit = (
+        (str(output_targets[return_name]),)
+        if isinstance(output_targets, Mapping)
+        and isinstance(output_targets.get(return_name), str)
+        and output_targets[return_name]
+        else ()
+    )
+    args = step.get("args", {})
+    declared: set[str] = set()
+    selected: set[str] = set()
+    if (
+        returned.identity_policy == "preserve_input_object"
+        and returned.identity_arg is not None
+    ):
+        if isinstance(args, Mapping) and returned.identity_arg in args:
+            declared.update(
+                _value_target_refs(
+                    args[returned.identity_arg],
+                    steps=steps,
+                    capability_catalog=capability_catalog,
+                    seen=frozenset({(step_id, return_name)}),
+                )
+            )
+        auto_arg = next(
+            (
+                item
+                for item in capability.auto_args
+                if item.name == returned.identity_arg
+            ),
+            None,
+        )
+        if auto_arg is not None:
+            selected.update(
+                _wire_auto_selector_object_refs(
+                    auto_arg.selector,
+                    owner_scope_id=owner_scope_id,
+                    frame=frame,
+                )
+            )
+    return ReturnObjectAuthorityResolver.resolve(
+        explicit_output_targets=explicit,
+        goal_answer_targets=(goal_answer_targets or {}).get(
+            (step_id, return_name), ()
+        ),
+        declared_identity_targets=declared,
+        compiler_selector_targets=selected,
+    )
+
+
+def _wire_auto_selector_object_refs(
+    selector: str,
+    *,
+    owner_scope_id: str,
+    frame: FunctionalPlanAuthorityFrame,
+) -> frozenset[str]:
+    selector_kind, separator, local_ref = selector.partition(":")
+    expected_domain_type = {
+        "function": "QuadraticFunction",
+        "point": "Point",
+        "symbol": "Symbol",
+        "line": "Line",
+        "ray": "Ray",
+        "polygon": "Polygon",
+    }.get(selector_kind)
+    if not separator or expected_domain_type is None or not local_ref:
+        return frozenset()
+    current: str | None = owner_scope_id
+    while current is not None:
+        actual = frame.source_ref_domain_types.get(current, {}).get(local_ref)
+        if actual is not None:
+            return (
+                frozenset((local_ref,))
+                if actual == expected_domain_type
+                else frozenset()
+            )
+        current = frame.scope_parents.get(current)
+    return frozenset()
+
+
+def _content_steps_and_scopes(
+    payload: Mapping[str, Any],
+    *,
+    frame: FunctionalPlanAuthorityFrame,
+) -> tuple[dict[str, dict[str, Any]], dict[str, str]]:
+    steps: dict[str, dict[str, Any]] = {}
+    scopes: dict[str, str] = {}
+    scope_steps = payload.get("scope_steps", {})
+    if isinstance(scope_steps, Mapping):
+        for scope_ref, items in scope_steps.items():
+            if not isinstance(items, list):
+                continue
+            for step in items:
+                if not isinstance(step, dict) or not isinstance(
+                    step.get("step_id"), str
+                ):
+                    continue
+                steps[step["step_id"]] = step
+                scopes[step["step_id"]] = str(scope_ref)
+    goal_plans = payload.get("goal_plans", {})
+    if isinstance(goal_plans, Mapping):
+        for goal_ref, goal in goal_plans.items():
+            if not isinstance(goal, Mapping) or not isinstance(
+                goal.get("steps"), list
+            ):
+                continue
+            owner_scope_id = frame.goal_owners.get(str(goal_ref))
+            if owner_scope_id is None:
+                continue
+            for step in goal["steps"]:
+                if not isinstance(step, dict) or not isinstance(
+                    step.get("step_id"), str
+                ):
+                    continue
+                steps[step["step_id"]] = step
+                scopes[step["step_id"]] = owner_scope_id
+    return steps, scopes
+
+
+@dataclass(frozen=True)
+class _ContentStepLocation:
+    step_id: str
+    scope_id: str
+    goal_ref: str | None
+    order: int
+
+
+def _content_step_locations(
+    payload: Mapping[str, Any],
+    *,
+    frame: FunctionalPlanAuthorityFrame,
+) -> dict[str, _ContentStepLocation]:
+    """Index wire steps in the exact order used by Plan assembly."""
+
+    scope_steps = payload.get("scope_steps", {})
+    goal_plans = payload.get("goal_plans", {})
+    locations: dict[str, _ContentStepLocation] = {}
+    duplicates: set[str] = set()
+    order = 0
+
+    def add(step: object, *, scope_id: str, goal_ref: str | None) -> None:
+        nonlocal order
+        if not isinstance(step, Mapping) or not isinstance(
+            step.get("step_id"), str
+        ):
+            return
+        step_id = str(step["step_id"])
+        location = _ContentStepLocation(step_id, scope_id, goal_ref, order)
+        order += 1
+        if step_id in locations:
+            duplicates.add(step_id)
+        else:
+            locations[step_id] = location
+
+    def visit(scope: Mapping[str, Any]) -> None:
+        scope_id = str(scope["scope_ref"])
+        if isinstance(scope_steps, Mapping):
+            authored_scope_steps = scope_steps.get(scope_id, ())
+            if isinstance(authored_scope_steps, list):
+                for step in authored_scope_steps:
+                    add(step, scope_id=scope_id, goal_ref=None)
+        if isinstance(goal_plans, Mapping):
+            for goal_ref in scope.get("goal_refs", ()):
+                goal = goal_plans.get(str(goal_ref), {})
+                if not isinstance(goal, Mapping):
+                    continue
+                authored_goal_steps = goal.get("steps", ())
+                if isinstance(authored_goal_steps, list):
+                    for step in authored_goal_steps:
+                        add(step, scope_id=scope_id, goal_ref=str(goal_ref))
+        for child in scope.get("children", ()):
+            if isinstance(child, Mapping):
+                visit(child)
+
+    root = thaw_json(frame.root_scope)
+    if isinstance(root, Mapping):
+        visit(root)
+    for step_id in duplicates:
+        locations.pop(step_id, None)
+    return locations
+
+
+def _content_writer_visible_to_consumer(
+    producer: _ContentStepLocation,
+    consumer: _ContentStepLocation,
+    *,
+    scope_parents: Mapping[str, str | None],
+) -> bool:
+    if producer.order >= consumer.order:
+        return False
+    if producer.goal_ref is not None:
+        return producer.goal_ref == consumer.goal_ref
+    return producer.scope_id in _visible_scope_ids(
+        consumer.scope_id,
+        scope_parents,
+    )
+
+
+def _content_step_path(
+    payload: Mapping[str, Any],
+    step_id: str,
+) -> tuple[Any, ...] | None:
+    scope_steps = payload.get("scope_steps", {})
+    if isinstance(scope_steps, Mapping):
+        for scope_ref, items in scope_steps.items():
+            if not isinstance(items, list):
+                continue
+            for index, step in enumerate(items):
+                if isinstance(step, Mapping) and step.get("step_id") == step_id:
+                    return ("scope_steps", scope_ref, index)
+    goal_plans = payload.get("goal_plans", {})
+    if isinstance(goal_plans, Mapping):
+        for goal_ref, goal in goal_plans.items():
+            if not isinstance(goal, Mapping) or not isinstance(
+                goal.get("steps"), list
+            ):
+                continue
+            for index, step in enumerate(goal["steps"]):
+                if isinstance(step, Mapping) and step.get("step_id") == step_id:
+                    return ("goal_plans", goal_ref, "steps", index)
+    return None
+
+
+def _source_ref_visible_from_scope(
+    ref: str,
+    *,
+    owner_scope_id: str,
+    scope_parents: Mapping[str, str | None],
+    source_ref_domain_types: Mapping[str, Mapping[str, str]],
+) -> bool:
+    current: str | None = owner_scope_id
+    while current is not None:
+        if ref in source_ref_domain_types.get(current, {}):
+            return True
+        current = scope_parents.get(current)
+    return False
 
 
 def _normalize_exact_cross_container_step_duplicates(
@@ -967,12 +2436,13 @@ def normalize_empty_optional_capability_args(
     *,
     capability_catalog: FunctionalCapabilityCatalog,
 ) -> tuple[object, tuple[FunctionalPlanContentNormalization, ...]]:
-    """Omit only capability-declared optional empty collection arguments.
+    """Canonicalize capability-declared optional empty collections to omission.
 
-    The generic wire schema intentionally keeps arrays non-empty. This
-    pre-schema pass tolerates a model spelling an optional many-valued input as
-    ``[]`` while leaving required, scalar, and unknown empty arguments intact
-    so the normal contract rejects them.
+    A Method may explicitly allow ``[]`` in the wire schema when an empty
+    collection is a useful authored spelling, such as a closed symbolic state.
+    The canonical Plan still collapses ``[]`` and omission to one representation.
+    Required, scalar, and unknown empty arguments remain untouched so the
+    normal contract rejects them.
     """
 
     normalized = deepcopy(payload)
@@ -1024,6 +2494,77 @@ def normalize_empty_optional_capability_args(
     return normalized, tuple(records)
 
 
+def normalize_unknown_capability_args(
+    payload: object,
+    *,
+    capability_catalog: FunctionalCapabilityCatalog,
+) -> tuple[object, tuple[FunctionalPlanContentNormalization, ...]]:
+    """Drop surplus arguments only after the public contract is complete.
+
+    This is the content-wire counterpart of the canonical Plan normalizer. An
+    unknown field cannot affect execution once every required public argument
+    is present with a valid cardinality. Moving the rule before strict schema
+    validation prevents a harmless extra field from forcing an LLM retry.
+    """
+
+    normalized = deepcopy(payload)
+    records: list[FunctionalPlanContentNormalization] = []
+
+    def cardinality_is_valid(value: object, cardinality: str) -> bool:
+        if cardinality == "one":
+            return not isinstance(value, list) and value is not None
+        if isinstance(value, list):
+            return bool(value)
+        return value is not None
+
+    def visit(value: object, path: tuple[Any, ...]) -> None:
+        if isinstance(value, list):
+            for index, item in enumerate(value):
+                visit(item, (*path, index))
+            return
+        if not isinstance(value, dict):
+            return
+        capability_id = value.get("capability_id")
+        args = value.get("args")
+        capability = (
+            capability_catalog.get(capability_id)
+            if isinstance(capability_id, str)
+            else None
+        )
+        if capability is not None and isinstance(args, dict):
+            declared = {item.name: item for item in capability.args}
+            required_complete = all(
+                item.name in args
+                and cardinality_is_valid(args[item.name], item.cardinality)
+                for item in capability.args
+                if item.required
+            )
+            declared_cardinalities_valid = all(
+                name not in declared
+                or cardinality_is_valid(item, declared[name].cardinality)
+                for name, item in args.items()
+            )
+            if required_complete and declared_cardinalities_valid:
+                for arg_name in sorted(set(args) - set(declared)):
+                    args.pop(arg_name)
+                    records.append(
+                        FunctionalPlanContentNormalization(
+                            code="functional.unknown_capability_arg_omitted",
+                            path=_json_path((*path, "args", arg_name)),
+                            message=(
+                                "omitted surplus capability argument "
+                                f"{capability_id}.{arg_name} after the "
+                                "declared call contract was complete"
+                            ),
+                        )
+                    )
+        for key, item in tuple(value.items()):
+            visit(item, (*path, key))
+
+    visit(normalized, ())
+    return normalized, tuple(records)
+
+
 def _assemble_plan_payload(
     content: FunctionalPlanContent,
     *,
@@ -1068,9 +2609,11 @@ def derive_goal_answer_bindings(
 ) -> tuple[dict[str, Any], tuple[FunctionalGoalAnswerBinding, ...]]:
     """Derive canonical answer sources from typed Goal and return authority.
 
-    The resolver never uses step names, array order, or textual similarity. A
-    valid authored ``answer_from`` is authoritative. Candidate ranking is only
-    a deterministic fallback when that pointer is absent or invalid.
+    The resolver never chooses a different mathematical producer on the LLM's
+    behalf. A valid authored ``answer_from`` is authoritative. If its step is
+    valid and that step has exactly one active target/type-compatible return,
+    code may normalize only the public return name. Every other mismatch stays
+    a Goal-level authoring error.
     """
 
     payload = deepcopy(plan_payload)
@@ -1162,15 +2705,6 @@ def derive_goal_answer_bindings(
                 )
             selected = exact[0]
         else:
-            if not candidates:
-                raise FunctionalGoalAnswerBindingError(
-                    goal_ref=goal_ref,
-                    target_ref=requirement.target_ref,
-                    answer_type=requirement.answer_type,
-                    candidates=(),
-                    reason="no visible type-compatible return was found",
-                    authored_answer=authored_answers.get(goal_ref),
-                )
             authored = authored_answers.get(goal_ref)
             authored_match = (
                 [
@@ -1186,30 +2720,40 @@ def derive_goal_answer_bindings(
                 selected = authored_match[0]
                 match_basis = f"authored_answer_from:{selected.basis}"
             else:
-                best_rank = min(item.rank for item in candidates)
-                best = tuple(
-                    item for item in candidates if item.rank == best_rank
+                same_step = tuple(
+                    item
+                    for item in candidates
+                    if authored is not None
+                    and item.step_id == authored.get("step_id")
                 )
-                if len(best) != 1:
+                if authored is not None and len(same_step) == 1:
+                    selected = same_step[0]
+                    match_basis = (
+                        "normalize_public_return_name:"
+                        f"{selected.basis}"
+                    )
+                else:
+                    diagnostic_candidates = same_step or candidates
+                    if authored is None:
+                        reason = "answer_from was not authored"
+                    elif not same_step:
+                        reason = (
+                            "its authored step has no active return compatible "
+                            "with the required target and answer type"
+                        )
+                    else:
+                        reason = (
+                            "its authored step has multiple active returns "
+                            "compatible with the required target and answer type"
+                        )
                     raise FunctionalGoalAnswerBindingError(
                         goal_ref=goal_ref,
                         target_ref=requirement.target_ref,
                         answer_type=requirement.answer_type,
-                        candidates=best,
-                        reason=(
-                            "the authored answer_from did not identify one of "
-                            f"{len(best)} equally authoritative returns"
-                            if authored is not None
-                            else (
-                                f"{len(best)} equally authoritative returns "
-                                "were found"
-                            )
-                        ),
+                        candidates=diagnostic_candidates,
+                        reason=reason,
                         authored_answer=authored,
                     )
-                selected = best[0]
-                if authored is not None:
-                    match_basis = f"fallback_from_invalid_authored:{selected.basis}"
         goals[goal_ref]["answer_from"] = {
             "step_id": selected.step_id,
             "return": selected.return_name,
@@ -1494,6 +3038,79 @@ def _source_ref_runtime_types(
     return set()
 
 
+def _source_ref_accepts_return_type(
+    ref: str,
+    return_runtime_type: str,
+    *,
+    owner_scope_id: str,
+    scope_parents: Mapping[str, str | None],
+    source_ref_domain_types: Mapping[str, Mapping[str, str]],
+) -> bool:
+    """Check a return against both an Entity identity and its state types."""
+
+    current: str | None = owner_scope_id
+    domain_type: str | None = None
+    while current is not None:
+        domain_type = source_ref_domain_types.get(current, {}).get(ref)
+        if domain_type is not None:
+            break
+        current = scope_parents.get(current)
+    if domain_type is None:
+        return False
+    domain_object_kind = {
+        "Point": "point",
+        "QuadraticFunction": "function",
+        "Symbol": "symbol",
+        "Line": "line",
+        "Ray": "ray",
+        "Polygon": "polygon",
+    }.get(domain_type)
+    return_object_kind = object_kind_for_runtime_type(return_runtime_type)
+    if (
+        domain_object_kind is not None
+        and return_object_kind == domain_object_kind
+    ):
+        return True
+    return any(
+        runtime_type_compatible(return_runtime_type, runtime_type)
+        for runtime_type in _source_ref_runtime_types(
+            ref,
+            owner_scope_id=owner_scope_id,
+            scope_parents=scope_parents,
+            source_ref_domain_types=source_ref_domain_types,
+        )
+    )
+
+
+def _compatible_output_target_refs(
+    frame: FunctionalPlanAuthorityFrame,
+    *,
+    return_runtime_type: str,
+) -> tuple[str, ...]:
+    """Return every existing named object that is compatible in some scope.
+
+    A step's exact owner is supplied by the authored Scope/Goal container, so
+    the response schema exposes the union and the canonical Plan audit applies
+    the final lexical-visibility check. Unknown free-form target names never
+    enter the provider schema.
+    """
+
+    refs = {
+        ref
+        for owner_scope_id in frame.scope_refs
+        for values in frame.source_ref_domain_types.values()
+        for ref in values
+        if _source_ref_accepts_return_type(
+            ref,
+            return_runtime_type,
+            owner_scope_id=owner_scope_id,
+            scope_parents=frame.scope_parents,
+            source_ref_domain_types=frame.source_ref_domain_types,
+        )
+    }
+    return tuple(sorted(refs))
+
+
 def _visible_scope_ids(
     owner_scope_id: str,
     scope_parents: Mapping[str, str | None],
@@ -1634,14 +3251,18 @@ __all__ = [
     "FunctionalPlanContentCompilation",
     "FunctionalPlanContentCompiler",
     "FunctionalPlanContentNormalization",
+    "FunctionalFinalPlanContractValidation",
     "FunctionalGoalAnswerBinding",
     "FunctionalGoalAnswerBindingError",
     "FunctionalGoalAnswerCandidate",
     "FunctionalGoalAnswerRequirement",
+    "capability_bound_step_schema",
     "decode_single_json_object",
     "derive_goal_answer_bindings",
     "functional_plan_content_from_plan",
     "functional_plan_prompt_payload",
     "functional_plan_content_schema",
     "normalize_empty_optional_capability_args",
+    "normalize_empty_optional_step_maps",
+    "normalize_unknown_capability_args",
 ]

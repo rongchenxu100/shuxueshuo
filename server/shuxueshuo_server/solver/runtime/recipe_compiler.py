@@ -42,7 +42,7 @@ from shuxueshuo_server.solver.runtime.condition_roles import (
 )
 from shuxueshuo_server.solver.runtime.equal_length_ray_roles import (
     EqualLengthRayRoleError,
-    resolve_equal_length_ray_path_roles,
+    build_equal_length_ray_role_candidates,
 )
 from shuxueshuo_server.solver.runtime._planner_helpers import single_invocation_step
 from shuxueshuo_server.solver.runtime.method_specs import (
@@ -2076,7 +2076,28 @@ class _RecipePlanCompiler:
         inputs = resolve_read_closed_right_angle_inputs(step, self.index)
         candidates = _temp(step.step_id, "candidates")
         selected = _temp(step.step_id, "selected_point")
-        target_path = self.index.path_for(inputs.target, expected_type="PointRef")
+        target_identity_path = self.index.point_ref_path_for(
+            inputs.target,
+            step_id=step.step_id,
+        )
+        target_output = next(
+            (
+                item
+                for item in _compile_return_outputs(step)
+                if item.output_type == "Point"
+            ),
+            None,
+        )
+        if target_output is None:
+            raise StrategyDraftValidationError(
+                "right_angle_target_output_missing"
+            )
+        target_state_path = _target_path_for_produced(
+            target_output,
+            "Point",
+            self.index,
+            step,
+        )
         invocations = [
             MethodInvocation(
                 invocation_id=f"{step.step_id}.right_angle_equal_length_candidates",
@@ -2091,7 +2112,7 @@ class _RecipePlanCompiler:
                         inputs.reference,
                         expected_type="Point",
                     ),
-                    "target": target_path,
+                    "target": target_identity_path,
                 },
                 outputs={"candidates": candidates},
             ),
@@ -2101,7 +2122,7 @@ class _RecipePlanCompiler:
                 scope=step.step_id,
                 inputs={
                     "candidates": candidates,
-                    "target": target_path,
+                    "target": target_identity_path,
                     "quadrant": self.index.path_for(
                         inputs.orientation,
                         expected_type="OrientationHint",
@@ -2123,16 +2144,21 @@ class _RecipePlanCompiler:
             goal=StepGoal(
                 goal_id=f"{step.goal_type}:{step.step_id}",
                 type=step.goal_type,
-                target_path=target_path,
-                scope_id=_handle_scope(inputs.target),
+                target_path=target_state_path,
+                scope_id=target_output.valid_scope,
             ),
-            scope=_handle_scope(inputs.target),
+            scope=target_output.valid_scope,
             invocations=invocations,
-            expected_outputs=[target_path],
-            promote_outputs={selected: target_path},
+            expected_outputs=[target_state_path],
+            promote_outputs={selected: target_state_path},
         )
         registrations = tuple(
-            RuntimeHandleBinding(item.handle, target_path, "Point", f"step:{step.step_id}")
+            RuntimeHandleBinding(
+                item.handle,
+                target_state_path,
+                "Point",
+                f"step:{step.step_id}",
+            )
             for item in _compile_return_outputs(step)
         )
         return _CompiledStep(plan=plan, registrations=registrations)
@@ -3096,11 +3122,11 @@ def _equal_length_ray_path_reduction_roles(
     target_fact = index.fact_handle_by_type("path_minimum_target", step=step)
 
     try:
-        roles = resolve_equal_length_ray_path_roles(
-            ray_payload=index.fact_payload(ray_fact),
-            segment_payload=index.fact_payload(segment_fact),
-            equal_payload=index.fact_payload(equal_fact),
-            target_payload=index.fact_payload(target_fact),
+        candidates = build_equal_length_ray_role_candidates(
+            ray_facts=((ray_fact, index.fact_payload(ray_fact)),),
+            segment_facts=((segment_fact, index.fact_payload(segment_fact)),),
+            equal_facts=((equal_fact, index.fact_payload(equal_fact)),),
+            target_facts=((target_fact, index.fact_payload(target_fact)),),
             entity_payload=index.entity_payload,
             visible_point_handles=index.entity_handles("point", step=step),
             resolve_point_name=lambda name: index.point_handle_by_name(
@@ -3112,6 +3138,13 @@ def _equal_length_ray_path_reduction_roles(
         raise StrategyDraftValidationError(
             f"{exc.code}: {step.step_id}: {exc}"
         ) from exc
+    if len(candidates) != 1:
+        raise StrategyDraftValidationError(
+            "functional.macro_search_ambiguous: "
+            f"{step.step_id}: expected one structure-valid equal-length role "
+            f"candidate, got {len(candidates)}"
+        )
+    roles = candidates[0].roles
     return {
         "anchor": roles.anchor,
         "ray_point": roles.ray_point,

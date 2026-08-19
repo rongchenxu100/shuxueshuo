@@ -123,4 +123,3 @@ def _planner_output_variant(runtime_type: str) -> str:
         "StraighteningCandidates": "PathCandidateList",
         "StraighteningCandidateList": "PathCandidateList",
     }.get(runtime_type, runtime_type)
-

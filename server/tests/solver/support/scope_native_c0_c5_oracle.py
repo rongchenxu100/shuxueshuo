@@ -1,4 +1,4 @@
-"""Independent cross-scope and StateVersion reference model.
+"""Independent scope-native and StateVersion reference model.
 
 This module intentionally uses only the Python standard library.  It must not
 import planner runtime services: the generated gate needs an oracle that can
@@ -22,13 +22,35 @@ DependencyKind = Literal[
 ]
 WriteMode = Literal["create", "transition", "value"]
 ProjectionKind = Literal["object", "answer", "object+answer", "call_local"]
-RetryMode = Literal[
+StateRestoreMode = Literal[
     "none",
-    "committed_restore",
-    "provisional_replacement",
+    "locked_restore",
+    "discard_provisional",
     "version_drift",
 ]
 StateReadMode = Literal["exact", "latest", "identity_only", "call_result"]
+
+SCOPE_NATIVE_C0_C5_CONTRACT = "scope-native-c0-c5/v1"
+SCOPE_NATIVE_GOAL_RETRY_CONTRACT = "scope-native-goal-retry/v1"
+SCOPE_NATIVE_REGRESSION_CONTRACT = "scope-native-gate-regressions/v1"
+
+GoalRepairMode = Literal[
+    "valid",
+    "stale_plan",
+    "stale_context",
+    "missing_editable_goal",
+    "foreign_goal",
+    "foreign_scope",
+    "invalid_answer",
+    "no_progress",
+]
+ClosureFailureMode = Literal[
+    "identity_unresolved",
+    "underdetermined",
+    "ambiguous",
+    "inconsistent",
+]
+ClosureRepairMode = Literal["valid", "stale_plan"]
 
 
 @dataclass(frozen=True)
@@ -114,8 +136,8 @@ class ModelCall:
 
 
 @dataclass(frozen=True)
-class ModelRetryCheckpoint:
-    mode: RetryMode
+class ModelStateRestoreCheckpoint:
+    mode: StateRestoreMode
     committed_call_ids: tuple[str, ...] = ()
     committed_version_ids: tuple[str, ...] = ()
     provisional_call_ids: tuple[str, ...] = ()
@@ -143,6 +165,168 @@ class ModelClosureCheckpoint:
             self.branch_count,
             tuple(sorted(self.equation_sources)),
             tuple(sorted(self.residual_symbols)),
+        )
+
+
+@dataclass(frozen=True)
+class ScopeNativeRetryScenario:
+    """Independent Goal-replacement scenario, never a production DTO."""
+
+    fixture_profile: Literal["failed_goal", "published_goal"]
+    repair_mode: GoalRepairMode
+    reverse_mapping_order: bool
+    retry_round: int
+    variant: int
+    schema_version: str = SCOPE_NATIVE_GOAL_RETRY_CONTRACT
+    scenario_id: str = ""
+
+    def __post_init__(self) -> None:
+        if self.schema_version != SCOPE_NATIVE_GOAL_RETRY_CONTRACT:
+            raise ValueError("unsupported scope-native Goal retry contract")
+        if self.retry_round not in {1, 2}:
+            raise ValueError("retry_round must be 1 or 2")
+        if self.variant < 0:
+            raise ValueError("variant must be non-negative")
+        if self.scenario_id:
+            return
+        digest = hashlib.sha256(
+            json.dumps(
+                self.to_payload(include_id=False),
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
+        ).hexdigest()[:16]
+        object.__setattr__(self, "scenario_id", f"snr-{digest}")
+
+    def to_payload(self, *, include_id: bool = True) -> dict[str, Any]:
+        payload = asdict(self)
+        if not include_id:
+            payload.pop("scenario_id", None)
+        return payload
+
+
+@dataclass(frozen=True)
+class ScopeNativeRetryExpectedOutcome:
+    accepted: bool
+    error_code: str | None
+    no_progress: bool
+    solved_goal_reexecution_count: int
+    failed_transaction_ghost_write_count: int
+
+
+class ScopeNativeRetryReferenceModel:
+    """Small Goal-repair oracle with no production imports."""
+
+    _ERROR_CODES = {
+        "stale_plan": "functional.goal_repair_stale_plan",
+        "stale_context": "functional.goal_repair_authority_drift",
+        "missing_editable_goal": "functional.goal_repair_boundary_violation",
+        "foreign_goal": "functional.goal_repair_boundary_violation",
+        "foreign_scope": "functional.goal_repair_boundary_violation",
+        "invalid_answer": "functional.goal_repair_answer_source_invalid",
+    }
+
+    def evaluate(
+        self,
+        scenario: ScopeNativeRetryScenario,
+    ) -> ScopeNativeRetryExpectedOutcome:
+        if scenario.repair_mode == "valid":
+            return ScopeNativeRetryExpectedOutcome(
+                accepted=True,
+                error_code=None,
+                no_progress=False,
+                solved_goal_reexecution_count=0,
+                failed_transaction_ghost_write_count=0,
+            )
+        if scenario.repair_mode == "no_progress":
+            return ScopeNativeRetryExpectedOutcome(
+                accepted=False,
+                error_code=None,
+                no_progress=True,
+                solved_goal_reexecution_count=0,
+                failed_transaction_ghost_write_count=0,
+            )
+        return ScopeNativeRetryExpectedOutcome(
+            accepted=False,
+            error_code=self._ERROR_CODES[scenario.repair_mode],
+            no_progress=False,
+            solved_goal_reexecution_count=0,
+            failed_transaction_ghost_write_count=0,
+        )
+
+
+@dataclass(frozen=True)
+class ScopeNativeC5RetryScenario:
+    """Execution-to-closure-to-repair scenario independent of production."""
+
+    closure_failure: ClosureFailureMode
+    expose_residual_symbol: bool
+    expose_equation_sources: bool
+    repair_mode: ClosureRepairMode
+    reverse_mapping_order: bool
+    variant: int
+    schema_version: str = SCOPE_NATIVE_C0_C5_CONTRACT
+    scenario_id: str = ""
+
+    def __post_init__(self) -> None:
+        if self.schema_version != SCOPE_NATIVE_C0_C5_CONTRACT:
+            raise ValueError("unsupported scope-native C5 contract")
+        if self.variant < 0:
+            raise ValueError("variant must be non-negative")
+        if self.scenario_id:
+            return
+        digest = hashlib.sha256(
+            json.dumps(
+                self.to_payload(include_id=False),
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
+        ).hexdigest()[:16]
+        object.__setattr__(self, "scenario_id", f"sn5-{digest}")
+
+    def to_payload(self, *, include_id: bool = True) -> dict[str, Any]:
+        payload = asdict(self)
+        if not include_id:
+            payload.pop("scenario_id", None)
+        return payload
+
+
+@dataclass(frozen=True)
+class ScopeNativeC5ExpectedOutcome:
+    initial_failure_code: str
+    diagnostic_in_retry_prompt: bool
+    accepted: bool
+    repair_error_code: str | None
+    remaining_free: tuple[str, ...]
+    equation_sources: tuple[str, ...]
+    solved_goal_reexecution_count: int = 0
+    failed_transaction_ghost_write_count: int = 0
+
+
+class ScopeNativeC5ReferenceModel:
+    """Pure oracle for closure diagnostic and Goal repair composition."""
+
+    def evaluate(
+        self,
+        scenario: ScopeNativeC5RetryScenario,
+    ) -> ScopeNativeC5ExpectedOutcome:
+        return ScopeNativeC5ExpectedOutcome(
+            initial_failure_code=(
+                f"function.symbolic_closure_{scenario.closure_failure}"
+            ),
+            diagnostic_in_retry_prompt=True,
+            accepted=scenario.repair_mode == "valid",
+            repair_error_code=(
+                None
+                if scenario.repair_mode == "valid"
+                else "functional.goal_repair_stale_plan"
+            ),
+            remaining_free=("c",) if scenario.expose_residual_symbol else (),
+            equation_sources=(
+                ("expression", "condition")
+                if scenario.expose_equation_sources
+                else ()
+            ),
         )
 
 
@@ -191,14 +375,14 @@ def _closure_checkpoint_from_payload(
 
 
 @dataclass(frozen=True)
-class CrossScopeVersionScenario:
+class ScopeNativeGateScenario:
     scopes: tuple[ModelScope, ...]
     objects: tuple[ModelObject, ...]
     initial_versions: tuple[ModelVersion, ...]
     calls: tuple[ModelCall, ...]
     wire_order: tuple[str, ...]
     dependency_edges: tuple[ModelDependency, ...] = ()
-    retry_checkpoint: ModelRetryCheckpoint | None = None
+    state_restore_checkpoint: ModelStateRestoreCheckpoint | None = None
     dimensions: tuple[tuple[str, str], ...] = ()
     seed: int | None = None
     scenario_id: str = ""
@@ -214,14 +398,14 @@ class CrossScopeVersionScenario:
                 separators=(",", ":"),
             ).encode("utf-8")
         ).hexdigest()[:16]
-        object.__setattr__(self, "scenario_id", f"csv-{digest}")
+        object.__setattr__(self, "scenario_id", f"snc-{digest}")
 
     def to_payload(self, *, include_id: bool = True) -> dict[str, Any]:
         payload = asdict(self)
         for call in payload.get("calls", ()):
             if not call.get("state_reads"):
                 call.pop("state_reads", None)
-        checkpoint = payload.get("retry_checkpoint")
+        checkpoint = payload.get("state_restore_checkpoint")
         if isinstance(checkpoint, dict):
             if checkpoint.get("expected_closure") is None:
                 checkpoint.pop("expected_closure", None)
@@ -235,7 +419,7 @@ class CrossScopeVersionScenario:
     def from_payload(
         cls,
         payload: Mapping[str, Any],
-    ) -> "CrossScopeVersionScenario":
+    ) -> "ScopeNativeGateScenario":
         state_keys: dict[tuple[str, str, str], ModelStateKey] = {}
 
         def state_key(value: Mapping[str, Any] | None) -> ModelStateKey | None:
@@ -329,61 +513,61 @@ class CrossScopeVersionScenario:
                 )
                 for item in payload.get("dependency_edges", ())
             ),
-            retry_checkpoint=(
-                ModelRetryCheckpoint(
-                    mode=payload["retry_checkpoint"]["mode"],
+            state_restore_checkpoint=(
+                ModelStateRestoreCheckpoint(
+                    mode=payload["state_restore_checkpoint"]["mode"],
                     committed_call_ids=tuple(
-                        payload["retry_checkpoint"].get(
+                        payload["state_restore_checkpoint"].get(
                             "committed_call_ids", ()
                         )
                     ),
                     committed_version_ids=tuple(
-                        payload["retry_checkpoint"].get(
+                        payload["state_restore_checkpoint"].get(
                             "committed_version_ids", ()
                         )
                     ),
                     provisional_call_ids=tuple(
-                        payload["retry_checkpoint"].get(
+                        payload["state_restore_checkpoint"].get(
                             "provisional_call_ids", ()
                         )
                     ),
                     replacement_call_ids=tuple(
-                        payload["retry_checkpoint"].get(
+                        payload["state_restore_checkpoint"].get(
                             "replacement_call_ids", ()
                         )
                     ),
                     expected_free_symbol_refs=tuple(
-                        payload["retry_checkpoint"].get(
+                        payload["state_restore_checkpoint"].get(
                             "expected_free_symbol_refs", ()
                         )
                     ),
                     expected_free_symbol_ids=tuple(
-                        payload["retry_checkpoint"].get(
+                        payload["state_restore_checkpoint"].get(
                             "expected_free_symbol_ids", ()
                         )
                     ),
                     observed_free_symbol_refs=tuple(
-                        payload["retry_checkpoint"].get(
+                        payload["state_restore_checkpoint"].get(
                             "observed_free_symbol_refs", ()
                         )
                     ),
                     observed_free_symbol_ids=tuple(
-                        payload["retry_checkpoint"].get(
+                        payload["state_restore_checkpoint"].get(
                             "observed_free_symbol_ids", ()
                         )
                     ),
                     expected_closure=_closure_checkpoint_from_payload(
-                        payload["retry_checkpoint"].get(
+                        payload["state_restore_checkpoint"].get(
                             "expected_closure"
                         )
                     ),
                     observed_closure=_closure_checkpoint_from_payload(
-                        payload["retry_checkpoint"].get(
+                        payload["state_restore_checkpoint"].get(
                             "observed_closure"
                         )
                     ),
                 )
-                if payload.get("retry_checkpoint")
+                if payload.get("state_restore_checkpoint")
                 else None
             ),
             dimensions=tuple(
@@ -414,7 +598,7 @@ class ExpectedCallDecision:
 
 
 @dataclass(frozen=True)
-class ExpectedScopeVersionOutcome:
+class ScopeNativeExpectedOutcome:
     canonical_order: tuple[str, ...]
     dependency_edges: tuple[tuple[str, str], ...]
     dependency_edge_kinds: tuple[tuple[str, str, str], ...]
@@ -437,13 +621,13 @@ class ExpectedScopeVersionOutcome:
         )
 
 
-class ReferenceScopeVersionModel:
+class ScopeNativeReferenceModel:
     """Small executable specification for planner scope/version semantics."""
 
     def evaluate(
         self,
-        scenario: CrossScopeVersionScenario,
-    ) -> ExpectedScopeVersionOutcome:
+        scenario: ScopeNativeGateScenario,
+    ) -> ScopeNativeExpectedOutcome:
         self._validate(scenario)
         scopes = {item.scope_id: item.parent_scope_id for item in scenario.scopes}
         object_origins = {
@@ -454,7 +638,7 @@ class ReferenceScopeVersionModel:
             item.state_key for item in scenario.initial_versions
         }
         calls = {item.call_id: item for item in scenario.calls}
-        checkpoint = scenario.retry_checkpoint
+        checkpoint = scenario.state_restore_checkpoint
         checkpoint_versions = (
             {
                 call_id: version_id
@@ -1270,7 +1454,7 @@ class ReferenceScopeVersionModel:
                         execution_scope_id=execution_scope,
                     )
 
-        committed, restored, provisional, retry_issues = self._retry(
+        committed, restored, provisional, retry_issues = self._restore(
             scenario,
             decisions,
         )
@@ -1389,7 +1573,7 @@ class ReferenceScopeVersionModel:
             if call_id in decisions
             and not calls[call_id].dead
         } - canonical_runtime_failed
-        return ExpectedScopeVersionOutcome(
+        return ScopeNativeExpectedOutcome(
             canonical_order=tuple(
                 item
                 for item in order
@@ -1429,7 +1613,7 @@ class ReferenceScopeVersionModel:
 
     @staticmethod
     def _serialized_call_order(
-        scenario: CrossScopeVersionScenario,
+        scenario: ScopeNativeGateScenario,
     ) -> tuple[str, ...]:
         """Mirror FunctionalPlan's scope-grouped wire representation."""
 
@@ -1763,7 +1947,7 @@ class ReferenceScopeVersionModel:
 
     @staticmethod
     def _dependencies(
-        scenario: CrossScopeVersionScenario,
+        scenario: ScopeNativeGateScenario,
         *,
         semantic_producers: Mapping[tuple[str, str], str],
     ) -> dict[str, tuple[str, ...]]:
@@ -1804,7 +1988,7 @@ class ReferenceScopeVersionModel:
     @classmethod
     def _semantic_read_producers(
         cls,
-        scenario: CrossScopeVersionScenario,
+        scenario: ScopeNativeGateScenario,
         *,
         wire_rank: Mapping[str, int],
     ) -> dict[tuple[str, str], str]:
@@ -1971,7 +2155,7 @@ class ReferenceScopeVersionModel:
         call: ModelCall,
         *,
         consumer_scope_id: str,
-        scenario: CrossScopeVersionScenario,
+        scenario: ScopeNativeGateScenario,
     ) -> bool:
         scopes = {
             item.scope_id: item.parent_scope_id for item in scenario.scopes
@@ -2098,7 +2282,7 @@ class ReferenceScopeVersionModel:
         cls,
         call: ModelCall,
         *,
-        scenario: CrossScopeVersionScenario,
+        scenario: ScopeNativeGateScenario,
     ) -> bool:
         serialized_order = cls._serialized_call_order(scenario)
         call_index = serialized_order.index(call.call_id)
@@ -2119,7 +2303,7 @@ class ReferenceScopeVersionModel:
         cls,
         call: ModelCall,
         *,
-        scenario: CrossScopeVersionScenario,
+        scenario: ScopeNativeGateScenario,
     ) -> bool:
         """Exclude statically impossible writers from semantic-latest edges.
 
@@ -2202,11 +2386,11 @@ class ReferenceScopeVersionModel:
         return tuple(emitted), ()
 
     @staticmethod
-    def _retry(
-        scenario: CrossScopeVersionScenario,
+    def _restore(
+        scenario: ScopeNativeGateScenario,
         decisions: Mapping[str, ExpectedCallDecision],
     ) -> tuple[tuple[str, ...], tuple[str, ...], tuple[str, ...], tuple[str, ...]]:
-        checkpoint = scenario.retry_checkpoint
+        checkpoint = scenario.state_restore_checkpoint
         if checkpoint is None or checkpoint.mode == "none":
             return (), (), (), ()
         committed = tuple(
@@ -2283,7 +2467,7 @@ class ReferenceScopeVersionModel:
                 provisional,
                 ("planner.retry_symbolic_closure_drift",),
             )
-        if checkpoint.mode == "provisional_replacement":
+        if checkpoint.mode == "discard_provisional":
             provisional = tuple(
                 item
                 for item in provisional
@@ -2387,7 +2571,7 @@ class ReferenceScopeVersionModel:
         return False
 
     @staticmethod
-    def _validate(scenario: CrossScopeVersionScenario) -> None:
+    def _validate(scenario: ScopeNativeGateScenario) -> None:
         scopes = {item.scope_id for item in scenario.scopes}
         calls = {item.call_id for item in scenario.calls}
         if "problem" not in scopes:
@@ -2407,10 +2591,10 @@ class ReferenceScopeVersionModel:
 
 
 def rename_scenario(
-    scenario: CrossScopeVersionScenario,
+    scenario: ScopeNativeGateScenario,
     *,
     prefix: str,
-) -> CrossScopeVersionScenario:
+) -> ScopeNativeGateScenario:
     """Return an isomorphic scenario with every anonymous token renamed."""
 
     scope_map = {
@@ -2437,7 +2621,7 @@ def rename_scenario(
             return None
         return replace(value, object_id=object_map[value.object_id])
 
-    return CrossScopeVersionScenario(
+    return ScopeNativeGateScenario(
         scopes=tuple(
             ModelScope(
                 scope_id=scope_map[item.scope_id],
@@ -2551,27 +2735,27 @@ def rename_scenario(
             )
             for item in scenario.dependency_edges
         ),
-        retry_checkpoint=(
+        state_restore_checkpoint=(
             replace(
-                scenario.retry_checkpoint,
+                scenario.state_restore_checkpoint,
                 committed_call_ids=tuple(
                     call_map[item]
-                    for item in scenario.retry_checkpoint.committed_call_ids
+                    for item in scenario.state_restore_checkpoint.committed_call_ids
                 ),
                 committed_version_ids=tuple(
                     version_map.get(item, item)
-                    for item in scenario.retry_checkpoint.committed_version_ids
+                    for item in scenario.state_restore_checkpoint.committed_version_ids
                 ),
                 provisional_call_ids=tuple(
                     call_map[item]
-                    for item in scenario.retry_checkpoint.provisional_call_ids
+                    for item in scenario.state_restore_checkpoint.provisional_call_ids
                 ),
                 replacement_call_ids=tuple(
                     call_map[item]
-                    for item in scenario.retry_checkpoint.replacement_call_ids
+                    for item in scenario.state_restore_checkpoint.replacement_call_ids
                 ),
             )
-            if scenario.retry_checkpoint is not None
+            if scenario.state_restore_checkpoint is not None
             else None
         ),
         dimensions=scenario.dimensions,

@@ -98,6 +98,8 @@ class MacroArgSpec:
     description: str = ""
     provides_semantic_roles: tuple[str, ...] = ()
     semantic_ref_role: FunctionalSemanticRefRole = "value"
+    allows_anonymous_result: bool = False
+    deterministic_resolver: str | None = None
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -123,6 +125,10 @@ class MacroArgSpec:
             )
         if self.semantic_ref_role != "value":
             payload["semantic_ref_role"] = self.semantic_ref_role
+        if self.allows_anonymous_result:
+            payload["allows_anonymous_result"] = True
+        if self.deterministic_resolver is not None:
+            payload["deterministic_resolver"] = self.deterministic_resolver
         return payload
 
 
@@ -650,6 +656,7 @@ def _slot_arg(slot: StateSlotPattern, index: int) -> MacroArgSpec:
         description=slot.description,
         provides_semantic_roles=slot.provides_semantic_roles,
         semantic_ref_role=slot.semantic_ref_role,
+        allows_anonymous_result=slot.allows_anonymous_result,
     )
 
 
@@ -691,6 +698,7 @@ def _condition_arg(condition: ConditionPattern, index: int) -> MacroArgSpec:
         required=condition.required,
         cardinality=condition.cardinality,
         condition_kind=condition.condition_kind,
+        deterministic_resolver=condition.deterministic_resolver,
         description=condition.description,
     )
 

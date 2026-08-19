@@ -6,7 +6,10 @@
 
 from __future__ import annotations
 
-from shuxueshuo_server.solver.contracts import SymbolicClosureSpec
+from shuxueshuo_server.solver.contracts import (
+    MethodInputRelationSpec,
+    SymbolicClosureSpec,
+)
 from shuxueshuo_server.solver.runtime.quadratic_constraint_solver import (
     value_satisfies_constraint,
 )
@@ -172,6 +175,18 @@ SPEC = MethodSpecSource(
         identity=("x", "parameter", "known_parameter"),
         latest_state=("quadratic", "point", "known_parameter_value"),
         immutable_value=("parameter_constraint", "quadratic_template"),
+    ),
+    input_relations=(
+        MethodInputRelationSpec(
+            relation_kind="point_on_curve",
+            point_arg="point",
+            curve_arg="quadratic",
+            cardinality="one",
+            accepted_condition_kinds=(
+                "point_on_curve",
+                "point_on_curve_with_x_coordinate",
+            ),
+        ),
     ),
     outputs={
         "parameter_value": "ParameterValue",

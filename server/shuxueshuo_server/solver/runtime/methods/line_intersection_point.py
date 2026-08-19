@@ -62,19 +62,23 @@ SPEC = MethodSpecSource(
     inputs={
     "line1_p1": {
         "type": "Point",
-        "required": True
+        "required": True,
+        "allows_anonymous_result": True
     },
     "line1_p2": {
         "type": "Point",
-        "required": True
+        "required": True,
+        "allows_anonymous_result": True
     },
     "line2_p1": {
         "type": "Point",
-        "required": True
+        "required": True,
+        "allows_anonymous_result": True
     },
     "line2_p2": {
         "type": "Point",
-        "required": True
+        "required": True,
+        "allows_anonymous_result": True
     },
     "target": {
         "type": "PointRef",

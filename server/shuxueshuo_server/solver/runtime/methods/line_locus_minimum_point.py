@@ -131,9 +131,21 @@ SPEC = MethodSpecSource(
     ),
     solves=("derive_line_locus_minimum_point",),
     inputs={
-        "moving_locus": {"type": "Line", "required": True},
-        "minimum_point_1": {"type": "Point", "required": True},
-        "minimum_point_2": {"type": "Point", "required": True},
+        "moving_locus": {
+            "type": "Line",
+            "required": True,
+            "allows_anonymous_result": True,
+        },
+        "minimum_point_1": {
+            "type": "Point",
+            "required": True,
+            "allows_anonymous_result": True,
+        },
+        "minimum_point_2": {
+            "type": "Point",
+            "required": True,
+            "allows_anonymous_result": True,
+        },
         "target": {"type": "PointRef|Point", "required": True},
         "parameter": {"type": "Symbol", "required": False},
         "parameter_value": {"type": "ParameterValue", "required": False},

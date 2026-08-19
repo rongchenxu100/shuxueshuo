@@ -63,4 +63,4 @@ answer:ii.minimum_value
 - runtime path 相同不代表同一 logical state；
 - legacy migration 歧义失败。
 
-详细状态语义由生产 dataclass、B1–B5 测试和 `cross-scope-version-executable-oracle-design.md` 共同约束。
+详细状态语义由生产 dataclass、B1–B5 测试和 `scope-native-c0-c5-executable-gate.md` 共同约束。

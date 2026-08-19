@@ -2,28 +2,31 @@ from __future__ import annotations
 
 import json
 import os
+from pathlib import Path
 import time
 
-from support.cross_scope_version_adapters import (
+from support.scope_native_c0_c5_adapters import (
+    SCOPE_NATIVE_PROTOCOL_PROBES,
     compare_adapter_suite,
     run_dead_writer_liveness_adapter,
     run_production_adapters,
+    run_scope_native_protocol_adapter,
 )
-from support.cross_scope_version_generator import (
+from support.scope_native_c0_c5_generator import (
     dead_writer_liveness_scenarios,
     dimension_coverage,
     generated_scenarios,
     reduce_scenario,
     replay_scenario,
 )
-from support.cross_scope_version_oracle import (
-    ReferenceScopeVersionModel,
+from support.scope_native_c0_c5_oracle import (
+    ScopeNativeReferenceModel,
 )
 
 
-def test_cross_scope_version_generated_gate() -> None:
+def test_scope_native_c0_c5_generated_gate() -> None:
     scenarios = generated_scenarios()
-    requested_scenario_id = os.environ.get("CROSS_SCOPE_SCENARIO_ID")
+    requested_scenario_id = os.environ.get("SCOPE_NATIVE_SCENARIO_ID")
     if requested_scenario_id:
         scenarios = tuple(
             item
@@ -101,10 +104,10 @@ def test_cross_scope_version_generated_gate() -> None:
             "hidden_semantic_role",
             "state_version",
         }
-        assert set(coverage["retry"]) == {
+        assert set(coverage["state_restore"]) == {
             "none",
-            "committed_restore",
-            "provisional_replacement",
+            "locked_restore",
+            "discard_provisional",
             "version_drift",
         }
         parent_child = tuple(
@@ -159,7 +162,7 @@ def test_cross_scope_version_generated_gate() -> None:
         }
         assert sum(coverage["closure_checkpoint"].values()) == 36
 
-    model = ReferenceScopeVersionModel()
+    model = ScopeNativeReferenceModel()
     started = time.monotonic()
     dependent_blocking_count = 0
     blocking_with_b3_issue_count = 0
@@ -203,8 +206,80 @@ def test_generated_scenario_id_is_stably_replayable() -> None:
         assert replayed == scenario
 
 
+def test_authenticated_scope_native_protocol_probes() -> None:
+    cases = (
+        "tj-2026-nankai-yimo-25",
+        "tj-2026-heping-ermo-25",
+        "tj-2026-xiqing-yimo-25",
+        "tj-2026-hexi-yimo-25",
+        "tj-2026-heping-yimo-25",
+    )
+    expected_issues = {
+        "baseline": (),
+        "empty_optional_maps": (),
+        "missing_goal": ("functional.plan_content_schema_invalid",),
+        "unknown_scope": ("functional.plan_content_schema_invalid",),
+        "duplicate_step_owner": ("functional.step_id_duplicate",),
+        "invalid_answer_source": (
+            "functional.goal_answer_source_unresolved",
+            "functional.answer_producer_invalid",
+        ),
+        "revision_drift": ("planner.problem_revision_drift",),
+        "source_binding_drift": ("planner.problem_source_binding_drift",),
+    }
+    for case_id in cases:
+        for probe in SCOPE_NATIVE_PROTOCOL_PROBES:
+            outcome = run_scope_native_protocol_adapter(case_id, probe)
+            assert outcome.issue_codes == expected_issues[probe]
+            assert len(outcome.planning_context_id) > 20
+            assert len(outcome.binding_signature) == 64
+            if probe in {
+                "baseline",
+                "empty_optional_maps",
+            }:
+                assert outcome.checkpoint_id is not None
+                assert outcome.all_required_goals_verified
+                assert outcome.transaction_ok
+            elif probe == "invalid_answer_source":
+                # A parseable Plan remains executable as a Draft so Goal-level
+                # repair can reuse verified work. It must not be promoted.
+                assert outcome.checkpoint_id is not None
+                assert not outcome.all_required_goals_verified
+                assert outcome.transaction_ok
+            else:
+                assert outcome.checkpoint_id is None
+                assert not outcome.all_required_goals_verified
+                assert not outcome.transaction_ok
+    normalized = run_scope_native_protocol_adapter(
+        cases[0], "empty_optional_maps"
+    )
+    assert normalized.normalization_codes == (
+        "functional.empty_optional_step_map_omitted",
+        "functional.empty_optional_step_map_omitted",
+    )
+    draft = run_scope_native_protocol_adapter(
+        cases[0], "invalid_answer_source"
+    )
+    assert draft.normalization_codes == ()
+    assert draft.checkpoint_id is not None
+
+
+def test_internal_candidate_result_is_not_normalized_to_named_entity() -> None:
+    outcome = run_scope_native_protocol_adapter(
+        "tj-2026-hexi-yimo-25",
+        "baseline",
+    )
+
+    assert "functional.named_entity_result_ref_normalized" not in (
+        outcome.normalization_codes
+    )
+    assert outcome.issue_codes == ()
+    assert outcome.all_required_goals_verified
+    assert outcome.transaction_ok
+
+
 def test_dead_writer_liveness_generated_gate() -> None:
-    model = ReferenceScopeVersionModel()
+    model = ScopeNativeReferenceModel()
     for scenario in dead_writer_liveness_scenarios():
         expected = model.evaluate(scenario)
         actual = run_dead_writer_liveness_adapter(scenario)
@@ -215,9 +290,35 @@ def test_dead_writer_liveness_generated_gate() -> None:
         }
 
 
+def test_superseded_gate_contracts_have_no_source_references() -> None:
+    repository = Path(__file__).resolve().parents[3]
+    forbidden = (
+        "cross_" + "scope_version",
+        "cross-" + "scope-version",
+        "c0.5/" + "v10",
+        "committed_" + "restore",
+        "provisional_" + "replacement",
+        "functional_" + "binding_generator",
+    )
+    violations: list[str] = []
+    for root in (
+        repository / "docs",
+        repository / "server" / "shuxueshuo_server",
+        repository / "server" / "tests" / "solver",
+    ):
+        for path in root.rglob("*"):
+            if path.suffix not in {".py", ".md", ".json"}:
+                continue
+            text = path.read_text(encoding="utf-8")
+            for token in forbidden:
+                if token in text:
+                    violations.append(f"{path.relative_to(repository)}:{token}")
+    assert not violations, violations
+
+
 def _failure_report(scenario, expected, actual, mismatches) -> str:
     first = mismatches[0] if mismatches else None
-    model = ReferenceScopeVersionModel()
+    model = ScopeNativeReferenceModel()
 
     def still_fails(candidate) -> bool:
         try:
@@ -273,9 +374,9 @@ def _failure_report(scenario, expected, actual, mismatches) -> str:
             first.actual if first is not None else actual
         ),
         "replay_command": (
-            "cd server && CROSS_SCOPE_SCENARIO_ID="
+            "cd server && SCOPE_NATIVE_SCENARIO_ID="
             f"{scenario.scenario_id} uv run pytest "
-            "tests/solver/test_cross_scope_version_generated_gate.py "
+            "tests/solver/test_scope_native_c0_c5_generated_gate.py "
             "-q"
         ),
         "pid": os.getpid(),

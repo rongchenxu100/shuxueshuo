@@ -58,6 +58,7 @@
     },
     "parameter": {
       "required": true,
+      "allows_anonymous_result": true,
       "description": "target_point与curve_point共享的确切运动参数Symbol；应引用生成参数化点的前序call之parameter返回值",
       "domain_type": "Symbol",
       "runtime_type": "Symbol",
@@ -73,6 +74,18 @@
     "candidates": "PointList"
   },
   "is_pure": true,
+  "input_relations": [
+    {
+      "relation_kind": "point_on_curve",
+      "point_arg": "curve_point",
+      "curve_arg": "parabola",
+      "cardinality": "one",
+      "accepted_condition_kinds": [
+        "point_on_curve",
+        "point_on_curve_with_x_coordinate"
+      ]
+    }
+  ],
   "preconditions": [
     "parameter必须以同一Symbol身份同时出现在target_point与curve_point中",
     "parabola 已代入当前问已知条件",

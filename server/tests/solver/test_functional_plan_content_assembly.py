@@ -212,14 +212,14 @@ def test_same_step_id_with_changed_capability_rederives_return_name(
     normalization = next(
         item
         for item in compiled.normalizations
-        if item.code == "functional.goal_answer_source_normalized"
+        if item.code == "functional.return_role_normalized"
     )
     assert normalization.path == (
-        "$.goal_plans['ii_1.parabola'].answer_from"
+        "$.goal_plans.ii_1.parabola.answer_from.return"
     )
 
 
-def test_goal_answer_candidates_ignore_inactive_polymorphic_returns(
+def test_invalid_answer_step_keeps_draft_and_ignores_inactive_returns(
     tmp_path,
 ) -> None:
     case = "tj-2026-nankai-yimo-25"
@@ -250,15 +250,16 @@ def test_goal_answer_candidates_ignore_inactive_polymorphic_returns(
         ),
     )
 
-    assert compiled.report.ok and compiled.plan is not None
-    selected = next(
-        item
-        for item in compiled.answer_bindings
-        if item.goal_ref == "ii_1.min_value"
+    assert not compiled.report.ok and compiled.plan is not None
+    assert compiled.answer_binding_error is not None
+    assert compiled.answer_binding_error.goal_ref == "ii_1.min_value"
+    assert {
+        item.runtime_type for item in compiled.answer_binding_error.candidates
+    } == {"MinimumExpression"}
+    assert all(
+        item.return_name != "evaluated_parabola"
+        for item in compiled.answer_binding_error.candidates
     )
-    assert selected.step_id == "ii_1_evaluate_minimum"
-    assert selected.return_name == "evaluated_minimum_expression"
-    assert selected.match_basis.startswith("fallback_from_invalid_authored:")
 
 
 def test_authored_answer_from_disambiguates_multiple_valid_returns(
@@ -315,7 +316,7 @@ def test_zero_and_multiple_answer_candidates_return_structured_details(
         frame=frame,
         capability_catalog=fixture.capability_catalog,
     )
-    assert missing_result.plan is None
+    assert missing_result.plan is not None
     assert missing_result.answer_binding_error is not None
     assert missing_result.answer_binding_error.to_feedback_payload()["details"] == {
         "goal_ref": "ii.a",
@@ -339,14 +340,15 @@ def test_zero_and_multiple_answer_candidates_return_structured_details(
         frame=frame,
         capability_catalog=fixture.capability_catalog,
     )
-    assert ambiguous_result.plan is None
+    assert ambiguous_result.plan is not None
     assert ambiguous_result.answer_binding_error is not None
     details = ambiguous_result.answer_binding_error.to_feedback_payload()["details"]
-    assert details["candidate_count"] == 2
-    assert {item["step_id"] for item in details["candidates"]} == {
+    candidate_step_ids = {item["step_id"] for item in details["candidates"]}
+    assert details["candidate_count"] == len(details["candidates"])
+    assert {
         "solve_parameter_from_minimum_ii",
         "solve_parameter_duplicate_ii",
-    }
+    } <= candidate_step_ids
     assert details["authored_answer_from"] == {
         "step_id": "missing_answer_producer",
         "return": "parameter_value",

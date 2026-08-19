@@ -92,6 +92,12 @@
                 "kind": "point",
                 "ref": "N"
               }
+            ],
+            "free_parameters": [
+              {
+                "kind": "symbol",
+                "ref": "m"
+              }
             ]
           },
           "return_bindings": {

@@ -10,6 +10,7 @@ from shuxueshuo_server.solver.runtime.functional_goal_retry import (
     FunctionalGoalRepairService,
     FunctionalGoalRetryError,
     FunctionalGoalRetryProjector,
+    functional_goal_repair_schema_for_authority,
 )
 from shuxueshuo_server.solver.runtime.context import ContextBuilder
 from shuxueshuo_server.solver.runtime.functional_goal_execution import (
@@ -18,8 +19,13 @@ from shuxueshuo_server.solver.runtime.functional_goal_execution import (
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
 )
+from shuxueshuo_server.solver.runtime.functional_plan_content import (
+    FunctionalPlanAuthorityFrame,
+    FunctionalPlanContentCompiler,
+)
 from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
     ScopedPublishedGoalResultRef,
+    ScopedFunctionalPlanAuthorityAdapter,
     ScopedFunctionalPlanValidator,
     scoped_functional_plan_authority_payload,
     scoped_published_goal_bindings,
@@ -51,7 +57,7 @@ def test_failed_goal_is_replaced_with_code_derived_answer_source(tmp_path) -> No
     assert application.plan_hash != fixture.retry_authority.base_plan_hash
 
 
-def test_repair_omits_empty_optional_many_capability_arg(tmp_path) -> None:
+def test_repair_accepts_then_canonicalizes_empty_free_parameters(tmp_path) -> None:
     fixture = goal_retry_fixture(tmp_path)
     payload = repair_payload(fixture)
     step = next(
@@ -60,6 +66,23 @@ def test_repair_omits_empty_optional_many_capability_arg(tmp_path) -> None:
         if item["capability_id"] == "quadratic_from_constraints"
     )
     step["args"]["free_parameters"] = []
+
+    schema = functional_goal_repair_schema_for_authority(
+        fixture.retry_authority,
+        capability_catalog=fixture.capability_catalog,
+        authority_frame=FunctionalPlanAuthorityFrame.from_planning_context(
+            fixture.planning_context
+        ),
+    )
+    quadratic = next(
+        item["allOf"][1]["properties"]
+        for item in schema["$defs"]["repair_step"]["oneOf"]
+        if item["allOf"][1]["properties"]["capability_id"].get("const")
+        == "quadratic_from_constraints"
+    )
+    assert quadratic["args"]["properties"]["free_parameters"]["oneOf"][1][
+        "minItems"
+    ] == 0
 
     application = FunctionalGoalRepairService().apply_json(
         json.dumps(payload, ensure_ascii=False),
@@ -85,10 +108,57 @@ def test_repair_omits_empty_optional_many_capability_arg(tmp_path) -> None:
     )
 
 
+def test_repair_omits_optional_empty_maps_before_schema_validation(
+    tmp_path,
+) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    payload = repair_payload(fixture)
+    step = payload["goal_replacements"][FAILED_GOAL_REF]["steps"][0]
+    step["output_targets"] = {}
+    step["return_expectations"] = {}
+    payload["answer_binding_replacements"] = {}
+
+    repair = FunctionalGoalRepairService().parse_json(
+        json.dumps(payload, ensure_ascii=False),
+        capability_catalog=fixture.capability_catalog,
+    )
+
+    normalized_step = repair.goal_replacements[0].steps[0]
+    assert "output_targets" not in normalized_step
+    assert "return_expectations" not in normalized_step
+    assert repair.answer_binding_replacements == ()
+    assert [item.code for item in repair.normalizations] == [
+        "functional.empty_optional_step_map_omitted",
+        "functional.empty_optional_step_map_omitted",
+        "functional.empty_optional_repair_map_omitted",
+    ]
+    assert [item.path for item in repair.normalizations] == [
+        "$.goal_replacements.ii.a.steps[0].output_targets",
+        "$.goal_replacements.ii.a.steps[0].return_expectations",
+        "$.answer_binding_replacements",
+    ]
+
+
+def test_repair_keeps_required_empty_values_strict(tmp_path) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    payload = repair_payload(fixture)
+    payload["goal_replacements"][FAILED_GOAL_REF]["answer_from"] = {}
+
+    with pytest.raises(FunctionalGoalRetryError) as error:
+        FunctionalGoalRepairService().parse_json(
+            json.dumps(payload, ensure_ascii=False),
+            capability_catalog=fixture.capability_catalog,
+        )
+
+    assert error.value.code == "functional.goal_repair_schema_invalid"
+    assert error.value.path.endswith(".answer_from")
+
+
 def test_answer_source_changes_when_goal_producer_step_is_replaced(tmp_path) -> None:
     fixture = goal_retry_fixture(tmp_path)
     replacement = deepcopy(goal(fixture.correct_payload, FAILED_GOAL_REF))
     replacement["steps"][-1]["step_id"] = "solve_parameter_replanned_ii"
+    replacement["answer_from"]["step_id"] = "solve_parameter_replanned_ii"
 
     application = FunctionalGoalRepairService().apply_json(
         json.dumps(
@@ -141,7 +211,7 @@ def test_repair_authored_answer_from_disambiguates_valid_producers(
     assert selected.match_basis.startswith("authored_answer_from:")
 
 
-def test_missing_answer_step_rebinds_by_goal_target_and_typed_return(
+def test_missing_answer_step_requires_goal_replacement_to_name_new_producer(
     tmp_path,
 ) -> None:
     fixture = goal_retry_fixture(tmp_path)
@@ -149,36 +219,29 @@ def test_missing_answer_step_rebinds_by_goal_target_and_typed_return(
     previous_step_id = replacement["answer_from"]["step_id"]
     replacement["steps"][-1]["step_id"] = "solve_parameter_replanned_ii"
     assert replacement["answer_from"]["step_id"] == previous_step_id
-    application = FunctionalGoalRepairService().apply_json(
-        json.dumps(
-            repair_payload(fixture, goal_payload=replacement),
-            ensure_ascii=False,
-        ),
-        base_plan=fixture.failed_plan,
-        authority=fixture.retry_authority,
-        capability_catalog=fixture.capability_catalog,
-    )
+    with pytest.raises(FunctionalGoalRetryError) as caught:
+        FunctionalGoalRepairService().apply_json(
+            json.dumps(
+                repair_payload(fixture, goal_payload=replacement),
+                ensure_ascii=False,
+            ),
+            base_plan=fixture.failed_plan,
+            authority=fixture.retry_authority,
+            capability_catalog=fixture.capability_catalog,
+        )
 
-    repaired = goal(application.plan.to_payload(), FAILED_GOAL_REF)
-    assert repaired["answer_from"] == {
-        "step_id": "solve_parameter_replanned_ii",
+    assert caught.value.code == "functional.goal_repair_answer_source_invalid"
+    assert caught.value.retryable
+    assert caught.value.details["goal_ref"] == FAILED_GOAL_REF
+    assert caught.value.details["authored_answer_from"] == {
+        "step_id": previous_step_id,
         "return": "parameter_value",
     }
-    assert [item.to_payload() for item in application.answer_rebindings] == [
-        {
-            "goal_ref": FAILED_GOAL_REF,
-            "previous_step_id": previous_step_id,
-            "previous_return_name": "parameter_value",
-            "selected_step_id": "solve_parameter_replanned_ii",
-            "selected_return_name": "parameter_value",
-            "answer_target_ref": "a",
-            "answer_type": "ParameterValue",
-            "match_basis": (
-                "fallback_from_invalid_authored:"
-                "target_identity_goal_terminal"
-            ),
-        }
-    ]
+    assert caught.value.details["candidate_count"] >= 1
+    assert any(
+        item["step_id"] == "solve_parameter_replanned_ii"
+        for item in caught.value.details["candidates"]
+    )
 
 
 @pytest.mark.parametrize(
@@ -200,6 +263,19 @@ def test_missing_answer_step_rebinds_by_goal_target_and_typed_return(
                     "i_1.parabola": payload["goal_replacements"].pop(
                         FAILED_GOAL_REF
                     )
+                }
+            ),
+            "functional.goal_repair_boundary_violation",
+        ),
+        (
+            lambda payload: payload.update(
+                answer_binding_replacements={
+                    "i_1.parabola": {
+                        "answer_from": {
+                            "step_id": "derive_parabola_i",
+                            "return": "parabola",
+                        }
+                    }
                 }
             ),
             "functional.goal_repair_boundary_violation",
@@ -332,6 +408,41 @@ def test_published_goal_ref_resolves_only_to_solved_final_answer(tmp_path) -> No
     assert json.dumps(authority_payload).count("published_goal_ref") == 2
     # The normal v2 execution/checkpoint wire remains a standard StepResultRef.
     assert "published_goal_ref" not in json.dumps(application.plan.to_payload())
+
+    authority = ScopedFunctionalPlanAuthorityAdapter().lower(
+        application.plan,
+        planning_context=fixture.planning_context,
+        binding_catalog=fixture.binding_catalog,
+        capability_catalog=fixture.capability_catalog,
+    )
+    canonical_bindings = scoped_published_goal_bindings(authority.scoped_plan)
+    assert {item.semantic_ref for item in canonical_bindings} == {"parabola"}
+    assert all(
+        item.producer_step_id == "derive_parabola_i"
+        and item.return_name == "parabola"
+        for item in canonical_bindings
+    )
+    canonical_payload = authority.scoped_plan.to_payload()
+    canonical_goal = goal(canonical_payload, "i_2.E")
+    canonical_consumers = [
+        item
+        for item in canonical_goal["steps"]
+        if item["step_id"]
+        in {"derive_x_intercept_B_i", "derive_curve_intersection_E_i"}
+    ]
+    assert all(item["args"]["parabola"] == "parabola" for item in canonical_consumers)
+    assert sum(
+        item.action == "canonicalize_published_goal_entity_ref"
+        for item in authority.normalizations
+    ) == 2
+    final_contract = FunctionalPlanContentCompiler().validate_final_plan(
+        authority.scoped_plan,
+        frame=FunctionalPlanAuthorityFrame.from_planning_context(
+            fixture.planning_context
+        ),
+        capability_catalog=fixture.capability_catalog,
+    )
+    assert final_contract.ok
 
 
 def test_unpublished_or_intermediate_goal_result_is_rejected(tmp_path) -> None:

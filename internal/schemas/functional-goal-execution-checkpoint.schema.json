@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "functional-goal-execution-checkpoint.schema.json",
-  "title": "Functional Goal Execution Checkpoint v1",
+  "title": "Functional Goal Execution Checkpoint v2",
   "type": "object",
   "required": [
     "schema_version",
@@ -21,7 +21,7 @@
   ],
   "properties": {
     "schema_version": {
-      "const": "functional-goal-execution-checkpoint/v1"
+      "const": "functional-goal-execution-checkpoint/v2"
     },
     "root_scope": {
       "$ref": "#/$defs/execution_scope_0"
@@ -293,6 +293,13 @@
             "additionalProperties": false
           }
         },
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/execution_evidence"
+          }
+        },
         "typed_issue": {
           "type": "object"
         },
@@ -307,6 +314,397 @@
         }
       },
       "additionalProperties": false
+    },
+    "execution_evidence": {
+      "oneOf": [
+        {
+          "title": "PathMinimumWitness",
+          "type": "object",
+          "required": [
+            "schema_version",
+            "step_id",
+            "macro_id",
+            "original_objective",
+            "reduced_objective",
+            "role_resolutions",
+            "constructions",
+            "equivalence_proof",
+            "legal_domain",
+            "minimum_strategy",
+            "minimum_expression",
+            "minimizing_points",
+            "attainment_checks",
+            "macro_search_report",
+            "provenance_signature",
+            "witness_id"
+          ],
+          "properties": {
+            "schema_version": {
+              "const": "path-minimum-witness/v1"
+            },
+            "step_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "macro_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "original_objective": {
+              "type": "string",
+              "minLength": 1
+            },
+            "reduced_objective": {
+              "type": "string",
+              "minLength": 1
+            },
+            "role_resolutions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "role",
+                  "authored_ref",
+                  "chosen_ref",
+                  "corrected"
+                ],
+                "properties": {
+                  "role": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "authored_ref": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "chosen_ref": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "corrected": {
+                    "type": "boolean"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "constructions": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "equivalence_proof": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "legal_domain": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "minimum_strategy": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minimum_expression": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minimizing_points": {
+              "type": "object"
+            },
+            "attainment_checks": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object"
+              }
+            },
+            "macro_search_report": {
+              "type": "object",
+              "required": [
+                "schema_version",
+                "macro_id",
+                "candidate_builder_id",
+                "validation_policy_id",
+                "winner_candidate_id",
+                "role_resolutions",
+                "evaluations",
+                "search_signature"
+              ],
+              "properties": {
+                "schema_version": {
+                  "const": "macro-runtime-search-report/v1"
+                },
+                "macro_id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "candidate_builder_id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "validation_policy_id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "winner_candidate_id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "role_resolutions": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "role",
+                      "authored_ref",
+                      "chosen_ref",
+                      "corrected"
+                    ],
+                    "properties": {
+                      "role": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "authored_ref": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "chosen_ref": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "corrected": {
+                        "type": "boolean"
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                },
+                "evaluations": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "candidate_id",
+                      "passed",
+                      "output_signature",
+                      "checks"
+                    ],
+                    "properties": {
+                      "candidate_id": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "passed": {
+                        "type": "boolean"
+                      },
+                      "output_signature": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "checks": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                },
+                "search_signature": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "additionalProperties": false
+            },
+            "provenance_signature": {
+              "type": "string",
+              "minLength": 1
+            },
+            "witness_id": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "title": "MacroSearchExecutionEvidence",
+          "type": "object",
+          "required": [
+            "schema_version",
+            "step_id",
+            "report",
+            "evidence_id"
+          ],
+          "properties": {
+            "schema_version": {
+              "const": "macro-search-execution-evidence/v1"
+            },
+            "step_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "report": {
+              "type": "object",
+              "required": [
+                "schema_version",
+                "macro_id",
+                "candidate_builder_id",
+                "validation_policy_id",
+                "winner_candidate_id",
+                "role_resolutions",
+                "evaluations",
+                "search_signature"
+              ],
+              "properties": {
+                "schema_version": {
+                  "const": "macro-runtime-search-report/v1"
+                },
+                "macro_id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "candidate_builder_id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "validation_policy_id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "winner_candidate_id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "role_resolutions": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "role",
+                      "authored_ref",
+                      "chosen_ref",
+                      "corrected"
+                    ],
+                    "properties": {
+                      "role": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "authored_ref": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "chosen_ref": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "corrected": {
+                        "type": "boolean"
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                },
+                "evaluations": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "candidate_id",
+                      "passed",
+                      "output_signature",
+                      "checks"
+                    ],
+                    "properties": {
+                      "candidate_id": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "passed": {
+                        "type": "boolean"
+                      },
+                      "output_signature": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "checks": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                },
+                "search_signature": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "additionalProperties": false
+            },
+            "evidence_id": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
     },
     "execution_goal": {
       "type": "object",

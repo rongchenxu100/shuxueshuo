@@ -31,6 +31,7 @@ from shuxueshuo_server.solver.runtime.entity_state_resolver import (
     EntityStateResolver,
 )
 from shuxueshuo_server.solver.runtime.functional_debug_aliases import (
+    functional_call_local_debug_alias,
     functional_state_slot_debug_alias,
 )
 from shuxueshuo_server.solver.runtime.legacy_context_migration import (
@@ -39,6 +40,7 @@ from shuxueshuo_server.solver.runtime.legacy_context_migration import (
 from shuxueshuo_server.solver.runtime.functional_typed_identity import (
     FunctionalTypedIdentityValidator,
     _legacy_sources_are_fully_typed,
+    typed_source_coverage,
 )
 from shuxueshuo_server.solver.runtime.planner_state_context import (
     MathObject,
@@ -1777,6 +1779,32 @@ def test_typed_identity_payloads_round_trip() -> None:
     assert LogicalStateKey.from_payload(logical_key.to_payload()) == logical_key
     assert StateSlotId.from_payload(slot_id.to_payload()) == slot_id
     assert StateVersionId.from_payload(version_id.to_payload()) == version_id
+
+
+def test_legacy_source_union_is_audited_by_exact_typed_category() -> None:
+    object_id = MathObjectId("point:problem:D", "point", "problem")
+    logical_key = LogicalStateKey(object_id, "coordinate", "Point")
+    slot_id = StateSlotId(logical_key, "problem")
+    version_id = StateVersionId(slot_id, 1)
+    state_alias = functional_state_slot_debug_alias(slot_id)
+    result_alias = functional_call_local_debug_alias(
+        scope_id="ii",
+        call_id="derive_path",
+        return_name="expression",
+    )
+
+    coverage = typed_source_coverage(
+        (state_alias, result_alias, "condition:ii:on_curve"),
+        (version_id,),
+        call_result_ids=("derive_path.expression",),
+        condition_ids=("condition:ii:on_curve",),
+    )
+
+    assert coverage.complete
+    assert coverage.state_slot_ids == (state_alias,)
+    assert coverage.call_result_ids == ("derive_path.expression",)
+    assert coverage.condition_ids == ("condition:ii:on_curve",)
+    assert coverage.unresolved_source_ids == ()
 
 
 def test_typed_placement_payloads_round_trip() -> None:

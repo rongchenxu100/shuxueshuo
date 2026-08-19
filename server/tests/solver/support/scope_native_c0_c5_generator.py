@@ -1,4 +1,4 @@
-"""Deterministic scenario generation for the cross-scope version gate."""
+"""Deterministic scenario generation for the scope-native gate."""
 
 from __future__ import annotations
 
@@ -8,22 +8,26 @@ from itertools import product
 import random
 from typing import Callable, Iterable, Iterator
 
-from support.cross_scope_version_oracle import (
-    CrossScopeVersionScenario,
+from support.scope_native_c0_c5_oracle import (
+    ScopeNativeC5RetryScenario,
+    ScopeNativeGateScenario,
+    ScopeNativeRetryScenario,
     ModelCall,
     ModelClosureCheckpoint,
     ModelDependency,
     ModelObject,
-    ModelRetryCheckpoint,
+    ModelStateRestoreCheckpoint,
     ModelScope,
     ModelStateRead,
     ModelStateKey,
     ModelVersion,
-    ReferenceScopeVersionModel,
+    ScopeNativeReferenceModel,
 )
 
 
-GENERATOR_VERSION = "c0.5/v10"
+GENERATOR_VERSION = "scope-native-c0-c5/v1"
+GOAL_RETRY_GENERATOR_VERSION = "scope-native-goal-retry/v1"
+C5_RETRY_GENERATOR_VERSION = "scope-native-c0-c5/v1"
 EXPANDED_SEEDS = (17, 103, 1_009, 65_537)
 
 _TOPOLOGIES = ("root", "parent_child", "siblings", "branched")
@@ -44,19 +48,163 @@ _DEPENDENCY_KINDS = (
 )
 _WIRE_ORDERS = ("producer_first", "consumer_first", "interleaved")
 _PROJECTIONS = ("object", "answer", "object+answer", "call_local")
-_RETRY_MODES = (
+_STATE_RESTORE_MODES = (
     "none",
-    "committed_restore",
-    "provisional_replacement",
+    "locked_restore",
+    "discard_provisional",
     "version_drift",
 )
 _READ_MODES = ("none", "exact", "latest", "identity_only", "call_result")
 
+_GOAL_REPAIR_MODES = (
+    "valid",
+    "stale_plan",
+    "stale_context",
+    "missing_editable_goal",
+    "foreign_goal",
+    "foreign_scope",
+    "invalid_answer",
+    "no_progress",
+)
 
-def bounded_scenarios(limit: int = 8_000) -> tuple[CrossScopeVersionScenario, ...]:
+
+def goal_retry_scenarios() -> tuple[ScopeNativeRetryScenario, ...]:
+    """Return the fixed 512-case Goal replacement pairwise matrix."""
+
+    scenarios = tuple(
+        ScopeNativeRetryScenario(
+            fixture_profile=fixture_profile,
+            repair_mode=repair_mode,
+            reverse_mapping_order=reverse_mapping_order,
+            retry_round=retry_round,
+            variant=variant,
+        )
+        for (
+            fixture_profile,
+            repair_mode,
+            reverse_mapping_order,
+            retry_round,
+            variant,
+        ) in product(
+            ("failed_goal", "published_goal"),
+            _GOAL_REPAIR_MODES,
+            (False, True),
+            (1, 2),
+            range(8),
+        )
+    )
+    if len({item.scenario_id for item in scenarios}) != 512:
+        raise AssertionError("Goal retry scenario ids are not unique")
+    return scenarios
+
+
+def replay_goal_retry_scenario(
+    scenario_id: str,
+) -> ScopeNativeRetryScenario:
+    return next(
+        item for item in goal_retry_scenarios() if item.scenario_id == scenario_id
+    )
+
+
+def goal_retry_dimension_coverage(
+    scenarios: Iterable[ScopeNativeRetryScenario],
+) -> dict[str, Counter]:
+    result = {
+        "fixture_profile": Counter(),
+        "repair_mode": Counter(),
+        "reverse_mapping_order": Counter(),
+        "retry_round": Counter(),
+        "variant": Counter(),
+    }
+    for item in scenarios:
+        result["fixture_profile"][item.fixture_profile] += 1
+        result["repair_mode"][item.repair_mode] += 1
+        result["reverse_mapping_order"][str(item.reverse_mapping_order)] += 1
+        result["retry_round"][str(item.retry_round)] += 1
+        result["variant"][str(item.variant)] += 1
+    return result
+
+
+def c5_retry_scenarios() -> tuple[ScopeNativeC5RetryScenario, ...]:
+    """Return 256 execution-to-closure-to-repair integration scenarios."""
+
+    scenarios = tuple(
+        ScopeNativeC5RetryScenario(
+            closure_failure=closure_failure,
+            expose_residual_symbol=expose_residual_symbol,
+            expose_equation_sources=expose_equation_sources,
+            repair_mode=repair_mode,
+            reverse_mapping_order=reverse_mapping_order,
+            variant=variant,
+        )
+        for (
+            closure_failure,
+            expose_residual_symbol,
+            expose_equation_sources,
+            repair_mode,
+            reverse_mapping_order,
+            variant,
+        ) in product(
+            (
+                "identity_unresolved",
+                "underdetermined",
+                "ambiguous",
+                "inconsistent",
+            ),
+            (False, True),
+            (False, True),
+            ("valid", "stale_plan"),
+            (False, True),
+            range(4),
+        )
+    )
+    if len(scenarios) != 256 or len(
+        {item.scenario_id for item in scenarios}
+    ) != 256:
+        raise AssertionError("C5 retry scenario matrix is not exactly 256")
+    return scenarios
+
+
+def replay_c5_retry_scenario(
+    scenario_id: str,
+) -> ScopeNativeC5RetryScenario:
+    return next(
+        item for item in c5_retry_scenarios()
+        if item.scenario_id == scenario_id
+    )
+
+
+def c5_retry_dimension_coverage(
+    scenarios: Iterable[ScopeNativeC5RetryScenario],
+) -> dict[str, Counter]:
+    result = {
+        "closure_failure": Counter(),
+        "expose_residual_symbol": Counter(),
+        "expose_equation_sources": Counter(),
+        "repair_mode": Counter(),
+        "reverse_mapping_order": Counter(),
+        "variant": Counter(),
+    }
+    for item in scenarios:
+        result["closure_failure"][item.closure_failure] += 1
+        result["expose_residual_symbol"][
+            str(item.expose_residual_symbol)
+        ] += 1
+        result["expose_equation_sources"][
+            str(item.expose_equation_sources)
+        ] += 1
+        result["repair_mode"][item.repair_mode] += 1
+        result["reverse_mapping_order"][
+            str(item.reverse_mapping_order)
+        ] += 1
+        result["variant"][str(item.variant)] += 1
+    return result
+
+
+def bounded_scenarios(limit: int = 8_000) -> tuple[ScopeNativeGateScenario, ...]:
     """Return a topology-balanced deterministic sample of the full matrix."""
 
-    scenarios: list[CrossScopeVersionScenario] = []
+    scenarios: list[ScopeNativeGateScenario] = []
     remaining_dimensions = tuple(
         product(
             _OBJECT_ORIGINS,
@@ -66,7 +214,7 @@ def bounded_scenarios(limit: int = 8_000) -> tuple[CrossScopeVersionScenario, ..
             _DEPENDENCY_KINDS,
             _WIRE_ORDERS,
             _PROJECTIONS,
-            _RETRY_MODES,
+            _STATE_RESTORE_MODES,
             _READ_MODES,
         )
     )
@@ -98,11 +246,11 @@ def expanded_scenarios(
     count: int = 2_000,
     *,
     seeds: tuple[int, ...] = EXPANDED_SEEDS,
-) -> tuple[CrossScopeVersionScenario, ...]:
+) -> tuple[ScopeNativeGateScenario, ...]:
     """Generate stable longer DAGs with local pseudo-random choices."""
 
     per_seed, remainder = divmod(count, len(seeds))
-    result: list[CrossScopeVersionScenario] = []
+    result: list[ScopeNativeGateScenario] = []
     for seed_index, seed in enumerate(seeds):
         rng = random.Random(seed)
         target = per_seed + (1 if seed_index < remainder else 0)
@@ -122,7 +270,7 @@ def generated_scenarios(
     bounded_count: int = 8_000,
     expanded_count: int = 2_000,
     handoff_count: int = 128,
-) -> tuple[CrossScopeVersionScenario, ...]:
+) -> tuple[ScopeNativeGateScenario, ...]:
     result = (
         *bounded_scenarios(bounded_count),
         *expanded_scenarios(expanded_count),
@@ -138,10 +286,10 @@ def generated_scenarios(
 
 def handoff_scenarios(
     count: int = 128,
-) -> tuple[CrossScopeVersionScenario, ...]:
+) -> tuple[ScopeNativeGateScenario, ...]:
     """Exercise SemanticRef-to-exact-version publication across siblings."""
 
-    result: list[CrossScopeVersionScenario] = []
+    result: list[ScopeNativeGateScenario] = []
     for index in range(count):
         key = ModelStateKey(f"O{index}", "state", "Point")
         read_mode = ("exact", "latest", "identity_only", "call_result")[
@@ -206,7 +354,7 @@ def handoff_scenarios(
             projection="call_local",
         )
         result.append(
-            CrossScopeVersionScenario(
+            ScopeNativeGateScenario(
                 scopes=_scopes("branched"),
                 objects=(
                     ModelObject(key.object_id, "point", "problem"),
@@ -235,11 +383,11 @@ def handoff_scenarios(
     return tuple(result)
 
 
-def authority_regression_scenarios() -> tuple[CrossScopeVersionScenario, ...]:
+def authority_regression_scenarios() -> tuple[ScopeNativeGateScenario, ...]:
     """Anonymous stage-handoff regressions found by real planner variation."""
 
     child_key = ModelStateKey("T", "coordinate", "Point")
-    child_target = CrossScopeVersionScenario(
+    child_target = ScopeNativeGateScenario(
         scopes=(
             ModelScope("problem", None),
             ModelScope("ii", "problem"),
@@ -268,7 +416,7 @@ def authority_regression_scenarios() -> tuple[CrossScopeVersionScenario, ...]:
 
     curve_key = ModelStateKey("Q", "expression", "Parabola")
     point_key = ModelStateKey("P", "coordinate", "Point")
-    sibling_isolation = CrossScopeVersionScenario(
+    sibling_isolation = ScopeNativeGateScenario(
         scopes=(
             ModelScope("problem", None),
             ModelScope("i", "problem"),
@@ -362,7 +510,7 @@ def authority_regression_scenarios() -> tuple[CrossScopeVersionScenario, ...]:
         runtime_destination="state/problem/S",
         free_symbols=("u",),
     )
-    retry_base = CrossScopeVersionScenario(
+    retry_base = ScopeNativeGateScenario(
         scopes=(
             ModelScope("problem", None),
             ModelScope("ii", "problem"),
@@ -407,12 +555,12 @@ def authority_regression_scenarios() -> tuple[CrossScopeVersionScenario, ...]:
             ("read_mode", "exact"),
         ),
     )
-    retry_outcome = ReferenceScopeVersionModel().evaluate(retry_base)
+    retry_outcome = ScopeNativeReferenceModel().evaluate(retry_base)
     close_version = retry_outcome.decision("close_state").selected_version_id
     checkpoint_reorder = replace(
         retry_base,
-        retry_checkpoint=ModelRetryCheckpoint(
-            "committed_restore",
+        state_restore_checkpoint=ModelStateRestoreCheckpoint(
+            "locked_restore",
             committed_call_ids=("close_state",),
             committed_version_ids=(
                 (close_version,) if close_version is not None else ()
@@ -421,7 +569,7 @@ def authority_regression_scenarios() -> tuple[CrossScopeVersionScenario, ...]:
         ),
         dimensions=(
             *retry_base.dimensions,
-            ("retry", "committed_restore"),
+            ("state_restore", "locked_restore"),
         ),
         scenario_id="",
     )
@@ -435,7 +583,7 @@ def authority_regression_scenarios() -> tuple[CrossScopeVersionScenario, ...]:
         None,
         runtime_destination="state/problem/u",
     )
-    initial_parameter_exact_read = CrossScopeVersionScenario(
+    initial_parameter_exact_read = ScopeNativeGateScenario(
         scopes=(
             ModelScope("problem", None),
             ModelScope("i", "problem"),
@@ -471,7 +619,7 @@ def authority_regression_scenarios() -> tuple[CrossScopeVersionScenario, ...]:
 
     private_key = ModelStateKey("Q", "expression", "Parabola")
     published_key = ModelStateKey("E", "coordinate", "Point")
-    published_state_exact_read = CrossScopeVersionScenario(
+    published_state_exact_read = ScopeNativeGateScenario(
         scopes=(
             ModelScope("problem", None),
             ModelScope("ii", "problem"),
@@ -544,7 +692,7 @@ def authority_regression_scenarios() -> tuple[CrossScopeVersionScenario, ...]:
 
     shared_curve_key = ModelStateKey("SharedCurve", "expression", "Parabola")
     shared_point_key = ModelStateKey("SharedPoint", "coordinate", "Point")
-    committed_sibling_base = CrossScopeVersionScenario(
+    committed_sibling_base = ScopeNativeGateScenario(
         scopes=(
             ModelScope("problem", None),
             ModelScope("ii", "problem"),
@@ -622,13 +770,13 @@ def authority_regression_scenarios() -> tuple[CrossScopeVersionScenario, ...]:
         dependency_edges=committed_sibling_base.dependency_edges[:1],
         scenario_id="",
     )
-    committed_sibling_outcome = ReferenceScopeVersionModel().evaluate(
+    committed_sibling_outcome = ScopeNativeReferenceModel().evaluate(
         committed_sibling_prefix
     )
     committed_sibling_restore = replace(
         committed_sibling_base,
-        retry_checkpoint=ModelRetryCheckpoint(
-            "committed_restore",
+        state_restore_checkpoint=ModelStateRestoreCheckpoint(
+            "locked_restore",
             committed_call_ids=(
                 "build_shared_curve",
                 "derive_shared_point",
@@ -653,8 +801,8 @@ def authority_regression_scenarios() -> tuple[CrossScopeVersionScenario, ...]:
 
     checkpoint_symbol_alias = replace(
         checkpoint_reorder,
-        retry_checkpoint=replace(
-            checkpoint_reorder.retry_checkpoint,
+        state_restore_checkpoint=replace(
+            checkpoint_reorder.state_restore_checkpoint,
             expected_free_symbol_refs=("u",),
             expected_free_symbol_ids=("symbol:problem:u",),
             observed_free_symbol_refs=("symbol:problem:u",),
@@ -672,8 +820,8 @@ def authority_regression_scenarios() -> tuple[CrossScopeVersionScenario, ...]:
     )
     checkpoint_symbol_drift = replace(
         checkpoint_symbol_alias,
-        retry_checkpoint=replace(
-            checkpoint_symbol_alias.retry_checkpoint,
+        state_restore_checkpoint=replace(
+            checkpoint_symbol_alias.state_restore_checkpoint,
             observed_free_symbol_ids=("symbol:problem:v",),
         ),
         dimensions=(
@@ -699,7 +847,7 @@ def authority_regression_scenarios() -> tuple[CrossScopeVersionScenario, ...]:
     )
 
 
-def _parameter_value_producer_scenarios() -> tuple[CrossScopeVersionScenario, ...]:
+def _parameter_value_producer_scenarios() -> tuple[ScopeNativeGateScenario, ...]:
     """Exercise ParameterValue versions and C6 closure checkpoint authority."""
     capabilities = (
         "parameter_from_curve_point_on_quadratic",
@@ -707,7 +855,7 @@ def _parameter_value_producer_scenarios() -> tuple[CrossScopeVersionScenario, ..
         "parameter_from_minimum_value",
         "parameter_from_segment_length",
     )
-    result: list[CrossScopeVersionScenario] = []
+    result: list[ScopeNativeGateScenario] = []
     closure_mutations = (
         "none",
         "equivalent_target_value",
@@ -744,7 +892,7 @@ def _parameter_value_producer_scenarios() -> tuple[CrossScopeVersionScenario, ..
             requested_write_mode="value",
             projection="call_local",
         )
-        base = CrossScopeVersionScenario(
+        base = ScopeNativeGateScenario(
             scopes=_scopes("branched"),
             objects=(ModelObject(key.object_id, "symbol", "ii"),),
             initial_versions=(),
@@ -765,10 +913,10 @@ def _parameter_value_producer_scenarios() -> tuple[CrossScopeVersionScenario, ..
                 ("closure_checkpoint", mutation),
                 ("topology", "branched"),
                 ("read_mode", "exact"),
-                ("retry", "committed_restore"),
+                ("state_restore", "locked_restore"),
             ),
         )
-        outcome = ReferenceScopeVersionModel().evaluate(base)
+        outcome = ScopeNativeReferenceModel().evaluate(base)
         version_id = outcome.decision("solve_parameter").selected_version_id
         expected_closure = ModelClosureCheckpoint(
             target_value="1-c",
@@ -802,8 +950,8 @@ def _parameter_value_producer_scenarios() -> tuple[CrossScopeVersionScenario, ..
         result.append(
             replace(
                 base,
-                retry_checkpoint=ModelRetryCheckpoint(
-                    "committed_restore",
+                state_restore_checkpoint=ModelStateRestoreCheckpoint(
+                    "locked_restore",
                     committed_call_ids=("solve_parameter",),
                     committed_version_ids=(
                         (version_id,) if version_id is not None else ()
@@ -820,16 +968,16 @@ def _parameter_value_producer_scenarios() -> tuple[CrossScopeVersionScenario, ..
 
 def dead_writer_liveness_scenarios(
     count: int = 64,
-) -> tuple[CrossScopeVersionScenario, ...]:
+) -> tuple[ScopeNativeGateScenario, ...]:
     """Generate obsolete provisional writers before independent answers."""
 
-    result: list[CrossScopeVersionScenario] = []
+    result: list[ScopeNativeGateScenario] = []
     scopes = _scopes("branched")
     for index in range(count):
         scope_id = "ii_1" if index % 2 == 0 else "ii_2"
         key = ModelStateKey(f"L{index}", "state", "Point")
         result.append(
-            CrossScopeVersionScenario(
+            ScopeNativeGateScenario(
                 scopes=scopes,
                 objects=(
                     ModelObject(key.object_id, "point", "problem"),
@@ -871,7 +1019,7 @@ def dead_writer_liveness_scenarios(
 
 
 def dimension_coverage(
-    scenarios: Iterable[CrossScopeVersionScenario],
+    scenarios: Iterable[ScopeNativeGateScenario],
 ) -> dict[str, dict[str, int]]:
     counters: dict[str, Counter[str]] = {}
     for scenario in scenarios:
@@ -888,7 +1036,7 @@ def replay_scenario(
     *,
     bounded_count: int = 8_000,
     expanded_count: int = 2_000,
-) -> CrossScopeVersionScenario:
+) -> ScopeNativeGateScenario:
     return next(
         item
         for item in generated_scenarios(
@@ -900,8 +1048,8 @@ def replay_scenario(
 
 
 def shrink_candidates(
-    scenario: CrossScopeVersionScenario,
-) -> Iterator[CrossScopeVersionScenario]:
+    scenario: ScopeNativeGateScenario,
+) -> Iterator[ScopeNativeGateScenario]:
     """Yield deterministic, progressively smaller diagnostic candidates."""
 
     required_calls = {
@@ -936,10 +1084,10 @@ def shrink_candidates(
             ),
             scenario_id="",
         )
-    if scenario.retry_checkpoint is not None:
+    if scenario.state_restore_checkpoint is not None:
         yield replace(
             scenario,
-            retry_checkpoint=None,
+            state_restore_checkpoint=None,
             scenario_id="",
         )
     answer_free = tuple(
@@ -955,9 +1103,9 @@ def shrink_candidates(
 
 
 def reduce_scenario(
-    scenario: CrossScopeVersionScenario,
-    still_fails: Callable[[CrossScopeVersionScenario], bool],
-) -> CrossScopeVersionScenario:
+    scenario: ScopeNativeGateScenario,
+    still_fails: Callable[[ScopeNativeGateScenario], bool],
+) -> ScopeNativeGateScenario:
     """Greedily minimize a failing scenario in a stable order."""
 
     current = scenario
@@ -987,7 +1135,7 @@ def _bounded_scenario(
     projection: str,
     retry_mode: str,
     requested_read_mode: str,
-) -> CrossScopeVersionScenario:
+) -> ScopeNativeGateScenario:
     scopes = _scopes(topology)
     if topology == "root":
         parent_scope = child_1 = child_2 = "problem"
@@ -1147,7 +1295,7 @@ def _bounded_scenario(
         order = tuple(reversed(order))
     elif wire_order == "interleaved" and len(order) > 1:
         order = (order[-1], *order[:-1])
-    scenario = CrossScopeVersionScenario(
+    scenario = ScopeNativeGateScenario(
         scopes=scopes,
         objects=(ModelObject("O0", "point", origin),),
         initial_versions=initials,
@@ -1175,10 +1323,10 @@ def _bounded_scenario(
     )
     return replace(
         scenario,
-        retry_checkpoint=retry,
+        state_restore_checkpoint=retry,
         dimensions=(
             *scenario.dimensions,
-            ("retry", effective_retry_mode),
+            ("state_restore", effective_retry_mode),
             (
                 "runtime_failure",
                 "producer" if producer.forced_failure else "none",
@@ -1193,7 +1341,7 @@ def _expanded_scenario(
     *,
     seed: int,
     scenario_index: int,
-) -> CrossScopeVersionScenario:
+) -> ScopeNativeGateScenario:
     scopes = _scopes("branched")
     key_count = rng.randint(2, 3)
     keys = tuple(
@@ -1298,8 +1446,8 @@ def _expanded_scenario(
         last_producer[key.object_id] = call_id
     order = [item.call_id for item in calls]
     rng.shuffle(order)
-    requested_retry_mode = rng.choice(_RETRY_MODES)
-    scenario = CrossScopeVersionScenario(
+    requested_retry_mode = rng.choice(_STATE_RESTORE_MODES)
+    scenario = ScopeNativeGateScenario(
         scopes=scopes,
         objects=objects,
         initial_versions=initials,
@@ -1334,23 +1482,23 @@ def _expanded_scenario(
     )
     return replace(
         scenario,
-        retry_checkpoint=checkpoint,
+        state_restore_checkpoint=checkpoint,
         dimensions=(
             *scenario.dimensions,
-            ("retry", effective_retry_mode),
+            ("state_restore", effective_retry_mode),
         ),
         scenario_id="",
     )
 
 
 def _retry_checkpoint(
-    scenario: CrossScopeVersionScenario,
+    scenario: ScopeNativeGateScenario,
     *,
     requested_mode: str,
-) -> tuple[ModelRetryCheckpoint | None, str]:
+) -> tuple[ModelStateRestoreCheckpoint | None, str]:
     if requested_mode == "none":
         return None, "none"
-    outcome = ReferenceScopeVersionModel().evaluate(scenario)
+    outcome = ScopeNativeReferenceModel().evaluate(scenario)
     successful_versions = tuple(
         decision
         for decision in outcome.call_decisions
@@ -1366,12 +1514,12 @@ def _retry_checkpoint(
         for item in outcome.canonical_order
         if item not in committed_candidates
     )[:2]
-    if requested_mode in {"committed_restore", "version_drift"}:
+    if requested_mode in {"locked_restore", "version_drift"}:
         if not successful_versions:
             return None, "none"
         committed = successful_versions[:2]
         return (
-            ModelRetryCheckpoint(
+            ModelStateRestoreCheckpoint(
                 mode=requested_mode,
                 committed_call_ids=tuple(
                     item.call_id for item in committed
@@ -1387,12 +1535,12 @@ def _retry_checkpoint(
         )
     replacement = provisional[-1:] if provisional else ()
     return (
-        ModelRetryCheckpoint(
-            mode="provisional_replacement",
+        ModelStateRestoreCheckpoint(
+            mode="discard_provisional",
             provisional_call_ids=provisional,
             replacement_call_ids=replacement,
         ),
-        "provisional_replacement",
+        "discard_provisional",
     )
 
 

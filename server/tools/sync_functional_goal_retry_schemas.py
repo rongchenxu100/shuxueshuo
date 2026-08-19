@@ -11,6 +11,10 @@ from shuxueshuo_server.solver.runtime.functional_diagnostics import (
 )
 from shuxueshuo_server.solver.runtime.functional_goal_execution import (
     functional_goal_execution_checkpoint_schema,
+    verified_functional_plan_execution_schema,
+)
+from shuxueshuo_server.solver.runtime.functional_execution_authority import (
+    path_minimum_witness_schema,
 )
 from shuxueshuo_server.solver.runtime.functional_goal_retry import (
     functional_goal_repair_schema,
@@ -42,6 +46,10 @@ def main() -> None:
         "functional-goal-execution-checkpoint.schema.json": (
             functional_goal_execution_checkpoint_schema()
         ),
+        "verified-functional-plan-execution.schema.json": (
+            verified_functional_plan_execution_schema()
+        ),
+        "path-minimum-witness.schema.json": path_minimum_witness_schema(),
         "functional-goal-repair.schema.json": functional_goal_repair_schema(),
         "planner-goal-retry-context.schema.json": (
             planner_goal_retry_context_schema()

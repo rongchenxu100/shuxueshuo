@@ -133,8 +133,8 @@ _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 "和参数约束筛出唯一候选点，再把该含参点代入抛物线反求参数并"
                 "代回抛物线。candidates 必须引用前序调用实际产出的候选点集合，"
                 "不能把尚未求出坐标的目标点包成单元素伪候选列表。若曲线条件"
-                "本身不能唯一排除分支，必须显式提供与抛物线参数身份一致的 "
-                "symbol_constraint；代码不会从 Context 偷选范围条件。"
+                "本身不能唯一排除分支时，runtime 会按残余符号自动绑定唯一可见的 "
+                "symbol_constraint；只有存在多个非等价候选时才需要显式消歧。"
             ),
             method_ids=(
                 "filter_point_candidates_by_quadratic_curve",
@@ -271,9 +271,11 @@ _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 ConditionPattern(
                     "symbol_constraint",
                     required=False,
+                    deterministic_resolver="unique_related_state",
                     description=(
-                        "用于排除候选分支的参数范围或符号约束。只要曲线条件"
-                        "不能唯一选出一个候选，该参数就是条件性必需输入。"
+                        "用于排除候选分支的参数范围或符号约束。runtime 会按"
+                        "曲线残余符号自动绑定唯一可见约束；仅在多个非等价"
+                        "约束都可用时填写此参数进行消歧。"
                     ),
                 ),
             ),

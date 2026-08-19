@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from support.cross_scope_version_adapters import (
+from support.scope_native_c0_c5_adapters import (
     AdapterMismatch,
     B1AllocationAdapter,
     B2PlacementAdapter,
@@ -18,27 +18,31 @@ from support.cross_scope_version_adapters import (
     compare_adapter_suite,
     run_production_adapters,
 )
-from support.cross_scope_version_generator import (
+from support.scope_native_c0_c5_generator import (
     GENERATOR_VERSION,
     authority_regression_scenarios,
     bounded_scenarios,
     dead_writer_liveness_scenarios,
     expanded_scenarios,
     handoff_scenarios,
+    replay_c5_retry_scenario,
+    replay_goal_retry_scenario,
     reduce_scenario,
     shrink_candidates,
 )
-from support.cross_scope_version_oracle import (
-    CrossScopeVersionScenario,
+from support.scope_native_c0_c5_oracle import (
+    ScopeNativeGateScenario,
     ModelCall,
     ModelDependency,
     ModelObject,
-    ModelRetryCheckpoint,
+    ModelStateRestoreCheckpoint,
     ModelScope,
     ModelStateRead,
     ModelStateKey,
     ModelVersion,
-    ReferenceScopeVersionModel,
+    ScopeNativeC5ReferenceModel,
+    ScopeNativeRetryReferenceModel,
+    ScopeNativeReferenceModel,
     rename_scenario,
 )
 
@@ -48,7 +52,7 @@ def _basic_scenario(
     call_scope: str = "ii_1",
     wire_order: tuple[str, ...] = ("create", "read"),
     projection: str = "object",
-) -> CrossScopeVersionScenario:
+) -> ScopeNativeGateScenario:
     key = ModelStateKey("O", "coordinate", "Point")
     initial = ModelVersion(
         "O.coordinate:Point@problem#0",
@@ -80,7 +84,7 @@ def _basic_scenario(
         requested_write_mode="value",
         projection=projection,
     )
-    return CrossScopeVersionScenario(
+    return ScopeNativeGateScenario(
         scopes=(
             ModelScope("problem", None),
             ModelScope("ii", "problem"),
@@ -103,7 +107,7 @@ def _basic_scenario(
     )
 
 
-def _blocked_scenario() -> CrossScopeVersionScenario:
+def _blocked_scenario() -> ScopeNativeGateScenario:
     scenario = _basic_scenario()
     return replace(
         scenario,
@@ -116,7 +120,7 @@ def _blocked_scenario() -> CrossScopeVersionScenario:
 
 
 def test_reference_module_is_independent_of_production_runtime() -> None:
-    import support.cross_scope_version_oracle as oracle
+    import support.scope_native_c0_c5_oracle as oracle
 
     source = inspect.getsource(oracle)
     assert "shuxueshuo_server" not in source
@@ -131,7 +135,7 @@ def test_reference_truth_table_for_visibility() -> None:
         "ii_1": "ii",
         "ii_2": "ii",
     }
-    visible = ReferenceScopeVersionModel.is_visible
+    visible = ScopeNativeReferenceModel.is_visible
     assert visible("problem", "ii_1", scopes)
     assert visible("ii", "ii_2", scopes)
     assert visible("ii_1", "ii_1", scopes)
@@ -141,7 +145,7 @@ def test_reference_truth_table_for_visibility() -> None:
 
 def test_reference_truth_table_for_exact_and_latest_reads() -> None:
     scenario = _basic_scenario()
-    outcome = ReferenceScopeVersionModel().evaluate(scenario)
+    outcome = ScopeNativeReferenceModel().evaluate(scenario)
     create = outcome.decision("create")
     read = outcome.decision("read")
     assert create.allocation_action == "transition"
@@ -161,11 +165,11 @@ def test_reference_truth_table_for_exact_and_latest_reads() -> None:
 
 def test_reference_truth_table_for_retry_commit_and_provisional() -> None:
     scenario = _basic_scenario()
-    expected = ReferenceScopeVersionModel().evaluate(scenario)
+    expected = ScopeNativeReferenceModel().evaluate(scenario)
     scenario = replace(
         scenario,
-        retry_checkpoint=ModelRetryCheckpoint(
-            "provisional_replacement",
+        state_restore_checkpoint=ModelStateRestoreCheckpoint(
+            "discard_provisional",
             committed_call_ids=("create",),
             committed_version_ids=(
                 expected.decision("create").selected_version_id,
@@ -175,7 +179,7 @@ def test_reference_truth_table_for_retry_commit_and_provisional() -> None:
         ),
         scenario_id="",
     )
-    outcome = ReferenceScopeVersionModel().evaluate(scenario)
+    outcome = ScopeNativeReferenceModel().evaluate(scenario)
     assert outcome.restored_call_ids == ("create",)
     assert outcome.provisional_call_ids == ()
     assert outcome.committed_version_ids == (
@@ -185,13 +189,13 @@ def test_reference_truth_table_for_retry_commit_and_provisional() -> None:
 
 def test_reference_reorders_consumer_before_producer_wire() -> None:
     scenario = _basic_scenario(wire_order=("read", "create"))
-    outcome = ReferenceScopeVersionModel().evaluate(scenario)
+    outcome = ScopeNativeReferenceModel().evaluate(scenario)
     assert outcome.canonical_order == ("create", "read")
 
 
 def test_semantic_latest_read_does_not_publish_state_across_siblings() -> None:
     key = ModelStateKey("O", "coordinate", "Point")
-    scenario = CrossScopeVersionScenario(
+    scenario = ScopeNativeGateScenario(
         scopes=(
             ModelScope("problem", None),
             ModelScope("i", "problem"),
@@ -227,7 +231,7 @@ def test_semantic_latest_read_does_not_publish_state_across_siblings() -> None:
         ),
     )
 
-    expected = ReferenceScopeVersionModel().evaluate(scenario)
+    expected = ScopeNativeReferenceModel().evaluate(scenario)
     actual = run_production_adapters(scenario)
 
     assert expected.decision("produce").execution_scope_id == "i_1"
@@ -248,7 +252,7 @@ def test_child_exact_source_cannot_publish_result_to_sibling_scope() -> None:
         None,
         runtime_destination="state/i_1/O",
     )
-    scenario = CrossScopeVersionScenario(
+    scenario = ScopeNativeGateScenario(
         scopes=(
             ModelScope("problem", None),
             ModelScope("i", "problem"),
@@ -291,7 +295,7 @@ def test_child_exact_source_cannot_publish_result_to_sibling_scope() -> None:
         dimensions=(("truth", "child_source_publication_boundary"),),
     )
 
-    expected = ReferenceScopeVersionModel().evaluate(scenario)
+    expected = ScopeNativeReferenceModel().evaluate(scenario)
     actual = run_production_adapters(scenario)
 
     assert expected.decision("produce").return_scope_id == "i_1"
@@ -320,7 +324,7 @@ def test_reference_exact_read_does_not_upgrade_to_later_version() -> None:
         ),
         scenario_id="",
     )
-    outcome = ReferenceScopeVersionModel().evaluate(scenario)
+    outcome = ScopeNativeReferenceModel().evaluate(scenario)
     assert outcome.decision("read").source_version_ids == (
         outcome.decision("create").selected_version_id,
     )
@@ -333,8 +337,8 @@ def test_reference_exact_read_does_not_upgrade_to_later_version() -> None:
 def test_metamorphic_renaming_preserves_decision_shape() -> None:
     original = _basic_scenario()
     renamed = rename_scenario(original, prefix="R")
-    left = ReferenceScopeVersionModel().evaluate(original)
-    right = ReferenceScopeVersionModel().evaluate(renamed)
+    left = ScopeNativeReferenceModel().evaluate(original)
+    right = ScopeNativeReferenceModel().evaluate(renamed)
     assert tuple(
         item.allocation_action for item in left.call_decisions
     ) == tuple(item.allocation_action for item in right.call_decisions)
@@ -356,8 +360,8 @@ def test_metamorphic_answer_projection_does_not_change_computation() -> None:
         ),
         scenario_id="",
     )
-    left = ReferenceScopeVersionModel().evaluate(scenario)
-    right = ReferenceScopeVersionModel().evaluate(projected)
+    left = ScopeNativeReferenceModel().evaluate(scenario)
+    right = ScopeNativeReferenceModel().evaluate(projected)
     assert tuple(
         (item.allocation_action, item.previous_version_id)
         for item in left.call_decisions
@@ -383,8 +387,8 @@ def test_metamorphic_dead_branch_does_not_change_live_branch() -> None:
         wire_order=(*scenario.wire_order, "dead"),
         scenario_id="",
     )
-    left = ReferenceScopeVersionModel().evaluate(scenario)
-    right = ReferenceScopeVersionModel().evaluate(expanded)
+    left = ScopeNativeReferenceModel().evaluate(scenario)
+    right = ScopeNativeReferenceModel().evaluate(expanded)
     assert tuple(
         item for item in right.canonical_order if item != "dead"
     ) == left.canonical_order
@@ -408,14 +412,14 @@ def test_all_six_production_adapters_have_independent_stage_outputs() -> None:
     assert isinstance(B5bStateReadAdapter(), B5bStateReadAdapter)
     assert isinstance(C0LogicalGraphAdapter(), C0LogicalGraphAdapter)
     assert not compare_adapter_suite(
-        ReferenceScopeVersionModel().evaluate(scenario),
+        ScopeNativeReferenceModel().evaluate(scenario),
         suite,
     )
 
 
 def test_adapter_comparison_detects_mutated_predecessor() -> None:
     scenario = _basic_scenario()
-    expected = ReferenceScopeVersionModel().evaluate(scenario)
+    expected = ScopeNativeReferenceModel().evaluate(scenario)
     suite = run_production_adapters(scenario)
     b1 = suite.stage("B1")
     mutated_values = {
@@ -442,7 +446,7 @@ def test_adapter_comparison_detects_mutated_predecessor() -> None:
 
 def test_adapter_comparison_detects_sibling_latest_read_mutation() -> None:
     scenario = _basic_scenario()
-    expected = ReferenceScopeVersionModel().evaluate(scenario)
+    expected = ScopeNativeReferenceModel().evaluate(scenario)
     suite = run_production_adapters(scenario)
     b5 = suite.stage("B5b")
     mutated_latest = dict(b5.values["latest"])
@@ -466,7 +470,7 @@ def test_adapter_comparison_detects_sibling_latest_read_mutation() -> None:
 
 def test_adapter_comparison_detects_missing_hidden_dependency() -> None:
     scenario = _basic_scenario()
-    expected = ReferenceScopeVersionModel().evaluate(scenario)
+    expected = ScopeNativeReferenceModel().evaluate(scenario)
     suite = run_production_adapters(scenario)
     c0 = suite.stage("C0")
     mutated = replace(
@@ -489,7 +493,7 @@ def test_adapter_comparison_detects_missing_hidden_dependency() -> None:
 
 def test_adapter_comparison_rejects_blocked_precanonical_mutation() -> None:
     scenario = _blocked_scenario()
-    expected = ReferenceScopeVersionModel().evaluate(scenario)
+    expected = ScopeNativeReferenceModel().evaluate(scenario)
     suite = run_production_adapters(scenario)
     assert not compare_adapter_suite(expected, suite)
     assert (
@@ -512,7 +516,7 @@ def test_adapter_comparison_rejects_blocked_precanonical_mutation() -> None:
 
 def test_adapter_comparison_rejects_missing_dependent_blocking() -> None:
     scenario = _blocked_scenario()
-    expected = ReferenceScopeVersionModel().evaluate(scenario)
+    expected = ScopeNativeReferenceModel().evaluate(scenario)
     suite = run_production_adapters(scenario)
     assert expected.blocked_call_ids == ("read",)
     assert not compare_adapter_suite(expected, suite)
@@ -535,7 +539,7 @@ def test_adapter_comparison_rejects_missing_dependent_blocking() -> None:
 
 def test_blocking_is_checked_even_when_b3_rejects_graph() -> None:
     scenario = bounded_scenarios(8_000)[2_320]
-    expected = ReferenceScopeVersionModel().evaluate(scenario)
+    expected = ScopeNativeReferenceModel().evaluate(scenario)
     suite = run_production_adapters(scenario)
     assert expected.blocked_call_ids == ("read",)
     assert expected.b3_issue_categories
@@ -559,7 +563,7 @@ def test_blocking_is_checked_even_when_b3_rejects_graph() -> None:
 
 def test_adapter_comparison_rejects_blocked_b2_mutation() -> None:
     scenario = _blocked_scenario()
-    expected = ReferenceScopeVersionModel().evaluate(scenario)
+    expected = ScopeNativeReferenceModel().evaluate(scenario)
     suite = run_production_adapters(scenario)
     assert not compare_adapter_suite(expected, suite)
     b2 = suite.stage("B2")
@@ -584,7 +588,7 @@ def test_adapter_comparison_rejects_blocked_b2_mutation() -> None:
 
 def test_adapter_comparison_rejects_c0_edge_kind_mutation() -> None:
     scenario = _basic_scenario()
-    expected = ReferenceScopeVersionModel().evaluate(scenario)
+    expected = ScopeNativeReferenceModel().evaluate(scenario)
     suite = run_production_adapters(scenario)
     c0 = suite.stage("C0")
     edges = tuple(
@@ -607,7 +611,7 @@ def test_adapter_comparison_rejects_c0_edge_kind_mutation() -> None:
 
 def test_adapter_comparison_rejects_c0_issue_mutation() -> None:
     scenario = _basic_scenario()
-    expected = ReferenceScopeVersionModel().evaluate(scenario)
+    expected = ScopeNativeReferenceModel().evaluate(scenario)
     suite = run_production_adapters(scenario)
     c0 = suite.stage("C0")
     mismatch = compare_adapter_suite(
@@ -631,7 +635,7 @@ def test_adapter_comparison_rejects_c0_issue_mutation() -> None:
 def test_provisional_call_is_not_restored_by_retry_adapter() -> None:
     base = _basic_scenario()
     committed_version = (
-        ReferenceScopeVersionModel()
+        ScopeNativeReferenceModel()
         .evaluate(base)
         .decision("create")
         .selected_version_id
@@ -639,8 +643,8 @@ def test_provisional_call_is_not_restored_by_retry_adapter() -> None:
     assert committed_version is not None
     scenario = replace(
         base,
-        retry_checkpoint=ModelRetryCheckpoint(
-            "provisional_replacement",
+        state_restore_checkpoint=ModelStateRestoreCheckpoint(
+            "discard_provisional",
             committed_call_ids=("create",),
             committed_version_ids=(committed_version,),
             provisional_call_ids=("read",),
@@ -648,7 +652,7 @@ def test_provisional_call_is_not_restored_by_retry_adapter() -> None:
         ),
         scenario_id="",
     )
-    expected = ReferenceScopeVersionModel().evaluate(scenario)
+    expected = ScopeNativeReferenceModel().evaluate(scenario)
     suite = run_production_adapters(scenario)
     assert suite.stage("B4").values["restored_call_ids"] == ("create",)
     assert suite.stage("B4").values["provisional_call_ids"] == ()
@@ -658,7 +662,7 @@ def test_provisional_call_is_not_restored_by_retry_adapter() -> None:
 def test_retry_adapter_derives_provisional_calls_from_restored_graph() -> None:
     base = _basic_scenario()
     committed_version = (
-        ReferenceScopeVersionModel()
+        ScopeNativeReferenceModel()
         .evaluate(base)
         .decision("create")
         .selected_version_id
@@ -666,15 +670,15 @@ def test_retry_adapter_derives_provisional_calls_from_restored_graph() -> None:
     assert committed_version is not None
     scenario = replace(
         base,
-        retry_checkpoint=ModelRetryCheckpoint(
-            "committed_restore",
+        state_restore_checkpoint=ModelStateRestoreCheckpoint(
+            "locked_restore",
             committed_call_ids=("create",),
             committed_version_ids=(committed_version,),
             provisional_call_ids=("ghost",),
         ),
         scenario_id="",
     )
-    expected = ReferenceScopeVersionModel().evaluate(scenario)
+    expected = ScopeNativeReferenceModel().evaluate(scenario)
     suite = run_production_adapters(scenario)
     assert expected.provisional_call_ids == ("read",)
     assert suite.stage("B4").values["provisional_call_ids"] == ("read",)
@@ -683,7 +687,7 @@ def test_retry_adapter_derives_provisional_calls_from_restored_graph() -> None:
 
 def test_adapter_comparison_detects_finalizer_mutation() -> None:
     scenario = _basic_scenario()
-    expected = ReferenceScopeVersionModel().evaluate(scenario)
+    expected = ScopeNativeReferenceModel().evaluate(scenario)
     suite = run_production_adapters(scenario)
     b3 = suite.stage("B3")
     mutated = replace(
@@ -703,7 +707,7 @@ def test_adapter_comparison_detects_finalizer_mutation() -> None:
 
 def test_adapter_comparison_detects_missing_finalizer_issue() -> None:
     scenario = bounded_scenarios(2_261)[2_260]
-    expected = ReferenceScopeVersionModel().evaluate(scenario)
+    expected = ScopeNativeReferenceModel().evaluate(scenario)
     suite = run_production_adapters(scenario)
     assert expected.b3_issue_categories
     assert suite.stage("B3").issue_codes
@@ -723,7 +727,7 @@ def test_adapter_comparison_detects_missing_finalizer_issue() -> None:
 
 def test_adapter_comparison_detects_missing_elimination() -> None:
     scenario = dead_writer_liveness_scenarios()[0]
-    expected = ReferenceScopeVersionModel().evaluate(scenario)
+    expected = ScopeNativeReferenceModel().evaluate(scenario)
     suite = run_production_adapters(scenario)
     assert expected.eliminated_call_ids == ("provisional",)
     mutated = replace(
@@ -743,8 +747,8 @@ def test_adapter_comparison_detects_missing_elimination() -> None:
 def test_shrinker_is_deterministic_and_removes_retry_first_class_data() -> None:
     scenario = replace(
         _basic_scenario(),
-        retry_checkpoint=ModelRetryCheckpoint(
-            "provisional_replacement",
+        state_restore_checkpoint=ModelStateRestoreCheckpoint(
+            "discard_provisional",
             provisional_call_ids=("read",),
         ),
         scenario_id="",
@@ -752,14 +756,14 @@ def test_shrinker_is_deterministic_and_removes_retry_first_class_data() -> None:
     first = tuple(item.to_payload() for item in shrink_candidates(scenario))
     second = tuple(item.to_payload() for item in shrink_candidates(scenario))
     assert first == second
-    assert any(item["retry_checkpoint"] is None for item in first)
+    assert any(item["state_restore_checkpoint"] is None for item in first)
 
 
 def test_reducer_keeps_only_fields_required_to_reproduce_failure() -> None:
     scenario = replace(
         _basic_scenario(),
-        retry_checkpoint=ModelRetryCheckpoint(
-            "provisional_replacement",
+        state_restore_checkpoint=ModelStateRestoreCheckpoint(
+            "discard_provisional",
             provisional_call_ids=("read",),
         ),
         scenario_id="",
@@ -768,7 +772,7 @@ def test_reducer_keeps_only_fields_required_to_reproduce_failure() -> None:
         scenario,
         lambda item: any(call.call_id == "read" for call in item.calls),
     )
-    assert reduced.retry_checkpoint is None
+    assert reduced.state_restore_checkpoint is None
     assert tuple(item.call_id for item in reduced.calls) == (
         "create",
         "read",
@@ -777,7 +781,7 @@ def test_reducer_keeps_only_fields_required_to_reproduce_failure() -> None:
 
 def test_historical_anonymous_corpus_replays() -> None:
     path = Path(__file__).parent / "fixtures" / (
-        "cross_scope_version_failures/historical_scope_version_v1.json"
+        "scope_native_gate_regressions/v1.json"
     )
     payload = json.loads(path.read_text())
     assert payload["generator_version"] == GENERATOR_VERSION
@@ -799,17 +803,25 @@ def test_historical_anonymous_corpus_replays() -> None:
             dimensions.get(key) == value
             for key, value in record.get("expect_dimensions", {}).items()
         ), record["name"]
-        expected = ReferenceScopeVersionModel().evaluate(scenario)
+        expected = ScopeNativeReferenceModel().evaluate(scenario)
         actual = run_production_adapters(scenario)
         assert not compare_adapter_suite(expected, actual), record["name"]
         serialized = json.dumps(scenario.to_payload(), ensure_ascii=True)
         for forbidden in ("Nankai", "Heping", "Hexi", "Xiqing"):
             assert forbidden not in serialized
+    for record in payload["goal_retry_scenarios"]:
+        scenario = replay_goal_retry_scenario(record["scenario_id"])
+        assert scenario.scenario_id == record["scenario_id"], record["name"]
+        ScopeNativeRetryReferenceModel().evaluate(scenario)
+    for record in payload["c5_retry_scenarios"]:
+        scenario = replay_c5_retry_scenario(record["scenario_id"])
+        assert scenario.scenario_id == record["scenario_id"], record["name"]
+        ScopeNativeC5ReferenceModel().evaluate(scenario)
 
 
 def test_partial_checkpoint_keeps_state_writer_in_semantic_owner_scope() -> None:
     scenario = authority_regression_scenarios()[5]
-    expected = ReferenceScopeVersionModel().evaluate(scenario)
+    expected = ScopeNativeReferenceModel().evaluate(scenario)
     actual = run_production_adapters(scenario)
 
     assert not compare_adapter_suite(expected, actual)
@@ -832,7 +844,7 @@ def test_partial_checkpoint_keeps_state_writer_in_semantic_owner_scope() -> None
 
 def test_checkpoint_runtime_symbol_representation_uses_typed_identity() -> None:
     alias_scenario, drift_scenario = authority_regression_scenarios()[-2:]
-    model = ReferenceScopeVersionModel()
+    model = ScopeNativeReferenceModel()
 
     alias_expected = model.evaluate(alias_scenario)
     alias_actual = run_production_adapters(alias_scenario)
@@ -853,6 +865,6 @@ def test_checkpoint_runtime_symbol_representation_uses_typed_identity() -> None:
 def test_oracle_source_does_not_import_authority_modules(
     bad_import: str,
 ) -> None:
-    import support.cross_scope_version_oracle as oracle
+    import support.scope_native_c0_c5_oracle as oracle
 
     assert bad_import not in inspect.getsource(oracle)

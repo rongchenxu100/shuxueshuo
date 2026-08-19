@@ -95,6 +95,12 @@ name / domain_type / required / cardinality / role
 Symbol 等具名对象始终使用数学实体 ref。只有没有题面身份的候选集、路径见证和
 中间表达式才使用 `StepResultRef`。
 
+Method input view只控制代码如何读取一个具名ref，不控制Planner wire是否能写
+`StepResultRef`。只有公开参数显式声明`allows_anonymous_result`时，response schema
+才同时接受匿名上游return；若该return已经绑定`output_targets`、Goal target或
+compiler-selected MathObject，最终authority gate仍会拒绝StepResultRef并要求使用
+对应数学实体ref。
+
 ### 策略角色权威
 
 动点、映射点、反射对象、候选分支和拉直方向属于数学策略。LLM 提供数学实体

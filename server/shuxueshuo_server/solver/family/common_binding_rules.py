@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from shuxueshuo_server.solver.family.models import (
+    FunctionalOutputTargetSelectorSpec,
     MethodAggregateInputBindingSpec,
     MethodBindingRuleSpec,
     MethodCompanionOutputSpec,
@@ -130,6 +131,23 @@ def point_on_parabola_at_x_rule() -> MethodBindingRuleSpec:
     """Bind a closed or single-free parabola to a point at a known x value."""
     return MethodBindingRuleSpec(
         method_id="point_on_parabola_at_x",
+        functional_output_target_selectors=(
+            FunctionalOutputTargetSelectorSpec(
+                output_name="point",
+                selector_id="unique_visible_fact_target",
+                fact_kind="point_construction",
+                prompt_fact_kind="point_on_curve",
+                target_field="point",
+                related_arg="parabola",
+                related_field="owner",
+                required_field_values=(("construction", "curve_at_x"),),
+                description=(
+                    "若可见 point_on_curve 事实唯一声明了当前抛物线上、"
+                    "具有结构化横坐标的 Point，则代码绑定该已有对象；"
+                    "存在多个候选时必须显式 output_targets。"
+                ),
+            ),
+        ),
         input_bindings=(
             MethodInputBindingSpec("parabola", "read_type:Parabola"),
             MethodInputBindingSpec("x", "symbol:x"),

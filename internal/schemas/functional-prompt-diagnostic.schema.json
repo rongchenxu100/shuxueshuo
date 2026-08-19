@@ -76,6 +76,10 @@
             "type": "string",
             "minLength": 1
           },
+          "item_index": {
+            "type": "integer",
+            "minimum": 0
+          },
           "expected_type": {
             "type": "string",
             "minLength": 1
@@ -93,8 +97,30 @@
             "minLength": 1
           },
           "ref": {
-            "type": "string",
-            "minLength": 1
+            "oneOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "object",
+                "required": [
+                  "step_id",
+                  "return"
+                ],
+                "properties": {
+                  "step_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "return": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "additionalProperties": false
+              }
+            ]
           }
         },
         "additionalProperties": false

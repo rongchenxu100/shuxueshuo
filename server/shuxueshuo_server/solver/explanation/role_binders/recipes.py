@@ -220,6 +220,7 @@ def _equal_length_ray_path_reduction_draft(
     segment_fact = _first_fact(read_facts, "point_on_segment")
     equal_fact = _first_fact(read_facts, "equal_length_condition")
     target_fact = _first_fact(read_facts, "path_minimum_target")
+    verified_witness = _path_minimum_witness(snapshot, group)
 
     roles: dict[str, Any] = {}
     unbound: list[str] = []
@@ -265,6 +266,13 @@ def _equal_length_ray_path_reduction_draft(
     else:
         unbound.extend(["point_on_ray", "point_on_segment"])
 
+    if verified_witness is not None:
+        _apply_verified_path_witness(
+            roles,
+            verified_witness,
+            entities=entities,
+        )
+
     for role in explanation.role_schema:
         if role not in roles and role not in {
             "ray_name",
@@ -272,15 +280,22 @@ def _equal_length_ray_path_reduction_draft(
             "minimum_expression",
         }:
             unbound.append(role)
-    minimum_expression = _minimum_expression_from_distance_trace(group)
+    minimum_expression = str(
+        (verified_witness or {}).get("minimum_expression")
+        or _minimum_expression_from_distance_trace(group)
+    )
     if minimum_expression:
         roles["minimum_expression"] = minimum_expression
         roles["minimum_expression_display"] = _student_expr(minimum_expression)
     roles.update(_minimum_segment_calculation_roles(group, snapshot, roles, entities))
-    proof = [
-        format_template(template, roles)
-        for template in explanation.proof_outline_templates
-    ]
+    proof = (
+        [str(item) for item in verified_witness.get("equivalence_proof", ())]
+        if verified_witness is not None
+        else [
+            format_template(template, roles)
+            for template in explanation.proof_outline_templates
+        ]
+    )
     substep_drafts = _equal_length_ray_path_substep_drafts(
         explanation,
         roles=roles,
@@ -317,6 +332,83 @@ def _equal_length_ray_path_reduction_draft(
                     ],
                 }
     return draft
+
+
+def _path_minimum_witness(
+    snapshot: ExplanationSnapshot,
+    group: LessonCandidateGroup,
+) -> dict[str, Any] | None:
+    source_step_ids = {
+        str(item)
+        for item in (
+            group.step_id,
+            *group.step.get("source_step_ids", ()),
+        )
+        if item
+    }
+    for item in snapshot.macro_evidence:
+        if item.get("macro_id") != "equal_length_ray_path_reduction":
+            continue
+        if str(item.get("step_id") or "") in source_step_ids:
+            return item
+    return None
+
+
+def _apply_verified_path_witness(
+    roles: dict[str, Any],
+    witness: dict[str, Any],
+    *,
+    entities: dict[str, dict[str, Any]],
+) -> None:
+    role_names = {
+        "anchor": "anchor",
+        "reference_point": "segment_reference_point",
+        "ray_point": "ray_direction_point",
+        "fixed_point": "fixed_point",
+    }
+    chosen: dict[str, str] = {}
+    for resolution in witness.get("role_resolutions", ()):
+        if not isinstance(resolution, dict):
+            continue
+        source_role = str(resolution.get("role") or "")
+        target_role = role_names.get(source_role)
+        label = str(resolution.get("chosen_ref") or "").rsplit(".", 1)[-1]
+        if not target_role or not label:
+            continue
+        chosen[source_role] = label
+        handle = _handle_for_label(label, entities)
+        if handle:
+            _bind_role(roles, target_role, handle, entities)
+        else:
+            roles[target_role] = {"handle": label, "label": label}
+
+    constructions = witness.get("constructions", ())
+    construction = constructions[0] if constructions else None
+    if isinstance(construction, dict):
+        auxiliary = str(construction.get("label") or "")
+        if auxiliary:
+            roles["auxiliary_point"] = {
+                "label": auxiliary,
+                "explanation_only_label": True,
+            }
+        coordinate = construction.get("coordinate")
+        if auxiliary and isinstance(coordinate, dict):
+            roles["auxiliary_coordinate"] = (
+                f"{auxiliary}=({coordinate.get('x')},{coordinate.get('y')})"
+            )
+    roles["original_path"] = str(witness.get("original_objective") or "")
+    roles["reduced_path"] = str(witness.get("reduced_objective") or "")
+    roles["minimum_expression"] = str(witness.get("minimum_expression") or "")
+    roles["minimum_expression_display"] = _student_expr(
+        roles["minimum_expression"]
+    )
+    auxiliary_label = str(
+        (roles.get("auxiliary_point") or {}).get("label") or ""
+    )
+    fixed_label = str((roles.get("fixed_point") or {}).get("label") or "")
+    if auxiliary_label and fixed_label:
+        roles["minimum_segment"] = f"{fixed_label}{auxiliary_label}"
+    roles["minimizing_points"] = witness.get("minimizing_points", {})
 
 
 def _equal_length_ray_path_substep_drafts(

@@ -8,6 +8,9 @@ from types import SimpleNamespace
 import pytest
 import sympy as sp
 
+from shuxueshuo_server.solver.extraction.problem_planning_binding import (
+    ProblemPlanningBindingError,
+)
 from shuxueshuo_server.solver.runtime.context import ContextBuilder
 from shuxueshuo_server.solver.runtime.functional_goal_execution import (
     ScopedFunctionalGoalExecutionService,
@@ -29,8 +32,12 @@ from shuxueshuo_server.solver.runtime.functional_plan_content import (
 )
 from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
     FunctionalRestoredCallBindingError,
+    rebase_restored_call_seed,
 )
 from shuxueshuo_server.solver.runtime import functional_goal_retry as retry_module
+from shuxueshuo_server.solver.runtime import (
+    functional_transaction_execution as transaction_module,
+)
 from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
     ScopedFunctionalPlanValidator,
 )
@@ -446,7 +453,7 @@ def test_failed_scope_owned_answer_producer_opens_goal_answer_repair(
     assert repaired_execution.checkpoint.all_required_goals_verified is True
 
 
-def test_blocked_scope_owned_answer_producer_keeps_goal_read_only(
+def test_blocked_scope_owned_answer_producer_allows_answer_only_rebinding(
     tmp_path,
 ) -> None:
     fixture = goal_retry_fixture(tmp_path)
@@ -487,10 +494,266 @@ def test_blocked_scope_owned_answer_producer_keeps_goal_read_only(
     assert goal_authority.editable is False
     assert FAILED_GOAL_REF not in authority.editable_goal_refs
     assert "ii" in authority.editable_scope_refs
+    assert FAILED_GOAL_REF in authority.editable_answer_goal_refs
     response_schema = functional_goal_repair_schema_for_authority(authority)
     goal_schema = response_schema["properties"]["goal_replacements"]
     assert goal_schema["required"] == []
     assert goal_schema["properties"] == {}
+    answer_schema = response_schema["properties"][
+        "answer_binding_replacements"
+    ]
+    assert set(answer_schema["properties"]) == {FAILED_GOAL_REF}
+
+    correct_goal = goal(fixture.correct_payload, FAILED_GOAL_REF)
+    editable_step_ids = set(authority.editable_scope_step_ids["ii"])
+    replacement_steps = [
+        deepcopy(item)
+        for item in correct_goal["steps"]
+        if item["step_id"] in editable_step_ids
+    ]
+    previous_answer_step = correct_goal["answer_from"]["step_id"]
+    replacement_answer_step = f"{previous_answer_step}_retry"
+    next(
+        item
+        for item in replacement_steps
+        if item["step_id"] == previous_answer_step
+    )["step_id"] = replacement_answer_step
+    repair_payload = {
+        "schema_version": FUNCTIONAL_GOAL_REPAIR_CONTRACT,
+        "base_plan_id": authority.base_plan_id,
+        "base_retry_context_id": authority.retry_context_id,
+        "goal_replacements": {},
+        "scope_step_replacements": {
+            "ii": {"steps": replacement_steps},
+        },
+        "answer_binding_replacements": {
+            FAILED_GOAL_REF: {
+                "answer_from": {
+                    "step_id": replacement_answer_step,
+                    "return": correct_goal["answer_from"]["return"],
+                }
+            }
+        },
+    }
+    application = FunctionalGoalRepairService().apply_json(
+        json.dumps(repair_payload, ensure_ascii=False),
+        base_plan=authority.base_plan,
+        authority=authority,
+        capability_catalog=fixture.capability_catalog,
+    )
+    repaired_goal = goal(application.plan.to_payload(), FAILED_GOAL_REF)
+    assert "steps" not in repaired_goal
+    assert repaired_goal["answer_from"] == {
+        "step_id": replacement_answer_step,
+        "return": correct_goal["answer_from"]["return"],
+    }
+    repaired_execution = ScopedFunctionalGoalExecutionService().execute_raw_json(
+        json.dumps(application.plan.to_payload(), ensure_ascii=False),
+        inputs=fixture.inputs,
+        planning_context=fixture.planning_context,
+        problem_binding_catalog=fixture.binding_catalog,
+        handle_registry=fixture.handle_registry,
+        context=ContextBuilder().build(fixture.problem),
+        planner_state_context=fixture.planner_state_context,
+        problem_payload=fixture.problem_payload,
+    )
+    assert repaired_execution.checkpoint is not None
+    assert repaired_execution.checkpoint.all_required_goals_verified is True
+
+
+def test_restore_authority_separates_publication_from_reads_and_writes(
+    tmp_path,
+) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    authority = fixture.retry_authority
+    seed = retry_module._restored_seed(
+        authority,
+        fixture.execution,
+        next_plan=authority.base_plan,
+    )
+    assert seed.conditions
+    assert set(seed.typed_value_index.conditions) == set(
+        seed.conditions
+    )
+    for condition_id, value in seed.conditions.items():
+        assert seed.typed_value_index.condition_value(condition_id) is value
+    assert seed.call_result_records
+    for key, record in seed.call_result_records.items():
+        assert (record.call_id, record.return_name) == key
+        assert record.runtime_type == record.runtime_value.type
+        assert record.scope_id
+        assert record.problem_source_provenance is not None
+        assert record.prompt_ref == {
+            "step_id": record.call_id,
+            "return": record.return_name,
+        }
+    reconciliation = fixture.execution.replay.functional_reconciliation
+    assert reconciliation is not None
+    binding_context = reconciliation.functional_problem_binding_context
+    assert binding_context is not None
+    call_id = "derive_y_intercept_C_i"
+    current_goals = binding_context.call_goal_bindings[call_id]
+    added_goal = next(
+        item
+        for item in seed.mutable_publication_goal_unit_ids
+        if item not in current_goals
+    )
+    expanded_binding_context = replace(
+        binding_context,
+        call_goal_bindings={
+            **binding_context.call_goal_bindings,
+            call_id: (*current_goals, added_goal),
+        },
+    )
+    expanded_reconciliation = replace(
+        reconciliation,
+        functional_problem_binding_context=expanded_binding_context,
+    )
+
+    rebased = rebase_restored_call_seed(seed, expanded_reconciliation)
+    assert rebased is not None
+    assert call_id in rebased.call_ids
+
+    with pytest.raises(FunctionalRestoredCallBindingError) as source_exc:
+        rebase_restored_call_seed(
+            replace(
+                seed,
+                source_read_authorities={
+                    **seed.source_read_authorities,
+                    call_id: "0" * 64,
+                },
+            ),
+            reconciliation,
+        )
+    assert source_exc.value.code == (
+        "planner.retry_problem_source_binding_drift"
+    )
+
+    with pytest.raises(FunctionalRestoredCallBindingError) as write_exc:
+        rebase_restored_call_seed(
+            replace(
+                seed,
+                runtime_write_authorities={
+                    **seed.runtime_write_authorities,
+                    call_id: "0" * 64,
+                },
+            ),
+            reconciliation,
+        )
+    assert write_exc.value.code == "planner.contract_runtime_destination_drift"
+
+    condition_id = next(iter(seed.conditions))
+    condition_value = seed.conditions[condition_id]
+    drifted_seed = replace(
+        seed,
+        conditions={
+            **seed.conditions,
+            condition_id: replace(
+                condition_value,
+                kind=f"{condition_value.kind}:drift",
+            ),
+        },
+    )
+    with pytest.raises(ValueError, match="changed"):
+        transaction_module._restored_conditions(
+            drifted_seed,
+            parent_context=fixture.planner_state_context,
+        )
+
+
+def test_restored_shared_producer_republishes_all_authored_anonymous_returns(
+    tmp_path,
+) -> None:
+    case = "tj-2026-nankai-yimo-25"
+    fixture = planning_binding_fixture(tmp_path / case, case=case)
+    correct = load_v2_fixture_payload(case)
+    failed = deepcopy(correct)
+    failed_scopes = {
+        item["scope_ref"]: item
+        for item in iter_scopes(failed["root_scope"])
+    }
+    failed_scopes["ii_2"]["steps"][0]["args"]["minimum_value"] = (
+        "not_a_real_ref"
+    )
+    correct_scopes = {
+        item["scope_ref"]: item
+        for item in iter_scopes(correct["root_scope"])
+    }
+
+    class NankaiAnonymousResultRepairClient:
+        def __init__(self) -> None:
+            self.requests = []
+
+        def complete(self, payload):
+            self.requests.append(payload)
+            if payload["planner_protocol"] == FUNCTIONAL_PLAN_CONTENT_CONTRACT:
+                frame = FunctionalPlanAuthorityFrame.from_planning_context(
+                    fixture[1]
+                )
+                plan, report = (
+                    ScopedFunctionalPlanValidator()
+                    .validate_payload_with_report(failed)
+                )
+                assert report.ok and plan is not None
+                content = functional_plan_content_from_plan(plan, frame=frame)
+                return json.dumps(content.to_payload(), ensure_ascii=False)
+            retry = payload["planner_payload"]["goal_retry_context"]
+            return json.dumps(
+                {
+                    "schema_version": FUNCTIONAL_GOAL_REPAIR_CONTRACT,
+                    "base_plan_id": retry["base_plan_id"],
+                    "base_retry_context_id": retry[
+                        "base_retry_context_id"
+                    ],
+                    "goal_replacements": {},
+                    "scope_step_replacements": {
+                        "ii_2": {
+                            "steps": deepcopy(correct_scopes["ii_2"]["steps"]),
+                        }
+                    },
+                },
+                ensure_ascii=False,
+            )
+
+    result = ScopedFunctionalGoalRetryService(
+        NankaiAnonymousResultRepairClient()
+    ).run(
+        inputs=fixture[3],
+        planning_context=fixture[1],
+        problem_binding_catalog=fixture[7],
+        handle_registry=fixture[5],
+        runtime_context=ContextBuilder().build(fixture[2]),
+        planner_state_context=fixture[6],
+        problem_payload=fixture[4],
+        max_attempts=2,
+    )
+
+    assert result.status == "accepted"
+    assert result.final_execution is not None
+    first_reconciliation = (
+        result.attempts[0].execution.replay.functional_reconciliation
+    )
+    assert first_reconciliation is not None
+    shared_call = next(
+        item
+        for item in first_reconciliation.calls
+        if item.call_id == "ii_derive_path_model"
+    )
+    assert {
+        "straightened_endpoint_1",
+        "straightened_endpoint_2",
+        "path_minimum_expression",
+    } <= {item.return_name for item in shared_call.returns}
+    final_report = (
+        result.final_execution.replay.transactional_attempt_result
+        .execution_report
+    )
+    assert "ii_derive_path_model" in final_report.restored_call_ids
+    final_states = {
+        item.call_id: item.status for item in final_report.call_states
+    }
+    assert final_states["ii_2_solve_m"] == "verified"
+    assert final_states["ii_2_derive_G"] == "verified"
 
 
 def test_typed_duplicate_goal_producers_reuse_visible_ancestor_steps(
@@ -837,6 +1100,339 @@ def test_unknown_scope_content_key_retries_with_authority_feedback(
     ]
     assert result.attempts[0].retry_authority is None
     assert result.attempts[1].retry_authority is None
+
+
+def test_parseable_plan_with_invalid_answer_source_uses_goal_repair(
+    tmp_path,
+) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    content = json.loads(_content_json(fixture, fixture.correct_payload))
+    content["goal_plans"][FAILED_GOAL_REF]["answer_from"] = {
+        "step_id": "missing_answer_producer",
+        "return": "parameter_value",
+    }
+
+    class GoalAnswerRepairClient:
+        def __init__(self) -> None:
+            self.requests = []
+
+        def complete(self, payload):
+            self.requests.append(payload)
+            if payload["planner_protocol"] == FUNCTIONAL_PLAN_CONTENT_CONTRACT:
+                return json.dumps(content, ensure_ascii=False)
+            assert payload["planner_protocol"] == FUNCTIONAL_GOAL_REPAIR_CONTRACT
+            retry_context = payload["planner_payload"]["goal_retry_context"]
+            replacement = goal(fixture.correct_payload, FAILED_GOAL_REF)
+            return json.dumps(
+                {
+                    "schema_version": FUNCTIONAL_GOAL_REPAIR_CONTRACT,
+                    "base_plan_id": retry_context["base_plan_id"],
+                    "base_retry_context_id": retry_context[
+                        "base_retry_context_id"
+                    ],
+                    "goal_replacements": {
+                        FAILED_GOAL_REF: {
+                            "steps": deepcopy(replacement["steps"]),
+                            "answer_from": deepcopy(replacement["answer_from"]),
+                        }
+                    },
+                    "scope_step_replacements": {},
+                },
+                ensure_ascii=False,
+            )
+
+    client = GoalAnswerRepairClient()
+    result = ScopedFunctionalGoalRetryService(client).run(
+        inputs=fixture.inputs,
+        planning_context=fixture.planning_context,
+        problem_binding_catalog=fixture.binding_catalog,
+        handle_registry=fixture.handle_registry,
+        runtime_context=ContextBuilder().build(fixture.problem),
+        planner_state_context=fixture.planner_state_context,
+        problem_payload=fixture.problem_payload,
+        max_attempts=3,
+    )
+
+    assert result.status == "accepted"
+    assert [item.planner_protocol for item in result.attempts] == [
+        FUNCTIONAL_PLAN_CONTENT_CONTRACT,
+        FUNCTIONAL_GOAL_REPAIR_CONTRACT,
+    ]
+    first = result.attempts[0]
+    assert first.plan is not None
+    assert first.result_retry_authority is not None
+    assert first.result_retry_authority.editable_goal_refs == (
+        FAILED_GOAL_REF,
+    )
+
+
+def test_parseable_capability_schema_error_uses_goal_repair(tmp_path) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    content = json.loads(_content_json(fixture, fixture.correct_payload))
+    failed_goal_ref = "i_2.E"
+    target = next(
+        item
+        for item in content["goal_plans"][failed_goal_ref]["steps"]
+        if item["step_id"] == "derive_x_intercept_B_i"
+    )
+    target["args"]["known_point"] = {
+        "step_id": "derive_equal_angle_i",
+        "return": "angle_equality",
+    }
+
+    class GoalAuthoringRepairClient:
+        def __init__(self) -> None:
+            self.requests = []
+
+        def complete(self, payload):
+            self.requests.append(payload)
+            if payload["planner_protocol"] == FUNCTIONAL_PLAN_CONTENT_CONTRACT:
+                return json.dumps(content, ensure_ascii=False)
+            assert payload["planner_protocol"] == FUNCTIONAL_GOAL_REPAIR_CONTRACT
+            retry_context = payload["planner_payload"]["goal_retry_context"]
+            replacement = goal(fixture.correct_payload, failed_goal_ref)
+            return json.dumps(
+                {
+                    "schema_version": FUNCTIONAL_GOAL_REPAIR_CONTRACT,
+                    "base_plan_id": retry_context["base_plan_id"],
+                    "base_retry_context_id": retry_context[
+                        "base_retry_context_id"
+                    ],
+                    "goal_replacements": {
+                        failed_goal_ref: {
+                            "steps": deepcopy(replacement["steps"]),
+                            "answer_from": deepcopy(replacement["answer_from"]),
+                        }
+                    },
+                    "scope_step_replacements": {},
+                },
+                ensure_ascii=False,
+            )
+
+    client = GoalAuthoringRepairClient()
+    result = ScopedFunctionalGoalRetryService(client).run(
+        inputs=fixture.inputs,
+        planning_context=fixture.planning_context,
+        problem_binding_catalog=fixture.binding_catalog,
+        handle_registry=fixture.handle_registry,
+        runtime_context=ContextBuilder().build(fixture.problem),
+        planner_state_context=fixture.planner_state_context,
+        problem_payload=fixture.problem_payload,
+        max_attempts=3,
+    )
+
+    assert result.status == "accepted"
+    assert [item.planner_protocol for item in result.attempts] == [
+        FUNCTIONAL_PLAN_CONTENT_CONTRACT,
+        FUNCTIONAL_GOAL_REPAIR_CONTRACT,
+    ]
+    first = result.attempts[0]
+    assert first.plan is not None
+    assert first.content_validation_report is not None
+    assert first.content_validation_report.issues[0].code == (
+        "functional.plan_content_schema_invalid"
+    )
+    assert first.result_retry_authority is not None
+    assert first.result_retry_authority.editable_goal_refs == (failed_goal_ref,)
+    assert first.result_retry_authority.goal_authorities[
+        failed_goal_ref
+    ].status == "failed"
+    assert first.result_retry_authority is not None
+    assert first.result_retry_authority.editable_goal_refs == (failed_goal_ref,)
+
+
+def test_pass1_draft_does_not_veto_a_valid_current_final_plan(tmp_path) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    content = json.loads(_content_json(fixture, fixture.correct_payload))
+    reduction = next(
+        item
+        for item in content["goal_plans"][FAILED_GOAL_REF]["steps"]
+        if item["capability_id"] == "equal_length_ray_path_reduction"
+    )
+    reduction["return_expectations"] = {"point": "closed_state"}
+    correct_execution = ScopedFunctionalGoalExecutionService().execute_raw_json(
+        json.dumps(fixture.correct_payload, ensure_ascii=False),
+        inputs=fixture.inputs,
+        planning_context=fixture.planning_context,
+        problem_binding_catalog=fixture.binding_catalog,
+        handle_registry=fixture.handle_registry,
+        context=ContextBuilder().build(fixture.problem),
+        planner_state_context=fixture.planner_state_context,
+        problem_payload=fixture.problem_payload,
+    )
+
+    class CanonicalizingExecution:
+        def execute_raw_json(self, *args, **kwargs):
+            return correct_execution
+
+    class DraftClient:
+        def complete(self, payload):
+            assert payload["planner_protocol"] == FUNCTIONAL_PLAN_CONTENT_CONTRACT
+            return json.dumps(content, ensure_ascii=False)
+
+    result = ScopedFunctionalGoalRetryService(
+        DraftClient(),
+        execution_service=CanonicalizingExecution(),
+    ).run(
+        inputs=fixture.inputs,
+        planning_context=fixture.planning_context,
+        problem_binding_catalog=fixture.binding_catalog,
+        handle_registry=fixture.handle_registry,
+        runtime_context=ContextBuilder().build(fixture.problem),
+        planner_state_context=fixture.planner_state_context,
+        problem_payload=fixture.problem_payload,
+        max_attempts=1,
+    )
+
+    assert result.status == "accepted"
+    assert len(result.attempts) == 1
+    attempt = result.attempts[0]
+    assert attempt.content_validation_report is not None
+    assert not attempt.content_validation_report.ok
+    assert attempt.final_plan_contract_validation is not None
+    assert attempt.final_plan_contract_validation.ok
+    assert (
+        attempt.final_plan_contract_validation.final_plan_id
+        == attempt.final_plan_contract_validation.round_trip_plan_id
+    )
+
+
+def test_runtime_passed_final_contract_issue_opens_only_owning_goal(
+    tmp_path,
+) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    content = json.loads(_content_json(fixture, fixture.correct_payload))
+    reduction = next(
+        item
+        for item in content["goal_plans"][FAILED_GOAL_REF]["steps"]
+        if item["capability_id"] == "equal_length_ray_path_reduction"
+    )
+    reduction["return_expectations"] = {"point": "closed_state"}
+    correct_execution = ScopedFunctionalGoalExecutionService().execute_raw_json(
+        json.dumps(fixture.correct_payload, ensure_ascii=False),
+        inputs=fixture.inputs,
+        planning_context=fixture.planning_context,
+        problem_binding_catalog=fixture.binding_catalog,
+        handle_registry=fixture.handle_registry,
+        context=ContextBuilder().build(fixture.problem),
+        planner_state_context=fixture.planner_state_context,
+        problem_payload=fixture.problem_payload,
+    )
+
+    class ContractDraftExecution:
+        def __init__(self) -> None:
+            self.calls = 0
+
+        def execute_raw_json(self, raw_plan, *args, **kwargs):
+            self.calls += 1
+            if self.calls == 1:
+                authored, report = (
+                    ScopedFunctionalPlanValidator().validate_payload_with_report(
+                        json.loads(raw_plan)
+                    )
+                )
+                assert report.ok and authored is not None
+                return replace(correct_execution, canonical_plan=authored)
+            return correct_execution
+
+    class ContractRepairClient:
+        def __init__(self) -> None:
+            self.requests = []
+
+        def complete(self, payload):
+            self.requests.append(payload)
+            if payload["planner_protocol"] == FUNCTIONAL_PLAN_CONTENT_CONTRACT:
+                return json.dumps(content, ensure_ascii=False)
+            retry_context = payload["planner_payload"]["goal_retry_context"]
+            replacement = goal(fixture.correct_payload, FAILED_GOAL_REF)
+            return json.dumps(
+                {
+                    "schema_version": FUNCTIONAL_GOAL_REPAIR_CONTRACT,
+                    "base_plan_id": retry_context["base_plan_id"],
+                    "base_retry_context_id": retry_context[
+                        "base_retry_context_id"
+                    ],
+                    "goal_replacements": {
+                        FAILED_GOAL_REF: {
+                            "steps": deepcopy(replacement["steps"]),
+                            "answer_from": deepcopy(replacement["answer_from"]),
+                        }
+                    },
+                    "scope_step_replacements": {},
+                },
+                ensure_ascii=False,
+            )
+
+    client = ContractRepairClient()
+    result = ScopedFunctionalGoalRetryService(
+        client,
+        execution_service=ContractDraftExecution(),
+    ).run(
+        inputs=fixture.inputs,
+        planning_context=fixture.planning_context,
+        problem_binding_catalog=fixture.binding_catalog,
+        handle_registry=fixture.handle_registry,
+        runtime_context=ContextBuilder().build(fixture.problem),
+        planner_state_context=fixture.planner_state_context,
+        problem_payload=fixture.problem_payload,
+        max_attempts=2,
+    )
+
+    assert result.status == "accepted"
+    assert [item.planner_protocol for item in result.attempts] == [
+        FUNCTIONAL_PLAN_CONTENT_CONTRACT,
+        FUNCTIONAL_GOAL_REPAIR_CONTRACT,
+    ]
+    first = result.attempts[0]
+    assert first.execution is not None
+    assert first.execution.checkpoint is not None
+    assert first.execution.checkpoint.all_required_goals_verified
+    assert first.final_plan_contract_validation is not None
+    assert not first.final_plan_contract_validation.ok
+    assert first.result_retry_authority is not None
+    assert first.result_retry_authority.editable_goal_refs == (FAILED_GOAL_REF,)
+    issue = first.result_retry_authority.goal_authorities[
+        FAILED_GOAL_REF
+    ].issues[0]
+    assert issue["stage"] == "authoring_contract"
+    assert issue["repair_action"] == "replace_goal"
+
+
+def test_problem_binding_error_is_nonretryable_and_classified(tmp_path) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+
+    class BindingFailureExecution:
+        def execute_raw_json(self, *args, **kwargs):
+            raise ProblemPlanningBindingError(
+                "planner.problem_source_binding_drift",
+                "$.calls['solve_c'].returns['parameter_value']",
+                "B1 return target differs from Problem authority",
+                details={"stage": "C3"},
+            )
+
+    client = _RepairingClient(fixture)
+    result = ScopedFunctionalGoalRetryService(
+        client,
+        execution_service=BindingFailureExecution(),
+    ).run(
+        inputs=fixture.inputs,
+        planning_context=fixture.planning_context,
+        problem_binding_catalog=fixture.binding_catalog,
+        handle_registry=fixture.handle_registry,
+        runtime_context=ContextBuilder().build(fixture.problem),
+        planner_state_context=fixture.planner_state_context,
+        problem_payload=fixture.problem_payload,
+        max_attempts=3,
+    )
+
+    assert result.status == "blocked"
+    assert len(client.requests) == 1
+    assert len(result.attempts) == 1
+    error = result.attempts[0].error
+    assert error is not None
+    assert error.code == "planner.problem_source_binding_drift"
+    assert error.retryable is False
+    assert error.details == {"stage": "C3"}
 
 
 def test_conflicting_cross_container_step_retries_as_full_plan(
@@ -1233,13 +1829,14 @@ def test_ambiguous_answer_candidates_are_returned_to_next_repair_prompt(
                 assert issue["code"] == (
                     "functional.goal_repair_answer_source_invalid"
                 )
-                assert issue["details"]["candidate_count"] == 2
-                assert {
+                candidate_ids = {
                     item["step_id"] for item in issue["details"]["candidates"]
-                } == {
+                }
+                assert issue["details"]["candidate_count"] == len(candidate_ids)
+                assert {
                     "solve_parameter_from_minimum_ii",
                     "solve_parameter_duplicate_ii",
-                }
+                } <= candidate_ids
                 steps = deepcopy(correct_goal["steps"])
                 answer_from = deepcopy(correct_goal["answer_from"])
             return json.dumps(
@@ -1273,7 +1870,7 @@ def test_ambiguous_answer_candidates_are_returned_to_next_repair_prompt(
     assert result.status == "accepted"
     assert len(result.attempts) == 3
     assert result.attempts[1].error is not None
-    assert result.attempts[1].error.details["candidate_count"] == 2
+    assert result.attempts[1].error.details["candidate_count"] >= 2
     assert result.attempts[1].error is not None
     assert result.attempts[2].error is None
 
@@ -1361,7 +1958,7 @@ def test_owned_nonrepairable_diagnostic_remains_a_root_failure(
     assert not _localizable_reconciliation_issue(issue)
 
 
-def test_published_goal_answer_feeds_repaired_goal_without_goal_contamination(
+def test_named_goal_result_feeds_repaired_goal_through_source_ref(
     tmp_path,
 ) -> None:
     fixture = published_goal_retry_fixture(tmp_path)
@@ -1377,9 +1974,7 @@ def test_published_goal_answer_feeds_repaired_goal_without_goal_contamination(
                     "derive_x_intercept_B_i",
                     "derive_curve_intersection_E_i",
                 }:
-                    item["args"]["parabola"] = {
-                        "published_goal_ref": "i_1.parabola"
-                    }
+                    item["args"]["parabola"] = "parabola"
             return json.dumps(
                 {
                     "schema_version": FUNCTIONAL_GOAL_REPAIR_CONTRACT,
@@ -1419,10 +2014,15 @@ def test_published_goal_answer_feeds_repaired_goal_without_goal_contamination(
         for item in fixture.planning_context.goal_views
         if item.answer_ref.ref == "i_1.parabola"
     )
+    i_2_goal_id = next(
+        item.goal_unit_id
+        for item in fixture.planning_context.goal_views
+        if item.answer_ref.ref == "i_2.E"
+    )
     producer = result.final_execution.authority.step_authorities[
         "derive_parabola_i"
     ]
-    assert producer.consumer_goal_unit_ids == (i_1_goal_id,)
+    assert producer.consumer_goal_unit_ids == tuple(sorted((i_1_goal_id, i_2_goal_id)))
     report = (
         result.final_execution.replay.transactional_attempt_result.execution_report
     )

@@ -233,18 +233,37 @@ def test_single_return_role_is_safely_canonicalized(tmp_path) -> None:
     )
 
 
-def test_multi_return_role_is_not_guessed(tmp_path) -> None:
+def test_multi_return_role_uses_unique_global_typed_assignment(tmp_path) -> None:
     case = "tj-2026-heping-ermo-25"
     payload = load_v2_fixture_payload(case)
     steps = _find_scope(payload["root_scope"], "ii")["goals"][0]["steps"]
     solve = next(item for item in steps if item["step_id"] == "solve_parameter_c_ii")
-    solve["args"]["expression"]["return"] = "point"
+    # This is a real public return name on the producer, but its Point type is
+    # incompatible with the MinimumExpression consumer. The producer's other
+    # authored constraints make exactly one compatible return active.
+    solve["args"]["expression"]["return"] = "straightened_endpoint_1"
 
-    with pytest.raises(
-        ScopedFunctionalPlanError,
-        match="functional.step_ref_unresolved",
-    ):
-        _lower_payload(tmp_path, case, payload)
+    authority, _fixture = _lower_payload(tmp_path, case, payload)
+
+    canonical_steps = _find_scope(
+        authority.scoped_plan.to_payload()["root_scope"], "ii"
+    )["goals"][0]["steps"]
+    canonical_solve = next(
+        item
+        for item in canonical_steps
+        if item["step_id"] == "solve_parameter_c_ii"
+    )
+    assert canonical_solve["args"]["expression"] == {
+        "step_id": "derive_path_minimum_ii",
+        "return": "path_minimum_expression",
+    }
+    assert any(
+        item.action == "canonicalize_unique_return_role"
+        and item.from_ref == "straightened_endpoint_1"
+        and item.to_ref == "path_minimum_expression"
+        and item.reason == "unique_typed_return_assignment"
+        for item in authority.normalizations
+    )
 
 
 def test_goal_moved_to_parent_scope_fails_loud(tmp_path) -> None:
@@ -480,6 +499,66 @@ def test_goal_answer_refs_are_canonicalized_to_exact_target_object_refs(
     )
 
 
+def test_unique_residual_symbol_constraint_enters_f5c_binding_sidecar(
+    tmp_path,
+) -> None:
+    case = "tj-2026-hexi-yimo-25"
+    payload = load_v2_fixture_payload(case)
+    scope_ii = _find_scope(payload["root_scope"], "ii")
+    selector = next(
+        item
+        for item in scope_ii["goals"][0]["steps"]
+        if item["capability_id"] == "curve_candidate_parameter_solve"
+    )
+    selector["args"].pop("symbol_constraint")
+    authority, fixture = _lower_payload(tmp_path, case, payload)
+    (
+        _bundle,
+        _planning_context,
+        _problem,
+        inputs,
+        _problem_payload,
+        registry,
+        planner_context,
+        binding_catalog,
+        *_rest,
+    ) = fixture
+
+    reconciliation = FunctionalPlanReconciler().reconcile(
+        authority.lowered_plan,
+        planner_state_context=planner_context,
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+        problem_binding_catalog=binding_catalog,
+        pinned_canonical_call_ids=tuple(authority.step_authorities),
+        authored_call_goal_bindings={
+            step_id: item.consumer_goal_unit_ids
+            for step_id, item in authority.step_authorities.items()
+        },
+        require_explicit_step_results=True,
+    )
+
+    assert reconciliation.ok, reconciliation.to_payload()
+    context = reconciliation.functional_problem_binding_context
+    assert context is not None
+    binding = context.input_binding_for(
+        "select_curve_candidate_ii",
+        "symbol_constraint",
+        0,
+    )
+    assert binding is not None
+    assert binding.source_kind == "problem_source"
+    assert binding.semantic_ref is not None
+    assert binding.semantic_ref.ref == "symbol_constraint_b"
+    assert binding.typed_source is not None
+    assert binding.typed_source.kind == "condition"
+    assert binding.typed_source.condition_id == (
+        "condition:symbol_constraint_f11ebacac514@problem"
+    )
+
+
 def test_goal_answer_ref_is_canonicalized_for_same_object_latest_state_arg(
     tmp_path,
 ) -> None:
@@ -587,7 +666,7 @@ def test_selectable_expectation_is_preserved_and_invalid_form_fails(
     scope_ii = _find_scope(payload["root_scope"], "ii")
     reduction = scope_ii["goals"][0]["steps"][-2]
     assert reduction["return_expectations"] == {
-        "path_minimum_expression": "open_expression"
+        "minimum_expression": "open_expression"
     }
 
     authority, _ = _lower_payload(tmp_path / "valid", case, payload)
@@ -597,12 +676,12 @@ def test_selectable_expectation_is_preserved_and_invalid_form_fails(
     )
     assert canonical_scope["goals"][0]["steps"][-2][
         "return_expectations"
-    ] == {"path_minimum_expression": "open_expression"}
+    ] == {"minimum_expression": "open_expression"}
 
     payload = load_v2_fixture_payload(case)
     scope_ii = _find_scope(payload["root_scope"], "ii")
     scope_ii["goals"][0]["steps"][-2]["return_expectations"] = {
-        "path_minimum_expression": "closed_state"
+        "minimum_expression": "closed_state"
     }
     with pytest.raises(
         ScopedFunctionalPlanError,
@@ -818,6 +897,48 @@ def test_unique_source_fact_target_is_inferred_and_recorded(tmp_path) -> None:
             "return_name": "point",
             "target_ref": "E",
         }
+        for item in authority.normalizations
+    )
+    inputs = fixture[3]
+    reconciliation = FunctionalPlanReconciler().reconcile(
+        authority.lowered_plan,
+        planner_state_context=fixture[6],
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=fixture[5],
+        question_goals=inputs.question_goals,
+        problem_binding_catalog=fixture[7],
+    )
+    assert reconciliation.ok, reconciliation.to_payload()
+
+
+def test_curve_at_x_target_is_inferred_before_liveness(tmp_path) -> None:
+    case = "tj-2026-xiqing-yimo-25"
+    payload = load_v2_fixture_payload(case)
+    scope_ii = _find_scope(payload["root_scope"], "ii")
+    step = next(
+        item
+        for item in scope_ii["steps"]
+        if item["capability_id"] == "point_on_parabola_at_x"
+    )
+    step.pop("output_targets")
+
+    authority, fixture = _lower_payload(tmp_path, case, payload)
+
+    canonical_scope = _find_scope(
+        authority.scoped_plan.to_payload()["root_scope"],
+        "ii",
+    )
+    canonical_step = next(
+        item
+        for item in canonical_scope["steps"]
+        if item["capability_id"] == "point_on_parabola_at_x"
+    )
+    assert canonical_step["output_targets"] == {"point": "D"}
+    assert any(
+        item.action == "infer_unique_output_target"
+        and item.step_id == canonical_step["step_id"]
+        and item.target_ref == "D"
         for item in authority.normalizations
     )
     inputs = fixture[3]
@@ -1174,6 +1295,127 @@ def test_forward_reference_fails_loud(tmp_path) -> None:
     assert captured.value.code == "functional.named_entity_requires_source_ref"
 
 
+def test_answer_selected_named_output_is_normalized_to_source_ref(tmp_path) -> None:
+    case = "tj-2026-heping-yimo-25"
+    payload = load_v2_fixture_payload(case)
+    scope_i_2 = _find_scope(payload["root_scope"], "i_2")
+    target = next(
+        item
+        for item in scope_i_2["goals"][0]["steps"]
+        if item["step_id"] == "derive_x_intercept_B_i"
+    )
+    target["args"]["parabola"] = {
+        "step_id": "derive_parabola_i",
+        "return": "parabola",
+    }
+
+    authority, _fixture = _lower_payload(tmp_path, case, payload)
+
+    canonical_scope = _find_scope(
+        authority.scoped_plan.to_payload()["root_scope"], "i_2"
+    )
+    canonical_target = next(
+        item
+        for item in canonical_scope["goals"][0]["steps"]
+        if item["step_id"] == "derive_x_intercept_B_i"
+    )
+    assert canonical_target["args"]["parabola"] == "parabola"
+    assert any(
+        item.action == "canonicalize_named_entity_result_ref"
+        and item.from_ref == "derive_parabola_i.parabola"
+        and item.to_ref == "parabola"
+        for item in authority.normalizations
+    )
+
+
+def test_unknown_targets_on_anonymous_returns_are_removed(tmp_path) -> None:
+    case = "tj-2026-heping-yimo-25"
+    payload = load_v2_fixture_payload(case)
+    scope_i = _find_scope(payload["root_scope"], "i")
+    steps = [
+        step
+        for goal_plan in scope_i["children"]
+        for goal in goal_plan.get("goals", [])
+        for step in goal.get("steps", [])
+    ]
+    angle = next(
+        item
+        for item in steps
+        if item["step_id"] == "derive_equal_angle_i"
+    )
+    axis = next(
+        item
+        for item in steps
+        if item["step_id"] == "derive_axis_intercept_F_i"
+    )
+    angle["output_targets"] = {
+        "angle_equality": "invented_angle_equality"
+    }
+    axis["output_targets"] = {"point": "invented_axis_point"}
+
+    authority, _fixture = _lower_payload(tmp_path, case, payload)
+
+    canonical_scope = _find_scope(
+        authority.scoped_plan.to_payload()["root_scope"],
+        "i",
+    )
+    canonical_steps = [
+        step
+        for child in canonical_scope["children"]
+        for goal in child.get("goals", [])
+        for step in goal.get("steps", [])
+    ]
+    assert "output_targets" not in next(
+        item
+        for item in canonical_steps
+        if item["step_id"] == "derive_equal_angle_i"
+    )
+    assert "output_targets" not in next(
+        item
+        for item in canonical_steps
+        if item["step_id"] == "derive_axis_intercept_F_i"
+    )
+    records = [
+        item
+        for item in authority.normalizations
+        if item.action == "drop_unknown_anonymous_output_target"
+    ]
+    assert {(item.step_id, item.target_ref) for item in records} == {
+        ("derive_equal_angle_i", "invented_angle_equality"),
+        ("derive_axis_intercept_F_i", "invented_axis_point"),
+    }
+
+
+def test_return_role_diagnostic_exposes_public_contract(tmp_path) -> None:
+    case = "tj-2026-heping-ermo-25"
+    payload = load_v2_fixture_payload(case)
+    steps = _find_scope(payload["root_scope"], "ii")["goals"][0]["steps"]
+    axis = next(
+        item for item in steps if item["step_id"] == "derive_axis_point_M_ii"
+    )
+    axis["return_expectations"] = {"point": "closed_value"}
+
+    with pytest.raises(ScopedFunctionalPlanError) as captured:
+        _lower_payload(tmp_path, case, payload)
+
+    issue = next(
+        item
+        for item in captured.value.issues
+        if item.details.get("observed_role") == "point"
+    )
+    assert issue.details == {
+        "capability_id": "quadratic_axis_x_intercept_point",
+        "observed_role": "point",
+        "observed_form": "closed_value",
+        "expected_roles": ["axis_point"],
+        "expected_forms": {
+            "axis_point": ["open_state", "closed_state"],
+        },
+        "retryability": "planner_repairable",
+        "repair_action": "repair_return_role",
+    }
+
+
 def test_scope_local_producer_is_not_promoted_across_sibling_goals(tmp_path) -> None:
     case = "tj-2026-heping-yimo-25"
     payload = load_v2_fixture_payload(case)
@@ -1318,8 +1560,18 @@ def test_answer_and_output_authority_fail_loud(tmp_path) -> None:
     with pytest.raises(
         ScopedFunctionalPlanError,
         match="output target is outside the step scope",
-    ):
+    ) as output_error:
         _lower_payload(tmp_path / "output-scope", case, payload)
+    issue = next(
+        item
+        for item in output_error.value.issues
+        if item.code == "functional.output_target_invalid"
+        and item.details.get("observed_target") == "minimum_value"
+    )
+    assert issue.details["observed_role"] == "point"
+    assert issue.details["expected_targets"]
+    assert "minimum_value" not in issue.details["expected_targets"]
+    assert issue.details["retryability"] == "planner_repairable"
 
 
 def test_source_ref_selects_latest_visible_dynamic_producer(tmp_path) -> None:
@@ -1382,10 +1634,7 @@ def test_terminal_dead_pure_goal_step_is_available_for_pruning(tmp_path) -> None
             "step_id": "dead_vertex",
             "capability_id": "quadratic_vertex_point",
             "args": {
-                "parabola": {
-                    "step_id": "derive_parabola_i",
-                    "return": "parabola",
-                }
+                "parabola": "parabola"
             },
         }
     )

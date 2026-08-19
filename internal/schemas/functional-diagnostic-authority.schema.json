@@ -77,6 +77,10 @@
             "type": "string",
             "minLength": 1
           },
+          "item_index": {
+            "type": "integer",
+            "minimum": 0
+          },
           "expected_type": {
             "type": "string",
             "minLength": 1

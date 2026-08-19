@@ -313,6 +313,80 @@
         }
       ]
     },
+    "relation_binding": {
+      "additionalProperties": false,
+      "properties": {
+        "call_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "condition_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "curve_arg_name": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "curve_math_object_id": {
+          "$ref": "#/$defs/math_object_id"
+        },
+        "method_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "owner_scope_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "point_arg_name": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "point_item_index": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "point_math_object_id": {
+          "$ref": "#/$defs/math_object_id"
+        },
+        "relation_kind": {
+          "const": "point_on_curve"
+        },
+        "runtime_node_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "semantic_ref": {
+          "$ref": "#/$defs/semantic_ref"
+        },
+        "source_unit_ids": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "call_id",
+        "method_id",
+        "relation_kind",
+        "point_arg_name",
+        "point_item_index",
+        "curve_arg_name",
+        "semantic_ref",
+        "runtime_node_id",
+        "source_unit_ids",
+        "condition_id",
+        "owner_scope_id",
+        "point_math_object_id",
+        "curve_math_object_id"
+      ],
+      "type": "object"
+    },
     "return_binding": {
       "additionalProperties": false,
       "properties": {
@@ -569,6 +643,83 @@
       "minLength": 1,
       "type": "string"
     },
+    "relation_bindings": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "call_id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "condition_id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "curve_arg_name": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "curve_math_object_id": {
+            "$ref": "#/$defs/math_object_id"
+          },
+          "method_id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "owner_scope_id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "point_arg_name": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "point_item_index": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "point_math_object_id": {
+            "$ref": "#/$defs/math_object_id"
+          },
+          "relation_kind": {
+            "const": "point_on_curve"
+          },
+          "runtime_node_id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "semantic_ref": {
+            "$ref": "#/$defs/semantic_ref"
+          },
+          "source_unit_ids": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "minItems": 1,
+            "type": "array",
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "call_id",
+          "method_id",
+          "relation_kind",
+          "point_arg_name",
+          "point_item_index",
+          "curve_arg_name",
+          "semantic_ref",
+          "runtime_node_id",
+          "source_unit_ids",
+          "condition_id",
+          "owner_scope_id",
+          "point_math_object_id",
+          "curve_math_object_id"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
     "return_bindings": {
       "items": {
         "additionalProperties": false,
@@ -637,6 +788,7 @@
     "planner_state_context_id",
     "call_goal_bindings",
     "input_bindings",
+    "relation_bindings",
     "return_bindings",
     "binding_signature"
   ],

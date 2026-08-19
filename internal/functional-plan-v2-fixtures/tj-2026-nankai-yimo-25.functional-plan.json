@@ -68,6 +68,9 @@
               "curve_points": [
                 "M",
                 "N"
+              ],
+              "free_parameters": [
+                "m"
               ]
             },
             "output_targets": {

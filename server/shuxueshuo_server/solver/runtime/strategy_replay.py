@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
-from typing import Any, Literal, Mapping
+from typing import Any, Literal, Mapping, Sequence
 
 from shuxueshuo_server.solver.extraction.problem_planning_binding import (
     ProblemPlanningBindingCatalog,
@@ -388,6 +388,9 @@ class PlannerRetryReplayService:
         scoped_semantic_owner_scopes: Mapping[str, str] | None = None,
         allow_incomplete_goals: bool = False,
         restored_seed: FunctionalRestoredCallSeed | None = None,
+        authored_return_consumers: Mapping[
+            tuple[str, str], Sequence[str]
+        ] | None = None,
     ) -> PlannerRetryReplayResult:
         """Compose reconciliation and execution for legacy/v1 callers."""
 
@@ -415,6 +418,7 @@ class PlannerRetryReplayService:
             scoped_semantic_owner_scopes=scoped_semantic_owner_scopes,
             allow_incomplete_goals=allow_incomplete_goals,
             restored_seed=restored_seed,
+            authored_return_consumers=authored_return_consumers,
         )
         return self.execute_reconciled_functional_plan(
             prepared,
@@ -445,6 +449,9 @@ class PlannerRetryReplayService:
         scoped_semantic_owner_scopes: Mapping[str, str] | None = None,
         allow_incomplete_goals: bool = False,
         restored_seed: FunctionalRestoredCallSeed | None = None,
+        authored_return_consumers: Mapping[
+            tuple[str, str], Sequence[str]
+        ] | None = None,
     ) -> PlannerRetryReplayResult:
         """Reconcile a FunctionalPlan without executing any method."""
         planner_state_context = planner_state_context or _initial_planner_state_context(
@@ -514,6 +521,7 @@ class PlannerRetryReplayService:
                     scoped_semantic_owner_scopes
                 ),
                 authored_call_goal_bindings=scoped_call_goal_bindings,
+                authored_return_consumers=authored_return_consumers,
                 allow_incomplete_goals=allow_incomplete_goals,
                 # Scoped v2 preserves authored step ids, but named Math
                 # Entities intentionally read their latest visible state.

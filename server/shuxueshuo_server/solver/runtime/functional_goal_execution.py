@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 import json
 from types import MappingProxyType
 from typing import Any, Literal, Mapping, Sequence
@@ -25,6 +25,18 @@ from shuxueshuo_server.solver.runtime.functional_diagnostics import (
     FunctionalDiagnosticAuthority,
     FunctionalPromptDiagnosticProjector,
     diagnostic_authority_from_issue,
+)
+from shuxueshuo_server.solver.runtime.functional_execution_authority import (
+    FunctionalExecutionEvidence,
+    MacroSearchExecutionEvidence,
+    PathMinimumPromptWitnessProjector,
+    PathMinimumWitness,
+    VERIFIED_FUNCTIONAL_PLAN_EXECUTION_CONTRACT,
+    functional_execution_evidence_from_payload,
+    functional_execution_evidence_schema,
+)
+from shuxueshuo_server.solver.runtime.functional_debug_aliases import (
+    functional_call_local_debug_alias,
 )
 from shuxueshuo_server.solver.runtime.handle_registry import (
     CanonicalHandleRegistry,
@@ -65,7 +77,7 @@ from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
 
 
 FUNCTIONAL_GOAL_EXECUTION_CHECKPOINT_CONTRACT = (
-    "functional-goal-execution-checkpoint/v1"
+    "functional-goal-execution-checkpoint/v2"
 )
 FunctionalGoalStepStatus = Literal[
     "valid",
@@ -145,6 +157,11 @@ def functional_goal_execution_checkpoint_schema() -> dict[str, Any]:
                     },
                     "additionalProperties": False,
                 },
+            },
+            "evidence": {
+                "type": "array",
+                "minItems": 1,
+                "items": {"$ref": "#/$defs/execution_evidence"},
             },
             "typed_issue": {"type": "object"},
             "blocked_by": {
@@ -236,7 +253,7 @@ def functional_goal_execution_checkpoint_schema() -> dict[str, Any]:
     return {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "$id": "functional-goal-execution-checkpoint.schema.json",
-        "title": "Functional Goal Execution Checkpoint v1",
+        "title": "Functional Goal Execution Checkpoint v2",
         "type": "object",
         "required": [
             "schema_version",
@@ -288,6 +305,7 @@ def functional_goal_execution_checkpoint_schema() -> dict[str, Any]:
             "functional_ref": plan_defs["functional_ref"],
             "authored_step": plan_defs["step"],
             "execution_step": execution_step,
+            "execution_evidence": functional_execution_evidence_schema(),
             "execution_goal": goal,
             "metrics": metrics,
             **scope_defs,
@@ -303,6 +321,7 @@ class FunctionalGoalExecutionStep:
     authored_step: Mapping[str, Any]
     resolved_inputs: tuple[Mapping[str, Any], ...] = ()
     actual_outputs: tuple[Mapping[str, Any], ...] = ()
+    evidence: tuple[FunctionalExecutionEvidence, ...] = ()
     typed_issue: Mapping[str, Any] | None = None
     blocked_by: tuple[str, ...] = ()
 
@@ -318,6 +337,13 @@ class FunctionalGoalExecutionStep:
             "actual_outputs",
             tuple(MappingProxyType(dict(item)) for item in self.actual_outputs),
         )
+        object.__setattr__(self, "evidence", tuple(self.evidence))
+        evidence_ids = tuple(
+            getattr(item, "witness_id", getattr(item, "evidence_id", None))
+            for item in self.evidence
+        )
+        if len(evidence_ids) != len(set(evidence_ids)):
+            raise ValueError("Functional execution evidence must be unique")
         if self.typed_issue is not None:
             object.__setattr__(
                 self,
@@ -347,10 +373,31 @@ class FunctionalGoalExecutionStep:
             payload["blocked_by"] = list(self.blocked_by)
         return payload
 
-    def to_retry_prompt_payload(self) -> dict[str, Any]:
+    def authority_payload(self) -> dict[str, Any]:
+        payload = self.to_prompt_payload(include_authored_step=True)
+        if self.evidence:
+            payload["evidence"] = [item.authority_payload() for item in self.evidence]
+        return payload
+
+    def to_retry_prompt_payload(
+        self,
+        *,
+        planning_context: ProblemPlanningContext | None = None,
+    ) -> dict[str, Any]:
         """Project execution delta; Previous Canonical Plan owns authored wire."""
 
-        return self.to_prompt_payload(include_authored_step=False)
+        payload = self.to_prompt_payload(include_authored_step=False)
+        if planning_context is not None:
+            prompt_evidence = tuple(
+                PathMinimumPromptWitnessProjector()
+                .project(item, planning_context)
+                .to_payload()
+                for item in self.evidence
+                if isinstance(item, PathMinimumWitness)
+            )
+            if prompt_evidence:
+                payload["evidence"] = list(prompt_evidence)
+        return payload
 
 
 @dataclass(frozen=True)
@@ -366,6 +413,15 @@ class FunctionalGoalExecutionGoal:
         }
         if self.steps:
             payload["steps"] = [item.to_prompt_payload() for item in self.steps]
+        return payload
+
+    def authority_payload(self) -> dict[str, Any]:
+        payload: dict[str, Any] = {
+            "goal_ref": self.goal_ref,
+            "status": self.status,
+        }
+        if self.steps:
+            payload["steps"] = [item.authority_payload() for item in self.steps]
         return payload
 
 
@@ -387,6 +443,20 @@ class FunctionalGoalExecutionScope:
         if self.children:
             payload["children"] = [
                 item.to_prompt_payload() for item in self.children
+            ]
+        return payload
+
+    def authority_payload(self) -> dict[str, Any]:
+        payload: dict[str, Any] = {"scope_ref": self.scope_ref}
+        if self.scope_steps:
+            payload["scope_steps"] = [
+                item.authority_payload() for item in self.scope_steps
+            ]
+        if self.goals:
+            payload["goals"] = [item.authority_payload() for item in self.goals]
+        if self.children:
+            payload["children"] = [
+                item.authority_payload() for item in self.children
             ]
         return payload
 
@@ -471,6 +541,7 @@ class FunctionalGoalExecutionCheckpoint:
     def authority_payload(self) -> dict[str, Any]:
         return {
             **self.to_prompt_payload(),
+            "root_scope": self.root_scope.authority_payload(),
             "diagnostic_authorities": [
                 dict(item) for item in self.diagnostic_authorities
             ],
@@ -660,6 +731,206 @@ class FunctionalGoalExecutionCheckpoint:
         return checkpoint
 
 
+def verified_functional_plan_execution_schema() -> dict[str, Any]:
+    """Return the strict final execution authority schema."""
+
+    nonempty = {"type": "string", "minLength": 1}
+    plan_schema = dict(scoped_functional_plan_schema())
+    for key in ("$schema", "$id", "title"):
+        plan_schema.pop(key, None)
+    plan_defs = dict(plan_schema.pop("$defs"))
+    checkpoint_schema = functional_goal_execution_checkpoint_schema()
+    return {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "verified-functional-plan-execution.schema.json",
+        "title": "VerifiedFunctionalPlanExecution",
+        "type": "object",
+        "required": [
+            "schema_version",
+            "canonical_plan",
+            "plan_id",
+            "planning_context_id",
+            "problem_revision_id",
+            "problem_semantic_hash",
+            "checkpoint_id",
+            "root_scope",
+            "execution_signature",
+            "execution_id",
+        ],
+        "properties": {
+            "schema_version": {
+                "const": VERIFIED_FUNCTIONAL_PLAN_EXECUTION_CONTRACT
+            },
+            "canonical_plan": plan_schema,
+            "plan_id": nonempty,
+            "planning_context_id": nonempty,
+            "problem_revision_id": nonempty,
+            "problem_semantic_hash": nonempty,
+            "checkpoint_id": nonempty,
+            "root_scope": {"$ref": "#/$defs/execution_scope_0"},
+            "execution_signature": nonempty,
+            "execution_id": nonempty,
+        },
+        "$defs": {
+            **plan_defs,
+            **checkpoint_schema["$defs"],
+        },
+        "additionalProperties": False,
+    }
+
+
+@dataclass(frozen=True)
+class VerifiedFunctionalPlanExecution:
+    """Final immutable Plan plus its authenticated, scope-shaped execution."""
+
+    canonical_plan: ScopedFunctionalPlan
+    plan_id: str
+    planning_context_id: str
+    problem_revision_id: str
+    problem_semantic_hash: str
+    checkpoint_id: str
+    root_scope: FunctionalGoalExecutionScope
+    schema_version: str = VERIFIED_FUNCTIONAL_PLAN_EXECUTION_CONTRACT
+    execution_signature: str = field(init=False)
+    execution_id: str = field(init=False)
+
+    def __post_init__(self) -> None:
+        if self.schema_version != VERIFIED_FUNCTIONAL_PLAN_EXECUTION_CONTRACT:
+            raise ValueError("unsupported VerifiedFunctionalPlanExecution contract")
+        for name in (
+            "plan_id",
+            "planning_context_id",
+            "problem_revision_id",
+            "problem_semantic_hash",
+            "checkpoint_id",
+        ):
+            value = getattr(self, name)
+            if not isinstance(value, str) or not value:
+                raise ValueError(f"{name} must be a non-empty string")
+        goal_statuses = tuple(
+            goal.status
+            for scope in _iter_execution_scopes(self.root_scope)
+            for goal in scope.goals
+        )
+        if not goal_statuses or any(
+            status != "provisionally_solved" for status in goal_statuses
+        ):
+            raise ValueError(
+                "VerifiedFunctionalPlanExecution requires every Goal to be solved"
+            )
+        authored_ids = {step.step_id for step in self.canonical_plan.steps}
+        execution_ids = {
+            step.step_id
+            for scope in _iter_execution_scopes(self.root_scope)
+            for step in (
+                *scope.scope_steps,
+                *(step for goal in scope.goals for step in goal.steps),
+            )
+        }
+        if authored_ids != execution_ids:
+            raise ValueError(
+                "Verified execution tree and canonical Plan contain different steps"
+            )
+        signature = stable_hash(self._payload(include_identity=False))
+        object.__setattr__(self, "execution_signature", signature)
+        object.__setattr__(self, "execution_id", f"execution:{signature}")
+
+    def _payload(self, *, include_identity: bool) -> dict[str, Any]:
+        payload: dict[str, Any] = {
+            "schema_version": self.schema_version,
+            "canonical_plan": self.canonical_plan.to_payload(),
+            "plan_id": self.plan_id,
+            "planning_context_id": self.planning_context_id,
+            "problem_revision_id": self.problem_revision_id,
+            "problem_semantic_hash": self.problem_semantic_hash,
+            "checkpoint_id": self.checkpoint_id,
+            "root_scope": self.root_scope.authority_payload(),
+        }
+        if include_identity:
+            payload["execution_signature"] = self.execution_signature
+            payload["execution_id"] = self.execution_id
+        return payload
+
+    def authority_payload(self) -> dict[str, Any]:
+        return self._payload(include_identity=True)
+
+    def to_payload(self) -> dict[str, Any]:
+        return self.authority_payload()
+
+    @classmethod
+    def from_checkpoint(
+        cls,
+        *,
+        canonical_plan: ScopedFunctionalPlan,
+        checkpoint: FunctionalGoalExecutionCheckpoint,
+    ) -> "VerifiedFunctionalPlanExecution":
+        if (
+            not checkpoint.transaction_attempted
+            or not checkpoint.transaction_ok
+            or not checkpoint.all_required_goals_verified
+            or checkpoint.root_issues
+        ):
+            raise ValueError(
+                "cannot verify FunctionalPlan execution from an incomplete checkpoint"
+            )
+        return cls(
+            canonical_plan=canonical_plan,
+            plan_id=checkpoint.plan_id,
+            planning_context_id=checkpoint.planning_context_id,
+            problem_revision_id=checkpoint.problem_revision_id,
+            problem_semantic_hash=checkpoint.problem_semantic_hash,
+            checkpoint_id=checkpoint.checkpoint_id,
+            root_scope=checkpoint.root_scope,
+        )
+
+    @classmethod
+    def from_payload(
+        cls, payload: Mapping[str, Any]
+    ) -> "VerifiedFunctionalPlanExecution":
+        candidate = dict(payload)
+        errors = sorted(
+            Draft202012Validator(
+                verified_functional_plan_execution_schema()
+            ).iter_errors(candidate),
+            key=lambda item: tuple(item.absolute_path),
+        )
+        if errors:
+            first = errors[0]
+            path = "$" + "".join(
+                f"[{item}]" if isinstance(item, int) else f".{item}"
+                for item in first.absolute_path
+            )
+            raise FunctionalGoalExecutionCheckpointError(path, first.message)
+        plan, report = ScopedFunctionalPlanValidator().validate_payload_with_report(
+            candidate["canonical_plan"]
+        )
+        if plan is None or not report.ok:
+            first = report.first_issue
+            raise FunctionalGoalExecutionCheckpointError(
+                first.path if first is not None else "$.canonical_plan",
+                first.message if first is not None else "invalid canonical Plan",
+            )
+        execution = cls(
+            schema_version=str(candidate["schema_version"]),
+            canonical_plan=plan,
+            plan_id=str(candidate["plan_id"]),
+            planning_context_id=str(candidate["planning_context_id"]),
+            problem_revision_id=str(candidate["problem_revision_id"]),
+            problem_semantic_hash=str(candidate["problem_semantic_hash"]),
+            checkpoint_id=str(candidate["checkpoint_id"]),
+            root_scope=_scope_from_payload(_mapping(candidate["root_scope"])),
+        )
+        if candidate.get("execution_signature") != execution.execution_signature:
+            raise FunctionalGoalExecutionCheckpointError(
+                "$.execution_signature", "execution authority hash drift"
+            )
+        if candidate.get("execution_id") != execution.execution_id:
+            raise FunctionalGoalExecutionCheckpointError(
+                "$.execution_id", "execution identity drift"
+            )
+        return execution
+
+
 @dataclass(frozen=True)
 class ScopedFunctionalGoalExecutionResult:
     validation_report: ScopedFunctionalPlanValidationReport
@@ -672,6 +943,7 @@ class ScopedFunctionalGoalExecutionResult:
     runtime_equivalent_aliases: tuple[
         FunctionalRuntimeEquivalentCallAlias, ...
     ] = ()
+    verified_execution: VerifiedFunctionalPlanExecution | None = None
 
 
 def _normalize_runtime_equivalent_reuses(
@@ -723,7 +995,13 @@ def _normalize_runtime_equivalent_reuses(
     if restored_seed is not None:
         protected_step_ids.update(restored_seed.call_ids)
 
+    authored_result_consumers = _scoped_authored_return_consumers(plan)
+    exact_result_producer_ids = {
+        step_id
+        for step_id, _return_name in authored_result_consumers
+    }
     aliases: dict[str, tuple[str, Mapping[str, str]]] = {}
+    source_state_reuses: set[str] = set()
     step_authorities = authority.step_authorities
     for alias in runtime_aliases:
         call_id = alias.duplicate_call_id
@@ -734,6 +1012,26 @@ def _normalize_runtime_equivalent_reuses(
             continue
         producer_id = alias.canonical_call_id
         if producer_id == call_id:
+            # The call recomputed a pre-existing source state and runtime
+            # proved every typed write equivalent to that exact state. When
+            # no authored exact-result edge depends on the call identity, the
+            # call is semantically a no-op: named-entity consumers will bind
+            # to the same source StateVersion after reconciliation. Removing
+            # it avoids assigning one StateVersion to two checkpoint
+            # producers while preserving the runtime proof in the result's
+            # alias ledger.
+            if (
+                call_id not in exact_result_producer_ids
+                and alias.selected_version_ids
+                and alias.return_aliases
+                and all(
+                    duplicate_return == canonical_return
+                    for duplicate_return, canonical_return
+                    in alias.return_aliases
+                )
+                and call_id in step_authorities
+            ):
+                source_state_reuses.add(call_id)
             continue
         call_authority = step_authorities.get(call_id)
         producer_authority = step_authorities.get(producer_id)
@@ -757,7 +1055,8 @@ def _normalize_runtime_equivalent_reuses(
             dict(alias.return_aliases),
         )
 
-    if not aliases:
+    removed_step_ids = {*aliases, *source_state_reuses}
+    if not removed_step_ids:
         return None
 
     def canonical_result_ref(
@@ -793,7 +1092,7 @@ def _normalize_runtime_equivalent_reuses(
             steps = [
                 rewrite(step)
                 for step in normalized["steps"]
-                if str(step.get("step_id", "")) not in aliases
+                if str(step.get("step_id", "")) not in removed_step_ids
             ]
             if steps:
                 normalized["steps"] = steps
@@ -808,7 +1107,8 @@ def _normalize_runtime_equivalent_reuses(
                     goal_steps = [
                         step
                         for step in goal_steps
-                        if str(step.get("step_id", "")) not in aliases
+                        if str(step.get("step_id", ""))
+                        not in removed_step_ids
                     ]
                     if goal_steps:
                         rewritten_goal["steps"] = goal_steps
@@ -848,6 +1148,29 @@ def _walk_scopes(root: ScopedFunctionalScope) -> tuple[ScopedFunctionalScope, ..
 
     visit(root)
     return tuple(scopes)
+
+
+def _scoped_authored_return_consumers(
+    plan: ScopedFunctionalPlan,
+) -> dict[tuple[str, str], tuple[str, ...]]:
+    """Preserve complete authored return demand across partial lowering."""
+
+    consumers: dict[tuple[str, str], list[str]] = {}
+    for scope in _walk_scopes(plan.root_scope):
+        steps = (
+            *scope.steps,
+            *(step for goal in scope.goals for step in goal.steps),
+        )
+        for step in steps:
+            for values in step.args.values():
+                for value in values:
+                    if not isinstance(value, ScopedStepResultRef):
+                        continue
+                    key = (value.step_id, value.return_name)
+                    scopes = consumers.setdefault(key, [])
+                    if scope.scope_ref not in scopes:
+                        scopes.append(scope.scope_ref)
+    return {key: tuple(scopes) for key, scopes in consumers.items()}
 
 
 def _checkpoint_identity_payload(
@@ -906,6 +1229,10 @@ def _step_from_payload(
         actual_outputs=tuple(
             _mapping(item)
             for item in _sequence(payload.get("actual_outputs", ()))
+        ),
+        evidence=tuple(
+            functional_execution_evidence_from_payload(_mapping(item))
+            for item in _sequence(payload.get("evidence", ()))
         ),
         typed_issue=(
             _mapping(typed_issue) if typed_issue is not None else None
@@ -979,6 +1306,29 @@ class ScopedFunctionalGoalExecutionService:
                 plan,
                 published_goal_bindings,
             )
+        try:
+            if (
+                problem_binding_catalog.planning_context_id
+                != planning_context.planning_context_id
+                or problem_binding_catalog.problem_revision_id
+                != planning_context.problem_revision_id
+                or problem_binding_catalog.problem_semantic_hash
+                != planning_context.problem_semantic_hash
+            ):
+                raise ProblemPlanningBindingError(
+                    "planner.problem_revision_drift",
+                    "$.problem_binding_catalog",
+                    "binding catalog and PlanningContext identify different revisions",
+                )
+            problem_binding_catalog.verify_authority()
+        except ProblemPlanningBindingError as exc:
+            raise ScopedFunctionalPlanError(
+                exc.code,
+                exc.path,
+                exc.message,
+                retryable=exc.retryable,
+                details=exc.details,
+            ) from exc
         catalog = FunctionalCapabilityCatalog.from_family_spec(
             inputs.family_spec,
             inputs.method_specs,
@@ -1163,6 +1513,9 @@ class ScopedFunctionalGoalExecutionService:
                 allow_incomplete_goals=bool(excluded),
                 retry_checkpoint=retry_checkpoint,
                 restored_seed=restored_seed,
+                authored_return_consumers=(
+                    _scoped_authored_return_consumers(canonical_plan)
+                ),
             )
             replay = prepared
             reconciliation = prepared.functional_reconciliation
@@ -1366,6 +1719,17 @@ class ScopedFunctionalGoalExecutionService:
             root_issues=tuple(root_issues),
             blocked_stage=blocked_stage,
         )
+        verified_execution = (
+            VerifiedFunctionalPlanExecution.from_checkpoint(
+                canonical_plan=canonical_plan,
+                checkpoint=checkpoint,
+            )
+            if checkpoint.transaction_attempted
+            and checkpoint.transaction_ok
+            and checkpoint.all_required_goals_verified
+            and not checkpoint.root_issues
+            else None
+        )
         return ScopedFunctionalGoalExecutionResult(
             validation,
             report,
@@ -1374,6 +1738,7 @@ class ScopedFunctionalGoalExecutionService:
             replay,
             checkpoint,
             canonical_plan,
+            verified_execution=verified_execution,
         )
 
 
@@ -1737,6 +2102,85 @@ def _checkpoint_blocked_by(
     }
 
 
+def _transaction_call_result_prompt_refs(
+    transaction: Any | None,
+) -> dict[str, Mapping[str, str]]:
+    """Map exact CallResult identities to prompt-safe StepResultRef objects."""
+
+    if transaction is None:
+        return {}
+    report = transaction.execution_report
+    scope_by_call = {
+        item.call_id: item.execution_scope_id for item in report.graph.calls
+    }
+    runtime_results = {
+        (call.call_id, item.output_key): item
+        for call in report.call_results
+        for item in call.runtime_results
+    }
+    refs: dict[str, Mapping[str, str]] = {}
+
+    def register(identity: str | None, prompt_ref: Mapping[str, str]) -> None:
+        if not identity:
+            return
+        previous = refs.get(identity)
+        if previous is None:
+            refs[identity] = dict(prompt_ref)
+        elif dict(previous) != dict(prompt_ref):
+            refs.pop(identity, None)
+
+    for compiled in report.compiled_calls:
+        scope_id = scope_by_call.get(compiled.call_id, "problem")
+        for returned in compiled.public_returns:
+            prompt_ref = {
+                "step_id": compiled.call_id,
+                "return": returned.return_name,
+            }
+            register(
+                f"{compiled.call_id}.{returned.return_name}",
+                prompt_ref,
+            )
+            register(
+                functional_call_local_debug_alias(
+                    scope_id=scope_id,
+                    call_id=compiled.call_id,
+                    return_name=returned.return_name,
+                ),
+                prompt_ref,
+            )
+            register(returned.allocation.handle, prompt_ref)
+            runtime_result = runtime_results.get(
+                (compiled.call_id, returned.return_name)
+            )
+            if runtime_result is not None:
+                register(runtime_result.produced_handle, prompt_ref)
+    return refs
+
+
+def _transaction_execution_evidence(
+    transaction: Any | None,
+) -> dict[str, tuple[FunctionalExecutionEvidence, ...]]:
+    """Collect generic Macro evidence from the exact transactional attempt."""
+
+    if transaction is None:
+        return {}
+    evidence: dict[str, tuple[FunctionalExecutionEvidence, ...]] = {}
+    for compiled in transaction.execution_report.compiled_calls:
+        if compiled.path_minimum_witness is not None:
+            evidence[compiled.call_id] = (compiled.path_minimum_witness,)
+            continue
+        report = compiled.macro_search_report
+        if report is None:
+            continue
+        evidence[compiled.call_id] = (
+            MacroSearchExecutionEvidence(
+                step_id=compiled.call_id,
+                report=report,
+            ),
+        )
+    return evidence
+
+
 def _build_checkpoint(
     plan: ScopedFunctionalPlan,
     *,
@@ -1754,6 +2198,8 @@ def _build_checkpoint(
 ) -> FunctionalGoalExecutionCheckpoint:
     invalid_issues = dict(step_issues)
     transaction = replay.transactional_attempt_result if replay is not None else None
+    execution_evidence = _transaction_execution_evidence(transaction)
+    exact_result_refs = _transaction_call_result_prompt_refs(transaction)
     call_states = {
         item.call_id: item
         for item in (
@@ -1802,6 +2248,7 @@ def _build_checkpoint(
             authority,
             binding_catalog,
             planning_context,
+            exact_result_refs=exact_result_refs,
         )
         return projected.to_payload()
     canonical_steps = {
@@ -1880,6 +2327,7 @@ def _build_checkpoint(
                 forbidden_values=forbidden_prompt_values,
             ),
             actual_outputs=outputs,
+            evidence=execution_evidence.get(step.step_id, ()),
             typed_issue=(
                 prompt_diagnostic(dict(issue))
                 if issue is not None
@@ -2271,7 +2719,7 @@ def _provisional_state_payload(transaction: Any | None) -> dict[str, Any]:
     if transaction is None:
         return {}
     report = transaction.execution_report
-    return {
+    payload = {
         "call_states": [
             {
                 "call_id": item.call_id,
@@ -2294,6 +2742,10 @@ def _provisional_state_payload(transaction: Any | None) -> dict[str, Any]:
             for item in report.call_results
         ],
     }
+    safe = _json_safe_value(payload)
+    if not isinstance(safe, dict):
+        raise TypeError("provisional state payload must normalize to an object")
+    return safe
 
 
 def _json_safe_value(value: Any) -> Any:
@@ -2306,6 +2758,17 @@ def _json_safe_value(value: Any) -> Any:
         }
     if isinstance(value, (tuple, list)):
         return [_json_safe_value(item) for item in value]
+    if isinstance(value, (set, frozenset)):
+        normalized = [_json_safe_value(item) for item in value]
+        return sorted(
+            normalized,
+            key=lambda item: json.dumps(
+                item,
+                ensure_ascii=False,
+                sort_keys=True,
+                default=str,
+            ),
+        )
     if hasattr(value, "to_payload"):
         return _json_safe_value(value.to_payload())
     return str(value)

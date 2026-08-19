@@ -7,10 +7,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Literal
+from itertools import combinations
+from typing import Any, Literal, Mapping
 
 from shuxueshuo_server.solver.contracts import (
     MethodExplanationSpec,
+    MethodInputRelationSpec,
     MethodOutputActivationSpec,
     ScalarResultFormSpec,
     SymbolicClosureSpec,
@@ -19,6 +21,9 @@ from shuxueshuo_server.solver.runtime.quadratic_constraint_solver import (
     QuadraticConstraintSolveRequest,
     QuadraticConstraintSolveResult,
     solve_quadratic_constraint_system,
+)
+from shuxueshuo_server.solver.runtime.symbolic_state_representation import (
+    SymbolicStateRepresentationError,
 )
 
 from ._common import *
@@ -92,6 +97,71 @@ def analyze_quadratic_constraints(
     )
 
 
+def equivalent_quadratic_free_parameter_bases(
+    inputs: dict[str, Any],
+) -> tuple[tuple[sp.Symbol, ...], ...]:
+    """Enumerate every exact free-symbol basis accepted by the same constraints.
+
+    The solver's elimination order may represent a one-dimensional state using
+    ``b`` or ``c``.  That order is an implementation choice, not mathematical
+    evidence that one symbol is the unique valid basis.  Candidate bases are
+    therefore verified by rerunning the shared solver with each finite basis.
+    """
+
+    x = inputs["x"]
+    known = set(dict(inputs.get("known_coefficients", {})))
+    substitutions = set(_parameter_substitution(inputs))
+    candidates = tuple(
+        sorted(
+            (
+                _input_free_symbols(inputs)
+                - {x}
+                - known
+                - substitutions
+            ),
+            key=lambda symbol: symbol.name,
+        )
+    )
+    for dimension in range(1, len(candidates) + 1):
+        bases: list[tuple[sp.Symbol, ...]] = []
+        for basis in combinations(candidates, dimension):
+            try:
+                analysis = analyze_quadratic_constraints(
+                    inputs,
+                    preferred_free_parameters=tuple(basis),
+                )
+            except SymbolicStateRepresentationError:
+                continue
+            if (
+                analysis.status in {"single_free", "underdetermined"}
+                and set(analysis.free_parameters) == set(basis)
+            ):
+                bases.append(tuple(basis))
+        if bases:
+            return tuple(bases)
+    return ()
+
+
+def _input_free_symbols(value: Any) -> set[sp.Symbol]:
+    if isinstance(value, Mapping):
+        return {
+            symbol
+            for key, item in value.items()
+            for symbol in (
+                *_input_free_symbols(key),
+                *_input_free_symbols(item),
+            )
+        }
+    if isinstance(value, (tuple, list, set, frozenset)):
+        return {
+            symbol for item in value for symbol in _input_free_symbols(item)
+        }
+    try:
+        return set(sp.sympify(value).free_symbols)
+    except (TypeError, ValueError, AttributeError):
+        return set()
+
+
 class QuadraticFromConstraintsMethod:
     """由二次函数约束求当前问需要的最简抛物线。
 
@@ -109,10 +179,10 @@ class QuadraticFromConstraintsMethod:
     Functional 编译可以把任意数量的 Point ContextPath 聚合为 ``curve_points``。
     ``curve_point/p1/p2`` 仅保留给历史 binding rule 兼容路径，method
     内部会把两种输入统一组装成约束方程。
-    ``free_parameter/free_parameters`` 表示本步骤允许保留的自由系数，例如先把
-    ``a=2`` 代入，保留 ``b,c``，供后续曲线点和联立方程继续约束。后续有
-    ContextValue 构造器后，可以收敛成真正的 ``curve_points`` /
-    ``extra_equations`` / ``free_symbols`` 列表输入。
+    ``free_parameter/free_parameters`` 表示本步骤结果的一组完整独立参数基底。
+    开放状态必须显式声明非空基底；闭合状态可传 ``[]`` 或省略。若约束证明
+    ``b`` 与 ``c`` 是同一一维状态的等价表示，任一单元素基底都可接受；Method
+    不按下游Goal偏好猜测或收窄基底。
     """
 
     method_id = "quadratic_from_constraints"
@@ -494,13 +564,14 @@ SPEC = MethodSpecSource(
         "均由编译器确定，不得自行放入args。指定target_parameter时还可输出该系数"
         "关于free_parameters的开放或闭合状态。使用原则：多个已知系数应一次放入 "
         "known_coefficients；单个运行参数代入才使用parameter_value；"
-        "free_parameters必须等于应用本步骤当前scope约束后实际剩余的全部自由系数。"
+        "free_parameters必须给出应用本步骤当前scope约束后的一组完整独立参数"
+        "基底：开放状态必填非空，闭合状态可填[]或省略。"
     ),
     do_not_use_when=(
         "当前目标所需的同一抛物线状态已经由前序调用完整确定，无需用相同约束重复求解。",
         (
-            "不能根据下游Goal希望求哪个参数来选择或缩减free_parameters；它必须保留"
-            "当前scope约束后全部真实自由符号。"
+            "不能根据下游Goal希望求哪个参数来选择或缩减free_parameters；它必须是"
+            "当前scope约束后完整的独立基底。runtime可证明等价的基底均合法。"
         ),
         (
             "要求 closed_state 时，不能遗漏当前抛物线仍含自由符号对应的 "
@@ -514,8 +585,9 @@ SPEC = MethodSpecSource(
             "当前 Parabola 状态。"
         ),
         (
-            "目标只是把已求出的参数值代回前序抛物线结果；此时应通过StepResultRef"
-            "读取该结果并使用参数求值能力，而不是再次建立抛物线。"
+            "目标只是把已求出的参数值代回同一题面抛物线时，继续使用该Function的"
+            "SourceRef；编译器会读取当前scope最近可见的Parabola状态和参数值。不要"
+            "用StepResultRef指定具名Function的普通状态，也不要再次建立抛物线。"
         ),
         (
             "不要添加quadratic、parabola、x或all_coefficients参数；这些内部输入由"
@@ -529,9 +601,10 @@ SPEC = MethodSpecSource(
     description=(
         "由编译器选择当前scope的题面二次函数身份与可见状态，Plan只提交当前scope"
         "新增的已知系数、曲线点、系数关系和额外方程，求该scope约束下的最简抛物线。"
-        "应用本步骤当前scope约束后，free_parameters必须逐项列出仍未确定的全部"
-        "系数符号；不能根据下游Goal希望求哪个参数来提前收窄自由参数。兄弟scope"
-        "使用不同局部条件时，应在各自scope分别生成状态。"
+        "应用本步骤当前scope约束后，free_parameters必须给出仍未确定状态的一组"
+        "完整独立参数基底；开放状态必须非空，闭合状态允许[]或省略。runtime可证明"
+        "等价的基底均可使用，但不能根据下游Goal提前收窄。兄弟scope使用不同局部"
+        "条件时，应在各自scope分别生成状态。"
     ),
     solves=("derive_quadratic_from_constraints",),
     inputs={
@@ -574,9 +647,11 @@ SPEC = MethodSpecSource(
         "free_parameters": {
             "type": "SymbolList",
             "required": False,
+            "allows_empty_collection": True,
             "role": (
-                "应用本步骤当前scope可见约束后仍未确定的全部系数符号；"
-                "不得按下游Goal目标人为收窄"
+                "应用本步骤当前scope可见约束后仍未确定的一组完整独立参数基底。"
+                "开放状态必须填写非空基底；闭合状态可填写[]或省略。代码接受"
+                "runtime证明等价的基底，但不得按下游Goal目标人为收窄"
             ),
         },
         "parameter": {"type": "Symbol", "required": False},
@@ -609,6 +684,28 @@ SPEC = MethodSpecSource(
             "free_parameters",
         ),
     ),
+    input_relations=(
+        MethodInputRelationSpec(
+            relation_kind="point_on_curve",
+            point_arg="curve_point",
+            curve_arg="quadratic",
+            cardinality="one",
+            accepted_condition_kinds=(
+                "point_on_curve",
+                "point_on_curve_with_x_coordinate",
+            ),
+        ),
+        MethodInputRelationSpec(
+            relation_kind="point_on_curve",
+            point_arg="curve_points",
+            curve_arg="quadratic",
+            cardinality="for_each",
+            accepted_condition_kinds=(
+                "point_on_curve",
+                "point_on_curve_with_x_coordinate",
+            ),
+        ),
+    ),
     outputs={
         "coefficients": "Coefficients",
         "parabola": "Parabola",
@@ -631,7 +728,10 @@ SPEC = MethodSpecSource(
     },
     preconditions=(
         "输入约束必须能唯一确定除 free_parameter/free_parameters 外的缺失系数",
-        "free_parameter/free_parameters必须完整列出应用当前scope可见约束后仍未确定的系数",
+        (
+            "开放状态的free_parameter/free_parameters必须给出应用当前scope可见"
+            "约束后的完整独立基底；闭合状态允许[]或省略"
+        ),
         (
             "局部条件属于子scope或兄弟scope时，状态producer必须位于对应局部scope，"
             "不能仅因共享同一抛物线身份而提升到祖先"

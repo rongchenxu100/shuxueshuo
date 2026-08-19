@@ -13,6 +13,7 @@ import inspect
 
 from shuxueshuo_server.solver.contracts import (
     MethodExplanationSpec,
+    MethodInputRelationSpec,
     MethodInputViewMode,
     MethodOutputActivationSpec,
     MethodVisualSpec,
@@ -66,6 +67,7 @@ class MethodSpecSource:
     inputs: dict[str, dict[str, Any]]
     input_views: dict[str, MethodInputViewMode]
     outputs: dict[str, str]
+    input_relations: tuple[MethodInputRelationSpec, ...] = ()
     internal_outputs: tuple[str, ...] = ()
     output_activation: dict[str, MethodOutputActivationSpec] = field(
         default_factory=dict
@@ -112,6 +114,14 @@ class MethodSpecSource:
         }
         if self.internal_outputs:
             payload["internal_outputs"] = list(self.internal_outputs)
+        if self.input_relations:
+            _validate_input_relations(
+                self.input_relations,
+                input_names=frozenset(self.inputs),
+            )
+            payload["input_relations"] = [
+                item.to_payload() for item in self.input_relations
+            ]
         if self.output_activation:
             payload["output_activation"] = {
                 name: spec.to_payload()
@@ -166,6 +176,58 @@ class MethodSpecSource:
         if self.symbolic_closure is not None:
             payload["symbolic_closure"] = self.symbolic_closure.to_payload()
         return payload
+
+
+def _validate_input_relations(
+    relations: tuple[MethodInputRelationSpec, ...],
+    *,
+    input_names: frozenset[str],
+) -> None:
+    seen: set[tuple[str, str, str]] = set()
+    for relation in relations:
+        key = (
+            relation.relation_kind,
+            relation.point_arg,
+            relation.curve_arg,
+        )
+        if key in seen:
+            raise MethodSpecContractError(
+                f"duplicate Method input relation declaration: {key}"
+            )
+        seen.add(key)
+        unknown = sorted(
+            {relation.point_arg, relation.curve_arg} - input_names
+        )
+        if unknown:
+            raise MethodSpecContractError(
+                "Method input relation references unknown inputs: "
+                + ", ".join(unknown)
+            )
+        if relation.relation_kind != "point_on_curve":
+            raise MethodSpecContractError(
+                "unsupported Method input relation kind: "
+                f"{relation.relation_kind}"
+            )
+        if relation.cardinality not in {"one", "for_each"}:
+            raise MethodSpecContractError(
+                "Method input relation cardinality must be one or for_each"
+            )
+        if not relation.accepted_condition_kinds:
+            raise MethodSpecContractError(
+                "Method input relation must accept at least one Condition kind"
+            )
+        unsupported_condition_kinds = sorted(
+            set(relation.accepted_condition_kinds)
+            - {
+                "point_on_curve",
+                "point_on_curve_with_x_coordinate",
+            }
+        )
+        if unsupported_condition_kinds:
+            raise MethodSpecContractError(
+                "unsupported point-on-curve Condition kinds: "
+                + ", ".join(unsupported_condition_kinds)
+            )
 
 
 def _input_payloads(

@@ -382,6 +382,7 @@
                 "all_coefficients",
                 "coefficient_relation",
                 "curve_points",
+                "free_parameter",
                 "quadratic",
                 "quadratic_template",
                 "x"
@@ -439,6 +440,16 @@
           "paths": [
             "$question.ii.facts.__functional_transaction_ii_derive_parabola_0",
             "$question.ii.facts.__functional_transaction_ii_derive_parabola_1"
+          ]
+        },
+        {
+          "arg": "free_parameters",
+          "item": 0,
+          "role": "free_parameters",
+          "authority": "wire",
+          "target": "free_parameter",
+          "paths": [
+            "$problem.symbols.m"
           ]
         },
         {

@@ -1,12 +1,12 @@
 {
-  "format": "cross_scope_version_corpus/v1",
-  "generator_version": "c0.5/v10",
+  "format": "scope-native-gate-regressions/v1",
+  "generator_version": "scope-native-c0-c5/v1",
   "scenarios": [
     {
       "name": "sibling_private_exact_visibility",
       "source": "bounded",
       "index": 4448,
-      "scenario_id": "csv-2ab0ee0f03615744",
+      "scenario_id": "snc-2e45fa55d499a713",
       "expect_dimensions": {
         "topology": "siblings",
         "state_location": "siblings",
@@ -17,7 +17,7 @@
       "name": "parent_state_child_transition",
       "source": "bounded",
       "index": 2075,
-      "scenario_id": "csv-1b292567e5fdc632",
+      "scenario_id": "snc-15f3eb27ac943e8b",
       "expect_dimensions": {
         "topology": "parent_child",
         "write_mode": "transition"
@@ -27,7 +27,7 @@
       "name": "answer_object_projection_single_writer",
       "source": "bounded",
       "index": 21,
-      "scenario_id": "csv-03da7d9b6c92b6b6",
+      "scenario_id": "snc-b7b751c3364ee115",
       "expect_dimensions": {
         "projection": "object+answer",
         "relationship": "duplicate"
@@ -37,7 +37,7 @@
       "name": "hidden_dependency_placement",
       "source": "bounded",
       "index": 6051,
-      "scenario_id": "csv-fce73d3bcf09d822",
+      "scenario_id": "snc-717aff1c76a3e382",
       "expect_dimensions": {
         "topology": "branched",
         "dependency_kind": "hidden_semantic_role"
@@ -47,19 +47,19 @@
       "name": "transition_source_edge",
       "source": "bounded",
       "index": 6116,
-      "scenario_id": "csv-d9446a408ec8dcc9",
+      "scenario_id": "snc-fdcea384d8081c7b",
       "expect_dimensions": {
         "write_mode": "transition",
         "relationship": "refinement"
       }
     },
     {
-      "name": "provisional_retry_replacement",
+      "name": "failed_goal_provisional_state_discard",
       "source": "bounded",
       "index": 6001,
-      "scenario_id": "csv-1f56362b41c4f6ef",
+      "scenario_id": "snc-9fdc904ea189f59c",
       "expect_dimensions": {
-        "retry": "provisional_replacement"
+        "state_restore": "discard_provisional"
       }
     },
     {
@@ -67,7 +67,7 @@
       "source": "expanded",
       "seed": 17,
       "index": 0,
-      "scenario_id": "csv-2b148db8360feabb",
+      "scenario_id": "snc-d726a87f01d0a224",
       "expect_dimensions": {
         "calls": "12"
       }
@@ -77,9 +77,9 @@
       "source": "expanded",
       "seed": 17,
       "index": 1,
-      "scenario_id": "csv-1e0921864558f1a6",
+      "scenario_id": "snc-85364f2b2fba6468",
       "expect_dimensions": {
-        "retry": "committed_restore"
+        "state_restore": "locked_restore"
       }
     },
     {
@@ -87,7 +87,7 @@
       "source": "expanded",
       "seed": 17,
       "index": 2,
-      "scenario_id": "csv-28b53ff8e6ff12b1",
+      "scenario_id": "snc-a607bb416eea7a93",
       "expect_dimensions": {
         "read_mode": "latest"
       }
@@ -97,16 +97,16 @@
       "source": "expanded",
       "seed": 17,
       "index": 3,
-      "scenario_id": "csv-97e3d31075b8aa7b",
+      "scenario_id": "snc-ef2bc13c7042b51d",
       "expect_dimensions": {
-        "retry": "version_drift"
+        "state_restore": "version_drift"
       }
     },
     {
       "name": "sibling_exact_read_with_initial_version",
       "source": "handoff",
       "index": 0,
-      "scenario_id": "csv-25b7727652112e48",
+      "scenario_id": "snc-a65475950010c5bd",
       "expect_dimensions": {
         "read_mode": "exact",
         "bootstrap": "initial"
@@ -116,7 +116,7 @@
       "name": "sibling_latest_read_without_initial_version",
       "source": "handoff",
       "index": 1,
-      "scenario_id": "csv-79e2757b2589a5d9",
+      "scenario_id": "snc-b971c282465c3128",
       "expect_dimensions": {
         "read_mode": "latest",
         "bootstrap": "identity_only"
@@ -126,7 +126,7 @@
       "name": "child_target_declared_in_parent",
       "source": "authority_regression",
       "index": 0,
-      "scenario_id": "csv-72a69b4c47137b39",
+      "scenario_id": "snc-9c8dd9ececb2cc4d",
       "expect_dimensions": {
         "regression": "child_target_declared_in_parent"
       }
@@ -135,7 +135,7 @@
       "name": "sibling_isolated_parent_projection",
       "source": "authority_regression",
       "index": 1,
-      "scenario_id": "csv-0acc70cf6d09eccc",
+      "scenario_id": "snc-31b3c93bcf77f0f7",
       "expect_dimensions": {
         "regression": "sibling_isolated_parent_projection"
       }
@@ -144,7 +144,7 @@
       "name": "checkpoint_wire_reorder_exact_source",
       "source": "authority_regression",
       "index": 2,
-      "scenario_id": "csv-59eee5acaa4f3b7b",
+      "scenario_id": "snc-c48cd0aaaf441c6c",
       "expect_dimensions": {
         "regression": "checkpoint_wire_reorder_exact_source"
       }
@@ -153,7 +153,7 @@
       "name": "initial_parameter_value_exact_read",
       "source": "authority_regression",
       "index": 3,
-      "scenario_id": "csv-8bceea6d2d6b2d9f",
+      "scenario_id": "snc-8895a9fa05235274",
       "expect_dimensions": {
         "regression": "initial_parameter_value_exact_read"
       }
@@ -162,16 +162,16 @@
       "name": "published_state_exact_read_ignores_transitive_source",
       "source": "authority_regression",
       "index": 4,
-      "scenario_id": "csv-fc41cacc8f960184",
+      "scenario_id": "snc-59c76f969ccb064e",
       "expect_dimensions": {
         "regression": "published_state_exact_read_ignores_transitive_source"
       }
     },
     {
-      "name": "committed_sibling_chain_lca_restore",
+      "name": "locked_sibling_chain_lca_restore",
       "source": "authority_regression",
       "index": 5,
-      "scenario_id": "csv-7ea39a9441531cea",
+      "scenario_id": "snc-c91388737ed30de8",
       "expect_dimensions": {
         "regression": "committed_sibling_chain_lca_restore",
         "retry_candidate_scope": "ii"
@@ -181,7 +181,7 @@
       "name": "checkpoint_symbol_alias_identity",
       "source": "authority_regression",
       "index": 6,
-      "scenario_id": "csv-f44ae26f58f45516",
+      "scenario_id": "snc-6095051edfb8c903",
       "expect_dimensions": {
         "regression": "checkpoint_symbol_alias_identity"
       }
@@ -190,10 +190,54 @@
       "name": "checkpoint_symbol_identity_drift",
       "source": "authority_regression",
       "index": 7,
-      "scenario_id": "csv-61debbdd4690edf6",
+      "scenario_id": "snc-13c8be302135f639",
       "expect_dimensions": {
         "regression": "checkpoint_symbol_identity_drift"
       }
+    }
+  ],
+  "goal_retry_scenarios": [
+    {
+      "name": "published_solved_goal_restore",
+      "scenario_id": "snr-75777ab339195dbd"
+    },
+    {
+      "name": "repair_group_foreign_goal_rejected",
+      "scenario_id": "snr-ab8a643d0a0ae02a"
+    },
+    {
+      "name": "answer_producer_ambiguity",
+      "scenario_id": "snr-d46bd1afc338d387"
+    },
+    {
+      "name": "goal_repair_no_progress",
+      "scenario_id": "snr-9faadb59d308a700"
+    },
+    {
+      "name": "stale_retry_context",
+      "scenario_id": "snr-bc67a86421b4c028"
+    },
+    {
+      "name": "stale_plan_has_no_solved_reexecution",
+      "scenario_id": "snr-7441ec3ff2012c7b"
+    }
+  ],
+  "c5_retry_scenarios": [
+    {
+      "name": "closure_residual_symbol_reaches_prompt",
+      "scenario_id": "sn5-70387558f53a5a16"
+    },
+    {
+      "name": "closure_inconsistent_enters_goal_retry",
+      "scenario_id": "sn5-2845859d52327af9"
+    },
+    {
+      "name": "closure_stale_plan_has_no_reexecution",
+      "scenario_id": "sn5-09a9b912073f543f"
+    },
+    {
+      "name": "closure_identity_unresolved_enters_goal_retry",
+      "scenario_id": "sn5-2ddd8e024617eff5"
     }
   ]
 }

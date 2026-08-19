@@ -9,6 +9,7 @@
   "inputs": {
     "moving_locus": {
       "required": true,
+      "allows_anonymous_result": true,
       "domain_type": "Line",
       "runtime_type": "Line",
       "view": {
@@ -20,6 +21,7 @@
     },
     "minimum_point_1": {
       "required": true,
+      "allows_anonymous_result": true,
       "domain_type": "Point",
       "runtime_type": "Point",
       "view": {
@@ -31,6 +33,7 @@
     },
     "minimum_point_2": {
       "required": true,
+      "allows_anonymous_result": true,
       "domain_type": "Point",
       "runtime_type": "Point",
       "view": {

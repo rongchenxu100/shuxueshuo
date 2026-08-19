@@ -126,6 +126,7 @@
       "fact:i_2:square_AEKG": ["printed_line_0"],
       "fact:i_2:G_on_parabola": ["printed_line_3"],
       "fact:ii:A_coordinate_value": ["printed_line_4"],
+      "fact:ii:A_on_parabola": ["printed_line_0", "printed_line_4"],
       "fact:ii:E_on_axis": ["printed_line_0", "printed_line_4"],
       "fact:ii:F_midpoint_of_AE": ["printed_line_4"],
       "fact:ii:H_square_diagonal_intersection": ["printed_line_4"],

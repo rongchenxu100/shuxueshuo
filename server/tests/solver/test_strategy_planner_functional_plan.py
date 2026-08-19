@@ -1022,7 +1022,7 @@ def test_straightened_distance_recipe_compiles_reconciled_endpoints() -> None:
             },
             "return_bindings": {},
             "return_expectations": {
-                "path_minimum_expression": "open_expression"
+                "minimum_expression": "open_expression"
             },
             "strategy": "Measure the selected straightening endpoints.",
             "reason": "The selected endpoints define the reduced path length.",
@@ -1033,7 +1033,7 @@ def test_straightened_distance_recipe_compiles_reconciled_endpoints() -> None:
     )
     solve_call["args"]["minimum_expression"] = {
         "from_call": "distance_of_selected_endpoints",
-        "return": "path_minimum_expression",
+        "return": "minimum_expression",
     }
     plan, validation = _validate(payload, inputs)
     assert validation.ok and plan is not None
@@ -1125,7 +1125,7 @@ def test_straightened_distance_recipe_emits_base_and_evaluated_returns() -> None
                 }
             },
             "return_expectations": {
-                "path_minimum_expression": "open_expression",
+                "minimum_expression": "open_expression",
                 "evaluated_path_minimum_expression": "closed_value",
             },
             "strategy": "Measure the endpoints before and after substitution.",
@@ -1602,7 +1602,7 @@ def test_explicit_free_parameters_are_not_narrowed_from_downstream_goal() -> Non
     )
 
 
-def test_curve_candidate_direct_compile_does_not_invent_omitted_constraint() -> None:
+def test_curve_candidate_auto_binds_unique_visible_residual_symbol_constraint() -> None:
     inputs, registry, _context, payload = _hexi_case()
     select_call = next(
         call
@@ -1628,24 +1628,102 @@ def test_curve_candidate_direct_compile_does_not_invent_omitted_constraint() -> 
         validation_report=validation,
     )
 
-    assert replay.output is None
+    assert replay.output is not None, replay.errors
     assert replay.transactional_attempt_result is not None
-    issue = replay.transactional_attempt_result.root_issues[0]
-    assert issue.code == "functional.method_result_ambiguous"
-    assert issue.diagnostic_authority is not None
-    assert issue.diagnostic_authority["subjects"] == [
-        {
-            "role": "symbol_constraint",
-            "arg_name": "symbol_constraint",
-            "internal_ref": "b",
-        }
-    ]
+    assert replay.transactional_attempt_result.root_issues == ()
     bindings = tuple(
         item
         for item in replay.functional_reconciliation.functional_binding_context.bindings
         if item.key.call_id == "select_curve_candidate_ii"
+        and item.key.arg_name == "symbol_constraint"
     )
-    assert "symbol_constraint" not in {item.key.arg_name for item in bindings}
+    assert len(bindings) == 1
+    assert bindings[0].binding_authority == "resolver"
+    assert bindings[0].source.condition_id == "condition:b_gt_0@problem"
+    assert any(
+        item["call_id"] == "select_curve_candidate_ii"
+        and item["action"] == "auto_fill_optional_arg"
+        and item["from"] == "symbol_constraint=omitted"
+        and item["to"] == "symbol_constraint=fact:problem:b_gt_0"
+        for item in replay.functional_reconciliation.elaboration[
+            "deterministic_repairs"
+        ]
+    )
+    compiled = next(
+        item
+        for item in replay.output.step_plans
+        if item.step_id == "select_curve_candidate_ii"
+    )
+    assert {
+        invocation.inputs["parameter_constraint"]
+        for invocation in compiled.invocations
+    } == {"$problem.constraints.b"}
+
+
+def test_curve_candidate_constraint_resolver_preserves_true_ambiguity() -> None:
+    inputs, registry, _context, _payload = _hexi_case()
+    capability = FunctionalCapabilityCatalog.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
+    ).get("curve_candidate_parameter_solve")
+    assert capability is not None
+    constraint_arg = next(
+        item for item in capability.args if item.name == "symbol_constraint"
+    )
+    assert constraint_arg.deterministic_resolver == "unique_related_state"
+    semantic_index = FunctionalSemanticIndex(
+        (
+            FunctionalSemanticView(
+                ref="b_positive",
+                kind="fact",
+                handle="fact:problem:b_positive",
+                runtime_type="Condition",
+                valid_scope="problem",
+                condition_id="condition:b_positive@problem",
+                condition_kind="symbol_constraint",
+                dependency_object_refs=("symbol:problem:b",),
+            ),
+            FunctionalSemanticView(
+                ref="c_positive",
+                kind="fact",
+                handle="fact:problem:c_positive",
+                runtime_type="Condition",
+                valid_scope="problem",
+                condition_id="condition:c_positive@problem",
+                condition_kind="symbol_constraint",
+                dependency_object_refs=("symbol:problem:c",),
+            ),
+        ),
+        handle_registry=registry,
+    )
+
+    additions, repairs = (
+        functional_reconciliation_module._resolve_deterministic_optional_args(
+            capability,
+            {
+                "parabola": (
+                    ResolvedFunctionalValue(
+                        handle="function:problem:parabola",
+                        runtime_type="Parabola",
+                        valid_scope="problem",
+                        object_ref="function:problem:parabola",
+                        free_symbol_refs=(
+                            "symbol:problem:b",
+                            "symbol:problem:c",
+                        ),
+                    ),
+                )
+            },
+            call_id="select_curve_candidate",
+            scope_id="ii",
+            produced={},
+            semantic_index=semantic_index,
+            handle_registry=registry,
+        )
+    )
+
+    assert additions == {}
+    assert repairs == ()
 
 
 def test_free_parameter_does_not_auto_fill_optional_symbol_value() -> None:
@@ -1794,9 +1872,13 @@ def test_missing_free_parameter_basis_is_not_inferred_from_transitive_consumer()
     issue = replay.transactional_attempt_result.root_issues[0]
     assert issue.code == "functional.method_input_state_unavailable"
     assert issue.diagnostic_authority is not None
-    assert issue.diagnostic_authority["expected"]["free_parameters"]
-    assert "declared free parameters" in issue.message
-    assert issue.diagnostic_authority["expected"]["free_parameters"] == ["c"]
+    assert issue.diagnostic_authority["expected"][
+        "allowed_free_parameter_bases"
+    ]
+    assert "requires an explicit non-empty" in issue.message
+    assert issue.diagnostic_authority["expected"][
+        "allowed_free_parameter_bases"
+    ] == [["b"], ["c"]]
     assert issue.diagnostic_authority["observed"][
         "declared_free_parameters"
     ] == []
@@ -2419,10 +2501,18 @@ def test_downstream_symbol_constraint_does_not_narrow_explicit_free_basis() -> N
     )
     assert replay.transactional_attempt_result is not None
     issue = replay.transactional_attempt_result.root_issues[0]
-    assert issue.code == "functional.method_result_inconsistent"
+    assert issue.code == "functional.method_input_state_unavailable"
     assert issue.diagnostic_authority is not None
-    assert issue.diagnostic_authority["observed"]["branch_count"] == 0
-    assert "no consistent branch" in issue.message
+    assert issue.diagnostic_authority["expected"] == {
+        "allowed_free_parameter_bases": [["c"]],
+        "basis_cardinality": 1,
+    }
+    assert issue.diagnostic_authority["observed"] == {
+        "declared_free_parameters": ["b", "c"]
+    }
+    assert issue.diagnostic_authority["repair_action"] == (
+        "provide_or_align_symbolic_state_basis"
+    )
 
 
 def test_unified_quadratic_constraint_rejects_target_in_free_basis() -> None:
@@ -2759,7 +2849,7 @@ def test_functional_schema_and_catalog_are_prompt_safe() -> None:
         {
             "name": "axis_point",
             "type": "Point",
-            "binding": "answer_or_existing_object",
+            "binding": "call_result_or_answer_or_existing_object",
             "return_expectation_policy": "selectable",
             "desc": (
                 "坐标仍含未确定符号时为 open_state；不存在自由符号时为 "
@@ -2783,7 +2873,7 @@ def test_functional_schema_and_catalog_are_prompt_safe() -> None:
         "identity_arg",
         "write_mode",
     ):
-        assert internal_field not in text
+        assert f'"{internal_field}"' not in text
     assert not CANONICAL_REF_RE.search(text)
     prompt_returns = [
         result
@@ -2792,7 +2882,7 @@ def test_functional_schema_and_catalog_are_prompt_safe() -> None:
     ]
     assert {result["binding"] for result in prompt_returns} >= {
         "internal_only",
-        "answer_or_existing_object",
+        "call_result_or_answer_or_existing_object",
     }
     straightening = next(
         item
@@ -5635,7 +5725,7 @@ def test_functional_catalog_lowers_containers_and_hides_auto_args() -> None:
         ray_prompt["use_when"]
     )
     assert "返回 MinimumExpression" in ray_prompt["use_when"]
-    assert "PathWitness" in ray_prompt["use_when"]
+    assert "PathWitness" not in json.dumps(ray_prompt, ensure_ascii=False)
     assert any(
         "三段正方形路径或带权距离" in item
         for item in ray_prompt["do_not_use_when"]
@@ -5706,7 +5796,7 @@ def test_functional_catalog_lowers_containers_and_hides_auto_args() -> None:
         "不要假定默认旋转方向" in item
         for item in candidate_prompt["do_not_use_when"]
     )
-    assert "条件性必需输入" in candidate_args["symbol_constraint"]["role"]
+    assert "自动绑定唯一可见约束" in candidate_args["symbol_constraint"]["role"]
     right_angle_select = hexi_catalog.get(
         "right_angle_equal_length_construct_and_select"
     )
@@ -12167,7 +12257,7 @@ def test_future_target_identity_flows_across_pure_computation_trees() -> None:
     ] == ("point:ii:D",)
 
 
-def test_structured_return_roles_identify_blocked_point_producers() -> None:
+def test_structured_return_roles_never_bind_sibling_point_producers() -> None:
     problem = load_problem_ir(HEPING_FIXTURE)
     inputs = replace(build_strategy_probe_inputs(problem), question_goals=[])
     problem_payload = problem_to_llm_payload(problem)
@@ -12259,7 +12349,7 @@ def test_structured_return_roles_identify_blocked_point_producers() -> None:
     assert prepared.future_return_object_hints[("derive_D", "point")] == (
         "point:problem:D",
     )
-    assert "derive_B" in prepared.dependency_graph["derive_angle_relation"]
+    assert prepared.dependency_graph["derive_angle_relation"] == ()
 
 
 def _typed_cross_scope_point_duplicate_graph(
@@ -13615,6 +13705,91 @@ def test_hidden_symbolic_state_does_not_require_planned_closed_producer() -> Non
     )
 
     assert graph["derive_angle_relation"] == ()
+
+
+def test_planned_state_producer_rejects_only_sibling_candidate() -> None:
+    registry = _registry()
+    sibling = FunctionalCall(
+        call_id="sibling_writer",
+        capability_id="synthetic_point_producer",
+        args={},
+        return_bindings={},
+        return_expectations={"point": "closed_state"},
+        strategy="write a sibling-local point state",
+        reason="exercise scope visibility",
+    )
+    consumer = replace(
+        sibling,
+        call_id="consumer",
+        return_expectations={},
+    )
+
+    selected = functional_reconciliation_module._select_planned_state_producer(
+        "point:problem:D",
+        consumer_call=consumer,
+        consumer_scope_id="ii_2",
+        producers_by_object={
+            "point:problem:D": (("sibling_writer", "point", "ii_1"),)
+        },
+        calls_by_id={
+            sibling.call_id: sibling,
+            consumer.call_id: consumer,
+        },
+        dependency_graph={sibling.call_id: (), consumer.call_id: ()},
+        order_by_id={sibling.call_id: 0, consumer.call_id: 1},
+        handle_registry=registry,
+    )
+
+    assert selected is None
+
+
+def test_planned_state_producer_uses_visible_ancestor_not_sibling() -> None:
+    registry = _registry()
+    sibling = FunctionalCall(
+        call_id="sibling_writer",
+        capability_id="synthetic_point_producer",
+        args={},
+        return_bindings={},
+        return_expectations={"point": "closed_state"},
+        strategy="write a sibling-local point state",
+        reason="exercise scope visibility",
+    )
+    ancestor = replace(sibling, call_id="ancestor_writer")
+    consumer = replace(
+        sibling,
+        call_id="consumer",
+        return_expectations={},
+    )
+
+    selected = functional_reconciliation_module._select_planned_state_producer(
+        "point:problem:D",
+        consumer_call=consumer,
+        consumer_scope_id="ii_2",
+        producers_by_object={
+            "point:problem:D": (
+                ("sibling_writer", "point", "ii_1"),
+                ("ancestor_writer", "point", "ii"),
+            )
+        },
+        calls_by_id={
+            sibling.call_id: sibling,
+            ancestor.call_id: ancestor,
+            consumer.call_id: consumer,
+        },
+        dependency_graph={
+            sibling.call_id: (),
+            ancestor.call_id: (),
+            consumer.call_id: (),
+        },
+        order_by_id={
+            sibling.call_id: 0,
+            ancestor.call_id: 1,
+            consumer.call_id: 2,
+        },
+        handle_registry=registry,
+    )
+
+    assert selected == "ancestor_writer"
 
 
 def test_explicit_symbol_values_do_not_depend_on_future_symbol_writes() -> None:
@@ -15588,6 +15763,9 @@ def test_reconciler_refines_latest_parabola_after_point_transitions() -> None:
                             "curve_points": [
                                 {"ref": "M", "kind": "point"},
                                 {"ref": "N", "kind": "point"},
+                            ],
+                            "free_parameters": [
+                                {"ref": "m", "kind": "symbol"}
                             ],
                             "coefficient_relation": {
                                 "ref": "coefficient_relation",

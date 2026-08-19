@@ -103,6 +103,18 @@
     "parabola": "Parabola"
   },
   "is_pure": true,
+  "input_relations": [
+    {
+      "relation_kind": "point_on_curve",
+      "point_arg": "point",
+      "curve_arg": "quadratic",
+      "cardinality": "one",
+      "accepted_condition_kinds": [
+        "point_on_curve",
+        "point_on_curve_with_x_coordinate"
+      ]
+    }
+  ],
   "preconditions": [
     "应用已知参数值后，曲线点方程必须直接唯一确定目标参数，或唯一确定可映射到目标参数的二次函数系数",
     "点代入抛物线后，在参数约束下必须唯一确定参数值",

@@ -1804,6 +1804,60 @@ def _conditions_from_registry(
                 valid_scope=registry.handle_valid_scopes.get(handle),
             )
         )
+    existing_curve_relations = {
+        (
+            dict(item.object_roles).get("point", ()),
+            dict(item.object_roles).get("curve", ()),
+            item.scope_id,
+        )
+        for item in result
+        if item.kind
+        in {"point_on_curve", "point_on_curve_with_x_coordinate"}
+    }
+    curve_membership_definitions = {
+        "curve_point",
+        "point_on_curve",
+        "vertex",
+        "x_axis_intercept",
+        "y_axis_intercept",
+    }
+    for handle, payload in sorted(registry.entity_payloads.items()):
+        if payload.get("entity_type") != "point":
+            continue
+        definition = str(payload.get("definition") or "")
+        curve = payload.get("of")
+        if (
+            definition not in curve_membership_definitions
+            or not isinstance(curve, str)
+            or not is_object_handle(curve)
+        ):
+            continue
+        scope_id = registry.handle_valid_scopes.get(
+            handle,
+            _scope_from_handle(handle) or "problem",
+        )
+        relation_key = ((handle,), (curve,), scope_id)
+        if relation_key in existing_curve_relations:
+            continue
+        result.append(
+            Condition(
+                condition_id=(
+                    "condition:derived_point_on_curve_"
+                    f"{_stable_hash({'point': handle, 'curve': curve})}"
+                    f"@{scope_id}"
+                ),
+                kind="point_on_curve",
+                scope_id=scope_id,
+                canonical_handle=None,
+                object_roles=(
+                    ("point", (handle,)),
+                    ("curve", (curve,)),
+                ),
+                value_type="point_on_curve",
+                valid_scope=scope_id,
+            )
+        )
+        existing_curve_relations.add(relation_key)
     return result
 
 

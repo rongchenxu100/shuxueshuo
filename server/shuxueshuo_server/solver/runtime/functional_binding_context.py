@@ -20,10 +20,12 @@ from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
 )
 from shuxueshuo_server.solver.runtime.functional_plan_models import (
     FunctionalCallReconciliation,
+    FunctionalMethodRelationBinding,
     FunctionalPlan,
     ResolvedFunctionalValue,
     SemanticRef,
 )
+from shuxueshuo_server.solver.runtime.models import ContextPath
 from shuxueshuo_server.solver.runtime.strategy_models import (
     ProjectedFunctionArgBinding,
 )
@@ -153,6 +155,7 @@ class FunctionalArgBinding:
 class FunctionalBindingContext:
     bindings: tuple[FunctionalArgBinding, ...]
     binding_signature: str
+    relation_bindings: tuple[FunctionalMethodRelationBinding, ...] = ()
 
     def for_call(self, call_id: str) -> tuple[FunctionalArgBinding, ...]:
         return tuple(item for item in self.bindings if item.key.call_id == call_id)
@@ -169,12 +172,24 @@ class FunctionalBindingContext:
     def signature_for_call(self, call_id: str) -> str:
         return _binding_signature(
             self.for_call(call_id),
+            relation_bindings=self.relations_for_call(call_id),
             include_call_id=False,
+        )
+
+    def relations_for_call(
+        self,
+        call_id: str,
+    ) -> tuple[FunctionalMethodRelationBinding, ...]:
+        return tuple(
+            item for item in self.relation_bindings if item.call_id == call_id
         )
 
     def to_payload(self) -> dict[str, Any]:
         return {
             "bindings": [item.to_payload() for item in self.bindings],
+            "relation_bindings": [
+                item.to_payload() for item in self.relation_bindings
+            ],
             "binding_signature": self.binding_signature,
         }
 
@@ -392,9 +407,29 @@ class FunctionalBindingContextBuilder:
                     )
                 )
         ordered = tuple(sorted(bindings, key=lambda item: item.key))
+        relation_bindings = tuple(
+            sorted(
+                (
+                    relation
+                    for call in calls
+                    for relation in call.relation_bindings
+                ),
+                key=lambda item: (
+                    item.call_id,
+                    item.point_arg_name,
+                    item.point_item_index,
+                    item.curve_arg_name,
+                    item.condition_id,
+                ),
+            )
+        )
         return FunctionalBindingContext(
             bindings=ordered,
-            binding_signature=_binding_signature(ordered),
+            binding_signature=_binding_signature(
+                ordered,
+                relation_bindings=relation_bindings,
+            ),
+            relation_bindings=relation_bindings,
         )
 
     def _value_binding(
@@ -559,12 +594,24 @@ def _runtime_mapping(
 def _binding_signature(
     bindings: tuple[FunctionalArgBinding, ...],
     *,
+    relation_bindings: tuple[FunctionalMethodRelationBinding, ...] = (),
     include_call_id: bool = True,
 ) -> str:
-    payload = [item.to_payload() for item in bindings]
+    binding_payload = [item.to_payload() for item in bindings]
+    relation_payload = [item.to_payload() for item in relation_bindings]
     if not include_call_id:
-        for item in payload:
+        for item in binding_payload:
             item["key"].pop("call_id", None)
+        for item in relation_payload:
+            item.pop("call_id", None)
+    payload: Any = (
+        {
+            "bindings": binding_payload,
+            "relation_bindings": relation_payload,
+        }
+        if relation_payload
+        else binding_payload
+    )
     encoded = json.dumps(payload, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
 
@@ -856,6 +903,13 @@ def audit_compiled_functional_arg_consumption(
                         expected_path,
                         source_paths_by_output,
                     )
+                    or (
+                        binding.selection_policy == "identity_only"
+                        and _runtime_identity_paths_equivalent(
+                            path,
+                            expected_path,
+                        )
+                    )
                     for path in paths
                 )
                 for candidates in candidates_by_target.values()
@@ -983,3 +1037,22 @@ def _runtime_path_descends_from(
         visited.add(current)
         pending.extend(source_paths_by_output.get(current, ()))
     return False
+
+
+def _runtime_identity_paths_equivalent(path: str, expected_source: str) -> bool:
+    """Accept immutable identity and mutable state views of one MathObject.
+
+    The exact container may change from ``points`` to ``object_refs`` when a
+    Point acquires a coordinate state.  Scope and object key must remain exact;
+    this therefore cannot authorize a sibling object or a different entity.
+    """
+
+    try:
+        actual = ContextPath.parse(path)
+        expected = ContextPath.parse(expected_source)
+    except ValueError:
+        return False
+    if (actual.scope_id, actual.key) != (expected.scope_id, expected.key):
+        return False
+    compatible_containers = {actual.container, expected.container}
+    return compatible_containers <= {"points", "object_refs"}

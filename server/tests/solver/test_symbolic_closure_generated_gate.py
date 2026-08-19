@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from dataclasses import replace
+from dataclasses import asdict, replace
+import json
+import os
 
 import sympy as sp
 
@@ -9,6 +11,15 @@ from shuxueshuo_server.solver.math_kernel import SympyKernel
 from shuxueshuo_server.solver.runtime.state_identity import MathObjectId
 from shuxueshuo_server.solver.runtime.symbolic_closure_execution import (
     execute_symbolic_closure,
+)
+from support.scope_native_c0_c5_generator import (
+    c5_retry_dimension_coverage,
+    c5_retry_scenarios,
+    replay_c5_retry_scenario,
+)
+from support.scope_native_c0_c5_oracle import ScopeNativeC5ReferenceModel
+from support.scope_native_goal_retry_adapters import (
+    run_scope_native_c5_retry_adapter,
 )
 
 
@@ -130,3 +141,62 @@ def test_generated_production_quadratic_symbolic_closure_gate() -> None:
         if scenario == "mapped_open":
             assert sp.simplify(result.target_value - (1 - c)) == 0
             assert result.residual_symbols == (c,)
+
+
+def test_scope_native_execution_to_closure_retry_generated_gate() -> None:
+    scenarios = c5_retry_scenarios()
+    requested = os.environ.get("SCOPE_NATIVE_C5_SCENARIO_ID")
+    if requested:
+        scenarios = tuple(
+            item for item in scenarios if item.scenario_id == requested
+        )
+        assert scenarios, requested
+    else:
+        assert len(scenarios) == 256
+        coverage = c5_retry_dimension_coverage(scenarios)
+        assert set(coverage["closure_failure"]) == {
+            "identity_unresolved",
+            "underdetermined",
+            "ambiguous",
+            "inconsistent",
+        }
+        assert set(coverage["expose_residual_symbol"]) == {"False", "True"}
+        assert set(coverage["expose_equation_sources"]) == {"False", "True"}
+        assert set(coverage["repair_mode"]) == {"valid", "stale_plan"}
+        assert set(coverage["reverse_mapping_order"]) == {"False", "True"}
+        assert set(coverage["variant"]) == {"0", "1", "2", "3"}
+
+    oracle = ScopeNativeC5ReferenceModel()
+    for scenario in scenarios:
+        expected = oracle.evaluate(scenario)
+        actual = run_scope_native_c5_retry_adapter(scenario)
+        assert asdict(actual) == asdict(expected), _c5_failure_report(
+            scenario,
+            expected=expected,
+            actual=actual,
+        )
+
+
+def test_scope_native_c5_scenario_id_is_stably_replayable() -> None:
+    scenarios = c5_retry_scenarios()
+    for scenario in (scenarios[0], scenarios[127], scenarios[-1]):
+        assert replay_c5_retry_scenario(scenario.scenario_id) == scenario
+
+
+def _c5_failure_report(scenario, *, expected, actual) -> str:
+    return json.dumps(
+        {
+            "scenario_id": scenario.scenario_id,
+            "dimensions": scenario.to_payload(),
+            "expected": asdict(expected),
+            "actual": asdict(actual),
+            "replay_command": (
+                "cd server && SCOPE_NATIVE_C5_SCENARIO_ID="
+                f"{scenario.scenario_id} uv run pytest "
+                "tests/solver/test_symbolic_closure_generated_gate.py -q"
+            ),
+        },
+        ensure_ascii=False,
+        default=str,
+        indent=2,
+    )

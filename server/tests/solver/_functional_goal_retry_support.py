@@ -113,6 +113,45 @@ def goal_retry_fixture(tmp_path: Path) -> GoalRetryFixture:
     )
 
 
+def downstream_path_witness_retry_fixture(tmp_path: Path) -> GoalRetryFixture:
+    """Keep the path Macro verified while its parameter consumer is invalid."""
+
+    authority_fixture = planning_binding_fixture(tmp_path / CASE, case=CASE)
+    correct = load_v2_fixture_payload(CASE)
+    failed = deepcopy(correct)
+    step(failed, "solve_parameter_from_minimum_ii")["args"][
+        "minimum_value"
+    ] = "not_a_real_ref"
+    failed_plan, validation = (
+        ScopedFunctionalPlanValidator().validate_payload_with_report(failed)
+    )
+    assert validation.ok and failed_plan is not None
+    execution = ScopedFunctionalGoalExecutionService().execute_raw_json(
+        json.dumps(failed, ensure_ascii=False),
+        inputs=authority_fixture[3],
+        planning_context=authority_fixture[1],
+        problem_binding_catalog=authority_fixture[7],
+        handle_registry=authority_fixture[5],
+        context=ContextBuilder().build(authority_fixture[2]),
+        planner_state_context=authority_fixture[6],
+        problem_payload=authority_fixture[4],
+    )
+    retry_authority = FunctionalGoalRetryProjector().project(
+        plan=failed_plan,
+        execution=execution,
+        planning_context=authority_fixture[1],
+        binding_catalog=authority_fixture[7],
+    )
+    return GoalRetryFixture(
+        authority_fixture=authority_fixture,
+        correct_payload=correct,
+        failed_payload=failed,
+        failed_plan=failed_plan,
+        execution=execution,
+        retry_authority=retry_authority,
+    )
+
+
 def published_goal_retry_fixture(tmp_path: Path) -> GoalRetryFixture:
     """Fail i_2 after i_1 has published the shared parent-scope parabola."""
 

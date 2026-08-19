@@ -798,6 +798,7 @@ class StateSlotPattern:
     input_closure_policy: CapabilityStateClosurePolicy = "any"
     return_binding: FunctionalReturnBindingPolicy = "auto"
     semantic_ref_role: FunctionalSemanticRefRole = "value"
+    allows_anonymous_result: bool = False
 
     def to_payload(self) -> dict[str, object]:
         payload: dict[str, object] = {
@@ -820,6 +821,8 @@ class StateSlotPattern:
             payload["semantic_role"] = self.semantic_role
         if self.semantic_ref_role != "value":
             payload["semantic_ref_role"] = self.semantic_ref_role
+        if self.allows_anonymous_result:
+            payload["allows_anonymous_result"] = True
         if self.output_key is not None:
             payload["output_key"] = self.output_key
         if self.description:
@@ -854,6 +857,7 @@ class ConditionPattern:
     scope_policy: CapabilityScopePolicy = "current_or_visible"
     cardinality: CapabilityCardinality = "one"
     required: bool = True
+    deterministic_resolver: str | None = None
     description: str = ""
 
     def to_payload(self) -> dict[str, object]:
@@ -866,6 +870,8 @@ class ConditionPattern:
         }
         if self.description:
             payload["description"] = self.description
+        if self.deterministic_resolver is not None:
+            payload["deterministic_resolver"] = self.deterministic_resolver
         return payload
 
 

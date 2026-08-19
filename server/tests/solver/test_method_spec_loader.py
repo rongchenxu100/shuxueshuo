@@ -63,6 +63,9 @@ def test_loads_quadratic_from_constraints_spec() -> None:
     assert spec.inputs["curve_points"].type == "PointList"
     assert spec.inputs["free_parameter"].type == "Symbol"
     assert spec.inputs["free_parameters"].type == "SymbolList"
+    assert spec.inputs["free_parameters"].allows_empty_collection
+    assert "开放状态必须填写非空基底" in spec.inputs["free_parameters"].role
+    assert "闭合状态可填写[]或省略" in spec.inputs["free_parameters"].role
     assert spec.outputs["coefficients"] == "Coefficients"
     assert spec.outputs["parabola"] == "Parabola"
     assert any("重复求解" in item for item in spec.do_not_use_when)

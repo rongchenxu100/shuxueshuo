@@ -9,6 +9,7 @@
   "inputs": {
     "line1_p1": {
       "required": true,
+      "allows_anonymous_result": true,
       "domain_type": "Point",
       "runtime_type": "Point",
       "view": {
@@ -20,6 +21,7 @@
     },
     "line1_p2": {
       "required": true,
+      "allows_anonymous_result": true,
       "domain_type": "Point",
       "runtime_type": "Point",
       "view": {
@@ -31,6 +33,7 @@
     },
     "line2_p1": {
       "required": true,
+      "allows_anonymous_result": true,
       "domain_type": "Point",
       "runtime_type": "Point",
       "view": {
@@ -42,6 +45,7 @@
     },
     "line2_p2": {
       "required": true,
+      "allows_anonymous_result": true,
       "domain_type": "Point",
       "runtime_type": "Point",
       "view": {

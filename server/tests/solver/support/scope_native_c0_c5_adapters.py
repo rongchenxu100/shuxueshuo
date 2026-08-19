@@ -1,8 +1,10 @@
-"""Production authority adapters for the C0.5 executable oracle."""
+"""Production authority adapters for the scope-native C0-C5 executable oracle."""
 
 from __future__ import annotations
 
+from copy import deepcopy
 from dataclasses import dataclass, replace
+from functools import lru_cache
 import json
 from types import SimpleNamespace
 from typing import Any, Mapping
@@ -98,9 +100,9 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     StrategyDraftValidationError,
 )
 from shuxueshuo_server.solver.state_semantics import StateSemanticLineage
-from support.cross_scope_version_oracle import (
-    CrossScopeVersionScenario,
-    ExpectedScopeVersionOutcome,
+from support.scope_native_c0_c5_oracle import (
+    ScopeNativeGateScenario,
+    ScopeNativeExpectedOutcome,
     ModelCall,
     ModelClosureCheckpoint,
     ModelStateKey,
@@ -123,16 +125,31 @@ class AdapterStageOutcome:
 
 
 @dataclass(frozen=True)
-class AdapterSuiteOutcome:
+class ScopeNativeProductionOutcome:
     stages: tuple[AdapterStageOutcome, ...]
 
     def stage(self, authority: str) -> AdapterStageOutcome:
         return next(item for item in self.stages if item.authority == authority)
 
 
+@dataclass(frozen=True)
+class ScopeNativeProtocolOutcome:
+    """Authenticated content/v2 and F5-C production probe outcome."""
+
+    case_id: str
+    probe: str
+    planning_context_id: str
+    binding_signature: str
+    issue_codes: tuple[str, ...]
+    normalization_codes: tuple[str, ...]
+    checkpoint_id: str | None
+    all_required_goals_verified: bool
+    transaction_ok: bool
+
+
 @dataclass
 class _ConvertedScenario:
-    scenario: CrossScopeVersionScenario
+    scenario: ScopeNativeGateScenario
     registry: CanonicalHandleRegistry
     object_ids: dict[str, MathObjectId]
     logical_keys: dict[ModelStateKey, LogicalStateKey]
@@ -148,7 +165,7 @@ class _ConvertedScenario:
 class B1AllocationAdapter:
     authority = "B1"
 
-    def run(self, scenario: CrossScopeVersionScenario) -> tuple[
+    def run(self, scenario: ScopeNativeGateScenario) -> tuple[
         AdapterStageOutcome,
         _ConvertedScenario,
     ]:
@@ -323,8 +340,8 @@ class B2PlacementAdapter:
                 tuple(
                     call_id
                     for call_id in (
-                        converted.scenario.retry_checkpoint.committed_call_ids
-                        if converted.scenario.retry_checkpoint is not None
+                        converted.scenario.state_restore_checkpoint.committed_call_ids
+                        if converted.scenario.state_restore_checkpoint is not None
                         else ()
                     )
                     if _checkpoint_call_is_canonical(converted, call_id)
@@ -333,9 +350,9 @@ class B2PlacementAdapter:
             pinned_execution_scopes={
                 call.call_id: call.declared_scope_id
                 for call in converted.scenario.calls
-                if converted.scenario.retry_checkpoint is not None
+                if converted.scenario.state_restore_checkpoint is not None
                 and call.call_id
-                in converted.scenario.retry_checkpoint.committed_call_ids
+                in converted.scenario.state_restore_checkpoint.committed_call_ids
                 and _checkpoint_call_is_canonical(
                     converted,
                     call.call_id,
@@ -344,16 +361,16 @@ class B2PlacementAdapter:
             pinned_return_scopes={
                 call.call_id: {
                     "result": _checkpoint_storage_scope(
-                        converted.scenario.retry_checkpoint,
+                        converted.scenario.state_restore_checkpoint,
                         call.call_id,
                     )
                     or call.storage_scope_id
                     or call.declared_scope_id
                 }
                 for call in converted.scenario.calls
-                if converted.scenario.retry_checkpoint is not None
+                if converted.scenario.state_restore_checkpoint is not None
                 and call.call_id
-                in converted.scenario.retry_checkpoint.committed_call_ids
+                in converted.scenario.state_restore_checkpoint.committed_call_ids
                 and _checkpoint_call_is_canonical(
                     converted,
                     call.call_id,
@@ -454,7 +471,7 @@ class B4RetryCheckpointAdapter:
         converted: _ConvertedScenario,
         placement: Any,
     ) -> AdapterStageOutcome:
-        retry = converted.scenario.retry_checkpoint
+        retry = converted.scenario.state_restore_checkpoint
         if retry is None or retry.mode == "none":
             return AdapterStageOutcome(
                 self.authority,
@@ -694,7 +711,7 @@ class B4RetryCheckpointAdapter:
                     or call["call_id"] not in checkpoint.committed_call_ids
                 )
                 and not (
-                    retry.mode == "provisional_replacement"
+                    retry.mode == "discard_provisional"
                     and call["call_id"] in retry.replacement_call_ids
                 )
             ]
@@ -960,8 +977,8 @@ class C0LogicalGraphAdapter:
 
 
 def run_production_adapters(
-    scenario: CrossScopeVersionScenario,
-) -> AdapterSuiteOutcome:
+    scenario: ScopeNativeGateScenario,
+) -> ScopeNativeProductionOutcome:
     b1, converted = B1AllocationAdapter().run(scenario)
     b2, placement = B2PlacementAdapter().run(converted)
     stages = [
@@ -974,11 +991,11 @@ def run_production_adapters(
     ]
     if any(call.dead for call in scenario.calls):
         stages.append(run_dead_writer_liveness_adapter(scenario))
-    return AdapterSuiteOutcome(tuple(stages))
+    return ScopeNativeProductionOutcome(tuple(stages))
 
 
 def run_dead_writer_liveness_adapter(
-    scenario: CrossScopeVersionScenario,
+    scenario: ScopeNativeGateScenario,
 ) -> AdapterStageOutcome:
     """Probe liveness after B1 has provisionally chained same-object writes."""
 
@@ -1032,8 +1049,8 @@ def run_dead_writer_liveness_adapter(
 
 
 def compare_adapter_suite(
-    expected: ExpectedScopeVersionOutcome,
-    actual: AdapterSuiteOutcome,
+    expected: ScopeNativeExpectedOutcome,
+    actual: ScopeNativeProductionOutcome,
 ) -> tuple[AdapterMismatch, ...]:
     if expected.eliminated_call_ids:
         try:
@@ -1400,7 +1417,7 @@ def _b3_issue_categories(
     return tuple(categories)
 
 
-def _converted(scenario: CrossScopeVersionScenario) -> _ConvertedScenario:
+def _converted(scenario: ScopeNativeGateScenario) -> _ConvertedScenario:
     registry = CanonicalHandleRegistry(
         scope_ids=frozenset(item.scope_id for item in scenario.scopes),
         entity_handles=frozenset(
@@ -1637,7 +1654,7 @@ def _configuration_error_code(message: str) -> str:
 
 
 def _dependency_graph(
-    scenario: CrossScopeVersionScenario,
+    scenario: ScopeNativeGateScenario,
 ) -> dict[str, tuple[str, ...]]:
     graph: dict[str, list[str]] = {
         item.call_id: [] for item in scenario.calls
@@ -1655,7 +1672,7 @@ def _dependency_graph(
 
 
 def _topological_order(
-    scenario: CrossScopeVersionScenario,
+    scenario: ScopeNativeGateScenario,
     graph: Mapping[str, tuple[str, ...]],
 ) -> tuple[str, ...]:
     serialized_order = _serialized_scenario_order(scenario)
@@ -1682,7 +1699,7 @@ def _topological_order(
 
 
 def _serialized_scenario_order(
-    scenario: CrossScopeVersionScenario,
+    scenario: ScopeNativeGateScenario,
 ) -> tuple[str, ...]:
     """Project the abstract wire order through FunctionalPlan scope groups."""
 
@@ -2186,3 +2203,239 @@ def _projected_dependencies(
                 )
                 existing.add(key)
     return tuple(result)
+
+
+SCOPE_NATIVE_PROTOCOL_PROBES = (
+    "baseline",
+    "empty_optional_maps",
+    "missing_goal",
+    "unknown_scope",
+    "duplicate_step_owner",
+    "invalid_answer_source",
+    "revision_drift",
+    "source_binding_drift",
+)
+
+
+@lru_cache(maxsize=None)
+def run_scope_native_protocol_adapter(
+    case_id: str,
+    probe: str,
+) -> ScopeNativeProtocolOutcome:
+    """Run one current-wire probe from authenticated Bundle authority.
+
+    The expensive Bundle/PlanningContext/F5-C construction is cached by the
+    shared test fixture. Each probe still recompiles the current LLM content
+    wire, and successful probes execute through the Goal checkpoint service.
+    """
+
+    if probe not in SCOPE_NATIVE_PROTOCOL_PROBES:
+        raise ValueError(f"unknown scope-native protocol probe {probe!r}")
+
+    from _problem_planning_support import cached_planning_binding_fixture
+    from _scoped_functional_plan_support import load_v2_fixture_payload
+    from shuxueshuo_server.solver.runtime.context import ContextBuilder
+    from shuxueshuo_server.solver.runtime.functional_goal_execution import (
+        ScopedFunctionalGoalExecutionService,
+    )
+    from shuxueshuo_server.solver.runtime.functional_plan_content import (
+        FunctionalPlanAuthorityFrame,
+        FunctionalPlanContentCompiler,
+        functional_plan_content_from_plan,
+    )
+    from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
+        ScopedFunctionalPlanError,
+        ScopedFunctionalPlanValidator,
+    )
+    from shuxueshuo_server.solver.extraction.problem_planning_binding import (
+        ProblemPlanningBindingError,
+    )
+
+    (
+        _bundle,
+        planning_context,
+        problem,
+        inputs,
+        problem_payload,
+        handle_registry,
+        planner_state_context,
+        binding_catalog,
+    ) = cached_planning_binding_fixture(case_id)
+    plan, validation = ScopedFunctionalPlanValidator().validate_payload_with_report(
+        load_v2_fixture_payload(case_id)
+    )
+    if plan is None or not validation.ok:
+        raise AssertionError(validation.to_payload())
+    frame = FunctionalPlanAuthorityFrame.from_planning_context(planning_context)
+    content_payload = functional_plan_content_from_plan(
+        plan,
+        frame=frame,
+    ).to_payload()
+    _mutate_protocol_probe(
+        content_payload,
+        probe=probe,
+        frame=frame,
+    )
+    catalog = FunctionalCapabilityCatalog.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
+    )
+    compilation = FunctionalPlanContentCompiler().compile_payload(
+        content_payload,
+        frame=frame,
+        capability_catalog=catalog,
+    )
+    normalization_codes = tuple(
+        item.code for item in compilation.normalizations
+    )
+    if compilation.plan is None:
+        return ScopeNativeProtocolOutcome(
+            case_id=case_id,
+            probe=probe,
+            planning_context_id=planning_context.planning_context_id,
+            binding_signature=binding_catalog.binding_signature,
+            issue_codes=tuple(
+                item.code for item in compilation.report.issues
+            ),
+            normalization_codes=normalization_codes,
+            checkpoint_id=None,
+            all_required_goals_verified=False,
+            transaction_ok=False,
+        )
+
+    execution_catalog = binding_catalog
+    if probe == "revision_drift":
+        execution_catalog = replace(
+            binding_catalog,
+            bundle_authority_token=replace(
+                binding_catalog.bundle_authority_token,
+                problem_revision_id="problem-revision:foreign",
+            ),
+        )
+    elif probe == "source_binding_drift":
+        key, binding = next(iter(binding_catalog.bindings.items()))
+        execution_catalog = replace(
+            binding_catalog,
+            bindings={
+                **binding_catalog.bindings,
+                key: replace(
+                    binding,
+                    source_unit_ids=(
+                        *binding.source_unit_ids,
+                        "source-unit:foreign",
+                    ),
+                ),
+            },
+        )
+    try:
+        execution = ScopedFunctionalGoalExecutionService().execute_raw_json(
+            json.dumps(compilation.plan.to_payload(), ensure_ascii=False),
+            inputs=inputs,
+            planning_context=planning_context,
+            problem_binding_catalog=execution_catalog,
+            handle_registry=handle_registry,
+            context=ContextBuilder().build(problem),
+            planner_state_context=planner_state_context,
+            problem_payload=problem_payload,
+        )
+    except (ScopedFunctionalPlanError, ProblemPlanningBindingError) as exc:
+        return ScopeNativeProtocolOutcome(
+            case_id=case_id,
+            probe=probe,
+            planning_context_id=planning_context.planning_context_id,
+            binding_signature=binding_catalog.binding_signature,
+            issue_codes=(exc.code,),
+            normalization_codes=normalization_codes,
+            checkpoint_id=None,
+            all_required_goals_verified=False,
+            transaction_ok=False,
+        )
+    checkpoint = execution.checkpoint
+    issue_code_values = [
+        *(item.code for item in compilation.report.issues),
+        *(item.code for item in execution.authority_report.issues),
+    ]
+    if checkpoint is not None:
+        issue_code_values.extend(
+            str(item.get("code", ""))
+            for item in checkpoint.root_issues
+            if item.get("code")
+        )
+    issue_codes = tuple(dict.fromkeys(issue_code_values))
+    return ScopeNativeProtocolOutcome(
+        case_id=case_id,
+        probe=probe,
+        planning_context_id=planning_context.planning_context_id,
+        binding_signature=binding_catalog.binding_signature,
+        issue_codes=issue_codes,
+        normalization_codes=normalization_codes,
+        checkpoint_id=(checkpoint.checkpoint_id if checkpoint is not None else None),
+        all_required_goals_verified=(
+            checkpoint.all_required_goals_verified
+            if checkpoint is not None
+            else False
+        ),
+        transaction_ok=(
+            checkpoint.transaction_ok if checkpoint is not None else False
+        ),
+    )
+
+
+def _mutate_protocol_probe(
+    payload: dict[str, Any],
+    *,
+    probe: str,
+    frame: Any,
+) -> None:
+    if probe == "baseline":
+        return
+    if probe == "missing_goal":
+        payload["goal_plans"].pop(sorted(payload["goal_plans"])[0])
+        return
+    if probe == "unknown_scope":
+        payload.setdefault("scope_steps", {})["unknown_scope"] = [
+            deepcopy(_first_protocol_step(payload))
+        ]
+        return
+    if probe == "duplicate_step_owner":
+        step = deepcopy(_first_protocol_step(payload))
+        owner = _first_protocol_step_owner(payload)
+        if owner[0] == "scope":
+            payload["scope_steps"][owner[1]].append(step)
+        else:
+            payload["goal_plans"][owner[1]].setdefault("steps", []).append(step)
+        return
+    if probe == "invalid_answer_source":
+        first_goal = sorted(payload["goal_plans"])[0]
+        payload["goal_plans"][first_goal]["answer_from"] = {
+            "step_id": "missing_answer_producer",
+            "return": "missing_return",
+        }
+        return
+    if probe == "empty_optional_maps":
+        step = _first_protocol_step(payload)
+        step["output_targets"] = {}
+        step["return_expectations"] = {}
+        return
+    if probe in {"revision_drift", "source_binding_drift"}:
+        return
+    raise ValueError(probe)
+
+
+def _first_protocol_step(payload: Mapping[str, Any]) -> dict[str, Any]:
+    owner = _first_protocol_step_owner(payload)
+    if owner[0] == "scope":
+        return payload["scope_steps"][owner[1]][0]
+    return payload["goal_plans"][owner[1]]["steps"][0]
+
+
+def _first_protocol_step_owner(
+    payload: Mapping[str, Any],
+) -> tuple[str, str]:
+    for scope_ref, steps in payload.get("scope_steps", {}).items():
+        if steps:
+            return "scope", str(scope_ref)
+    for goal_ref, goal in payload["goal_plans"].items():
+        if goal.get("steps"):
+            return "goal", str(goal_ref)
+    raise ValueError("protocol fixture contains no steps")

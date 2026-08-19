@@ -412,6 +412,45 @@ def functional_problem_binding_context_schema() -> dict[str, Any]:
         },
         "additionalProperties": False,
     }
+    relation_binding = {
+        "type": "object",
+        "required": [
+            "call_id",
+            "method_id",
+            "relation_kind",
+            "point_arg_name",
+            "point_item_index",
+            "curve_arg_name",
+            "semantic_ref",
+            "runtime_node_id",
+            "source_unit_ids",
+            "condition_id",
+            "owner_scope_id",
+            "point_math_object_id",
+            "curve_math_object_id",
+        ],
+        "properties": {
+            "call_id": nonempty_string,
+            "method_id": nonempty_string,
+            "relation_kind": {"const": "point_on_curve"},
+            "point_arg_name": nonempty_string,
+            "point_item_index": {"type": "integer", "minimum": 0},
+            "curve_arg_name": nonempty_string,
+            "semantic_ref": {"$ref": "#/$defs/semantic_ref"},
+            "runtime_node_id": nonempty_string,
+            "source_unit_ids": {
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": True,
+                "items": nonempty_string,
+            },
+            "condition_id": nonempty_string,
+            "owner_scope_id": nonempty_string,
+            "point_math_object_id": {"$ref": "#/$defs/math_object_id"},
+            "curve_math_object_id": {"$ref": "#/$defs/math_object_id"},
+        },
+        "additionalProperties": False,
+    }
     return_binding = {
         "type": "object",
         "required": [
@@ -454,6 +493,7 @@ def functional_problem_binding_context_schema() -> dict[str, Any]:
             "planner_state_context_id",
             "call_goal_bindings",
             "input_bindings",
+            "relation_bindings",
             "return_bindings",
             "binding_signature",
         ],
@@ -479,6 +519,10 @@ def functional_problem_binding_context_schema() -> dict[str, Any]:
                 "type": "array",
                 "items": input_binding,
             },
+            "relation_bindings": {
+                "type": "array",
+                "items": relation_binding,
+            },
             "return_bindings": {
                 "type": "array",
                 "items": return_binding,
@@ -491,6 +535,7 @@ def functional_problem_binding_context_schema() -> dict[str, Any]:
         "$defs": {
             **_problem_binding_schema_defs(),
             "input_binding": input_binding,
+            "relation_binding": relation_binding,
             "return_binding": return_binding,
         },
         "additionalProperties": False,
@@ -672,6 +717,40 @@ class FunctionalProblemInputBinding:
 
 
 @dataclass(frozen=True)
+class FunctionalProblemRelationBinding:
+    call_id: str
+    method_id: str
+    relation_kind: str
+    point_arg_name: str
+    point_item_index: int
+    curve_arg_name: str
+    semantic_ref: SemanticRef
+    runtime_node_id: str
+    source_unit_ids: tuple[str, ...]
+    condition_id: str
+    owner_scope_id: str
+    point_math_object_id: MathObjectId
+    curve_math_object_id: MathObjectId
+
+    def to_payload(self) -> dict[str, Any]:
+        return {
+            "call_id": self.call_id,
+            "method_id": self.method_id,
+            "relation_kind": self.relation_kind,
+            "point_arg_name": self.point_arg_name,
+            "point_item_index": self.point_item_index,
+            "curve_arg_name": self.curve_arg_name,
+            "semantic_ref": self.semantic_ref.to_payload(),
+            "runtime_node_id": self.runtime_node_id,
+            "source_unit_ids": list(self.source_unit_ids),
+            "condition_id": self.condition_id,
+            "owner_scope_id": self.owner_scope_id,
+            "point_math_object_id": self.point_math_object_id.to_payload(),
+            "curve_math_object_id": self.curve_math_object_id.to_payload(),
+        }
+
+
+@dataclass(frozen=True)
 class FunctionalProblemReturnBinding:
     call_id: str
     return_name: str
@@ -701,6 +780,7 @@ class FunctionalProblemBindingContext:
     planner_state_context_id: str
     call_goal_bindings: Mapping[str, tuple[str, ...]]
     input_bindings: tuple[FunctionalProblemInputBinding, ...]
+    relation_bindings: tuple[FunctionalProblemRelationBinding, ...]
     return_bindings: tuple[FunctionalProblemReturnBinding, ...]
     binding_signature: str
 
@@ -744,6 +824,14 @@ class FunctionalProblemBindingContext:
             item for item in self.return_bindings if item.call_id == call_id
         )
 
+    def relations_for_call(
+        self,
+        call_id: str,
+    ) -> tuple[FunctionalProblemRelationBinding, ...]:
+        return tuple(
+            item for item in self.relation_bindings if item.call_id == call_id
+        )
+
     def call_binding_signature(self, call_id: str) -> str:
         goal_ids = self.call_goal_bindings.get(call_id)
         if not goal_ids:
@@ -762,6 +850,10 @@ class FunctionalProblemBindingContext:
                 "inputs": [
                     item.to_payload()
                     for item in self.inputs_for_call(call_id)
+                ],
+                "relations": [
+                    item.to_payload()
+                    for item in self.relations_for_call(call_id)
                 ],
                 "returns": [
                     item.to_payload()
@@ -783,9 +875,18 @@ class FunctionalProblemBindingContext:
             )
         source_unit_ids = {
             source_unit_id
-            for item in self.inputs_for_call(call_id)
-            if item.source_kind == "problem_source"
-            for source_unit_id in item.source_unit_ids
+            for source_units in (
+                *(
+                    item.source_unit_ids
+                    for item in self.inputs_for_call(call_id)
+                    if item.source_kind == "problem_source"
+                ),
+                *(
+                    item.source_unit_ids
+                    for item in self.relations_for_call(call_id)
+                ),
+            )
+            for source_unit_id in source_units
         }
         return ProblemCallSourceProvenance(
             planning_context_id=self.planning_context_id,
@@ -811,12 +912,14 @@ class FunctionalProblemBindingContext:
             "input_bindings": [
                 item.to_payload() for item in self.input_bindings
             ],
+            "relation_bindings": [
+                item.to_payload() for item in self.relation_bindings
+            ],
             "return_bindings": [
                 item.to_payload() for item in self.return_bindings
             ],
             "binding_signature": self.binding_signature,
         }
-
 
 @dataclass(frozen=True)
 class ProblemPlanningBindingCatalog:
@@ -901,6 +1004,16 @@ class ProblemPlanningBindingCatalog:
             "scope_parent_ids": dict(self.scope_parent_ids),
             "binding_signature": self.binding_signature,
         }
+
+    def verify_authority(self) -> None:
+        payload = self.authority_payload()
+        signature = str(payload.pop("binding_signature"))
+        if stable_hash(payload) != signature:
+            raise _error(
+                "planner.problem_source_binding_drift",
+                "$.binding_signature",
+                "binding catalog content no longer matches its authority signature",
+            )
 
     def resolve_input_binding(
         self,
@@ -1062,6 +1175,7 @@ class ProblemPlanningBindingCatalog:
         additional_dependencies: Mapping[str, Sequence[str]] | None = None,
         authored_goal_unit_ids: Mapping[str, Sequence[str]] | None = None,
     ) -> ProblemPlanGoalBindings:
+        self.verify_authority()
         return _bind_plan_goals(
             self,
             plan,
@@ -1432,6 +1546,66 @@ def build_functional_problem_binding_context(
             )
         )
 
+    relations: list[FunctionalProblemRelationBinding] = []
+    for relation in functional_binding_context.relation_bindings:
+        call_goals = goal_bindings.calls.get(relation.call_id)
+        if call_goals is None:
+            raise _error(
+                "functional.call_goal_unresolved",
+                f"$.calls[{relation.call_id!r}].relations",
+                "relation binding belongs to a call with no Goal authority",
+            )
+        if (
+            relation.point_math_object_id is None
+            or relation.curve_math_object_id is None
+        ):
+            raise _error(
+                "planner.problem_source_binding_drift",
+                f"$.calls[{relation.call_id!r}].relations",
+                "relation binding has no exact Point/curve MathObject identity",
+            )
+        source_binding = _authority_for_c3_source(
+            catalog,
+            FunctionalArgSourceIdentity(
+                kind="condition",
+                condition_id=relation.condition_id,
+            ),
+            goal_unit_ids=call_goals.effective_goal_unit_ids,
+            path=(
+                f"$.calls[{relation.call_id!r}].args"
+                f"[{relation.point_arg_name!r}]"
+                f"[{relation.point_item_index}]"
+            ),
+        )
+        if (
+            source_binding.semantic_ref.ref != relation.condition_ref
+            or source_binding.semantic_ref.kind
+            != relation.condition_ref_kind
+            or source_binding.owner_scope_id != relation.owner_scope_id
+        ):
+            raise _error(
+                "planner.problem_source_binding_drift",
+                f"$.calls[{relation.call_id!r}].relations",
+                "resolved relation differs from F5-B Condition authority",
+            )
+        relations.append(
+            FunctionalProblemRelationBinding(
+                call_id=relation.call_id,
+                method_id=relation.method_id,
+                relation_kind=relation.relation_kind,
+                point_arg_name=relation.point_arg_name,
+                point_item_index=relation.point_item_index,
+                curve_arg_name=relation.curve_arg_name,
+                semantic_ref=source_binding.semantic_ref,
+                runtime_node_id=source_binding.runtime_node_id,
+                source_unit_ids=source_binding.source_unit_ids,
+                condition_id=relation.condition_id,
+                owner_scope_id=source_binding.owner_scope_id,
+                point_math_object_id=relation.point_math_object_id,
+                curve_math_object_id=relation.curve_math_object_id,
+            )
+        )
+
     answer_to_goal = {
         (ref_key.local_ref, ref_key.kind): goal_id
         for goal_id, ref_key in catalog.goal_answer_refs.items()
@@ -1443,7 +1617,16 @@ def build_functional_problem_binding_context(
             continue
         allocations = {item.return_name: item for item in call.returns}
         call_goals = goal_bindings.calls[call_id]
-        for return_name, semantic_ref in wire_call.return_bindings.items():
+        canonical_return_refs = dict(wire_call.return_bindings)
+        canonical_return_refs.update(
+            {
+                allocation.return_name: allocation.bound_ref
+                for allocation in call.returns
+                if allocation.bound_ref is not None
+                and allocation.return_name not in canonical_return_refs
+            }
+        )
+        for return_name, semantic_ref in canonical_return_refs.items():
             allocation = allocations.get(return_name)
             if allocation is None or allocation.math_object_id is None:
                 raise _error(
@@ -1496,6 +1679,18 @@ def build_functional_problem_binding_context(
     input_bindings = tuple(
         sorted(inputs, key=lambda item: (item.call_id, item.arg_name, item.item_index))
     )
+    relation_bindings = tuple(
+        sorted(
+            relations,
+            key=lambda item: (
+                item.call_id,
+                item.point_arg_name,
+                item.point_item_index,
+                item.curve_arg_name,
+                item.condition_id,
+            ),
+        )
+    )
     return_bindings = tuple(
         sorted(returns, key=lambda item: (item.call_id, item.return_name))
     )
@@ -1509,6 +1704,9 @@ def build_functional_problem_binding_context(
             key: list(value) for key, value in sorted(call_goal_bindings.items())
         },
         "input_bindings": [item.to_payload() for item in input_bindings],
+        "relation_bindings": [
+            item.to_payload() for item in relation_bindings
+        ],
         "return_bindings": [item.to_payload() for item in return_bindings],
     }
     return FunctionalProblemBindingContext(
@@ -1518,6 +1716,7 @@ def build_functional_problem_binding_context(
         planner_state_context_id=catalog.planner_state_context_id,
         call_goal_bindings=call_goal_bindings,
         input_bindings=input_bindings,
+        relation_bindings=relation_bindings,
         return_bindings=return_bindings,
         binding_signature=stable_hash(payload),
     )
@@ -1732,6 +1931,13 @@ def _typed_sources_for_node(
         for item in planner_state_context.state.conditions
         if item.canonical_handle == handle
     )
+    derived_entity_conditions = tuple(
+        item
+        for item in planner_state_context.state.conditions
+        if node_kind == "entity"
+        and item.canonical_handle is None
+        and handle in dict(item.object_roles).get("point", ())
+    )
     slots = tuple(
         item
         for item in planner_state_context.state.state_slots
@@ -1753,6 +1959,14 @@ def _typed_sources_for_node(
         )
         if node_kind == "entity":
             object_id = objects[0].math_object_id
+            for condition in derived_entity_conditions:
+                result.append(
+                    ProblemTypedSourceIdentity(
+                        kind="condition",
+                        runtime_type=condition.value_type,
+                        condition_id=condition.condition_id,
+                    )
+                )
             for slot in planner_state_context.state.state_slots:
                 if (
                     slot.logical_state_key is None

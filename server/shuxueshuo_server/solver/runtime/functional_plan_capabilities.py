@@ -246,7 +246,15 @@ class FunctionalCapabilityCatalog:
                 "planner_configuration_error: no functional capability is "
                 "constructible from the current Context"
             )
-        return FunctionalCapabilityCatalog(ready)
+        return FunctionalCapabilityCatalog(
+            {
+                capability_id: _contextualize_dynamic_macro_roles(
+                    capability,
+                    semantic_catalog=semantic_catalog,
+                )
+                for capability_id, capability in ready.items()
+            }
+        )
 
     def require_satisfiable_configuration(self) -> None:
         validate_capability_repair_feedback_provider_ids(
@@ -346,6 +354,32 @@ class FunctionalCapabilityCatalog:
                         "selector-projected arguments: "
                         f"{capability.capability_id}.{resolver_id}"
                     )
+
+
+def _contextualize_dynamic_macro_roles(
+    capability: FunctionalCapability,
+    *,
+    semantic_catalog: FunctionalSemanticCatalog,
+) -> FunctionalCapability:
+    """Hide roles already proved by source structure; constrain ambiguities."""
+
+    projector = getattr(semantic_catalog, "macro_role_ref_candidates", None)
+    if not callable(projector):
+        return capability
+    candidates = projector(capability.capability_id)
+    if candidates is None or not candidates:
+        return capability
+    dynamic_roles = frozenset(candidates)
+    projected_args: list[FunctionalCapabilityArg] = []
+    for arg in capability.args:
+        if arg.name not in dynamic_roles:
+            projected_args.append(arg)
+            continue
+        refs = tuple(candidates.get(arg.name, ()))
+        if len(refs) <= 1:
+            continue
+        projected_args.append(replace(arg, allowed_refs=refs))
+    return replace(capability, args=tuple(projected_args))
 
 
 def functional_capability_catalog_payload(
@@ -1195,6 +1229,11 @@ def _function_arg(
             item.view_mode,
             accepted_item_types=accepted_item_types,
         ),
+        allows_anonymous_result=(
+            item.view_mode == "exact_result"
+            or item.allows_anonymous_result
+        ),
+        allows_empty_collection=item.allows_empty_collection,
         semantic_role=semantic_role,
         llm_mode=(
             "explicit"
@@ -1279,6 +1318,10 @@ def _macro_arg(item: MacroArgSpec) -> FunctionalCapabilityArg:
             aggregation=aggregation,
         ),
         input_view_mode=_macro_arg_view_mode(item),
+        allows_anonymous_result=(
+            _macro_arg_view_mode(item) == "exact_result"
+            or item.allows_anonymous_result
+        ),
         semantic_role=semantic_role,
         llm_mode=("explicit" if item.required else "optional"),
         accepted_item_types=accepted_item_types,
@@ -1287,6 +1330,7 @@ def _macro_arg(item: MacroArgSpec) -> FunctionalCapabilityArg:
         ),
         aggregation=aggregation,
         runtime_input=item.name,
+        deterministic_resolver=item.deterministic_resolver,
         description=item.description,
         provides_semantic_roles=item.provides_semantic_roles,
         semantic_ref_role=item.semantic_ref_role,
@@ -1305,6 +1349,7 @@ def _macro_arg_view_mode(item: MacroArgSpec) -> MethodInputViewMode:
         "StraighteningCandidate",
         "StraighteningCandidates",
         "PointCandidates",
+        "PointList",
     }:
         return "exact_result"
     return "latest_state"

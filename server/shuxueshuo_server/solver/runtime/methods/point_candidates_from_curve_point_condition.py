@@ -5,7 +5,11 @@
 
 from __future__ import annotations
 
-from shuxueshuo_server.solver.contracts import MethodExplanationSpec, MethodVisualSpec
+from shuxueshuo_server.solver.contracts import (
+    MethodExplanationSpec,
+    MethodInputRelationSpec,
+    MethodVisualSpec,
+)
 
 from ._common import *
 from ._spec import MethodSpecSource, declare_input_views
@@ -130,6 +134,7 @@ SPEC = MethodSpecSource(
         "parameter": {
             "type": "Symbol",
             "required": True,
+            "allows_anonymous_result": True,
             "description": (
                 "target_point与curve_point共享的确切运动参数Symbol；应引用生成"
                 "参数化点的前序call之parameter返回值"
@@ -139,6 +144,18 @@ SPEC = MethodSpecSource(
     input_views=declare_input_views(
         identity=("x", "parameter"),
         latest_state=("target_point", "curve_point", "parabola"),
+    ),
+    input_relations=(
+        MethodInputRelationSpec(
+            relation_kind="point_on_curve",
+            point_arg="curve_point",
+            curve_arg="parabola",
+            cardinality="one",
+            accepted_condition_kinds=(
+                "point_on_curve",
+                "point_on_curve_with_x_coordinate",
+            ),
+        ),
     ),
     outputs={"candidates": "PointList"},
     preconditions=(

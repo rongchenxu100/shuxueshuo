@@ -17,6 +17,7 @@ from shuxueshuo_server.solver.scoped_functional_plan_smoke import (
     _RecordingClient,
     _batch_summary,
     _goal_retry_terminal_error,
+    _repair_wire_schema_valid_by_attempt,
     _solved_goal_reexecution_count,
     _smoke_completion_request_options,
     _write_provider_attempt_snapshot,
@@ -32,7 +33,12 @@ def _result(*, primary: bool) -> ScopedV2SmokeSampleResult:
         sample_id="sample-01",
         provider_response_received=primary,
         provider_sub_attempt_count=1,
-        schema_valid=primary,
+        pass1_wire_schema_valid=primary,
+        repair_wire_schema_valid_by_attempt=(),
+        final_plan_contract_valid=primary,
+        final_plan_id="plan" if primary else None,
+        authority_plan_id="plan" if primary else None,
+        checkpoint_plan_id="plan" if primary else None,
         scope_goal_tree_ok=primary,
         plan_authority_ok=primary,
         prompt_identity_leaks=(),
@@ -80,6 +86,41 @@ def test_summary_separates_primary_authority_from_runtime_diagnostics() -> None:
     assert "scope_goal_authority_ok" not in summary["samples"][0]
     assert summary["transaction_ok_count"] == 0
     assert not summary["completion_gate_ok"]
+
+
+def test_repaired_final_plan_is_not_rejected_by_pass1_wire_failure() -> None:
+    result = _result(primary=True)
+    result = ScopedV2SmokeSampleResult(
+        **{
+            **result.__dict__,
+            "pass1_wire_schema_valid": False,
+            "repair_wire_schema_valid_by_attempt": (True,),
+            "goal_retry_accepted": True,
+        }
+    )
+
+    summary = _batch_summary({"batch_id": "test"}, (result,))
+
+    assert result.primary_ok
+    assert result.completion_ok
+    assert summary["pass1_wire_schema_valid_count"] == 0
+    assert summary["repair_wire_schema_valid_count"] == 1
+    assert summary["repair_wire_schema_attempt_count"] == 1
+    assert summary["final_plan_contract_valid_count"] == 1
+    assert summary["completion_gate_ok"]
+
+
+def test_final_plan_contract_failure_still_blocks_completion() -> None:
+    result = _result(primary=True)
+    result = ScopedV2SmokeSampleResult(
+        **{
+            **result.__dict__,
+            "final_plan_contract_valid": False,
+        }
+    )
+
+    assert not result.primary_ok
+    assert not result.completion_ok
 
 
 def test_tree_success_does_not_mask_plan_authority_failure() -> None:
@@ -259,6 +300,48 @@ def test_terminal_error_comes_from_the_last_attempt_not_an_early_schema_error() 
     assert "latest runtime failure" in error.message
 
 
+def test_repair_wire_schema_validity_is_recorded_per_repair_attempt() -> None:
+    attempts = (
+        ScopedFunctionalGoalRetryAttempt(
+            semantic_attempt=1,
+            planner_protocol=FUNCTIONAL_PLAN_CONTENT_CONTRACT,
+            payload={},
+            prompt=SimpleNamespace(system="", user=""),
+            raw_response="{}",
+            plan=None,
+            execution=None,
+        ),
+        ScopedFunctionalGoalRetryAttempt(
+            semantic_attempt=2,
+            planner_protocol=FUNCTIONAL_GOAL_REPAIR_CONTRACT,
+            payload={},
+            prompt=SimpleNamespace(system="", user=""),
+            raw_response="{}",
+            plan=None,
+            execution=None,
+            repair=SimpleNamespace(),
+        ),
+        ScopedFunctionalGoalRetryAttempt(
+            semantic_attempt=3,
+            planner_protocol=FUNCTIONAL_GOAL_REPAIR_CONTRACT,
+            payload={},
+            prompt=SimpleNamespace(system="", user=""),
+            raw_response="{}",
+            plan=None,
+            execution=None,
+        ),
+    )
+    run_result = ScopedFunctionalGoalRetryRunResult(
+        status="blocked",
+        attempts=attempts,
+        final_plan=None,
+        final_execution=None,
+        solved_goal_restore_count=0,
+    )
+
+    assert _repair_wire_schema_valid_by_attempt(run_result) == (True, False)
+
+
 def test_solved_goal_reexecution_ignores_attempt_without_transaction() -> None:
     authority = SimpleNamespace(
         goal_authorities={
@@ -330,7 +413,16 @@ def test_review_displays_exact_problem_view_without_internal_authority(tmp_path)
             "problem_id": "problem-25",
         },
         raw_response=json.dumps(plan),
-        validation_payload={"ok": True, "issues": []},
+        pass1_wire_validation_payload={"ok": True, "issues": []},
+        repair_wire_validation_payload=[],
+        final_plan_contract_validation_payload={
+            "schema_version": "functional-final-plan-contract-validation/v1",
+            "ok": True,
+            "final_plan_id": "plan",
+            "round_trip_plan_id": "plan",
+            "report": {"ok": True, "issues": []},
+            "normalizations": [],
+        },
         problem_view_payload=problem_view,
         plan_payload=plan,
         normalized_plan_payload=plan,
@@ -434,7 +526,16 @@ def test_historical_rerender_changes_only_review_html(tmp_path) -> None:
         "sample-result.json": old_result,
         "payload.problem_planning_context.json": _problem_view_payload(),
         "scoped-functional-plan.json": _plan_payload(),
-        "contract-validation.json": {"ok": True, "issues": []},
+        "pass1-wire-validation.json": {"ok": True, "issues": []},
+        "repair-wire-validation.json": [],
+        "final-plan-contract-validation.json": {
+            "schema_version": "functional-final-plan-contract-validation/v1",
+            "ok": True,
+            "final_plan_id": "plan",
+            "round_trip_plan_id": "plan",
+            "report": {"ok": True, "issues": []},
+            "normalizations": [],
+        },
         "llm-metadata.json": {"thinking": "enabled", "reasoning_effort": "low"},
         "structured-error.json": None,
     }

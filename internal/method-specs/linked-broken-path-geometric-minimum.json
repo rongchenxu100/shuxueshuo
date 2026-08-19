@@ -27,6 +27,7 @@
     },
     "auxiliary_locus": {
       "required": true,
+      "allows_anonymous_result": true,
       "domain_type": "Line",
       "runtime_type": "Line",
       "view": {
@@ -71,6 +72,7 @@
     },
     "auxiliary_point": {
       "required": true,
+      "allows_anonymous_result": true,
       "domain_type": "Point",
       "runtime_type": "Point",
       "view": {

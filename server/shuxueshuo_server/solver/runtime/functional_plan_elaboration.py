@@ -15,6 +15,10 @@ from shuxueshuo_server.solver.family.models import (
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
 )
+from shuxueshuo_server.solver.runtime.equal_length_ray_roles import (
+    EqualLengthRayRoleError,
+    build_equal_length_ray_role_candidates,
+)
 from shuxueshuo_server.solver.runtime.functional_plan_graph import (
     rewrite_call_result_aliases as _rewrite_call_result_aliases,
 )
@@ -1133,6 +1137,102 @@ class FunctionalSemanticIndex:
             allowed_ref_keys_by_call or {}
         )
 
+    def macro_role_ref_candidates(
+        self,
+        capability_id: str,
+    ) -> Mapping[str, tuple[str, ...]] | None:
+        """Return prompt-safe role candidates proved by structured Context.
+
+        ``None`` means the capability has no dynamic role projector. An empty
+        mapping means the projector exists but the current Context cannot
+        establish a structurally legal candidate.
+        """
+
+        if capability_id != "equal_length_ray_path_reduction":
+            return None
+        fact_groups: dict[str, list[tuple[str, Mapping[str, Any]]]] = {
+            "point_on_ray": [],
+            "point_on_segment": [],
+            "equal_length_condition": [],
+            "path_minimum_target": [],
+        }
+        for handle, payload in self.fact_payloads.items():
+            fact_type = str(
+                self.handle_registry.fact_types.get(handle)
+                or payload.get("type")
+                or ""
+            )
+            if fact_type in fact_groups:
+                fact_groups[fact_type].append((handle, payload))
+        point_handles = tuple(
+            handle
+            for handle, payload in self.entity_payloads.items()
+            if str(payload.get("type", "")).lower() == "point"
+            or handle.startswith("point:")
+        )
+
+        def resolve_point_name(name: str) -> str:
+            matches = tuple(
+                handle
+                for handle in point_handles
+                if self.entity_payloads.get(handle, {}).get("name") == name
+            )
+            if len(matches) != 1:
+                raise EqualLengthRayRoleError(
+                    "point_name_unresolved",
+                    "structured role point name must resolve uniquely",
+                    details={"name": name, "candidates": matches},
+                )
+            return matches[0]
+
+        try:
+            candidates = build_equal_length_ray_role_candidates(
+                ray_facts=fact_groups["point_on_ray"],
+                segment_facts=fact_groups["point_on_segment"],
+                equal_facts=fact_groups["equal_length_condition"],
+                target_facts=fact_groups["path_minimum_target"],
+                entity_payload=lambda handle: self.entity_payloads[handle],
+                visible_point_handles=point_handles,
+                resolve_point_name=resolve_point_name,
+            )
+        except (EqualLengthRayRoleError, KeyError):
+            return {}
+        refs_by_handle: dict[str, tuple[str, ...]] = {}
+        for handle in point_handles:
+            refs_by_handle[handle] = tuple(
+                sorted(
+                    {
+                        view.ref
+                        for view in self.views
+                        if (view.object_ref or view.handle) == handle
+                        and view.kind != "answer"
+                    }
+                )
+            )
+        result: dict[str, tuple[str, ...]] = {}
+        for role in ("anchor", "reference_point", "ray_point", "fixed_point"):
+            handles = tuple(
+                sorted(
+                    {
+                        getattr(candidate.roles, role)
+                        for candidate in candidates
+                    }
+                )
+            )
+            refs = tuple(
+                sorted(
+                    {
+                        ref
+                        for handle in handles
+                        for ref in refs_by_handle.get(handle, ())
+                    }
+                )
+            )
+            if handles and not refs:
+                return {}
+            result[role] = refs
+        return result
+
     @classmethod
     def from_context(
         cls,
@@ -1140,10 +1240,61 @@ class FunctionalSemanticIndex:
         *,
         handle_registry: CanonicalHandleRegistry,
     ) -> "FunctionalSemanticIndex":
-        return cls.from_semantic_items(
+        index = cls.from_semantic_items(
             context,
             context.semantic_read_catalog(),
             handle_registry=handle_registry,
+        )
+        derived_condition_views: list[FunctionalSemanticView] = []
+        for condition in context.state.conditions:
+            if condition.canonical_handle is not None:
+                continue
+            point_refs = dict(condition.object_roles).get("point", ())
+            if len(point_refs) != 1:
+                continue
+            point_ref = point_refs[0]
+            for source in index.views:
+                if source.kind != "point" or source.object_ref != point_ref:
+                    continue
+                derived_condition_views.append(
+                    FunctionalSemanticView(
+                        ref=source.ref,
+                        kind=source.kind,
+                        handle=source.handle,
+                        runtime_type="Condition",
+                        valid_scope=(
+                            condition.valid_scope or condition.scope_id
+                        ),
+                        authority_scope_id=condition.scope_id,
+                        condition_id=condition.condition_id,
+                        condition_kind=condition.kind,
+                        object_roles=condition.object_roles,
+                        dependency_object_refs=tuple(
+                            dict.fromkeys(
+                                object_ref
+                                for _role, object_refs in condition.object_roles
+                                for object_ref in object_refs
+                            )
+                        ),
+                        lineage=state_semantic_lineage(
+                            semantic_roles=(condition.kind,),
+                            object_roles=(
+                                StateObjectRoleBinding(
+                                    role=role,
+                                    object_refs=object_refs,
+                                )
+                                for role, object_refs in condition.object_roles
+                            ),
+                        ),
+                    )
+                )
+        if not derived_condition_views:
+            return index
+        return cls(
+            _unique_views((*index.views, *derived_condition_views)),
+            handle_registry=handle_registry,
+            entity_payloads=index.entity_payloads,
+            fact_payloads=index.fact_payloads,
         )
 
     @classmethod
@@ -1327,6 +1478,39 @@ class FunctionalSemanticIndex:
                                 (fact_version_id,)
                                 if fact_version_id is not None
                                 else ()
+                            ),
+                        )
+                    )
+            elif item.condition_id is not None:
+                condition = conditions.get(item.condition_id)
+                if condition is not None:
+                    views.append(
+                        FunctionalSemanticView(
+                            item.ref,
+                            item.kind,
+                            item.handle,
+                            "Condition",
+                            item.valid_scope,
+                            authority_scope_id=item.authority_scope_id,
+                            condition_id=item.condition_id,
+                            condition_kind=condition.kind,
+                            object_roles=condition.object_roles,
+                            dependency_object_refs=tuple(
+                                dict.fromkeys(
+                                    object_ref
+                                    for _role, object_refs in condition.object_roles
+                                    for object_ref in object_refs
+                                )
+                            ),
+                            lineage=state_semantic_lineage(
+                                semantic_roles=(condition.kind,),
+                                object_roles=(
+                                    StateObjectRoleBinding(
+                                        role=role,
+                                        object_refs=object_refs,
+                                    )
+                                    for role, object_refs in condition.object_roles
+                                ),
                             ),
                         )
                     )

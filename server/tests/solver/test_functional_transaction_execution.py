@@ -327,12 +327,18 @@ def test_constraint_analyzer_rejects_incorrect_explicit_free_basis() -> None:
     issues = replay.retry_state.issues if replay.retry_state else ()
     assert replay.transactional_attempt_result is not None
     root_issue = replay.transactional_attempt_result.root_issues[0]
-    assert root_issue.code == "functional.method_result_inconsistent"
+    assert root_issue.code == "functional.method_input_state_unavailable"
     assert root_issue.diagnostic_authority is not None
-    assert root_issue.diagnostic_authority["observed"]["branch_count"] == 0
+    assert root_issue.diagnostic_authority["expected"] == {
+        "allowed_free_parameter_bases": [["a"], ["b"]],
+        "basis_cardinality": 1,
+    }
+    assert root_issue.diagnostic_authority["observed"] == {
+        "declared_free_parameters": ["a", "b"],
+    }
     assert (
         root_issue.diagnostic_authority["repair_action"]
-        == "revise_quadratic_constraints"
+        == "provide_or_align_symbolic_state_basis"
     )
     assert not any(
         "functional_runtime_input_mapping_drift" in issue.message

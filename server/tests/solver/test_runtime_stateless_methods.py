@@ -61,6 +61,7 @@ from shuxueshuo_server.solver.runtime.symbolic_state_representation import (
 )
 from shuxueshuo_server.solver.runtime.methods.quadratic_from_constraints import (
     analyze_quadratic_constraints,
+    equivalent_quadratic_free_parameter_bases,
 )
 
 
@@ -705,6 +706,22 @@ def test_quadratic_constraint_analysis_classifies_solution_shape() -> None:
     assert underdetermined.free_parameters == (alpha, beta, gamma)
     assert ambiguous.status == "ambiguous"
     assert ambiguous.branch_count == 2
+
+
+def test_quadratic_constraint_analysis_reports_equivalent_symbol_bases() -> None:
+    x, b, c = sp.symbols("x b c")
+    inputs = {
+        "quadratic": -x**2 + b * x + c,
+        "quadratic_template": -x**2 + b * x + c,
+        "x": x,
+        "all_coefficients": [b, c],
+        "extra_equation": sp.Eq(b + c, -1),
+    }
+
+    assert equivalent_quadratic_free_parameter_bases(inputs) == (
+        (b,),
+        (c,),
+    )
 
 
 def test_quadratic_from_constraints_rejects_multiple_solutions() -> None:

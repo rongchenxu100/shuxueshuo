@@ -46,6 +46,7 @@
     },
     "line_p2": {
       "required": true,
+      "allows_anonymous_result": true,
       "symbolic_basis_role": "align_to_anchor",
       "role": "确定目标直线的第二个点；必须与 line_p1 的横坐标不同，从而得到非竖直直线。",
       "domain_type": "Point",

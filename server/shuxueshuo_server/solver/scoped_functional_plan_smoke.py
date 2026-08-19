@@ -41,6 +41,7 @@ from shuxueshuo_server.solver.extraction.problem_domain_validation import (
     ProblemDomainValidator,
 )
 from shuxueshuo_server.solver.extraction.problem_planning_binding import (
+    ProblemPlanningBindingError,
     ProblemPlanningBindingCatalog,
     ProblemPlanningBindingCatalogBuilder,
 )
@@ -66,6 +67,7 @@ from shuxueshuo_server.solver.runtime.functional_goal_retry import (
 )
 from shuxueshuo_server.solver.runtime.functional_plan_content import (
     FUNCTIONAL_PLAN_CONTENT_CONTRACT,
+    FunctionalFinalPlanContractValidation,
     FunctionalPlanAuthorityFrame,
     FunctionalPlanContentCompiler,
 )
@@ -79,6 +81,9 @@ from shuxueshuo_server.solver.runtime.llm_clients import (
     LLMProviderResponseError,
 )
 from shuxueshuo_server.solver.runtime.planner import PlannerInputs
+from shuxueshuo_server.solver.runtime.planner_failure_classification import (
+    is_planner_configuration_failure_code,
+)
 from shuxueshuo_server.solver.runtime.planner_state_context import (
     PlannerStateContext,
     initial_planner_state_context,
@@ -128,7 +133,12 @@ class ScopedV2SmokeSampleResult:
     sample_id: str
     provider_response_received: bool
     provider_sub_attempt_count: int
-    schema_valid: bool
+    pass1_wire_schema_valid: bool
+    repair_wire_schema_valid_by_attempt: tuple[bool, ...]
+    final_plan_contract_valid: bool
+    final_plan_id: str | None
+    authority_plan_id: str | None
+    checkpoint_plan_id: str | None
     scope_goal_tree_ok: bool
     plan_authority_ok: bool
     prompt_identity_leaks: tuple[str, ...]
@@ -165,7 +175,7 @@ class ScopedV2SmokeSampleResult:
     def primary_ok(self) -> bool:
         return (
             self.provider_response_received
-            and self.schema_valid
+            and self.final_plan_contract_valid
             and self.scope_goal_tree_ok
             and self.plan_authority_ok
             and not self.prompt_identity_leaks
@@ -194,7 +204,14 @@ class ScopedV2SmokeSampleResult:
             "completion_ok": self.completion_ok,
             "provider_response_received": self.provider_response_received,
             "provider_sub_attempt_count": self.provider_sub_attempt_count,
-            "schema_valid": self.schema_valid,
+            "pass1_wire_schema_valid": self.pass1_wire_schema_valid,
+            "repair_wire_schema_valid_by_attempt": list(
+                self.repair_wire_schema_valid_by_attempt
+            ),
+            "final_plan_contract_valid": self.final_plan_contract_valid,
+            "final_plan_id": self.final_plan_id,
+            "authority_plan_id": self.authority_plan_id,
+            "checkpoint_plan_id": self.checkpoint_plan_id,
             "scope_goal_tree_ok": self.scope_goal_tree_ok,
             "plan_authority_ok": self.plan_authority_ok,
             "prompt_identity_leaks": list(self.prompt_identity_leaks),
@@ -461,7 +478,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             results.append(result)
             print(
                 f"{problem_id}/{sample_id}: primary_ok={result.primary_ok} "
-                f"schema={result.schema_valid} "
+                f"pass1_wire={result.pass1_wire_schema_valid} "
+                f"final_contract={result.final_plan_contract_valid} "
                 f"tree={result.scope_goal_tree_ok} "
                 f"authority={result.plan_authority_ok} "
                 f"completion={result.completion_ok} "
@@ -597,25 +615,29 @@ def _run_sample(
         bundle=fixture.bundle,
         planning_context=fixture.planning_context,
     )
-    content_compilation = FunctionalPlanContentCompiler().compile_json(
+    plan_frame = FunctionalPlanAuthorityFrame.from_planning_context(
+        fixture.planning_context
+    )
+    capability_catalog = FunctionalCapabilityCatalog.from_family_spec(
+        fixture.inputs.family_spec,
+        fixture.inputs.method_specs,
+    )
+    content_compiler = FunctionalPlanContentCompiler()
+    content_compilation = content_compiler.compile_json(
         raw_response,
-        frame=FunctionalPlanAuthorityFrame.from_planning_context(
-            fixture.planning_context
-        ),
-        capability_catalog=FunctionalCapabilityCatalog.from_family_spec(
-            fixture.inputs.family_spec,
-            fixture.inputs.method_specs,
-        ),
+        frame=plan_frame,
+        capability_catalog=capability_catalog,
     )
     parsed = (
         representative_attempt.plan
         if representative_attempt is not None
         else content_compilation.plan
     )
-    validation = (
-        representative_attempt.content_validation_report
-        if representative_attempt is not None
-        and representative_attempt.content_validation_report is not None
+    pass1_attempt = _pass1_plan_attempt(run_result)
+    pass1_wire_validation = (
+        pass1_attempt.content_validation_report
+        if pass1_attempt is not None
+        and pass1_attempt.content_validation_report is not None
         else content_compilation.report
     )
     raw_structure_report = (
@@ -645,6 +667,11 @@ def _run_sample(
         if structurally_normalized_plan is not None
         else None
     )
+    final_plan_contract = content_compiler.validate_final_plan(
+        structurally_normalized_plan,
+        frame=plan_frame,
+        capability_catalog=capability_catalog,
+    )
     execution_authority = (
         goal_execution.authority if goal_execution is not None else None
     )
@@ -669,7 +696,11 @@ def _run_sample(
         problem_id=case.problem_id,
         sample_id=sample_id,
         sample_dir=sample_dir,
-        validation=validation,
+        pass1_wire_validation=pass1_wire_validation,
+        repair_wire_schema_valid_by_attempt=(
+            _repair_wire_schema_valid_by_attempt(run_result)
+        ),
+        final_plan_contract=final_plan_contract,
         structure_report=structure_report,
         authority=authoring_authority,
         replay=replay,
@@ -689,7 +720,8 @@ def _run_sample(
         payload=expected_payload,
         prompt=expected_prompt,
         raw_response=raw_response,
-        validation=validation,
+        pass1_wire_validation=pass1_wire_validation,
+        final_plan_contract=final_plan_contract,
         raw_structure_report=raw_structure_report,
         structure_report=structure_report,
         parsed=parsed,
@@ -816,7 +848,9 @@ def _sample_result(
     problem_id: str,
     sample_id: str,
     sample_dir: Path,
-    validation: ScopedFunctionalPlanValidationReport,
+    pass1_wire_validation: ScopedFunctionalPlanValidationReport,
+    repair_wire_schema_valid_by_attempt: tuple[bool, ...],
+    final_plan_contract: FunctionalFinalPlanContractValidation,
     structure_report: ScopedFunctionalStructureReport | None,
     authority: ScopedFunctionalPlanAuthority | None,
     replay: Any | None,
@@ -838,11 +872,25 @@ def _sample_result(
         if checkpoint is not None
         else {}
     )
-    transaction_ok = bool(
+    raw_transaction_ok = bool(
         checkpoint_metrics.get(
             "transaction_ok",
             attempt is not None and not attempt.root_issues,
         )
+    )
+    authority_plan_id = authority.plan_id if authority is not None else None
+    checkpoint_plan_id = (
+        getattr(checkpoint, "plan_id", None) if checkpoint is not None else None
+    )
+    final_plan_id = final_plan_contract.final_plan_id
+    plan_authority_ok = bool(
+        authority_plan_id is not None
+        and authority_plan_id == final_plan_id
+    )
+    transaction_ok = bool(
+        raw_transaction_ok
+        and checkpoint_plan_id is not None
+        and checkpoint_plan_id == final_plan_id
     )
     error_code, error_message = _error_details(error)
     if error_code is None and checkpoint is not None:
@@ -853,7 +901,8 @@ def _sample_result(
                 checkpoint_issue.get("message") or "incremental execution was blocked"
             )
     configuration_error_count = int(
-        bool(error_code and "configuration" in error_code)
+        is_planner_configuration_failure_code(error_code)
+        or bool(error_code and "configuration" in error_code)
         or bool(error_message and "planner_configuration_error" in error_message)
     )
     unclassified_error_count = int(
@@ -884,11 +933,18 @@ def _sample_result(
         sample_id=sample_id,
         provider_response_received=bool(raw_response.strip()),
         provider_sub_attempt_count=len(client.last_provider_attempts),
-        schema_valid=validation.ok,
+        pass1_wire_schema_valid=pass1_wire_validation.ok,
+        repair_wire_schema_valid_by_attempt=(
+            repair_wire_schema_valid_by_attempt
+        ),
+        final_plan_contract_valid=final_plan_contract.ok,
+        final_plan_id=final_plan_id,
+        authority_plan_id=authority_plan_id,
+        checkpoint_plan_id=checkpoint_plan_id,
         scope_goal_tree_ok=bool(
             structure_report is not None and structure_report.ok
         ),
-        plan_authority_ok=authority is not None,
+        plan_authority_ok=plan_authority_ok,
         prompt_identity_leaks=leaks,
         reconciliation_ok=bool(reconciliation is not None and reconciliation.ok),
         compile_ok=compiled is not None,
@@ -965,6 +1021,58 @@ def _representative_plan_attempt(
         (item for item in reversed(plan_attempts) if item.plan is not None),
         plan_attempts[-1] if plan_attempts else None,
     )
+
+
+def _pass1_plan_attempt(
+    run_result: ScopedFunctionalGoalRetryRunResult | None,
+) -> Any | None:
+    if run_result is None:
+        return None
+    return next(
+        (
+            item
+            for item in run_result.attempts
+            if item.planner_protocol == PLANNER_PROTOCOL
+        ),
+        None,
+    )
+
+
+def _repair_wire_schema_valid_by_attempt(
+    run_result: ScopedFunctionalGoalRetryRunResult | None,
+) -> tuple[bool, ...]:
+    if run_result is None:
+        return ()
+    return tuple(
+        item.repair is not None
+        for item in run_result.attempts
+        if item.planner_protocol == FUNCTIONAL_GOAL_REPAIR_CONTRACT
+    )
+
+
+def _repair_wire_validation_payload(
+    run_result: ScopedFunctionalGoalRetryRunResult | None,
+) -> list[dict[str, Any]]:
+    if run_result is None:
+        return []
+    return [
+        {
+            "semantic_attempt": item.semantic_attempt,
+            "planner_protocol": item.planner_protocol,
+            "valid": item.repair is not None,
+            "error": (
+                {
+                    "code": item.error.code,
+                    "path": item.error.path,
+                    "message": item.error.message,
+                }
+                if item.error is not None and item.repair is None
+                else None
+            ),
+        }
+        for item in run_result.attempts
+        if item.planner_protocol == FUNCTIONAL_GOAL_REPAIR_CONTRACT
+    ]
 
 
 def representative_attempt_request(
@@ -1073,7 +1181,8 @@ def _write_sample_artifacts(
     payload: Mapping[str, Any],
     prompt: Any,
     raw_response: str,
-    validation: ScopedFunctionalPlanValidationReport,
+    pass1_wire_validation: ScopedFunctionalPlanValidationReport,
+    final_plan_contract: FunctionalFinalPlanContractValidation,
     raw_structure_report: ScopedFunctionalStructureReport | None,
     structure_report: ScopedFunctionalStructureReport | None,
     parsed: ScopedFunctionalPlan | None,
@@ -1170,7 +1279,18 @@ def _write_sample_artifacts(
         client=client,
         thinking_profile=thinking_profile,
     )
-    _write_json(sample_dir / "contract-validation.json", validation.to_payload())
+    _write_json(
+        sample_dir / "pass1-wire-validation.json",
+        pass1_wire_validation.to_payload(),
+    )
+    _write_json(
+        sample_dir / "repair-wire-validation.json",
+        _repair_wire_validation_payload(run_result),
+    )
+    _write_json(
+        sample_dir / "final-plan-contract-validation.json",
+        final_plan_contract.to_payload(),
+    )
     _write_json(
         sample_dir / "scope-goal-structure-input-report.json",
         (
@@ -1241,6 +1361,17 @@ def _write_sample_artifacts(
         sample_dir / "functional-goal-execution-checkpoint.prompt.json",
         checkpoint.to_prompt_payload() if checkpoint is not None else None,
     )
+    verified_execution = (
+        run_result.verified_execution if run_result is not None else None
+    )
+    _write_json(
+        sample_dir / "verified-functional-plan-execution.json",
+        (
+            verified_execution.authority_payload()
+            if verified_execution is not None
+            else None
+        ),
+    )
     _write_json(
         sample_dir / "functional-reconciliation.json",
         (
@@ -1273,7 +1404,13 @@ def _write_sample_artifacts(
         sample_dir,
         result_payload=sample_result.to_payload(),
         raw_response=raw_response,
-        validation_payload=validation.to_payload(),
+        pass1_wire_validation_payload=pass1_wire_validation.to_payload(),
+        repair_wire_validation_payload=(
+            _repair_wire_validation_payload(run_result)
+        ),
+        final_plan_contract_validation_payload=(
+            final_plan_contract.to_payload()
+        ),
         problem_view_payload=payload["problem_planning_context"],
         plan_payload=parsed.to_payload() if parsed is not None else None,
         normalized_plan_payload=canonical_plan_payload,
@@ -1474,6 +1611,14 @@ def _write_goal_retry_attempt_artifacts(
             ),
         )
         _write_json(
+            prefix.with_suffix(".final-plan-contract-validation.json"),
+            (
+                attempt.final_plan_contract_validation.to_payload()
+                if attempt.final_plan_contract_validation is not None
+                else None
+            ),
+        )
+        _write_json(
             prefix.with_suffix(".plan-content-normalizations.json"),
             [item.to_payload() for item in attempt.content_normalizations],
         )
@@ -1649,7 +1794,20 @@ def _batch_summary(
         "sample_count": total,
         "primary_passed": sum(item.primary_ok for item in results),
         "completion_passed": sum(item.completion_ok for item in results),
-        "schema_valid_count": sum(item.schema_valid for item in results),
+        "pass1_wire_schema_valid_count": sum(
+            item.pass1_wire_schema_valid for item in results
+        ),
+        "repair_wire_schema_valid_count": sum(
+            sum(item.repair_wire_schema_valid_by_attempt)
+            for item in results
+        ),
+        "repair_wire_schema_attempt_count": sum(
+            len(item.repair_wire_schema_valid_by_attempt)
+            for item in results
+        ),
+        "final_plan_contract_valid_count": sum(
+            item.final_plan_contract_valid for item in results
+        ),
         "scope_goal_tree_ok_count": sum(
             item.scope_goal_tree_ok for item in results
         ),
@@ -1737,7 +1895,12 @@ def _unclassified_result(
         sample_id=sample_id,
         provider_response_received=False,
         provider_sub_attempt_count=0,
-        schema_valid=False,
+        pass1_wire_schema_valid=False,
+        repair_wire_schema_valid_by_attempt=(),
+        final_plan_contract_valid=False,
+        final_plan_id=None,
+        authority_plan_id=None,
+        checkpoint_plan_id=None,
         scope_goal_tree_ok=False,
         plan_authority_ok=False,
         prompt_identity_leaks=(),
@@ -1770,6 +1933,8 @@ def _error_details(error: Exception | None) -> tuple[str | None, str | None]:
     if isinstance(error, ScopedFunctionalPlanError):
         return error.code, str(error)
     if isinstance(error, FunctionalGoalRetryError):
+        return error.code, str(error)
+    if isinstance(error, ProblemPlanningBindingError):
         return error.code, str(error)
     if isinstance(error, LLMProviderResponseError):
         return error.code, str(error)
@@ -1806,7 +1971,9 @@ def _write_sample_review(
     *,
     result_payload: Mapping[str, Any],
     raw_response: str,
-    validation_payload: Mapping[str, Any],
+    pass1_wire_validation_payload: Mapping[str, Any],
+    repair_wire_validation_payload: Sequence[Mapping[str, Any]],
+    final_plan_contract_validation_payload: Mapping[str, Any],
     problem_view_payload: Mapping[str, Any],
     plan_payload: Mapping[str, Any] | None,
     normalized_plan_payload: Mapping[str, Any] | None,
@@ -1838,7 +2005,12 @@ def _write_sample_review(
         for key in (
             "primary_ok",
             "completion_ok",
-            "schema_valid",
+            "pass1_wire_schema_valid",
+            "repair_wire_schema_valid_by_attempt",
+            "final_plan_contract_valid",
+            "final_plan_id",
+            "authority_plan_id",
+            "checkpoint_plan_id",
             "scope_goal_tree_ok",
             "plan_authority_ok",
             "reconciliation_ok",
@@ -1901,7 +2073,9 @@ pre{{white-space:pre-wrap;word-break:break-word;background:#f6f7f8;border:1px so
 <section id=\"model-plan\">
   <h2>3. 模型输出 FunctionalPlan v2</h2>
   <pre>{escape(_pretty_json(plan_display))}</pre>
-  <details><summary>Schema / JSON contract validation</summary><pre>{escape(_pretty_json(validation_payload))}</pre></details>
+  <details><summary>Pass 1 wire validation</summary><pre>{escape(_pretty_json(pass1_wire_validation_payload))}</pre></details>
+  <details><summary>Repair wire validation by attempt</summary><pre>{escape(_pretty_json(repair_wire_validation_payload))}</pre></details>
+  <details><summary>Final canonical Plan contract</summary><pre>{escape(_pretty_json(final_plan_contract_validation_payload))}</pre></details>
   <details><summary>Provider raw response</summary><pre>{escape(raw_response)}</pre></details>
 </section>
 <section id=\"structure\">
@@ -2033,7 +2207,9 @@ def _write_batch_index(
         f"<td><a href=\"{escape(Path(item.sample_dir).relative_to(batch_dir).as_posix())}/review.html\">{escape(item.problem_id)}</a></td>"
         f"<td>{escape(item.sample_id)}</td><td>{item.primary_ok}</td>"
         f"<td>{item.completion_ok}</td><td>{item.semantic_attempt_count}</td>"
-        f"<td>{item.schema_valid}</td><td>{item.scope_goal_tree_ok}</td>"
+        f"<td>{item.pass1_wire_schema_valid}</td>"
+        f"<td>{item.final_plan_contract_valid}</td>"
+        f"<td>{item.scope_goal_tree_ok}</td>"
         f"<td>{item.plan_authority_ok}</td>"
         f"<td>{item.transaction_ok}</td><td>{escape(item.error_code or '')}</td>"
         "</tr>"
@@ -2042,7 +2218,7 @@ def _write_batch_index(
     html = f"""<!doctype html><meta charset=\"utf-8\"><title>FunctionalPlan v2 5x1</title>
 <style>body{{font:14px system-ui;margin:24px}}table{{border-collapse:collapse}}th,td{{border:1px solid #ccc;padding:7px;text-align:left}}</style>
 <h1>FunctionalPlan v2 Goal replacement smoke</h1><p>completion_gate_ok={summary['completion_gate_ok']} · completion_passed={summary['completion_passed']}/{summary['sample_count']} · pass1_thinking={escape(str(summary.get('pass1_thinking')))} · retry_thinking={escape(str(summary.get('retry_thinking')))}</p>
-<table><thead><tr><th>Problem</th><th>Sample</th><th>Primary</th><th>Completion</th><th>Attempts</th><th>Schema</th><th>Scope/Goal tree</th><th>Plan authority</th><th>Transaction</th><th>Error</th></tr></thead><tbody>{rows}</tbody></table>"""
+<table><thead><tr><th>Problem</th><th>Sample</th><th>Primary</th><th>Completion</th><th>Attempts</th><th>Pass 1 wire</th><th>Final contract</th><th>Scope/Goal tree</th><th>Plan authority</th><th>Transaction</th><th>Error</th></tr></thead><tbody>{rows}</tbody></table>"""
     (batch_dir / "index.html").write_text(html, encoding="utf-8")
 
 
@@ -2085,9 +2261,50 @@ def rerender_existing_batch(batch_dir: Path) -> int:
             structure_report is not None and structure_report.ok
         )
         result_payload["plan_authority_ok"] = old_authority_ok
-        validation_payload = _read_json(sample_dir / "contract-validation.json")
-        if not isinstance(validation_payload, dict):
-            validation_payload = {"ok": False, "issues": []}
+        result_payload.setdefault(
+            "pass1_wire_schema_valid",
+            bool(result_payload.get("schema_valid", False)),
+        )
+        result_payload.setdefault("repair_wire_schema_valid_by_attempt", [])
+        result_payload.setdefault(
+            "final_plan_contract_valid",
+            bool(result_payload.get("schema_valid", False)),
+        )
+        pass1_wire_validation_payload = _read_json(
+            sample_dir / "pass1-wire-validation.json"
+        ) if (sample_dir / "pass1-wire-validation.json").exists() else _read_json(
+            sample_dir / "contract-validation.json"
+        )
+        if not isinstance(pass1_wire_validation_payload, dict):
+            pass1_wire_validation_payload = {"ok": False, "issues": []}
+        repair_wire_validation_payload = (
+            _read_json(sample_dir / "repair-wire-validation.json")
+            if (sample_dir / "repair-wire-validation.json").exists()
+            else []
+        )
+        if not isinstance(repair_wire_validation_payload, list):
+            repair_wire_validation_payload = []
+        final_plan_contract_validation_payload = (
+            _read_json(sample_dir / "final-plan-contract-validation.json")
+            if (sample_dir / "final-plan-contract-validation.json").exists()
+            else {
+                "schema_version": (
+                    "functional-final-plan-contract-validation/v1"
+                ),
+                "ok": bool(
+                    result_payload.get("final_plan_contract_valid", False)
+                ),
+                "final_plan_id": result_payload.get("final_plan_id"),
+                "round_trip_plan_id": result_payload.get("final_plan_id"),
+                "report": {"ok": True, "issues": []},
+                "normalizations": [],
+            }
+        )
+        if not isinstance(final_plan_contract_validation_payload, dict):
+            final_plan_contract_validation_payload = {
+                "ok": False,
+                "report": {"ok": False, "issues": []},
+            }
         llm_metadata = _read_json(sample_dir / "llm-metadata.json")
         if not isinstance(llm_metadata, dict):
             llm_metadata = {}
@@ -2104,7 +2321,15 @@ def rerender_existing_batch(batch_dir: Path) -> int:
             sample_dir,
             result_payload=result_payload,
             raw_response=raw_response,
-            validation_payload=validation_payload,
+            pass1_wire_validation_payload=(
+                pass1_wire_validation_payload
+            ),
+            repair_wire_validation_payload=(
+                repair_wire_validation_payload
+            ),
+            final_plan_contract_validation_payload=(
+                final_plan_contract_validation_payload
+            ),
             problem_view_payload=problem_view_payload,
             plan_payload=plan_payload if isinstance(plan_payload, dict) else None,
             normalized_plan_payload=(

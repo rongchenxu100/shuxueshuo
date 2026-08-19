@@ -252,10 +252,70 @@ runtime 表示，并自动建立 producer 依赖。一个 Method 如果同时需
 实体 ref。`StepResultRef`只用于没有稳定题面身份的候选集、路径见证、最小值表达式
 等匿名中间结果。
 
+`view`与Planner wire允许的来源形式是两个正交契约。`view`决定一个具名
+`SourceRef`在调用边界被解析成identity、latest state、immutable value还是精确值；
+`allows_anonymous_result=True`只表示同一个公开参数还可以接收匿名
+`StepResultRef`。不得因为内部Method使用`latest_state`就自动开放
+`StepResultRef`，也不得因为参数允许匿名结果就跳过具名MathObject的SourceRef规则。
+
+典型例子：
+
+- `quadratic_vertex_point.parabola`只接受具名函数ref，resolver读取该函数的最新状态；
+- `parameter_from_expression_value.expression`可接受匿名表达式return，因此显式声明
+  `allows_anonymous_result=True`；
+- 一个参数同时接受具名Point的最新状态和匿名候选Point时，仍声明
+  `latest_state + allows_anonymous_result=True`，两条路径最终都必须通过相同runtime
+  type、scope和provenance校验。
+
+新增或修改Method时，生成spec与测试必须分别断言`view`和
+`allows_anonymous_result`。这两个字段不能根据参数名、runtime type或`*_ref`后缀推断。
+
 `latest_state`必须满足词法 scope 可见性。sibling 私有状态、多个不可比较 writer
 或不存在可见状态都必须 fail loud；不得按 label 或生成顺序猜测。
 
-#### 5.1.1 Planner 公开类型词汇
+#### 5.1.1 实体关系权威
+
+两个实体分别可见，不等于它们之间的数学关系可见。凡是 Method 的计算前提依赖
+`点在曲线上`、`点在线段上`、`两线垂直`等题面关系，`MethodSpec`必须声明结构化
+`input_relations`，静态 binding 必须把每一组实体输入解析到一个精确 Condition：
+
+```python
+input_relations=(
+    MethodInputRelationSpec(
+        relation_kind="point_on_curve",
+        point_arg="curve_points",
+        curve_arg="quadratic",
+        cardinality="for_each",
+        accepted_condition_kinds=(
+            "point_on_curve",
+            "point_on_curve_with_x_coordinate",
+        ),
+    ),
+),
+```
+
+固定规则：
+
+1. Planner wire仍只填写公开数学实体，不额外填写隐藏 Fact 参数。
+2. resolver只读取结构化Condition角色；禁止按点名、label、坐标相等、handle后缀或描述文本推断关系。
+3. 列表输入逐项绑定Condition，并在诊断中保留`arg_name + item_index`。
+4. Condition必须同时匹配Point与curve的MathObject身份，并在调用scope中词法可见。
+5. sibling私有Condition不得进入semantic index、producer DAG或retry cone，也不得在错误信息中泄漏其scope。
+6. 成功绑定的ConditionId、owner scope和source unit必须进入C3、F5-C sidecar、binding signature及provenance。
+7. 缺关系或关系不可见属于planner-repairable；Method契约本身无法解析属于configuration，不消耗semantic retry。
+8. 关系校验发生在Method运行及state write之前；Method不得收到未经证明的实体组合。
+
+当前首批迁移的Method为：
+
+- `quadratic_from_constraints`
+- `parameter_from_curve_point_on_quadratic`
+- `point_candidates_from_curve_point_condition`
+
+例如根scope可使用`A∈parabola`构造开放二次函数；子问`i`中的
+`D∈parabola`只能在`i`及其后代调用中消费。即使D实体定义在根scope、坐标也已经
+算出，根scope仍不能借用子问Condition闭合抛物线。
+
+#### 5.1.2 Planner 公开类型词汇
 
 LLM 看到的输入与返回值不是同一种投影：
 
@@ -344,6 +404,26 @@ x² + (c+1)x + c
 ```
 
 这两种表示属于同一个 Function MathObject，不应要求 Planner 为下游每个结构化输入手工选择同一字母。例如题面点 `M.x=b+1/2` 在当前 `c` 基底状态下，应由代码为本次调用投影成 `-c-1/2`。
+
+负责产生开放或闭合符号状态的 Method 必须把 authored basis 与 runtime state 分开处理。以 `quadratic_from_constraints.free_parameters` 为例：
+
+- 开放状态必须由 Planner 填写一组非空、完整、线性独立的参数基底；缺失或 `[]` 是 `planner_repairable` 输入错误。
+- 闭合状态允许 `free_parameters: []`，也允许省略该参数；两种 wire 写法 canonicalize 为相同语义，均不得报错。
+- `[b]` 与 `[c]` 是否等价不能由名字、输入顺序或下游 Goal 决定，必须由 runtime 对同一组约束逐个证明。
+- `[b,c]` 不是一维状态的完整独立基底；“包含了所有出现过的字母”不等于正确基底。
+- JSON Schema 只负责接收 `[]`；状态是开放还是闭合只能在实际约束分析后判定。因此 wire 可以宽容，runtime 语义必须严格。
+
+若一个 optional collection 在 wire 上需要接受 `[]`，在 Method input source 中显式声明：
+
+```python
+"free_parameters": {
+    "type": "SymbolList",
+    "required": False,
+    "allows_empty_collection": True,
+}
+```
+
+该声明只控制 wire Schema，不得绕过 Method analyzer 的开放状态门禁。
 
 需要这种能力的 Method 在 `SPEC.inputs` 中声明：
 

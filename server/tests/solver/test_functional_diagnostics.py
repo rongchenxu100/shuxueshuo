@@ -4,6 +4,7 @@ import ast
 from dataclasses import replace
 import json
 from pathlib import Path
+from types import MappingProxyType
 
 import pytest
 
@@ -24,6 +25,7 @@ from shuxueshuo_server.solver.runtime.functional_diagnostics import (
     method_check_failed,
     method_input_invalid,
     method_input_missing,
+    method_input_state_unavailable,
     method_result_ambiguous,
     normalize_macro_diagnostic_authority,
     unexpected_method_error,
@@ -102,6 +104,35 @@ def test_diagnostic_schemas_match_snapshots_and_round_trip() -> None:
     assert prompt_restored.schema_version == FUNCTIONAL_PROMPT_DIAGNOSTIC_CONTRACT
 
 
+def test_nested_immutable_diagnostic_payload_is_json_safe_and_stable() -> None:
+    authority = FunctionalDiagnosticAuthority(
+        code="functional.method_input_state_unavailable",
+        category="input",
+        stage="constraint_analyzer",
+        retryability="planner_repairable",
+        expected=MappingProxyType(
+            {
+                "allowed_free_parameter_bases": (
+                    MappingProxyType({"symbols": ("b",)}),
+                    MappingProxyType({"symbols": ("c",)}),
+                )
+            }
+        ),
+        observed=MappingProxyType({"declared": frozenset()}),
+        repair_action="align_symbolic_state_basis",
+        authority_details=MappingProxyType(
+            {"nested": MappingProxyType({"candidate_count": 2})}
+        ),
+    )
+
+    payload = authority.to_payload()
+    restored = FunctionalDiagnosticAuthority.from_payload(payload)
+
+    json.dumps(payload, ensure_ascii=False, sort_keys=True)
+    assert restored.to_payload() == payload
+    assert stable_hash(restored.to_payload()) == stable_hash(payload)
+
+
 def test_missing_m_projects_role_and_materialized_point_requirement(tmp_path) -> None:
     fixture = goal_retry_fixture(tmp_path)
     binding = next(
@@ -142,6 +173,127 @@ def test_missing_m_projects_role_and_materialized_point_requirement(tmp_path) ->
     wire = json.dumps(prompt.to_payload(), ensure_ascii=False)
     assert internal_ref not in wire
     assert "<internal-identity-omitted>" not in wire
+
+
+def test_return_role_issue_projects_exact_public_repair_contract(tmp_path) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    authority = diagnostic_authority_from_issue(
+        {
+            "code": "functional.step_contract_invalid",
+            "message": "return role does not match the capability",
+            "details": {
+                "capability_id": "quadratic_axis_x_intercept_point",
+                "observed_role": "point",
+                "expected_roles": ["axis_point"],
+                "repair_action": "repair_return_role",
+                "retryability": "planner_repairable",
+            },
+        },
+        stage="reconciliation",
+        step_id="derive_axis_point_M_ii",
+    )
+
+    prompt = FunctionalPromptDiagnosticProjector().project(
+        authority,
+        fixture.binding_catalog,
+        fixture.planning_context,
+    )
+
+    assert prompt.capability_id == "quadratic_axis_x_intercept_point"
+    prompt_payload = prompt.to_payload()
+    assert prompt_payload["observed"] == {"observed_role": "point"}
+    assert prompt_payload["expected"] == {
+        "expected_roles": ["axis_point"]
+    }
+    assert prompt.repair_action == "repair_return_role"
+    assert "expected_roles" in prompt.message
+
+
+def test_context_path_identity_projects_to_same_scope_source_ref(tmp_path) -> None:
+    (
+        _bundle,
+        planning_context,
+        _problem,
+        _inputs,
+        _problem_payload,
+        _registry,
+        _planner_context,
+        binding_catalog,
+    ) = planning_binding_fixture(
+        tmp_path,
+        case="tj-2026-xiqing-yimo-25",
+    )
+    authority = method_input_state_unavailable(
+        "declared Method input view is unavailable in the current scope",
+        method_id="parameter_from_segment_length",
+        capability_id="parameter_from_segment_length",
+        scope_id="ii_1",
+        step_id="solve_b_1",
+        arg_name="p2",
+        role="p2",
+        internal_ref="$question.ii.points.D",
+        expected={
+            "domain_type": "Point",
+            "runtime_type": "Point",
+            "view": "latest_state",
+        },
+        observed={"error": "TypeError"},
+        repair_action="provide_visible_entity_state",
+    ).authority
+
+    prompt = FunctionalPromptDiagnosticProjector().project(
+        authority,
+        binding_catalog,
+        planning_context,
+    )
+
+    assert prompt.code == "functional.method_input_state_unavailable"
+    assert prompt.retryability == "planner_repairable"
+    assert prompt.subjects[0].ref == "D"
+    wire = json.dumps(prompt.to_payload(), ensure_ascii=False)
+    assert "$question.ii.points.D" not in wire
+    assert "planner.method_contract_invalid" not in wire
+
+
+def test_exact_call_result_identity_projects_to_step_result_ref(tmp_path) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    authority = diagnostic_authority_from_issue(
+        {
+            "code": "functional.method_input_state_unavailable",
+            "message": "exact anonymous result is unavailable",
+            "details": {
+                "source_call_id": "ii_straighten",
+                "source_return_name": "path_minimum_expression",
+                "arg_name": "minimum_expression",
+                "expected_type": "MinimumExpression",
+            },
+        },
+        stage="transaction",
+    )
+    call_result_id = "ii_straighten.path_minimum_expression"
+
+    prompt = FunctionalPromptDiagnosticProjector().project(
+        authority,
+        fixture.binding_catalog,
+        fixture.planning_context,
+        exact_result_refs={
+            call_result_id: {
+                "step_id": "ii_straighten",
+                "return": "path_minimum_expression",
+            }
+        },
+    )
+
+    assert prompt.subjects[0].to_payload()["ref"] == {
+        "step_id": "ii_straighten",
+        "return": "path_minimum_expression",
+    }
+    restored = FunctionalPromptDiagnostic.from_payload(prompt.to_payload())
+    assert restored.to_payload() == prompt.to_payload()
+    assert call_result_id not in json.dumps(
+        prompt.to_payload(),
+        ensure_ascii=False,
+    )
 
 
 def test_xiqing_missing_target_x_projects_c_and_applicable_capability_action(
@@ -470,6 +622,48 @@ def test_all_diagnostic_stages_use_the_same_prompt_projector(
     assert prompt.schema_version == FUNCTIONAL_PROMPT_DIAGNOSTIC_CONTRACT
     assert prompt.stage == stage
     assert prompt.observed["candidate_count"] == 2
+
+
+def test_named_entity_wire_issue_uses_unified_prompt_diagnostic(
+    tmp_path,
+) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    authority = diagnostic_authority_from_issue(
+        {
+            "code": "functional.named_entity_requires_source_ref",
+            "message": "named output must be consumed through its Entity ref",
+            "details": {
+                "arg_name": "parabola",
+                "expected_ref": "parabola",
+                "named_entity_refs": ["parabola"],
+                "producer": {
+                    "step_id": "derive_parabola_i",
+                    "return": "parabola",
+                },
+                "target": "parabola",
+                "repair_action": "use_named_entity_source_ref",
+            },
+        },
+        stage="authoring_schema",
+        capability_id="quadratic_x_axis_intercept_point",
+        scope_id="i_2",
+        step_id="derive_x_intercept_B_i",
+    )
+
+    prompt = FunctionalPromptDiagnosticProjector().project(
+        authority,
+        fixture.binding_catalog,
+        fixture.planning_context,
+    )
+    payload = prompt.to_payload()
+
+    assert payload["code"] == "functional.named_entity_requires_source_ref"
+    assert payload["retryability"] == "planner_repairable"
+    assert payload["repair_action"] == "use_named_entity_source_ref"
+    assert payload["subjects"] == [
+        {"arg_name": "parabola", "ref": "parabola"}
+    ]
+    assert payload["expected"] == {"expected_ref": "parabola"}
 
 
 def test_reconciliation_type_mismatch_projects_ref_arg_and_types(

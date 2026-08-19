@@ -94,6 +94,7 @@ def test_mixed_scope_projects_editable_and_frozen_step_ids(tmp_path) -> None:
     statuses[root.scope_ref] = "editable"
     prompt_scope = _retry_scope_prompt(
         checkpoint.root_scope,
+        planning_context=fixture.planning_context,
         goal_authorities=fixture.retry_authority.goal_authorities,
         scope_statuses=statuses,
         step_promotions={},

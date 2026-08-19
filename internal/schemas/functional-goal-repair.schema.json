@@ -35,6 +35,13 @@
       "additionalProperties": {
         "$ref": "#/$defs/scope_step_replacement"
       }
+    },
+    "answer_binding_replacements": {
+      "type": "object",
+      "description": "Optional answer-only updates for the authority-listed blocked Goals affected by an editable Scope. Never place Goal steps here.",
+      "additionalProperties": {
+        "$ref": "#/$defs/answer_binding_replacement"
+      }
     }
   },
   "anyOf": [
@@ -48,6 +55,16 @@
     {
       "properties": {
         "scope_step_replacements": {
+          "minProperties": 1
+        }
+      }
+    },
+    {
+      "required": [
+        "answer_binding_replacements"
+      ],
+      "properties": {
+        "answer_binding_replacements": {
           "minProperties": 1
         }
       }
@@ -220,6 +237,19 @@
           "items": {
             "$ref": "#/$defs/repair_step"
           }
+        }
+      },
+      "additionalProperties": false
+    },
+    "answer_binding_replacement": {
+      "type": "object",
+      "description": "Replace only a blocked Goal's answer producer after an editable Scope replacement changed that producer. Goal-local steps remain read-only.",
+      "required": [
+        "answer_from"
+      ],
+      "properties": {
+        "answer_from": {
+          "$ref": "#/$defs/answer_from"
         }
       },
       "additionalProperties": false

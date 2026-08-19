@@ -14,7 +14,11 @@ from shuxueshuo_server.solver.runtime.functional_goal_retry import (
 )
 from shuxueshuo_server.solver.runtime.functional_plan_content import (
     FUNCTIONAL_PLAN_CONTENT_CONTRACT,
+    FunctionalPlanAuthorityFrame,
     functional_plan_prompt_payload,
+)
+from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
+    FunctionalCapabilityCatalog,
 )
 from shuxueshuo_server.solver.runtime.strategy_payload import (
     StrategyPayloadBuilder,
@@ -23,12 +27,22 @@ from shuxueshuo_server.solver.runtime.strategy_payload import (
 
 from _functional_goal_retry_support import (
     FAILED_GOAL_REF,
+    downstream_path_witness_retry_fixture,
     goal,
     goal_retry_fixture,
+    repair_payload,
 )
 
 
 ROOT = Path(__file__).resolve().parents[3]
+
+
+def _retry_steps(scope):
+    yield from scope.get("scope_steps", ())
+    for goal_payload in scope.get("goals", ()):
+        yield from goal_payload.get("steps", ())
+    for child in scope.get("children", ()):
+        yield from _retry_steps(child)
 
 
 def test_pass1_and_retry_use_independent_templates_and_schemas(tmp_path) -> None:
@@ -53,11 +67,25 @@ def test_pass1_and_retry_use_independent_templates_and_schemas(tmp_path) -> None
     renderer = StrategyPromptRenderer()
     retry_prompt = renderer.render_goal_repair(retry_payload)
     pass1_prompt = renderer.render_scoped(pass1_payload)
+    prompt_catalog = FunctionalCapabilityCatalog(
+        {
+            item["capability_id"]: fixture.capability_catalog.items[
+                item["capability_id"]
+            ]
+            for item in retry_payload["functional_capability_catalog"][
+                "capabilities"
+            ]
+        }
+    )
 
     assert retry_payload["planner_protocol"] == FUNCTIONAL_GOAL_REPAIR_CONTRACT
     assert retry_payload["output_json_schema"] == (
         functional_goal_repair_schema_for_authority(
-            fixture.retry_authority
+            fixture.retry_authority,
+            capability_catalog=prompt_catalog,
+            authority_frame=FunctionalPlanAuthorityFrame.from_planning_context(
+                fixture.planning_context
+            ),
         )
     )
     assert retry_payload["goal_retry_context"]["base_retry_context_id"] == (
@@ -73,7 +101,7 @@ def test_pass1_and_retry_use_independent_templates_and_schemas(tmp_path) -> None
     assert "same_compiler_selected_object" in pass1_prompt.system
     assert "共享题面数学实体不等于共享当前数学状态" in retry_prompt.system
     assert "兄弟scope不得直接读取彼此的step" in retry_prompt.system
-    assert "题面中有名的Entity始终使用Planner Problem View的SourceRef" in (
+    assert "Entity始终使用Planner Problem View中的字符串SourceRef" in (
         retry_prompt.system
     )
     assert "代码不会根据兄弟使用关系自动发明或移动数学步骤" in (
@@ -128,6 +156,114 @@ def test_retry_schema_is_bound_to_exact_authority(tmp_path) -> None:
     assert "exactly one" in schema["$defs"]["repair_step"]["properties"][
         "step_id"
     ]["description"]
+
+
+def test_retry_v3_projects_verified_path_witness_without_internal_identity(
+    tmp_path,
+) -> None:
+    fixture = downstream_path_witness_retry_fixture(tmp_path)
+    payload = fixture.retry_authority.retry_context.to_prompt_payload()
+    step_payload = next(
+        item
+        for item in _retry_steps(payload["root_scope"])
+        if item["step_id"] == "reduce_equal_length_ray_path_ii"
+    )
+
+    assert payload["schema_version"] == "planner-goal-retry-context/v3"
+    assert len(step_payload["evidence"]) == 1
+    witness = step_payload["evidence"][0]
+    assert witness["schema_version"] == "path-minimum-prompt-witness/v1"
+    assert {
+        item["role"]: item["chosen_ref"]
+        for item in witness["role_resolutions"]
+    } == {
+        "anchor": "C",
+        "reference_point": "B",
+        "ray_point": "D",
+        "fixed_point": "O",
+    }
+    assert any("BN=MG" in item for item in witness["equivalence_proof"])
+    assert witness["minimum_expression"] == "3*sqrt(2*a**2 + 1)/Abs(a)"
+    text = json.dumps(payload, ensure_ascii=False, sort_keys=True)
+    for forbidden in (
+        "point:problem:",
+        "StateVersionId",
+        "MathObjectId",
+        "source_unit",
+        "provenance_signature",
+        "candidate_id",
+    ):
+        assert forbidden not in text
+
+
+def test_retry_schema_rejects_named_entity_step_result_but_keeps_anonymous(
+    tmp_path,
+) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    schema = functional_goal_repair_schema_for_authority(
+        fixture.retry_authority,
+        capability_catalog=fixture.capability_catalog,
+    )
+    valid = repair_payload(fixture)
+
+    solve = next(
+        item
+        for item in valid["goal_replacements"][FAILED_GOAL_REF]["steps"]
+        if item["step_id"] == "solve_parameter_from_minimum_ii"
+    )
+    assert solve["args"]["expression"] == {
+        "step_id": "reduce_equal_length_ray_path_ii",
+        "return": "minimum_expression",
+    }
+    assert not tuple(Draft202012Validator(schema).iter_errors(valid))
+
+    invalid = deepcopy(valid)
+    intercept = next(
+        item
+        for item in invalid["goal_replacements"][FAILED_GOAL_REF]["steps"]
+        if item["step_id"] == "derive_x_intercept_B_ii"
+    )
+    intercept["args"]["parabola"] = {
+        "step_id": "derive_parametric_parabola_ii",
+        "return": "parabola",
+    }
+
+    assert tuple(Draft202012Validator(schema).iter_errors(invalid))
+
+
+def test_retry_schema_binds_return_roles_to_each_capability(tmp_path) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    schema = functional_goal_repair_schema_for_authority(
+        fixture.retry_authority,
+        capability_catalog=fixture.capability_catalog,
+    )
+    variants = schema["$defs"]["repair_step"]["oneOf"]
+    by_capability = {
+        item["allOf"][1]["properties"]["capability_id"]["const"]: item[
+            "allOf"
+        ][1]["properties"]
+        for item in variants
+    }
+
+    assert set(by_capability) == set(fixture.capability_catalog.items)
+    for capability_id, capability in fixture.capability_catalog.items.items():
+        properties = by_capability[capability_id]
+        assert set(properties["output_targets"]["properties"]) == {
+            item.name
+            for item in capability.returns
+            if item.binding_mode != "internal_only"
+        }
+        assert set(properties["return_expectations"]["properties"]) == {
+            item.name
+            for item in capability.returns
+            if item.possible_forms
+            and item.return_expectation_policy != "omit"
+        }
+        assert properties["output_targets"]["additionalProperties"] is False
+        assert (
+            properties["return_expectations"]["additionalProperties"]
+            is False
+        )
 
 
 def test_retry_schema_rejects_prior_step_id_from_another_owner(

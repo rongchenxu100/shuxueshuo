@@ -80,8 +80,21 @@ def test_v2_payload_and_prompt_use_scope_native_authority_only(tmp_path) -> None
     prompt = StrategyPromptRenderer().render_scoped(payload)
 
     frame = FunctionalPlanAuthorityFrame.from_planning_context(planning_context)
+    full_catalog = FunctionalCapabilityCatalog.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
+    )
+    prompt_catalog = FunctionalCapabilityCatalog(
+        {
+            item["capability_id"]: full_catalog.items[item["capability_id"]]
+            for item in payload["functional_capability_catalog"]["capabilities"]
+        }
+    )
     assert payload["planner_protocol"] == FUNCTIONAL_PLAN_CONTENT_CONTRACT
-    assert payload["output_json_schema"] == functional_plan_content_schema(frame)
+    assert payload["output_json_schema"] == functional_plan_content_schema(
+        frame,
+        capability_catalog=prompt_catalog,
+    )
     assert "previous_attempt_state" not in payload
     assert payload["authoring_feedback"] == []
     assert payload["problem_planning_context"] == (
@@ -109,7 +122,7 @@ def test_v2_payload_and_prompt_use_scope_native_authority_only(tmp_path) -> None
     assert "互斥的step所有权容器" in prompt.system
     assert "每个step完整对象只能出现一次" in prompt.system
     assert "只为该Goal答案服务的局部推导" in prompt.system
-    assert "题面中有名的Entity始终使用SourceRef" in prompt.system
+    assert "Entity始终使用字符串SourceRef" in prompt.system
     assert "free_parameters" in prompt.system
     assert "不能根据下游Goal希望求哪个参数" in prompt.system
     assert "Goal的`target_ref`是可用题面输入" in prompt.user
@@ -286,6 +299,55 @@ def test_all_v2_mechanism_assets_are_strict_and_loadable() -> None:
         "target_ref": "target_point",
         "answer_type": "Point",
     }
+
+
+def test_v2_mechanism_assets_do_not_consume_named_outputs_by_step_result() -> None:
+    for path in sorted(FEW_SHOT_DIR.glob("*.functional-few-shot.json")):
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        scopes = [payload["plan"]["root_scope"]]
+        steps: list[dict] = []
+        while scopes:
+            scope = scopes.pop()
+            steps.extend(scope.get("steps", []))
+            for goal_payload in scope.get("goals", []):
+                steps.extend(goal_payload.get("steps", []))
+            scopes.extend(scope.get("children", []))
+
+        named_returns = {
+            (step["step_id"], return_name): target_ref
+            for step in steps
+            for return_name, target_ref in step.get(
+                "output_targets",
+                {},
+            ).items()
+        }
+        violations: list[tuple[str, str, str, str]] = []
+        for consumer in steps:
+            pending = list(consumer.get("args", {}).values())
+            while pending:
+                value = pending.pop()
+                if isinstance(value, list):
+                    pending.extend(value)
+                    continue
+                if not isinstance(value, dict):
+                    continue
+                if set(value) == {"step_id", "return"}:
+                    target_ref = named_returns.get(
+                        (value["step_id"], value["return"])
+                    )
+                    if target_ref is not None:
+                        violations.append(
+                            (
+                                consumer["step_id"],
+                                value["step_id"],
+                                value["return"],
+                                target_ref,
+                            )
+                        )
+                    continue
+                pending.extend(value.values())
+
+        assert not violations, f"{path.name}: {violations}"
 
 
 def test_v2_catalog_uses_public_facade_names_without_return_binding_wire(

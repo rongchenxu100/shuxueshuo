@@ -40,6 +40,7 @@ _CONFIGURATION_CODES = frozenset(
     {
         "planner.macro_contract_invalid",
         "planner.method_contract_invalid",
+        "planner.method_relation_contract_invalid",
         "planner.transactional_configuration_error",
         "planner.contract_runtime_symbol_drift",
         "planner.symbolic_closure_spec_invalid",
@@ -63,6 +64,18 @@ _REPAIR_MESSAGES = {
         "owned by the compiler."
     ),
     "repair_input_binding": "Bind the argument to a compatible visible source.",
+    "provide_visible_curve_relation": (
+        "Use a Point and curve pair proved by a visible point-on-curve Fact, "
+        "or place the step where that Fact is visible."
+    ),
+    "place_step_in_relation_scope": (
+        "Move or rewrite the step inside the listed relation scope; do not "
+        "consume a child or sibling curve Fact from this scope."
+    ),
+    "align_curve_relation_arguments": (
+        "Bind the Point and curve arguments to the same visible "
+        "point-on-curve Fact."
+    ),
     "supply_disambiguating_constraint": (
         "Add the missing condition needed to select one unique result."
     ),
@@ -80,10 +93,19 @@ _REPAIR_MESSAGES = {
         "Make the call arguments match the capability contract: provide all "
         "required arguments and remove or rename undeclared arguments."
     ),
+    "repair_return_role": (
+        "Replace the observed return role with exactly one compatible public "
+        "return role listed in expected_roles."
+    ),
     "repair_failed_step": "Replace the failed Goal steps with a valid strategy.",
     "align_symbolic_state_basis": (
         "Align the declared free parameters with the symbols in the current "
         "quadratic state and its visible relations."
+    ),
+    "provide_or_align_symbolic_state_basis": (
+        "For an open symbolic state, provide one complete non-empty independent "
+        "free-parameter basis from allowed_free_parameter_bases. For a closed "
+        "state, use an empty array or omit free_parameters."
     ),
     "revise_quadratic_constraints": (
         "Revise the quadratic constraints so they retain at least one "
@@ -97,6 +119,10 @@ _REPAIR_MESSAGES = {
     ),
     "remove_redundant_free_parameters": (
         "Remove free parameters that are already closed by the visible state."
+    ),
+    "use_named_entity_source_ref": (
+        "Use the named Math Entity reference shown in expected_ref; the compiler "
+        "will select its latest visible state and retain the producer dependency."
     ),
     "fix_runtime_contract": (
         "This is a runtime contract or configuration failure; do not repair the Plan."
@@ -112,8 +138,21 @@ def _freeze(value: Any) -> Any:
                 for key, item in sorted(value.items(), key=lambda pair: str(pair[0]))
             }
         )
-    if isinstance(value, (list, tuple, set, frozenset)):
+    if isinstance(value, (list, tuple)):
         return tuple(_freeze(item) for item in value)
+    if isinstance(value, (set, frozenset)):
+        frozen = tuple(_freeze(item) for item in value)
+        return tuple(
+            sorted(
+                frozen,
+                key=lambda item: json.dumps(
+                    _thaw(item),
+                    ensure_ascii=False,
+                    sort_keys=True,
+                    default=str,
+                ),
+            )
+        )
     if hasattr(value, "to_payload") and callable(value.to_payload):
         return _freeze(value.to_payload())
     if value is None or isinstance(value, (bool, int, float, str)):
@@ -133,6 +172,7 @@ def _thaw(value: Any) -> Any:
 class FunctionalDiagnosticSubject:
     role: str | None = None
     arg_name: str | None = None
+    item_index: int | None = None
     internal_ref: str | None = None
     expected_type: str | None = None
     expected_state: str | None = None
@@ -145,6 +185,7 @@ class FunctionalDiagnosticSubject:
             for key, value in {
                 "role": self.role,
                 "arg_name": self.arg_name,
+                "item_index": self.item_index,
                 "internal_ref": self.internal_ref,
                 "expected_type": self.expected_type,
                 "expected_state": self.expected_state,
@@ -162,6 +203,7 @@ class FunctionalDiagnosticSubject:
         return cls(
             role=_optional_string(payload.get("role")),
             arg_name=_optional_string(payload.get("arg_name")),
+            item_index=_optional_nonnegative_int(payload.get("item_index")),
             internal_ref=_optional_string(payload.get("internal_ref")),
             expected_type=_optional_string(payload.get("expected_type")),
             expected_state=_optional_string(payload.get("expected_state")),
@@ -277,6 +319,7 @@ class StatelessMethodError(ValueError):
         step_id: str | None = None,
         subjects: Sequence[FunctionalDiagnosticSubject] = (),
         arg_name: str | None = None,
+        item_index: int | None = None,
         role: str | None = None,
         internal_ref: Any | None = None,
         expected: Mapping[str, Any] | None = None,
@@ -295,6 +338,7 @@ class StatelessMethodError(ValueError):
                 FunctionalDiagnosticSubject(
                     role=role,
                     arg_name=arg_name,
+                    item_index=item_index,
                     internal_ref=(
                         _identity_string(internal_ref)
                         if internal_ref is not None
@@ -363,9 +407,10 @@ class StatelessMethodError(ValueError):
 
 @dataclass(frozen=True)
 class FunctionalPromptDiagnosticSubject:
-    ref: str | None = None
+    ref: str | Mapping[str, str] | None = None
     role: str | None = None
     arg_name: str | None = None
+    item_index: int | None = None
     expected_type: str | None = None
     expected_state: str | None = None
     observed_type: str | None = None
@@ -378,6 +423,7 @@ class FunctionalPromptDiagnosticSubject:
                 "ref": self.ref,
                 "role": self.role,
                 "arg_name": self.arg_name,
+                "item_index": self.item_index,
                 "expected_type": self.expected_type,
                 "expected_state": self.expected_state,
                 "observed_type": self.observed_type,
@@ -454,9 +500,19 @@ class FunctionalPromptDiagnostic:
             retryability=str(candidate["retryability"]),  # type: ignore[arg-type]
             subjects=tuple(
                 FunctionalPromptDiagnosticSubject(
-                    ref=_optional_string(item.get("ref")),
+                    ref=(
+                        {
+                            "step_id": str(_mapping(item["ref"])["step_id"]),
+                            "return": str(_mapping(item["ref"])["return"]),
+                        }
+                        if isinstance(item.get("ref"), Mapping)
+                        else _optional_string(item.get("ref"))
+                    ),
                     role=_optional_string(item.get("role")),
                     arg_name=_optional_string(item.get("arg_name")),
+                    item_index=_optional_nonnegative_int(
+                        item.get("item_index")
+                    ),
                     expected_type=_optional_string(item.get("expected_type")),
                     expected_state=_optional_string(item.get("expected_state")),
                     observed_type=_optional_string(item.get("observed_type")),
@@ -488,6 +544,8 @@ class FunctionalPromptDiagnosticProjector:
         authority: FunctionalDiagnosticAuthority,
         binding_catalog: Any,
         planning_context: Any,
+        *,
+        exact_result_refs: Mapping[str, Mapping[str, str]] | None = None,
     ) -> FunctionalPromptDiagnostic:
         if binding_catalog.planning_context_id != planning_context.planning_context_id:
             return self._configuration_failure(
@@ -522,25 +580,32 @@ class FunctionalPromptDiagnosticProjector:
         }
         prompt_subjects: list[FunctionalPromptDiagnosticSubject] = []
         unresolved: list[str] = []
+        result_refs = dict(exact_result_refs or {})
         for subject in authority.subjects:
-            public_ref: str | None = None
+            public_ref: str | Mapping[str, str] | None = None
             if subject.internal_ref is not None:
-                matches = _preferred_identity_matches(
-                    subject.internal_ref,
-                    input_runtime_nodes=input_runtime_nodes,
-                    answer_runtime_nodes=answer_runtime_nodes,
-                    input_identities=input_identities,
-                    answer_identities=answer_identities,
-                )
-                if len(matches) == 1:
-                    public_ref = next(iter(matches))
+                if subject.internal_ref in result_refs:
+                    public_ref = dict(result_refs[subject.internal_ref])
+                elif subject.internal_ref in public_refs:
+                    public_ref = subject.internal_ref
                 else:
-                    unresolved.append(subject.internal_ref)
+                    matches = _preferred_identity_matches(
+                        subject.internal_ref,
+                        input_runtime_nodes=input_runtime_nodes,
+                        answer_runtime_nodes=answer_runtime_nodes,
+                        input_identities=input_identities,
+                        answer_identities=answer_identities,
+                    )
+                    if len(matches) == 1:
+                        public_ref = next(iter(matches))
+                    else:
+                        unresolved.append(subject.internal_ref)
             prompt_subjects.append(
                 FunctionalPromptDiagnosticSubject(
                     ref=public_ref,
                     role=subject.role,
                     arg_name=subject.arg_name,
+                    item_index=subject.item_index,
                     expected_type=subject.expected_type,
                     expected_state=subject.expected_state,
                     observed_type=subject.observed_type,
@@ -559,6 +624,7 @@ class FunctionalPromptDiagnosticProjector:
                 answer_runtime_nodes=answer_runtime_nodes,
                 input_identities=input_identities,
                 answer_identities=answer_identities,
+                exact_result_refs=result_refs,
             )
             projected_observed = _project_prompt_value(
                 authority.observed,
@@ -566,6 +632,7 @@ class FunctionalPromptDiagnosticProjector:
                 answer_runtime_nodes=answer_runtime_nodes,
                 input_identities=input_identities,
                 answer_identities=answer_identities,
+                exact_result_refs=result_refs,
             )
         except ValueError as error:
             return self._configuration_failure(authority, str(error))
@@ -612,6 +679,7 @@ class FunctionalPromptDiagnosticProjector:
                 FunctionalPromptDiagnosticSubject(
                     role=item.role,
                     arg_name=item.arg_name,
+                    item_index=item.item_index,
                     expected_type=item.expected_type,
                     expected_state=item.expected_state,
                     observed_type=item.observed_type,
@@ -687,6 +755,30 @@ def diagnostic_authority_from_issue(
         observed.pop("actual_type", None)
         observed.pop("observed_type", None)
         observed.setdefault("type", actual_type)
+    if code.startswith("function.symbolic_closure_"):
+        expected.setdefault("status", "unique")
+        expected.setdefault("branch_count", 1)
+        for key in (
+            "status",
+            "branch_count",
+            "remaining_free",
+            "equation_sources",
+            "constraint_used",
+        ):
+            if key in details:
+                observed.setdefault(key, _thaw(_freeze(details[key])))
+        target = _optional_string(details.get("target"))
+        if target is not None and not subjects:
+            subjects = (
+                FunctionalDiagnosticSubject(
+                    role="target_parameter",
+                    arg_name="target_parameter",
+                    internal_ref=target,
+                    expected_type="Symbol",
+                    expected_state="uniquely_solved",
+                    observed_state=str(details.get("status") or "unresolved"),
+                ),
+            )
     repair_action = _repair_action_for(code, category, details)
     return FunctionalDiagnosticAuthority(
         code=code,
@@ -974,6 +1066,7 @@ def method_check_failed(
         FunctionalDiagnosticSubject(
             role=_optional_string(subject.get("role")),
             arg_name=_optional_string(subject.get("arg_name")),
+            item_index=_optional_nonnegative_int(subject.get("item_index")),
             internal_ref=_optional_string(subject.get("internal_ref")),
             expected_type=_optional_string(subject.get("expected_type")),
             expected_state=_optional_string(subject.get("expected_state")),
@@ -1048,12 +1141,30 @@ def _diagnostic_schema(*, prompt: bool) -> dict[str, Any]:
     subject_properties: dict[str, Any] = {
         "role": nonempty,
         "arg_name": nonempty,
+        "item_index": {"type": "integer", "minimum": 0},
         "expected_type": nonempty,
         "expected_state": nonempty,
         "observed_type": nonempty,
         "observed_state": nonempty,
     }
-    subject_properties["ref" if prompt else "internal_ref"] = nonempty
+    subject_properties["ref" if prompt else "internal_ref"] = (
+        {
+            "oneOf": [
+                nonempty,
+                {
+                    "type": "object",
+                    "required": ["step_id", "return"],
+                    "properties": {
+                        "step_id": nonempty,
+                        "return": nonempty,
+                    },
+                    "additionalProperties": False,
+                },
+            ]
+        }
+        if prompt
+        else nonempty
+    )
     required = [
         "schema_version",
         "code",
@@ -1156,6 +1267,7 @@ def _binding_identity_index(
         ref = str(binding.semantic_ref.ref)
         identities = {str(binding.runtime_node_id), *map(str, binding.source_unit_ids)}
         identities.add(ref)
+        identities.update(_binding_context_path_aliases(binding))
         for source in binding.typed_sources:
             if source.math_object_id is not None:
                 identities.add(str(source.math_object_id.value))
@@ -1168,6 +1280,43 @@ def _binding_identity_index(
         for identity in identities:
             values.setdefault(identity, set()).add(ref)
     return {key: frozenset(item) for key, item in values.items()}
+
+
+_SEMANTIC_KIND_CONTEXT_CONTAINERS: Mapping[str, str] = {
+    "point": "points",
+    "symbol": "symbols",
+    "quadratic_function": "expressions",
+    "segment": "segments",
+    "named_line": "lines",
+    "named_ray": "rays",
+    "polygon": "polygons",
+    "scalar_expression": "expressions",
+}
+
+
+def _binding_context_path_aliases(binding: Any) -> frozenset[str]:
+    """Index runtime paths by source identity without parsing error prose.
+
+    Runtime diagnostics may originate after a typed binding has been lowered to
+    a ContextPath.  The path's scope, container, and key are still mechanical
+    projections of the F5-B/C source binding, so they are safe aliases for
+    prompt projection.  Step-local paths are intentionally never synthesized.
+    """
+
+    semantic_ref = binding.semantic_ref
+    container = _SEMANTIC_KIND_CONTEXT_CONTAINERS.get(str(semantic_ref.kind))
+    owner_scope_id = str(binding.owner_scope_id)
+    local_ref = str(semantic_ref.ref)
+    if container is None or not owner_scope_id or not local_ref:
+        return frozenset()
+    if owner_scope_id == "problem":
+        return frozenset({f"$problem.{container}.{local_ref}"})
+    return frozenset(
+        {
+            f"$question.{owner_scope_id}.{container}.{local_ref}",
+            f"$subquestion.{owner_scope_id}.{container}.{local_ref}",
+        }
+    )
 
 
 def _binding_runtime_node_index(
@@ -1225,6 +1374,7 @@ def _project_prompt_value(
     answer_runtime_nodes: Mapping[str, frozenset[str]],
     input_identities: Mapping[str, frozenset[str]],
     answer_identities: Mapping[str, frozenset[str]],
+    exact_result_refs: Mapping[str, Mapping[str, str]],
 ) -> Any:
     if isinstance(value, Mapping):
         return {
@@ -1234,6 +1384,7 @@ def _project_prompt_value(
                 answer_runtime_nodes=answer_runtime_nodes,
                 input_identities=input_identities,
                 answer_identities=answer_identities,
+                exact_result_refs=exact_result_refs,
             )
             for key, item in value.items()
         }
@@ -1245,11 +1396,14 @@ def _project_prompt_value(
                 answer_runtime_nodes=answer_runtime_nodes,
                 input_identities=input_identities,
                 answer_identities=answer_identities,
+                exact_result_refs=exact_result_refs,
             )
             for item in value
         ]
     if not isinstance(value, str):
         return value
+    if value in exact_result_refs:
+        return dict(exact_result_refs[value])
     matches = _preferred_identity_matches(
         value,
         input_runtime_nodes=input_runtime_nodes,
@@ -1269,7 +1423,29 @@ def _project_prompt_value(
 def _subjects_from_details(
     details: Mapping[str, Any],
 ) -> tuple[FunctionalDiagnosticSubject, ...]:
+    declared_subjects = details.get("subjects")
+    if isinstance(declared_subjects, (list, tuple)):
+        result = tuple(
+            FunctionalDiagnosticSubject(
+                role=_optional_string(item.get("role")),
+                arg_name=_optional_string(item.get("arg_name")),
+                item_index=_optional_nonnegative_int(item.get("item_index")),
+                internal_ref=_optional_string(item.get("internal_ref")),
+                expected_type=_optional_string(item.get("expected_type")),
+                expected_state=_optional_string(item.get("expected_state")),
+                observed_type=_optional_string(item.get("observed_type")),
+                observed_state=_optional_string(item.get("observed_state")),
+            )
+            for item in declared_subjects
+            if isinstance(item, Mapping)
+        )
+        if result:
+            return result
     refs: list[str] = []
+    source_call_id = _optional_string(details.get("source_call_id"))
+    source_return_name = _optional_string(details.get("source_return_name"))
+    if source_call_id is not None and source_return_name is not None:
+        refs.append(f"{source_call_id}.{source_return_name}")
     for key in (
         "semantic_ref",
         "source_ref",
@@ -1277,6 +1453,7 @@ def _subjects_from_details(
         "target_object_ref",
         "actual_object_ref",
         "expected_object_ref",
+        "expected_ref",
         "moving_object",
         "unresolved_point_ref",
     ):
@@ -1309,6 +1486,7 @@ def _subjects_from_details(
     observed_state = _optional_string(
         details.get("actual_state") or details.get("observed_state")
     )
+    item_index = _optional_nonnegative_int(details.get("item_index"))
     if not refs and any(
         item is not None
         for item in (role, arg_name, expected_type, expected_state, observed_type)
@@ -1318,6 +1496,7 @@ def _subjects_from_details(
         FunctionalDiagnosticSubject(
             role=role,
             arg_name=arg_name,
+            item_index=item_index,
             internal_ref=ref or None,
             expected_type=expected_type,
             expected_state=expected_state,
@@ -1339,6 +1518,8 @@ def _category_for_code(code: str) -> FunctionalDiagnosticCategory:
     if "check" in lowered:
         return "check"
     if "binding" in lowered or "ref_" in lowered:
+        return "binding"
+    if code.startswith("functional.method_relation_"):
         return "binding"
     if code.startswith("functional.arg_"):
         return "input"
@@ -1475,6 +1656,14 @@ def _validate_payload(payload: Mapping[str, Any], schema: Mapping[str, Any]) -> 
 
 def _optional_string(value: Any) -> str | None:
     return str(value) if value is not None else None
+
+
+def _optional_nonnegative_int(value: Any) -> int | None:
+    if value is None:
+        return None
+    if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+        raise ValueError("diagnostic item_index must be a non-negative integer")
+    return value
 
 
 def _mapping(value: Any) -> Mapping[str, Any]:

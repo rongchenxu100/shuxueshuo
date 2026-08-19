@@ -633,4 +633,3 @@ jq 'type' "$SAMPLE/attempt-1.transaction.json"
 - [ ] 结论已区分LLM、上下文、代码和provider责任。
 - [ ] 修复是同类契约修复，不是单sample特判。
 - [ ] 已列出最小离线回归和真实smoke验收顺序。
-

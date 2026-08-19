@@ -96,9 +96,16 @@ class PublishedGoalCallResultRef(CallResultRef):
     """
 
     published_goal_ref: str
+    semantic_ref: str | None = None
 
-    def authority_payload(self) -> dict[str, str]:
-        return {"published_goal_ref": self.published_goal_ref}
+    def authority_payload(self) -> dict[str, Any]:
+        payload: dict[str, Any] = {
+            "published_goal_ref": self.published_goal_ref,
+            "producer": self.to_payload(),
+        }
+        if self.semantic_ref is not None:
+            payload["semantic_ref"] = self.semantic_ref
+        return payload
 
 
 FunctionalRef = SemanticRef | CallResultRef
@@ -217,6 +224,8 @@ class FunctionalCapabilityArg:
     kind: str
     domain_type: str | None = None
     input_view_mode: MethodInputViewMode | None = field(default=None, repr=False)
+    allows_anonymous_result: bool = field(default=False, repr=False)
+    allows_empty_collection: bool = field(default=False, repr=False)
     semantic_role: str | None = None
     llm_mode: FunctionalArgMode = "explicit"
     accepted_item_types: tuple[str, ...] = ()
@@ -237,6 +246,7 @@ class FunctionalCapabilityArg:
     )
     consumption_mode: str = field(default="runtime_input", repr=False)
     semantic_ref_role: FunctionalSemanticRefRole = "value"
+    allowed_refs: tuple[str, ...] = field(default=(), repr=False)
 
     def to_prompt_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -256,6 +266,8 @@ class FunctionalCapabilityArg:
             payload["roles"] = list(
                 self.accepted_semantic_roles
             )
+        if self.allowed_refs:
+            payload["allowed_refs"] = list(self.allowed_refs)
         description = self.description
         if description:
             payload["role"] = description
@@ -528,7 +540,11 @@ def _prompt_return_binding(result: FunctionalCapabilityReturn) -> str:
             if result.identity_arg
             else "same_input_object"
         )
-    return "answer_or_existing_object"
+    # Identity-neutral returns are values first. They can be consumed directly
+    # as exact call results, or optionally published to an answer/existing
+    # object. Capabilities that require an external destination must opt in via
+    # ``explicit_external_required``.
+    return "call_result_or_answer_or_existing_object"
 
 
 def _planner_safe_payload(value: Any) -> Any:
@@ -753,6 +769,54 @@ class FunctionalReturnAllocation:
 
 
 @dataclass(frozen=True)
+class FunctionalMethodRelationBinding:
+    """Exact Condition authority consumed by one Method entity relation."""
+
+    call_id: str
+    method_id: str
+    relation_kind: str
+    point_arg_name: str
+    point_item_index: int
+    curve_arg_name: str
+    condition_id: str
+    condition_ref: str
+    condition_ref_kind: str
+    condition_kind: str
+    owner_scope_id: str
+    point_object_ref: str
+    curve_object_ref: str
+    point_math_object_id: MathObjectId | None = None
+    curve_math_object_id: MathObjectId | None = None
+
+    def to_payload(self) -> dict[str, Any]:
+        return {
+            "call_id": self.call_id,
+            "method_id": self.method_id,
+            "relation_kind": self.relation_kind,
+            "point_arg_name": self.point_arg_name,
+            "point_item_index": self.point_item_index,
+            "curve_arg_name": self.curve_arg_name,
+            "condition_id": self.condition_id,
+            "condition_ref": self.condition_ref,
+            "condition_ref_kind": self.condition_ref_kind,
+            "condition_kind": self.condition_kind,
+            "owner_scope_id": self.owner_scope_id,
+            "point_object_ref": self.point_object_ref,
+            "curve_object_ref": self.curve_object_ref,
+            "point_math_object_id": (
+                self.point_math_object_id.to_payload()
+                if self.point_math_object_id is not None
+                else None
+            ),
+            "curve_math_object_id": (
+                self.curve_math_object_id.to_payload()
+                if self.curve_math_object_id is not None
+                else None
+            ),
+        }
+
+
+@dataclass(frozen=True)
 class FunctionalCallReconciliation:
     call_id: str
     scope_id: str
@@ -761,6 +825,7 @@ class FunctionalCallReconciliation:
     returns: tuple[FunctionalReturnAllocation, ...]
     reads_closed: bool = False
     authored_macro_roles: tuple[tuple[str, str], ...] = ()
+    relation_bindings: tuple[FunctionalMethodRelationBinding, ...] = ()
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -777,6 +842,9 @@ class FunctionalCallReconciliation:
                 role: object_ref
                 for role, object_ref in self.authored_macro_roles
             },
+            "relation_bindings": [
+                item.to_payload() for item in self.relation_bindings
+            ],
         }
 
 

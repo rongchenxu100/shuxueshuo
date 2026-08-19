@@ -104,6 +104,8 @@ class FunctionArgSpec:
     provides_semantic_roles: tuple[str, ...] = ()
     input_closure_policy: CapabilityStateClosurePolicy = "any"
     semantic_ref_role: FunctionalSemanticRefRole = "value"
+    allows_anonymous_result: bool = False
+    allows_empty_collection: bool = False
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -131,6 +133,10 @@ class FunctionArgSpec:
             payload["input_closure_policy"] = self.input_closure_policy
         if self.semantic_ref_role != "value":
             payload["semantic_ref_role"] = self.semantic_ref_role
+        if self.allows_anonymous_result:
+            payload["allows_anonymous_result"] = True
+        if self.allows_empty_collection:
+            payload["allows_empty_collection"] = True
         return payload
 
 
@@ -1314,6 +1320,12 @@ def _arg_spec_from_method_input(
             if contract_slot is not None
             else "any"
         ),
+        allows_anonymous_result=bool(
+            getattr(input_spec, "allows_anonymous_result", False)
+        ),
+        allows_empty_collection=bool(
+            getattr(input_spec, "allows_empty_collection", False)
+        ),
     )
 
 
@@ -1482,6 +1494,7 @@ def _analyze_quadratic_coefficient_inputs(
 ) -> ConstraintAnalyzerResult:
     from shuxueshuo_server.solver.runtime.methods.quadratic_from_constraints import (
         analyze_quadratic_constraints,
+        equivalent_quadratic_free_parameter_bases,
     )
     from shuxueshuo_server.solver.runtime.functional_diagnostics import (
         method_input_invalid,
@@ -1547,12 +1560,6 @@ def _analyze_quadratic_coefficient_inputs(
         # the explicit free basis intact instead of letting the older
         # coefficient-shape analyzer discard contextual dependency Symbols.
         return ConstraintAnalyzerResult(inputs)
-    preferred_free_parameters = tuple(
-        sorted(
-            declared_free_parameters,
-            key=lambda symbol: getattr(symbol, "name", str(symbol)),
-        )
-    )
     try:
         analysis = analyze_quadratic_constraints(
             {
@@ -1560,7 +1567,6 @@ def _analyze_quadratic_coefficient_inputs(
                 for name, value in runtime_inputs.items()
                 if name not in {"free_parameter", "free_parameters"}
             },
-            preferred_free_parameters=preferred_free_parameters,
         )
     except SymbolicStateRepresentationError as exc:
         expected = {
@@ -1607,30 +1613,54 @@ def _analyze_quadratic_coefficient_inputs(
             observed=observed,
             repair_action="align_symbolic_state_basis",
         ) from exc
-    if analysis.status == "determined":
-        if not declared_free_parameters:
+    if analysis.status == "determined" and not declared_free_parameters:
+        return ConstraintAnalyzerResult(inputs)
+    declared_basis = tuple(
+        sorted(
+            declared_free_parameters,
+            key=lambda symbol: getattr(symbol, "name", str(symbol)),
+        )
+    )
+    equivalent_bases = equivalent_quadratic_free_parameter_bases(
+        {
+            name: value
+            for name, value in runtime_inputs.items()
+            if name not in {"free_parameter", "free_parameters"}
+        }
+    )
+    if equivalent_bases:
+        if declared_basis in equivalent_bases:
             return ConstraintAnalyzerResult(inputs)
-    if analysis.status in {"single_free", "underdetermined"}:
-        authoritative = set(analysis.free_parameters)
-        if declared_free_parameters == authoritative:
-            return ConstraintAnalyzerResult(inputs)
-        names = ",".join(symbol.name for symbol in analysis.free_parameters)
         declared = ",".join(
             symbol.name
             for symbol in sorted(declared_free_parameters, key=lambda item: item.name)
         )
         raise method_input_state_unavailable(
-            "declared free parameters do not match the runtime quadratic state",
+            (
+                "open quadratic state requires an explicit non-empty "
+                "free_parameters basis"
+                if not declared_basis
+                else (
+                    "declared free parameters do not form a complete runtime "
+                    "quadratic-state basis"
+                )
+            ),
             method_id="quadratic_from_constraints",
             scope_id=step.scope_id,
             step_id=step.step_id,
             arg_name="free_parameters",
             role="symbolic_state_basis",
-            expected={"free_parameters": names.split(",") if names else []},
+            expected={
+                "allowed_free_parameter_bases": [
+                    [symbol.name for symbol in basis]
+                    for basis in equivalent_bases
+                ],
+                "basis_cardinality": len(equivalent_bases[0]),
+            },
             observed={
                 "declared_free_parameters": declared.split(",") if declared else []
             },
-            repair_action="align_symbolic_state_basis",
+            repair_action="provide_or_align_symbolic_state_basis",
         )
     if analysis.status == "determined":
         declared = ",".join(

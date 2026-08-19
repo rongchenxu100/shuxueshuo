@@ -15,6 +15,7 @@ from typing import Any, Literal, Mapping, cast
 
 from shuxueshuo_server.solver.contracts import (
     MethodExplanationSpec,
+    MethodInputRelationSpec,
     MethodInputSpec,
     MethodInputViewSpec,
     MethodOutputActivationKind,
@@ -153,6 +154,10 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
     if not isinstance(raw["solves"], list) or not raw["solves"]:
         raise ValueError("MethodSpec.solves must be a non-empty list")
     inputs = _parse_inputs(raw["inputs"])
+    input_relations = _parse_input_relations(
+        raw.get("input_relations", ()),
+        input_names=frozenset(inputs),
+    )
     outputs = _parse_outputs(raw["outputs"])
     internal_outputs = _parse_identifier_list(
         raw.get("internal_outputs", ()),
@@ -187,6 +192,7 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
         solves=tuple(str(item) for item in raw["solves"]),
         inputs=inputs,
         outputs=outputs,
+        input_relations=input_relations,
         internal_outputs=internal_outputs,
         output_activation=output_activation,
         scalar_result_forms=scalar_result_forms,
@@ -235,6 +241,73 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
         ),
         is_pure=is_pure,
     )
+
+
+def _parse_input_relations(
+    raw: object,
+    *,
+    input_names: frozenset[str],
+) -> tuple[MethodInputRelationSpec, ...]:
+    if raw in (None, ()):
+        return ()
+    if not isinstance(raw, list):
+        raise ValueError("MethodSpec.input_relations must be an array")
+    result: list[MethodInputRelationSpec] = []
+    seen: set[tuple[str, str, str]] = set()
+    for index, item in enumerate(raw):
+        if not isinstance(item, dict):
+            raise ValueError(
+                f"MethodSpec.input_relations[{index}] must be an object"
+            )
+        relation_kind = str(item.get("relation_kind", ""))
+        point_arg = str(item.get("point_arg", ""))
+        curve_arg = str(item.get("curve_arg", ""))
+        cardinality = str(item.get("cardinality", ""))
+        accepted_raw = item.get("accepted_condition_kinds")
+        if relation_kind != "point_on_curve":
+            raise ValueError(
+                "MethodSpec.input_relations has unsupported relation_kind: "
+                f"{relation_kind or '<missing>'}"
+            )
+        if cardinality not in {"one", "for_each"}:
+            raise ValueError(
+                "MethodSpec.input_relations cardinality must be one or for_each"
+            )
+        if point_arg not in input_names or curve_arg not in input_names:
+            raise ValueError(
+                "MethodSpec.input_relations references unknown input: "
+                f"point_arg={point_arg!r}, curve_arg={curve_arg!r}"
+            )
+        if not isinstance(accepted_raw, list) or not accepted_raw:
+            raise ValueError(
+                "MethodSpec.input_relations accepted_condition_kinds must "
+                "be a non-empty array"
+            )
+        accepted = tuple(str(value) for value in accepted_raw)
+        if len(set(accepted)) != len(accepted) or not set(accepted) <= {
+            "point_on_curve",
+            "point_on_curve_with_x_coordinate",
+        }:
+            raise ValueError(
+                "MethodSpec.input_relations contains duplicate or unsupported "
+                "accepted_condition_kinds"
+            )
+        key = (relation_kind, point_arg, curve_arg)
+        if key in seen:
+            raise ValueError(
+                f"duplicate MethodSpec.input_relations declaration: {key}"
+            )
+        seen.add(key)
+        result.append(
+            MethodInputRelationSpec(
+                relation_kind=relation_kind,
+                point_arg=point_arg,
+                curve_arg=curve_arg,
+                cardinality=cardinality,  # type: ignore[arg-type]
+                accepted_condition_kinds=accepted,
+            )
+        )
+    return tuple(result)
 
 
 def _parse_output_activation(
@@ -535,6 +608,12 @@ def _parse_inputs(raw_inputs: object) -> dict[str, MethodInputSpec]:
             role = str(raw.get("role", ""))
             required = bool(raw.get("required", True))
             functional_exposed = bool(raw.get("functional_exposed", True))
+            allows_anonymous_result = bool(
+                raw.get("allows_anonymous_result", False)
+            )
+            allows_empty_collection = bool(
+                raw.get("allows_empty_collection", False)
+            )
             symbolic_basis_role = raw.get("symbolic_basis_role")
             if symbolic_basis_role not in {
                 None,
@@ -557,6 +636,8 @@ def _parse_inputs(raw_inputs: object) -> dict[str, MethodInputSpec]:
             role=role,
             required=required,
             functional_exposed=functional_exposed,
+            allows_anonymous_result=allows_anonymous_result,
+            allows_empty_collection=allows_empty_collection,
             symbolic_basis_role=symbolic_basis_role,
         )
     return inputs

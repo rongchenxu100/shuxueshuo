@@ -68,6 +68,12 @@ def test_all_method_inputs_declare_one_explicit_view() -> None:
     assert all(item.domain_type == item.view.domain_type for item in inputs)
     assert all(item.runtime_type for item in inputs)
 
+    intersection = registry.specs["line_intersection_point"]
+    assert all(
+        intersection.inputs[name].allows_anonymous_result
+        for name in ("line1_p1", "line1_p2", "line2_p1", "line2_p2")
+    )
+
 
 def test_generated_method_specs_preserve_view_contracts() -> None:
     generated = {

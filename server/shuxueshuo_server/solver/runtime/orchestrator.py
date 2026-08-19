@@ -43,6 +43,9 @@ from shuxueshuo_server.solver.question_goals import extract_question_goals
 from shuxueshuo_server.solver.result_models import DerivationTrace, SolverResult
 from shuxueshuo_server.solver.runtime.context import RuntimeContext, ContextBuilder
 from shuxueshuo_server.solver.runtime.context_inventory import ContextInventoryBuilder
+from shuxueshuo_server.solver.runtime.functional_goal_execution import (
+    VerifiedFunctionalPlanExecution,
+)
 from shuxueshuo_server.solver.runtime.executor import (
     DeclarationValidator,
     InvocationExecutor,
@@ -87,6 +90,7 @@ class RuntimeSuccessArtifacts:
     problem_authority: VerifiedPlannerProblemAuthority | None = None
     problem_binding_catalog: ProblemPlanningBindingCatalog | None = None
     planner_state_context: PlannerStateContext | None = None
+    verified_functional_execution: VerifiedFunctionalPlanExecution | None = None
 
 
 def _nankai25_planner_provider(context: RuntimeContext) -> GenericPlanner:
@@ -416,6 +420,11 @@ class RuntimeOrchestrator:
                         None,
                     ),
                     "planner_state_context",
+                    None,
+                ),
+                verified_functional_execution=getattr(
+                    getattr(planner, "artifacts", None),
+                    "verified_execution",
                     None,
                 ),
             )

@@ -261,7 +261,7 @@ def test_every_registered_macro_has_an_audited_lowering_contract() -> None:
             item["semantic_role"]
             for item in payload["adapter"]["output_aliases"]
         }
-        assert equal_length_returns == {"path_minimum_expression"}
+        assert equal_length_returns == {"minimum_expression"}
 
 
 def test_every_path_transformation_uses_planner_declared_moving_point() -> None:

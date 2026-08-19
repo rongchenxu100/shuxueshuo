@@ -90,7 +90,7 @@ EQUAL_LENGTH_RAY_PATH_REDUCTION_DESCRIPTION = (
     "仅用于一个动点在线段上、另一个动点在射线上，并且题设给出二者相对"
     "同一端点的等长关系。该能力在内部完成辅助点构造，把两动点距离和直接"
     "化为一个固定点到辅助点的单距离最小值表达式；它返回 "
-    "MinimumExpression，而不是供后续普通折线拉直的 PathTransformation。"
+    "MinimumExpression，而不是供后续普通折线拉直的内部路径中间值。"
     "结果仍含参数时为开放表达式，不含自由参数时为闭合值。"
 )
 EQUAL_LENGTH_RAY_PATH_REDUCTION_DO_NOT_USE_WHEN = (
@@ -293,6 +293,7 @@ def _slot(
     input_closure_policy: CapabilityStateClosurePolicy = "any",
     return_binding: FunctionalReturnBindingPolicy = "auto",
     semantic_ref_role: FunctionalSemanticRefRole = "value",
+    allows_anonymous_result: bool = False,
 ) -> StateSlotPattern:
     resolved_required = (
         runtime_type not in TRANSIENT_OUTPUT_TYPES
@@ -322,6 +323,7 @@ def _slot(
         input_closure_policy=input_closure_policy,
         return_binding=return_binding,
         semantic_ref_role=semantic_ref_role,
+        allows_anonymous_result=allows_anonymous_result,
     )
 
 
@@ -508,7 +510,9 @@ QUADRATIC_CORE_CONTRACTS = (
                 semantic_role="free_parameters",
                 required=False,
                 description=(
-                    "本轮有意保留、供后续条件继续求解的独立参数。"
+                    "应用当前scope约束后仍未确定的一组完整独立参数基底。开放状态"
+                    "必须填写非空基底；闭合状态可填写[]或省略。可使用runtime可证明"
+                    "等价的任一基底，不得按下游Goal目标人为收窄。"
                 ),
             ),
             _slot(
@@ -1183,7 +1187,7 @@ PATH_MINIMUM_BY_STRAIGHTENED_DISTANCE = StepRecipeSpec(
             recipe_output_alias(
                 "distance_between_points.distance",
                 "MinimumExpression",
-                "path_minimum_expression",
+                "minimum_expression",
                 goal_evidence_tags=("path_minimum_expression",),
             ),
             recipe_output_alias(
@@ -1553,6 +1557,7 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
                             "结构化 provenance 已包含同一动点的轨迹时才可省略；不能从"
                             "可见的任意 Line 自动选择。"
                         ),
+                        allows_anonymous_result=True,
                     ),
                 ),
                 slot_writes=(
@@ -1631,6 +1636,7 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
                             "结构化 provenance 已包含同一动点的轨迹时才可省略；不能从"
                             "可见的任意 Line 自动选择。"
                         ),
+                        allows_anonymous_result=True,
                     ),
                     _slot(
                         "value",

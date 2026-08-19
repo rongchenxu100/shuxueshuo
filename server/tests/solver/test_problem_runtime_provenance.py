@@ -135,6 +135,11 @@ def test_five_case_runtime_writes_and_results_share_call_source_authority(
             if binding.source_kind == "problem_source"
             for source_unit_id in binding.source_unit_ids
         }
+        expected_direct_sources.update(
+            source_unit_id
+            for binding in sidecar.relations_for_call(call_result.call_id)
+            for source_unit_id in binding.source_unit_ids
+        )
         assert set(expected.input_source_unit_ids) == expected_direct_sources
 
     assert observed_calls

@@ -247,6 +247,50 @@ def test_post_compile_binding_audit_checks_actual_target_and_source_path() -> No
         "details"
     ]
 
+    point_identity = replace(
+        binding,
+        selection_policy="identity_only",
+    )
+    identity_view = SimpleNamespace(
+        invocations=(
+            SimpleNamespace(
+                invocation_id="invoke",
+                method_id="method",
+                inputs={"value": "$question.ii.object_refs.N"},
+                outputs={},
+            ),
+        )
+    )
+    identity_audit = audit_compiled_functional_arg_consumption(
+        (point_identity,),
+        (identity_view,),
+        expected_runtime_paths={
+            point_identity.key: "$question.ii.points.N"
+        },
+    )
+    assert not identity_audit.mismatches
+
+    foreign_identity = SimpleNamespace(
+        invocations=(
+            SimpleNamespace(
+                invocation_id="invoke",
+                method_id="method",
+                inputs={"value": "$question.ii.object_refs.M"},
+                outputs={},
+            ),
+        )
+    )
+    foreign_audit = audit_compiled_functional_arg_consumption(
+        (point_identity,),
+        (foreign_identity,),
+        expected_runtime_paths={
+            point_identity.key: "$question.ii.points.N"
+        },
+    )
+    assert foreign_audit.mismatches[0]["details"] == [
+        "runtime_source_path_drift"
+    ]
+
     optional_missing = audit_compiled_functional_arg_consumption(
         (
             replace(

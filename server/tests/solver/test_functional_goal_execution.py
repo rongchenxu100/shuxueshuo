@@ -4,6 +4,7 @@ from copy import deepcopy
 from dataclasses import replace
 import json
 from pathlib import Path
+from types import MappingProxyType, SimpleNamespace
 
 import pytest
 import sympy as sp
@@ -14,15 +15,20 @@ from shuxueshuo_server.solver.runtime.functional_goal_execution import (
     FunctionalGoalExecutionCheckpoint,
     FunctionalGoalExecutionCheckpointError,
     ScopedFunctionalGoalExecutionService,
+    _provisional_state_payload,
+    _reconciliation_dependency_blocks,
     functional_goal_execution_checkpoint_schema,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_reconciliation import (
     _unique_answer_for_object_binding,
 )
 from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
+    ScopedFunctionalPlan,
     ScopedFunctionalPlanAuthority,
     ScopedFunctionalPlanAuthorityReport,
     ScopedFunctionalPlanError,
+    ScopedFunctionalScope,
+    ScopedFunctionalStep,
     ScopedFunctionalPlanIssue,
 )
 
@@ -42,6 +48,42 @@ def test_checkpoint_python_schema_matches_checked_in_snapshot() -> None:
     assert json.loads(SCHEMA_PATH.read_text(encoding="utf-8")) == (
         functional_goal_execution_checkpoint_schema()
     )
+
+
+def test_provisional_payload_recursively_normalizes_immutable_diagnostics() -> None:
+    issue = SimpleNamespace(
+        to_payload=lambda: MappingProxyType(
+            {
+                "code": "functional.method_input_state_unavailable",
+                "expected": MappingProxyType(
+                    {"allowed_bases": (("b",), ("c",))}
+                ),
+                "observed": MappingProxyType({"declared": frozenset()}),
+                "authority_details": MappingProxyType(
+                    {"nested": MappingProxyType({"count": 2})}
+                ),
+            }
+        )
+    )
+    call_result = SimpleNamespace(
+        call_id="derive_parabola",
+        status="failed",
+        runtime_results=(),
+        root_issues=(issue,),
+    )
+    transaction = SimpleNamespace(
+        execution_report=SimpleNamespace(
+            call_states=(),
+            call_results=(call_result,),
+        )
+    )
+
+    payload = _provisional_state_payload(transaction)
+
+    json.dumps(payload, ensure_ascii=False, sort_keys=True)
+    root_issue = payload["call_results"][0]["root_issues"][0]
+    assert root_issue["expected"]["allowed_bases"] == [["b"], ["c"]]
+    assert root_issue["observed"]["declared"] == []
 
 
 def test_invalid_json_has_no_scope_shaped_checkpoint(tmp_path) -> None:
@@ -85,6 +127,121 @@ def test_nonretryable_problem_authority_drift_fails_loud(tmp_path) -> None:
 
     assert error.value.retryable is False
     assert error.value.code == "planner.problem_revision_drift"
+
+
+def test_inferred_parent_point_target_survives_liveness_and_executes(tmp_path) -> None:
+    case = "tj-2026-xiqing-yimo-25"
+    payload = load_v2_fixture_payload(case)
+    derive_d = _step(payload, "derive_curve_point_D_ii")
+    derive_d.pop("output_targets")
+
+    result, _fixture = _execute(tmp_path, case, payload)
+
+    assert result.checkpoint is not None
+    checkpoint_step = _checkpoint_steps(result.checkpoint)["derive_curve_point_D_ii"]
+    assert checkpoint_step.status == "runtime_verified"
+    assert result.checkpoint.all_required_goals_verified
+
+
+def test_same_point_identity_can_have_scope_local_sibling_producers(tmp_path) -> None:
+    case = "tj-2026-nankai-yimo-25"
+    payload = load_v2_fixture_payload(case)
+    scope_ii = _scope(payload["root_scope"], "ii")
+    shared_steps = scope_ii.pop("steps")
+
+    def rewrite_step_ids(value, replacements):
+        if isinstance(value, dict):
+            for key, item in value.items():
+                if key == "step_id" and item in replacements:
+                    value[key] = replacements[item]
+                else:
+                    rewrite_step_ids(item, replacements)
+        elif isinstance(value, list):
+            for item in value:
+                rewrite_step_ids(item, replacements)
+
+    expected_steps = []
+    for scope_id in ("ii_1", "ii_2"):
+        replacements = {
+            item["step_id"]: f"{scope_id}_{item['step_id']}"
+            for item in shared_steps
+        }
+        local_steps = deepcopy(shared_steps)
+        rewrite_step_ids(local_steps, replacements)
+        scope = _scope(payload["root_scope"], scope_id)
+        rewrite_step_ids(scope, replacements)
+        scope["steps"] = [*local_steps, *scope.get("steps", [])]
+        expected_steps.append(replacements["ii_construct_N"])
+
+    result, _fixture = _execute(tmp_path, case, payload)
+
+    assert result.checkpoint is not None
+    steps = _checkpoint_steps(result.checkpoint)
+    assert all(steps[step_id].status == "runtime_verified" for step_id in expected_steps)
+    assert result.checkpoint.all_required_goals_verified
+
+
+def test_reconciliation_dependency_blocks_never_include_sibling_producer() -> None:
+    sibling_writer = ScopedFunctionalStep(
+        step_id="sibling_writer",
+        capability_id="synthetic_point_producer",
+        args={},
+        output_targets={"point": "D"},
+        return_expectations={"point": "closed_state"},
+    )
+    ancestor_writer = replace(sibling_writer, step_id="ancestor_writer")
+    consumer = ScopedFunctionalStep(
+        step_id="consumer",
+        capability_id="synthetic_point_consumer",
+        args={},
+        output_targets={},
+        return_expectations={},
+    )
+    issue = SimpleNamespace(
+        call_id=consumer.step_id,
+        scope_id="ii",
+        details={"object_ref": "point:D"},
+    )
+    point_source = SimpleNamespace(
+        math_object_id=SimpleNamespace(value="point:D")
+    )
+    catalog = SimpleNamespace(
+        scope_parent_ids={"problem": None, "i": "problem", "ii": "problem"},
+        resolve_input_binding=lambda **_kwargs: SimpleNamespace(
+            typed_sources=(point_source,)
+        ),
+    )
+
+    sibling_only = ScopedFunctionalPlan(
+        root_scope=ScopedFunctionalScope(
+            scope_ref="problem",
+            children=(
+                ScopedFunctionalScope(scope_ref="i", steps=(sibling_writer,)),
+                ScopedFunctionalScope(scope_ref="ii", steps=(consumer,)),
+            ),
+        )
+    )
+    assert _reconciliation_dependency_blocks(
+        sibling_only,
+        (issue,),
+        binding_catalog=catalog,
+        invalid_step_ids={sibling_writer.step_id},
+        blocked_by={},
+    ) == {}
+
+    ancestor_and_sibling = ScopedFunctionalPlan(
+        root_scope=replace(
+            sibling_only.root_scope,
+            steps=(ancestor_writer,),
+        )
+    )
+    assert _reconciliation_dependency_blocks(
+        ancestor_and_sibling,
+        (issue,),
+        binding_catalog=catalog,
+        invalid_step_ids={sibling_writer.step_id, ancestor_writer.step_id},
+        blocked_by={},
+    ) == {consumer.step_id: (ancestor_writer.step_id,)}
 
 
 def test_placement_finalization_failure_still_creates_checkpoint(
@@ -776,12 +933,7 @@ def test_recomputed_source_a_is_reused_only_after_runtime_equivalence(
     ii_goal = _scope(payload["root_scope"], "ii")["goals"][0]
     evaluate = _step(payload, "evaluate_point_A_ii")
     evaluate["capability_id"] = "quadratic_x_axis_intercept_point"
-    evaluate["args"] = {
-        "parabola": {
-            "step_id": "derive_parametric_parabola_ii",
-            "return": "parabola",
-        }
-    }
+    evaluate["args"] = {"parabola": "parabola"}
     evaluate["output_targets"] = {"point": "A"}
     _step(payload, "recover_target_point_E_ii")["args"]["side_start"] = "A"
     evaluate_index = next(
@@ -802,13 +954,20 @@ def test_recomputed_source_a_is_reused_only_after_runtime_equivalence(
     checkpoint = result.checkpoint
     assert checkpoint is not None
     assert checkpoint.all_required_goals_verified is True
-    report = result.replay.transactional_attempt_result.execution_report
-    evaluated = next(
-        item
-        for item in report.call_results
-        if item.call_id == "evaluate_point_A_ii"
+    assert result.canonical_plan is not None
+    assert "evaluate_point_A_ii" not in {
+        item.step_id for item in result.canonical_plan.steps
+    }
+    assert any(
+        item.duplicate_call_id == "evaluate_point_A_ii"
+        and item.canonical_call_id == "evaluate_point_A_ii"
+        for item in result.runtime_equivalent_aliases
     )
-    assert evaluated.status == "verified"
+    report = result.replay.transactional_attempt_result.execution_report
+    assert not any(
+        item.call_id == "evaluate_point_A_ii"
+        for item in report.call_results
+    )
     path_minimum = next(
         item
         for item in report.call_results
@@ -819,6 +978,57 @@ def test_recomputed_source_a_is_reused_only_after_runtime_equivalence(
         item.producer_call_id == "evaluate_point_A_ii"
         and item.version_id.slot_id.logical_key.object_id.value
         == "point:problem:A"
+        for item in report.committed_versions
+    )
+
+
+def test_scope_owned_recomputed_source_state_is_removed_before_checkpoint(
+    tmp_path,
+) -> None:
+    case = "tj-2026-heping-ermo-25"
+    payload = load_v2_fixture_payload(case)
+    ii_scope = _scope(payload["root_scope"], "ii")
+    ii_goal = ii_scope["goals"][0]
+    establish = _step(payload, "derive_parametric_parabola_ii")
+    evaluate = _step(payload, "evaluate_point_A_ii")
+    evaluate["step_id"] = "derive_A_ii"
+    evaluate["capability_id"] = "quadratic_x_axis_intercept_point"
+    evaluate["args"] = {"parabola": "parabola"}
+    evaluate["output_targets"] = {"point": "A"}
+    _step(payload, "recover_target_point_E_ii")["args"]["side_start"] = "A"
+    ii_goal["steps"] = [
+        item
+        for item in ii_goal["steps"]
+        if item["step_id"]
+        not in {
+            "derive_parametric_parabola_ii",
+            "evaluate_point_A_ii",
+            "derive_A_ii",
+        }
+    ]
+    ii_scope["steps"] = [establish, evaluate]
+
+    result, _fixture = _execute(tmp_path, case, payload)
+
+    assert result.checkpoint is not None
+    assert result.checkpoint.all_required_goals_verified is True
+    assert result.canonical_plan is not None
+    canonical_step_ids = {
+        item.step_id for item in result.canonical_plan.steps
+    }
+    assert "derive_parametric_parabola_ii" in canonical_step_ids
+    assert "derive_A_ii" not in canonical_step_ids
+    assert "derive_A_ii" not in _checkpoint_steps(
+        result.checkpoint
+    )
+    assert any(
+        item.duplicate_call_id == "derive_A_ii"
+        and item.canonical_call_id == "derive_A_ii"
+        for item in result.runtime_equivalent_aliases
+    )
+    report = result.replay.transactional_attempt_result.execution_report
+    assert not any(
+        item.producer_call_id == "derive_A_ii"
         for item in report.committed_versions
     )
 
@@ -979,7 +1189,7 @@ def test_visible_same_object_result_is_rewritten_only_after_runtime_equivalence(
     ] == "M"
 
 
-def test_duplicate_descendant_steps_merge_only_after_runtime_equivalence(
+def test_hidden_macro_roles_do_not_keep_duplicate_descendant_steps_live(
     tmp_path,
 ) -> None:
     case = "tj-2026-heping-yimo-25"
@@ -991,24 +1201,23 @@ def test_duplicate_descendant_steps_merge_only_after_runtime_equivalence(
     assert checkpoint is not None
     assert checkpoint.blocked_stage is None
     assert checkpoint.all_required_goals_verified is True
-    aliases = {
-        item.duplicate_call_id: item.canonical_call_id
-        for item in result.runtime_equivalent_aliases
-    }
-    assert aliases == {
-        "locate_C": "derive_y_intercept_C_i",
-        "locate_D": "derive_translated_D_i",
-    }
+    assert result.runtime_equivalent_aliases == ()
     canonical = result.canonical_plan
     assert canonical is not None
-    assert "locate_C" not in {item.step_id for item in canonical.steps}
-    assert "locate_D" not in {item.step_id for item in canonical.steps}
-    assert _step(
-        canonical.to_payload(),
-        "reduce_equal_length_ray_path_ii",
-    )["args"]["ray_point"] == "D"
+    assert {"locate_C", "locate_D"}.issubset(
+        item.step_id for item in canonical.steps
+    )
+    checkpoint_steps = _checkpoint_steps(checkpoint)
+    assert checkpoint_steps["locate_C"].status == "pruned_dead"
+    assert checkpoint_steps["locate_D"].status == "pruned_dead"
+    assert "ray_point" not in _step(
+        canonical.to_payload(), "reduce_equal_length_ray_path_ii"
+    )["args"]
     final_report = result.replay.transactional_attempt_result.execution_report
     assert final_report.runtime_equivalent_aliases == ()
+    assert {"locate_C", "locate_D"}.isdisjoint(
+        item.call_id for item in final_report.call_results
+    )
     assert not any(
         write.step_id in {"locate_C", "locate_D"}
         for call_result in final_report.call_results
@@ -1016,7 +1225,7 @@ def test_duplicate_descendant_steps_merge_only_after_runtime_equivalence(
     )
 
 
-def test_duplicate_descendant_step_with_different_runtime_value_is_not_merged(
+def test_hidden_macro_role_dead_step_is_not_shadow_executed(
     tmp_path,
     monkeypatch,
 ) -> None:
@@ -1063,24 +1272,16 @@ def test_duplicate_descendant_step_with_different_runtime_value_is_not_merged(
 
     checkpoint = result.checkpoint
     assert checkpoint is not None
-    assert checkpoint.blocked_stage == "runtime"
+    assert checkpoint.blocked_stage is None
+    assert checkpoint.all_required_goals_verified is True
     assert result.runtime_equivalent_aliases == ()
     canonical = result.canonical_plan
     assert canonical is not None
     assert "locate_C" in {item.step_id for item in canonical.steps}
-    transaction = result.replay.transactional_attempt_result
-    assert {
-        issue.code for issue in transaction.root_issues
-    } >= {"planner.runtime_state_equivalence_conflict"}
-    report = transaction.execution_report
-    locate_c = next(
-        item for item in report.call_results if item.call_id == "locate_C"
-    )
-    assert locate_c.status == "failed"
-    assert not any(
-        item.producer_call_id == "locate_C"
-        for item in report.committed_versions
-    )
+    assert intercept_calls == 1
+    assert _checkpoint_steps(checkpoint)["locate_C"].status == "pruned_dead"
+    report = result.replay.transactional_attempt_result.execution_report
+    assert all(item.call_id != "locate_C" for item in report.call_results)
 
 
 def test_dead_pure_step_stays_in_authored_plan_but_not_effective_plan(
@@ -1093,12 +1294,7 @@ def test_dead_pure_step_stays_in_authored_plan_but_not_effective_plan(
         {
             "step_id": "dead_vertex",
             "capability_id": "quadratic_vertex_point",
-            "args": {
-                "parabola": {
-                    "step_id": "derive_parabola_i",
-                    "return": "parabola",
-                }
-            },
+            "args": {"parabola": "parabola"},
         }
     )
 
@@ -1160,9 +1356,6 @@ def _duplicate_descendant_point_plan_payload():
         },
         *goal["steps"],
     ]
-    _step(payload, "reduce_equal_length_ray_path_ii")["args"][
-        "ray_point"
-    ] = "D"
     return payload
 
 
