@@ -1039,6 +1039,7 @@ def test_explanation_payload_uses_equal_length_mock_when_same_problem_excluded(t
     assert "∴" in serialized
 
 
+@pytest.mark.live_llm
 @pytest.mark.skipif(
     not RUN_DEEPSEEK_HEPING_EXPLANATION,
     reason="DeepSeek Heping explanation builder integration is opt-in",

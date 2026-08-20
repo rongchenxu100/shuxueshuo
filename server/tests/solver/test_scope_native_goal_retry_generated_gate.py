@@ -4,6 +4,8 @@ from dataclasses import asdict, replace
 import json
 import os
 
+import pytest
+
 from support.scope_native_c0_c5_generator import (
     goal_retry_dimension_coverage,
     goal_retry_scenarios,
@@ -15,37 +17,106 @@ from support.scope_native_c0_c5_oracle import (
 from support.scope_native_goal_retry_adapters import (
     run_scope_native_goal_retry_adapter,
 )
+from support.generated_gate_profiles import (
+    FULL_SHARD_COUNT,
+    QUICK_SHARD_COUNT,
+    assert_complete_partition,
+    coverage_first_sample,
+    select_shard,
+)
 
 
-def test_scope_native_goal_retry_generated_gate() -> None:
-    scenarios = goal_retry_scenarios()
+def _requested_scenarios(scenarios):
     requested = os.environ.get("SCOPE_NATIVE_RETRY_SCENARIO_ID")
     if requested:
-        scenarios = tuple(
+        selected = tuple(
             item for item in scenarios if item.scenario_id == requested
         )
-        assert scenarios, requested
-    else:
-        assert len(scenarios) == 512
-        coverage = goal_retry_dimension_coverage(scenarios)
-        assert set(coverage["fixture_profile"]) == {
-            "failed_goal",
-            "published_goal",
-        }
-        assert set(coverage["repair_mode"]) == {
-            "valid",
-            "stale_plan",
-            "stale_context",
-            "missing_editable_goal",
-            "foreign_goal",
-            "foreign_scope",
-            "invalid_answer",
-            "no_progress",
-        }
-        assert set(coverage["reverse_mapping_order"]) == {"False", "True"}
-        assert set(coverage["retry_round"]) == {"1", "2"}
-        assert set(coverage["variant"]) == {str(index) for index in range(8)}
+        assert selected, requested
+        return selected
+    return None
 
+
+@pytest.mark.generated_gate
+@pytest.mark.parametrize("quick_shard_index", range(QUICK_SHARD_COUNT))
+def test_scope_native_goal_retry_generated_gate_quick(
+    quick_shard_index: int,
+) -> None:
+    all_scenarios = goal_retry_scenarios()
+    scenarios = _requested_scenarios(all_scenarios)
+    if scenarios is not None:
+        if quick_shard_index:
+            pytest.skip("single-scenario replay runs in quick shard zero")
+    else:
+        quick_scenarios = coverage_first_sample(
+            all_scenarios,
+            64,
+            scenario_id=lambda item: item.scenario_id,
+            dimensions=lambda item: item.to_payload(),
+        )
+        assert len(quick_scenarios) == 64
+        if quick_shard_index == 0:
+            _assert_retry_dimension_values(
+                goal_retry_dimension_coverage(quick_scenarios)
+            )
+        scenarios = select_shard(
+            quick_scenarios,
+            quick_shard_index,
+            scenario_id=lambda item: item.scenario_id,
+            shard_count=QUICK_SHARD_COUNT,
+        )
+        assert scenarios
+    _run_retry_scenarios(scenarios)
+
+
+@pytest.mark.generated_gate
+@pytest.mark.solver_full
+@pytest.mark.parametrize("shard_index", range(FULL_SHARD_COUNT))
+def test_scope_native_goal_retry_generated_gate_full(shard_index: int) -> None:
+    if os.environ.get("SCOPE_NATIVE_RETRY_SCENARIO_ID"):
+        pytest.skip("single-scenario replay is handled by the quick gate")
+    scenarios = select_shard(
+        goal_retry_scenarios(),
+        shard_index,
+        scenario_id=lambda item: item.scenario_id,
+    )
+    assert scenarios
+    _run_retry_scenarios(scenarios)
+
+
+@pytest.mark.generated_gate
+@pytest.mark.solver_full
+def test_scope_native_goal_retry_generated_gate_full_metadata() -> None:
+    scenarios = goal_retry_scenarios()
+    assert len(scenarios) == 512
+    assert_complete_partition(
+        scenarios,
+        scenario_id=lambda item: item.scenario_id,
+    )
+    _assert_retry_dimension_values(goal_retry_dimension_coverage(scenarios))
+
+
+def _assert_retry_dimension_values(coverage) -> None:
+    assert set(coverage["fixture_profile"]) == {
+        "failed_goal",
+        "published_goal",
+    }
+    assert set(coverage["repair_mode"]) == {
+        "valid",
+        "stale_plan",
+        "stale_context",
+        "missing_editable_goal",
+        "foreign_goal",
+        "foreign_scope",
+        "invalid_answer",
+        "no_progress",
+    }
+    assert set(coverage["reverse_mapping_order"]) == {"False", "True"}
+    assert set(coverage["retry_round"]) == {"1", "2"}
+    assert set(coverage["variant"]) == {str(index) for index in range(8)}
+
+
+def _run_retry_scenarios(scenarios) -> None:
     oracle = ScopeNativeRetryReferenceModel()
     for scenario in scenarios:
         expected = oracle.evaluate(scenario)

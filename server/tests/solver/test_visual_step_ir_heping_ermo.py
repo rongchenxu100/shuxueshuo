@@ -420,6 +420,7 @@ def test_lesson_draft_final_step_does_not_collect_prior_answers_with_display_var
     assert "2＋√6" not in final_box
 
 
+@pytest.mark.live_llm
 @pytest.mark.skipif(
     not RUN_DEEPSEEK_HEPING_ERMO_VISUAL,
     reason="DeepSeek Heping ermo visual optimizer integration is opt-in",
@@ -453,6 +454,7 @@ def test_deepseek_explanation_and_visual_optimizer_heping_ermo_loop() -> None:
     _assert_debug_page_final_e_box_is_scoped(DEBUG_DIR)
 
 
+@pytest.mark.live_llm
 @pytest.mark.skipif(
     not RUN_DEEPSEEK_HEPING_ERMO_VISUAL,
     reason="DeepSeek Heping ermo visual optimizer integration is opt-in",

@@ -1794,6 +1794,7 @@ def test_vs3_llm_visual_optimizer_cannot_mutate_timeline(tmp_path: Path) -> None
     assert "timeline" in (tmp_path / "visual-optimization-error.txt").read_text(encoding="utf-8")
 
 
+@pytest.mark.live_llm
 @pytest.mark.skipif(
     not RUN_DEEPSEEK_HEPING_VISUAL,
     reason="DeepSeek Heping visual optimizer integration is opt-in",
@@ -1823,6 +1824,7 @@ def test_deepseek_explanation_and_visual_optimizer_heping_loop() -> None:
     _assert_animation_artifacts(DEBUG_DIR, "heping-visual-optimized.html")
 
 
+@pytest.mark.live_llm
 @pytest.mark.skipif(
     not RUN_DEEPSEEK_HEPING_VISUAL,
     reason="DeepSeek Heping visual optimizer integration is opt-in",

@@ -6,6 +6,8 @@ import itertools
 import json
 import os
 
+import pytest
+
 from shuxueshuo_server.solver.contracts import MacroSearchSpec
 from shuxueshuo_server.solver.runtime.macro_preparation import (
     MacroImplementation,
@@ -34,6 +36,12 @@ from shuxueshuo_server.solver.runtime.state_identity import (
     ScopeVisibilityResolver,
     StateSlotId,
     StateVersionId,
+)
+from support.generated_gate_profiles import (
+    FULL_SHARD_COUNT,
+    assert_complete_partition,
+    coverage_first_sample,
+    select_shard,
 )
 
 
@@ -186,8 +194,8 @@ def _production_accepts(
         return False
 
 
-def test_generated_method_view_and_dependency_authority_gate() -> None:
-    scenarios = tuple(
+def _view_scenarios():
+    return tuple(
         itertools.product(
             VIEW_MODES,
             SOURCE_KINDS,
@@ -196,8 +204,74 @@ def test_generated_method_view_and_dependency_authority_gate() -> None:
             CARDINALITIES,
         )
     )
-    assert len(scenarios) == 4_608
 
+
+def _view_scenario_id(scenario) -> str:
+    return "runtime-view:" + ":".join(map(str, scenario))
+
+
+def _view_dimensions(scenario) -> dict[str, object]:
+    view, source, relation, mutation, cardinality = scenario
+    return {
+        "view": view,
+        "source": source,
+        "relation": relation,
+        "mutation": mutation,
+        "cardinality": cardinality,
+    }
+
+
+@pytest.mark.generated_gate
+def test_generated_method_view_and_dependency_authority_gate_quick() -> None:
+    if os.environ.get("SCOPE_NATIVE_RUNTIME_AUTHORITY_SCENARIO_ID"):
+        pytest.skip("lifecycle single-scenario replay bypasses the view matrix")
+    scenarios = coverage_first_sample(
+        _view_scenarios(),
+        256,
+        scenario_id=_view_scenario_id,
+        dimensions=_view_dimensions,
+    )
+    assert len(scenarios) == 256
+    _assert_view_dimension_values(scenarios)
+    _run_view_scenarios(scenarios)
+
+
+@pytest.mark.generated_gate
+@pytest.mark.solver_full
+@pytest.mark.parametrize("shard_index", range(FULL_SHARD_COUNT))
+def test_generated_method_view_and_dependency_authority_gate_full(
+    shard_index: int,
+) -> None:
+    if os.environ.get("SCOPE_NATIVE_RUNTIME_AUTHORITY_SCENARIO_ID"):
+        pytest.skip("lifecycle single-scenario replay bypasses the view matrix")
+    scenarios = select_shard(
+        _view_scenarios(),
+        shard_index,
+        scenario_id=_view_scenario_id,
+    )
+    assert scenarios
+    _run_view_scenarios(scenarios)
+
+
+@pytest.mark.generated_gate
+@pytest.mark.solver_full
+def test_generated_method_view_authority_full_metadata() -> None:
+    scenarios = _view_scenarios()
+    assert len(scenarios) == 4_608
+    assert_complete_partition(scenarios, scenario_id=_view_scenario_id)
+    _assert_view_dimension_values(scenarios)
+
+
+def _assert_view_dimension_values(scenarios) -> None:
+    dimensions = tuple(_view_dimensions(item) for item in scenarios)
+    assert {item["view"] for item in dimensions} == set(VIEW_MODES)
+    assert {item["source"] for item in dimensions} == set(SOURCE_KINDS)
+    assert {item["relation"] for item in dimensions} == set(SCOPE_RELATIONS)
+    assert {item["mutation"] for item in dimensions} == set(MUTATIONS)
+    assert {item["cardinality"] for item in dimensions} == set(CARDINALITIES)
+
+
+def _run_view_scenarios(scenarios) -> None:
     mismatches = []
     for scenario in scenarios:
         view, source, relation, mutation, cardinality = scenario
@@ -344,8 +418,8 @@ def _run_lifecycle(scenario: _LifecycleScenario) -> tuple[bool, str | None]:
     return True, None
 
 
-def test_generated_content_to_restore_authority_lifecycle_gate() -> None:
-    scenarios = tuple(
+def _lifecycle_scenarios():
+    return tuple(
         _LifecycleScenario(*values)
         for values in itertools.product(
             ("E", "G"),
@@ -355,12 +429,93 @@ def test_generated_content_to_restore_authority_lifecycle_gate() -> None:
             ("preserve", "replace"),
         )
     )
-    assert len(scenarios) == 256
+
+
+def _lifecycle_dimensions(scenario: _LifecycleScenario) -> dict[str, object]:
+    return dict(scenario.__dict__)
+
+
+def _requested_lifecycle_scenarios(scenarios):
     requested = os.environ.get("SCOPE_NATIVE_RUNTIME_AUTHORITY_SCENARIO_ID")
     if requested:
-        scenarios = tuple(item for item in scenarios if item.scenario_id == requested)
-        assert scenarios, requested
+        selected = tuple(
+            item for item in scenarios if item.scenario_id == requested
+        )
+        assert selected, requested
+        return selected
+    return None
 
+
+@pytest.mark.generated_gate
+def test_generated_content_to_restore_authority_lifecycle_gate_quick() -> None:
+    all_scenarios = _lifecycle_scenarios()
+    scenarios = _requested_lifecycle_scenarios(all_scenarios)
+    if scenarios is None:
+        scenarios = coverage_first_sample(
+            all_scenarios,
+            64,
+            scenario_id=lambda item: item.scenario_id,
+            dimensions=_lifecycle_dimensions,
+        )
+        assert len(scenarios) == 64
+        _assert_lifecycle_dimension_values(scenarios)
+    _run_lifecycle_scenarios(scenarios)
+
+
+@pytest.mark.generated_gate
+@pytest.mark.solver_full
+@pytest.mark.parametrize("shard_index", range(FULL_SHARD_COUNT))
+def test_generated_content_to_restore_authority_lifecycle_gate_full(
+    shard_index: int,
+) -> None:
+    if os.environ.get("SCOPE_NATIVE_RUNTIME_AUTHORITY_SCENARIO_ID"):
+        pytest.skip("single-scenario replay is handled by the quick gate")
+    scenarios = select_shard(
+        _lifecycle_scenarios(),
+        shard_index,
+        scenario_id=lambda item: item.scenario_id,
+    )
+    assert scenarios
+    _run_lifecycle_scenarios(scenarios)
+
+
+@pytest.mark.generated_gate
+@pytest.mark.solver_full
+def test_generated_runtime_authority_lifecycle_full_metadata() -> None:
+    scenarios = _lifecycle_scenarios()
+    assert len(scenarios) == 256
+    assert_complete_partition(
+        scenarios,
+        scenario_id=lambda item: item.scenario_id,
+    )
+    _assert_lifecycle_dimension_values(scenarios)
+
+
+def _assert_lifecycle_dimension_values(scenarios) -> None:
+    dimensions = tuple(_lifecycle_dimensions(item) for item in scenarios)
+    assert {item["authored_hint"] for item in dimensions} == {"E", "G"}
+    assert {item["candidate_outcome"] for item in dimensions} == {
+        "unique",
+        "equivalent",
+        "ambiguous",
+        "none",
+    }
+    assert {item["restore_mode"] for item in dimensions} == {
+        "exact",
+        "stale_revision",
+        "winner_drift",
+        "failed_goal",
+    }
+    assert {item["scope_relation"] for item in dimensions} == set(
+        SCOPE_RELATIONS
+    )
+    assert {item["repair_mode"] for item in dimensions} == {
+        "preserve",
+        "replace",
+    }
+
+
+def _run_lifecycle_scenarios(scenarios) -> None:
     mismatches = []
     for scenario in scenarios:
         expected = _lifecycle_oracle(scenario)

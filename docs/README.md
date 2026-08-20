@@ -16,6 +16,7 @@
 - `llm-context-model-design.md`：Context version、dependency、stale/rebase 规范。
 - `llm-planner-reliability-engineering.md`：失败归因、指标和候选选择原则。
 - `llm-sample-failure-review-guide.md`：逐 sample 检查 prompt、thinking、Plan、runtime 与 retry 的证据流程；包含输出超长专项和逐轮图示规范。
+- `solver-test-strategy.md`：Solver 测试分级、affected ownership、并行分片、单场景重放和真实 LLM 隔离规范。
 - `scope-native-c0-c5-executable-gate.md`：scope、typed state、Goal retry 与 closure 生成式门禁。
 - `dynamic-few-shot-strategy-plan.md`：FunctionalPlan mechanism few-shot 资产规则。
 - `entity-fact-handle-naming.md`：ProblemIR 展示引用与 typed identity 边界。

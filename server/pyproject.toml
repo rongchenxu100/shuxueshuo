@@ -20,6 +20,17 @@ dependencies = [
 [dependency-groups]
 dev = [
   "pytest>=8.0.0",
+  "pytest-xdist>=3.6.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+markers = [
+  "solver_contract: medium-cost authority, retry, checkpoint, transaction, or recorded replay coverage",
+  "solver_full: exhaustive generated matrices or other high-cost offline replay",
+  "generated_gate: deterministic generated Solver authority coverage",
+  "serial: test mutates shared process or filesystem state and must not use xdist",
+  "live_llm: test may call a network or paid LLM provider",
 ]
 
 [build-system]

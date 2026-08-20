@@ -5,6 +5,8 @@ import os
 from pathlib import Path
 import time
 
+import pytest
+
 from support.scope_native_c0_c5_adapters import (
     SCOPE_NATIVE_PROTOCOL_PROBES,
     compare_adapter_suite,
@@ -22,148 +24,135 @@ from support.scope_native_c0_c5_generator import (
 from support.scope_native_c0_c5_oracle import (
     ScopeNativeReferenceModel,
 )
+from support.generated_gate_profiles import (
+    FULL_SHARD_COUNT,
+    assert_complete_partition,
+    coverage_first_sample,
+    select_shard,
+)
 
 
-def test_scope_native_c0_c5_generated_gate() -> None:
-    scenarios = generated_scenarios()
+def _requested_scenarios(scenarios):
     requested_scenario_id = os.environ.get("SCOPE_NATIVE_SCENARIO_ID")
     if requested_scenario_id:
-        scenarios = tuple(
+        requested = tuple(
             item
             for item in scenarios
             if item.scenario_id == requested_scenario_id
         )
-        assert scenarios, requested_scenario_id
-    else:
-        assert len(scenarios) >= 10_000
-    coverage = dimension_coverage(scenarios)
-    if requested_scenario_id is None:
-        assert set(coverage["generator"]) == {
-            "authority_regression",
-            "bounded",
-            "expanded",
-            "handoff",
-        }
-        assert set(coverage["topology"]) == {
-            "root",
-            "parent_child",
-            "siblings",
-            "branched",
-        }
-        assert all(
-            coverage["topology"][topology] >= 1_000
-            for topology in (
-                "root",
-                "parent_child",
-                "siblings",
-                "branched",
-            )
+        assert requested, requested_scenario_id
+        return requested
+    return None
+
+
+@pytest.mark.generated_gate
+def test_scope_native_c0_c5_generated_gate_quick() -> None:
+    all_scenarios = generated_scenarios()
+    scenarios = _requested_scenarios(all_scenarios)
+    if scenarios is None:
+        scenarios = coverage_first_sample(
+            all_scenarios,
+            512,
+            scenario_id=lambda item: item.scenario_id,
+            dimensions=lambda item: dict(item.dimensions),
+            pinned=lambda item: (
+                dict(item.dimensions).get("generator")
+                == "authority_regression"
+            ),
         )
-        assert set(coverage["read_mode"]) == {
+        assert len(scenarios) == 512
+        _assert_c0_dimension_values(dimension_coverage(scenarios))
+    _run_c0_scenarios(scenarios)
+
+
+@pytest.mark.generated_gate
+@pytest.mark.solver_full
+@pytest.mark.parametrize("shard_index", range(FULL_SHARD_COUNT))
+def test_scope_native_c0_c5_generated_gate_full(shard_index: int) -> None:
+    if os.environ.get("SCOPE_NATIVE_SCENARIO_ID"):
+        pytest.skip("single-scenario replay is handled by the quick gate")
+    scenarios = select_shard(
+        generated_scenarios(),
+        shard_index,
+        scenario_id=lambda item: item.scenario_id,
+    )
+    assert scenarios
+    _run_c0_scenarios(scenarios)
+
+
+@pytest.mark.generated_gate
+@pytest.mark.solver_full
+def test_scope_native_c0_c5_generated_gate_full_metadata() -> None:
+    scenarios = generated_scenarios()
+    assert len(scenarios) >= 10_000
+    assert_complete_partition(
+        scenarios,
+        scenario_id=lambda item: item.scenario_id,
+    )
+    coverage = dimension_coverage(scenarios)
+    _assert_c0_dimension_values(coverage)
+    assert all(
+        coverage["topology"][topology] >= 1_000
+        for topology in ("root", "parent_child", "siblings", "branched")
+    )
+    assert all(
+        coverage["read_mode"][read_mode] >= 1_000
+        for read_mode in (
             "none",
             "exact",
             "latest",
             "identity_only",
             "call_result",
-        }
-        assert all(
-            coverage["read_mode"][read_mode] >= 1_000
-            for read_mode in (
-                "none",
-                "exact",
-                "latest",
-                "identity_only",
-                "call_result",
-            )
         )
-        bounded_pairs = {
-            (dimensions["topology"], dimensions["read_mode"])
-            for scenario in scenarios
-            if (dimensions := dict(scenario.dimensions)).get("generator")
-            == "bounded"
-        }
-        assert bounded_pairs == {
-            (topology, read_mode)
-            for topology in (
-                "root",
-                "parent_child",
-                "siblings",
-                "branched",
-            )
-            for read_mode in (
-                "none",
-                "exact",
-                "latest",
-                "identity_only",
-                "call_result",
-            )
-        }
-        assert set(coverage["dependency_kind"]) == {
+    )
+    bounded_pairs = {
+        (dimensions["topology"], dimensions["read_mode"])
+        for scenario in scenarios
+        if (dimensions := dict(scenario.dimensions)).get("generator")
+        == "bounded"
+    }
+    assert bounded_pairs == {
+        (topology, read_mode)
+        for topology in ("root", "parent_child", "siblings", "branched")
+        for read_mode in (
+            "none",
+            "exact",
+            "latest",
+            "identity_only",
             "call_result",
-            "condition",
-            "hidden_semantic_role",
-            "state_version",
-        }
-        assert set(coverage["state_restore"]) == {
-            "none",
-            "locked_restore",
-            "discard_provisional",
-            "version_drift",
-        }
-        parent_child = tuple(
-            scenario
-            for scenario in scenarios
-            if dict(scenario.dimensions).get("generator") == "bounded"
-            and dict(scenario.dimensions).get("topology")
-            == "parent_child"
         )
-        both_levels = sum(
-            {
-                call.declared_scope_id for call in scenario.calls
-            }
-            >= {"problem", "ii"}
-            for scenario in parent_child
-        )
-        assert both_levels >= 1_800
-        cross_scope_edges = sum(
-            any(
-                next(
-                    call.declared_scope_id
-                    for call in scenario.calls
-                    if call.call_id == edge.producer_call_id
-                )
-                != next(
-                    call.declared_scope_id
-                    for call in scenario.calls
-                    if call.call_id == edge.consumer_call_id
-                )
-                for edge in scenario.dependency_edges
+    }
+    parent_child = tuple(
+        scenario
+        for scenario in scenarios
+        if dict(scenario.dimensions).get("generator") == "bounded"
+        and dict(scenario.dimensions).get("topology") == "parent_child"
+    )
+    assert sum(
+        {call.declared_scope_id for call in scenario.calls}
+        >= {"problem", "ii"}
+        for scenario in parent_child
+    ) >= 1_800
+    assert sum(
+        any(
+            next(
+                call.declared_scope_id
+                for call in scenario.calls
+                if call.call_id == edge.producer_call_id
             )
-            for scenario in parent_child
+            != next(
+                call.declared_scope_id
+                for call in scenario.calls
+                if call.call_id == edge.consumer_call_id
+            )
+            for edge in scenario.dependency_edges
         )
-        assert cross_scope_edges >= 200
-        assert coverage["runtime_failure"]["producer"] >= 250
-        assert set(coverage["producer_capability"]) == {
-            "parameter_from_curve_point_on_quadratic",
-            "parameter_from_expression_value",
-            "parameter_from_minimum_value",
-            "parameter_from_segment_length",
-        }
-        assert set(coverage["closure_checkpoint"]) == {
-            "none",
-            "none_second",
-            "equivalent_target_value",
-            "target_value",
-            "branch_count",
-            "equation_source",
-            "residual_symbol",
-            "status",
-            "missing",
-        }
-        assert sum(coverage["closure_checkpoint"].values()) == 36
+        for scenario in parent_child
+    ) >= 200
+    assert coverage["runtime_failure"]["producer"] >= 250
+    assert sum(coverage["closure_checkpoint"].values()) == 36
 
     model = ScopeNativeReferenceModel()
-    started = time.monotonic()
     dependent_blocking_count = 0
     blocking_with_b3_issue_count = 0
     for scenario in scenarios:
@@ -172,6 +161,66 @@ def test_scope_native_c0_c5_generated_gate() -> None:
             dependent_blocking_count += 1
             if expected.b3_issue_categories:
                 blocking_with_b3_issue_count += 1
+    assert dependent_blocking_count >= 60
+    assert blocking_with_b3_issue_count >= 15
+
+
+def _assert_c0_dimension_values(coverage) -> None:
+    assert set(coverage["generator"]) == {
+        "authority_regression",
+        "bounded",
+        "expanded",
+        "handoff",
+    }
+    assert set(coverage["topology"]) == {
+        "root",
+        "parent_child",
+        "siblings",
+        "branched",
+    }
+    assert set(coverage["read_mode"]) == {
+        "none",
+        "exact",
+        "latest",
+        "identity_only",
+        "call_result",
+    }
+    assert set(coverage["dependency_kind"]) == {
+        "call_result",
+        "condition",
+        "hidden_semantic_role",
+        "state_version",
+    }
+    assert set(coverage["state_restore"]) == {
+        "none",
+        "locked_restore",
+        "discard_provisional",
+        "version_drift",
+    }
+    assert set(coverage["producer_capability"]) == {
+        "parameter_from_curve_point_on_quadratic",
+        "parameter_from_expression_value",
+        "parameter_from_minimum_value",
+        "parameter_from_segment_length",
+    }
+    assert set(coverage["closure_checkpoint"]) == {
+        "none",
+        "none_second",
+        "equivalent_target_value",
+        "target_value",
+        "branch_count",
+        "equation_source",
+        "residual_symbol",
+        "status",
+        "missing",
+    }
+
+
+def _run_c0_scenarios(scenarios) -> None:
+    model = ScopeNativeReferenceModel()
+    started = time.monotonic()
+    for scenario in scenarios:
+        expected = model.evaluate(scenario)
         actual = run_production_adapters(scenario)
         mismatches = compare_adapter_suite(expected, actual)
         assert not mismatches, _failure_report(
@@ -180,12 +229,7 @@ def test_scope_native_c0_c5_generated_gate() -> None:
             actual,
             mismatches,
         )
-    if requested_scenario_id is None:
-        assert dependent_blocking_count >= 60
-        assert blocking_with_b3_issue_count >= 15
     elapsed = time.monotonic() - started
-    # The limit is deliberately generous on shared CI; coverage must not be
-    # reduced to make this pass.
     assert elapsed < 60, {
         "elapsed_seconds": elapsed,
         "scenario_count": len(scenarios),
@@ -206,6 +250,7 @@ def test_generated_scenario_id_is_stably_replayable() -> None:
         assert replayed == scenario
 
 
+@pytest.mark.solver_contract
 def test_authenticated_scope_native_protocol_probes() -> None:
     cases = (
         "tj-2026-nankai-yimo-25",
