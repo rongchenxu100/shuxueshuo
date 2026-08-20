@@ -29,7 +29,11 @@ from shuxueshuo_server.solver.runtime.functional_plan_models import (
     FunctionalPlan,
     FunctionalPlanReconciliationResult,
     FunctionalScope,
+    FunctionalTypedInputSourcePin,
     PublishedGoalCallResultRef,
+)
+from shuxueshuo_server.solver.runtime.planner_public_types import (
+    planner_input_domain_type,
 )
 from shuxueshuo_server.solver.runtime.runtime_type_compatibility import (
     runtime_type_compatible,
@@ -38,6 +42,7 @@ from shuxueshuo_server.solver.runtime.runtime_type_compatibility import (
 from shuxueshuo_server.solver.runtime.return_object_authority import (
     ReturnObjectAuthorityResolver,
     ReturnRoleAuthorityResolver,
+    identity_constraint_return_targets,
 )
 from shuxueshuo_server.solver.runtime.strategy_models import SemanticRef
 from shuxueshuo_server.solver.state_semantics import (
@@ -1587,6 +1592,9 @@ class ScopedFunctionalPlanAuthorityAdapter:
             binding_catalog=binding_catalog,
         )
         non_propagating_dependencies: set[tuple[str, str]] = set()
+        typed_input_source_pins: dict[
+            tuple[str, str, int], FunctionalTypedInputSourcePin
+        ] = {}
         lowered_args: dict[
             str, dict[str, tuple[str | ScopedStepResultRef, ...]]
         ] = {}
@@ -1603,7 +1611,7 @@ class ScopedFunctionalPlanAuthorityAdapter:
             lowered_args[location.step.step_id] = {}
             for arg_name, values in location.step.args.items():
                 normalized: list[str | ScopedStepResultRef] = []
-                for value in values:
+                for item_index, value in enumerate(values):
                     if isinstance(value, ScopedStepResultRef):
                         producer = by_id.get(value.step_id)
                         if producer is None:
@@ -1692,10 +1700,19 @@ class ScopedFunctionalPlanAuthorityAdapter:
                             dependencies[location.step.step_id].add(
                                 producer_location.step.step_id
                             )
-                            value = ScopedStepResultRef(
-                                producer_location.step.step_id,
-                                return_name,
+                            typed_input_source_pins[
+                                (location.step.step_id, arg_name, item_index)
+                            ] = FunctionalTypedInputSourcePin(
+                                consumer_call_id=location.step.step_id,
+                                arg_name=arg_name,
+                                item_index=item_index,
+                                semantic_ref=value,
+                                producer_call_id=producer_location.step.step_id,
+                                return_name=return_name,
                             )
+                            # The typed graph owns the dependency. Named
+                            # entities remain SourceRef on the canonical wire;
+                            # call preparation pins the producer's exact state.
                     normalized.append(value)
                 lowered_args[location.step.step_id][arg_name] = tuple(
                     normalized
@@ -1950,7 +1967,15 @@ class ScopedFunctionalPlanAuthorityAdapter:
             for scope in _iter_scopes(canonical_plan.root_scope)
             if calls_by_scope.get(scope.scope_ref)
         )
-        lowered_plan = FunctionalPlan(lowered_scopes)
+        lowered_plan = FunctionalPlan(
+            lowered_scopes,
+            typed_dependency_graph={
+                step_id: tuple(sorted(producer_ids))
+                for step_id, producer_ids in dependencies.items()
+                if producer_ids
+            },
+            typed_input_source_pins=typed_input_source_pins,
+        )
         return ScopedFunctionalPlanAuthority(
             scoped_plan=canonical_plan,
             lowered_plan=lowered_plan,
@@ -2033,6 +2058,9 @@ class ScopedFunctionalPlanAuthorityAdapter:
             binding_catalog=binding_catalog,
         )
         non_propagating_dependencies: set[tuple[str, str]] = set()
+        typed_input_source_pins: dict[
+            tuple[str, str, int], FunctionalTypedInputSourcePin
+        ] = {}
         lowered_args: dict[
             str, dict[str, tuple[str | ScopedStepResultRef, ...]]
         ] = {}
@@ -2048,7 +2076,7 @@ class ScopedFunctionalPlanAuthorityAdapter:
             lowered_args[location.step.step_id] = {}
             for arg_name, values in location.step.args.items():
                 normalized: list[str | ScopedStepResultRef] = []
-                for value in values:
+                for item_index, value in enumerate(values):
                     if isinstance(value, ScopedStepResultRef):
                         if value.step_id in excluded:
                             raise _error(
@@ -2134,10 +2162,25 @@ class ScopedFunctionalPlanAuthorityAdapter:
                                 dependencies[location.step.step_id].add(
                                     producer_location.step.step_id
                                 )
-                                value = ScopedStepResultRef(
-                                    producer_location.step.step_id,
-                                    return_name,
+                                typed_input_source_pins[
+                                    (
+                                        location.step.step_id,
+                                        arg_name,
+                                        item_index,
+                                    )
+                                ] = FunctionalTypedInputSourcePin(
+                                    consumer_call_id=location.step.step_id,
+                                    arg_name=arg_name,
+                                    item_index=item_index,
+                                    semantic_ref=value,
+                                    producer_call_id=(
+                                        producer_location.step.step_id
+                                    ),
+                                    return_name=return_name,
                                 )
+                                # Preserve the named SourceRef. The producer
+                                # edge is sufficient to authorize latest-state
+                                # selection at execution time.
                     normalized.append(value)
                 lowered_args[location.step.step_id][arg_name] = tuple(normalized)
 
@@ -2333,7 +2376,13 @@ class ScopedFunctionalPlanAuthorityAdapter:
                 )
                 for scope in _iter_scopes(canonical_plan.root_scope)
                 if calls_by_scope.get(scope.scope_ref)
-            )
+            ),
+            typed_dependency_graph={
+                step_id: tuple(sorted(producer_ids))
+                for step_id, producer_ids in dependencies.items()
+                if producer_ids
+            },
+            typed_input_source_pins=typed_input_source_pins,
         )
         return ScopedFunctionalPlanAuthority(
             scoped_plan=canonical_plan,
@@ -4303,24 +4352,12 @@ def _constraint_return_object_target_refs(
 ) -> frozenset[str]:
     """Resolve a return object from declarative same-object constraints."""
 
-    return_selector = f"return:{returned.name}.object_ref"
-    resolved: list[str] = []
-    for constraint in capability.identity_constraints:
-        if constraint.relation != "same_object":
-            continue
-        if constraint.left == return_selector:
-            source_selector = constraint.right
-        elif constraint.right == return_selector:
-            source_selector = constraint.left
-        else:
-            continue
-        source = _parse_identity_arg_selector(source_selector)
-        if source is None:
-            continue
-        arg_names, object_role = source
-        selected = frozenset(
+    def resolve_arg_targets(
+        arg_name: str,
+        object_role: str | None,
+    ) -> frozenset[str]:
+        return frozenset(
             target
-            for arg_name in arg_names
             for value in producer.step.args.get(arg_name, ())
             for target in (
                 _functional_ref_object_role_targets(
@@ -4343,36 +4380,12 @@ def _constraint_return_object_target_refs(
                 )
             )
         )
-        if not selected and constraint.applicability == "when_all_present":
-            continue
-        if len(selected) != 1:
-            return frozenset()
-        resolved.extend(selected)
-    unique = frozenset(resolved)
-    return unique if len(unique) == 1 else frozenset()
 
-
-def _parse_identity_arg_selector(
-    selector: str,
-) -> tuple[tuple[str, ...], str | None] | None:
-    owner_and_names, separator, field = selector.partition(".")
-    owner, owner_separator, names = owner_and_names.partition(":")
-    if (
-        not separator
-        or not owner_separator
-        or owner not in {"arg", "args"}
-        or not names
-    ):
-        return None
-    arg_names = tuple(item for item in names.split(",") if item)
-    if not arg_names:
-        return None
-    if field == "object_ref":
-        return arg_names, None
-    role_prefix = "object_role:"
-    if field.startswith(role_prefix) and field[len(role_prefix) :]:
-        return arg_names, field[len(role_prefix) :]
-    return None
+    return identity_constraint_return_targets(
+        capability.identity_constraints,
+        return_name=returned.name,
+        resolve_arg_targets=resolve_arg_targets,
+    )
 
 
 def _functional_ref_object_role_targets(
@@ -6473,18 +6486,13 @@ def _audit_return_bindings(
             goal_unit_ids=goal_unit_ids,
             path=f"$.steps[{step.step_id!r}].output_targets[{name!r}]",
         )
-        actual_types = {
-            item.runtime_type
-            for item in binding.typed_sources
-            # A folded relation may attach an exact ConditionId to the same
-            # Entity authority. It proves how the object may be consumed; it
-            # is not the value type of an output target.
-            if item.kind != "condition" and item.runtime_type is not None
-        }
-        if binding.semantic_ref.value_type is not None:
-            actual_types.add(binding.semantic_ref.value_type)
+        actual_types = _binding_runtime_types(binding)
+        returned_domain_type = planner_input_domain_type(
+            returned.runtime_type
+        )
         if actual_types and not any(
             runtime_type_compatible(returned.runtime_type, actual)
+            or actual == returned_domain_type
             for actual in actual_types
         ):
             raise _error(

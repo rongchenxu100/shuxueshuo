@@ -6,6 +6,7 @@ import json
 
 from shuxueshuo_server.solver.runtime.context import ContextBuilder
 from shuxueshuo_server.solver.runtime.functional_goal_execution import (
+    FunctionalExecutionRestoreState,
     FunctionalGoalExecutionGoal,
     FunctionalGoalExecutionScope,
     FunctionalGoalExecutionStep,
@@ -381,8 +382,11 @@ def test_retry_authority_preserves_authored_scope_tree_without_promotion(tmp_pat
 
 def test_missing_typed_checkpoint_means_no_goal_is_frozen(tmp_path) -> None:
     fixture = goal_retry_fixture(tmp_path)
-    replay = replace(fixture.execution.replay, retry_state=None)
-    execution = replace(fixture.execution, replay=replay)
+    checkpoint = replace(
+        fixture.execution.checkpoint,
+        restore_state=FunctionalExecutionRestoreState.empty(),
+    )
+    execution = replace(fixture.execution, checkpoint=checkpoint)
 
     authority = FunctionalGoalRetryProjector().project(
         plan=fixture.failed_plan,

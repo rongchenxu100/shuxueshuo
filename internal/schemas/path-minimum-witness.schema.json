@@ -223,6 +223,10 @@
                   "type": "string",
                   "minLength": 1
                 }
+              },
+              "call_count": {
+                "type": "integer",
+                "minimum": 0
               }
             },
             "additionalProperties": false

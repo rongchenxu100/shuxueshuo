@@ -261,6 +261,14 @@
           ]
         },
         {
+          "arg": "target_state",
+          "item": 0,
+          "role": "target_state",
+          "authority": "compiler",
+          "target": "target_state",
+          "paths": []
+        },
+        {
           "arg": "x",
           "item": 0,
           "role": "x",

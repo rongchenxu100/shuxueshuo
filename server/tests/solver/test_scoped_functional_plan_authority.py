@@ -1574,7 +1574,9 @@ def test_answer_and_output_authority_fail_loud(tmp_path) -> None:
     assert issue.details["retryability"] == "planner_repairable"
 
 
-def test_source_ref_selects_latest_visible_dynamic_producer(tmp_path) -> None:
+def test_source_ref_keeps_entity_wire_and_pins_latest_visible_producer(
+    tmp_path,
+) -> None:
     case = "tj-2026-heping-yimo-25"
     payload = load_v2_fixture_payload(case)
     root_steps = payload["root_scope"]["steps"]
@@ -1590,16 +1592,21 @@ def test_source_ref_selects_latest_visible_dynamic_producer(tmp_path) -> None:
         if call.call_id == "derive_translated_D_i"
     )
     assert translated.args["source"][0].to_payload() == {
-        "from_call": "derive_y_intercept_C_again",
-        "return": "point",
+        "kind": "point",
+        "ref": "C",
     }
+    pin = authority.lowered_plan.typed_input_source_pins[
+        ("derive_translated_D_i", "source", 0)
+    ]
+    assert pin.semantic_ref == "C"
+    assert pin.producer_call_id == "derive_y_intercept_C_again"
     assert not any(
         item.action == "canonicalize_latest_dynamic_source_ref"
         for item in authority.normalizations
     )
 
 
-def test_source_ref_uses_implicit_preserve_input_object_return(tmp_path) -> None:
+def test_source_ref_pins_implicit_preserve_input_object_return(tmp_path) -> None:
     case = "tj-2026-heping-ermo-25"
     payload = load_v2_fixture_payload(case)
     scope_ii = _find_scope(payload["root_scope"], "ii")
@@ -1616,9 +1623,14 @@ def test_source_ref_uses_implicit_preserve_input_object_return(tmp_path) -> None
         if call.call_id == "recover_target_point_E_ii"
     )
     assert recovered.args["side_start"][0].to_payload() == {
-        "from_call": "evaluate_point_A_ii",
-        "return": "evaluated_point",
+        "kind": "point",
+        "ref": "A",
     }
+    pin = authority.lowered_plan.typed_input_source_pins[
+        ("recover_target_point_E_ii", "side_start", 0)
+    ]
+    assert pin.semantic_ref == "A"
+    assert pin.producer_call_id == "evaluate_point_A_ii"
     assert not any(
         item.action == "canonicalize_latest_dynamic_source_ref"
         for item in authority.normalizations

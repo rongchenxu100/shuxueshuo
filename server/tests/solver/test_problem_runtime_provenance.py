@@ -24,7 +24,6 @@ from shuxueshuo_server.solver.runtime.functional_retry_versions import (
     FunctionalRetryCheckpointError,
     FunctionalRetryGraphCheckpoint,
     build_functional_retry_graph_checkpoint,
-    functional_retry_graph_checkpoint_schema,
     verify_restored_runtime_checkpoint,
 )
 from shuxueshuo_server.solver.runtime.functional_call_memory import (
@@ -87,11 +86,14 @@ def test_five_case_runtime_writes_and_results_share_call_source_authority(
     )
 
     assert attempt.compiled_output is not None, attempt.root_issues
+    ledger = attempt.execution_report.functional_problem_binding_ledger
+    assert ledger is not None
     observed_calls: set[str] = set()
     for call_result in attempt.execution_report.call_results:
         if call_result.status != "verified":
             continue
-        expected = sidecar.source_provenance_for_call(call_result.call_id)
+        call_binding = ledger.call_binding(call_result.call_id)
+        expected = call_binding.source_provenance()
         observed_calls.add(call_result.call_id)
         assert call_result.state_writes or call_result.runtime_results
         observed_provenance = tuple(
@@ -100,15 +102,14 @@ def test_five_case_runtime_writes_and_results_share_call_source_authority(
         )
         assert observed_provenance
         assert all(
-            item is not None and item.extends_base_authority(expected)
+            item == expected
             for item in observed_provenance
         )
         assert len(set(observed_provenance)) == 1
         runtime_authority = observed_provenance[0]
         assert runtime_authority is not None
-        if call_result.macro_search_report is None:
-            assert runtime_authority == expected
-        else:
+        assert runtime_authority == expected
+        if call_result.macro_search_report is not None:
             assert (
                 runtime_authority.macro_search_signature
                 == call_result.macro_search_report.search_signature
@@ -131,13 +132,13 @@ def test_five_case_runtime_writes_and_results_share_call_source_authority(
         )
         expected_direct_sources = {
             source_unit_id
-            for binding in sidecar.inputs_for_call(call_result.call_id)
+            for binding in call_binding.input_bindings
             if binding.source_kind == "problem_source"
             for source_unit_id in binding.source_unit_ids
         }
         expected_direct_sources.update(
             source_unit_id
-            for binding in sidecar.relations_for_call(call_result.call_id)
+            for binding in call_binding.relation_bindings
             for source_unit_id in binding.source_unit_ids
         )
         assert set(expected.input_source_unit_ids) == expected_direct_sources
@@ -155,9 +156,8 @@ def test_five_case_runtime_writes_and_results_share_call_source_authority(
     assert answer_aliases
     assert all(
         write.problem_source_provenance is not None
-        and write.problem_source_provenance.extends_base_authority(
-            sidecar.source_provenance_for_call(write.step_id)
-        )
+        and write.problem_source_provenance
+        == ledger.call_binding(write.step_id).source_provenance()
         for write in answer_aliases
     )
     call_result_consumers = tuple(
@@ -557,23 +557,13 @@ def _recorded_checkpoint(
     return checkpoint, sidecar, replay
 
 
-def test_problem_provenance_and_checkpoint_schema_snapshots() -> None:
+def test_problem_provenance_schema_snapshot() -> None:
     provenance_schema = problem_call_source_provenance_schema()
-    checkpoint_schema = functional_retry_graph_checkpoint_schema()
     checked_provenance = json.loads(
         (
             ROOT
             / "internal/schemas/problem-call-source-provenance.schema.json"
         ).read_text(encoding="utf-8")
     )
-    checked_checkpoint = json.loads(
-        (
-            ROOT
-            / "internal/schemas/functional-retry-graph-checkpoint.schema.json"
-        ).read_text(encoding="utf-8")
-    )
-
     Draft202012Validator.check_schema(provenance_schema)
-    Draft202012Validator.check_schema(checkpoint_schema)
     assert checked_provenance == provenance_schema
-    assert checked_checkpoint == checkpoint_schema

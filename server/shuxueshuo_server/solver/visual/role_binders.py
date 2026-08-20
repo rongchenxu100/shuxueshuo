@@ -1159,8 +1159,10 @@ class VisualRoleBinderRegistry:
                 continue
             if item.get("type") != "Point" or item.get("source") != "quadratic_axis_parameterized_point":
                 continue
-            scope_id = str(item.get("scope_id") or "")
-            if scope_id not in {lesson_step.scope_id, *source_ids}:
+            producer_step_id = str(
+                item.get("source_step_id") or _fact_step_id(item) or ""
+            )
+            if producer_step_id not in source_ids:
                 continue
             value = item.get("value")
             if not _is_axis_parameter_point_value(value):

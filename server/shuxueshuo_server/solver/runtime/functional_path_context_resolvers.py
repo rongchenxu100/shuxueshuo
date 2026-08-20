@@ -228,6 +228,7 @@ def resolve_equal_length_ray_path_args(
     produced: Mapping[tuple[str, str], ResolvedFunctionalValue],
     semantic_index: FunctionalSemanticIndex,
     handle_registry: CanonicalHandleRegistry,
+    allow_legacy_planned_producer_visibility: bool = False,
 ) -> ContextClosureResolution:
     """Bind every materialized geometry role used by the reduction recipe."""
 
@@ -366,6 +367,9 @@ def resolve_equal_length_ray_path_args(
             semantic_index=semantic_index,
             handle_registry=handle_registry,
             allow_unique_planned_producer=True,
+            allow_invisible_planned_producer=(
+                allow_legacy_planned_producer_visibility
+            ),
         )
         if point is None:
             issues.append(

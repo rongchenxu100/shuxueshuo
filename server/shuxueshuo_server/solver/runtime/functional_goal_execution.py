@@ -66,18 +66,19 @@ from shuxueshuo_server.solver.runtime.strategy_replay import (
     PlannerRetryReplayResult,
     PlannerRetryReplayService,
 )
-from shuxueshuo_server.solver.runtime.functional_retry_versions import (
-    FunctionalRetryGraphCheckpoint,
-)
 from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
     FunctionalRuntimeEquivalentCallAlias,
     FunctionalRestoredCallSeed,
+    build_functional_execution_restore_seed,
     rebase_restored_call_seed,
 )
 
 
 FUNCTIONAL_GOAL_EXECUTION_CHECKPOINT_CONTRACT = (
-    "functional-goal-execution-checkpoint/v2"
+    "functional-goal-execution-checkpoint/v3"
+)
+FUNCTIONAL_EXECUTION_RESTORE_STATE_CONTRACT = (
+    "functional-execution-restore-state/v1"
 )
 FunctionalGoalStepStatus = Literal[
     "valid",
@@ -91,8 +92,14 @@ FunctionalGoalStepStatus = Literal[
 
 
 class FunctionalGoalExecutionCheckpointError(ValueError):
-    def __init__(self, path: str, message: str) -> None:
-        self.code = "functional.goal_execution_checkpoint_invalid"
+    def __init__(
+        self,
+        path: str,
+        message: str,
+        *,
+        code: str = "functional.goal_execution_checkpoint_invalid",
+    ) -> None:
+        self.code = code
         self.path = path
         self.message = message
         super().__init__(f"{self.code} at {path}: {message}")
@@ -253,7 +260,7 @@ def functional_goal_execution_checkpoint_schema() -> dict[str, Any]:
     return {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "$id": "functional-goal-execution-checkpoint.schema.json",
-        "title": "Functional Goal Execution Checkpoint v2",
+        "title": "Functional Goal Execution Checkpoint v3",
         "type": "object",
         "required": [
             "schema_version",
@@ -269,6 +276,7 @@ def functional_goal_execution_checkpoint_schema() -> dict[str, Any]:
             "goal_unit_ids",
             "source_unit_ids",
             "provisional_state_signature",
+            "restore_state",
             "checkpoint_id",
         ],
         "properties": {
@@ -297,6 +305,70 @@ def functional_goal_execution_checkpoint_schema() -> dict[str, Any]:
             "goal_unit_ids": string_tuple_map,
             "source_unit_ids": string_tuple_map,
             "provisional_state_signature": nonempty,
+            "restore_state": {
+                "type": "object",
+                "required": [
+                    "schema_version",
+                    "state_versions",
+                    "call_results",
+                    "conditions",
+                    "compiled_calls",
+                    "call_reconciliations",
+                    "finalized_call_bindings",
+                    "source_read_signatures",
+                    "runtime_write_signatures",
+                    "publication_signatures",
+                    "macro_preparations",
+                    "restore_signature",
+                ],
+                "properties": {
+                    "schema_version": {
+                        "const": FUNCTIONAL_EXECUTION_RESTORE_STATE_CONTRACT,
+                    },
+                    "state_versions": {
+                        "type": "array",
+                        "items": {"type": "object"},
+                    },
+                    "call_results": {
+                        "type": "array",
+                        "items": {"type": "object"},
+                    },
+                    "conditions": {
+                        "type": "array",
+                        "items": {"type": "object"},
+                    },
+                    "compiled_calls": {
+                        "type": "array",
+                        "items": {"type": "object"},
+                    },
+                    "call_reconciliations": {
+                        "type": "array",
+                        "items": {"type": "object"},
+                    },
+                    "finalized_call_bindings": {
+                        "type": "array",
+                        "items": {"type": "object"},
+                    },
+                    "source_read_signatures": {
+                        "type": "object",
+                        "additionalProperties": nonempty,
+                    },
+                    "runtime_write_signatures": {
+                        "type": "object",
+                        "additionalProperties": nonempty,
+                    },
+                    "publication_signatures": {
+                        "type": "object",
+                        "additionalProperties": nonempty,
+                    },
+                    "macro_preparations": {
+                        "type": "array",
+                        "items": {"type": "object"},
+                    },
+                    "restore_signature": nonempty,
+                },
+                "additionalProperties": False,
+            },
             "checkpoint_id": nonempty,
         },
         "$defs": {
@@ -462,6 +534,368 @@ class FunctionalGoalExecutionScope:
 
 
 @dataclass(frozen=True)
+class FunctionalExecutionRestoreState:
+    """Private typed namespaces and signatures owned by one Goal checkpoint."""
+
+    state_versions: tuple[Mapping[str, Any], ...] = ()
+    call_results: tuple[Mapping[str, Any], ...] = ()
+    conditions: tuple[Mapping[str, Any], ...] = ()
+    compiled_calls: tuple[Mapping[str, Any], ...] = ()
+    call_reconciliations: tuple[Mapping[str, Any], ...] = ()
+    finalized_call_bindings: tuple[Mapping[str, Any], ...] = ()
+    source_read_signatures: Mapping[str, str] = field(default_factory=dict)
+    runtime_write_signatures: Mapping[str, str] = field(default_factory=dict)
+    publication_signatures: Mapping[str, str] = field(default_factory=dict)
+    macro_preparations: tuple[Mapping[str, Any], ...] = ()
+    runtime_seed: FunctionalRestoredCallSeed | None = field(
+        default=None,
+        repr=False,
+        compare=False,
+    )
+    schema_version: str = FUNCTIONAL_EXECUTION_RESTORE_STATE_CONTRACT
+    restore_signature: str = field(init=False)
+
+    def __post_init__(self) -> None:
+        if self.schema_version != FUNCTIONAL_EXECUTION_RESTORE_STATE_CONTRACT:
+            raise FunctionalGoalExecutionCheckpointError(
+                "$.restore_state.schema_version",
+                "unsupported restore-state contract",
+                code="planner.goal_checkpoint_version_unsupported",
+            )
+        for name in (
+            "state_versions",
+            "call_results",
+            "conditions",
+            "compiled_calls",
+            "call_reconciliations",
+            "finalized_call_bindings",
+            "macro_preparations",
+        ):
+            object.__setattr__(
+                self,
+                name,
+                tuple(
+                    MappingProxyType(dict(_mapping(item)))
+                    for item in getattr(self, name)
+                ),
+            )
+        for name in (
+            "source_read_signatures",
+            "runtime_write_signatures",
+            "publication_signatures",
+        ):
+            object.__setattr__(
+                self,
+                name,
+                MappingProxyType(dict(sorted(getattr(self, name).items()))),
+            )
+        object.__setattr__(
+            self,
+            "restore_signature",
+            stable_hash(self._payload(include_signature=False)),
+        )
+
+    def _payload(self, *, include_signature: bool) -> dict[str, Any]:
+        payload = {
+            "schema_version": self.schema_version,
+            "state_versions": [dict(item) for item in self.state_versions],
+            "call_results": [dict(item) for item in self.call_results],
+            "conditions": [dict(item) for item in self.conditions],
+            "compiled_calls": [dict(item) for item in self.compiled_calls],
+            "call_reconciliations": [
+                dict(item) for item in self.call_reconciliations
+            ],
+            "finalized_call_bindings": [
+                dict(item) for item in self.finalized_call_bindings
+            ],
+            "source_read_signatures": dict(self.source_read_signatures),
+            "runtime_write_signatures": dict(
+                self.runtime_write_signatures
+            ),
+            "publication_signatures": dict(self.publication_signatures),
+            "macro_preparations": [
+                dict(item) for item in self.macro_preparations
+            ],
+        }
+        if include_signature:
+            payload["restore_signature"] = self.restore_signature
+        safe = _json_safe_value(payload)
+        if not isinstance(safe, dict):
+            raise TypeError("restore-state payload must normalize to an object")
+        return safe
+
+    def authority_payload(self) -> dict[str, Any]:
+        return self._payload(include_signature=True)
+
+    @classmethod
+    def empty(cls) -> "FunctionalExecutionRestoreState":
+        return cls(runtime_seed=FunctionalRestoredCallSeed())
+
+    @classmethod
+    def from_transaction(
+        cls,
+        transaction: Any | None,
+        reconciliation: Any | None,
+    ) -> "FunctionalExecutionRestoreState":
+        if transaction is None or reconciliation is None:
+            return cls.empty()
+        report = transaction.execution_report
+        seed = build_functional_execution_restore_seed(
+            report,
+            reconciliation,
+        )
+
+        def typed_value_payload(value: Any) -> dict[str, Any]:
+            return {
+                "runtime_type": value.type,
+                "value": _json_safe_value(value.value),
+                "locked": bool(value.locked),
+                "source": value.source,
+            }
+
+        state_versions = tuple(
+            {
+                "state_version_id": version_id.to_payload(),
+                "typed_value": typed_value_payload(value),
+                "symbol_bindings": [
+                    {
+                        "symbol": str(symbol),
+                        "object_id": object_id.to_payload(),
+                    }
+                    for symbol, object_id in sorted(
+                        seed.runtime_version_symbol_bindings.get(
+                            version_id,
+                            {},
+                        ).items(),
+                        key=lambda item: str(item[0]),
+                    )
+                ],
+            }
+            for version_id, value in sorted(
+                seed.runtime_version_values.items(),
+                key=lambda item: stable_hash(item[0].to_payload()),
+            )
+        )
+        call_results = tuple(
+            {
+                "call_id": record.call_id,
+                "return_name": record.return_name,
+                "scope_id": record.scope_id,
+                "runtime_type": record.runtime_type,
+                "typed_value": typed_value_payload(record.runtime_value),
+                "problem_source_signature": (
+                    record.problem_source_provenance.semantic_signature()
+                    if record.problem_source_provenance is not None
+                    else None
+                ),
+            }
+            for _, record in sorted(seed.call_result_records.items())
+        )
+        compiled_calls = tuple(
+            _compiled_restore_authority_payload(item)
+            for item in seed.compiled_calls
+        )
+        ledger = report.functional_problem_binding_ledger
+        finalized_bindings = tuple(
+            binding.authority_payload()
+            for call_id in seed.call_ids
+            for binding in (
+                (ledger.call_binding(call_id),) if ledger is not None else ()
+            )
+            if binding.status == "finalized"
+        )
+        macro_preparations = tuple(
+            item.macro_preparation_authority.authority_payload()
+            for item in seed.compiled_calls
+            if item.macro_preparation_authority is not None
+        )
+        return cls(
+            state_versions=state_versions,
+            call_results=call_results,
+            conditions=tuple(
+                condition.to_payload()
+                for _, condition in sorted(seed.conditions.items())
+            ),
+            compiled_calls=compiled_calls,
+            call_reconciliations=tuple(
+                item.to_payload()
+                for _, item in sorted(seed.call_reconciliations.items())
+            ),
+            finalized_call_bindings=finalized_bindings,
+            source_read_signatures=seed.source_read_authorities,
+            runtime_write_signatures=seed.runtime_write_authorities,
+            publication_signatures=seed.publication_authorities,
+            macro_preparations=macro_preparations,
+            runtime_seed=seed,
+        )
+
+    def seed_for_calls(
+        self,
+        call_ids: frozenset[str],
+        *,
+        mutable_publication_goal_unit_ids: tuple[str, ...] = (),
+    ) -> FunctionalRestoredCallSeed:
+        seed = self.runtime_seed
+        if seed is None:
+            raise FunctionalGoalExecutionCheckpointError(
+                "$.restore_state",
+                "deserialized checkpoint has no in-process typed runtime seed",
+                code="functional.goal_retry_typed_checkpoint_missing",
+            )
+        known = frozenset(seed.call_ids)
+        if not call_ids <= known:
+            raise FunctionalGoalExecutionCheckpointError(
+                "$.restore_state.compiled_calls",
+                "solved Goal restore references calls absent from checkpoint",
+            )
+        result_by_call = {item.call_id: item for item in seed.call_results}
+        compiled_by_call = {item.call_id: item for item in seed.compiled_calls}
+        selected_results = tuple(
+            result_by_call[call_id]
+            for call_id in seed.call_ids
+            if call_id in call_ids
+        )
+        selected_versions = {
+            version.version_id
+            for result in selected_results
+            for version in result.committed_versions
+        }
+        return FunctionalRestoredCallSeed(
+            call_results=selected_results,
+            compiled_calls=tuple(
+                compiled_by_call[call_id]
+                for call_id in seed.call_ids
+                if call_id in call_ids
+            ),
+            runtime_version_values={
+                key: value
+                for key, value in seed.runtime_version_values.items()
+                if key in selected_versions
+            },
+            runtime_version_symbol_bindings={
+                key: value
+                for key, value in (
+                    seed.runtime_version_symbol_bindings.items()
+                )
+                if key in selected_versions
+            },
+            call_result_records={
+                key: value
+                for key, value in seed.call_result_records.items()
+                if key[0] in call_ids
+            },
+            conditions=seed.conditions,
+            source_read_authorities={
+                key: value
+                for key, value in seed.source_read_authorities.items()
+                if key in call_ids
+            },
+            source_read_payloads={
+                key: value
+                for key, value in seed.source_read_payloads.items()
+                if key in call_ids
+            },
+            runtime_write_authorities={
+                key: value
+                for key, value in seed.runtime_write_authorities.items()
+                if key in call_ids
+            },
+            runtime_write_payloads={
+                key: value
+                for key, value in seed.runtime_write_payloads.items()
+                if key in call_ids
+            },
+            publication_authorities={
+                key: value
+                for key, value in seed.publication_authorities.items()
+                if key in call_ids
+            },
+            publication_payloads={
+                key: value
+                for key, value in seed.publication_payloads.items()
+                if key in call_ids
+            },
+            mutable_publication_goal_unit_ids=(
+                mutable_publication_goal_unit_ids
+            ),
+            call_reconciliations={
+                key: value
+                for key, value in seed.call_reconciliations.items()
+                if key in call_ids
+            },
+        )
+
+    @classmethod
+    def from_payload(
+        cls,
+        payload: Mapping[str, Any],
+    ) -> "FunctionalExecutionRestoreState":
+        candidate = dict(payload)
+        observed_signature = str(candidate.pop("restore_signature", ""))
+        state = cls(
+            schema_version=str(candidate.get("schema_version", "")),
+            state_versions=tuple(
+                _mapping(item)
+                for item in _sequence(candidate.get("state_versions", ()))
+            ),
+            call_results=tuple(
+                _mapping(item)
+                for item in _sequence(candidate.get("call_results", ()))
+            ),
+            conditions=tuple(
+                _mapping(item)
+                for item in _sequence(candidate.get("conditions", ()))
+            ),
+            compiled_calls=tuple(
+                _mapping(item)
+                for item in _sequence(candidate.get("compiled_calls", ()))
+            ),
+            call_reconciliations=tuple(
+                _mapping(item)
+                for item in _sequence(
+                    candidate.get("call_reconciliations", ())
+                )
+            ),
+            finalized_call_bindings=tuple(
+                _mapping(item)
+                for item in _sequence(
+                    candidate.get("finalized_call_bindings", ())
+                )
+            ),
+            source_read_signatures={
+                str(key): str(value)
+                for key, value in _mapping(
+                    candidate.get("source_read_signatures", {})
+                ).items()
+            },
+            runtime_write_signatures={
+                str(key): str(value)
+                for key, value in _mapping(
+                    candidate.get("runtime_write_signatures", {})
+                ).items()
+            },
+            publication_signatures={
+                str(key): str(value)
+                for key, value in _mapping(
+                    candidate.get("publication_signatures", {})
+                ).items()
+            },
+            macro_preparations=tuple(
+                _mapping(item)
+                for item in _sequence(
+                    candidate.get("macro_preparations", ())
+                )
+            ),
+        )
+        if observed_signature != state.restore_signature:
+            raise FunctionalGoalExecutionCheckpointError(
+                "$.restore_state.restore_signature",
+                "restore-state authority hash drift",
+            )
+        return state
+
+
+@dataclass(frozen=True)
 class FunctionalGoalExecutionCheckpoint:
     planning_context_id: str
     problem_revision_id: str
@@ -474,6 +908,7 @@ class FunctionalGoalExecutionCheckpoint:
     goal_unit_ids: Mapping[str, tuple[str, ...]]
     source_unit_ids: Mapping[str, tuple[str, ...]]
     provisional_state_signature: str
+    restore_state: FunctionalExecutionRestoreState
     transaction_attempted: bool
     transaction_ok: bool
     all_required_goals_verified: bool
@@ -560,6 +995,7 @@ class FunctionalGoalExecutionCheckpoint:
                 key: list(value) for key, value in self.source_unit_ids.items()
             },
             "provisional_state_signature": self.provisional_state_signature,
+            "restore_state": self.restore_state.authority_payload(),
             "checkpoint_id": self.checkpoint_id,
         }
 
@@ -664,6 +1100,14 @@ class FunctionalGoalExecutionCheckpoint:
         payload: Mapping[str, Any],
     ) -> "FunctionalGoalExecutionCheckpoint":
         candidate = dict(payload)
+        if candidate.get("schema_version") != (
+            FUNCTIONAL_GOAL_EXECUTION_CHECKPOINT_CONTRACT
+        ):
+            raise FunctionalGoalExecutionCheckpointError(
+                "$.schema_version",
+                "only Goal checkpoint v3 is supported",
+                code="planner.goal_checkpoint_version_unsupported",
+            )
         errors = sorted(
             Draft202012Validator(
                 functional_goal_execution_checkpoint_schema()
@@ -709,6 +1153,9 @@ class FunctionalGoalExecutionCheckpoint:
             ),
             provisional_state_signature=str(
                 candidate["provisional_state_signature"]
+            ),
+            restore_state=FunctionalExecutionRestoreState.from_payload(
+                _mapping(candidate["restore_state"])
             ),
             transaction_attempted=bool(metrics["transaction_attempted"]),
             transaction_ok=bool(metrics["transaction_ok"]),
@@ -1284,7 +1731,6 @@ class ScopedFunctionalGoalExecutionService:
         planner_state_context: PlannerStateContext,
         problem_payload: dict[str, Any],
         attempt: int = 0,
-        retry_checkpoint: FunctionalRetryGraphCheckpoint | None = None,
         restored_seed: FunctionalRestoredCallSeed | None = None,
         published_goal_bindings: Sequence[ScopedPublishedGoalBinding] = (),
     ) -> ScopedFunctionalGoalExecutionResult:
@@ -1435,6 +1881,7 @@ class ScopedFunctionalGoalExecutionService:
         replay_service = PlannerRetryReplayService(
             functional_transaction_mode="context_authoritative",
             functional_symbolic_closure_mode="authoritative",
+            legacy_call_level_checkpoint_mode=False,
         )
         blocked_stage: str | None = (
             "authoring_authority" if report.issues else None
@@ -1511,7 +1958,6 @@ class ScopedFunctionalGoalExecutionService:
                     )
                 },
                 allow_incomplete_goals=bool(excluded),
-                retry_checkpoint=retry_checkpoint,
                 restored_seed=restored_seed,
                 authored_return_consumers=(
                     _scoped_authored_return_consumers(canonical_plan)
@@ -1681,7 +2127,6 @@ class ScopedFunctionalGoalExecutionService:
                     planner_state_context=planner_state_context,
                     problem_payload=problem_payload,
                     attempt=attempt,
-                    retry_checkpoint=retry_checkpoint,
                     restored_seed=restored_seed,
                     published_goal_bindings=published_goal_bindings,
                 )
@@ -2437,6 +2882,10 @@ def _build_checkpoint(
         goal_unit_ids=goal_ids,
         source_unit_ids=source_ids,
         provisional_state_signature=stable_hash(provisional_payload),
+        restore_state=FunctionalExecutionRestoreState.from_transaction(
+            transaction,
+            reconciliation,
+        ),
         transaction_attempted=transaction_attempted,
         transaction_ok=transaction_ok,
         all_required_goals_verified=all_required_goals_verified,
@@ -2748,6 +3197,72 @@ def _provisional_state_payload(transaction: Any | None) -> dict[str, Any]:
     return safe
 
 
+def _compiled_restore_authority_payload(compiled: Any) -> dict[str, Any]:
+    """Serialize executable authority, never the mutable runtime branch."""
+
+    payload = {
+        "call_id": compiled.call_id,
+        "step_ids": list(compiled.step_ids),
+        "method_input_reads": [
+            {
+                "invocation_id": invocation.invocation_id,
+                "method_id": invocation.method_id,
+                "scope_id": invocation.scope,
+                "inputs": {
+                    name: [
+                        authority.authority_payload()
+                        for authority in authorities
+                    ]
+                    for name, authorities in sorted(
+                        invocation.input_read_authorities.items()
+                    )
+                },
+                "supporting_inputs": {
+                    name: [
+                        authority.authority_payload()
+                        for authority in authorities
+                    ]
+                    for name, authorities in sorted(
+                        invocation.supporting_input_read_authorities.items()
+                    )
+                },
+            }
+            for plan in compiled.plans
+            for invocation in plan.invocations
+        ],
+        "problem_source_signature": (
+            compiled.problem_source_provenance.semantic_signature()
+            if compiled.problem_source_provenance is not None
+            else None
+        ),
+        "problem_call_binding_signature": (
+            compiled.problem_call_binding.binding_signature
+            if compiled.problem_call_binding is not None
+            else None
+        ),
+        "macro_preparation_signature": (
+            compiled.macro_preparation_authority.preparation_signature
+            if compiled.macro_preparation_authority is not None
+            else None
+        ),
+        "macro_winner_candidate_id": (
+            compiled.macro_preparation_authority.winner.candidate.candidate_id
+            if compiled.macro_preparation_authority is not None
+            else None
+        ),
+        "macro_search_signature": (
+            compiled.macro_search_report.search_signature
+            if compiled.macro_search_report is not None
+            else None
+        ),
+    }
+    safe = _json_safe_value(payload)
+    if not isinstance(safe, dict):
+        raise TypeError("compiled restore authority must normalize to an object")
+    safe["compiled_signature"] = stable_hash(safe)
+    return safe
+
+
 def _json_safe_value(value: Any) -> Any:
     if value is None or isinstance(value, (bool, int, float, str)):
         return value
@@ -2879,7 +3394,9 @@ def _iter_execution_scopes(
 
 
 __all__ = [
+    "FUNCTIONAL_EXECUTION_RESTORE_STATE_CONTRACT",
     "FUNCTIONAL_GOAL_EXECUTION_CHECKPOINT_CONTRACT",
+    "FunctionalExecutionRestoreState",
     "FunctionalGoalExecutionCheckpoint",
     "FunctionalGoalExecutionCheckpointError",
     "FunctionalGoalExecutionGoal",

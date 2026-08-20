@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field, replace
 from types import MappingProxyType
 from typing import Any, Literal, Mapping, Sequence
 
@@ -65,6 +65,9 @@ PROBLEM_PLANNING_BINDING_CATALOG_CONTRACT = (
 )
 FUNCTIONAL_PROBLEM_BINDING_CONTEXT_CONTRACT = (
     "functional-problem-binding-context/v1"
+)
+FUNCTIONAL_PROBLEM_BINDING_LEDGER_CONTRACT = (
+    "functional-problem-binding-ledger/v1"
 )
 
 
@@ -921,6 +924,489 @@ class FunctionalProblemBindingContext:
             "binding_signature": self.binding_signature,
         }
 
+    def call_binding(
+        self,
+        call_id: str,
+        *,
+        status: Literal["pending_macro", "finalized"] = "finalized",
+    ) -> "FunctionalProblemCallBinding":
+        goal_ids = self.call_goal_bindings.get(call_id)
+        if not goal_ids:
+            raise _error(
+                "functional.call_goal_unresolved",
+                f"$.calls[{call_id!r}]",
+                "call has no Goal authority",
+            )
+        return FunctionalProblemCallBinding(
+            planning_context_id=self.planning_context_id,
+            problem_revision_id=self.problem_revision_id,
+            problem_semantic_hash=self.problem_semantic_hash,
+            planner_state_context_id=self.planner_state_context_id,
+            call_id=call_id,
+            goal_unit_ids=tuple(goal_ids),
+            input_bindings=self.inputs_for_call(call_id),
+            relation_bindings=self.relations_for_call(call_id),
+            return_bindings=self.returns_for_call(call_id),
+            status=status,
+        )
+
+
+@dataclass(frozen=True)
+class FunctionalProblemCallBinding:
+    """One finalized or pending F5-C call authority."""
+
+    planning_context_id: str
+    problem_revision_id: str
+    problem_semantic_hash: str
+    planner_state_context_id: str
+    call_id: str
+    goal_unit_ids: tuple[str, ...]
+    input_bindings: tuple[FunctionalProblemInputBinding, ...]
+    relation_bindings: tuple[FunctionalProblemRelationBinding, ...]
+    return_bindings: tuple[FunctionalProblemReturnBinding, ...]
+    status: Literal["pending_macro", "finalized"] = "finalized"
+    macro_preparation_signature: str | None = None
+    macro_search_signature: str | None = None
+    authored_roles: Mapping[str, str] = field(default_factory=dict)
+    chosen_roles: Mapping[str, str] = field(default_factory=dict)
+    binding_signature: str = field(init=False)
+
+    def __post_init__(self) -> None:
+        if self.status == "pending_macro" and self.macro_preparation_signature:
+            raise ValueError("pending Macro binding cannot have a winner signature")
+        if self.status == "pending_macro" and self.macro_search_signature:
+            raise ValueError("pending Macro binding cannot have a search signature")
+        if self.status == "finalized" and self.chosen_roles and not (
+            self.macro_preparation_signature
+        ):
+            raise ValueError("chosen Macro roles require preparation authority")
+        object.__setattr__(
+            self,
+            "goal_unit_ids",
+            tuple(sorted(set(self.goal_unit_ids))),
+        )
+        object.__setattr__(
+            self,
+            "input_bindings",
+            tuple(
+                sorted(
+                    self.input_bindings,
+                    key=lambda item: (item.arg_name, item.item_index),
+                )
+            ),
+        )
+        object.__setattr__(
+            self,
+            "relation_bindings",
+            tuple(
+                sorted(
+                    self.relation_bindings,
+                    key=lambda item: (
+                        item.method_id,
+                        item.point_arg_name,
+                        item.point_item_index,
+                    ),
+                )
+            ),
+        )
+        object.__setattr__(
+            self,
+            "return_bindings",
+            tuple(sorted(self.return_bindings, key=lambda item: item.return_name)),
+        )
+        object.__setattr__(
+            self,
+            "authored_roles",
+            MappingProxyType(dict(sorted(self.authored_roles.items()))),
+        )
+        object.__setattr__(
+            self,
+            "chosen_roles",
+            MappingProxyType(dict(sorted(self.chosen_roles.items()))),
+        )
+        object.__setattr__(
+            self,
+            "binding_signature",
+            stable_hash(self.authority_payload(include_signature=False)),
+        )
+
+    def authority_payload(self, *, include_signature: bool = True) -> dict[str, Any]:
+        payload = {
+            "planning_context_id": self.planning_context_id,
+            "problem_revision_id": self.problem_revision_id,
+            "problem_semantic_hash": self.problem_semantic_hash,
+            "planner_state_context_id": self.planner_state_context_id,
+            "call_id": self.call_id,
+            "goal_unit_ids": list(self.goal_unit_ids),
+            "status": self.status,
+            "input_bindings": [item.to_payload() for item in self.input_bindings],
+            "relation_bindings": [
+                item.to_payload() for item in self.relation_bindings
+            ],
+            "return_bindings": [item.to_payload() for item in self.return_bindings],
+            "macro_preparation_signature": self.macro_preparation_signature,
+            "macro_search_signature": self.macro_search_signature,
+            "authored_roles": dict(self.authored_roles),
+            "chosen_roles": dict(self.chosen_roles),
+        }
+        if include_signature:
+            payload["binding_signature"] = self.binding_signature
+        return payload
+
+    def source_provenance(self) -> ProblemCallSourceProvenance:
+        if self.status != "finalized":
+            raise _error(
+                "planner.problem_call_binding_pending",
+                f"$.calls[{self.call_id!r}]",
+                "runtime-search call has no finalized winner binding",
+            )
+        source_unit_ids = {
+            source_id
+            for sources in (
+                *(
+                    item.source_unit_ids
+                    for item in self.input_bindings
+                    if item.source_kind == "problem_source"
+                ),
+                *(item.source_unit_ids for item in self.relation_bindings),
+            )
+            for source_id in sources
+        }
+        return ProblemCallSourceProvenance(
+            planning_context_id=self.planning_context_id,
+            problem_revision_id=self.problem_revision_id,
+            problem_semantic_hash=self.problem_semantic_hash,
+            canonical_call_id=self.call_id,
+            goal_unit_ids=self.goal_unit_ids,
+            input_source_unit_ids=tuple(sorted(source_unit_ids)),
+            call_binding_signature=self.binding_signature,
+            macro_search_signature=self.macro_search_signature,
+            macro_role_resolutions=tuple(
+                (
+                    role,
+                    self.authored_roles.get(role),
+                    chosen_ref,
+                )
+                for role, chosen_ref in self.chosen_roles.items()
+            ),
+        )
+
+
+@dataclass(frozen=True)
+class FunctionalProblemBindingDraft:
+    planning_context_id: str
+    problem_revision_id: str
+    problem_semantic_hash: str
+    planner_state_context_id: str
+    calls: Mapping[str, FunctionalProblemCallBinding]
+    catalog_signature: str
+    source_catalog: Any | None = field(default=None, repr=False, compare=False)
+    draft_signature: str = field(init=False)
+
+    def __post_init__(self) -> None:
+        calls = MappingProxyType(dict(sorted(self.calls.items())))
+        object.__setattr__(self, "calls", calls)
+        object.__setattr__(
+            self,
+            "draft_signature",
+            stable_hash(
+                {
+                    "planning_context_id": self.planning_context_id,
+                    "problem_revision_id": self.problem_revision_id,
+                    "problem_semantic_hash": self.problem_semantic_hash,
+                    "planner_state_context_id": self.planner_state_context_id,
+                    "catalog_signature": self.catalog_signature,
+                    "calls": {
+                        key: value.authority_payload()
+                        for key, value in calls.items()
+                    },
+                }
+            ),
+        )
+
+
+@dataclass(frozen=True)
+class FunctionalProblemBindingLedger:
+    """Immutable per-call finalization ledger behind the v1 aggregate payload."""
+
+    draft: FunctionalProblemBindingDraft
+    calls: Mapping[str, FunctionalProblemCallBinding]
+    schema_version: str = FUNCTIONAL_PROBLEM_BINDING_LEDGER_CONTRACT
+    ledger_signature: str = field(init=False)
+
+    def __post_init__(self) -> None:
+        calls = MappingProxyType(dict(sorted(self.calls.items())))
+        if set(calls) != set(self.draft.calls):
+            raise ValueError("F5-C ledger and draft contain different calls")
+        object.__setattr__(self, "calls", calls)
+        object.__setattr__(
+            self,
+            "ledger_signature",
+            stable_hash(
+                {
+                    "schema_version": self.schema_version,
+                    "draft_signature": self.draft.draft_signature,
+                    "calls": {
+                        key: value.authority_payload()
+                        for key, value in calls.items()
+                    },
+                }
+            ),
+        )
+
+    @classmethod
+    def from_context(
+        cls,
+        context: FunctionalProblemBindingContext,
+        *,
+        pending_macro_call_ids: Sequence[str] = (),
+        catalog: "ProblemPlanningBindingCatalog | None" = None,
+    ) -> "FunctionalProblemBindingLedger":
+        pending = frozenset(pending_macro_call_ids)
+        calls = {
+            call_id: context.call_binding(
+                call_id,
+                status=("pending_macro" if call_id in pending else "finalized"),
+            )
+            for call_id in context.call_goal_bindings
+        }
+        draft = FunctionalProblemBindingDraft(
+            planning_context_id=context.planning_context_id,
+            problem_revision_id=context.problem_revision_id,
+            problem_semantic_hash=context.problem_semantic_hash,
+            planner_state_context_id=context.planner_state_context_id,
+            calls=calls,
+            catalog_signature=(
+                catalog.binding_signature
+                if catalog is not None
+                else context.binding_signature
+            ),
+            source_catalog=catalog,
+        )
+        return cls(draft=draft, calls=calls)
+
+    def call_binding(self, call_id: str) -> FunctionalProblemCallBinding:
+        try:
+            return self.calls[call_id]
+        except KeyError as exc:
+            raise _error(
+                "functional.call_goal_unresolved",
+                f"$.calls[{call_id!r}]",
+                "F5-C ledger has no call binding",
+            ) from exc
+
+    def finalize_macro(
+        self,
+        call_id: str,
+        *,
+        preparation_authority: Any,
+    ) -> "FunctionalProblemBindingLedger":
+        current = self.call_binding(call_id)
+        if current.status != "pending_macro":
+            raise _error(
+                "planner.macro_binding_finalization_invalid",
+                f"$.calls[{call_id!r}]",
+                "only pending runtime-search calls can be finalized",
+            )
+        if preparation_authority.call_id != call_id:
+            raise _error(
+                "planner.macro_binding_finalization_invalid",
+                f"$.calls[{call_id!r}]",
+                "Macro preparation belongs to another call",
+            )
+        if (
+            preparation_authority.planning_context_id
+            != current.planning_context_id
+            or preparation_authority.problem_revision_id
+            != current.problem_revision_id
+            or preparation_authority.problem_semantic_hash
+            != current.problem_semantic_hash
+        ):
+            raise _error(
+                "planner.problem_revision_drift",
+                f"$.calls[{call_id!r}]",
+                "Macro preparation and F5-C draft identify different Problem authority",
+            )
+        chosen_roles = dict(preparation_authority.winner.candidate.roles)
+        catalog = self.draft.source_catalog
+        if not isinstance(catalog, ProblemPlanningBindingCatalog):
+            raise _error(
+                "planner.macro_binding_finalization_invalid",
+                f"$.calls[{call_id!r}]",
+                "F5-C draft has no immutable source catalog",
+            )
+        finalized_inputs = _finalize_macro_role_inputs(
+            current,
+            chosen_roles=chosen_roles,
+            catalog=catalog,
+        )
+        finalized = replace(
+            current,
+            status="finalized",
+            input_bindings=finalized_inputs,
+            macro_preparation_signature=(
+                preparation_authority.preparation_signature
+            ),
+            macro_search_signature=(
+                preparation_authority.search_report.search_signature
+            ),
+            authored_roles=dict(preparation_authority.authored_roles),
+            chosen_roles=chosen_roles,
+        )
+        calls = dict(self.calls)
+        calls[call_id] = finalized
+        return FunctionalProblemBindingLedger(draft=self.draft, calls=calls)
+
+    def aggregate_context(self, *, require_complete: bool = True) -> FunctionalProblemBindingContext:
+        if require_complete:
+            pending = [
+                call_id
+                for call_id, binding in self.calls.items()
+                if binding.status != "finalized"
+            ]
+            if pending:
+                raise _error(
+                    "planner.problem_call_binding_pending",
+                    "$.calls",
+                    f"pending F5-C call bindings remain: {pending}",
+                )
+        inputs = tuple(
+            item for binding in self.calls.values() for item in binding.input_bindings
+        )
+        relations = tuple(
+            item
+            for binding in self.calls.values()
+            for item in binding.relation_bindings
+        )
+        returns = tuple(
+            item
+            for binding in self.calls.values()
+            for item in binding.return_bindings
+        )
+        call_goals = {
+            call_id: binding.goal_unit_ids
+            for call_id, binding in self.calls.items()
+        }
+        payload = {
+            "schema_version": FUNCTIONAL_PROBLEM_BINDING_CONTEXT_CONTRACT,
+            "planning_context_id": self.draft.planning_context_id,
+            "problem_revision_id": self.draft.problem_revision_id,
+            "problem_semantic_hash": self.draft.problem_semantic_hash,
+            "planner_state_context_id": self.draft.planner_state_context_id,
+            "call_goal_bindings": {
+                key: list(value) for key, value in sorted(call_goals.items())
+            },
+            "input_bindings": [item.to_payload() for item in inputs],
+            "relation_bindings": [item.to_payload() for item in relations],
+            "return_bindings": [item.to_payload() for item in returns],
+        }
+        return FunctionalProblemBindingContext(
+            planning_context_id=self.draft.planning_context_id,
+            problem_revision_id=self.draft.problem_revision_id,
+            problem_semantic_hash=self.draft.problem_semantic_hash,
+            planner_state_context_id=self.draft.planner_state_context_id,
+            call_goal_bindings=call_goals,
+            input_bindings=inputs,
+            relation_bindings=relations,
+            return_bindings=returns,
+            binding_signature=stable_hash(payload),
+        )
+
+
+def _finalize_macro_role_inputs(
+    call: FunctionalProblemCallBinding,
+    *,
+    chosen_roles: Mapping[str, str],
+    catalog: "ProblemPlanningBindingCatalog",
+) -> tuple[FunctionalProblemInputBinding, ...]:
+    result = list(call.input_bindings)
+    by_key = {(item.arg_name, item.item_index): index for index, item in enumerate(result)}
+    for role, chosen_ref in sorted(chosen_roles.items()):
+        source = _problem_source_binding_for_runtime_ref(
+            catalog,
+            chosen_ref,
+            goal_unit_ids=call.goal_unit_ids,
+        )
+        replacement = FunctionalProblemInputBinding(
+            call_id=call.call_id,
+            arg_name=role,
+            item_index=0,
+            source_kind="problem_source",
+            selection_policy="identity_only",
+            semantic_ref=source.semantic_ref,
+            runtime_node_id=source.runtime_node_id,
+            source_unit_ids=source.source_unit_ids,
+            typed_source=_functional_source_for_problem_binding(source),
+        )
+        key = (role, 0)
+        if key in by_key:
+            result[by_key[key]] = replacement
+        else:
+            result.append(replacement)
+    return tuple(result)
+
+
+def _problem_source_binding_for_runtime_ref(
+    catalog: "ProblemPlanningBindingCatalog",
+    chosen_ref: str,
+    *,
+    goal_unit_ids: Sequence[str],
+) -> ProblemPlanningSourceBinding:
+    local = chosen_ref.rsplit(":", 1)[-1]
+    candidates = tuple(
+        binding
+        for binding in catalog.bindings.values()
+        if (
+            binding.runtime_node_id == chosen_ref
+            or binding.semantic_ref.ref == chosen_ref
+            or binding.semantic_ref.ref == local
+            or any(
+                item.math_object_id is not None
+                and item.math_object_id.value == chosen_ref
+                for item in binding.typed_sources
+            )
+        )
+        and set(goal_unit_ids).intersection(binding.visible_goal_unit_ids)
+    )
+    unique = {
+        (item.runtime_node_id, item.semantic_ref.ref): item
+        for item in candidates
+    }
+    if len(unique) != 1:
+        raise _error(
+            "planner.macro_binding_finalization_invalid",
+            "$.winner.roles",
+            f"chosen Macro role {chosen_ref!r} has {len(unique)} F5-C sources",
+        )
+    return next(iter(unique.values()))
+
+
+def _functional_source_for_problem_binding(
+    binding: ProblemPlanningSourceBinding,
+) -> FunctionalArgSourceIdentity:
+    priority = {"state_version": 0, "math_object": 1, "condition": 2, "answer_target": 3}
+    selected = min(binding.typed_sources, key=lambda item: priority[item.kind])
+    if selected.kind == "state_version" and selected.state_version_id is not None:
+        return FunctionalArgSourceIdentity(
+            kind="state_version",
+            state_version_id=selected.state_version_id,
+        )
+    if selected.kind == "condition" and selected.condition_id is not None:
+        return FunctionalArgSourceIdentity(
+            kind="condition",
+            condition_id=selected.condition_id,
+        )
+    if selected.math_object_id is not None:
+        return FunctionalArgSourceIdentity(
+            kind="math_object",
+            math_object_id=selected.math_object_id,
+        )
+    raise _error(
+        "planner.macro_binding_finalization_invalid",
+        "$.winner.roles",
+        "chosen Macro role has no executable typed source",
+    )
+
 @dataclass(frozen=True)
 class ProblemPlanningBindingCatalog:
     planning_context_id: str
@@ -1304,8 +1790,6 @@ def build_functional_problem_binding_context(
     calls: Sequence[FunctionalCallReconciliation],
     functional_binding_context: FunctionalBindingContext,
     goal_bindings: ProblemPlanGoalBindings | None = None,
-    *,
-    allow_implicit_same_object_call_result: bool = True,
 ) -> FunctionalProblemBindingContext:
     goal_bindings = goal_bindings or catalog.bind_plan(
         plan,
@@ -1363,36 +1847,6 @@ def build_functional_problem_binding_context(
                     f"SemanticRef {wire_ref.ref!r} is outside Goal authority",
                 )
             if binding.source.kind == "call_result":
-                if not allow_implicit_same_object_call_result:
-                    raise _error(
-                        "functional.dynamic_source_ref_requires_step_result",
-                        (
-                            f"$.calls[{call_id!r}].args"
-                            f"[{binding.key.arg_name!r}]"
-                            f"[{binding.key.item_index}]"
-                        ),
-                        (
-                            "a FunctionalPlan v2 SourceRef resolved to a "
-                            "dynamic call result; use an explicit "
-                            "StepResultRef"
-                        ),
-                        retryable=True,
-                        details={
-                            "localizable_step_issue": True,
-                            "stage": "reconciliation_binding",
-                            "step_id": call_id,
-                            "call_id": call_id,
-                            "arg_name": binding.key.arg_name,
-                            "item_index": binding.key.item_index,
-                            "source_ref": wire_ref.ref,
-                            "required_step_result": {
-                                "step_id": binding.source.source_call_id,
-                                "return": (
-                                    binding.source.source_return_name
-                                ),
-                            },
-                        },
-                    )
                 _audit_implicit_same_object_call_result(
                     source_binding=source_binding,
                     source=binding.source,
@@ -2602,8 +3056,12 @@ def _error(
 
 __all__ = [
     "FUNCTIONAL_PROBLEM_BINDING_CONTEXT_CONTRACT",
+    "FUNCTIONAL_PROBLEM_BINDING_LEDGER_CONTRACT",
     "PROBLEM_PLANNING_BINDING_CATALOG_CONTRACT",
     "FunctionalProblemBindingContext",
+    "FunctionalProblemBindingDraft",
+    "FunctionalProblemBindingLedger",
+    "FunctionalProblemCallBinding",
     "FunctionalProblemInputBinding",
     "FunctionalProblemReturnBinding",
     "ProblemCallGoalBinding",

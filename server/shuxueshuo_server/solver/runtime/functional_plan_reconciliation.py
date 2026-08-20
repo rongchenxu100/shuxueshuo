@@ -111,10 +111,12 @@ from shuxueshuo_server.solver.runtime.functional_plan_models import (
     FunctionalPlanReconciliationResult,
     FunctionalRef,
     FunctionalReturnAllocation,
+    FunctionalTypedInputSourcePin,
     ResolvedFunctionalValue,
     _issue,
 )
 from shuxueshuo_server.solver.extraction.problem_planning_binding import (
+    FunctionalProblemBindingLedger,
     ProblemCallGoalBinding,
     ProblemPlanGoalBindings,
     ProblemPlanningBindingCatalog,
@@ -510,7 +512,7 @@ class _NormalizeElaborateScopeStage:
             catalog=catalog,
             semantic_index=semantic_index,
             future_return_object_hints=future_return_object_hints,
-            include_explicit_object_refs=not require_explicit_step_results,
+            include_explicit_object_refs=True,
         )
         elaboration = _resolve_planned_structured_state_issues(
             elaboration,
@@ -551,15 +553,11 @@ class _NormalizeElaborateScopeStage:
             call_scopes=call_scopes,
             call_result_consumers=consumers,
             call_execution_scopes=call_execution_scopes,
-            semantic_object_consumers=(
-                {}
-                if require_explicit_step_results
-                else _semantic_object_consumer_scopes(
-                    plan,
-                    semantic_index=semantic_index,
-                    catalog=catalog,
-                    future_return_object_hints=future_return_object_hints,
-                )
+            semantic_object_consumers=_semantic_object_consumer_scopes(
+                plan,
+                semantic_index=semantic_index,
+                catalog=catalog,
+                future_return_object_hints=future_return_object_hints,
             ),
             requested_scopes=requested_scopes,
             dependency_graph=dependency_graph,
@@ -1200,6 +1198,7 @@ class FunctionalPlanReconciler:
                 processed_call_ids=processed_call_ids,
                 deterministic_repairs=reconciliation_repairs,
                 issues=issues,
+                typed_input_source_pins=plan.typed_input_source_pins,
             )
             authored_macro_roles = _authored_runtime_search_roles(
                 capability,
@@ -1343,6 +1342,10 @@ class FunctionalPlanReconciler:
                 produced=produced,
                 semantic_index=call_semantic_index,
                 handle_registry=handle_registry,
+                allow_legacy_planned_producer_visibility=not bool(
+                    plan.typed_dependency_graph
+                    or plan.typed_input_source_pins
+                ),
             )
             resolved_args.update(closure_args)
             reconciliation_repairs.extend(closure_repairs)
@@ -2487,6 +2490,7 @@ class _PlacementLivenessProjectionStage:
             ),
         )
         functional_problem_binding_context = None
+        functional_problem_binding_ledger = None
         if problem_binding_catalog is not None and not issues:
             try:
                 functional_problem_binding_context = (
@@ -2496,9 +2500,28 @@ class _PlacementLivenessProjectionStage:
                         tuple(reconciled),
                         functional_binding_context,
                         goal_bindings=final_problem_goal_bindings,
-                        allow_implicit_same_object_call_result=(
-                            not require_explicit_step_results
-                        ),
+                    )
+                )
+                pending_macro_call_ids = tuple(
+                    call.call_id
+                    for call in reconciled
+                    if (
+                        (capability := catalog.get(call.capability_id))
+                        is not None
+                        and capability.kind == "macro"
+                        and getattr(
+                            capability.source,
+                            "execution_mode",
+                            "direct",
+                        )
+                        == "runtime_search"
+                    )
+                )
+                functional_problem_binding_ledger = (
+                    FunctionalProblemBindingLedger.from_context(
+                        functional_problem_binding_context,
+                        pending_macro_call_ids=pending_macro_call_ids,
+                        catalog=problem_binding_catalog,
                     )
                 )
             except ProblemPlanningBindingError as exc:
@@ -2573,6 +2596,9 @@ class _PlacementLivenessProjectionStage:
                 functional_problem_binding_context=(
                     functional_problem_binding_context
                 ),
+                functional_problem_binding_ledger=(
+                    functional_problem_binding_ledger
+                ),
                 functional_binding_decisions=(
                     functional_binding_audit.decisions
                 ),
@@ -2622,6 +2648,9 @@ class _PlacementLivenessProjectionStage:
             functional_binding_context=functional_binding_context,
             functional_problem_binding_context=(
                 functional_problem_binding_context
+            ),
+            functional_problem_binding_ledger=(
+                functional_problem_binding_ledger
             ),
             functional_binding_decisions=functional_binding_audit.decisions,
             functional_binding_mismatches=functional_binding_audit.mismatches,
@@ -4883,6 +4912,9 @@ def _resolve_explicit_call_args(
     processed_call_ids: set[str],
     deterministic_repairs: list[FunctionalDeterministicRepair],
     issues: list[FunctionalPlanIssue],
+    typed_input_source_pins: Mapping[
+        tuple[str, str, int], FunctionalTypedInputSourcePin
+    ] | None = None,
 ) -> tuple[FunctionalCall, dict[str, tuple[ResolvedFunctionalValue, ...]]]:
     """Resolve only LLM-visible arguments and collect independent failures."""
     arg_specs = {item.name: item for item in capability.args}
@@ -4951,7 +4983,7 @@ def _resolve_explicit_call_args(
             continue
 
         values: list[ResolvedFunctionalValue] = []
-        for ref in refs:
+        for item_index, ref in enumerate(refs):
             value, ref_issues = _resolve_functional_ref(
                 ref,
                 arg_name=arg.name,
@@ -4968,6 +5000,9 @@ def _resolve_explicit_call_args(
                 deterministic_repairs=deterministic_repairs,
                 input_closure_policy=arg.input_closure_policy,
                 semantic_ref_role=arg.semantic_ref_role,
+                source_pin=typed_input_source_pins.get(
+                    (call.call_id, arg.name, item_index)
+                ) if typed_input_source_pins is not None else None,
             )
             issues.extend(ref_issues)
             if value is None:
@@ -5082,6 +5117,7 @@ def _resolve_functional_ref(
     deterministic_repairs: list[FunctionalDeterministicRepair],
     input_closure_policy: CapabilityStateClosurePolicy,
     semantic_ref_role: str = "value",
+    source_pin: FunctionalTypedInputSourcePin | None = None,
 ) -> tuple[ResolvedFunctionalValue | None, tuple[FunctionalPlanIssue, ...]]:
     if isinstance(ref, CallResultRef):
         value = produced.get((ref.from_call, ref.return_name))
@@ -5194,6 +5230,91 @@ def _resolve_functional_ref(
         if is_object_semantic_kind(ref.kind)
         else set()
     )
+    if source_pin is not None:
+        if (
+            source_pin.consumer_call_id != call_id
+            or source_pin.arg_name != arg_name
+            or source_pin.semantic_ref != ref.ref
+        ):
+            return None, (
+                _issue(
+                    "functional_reconciliation",
+                    "planner.method_input_view_authority_drift",
+                    "typed input source pin does not match the authored input",
+                    call_id=call_id,
+                    scope_id=scope_id,
+                    details={
+                        "arg_name": arg_name,
+                        "semantic_ref": ref.ref,
+                        "pin": {
+                            "consumer_call_id": source_pin.consumer_call_id,
+                            "arg_name": source_pin.arg_name,
+                            "semantic_ref": source_pin.semantic_ref,
+                            "producer_call_id": source_pin.producer_call_id,
+                            "return_name": source_pin.return_name,
+                        },
+                    },
+                ),
+            )
+        selected = produced.get(
+            (source_pin.producer_call_id, source_pin.return_name)
+        )
+        if selected is None:
+            return None, (
+                _issue(
+                    "functional_reconciliation",
+                    "planner.method_input_view_authority_missing",
+                    "typed input source producer is unavailable",
+                    call_id=call_id,
+                    scope_id=scope_id,
+                    details={
+                        "arg_name": arg_name,
+                        "semantic_ref": ref.ref,
+                        "producer_call_id": source_pin.producer_call_id,
+                        "return_name": source_pin.return_name,
+                    },
+                ),
+            )
+        if not (
+            selected.object_ref in object_refs
+            and visible_from_valid_scope(
+                selected.valid_scope,
+                scope_id=scope_id,
+                registry=handle_registry,
+            )
+            and any(
+                runtime_type_compatible(expected, selected.runtime_type)
+                for expected in accepted_types
+            )
+        ):
+            return None, (
+                _issue(
+                    "functional_reconciliation",
+                    "planner.method_input_view_authority_drift",
+                    "typed input source producer does not satisfy the input",
+                    call_id=call_id,
+                    scope_id=scope_id,
+                    details={
+                        "arg_name": arg_name,
+                        "semantic_ref": ref.ref,
+                        "producer_call_id": source_pin.producer_call_id,
+                        "return_name": source_pin.return_name,
+                        "expected_object_refs": sorted(object_refs),
+                        "observed_object_ref": selected.object_ref,
+                        "accepted_item_types": list(accepted_types),
+                        "observed_type": selected.runtime_type,
+                    },
+                ),
+            )
+        deterministic_repairs.append(
+            FunctionalDeterministicRepair(
+                call_id,
+                "pin_typed_entity_state_source",
+                f"{ref.kind}:{ref.ref}",
+                f"{source_pin.producer_call_id}:{source_pin.return_name}",
+            )
+        )
+        return selected, ()
     if semantic_ref_role == "object_identity" and object_refs:
         if len(object_refs) != 1:
             return None, (
@@ -7197,11 +7318,20 @@ def _semantic_object_consumer_scopes(
     """Assign semantic object reads to their nearest planned producer.
 
     A semantic reference names a MathObject, not a particular state version.
-    Prefer the latest prior producer already visible in the consumer branch.
-    A producer in a sibling branch is used only when it is the sole prior
-    producer, allowing B2 to hoist that uniquely shared state. Exact
-    StateVersion dependencies remain authoritative after reconciliation.
+    Select only the latest prior producer already visible in the consumer
+    branch. A sibling producer is never a candidate: B2 may plan a physical
+    execution address, but it cannot broaden semantic state visibility or
+    create a cross-scope dependency that the authored scope tree forbids.
+    Exact StateVersion dependencies remain authoritative after reconciliation.
+
+    A directly-authored v1 debug Plan has no typed dependency sidecar.  Its
+    historical B2 adapter may still associate one unique prior producer so
+    old deterministic fixtures remain executable.  A v2-derived execution IR
+    always carries ``typed_dependency_graph`` and never receives that fallback.
     """
+    scope_native_authority = bool(
+        plan.typed_dependency_graph or plan.typed_input_source_pins
+    )
     call_order = {
         call.call_id: index for index, call in enumerate(plan.calls)
     }
@@ -7296,7 +7426,11 @@ def _semantic_object_consumer_scopes(
             selected = (
                 max(visible, key=lambda item: item[0])
                 if visible
-                else (prior[0] if len(prior) == 1 else None)
+                else (
+                    prior[0]
+                    if not scope_native_authority and len(prior) == 1
+                    else None
+                )
             )
             if selected is None:
                 continue
@@ -8180,10 +8314,15 @@ def _functional_dependency_graph(
 ) -> dict[str, tuple[str, ...]]:
     return {
         call.call_id: unique_ordered(
-            ref.from_call
-            for refs in call.args.values()
-            for ref in refs
-            if isinstance(ref, CallResultRef)
+            (
+                *(
+                    ref.from_call
+                    for refs in call.args.values()
+                    for ref in refs
+                    if isinstance(ref, CallResultRef)
+                ),
+                *plan.typed_dependency_graph.get(call.call_id, ()),
+            )
         )
         for call in plan.calls
     }

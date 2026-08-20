@@ -7,6 +7,7 @@ FunctionalPlan 编译成 ``PlannerOutput``，后续仍由 Orchestrator 执行 me
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 import json
 from pathlib import Path
@@ -23,6 +24,15 @@ from shuxueshuo_server.solver.extraction.problem_solver_bundle import (
     ProblemBundleAuthorityError,
 )
 from shuxueshuo_server.solver.runtime.context import RuntimeContext
+from shuxueshuo_server.solver.runtime._paths import repo_root
+from shuxueshuo_server.solver.runtime.functional_goal_retry import (
+    ScopedFunctionalGoalRetryRunResult,
+    ScopedFunctionalGoalRetryService,
+)
+from shuxueshuo_server.solver.runtime.functional_plan_content import (
+    FunctionalPlanAuthorityFrame,
+    functional_plan_content_from_plan,
+)
 from shuxueshuo_server.solver.runtime.functional_few_shots import (
     FunctionalFewShotSelectionMode,
     default_scope_native_functional_plan_fixture_dir,
@@ -70,6 +80,9 @@ from shuxueshuo_server.solver.runtime.strategy_replay import (
 from shuxueshuo_server.solver.runtime.planner_failure_classification import (
     is_planner_configuration_failure_code,
 )
+from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
+    ScopedFunctionalPlanValidator,
+)
 
 
 StrategyPlannerMode = Literal["recorded", "deepseek"]
@@ -93,6 +106,8 @@ class StrategyPlannerArtifacts:
     problem_authority: VerifiedPlannerProblemAuthority | None = None
     problem_binding_catalog: ProblemPlanningBindingCatalog | None = None
     initial_planner_state_context: PlannerStateContext | None = None
+    scoped_retry_result: ScopedFunctionalGoalRetryRunResult | None = None
+    verified_execution: object | None = None
 
 
 class StrategyPlanner:
@@ -108,6 +123,7 @@ class StrategyPlanner:
         payload_builder: StrategyPayloadBuilder | None = None,
         prompt_renderer: StrategyPromptRenderer | None = None,
         functional_plan_fixture_dir: Path | str | None = None,
+        scoped_functional_plan_fixture_dir: Path | str | None = None,
     ) -> None:
         if problem_authority is None:
             raise ProblemBundleAuthorityError(
@@ -125,6 +141,15 @@ class StrategyPlanner:
             Path(functional_plan_fixture_dir)
             if functional_plan_fixture_dir is not None
             else default_scope_native_functional_plan_fixture_dir()
+        )
+        self.scoped_functional_plan_fixture_dir = (
+            Path(scoped_functional_plan_fixture_dir)
+            if scoped_functional_plan_fixture_dir is not None
+            else (
+                repo_root(Path(__file__))
+                / "internal"
+                / "functional-plan-v2-fixtures"
+            )
         )
         self.artifacts = StrategyPlannerArtifacts()
 
@@ -154,7 +179,7 @@ class StrategyPlanner:
         return self.artifacts.output
 
     def plan(self, inputs: PlannerInputs) -> PlannerOutput:
-        """生成 PlannerOutput，但不执行 method、不收集答案。"""
+        """Legacy v1 debug entry; production uses :meth:`run_scoped`."""
         (
             problem_payload,
             handle_registry,
@@ -261,6 +286,110 @@ class StrategyPlanner:
             initial_planner_state_context=planner_state_context,
         )
         return output
+
+    def run_scoped(
+        self,
+        inputs: PlannerInputs,
+        *,
+        max_attempts: int = 3,
+    ) -> ScopedFunctionalGoalRetryRunResult:
+        """Run the production content/v2 -> Goal retry -> checkpoint v3 path."""
+
+        (
+            problem_payload,
+            handle_registry,
+            planner_state_context,
+            problem_binding_catalog,
+        ) = self._prepare_scope_native_problem_authority(inputs)
+        if self.mode == "recorded":
+            client: LLMPlannerClient = _RecordedScopedFunctionalClient(
+                self._recorded_scoped_content(inputs)
+            )
+        elif self.mode == "deepseek":
+            if self.client is None:
+                raise StrategyDraftValidationError(
+                    "deepseek strategy planner requires client"
+                )
+            client = self.client
+        else:
+            raise StrategyDraftValidationError(
+                f"unknown strategy planner mode: {self.mode}"
+            )
+
+        run_result = ScopedFunctionalGoalRetryService(
+            client,
+            payload_builder=self.payload_builder,
+            prompt_renderer=self.prompt_renderer,
+        ).run(
+            inputs=inputs,
+            planning_context=self.problem_authority.planning_context,
+            problem_binding_catalog=problem_binding_catalog,
+            handle_registry=handle_registry,
+            runtime_context=self.context,
+            planner_state_context=planner_state_context,
+            problem_payload=problem_payload,
+            max_attempts=max_attempts,
+        )
+        representative = run_result.attempts[-1] if run_result.attempts else None
+        replay = (
+            run_result.final_execution.replay
+            if run_result.final_execution is not None
+            else None
+        )
+        self.artifacts = StrategyPlannerArtifacts(
+            payload=(
+                dict(representative.payload)
+                if representative is not None
+                else None
+            ),
+            prompt=(representative.prompt if representative is not None else None),
+            raw_response=(
+                representative.raw_response
+                if representative is not None
+                else None
+            ),
+            planner_inputs=inputs,
+            validation_report=(
+                representative.content_validation_report
+                if representative is not None
+                else None
+            ),
+            retry_replay_result=replay,
+            output=(replay.output if replay is not None else None),
+            problem_authority=self.problem_authority,
+            problem_binding_catalog=problem_binding_catalog,
+            initial_planner_state_context=planner_state_context,
+            scoped_retry_result=run_result,
+            verified_execution=run_result.verified_execution,
+        )
+        return run_result
+
+    def _recorded_scoped_content(self, inputs: PlannerInputs) -> str:
+        path = (
+            self.scoped_functional_plan_fixture_dir
+            / f"{inputs.problem_id}.functional-plan.json"
+        )
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        plan, report = ScopedFunctionalPlanValidator().validate_payload_with_report(
+            payload
+        )
+        if plan is None or not report.ok:
+            first = report.first_issue
+            raise StrategyDraftValidationError(
+                "planner.recorded_scoped_fixture_invalid: "
+                + (
+                    f"{first.code}: {first.message}"
+                    if first is not None
+                    else str(path)
+                )
+            )
+        content = functional_plan_content_from_plan(
+            plan,
+            frame=FunctionalPlanAuthorityFrame.from_planning_context(
+                self.problem_authority.planning_context
+            ),
+        )
+        return json.dumps(content.to_payload(), ensure_ascii=False)
 
     def repair_attempt_payload(
         self,
@@ -510,6 +639,65 @@ class StrategyPlanner:
             problem_binding_catalog,
         )
 
+    def _prepare_scope_native_problem_authority(
+        self,
+        inputs: PlannerInputs,
+    ) -> tuple[
+        dict[str, Any],
+        CanonicalHandleRegistry,
+        PlannerStateContext,
+        ProblemPlanningBindingCatalog,
+    ]:
+        """Pin the immutable authority used by the production v2 service.
+
+        Goal retry owns its checkpoint lifecycle internally.  In particular,
+        this entry never reads the legacy call-level checkpoint carried by
+        ``PlannerInputs.previous_errors``.
+        """
+
+        bundle = self.problem_authority.bundle
+        planning_context = self.problem_authority.planning_context
+        if inputs.problem_id != planning_context.problem_id:
+            raise ProblemBundleAuthorityError(
+                "planner.problem_revision_drift",
+                "$.problem_id",
+                "Planner inputs do not belong to the authenticated problem",
+            )
+        if inputs.family_spec.family_id != planning_context.family_id:
+            raise ProblemBundleAuthorityError(
+                "planner.problem_revision_drift",
+                "$.family_id",
+                "Planner family differs from the authenticated problem",
+            )
+        problem_payload = problem_to_llm_payload(bundle.build_solver_problem())
+        if problem_to_llm_payload(self.context.problem) != problem_payload:
+            raise ProblemBundleAuthorityError(
+                "planner.problem_revision_drift",
+                "$.runtime_context.problem",
+                "RuntimeContext was not built from the authenticated bundle",
+            )
+        handle_registry = CanonicalHandleRegistry.from_problem_payload(
+            problem_payload
+        )
+        planner_state_context = initial_planner_state_context(
+            inputs,
+            problem_payload=problem_payload,
+            handle_registry=handle_registry,
+        )
+        problem_binding_catalog = ProblemPlanningBindingCatalogBuilder().build(
+            bundle,
+            planning_context,
+            planner_state_context,
+            handle_registry,
+            expected_token=bundle.authority_token,
+        )
+        return (
+            problem_payload,
+            handle_registry,
+            planner_state_context,
+            problem_binding_catalog,
+        )
+
     def _capture(
         self,
         *,
@@ -543,6 +731,7 @@ def strategy_planner_provider(
     mode: StrategyPlannerMode = "recorded",
     client: LLMPlannerClient | None = None,
     functional_plan_fixture_dir: Path | str | None = None,
+    scoped_functional_plan_fixture_dir: Path | str | None = None,
     allow_same_problem_few_shot: bool = True,
     functional_few_shot_mode: FunctionalFewShotSelectionMode | None = None,
 ) -> "Callable[..., StrategyPlanner]":
@@ -571,9 +760,36 @@ def strategy_planner_provider(
             client=client,
             payload_builder=payload_builder,
             functional_plan_fixture_dir=functional_plan_fixture_dir,
+            scoped_functional_plan_fixture_dir=(
+                scoped_functional_plan_fixture_dir
+            ),
         )
 
     return provider
+
+
+class _RecordedScopedFunctionalClient:
+    """Deterministic content/v2 provider for local and offline production tests."""
+
+    provider_name = "recorded"
+    model = "recorded-functional-plan-content-v2"
+    last_usage: dict[str, int] | None = None
+    last_response_model = model
+    last_provider_attempts: tuple[object, ...] = ()
+
+    def __init__(self, raw_content: str) -> None:
+        self.raw_content = raw_content
+        self.requests: list[Mapping[str, Any]] = []
+
+    def complete(self, payload: Mapping[str, Any]) -> str:
+        self.requests.append(payload)
+        protocol = str(payload.get("planner_protocol", ""))
+        if protocol != "functional-plan-content/v2":
+            raise StrategyDraftValidationError(
+                "planner.recorded_scoped_fixture_requires_repair: "
+                "recorded content/v2 fixture did not pass in one semantic attempt",
+            )
+        return self.raw_content
 
 
 def _goal_verification_issue(

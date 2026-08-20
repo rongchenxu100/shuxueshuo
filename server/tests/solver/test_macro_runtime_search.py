@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from shuxueshuo_server.solver.family.models import MacroSearchSpec
+from shuxueshuo_server.solver.contracts import MacroSearchSpec
 from shuxueshuo_server.solver.runtime.macro_runtime_search import (
     MacroCandidateEvaluation,
     MacroExecutionCandidate,
@@ -122,6 +122,36 @@ def test_equivalent_runtime_candidates_choose_smallest_verified_graph() -> None:
 
     assert winner.candidate_id == "small"
     assert len(report.evaluations) == 3
+
+
+def test_equivalent_candidates_use_lowered_evaluation_call_count() -> None:
+    """Runtime lowering is authoritative over candidate-builder estimates."""
+
+    def evaluate(candidate: MacroExecutionCandidate) -> MacroCandidateEvaluation:
+        actual_counts = {"builder-small": 4, "lowered-small": 1}
+        return MacroCandidateEvaluation(
+            candidate_id=candidate.candidate_id,
+            passed=True,
+            output_signature="equivalent-output",
+            checks=("runtime_verified",),
+            call_count=actual_counts[candidate.candidate_id],
+        )
+
+    winner, report = MacroRuntimeSearchService().search(
+        macro_id="path_macro",
+        spec=SPEC,
+        candidates=(
+            _candidate("builder-small", "E", call_count=1),
+            _candidate("lowered-small", "G", call_count=9),
+        ),
+        authored_roles={},
+        evaluator=evaluate,
+    )
+
+    assert winner.candidate_id == "lowered-small"
+    assert {
+        item.candidate_id: item.call_count for item in report.evaluations
+    } == {"builder-small": 4, "lowered-small": 1}
 
 
 def test_non_equivalent_runtime_candidates_fail_loud() -> None:

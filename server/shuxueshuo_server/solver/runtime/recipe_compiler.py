@@ -40,10 +40,6 @@ from shuxueshuo_server.solver.runtime.condition_roles import (
     ConditionRoleResolver,
     resolve_read_closed_right_angle_inputs,
 )
-from shuxueshuo_server.solver.runtime.equal_length_ray_roles import (
-    EqualLengthRayRoleError,
-    build_equal_length_ray_role_candidates,
-)
 from shuxueshuo_server.solver.runtime._planner_helpers import single_invocation_step
 from shuxueshuo_server.solver.runtime.method_specs import (
     MethodSpecRegistry,
@@ -3116,41 +3112,28 @@ def _equal_length_ray_path_reduction_roles(
     该推断只依赖结构化 ``point_on_segment``、``point_on_ray``、
     ``equal_length_condition`` 与 ``path_minimum_target``，不使用和平题点名。
     """
-    ray_fact = index.fact_handle_by_type("point_on_ray", step=step)
-    segment_fact = index.fact_handle_by_type("point_on_segment", step=step)
-    equal_fact = index.fact_handle_by_type("equal_length_condition", step=step)
-    target_fact = index.fact_handle_by_type("path_minimum_target", step=step)
+    prepared_roles = getattr(step, "macro_role_overrides", None)
+    if prepared_roles:
+        required = {
+            "anchor",
+            "ray_point",
+            "reference_point",
+            "fixed_point",
+        }
+        if set(prepared_roles) != required:
+            raise StrategyDraftValidationError(
+                "planner.macro_contract_invalid: "
+                f"{step.step_id}: prepared equal-length roles differ from "
+                f"the Macro contract; expected={sorted(required)}, "
+                f"observed={sorted(prepared_roles)}"
+            )
+        return dict(prepared_roles)
 
-    try:
-        candidates = build_equal_length_ray_role_candidates(
-            ray_facts=((ray_fact, index.fact_payload(ray_fact)),),
-            segment_facts=((segment_fact, index.fact_payload(segment_fact)),),
-            equal_facts=((equal_fact, index.fact_payload(equal_fact)),),
-            target_facts=((target_fact, index.fact_payload(target_fact)),),
-            entity_payload=index.entity_payload,
-            visible_point_handles=index.entity_handles("point", step=step),
-            resolve_point_name=lambda name: index.point_handle_by_name(
-                name,
-                step=step,
-            ),
-        )
-    except EqualLengthRayRoleError as exc:
-        raise StrategyDraftValidationError(
-            f"{exc.code}: {step.step_id}: {exc}"
-        ) from exc
-    if len(candidates) != 1:
-        raise StrategyDraftValidationError(
-            "functional.macro_search_ambiguous: "
-            f"{step.step_id}: expected one structure-valid equal-length role "
-            f"candidate, got {len(candidates)}"
-        )
-    roles = candidates[0].roles
-    return {
-        "anchor": roles.anchor,
-        "ray_point": roles.ray_point,
-        "reference_point": roles.reference_point,
-        "fixed_point": roles.fixed_point,
-    }
+    raise StrategyDraftValidationError(
+        "planner.macro_preparation_authority_missing: "
+        f"{step.step_id}: runtime_search Macro reached the compiler without "
+        "a prepared winner"
+    )
 
 
 def _point_value_path_for_step(

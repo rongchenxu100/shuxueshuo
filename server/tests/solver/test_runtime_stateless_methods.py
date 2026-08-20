@@ -421,6 +421,44 @@ def test_angle_sum_equal_angle_candidates_accepts_symbolic_axis_points() -> None
     assert all(check.ok for check in result.checks)
 
 
+def test_angle_sum_equal_angle_candidates_reports_stale_derived_point_states() -> None:
+    kernel = SympyKernel()
+    parameter = sp.Symbol("a", positive=True)
+
+    with pytest.raises(StatelessMethodError) as error:
+        AngleSumEqualAngleCandidatesMethod().run(
+            {
+                "condition": {
+                    "type": "angle_sum",
+                    "description": "∠CBE+∠ACO=45°",
+                    "angle_terms": ["CBE", "ACO"],
+                    "value": "45",
+                },
+                "x_axis_point": (3 / parameter, sp.Integer(0)),
+                "y_axis_point": (sp.Integer(0), sp.Integer(-3)),
+                "reference_x_axis_point": (sp.Integer(-1), sp.Integer(0)),
+                "origin": (sp.Integer(0), sp.Integer(0)),
+                "target": PointRef("F", "$subquestion.i_2.points.F"),
+            },
+            kernel,
+        )
+
+    authority = error.value.authority
+    assert authority.code == "functional.method_result_empty"
+    assert authority.repair_action == "refresh_derived_input_states"
+    assert [item.arg_name for item in authority.subjects] == [
+        "x_axis_point",
+        "y_axis_point",
+    ]
+    assert [item.observed_state for item in authority.subjects] == [
+        "open_state",
+        "closed_state",
+    ]
+    assert authority.to_payload()["observed"]["horizontal_free_symbols"] == [
+        "a"
+    ]
+
+
 def test_angle_sum_equal_angle_candidates_rejects_degenerate_axis_roles() -> None:
     kernel = SympyKernel()
 
@@ -1766,11 +1804,11 @@ def test_quadratic_x_axis_intercept_matches_existing_symbolic_target_state() -> 
         {
             "quadratic": -(x - 1) * (x + c),
             "x": x,
-            "target": PointRef(
-                "A",
-                "$question.ii.points.A",
-                definition={"existing_coordinate": (-c, 0)},
-            ),
+                "target": PointRef(
+                    "A",
+                    "$question.ii.points.A",
+                ),
+                "target_state": (-c, 0),
         },
         kernel,
     )

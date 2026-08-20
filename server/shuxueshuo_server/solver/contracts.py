@@ -39,6 +39,61 @@ MethodInputViewMode = Literal[
     "exact_result",
 ]
 MethodInputRelationCardinality = Literal["one", "for_each"]
+MacroExecutionMode = Literal["direct", "runtime_search"]
+
+
+@dataclass(frozen=True)
+class MacroSearchSpec:
+    """Bounded implementation contract for one runtime-search Macro."""
+
+    searchable_roles: tuple[str, ...]
+    candidate_builder_id: str
+    validation_policy_id: str
+    lowerer_id: str | None = None
+    postcondition_id: str | None = None
+    evidence_builder_id: str | None = None
+    max_candidates: int = 32
+
+    def __post_init__(self) -> None:
+        if not self.searchable_roles or any(
+            not isinstance(item, str) or not item
+            for item in self.searchable_roles
+        ):
+            raise ValueError("Macro search roles must be non-empty")
+        if len(set(self.searchable_roles)) != len(self.searchable_roles):
+            raise ValueError("Macro search roles must be unique")
+        for name, value in (
+            ("candidate_builder_id", self.candidate_builder_id),
+            ("validation_policy_id", self.validation_policy_id),
+        ):
+            if not isinstance(value, str) or not value:
+                raise ValueError(f"{name} must be a non-empty string")
+        for name, value in (
+            ("lowerer_id", self.lowerer_id),
+            ("postcondition_id", self.postcondition_id),
+            ("evidence_builder_id", self.evidence_builder_id),
+        ):
+            if value is not None and (not isinstance(value, str) or not value):
+                raise ValueError(f"{name} must be non-empty when provided")
+        if self.max_candidates <= 0:
+            raise ValueError("Macro search max_candidates must be positive")
+
+    def to_payload(self) -> dict[str, object]:
+        payload: dict[str, object] = {
+            "searchable_roles": list(self.searchable_roles),
+            "candidate_builder_id": self.candidate_builder_id,
+            "validation_policy_id": self.validation_policy_id,
+            "max_candidates": self.max_candidates,
+        }
+        for name in (
+            "lowerer_id",
+            "postcondition_id",
+            "evidence_builder_id",
+        ):
+            value = getattr(self, name)
+            if value is not None:
+                payload[name] = value
+        return payload
 
 
 @dataclass(frozen=True)

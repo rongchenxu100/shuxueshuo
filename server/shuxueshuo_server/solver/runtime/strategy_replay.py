@@ -265,6 +265,7 @@ class PlannerRetryReplayService:
         functional_symbolic_closure_mode: FunctionalSymbolicClosureMode = (
             "disabled"
         ),
+        legacy_call_level_checkpoint_mode: bool = True,
     ) -> None:
         if functional_transaction_mode not in {
             "shadow",
@@ -277,6 +278,9 @@ class PlannerRetryReplayService:
         self._functional_transaction_mode = functional_transaction_mode
         self._functional_symbolic_closure_mode = (
             functional_symbolic_closure_mode
+        )
+        self._legacy_call_level_checkpoint_mode = (
+            legacy_call_level_checkpoint_mode
         )
 
     def replay_functional_raw_json(
@@ -749,6 +753,9 @@ class PlannerRetryReplayService:
                     parent_context=parent_context,
                     inputs=inputs,
                     handle_registry=handle_registry,
+                    legacy_call_level_checkpoint_mode=(
+                        self._legacy_call_level_checkpoint_mode
+                    ),
                 )
                 replay = replace(
                     replay,
@@ -1378,18 +1385,23 @@ def _functional_runtime_retry_state(
     allow_goal_commit: bool = True,
     preserve_committed_checkpoint: FunctionalRetryGraphCheckpoint | None = None,
     observed_symbolic_closures: Mapping[str, Any] | None = None,
+    legacy_call_level_checkpoint_mode: bool = True,
 ) -> PlannerRetryState | None:
     if retry_state is None and runtime_retry_state is None:
         return None
     retry_state = retry_state or runtime_retry_state
     assert retry_state is not None
-    reconciliation = replace(
-        reconciliation,
-        dependency_graph=expand_retry_dependency_graph_with_versions(
+    if legacy_call_level_checkpoint_mode:
+        reconciliation = replace(
             reconciliation,
-            checkpoint=expected_retry_checkpoint,
-        ),
-    )
+            dependency_graph=expand_retry_dependency_graph_with_versions(
+                reconciliation,
+                checkpoint=expected_retry_checkpoint,
+            ),
+        )
+    else:
+        expected_retry_checkpoint = None
+        preserve_committed_checkpoint = None
     accepted_step_ids = {
         item.step_id
         for item in (diagnostic.accepted_prefix if diagnostic is not None else ())
@@ -1466,7 +1478,10 @@ def _functional_runtime_retry_state(
             call_memory=call_memory,
             provenance=all_provenance,
         )
-        if planner_state_context is not None
+        if (
+            legacy_call_level_checkpoint_mode
+            and planner_state_context is not None
+        )
         else None
     )
     if (
@@ -1584,6 +1599,7 @@ def _transactional_functional_retry_state(
     parent_context: PlannerStateContext,
     inputs: PlannerInputs,
     handle_registry: CanonicalHandleRegistry,
+    legacy_call_level_checkpoint_mode: bool = True,
 ) -> PlannerRetryState | None:
     reconciliation = replay.functional_reconciliation
     if reconciliation is None:
@@ -1641,12 +1657,17 @@ def _transactional_functional_retry_state(
             latest_functional_retry_graph_checkpoint(
                 inputs.previous_errors
             )
+            if legacy_call_level_checkpoint_mode
+            else None
         ),
         observed_symbolic_closures={
             item.call_id: item.symbolic_closure
             for item in attempt_result.execution_report.call_results
             if item.symbolic_closure is not None
         },
+        legacy_call_level_checkpoint_mode=(
+            legacy_call_level_checkpoint_mode
+        ),
     )
 
 

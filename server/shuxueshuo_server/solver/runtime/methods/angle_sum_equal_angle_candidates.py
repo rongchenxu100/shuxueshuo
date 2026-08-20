@@ -114,11 +114,46 @@ class AngleSumEqualAngleCandidatesMethod:
                 observed={"x_axis_point": x_axis_point, "reference_point": reference_x_axis_point},
             )
         if sp.simplify(ob - co) != 0:
+            horizontal_free = tuple(
+                sorted(str(item) for item in sp.sympify(ob).free_symbols)
+            )
+            vertical_free = tuple(
+                sorted(str(item) for item in sp.sympify(co).free_symbols)
+            )
             raise method_result_empty(
                 "axis triangle does not establish the required 45 degree reference angle",
-                role="reference_angle",
-                expected={"horizontal_length_equals_vertical_length": True},
-                observed={"horizontal_length": ob, "vertical_length": co},
+                subjects=(
+                    FunctionalDiagnosticSubject(
+                        role="horizontal_axis_point",
+                        arg_name="x_axis_point",
+                        expected_type="Point",
+                        expected_state="reference_angle_relation_provable",
+                        observed_type="Point",
+                        observed_state=(
+                            "open_state" if horizontal_free else "closed_state"
+                        ),
+                    ),
+                    FunctionalDiagnosticSubject(
+                        role="vertical_axis_point",
+                        arg_name="y_axis_point",
+                        expected_type="Point",
+                        expected_state="reference_angle_relation_provable",
+                        observed_type="Point",
+                        observed_state=(
+                            "open_state" if vertical_free else "closed_state"
+                        ),
+                    ),
+                ),
+                expected={
+                    "horizontal_length_equals_vertical_length": True,
+                },
+                observed={
+                    "horizontal_length": ob,
+                    "horizontal_free_symbols": horizontal_free,
+                    "vertical_length": co,
+                    "vertical_free_symbols": vertical_free,
+                },
+                repair_action="refresh_derived_input_states",
             )
 
         shared, reference = _shared_and_reference_angles(angle_terms)

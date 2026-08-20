@@ -12532,7 +12532,7 @@ def test_typed_canonicalization_keeps_sibling_private_state_separate() -> None:
     assert repairs == ()
 
 
-def test_path_context_can_defer_unique_planned_point_visibility() -> None:
+def test_path_context_never_defers_sibling_planned_point_visibility() -> None:
     _problem, _inputs, _payload, registry, context, _fixture = _xiqing_case()
     semantic_index = FunctionalSemanticIndex.from_context(
         context,
@@ -12572,7 +12572,20 @@ def test_path_context_can_defer_unique_planned_point_visibility() -> None:
         semantic_index=semantic_index,
         handle_registry=registry,
         allow_unique_planned_producer=True,
-    ) is planned
+    ) is None
+
+    same_scope_planned = replace(
+        planned,
+        valid_scope="ii_2",
+    )
+    assert latest_point_state_for_object(
+        "point:ii:D",
+        scope_id="ii_2",
+        produced={("derive_target", "point"): same_scope_planned},
+        semantic_index=semantic_index,
+        handle_registry=registry,
+        allow_unique_planned_producer=True,
+    ) is same_scope_planned
 
 
 def test_path_context_prefers_visible_state_over_sibling_planned_state() -> None:

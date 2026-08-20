@@ -56,6 +56,10 @@ from shuxueshuo_server.solver.runtime.binding_index import (
     _segment_relation_names,
 )
 from shuxueshuo_server.solver.runtime.entity_state_resolver import EntityStateResolver
+from shuxueshuo_server.solver.runtime.equal_length_ray_roles import (
+    EqualLengthRayRoleError,
+    build_equal_length_ray_role_candidates,
+)
 
 BindingSelectorFn = Callable[
     [FunctionalCompileStepView, CanonicalRuntimeBindingIndex, Mapping[str, str]],
@@ -553,6 +557,38 @@ def _point_output_ref_selector(
         return _point_transition_target_selector(step, index, local_outputs)
     index.ensure_point_declaration(handle, definition="method_output_point")
     return index.point_ref_path_for(handle)
+
+
+def _point_output_state_selector(
+    step: FunctionalCompileStepView,
+    index: CanonicalRuntimeBindingIndex,
+    local_outputs: Mapping[str, str],
+) -> str:
+    """Read the latest visible state of the point selected as output target."""
+
+    handle = _point_output_handle(step, index)
+    projected = next(
+        (
+            write
+            for write in index.projected_state_writes
+            if write.step_id == step.step_id
+            and write.object_ref == handle
+            and write.runtime_type == "Point"
+        ),
+        None,
+    )
+    if projected is not None and projected.previous_version_id is not None:
+        return index.runtime_path_for_state_version(
+            projected.previous_version_id,
+            consumer_scope_id=step.scope_id,
+            consumer=f"{step.step_id}.target_state",
+        )
+    return _point_state_path_for_name(
+        _handle_name(handle),
+        step,
+        index,
+        error_code="point_output_state_not_found",
+    )
 
 
 def _point_transition_target_selector(
@@ -1714,6 +1750,7 @@ DEFAULT_BINDING_SELECTORS: dict[str, BindingSelectorFn] = {
     "square:side_end_ref": _square_side_end_ref_selector,
     "quadratic_coefficients": _constant_selector("$problem.symbol_lists.quadratic_coefficients"),
     "point_output_ref": _point_output_ref_selector,
+    "point_output_state": _point_output_state_selector,
     "point_transition_target": _point_transition_target_selector,
     "translated_point:source": _translated_point_selector("source"),
     "translated_point:target": _translated_point_selector("target"),
@@ -2819,6 +2856,21 @@ def _common_endpoint_handle(
     return shared[0] if len(shared) == 1 else None
 
 
+def _other_endpoint_handle(
+    pair: tuple[str, str],
+    endpoint: str,
+) -> str:
+    """Return the other typed endpoint without interpreting its name."""
+
+    remaining = tuple(item for item in pair if item != endpoint)
+    if len(remaining) != 1:
+        raise StrategyDraftValidationError(
+            "segment_other_endpoint_not_found: "
+            f"pair={pair!r}, endpoint={endpoint!r}"
+        )
+    return remaining[0]
+
+
 def _segments_from_path_text(raw_path: str) -> list[str]:
     """Compatibility parser for non-weighted legacy selectors."""
 
@@ -3421,274 +3473,61 @@ def _equal_length_ray_roles(
     step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> dict[str, str]:
-    """推断等长射线构造角色。
+    """Resolve debug Method wiring through the shared Macro role builder."""
 
-    兼容旧的解法产物式 ``G_on_ray_CD_with_CG_eq_CB`` fact；新的 canonical
-    ProblemIR 不预置辅助点 G，而是从题面真实条件（点在射线、点在线段、等长关系）
-    和当前 step 的 ``creates/produces`` 推断要构造的目标点。
-    """
-    if index.handles_by_fact_type("equal_length_ray_point"):
-        return _equal_length_ray_roles_from_constructed_fact(step, index)
-    return _equal_length_ray_roles_from_problem_facts(step, index)
-
-
-def _equal_length_ray_roles_from_constructed_fact(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-) -> dict[str, str]:
-    """从 ``G_on_ray_CD_with_CG_eq_CB`` 这类旧 fact 推断角色。"""
-    fact = index.fact_handle_by_type("equal_length_ray_point", step=step)
-    name = _semantic_name(fact)
-    match = re.fullmatch(
-        r"(?P<target>[A-Za-z0-9_]+)_on_ray_(?P<ray>[A-Za-z]{2})_with_"
-        r"(?P<left>[A-Za-z]{2})_eq_(?P<right>[A-Za-z]{2})",
-        name,
+    fact_types = (
+        "point_on_ray",
+        "point_on_segment",
+        "equal_length_condition",
+        "path_minimum_target",
     )
-    if match is None:
-        raise StrategyDraftValidationError(f"invalid_equal_length_ray_fact_name: {fact}")
-    ray = match.group("ray")
-    left = match.group("left")
-    right = match.group("right")
-    if left[0] != ray[0] or right[0] != ray[0]:
-        raise StrategyDraftValidationError(f"equal_length_ray_anchor_mismatch: {fact}")
-    return {
-        "anchor": index.point_handle_by_name(ray[0], step=step),
-        "ray_point": index.point_handle_by_name(ray[1], step=step),
-        "reference_point": index.point_handle_by_name(right[1], step=step),
-        "target": index.point_handle_by_name(match.group("target"), step=step),
+    facts = {
+        fact_type: index.fact_handle_by_type(fact_type, step=step)
+        for fact_type in fact_types
     }
-
-
-def _equal_length_ray_roles_from_problem_facts(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-) -> dict[str, str]:
-    """从题面原始条件推断射线等长构造角色。
-
-    优先读取 canonical ProblemIR 的结构化字段：``point_on_ray.point/ray``、
-    ``point_on_segment.point/segment``、``equal_length_condition.left/right``。
-    只有旧数据缺少这些字段时，才退回到语义名正则解析。
-    """
-    ray_fact = index.fact_handle_by_type("point_on_ray", step=step)
-    segment_fact = index.fact_handle_by_type("point_on_segment", step=step)
-    equal_fact = index.fact_handle_by_type("equal_length_condition", step=step)
-    if _equal_length_ray_facts_have_structured_payload(
-        index,
-        ray_fact=ray_fact,
-        segment_fact=segment_fact,
-        equal_fact=equal_fact,
-    ):
-        return _equal_length_ray_roles_from_structured_problem_facts(
-            step,
-            index,
-            ray_fact=ray_fact,
-            segment_fact=segment_fact,
-            equal_fact=equal_fact,
+    visible_scopes = set(index.handle_registry.ancestor_scopes(step.scope_id))
+    point_handles = tuple(
+        sorted(
+            handle
+            for handle in index.handle_registry.entity_handles
+            if handle.startswith("point:")
+            and index.handle_registry.handle_valid_scopes.get(handle)
+            in visible_scopes
         )
-    return _equal_length_ray_roles_from_legacy_problem_fact_names(
-        step,
-        index,
-        ray_fact=ray_fact,
-        segment_fact=segment_fact,
-        equal_fact=equal_fact,
     )
-
-
-def _equal_length_ray_facts_have_structured_payload(
-    index: CanonicalRuntimeBindingIndex,
-    *,
-    ray_fact: str,
-    segment_fact: str,
-    equal_fact: str,
-) -> bool:
-    """判断射线等长构造所需 facts 是否携带结构化字段。"""
-    ray_payload = index.fact_payload(ray_fact)
-    segment_payload = index.fact_payload(segment_fact)
-    equal_payload = index.fact_payload(equal_fact)
-    return (
-        isinstance(ray_payload.get("point"), str)
-        and isinstance(ray_payload.get("ray"), str)
-        and isinstance(segment_payload.get("point"), str)
-        and isinstance(segment_payload.get("segment"), str)
-        and "left" in equal_payload
-        and "right" in equal_payload
-    )
-
-
-def _equal_length_ray_roles_from_structured_problem_facts(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-    *,
-    ray_fact: str,
-    segment_fact: str,
-    equal_fact: str,
-) -> dict[str, str]:
-    """从结构化 point_on_ray / point_on_segment / equal_length fact 推断角色。"""
-    ray_payload = index.fact_payload(ray_fact)
-    segment_payload = index.fact_payload(segment_fact)
-    equal_payload = index.fact_payload(equal_fact)
-
-    ray_dynamic_point = _payload_handle(ray_payload, "point", context=ray_fact)
-    ray_handle = _payload_handle(ray_payload, "ray", context=ray_fact)
-    ray_entity = index.entity_payload(ray_handle)
-    ray_origin = _payload_handle(ray_entity, "origin", context=ray_handle)
-    ray_through = _payload_handle(ray_entity, "through", context=ray_handle)
-
-    segment_dynamic_point = _payload_handle(segment_payload, "point", context=segment_fact)
-    segment_handle = _payload_handle(segment_payload, "segment", context=segment_fact)
-    segment_endpoints = _segment_endpoints_from_entity_payload(index, segment_handle)
-
-    left = _length_endpoint_handles(equal_payload.get("left"), step, index, context=f"{equal_fact}.left")
-    right = _length_endpoint_handles(equal_payload.get("right"), step, index, context=f"{equal_fact}.right")
-    common = set(left) & set(right)
-    if len(common) != 1:
-        raise StrategyDraftValidationError(f"equal_length_common_anchor_not_found: {equal_fact}")
-    anchor = next(iter(common))
-    if anchor != ray_origin:
-        raise StrategyDraftValidationError(
-            f"equal_length_ray_anchor_mismatch: {ray_fact}:{equal_fact}"
+    by_name: dict[str, list[str]] = {}
+    for handle in point_handles:
+        payload = index.handle_registry.entity_payloads.get(handle, {})
+        name = str(payload.get("name", "")).strip() or handle.rsplit(":", 1)[-1]
+        by_name.setdefault(name, []).append(handle)
+    point_names = {
+        name: handles[0]
+        for name, handles in by_name.items()
+        if len(handles) == 1
+    }
+    try:
+        candidates = build_equal_length_ray_role_candidates(
+            ray_facts=((facts["point_on_ray"], index.fact_payload(facts["point_on_ray"])),),
+            segment_facts=((facts["point_on_segment"], index.fact_payload(facts["point_on_segment"])),),
+            equal_facts=((facts["equal_length_condition"], index.fact_payload(facts["equal_length_condition"])),),
+            target_facts=((facts["path_minimum_target"], index.fact_payload(facts["path_minimum_target"])),),
+            entity_payload=index.entity_payload,
+            visible_point_handles=point_handles,
+            resolve_point_name=lambda name: point_names[name],
         )
-    if anchor not in segment_endpoints:
+    except (EqualLengthRayRoleError, KeyError) as exc:
         raise StrategyDraftValidationError(
-            f"equal_length_segment_anchor_mismatch: {segment_fact}:{equal_fact}"
-        )
-
-    ray_equal_endpoint = _other_endpoint_handle(left, anchor) if ray_dynamic_point in left else (
-        _other_endpoint_handle(right, anchor) if ray_dynamic_point in right else None
-    )
-    segment_equal_endpoint = _other_endpoint_handle(left, anchor) if segment_dynamic_point in left else (
-        _other_endpoint_handle(right, anchor) if segment_dynamic_point in right else None
-    )
-    if ray_equal_endpoint != ray_dynamic_point:
+            f"planner.macro_contract_invalid: {exc}"
+        ) from exc
+    if len(candidates) != 1:
         raise StrategyDraftValidationError(
-            f"equal_length_ray_dynamic_point_mismatch: {ray_fact}:{equal_fact}"
+            "planner.macro_contract_invalid: debug equal-length binding "
+            f"requires one role candidate, got {len(candidates)}"
         )
-    if segment_equal_endpoint != segment_dynamic_point:
-        raise StrategyDraftValidationError(
-            f"equal_length_segment_dynamic_point_mismatch: {segment_fact}:{equal_fact}"
-        )
-    reference_candidates = [handle for handle in segment_endpoints if handle != anchor]
-    if len(reference_candidates) != 1:
-        raise StrategyDraftValidationError(f"equal_length_reference_point_not_found: {segment_fact}")
     return {
-        "anchor": anchor,
-        "ray_point": ray_through,
-        "reference_point": reference_candidates[0],
+        **candidates[0].roles.to_payload(),
         "target": _point_output_handle(step, index),
     }
-
-
-def _equal_length_ray_roles_from_legacy_problem_fact_names(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-    *,
-    ray_fact: str,
-    segment_fact: str,
-    equal_fact: str,
-) -> dict[str, str]:
-    """从旧语义名 ``N_on_ray_CD``、``M_on_segment_BC``、``CN_eq_CM`` 推断角色。"""
-    ray_match = re.fullmatch(
-        r"(?P<point>[A-Za-z])_on_ray_(?P<ray>[A-Za-z]{2})",
-        _semantic_name(ray_fact),
-    )
-    segment_match = re.fullmatch(
-        r"(?P<point>[A-Za-z])_on_segment_(?P<segment>[A-Za-z]{2})",
-        _semantic_name(segment_fact),
-    )
-    equal_match = re.fullmatch(
-        r"(?P<left>[A-Za-z]{2})_eq_(?P<right>[A-Za-z]{2})",
-        _semantic_name(equal_fact),
-    )
-    if ray_match is None:
-        raise StrategyDraftValidationError(f"invalid_point_on_ray_fact_name: {ray_fact}")
-    if segment_match is None:
-        raise StrategyDraftValidationError(f"invalid_point_on_segment_fact_name: {segment_fact}")
-    if equal_match is None:
-        raise StrategyDraftValidationError(f"invalid_equal_length_condition_name: {equal_fact}")
-
-    ray = ray_match.group("ray")
-    segment = segment_match.group("segment")
-    left = equal_match.group("left")
-    right = equal_match.group("right")
-    common = set(left) & set(right)
-    if len(common) != 1:
-        raise StrategyDraftValidationError(f"equal_length_common_anchor_not_found: {equal_fact}")
-    anchor = next(iter(common))
-    if ray[0] != anchor:
-        raise StrategyDraftValidationError(
-            f"equal_length_ray_anchor_mismatch: {ray_fact}:{equal_fact}"
-        )
-    if anchor not in segment:
-        raise StrategyDraftValidationError(
-            f"equal_length_segment_anchor_mismatch: {segment_fact}:{equal_fact}"
-        )
-    reference_name = _other_endpoint(segment, anchor)
-    return {
-        "anchor": index.point_handle_by_name(anchor, step=step),
-        "ray_point": index.point_handle_by_name(ray[1], step=step),
-        "reference_point": index.point_handle_by_name(reference_name, step=step),
-        "target": _point_output_handle(step, index),
-    }
-
-
-def _payload_handle(payload: Mapping[str, Any], key: str, *, context: str) -> str:
-    """读取 payload 中的 canonical handle 字符串字段。"""
-    value = payload.get(key)
-    if not isinstance(value, str) or not value.strip():
-        raise StrategyDraftValidationError(f"structured_payload_field_missing: {context}.{key}")
-    return value
-
-
-def _segment_endpoints_from_entity_payload(
-    index: CanonicalRuntimeBindingIndex,
-    segment_handle: str,
-) -> tuple[str, str]:
-    """读取 segment entity 的两个端点 handle。"""
-    payload = index.entity_payload(segment_handle)
-    endpoints = payload.get("endpoints")
-    if (
-        not isinstance(endpoints, list)
-        or len(endpoints) != 2
-        or not all(isinstance(item, str) for item in endpoints)
-    ):
-        raise StrategyDraftValidationError(f"segment_endpoints_missing: {segment_handle}")
-    return endpoints[0], endpoints[1]
-
-
-def _length_endpoint_handles(
-    value: Any,
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-    *,
-    context: str,
-) -> tuple[str, str]:
-    """把 equal_length 的一侧解析成两个 point handle。
-
-    支持未来的结构化端点列表，也兼容当前 ``"CN"`` 这种短字符串。
-    """
-    if (
-        isinstance(value, list)
-        and len(value) == 2
-        and all(isinstance(item, str) for item in value)
-    ):
-        return value[0], value[1]
-    if isinstance(value, str) and ":" in value:
-        raise StrategyDraftValidationError(f"invalid_length_endpoint_pair: {context}")
-    if isinstance(value, str) and re.fullmatch(r"[A-Za-z]{2}", value):
-        return (
-            index.point_handle_by_name(value[0], step=step),
-            index.point_handle_by_name(value[1], step=step),
-        )
-    raise StrategyDraftValidationError(f"invalid_length_endpoint_pair: {context}")
-
-
-def _other_endpoint_handle(pair: tuple[str, str], anchor: str) -> str:
-    """返回二元端点中非 anchor 的另一个端点。"""
-    if pair[0] == anchor:
-        return pair[1]
-    if pair[1] == anchor:
-        return pair[0]
-    raise StrategyDraftValidationError(f"endpoint_pair_missing_anchor: {pair}:{anchor}")
 
 def _is_auxiliary_point_handle(
     handle: str,

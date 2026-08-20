@@ -34,9 +34,6 @@ from shuxueshuo_server.solver.runtime.functional_execution_authority import (
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
 )
-from shuxueshuo_server.solver.runtime.functional_retry_versions import (
-    FunctionalRetryGraphCheckpoint,
-)
 from shuxueshuo_server.solver.runtime.functional_plan_content import (
     FUNCTIONAL_PLAN_CONTENT_CONTRACT,
     FunctionalFinalPlanContractValidation,
@@ -55,10 +52,8 @@ from shuxueshuo_server.solver.runtime.functional_plan_content import (
     normalize_empty_optional_step_maps,
 )
 from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
-    FunctionalRestoredCallResult,
     FunctionalRestoredCallSeed,
     FunctionalRestoredCallBindingError,
-    functional_restored_call_authority_payloads,
     functional_restored_call_authority_signatures,
 )
 from shuxueshuo_server.solver.runtime.handle_registry import (
@@ -1796,22 +1791,6 @@ class FunctionalGoalRetryProjector:
             if binding_context is not None
             else checkpoint.functional_problem_binding_signature
         )
-        typed_checkpoint = _typed_checkpoint(execution)
-        if typed_checkpoint is not None:
-            if binding_context is None:
-                raise FunctionalGoalRetryError(
-                    "functional.goal_retry_binding_context_missing",
-                    "$.functional_problem_binding_context",
-                    "a typed checkpoint requires the F5-C binding sidecar",
-                    retryable=False,
-                )
-            _verify_typed_checkpoint_authority(
-                typed_checkpoint,
-                planning_context=planning_context,
-                functional_problem_binding_signature=functional_binding_signature,
-                checkpoint=checkpoint,
-            )
-
         goal_plans = _goal_plans(plan)
         execution_goals = _execution_goals(checkpoint.root_scope)
         execution_steps = _execution_steps(checkpoint.root_scope)
@@ -1825,25 +1804,23 @@ class FunctionalGoalRetryProjector:
         )
         call_states = _call_states(execution)
         call_results = _call_results(execution)
+        restore_seed = checkpoint.restore_state.runtime_seed
         committed = {
-            item.canonical_call_id: item
+            item.call_id: item
             for item in (
-                typed_checkpoint.committed_calls
-                if typed_checkpoint is not None
+                restore_seed.compiled_calls
+                if restore_seed is not None
                 else ()
             )
         }
         provenance = {
-            item.canonical_call_id: item
-            for item in (
-                typed_checkpoint.problem_call_authorities
-                if typed_checkpoint is not None
-                else ()
-            )
+            item.call_id: item.problem_source_provenance
+            for item in committed.values()
+            if item.problem_source_provenance is not None
         }
         successful_restore_authorities = (
             _successful_execution_restore_authorities(execution)
-            if typed_checkpoint is None
+            if not committed
             and checkpoint.all_required_goals_verified
             else {}
         )
@@ -1921,7 +1898,12 @@ class FunctionalGoalRetryProjector:
                 and all(
                     (
                         step_id in committed
-                        and bool(committed[step_id].binding_signature)
+                        and committed[step_id].problem_call_binding is not None
+                        and bool(
+                            committed[
+                                step_id
+                            ].problem_call_binding.binding_signature
+                        )
                         and committed[
                             step_id
                         ].problem_source_provenance is not None
@@ -2102,8 +2084,8 @@ class FunctionalGoalRetryProjector:
         )
         retry_context_payload = retry_context.to_prompt_payload()
         typed_checkpoint_hash = (
-            stable_hash(typed_checkpoint.to_payload())
-            if typed_checkpoint is not None
+            checkpoint.restore_state.restore_signature
+            if committed
             else (
                 stable_hash(successful_restore_authorities)
                 if successful_restore_authorities
@@ -2683,23 +2665,6 @@ class FunctionalGoalRepairService:
         )
 
 
-def _typed_checkpoint(
-    execution: ScopedFunctionalGoalExecutionResult,
-) -> FunctionalRetryGraphCheckpoint | None:
-    replay = execution.replay
-    retry_state = replay.retry_state if replay is not None else None
-    payload = (
-        retry_state.functional_retry_graph_checkpoint
-        if retry_state is not None
-        else None
-    )
-    return (
-        FunctionalRetryGraphCheckpoint.from_payload(payload)
-        if isinstance(payload, Mapping)
-        else None
-    )
-
-
 def _successful_execution_restore_authorities(
     execution: ScopedFunctionalGoalExecutionResult,
 ) -> dict[str, dict[str, str]]:
@@ -2773,16 +2738,12 @@ def _restored_seed(
     }
     if not solved_calls:
         return FunctionalRestoredCallSeed()
-    transaction = (
-        execution.replay.transactional_attempt_result
-        if execution.replay is not None
-        else None
-    )
-    if transaction is None:
+    checkpoint = execution.checkpoint
+    if checkpoint is None:
         raise FunctionalGoalRetryError(
             "functional.goal_retry_typed_checkpoint_missing",
-            "$.execution",
-            "solved Goal restore has no prior transactional execution",
+            "$.checkpoint",
+            "solved Goal restore has no Goal checkpoint v3",
             retryable=False,
         )
     next_step_ids = {item.step_id for item in next_plan.steps}
@@ -2793,207 +2754,20 @@ def _restored_seed(
             "repair removed a call required by a solved Goal",
             retryable=False,
         )
-    report = transaction.execution_report
-    reconciliation = (
-        execution.replay.functional_reconciliation
-        if execution.replay is not None
-        else None
-    )
-    if reconciliation is None:
+    try:
+        return checkpoint.restore_state.seed_for_calls(
+            frozenset(solved_calls),
+            mutable_publication_goal_unit_ids=(
+                _repair_affected_goal_unit_ids(authority)
+            ),
+        )
+    except Exception as exc:
         raise FunctionalGoalRetryError(
             "functional.goal_retry_restore_drift",
-            "$.execution.reconciliation",
-            "solved Goal restore has no F5-C reconciliation authority",
+            "$.checkpoint.restore_state",
+            str(exc),
             retryable=False,
-        )
-    result_by_call = {item.call_id: item for item in report.call_results}
-    compiled_by_call = {item.call_id: item for item in report.compiled_calls}
-    reconciliation_by_call = {
-        item.call_id: item for item in reconciliation.calls
-    }
-    missing = tuple(
-        sorted(
-            call_id
-            for call_id in solved_calls
-            if (
-                call_id not in result_by_call
-                or call_id not in compiled_by_call
-                or call_id not in reconciliation_by_call
-            )
-        )
-    )
-    if missing:
-        raise FunctionalGoalRetryError(
-            "functional.goal_retry_restore_drift",
-            "$.solved_goals",
-            f"solved Goal checkpoint is missing calls {list(missing)}",
-            retryable=False,
-        )
-    version_ids = {
-        version.version_id
-        for call_id in solved_calls
-        for version in result_by_call[call_id].committed_versions
-    }
-    # The execution report indexes every exact output, including state-bearing
-    # returns that are intentionally absent from FunctionalRuntimeResult.  A
-    # restored downstream StepResultRef must see the same namespace as a fresh
-    # execution, so retain all outputs produced by solved calls.
-    result_keys = {
-        key
-        for key in report.runtime_result_values
-        if key[0] in solved_calls
-    }
-    call_result_records = _restored_call_result_records(
-        report,
-        result_keys=result_keys,
-    )
-    logical_binding_context = reconciliation.functional_binding_context
-    condition_ids = {
-        binding.source.condition_id
-        for binding in (
-            logical_binding_context.bindings
-            if logical_binding_context is not None
-            else ()
-        )
-        if binding.key.call_id in solved_calls
-        and binding.source.kind == "condition"
-        and binding.source.condition_id is not None
-    }
-    missing_condition_ids = condition_ids - set(
-        report.conditions
-    )
-    if missing_condition_ids:
-        raise FunctionalGoalRetryError(
-            "functional.goal_retry_restore_drift",
-            "$.execution.conditions",
-            "solved Goal checkpoint is missing exact conditions "
-            f"{sorted(missing_condition_ids)}",
-            retryable=False,
-        )
-    return FunctionalRestoredCallSeed(
-        call_results=tuple(
-            result_by_call[call_id]
-            for call_id in report.graph.canonical_order
-            if call_id in solved_calls
-        ),
-        compiled_calls=tuple(
-            compiled_by_call[call_id]
-            for call_id in report.graph.canonical_order
-            if call_id in solved_calls
-        ),
-        runtime_version_values={
-            version_id: value
-            for version_id, value in report.runtime_version_values.items()
-            if version_id in version_ids
-        },
-        runtime_version_symbol_bindings={
-            version_id: bindings
-            for version_id, bindings in (
-                report.runtime_version_symbol_bindings.items()
-            )
-            if version_id in version_ids
-        },
-        call_result_records=call_result_records,
-        conditions={
-            condition_id: report.conditions[condition_id]
-            for condition_id in sorted(condition_ids)
-        },
-        source_read_authorities={
-            call_id: functional_restored_call_authority_signatures(
-                reconciliation, call_id
-            )["source_read"]
-            for call_id in solved_calls
-        },
-        source_read_payloads={
-            call_id: functional_restored_call_authority_payloads(
-                reconciliation, call_id
-            )["source_read"]
-            for call_id in solved_calls
-        },
-        runtime_write_authorities={
-            call_id: functional_restored_call_authority_signatures(
-                reconciliation, call_id
-            )["runtime_write"]
-            for call_id in solved_calls
-        },
-        runtime_write_payloads={
-            call_id: functional_restored_call_authority_payloads(
-                reconciliation, call_id
-            )["runtime_write"]
-            for call_id in solved_calls
-        },
-        publication_authorities={
-            call_id: functional_restored_call_authority_signatures(
-                reconciliation, call_id
-            )["answer_publication"]
-            for call_id in solved_calls
-        },
-        publication_payloads={
-            call_id: functional_restored_call_authority_payloads(
-                reconciliation, call_id
-            )["answer_publication"]
-            for call_id in solved_calls
-        },
-        mutable_publication_goal_unit_ids=(
-            _repair_affected_goal_unit_ids(authority)
-        ),
-        call_reconciliations={
-            call_id: reconciliation_by_call[call_id]
-            for call_id in solved_calls
-        },
-    )
-
-
-def _restored_call_result_records(
-    report: Any,
-    *,
-    result_keys: set[tuple[str, str]],
-) -> dict[tuple[str, str], FunctionalRestoredCallResult]:
-    """Rebuild the exact CallResultId namespace from execution authority."""
-
-    runtime_results = {
-        (call.call_id, item.output_key): item
-        for call in report.call_results
-        for item in call.runtime_results
-    }
-    compiled_returns: dict[tuple[str, str], tuple[Any, Any]] = {}
-    for compiled in report.compiled_calls:
-        for returned in compiled.public_returns:
-            keys = {returned.return_name}
-            if returned.expected_write is not None:
-                keys.add(returned.expected_write.output_key)
-            for output_key in keys:
-                compiled_returns[(compiled.call_id, output_key)] = (
-                    compiled,
-                    returned,
-                )
-    records: dict[tuple[str, str], FunctionalRestoredCallResult] = {}
-    for key in sorted(result_keys):
-        compiled_return = compiled_returns.get(key)
-        if compiled_return is None:
-            raise FunctionalGoalRetryError(
-                "functional.goal_retry_restore_drift",
-                "$.execution.runtime_result_values",
-                f"restored CallResultId {key!r} has no compiled return authority",
-                retryable=False,
-            )
-        compiled, returned = compiled_return
-        allocation = returned.allocation
-        runtime_result = runtime_results.get(key)
-        provenance = (
-            runtime_result.problem_source_provenance
-            if runtime_result is not None
-            else compiled.problem_source_provenance
-        )
-        records[key] = FunctionalRestoredCallResult(
-            call_id=key[0],
-            return_name=key[1],
-            scope_id=allocation.valid_scope,
-            runtime_type=allocation.runtime_type,
-            runtime_value=report.runtime_result_values[key],
-            problem_source_provenance=provenance,
-        )
-    return records
+        ) from exc
 
 
 def _repair_affected_goal_unit_ids(
@@ -3044,42 +2818,6 @@ def _scope_is_descendant_of(
             return True
         current = parents.get(current)
     return False
-
-
-def _verify_typed_checkpoint_authority(
-    typed_checkpoint: FunctionalRetryGraphCheckpoint,
-    *,
-    planning_context: ProblemPlanningContext,
-    functional_problem_binding_signature: str,
-    checkpoint: FunctionalGoalExecutionCheckpoint,
-) -> None:
-    problem = typed_checkpoint.problem_authority
-    if problem is None:
-        raise FunctionalGoalRetryError(
-            "functional.goal_retry_typed_checkpoint_missing",
-            "$.typed_checkpoint.problem_authority",
-            "typed checkpoint has no Problem authority",
-            retryable=False,
-        )
-    expected = (
-        planning_context.planning_context_id,
-        planning_context.problem_revision_id,
-        planning_context.problem_semantic_hash,
-        functional_problem_binding_signature,
-    )
-    actual = (
-        problem.planning_context_id,
-        problem.problem_revision_id,
-        problem.problem_semantic_hash,
-        problem.functional_problem_binding_signature,
-    )
-    if actual != expected:
-        raise FunctionalGoalRetryError(
-            "planner.retry_problem_revision_drift",
-            "$.typed_checkpoint.problem_authority",
-            "typed checkpoint Problem authority does not match current authority",
-            retryable=False,
-        )
 
 
 def _goal_plans(plan: ScopedFunctionalPlan) -> dict[str, Any]:
@@ -3933,21 +3671,215 @@ def _merge_scope_step_replacement(
     editable_step_ids: Sequence[str],
     replacement_steps: Sequence[Mapping[str, Any]],
 ) -> list[dict[str, Any]]:
-    """Replace only the editable subset and retain frozen producers verbatim."""
+    """Merge editable replacements around frozen steps by explicit order authority.
+
+    A mixed scope can contain several editable runs separated by solved/frozen
+    producers.  Treating the replacement as one block moves those producers to
+    the end of the scope.  Instead, preserve both authored replacement order and
+    frozen order, add every explicit StepResult dependency, and retain the old
+    frozen anchors for replacement steps that reuse their prior id.
+    """
 
     editable = set(editable_step_ids)
-    result: list[dict[str, Any]] = []
-    inserted = False
-    for step in previous_steps:
-        if step.step_id in editable:
-            if not inserted:
-                result.extend(_thaw(item) for item in replacement_steps)
-                inserted = True
-            continue
-        result.append(step.to_payload())
-    if not inserted:
-        result.extend(_thaw(item) for item in replacement_steps)
-    return result
+    previous = tuple(previous_steps)
+    replacement = tuple(_thaw(item) for item in replacement_steps)
+    frozen = tuple(step for step in previous if step.step_id not in editable)
+    payloads = {
+        **{step.step_id: step.to_payload() for step in frozen},
+        **{str(step.get("step_id", "")): step for step in replacement},
+    }
+    if not replacement:
+        return [step.to_payload() for step in frozen]
+    replacement_ids = tuple(str(step.get("step_id", "")) for step in replacement)
+    if any(not step_id for step_id in replacement_ids):
+        raise FunctionalGoalRetryError(
+            "functional.goal_repair_step_order_invalid",
+            "$.scope_step_replacements",
+            "scope replacement contains a step without step_id",
+        )
+    frozen_ids = tuple(step.step_id for step in frozen)
+    if len(payloads) != len(frozen_ids) + len(replacement_ids):
+        raise FunctionalGoalRetryError(
+            "functional.goal_repair_step_order_invalid",
+            "$.scope_step_replacements",
+            "scope replacement step ids must remain unique during mixed merge",
+        )
+
+    successors: dict[str, set[str]] = {step_id: set() for step_id in payloads}
+    indegree = {step_id: 0 for step_id in payloads}
+
+    def precedes(before: str, after: str) -> None:
+        if before == after or after in successors[before]:
+            return
+        successors[before].add(after)
+        indegree[after] += 1
+
+    for sequence in (replacement_ids, frozen_ids):
+        for before, after in zip(sequence, sequence[1:]):
+            precedes(before, after)
+
+    previous_positions = {
+        step.step_id: index for index, step in enumerate(previous)
+    }
+    editable_positions = tuple(
+        index
+        for index, step in enumerate(previous)
+        if step.step_id in editable
+    )
+    if not editable_positions:
+        raise FunctionalGoalRetryError(
+            "functional.goal_repair_step_order_invalid",
+            "$.scope_step_replacements",
+            "scope replacement has no editable slot in the previous plan",
+        )
+    # Project the replacement sequence back onto the old editable slots even
+    # when the LLM adds or removes steps. Frozen steps are semantic barriers:
+    # an inserted step inherits the nearest relative editable interval rather
+    # than floating past every frozen producer during the topological merge.
+    # A single renamed replacement spanning several old intervals has no
+    # defensible placement authority, so reject it instead of guessing.
+    replacement_slot_positions: dict[str, int] = {}
+    if len(replacement_ids) == 1:
+        replacement_id = replacement_ids[0]
+        old_position = previous_positions.get(replacement_id)
+        if old_position in editable_positions:
+            replacement_slot_positions[replacement_id] = old_position
+        else:
+            first_slot = editable_positions[0]
+            last_slot = editable_positions[-1]
+            frozen_between = tuple(
+                step.step_id
+                for step in frozen
+                if first_slot
+                < previous_positions[step.step_id]
+                < last_slot
+            )
+            if frozen_between:
+                raise FunctionalGoalRetryError(
+                    "functional.goal_repair_step_order_invalid",
+                    "$.scope_step_replacements",
+                    "single replacement step cannot be placed across frozen "
+                    "editable intervals without preserving an old step id",
+                    details={
+                        "replacement_step_id": replacement_id,
+                        "frozen_barrier_step_ids": list(frozen_between),
+                    },
+                )
+            replacement_slot_positions[replacement_id] = first_slot
+    else:
+        old_span = len(editable_positions) - 1
+        replacement_span = len(replacement_ids) - 1
+        for replacement_index, replacement_id in enumerate(replacement_ids):
+            # Integer half-up projection keeps both endpoints exact and
+            # distributes inserted steps across the old editable intervals.
+            projected_index = (
+                replacement_index * old_span + replacement_span // 2
+            ) // replacement_span
+            replacement_slot_positions[replacement_id] = editable_positions[
+                projected_index
+            ]
+
+    # Preserved ids retain their exact old slots. Reordering a preserved step
+    # across a frozen barrier then becomes a cycle and fails the same audit.
+    for replacement_id in replacement_ids:
+        old_position = previous_positions.get(replacement_id)
+        if old_position in editable_positions:
+            replacement_slot_positions[replacement_id] = old_position
+
+    slot_sequence = tuple(
+        replacement_slot_positions[step_id] for step_id in replacement_ids
+    )
+    if any(left > right for left, right in zip(slot_sequence, slot_sequence[1:])):
+        raise FunctionalGoalRetryError(
+            "functional.goal_repair_step_order_invalid",
+            "$.scope_step_replacements",
+            "replacement order moves a preserved step across a frozen interval",
+            details={
+                "replacement_step_ids": list(replacement_ids),
+                "projected_old_positions": list(slot_sequence),
+            },
+        )
+
+    for replacement_id, old_position in replacement_slot_positions.items():
+        for frozen_step in frozen:
+            frozen_position = previous_positions[frozen_step.step_id]
+            if frozen_position < old_position:
+                precedes(frozen_step.step_id, replacement_id)
+            elif frozen_position > old_position:
+                precedes(replacement_id, frozen_step.step_id)
+
+    for consumer_id, payload in payloads.items():
+        for producer_id in _repair_step_result_dependencies(payload):
+            if producer_id in payloads:
+                precedes(producer_id, consumer_id)
+
+    first_editable_position = next(
+        (
+            index
+            for index, step in enumerate(previous)
+            if step.step_id in editable
+        ),
+        len(previous),
+    )
+    replacement_positions = {
+        step_id: index for index, step_id in enumerate(replacement_ids)
+    }
+
+    def stable_rank(step_id: str) -> tuple[int, int, int, str]:
+        if step_id in previous_positions:
+            return (previous_positions[step_id], 0, 0, step_id)
+        return (
+            first_editable_position,
+            1,
+            replacement_positions.get(step_id, len(replacement_ids)),
+            step_id,
+        )
+
+    ready = sorted(
+        (step_id for step_id, count in indegree.items() if count == 0),
+        key=stable_rank,
+    )
+    ordered: list[str] = []
+    while ready:
+        step_id = ready.pop(0)
+        ordered.append(step_id)
+        for successor in sorted(successors[step_id], key=stable_rank):
+            indegree[successor] -= 1
+            if indegree[successor] == 0:
+                ready.append(successor)
+                ready.sort(key=stable_rank)
+    if len(ordered) != len(payloads):
+        blocked = sorted(
+            (step_id for step_id, count in indegree.items() if count > 0)
+        )
+        raise FunctionalGoalRetryError(
+            "functional.goal_repair_step_order_invalid",
+            "$.scope_step_replacements",
+            "replacement dependencies conflict with frozen scope order",
+            details={"blocked_step_ids": blocked},
+        )
+    return [payloads[step_id] for step_id in ordered]
+
+
+def _repair_step_result_dependencies(value: Any) -> frozenset[str]:
+    """Collect explicit producer ids without inferring hidden object identity."""
+
+    if isinstance(value, Mapping):
+        if set(value) == {"step_id", "return"}:
+            step_id = value.get("step_id")
+            return frozenset((step_id,)) if isinstance(step_id, str) else frozenset()
+        return frozenset(
+            producer
+            for child in value.values()
+            for producer in _repair_step_result_dependencies(child)
+        )
+    if isinstance(value, Sequence) and not isinstance(value, (str, bytes)):
+        return frozenset(
+            producer
+            for child in value
+            for producer in _repair_step_result_dependencies(child)
+        )
+    return frozenset()
 
 
 def _require_unique(values: Sequence[str], path: str, label: str) -> None:

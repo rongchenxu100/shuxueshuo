@@ -7,6 +7,7 @@ QuestionGoal 决定。
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from typing import Any
 
 import sympy as sp
@@ -58,24 +59,84 @@ class ResultBuilder:
             answers.setdefault(goal.question_id, {})[goal.answer_key] = context.to_answer_value(value)
         return answers
 
+    def build_from_verified_goal_results(
+        self,
+        context: RuntimeContext,
+        question_goals: list[QuestionGoal],
+        goal_results: Mapping[str, TypedValue],
+    ) -> dict[str, dict[str, object]]:
+        """Serialize exact typed results selected by canonical ``answer_from``.
+
+        Scope-native execution already proved the producer, return, closure,
+        and provenance.  Reading Context paths again would reintroduce a
+        second answer-selection authority, especially when an ancestor entity
+        intentionally remains open while a child Goal publishes a closed
+        result.
+        """
+
+        answers: dict[str, dict[str, object]] = {}
+        for goal in question_goals:
+            typed_value = goal_results.get(goal.id)
+            if typed_value is None:
+                if goal.required:
+                    raise ResultBuilderError(
+                        f"required answer goal {goal.id} has no verified result"
+                    )
+                continue
+            compatible = typed_value.type == goal.value_type or (
+                goal.value_type == "Point"
+                and typed_value.type == "PointList"
+            )
+            if not compatible:
+                if goal.required:
+                    raise ResultBuilderError(
+                        f"required answer goal {goal.id} expected "
+                        f"{goal.value_type}, got {typed_value.type}"
+                    )
+                continue
+            try:
+                _validate_resolved_answer_value(goal, typed_value)
+            except ResultBuilderError:
+                if goal.required:
+                    raise
+                continue
+            value = typed_value.value
+            if typed_value.type == "PointList":
+                value = _sorted_point_list(value)
+            answers.setdefault(goal.question_id, {})[goal.answer_key] = (
+                context.to_answer_value(value)
+            )
+        return answers
+
 
 def _read_goal_value(context: RuntimeContext, goal: QuestionGoal) -> TypedValue:
-    """读取答案目标，允许 Point 目标被 PointList 结果安全升级。"""
-    try:
-        return context.read_path(
-            goal.target_path,
-            from_scope_id=goal.question_id,
-            expected_type=goal.value_type,
-        )
-    except (KeyError, PermissionError, TypeError, ValueError):
-        if goal.value_type != "Point":
-            raise
-        fallback_path = _output_answer_path(context, goal)
-        return context.read_path(
-            fallback_path,
-            from_scope_id=goal.question_id,
-            expected_type="PointList",
-        )
+    """Read the verified Goal publication, then its entity target.
+
+    A scoped transaction can leave an ancestor entity in an open state while
+    publishing a closed Goal-local answer. Candidate-producing methods may
+    publish a PointList for a Point Goal, which remains a typed compatibility
+    fallback before reading the named entity state.
+    """
+    publication_path = _output_answer_path(context, goal)
+    publication_types = (
+        ("Point", "PointList")
+        if goal.value_type == "Point"
+        else (goal.value_type,)
+    )
+    for expected_type in publication_types:
+        try:
+            return context.read_path(
+                publication_path,
+                from_scope_id=goal.question_id,
+                expected_type=expected_type,
+            )
+        except (KeyError, PermissionError, TypeError, ValueError):
+            pass
+    return context.read_path(
+        goal.target_path,
+        from_scope_id=goal.question_id,
+        expected_type=goal.value_type,
+    )
 
 
 def _output_answer_path(context: RuntimeContext, goal: QuestionGoal) -> str:

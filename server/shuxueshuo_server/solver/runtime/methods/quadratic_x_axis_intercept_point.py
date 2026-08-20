@@ -28,6 +28,7 @@ class QuadraticXAxisInterceptPointMethod:
         quadratic = inputs["quadratic"]
         x = inputs["x"]
         target: PointRef = inputs["target"]
+        target_state: Point | None = inputs.get("target_state")
         known_point: Point | None = inputs.get("known_point")
 
         roots = [sp.simplify(root) for root in kernel.solve_values(sp.Eq(quadratic, 0), x)]
@@ -38,12 +39,11 @@ class QuadraticXAxisInterceptPointMethod:
                 for point in candidates
                 if sp.simplify(point[0] - known_point[0]) != 0
             ]
-        existing_coordinate = target.definition.get("existing_coordinate")
-        if len(candidates) > 1 and _is_point(existing_coordinate):
+        if len(candidates) > 1 and _is_point(target_state):
             matching = [
                 point
                 for point in candidates
-                if _points_equivalent(point, existing_coordinate)
+                if _points_equivalent(point, target_state)
             ]
             if len(matching) == 1:
                 candidates = matching
@@ -210,6 +210,12 @@ SPEC = MethodSpecSource(
             "required": True,
             "symbolic_basis_role": "align_to_anchor",
         },
+        "target_state": {
+            "type": "Point",
+            "required": False,
+            "functional_exposed": False,
+            "symbolic_basis_role": "align_to_anchor",
+        },
         "known_point": {
             "type": "Point",
             "required": False,
@@ -218,7 +224,7 @@ SPEC = MethodSpecSource(
     },
     input_views=declare_input_views(
         identity=("x", "target"),
-        latest_state=("quadratic", "known_point"),
+        latest_state=("quadratic", "target_state", "known_point"),
     ),
     outputs={"point": "Point"},
     preconditions=("quadratic 是关于 x 的函数表达式，可以含未定系数",),

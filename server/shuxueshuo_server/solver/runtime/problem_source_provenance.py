@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 import hashlib
 import json
-from typing import Any, Mapping, Sequence
+from typing import Any, Mapping
 
 
 PROBLEM_CALL_SOURCE_PROVENANCE_CONTRACT = (
@@ -100,66 +100,6 @@ class ProblemCallSourceProvenance:
                 separators=(",", ":"),
             ).encode("utf-8")
         ).hexdigest()
-
-    def with_macro_search(
-        self,
-        *,
-        search_signature: str,
-        role_resolutions: Sequence[tuple[str, str | None, str]],
-        additional_source_unit_ids: Sequence[str] = (),
-    ) -> "ProblemCallSourceProvenance":
-        binding_signature = _macro_binding_signature(
-            self.call_binding_signature,
-            search_signature,
-        )
-        return ProblemCallSourceProvenance(
-            planning_context_id=self.planning_context_id,
-            problem_revision_id=self.problem_revision_id,
-            problem_semantic_hash=self.problem_semantic_hash,
-            canonical_call_id=self.canonical_call_id,
-            goal_unit_ids=self.goal_unit_ids,
-            input_source_unit_ids=tuple(
-                sorted(
-                    {
-                        *self.input_source_unit_ids,
-                        *additional_source_unit_ids,
-                    }
-                )
-            ),
-            call_binding_signature=binding_signature,
-            macro_search_signature=search_signature,
-            macro_role_resolutions=tuple(role_resolutions),
-        )
-
-    def extends_base_authority(
-        self,
-        base: "ProblemCallSourceProvenance",
-    ) -> bool:
-        """Return whether this is the same F5-C authority plus runtime proof."""
-
-        return (
-            self.planning_context_id == base.planning_context_id
-            and self.problem_revision_id == base.problem_revision_id
-            and self.problem_semantic_hash == base.problem_semantic_hash
-            and self.canonical_call_id == base.canonical_call_id
-            and self.goal_unit_ids == base.goal_unit_ids
-            and set(base.input_source_unit_ids).issubset(
-                self.input_source_unit_ids
-            )
-            and (
-                (
-                    self.call_binding_signature
-                    == base.call_binding_signature
-                    and self.macro_search_signature is None
-                )
-                or self.macro_search_signature is not None
-                and self.call_binding_signature
-                == _macro_binding_signature(
-                    base.call_binding_signature,
-                    self.macro_search_signature,
-                )
-            )
-        )
 
     @classmethod
     def from_payload(
@@ -319,19 +259,6 @@ def _required_string(payload: Mapping[str, Any], name: str) -> str:
     if not isinstance(value, str) or not value:
         raise ValueError(f"{name} must be a non-empty string")
     return value
-
-
-def _macro_binding_signature(base: str, search_signature: str) -> str:
-    return hashlib.sha256(
-        json.dumps(
-            {
-                "base": base,
-                "macro_search_signature": search_signature,
-            },
-            sort_keys=True,
-            separators=(",", ":"),
-        ).encode("utf-8")
-    ).hexdigest()
 
 
 def _string_items(payload: Mapping[str, Any], name: str) -> tuple[str, ...]:

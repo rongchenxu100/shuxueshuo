@@ -42,6 +42,19 @@
         "state_kind": "coordinate"
       }
     },
+    "target_state": {
+      "required": false,
+      "functional_exposed": false,
+      "symbolic_basis_role": "align_to_anchor",
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    },
     "known_point": {
       "required": false,
       "symbolic_basis_role": "align_to_anchor",

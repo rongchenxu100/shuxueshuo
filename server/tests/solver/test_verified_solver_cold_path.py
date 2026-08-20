@@ -95,6 +95,39 @@ def test_strategy_planner_requires_problem_bundle_authority(tmp_path) -> None:
     assert caught.value.code == "planner.problem_bundle_required"
 
 
+def test_public_verified_entry_never_calls_legacy_v1_planner(
+    monkeypatch,
+    tmp_path,
+) -> None:
+    """The public Bundle API must terminate in Goal checkpoint v3."""
+
+    bundle, *_ = planning_binding_fixture(
+        tmp_path,
+        case="tj-2026-nankai-yimo-25",
+    )
+    monkeypatch.setattr(
+        StrategyPlanner,
+        "plan",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(
+            AssertionError("legacy functional_plan/v1 planner must not run")
+        ),
+    )
+    orchestrator = RuntimeOrchestrator()
+
+    result = orchestrator.solve_verified(bundle)
+
+    assert result.ok, result.errors
+    success = orchestrator.last_success_artifacts
+    assert success is not None
+    artifacts = success.planner.artifacts
+    assert artifacts.scoped_retry_result is not None
+    assert artifacts.scoped_retry_result.status == "accepted"
+    checkpoint = artifacts.scoped_retry_result.final_execution.checkpoint
+    assert checkpoint.schema_version == "functional-goal-execution-checkpoint/v3"
+    assert checkpoint.all_required_goals_verified
+    assert success.verified_functional_execution is not None
+
+
 def test_strategy_provider_requires_problem_bundle_authority(tmp_path) -> None:
     _bundle, _planning_context, problem, *_ = planning_binding_fixture(tmp_path)
 

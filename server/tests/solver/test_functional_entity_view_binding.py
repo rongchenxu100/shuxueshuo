@@ -166,6 +166,63 @@ def test_hidden_entity_state_can_depend_on_later_same_scope_producer(
     assert reports["ii_compute_F"].status == "verified"
 
 
+def test_runtime_search_macro_never_reads_sibling_planned_point(
+    tmp_path,
+) -> None:
+    case = "tj-2026-heping-yimo-25"
+    payload = deepcopy(load_v2_fixture_payload(case))
+    scope_ii = next(
+        item for item in _scopes(payload["root_scope"])
+        if item["scope_ref"] == "ii"
+    )
+    goal = scope_ii["goals"][0]
+    sibling_sensitive_steps = {
+        "derive_parametric_parabola_ii",
+        "derive_x_intercept_B_ii",
+    }
+    goal["steps"] = [
+        step
+        for step in goal["steps"]
+        if step["step_id"] not in sibling_sensitive_steps
+    ]
+    (
+        _bundle,
+        planning_context,
+        problem,
+        inputs,
+        problem_payload,
+        registry,
+        planner_context,
+        binding_catalog,
+    ) = planning_binding_fixture(tmp_path, case=case)
+
+    with pytest.raises(ScopedFunctionalPlanError) as error:
+        ScopedFunctionalPlanReplayService().replay_raw_json(
+            json.dumps(payload, ensure_ascii=False),
+            inputs=inputs,
+            planning_context=planning_context,
+            problem_binding_catalog=binding_catalog,
+            handle_registry=registry,
+            context=ContextBuilder().build(problem),
+            planner_state_context=planner_context,
+            problem_payload=problem_payload,
+        )
+
+    assert error.value.code == (
+        "functional.equal_length_ray_point_state_unavailable"
+    )
+    issue_payload = [item.to_payload() for item in error.value.issues]
+    assert not any(
+        item["code"] == "functional.call_scope_not_visible_for_goal"
+        for item in issue_payload
+    )
+    assert all(
+        "derive_x_intercept_B_i"
+        not in item.get("details", {}).get("repair_call_ids", ())
+        for item in issue_payload
+    )
+
+
 def test_named_step_result_normalization_retains_exact_producer_edge(
     tmp_path,
 ) -> None:
@@ -215,7 +272,7 @@ def test_named_step_result_normalization_retains_exact_producer_edge(
     ]
 
 
-def test_runtime_search_macro_preserves_and_corrects_wrong_entity_hint(
+def test_unmigrated_direct_macro_does_not_claim_runtime_hint_correction(
     tmp_path,
 ) -> None:
     case = "tj-2026-nankai-yimo-25"
@@ -237,44 +294,19 @@ def test_runtime_search_macro_preserves_and_corrects_wrong_entity_hint(
         binding_catalog,
     ) = planning_binding_fixture(tmp_path, case=case)
 
-    result = ScopedFunctionalPlanReplayService().replay_raw_json(
-        json.dumps(payload, ensure_ascii=False),
-        inputs=inputs,
-        planning_context=planning_context,
-        problem_binding_catalog=binding_catalog,
-        handle_registry=registry,
-        context=ContextBuilder().build(problem),
-        planner_state_context=planner_context,
-        problem_payload=problem_payload,
-    )
+    with pytest.raises(ScopedFunctionalPlanError) as error:
+        ScopedFunctionalPlanReplayService().replay_raw_json(
+            json.dumps(payload, ensure_ascii=False),
+            inputs=inputs,
+            planning_context=planning_context,
+            problem_binding_catalog=binding_catalog,
+            handle_registry=registry,
+            context=ContextBuilder().build(problem),
+            planner_state_context=planner_context,
+            problem_payload=problem_payload,
+        )
 
-    reconciliation = result.replay.functional_reconciliation
-    assert reconciliation is not None and reconciliation.ok
-    reconciled_call = next(
-        item for item in reconciliation.calls if item.call_id == "ii_reduce_path"
-    )
-    assert dict(reconciled_call.authored_macro_roles) == {
-        "moving_point": "point:ii:E"
-    }
-    assert tuple(
-        value.object_ref
-        for value in reconciled_call.resolved_args["moving_point"]
-    ) == ("point:ii:G",)
-
-    execution = result.replay.transactional_execution_report
-    assert execution is not None
-    call_result = next(
-        item for item in execution.call_results if item.call_id == "ii_reduce_path"
-    )
-    assert call_result.status == "verified"
-    assert call_result.macro_search_report is not None
-    role = call_result.macro_search_report.role_resolutions[0]
-    assert (role.role, role.authored_ref, role.chosen_ref, role.corrected) == (
-        "moving_point",
-        "point:ii:E",
-        "point:ii:G",
-        True,
-    )
+    assert error.value.code == "functional.context_resolver_conflict"
 
 
 @pytest.mark.parametrize("case", CASES)
@@ -319,6 +351,11 @@ def test_recorded_runtime_search_reports_cover_declared_macro_roles(
             item.role for item in report.role_resolutions
         ) == spec.search.searchable_roles
         assert all(item.chosen_ref.startswith("point:") for item in report.role_resolutions)
+        assert all(
+            item.call_count is not None and item.call_count > 0
+            for item in report.evaluations
+            if item.passed
+        )
 
 
 def test_named_entity_step_result_ref_is_normalized_before_runtime(tmp_path) -> None:

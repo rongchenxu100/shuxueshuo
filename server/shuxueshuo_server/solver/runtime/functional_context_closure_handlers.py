@@ -91,6 +91,7 @@ def resolve_context_closure_args(
     produced: Mapping[tuple[str, str], ResolvedFunctionalValue],
     semantic_index: FunctionalSemanticIndex,
     handle_registry: CanonicalHandleRegistry,
+    allow_legacy_planned_producer_visibility: bool = False,
 ) -> tuple[
     dict[str, tuple[ResolvedFunctionalValue, ...]],
     tuple[FunctionalDeterministicRepair, ...],
@@ -106,16 +107,23 @@ def resolve_context_closure_args(
     for resolver_id in capability.context_resolvers:
         resolver = context_closure_resolver(resolver_id)
         handler = _CONTEXT_CLOSURE_HANDLERS[resolver_id]
+        handler_kwargs = {
+            "call_id": call_id,
+            "scope_id": scope_id,
+            "produced": produced,
+            "semantic_index": semantic_index,
+            "handle_registry": handle_registry,
+        }
+        if resolver_id == EQUAL_LENGTH_RAY_PATH_ROLES_RESOLVER:
+            handler_kwargs["allow_legacy_planned_producer_visibility"] = (
+                allow_legacy_planned_producer_visibility
+            )
         resolved, current_repairs, current_issues, closed = handler(
             capability,
             call,
             {**resolved_args, **additions},
             resolver,
-            call_id=call_id,
-            scope_id=scope_id,
-            produced=produced,
-            semantic_index=semantic_index,
-            handle_registry=handle_registry,
+            **handler_kwargs,
         )
         for arg_name, values in resolved.items():
             previous = additions.get(arg_name) or resolved_args.get(arg_name)

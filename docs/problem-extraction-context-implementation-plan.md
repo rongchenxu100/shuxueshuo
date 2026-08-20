@@ -33,6 +33,10 @@ Track F把题目来源转换为可追溯、可局部修复并可确定投影到S
 | F5-F2 Incremental Goal execution | `COMPLETE` |
 | F5-F3 Goal replacement retry | `COMPLETE` |
 | F5-F4 Math Entity inputs / Method views / Macro search | `IN PROGRESS` |
+| F5-F4.1 Equal-length ray unique-role reference path | `COMPLETE` |
+| F5-F4.2 Runtime Authority Convergence | `COMPLETE` |
+| F5-F4.3 Path Macro migration | `PENDING` |
+| F5-F5 Teaching scope / v1 retirement | `PENDING` |
 
 系统尚未上线。Extraction只支持当前schema，不保留旧candidate、整份ProblemIR retry或Context迁移链。
 
@@ -383,7 +387,7 @@ scope嵌套本身定义词法可见性：Goal只能读取自身scope及祖先sco
 
 Scope与Goal是两个正交概念。Scope是题面语义、词法可见性和教学分段的容器，拥有本地文字、Entity、Fact及child scope；Goal是挂在某个owner scope上的原子求值要求，只声明要得到什么答案及其类型，不拥有Entity、Fact或child scope。一个scope可以没有Goal，例如全题根scope或只提供公共条件的`(II)`；可以有一个Goal；也可以有多个Goal，例如同一小问“求P、A两点坐标”对应两个独立point-coordinate Goal。因此，“Goal是需要求解的scope”可以作为单Goal题目的直观说法，但不能作为wire或authority模型：更准确的表述是“带求解任务的scope拥有一个或多个Goal”。不能为了让每个Goal看起来像scope而生成没有题面语义的人工child scope。
 
-F5-E切换默认入口时暂时继续使用`functional_plan/v1`和现有`SemanticRef`。F5-C只能通过`input_authorities_for_goal(goal_unit_id)`取得当前Goal的输入catalog，并通过`answer_authority_for_goal(goal_unit_id)`取得唯一return authority；禁止遍历全局`ref_authorities`后自行过滤。Planner response schema只暴露当前Goal视图允许的scope/ref。现有B2 placement根据typed dependencies和LCA计算实际`execution_scope_id`。
+F5-E切换默认入口时曾暂时继续使用`functional_plan/v1`和现有`SemanticRef`；该过渡状态已经由F5-F4.2替代。F5-C只能通过`input_authorities_for_goal(goal_unit_id)`取得当前Goal的输入catalog，并通过`answer_authority_for_goal(goal_unit_id)`取得唯一return authority；禁止遍历全局`ref_authorities`后自行过滤。Planner response schema只暴露当前Goal视图允许的scope/ref。B2 placement只能机械实现typed authority给出的执行位置，不能重新选择scope或状态owner。
 
 F5-F的LLM authoring wire使用`functional-plan-content/v2`，内部执行权威继续使用`functional_plan/v2`。Problem、Plan和Retry共享同一棵scope/Goal骨架，但骨架不再由模型复制：代码从PlanningContext派生`FunctionalPlanAuthorityFrame`，固定scope树、Goal owner、答案target/type及精确map key；模型为合法scope和Goal填写步骤列表，并为每个Goal输出局部`answer_from`表达答案producer意图。assembler验证全集后生成最多四层的canonical v2树，再按scope可见性、capability typed return、目标对象身份和StepResult DAG验证该指针；指针错误但合法候选唯一时由代码规范化，多个候选时由合法指针消歧，否则fail loud。普通scope步骤由该scope拥有，可服务一个或多个后代Goal；Goal步骤只服务对应原子Goal。公共性只由步骤所在scope表达，不使用`shared_steps`。
 
@@ -461,7 +465,7 @@ functional-goal-repair/v4    # Retry输出Goal steps+answer与scope步骤替换
 3. **F5-C FunctionalPlan binding（COMPLETE）**
    - `ProblemPlanningBindingCatalog`只通过F5-B按Goal authority API，将`SemanticRef -> runtime node -> source unit -> canonical handle -> typed identity`确定绑定；不调用全局semantic catalog，不使用alias、label、handle尾部或模糊匹配。
    - answer producer反向传播得到call服务的Goal集合。单Goal call使用该Goal allowlist；共享call只能读取各Goal allowlist交集。跨sibling read、answer串线、无Goal call和placement后可见性漂移均在compile前失败。
-   - source Entity、Fact与初始state snapshot绑定`MathObjectId`、`ConditionId`及精确`StateVersionId`，禁止从演进中的Context隐式选择global latest。若同一个具名对象已有唯一、可见、类型兼容的前序call state，SemanticRef可确定性降为该精确CallResult；匿名结果、非最近版本或歧义仍必须显式使用`CallResultRef`。
+   - source Entity、Fact与初始state snapshot绑定`MathObjectId`、`ConditionId`及精确`StateVersionId`，禁止从演进中的Context隐式选择global latest。具名Math Entity在v2 wire中始终保持SourceRef；TypedExecutionGraph只证明唯一可见producer和依赖，call preparation再pin exact StateVersion。匿名结果、显式历史版本或真正的结果消歧才使用`CallResultRef`。
    - Catalog只从未演进的typed slot派生ordinal-0 source snapshot；若PlannerStateContext中的对应slot已有write或latest不再是ordinal 0，重建Catalog直接报`planner.problem_source_binding_drift`，后续阶段必须复用原Catalog中的pin。
    - reconciliation挂载`FunctionalProblemBindingContext`，逐arg/return记录Goal、runtime node、source unit与C3 identity；direct preparation再次对sidecar、C3 ledger、B1 answer allocation及exact version做一致性审计。
    - semantic elaboration的per-call allowlist只含input authority；answer authority只允许出现在显式return binding，不能成为C3 implicit source。多source Goal target不再取首项，必须唯一映射或fail loud。
@@ -471,18 +475,15 @@ functional-goal-repair/v4    # Retry输出Goal steps+answer与scope步骤替换
    - 保留B1 allocation、B2 placement、B3 finalization、C3 binding ledger和C4/C5 symbolic closure。F5-E后生产Strategy会在构造、payload和replay三处强制携带`problem_binding_catalog`；底层reconciler的nullable参数与全局`semantic_read_catalog()`分支仅服务尚未迁移的deterministic/debug测试，并在F5-F5随v1一起物理删除。
 
 4. **F5-D Retry与provenance（COMPLETE）**
-   - `ProblemCallSourceProvenance`只能从F5-C sidecar派生，记录planning context、problem revision/hash、canonical call、Goal集合、call binding signature和该call直接读取的Problem source units。`CallResultRef`与compiler selector不计入直接source read，跨call来源由typed dependency DAG恢复。
-   - direct compile后、method执行前为全部versioned、value-only、companion与answer-alias write/result统一盖章；commit前审计missing、revision和per-return drift，失败整call回滚。`PlannerStateContext` hydrate保留实际write authority，checkpoint不得补造或覆盖缺失字段。
-   - retry契约升级为`functional-retry-graph-checkpoint/v2`。顶层`problem_authority`固定PlanningContext与Problem revision，`problem_call_authorities`覆盖所有F5-C canonical calls；committed call、verified version和value-only result均携带同一call provenance。v1及其他旧checkpoint版本硬拒绝，不提供hydrate迁移；缺legacy binding signature只允许降为不锁call的`runtime_verified`证据。
-   - locked call恢复时Goal、直接source units及完整input/return sidecar形成的call signature必须完全一致；即使wire微调后C3选源相同，也采用刻意的fail-loud。repair call可重编排，但不得越出原repair Goal集合。revision/hash漂移报`planner.retry_problem_revision_drift`，Goal/source/signature漂移报`planner.retry_problem_source_binding_drift`，不从SemanticRef、handle或错误文本恢复identity。
-   - `ProblemPlanningRetryProjector`按repair call的Goal并集从可信PlanningContext重新生成视图，只展示这些Goal、祖先scope和去重shared context。source unit仅进入内部authority payload和projection signature，不进入prompt；revision/hash、runtime node、StateVersion和Bundle token同样隐藏。prompt审计采用结构化字段遍历，题面`source_text`碰巧等于内部ID不会误报；稳定call结果仍由既有typed issue dependency选择器按需提供。
-   - answer-check撤销commit后，runtime result及其Problem provenance保留为`runtime_verified` provisional evidence，但committed call为空。五题transaction、checkpoint与retry view可确定重放，F5-D专项`31 passed`，指定联合门禁`146 passed`，全量Solver回归`1644 passed, 12 skipped`。
-   - F5-D不重新运行OCR、豆包、domain canonicalizer/projector、Planner或完整Solver，也不切回authored fixture。scope-native接线仍为内部显式参数，生产默认切换留到F5-E。
+   - `ProblemCallSourceProvenance`只能从finalized per-call F5-C binding派生，记录planning context、problem revision/hash、canonical call、Goal集合、binding signature和该call直接读取的Problem source units；跨call来源由typed dependency DAG恢复。
+   - direct compile后、Method执行前为全部versioned、value-only、companion与answer-alias write/result统一盖章；commit前审计missing、revision和per-return drift，失败整call回滚。
+   - 当前生产restore只有`functional-goal-execution-checkpoint/v3`一个owner。exact StateVersion、CallResult、Condition、compiled call、finalized F5-C binding、source/read/write/publication signature与Macro winner均是其私有restore state，不进入LLM prompt，也不再作为并列call-level协议演进。
+   - solved call恢复必须复用checkpoint中的exact read authority；editable call丢弃旧preparation和provisional write后重新准备。旧checkpoint版本硬拒绝，不从SemanticRef、handle或错误文本恢复identity。F5-D不重新运行OCR、豆包、domain canonicalizer/projector或完整Solver。
 
 5. **F5-E Production cold path（COMPLETE）**
    - 公开`solve_problem()`只接收`VerifiedSolverProblemBundle`；Strategy传入裸ProblemIR稳定报`planner.problem_bundle_required`。deterministic测试使用独立`solve_problem_ir_debug()`。
    - `RuntimeOrchestrator.solve_verified()`从Bundle派生唯一`VerifiedPlannerProblemAuthority`。每轮从同一Bundle重新构造ProblemIR、RuntimeContext和初始PlannerStateContext，再构建PlanningContext与BindingCatalog；accepted Problem revision/hash在所有Planner attempt中固定。
-   - recorded与DeepSeek Strategy均强制消费scope-native fixture、PlanningContext和BindingCatalog。Planner payload只包含`problem_planning_context`，不包含`problem_ir`；retry有checkpoint v2时只发送repair Goal视图，尚未形成checkpoint时发送完整PlanningContext。
+   - recorded与DeepSeek Strategy均强制消费scope-native fixture、PlanningContext和BindingCatalog。Planner payload只包含`problem_planning_context`，不包含`problem_ir`；retry有Goal checkpoint v3时只发送repair Goal视图，尚未形成checkpoint时发送完整PlanningContext。
    - Strategy生产路径不再调用全局`semantic_read_catalog()`，不接受`problem_authority=null`，也不迁移v1 retry checkpoint。内部canonical Solver ProblemIR只用于HandleRegistry、ContextBuilder和runtime identity，不进入LLM prompt。
    - `RuntimeSuccessArtifacts`保存Bundle token、PlanningContext、BindingCatalog、最终PlannerStateContext和Problem provenance，供Explanation/G继续消费。
    - 新增`ProblemColdPathService`：先运行一次Domain extraction；blocked时Planner调用数为0；accepted后从artifact store重新加载Bundle再调用Solver。Solver retry只复用accepted Bundle，不重新调用OCR、豆包、canonicalizer、validator或domain projector。
@@ -541,11 +542,46 @@ functional-goal-repair/v4    # Retry输出Goal steps+answer与scope步骤替换
    - F5-F3最终真实验收批次`f5f4-version-authority-fix-5x3-20260818`使用DeepSeek low thinking并发15运行五题各三份：`15/15`在三轮内完成，共`20`次semantic attempt、`5`次`functional-goal-repair/v4`和`27`个solved call checkpoint恢复；没有第三轮retry。solved Goal实际重执行、repair authority drift、failed transaction ghost write、configuration error、unclassified error和prompt identity leak均为`0`。该批次证明Goal完整替换、mixed-scope frozen producer合并、exact StateVersion恢复和最终transaction authority稳定，F5-F3据此关闭为`COMPLETE`；尚未完成的bounded Macro runtime-search仍归F5-F4，不再为F5-F3运行付费LLM验收。
    - **F5-F3 restore/publication authority加固（IMPLEMENTED）**：具名return由共享`ReturnObjectAuthorityResolver`按固定authority优先级解析，content compiler与scoped reconciler不再各自推测。完整canonical scope树确定性派生`authored return consumers` sidecar；它只保留完整DAG的return需求，不让无效consumer进入执行。restore沿用同一checkpoint，将审计拆为严格`source_read`、严格`runtime_write`和答案发布三部分；普通consumer Goal集合与非答案public return从当前完整DAG及canonical output allocation重建，solved Goal显式answer publication继续严格。恢复值使用三个独立typed namespace：exact `StateVersionId`、anonymous `CallResultId`和`ConditionId`；CallResult保存producer、return、scope、runtime type、exact value及provenance，Condition保存不可变事实记录，诊断由CallResultId确定性还原为StepResultRef。因此恢复后的共享producer仍可向开放Goal提供MinimumExpression、候选集、Path witness等匿名结果。`functional-goal-repair/v4`新增受authority约束的`answer_binding_replacements`：editable scope改变producer时，blocked Goal只能更新`answer_from`，不能修改Goal-local steps；solved Goal仍完全冻结。该实现没有新增一层pre-authority，专项retry/transaction/diagnostic联合`152 passed`；全量Solver回归`2076 passed, 12 skipped`。
    - **F5-F4 Math Entity input、Method View contract与Runtime-search Macro（IN PROGRESS）**
-   - Planner只提交数学实体/Fact。具名Point、Function、Symbol等始终使用实体ref；`StepResultRef`只保留给没有题面身份的候选集、路径见证和中间表达式。capability prompt不再暴露`PointRef/Point`、`Parabola/Function identity`、`ParameterValue/Symbol`、state kind、version或runtime path。
-   - 37个Method的全部input必须显式声明`identity | latest_state | immutable_value | exact_result`之一。Function/Macro和通用ViewResolver据此把同一实体lower为所需runtime表示并自动建立producer依赖；Method仍为不读Context、不搜索候选的纯数学原语。具名output即使流入`exact_result`参数也禁止通过`StepResultRef`读取，必须回到实体ref并由view选状态。
-   - 全部注册Macro显式声明`direct | runtime_search`。Runtime-search Macro把LLM角色作为首选提示，在最多32个静态剪枝候选上隔离compile/runtime；候选必须通过Method checks、Macro postcondition、active return、identity、Goal和provenance。唯一成功候选可纠正提示；多个成功仅在实际runtime输出等价时确定性选择，非等价歧义fail loud；winner从干净Context重放后提交。
-   - Macro报告保存authored/chosen role、候选checks、输出签名和稳定search signature。该证明进入call binding signature、runtime write/result、checkpoint和debug；内部Method输入不得直接进入LLM诊断。五份v2 fixture同步改为entity-only wire，并新增Method view、entity binding、Macro search与prompt卫生门禁。
-   - **已知问题 / 下一实施项**：南开长尾样本仍让Planner直接面对`two_moving_points_path_reduction → broken_path_straightening → line_intersection`的内部连线、`PathWitness`和拉直端点，导致模型反复搜索本应由family Macro封装的动点/最小点角色。后续必须统一重构所有同类“寻找动点、最小点或路径角色”的能力，而不是只修南开：LLM仅给题面实体和可选角色提示；Macro执行有界runtime search、验证及唯一纠正，内部Path类型和Method wiring完全不进入Prompt。当前阶段只记录该问题，不实施该Macro改造；验收先要求南开`1×3`单provider attempt、`finish_reason=length`为0、Prompt内部Path类型为0，再运行五题`5×3`。
+   - Planner只提交数学实体、Fact和高层capability。具名Point、Function、Symbol始终使用实体ref；真正匿名的候选集、中间表达式和运行见证才允许`StepResultRef`。Planner不负责选择runtime type、StateVersion、内部Method路径或Macro winner。
+   - FunctionalPlan v1暂时保留为派生执行IR，以继续复用compiler、transaction与Method runtime；它不再拥有scope、依赖、状态版本、Macro角色、答案或restore边界的二次决定权。F5-F4完成前不得把新的语义fallback继续加入v1 replay/reconciliation。
+
+   - **F5-F4.1 Equal-length ray reference path（COMPLETE）**
+     - `equal_length_ray_path_reduction`完成entity-only Plan、transaction、`PathMinimumWitness`、Goal checkpoint和`VerifiedFunctionalPlanExecution`竖切；四个结构化Fact是角色候选的唯一题面来源。
+     - 37个Method的200个input全部显式声明`identity | latest_state | immutable_value | exact_result`。F4.1建立数学契约，F4.2完成其生产权威时序。
+
+   <a id="f5-f4-2-runtime-authority-convergence"></a>
+
+   - **F5-F4.2 Runtime Authority Convergence（COMPLETE）**
+
+     ```text
+     functional-plan-content/v2
+       -> ScopedFunctionalPlanAuthority
+       -> TypedExecutionGraph
+       -> MacroPreparationAuthority / shadow runtime search
+       -> finalized per-call F5-C binding
+       -> derived FunctionalPlan v1 execution IR
+       -> MethodInputViewResolver
+       -> transaction
+       -> FunctionalGoalExecutionCheckpoint/v3
+       -> VerifiedFunctionalPlanExecution
+     ```
+
+     - Scoped authority拥有Plan tree、scope、Goal和答案意图；TypedExecutionGraph只拥有scope-safe dependency与producer证明；call preparation pin exact read authority；v1 execution IR不得重新选择任何语义权威。
+     - `equal_length_ray_path_reduction`是当前唯一`runtime_search` Macro。`MacroImplementationRegistry`统一注册candidate builder、validation、lowerer、postcondition和evidence builder；winner在per-call F5-C finalization前由隔离shadow runtime选定，再从干净branch重放。错误authored hint只进入search report，chosen实体才进入binding、source unit与provenance。
+     - 其余尚未迁移的Macro全部降为`direct`，不得宣称runtime search。角色候选使用`MacroRoleAssignmentCandidate`，直达/反射/端点等几何候选使用`PathAttainmentCandidate`，两套winner authority不混用。
+     - `MethodInputReadAuthority`成为Method读取的唯一依据。具名Entity wire保持SourceRef；identity是纯对象身份，latest_state pin exact StateVersion，immutable value pin Entity/Condition，exact_result只接受CallResult/InvocationResult。Point、Function、Symbol和聚合输入都经过同一个Resolver；compiler投影path只是执行地址，不参与选源。
+     - F5-C由不可变catalog、per-call draft和ledger分阶段构造。Direct call可立即finalize；runtime-search call在winner确定前保持pending且没有write/result provenance。成功后ledger聚合成兼容的最终`FunctionalProblemBindingContext` payload。
+     - `functional-goal-execution-checkpoint/v3`是唯一生产restore协议，私有restore state同时保存StateVersion、CallResult、Condition、compiled reconciliation、finalized call binding、签名和Macro preparation。solved Macro恢复不重新搜索或选择latest；v2及更旧checkpoint稳定拒绝。v1 debug使用独立debug preparation adapter，不伪造F5-C或provenance。
+     - 已删除生产post-hoc单候选search、Macro ID Witness特判、Fact名称角色正则fallback、Point专用Resolver旁路、聚合输入直读和具名Entity latest-state的StepResultRef强制校验。
+     - 复审后进一步关闭权威残留：mixed-scope replacement按原editable slot区间与显式依赖稳定合并，即使LLM增删editable step也不能越过中间frozen producer；单个重命名step横跨多个frozen区间且无法定位时明确fail loud。content assembly与scoped assembly共用identity-constraint return resolver；shadow evaluator只把显式`planner_repairable`诊断视为候选失败，configuration、contract drift和未知异常立即fail loud；Registry同时拥有preparation context与evidence builder，transaction不再含等长射线专用builder；等价winner的`call_count`来自shadow lowering后的真实Method invocation数量，不由candidate builder写常量。search/restore签名使用canonical typed payload与SymPy `srepr`，禁止`repr()`；debug read adapter生成typed compiler selector，不再把`$path`冒充Entity handle；debug `equal_length_ray_point`可继续要求唯一结构候选，但recipe compiler禁止调用该selector或角色candidate builder，只消费prepared winner。
+     - 公开`engine.solve_problem(VerifiedSolverProblemBundle)`与`RuntimeOrchestrator.solve_verified()`已经只调用`StrategyPlanner.run_scoped()`，直接消费checkpoint v3、transaction和`VerifiedFunctionalPlanExecution`；不会调用legacy `plan()`或创建`FunctionalRetryGraphCheckpoint`。`StrategyPlanner.plan()`仅保留为显式v1 debug入口。已验证transaction向Explanation投影时按Functional call聚合Method结果，不重新执行runtime。
+     - 离线主组合门禁`172 passed`；最终全量Solver回归`2183 passed, 12 skipped`，scope-native C0-C5、Goal retry、symbolic closure、公开cold path及Visual消费回归全部全绿。新增门禁覆盖4,608个view/dependency组合和256个完整`content -> search -> F5-C -> transaction -> retry -> restore -> VerifiedExecution`生命周期场景。
+     - DeepSeek low-thinking真实验收批次`f5f42-authority-convergence-diagnostic-heping-1x3-live`为和平一模`3/3`，共5次semantic attempt、2次Goal repair和14个solved restore。最终并发15批次`f5f42-authority-convergence-final-live-5x3`为五题`15/15`，共17次semantic attempt、2次Goal repair、12个solved restore及2个dead step确定性裁剪；15份均通过final Plan contract、scope tree、authority、compile、transaction和completion。solved Goal重执行、failed transaction ghost write、repair authority drift、prompt identity leak、configuration error和unclassified error均为0，F5-F4.2据此关闭。
+
+   - **F5-F4.3 Path Macro migration（PENDING）**
+     - 只有F4.2全部门禁通过后，才把同一pre-binding机制迁移到`two_moving_points_path_reduction`、拉直、反射、端点构造和其余路径family；不得复制F4.1当前的compiler唯一候选加事后报告模式。
+     - family Macro统一公开数学实体、Fact、可选角色hint与`minimum_expression`等最终结果。`PathTransformation`、`PathWitness`、内部端点、内部Method输入和wiring全部退出Planner wire，进入`VerifiedFunctionalPlanExecution`证据树。
+     - 退出门禁先要求南开`1×3`全部单provider attempt、`finish_reason=length == 0`、Prompt内部Path类型为0，再运行五题并发`5×3`；每个启用runtime search的Macro必须覆盖错误hint纠正、歧义、不可达、clean replay和checkpoint恢复。
    - **F5-F5 Teaching scope与v1退役**
    - 新增`TeachingStepPlacement`，将compiled step确定映射到学生讲解scope。Plan已按Problem scope/Goal组织，但该位置仍需由Goal authority验证；Goal步骤归入Goal owner scope，scope-level步骤若其输入对全部consumer Goal的共同祖先可见，则在最近公共祖先讲解一次，否则按Goal生成引用而不复制runtime计算。
    - `execution_scope_id`只回答状态和method在哪里执行，`teaching_scope_id`只回答步骤在哪个题干/小问下呈现，二者分别审计，禁止Explanation用runtime placement猜教学结构。

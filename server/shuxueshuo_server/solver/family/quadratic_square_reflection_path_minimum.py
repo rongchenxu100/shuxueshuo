@@ -182,12 +182,7 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                     "select_straightening_candidate",
                     "distance_between_points",
                 ),
-                execution_mode="runtime_search",
-                search=MacroSearchSpec(
-                    searchable_roles=("moving_point", "reflect_source"),
-                    candidate_builder_id="straightening_role_assignments",
-                    validation_policy_id="minimum_expression_and_provenance",
-                ),
+                execution_mode="direct",
                 execution_strategy="broken_path_straightening_minimum_expression",
                 input_aliases=(
                     (

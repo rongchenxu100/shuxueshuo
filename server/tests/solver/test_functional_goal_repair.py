@@ -560,6 +560,32 @@ def test_cross_sibling_producer_is_not_semantically_promoted_by_code(
         planner_state_context=fixture[6],
         problem_payload=fixture[4],
     )
+    checkpoint = execution.checkpoint
+    assert checkpoint is not None
+    checkpoint_steps = {}
+
+    def collect_steps(scope):
+        checkpoint_steps.update(
+            (item.step_id, item) for item in scope.scope_steps
+        )
+        for goal_execution in scope.goals:
+            checkpoint_steps.update(
+                (item.step_id, item) for item in goal_execution.steps
+            )
+        for child in scope.children:
+            collect_steps(child)
+
+    collect_steps(checkpoint.root_scope)
+    sibling_consumer = checkpoint_steps["derive_x_intercept_B_i"]
+    assert sibling_consumer.status == "authority_invalid"
+    assert sibling_consumer.typed_issue is not None
+    assert sibling_consumer.typed_issue["code"] == (
+        "functional.arg_state_underdetermined"
+    )
+    assert "derive_parabola_i" not in sibling_consumer.typed_issue.get(
+        "repair_call_ids",
+        (),
+    )
     authority = FunctionalGoalRetryProjector().project(
         plan=failed_plan,
         execution=execution,

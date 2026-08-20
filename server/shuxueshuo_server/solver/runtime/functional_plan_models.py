@@ -157,9 +157,38 @@ class FunctionalScope:
 
 
 @dataclass(frozen=True)
+class FunctionalTypedInputSourcePin:
+    """Internal v2 authority for one named-entity latest-state read.
+
+    The canonical wire remains a SemanticRef.  This sidecar records which
+    typed producer the scoped authority selected, so the derived v1 runtime
+    never has to infer the producer again from incidental execution order.
+    """
+
+    consumer_call_id: str
+    arg_name: str
+    item_index: int
+    semantic_ref: str
+    producer_call_id: str
+    return_name: str
+
+
+@dataclass(frozen=True)
 class FunctionalPlan:
     scopes: tuple[FunctionalScope, ...]
     format: str = "functional_plan/v1"
+    typed_dependency_graph: Mapping[str, tuple[str, ...]] = field(
+        default_factory=dict,
+        repr=False,
+        compare=False,
+    )
+    typed_input_source_pins: Mapping[
+        tuple[str, str, int], FunctionalTypedInputSourcePin
+    ] = field(
+        default_factory=dict,
+        repr=False,
+        compare=False,
+    )
 
     @property
     def calls(self) -> tuple[FunctionalCall, ...]:
@@ -964,6 +993,7 @@ class FunctionalPlanReconciliationResult:
     legacy_identity_fallback_count: int = 0
     functional_binding_context: Any | None = None
     functional_problem_binding_context: Any | None = None
+    functional_problem_binding_ledger: Any | None = None
     functional_binding_decisions: tuple[dict[str, Any], ...] = ()
     functional_binding_mismatches: tuple[dict[str, Any], ...] = ()
     legacy_binding_role_fallback_count: int = 0
@@ -1043,6 +1073,28 @@ class FunctionalPlanReconciliationResult:
             "functional_problem_binding_context": (
                 self.functional_problem_binding_context.to_payload()
                 if self.functional_problem_binding_context is not None
+                else None
+            ),
+            "functional_problem_binding_ledger": (
+                {
+                    "schema_version": (
+                        self.functional_problem_binding_ledger.schema_version
+                    ),
+                    "draft_signature": (
+                        self.functional_problem_binding_ledger
+                        .draft.draft_signature
+                    ),
+                    "ledger_signature": (
+                        self.functional_problem_binding_ledger.ledger_signature
+                    ),
+                    "calls": {
+                        call_id: binding.authority_payload()
+                        for call_id, binding in (
+                            self.functional_problem_binding_ledger.calls.items()
+                        )
+                    },
+                }
+                if self.functional_problem_binding_ledger is not None
                 else None
             ),
             "functional_binding_decisions": [

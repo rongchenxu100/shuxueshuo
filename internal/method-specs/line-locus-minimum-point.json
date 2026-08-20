@@ -13,7 +13,7 @@
       "domain_type": "Line",
       "runtime_type": "Line",
       "view": {
-        "mode": "latest_state",
+        "mode": "exact_result",
         "domain_type": "Line",
         "object_kind": "line",
         "state_kind": "equation"
@@ -25,7 +25,7 @@
       "domain_type": "Point",
       "runtime_type": "Point",
       "view": {
-        "mode": "latest_state",
+        "mode": "exact_result",
         "domain_type": "Point",
         "object_kind": "point",
         "state_kind": "coordinate"
@@ -37,7 +37,7 @@
       "domain_type": "Point",
       "runtime_type": "Point",
       "view": {
-        "mode": "latest_state",
+        "mode": "exact_result",
         "domain_type": "Point",
         "object_kind": "point",
         "state_kind": "coordinate"

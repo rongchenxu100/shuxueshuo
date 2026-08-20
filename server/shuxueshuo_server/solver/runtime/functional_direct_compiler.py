@@ -103,6 +103,7 @@ class FunctionalCapabilityCompileCall:
     input_handles: tuple[str, ...]
     created_entities: tuple[FunctionalCreatedEntity, ...]
     return_outputs: tuple[FunctionalReturnOutput, ...]
+    macro_role_overrides: dict[str, str] | None = None
 
 
 class FunctionalDirectCompiler:
@@ -251,6 +252,11 @@ def _compile_call(
         input_handles=reads,
         created_entities=creates,
         return_outputs=produces,
+        macro_role_overrides=(
+            dict(request.prepared_call.macro_role_overrides)
+            if request.prepared_call.macro_role_overrides
+            else None
+        ),
     )
 
 

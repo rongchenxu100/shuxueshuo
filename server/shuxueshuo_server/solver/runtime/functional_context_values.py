@@ -147,6 +147,7 @@ def latest_point_state_for_object(
     semantic_index: FunctionalSemanticIndex,
     handle_registry: CanonicalHandleRegistry,
     allow_unique_planned_producer: bool = False,
+    allow_invisible_planned_producer: bool = False,
 ) -> ResolvedFunctionalValue | None:
     object_ids = tuple(
         dict.fromkeys(
@@ -288,6 +289,14 @@ def latest_point_state_for_object(
             if value.runtime_type == "Point"
             and value.math_object_id == object_id
             and value.source_call_id is not None
+            and (
+                allow_invisible_planned_producer
+                or visible_from_valid_scope(
+                    value.valid_scope,
+                    scope_id=scope_id,
+                    registry=handle_registry,
+                )
+            )
         )
         producer_ids = unique_ordered(
             value.source_call_id

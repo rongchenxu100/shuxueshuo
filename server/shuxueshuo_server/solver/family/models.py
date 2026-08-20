@@ -10,7 +10,11 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Literal
 
-from shuxueshuo_server.solver.contracts import ScalarResultFormSpec
+from shuxueshuo_server.solver.contracts import (
+    MacroExecutionMode,
+    MacroSearchSpec,
+    ScalarResultFormSpec,
+)
 from shuxueshuo_server.solver.problem_models import ProblemIR
 from shuxueshuo_server.solver.state_semantics import state_kind_for_runtime_type
 from shuxueshuo_server.solver.utils import unique_ordered
@@ -30,27 +34,6 @@ GoalEvidenceTag = Literal[
 ]
 FamilySourcePrimitiveKind = Literal["entity_type", "fact_type"]
 FamilySourceEvidenceAuthority = Literal["candidate_structure", "printed_source"]
-MacroExecutionMode = Literal["direct", "runtime_search"]
-
-
-@dataclass(frozen=True)
-class MacroSearchSpec:
-    """Bounded, auditable role search performed by a Macro runtime."""
-
-    searchable_roles: tuple[str, ...]
-    candidate_builder_id: str
-    validation_policy_id: str
-    max_candidates: int = 32
-
-    def to_payload(self) -> dict[str, object]:
-        return {
-            "searchable_roles": list(self.searchable_roles),
-            "candidate_builder_id": self.candidate_builder_id,
-            "validation_policy_id": self.validation_policy_id,
-            "max_candidates": self.max_candidates,
-        }
-
-
 @dataclass(frozen=True)
 class FamilySourceRequirementSpec:
     """Machine-checkable source primitive required for family admission."""

@@ -94,13 +94,13 @@ def test_vs1_heping_ermo_lesson_steps_are_grouped_by_reusable_capabilities(
     first_step = lesson.steps[0]
     assert first_step.source_step_ids == (
         "derive_parabola_i",
-        "derive_vertex_P_i",
         "derive_x_intercept_A_i",
+        "derive_vertex_P_i",
     )
     assert first_step.capability_ids == (
         "quadratic_from_constraints",
-        "quadratic_vertex_point",
         "quadratic_x_axis_intercept_point",
+        "quadratic_vertex_point",
     )
     assert first_step.title == "代入已知条件，求解析式、顶点和 x 轴交点"
     assert first_step.nav_title == "求解析式、顶点和交点"

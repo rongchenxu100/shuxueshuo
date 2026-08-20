@@ -16,6 +16,7 @@ from shuxueshuo_server.solver.runtime.functional_diagnostics import (
     FUNCTIONAL_DIAGNOSTIC_AUTHORITY_CONTRACT,
     FUNCTIONAL_PROMPT_DIAGNOSTIC_CONTRACT,
     FunctionalDiagnosticAuthority,
+    FunctionalDiagnosticSubject,
     FunctionalPromptDiagnostic,
     FunctionalPromptDiagnosticProjector,
     StatelessMethodError,
@@ -27,6 +28,7 @@ from shuxueshuo_server.solver.runtime.functional_diagnostics import (
     method_input_missing,
     method_input_state_unavailable,
     method_result_ambiguous,
+    method_result_empty,
     normalize_macro_diagnostic_authority,
     unexpected_method_error,
 )
@@ -173,6 +175,65 @@ def test_missing_m_projects_role_and_materialized_point_requirement(tmp_path) ->
     wire = json.dumps(prompt.to_payload(), ensure_ascii=False)
     assert internal_ref not in wire
     assert "<internal-identity-omitted>" not in wire
+
+
+def test_stale_derived_point_diagnostic_projects_both_entity_roles(tmp_path) -> None:
+    (
+        _bundle,
+        planning_context,
+        _problem,
+        _inputs,
+        _problem_payload,
+        _registry,
+        _planner_context,
+        binding_catalog,
+    ) = planning_binding_fixture(
+        tmp_path,
+        case="tj-2026-heping-yimo-25",
+    )
+    object_ids = {}
+    for binding in binding_catalog.bindings.values():
+        if binding.usage != "input" or binding.semantic_ref.ref not in {"B", "C"}:
+            continue
+        for source in binding.typed_sources:
+            if source.math_object_id is not None:
+                object_ids[str(binding.semantic_ref.ref)] = (
+                    source.math_object_id.value
+                )
+    authority = method_result_empty(
+        "reference triangle is not isosceles",
+        subjects=(
+            FunctionalDiagnosticSubject(
+                role="horizontal_axis_point",
+                arg_name="x_axis_point",
+                internal_ref=object_ids["B"],
+                expected_type="Point",
+                observed_state="open_state",
+            ),
+            FunctionalDiagnosticSubject(
+                role="vertical_axis_point",
+                arg_name="y_axis_point",
+                internal_ref=object_ids["C"],
+                expected_type="Point",
+                observed_state="closed_state",
+            ),
+        ),
+        observed={"horizontal_free_symbols": ["a"]},
+        repair_action="refresh_derived_input_states",
+    ).authority
+
+    prompt = FunctionalPromptDiagnosticProjector().project(
+        authority,
+        binding_catalog,
+        planning_context,
+    )
+
+    assert [item.ref for item in prompt.subjects] == ["B", "C"]
+    assert prompt.repair_action == "refresh_derived_input_states"
+    assert "Recompute or close" in prompt.message
+    wire = json.dumps(prompt.to_payload(), ensure_ascii=False)
+    assert object_ids["B"] not in wire
+    assert object_ids["C"] not in wire
 
 
 def test_return_role_issue_projects_exact_public_repair_contract(tmp_path) -> None:

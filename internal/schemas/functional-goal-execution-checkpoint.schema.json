@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "functional-goal-execution-checkpoint.schema.json",
-  "title": "Functional Goal Execution Checkpoint v2",
+  "title": "Functional Goal Execution Checkpoint v3",
   "type": "object",
   "required": [
     "schema_version",
@@ -17,11 +17,12 @@
     "goal_unit_ids",
     "source_unit_ids",
     "provisional_state_signature",
+    "restore_state",
     "checkpoint_id"
   ],
   "properties": {
     "schema_version": {
-      "const": "functional-goal-execution-checkpoint/v2"
+      "const": "functional-goal-execution-checkpoint/v3"
     },
     "root_scope": {
       "$ref": "#/$defs/execution_scope_0"
@@ -93,6 +94,96 @@
     "provisional_state_signature": {
       "type": "string",
       "minLength": 1
+    },
+    "restore_state": {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "state_versions",
+        "call_results",
+        "conditions",
+        "compiled_calls",
+        "call_reconciliations",
+        "finalized_call_bindings",
+        "source_read_signatures",
+        "runtime_write_signatures",
+        "publication_signatures",
+        "macro_preparations",
+        "restore_signature"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "functional-execution-restore-state/v1"
+        },
+        "state_versions": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "call_results": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "conditions": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "compiled_calls": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "call_reconciliations": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "finalized_call_bindings": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "source_read_signatures": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "runtime_write_signatures": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "publication_signatures": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "macro_preparations": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "restore_signature": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
     },
     "checkpoint_id": {
       "type": "string",
@@ -540,6 +631,10 @@
                           "type": "string",
                           "minLength": 1
                         }
+                      },
+                      "call_count": {
+                        "type": "integer",
+                        "minimum": 0
                       }
                     },
                     "additionalProperties": false
@@ -685,6 +780,10 @@
                           "type": "string",
                           "minLength": 1
                         }
+                      },
+                      "call_count": {
+                        "type": "integer",
+                        "minimum": 0
                       }
                     },
                     "additionalProperties": false

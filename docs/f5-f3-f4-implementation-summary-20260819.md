@@ -256,12 +256,12 @@ execution -> closure -> retry         256 scenarios
 迁移后删除：
 
 ```text
-server/tests/solver/support/cross_scope_version_*.py
-server/tests/solver/support/functional_binding_generator.py
-server/tests/solver/test_cross_scope_version_*.py
+旧版跨作用域版本 support 模块
+旧版 Functional binding 生成器
+旧版跨作用域版本 generated tests
 server/tests/solver/test_functional_binding_generated_gate.py
-server/tests/solver/fixtures/cross_scope_version_failures/
-docs/cross-scope-version-executable-oracle-design.md
+旧版跨作用域版本 failure fixtures
+旧版跨作用域版本 executable-oracle 设计文档
 ```
 
 新门禁设计见 `docs/scope-native-c0-c5-executable-gate.md`。

@@ -23,6 +23,7 @@ from shuxueshuo_server.solver.runtime.functional_goal_retry import (
     FunctionalGoalRetryProjector,
     ScopedFunctionalGoalRetryService,
     functional_goal_repair_schema_for_authority,
+    _merge_scope_step_replacement,
     _repair_affected_goal_unit_ids,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_content import (
@@ -347,6 +348,161 @@ def test_mixed_scope_repair_retains_frozen_producer_and_replaces_editable_step(
             authority=authority,
             capability_catalog=fixture.capability_catalog,
         )
+
+
+def test_mixed_scope_merge_interleaves_frozen_dependency_between_replacements(
+) -> None:
+    def prior(step_id: str) -> SimpleNamespace:
+        payload = {
+            "step_id": step_id,
+            "capability_id": "test_capability",
+            "args": {},
+            "intent": step_id,
+        }
+        return SimpleNamespace(
+            step_id=step_id,
+            to_payload=lambda payload=payload: deepcopy(payload),
+        )
+
+    merged = _merge_scope_step_replacement(
+        (prior("A"), prior("B"), prior("C")),
+        editable_step_ids=("A", "C"),
+        replacement_steps=(
+            {
+                "step_id": "A_prime",
+                "capability_id": "test_capability",
+                "args": {},
+                "intent": "replacement before frozen producer",
+            },
+            {
+                "step_id": "C_prime",
+                "capability_id": "test_capability",
+                "args": {
+                    "value": {"step_id": "B", "return": "result"},
+                },
+                "intent": "replacement consuming frozen producer",
+            },
+        ),
+    )
+
+    assert [step["step_id"] for step in merged] == [
+        "A_prime",
+        "B",
+        "C_prime",
+    ]
+
+
+def test_mixed_scope_merge_preserves_frozen_slot_for_hidden_dependency() -> None:
+    """Renamed replacements inherit old editable slots without a wire edge."""
+
+    def prior(step_id: str) -> SimpleNamespace:
+        payload = {
+            "step_id": step_id,
+            "capability_id": "test_capability",
+            "args": {},
+        }
+        return SimpleNamespace(
+            step_id=step_id,
+            to_payload=lambda payload=payload: deepcopy(payload),
+        )
+
+    merged = _merge_scope_step_replacement(
+        (prior("A"), prior("B"), prior("C")),
+        editable_step_ids=("A", "C"),
+        replacement_steps=(
+            {
+                "step_id": "A_prime",
+                "capability_id": "test_capability",
+                "args": {},
+            },
+            {
+                "step_id": "C_prime",
+                "capability_id": "test_capability",
+                "args": {"named_entity": "B_result"},
+            },
+        ),
+    )
+
+    assert [step["step_id"] for step in merged] == [
+        "A_prime",
+        "B",
+        "C_prime",
+    ]
+
+
+def test_mixed_scope_merge_projects_added_step_around_frozen_barrier() -> None:
+    """Cardinality changes must not let a frozen producer drift to the end."""
+
+    def prior(step_id: str) -> SimpleNamespace:
+        payload = {
+            "step_id": step_id,
+            "capability_id": "test_capability",
+            "args": {},
+        }
+        return SimpleNamespace(
+            step_id=step_id,
+            to_payload=lambda payload=payload: deepcopy(payload),
+        )
+
+    merged = _merge_scope_step_replacement(
+        (prior("A"), prior("B"), prior("C")),
+        editable_step_ids=("A", "C"),
+        replacement_steps=(
+            {
+                "step_id": "A_prime",
+                "capability_id": "test_capability",
+                "args": {},
+            },
+            {
+                "step_id": "D",
+                "capability_id": "test_capability",
+                "args": {"named_entity": "B_result"},
+            },
+            {
+                "step_id": "C_prime",
+                "capability_id": "test_capability",
+                "args": {
+                    "value": {"step_id": "B", "return": "result"},
+                },
+            },
+        ),
+    )
+
+    assert [step["step_id"] for step in merged] == [
+        "A_prime",
+        "B",
+        "D",
+        "C_prime",
+    ]
+
+
+def test_mixed_scope_merge_rejects_ambiguous_single_step_across_barrier() -> None:
+    def prior(step_id: str) -> SimpleNamespace:
+        payload = {
+            "step_id": step_id,
+            "capability_id": "test_capability",
+            "args": {},
+        }
+        return SimpleNamespace(
+            step_id=step_id,
+            to_payload=lambda payload=payload: deepcopy(payload),
+        )
+
+    with pytest.raises(FunctionalGoalRetryError) as error:
+        _merge_scope_step_replacement(
+            (prior("A"), prior("B"), prior("C")),
+            editable_step_ids=("A", "C"),
+            replacement_steps=(
+                {
+                    "step_id": "combined",
+                    "capability_id": "test_capability",
+                    "args": {},
+                },
+            ),
+        )
+
+    assert error.value.code == "functional.goal_repair_step_order_invalid"
+    assert error.value.details["frozen_barrier_step_ids"] == ["B"]
 
 
 def test_failed_scope_owned_answer_producer_opens_goal_answer_repair(
@@ -810,9 +966,8 @@ def test_typed_duplicate_goal_producers_reuse_visible_ancestor_steps(
     assert {
         item["code"] for item in execution.checkpoint.root_issues
     } == set()
-    assert any(
-        step.typed_issue is not None
-        and step.typed_issue.get("code") == "functional.arg_scope_invisible"
+    strict_scope_issues = tuple(
+        step.typed_issue
         for scope in retry_module._iter_execution_scopes(
             execution.checkpoint.root_scope
         )
@@ -820,6 +975,17 @@ def test_typed_duplicate_goal_producers_reuse_visible_ancestor_steps(
             *scope.scope_steps,
             *(item for goal_item in scope.goals for item in goal_item.steps),
         )
+        if step.typed_issue is not None
+    )
+    assert any(
+        issue.get("code")
+        == "functional.equal_length_ray_point_state_unavailable"
+        and issue.get("subjects", [{}])[0].get("ref") == "D"
+        for issue in strict_scope_issues
+    )
+    assert all(
+        "derive_translated_D_i" not in issue.get("repair_call_ids", ())
+        for issue in strict_scope_issues
     )
 
 

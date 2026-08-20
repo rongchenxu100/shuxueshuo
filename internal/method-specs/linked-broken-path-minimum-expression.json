@@ -22,7 +22,7 @@
       "domain_type": "Line",
       "runtime_type": "Line",
       "view": {
-        "mode": "latest_state",
+        "mode": "exact_result",
         "domain_type": "Line",
         "object_kind": "line",
         "state_kind": "equation"

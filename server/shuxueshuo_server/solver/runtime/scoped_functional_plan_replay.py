@@ -15,9 +15,6 @@ from shuxueshuo_server.solver.extraction.problem_planning_context import (
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
 )
-from shuxueshuo_server.solver.runtime.functional_retry_versions import (
-    FunctionalRetryGraphCheckpoint,
-)
 from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
     FunctionalRestoredCallSeed,
 )
@@ -82,7 +79,6 @@ class ScopedFunctionalPlanReplayService:
         planner_state_context: PlannerStateContext,
         problem_payload: dict[str, Any],
         attempt: int = 0,
-        retry_checkpoint: FunctionalRetryGraphCheckpoint | None = None,
         restored_seed: FunctionalRestoredCallSeed | None = None,
     ) -> ScopedFunctionalPlanReplayResult:
         scoped, validation = (
@@ -109,6 +105,7 @@ class ScopedFunctionalPlanReplayService:
         replay_service = PlannerRetryReplayService(
             functional_transaction_mode="context_authoritative",
             functional_symbolic_closure_mode="authoritative",
+            legacy_call_level_checkpoint_mode=False,
         )
         prepared = replay_service.reconcile_functional_plan(
             authority.lowered_plan,
@@ -118,7 +115,6 @@ class ScopedFunctionalPlanReplayService:
             attempt=attempt,
             problem_payload=problem_payload,
             planner_state_context=planner_state_context,
-            retry_checkpoint=retry_checkpoint,
             problem_binding_catalog=problem_binding_catalog,
             preserve_scoped_step_identity=True,
             scoped_call_goal_bindings={
@@ -179,7 +175,6 @@ class ScopedFunctionalPlanReplayService:
         planner_state_context: PlannerStateContext,
         problem_payload: dict[str, Any],
         attempt: int = 0,
-        retry_checkpoint: FunctionalRetryGraphCheckpoint | None = None,
         restored_seed: FunctionalRestoredCallSeed | None = None,
     ) -> ScopedFunctionalPlanReplayResult:
         """Compile provider-authored content into the code-owned Plan tree."""
@@ -211,7 +206,6 @@ class ScopedFunctionalPlanReplayService:
             planner_state_context=planner_state_context,
             problem_payload=problem_payload,
             attempt=attempt,
-            retry_checkpoint=retry_checkpoint,
             restored_seed=restored_seed,
         )
         return ScopedFunctionalPlanReplayResult(

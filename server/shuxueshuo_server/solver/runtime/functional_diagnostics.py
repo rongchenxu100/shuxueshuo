@@ -98,6 +98,10 @@ _REPAIR_MESSAGES = {
         "return role listed in expected_roles."
     ),
     "repair_failed_step": "Replace the failed Goal steps with a valid strategy.",
+    "refresh_derived_input_states": (
+        "Recompute or close the listed derived Math Entity states after their "
+        "upstream state changed, then retry the failed step."
+    ),
     "align_symbolic_state_basis": (
         "Align the declared free parameters with the symbols in the current "
         "quadratic state and its visible relations."
@@ -403,6 +407,60 @@ class StatelessMethodError(ValueError):
             details=_thaw(updated.authority_details),
         )
         return result
+
+    def with_input_read_authorities(
+        self,
+        authorities: Mapping[str, Sequence[Any]],
+    ) -> "StatelessMethodError":
+        """Attach prompt-projectable entity identity to Method subjects.
+
+        A Method only sees runtime values, so its typed failure can name an
+        input role but cannot safely recover the originating Math Entity.
+        The invocation's read authority is the single owner of that mapping.
+        Enrichment happens before prompt projection and never parses error
+        prose or runtime paths to infer identity.
+        """
+
+        subjects: list[FunctionalDiagnosticSubject] = []
+        for subject in self.authority.subjects:
+            if subject.internal_ref is not None or subject.arg_name is None:
+                subjects.append(subject)
+                continue
+            candidates = tuple(authorities.get(subject.arg_name, ()))
+            if subject.item_index is not None:
+                candidates = tuple(
+                    item
+                    for item in candidates
+                    if getattr(item, "item_index", None) == subject.item_index
+                )
+            if len(candidates) != 1:
+                subjects.append(subject)
+                continue
+            internal_ref = _diagnostic_identity_from_read_authority(
+                candidates[0]
+            )
+            subjects.append(
+                replace(subject, internal_ref=internal_ref)
+                if internal_ref is not None
+                else subject
+            )
+        updated = replace(self.authority, subjects=tuple(subjects))
+        return StatelessMethodError(
+            updated.code,
+            updated.original_message,
+            category=updated.category,
+            retryability=updated.retryability,
+            method_id=updated.method_id,
+            capability_id=updated.capability_id,
+            scope_id=updated.scope_id,
+            step_id=updated.step_id,
+            subjects=updated.subjects,
+            expected=_thaw(updated.expected),
+            observed=_thaw(updated.observed),
+            repair_action=updated.repair_action,
+            repair_call_ids=updated.repair_call_ids,
+            details=_thaw(updated.authority_details),
+        )
 
 
 @dataclass(frozen=True)
@@ -1638,6 +1696,31 @@ def _identity_string(value: Any) -> str:
             separators=(",", ":"),
         )
     return str(value)
+
+
+def _diagnostic_identity_from_read_authority(authority: Any) -> str | None:
+    """Return the semantic identity pinned by one Method read authority."""
+
+    source = getattr(authority, "source", None)
+    kind = getattr(source, "kind", None)
+    if kind == "entity_identity":
+        return _optional_string(getattr(source, "entity_handle", None))
+    if kind == "state_version":
+        version_id = getattr(source, "state_version_id", None)
+        try:
+            return str(
+                version_id.slot_id.logical_key.object_id.value
+            )
+        except AttributeError:
+            return None
+    if kind == "condition":
+        return _optional_string(getattr(source, "condition_id", None))
+    if kind == "call_result":
+        call_id = _optional_string(getattr(source, "call_id", None))
+        return_name = _optional_string(getattr(source, "return_name", None))
+        if call_id is not None and return_name is not None:
+            return f"{call_id}.{return_name}"
+    return None
 
 
 def _validate_payload(payload: Mapping[str, Any], schema: Mapping[str, Any]) -> None:

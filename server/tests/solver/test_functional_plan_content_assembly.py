@@ -219,6 +219,56 @@ def test_same_step_id_with_changed_capability_rederives_return_name(
     )
 
 
+def test_content_assembly_uses_identity_constraint_for_named_return_target(
+    tmp_path,
+) -> None:
+    case = "tj-2026-heping-ermo-25"
+    fixture = planning_binding_fixture(tmp_path / case, case=case)
+    expected, report = ScopedFunctionalPlanValidator().validate_payload_with_report(
+        load_v2_fixture_payload(case)
+    )
+    assert report.ok and expected is not None
+    frame = FunctionalPlanAuthorityFrame.from_planning_context(fixture[1])
+    payload = functional_plan_content_from_plan(expected, frame=frame).to_payload()
+    step = next(
+        item
+        for item in payload["goal_plans"]["ii.E"]["steps"]
+        if item["step_id"] == "derive_minimum_point_G_ii"
+    )
+    step.pop("output_targets")
+    consumer = next(
+        item
+        for item in payload["goal_plans"]["ii.E"]["steps"]
+        if item["step_id"] == "recover_target_point_E_ii"
+    )
+    consumer["args"]["side_end"] = {
+        "step_id": "derive_minimum_point_G_ii",
+        "return": "point",
+    }
+
+    compiled = FunctionalPlanContentCompiler().compile_payload(
+        payload,
+        frame=frame,
+        capability_catalog=FunctionalCapabilityCatalog.from_family_spec(
+            fixture[3].family_spec,
+            fixture[3].method_specs,
+        ),
+    )
+
+    assert compiled.report.ok and compiled.plan is not None
+    compiled_consumer = next(
+        item
+        for item in compiled.plan.steps
+        if item.step_id == "recover_target_point_E_ii"
+    )
+    assert compiled_consumer.args["side_end"] == ("G",)
+    assert any(
+        item.code == "functional.named_entity_result_ref_normalized"
+        and item.path.endswith(".args.side_end")
+        for item in compiled.normalizations
+    )
+
+
 def test_invalid_answer_step_keeps_draft_and_ignores_inactive_returns(
     tmp_path,
 ) -> None:

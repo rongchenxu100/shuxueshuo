@@ -11,7 +11,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Literal, Mapping
 
-from shuxueshuo_server.solver.contracts import ScalarResultFormSpec
+from shuxueshuo_server.solver.contracts import (
+    MacroExecutionMode,
+    MacroSearchSpec,
+    ScalarResultFormSpec,
+)
 from shuxueshuo_server.solver.family.models import (
     CapabilityContextResolver,
     CapabilityDependencyPolicy,
@@ -23,8 +27,6 @@ from shuxueshuo_server.solver.family.models import (
     PathTransformationConsumerSpec,
     FunctionalReturnBindingPolicy,
     FunctionalSemanticRefRole,
-    MacroExecutionMode,
-    MacroSearchSpec,
     RecipeExecutionSpec,
     RecipeInputDerivationSpec,
     RecipeOutputAliasSpec,
@@ -352,6 +354,19 @@ class MacroSpecRegistry:
             )
             _validate_macro_lowering_contract(spec, method_specs)
             specs[recipe.recipe_id] = spec
+        from shuxueshuo_server.solver.runtime.macro_preparation import (
+            default_macro_implementation_registry,
+        )
+
+        implementations = default_macro_implementation_registry()
+        for spec in specs.values():
+            if spec.execution_mode == "runtime_search":
+                if spec.search is None:
+                    raise ValueError(
+                        "planner.macro_contract_invalid: runtime_search Macro "
+                        f"has no search spec: {spec.macro_id}"
+                    )
+                implementations.require(spec.macro_id, spec.search)
         return cls(specs)
 
     def get(self, macro_id: str) -> MacroSpec | None:

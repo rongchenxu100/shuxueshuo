@@ -7,7 +7,7 @@
           "authority": "wire",
           "item": 0,
           "paths": [
-            "$problem.expressions.quadratic"
+            "$problem.facts.__functional_transaction_derive_y_intercept_C_i_0"
           ],
           "role": "quadratic",
           "target": "quadratic"
@@ -43,7 +43,7 @@
           "result_form": "closed_state",
           "return_name": "point",
           "runtime_type": "Point",
-          "source_version_count": 0
+          "source_version_count": 1
         }
       ],
       "public_returns": [
@@ -313,6 +313,14 @@
           ],
           "role": "target",
           "target": "target"
+        },
+        {
+          "arg": "target_state",
+          "authority": "compiler",
+          "item": 0,
+          "paths": [],
+          "role": "target_state",
+          "target": "target_state"
         },
         {
           "arg": "x",
@@ -875,6 +883,14 @@
           ],
           "role": "target",
           "target": "target"
+        },
+        {
+          "arg": "target_state",
+          "authority": "compiler",
+          "item": 0,
+          "paths": [],
+          "role": "target_state",
+          "target": "target_state"
         },
         {
           "arg": "x",

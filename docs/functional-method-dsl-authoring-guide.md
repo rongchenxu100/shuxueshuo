@@ -242,10 +242,25 @@ input_views=declare_input_views(
 | `immutable_value` | 不可变 Fact、Constraint 或 source 常量 | Fact/entity ref |
 | `exact_result` | 某个匿名 call return 的精确结果 | `StepResultRef` |
 
-Method 不读取 Context，也不自己寻找 latest。Function/Macro 与
-`MethodInputViewResolver`根据 view 将同一个公开实体 lower 成 Method 所需的
-runtime 表示，并自动建立 producer 依赖。一个 Method 如果同时需要对象身份和
-状态，Function/Macro 应把同一公开实体 lower 为两个内部 input。
+Method 不读取 Context，也不自己寻找 latest。Typed execution graph先证明唯一、
+scope-safe的producer；call preparation再为每个input和每个聚合元素创建严格的
+`MethodInputReadAuthority`，pin住Entity identity、exact StateVersion、Condition或
+CallResult。`MethodInputViewResolver`只消费这份authority，将同一个公开实体lower成
+Method所需的runtime表示；物理runtime path只是执行地址，不能参与选源。一个Method
+如果同时需要对象身份和状态，Function/Macro应把同一公开实体lower为两个内部input。
+
+固定不变量：
+
+1. `identity`只返回纯MathObject身份，不得注入当前坐标、表达式或其他状态。
+2. `latest_state`在首次执行前解析一次并pin exact StateVersion；checkpoint restore直接
+   复用该pin，不重新查询latest。
+3. `immutable_value`只能来自明确的Entity/Fact/Condition authority。
+4. `exact_result`只能来自明确的CallResult或InvocationResult，不能成为具名Entity读取
+   最新状态的旁路。
+5. tuple/list输入逐项拥有独立read authority；executor不得对聚合值直接
+   `context.read_path`。
+6. Strategy生产调用缺少read authority，或scope、type、version与authority不一致时
+   必须fail loud；按参数名、`*_ref`后缀或runtime type猜测只允许独立debug adapter。
 
 具名实体不能通过 `StepResultRef`指定普通状态。即使某个 return 的 runtime 类型
 适合 `exact_result`，只要它已通过`output_targets`绑定到题面实体，后续就必须使用
@@ -735,11 +750,19 @@ Macro 不应固定整道题路线。family-specific path reduction 可以是 Mac
 - `runtime_search`：声明可搜索数学角色、candidate builder、validation policy 和
   `max_candidates <= 32`。
 
+声明`runtime_search`还必须在`MacroImplementationRegistry`中完整注册candidate
+builder、validation policy、lowerer、postcondition和evidence builder；缺少任一项都
+是`planner.macro_contract_invalid`，不能退化为结构选择或执行后补报告。尚未完成
+pre-binding实现的Macro必须明确声明`direct`。
+
 Runtime-search Macro 可以把 LLM 声明的策略角色作为首选提示，但必须在隔离 branch
 中执行有限候选并通过 Method checks、Macro postcondition、active return、identity、
 Goal 与 provenance 门禁。唯一成功候选可以纠正提示；多个成功候选只有在实际 runtime
 输出等价时才能按调用数、符号复杂度和稳定 candidate id 确定选择；非等价歧义必须
 返回给 LLM。winner 必须从干净 Context 重放后再提交，shadow 结果永不复制进事务。
+winner确定前只能持有pending F5-C draft；只有winner选择完成后才能finalize该call的
+input/relation/return binding和provenance。authored错误hint只进入search report，不能
+进入chosen对象的source binding。
 
 Function/Macro 必须区分“策略提示”和“证明 lowering”：
 

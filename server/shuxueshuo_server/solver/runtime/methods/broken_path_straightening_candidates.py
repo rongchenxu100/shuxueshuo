@@ -177,14 +177,13 @@ SPEC = MethodSpecSource(
 },
     input_views=declare_input_views(
         latest_state=(
-            "moving_locus",
             "fixed_point_1",
             "fixed_point_2",
             "line_point_1",
             "line_point_2",
         ),
         immutable_value=("moving_point_membership",),
-        exact_result=("path_transformation",),
+        exact_result=("path_transformation", "moving_locus"),
     ),
     outputs={
     "candidates": "StraighteningCandidateList"

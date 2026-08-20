@@ -109,6 +109,11 @@ def quadratic_x_axis_intercept_point_rule() -> MethodBindingRuleSpec:
             MethodInputBindingSpec("quadratic", "read_type:Parabola"),
             MethodInputBindingSpec("x", "symbol:x"),
             MethodInputBindingSpec("target", "point_output_ref"),
+            MethodInputBindingSpec(
+                "target_state",
+                "point_output_state",
+                required=False,
+            ),
             MethodInputBindingSpec("known_point", "x_axis_known_point", required=False),
         ),
         prep_invocations=QUADRATIC_STATE_PREP_INVOCATIONS,

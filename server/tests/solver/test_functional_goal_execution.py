@@ -20,7 +20,13 @@ from shuxueshuo_server.solver.runtime.functional_goal_execution import (
     functional_goal_execution_checkpoint_schema,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_reconciliation import (
+    _semantic_object_consumer_scopes,
     _unique_answer_for_object_binding,
+)
+from shuxueshuo_server.solver.runtime.functional_plan_models import (
+    FunctionalCall,
+    FunctionalPlan,
+    FunctionalScope,
 )
 from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
     ScopedFunctionalPlan,
@@ -31,6 +37,7 @@ from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
     ScopedFunctionalStep,
     ScopedFunctionalPlanIssue,
 )
+from shuxueshuo_server.solver.runtime.strategy_models import SemanticRef
 
 from _problem_planning_support import CASES, planning_binding_fixture
 from _scoped_functional_plan_support import load_v2_fixture_payload
@@ -244,6 +251,96 @@ def test_reconciliation_dependency_blocks_never_include_sibling_producer() -> No
     ) == {consumer.step_id: (ancestor_writer.step_id,)}
 
 
+def test_semantic_object_consumers_never_select_sibling_producer() -> None:
+    object_ref = "point:problem:D"
+    sibling_writer = FunctionalCall(
+        call_id="sibling_writer",
+        capability_id="point_producer",
+        args={},
+        return_bindings={},
+        strategy="produce D in sibling i",
+        reason="scope visibility regression",
+    )
+    ancestor_writer = replace(sibling_writer, call_id="ancestor_writer")
+    consumer = FunctionalCall(
+        call_id="consumer",
+        capability_id="point_consumer",
+        args={"point": (SemanticRef("D", "point", "Point"),)},
+        return_bindings={},
+        strategy="consume D in sibling ii",
+        reason="scope visibility regression",
+    )
+    producer_capability = SimpleNamespace(
+        returns=(SimpleNamespace(name="point"),),
+        auto_args=(),
+    )
+    consumer_capability = SimpleNamespace(returns=(), auto_args=())
+    catalog = SimpleNamespace(
+        get=lambda capability_id: (
+            producer_capability
+            if capability_id == "point_producer"
+            else consumer_capability
+        )
+    )
+    registry = SimpleNamespace(
+        ancestor_scopes=lambda scope_id: {
+            "problem": ("problem",),
+            "i": ("problem", "i"),
+            "ii": ("problem", "ii"),
+        }[scope_id]
+    )
+    semantic_index = SimpleNamespace(
+        handle_registry=registry,
+        object_refs_for=lambda ref, **_kwargs: (
+            (object_ref,) if ref.ref == "D" else ()
+        ),
+        resolve=lambda *_args, **_kwargs: (None, ()),
+    )
+
+    def consumers(plan, hints):
+        return _semantic_object_consumer_scopes(
+            plan,
+            semantic_index=semantic_index,
+            catalog=catalog,
+            future_return_object_hints=hints,
+        )
+
+    sibling_only = FunctionalPlan(
+        scopes=(
+            FunctionalScope("problem", "problem", ()),
+            FunctionalScope("i", "i", (sibling_writer,)),
+            FunctionalScope("ii", "ii", (consumer,)),
+        ),
+        typed_dependency_graph={"sibling_writer": (), "consumer": ()},
+    )
+    assert consumers(
+        sibling_only,
+        {("sibling_writer", "point"): (object_ref,)},
+    ) == {}
+
+    ancestor_and_sibling = FunctionalPlan(
+        scopes=(
+            FunctionalScope("problem", "problem", (ancestor_writer,)),
+            FunctionalScope("i", "i", (sibling_writer,)),
+            FunctionalScope("ii", "ii", (consumer,)),
+        ),
+        typed_dependency_graph={
+            "ancestor_writer": (),
+            "sibling_writer": (),
+            "consumer": (),
+        },
+    )
+    assert consumers(
+        ancestor_and_sibling,
+        {
+            ("ancestor_writer", "point"): (object_ref,),
+            ("sibling_writer", "point"): (object_ref,),
+        },
+    ) == {
+        ("ancestor_writer", object_ref): (("consumer", "ii"),),
+    }
+
+
 def test_placement_finalization_failure_still_creates_checkpoint(
     tmp_path,
     monkeypatch,
@@ -403,15 +500,14 @@ def test_checkpoint_resolved_inputs_include_actual_step_result(tmp_path) -> None
     )
     assert source["source"] == "C"
     assert source["resolution"] == "source_snapshot"
-    lowered = next(
-        item
-        for item in result.authority.lowered_plan.calls
-        if item.call_id == "derive_translated_D_i"
+    _assert_named_entity_pin(
+        result.authority,
+        consumer_call_id="derive_translated_D_i",
+        arg_name="source",
+        semantic_ref="C",
+        producer_call_id="derive_y_intercept_C_i",
+        return_name="point",
     )
-    assert lowered.args["source"][0].to_payload() == {
-        "from_call": "derive_y_intercept_C_i",
-        "return": "point",
-    }
 
 
 @pytest.mark.parametrize("case", CASES)
@@ -653,15 +749,14 @@ def test_unique_visible_dynamic_source_ref_becomes_exact_step_result(tmp_path) -
     assert _step(canonical.to_payload(), "derive_translated_D_i")["args"][
         "source"
     ] == "C"
-    lowered = next(
-        item
-        for item in result.authority.lowered_plan.calls
-        if item.call_id == "derive_translated_D_i"
+    _assert_named_entity_pin(
+        result.authority,
+        consumer_call_id="derive_translated_D_i",
+        arg_name="source",
+        semantic_ref="C",
+        producer_call_id="derive_y_intercept_C_i",
+        return_name="point",
     )
-    assert lowered.args["source"][0].to_payload() == {
-        "from_call": "derive_y_intercept_C_i",
-        "return": "point",
-    }
 
 
 def test_answer_target_source_ref_uses_prior_scope_owned_answer_result(
@@ -681,15 +776,14 @@ def test_answer_target_source_ref_uses_prior_scope_owned_answer_result(
     assert _step(canonical.to_payload(), "derive_square_vertex_G_i")["args"][
         "side_start"
     ] == "A"
-    lowered = next(
-        item
-        for item in result.authority.lowered_plan.calls
-        if item.call_id == "derive_square_vertex_G_i"
+    _assert_named_entity_pin(
+        result.authority,
+        consumer_call_id="derive_square_vertex_G_i",
+        arg_name="side_start",
+        semantic_ref="A",
+        producer_call_id="derive_x_intercept_A_i",
+        return_name="point",
     )
-    assert lowered.args["side_start"][0].to_payload() == {
-        "from_call": "derive_x_intercept_A_i",
-        "return": "point",
-    }
 
 
 def test_latest_parameter_state_closes_transitive_point_without_llm_wiring(
@@ -792,15 +886,14 @@ def test_identity_contract_drives_named_entity_latest_state_dependency(
         if call.call_id == "derive_minimum_point_G_ii"
     )
     assert lowered_g.return_bindings["point"].ref == "G"
-    lowered_recover = next(
-        call
-        for call in authority.lowered_plan.calls
-        if call.call_id == "recover_target_point_E_ii"
+    _assert_named_entity_pin(
+        authority,
+        consumer_call_id="recover_target_point_E_ii",
+        arg_name="side_end",
+        semantic_ref="G",
+        producer_call_id="derive_minimum_point_G_ii",
+        return_name="point",
     )
-    assert lowered_recover.args["side_end"][0].to_payload() == {
-        "from_call": "derive_minimum_point_G_ii",
-        "return": "point",
-    }
     reconciliation = result.replay.functional_reconciliation
     assert "derive_minimum_point_G_ii" in reconciliation.dependency_graph[
         "recover_target_point_E_ii"
@@ -1091,6 +1184,11 @@ def test_conflicting_duplicate_a_writer_fails_without_ghost_version(
     assert {
         item.code for item in transaction.root_issues
     } >= {"planner.runtime_state_equivalence_conflict"}
+    assert result.replay.retry_state is not None
+    assert result.replay.retry_state.functional_retry_graph_checkpoint is None
+    assert result.replay.planner_state_context is not None
+    retry_memory = result.replay.planner_state_context.state.retry_memory
+    assert retry_memory.functional_retry_graph_checkpoint is None
     assert not any(
         item.producer_call_id == "evaluate_point_A_ii_duplicate"
         for item in transaction.execution_report.committed_versions
@@ -1138,15 +1236,14 @@ def test_unique_prior_same_object_result_is_canonicalized_in_goal_scope(
     checkpoint = result.checkpoint
     assert checkpoint is not None
     assert checkpoint.all_required_goals_verified is True
-    lowered = next(
-        item
-        for item in result.authority.lowered_plan.calls
-        if item.call_id == "derive_weighted_minimum_iii"
+    _assert_named_entity_pin(
+        result.authority,
+        consumer_call_id="derive_weighted_minimum_iii",
+        arg_name="curve_point",
+        semantic_ref="M",
+        producer_call_id="derive_curve_point_iii",
+        return_name="point",
     )
-    assert lowered.args["curve_point"][0].to_payload() == {
-        "from_call": "derive_curve_point_iii",
-        "return": "point",
-    }
 
 
 def test_visible_same_object_result_is_rewritten_only_after_runtime_equivalence(
@@ -1386,6 +1483,29 @@ def _checkpoint_steps(checkpoint):
 
     visit(checkpoint.root_scope)
     return result
+
+
+def _assert_named_entity_pin(
+    authority,
+    *,
+    consumer_call_id,
+    arg_name,
+    semantic_ref,
+    producer_call_id,
+    return_name,
+):
+    lowered = next(
+        item
+        for item in authority.lowered_plan.calls
+        if item.call_id == consumer_call_id
+    )
+    assert lowered.args[arg_name][0].ref == semantic_ref
+    pin = authority.lowered_plan.typed_input_source_pins[
+        (consumer_call_id, arg_name, 0)
+    ]
+    assert pin.semantic_ref == semantic_ref
+    assert pin.producer_call_id == producer_call_id
+    assert pin.return_name == return_name
 
 
 def _step(payload, step_id):

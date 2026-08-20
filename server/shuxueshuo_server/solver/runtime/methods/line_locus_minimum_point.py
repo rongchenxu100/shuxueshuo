@@ -152,11 +152,11 @@ SPEC = MethodSpecSource(
     },
     input_views=declare_input_views(
         identity=("target", "parameter"),
-        latest_state=(
+        latest_state=("parameter_value",),
+        exact_result=(
             "moving_locus",
             "minimum_point_1",
             "minimum_point_2",
-            "parameter_value",
         ),
     ),
     outputs={"point": "Point"},

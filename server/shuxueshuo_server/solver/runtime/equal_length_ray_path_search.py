@@ -34,7 +34,7 @@ class EqualLengthRayPathSearchError(ValueError):
 
 
 @dataclass(frozen=True)
-class SegmentPathCandidate:
+class PathAttainmentCandidate:
     candidate_id: str
     strategy: str
     point: Point
@@ -55,8 +55,8 @@ class SegmentPathCandidate:
 
 @dataclass(frozen=True)
 class SegmentPathMinimumSearchResult:
-    winner: SegmentPathCandidate
-    candidates: tuple[SegmentPathCandidate, ...]
+    winner: PathAttainmentCandidate
+    candidates: tuple[PathAttainmentCandidate, ...]
 
 
 def search_segment_path_minimum(
@@ -73,7 +73,7 @@ def search_segment_path_minimum(
     auxiliary_point = _refine_point(auxiliary_point, assumptions)
     segment_start = _refine_point(segment_start, assumptions)
     segment_end = _refine_point(segment_end, assumptions)
-    candidates: list[SegmentPathCandidate] = []
+    candidates: list[PathAttainmentCandidate] = []
     direct = _intersection_candidate(
         strategy="direct_intersection",
         line_start=fixed_point,
@@ -302,6 +302,193 @@ def build_equal_length_ray_path_witness(
     )
 
 
+def build_equal_length_ray_execution_witness(
+    *,
+    compiled: Any,
+    prepared: Any,
+    report: MacroRuntimeSearchReport,
+    method_results: Sequence[Any],
+    handle_registry: Any,
+) -> PathMinimumWitness:
+    """Build execution evidence from the equal-length implementation contract.
+
+    This adapter deliberately lives with the Macro implementation. Transaction
+    execution only dispatches through the registry and has no geometry-specific
+    role, Fact, or witness knowledge.
+    """
+
+    role_points: dict[str, Point] = {}
+    for role in ("anchor", "reference_point", "ray_point", "fixed_point"):
+        value = _prepared_runtime_arg_value(prepared, role)
+        if value is None:
+            raise EqualLengthRayPathSearchError(
+                "planner.macro_contract_invalid",
+                f"equal-length path role {role} has no exact runtime Point",
+                retryability="configuration",
+            )
+        role_points[role] = _runtime_point(value)
+
+    auxiliary_point: Point | None = None
+    minimum_expression: Any | None = None
+    for result in method_results:
+        method_id = str(getattr(result, "method_id", ""))
+        outputs = getattr(result, "outputs", {})
+        if method_id == "equal_length_ray_point" and "point" in outputs:
+            auxiliary_point = _runtime_point(outputs["point"])
+        if method_id == "distance_between_points" and "distance" in outputs:
+            minimum_expression = getattr(outputs["distance"], "value", None)
+    if auxiliary_point is None or minimum_expression is None:
+        raise EqualLengthRayPathSearchError(
+            "planner.macro_contract_invalid",
+            "equal-length path Macro omitted its internal winner outputs",
+            retryability="configuration",
+        )
+
+    fact_payloads: dict[str, Mapping[str, Any]] = {}
+    for arg_name in (
+        "path_minimum_target",
+        "equal_length_condition",
+        "point_on_segment",
+        "point_on_ray",
+    ):
+        values = prepared.reconciliation.resolved_args.get(arg_name, ())
+        if len(values) != 1:
+            raise EqualLengthRayPathSearchError(
+                "planner.macro_contract_invalid",
+                f"equal-length path Macro requires one {arg_name} Fact",
+                retryability="configuration",
+            )
+        try:
+            fact_payloads[arg_name] = handle_registry.fact_payloads[
+                values[0].handle
+            ]
+        except KeyError as exc:
+            raise EqualLengthRayPathSearchError(
+                "planner.macro_contract_invalid",
+                f"equal-length path Fact {arg_name} is absent from ProblemIR",
+                retryability="configuration",
+            ) from exc
+    assumptions = _problem_symbol_assumptions(
+        handle_registry,
+        values=(
+            *role_points.values(),
+            auxiliary_point,
+            minimum_expression,
+        ),
+    )
+    provenance = compiled.problem_source_provenance
+    provenance_signature = (
+        provenance.semantic_signature()
+        if provenance is not None
+        else stable_hash(
+            {
+                "call_id": compiled.call_id,
+                "search_signature": report.search_signature,
+            }
+        )
+    )
+    return build_equal_length_ray_path_witness(
+        step_id=compiled.call_id,
+        report=report,
+        role_points=role_points,
+        fact_payloads=fact_payloads,
+        entity_payloads=handle_registry.entity_payloads,
+        auxiliary_point=auxiliary_point,
+        runtime_minimum_expression=minimum_expression,
+        provenance_signature=provenance_signature,
+        assumptions=assumptions,
+    )
+
+
+def _prepared_runtime_arg_value(prepared: Any, arg_name: str) -> Any | None:
+    candidates = tuple(
+        item.runtime_value
+        for item in prepared.arg_bindings
+        if item.logical_binding.key.arg_name == arg_name
+        and item.runtime_value is not None
+    )
+    if len(candidates) == 1:
+        return candidates[0]
+    state_values = tuple(
+        item.runtime_value
+        for item in prepared.state_reads
+        if item.arg_name == arg_name
+    )
+    return state_values[0] if len(state_values) == 1 else None
+
+
+def _runtime_point(value: Any) -> Point:
+    payload = getattr(value, "value", value)
+    if not isinstance(payload, (tuple, list)) or len(payload) != 2:
+        raise EqualLengthRayPathSearchError(
+            "planner.macro_contract_invalid",
+            "equal-length path role did not materialize as one Point",
+            retryability="configuration",
+        )
+    return sp.sympify(payload[0]), sp.sympify(payload[1])
+
+
+def _problem_symbol_assumptions(
+    handle_registry: Any,
+    *,
+    values: Sequence[Any],
+) -> tuple[sp.Basic, ...]:
+    symbols = {
+        symbol.name: symbol
+        for value in values
+        for symbol in _runtime_free_symbols_for_assumptions(value)
+    }
+    result: list[sp.Basic] = []
+    for payload in handle_registry.fact_payloads.values():
+        if payload.get("type") != "symbol_constraint":
+            continue
+        subject = payload.get("subject")
+        if not isinstance(subject, str):
+            continue
+        symbol = symbols.get(subject.rsplit(":", 1)[-1])
+        if symbol is None:
+            continue
+        operator = payload.get("operator")
+        try:
+            boundary = sp.sympify(payload.get("value"))
+        except (TypeError, ValueError):
+            continue
+        if boundary != 0:
+            continue
+        if operator == ">":
+            result.append(sp.Q.positive(symbol))
+        elif operator == ">=":
+            result.append(sp.Q.nonnegative(symbol))
+        elif operator == "<":
+            result.append(sp.Q.negative(symbol))
+        elif operator == "<=":
+            result.append(sp.Q.nonpositive(symbol))
+    return tuple(result)
+
+
+def _runtime_free_symbols_for_assumptions(value: Any) -> tuple[sp.Symbol, ...]:
+    payload = getattr(value, "value", value)
+    if isinstance(payload, sp.Basic):
+        return tuple(payload.free_symbols)
+    if isinstance(payload, Mapping):
+        return tuple(
+            dict.fromkeys(
+                symbol
+                for child in payload.values()
+                for symbol in _runtime_free_symbols_for_assumptions(child)
+            )
+        )
+    if isinstance(payload, (tuple, list)):
+        return tuple(
+            dict.fromkeys(
+                symbol
+                for child in payload
+                for symbol in _runtime_free_symbols_for_assumptions(child)
+            )
+        )
+    return ()
+
+
 def _intersection_candidate(
     *,
     strategy: str,
@@ -311,7 +498,7 @@ def _intersection_candidate(
     segment_end: Point,
     objective_points: tuple[Point, Point],
     assumptions: Sequence[sp.Basic],
-) -> SegmentPathCandidate | None:
+) -> PathAttainmentCandidate | None:
     t, u = sp.symbols("_segment_t _line_u", real=True)
     segment = _affine(segment_start, segment_end, t)
     line = _affine(line_start, line_end, u)
@@ -356,11 +543,11 @@ def _intersection_candidate(
 
 
 def _unique_proved_minimum(
-    candidates: Sequence[SegmentPathCandidate],
+    candidates: Sequence[PathAttainmentCandidate],
     *,
     assumptions: Sequence[sp.Basic],
-) -> SegmentPathCandidate:
-    winners: list[SegmentPathCandidate] = []
+) -> PathAttainmentCandidate:
+    winners: list[PathAttainmentCandidate] = []
     for candidate in candidates:
         if all(
             _prove_nonnegative(
@@ -477,13 +664,13 @@ def _candidate(
     expression: sp.Expr,
     feasible: bool,
     checks: tuple[Mapping[str, Any], ...],
-) -> SegmentPathCandidate:
+) -> PathAttainmentCandidate:
     payload = {
         "strategy": strategy,
         "point": _point_payload(point),
         "expression": _expression_text(expression),
     }
-    return SegmentPathCandidate(
+    return PathAttainmentCandidate(
         candidate_id=stable_hash(payload),
         strategy=strategy,
         point=point,
@@ -611,8 +798,9 @@ def _json_safe(value: Any) -> Any:
 
 __all__ = [
     "EqualLengthRayPathSearchError",
-    "SegmentPathCandidate",
+    "PathAttainmentCandidate",
     "SegmentPathMinimumSearchResult",
+    "build_equal_length_ray_execution_witness",
     "build_equal_length_ray_path_witness",
     "search_segment_path_minimum",
 ]

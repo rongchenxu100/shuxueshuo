@@ -44,6 +44,7 @@ from shuxueshuo_server.solver.result_models import DerivationTrace, SolverResult
 from shuxueshuo_server.solver.runtime.context import RuntimeContext, ContextBuilder
 from shuxueshuo_server.solver.runtime.context_inventory import ContextInventoryBuilder
 from shuxueshuo_server.solver.runtime.functional_goal_execution import (
+    FUNCTIONAL_GOAL_EXECUTION_CHECKPOINT_CONTRACT,
     VerifiedFunctionalPlanExecution,
 )
 from shuxueshuo_server.solver.runtime.executor import (
@@ -52,7 +53,11 @@ from shuxueshuo_server.solver.runtime.executor import (
 )
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.methods import default_stateless_registry
-from shuxueshuo_server.solver.runtime.models import PlanExecutionResult, PlannerOutput
+from shuxueshuo_server.solver.runtime.models import (
+    PlanExecutionResult,
+    PlannerOutput,
+    StepExecutionResult,
+)
 from shuxueshuo_server.solver.runtime.planner import (
     GenericPlanner,
     Nankai25DeterministicPlannerAdapter,
@@ -62,6 +67,7 @@ from shuxueshuo_server.solver.runtime.result_builder import ResultBuilder
 from shuxueshuo_server.solver.runtime.planner_state_context import PlannerStateContext
 from shuxueshuo_server.solver.runtime.session import (
     LLMCallRecord,
+    PlannerExecutionError,
     SolveAttemptRecord,
     SolveSession,
     StructuredSolveError,
@@ -171,10 +177,249 @@ class RuntimeOrchestrator:
     ) -> SolverResult:
         """从authenticated Bundle运行唯一的Strategy cold path。"""
         authority = VerifiedPlannerProblemAuthority.from_bundle(bundle)
-        return self._solve(
-            bundle.build_solver_problem(),
-            problem_authority=authority,
+        return self._solve_verified_scope_native(bundle, authority=authority)
+
+    def _solve_verified_scope_native(
+        self,
+        bundle: VerifiedSolverProblemBundle,
+        *,
+        authority: VerifiedPlannerProblemAuthority,
+    ) -> SolverResult:
+        """Execute the public Bundle entry through content/v2 and Goal retry.
+
+        The scoped service already owns semantic retries, transactions, and
+        checkpoint restore.  This boundary only turns its verified final
+        transaction into the public ``SolverResult``; it must never execute
+        the derived v1 ``PlannerOutput`` a second time.
+        """
+
+        self.last_success_artifacts = None
+        problem = bundle.build_solver_problem()
+        family = self.family_registry.match(problem)
+        if family is None:
+            return SolverResult(
+                problem_id=problem.problem_id,
+                status="unsupported",
+                solver_family=None,
+                errors=[
+                    f"no solver for pattern={problem.pattern}, type={problem.problem_type}"
+                ],
+            )
+        if family.family_id != bundle.verified_problem.family_id:
+            from shuxueshuo_server.solver.extraction.problem_solver_bundle import (
+                ProblemBundleAuthorityError,
+            )
+
+            raise ProblemBundleAuthorityError(
+                "planner.problem_revision_drift",
+                "$.family_id",
+                "runtime family differs from the authenticated problem bundle",
+            )
+        provider = (
+            self.planner_providers.get(problem.problem_id)
+            or self.planner_providers.get(family.family_id)
+            or self.default_planner_provider
         )
+        if provider is None:
+            return SolverResult(
+                problem_id=problem.problem_id,
+                status="failed",
+                solver_family=family.family_id,
+                errors=[
+                    f"planner provider not found for family_id={family.family_id}"
+                ],
+            )
+
+        started = time.perf_counter()
+        session = SolveSession(
+            problem_id=problem.problem_id,
+            family_id=family.family_id,
+            max_attempts=self.max_attempts,
+        )
+        self.last_session = session
+        stage = "context"
+        planner: GenericPlanner | None = None
+        try:
+            kernel = self.kernel or SympyKernel()
+            context = ContextBuilder(kernel).build(problem)
+            specs = MethodSpecRegistry.load_from_code()
+            question_goals = extract_question_goals(problem)
+            planner = provider(context, problem_authority=authority)
+            run_scoped = getattr(planner, "run_scoped", None)
+            if not callable(run_scoped):
+                raise TypeError(
+                    "planner.scope_native_entry_required: verified Bundle "
+                    "providers must implement run_scoped()"
+                )
+            planner_inputs = PlannerInputs(
+                problem_id=problem.problem_id,
+                family_spec=family,
+                question_goals=question_goals,
+                context_inventory=ContextInventoryBuilder().build(
+                    context,
+                    specs,
+                ),
+                method_specs=specs,
+                problem=problem,
+                original_text=dict(problem.original_text),
+                previous_errors=[],
+            )
+            stage = "scoped_planner"
+            scoped_result = run_scoped(
+                planner_inputs,
+                max_attempts=self.max_attempts,
+            )
+            llm_call = _llm_call_from_planner(planner)
+            _write_debug_attempt(
+                self.debug_dir,
+                max(1, len(scoped_result.attempts)),
+                planner,
+                getattr(getattr(planner, "artifacts", None), "output", None),
+                None,
+            )
+            if scoped_result.status != "accepted":
+                raise PlannerExecutionError(
+                    _scoped_run_failure(scoped_result),
+                )
+            final_execution = scoped_result.final_execution
+            if final_execution is None or final_execution.replay is None:
+                raise ValueError(
+                    "planner.scope_native_final_execution_missing"
+                )
+            checkpoint = final_execution.checkpoint
+            if (
+                checkpoint is None
+                or checkpoint.schema_version
+                != FUNCTIONAL_GOAL_EXECUTION_CHECKPOINT_CONTRACT
+                or not checkpoint.all_required_goals_verified
+            ):
+                raise ValueError(
+                    "planner.goal_checkpoint_v3_required: accepted scoped "
+                    "execution has no verified checkpoint v3"
+                )
+            verified_execution = scoped_result.verified_execution
+            if verified_execution is None:
+                raise ValueError(
+                    "planner.verified_functional_execution_missing"
+                )
+            transaction = final_execution.replay.transactional_attempt_result
+            if (
+                transaction is None
+                or transaction.failed_call_ids
+                or transaction.blocked_call_ids
+                or transaction.root_issues
+            ):
+                raise ValueError(
+                    "planner.scope_native_transaction_incomplete"
+                )
+            report = transaction.execution_report
+            final_context = report.runtime_context
+            if final_context is None:
+                raise ValueError(
+                    "planner.scope_native_runtime_context_missing"
+                )
+            planner_output = final_execution.replay.output
+            if planner_output is None:
+                planner_output = transaction.compiled_output
+            planner_output = PlannerOutput.from_legacy(planner_output)
+            execution = _plan_execution_from_transaction(report)
+            failed_checks = [check for check in execution.checks if not check.ok]
+            if failed_checks:
+                raise PlannerExecutionError(
+                    _structured_error_from_failed_checks(failed_checks)
+                )
+            stage = "result_builder"
+            answers = ResultBuilder().build_from_verified_goal_results(
+                final_context,
+                question_goals,
+                _verified_goal_runtime_results(
+                    scoped_result,
+                    report,
+                ),
+            )
+        except Exception as exc:
+            error = structured_error_from_exception(stage=stage, exc=exc)
+            _write_debug_attempt(
+                self.debug_dir,
+                1,
+                planner,
+                None,
+                error,
+            )
+            session.add_attempt(
+                _attempt_record(
+                    1,
+                    "failed",
+                    stage,
+                    started,
+                    [],
+                    error,
+                    _llm_call_from_planner(planner),
+                )
+            )
+            session.final_status = "failed"
+            return SolverResult(
+                problem_id=problem.problem_id,
+                status="failed",
+                solver_family=family.family_id,
+                errors=[error.message],
+                run_log=_run_log(session),
+            )
+
+        session.add_attempt(
+            _attempt_record(
+                max(1, len(scoped_result.attempts)),
+                "ok",
+                stage,
+                started,
+                [],
+                None,
+                llm_call,
+            )
+        )
+        session.final_status = "ok"
+        trace = DerivationTrace(
+            problem_id=problem.problem_id,
+            pattern=problem.pattern,
+            methods=execution.methods_used,
+            steps=execution.trace_fragments,
+        )
+        result = SolverResult(
+            problem_id=problem.problem_id,
+            status="ok",
+            solver_family=family.family_id,
+            methods_used=execution.methods_used,
+            facts=[],
+            trace=trace,
+            answers=answers,
+            checks=execution.checks,
+            errors=[],
+            run_log=_run_log(session),
+        )
+        planner_artifacts = getattr(planner, "artifacts", None)
+        self.last_success_artifacts = RuntimeSuccessArtifacts(
+            problem=problem,
+            family=family,
+            planner=planner,
+            planner_output=planner_output,
+            context=final_context,
+            execution=execution,
+            question_goals=tuple(question_goals),
+            solver_result=result,
+            problem_authority=authority,
+            problem_binding_catalog=getattr(
+                planner_artifacts,
+                "problem_binding_catalog",
+                None,
+            ),
+            planner_state_context=getattr(
+                planner_artifacts,
+                "initial_planner_state_context",
+                None,
+            ),
+            verified_functional_execution=verified_execution,
+        )
+        return result
 
     def _solve(
         self,
@@ -440,6 +685,141 @@ class RuntimeOrchestrator:
         )
 
 
+def _plan_execution_from_transaction(report: object) -> PlanExecutionResult:
+    """Project the already executed transaction into public result artifacts."""
+
+    step_results: list[StepExecutionResult] = []
+    for call_result in getattr(report, "call_results", ()):
+        if getattr(call_result, "status", None) != "verified":
+            continue
+        invocation_steps = tuple(getattr(call_result, "step_results", ()))
+        step_results.append(
+            StepExecutionResult(
+                step_id=str(call_result.call_id),
+                method_results=[
+                    method_result
+                    for item in invocation_steps
+                    for method_result in item.method_results
+                ],
+                checks=[
+                    check
+                    for item in invocation_steps
+                    for check in item.checks
+                ],
+                trace_fragments=[
+                    fragment
+                    for item in invocation_steps
+                    for fragment in item.trace_fragments
+                ],
+            )
+        )
+    return PlanExecutionResult(
+        step_results=step_results,
+        checks=[
+            check
+            for step_result in step_results
+            for check in step_result.checks
+        ],
+        trace_fragments=[
+            fragment
+            for step_result in step_results
+            for fragment in step_result.trace_fragments
+        ],
+    )
+
+
+def _verified_goal_runtime_results(
+    scoped_result: object,
+    report: object,
+) -> dict[str, Any]:
+    """Resolve each canonical Goal answer from the exact transaction return."""
+
+    final_execution = getattr(scoped_result, "final_execution", None)
+    plan = (
+        getattr(final_execution, "canonical_plan", None)
+        or getattr(scoped_result, "final_plan", None)
+    )
+    if plan is None:
+        raise ValueError("planner.scope_native_final_plan_missing")
+    runtime_values = getattr(report, "runtime_result_values", {})
+    compiled_by_call = {
+        item.call_id: item
+        for item in getattr(report, "compiled_calls", ())
+    }
+    results: dict[str, Any] = {}
+
+    def visit(scope: object) -> None:
+        for goal in getattr(scope, "goals", ()):
+            answer_from = goal.answer_from
+            compiled = compiled_by_call.get(answer_from.step_id)
+            public_return = next(
+                (
+                    item
+                    for item in getattr(compiled, "public_returns", ())
+                    if item.return_name == answer_from.return_name
+                ),
+                None,
+            )
+            output_key = (
+                public_return.expected_write.output_key
+                if public_return is not None
+                and public_return.expected_write is not None
+                else answer_from.return_name
+            )
+            key = (answer_from.step_id, output_key)
+            typed_value = runtime_values.get(key)
+            if typed_value is None:
+                raise ValueError(
+                    "planner.scope_native_answer_result_missing: "
+                    f"goal={goal.goal_ref}, producer="
+                    f"{answer_from.step_id}.{answer_from.return_name}, "
+                    f"runtime_output={output_key}"
+                )
+            results[goal.goal_ref] = typed_value
+        for child in getattr(scope, "children", ()):
+            visit(child)
+
+    visit(plan.root_scope)
+    return results
+
+
+def _scoped_run_failure(scoped_result: object) -> StructuredSolveError:
+    """Select the prompt-safe blocker from a completed scoped retry run."""
+
+    attempts = tuple(getattr(scoped_result, "attempts", ()))
+    if attempts:
+        error = getattr(attempts[-1], "error", None)
+        if error is not None:
+            return StructuredSolveError(
+                stage="scoped_planner",
+                code=str(getattr(error, "code", "planner.goal_retry_failed")),
+                message=str(getattr(error, "message", error)),
+                retryable=bool(getattr(error, "retryable", False)),
+                path=getattr(error, "path", None),
+                details=dict(getattr(error, "details", {}) or {}),
+            )
+    execution = getattr(scoped_result, "final_execution", None)
+    checkpoint = getattr(execution, "checkpoint", None)
+    root_issues = tuple(getattr(checkpoint, "root_issues", ()))
+    if root_issues:
+        issue = dict(root_issues[0])
+        return StructuredSolveError(
+            stage=str(issue.get("layer") or issue.get("stage") or "scoped_planner"),
+            code=str(issue.get("code") or "planner.goal_retry_failed"),
+            message=str(issue.get("message") or "scope-native Goal retry failed"),
+            retryable=False,
+            step_id=(str(issue["step_id"]) if issue.get("step_id") else None),
+            details={"root_issues": [dict(item) for item in root_issues]},
+        )
+    return StructuredSolveError(
+        stage="scoped_planner",
+        code="planner.goal_retry_exhausted",
+        message="scope-native Goal retry exhausted without a verified execution",
+        retryable=False,
+        details={"no_progress": bool(getattr(scoped_result, "no_progress", False))},
+    )
+
+
 def _attempt_record(
     attempt_index: int,
     status: str,
@@ -657,6 +1037,22 @@ def _write_debug_attempt(
         )
     client = getattr(planner, "client", None)
     if client is not None:
+        scoped_attempts = tuple(
+            getattr(
+                getattr(
+                    getattr(planner, "artifacts", None),
+                    "scoped_retry_result",
+                    None,
+                ),
+                "attempts",
+                (),
+            )
+        )
+        planner_protocol = (
+            str(scoped_attempts[-1].planner_protocol)
+            if scoped_attempts
+            else "functional_plan/v1"
+        )
         _write_json(
             debug_dir / f"{prefix}.llm-metadata.json",
             {
@@ -677,7 +1073,7 @@ def _write_debug_attempt(
                     "last_provider_attempts",
                     None,
                 ),
-                "planner_protocol": "functional_plan/v1",
+                "planner_protocol": planner_protocol,
             },
         )
     validation_report = getattr(planner, "last_validation_report", None)

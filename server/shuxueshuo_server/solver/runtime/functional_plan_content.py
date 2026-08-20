@@ -47,6 +47,7 @@ from shuxueshuo_server.solver.runtime.return_object_authority import (
     ReturnObjectAuthorityResolution,
     ReturnObjectAuthorityResolver,
     ReturnRoleAuthorityResolver,
+    identity_constraint_return_targets,
 )
 from shuxueshuo_server.solver.state_semantics import (
     object_kind_for_runtime_type,
@@ -2027,14 +2028,141 @@ def _wire_return_object_resolution(
                     frame=frame,
                 )
             )
+    constrained = identity_constraint_return_targets(
+        capability.identity_constraints,
+        return_name=return_name,
+        resolve_arg_targets=lambda arg_name, object_role: (
+            {
+                target
+                for value in _wire_arg_values(args, arg_name)
+                for target in (
+                    _wire_value_object_role_targets(
+                        value,
+                        role=object_role,
+                        steps=steps,
+                        capability_catalog=capability_catalog,
+                        seen=frozenset({(step_id, return_name)}),
+                    )
+                    if object_role is not None
+                    else _value_target_refs(
+                        value,
+                        steps=steps,
+                        capability_catalog=capability_catalog,
+                        seen=frozenset({(step_id, return_name)}),
+                    )
+                )
+            }
+        ),
+    )
     return ReturnObjectAuthorityResolver.resolve(
         explicit_output_targets=explicit,
         goal_answer_targets=(goal_answer_targets or {}).get(
             (step_id, return_name), ()
         ),
+        identity_constraint_targets=constrained,
         declared_identity_targets=declared,
         compiler_selector_targets=selected,
     )
+
+
+def _wire_arg_values(
+    args: object,
+    arg_name: str,
+) -> tuple[Any, ...]:
+    if not isinstance(args, Mapping) or arg_name not in args:
+        return ()
+    value = args[arg_name]
+    return tuple(value) if isinstance(value, list) else (value,)
+
+
+def _wire_value_object_role_targets(
+    value: Any,
+    *,
+    role: str,
+    steps: Mapping[str, Mapping[str, Any]],
+    capability_catalog: FunctionalCapabilityCatalog,
+    seen: frozenset[tuple[str, str]],
+) -> set[str]:
+    """Project one object role through raw StepResult wire deterministically."""
+
+    if not isinstance(value, Mapping) or set(value) != {"step_id", "return"}:
+        return set()
+    producer_step_id = str(value["step_id"])
+    return_name = str(value["return"])
+    key = (producer_step_id, f"{return_name}#role:{role}")
+    if key in seen:
+        return set()
+    producer = steps.get(producer_step_id)
+    if producer is None:
+        return set()
+    capability = capability_catalog.get(
+        str(producer.get("capability_id", ""))
+    )
+    if capability is None:
+        return set()
+    returned = next(
+        (item for item in capability.returns if item.name == return_name),
+        None,
+    )
+    if returned is None:
+        return set()
+    args = producer.get("args", {})
+    if not isinstance(args, Mapping):
+        args = {}
+    result: set[str] = set()
+    for projection in returned.object_role_projections:
+        if projection.role != role:
+            continue
+        if projection.source_arg is not None:
+            values = args.get(projection.source_arg, ())
+            values = values if isinstance(values, list) else (values,)
+            for source in values:
+                if projection.source_object_role is None:
+                    result.update(
+                        _value_target_refs(
+                            source,
+                            steps=steps,
+                            capability_catalog=capability_catalog,
+                            seen=seen | {key},
+                        )
+                    )
+                else:
+                    result.update(
+                        _wire_value_object_role_targets(
+                            source,
+                            role=projection.source_object_role,
+                            steps=steps,
+                            capability_catalog=capability_catalog,
+                            seen=seen | {key},
+                        )
+                    )
+            continue
+        if projection.source_return is None:
+            continue
+        source_ref = {
+            "step_id": producer_step_id,
+            "return": projection.source_return,
+        }
+        if projection.source_object_role is None:
+            result.update(
+                _value_target_refs(
+                    source_ref,
+                    steps=steps,
+                    capability_catalog=capability_catalog,
+                    seen=seen | {key},
+                )
+            )
+        else:
+            result.update(
+                _wire_value_object_role_targets(
+                    source_ref,
+                    role=projection.source_object_role,
+                    steps=steps,
+                    capability_catalog=capability_catalog,
+                    seen=seen | {key},
+                )
+            )
+    return result
 
 
 def _wire_auto_selector_object_refs(

@@ -58,7 +58,7 @@ def test_all_method_inputs_declare_one_explicit_view() -> None:
         for spec in registry.specs.values()
         for item in spec.inputs.values()
     )
-    assert len(inputs) == 199
+    assert len(inputs) == 200
     assert {item.view.mode for item in inputs} == {
         "identity",
         "latest_state",

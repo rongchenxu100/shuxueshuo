@@ -178,7 +178,7 @@ def test_geometry_spec_builder_extracts_points_curves_and_domain() -> None:
     } == {"a": "1", "b": "-2", "c": "-3"}
     assert (
         curves_by_root["ii"]["sourceHandle"]
-        == "runtime:ii:outputs:derive_parametric_parabola_ii_parabola"
+        == "runtime:ii:outputs:parabola_expression"
     )
     assert {
         key: curves_by_root["ii"][key]

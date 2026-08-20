@@ -1009,9 +1009,14 @@ def test_hidden_sibling_dependency_does_not_propagate_foreign_goal_authority(
     reconciliation = fixture[-1]
 
     assert "i_1" not in registry.ancestor_scopes("ii")
-    assert "derive_axis_point_M_i" in reconciliation.dependency_graph.get(
+    assert "derive_axis_point_M_i" not in reconciliation.dependency_graph.get(
         "reduce_square_path_ii",
         (),
+    )
+    assert not any(
+        "derive_axis_point_M_i" in dependencies
+        for call_id, dependencies in reconciliation.dependency_graph.items()
+        if call_id != "derive_axis_point_M_i"
     )
     assert not any(
         issue.code == "functional.call_scope_not_visible_for_goal"

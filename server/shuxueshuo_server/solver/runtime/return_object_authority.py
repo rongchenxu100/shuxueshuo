@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from types import MappingProxyType
-from typing import Iterable, Mapping
+from typing import Any, Callable, Iterable, Mapping
 
 
 @dataclass(frozen=True)
@@ -57,6 +57,81 @@ class ReturnObjectAuthorityResolver:
             if refs:
                 return ReturnObjectAuthorityResolution(refs, basis)
         return ReturnObjectAuthorityResolution(frozenset(), None)
+
+
+def identity_constraint_return_targets(
+    constraints: Iterable[Any],
+    *,
+    return_name: str,
+    resolve_arg_targets: Callable[[str, str | None], Iterable[str]],
+) -> frozenset[str]:
+    """Resolve one return identity from shared declarative constraints.
+
+    Both raw content assembly and typed scoped validation call this function so
+    ``identity_constraint`` participates in exactly the same precedence layer.
+    The callback owns representation-specific projection of an argument or one
+    of its declared object roles.
+    """
+
+    return_selector = f"return:{return_name}.object_ref"
+    resolved: list[str] = []
+    for constraint in constraints:
+        if getattr(constraint, "relation", None) != "same_object":
+            continue
+        left = getattr(constraint, "left", None)
+        right = getattr(constraint, "right", None)
+        if left == return_selector:
+            source_selector = right
+        elif right == return_selector:
+            source_selector = left
+        else:
+            continue
+        source = parse_identity_arg_selector(str(source_selector or ""))
+        if source is None:
+            continue
+        arg_names, object_role = source
+        selected = frozenset(
+            target
+            for arg_name in arg_names
+            for target in resolve_arg_targets(arg_name, object_role)
+            if target
+        )
+        if (
+            not selected
+            and getattr(constraint, "applicability", None)
+            == "when_all_present"
+        ):
+            continue
+        if len(selected) != 1:
+            return frozenset()
+        resolved.extend(selected)
+    unique = frozenset(resolved)
+    return unique if len(unique) == 1 else frozenset()
+
+
+def parse_identity_arg_selector(
+    selector: str,
+) -> tuple[tuple[str, ...], str | None] | None:
+    """Parse an ``arg(s):name.object_ref/object_role`` selector."""
+
+    owner_and_names, separator, field = selector.partition(".")
+    owner, owner_separator, names = owner_and_names.partition(":")
+    if (
+        not separator
+        or not owner_separator
+        or owner not in {"arg", "args"}
+        or not names
+    ):
+        return None
+    arg_names = tuple(item for item in names.split(",") if item)
+    if not arg_names:
+        return None
+    if field == "object_ref":
+        return arg_names, None
+    role_prefix = "object_role:"
+    if field.startswith(role_prefix) and field[len(role_prefix) :]:
+        return arg_names, field[len(role_prefix) :]
+    return None
 
 
 @dataclass(frozen=True)
@@ -146,4 +221,6 @@ __all__ = [
     "ReturnObjectAuthorityResolver",
     "ReturnRoleAuthorityResolution",
     "ReturnRoleAuthorityResolver",
+    "identity_constraint_return_targets",
+    "parse_identity_arg_selector",
 ]

@@ -8,9 +8,7 @@ import json
 from types import MappingProxyType
 from typing import Any, Callable, Mapping, Sequence
 
-import sympy as sp
-
-from shuxueshuo_server.solver.family.models import MacroSearchSpec
+from shuxueshuo_server.solver.contracts import MacroSearchSpec
 
 
 @dataclass(frozen=True)
@@ -38,14 +36,26 @@ class MacroCandidateEvaluation:
     passed: bool
     output_signature: str | None = None
     checks: tuple[str, ...] = ()
+    call_count: int | None = None
+
+    def __post_init__(self) -> None:
+        if self.call_count is not None and (
+            isinstance(self.call_count, bool)
+            or not isinstance(self.call_count, int)
+            or self.call_count < 0
+        ):
+            raise ValueError("Macro evaluation call_count must be non-negative")
 
     def to_payload(self) -> dict[str, Any]:
-        return {
+        payload = {
             "candidate_id": self.candidate_id,
             "passed": self.passed,
             "output_signature": self.output_signature,
             "checks": list(self.checks),
         }
+        if self.call_count is not None:
+            payload["call_count"] = self.call_count
+        return payload
 
 
 @dataclass(frozen=True)
@@ -180,6 +190,7 @@ class MacroRuntimeSearchReport:
                         else None
                     ),
                     checks=tuple(str(value) for value in item.get("checks", ())),
+                    call_count=_optional_nonnegative_int(item, "call_count"),
                 )
                 for item in _mapping_items(payload.get("evaluations"))
             ),
@@ -253,6 +264,10 @@ def macro_runtime_search_report_schema() -> dict[str, Any]:
                         "checks": {
                             "type": "array",
                             "items": nonempty,
+                        },
+                        "call_count": {
+                            "type": "integer",
+                            "minimum": 0,
                         },
                     },
                     "additionalProperties": False,
@@ -405,12 +420,16 @@ class MacroRuntimeSearchService:
                     "valid_candidates": [candidate.candidate_id for candidate, _ in valid],
                 },
             )
-        winner = min(
-            (candidate for candidate, _ in valid),
+        winner, _winner_evaluation = min(
+            valid,
             key=lambda item: (
-                item.call_count,
-                item.symbolic_complexity,
-                item.candidate_id,
+                (
+                    item[1].call_count
+                    if item[1].call_count is not None
+                    else item[0].call_count
+                ),
+                item[0].symbolic_complexity,
+                item[0].candidate_id,
             ),
         )
         resolutions = tuple(
@@ -437,58 +456,6 @@ class MacroRuntimeSearchService:
         return winner, report
 
 
-def runtime_verified_macro_report(
-    *,
-    macro_id: str,
-    spec: MacroSearchSpec,
-    authored_roles: Mapping[str, str],
-    chosen_roles: Mapping[str, str],
-    runtime_outputs: Sequence[Any],
-    check_names: Sequence[str],
-    call_count: int,
-) -> MacroRuntimeSearchReport:
-    """Authenticate one Macro path after its isolated runtime succeeded.
-
-    Candidate-producing Macros already execute their internal alternatives in
-    a disposable transaction. This adapter records the surviving public role
-    assignment and output equivalence through the same bounded-search service
-    used by multi-graph Macro implementations.
-    """
-
-    roles = {
-        role: chosen_roles.get(role, authored_roles.get(role, ""))
-        for role in spec.searchable_roles
-    }
-    output_signature = _stable_hash(
-        {"outputs": [_canonical_runtime_value(item) for item in runtime_outputs]}
-    )
-    candidate = MacroExecutionCandidate(
-        candidate_id=_stable_hash(
-            {
-                "macro_id": macro_id,
-                "roles": dict(sorted(roles.items())),
-                "output_signature": output_signature,
-            }
-        ),
-        roles=roles,
-        call_count=call_count,
-        symbolic_complexity=_symbolic_complexity(runtime_outputs),
-    )
-    _, report = MacroRuntimeSearchService().search(
-        macro_id=macro_id,
-        spec=spec,
-        candidates=(candidate,),
-        authored_roles=authored_roles,
-        evaluator=lambda item: MacroCandidateEvaluation(
-            candidate_id=item.candidate_id,
-            passed=True,
-            output_signature=output_signature,
-            checks=tuple(check_names),
-        ),
-    )
-    return report
-
-
 def _matches_authored_roles(
     candidate: MacroExecutionCandidate,
     authored_roles: Mapping[str, str],
@@ -504,45 +471,6 @@ def _stable_hash(payload: Mapping[str, Any]) -> str:
         separators=(",", ":"),
     ).encode("utf-8")
     return hashlib.sha256(encoded).hexdigest()
-
-
-def _canonical_runtime_value(value: Any) -> Any:
-    if isinstance(value, sp.Basic):
-        return {"sympy": sp.srepr(value)}
-    if isinstance(value, Mapping):
-        return {
-            str(key): _canonical_runtime_value(child)
-            for key, child in sorted(value.items(), key=lambda item: str(item[0]))
-        }
-    if isinstance(value, (list, tuple)):
-        return [_canonical_runtime_value(item) for item in value]
-    if isinstance(value, (str, int, float, bool)) or value is None:
-        return value
-    return {"type": type(value).__name__, "repr": repr(value)}
-
-
-def _symbolic_complexity(values: Sequence[Any]) -> int:
-    return sum(
-        int(sp.count_ops(item))
-        for value in values
-        for item in _iter_sympy_values(value)
-    )
-
-
-def _iter_sympy_values(value: Any) -> tuple[sp.Basic, ...]:
-    if isinstance(value, sp.Basic):
-        return (value,)
-    if isinstance(value, Mapping):
-        return tuple(
-            item
-            for child in value.values()
-            for item in _iter_sympy_values(child)
-        )
-    if isinstance(value, (list, tuple)):
-        return tuple(
-            item for child in value for item in _iter_sympy_values(child)
-        )
-    return ()
 
 
 def _mapping_items(value: Any) -> tuple[Mapping[str, Any], ...]:
@@ -568,6 +496,18 @@ def _required_bool(payload: Mapping[str, Any], name: str) -> bool:
     return value
 
 
+def _optional_nonnegative_int(
+    payload: Mapping[str, Any],
+    name: str,
+) -> int | None:
+    value = payload.get(name)
+    if value is None:
+        return None
+    if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+        raise ValueError(f"{name} must be a non-negative integer")
+    return value
+
+
 __all__ = [
     "MacroCandidateEvaluation",
     "MacroExecutionCandidate",
@@ -576,5 +516,4 @@ __all__ = [
     "MacroRuntimeSearchReport",
     "MacroRuntimeSearchService",
     "macro_runtime_search_report_schema",
-    "runtime_verified_macro_report",
 ]

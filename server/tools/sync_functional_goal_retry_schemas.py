@@ -20,9 +20,6 @@ from shuxueshuo_server.solver.runtime.functional_goal_retry import (
     functional_goal_repair_schema,
     planner_goal_retry_context_schema,
 )
-from shuxueshuo_server.solver.runtime.functional_retry_versions import (
-    functional_retry_graph_checkpoint_schema,
-)
 from shuxueshuo_server.solver.runtime.macro_runtime_search import (
     macro_runtime_search_report_schema,
 )
@@ -55,9 +52,6 @@ def main() -> None:
             planner_goal_retry_context_schema()
         ),
         "functional-plan-v2.schema.json": scoped_functional_plan_schema(),
-        "functional-retry-graph-checkpoint.schema.json": (
-            functional_retry_graph_checkpoint_schema()
-        ),
         "problem-call-source-provenance.schema.json": (
             problem_call_source_provenance_schema()
         ),

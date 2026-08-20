@@ -192,6 +192,14 @@ LESSON_MERGE_RULES: tuple[LessonMergeRule, ...] = (
     ),
 )
 
+LESSON_MERGE_SEQUENCE_ALIASES: dict[tuple[str, ...], str] = {
+    (
+        "quadratic_from_constraints",
+        "quadratic_x_axis_intercept_point",
+        "quadratic_vertex_point",
+    ): "simple_quadratic_foundation",
+}
+
 
 DUPLICATE_LESSON_STEP_MERGE_RULES: tuple[DuplicateLessonStepMergeRule, ...] = (
     DuplicateLessonStepMergeRule(
@@ -523,6 +531,15 @@ def lesson_merge_cluster_at(
         selected = _capability_sequence_cluster(groups, start, rule.sequence)
         if selected:
             return rule, selected
+    for sequence, rule_id in LESSON_MERGE_SEQUENCE_ALIASES.items():
+        selected = _capability_sequence_cluster(
+            groups,
+            start,
+            sequence,
+            allow_leading_shared_scope=True,
+        )
+        if selected:
+            return _lesson_merge_rule_by_id(rule_id), selected
     return None, ()
 
 
@@ -530,6 +547,8 @@ def _capability_sequence_cluster(
     groups: tuple[LessonCandidateGroup, ...],
     start: int,
     sequence: tuple[str, ...],
+    *,
+    allow_leading_shared_scope: bool = False,
 ) -> tuple[LessonCandidateGroup, ...]:
     end = start + len(sequence)
     if end > len(groups):
@@ -539,9 +558,24 @@ def _capability_sequence_cluster(
         return ()
     if any(group.teaching_substep_id for group in selected):
         return ()
-    if len({group.scope_id for group in selected}) != 1:
-        return ()
+    scopes = {group.scope_id for group in selected}
+    if len(scopes) != 1:
+        trailing_scopes = {group.scope_id for group in selected[1:]}
+        if (
+            not allow_leading_shared_scope
+            or len(trailing_scopes) != 1
+            or _group_publishes_answer(selected[0])
+        ):
+            return ()
     return tuple(selected)
+
+
+def _group_publishes_answer(group: LessonCandidateGroup) -> bool:
+    return any(
+        isinstance(item, dict)
+        and str(item.get("handle") or "").startswith("answer:")
+        for item in group.step.get("produces", ())
+    )
 
 
 def _split_lesson_group(group: LessonCandidateGroup) -> tuple[LessonCandidateGroup, ...]:
@@ -598,7 +632,7 @@ def _lesson_step_from_source_groups(
     step_id = _lesson_step_id_for_source_groups(source_groups)
     return LessonStep(
         id=step_id,
-        scope_id=source_groups[0].scope_id,
+        scope_id=lesson_merge_scope(source_groups),
         source_step_ids=tuple(dict.fromkeys(group.step_id for group in source_groups)),
         capability_ids=tuple(dict.fromkeys(group.capability_id for group in source_groups)),
         trace_refs=tuple(
@@ -650,7 +684,30 @@ def _lesson_merge_rule_for_capabilities(
     for rule in LESSON_MERGE_RULES:
         if capabilities == rule.sequence:
             return rule
+    rule_id = LESSON_MERGE_SEQUENCE_ALIASES.get(capabilities)
+    if rule_id is not None:
+        return _lesson_merge_rule_by_id(rule_id)
     return None
+
+
+def _lesson_merge_rule_by_id(rule_id: str) -> LessonMergeRule:
+    return next(rule for rule in LESSON_MERGE_RULES if rule.rule_id == rule_id)
+
+
+def lesson_merge_scope(
+    source_groups: tuple[LessonCandidateGroup, ...],
+) -> str:
+    scopes = {group.scope_id for group in source_groups}
+    if len(scopes) == 1:
+        return source_groups[0].scope_id
+    answer_scopes = {
+        group.scope_id
+        for group in source_groups
+        if _group_publishes_answer(group)
+    }
+    if len(answer_scopes) == 1:
+        return next(iter(answer_scopes))
+    return source_groups[-1].scope_id
 
 
 def _deterministic_merged_text(
@@ -937,10 +994,29 @@ def _answer_boxes_for_groups(
     source_groups: tuple[LessonCandidateGroup, ...],
     answers: dict[str, Any],
 ) -> tuple[str, ...]:
-    boxes: list[str] = []
+    boxes_by_answer: dict[tuple[str, str], str] = {}
     for group in source_groups:
-        boxes.extend(_answer_boxes_for_step(group.step, answers))
-    return tuple(dict.fromkeys(boxes))
+        for produced in group.step.get("produces", ()):
+            if not isinstance(produced, dict):
+                continue
+            handle = str(produced.get("handle") or "")
+            if not handle.startswith("answer:"):
+                continue
+            resolved = _answer_for_handle(handle, answers)
+            if resolved is None:
+                continue
+            scope_id, key, value = resolved
+            boxes_by_answer.setdefault(
+                (scope_id, key),
+                _student_answer_box(key, value),
+            )
+    return tuple(
+        boxes_by_answer[(scope_id, key)]
+        for scope_id, values in answers.items()
+        if isinstance(values, dict)
+        for key in values
+        if (scope_id, key) in boxes_by_answer
+    )
 
 
 def _lesson_from_llm_draft(

@@ -17,6 +17,7 @@ from .builder import (
     LessonDraftBlocker,
     LessonDraftDiagnostic,
     LessonDraftValidationResult,
+    lesson_merge_scope,
     lesson_merge_cluster_at,
     validate_lesson_draft,
 )
@@ -275,7 +276,7 @@ def _merge_suggestions(groups: tuple[LessonCandidateGroup, ...]) -> list[dict[st
             suggestions.append(
                 {
                     "candidate_group_ids": [group.candidate_group_id for group in selected],
-                    "scope_id": selected[0].scope_id,
+                    "scope_id": lesson_merge_scope(selected),
                     "title_hint": title,
                     "nav_title_hint": nav_title,
                     "reason": rule.reason,

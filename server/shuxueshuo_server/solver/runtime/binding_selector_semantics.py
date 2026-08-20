@@ -47,6 +47,10 @@ _EXACT_SELECTOR_SEMANTICS: dict[str, SelectorSemantics] = {
         requires_materialized_state=True,
     ),
     "point_output_ref": SelectorSemantics(mechanical=True),
+    "point_output_state": SelectorSemantics(
+        mechanical=True,
+        requires_materialized_state=True,
+    ),
     "point_transition_target": SelectorSemantics(mechanical=True),
     "equal_length_ray:target": SelectorSemantics(
         mechanical=True,

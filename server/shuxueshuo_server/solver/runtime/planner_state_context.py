@@ -1935,6 +1935,56 @@ def _initial_state_slots_from_registry(
                 canonical_handle=handle,
                 aliases=tuple(_aliases_for_handle(handle, registry)),
                 valid_scope=scope_id,
+                runtime_path=(
+                    f"{_runtime_scope_path_prefix(scope_id, registry)}.points."
+                    f"{str(payload.get('name') or handle.rsplit(':', 1)[-1])}"
+                ),
+                status="given",
+                lineage=state_semantic_lineage(
+                    semantic_roles=(_semantic_ref(handle),),
+                ),
+            )
+        )
+    existing_state_objects = {
+        item.object_ref for item in result if item.object_ref is not None
+    }
+    for handle in sorted(registry.entity_handles):
+        payload = registry.entity_payloads.get(handle, {})
+        if (
+            payload.get("entity_type") != "function"
+            or not isinstance(payload.get("expression"), str)
+            or handle in existing_state_objects
+        ):
+            continue
+        scope_id = registry.handle_valid_scopes.get(
+            handle,
+            _scope_from_handle(handle) or "problem",
+        )
+        function_name = (
+            "quadratic"
+            if payload.get("function_type") == "quadratic"
+            else str(payload.get("name") or "function")
+        )
+        runtime_path = (
+            f"{_runtime_scope_path_prefix(scope_id, registry)}."
+            f"expressions.{function_name}"
+        )
+        result.append(
+            StateSlot(
+                slot_id=_slot_id_for_object_ref(
+                    handle,
+                    state_kind="expression",
+                    scope_id=scope_id,
+                    runtime_type="Expression",
+                ),
+                object_ref=handle,
+                state_kind="expression",
+                scope_id=scope_id,
+                runtime_type="Expression",
+                canonical_handle=handle,
+                aliases=tuple(_aliases_for_handle(handle, registry)),
+                valid_scope=scope_id,
+                runtime_path=runtime_path,
                 status="given",
                 lineage=state_semantic_lineage(
                     semantic_roles=(_semantic_ref(handle),),

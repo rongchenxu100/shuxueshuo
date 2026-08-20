@@ -673,14 +673,13 @@ SPEC = MethodSpecSource(
     input_views=declare_input_views(
         identity=("parameter", "dynamic_parameter"),
         latest_state=(
-            "auxiliary_locus",
             "fixed_point",
             "curve_point",
             "moving_point",
             "auxiliary_point",
         ),
         immutable_value=("condition", "parameter_constraint", "dynamic_constraint"),
-        exact_result=("path_transformation",),
+        exact_result=("path_transformation", "auxiliary_locus"),
     ),
     outputs={
         "parameter_value": "ParameterValue",
@@ -730,14 +729,13 @@ MINIMUM_EXPRESSION_SPEC = MethodSpecSource(
     input_views=declare_input_views(
         identity=("parameter", "dynamic_parameter"),
         latest_state=(
-            "auxiliary_locus",
             "fixed_point",
             "curve_point",
             "moving_point",
             "auxiliary_point",
         ),
         immutable_value=("parameter_constraint", "dynamic_constraint"),
-        exact_result=("path_transformation",),
+        exact_result=("path_transformation", "auxiliary_locus"),
     ),
     outputs={
         "minimum_expression": "MinimumExpression",

@@ -41,6 +41,16 @@ def _execution_evidence(root_scope):
             yield from step.evidence
 
 
+def _execution_steps(root_scope):
+    scopes = [root_scope]
+    while scopes:
+        scope = scopes.pop()
+        scopes.extend(scope.children)
+        yield from scope.scope_steps
+        for goal in scope.goals:
+            yield from goal.steps
+
+
 def test_verified_execution_and_path_witness_round_trip(tmp_path) -> None:
     result, _fixture = _execute(
         tmp_path,
@@ -89,7 +99,10 @@ def test_non_path_macro_uses_same_verified_execution_envelope(tmp_path) -> None:
 
     assert verified is not None
     evidence = tuple(_execution_evidence(verified.root_scope))
-    assert any(isinstance(item, MacroSearchExecutionEvidence) for item in evidence)
+    assert not any(
+        isinstance(item, MacroSearchExecutionEvidence) for item in evidence
+    )
+    assert any(step.actual_outputs for step in _execution_steps(verified.root_scope))
     assert VerifiedFunctionalPlanExecution.from_payload(
         verified.to_payload()
     ).execution_id == verified.execution_id

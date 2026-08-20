@@ -1,6 +1,10 @@
 # Path-Minimum Macro Redesign
 
-Status: F5-F4.1 unique-role reference path complete; pre-binding multi-candidate runtime search pending
+Status: F5-F4.2 Runtime Authority Convergence complete; F5-F4.3 Path Macro
+migration is next
+
+The canonical authority-convergence plan is maintained in
+[Track F F5-F4.2](problem-extraction-context-implementation-plan.md#f5-f4-2-runtime-authority-convergence).
 
 This document records the F5-F4 audit of Planner-facing Macro contracts. It
 separates the implemented `equal_length_ray_path_reduction` reference contract
@@ -473,14 +477,10 @@ F5-F4.1 fixes the following decisions:
    checks. Candidate IDs, runtime paths and provenance identities remain
    authority/debug-only.
 
-### 5.1 Known Authority-Timing Gap
+### 5.1 Authority Timing Closed
 
-The current implementation is complete when the selected four structured Facts
-prove exactly one role assignment. It hides those roles from the Planner,
-resolves the chosen objects before the functional problem sidecar is built, and
-records authored-versus-chosen role provenance after successful execution.
-
-It does **not** yet implement the full ambiguous-role sequence:
+F5-F4.2 implements the full role-authority sequence before per-call F5-C
+finalization:
 
 ```text
 multiple structure-valid role candidates
@@ -491,31 +491,55 @@ multiple structure-valid role candidates
   -> clean replay and commit
 ```
 
-Today the recipe compiler rejects multiple structure-valid candidates before
-runtime. `runtime_verified_macro_report()` authenticates one already-selected
-candidate after execution; it is not pre-binding search. This gap must not be
-closed by relabeling a structural choice as a runtime winner.
+`MacroPreparationAuthority` records authored hints, the scope-safe dependency
+envelope, upstream exact-state signature, every verified role candidate and the
+winner. Only the chosen objects enter finalized F5-C input bindings, source
+units and provenance. The winner is then compiled and executed again from a
+clean branch; shadow results are never copied into the transaction.
 
-The required implementation changes the authority timing rather than adding a
-candidate-selection special case: F5-C source binding for a runtime-search
-Macro must be finalized per call after its upstream exact states exist and
-before that call is compiled for authoritative execution. The end-to-end gate
-must include a wrong authored hint, at least two structure-valid candidates,
-one unique runtime-valid winner, non-equivalent ambiguity, zero shadow writes,
-and verification that only the chosen object enters F5-C provenance.
+The implementation covers wrong authored hints, unique winners, equivalent
+multi-winner tie-breaking, non-equivalent ambiguity, all-candidate failure,
+budget limits, zero shadow writes and clean-replay drift. The old compiler-time
+single-candidate rejection and post-execution single-candidate authentication
+path have been removed.
+
+The post-completion review also made the registry the sole owner of preparation
+context construction and evidence creation. Shadow evaluation may convert only
+an explicitly planner-repairable diagnostic into a rejected candidate;
+configuration errors, contract drift and unknown exceptions fail immediately.
+Upstream state and winner replay signatures use canonical typed payloads (and
+SymPy structural representations), never Python `repr()`.
+
+Equivalent-candidate tie-breaking uses the actual Method invocation count from
+each shadow-lowered graph; a role candidate builder must not estimate or hardcode
+that count. Mixed-scope Goal repair projects added or removed steps back onto the
+old editable intervals so frozen producers remain barriers. The legacy debug
+`equal_length_ray_point` selector may still require one structural candidate,
+but the recipe compiler never imports it or the role candidate builder: runtime
+search compilation consumes only the prepared winner authority.
+
+Until each remaining Macro has a registered candidate builder, validation
+policy, lowerer, postcondition and evidence builder, it is deliberately exposed
+as `direct`. At the end of F5-F4.2 the only production `runtime_search` Macro is
+`equal_length_ray_path_reduction`.
 
 ## 6. Migration Order
 
-1. **Done:** establish `equal_length_ray_path_reduction` as the reference Macro.
-2. **Done:** add `PathMinimumWitness`, prompt projection, schema and
+1. **Done (F5-F4.1):** establish `equal_length_ray_path_reduction` as the
+   reference Macro.
+2. **Done (F5-F4.1):** add `PathMinimumWitness`, prompt projection, schema and
    `VerifiedFunctionalPlanExecution`.
-3. **Pending:** move runtime-search Macro winner selection before per-call F5-C
-   binding. The shared candidate builder exists, but only the unique structural
-   candidate path is currently authoritative.
-4. Migrate the three other path families to family-level Macros.
-5. Internalize generic straightening and distance phases.
-6. Migrate point-construction Macros and optional family composites.
-7. Add static guards forbidding internal Path types and Method wiring in Prompt,
+3. **Done (F5-F4.2):** move runtime-search winner
+   selection before per-call F5-C binding, converge Method reads on explicit
+   read authority, and make Goal checkpoint v3 the sole production restore
+   owner.
+4. **Pending (F5-F4.3):** migrate the three other path families to family-level
+   pre-binding runtime-search Macros.
+5. **Pending (F5-F4.3):** internalize generic straightening and distance phases.
+6. **Pending (F5-F4.3):** migrate point-construction Macros and optional family
+   composites.
+7. **Pending (F5-F4.3):** add static guards forbidding internal Path types and
+   Method wiring in Prompt,
    Plan and retry wire.
 
 ## 7. Completion Gates

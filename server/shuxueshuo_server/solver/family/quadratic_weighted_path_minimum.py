@@ -146,12 +146,7 @@ _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                     "filter_point_candidates_by_quadratic_curve",
                     "parameter_from_curve_point_on_quadratic",
                 ),
-                execution_mode="runtime_search",
-                search=MacroSearchSpec(
-                    searchable_roles=("target_point",),
-                    candidate_builder_id="curve_role_assignments",
-                    validation_policy_id="curve_membership_and_provenance",
-                ),
+                execution_mode="direct",
                 execution_strategy="curve_candidate_parameter_solve",
                 intermediate_wiring=(
                     ("filter_point_candidates_by_quadratic_curve.selected_candidate", "parameter_from_curve_point_on_quadratic.point"),

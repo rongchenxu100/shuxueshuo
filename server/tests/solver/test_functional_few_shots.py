@@ -24,10 +24,13 @@ from shuxueshuo_server.solver.runtime.functional_few_shots import (
     validate_functional_few_shot_asset,
     validate_functional_few_shot_prompt_payload,
     validate_functional_plan_fixture,
-    default_scope_native_functional_plan_fixture_dir,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
+)
+from shuxueshuo_server.solver.runtime.functional_plan_content import (
+    FunctionalPlanAuthorityFrame,
+    functional_plan_content_from_plan,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_validation import (
     FUNCTIONAL_PLAN_JSON_SCHEMA,
@@ -41,6 +44,9 @@ from shuxueshuo_server.solver.runtime.strategy_payload import (
 from shuxueshuo_server.solver.runtime.strategy_runtime_planner import (
     strategy_planner_provider,
 )
+from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
+    ScopedFunctionalPlanValidator,
+)
 
 from _problem_planning_support import (
     cached_planning_binding_fixture,
@@ -52,6 +58,7 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 PROBLEM_DIR = REPO_ROOT / "internal" / "solver-fixtures"
 EXPECTED_DIR = Path(__file__).resolve().parent / "expected"
 FUNCTIONAL_FEW_SHOT_DIR = REPO_ROOT / "internal" / "functional-few-shots"
+SCOPED_FUNCTIONAL_PLAN_DIR = REPO_ROOT / "internal" / "functional-plan-v2-fixtures"
 PROBLEM_IDS = (
     "tj-2026-nankai-yimo-25",
     "tj-2026-hexi-yimo-25",
@@ -120,17 +127,27 @@ class _FixtureFunctionalClient:
 def test_complete_functional_plan_fixture_replays_to_expected_answers(
     problem_id: str,
 ) -> None:
-    plan = load_functional_plan_fixture(
-        problem_id,
-        fixture_dir=default_scope_native_functional_plan_fixture_dir(),
+    plan_payload = json.loads(
+        (SCOPED_FUNCTIONAL_PLAN_DIR / f"{problem_id}.functional-plan.json").read_text(
+            encoding="utf-8"
+        )
     )
-    bundle, _planning_context, problem, *_ = cached_planning_binding_fixture(
+    plan, validation = ScopedFunctionalPlanValidator().validate_payload_with_report(
+        plan_payload
+    )
+    assert plan is not None, validation.to_payload()
+    assert validation.ok, validation.to_payload()
+    bundle, planning_context, problem, *_ = cached_planning_binding_fixture(
         problem_id
     )
     expected = load_expected_answers(
         EXPECTED_DIR / f"{problem_id}.expected.json"
     )
-    client = _FixtureFunctionalClient(plan)
+    content = functional_plan_content_from_plan(
+        plan,
+        frame=FunctionalPlanAuthorityFrame.from_planning_context(planning_context),
+    )
+    client = _FixtureFunctionalClient(content.to_payload())
     orchestrator = RuntimeOrchestrator(
         planner_providers={},
         default_planner_provider=strategy_planner_provider(
@@ -145,10 +162,16 @@ def test_complete_functional_plan_fixture_replays_to_expected_answers(
     assert result.status == "ok", result.errors
     assert result.answers == expected
     assert client.request is not None
-    assert client.request["planner_protocol"] == "functional_plan/v1"
+    assert client.request["planner_protocol"] == "functional-plan-content/v2"
     success = orchestrator.last_success_artifacts
     assert success is not None
     artifacts = success.planner.artifacts
+    assert artifacts.scoped_retry_result is not None
+    assert artifacts.scoped_retry_result.verified_execution is not None
+    assert (
+        artifacts.scoped_retry_result.final_execution.checkpoint.schema_version
+        == "functional-goal-execution-checkpoint/v3"
+    )
     replay = artifacts.retry_replay_result
     assert replay is not None
     assert replay.functional_plan is not None

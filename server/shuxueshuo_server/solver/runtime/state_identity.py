@@ -1093,6 +1093,24 @@ class StateIdentityIndex:
             consumer_scope_id=consumer_scope_id,
         )
 
+    def latest_visible_for_object(
+        self,
+        object_id: MathObjectId,
+        *,
+        consumer_scope_id: str,
+    ) -> IndexedStateVersion | None:
+        """Return the unique latest visible state across one object's slots."""
+
+        return self._latest_visible(
+            (
+                version
+                for versions in self._versions_by_logical.values()
+                for version in versions
+                if version.version_id.slot_id.logical_key.object_id == object_id
+            ),
+            consumer_scope_id=consumer_scope_id,
+        )
+
     def next_ordinal(self, slot_id: StateSlotId) -> int:
         return (
             max(
@@ -1165,7 +1183,8 @@ class StateIdentityIndex:
             raise ValueError(
                 "planner_configuration_error: "
                 "planner.state_identity_incomplete: "
-                f"logical_key={visible[0].logical_state_key.to_payload()}, "
+                "logical_key="
+                f"{visible[0].version_id.slot_id.logical_key.to_payload()}, "
                 f"consumer_scope={consumer_scope_id}, "
                 "reason=ambiguous_latest_visible"
             )
