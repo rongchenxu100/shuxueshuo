@@ -2597,6 +2597,9 @@ class _PlacementLivenessProjectionStage:
                     item.to_payload()
                     for item in logical_finalization.mismatches
                 ),
+                state_runtime_equivalence_probes=(
+                    logical_finalization.runtime_equivalence_probes
+                ),
                 state_dependencies=(
                     projected_state_dependencies
                 ),
@@ -2652,6 +2655,9 @@ class _PlacementLivenessProjectionStage:
             state_finalization_mismatches=tuple(
                 item.to_payload()
                 for item in logical_finalization.mismatches
+            ),
+            state_runtime_equivalence_probes=(
+                logical_finalization.runtime_equivalence_probes
             ),
             state_dependencies=projected_state_dependencies,
             typed_identity_completeness=(

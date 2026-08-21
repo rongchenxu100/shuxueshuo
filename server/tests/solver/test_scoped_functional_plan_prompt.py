@@ -125,7 +125,9 @@ def test_v2_payload_and_prompt_use_scope_native_authority_only(tmp_path) -> None
     assert "Entity始终使用字符串SourceRef" in prompt.system
     assert "free_parameters" in prompt.system
     assert "不能根据下游Goal希望求哪个参数" in prompt.system
-    assert "Goal的`target_ref`是可用题面输入" in prompt.user
+    assert "只在该scope及其子孙scope可见" in prompt.user
+    assert "对当前step的写入scope可见" in prompt.user
+    assert "不会把子scope中的`D∈parabola` Fact提升到根scope" in prompt.user
     assert "Full-plan Validation Feedback" in prompt.user
     assert "Authority-bound Output JSON Schema" in prompt.user
 

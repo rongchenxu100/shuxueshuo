@@ -37,10 +37,18 @@ def planner_problem_view_schema() -> dict[str, Any]:
 
     semantic_item = {
         "type": "object",
-        "required": ["ref", "kind"],
+        "required": ["ref", "kind", "owner_scope"],
         "properties": {
             "ref": {"type": "string", "minLength": 1},
             "kind": {"type": "string", "minLength": 1},
+            "owner_scope": {
+                "type": "string",
+                "minLength": 1,
+                "description": (
+                    "The lexical owner of this Entity or Fact. A Fact is "
+                    "visible only from this scope and its descendants."
+                ),
+            },
         },
         # Type-specific source fields are generated from authenticated domain data.
         "additionalProperties": True,
@@ -669,6 +677,7 @@ def _prompt_semantic_item(
     result: dict[str, Any] = {
         "ref": ref.ref,
         "kind": prompt_kind or ref.kind,
+        "owner_scope": authority.owner_scope_id,
     }
     entity_payloads = [payload for payload in payloads if "id" in payload]
     fact_payloads = [payload for payload in payloads if "id" not in payload]

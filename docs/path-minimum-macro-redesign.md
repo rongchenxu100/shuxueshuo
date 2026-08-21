@@ -540,15 +540,19 @@ as `direct`. At the end of F5-F4.2 the only production `runtime_search` Macro is
    selection before per-call F5-C binding, converge Method reads on explicit
    read authority, and make Goal checkpoint v3 the sole production restore
    owner.
-4. **Pending (F5-F4.3):** migrate the three other path families to family-level
+4. **Next (F5-F4.2R):** replace production binding selectors with typed
+   `MethodInputSourceSpec | MethodInputDerivationSpec`, migrate the common
+   quadratic vertical slice, and remove production `_select()` fallback before
+   another Path Macro is enabled for runtime search.
+5. **Pending (F5-F4.3):** migrate the three other path families to family-level
    pre-binding runtime-search Macros.
-5. **Pending (F5-F4.3):** internalize generic straightening and distance phases.
-6. **Pending (F5-F4.3):** migrate point-construction Macros and optional family
+6. **Pending (F5-F4.3):** internalize generic straightening and distance phases.
+7. **Pending (F5-F4.3):** migrate point-construction Macros and optional family
    composites.
-7. **Pending (F5-F4.3):** add static guards forbidding internal Path types and
+8. **Pending (F5-F4.3):** add static guards forbidding internal Path types and
    Method wiring in Prompt,
    Plan and retry wire.
-8. **Pending (F5-F4.3):** retire the standalone
+9. **Pending (F5-F4.3):** retire the standalone
    `equal_length_ray_point` debug selector and its bypass contract, or make the
    debug entry consume the same prepared role authority as production.
 
@@ -557,6 +561,8 @@ as `direct`. At the end of F5-F4.2 the only production `runtime_search` Macro is
 ```text
 Planner prompt internal Path types == 0
 Planner-authored internal Method arguments == 0
+production semantic selectors == 0
+production FunctionAdapterRegistry._select fallback == 0
 unique runtime-valid role correction succeeds deterministically
 non-equivalent runtime ambiguity fails loud
 shadow candidate ghost writes == 0

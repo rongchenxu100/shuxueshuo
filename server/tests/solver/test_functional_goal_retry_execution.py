@@ -96,6 +96,41 @@ class _RepairingClient:
         )
 
 
+def test_semantic_attempt_retains_merged_plan_on_execution_configuration_error(
+    tmp_path,
+) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+
+    class FailingExecutionService:
+        def execute_raw_json(self, *_args, **_kwargs):
+            raise ValueError(
+                "planner_configuration_error: synthetic finalization failure"
+            )
+
+    result = ScopedFunctionalGoalRetryService(
+        _RepairingClient(fixture),
+        execution_service=FailingExecutionService(),
+    ).run(
+        inputs=fixture.inputs,
+        planning_context=fixture.planning_context,
+        problem_binding_catalog=fixture.binding_catalog,
+        handle_registry=fixture.handle_registry,
+        runtime_context=ContextBuilder().build(fixture.problem),
+        planner_state_context=fixture.planner_state_context,
+        problem_payload=fixture.problem_payload,
+        max_attempts=1,
+    )
+
+    assert result.status == "blocked"
+    assert len(result.attempts) == 1
+    attempt = result.attempts[0]
+    assert attempt.merged_plan is not None
+    assert attempt.execution is None
+    assert attempt.error is not None
+    assert attempt.error.code == "planner.transactional_configuration_error"
+    assert attempt.error.retryable is False
+
+
 def test_goal_repair_restores_solved_calls_without_reexecution(tmp_path) -> None:
     fixture = goal_retry_fixture(tmp_path)
     client = _RepairingClient(fixture)
@@ -1154,6 +1189,135 @@ def test_named_parabola_uses_latest_state_and_runtime_closes_duplicate_point(
         sp.Integer(3),
         sp.Integer(0),
     )
+
+
+def test_heping_retry_compares_new_ancestor_create_with_frozen_child_result(
+    tmp_path,
+) -> None:
+    """The repaired root writer may refine into an exact frozen child state."""
+
+    case = "tj-2026-heping-yimo-25"
+    fixture = planning_binding_fixture(tmp_path / case, case=case)
+    base_payload = load_v2_fixture_payload(case)
+    scopes = {
+        item["scope_ref"]: item
+        for item in iter_scopes(base_payload["root_scope"])
+    }
+    scopes["i"]["steps"][0]["step_id"] = "solve_parabola_i"
+    scopes["i_1"]["goals"][0]["answer_from"]["step_id"] = (
+        "solve_parabola_i"
+    )
+    base_execution = ScopedFunctionalGoalExecutionService().execute_raw_json(
+        json.dumps(base_payload, ensure_ascii=False),
+        inputs=fixture[3],
+        planning_context=fixture[1],
+        problem_binding_catalog=fixture[7],
+        handle_registry=fixture[5],
+        context=ContextBuilder().build(fixture[2]),
+        planner_state_context=fixture[6],
+        problem_payload=fixture[4],
+    )
+    assert base_execution.checkpoint is not None
+    assert base_execution.checkpoint.all_required_goals_verified
+    assert base_execution.replay is not None
+    base_reconciliation = base_execution.replay.functional_reconciliation
+    assert base_reconciliation is not None
+    restore_call_ids = {"solve_parabola_i"}
+    pending = ["solve_parabola_i"]
+    while pending:
+        consumer = pending.pop()
+        for dependency in base_reconciliation.dependency_graph.get(
+            consumer,
+            (),
+        ):
+            if dependency not in restore_call_ids:
+                restore_call_ids.add(dependency)
+                pending.append(dependency)
+    restored_seed = base_execution.checkpoint.restore_state.seed_for_calls(
+        frozenset(restore_call_ids)
+    )
+
+    repaired_payload = deepcopy(base_payload)
+    repaired_payload["root_scope"]["steps"].append(
+        {
+            "step_id": "solve_parabola_common",
+            "capability_id": "quadratic_from_constraints",
+            "args": {
+                "curve_point": "A",
+                "free_parameters": "a",
+            },
+            "return_expectations": {"parabola": "open_state"},
+            "intent": "在共同祖先建立仍含参数a的开放抛物线状态。",
+        }
+    )
+    repaired_execution = (
+        ScopedFunctionalGoalExecutionService().execute_raw_json(
+            json.dumps(repaired_payload, ensure_ascii=False),
+            inputs=fixture[3],
+            planning_context=fixture[1],
+            problem_binding_catalog=fixture[7],
+            handle_registry=fixture[5],
+            context=ContextBuilder().build(fixture[2]),
+            planner_state_context=fixture[6],
+            problem_payload=fixture[4],
+            restored_seed=restored_seed,
+        )
+    )
+
+    assert repaired_execution.replay is not None
+    attempt = repaired_execution.replay.transactional_attempt_result
+    assert attempt is not None
+    report = attempt.execution_report
+    assert "solve_parabola_i" in report.restored_call_ids
+    assert "solve_parabola_i" not in report.executed_call_ids
+    assert "solve_parabola_common" in report.executed_call_ids
+    assert not any(
+        item.code == "state.logical_duplicate_writer"
+        for item in attempt.root_issues
+    )
+    assert report.runtime_state_equivalence_probe_results
+    comparison = report.runtime_state_equivalence_probe_results[0]
+    assert comparison["ancestor_call_id"] == "solve_parabola_common"
+    assert comparison["descendant_call_id"] == "solve_parabola_i"
+    assert comparison["comparison"] in {
+        "equivalent_after_parameter_closure",
+        "strict_runtime_refinement",
+    }
+    assert comparison["used_checkpoint_value"] is True
+    assert comparison["lineage_committed"] is True
+    versions_by_payload = {
+        json.dumps(item.version_id.to_payload(), sort_keys=True): item
+        for item in report.committed_versions
+    }
+    parent = versions_by_payload[
+        json.dumps(comparison["lineage_parent_version_id"], sort_keys=True)
+    ]
+    child = versions_by_payload[
+        json.dumps(comparison["lineage_child_version_id"], sort_keys=True)
+    ]
+    lineage_root = versions_by_payload[
+        json.dumps(comparison["lineage_root_version_id"], sort_keys=True)
+    ]
+    assert parent.version_id in child.source_version_ids
+    assert (
+        lineage_root.version_id.slot_id.logical_key
+        == child.version_id.slot_id.logical_key
+    )
+    assert comparison["latest_state_authority"] == {
+        "scope_id": "i",
+        "version_id": child.version_id.to_payload(),
+    }
+    restored_result = next(
+        item
+        for item in report.call_results
+        if item.call_id == "solve_parabola_i"
+    )
+    restored_child = next(
+        item
+        for item in restored_result.committed_versions
+        if item.version_id == child.version_id
+    )
+    assert parent.version_id in restored_child.source_version_ids
 
 
 def test_restore_source_survives_an_intermediate_nontransaction_round(

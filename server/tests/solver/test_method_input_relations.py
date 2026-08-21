@@ -304,6 +304,8 @@ def test_child_relation_cannot_be_consumed_from_root_and_projects_item_index(
     assert issue.details["observed_relation"] == {
         "relation_owner_scopes": ["i"]
     }
+    assert issue.details["relation_owner_scope"] == "i"
+    assert issue.details["expected_relation_owner_scope"] == "i"
 
     authority = diagnostic_authority_from_issue(
         {
@@ -344,6 +346,7 @@ def test_child_relation_cannot_be_consumed_from_root_and_projects_item_index(
         },
     ]
     assert prompt.repair_action == "place_step_in_relation_scope"
+    assert prompt.expected["expected_relation_owner_scope"] == "i"
     wire = json.dumps(prompt.to_payload(), ensure_ascii=False)
     assert "point:problem:D" not in wire
     assert "function:problem:parabola" not in wire

@@ -135,6 +135,43 @@ class StateVersionId:
         )
 
 
+@dataclass(frozen=True)
+class StateRuntimeEquivalenceProbe:
+    """Runtime proof required for two scope-comparable create writers.
+
+    The probe does not rewrite either writer's checkpointed allocation. It
+    records the exact versions that transaction execution must compare before
+    either provisional write can be accepted as the same logical state.
+    """
+
+    logical_state_key: LogicalStateKey
+    ancestor_call_id: str
+    ancestor_return_name: str
+    ancestor_version_id: StateVersionId
+    ancestor_scope_id: str
+    descendant_call_id: str
+    descendant_return_name: str
+    descendant_version_id: StateVersionId
+    descendant_scope_id: str
+    comparison_scope_id: str
+    reason_code: str = "scope_comparable_create_create"
+
+    def to_payload(self) -> dict[str, Any]:
+        return {
+            "logical_state_key": self.logical_state_key.to_payload(),
+            "ancestor_call_id": self.ancestor_call_id,
+            "ancestor_return_name": self.ancestor_return_name,
+            "ancestor_version_id": self.ancestor_version_id.to_payload(),
+            "ancestor_scope_id": self.ancestor_scope_id,
+            "descendant_call_id": self.descendant_call_id,
+            "descendant_return_name": self.descendant_return_name,
+            "descendant_version_id": self.descendant_version_id.to_payload(),
+            "descendant_scope_id": self.descendant_scope_id,
+            "comparison_scope_id": self.comparison_scope_id,
+            "reason_code": self.reason_code,
+        }
+
+
 @dataclass(frozen=True, order=True)
 class RuntimeDestinationKey:
     object_id: MathObjectId

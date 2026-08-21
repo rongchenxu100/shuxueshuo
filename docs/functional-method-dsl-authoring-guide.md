@@ -196,6 +196,12 @@ Method 接收的是当前调用已绑定的值，不拥有对象身份和版本�
 - 等价重复 writer 复用既有版本；
 - 不等价 writer 才是冲突。
 
+当两个`create`位于祖先/后代scope且静态阶段无法安全判重时，必须先隔离执行并
+比较实际结果。比较通过不只是“允许两个writer存在”：后代版本必须显式记录最近
+已验证祖先版本为`source_version_id`，并同步进入state write、semantic lineage与
+checkpoint。后代scope的`latest_state`选择后代版本；需要原始系数身份等ordinal-0
+数据时，沿同一version lineage选择唯一根。多个不可比较根必须fail loud。
+
 step id、输入 JSON、字符串展示、capability 名称或 scope 位置只能用于定位，不能作为数学等价证明。
 
 ## 5. 输入契约
@@ -225,7 +231,8 @@ input_views=declare_input_views(
 1. 参数名表达数学角色，不使用具体点名或题号。
 2. 同类型参数必须靠 role 区分，不能靠位置或名称猜测。
 3. `required=True` 的输入应尽量在静态编译期发现缺失；Method 仍需 fail closed。
-4. `functional_exposed=False` 表示由 resolver/compiler 注入，LLM 不应填写。
+4. `functional_exposed=False` 表示由typed read authority或声明式derivation注入，
+   LLM不应填写；普通recipe/compiler path不得再次提供该输入。
 5. 可选参数必须有明确的启用条件，成对参数必须同时出现或同时省略。
 6. 不要用一个含义模糊的 `data`、`context` 或任意 mapping 承载多个数学角色。
 7. 输入集合若有顺序语义必须使用有序类型；若无顺序语义，Method 应 canonicalize 后处理。
@@ -261,6 +268,12 @@ Method所需的runtime表示；物理runtime path只是执行地址，不能参�
    `context.read_path`。
 6. Strategy生产调用缺少read authority，或scope、type、version与authority不一致时
    必须fail loud；按参数名、`*_ref`后缀或runtime type猜测只允许独立debug adapter。
+
+`quadratic_template`是典型的code-owned隐藏输入。Method声明它为
+`functional_exposed=False`和`immutable_value`；family binding与recipe均不得写入。
+call preparation根据同一`QuadraticFunction`的exact latest-state authority，沿已验证
+version lineage选择唯一ordinal-0根并注入。compiler supplied path、零个根或多个根
+都属于configuration/authority错误，不能被执行层静默覆盖。
 
 具名实体不能通过 `StepResultRef`指定普通状态。即使某个 return 的 runtime 类型
 适合 `exact_result`，只要它已通过`output_targets`绑定到题面实体，后续就必须使用
@@ -785,10 +798,14 @@ StateVersion或CallResult。
   `projection_source_producer_arg`、return identity、literal symbol、
   `projection_entity_roles`和`projection_free_symbol_basis`都是并列证据通道，
   不存在“第一个命中即返回”的优先级。
+- 当同一selector同时声明`projection_source_arg`和
+  `projection_source_producer_arg`时，producer证据只能沿前者实际值的
+  `source_call_id`读取；当前call消费的其他producer不得进入该证据桶。
 - 对required或已被消费的input，每个非空通道必须恰好指向一个
   `FunctionalArgSourceIdentity`，所有通道必须一致；否则报
   `planner.method_input_view_authority_drift`。未被消费的optional input零候选或
-  多候选时表示“未选择”，不形成binding。
+  多候选、或通道互相冲突时表示“未选择”，不形成binding。这是等待F4.2R
+  删除selector的过渡行为，不代表typed authority验证成功。
 - `projection_entity_roles`确实会在当前scope及祖先中搜索角色与类型
   兼容的Entity；这是明确的过渡契约，不得跨sibling，零个或多个候选
   都不得猜测。

@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "planner-goal-retry-context.schema.json",
-  "title": "Planner Goal Retry Context v3",
+  "title": "Planner Goal Retry Context v4",
   "type": "object",
   "required": [
     "schema_version",
@@ -13,7 +13,7 @@
   ],
   "properties": {
     "schema_version": {
-      "const": "planner-goal-retry-context/v3"
+      "const": "planner-goal-retry-context/v4"
     },
     "base_plan_id": {
       "type": "string",
@@ -117,7 +117,8 @@
       "type": "object",
       "required": [
         "step_id",
-        "status"
+        "status",
+        "repair_permission"
       ],
       "properties": {
         "step_id": {
@@ -125,6 +126,24 @@
           "minLength": 1
         },
         "status": {
+          "enum": [
+            "valid",
+            "authority_invalid",
+            "ready",
+            "runtime_verified",
+            "runtime_failed",
+            "blocked_by_dependency",
+            "pruned_dead"
+          ]
+        },
+        "repair_permission": {
+          "enum": [
+            "editable",
+            "frozen",
+            "read_only"
+          ]
+        },
+        "repair_reason": {
           "type": "string",
           "minLength": 1
         },
@@ -158,6 +177,25 @@
           }
         }
       },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "repair_permission": {
+                "const": "editable"
+              }
+            },
+            "required": [
+              "repair_permission"
+            ]
+          },
+          "else": {
+            "required": [
+              "repair_reason"
+            ]
+          }
+        }
+      ],
       "additionalProperties": false
     },
     "goal": {
@@ -166,6 +204,7 @@
         "goal_ref",
         "status",
         "editable",
+        "repair_permission",
         "required_answer"
       ],
       "properties": {
@@ -183,6 +222,18 @@
         },
         "editable": {
           "type": "boolean"
+        },
+        "repair_permission": {
+          "enum": [
+            "editable",
+            "answer_only",
+            "frozen",
+            "read_only"
+          ]
+        },
+        "repair_reason": {
+          "type": "string",
+          "minLength": 1
         },
         "required_answer": {
           "type": "object",
@@ -236,6 +287,25 @@
           "additionalProperties": false
         }
       },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "repair_permission": {
+                "const": "editable"
+              }
+            },
+            "required": [
+              "repair_permission"
+            ]
+          },
+          "else": {
+            "required": [
+              "repair_reason"
+            ]
+          }
+        }
+      ],
       "additionalProperties": false
     },
     "path_minimum_prompt_witness": {
@@ -408,20 +478,71 @@
       "type": "object",
       "required": [
         "scope_ref",
-        "status"
+        "execution_status",
+        "repair_permission",
+        "step_status_summary"
       ],
       "properties": {
         "scope_ref": {
           "type": "string",
           "minLength": 1
         },
-        "status": {
+        "execution_status": {
           "enum": [
-            "frozen",
+            "context_only",
+            "fully_verified",
+            "authority_failed",
+            "runtime_failed",
+            "dependency_blocked",
+            "awaiting_execution"
+          ]
+        },
+        "repair_permission": {
+          "enum": [
             "editable",
-            "open",
+            "partially_editable",
+            "frozen",
+            "read_only",
             "context"
           ]
+        },
+        "repair_reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "step_status_summary": {
+          "type": "object",
+          "properties": {
+            "valid": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "authority_invalid": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "ready": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "runtime_verified": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "runtime_failed": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "blocked_by_dependency": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "pruned_dead": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "additionalProperties": false
         },
         "editable_step_ids": {
           "type": "array",
@@ -466,26 +587,99 @@
           }
         }
       },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "repair_permission": {
+                "enum": [
+                  "editable",
+                  "partially_editable"
+                ]
+              }
+            },
+            "required": [
+              "repair_permission"
+            ]
+          },
+          "else": {
+            "required": [
+              "repair_reason"
+            ]
+          }
+        }
+      ],
       "additionalProperties": false
     },
     "scope_1": {
       "type": "object",
       "required": [
         "scope_ref",
-        "status"
+        "execution_status",
+        "repair_permission",
+        "step_status_summary"
       ],
       "properties": {
         "scope_ref": {
           "type": "string",
           "minLength": 1
         },
-        "status": {
+        "execution_status": {
           "enum": [
-            "frozen",
+            "context_only",
+            "fully_verified",
+            "authority_failed",
+            "runtime_failed",
+            "dependency_blocked",
+            "awaiting_execution"
+          ]
+        },
+        "repair_permission": {
+          "enum": [
             "editable",
-            "open",
+            "partially_editable",
+            "frozen",
+            "read_only",
             "context"
           ]
+        },
+        "repair_reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "step_status_summary": {
+          "type": "object",
+          "properties": {
+            "valid": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "authority_invalid": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "ready": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "runtime_verified": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "runtime_failed": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "blocked_by_dependency": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "pruned_dead": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "additionalProperties": false
         },
         "editable_step_ids": {
           "type": "array",
@@ -530,26 +724,99 @@
           }
         }
       },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "repair_permission": {
+                "enum": [
+                  "editable",
+                  "partially_editable"
+                ]
+              }
+            },
+            "required": [
+              "repair_permission"
+            ]
+          },
+          "else": {
+            "required": [
+              "repair_reason"
+            ]
+          }
+        }
+      ],
       "additionalProperties": false
     },
     "scope_2": {
       "type": "object",
       "required": [
         "scope_ref",
-        "status"
+        "execution_status",
+        "repair_permission",
+        "step_status_summary"
       ],
       "properties": {
         "scope_ref": {
           "type": "string",
           "minLength": 1
         },
-        "status": {
+        "execution_status": {
           "enum": [
-            "frozen",
+            "context_only",
+            "fully_verified",
+            "authority_failed",
+            "runtime_failed",
+            "dependency_blocked",
+            "awaiting_execution"
+          ]
+        },
+        "repair_permission": {
+          "enum": [
             "editable",
-            "open",
+            "partially_editable",
+            "frozen",
+            "read_only",
             "context"
           ]
+        },
+        "repair_reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "step_status_summary": {
+          "type": "object",
+          "properties": {
+            "valid": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "authority_invalid": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "ready": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "runtime_verified": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "runtime_failed": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "blocked_by_dependency": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "pruned_dead": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "additionalProperties": false
         },
         "editable_step_ids": {
           "type": "array",
@@ -594,26 +861,99 @@
           }
         }
       },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "repair_permission": {
+                "enum": [
+                  "editable",
+                  "partially_editable"
+                ]
+              }
+            },
+            "required": [
+              "repair_permission"
+            ]
+          },
+          "else": {
+            "required": [
+              "repair_reason"
+            ]
+          }
+        }
+      ],
       "additionalProperties": false
     },
     "scope_3": {
       "type": "object",
       "required": [
         "scope_ref",
-        "status"
+        "execution_status",
+        "repair_permission",
+        "step_status_summary"
       ],
       "properties": {
         "scope_ref": {
           "type": "string",
           "minLength": 1
         },
-        "status": {
+        "execution_status": {
           "enum": [
-            "frozen",
+            "context_only",
+            "fully_verified",
+            "authority_failed",
+            "runtime_failed",
+            "dependency_blocked",
+            "awaiting_execution"
+          ]
+        },
+        "repair_permission": {
+          "enum": [
             "editable",
-            "open",
+            "partially_editable",
+            "frozen",
+            "read_only",
             "context"
           ]
+        },
+        "repair_reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "step_status_summary": {
+          "type": "object",
+          "properties": {
+            "valid": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "authority_invalid": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "ready": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "runtime_verified": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "runtime_failed": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "blocked_by_dependency": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "pruned_dead": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "additionalProperties": false
         },
         "editable_step_ids": {
           "type": "array",
@@ -652,6 +992,28 @@
           }
         }
       },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "repair_permission": {
+                "enum": [
+                  "editable",
+                  "partially_editable"
+                ]
+              }
+            },
+            "required": [
+              "repair_permission"
+            ]
+          },
+          "else": {
+            "required": [
+              "repair_reason"
+            ]
+          }
+        }
+      ],
       "additionalProperties": false
     }
   },

@@ -212,6 +212,27 @@ def test_nested_scopes_are_serialized_once(tmp_path) -> None:
     assert len(_prompt_goals(payload)) == GOAL_COUNTS[context.problem_id]
 
 
+def test_prompt_items_publish_explicit_lexical_owner_scope(tmp_path) -> None:
+    _, context = _planning_fixture(
+        tmp_path,
+        "tj-2026-heping-yimo-25",
+    )
+    scopes = _prompt_scopes(context.to_prompt_payload())
+
+    for scope in scopes:
+        for collection in ("entities", "facts"):
+            for item in scope.get(collection, []):
+                assert item["owner_scope"] == scope["id"]
+
+    scope_i = next(scope for scope in scopes if scope["id"] == "i")
+    point_on_curve_d = next(
+        fact
+        for fact in scope_i["facts"]
+        if fact.get("point") == "D" and fact.get("curve") == "parabola"
+    )
+    assert point_on_curve_d["owner_scope"] == "i"
+
+
 @pytest.mark.parametrize("case", CASES)
 def test_prompt_view_embeds_refs_once_and_omits_empty_collections(
     tmp_path,

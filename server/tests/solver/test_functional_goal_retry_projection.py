@@ -19,7 +19,9 @@ from shuxueshuo_server.solver.runtime.functional_goal_retry import (
     FunctionalGoalRetryError,
     FunctionalGoalRetryProjector,
     _iter_execution_scopes,
+    _relation_scope_repair_authority,
     _retry_scope_prompt,
+    _scope_lca,
     _scope_authority,
     _scope_step_authority,
 )
@@ -134,6 +136,51 @@ def test_mixed_scope_projects_editable_and_frozen_step_ids(tmp_path) -> None:
     )
     assert prompt_scope["editable_step_ids"] == [editable_step.step_id]
     assert prompt_scope["frozen_step_ids"] == [frozen_step.step_id]
+    assert prompt_scope["repair_permission"] == "partially_editable"
+    assert "status" not in prompt_scope
+    assert prompt_scope["execution_status"] in {
+        "fully_verified",
+        "authority_failed",
+        "runtime_failed",
+        "dependency_blocked",
+        "awaiting_execution",
+    }
+    assert set(prompt_scope["step_status_summary"]) == {
+        "valid",
+        "authority_invalid",
+        "ready",
+        "runtime_verified",
+        "runtime_failed",
+        "blocked_by_dependency",
+        "pruned_dead",
+    }
+    projected_steps = {
+        item["step_id"]: item for item in prompt_scope["scope_steps"]
+    }
+    assert projected_steps[editable_step.step_id]["repair_permission"] == (
+        "editable"
+    )
+    assert projected_steps[frozen_step.step_id]["repair_permission"] == (
+        "frozen"
+    )
+    assert projected_steps[frozen_step.step_id]["repair_reason"] == (
+        "retained_by_solved_goal_closure"
+    )
+    pending_scopes = [prompt_scope]
+    projected_goals = {}
+    while pending_scopes:
+        projected_scope = pending_scopes.pop()
+        projected_goals.update(
+            (item["goal_ref"], item)
+            for item in projected_scope.get("goals", ())
+        )
+        pending_scopes.extend(projected_scope.get("children", ()))
+    assert projected_goals
+    assert all("repair_permission" in item for item in projected_goals.values())
+    assert all(
+        item["repair_permission"] == "editable" or "repair_reason" in item
+        for item in projected_goals.values()
+    )
 
 
 def test_goal_closure_keeps_implicit_materialized_state_dependencies(
@@ -567,6 +614,136 @@ def test_failed_scope_opens_its_answer_goal_not_blocked_consumers(tmp_path) -> N
         goal_ids["i_1.parabola"],
         goal_ids["i_2.E"],
     }
+
+
+def test_descendant_relation_owner_opens_empty_scope_and_affected_blocked_goal(
+    tmp_path,
+) -> None:
+    case = "tj-2026-heping-yimo-25"
+    authority_fixture = planning_binding_fixture(tmp_path / case, case=case)
+    payload = deepcopy(load_v2_fixture_payload(case))
+    root = payload["root_scope"]
+    scope_i = next(
+        item for item in root["children"] if item["scope_ref"] == "i"
+    )
+    misplaced = scope_i.pop("steps")[0]
+    root["steps"].append(misplaced)
+    plan, validation = ScopedFunctionalPlanValidator().validate_payload_with_report(
+        payload
+    )
+    assert validation.ok and plan is not None
+
+    execution = ScopedFunctionalGoalExecutionService().execute_raw_json(
+        json.dumps(payload, ensure_ascii=False),
+        inputs=authority_fixture[3],
+        planning_context=authority_fixture[1],
+        problem_binding_catalog=authority_fixture[7],
+        handle_registry=authority_fixture[5],
+        context=ContextBuilder().build(authority_fixture[2]),
+        planner_state_context=authority_fixture[6],
+        problem_payload=authority_fixture[4],
+    )
+    checkpoint = execution.checkpoint
+    assert checkpoint is not None
+    diagnostic = next(
+        item
+        for item in checkpoint.diagnostic_authorities
+        if item["code"] == "functional.method_relation_not_visible"
+    )
+    assert diagnostic["authority_details"]["relation_owner_scope"] == "i"
+    assert diagnostic["expected"]["expected_relation_owner_scope"] == "i"
+
+    authority = FunctionalGoalRetryProjector().project(
+        plan=plan,
+        execution=execution,
+        planning_context=authority_fixture[1],
+        binding_catalog=authority_fixture[7],
+    )
+
+    assert {"problem", "i"}.issubset(authority.editable_scope_refs)
+    assert authority.editable_scope_step_ids["i"] == ()
+    assert authority.goal_authorities["i_2.E"].status == "blocked"
+    assert authority.goal_authorities["i_2.E"].editable is True
+    prompt_goal = _prompt_goal(authority.retry_context.root_scope, "i_2.E")
+    assert prompt_goal is not None
+    assert prompt_goal["repair_permission"] == "editable"
+
+
+def test_multi_owner_relation_diagnostic_fails_before_other_cones_open(
+    tmp_path,
+) -> None:
+    case = "tj-2026-heping-yimo-25"
+    fixture = planning_binding_fixture(tmp_path / case, case=case)
+    payload = deepcopy(load_v2_fixture_payload(case))
+    root = payload["root_scope"]
+    scope_i = next(
+        item for item in root["children"] if item["scope_ref"] == "i"
+    )
+    root["steps"].append(scope_i.pop("steps")[0])
+    plan, validation = ScopedFunctionalPlanValidator().validate_payload_with_report(
+        payload
+    )
+    assert validation.ok and plan is not None
+    execution = ScopedFunctionalGoalExecutionService().execute_raw_json(
+        json.dumps(payload, ensure_ascii=False),
+        inputs=fixture[3],
+        planning_context=fixture[1],
+        problem_binding_catalog=fixture[7],
+        handle_registry=fixture[5],
+        context=ContextBuilder().build(fixture[2]),
+        planner_state_context=fixture[6],
+        problem_payload=fixture[4],
+    )
+    assert execution.checkpoint is not None
+    base_authority = FunctionalGoalRetryProjector().project(
+        plan=plan,
+        execution=execution,
+        planning_context=fixture[1],
+        binding_catalog=fixture[7],
+    )
+    diagnostics = [
+        deepcopy(dict(item))
+        for item in execution.checkpoint.diagnostic_authorities
+    ]
+    relation = next(
+        item
+        for item in diagnostics
+        if item["code"] == "functional.method_relation_not_visible"
+    )
+    details = dict(relation["authority_details"])
+    details.pop("relation_owner_scope", None)
+    details["relation_owner_scopes"] = ["i", "ii"]
+    relation["authority_details"] = details
+    checkpoint = replace(
+        execution.checkpoint,
+        diagnostic_authorities=tuple(diagnostics),
+    )
+
+    with pytest.raises(FunctionalGoalRetryError) as captured:
+        _relation_scope_repair_authority(
+            plan,
+            checkpoint=checkpoint,
+            goal_authorities=base_authority.goal_authorities,
+        )
+
+    assert captured.value.code == "functional.goal_retry_authority_drift"
+    assert captured.value.retryable is False
+    assert captured.value.details["reason"] == (
+        "relation_owner_scope_not_unique"
+    )
+    assert captured.value.details["relation_owner_scopes"] == ["i", "ii"]
+
+
+def test_scope_lca_rejects_disconnected_authority_trees() -> None:
+    with pytest.raises(FunctionalGoalRetryError) as captured:
+        _scope_lca(
+            "left",
+            "right",
+            {"left": None, "right": None},
+        )
+
+    assert captured.value.code == "functional.goal_retry_authority_drift"
+    assert captured.value.path == "$.scope_tree"
 
 
 def test_dead_failed_scope_branch_does_not_reopen_a_solved_goal_scope(

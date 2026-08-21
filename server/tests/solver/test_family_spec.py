@@ -615,6 +615,38 @@ def test_single_method_recipes_have_runtime_binding_rules_for_real_families() ->
         assert not missing, (inputs.family_spec.family_id, sorted(missing))
 
 
+def test_polynomial_templates_are_hidden_from_family_compiler_bindings() -> None:
+    """Only MethodInputReadAuthority may inject coefficient identity."""
+
+    for fixture in (
+        NANKAI_FIXTURE,
+        HEXI_FIXTURE,
+        HEPING_FIXTURE,
+        HEPING_ERMO_FIXTURE,
+    ):
+        inputs = build_strategy_probe_inputs(load_problem_ir(fixture))
+        for rule in inputs.family_spec.method_binding_rules:
+            method = inputs.method_specs.require(rule.method_id)
+            closure = method.symbolic_closure
+            if (
+                closure is None
+                or closure.representation_mapper
+                != "polynomial_coefficient_template"
+            ):
+                continue
+            bindings = {
+                item.input_name: item.selector
+                for item in rule.input_bindings
+            }
+            assert "quadratic_template" not in bindings, (
+                inputs.family_spec.family_id,
+                rule.method_id,
+            )
+            template = method.inputs["quadratic_template"]
+            assert template.required is False
+            assert template.functional_exposed is False
+
+
 def test_functional_catalog_hides_catalog_only_contracts() -> None:
     problem = load_problem_ir(NANKAI_FIXTURE)
     inputs = build_strategy_probe_inputs(problem)

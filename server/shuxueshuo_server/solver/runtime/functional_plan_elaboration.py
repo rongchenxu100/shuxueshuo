@@ -1125,11 +1125,16 @@ class FunctionalSemanticIndex:
         handle_registry: CanonicalHandleRegistry,
         entity_payloads: Mapping[str, Mapping[str, Any]] | None = None,
         fact_payloads: Mapping[str, Mapping[str, Any]] | None = None,
+        relation_authority_views: Sequence[FunctionalSemanticView],
         allowed_ref_keys_by_call: Mapping[
             str, frozenset[tuple[str, str, str]]
         ] | None = None,
     ) -> None:
         self.views = tuple(views)
+        # Call-local views remain the only readable inputs.  The unfiltered
+        # relation authority is retained solely to explain when an exact Fact
+        # exists in a descendant scope; it is never materialized as a read.
+        self.relation_authority_views = tuple(relation_authority_views)
         self.handle_registry = handle_registry
         self.entity_payloads = dict(entity_payloads or {})
         self.fact_payloads = dict(fact_payloads or {})
@@ -1295,6 +1300,9 @@ class FunctionalSemanticIndex:
             handle_registry=handle_registry,
             entity_payloads=index.entity_payloads,
             fact_payloads=index.fact_payloads,
+            relation_authority_views=_unique_views(
+                (*index.relation_authority_views, *derived_condition_views)
+            ),
         )
 
     @classmethod
@@ -1623,6 +1631,7 @@ class FunctionalSemanticIndex:
             handle_registry=handle_registry,
             entity_payloads=entity_payloads,
             fact_payloads=fact_payloads,
+            relation_authority_views=_unique_views(views),
             allowed_ref_keys_by_call=allowed_ref_keys_by_call,
         )
 
@@ -1637,6 +1646,7 @@ class FunctionalSemanticIndex:
             handle_registry=self.handle_registry,
             entity_payloads=self.entity_payloads,
             fact_payloads=self.fact_payloads,
+            relation_authority_views=self.relation_authority_views,
             allowed_ref_keys_by_call=allowed_ref_keys_by_call,
         )
 
@@ -1657,6 +1667,7 @@ class FunctionalSemanticIndex:
             handle_registry=self.handle_registry,
             entity_payloads=self.entity_payloads,
             fact_payloads=self.fact_payloads,
+            relation_authority_views=self.relation_authority_views,
         )
 
     def materialize_function_state(

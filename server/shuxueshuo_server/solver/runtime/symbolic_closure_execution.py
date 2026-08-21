@@ -51,7 +51,13 @@ class SymbolicClosureConfigurationError(ValueError):
 
 
 class SymbolicClosureRuntimeDriftError(ValueError):
-    def __init__(self, detail: str) -> None:
+    def __init__(
+        self,
+        detail: str,
+        *,
+        details: Mapping[str, Any] | None = None,
+    ) -> None:
+        self.details = dict(details or {})
         super().__init__(
             "planner_configuration_error: "
             f"planner.contract_runtime_symbol_drift: {detail}"
@@ -1579,9 +1585,27 @@ def _validate_quadratic_closure_outputs(
         parabola_value = sp.expand(sp.sympify(parabola.value))
         template_expression = args.get("quadratic_template")
         if template_expression is None:
-            # The pre-closure quadratic is itself the canonical coefficient
-            # identity template when callers omit the optional duplicate.
-            template_expression = args.get("quadratic")
+            observed_state = args.get("quadratic")
+            raise SymbolicClosureRuntimeDriftError(
+                "quadratic_template is missing from closure validation",
+                details={
+                    "expected_template": "ordinal_0_polynomial_template",
+                    "observed_state": (
+                        sp.sstr(observed_state)
+                        if observed_state is not None
+                        else "unavailable"
+                    ),
+                    "subjects": [
+                        {
+                            "role": "coefficient_identity_template",
+                            "arg_name": "quadratic_template",
+                            "expected_type": "Expression",
+                            "expected_state": "ordinal_0",
+                            "observed_state": "missing",
+                        }
+                    ],
+                },
+            )
         target_coefficient = quadratic_coefficient_expression(
             parabola_value,
             independent_symbol=args["x"],

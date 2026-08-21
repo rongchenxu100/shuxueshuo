@@ -122,7 +122,7 @@ solver：完成 F5-F3 Goal 重试并落地 F5-F4.1 执行权威
 ## 3. Goal 局部重试与执行权威
 
 - 使用独立 repair prompt 和 `functional-goal-repair/v4` response contract 完成 Goal replacement retry。
-- execution checkpoint 已收敛为 `functional-goal-execution-checkpoint/v3`，retry projection 使用 `planner-goal-retry-context/v3`；v2 checkpoint稳定拒绝，不再作为生产恢复协议。
+- execution checkpoint 已收敛为 `functional-goal-execution-checkpoint/v3`，retry projection 使用 `planner-goal-retry-context/v4`；v4将执行状态与修复权限分离，并为每个不可编辑Goal、scope和step提供稳定原因。v2 checkpoint稳定拒绝，不再作为生产恢复协议。
 - solved Goal 和 frozen producer 通过 exact typed checkpoint 恢复；failed Goal 的 provisional write 在 replay 前全部丢弃。
 - 新增 mixed-scope repair authority。同一 scope 同时服务 solved 与 failed Goal 时，retry 明确区分 frozen step 和 editable step，代码确定性合并保留的 frozen producer。
 - 新增受限的 `answer_binding_replacements`。editable scope 可以修改 blocked Goal 的答案 producer，但不能修改该 Goal 的 local steps。

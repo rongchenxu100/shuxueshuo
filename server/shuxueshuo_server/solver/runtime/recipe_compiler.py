@@ -2597,20 +2597,12 @@ class _RecipePlanCompiler:
             "parabola": parabola_path,
             "x": self.index.path_for("symbol:problem:x", expected_type="Symbol"),
             "parameter": primary_symbol,
-            "quadratic_template": self.index.path_for(
-                "function:problem:parabola",
-                expected_type="Expression",
-            ),
         }
         parameter_invocation_inputs = {
             "quadratic": parameter_inputs.get("quadratic", parabola_path),
             "x": self.index.path_for("symbol:problem:x", expected_type="Symbol"),
             "point": selected_candidate,
             "parameter": primary_symbol,
-            "quadratic_template": self.index.path_for(
-                "function:problem:parabola",
-                expected_type="Expression",
-            ),
         }
         if primary_constraint is not None:
             filter_invocation_inputs["parameter_constraint"] = primary_constraint

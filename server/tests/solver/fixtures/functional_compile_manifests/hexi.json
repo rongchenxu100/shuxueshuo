@@ -17,6 +17,7 @@
                 "all_coefficients",
                 "known_coefficients",
                 "quadratic",
+                "quadratic_template",
                 "x"
               ],
               "outputs": {
@@ -221,6 +222,7 @@
                 "parameter",
                 "parameter_value",
                 "quadratic",
+                "quadratic_template",
                 "x"
               ],
               "outputs": {
@@ -614,7 +616,7 @@
           "allocation_action": "create",
           "result_form": "closed_state",
           "object_id": "point:ii:D",
-          "source_version_count": 3,
+          "source_version_count": 2,
           "closure_signature": null
         }
       ]
@@ -638,6 +640,7 @@
                 "parameter",
                 "parameter_value",
                 "quadratic",
+                "quadratic_template",
                 "x"
               ],
               "outputs": {

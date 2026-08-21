@@ -1704,6 +1704,7 @@ def test_curve_candidate_constraint_resolver_preserves_true_ambiguity() -> None:
             ),
         ),
         handle_registry=registry,
+        relation_authority_views=(),
     )
 
     additions, repairs = (
@@ -4185,6 +4186,7 @@ def test_function_template_materialization_uses_independent_free_basis() -> None
             for handle, payload in semantic_index.fact_payloads.items()
             if handle == "fact:i:c_value"
         },
+        relation_authority_views=semantic_index.relation_authority_views,
     ).materialize_function_state(
         ref,
         scope_id="i_1",
@@ -13685,6 +13687,7 @@ def test_closed_state_requirement_does_not_accept_open_context_state() -> None:
         handle_registry=registry,
         entity_payloads=semantic_index.entity_payloads,
         fact_payloads=semantic_index.fact_payloads,
+        relation_authority_views=semantic_index.relation_authority_views,
     )
 
     assert functional_reconciliation_module._context_has_materialized_object_state(
@@ -13733,6 +13736,7 @@ def test_hidden_symbolic_state_does_not_require_planned_closed_producer() -> Non
         handle_registry=registry,
         entity_payloads=base_index.entity_payloads,
         fact_payloads=base_index.fact_payloads,
+        relation_authority_views=base_index.relation_authority_views,
     )
     producer = FunctionalCall(
         call_id="derive_B_closed",
@@ -15057,6 +15061,7 @@ def test_call_result_reports_inactive_polymorphic_return_variant() -> None:
         semantic_index=FunctionalSemanticIndex(
             (),
             handle_registry=_registry(),
+            relation_authority_views=(),
         ),
         produced={
             ("evaluate_expression", "evaluated_parabola"): producer,

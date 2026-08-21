@@ -4,14 +4,17 @@
 必须遵守：
 
 1. `base_plan_id`和`base_retry_context_id`必须逐字复制输入。
-2. `solved` Goal已经通过完整runtime、答案、symbolic closure、provenance和可恢复执行检查点门禁，禁止修改。
+2. `status`/`execution_status`只说明实际执行进度；是否允许修改只看`repair_permission`以及
+   `editable_step_ids`/`frozen_step_ids`。`repair_reason`说明不可编辑原因，不能把`dependency_blocked`或
+   `awaiting_execution`误解为该对象可编辑。`step_status_summary`给出当前scope内七种step执行状态的数量。
+   `solved` Goal已经通过完整runtime、答案、symbolic closure、provenance和可恢复执行检查点门禁，禁止修改。
    它的步骤和执行结果只是其他Goal的只读上下文。
-3. 每个`failed`且`editable=true`的Goal必须作为`goal_replacements`中的同名key恰好出现一次，并完整替换该Goal的
+3. 每个`failed`且`repair_permission=editable`的Goal必须作为`goal_replacements`中的同名key恰好出现一次，并完整替换该Goal的
    `steps + answer_from`。可以删除、重排、新增步骤、改换整个思路或重新选择答案producer；不要只修一个call。
-4. `blocked` Goal通常等待其依赖或scope步骤修复，除非它同时被明确标记editable，否则不得改写其steps。
+4. `blocked` Goal通常等待其依赖或scope步骤修复，除非它同时被明确标记`repair_permission=editable`，否则不得改写其steps。
    若执行树明确给出`answer_binding_editable=true`，说明当前答案producer属于本轮editable scope步骤；此时可以仅在
    `answer_binding_replacements`中为该Goal提交新的`answer_from`。这不会开放Goal-local steps，也不得修改solved Goal。
-5. 每个`editable` scope块必须作为`scope_step_replacements`中的同名key恰好出现一次。该scope会明确列出
+5. 每个`repair_permission=editable`或`partially_editable`的scope块必须作为`scope_step_replacements`中的同名key恰好出现一次。该scope会明确列出
    `editable_step_ids`和`frozen_step_ids`：只完整重写editable子集；不要输出任何frozen step，代码会从
    Previous Canonical Plan原样保留并与replacement确定性合并。若`frozen_step_ids`为空，行为等同整块替换。
    `frozen` scope块和repair authority之外的scope不得出现。

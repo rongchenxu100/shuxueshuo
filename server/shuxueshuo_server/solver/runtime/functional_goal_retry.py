@@ -80,10 +80,26 @@ from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
     scoped_functional_plan_schema,
 )
 FUNCTIONAL_GOAL_REPAIR_CONTRACT = "functional-goal-repair/v4"
-PLANNER_GOAL_RETRY_CONTEXT_CONTRACT = "planner-goal-retry-context/v3"
+PLANNER_GOAL_RETRY_CONTEXT_CONTRACT = "planner-goal-retry-context/v4"
 
 GoalRetryStatus = Literal["solved", "failed", "blocked", "pending"]
 ScopeRetryStatus = Literal["frozen", "editable", "open", "context"]
+ScopeExecutionStatus = Literal[
+    "context_only",
+    "fully_verified",
+    "authority_failed",
+    "runtime_failed",
+    "dependency_blocked",
+    "awaiting_execution",
+]
+RepairPermission = Literal[
+    "editable",
+    "partially_editable",
+    "answer_only",
+    "frozen",
+    "read_only",
+    "context",
+]
 
 
 class FunctionalGoalRetryError(ValueError):
@@ -465,10 +481,24 @@ def planner_goal_retry_context_schema() -> dict[str, Any]:
     nonempty = {"type": "string", "minLength": 1}
     execution_step = {
         "type": "object",
-        "required": ["step_id", "status"],
+        "required": ["step_id", "status", "repair_permission"],
         "properties": {
             "step_id": nonempty,
-            "status": nonempty,
+            "status": {
+                "enum": [
+                    "valid",
+                    "authority_invalid",
+                    "ready",
+                    "runtime_verified",
+                    "runtime_failed",
+                    "blocked_by_dependency",
+                    "pruned_dead",
+                ]
+            },
+            "repair_permission": {
+                "enum": ["editable", "frozen", "read_only"]
+            },
+            "repair_reason": nonempty,
             "resolved_inputs": {"type": "array", "items": {"type": "object"}},
             "actual_outputs": {"type": "array", "items": {"type": "object"}},
             "evidence": {
@@ -479,6 +509,17 @@ def planner_goal_retry_context_schema() -> dict[str, Any]:
             "typed_issue": {"type": "object"},
             "blocked_by": {"type": "array", "items": nonempty},
         },
+        "allOf": [
+            {
+                "if": {
+                    "properties": {
+                        "repair_permission": {"const": "editable"}
+                    },
+                    "required": ["repair_permission"],
+                },
+                "else": {"required": ["repair_reason"]},
+            }
+        ],
         "additionalProperties": False,
     }
     goal = {
@@ -487,12 +528,17 @@ def planner_goal_retry_context_schema() -> dict[str, Any]:
             "goal_ref",
             "status",
             "editable",
+            "repair_permission",
             "required_answer",
         ],
         "properties": {
             "goal_ref": nonempty,
             "status": {"enum": ["solved", "failed", "blocked", "pending"]},
             "editable": {"type": "boolean"},
+            "repair_permission": {
+                "enum": ["editable", "answer_only", "frozen", "read_only"]
+            },
+            "repair_reason": nonempty,
             "required_answer": {
                 "type": "object",
                 "required": [
@@ -518,13 +564,59 @@ def planner_goal_retry_context_schema() -> dict[str, Any]:
                 "additionalProperties": False,
             },
         },
+        "allOf": [
+            {
+                "if": {
+                    "properties": {
+                        "repair_permission": {"const": "editable"}
+                    },
+                    "required": ["repair_permission"],
+                },
+                "else": {"required": ["repair_reason"]},
+            }
+        ],
         "additionalProperties": False,
     }
     scope_defs: dict[str, Any] = {}
     for level in range(4):
         properties: dict[str, Any] = {
             "scope_ref": nonempty,
-            "status": {"enum": ["frozen", "editable", "open", "context"]},
+            "execution_status": {
+                "enum": [
+                    "context_only",
+                    "fully_verified",
+                    "authority_failed",
+                    "runtime_failed",
+                    "dependency_blocked",
+                    "awaiting_execution",
+                ]
+            },
+            "repair_permission": {
+                "enum": [
+                    "editable",
+                    "partially_editable",
+                    "frozen",
+                    "read_only",
+                    "context",
+                ]
+            },
+            "repair_reason": nonempty,
+            "step_status_summary": {
+                "type": "object",
+                "properties": {
+                    status: {"type": "integer", "minimum": 0}
+                    for status in (
+                        "valid",
+                        "authority_invalid",
+                        "ready",
+                        "runtime_verified",
+                        "runtime_failed",
+                        "blocked_by_dependency",
+                        "pruned_dead",
+                    )
+                },
+                "additionalProperties": False,
+            },
             "editable_step_ids": {
                 "type": "array",
                 "items": nonempty,
@@ -556,14 +648,32 @@ def planner_goal_retry_context_schema() -> dict[str, Any]:
             }
         scope_defs[f"scope_{level}"] = {
             "type": "object",
-            "required": ["scope_ref", "status"],
+            "required": [
+                "scope_ref",
+                "execution_status",
+                "repair_permission",
+                "step_status_summary",
+            ],
             "properties": properties,
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "repair_permission": {
+                                "enum": ["editable", "partially_editable"]
+                            }
+                        },
+                        "required": ["repair_permission"],
+                    },
+                    "else": {"required": ["repair_reason"]},
+                }
+            ],
             "additionalProperties": False,
         }
     return {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "$id": "planner-goal-retry-context.schema.json",
-        "title": "Planner Goal Retry Context v3",
+        "title": "Planner Goal Retry Context v4",
         "type": "object",
         "required": [
             "schema_version",
@@ -1010,6 +1120,7 @@ class ScopedFunctionalGoalRetryAttempt:
     raw_response: str
     plan: ScopedFunctionalPlan | None
     execution: ScopedFunctionalGoalExecutionResult | None
+    merged_plan: ScopedFunctionalPlan | None = None
     retry_authority: FunctionalGoalRetryAuthority | None = None
     result_retry_authority: FunctionalGoalRetryAuthority | None = None
     repair: FunctionalGoalRepair | None = None
@@ -1238,6 +1349,7 @@ class ScopedFunctionalGoalRetryService:
                     raw_response=raw_response,
                     plan=current_plan,
                     execution=execution,
+                    merged_plan=next_plan,
                     retry_authority=retry_authority,
                     repair=repair,
                     plan_content=plan_content,
@@ -1347,6 +1459,7 @@ class ScopedFunctionalGoalRetryService:
                         raw_response=raw_response,
                         plan=current_plan,
                         execution=attempt_execution,
+                        merged_plan=next_plan,
                         retry_authority=retry_authority,
                         repair=repair,
                         error=exc,
@@ -1402,6 +1515,7 @@ class ScopedFunctionalGoalRetryService:
                         raw_response=raw_response,
                         plan=next_plan or current_plan,
                         execution=attempt_execution,
+                        merged_plan=next_plan,
                         retry_authority=retry_authority,
                         repair=repair,
                         error=wrapped,
@@ -1446,6 +1560,7 @@ class ScopedFunctionalGoalRetryService:
                         raw_response=raw_response,
                         plan=next_plan or current_plan,
                         execution=attempt_execution,
+                        merged_plan=next_plan,
                         retry_authority=retry_authority,
                         repair=repair,
                         error=wrapped,
@@ -1475,6 +1590,45 @@ class ScopedFunctionalGoalRetryService:
                         raw_response=raw_response,
                         plan=next_plan or current_plan,
                         execution=attempt_execution,
+                        merged_plan=next_plan,
+                        retry_authority=retry_authority,
+                        repair=repair,
+                        error=wrapped,
+                        plan_content=plan_content,
+                        content_normalizations=content_normalizations,
+                        content_validation_report=content_validation_report,
+                        final_plan_contract_validation=(
+                            final_plan_contract_validation
+                        ),
+                    )
+                )
+                break
+            except Exception as exc:
+                message = f"{type(exc).__name__}: {exc}"
+                wrapped = FunctionalGoalRetryError(
+                    (
+                        "planner.transactional_configuration_error"
+                        if "planner_configuration_error" in str(exc)
+                        else "planner.unclassified_implementation_error"
+                    ),
+                    "$.execution",
+                    message,
+                    retryable=False,
+                    details={
+                        "exception_type": type(exc).__name__,
+                        "original_message": str(exc),
+                    },
+                )
+                attempts.append(
+                    ScopedFunctionalGoalRetryAttempt(
+                        semantic_attempt=semantic_attempt,
+                        planner_protocol=protocol,
+                        payload=payload,
+                        prompt=prompt,
+                        raw_response=raw_response,
+                        plan=next_plan or current_plan,
+                        execution=attempt_execution,
+                        merged_plan=next_plan,
                         retry_authority=retry_authority,
                         repair=repair,
                         error=wrapped,
@@ -2016,6 +2170,18 @@ class FunctionalGoalRetryProjector:
             binding_catalog=binding_catalog,
         )
 
+        (
+            relation_scope_refs,
+            relation_blocked_goal_refs,
+        ) = _relation_scope_repair_authority(
+            plan,
+            checkpoint=checkpoint,
+            goal_authorities=goal_authorities,
+        )
+        for goal_ref in relation_blocked_goal_refs:
+            current = goal_authorities[goal_ref]
+            goal_authorities[goal_ref] = replace(current, editable=True)
+
         step_promotions = _cross_scope_repair_promotions(
             plan,
             checkpoint.root_scope,
@@ -2028,7 +2194,9 @@ class FunctionalGoalRetryProjector:
             goal_authorities=goal_authorities,
             checkpoint=checkpoint,
             root_issues=checkpoint_root_issues,
-            promoted_scope_refs=frozenset(step_promotions.values()),
+            promoted_scope_refs=frozenset(
+                (*step_promotions.values(), *relation_scope_refs)
+            ),
         )
         (
             editable_scope_step_ids,
@@ -3319,6 +3487,11 @@ def _scope_step_authority(
     for scope in _iter_scopes(plan.root_scope):
         owned = tuple(step.step_id for step in scope.steps)
         if not owned:
+            if scope.scope_ref in editable_scopes:
+                # An exact descendant relation may require the repair to add
+                # the first scope-local producer.  Preserve the empty tuple as
+                # explicit whole-block replacement authority.
+                editable[scope.scope_ref] = ()
             continue
         owned_set = set(owned)
         if scope.scope_ref in editable_scopes:
@@ -3441,6 +3614,141 @@ def _cross_scope_repair_promotions(
     return dict(sorted(destinations.items()))
 
 
+def _relation_scope_repair_authority(
+    plan: ScopedFunctionalPlan,
+    *,
+    checkpoint: FunctionalGoalExecutionCheckpoint,
+    goal_authorities: Mapping[str, FunctionalGoalRetryGoalAuthority],
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    """Open only the descendant scope that owns an exact missing relation.
+
+    The diagnostic authority is produced by the relation resolver from the
+    full scope tree.  This projector never infers an owner from Point names or
+    error text, and never crosses into a sibling scope.
+    """
+
+    scope_parents = {
+        scope.scope_ref: parent
+        for scope, parent in _scopes_with_parent(plan.root_scope)
+    }
+    step_scopes = {
+        step.step_id: scope.scope_ref
+        for scope in _iter_scopes(plan.root_scope)
+        for step in (
+            *scope.steps,
+            *(item for goal in scope.goals for item in goal.steps),
+        )
+    }
+    goal_scopes = {
+        goal.goal_ref: scope.scope_ref
+        for scope in _iter_scopes(plan.root_scope)
+        for goal in scope.goals
+    }
+    opened_scopes: set[str] = set()
+    opened_goals: set[str] = set()
+    known_scopes = frozenset(scope_parents)
+
+    for diagnostic_index, payload in enumerate(
+        checkpoint.diagnostic_authorities
+    ):
+        if (
+            payload.get("retryability") != "planner_repairable"
+            or payload.get("repair_action") != "place_step_in_relation_scope"
+        ):
+            continue
+        diagnostic_path = (
+            f"$.diagnostic_authorities[{diagnostic_index}]"
+        )
+
+        def authority_drift(
+            reason: str,
+            *,
+            owner_scopes: tuple[str, ...] = (),
+        ) -> None:
+            raise FunctionalGoalRetryError(
+                "functional.goal_retry_authority_drift",
+                diagnostic_path,
+                "relation repair diagnostic has no unique legal owner scope",
+                retryable=False,
+                details={
+                    "reason": reason,
+                    "diagnostic_code": payload.get("code"),
+                    "step_id": payload.get("step_id"),
+                    "relation_owner_scopes": list(owner_scopes),
+                },
+            )
+
+        details = payload.get("authority_details")
+        if not isinstance(details, Mapping):
+            authority_drift("authority_details_missing")
+        owner_values: list[str] = []
+        singular = details.get("relation_owner_scope")
+        if isinstance(singular, str):
+            owner_values.append(singular)
+        plural = details.get("relation_owner_scopes")
+        if isinstance(plural, (tuple, list)):
+            owner_values.extend(
+                item for item in plural if isinstance(item, str)
+            )
+        observed = details.get("observed_relation")
+        if isinstance(observed, Mapping):
+            nested = observed.get("relation_owner_scopes")
+            if isinstance(nested, (tuple, list)):
+                owner_values.extend(
+                    item for item in nested if isinstance(item, str)
+                )
+        owner_scopes = tuple(sorted(set(owner_values)))
+        if len(owner_scopes) != 1:
+            authority_drift(
+                "relation_owner_scope_not_unique",
+                owner_scopes=owner_scopes,
+            )
+        if owner_scopes[0] not in known_scopes:
+            authority_drift(
+                "relation_owner_scope_unknown",
+                owner_scopes=owner_scopes,
+            )
+
+        step_id = payload.get("step_id")
+        if not isinstance(step_id, str):
+            authority_drift(
+                "consumer_step_missing",
+                owner_scopes=owner_scopes,
+            )
+        authored_scope = step_scopes.get(step_id)
+        owner_scope = owner_scopes[0]
+        if authored_scope is None:
+            authority_drift(
+                "consumer_step_scope_unknown",
+                owner_scopes=owner_scopes,
+            )
+        if (
+            _scope_lca(authored_scope, owner_scope, scope_parents)
+            != authored_scope
+        ):
+            authority_drift(
+                "relation_owner_is_not_consumer_descendant",
+                owner_scopes=owner_scopes,
+            )
+        opened_scopes.add(owner_scope)
+        consumer_goal_ids = frozenset(
+            checkpoint.goal_unit_ids.get(step_id, ())
+        )
+        for goal_ref, authority in goal_authorities.items():
+            goal_scope = goal_scopes.get(goal_ref)
+            if (
+                authority.status != "blocked"
+                or authority.goal_unit_id not in consumer_goal_ids
+                or goal_scope is None
+                or _scope_lca(owner_scope, goal_scope, scope_parents)
+                != owner_scope
+            ):
+                continue
+            opened_goals.add(goal_ref)
+
+    return tuple(sorted(opened_scopes)), tuple(sorted(opened_goals))
+
+
 def _apply_step_promotions(
     plan: ScopedFunctionalPlan,
     promotions: Mapping[str, str],
@@ -3538,7 +3846,19 @@ def _scope_lca(
     while current is not None:
         right_ancestors.add(current)
         current = parents.get(current)
-    return next(item for item in left_path if item in right_ancestors)
+    common = next(
+        (item for item in left_path if item in right_ancestors),
+        None,
+    )
+    if common is None:
+        raise FunctionalGoalRetryError(
+            "functional.goal_retry_authority_drift",
+            "$.scope_tree",
+            "scope references do not belong to one connected authority tree",
+            retryable=False,
+            details={"left_scope": left, "right_scope": right},
+        )
+    return common
 
 
 def _wire_step_result_ids(value: Any) -> frozenset[str]:
@@ -3560,6 +3880,116 @@ def _wire_step_result_ids(value: Any) -> frozenset[str]:
     return frozenset()
 
 
+_STEP_EXECUTION_STATUSES = (
+    "valid",
+    "authority_invalid",
+    "ready",
+    "runtime_verified",
+    "runtime_failed",
+    "blocked_by_dependency",
+    "pruned_dead",
+)
+
+
+def _scope_step_status_summary(
+    scope: FunctionalGoalExecutionScope,
+) -> dict[str, int]:
+    steps = (
+        *scope.scope_steps,
+        *(step for goal in scope.goals for step in goal.steps),
+    )
+    return {
+        status: sum(step.status == status for step in steps)
+        for status in _STEP_EXECUTION_STATUSES
+    }
+
+
+def _scope_execution_status(
+    summary: Mapping[str, int],
+) -> ScopeExecutionStatus:
+    if not any(summary.values()):
+        return "context_only"
+    if summary["authority_invalid"]:
+        return "authority_failed"
+    if summary["runtime_failed"]:
+        return "runtime_failed"
+    if summary["blocked_by_dependency"]:
+        return "dependency_blocked"
+    if summary["ready"] or summary["valid"]:
+        return "awaiting_execution"
+    return "fully_verified"
+
+
+def _scope_repair_permission(
+    scope_ref: str,
+    *,
+    scope_status: ScopeRetryStatus,
+    execution_status: ScopeExecutionStatus,
+    editable_scope_step_ids: Mapping[str, tuple[str, ...]],
+    frozen_scope_step_ids: Mapping[str, tuple[str, ...]],
+) -> tuple[RepairPermission, str | None]:
+    if scope_ref in editable_scope_step_ids or scope_status == "editable":
+        if frozen_scope_step_ids.get(scope_ref):
+            return "partially_editable", None
+        return "editable", None
+    if scope_status == "frozen":
+        return "frozen", "solved_goal_closure"
+    if execution_status == "context_only":
+        return "context", "context_only"
+    reasons = {
+        "fully_verified": "outside_repair_cone",
+        "authority_failed": "failure_outside_current_repair_authority",
+        "runtime_failed": "failure_outside_current_repair_authority",
+        "dependency_blocked": "upstream_dependency_failed",
+        "awaiting_execution": "no_direct_failure",
+    }
+    return "read_only", reasons[execution_status]
+
+
+def _goal_repair_permission(
+    authority: FunctionalGoalRetryGoalAuthority,
+    *,
+    answer_binding_editable: bool,
+) -> tuple[RepairPermission, str | None]:
+    if authority.editable:
+        return "editable", None
+    if answer_binding_editable:
+        return "answer_only", "only_answer_binding_is_editable"
+    if authority.status == "solved":
+        return "frozen", "solved_goal_verified"
+    if authority.status == "blocked":
+        return "read_only", "upstream_dependency_failed"
+    if authority.status == "pending":
+        return "read_only", "no_direct_failure"
+    return "read_only", "outside_current_repair_authority"
+
+
+def _step_retry_prompt_payload(
+    step: FunctionalGoalExecutionStep,
+    *,
+    planning_context: ProblemPlanningContext,
+    repair_permission: Literal["editable", "frozen", "read_only"],
+    repair_reason: str | None = None,
+) -> dict[str, Any]:
+    payload = step.to_retry_prompt_payload(planning_context=planning_context)
+    payload["repair_permission"] = repair_permission
+    if repair_permission != "editable":
+        payload["repair_reason"] = repair_reason or _step_repair_reason(step)
+    return payload
+
+
+def _step_repair_reason(step: FunctionalGoalExecutionStep) -> str:
+    if step.status == "blocked_by_dependency":
+        return "upstream_dependency_failed"
+    if step.status == "runtime_verified":
+        return "runtime_verified_outside_repair_cone"
+    if step.status == "pruned_dead":
+        return "pruned_dead"
+    if step.status in {"authority_invalid", "runtime_failed"}:
+        return "failure_outside_current_repair_authority"
+    return "no_direct_failure"
+
+
 def _retry_scope_prompt(
     scope: FunctionalGoalExecutionScope,
     *,
@@ -3571,10 +4001,23 @@ def _retry_scope_prompt(
     frozen_scope_step_ids: Mapping[str, tuple[str, ...]],
     editable_answer_goal_refs: Sequence[str] = (),
 ) -> dict[str, Any]:
+    status_summary = _scope_step_status_summary(scope)
+    execution_status = _scope_execution_status(status_summary)
+    scope_permission, scope_reason = _scope_repair_permission(
+        scope.scope_ref,
+        scope_status=scope_statuses[scope.scope_ref],
+        execution_status=execution_status,
+        editable_scope_step_ids=editable_scope_step_ids,
+        frozen_scope_step_ids=frozen_scope_step_ids,
+    )
     payload: dict[str, Any] = {
         "scope_ref": scope.scope_ref,
-        "status": scope_statuses[scope.scope_ref],
+        "execution_status": execution_status,
+        "repair_permission": scope_permission,
+        "step_status_summary": status_summary,
     }
+    if scope_reason is not None:
+        payload["repair_reason"] = scope_reason
     if scope.scope_ref in editable_scope_step_ids:
         payload["editable_step_ids"] = list(
             editable_scope_step_ids[scope.scope_ref]
@@ -3591,32 +4034,75 @@ def _retry_scope_prompt(
     if promoted_step_ids:
         payload["promoted_step_ids"] = promoted_step_ids
     if scope.scope_steps:
-        payload["scope_steps"] = [
-            step.to_retry_prompt_payload(planning_context=planning_context)
-            for step in scope.scope_steps
-        ]
+        editable_ids = set(editable_scope_step_ids.get(scope.scope_ref, ()))
+        frozen_ids = set(frozen_scope_step_ids.get(scope.scope_ref, ()))
+        scope_steps: list[dict[str, Any]] = []
+        for step in scope.scope_steps:
+            if step.step_id in editable_ids:
+                permission = "editable"
+                reason = None
+            elif step.step_id in frozen_ids or scope_permission == "frozen":
+                permission = "frozen"
+                reason = "retained_by_solved_goal_closure"
+            else:
+                permission = "read_only"
+                reason = _step_repair_reason(step)
+            scope_steps.append(
+                _step_retry_prompt_payload(
+                    step,
+                    planning_context=planning_context,
+                    repair_permission=permission,
+                    repair_reason=reason,
+                )
+            )
+        payload["scope_steps"] = scope_steps
     if scope.goals:
         goals: list[dict[str, Any]] = []
         for goal in scope.goals:
             authority = goal_authorities[goal.goal_ref]
+            answer_binding_editable = (
+                goal.goal_ref in editable_answer_goal_refs
+            )
+            goal_permission, goal_reason = _goal_repair_permission(
+                authority,
+                answer_binding_editable=answer_binding_editable,
+            )
             item: dict[str, Any] = {
                 "goal_ref": goal.goal_ref,
                 "status": authority.status,
                 "editable": authority.editable,
+                "repair_permission": goal_permission,
                 "required_answer": {
                     "target_ref": authority.answer_target_ref,
                     "answer_type": authority.answer_type,
                 },
             }
-            if goal.goal_ref in editable_answer_goal_refs:
+            if goal_reason is not None:
+                item["repair_reason"] = goal_reason
+            if answer_binding_editable:
                 item["answer_binding_editable"] = True
                 item["current_answer_from"] = {
                     "step_id": authority.answer_producer_step_id,
                     "return": authority.answer_return_name,
                 }
             if goal.steps:
+                step_permission: Literal["editable", "frozen", "read_only"]
+                if goal_permission == "editable":
+                    step_permission = "editable"
+                    step_reason = None
+                elif goal_permission == "frozen":
+                    step_permission = "frozen"
+                    step_reason = "solved_goal_verified"
+                else:
+                    step_permission = "read_only"
+                    step_reason = goal_reason
                 item["steps"] = [
-                    step.to_retry_prompt_payload(planning_context=planning_context)
+                    _step_retry_prompt_payload(
+                        step,
+                        planning_context=planning_context,
+                        repair_permission=step_permission,
+                        repair_reason=step_reason,
+                    )
                     for step in goal.steps
                 ]
             issues = [dict(issue) for issue in authority.issues]

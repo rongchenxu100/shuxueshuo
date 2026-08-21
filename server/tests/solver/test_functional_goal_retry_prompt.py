@@ -169,7 +169,7 @@ def test_retry_v3_projects_verified_path_witness_without_internal_identity(
         if item["step_id"] == "reduce_equal_length_ray_path_ii"
     )
 
-    assert payload["schema_version"] == "planner-goal-retry-context/v3"
+    assert payload["schema_version"] == "planner-goal-retry-context/v4"
     assert len(step_payload["evidence"]) == 1
     witness = step_payload["evidence"][0]
     assert witness["schema_version"] == "path-minimum-prompt-witness/v1"

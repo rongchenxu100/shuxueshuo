@@ -41,11 +41,6 @@ def quadratic_from_constraints_rule() -> MethodBindingRuleSpec:
         method_id="quadratic_from_constraints",
         input_bindings=(
             MethodInputBindingSpec("quadratic", "function:parabola"),
-            MethodInputBindingSpec(
-                "quadratic_template",
-                "quadratic_template",
-                required=False,
-            ),
             MethodInputBindingSpec("x", "symbol:x"),
             MethodInputBindingSpec("all_coefficients", "quadratic_coefficients"),
         ),
@@ -237,7 +232,6 @@ def parameter_from_curve_point_on_quadratic_rule() -> MethodBindingRuleSpec:
             MethodInputBindingSpec("x", "symbol:x"),
             MethodInputBindingSpec("point", "read_type:Point"),
             MethodInputBindingSpec("parameter", "parameter_symbol_from_reads"),
-            MethodInputBindingSpec("quadratic_template", "quadratic_template"),
             MethodInputBindingSpec(
                 "parameter_constraint",
                 "parameter_constraint",

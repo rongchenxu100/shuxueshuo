@@ -186,6 +186,14 @@ def test_direct_compiler_does_not_import_step_intent_bridge() -> None:
     assert "compile_exact_step" not in source
 
 
+def test_curve_candidate_recipe_does_not_supply_code_owned_template() -> None:
+    source = inspect.getsource(
+        recipe_compiler._RecipePlanCompiler._compile_curve_candidate_parameter_recipe
+    )
+
+    assert '"quadratic_template"' not in source
+
+
 def test_functional_capability_compiler_has_public_runtime_export() -> None:
     assert PublicFunctionalCapabilityCompiler is FunctionalCapabilityCompiler
 

@@ -169,7 +169,15 @@ SPEC = MethodSpecSource(
         },
         "known_parameter": {"type": "Symbol", "required": False},
         "known_parameter_value": {"type": "ParameterValue", "required": False},
-        "quadratic_template": {"type": "Expression", "required": False},
+        "quadratic_template": {
+            "type": "Expression",
+            "required": False,
+            "functional_exposed": False,
+            "description": (
+                "由MethodInputReadAuthority注入同一二次函数对象的"
+                "ordinal-0原始系数模板；不得使用已消元的latest state代替。"
+            ),
+        },
     },
     input_views=declare_input_views(
         identity=("x", "parameter", "known_parameter"),

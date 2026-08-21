@@ -21,6 +21,7 @@
     "quadratic_template": {
       "required": false,
       "functional_exposed": false,
+      "description": "由MethodInputReadAuthority注入同一二次函数对象的ordinal-0原始系数模板；不得使用已消元的latest state代替。",
       "domain_type": "QuadraticFunction",
       "runtime_type": "Expression",
       "view": {

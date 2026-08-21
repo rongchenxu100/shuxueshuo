@@ -54,7 +54,8 @@
       "type": "object",
       "required": [
         "ref",
-        "kind"
+        "kind",
+        "owner_scope"
       ],
       "properties": {
         "ref": {
@@ -64,6 +65,11 @@
         "kind": {
           "type": "string",
           "minLength": 1
+        },
+        "owner_scope": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The lexical owner of this Entity or Fact. A Fact is visible only from this scope and its descendants."
         }
       },
       "additionalProperties": true

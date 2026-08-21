@@ -720,6 +720,87 @@ def _symbol_projection_fixture(
     return registry, consumer, producer, method_specs, capability
 
 
+def test_producer_arg_evidence_follows_the_declared_source_arg_producer() -> None:
+    b = MathObjectId("symbol:problem:b", "symbol", "problem")
+    c = MathObjectId("symbol:problem:c", "symbol", "problem")
+    registry, consumer, producer, method_specs, capability = (
+        _symbol_projection_fixture(
+            resolved_args={
+                "parameter_value": (
+                    ResolvedFunctionalValue(
+                        handle="parameter_value",
+                        runtime_type="ParameterValue",
+                        valid_scope="problem",
+                        source_call_id="producer",
+                        return_name="parameter_value",
+                        object_ref="symbol:problem:b",
+                        math_object_id=b,
+                        free_symbol_refs=("symbol:problem:b",),
+                    ),
+                ),
+                "unrelated_result": (
+                    ResolvedFunctionalValue(
+                        handle="unrelated_result",
+                        runtime_type="Point",
+                        valid_scope="problem",
+                        source_call_id="unrelated_producer",
+                        return_name="point",
+                    ),
+                ),
+            },
+            producer_args={
+                "parameter": (
+                    ResolvedFunctionalValue(
+                        handle="symbol:problem:b",
+                        runtime_type="Symbol",
+                        valid_scope="problem",
+                        object_ref="symbol:problem:b",
+                        math_object_id=b,
+                    ),
+                ),
+            },
+        )
+    )
+    unrelated_producer = FunctionalCallReconciliation(
+        call_id="unrelated_producer",
+        scope_id="problem",
+        capability_id="unrelated_capability",
+        resolved_args={
+            "parameter": (
+                ResolvedFunctionalValue(
+                    handle="symbol:problem:c",
+                    runtime_type="Symbol",
+                    valid_scope="problem",
+                    object_ref="symbol:problem:c",
+                    math_object_id=c,
+                ),
+            ),
+        },
+        returns=(),
+    )
+
+    selected = _compiler_auto_selected_source(
+        arg_name="parameter",
+        selector="parameter_symbol",
+        runtime_input="parameter",
+        required=True,
+        capability=capability,
+        call=consumer,
+        calls_by_id={
+            "producer": producer,
+            "unrelated_producer": unrelated_producer,
+        },
+        object_registry=registry,
+        handle_registry=None,
+        method_specs=method_specs,
+    )
+
+    assert selected == FunctionalArgSourceIdentity(
+        kind="math_object",
+        math_object_id=b,
+    )
+
+
 def test_compiler_projection_requires_all_declared_evidence_to_agree() -> None:
     b = MathObjectId("symbol:problem:b", "symbol", "problem")
     c = MathObjectId("symbol:problem:c", "symbol", "problem")

@@ -748,11 +748,19 @@ def _compiler_auto_selected_source(
 
     producer_arg = semantics.projection_source_producer_arg
     if producer_arg is not None:
+        producer_source_values = (
+            call.resolved_args.get(source_arg, ())
+            if source_arg is not None
+            else tuple(
+                value
+                for values in call.resolved_args.values()
+                for value in values
+            )
+        )
         producer_ids = tuple(
             dict.fromkeys(
                 value.source_call_id
-                for values in call.resolved_args.values()
-                for value in values
+                for value in producer_source_values
                 if value.source_call_id is not None
             )
         )

@@ -206,11 +206,30 @@ def _resolve_one_relation(
         )
     )
     if not visible:
-        if exact:
+        authority_candidates, _authority_malformed = _condition_candidates(
+            semantic_index,
+            accepted_condition_kinds=relation.accepted_condition_kinds,
+            authority=True,
+        )
+        authority_exact = tuple(
+            item
+            for item in authority_candidates
+            if _condition_role(item, "point") == point_ref
+            and _condition_role(item, "curve") == curve_ref
+        )
+        repairable_descendants = tuple(
+            item
+            for item in authority_exact
+            if scope_id
+            in semantic_index.handle_registry.ancestor_scopes(
+                item.authority_scope_id or item.valid_scope
+            )
+        )
+        if exact or repairable_descendants:
             owner_scopes = sorted(
                 {
                     item.authority_scope_id or item.valid_scope
-                    for item in exact
+                    for item in (*exact, *repairable_descendants)
                 }
             )
             return _issue(
@@ -323,10 +342,16 @@ def _condition_candidates(
     semantic_index: FunctionalSemanticIndex,
     *,
     accepted_condition_kinds: Sequence[str],
+    authority: bool = False,
 ) -> tuple[tuple[FunctionalSemanticView, ...], tuple[str, ...]]:
     by_condition_id: dict[str, FunctionalSemanticView] = {}
     malformed: list[str] = []
-    for view in semantic_index.views:
+    views = (
+        semantic_index.relation_authority_views
+        if authority
+        else semantic_index.views
+    )
+    for view in views:
         if (
             view.runtime_type != "Condition"
             or view.condition_kind not in accepted_condition_kinds
@@ -438,6 +463,23 @@ def _issue(
     retryability: str = "planner_repairable",
     observed: Mapping[str, Any] | None = None,
 ) -> MethodInputRelationIssue:
+    observed_relation = dict(observed or {})
+    relation_owner_scopes = tuple(
+        str(item)
+        for item in observed_relation.get("relation_owner_scopes", ())
+        if isinstance(item, str)
+    )
+    owner_details: dict[str, Any] = {}
+    if len(relation_owner_scopes) == 1:
+        owner_details = {
+            "relation_owner_scope": relation_owner_scopes[0],
+            "expected_relation_owner_scope": relation_owner_scopes[0],
+        }
+    elif relation_owner_scopes:
+        owner_details = {
+            "relation_owner_scopes": list(relation_owner_scopes),
+            "expected_relation_owner_scopes": list(relation_owner_scopes),
+        }
     return MethodInputRelationIssue(
         code=code,
         message=message,
@@ -480,7 +522,8 @@ def _issue(
                     relation.accepted_condition_kinds
                 ),
             },
-            "observed_relation": dict(observed or {}),
+            "observed_relation": observed_relation,
+            **owner_details,
             "retryability": retryability,
             "repair_action": repair_action,
             "repair_call_ids": [call_id],

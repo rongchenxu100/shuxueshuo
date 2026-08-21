@@ -35,6 +35,7 @@ from shuxueshuo_server.solver.runtime.state_identity import (
     LogicalStateKey,
     MathObjectId,
     StateAllocationAction,
+    StateRuntimeEquivalenceProbe,
     StateSlotId,
     StateVersionId,
 )
@@ -1001,6 +1002,9 @@ class FunctionalPlanReconciliationResult:
     placement_mismatches: tuple[dict[str, Any], ...] = ()
     state_finalization_decisions: tuple[dict[str, Any], ...] = ()
     state_finalization_mismatches: tuple[dict[str, Any], ...] = ()
+    state_runtime_equivalence_probes: tuple[
+        StateRuntimeEquivalenceProbe, ...
+    ] = ()
     runtime_destination_decisions: tuple[dict[str, Any], ...] = ()
     state_dependencies: tuple[ProjectedStateDependency, ...] = ()
     typed_identity_completeness: dict[str, Any] = field(default_factory=dict)
@@ -1065,6 +1069,10 @@ class FunctionalPlanReconciliationResult:
             ],
             "state_finalization_mismatches": [
                 dict(item) for item in self.state_finalization_mismatches
+            ],
+            "state_runtime_equivalence_probes": [
+                item.to_payload()
+                for item in self.state_runtime_equivalence_probes
             ],
             "runtime_destination_decisions": [
                 dict(item) for item in self.runtime_destination_decisions

@@ -20,6 +20,7 @@
                 "parameter",
                 "parameter_value",
                 "quadratic",
+                "quadratic_template",
                 "x"
               ],
               "outputs": {
@@ -221,6 +222,7 @@
                 "curve_point",
                 "free_parameter",
                 "quadratic",
+                "quadratic_template",
                 "x"
               ],
               "outputs": {

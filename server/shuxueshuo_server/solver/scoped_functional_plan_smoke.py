@@ -1537,6 +1537,43 @@ def _attempt_llm_metadata(
     }
 
 
+def _attempt_state_finalization_payload(replay: Any | None) -> Any:
+    reconciliation = (
+        getattr(replay, "functional_reconciliation", None)
+        if replay is not None
+        else None
+    )
+    if reconciliation is None:
+        return None
+    transaction = getattr(replay, "transactional_attempt_result", None)
+    execution_report = (
+        getattr(transaction, "execution_report", None)
+        if transaction is not None
+        else None
+    )
+    return {
+        "canonical_plan_id": reconciliation.canonical_plan_id,
+        "state_finalization_decisions": [
+            dict(item) for item in reconciliation.state_finalization_decisions
+        ],
+        "state_finalization_mismatches": [
+            dict(item) for item in reconciliation.state_finalization_mismatches
+        ],
+        "runtime_equivalence_probes": [
+            item.to_payload()
+            for item in reconciliation.state_runtime_equivalence_probes
+        ],
+        "runtime_equivalence_probe_results": [
+            dict(item)
+            for item in getattr(
+                execution_report,
+                "runtime_state_equivalence_probe_results",
+                (),
+            )
+        ],
+    }
+
+
 def _write_goal_retry_attempt_artifacts(
     sample_dir: Path,
     *,
@@ -1593,6 +1630,14 @@ def _write_goal_retry_attempt_artifacts(
         _write_json(
             prefix.with_suffix(".plan.json"),
             attempt.plan.to_payload() if attempt.plan is not None else None,
+        )
+        _write_json(
+            prefix.with_suffix(".merged-plan.json"),
+            (
+                attempt.merged_plan.to_payload()
+                if attempt.merged_plan is not None
+                else None
+            ),
         )
         _write_json(
             prefix.with_suffix(".plan-content.json"),
@@ -1668,6 +1713,10 @@ def _write_goal_retry_attempt_artifacts(
             ),
         )
         _write_json(
+            prefix.with_suffix(".state-finalization.json"),
+            _attempt_state_finalization_payload(replay),
+        )
+        _write_json(
             prefix.with_suffix(".structured-error.json"),
             (
                 {
@@ -1686,12 +1735,24 @@ def _write_goal_retry_attempt_artifacts(
                 "semantic_attempt": attempt.semantic_attempt,
                 "planner_protocol": attempt.planner_protocol,
                 "has_plan": attempt.plan is not None,
+                "has_merged_plan": attempt.merged_plan is not None,
                 "has_plan_content": attempt.plan_content is not None,
                 "plan_content_normalization_count": len(
                     attempt.content_normalizations
                 ),
                 "has_repair": attempt.repair is not None,
                 "execution_attempted": execution is not None,
+                "has_checkpoint": checkpoint is not None,
+                "has_transaction": (
+                    replay is not None
+                    and replay.transactional_attempt_result is not None
+                ),
+                "has_state_finalization": (
+                    getattr(replay, "functional_reconciliation", None)
+                    is not None
+                    if replay is not None
+                    else False
+                ),
                 "has_result_retry_authority": (
                     attempt.result_retry_authority is not None
                 ),

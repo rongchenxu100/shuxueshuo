@@ -20,6 +20,7 @@ from shuxueshuo_server.solver.scoped_functional_plan_smoke import (
     _repair_wire_schema_valid_by_attempt,
     _solved_goal_reexecution_count,
     _smoke_completion_request_options,
+    _write_goal_retry_attempt_artifacts,
     _write_provider_attempt_snapshot,
     _write_sample_review,
     main,
@@ -222,6 +223,83 @@ def test_provider_boundary_is_persisted_before_plan_execution(tmp_path) -> None:
         "extra_body": {"thinking": {"type": "enabled"}},
         "reasoning_effort": "low",
     }
+
+
+def test_each_semantic_attempt_persists_runtime_authority_artifacts(
+    tmp_path,
+) -> None:
+    plan = SimpleNamespace(to_payload=lambda: {"plan": "canonical"})
+    merged_plan = SimpleNamespace(to_payload=lambda: {"plan": "merged"})
+    probe = SimpleNamespace(to_payload=lambda: {"probe": "create-create"})
+    reconciliation = SimpleNamespace(
+        canonical_plan_id="plan-id",
+        state_finalization_decisions=({"status": "runtime_probe_required"},),
+        state_finalization_mismatches=(),
+        state_runtime_equivalence_probes=(probe,),
+    )
+    execution_report = SimpleNamespace(
+        runtime_state_equivalence_probe_results=(
+            {"comparison": "strict_runtime_refinement"},
+        )
+    )
+    transaction = SimpleNamespace(
+        execution_report=execution_report,
+        to_payload=lambda: {"transaction": "verified"},
+    )
+    checkpoint = SimpleNamespace(
+        authority_payload=lambda: {"checkpoint": "authority"},
+        to_prompt_payload=lambda: {"checkpoint": "prompt"},
+    )
+    execution = SimpleNamespace(
+        checkpoint=checkpoint,
+        replay=SimpleNamespace(
+            functional_reconciliation=reconciliation,
+            transactional_attempt_result=transaction,
+        ),
+    )
+    attempt = ScopedFunctionalGoalRetryAttempt(
+        semantic_attempt=1,
+        planner_protocol=FUNCTIONAL_PLAN_CONTENT_CONTRACT,
+        payload={},
+        prompt=SimpleNamespace(system="system", user="user"),
+        raw_response="{}",
+        plan=plan,
+        merged_plan=merged_plan,
+        execution=execution,
+    )
+    run_result = ScopedFunctionalGoalRetryRunResult(
+        status="blocked",
+        attempts=(attempt,),
+        final_plan=plan,
+        final_execution=execution,
+        solved_goal_restore_count=0,
+    )
+
+    _write_goal_retry_attempt_artifacts(
+        tmp_path,
+        run_result=run_result,
+        client=SimpleNamespace(records=(), model="test-model"),
+        thinking_profile="low",
+    )
+
+    assert json.loads((tmp_path / "attempt-1.merged-plan.json").read_text()) == {
+        "plan": "merged"
+    }
+    assert json.loads((tmp_path / "attempt-1.transaction.json").read_text()) == {
+        "transaction": "verified"
+    }
+    assert json.loads(
+        (tmp_path / "attempt-1.goal-execution-checkpoint.json").read_text()
+    ) == {"checkpoint": "authority"}
+    finalization = json.loads(
+        (tmp_path / "attempt-1.state-finalization.json").read_text()
+    )
+    assert finalization["runtime_equivalence_probes"] == [
+        {"probe": "create-create"}
+    ]
+    assert finalization["runtime_equivalence_probe_results"] == [
+        {"comparison": "strict_runtime_refinement"}
+    ]
 
 
 def test_low_thinking_dry_run_applies_to_pass1_and_retry(capsys) -> None:

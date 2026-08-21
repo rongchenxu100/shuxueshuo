@@ -149,6 +149,7 @@ from shuxueshuo_server.solver.runtime.state_identity import (
     MathObjectId,
     MathObjectRegistry,
     RuntimeDestinationKey,
+    StateRuntimeEquivalenceProbe,
     StateVersionId,
 )
 from shuxueshuo_server.solver.runtime.strategy_models import (
@@ -181,6 +182,9 @@ from shuxueshuo_server.solver.runtime.state_finalization import (
 )
 from shuxueshuo_server.solver.runtime.student_symbolic_complexity import (
     runtime_free_symbol_names,
+)
+from shuxueshuo_server.solver.state_semantics import (
+    merge_state_semantic_lineages,
 )
 from shuxueshuo_server.solver.utils import unique_ordered
 
@@ -380,6 +384,7 @@ class FunctionalTransactionalExecutionReport:
     runtime_equivalent_aliases: tuple[
         "FunctionalRuntimeEquivalentCallAlias", ...
     ] = ()
+    runtime_state_equivalence_probe_results: tuple[dict[str, Any], ...] = ()
     functional_problem_binding_ledger: FunctionalProblemBindingLedger | None = field(
         default=None,
         repr=False,
@@ -526,6 +531,10 @@ class FunctionalTransactionalExecutionReport:
             ),
             "runtime_equivalent_aliases": [
                 item.to_payload() for item in self.runtime_equivalent_aliases
+            ],
+            "runtime_state_equivalence_probe_results": [
+                dict(item)
+                for item in self.runtime_state_equivalence_probe_results
             ],
             "functional_problem_binding_ledger": (
                 {
@@ -2653,10 +2662,261 @@ def _stamp_method_input_read_authorities(
             ),
         )
 
+    def polynomial_template_authority(
+        *,
+        plan: StepPlan,
+        invocation: MethodInvocation,
+        authorities: Mapping[str, tuple[MethodInputReadAuthority, ...]],
+    ) -> MethodInputReadAuthority | None:
+        spec = method_specs.require(invocation.method_id)
+        input_spec = spec.inputs.get("quadratic_template")
+        closure = spec.symbolic_closure
+        requires_polynomial_template = bool(
+            closure is not None
+            and closure.representation_mapper
+            == "polynomial_coefficient_template"
+        )
+        if input_spec is None and not requires_polynomial_template:
+            return None
+        if input_spec is None:
+            raise StatelessMethodError(
+                "planner.method_input_view_authority_missing",
+                "polynomial closure method is missing its template input contract",
+                category="configuration",
+                retryability="configuration",
+                method_id=invocation.method_id,
+                scope_id=invocation.scope,
+                step_id=invocation.invocation_id,
+                arg_name="quadratic_template",
+                role="coefficient_identity_template",
+                expected={
+                    "input": "quadratic_template",
+                    "view": "latest_state",
+                    "state": "ordinal_0",
+                },
+                observed={"input": "missing_from_method_spec"},
+                repair_action="fix_method_spec",
+                details={
+                    "missing_input": "quadratic_template",
+                    "representation_mapper": (
+                        "polynomial_coefficient_template"
+                    ),
+                },
+            )
+        if input_spec.functional_exposed:
+            raise StatelessMethodError(
+                "planner.method_input_view_authority_drift",
+                "polynomial coefficient templates must be code-owned inputs",
+                category="configuration",
+                retryability="configuration",
+                method_id=invocation.method_id,
+                scope_id=invocation.scope,
+                step_id=invocation.invocation_id,
+                arg_name="quadratic_template",
+                role="coefficient_identity_template",
+                expected={"functional_exposed": False},
+                observed={"functional_exposed": True},
+                repair_action="fix_method_spec",
+            )
+        if "quadratic_template" in invocation.inputs:
+            raise StatelessMethodError(
+                "planner.method_input_view_authority_drift",
+                "compiler supplied a code-owned polynomial template input",
+                category="configuration",
+                retryability="configuration",
+                method_id=invocation.method_id,
+                scope_id=invocation.scope,
+                step_id=invocation.invocation_id,
+                arg_name="quadratic_template",
+                role="coefficient_identity_template",
+                expected={"authority": "method_input_read_stamp"},
+                observed={"authority": "compiler_invocation_input"},
+                repair_action="remove_compiler_owned_hidden_input",
+            )
+
+        anchor_authorities = tuple(
+            authority
+            for input_name, candidate_spec in spec.inputs.items()
+            if input_name != "quadratic_template"
+            and candidate_spec.domain_type == "QuadraticFunction"
+            and candidate_spec.view.mode == "latest_state"
+            for authority in authorities.get(input_name, ())
+        )
+        anchor_version: IndexedStateVersion | None = None
+        anchor_object_id: MathObjectId | None = None
+        if len(anchor_authorities) == 1 and isinstance(
+            anchor_authorities[0].source,
+            StateVersionReadSource,
+        ):
+            anchor_version_id = anchor_authorities[0].source.state_version_id
+            anchor_object_id = (
+                anchor_version_id.slot_id.logical_key.object_id
+            )
+            anchor_version = next(
+                (
+                    item
+                    for item in working.identity_index.all_versions()
+                    if item.version_id == anchor_version_id
+                ),
+                None,
+            )
+
+        def eligible(version: IndexedStateVersion) -> bool:
+            if version.version_id.ordinal != 0:
+                return False
+            if anchor_object_id is not None and (
+                version.version_id.slot_id.logical_key.object_id
+                != anchor_object_id
+            ):
+                return False
+            if not working.identity_index.visibility.is_visible(
+                version.valid_scope_id,
+                consumer_scope_id=plan.scope,
+            ):
+                return False
+            value = working.runtime_version_values.get(version.version_id)
+            return bool(
+                value is not None
+                and value.type in {"Expression", "Parabola"}
+                and isinstance(value.value, sp.Basic)
+            )
+
+        candidates = {
+            item.version_id: item
+            for item in working.identity_index.all_versions()
+            if eligible(item)
+        }
+        lineage_roots = tuple(
+            candidate
+            for candidate in candidates.values()
+            if all(
+                working.identity_index.is_same_or_descendant(
+                    other.version_id,
+                    candidate.version_id,
+                )
+                for other in candidates.values()
+            )
+        )
+        template_version = (
+            lineage_roots[0]
+            if len(lineage_roots) == 1
+            else None
+        )
+        template_value = (
+            working.runtime_version_values.get(template_version.version_id)
+            if template_version is not None
+            else None
+        )
+        observed_value = (
+            working.runtime_version_values.get(anchor_version.version_id)
+            if anchor_version is not None
+            else None
+        )
+        expected_expression = (
+            sp.sstr(template_value.value)
+            if template_value is not None
+            else "ordinal_0_polynomial_template"
+        )
+        observed_expression = (
+            sp.sstr(observed_value.value)
+            if observed_value is not None
+            and isinstance(observed_value.value, sp.Basic)
+            else "unavailable"
+        )
+        missing_symbols = tuple(
+            sorted(
+                (
+                    set(template_value.value.free_symbols)
+                    - set(observed_value.value.free_symbols)
+                )
+                if template_value is not None
+                and observed_value is not None
+                and isinstance(template_value.value, sp.Basic)
+                and isinstance(observed_value.value, sp.Basic)
+                else (),
+                key=lambda item: item.name,
+            )
+        )
+        detail = {
+            "expected_template": expected_expression,
+            "observed_state": observed_expression,
+            "missing_symbol_roles": [item.name for item in missing_symbols],
+            "candidate_count": len(candidates),
+            "lineage_root_count": len(lineage_roots),
+            "candidate_version_ids": [
+                item.to_payload() for item in sorted(candidates)
+            ],
+        }
+        if len(missing_symbols) == 1:
+            detail["missing_symbol_role"] = missing_symbols[0].name
+
+        if template_version is None:
+            raise StatelessMethodError(
+                "planner.method_input_view_authority_missing",
+                "polynomial closure requires the ordinal-0 function template",
+                category="configuration",
+                retryability="configuration",
+                method_id=invocation.method_id,
+                scope_id=invocation.scope,
+                step_id=invocation.invocation_id,
+                arg_name="quadratic_template",
+                role="coefficient_identity_template",
+                expected={
+                    "template": expected_expression,
+                    "state": "ordinal_0",
+                },
+                observed={
+                    "state": observed_expression,
+                    **(
+                        {"missing_symbol_role": missing_symbols[0].name}
+                        if len(missing_symbols) == 1
+                        else {}
+                    ),
+                },
+                repair_action="fix_runtime_contract",
+                details=detail,
+            )
+        source_path = _indexed_runtime_path(template_version)
+        if source_path is None:
+            raise StatelessMethodError(
+                "planner.method_input_view_authority_missing",
+                "ordinal-0 template has no runtime address",
+                category="configuration",
+                retryability="configuration",
+                method_id=invocation.method_id,
+                scope_id=invocation.scope,
+                step_id=invocation.invocation_id,
+                arg_name="quadratic_template",
+                role="coefficient_identity_template",
+                expected={"template": expected_expression, "state": "ordinal_0"},
+                observed={"state": observed_expression},
+                repair_action="fix_runtime_contract",
+                details={
+                    **detail,
+                    "expected_runtime_path": source_path,
+                    "observed_runtime_path": None,
+                },
+            )
+        return MethodInputReadAuthority(
+            method_id=invocation.method_id,
+            invocation_id=invocation.invocation_id,
+            input_name="quadratic_template",
+            item_index=0,
+            view_mode=input_spec.view.mode,
+            domain_type=input_spec.domain_type,
+            runtime_type=input_spec.runtime_type,
+            scope_id=invocation.scope,
+            source=StateVersionReadSource(
+                state_version_id=template_version.version_id,
+                runtime_path=source_path,
+            ),
+        )
+
     def stamp_plan(plan: StepPlan) -> StepPlan:
         invocations: list[MethodInvocation] = []
         for invocation in plan.invocations:
             spec = method_specs.require(invocation.method_id)
+            invocation_inputs = dict(invocation.inputs)
             authorities: dict[str, tuple[MethodInputReadAuthority, ...]] = {}
             for input_name, raw in invocation.inputs.items():
                 input_spec = spec.inputs[input_name]
@@ -2685,6 +2945,18 @@ def _stamp_method_input_read_authorities(
                     )
                     for index, path in enumerate(paths)
                 )
+            template_authority = polynomial_template_authority(
+                plan=plan,
+                invocation=invocation,
+                authorities=authorities,
+            )
+            if template_authority is not None:
+                # Hidden coefficient identity is injected only after the
+                # exact ordinal-0 state authority has been proved.
+                invocation_inputs["quadratic_template"] = (
+                    template_authority.runtime_path
+                )
+                authorities["quadratic_template"] = (template_authority,)
             supporting_authority = symbolic_basis_authority(
                 plan=plan,
                 invocation=invocation,
@@ -2693,6 +2965,7 @@ def _stamp_method_input_read_authorities(
             invocations.append(
                 replace(
                     invocation,
+                    inputs=invocation_inputs,
                     input_read_authorities=authorities,
                     supporting_input_read_authorities=(
                         {
@@ -2710,7 +2983,9 @@ def _stamp_method_input_read_authorities(
     return replace(
         compiled,
         plans=tuple(stamp_plan(plan) for plan in compiled.plans),
-        replay_plans=tuple(stamp_plan(plan) for plan in compiled.replay_plans),
+        replay_plans=tuple(
+            stamp_plan(plan) for plan in compiled.replay_plans
+        ),
     )
 
 
@@ -4005,6 +4280,7 @@ class FunctionalTransactionalInterpreter:
         runtime_equivalent_aliases: list[
             FunctionalRuntimeEquivalentCallAlias
         ] = []
+        runtime_state_equivalence_probe_results: list[dict[str, Any]] = []
         restored_call_ids = _restore_verified_calls(
             restored_seed,
             graph=graph,
@@ -4281,7 +4557,11 @@ class FunctionalTransactionalInterpreter:
                         if failed_closure_checks:
                             raise SymbolicClosureRuntimeDriftError(
                                 "rewritten outputs violate closure: "
-                                + ", ".join(failed_closure_checks)
+                                + ", ".join(failed_closure_checks),
+                                details=_symbolic_closure_drift_details(
+                                    closure_result,
+                                    failed_closure_checks,
+                                ),
                             )
                         execution.checks.extend(closure_checks)
                 failed_checks = tuple(
@@ -4404,7 +4684,11 @@ class FunctionalTransactionalInterpreter:
                     handle_registry=handle_registry,
                     mode="authoritative",
                 )
-                runtime_alias, equivalence_issue = (
+                (
+                    runtime_alias,
+                    equivalence_issue,
+                    probe_results,
+                ) = (
                     _compare_provisional_runtime_state(
                         call_id=call_id,
                         writes=writes,
@@ -4420,8 +4704,10 @@ class FunctionalTransactionalInterpreter:
                                 for output_key, typed in call_result_values.items()
                             },
                         },
+                        restored_call_ids=restored_call_ids,
                     )
                 )
+                runtime_state_equivalence_probe_results.extend(probe_results)
                 if equivalence_issue is not None:
                     working.set_status(
                         call_id,
@@ -4447,8 +4733,19 @@ class FunctionalTransactionalInterpreter:
                         )
                     )
                     continue
+                lineage_edges = _scope_create_runtime_lineage_edges(
+                    probe_results=probe_results,
+                    reconciliation=reconciliation,
+                    working=working,
+                    current_versions=versions,
+                )
                 macro_search_report = compiled.macro_search_report
                 if runtime_alias is not None:
+                    if lineage_edges:
+                        raise ValueError(
+                            "planner_configuration_error: "
+                            "planner.runtime_state_lineage_alias_conflict"
+                        )
                     # The isolated branch proved that every reused typed state
                     # is unchanged. Keep an answer alias so the Goal remains
                     # bound to the proven existing StateVersion, but never
@@ -4512,6 +4809,15 @@ class FunctionalTransactionalInterpreter:
                             call_bindings=effective_symbol_bindings,
                         )
                     ),
+                )
+                writes, versions = _commit_scope_create_runtime_lineage(
+                    edges=lineage_edges,
+                    working=working,
+                    prior_results=results,
+                    current_writes=writes,
+                    current_versions=versions,
+                    probe_results=probe_results,
+                    reconciliation=reconciliation,
                 )
                 runtime_result_values.update(
                     {
@@ -4606,8 +4912,8 @@ class FunctionalTransactionalInterpreter:
                         dict(diagnostic.authority_details)
                         if diagnostic is not None
                         else (
-                            dict(exc.details)
-                            if isinstance(exc, MacroRuntimeSearchError)
+                            dict(getattr(exc, "details", {}) or {})
+                            if getattr(exc, "details", None) is not None
                             else None
                         )
                     ),
@@ -4707,6 +5013,9 @@ class FunctionalTransactionalInterpreter:
                 working.runtime_equivalent_version_aliases
             ),
             runtime_equivalent_aliases=tuple(runtime_equivalent_aliases),
+            runtime_state_equivalence_probe_results=tuple(
+                runtime_state_equivalence_probe_results
+            ),
             functional_problem_binding_ledger=(
                 _execution_problem_binding_ledger(
                     reconciliation,
@@ -6297,6 +6606,651 @@ def _validate_compiled_symbolic_closure_returns(
     return validate_symbolic_closure_outputs(outputs, result)
 
 
+def _symbolic_closure_drift_details(
+    result: SymbolicClosureExecutionResult,
+    failed_checks: Sequence[str],
+) -> dict[str, Any]:
+    args = dict(result.validation_args or {})
+    template = args.get("quadratic_template")
+    observed = args.get("quadratic")
+    try:
+        missing_roles = tuple(
+            sorted(
+                str(symbol)
+                for symbol in (
+                    sp.sympify(template).free_symbols
+                    - sp.sympify(observed).free_symbols
+                )
+            )
+        )
+    except (TypeError, ValueError, sp.SympifyError):
+        missing_roles = ()
+    details: dict[str, Any] = {
+        "expected_template": (
+            sp.sstr(template)
+            if template is not None
+            else "ordinal_0_polynomial_template"
+        ),
+        "observed_state": (
+            sp.sstr(observed) if observed is not None else "unavailable"
+        ),
+        "missing_symbol_roles": list(missing_roles),
+        "failed_checks": list(failed_checks),
+        "subjects": [
+            {
+                "role": "coefficient_identity_template",
+                "arg_name": "quadratic_template",
+                "expected_type": "Expression",
+                "expected_state": "ordinal_0",
+                "observed_type": type(observed).__name__,
+                "observed_state": "coefficient_identity_incomplete",
+            }
+        ],
+    }
+    if len(missing_roles) == 1:
+        details["missing_symbol_role"] = missing_roles[0]
+    return details
+
+
+def _compare_scope_create_runtime_probes(
+    *,
+    call_id: str,
+    writes: Sequence[StateWriteProvenance],
+    runtime_values: Mapping[StateVersionId, TypedValue],
+    reconciliation: FunctionalPlanReconciliationResult,
+    working: WorkingPlannerState,
+    branch: RuntimeContext,
+    object_registry: MathObjectRegistry,
+    runtime_result_values: Mapping[tuple[str, str], TypedValue],
+    restored_call_ids: frozenset[str],
+) -> tuple[tuple[dict[str, Any], ...], PlannerRetryIssue | None]:
+    probes = tuple(
+        probe
+        for probe in reconciliation.state_runtime_equivalence_probes
+        if call_id in {probe.ancestor_call_id, probe.descendant_call_id}
+    )
+    if not probes:
+        return (), None
+    current_values = {
+        working.resolve_runtime_version_id(version_id): value
+        for version_id, value in runtime_values.items()
+    }
+    declared = _context_runtime_symbol_bindings(
+        branch,
+        registry=object_registry,
+    )
+    results: list[dict[str, Any]] = []
+    for probe in probes:
+        ancestor_version_id = working.resolve_runtime_version_id(
+            probe.ancestor_version_id
+        )
+        descendant_version_id = working.resolve_runtime_version_id(
+            probe.descendant_version_id
+        )
+        ancestor = current_values.get(ancestor_version_id)
+        if ancestor is None:
+            ancestor = working.runtime_version_values.get(
+                ancestor_version_id
+            )
+        descendant = current_values.get(descendant_version_id)
+        if descendant is None:
+            descendant = working.runtime_version_values.get(
+                descendant_version_id
+            )
+        current_version_id = (
+            ancestor_version_id
+            if call_id == probe.ancestor_call_id
+            else descendant_version_id
+        )
+        if current_version_id not in current_values:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.runtime_state_equivalence_probe_value_missing: "
+                f"call={call_id}, version={current_version_id.to_payload()}"
+            )
+        if ancestor is None or descendant is None:
+            other_call_id = (
+                probe.descendant_call_id
+                if call_id == probe.ancestor_call_id
+                else probe.ancestor_call_id
+            )
+            other_state = working.call_states.get(other_call_id)
+            if other_state is not None and other_state.status == "verified":
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.runtime_state_equivalence_probe_checkpoint_missing: "
+                    f"call={other_call_id}"
+                )
+            continue
+
+        supplemental = _visible_runtime_scalar_assignments(
+            consumer_scope_id=probe.comparison_scope_id,
+            current_call_id=call_id,
+            runtime_result_values=runtime_result_values,
+            reconciliation=reconciliation,
+            working=working,
+            runtime_context=branch,
+            object_registry=object_registry,
+            declared_runtime_symbols=declared,
+        )
+        materialized_ancestor = _materialize_runtime_parameter_closure(
+            ancestor,
+            consumer_scope_id=probe.comparison_scope_id,
+            working=working,
+            runtime_context=branch,
+            object_registry=object_registry,
+            declared_runtime_symbols=_merge_runtime_symbol_bindings(
+                declared,
+                working.runtime_version_symbol_bindings.get(
+                    ancestor_version_id,
+                    {},
+                ),
+            ),
+            supplemental_parameter_values=supplemental,
+        ).runtime_value
+        materialized_descendant = _materialize_runtime_parameter_closure(
+            descendant,
+            consumer_scope_id=probe.comparison_scope_id,
+            working=working,
+            runtime_context=branch,
+            object_registry=object_registry,
+            declared_runtime_symbols=_merge_runtime_symbol_bindings(
+                declared,
+                working.runtime_version_symbol_bindings.get(
+                    descendant_version_id,
+                    {},
+                ),
+            ),
+            supplemental_parameter_values=supplemental,
+        ).runtime_value
+        comparison = "runtime_equivalent"
+        substitutions: dict[sp.Symbol, Any] = {}
+        if not (
+            runtime_type_compatible(ancestor.type, descendant.type)
+            and runtime_type_compatible(descendant.type, ancestor.type)
+        ):
+            comparison = "runtime_type_mismatch"
+        elif _symbolic_values_equivalent(
+            ancestor.value,
+            descendant.value,
+        ):
+            comparison = "runtime_equivalent"
+        elif _symbolic_values_equivalent(
+            materialized_ancestor.value,
+            materialized_descendant.value,
+        ):
+            comparison = "equivalent_after_parameter_closure"
+        else:
+            substitutions = _runtime_refinement_substitutions(
+                materialized_ancestor.value,
+                materialized_descendant.value,
+            )
+            comparison = (
+                "strict_runtime_refinement"
+                if substitutions
+                else "runtime_value_mismatch"
+            )
+        result_payload = {
+            "probe_signature": stable_hash(probe.to_payload()),
+            "current_call_id": call_id,
+            "ancestor_call_id": probe.ancestor_call_id,
+            "descendant_call_id": probe.descendant_call_id,
+            "comparison_scope_id": probe.comparison_scope_id,
+            "comparison": comparison,
+            "lineage_parent_version_id": (
+                ancestor_version_id.to_payload()
+            ),
+            "lineage_child_version_id": (
+                descendant_version_id.to_payload()
+            ),
+            "lineage_rule": (
+                "descendant_create_consumes_nearest_verified_ancestor_create"
+            ),
+            "ancestor_value": _runtime_equivalence_value_payload(
+                ancestor.value
+            ),
+            "descendant_value": _runtime_equivalence_value_payload(
+                descendant.value
+            ),
+            "substitutions": {
+                str(symbol): _runtime_equivalence_value_payload(value)
+                for symbol, value in sorted(
+                    substitutions.items(),
+                    key=lambda item: str(item[0]),
+                )
+            },
+            "used_checkpoint_value": (
+                (
+                    probe.descendant_call_id
+                    if call_id == probe.ancestor_call_id
+                    else probe.ancestor_call_id
+                )
+                in restored_call_ids
+            ),
+        }
+        results.append(result_payload)
+        if comparison in {
+            "runtime_type_mismatch",
+            "runtime_value_mismatch",
+        }:
+            return (
+                tuple(results),
+                _issue(
+                    call_id,
+                    "planner.runtime_state_equivalence_conflict",
+                    (
+                        "scope-comparable create writers produced different "
+                        "typed runtime states"
+                    ),
+                    details={
+                        "probe": probe.to_payload(),
+                        "comparison": result_payload,
+                    },
+                ),
+            )
+    return tuple(results), None
+
+
+@dataclass(frozen=True)
+class _RuntimeCreateLineageEdge:
+    child_version_id: StateVersionId
+    parent_version_id: StateVersionId
+    root_version_id: StateVersionId
+    probe_signature: str
+
+
+def _scope_create_runtime_lineage_edges(
+    *,
+    probe_results: Sequence[dict[str, Any]],
+    reconciliation: FunctionalPlanReconciliationResult,
+    working: WorkingPlannerState,
+    current_versions: Sequence[IndexedStateVersion],
+) -> tuple[_RuntimeCreateLineageEdge, ...]:
+    """Resolve successful create probes into one deterministic version line."""
+
+    successful = {
+        str(item["probe_signature"]): item
+        for item in probe_results
+        if item.get("comparison")
+        in {
+            "runtime_equivalent",
+            "equivalent_after_parameter_closure",
+            "strict_runtime_refinement",
+        }
+    }
+    if not successful:
+        return ()
+
+    versions = {
+        item.version_id: item
+        for item in (
+            *working.identity_index.all_versions(),
+            *current_versions,
+        )
+    }
+    candidates_by_child: dict[
+        StateVersionId,
+        list[tuple[StateVersionId, StateRuntimeEquivalenceProbe, str]],
+    ] = {}
+    for probe in reconciliation.state_runtime_equivalence_probes:
+        signature = stable_hash(probe.to_payload())
+        if signature not in successful:
+            continue
+        parent_id = working.resolve_runtime_version_id(
+            probe.ancestor_version_id
+        )
+        child_id = working.resolve_runtime_version_id(
+            probe.descendant_version_id
+        )
+        parent = versions.get(parent_id)
+        child = versions.get(child_id)
+        if parent is None or child is None:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.runtime_state_lineage_version_missing: "
+                f"probe={signature}"
+            )
+        if (
+            parent.version_id.slot_id.logical_key
+            != child.version_id.slot_id.logical_key
+        ):
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.runtime_state_lineage_object_drift: "
+                f"probe={signature}"
+            )
+        candidates_by_child.setdefault(child_id, []).append(
+            (parent_id, probe, signature)
+        )
+
+    selected: dict[
+        StateVersionId,
+        tuple[StateVersionId, StateRuntimeEquivalenceProbe, str],
+    ] = {}
+    scope_registry = working.identity_index.visibility.registry
+    for child_id, candidates in candidates_by_child.items():
+        child_scope = candidates[0][1].descendant_scope_id
+        scope_rank = {
+            scope_id: index
+            for index, scope_id in enumerate(
+                scope_registry.ancestor_scopes(child_scope)
+            )
+        }
+        ranked = [
+            (
+                scope_rank.get(
+                    candidate[1].ancestor_scope_id,
+                    len(scope_rank),
+                ),
+                candidate,
+            )
+            for candidate in candidates
+        ]
+        best_rank = min(item[0] for item in ranked)
+        nearest = tuple(
+            item[1] for item in ranked if item[0] == best_rank
+        )
+        nearest_parent_ids = {item[0] for item in nearest}
+        if len(nearest_parent_ids) != 1:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.runtime_state_lineage_parent_ambiguous: "
+                f"child={child_id.to_payload()}"
+            )
+        selected[child_id] = nearest[0]
+
+    prospective = dict(versions)
+    for child_id, (parent_id, _probe, _signature) in selected.items():
+        child = prospective[child_id]
+        prospective[child_id] = replace(
+            child,
+            source_version_ids=unique_ordered(
+                (*child.source_version_ids, parent_id)
+            ),
+        )
+
+    def lineage_roots(
+        version_id: StateVersionId,
+        *,
+        visiting: frozenset[StateVersionId] = frozenset(),
+    ) -> frozenset[StateVersionId]:
+        if version_id in visiting:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.runtime_state_lineage_cycle"
+            )
+        version = prospective.get(version_id)
+        if version is None:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.runtime_state_lineage_version_missing: "
+                f"version={version_id.to_payload()}"
+            )
+        same_state_sources = tuple(
+            source_id
+            for source_id in version.source_version_ids
+            if source_id.slot_id.logical_key
+            == version_id.slot_id.logical_key
+        )
+        if not same_state_sources:
+            return frozenset({version_id})
+        return frozenset(
+            root
+            for source_id in same_state_sources
+            for root in lineage_roots(
+                source_id,
+                visiting=frozenset((*visiting, version_id)),
+            )
+        )
+
+    edges: list[_RuntimeCreateLineageEdge] = []
+    for child_id, (parent_id, _probe, signature) in selected.items():
+        roots = lineage_roots(child_id)
+        if len(roots) != 1:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.runtime_state_lineage_root_ambiguous: "
+                f"child={child_id.to_payload()}, "
+                f"roots={[item.to_payload() for item in sorted(roots)]}"
+            )
+        edges.append(
+            _RuntimeCreateLineageEdge(
+                child_version_id=child_id,
+                parent_version_id=parent_id,
+                root_version_id=next(iter(roots)),
+                probe_signature=signature,
+            )
+        )
+    return tuple(sorted(edges, key=lambda item: item.child_version_id))
+
+
+def _commit_scope_create_runtime_lineage(
+    *,
+    edges: Sequence[_RuntimeCreateLineageEdge],
+    working: WorkingPlannerState,
+    prior_results: list[FunctionalCallExecutionResult],
+    current_writes: Sequence[StateWriteProvenance],
+    current_versions: Sequence[IndexedStateVersion],
+    probe_results: Sequence[dict[str, Any]],
+    reconciliation: FunctionalPlanReconciliationResult,
+) -> tuple[
+    tuple[StateWriteProvenance, ...],
+    tuple[IndexedStateVersion, ...],
+]:
+    """Persist a proved lineage in every checkpoint-facing namespace."""
+
+    if not edges:
+        return tuple(current_writes), tuple(current_versions)
+    parent_by_child = {
+        item.child_version_id: item.parent_version_id for item in edges
+    }
+    parent_call_by_child = {
+        child_id: (
+            working.committed_versions[parent_id].producer_call_id
+            if parent_id in working.committed_versions
+            else None
+        )
+        for child_id, parent_id in parent_by_child.items()
+    }
+
+    def update_version(version: IndexedStateVersion) -> IndexedStateVersion:
+        parent_id = parent_by_child.get(version.version_id)
+        if parent_id is None:
+            return version
+        return replace(
+            version,
+            source_version_ids=unique_ordered(
+                (*version.source_version_ids, parent_id)
+            ),
+        )
+
+    def update_write(write: StateWriteProvenance) -> StateWriteProvenance:
+        version_id = write.selected_version_id
+        parent_id = (
+            parent_by_child.get(version_id)
+            if version_id is not None
+            else None
+        )
+        if parent_id is None:
+            return write
+        parent_call_id = parent_call_by_child.get(version_id)
+        return replace(
+            write,
+            source_version_ids=unique_ordered(
+                (*write.source_version_ids, parent_id)
+            ),
+            lineage=merge_state_semantic_lineages(
+                write.lineage,
+                evidence_tags=("runtime_verified_create_lineage",),
+                source_version_ids=(parent_id,),
+                source_call_ids=(
+                    (parent_call_id,) if parent_call_id is not None else ()
+                ),
+            ),
+        )
+
+    for child_id in parent_by_child:
+        current = working.committed_versions[child_id]
+        updated = update_version(current)
+        working.committed_versions[child_id] = updated
+        working.identity_index.update_version(
+            child_id,
+            free_symbol_refs=updated.free_symbol_refs,
+            source_version_ids=updated.source_version_ids,
+        )
+
+    for index, result in enumerate(prior_results):
+        updated_versions = tuple(
+            update_version(item) for item in result.committed_versions
+        )
+        updated_writes = tuple(
+            update_write(item) for item in result.state_writes
+        )
+        if (
+            updated_versions != result.committed_versions
+            or updated_writes != result.state_writes
+        ):
+            prior_results[index] = replace(
+                result,
+                committed_versions=updated_versions,
+                state_writes=updated_writes,
+            )
+
+    edges_by_signature = {item.probe_signature: item for item in edges}
+    for payload in probe_results:
+        edge = edges_by_signature.get(str(payload.get("probe_signature")))
+        if edge is None:
+            continue
+        payload["lineage_committed"] = True
+        payload["lineage_root_version_id"] = (
+            edge.root_version_id.to_payload()
+        )
+        payload["latest_state_authority"] = {
+            "scope_id": next(
+                probe.descendant_scope_id
+                for probe in reconciliation.state_runtime_equivalence_probes
+                if stable_hash(probe.to_payload()) == edge.probe_signature
+            ),
+            "version_id": edge.child_version_id.to_payload(),
+        }
+
+    return (
+        tuple(update_write(item) for item in current_writes),
+        tuple(update_version(item) for item in current_versions),
+    )
+
+
+def _runtime_refinement_substitutions(
+    ancestor: Any,
+    descendant: Any,
+) -> dict[sp.Symbol, Any]:
+    ancestor_symbols = _symbolic_value_free_symbols(ancestor)
+    descendant_symbols = _symbolic_value_free_symbols(descendant)
+    solve_symbols = tuple(
+        sorted(ancestor_symbols - descendant_symbols, key=str)
+    )
+    if not solve_symbols:
+        return {}
+    equations = _symbolic_value_equations(ancestor, descendant)
+    if equations is None or not equations:
+        return {}
+    try:
+        raw_solutions = sp.solve(
+            equations,
+            solve_symbols,
+            dict=True,
+        )
+    except (NotImplementedError, TypeError, ValueError):
+        return {}
+    valid: list[dict[sp.Symbol, Any]] = []
+    for solution in raw_solutions:
+        if not all(symbol in solution for symbol in solve_symbols):
+            continue
+        if any(
+            _symbolic_value_free_symbols(value) - descendant_symbols
+            for value in solution.values()
+        ):
+            continue
+        substituted = _substitute_symbolic_value(ancestor, solution)
+        if _symbolic_values_equivalent(substituted, descendant):
+            valid.append(dict(solution))
+    return valid[0] if len(valid) == 1 else {}
+
+
+def _symbolic_value_free_symbols(value: Any) -> frozenset[sp.Symbol]:
+    if isinstance(value, Mapping):
+        return frozenset(
+            symbol
+            for item in value.values()
+            for symbol in _symbolic_value_free_symbols(item)
+        )
+    if isinstance(value, (tuple, list)):
+        return frozenset(
+            symbol
+            for item in value
+            for symbol in _symbolic_value_free_symbols(item)
+        )
+    try:
+        return frozenset(sp.sympify(value).free_symbols)
+    except (TypeError, ValueError, sp.SympifyError):
+        return frozenset()
+
+
+def _symbolic_value_equations(
+    left: Any,
+    right: Any,
+) -> tuple[sp.Expr, ...] | None:
+    if isinstance(left, Mapping) and isinstance(right, Mapping):
+        if set(left) != set(right):
+            return None
+        result: list[sp.Expr] = []
+        for key in sorted(left, key=str):
+            equations = _symbolic_value_equations(left[key], right[key])
+            if equations is None:
+                return None
+            result.extend(equations)
+        return tuple(result)
+    if isinstance(left, (tuple, list)) and isinstance(right, (tuple, list)):
+        if len(left) != len(right):
+            return None
+        result = []
+        for left_item, right_item in zip(left, right, strict=True):
+            equations = _symbolic_value_equations(left_item, right_item)
+            if equations is None:
+                return None
+            result.extend(equations)
+        return tuple(result)
+    try:
+        return (sp.together(sp.sympify(left) - sp.sympify(right)),)
+    except (TypeError, ValueError, sp.SympifyError):
+        return None
+
+
+def _substitute_symbolic_value(
+    value: Any,
+    substitutions: Mapping[sp.Symbol, Any],
+) -> Any:
+    if isinstance(value, Mapping):
+        return {
+            key: _substitute_symbolic_value(item, substitutions)
+            for key, item in value.items()
+        }
+    if isinstance(value, tuple):
+        return tuple(
+            _substitute_symbolic_value(item, substitutions)
+            for item in value
+        )
+    if isinstance(value, list):
+        return [
+            _substitute_symbolic_value(item, substitutions)
+            for item in value
+        ]
+    try:
+        return sp.sympify(value).subs(substitutions)
+    except (TypeError, ValueError, sp.SympifyError):
+        return value
+
+
 def _compare_provisional_runtime_state(
     *,
     call_id: str,
@@ -6307,9 +7261,11 @@ def _compare_provisional_runtime_state(
     branch: RuntimeContext,
     object_registry: MathObjectRegistry,
     runtime_result_values: Mapping[tuple[str, str], TypedValue],
+    restored_call_ids: frozenset[str] = frozenset(),
 ) -> tuple[
     FunctionalRuntimeEquivalentCallAlias | None,
     PlannerRetryIssue | None,
+    tuple[dict[str, Any], ...],
 ]:
     """Resolve possible duplicate writers using actual typed runtime values.
 
@@ -6318,12 +7274,25 @@ def _compare_provisional_runtime_state(
     version, and every other result is rejected before the branch is exposed.
     """
 
+    probe_results, probe_issue = _compare_scope_create_runtime_probes(
+        call_id=call_id,
+        writes=writes,
+        runtime_values=runtime_values,
+        reconciliation=reconciliation,
+        working=working,
+        branch=branch,
+        object_registry=object_registry,
+        runtime_result_values=runtime_result_values,
+        restored_call_ids=restored_call_ids,
+    )
+    if probe_issue is not None:
+        return None, probe_issue, probe_results
     if not writes:
-        return None, None
+        return None, None, probe_results
     calls = {item.call_id: item for item in reconciliation.calls}
     current = calls.get(call_id)
     if current is None:
-        return None, None
+        return None, None, probe_results
     allocations = {
         item.return_name: item for item in current.returns
     }
@@ -6337,10 +7306,10 @@ def _compare_provisional_runtime_state(
     ] = []
     for write in writes:
         if write.selected_version_id is None or write.return_name is None:
-            return None, None
+            return None, None, probe_results
         allocation = allocations.get(write.return_name)
         if allocation is None:
-            return None, None
+            return None, None, probe_results
         if write.allocation_action == "reuse":
             existing_version_id = write.selected_version_id
             producer_id = write.canonical_producer_call_id or call_id
@@ -6356,18 +7325,24 @@ def _compare_provisional_runtime_state(
             existing_version_id = write.previous_version_id
             producer_id = allocation.previous_write_step_id or call_id
         else:
-            return None, None
+            return None, None, probe_results
         rows.append(
             (write, allocation, existing_version_id, producer_id)
         )
 
     producer_ids = {item[3] for item in rows}
     if len(producer_ids) != 1:
-        return None, _issue(
-            call_id,
-            "planner.runtime_state_equivalence_conflict",
-            "provisional typed writes do not identify one prior producer",
-            details={"canonical_producer_call_ids": sorted(producer_ids)},
+        return (
+            None,
+            _issue(
+                call_id,
+                "planner.runtime_state_equivalence_conflict",
+                "provisional typed writes do not identify one prior producer",
+                details={
+                    "canonical_producer_call_ids": sorted(producer_ids)
+                },
+            ),
+            probe_results,
         )
     producer_id = next(iter(producer_ids))
     source_state_reuse = producer_id == call_id
@@ -6375,20 +7350,28 @@ def _compare_provisional_runtime_state(
         producer_id in working.call_states
         and working.call_states[producer_id].status != "verified"
     ):
-        return None, _issue(
-            call_id,
-            "planner.runtime_state_equivalence_conflict",
-            "reused typed state was not produced by a verified prior call",
-            details={"canonical_producer_call_id": producer_id},
+        return (
+            None,
+            _issue(
+                call_id,
+                "planner.runtime_state_equivalence_conflict",
+                "reused typed state was not produced by a verified prior call",
+                details={"canonical_producer_call_id": producer_id},
+            ),
+            probe_results,
         )
 
     producer = calls.get(producer_id)
     if producer is None and not source_state_reuse:
-        return None, _issue(
-            call_id,
-            "planner.runtime_state_equivalence_conflict",
-            "canonical producer is absent from the reconciled plan",
-            details={"canonical_producer_call_id": producer_id},
+        return (
+            None,
+            _issue(
+                call_id,
+                "planner.runtime_state_equivalence_conflict",
+                "canonical producer is absent from the reconciled plan",
+                details={"canonical_producer_call_id": producer_id},
+            ),
+            probe_results,
         )
 
     return_aliases: list[tuple[str, str]] = []
@@ -6552,17 +7535,24 @@ def _compare_provisional_runtime_state(
             }
         )
     if conflicts:
-        return None, _issue(
-            call_id,
-            "planner.runtime_state_equivalence_conflict",
-            "a possible duplicate call produced a different typed runtime state",
-            details={
-                "canonical_producer_call_id": producer_id,
-                "comparisons": conflicts,
-            },
+        return (
+            None,
+            _issue(
+                call_id,
+                "planner.runtime_state_equivalence_conflict",
+                (
+                    "a possible duplicate call produced a different typed "
+                    "runtime state"
+                ),
+                details={
+                    "canonical_producer_call_id": producer_id,
+                    "comparisons": conflicts,
+                },
+            ),
+            probe_results,
         )
     if refinement_seen:
-        return None, None
+        return None, None, probe_results
     alias_payload = {
         "duplicate_call_id": call_id,
         "canonical_call_id": producer_id,
@@ -6578,6 +7568,7 @@ def _compare_provisional_runtime_state(
             comparison_signature=stable_hash(alias_payload),
         ),
         None,
+        probe_results,
     )
 
 
