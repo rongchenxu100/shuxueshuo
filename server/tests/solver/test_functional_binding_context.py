@@ -6,6 +6,10 @@ from types import SimpleNamespace
 
 import pytest
 
+from shuxueshuo_server.solver.contracts import (
+    ExactCallResultSourceSpec,
+    MethodInputBindingSpec,
+)
 from shuxueshuo_server.solver.deepseek_functional_batch import (
     FUNCTIONAL_BATCH_CASES,
 )
@@ -15,6 +19,7 @@ from shuxueshuo_server.solver.runtime.functional_binding_context import (
     FunctionalBindingContextBuilder,
     FunctionalBindingContextError,
     _compiler_auto_selected_source,
+    _typed_input_selected_source,
     audit_compiled_functional_arg_consumption,
     audit_functional_arg_binding_projection,
     build_functional_runtime_arg_bindings_from_context,
@@ -508,9 +513,75 @@ def test_semantic_latest_and_call_result_exact_are_part_of_binding() -> None:
         "expression",
         0,
     )
+    point_state = context.binding_for(
+        "ii_1_solve_m",
+        "p1",
+        0,
+    )
     assert semantic is not None and semantic.selection_policy == "exact"
     assert call_result is not None and call_result.selection_policy == "exact"
     assert call_result.source.kind == "call_result"
+    assert call_result.source.source_call_id == "ii_derive_path_model"
+    assert call_result.source.source_return_name == "path_minimum_expression"
+    assert call_result.input_binding is not None
+    assert call_result.input_binding.source is not None
+    assert call_result.input_binding.source.kind == "exact_call_result"
+    assert point_state is not None and point_state.source.kind == "state_version"
+    assert point_state.input_binding is not None
+    assert point_state.input_binding.source is not None
+    assert point_state.input_binding.source.kind == "public_arg"
+
+
+def test_exact_result_binding_requires_one_declared_producer_return() -> None:
+    binding = MethodInputBindingSpec(
+        input_name="expression",
+        source=ExactCallResultSourceSpec("expression"),
+    )
+    base = {
+        "arg_name": "expression",
+        "binding": binding,
+        "runtime_input": "expression",
+        "required": True,
+        "capability": SimpleNamespace(returns=(), source=SimpleNamespace()),
+        "calls_by_id": {},
+        "object_registry": None,
+        "handle_registry": None,
+        "method_specs": None,
+    }
+
+    with pytest.raises(FunctionalBindingContextError) as missing:
+        _typed_input_selected_source(
+            **base,
+            call=SimpleNamespace(call_id="consumer", resolved_args={}),
+        )
+    assert missing.value.code == "planner.method_input_view_authority_missing"
+
+    with pytest.raises(FunctionalBindingContextError) as ambiguous:
+        _typed_input_selected_source(
+            **base,
+            call=SimpleNamespace(
+                call_id="consumer",
+                resolved_args={
+                    "expression": (
+                        ResolvedFunctionalValue(
+                            "first",
+                            "MinimumExpression",
+                            "problem",
+                            source_call_id="first",
+                            return_name="minimum_expression",
+                        ),
+                        ResolvedFunctionalValue(
+                            "second",
+                            "MinimumExpression",
+                            "problem",
+                            source_call_id="second",
+                            return_name="minimum_expression",
+                        ),
+                    ),
+                },
+            ),
+        )
+    assert ambiguous.value.code == "planner.method_input_view_authority_drift"
 
 
 def test_source_identity_requires_exactly_one_typed_category() -> None:

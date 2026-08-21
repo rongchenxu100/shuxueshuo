@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -34,11 +35,17 @@ from shuxueshuo_server.solver.runtime.method_input_views import (
 )
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.models import MethodInvocation
+from shuxueshuo_server.solver.runtime.recipe_compiler import (
+    _RecipePlanCompiler,
+)
 from shuxueshuo_server.solver.runtime.state_identity import (
     LogicalStateKey,
     MathObjectId,
     StateSlotId,
     StateVersionId,
+)
+from shuxueshuo_server.solver.runtime.strategy_models import (
+    StrategyDraftValidationError,
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -368,6 +375,87 @@ def test_aggregate_inputs_are_resolved_item_by_item_through_authority() -> None:
         "b",
         "c",
     ]
+
+
+def test_projected_aggregate_uses_typed_items_in_stable_index_order() -> None:
+    compiler = SimpleNamespace(
+        _projected_input_path=(
+            lambda item, **_kwargs: item.runtime_path
+        ),
+    )
+    items = [
+        SimpleNamespace(
+            item_index=1,
+            runtime_type="Symbol",
+            runtime_path="$problem.symbols.b",
+        ),
+        SimpleNamespace(
+            item_index=0,
+            runtime_type="Symbol",
+            runtime_path="$problem.symbols.a",
+        ),
+    ]
+
+    result = _RecipePlanCompiler._projected_aggregate_input(
+        compiler,
+        SimpleNamespace(step_id="aggregate", scope_id="problem"),
+        input_name="all_coefficients",
+        expected_type="SymbolList",
+        items=items,
+    )
+
+    assert result == ("$problem.symbols.a", "$problem.symbols.b")
+
+
+@pytest.mark.parametrize(
+    "items",
+    (
+        (
+            SimpleNamespace(
+                item_index=0,
+                runtime_type="Point",
+                runtime_path="$problem.points.A",
+            ),
+            SimpleNamespace(
+                item_index=2,
+                runtime_type="Point",
+                runtime_path="$problem.points.B",
+            ),
+        ),
+        (
+            SimpleNamespace(
+                item_index=0,
+                runtime_type="Point",
+                runtime_path="$problem.points.A",
+            ),
+            SimpleNamespace(
+                item_index=1,
+                runtime_type="Point",
+                runtime_path="$problem.points.A",
+            ),
+        ),
+    ),
+)
+def test_projected_aggregate_rejects_missing_or_duplicate_item_authority(
+    items,
+) -> None:
+    compiler = SimpleNamespace(
+        _projected_input_path=(
+            lambda item, **_kwargs: item.runtime_path
+        ),
+    )
+
+    with pytest.raises(
+        StrategyDraftValidationError,
+        match="planner.method_input_view_authority_drift",
+    ):
+        _RecipePlanCompiler._projected_aggregate_input(
+            compiler,
+            SimpleNamespace(step_id="aggregate", scope_id="problem"),
+            input_name="curve_points",
+            expected_type="PointList",
+            items=list(items),
+        )
 
 
 def test_production_resolver_requires_authority() -> None:

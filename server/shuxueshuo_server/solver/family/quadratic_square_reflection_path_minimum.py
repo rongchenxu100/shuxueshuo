@@ -41,6 +41,8 @@ from shuxueshuo_server.solver.family.capability_packs import (
 from shuxueshuo_server.solver.family.common_binding_rules import (
     QUADRATIC_STATE_PREP_INVOCATIONS,
     canonical_x_binding,
+    exact_call_result_binding,
+    public_arg_binding,
     quadratic_coefficients_binding,
     quadratic_latest_state_binding,
     quadratic_public_state_binding,
@@ -381,8 +383,8 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             method_id="square_adjacent_vertex_from_side",
             functional_output_names=(("point", "adjacent_vertex"),),
             input_bindings=(
-                LegacySelectorInputBindingSpec("side_start", "square:side_start"),
-                LegacySelectorInputBindingSpec("side_end", "square:side_end"),
+                public_arg_binding("side_start"),
+                public_arg_binding("side_end"),
                 LegacySelectorInputBindingSpec("square_condition", "fact:square:Condition"),
                 LegacySelectorInputBindingSpec("target", "point_transition_target"),
                 LegacySelectorInputBindingSpec("side_start_ref", "square:side_start_ref", required=False),
@@ -403,8 +405,8 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         MethodBindingRuleSpec(
             method_id="point_candidates_from_curve_point_condition",
             input_bindings=(
-                LegacySelectorInputBindingSpec("target_point", "curve_condition:target_point"),
-                LegacySelectorInputBindingSpec("curve_point", "curve_condition:curve_point"),
+                public_arg_binding("target_point"),
+                public_arg_binding("curve_point"),
                 quadratic_public_state_binding("parabola"),
                 canonical_x_binding(),
             ),
@@ -413,13 +415,13 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         MethodBindingRuleSpec(
             method_id="parameterized_point_locus_line",
             input_bindings=(
-                LegacySelectorInputBindingSpec("point", "read_type:Point"),
+                public_arg_binding("point"),
             ),
         ),
         MethodBindingRuleSpec(
             method_id="line_locus_minimum_point",
             input_bindings=(
-                LegacySelectorInputBindingSpec("moving_locus", "read_type:Line"),
+                exact_call_result_binding("moving_locus"),
                 LegacySelectorInputBindingSpec("minimum_point_1", "straightening_minimum:p1"),
                 LegacySelectorInputBindingSpec("minimum_point_2", "straightening_minimum:p2"),
                 LegacySelectorInputBindingSpec("target", "point_transition_target"),

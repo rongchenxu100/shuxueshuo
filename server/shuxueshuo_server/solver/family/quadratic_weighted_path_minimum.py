@@ -27,7 +27,9 @@ from shuxueshuo_server.solver.family.capability_packs import (
     DEFAULT_CAPABILITY_PACK_REGISTRY,
 )
 from shuxueshuo_server.solver.family.common_binding_rules import (
+    exact_call_result_binding,
     parameter_basis_binding,
+    public_arg_binding,
 )
 _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
     family_id="QuadraticWeightedPathMinimumSolver",
@@ -303,10 +305,10 @@ _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         MethodBindingRuleSpec(
             method_id="parameter_from_segment_length",
             input_bindings=(
-                LegacySelectorInputBindingSpec("p1", "length_segment:p1"),
-                LegacySelectorInputBindingSpec("p2", "length_segment:p2"),
-                LegacySelectorInputBindingSpec("reference_p1", "length_reference_segment:p1", required=False),
-                LegacySelectorInputBindingSpec("reference_p2", "length_reference_segment:p2", required=False),
+                public_arg_binding("p1"),
+                public_arg_binding("p2"),
+                public_arg_binding("reference_p1", required=False),
+                public_arg_binding("reference_p2", required=False),
                 parameter_basis_binding(
                     (
                         "p1",
@@ -359,12 +361,12 @@ _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         MethodBindingRuleSpec(
             method_id="linked_broken_path_minimum_expression",
             input_bindings=(
-                LegacySelectorInputBindingSpec("path_transformation", "read_type:PathTransformation"),
-                LegacySelectorInputBindingSpec("auxiliary_locus", "read_type:Line"),
-                LegacySelectorInputBindingSpec("fixed_point", "weighted_path:fixed_point"),
-                LegacySelectorInputBindingSpec("curve_point", "weighted_path:curve_point"),
-                LegacySelectorInputBindingSpec("moving_point", "weighted_path:moving_point"),
-                LegacySelectorInputBindingSpec("auxiliary_point", "weighted_path:auxiliary_point"),
+                exact_call_result_binding("path_transformation"),
+                exact_call_result_binding("auxiliary_locus"),
+                public_arg_binding("fixed_point"),
+                public_arg_binding("curve_point"),
+                public_arg_binding("moving_point"),
+                public_arg_binding("auxiliary_point"),
                 parameter_basis_binding(
                     ("curve_point",),
                     input_name="parameter",

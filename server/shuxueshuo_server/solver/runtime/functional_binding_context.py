@@ -19,6 +19,7 @@ from shuxueshuo_server.solver.contracts import (
     CanonicalSymbolDerivationSpec,
     CoefficientExtractionDerivationSpec,
     EntityIdentitySourceSpec,
+    ExactCallResultSourceSpec,
     FreeSymbolBasisDerivationSpec,
     LatestStateSourceSpec,
     LegacySelectorInputBindingSpec,
@@ -939,6 +940,19 @@ def _typed_input_selected_source(
                 result.append(source)
         return result
 
+    def resolved_call_results(
+        source_arg: str,
+    ) -> list[FunctionalArgSourceIdentity]:
+        return [
+            FunctionalArgSourceIdentity(
+                kind="call_result",
+                source_call_id=value.source_call_id,
+                source_return_name=value.return_name,
+            )
+            for value in call.resolved_args.get(source_arg, ())
+            if value.source_call_id is not None and value.return_name is not None
+        ]
+
     source = binding.source
     derivation = binding.derivation
     if isinstance(source, PublicArgSourceSpec):
@@ -988,6 +1002,11 @@ def _typed_input_selected_source(
                     handle_registry=handle_registry,
                 ),
             )
+    elif isinstance(source, ExactCallResultSourceSpec):
+        add(
+            f"exact_call_result:{source.arg_name}",
+            resolved_call_results(source.arg_name),
+        )
     elif isinstance(source, ProducerLinkedSourceSpec):
         add(
             f"producer:{source.source_arg}.{source.producer_arg}",

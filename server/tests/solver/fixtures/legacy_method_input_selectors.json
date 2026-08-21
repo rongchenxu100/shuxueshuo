@@ -1,6 +1,6 @@
 {
   "schema_version": "legacy-method-input-selectors/v1",
-  "source_declaration_count": 114,
+  "source_declaration_count": 81,
   "bindings": [
     [
       "angle_sum_equal_angle_candidates",
@@ -63,16 +63,6 @@
       "angle_equality:y_axis_point"
     ],
     [
-      "distance_between_points",
-      "p1",
-      "distance:p1"
-    ],
-    [
-      "distance_between_points",
-      "p2",
-      "distance:p2"
-    ],
-    [
       "equal_length_ray_point",
       "anchor",
       "equal_length_ray:anchor"
@@ -93,36 +83,6 @@
       "equal_length_ray:target"
     ],
     [
-      "evaluate_expression_at_parameter",
-      "expression",
-      "read_type:Expression|MinimumExpression|Parabola"
-    ],
-    [
-      "evaluate_point_at_parameter",
-      "point",
-      "read_type:Point"
-    ],
-    [
-      "line_intersection_point",
-      "line1_p1",
-      "intersection:line1_p1"
-    ],
-    [
-      "line_intersection_point",
-      "line1_p2",
-      "intersection:line1_p2"
-    ],
-    [
-      "line_intersection_point",
-      "line2_p1",
-      "intersection:line2_p1"
-    ],
-    [
-      "line_intersection_point",
-      "line2_p2",
-      "intersection:line2_p2"
-    ],
-    [
       "line_intersection_point",
       "target",
       "intersection:target"
@@ -139,48 +99,13 @@
     ],
     [
       "line_locus_minimum_point",
-      "moving_locus",
-      "read_type:Line"
-    ],
-    [
-      "line_locus_minimum_point",
       "target",
       "point_transition_target"
     ],
     [
       "line_parabola_second_intersection_point",
-      "known_point",
-      "line_parabola:known_point"
-    ],
-    [
-      "line_parabola_second_intersection_point",
-      "line_p1",
-      "line_parabola:line_p1"
-    ],
-    [
-      "line_parabola_second_intersection_point",
-      "line_p2",
-      "line_parabola:line_p2"
-    ],
-    [
-      "line_parabola_second_intersection_point",
       "target",
       "line_parabola:target"
-    ],
-    [
-      "linked_broken_path_minimum_expression",
-      "auxiliary_locus",
-      "read_type:Line"
-    ],
-    [
-      "linked_broken_path_minimum_expression",
-      "auxiliary_point",
-      "weighted_path:auxiliary_point"
-    ],
-    [
-      "linked_broken_path_minimum_expression",
-      "curve_point",
-      "weighted_path:curve_point"
     ],
     [
       "linked_broken_path_minimum_expression",
@@ -194,23 +119,8 @@
     ],
     [
       "linked_broken_path_minimum_expression",
-      "fixed_point",
-      "weighted_path:fixed_point"
-    ],
-    [
-      "linked_broken_path_minimum_expression",
-      "moving_point",
-      "weighted_path:moving_point"
-    ],
-    [
-      "linked_broken_path_minimum_expression",
       "parameter_constraint",
       "parameter_constraint"
-    ],
-    [
-      "linked_broken_path_minimum_expression",
-      "path_transformation",
-      "read_type:PathTransformation"
     ],
     [
       "midpoint_point",
@@ -238,11 +148,6 @@
       "parameter_constraint"
     ],
     [
-      "parameter_from_curve_point_on_quadratic",
-      "point",
-      "read_type:Point"
-    ],
-    [
       "parameter_from_expression_value",
       "condition",
       "fact:minimum_value:Condition"
@@ -253,11 +158,6 @@
       "parameter_constraint"
     ],
     [
-      "parameter_from_expression_value",
-      "expression",
-      "read_type:MinimumExpression"
-    ],
-    [
       "parameter_from_minimum_value",
       "condition",
       "fact:minimum_value:Condition"
@@ -266,11 +166,6 @@
       "parameter_from_minimum_value",
       "constraint",
       "parameter_constraint"
-    ],
-    [
-      "parameter_from_minimum_value",
-      "minimum_expression",
-      "read_type:MinimumExpression"
     ],
     [
       "parameter_from_segment_length",
@@ -286,41 +181,6 @@
       "parameter_from_segment_length",
       "constraint",
       "parameter_constraint"
-    ],
-    [
-      "parameter_from_segment_length",
-      "p1",
-      "length_segment:p1"
-    ],
-    [
-      "parameter_from_segment_length",
-      "p2",
-      "length_segment:p2"
-    ],
-    [
-      "parameter_from_segment_length",
-      "reference_p1",
-      "length_reference_segment:p1"
-    ],
-    [
-      "parameter_from_segment_length",
-      "reference_p2",
-      "length_reference_segment:p2"
-    ],
-    [
-      "parameterized_point_locus_line",
-      "point",
-      "read_type:Point"
-    ],
-    [
-      "point_candidates_from_curve_point_condition",
-      "curve_point",
-      "curve_condition:curve_point"
-    ],
-    [
-      "point_candidates_from_curve_point_condition",
-      "target_point",
-      "curve_condition:target_point"
     ],
     [
       "point_on_parabola_at_x",
@@ -419,18 +279,8 @@
     ],
     [
       "square_adjacent_vertex_from_side",
-      "side_end",
-      "square:side_end"
-    ],
-    [
-      "square_adjacent_vertex_from_side",
       "side_end_ref",
       "square:side_end_ref"
-    ],
-    [
-      "square_adjacent_vertex_from_side",
-      "side_start",
-      "square:side_start"
     ],
     [
       "square_adjacent_vertex_from_side",
@@ -476,11 +326,6 @@
       "square_path_dimension_reduction",
       "square_condition",
       "fact:square:Condition"
-    ],
-    [
-      "translated_point",
-      "source",
-      "translated_point:source"
     ],
     [
       "translated_point",

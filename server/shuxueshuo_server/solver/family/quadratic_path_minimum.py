@@ -35,7 +35,9 @@ from shuxueshuo_server.solver.family.capability_packs import (
 )
 from shuxueshuo_server.solver.family.common_binding_rules import (
     canonical_x_binding,
+    exact_call_result_binding,
     parameter_basis_binding,
+    public_arg_binding,
     quadratic_coefficients_binding,
     quadratic_latest_state_binding,
 )
@@ -349,8 +351,8 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         MethodBindingRuleSpec(
             method_id="parameter_from_segment_length",
             input_bindings=(
-                LegacySelectorInputBindingSpec("p1", "length_segment:p1"),
-                LegacySelectorInputBindingSpec("p2", "length_segment:p2"),
+                public_arg_binding("p1"),
+                public_arg_binding("p2"),
                 parameter_basis_binding(
                     (
                         "p1",
@@ -368,7 +370,7 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         MethodBindingRuleSpec(
             method_id="parameter_from_minimum_value",
             input_bindings=(
-                LegacySelectorInputBindingSpec("minimum_expression", "read_type:MinimumExpression"),
+                exact_call_result_binding("minimum_expression"),
                 LegacySelectorInputBindingSpec("condition", "fact:minimum_value:Condition"),
                 parameter_basis_binding(
                     ("minimum_expression", "condition", "constraint")

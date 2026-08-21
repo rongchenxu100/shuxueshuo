@@ -664,7 +664,10 @@ def test_migrated_function_adapter_failure_does_not_fallback_to_legacy_rule() ->
         if rule.method_id == "distance_between_points"
     )
 
+    selector_calls: list[str] = []
+
     def failing_selector(_step, _index, _local_outputs):
+        selector_calls.append("distance:p1")
         raise StrategyDraftValidationError("forced_missing_distance_endpoint")
 
     registry = MethodBindingRuleRegistry(
@@ -697,14 +700,12 @@ def test_migrated_function_adapter_failure_does_not_fallback_to_legacy_rule() ->
         ),
     )
 
-    with pytest.raises(
-        StrategyDraftValidationError,
-        match="function.arg_missing: method=distance_between_points, arg=p1",
-    ):
+    with pytest.raises(StatelessMethodError) as error:
         registry.bind("distance_between_points", step, object())
 
-    assert [event.status for event in registry.function_binding_events] == ["failure"]
-    assert registry.function_binding_events[0].errors
+    assert error.value.code == "planner.method_input_binding_lowerer_missing"
+    assert selector_calls == []
+    assert registry.function_binding_events == []
 
 
 def test_production_adapter_requires_typed_authority_for_every_entity_input() -> None:

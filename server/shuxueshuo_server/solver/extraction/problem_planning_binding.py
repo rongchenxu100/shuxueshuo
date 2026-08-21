@@ -2793,7 +2793,14 @@ def _audit_implicit_same_object_call_result(
         )
 
     compatible_prior_results = tuple(
-        (candidate_call_id, candidate.return_name)
+        (
+            producer_call_id
+            if candidate.selected_version_id == allocation.selected_version_id
+            else (candidate.canonical_producer_call_id or candidate_call_id),
+            producer_return_name
+            if candidate.selected_version_id == allocation.selected_version_id
+            else candidate.return_name,
+        )
         for candidate_call_id in call_order[: call_order.index(consumer_call_id)]
         for candidate_goal_binding in (
             goal_bindings.calls.get(candidate_call_id),
@@ -2814,7 +2821,8 @@ def _audit_implicit_same_object_call_result(
             for goal_id in consumer_goal_ids
         )
     )
-    if not compatible_prior_results or compatible_prior_results[-1] != (
+    canonical_prior_results = tuple(dict.fromkeys(compatible_prior_results))
+    if not canonical_prior_results or canonical_prior_results[-1] != (
         producer_call_id,
         producer_return_name,
     ):
@@ -2845,24 +2853,35 @@ def _call_result_source_for_exact_state(
         )
     prior_call_ids = call_order[: call_order.index(consumer_call_id)]
     matches = tuple(
-        (call_id, allocation.return_name)
+        (
+            call_id,
+            allocation.return_name,
+            allocation.canonical_producer_call_id or call_id,
+        )
         for call_id in prior_call_ids
         for allocation in reconciled_calls[call_id].returns
         if allocation.selected_version_id == source.state_version_id
     )
     if not matches:
         return None
-    if len(matches) != 1:
+    canonical_matches = tuple(
+        dict.fromkeys(
+            (canonical_call_id, return_name)
+            for _call_id, return_name, canonical_call_id in matches
+        )
+    )
+    if len(canonical_matches) != 1:
         raise _error(
             "planner.problem_source_binding_drift",
             path,
             (
                 "exact StateVersion maps to multiple earlier call returns: "
                 f"version={source.state_version_id.to_payload()}, "
-                f"returns={list(matches)}"
+                f"returns={list(matches)}, "
+                f"canonical_returns={list(canonical_matches)}"
             ),
         )
-    producer_call_id, return_name = matches[0]
+    producer_call_id, return_name = canonical_matches[0]
     return FunctionalArgSourceIdentity(
         kind="call_result",
         source_call_id=producer_call_id,

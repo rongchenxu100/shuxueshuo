@@ -6,6 +6,7 @@ from dataclasses import dataclass, replace
 from typing import Any, Mapping, Protocol, Sequence
 
 from shuxueshuo_server.solver.contracts import (
+    ExactCallResultSourceSpec,
     FreeSymbolBasisDerivationSpec,
     LegacySelectorInputBindingSpec,
     MethodInputBindingSpec,
@@ -880,7 +881,10 @@ def _functional_binding_authority(
             else "compiler"
         )
     if isinstance(binding, MethodInputBindingSpec):
-        if isinstance(binding.source, PublicArgSourceSpec):
+        if isinstance(
+            binding.source,
+            (PublicArgSourceSpec, ExactCallResultSourceSpec),
+        ):
             return "wire"
         if (
             functional_exposed

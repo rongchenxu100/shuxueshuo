@@ -2192,34 +2192,39 @@ class _RecipePlanCompiler:
         }.get(expected_type)
         if item_type is None or not items:
             return None
+        ordered_items = sorted(items, key=lambda item: item.item_index)
+        observed_indices = tuple(item.item_index for item in ordered_items)
+        expected_indices = tuple(range(len(ordered_items)))
+        if observed_indices != expected_indices:
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: "
+                "planner.method_input_view_authority_drift: "
+                f"step={step.step_id}, input={input_name}, "
+                f"expected_item_indices={expected_indices}, "
+                f"observed_item_indices={observed_indices}"
+            )
         if any(
             item.runtime_type is None
             or not runtime_type_compatible(item_type, item.runtime_type)
-            for item in items
+            for item in ordered_items
         ):
             return None
         source_paths = tuple(
-            binding.path
-            for item in items
-            if (
-                binding := self.index.bindings.get(item.source_handle)
-            ) is not None
+            self._projected_input_path(
+                item,
+                expected_type=item_type,
+                consumer_scope_id=step.scope_id,
+            )
+            for item in ordered_items
         )
-        if len(source_paths) == 1:
-            try:
-                existing = self.index.context.read_path(
-                    source_paths[0],
-                    from_scope_id=step.scope_id,
-                    expected_type=expected_type,
-                )
-            except (KeyError, PermissionError, TypeError, ValueError):
-                pass
-            else:
-                if existing.type == expected_type:
-                    return source_paths[0]
-        if len(source_paths) == len(items):
-            return tuple(source_paths)
-        return None
+        if len(set(source_paths)) != len(source_paths):
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: "
+                "planner.method_input_view_authority_drift: "
+                f"step={step.step_id}, input={input_name}, "
+                f"duplicate_sources={source_paths}"
+            )
+        return source_paths
 
     def _projected_exact_recipe_inputs(
         self,

@@ -1161,15 +1161,33 @@ def test_dynamic_point_semantic_ref_binds_unique_prior_same_object_state(
         if (item.call_id, item.arg_name, item.item_index) in expected_keys
     }
     assert set(bindings) == expected_keys
-    for item in bindings.values():
-        assert item.source_kind == "call_result"
+    aggregate = bindings[("ii_derive_parabola", "curve_points", 1)]
+    assert aggregate.typed_source is not None
+    assert aggregate.typed_source.kind == "call_result"
+    assert aggregate.typed_source.source_call_id == "ii_construct_N"
+    assert aggregate.typed_source.source_return_name == "selected_target_point"
+
+    version_ids = set()
+    for key in (
+        ("ii_1_solve_m", "p2", 0),
+        ("ii_2_derive_G", "line2_p2", 0),
+    ):
+        item = bindings[key]
         assert item.semantic_ref is not None
         assert item.semantic_ref.to_payload() == {"kind": "point", "ref": "N"}
         assert item.runtime_node_id is not None
         assert item.source_unit_ids == ()
         assert item.typed_source is not None
-        assert item.typed_source.source_call_id == "ii_construct_N"
-        assert item.typed_source.source_return_name == "selected_target_point"
+        assert item.typed_source.kind == "state_version"
+        version_id = item.typed_source.state_version_id
+        assert version_id is not None
+        assert version_id.slot_id.logical_key.object_id.value == "point:ii:N"
+        version_ids.add(version_id)
+        assert "ii_construct_N" in reconciliation.dependency_graph[key[0]]
+    assert len(version_ids) == 1
+    assert "ii_construct_N" in reconciliation.dependency_graph[
+        "ii_derive_parabola"
+    ]
 
     attempt = FunctionalTransactionalInterpreter(
         symbolic_closure_mode="authoritative"
@@ -1223,14 +1241,15 @@ def test_dynamic_point_semantic_ref_rejects_different_object_result(
     )
     binding_context = reconciliation.functional_binding_context
     target = binding_context.binding_for("ii_1_solve_m", "p2", 0)
-    assert target is not None and target.source.kind == "call_result"
+    different_point = binding_context.binding_for("ii_1_solve_m", "p1", 0)
+    assert target is not None and target.source.kind == "state_version"
+    assert (
+        different_point is not None
+        and different_point.source.kind == "state_version"
+    )
     drifted_target = replace(
         target,
-        source=replace(
-            target.source,
-            source_call_id="ii_compute_F",
-            source_return_name="midpoint",
-        ),
+        source=different_point.source,
     )
     drifted_context = replace(
         binding_context,

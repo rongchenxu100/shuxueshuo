@@ -5,6 +5,7 @@ from __future__ import annotations
 from shuxueshuo_server.solver.contracts import (
     CanonicalSymbolDerivationSpec,
     CoefficientExtractionDerivationSpec,
+    ExactCallResultSourceSpec,
     FreeSymbolBasisDerivationSpec,
     LegacyExpansionSelectorSpec,
     LegacySelectorInputBindingSpec,
@@ -62,9 +63,34 @@ def quadratic_public_state_binding(
     *,
     public_arg: str | None = None,
 ) -> MethodInputBindingSpec:
+    return public_arg_binding(input_name, public_arg=public_arg)
+
+
+def public_arg_binding(
+    input_name: str,
+    *,
+    public_arg: str | None = None,
+    required: bool = True,
+) -> MethodInputBindingSpec:
+    """Bind an explicitly authored Entity/value without selecting by type."""
     return MethodInputBindingSpec(
         input_name=input_name,
+        required=required,
         source=PublicArgSourceSpec(public_arg or input_name),
+    )
+
+
+def exact_call_result_binding(
+    input_name: str,
+    *,
+    public_arg: str | None = None,
+    required: bool = True,
+) -> MethodInputBindingSpec:
+    """Bind an anonymous intermediate to its exact producer return."""
+    return MethodInputBindingSpec(
+        input_name=input_name,
+        required=required,
+        source=ExactCallResultSourceSpec(public_arg or input_name),
     )
 
 
@@ -201,7 +227,11 @@ def quadratic_x_axis_intercept_point_rule() -> MethodBindingRuleSpec:
                 "point_output_state",
                 required=False,
             ),
-            LegacySelectorInputBindingSpec("known_point", "x_axis_known_point", required=False),
+            LegacySelectorInputBindingSpec(
+                "known_point",
+                "x_axis_known_point",
+                required=False,
+            ),
         ),
         prep_invocations=QUADRATIC_STATE_PREP_INVOCATIONS,
     )
@@ -256,9 +286,9 @@ def line_parabola_second_intersection_point_rule() -> MethodBindingRuleSpec:
         input_bindings=(
             quadratic_public_state_binding("parabola"),
             canonical_x_binding(),
-            LegacySelectorInputBindingSpec("line_p1", "line_parabola:line_p1"),
-            LegacySelectorInputBindingSpec("line_p2", "line_parabola:line_p2"),
-            LegacySelectorInputBindingSpec("known_point", "line_parabola:known_point"),
+            public_arg_binding("line_p1"),
+            public_arg_binding("line_p2"),
+            public_arg_binding("known_point"),
             LegacySelectorInputBindingSpec("target", "line_parabola:target"),
         ),
         prep_invocations=QUADRATIC_STATE_PREP_INVOCATIONS,
@@ -270,8 +300,8 @@ def distance_between_points_rule() -> MethodBindingRuleSpec:
     return MethodBindingRuleSpec(
         method_id="distance_between_points",
         input_bindings=(
-            LegacySelectorInputBindingSpec("p1", "distance:p1"),
-            LegacySelectorInputBindingSpec("p2", "distance:p2"),
+            public_arg_binding("p1"),
+            public_arg_binding("p2"),
         ),
         expansion_selectors=(
             LegacyExpansionSelectorSpec("distance_parameter_value_if_read"),
@@ -296,7 +326,7 @@ def translated_point_rule() -> MethodBindingRuleSpec:
     return MethodBindingRuleSpec(
         method_id="translated_point",
         input_bindings=(
-            LegacySelectorInputBindingSpec("source", "translated_point:source"),
+            public_arg_binding("source"),
             LegacySelectorInputBindingSpec("target", "translated_point:target"),
         ),
     )
@@ -307,10 +337,10 @@ def line_intersection_point_rule() -> MethodBindingRuleSpec:
     return MethodBindingRuleSpec(
         method_id="line_intersection_point",
         input_bindings=(
-            LegacySelectorInputBindingSpec("line1_p1", "intersection:line1_p1"),
-            LegacySelectorInputBindingSpec("line1_p2", "intersection:line1_p2"),
-            LegacySelectorInputBindingSpec("line2_p1", "intersection:line2_p1"),
-            LegacySelectorInputBindingSpec("line2_p2", "intersection:line2_p2"),
+            public_arg_binding("line1_p1"),
+            public_arg_binding("line1_p2"),
+            public_arg_binding("line2_p1"),
+            public_arg_binding("line2_p2"),
             LegacySelectorInputBindingSpec("target", "intersection:target"),
         ),
         expansion_selectors=(
@@ -326,7 +356,7 @@ def parameter_from_curve_point_on_quadratic_rule() -> MethodBindingRuleSpec:
         input_bindings=(
             quadratic_public_state_binding("quadratic"),
             canonical_x_binding(),
-            LegacySelectorInputBindingSpec("point", "read_type:Point"),
+            public_arg_binding("point"),
             parameter_basis_binding(
                 (
                     "quadratic",
@@ -358,10 +388,7 @@ def evaluate_expression_at_parameter_rule() -> MethodBindingRuleSpec:
     return MethodBindingRuleSpec(
         method_id="evaluate_expression_at_parameter",
         input_bindings=(
-            LegacySelectorInputBindingSpec(
-                "expression",
-                "read_type:Expression|MinimumExpression|Parabola",
-            ),
+            exact_call_result_binding("expression"),
             parameter_basis_binding(("expression", "parameter_value")),
         ),
         expansion_selectors=(
@@ -375,7 +402,7 @@ def evaluate_point_at_parameter_rule() -> MethodBindingRuleSpec:
     return MethodBindingRuleSpec(
         method_id="evaluate_point_at_parameter",
         input_bindings=(
-            LegacySelectorInputBindingSpec("point", "read_type:Point"),
+            public_arg_binding("point"),
         ),
         expansion_selectors=(
             LegacyExpansionSelectorSpec("parameter_value_if_read"),
@@ -388,7 +415,7 @@ def parameter_from_expression_value_rule() -> MethodBindingRuleSpec:
     return MethodBindingRuleSpec(
         method_id="parameter_from_expression_value",
         input_bindings=(
-            LegacySelectorInputBindingSpec("expression", "read_type:MinimumExpression"),
+            exact_call_result_binding("expression"),
             LegacySelectorInputBindingSpec("condition", "fact:minimum_value:Condition"),
             parameter_basis_binding(
                 ("expression", "condition", "constraint")

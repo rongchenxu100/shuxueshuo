@@ -6018,7 +6018,7 @@ def test_compiler_owned_primary_parameter_rejects_wire_sidecar_override() -> Non
         compiler._projected_exact_function_inputs(step, spec)
 
 
-def test_quadratic_constraint_adapter_accepts_three_curve_points() -> None:
+def test_quadratic_constraint_adapter_rejects_duplicate_curve_points() -> None:
     problem = load_problem_ir(HEPING_FIXTURE)
     inputs = build_strategy_probe_inputs(problem)
     problem_payload = problem_to_llm_payload(problem)
@@ -6053,16 +6053,13 @@ def test_quadratic_constraint_adapter_accepts_three_curve_points() -> None:
         canonical_plan_id=scope_native_plan_id("tj-2026-heping-yimo-25"),
     )
 
-    assert replay.output is not None, replay.errors
-    invocation = next(
-        invocation
-        for step in replay.output.step_plans
-        if step.step_id == "derive_parabola_i"
-        for invocation in step.invocations
-        if invocation.method_id == "quadratic_from_constraints"
+    assert replay.output is None
+    assert replay.transactional_attempt_result is not None
+    assert any(
+        item.code == "planner.transactional_configuration_error"
+        and "duplicate_sources" in item.message
+        for item in replay.transactional_attempt_result.root_issues
     )
-    assert "p3" not in invocation.inputs
-    assert len(invocation.inputs["curve_points"]) == 3
 
 
 def test_quadratic_constraint_analyzer_materializes_each_aggregate_point(
@@ -8069,7 +8066,7 @@ def test_runtime_path_transformation_identity_drift_is_configuration_error() -> 
         )
 
 
-def test_selector_accepts_canonical_materialized_point_state() -> None:
+def test_entity_only_catalog_hides_materialized_point_view() -> None:
     problem = load_problem_ir(HEPING_ERMO_FIXTURE)
     inputs = replace(build_strategy_probe_inputs(problem), question_goals=[])
     problem_payload = problem_to_llm_payload(problem)
@@ -8092,11 +8089,11 @@ def test_selector_accepts_canonical_materialized_point_state() -> None:
     capability = catalog.get("square_adjacent_vertex_from_side")
     assert capability is not None
     args = {item.name: item for item in capability.args}
-    assert args["side_start"].requires_materialized_state is True
-    assert args["side_end"].requires_materialized_state is True
+    assert args["side_start"].requires_materialized_state is False
+    assert args["side_end"].requires_materialized_state is False
 
 
-def test_wire_point_ref_cannot_satisfy_materialized_point_argument() -> None:
+def test_named_point_ref_fails_when_latest_state_is_missing() -> None:
     inputs, _fixture, registry, context = _heping_ermo_case()
     inputs = replace(inputs, question_goals=[])
     payload = {
@@ -8165,8 +8162,7 @@ def test_wire_point_ref_cannot_satisfy_materialized_point_argument() -> None:
         and item.code == "functional.arg_state_unavailable"
     ]
     assert matching_issues, [item.to_payload() for item in result.issues]
-    issue = matching_issues[0]
-    assert issue.details["arg"] == "known_point"
+    assert matching_issues[0].details["arg"] == "known_point"
 
     replay = PlannerRetryReplayService().replay_functional_plan(
         plan,
@@ -8241,17 +8237,19 @@ def test_wire_point_ref_cannot_satisfy_materialized_point_argument() -> None:
         question_goals=(),
     )
 
-    state_issues = [
-        item
-        for item in result.issues
-        if item.code == "functional.arg_state_unavailable"
-    ]
-    assert [item.details["arg"] for item in state_issues if item.details] == [
-        "side_end"
-    ]
-    assert state_issues[0].details["state_requirement"] == (
-        "materialized_state"
-    )
+    assert result.ok, [item.to_payload() for item in result.issues]
+    sources = {
+        arg_name: result.functional_binding_context.binding_for(
+            "derive_square_vertex",
+            arg_name,
+            0,
+        )
+        for arg_name in ("side_start", "side_end")
+    }
+    assert all(item is not None for item in sources.values())
+    assert all(item.input_binding is not None for item in sources.values())
+    assert sources["side_start"].source.kind == "state_version"
+    assert sources["side_end"].source.kind == "math_object"
 
 
 def test_hidden_midpoint_endpoint_requires_materialized_state() -> None:
@@ -9864,13 +9862,17 @@ def test_functional_projected_arg_sidecar_exports_wire_and_resolver_ledger() -> 
     assert all(
         binding.state_version_id is not None
         for binding in bindings
-        if binding.state_slot_id is not None
-        and binding.object_ref is not None
+        if binding.input_binding is not None
+        and binding.selection_policy == "exact"
+        and binding.source_call_id is None
+        and binding.condition_id is None
     )
     assert all(
         binding.math_object_id is not None
         for binding in bindings
         if binding.object_ref is not None
+        and binding.input_binding is not None
+        and binding.source_call_id is None
     )
     assert reconciliation.typed_identity_completeness["complete"] is True
     assert reconciliation.legacy_identity_fallback_count == 0

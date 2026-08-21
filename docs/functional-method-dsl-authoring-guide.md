@@ -281,8 +281,15 @@ ordinal-0模板和公共二次函数parameter symbol均使用strict binding。�
 SourceRef；F5-C负责把其latest StateVersion与唯一可见的上游call result对账，
 derivation再消费同一个exact pin。Method或compiler不得因为需要系数、模板或Symbol
 而重新扫描Context，也不得把derived runtime path当成新的数学source authority。
-几何Method中表示题目主参数的`parameter_symbol`仍属于后续Entity/geometry迁移，
+几何Method中表示题目主参数的`parameter_symbol`仍属于后续Condition/role迁移，
 不得用free-symbol basis替换其语义。
+
+通用Entity/State竖切也已经完成：公开参数中由Plan明确指定的Point/Function使用
+`PublicArgSourceSpec`，F5-C再根据Method view生成纯identity或exact latest-state
+authority；匿名Expression、MinimumExpression、Line和PathTransformation使用
+`ExactCallResultSourceSpec`，必须保留精确producer与return。生产family中不再声明
+`read_type:*`。仍需从题面关系、提取preflight或context closure推导的几何角色不属于
+PublicArg，必须留到对应typed resolver迁移，不能为了减少selector而伪装成显式输入。
 
 ### 5.1 Method input view
 
@@ -310,8 +317,9 @@ Method所需的runtime表示；物理runtime path只是执行地址，不能参�
 3. `immutable_value`只能来自明确的Entity/Fact/Condition authority。
 4. `exact_result`只能来自明确的CallResult或InvocationResult，不能成为具名Entity读取
    最新状态的旁路。
-5. tuple/list输入逐项拥有独立read authority；executor不得对聚合值直接
-   `context.read_path`。
+5. tuple/list输入逐项拥有独立read authority；compiler按稳定`item_index`逐项lower，
+   executor逐项resolve。两层都不得对聚合值直接`context.read_path`，缺号、重复source
+   或重新排序必须报`planner.method_input_view_authority_drift`。
 6. Strategy生产调用缺少read authority，或scope、type、version与authority不一致时
    必须fail loud；按参数名、`*_ref`后缀或runtime type猜测只允许独立debug adapter。
 

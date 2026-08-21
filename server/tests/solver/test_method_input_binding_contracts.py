@@ -144,6 +144,64 @@ MIGRATED_QUADRATIC_BINDINGS = {
     ("quadratic_y_axis_intercept_point", "x", "canonical_symbol"),
 }
 
+C1_MIGRATED_BINDINGS = {
+    ("distance_between_points", "p1", "public_arg"),
+    ("distance_between_points", "p2", "public_arg"),
+    ("evaluate_expression_at_parameter", "expression", "exact_call_result"),
+    ("evaluate_point_at_parameter", "point", "public_arg"),
+    ("line_intersection_point", "line1_p1", "public_arg"),
+    ("line_intersection_point", "line1_p2", "public_arg"),
+    ("line_intersection_point", "line2_p1", "public_arg"),
+    ("line_intersection_point", "line2_p2", "public_arg"),
+    ("line_locus_minimum_point", "moving_locus", "exact_call_result"),
+    ("line_parabola_second_intersection_point", "known_point", "public_arg"),
+    ("line_parabola_second_intersection_point", "line_p1", "public_arg"),
+    ("line_parabola_second_intersection_point", "line_p2", "public_arg"),
+    (
+        "linked_broken_path_minimum_expression",
+        "auxiliary_locus",
+        "exact_call_result",
+    ),
+    (
+        "linked_broken_path_minimum_expression",
+        "auxiliary_point",
+        "public_arg",
+    ),
+    ("linked_broken_path_minimum_expression", "curve_point", "public_arg"),
+    ("linked_broken_path_minimum_expression", "fixed_point", "public_arg"),
+    ("linked_broken_path_minimum_expression", "moving_point", "public_arg"),
+    (
+        "linked_broken_path_minimum_expression",
+        "path_transformation",
+        "exact_call_result",
+    ),
+    ("parameter_from_curve_point_on_quadratic", "point", "public_arg"),
+    ("parameter_from_expression_value", "expression", "exact_call_result"),
+    (
+        "parameter_from_minimum_value",
+        "minimum_expression",
+        "exact_call_result",
+    ),
+    ("parameter_from_segment_length", "p1", "public_arg"),
+    ("parameter_from_segment_length", "p2", "public_arg"),
+    ("parameter_from_segment_length", "reference_p1", "public_arg"),
+    ("parameter_from_segment_length", "reference_p2", "public_arg"),
+    ("parameterized_point_locus_line", "point", "public_arg"),
+    (
+        "point_candidates_from_curve_point_condition",
+        "curve_point",
+        "public_arg",
+    ),
+    (
+        "point_candidates_from_curve_point_condition",
+        "target_point",
+        "public_arg",
+    ),
+    ("square_adjacent_vertex_from_side", "side_end", "public_arg"),
+    ("square_adjacent_vertex_from_side", "side_start", "public_arg"),
+    ("translated_point", "source", "public_arg"),
+}
+
 
 def _schema_validator() -> Draft202012Validator:
     schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
@@ -398,7 +456,7 @@ def test_remaining_production_selectors_are_explicit_legacy_and_match_baseline()
     )
 
 
-def test_common_quadratic_inputs_use_the_strict_binding_contract() -> None:
+def test_migrated_inputs_use_the_strict_binding_contract() -> None:
     actual = {
         (
             rule.method_id,
@@ -411,7 +469,7 @@ def test_common_quadratic_inputs_use_the_strict_binding_contract() -> None:
         if isinstance(binding, MethodInputBindingSpec)
     }
 
-    assert actual == MIGRATED_QUADRATIC_BINDINGS
+    assert actual == MIGRATED_QUADRATIC_BINDINGS | C1_MIGRATED_BINDINGS
     assert all(
         isinstance(selector, LegacyExpansionSelectorSpec)
         for family in DEFAULT_FAMILY_REGISTRY.families
@@ -439,7 +497,19 @@ def test_legacy_source_declaration_count_is_frozen() -> None:
 
     assert sum(
         source.count("LegacySelectorInputBindingSpec(") for source in sources
-    ) == baseline["source_declaration_count"] == 114
+    ) == baseline["source_declaration_count"] == 81
+
+
+def test_c1_retires_all_production_read_type_selectors() -> None:
+    selectors = {
+        binding.selector
+        for family in DEFAULT_FAMILY_REGISTRY.families
+        for rule in family.method_binding_rules
+        for binding in rule.input_bindings
+        if isinstance(binding, LegacySelectorInputBindingSpec)
+    }
+
+    assert not any(selector.startswith("read_type:") for selector in selectors)
 
 
 def test_new_schema_excludes_legacy_selector_payload() -> None:
