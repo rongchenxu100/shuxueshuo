@@ -276,6 +276,14 @@ F5-F4.2R迁移期间，既有selector只能通过显式
 `method-input-binding/v1`只接受typed binding，不接受Legacy selector。后续迁移应
 逐项减少Legacy基线，不能用新名字包装一次context扫描。
 
+公共二次函数竖切已经完成该迁移：Function latest state、canonical `x`、系数提取、
+ordinal-0模板和公共二次函数parameter symbol均使用strict binding。具名Function在Plan中仍写
+SourceRef；F5-C负责把其latest StateVersion与唯一可见的上游call result对账，
+derivation再消费同一个exact pin。Method或compiler不得因为需要系数、模板或Symbol
+而重新扫描Context，也不得把derived runtime path当成新的数学source authority。
+几何Method中表示题目主参数的`parameter_symbol`仍属于后续Entity/geometry迁移，
+不得用free-symbol basis替换其语义。
+
 ### 5.1 Method input view
 
 每个内部 input 必须且只能声明一种 view：

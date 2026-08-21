@@ -1862,6 +1862,11 @@ def build_functional_problem_binding_context(
                     ),
                     f"SemanticRef {wire_ref.ref!r} is outside Goal authority",
                 )
+            input_path = (
+                f"$.calls[{call_id!r}].args"
+                f"[{binding.key.arg_name!r}]"
+                f"[{binding.key.item_index}]"
+            )
             if binding.source.kind == "call_result":
                 _audit_implicit_same_object_call_result(
                     source_binding=source_binding,
@@ -1871,12 +1876,32 @@ def build_functional_problem_binding_context(
                     reconciled_calls=reconciled,
                     goal_bindings=goal_bindings,
                     catalog=catalog,
-                    path=(
-                        f"$.calls[{call_id!r}].args"
-                        f"[{binding.key.arg_name!r}]"
-                        f"[{binding.key.item_index}]"
-                    ),
+                    path=input_path,
                 )
+                inputs.append(
+                    FunctionalProblemInputBinding(
+                        call_id=call_id,
+                        arg_name=binding.key.arg_name,
+                        item_index=binding.key.item_index,
+                        source_kind="call_result",
+                        selection_policy=binding.selection_policy,
+                        semantic_ref=wire_ref,
+                        runtime_node_id=source_binding.runtime_node_id,
+                        typed_source=binding.source,
+                    )
+                )
+                continue
+            computed_source = _audit_computed_state_source(
+                source_binding=source_binding,
+                typed_source=binding.source,
+                consumer_call_id=call_id,
+                consumer_goal_binding=call_goals,
+                reconciled_calls=reconciled,
+                goal_bindings=goal_bindings,
+                catalog=catalog,
+                path=input_path,
+            )
+            if computed_source is not None:
                 inputs.append(
                     FunctionalProblemInputBinding(
                         call_id=call_id,
@@ -1958,6 +1983,43 @@ def build_functional_problem_binding_context(
                 )
             )
             continue
+        if (
+            isinstance(wire_ref, CallResultRef)
+            and binding.source.kind == "state_version"
+        ):
+            producer = reconciled.get(wire_ref.from_call)
+            allocation = next(
+                (
+                    item
+                    for item in (producer.returns if producer is not None else ())
+                    if item.return_name == wire_ref.return_name
+                ),
+                None,
+            )
+            if (
+                allocation is None
+                or allocation.selected_version_id
+                != binding.source.state_version_id
+            ):
+                raise _error(
+                    "planner.problem_source_binding_drift",
+                    f"$.calls[{call_id!r}].args",
+                    (
+                        "CallResultRef does not resolve to the exact typed "
+                        "StateVersion selected by Method input authority"
+                    ),
+                )
+            inputs.append(
+                FunctionalProblemInputBinding(
+                    call_id=call_id,
+                    arg_name=binding.key.arg_name,
+                    item_index=binding.key.item_index,
+                    source_kind="call_result",
+                    selection_policy=binding.selection_policy,
+                    typed_source=binding.source,
+                )
+            )
+            continue
         if binding.source.kind == "call_result":
             if wire_ref is not None and (
                 not isinstance(wire_ref, CallResultRef)
@@ -1993,14 +2055,51 @@ def build_functional_problem_binding_context(
                 )
             )
             continue
+        input_path = (
+            f"$.calls[{call_id!r}].args"
+            f"[{binding.key.arg_name!r}]"
+        )
+        computed_source = _call_result_source_for_exact_state(
+            binding.source,
+            consumer_call_id=call_id,
+            reconciled_calls=reconciled,
+            path=input_path,
+        )
+        if computed_source is not None:
+            source_binding = _problem_binding_for_state_object(
+                catalog,
+                binding.source,
+                goal_unit_ids=call_goals.effective_goal_unit_ids,
+                path=input_path,
+            )
+            _audit_implicit_same_object_call_result(
+                source_binding=source_binding,
+                source=computed_source,
+                consumer_call_id=call_id,
+                consumer_goal_binding=call_goals,
+                reconciled_calls=reconciled,
+                goal_bindings=goal_bindings,
+                catalog=catalog,
+                path=input_path,
+            )
+            inputs.append(
+                FunctionalProblemInputBinding(
+                    call_id=call_id,
+                    arg_name=binding.key.arg_name,
+                    item_index=binding.key.item_index,
+                    source_kind="call_result",
+                    selection_policy=binding.selection_policy,
+                    semantic_ref=source_binding.semantic_ref,
+                    runtime_node_id=source_binding.runtime_node_id,
+                    typed_source=binding.source,
+                )
+            )
+            continue
         source_binding = _authority_for_c3_source(
             catalog,
             binding.source,
             goal_unit_ids=call_goals.effective_goal_unit_ids,
-            path=(
-                f"$.calls[{call_id!r}].args"
-                f"[{binding.key.arg_name!r}]"
-            ),
+            path=input_path,
         )
         inputs.append(
             FunctionalProblemInputBinding(
@@ -2724,6 +2823,133 @@ def _audit_implicit_same_object_call_result(
             path,
             "implicit dynamic source is not the latest Goal-visible object state",
         )
+
+
+def _call_result_source_for_exact_state(
+    source: FunctionalArgSourceIdentity,
+    *,
+    consumer_call_id: str,
+    reconciled_calls: Mapping[str, FunctionalCallReconciliation],
+    path: str,
+) -> FunctionalArgSourceIdentity | None:
+    """Resolve a pinned computed state to its unique earlier public return."""
+
+    if source.kind != "state_version" or source.state_version_id is None:
+        return None
+    call_order = tuple(reconciled_calls)
+    if consumer_call_id not in reconciled_calls:
+        raise _error(
+            "functional.call_goal_unresolved",
+            path,
+            f"consumer call {consumer_call_id!r} has no reconciliation authority",
+        )
+    prior_call_ids = call_order[: call_order.index(consumer_call_id)]
+    matches = tuple(
+        (call_id, allocation.return_name)
+        for call_id in prior_call_ids
+        for allocation in reconciled_calls[call_id].returns
+        if allocation.selected_version_id == source.state_version_id
+    )
+    if not matches:
+        return None
+    if len(matches) != 1:
+        raise _error(
+            "planner.problem_source_binding_drift",
+            path,
+            (
+                "exact StateVersion maps to multiple earlier call returns: "
+                f"version={source.state_version_id.to_payload()}, "
+                f"returns={list(matches)}"
+            ),
+        )
+    producer_call_id, return_name = matches[0]
+    return FunctionalArgSourceIdentity(
+        kind="call_result",
+        source_call_id=producer_call_id,
+        source_return_name=return_name,
+    )
+
+
+def _problem_binding_for_state_object(
+    catalog: ProblemPlanningBindingCatalog,
+    source: FunctionalArgSourceIdentity,
+    *,
+    goal_unit_ids: Sequence[str],
+    path: str,
+) -> ProblemPlanningSourceBinding:
+    """Recover the named Problem entity behind a computed StateVersion."""
+
+    if source.kind != "state_version" or source.state_version_id is None:
+        raise _error(
+            "planner.problem_source_binding_unresolved",
+            path,
+            "computed source has no exact StateVersion identity",
+        )
+    object_id = source.state_version_id.slot_id.logical_key.object_id
+    required_goals = set(goal_unit_ids)
+    candidates = tuple(
+        binding
+        for binding in catalog.bindings.values()
+        if binding.usage == "input"
+        and required_goals.issubset(binding.visible_goal_unit_ids)
+        and any(
+            typed.math_object_id == object_id
+            for typed in binding.typed_sources
+        )
+    )
+    named_candidates = tuple(
+        binding
+        for binding in candidates
+        if binding.semantic_ref.kind != "fact"
+    )
+    preferred = named_candidates or candidates
+    by_runtime_node = {
+        binding.runtime_node_id: binding for binding in preferred
+    }
+    if len(by_runtime_node) != 1:
+        raise _error(
+            "planner.problem_source_binding_unresolved",
+            path,
+            (
+                "computed StateVersion object maps to "
+                f"{len(by_runtime_node)} Goal-visible source authorities: "
+                f"object={object_id.to_payload()}, "
+                f"goals={sorted(required_goals)}"
+            ),
+        )
+    return next(iter(by_runtime_node.values()))
+
+
+def _audit_computed_state_source(
+    *,
+    source_binding: ProblemPlanningSourceBinding,
+    typed_source: FunctionalArgSourceIdentity,
+    consumer_call_id: str,
+    consumer_goal_binding: ProblemCallGoalBinding,
+    reconciled_calls: Mapping[str, FunctionalCallReconciliation],
+    goal_bindings: ProblemPlanGoalBindings,
+    catalog: ProblemPlanningBindingCatalog,
+    path: str,
+) -> FunctionalArgSourceIdentity | None:
+    call_result_source = _call_result_source_for_exact_state(
+        typed_source,
+        consumer_call_id=consumer_call_id,
+        reconciled_calls=reconciled_calls,
+        path=path,
+    )
+    if call_result_source is None:
+        return None
+    _audit_implicit_same_object_call_result(
+        source_binding=source_binding,
+        source=call_result_source,
+        consumer_call_id=consumer_call_id,
+        consumer_goal_binding=consumer_goal_binding,
+        reconciled_calls=reconciled_calls,
+        goal_bindings=goal_bindings,
+        catalog=catalog,
+        path=path,
+    )
+    return call_result_source
 
 
 def _typed_source_matches_c3(

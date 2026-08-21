@@ -6,6 +6,8 @@ from pathlib import Path
 import pytest
 
 from shuxueshuo_server.solver.contracts import (
+    CoefficientExtractionDerivationSpec,
+    MethodInputBindingSpec,
     MethodInputSpec,
     MethodInputViewSpec,
     PointRef,
@@ -21,6 +23,7 @@ from shuxueshuo_server.solver.runtime.method_input_read_authority import (
     CallResultReadSource,
     CompilerSelectorReadSource,
     ConditionReadSource,
+    DerivedInputReadSource,
     EntityIdentityReadSource,
     MethodInputReadAuthority,
     StateVersionReadSource,
@@ -95,6 +98,55 @@ def test_read_authority_round_trip_and_hash_drift() -> None:
     drifted["source"]["state_version_id"]["ordinal"] = 2
     with pytest.raises(ValueError, match="signature drift"):
         MethodInputReadAuthority.from_payload(drifted)
+
+
+def test_derived_input_authority_round_trips_exact_upstream_state() -> None:
+    source_version = StateVersionId(
+        StateSlotId(
+            LogicalStateKey(
+                MathObjectId(
+                    "function:problem:parabola",
+                    "function",
+                    "problem",
+                ),
+                "expression",
+                "Expression",
+            ),
+            "problem",
+        ),
+        0,
+    )
+    binding = MethodInputBindingSpec(
+        input_name="all_coefficients",
+        derivation=CoefficientExtractionDerivationSpec("quadratic"),
+    )
+    authority = MethodInputReadAuthority(
+        method_id="quadratic_from_constraints",
+        invocation_id="derive_parabola.quadratic_from_constraints",
+        input_name="all_coefficients",
+        item_index=0,
+        view_mode="immutable_value",
+        domain_type="SymbolList",
+        runtime_type="SymbolList",
+        scope_id="i",
+        source=DerivedInputReadSource(
+            binding,
+            StateVersionReadSource(
+                source_version,
+                "$problem.expressions.quadratic",
+            ),
+            "$problem.symbol_lists.quadratic_coefficients",
+        ),
+    )
+
+    restored = MethodInputReadAuthority.from_payload(
+        authority.authority_payload()
+    )
+
+    assert restored == authority
+    assert isinstance(restored.source, DerivedInputReadSource)
+    assert restored.source.binding == binding
+    assert restored.source.upstream.state_version_id == source_version
 
 
 def test_method_diagnostic_subject_uses_pinned_read_entity_identity() -> None:

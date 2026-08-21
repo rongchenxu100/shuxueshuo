@@ -854,6 +854,7 @@ class MethodInputSpec:
     allows_anonymous_result: bool = False
     allows_empty_collection: bool = False
     symbolic_basis_role: MethodSymbolicBasisRole | None = None
+    binding: MethodInputBindingSpec | None = None
 
     @property
     def type(self) -> str:

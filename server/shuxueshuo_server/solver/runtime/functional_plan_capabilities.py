@@ -5,7 +5,15 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from typing import Any, Mapping, Protocol, Sequence
 
-from shuxueshuo_server.solver.contracts import MethodInputViewMode, MethodSpec
+from shuxueshuo_server.solver.contracts import (
+    FreeSymbolBasisDerivationSpec,
+    LegacySelectorInputBindingSpec,
+    MethodInputBindingSpec,
+    MethodInputViewMode,
+    MethodSpec,
+    PublicArgSourceSpec,
+    SourceObjectIdentityDerivationSpec,
+)
 from shuxueshuo_server.solver.family.models import (
     CapabilityContextResolver,
     CapabilityInputClosureRequirement,
@@ -325,7 +333,8 @@ class FunctionalCapabilityCatalog:
                     for arg in capability.args
                 )
                 and all(
-                    semantic_catalog.auto_selector_is_satisfiable(auto.selector)
+                    auto.selector is None
+                    or semantic_catalog.auto_selector_is_satisfiable(auto.selector)
                     for auto in capability.auto_args
                 )
                 and all(
@@ -527,6 +536,9 @@ def _function_capability(
                 contract,
                 item.method_input or item.name,
             ),
+            functional_exposed=method_spec.inputs[
+                item.method_input or item.name
+            ].functional_exposed,
             public_identity_arg=(
                 item.kind == "point_ref"
                 and (
@@ -535,6 +547,7 @@ def _function_capability(
                     )
                 )
                 is not None
+                and isinstance(binding, LegacySelectorInputBindingSpec)
                 and binding.selector == "right_angle:target"
             ),
             point_ref_arg=item.kind == "point_ref",
@@ -573,11 +586,8 @@ def _function_capability(
         if condition_pattern is not None:
             remaining_condition_patterns.remove(condition_pattern)
         binding = binding_by_input.get(runtime_input)
-        evidence_resolver = _semantic_evidence_resolver(
-            binding.selector if binding is not None else None
-        )
-        if binding is not None and binding.functional_resolver is not None:
-            evidence_resolver = binding.functional_resolver
+        selector = _legacy_binding_selector(binding)
+        evidence_resolver = _binding_evidence_resolver(binding)
         functional_arg = _function_arg(
             item,
             condition_pattern=condition_pattern,
@@ -591,14 +601,14 @@ def _function_capability(
             ),
             required_override=(False if evidence_resolver else None),
             accepted_semantic_roles=_selector_semantic_roles(
-                binding.selector if binding is not None else None
+                selector
             ),
             accepted_condition_kinds=_selector_condition_kinds(
-                binding.selector if binding is not None else None
+                selector
             ),
             requires_materialized_state=_arg_requires_materialized_state(
                 item,
-                binding.selector if binding is not None else None,
+                selector,
             ),
             aliases=arg_aliases.get(runtime_input, ()),
             binding_authority="wire",
@@ -627,7 +637,8 @@ def _function_capability(
     selector_prerequisite_kinds = {
         primitive.prerequisite_condition_kind
         for binding in binding_by_input.values()
-        if (primitive := _selector_primitive(binding.selector)) is not None
+        if (selector := _legacy_binding_selector(binding)) is not None
+        if (primitive := _selector_primitive(selector)) is not None
     }
     for pattern in remaining_condition_patterns:
         if pattern.condition_kind not in selector_prerequisite_kinds:
@@ -644,8 +655,11 @@ def _function_capability(
     auto_args = tuple(
         FunctionalAutoArg(
             name=item.method_input or item.name,
-            selector=binding.selector,
             required=binding.required,
+            selector=_legacy_binding_selector(binding),
+            input_binding=(
+                binding if isinstance(binding, MethodInputBindingSpec) else None
+            ),
             binding_authority=authority_by_input[item.method_input or item.name],
             semantic_role=getattr(item, "semantic_role", None) or item.name,
             runtime_input=item.method_input or item.name,
@@ -727,7 +741,11 @@ def _function_capability(
         ),
         auto_args=auto_args,
         context_preflight_selectors=_context_preflight_selectors(
-            binding.selector for binding in binding_by_input.values()
+            tuple(
+                selector
+                for binding in binding_by_input.values()
+                if (selector := _legacy_binding_selector(binding)) is not None
+            )
         ),
         input_closure_requirements=_input_closure_requirements(
             spec.input_closure_requirements
@@ -848,6 +866,7 @@ def _functional_binding_authority(
     binding: Any | None,
     *,
     contract_declares_input: bool,
+    functional_exposed: bool,
     public_identity_arg: bool,
     point_ref_arg: bool,
     arg_kind: str,
@@ -860,6 +879,15 @@ def _functional_binding_authority(
             if arg_kind in {"slot_read", "condition_read"}
             else "compiler"
         )
+    if isinstance(binding, MethodInputBindingSpec):
+        if isinstance(binding.source, PublicArgSourceSpec):
+            return "wire"
+        if (
+            functional_exposed
+            and isinstance(binding.derivation, FreeSymbolBasisDerivationSpec)
+        ):
+            return "wire"
+        return "compiler"
     if binding.functional_authority is not None:
         return binding.functional_authority
     semantics = selector_semantics(binding.selector)
@@ -870,6 +898,26 @@ def _functional_binding_authority(
     if semantics.semantic_evidence_resolver is not None:
         return "resolver"
     return "compiler"
+
+
+def _legacy_binding_selector(binding: Any | None) -> str | None:
+    if isinstance(binding, LegacySelectorInputBindingSpec):
+        return binding.selector
+    return None
+
+
+def _binding_evidence_resolver(binding: Any | None) -> str | None:
+    if isinstance(binding, LegacySelectorInputBindingSpec):
+        return (
+            binding.functional_resolver
+            or _semantic_evidence_resolver(binding.selector)
+        )
+    if isinstance(binding, MethodInputBindingSpec) and isinstance(
+        binding.derivation,
+        (FreeSymbolBasisDerivationSpec, SourceObjectIdentityDerivationSpec),
+    ):
+        return "unique_parameter_symbol"
+    return None
 
 
 def _selector_is_mechanical(selector: str | None) -> bool:
@@ -1251,7 +1299,10 @@ def _context_arg_bindings(
     result: dict[tuple[str, str], FunctionalContextArgBinding] = {}
     enabled = set(context_resolvers)
     for input_binding in input_bindings:
-        context_binding = selector_context_binding(input_binding.selector)
+        selector = _legacy_binding_selector(input_binding)
+        if selector is None:
+            continue
+        context_binding = selector_context_binding(selector)
         if context_binding is None:
             continue
         resolver_id, semantic_role = context_binding

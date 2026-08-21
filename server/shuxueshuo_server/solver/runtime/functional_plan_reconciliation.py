@@ -8,6 +8,7 @@ from typing import Any, Mapping, Sequence
 
 from shuxueshuo_server.solver.contracts import (
     FunctionalResultForm,
+    LatestStateSourceSpec,
     SymbolicClosureSpec,
 )
 from shuxueshuo_server.solver.family.models import (
@@ -8933,7 +8934,7 @@ def _hidden_auto_arg_object_refs(
 
     result: list[str] = []
     for auto in capability.auto_args:
-        if not auto.selector.startswith("angle_sum:"):
+        if auto.selector is None or not auto.selector.startswith("angle_sum:"):
             continue
         role = auto.selector.split(":", 1)[1]
         if role in {"condition", "target"}:
@@ -8958,7 +8959,7 @@ def _hidden_auto_arg_object_requirements(
 ) -> tuple[tuple[str, bool], ...]:
     result: list[tuple[str, bool]] = []
     for auto in capability.auto_args:
-        if not auto.selector.startswith("angle_sum:"):
+        if auto.selector is None or not auto.selector.startswith("angle_sum:"):
             continue
         role = auto.selector.split(":", 1)[1]
         if role in {"condition", "target"}:
@@ -9317,7 +9318,8 @@ def _hidden_point_target_arg(
     candidates = [
         item.name
         for item in capability.auto_args
-        if selector_semantics(item.selector).mechanical
+        if item.selector is not None
+        and selector_semantics(item.selector).mechanical
         and "target" in item.name.lower()
         and not call.args.get(item.name)
     ]
@@ -9352,6 +9354,7 @@ def _required_identity_auto_arg_issues(
         )
         for auto in capability.auto_args
         if auto.required
+        and auto.selector is not None
         and selector_semantics(auto.selector).owns_identity_binding
         and not any(
             returned.runtime_type == "Point"
@@ -9764,7 +9767,9 @@ def _resolve_deterministic_optional_args(
     return additions, tuple(repairs)
 
 
-def _has_context_auto_resolver(selector: str) -> bool:
+def _has_context_auto_resolver(selector: str | None) -> bool:
+    if selector is None:
+        return False
     return (
         selector.startswith("function:")
         or selector.startswith("angle_sum:")
@@ -9896,6 +9901,92 @@ def _resolve_context_auto_args(
     issues: list[FunctionalPlanIssue] = []
     for auto in capability.auto_args:
         if auto.name in resolved_args:
+            continue
+        if auto.selector is None:
+            if (
+                auto.input_binding is not None
+                and isinstance(
+                    auto.input_binding.source,
+                    LatestStateSourceSpec,
+                )
+            ):
+                source = auto.input_binding.source
+                view, matching = semantic_index.resolve(
+                    SemanticRef(source.entity_arg, "function"),
+                    scope_id=scope_id,
+                    accepted_types=("Function", "Parabola", "Expression"),
+                )
+                if view is None:
+                    if auto.required:
+                        issues.append(
+                            _issue(
+                                "functional_reconciliation",
+                                (
+                                    "planner.method_input_view_authority_missing"
+                                    if not matching
+                                    else "planner.method_input_view_authority_drift"
+                                ),
+                                (
+                                    f"typed latest-state source {source.entity_arg} "
+                                    f"cannot be resolved for {auto.name}"
+                                ),
+                                call_id=call_id,
+                                scope_id=scope_id,
+                                details={
+                                    "arg": auto.name,
+                                    "entity_arg": source.entity_arg,
+                                    "candidate_count": len(matching),
+                                },
+                            )
+                        )
+                    continue
+                dynamic = [
+                    value
+                    for value in produced.values()
+                    if visible_from_valid_scope(
+                        value.valid_scope,
+                        scope_id=scope_id,
+                        registry=handle_registry,
+                    )
+                    and (
+                        (
+                            view.math_object_id is not None
+                            and value.math_object_id == view.math_object_id
+                        )
+                        or (
+                            view.object_ref is not None
+                            and value.object_ref == view.object_ref
+                        )
+                    )
+                ]
+                selected = dynamic[-1] if dynamic else ResolvedFunctionalValue(
+                    handle=view.handle,
+                    runtime_type=view.runtime_type,
+                    valid_scope=view.valid_scope,
+                    state_slot_id=view.state_slot_id,
+                    object_ref=view.object_ref,
+                    condition_id=view.condition_id,
+                    object_roles=view.object_roles,
+                    dependency_object_refs=view.dependency_object_refs,
+                    free_symbol_refs=view.free_symbol_refs,
+                    source_state_slot_ids=view.source_state_slot_ids,
+                    provides_semantic_roles=view.provides_semantic_roles,
+                    lineage=view.lineage,
+                    math_object_id=view.math_object_id,
+                    logical_state_key=view.logical_state_key,
+                    typed_slot_id=view.typed_slot_id,
+                    state_version_id=view.state_version_id,
+                    source_version_ids=view.source_version_ids,
+                )
+                additions[auto.name] = (selected,)
+                repairs.append(
+                    FunctionalDeterministicRepair(
+                        call_id,
+                        "resolve_typed_latest_state_arg",
+                        f"{auto.name}=omitted",
+                        f"{auto.name}={source.entity_arg}",
+                    )
+                )
             continue
         if auto.selector.startswith("angle_sum:"):
             value, repair, issue = _resolve_angle_sum_auto_arg(
@@ -10542,7 +10633,11 @@ def _resolve_auto_symbol_args(
         semantic_auto = semantic_auto_by_name.get(arg_name)
         if (
             semantic_auto is None
-            and (auto is None or "parameter" not in auto.selector)
+            and (
+                auto is None
+                or auto.selector is None
+                or "parameter" not in auto.selector
+            )
         ):
             continue
         if (

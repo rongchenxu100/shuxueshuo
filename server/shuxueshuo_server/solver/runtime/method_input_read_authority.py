@@ -5,7 +5,10 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Literal, Mapping, TypeAlias
 
-from shuxueshuo_server.solver.contracts import MethodInputViewMode
+from shuxueshuo_server.solver.contracts import (
+    MethodInputBindingSpec,
+    MethodInputViewMode,
+)
 from shuxueshuo_server.solver.extraction.source_identity import stable_hash
 from shuxueshuo_server.solver.runtime.state_identity import StateVersionId
 
@@ -98,6 +101,32 @@ class CompilerSelectorReadSource:
         }
 
 
+@dataclass(frozen=True)
+class DerivedInputReadSource:
+    binding: MethodInputBindingSpec
+    upstream: "MethodInputReadSource"
+    runtime_path: str
+    kind: Literal["typed_derivation"] = "typed_derivation"
+
+    def __post_init__(self) -> None:
+        if self.binding.derivation is None:
+            raise ValueError(
+                "typed derivation read source requires a derivation binding"
+            )
+        if isinstance(self.upstream, (CompilerSelectorReadSource, DerivedInputReadSource)):
+            raise ValueError(
+                "typed derivation upstream must be an exact source authority"
+            )
+
+    def to_payload(self) -> dict[str, Any]:
+        return {
+            "kind": self.kind,
+            "binding": self.binding.to_payload(),
+            "upstream": self.upstream.to_payload(),
+            "runtime_path": self.runtime_path,
+        }
+
+
 MethodInputReadSource: TypeAlias = (
     EntityIdentityReadSource
     | StateVersionReadSource
@@ -105,6 +134,7 @@ MethodInputReadSource: TypeAlias = (
     | CallResultReadSource
     | InvocationResultReadSource
     | CompilerSelectorReadSource
+    | DerivedInputReadSource
 )
 
 
@@ -258,6 +288,7 @@ def _validate_source_for_view(
             ConditionReadSource,
             InvocationResultReadSource,
             CompilerSelectorReadSource,
+            DerivedInputReadSource,
         ),
         "exact_result": (
             CallResultReadSource,
@@ -287,6 +318,7 @@ def _validate_production_source_for_view(
             ConditionReadSource,
             InvocationResultReadSource,
             CompilerSelectorReadSource,
+            DerivedInputReadSource,
         ),
         "exact_result": (CallResultReadSource, InvocationResultReadSource),
     }
@@ -335,6 +367,18 @@ def _source_from_payload(payload: Mapping[str, Any]) -> MethodInputReadSource:
             _required_string(payload, "selector_id"),
             runtime_path,
         )
+    if kind == "typed_derivation":
+        binding = payload.get("binding")
+        upstream = payload.get("upstream")
+        if not isinstance(binding, Mapping) or not isinstance(upstream, Mapping):
+            raise ValueError(
+                "typed_derivation source requires binding and upstream"
+            )
+        return DerivedInputReadSource(
+            MethodInputBindingSpec.from_payload(binding),
+            _source_from_payload(upstream),
+            runtime_path,
+        )
     raise ValueError(f"unsupported Method input read source: {kind!r}")
 
 
@@ -363,6 +407,7 @@ __all__ = [
     "CallResultReadSource",
     "CompilerSelectorReadSource",
     "ConditionReadSource",
+    "DerivedInputReadSource",
     "EntityIdentityReadSource",
     "InvocationResultReadSource",
     "MethodInputReadAuthority",

@@ -652,12 +652,8 @@ def test_generic_function_adapters_are_projected_from_common_binding_rules() -> 
     for rule in GENERIC_FUNCTION_BINDING_RULES:
         adapter = GENERIC_FUNCTION_ADAPTERS[rule.method_id]
         assert adapter.adapter_id == rule.method_id
-        assert [
-            (item.input_name, item.selector, item.required)
-            for item in adapter.input_bindings
-        ] == [
-            (item.input_name, item.selector, item.required)
-            for item in rule.input_bindings
+        assert [item.to_payload() for item in adapter.input_bindings] == [
+            item.to_payload() for item in rule.input_bindings
         ]
         assert adapter.expansion_selectors == rule.expansion_selectors
 

@@ -3,8 +3,16 @@
 from __future__ import annotations
 
 from shuxueshuo_server.solver.contracts import (
+    CanonicalSymbolDerivationSpec,
+    CoefficientExtractionDerivationSpec,
+    FreeSymbolBasisDerivationSpec,
     LegacyExpansionSelectorSpec,
     LegacySelectorInputBindingSpec,
+    LatestStateSourceSpec,
+    MethodInputBindingSpec,
+    ProducerLinkedSourceSpec,
+    PublicArgSourceSpec,
+    SourceObjectIdentityDerivationSpec,
 )
 from shuxueshuo_server.solver.family.models import (
     FunctionalOutputTargetSelectorSpec,
@@ -38,14 +46,92 @@ QUADRATIC_STATE_PREP_INVOCATIONS = (
 )
 
 
+def quadratic_latest_state_binding(
+    input_name: str,
+    *,
+    entity_arg: str | None = None,
+) -> MethodInputBindingSpec:
+    return MethodInputBindingSpec(
+        input_name=input_name,
+        source=LatestStateSourceSpec(entity_arg or "parabola"),
+    )
+
+
+def quadratic_public_state_binding(
+    input_name: str,
+    *,
+    public_arg: str | None = None,
+) -> MethodInputBindingSpec:
+    return MethodInputBindingSpec(
+        input_name=input_name,
+        source=PublicArgSourceSpec(public_arg or input_name),
+    )
+
+
+def canonical_x_binding(input_name: str = "x") -> MethodInputBindingSpec:
+    return MethodInputBindingSpec(
+        input_name=input_name,
+        derivation=CanonicalSymbolDerivationSpec("x"),
+    )
+
+
+def quadratic_coefficients_binding(
+    *,
+    input_name: str = "all_coefficients",
+    source_input: str = "quadratic",
+) -> MethodInputBindingSpec:
+    return MethodInputBindingSpec(
+        input_name=input_name,
+        derivation=CoefficientExtractionDerivationSpec(source_input),
+    )
+
+
+def parameter_basis_binding(
+    source_inputs: tuple[str, ...],
+    *,
+    input_name: str = "parameter",
+    required: bool = True,
+) -> MethodInputBindingSpec:
+    return MethodInputBindingSpec(
+        input_name=input_name,
+        required=required,
+        derivation=FreeSymbolBasisDerivationSpec(source_inputs),
+    )
+
+
+def source_parameter_identity_binding(
+    source_input: str,
+    *,
+    input_name: str,
+    required: bool = False,
+) -> MethodInputBindingSpec:
+    return MethodInputBindingSpec(
+        input_name=input_name,
+        required=required,
+        derivation=SourceObjectIdentityDerivationSpec(source_input),
+    )
+
+
+def producer_parameter_binding(
+    source_input: str,
+    *,
+    input_name: str = "parameter",
+    producer_input: str = "parameter",
+) -> MethodInputBindingSpec:
+    return MethodInputBindingSpec(
+        input_name=input_name,
+        source=ProducerLinkedSourceSpec(source_input, producer_input),
+    )
+
+
 def quadratic_from_constraints_rule() -> MethodBindingRuleSpec:
     """Bind common quadratic constraints into a reusable parabola state."""
     return MethodBindingRuleSpec(
         method_id="quadratic_from_constraints",
         input_bindings=(
-            LegacySelectorInputBindingSpec("quadratic", "function:parabola"),
-            LegacySelectorInputBindingSpec("x", "symbol:x"),
-            LegacySelectorInputBindingSpec("all_coefficients", "quadratic_coefficients"),
+            quadratic_latest_state_binding("quadratic"),
+            canonical_x_binding(),
+            quadratic_coefficients_binding(),
         ),
         scalar_aggregate_lowerings=(
             MethodScalarAggregateLoweringSpec(
@@ -90,8 +176,8 @@ def quadratic_vertex_point_rule() -> MethodBindingRuleSpec:
     return MethodBindingRuleSpec(
         method_id="quadratic_vertex_point",
         input_bindings=(
-            LegacySelectorInputBindingSpec("parabola", "read_type:Parabola"),
-            LegacySelectorInputBindingSpec("x", "symbol:x"),
+            quadratic_public_state_binding("parabola"),
+            canonical_x_binding(),
             LegacySelectorInputBindingSpec("target", "point_output_ref"),
         ),
         prep_invocations=QUADRATIC_STATE_PREP_INVOCATIONS,
@@ -104,8 +190,11 @@ def quadratic_x_axis_intercept_point_rule() -> MethodBindingRuleSpec:
         method_id="quadratic_x_axis_intercept_point",
         functional_input_names=(("quadratic", "parabola"),),
         input_bindings=(
-            LegacySelectorInputBindingSpec("quadratic", "read_type:Parabola"),
-            LegacySelectorInputBindingSpec("x", "symbol:x"),
+            quadratic_public_state_binding(
+                "quadratic",
+                public_arg="parabola",
+            ),
+            canonical_x_binding(),
             LegacySelectorInputBindingSpec("target", "point_output_ref"),
             LegacySelectorInputBindingSpec(
                 "target_state",
@@ -123,8 +212,8 @@ def quadratic_y_axis_intercept_point_rule() -> MethodBindingRuleSpec:
     return MethodBindingRuleSpec(
         method_id="quadratic_y_axis_intercept_point",
         input_bindings=(
-            LegacySelectorInputBindingSpec("quadratic", "function:parabola"),
-            LegacySelectorInputBindingSpec("x", "symbol:x"),
+            quadratic_latest_state_binding("quadratic"),
+            canonical_x_binding(),
             LegacySelectorInputBindingSpec("target", "point_output_ref"),
         ),
     )
@@ -152,8 +241,8 @@ def point_on_parabola_at_x_rule() -> MethodBindingRuleSpec:
             ),
         ),
         input_bindings=(
-            LegacySelectorInputBindingSpec("parabola", "read_type:Parabola"),
-            LegacySelectorInputBindingSpec("x", "symbol:x"),
+            quadratic_public_state_binding("parabola"),
+            canonical_x_binding(),
             LegacySelectorInputBindingSpec("target", "point_output_ref"),
         ),
         prep_invocations=QUADRATIC_STATE_PREP_INVOCATIONS,
@@ -165,8 +254,8 @@ def line_parabola_second_intersection_point_rule() -> MethodBindingRuleSpec:
     return MethodBindingRuleSpec(
         method_id="line_parabola_second_intersection_point",
         input_bindings=(
-            LegacySelectorInputBindingSpec("parabola", "read_type:Parabola"),
-            LegacySelectorInputBindingSpec("x", "symbol:x"),
+            quadratic_public_state_binding("parabola"),
+            canonical_x_binding(),
             LegacySelectorInputBindingSpec("line_p1", "line_parabola:line_p1"),
             LegacySelectorInputBindingSpec("line_p2", "line_parabola:line_p2"),
             LegacySelectorInputBindingSpec("known_point", "line_parabola:known_point"),
@@ -235,19 +324,25 @@ def parameter_from_curve_point_on_quadratic_rule() -> MethodBindingRuleSpec:
     return MethodBindingRuleSpec(
         method_id="parameter_from_curve_point_on_quadratic",
         input_bindings=(
-            LegacySelectorInputBindingSpec("quadratic", "read_type:Parabola"),
-            LegacySelectorInputBindingSpec("x", "symbol:x"),
+            quadratic_public_state_binding("quadratic"),
+            canonical_x_binding(),
             LegacySelectorInputBindingSpec("point", "read_type:Point"),
-            LegacySelectorInputBindingSpec("parameter", "parameter_symbol_from_reads"),
+            parameter_basis_binding(
+                (
+                    "quadratic",
+                    "point",
+                    "parameter_constraint",
+                    "known_parameter_value",
+                )
+            ),
             LegacySelectorInputBindingSpec(
                 "parameter_constraint",
                 "parameter_constraint",
                 required=False,
             ),
-            LegacySelectorInputBindingSpec(
-                "known_parameter",
-                "known_parameter_symbol_from_reads",
-                required=False,
+            source_parameter_identity_binding(
+                "known_parameter_value",
+                input_name="known_parameter",
             ),
             LegacySelectorInputBindingSpec(
                 "known_parameter_value",
@@ -267,12 +362,7 @@ def evaluate_expression_at_parameter_rule() -> MethodBindingRuleSpec:
                 "expression",
                 "read_type:Expression|MinimumExpression|Parabola",
             ),
-            LegacySelectorInputBindingSpec(
-                "parameter",
-                "parameter_symbol",
-                functional_authority="wire",
-                functional_resolver="unique_parameter_symbol",
-            ),
+            parameter_basis_binding(("expression", "parameter_value")),
         ),
         expansion_selectors=(
             LegacyExpansionSelectorSpec("parameter_value_if_read"),
@@ -300,11 +390,8 @@ def parameter_from_expression_value_rule() -> MethodBindingRuleSpec:
         input_bindings=(
             LegacySelectorInputBindingSpec("expression", "read_type:MinimumExpression"),
             LegacySelectorInputBindingSpec("condition", "fact:minimum_value:Condition"),
-            LegacySelectorInputBindingSpec(
-                "parameter",
-                "parameter_symbol_from_reads_or_expression",
-                functional_authority="wire",
-                functional_resolver="unique_parameter_symbol",
+            parameter_basis_binding(
+                ("expression", "condition", "constraint")
             ),
             LegacySelectorInputBindingSpec("constraint", "parameter_constraint", required=False),
         ),

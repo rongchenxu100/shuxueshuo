@@ -6,7 +6,11 @@
 
 from __future__ import annotations
 
-from shuxueshuo_server.solver.contracts import MethodOutputActivationSpec
+from shuxueshuo_server.solver.contracts import (
+    MethodInputBindingSpec,
+    MethodOutputActivationSpec,
+    OrdinalZeroTemplateDerivationSpec,
+)
 
 from shuxueshuo_server.solver.runtime.quadratic_constraint_solver import (
     quadratic_coefficient_expression,
@@ -179,6 +183,11 @@ SPEC = MethodSpecSource(
             "type": "Expression",
             "required": False,
             "functional_exposed": False,
+            "binding": MethodInputBindingSpec(
+                input_name="quadratic_template",
+                required=False,
+                derivation=OrdinalZeroTemplateDerivationSpec("parabola"),
+            ),
         },
     },
     input_views=declare_input_views(

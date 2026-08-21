@@ -8,7 +8,10 @@ from typing import Any, Literal, Mapping, Protocol
 import sympy as sp
 from sympy.parsing.sympy_parser import parse_expr
 
-from shuxueshuo_server.solver.contracts import FunctionalResultForm
+from shuxueshuo_server.solver.contracts import (
+    FunctionalResultForm,
+    MethodInputBindingSpec,
+)
 from shuxueshuo_server.solver.runtime.state_identity import (
     ComputationKey,
     LogicalStateKey,
@@ -490,7 +493,7 @@ class ProjectedFunctionArgBinding:
         "exact", "latest", "identity_only", "compiler"
     ] = "exact"
     consumption_mode: Literal[
-        "runtime_input", "resolver_evidence", "compiler_selector"
+        "runtime_input", "resolver_evidence", "compiler_selector", "typed_binding"
     ] = "runtime_input"
     compiler_selector_id: str | None = None
     compiler_selected_source_kind: Literal[
@@ -501,6 +504,7 @@ class ProjectedFunctionArgBinding:
     ] | None = None
     runtime_input_targets: tuple[str, ...] = ()
     runtime_input_required: bool = True
+    input_binding: MethodInputBindingSpec | None = None
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -528,6 +532,8 @@ class ProjectedFunctionArgBinding:
             payload["state_version_id"] = self.state_version_id.to_payload()
         if self.condition_id is not None:
             payload["condition_id"] = self.condition_id
+        if self.input_binding is not None:
+            payload["input_binding"] = self.input_binding.to_payload()
         if self.source_call_id is not None:
             payload["source_call_id"] = self.source_call_id
         if self.source_return_name is not None:
@@ -548,6 +554,7 @@ class ProjectedFunctionArgBinding:
     ) -> "ProjectedFunctionArgBinding":
         math_object = payload.get("math_object_id")
         state_version = payload.get("state_version_id")
+        input_binding = payload.get("input_binding")
         return cls(
             step_id=str(payload["step_id"]),
             arg_name=str(payload["arg_name"]),
@@ -617,6 +624,11 @@ class ProjectedFunctionArgBinding:
             ),
             runtime_input_required=bool(
                 payload.get("runtime_input_required", True)
+            ),
+            input_binding=(
+                MethodInputBindingSpec.from_payload(input_binding)
+                if isinstance(input_binding, Mapping)
+                else None
             ),
         )
 

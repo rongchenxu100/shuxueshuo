@@ -17,7 +17,9 @@ from shuxueshuo_server.solver.contracts import (
     MethodExplanationSpec,
     MethodInputRelationSpec,
     MethodInputSpec,
+    MethodInputBindingSpec,
     MethodInputViewSpec,
+    validate_method_input_binding_view,
     MethodOutputActivationKind,
     MethodOutputActivationSpec,
     MethodSpec,
@@ -680,11 +682,23 @@ def _parse_inputs(raw_inputs: object) -> dict[str, MethodInputSpec]:
                     f"invalid symbolic_basis_role for {name}: "
                     f"{symbolic_basis_role}"
                 )
+            binding_payload = raw.get("binding")
+            binding = (
+                MethodInputBindingSpec.from_payload(binding_payload)
+                if isinstance(binding_payload, dict)
+                else None
+            )
+            if binding is not None:
+                if binding.input_name != str(name):
+                    raise ValueError(
+                        "Method input binding name mismatch: "
+                        f"{binding.input_name} != {name}"
+                    )
         else:
             raise ValueError(f"invalid input spec for {name}")
         if not _input_type_is_known(input_type):
             raise ValueError(f"unknown input type for {name}: {input_type}")
-        inputs[str(name)] = MethodInputSpec(
+        input_spec = MethodInputSpec(
             name=str(name),
             domain_type=domain_type,
             runtime_type=input_type,
@@ -695,7 +709,11 @@ def _parse_inputs(raw_inputs: object) -> dict[str, MethodInputSpec]:
             allows_anonymous_result=allows_anonymous_result,
             allows_empty_collection=allows_empty_collection,
             symbolic_basis_role=symbolic_basis_role,
+            binding=binding,
         )
+        if binding is not None:
+            validate_method_input_binding_view(binding, input_spec)
+        inputs[str(name)] = input_spec
     return inputs
 
 

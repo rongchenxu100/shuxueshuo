@@ -10,6 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from typing import Any
 
+from shuxueshuo_server.solver.contracts import MethodInputBindingSpec
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapability,
 )
@@ -88,6 +89,7 @@ class FunctionalRuntimeArgBinding:
     source_handle: str | None = None
     state_slot_id: str | None = None
     runtime_input_required: bool = True
+    input_binding: MethodInputBindingSpec | None = None
 
     @property
     def step_id(self) -> str:
@@ -169,7 +171,13 @@ def _runtime_arg_bindings(
                 runtime_type=binding.runtime_type,
                 runtime_path=(
                     prepared.runtime_path
-                    if prepared.selected_state_version_id is None
+                    if (
+                        prepared.selected_state_version_id is None
+                        or (
+                            binding.input_binding is not None
+                            and binding.input_binding.derivation is not None
+                        )
+                    )
                     else None
                 ),
                 runtime_input_targets=binding.runtime_input_targets,
@@ -222,6 +230,7 @@ def _runtime_arg_bindings(
                 compiler_selector_id=binding.source.compiler_selector_id,
                 source_handle=prepared.source_handle,
                 runtime_input_required=binding.runtime_input_required,
+                input_binding=binding.input_binding,
             )
         )
     return tuple(result)

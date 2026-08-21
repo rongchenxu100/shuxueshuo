@@ -85,6 +85,65 @@ DERIVATION_VARIANTS = (
     FreeSymbolBasisDerivationSpec(("expression", "constraint")),
 )
 
+MIGRATED_QUADRATIC_BINDINGS = {
+    ("evaluate_expression_at_parameter", "parameter", "free_symbol_basis"),
+    ("line_parabola_second_intersection_point", "parabola", "public_arg"),
+    ("line_parabola_second_intersection_point", "x", "canonical_symbol"),
+    (
+        "linked_broken_path_minimum_expression",
+        "parameter",
+        "free_symbol_basis",
+    ),
+    (
+        "parameter_from_curve_point_on_quadratic",
+        "known_parameter",
+        "source_object_identity",
+    ),
+    (
+        "parameter_from_curve_point_on_quadratic",
+        "parameter",
+        "free_symbol_basis",
+    ),
+    (
+        "parameter_from_curve_point_on_quadratic",
+        "quadratic",
+        "public_arg",
+    ),
+    (
+        "parameter_from_curve_point_on_quadratic",
+        "x",
+        "canonical_symbol",
+    ),
+    ("parameter_from_expression_value", "parameter", "free_symbol_basis"),
+    ("parameter_from_minimum_value", "parameter", "free_symbol_basis"),
+    ("parameter_from_segment_length", "parameter", "free_symbol_basis"),
+    ("point_candidates_from_curve_point_condition", "parabola", "public_arg"),
+    (
+        "point_candidates_from_curve_point_condition",
+        "x",
+        "canonical_symbol",
+    ),
+    ("point_on_parabola_at_x", "parabola", "public_arg"),
+    ("point_on_parabola_at_x", "x", "canonical_symbol"),
+    ("quadratic_axis_parameterized_point", "parabola", "public_arg"),
+    ("quadratic_axis_parameterized_point", "x", "canonical_symbol"),
+    ("quadratic_axis_x_intercept_point", "parabola", "public_arg"),
+    ("quadratic_axis_x_intercept_point", "x", "canonical_symbol"),
+    (
+        "quadratic_from_constraints",
+        "all_coefficients",
+        "coefficient_extraction",
+    ),
+    ("quadratic_from_constraints", "quadratic", "latest_state"),
+    ("quadratic_from_constraints", "x", "canonical_symbol"),
+    ("quadratic_vertex_point", "parabola", "public_arg"),
+    ("quadratic_vertex_point", "x", "canonical_symbol"),
+    ("quadratic_x_axis_intercept_point", "quadratic", "public_arg"),
+    ("quadratic_x_axis_intercept_point", "x", "canonical_symbol"),
+    ("quadratic_y_axis_intercept_point", "quadratic", "latest_state"),
+    ("quadratic_y_axis_intercept_point", "x", "canonical_symbol"),
+}
+
 
 def _schema_validator() -> Draft202012Validator:
     schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
@@ -314,7 +373,7 @@ def test_recipe_derivation_wraps_shared_contract_without_payload_drift() -> None
     }
 
 
-def test_all_production_selectors_are_explicit_legacy_and_match_baseline() -> None:
+def test_remaining_production_selectors_are_explicit_legacy_and_match_baseline() -> None:
     baseline = json.loads(BASELINE_PATH.read_text(encoding="utf-8"))
     actual = sorted(
         {
@@ -322,17 +381,37 @@ def test_all_production_selectors_are_explicit_legacy_and_match_baseline() -> No
             for family in DEFAULT_FAMILY_REGISTRY.families
             for rule in family.method_binding_rules
             for binding in rule.input_bindings
+            if isinstance(binding, LegacySelectorInputBindingSpec)
         }
     )
 
     assert baseline["schema_version"] == "legacy-method-input-selectors/v1"
     assert [list(item) for item in actual] == baseline["bindings"]
     assert all(
-        isinstance(binding, LegacySelectorInputBindingSpec)
+        isinstance(
+            binding,
+            (LegacySelectorInputBindingSpec, MethodInputBindingSpec),
+        )
         for family in DEFAULT_FAMILY_REGISTRY.families
         for rule in family.method_binding_rules
         for binding in rule.input_bindings
     )
+
+
+def test_common_quadratic_inputs_use_the_strict_binding_contract() -> None:
+    actual = {
+        (
+            rule.method_id,
+            binding.input_name,
+            (binding.source or binding.derivation).kind,
+        )
+        for family in DEFAULT_FAMILY_REGISTRY.families
+        for rule in family.method_binding_rules
+        for binding in rule.input_bindings
+        if isinstance(binding, MethodInputBindingSpec)
+    }
+
+    assert actual == MIGRATED_QUADRATIC_BINDINGS
     assert all(
         isinstance(selector, LegacyExpansionSelectorSpec)
         for family in DEFAULT_FAMILY_REGISTRY.families
@@ -360,8 +439,7 @@ def test_legacy_source_declaration_count_is_frozen() -> None:
 
     assert sum(
         source.count("LegacySelectorInputBindingSpec(") for source in sources
-    ) == baseline["source_declaration_count"] == 152
-    assert all("MethodInputBindingSpec(" not in source for source in sources)
+    ) == baseline["source_declaration_count"] == 114
 
 
 def test_new_schema_excludes_legacy_selector_payload() -> None:

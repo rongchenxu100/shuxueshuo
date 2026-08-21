@@ -22,6 +22,12 @@ from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
     _classified_direct_compile_error,
     _compiled_call_signature,
 )
+from shuxueshuo_server.solver.runtime.function_specs import (
+    FunctionAdapterRegistry,
+)
+from shuxueshuo_server.solver.runtime.method_input_read_authority import (
+    CompilerSelectorReadSource,
+)
 from shuxueshuo_server.solver.runtime.models import ContextDeclaration
 from shuxueshuo_server.solver.runtime import recipe_compiler
 from shuxueshuo_server.solver.runtime.recipe_compiler import (
@@ -41,6 +47,19 @@ _COMPILE_MANIFEST_DIR = (
     Path(__file__).parent
     / "fixtures"
     / "functional_compile_manifests"
+)
+
+_RETIRED_QUADRATIC_INPUT_SELECTORS = frozenset(
+    {
+        "function:parabola",
+        "read_type:Parabola",
+        "symbol:x",
+        "quadratic_coefficients",
+        "parameter_symbol",
+        "parameter_symbol_from_reads",
+        "parameter_symbol_from_reads_or_expression",
+        "known_parameter_symbol_from_reads",
+    }
 )
 
 
@@ -174,6 +193,83 @@ def test_authored_direct_compile_manifest_is_stable(case_id: str) -> None:
     )
 
     assert _functional_compile_manifest(case_id) == expected
+
+
+def test_recorded_quadratic_vertical_slice_never_calls_legacy_selectors(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    original = FunctionAdapterRegistry._select
+    observed: list[str] = []
+
+    def guarded_select(self, selector, step, index, local_outputs):
+        observed.append(selector)
+        assert selector not in _RETIRED_QUADRATIC_INPUT_SELECTORS
+        return original(self, selector, step, index, local_outputs)
+
+    monkeypatch.setattr(FunctionAdapterRegistry, "_select", guarded_select)
+
+    for case_id in FUNCTIONAL_BATCH_CASES:
+        replay = _replay(case_id, mode="context_authoritative")
+        assert replay.output is not None
+
+    assert observed
+
+
+def test_recorded_typed_bindings_never_use_selector_read_authority() -> None:
+    checked = 0
+
+    for case_id in FUNCTIONAL_BATCH_CASES:
+        replay = _replay(case_id, mode="context_authoritative")
+        report = replay.transactional_execution_report
+        assert report is not None
+        for compiled in report.compiled_calls:
+            invocations = {
+                invocation.invocation_id: invocation
+                for plan in compiled.plans
+                for invocation in plan.invocations
+            }
+            for decision in compiled.binding_consumption_decisions:
+                if decision["consumption_mode"] != "typed_binding":
+                    continue
+                target = decision["runtime_target"]
+                input_name = target.rsplit(".", 1)[-1]
+                for invocation_id in decision["invocation_ids"]:
+                    authorities = invocations[
+                        invocation_id
+                    ].input_read_authorities[input_name]
+                    assert not any(
+                        isinstance(
+                            authority.source,
+                            CompilerSelectorReadSource,
+                        )
+                        for authority in authorities
+                    )
+                    checked += 1
+
+    assert checked >= 20
+
+
+def test_quadratic_template_binding_audit_uses_stamped_invocation() -> None:
+    replay = _replay("nankai", mode="context_authoritative")
+    report = replay.transactional_execution_report
+    assert report is not None
+    compiled = next(
+        item
+        for item in report.compiled_calls
+        if item.call_id == "i_derive_parabola"
+    )
+    invocation = compiled.plans[0].invocations[0]
+    decision = next(
+        item
+        for item in compiled.binding_consumption_decisions
+        if item["arg_name"] == "quadratic_template"
+    )
+
+    assert decision["matches"] is True
+    assert decision["actual_runtime_paths"] == [
+        invocation.inputs["quadratic_template"]
+    ]
+    assert decision["invocation_ids"] == [invocation.invocation_id]
 
 
 def test_direct_compiler_does_not_import_step_intent_bridge() -> None:

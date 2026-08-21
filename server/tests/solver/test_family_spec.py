@@ -634,10 +634,7 @@ def test_polynomial_templates_are_hidden_from_family_compiler_bindings() -> None
                 != "polynomial_coefficient_template"
             ):
                 continue
-            bindings = {
-                item.input_name: item.selector
-                for item in rule.input_bindings
-            }
+            bindings = {item.input_name for item in rule.input_bindings}
             assert "quadratic_template" not in bindings, (
                 inputs.family_spec.family_id,
                 rule.method_id,

@@ -10,7 +10,13 @@ from typing import Any, Mapping, Sequence
 
 from jsonschema import Draft202012Validator
 
-from shuxueshuo_server.solver.contracts import FunctionalResultForm
+from shuxueshuo_server.solver.contracts import (
+    CanonicalSymbolDerivationSpec,
+    EntityIdentitySourceSpec,
+    FunctionalResultForm,
+    LatestStateSourceSpec,
+    PublicArgSourceSpec,
+)
 from shuxueshuo_server.solver.extraction.problem_planning_binding import (
     ProblemPlanningBindingCatalog,
     ProblemPlanningBindingError,
@@ -4447,10 +4453,14 @@ def _return_object_target_refs(
             None,
         )
         if auto_arg is not None:
-            selected = _auto_selector_object_refs(
-                auto_arg.selector,
+            selected = _auto_input_object_refs(
+                auto_arg,
                 producer=producer,
+                by_id=by_id,
+                capability_catalog=capability_catalog,
+                answer_object_refs=answer_object_refs,
                 binding_catalog=binding_catalog,
+                seen=seen | {key},
             )
     return ReturnObjectAuthorityResolver.resolve(
         explicit_output_targets=(
@@ -4613,13 +4623,88 @@ def _functional_ref_object_role_targets(
     return frozenset(result)
 
 
+def _auto_input_object_refs(
+    auto_arg: Any,
+    *,
+    producer: _StepLocation,
+    by_id: Mapping[str, _StepLocation],
+    capability_catalog: FunctionalCapabilityCatalog,
+    answer_object_refs: Mapping[tuple[str, str], tuple[str, ...]],
+    binding_catalog: ProblemPlanningBindingCatalog,
+    seen: frozenset[tuple[str, str]],
+) -> frozenset[str]:
+    """Resolve a hidden identity input from its legacy or typed contract."""
+
+    selector = auto_arg.selector
+    if selector is not None:
+        return _auto_selector_object_refs(
+            selector,
+            producer=producer,
+            binding_catalog=binding_catalog,
+        )
+    declaration = auto_arg.input_binding
+    source = declaration.source if declaration is not None else None
+    derivation = declaration.derivation if declaration is not None else None
+    declared_entity_ref: str | None = None
+    if isinstance(source, LatestStateSourceSpec):
+        source_arg = source.entity_arg
+        declared_entity_ref = source.entity_arg
+    elif isinstance(source, PublicArgSourceSpec):
+        source_arg = source.arg_name
+    elif isinstance(source, EntityIdentitySourceSpec):
+        if source.arg_name is None:
+            return frozenset()
+        source_arg = source.arg_name
+    else:
+        source_arg = None
+    if source_arg is not None:
+        targets = frozenset(
+            target
+            for value in producer.step.args.get(source_arg, ())
+            for target in _functional_ref_object_targets(
+                value,
+                by_id=by_id,
+                capability_catalog=capability_catalog,
+                answer_object_refs=answer_object_refs,
+                binding_catalog=binding_catalog,
+                seen=seen,
+            )
+        )
+        if targets:
+            return targets
+    if declared_entity_ref is not None:
+        try:
+            binding = binding_catalog.resolve_input_binding(
+                scope_id=producer.scope_id,
+                local_ref=declared_entity_ref,
+            )
+        except ProblemPlanningBindingError:
+            return frozenset()
+        if binding.usage != "input" or not _binding_math_object_ids(binding):
+            return frozenset()
+        return frozenset((binding.semantic_ref.ref,))
+    if not isinstance(derivation, CanonicalSymbolDerivationSpec):
+        return frozenset()
+    local_ref = derivation.symbol_name
+    try:
+        binding = binding_catalog.resolve_input_binding(
+            scope_id=producer.scope_id,
+            local_ref=local_ref,
+        )
+    except ProblemPlanningBindingError:
+        return frozenset()
+    if binding.usage != "input" or not _binding_math_object_ids(binding):
+        return frozenset()
+    return frozenset((binding.semantic_ref.ref,))
+
+
 def _auto_selector_object_refs(
     selector: str,
     *,
     producer: _StepLocation,
     binding_catalog: ProblemPlanningBindingCatalog,
 ) -> frozenset[str]:
-    """Resolve entity selectors used by hidden identity-preserving inputs."""
+    """Resolve legacy entity selectors during the retirement window."""
 
     selector_kind, separator, local_ref = selector.partition(":")
     if not separator or selector_kind not in {

@@ -503,7 +503,7 @@ def _issue(
                     "internal_ref": point_ref,
                     "expected_type": "Point",
                     "expected_state": "related_by_visible_condition",
-                    "observed_type": point.runtime_type,
+                    "observed_type": _observed_entity_type(point),
                 },
                 {
                     "role": "curve",
@@ -512,7 +512,7 @@ def _issue(
                     "internal_ref": curve_ref,
                     "expected_type": "QuadraticFunction",
                     "expected_state": "same_condition_object",
-                    "observed_type": curve.runtime_type,
+                    "observed_type": _observed_entity_type(curve),
                 },
             ],
             "expected_relation": {
@@ -529,3 +529,21 @@ def _issue(
             "repair_call_ids": [call_id],
         },
     )
+
+
+def _observed_entity_type(value: ResolvedFunctionalValue) -> str | None:
+    """Keep prompt diagnostics on the MathObject view, not its state view."""
+
+    if value.math_object_id is None:
+        return value.runtime_type
+    return {
+        "function": "Function",
+        "point": "Point",
+        "symbol": "Symbol",
+        "line": "Line",
+        "segment": "Segment",
+        "ray": "Ray",
+        "polygon": "Polygon",
+        "circle": "Circle",
+        "angle": "Angle",
+    }.get(value.math_object_id.kind, value.runtime_type)

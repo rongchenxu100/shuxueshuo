@@ -18,9 +18,16 @@ from shuxueshuo_server.solver.family.models import (
 )
 from shuxueshuo_server.solver.problem_models import QuestionGoal
 from shuxueshuo_server.solver.contracts import (
+    CanonicalSymbolDerivationSpec,
+    CoefficientExtractionDerivationSpec,
+    LegacySelectorInputBindingSpec,
+    LatestStateSourceSpec,
+    MethodInputBindingSpec,
     MethodSpec,
+    OrdinalZeroTemplateDerivationSpec,
     PlanTransformerScope,
     PointRef,
+    PublicArgSourceSpec,
 )
 from shuxueshuo_server.solver.state_semantics import (
     StateObjectRoleBinding,
@@ -215,7 +222,13 @@ class PrepInvocationBuilder:
         self.index = index
         self.method_specs = method_specs
 
-    def build(self, method_id: str, step: FunctionalCompileStepView) -> _PrepInvocationBuildResult:
+    def build(
+        self,
+        method_id: str,
+        step: FunctionalCompileStepView,
+        *,
+        exact_inputs_for_prep: Callable[[str], Mapping[str, str]] | None = None,
+    ) -> _PrepInvocationBuildResult:
         """为 method 构建所有命中的 prep invocation。"""
         rule = self.binding_rules.rule_for(method_id)
         if rule is None or not rule.prep_invocations:
@@ -241,6 +254,11 @@ class PrepInvocationBuilder:
                         expansion_selectors_override=prep.expansion_selectors,
                         method_input_specs=(
                             self.method_specs.require(prep.method_id).inputs
+                        ),
+                        exact_inputs=(
+                            exact_inputs_for_prep(prep.method_id)
+                            if exact_inputs_for_prep is not None
+                            else None
                         ),
                         apply_constraint_analyzer=False,
                     ),
@@ -1009,11 +1027,6 @@ class _RecipePlanCompiler:
         for created in _compile_created_entities(step):
             if created.entity_type == "point" and created.handle not in self.index.bindings:
                 self.index.register_created_entity(created)
-        prep = PrepInvocationBuilder(
-            binding_rules=self.binding_rules,
-            index=self.index,
-            method_specs=self.method_specs,
-        ).build(method_id, step)
         exact_inputs = self._projected_exact_function_inputs(step, spec)
         exact_inputs.update(
             self._projected_function_return_identity_inputs(
@@ -1030,11 +1043,38 @@ class _RecipePlanCompiler:
             )
         )
         exact_inputs.update(
+            self._projected_typed_binding_inputs(
+                step,
+                spec,
+                existing=exact_inputs,
+            )
+        )
+        exact_inputs.update(
             self._projected_exact_state_dependency_inputs(
                 step,
                 spec,
                 existing=exact_inputs,
             )
+        )
+        prep = PrepInvocationBuilder(
+            binding_rules=self.binding_rules,
+            index=self.index,
+            method_specs=self.method_specs,
+        ).build(
+            method_id,
+            step,
+            exact_inputs_for_prep=lambda prep_method_id: (
+                self._typed_prep_inputs_from_parent(
+                    prep_method_id,
+                    parent_method_id=method_id,
+                    parent_inputs=exact_inputs,
+                )
+            ),
+        )
+        exact_inputs = self._with_prep_local_typed_inputs(
+            exact_inputs,
+            spec=spec,
+            local_outputs=prep.local_outputs or {},
         )
         inputs = self.binding_rules.bind(
             method_id,
@@ -1171,6 +1211,83 @@ class _RecipePlanCompiler:
             ),
         )
 
+    @staticmethod
+    def _with_prep_local_typed_inputs(
+        exact_inputs: Mapping[str, str],
+        *,
+        spec: MethodSpec,
+        local_outputs: Mapping[str, str],
+    ) -> dict[str, str]:
+        """Route an input through an explicitly compiled prep return by type."""
+
+        result = dict(exact_inputs)
+        for input_name in tuple(result):
+            input_spec = spec.inputs.get(input_name)
+            if input_spec is None:
+                continue
+            compatible = tuple(
+                local_outputs[f"type:{runtime_type}"]
+                for runtime_type in split_runtime_types(input_spec.type)
+                if f"type:{runtime_type}" in local_outputs
+            )
+            if len(compatible) == 1:
+                result[input_name] = compatible[0]
+        return result
+
+    def _typed_prep_inputs_from_parent(
+        self,
+        prep_method_id: str,
+        *,
+        parent_method_id: str,
+        parent_inputs: Mapping[str, str],
+    ) -> dict[str, str]:
+        """Lower a prep call only from its typed declaration and parent pins."""
+
+        rule = self.binding_rules.rule_for(prep_method_id)
+        if rule is None:
+            return {}
+        result: dict[str, str] = {}
+        for binding in rule.input_bindings:
+            if not isinstance(binding, MethodInputBindingSpec):
+                continue
+            source = binding.source
+            derivation = binding.derivation
+            source_name = (
+                source.entity_arg
+                if isinstance(source, LatestStateSourceSpec)
+                else source.arg_name
+                if isinstance(source, PublicArgSourceSpec)
+                else None
+            )
+            if source_name is not None:
+                parent_source_name = source_name
+                parent_function = self.function_specs.get(parent_method_id)
+                if parent_function is not None and parent_function.adapter is not None:
+                    parent_source_name = next(
+                        (
+                            runtime_name
+                            for runtime_name, functional_name in (
+                                parent_function.adapter.functional_input_names
+                            )
+                            if functional_name == source_name
+                        ),
+                        source_name,
+                    )
+                if parent_source_name in parent_inputs:
+                    result[binding.input_name] = parent_inputs[parent_source_name]
+                    continue
+            if isinstance(derivation, CanonicalSymbolDerivationSpec):
+                result[binding.input_name] = self.index.path_for(
+                    f"symbol:problem:{derivation.symbol_name}",
+                    expected_type="Symbol",
+                )
+                continue
+            if isinstance(derivation, CoefficientExtractionDerivationSpec):
+                result[binding.input_name] = (
+                    "$problem.symbol_lists.quadratic_coefficients"
+                )
+        return result
+
     def _projected_function_output_keys(
         self,
         step: FunctionalCompileStepView,
@@ -1294,8 +1411,10 @@ class _RecipePlanCompiler:
             ):
                 adapter_binding = adapter_bindings.get(runtime_input_name)
                 declared_authority = (
-                    adapter_binding.functional_authority
-                    if adapter_binding is not None
+                    "compiler"
+                    if isinstance(adapter_binding, MethodInputBindingSpec)
+                    else adapter_binding.functional_authority
+                    if isinstance(adapter_binding, LegacySelectorInputBindingSpec)
                     else None
                 )
                 if declared_authority == "compiler":
@@ -1554,6 +1673,62 @@ class _RecipePlanCompiler:
                         candidate=item,
                         reason="typed_candidate_conflicts_with_existing_input",
                     )
+                result[input_name] = path
+        return result
+
+    def _projected_typed_binding_inputs(
+        self,
+        step: FunctionalCompileStepView,
+        spec: Any,
+        *,
+        existing: Mapping[str, str],
+    ) -> dict[str, str]:
+        """Lower strict F5-C inputs without invoking a v1 selector."""
+
+        result: dict[str, str] = {}
+        for item in self.projected_function_arg_bindings:
+            if (
+                item.step_id != step.step_id
+                or item.consumption_mode != "typed_binding"
+                or item.input_binding is None
+            ):
+                continue
+            targets = item.runtime_input_targets or (item.arg_name,)
+            for input_name in targets:
+                if input_name in existing or input_name in result:
+                    continue
+                input_spec = spec.inputs.get(input_name)
+                if input_spec is None:
+                    raise _compiler_input_authority_error(
+                        step_id=step.step_id,
+                        method_id=spec.method_id,
+                        input_name=input_name,
+                        selector_id=None,
+                        candidate=item,
+                        reason="typed_runtime_input_target_unknown",
+                    )
+                derivation = item.input_binding.derivation
+                if isinstance(derivation, OrdinalZeroTemplateDerivationSpec):
+                    # The transaction stamp pins the exact ordinal-0 version.
+                    continue
+                if isinstance(derivation, CoefficientExtractionDerivationSpec):
+                    path = "$problem.symbol_lists.quadratic_coefficients"
+                else:
+                    try:
+                        path = self._projected_input_path(
+                            item,
+                            expected_type=input_spec.type,
+                            consumer_scope_id=step.scope_id,
+                        )
+                    except StrategyDraftValidationError as exc:
+                        raise _compiler_input_authority_error(
+                            step_id=step.step_id,
+                            method_id=spec.method_id,
+                            input_name=input_name,
+                            selector_id=None,
+                            candidate=item,
+                            reason="typed_binding_candidate_unresolvable",
+                        ) from exc
                 result[input_name] = path
         return result
 
@@ -4246,7 +4421,8 @@ def _binding_rule_writes_point_transition(
     if rule is None:
         return False
     return any(
-        binding.selector == "point_transition_target"
+        isinstance(binding, LegacySelectorInputBindingSpec)
+        and binding.selector == "point_transition_target"
         for binding in rule.input_bindings
     )
 

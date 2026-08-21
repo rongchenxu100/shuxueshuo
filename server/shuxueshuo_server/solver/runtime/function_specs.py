@@ -13,10 +13,13 @@ from typing import Any, Callable, Literal, Mapping
 
 from shuxueshuo_server.solver.contracts import (
     LegacyExpansionSelectorSpec,
+    LegacySelectorInputBindingSpec,
+    LatestStateSourceSpec,
     MethodInputBindingDeclaration,
     MethodInputBindingSpec,
     MethodInputViewMode,
     MethodSpec,
+    OrdinalZeroTemplateDerivationSpec,
     PlanTransformerScope,
     ScalarResultFormSpec,
     SymbolicClosureSpec,
@@ -509,7 +512,16 @@ class FunctionAdapterRegistry:
             adapter,
             input_bindings_override=input_bindings_override,
         ):
+            if binding.input_name in inputs:
+                continue
             if isinstance(binding, MethodInputBindingSpec):
+                if isinstance(
+                    binding.derivation,
+                    OrdinalZeroTemplateDerivationSpec,
+                ):
+                    continue
+                if not binding.required:
+                    continue
                 raise StatelessMethodError(
                     "planner.method_input_binding_lowerer_missing",
                     "typed Method input binding has no registered lowerer",
@@ -533,8 +545,6 @@ class FunctionAdapterRegistry:
                     },
                     repair_action="fix_runtime_contract",
                 )
-            if binding.input_name in inputs:
-                continue
             input_spec = (method_input_specs or {}).get(binding.input_name)
             if (
                 getattr(index, "problem_binding_authority", False)
@@ -797,6 +807,44 @@ def _path_is_declared_read(
         for handle in _compile_input_handles(step)
     )
 
+def _with_method_input_binding_defaults(
+    method_spec: MethodSpec,
+    adapter: FunctionAdapterSpec | None,
+) -> FunctionAdapterSpec | None:
+    """Merge code-owned Method bindings without replacing family routing.
+
+    Method-level declarations are the only reliable home for hidden inputs
+    used by both public Functions and internal Macro calls.  A family adapter
+    may still override the same input while a migration is in progress.
+    """
+
+    defaults = tuple(
+        input_spec.binding
+        for input_spec in method_spec.inputs.values()
+        if input_spec.binding is not None
+    )
+    if not defaults or adapter is None:
+        return adapter
+    merged = _merge_input_binding_declarations(
+        defaults,
+        adapter.input_bindings,
+    )
+    return replace(adapter, input_bindings=merged)
+
+
+def _merge_input_binding_declarations(
+    defaults: tuple[MethodInputBindingDeclaration, ...],
+    overrides: tuple[MethodInputBindingDeclaration, ...],
+) -> tuple[MethodInputBindingDeclaration, ...]:
+    by_name = {item.input_name: item for item in defaults}
+    order = [item.input_name for item in defaults]
+    for item in overrides:
+        if item.input_name not in by_name:
+            order.append(item.input_name)
+        by_name[item.input_name] = item
+    return tuple(by_name[name] for name in order)
+
+
 def function_spec_from_method(
     method_spec: MethodSpec,
     *,
@@ -804,6 +852,7 @@ def function_spec_from_method(
     adapter: FunctionAdapterSpec | None,
 ) -> FunctionSpec:
     """Derive a FunctionSpec from runtime method and contract metadata."""
+    adapter = _with_method_input_binding_defaults(method_spec, adapter)
     _validate_internal_output_contract(method_spec, contract=contract)
     source: FunctionSpecSource = "method_spec"
     notes: list[str] = []
@@ -1185,7 +1234,14 @@ def _function_return_identity(
         function_inputs = [
             binding.input_name
             for binding in adapter.input_bindings
-            if binding.selector.startswith("function:")
+            if (
+                isinstance(binding, LegacySelectorInputBindingSpec)
+                and binding.selector.startswith("function:")
+            )
+            or (
+                isinstance(binding, MethodInputBindingSpec)
+                and isinstance(binding.source, LatestStateSourceSpec)
+            )
         ]
         if len(function_inputs) == 1:
             return "preserve_input_object", function_inputs[0]

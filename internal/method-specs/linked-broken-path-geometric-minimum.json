@@ -84,6 +84,7 @@
     },
     "parameter": {
       "required": true,
+      "functional_exposed": false,
       "domain_type": "Symbol",
       "runtime_type": "Symbol",
       "view": {
@@ -95,6 +96,7 @@
     },
     "dynamic_parameter": {
       "required": true,
+      "functional_exposed": false,
       "domain_type": "Symbol",
       "runtime_type": "Symbol",
       "view": {

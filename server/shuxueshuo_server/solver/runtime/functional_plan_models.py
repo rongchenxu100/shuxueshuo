@@ -8,6 +8,7 @@ from typing import Any, Literal, Mapping
 
 from shuxueshuo_server.solver.contracts import (
     FunctionalResultForm,
+    MethodInputBindingSpec,
     MethodInputViewMode,
 )
 from shuxueshuo_server.solver.family.models import (
@@ -307,20 +308,32 @@ class FunctionalCapabilityArg:
 @dataclass(frozen=True)
 class FunctionalAutoArg:
     name: str
-    selector: str
     required: bool
+    selector: str | None = None
+    input_binding: MethodInputBindingSpec | None = None
     binding_authority: FunctionalArgBindingAuthority = "compiler"
     semantic_role: str | None = None
     runtime_input: str | None = None
 
+    def __post_init__(self) -> None:
+        if (self.selector is None) == (self.input_binding is None):
+            raise ValueError(
+                "FunctionalAutoArg requires exactly one of selector or "
+                "input_binding"
+            )
+
     def to_payload(self) -> dict[str, Any]:
-        return {
+        payload: dict[str, Any] = {
             "name": self.name,
-            "selector": self.selector,
             "required": self.required,
             "semantic_role": self.semantic_role or self.name,
             "runtime_input": self.runtime_input or self.name,
         }
+        if self.selector is not None:
+            payload["selector"] = self.selector
+        else:
+            payload["input_binding"] = self.input_binding.to_payload()
+        return payload
 
 
 @dataclass(frozen=True)

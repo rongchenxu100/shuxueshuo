@@ -96,6 +96,15 @@
         "domain_type": "QuadraticFunction",
         "object_kind": "function",
         "state_kind": "expression"
+      },
+      "binding": {
+        "schema_version": "method-input-binding/v1",
+        "input_name": "quadratic_template",
+        "required": false,
+        "derivation": {
+          "kind": "ordinal_zero_template",
+          "source_input": "quadratic"
+        }
       }
     }
   },

@@ -124,7 +124,10 @@ class MethodInputViewResolver:
                     "runtime_type": input_spec.runtime_type,
                     "view": input_spec.view.mode,
                 },
-                observed={"error": type(exc).__name__},
+                observed={
+                    "error": type(exc).__name__,
+                    "message": str(exc),
+                },
                 repair_action=(
                     "provide_visible_entity_state"
                     if input_spec.view.mode == "latest_state"

@@ -10,6 +10,12 @@ from typing import Any, Mapping, Sequence
 
 from jsonschema import Draft202012Validator
 
+from shuxueshuo_server.solver.contracts import (
+    CanonicalSymbolDerivationSpec,
+    EntityIdentitySourceSpec,
+    LatestStateSourceSpec,
+    PublicArgSourceSpec,
+)
 from shuxueshuo_server.solver.extraction.problem_planning_context import (
     ProblemPlanningContext,
 )
@@ -2177,10 +2183,14 @@ def _wire_return_object_resolution(
         )
         if auto_arg is not None:
             selected.update(
-                _wire_auto_selector_object_refs(
-                    auto_arg.selector,
+                _wire_auto_input_object_refs(
+                    auto_arg,
+                    args=args,
+                    steps=steps,
+                    capability_catalog=capability_catalog,
                     owner_scope_id=owner_scope_id,
                     frame=frame,
+                    seen=frozenset({(step_id, return_name)}),
                 )
             )
     constrained = identity_constraint_return_targets(
@@ -2318,6 +2328,67 @@ def _wire_value_object_role_targets(
                 )
             )
     return result
+
+
+def _wire_auto_input_object_refs(
+    auto_arg: Any,
+    *,
+    args: object,
+    steps: Mapping[str, Mapping[str, Any]],
+    capability_catalog: FunctionalCapabilityCatalog,
+    owner_scope_id: str,
+    frame: FunctionalPlanAuthorityFrame,
+    seen: frozenset[tuple[str, str]],
+) -> frozenset[str]:
+    """Resolve a hidden identity input from its typed or legacy contract."""
+
+    if auto_arg.selector is not None:
+        return _wire_auto_selector_object_refs(
+            auto_arg.selector,
+            owner_scope_id=owner_scope_id,
+            frame=frame,
+        )
+    declaration = auto_arg.input_binding
+    source = declaration.source if declaration is not None else None
+    derivation = declaration.derivation if declaration is not None else None
+    source_arg: str | None = None
+    declared_entity_ref: str | None = None
+    if isinstance(source, LatestStateSourceSpec):
+        source_arg = source.entity_arg
+        declared_entity_ref = source.entity_arg
+    elif isinstance(source, PublicArgSourceSpec):
+        source_arg = source.arg_name
+    elif isinstance(source, EntityIdentitySourceSpec):
+        source_arg = source.arg_name
+    if source_arg is not None:
+        targets = frozenset(
+            target
+            for value in _wire_arg_values(args, source_arg)
+            for target in _value_target_refs(
+                value,
+                steps=steps,
+                capability_catalog=capability_catalog,
+                seen=seen,
+            )
+        )
+        if targets:
+            return targets
+    if declared_entity_ref is not None:
+        current: str | None = owner_scope_id
+        while current is not None:
+            if declared_entity_ref in frame.source_ref_domain_types.get(
+                current, {}
+            ):
+                return frozenset((declared_entity_ref,))
+            current = frame.scope_parents.get(current)
+        return frozenset()
+    if isinstance(derivation, CanonicalSymbolDerivationSpec):
+        return _wire_auto_selector_object_refs(
+            f"symbol:{derivation.symbol_name}",
+            owner_scope_id=owner_scope_id,
+            frame=frame,
+        )
+    return frozenset()
 
 
 def _wire_auto_selector_object_refs(

@@ -7,7 +7,9 @@
 from __future__ import annotations
 
 from shuxueshuo_server.solver.contracts import (
+    MethodInputBindingSpec,
     MethodInputRelationSpec,
+    OrdinalZeroTemplateDerivationSpec,
     SymbolicClosureSpec,
 )
 from shuxueshuo_server.solver.runtime.quadratic_constraint_solver import (
@@ -173,6 +175,11 @@ SPEC = MethodSpecSource(
             "type": "Expression",
             "required": False,
             "functional_exposed": False,
+            "binding": MethodInputBindingSpec(
+                input_name="quadratic_template",
+                required=False,
+                derivation=OrdinalZeroTemplateDerivationSpec("quadratic"),
+            ),
             "description": (
                 "由MethodInputReadAuthority注入同一二次函数对象的"
                 "ordinal-0原始系数模板；不得使用已消元的latest state代替。"

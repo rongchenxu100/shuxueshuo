@@ -34,6 +34,16 @@
       ],
       "bindings": [
         {
+          "arg": "all_coefficients",
+          "item": 0,
+          "role": "all_coefficients",
+          "authority": "compiler",
+          "target": "all_coefficients",
+          "paths": [
+            "$problem.symbol_lists.quadratic_coefficients"
+          ]
+        },
+        {
           "arg": "known_coefficients",
           "item": 0,
           "role": "known_coefficients",
@@ -69,6 +79,16 @@
           "role": "quadratic",
           "authority": "compiler",
           "target": "quadratic",
+          "paths": [
+            "$question.i.facts.__functional_transaction_derive_parabola_i_3"
+          ]
+        },
+        {
+          "arg": "quadratic_template",
+          "item": 0,
+          "role": "quadratic_template",
+          "authority": "compiler",
+          "target": "quadratic_template",
           "paths": [
             "$problem.expressions.quadratic"
           ]
@@ -109,7 +129,7 @@
           "allocation_action": "call_local_value",
           "result_form": "closed_state",
           "object_id": null,
-          "source_version_count": 3,
+          "source_version_count": 4,
           "closure_signature": null
         },
         {
@@ -118,7 +138,7 @@
           "allocation_action": "create",
           "result_form": "closed_state",
           "object_id": "function:problem:parabola",
-          "source_version_count": 3,
+          "source_version_count": 4,
           "closure_signature": null
         }
       ]
@@ -239,6 +259,16 @@
       ],
       "bindings": [
         {
+          "arg": "all_coefficients",
+          "item": 0,
+          "role": "all_coefficients",
+          "authority": "compiler",
+          "target": "all_coefficients",
+          "paths": [
+            "$problem.symbol_lists.quadratic_coefficients"
+          ]
+        },
+        {
           "arg": "curve_point",
           "item": 0,
           "role": "curve_point",
@@ -285,6 +315,16 @@
           "authority": "compiler",
           "target": "quadratic",
           "paths": [
+            "$question.ii.facts.__functional_transaction_derive_parametric_parabola_ii_2"
+          ]
+        },
+        {
+          "arg": "quadratic_template",
+          "item": 0,
+          "role": "quadratic_template",
+          "authority": "compiler",
+          "target": "quadratic_template",
+          "paths": [
             "$problem.expressions.quadratic"
           ]
         },
@@ -324,7 +364,7 @@
           "allocation_action": "call_local_value",
           "result_form": "open_state",
           "object_id": null,
-          "source_version_count": 2,
+          "source_version_count": 3,
           "closure_signature": null
         },
         {
@@ -333,7 +373,7 @@
           "allocation_action": "isolated",
           "result_form": "open_state",
           "object_id": "function:problem:parabola",
-          "source_version_count": 2,
+          "source_version_count": 3,
           "closure_signature": null
         }
       ]
@@ -657,6 +697,16 @@
       ],
       "bindings": [
         {
+          "arg": "all_coefficients",
+          "item": 0,
+          "role": "all_coefficients",
+          "authority": "compiler",
+          "target": "all_coefficients",
+          "paths": [
+            "$problem.symbol_lists.quadratic_coefficients"
+          ]
+        },
+        {
           "arg": "curve_point",
           "item": 0,
           "role": "curve_point",
@@ -703,6 +753,16 @@
           "authority": "compiler",
           "target": "quadratic",
           "paths": [
+            "$question.iii.facts.__functional_transaction_derive_parametric_parabola_iii_2"
+          ]
+        },
+        {
+          "arg": "quadratic_template",
+          "item": 0,
+          "role": "quadratic_template",
+          "authority": "compiler",
+          "target": "quadratic_template",
+          "paths": [
             "$problem.expressions.quadratic"
           ]
         },
@@ -742,7 +802,7 @@
           "allocation_action": "call_local_value",
           "result_form": "open_state",
           "object_id": null,
-          "source_version_count": 2,
+          "source_version_count": 3,
           "closure_signature": null
         },
         {
@@ -751,7 +811,7 @@
           "allocation_action": "isolated",
           "result_form": "open_state",
           "object_id": "function:problem:parabola",
-          "source_version_count": 2,
+          "source_version_count": 3,
           "closure_signature": null
         }
       ]

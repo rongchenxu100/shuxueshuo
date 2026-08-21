@@ -116,6 +116,7 @@ def test_authored_fixtures_have_complete_binding_context(case_id: str) -> None:
         and (
             binding.binding_authority != "compiler"
             or binding.source.selected_source is not None
+            or binding.input_binding is not None
         )
         and (
             binding.runtime_input_targets
@@ -532,7 +533,10 @@ def test_compiler_selected_typed_sources_survive_payload_round_trip() -> None:
         binding
         for binding in context.bindings
         if binding.binding_authority == "compiler"
-        and binding.source.selected_source is not None
+        and (
+            binding.source.selected_source is not None
+            or binding.input_binding is not None
+        )
     )
     assert selected_bindings
     for binding in selected_bindings:
@@ -563,10 +567,11 @@ def test_compiler_selected_typed_sources_survive_payload_round_trip() -> None:
                 binding.key.item_index,
             )
         ]
-        assert item.compiler_selected_source_kind == (
-            binding.source.selected_source.kind
-        )
-        selected = binding.source.selected_source
+        selected = binding.source.selected_source or binding.source
+        if binding.source.selected_source is not None:
+            assert item.compiler_selected_source_kind == selected.kind
+        else:
+            assert item.compiler_selected_source_kind is None
         if selected.math_object_id is not None:
             assert item.math_object_id == selected.math_object_id
         if selected.state_version_id is not None:
@@ -579,9 +584,9 @@ def test_compiler_selected_typed_sources_survive_payload_round_trip() -> None:
 
     selected_by_key = {
         (binding.key.call_id, binding.key.arg_name): (
-            binding.source.selected_source.math_object_id.value
-            if binding.source.selected_source is not None
-            and binding.source.selected_source.math_object_id is not None
+            (binding.source.selected_source or binding.source).math_object_id.value
+            if (binding.source.selected_source or binding.source).math_object_id
+            is not None
             else None
         )
         for binding in selected_bindings

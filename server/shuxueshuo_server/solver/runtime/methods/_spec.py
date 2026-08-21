@@ -12,6 +12,7 @@ from typing import Any
 import inspect
 
 from shuxueshuo_server.solver.contracts import (
+    MethodInputBindingSpec,
     MethodExplanationSpec,
     MethodInputRelationSpec,
     MethodInputViewMode,
@@ -276,10 +277,29 @@ def _input_payload(
         runtime_type,
         mode,
     )
+    binding = raw.get("binding")
+    if binding is not None and not isinstance(binding, MethodInputBindingSpec):
+        raise MethodSpecContractError(
+            f"Method input binding must use MethodInputBindingSpec: {name}"
+        )
+    if binding is not None:
+        if binding.input_name != name:
+            raise MethodSpecContractError(
+                "Method input binding name mismatch: "
+                f"{binding.input_name} != {name}"
+            )
     payload = {
         key: value
         for key, value in raw.items()
-        if key not in {"type", "domain_type", "object_kind", "state_kind", "view"}
+        if key
+        not in {
+            "type",
+            "domain_type",
+            "object_kind",
+            "state_kind",
+            "view",
+            "binding",
+        }
     }
     payload.update(
         {
@@ -297,6 +317,8 @@ def _input_payload(
         payload["view"]["object_kind"] = str(effective_object_kind)
     if effective_state_kind is not None:
         payload["view"]["state_kind"] = str(effective_state_kind)
+    if binding is not None:
+        payload["binding"] = binding.to_payload()
     return payload
 
 

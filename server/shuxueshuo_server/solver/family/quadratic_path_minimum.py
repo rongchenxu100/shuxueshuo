@@ -33,6 +33,12 @@ from shuxueshuo_server.solver.family.capability_packs import (
     TWO_MOVING_POINTS_REDUCTION_DO_NOT_USE_WHEN,
     TWO_MOVING_PATH_TRANSFORMATION_OBJECT_ROLES,
 )
+from shuxueshuo_server.solver.family.common_binding_rules import (
+    canonical_x_binding,
+    parameter_basis_binding,
+    quadratic_coefficients_binding,
+    quadratic_latest_state_binding,
+)
 
 
 _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
@@ -315,14 +321,14 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         MethodBindingRuleSpec(
             method_id="quadratic_from_constraints",
             input_bindings=(
-                LegacySelectorInputBindingSpec("quadratic", "function:parabola"),
-                LegacySelectorInputBindingSpec("x", "symbol:x"),
+                quadratic_latest_state_binding("quadratic"),
+                canonical_x_binding(),
                 LegacySelectorInputBindingSpec(
                     "coefficient_relation",
                     "fact:coefficient_relation:Equation",
                     required=False,
                 ),
-                LegacySelectorInputBindingSpec("all_coefficients", "quadratic_coefficients"),
+                quadratic_coefficients_binding(),
             ),
             expansion_selectors=(
                 LegacyExpansionSelectorSpec("known_coefficients_if_read"),
@@ -345,11 +351,15 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             input_bindings=(
                 LegacySelectorInputBindingSpec("p1", "length_segment:p1"),
                 LegacySelectorInputBindingSpec("p2", "length_segment:p2"),
-                LegacySelectorInputBindingSpec(
-                    "parameter",
-                    "parameter_symbol",
-                    functional_authority="wire",
-                    functional_resolver="unique_parameter_symbol",
+                parameter_basis_binding(
+                    (
+                        "p1",
+                        "p2",
+                        "reference_p1",
+                        "reference_p2",
+                        "condition",
+                        "constraint",
+                    )
                 ),
                 LegacySelectorInputBindingSpec("condition", "fact:length_squared:Condition"),
                 LegacySelectorInputBindingSpec("constraint", "parameter_constraint"),
@@ -360,11 +370,8 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             input_bindings=(
                 LegacySelectorInputBindingSpec("minimum_expression", "read_type:MinimumExpression"),
                 LegacySelectorInputBindingSpec("condition", "fact:minimum_value:Condition"),
-                LegacySelectorInputBindingSpec(
-                    "parameter",
-                    "parameter_symbol",
-                    functional_authority="wire",
-                    functional_resolver="unique_parameter_symbol",
+                parameter_basis_binding(
+                    ("minimum_expression", "condition", "constraint")
                 ),
                 LegacySelectorInputBindingSpec("constraint", "parameter_constraint"),
             ),

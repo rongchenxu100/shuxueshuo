@@ -1695,6 +1695,16 @@ def test_problem_source_read_stays_exact_and_hidden_resolver_needs_sidecar() -> 
         for item in legacy.functional_reconciliation.calls
         if item.call_id == "i_derive_parabola"
     )
+    runtime_context = ContextBuilder().build(problem)
+    quadratic_value = call.resolved_args["quadratic"][0]
+    assert quadratic_value.state_version_id is not None
+    working.runtime_version_values[
+        quadratic_value.state_version_id
+    ] = runtime_context.read_path(
+        "$problem.expressions.quadratic",
+        from_scope_id="i",
+        expected_type="Expression",
+    )
     coefficient_values = call.resolved_args["known_coefficients"]
     for value in coefficient_values:
         assert value.state_version_id is not None
@@ -1732,7 +1742,7 @@ def test_problem_source_read_stays_exact_and_hidden_resolver_needs_sidecar() -> 
         graph=graph,
         reconciliation=legacy.functional_reconciliation,
         working=working,
-        runtime_context=ContextBuilder().build(problem),
+        runtime_context=runtime_context,
         inputs=inputs,
         handle_registry=registry,
         capability_catalog=FunctionalCapabilityCatalog.from_family_spec(

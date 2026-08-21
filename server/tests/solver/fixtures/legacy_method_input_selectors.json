@@ -1,6 +1,6 @@
 {
   "schema_version": "legacy-method-input-selectors/v1",
-  "source_declaration_count": 152,
+  "source_declaration_count": 114,
   "bindings": [
     [
       "angle_sum_equal_angle_candidates",
@@ -98,11 +98,6 @@
       "read_type:Expression|MinimumExpression|Parabola"
     ],
     [
-      "evaluate_expression_at_parameter",
-      "parameter",
-      "parameter_symbol"
-    ],
-    [
       "evaluate_point_at_parameter",
       "point",
       "read_type:Point"
@@ -169,18 +164,8 @@
     ],
     [
       "line_parabola_second_intersection_point",
-      "parabola",
-      "read_type:Parabola"
-    ],
-    [
-      "line_parabola_second_intersection_point",
       "target",
       "line_parabola:target"
-    ],
-    [
-      "line_parabola_second_intersection_point",
-      "x",
-      "symbol:x"
     ],
     [
       "linked_broken_path_minimum_expression",
@@ -219,11 +204,6 @@
     ],
     [
       "linked_broken_path_minimum_expression",
-      "parameter",
-      "parameter_symbol"
-    ],
-    [
-      "linked_broken_path_minimum_expression",
       "parameter_constraint",
       "parameter_constraint"
     ],
@@ -249,18 +229,8 @@
     ],
     [
       "parameter_from_curve_point_on_quadratic",
-      "known_parameter",
-      "known_parameter_symbol_from_reads"
-    ],
-    [
-      "parameter_from_curve_point_on_quadratic",
       "known_parameter_value",
       "known_parameter_value_from_reads"
-    ],
-    [
-      "parameter_from_curve_point_on_quadratic",
-      "parameter",
-      "parameter_symbol_from_reads"
     ],
     [
       "parameter_from_curve_point_on_quadratic",
@@ -271,16 +241,6 @@
       "parameter_from_curve_point_on_quadratic",
       "point",
       "read_type:Point"
-    ],
-    [
-      "parameter_from_curve_point_on_quadratic",
-      "quadratic",
-      "read_type:Parabola"
-    ],
-    [
-      "parameter_from_curve_point_on_quadratic",
-      "x",
-      "symbol:x"
     ],
     [
       "parameter_from_expression_value",
@@ -298,11 +258,6 @@
       "read_type:MinimumExpression"
     ],
     [
-      "parameter_from_expression_value",
-      "parameter",
-      "parameter_symbol_from_reads_or_expression"
-    ],
-    [
       "parameter_from_minimum_value",
       "condition",
       "fact:minimum_value:Condition"
@@ -316,11 +271,6 @@
       "parameter_from_minimum_value",
       "minimum_expression",
       "read_type:MinimumExpression"
-    ],
-    [
-      "parameter_from_minimum_value",
-      "parameter",
-      "parameter_symbol"
     ],
     [
       "parameter_from_segment_length",
@@ -349,11 +299,6 @@
     ],
     [
       "parameter_from_segment_length",
-      "parameter",
-      "parameter_symbol"
-    ],
-    [
-      "parameter_from_segment_length",
       "reference_p1",
       "length_reference_segment:p1"
     ],
@@ -374,33 +319,13 @@
     ],
     [
       "point_candidates_from_curve_point_condition",
-      "parabola",
-      "read_type:Parabola"
-    ],
-    [
-      "point_candidates_from_curve_point_condition",
       "target_point",
       "curve_condition:target_point"
-    ],
-    [
-      "point_candidates_from_curve_point_condition",
-      "x",
-      "symbol:x"
-    ],
-    [
-      "point_on_parabola_at_x",
-      "parabola",
-      "read_type:Parabola"
     ],
     [
       "point_on_parabola_at_x",
       "target",
       "point_output_ref"
-    ],
-    [
-      "point_on_parabola_at_x",
-      "x",
-      "symbol:x"
     ],
     [
       "quadratic_axis_from_relation",
@@ -424,38 +349,13 @@
     ],
     [
       "quadratic_axis_parameterized_point",
-      "parabola",
-      "read_type:Parabola"
-    ],
-    [
-      "quadratic_axis_parameterized_point",
-      "target",
-      "point_output_ref"
-    ],
-    [
-      "quadratic_axis_parameterized_point",
-      "x",
-      "symbol:x"
-    ],
-    [
-      "quadratic_axis_x_intercept_point",
-      "parabola",
-      "read_type:Parabola"
-    ],
-    [
-      "quadratic_axis_x_intercept_point",
       "target",
       "point_output_ref"
     ],
     [
       "quadratic_axis_x_intercept_point",
-      "x",
-      "symbol:x"
-    ],
-    [
-      "quadratic_from_constraints",
-      "all_coefficients",
-      "quadratic_coefficients"
+      "target",
+      "point_output_ref"
     ],
     [
       "quadratic_from_constraints",
@@ -468,39 +368,14 @@
       "free_parameter:a_if_single_curve_point"
     ],
     [
-      "quadratic_from_constraints",
-      "quadratic",
-      "function:parabola"
-    ],
-    [
-      "quadratic_from_constraints",
-      "x",
-      "symbol:x"
-    ],
-    [
-      "quadratic_vertex_point",
-      "parabola",
-      "read_type:Parabola"
-    ],
-    [
       "quadratic_vertex_point",
       "target",
       "point_output_ref"
     ],
     [
-      "quadratic_vertex_point",
-      "x",
-      "symbol:x"
-    ],
-    [
       "quadratic_x_axis_intercept_point",
       "known_point",
       "x_axis_known_point"
-    ],
-    [
-      "quadratic_x_axis_intercept_point",
-      "quadratic",
-      "read_type:Parabola"
     ],
     [
       "quadratic_x_axis_intercept_point",
@@ -513,24 +388,9 @@
       "point_output_state"
     ],
     [
-      "quadratic_x_axis_intercept_point",
-      "x",
-      "symbol:x"
-    ],
-    [
-      "quadratic_y_axis_intercept_point",
-      "quadratic",
-      "function:parabola"
-    ],
-    [
       "quadratic_y_axis_intercept_point",
       "target",
       "point_output_ref"
-    ],
-    [
-      "quadratic_y_axis_intercept_point",
-      "x",
-      "symbol:x"
     ],
     [
       "right_angle_equal_length_candidates",

@@ -28,6 +28,11 @@ from shuxueshuo_server.solver.family.capability_packs import (
     EQUAL_LENGTH_RAY_PATH_REDUCTION_DESCRIPTION,
     EQUAL_LENGTH_RAY_PATH_REDUCTION_DO_NOT_USE_WHEN,
 )
+from shuxueshuo_server.solver.family.common_binding_rules import (
+    canonical_x_binding,
+    quadratic_coefficients_binding,
+    quadratic_latest_state_binding,
+)
 
 
 _QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = SolverFamilySpec(
@@ -180,9 +185,9 @@ _QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         MethodBindingRuleSpec(
             method_id="quadratic_from_constraints",
             input_bindings=(
-                LegacySelectorInputBindingSpec("quadratic", "function:parabola"),
-                LegacySelectorInputBindingSpec("x", "symbol:x"),
-                LegacySelectorInputBindingSpec("all_coefficients", "quadratic_coefficients"),
+                quadratic_latest_state_binding("quadratic"),
+                canonical_x_binding(),
+                quadratic_coefficients_binding(),
                 LegacySelectorInputBindingSpec(
                     "free_parameter",
                     "free_parameter:a_if_single_curve_point",

@@ -14,7 +14,13 @@ from typing import Any, Callable, Literal, Mapping, Sequence
 
 import sympy as sp
 
-from shuxueshuo_server.solver.contracts import PointRef
+from shuxueshuo_server.solver.contracts import (
+    CoefficientExtractionDerivationSpec,
+    LatestStateSourceSpec,
+    MethodInputBindingSpec,
+    OrdinalZeroTemplateDerivationSpec,
+    PointRef,
+)
 from shuxueshuo_server.solver.extraction.problem_planning_binding import (
     FunctionalProblemBindingLedger,
     FunctionalProblemBindingContext,
@@ -112,6 +118,7 @@ from shuxueshuo_server.solver.runtime.method_input_read_authority import (
     CallResultReadSource,
     CompilerSelectorReadSource,
     ConditionReadSource,
+    DerivedInputReadSource,
     EntityIdentityReadSource,
     InvocationResultReadSource,
     MethodInputReadAuthority,
@@ -1700,11 +1707,86 @@ class FunctionalCallPreparationService:
                             runtime_value=support_value,
                         )
                     )
+        existing_state_read_keys = {
+            (item.arg_name, item.item_index)
+            for item in state_reads
+            if ".__support_" not in item.arg_name
+        }
+        for logical_binding in logical_bindings:
+            key = (
+                logical_binding.key.arg_name,
+                logical_binding.key.item_index,
+            )
+            if key in existing_state_read_keys:
+                continue
+            declaration = logical_binding.input_binding
+            if (
+                logical_binding.consumption_mode != "typed_binding"
+                or declaration is None
+                or not isinstance(declaration.source, LatestStateSourceSpec)
+                or logical_binding.source.state_version_id is None
+            ):
+                continue
+            original_version_id = logical_binding.source.state_version_id
+            selected_version_id = working.resolve_runtime_version_id(
+                original_version_id
+            )
+            selected = working.identity_index.version(selected_version_id)
+            if selected is None:
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.transactional_input_version_unresolved: "
+                    f"call={call_id}, arg={logical_binding.key.arg_name}, "
+                    f"version={original_version_id.to_payload()}"
+                )
+            if not working.identity_index.visibility.is_visible(
+                selected.valid_scope_id,
+                consumer_scope_id=node.execution_scope_id,
+            ):
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.transactional_input_version_invisible: "
+                    f"call={call_id}, arg={logical_binding.key.arg_name}, "
+                    f"version={selected_version_id.to_payload()}"
+                )
+            runtime_value = working.runtime_version_values.get(
+                selected_version_id
+            )
+            original_path = _indexed_runtime_path(selected)
+            if runtime_value is None or original_path is None:
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.transactional_runtime_value_missing: "
+                    f"call={call_id}, arg={logical_binding.key.arg_name}, "
+                    f"version={selected_version_id.to_payload()}"
+                )
+            state_reads.append(
+                PreparedFunctionalStateRead(
+                    arg_name=logical_binding.key.arg_name,
+                    item_index=logical_binding.key.item_index,
+                    selection="exact",
+                    original_version_id=original_version_id,
+                    selected_version_id=selected_version_id,
+                    original_runtime_path=original_path,
+                    snapshot_runtime_path=snapshot_paths.setdefault(
+                        selected_version_id,
+                        _transaction_snapshot_path(
+                            runtime_context,
+                            scope_id=node.execution_scope_id,
+                            call_id=call_id,
+                            item_index=len(snapshot_paths),
+                        ),
+                    ),
+                    runtime_value=runtime_value,
+                )
+            )
         parameter_selector_object_ids = _parameter_selector_object_ids(
             reconciled.resolved_args,
             object_registry=object_registry,
             compiler_selectors=(
-                item.selector for item in capability.auto_args
+                item.selector
+                for item in capability.auto_args
+                if item.selector is not None
             ),
         )
         state_reads = list(
@@ -1746,6 +1828,19 @@ class FunctionalCallPreparationService:
             key = (item.key.arg_name, item.key.item_index)
             value = resolved_by_key.get(key)
             state_read = reads_by_key.get(key)
+            derived_source_version_id = (
+                working.resolve_runtime_version_id(
+                    item.source.state_version_id
+                )
+                if (
+                    state_read is None
+                    and item.consumption_mode == "typed_binding"
+                    and item.input_binding is not None
+                    and item.input_binding.derivation is not None
+                    and item.source.state_version_id is not None
+                )
+                else None
+            )
             runtime_path = (
                 state_read.snapshot_runtime_path
                 if state_read is not None
@@ -1757,10 +1852,17 @@ class FunctionalCallPreparationService:
                 )
             )
             if (
-                item.consumption_mode == "runtime_input"
+                item.consumption_mode in {"runtime_input", "typed_binding"}
                 and item.runtime_input_required
                 and runtime_path is None
                 and item.source.kind != "call_result"
+                and not (
+                    item.input_binding is not None
+                    and isinstance(
+                        item.input_binding.derivation,
+                        OrdinalZeroTemplateDerivationSpec,
+                    )
+                )
             ):
                 raise ValueError(
                     "planner_configuration_error: "
@@ -1772,15 +1874,19 @@ class FunctionalCallPreparationService:
                 PreparedFunctionalArgBinding(
                     logical_binding=item,
                     source_handle=(
-                        value.handle if value is not None else None
+                        value.handle
+                        if value is not None
+                        else _functional_binding_source_handle(item)
                     ),
                     source_math_object_id=(
-                        value.math_object_id if value is not None else None
+                        value.math_object_id
+                        if value is not None
+                        else _functional_binding_object_id(item)
                     ),
                     selected_state_version_id=(
                         state_read.selected_version_id
                         if state_read is not None
-                        else None
+                        else derived_source_version_id
                     ),
                     runtime_path=runtime_path,
                     runtime_value=(
@@ -1919,17 +2025,28 @@ def _prepare_non_state_runtime_path(
     runtime_bindings: CanonicalRuntimeBindingIndex,
     consumer_scope_id: str,
 ) -> str | None:
-    if binding.consumption_mode != "runtime_input":
+    if binding.consumption_mode not in {"runtime_input", "typed_binding"}:
+        return None
+    declaration = binding.input_binding
+    if declaration is not None and isinstance(
+        declaration.derivation,
+        CoefficientExtractionDerivationSpec,
+    ):
+        return "$problem.symbol_lists.quadratic_coefficients"
+    if declaration is not None and isinstance(
+        declaration.derivation,
+        OrdinalZeroTemplateDerivationSpec,
+    ):
         return None
     if binding.source.kind == "compiler_selector":
-        return None
-    if value is None:
         return None
     consumer = (
         f"{binding.key.call_id}.{binding.key.arg_name}"
         f"[{binding.key.item_index}]"
     )
     if binding.source.kind == "condition":
+        if value is None:
+            return None
         physical = runtime_bindings.bindings.get(value.handle)
         return runtime_bindings.runtime_path_for_condition_identity(
             binding.source.condition_id or "",
@@ -1963,6 +2080,33 @@ def _prepare_non_state_runtime_path(
             consumer_scope_id=consumer_scope_id,
             consumer=consumer,
         )
+    if value is None:
+        return None
+
+
+def _functional_binding_object_id(
+    binding: FunctionalArgBinding,
+) -> MathObjectId | None:
+    source = binding.source.selected_source or binding.source
+    if source.math_object_id is not None:
+        return source.math_object_id
+    if source.state_version_id is not None:
+        return source.state_version_id.slot_id.logical_key.object_id
+    return None
+
+
+def _functional_binding_source_handle(
+    binding: FunctionalArgBinding,
+) -> str | None:
+    object_id = _functional_binding_object_id(binding)
+    if object_id is not None:
+        return object_id.value
+    source = binding.source.selected_source or binding.source
+    if source.condition_id is not None:
+        return source.condition_id
+    if source.source_call_id is not None and source.source_return_name is not None:
+        return f"{source.source_call_id}.{source.source_return_name}"
+    return None
     return None
 
 
@@ -2377,6 +2521,40 @@ def _stamp_method_input_read_authorities(
         binding = bindings_by_path.get(path)
         if binding is not None:
             source = binding.logical_binding.source
+            declaration = binding.logical_binding.input_binding
+            if (
+                declaration is not None
+                and isinstance(
+                    declaration.derivation,
+                    CoefficientExtractionDerivationSpec,
+                )
+                and source.state_version_id is not None
+            ):
+                source_version = working.identity_index.version(
+                    working.resolve_runtime_version_id(
+                        source.state_version_id
+                    )
+                )
+                source_path = (
+                    _indexed_runtime_path(source_version)
+                    if source_version is not None
+                    else None
+                )
+                if source_path is None:
+                    raise ValueError(
+                        "planner_configuration_error: "
+                        "planner.method_input_view_authority_missing: "
+                        f"call={prepared_call.call_id}, input={input_name}, "
+                        "derivation=coefficient_extraction"
+                    )
+                return DerivedInputReadSource(
+                    declaration,
+                    StateVersionReadSource(
+                        source.state_version_id,
+                        source_path,
+                    ),
+                    path,
+                )
             if view_mode == "identity" and (
                 binding.source_math_object_id is not None
                 or binding.source_handle is not None
@@ -2669,19 +2847,21 @@ def _stamp_method_input_read_authorities(
         authorities: Mapping[str, tuple[MethodInputReadAuthority, ...]],
     ) -> MethodInputReadAuthority | None:
         spec = method_specs.require(invocation.method_id)
-        input_spec = spec.inputs.get("quadratic_template")
-        closure = spec.symbolic_closure
-        requires_polynomial_template = bool(
-            closure is not None
-            and closure.representation_mapper
-            == "polynomial_coefficient_template"
+        declarations = tuple(
+            (input_name, input_spec, input_spec.binding.derivation)
+            for input_name, input_spec in spec.inputs.items()
+            if input_spec.binding is not None
+            and isinstance(
+                input_spec.binding.derivation,
+                OrdinalZeroTemplateDerivationSpec,
+            )
         )
-        if input_spec is None and not requires_polynomial_template:
+        if not declarations:
             return None
-        if input_spec is None:
+        if len(declarations) != 1:
             raise StatelessMethodError(
-                "planner.method_input_view_authority_missing",
-                "polynomial closure method is missing its template input contract",
+                "planner.method_input_binding_contract_invalid",
+                "Method must declare exactly one ordinal-zero template input",
                 category="configuration",
                 retryability="configuration",
                 method_id=invocation.method_id,
@@ -2689,20 +2869,15 @@ def _stamp_method_input_read_authorities(
                 step_id=invocation.invocation_id,
                 arg_name="quadratic_template",
                 role="coefficient_identity_template",
-                expected={
-                    "input": "quadratic_template",
-                    "view": "latest_state",
-                    "state": "ordinal_0",
-                },
-                observed={"input": "missing_from_method_spec"},
+                expected={"declaration_count": 1},
+                observed={"declaration_count": len(declarations)},
                 repair_action="fix_method_spec",
                 details={
-                    "missing_input": "quadratic_template",
-                    "representation_mapper": (
-                        "polynomial_coefficient_template"
-                    ),
+                    "declared_inputs": [item[0] for item in declarations],
                 },
             )
+        template_input_name, input_spec, derivation = declarations[0]
+        source_input_name = derivation.source_input
         if input_spec.functional_exposed:
             raise StatelessMethodError(
                 "planner.method_input_view_authority_drift",
@@ -2712,13 +2887,13 @@ def _stamp_method_input_read_authorities(
                 method_id=invocation.method_id,
                 scope_id=invocation.scope,
                 step_id=invocation.invocation_id,
-                arg_name="quadratic_template",
+                arg_name=template_input_name,
                 role="coefficient_identity_template",
                 expected={"functional_exposed": False},
                 observed={"functional_exposed": True},
                 repair_action="fix_method_spec",
             )
-        if "quadratic_template" in invocation.inputs:
+        if template_input_name in invocation.inputs:
             raise StatelessMethodError(
                 "planner.method_input_view_authority_drift",
                 "compiler supplied a code-owned polynomial template input",
@@ -2727,7 +2902,7 @@ def _stamp_method_input_read_authorities(
                 method_id=invocation.method_id,
                 scope_id=invocation.scope,
                 step_id=invocation.invocation_id,
-                arg_name="quadratic_template",
+                arg_name=template_input_name,
                 role="coefficient_identity_template",
                 expected={"authority": "method_input_read_stamp"},
                 observed={"authority": "compiler_invocation_input"},
@@ -2736,11 +2911,7 @@ def _stamp_method_input_read_authorities(
 
         anchor_authorities = tuple(
             authority
-            for input_name, candidate_spec in spec.inputs.items()
-            if input_name != "quadratic_template"
-            and candidate_spec.domain_type == "QuadraticFunction"
-            and candidate_spec.view.mode == "latest_state"
-            for authority in authorities.get(input_name, ())
+            for authority in authorities.get(source_input_name, ())
         )
         anchor_version: IndexedStateVersion | None = None
         anchor_object_id: MathObjectId | None = None
@@ -2859,7 +3030,7 @@ def _stamp_method_input_read_authorities(
                 method_id=invocation.method_id,
                 scope_id=invocation.scope,
                 step_id=invocation.invocation_id,
-                arg_name="quadratic_template",
+                arg_name=template_input_name,
                 role="coefficient_identity_template",
                 expected={
                     "template": expected_expression,
@@ -2886,7 +3057,7 @@ def _stamp_method_input_read_authorities(
                 method_id=invocation.method_id,
                 scope_id=invocation.scope,
                 step_id=invocation.invocation_id,
-                arg_name="quadratic_template",
+                arg_name=template_input_name,
                 role="coefficient_identity_template",
                 expected={"template": expected_expression, "state": "ordinal_0"},
                 observed={"state": observed_expression},
@@ -2900,7 +3071,7 @@ def _stamp_method_input_read_authorities(
         return MethodInputReadAuthority(
             method_id=invocation.method_id,
             invocation_id=invocation.invocation_id,
-            input_name="quadratic_template",
+            input_name=template_input_name,
             item_index=0,
             view_mode=input_spec.view.mode,
             domain_type=input_spec.domain_type,
@@ -2953,10 +3124,12 @@ def _stamp_method_input_read_authorities(
             if template_authority is not None:
                 # Hidden coefficient identity is injected only after the
                 # exact ordinal-0 state authority has been proved.
-                invocation_inputs["quadratic_template"] = (
+                invocation_inputs[template_authority.input_name] = (
                     template_authority.runtime_path
                 )
-                authorities["quadratic_template"] = (template_authority,)
+                authorities[template_authority.input_name] = (
+                    template_authority,
+                )
             supporting_authority = symbolic_basis_authority(
                 plan=plan,
                 invocation=invocation,
@@ -2980,12 +3153,57 @@ def _stamp_method_input_read_authorities(
             )
         return replace(plan, invocations=invocations)
 
+    stamped_plans = tuple(stamp_plan(plan) for plan in compiled.plans)
+    stamped_replay_plans = tuple(
+        stamp_plan(plan) for plan in compiled.replay_plans
+    )
+    typed_bindings = tuple(
+        item.logical_binding
+        for item in prepared_call.arg_bindings
+        if item.logical_binding.consumption_mode == "typed_binding"
+    )
+    decisions = compiled.binding_consumption_decisions
+    if typed_bindings:
+        typed_audit = audit_compiled_functional_arg_consumption(
+            typed_bindings,
+            stamped_plans,
+            expected_runtime_paths={item.key: None for item in typed_bindings},
+        )
+        if typed_audit.mismatches:
+            first = typed_audit.mismatches[0]
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.functional_runtime_input_mapping_drift: "
+                f"call={prepared_call.call_id}, "
+                f"arg={first['arg_name']}[{first['item_index']}], "
+                f"target={first['runtime_target']}, "
+                f"details={first['details']}"
+            )
+        typed_decisions = {
+            (
+                item["arg_name"],
+                item["item_index"],
+                item["runtime_target"],
+            ): item
+            for item in typed_audit.decisions
+        }
+        decisions = tuple(
+            typed_decisions.get(
+                (
+                    item["arg_name"],
+                    item["item_index"],
+                    item["runtime_target"],
+                ),
+                item,
+            )
+            for item in decisions
+        )
+
     return replace(
         compiled,
-        plans=tuple(stamp_plan(plan) for plan in compiled.plans),
-        replay_plans=tuple(
-            stamp_plan(plan) for plan in compiled.replay_plans
-        ),
+        plans=stamped_plans,
+        replay_plans=stamped_replay_plans,
+        binding_consumption_decisions=decisions,
     )
 
 

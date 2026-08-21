@@ -40,6 +40,10 @@ from shuxueshuo_server.solver.family.capability_packs import (
 )
 from shuxueshuo_server.solver.family.common_binding_rules import (
     QUADRATIC_STATE_PREP_INVOCATIONS,
+    canonical_x_binding,
+    quadratic_coefficients_binding,
+    quadratic_latest_state_binding,
+    quadratic_public_state_binding,
 )
 
 
@@ -297,9 +301,9 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         MethodBindingRuleSpec(
             method_id="quadratic_from_constraints",
             input_bindings=(
-                LegacySelectorInputBindingSpec("quadratic", "function:parabola"),
-                LegacySelectorInputBindingSpec("x", "symbol:x"),
-                LegacySelectorInputBindingSpec("all_coefficients", "quadratic_coefficients"),
+                quadratic_latest_state_binding("quadratic"),
+                canonical_x_binding(),
+                quadratic_coefficients_binding(),
             ),
             expansion_selectors=(
                 LegacyExpansionSelectorSpec("known_coefficients_if_read"),
@@ -317,8 +321,8 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         MethodBindingRuleSpec(
             method_id="quadratic_axis_x_intercept_point",
             input_bindings=(
-                LegacySelectorInputBindingSpec("parabola", "read_type:Parabola"),
-                LegacySelectorInputBindingSpec("x", "symbol:x"),
+                quadratic_public_state_binding("parabola"),
+                canonical_x_binding(),
                 LegacySelectorInputBindingSpec("target", "point_output_ref"),
             ),
             prep_invocations=QUADRATIC_STATE_PREP_INVOCATIONS,
@@ -360,8 +364,8 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 ),
             ),
             input_bindings=(
-                LegacySelectorInputBindingSpec("parabola", "read_type:Parabola"),
-                LegacySelectorInputBindingSpec("x", "symbol:x"),
+                quadratic_public_state_binding("parabola"),
+                canonical_x_binding(),
                 LegacySelectorInputBindingSpec("target", "point_output_ref"),
             ),
             prep_invocations=QUADRATIC_STATE_PREP_INVOCATIONS,
@@ -401,8 +405,8 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             input_bindings=(
                 LegacySelectorInputBindingSpec("target_point", "curve_condition:target_point"),
                 LegacySelectorInputBindingSpec("curve_point", "curve_condition:curve_point"),
-                LegacySelectorInputBindingSpec("parabola", "read_type:Parabola"),
-                LegacySelectorInputBindingSpec("x", "symbol:x"),
+                quadratic_public_state_binding("parabola"),
+                canonical_x_binding(),
             ),
             prep_invocations=QUADRATIC_STATE_PREP_INVOCATIONS,
         ),

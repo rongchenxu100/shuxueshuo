@@ -10,6 +10,11 @@ from dataclasses import dataclass
 import re
 from typing import Any, Callable, Mapping
 
+from shuxueshuo_server.solver.contracts import (
+    LegacySelectorInputBindingSpec,
+    MethodInputBindingSpec,
+    OrdinalZeroTemplateDerivationSpec,
+)
 from shuxueshuo_server.solver.family.models import MethodBindingRuleSpec, SolverFamilySpec
 from shuxueshuo_server.solver.runtime.auxiliary_points import fresh_auxiliary_point_handle
 from shuxueshuo_server.solver.runtime.condition_roles import (
@@ -195,6 +200,18 @@ class MethodBindingRuleRegistry:
         for binding in rule.input_bindings:
             if binding.input_name in inputs:
                 continue
+            if isinstance(binding, MethodInputBindingSpec):
+                if isinstance(
+                    binding.derivation,
+                    OrdinalZeroTemplateDerivationSpec,
+                ):
+                    continue
+                if not binding.required:
+                    continue
+                raise StrategyDraftValidationError(
+                    "planner.method_input_binding_lowerer_missing: "
+                    f"method={method_id}, input={binding.input_name}"
+                )
             try:
                 value = self._select(binding.selector, step, index, local_outputs=local_outputs)
             except StrategyDraftValidationError:
@@ -259,6 +276,13 @@ class MethodBindingRuleRegistry:
         """构造 registry 时提前发现 FamilySpec selector 拼写错误。"""
         for rule in self.rules.values():
             for binding in rule.input_bindings:
+                if isinstance(binding, MethodInputBindingSpec):
+                    continue
+                if not isinstance(binding, LegacySelectorInputBindingSpec):
+                    raise StrategyDraftValidationError(
+                        "planner.method_input_binding_contract_invalid: "
+                        f"method={rule.method_id}, input={binding.input_name}"
+                    )
                 if binding.selector not in self.selectors:
                     raise StrategyDraftValidationError(
                         f"binding_selector_missing: {binding.selector}"
