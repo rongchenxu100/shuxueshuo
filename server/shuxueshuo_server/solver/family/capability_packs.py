@@ -2,7 +2,11 @@
 
 from __future__ import annotations
 
-from shuxueshuo_server.solver.contracts import ScalarResultFormSpec
+from shuxueshuo_server.solver.contracts import (
+    LegacySelectorInputBindingSpec,
+    ScalarResultFormSpec,
+    SourceObjectIdentityDerivationSpec,
+)
 from shuxueshuo_server.solver.family.models import (
     CapabilityContextResolver,
     CapabilityContractSpec,
@@ -22,7 +26,6 @@ from shuxueshuo_server.solver.family.models import (
     EvidenceInputGroupSpec,
     GoalEvidencePolicySpec,
     MethodBindingRuleSpec,
-    MethodInputBindingSpec,
     MacroSearchSpec,
     PATH_REDUCTION_ROLES_RESOLVER,
     PathTransformationConsumerSpec,
@@ -1164,8 +1167,10 @@ PATH_MINIMUM_BY_STRAIGHTENED_DISTANCE = StepRecipeSpec(
         ),
         input_derivations=(
             RecipeInputDerivationSpec(
-                "parameter_value",
-                "distance_between_points.parameter",
+                target="distance_between_points.parameter",
+                derivation=SourceObjectIdentityDerivationSpec(
+                    source_input="parameter_value",
+                ),
             ),
         ),
         output_aliases=(
@@ -1222,8 +1227,10 @@ BROKEN_PATH_STRAIGHTENING_MINIMUM_EXPRESSION = StepRecipeSpec(
         ),
         input_derivations=(
             RecipeInputDerivationSpec(
-                "parameter_value",
-                "distance_between_points.parameter",
+                target="distance_between_points.parameter",
+                derivation=SourceObjectIdentityDerivationSpec(
+                    source_input="parameter_value",
+                ),
             ),
         ),
         strategy_input_targets=(
@@ -1661,31 +1668,31 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
             MethodBindingRuleSpec(
                 method_id="two_moving_points_path_reduction",
                 input_bindings=(
-                    MethodInputBindingSpec(
+                    LegacySelectorInputBindingSpec(
                         "original_path",
                         "fact:path_minimum_target:Condition",
                     ),
-                    MethodInputBindingSpec(
+                    LegacySelectorInputBindingSpec(
                         "first_moving_membership",
                         "path_reduction:first_membership",
                     ),
-                    MethodInputBindingSpec(
+                    LegacySelectorInputBindingSpec(
                         "second_moving_membership",
                         "path_reduction:second_membership",
                     ),
-                    MethodInputBindingSpec(
+                    LegacySelectorInputBindingSpec(
                         "binding_relation",
                         "path_reduction:relation",
                     ),
-                    MethodInputBindingSpec(
+                    LegacySelectorInputBindingSpec(
                         "first_segment_start",
                         "path_reduction:first_segment_start",
                     ),
-                    MethodInputBindingSpec(
+                    LegacySelectorInputBindingSpec(
                         "joint_point",
                         "path_reduction:joint_point",
                     ),
-                    MethodInputBindingSpec(
+                    LegacySelectorInputBindingSpec(
                         "second_segment_end",
                         "path_reduction:second_segment_end",
                     ),

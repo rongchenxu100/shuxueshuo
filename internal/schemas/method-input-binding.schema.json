@@ -1,0 +1,211 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "method-input-binding.schema.json",
+  "title": "MethodInputBindingSpec",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "input_name",
+    "required"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "method-input-binding/v1"
+    },
+    "input_name": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "required": {
+      "type": "boolean"
+    },
+    "source": {
+      "$ref": "#/$defs/source"
+    },
+    "derivation": {
+      "$ref": "#/$defs/derivation"
+    }
+  },
+  "oneOf": [
+    {
+      "required": ["source"],
+      "not": {
+        "required": ["derivation"]
+      }
+    },
+    {
+      "required": ["derivation"],
+      "not": {
+        "required": ["source"]
+      }
+    }
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": ".*\\S.*"
+    },
+    "uniqueNames": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/nonEmptyString"
+      }
+    },
+    "publicArgSource": {
+      "type": "object",
+      "required": ["kind", "arg_name"],
+      "properties": {
+        "kind": {"const": "public_arg"},
+        "arg_name": {"$ref": "#/$defs/nonEmptyString"}
+      },
+      "additionalProperties": false
+    },
+    "entityIdentitySource": {
+      "type": "object",
+      "required": ["kind"],
+      "properties": {
+        "kind": {"const": "entity_identity"},
+        "arg_name": {"$ref": "#/$defs/nonEmptyString"},
+        "semantic_roles": {"$ref": "#/$defs/uniqueNames"}
+      },
+      "oneOf": [
+        {
+          "required": ["arg_name"],
+          "not": {"required": ["semantic_roles"]}
+        },
+        {
+          "required": ["semantic_roles"],
+          "not": {"required": ["arg_name"]}
+        }
+      ],
+      "additionalProperties": false
+    },
+    "latestStateSource": {
+      "type": "object",
+      "required": ["kind", "entity_arg"],
+      "properties": {
+        "kind": {"const": "latest_state"},
+        "entity_arg": {"$ref": "#/$defs/nonEmptyString"}
+      },
+      "additionalProperties": false
+    },
+    "conditionSource": {
+      "type": "object",
+      "required": ["kind"],
+      "properties": {
+        "kind": {"const": "condition"},
+        "arg_name": {"$ref": "#/$defs/nonEmptyString"},
+        "condition_kinds": {"$ref": "#/$defs/uniqueNames"},
+        "related_args": {"$ref": "#/$defs/uniqueNames"}
+      },
+      "oneOf": [
+        {
+          "required": ["arg_name"],
+          "not": {
+            "anyOf": [
+              {"required": ["condition_kinds"]},
+              {"required": ["related_args"]}
+            ]
+          }
+        },
+        {
+          "required": ["condition_kinds", "related_args"],
+          "not": {"required": ["arg_name"]}
+        }
+      ],
+      "additionalProperties": false
+    },
+    "exactCallResultSource": {
+      "type": "object",
+      "required": ["kind", "arg_name"],
+      "properties": {
+        "kind": {"const": "exact_call_result"},
+        "arg_name": {"$ref": "#/$defs/nonEmptyString"}
+      },
+      "additionalProperties": false
+    },
+    "producerLinkedSource": {
+      "type": "object",
+      "required": ["kind", "source_arg", "producer_arg"],
+      "properties": {
+        "kind": {"const": "producer_linked"},
+        "source_arg": {"$ref": "#/$defs/nonEmptyString"},
+        "producer_arg": {"$ref": "#/$defs/nonEmptyString"}
+      },
+      "additionalProperties": false
+    },
+    "macroPreparedRoleSource": {
+      "type": "object",
+      "required": ["kind", "role"],
+      "properties": {
+        "kind": {"const": "macro_prepared_role"},
+        "role": {"$ref": "#/$defs/nonEmptyString"}
+      },
+      "additionalProperties": false
+    },
+    "source": {
+      "oneOf": [
+        {"$ref": "#/$defs/publicArgSource"},
+        {"$ref": "#/$defs/entityIdentitySource"},
+        {"$ref": "#/$defs/latestStateSource"},
+        {"$ref": "#/$defs/conditionSource"},
+        {"$ref": "#/$defs/exactCallResultSource"},
+        {"$ref": "#/$defs/producerLinkedSource"},
+        {"$ref": "#/$defs/macroPreparedRoleSource"}
+      ]
+    },
+    "singleInputDerivation": {
+      "type": "object",
+      "required": ["kind", "source_input"],
+      "properties": {
+        "kind": {
+          "enum": [
+            "coefficient_extraction",
+            "ordinal_zero_template",
+            "source_object_identity"
+          ]
+        },
+        "source_input": {"$ref": "#/$defs/nonEmptyString"}
+      },
+      "additionalProperties": false
+    },
+    "canonicalSymbolDerivation": {
+      "type": "object",
+      "required": ["kind", "symbol_name"],
+      "properties": {
+        "kind": {"const": "canonical_symbol"},
+        "symbol_name": {"$ref": "#/$defs/nonEmptyString"}
+      },
+      "additionalProperties": false
+    },
+    "previousOutputIdentityDerivation": {
+      "type": "object",
+      "required": ["kind", "output_name"],
+      "properties": {
+        "kind": {"const": "previous_output_identity"},
+        "output_name": {"$ref": "#/$defs/nonEmptyString"}
+      },
+      "additionalProperties": false
+    },
+    "freeSymbolBasisDerivation": {
+      "type": "object",
+      "required": ["kind", "source_inputs"],
+      "properties": {
+        "kind": {"const": "free_symbol_basis"},
+        "source_inputs": {"$ref": "#/$defs/uniqueNames"}
+      },
+      "additionalProperties": false
+    },
+    "derivation": {
+      "oneOf": [
+        {"$ref": "#/$defs/canonicalSymbolDerivation"},
+        {"$ref": "#/$defs/singleInputDerivation"},
+        {"$ref": "#/$defs/previousOutputIdentityDerivation"},
+        {"$ref": "#/$defs/freeSymbolBasisDerivation"}
+      ]
+    }
+  }
+}

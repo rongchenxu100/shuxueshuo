@@ -12,6 +12,9 @@ from dataclasses import dataclass, replace
 from typing import Any, Callable, Literal, Mapping
 
 from shuxueshuo_server.solver.contracts import (
+    LegacyExpansionSelectorSpec,
+    MethodInputBindingDeclaration,
+    MethodInputBindingSpec,
     MethodInputViewMode,
     MethodSpec,
     PlanTransformerScope,
@@ -43,7 +46,6 @@ from shuxueshuo_server.solver.family.models import (
     CapabilityContractSpec,
     CapabilityContextRoleBindingSpec,
     CapabilityStateClosurePolicy,
-    FunctionalArgBindingAuthority,
     FunctionalSemanticRefRole,
     FunctionalOutputTargetSelectorSpec,
     FunctionalReturnBindingPolicy,
@@ -212,29 +214,6 @@ class FunctionReturnSpec:
 
 
 @dataclass(frozen=True)
-class FunctionInputBindingSpec:
-    """Adapter binding from a function arg/method input to a selector primitive."""
-
-    input_name: str
-    selector: str
-    required: bool = True
-    functional_authority: FunctionalArgBindingAuthority | None = None
-    functional_resolver: str | None = None
-
-    def to_payload(self) -> dict[str, Any]:
-        payload = {
-            "input_name": self.input_name,
-            "selector": self.selector,
-            "required": self.required,
-        }
-        if self.functional_authority is not None:
-            payload["functional_authority"] = self.functional_authority
-        if self.functional_resolver is not None:
-            payload["functional_resolver"] = self.functional_resolver
-        return payload
-
-
-@dataclass(frozen=True)
 class FunctionAggregateInputBindingSpec:
     """Compile one reconciled many-arg into fixed scalar method inputs."""
 
@@ -280,12 +259,12 @@ class FunctionAdapterSpec:
     functional_output_target_selectors: tuple[
         FunctionalOutputTargetSelectorSpec, ...
     ] = ()
-    input_bindings: tuple[FunctionInputBindingSpec, ...] = ()
+    input_bindings: tuple[MethodInputBindingDeclaration, ...] = ()
     aggregate_input_bindings: tuple[FunctionAggregateInputBindingSpec, ...] = ()
     scalar_aggregate_lowerings: tuple[
         FunctionScalarAggregateLoweringSpec, ...
     ] = ()
-    expansion_selectors: tuple[str, ...] = ()
+    expansion_selectors: tuple[LegacyExpansionSelectorSpec, ...] = ()
     constraint_analyzer: str | None = None
 
     def to_payload(self) -> dict[str, Any]:
@@ -511,7 +490,8 @@ class FunctionAdapterRegistry:
         local_outputs: Mapping[str, str] | None = None,
         include_expansion_selectors: bool = True,
         expansion_selectors_override: tuple[str, ...] | None = None,
-        input_bindings_override: tuple[Any, ...] | None = None,
+        input_bindings_override: tuple[MethodInputBindingDeclaration, ...]
+        | None = None,
         exact_inputs: Mapping[str, str] | None = None,
         method_input_specs: Mapping[str, object] | None = None,
         distinct_arg_groups: tuple[tuple[str, ...], ...] = (),
@@ -529,6 +509,30 @@ class FunctionAdapterRegistry:
             adapter,
             input_bindings_override=input_bindings_override,
         ):
+            if isinstance(binding, MethodInputBindingSpec):
+                raise StatelessMethodError(
+                    "planner.method_input_binding_lowerer_missing",
+                    "typed Method input binding has no registered lowerer",
+                    category="configuration",
+                    retryability="configuration",
+                    method_id=method_id,
+                    step_id=step.step_id,
+                    subjects=(
+                        FunctionalDiagnosticSubject(
+                            role=binding.input_name,
+                            arg_name=binding.input_name,
+                        ),
+                    ),
+                    expected={
+                        "binding_schema": binding.schema_version,
+                        "lowerer": "registered_typed_input_lowerer",
+                    },
+                    observed={
+                        "binding": binding.to_payload(),
+                        "lowerer": None,
+                    },
+                    repair_action="fix_runtime_contract",
+                )
             if binding.input_name in inputs:
                 continue
             input_spec = (method_input_specs or {}).get(binding.input_name)
@@ -1474,16 +1478,7 @@ def function_adapter_from_binding_rule(
     and prompt/context projections, but they should not duplicate selector
     strings while the legacy binding rules are still the rollback oracle.
     """
-    input_bindings = tuple(
-        FunctionInputBindingSpec(
-            input_name=item.input_name,
-            selector=item.selector,
-            required=item.required,
-            functional_authority=item.functional_authority,
-            functional_resolver=item.functional_resolver,
-        )
-        for item in rule.input_bindings
-    )
+    input_bindings = rule.input_bindings
     aggregate_input_bindings = tuple(
         FunctionAggregateInputBindingSpec(
             source_input=item.source_input,
@@ -1779,8 +1774,8 @@ _CONSTRAINT_ANALYZERS: dict[str, ConstraintAnalyzer] = {
 def _effective_input_bindings(
     adapter: FunctionAdapterSpec,
     *,
-    input_bindings_override: tuple[Any, ...] | None,
-) -> tuple[FunctionInputBindingSpec, ...]:
+    input_bindings_override: tuple[MethodInputBindingDeclaration, ...] | None,
+) -> tuple[MethodInputBindingDeclaration, ...]:
     if input_bindings_override is None:
         return adapter.input_bindings
     by_name = {
@@ -1789,24 +1784,10 @@ def _effective_input_bindings(
     }
     order = [binding.input_name for binding in adapter.input_bindings]
     for binding in input_bindings_override:
-        input_name = str(getattr(binding, "input_name"))
+        input_name = binding.input_name
         if input_name not in by_name:
             order.append(input_name)
-        by_name[input_name] = FunctionInputBindingSpec(
-            input_name=input_name,
-            selector=str(getattr(binding, "selector")),
-            required=bool(getattr(binding, "required", True)),
-            functional_authority=getattr(
-                binding,
-                "functional_authority",
-                None,
-            ),
-            functional_resolver=getattr(
-                binding,
-                "functional_resolver",
-                None,
-            ),
-        )
+        by_name[input_name] = binding
     return tuple(by_name[input_name] for input_name in order)
 
 

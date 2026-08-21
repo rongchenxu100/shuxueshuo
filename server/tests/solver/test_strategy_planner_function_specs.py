@@ -9,6 +9,7 @@ import pytest
 import sympy as sp
 
 from shuxueshuo_server.solver.contracts import (
+    LegacySelectorInputBindingSpec,
     MethodInputSpec,
     MethodInputViewSpec,
     MethodSpec,
@@ -24,7 +25,6 @@ from shuxueshuo_server.solver.runtime.function_specs import (
     GENERIC_FUNCTION_METHOD_IDS,
     FunctionAdapterRegistry,
     FunctionAdapterSpec,
-    FunctionInputBindingSpec,
     FunctionSpec,
     FunctionSpecRegistry,
     _analyze_quadratic_coefficient_inputs,
@@ -721,7 +721,7 @@ def test_production_adapter_requires_typed_authority_for_every_entity_input() ->
     adapter = FunctionAdapterSpec(
         adapter_id="synthetic_entity_consumer",
         input_bindings=(
-            FunctionInputBindingSpec(
+            LegacySelectorInputBindingSpec(
                 input_name="anchor",
                 selector="legacy_entity_selector",
             ),
@@ -798,7 +798,7 @@ def test_production_adapter_keeps_v1_selector_only_for_non_entity_values() -> No
     adapter = FunctionAdapterSpec(
         adapter_id="synthetic_mechanical_consumer",
         input_bindings=(
-            FunctionInputBindingSpec(
+            LegacySelectorInputBindingSpec(
                 input_name="coefficients",
                 selector="mechanical_selector",
                 functional_authority="compiler",

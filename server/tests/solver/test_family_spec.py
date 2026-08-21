@@ -14,7 +14,7 @@ from shuxueshuo_server.solver.family import (
     QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY,
     QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY,
     MethodBindingRuleSpec,
-    MethodInputBindingSpec,
+    LegacySelectorInputBindingSpec,
     RecipeExecutionSpec,
     SolverFamilySpec,
     StateSlotPattern,
@@ -306,11 +306,11 @@ def test_capability_pack_expansion_deduplicates_methods_and_overrides_recipes() 
 def test_capability_pack_expansion_merges_binding_rules_and_family_override() -> None:
     pack_rule = MethodBindingRuleSpec(
         method_id="method_a",
-        input_bindings=(MethodInputBindingSpec("value", "pack_selector"),),
+        input_bindings=(LegacySelectorInputBindingSpec("value", "pack_selector"),),
     )
     family_rule = MethodBindingRuleSpec(
         method_id="method_a",
-        input_bindings=(MethodInputBindingSpec("value", "family_selector"),),
+        input_bindings=(LegacySelectorInputBindingSpec("value", "family_selector"),),
     )
     registry = CapabilityPackRegistry((
         CapabilityPackSpec(
@@ -345,7 +345,7 @@ def test_capability_pack_expansion_rejects_conflicting_pack_binding_rules() -> N
             method_binding_rules=(
                 MethodBindingRuleSpec(
                     method_id="method_a",
-                    input_bindings=(MethodInputBindingSpec("value", "base_selector"),),
+                    input_bindings=(LegacySelectorInputBindingSpec("value", "base_selector"),),
                 ),
             ),
         ),
@@ -355,7 +355,7 @@ def test_capability_pack_expansion_rejects_conflicting_pack_binding_rules() -> N
             method_binding_rules=(
                 MethodBindingRuleSpec(
                     method_id="method_a",
-                    input_bindings=(MethodInputBindingSpec("value", "mechanism_selector"),),
+                    input_bindings=(LegacySelectorInputBindingSpec("value", "mechanism_selector"),),
                 ),
             ),
         ),
@@ -377,7 +377,7 @@ def test_capability_pack_expansion_rejects_conflicting_pack_binding_rules() -> N
 def test_capability_pack_expansion_allows_identical_pack_binding_rules() -> None:
     rule = MethodBindingRuleSpec(
         method_id="method_a",
-        input_bindings=(MethodInputBindingSpec("value", "selector"),),
+        input_bindings=(LegacySelectorInputBindingSpec("value", "selector"),),
     )
     registry = CapabilityPackRegistry((
         CapabilityPackSpec(

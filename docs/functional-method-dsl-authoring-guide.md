@@ -238,6 +238,44 @@ input_views=declare_input_views(
 7. 输入集合若有顺序语义必须使用有序类型；若无顺序语义，Method 应 canonicalize 后处理。
 8. Method 不得把错误类型静默转成“看起来能算”的类型。
 
+### 5.1 输入来源与机械派生
+
+`MethodInputSpec`只描述一个Method输入需要的领域类型、runtime类型和view；本次
+调用究竟从哪里取得该输入，必须由独立的`MethodInputBindingSpec`声明：
+
+```python
+MethodInputBindingSpec(
+    input_name="quadratic",
+    source=LatestStateSourceSpec(entity_arg="quadratic"),
+)
+
+MethodInputBindingSpec(
+    input_name="coefficients",
+    derivation=CoefficientExtractionDerivationSpec(
+        source_input="quadratic",
+    ),
+)
+```
+
+严格绑定必须且只能选择以下一类：
+
+- `source`：选择已经具有数学权威的公开参数、Entity identity、latest state、
+  Condition、exact CallResult、producer-linked source或Macro prepared role；
+- `derivation`：从已绑定输入机械生成canonical symbol、系数、ordinal-0模板、
+  previous output identity、source object identity或free-symbol basis。
+
+`source`负责“本次读取哪个数学对象或状态”，`derivation`只负责“不改变数学对象
+选择的机械转换”。二者不能同时出现，也不能缺省。新的Function、Method和Macro
+lowering不得声明字符串selector；typed binding尚未有lowerer时必须以
+`planner.method_input_binding_lowerer_missing`作为configuration error中止，不能
+回退到`FunctionAdapterRegistry._select()`。
+
+F5-F4.2R迁移期间，既有selector只能通过显式
+`LegacySelectorInputBindingSpec`存在。它的payload与运行行为保持原样，并由固定
+基线禁止新增。`LegacyExpansionSelectorSpec`同样只标记旧expansion边界。新协议
+`method-input-binding/v1`只接受typed binding，不接受Legacy selector。后续迁移应
+逐项减少Legacy基线，不能用新名字包装一次context扫描。
+
 ### 5.1 Method input view
 
 每个内部 input 必须且只能声明一种 view：

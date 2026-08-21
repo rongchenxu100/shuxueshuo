@@ -6,12 +6,15 @@ Planner 参考。它不包含南开 25 的固定 StepPlan，也不包含最终�
 
 from __future__ import annotations
 
+from shuxueshuo_server.solver.contracts import (
+    LegacyExpansionSelectorSpec,
+    LegacySelectorInputBindingSpec,
+)
 from shuxueshuo_server.solver.family.models import (
     FamilyMatchRule,
     FamilySourceRequirementSpec,
     MethodCompanionOutputSpec,
     MethodBindingRuleSpec,
-    MethodInputBindingSpec,
     MacroSearchSpec,
     RecipeExecutionSpec,
     recipe_output_alias,
@@ -303,30 +306,30 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         MethodBindingRuleSpec(
             method_id="quadratic_axis_from_relation",
             input_bindings=(
-                MethodInputBindingSpec("coefficient_relation", "fact:coefficient_relation:Equation"),
-                MethodInputBindingSpec("a", "symbol:a"),
-                MethodInputBindingSpec("b", "symbol:b"),
-                MethodInputBindingSpec("target", "point_output_ref"),
+                LegacySelectorInputBindingSpec("coefficient_relation", "fact:coefficient_relation:Equation"),
+                LegacySelectorInputBindingSpec("a", "symbol:a"),
+                LegacySelectorInputBindingSpec("b", "symbol:b"),
+                LegacySelectorInputBindingSpec("target", "point_output_ref"),
             ),
         ),
         MethodBindingRuleSpec(
             method_id="quadratic_from_constraints",
             input_bindings=(
-                MethodInputBindingSpec("quadratic", "function:parabola"),
-                MethodInputBindingSpec("x", "symbol:x"),
-                MethodInputBindingSpec(
+                LegacySelectorInputBindingSpec("quadratic", "function:parabola"),
+                LegacySelectorInputBindingSpec("x", "symbol:x"),
+                LegacySelectorInputBindingSpec(
                     "coefficient_relation",
                     "fact:coefficient_relation:Equation",
                     required=False,
                 ),
-                MethodInputBindingSpec("all_coefficients", "quadratic_coefficients"),
+                LegacySelectorInputBindingSpec("all_coefficients", "quadratic_coefficients"),
             ),
             expansion_selectors=(
-                "known_coefficients_if_read",
-                "free_quadratic_parameter_if_read",
-                "parameter_value_if_read",
-                "curve_point_if_read",
-                "curve_points_if_parameterized",
+                LegacyExpansionSelectorSpec("known_coefficients_if_read"),
+                LegacyExpansionSelectorSpec("free_quadratic_parameter_if_read"),
+                LegacyExpansionSelectorSpec("parameter_value_if_read"),
+                LegacyExpansionSelectorSpec("curve_point_if_read"),
+                LegacyExpansionSelectorSpec("curve_points_if_parameterized"),
             ),
             always_emit_outputs=("coefficients",),
             companion_outputs=(
@@ -340,30 +343,30 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         MethodBindingRuleSpec(
             method_id="parameter_from_segment_length",
             input_bindings=(
-                MethodInputBindingSpec("p1", "length_segment:p1"),
-                MethodInputBindingSpec("p2", "length_segment:p2"),
-                MethodInputBindingSpec(
+                LegacySelectorInputBindingSpec("p1", "length_segment:p1"),
+                LegacySelectorInputBindingSpec("p2", "length_segment:p2"),
+                LegacySelectorInputBindingSpec(
                     "parameter",
                     "parameter_symbol",
                     functional_authority="wire",
                     functional_resolver="unique_parameter_symbol",
                 ),
-                MethodInputBindingSpec("condition", "fact:length_squared:Condition"),
-                MethodInputBindingSpec("constraint", "parameter_constraint"),
+                LegacySelectorInputBindingSpec("condition", "fact:length_squared:Condition"),
+                LegacySelectorInputBindingSpec("constraint", "parameter_constraint"),
             ),
         ),
         MethodBindingRuleSpec(
             method_id="parameter_from_minimum_value",
             input_bindings=(
-                MethodInputBindingSpec("minimum_expression", "read_type:MinimumExpression"),
-                MethodInputBindingSpec("condition", "fact:minimum_value:Condition"),
-                MethodInputBindingSpec(
+                LegacySelectorInputBindingSpec("minimum_expression", "read_type:MinimumExpression"),
+                LegacySelectorInputBindingSpec("condition", "fact:minimum_value:Condition"),
+                LegacySelectorInputBindingSpec(
                     "parameter",
                     "parameter_symbol",
                     functional_authority="wire",
                     functional_resolver="unique_parameter_symbol",
                 ),
-                MethodInputBindingSpec("constraint", "parameter_constraint"),
+                LegacySelectorInputBindingSpec("constraint", "parameter_constraint"),
             ),
         ),
     ),

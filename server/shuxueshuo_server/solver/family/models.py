@@ -11,9 +11,13 @@ from dataclasses import dataclass, field
 from typing import Literal
 
 from shuxueshuo_server.solver.contracts import (
+    FunctionalArgBindingAuthority,
+    LegacyExpansionSelectorSpec,
     MacroExecutionMode,
     MacroSearchSpec,
+    MethodInputBindingDeclaration,
     ScalarResultFormSpec,
+    SourceObjectIdentityDerivationSpec,
 )
 from shuxueshuo_server.solver.problem_models import ProblemIR
 from shuxueshuo_server.solver.state_semantics import state_kind_for_runtime_type
@@ -465,9 +469,6 @@ def recipe_output_alias(
     )
 
 
-RecipeInputDerivationKind = Literal["source_object_identity"]
-
-
 @dataclass(frozen=True)
 class RecipeInputDerivationSpec:
     """Derive one hidden Method input from an explicit public Macro input.
@@ -478,9 +479,16 @@ class RecipeInputDerivationSpec:
     input and the hidden ``Symbol`` input required by an internal Method.
     """
 
-    source_arg: str
     target: str
-    kind: RecipeInputDerivationKind = "source_object_identity"
+    derivation: SourceObjectIdentityDerivationSpec
+
+    @property
+    def source_arg(self) -> str:
+        return self.derivation.source_input
+
+    @property
+    def kind(self) -> Literal["source_object_identity"]:
+        return self.derivation.kind
 
     def to_payload(self) -> dict[str, str]:
         return {
@@ -522,22 +530,6 @@ class RecipeExecutionSpec:
     strategy_input_targets: tuple[str, ...] = ()
     intermediate_wiring: tuple[tuple[str, str], ...] = ()
     output_aliases: tuple[RecipeOutputAliasSpec, ...] = ()
-
-
-@dataclass(frozen=True)
-class MethodInputBindingSpec:
-    """单个 method input slot 的语义选择规则。
-
-    ``selector`` 指向 runtime 中的一类通用选择器，例如“读取系数关系 fact”或“读取
-    当前 step 输出点的 PointRef”。method 专属的输入名留在 spec 中，避免在 runtime
-    主流程里写一串 method_id 分支。
-    """
-
-    input_name: str
-    selector: str
-    required: bool = True
-    functional_authority: FunctionalArgBindingAuthority | None = None
-    functional_resolver: str | None = None
 
 
 @dataclass(frozen=True)
@@ -593,7 +585,7 @@ class MethodPrepInvocationSpec:
     output_aliases: tuple[tuple[str, str], ...] = ()
     local_output_aliases: tuple[tuple[str, str], ...] = ()
     include_expansion_selectors: bool = True
-    expansion_selectors: tuple[str, ...] | None = None
+    expansion_selectors: tuple[LegacyExpansionSelectorSpec, ...] | None = None
 
 
 @dataclass(frozen=True)
@@ -675,12 +667,12 @@ class MethodBindingRuleSpec:
     functional_output_target_selectors: tuple[
         FunctionalOutputTargetSelectorSpec, ...
     ] = ()
-    input_bindings: tuple[MethodInputBindingSpec, ...] = ()
+    input_bindings: tuple[MethodInputBindingDeclaration, ...] = ()
     aggregate_input_bindings: tuple[MethodAggregateInputBindingSpec, ...] = ()
     scalar_aggregate_lowerings: tuple[
         MethodScalarAggregateLoweringSpec, ...
     ] = ()
-    expansion_selectors: tuple[str, ...] = ()
+    expansion_selectors: tuple[LegacyExpansionSelectorSpec, ...] = ()
     prep_invocations: tuple[MethodPrepInvocationSpec, ...] = ()
     always_emit_outputs: tuple[str, ...] = ()
     companion_outputs: tuple[MethodCompanionOutputSpec, ...] = ()
@@ -715,7 +707,6 @@ CapabilityContractSource = Literal["explicit", "projected"]
 CapabilityScopePolicy = Literal["current", "current_or_visible", "problem", "same_as_target"]
 CapabilityCardinality = Literal["one", "optional", "many"]
 CapabilityDependencyPolicy = Literal["explicit_args", "context_closure"]
-FunctionalArgBindingAuthority = Literal["wire", "resolver", "compiler"]
 FunctionalSemanticRefRole = Literal["value", "object_identity"]
 FunctionalReturnBindingPolicy = Literal[
     "auto",

@@ -43,7 +43,6 @@ from shuxueshuo_server.solver.runtime.function_specs import (
     FunctionAdapterRegistry,
     FunctionAdapterSpec,
     FunctionArgSpec,
-    FunctionInputBindingSpec,
     FunctionReturnSpec,
     FunctionSpec,
     FunctionSpecRegistry,

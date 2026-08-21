@@ -6,6 +6,7 @@ RuntimeOrchestrator 匹配 family，并给 Planner 提供题型级参考，不�
 
 from __future__ import annotations
 
+from shuxueshuo_server.solver.contracts import LegacySelectorInputBindingSpec
 from shuxueshuo_server.solver.family.models import (
     CapabilityContractSpec,
     ConditionPattern,
@@ -14,7 +15,6 @@ from shuxueshuo_server.solver.family.models import (
     FamilySourceRequirementSpec,
     MethodCompanionOutputSpec,
     MethodBindingRuleSpec,
-    MethodInputBindingSpec,
     MacroSearchSpec,
     RecipeExecutionSpec,
     recipe_output_alias,
@@ -294,48 +294,48 @@ _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         MethodBindingRuleSpec(
             method_id="right_angle_equal_length_candidates",
             input_bindings=(
-                MethodInputBindingSpec("anchor", "right_angle:anchor"),
-                MethodInputBindingSpec("reference", "right_angle:reference"),
-                MethodInputBindingSpec("target", "right_angle:target"),
+                LegacySelectorInputBindingSpec("anchor", "right_angle:anchor"),
+                LegacySelectorInputBindingSpec("reference", "right_angle:reference"),
+                LegacySelectorInputBindingSpec("target", "right_angle:target"),
             ),
         ),
         MethodBindingRuleSpec(
             method_id="parameter_from_segment_length",
             input_bindings=(
-                MethodInputBindingSpec("p1", "length_segment:p1"),
-                MethodInputBindingSpec("p2", "length_segment:p2"),
-                MethodInputBindingSpec("reference_p1", "length_reference_segment:p1", required=False),
-                MethodInputBindingSpec("reference_p2", "length_reference_segment:p2", required=False),
-                MethodInputBindingSpec(
+                LegacySelectorInputBindingSpec("p1", "length_segment:p1"),
+                LegacySelectorInputBindingSpec("p2", "length_segment:p2"),
+                LegacySelectorInputBindingSpec("reference_p1", "length_reference_segment:p1", required=False),
+                LegacySelectorInputBindingSpec("reference_p2", "length_reference_segment:p2", required=False),
+                LegacySelectorInputBindingSpec(
                     "parameter",
                     "parameter_symbol",
                     functional_authority="wire",
                     functional_resolver="unique_parameter_symbol",
                 ),
-                MethodInputBindingSpec("condition", "fact:length_condition:Condition"),
-                MethodInputBindingSpec("constraint", "parameter_constraint", required=False),
+                LegacySelectorInputBindingSpec("condition", "fact:length_condition:Condition"),
+                LegacySelectorInputBindingSpec("constraint", "parameter_constraint", required=False),
             ),
         ),
         MethodBindingRuleSpec(
             method_id="weighted_axis_path_triangle_transform",
             input_bindings=(
-                MethodInputBindingSpec("condition", "weighted_path:condition"),
-                MethodInputBindingSpec("fixed_point", "weighted_path:fixed_point"),
-                MethodInputBindingSpec("moving_point", "weighted_path:moving_point"),
-                MethodInputBindingSpec(
+                LegacySelectorInputBindingSpec("condition", "weighted_path:condition"),
+                LegacySelectorInputBindingSpec("fixed_point", "weighted_path:fixed_point"),
+                LegacySelectorInputBindingSpec("moving_point", "weighted_path:moving_point"),
+                LegacySelectorInputBindingSpec(
                     "moving_point_ref",
                     "weighted_path:moving_point_ref",
                 ),
-                MethodInputBindingSpec(
+                LegacySelectorInputBindingSpec(
                     "linked_fixed_endpoint_ref",
                     "weighted_path:linked_fixed_endpoint_ref",
                 ),
-                MethodInputBindingSpec(
+                LegacySelectorInputBindingSpec(
                     "dynamic_parameter",
                     "dynamic_symbol",
                     functional_authority="compiler",
                 ),
-                MethodInputBindingSpec("auxiliary_point_ref", "weighted_path:auxiliary_point_ref"),
+                LegacySelectorInputBindingSpec("auxiliary_point_ref", "weighted_path:auxiliary_point_ref"),
             ),
             always_emit_outputs=("auxiliary_point", "auxiliary_locus"),
             companion_outputs=(
@@ -354,24 +354,24 @@ _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         MethodBindingRuleSpec(
             method_id="linked_broken_path_minimum_expression",
             input_bindings=(
-                MethodInputBindingSpec("path_transformation", "read_type:PathTransformation"),
-                MethodInputBindingSpec("auxiliary_locus", "read_type:Line"),
-                MethodInputBindingSpec("fixed_point", "weighted_path:fixed_point"),
-                MethodInputBindingSpec("curve_point", "weighted_path:curve_point"),
-                MethodInputBindingSpec("moving_point", "weighted_path:moving_point"),
-                MethodInputBindingSpec("auxiliary_point", "weighted_path:auxiliary_point"),
-                MethodInputBindingSpec(
+                LegacySelectorInputBindingSpec("path_transformation", "read_type:PathTransformation"),
+                LegacySelectorInputBindingSpec("auxiliary_locus", "read_type:Line"),
+                LegacySelectorInputBindingSpec("fixed_point", "weighted_path:fixed_point"),
+                LegacySelectorInputBindingSpec("curve_point", "weighted_path:curve_point"),
+                LegacySelectorInputBindingSpec("moving_point", "weighted_path:moving_point"),
+                LegacySelectorInputBindingSpec("auxiliary_point", "weighted_path:auxiliary_point"),
+                LegacySelectorInputBindingSpec(
                     "parameter",
                     "parameter_symbol",
                     functional_authority="compiler",
                 ),
-                MethodInputBindingSpec(
+                LegacySelectorInputBindingSpec(
                     "dynamic_parameter",
                     "dynamic_symbol",
                     functional_authority="compiler",
                 ),
-                MethodInputBindingSpec("parameter_constraint", "parameter_constraint"),
-                MethodInputBindingSpec("dynamic_constraint", "dynamic_constraint"),
+                LegacySelectorInputBindingSpec("parameter_constraint", "parameter_constraint"),
+                LegacySelectorInputBindingSpec("dynamic_constraint", "dynamic_constraint"),
             ),
         ),
     ),

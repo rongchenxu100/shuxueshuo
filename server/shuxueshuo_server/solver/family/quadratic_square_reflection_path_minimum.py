@@ -11,6 +11,11 @@
 
 from __future__ import annotations
 
+from shuxueshuo_server.solver.contracts import (
+    LegacyExpansionSelectorSpec,
+    LegacySelectorInputBindingSpec,
+    SourceObjectIdentityDerivationSpec,
+)
 from shuxueshuo_server.solver.family.models import (
     FamilyMatchRule,
     FamilyRuntimePreflightSpec,
@@ -19,7 +24,6 @@ from shuxueshuo_server.solver.family.models import (
     FamilySourceRequirementSpec,
     MethodBindingRuleSpec,
     MethodCompanionOutputSpec,
-    MethodInputBindingSpec,
     MacroSearchSpec,
     RecipeExecutionSpec,
     RecipeInputDerivationSpec,
@@ -192,8 +196,10 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 ),
                 input_derivations=(
                     RecipeInputDerivationSpec(
-                        "parameter_value",
-                        "distance_between_points.parameter",
+                        target="distance_between_points.parameter",
+                        derivation=SourceObjectIdentityDerivationSpec(
+                            source_input="parameter_value",
+                        ),
                     ),
                 ),
                 strategy_input_targets=(
@@ -291,13 +297,13 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         MethodBindingRuleSpec(
             method_id="quadratic_from_constraints",
             input_bindings=(
-                MethodInputBindingSpec("quadratic", "function:parabola"),
-                MethodInputBindingSpec("x", "symbol:x"),
-                MethodInputBindingSpec("all_coefficients", "quadratic_coefficients"),
+                LegacySelectorInputBindingSpec("quadratic", "function:parabola"),
+                LegacySelectorInputBindingSpec("x", "symbol:x"),
+                LegacySelectorInputBindingSpec("all_coefficients", "quadratic_coefficients"),
             ),
             expansion_selectors=(
-                "known_coefficients_if_read",
-                "curve_point_if_read",
+                LegacyExpansionSelectorSpec("known_coefficients_if_read"),
+                LegacyExpansionSelectorSpec("curve_point_if_read"),
             ),
             always_emit_outputs=("coefficients",),
             companion_outputs=(
@@ -311,24 +317,24 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         MethodBindingRuleSpec(
             method_id="quadratic_axis_x_intercept_point",
             input_bindings=(
-                MethodInputBindingSpec("parabola", "read_type:Parabola"),
-                MethodInputBindingSpec("x", "symbol:x"),
-                MethodInputBindingSpec("target", "point_output_ref"),
+                LegacySelectorInputBindingSpec("parabola", "read_type:Parabola"),
+                LegacySelectorInputBindingSpec("x", "symbol:x"),
+                LegacySelectorInputBindingSpec("target", "point_output_ref"),
             ),
             prep_invocations=QUADRATIC_STATE_PREP_INVOCATIONS,
         ),
         MethodBindingRuleSpec(
             method_id="square_path_dimension_reduction",
             input_bindings=(
-                MethodInputBindingSpec("path_condition", "fact:path_minimum_target:Condition"),
-                MethodInputBindingSpec("square_condition", "fact:square:Condition"),
-                MethodInputBindingSpec("midpoint_condition", "fact:midpoint_definition:Condition"),
-                MethodInputBindingSpec("square_center_condition", "fact:square_center:Condition"),
-                MethodInputBindingSpec(
+                LegacySelectorInputBindingSpec("path_condition", "fact:path_minimum_target:Condition"),
+                LegacySelectorInputBindingSpec("square_condition", "fact:square:Condition"),
+                LegacySelectorInputBindingSpec("midpoint_condition", "fact:midpoint_definition:Condition"),
+                LegacySelectorInputBindingSpec("square_center_condition", "fact:square_center:Condition"),
+                LegacySelectorInputBindingSpec(
                     "fixed_endpoint_1_ref",
                     "square_path:fixed_endpoint_1_ref",
                 ),
-                MethodInputBindingSpec(
+                LegacySelectorInputBindingSpec(
                     "fixed_endpoint_2_ref",
                     "square_path:fixed_endpoint_2_ref",
                 ),
@@ -354,9 +360,9 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 ),
             ),
             input_bindings=(
-                MethodInputBindingSpec("parabola", "read_type:Parabola"),
-                MethodInputBindingSpec("x", "symbol:x"),
-                MethodInputBindingSpec("target", "point_output_ref"),
+                LegacySelectorInputBindingSpec("parabola", "read_type:Parabola"),
+                LegacySelectorInputBindingSpec("x", "symbol:x"),
+                LegacySelectorInputBindingSpec("target", "point_output_ref"),
             ),
             prep_invocations=QUADRATIC_STATE_PREP_INVOCATIONS,
             companion_outputs=(
@@ -371,48 +377,52 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             method_id="square_adjacent_vertex_from_side",
             functional_output_names=(("point", "adjacent_vertex"),),
             input_bindings=(
-                MethodInputBindingSpec("side_start", "square:side_start"),
-                MethodInputBindingSpec("side_end", "square:side_end"),
-                MethodInputBindingSpec("square_condition", "fact:square:Condition"),
-                MethodInputBindingSpec("target", "point_transition_target"),
-                MethodInputBindingSpec("side_start_ref", "square:side_start_ref", required=False),
-                MethodInputBindingSpec("side_end_ref", "square:side_end_ref", required=False),
-                MethodInputBindingSpec(
+                LegacySelectorInputBindingSpec("side_start", "square:side_start"),
+                LegacySelectorInputBindingSpec("side_end", "square:side_end"),
+                LegacySelectorInputBindingSpec("square_condition", "fact:square:Condition"),
+                LegacySelectorInputBindingSpec("target", "point_transition_target"),
+                LegacySelectorInputBindingSpec("side_start_ref", "square:side_start_ref", required=False),
+                LegacySelectorInputBindingSpec("side_end_ref", "square:side_end_ref", required=False),
+                LegacySelectorInputBindingSpec(
                     "parameter",
                     "parameter_symbol",
                     required=False,
                     functional_authority="wire",
                     functional_resolver="unique_parameter_symbol",
                 ),
-                MethodInputBindingSpec("parameter_constraint", "parameter_constraint", required=False),
+                LegacySelectorInputBindingSpec("parameter_constraint", "parameter_constraint", required=False),
             ),
-            expansion_selectors=("parameter_value_if_read",),
+            expansion_selectors=(
+                LegacyExpansionSelectorSpec("parameter_value_if_read"),
+            ),
         ),
         MethodBindingRuleSpec(
             method_id="point_candidates_from_curve_point_condition",
             input_bindings=(
-                MethodInputBindingSpec("target_point", "curve_condition:target_point"),
-                MethodInputBindingSpec("curve_point", "curve_condition:curve_point"),
-                MethodInputBindingSpec("parabola", "read_type:Parabola"),
-                MethodInputBindingSpec("x", "symbol:x"),
+                LegacySelectorInputBindingSpec("target_point", "curve_condition:target_point"),
+                LegacySelectorInputBindingSpec("curve_point", "curve_condition:curve_point"),
+                LegacySelectorInputBindingSpec("parabola", "read_type:Parabola"),
+                LegacySelectorInputBindingSpec("x", "symbol:x"),
             ),
             prep_invocations=QUADRATIC_STATE_PREP_INVOCATIONS,
         ),
         MethodBindingRuleSpec(
             method_id="parameterized_point_locus_line",
             input_bindings=(
-                MethodInputBindingSpec("point", "read_type:Point"),
+                LegacySelectorInputBindingSpec("point", "read_type:Point"),
             ),
         ),
         MethodBindingRuleSpec(
             method_id="line_locus_minimum_point",
             input_bindings=(
-                MethodInputBindingSpec("moving_locus", "read_type:Line"),
-                MethodInputBindingSpec("minimum_point_1", "straightening_minimum:p1"),
-                MethodInputBindingSpec("minimum_point_2", "straightening_minimum:p2"),
-                MethodInputBindingSpec("target", "point_transition_target"),
+                LegacySelectorInputBindingSpec("moving_locus", "read_type:Line"),
+                LegacySelectorInputBindingSpec("minimum_point_1", "straightening_minimum:p1"),
+                LegacySelectorInputBindingSpec("minimum_point_2", "straightening_minimum:p2"),
+                LegacySelectorInputBindingSpec("target", "point_transition_target"),
             ),
-            expansion_selectors=("parameter_value_if_read",),
+            expansion_selectors=(
+                LegacyExpansionSelectorSpec("parameter_value_if_read"),
+            ),
         ),
     ),
 )

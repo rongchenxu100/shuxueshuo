@@ -6,13 +6,16 @@
 
 from __future__ import annotations
 
+from shuxueshuo_server.solver.contracts import (
+    LegacyExpansionSelectorSpec,
+    LegacySelectorInputBindingSpec,
+)
 from shuxueshuo_server.solver.family.models import (
     FamilyMatchRule,
     FamilySourceRequirementSpec,
     GoalEvidencePolicySpec,
     MethodBindingRuleSpec,
     MethodCompanionOutputSpec,
-    MethodInputBindingSpec,
     MacroSearchSpec,
     RecipeExecutionSpec,
     recipe_output_alias,
@@ -177,10 +180,10 @@ _QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         MethodBindingRuleSpec(
             method_id="quadratic_from_constraints",
             input_bindings=(
-                MethodInputBindingSpec("quadratic", "function:parabola"),
-                MethodInputBindingSpec("x", "symbol:x"),
-                MethodInputBindingSpec("all_coefficients", "quadratic_coefficients"),
-                MethodInputBindingSpec(
+                LegacySelectorInputBindingSpec("quadratic", "function:parabola"),
+                LegacySelectorInputBindingSpec("x", "symbol:x"),
+                LegacySelectorInputBindingSpec("all_coefficients", "quadratic_coefficients"),
+                LegacySelectorInputBindingSpec(
                     "free_parameter",
                     "free_parameter:a_if_single_curve_point",
                     required=False,
@@ -188,9 +191,9 @@ _QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 ),
             ),
             expansion_selectors=(
-                "known_coefficients_if_read",
-                "curve_point_if_read",
-                "parameter_value_if_read",
+                LegacyExpansionSelectorSpec("known_coefficients_if_read"),
+                LegacyExpansionSelectorSpec("curve_point_if_read"),
+                LegacyExpansionSelectorSpec("parameter_value_if_read"),
             ),
             always_emit_outputs=("coefficients",),
             companion_outputs=(
@@ -204,32 +207,32 @@ _QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         MethodBindingRuleSpec(
             method_id="angle_sum_equal_angle_candidates",
             input_bindings=(
-                MethodInputBindingSpec("condition", "angle_sum:condition"),
-                MethodInputBindingSpec("x_axis_point", "angle_sum:x_axis_point"),
-                MethodInputBindingSpec("y_axis_point", "angle_sum:y_axis_point"),
-                MethodInputBindingSpec("reference_x_axis_point", "angle_sum:reference_x_axis_point"),
-                MethodInputBindingSpec("origin", "angle_sum:origin"),
-                MethodInputBindingSpec("target", "angle_sum:target"),
+                LegacySelectorInputBindingSpec("condition", "angle_sum:condition"),
+                LegacySelectorInputBindingSpec("x_axis_point", "angle_sum:x_axis_point"),
+                LegacySelectorInputBindingSpec("y_axis_point", "angle_sum:y_axis_point"),
+                LegacySelectorInputBindingSpec("reference_x_axis_point", "angle_sum:reference_x_axis_point"),
+                LegacySelectorInputBindingSpec("origin", "angle_sum:origin"),
+                LegacySelectorInputBindingSpec("target", "angle_sum:target"),
             ),
         ),
         MethodBindingRuleSpec(
             method_id="axis_intercept_from_equal_acute_angles",
             input_bindings=(
-                MethodInputBindingSpec("angle_equality", "angle_equality:fact"),
-                MethodInputBindingSpec("x_axis_point", "angle_equality:x_axis_point"),
-                MethodInputBindingSpec("y_axis_point", "angle_equality:y_axis_point"),
-                MethodInputBindingSpec("reference_x_axis_point", "angle_equality:reference_x_axis_point"),
-                MethodInputBindingSpec("origin", "angle_equality:origin"),
-                MethodInputBindingSpec("target", "angle_equality:target"),
+                LegacySelectorInputBindingSpec("angle_equality", "angle_equality:fact"),
+                LegacySelectorInputBindingSpec("x_axis_point", "angle_equality:x_axis_point"),
+                LegacySelectorInputBindingSpec("y_axis_point", "angle_equality:y_axis_point"),
+                LegacySelectorInputBindingSpec("reference_x_axis_point", "angle_equality:reference_x_axis_point"),
+                LegacySelectorInputBindingSpec("origin", "angle_equality:origin"),
+                LegacySelectorInputBindingSpec("target", "angle_equality:target"),
             ),
         ),
         MethodBindingRuleSpec(
             method_id="equal_length_ray_point",
             input_bindings=(
-                MethodInputBindingSpec("anchor", "equal_length_ray:anchor"),
-                MethodInputBindingSpec("reference_point", "equal_length_ray:reference_point"),
-                MethodInputBindingSpec("ray_point", "equal_length_ray:ray_point"),
-                MethodInputBindingSpec("target", "equal_length_ray:target"),
+                LegacySelectorInputBindingSpec("anchor", "equal_length_ray:anchor"),
+                LegacySelectorInputBindingSpec("reference_point", "equal_length_ray:reference_point"),
+                LegacySelectorInputBindingSpec("ray_point", "equal_length_ray:ray_point"),
+                LegacySelectorInputBindingSpec("target", "equal_length_ray:target"),
             ),
         ),
     ),
