@@ -129,6 +129,7 @@ class MethodBindingRuleRegistry:
         include_expansion_selectors: bool = True,
         expansion_selectors_override: tuple[str, ...] | None = None,
         exact_inputs: Mapping[str, str] | None = None,
+        method_input_specs: Mapping[str, object] | None = None,
         distinct_arg_groups: tuple[tuple[str, ...], ...] = (),
         apply_constraint_analyzer: bool = True,
     ) -> dict[str, str]:
@@ -159,6 +160,7 @@ class MethodBindingRuleRegistry:
                         else None
                     ),
                     exact_inputs=exact_inputs,
+                    method_input_specs=method_input_specs,
                     distinct_arg_groups=distinct_arg_groups,
                     apply_constraint_analyzer=apply_constraint_analyzer,
                 )

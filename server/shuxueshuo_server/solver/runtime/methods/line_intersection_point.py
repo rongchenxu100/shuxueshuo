@@ -114,4 +114,8 @@ SPEC = MethodSpecSource(
         ("line1_p1", "line1_p2"),
         ("line2_p1", "line2_p2"),
     ),
+    interchangeable_arg_groups=(
+        ("line1_p1", "line1_p2"),
+        ("line2_p1", "line2_p2"),
+    ),
 )

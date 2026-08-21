@@ -28,6 +28,7 @@ from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
 )
 from shuxueshuo_server.solver.runtime.functional_context_values import (
     latest_point_state_for_object as _latest_point_state_for_object,
+    state_producer_locations_for_object,
 )
 from shuxueshuo_server.solver.runtime.functional_binding_context import (
     FunctionalBindingContextBuilder,
@@ -965,6 +966,7 @@ class FunctionalPlanReconciler:
         ] | None = None,
         allow_incomplete_goals: bool = False,
         require_explicit_step_results: bool = False,
+        canonical_plan_id: str | None = None,
     ) -> FunctionalPlanReconciliationResult:
         prepared = _NormalizeElaborateScopeStage().run(
             plan,
@@ -1754,6 +1756,7 @@ class FunctionalPlanReconciler:
             handle_registry=handle_registry,
             question_goals=question_goals,
             family_spec=family_spec,
+            method_specs=method_specs,
             answer_bindings=answer_bindings,
             issues=issues,
             reconciliation_repairs=reconciliation_repairs,
@@ -1761,6 +1764,7 @@ class FunctionalPlanReconciler:
             identity_decisions=identity_decisions,
             identity_comparisons=identity_comparisons,
             typed_identity_completeness=typed_identity_completeness,
+            canonical_plan_id=canonical_plan_id,
             identity_mode=self.state_identity_mode,
             identity_factory=typed_identity_factory,
             base_identity_index=base_identity_index,
@@ -1963,6 +1967,7 @@ class _PlacementLivenessProjectionStage:
         handle_registry: CanonicalHandleRegistry,
         question_goals: Sequence[QuestionGoal],
         family_spec: SolverFamilySpec,
+        method_specs: MethodSpecRegistry,
         answer_bindings: Mapping[str, str],
         issues: list[FunctionalPlanIssue],
         reconciliation_repairs: list[FunctionalDeterministicRepair],
@@ -1970,6 +1975,7 @@ class _PlacementLivenessProjectionStage:
         identity_decisions: Sequence[Mapping[str, Any]],
         identity_comparisons: Sequence[IdentityShadowComparison],
         typed_identity_completeness: FunctionalTypedIdentityCompleteness,
+        canonical_plan_id: str | None,
         identity_mode: StateIdentityMode,
         identity_factory: StateIdentityFactory,
         base_identity_index: StateIdentityIndex,
@@ -2466,6 +2472,8 @@ class _PlacementLivenessProjectionStage:
             tuple(reconciled),
             catalog=catalog,
             object_registry=identity_factory.objects,
+            handle_registry=handle_registry,
+            method_specs=method_specs,
             resolver_injected_arg_keys=_resolver_injected_binding_keys(
                 plan,
                 elaboration.deterministic_repairs,
@@ -2480,6 +2488,9 @@ class _PlacementLivenessProjectionStage:
             ),
             force_exact_source_versions=(
                 problem_binding_catalog is not None
+            ),
+            allow_missing_typed_sources=(
+                problem_binding_catalog is None
             ),
         )
         functional_binding_audit = audit_functional_arg_binding_projection(
@@ -2555,6 +2566,7 @@ class _PlacementLivenessProjectionStage:
         if issues:
             return FunctionalPlanReconciliationResult(
                 plan=plan,
+                canonical_plan_id=canonical_plan_id,
                 calls=tuple(reconciled),
                 issues=tuple(issues),
                 execution_entries=execution_entries,
@@ -2611,6 +2623,7 @@ class _PlacementLivenessProjectionStage:
             )
         return FunctionalPlanReconciliationResult(
             plan=plan,
+            canonical_plan_id=canonical_plan_id,
             calls=tuple(reconciled),
             execution_entries=execution_entries,
             context_delta=_context_delta(reconciled),
@@ -5048,6 +5061,14 @@ def _resolve_explicit_call_args(
                 )
                 and value.condition_id is None
             ):
+                producer_locations = (
+                    state_producer_locations_for_object(
+                        value.object_ref,
+                        produced=produced,
+                    )
+                    if value.object_ref is not None
+                    else ()
+                )
                 issues.append(
                     _issue(
                         "functional_reconciliation",
@@ -5064,6 +5085,24 @@ def _resolve_explicit_call_args(
                             "accepted_item_types": list(accepted_types),
                             "current_binding": ref.to_payload(),
                             "state_requirement": "materialized_state",
+                            "required_producer_scope": resolution_scope_id,
+                            "existing_producer_scopes": sorted(
+                                {
+                                    producer_scope
+                                    for _producer_id, producer_scope in (
+                                        producer_locations
+                                    )
+                                }
+                            ),
+                            "existing_producers": [
+                                {
+                                    "step_id": producer_id,
+                                    "scope_ref": producer_scope,
+                                }
+                                for producer_id, producer_scope in (
+                                    producer_locations
+                                )
+                            ],
                             "compatible_refs": compatible_refs(
                                 materialized=True
                             ),
@@ -10153,6 +10192,10 @@ def _resolve_angle_sum_auto_arg(
                 source_version_ids=view.source_version_ids,
             )
     if value is None:
+        producer_locations = state_producer_locations_for_object(
+            object_ref,
+            produced=produced,
+        )
         return (
             None,
             None,
@@ -10166,6 +10209,20 @@ def _resolve_angle_sum_auto_arg(
                     "arg": auto.name,
                     "selector": auto.selector,
                     "object_ref": object_ref,
+                    "required_producer_scope": scope_id,
+                    "existing_producer_scopes": sorted(
+                        {
+                            producer_scope
+                            for _producer_id, producer_scope in producer_locations
+                        }
+                    ),
+                    "existing_producers": [
+                        {
+                            "step_id": producer_id,
+                            "scope_ref": producer_scope,
+                        }
+                        for producer_id, producer_scope in producer_locations
+                    ],
                 },
             ),
         )
@@ -10381,6 +10438,14 @@ def _resolve_midpoint_auto_arg(
             ),
             None,
         )
+    producer_locations = (
+        state_producer_locations_for_object(
+            object_refs[0],
+            produced=produced,
+        )
+        if len(object_refs) == 1
+        else ()
+    )
     return (
         None,
         None,
@@ -10404,6 +10469,20 @@ def _resolve_midpoint_auto_arg(
                 "required_ref": endpoint_ref,
                 "unresolved_point_ref": endpoint_ref,
                 "error_code": "function.arg_state_unavailable",
+                "required_producer_scope": scope_id,
+                "existing_producer_scopes": sorted(
+                    {
+                        producer_scope
+                        for _producer_id, producer_scope in producer_locations
+                    }
+                ),
+                "existing_producers": [
+                    {
+                        "step_id": producer_id,
+                        "scope_ref": producer_scope,
+                    }
+                    for producer_id, producer_scope in producer_locations
+                ],
                 **(
                     {"object_ref": object_refs[0]}
                     if len(object_refs) == 1
@@ -10436,18 +10515,12 @@ def _resolve_auto_symbol_args(
         for item in capability.args
         if item.deterministic_resolver == "unique_parameter_symbol"
     }
-    mechanical_parameter_args = {
-        item.name
-        for item in capability.auto_args
-        if item.required
-        and item.selector
-        in {
-            "parameter_symbol",
-            "parameter_symbol_from_reads",
-            "parameter_symbol_from_reads_or_expression",
-            "known_parameter_symbol_from_reads",
-        }
-    }
+    # Hidden compiler-owned Symbol inputs are finalized by the per-call
+    # binding ledger.  Resolving them here would create a second authority
+    # from the legacy selector heuristics and then ask F5-C to overwrite it.
+    # A hidden Symbol still participates when it is an explicit return
+    # identity_arg; that case is carried by identity_args above.
+    mechanical_parameter_args: frozenset[str] = frozenset()
     issues: list[FunctionalPlanIssue] = []
     repairs: list[FunctionalDeterministicRepair] = []
     for arg_name in unique_ordered(

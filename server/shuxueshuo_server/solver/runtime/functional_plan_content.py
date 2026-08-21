@@ -26,11 +26,13 @@ from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
     ScopedFunctionalPlanValidator,
     apply_scoped_published_goal_bindings,
     scoped_published_goal_bindings,
-    scoped_functional_plan_authority_payload,
+    scoped_functional_plan_id,
     scoped_functional_plan_schema,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
+    referenced_functional_step_returns,
+    unconsumed_duplicate_identity_arg_omissions,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_models import (
     FunctionalCapability,
@@ -184,6 +186,7 @@ class FunctionalPlanAuthorityFrame:
     root_scope: Mapping[str, FrozenJson]
     scope_parents: Mapping[str, str | None]
     source_ref_domain_types: Mapping[str, Mapping[str, str]]
+    source_facts: Mapping[str, tuple[Mapping[str, FrozenJson], ...]]
     goal_owners: Mapping[str, str]
     goal_answers: Mapping[str, FunctionalGoalAnswerRequirement]
     frame_id: str
@@ -207,6 +210,20 @@ class FunctionalPlanAuthorityFrame:
                     for scope_id, values in self.source_ref_domain_types.items()
                 }
             ),
+        )
+        frozen_facts: dict[str, tuple[Mapping[str, FrozenJson], ...]] = {}
+        for scope_id, facts in self.source_facts.items():
+            items: list[Mapping[str, FrozenJson]] = []
+            for fact in facts:
+                frozen = freeze_json(fact)
+                if not isinstance(frozen, Mapping):
+                    raise TypeError("FunctionalPlan source fact must be an object")
+                items.append(frozen)
+            frozen_facts[scope_id] = tuple(items)
+        object.__setattr__(
+            self,
+            "source_facts",
+            MappingProxyType(frozen_facts),
         )
         object.__setattr__(
             self,
@@ -297,11 +314,18 @@ class FunctionalPlanAuthorityFrame:
             }
             for item in planning_context.scopes
         }
+        source_facts = {
+            item.scope_id: tuple(
+                fact.to_prompt_payload() for fact in item.facts
+            )
+            for item in planning_context.scopes
+        }
         authority = {
             "planning_context_id": planning_context.planning_context_id,
             "root_scope": root_scope,
             "scope_parents": scope_parents,
             "source_ref_domain_types": source_ref_domain_types,
+            "source_facts": source_facts,
             "goal_owners": goal_owners,
             "goal_answers": {
                 key: value.to_payload()
@@ -313,6 +337,7 @@ class FunctionalPlanAuthorityFrame:
             root_scope=root_scope,
             scope_parents=scope_parents,
             source_ref_domain_types=source_ref_domain_types,
+            source_facts=source_facts,
             goal_owners=goal_owners,
             goal_answers=goal_answers,
             frame_id=stable_hash(authority),
@@ -346,6 +371,10 @@ class FunctionalPlanAuthorityFrame:
             "source_ref_domain_types": {
                 scope_id: dict(values)
                 for scope_id, values in self.source_ref_domain_types.items()
+            },
+            "source_facts": {
+                scope_id: [thaw_json(item) for item in facts]
+                for scope_id, facts in self.source_facts.items()
             },
             "goal_owners": dict(self.goal_owners),
             "goal_answers": {
@@ -485,6 +514,49 @@ def capability_bound_step_schema(
         }
         if required_args:
             args_schema["required"] = required_args
+        if authority_frame is not None and capability.distinct_arg_groups:
+            distinct_constraints: list[dict[str, Any]] = []
+            source_refs = tuple(
+                sorted(
+                    {
+                        ref
+                        for values in authority_frame.source_ref_domain_types.values()
+                        for ref in values
+                    }
+                )
+            )
+            args_by_name = {item.name: item for item in capability.args}
+            for group in capability.distinct_arg_groups:
+                public_names = tuple(
+                    name for name in group if name in arg_properties
+                )
+                for index, left in enumerate(public_names):
+                    for right in public_names[index + 1 :]:
+                        for source_ref in source_refs:
+                            properties: dict[str, Any] = {}
+                            for name in (left, right):
+                                occurrence: dict[str, Any] = {"const": source_ref}
+                                if args_by_name[name].cardinality == "many":
+                                    occurrence = {
+                                        "anyOf": [
+                                            occurrence,
+                                            {
+                                                "type": "array",
+                                                "contains": {"const": source_ref},
+                                            },
+                                        ]
+                                    }
+                                properties[name] = occurrence
+                            distinct_constraints.append(
+                                {
+                                    "not": {
+                                        "required": [left, right],
+                                        "properties": properties,
+                                    }
+                                }
+                            )
+            if distinct_constraints:
+                args_schema["allOf"] = distinct_constraints
         target_returns = tuple(
             item
             for item in capability.returns
@@ -496,6 +568,7 @@ def capability_bound_step_schema(
                 _compatible_output_target_refs(
                     authority_frame,
                     return_runtime_type=returned.runtime_type,
+                    selector=returned.output_target_selector,
                 )
                 if authority_frame is not None
                 else ()
@@ -955,9 +1028,7 @@ class FunctionalPlanContentCompiler:
                 round_trip_plan_id=None,
             )
 
-        final_plan_id = stable_hash(
-            scoped_functional_plan_authority_payload(plan)
-        )
+        final_plan_id = scoped_functional_plan_id(plan)
         try:
             content = functional_plan_content_from_plan(plan, frame=frame)
         except (TypeError, ValueError) as exc:
@@ -999,7 +1070,7 @@ class FunctionalPlanContentCompiler:
                 )
                 round_trip_plan = None
         round_trip_plan_id = (
-            stable_hash(scoped_functional_plan_authority_payload(round_trip_plan))
+            scoped_functional_plan_id(round_trip_plan)
             if round_trip_plan is not None
             else None
         )
@@ -1152,6 +1223,19 @@ def _normalize_content_wire(
         normalized,
         capability_catalog=capability_catalog,
     )
+    normalized, interchangeable_arg_records = (
+        normalize_interchangeable_capability_args(
+            normalized,
+            capability_catalog=capability_catalog,
+        )
+    )
+    normalized, duplicate_identity_records = (
+        normalize_unconsumed_duplicate_identity_args(
+            normalized,
+            frame=frame,
+            capability_catalog=capability_catalog,
+        )
+    )
     normalized, role_records, role_issues = normalize_capability_return_roles(
         normalized,
         frame=frame,
@@ -1172,6 +1256,8 @@ def _normalize_content_wire(
         *records,
         *arg_records,
         *unknown_arg_records,
+        *interchangeable_arg_records,
+        *duplicate_identity_records,
         *role_records,
         *named_ref_records,
         *ownership_records,
@@ -1217,6 +1303,75 @@ def normalize_empty_optional_step_maps(
             visit(item, (*path, key))
 
     visit(normalized, ())
+    return normalized, tuple(records)
+
+
+def normalize_unconsumed_duplicate_identity_args(
+    payload: object,
+    *,
+    frame: FunctionalPlanAuthorityFrame,
+    capability_catalog: FunctionalCapabilityCatalog,
+) -> tuple[object, tuple[FunctionalPlanContentNormalization, ...]]:
+    """Apply the shared optional identity-input omission contract."""
+
+    if not isinstance(payload, dict):
+        return payload, ()
+    normalized = deepcopy(payload)
+    steps, _step_scopes = _content_steps_and_scopes(normalized, frame=frame)
+    consumers = referenced_functional_step_returns(normalized)
+    records: list[FunctionalPlanContentNormalization] = []
+    for step_id, step in steps.items():
+        capability = capability_catalog.get(str(step.get("capability_id", "")))
+        args = step.get("args")
+        if capability is None or not isinstance(args, dict):
+            continue
+        output_targets = step.get("output_targets")
+        omissions = unconsumed_duplicate_identity_arg_omissions(
+            step_id=step_id,
+            capability=capability,
+            args=args,
+            output_targets=(
+                output_targets if isinstance(output_targets, Mapping) else {}
+            ),
+            consumed_returns=consumers,
+        )
+        for omission in omissions:
+            step_path = _content_step_path(normalized, step_id)
+            if step_path is None:
+                continue
+            args.pop(omission.arg_name, None)
+            records.append(
+                FunctionalPlanContentNormalization(
+                    code="functional.unconsumed_duplicate_identity_arg_omitted",
+                    path=_json_path((*step_path, "args", omission.arg_name)),
+                    message=(
+                        f"omitted optional identity arg {omission.arg_name} "
+                        "because it duplicates a distinct input and none of "
+                        "its identity-bound returns is consumed"
+                    ),
+                )
+            )
+            expectations = step.get("return_expectations")
+            if not isinstance(expectations, dict):
+                continue
+            for return_name in omission.return_names:
+                if return_name not in expectations:
+                    continue
+                expectations.pop(return_name)
+                records.append(
+                    FunctionalPlanContentNormalization(
+                        code="functional.inactive_return_expectation_omitted",
+                        path=_json_path(
+                            (*step_path, "return_expectations", return_name)
+                        ),
+                        message=(
+                            f"omitted {return_name} expectation after its "
+                            "optional identity input was removed"
+                        ),
+                    )
+                )
+            if expectations == {}:
+                step.pop("return_expectations", None)
     return normalized, tuple(records)
 
 
@@ -2693,6 +2848,80 @@ def normalize_unknown_capability_args(
     return normalized, tuple(records)
 
 
+def normalize_interchangeable_capability_args(
+    payload: object,
+    *,
+    capability_catalog: FunctionalCapabilityCatalog,
+) -> tuple[object, tuple[FunctionalPlanContentNormalization, ...]]:
+    """Canonicalize mathematically interchangeable public input slots.
+
+    The MethodSpec is the only authority that may declare a permutation safe.
+    Within such a group, named entity refs are placed before published/exact
+    results while preserving authored order inside each source class. Runtime
+    execution still verifies the resulting mathematical call.
+    """
+
+    normalized = deepcopy(payload)
+    records: list[FunctionalPlanContentNormalization] = []
+
+    def visit(value: object, path: tuple[Any, ...]) -> None:
+        if isinstance(value, list):
+            for index, item in enumerate(value):
+                visit(item, (*path, index))
+            return
+        if not isinstance(value, dict):
+            return
+        capability_id = value.get("capability_id")
+        args = value.get("args")
+        capability = (
+            capability_catalog.get(capability_id)
+            if isinstance(capability_id, str)
+            else None
+        )
+        if capability is not None and isinstance(args, dict):
+            for group in capability.interchangeable_arg_groups:
+                if not group or any(name not in args for name in group):
+                    continue
+                authored = [args[name] for name in group]
+                ranks = [_interchangeable_arg_source_rank(item) for item in authored]
+                if any(rank is None for rank in ranks):
+                    continue
+                order = sorted(range(len(group)), key=lambda index: (ranks[index], index))
+                canonical = [authored[index] for index in order]
+                if canonical == authored:
+                    continue
+                for name, item in zip(group, canonical, strict=True):
+                    args[name] = item
+                records.append(
+                    FunctionalPlanContentNormalization(
+                        code="functional.interchangeable_args_permuted",
+                        path=_json_path((*path, "args")),
+                        message=(
+                            "canonicalized interchangeable capability inputs "
+                            f"{capability_id}.{'/'.join(group)} using the "
+                            "MethodSpec permutation contract"
+                        ),
+                    )
+                )
+        for key, item in tuple(value.items()):
+            visit(item, (*path, key))
+
+    visit(normalized, ())
+    return normalized, tuple(records)
+
+
+def _interchangeable_arg_source_rank(value: object) -> int | None:
+    if isinstance(value, str):
+        return 0
+    if not isinstance(value, Mapping):
+        return None
+    if set(value) == {"published_goal_ref"}:
+        return 1
+    if set(value) == {"step_id", "return"}:
+        return 2
+    return None
+
+
 def _assemble_plan_payload(
     content: FunctionalPlanContent,
     *,
@@ -3214,6 +3443,7 @@ def _compatible_output_target_refs(
     frame: FunctionalPlanAuthorityFrame,
     *,
     return_runtime_type: str,
+    selector: Any | None = None,
 ) -> tuple[str, ...]:
     """Return every existing named object that is compatible in some scope.
 
@@ -3236,7 +3466,39 @@ def _compatible_output_target_refs(
             source_ref_domain_types=frame.source_ref_domain_types,
         )
     }
+    if selector is not None:
+        refs &= _selector_output_target_refs(frame, selector=selector)
     return tuple(sorted(refs))
+
+
+def _selector_output_target_refs(
+    frame: FunctionalPlanAuthorityFrame,
+    *,
+    selector: Any,
+) -> set[str]:
+    """Project structural source-fact eligibility into the provider schema.
+
+    The response schema cannot know the eventual step owner or the value of a
+    related authored argument, so final lexical and relation checks remain in
+    scoped-plan validation. It can still exclude objects that do not satisfy
+    the selector's fact kind and required fields in any scope. This prevents a
+    type-compatible Point from being offered for a construction capability
+    whose source evidence describes a different role.
+    """
+
+    if selector.selector_id != "unique_visible_fact_target":
+        return set()
+    return {
+        target_ref
+        for facts in frame.source_facts.values()
+        for fact in facts
+        if fact.get("kind") == selector.fact_kind
+        and not any(
+            fact.get(field) != expected
+            for field, expected in selector.required_field_values
+        )
+        and isinstance((target_ref := fact.get(selector.target_field)), str)
+    }
 
 
 def _visible_scope_ids(
@@ -3392,5 +3654,6 @@ __all__ = [
     "functional_plan_content_schema",
     "normalize_empty_optional_capability_args",
     "normalize_empty_optional_step_maps",
+    "normalize_interchangeable_capability_args",
     "normalize_unknown_capability_args",
 ]

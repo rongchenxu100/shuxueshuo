@@ -462,6 +462,10 @@ class FunctionalCapability:
         default=(),
         repr=False,
     )
+    interchangeable_arg_groups: tuple[tuple[str, ...], ...] = field(
+        default=(),
+        repr=False,
+    )
     context_resolvers: tuple[CapabilityContextResolver, ...] = field(
         default=(),
         repr=False,
@@ -539,6 +543,15 @@ class FunctionalCapability:
                 )
             }
             for group in self.distinct_arg_groups
+            if len(group) > 1 and set(group) <= exposed_arg_names
+        )
+        requirements.extend(
+            {
+                "requirement": (
+                    f"{'、'.join(group)} 表示无序的等价输入槽位；交换它们不改变数学结果。"
+                )
+            }
+            for group in self.interchangeable_arg_groups
             if len(group) > 1 and set(group) <= exposed_arg_names
         )
         if requirements:
@@ -968,6 +981,7 @@ class FunctionalCallExecutionEntry:
 @dataclass(frozen=True)
 class FunctionalPlanReconciliationResult:
     plan: FunctionalPlan
+    canonical_plan_id: str | None = None
     calls: tuple[FunctionalCallReconciliation, ...] = ()
     issues: tuple[FunctionalPlanIssue, ...] = ()
     execution_entries: tuple[FunctionalCallExecutionEntry, ...] = ()

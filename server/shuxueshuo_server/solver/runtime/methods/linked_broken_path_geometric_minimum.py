@@ -768,5 +768,6 @@ MINIMUM_EXPRESSION_SPEC = MethodSpecSource(
         "辅助点沿固定射线运动",
     ),
     postconditions=("输出最小值表达式供后续反求参数",),
+    distinct_arg_groups=(("parameter", "dynamic_parameter"),),
     geometry_profiles=weighted_triangle_geometry_payloads(),
 )

@@ -89,4 +89,5 @@ SPEC = MethodSpecSource(
     preconditions=(),
     postconditions=(),
     trace_template=(),
+    interchangeable_arg_groups=(("adjacent1", "adjacent2"),),
 )

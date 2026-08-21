@@ -396,11 +396,11 @@ def _materialized_coefficient_substitutions(
     applied afterwards and remain authoritative.
     """
     if request.coefficient_template is not None:
-        projected = _coefficient_substitutions_from_template(request)
-        if projected:
-            return projected
-    if len(request.coefficient_symbols) != 3:
-        return {}
+        # An explicit template is the coefficient-role authority even when
+        # the current expression still matches it exactly. Falling through to
+        # conventional a/b/c positions would misread sparse templates such as
+        # ``a*x**2 + b``, where ``b`` is the constant coefficient.
+        return _coefficient_substitutions_from_template(request)
     try:
         polynomial = sp.Poly(
             sp.expand(request.base_expression),
@@ -410,11 +410,27 @@ def _materialized_coefficient_substitutions(
         return {}
     if polynomial.degree() > 2:
         return {}
-    values = (
-        polynomial.coeff_monomial(request.independent_symbol**2),
-        polynomial.coeff_monomial(request.independent_symbol),
-        polynomial.coeff_monomial(1),
-    )
+    conventional_monomials = {
+        "a": request.independent_symbol**2,
+        "b": request.independent_symbol,
+        "c": sp.Integer(1),
+    }
+    if all(
+        symbol.name in conventional_monomials
+        for symbol in request.coefficient_symbols
+    ):
+        values = tuple(
+            polynomial.coeff_monomial(conventional_monomials[symbol.name])
+            for symbol in request.coefficient_symbols
+        )
+    elif len(request.coefficient_symbols) == 3:
+        values = (
+            polynomial.coeff_monomial(request.independent_symbol**2),
+            polynomial.coeff_monomial(request.independent_symbol),
+            polynomial.coeff_monomial(1),
+        )
+    else:
+        return {}
     result: dict[sp.Symbol, sp.Expr] = {}
     for symbol, value in zip(request.coefficient_symbols, values, strict=True):
         value = sp.simplify(value)

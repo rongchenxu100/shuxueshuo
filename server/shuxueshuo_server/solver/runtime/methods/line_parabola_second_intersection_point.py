@@ -178,7 +178,8 @@ SPEC = MethodSpecSource(
     title="求直线与抛物线的另一交点",
     summary=(
         "输入: 抛物线、确定直线的两点、已知交点和目标 PointRef；"
-        "输出: 直线与抛物线的另一个交点。可用 target.x_range 选择符合题设范围的点。"
+        "输出: 直线与抛物线的另一个交点。line_p1/line_p2 顺序可交换，"
+        "且任一端点都可来自匿名步骤结果。可用 target.x_range 选择符合题设范围的点。"
     ),
     solves=(
         "derive_line_parabola_second_intersection",
@@ -194,6 +195,7 @@ SPEC = MethodSpecSource(
         "line_p1": {
             "type": "Point",
             "required": True,
+            "allows_anonymous_result": True,
             "symbolic_basis_role": "align_to_anchor",
             "role": (
                 "确定目标直线的第一个点；必须与 line_p2 的横坐标不同。"
@@ -236,6 +238,8 @@ SPEC = MethodSpecSource(
     ),
     preconditions=("line_p1 与 line_p2 不能形成竖直线", "已知交点必须在直线和抛物线上"),
     postconditions=("输出点在直线和抛物线上，且不同于 known_point",),
+    distinct_arg_groups=(("line_p1", "line_p2"),),
+    interchangeable_arg_groups=(("line_p1", "line_p2"),),
     explanation=MethodExplanationSpec(
         role_schema={
             "line_points": "确定目标直线的两个已知点。",

@@ -2,7 +2,7 @@
   "method_id": "line_parabola_second_intersection_point",
   "title": "求直线与抛物线的另一交点",
   "description": "由直线两点和已知交点，求直线与抛物线的另一个交点。",
-  "summary": "输入: 抛物线、确定直线的两点、已知交点和目标 PointRef；输出: 直线与抛物线的另一个交点。可用 target.x_range 选择符合题设范围的点。",
+  "summary": "输入: 抛物线、确定直线的两点、已知交点和目标 PointRef；输出: 直线与抛物线的另一个交点。line_p1/line_p2 顺序可交换，且任一端点都可来自匿名步骤结果。可用 target.x_range 选择符合题设范围的点。",
   "solves": [
     "derive_line_parabola_second_intersection",
     "derive_curve_intersection_point"
@@ -33,6 +33,7 @@
     },
     "line_p1": {
       "required": true,
+      "allows_anonymous_result": true,
       "symbolic_basis_role": "align_to_anchor",
       "role": "确定目标直线的第一个点；必须与 line_p2 的横坐标不同。若该点也是抛物线已知交点，通常同时把它传给 known_point。",
       "domain_type": "Point",
@@ -121,5 +122,17 @@
     "explanation_level": "template",
     "role_binding_strategy": "role_name_registry",
     "role_binder_id": "line_parabola_second_intersection_point"
-  }
+  },
+  "distinct_arg_groups": [
+    [
+      "line_p1",
+      "line_p2"
+    ]
+  ],
+  "interchangeable_arg_groups": [
+    [
+      "line_p1",
+      "line_p2"
+    ]
+  ]
 }

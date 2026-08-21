@@ -36,6 +36,7 @@ from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
     ScopedFunctionalScope,
     ScopedFunctionalStep,
     ScopedFunctionalPlanIssue,
+    scoped_functional_plan_id,
 )
 from shuxueshuo_server.solver.runtime.strategy_models import SemanticRef
 
@@ -427,6 +428,11 @@ def test_bad_step_blocks_only_its_suffix_and_executes_independent_goals(
         dependency_graph=result.replay.functional_reconciliation.dependency_graph,
         binding_context=sidecar,
     )
+    assert result.canonical_plan is not None
+    assert checkpoint.plan_id == scoped_functional_plan_id(
+        result.canonical_plan
+    )
+    assert checkpoint.execution_graph_signature != checkpoint.plan_id
 
 
 def test_checkpoint_round_trip_hash_and_current_authority_are_fail_closed(
@@ -1191,6 +1197,36 @@ def test_conflicting_duplicate_a_writer_fails_without_ghost_version(
     assert retry_memory.functional_retry_graph_checkpoint is None
     assert not any(
         item.producer_call_id == "evaluate_point_A_ii_duplicate"
+        for item in transaction.execution_report.committed_versions
+    )
+
+
+def test_closed_point_role_reuse_is_runtime_checked_before_transition_commit(
+    tmp_path,
+) -> None:
+    case = "tj-2026-heping-yimo-25"
+    payload = load_v2_fixture_payload(case)
+    auxiliary = _step(payload, "derive_axis_intercept_F_i")
+    auxiliary["output_targets"] = {"point": "E"}
+    final = _step(payload, "derive_curve_intersection_E_i")
+    final["args"]["line_p1"] = "E"
+    final["args"]["line_p2"] = "B"
+
+    result, _fixture = _execute(tmp_path, case, payload)
+
+    checkpoint = result.checkpoint
+    assert checkpoint is not None
+    assert checkpoint.blocked_stage == "runtime"
+    transaction = result.replay.transactional_attempt_result
+    assert {
+        item.code for item in transaction.root_issues
+    } >= {"planner.runtime_state_equivalence_conflict"}
+    assert not {
+        "planner.method_input_view_authority_missing",
+        "planner.method_input_view_authority_drift",
+    } & {item.code for item in transaction.root_issues}
+    assert not any(
+        item.producer_call_id == "derive_curve_intersection_E_i"
         for item in transaction.execution_report.committed_versions
     )
 

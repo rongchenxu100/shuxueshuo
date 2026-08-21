@@ -2230,6 +2230,14 @@ def _stamp_method_input_read_authorities(
         for item in prepared_call.arg_bindings
         if item.runtime_path is not None
     }
+    compiler_bindings_by_input = {
+        (
+            item.logical_binding.key.arg_name,
+            item.logical_binding.key.item_index,
+        ): item
+        for item in prepared_call.arg_bindings
+        if item.logical_binding.source.kind == "compiler_selector"
+    }
     state_reads_by_path = {
         item.snapshot_runtime_path: item for item in prepared_call.state_reads
     }
@@ -2303,12 +2311,7 @@ def _stamp_method_input_read_authorities(
                 .slot_id.logical_key.object_id
             )
             return EntityIdentityReadSource(
-                (
-                    original_binding.source_handle
-                    if original_binding is not None
-                    and original_binding.source_handle is not None
-                    else object_id.value
-                ),
+                object_id.value,
                 path,
             )
         if (
@@ -2365,8 +2368,18 @@ def _stamp_method_input_read_authorities(
         binding = bindings_by_path.get(path)
         if binding is not None:
             source = binding.logical_binding.source
-            if view_mode == "identity" and binding.source_handle is not None:
-                return EntityIdentityReadSource(binding.source_handle, path)
+            if view_mode == "identity" and (
+                binding.source_math_object_id is not None
+                or binding.source_handle is not None
+            ):
+                return EntityIdentityReadSource(
+                    (
+                        binding.source_math_object_id.value
+                        if binding.source_math_object_id is not None
+                        else binding.source_handle
+                    ),
+                    path,
+                )
             if source.kind == "condition" and source.condition_id is not None:
                 return ConditionReadSource(source.condition_id, path)
             if (
@@ -2427,6 +2440,43 @@ def _stamp_method_input_read_authorities(
                 and view_mode in {"identity", "immutable_value"}
             ):
                 return EntityIdentityReadSource(binding.source_handle, path)
+        compiler_binding = compiler_bindings_by_input.get(
+            (input_name, item_index)
+        )
+        if compiler_binding is not None:
+            selector_id = (
+                compiler_binding.logical_binding.source.compiler_selector_id
+                or input_name
+            )
+            if view_mode == "identity" and (
+                compiler_binding.source_handle is not None
+                or compiler_binding.source_math_object_id is not None
+            ):
+                return EntityIdentityReadSource(
+                    (
+                        compiler_binding.source_math_object_id.value
+                        if compiler_binding.source_math_object_id is not None
+                        else compiler_binding.source_handle
+                    ),
+                    path,
+                )
+            if (
+                view_mode == "latest_state"
+                and resolved_value is not None
+                and resolved_value.state_version_id is not None
+            ):
+                return StateVersionReadSource(
+                    resolved_value.state_version_id,
+                    path,
+                )
+            if view_mode == "latest_state":
+                selected_state = latest_state_source(
+                    path,
+                    scope_id=prepared_call.execution_scope_id,
+                )
+                if selected_state is not None:
+                    return selected_state
+            return CompilerSelectorReadSource(selector_id, path)
         producer = producer_by_path.get(path)
         if producer is not None:
             return InvocationResultReadSource(producer[0], producer[1], path)
@@ -3002,6 +3052,25 @@ def _audit_compiled_problem_source_provenance(
             )
 
 
+def _require_macro_canonical_plan_id(
+    reconciliation: FunctionalPlanReconciliationResult,
+    *,
+    call_id: str,
+) -> str:
+    plan_id = reconciliation.canonical_plan_id
+    if plan_id is None:
+        raise MacroRuntimeSearchError(
+            "planner.macro_contract_invalid",
+            "runtime-search Macro requires the canonical scoped v2 plan id",
+            retryability="configuration",
+            details={
+                "call_id": call_id,
+                "missing_authority": "canonical_plan_id",
+            },
+        )
+    return plan_id
+
+
 def _prepare_runtime_search_macro(
     prepared: PreparedFunctionalCall,
     *,
@@ -3071,7 +3140,10 @@ def _prepare_runtime_search_macro(
                 }
             )
         ),
-        plan_id=stable_hash(reconciliation.plan.to_payload()),
+        plan_id=_require_macro_canonical_plan_id(
+            reconciliation,
+            call_id=prepared.call_id,
+        ),
         call_id=prepared.call_id,
         goal_unit_ids=(
             problem_context.call_goal_bindings.get(prepared.call_id, ())
@@ -6275,7 +6347,10 @@ def _compare_provisional_runtime_state(
         elif (
             write.allocation_action == "transition"
             and allocation.allocation_reason_code
-            == "runtime_state_equivalence_probe"
+            in {
+                "runtime_state_equivalence_probe",
+                "dependency_refines_visible_state",
+            }
             and write.previous_version_id is not None
         ):
             existing_version_id = write.previous_version_id

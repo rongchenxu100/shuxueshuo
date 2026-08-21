@@ -1055,6 +1055,64 @@ def test_scope_step_cannot_be_authored_above_its_output_authority(tmp_path) -> N
         _lower_payload(tmp_path, case, payload)
 
 
+def test_output_target_selector_rejects_type_compatible_wrong_fact_role(
+    tmp_path,
+) -> None:
+    case = "tj-2026-nankai-yimo-25"
+    payload = load_v2_fixture_payload(case)
+    scope_ii = _find_scope(payload["root_scope"], "ii")
+    scope_ii["steps"].insert(
+        0,
+        {
+            "step_id": "redundant_build_M",
+            "capability_id": "point_on_parabola_at_x",
+            "args": {"parabola": "parabola"},
+            "output_targets": {"point": "M"},
+        },
+    )
+    fixture = scope_native_reconciliation_fixture(tmp_path, case=case)
+    scoped, validation = ScopedFunctionalPlanValidator().validate_payload_with_report(
+        payload
+    )
+    assert validation.ok and scoped is not None
+    inputs = fixture[3]
+
+    authority, report = ScopedFunctionalPlanAuthorityAdapter().analyze(
+        scoped,
+        planning_context=fixture[1],
+        binding_catalog=fixture[7],
+        capability_catalog=FunctionalCapabilityCatalog.from_family_spec(
+            inputs.family_spec,
+            inputs.method_specs,
+        ),
+    )
+
+    assert authority is None
+    issue = next(
+        item
+        for item in report.issues
+        if item.code == "functional.output_target_selector_mismatch"
+    )
+    assert issue.details == {
+        "capability_id": "point_on_parabola_at_x",
+        "semantic_ref": "M",
+        "role": "point",
+        "expected_type": "Point",
+        "expected_state": "source_fact_authorized",
+        "observed_role": "point",
+        "observed_target": "M",
+        "expected_targets": [],
+        "required_fact_kind": "point_on_curve",
+        "required_fields": {"construction": "curve_at_x"},
+        "repair_options": [
+            "use the existing visible object state without reconstructing it",
+            "choose a capability whose source-fact selector matches this target",
+        ],
+        "retryability": "planner_repairable",
+        "repair_action": "choose_applicable_point_construction_capability",
+    }
+
+
 def test_scope_visibility_feedback_distinguishes_identity_from_local_state(
     tmp_path,
 ) -> None:

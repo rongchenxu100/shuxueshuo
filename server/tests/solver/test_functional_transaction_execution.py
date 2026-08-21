@@ -113,7 +113,10 @@ from shuxueshuo_server.solver.state_semantics import (
     StateSemanticLineage,
 )
 
-from _problem_planning_support import planning_binding_fixture
+from _problem_planning_support import (
+    planning_binding_fixture,
+    scope_native_plan_id,
+)
 
 
 _SCOPE_NATIVE_AUTHORITY: dict[str, tuple] = {}
@@ -271,6 +274,7 @@ def _replay(
         planner_state_context=planner_context,
         validation_report=validation,
         problem_binding_catalog=binding_catalog,
+        canonical_plan_id=scope_native_plan_id(case.problem_id),
     )
 
 
@@ -1797,6 +1801,8 @@ def test_problem_source_read_stays_exact_and_hidden_resolver_needs_sidecar() -> 
                 hidden_reconciliation.calls,
                 catalog=resolver_catalog,
                 object_registry=MathObjectRegistry.from_sources(registry),
+                handle_registry=registry,
+                method_specs=inputs.method_specs,
             )
         ),
     )

@@ -505,6 +505,96 @@ def test_mixed_scope_merge_rejects_ambiguous_single_step_across_barrier() -> Non
     assert error.value.details["frozen_barrier_step_ids"] == ["B"]
 
 
+@pytest.mark.parametrize(
+    "replacement_ids",
+    (
+        ("A_prime", "C_prime"),
+        ("C_prime", "E_prime"),
+    ),
+)
+def test_mixed_scope_merge_rejects_renamed_deletion_across_three_islands(
+    replacement_ids: tuple[str, str],
+) -> None:
+    """Changed cardinality cannot invent replacement-to-island authority."""
+
+    def prior(step_id: str) -> SimpleNamespace:
+        payload = {
+            "step_id": step_id,
+            "capability_id": "test_capability",
+            "args": {},
+        }
+        return SimpleNamespace(
+            step_id=step_id,
+            to_payload=lambda payload=payload: deepcopy(payload),
+        )
+
+    with pytest.raises(FunctionalGoalRetryError) as error:
+        _merge_scope_step_replacement(
+            tuple(prior(step_id) for step_id in ("A", "B", "C", "D", "E")),
+            editable_step_ids=("A", "C", "E"),
+            replacement_steps=tuple(
+                {
+                    "step_id": step_id,
+                    "capability_id": "test_capability",
+                    "args": {},
+                }
+                for step_id in replacement_ids
+            ),
+        )
+
+    assert error.value.code == "functional.goal_repair_step_order_invalid"
+    assert error.value.details == {
+        "reason": "replacement_interval_alignment_ambiguous",
+        "replacement_step_ids": list(replacement_ids),
+        "unresolved_replacement_step_ids": list(replacement_ids),
+        "retained_step_ids": [],
+        "editable_step_islands": [["A"], ["C"], ["E"]],
+        "frozen_barrier_step_ids": [["B"], ["D"]],
+        "repair_action": (
+            "preserve_prior_step_id_in_each_changed_interval_or_"
+            "keep_replacement_cardinality"
+        ),
+    }
+
+
+@pytest.mark.parametrize(
+    ("replacement_ids", "expected_ids"),
+    (
+        (("A", "C"), ("A", "B", "C", "D")),
+        (("C", "E"), ("B", "C", "D", "E")),
+    ),
+)
+def test_mixed_scope_merge_allows_three_island_deletion_with_retained_ids(
+    replacement_ids: tuple[str, str],
+    expected_ids: tuple[str, ...],
+) -> None:
+    def prior(step_id: str) -> SimpleNamespace:
+        payload = {
+            "step_id": step_id,
+            "capability_id": "test_capability",
+            "args": {},
+        }
+        return SimpleNamespace(
+            step_id=step_id,
+            to_payload=lambda payload=payload: deepcopy(payload),
+        )
+
+    merged = _merge_scope_step_replacement(
+        tuple(prior(step_id) for step_id in ("A", "B", "C", "D", "E")),
+        editable_step_ids=("A", "C", "E"),
+        replacement_steps=tuple(
+            {
+                "step_id": step_id,
+                "capability_id": "test_capability",
+                "args": {},
+            }
+            for step_id in replacement_ids
+        ),
+    )
+
+    assert tuple(step["step_id"] for step in merged) == expected_ids
+
+
 def test_failed_scope_owned_answer_producer_opens_goal_answer_repair(
     tmp_path,
 ) -> None:

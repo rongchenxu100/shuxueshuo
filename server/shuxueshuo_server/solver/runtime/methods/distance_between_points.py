@@ -111,6 +111,7 @@ SPEC = MethodSpecSource(
     preconditions=(),
     postconditions=(),
     trace_template=(),
+    interchangeable_arg_groups=(("p1", "p2"),),
     explanation=MethodExplanationSpec(
         role_schema={
             "p1": "第一个点或线段端点。",

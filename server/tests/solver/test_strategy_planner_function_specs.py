@@ -22,6 +22,9 @@ from shuxueshuo_server.solver.runtime.function_specs import (
     GENERIC_FUNCTION_ADAPTERS,
     GENERIC_FUNCTION_BINDING_RULES,
     GENERIC_FUNCTION_METHOD_IDS,
+    FunctionAdapterRegistry,
+    FunctionAdapterSpec,
+    FunctionInputBindingSpec,
     FunctionSpec,
     FunctionSpecRegistry,
     _analyze_quadratic_coefficient_inputs,
@@ -706,6 +709,126 @@ def test_migrated_function_adapter_failure_does_not_fallback_to_legacy_rule() ->
 
     assert [event.status for event in registry.function_binding_events] == ["failure"]
     assert registry.function_binding_events[0].errors
+
+
+def test_production_adapter_requires_typed_authority_for_every_entity_input() -> None:
+    selector_calls: list[str] = []
+
+    def legacy_selector(_step, _index, _local_outputs):
+        selector_calls.append("legacy_entity_selector")
+        return "$problem.points.B"
+
+    adapter = FunctionAdapterSpec(
+        adapter_id="synthetic_entity_consumer",
+        input_bindings=(
+            FunctionInputBindingSpec(
+                input_name="anchor",
+                selector="legacy_entity_selector",
+            ),
+        ),
+    )
+    registry = FunctionAdapterRegistry(
+        selectors={"legacy_entity_selector": legacy_selector},
+        expansion_selectors={},
+        adapters={"synthetic_entity_consumer": adapter},
+    )
+    step = SimpleNamespace(step_id="consume_anchor")
+    index = SimpleNamespace(problem_binding_authority=True)
+    entity_input = MethodInputSpec(
+        name="anchor",
+        domain_type="Point",
+        runtime_type="Point",
+        view=MethodInputViewSpec(
+            mode="latest_state",
+            domain_type="Point",
+            object_kind="point",
+            state_kind="coordinate",
+        ),
+    )
+
+    with pytest.raises(StatelessMethodError) as error:
+        registry.bind(
+            "synthetic_entity_consumer",
+            step,
+            index,
+            method_input_specs={"anchor": entity_input},
+        )
+
+    assert error.value.authority.code == (
+        "planner.method_input_view_authority_missing"
+    )
+    assert error.value.authority.subjects[0].arg_name == "anchor"
+    assert error.value.authority.observed["compiler_selector_id"] == (
+        "legacy_entity_selector"
+    )
+    assert selector_calls == []
+
+    optional_registry = FunctionAdapterRegistry(
+        selectors={"legacy_entity_selector": legacy_selector},
+        expansion_selectors={},
+        adapters={
+            "synthetic_entity_consumer": replace(
+                adapter,
+                input_bindings=(
+                    replace(adapter.input_bindings[0], required=False),
+                ),
+            )
+        },
+    )
+    optional_inputs = optional_registry.bind(
+        "synthetic_entity_consumer",
+        step,
+        index,
+        method_input_specs={
+            "anchor": replace(entity_input, required=False),
+        },
+    )
+
+    assert optional_inputs == {}
+    assert selector_calls == []
+
+
+def test_production_adapter_keeps_v1_selector_only_for_non_entity_values() -> None:
+    selector_calls: list[str] = []
+
+    def mechanical_selector(_step, _index, _local_outputs):
+        selector_calls.append("mechanical_selector")
+        return "$runtime.coefficient_tuple"
+
+    adapter = FunctionAdapterSpec(
+        adapter_id="synthetic_mechanical_consumer",
+        input_bindings=(
+            FunctionInputBindingSpec(
+                input_name="coefficients",
+                selector="mechanical_selector",
+                functional_authority="compiler",
+            ),
+        ),
+    )
+    registry = FunctionAdapterRegistry(
+        selectors={"mechanical_selector": mechanical_selector},
+        expansion_selectors={},
+        adapters={"synthetic_mechanical_consumer": adapter},
+    )
+    mechanical_input = MethodInputSpec(
+        name="coefficients",
+        domain_type="Coefficients",
+        runtime_type="Coefficients",
+        view=MethodInputViewSpec(
+            mode="exact_result",
+            domain_type="Coefficients",
+        ),
+    )
+
+    inputs = registry.bind(
+        "synthetic_mechanical_consumer",
+        SimpleNamespace(step_id="consume_coefficients"),
+        SimpleNamespace(problem_binding_authority=True),
+        method_input_specs={"coefficients": mechanical_input},
+    )
+
+    assert inputs == {"coefficients": "$runtime.coefficient_tuple"}
+    assert selector_calls == ["mechanical_selector"]
 
 
 def _diagnostic_payload(value: Any) -> dict[str, Any]:

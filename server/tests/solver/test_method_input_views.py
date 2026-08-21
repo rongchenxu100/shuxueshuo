@@ -17,6 +17,10 @@ from shuxueshuo_server.solver.runtime.context import ContextBuilder
 from shuxueshuo_server.solver.runtime.method_input_views import (
     MethodInputViewResolver,
 )
+from shuxueshuo_server.solver.runtime.method_input_read_authority import (
+    EntityIdentityReadSource,
+    MethodInputReadAuthority,
+)
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.methods import method_spec_payloads
 
@@ -73,6 +77,57 @@ def test_all_method_inputs_declare_one_explicit_view() -> None:
         intersection.inputs[name].allows_anonymous_result
         for name in ("line1_p1", "line1_p2", "line2_p1", "line2_p2")
     )
+    line_parabola = registry.specs[
+        "line_parabola_second_intersection_point"
+    ]
+    assert all(
+        line_parabola.inputs[name].allows_anonymous_result
+        for name in ("line_p1", "line_p2")
+    )
+
+
+def test_interchangeable_method_inputs_have_symmetric_executable_contracts() -> None:
+    registry = MethodSpecRegistry.load_from_code()
+    expected = {
+        "distance_between_points": (("p1", "p2"),),
+        "line_intersection_point": (
+            ("line1_p1", "line1_p2"),
+            ("line2_p1", "line2_p2"),
+        ),
+        "line_locus_minimum_point": (
+            ("minimum_point_1", "minimum_point_2"),
+        ),
+        "line_parabola_second_intersection_point": (
+            ("line_p1", "line_p2"),
+        ),
+        "midpoint_point": (("p1", "p2"),),
+        "parameter_from_segment_length": (
+            ("p1", "p2"),
+            ("reference_p1", "reference_p2"),
+        ),
+        "square_opposite_point": (("adjacent1", "adjacent2"),),
+    }
+
+    assert {
+        method_id: spec.interchangeable_arg_groups
+        for method_id, spec in registry.specs.items()
+        if spec.interchangeable_arg_groups
+    } == expected
+    for spec in registry.specs.values():
+        for group in spec.interchangeable_arg_groups:
+            signatures = {
+                (
+                    spec.inputs[name].domain_type,
+                    spec.inputs[name].runtime_type,
+                    spec.inputs[name].view,
+                    spec.inputs[name].required,
+                    spec.inputs[name].functional_exposed,
+                    spec.inputs[name].allows_anonymous_result,
+                    spec.inputs[name].allows_empty_collection,
+                )
+                for name in group
+            }
+            assert len(signatures) == 1, (spec.method_id, group)
 
 
 def test_generated_method_specs_preserve_view_contracts() -> None:
@@ -134,6 +189,78 @@ def test_same_point_entity_resolves_identity_or_latest_state_by_contract() -> No
     assert identity.value.name == "D"
     assert latest.typed_value.type == "Point"
     assert latest.value == (sp.Integer(1), sp.Integer(0))
+
+
+def test_hidden_point_ref_identity_recovers_entity_from_point_state() -> None:
+    context = ContextBuilder().build(load_problem_ir(str(NANKAI_FIXTURE)))
+    runtime_path = "$question.i.outputs.synthetic_D_coordinate"
+    context.write_path(
+        runtime_path,
+        TypedValue("Point", (sp.Integer(1), sp.Integer(0))),
+        from_scope_id="i",
+    )
+    input_spec = _input(
+        name="target_ref",
+        domain_type="PointRef",
+        runtime_type="PointRef",
+        mode="identity",
+        object_kind="point",
+    )
+
+    identity = MethodInputViewResolver().resolve(
+        context,
+        method_id="synthetic_hidden_identity",
+        invocation_id="hidden_identity",
+        scope_id="i",
+        input_name="target_ref",
+        input_spec=input_spec,
+        raw_path=runtime_path,
+        authority=MethodInputReadAuthority(
+            method_id="synthetic_hidden_identity",
+            invocation_id="hidden_identity",
+            input_name="target_ref",
+            item_index=0,
+            view_mode="identity",
+            domain_type="PointRef",
+            runtime_type="PointRef",
+            scope_id="i",
+            source=EntityIdentityReadSource(
+                "point:problem:D",
+                runtime_path,
+            ),
+        ),
+        require_authority=True,
+    )
+
+    assert identity.typed_value.type == "Point"
+    assert isinstance(identity.value, PointRef)
+    assert identity.value.name == "D"
+
+
+def test_point_coordinate_fact_is_the_latest_point_state_without_reconstruction() -> None:
+    context = ContextBuilder().build(load_problem_ir(str(NANKAI_FIXTURE)))
+    resolver = MethodInputViewResolver()
+    m = context.symbols["m"]
+
+    latest = resolver.resolve(
+        context,
+        method_id="synthetic_latest",
+        invocation_id="latest_M",
+        scope_id="ii",
+        input_name="point",
+        input_spec=_input(
+            name="point",
+            domain_type="Point",
+            runtime_type="Point",
+            mode="latest_state",
+            object_kind="point",
+            state_kind="coordinate",
+        ),
+        raw_path="$question.ii.points.M",
+    )
+
+    assert latest.typed_value.type == "Point"
+    assert latest.value == (m, sp.Integer(1))
 
 
 def test_symbol_entity_resolves_identity_or_known_value_by_contract() -> None:

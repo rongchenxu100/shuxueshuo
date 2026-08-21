@@ -12,6 +12,7 @@
     "problem_revision_id",
     "problem_semantic_hash",
     "plan_id",
+    "execution_graph_signature",
     "functional_problem_binding_signature",
     "step_binding_signatures",
     "goal_unit_ids",
@@ -55,6 +56,10 @@
       "minLength": 1
     },
     "plan_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "execution_graph_signature": {
       "type": "string",
       "minLength": 1
     },

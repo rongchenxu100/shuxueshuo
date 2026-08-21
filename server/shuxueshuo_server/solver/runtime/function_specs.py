@@ -60,6 +60,13 @@ from shuxueshuo_server.solver.runtime.capability_contracts import (
     effective_contract_by_id,
 )
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
+from shuxueshuo_server.solver.runtime.method_input_contracts import (
+    method_input_requires_typed_entity_authority,
+)
+from shuxueshuo_server.solver.runtime.functional_diagnostics import (
+    FunctionalDiagnosticSubject,
+    StatelessMethodError,
+)
 from shuxueshuo_server.solver.runtime.planner_public_types import (
     planner_output_value_type,
 )
@@ -324,6 +331,7 @@ class FunctionSpec:
     reconciliation_validators: tuple[str, ...] = ()
     repair_feedback_provider_id: str | None = None
     distinct_arg_groups: tuple[tuple[str, ...], ...] = ()
+    interchangeable_arg_groups: tuple[tuple[str, ...], ...] = ()
     dependency_policy: CapabilityDependencyPolicy = "explicit_args"
     context_role_bindings: tuple[CapabilityContextRoleBindingSpec, ...] = ()
     path_transformation_consumer: PathTransformationConsumerSpec | None = None
@@ -349,6 +357,9 @@ class FunctionSpec:
             "repair_feedback_provider_id": self.repair_feedback_provider_id,
             "distinct_arg_groups": [
                 list(group) for group in self.distinct_arg_groups
+            ],
+            "interchangeable_arg_groups": [
+                list(group) for group in self.interchangeable_arg_groups
             ],
             "dependency_policy": self.dependency_policy,
             "context_role_bindings": [
@@ -502,6 +513,7 @@ class FunctionAdapterRegistry:
         expansion_selectors_override: tuple[str, ...] | None = None,
         input_bindings_override: tuple[Any, ...] | None = None,
         exact_inputs: Mapping[str, str] | None = None,
+        method_input_specs: Mapping[str, object] | None = None,
         distinct_arg_groups: tuple[tuple[str, ...], ...] = (),
         apply_constraint_analyzer: bool = True,
     ) -> dict[str, str]:
@@ -519,6 +531,49 @@ class FunctionAdapterRegistry:
         ):
             if binding.input_name in inputs:
                 continue
+            input_spec = (method_input_specs or {}).get(binding.input_name)
+            if (
+                getattr(index, "problem_binding_authority", False)
+                and method_input_requires_typed_entity_authority(input_spec)
+            ):
+                if not binding.required:
+                    continue
+                raise StatelessMethodError(
+                    "planner.method_input_view_authority_missing",
+                    "production compiler entity input has no typed authority",
+                    category="configuration",
+                    retryability="configuration",
+                    method_id=method_id,
+                    step_id=step.step_id,
+                    subjects=(
+                        FunctionalDiagnosticSubject(
+                            role=binding.input_name,
+                            arg_name=binding.input_name,
+                            expected_type=getattr(input_spec, "domain_type", None),
+                            expected_state=getattr(
+                                getattr(input_spec, "view", None),
+                                "mode",
+                                None,
+                            ),
+                        ),
+                    ),
+                    expected={
+                        "missing_role": binding.input_name,
+                        "authority_source": "method_input_read_authority",
+                        "domain_type": getattr(input_spec, "domain_type", None),
+                    },
+                    observed={
+                        "consumer_step": step.step_id,
+                        "compiler_selector_id": binding.selector,
+                        "typed_candidate_count": 0,
+                    },
+                    repair_action="fix_runtime_contract",
+                    details={
+                        "missing_role": binding.input_name,
+                        "consumer_step": step.step_id,
+                        "authority_source": "compiler_selector_typed_binding",
+                    },
+                )
             if (
                 getattr(index, "problem_binding_authority", False)
                 and binding.functional_authority == "wire"
@@ -936,6 +991,7 @@ def function_spec_from_method(
         reconciliation_validators=method_spec.reconciliation_validators,
         repair_feedback_provider_id=method_spec.repair_feedback_provider_id,
         distinct_arg_groups=method_spec.distinct_arg_groups,
+        interchangeable_arg_groups=method_spec.interchangeable_arg_groups,
         dependency_policy=(
             contract.dependency_policy
             if contract is not None

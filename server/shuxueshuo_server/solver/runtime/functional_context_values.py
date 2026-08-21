@@ -314,10 +314,34 @@ def latest_point_state_for_object(
     return None
 
 
+def state_producer_locations_for_object(
+    object_ref: str,
+    *,
+    produced: Mapping[tuple[str, str], ResolvedFunctionalValue],
+) -> tuple[tuple[str, str], ...]:
+    """Return known planned/runtime producer locations for diagnostics."""
+
+    return tuple(
+        sorted(
+            {
+                (value.source_call_id, value.valid_scope)
+                for value in produced.values()
+                if value.object_ref == object_ref
+                and value.source_call_id is not None
+                and (
+                    value.state_version_id is not None
+                    or value.runtime_type not in {"PointRef", "Symbol"}
+                )
+            }
+        )
+    )
+
+
 __all__ = [
     "condition_value_by_handle",
     "latest_point_state_for_object",
     "object_identity_value",
     "resolved_value_object_ids",
     "resolved_value_object_refs",
+    "state_producer_locations_for_object",
 ]

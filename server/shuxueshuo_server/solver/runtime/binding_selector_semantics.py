@@ -14,7 +14,15 @@ from shuxueshuo_server.solver.utils import unique_ordered
 
 @dataclass(frozen=True)
 class SelectorSemantics:
-    """Planner-facing meaning attached to one runtime selector grammar."""
+    """Planner-facing meaning attached to one legacy selector grammar.
+
+    Projection fields are transitional typed-evidence declarations, not
+    precedence rules. For required or consumed inputs, every non-empty channel
+    must resolve to one source and agree with every other channel. An
+    unconsumed optional input may remain unprojected. Entity roles are filtered
+    by type and lexical visibility; free-symbol basis never selects by
+    frequency.
+    """
 
     mechanical: bool = False
     semantic_roles: tuple[str, ...] = ()
@@ -25,6 +33,11 @@ class SelectorSemantics:
     prerequisite_condition_kind: str | None = None
     semantic_evidence_resolver: str | None = None
     owns_identity_binding: bool = False
+    projection_source_arg: str | None = None
+    projection_source_return: str | None = None
+    projection_source_producer_arg: str | None = None
+    projection_entity_roles: tuple[str, ...] = ()
+    projection_free_symbol_basis: bool = False
 
 
 @dataclass(frozen=True)
@@ -50,6 +63,7 @@ _EXACT_SELECTOR_SEMANTICS: dict[str, SelectorSemantics] = {
     "point_output_state": SelectorSemantics(
         mechanical=True,
         requires_materialized_state=True,
+        projection_source_return="point",
     ),
     "point_transition_target": SelectorSemantics(mechanical=True),
     "equal_length_ray:target": SelectorSemantics(
@@ -60,17 +74,42 @@ _EXACT_SELECTOR_SEMANTICS: dict[str, SelectorSemantics] = {
         mechanical=True,
         owns_identity_binding=True,
     ),
-    "parameter_symbol": SelectorSemantics(mechanical=True),
-    "parameter_symbol_from_reads": SelectorSemantics(mechanical=True),
+    "parameter_symbol": SelectorSemantics(
+        mechanical=True,
+        projection_source_arg="parameter_value",
+        projection_source_producer_arg="parameter",
+        projection_free_symbol_basis=True,
+    ),
+    "parameter_symbol_from_reads": SelectorSemantics(
+        mechanical=True,
+        projection_source_arg="parameter_value",
+        projection_source_producer_arg="parameter",
+        projection_free_symbol_basis=True,
+    ),
     "parameter_symbol_from_reads_or_expression": SelectorSemantics(
         mechanical=True,
         semantic_evidence_resolver="unique_parameter_symbol",
+        projection_source_arg="parameter_value",
+        projection_source_producer_arg="parameter",
+        projection_free_symbol_basis=True,
     ),
-    "known_parameter_symbol_from_reads": SelectorSemantics(mechanical=True),
+    "known_parameter_symbol_from_reads": SelectorSemantics(
+        mechanical=True,
+        projection_source_arg="parameter_value",
+        projection_source_producer_arg="parameter",
+        projection_free_symbol_basis=True,
+    ),
     "known_parameter_value_from_reads": SelectorSemantics(mechanical=True),
     "parameter_constraint": SelectorSemantics(mechanical=True),
     "dynamic_constraint": SelectorSemantics(
         condition_kinds=("symbol_constraint",),
+    ),
+    "dynamic_symbol": SelectorSemantics(
+        mechanical=True,
+        projection_entity_roles=(
+            "dynamic_parameter",
+            "moving_point_parameter",
+        ),
     ),
     "angle_sum:x_axis_point": SelectorSemantics(
         mechanical=True,
@@ -95,18 +134,22 @@ _EXACT_SELECTOR_SEMANTICS: dict[str, SelectorSemantics] = {
     "angle_equality:x_axis_point": SelectorSemantics(
         mechanical=True,
         requires_materialized_state=True,
+        projection_source_producer_arg="x_axis_point",
     ),
     "angle_equality:y_axis_point": SelectorSemantics(
         mechanical=True,
         requires_materialized_state=True,
+        projection_source_producer_arg="y_axis_point",
     ),
     "angle_equality:reference_x_axis_point": SelectorSemantics(
         mechanical=True,
         requires_materialized_state=True,
+        projection_source_producer_arg="reference_x_axis_point",
     ),
     "angle_equality:origin": SelectorSemantics(
         mechanical=True,
         requires_materialized_state=True,
+        projection_source_producer_arg="origin",
     ),
     "angle_equality:target": SelectorSemantics(mechanical=True),
     "fact:length_condition:Condition": SelectorSemantics(
@@ -128,12 +171,28 @@ _EXACT_SELECTOR_SEMANTICS: dict[str, SelectorSemantics] = {
         semantic_roles=("straightened_endpoint_2",),
         requires_materialized_state=True,
     ),
-    "weighted_path:moving_point_ref": SelectorSemantics(mechanical=True),
+    "weighted_path:moving_point_ref": SelectorSemantics(
+        mechanical=True,
+        projection_source_arg="moving_point",
+    ),
     "weighted_path:linked_fixed_endpoint_ref": SelectorSemantics(
-        mechanical=True
+        mechanical=True,
+        projection_source_arg="linked_fixed_endpoint_ref",
+    ),
+    "weighted_path:auxiliary_point_ref": SelectorSemantics(
+        mechanical=True,
+        projection_source_return="auxiliary_point",
     ),
     "square_path:fixed_endpoint_1_ref": SelectorSemantics(mechanical=True),
     "square_path:fixed_endpoint_2_ref": SelectorSemantics(mechanical=True),
+    "square:side_start_ref": SelectorSemantics(
+        mechanical=True,
+        projection_source_arg="side_start",
+    ),
+    "square:side_end_ref": SelectorSemantics(
+        mechanical=True,
+        projection_source_arg="side_end",
+    ),
 }
 
 _PREFIX_SELECTOR_SEMANTICS: tuple[tuple[str, SelectorSemantics], ...] = (
@@ -265,6 +324,53 @@ def selector_semantics(selector: str | None) -> SelectorSemantics:
         owns_identity_binding=(
             exact.owns_identity_binding
             or any(item.owns_identity_binding for item in prefixes)
+        ),
+        projection_source_arg=(
+            exact.projection_source_arg
+            or next(
+                (
+                    item.projection_source_arg
+                    for item in prefixes
+                    if item.projection_source_arg is not None
+                ),
+                None,
+            )
+        ),
+        projection_source_return=(
+            exact.projection_source_return
+            or next(
+                (
+                    item.projection_source_return
+                    for item in prefixes
+                    if item.projection_source_return is not None
+                ),
+                None,
+            )
+        ),
+        projection_source_producer_arg=(
+            exact.projection_source_producer_arg
+            or next(
+                (
+                    item.projection_source_producer_arg
+                    for item in prefixes
+                    if item.projection_source_producer_arg is not None
+                ),
+                None,
+            )
+        ),
+        projection_entity_roles=_unique(
+            (
+                *exact.projection_entity_roles,
+                *(
+                    role
+                    for item in prefixes
+                    for role in item.projection_entity_roles
+                ),
+            )
+        ),
+        projection_free_symbol_basis=(
+            exact.projection_free_symbol_basis
+            or any(item.projection_free_symbol_basis for item in prefixes)
         ),
     )
 

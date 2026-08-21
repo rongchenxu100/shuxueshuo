@@ -55,5 +55,11 @@
   "outputs": {
     "point": "Point"
   },
-  "is_pure": true
+  "is_pure": true,
+  "interchangeable_arg_groups": [
+    [
+      "adjacent1",
+      "adjacent2"
+    ]
+  ]
 }

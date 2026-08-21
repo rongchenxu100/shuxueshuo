@@ -1577,11 +1577,16 @@ def _validate_quadratic_closure_outputs(
     parabola = outputs.get("parabola")
     if parabola is not None:
         parabola_value = sp.expand(sp.sympify(parabola.value))
+        template_expression = args.get("quadratic_template")
+        if template_expression is None:
+            # The pre-closure quadratic is itself the canonical coefficient
+            # identity template when callers omit the optional duplicate.
+            template_expression = args.get("quadratic")
         target_coefficient = quadratic_coefficient_expression(
             parabola_value,
             independent_symbol=args["x"],
             target_symbol=target,
-            template_expression=args.get("quadratic_template"),
+            template_expression=template_expression,
         )
         checks.append(
             _closure_check(
@@ -1599,7 +1604,7 @@ def _validate_quadratic_closure_outputs(
                 parabola_value,
                 independent_symbol=args["x"],
                 target_symbol=symbol,
-                template_expression=args.get("quadratic_template"),
+                template_expression=template_expression,
             )
             checks.append(
                 _closure_check(

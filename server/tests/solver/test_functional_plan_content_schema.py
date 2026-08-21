@@ -11,9 +11,12 @@ from shuxueshuo_server.solver.runtime.functional_plan_content import (
     FunctionalPlanContentCompiler,
     functional_plan_content_from_plan,
     functional_plan_content_schema,
+    normalize_interchangeable_capability_args,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
+    referenced_functional_step_returns,
+    unconsumed_duplicate_identity_arg_omissions,
 )
 from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
     ScopedFunctionalPlanValidator,
@@ -158,6 +161,197 @@ def test_dynamic_schema_binds_output_and_expectation_roles_per_capability(
     )
 
 
+def test_output_target_schema_honors_structural_fact_selector(tmp_path) -> None:
+    nankai = planning_binding_fixture(
+        tmp_path / "nankai",
+        case="tj-2026-nankai-yimo-25",
+    )
+    nankai_frame = FunctionalPlanAuthorityFrame.from_planning_context(
+        nankai[1]
+    )
+    nankai_catalog = FunctionalCapabilityCatalog.from_family_spec(
+        nankai[3].family_spec,
+        nankai[3].method_specs,
+    )
+    nankai_schema = functional_plan_content_schema(
+        nankai_frame,
+        capability_catalog=nankai_catalog,
+    )
+    nankai_point_at_x = next(
+        item["allOf"][1]["properties"]
+        for item in nankai_schema["$defs"]["step"]["oneOf"]
+        if item["allOf"][1]["properties"]["capability_id"].get("const")
+        == "point_on_parabola_at_x"
+    )
+
+    # M has a complete point_coordinate Fact, not a curve_at_x construction.
+    # It is already a Point state and must not be offered as this Method's
+    # output target merely because both values have runtime type Point.
+    assert nankai_point_at_x["output_targets"] is False
+
+    hexi = planning_binding_fixture(
+        tmp_path / "hexi",
+        case="tj-2026-hexi-yimo-25",
+    )
+    hexi_frame = FunctionalPlanAuthorityFrame.from_planning_context(hexi[1])
+    hexi_catalog = FunctionalCapabilityCatalog.from_family_spec(
+        hexi[3].family_spec,
+        hexi[3].method_specs,
+    )
+    hexi_schema = functional_plan_content_schema(
+        hexi_frame,
+        capability_catalog=hexi_catalog,
+    )
+    hexi_point_at_x = next(
+        item["allOf"][1]["properties"]
+        for item in hexi_schema["$defs"]["step"]["oneOf"]
+        if item["allOf"][1]["properties"]["capability_id"].get("const")
+        == "point_on_parabola_at_x"
+    )
+    assert hexi_point_at_x["output_targets"]["properties"]["point"][
+        "enum"
+    ] == ["M"]
+
+
+def test_distinct_symbol_roles_are_schema_checked_after_safe_normalization(
+    tmp_path,
+) -> None:
+    fixture, frame, content, _plan = _content_fixture(tmp_path)
+    payload = deepcopy(content.to_payload())
+    step = _content_step(payload, "derive_parametric_parabola_ii")
+    step["args"]["target_parameter"] = "a"
+    step["return_expectations"] = {
+        **step.get("return_expectations", {}),
+        "parameter_value": "closed_state",
+    }
+    schema = functional_plan_content_schema(
+        frame,
+        capability_catalog=fixture.capability_catalog,
+    )
+
+    assert tuple(Draft202012Validator(schema).iter_errors(payload))
+
+    result = FunctionalPlanContentCompiler().compile_payload(
+        payload,
+        frame=frame,
+        capability_catalog=fixture.capability_catalog,
+    )
+
+    assert result.report.ok
+    assert result.plan is not None
+    canonical = next(
+        item
+        for item in result.plan.steps
+        if item.step_id == "derive_parametric_parabola_ii"
+    )
+    assert "target_parameter" not in canonical.args
+    assert "parameter_value" not in canonical.return_expectations
+    assert {
+        item.code for item in result.normalizations
+    } >= {
+        "functional.unconsumed_duplicate_identity_arg_omitted",
+        "functional.inactive_return_expectation_omitted",
+    }
+
+
+def test_consumed_duplicate_identity_arg_is_left_for_typed_reconciliation(
+    tmp_path,
+) -> None:
+    fixture, frame, content, _plan = _content_fixture(tmp_path)
+    payload = deepcopy(content.to_payload())
+    step = _content_step(payload, "derive_parametric_parabola_ii")
+    step["args"]["target_parameter"] = "a"
+    payload["goal_plans"]["ii.a"]["answer_from"] = {
+        "step_id": "derive_parametric_parabola_ii",
+        "return": "parameter_value",
+    }
+
+    result = FunctionalPlanContentCompiler().compile_payload(
+        payload,
+        frame=frame,
+        capability_catalog=fixture.capability_catalog,
+    )
+
+    assert result.draft_only
+    assert result.plan is not None
+    assert {
+        item.code for item in result.report.issues
+    } == {"functional.plan_content_schema_invalid"}
+    assert "functional.arg_distinctness_violation" not in {
+        item.code for item in result.report.issues
+    }
+    assert "functional.unconsumed_duplicate_identity_arg_omitted" not in {
+        item.code for item in result.normalizations
+    }
+
+
+def test_identity_arg_omission_is_name_agnostic_and_consumer_aware(
+    tmp_path,
+) -> None:
+    fixture, _frame, _content, _plan = _content_fixture(tmp_path)
+    capability = fixture.capability_catalog.get("quadratic_from_constraints")
+    assert capability is not None
+    renamed = replace(
+        capability,
+        args=tuple(
+            replace(item, name="chosen_symbol")
+            if item.name == "target_parameter"
+            else item
+            for item in capability.args
+        ),
+        returns=tuple(
+            replace(item, identity_arg="chosen_symbol")
+            if item.identity_arg == "target_parameter"
+            else item
+            for item in capability.returns
+        ),
+        distinct_arg_groups=tuple(
+            tuple(
+                "chosen_symbol" if name == "target_parameter" else name
+                for name in group
+            )
+            for group in capability.distinct_arg_groups
+        ),
+    )
+    args = {"chosen_symbol": "a", "free_parameters": ["a"]}
+
+    omissions = unconsumed_duplicate_identity_arg_omissions(
+        step_id="derive",
+        capability=renamed,
+        args=args,
+        output_targets={},
+        consumed_returns=frozenset(),
+    )
+    assert [(item.arg_name, item.return_names) for item in omissions] == [
+        ("chosen_symbol", ("parameter_value",))
+    ]
+
+    consumer_payload = {
+        "answer_from": {"step_id": "derive", "return": "parameter_value"},
+        "nested": [
+            {"args": {"value": {"step_id": "other", "return": "point"}}}
+        ],
+    }
+    consumers = referenced_functional_step_returns(consumer_payload)
+    assert consumers == frozenset(
+        {("derive", "parameter_value"), ("other", "point")}
+    )
+    assert not unconsumed_duplicate_identity_arg_omissions(
+        step_id="derive",
+        capability=renamed,
+        args=args,
+        output_targets={},
+        consumed_returns=consumers,
+    )
+    assert not unconsumed_duplicate_identity_arg_omissions(
+        step_id="derive",
+        capability=renamed,
+        args=args,
+        output_targets={"parameter_value": "a"},
+        consumed_returns=frozenset(),
+    )
+
+
 def test_line_intersection_schema_allows_anonymous_points_on_both_lines(
     tmp_path,
 ) -> None:
@@ -186,6 +380,70 @@ def test_line_intersection_schema_allows_anonymous_points_on_both_lines(
             {"$ref": "#/$defs/source_ref"},
             {"$ref": "#/$defs/step_result_ref"},
         ]
+
+
+def test_line_parabola_schema_and_canonicalizer_treat_line_endpoints_symmetrically(
+    tmp_path,
+) -> None:
+    fixture = planning_binding_fixture(
+        tmp_path / "heping",
+        case="tj-2026-heping-yimo-25",
+    )
+    frame = FunctionalPlanAuthorityFrame.from_planning_context(fixture[1])
+    catalog = FunctionalCapabilityCatalog.from_family_spec(
+        fixture[3].family_spec,
+        fixture[3].method_specs,
+    )
+    schema = functional_plan_content_schema(
+        frame,
+        capability_catalog=catalog,
+    )
+    variant = next(
+        item["allOf"][1]["properties"]
+        for item in schema["$defs"]["step"]["oneOf"]
+        if item["allOf"][1]["properties"]["capability_id"].get("const")
+        == "line_parabola_second_intersection_point"
+    )
+    expected_ref_schema = [
+        {"$ref": "#/$defs/source_ref"},
+        {"$ref": "#/$defs/step_result_ref"},
+    ]
+    assert variant["args"]["properties"]["line_p1"]["oneOf"] == (
+        expected_ref_schema
+    )
+    assert variant["args"]["properties"]["line_p2"]["oneOf"] == (
+        expected_ref_schema
+    )
+
+    payload = {
+        "capability_id": "line_parabola_second_intersection_point",
+        "args": {
+            "parabola": "parabola",
+            "line_p1": {"step_id": "derive_axis_point", "return": "point"},
+            "line_p2": "B",
+            "known_point": "B",
+        },
+    }
+    normalized, records = normalize_interchangeable_capability_args(
+        payload,
+        capability_catalog=catalog,
+    )
+
+    assert normalized["args"]["line_p1"] == "B"
+    assert normalized["args"]["line_p2"] == {
+        "step_id": "derive_axis_point",
+        "return": "point",
+    }
+    assert [item.code for item in records] == [
+        "functional.interchangeable_args_permuted"
+    ]
+    capability = catalog.get("line_parabola_second_intersection_point")
+    assert capability is not None
+    assert capability.interchangeable_arg_groups == (("line_p1", "line_p2"),)
+    assert any(
+        "交换它们不改变数学结果" in item["requirement"]
+        for item in capability.to_prompt_payload()["input_requirements"]
+    )
 
 
 def test_final_canonical_plan_contract_round_trip_preserves_identity(

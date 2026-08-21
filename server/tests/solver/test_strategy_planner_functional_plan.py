@@ -10,7 +10,12 @@ from typing import Any
 import pytest
 import sympy as sp
 
-from shuxueshuo_server.solver.contracts import PointRef, TypedValue
+from shuxueshuo_server.solver.contracts import (
+    MethodInputSpec,
+    MethodInputViewSpec,
+    PointRef,
+    TypedValue,
+)
 from shuxueshuo_server.solver.explanation.builder import ExplanationBuilder
 from shuxueshuo_server.solver.family.models import (
     RecipeExecutionSpec,
@@ -105,6 +110,9 @@ from shuxueshuo_server.solver.runtime.functional_symbol_flow import (
     infer_unique_target_symbol_ref,
     return_free_symbol_refs,
 )
+from shuxueshuo_server.solver.runtime.functional_diagnostics import (
+    StatelessMethodError,
+)
 from shuxueshuo_server.solver.runtime.functional_reconciliation_validators import (
     functional_reconciliation_issues,
 )
@@ -197,6 +205,7 @@ from _problem_planning_support import (
     cached_planning_binding_fixture,
     cached_problem_planner_authority,
     cached_scope_native_payload_args,
+    scope_native_plan_id,
 )
 
 
@@ -2149,12 +2158,14 @@ def test_unified_quadratic_constraint_call_publishes_open_target_symbol() -> Non
     ]
     assert {
         item.binding_authority for item in sidecar
-    } <= {"wire", "resolver"}
-    assert not {
-        item.arg_name
+    } <= {"wire", "resolver", "compiler"}
+    quadratic_binding = next(
+        item
         for item in sidecar
         if item.step_id == "derive_parametric_parabola_ii"
-    } & {"quadratic", "x", "all_coefficients"}
+        and item.arg_name == "quadratic"
+    )
+    assert quadratic_binding.binding_authority == "compiler"
     assert {(item.arg_name, item.source_handle) for item in matching_sidecar} == {
         ("free_parameters", "symbol:problem:c"),
         ("target_parameter", "symbol:problem:b"),
@@ -6037,6 +6048,7 @@ def test_quadratic_constraint_adapter_accepts_three_curve_points() -> None:
         attempt=1,
         problem_payload=problem_payload,
         validation_report=validation,
+        canonical_plan_id=scope_native_plan_id("tj-2026-heping-yimo-25"),
     )
 
     assert replay.output is not None, replay.errors
@@ -6391,6 +6403,7 @@ def test_hidden_mechanical_selector_alias_is_pruned_before_auto_resolution() -> 
         attempt=1,
         problem_payload=problem_payload,
         validation_report=validation,
+        canonical_plan_id=scope_native_plan_id("tj-2026-heping-yimo-25"),
     )
 
     assert replay.output is not None, replay.errors
@@ -6473,6 +6486,7 @@ def test_recomputed_translated_ray_endpoint_keeps_original_point_definition() ->
         attempt=1,
         problem_payload=problem_payload,
         validation_report=validation,
+        canonical_plan_id=scope_native_plan_id("tj-2026-heping-yimo-25"),
     )
 
     assert replay.output is not None, (
@@ -6532,6 +6546,7 @@ def test_angle_role_args_are_pruned_and_rebound_from_structured_facts() -> None:
         attempt=1,
         problem_payload=problem_payload,
         validation_report=validation,
+        canonical_plan_id=scope_native_plan_id("tj-2026-heping-yimo-25"),
     )
 
     assert replay.output is not None, replay.errors
@@ -6584,6 +6599,7 @@ def test_x_axis_intercept_infers_known_point_from_target_definition() -> None:
         attempt=1,
         problem_payload=problem_payload,
         validation_report=validation,
+        canonical_plan_id=scope_native_plan_id("tj-2026-heping-yimo-25"),
     )
 
     assert replay.output is not None, replay.errors
@@ -6618,6 +6634,7 @@ def test_answer_bound_object_return_keeps_canonical_state_alias() -> None:
         attempt=1,
         problem_payload=problem_payload,
         validation_report=validation,
+        canonical_plan_id=scope_native_plan_id("tj-2026-heping-yimo-25"),
     )
 
     assert replay.output is not None, replay.errors
@@ -9840,6 +9857,7 @@ def test_functional_projected_arg_sidecar_exports_wire_and_resolver_ledger() -> 
     assert {item.binding_authority for item in bindings} == {
         "wire",
         "resolver",
+        "compiler",
     }
     assert all(
         binding.state_version_id is not None
@@ -13101,6 +13119,65 @@ def test_compiler_binds_wire_arg_to_exact_state_write_version() -> None:
     assert exact == {
         "point": "$question.i_2.facts.B_closed"
     }
+
+
+def test_compiler_projection_rejects_untyped_non_identity_entity_selector() -> None:
+    compiler = object.__new__(_RecipePlanCompiler)
+    compiler.projected_function_arg_bindings = (
+        ProjectedFunctionArgBinding(
+            step_id="reduce_path",
+            arg_name="anchor",
+            source_handle="compiler:equal_length_ray:anchor",
+            runtime_type="Point",
+            binding_authority="compiler",
+            selection_policy="compiler",
+            consumption_mode="compiler_selector",
+            compiler_selector_id="equal_length_ray:anchor",
+            runtime_input_targets=("anchor",),
+        ),
+    )
+    compiler.function_specs = SimpleNamespace(
+        get=lambda _method_id: SimpleNamespace(args=())
+    )
+    step = FunctionalCompileStep(
+        step_id="reduce_path",
+        scope_id="ii",
+        recipe_hint="synthetic_path_reduction",
+        goal_type="derive_minimum_value",
+        target="",
+        strategy="consume a compiler-selected anchor",
+    )
+    spec = SimpleNamespace(
+        method_id="synthetic_path_reduction",
+        inputs={
+            "anchor": MethodInputSpec(
+                name="anchor",
+                domain_type="Point",
+                runtime_type="Point",
+                view=MethodInputViewSpec(
+                    mode="latest_state",
+                    domain_type="Point",
+                    object_kind="point",
+                    state_kind="coordinate",
+                ),
+            ),
+        },
+    )
+
+    with pytest.raises(StatelessMethodError) as error:
+        compiler._projected_compiler_selector_inputs(
+            step,
+            spec,
+            existing={},
+        )
+
+    assert error.value.authority.code == (
+        "planner.method_input_view_authority_missing"
+    )
+    assert error.value.authority.expected["missing_role"] == "anchor"
+    assert error.value.authority.observed["reason"] == (
+        "typed_entity_candidate_missing"
+    )
 
 
 def test_compiler_rejects_object_call_result_without_state_version() -> None:

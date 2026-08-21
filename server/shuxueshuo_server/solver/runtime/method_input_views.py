@@ -133,7 +133,7 @@ class MethodInputViewResolver:
             ) from exc
 
         value = typed_value.value
-        if input_spec.view.mode == "identity" and input_spec.domain_type == "Point":
+        if _is_point_identity_view(input_spec):
             value = self._point_identity(
                 raw_path=selected_path,
                 typed_value=typed_value,
@@ -230,9 +230,18 @@ def debug_method_input_read_authority(
 
 
 def expected_runtime_type_for_view(input_spec: MethodInputSpec) -> str:
-    if input_spec.view.mode == "identity" and input_spec.domain_type == "Point":
+    if _is_point_identity_view(input_spec):
         return "PointRef|Point"
     return input_spec.runtime_type
+
+
+def _is_point_identity_view(input_spec: MethodInputSpec) -> bool:
+    """Recognize public Point entities and hidden PointRef identity inputs."""
+
+    return input_spec.view.mode == "identity" and (
+        input_spec.domain_type == "Point"
+        or "PointRef" in split_runtime_types(input_spec.runtime_type)
+    )
 
 
 def input_view_accepts_runtime_type(

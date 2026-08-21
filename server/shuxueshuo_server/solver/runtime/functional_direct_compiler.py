@@ -87,6 +87,7 @@ class FunctionalRuntimeArgBinding:
     compiler_selector_id: str | None = None
     source_handle: str | None = None
     state_slot_id: str | None = None
+    runtime_input_required: bool = True
 
     @property
     def step_id(self) -> str:
@@ -159,6 +160,7 @@ def _runtime_arg_bindings(
     result: list[FunctionalRuntimeArgBinding] = []
     for prepared in request.arg_bindings:
         binding = prepared.logical_binding
+        selected_source = binding.source.selected_source
         result.append(
             FunctionalRuntimeArgBinding(
                 call_id=request.prepared_call.call_id,
@@ -176,16 +178,50 @@ def _runtime_arg_bindings(
                 cardinality=binding.cardinality,
                 selection_policy=binding.selection_policy,
                 consumption_mode=binding.consumption_mode,
-                state_version_id=prepared.selected_state_version_id,
-                condition_id=binding.source.condition_id,
+                state_version_id=(
+                    prepared.selected_state_version_id
+                    or (
+                        selected_source.state_version_id
+                        if selected_source is not None
+                        else None
+                    )
+                ),
+                condition_id=(
+                    binding.source.condition_id
+                    or (
+                        selected_source.condition_id
+                        if selected_source is not None
+                        else None
+                    )
+                ),
                 math_object_id=(
                     binding.source.math_object_id
+                    or (
+                        selected_source.math_object_id
+                        if selected_source is not None
+                        else None
+                    )
                     or prepared.source_math_object_id
                 ),
-                source_call_id=binding.source.source_call_id,
-                source_return_name=binding.source.source_return_name,
+                source_call_id=(
+                    binding.source.source_call_id
+                    or (
+                        selected_source.source_call_id
+                        if selected_source is not None
+                        else None
+                    )
+                ),
+                source_return_name=(
+                    binding.source.source_return_name
+                    or (
+                        selected_source.source_return_name
+                        if selected_source is not None
+                        else None
+                    )
+                ),
                 compiler_selector_id=binding.source.compiler_selector_id,
                 source_handle=prepared.source_handle,
+                runtime_input_required=binding.runtime_input_required,
             )
         )
     return tuple(result)

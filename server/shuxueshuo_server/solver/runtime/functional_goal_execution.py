@@ -60,6 +60,7 @@ from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
     ScopedStepResultRef,
     apply_scoped_published_goal_bindings,
     scoped_entity_state_dependencies,
+    scoped_functional_plan_id,
     scoped_functional_plan_schema,
 )
 from shuxueshuo_server.solver.runtime.strategy_replay import (
@@ -271,6 +272,7 @@ def functional_goal_execution_checkpoint_schema() -> dict[str, Any]:
             "problem_revision_id",
             "problem_semantic_hash",
             "plan_id",
+            "execution_graph_signature",
             "functional_problem_binding_signature",
             "step_binding_signatures",
             "goal_unit_ids",
@@ -297,6 +299,7 @@ def functional_goal_execution_checkpoint_schema() -> dict[str, Any]:
             "problem_revision_id": nonempty,
             "problem_semantic_hash": nonempty,
             "plan_id": nonempty,
+            "execution_graph_signature": nonempty,
             "functional_problem_binding_signature": nonempty,
             "step_binding_signatures": {
                 "type": "object",
@@ -901,6 +904,7 @@ class FunctionalGoalExecutionCheckpoint:
     problem_revision_id: str
     problem_semantic_hash: str
     plan_id: str
+    execution_graph_signature: str
     functional_problem_binding_signature: str
     root_scope: FunctionalGoalExecutionScope
     root_issues: tuple[Mapping[str, Any], ...]
@@ -984,6 +988,7 @@ class FunctionalGoalExecutionCheckpoint:
             "problem_revision_id": self.problem_revision_id,
             "problem_semantic_hash": self.problem_semantic_hash,
             "plan_id": self.plan_id,
+            "execution_graph_signature": self.execution_graph_signature,
             "functional_problem_binding_signature": (
                 self.functional_problem_binding_signature
             ),
@@ -1071,6 +1076,10 @@ class FunctionalGoalExecutionCheckpoint:
                 mismatches.append("plan_id")
             if dict(self.goal_unit_ids) != expected_goal_ids:
                 mismatches.append("goal_unit_ids")
+        if dependency_graph is not None and self.execution_graph_signature != (
+            _execution_graph_signature(dependency_graph)
+        ):
+            mismatches.append("execution_graph_signature")
         if binding_context is not None:
             expected_source_ids = {
                 step_id: tuple(
@@ -1127,6 +1136,9 @@ class FunctionalGoalExecutionCheckpoint:
             problem_revision_id=str(candidate["problem_revision_id"]),
             problem_semantic_hash=str(candidate["problem_semantic_hash"]),
             plan_id=str(candidate["plan_id"]),
+            execution_graph_signature=str(
+                candidate["execution_graph_signature"]
+            ),
             functional_problem_binding_signature=str(
                 candidate["functional_problem_binding_signature"]
             ),
@@ -1628,6 +1640,17 @@ def _checkpoint_identity_payload(
     return payload
 
 
+def _execution_graph_signature(
+    dependency_graph: Mapping[str, Sequence[str]],
+) -> str:
+    return stable_hash(
+        {
+            str(step_id): sorted({str(item) for item in dependencies})
+            for step_id, dependencies in sorted(dependency_graph.items())
+        }
+    )
+
+
 def _scope_from_payload(
     payload: Mapping[str, Any],
 ) -> FunctionalGoalExecutionScope:
@@ -1962,6 +1985,7 @@ class ScopedFunctionalGoalExecutionService:
                 authored_return_consumers=(
                     _scoped_authored_return_consumers(canonical_plan)
                 ),
+                canonical_plan_id=scoped_functional_plan_id(canonical_plan),
             )
             replay = prepared
             reconciliation = prepared.functional_reconciliation
@@ -2867,10 +2891,11 @@ def _build_checkpoint(
         planning_context_id=planning_context.planning_context_id,
         problem_revision_id=planning_context.problem_revision_id,
         problem_semantic_hash=planning_context.problem_semantic_hash,
-        plan_id=(
-            authority.plan_id
-            if authority is not None
-            else stable_hash(canonical_plan.to_payload())
+        plan_id=scoped_functional_plan_id(canonical_plan),
+        execution_graph_signature=_execution_graph_signature(
+            reconciliation.dependency_graph
+            if reconciliation is not None
+            else {}
         ),
         functional_problem_binding_signature=(
             binding_catalog.binding_signature

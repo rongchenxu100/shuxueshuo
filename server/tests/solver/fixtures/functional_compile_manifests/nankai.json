@@ -18,7 +18,6 @@
                 "coefficient_relation",
                 "known_coefficients",
                 "quadratic",
-                "quadratic_template",
                 "x"
               ],
               "outputs": {
@@ -34,16 +33,6 @@
         }
       ],
       "bindings": [
-        {
-          "arg": "all_coefficients",
-          "item": 0,
-          "role": "all_coefficients",
-          "authority": "compiler",
-          "target": "all_coefficients",
-          "paths": [
-            "$problem.symbol_lists.quadratic_coefficients"
-          ]
-        },
         {
           "arg": "coefficient_relation",
           "item": 0,
@@ -80,16 +69,6 @@
           "role": "quadratic",
           "authority": "compiler",
           "target": "quadratic",
-          "paths": [
-            "$problem.expressions.quadratic"
-          ]
-        },
-        {
-          "arg": "quadratic_template",
-          "item": 0,
-          "role": "quadratic_template",
-          "authority": "compiler",
-          "target": "quadratic_template",
           "paths": [
             "$problem.expressions.quadratic"
           ]
@@ -384,7 +363,6 @@
                 "curve_points",
                 "free_parameter",
                 "quadratic",
-                "quadratic_template",
                 "x"
               ],
               "outputs": {
@@ -400,16 +378,6 @@
         }
       ],
       "bindings": [
-        {
-          "arg": "all_coefficients",
-          "item": 0,
-          "role": "all_coefficients",
-          "authority": "compiler",
-          "target": "all_coefficients",
-          "paths": [
-            "$problem.symbol_lists.quadratic_coefficients"
-          ]
-        },
         {
           "arg": "coefficient_relation",
           "item": 0,
@@ -458,16 +426,6 @@
           "role": "quadratic",
           "authority": "compiler",
           "target": "quadratic",
-          "paths": [
-            "$problem.expressions.quadratic"
-          ]
-        },
-        {
-          "arg": "quadratic_template",
-          "item": 0,
-          "role": "quadratic_template",
-          "authority": "compiler",
-          "target": "quadratic_template",
           "paths": [
             "$problem.expressions.quadratic"
           ]
@@ -919,16 +877,6 @@
       ],
       "bindings": [
         {
-          "arg": "constraint",
-          "item": 0,
-          "role": "constraint",
-          "authority": "compiler",
-          "target": "constraint",
-          "paths": [
-            "$question.ii.conditions.symbol_constraint_7d01fba9ecbe"
-          ]
-        },
-        {
           "arg": "length_squared",
           "item": 0,
           "role": "length_squared",
@@ -1029,6 +977,16 @@
           ]
         },
         {
+          "arg": "parameter",
+          "item": 0,
+          "role": "parameter",
+          "authority": "compiler",
+          "target": "parameter",
+          "paths": [
+            "$problem.symbols.m"
+          ]
+        },
+        {
           "arg": "parameter_value",
           "item": 0,
           "role": "parameter_value",
@@ -1099,6 +1057,16 @@
           ]
         },
         {
+          "arg": "parameter",
+          "item": 0,
+          "role": "parameter",
+          "authority": "compiler",
+          "target": "parameter",
+          "paths": [
+            "$problem.symbols.m"
+          ]
+        },
+        {
           "arg": "parameter_value",
           "item": 0,
           "role": "parameter_value",
@@ -1159,16 +1127,6 @@
         }
       ],
       "bindings": [
-        {
-          "arg": "constraint",
-          "item": 0,
-          "role": "constraint",
-          "authority": "compiler",
-          "target": "constraint",
-          "paths": [
-            "$question.ii.conditions.symbol_constraint_7d01fba9ecbe"
-          ]
-        },
         {
           "arg": "minimum_expression",
           "item": 0,
@@ -1257,6 +1215,16 @@
           "target": "expression",
           "paths": [
             "$subquestion.ii_2.facts.__functional_transaction_ii_2_specialize_parabola_0"
+          ]
+        },
+        {
+          "arg": "parameter",
+          "item": 0,
+          "role": "parameter",
+          "authority": "compiler",
+          "target": "parameter",
+          "paths": [
+            "$problem.symbols.m"
           ]
         },
         {

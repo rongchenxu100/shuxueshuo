@@ -512,11 +512,18 @@ SymPy structural representations), never Python `repr()`.
 
 Equivalent-candidate tie-breaking uses the actual Method invocation count from
 each shadow-lowered graph; a role candidate builder must not estimate or hardcode
-that count. Mixed-scope Goal repair projects added or removed steps back onto the
-old editable intervals so frozen producers remain barriers. The legacy debug
-`equal_length_ray_point` selector may still require one structural candidate,
-but the recipe compiler never imports it or the role candidate builder: runtime
-search compilation consumes only the prepared winner authority.
+that count. Mixed-scope Goal repair preserves frozen barriers only when the old
+editable interval is provable: equal-cardinality replacements have an ordinal
+mapping, while added or removed steps across three or more editable islands must
+retain enough old step ids to identify their islands. An ambiguous renamed
+replacement fails loud instead of using proportional placement.
+
+The legacy debug `equal_length_ray_point` selector may still require one
+structural candidate, but the recipe compiler never imports it or the role
+candidate builder: runtime-search compilation consumes only the prepared winner
+authority. F5-F4.3 must remove this second role-inference path (or route the
+standalone debug Method through `MacroPreparationService`) before another Macro
+is migrated; new Macros must not copy the selector pattern.
 
 Until each remaining Macro has a registered candidate builder, validation
 policy, lowerer, postcondition and evidence builder, it is deliberately exposed
@@ -541,6 +548,9 @@ as `direct`. At the end of F5-F4.2 the only production `runtime_search` Macro is
 7. **Pending (F5-F4.3):** add static guards forbidding internal Path types and
    Method wiring in Prompt,
    Plan and retry wire.
+8. **Pending (F5-F4.3):** retire the standalone
+   `equal_length_ray_point` debug selector and its bypass contract, or make the
+   debug entry consume the same prepared role authority as production.
 
 ## 7. Completion Gates
 

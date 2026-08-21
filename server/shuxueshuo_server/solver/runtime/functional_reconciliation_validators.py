@@ -70,14 +70,22 @@ def _distinct_argument_identity_issues(
 ) -> tuple[FunctionalPlanIssue, ...]:
     """Reject declared argument groups that resolve to the same state identity."""
     issues: list[FunctionalPlanIssue] = []
+    arg_specs = {item.name: item for item in capability.args}
     for group in capability.distinct_arg_groups:
         identities: dict[str, set[str]] = {}
+        values_by_identity: dict[
+            str,
+            list[tuple[str, ResolvedFunctionalValue]],
+        ] = {}
         bindings: list[dict[str, str | None]] = []
         for arg_name in group:
             values = resolved_args.get(arg_name, ())
             for value in values:
                 identity = value.object_ref or value.state_slot_id or value.handle
                 identities.setdefault(identity, set()).add(arg_name)
+                values_by_identity.setdefault(identity, []).append(
+                    (arg_name, value)
+                )
                 bindings.append(
                     {
                         "arg": arg_name,
@@ -94,6 +102,46 @@ def _distinct_argument_identity_issues(
         )
         if not duplicates:
             continue
+        duplicate_names = {
+            name for duplicate in duplicates for name in duplicate
+        }
+        subjects = []
+        for values in values_by_identity.values():
+            if len({name for name, _value in values}) < 2:
+                continue
+            for arg_name, value in values:
+                if arg_name not in duplicate_names:
+                    continue
+                spec = arg_specs.get(arg_name)
+                internal_ref = value.object_ref
+                if internal_ref is None and (
+                    value.source_call_id is not None
+                    and value.return_name is not None
+                ):
+                    internal_ref = (
+                        f"{value.source_call_id}.{value.return_name}"
+                    )
+                internal_ref = internal_ref or value.state_slot_id or value.handle
+                subjects.append(
+                    {
+                        "role": spec.semantic_role if spec is not None else arg_name,
+                        "arg_name": arg_name,
+                        "internal_ref": internal_ref,
+                        "expected_type": (
+                            spec.domain_type or spec.runtime_type
+                            if spec is not None
+                            else None
+                        ),
+                        "expected_state": "distinct_math_entity",
+                        "observed_state": "same_math_entity",
+                    }
+                )
+        repair_action = (
+            "separate_target_and_free_parameters"
+            if "target_parameter" in group
+            and any("free_parameter" in name for name in group)
+            else "separate_distinct_arguments"
+        )
         issues.append(
             FunctionalPlanIssue(
                 layer="functional_reconciliation",
@@ -105,9 +153,15 @@ def _distinct_argument_identity_issues(
                 call_id=call_id,
                 scope_id=scope_id,
                 details={
+                    "subjects": subjects,
                     "arg_group": list(group),
                     "duplicate_args": [list(item) for item in duplicates],
                     "current_bindings": bindings,
+                    "expected_relation": "pairwise_distinct_math_entities",
+                    "observed_duplicate_args": [
+                        list(item) for item in duplicates
+                    ],
+                    "repair_action": repair_action,
                     "unchanged_binding_rejected": True,
                 },
             )

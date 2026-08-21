@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from dataclasses import replace
 import json
 
 import pytest
@@ -137,6 +138,44 @@ def test_repair_omits_optional_empty_maps_before_schema_validation(
         "$.goal_replacements.ii.a.steps[0].return_expectations",
         "$.answer_binding_replacements",
     ]
+
+
+def test_repair_canonicalizes_interchangeable_line_endpoint_sources(
+    tmp_path,
+) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    payload = repair_payload(fixture)
+    payload["goal_replacements"][FAILED_GOAL_REF]["steps"].insert(
+        0,
+        {
+            "step_id": "derive_axis_point_for_interchange_test",
+            "capability_id": "line_parabola_second_intersection_point",
+            "args": {
+                "parabola": "parabola",
+                "line_p1": {
+                    "step_id": "anonymous_axis_point",
+                    "return": "point",
+                },
+                "line_p2": "B",
+                "known_point": "B",
+            },
+        },
+    )
+
+    repair = FunctionalGoalRepairService().parse_json(
+        json.dumps(payload, ensure_ascii=False),
+        capability_catalog=fixture.capability_catalog,
+    )
+
+    step = repair.goal_replacements[0].steps[0]
+    assert step["args"]["line_p1"] == "B"
+    assert step["args"]["line_p2"] == {
+        "step_id": "anonymous_axis_point",
+        "return": "point",
+    }
+    assert "functional.interchangeable_args_permuted" in {
+        item.code for item in repair.normalizations
+    }
 
 
 def test_repair_keeps_required_empty_values_strict(tmp_path) -> None:
@@ -443,6 +482,77 @@ def test_published_goal_ref_resolves_only_to_solved_final_answer(tmp_path) -> No
         capability_catalog=fixture.capability_catalog,
     )
     assert final_contract.ok
+
+    execution = ScopedFunctionalGoalExecutionService().execute_raw_json(
+        json.dumps(application.plan.to_payload(), ensure_ascii=False),
+        inputs=fixture.inputs,
+        planning_context=fixture.planning_context,
+        problem_binding_catalog=fixture.binding_catalog,
+        handle_registry=fixture.handle_registry,
+        context=ContextBuilder().build(fixture.problem),
+        planner_state_context=fixture.planner_state_context,
+        problem_payload=fixture.problem_payload,
+        published_goal_bindings=bindings,
+    )
+    assert execution.authority is not None
+    published_goal_id = next(
+        item.goal_unit_id
+        for item in fixture.planning_context.goal_views
+        if item.answer_ref.ref == "i_1.parabola"
+    )
+    downstream_goal_id = next(
+        item.goal_unit_id
+        for item in fixture.planning_context.goal_views
+        if item.answer_ref.ref == "i_2.E"
+    )
+    producer = execution.authority.step_authorities["derive_parabola_i"]
+    # Publication makes the solved answer visible to the downstream Goal, but
+    # it must not rewrite the producer's semantic ownership or placement.
+    assert producer.consumer_goal_unit_ids == (published_goal_id,)
+    assert producer.semantic_owner_scope_id == "i"
+    assert producer.execution_scope_id == "i"
+    assert not any(
+        item.action == "promote_shared_goal_step_to_scope"
+        and item.step_id == "derive_parabola_i"
+        for item in execution.authority.normalizations
+    )
+
+    reconciliation = execution.replay.functional_reconciliation
+    sidecar = reconciliation.functional_problem_binding_context
+    assert sidecar is not None
+    call_goal_bindings = dict(sidecar.call_goal_bindings)
+    call_goal_bindings["derive_parabola_i"] = tuple(
+        sorted((published_goal_id, downstream_goal_id))
+    )
+    publication_reconciliation = replace(
+        reconciliation,
+        functional_problem_binding_context=replace(
+            sidecar,
+            call_goal_bindings=call_goal_bindings,
+        ),
+    )
+
+    publication_authority, publication_report = (
+        execution.authority.finalize_reconciliation(
+            publication_reconciliation
+        )
+    )
+
+    assert publication_report.ok
+    assert publication_authority is not None
+    publication_producer = publication_authority.step_authorities[
+        "derive_parabola_i"
+    ]
+    assert publication_producer.consumer_goal_unit_ids == (
+        published_goal_id,
+    )
+    assert publication_producer.semantic_owner_scope_id == "i"
+    assert publication_producer.execution_scope_id == "i"
+    assert not any(
+        item.action == "promote_shared_goal_step_to_scope"
+        and item.step_id == "derive_parabola_i"
+        for item in publication_authority.normalizations
+    )
 
 
 def test_unpublished_or_intermediate_goal_result_is_rejected(tmp_path) -> None:

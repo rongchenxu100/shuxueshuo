@@ -175,5 +175,11 @@
         "sqrt(3)"
       ]
     }
+  ],
+  "distinct_arg_groups": [
+    [
+      "parameter",
+      "dynamic_parameter"
+    ]
   ]
 }

@@ -45,6 +45,10 @@ from shuxueshuo_server.solver.runtime.method_specs import (
     MethodSpecRegistry,
     active_method_output_names,
 )
+from shuxueshuo_server.solver.runtime.functional_diagnostics import (
+    FunctionalDiagnosticSubject,
+    StatelessMethodError,
+)
 from shuxueshuo_server.solver.runtime.macro_specs import (
     MacroAdapterRegistry,
     MacroReturnSpec,
@@ -81,6 +85,9 @@ from shuxueshuo_server.solver.runtime.runtime_type_compatibility import (
 )
 from shuxueshuo_server.solver.runtime.runtime_type_declarations import (
     split_runtime_types,
+)
+from shuxueshuo_server.solver.runtime.method_input_contracts import (
+    method_input_requires_typed_entity_authority,
 )
 from shuxueshuo_server.solver.runtime.path_transformation_state import (
     PathTransformationStateResolver,
@@ -202,9 +209,11 @@ class PrepInvocationBuilder:
         *,
         binding_rules: MethodBindingRuleRegistry,
         index: CanonicalRuntimeBindingIndex,
+        method_specs: MethodSpecRegistry,
     ) -> None:
         self.binding_rules = binding_rules
         self.index = index
+        self.method_specs = method_specs
 
     def build(self, method_id: str, step: FunctionalCompileStepView) -> _PrepInvocationBuildResult:
         """为 method 构建所有命中的 prep invocation。"""
@@ -230,6 +239,9 @@ class PrepInvocationBuilder:
                         self.index,
                         include_expansion_selectors=prep.include_expansion_selectors,
                         expansion_selectors_override=prep.expansion_selectors,
+                        method_input_specs=(
+                            self.method_specs.require(prep.method_id).inputs
+                        ),
                         apply_constraint_analyzer=False,
                     ),
                     outputs=outputs,
@@ -342,6 +354,69 @@ def _projected_recipe_method_arg_bindings(
             )
         result[input_name] = items[0]
     return result
+
+
+def _compiler_input_authority_error(
+    *,
+    step_id: str,
+    method_id: str,
+    input_name: str,
+    selector_id: str | None,
+    candidate: Any,
+    reason: str,
+) -> StatelessMethodError:
+    candidate_ref = (
+        getattr(candidate, "object_ref", None)
+        or getattr(candidate, "source_handle", None)
+    )
+    math_object_id = getattr(candidate, "math_object_id", None)
+    typed_candidate = {
+        "source_handle": getattr(candidate, "source_handle", None),
+        "object_ref": getattr(candidate, "object_ref", None),
+        "runtime_type": getattr(candidate, "runtime_type", None),
+        "state_version_id": (
+            candidate.state_version_id.to_payload()
+            if getattr(candidate, "state_version_id", None) is not None
+            else None
+        ),
+        "math_object_id": (
+            math_object_id.to_payload() if math_object_id is not None else None
+        ),
+    }
+    return StatelessMethodError(
+        "planner.method_input_view_authority_missing",
+        "compiler-selected Method input has no usable typed read authority",
+        category="configuration",
+        retryability="configuration",
+        method_id=method_id,
+        step_id=step_id,
+        subjects=(
+            FunctionalDiagnosticSubject(
+                role=input_name,
+                arg_name=input_name,
+                internal_ref=candidate_ref,
+                observed_type=getattr(candidate, "runtime_type", None),
+            ),
+        ),
+        expected={
+            "missing_role": input_name,
+            "authority_source": "method_input_read_authority",
+            "selection": "one_resolved_typed_candidate",
+        },
+        observed={
+            "consumer_step": step_id,
+            "compiler_selector_id": selector_id,
+            "reason": reason,
+            "typed_candidate": typed_candidate,
+        },
+        repair_action="fix_runtime_contract",
+        details={
+            "missing_role": input_name,
+            "consumer_step": step_id,
+            "authority_source": "compiler_selector_typed_binding",
+            "typed_candidate": typed_candidate,
+        },
+    )
 
 
 class FunctionalCompileStepView(Protocol):
@@ -937,17 +1012,25 @@ class _RecipePlanCompiler:
         prep = PrepInvocationBuilder(
             binding_rules=self.binding_rules,
             index=self.index,
+            method_specs=self.method_specs,
         ).build(method_id, step)
         exact_inputs = self._projected_exact_function_inputs(step, spec)
         exact_inputs.update(
-            self._projected_exact_state_dependency_inputs(
+            self._projected_function_return_identity_inputs(
                 step,
                 spec,
                 existing=exact_inputs,
             )
         )
         exact_inputs.update(
-            self._projected_function_return_identity_inputs(
+            self._projected_compiler_selector_inputs(
+                step,
+                spec,
+                existing=exact_inputs,
+            )
+        )
+        exact_inputs.update(
+            self._projected_exact_state_dependency_inputs(
                 step,
                 spec,
                 existing=exact_inputs,
@@ -962,6 +1045,7 @@ class _RecipePlanCompiler:
                 self._projected_expansion_selectors(step, method_id)
             ),
             exact_inputs=exact_inputs,
+            method_input_specs=spec.inputs,
             distinct_arg_groups=spec.distinct_arg_groups,
         )
         projected_output_keys = self._projected_function_output_keys(
@@ -1366,6 +1450,113 @@ class _RecipePlanCompiler:
         )
         return result
 
+    def _projected_compiler_selector_inputs(
+        self,
+        step: FunctionalCompileStepView,
+        spec: Any,
+        *,
+        existing: Mapping[str, str],
+    ) -> dict[str, str]:
+        """Lower already-resolved compiler roles without re-running v1 selectors."""
+
+        function = self.function_specs.get(spec.method_id)
+        if function is None:
+            return {}
+        runtime_input_by_public_name = {
+            item.name: item.method_input or item.name
+            for item in getattr(function, "args", ())
+        }
+        result: dict[str, str] = {}
+        for item in self.projected_function_arg_bindings:
+            if (
+                item.step_id != step.step_id
+                or getattr(item, "consumption_mode", "runtime_input")
+                != "compiler_selector"
+            ):
+                continue
+            targets = tuple(getattr(item, "runtime_input_targets", ())) or (
+                runtime_input_by_public_name.get(item.arg_name, item.arg_name),
+            )
+            unresolved_targets = tuple(
+                input_name
+                for input_name in targets
+                if input_name not in existing and input_name not in result
+            )
+            if not unresolved_targets:
+                continue
+            for input_name in unresolved_targets:
+                if spec.inputs.get(input_name) is None:
+                    raise _compiler_input_authority_error(
+                        step_id=step.step_id,
+                        method_id=spec.method_id,
+                        input_name=input_name,
+                        selector_id=getattr(item, "compiler_selector_id", None),
+                        candidate=item,
+                        reason="runtime_input_target_unknown",
+                    )
+            has_typed_candidate = any(
+                value is not None
+                for value in (
+                    getattr(item, "runtime_path", None),
+                    getattr(item, "math_object_id", None),
+                    getattr(item, "state_version_id", None),
+                    getattr(item, "condition_id", None),
+                    getattr(item, "source_call_id", None),
+                )
+            )
+            if not has_typed_candidate:
+                if not getattr(item, "runtime_input_required", True):
+                    continue
+                entity_targets = tuple(
+                    input_name
+                    for input_name in unresolved_targets
+                    if method_input_requires_typed_entity_authority(
+                        spec.inputs.get(input_name)
+                    )
+                )
+                if entity_targets:
+                    input_name = entity_targets[0]
+                    raise _compiler_input_authority_error(
+                        step_id=step.step_id,
+                        method_id=spec.method_id,
+                        input_name=input_name,
+                        selector_id=getattr(item, "compiler_selector_id", None),
+                        candidate=item,
+                        reason="typed_entity_candidate_missing",
+                    )
+                # Compiler-generated coefficient tuples and similar values do
+                # not name Math Entities and may still use the adapter.
+                continue
+            for input_name in unresolved_targets:
+                input_spec = spec.inputs[input_name]
+                try:
+                    path = self._projected_input_path(
+                        item,
+                        expected_type=input_spec.type,
+                        consumer_scope_id=step.scope_id,
+                    )
+                except StrategyDraftValidationError as exc:
+                    raise _compiler_input_authority_error(
+                        step_id=step.step_id,
+                        method_id=spec.method_id,
+                        input_name=input_name,
+                        selector_id=getattr(item, "compiler_selector_id", None),
+                        candidate=item,
+                        reason="typed_candidate_unresolvable",
+                    ) from exc
+                previous = existing.get(input_name) or result.get(input_name)
+                if previous is not None and previous != path:
+                    raise _compiler_input_authority_error(
+                        step_id=step.step_id,
+                        method_id=spec.method_id,
+                        input_name=input_name,
+                        selector_id=getattr(item, "compiler_selector_id", None),
+                        candidate=item,
+                        reason="typed_candidate_conflicts_with_existing_input",
+                    )
+                result[input_name] = path
+        return result
+
     def _path_transformation_input(
         self,
         step: FunctionalCompileStepView,
@@ -1705,25 +1896,6 @@ class _RecipePlanCompiler:
                 or identity_arg in existing
                 or identity_arg in result
                 or "PointRef" not in split_runtime_types(input_spec.type)
-            ):
-                continue
-            adapter_binding = next(
-                (
-                    binding
-                    for binding in (
-                        function.adapter.input_bindings
-                        if function.adapter is not None
-                        else ()
-                    )
-                    if binding.input_name == identity_arg
-                ),
-                None,
-            )
-            if (
-                adapter_binding is not None
-                and selector_semantics(
-                    adapter_binding.selector
-                ).owns_identity_binding
             ):
                 continue
             if write.math_object_id is None:

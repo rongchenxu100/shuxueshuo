@@ -768,6 +768,312 @@ def test_reconciliation_type_mismatch_projects_ref_arg_and_types(
     assert payload["repair_action"] == "repair_input_binding"
 
 
+def test_condition_parameter_ambiguity_projects_all_symbol_candidates(
+    tmp_path,
+) -> None:
+    fixture = planning_binding_fixture(
+        tmp_path,
+        case="tj-2026-nankai-yimo-25",
+    )
+
+    def internal_ref(ref: str) -> str:
+        binding = next(
+            item
+            for item in fixture[7].bindings.values()
+            if item.usage == "input" and item.semantic_ref.ref == ref
+        )
+        return next(
+            source.math_object_id.value
+            for source in binding.typed_sources
+            if source.math_object_id is not None
+        )
+
+    issue = FunctionalPlanIssue(
+        layer="functional_elaboration",
+        code="functional.condition_parameter_ambiguous",
+        message="condition selection requires one parameter Symbol",
+        call_id="ii_construct_N",
+        scope_id="ii",
+        details={
+            "role": "parameter",
+            "expected_candidate_count": 1,
+            "expected_type": "Symbol",
+            "expected_state": "unique_visible_parameter",
+            "candidate_count": 2,
+            "symbol_candidates": [internal_ref("a"), internal_ref("m")],
+            "repair_action": "supply_disambiguating_constraint",
+        },
+    )
+
+    payload = _reconciliation_issue_payload(
+        issue,
+        binding_catalog=fixture[7],
+        planning_context=fixture[1],
+    )
+
+    assert {item["ref"] for item in payload["subjects"]} == {"a", "m"}
+    assert all(
+        item["role"] == "parameter_candidate"
+        and item["expected_type"] == "Symbol"
+        and item["expected_state"] == "candidate"
+        for item in payload["subjects"]
+    )
+    assert payload["expected"] == {
+        "expected_candidate_count": 1,
+        "expected_state": "unique_visible_parameter",
+        "expected_type": "Symbol",
+    }
+    assert payload["observed"] == {
+        "candidate_count": 2,
+        "symbol_candidates": ["a", "m"],
+    }
+
+
+def test_condition_target_ambiguity_preserves_endpoint_context(tmp_path) -> None:
+    fixture = planning_binding_fixture(
+        tmp_path,
+        case="tj-2026-nankai-yimo-25",
+    )
+
+    def internal_ref(ref: str) -> str:
+        binding = next(
+            item
+            for item in fixture[7].bindings.values()
+            if item.usage == "input" and item.semantic_ref.ref == ref
+        )
+        return next(
+            source.math_object_id.value
+            for source in binding.typed_sources
+            if source.math_object_id is not None
+        )
+
+    m_ref = internal_ref("M")
+    n_ref = internal_ref("N")
+    issue = FunctionalPlanIssue(
+        layer="functional_elaboration",
+        code="functional.condition_target_ambiguous",
+        message="the constructed endpoint cannot be determined uniquely",
+        call_id="ii_construct_N",
+        scope_id="ii",
+        details={
+            "role": "constructed_target",
+            "expected_candidate_count": 1,
+            "expected_type": "Point",
+            "candidate_count": 2,
+            "endpoints": [m_ref, n_ref],
+            "materialized_points": [],
+            "target_candidates": [m_ref, n_ref],
+            "repair_action": "supply_disambiguating_constraint",
+        },
+    )
+
+    payload = _reconciliation_issue_payload(
+        issue,
+        binding_catalog=fixture[7],
+        planning_context=fixture[1],
+    )
+
+    assert {item["ref"] for item in payload["subjects"]} == {"M", "N"}
+    assert payload["expected"] == {
+        "expected_candidate_count": 1,
+        "expected_type": "Point",
+    }
+    assert payload["observed"] == {
+        "candidate_count": 2,
+        "endpoints": ["M", "N"],
+        "materialized_points": [],
+        "target_candidates": ["M", "N"],
+    }
+
+
+def test_output_target_selector_mismatch_projects_required_fact(tmp_path) -> None:
+    fixture = planning_binding_fixture(
+        tmp_path,
+        case="tj-2026-nankai-yimo-25",
+    )
+    issue = FunctionalPlanIssue(
+        layer="functional_authority",
+        code="functional.output_target_selector_mismatch",
+        message="output target is not authorized by the source-fact selector",
+        call_id="redundant_build_M",
+        scope_id="ii",
+        details={
+            "capability_id": "point_on_parabola_at_x",
+            "semantic_ref": "M",
+            "role": "point",
+            "expected_type": "Point",
+            "expected_state": "source_fact_authorized",
+            "observed_role": "point",
+            "observed_target": "M",
+            "expected_targets": [],
+            "required_fact_kind": "point_on_curve",
+            "required_fields": {"construction": "curve_at_x"},
+            "repair_options": [
+                "use the existing visible object state without reconstructing it",
+                "choose a capability whose source-fact selector matches this target",
+            ],
+            "repair_action": "choose_applicable_point_construction_capability",
+        },
+    )
+
+    payload = _reconciliation_issue_payload(
+        issue,
+        binding_catalog=fixture[7],
+        planning_context=fixture[1],
+    )
+
+    assert payload["subjects"] == [
+        {
+            "ref": "M",
+            "role": "point",
+            "expected_type": "Point",
+            "expected_state": "source_fact_authorized",
+        }
+    ]
+    assert payload["expected"] == {
+        "expected_state": "source_fact_authorized",
+        "expected_targets": [],
+        "expected_type": "Point",
+        "required_fact_kind": "point_on_curve",
+        "required_fields": {"construction": "curve_at_x"},
+        "repair_options": [
+            "use the existing visible object state without reconstructing it",
+            "choose a capability whose source-fact selector matches this target",
+        ],
+    }
+    assert payload["observed"] == {
+        "observed_role": "point",
+        "observed_target": "M",
+    }
+    assert payload["repair_action"] == (
+        "choose_applicable_point_construction_capability"
+    )
+    assert "existing complete Point state" in payload["message"]
+
+
+def test_distinct_argument_diagnostic_preserves_both_public_bindings(
+    tmp_path,
+) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    issue = FunctionalPlanIssue(
+        layer="functional_reconciliation",
+        code="functional.arg_distinctness_violation",
+        message="target and preserved free parameter use the same Symbol",
+        call_id="derive_parametric_parabola_ii",
+        scope_id="ii",
+        details={
+            "subjects": [
+                {
+                    "role": "free_parameters",
+                    "arg_name": "free_parameters",
+                    "internal_ref": "symbol:problem:a",
+                    "expected_type": "Symbol",
+                    "expected_state": "distinct_math_entity",
+                    "observed_state": "same_math_entity",
+                },
+                {
+                    "role": "target_parameter",
+                    "arg_name": "target_parameter",
+                    "internal_ref": "symbol:problem:a",
+                    "expected_type": "Symbol",
+                    "expected_state": "distinct_math_entity",
+                    "observed_state": "same_math_entity",
+                },
+            ],
+            "arg_group": ["free_parameters", "target_parameter"],
+            "duplicate_args": [["free_parameters", "target_parameter"]],
+            "current_bindings": [
+                {
+                    "arg": "free_parameters",
+                    "object_ref": "symbol:problem:a",
+                    "state_slot_id": "state-slot:internal-a",
+                },
+                {
+                    "arg": "target_parameter",
+                    "object_ref": "symbol:problem:a",
+                    "state_slot_id": "state-slot:internal-a",
+                },
+            ],
+            "expected_relation": "pairwise_distinct_math_entities",
+            "repair_options": [
+                "omit target_parameter when parameter_value is unused",
+                "preserve a different free-parameter basis",
+            ],
+            "observed_duplicate_args": [
+                ["free_parameters", "target_parameter"]
+            ],
+            "repair_action": "separate_target_and_free_parameters",
+        },
+    )
+
+    payload = _reconciliation_issue_payload(
+        issue,
+        binding_catalog=fixture.binding_catalog,
+        planning_context=fixture.planning_context,
+    )
+
+    assert [item["arg_name"] for item in payload["subjects"]] == [
+        "free_parameters",
+        "target_parameter",
+    ]
+    assert {item["ref"] for item in payload["subjects"]} == {"a"}
+    assert payload["expected"]["expected_relation"] == (
+        "pairwise_distinct_math_entities"
+    )
+    assert payload["expected"]["repair_options"] == [
+        "omit target_parameter when parameter_value is unused",
+        "preserve a different free-parameter basis",
+    ]
+    assert payload["observed"]["observed_duplicate_args"] == [
+        ["free_parameters", "target_parameter"]
+    ]
+    assert "state_slot" not in json.dumps(
+        {
+            key: value
+            for key, value in payload.items()
+            if key != "_diagnostic_authority"
+        },
+        sort_keys=True,
+    )
+    assert payload["repair_action"] == "separate_target_and_free_parameters"
+
+
+def test_state_unavailable_diagnostic_preserves_producer_scope_context(
+    tmp_path,
+) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    issue = FunctionalPlanIssue(
+        layer="functional_reconciliation",
+        code="functional.arg_state_unavailable",
+        message="D has no state visible from scope ii",
+        call_id="reduce_path_ii",
+        scope_id="ii",
+        details={
+            "arg": "ray_point",
+            "object_ref": "point:problem:D",
+            "required_producer_scope": "ii",
+            "existing_producer_scopes": ["i"],
+            "existing_producers": [
+                {"step_id": "calc_D_i", "scope_ref": "i"}
+            ],
+            "state_requirement": "materialized_state",
+        },
+    )
+
+    payload = _reconciliation_issue_payload(
+        issue,
+        binding_catalog=fixture.binding_catalog,
+        planning_context=fixture.planning_context,
+    )
+
+    assert payload["subjects"][0]["ref"] == "D"
+    assert payload["expected"]["required_producer_scope"] == "ii"
+    assert payload["observed"]["existing_producer_scopes"] == ["i"]
+    assert payload["observed"]["existing_producers"] == [
+        {"step_id": "calc_D_i", "scope_ref": "i"}
+    ]
+
+
 def test_scope_visibility_diagnostic_projects_goal_and_scope_authority(
     tmp_path,
 ) -> None:

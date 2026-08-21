@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import replace
+from types import SimpleNamespace
 
 import pytest
 import sympy as sp
@@ -24,6 +25,7 @@ from shuxueshuo_server.solver.runtime.functional_diagnostics import (
 )
 from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
     _macro_candidate_failure_or_raise,
+    _require_macro_canonical_plan_id,
     _runtime_authority_value_payload,
 )
 from shuxueshuo_server.solver.runtime.macro_specs import MacroSpecRegistry
@@ -270,3 +272,22 @@ def test_macro_authority_uses_canonical_sympy_payload_not_repr() -> None:
     with pytest.raises(MacroRuntimeSearchError) as error:
         _runtime_authority_value_payload(object())
     assert error.value.code == "planner.macro_contract_invalid"
+
+
+def test_runtime_search_requires_scoped_v2_canonical_plan_id() -> None:
+    with pytest.raises(MacroRuntimeSearchError) as error:
+        _require_macro_canonical_plan_id(
+            SimpleNamespace(canonical_plan_id=None),
+            call_id="reduce_path",
+        )
+
+    assert error.value.code == "planner.macro_contract_invalid"
+    assert error.value.retryability == "configuration"
+    assert error.value.details == {
+        "call_id": "reduce_path",
+        "missing_authority": "canonical_plan_id",
+    }
+    assert _require_macro_canonical_plan_id(
+        SimpleNamespace(canonical_plan_id="scoped-plan:v2"),
+        call_id="reduce_path",
+    ) == "scoped-plan:v2"

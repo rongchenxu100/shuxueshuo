@@ -90,6 +90,111 @@ class FunctionalSemanticCatalog(Protocol):
     def auto_selector_is_satisfiable(self, selector: str) -> bool: ...
 
 
+@dataclass(frozen=True)
+class FunctionalIdentityArgOmission:
+    """One optional identity input proven redundant and unconsumed."""
+
+    arg_name: str
+    removed_value: object
+    duplicate_arg_names: tuple[str, ...]
+    return_names: tuple[str, ...]
+
+
+def referenced_functional_step_returns(
+    payload: object,
+) -> frozenset[tuple[str, str]]:
+    """Collect every public StepResultRef-shaped consumer in a Plan wire."""
+
+    result: set[tuple[str, str]] = set()
+
+    def visit(value: object) -> None:
+        if isinstance(value, Mapping):
+            step_id = value.get("step_id")
+            return_name = value.get("return")
+            if isinstance(step_id, str) and isinstance(return_name, str):
+                result.add((step_id, return_name))
+            for item in value.values():
+                visit(item)
+            return
+        if isinstance(value, (list, tuple)):
+            for item in value:
+                visit(item)
+
+    visit(payload)
+    return frozenset(result)
+
+
+def unconsumed_duplicate_identity_arg_omissions(
+    *,
+    step_id: str,
+    capability: FunctionalCapability,
+    args: Mapping[str, object],
+    output_targets: Mapping[str, object],
+    consumed_returns: frozenset[tuple[str, str]],
+) -> tuple[FunctionalIdentityArgOmission, ...]:
+    """Find optional identity inputs that duplicate another distinct role.
+
+    This is the sole executable contract used by both content/v2 and scoped
+    Plan normalization. Return expectations do not count as consumption;
+    StepResultRef/answer consumers and named output targets do.
+    """
+
+    remaining = dict(args)
+    omissions: list[FunctionalIdentityArgOmission] = []
+    returns_by_identity_arg: dict[str, tuple[str, ...]] = {
+        arg.name: tuple(
+            returned.name
+            for returned in capability.returns
+            if returned.identity_arg == arg.name
+        )
+        for arg in capability.args
+    }
+    for arg in capability.args:
+        if arg.required or arg.name not in remaining:
+            continue
+        return_names = returns_by_identity_arg.get(arg.name, ())
+        values = _functional_argument_values(remaining.get(arg.name))
+        if not return_names or len(values) != 1:
+            continue
+        duplicate_arg_names = tuple(
+            dict.fromkeys(
+                peer_name
+                for group in capability.distinct_arg_groups
+                if arg.name in group
+                for peer_name in group
+                if peer_name != arg.name
+                and values[0]
+                in _functional_argument_values(remaining.get(peer_name))
+            )
+        )
+        if not duplicate_arg_names:
+            continue
+        if any(
+            (step_id, return_name) in consumed_returns
+            or return_name in output_targets
+            for return_name in return_names
+        ):
+            continue
+        omissions.append(
+            FunctionalIdentityArgOmission(
+                arg_name=arg.name,
+                removed_value=values[0],
+                duplicate_arg_names=duplicate_arg_names,
+                return_names=return_names,
+            )
+        )
+        remaining.pop(arg.name, None)
+    return tuple(omissions)
+
+
+def _functional_argument_values(value: object) -> tuple[object, ...]:
+    if value is None:
+        return ()
+    if isinstance(value, (list, tuple)):
+        return tuple(value)
+    return (value,)
+
+
 class FunctionalCapabilityCatalog:
     """The one opt-in call catalog projected from FunctionSpec/MacroSpec."""
 
@@ -599,6 +704,7 @@ def _function_capability(
         dependency_policy=spec.dependency_policy,
         reconciliation_validators=spec.reconciliation_validators,
         distinct_arg_groups=spec.distinct_arg_groups,
+        interchangeable_arg_groups=spec.interchangeable_arg_groups,
         context_resolvers=context_resolvers,
         context_arg_bindings=_merge_context_arg_bindings(
             (

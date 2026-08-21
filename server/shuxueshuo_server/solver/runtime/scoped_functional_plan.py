@@ -22,6 +22,8 @@ from shuxueshuo_server.solver.extraction.problem_planning_context import (
 from shuxueshuo_server.solver.extraction.source_identity import stable_hash
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
+    referenced_functional_step_returns,
+    unconsumed_duplicate_identity_arg_omissions,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_models import (
     CallResultRef,
@@ -612,6 +614,12 @@ def scoped_functional_plan_authority_payload(
     return {"format": plan.format, "root_scope": scope_payload(plan.root_scope)}
 
 
+def scoped_functional_plan_id(plan: ScopedFunctionalPlan) -> str:
+    """Return the one canonical identifier for an in-memory v2 Plan."""
+
+    return stable_hash(scoped_functional_plan_authority_payload(plan))
+
+
 def scoped_published_goal_bindings(
     plan: ScopedFunctionalPlan,
 ) -> tuple[ScopedPublishedGoalBinding, ...]:
@@ -1081,6 +1089,21 @@ class ScopedFunctionalPlanAuthority:
         scoped_steps = {
             step.step_id: step for step in self.scoped_plan.steps
         }
+        goals_by_ref = {
+            goal.goal_ref: goal
+            for scope in _iter_scopes(self.scoped_plan.root_scope)
+            for goal in scope.goals
+        }
+        publication_goal_ids_by_producer: dict[str, set[str]] = {}
+        for publication in scoped_published_goal_bindings(self.scoped_plan):
+            published_goal = goals_by_ref.get(publication.published_goal_ref)
+            consumer = self.step_authorities.get(publication.consumer_step_id)
+            if published_goal is None or consumer is None:
+                continue
+            publication_goal_ids_by_producer.setdefault(
+                published_goal.answer_from.step_id,
+                set(),
+            ).update(consumer.consumer_goal_unit_ids)
         finalized: dict[str, FunctionalStepScopeAuthority] = {}
         automatic_scope_promotions: dict[str, str] = {}
         for step_id, authority in self.step_authorities.items():
@@ -1107,7 +1130,7 @@ class ScopedFunctionalPlanAuthority:
                     )
                 )
                 continue
-            actual_goals = tuple(
+            raw_actual_goals = tuple(
                 sorted(
                     (
                         problem_sidecar.call_goal_bindings.get(
@@ -1119,12 +1142,47 @@ class ScopedFunctionalPlanAuthority:
                     )
                 )
             )
+            expected_goals = set(authority.consumer_goal_unit_ids)
+            publication_only_goals = publication_goal_ids_by_producer.get(
+                step_id,
+                set(),
+            )
+            unexpected_goals = (
+                set(raw_actual_goals)
+                - expected_goals
+                - publication_only_goals
+            )
+            missing_goals = expected_goals - set(raw_actual_goals)
+            ignored_publication_goals = bool(
+                set(raw_actual_goals) - expected_goals
+            ) and not unexpected_goals and not missing_goals
+            actual_goals = (
+                tuple(sorted(expected_goals))
+                if ignored_publication_goals
+                else raw_actual_goals
+            )
             if not actual_goals:
                 issues.append(
                     ScopedFunctionalPlanIssue(
                         "functional.step_goal_mismatch",
                         f"$.steps[{step_id!r}]",
                         "typed Goal closure is empty for an executable step",
+                    )
+                )
+                continue
+            if (
+                ignored_publication_goals
+                and placement.execution_scope_id
+                != authority.semantic_owner_scope_id
+            ):
+                issues.append(
+                    ScopedFunctionalPlanIssue(
+                        "functional.step_scope_authority_drift",
+                        f"$.steps[{step_id!r}]",
+                        (
+                            "published Goal consumption changed producer "
+                            "execution placement"
+                        ),
                     )
                 )
                 continue
@@ -1982,9 +2040,7 @@ class ScopedFunctionalPlanAuthorityAdapter:
             planning_context_id=planning_context.planning_context_id,
             problem_revision_id=planning_context.problem_revision_id,
             problem_semantic_hash=planning_context.problem_semantic_hash,
-            plan_id=stable_hash(
-                scoped_functional_plan_authority_payload(canonical_plan)
-            ),
+            plan_id=scoped_functional_plan_id(canonical_plan),
             plan_semantic_hash=stable_hash(
                 {
                     "plan": _semantic_plan_payload(canonical_plan),
@@ -2390,9 +2446,7 @@ class ScopedFunctionalPlanAuthorityAdapter:
             planning_context_id=planning_context.planning_context_id,
             problem_revision_id=planning_context.problem_revision_id,
             problem_semantic_hash=planning_context.problem_semantic_hash,
-            plan_id=stable_hash(
-                scoped_functional_plan_authority_payload(canonical_plan)
-            ),
+            plan_id=scoped_functional_plan_id(canonical_plan),
             plan_semantic_hash=stable_hash(_semantic_plan_payload(canonical_plan)),
             step_authorities=step_authorities,
             normalizations=normalizations,
@@ -2786,6 +2840,7 @@ def _normalize_capability_wire(
 
     locations = _step_locations(plan)
     by_id = _unique_steps(locations)
+    consumed_returns = referenced_functional_step_returns(plan.to_payload())
     replacements: dict[str, ScopedFunctionalStep] = {}
     normalizations: list[ScopedFunctionalPlanNormalization] = []
     for location in locations:
@@ -2795,6 +2850,7 @@ def _normalize_capability_wire(
             continue
         declared = {item.name: item for item in capability.args}
         args = dict(step.args)
+        expectations = dict(step.return_expectations)
 
         for unknown_name in sorted(set(args) - set(declared)):
             matches = [
@@ -2872,8 +2928,52 @@ def _normalize_capability_wire(
                         reason="declared_call_contract_complete",
                     )
                 )
-        if args != dict(step.args):
-            replacements[step.step_id] = replace(step, args=args)
+        identity_omissions = unconsumed_duplicate_identity_arg_omissions(
+            step_id=step.step_id,
+            capability=capability,
+            args=args,
+            output_targets=step.output_targets,
+            consumed_returns=consumed_returns,
+        )
+        for omission in identity_omissions:
+            args.pop(omission.arg_name, None)
+            normalizations.append(
+                ScopedFunctionalPlanNormalization(
+                    action="drop_unconsumed_duplicate_identity_arg",
+                    reason="duplicate_optional_identity_arg_is_unconsumed",
+                    step_id=step.step_id,
+                    capability_id=step.capability_id,
+                    arg_name=omission.arg_name,
+                    from_ref=(
+                        omission.removed_value
+                        if isinstance(omission.removed_value, str)
+                        else None
+                    ),
+                )
+            )
+            for return_name in omission.return_names:
+                form = expectations.pop(return_name, None)
+                if form is None:
+                    continue
+                normalizations.append(
+                    ScopedFunctionalPlanNormalization(
+                        action="drop_inactive_return_expectation",
+                        reason="optional_identity_arg_removed",
+                        step_id=step.step_id,
+                        capability_id=step.capability_id,
+                        return_name=return_name,
+                        from_form=form,
+                    )
+                )
+        if (
+            args != dict(step.args)
+            or expectations != dict(step.return_expectations)
+        ):
+            replacements[step.step_id] = replace(
+                step,
+                args=args,
+                return_expectations=expectations,
+            )
 
     def rebuild(scope: ScopedFunctionalScope) -> ScopedFunctionalScope:
         return replace(
@@ -4116,8 +4216,34 @@ def _select_unique_source_output_target(
 ) -> str | None:
     """Resolve one declared output target from visible source-fact authority."""
 
+    candidates = _source_output_target_candidates(
+        location,
+        returned=returned,
+        selector=selector,
+        planning_context=planning_context,
+        binding_catalog=binding_catalog,
+        capability_catalog=capability_catalog,
+        by_id=by_id,
+        answer_object_refs=answer_object_refs,
+    )
+    return next(iter(candidates)) if len(candidates) == 1 else None
+
+
+def _source_output_target_candidates(
+    location: _StepLocation,
+    *,
+    returned: Any,
+    selector: Any,
+    planning_context: ProblemPlanningContext,
+    binding_catalog: ProblemPlanningBindingCatalog,
+    capability_catalog: FunctionalCapabilityCatalog,
+    by_id: Mapping[str, _StepLocation],
+    answer_object_refs: Mapping[tuple[str, str], tuple[str, ...]],
+) -> frozenset[str]:
+    """Resolve every source-fact-authorized output target for one step."""
+
     if selector.selector_id != "unique_visible_fact_target":
-        return None
+        return frozenset()
     scope_parents = {
         scope.scope_id: scope.parent_scope_id
         for scope in planning_context.scopes
@@ -4198,7 +4324,7 @@ def _select_unique_source_output_target(
             ):
                 continue
             candidates.add(target_ref)
-    return next(iter(candidates)) if len(candidates) == 1 else None
+    return frozenset(candidates)
 
 
 def _declared_related_object_refs(
@@ -5283,6 +5409,65 @@ def _collect_independent_authority_issues(
                         ),
                     },
                 )
+                continue
+            selector = returned.output_target_selector
+            if selector is not None:
+                selector_targets = _source_output_target_candidates(
+                    location,
+                    returned=returned,
+                    selector=selector,
+                    planning_context=planning_context,
+                    binding_catalog=binding_catalog,
+                    capability_catalog=capability_catalog,
+                    by_id=by_id,
+                    answer_object_refs=answer_object_refs,
+                )
+                if target not in selector_targets:
+                    repair_action = (
+                        "choose_visible_output_target"
+                        if selector_targets
+                        else "choose_applicable_point_construction_capability"
+                    )
+                    add(
+                        1,
+                        location.scope_id,
+                        step.step_id,
+                        "functional.output_target_selector_mismatch",
+                        path,
+                        (
+                            f"output target {target!r} is not authorized by "
+                            "the capability's visible source-fact selector"
+                        ),
+                        {
+                            "capability_id": capability.capability_id,
+                            "semantic_ref": target,
+                            "role": role,
+                            "expected_type": returned.runtime_type,
+                            "expected_state": "source_fact_authorized",
+                            "observed_role": role,
+                            "observed_target": target,
+                            "expected_targets": sorted(selector_targets),
+                            "required_fact_kind": (
+                                selector.prompt_fact_kind
+                                or selector.fact_kind
+                            ),
+                            "required_fields": dict(
+                                selector.required_field_values
+                            ),
+                            "repair_options": [
+                                (
+                                    "use the existing visible object state "
+                                    "without reconstructing it"
+                                ),
+                                (
+                                    "choose a capability whose source-fact "
+                                    "selector matches this target"
+                                ),
+                            ],
+                            "retryability": "planner_repairable",
+                            "repair_action": repair_action,
+                        },
+                    )
         bound_roles = set(step.output_targets) | answer_roles[step.step_id]
         for returned in capability.returns:
             if (
@@ -6655,6 +6840,7 @@ __all__ = [
     "audit_scoped_functional_structure_prompt_payload",
     "normalize_unique_scoped_goal_refs",
     "scoped_functional_plan_authority_payload",
+    "scoped_functional_plan_id",
     "scoped_published_goal_bindings",
     "scoped_functional_plan_schema",
 ]

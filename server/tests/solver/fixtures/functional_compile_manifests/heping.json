@@ -1,476 +1,370 @@
 {
+  "schema": "functional_compile_manifest/v1",
+  "case_id": "heping",
   "calls": [
     {
-      "bindings": [
-        {
-          "arg": "quadratic",
-          "authority": "wire",
-          "item": 0,
-          "paths": [
-            "$problem.facts.__functional_transaction_derive_y_intercept_C_i_0"
-          ],
-          "role": "quadratic",
-          "target": "quadratic"
-        },
-        {
-          "arg": "target",
-          "authority": "compiler",
-          "item": 0,
-          "paths": [
-            "$problem.object_refs.C"
-          ],
-          "role": "target",
-          "target": "target"
-        },
-        {
-          "arg": "x",
-          "authority": "compiler",
-          "item": 0,
-          "paths": [
-            "$problem.symbols.x"
-          ],
-          "role": "x",
-          "target": "x"
-        }
-      ],
       "call_id": "derive_y_intercept_C_i",
       "capability_id": "quadratic_y_axis_intercept_point",
-      "provenance": [
-        {
-          "allocation_action": "create",
-          "closure_signature": null,
-          "object_id": "point:problem:C",
-          "result_form": "closed_state",
-          "return_name": "point",
-          "runtime_type": "Point",
-          "source_version_count": 1
-        }
-      ],
-      "public_returns": [
-        {
-          "identity_policy": "target_object",
-          "name": "point",
-          "output_key": "point",
-          "required": true,
-          "runtime_type": "Point",
-          "write_mode": "create"
-        }
-      ],
       "steps": [
         {
+          "step_id": "derive_y_intercept_C_i",
+          "scope": "problem",
           "invocations": [
             {
+              "method_id": "quadratic_y_axis_intercept_point",
+              "scope": "derive_y_intercept_C_i",
               "inputs": [
                 "quadratic",
                 "target",
                 "x"
               ],
-              "method_id": "quadratic_y_axis_intercept_point",
               "outputs": {
                 "point": "$step.derive_y_intercept_C_i.temp.point"
-              },
-              "scope": "derive_y_intercept_C_i"
+              }
             }
           ],
           "promotions": {
             "$step.derive_y_intercept_C_i.temp.point": "$problem.points.C"
-          },
-          "scope": "problem",
-          "step_id": "derive_y_intercept_C_i"
+          }
         }
-      ]
-    },
-    {
+      ],
       "bindings": [
         {
-          "arg": "source",
-          "authority": "wire",
+          "arg": "quadratic",
           "item": 0,
+          "role": "quadratic",
+          "authority": "wire",
+          "target": "quadratic",
           "paths": [
-            "$problem.facts.__functional_transaction_derive_translated_D_i_0"
-          ],
-          "role": "source",
-          "target": "source"
+            "$problem.facts.__functional_transaction_derive_y_intercept_C_i_0"
+          ]
         },
         {
           "arg": "target",
-          "authority": "compiler",
           "item": 0,
-          "paths": [
-            "$problem.object_refs.D"
-          ],
           "role": "target",
-          "target": "target"
-        }
-      ],
-      "call_id": "derive_translated_D_i",
-      "capability_id": "translated_point",
-      "provenance": [
+          "authority": "compiler",
+          "target": "target",
+          "paths": [
+            "$problem.object_refs.C"
+          ]
+        },
         {
-          "allocation_action": "create",
-          "closure_signature": null,
-          "object_id": "point:problem:D",
-          "result_form": "closed_state",
-          "return_name": "point",
-          "runtime_type": "Point",
-          "source_version_count": 1
+          "arg": "x",
+          "item": 0,
+          "role": "x",
+          "authority": "compiler",
+          "target": "x",
+          "paths": [
+            "$problem.symbols.x"
+          ]
         }
       ],
       "public_returns": [
         {
-          "identity_policy": "target_object",
           "name": "point",
-          "output_key": "point",
-          "required": true,
           "runtime_type": "Point",
-          "write_mode": "create"
+          "identity_policy": "target_object",
+          "write_mode": "create",
+          "output_key": "point",
+          "required": true
         }
       ],
+      "provenance": [
+        {
+          "return_name": "point",
+          "runtime_type": "Point",
+          "allocation_action": "create",
+          "result_form": "closed_state",
+          "object_id": "point:problem:C",
+          "source_version_count": 1,
+          "closure_signature": null
+        }
+      ]
+    },
+    {
+      "call_id": "derive_translated_D_i",
+      "capability_id": "translated_point",
       "steps": [
         {
+          "step_id": "derive_translated_D_i",
+          "scope": "problem",
           "invocations": [
             {
+              "method_id": "translated_point",
+              "scope": "derive_translated_D_i",
               "inputs": [
                 "source",
                 "target"
               ],
-              "method_id": "translated_point",
               "outputs": {
                 "point": "$step.derive_translated_D_i.temp.point"
-              },
-              "scope": "derive_translated_D_i"
+              }
             }
           ],
           "promotions": {
             "$step.derive_translated_D_i.temp.point": "$problem.points.D"
-          },
-          "scope": "problem",
-          "step_id": "derive_translated_D_i"
-        }
-      ]
-    },
-    {
-      "bindings": [
-        {
-          "arg": "all_coefficients",
-          "authority": "compiler",
-          "item": 0,
-          "paths": [
-            "$problem.symbol_lists.quadratic_coefficients"
-          ],
-          "role": "all_coefficients",
-          "target": "all_coefficients"
-        },
-        {
-          "arg": "curve_points",
-          "authority": "wire",
-          "item": 0,
-          "paths": [
-            "$question.i.facts.__functional_transaction_derive_parabola_i_0",
-            "$question.i.facts.__functional_transaction_derive_parabola_i_1"
-          ],
-          "role": "curve_points",
-          "target": "curve_points"
-        },
-        {
-          "arg": "curve_points",
-          "authority": "wire",
-          "item": 1,
-          "paths": [
-            "$question.i.facts.__functional_transaction_derive_parabola_i_0",
-            "$question.i.facts.__functional_transaction_derive_parabola_i_1"
-          ],
-          "role": "curve_points",
-          "target": "curve_points"
-        },
-        {
-          "arg": "quadratic",
-          "authority": "compiler",
-          "item": 0,
-          "paths": [
-            "$problem.expressions.quadratic"
-          ],
-          "role": "quadratic",
-          "target": "quadratic"
-        },
-        {
-          "arg": "quadratic_template",
-          "authority": "compiler",
-          "item": 0,
-          "paths": [
-            "$problem.expressions.quadratic"
-          ],
-          "role": "quadratic_template",
-          "target": "quadratic_template"
-        },
-        {
-          "arg": "x",
-          "authority": "compiler",
-          "item": 0,
-          "paths": [
-            "$problem.symbols.x"
-          ],
-          "role": "x",
-          "target": "x"
+          }
         }
       ],
-      "call_id": "derive_parabola_i",
-      "capability_id": "quadratic_from_constraints",
-      "provenance": [
+      "bindings": [
         {
-          "allocation_action": "call_local_value",
-          "closure_signature": null,
-          "object_id": null,
-          "result_form": "closed_state",
-          "return_name": "coefficients",
-          "runtime_type": "Coefficients",
-          "source_version_count": 2
+          "arg": "source",
+          "item": 0,
+          "role": "source",
+          "authority": "wire",
+          "target": "source",
+          "paths": [
+            "$problem.facts.__functional_transaction_derive_translated_D_i_0"
+          ]
         },
         {
-          "allocation_action": "create",
-          "closure_signature": null,
-          "object_id": "function:problem:parabola",
-          "result_form": "closed_state",
-          "return_name": "parabola",
-          "runtime_type": "Parabola",
-          "source_version_count": 2
+          "arg": "target",
+          "item": 0,
+          "role": "target",
+          "authority": "compiler",
+          "target": "target",
+          "paths": [
+            "$problem.object_refs.D"
+          ]
         }
       ],
       "public_returns": [
         {
-          "identity_policy": "value_only",
-          "name": "coefficients",
-          "output_key": "coefficients",
-          "required": true,
-          "runtime_type": "Coefficients",
-          "write_mode": "value"
-        },
-        {
-          "identity_policy": "preserve_input_object",
-          "name": "parabola",
-          "output_key": "parabola",
-          "required": true,
-          "runtime_type": "Parabola",
-          "write_mode": "create"
+          "name": "point",
+          "runtime_type": "Point",
+          "identity_policy": "target_object",
+          "write_mode": "create",
+          "output_key": "point",
+          "required": true
         }
       ],
+      "provenance": [
+        {
+          "return_name": "point",
+          "runtime_type": "Point",
+          "allocation_action": "create",
+          "result_form": "closed_state",
+          "object_id": "point:problem:D",
+          "source_version_count": 1,
+          "closure_signature": null
+        }
+      ]
+    },
+    {
+      "call_id": "derive_parabola_i",
+      "capability_id": "quadratic_from_constraints",
       "steps": [
         {
+          "step_id": "derive_parabola_i",
+          "scope": "i",
           "invocations": [
             {
+              "method_id": "quadratic_from_constraints",
+              "scope": "derive_parabola_i",
               "inputs": [
                 "all_coefficients",
                 "curve_points",
                 "quadratic",
-                "quadratic_template",
                 "x"
               ],
-              "method_id": "quadratic_from_constraints",
               "outputs": {
                 "coefficients": "$step.derive_parabola_i.temp.coefficients",
                 "parabola": "$step.derive_parabola_i.temp.parabola"
-              },
-              "scope": "derive_parabola_i"
+              }
             }
           ],
           "promotions": {
             "$step.derive_parabola_i.temp.coefficients": "$question.i.outputs.derive_parabola_i_coefficients",
             "$step.derive_parabola_i.temp.parabola": "$question.i.outputs.parabola"
-          },
-          "scope": "i",
-          "step_id": "derive_parabola_i"
+          }
         }
-      ]
-    },
-    {
+      ],
       "bindings": [
         {
-          "arg": "known_point",
+          "arg": "curve_points",
+          "item": 0,
+          "role": "curve_points",
           "authority": "wire",
-          "item": 0,
+          "target": "curve_points",
           "paths": [
-            "$subquestion.i_2.facts.__functional_transaction_derive_x_intercept_B_i_1"
-          ],
-          "role": "known_point",
-          "target": "known_point"
+            "$question.i.facts.__functional_transaction_derive_parabola_i_0",
+            "$question.i.facts.__functional_transaction_derive_parabola_i_1"
+          ]
         },
         {
-          "arg": "parabola",
+          "arg": "curve_points",
+          "item": 1,
+          "role": "curve_points",
           "authority": "wire",
-          "item": 0,
+          "target": "curve_points",
           "paths": [
-            "$subquestion.i_2.facts.__functional_transaction_derive_x_intercept_B_i_0"
-          ],
-          "role": "parabola",
-          "target": "quadratic"
+            "$question.i.facts.__functional_transaction_derive_parabola_i_0",
+            "$question.i.facts.__functional_transaction_derive_parabola_i_1"
+          ]
         },
         {
-          "arg": "target",
-          "authority": "compiler",
+          "arg": "quadratic",
           "item": 0,
+          "role": "quadratic",
+          "authority": "compiler",
+          "target": "quadratic",
           "paths": [
-            "$problem.points.B"
-          ],
-          "role": "target",
-          "target": "target"
-        },
-        {
-          "arg": "target_state",
-          "authority": "compiler",
-          "item": 0,
-          "paths": [],
-          "role": "target_state",
-          "target": "target_state"
+            "$problem.expressions.quadratic"
+          ]
         },
         {
           "arg": "x",
-          "authority": "compiler",
           "item": 0,
+          "role": "x",
+          "authority": "compiler",
+          "target": "x",
           "paths": [
             "$problem.symbols.x"
-          ],
-          "role": "x",
-          "target": "x"
-        }
-      ],
-      "call_id": "derive_x_intercept_B_i",
-      "capability_id": "quadratic_x_axis_intercept_point",
-      "provenance": [
-        {
-          "allocation_action": "create",
-          "closure_signature": null,
-          "object_id": "point:problem:B",
-          "result_form": "closed_state",
-          "return_name": "point",
-          "runtime_type": "Point",
-          "source_version_count": 2
+          ]
         }
       ],
       "public_returns": [
         {
-          "identity_policy": "target_object",
-          "name": "point",
-          "output_key": "point",
-          "required": true,
-          "runtime_type": "Point",
-          "write_mode": "create"
+          "name": "coefficients",
+          "runtime_type": "Coefficients",
+          "identity_policy": "value_only",
+          "write_mode": "value",
+          "output_key": "coefficients",
+          "required": true
+        },
+        {
+          "name": "parabola",
+          "runtime_type": "Parabola",
+          "identity_policy": "preserve_input_object",
+          "write_mode": "create",
+          "output_key": "parabola",
+          "required": true
         }
       ],
+      "provenance": [
+        {
+          "return_name": "coefficients",
+          "runtime_type": "Coefficients",
+          "allocation_action": "call_local_value",
+          "result_form": "closed_state",
+          "object_id": null,
+          "source_version_count": 2,
+          "closure_signature": null
+        },
+        {
+          "return_name": "parabola",
+          "runtime_type": "Parabola",
+          "allocation_action": "create",
+          "result_form": "closed_state",
+          "object_id": "function:problem:parabola",
+          "source_version_count": 2,
+          "closure_signature": null
+        }
+      ]
+    },
+    {
+      "call_id": "derive_x_intercept_B_i",
+      "capability_id": "quadratic_x_axis_intercept_point",
       "steps": [
         {
+          "step_id": "derive_x_intercept_B_i",
+          "scope": "i_2",
           "invocations": [
             {
+              "method_id": "quadratic_x_axis_intercept_point",
+              "scope": "derive_x_intercept_B_i",
               "inputs": [
                 "known_point",
                 "quadratic",
                 "target",
                 "x"
               ],
-              "method_id": "quadratic_x_axis_intercept_point",
               "outputs": {
                 "point": "$step.derive_x_intercept_B_i.temp.point"
-              },
-              "scope": "derive_x_intercept_B_i"
+              }
             }
           ],
           "promotions": {
             "$step.derive_x_intercept_B_i.temp.point": "$subquestion.i_2.outputs.B_coordinate"
-          },
-          "scope": "i_2",
-          "step_id": "derive_x_intercept_B_i"
+          }
         }
-      ]
-    },
-    {
+      ],
       "bindings": [
         {
-          "arg": "condition",
+          "arg": "known_point",
+          "item": 0,
+          "role": "known_point",
           "authority": "wire",
-          "item": 0,
+          "target": "known_point",
           "paths": [
-            "$subquestion.i_2.conditions.angle_sum_65f394a563e1"
-          ],
-          "role": "condition",
-          "target": "condition"
+            "$subquestion.i_2.facts.__functional_transaction_derive_x_intercept_B_i_1"
+          ]
         },
         {
-          "arg": "origin",
-          "authority": "compiler",
+          "arg": "parabola",
           "item": 0,
+          "role": "parabola",
+          "authority": "wire",
+          "target": "quadratic",
           "paths": [
-            "$subquestion.i_2.facts.__functional_transaction_derive_equal_angle_i_3"
-          ],
-          "role": "origin",
-          "target": "origin"
-        },
-        {
-          "arg": "reference_x_axis_point",
-          "authority": "compiler",
-          "item": 0,
-          "paths": [
-            "$subquestion.i_2.facts.__functional_transaction_derive_equal_angle_i_2"
-          ],
-          "role": "reference_x_axis_point",
-          "target": "reference_x_axis_point"
+            "$subquestion.i_2.facts.__functional_transaction_derive_x_intercept_B_i_0"
+          ]
         },
         {
           "arg": "target",
-          "authority": "compiler",
           "item": 0,
-          "paths": [
-            "$subquestion.i_2.points.derive_axis_intercept_F_i_point"
-          ],
           "role": "target",
-          "target": "target"
+          "authority": "compiler",
+          "target": "target",
+          "paths": [
+            "$problem.points.B"
+          ]
         },
         {
-          "arg": "x_axis_point",
-          "authority": "compiler",
+          "arg": "x",
           "item": 0,
-          "paths": [
-            "$subquestion.i_2.facts.__functional_transaction_derive_equal_angle_i_0"
-          ],
-          "role": "x_axis_point",
-          "target": "x_axis_point"
-        },
-        {
-          "arg": "y_axis_point",
+          "role": "x",
           "authority": "compiler",
-          "item": 0,
+          "target": "x",
           "paths": [
-            "$subquestion.i_2.facts.__functional_transaction_derive_equal_angle_i_1"
-          ],
-          "role": "y_axis_point",
-          "target": "y_axis_point"
-        }
-      ],
-      "call_id": "derive_equal_angle_i",
-      "capability_id": "angle_sum_equal_angle_candidates",
-      "provenance": [
-        {
-          "allocation_action": "call_local_value",
-          "closure_signature": null,
-          "object_id": null,
-          "result_form": "closed_state",
-          "return_name": "angle_equality",
-          "runtime_type": "AngleEquality",
-          "source_version_count": 4
+            "$problem.symbols.x"
+          ]
         }
       ],
       "public_returns": [
         {
-          "identity_policy": "value_only",
-          "name": "angle_equality",
-          "output_key": "angle_equality",
-          "required": true,
-          "runtime_type": "AngleEquality",
-          "write_mode": "value"
+          "name": "point",
+          "runtime_type": "Point",
+          "identity_policy": "target_object",
+          "write_mode": "create",
+          "output_key": "point",
+          "required": true
         }
       ],
+      "provenance": [
+        {
+          "return_name": "point",
+          "runtime_type": "Point",
+          "allocation_action": "create",
+          "result_form": "closed_state",
+          "object_id": "point:problem:B",
+          "source_version_count": 2,
+          "closure_signature": null
+        }
+      ]
+    },
+    {
+      "call_id": "derive_equal_angle_i",
+      "capability_id": "angle_sum_equal_angle_candidates",
       "steps": [
         {
+          "step_id": "derive_equal_angle_i",
+          "scope": "i_2",
           "invocations": [
             {
+              "method_id": "angle_sum_equal_angle_candidates",
+              "scope": "derive_equal_angle_i",
               "inputs": [
                 "condition",
                 "origin",
@@ -479,111 +373,111 @@
                 "x_axis_point",
                 "y_axis_point"
               ],
-              "method_id": "angle_sum_equal_angle_candidates",
               "outputs": {
                 "angle_equality": "$step.derive_equal_angle_i.temp.angle_equality"
-              },
-              "scope": "derive_equal_angle_i"
+              }
             }
           ],
           "promotions": {
             "$step.derive_equal_angle_i.temp.angle_equality": "$subquestion.i_2.outputs.derive_equal_angle_i_angle_equality"
-          },
-          "scope": "i_2",
-          "step_id": "derive_equal_angle_i"
+          }
         }
-      ]
-    },
-    {
+      ],
       "bindings": [
         {
-          "arg": "angle_equality",
-          "authority": "wire",
+          "arg": "condition",
           "item": 0,
+          "role": "condition",
+          "authority": "wire",
+          "target": "condition",
           "paths": [
-            "$subquestion.i_2.outputs.derive_equal_angle_i_angle_equality"
-          ],
-          "role": "angle_equality",
-          "target": "angle_equality"
+            "$subquestion.i_2.conditions.angle_sum_65f394a563e1"
+          ]
         },
         {
           "arg": "origin",
-          "authority": "compiler",
           "item": 0,
-          "paths": [
-            "$problem.points.O"
-          ],
           "role": "origin",
-          "target": "origin"
+          "authority": "compiler",
+          "target": "origin",
+          "paths": [
+            "$subquestion.i_2.facts.__functional_transaction_derive_equal_angle_i_3"
+          ]
         },
         {
           "arg": "reference_x_axis_point",
-          "authority": "compiler",
           "item": 0,
-          "paths": [
-            "$problem.points.A"
-          ],
           "role": "reference_x_axis_point",
-          "target": "reference_x_axis_point"
+          "authority": "compiler",
+          "target": "reference_x_axis_point",
+          "paths": [
+            "$subquestion.i_2.facts.__functional_transaction_derive_equal_angle_i_2"
+          ]
         },
         {
           "arg": "target",
-          "authority": "compiler",
           "item": 0,
+          "role": "target",
+          "authority": "compiler",
+          "target": "target",
           "paths": [
             "$subquestion.i_2.points.derive_axis_intercept_F_i_point"
-          ],
-          "role": "target",
-          "target": "target"
+          ]
         },
         {
           "arg": "x_axis_point",
-          "authority": "compiler",
           "item": 0,
-          "paths": [
-            "$subquestion.i_2.outputs.B_coordinate"
-          ],
           "role": "x_axis_point",
-          "target": "x_axis_point"
+          "authority": "compiler",
+          "target": "x_axis_point",
+          "paths": [
+            "$subquestion.i_2.facts.__functional_transaction_derive_equal_angle_i_0"
+          ]
         },
         {
           "arg": "y_axis_point",
-          "authority": "compiler",
           "item": 0,
-          "paths": [
-            "$problem.points.C"
-          ],
           "role": "y_axis_point",
-          "target": "y_axis_point"
-        }
-      ],
-      "call_id": "derive_axis_intercept_F_i",
-      "capability_id": "axis_intercept_from_equal_acute_angles",
-      "provenance": [
-        {
-          "allocation_action": "create",
-          "closure_signature": null,
-          "object_id": "point:i_2:derive_axis_intercept_F_i_point",
-          "result_form": "closed_state",
-          "return_name": "point",
-          "runtime_type": "Point",
-          "source_version_count": 0
+          "authority": "compiler",
+          "target": "y_axis_point",
+          "paths": [
+            "$subquestion.i_2.facts.__functional_transaction_derive_equal_angle_i_1"
+          ]
         }
       ],
       "public_returns": [
         {
-          "identity_policy": "target_object",
-          "name": "point",
-          "output_key": "point",
-          "required": true,
-          "runtime_type": "Point",
-          "write_mode": "create"
+          "name": "angle_equality",
+          "runtime_type": "AngleEquality",
+          "identity_policy": "value_only",
+          "write_mode": "value",
+          "output_key": "angle_equality",
+          "required": true
         }
       ],
+      "provenance": [
+        {
+          "return_name": "angle_equality",
+          "runtime_type": "AngleEquality",
+          "allocation_action": "call_local_value",
+          "result_form": "closed_state",
+          "object_id": null,
+          "source_version_count": 4,
+          "closure_signature": null
+        }
+      ]
+    },
+    {
+      "call_id": "derive_axis_intercept_F_i",
+      "capability_id": "axis_intercept_from_equal_acute_angles",
       "steps": [
         {
+          "step_id": "derive_axis_intercept_F_i",
+          "scope": "i_2",
           "invocations": [
             {
+              "method_id": "axis_intercept_from_equal_acute_angles",
+              "scope": "derive_axis_intercept_F_i",
               "inputs": [
                 "angle_equality",
                 "origin",
@@ -592,111 +486,111 @@
                 "x_axis_point",
                 "y_axis_point"
               ],
-              "method_id": "axis_intercept_from_equal_acute_angles",
               "outputs": {
                 "point": "$step.derive_axis_intercept_F_i.temp.point"
-              },
-              "scope": "derive_axis_intercept_F_i"
+              }
             }
           ],
           "promotions": {
             "$step.derive_axis_intercept_F_i.temp.point": "$subquestion.i_2.points.derive_axis_intercept_F_i_point"
-          },
-          "scope": "i_2",
-          "step_id": "derive_axis_intercept_F_i"
+          }
         }
-      ]
-    },
-    {
+      ],
       "bindings": [
         {
-          "arg": "known_point",
-          "authority": "wire",
+          "arg": "angle_equality",
           "item": 0,
+          "role": "angle_equality",
+          "authority": "wire",
+          "target": "angle_equality",
           "paths": [
-            "$subquestion.i_2.facts.__functional_transaction_derive_curve_intersection_E_i_1"
-          ],
-          "role": "known_point",
-          "target": "known_point"
+            "$subquestion.i_2.outputs.derive_equal_angle_i_angle_equality"
+          ]
         },
         {
-          "arg": "line_p1",
-          "authority": "wire",
+          "arg": "origin",
           "item": 0,
+          "role": "origin",
+          "authority": "compiler",
+          "target": "origin",
           "paths": [
-            "$subquestion.i_2.facts.__functional_transaction_derive_curve_intersection_E_i_1"
-          ],
-          "role": "line_p1",
-          "target": "line_p1"
+            "$problem.points.O"
+          ]
         },
         {
-          "arg": "line_p2",
-          "authority": "wire",
+          "arg": "reference_x_axis_point",
           "item": 0,
+          "role": "reference_x_axis_point",
+          "authority": "compiler",
+          "target": "reference_x_axis_point",
           "paths": [
-            "$subquestion.i_2.facts.__functional_transaction_derive_curve_intersection_E_i_2"
-          ],
-          "role": "line_p2",
-          "target": "line_p2"
-        },
-        {
-          "arg": "parabola",
-          "authority": "wire",
-          "item": 0,
-          "paths": [
-            "$subquestion.i_2.facts.__functional_transaction_derive_curve_intersection_E_i_0"
-          ],
-          "role": "parabola",
-          "target": "parabola"
+            "$problem.points.A"
+          ]
         },
         {
           "arg": "target",
-          "authority": "compiler",
           "item": 0,
-          "paths": [
-            "$subquestion.i_2.points.E"
-          ],
           "role": "target",
-          "target": "target"
+          "authority": "compiler",
+          "target": "target",
+          "paths": [
+            "$subquestion.i_2.points.derive_axis_intercept_F_i_point"
+          ]
         },
         {
-          "arg": "x",
-          "authority": "compiler",
+          "arg": "x_axis_point",
           "item": 0,
+          "role": "x_axis_point",
+          "authority": "compiler",
+          "target": "x_axis_point",
           "paths": [
-            "$problem.symbols.x"
-          ],
-          "role": "x",
-          "target": "x"
-        }
-      ],
-      "call_id": "derive_curve_intersection_E_i",
-      "capability_id": "line_parabola_second_intersection_point",
-      "provenance": [
+            "$subquestion.i_2.outputs.B_coordinate"
+          ]
+        },
         {
-          "allocation_action": "create",
-          "closure_signature": null,
-          "object_id": "point:i_2:E",
-          "result_form": "closed_state",
-          "return_name": "point",
-          "runtime_type": "Point",
-          "source_version_count": 3
+          "arg": "y_axis_point",
+          "item": 0,
+          "role": "y_axis_point",
+          "authority": "compiler",
+          "target": "y_axis_point",
+          "paths": [
+            "$problem.points.C"
+          ]
         }
       ],
       "public_returns": [
         {
-          "identity_policy": "target_object",
           "name": "point",
-          "output_key": "point",
-          "required": true,
           "runtime_type": "Point",
-          "write_mode": "create"
+          "identity_policy": "target_object",
+          "write_mode": "create",
+          "output_key": "point",
+          "required": true
         }
       ],
+      "provenance": [
+        {
+          "return_name": "point",
+          "runtime_type": "Point",
+          "allocation_action": "create",
+          "result_form": "closed_state",
+          "object_id": "point:i_2:derive_axis_intercept_F_i_point",
+          "source_version_count": 0,
+          "closure_signature": null
+        }
+      ]
+    },
+    {
+      "call_id": "derive_curve_intersection_E_i",
+      "capability_id": "line_parabola_second_intersection_point",
       "steps": [
         {
+          "step_id": "derive_curve_intersection_E_i",
+          "scope": "i_2",
           "invocations": [
             {
+              "method_id": "line_parabola_second_intersection_point",
+              "scope": "derive_curve_intersection_E_i",
               "inputs": [
                 "known_point",
                 "line_p1",
@@ -705,471 +599,509 @@
                 "target",
                 "x"
               ],
-              "method_id": "line_parabola_second_intersection_point",
               "outputs": {
                 "point": "$step.derive_curve_intersection_E_i.temp.point"
-              },
-              "scope": "derive_curve_intersection_E_i"
+              }
             }
           ],
           "promotions": {
             "$step.derive_curve_intersection_E_i.temp.point": "$subquestion.i_2.outputs.E"
-          },
-          "scope": "i_2",
-          "step_id": "derive_curve_intersection_E_i"
+          }
         }
-      ]
-    },
-    {
+      ],
       "bindings": [
         {
-          "arg": "all_coefficients",
-          "authority": "compiler",
+          "arg": "known_point",
           "item": 0,
-          "paths": [
-            "$problem.symbol_lists.quadratic_coefficients"
-          ],
-          "role": "all_coefficients",
-          "target": "all_coefficients"
-        },
-        {
-          "arg": "curve_point",
+          "role": "known_point",
           "authority": "wire",
-          "item": 0,
+          "target": "known_point",
           "paths": [
-            "$question.ii.facts.__functional_transaction_derive_parametric_parabola_ii_0"
-          ],
-          "role": "curve_point",
-          "target": "curve_point"
+            "$subquestion.i_2.facts.__functional_transaction_derive_curve_intersection_E_i_1"
+          ]
         },
         {
-          "arg": "free_parameters",
+          "arg": "line_p1",
+          "item": 0,
+          "role": "line_p1",
           "authority": "wire",
-          "item": 0,
+          "target": "line_p1",
           "paths": [
-            "$problem.symbols.a"
-          ],
-          "role": "free_parameters",
-          "target": "free_parameter"
+            "$subquestion.i_2.facts.__functional_transaction_derive_curve_intersection_E_i_1"
+          ]
         },
         {
-          "arg": "quadratic",
-          "authority": "compiler",
+          "arg": "line_p2",
           "item": 0,
+          "role": "line_p2",
+          "authority": "wire",
+          "target": "line_p2",
           "paths": [
-            "$problem.expressions.quadratic"
-          ],
-          "role": "quadratic",
-          "target": "quadratic"
+            "$subquestion.i_2.facts.__functional_transaction_derive_curve_intersection_E_i_2"
+          ]
         },
         {
-          "arg": "quadratic_template",
-          "authority": "compiler",
+          "arg": "parabola",
           "item": 0,
+          "role": "parabola",
+          "authority": "wire",
+          "target": "parabola",
           "paths": [
-            "$problem.expressions.quadratic"
-          ],
-          "role": "quadratic_template",
-          "target": "quadratic_template"
+            "$subquestion.i_2.facts.__functional_transaction_derive_curve_intersection_E_i_0"
+          ]
+        },
+        {
+          "arg": "target",
+          "item": 0,
+          "role": "target",
+          "authority": "compiler",
+          "target": "target",
+          "paths": [
+            "$subquestion.i_2.points.E"
+          ]
         },
         {
           "arg": "x",
-          "authority": "compiler",
           "item": 0,
+          "role": "x",
+          "authority": "compiler",
+          "target": "x",
           "paths": [
             "$problem.symbols.x"
-          ],
-          "role": "x",
-          "target": "x"
-        }
-      ],
-      "call_id": "derive_parametric_parabola_ii",
-      "capability_id": "quadratic_from_constraints",
-      "provenance": [
-        {
-          "allocation_action": "call_local_value",
-          "closure_signature": null,
-          "object_id": null,
-          "result_form": "open_state",
-          "return_name": "coefficients",
-          "runtime_type": "Coefficients",
-          "source_version_count": 1
-        },
-        {
-          "allocation_action": "isolated",
-          "closure_signature": null,
-          "object_id": "function:problem:parabola",
-          "result_form": "open_state",
-          "return_name": "parabola",
-          "runtime_type": "Parabola",
-          "source_version_count": 1
+          ]
         }
       ],
       "public_returns": [
         {
-          "identity_policy": "value_only",
-          "name": "coefficients",
-          "output_key": "coefficients",
-          "required": true,
-          "runtime_type": "Coefficients",
-          "write_mode": "value"
-        },
-        {
-          "identity_policy": "preserve_input_object",
-          "name": "parabola",
-          "output_key": "parabola",
-          "required": true,
-          "runtime_type": "Parabola",
-          "write_mode": "create"
+          "name": "point",
+          "runtime_type": "Point",
+          "identity_policy": "target_object",
+          "write_mode": "create",
+          "output_key": "point",
+          "required": true
         }
       ],
+      "provenance": [
+        {
+          "return_name": "point",
+          "runtime_type": "Point",
+          "allocation_action": "create",
+          "result_form": "closed_state",
+          "object_id": "point:i_2:E",
+          "source_version_count": 3,
+          "closure_signature": null
+        }
+      ]
+    },
+    {
+      "call_id": "derive_parametric_parabola_ii",
+      "capability_id": "quadratic_from_constraints",
       "steps": [
         {
+          "step_id": "derive_parametric_parabola_ii",
+          "scope": "ii",
           "invocations": [
             {
+              "method_id": "quadratic_from_constraints",
+              "scope": "derive_parametric_parabola_ii",
               "inputs": [
                 "all_coefficients",
                 "curve_point",
                 "free_parameter",
                 "quadratic",
-                "quadratic_template",
                 "x"
               ],
-              "method_id": "quadratic_from_constraints",
               "outputs": {
                 "coefficients": "$step.derive_parametric_parabola_ii.temp.coefficients",
                 "parabola": "$step.derive_parametric_parabola_ii.temp.parabola"
-              },
-              "scope": "derive_parametric_parabola_ii"
+              }
             }
           ],
           "promotions": {
             "$step.derive_parametric_parabola_ii.temp.coefficients": "$question.ii.outputs.derive_parametric_parabola_ii_coefficients",
             "$step.derive_parametric_parabola_ii.temp.parabola": "$question.ii.outputs.derive_parametric_parabola_ii_parabola"
-          },
-          "scope": "ii",
-          "step_id": "derive_parametric_parabola_ii"
+          }
         }
-      ]
-    },
-    {
+      ],
       "bindings": [
         {
-          "arg": "known_point",
+          "arg": "curve_point",
+          "item": 0,
+          "role": "curve_point",
           "authority": "wire",
-          "item": 0,
+          "target": "curve_point",
           "paths": [
-            "$question.ii.facts.__functional_transaction_derive_x_intercept_B_ii_1"
-          ],
-          "role": "known_point",
-          "target": "known_point"
+            "$question.ii.facts.__functional_transaction_derive_parametric_parabola_ii_0"
+          ]
         },
         {
-          "arg": "parabola",
+          "arg": "free_parameters",
+          "item": 0,
+          "role": "free_parameters",
           "authority": "wire",
-          "item": 0,
+          "target": "free_parameter",
           "paths": [
-            "$question.ii.facts.__functional_transaction_derive_x_intercept_B_ii_0"
-          ],
-          "role": "parabola",
-          "target": "quadratic"
+            "$problem.symbols.a"
+          ]
         },
         {
-          "arg": "target",
-          "authority": "compiler",
+          "arg": "quadratic",
           "item": 0,
+          "role": "quadratic",
+          "authority": "compiler",
+          "target": "quadratic",
           "paths": [
-            "$problem.points.B"
-          ],
-          "role": "target",
-          "target": "target"
-        },
-        {
-          "arg": "target_state",
-          "authority": "compiler",
-          "item": 0,
-          "paths": [],
-          "role": "target_state",
-          "target": "target_state"
+            "$problem.expressions.quadratic"
+          ]
         },
         {
           "arg": "x",
-          "authority": "compiler",
           "item": 0,
+          "role": "x",
+          "authority": "compiler",
+          "target": "x",
           "paths": [
             "$problem.symbols.x"
-          ],
-          "role": "x",
-          "target": "x"
-        }
-      ],
-      "call_id": "derive_x_intercept_B_ii",
-      "capability_id": "quadratic_x_axis_intercept_point",
-      "provenance": [
-        {
-          "allocation_action": "isolated",
-          "closure_signature": null,
-          "object_id": "point:problem:B",
-          "result_form": "open_state",
-          "return_name": "point",
-          "runtime_type": "Point",
-          "source_version_count": 2
+          ]
         }
       ],
       "public_returns": [
         {
-          "identity_policy": "target_object",
-          "name": "point",
-          "output_key": "point",
-          "required": true,
-          "runtime_type": "Point",
-          "write_mode": "create"
+          "name": "coefficients",
+          "runtime_type": "Coefficients",
+          "identity_policy": "value_only",
+          "write_mode": "value",
+          "output_key": "coefficients",
+          "required": true
+        },
+        {
+          "name": "parabola",
+          "runtime_type": "Parabola",
+          "identity_policy": "preserve_input_object",
+          "write_mode": "create",
+          "output_key": "parabola",
+          "required": true
         }
       ],
+      "provenance": [
+        {
+          "return_name": "coefficients",
+          "runtime_type": "Coefficients",
+          "allocation_action": "call_local_value",
+          "result_form": "open_state",
+          "object_id": null,
+          "source_version_count": 1,
+          "closure_signature": null
+        },
+        {
+          "return_name": "parabola",
+          "runtime_type": "Parabola",
+          "allocation_action": "isolated",
+          "result_form": "open_state",
+          "object_id": "function:problem:parabola",
+          "source_version_count": 1,
+          "closure_signature": null
+        }
+      ]
+    },
+    {
+      "call_id": "derive_x_intercept_B_ii",
+      "capability_id": "quadratic_x_axis_intercept_point",
       "steps": [
         {
+          "step_id": "derive_x_intercept_B_ii",
+          "scope": "ii",
           "invocations": [
             {
+              "method_id": "quadratic_x_axis_intercept_point",
+              "scope": "derive_x_intercept_B_ii",
               "inputs": [
                 "known_point",
                 "quadratic",
                 "target",
                 "x"
               ],
-              "method_id": "quadratic_x_axis_intercept_point",
               "outputs": {
                 "point": "$step.derive_x_intercept_B_ii.temp.point"
-              },
-              "scope": "derive_x_intercept_B_ii"
+              }
             }
           ],
           "promotions": {
             "$step.derive_x_intercept_B_ii.temp.point": "$question.ii.outputs.B_coordinate"
-          },
-          "scope": "ii",
-          "step_id": "derive_x_intercept_B_ii"
-        }
-      ]
-    },
-    {
-      "bindings": [
-        {
-          "arg": "anchor",
-          "authority": "resolver",
-          "item": 0,
-          "paths": [],
-          "role": "anchor",
-          "target": null
-        },
-        {
-          "arg": "equal_length_condition",
-          "authority": "wire",
-          "item": 0,
-          "paths": [],
-          "role": "equal_length_condition",
-          "target": null
-        },
-        {
-          "arg": "fixed_point",
-          "authority": "resolver",
-          "item": 0,
-          "paths": [],
-          "role": "fixed_point",
-          "target": null
-        },
-        {
-          "arg": "path_minimum_target",
-          "authority": "wire",
-          "item": 0,
-          "paths": [],
-          "role": "path_minimum_target",
-          "target": null
-        },
-        {
-          "arg": "point_on_ray",
-          "authority": "wire",
-          "item": 0,
-          "paths": [],
-          "role": "point_on_ray",
-          "target": null
-        },
-        {
-          "arg": "point_on_segment",
-          "authority": "wire",
-          "item": 0,
-          "paths": [],
-          "role": "point_on_segment",
-          "target": null
-        },
-        {
-          "arg": "ray_point",
-          "authority": "resolver",
-          "item": 0,
-          "paths": [],
-          "role": "ray_point",
-          "target": null
-        },
-        {
-          "arg": "reference_point",
-          "authority": "resolver",
-          "item": 0,
-          "paths": [],
-          "role": "reference_point",
-          "target": null
+          }
         }
       ],
-      "call_id": "reduce_equal_length_ray_path_ii",
-      "capability_id": "equal_length_ray_path_reduction",
-      "provenance": [
+      "bindings": [
         {
-          "allocation_action": "call_local_value",
-          "closure_signature": null,
-          "object_id": null,
-          "result_form": "open_expression",
-          "return_name": "minimum_expression",
-          "runtime_type": "MinimumExpression",
-          "source_version_count": 4
+          "arg": "known_point",
+          "item": 0,
+          "role": "known_point",
+          "authority": "wire",
+          "target": "known_point",
+          "paths": [
+            "$question.ii.facts.__functional_transaction_derive_x_intercept_B_ii_1"
+          ]
+        },
+        {
+          "arg": "parabola",
+          "item": 0,
+          "role": "parabola",
+          "authority": "wire",
+          "target": "quadratic",
+          "paths": [
+            "$question.ii.facts.__functional_transaction_derive_x_intercept_B_ii_0"
+          ]
+        },
+        {
+          "arg": "target",
+          "item": 0,
+          "role": "target",
+          "authority": "compiler",
+          "target": "target",
+          "paths": [
+            "$problem.points.B"
+          ]
+        },
+        {
+          "arg": "x",
+          "item": 0,
+          "role": "x",
+          "authority": "compiler",
+          "target": "x",
+          "paths": [
+            "$problem.symbols.x"
+          ]
         }
       ],
       "public_returns": [
         {
-          "identity_policy": "value_only",
-          "name": "minimum_expression",
-          "output_key": "distance_between_points.distance",
-          "required": true,
-          "runtime_type": "MinimumExpression",
-          "write_mode": "value"
+          "name": "point",
+          "runtime_type": "Point",
+          "identity_policy": "target_object",
+          "write_mode": "create",
+          "output_key": "point",
+          "required": true
         }
       ],
+      "provenance": [
+        {
+          "return_name": "point",
+          "runtime_type": "Point",
+          "allocation_action": "isolated",
+          "result_form": "open_state",
+          "object_id": "point:problem:B",
+          "source_version_count": 2,
+          "closure_signature": null
+        }
+      ]
+    },
+    {
+      "call_id": "reduce_equal_length_ray_path_ii",
+      "capability_id": "equal_length_ray_path_reduction",
       "steps": [
         {
+          "step_id": "reduce_equal_length_ray_path_ii",
+          "scope": "ii",
           "invocations": [
             {
+              "method_id": "equal_length_ray_point",
+              "scope": "reduce_equal_length_ray_path_ii",
               "inputs": [
                 "anchor",
                 "ray_point",
                 "reference_point",
                 "target"
               ],
-              "method_id": "equal_length_ray_point",
               "outputs": {
                 "point": "$step.reduce_equal_length_ray_path_ii.temp.equal_length_auxiliary_point"
-              },
-              "scope": "reduce_equal_length_ray_path_ii"
+              }
             },
             {
+              "method_id": "distance_between_points",
+              "scope": "reduce_equal_length_ray_path_ii",
               "inputs": [
                 "p1",
                 "p2"
               ],
-              "method_id": "distance_between_points",
               "outputs": {
                 "distance": "$step.reduce_equal_length_ray_path_ii.temp.distance"
-              },
-              "scope": "reduce_equal_length_ray_path_ii"
+              }
             }
           ],
           "promotions": {
             "$step.reduce_equal_length_ray_path_ii.temp.distance": "$question.ii.outputs.minimum_expression",
             "$step.reduce_equal_length_ray_path_ii.temp.equal_length_auxiliary_point": "$question.ii.points.equal_length_auxiliary_point"
-          },
-          "scope": "ii",
-          "step_id": "reduce_equal_length_ray_path_ii"
-        }
-      ]
-    },
-    {
-      "bindings": [
-        {
-          "arg": "constraint",
-          "authority": "compiler",
-          "item": 0,
-          "paths": [
-            "$problem.conditions.symbol_constraint_56d59dfe1975"
-          ],
-          "role": "constraint",
-          "target": "constraint"
-        },
-        {
-          "arg": "expression",
-          "authority": "wire",
-          "item": 0,
-          "paths": [
-            "$question.ii.outputs.minimum_expression"
-          ],
-          "role": "expression",
-          "target": "expression"
-        },
-        {
-          "arg": "minimum_value",
-          "authority": "wire",
-          "item": 0,
-          "paths": [
-            "$question.ii.conditions.minimum_value_given_701bf7b40d65"
-          ],
-          "role": "minimum_value",
-          "target": "condition"
-        },
-        {
-          "arg": "parameter",
-          "authority": "wire",
-          "item": 0,
-          "paths": [
-            "$problem.symbols.a"
-          ],
-          "role": "parameter",
-          "target": "parameter"
+          }
         }
       ],
-      "call_id": "solve_parameter_from_minimum_ii",
-      "capability_id": "parameter_from_expression_value",
-      "provenance": [
+      "bindings": [
         {
-          "allocation_action": "create",
-          "closure_signature": null,
-          "object_id": "symbol:problem:a",
-          "result_form": "closed_state",
-          "return_name": "parameter_value",
-          "runtime_type": "ParameterValue",
-          "source_version_count": 0
+          "arg": "anchor",
+          "item": 0,
+          "role": "anchor",
+          "authority": "resolver",
+          "target": null,
+          "paths": []
+        },
+        {
+          "arg": "equal_length_condition",
+          "item": 0,
+          "role": "equal_length_condition",
+          "authority": "wire",
+          "target": null,
+          "paths": []
+        },
+        {
+          "arg": "fixed_point",
+          "item": 0,
+          "role": "fixed_point",
+          "authority": "resolver",
+          "target": null,
+          "paths": []
+        },
+        {
+          "arg": "path_minimum_target",
+          "item": 0,
+          "role": "path_minimum_target",
+          "authority": "wire",
+          "target": null,
+          "paths": []
+        },
+        {
+          "arg": "point_on_ray",
+          "item": 0,
+          "role": "point_on_ray",
+          "authority": "wire",
+          "target": null,
+          "paths": []
+        },
+        {
+          "arg": "point_on_segment",
+          "item": 0,
+          "role": "point_on_segment",
+          "authority": "wire",
+          "target": null,
+          "paths": []
+        },
+        {
+          "arg": "ray_point",
+          "item": 0,
+          "role": "ray_point",
+          "authority": "resolver",
+          "target": null,
+          "paths": []
+        },
+        {
+          "arg": "reference_point",
+          "item": 0,
+          "role": "reference_point",
+          "authority": "resolver",
+          "target": null,
+          "paths": []
         }
       ],
       "public_returns": [
         {
-          "identity_policy": "preserve_input_object",
-          "name": "parameter_value",
-          "output_key": "parameter_value",
-          "required": true,
-          "runtime_type": "ParameterValue",
-          "write_mode": "create"
+          "name": "minimum_expression",
+          "runtime_type": "MinimumExpression",
+          "identity_policy": "value_only",
+          "write_mode": "value",
+          "output_key": "distance_between_points.distance",
+          "required": true
         }
       ],
+      "provenance": [
+        {
+          "return_name": "minimum_expression",
+          "runtime_type": "MinimumExpression",
+          "allocation_action": "call_local_value",
+          "result_form": "open_expression",
+          "object_id": null,
+          "source_version_count": 4,
+          "closure_signature": null
+        }
+      ]
+    },
+    {
+      "call_id": "solve_parameter_from_minimum_ii",
+      "capability_id": "parameter_from_expression_value",
       "steps": [
         {
+          "step_id": "solve_parameter_from_minimum_ii",
+          "scope": "ii",
           "invocations": [
             {
+              "method_id": "parameter_from_expression_value",
+              "scope": "solve_parameter_from_minimum_ii",
               "inputs": [
                 "condition",
                 "constraint",
                 "expression",
                 "parameter"
               ],
-              "method_id": "parameter_from_expression_value",
               "outputs": {
                 "parameter_value": "$step.solve_parameter_from_minimum_ii.temp.parameter_value"
-              },
-              "scope": "solve_parameter_from_minimum_ii"
+              }
             }
           ],
           "promotions": {
             "$step.solve_parameter_from_minimum_ii.temp.parameter_value": "$question.ii.outputs.a"
-          },
-          "scope": "ii",
-          "step_id": "solve_parameter_from_minimum_ii"
+          }
+        }
+      ],
+      "bindings": [
+        {
+          "arg": "expression",
+          "item": 0,
+          "role": "expression",
+          "authority": "wire",
+          "target": "expression",
+          "paths": [
+            "$question.ii.outputs.minimum_expression"
+          ]
+        },
+        {
+          "arg": "minimum_value",
+          "item": 0,
+          "role": "minimum_value",
+          "authority": "wire",
+          "target": "condition",
+          "paths": [
+            "$question.ii.conditions.minimum_value_given_701bf7b40d65"
+          ]
+        },
+        {
+          "arg": "parameter",
+          "item": 0,
+          "role": "parameter",
+          "authority": "wire",
+          "target": "parameter",
+          "paths": [
+            "$problem.symbols.a"
+          ]
+        }
+      ],
+      "public_returns": [
+        {
+          "name": "parameter_value",
+          "runtime_type": "ParameterValue",
+          "identity_policy": "preserve_input_object",
+          "write_mode": "create",
+          "output_key": "parameter_value",
+          "required": true
+        }
+      ],
+      "provenance": [
+        {
+          "return_name": "parameter_value",
+          "runtime_type": "ParameterValue",
+          "allocation_action": "create",
+          "result_form": "closed_state",
+          "object_id": "symbol:problem:a",
+          "source_version_count": 0,
+          "closure_signature": null
         }
       ]
     }
-  ],
-  "case_id": "heping",
-  "schema": "functional_compile_manifest/v1"
+  ]
 }

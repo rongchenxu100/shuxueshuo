@@ -162,6 +162,7 @@ SPEC = MethodSpecSource(
     outputs={"point": "Point"},
     preconditions=("最短线段与 moving_locus 不平行",),
     postconditions=("输出点同时位于最短线段和 moving_locus 上",),
+    interchangeable_arg_groups=(("minimum_point_1", "minimum_point_2"),),
     explanation=MethodExplanationSpec(
         role_schema={
             "parameter_assignment": "已求出的参数值（若有）。",

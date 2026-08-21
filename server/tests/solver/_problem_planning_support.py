@@ -59,8 +59,13 @@ from shuxueshuo_server.solver.runtime.strategy_replay import (
 from shuxueshuo_server.solver.runtime.strategy_payload import (
     build_strategy_probe_inputs,
 )
+from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
+    ScopedFunctionalPlanValidator,
+    scoped_functional_plan_id,
+)
 
 from _problem_extraction_f3_support import make_f3_fixture
+from _scoped_functional_plan_support import load_v2_fixture_payload
 
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -75,6 +80,20 @@ CASES = (
 )
 
 _PLANNING_AUTHORITY_CACHE: dict[str, tuple] = {}
+_SCOPE_NATIVE_PLAN_ID_CACHE: dict[str, str] = {}
+
+
+def scope_native_plan_id(case: str) -> str:
+    cached = _SCOPE_NATIVE_PLAN_ID_CACHE.get(case)
+    if cached is not None:
+        return cached
+    plan, report = ScopedFunctionalPlanValidator().validate_payload_with_report(
+        load_v2_fixture_payload(case)
+    )
+    assert report.ok and plan is not None, report.to_payload()
+    plan_id = scoped_functional_plan_id(plan)
+    _SCOPE_NATIVE_PLAN_ID_CACHE[case] = plan_id
+    return plan_id
 
 
 def domain_payload(case: str) -> dict:
@@ -252,6 +271,7 @@ def scope_native_reconciliation_fixture(
         handle_registry=registry,
         question_goals=inputs.question_goals,
         problem_binding_catalog=binding_catalog,
+        canonical_plan_id=scope_native_plan_id(case),
     )
     return (*fixture, plan, validation, reconciliation)
 
@@ -288,6 +308,7 @@ def scope_native_retry_checkpoint_fixture(
         planner_state_context=planner_context,
         validation_report=validation,
         problem_binding_catalog=catalog,
+        canonical_plan_id=scope_native_plan_id(case),
     )
     attempt_result = replay.transactional_attempt_result
     assert attempt_result is not None

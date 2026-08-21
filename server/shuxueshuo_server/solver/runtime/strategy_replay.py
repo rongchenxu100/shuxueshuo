@@ -395,6 +395,7 @@ class PlannerRetryReplayService:
         authored_return_consumers: Mapping[
             tuple[str, str], Sequence[str]
         ] | None = None,
+        canonical_plan_id: str | None = None,
     ) -> PlannerRetryReplayResult:
         """Compose reconciliation and execution for legacy/v1 callers."""
 
@@ -423,6 +424,7 @@ class PlannerRetryReplayService:
             allow_incomplete_goals=allow_incomplete_goals,
             restored_seed=restored_seed,
             authored_return_consumers=authored_return_consumers,
+            canonical_plan_id=canonical_plan_id,
         )
         return self.execute_reconciled_functional_plan(
             prepared,
@@ -456,6 +458,7 @@ class PlannerRetryReplayService:
         authored_return_consumers: Mapping[
             tuple[str, str], Sequence[str]
         ] | None = None,
+        canonical_plan_id: str | None = None,
     ) -> PlannerRetryReplayResult:
         """Reconcile a FunctionalPlan without executing any method."""
         planner_state_context = planner_state_context or _initial_planner_state_context(
@@ -531,6 +534,7 @@ class PlannerRetryReplayService:
                 # Entities intentionally read their latest visible state.
                 # StepResultRef is reserved for anonymous/exact results.
                 require_explicit_step_results=False,
+                canonical_plan_id=canonical_plan_id,
             )
 
         reconciliation = reconcile_candidate(plan)

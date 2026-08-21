@@ -97,6 +97,14 @@ _REPAIR_MESSAGES = {
         "Replace the observed return role with exactly one compatible public "
         "return role listed in expected_roles."
     ),
+    "choose_visible_output_target": (
+        "Bind the return to one of expected_targets whose visible source Fact "
+        "satisfies required_fact_kind and required_fields."
+    ),
+    "choose_applicable_point_construction_capability": (
+        "Use an existing complete Point state directly, or choose a Point "
+        "construction capability whose required source Fact matches the target."
+    ),
     "repair_failed_step": "Replace the failed Goal steps with a valid strategy.",
     "refresh_derived_input_states": (
         "Recompute or close the listed derived Math Entity states after their "
@@ -120,6 +128,9 @@ _REPAIR_MESSAGES = {
     ),
     "separate_target_and_free_parameters": (
         "Do not declare the target parameter as a preserved free parameter."
+    ),
+    "separate_distinct_arguments": (
+        "Bind each listed argument role to a different compatible Math Entity."
     ),
     "remove_redundant_free_parameters": (
         "Remove free parameters that are already closed by the visible state."
@@ -789,9 +800,47 @@ def diagnostic_authority_from_issue(
     subjects = _subjects_from_details(details)
     expected = _prefixed_details(
         details,
-        ("expected", "required", "requirement", "relation"),
+        (
+            "expected",
+            "required",
+            "requirement",
+            "relation",
+            "allowed",
+            "legal",
+            "repair_options",
+        ),
     )
-    observed = _prefixed_details(details, ("actual", "observed", "candidate"))
+    observed = _prefixed_details(
+        details,
+        (
+            "actual",
+            "observed",
+            "candidate",
+            "available",
+            "current",
+            "duplicate",
+            "existing",
+            "missing",
+            "unknown",
+            "status",
+            "branch_count",
+            "compatible",
+            "constraint_symbols",
+            "declared",
+            "free_symbol",
+            "object_candidates",
+            "remaining_free",
+            "requested",
+            "residual",
+            "unchanged_binding",
+        ),
+        suffixes=("_candidates",),
+        exact_keys=(
+            "conditions",
+            "endpoints",
+            "materialized_points",
+        ),
+    )
     accepted_types = _string_sequence(details.get("accepted_item_types"))
     if accepted_types:
         expected.setdefault("accepted_types", list(accepted_types))
@@ -802,6 +851,14 @@ def diagnostic_authority_from_issue(
         expected.setdefault(
             "accepted_condition_kinds",
             list(accepted_condition_kinds),
+        )
+    accepted_semantic_roles = _string_sequence(
+        details.get("accepted_semantic_roles")
+    )
+    if accepted_semantic_roles:
+        expected.setdefault(
+            "accepted_semantic_roles",
+            list(accepted_semantic_roles),
         )
     available_types = _string_sequence(details.get("available_value_types"))
     if available_types:
@@ -1481,9 +1538,10 @@ def _project_prompt_value(
 def _subjects_from_details(
     details: Mapping[str, Any],
 ) -> tuple[FunctionalDiagnosticSubject, ...]:
+    declared_result: list[FunctionalDiagnosticSubject] = []
     declared_subjects = details.get("subjects")
     if isinstance(declared_subjects, (list, tuple)):
-        result = tuple(
+        declared_result.extend(
             FunctionalDiagnosticSubject(
                 role=_optional_string(item.get("role")),
                 arg_name=_optional_string(item.get("arg_name")),
@@ -1497,8 +1555,81 @@ def _subjects_from_details(
             for item in declared_subjects
             if isinstance(item, Mapping)
         )
-        if result:
-            return result
+    current_bindings = details.get("current_bindings")
+    if not declared_result and isinstance(current_bindings, (list, tuple)):
+        for item in current_bindings:
+            if not isinstance(item, Mapping):
+                continue
+            source_call_id = _optional_string(item.get("source_call_id"))
+            return_name = _optional_string(item.get("return"))
+            internal_ref = _optional_string(
+                item.get("object_ref")
+                or item.get("semantic_ref")
+                or item.get("internal_ref")
+            )
+            if (
+                internal_ref is None
+                and source_call_id is not None
+                and return_name is not None
+            ):
+                internal_ref = f"{source_call_id}.{return_name}"
+            internal_ref = internal_ref or _optional_string(
+                item.get("state_slot_id") or item.get("handle")
+            )
+            declared_result.append(
+                FunctionalDiagnosticSubject(
+                    role=_optional_string(
+                        item.get("role")
+                        or item.get("semantic_role")
+                        or details.get("semantic_role")
+                    ),
+                    arg_name=_optional_string(
+                        item.get("arg_name") or item.get("arg")
+                    ),
+                    item_index=_optional_nonnegative_int(
+                        item.get("item_index")
+                    ),
+                    internal_ref=internal_ref,
+                    expected_type=_optional_string(
+                        item.get("expected_type")
+                    ),
+                    expected_state=_optional_string(
+                        item.get("expected_state")
+                    ),
+                    observed_type=_optional_string(
+                        item.get("observed_type")
+                    ),
+                    observed_state=_optional_string(
+                        item.get("observed_state")
+                    ),
+                )
+            )
+    if declared_result:
+        return tuple(dict.fromkeys(declared_result))
+    candidate_subject_specs = (
+        ("symbol_candidates", "parameter_candidate", "Symbol"),
+        ("condition_candidates", "condition_candidate", "Condition"),
+        ("target_candidates", "target_candidate", "Point"),
+        ("object_candidates", "object_candidate", None),
+    )
+    for key, candidate_role, candidate_type in candidate_subject_specs:
+        values = details.get(key)
+        if not isinstance(values, (list, tuple, set, frozenset)):
+            continue
+        for value in values:
+            declared_result.append(
+                FunctionalDiagnosticSubject(
+                    role=candidate_role,
+                    internal_ref=_identity_string(value),
+                    expected_type=(
+                        candidate_type
+                        or _optional_string(details.get("expected_type"))
+                    ),
+                    expected_state="candidate",
+                )
+            )
+    if declared_result:
+        return tuple(dict.fromkeys(declared_result))
     refs: list[str] = []
     source_call_id = _optional_string(details.get("source_call_id"))
     source_return_name = _optional_string(details.get("source_return_name"))
@@ -1628,11 +1759,19 @@ def _repair_action_for(
 def _prefixed_details(
     details: Mapping[str, Any],
     prefixes: Sequence[str],
+    *,
+    suffixes: Sequence[str] = (),
+    exact_keys: Sequence[str] = (),
 ) -> dict[str, Any]:
+    exact = frozenset(exact_keys)
     return {
         str(key): _thaw(_freeze(value))
         for key, value in details.items()
-        if any(str(key).startswith(prefix) for prefix in prefixes)
+        if (
+            any(str(key).startswith(prefix) for prefix in prefixes)
+            or any(str(key).endswith(suffix) for suffix in suffixes)
+            or str(key) in exact
+        )
     }
 
 
@@ -1655,11 +1794,21 @@ def _prompt_safe_mapping(value: Mapping[str, Any]) -> dict[str, Any]:
         "state_slot",
         "state_version",
     )
-    return {
-        str(key): _thaw(item)
-        for key, item in value.items()
-        if not any(fragment in str(key).lower() for fragment in forbidden_fragments)
-    }
+    def project(item: Any) -> Any:
+        if isinstance(item, Mapping):
+            return {
+                str(key): project(nested)
+                for key, nested in item.items()
+                if not any(
+                    fragment in str(key).lower()
+                    for fragment in forbidden_fragments
+                )
+            }
+        if isinstance(item, (list, tuple, set, frozenset)):
+            return [project(nested) for nested in item]
+        return _thaw(item)
+
+    return project(value)
 
 
 def _audit_projected_diagnostic(

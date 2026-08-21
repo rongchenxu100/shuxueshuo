@@ -17,6 +17,7 @@ from shuxueshuo_server.solver.runtime.functional_context_values import (
     latest_point_state_for_object,
     object_identity_value,
     resolved_value_object_refs,
+    state_producer_locations_for_object,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_elaboration import (
     FunctionalDeterministicRepair,
@@ -56,6 +57,28 @@ ContextClosureResolution = tuple[
     tuple[FunctionalPlanIssue, ...],
     bool,
 ]
+
+
+def _state_scope_diagnostic_details(
+    object_ref: str,
+    *,
+    scope_id: str,
+    produced: Mapping[tuple[str, str], ResolvedFunctionalValue],
+) -> dict[str, Any]:
+    producers = state_producer_locations_for_object(
+        object_ref,
+        produced=produced,
+    )
+    return {
+        "required_producer_scope": scope_id,
+        "existing_producer_scopes": sorted(
+            {producer_scope for _step_id, producer_scope in producers}
+        ),
+        "existing_producers": [
+            {"step_id": step_id, "scope_ref": producer_scope}
+            for step_id, producer_scope in producers
+        ],
+    }
 
 
 @dataclass(frozen=True)
@@ -386,6 +409,11 @@ def resolve_equal_length_ray_path_args(
                         "arg": arg_name,
                         "semantic_role": semantic_role,
                         "object_ref": object_ref,
+                        **_state_scope_diagnostic_details(
+                            object_ref,
+                            scope_id=scope_id,
+                            produced=produced,
+                        ),
                     },
                 )
             )
@@ -611,6 +639,11 @@ def resolve_path_reduction_args(
                             "endpoint before the path transformation. Do not "
                             "substitute another visible Point by name or type."
                         ),
+                        **_state_scope_diagnostic_details(
+                            object_ref,
+                            scope_id=scope_id,
+                            produced=produced,
+                        ),
                     },
                 )
             )
@@ -779,6 +812,11 @@ def resolve_square_path_transformation_args(
                             "endpoint before building the transformation. Do "
                             "not replace it with an unrelated visible Point."
                         ),
+                        **_state_scope_diagnostic_details(
+                            object_ref,
+                            scope_id=scope_id,
+                            produced=produced,
+                        ),
                     },
                 )
             )
@@ -920,6 +958,11 @@ def resolve_weighted_path_transformation_args(
                             "Add or retain the producer for the structurally "
                             "declared endpoint before building the weighted "
                             "path transformation."
+                        ),
+                        **_state_scope_diagnostic_details(
+                            curve_ref,
+                            scope_id=scope_id,
+                            produced=produced,
                         ),
                     },
                 ),

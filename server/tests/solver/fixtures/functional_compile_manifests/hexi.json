@@ -17,7 +17,6 @@
                 "all_coefficients",
                 "known_coefficients",
                 "quadratic",
-                "quadratic_template",
                 "x"
               ],
               "outputs": {
@@ -33,16 +32,6 @@
         }
       ],
       "bindings": [
-        {
-          "arg": "all_coefficients",
-          "item": 0,
-          "role": "all_coefficients",
-          "authority": "compiler",
-          "target": "all_coefficients",
-          "paths": [
-            "$problem.symbol_lists.quadratic_coefficients"
-          ]
-        },
         {
           "arg": "known_coefficients",
           "item": 0,
@@ -79,16 +68,6 @@
           "role": "quadratic",
           "authority": "compiler",
           "target": "quadratic",
-          "paths": [
-            "$problem.expressions.quadratic"
-          ]
-        },
-        {
-          "arg": "quadratic_template",
-          "item": 0,
-          "role": "quadratic_template",
-          "authority": "compiler",
-          "target": "quadratic_template",
           "paths": [
             "$problem.expressions.quadratic"
           ]
@@ -242,7 +221,6 @@
                 "parameter",
                 "parameter_value",
                 "quadratic",
-                "quadratic_template",
                 "x"
               ],
               "outputs": {
@@ -258,16 +236,6 @@
         }
       ],
       "bindings": [
-        {
-          "arg": "all_coefficients",
-          "item": 0,
-          "role": "all_coefficients",
-          "authority": "compiler",
-          "target": "all_coefficients",
-          "paths": [
-            "$problem.symbol_lists.quadratic_coefficients"
-          ]
-        },
         {
           "arg": "curve_point",
           "item": 0,
@@ -314,16 +282,6 @@
           "role": "quadratic",
           "authority": "compiler",
           "target": "quadratic",
-          "paths": [
-            "$problem.expressions.quadratic"
-          ]
-        },
-        {
-          "arg": "quadratic_template",
-          "item": 0,
-          "role": "quadratic_template",
-          "authority": "compiler",
-          "target": "quadratic_template",
           "paths": [
             "$problem.expressions.quadratic"
           ]
@@ -680,7 +638,6 @@
                 "parameter",
                 "parameter_value",
                 "quadratic",
-                "quadratic_template",
                 "x"
               ],
               "outputs": {
@@ -696,16 +653,6 @@
         }
       ],
       "bindings": [
-        {
-          "arg": "all_coefficients",
-          "item": 0,
-          "role": "all_coefficients",
-          "authority": "compiler",
-          "target": "all_coefficients",
-          "paths": [
-            "$problem.symbol_lists.quadratic_coefficients"
-          ]
-        },
         {
           "arg": "curve_point",
           "item": 0,
@@ -752,16 +699,6 @@
           "role": "quadratic",
           "authority": "compiler",
           "target": "quadratic",
-          "paths": [
-            "$problem.expressions.quadratic"
-          ]
-        },
-        {
-          "arg": "quadratic_template",
-          "item": 0,
-          "role": "quadratic_template",
-          "authority": "compiler",
-          "target": "quadratic_template",
           "paths": [
             "$problem.expressions.quadratic"
           ]
@@ -968,7 +905,7 @@
           "authority": "compiler",
           "target": "linked_fixed_endpoint_ref",
           "paths": [
-            "$question.iii.object_refs.M"
+            "$question.iii.facts.__functional_transaction_transform_weighted_path_iii_2"
           ]
         },
         {
@@ -1173,16 +1110,6 @@
           ]
         },
         {
-          "arg": "parameter_constraint",
-          "item": 0,
-          "role": "parameter_constraint",
-          "authority": "compiler",
-          "target": "parameter_constraint",
-          "paths": [
-            "$question.iii.conditions.symbol_constraint_97f06befa39f"
-          ]
-        },
-        {
           "arg": "path_transformation",
           "item": 0,
           "role": "path_transformation",
@@ -1243,16 +1170,6 @@
         }
       ],
       "bindings": [
-        {
-          "arg": "constraint",
-          "item": 0,
-          "role": "constraint",
-          "authority": "compiler",
-          "target": "constraint",
-          "paths": [
-            "$problem.conditions.symbol_constraint_f11ebacac514"
-          ]
-        },
         {
           "arg": "expression",
           "item": 0,

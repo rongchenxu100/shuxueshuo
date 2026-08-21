@@ -160,5 +160,9 @@ SPEC = MethodSpecSource(
     ),
     postconditions=("求得参数满足长度方程；若有参数范围约束，按范围筛选唯一解",),
     trace_template=(),
+    interchangeable_arg_groups=(
+        ("p1", "p2"),
+        ("reference_p1", "reference_p2"),
+    ),
     symbolic_closure=_SYMBOLIC_CLOSURE_SPEC,
 )

@@ -162,8 +162,7 @@ def _problem_binding_schema_defs() -> dict[str, Any]:
             },
         ]
     }
-    functional_source = {
-        "oneOf": [
+    functional_direct_sources = [
             {
                 "type": "object",
                 "required": ["kind", field],
@@ -185,15 +184,9 @@ def _problem_binding_schema_defs() -> dict[str, Any]:
                     "math_object_id",
                     {"$ref": "#/$defs/math_object_id"},
                 ),
-                (
-                    "compiler_selector",
-                    "compiler_selector_id",
-                    nonempty_string,
-                ),
             )
         ]
-        + [
-            {
+    functional_call_result_source = {
                 "type": "object",
                 "required": [
                     "kind",
@@ -207,6 +200,28 @@ def _problem_binding_schema_defs() -> dict[str, Any]:
                 },
                 "additionalProperties": False,
             }
+    functional_selected_source = {
+        "oneOf": [
+            *functional_direct_sources,
+            functional_call_result_source,
+        ]
+    }
+    functional_source = {
+        "oneOf": [
+            *functional_direct_sources,
+            functional_call_result_source,
+            {
+                "type": "object",
+                "required": ["kind", "compiler_selector_id"],
+                "properties": {
+                    "kind": {"const": "compiler_selector"},
+                    "compiler_selector_id": nonempty_string,
+                    "selected_source": {
+                        "$ref": "#/$defs/functional_selected_source"
+                    },
+                },
+                "additionalProperties": False,
+            },
         ]
     }
     return {
@@ -216,6 +231,7 @@ def _problem_binding_schema_defs() -> dict[str, Any]:
         "state_version_id": state_version_id,
         "semantic_ref": semantic_ref,
         "problem_typed_source": problem_typed_source,
+        "functional_selected_source": functional_selected_source,
         "functional_source": functional_source,
         "scoped_source_ref_key": {
             "type": "object",

@@ -4,6 +4,8 @@ from copy import deepcopy
 from dataclasses import replace
 import json
 
+import pytest
+
 from shuxueshuo_server.solver.runtime.context import ContextBuilder
 from shuxueshuo_server.solver.runtime.functional_goal_execution import (
     FunctionalExecutionRestoreState,
@@ -14,6 +16,7 @@ from shuxueshuo_server.solver.runtime.functional_goal_execution import (
     _build_checkpoint,
 )
 from shuxueshuo_server.solver.runtime.functional_goal_retry import (
+    FunctionalGoalRetryError,
     FunctionalGoalRetryProjector,
     _iter_execution_scopes,
     _retry_scope_prompt,
@@ -53,6 +56,33 @@ def test_strict_goal_authority_freezes_only_fully_verified_goals(tmp_path) -> No
         "typed_checkpoint_restorable"
     ] is False
     assert authority.editable_goal_refs == (FAILED_GOAL_REF,)
+
+
+def test_checkpoint_drift_is_configuration_and_preserves_root_issue(
+    tmp_path,
+) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    assert fixture.execution.checkpoint is not None
+    checkpoint = replace(
+        fixture.execution.checkpoint,
+        plan_id="plan:foreign",
+    )
+    execution = replace(fixture.execution, checkpoint=checkpoint)
+
+    with pytest.raises(FunctionalGoalRetryError) as captured:
+        FunctionalGoalRetryProjector().project(
+            plan=fixture.failed_plan,
+            execution=execution,
+            planning_context=fixture.planning_context,
+            binding_catalog=fixture.binding_catalog,
+        )
+
+    error = captured.value
+    assert error.code == "planner.goal_checkpoint_authority_invalid"
+    assert error.retryable is False
+    assert error.details["root_issues"] == [
+        dict(item) for item in checkpoint.root_issues
+    ]
 
 
 def test_mixed_scope_projects_editable_and_frozen_step_ids(tmp_path) -> None:

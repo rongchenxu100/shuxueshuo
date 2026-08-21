@@ -493,6 +493,7 @@ class MethodSpec:
     plan_transformer_scope: PlanTransformerScope = "single_invocation"
     reconciliation_validators: tuple[str, ...] = ()
     distinct_arg_groups: tuple[tuple[str, ...], ...] = ()
+    interchangeable_arg_groups: tuple[tuple[str, ...], ...] = ()
     symbolic_closure: SymbolicClosureSpec | None = None
     # Missing/legacy specs are conservative. Code-owned stateless methods
     # declare purity explicitly through MethodSpecSource.

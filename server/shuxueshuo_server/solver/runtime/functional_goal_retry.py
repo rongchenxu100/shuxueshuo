@@ -20,6 +20,7 @@ from shuxueshuo_server.solver.extraction.problem_planning_context import (
 from shuxueshuo_server.solver.extraction.source_identity import stable_hash
 from shuxueshuo_server.solver.runtime.functional_goal_execution import (
     FunctionalGoalExecutionCheckpoint,
+    FunctionalGoalExecutionCheckpointError,
     FunctionalGoalExecutionGoal,
     FunctionalGoalExecutionScope,
     FunctionalGoalExecutionStep,
@@ -50,6 +51,7 @@ from shuxueshuo_server.solver.runtime.functional_plan_content import (
     functional_plan_content_from_plan,
     normalize_empty_optional_capability_args,
     normalize_empty_optional_step_maps,
+    normalize_interchangeable_capability_args,
 )
 from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
     FunctionalRestoredCallSeed,
@@ -73,7 +75,7 @@ from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
     ScopedFunctionalPlanValidator,
     ScopedFunctionalScope,
     apply_scoped_published_goal_bindings,
-    scoped_functional_plan_authority_payload,
+    scoped_functional_plan_id,
     scoped_published_goal_bindings,
     scoped_functional_plan_schema,
 )
@@ -813,9 +815,7 @@ class FunctionalGoalRetryAuthority:
             "editable_answer_goal_refs",
             tuple(sorted(self.editable_answer_goal_refs)),
         )
-        expected_plan_hash = stable_hash(
-            scoped_functional_plan_authority_payload(self.base_plan)
-        )
+        expected_plan_hash = scoped_functional_plan_id(self.base_plan)
         if (
             self.base_plan_id != expected_plan_hash
             or self.base_plan_hash != expected_plan_hash
@@ -1316,9 +1316,7 @@ class ScopedFunctionalGoalRetryService:
                     result_retry_authority=next_retry_authority,
                 )
                 attempt_signature = (
-                    stable_hash(
-                        scoped_functional_plan_authority_payload(current_plan)
-                    ),
+                    scoped_functional_plan_id(current_plan),
                     _retry_issue_signature(next_retry_authority),
                 )
                 if (
@@ -1747,25 +1745,37 @@ class FunctionalGoalRetryProjector:
                 "Goal replacement retry requires a canonical Plan checkpoint",
                 retryable=False,
             )
-        checkpoint.verify_authority(
-            planning_context=planning_context,
-            binding_catalog=binding_catalog,
-            authority=authority,
-            goal_authority=execution.authoring_authority,
-            dependency_graph=(
-                execution.replay.functional_reconciliation.dependency_graph
-                if execution.replay is not None
-                and execution.replay.functional_reconciliation is not None
-                else {}
-            ),
-            binding_context=(
-                execution.replay.functional_reconciliation
-                .functional_problem_binding_context
-                if execution.replay is not None
-                and execution.replay.functional_reconciliation is not None
-                else None
-            ),
-        )
+        try:
+            checkpoint.verify_authority(
+                planning_context=planning_context,
+                binding_catalog=binding_catalog,
+                authority=authority,
+                goal_authority=execution.authoring_authority,
+                dependency_graph=(
+                    execution.replay.functional_reconciliation.dependency_graph
+                    if execution.replay is not None
+                    and execution.replay.functional_reconciliation is not None
+                    else None
+                ),
+                binding_context=(
+                    execution.replay.functional_reconciliation
+                    .functional_problem_binding_context
+                    if execution.replay is not None
+                    and execution.replay.functional_reconciliation is not None
+                    else None
+                ),
+            )
+        except FunctionalGoalExecutionCheckpointError as exc:
+            raise FunctionalGoalRetryError(
+                "planner.goal_checkpoint_authority_invalid",
+                exc.path,
+                exc.message,
+                retryable=False,
+                details={
+                    "checkpoint_error_code": exc.code,
+                    "root_issues": [dict(item) for item in checkpoint.root_issues],
+                },
+            ) from exc
         configuration_diagnostics = _configuration_diagnostics(checkpoint)
         if configuration_diagnostics:
             first = configuration_diagnostics[0]
@@ -2012,9 +2022,7 @@ class FunctionalGoalRetryProjector:
             goal_authorities,
         )
         repair_base_plan = _apply_step_promotions(plan, step_promotions)
-        repair_base_plan_id = stable_hash(
-            scoped_functional_plan_authority_payload(repair_base_plan)
-        )
+        repair_base_plan_id = scoped_functional_plan_id(repair_base_plan)
         editable_scopes, frozen_scopes, scope_statuses = _scope_authority(
             checkpoint.root_scope,
             goal_authorities=goal_authorities,
@@ -2266,7 +2274,17 @@ class FunctionalGoalRepairService:
                     capability_catalog=capability_catalog,
                 )
             )
-            normalizations = (*normalizations, *arg_normalizations)
+            payload, interchangeable_normalizations = (
+                normalize_interchangeable_capability_args(
+                    payload,
+                    capability_catalog=capability_catalog,
+                )
+            )
+            normalizations = (
+                *normalizations,
+                *arg_normalizations,
+                *interchangeable_normalizations,
+            )
         _validate_goal_repair_payload(payload)
         assert isinstance(payload, dict)
         return _goal_repair_from_payload(
@@ -2309,9 +2327,18 @@ class FunctionalGoalRepairService:
         arg_normalizations: tuple[
             FunctionalPlanContentNormalization, ...
         ] = ()
+        interchangeable_normalizations: tuple[
+            FunctionalPlanContentNormalization, ...
+        ] = ()
         if capability_catalog is not None:
             payload, arg_normalizations = (
                 normalize_empty_optional_capability_args(
+                    payload,
+                    capability_catalog=capability_catalog,
+                )
+            )
+            payload, interchangeable_normalizations = (
+                normalize_interchangeable_capability_args(
                     payload,
                     capability_catalog=capability_catalog,
                 )
@@ -2325,6 +2352,7 @@ class FunctionalGoalRepairService:
                 *step_map_normalizations,
                 *repair_map_normalizations,
                 *arg_normalizations,
+                *interchangeable_normalizations,
             ),
         )
         if repair.base_plan_id != authority.base_plan_id:
@@ -2341,9 +2369,7 @@ class FunctionalGoalRepairService:
                 "repair does not target the current Goal retry authority",
                 retryable=False,
             )
-        if stable_hash(
-            scoped_functional_plan_authority_payload(base_plan)
-        ) != authority.base_plan_hash:
+        if scoped_functional_plan_id(base_plan) != authority.base_plan_hash:
             raise FunctionalGoalRetryError(
                 "functional.goal_repair_stale_plan",
                 "$.previous_plan",
@@ -2653,7 +2679,7 @@ class FunctionalGoalRepairService:
                 "$.goal_replacements",
                 str(exc),
             ) from exc
-        plan_hash = stable_hash(scoped_functional_plan_authority_payload(plan))
+        plan_hash = scoped_functional_plan_id(plan)
         return FunctionalGoalRepairApplication(
             repair=repair,
             plan=plan,
@@ -3732,12 +3758,12 @@ def _merge_scope_step_replacement(
             "$.scope_step_replacements",
             "scope replacement has no editable slot in the previous plan",
         )
-    # Project the replacement sequence back onto the old editable slots even
-    # when the LLM adds or removes steps. Frozen steps are semantic barriers:
-    # an inserted step inherits the nearest relative editable interval rather
-    # than floating past every frozen producer during the topological merge.
-    # A single renamed replacement spanning several old intervals has no
-    # defensible placement authority, so reject it instead of guessing.
+    # Project the replacement sequence back onto the old editable slots when
+    # that correspondence is provable. Frozen steps are semantic barriers. Two
+    # editable islands have unambiguous endpoints, and equal-cardinality edits
+    # have an ordinal one-to-one mapping. With three or more islands, however,
+    # an added/removed and renamed step needs a retained old id to identify its
+    # island; proportional placement would invent repair authority.
     replacement_slot_positions: dict[str, int] = {}
     if len(replacement_ids) == 1:
         replacement_id = replacement_ids[0]
@@ -3766,6 +3792,106 @@ def _merge_scope_step_replacement(
                     },
                 )
             replacement_slot_positions[replacement_id] = first_slot
+    elif (
+        len(replacement_ids) != len(editable_positions)
+        and sum(
+            1
+            for index, position in enumerate(editable_positions)
+            if index == 0 or position != editable_positions[index - 1] + 1
+        )
+        >= 3
+    ):
+        editable_islands: list[tuple[int, ...]] = []
+        for position in editable_positions:
+            if not editable_islands or position != editable_islands[-1][-1] + 1:
+                editable_islands.append((position,))
+            else:
+                editable_islands[-1] = (*editable_islands[-1], position)
+        island_by_position = {
+            position: island_index
+            for island_index, island in enumerate(editable_islands)
+            for position in island
+        }
+        retained_anchor_indices = {
+            replacement_index: island_by_position[previous_positions[step_id]]
+            for replacement_index, step_id in enumerate(replacement_ids)
+            if previous_positions.get(step_id) in island_by_position
+        }
+        unresolved: list[str] = []
+        for replacement_index, replacement_id in enumerate(replacement_ids):
+            old_position = previous_positions.get(replacement_id)
+            if old_position in island_by_position:
+                replacement_slot_positions[replacement_id] = old_position
+                continue
+            previous_anchor = next(
+                (
+                    retained_anchor_indices[index]
+                    for index in range(replacement_index - 1, -1, -1)
+                    if index in retained_anchor_indices
+                ),
+                None,
+            )
+            next_anchor = next(
+                (
+                    retained_anchor_indices[index]
+                    for index in range(
+                        replacement_index + 1,
+                        len(replacement_ids),
+                    )
+                    if index in retained_anchor_indices
+                ),
+                None,
+            )
+            if previous_anchor is not None and previous_anchor == next_anchor:
+                island_index = previous_anchor
+            elif previous_anchor is None and next_anchor == 0:
+                island_index = 0
+            elif (
+                next_anchor is None
+                and previous_anchor == len(editable_islands) - 1
+            ):
+                island_index = len(editable_islands) - 1
+            else:
+                unresolved.append(replacement_id)
+                continue
+            replacement_slot_positions[replacement_id] = editable_islands[
+                island_index
+            ][0]
+        if unresolved:
+            editable_island_ids = [
+                [previous[position].step_id for position in island]
+                for island in editable_islands
+            ]
+            frozen_barriers = [
+                [
+                    previous[position].step_id
+                    for position in range(left[-1] + 1, right[0])
+                ]
+                for left, right in zip(editable_islands, editable_islands[1:])
+            ]
+            raise FunctionalGoalRetryError(
+                "functional.goal_repair_step_order_invalid",
+                "$.scope_step_replacements",
+                "replacement cardinality changed across multiple frozen "
+                "intervals, but renamed steps cannot be aligned to one prior "
+                "editable interval",
+                details={
+                    "reason": "replacement_interval_alignment_ambiguous",
+                    "replacement_step_ids": list(replacement_ids),
+                    "unresolved_replacement_step_ids": unresolved,
+                    "retained_step_ids": [
+                        step_id
+                        for step_id in replacement_ids
+                        if step_id in previous_positions
+                    ],
+                    "editable_step_islands": editable_island_ids,
+                    "frozen_barrier_step_ids": frozen_barriers,
+                    "repair_action": (
+                        "preserve_prior_step_id_in_each_changed_interval_or_"
+                        "keep_replacement_cardinality"
+                    ),
+                },
+            )
     else:
         old_span = len(editable_positions) - 1
         replacement_span = len(replacement_ids) - 1

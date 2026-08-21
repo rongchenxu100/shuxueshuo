@@ -22,6 +22,9 @@ from shuxueshuo_server.solver.contracts import (
     SymbolicClosureSpec,
     TrialErrorHintSpec,
 )
+from shuxueshuo_server.solver.runtime.method_input_contracts import (
+    validate_interchangeable_input_groups,
+)
 
 
 class MethodSpecContractError(RuntimeError):
@@ -90,6 +93,7 @@ class MethodSpecSource:
     plan_transformer_scope: PlanTransformerScope = "single_invocation"
     reconciliation_validators: tuple[str, ...] = ()
     distinct_arg_groups: tuple[tuple[str, ...], ...] = ()
+    interchangeable_arg_groups: tuple[tuple[str, ...], ...] = ()
     symbolic_closure: SymbolicClosureSpec | None = None
     # This source type is reserved for runtime/stateless methods. Stateful
     # implementations must opt out so liveness analysis cannot delete them.
@@ -172,6 +176,16 @@ class MethodSpecSource:
         if self.distinct_arg_groups:
             payload["distinct_arg_groups"] = [
                 list(group) for group in self.distinct_arg_groups
+            ]
+        if self.interchangeable_arg_groups:
+            validate_interchangeable_input_groups(
+                self.interchangeable_arg_groups,
+                inputs=inputs,
+                field_name="MethodSpec.interchangeable_arg_groups",
+                error_factory=MethodSpecContractError,
+            )
+            payload["interchangeable_arg_groups"] = [
+                list(group) for group in self.interchangeable_arg_groups
             ]
         if self.symbolic_closure is not None:
             payload["symbolic_closure"] = self.symbolic_closure.to_payload()

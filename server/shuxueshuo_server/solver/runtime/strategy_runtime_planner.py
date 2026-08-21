@@ -610,7 +610,7 @@ class StrategyPlanner:
             problem_payload
         )
         # Every attempt starts from the immutable source snapshot. Dynamic
-        # committed state is restored exclusively from checkpoint v2.
+        # Committed state is restored exclusively from Goal checkpoint v3.
         planner_state_context = initial_planner_state_context(
             inputs,
             problem_payload=problem_payload,

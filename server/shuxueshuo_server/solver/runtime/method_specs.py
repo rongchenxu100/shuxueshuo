@@ -31,6 +31,9 @@ from shuxueshuo_server.solver.runtime.runtime_type_declarations import (
     runtime_type_union_is_well_formed,
     split_runtime_types,
 )
+from shuxueshuo_server.solver.runtime.method_input_contracts import (
+    validate_interchangeable_input_groups,
+)
 
 
 class MethodSpecRegistry:
@@ -233,6 +236,10 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
         distinct_arg_groups=_parse_distinct_arg_groups(
             raw.get("distinct_arg_groups", ()),
             input_names=frozenset(inputs),
+        ),
+        interchangeable_arg_groups=_parse_interchangeable_arg_groups(
+            raw.get("interchangeable_arg_groups", ()),
+            inputs=inputs,
         ),
         symbolic_closure=_parse_symbolic_closure(
             raw.get("symbolic_closure"),
@@ -449,6 +456,55 @@ def _parse_distinct_arg_groups(
             raise ValueError(
                 "MethodSpec.distinct_arg_groups references unknown inputs: "
                 + ", ".join(unknown)
+            )
+        if group not in groups:
+            groups.append(group)
+    return tuple(groups)
+
+
+def _parse_interchangeable_arg_groups(
+    raw: object,
+    *,
+    inputs: Mapping[str, MethodInputSpec],
+) -> tuple[tuple[str, ...], ...]:
+    """Parse input slots whose mathematical meaning is permutation invariant."""
+
+    groups = _parse_arg_groups(
+        raw,
+        field_name="MethodSpec.interchangeable_arg_groups",
+        input_names=frozenset(inputs),
+    )
+    validate_interchangeable_input_groups(
+        groups,
+        inputs=inputs,
+        field_name="MethodSpec.interchangeable_arg_groups",
+    )
+    return groups
+
+
+def _parse_arg_groups(
+    raw: object,
+    *,
+    field_name: str,
+    input_names: frozenset[str],
+) -> tuple[tuple[str, ...], ...]:
+    if raw in (None, ()):
+        return ()
+    if not isinstance(raw, list | tuple):
+        raise ValueError(f"{field_name} must be a list")
+    groups: list[tuple[str, ...]] = []
+    for item in raw:
+        if not isinstance(item, list | tuple):
+            raise ValueError(f"{field_name} items must be lists")
+        group = tuple(str(name).strip() for name in item)
+        if len(group) < 2 or any(not name for name in group):
+            raise ValueError(f"{field_name} items require at least two names")
+        if len(set(group)) != len(group):
+            raise ValueError(f"{field_name} cannot repeat an argument")
+        unknown = tuple(name for name in group if name not in input_names)
+        if unknown:
+            raise ValueError(
+                f"{field_name} references unknown inputs: " + ", ".join(unknown)
             )
         if group not in groups:
             groups.append(group)

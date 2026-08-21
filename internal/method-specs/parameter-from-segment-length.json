@@ -98,6 +98,16 @@
   "postconditions": [
     "求得参数满足长度方程；若有参数范围约束，按范围筛选唯一解"
   ],
+  "interchangeable_arg_groups": [
+    [
+      "p1",
+      "p2"
+    ],
+    [
+      "reference_p1",
+      "reference_p2"
+    ]
+  ],
   "symbolic_closure": {
     "target_arg": "parameter",
     "equation_builder": "segment_length_equals_value",

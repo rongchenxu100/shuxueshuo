@@ -52,6 +52,7 @@ from shuxueshuo_server.solver.runtime.methods import (
     WeightedAxisPathTriangleTransformMethod,
 )
 from shuxueshuo_server.solver.runtime.models import PointRef
+from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.symbolic_target_closure import (
     solve_target_symbol_closure,
 )
@@ -585,6 +586,23 @@ def test_line_parabola_second_intersection_point_method_heping_geometry() -> Non
 
     assert result.outputs["point"].value == (sp.Rational(-2, 3), sp.Rational(-11, 9))
     assert all(check.ok for check in result.checks)
+
+    swapped = LineParabolaSecondIntersectionPointMethod().run(
+        {
+            "parabola": x**2 - 2 * x - 3,
+            "x": x,
+            "line_p1": (sp.Integer(0), sp.Integer(-1)),
+            "line_p2": (sp.Integer(3), sp.Integer(0)),
+            "known_point": (sp.Integer(3), sp.Integer(0)),
+            "target": PointRef(
+                "E",
+                "$subquestion.i_2.points.E",
+                definition={"x_range": ["-1", "0"]},
+            ),
+        },
+        kernel,
+    )
+    assert swapped.outputs["point"].value == result.outputs["point"].value
 
 
 def test_line_parabola_second_intersection_reports_typed_precondition_and_ambiguity() -> None:
@@ -1454,6 +1472,26 @@ def test_quadratic_from_constraints_closes_transitive_materialized_coefficients(
     assert all(check.ok for check in result.checks)
 
 
+def test_quadratic_from_constraints_recovers_materialized_coefficient_subset() -> None:
+    kernel = SympyKernel()
+    x, a, b = sp.symbols("x a b")
+
+    inputs = {
+        "quadratic": a * x**2 + (a - 3) * x - 3,
+        "x": x,
+        "all_coefficients": [a, b],
+        "curve_point": (sp.Integer(2), sp.Integer(-3)),
+    }
+
+    analysis = analyze_quadratic_constraints(inputs)
+    result = QuadraticFromConstraintsMethod().run(inputs, kernel)
+
+    assert analysis.status == "determined"
+    assert result.outputs["coefficients"].value == {a: 1, b: -2}
+    assert sp.expand(result.outputs["parabola"].value) == x**2 - 2 * x - 3
+    assert all(check.ok for check in result.checks)
+
+
 def test_quadratic_from_constraints_rejects_incomplete_substitution_pair() -> None:
     kernel = SympyKernel()
     x, a, b, c = sp.symbols("x a b c")
@@ -2041,6 +2079,115 @@ def test_distance_between_points_method() -> None:
     )
 
     assert result.outputs["distance"].value == 5
+
+
+def test_declared_interchangeable_groups_are_runtime_permutation_invariant() -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["b", "x"])
+    b, x = symbols["b"], symbols["x"]
+    cases = {
+        "distance_between_points": (
+            DistanceBetweenPointsMethod(),
+            {"p1": (0, 0), "p2": (3, 4)},
+        ),
+        "midpoint_point": (
+            MidpointPointMethod(),
+            {
+                "p1": (0, 2),
+                "p2": (4, 6),
+                "target": PointRef("F", "$question.ii.points.F"),
+            },
+        ),
+        "square_opposite_point": (
+            SquareOppositePointMethod(),
+            {
+                "vertex": (1, 0),
+                "adjacent1": (3, 1),
+                "adjacent2": (2, -2),
+                "target": PointRef("D", "$question.ii.points.D"),
+            },
+        ),
+        "line_intersection_point": (
+            LineIntersectionPointMethod(),
+            {
+                "line1_p1": (0, 0),
+                "line1_p2": (2, 0),
+                "line2_p1": (1, -1),
+                "line2_p2": (1, 1),
+                "target": PointRef("G", "$question.ii.points.G"),
+            },
+        ),
+        "line_parabola_second_intersection_point": (
+            LineParabolaSecondIntersectionPointMethod(),
+            {
+                "parabola": x**2 - 2 * x - 3,
+                "x": x,
+                "line_p1": (sp.Integer(3), sp.Integer(0)),
+                "line_p2": (sp.Integer(0), sp.Integer(-1)),
+                "known_point": (sp.Integer(3), sp.Integer(0)),
+                "target": PointRef(
+                    "E",
+                    "$question.ii.points.E",
+                    definition={"x_range": ["-1", "0"]},
+                ),
+            },
+        ),
+        "parameter_from_segment_length": (
+            ParameterFromSegmentLengthMethod(),
+            {
+                "p1": (-1, 0),
+                "p2": (b + 2, -2 * b - 2),
+                "reference_p1": (b + 1, 0),
+                "reference_p2": (0, b + 1),
+                "parameter": b,
+                "condition": {
+                    "type": "segment_length_relation",
+                    "left_segment": "AD",
+                    "right_segment": "BC",
+                    "scale": "2",
+                },
+                "constraint": {"operator": ">", "value": 0},
+            },
+        ),
+        "line_locus_minimum_point": (
+            LineLocusMinimumPointMethod(),
+            {
+                "moving_locus": {
+                    "kind": "line",
+                    "point_name": "G",
+                    "start_point": (0, -3),
+                    "direction": (1, 0),
+                },
+                "minimum_point_1": (-5, 0),
+                "minimum_point_2": (sp.Rational(-7, 2), -3),
+                "target": PointRef("G", "$question.ii.points.G"),
+            },
+        ),
+    }
+    specs = MethodSpecRegistry.load_from_code().specs
+    declared = {
+        method_id
+        for method_id, spec in specs.items()
+        if spec.interchangeable_arg_groups
+    }
+    assert set(cases) == declared
+
+    for method_id, (method, inputs) in cases.items():
+        baseline = method.run(dict(inputs), kernel)
+        assert all(check.ok for check in baseline.checks), method_id
+        for group in specs[method_id].interchangeable_arg_groups:
+            swapped_inputs = dict(inputs)
+            first, second = group
+            swapped_inputs[first], swapped_inputs[second] = (
+                inputs[second],
+                inputs[first],
+            )
+            swapped = method.run(swapped_inputs, kernel)
+            assert swapped.outputs == baseline.outputs, (method_id, group)
+            assert all(check.ok for check in swapped.checks), (
+                method_id,
+                group,
+            )
 
 
 def test_parameter_from_minimum_value_method() -> None:

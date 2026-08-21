@@ -69,6 +69,7 @@ def resolve_condition_role_args(
     if not conditions:
         return {}, (), (), False
     if len(conditions) != 1:
+        condition_refs = [item.handle for item in conditions]
         return (
             {},
             (),
@@ -79,7 +80,19 @@ def resolve_condition_role_args(
                     "multiple structured Conditions require role expansion",
                     call_id=call_id,
                     scope_id=scope_id,
-                    details={"conditions": [item.handle for item in conditions]},
+                    details={
+                        "role": "condition",
+                        "expected_candidate_count": 1,
+                        "expected_type": "Condition",
+                        "candidate_count": len(condition_refs),
+                        "condition_candidates": condition_refs,
+                        "subjects": _candidate_subjects(
+                            condition_refs,
+                            role="condition_candidate",
+                            expected_type="Condition",
+                        ),
+                        "repair_action": "supply_disambiguating_constraint",
+                    },
                 ),
             ),
             False,
@@ -145,6 +158,7 @@ def resolve_condition_role_args(
             materialized_points=materialized_points,
         )
     except ConditionRoleResolutionError as exc:
+        details = _condition_role_error_details(exc)
         return (
             {},
             (),
@@ -155,7 +169,7 @@ def resolve_condition_role_args(
                     str(exc),
                     call_id=call_id,
                     scope_id=scope_id,
-                    details=exc.details,
+                    details=details,
                 ),
             ),
             False,
@@ -264,7 +278,20 @@ def resolve_condition_role_args(
                 "condition selection requires one parameter Symbol",
                 call_id=call_id,
                 scope_id=scope_id,
-                details={"symbol_candidates": list(symbol_refs)},
+                details={
+                    "role": "parameter",
+                    "expected_candidate_count": 1,
+                    "expected_type": "Symbol",
+                    "expected_state": "unique_visible_parameter",
+                    "candidate_count": len(symbol_refs),
+                    "symbol_candidates": list(symbol_refs),
+                    "subjects": _candidate_subjects(
+                        symbol_refs,
+                        role="parameter_candidate",
+                        expected_type="Symbol",
+                    ),
+                    "repair_action": "supply_disambiguating_constraint",
+                },
             )
         )
     elif needs_parameter:
@@ -401,6 +428,7 @@ def _unique_condition_value(
 ) -> ResolvedFunctionalValue | None:
     unique = {item.handle: item for item in candidates}
     if len(unique) != 1:
+        candidate_refs = sorted(unique)
         issues.append(
             _issue(
                 "functional_elaboration",
@@ -414,7 +442,16 @@ def _unique_condition_value(
                 scope_id=scope_id,
                 details={
                     "role": role,
-                    "condition_candidates": sorted(unique),
+                    "expected_candidate_count": 1,
+                    "expected_type": "Condition",
+                    "candidate_count": len(candidate_refs),
+                    "condition_candidates": candidate_refs,
+                    "subjects": _candidate_subjects(
+                        candidate_refs,
+                        role=f"{role}_condition_candidate",
+                        expected_type="Condition",
+                    ),
+                    "repair_action": "supply_disambiguating_constraint",
                 },
             )
         )
@@ -432,6 +469,47 @@ def _unique_condition_value(
         provides_semantic_roles=item.provides_semantic_roles,
         lineage=item.lineage,
     )
+
+
+def _condition_role_error_details(
+    error: ConditionRoleResolutionError,
+) -> dict[str, Any]:
+    details = dict(error.details)
+    candidates = tuple(
+        str(item) for item in details.get("target_candidates", ())
+    )
+    details.setdefault("role", "constructed_target")
+    details.setdefault("expected_candidate_count", 1)
+    details.setdefault("expected_type", "Point")
+    details.setdefault("candidate_count", len(candidates))
+    details.setdefault("repair_action", "supply_disambiguating_constraint")
+    if candidates:
+        details.setdefault(
+            "subjects",
+            _candidate_subjects(
+                candidates,
+                role="target_candidate",
+                expected_type="Point",
+            ),
+        )
+    return details
+
+
+def _candidate_subjects(
+    candidates: Sequence[str],
+    *,
+    role: str,
+    expected_type: str,
+) -> list[dict[str, str]]:
+    return [
+        {
+            "role": role,
+            "internal_ref": str(candidate),
+            "expected_type": expected_type,
+            "expected_state": "candidate",
+        }
+        for candidate in candidates
+    ]
 
 
 __all__ = ["ContextClosureResolution", "resolve_condition_role_args"]

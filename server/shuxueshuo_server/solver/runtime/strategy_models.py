@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Literal, Protocol
+from typing import Any, Literal, Mapping, Protocol
 
 import sympy as sp
 from sympy.parsing.sympy_parser import parse_expr
@@ -489,7 +489,18 @@ class ProjectedFunctionArgBinding:
     selection_policy: Literal[
         "exact", "latest", "identity_only", "compiler"
     ] = "exact"
+    consumption_mode: Literal[
+        "runtime_input", "resolver_evidence", "compiler_selector"
+    ] = "runtime_input"
+    compiler_selector_id: str | None = None
+    compiler_selected_source_kind: Literal[
+        "state_version",
+        "condition",
+        "math_object",
+        "call_result",
+    ] | None = None
     runtime_input_targets: tuple[str, ...] = ()
+    runtime_input_required: bool = True
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -501,7 +512,9 @@ class ProjectedFunctionArgBinding:
             "cardinality": self.cardinality,
             "item_index": self.item_index,
             "selection_policy": self.selection_policy,
+            "consumption_mode": self.consumption_mode,
             "runtime_input_targets": list(self.runtime_input_targets),
+            "runtime_input_required": self.runtime_input_required,
         }
         if self.runtime_type is not None:
             payload["runtime_type"] = self.runtime_type
@@ -519,8 +532,93 @@ class ProjectedFunctionArgBinding:
             payload["source_call_id"] = self.source_call_id
         if self.source_return_name is not None:
             payload["source_return_name"] = self.source_return_name
+        if self.compiler_selector_id is not None:
+            payload["compiler_selector_id"] = self.compiler_selector_id
+        if self.compiler_selected_source_kind is not None:
+            payload["compiler_selected_source_kind"] = (
+                self.compiler_selected_source_kind
+            )
         payload["binding_authority"] = self.binding_authority
         return payload
+
+    @classmethod
+    def from_payload(
+        cls,
+        payload: Mapping[str, Any],
+    ) -> "ProjectedFunctionArgBinding":
+        math_object = payload.get("math_object_id")
+        state_version = payload.get("state_version_id")
+        return cls(
+            step_id=str(payload["step_id"]),
+            arg_name=str(payload["arg_name"]),
+            source_handle=str(payload["source_handle"]),
+            runtime_type=(
+                str(payload["runtime_type"])
+                if payload.get("runtime_type") is not None
+                else None
+            ),
+            state_slot_id=(
+                str(payload["state_slot_id"])
+                if payload.get("state_slot_id") is not None
+                else None
+            ),
+            object_ref=(
+                str(payload["object_ref"])
+                if payload.get("object_ref") is not None
+                else None
+            ),
+            math_object_id=(
+                MathObjectId.from_payload(math_object)
+                if isinstance(math_object, Mapping)
+                else None
+            ),
+            state_version_id=(
+                StateVersionId.from_payload(state_version)
+                if isinstance(state_version, Mapping)
+                else None
+            ),
+            condition_id=(
+                str(payload["condition_id"])
+                if payload.get("condition_id") is not None
+                else None
+            ),
+            source_call_id=(
+                str(payload["source_call_id"])
+                if payload.get("source_call_id") is not None
+                else None
+            ),
+            source_return_name=(
+                str(payload["source_return_name"])
+                if payload.get("source_return_name") is not None
+                else None
+            ),
+            binding_authority=str(payload.get("binding_authority", "wire")),  # type: ignore[arg-type]
+            semantic_role=(
+                str(payload["semantic_role"])
+                if payload.get("semantic_role") is not None
+                else None
+            ),
+            cardinality=str(payload.get("cardinality", "one")),
+            item_index=int(payload.get("item_index", 0)),
+            selection_policy=str(payload.get("selection_policy", "exact")),  # type: ignore[arg-type]
+            consumption_mode=str(payload.get("consumption_mode", "runtime_input")),  # type: ignore[arg-type]
+            compiler_selector_id=(
+                str(payload["compiler_selector_id"])
+                if payload.get("compiler_selector_id") is not None
+                else None
+            ),
+            compiler_selected_source_kind=(
+                str(payload["compiler_selected_source_kind"])  # type: ignore[arg-type]
+                if payload.get("compiler_selected_source_kind") is not None
+                else None
+            ),
+            runtime_input_targets=tuple(
+                str(item) for item in payload.get("runtime_input_targets", ())
+            ),
+            runtime_input_required=bool(
+                payload.get("runtime_input_required", True)
+            ),
+        )
 
 
 @dataclass(frozen=True)

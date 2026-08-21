@@ -125,6 +125,7 @@ class ScopedFunctionalPlanReplayService:
                 step_id: item.semantic_owner_scope_id
                 for step_id, item in authority.step_authorities.items()
             },
+            canonical_plan_id=authority.plan_id,
         )
         reconciliation = prepared.functional_reconciliation
         if reconciliation is None:

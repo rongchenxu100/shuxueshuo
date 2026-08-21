@@ -1,5 +1,80 @@
 {
   "$defs": {
+    "functional_selected_source": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "state_version"
+            },
+            "state_version_id": {
+              "$ref": "#/$defs/state_version_id"
+            }
+          },
+          "required": [
+            "kind",
+            "state_version_id"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "condition_id": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "kind": {
+              "const": "condition"
+            }
+          },
+          "required": [
+            "kind",
+            "condition_id"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "math_object"
+            },
+            "math_object_id": {
+              "$ref": "#/$defs/math_object_id"
+            }
+          },
+          "required": [
+            "kind",
+            "math_object_id"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "call_result"
+            },
+            "source_call_id": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "source_return_name": {
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "source_call_id",
+            "source_return_name"
+          ],
+          "type": "object"
+        }
+      ]
+    },
     "functional_source": {
       "oneOf": [
         {
@@ -54,23 +129,6 @@
         {
           "additionalProperties": false,
           "properties": {
-            "compiler_selector_id": {
-              "minLength": 1,
-              "type": "string"
-            },
-            "kind": {
-              "const": "compiler_selector"
-            }
-          },
-          "required": [
-            "kind",
-            "compiler_selector_id"
-          ],
-          "type": "object"
-        },
-        {
-          "additionalProperties": false,
-          "properties": {
             "kind": {
               "const": "call_result"
             },
@@ -87,6 +145,26 @@
             "kind",
             "source_call_id",
             "source_return_name"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "compiler_selector_id": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "kind": {
+              "const": "compiler_selector"
+            },
+            "selected_source": {
+              "$ref": "#/$defs/functional_selected_source"
+            }
+          },
+          "required": [
+            "kind",
+            "compiler_selector_id"
           ],
           "type": "object"
         }

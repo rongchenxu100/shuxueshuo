@@ -109,5 +109,11 @@
     "explanation_level": "template",
     "role_binding_strategy": "role_name_registry",
     "role_binder_id": "distance_between_points"
-  }
+  },
+  "interchangeable_arg_groups": [
+    [
+      "p1",
+      "p2"
+    ]
+  ]
 }

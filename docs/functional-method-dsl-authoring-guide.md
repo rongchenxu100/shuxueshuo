@@ -330,7 +330,45 @@ input_relations=(
 `D∈parabola`只能在`i`及其后代调用中消费。即使D实体定义在根scope、坐标也已经
 算出，根scope仍不能借用子问Condition闭合抛物线。
 
-#### 5.1.2 Planner 公开类型词汇
+#### 5.1.2 可交换输入组
+
+当多个输入槽位只表示一个无序数学集合，交换它们不改变结果时，Method必须用
+结构化字段声明，而不能只在`summary`、`role`或注释中写“顺序可交换”：
+
+```python
+interchangeable_arg_groups=(
+    ("line_p1", "line_p2"),
+),
+```
+
+`interchangeable_arg_groups`是代码执行的唯一依据。描述文本只负责帮助LLM和维护者
+理解，不得被parser、compiler或canonicalizer读取并恢复语义。
+
+固定规则：
+
+1. 组内输入必须具有完全一致的`domain_type`、`runtime_type`、view、required、
+   exposure、cardinality和`allows_anonymous_result`；spec生成与加载阶段均fail loud。
+2. `interchangeable_arg_groups`与`distinct_arg_groups`正交。直线的两个端点既可交换，
+   又必须是不同对象，应同时声明两项。
+3. Planner可按任意合法顺序填写。wire canonicalizer根据结构化spec稳定排列输入来源：
+   具名Entity SourceRef优先，随后是published Goal result和匿名StepResultRef；同类来源
+   保持原顺序，并记录`functional.interchangeable_args_permuted` normalization。
+4. canonicalizer的换位不是数学证明。换位后的调用仍必须执行Method checks、result
+   form、对象身份、runtime等价/收敛和transaction门禁。
+5. 只声明真正具有置换不变性的角色。`known_point/target`、有方向的起点/终点、旋转
+   左右侧、射线端点等即使类型相同，也不得为了容错而加入可交换组。
+6. 若组内任一槽位允许匿名结果，所有槽位必须一致允许；不得再出现“同一条无向直线
+   的第一个端点只能SourceRef、第二个端点却允许StepResultRef”的非对称schema。
+7. 新增或修改可交换组时，必须用真实Method `run()`逐组交换输入并比较typed outputs与
+   checks。spec合同一致只证明两个槽位可以使用同一种source形态；canonicalizer也只做
+   确定性容错，它们都不能证明Method实现具有数学置换不变性。具名Entity默认保持LLM
+   原顺序，只有runtime执行结果才能作为正确性的最终依据。
+
+典型适用项包括距离两端点、中点两端点、每条无向直线的两个确定点、线段长度的
+两个端点及正方形对顶构造中的两个相邻点。Function/Macro可声明更高层的候选搜索，
+但不能用搜索结果绕过Method输入组的typed contract。
+
+#### 5.1.3 Planner 公开类型词汇
 
 LLM 看到的输入与返回值不是同一种投影：
 
@@ -729,9 +767,36 @@ SPEC = MethodSpecSource(
 当一个公开 capability 可以直接映射为一次 Method invocation 时使用 Function。FunctionSpec 负责：
 
 - 公开参数名与 Method input 的 adapter；
+- 声明式typed input source与机械derivation；
 - binding authority、role、cardinality；
 - active return 与 public return；
 - identity/write/result-form policy。
+
+新Function/Method不得增加binding selector。历史`selector`是Method spec尚未声明
+input view、scope与exact source时的v1 adapter分发键；它会扫描context并返回
+runtime path，已不是生产authority。Method spec只声明所需domain/runtime type
+与`identity | latest_state | immutable_value | exact_result`视图，per-call F5-C
+和`MethodInputReadAuthority`唯一决定本次实际读取的Entity、Condition、
+StateVersion或CallResult。
+
+在selector物理删除前，过渡投影必须遵守：
+
+- `projection_source_arg`、`projection_source_return`、
+  `projection_source_producer_arg`、return identity、literal symbol、
+  `projection_entity_roles`和`projection_free_symbol_basis`都是并列证据通道，
+  不存在“第一个命中即返回”的优先级。
+- 对required或已被消费的input，每个非空通道必须恰好指向一个
+  `FunctionalArgSourceIdentity`，所有通道必须一致；否则报
+  `planner.method_input_view_authority_drift`。未被消费的optional input零候选或
+  多候选时表示“未选择”，不形成binding。
+- `projection_entity_roles`确实会在当前scope及祖先中搜索角色与类型
+  兼容的Entity；这是明确的过渡契约，不得跨sibling，零个或多个候选
+  都不得猜测。
+- `projection_free_symbol_basis`只在全部可见自由Symbol唯一时形成证据；
+  禁止按出现次数、coverage、参数名或排序选择winner。
+- 可选或机械input没有typed selected source时，不得写入仅含selector id的
+  F5-C ledger记录。过渡期v1 adapter可在派生execution IR中完成机械lowering，
+  但不得伪装为typed source authority。
 
 ### Macro
 
@@ -739,7 +804,7 @@ SPEC = MethodSpecSource(
 
 - 声明内部 invocation graph；
 - 隐藏中间 output；
-- 定义 selectors、aliases 和 public returns；
+- 定义typed input derivations、aliases 和 public returns；
 - 保证多个内部步骤作为一个事务提交或回滚。
 
 Macro 不应固定整道题路线。family-specific path reduction 可以是 Macro；通用的距离、反射、候选筛选仍应是复用 Method。
