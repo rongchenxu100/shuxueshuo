@@ -408,7 +408,7 @@
         {
           "arg": "condition",
           "item": 0,
-          "role": "condition",
+          "role": "angle_sum",
           "authority": "wire",
           "target": "condition",
           "paths": [
@@ -419,7 +419,7 @@
           "arg": "origin",
           "item": 0,
           "role": "origin",
-          "authority": "compiler",
+          "authority": "resolver",
           "target": "origin",
           "paths": [
             "$subquestion.i_2.facts.__functional_transaction_derive_equal_angle_i_3"
@@ -429,7 +429,7 @@
           "arg": "reference_x_axis_point",
           "item": 0,
           "role": "reference_x_axis_point",
-          "authority": "compiler",
+          "authority": "resolver",
           "target": "reference_x_axis_point",
           "paths": [
             "$subquestion.i_2.facts.__functional_transaction_derive_equal_angle_i_2"
@@ -449,7 +449,7 @@
           "arg": "x_axis_point",
           "item": 0,
           "role": "x_axis_point",
-          "authority": "compiler",
+          "authority": "resolver",
           "target": "x_axis_point",
           "paths": [
             "$subquestion.i_2.facts.__functional_transaction_derive_equal_angle_i_0"
@@ -459,7 +459,7 @@
           "arg": "y_axis_point",
           "item": 0,
           "role": "y_axis_point",
-          "authority": "compiler",
+          "authority": "resolver",
           "target": "y_axis_point",
           "paths": [
             "$subquestion.i_2.facts.__functional_transaction_derive_equal_angle_i_1"
@@ -535,7 +535,7 @@
           "authority": "compiler",
           "target": "origin",
           "paths": [
-            "$problem.points.O"
+            "$subquestion.i_2.facts.__functional_transaction_derive_axis_intercept_F_i_0"
           ]
         },
         {
@@ -545,7 +545,7 @@
           "authority": "compiler",
           "target": "reference_x_axis_point",
           "paths": [
-            "$problem.points.A"
+            "$subquestion.i_2.facts.__functional_transaction_derive_axis_intercept_F_i_1"
           ]
         },
         {
@@ -565,7 +565,7 @@
           "authority": "compiler",
           "target": "x_axis_point",
           "paths": [
-            "$subquestion.i_2.outputs.B_coordinate"
+            "$subquestion.i_2.facts.__functional_transaction_derive_axis_intercept_F_i_2"
           ]
         },
         {
@@ -575,7 +575,7 @@
           "authority": "compiler",
           "target": "y_axis_point",
           "paths": [
-            "$problem.points.C"
+            "$subquestion.i_2.facts.__functional_transaction_derive_axis_intercept_F_i_3"
           ]
         }
       ],
@@ -1092,6 +1092,16 @@
         }
       ],
       "bindings": [
+        {
+          "arg": "constraint",
+          "item": 0,
+          "role": "constraint",
+          "authority": "compiler",
+          "target": "constraint",
+          "paths": [
+            "$problem.conditions.symbol_constraint_56d59dfe1975"
+          ]
+        },
         {
           "arg": "expression",
           "item": 0,

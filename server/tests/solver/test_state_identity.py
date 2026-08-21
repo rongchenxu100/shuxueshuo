@@ -999,6 +999,7 @@ def test_final_return_role_reprojection_fails_when_source_disappears() -> None:
             (allocation,),
             specs={"path_transformation": spec},
             resolved_args={},
+            object_registry=MathObjectRegistry(),
         )
 
 

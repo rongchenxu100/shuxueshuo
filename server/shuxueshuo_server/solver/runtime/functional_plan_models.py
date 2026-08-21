@@ -8,6 +8,7 @@ from typing import Any, Literal, Mapping
 
 from shuxueshuo_server.solver.contracts import (
     FunctionalResultForm,
+    MethodInputBindingDeclaration,
     MethodInputBindingSpec,
     MethodInputViewMode,
 )
@@ -451,6 +452,7 @@ class FunctionalContextArgBinding:
     semantic_role: str
     arg_name: str
     consumption_mode: str = "runtime_input"
+    input_binding: MethodInputBindingSpec | None = None
 
 
 def _joined_description(*parts: str) -> str:
@@ -485,6 +487,10 @@ class FunctionalCapability:
         repr=False,
     )
     context_arg_bindings: tuple[FunctionalContextArgBinding, ...] = field(
+        default=(),
+        repr=False,
+    )
+    input_bindings: tuple[MethodInputBindingDeclaration, ...] = field(
         default=(),
         repr=False,
     )
@@ -1025,6 +1031,7 @@ class FunctionalPlanReconciliationResult:
     functional_binding_context: Any | None = None
     functional_problem_binding_context: Any | None = None
     functional_problem_binding_ledger: Any | None = None
+    condition_binding_authority_index: Any | None = None
     functional_binding_decisions: tuple[dict[str, Any], ...] = ()
     functional_binding_mismatches: tuple[dict[str, Any], ...] = ()
     legacy_binding_role_fallback_count: int = 0

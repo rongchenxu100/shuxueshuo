@@ -42,15 +42,18 @@ from shuxueshuo_server.solver.family.models import (
     StepRecipeSpec,
 )
 from shuxueshuo_server.solver.family.common_binding_rules import (
+    condition_arg_binding,
     distance_between_points_rule,
     evaluate_expression_at_parameter_rule,
     evaluate_point_at_parameter_rule,
     line_intersection_point_rule,
     line_parabola_second_intersection_point_rule,
+    latest_state_binding,
     point_on_parabola_at_x_rule,
     midpoint_point_rule,
     parameter_from_curve_point_on_quadratic_rule,
     parameter_from_expression_value_rule,
+    public_arg_binding,
     quadratic_from_constraints_rule,
     quadratic_vertex_point_rule,
     quadratic_x_axis_intercept_point_rule,
@@ -916,6 +919,20 @@ COORDINATE_GEOMETRY_CONTRACTS = (
         "midpoint_point",
         condition_reads=(_condition("midpoint_definition"),),
         slot_writes=(_slot("coordinate", "Point", object_kind="point"),),
+        dependency_policy="context_closure",
+        context_resolvers=(CONDITION_OBJECT_ROLES_RESOLVER,),
+        context_role_bindings=(
+            CapabilityContextRoleBindingSpec(
+                CONDITION_OBJECT_ROLES_RESOLVER,
+                "p1",
+                "p1",
+            ),
+            CapabilityContextRoleBindingSpec(
+                CONDITION_OBJECT_ROLES_RESOLVER,
+                "p2",
+                "p2",
+            ),
+        ),
     ),
     _method_contract(
         "translated_point",
@@ -1507,6 +1524,36 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
                 context_role_bindings=(
                     CapabilityContextRoleBindingSpec(
                         PATH_REDUCTION_ROLES_RESOLVER,
+                        "first_membership",
+                        "first_moving_membership",
+                    ),
+                    CapabilityContextRoleBindingSpec(
+                        PATH_REDUCTION_ROLES_RESOLVER,
+                        "second_membership",
+                        "second_moving_membership",
+                    ),
+                    CapabilityContextRoleBindingSpec(
+                        PATH_REDUCTION_ROLES_RESOLVER,
+                        "binding_relation",
+                        "binding_relation",
+                    ),
+                    CapabilityContextRoleBindingSpec(
+                        PATH_REDUCTION_ROLES_RESOLVER,
+                        "first_segment_start",
+                        "first_segment_start",
+                    ),
+                    CapabilityContextRoleBindingSpec(
+                        PATH_REDUCTION_ROLES_RESOLVER,
+                        "joint_point",
+                        "joint_point",
+                    ),
+                    CapabilityContextRoleBindingSpec(
+                        PATH_REDUCTION_ROLES_RESOLVER,
+                        "second_segment_end",
+                        "second_segment_end",
+                    ),
+                    CapabilityContextRoleBindingSpec(
+                        PATH_REDUCTION_ROLES_RESOLVER,
                         "transformed_fixed_endpoint",
                         "transformed_fixed_endpoint",
                     ),
@@ -1668,34 +1715,16 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
             MethodBindingRuleSpec(
                 method_id="two_moving_points_path_reduction",
                 input_bindings=(
-                    LegacySelectorInputBindingSpec(
+                    condition_arg_binding(
                         "original_path",
-                        "fact:path_minimum_target:Condition",
+                        public_arg="path_minimum_target",
                     ),
-                    LegacySelectorInputBindingSpec(
-                        "first_moving_membership",
-                        "path_reduction:first_membership",
-                    ),
-                    LegacySelectorInputBindingSpec(
-                        "second_moving_membership",
-                        "path_reduction:second_membership",
-                    ),
-                    LegacySelectorInputBindingSpec(
-                        "binding_relation",
-                        "path_reduction:relation",
-                    ),
-                    LegacySelectorInputBindingSpec(
-                        "first_segment_start",
-                        "path_reduction:first_segment_start",
-                    ),
-                    LegacySelectorInputBindingSpec(
-                        "joint_point",
-                        "path_reduction:joint_point",
-                    ),
-                    LegacySelectorInputBindingSpec(
-                        "second_segment_end",
-                        "path_reduction:second_segment_end",
-                    ),
+                    condition_arg_binding("first_moving_membership"),
+                    condition_arg_binding("second_moving_membership"),
+                    condition_arg_binding("binding_relation"),
+                    latest_state_binding("first_segment_start"),
+                    latest_state_binding("joint_point"),
+                    latest_state_binding("second_segment_end"),
                 ),
             ),
         ),
@@ -1737,6 +1766,14 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
                     ),
                 ),
                 context_resolvers=(CONDITION_OBJECT_ROLES_RESOLVER,),
+                context_role_bindings=tuple(
+                    CapabilityContextRoleBindingSpec(
+                        CONDITION_OBJECT_ROLES_RESOLVER,
+                        role,
+                        role,
+                    )
+                    for role in ("anchor", "reference")
+                ),
             ),
         ),
     ),

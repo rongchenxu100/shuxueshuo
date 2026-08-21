@@ -36,6 +36,9 @@ from shuxueshuo_server.solver.runtime.functional_binding_context import (
     audit_functional_arg_binding_projection,
     build_functional_runtime_arg_bindings_from_context,
 )
+from shuxueshuo_server.solver.runtime.condition_binding_authority import (
+    ConditionBindingAuthorityIndex,
+)
 from shuxueshuo_server.solver.runtime.functional_context_closure_handlers import (
     resolve_context_closure_args as _resolve_context_closure_args,
 )
@@ -515,6 +518,16 @@ class _NormalizeElaborateScopeStage:
             semantic_index=semantic_index,
             future_return_object_hints=future_return_object_hints,
             include_explicit_object_refs=True,
+            allow_future_condition_role_producers=True,
+        )
+        goal_relation_graph = _with_hidden_condition_object_dependencies(
+            plan,
+            dependency_graph=explicit_dependency_graph,
+            catalog=catalog,
+            semantic_index=semantic_index,
+            future_return_object_hints=future_return_object_hints,
+            include_explicit_object_refs=True,
+            allow_future_condition_role_producers=True,
         )
         elaboration = _resolve_planned_structured_state_issues(
             elaboration,
@@ -533,7 +546,7 @@ class _NormalizeElaborateScopeStage:
                     registry=handle_registry,
                 )
             )
-            for call_id, dependencies in dependency_graph.items()
+            for call_id, dependencies in goal_relation_graph.items()
         }
         return _PreparedFunctionalReconciliation(
             plan=plan,
@@ -1066,6 +1079,11 @@ class FunctionalPlanReconciler:
             handle_registry,
             math_objects=planner_state_context.state.math_objects,
         )
+        condition_authority_index = ConditionBindingAuthorityIndex.from_context(
+            planner_state_context,
+            object_registry=typed_object_registry,
+            problem_binding_catalog=prepared.problem_binding_catalog,
+        )
         typed_identity_factory = StateIdentityFactory(
             typed_object_registry
         )
@@ -1345,6 +1363,7 @@ class FunctionalPlanReconciler:
                 produced=produced,
                 semantic_index=call_semantic_index,
                 handle_registry=handle_registry,
+                condition_authority_index=condition_authority_index,
                 allow_legacy_planned_producer_visibility=not bool(
                     plan.typed_dependency_graph
                     or plan.typed_input_source_pins
@@ -1773,6 +1792,7 @@ class FunctionalPlanReconciler:
             placement_mode=self.state_placement_mode,
             state_finalizer_mode=self.state_finalizer_mode,
             problem_binding_catalog=prepared.problem_binding_catalog,
+            condition_authority_index=condition_authority_index,
             pinned_canonical_call_ids=tuple(pinned_canonical_call_ids),
             pinned_execution_scopes=dict(pinned_execution_scopes or {}),
             pinned_return_scopes={
@@ -1984,6 +2004,7 @@ class _PlacementLivenessProjectionStage:
         placement_mode: StatePlacementMode,
         state_finalizer_mode: StateFinalizerMode,
         problem_binding_catalog: ProblemPlanningBindingCatalog | None,
+        condition_authority_index: ConditionBindingAuthorityIndex,
         pinned_canonical_call_ids: tuple[str, ...],
         pinned_execution_scopes: Mapping[str, str],
         pinned_return_scopes: Mapping[str, Mapping[str, str]],
@@ -2037,6 +2058,7 @@ class _PlacementLivenessProjectionStage:
             semantic_index=semantic_index,
             produced=produced,
             handle_registry=handle_registry,
+            condition_authority_index=condition_authority_index,
             call_order=dependency_order,
         )
         reconciliation_repairs.extend(context_arg_repairs)
@@ -2493,6 +2515,7 @@ class _PlacementLivenessProjectionStage:
             allow_missing_typed_sources=(
                 problem_binding_catalog is None
             ),
+            condition_authority_index=condition_authority_index,
         )
         functional_binding_audit = audit_functional_arg_binding_projection(
             functional_binding_context,
@@ -2615,6 +2638,7 @@ class _PlacementLivenessProjectionStage:
                 functional_problem_binding_ledger=(
                     functional_problem_binding_ledger
                 ),
+                condition_binding_authority_index=condition_authority_index,
                 functional_binding_decisions=(
                     functional_binding_audit.decisions
                 ),
@@ -2672,6 +2696,7 @@ class _PlacementLivenessProjectionStage:
             functional_problem_binding_ledger=(
                 functional_problem_binding_ledger
             ),
+            condition_binding_authority_index=condition_authority_index,
             functional_binding_decisions=functional_binding_audit.decisions,
             functional_binding_mismatches=functional_binding_audit.mismatches,
             legacy_binding_role_fallback_count=(
@@ -4128,6 +4153,7 @@ def _materialize_functional_return(
         resolved_args=resolved_args,
         symbolic_closure=symbolic_closure,
         object_ref=object_ref,
+        object_registry=identity_factory.objects,
     )
     free_symbol_refs = return_free_symbol_refs(
         return_spec.runtime_type,
@@ -4371,6 +4397,7 @@ def _functional_return_lineage(
     resolved_args: Mapping[str, tuple[ResolvedFunctionalValue, ...]],
     symbolic_closure: SymbolicClosureSpec | None,
     object_ref: str | None,
+    object_registry: MathObjectRegistry,
 ) -> StateSemanticLineage:
     """Project declared roles and preserve source lineage for true transitions."""
     inherited: tuple[StateSemanticLineage, ...] = ()
@@ -4414,6 +4441,7 @@ def _functional_return_lineage(
         object_roles=_projected_return_object_roles(
             return_spec,
             resolved_args=resolved_args,
+            object_registry=object_registry,
         ),
         symbol_closures=_projected_symbol_closures(
             return_spec,
@@ -4704,6 +4732,7 @@ def _projected_return_object_roles(
     return_spec: FunctionalCapabilityReturn,
     *,
     resolved_args: Mapping[str, tuple[ResolvedFunctionalValue, ...]],
+    object_registry: MathObjectRegistry,
 ) -> tuple[StateObjectRoleBinding, ...]:
     result: list[StateObjectRoleBinding] = []
     for projection in return_spec.object_role_projections:
@@ -4770,6 +4799,17 @@ def _projected_return_object_roles(
                     for role in matching_roles
                     for version_id in role.source_version_ids
                 )
+        object_ids.extend(
+            object_id
+            for object_ref in unique_ordered(object_refs)
+            if (
+                object_id := (
+                    object_registry.resolve(object_ref)
+                    or object_registry.register_handle(object_ref)
+                )
+            )
+            is not None
+        )
         if object_refs:
             result.append(
                 StateObjectRoleBinding(
@@ -4964,7 +5004,7 @@ def _resolve_explicit_call_args(
                 )
             )
 
-        if arg.required and not refs:
+        if arg.required and not refs and arg.binding_authority != "resolver":
             issues.append(
                 _issue(
                     "functional_reconciliation",
@@ -8026,19 +8066,20 @@ def _refresh_context_auto_args_for_effective_order(
     semantic_index: FunctionalSemanticIndex,
     produced: Mapping[tuple[str, str], ResolvedFunctionalValue],
     handle_registry: CanonicalHandleRegistry,
+    condition_authority_index: ConditionBindingAuthorityIndex,
     call_order: Mapping[str, int] | None = None,
 ) -> tuple[
     list[FunctionalCallReconciliation],
     tuple[FunctionalDeterministicRepair, ...],
     tuple[FunctionalPlanIssue, ...],
 ]:
-    """Re-resolve hidden Context selectors at their final call position.
+    """Re-resolve hidden Context inputs at their final call position.
 
     The first reconciliation pass may run before deterministic plan rewriting
-    has established the effective call order. Context-owned selectors must not
-    retain a stale object version from that provisional pass. Replaying only
-    those selectors here gives both the legacy bridge and the transactional
-    interpreter the same call-time typed dependency.
+    has established the effective call order. Context-owned selectors and
+    typed Condition roles must not retain a stale object version from that
+    provisional pass. Replaying only those inputs here gives both the legacy
+    bridge and the transactional interpreter the same call-time dependency.
     """
 
     calls_by_id = {call.call_id: call for call in plan.calls}
@@ -8074,7 +8115,13 @@ def _refresh_context_auto_args_for_effective_order(
                 for value in item.resolved_args.get(auto.name, ())
             )
         }
-        if not context_auto_names:
+        context_role_names = {
+            binding.arg_name
+            for binding in capability.context_arg_bindings
+            if binding.arg_name in item.resolved_args
+            and binding.arg_name not in call.args
+        }
+        if not context_auto_names and not context_role_names:
             updated_by_id[call.call_id] = item
             continue
         current_order = effective_call_order[call.call_id]
@@ -8088,6 +8135,7 @@ def _refresh_context_auto_args_for_effective_order(
             name: values
             for name, values in item.resolved_args.items()
             if name not in context_auto_names
+            and name not in context_role_names
         }
         additions, call_repairs, call_issues = _resolve_context_auto_args(
             capability,
@@ -8100,12 +8148,36 @@ def _refresh_context_auto_args_for_effective_order(
             planned_return_expectations=planned_return_expectations,
         )
         base_args.update(additions)
+        (
+            closure_additions,
+            closure_repairs,
+            closure_issues,
+            reads_closed,
+        ) = _resolve_context_closure_args(
+            capability,
+            call,
+            base_args,
+            call_id=call.call_id,
+            scope_id=item.scope_id,
+            produced=prior_produced,
+            semantic_index=semantic_index.for_call(call.call_id),
+            handle_registry=handle_registry,
+            condition_authority_index=condition_authority_index,
+            allow_legacy_planned_producer_visibility=not bool(
+                plan.typed_dependency_graph
+                or plan.typed_input_source_pins
+            ),
+        )
+        base_args.update(closure_additions)
         updated_by_id[call.call_id] = replace(
             item,
             resolved_args=base_args,
+            reads_closed=item.reads_closed or reads_closed,
         )
         repairs.extend(call_repairs)
+        repairs.extend(closure_repairs)
         issues.extend(call_issues)
+        issues.extend(closure_issues)
     return (
         [
             updated_by_id.get(item.call_id, item)
@@ -8612,17 +8684,18 @@ def _with_hidden_condition_object_dependencies(
         tuple[str, str], tuple[str, ...]
     ],
     include_explicit_object_refs: bool = True,
+    allow_future_condition_role_producers: bool = False,
 ) -> dict[str, tuple[str, ...]]:
     """Add producer edges implied by semantic object state requirements.
 
     Explicit object refs can denote identity before their computed state exists;
     materialized-state args must therefore depend on the prior call that writes
-    that object. Some capabilities also expose one structured Condition while their runtime
-    adapter deterministically expands the Condition's object roles into hidden
-    Point inputs. Those objects may be materialized by earlier calls even
-    though the wire plan has no explicit CallResultRef. Recording the edge here
-    prevents the consumer from being reported as an independent missing-state
-    failure when its producer is already invalid.
+    that object. Some capabilities also expose one structured Condition while
+    their runtime adapter deterministically expands the Condition's object roles
+    into hidden Point inputs. A unique scope-visible future writer may establish
+    a dependency edge so topological execution can materialize the state first;
+    invisible sibling writers are filtered before they can enter either the
+    dependency or repair graph.
     """
 
     result = {
@@ -8836,8 +8909,44 @@ def _with_hidden_condition_object_dependencies(
                 )
                 if condition is None or not condition.object_roles:
                     continue
+                condition_roles = dict(condition.object_roles)
+                typed_latest_role_refs: set[str] = set()
+                for context_binding in getattr(
+                    capability,
+                    "context_arg_bindings",
+                    (),
+                ):
+                    if not _context_binding_requires_latest_state(
+                        capability,
+                        context_binding,
+                    ):
+                        continue
+                    for object_ref in condition_roles.get(
+                        context_binding.semantic_role,
+                        (),
+                    ):
+                        typed_latest_role_refs.add(object_ref)
+                        if object_ref in produced_object_refs:
+                            continue
+                        producer = _select_planned_state_producer(
+                            object_ref,
+                            consumer_call=call,
+                            consumer_scope_id=scope_id,
+                            producers_by_object=producers_by_object,
+                            calls_by_id=calls_by_id,
+                            dependency_graph=result,
+                            order_by_id=order_by_id,
+                            handle_registry=semantic_index.handle_registry,
+                            allow_future=(
+                                allow_future_condition_role_producers
+                            ),
+                        )
+                        if producer is not None:
+                            hidden_dependencies.append(producer)
                 for _role, object_refs in condition.object_roles:
                     for object_ref in object_refs:
+                        if object_ref in typed_latest_role_refs:
+                            continue
                         if _call_explicitly_supplies_object(
                             call,
                             object_ref=object_ref,
@@ -8863,6 +8972,9 @@ def _with_hidden_condition_object_dependencies(
                             dependency_graph=result,
                             order_by_id=order_by_id,
                             handle_registry=semantic_index.handle_registry,
+                            allow_future=(
+                                allow_future_condition_role_producers
+                            ),
                         )
                         if producer is not None:
                             hidden_dependencies.append(producer)
@@ -8870,6 +8982,28 @@ def _with_hidden_condition_object_dependencies(
             (*result.get(call.call_id, ()), *hidden_dependencies)
         )
     return result
+
+
+def _context_binding_requires_latest_state(
+    capability: FunctionalCapability,
+    context_binding: Any,
+) -> bool:
+    input_binding = context_binding.input_binding
+    if (
+        input_binding is not None
+        and isinstance(input_binding.source, LatestStateSourceSpec)
+    ):
+        return True
+    input_name = (
+        input_binding.input_name
+        if input_binding is not None
+        else context_binding.arg_name
+    )
+    return any(
+        (getattr(item, "method_input", None) or item.name) == input_name
+        and getattr(item, "view_mode", None) == "latest_state"
+        for item in getattr(capability.source, "args", ())
+    )
 
 
 def _resolved_value_satisfies_closure_policy(
@@ -9899,10 +10033,19 @@ def _resolve_context_auto_args(
     additions: dict[str, tuple[ResolvedFunctionalValue, ...]] = {}
     repairs: list[FunctionalDeterministicRepair] = []
     issues: list[FunctionalPlanIssue] = []
+    context_owned_args = {
+        binding.arg_name for binding in capability.context_arg_bindings
+    }
     for auto in capability.auto_args:
         if auto.name in resolved_args:
             continue
         if auto.selector is None:
+            if auto.name in context_owned_args:
+                # The structured Context resolver owns both role selection
+                # and state materialization for this input.  Running the
+                # generic latest-state lookup first would manufacture a
+                # second authority and report a false missing-input issue.
+                continue
             if (
                 auto.input_binding is not None
                 and isinstance(

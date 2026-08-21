@@ -7,6 +7,7 @@ from types import SimpleNamespace
 import pytest
 
 from shuxueshuo_server.solver.contracts import (
+    ConditionSourceSpec,
     ExactCallResultSourceSpec,
     MethodInputBindingSpec,
 )
@@ -23,6 +24,9 @@ from shuxueshuo_server.solver.runtime.functional_binding_context import (
     audit_compiled_functional_arg_consumption,
     audit_functional_arg_binding_projection,
     build_functional_runtime_arg_bindings_from_context,
+)
+from shuxueshuo_server.solver.runtime.condition_binding_authority import (
+    ConditionBindingAuthorityIndex,
 )
 from shuxueshuo_server.solver.runtime.functional_plan import (
     FunctionalPlanValidator,
@@ -142,7 +146,11 @@ def test_wire_resolver_and_compiler_authorities_are_orthogonal() -> None:
     assert parameter is not None and parameter.binding_authority == "resolver"
     assert parameter.selection_policy == "identity_only"
     assert minimum is not None and minimum.binding_authority == "wire"
-    assert compiler is None
+    assert compiler is not None
+    assert compiler.binding_authority == "compiler"
+    assert compiler.consumption_mode == "typed_binding"
+    assert compiler.source.kind == "condition"
+    assert isinstance(compiler.input_binding.source, ConditionSourceSpec)
 
     projected = build_functional_runtime_arg_bindings(result, catalog=catalog)
     projected_keys = {(item.step_id, item.arg_name) for item in projected}
@@ -154,7 +162,7 @@ def test_wire_resolver_and_compiler_authorities_are_orthogonal() -> None:
         == ("ii_1_solve_m", "parameter")
     )
     assert projected_parameter.binding_authority == "resolver"
-    assert ("ii_1_solve_m", "constraint") not in projected_keys
+    assert ("ii_1_solve_m", "constraint") in projected_keys
     assert all(item.semantic_role for item in projected)
     empty_target_keys = {
         (item.step_id, item.arg_name, item.item_index)
@@ -444,7 +452,7 @@ def test_return_binding_rejects_sibling_private_object() -> None:
     assert "ii.G" in issue.message
 
 
-def test_unselected_optional_compiler_source_is_absent_from_ledger() -> None:
+def test_optional_condition_uses_the_selected_parameter_authority() -> None:
     result, _catalog = _reconcile("heping-ermo")
     context = result.functional_binding_context
     assert context is not None
@@ -456,7 +464,14 @@ def test_unselected_optional_compiler_source_is_absent_from_ledger() -> None:
         and item.binding_authority == "compiler"
     )
 
-    assert bindings == ()
+    assert len(bindings) == 3
+    assert {
+        (item.source.kind, item.source.condition_id)
+        for item in bindings
+    } == {
+        ("condition", "condition:symbol_constraint_6098472a86b7@problem")
+    }
+    assert all(item.consumption_mode == "typed_binding" for item in bindings)
 
 
 def test_curve_points_use_declared_scalar_lowering_targets() -> None:
@@ -673,7 +688,7 @@ def test_compiler_selected_typed_sources_survive_payload_round_trip() -> None:
 def test_dynamic_symbol_projection_ignores_sibling_role_candidate() -> None:
     result, catalog = _reconcile("xiqing")
     case = FUNCTIONAL_BATCH_CASES["xiqing"]
-    *_, registry, _planner_context, _problem_binding_catalog = (
+    *_, registry, planner_context, problem_binding_catalog = (
         cached_planning_binding_fixture(case.problem_id)
     )
     sibling = "symbol:ii_1:q"
@@ -696,13 +711,20 @@ def test_dynamic_symbol_projection_ignores_sibling_role_candidate() -> None:
         },
     )
 
+    object_registry = MathObjectRegistry.from_sources(expanded_registry)
+    condition_index = ConditionBindingAuthorityIndex.from_context(
+        planner_context,
+        object_registry=object_registry,
+        problem_binding_catalog=problem_binding_catalog,
+    )
     rebuilt = FunctionalBindingContextBuilder().build(
         result.plan,
         result.calls,
         catalog=catalog,
-        object_registry=MathObjectRegistry.from_sources(expanded_registry),
+        object_registry=object_registry,
         handle_registry=expanded_registry,
         method_specs=MethodSpecRegistry.load_from_code(),
+        condition_authority_index=condition_index,
     )
     dynamic = rebuilt.binding_for(
         "transform_weighted_path_ii",
@@ -710,18 +732,18 @@ def test_dynamic_symbol_projection_ignores_sibling_role_candidate() -> None:
         0,
     )
     assert dynamic is not None
-    assert dynamic.source.selected_source is not None
-    assert dynamic.source.selected_source.math_object_id == MathObjectId(
+    selected_source = dynamic.source.selected_source or dynamic.source
+    assert selected_source.math_object_id == MathObjectId(
         "symbol:ii_2:m",
         "symbol",
         "ii_2",
     )
 
 
-def test_dynamic_symbol_projection_rejects_two_visible_role_candidates() -> None:
+def test_typed_symbol_derivation_ignores_unrelated_visible_role_candidate() -> None:
     result, catalog = _reconcile("xiqing")
     case = FUNCTIONAL_BATCH_CASES["xiqing"]
-    *_, registry, _planner_context, _problem_binding_catalog = (
+    *_, registry, planner_context, problem_binding_catalog = (
         cached_planning_binding_fixture(case.problem_id)
     )
     visible = "symbol:problem:q"
@@ -744,18 +766,33 @@ def test_dynamic_symbol_projection_rejects_two_visible_role_candidates() -> None
         },
     )
 
-    with pytest.raises(
-        FunctionalBindingContextError,
-        match="inconsistent typed compiler source evidence",
-    ):
-        FunctionalBindingContextBuilder().build(
-            result.plan,
-            result.calls,
-            catalog=catalog,
-            object_registry=MathObjectRegistry.from_sources(expanded_registry),
-            handle_registry=expanded_registry,
-            method_specs=MethodSpecRegistry.load_from_code(),
-        )
+    object_registry = MathObjectRegistry.from_sources(expanded_registry)
+    condition_index = ConditionBindingAuthorityIndex.from_context(
+        planner_context,
+        object_registry=object_registry,
+        problem_binding_catalog=problem_binding_catalog,
+    )
+    rebuilt = FunctionalBindingContextBuilder().build(
+        result.plan,
+        result.calls,
+        catalog=catalog,
+        object_registry=object_registry,
+        handle_registry=expanded_registry,
+        method_specs=MethodSpecRegistry.load_from_code(),
+        condition_authority_index=condition_index,
+    )
+    dynamic = rebuilt.binding_for(
+        "transform_weighted_path_ii",
+        "dynamic_parameter",
+        0,
+    )
+
+    assert dynamic is not None
+    assert dynamic.source.math_object_id == MathObjectId(
+        "symbol:ii_2:m",
+        "symbol",
+        "ii_2",
+    )
 
 
 def _symbol_projection_fixture(

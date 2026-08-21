@@ -19,6 +19,9 @@ from shuxueshuo_server.solver.runtime.functional_condition_context_resolvers imp
     ContextClosureResolution,
     resolve_condition_role_args,
 )
+from shuxueshuo_server.solver.runtime.condition_binding_authority import (
+    ConditionBindingAuthorityIndex,
+)
 from shuxueshuo_server.solver.runtime.functional_context_values import (
     resolved_value_object_refs,
 )
@@ -91,6 +94,7 @@ def resolve_context_closure_args(
     produced: Mapping[tuple[str, str], ResolvedFunctionalValue],
     semantic_index: FunctionalSemanticIndex,
     handle_registry: CanonicalHandleRegistry,
+    condition_authority_index: ConditionBindingAuthorityIndex | None = None,
     allow_legacy_planned_producer_visibility: bool = False,
 ) -> tuple[
     dict[str, tuple[ResolvedFunctionalValue, ...]],
@@ -117,6 +121,10 @@ def resolve_context_closure_args(
         if resolver_id == EQUAL_LENGTH_RAY_PATH_ROLES_RESOLVER:
             handler_kwargs["allow_legacy_planned_producer_visibility"] = (
                 allow_legacy_planned_producer_visibility
+            )
+        if resolver_id == CONDITION_OBJECT_ROLES_RESOLVER:
+            handler_kwargs["condition_authority_index"] = (
+                condition_authority_index
             )
         resolved, current_repairs, current_issues, closed = handler(
             capability,

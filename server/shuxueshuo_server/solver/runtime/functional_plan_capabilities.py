@@ -6,6 +6,7 @@ from dataclasses import dataclass, replace
 from typing import Any, Mapping, Protocol, Sequence
 
 from shuxueshuo_server.solver.contracts import (
+    ConditionSourceSpec,
     ExactCallResultSourceSpec,
     FreeSymbolBasisDerivationSpec,
     LegacySelectorInputBindingSpec,
@@ -40,6 +41,9 @@ from shuxueshuo_server.solver.runtime.binding_selector_semantics import (
 )
 from shuxueshuo_server.solver.runtime.context_closure import (
     validate_context_closure_resolvers,
+)
+from shuxueshuo_server.solver.runtime.condition_kinds import (
+    expand_condition_kinds,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_models import (
     FunctionalAggregation,
@@ -556,11 +560,16 @@ def _function_capability(
         )
         for item in spec.args
     }
+    context_owned_arg_names = {
+        item.arg_name for item in spec.context_role_bindings
+    }
     public_source_args = tuple(
         item
         for item in spec.args
         if method_spec.inputs[item.method_input or item.name].functional_exposed
         and authority_by_input[item.method_input or item.name] == "wire"
+        and item.name not in context_owned_arg_names
+        and (item.method_input or item.name) not in context_owned_arg_names
     )
     condition_patterns = tuple(
         getattr(contract, "condition_reads", ()) if contract is not None else ()
@@ -612,8 +621,22 @@ def _function_capability(
                 selector,
             ),
             aliases=arg_aliases.get(runtime_input, ()),
-            binding_authority="wire",
+            binding_authority=(
+                "resolver"
+                if item.name in context_owned_arg_names
+                or runtime_input in context_owned_arg_names
+                else "wire"
+            ),
         )
+        if (
+            isinstance(binding, MethodInputBindingSpec)
+            and isinstance(binding.source, ConditionSourceSpec)
+            and binding.source.arg_name is not None
+        ):
+            functional_arg = replace(
+                functional_arg,
+                name=binding.source.arg_name,
+            )
         contract_slot = _contract_named_slot(contract, item.name)
         if contract_slot is not None:
             functional_arg = replace(
@@ -735,10 +758,23 @@ def _function_capability(
                         semantic_role=item.semantic_role,
                         arg_name=item.arg_name,
                         consumption_mode="resolver_evidence",
+                        input_binding=(
+                            binding_by_input.get(item.arg_name)
+                            if isinstance(
+                                binding_by_input.get(item.arg_name),
+                                MethodInputBindingSpec,
+                            )
+                            else None
+                        ),
                     )
                     for item in spec.context_role_bindings
                 ),
             )
+        ),
+        input_bindings=(
+            spec.adapter.input_bindings
+            if spec.adapter is not None
+            else ()
         ),
         auto_args=auto_args,
         context_preflight_selectors=_context_preflight_selectors(
@@ -883,9 +919,17 @@ def _functional_binding_authority(
     if isinstance(binding, MethodInputBindingSpec):
         if isinstance(
             binding.source,
-            (PublicArgSourceSpec, ExactCallResultSourceSpec),
+            (
+                PublicArgSourceSpec,
+                ExactCallResultSourceSpec,
+                ConditionSourceSpec,
+            ),
         ):
-            return "wire"
+            if not isinstance(binding.source, ConditionSourceSpec) or (
+                binding.source.arg_name is not None
+            ):
+                return "wire"
+            return "resolver"
         if (
             functional_exposed
             and isinstance(binding.derivation, FreeSymbolBasisDerivationSpec)
@@ -1070,6 +1114,11 @@ def _macro_capability(
         recipe.do_not_use_when,
         capability_id=spec.macro_id,
     )
+    input_bindings = _macro_method_input_bindings(
+        spec,
+        functions=functions,
+        family_binding_rules=family_binding_rules,
+    )
     capability = FunctionalCapability(
         capability_id=spec.macro_id,
         kind="macro",
@@ -1095,25 +1144,12 @@ def _macro_capability(
         is_pure=spec.is_pure,
         dependency_policy=spec.dependency_policy,
         context_resolvers=spec.context_resolvers,
-        context_arg_bindings=_merge_context_arg_bindings(
-            (
-                *_macro_context_arg_bindings(
-                    spec,
-                    functions=functions,
-                    family_binding_rules=family_binding_rules,
-                    method_specs=method_specs,
-                ),
-                *(
-                    FunctionalContextArgBinding(
-                        resolver_id=item.resolver_id,
-                        semantic_role=item.semantic_role,
-                        arg_name=item.arg_name,
-                        consumption_mode="resolver_evidence",
-                    )
-                    for item in spec.context_role_bindings
-                ),
-            )
+        context_arg_bindings=_macro_context_arg_bindings(
+            spec,
+            input_bindings=input_bindings,
+            method_specs=method_specs,
         ),
+        input_bindings=tuple(input_bindings),
         input_closure_requirements=_input_closure_requirements(
             spec.input_closure_requirements
         ),
@@ -1251,11 +1287,9 @@ def _input_requirement_is_satisfiable(
 def _macro_context_arg_bindings(
     spec: MacroSpec,
     *,
-    functions: FunctionSpecRegistry,
-    family_binding_rules: Mapping[str, Any],
+    input_bindings: Sequence[Any],
     method_specs: MethodSpecRegistry,
 ) -> tuple[FunctionalContextArgBinding, ...]:
-    input_bindings = []
     declared_bindings: list[FunctionalContextArgBinding] = []
     wired_inputs = {
         tuple(target.rsplit(".", 1))
@@ -1263,14 +1297,6 @@ def _macro_context_arg_bindings(
         if "." in target
     }
     for internal_call in spec.internal_calls:
-        function = functions.get(internal_call.capability_id)
-        adapter = function.adapter if function is not None else None
-        if adapter is None:
-            rule = family_binding_rules.get(internal_call.capability_id)
-            if rule is not None:
-                adapter = function_adapter_from_binding_rule(rule)
-        if adapter is not None:
-            input_bindings.extend(adapter.input_bindings)
         method_spec = method_specs.require(internal_call.capability_id)
         for input_spec in method_spec.inputs.values():
             if (
@@ -1286,13 +1312,59 @@ def _macro_context_arg_bindings(
                 )
                 for resolver_id in spec.context_resolvers
             )
+    strict_bindings_by_input = {
+        item.input_name: item
+        for item in input_bindings
+        if isinstance(item, MethodInputBindingSpec)
+    }
     selector_bindings = _context_arg_bindings(
         tuple(input_bindings),
         context_resolvers=spec.context_resolvers,
     )
     return _merge_context_arg_bindings(
-        (*selector_bindings, *declared_bindings)
+        (
+            *selector_bindings,
+            *declared_bindings,
+            *(
+                FunctionalContextArgBinding(
+                    resolver_id=item.resolver_id,
+                    semantic_role=item.semantic_role,
+                    arg_name=item.arg_name,
+                    consumption_mode="resolver_evidence",
+                    input_binding=strict_bindings_by_input.get(item.arg_name),
+                )
+                for item in spec.context_role_bindings
+            ),
+        )
     )
+
+
+def _macro_method_input_bindings(
+    spec: MacroSpec,
+    *,
+    functions: FunctionSpecRegistry,
+    family_binding_rules: Mapping[str, Any],
+) -> tuple[Any, ...]:
+    """Collect one unambiguous binding declaration per Macro Method input."""
+
+    result: dict[str, Any] = {}
+    for internal_call in spec.internal_calls:
+        function = functions.get(internal_call.capability_id)
+        adapter = function.adapter if function is not None else None
+        if adapter is None:
+            rule = family_binding_rules.get(internal_call.capability_id)
+            if rule is not None:
+                adapter = function_adapter_from_binding_rule(rule)
+        if adapter is None:
+            continue
+        for binding in adapter.input_bindings:
+            previous = result.setdefault(binding.input_name, binding)
+            if previous != binding:
+                raise ValueError(
+                    "planner_configuration_error: Macro internal inputs "
+                    f"disagree for {spec.macro_id}.{binding.input_name}"
+                )
+    return tuple(result.values())
 
 
 def _context_arg_bindings(
@@ -1368,7 +1440,7 @@ def _function_arg(
         if condition_pattern is not None
         else item.name
     )
-    runtime_condition_kinds = (
+    runtime_condition_kinds = expand_condition_kinds(
         accepted_condition_kinds
         or (
             (condition_pattern.condition_kind,)

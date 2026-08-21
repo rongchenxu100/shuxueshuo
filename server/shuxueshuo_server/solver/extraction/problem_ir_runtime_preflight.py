@@ -22,7 +22,12 @@ from shuxueshuo_server.solver.runtime.binding_index import (
 from shuxueshuo_server.solver.runtime.binding_rules import (
     MethodBindingRuleRegistry,
 )
+from shuxueshuo_server.solver.runtime.condition_binding_authority import (
+    ConditionBindingAuthorityError,
+    ConditionBindingAuthorityIndex,
+)
 from shuxueshuo_server.solver.runtime.context import RuntimeContext
+from shuxueshuo_server.solver.runtime.context_inventory import ContextInventory
 from shuxueshuo_server.solver.runtime.functional_direct_compiler import (
     FunctionalCapabilityCompileCall,
 )
@@ -40,6 +45,11 @@ from shuxueshuo_server.solver.runtime.path_term_parsing import (
     parse_path_terms,
 )
 from shuxueshuo_server.solver.runtime.projection import problem_to_llm_payload
+from shuxueshuo_server.solver.runtime.planner_state_context import (
+    initial_planner_state_context,
+)
+from shuxueshuo_server.solver.runtime.planner import PlannerInputs
+from shuxueshuo_server.solver.runtime.state_identity import MathObjectRegistry
 from shuxueshuo_server.solver.runtime.strategy_models import (
     StrategyDraftValidationError,
 )
@@ -72,6 +82,27 @@ class ProblemIRRuntimeReadinessValidator:
         )
         question_goals = extract_question_goals(problem)
         method_specs = _method_specs()
+        planner_state_context = initial_planner_state_context(
+            PlannerInputs(
+                problem_id=problem.problem_id,
+                family_spec=family,
+                question_goals=question_goals,
+                context_inventory=ContextInventory(),
+                method_specs=method_specs,
+                problem=problem,
+                original_text=dict(problem.original_text),
+                previous_errors=[],
+            ),
+            problem_payload=problem_payload,
+            handle_registry=handle_registry,
+        )
+        condition_authority_index = ConditionBindingAuthorityIndex.from_context(
+            planner_state_context,
+            object_registry=MathObjectRegistry.from_sources(
+                handle_registry,
+                math_objects=planner_state_context.state.math_objects,
+            ),
+        )
         methods = _methods()
         binding_rules = MethodBindingRuleRegistry.from_family_spec(family)
 
@@ -157,6 +188,7 @@ class ProblemIRRuntimeReadinessValidator:
                     handle_registry=handle_registry,
                     question_goals=question_goals,
                     binding_rules=binding_rules,
+                    condition_authority_index=condition_authority_index,
                     method_spec=method_spec,
                     method=method,
                     preflight=preflight,
@@ -175,6 +207,7 @@ class ProblemIRRuntimeReadinessValidator:
         handle_registry: CanonicalHandleRegistry,
         question_goals: list[Any],
         binding_rules: MethodBindingRuleRegistry,
+        condition_authority_index: ConditionBindingAuthorityIndex,
         method_spec: Any,
         method: Any,
         preflight: Any,
@@ -247,12 +280,42 @@ class ProblemIRRuntimeReadinessValidator:
             handle_registry=handle_registry,
             question_goals=question_goals,
         )
+        exact_inputs: dict[str, str] = {}
+        try:
+            exact_inputs.update(
+                _typed_preflight_exact_inputs(
+                    preflight.method_id,
+                    trigger=trigger,
+                    visible_facts=visible_required_facts,
+                    scope_id=scope_id,
+                    call=call,
+                    index=index,
+                    context=context,
+                    handle_registry=handle_registry,
+                    condition_authority_index=condition_authority_index,
+                )
+            )
+        except (
+            ConditionBindingAuthorityError,
+            KeyError,
+            PathTermParseError,
+            PermissionError,
+            TypeError,
+            ValueError,
+        ) as exc:
+            return ProblemIRRuntimeReadinessIssue(
+                "extraction.problem_ir_runtime_preflight_failed",
+                trigger_path,
+                _preflight_failure_message(preflight, exc),
+                retryable=False,
+            )
         try:
             bound_inputs = binding_rules.bind(
                 preflight.method_id,
                 call,
                 index,
                 include_expansion_selectors=False,
+                exact_inputs=exact_inputs,
                 apply_constraint_analyzer=False,
             )
         except StrategyDraftValidationError as exc:
@@ -388,6 +451,167 @@ def _preflight_failure_message(preflight: Any, error: Exception) -> str:
         f"{error}. {preflight.description} Check the selected family's use_when, "
         "required_source_primitives, and do_not_use_when rules before changing family."
     )
+
+
+def _typed_preflight_exact_inputs(
+    method_id: str,
+    *,
+    trigger: Mapping[str, Any],
+    visible_facts: tuple[Mapping[str, Any], ...],
+    scope_id: str,
+    call: FunctionalCapabilityCompileCall,
+    index: CanonicalRuntimeBindingIndex,
+    context: RuntimeContext,
+    handle_registry: CanonicalHandleRegistry,
+    condition_authority_index: ConditionBindingAuthorityIndex,
+) -> dict[str, str]:
+    """Lower migrated preflight inputs from exact typed source authority."""
+
+    if method_id != "weighted_axis_path_triangle_transform":
+        return {}
+    trigger_handle = str(trigger.get("handle", ""))
+    authority = condition_authority_index.resolve_runtime_handle(
+        trigger_handle,
+        condition_kinds=("minimum_value",),
+        scope_id=scope_id,
+    )
+    fixed, moving, curve = _weighted_preflight_point_roles(
+        trigger,
+        visible_facts=visible_facts,
+        scope_id=scope_id,
+        handle_registry=handle_registry,
+    )
+    moving_path = index.path_for(moving, expected_type="Point")
+    dynamic_parameter = _point_dynamic_symbol_path(
+        moving_path,
+        scope_id=scope_id,
+        call=call,
+        index=index,
+        context=context,
+    )
+    return {
+        "condition": index.path_for(
+            authority.runtime_handle,
+            expected_type="Condition",
+        ),
+        "fixed_point": index.path_for(fixed, expected_type="Point"),
+        "moving_point": moving_path,
+        "moving_point_ref": index.point_identity_path_for(moving),
+        "linked_fixed_endpoint_ref": index.point_identity_path_for(curve),
+        "dynamic_parameter": dynamic_parameter,
+    }
+
+
+def _weighted_preflight_point_roles(
+    trigger: Mapping[str, Any],
+    *,
+    visible_facts: tuple[Mapping[str, Any], ...],
+    scope_id: str,
+    handle_registry: CanonicalHandleRegistry,
+) -> tuple[str, str, str]:
+    targets = _matching_required_facts(
+        "path_minimum_target",
+        trigger=trigger,
+        visible_facts=visible_facts,
+    )
+    if len(targets) != 1:
+        raise ValueError(
+            "typed weighted preflight requires one matching path_minimum_target"
+        )
+    visible_scopes = set(handle_registry.ancestor_scopes(scope_id))
+    point_by_name: dict[str, list[str]] = {}
+    for handle, payload in handle_registry.entity_payloads.items():
+        if not handle.startswith("point:"):
+            continue
+        if handle_registry.handle_valid_scopes.get(handle, "problem") not in visible_scopes:
+            continue
+        name = str(payload.get("name", ""))
+        if name:
+            point_by_name.setdefault(name, []).append(handle)
+
+    def resolve_point(name: str) -> str:
+        candidates = point_by_name.get(name, ())
+        if len(candidates) != 1:
+            raise PathTermParseError(
+                "path_terms.point_unresolved",
+                f"weighted path point is not unique in scope: {name}",
+            )
+        return candidates[0]
+
+    point_names = tuple(sorted(point_by_name))
+    display_terms = parse_path_terms(
+        trigger,
+        point_names=point_names,
+        resolve_point=resolve_point,
+    )
+    target_terms = parse_path_terms(
+        targets[0],
+        point_names=point_names,
+        resolve_point=resolve_point,
+    )
+    if len(display_terms) != 2 or len(target_terms) != 2:
+        raise ValueError("weighted path requires exactly two path terms")
+    display_pairs = tuple(
+        frozenset((item.start, item.end)) for item in display_terms
+    )
+    target_pairs = tuple(
+        frozenset((item.start, item.end)) for item in target_terms
+    )
+    if set(display_pairs) != set(target_pairs):
+        raise ValueError(
+            "minimum_value path roles differ from path_minimum_target authority"
+        )
+    weighted_indexes = tuple(
+        index
+        for index, item in enumerate(display_terms)
+        if not _unit_scale(item.scale)
+    )
+    if len(weighted_indexes) != 1:
+        raise ValueError("weighted path must have exactly one weighted term")
+    weighted_pair = display_pairs[weighted_indexes[0]]
+    unit_pair = display_pairs[1 - weighted_indexes[0]]
+    shared = tuple(sorted(weighted_pair & unit_pair))
+    if len(shared) != 1:
+        raise ValueError("weighted path terms must share one moving point")
+    moving = shared[0]
+    fixed = next(iter(unit_pair - {moving}))
+    curve = next(iter(weighted_pair - {moving}))
+    return fixed, moving, curve
+
+
+def _point_dynamic_symbol_path(
+    moving_path: str,
+    *,
+    scope_id: str,
+    call: FunctionalCapabilityCompileCall,
+    index: CanonicalRuntimeBindingIndex,
+    context: RuntimeContext,
+) -> str:
+    point = context.read_path(
+        moving_path,
+        from_scope_id=scope_id,
+        expected_type="Point",
+    ).value
+    symbols = {
+        str(symbol)
+        for coordinate in point
+        for symbol in getattr(coordinate, "free_symbols", ())
+    }
+    if len(symbols) != 1:
+        raise ValueError(
+            "weighted moving Point must expose one dynamic parameter Symbol"
+        )
+    symbol_name = next(iter(symbols))
+    handles = tuple(
+        handle
+        for handle in index.entity_handles("symbol", step=call)
+        if index.entity_semantic_name(handle) == symbol_name
+    )
+    if len(handles) != 1:
+        raise ValueError(
+            "weighted dynamic parameter has no unique canonical Symbol authority"
+        )
+    return index.path_for(handles[0], expected_type="Symbol")
 
 
 def _source_structure_preflight_issue(

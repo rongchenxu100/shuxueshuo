@@ -41,11 +41,15 @@ from shuxueshuo_server.solver.family.capability_packs import (
 from shuxueshuo_server.solver.family.common_binding_rules import (
     QUADRATIC_STATE_PREP_INVOCATIONS,
     canonical_x_binding,
+    condition_arg_binding,
+    entity_identity_binding,
     exact_call_result_binding,
     public_arg_binding,
     quadratic_coefficients_binding,
     quadratic_latest_state_binding,
     quadratic_public_state_binding,
+    related_condition_binding,
+    source_object_identity_binding,
 )
 
 
@@ -332,18 +336,21 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         MethodBindingRuleSpec(
             method_id="square_path_dimension_reduction",
             input_bindings=(
-                LegacySelectorInputBindingSpec("path_condition", "fact:path_minimum_target:Condition"),
-                LegacySelectorInputBindingSpec("square_condition", "fact:square:Condition"),
-                LegacySelectorInputBindingSpec("midpoint_condition", "fact:midpoint_definition:Condition"),
-                LegacySelectorInputBindingSpec("square_center_condition", "fact:square_center:Condition"),
-                LegacySelectorInputBindingSpec(
-                    "fixed_endpoint_1_ref",
-                    "square_path:fixed_endpoint_1_ref",
+                condition_arg_binding(
+                    "path_condition",
+                    public_arg="path_minimum_target",
                 ),
-                LegacySelectorInputBindingSpec(
-                    "fixed_endpoint_2_ref",
-                    "square_path:fixed_endpoint_2_ref",
+                condition_arg_binding("square_condition", public_arg="square"),
+                condition_arg_binding(
+                    "midpoint_condition",
+                    public_arg="midpoint_definition",
                 ),
+                condition_arg_binding(
+                    "square_center_condition",
+                    public_arg="square_center",
+                ),
+                entity_identity_binding("fixed_endpoint_1_ref"),
+                entity_identity_binding("fixed_endpoint_2_ref"),
             ),
         ),
         MethodBindingRuleSpec(
@@ -385,10 +392,18 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             input_bindings=(
                 public_arg_binding("side_start"),
                 public_arg_binding("side_end"),
-                LegacySelectorInputBindingSpec("square_condition", "fact:square:Condition"),
+                condition_arg_binding("square_condition", public_arg="square"),
                 LegacySelectorInputBindingSpec("target", "point_transition_target"),
-                LegacySelectorInputBindingSpec("side_start_ref", "square:side_start_ref", required=False),
-                LegacySelectorInputBindingSpec("side_end_ref", "square:side_end_ref", required=False),
+                source_object_identity_binding(
+                    "side_start",
+                    input_name="side_start_ref",
+                    required=False,
+                ),
+                source_object_identity_binding(
+                    "side_end",
+                    input_name="side_end_ref",
+                    required=False,
+                ),
                 LegacySelectorInputBindingSpec(
                     "parameter",
                     "parameter_symbol",
@@ -396,7 +411,12 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                     functional_authority="wire",
                     functional_resolver="unique_parameter_symbol",
                 ),
-                LegacySelectorInputBindingSpec("parameter_constraint", "parameter_constraint", required=False),
+                related_condition_binding(
+                    "parameter_constraint",
+                    condition_kinds=("symbol_constraint",),
+                    related_args=("parameter",),
+                    required=False,
+                ),
             ),
             expansion_selectors=(
                 LegacyExpansionSelectorSpec("parameter_value_if_read"),

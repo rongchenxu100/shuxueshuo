@@ -641,6 +641,16 @@
       ],
       "bindings": [
         {
+          "arg": "constraint",
+          "item": 0,
+          "role": "constraint",
+          "authority": "compiler",
+          "target": "constraint",
+          "paths": [
+            "$problem.conditions.symbol_constraint_f11ebacac514"
+          ]
+        },
+        {
           "arg": "length_squared",
           "item": 0,
           "role": "length_squared",
@@ -791,8 +801,8 @@
         {
           "arg": "linked_fixed_endpoint_ref",
           "item": 0,
-          "role": "linked_fixed_endpoint_ref",
-          "authority": "compiler",
+          "role": "linked_fixed_endpoint",
+          "authority": "resolver",
           "target": "linked_fixed_endpoint_ref",
           "paths": [
             "$subquestion.ii_2.facts.__functional_transaction_transform_weighted_path_ii_2"
@@ -1000,6 +1010,16 @@
           ]
         },
         {
+          "arg": "parameter_constraint",
+          "item": 0,
+          "role": "parameter_constraint",
+          "authority": "compiler",
+          "target": "parameter_constraint",
+          "paths": [
+            "$problem.conditions.symbol_constraint_f11ebacac514"
+          ]
+        },
+        {
           "arg": "path_transformation",
           "item": 0,
           "role": "path_transformation",
@@ -1060,6 +1080,16 @@
         }
       ],
       "bindings": [
+        {
+          "arg": "constraint",
+          "item": 0,
+          "role": "constraint",
+          "authority": "compiler",
+          "target": "constraint",
+          "paths": [
+            "$problem.conditions.symbol_constraint_f11ebacac514"
+          ]
+        },
         {
           "arg": "expression",
           "item": 0,

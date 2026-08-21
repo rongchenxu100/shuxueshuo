@@ -195,7 +195,7 @@ def test_authored_direct_compile_manifest_is_stable(case_id: str) -> None:
     assert _functional_compile_manifest(case_id) == expected
 
 
-def test_recorded_quadratic_vertical_slice_never_calls_legacy_selectors(
+def test_recorded_strict_slices_do_not_call_legacy_selectors(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     original = FunctionAdapterRegistry._select
@@ -212,7 +212,7 @@ def test_recorded_quadratic_vertical_slice_never_calls_legacy_selectors(
         replay = _replay(case_id, mode="context_authoritative")
         assert replay.output is not None
 
-    assert observed
+    assert observed == []
 
 
 def test_recorded_typed_bindings_never_use_selector_read_authority() -> None:

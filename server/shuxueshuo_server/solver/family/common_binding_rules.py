@@ -5,6 +5,8 @@ from __future__ import annotations
 from shuxueshuo_server.solver.contracts import (
     CanonicalSymbolDerivationSpec,
     CoefficientExtractionDerivationSpec,
+    ConditionSourceSpec,
+    EntityIdentitySourceSpec,
     ExactCallResultSourceSpec,
     FreeSymbolBasisDerivationSpec,
     LegacyExpansionSelectorSpec,
@@ -52,9 +54,20 @@ def quadratic_latest_state_binding(
     *,
     entity_arg: str | None = None,
 ) -> MethodInputBindingSpec:
+    return latest_state_binding(
+        input_name,
+        entity_arg=entity_arg or "parabola",
+    )
+
+
+def latest_state_binding(
+    input_name: str,
+    *,
+    entity_arg: str | None = None,
+) -> MethodInputBindingSpec:
     return MethodInputBindingSpec(
         input_name=input_name,
-        source=LatestStateSourceSpec(entity_arg or "parabola"),
+        source=LatestStateSourceSpec(entity_arg or input_name),
     )
 
 
@@ -94,10 +107,63 @@ def exact_call_result_binding(
     )
 
 
-def canonical_x_binding(input_name: str = "x") -> MethodInputBindingSpec:
+def condition_arg_binding(
+    input_name: str,
+    *,
+    public_arg: str | None = None,
+    required: bool = True,
+) -> MethodInputBindingSpec:
+    """Bind one exact Fact/Condition selected by the public call contract."""
     return MethodInputBindingSpec(
         input_name=input_name,
-        derivation=CanonicalSymbolDerivationSpec("x"),
+        required=required,
+        source=ConditionSourceSpec(arg_name=public_arg or input_name),
+    )
+
+
+def related_condition_binding(
+    input_name: str,
+    *,
+    condition_kinds: tuple[str, ...],
+    related_args: tuple[str, ...],
+    required: bool = True,
+) -> MethodInputBindingSpec:
+    """Resolve one lexical Condition by canonical related-object identity."""
+    return MethodInputBindingSpec(
+        input_name=input_name,
+        required=required,
+        source=ConditionSourceSpec(
+            condition_kinds=condition_kinds,
+            related_args=related_args,
+        ),
+    )
+
+
+def entity_identity_binding(
+    input_name: str,
+    *,
+    source_arg: str | None = None,
+    required: bool = True,
+) -> MethodInputBindingSpec:
+    return MethodInputBindingSpec(
+        input_name=input_name,
+        required=required,
+        source=EntityIdentitySourceSpec(arg_name=source_arg or input_name),
+    )
+
+
+def canonical_x_binding(input_name: str = "x") -> MethodInputBindingSpec:
+    return canonical_symbol_binding(input_name, symbol_name="x")
+
+
+def canonical_symbol_binding(
+    input_name: str,
+    *,
+    symbol_name: str,
+) -> MethodInputBindingSpec:
+    return MethodInputBindingSpec(
+        input_name=input_name,
+        derivation=CanonicalSymbolDerivationSpec(symbol_name),
     )
 
 
@@ -131,6 +197,19 @@ def source_parameter_identity_binding(
     input_name: str,
     required: bool = False,
 ) -> MethodInputBindingSpec:
+    return source_object_identity_binding(
+        source_input,
+        input_name=input_name,
+        required=required,
+    )
+
+
+def source_object_identity_binding(
+    source_input: str,
+    *,
+    input_name: str,
+    required: bool = False,
+) -> MethodInputBindingSpec:
     return MethodInputBindingSpec(
         input_name=input_name,
         required=required,
@@ -144,8 +223,23 @@ def producer_parameter_binding(
     input_name: str = "parameter",
     producer_input: str = "parameter",
 ) -> MethodInputBindingSpec:
+    return producer_linked_binding(
+        source_input,
+        input_name=input_name,
+        producer_input=producer_input,
+    )
+
+
+def producer_linked_binding(
+    source_input: str,
+    *,
+    input_name: str,
+    producer_input: str,
+    required: bool = True,
+) -> MethodInputBindingSpec:
     return MethodInputBindingSpec(
         input_name=input_name,
+        required=required,
         source=ProducerLinkedSourceSpec(source_input, producer_input),
     )
 
@@ -314,8 +408,8 @@ def midpoint_point_rule() -> MethodBindingRuleSpec:
     return MethodBindingRuleSpec(
         method_id="midpoint_point",
         input_bindings=(
-            LegacySelectorInputBindingSpec("p1", "midpoint:p1"),
-            LegacySelectorInputBindingSpec("p2", "midpoint:p2"),
+            public_arg_binding("p1"),
+            public_arg_binding("p2"),
             LegacySelectorInputBindingSpec("target", "midpoint:target"),
         ),
     )
@@ -365,9 +459,10 @@ def parameter_from_curve_point_on_quadratic_rule() -> MethodBindingRuleSpec:
                     "known_parameter_value",
                 )
             ),
-            LegacySelectorInputBindingSpec(
+            related_condition_binding(
                 "parameter_constraint",
-                "parameter_constraint",
+                condition_kinds=("symbol_constraint",),
+                related_args=("parameter",),
                 required=False,
             ),
             source_parameter_identity_binding(
@@ -416,10 +511,15 @@ def parameter_from_expression_value_rule() -> MethodBindingRuleSpec:
         method_id="parameter_from_expression_value",
         input_bindings=(
             exact_call_result_binding("expression"),
-            LegacySelectorInputBindingSpec("condition", "fact:minimum_value:Condition"),
+            condition_arg_binding("condition", public_arg="minimum_value"),
             parameter_basis_binding(
                 ("expression", "condition", "constraint")
             ),
-            LegacySelectorInputBindingSpec("constraint", "parameter_constraint", required=False),
+            related_condition_binding(
+                "constraint",
+                condition_kinds=("symbol_constraint",),
+                related_args=("parameter",),
+                required=False,
+            ),
         ),
     )

@@ -85,9 +85,12 @@ def _midpoint_definition_roles(
             "midpoint_definition requires one midpoint and two Point endpoints",
             details={"fields": ["point", "of"]},
         )
+    endpoint_refs = tuple(str(item) for item in endpoints)
     return (
         ("midpoint", (str(midpoint),)),
-        ("endpoint", tuple(str(item) for item in endpoints)),
+        ("endpoint", endpoint_refs),
+        ("p1", (endpoint_refs[0],)),
+        ("p2", (endpoint_refs[1],)),
     )
 
 
@@ -116,6 +119,51 @@ def _point_on_curve_roles(
             )
         result.append(("x_symbol", (str(x_symbol),)))
     return tuple(result)
+
+
+def _angle_sum_roles(
+    payload: Mapping[str, Any],
+    *,
+    entity_payloads: Mapping[str, Mapping[str, Any]] | None,
+) -> ConditionObjectRoles:
+    terms = payload.get("angle_terms")
+    if (
+        not isinstance(terms, list | tuple)
+        or len(terms) != 2
+        or any(not isinstance(item, str) or len(item) != 3 for item in terms)
+        or entity_payloads is None
+    ):
+        raise ConditionRoleResolutionError(
+            "condition.roles_invalid",
+            "angle_sum requires two structured three-point angle terms",
+            details={"field": "angle_terms"},
+        )
+
+    def point_ref(name: str) -> str:
+        matches = tuple(
+            handle
+            for handle, entity in entity_payloads.items()
+            if handle.startswith("point:")
+            and (
+                entity.get("name") == name
+                or handle.rsplit(":", 1)[-1] == name
+            )
+        )
+        if len(matches) != 1:
+            raise ConditionRoleResolutionError(
+                "condition.roles_invalid",
+                "angle_sum point name must resolve to one Point entity",
+                details={"point_name": name, "candidates": list(matches)},
+            )
+        return matches[0]
+
+    left, right = terms
+    return (
+        ("x_axis_point", (point_ref(left[1]),)),
+        ("y_axis_point", (point_ref(left[0]),)),
+        ("reference_x_axis_point", (point_ref(right[0]),)),
+        ("origin", (point_ref(right[2]),)),
+    )
 
 
 def _structured_subject_refs(
@@ -260,7 +308,10 @@ class ConditionRoleResolver:
 
     @classmethod
     def supports(cls, condition_kind: str) -> bool:
-        return condition_kind in _CONDITION_ROLE_EXTRACTORS
+        return (
+            condition_kind in _CONDITION_ROLE_EXTRACTORS
+            or condition_kind == "angle_sum"
+        )
 
     @classmethod
     def object_roles(
@@ -271,8 +322,13 @@ class ConditionRoleResolver:
         entity_payloads: Mapping[str, Mapping[str, Any]] | None = None,
     ) -> ConditionObjectRoles:
         extractor = _CONDITION_ROLE_EXTRACTORS.get(condition_kind)
+        extracted = (
+            _angle_sum_roles(payload, entity_payloads=entity_payloads)
+            if condition_kind == "angle_sum"
+            else (extractor(payload) if extractor is not None else ())
+        )
         declared = (
-            *((extractor(payload) if extractor is not None else ())),
+            *extracted,
             *_segment_condition_roles(
                 condition_kind,
                 payload,

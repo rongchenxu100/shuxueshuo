@@ -27,9 +27,14 @@ from shuxueshuo_server.solver.family.capability_packs import (
     DEFAULT_CAPABILITY_PACK_REGISTRY,
 )
 from shuxueshuo_server.solver.family.common_binding_rules import (
+    condition_arg_binding,
+    entity_identity_binding,
     exact_call_result_binding,
+    latest_state_binding,
     parameter_basis_binding,
     public_arg_binding,
+    related_condition_binding,
+    source_object_identity_binding,
 )
 _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
     family_id="QuadraticWeightedPathMinimumSolver",
@@ -297,8 +302,8 @@ _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         MethodBindingRuleSpec(
             method_id="right_angle_equal_length_candidates",
             input_bindings=(
-                LegacySelectorInputBindingSpec("anchor", "right_angle:anchor"),
-                LegacySelectorInputBindingSpec("reference", "right_angle:reference"),
+                latest_state_binding("anchor"),
+                latest_state_binding("reference"),
                 LegacySelectorInputBindingSpec("target", "right_angle:target"),
             ),
         ),
@@ -319,28 +324,30 @@ _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                         "constraint",
                     )
                 ),
-                LegacySelectorInputBindingSpec("condition", "fact:length_condition:Condition"),
-                LegacySelectorInputBindingSpec("constraint", "parameter_constraint", required=False),
+                condition_arg_binding("condition", public_arg="length_squared"),
+                related_condition_binding(
+                    "constraint",
+                    condition_kinds=("symbol_constraint",),
+                    related_args=("parameter",),
+                    required=False,
+                ),
             ),
         ),
         MethodBindingRuleSpec(
             method_id="weighted_axis_path_triangle_transform",
             input_bindings=(
-                LegacySelectorInputBindingSpec("condition", "weighted_path:condition"),
-                LegacySelectorInputBindingSpec("fixed_point", "weighted_path:fixed_point"),
-                LegacySelectorInputBindingSpec("moving_point", "weighted_path:moving_point"),
-                LegacySelectorInputBindingSpec(
-                    "moving_point_ref",
-                    "weighted_path:moving_point_ref",
+                condition_arg_binding("condition", public_arg="minimum_value"),
+                public_arg_binding("fixed_point"),
+                public_arg_binding("moving_point"),
+                source_object_identity_binding(
+                    "moving_point",
+                    input_name="moving_point_ref",
+                    required=True,
                 ),
-                LegacySelectorInputBindingSpec(
-                    "linked_fixed_endpoint_ref",
-                    "weighted_path:linked_fixed_endpoint_ref",
-                ),
-                LegacySelectorInputBindingSpec(
-                    "dynamic_parameter",
-                    "dynamic_symbol",
-                    functional_authority="compiler",
+                entity_identity_binding("linked_fixed_endpoint_ref"),
+                parameter_basis_binding(
+                    ("moving_point", "condition"),
+                    input_name="dynamic_parameter",
                 ),
                 LegacySelectorInputBindingSpec("auxiliary_point_ref", "weighted_path:auxiliary_point_ref"),
             ),
@@ -371,13 +378,16 @@ _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                     ("curve_point",),
                     input_name="parameter",
                 ),
-                LegacySelectorInputBindingSpec(
-                    "dynamic_parameter",
-                    "dynamic_symbol",
-                    functional_authority="compiler",
+                parameter_basis_binding(
+                    ("moving_point", "dynamic_constraint"),
+                    input_name="dynamic_parameter",
                 ),
-                LegacySelectorInputBindingSpec("parameter_constraint", "parameter_constraint"),
-                LegacySelectorInputBindingSpec("dynamic_constraint", "dynamic_constraint"),
+                related_condition_binding(
+                    "parameter_constraint",
+                    condition_kinds=("symbol_constraint",),
+                    related_args=("parameter",),
+                ),
+                condition_arg_binding("dynamic_constraint"),
             ),
         ),
     ),

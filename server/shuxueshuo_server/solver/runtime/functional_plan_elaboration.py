@@ -12,6 +12,9 @@ from shuxueshuo_server.solver.family.models import (
     CapabilityStateClosurePolicy,
 )
 
+from shuxueshuo_server.solver.runtime.condition_kinds import (
+    condition_kind_matches,
+)
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
 )
@@ -1847,7 +1850,10 @@ class FunctionalSemanticIndex:
             )
             and (
                 not accepted_condition_kinds
-                or item.condition_kind in accepted_condition_kinds
+                or condition_kind_matches(
+                    item.condition_kind,
+                    accepted_condition_kinds,
+                )
             )
         )
         if not compatible:
@@ -1966,7 +1972,10 @@ class FunctionalSemanticIndex:
                 continue
             if (
                 accepted_condition_kinds
-                and item.condition_kind not in accepted_condition_kinds
+                and not condition_kind_matches(
+                    item.condition_kind,
+                    accepted_condition_kinds,
+                )
             ):
                 continue
             if (
@@ -2003,7 +2012,10 @@ class FunctionalSemanticIndex:
             )
             and (
                 not accepted_condition_kinds
-                or item.condition_kind in accepted_condition_kinds
+                or condition_kind_matches(
+                    item.condition_kind,
+                    accepted_condition_kinds,
+                )
             )
             and (
                 not accepted_semantic_roles
@@ -2046,7 +2058,10 @@ class FunctionalSemanticIndex:
             )
             and (
                 not accepted_condition_kinds
-                or item.condition_kind in accepted_condition_kinds
+                or condition_kind_matches(
+                    item.condition_kind,
+                    accepted_condition_kinds,
+                )
             )
         )
 

@@ -1754,6 +1754,7 @@ def _project_placed_calls(
             allocations,
             specs=specs,
             resolved_args=resolved_args,
+            object_registry=object_registry,
         )
         for allocation in allocations:
             produced[(call.call_id, allocation.return_name)] = allocation
@@ -2036,6 +2037,7 @@ def _finalize_typed_allocations(
             allocations,
             specs=specs,
             resolved_args=resolved_args,
+            object_registry=identity_factory.objects,
         )
         for allocation in allocations:
             produced[(call.call_id, allocation.return_name)] = allocation
@@ -2055,6 +2057,7 @@ def _reproject_final_return_object_roles(
     *,
     specs: Mapping[str, Any],
     resolved_args: Mapping[str, tuple[ResolvedFunctionalValue, ...]],
+    object_registry: MathObjectRegistry,
 ) -> list[FunctionalReturnAllocation]:
     """Bind all declared roles to B2's final StateVersion allocations."""
 
@@ -2208,6 +2211,13 @@ def _reproject_final_return_object_roles(
                 for value in source_values
             )
 
+        projected_roles = [
+            _resolve_projected_role_object_ids(
+                role,
+                object_registry=object_registry,
+            )
+            for role in projected_roles
+        ]
         lineage = state_semantic_lineage(
             semantic_roles=allocation.lineage.semantic_roles,
             evidence_tags=allocation.lineage.evidence_tags,
@@ -2244,6 +2254,23 @@ def _reproject_final_return_object_roles(
         )
         result.append(replace(allocation, lineage=lineage))
     return result
+
+
+def _resolve_projected_role_object_ids(
+    role: StateObjectRoleBinding,
+    *,
+    object_registry: MathObjectRegistry,
+) -> StateObjectRoleBinding:
+    """Keep typed role identity while B2 reprojects final return lineage."""
+
+    resolved_ids = list(role.object_ids)
+    for object_ref in role.object_refs:
+        object_id = object_registry.resolve(object_ref)
+        if object_id is None:
+            object_id = object_registry.register_handle(object_ref)
+        if object_id is not None:
+            resolved_ids.append(object_id)
+    return replace(role, object_ids=unique_ordered(resolved_ids))
 
 
 def _raise_role_projection_incomplete(

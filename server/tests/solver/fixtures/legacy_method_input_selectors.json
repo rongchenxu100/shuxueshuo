@@ -1,66 +1,16 @@
 {
   "schema_version": "legacy-method-input-selectors/v1",
-  "source_declaration_count": 81,
+  "source_declaration_count": 28,
   "bindings": [
-    [
-      "angle_sum_equal_angle_candidates",
-      "condition",
-      "angle_sum:condition"
-    ],
-    [
-      "angle_sum_equal_angle_candidates",
-      "origin",
-      "angle_sum:origin"
-    ],
-    [
-      "angle_sum_equal_angle_candidates",
-      "reference_x_axis_point",
-      "angle_sum:reference_x_axis_point"
-    ],
     [
       "angle_sum_equal_angle_candidates",
       "target",
       "angle_sum:target"
     ],
     [
-      "angle_sum_equal_angle_candidates",
-      "x_axis_point",
-      "angle_sum:x_axis_point"
-    ],
-    [
-      "angle_sum_equal_angle_candidates",
-      "y_axis_point",
-      "angle_sum:y_axis_point"
-    ],
-    [
-      "axis_intercept_from_equal_acute_angles",
-      "angle_equality",
-      "angle_equality:fact"
-    ],
-    [
-      "axis_intercept_from_equal_acute_angles",
-      "origin",
-      "angle_equality:origin"
-    ],
-    [
-      "axis_intercept_from_equal_acute_angles",
-      "reference_x_axis_point",
-      "angle_equality:reference_x_axis_point"
-    ],
-    [
       "axis_intercept_from_equal_acute_angles",
       "target",
       "angle_equality:target"
-    ],
-    [
-      "axis_intercept_from_equal_acute_angles",
-      "x_axis_point",
-      "angle_equality:x_axis_point"
-    ],
-    [
-      "axis_intercept_from_equal_acute_angles",
-      "y_axis_point",
-      "angle_equality:y_axis_point"
     ],
     [
       "equal_length_ray_point",
@@ -108,31 +58,6 @@
       "line_parabola:target"
     ],
     [
-      "linked_broken_path_minimum_expression",
-      "dynamic_constraint",
-      "dynamic_constraint"
-    ],
-    [
-      "linked_broken_path_minimum_expression",
-      "dynamic_parameter",
-      "dynamic_symbol"
-    ],
-    [
-      "linked_broken_path_minimum_expression",
-      "parameter_constraint",
-      "parameter_constraint"
-    ],
-    [
-      "midpoint_point",
-      "p1",
-      "midpoint:p1"
-    ],
-    [
-      "midpoint_point",
-      "p2",
-      "midpoint:p2"
-    ],
-    [
       "midpoint_point",
       "target",
       "midpoint:target"
@@ -143,64 +68,9 @@
       "known_parameter_value_from_reads"
     ],
     [
-      "parameter_from_curve_point_on_quadratic",
-      "parameter_constraint",
-      "parameter_constraint"
-    ],
-    [
-      "parameter_from_expression_value",
-      "condition",
-      "fact:minimum_value:Condition"
-    ],
-    [
-      "parameter_from_expression_value",
-      "constraint",
-      "parameter_constraint"
-    ],
-    [
-      "parameter_from_minimum_value",
-      "condition",
-      "fact:minimum_value:Condition"
-    ],
-    [
-      "parameter_from_minimum_value",
-      "constraint",
-      "parameter_constraint"
-    ],
-    [
-      "parameter_from_segment_length",
-      "condition",
-      "fact:length_condition:Condition"
-    ],
-    [
-      "parameter_from_segment_length",
-      "condition",
-      "fact:length_squared:Condition"
-    ],
-    [
-      "parameter_from_segment_length",
-      "constraint",
-      "parameter_constraint"
-    ],
-    [
       "point_on_parabola_at_x",
       "target",
       "point_output_ref"
-    ],
-    [
-      "quadratic_axis_from_relation",
-      "a",
-      "symbol:a"
-    ],
-    [
-      "quadratic_axis_from_relation",
-      "b",
-      "symbol:b"
-    ],
-    [
-      "quadratic_axis_from_relation",
-      "coefficient_relation",
-      "fact:coefficient_relation:Equation"
     ],
     [
       "quadratic_axis_from_relation",
@@ -216,11 +86,6 @@
       "quadratic_axis_x_intercept_point",
       "target",
       "point_output_ref"
-    ],
-    [
-      "quadratic_from_constraints",
-      "coefficient_relation",
-      "fact:coefficient_relation:Equation"
     ],
     [
       "quadratic_from_constraints",
@@ -254,16 +119,6 @@
     ],
     [
       "right_angle_equal_length_candidates",
-      "anchor",
-      "right_angle:anchor"
-    ],
-    [
-      "right_angle_equal_length_candidates",
-      "reference",
-      "right_angle:reference"
-    ],
-    [
-      "right_angle_equal_length_candidates",
       "target",
       "right_angle:target"
     ],
@@ -274,58 +129,8 @@
     ],
     [
       "square_adjacent_vertex_from_side",
-      "parameter_constraint",
-      "parameter_constraint"
-    ],
-    [
-      "square_adjacent_vertex_from_side",
-      "side_end_ref",
-      "square:side_end_ref"
-    ],
-    [
-      "square_adjacent_vertex_from_side",
-      "side_start_ref",
-      "square:side_start_ref"
-    ],
-    [
-      "square_adjacent_vertex_from_side",
-      "square_condition",
-      "fact:square:Condition"
-    ],
-    [
-      "square_adjacent_vertex_from_side",
       "target",
       "point_transition_target"
-    ],
-    [
-      "square_path_dimension_reduction",
-      "fixed_endpoint_1_ref",
-      "square_path:fixed_endpoint_1_ref"
-    ],
-    [
-      "square_path_dimension_reduction",
-      "fixed_endpoint_2_ref",
-      "square_path:fixed_endpoint_2_ref"
-    ],
-    [
-      "square_path_dimension_reduction",
-      "midpoint_condition",
-      "fact:midpoint_definition:Condition"
-    ],
-    [
-      "square_path_dimension_reduction",
-      "path_condition",
-      "fact:path_minimum_target:Condition"
-    ],
-    [
-      "square_path_dimension_reduction",
-      "square_center_condition",
-      "fact:square_center:Condition"
-    ],
-    [
-      "square_path_dimension_reduction",
-      "square_condition",
-      "fact:square:Condition"
     ],
     [
       "translated_point",
@@ -333,74 +138,9 @@
       "translated_point:target"
     ],
     [
-      "two_moving_points_path_reduction",
-      "binding_relation",
-      "path_reduction:relation"
-    ],
-    [
-      "two_moving_points_path_reduction",
-      "first_moving_membership",
-      "path_reduction:first_membership"
-    ],
-    [
-      "two_moving_points_path_reduction",
-      "first_segment_start",
-      "path_reduction:first_segment_start"
-    ],
-    [
-      "two_moving_points_path_reduction",
-      "joint_point",
-      "path_reduction:joint_point"
-    ],
-    [
-      "two_moving_points_path_reduction",
-      "original_path",
-      "fact:path_minimum_target:Condition"
-    ],
-    [
-      "two_moving_points_path_reduction",
-      "second_moving_membership",
-      "path_reduction:second_membership"
-    ],
-    [
-      "two_moving_points_path_reduction",
-      "second_segment_end",
-      "path_reduction:second_segment_end"
-    ],
-    [
       "weighted_axis_path_triangle_transform",
       "auxiliary_point_ref",
       "weighted_path:auxiliary_point_ref"
-    ],
-    [
-      "weighted_axis_path_triangle_transform",
-      "condition",
-      "weighted_path:condition"
-    ],
-    [
-      "weighted_axis_path_triangle_transform",
-      "dynamic_parameter",
-      "dynamic_symbol"
-    ],
-    [
-      "weighted_axis_path_triangle_transform",
-      "fixed_point",
-      "weighted_path:fixed_point"
-    ],
-    [
-      "weighted_axis_path_triangle_transform",
-      "linked_fixed_endpoint_ref",
-      "weighted_path:linked_fixed_endpoint_ref"
-    ],
-    [
-      "weighted_axis_path_triangle_transform",
-      "moving_point",
-      "weighted_path:moving_point"
-    ],
-    [
-      "weighted_axis_path_triangle_transform",
-      "moving_point_ref",
-      "weighted_path:moving_point_ref"
     ]
   ]
 }

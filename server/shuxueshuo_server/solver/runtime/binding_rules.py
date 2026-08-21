@@ -1753,14 +1753,6 @@ def _curve_point_if_read(
     }
 
 DEFAULT_BINDING_SELECTORS: dict[str, BindingSelectorFn] = {
-    "fact:coefficient_relation:Equation": _fact_selector("coefficient_relation", "Equation"),
-    "fact:path_minimum_target:Condition": _fact_selector("path_minimum_target", "Condition"),
-    "fact:square:Condition": _optional_fact_selector("square", "Condition"),
-    "fact:midpoint_definition:Condition": _fact_selector("midpoint_definition", "Condition"),
-    "fact:square_center:Condition": _fact_selector("square_center", "Condition"),
-    "fact:length_squared:Condition": _fact_selector("length_squared", "Condition"),
-    "fact:length_condition:Condition": _length_condition_selector,
-    "fact:minimum_value:Condition": _fact_selector("minimum_value", "Condition"),
     "symbol:a": _symbol_selector("a"),
     "symbol:b": _symbol_selector("b"),
     "symbol:c": _symbol_selector("c"),
@@ -1798,12 +1790,8 @@ DEFAULT_BINDING_SELECTORS: dict[str, BindingSelectorFn] = {
     "read_type:Line": _read_type_selector("Line"),
     "read_type:AngleEquality": _read_type_selector("AngleEquality"),
     "read_type:ParameterValue": _read_type_selector("ParameterValue"),
-    "right_angle:anchor": _right_angle_selector("anchor"),
-    "right_angle:reference": _right_angle_selector("reference"),
     "right_angle:target": _right_angle_selector("target"),
     "midpoint:target": _midpoint_selector("target"),
-    "midpoint:p1": _midpoint_selector("p1"),
-    "midpoint:p2": _midpoint_selector("p2"),
     "length_segment:p1": _length_segment_selector("p1"),
     "length_segment:p2": _length_segment_selector("p2"),
     "length_reference_segment:p1": _length_reference_segment_selector("p1"),
@@ -1819,35 +1807,12 @@ DEFAULT_BINDING_SELECTORS: dict[str, BindingSelectorFn] = {
     "parameter_symbol_from_reads_or_expression": (
         _parameter_symbol_from_reads_or_expression_selector
     ),
-    "parameter_constraint": _parameter_constraint_selector,
     "dynamic_symbol": _dynamic_symbol_selector,
-    "dynamic_constraint": _dynamic_constraint_selector,
     "x_axis_known_point": _x_axis_known_point_selector,
     "read_type:MinimumExpression": _read_minimum_expression_selector,
-    "weighted_path:condition": _weighted_path_condition_selector,
-    "weighted_path:fixed_point": _weighted_path_selector("fixed_point"),
-    "weighted_path:moving_point": _weighted_path_selector("moving_point"),
     "weighted_path:curve_point": _weighted_path_selector("curve_point"),
-    "weighted_path:moving_point_ref": _weighted_path_identity_selector(
-        "moving_point_ref"
-    ),
-    "weighted_path:linked_fixed_endpoint_ref": _weighted_path_identity_selector(
-        "linked_fixed_endpoint_ref"
-    ),
     "weighted_path:auxiliary_point_ref": _weighted_auxiliary_point_ref_selector,
     "weighted_path:auxiliary_point": _weighted_auxiliary_point_selector,
-    "square_path:fixed_endpoint_1_ref": (
-        _square_path_fixed_endpoint_ref_selector(1)
-    ),
-    "square_path:fixed_endpoint_2_ref": (
-        _square_path_fixed_endpoint_ref_selector(2)
-    ),
-    "path_reduction:first_membership": _path_reduction_selector("first_membership"),
-    "path_reduction:second_membership": _path_reduction_selector("second_membership"),
-    "path_reduction:relation": _path_reduction_selector("relation"),
-    "path_reduction:first_segment_start": _path_reduction_selector("first_segment_start"),
-    "path_reduction:joint_point": _path_reduction_selector("joint_point"),
-    "path_reduction:second_segment_end": _path_reduction_selector("second_segment_end"),
     "distance:p1": _distance_selector("p1"),
     "distance:p2": _distance_selector("p2"),
     "intersection:line1_p1": _intersection_selector("line1_p1"),
@@ -1855,17 +1820,7 @@ DEFAULT_BINDING_SELECTORS: dict[str, BindingSelectorFn] = {
     "intersection:line2_p1": _intersection_selector("line2_p1"),
     "intersection:line2_p2": _intersection_selector("line2_p2"),
     "intersection:target": _intersection_selector("target"),
-    "angle_sum:condition": _angle_sum_selector("condition"),
-    "angle_sum:x_axis_point": _angle_sum_selector("x_axis_point"),
-    "angle_sum:y_axis_point": _angle_sum_selector("y_axis_point"),
-    "angle_sum:reference_x_axis_point": _angle_sum_selector("reference_x_axis_point"),
-    "angle_sum:origin": _angle_sum_selector("origin"),
     "angle_sum:target": _angle_sum_selector("target"),
-    "angle_equality:fact": _angle_equality_selector("angle_equality"),
-    "angle_equality:x_axis_point": _angle_equality_selector("x_axis_point"),
-    "angle_equality:y_axis_point": _angle_equality_selector("y_axis_point"),
-    "angle_equality:reference_x_axis_point": _angle_equality_selector("reference_x_axis_point"),
-    "angle_equality:origin": _angle_equality_selector("origin"),
     "angle_equality:target": _angle_equality_selector("target"),
     "line_parabola:line_p1": _line_parabola_selector("line_p1"),
     "line_parabola:line_p2": _line_parabola_selector("line_p2"),

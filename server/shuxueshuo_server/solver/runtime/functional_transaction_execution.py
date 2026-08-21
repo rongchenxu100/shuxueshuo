@@ -25,6 +25,7 @@ from shuxueshuo_server.solver.extraction.problem_planning_binding import (
     FunctionalProblemBindingLedger,
     FunctionalProblemBindingContext,
     FunctionalProblemCallBinding,
+    FunctionalProblemInputBinding,
 )
 from shuxueshuo_server.solver.extraction.source_identity import stable_hash
 
@@ -1723,7 +1724,6 @@ class FunctionalCallPreparationService:
             if (
                 logical_binding.consumption_mode != "typed_binding"
                 or declaration is None
-                or not isinstance(declaration.source, LatestStateSourceSpec)
                 or logical_binding.source.state_version_id is None
             ):
                 continue
@@ -1789,6 +1789,21 @@ class FunctionalCallPreparationService:
                 if item.selector is not None
             ),
         )
+        parameter_selector_object_ids = frozenset(
+            (
+                *parameter_selector_object_ids,
+                *(
+                    object_id
+                    for binding in logical_bindings
+                    if (
+                        (object_id := _functional_binding_object_id(binding))
+                        is not None
+                        and object_id.kind == "symbol"
+                        and binding.consumption_mode == "typed_binding"
+                    )
+                ),
+            )
+        )
         state_reads = list(
             _materialize_prepared_parameter_reads(
                 state_reads,
@@ -1823,6 +1838,14 @@ class FunctionalCallPreparationService:
             for arg_name, values in reconciled.resolved_args.items()
             for item_index, value in enumerate(values)
         }
+        problem_inputs_by_key = {
+            (item.arg_name, item.item_index): item
+            for item in (
+                problem_call_binding.input_bindings
+                if problem_call_binding is not None
+                else ()
+            )
+        }
         prepared_bindings: list[PreparedFunctionalArgBinding] = []
         for item in logical_bindings:
             key = (item.key.arg_name, item.key.item_index)
@@ -1847,8 +1870,12 @@ class FunctionalCallPreparationService:
                 else _prepare_non_state_runtime_path(
                     item,
                     value=value,
+                    problem_input_binding=problem_inputs_by_key.get(key),
                     runtime_bindings=runtime_bindings,
                     consumer_scope_id=node.execution_scope_id,
+                    condition_authority_index=(
+                        reconciliation.condition_binding_authority_index
+                    ),
                 )
             )
             if (
@@ -1876,7 +1903,13 @@ class FunctionalCallPreparationService:
                     source_handle=(
                         value.handle
                         if value is not None
-                        else _functional_binding_source_handle(item)
+                        else (
+                            problem_inputs_by_key[key].runtime_node_id
+                            if key in problem_inputs_by_key
+                            and problem_inputs_by_key[key].runtime_node_id
+                            is not None
+                            else _functional_binding_source_handle(item)
+                        )
                     ),
                     source_math_object_id=(
                         value.math_object_id
@@ -2022,8 +2055,10 @@ def _prepare_non_state_runtime_path(
     binding: FunctionalArgBinding,
     *,
     value: Any | None,
+    problem_input_binding: FunctionalProblemInputBinding | None,
     runtime_bindings: CanonicalRuntimeBindingIndex,
     consumer_scope_id: str,
+    condition_authority_index: Any | None,
 ) -> str | None:
     if binding.consumption_mode not in {"runtime_input", "typed_binding"}:
         return None
@@ -2045,12 +2080,30 @@ def _prepare_non_state_runtime_path(
         f"[{binding.key.item_index}]"
     )
     if binding.source.kind == "condition":
-        if value is None:
+        if condition_authority_index is None:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_input_view_authority_missing: "
+                f"call={binding.key.call_id}, arg={binding.key.arg_name}, "
+                "Condition authority index is unavailable"
+            )
+        condition_id = binding.source.condition_id or ""
+        authority = condition_authority_index.require(condition_id)
+        source_handle = (
+            value.handle
+            if value is not None
+            else (
+                problem_input_binding.runtime_node_id
+                if problem_input_binding is not None
+                else authority.runtime_handle
+            )
+        )
+        if source_handle is None:
             return None
-        physical = runtime_bindings.bindings.get(value.handle)
+        physical = runtime_bindings.bindings.get(source_handle)
         return runtime_bindings.runtime_path_for_condition_identity(
-            binding.source.condition_id or "",
-            source_handle=value.handle,
+            condition_id,
+            source_handle=source_handle,
             expected_type=(
                 physical.value_type
                 if physical is not None
@@ -2391,6 +2444,22 @@ def _stamp_method_input_read_authorities(
         for item in prepared_call.arg_bindings
         if item.logical_binding.source.kind == "compiler_selector"
     }
+    typed_bindings_by_target: dict[
+        tuple[str, int], PreparedFunctionalArgBinding
+    ] = {}
+    for item in prepared_call.arg_bindings:
+        if item.logical_binding.consumption_mode != "typed_binding":
+            continue
+        for target in item.logical_binding.runtime_input_targets:
+            key = (target, item.logical_binding.key.item_index)
+            previous = typed_bindings_by_target.setdefault(key, item)
+            if previous is not item:
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.method_input_view_authority_drift: "
+                    f"call={prepared_call.call_id}, input={target}, "
+                    "multiple typed bindings target one Method input"
+                )
     state_reads_by_path = {
         item.snapshot_runtime_path: item for item in prepared_call.state_reads
     }
@@ -2443,6 +2512,78 @@ def _stamp_method_input_read_authorities(
         item_index: int,
         view_mode: str,
     ) -> Any:
+        def typed_prepared_source(
+            prepared: PreparedFunctionalArgBinding | None,
+        ) -> Any | None:
+            if prepared is None:
+                return None
+            declaration = prepared.logical_binding.input_binding
+            if declaration is None:
+                return None
+            source = prepared.logical_binding.source
+            selected_version_id = (
+                prepared.selected_state_version_id
+                or source.state_version_id
+            )
+            if isinstance(
+                declaration.derivation,
+                CoefficientExtractionDerivationSpec,
+            ):
+                if selected_version_id is None:
+                    raise ValueError(
+                        "planner_configuration_error: "
+                        "planner.method_input_view_authority_missing: "
+                        f"call={prepared_call.call_id}, input={input_name}, "
+                        "derivation=coefficient_extraction"
+                    )
+                source_version = working.identity_index.version(
+                    working.resolve_runtime_version_id(selected_version_id)
+                )
+                source_path = (
+                    _indexed_runtime_path(source_version)
+                    if source_version is not None
+                    else None
+                )
+                if source_path is None:
+                    raise ValueError(
+                        "planner_configuration_error: "
+                        "planner.method_input_view_authority_missing: "
+                        f"call={prepared_call.call_id}, input={input_name}, "
+                        "derivation=coefficient_extraction"
+                    )
+                return DerivedInputReadSource(
+                    declaration,
+                    StateVersionReadSource(selected_version_id, source_path),
+                    path,
+                )
+            if source.kind == "condition" and source.condition_id is not None:
+                return ConditionReadSource(source.condition_id, path)
+            if (
+                source.kind == "call_result"
+                and source.source_call_id is not None
+                and source.source_return_name is not None
+            ):
+                return CallResultReadSource(
+                    source.source_call_id,
+                    source.source_return_name,
+                    path,
+                )
+            if view_mode == "identity" and (
+                prepared.source_math_object_id is not None
+                or prepared.source_handle is not None
+            ):
+                return EntityIdentityReadSource(
+                    (
+                        prepared.source_math_object_id.value
+                        if prepared.source_math_object_id is not None
+                        else prepared.source_handle
+                    ),
+                    path,
+                )
+            if selected_version_id is not None:
+                return StateVersionReadSource(selected_version_id, path)
+            return None
+
         state_read = state_reads_by_path.get(path)
         original_binding = (
             bindings_by_path.get(state_read.original_runtime_path)
@@ -2521,40 +2662,9 @@ def _stamp_method_input_read_authorities(
         binding = bindings_by_path.get(path)
         if binding is not None:
             source = binding.logical_binding.source
-            declaration = binding.logical_binding.input_binding
-            if (
-                declaration is not None
-                and isinstance(
-                    declaration.derivation,
-                    CoefficientExtractionDerivationSpec,
-                )
-                and source.state_version_id is not None
-            ):
-                source_version = working.identity_index.version(
-                    working.resolve_runtime_version_id(
-                        source.state_version_id
-                    )
-                )
-                source_path = (
-                    _indexed_runtime_path(source_version)
-                    if source_version is not None
-                    else None
-                )
-                if source_path is None:
-                    raise ValueError(
-                        "planner_configuration_error: "
-                        "planner.method_input_view_authority_missing: "
-                        f"call={prepared_call.call_id}, input={input_name}, "
-                        "derivation=coefficient_extraction"
-                    )
-                return DerivedInputReadSource(
-                    declaration,
-                    StateVersionReadSource(
-                        source.state_version_id,
-                        source_path,
-                    ),
-                    path,
-                )
+            exact_typed_source = typed_prepared_source(binding)
+            if exact_typed_source is not None:
+                return exact_typed_source
             if view_mode == "identity" and (
                 binding.source_math_object_id is not None
                 or binding.source_handle is not None
@@ -2627,6 +2737,11 @@ def _stamp_method_input_read_authorities(
                 and view_mode in {"identity", "immutable_value"}
             ):
                 return EntityIdentityReadSource(binding.source_handle, path)
+        exact_typed_source = typed_prepared_source(
+            typed_bindings_by_target.get((input_name, item_index))
+        )
+        if exact_typed_source is not None:
+            return exact_typed_source
         compiler_binding = compiler_bindings_by_input.get(
             (input_name, item_index)
         )

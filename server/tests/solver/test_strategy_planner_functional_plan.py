@@ -5932,6 +5932,7 @@ def test_weighted_minimum_catalog_requires_symbol_range_constraint() -> None:
     )
 
     assert dynamic_constraint.accepted_condition_kinds == (
+        "dynamic_constraint",
         "symbol_constraint",
     )
     assert "不是点坐标" in dynamic_constraint.description
@@ -8310,18 +8311,17 @@ def test_hidden_midpoint_endpoint_requires_materialized_state() -> None:
     issue = next(
         item
         for item in result.issues
-        if item.code == "functional.arg_state_unavailable"
+        if item.code == "functional.condition_role_state_unavailable"
     )
     assert issue.details is not None
-    assert issue.details["arg"] == "midpoint_definition"
-    assert issue.details["hidden_arg"] == "p2"
-    assert issue.details["required_ref"] == "ii.E"
-    assert issue.details["state_requirement"] == "materialized_state"
-    assert any(
-        item["action"] == "resolve_condition_endpoint_state"
-        and item["to"] == "p1=ii.A"
-        for item in result.elaboration["deterministic_repairs"]
-    )
+    assert issue.details["arg_name"] == "p2"
+    assert issue.details["related_refs"] == ["point:ii:E"]
+    assert issue.details["expected"] == {
+        "runtime_type": "Point",
+        "state": "materialized",
+    }
+    assert issue.details["repair_action"] == "provide_visible_point_producer"
+    assert result.elaboration["deterministic_repairs"] == []
 
 
 def test_hidden_condition_object_state_is_blocked_by_failed_producer() -> None:
@@ -9783,6 +9783,9 @@ def test_path_reduction_projects_one_structured_state_for_downstream_macros() ->
         "fact:ii:F_coordinate",
     )
     assert roles["moving_locus"].object_refs == ("segment:ii:MN",)
+    assert roles["moving_locus"].object_ids == (
+        MathObjectId("segment:ii:MN", "segment", "ii"),
+    )
     catalog = FunctionalCapabilityCatalog.from_family_spec(
         inputs.family_spec,
         inputs.method_specs,
@@ -19343,19 +19346,18 @@ def test_functional_runtime_unavailable_point_becomes_call_level_work_order() ->
     issue = next(
         item
         for item in replay.retry_state.issues
-        if item.code == "functional.arg_state_unavailable"
+        if item.code == "functional.condition_role_state_unavailable"
     )
     assert issue.step_id == "derive_midpoint"
     assert issue.repair_target == "functional_call"
     assert issue.details is not None
-    assert issue.details["arg"] == "midpoint_definition"
-    assert issue.details["accepted_item_types"] == ["Point"]
-    assert issue.details["state_requirement"] == "computed Point"
-    assert any(
-        item["from_call"] == "construct_unknown_point"
-        and item["value_type"] == "Point"
-        for item in issue.details["later_compatible_call_results"]
-    )
+    assert issue.details["arg_name"] == "p2"
+    assert issue.details["object_ref"] == "point:ii:N"
+    assert issue.details["expected"] == {
+        "runtime_type": "Point",
+        "state": "materialized",
+    }
+    assert issue.details["repair_action"] == "provide_visible_point_producer"
 
 
 def test_dead_invalid_pure_call_does_not_block_submittable_output() -> None:

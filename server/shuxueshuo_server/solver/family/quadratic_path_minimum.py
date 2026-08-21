@@ -34,12 +34,15 @@ from shuxueshuo_server.solver.family.capability_packs import (
     TWO_MOVING_PATH_TRANSFORMATION_OBJECT_ROLES,
 )
 from shuxueshuo_server.solver.family.common_binding_rules import (
+    canonical_symbol_binding,
     canonical_x_binding,
+    condition_arg_binding,
     exact_call_result_binding,
     parameter_basis_binding,
     public_arg_binding,
     quadratic_coefficients_binding,
     quadratic_latest_state_binding,
+    related_condition_binding,
 )
 
 
@@ -314,9 +317,9 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         MethodBindingRuleSpec(
             method_id="quadratic_axis_from_relation",
             input_bindings=(
-                LegacySelectorInputBindingSpec("coefficient_relation", "fact:coefficient_relation:Equation"),
-                LegacySelectorInputBindingSpec("a", "symbol:a"),
-                LegacySelectorInputBindingSpec("b", "symbol:b"),
+                condition_arg_binding("coefficient_relation"),
+                canonical_symbol_binding("a", symbol_name="a"),
+                canonical_symbol_binding("b", symbol_name="b"),
                 LegacySelectorInputBindingSpec("target", "point_output_ref"),
             ),
         ),
@@ -325,9 +328,8 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             input_bindings=(
                 quadratic_latest_state_binding("quadratic"),
                 canonical_x_binding(),
-                LegacySelectorInputBindingSpec(
+                condition_arg_binding(
                     "coefficient_relation",
-                    "fact:coefficient_relation:Equation",
                     required=False,
                 ),
                 quadratic_coefficients_binding(),
@@ -363,19 +365,27 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                         "constraint",
                     )
                 ),
-                LegacySelectorInputBindingSpec("condition", "fact:length_squared:Condition"),
-                LegacySelectorInputBindingSpec("constraint", "parameter_constraint"),
+                condition_arg_binding("condition", public_arg="length_squared"),
+                related_condition_binding(
+                    "constraint",
+                    condition_kinds=("symbol_constraint",),
+                    related_args=("parameter",),
+                ),
             ),
         ),
         MethodBindingRuleSpec(
             method_id="parameter_from_minimum_value",
             input_bindings=(
                 exact_call_result_binding("minimum_expression"),
-                LegacySelectorInputBindingSpec("condition", "fact:minimum_value:Condition"),
+                condition_arg_binding("condition", public_arg="minimum_value"),
                 parameter_basis_binding(
                     ("minimum_expression", "condition", "constraint")
                 ),
-                LegacySelectorInputBindingSpec("constraint", "parameter_constraint"),
+                related_condition_binding(
+                    "constraint",
+                    condition_kinds=("symbol_constraint",),
+                    related_args=("parameter",),
+                ),
             ),
         ),
     ),

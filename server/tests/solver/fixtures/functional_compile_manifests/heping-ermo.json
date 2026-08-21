@@ -435,6 +435,16 @@
           ]
         },
         {
+          "arg": "parameter_constraint",
+          "item": 0,
+          "role": "parameter_constraint",
+          "authority": "compiler",
+          "target": "parameter_constraint",
+          "paths": [
+            "$problem.conditions.symbol_constraint_6098472a86b7"
+          ]
+        },
+        {
           "arg": "side_end",
           "item": 0,
           "role": "side_end",
@@ -865,8 +875,8 @@
         {
           "arg": "fixed_endpoint_1_ref",
           "item": 0,
-          "role": "fixed_endpoint_1_ref",
-          "authority": "compiler",
+          "role": "fixed_endpoint_1",
+          "authority": "resolver",
           "target": "fixed_endpoint_1_ref",
           "paths": [
             "$question.ii.facts.__functional_transaction_reduce_square_path_ii_0"
@@ -875,8 +885,8 @@
         {
           "arg": "fixed_endpoint_2_ref",
           "item": 0,
-          "role": "fixed_endpoint_2_ref",
-          "authority": "compiler",
+          "role": "fixed_endpoint_2",
+          "authority": "resolver",
           "target": "fixed_endpoint_2_ref",
           "paths": [
             "$question.ii.facts.__functional_transaction_reduce_square_path_ii_1"
@@ -1094,6 +1104,16 @@
           "target": "parameter",
           "paths": [
             "$problem.symbols.c"
+          ]
+        },
+        {
+          "arg": "parameter_constraint",
+          "item": 0,
+          "role": "parameter_constraint",
+          "authority": "compiler",
+          "target": "parameter_constraint",
+          "paths": [
+            "$problem.conditions.symbol_constraint_6098472a86b7"
           ]
         },
         {
@@ -1408,6 +1428,16 @@
       ],
       "bindings": [
         {
+          "arg": "constraint",
+          "item": 0,
+          "role": "constraint",
+          "authority": "compiler",
+          "target": "constraint",
+          "paths": [
+            "$problem.conditions.symbol_constraint_6098472a86b7"
+          ]
+        },
+        {
           "arg": "expression",
           "item": 0,
           "role": "expression",
@@ -1674,6 +1704,16 @@
           "target": "parameter",
           "paths": [
             "$problem.symbols.c"
+          ]
+        },
+        {
+          "arg": "parameter_constraint",
+          "item": 0,
+          "role": "parameter_constraint",
+          "authority": "compiler",
+          "target": "parameter_constraint",
+          "paths": [
+            "$problem.conditions.symbol_constraint_6098472a86b7"
           ]
         },
         {

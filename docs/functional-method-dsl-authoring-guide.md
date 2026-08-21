@@ -281,8 +281,9 @@ ordinal-0模板和公共二次函数parameter symbol均使用strict binding。�
 SourceRef；F5-C负责把其latest StateVersion与唯一可见的上游call result对账，
 derivation再消费同一个exact pin。Method或compiler不得因为需要系数、模板或Symbol
 而重新扫描Context，也不得把derived runtime path当成新的数学source authority。
-几何Method中表示题目主参数的`parameter_symbol`仍属于后续Condition/role迁移，
-不得用free-symbol basis替换其语义。
+仍作为输出/transition辅助输入的`parameter_symbol`属于C3；在它退役前可以作为已登记
+的legacy F5-C source被strict Condition消费，但Condition resolver不得重新扫描Context。
+不得用free-symbol basis替换一个由输出身份契约明确指定的参数语义。
 
 通用Entity/State竖切也已经完成：公开参数中由Plan明确指定的Point/Function使用
 `PublicArgSourceSpec`，F5-C再根据Method view生成纯identity或exact latest-state
@@ -290,6 +291,43 @@ authority；匿名Expression、MinimumExpression、Line和PathTransformation使�
 `ExactCallResultSourceSpec`，必须保留精确producer与return。生产family中不再声明
 `read_type:*`。仍需从题面关系、提取preflight或context closure推导的几何角色不属于
 PublicArg，必须留到对应typed resolver迁移，不能为了减少selector而伪装成显式输入。
+
+Fact/Condition与语义角色竖切也已经完成。所有题面Fact和运行期Condition先注册到
+不可变`ConditionBindingAuthorityIndex`，索引保存exact `ConditionId`、公开
+SourceRef、canonical kind、owner/valid scope、对象角色和source units。Method binding
+只允许两种选择方式：
+
+```python
+# Planner明确选择一个公开Fact。
+MethodInputBindingSpec(
+    input_name="condition",
+    source=ConditionSourceSpec(arg_name="minimum_value"),
+)
+
+# 公开实体已经确定，代码匹配唯一可见关系。
+MethodInputBindingSpec(
+    input_name="parameter_constraint",
+    required=False,
+    source=ConditionSourceSpec(
+        condition_kinds=("symbol_constraint",),
+        related_args=("parameter",),
+    ),
+)
+```
+
+第二种写法按related args的canonical `MathObjectId`匹配，只查看当前scope及祖先。
+零候选、多候选、sibling/descendant候选或角色身份不一致都不得按名称、runtime path、
+插入顺序或描述文本猜测。Condition唯一选定后，Point/Symbol角色可以通过
+`LatestStateSourceSpec`、`EntityIdentitySourceSpec`、`ProducerLinkedSourceSpec`或
+纯机械derivation进入同一per-call F5-C ledger；context resolver不能手工构造一条
+绕过binding spec的运行输入。
+
+Checkpoint保存exact `ConditionId`及角色绑定，restore只验证revision、scope、角色和
+runtime type后复用，不再次调用Condition resolver。缺失、不可见和歧义分别使用
+`functional.method_input_condition_missing`、
+`functional.method_input_condition_not_visible`、
+`functional.method_input_condition_ambiguous`；F5-C选择完成后的任何ConditionId、角色、
+scope、producer或类型变化统一为`planner.method_input_view_authority_drift`。
 
 ### 5.1 Method input view
 
@@ -383,7 +421,7 @@ input_relations=(
 3. 列表输入逐项绑定Condition，并在诊断中保留`arg_name + item_index`。
 4. Condition必须同时匹配Point与curve的MathObject身份，并在调用scope中词法可见。
 5. sibling私有Condition不得进入semantic index、producer DAG或retry cone，也不得在错误信息中泄漏其scope。
-6. 成功绑定的ConditionId、owner scope和source unit必须进入C3、F5-C sidecar、binding signature及provenance。
+6. 成功绑定的ConditionId、owner scope和source unit必须进入F5-C sidecar、binding signature及provenance。
 7. 缺关系或关系不可见属于planner-repairable；Method契约本身无法解析属于configuration，不消耗semantic retry。
 8. 关系校验发生在Method运行及state write之前；Method不得收到未经证明的实体组合。
 

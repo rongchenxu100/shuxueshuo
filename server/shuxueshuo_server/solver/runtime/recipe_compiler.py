@@ -20,6 +20,7 @@ from shuxueshuo_server.solver.problem_models import QuestionGoal
 from shuxueshuo_server.solver.contracts import (
     CanonicalSymbolDerivationSpec,
     CoefficientExtractionDerivationSpec,
+    ConditionSourceSpec,
     LegacySelectorInputBindingSpec,
     LatestStateSourceSpec,
     MethodInputBindingSpec,
@@ -28,6 +29,7 @@ from shuxueshuo_server.solver.contracts import (
     PlanTransformerScope,
     PointRef,
     PublicArgSourceSpec,
+    SourceObjectIdentityDerivationSpec,
 )
 from shuxueshuo_server.solver.state_semantics import (
     StateObjectRoleBinding,
@@ -1398,32 +1400,56 @@ class _RecipePlanCompiler:
             item.name: item.method_input or item.name
             for item in getattr(function, "args", ())
         }
+        runtime_input_by_public_name.update(
+            {
+                binding.source.arg_name: binding.input_name
+                for binding in adapter_bindings.values()
+                if isinstance(binding, MethodInputBindingSpec)
+                and isinstance(binding.source, ConditionSourceSpec)
+                and binding.source.arg_name is not None
+            }
+        )
         for item in self.projected_function_arg_bindings:
             runtime_input_name = runtime_input_by_public_name.get(
                 item.arg_name,
                 item.arg_name,
             )
+            adapter_binding = adapter_bindings.get(runtime_input_name)
+            projected_consumption = getattr(
+                item,
+                "consumption_mode",
+                "runtime_input",
+            )
             if (
                 item.step_id == step.step_id
                 and runtime_input_name in spec.inputs
-                and getattr(item, "consumption_mode", "runtime_input")
-                == "runtime_input"
+                and (
+                    projected_consumption == "runtime_input"
+                    or (
+                        projected_consumption == "resolver_evidence"
+                        and isinstance(
+                            adapter_binding,
+                            MethodInputBindingSpec,
+                        )
+                    )
+                )
             ):
-                adapter_binding = adapter_bindings.get(runtime_input_name)
                 declared_authority = (
-                    "compiler"
-                    if isinstance(adapter_binding, MethodInputBindingSpec)
-                    else adapter_binding.functional_authority
+                    adapter_binding.functional_authority
                     if isinstance(adapter_binding, LegacySelectorInputBindingSpec)
                     else None
                 )
-                if declared_authority == "compiler":
+                typed_derivation_owned = (
+                    isinstance(adapter_binding, MethodInputBindingSpec)
+                    and adapter_binding.derivation is not None
+                )
+                if declared_authority == "compiler" or typed_derivation_owned:
                     raise StrategyDraftValidationError(
                         "planner_configuration_error: compiler-owned "
                         "Functional arg reached exact binding: "
                         f"method={spec.method_id}, arg={item.arg_name}, "
                         f"sidecar_authority={item.binding_authority}, "
-                        f"declared_authority={declared_authority or 'wire'}"
+                        "declared_authority=compiler"
                     )
                 grouped.setdefault(runtime_input_name, []).append(item)
         result: dict[str, str] = {}
@@ -1713,6 +1739,25 @@ class _RecipePlanCompiler:
                     continue
                 if isinstance(derivation, CoefficientExtractionDerivationSpec):
                     path = "$problem.symbol_lists.quadratic_coefficients"
+                elif isinstance(
+                    derivation,
+                    SourceObjectIdentityDerivationSpec,
+                ):
+                    if item.math_object_id is None:
+                        raise _compiler_input_authority_error(
+                            step_id=step.step_id,
+                            method_id=spec.method_id,
+                            input_name=input_name,
+                            selector_id=None,
+                            candidate=item,
+                            reason="typed_object_identity_missing",
+                        )
+                    path = self.index.runtime_path_for_object_identity(
+                        item.math_object_id,
+                        expected_type=input_spec.type,
+                        consumer_scope_id=step.scope_id,
+                        consumer=f"{step.step_id}.{input_name}",
+                    )
                 else:
                     try:
                         path = self._projected_input_path(

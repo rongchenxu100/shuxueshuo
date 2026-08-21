@@ -44,6 +44,9 @@ from shuxueshuo_server.solver.runtime.function_specs import (
     FunctionAdapterSpec,
     function_adapter_from_binding_rule,
 )
+from shuxueshuo_server.solver.runtime.binding_rules import (
+    DEFAULT_BINDING_SELECTORS,
+)
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -200,6 +203,164 @@ C1_MIGRATED_BINDINGS = {
     ("square_adjacent_vertex_from_side", "side_end", "public_arg"),
     ("square_adjacent_vertex_from_side", "side_start", "public_arg"),
     ("translated_point", "source", "public_arg"),
+}
+
+C2_MIGRATED_BINDINGS = {
+    ("angle_sum_equal_angle_candidates", "condition", "condition"),
+    ("angle_sum_equal_angle_candidates", "origin", "latest_state"),
+    (
+        "angle_sum_equal_angle_candidates",
+        "reference_x_axis_point",
+        "latest_state",
+    ),
+    ("angle_sum_equal_angle_candidates", "x_axis_point", "latest_state"),
+    ("angle_sum_equal_angle_candidates", "y_axis_point", "latest_state"),
+    (
+        "axis_intercept_from_equal_acute_angles",
+        "angle_equality",
+        "exact_call_result",
+    ),
+    (
+        "axis_intercept_from_equal_acute_angles",
+        "origin",
+        "producer_linked",
+    ),
+    (
+        "axis_intercept_from_equal_acute_angles",
+        "reference_x_axis_point",
+        "producer_linked",
+    ),
+    (
+        "axis_intercept_from_equal_acute_angles",
+        "x_axis_point",
+        "producer_linked",
+    ),
+    (
+        "axis_intercept_from_equal_acute_angles",
+        "y_axis_point",
+        "producer_linked",
+    ),
+    (
+        "linked_broken_path_minimum_expression",
+        "dynamic_constraint",
+        "condition",
+    ),
+    (
+        "linked_broken_path_minimum_expression",
+        "dynamic_parameter",
+        "free_symbol_basis",
+    ),
+    (
+        "linked_broken_path_minimum_expression",
+        "parameter_constraint",
+        "condition",
+    ),
+    ("midpoint_point", "p1", "public_arg"),
+    ("midpoint_point", "p2", "public_arg"),
+    (
+        "parameter_from_curve_point_on_quadratic",
+        "parameter_constraint",
+        "condition",
+    ),
+    ("parameter_from_expression_value", "condition", "condition"),
+    ("parameter_from_expression_value", "constraint", "condition"),
+    ("parameter_from_minimum_value", "condition", "condition"),
+    ("parameter_from_minimum_value", "constraint", "condition"),
+    ("parameter_from_segment_length", "condition", "condition"),
+    ("parameter_from_segment_length", "constraint", "condition"),
+    ("quadratic_axis_from_relation", "a", "canonical_symbol"),
+    ("quadratic_axis_from_relation", "b", "canonical_symbol"),
+    (
+        "quadratic_axis_from_relation",
+        "coefficient_relation",
+        "condition",
+    ),
+    ("quadratic_from_constraints", "coefficient_relation", "condition"),
+    ("right_angle_equal_length_candidates", "anchor", "latest_state"),
+    ("right_angle_equal_length_candidates", "reference", "latest_state"),
+    ("square_adjacent_vertex_from_side", "parameter_constraint", "condition"),
+    (
+        "square_adjacent_vertex_from_side",
+        "side_end_ref",
+        "source_object_identity",
+    ),
+    (
+        "square_adjacent_vertex_from_side",
+        "side_start_ref",
+        "source_object_identity",
+    ),
+    ("square_adjacent_vertex_from_side", "square_condition", "condition"),
+    (
+        "square_path_dimension_reduction",
+        "fixed_endpoint_1_ref",
+        "entity_identity",
+    ),
+    (
+        "square_path_dimension_reduction",
+        "fixed_endpoint_2_ref",
+        "entity_identity",
+    ),
+    (
+        "square_path_dimension_reduction",
+        "midpoint_condition",
+        "condition",
+    ),
+    (
+        "square_path_dimension_reduction",
+        "path_condition",
+        "condition",
+    ),
+    (
+        "square_path_dimension_reduction",
+        "square_center_condition",
+        "condition",
+    ),
+    (
+        "square_path_dimension_reduction",
+        "square_condition",
+        "condition",
+    ),
+    ("two_moving_points_path_reduction", "binding_relation", "condition"),
+    (
+        "two_moving_points_path_reduction",
+        "first_moving_membership",
+        "condition",
+    ),
+    (
+        "two_moving_points_path_reduction",
+        "first_segment_start",
+        "latest_state",
+    ),
+    ("two_moving_points_path_reduction", "joint_point", "latest_state"),
+    ("two_moving_points_path_reduction", "original_path", "condition"),
+    (
+        "two_moving_points_path_reduction",
+        "second_moving_membership",
+        "condition",
+    ),
+    (
+        "two_moving_points_path_reduction",
+        "second_segment_end",
+        "latest_state",
+    ),
+    ("weighted_axis_path_triangle_transform", "condition", "condition"),
+    (
+        "weighted_axis_path_triangle_transform",
+        "dynamic_parameter",
+        "free_symbol_basis",
+    ),
+    ("weighted_axis_path_triangle_transform", "fixed_point", "public_arg"),
+    (
+        "weighted_axis_path_triangle_transform",
+        "linked_fixed_endpoint_ref",
+        "entity_identity",
+    ),
+    ("weighted_axis_path_triangle_transform", "moving_point", "public_arg"),
+    (
+        "weighted_axis_path_triangle_transform",
+        "moving_point_ref",
+        "source_object_identity",
+    ),
 }
 
 
@@ -469,7 +630,11 @@ def test_migrated_inputs_use_the_strict_binding_contract() -> None:
         if isinstance(binding, MethodInputBindingSpec)
     }
 
-    assert actual == MIGRATED_QUADRATIC_BINDINGS | C1_MIGRATED_BINDINGS
+    assert actual == (
+        MIGRATED_QUADRATIC_BINDINGS
+        | C1_MIGRATED_BINDINGS
+        | C2_MIGRATED_BINDINGS
+    )
     assert all(
         isinstance(selector, LegacyExpansionSelectorSpec)
         for family in DEFAULT_FAMILY_REGISTRY.families
@@ -497,7 +662,7 @@ def test_legacy_source_declaration_count_is_frozen() -> None:
 
     assert sum(
         source.count("LegacySelectorInputBindingSpec(") for source in sources
-    ) == baseline["source_declaration_count"] == 81
+    ) == baseline["source_declaration_count"] == 28
 
 
 def test_c1_retires_all_production_read_type_selectors() -> None:
@@ -510,6 +675,59 @@ def test_c1_retires_all_production_read_type_selectors() -> None:
     }
 
     assert not any(selector.startswith("read_type:") for selector in selectors)
+
+
+def test_c2_retires_fact_and_immutable_value_selectors() -> None:
+    selectors = {
+        binding.selector
+        for family in DEFAULT_FAMILY_REGISTRY.families
+        for rule in family.method_binding_rules
+        for binding in rule.input_bindings
+        if isinstance(binding, LegacySelectorInputBindingSpec)
+    }
+
+    assert not any(selector.startswith("fact:") for selector in selectors)
+    assert selectors.isdisjoint(
+        {
+            "angle_sum:condition",
+            "angle_equality:fact",
+            "dynamic_constraint",
+            "parameter_constraint",
+            "path_reduction:relation",
+            "path_reduction:first_membership",
+            "path_reduction:second_membership",
+            "weighted_path:condition",
+        }
+    )
+    retired_registry_keys = {
+        "fact:coefficient_relation:Equation",
+        "fact:path_minimum_target:Condition",
+        "fact:square:Condition",
+        "fact:midpoint_definition:Condition",
+        "fact:square_center:Condition",
+        "fact:length_squared:Condition",
+        "fact:length_condition:Condition",
+        "fact:minimum_value:Condition",
+        "parameter_constraint",
+        "dynamic_constraint",
+        "path_reduction:first_membership",
+        "path_reduction:second_membership",
+        "path_reduction:relation",
+        "path_reduction:first_segment_start",
+        "path_reduction:joint_point",
+        "path_reduction:second_segment_end",
+        "angle_sum:condition",
+        "angle_sum:x_axis_point",
+        "angle_sum:y_axis_point",
+        "angle_sum:reference_x_axis_point",
+        "angle_sum:origin",
+        "angle_equality:fact",
+        "angle_equality:x_axis_point",
+        "angle_equality:y_axis_point",
+        "angle_equality:reference_x_axis_point",
+        "angle_equality:origin",
+    }
+    assert retired_registry_keys.isdisjoint(DEFAULT_BINDING_SELECTORS)
 
 
 def test_new_schema_excludes_legacy_selector_payload() -> None:

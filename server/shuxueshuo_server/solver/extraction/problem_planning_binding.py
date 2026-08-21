@@ -6,6 +6,9 @@ from dataclasses import dataclass, field, replace
 from types import MappingProxyType
 from typing import Any, Literal, Mapping, Sequence
 
+from shuxueshuo_server.solver.contracts import (
+    SourceObjectIdentityDerivationSpec,
+)
 from shuxueshuo_server.solver.extraction.problem_planning_context import (
     PlanningReadAuthority,
     ProblemPlanningContext,
@@ -1825,6 +1828,14 @@ def build_functional_problem_binding_context(
         for call in scope.calls
     }
     reconciled = {call.call_id: call for call in calls}
+    logical_bindings = {
+        (
+            item.key.call_id,
+            item.key.arg_name,
+            item.key.item_index,
+        ): item
+        for item in functional_binding_context.bindings
+    }
     inputs: list[FunctionalProblemInputBinding] = []
     for binding in functional_binding_context.bindings:
         call_id = binding.key.call_id
@@ -2059,6 +2070,83 @@ def build_functional_problem_binding_context(
             f"$.calls[{call_id!r}].args"
             f"[{binding.key.arg_name!r}]"
         )
+        declaration = binding.input_binding
+        if (
+            declaration is not None
+            and isinstance(
+                declaration.derivation,
+                SourceObjectIdentityDerivationSpec,
+            )
+        ):
+            upstream = logical_bindings.get(
+                (
+                    call_id,
+                    declaration.derivation.source_input,
+                    binding.key.item_index,
+                )
+            )
+            if upstream is None:
+                raise _error(
+                    "planner.method_input_view_authority_missing",
+                    input_path,
+                    "source-object identity derivation has no upstream binding",
+                )
+            computed_upstream = _call_result_source_for_exact_state(
+                upstream.source,
+                consumer_call_id=call_id,
+                reconciled_calls=reconciled,
+                path=input_path,
+            )
+            if computed_upstream is not None:
+                source_binding = _problem_binding_for_state_object(
+                    catalog,
+                    upstream.source,
+                    goal_unit_ids=call_goals.effective_goal_unit_ids,
+                    path=input_path,
+                )
+                _audit_implicit_same_object_call_result(
+                    source_binding=source_binding,
+                    source=computed_upstream,
+                    consumer_call_id=call_id,
+                    consumer_goal_binding=call_goals,
+                    reconciled_calls=reconciled,
+                    goal_bindings=goal_bindings,
+                    catalog=catalog,
+                    path=input_path,
+                )
+                inputs.append(
+                    FunctionalProblemInputBinding(
+                        call_id=call_id,
+                        arg_name=binding.key.arg_name,
+                        item_index=binding.key.item_index,
+                        source_kind="call_result",
+                        selection_policy=binding.selection_policy,
+                        semantic_ref=source_binding.semantic_ref,
+                        runtime_node_id=source_binding.runtime_node_id,
+                        typed_source=binding.source,
+                    )
+                )
+                continue
+            source_binding = _authority_for_c3_source(
+                catalog,
+                upstream.source,
+                goal_unit_ids=call_goals.effective_goal_unit_ids,
+                path=input_path,
+            )
+            inputs.append(
+                FunctionalProblemInputBinding(
+                    call_id=call_id,
+                    arg_name=binding.key.arg_name,
+                    item_index=binding.key.item_index,
+                    source_kind="problem_source",
+                    selection_policy=binding.selection_policy,
+                    semantic_ref=source_binding.semantic_ref,
+                    runtime_node_id=source_binding.runtime_node_id,
+                    source_unit_ids=source_binding.source_unit_ids,
+                    typed_source=binding.source,
+                )
+            )
+            continue
         computed_source = _call_result_source_for_exact_state(
             binding.source,
             consumer_call_id=call_id,
@@ -2716,7 +2804,7 @@ def _audit_implicit_same_object_call_result(
 
     producer_call_id = source.source_call_id
     producer_return_name = source.source_return_name
-    call_order = tuple(reconciled_calls)
+    call_order = _topologically_order_reconciled_calls(reconciled_calls)
     if (
         producer_call_id is None
         or producer_return_name is None
@@ -2831,6 +2919,49 @@ def _audit_implicit_same_object_call_result(
             path,
             "implicit dynamic source is not the latest Goal-visible object state",
         )
+
+
+def _topologically_order_reconciled_calls(
+    reconciled_calls: Mapping[str, FunctionalCallReconciliation],
+) -> tuple[str, ...]:
+    """Recover execution order from exact resolved input authorities.
+
+    Mapping order is authored Plan order, not execution order. Hidden
+    Condition reads can place an authored-later call before an earlier
+    consumer, so F5-C audits must follow the typed producer DAG.
+    """
+
+    authored_order = tuple(reconciled_calls)
+    dependencies = {
+        call_id: {
+            value.source_call_id
+            for values in call.resolved_args.values()
+            for value in values
+            if value.source_call_id in reconciled_calls
+            and value.source_call_id != call_id
+        }
+        for call_id, call in reconciled_calls.items()
+    }
+    ordered: list[str] = []
+    completed: set[str] = set()
+    pending = set(authored_order)
+    while pending:
+        ready = tuple(
+            call_id
+            for call_id in authored_order
+            if call_id in pending
+            and dependencies[call_id].issubset(completed)
+        )
+        if not ready:
+            raise _error(
+                "planner.problem_source_binding_drift",
+                "$.calls",
+                "typed input authorities contain a cyclic producer graph",
+            )
+        ordered.extend(ready)
+        completed.update(ready)
+        pending.difference_update(ready)
+    return tuple(ordered)
 
 
 def _call_result_source_for_exact_state(
@@ -3020,6 +3151,18 @@ def _authority_for_c3_source(
         }
         if len(state_fact_candidates) == 1:
             by_runtime_node = state_fact_candidates
+    if (
+        source.kind == "math_object"
+        and source.math_object_id is not None
+        and len(by_runtime_node) > 1
+    ):
+        entity_candidates = {
+            key: item
+            for key, item in by_runtime_node.items()
+            if key == source.math_object_id.value
+        }
+        if len(entity_candidates) == 1:
+            by_runtime_node = entity_candidates
     if len(by_runtime_node) != 1:
         raise _error(
             "planner.problem_source_binding_unresolved",

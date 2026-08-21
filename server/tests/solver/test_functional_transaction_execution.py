@@ -15,6 +15,9 @@ from shuxueshuo_server.solver.deepseek_functional_batch import (
 )
 from shuxueshuo_server.solver.fixtures import load_problem_ir
 from shuxueshuo_server.solver.runtime.context import ContextBuilder
+from shuxueshuo_server.solver.runtime.condition_binding_authority import (
+    ConditionBindingAuthorityIndex,
+)
 from shuxueshuo_server.solver.runtime.functional_plan import (
     FunctionalPlanValidator,
 )
@@ -1803,6 +1806,15 @@ def test_problem_source_read_stays_exact_and_hidden_resolver_needs_sidecar() -> 
             ),
         }
     )
+    object_registry = MathObjectRegistry.from_sources(
+        registry,
+        math_objects=planner_context.state.math_objects,
+    )
+    condition_authority_index = ConditionBindingAuthorityIndex.from_context(
+        planner_context,
+        object_registry=object_registry,
+        problem_binding_catalog=binding_catalog,
+    )
     hidden_reconciliation = replace(
         hidden_reconciliation,
         functional_binding_context=(
@@ -1810,9 +1822,10 @@ def test_problem_source_read_stays_exact_and_hidden_resolver_needs_sidecar() -> 
                 hidden_reconciliation.plan,
                 hidden_reconciliation.calls,
                 catalog=resolver_catalog,
-                object_registry=MathObjectRegistry.from_sources(registry),
+                object_registry=object_registry,
                 handle_registry=registry,
                 method_specs=inputs.method_specs,
+                condition_authority_index=condition_authority_index,
             )
         ),
     )

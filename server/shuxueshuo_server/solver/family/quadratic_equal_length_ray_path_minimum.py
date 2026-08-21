@@ -11,6 +11,10 @@ from shuxueshuo_server.solver.contracts import (
     LegacySelectorInputBindingSpec,
 )
 from shuxueshuo_server.solver.family.models import (
+    CapabilityContextRoleBindingSpec,
+    CapabilityContractSpec,
+    ConditionPattern,
+    CONDITION_OBJECT_ROLES_RESOLVER,
     FamilyMatchRule,
     FamilySourceRequirementSpec,
     GoalEvidencePolicySpec,
@@ -20,6 +24,7 @@ from shuxueshuo_server.solver.family.models import (
     RecipeExecutionSpec,
     recipe_output_alias,
     SolverFamilySpec,
+    StateSlotPattern,
     StepRecipeSpec,
     expand_family_spec,
 )
@@ -30,6 +35,11 @@ from shuxueshuo_server.solver.family.capability_packs import (
 )
 from shuxueshuo_server.solver.family.common_binding_rules import (
     canonical_x_binding,
+    condition_arg_binding,
+    exact_call_result_binding,
+    latest_state_binding,
+    producer_linked_binding,
+    public_arg_binding,
     quadratic_coefficients_binding,
     quadratic_latest_state_binding,
 )
@@ -98,6 +108,34 @@ _QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         "公共 scope 只保存所有相关子问从一开始就共享的题面函数模板或开放状态；只要某次求值读取了子问私有 Fact，它的结果就不是公共状态，不能通过 CallResultRef 跨 sibling 复用。",
         "不要单独 produces M_coordinate_expr、N_coordinate_expr、OM_distance_expr、BN_distance_expr 这类参数化/分段距离 utility fact；这些不是初中生优先的解题步骤，也不是本 family 的可执行标准路线。",
         "不要把含参系数缓存、纯文字全等说明或最终讲解段落作为独立 produces；这些可以放在 strategy/reason 中。",
+    ),
+    capability_contracts=(
+        CapabilityContractSpec(
+            capability_id="angle_sum_equal_angle_candidates",
+            kind="method",
+            condition_reads=(ConditionPattern("angle_sum"),),
+            slot_writes=(
+                StateSlotPattern(
+                    "angle_relation",
+                    "AngleEquality",
+                    output_key="angle_equality",
+                ),
+            ),
+            context_resolvers=(CONDITION_OBJECT_ROLES_RESOLVER,),
+            context_role_bindings=tuple(
+                CapabilityContextRoleBindingSpec(
+                    CONDITION_OBJECT_ROLES_RESOLVER,
+                    role,
+                    role,
+                )
+                for role in (
+                    "x_axis_point",
+                    "y_axis_point",
+                    "reference_x_axis_point",
+                    "origin",
+                )
+            ),
+        ),
     ),
     base_packs=(
         "quadratic_core",
@@ -212,22 +250,38 @@ _QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         MethodBindingRuleSpec(
             method_id="angle_sum_equal_angle_candidates",
             input_bindings=(
-                LegacySelectorInputBindingSpec("condition", "angle_sum:condition"),
-                LegacySelectorInputBindingSpec("x_axis_point", "angle_sum:x_axis_point"),
-                LegacySelectorInputBindingSpec("y_axis_point", "angle_sum:y_axis_point"),
-                LegacySelectorInputBindingSpec("reference_x_axis_point", "angle_sum:reference_x_axis_point"),
-                LegacySelectorInputBindingSpec("origin", "angle_sum:origin"),
+                condition_arg_binding("condition"),
+                latest_state_binding("x_axis_point"),
+                latest_state_binding("y_axis_point"),
+                latest_state_binding("reference_x_axis_point"),
+                latest_state_binding("origin"),
                 LegacySelectorInputBindingSpec("target", "angle_sum:target"),
             ),
         ),
         MethodBindingRuleSpec(
             method_id="axis_intercept_from_equal_acute_angles",
             input_bindings=(
-                LegacySelectorInputBindingSpec("angle_equality", "angle_equality:fact"),
-                LegacySelectorInputBindingSpec("x_axis_point", "angle_equality:x_axis_point"),
-                LegacySelectorInputBindingSpec("y_axis_point", "angle_equality:y_axis_point"),
-                LegacySelectorInputBindingSpec("reference_x_axis_point", "angle_equality:reference_x_axis_point"),
-                LegacySelectorInputBindingSpec("origin", "angle_equality:origin"),
+                exact_call_result_binding("angle_equality"),
+                producer_linked_binding(
+                    "angle_equality",
+                    input_name="x_axis_point",
+                    producer_input="x_axis_point",
+                ),
+                producer_linked_binding(
+                    "angle_equality",
+                    input_name="y_axis_point",
+                    producer_input="y_axis_point",
+                ),
+                producer_linked_binding(
+                    "angle_equality",
+                    input_name="reference_x_axis_point",
+                    producer_input="reference_x_axis_point",
+                ),
+                producer_linked_binding(
+                    "angle_equality",
+                    input_name="origin",
+                    producer_input="origin",
+                ),
                 LegacySelectorInputBindingSpec("target", "angle_equality:target"),
             ),
         ),

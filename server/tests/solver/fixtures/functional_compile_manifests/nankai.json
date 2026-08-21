@@ -561,7 +561,7 @@
           "arg": "p1",
           "item": 0,
           "role": "p1",
-          "authority": "compiler",
+          "authority": "resolver",
           "target": "p1",
           "paths": [
             "$question.ii.facts.__functional_transaction_ii_compute_F_0"
@@ -571,7 +571,7 @@
           "arg": "p2",
           "item": 0,
           "role": "p2",
-          "authority": "compiler",
+          "authority": "resolver",
           "target": "p2",
           "paths": [
             "$question.ii.facts.__functional_transaction_ii_compute_F_1"
@@ -710,8 +710,10 @@
           "item": 0,
           "role": "path_minimum_target",
           "authority": "wire",
-          "target": null,
-          "paths": []
+          "target": "original_path",
+          "paths": [
+            "$question.ii.conditions.minimum_target_0cdb0e4b1c87"
+          ]
         },
         {
           "arg": "second_moving_membership",
@@ -918,6 +920,16 @@
         }
       ],
       "bindings": [
+        {
+          "arg": "constraint",
+          "item": 0,
+          "role": "constraint",
+          "authority": "compiler",
+          "target": "constraint",
+          "paths": [
+            "$question.ii.conditions.symbol_constraint_7d01fba9ecbe"
+          ]
+        },
         {
           "arg": "length_squared",
           "item": 0,
@@ -1169,6 +1181,16 @@
         }
       ],
       "bindings": [
+        {
+          "arg": "constraint",
+          "item": 0,
+          "role": "constraint",
+          "authority": "compiler",
+          "target": "constraint",
+          "paths": [
+            "$question.ii.conditions.symbol_constraint_7d01fba9ecbe"
+          ]
+        },
         {
           "arg": "minimum_expression",
           "item": 0,

@@ -27,7 +27,12 @@ from shuxueshuo_server.solver.family import (
     quadratic_square_reflection_path_minimum as square_family_module,
     quadratic_weighted_path_minimum as weighted_family_module,
 )
-from shuxueshuo_server.solver.contracts import MethodSpec
+from shuxueshuo_server.solver.contracts import (
+    CanonicalSymbolDerivationSpec,
+    ConditionSourceSpec,
+    MethodInputBindingSpec,
+    MethodSpec,
+)
 from shuxueshuo_server.solver.fixtures import load_problem_ir
 from shuxueshuo_server.solver.runtime.binding_rules import MethodBindingRuleRegistry
 from shuxueshuo_server.solver.runtime.capability_contracts import (
@@ -168,12 +173,22 @@ def test_path_family_binding_rules_are_declared_in_spec() -> None:
 
     assert "quadratic_axis_from_relation" in rules
     assert "two_moving_points_path_reduction" in rules
-    axis_selectors = {
-        binding.input_name: binding.selector
+    axis_bindings = {
+        binding.input_name: binding
         for binding in rules["quadratic_axis_from_relation"].input_bindings
     }
-    assert axis_selectors["target"] == "point_output_ref"
-    assert axis_selectors["coefficient_relation"] == "fact:coefficient_relation:Equation"
+    assert isinstance(
+        axis_bindings["target"],
+        LegacySelectorInputBindingSpec,
+    )
+    assert axis_bindings["target"].selector == "point_output_ref"
+    relation = axis_bindings["coefficient_relation"]
+    assert isinstance(relation, MethodInputBindingSpec)
+    assert relation.source == ConditionSourceSpec(
+        arg_name="coefficient_relation"
+    )
+    assert axis_bindings["a"].derivation == CanonicalSymbolDerivationSpec("a")
+    assert axis_bindings["b"].derivation == CanonicalSymbolDerivationSpec("b")
 
 
 def test_family_registry_matches_supported_problem_only() -> None:
