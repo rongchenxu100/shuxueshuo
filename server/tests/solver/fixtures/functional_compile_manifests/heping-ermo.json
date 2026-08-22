@@ -404,8 +404,6 @@
               "method_id": "square_adjacent_vertex_from_side",
               "scope": "derive_square_vertex_G_i",
               "inputs": [
-                "parameter",
-                "parameter_constraint",
                 "side_end",
                 "side_end_ref",
                 "side_start",
@@ -424,26 +422,6 @@
         }
       ],
       "bindings": [
-        {
-          "arg": "parameter",
-          "item": 0,
-          "role": "parameter",
-          "authority": "compiler",
-          "target": "parameter",
-          "paths": [
-            "$problem.symbols.c"
-          ]
-        },
-        {
-          "arg": "parameter_constraint",
-          "item": 0,
-          "role": "parameter_constraint",
-          "authority": "compiler",
-          "target": "parameter_constraint",
-          "paths": [
-            "$problem.conditions.symbol_constraint_6098472a86b7"
-          ]
-        },
         {
           "arg": "side_end",
           "item": 0,
@@ -1076,8 +1054,6 @@
               "method_id": "square_adjacent_vertex_from_side",
               "scope": "derive_square_vertex_G_ii",
               "inputs": [
-                "parameter",
-                "parameter_constraint",
                 "side_end",
                 "side_end_ref",
                 "side_start",
@@ -1096,26 +1072,6 @@
         }
       ],
       "bindings": [
-        {
-          "arg": "parameter",
-          "item": 0,
-          "role": "parameter",
-          "authority": "compiler",
-          "target": "parameter",
-          "paths": [
-            "$problem.symbols.c"
-          ]
-        },
-        {
-          "arg": "parameter_constraint",
-          "item": 0,
-          "role": "parameter_constraint",
-          "authority": "compiler",
-          "target": "parameter_constraint",
-          "paths": [
-            "$problem.conditions.symbol_constraint_6098472a86b7"
-          ]
-        },
         {
           "arg": "side_end",
           "item": 0,

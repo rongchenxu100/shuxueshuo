@@ -1772,7 +1772,7 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
                         role,
                         role,
                     )
-                    for role in ("anchor", "reference")
+                    for role in ("anchor", "reference", "target")
                 ),
             ),
         ),

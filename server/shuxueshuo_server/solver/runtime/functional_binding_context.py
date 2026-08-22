@@ -24,8 +24,10 @@ from shuxueshuo_server.solver.contracts import (
     FreeSymbolBasisDerivationSpec,
     LatestStateSourceSpec,
     LegacySelectorInputBindingSpec,
+    MacroPreparedRoleSourceSpec,
     MethodInputBindingSpec,
     OrdinalZeroTemplateDerivationSpec,
+    PreviousOutputIdentityDerivationSpec,
     ProducerLinkedSourceSpec,
     PublicArgSourceSpec,
     SourceObjectIdentityDerivationSpec,
@@ -496,38 +498,44 @@ class FunctionalBindingContextBuilder:
                         )
                         runtime_input = arg_name
                         strict_binding: MethodInputBindingSpec | None = None
+                        macro_role_hint = False
                         if strict_context is not None:
                             runtime_input, strict_binding = strict_context
-                            typed_source = _typed_input_selected_source(
-                                arg_name=arg_name,
-                                binding=strict_binding,
-                                runtime_input=runtime_input,
-                                required=True,
-                                capability=capability,
-                                call=call,
-                                calls_by_id=calls_by_id,
-                                object_registry=object_registry,
-                                handle_registry=handle_registry,
-                                method_specs=method_specs,
-                                allow_missing_typed_source=False,
-                                condition_authority_index=(
-                                    condition_authority_index
-                                ),
+                            macro_role_hint = isinstance(
+                                strict_binding.source,
+                                MacroPreparedRoleSourceSpec,
                             )
-                            if typed_source is None:
-                                raise FunctionalBindingContextError(
-                                    "planner.method_input_view_authority_missing",
-                                    f"{call.call_id}.{arg_name} has no typed "
-                                    "Condition/role source",
+                            if not macro_role_hint:
+                                typed_source = _typed_input_selected_source(
+                                    arg_name=arg_name,
+                                    binding=strict_binding,
+                                    runtime_input=runtime_input,
+                                    required=True,
+                                    capability=capability,
+                                    call=call,
+                                    calls_by_id=calls_by_id,
+                                    object_registry=object_registry,
+                                    handle_registry=handle_registry,
+                                    method_specs=method_specs,
+                                    allow_missing_typed_source=False,
+                                    condition_authority_index=(
+                                        condition_authority_index
+                                    ),
                                 )
-                            _require_resolved_value_matches_source_authority(
-                                value,
-                                source_identity,
-                                typed_source,
-                                call_id=call.call_id,
-                                arg_name=arg_name,
-                            )
-                            source_identity = typed_source
+                                if typed_source is None:
+                                    raise FunctionalBindingContextError(
+                                        "planner.method_input_view_authority_missing",
+                                        f"{call.call_id}.{arg_name} has no typed "
+                                        "Condition/role source",
+                                    )
+                                _require_resolved_value_matches_source_authority(
+                                    value,
+                                    source_identity,
+                                    typed_source,
+                                    call_id=call.call_id,
+                                    arg_name=arg_name,
+                                )
+                                source_identity = typed_source
                         bindings.append(
                             FunctionalArgBinding(
                                 key=FunctionalArgBindingKey(
@@ -560,23 +568,33 @@ class FunctionalBindingContextBuilder:
                                     )
                                 ),
                                 consumption_mode=(
-                                    "typed_binding"
-                                    if strict_binding is not None
-                                    else context_spec.consumption_mode
+                                    "resolver_evidence"
+                                    if macro_role_hint
+                                    else (
+                                        "typed_binding"
+                                        if strict_binding is not None
+                                        else context_spec.consumption_mode
+                                    )
                                 ),
                                 runtime_input_targets=(
-                                    (runtime_input,)
-                                    if strict_binding is not None
-                                    or context_spec.consumption_mode
-                                    == "runtime_input"
-                                    else ()
+                                    ()
+                                    if macro_role_hint
+                                    else (
+                                        (runtime_input,)
+                                        if strict_binding is not None
+                                        or context_spec.consumption_mode
+                                        == "runtime_input"
+                                        else ()
+                                    )
                                 ),
                                 runtime_input_required=(
                                     strict_binding.required
                                     if strict_binding is not None
                                     else True
                                 ),
-                                input_binding=strict_binding,
+                                input_binding=(
+                                    None if macro_role_hint else strict_binding
+                                ),
                             )
                         )
                     continue
@@ -613,14 +631,19 @@ class FunctionalBindingContextBuilder:
                         preferred_input=runtime_input,
                     )
                     strict_binding: MethodInputBindingSpec | None = None
+                    macro_role_hint = False
                     if strict_match is not None:
                         runtime_input, strict_binding = strict_match
+                        macro_role_hint = isinstance(
+                            strict_binding.source,
+                            MacroPreparedRoleSourceSpec,
+                        )
                     source_identity = _source_identity(
                         value,
                         object_registry=object_registry,
                         prefer_call_result=force_exact_source_versions,
                     )
-                    if strict_binding is not None:
+                    if strict_binding is not None and not macro_role_hint:
                         typed_source = _typed_input_selected_source(
                             arg_name=arg_name,
                             binding=strict_binding,
@@ -670,19 +693,29 @@ class FunctionalBindingContextBuilder:
                             value=value,
                             source=source_identity,
                             runtime_targets=(
-                                runtime_targets
-                                if runtime_targets or strict_binding is None
-                                else (runtime_input,)
+                                ()
+                                if macro_role_hint
+                                else (
+                                    runtime_targets
+                                    if runtime_targets or strict_binding is None
+                                    else (runtime_input,)
+                                )
                             ),
                             consumption_mode=(
-                                "typed_binding"
-                                if strict_binding is not None
-                                else consumption_mode
+                                "resolver_evidence"
+                                if macro_role_hint
+                                else (
+                                    "typed_binding"
+                                    if strict_binding is not None
+                                    else consumption_mode
+                                )
                             ),
                             force_exact_source_versions=(
                                 force_exact_source_versions
                             ),
-                            input_binding=strict_binding,
+                            input_binding=(
+                                None if macro_role_hint else strict_binding
+                            ),
                         )
                     )
             for auto_arg in capability.auto_args:
@@ -1239,6 +1272,18 @@ def _typed_input_selected_source(
                 object_registry=object_registry,
             ),
         )
+    elif isinstance(source, MacroPreparedRoleSourceSpec):
+        if getattr(capability.source, "execution_mode", None) != "runtime_search":
+            raise FunctionalBindingContextError(
+                "planner.method_input_binding_lowerer_missing",
+                (
+                    f"{call.call_id}.{arg_name} declares Macro role "
+                    f"{source.role!r} outside a runtime-search Macro"
+                ),
+            )
+        # Runtime-search roles stay pending until shadow execution chooses a
+        # winner. Authored hints are deliberately not source authority.
+        return None
     elif isinstance(derivation, CanonicalSymbolDerivationSpec):
         if object_registry is not None:
             object_id = object_registry.resolve(
@@ -1272,6 +1317,22 @@ def _typed_input_selected_source(
         )
         if upstream is not None:
             add(f"derived_from:{derivation.source_input}", [upstream])
+    elif isinstance(derivation, PreviousOutputIdentityDerivationSpec):
+        add(
+            f"previous_output:{derivation.output_name}",
+            list(
+                _allocation_sources_for_input_view(
+                    call,
+                    return_names=(derivation.output_name,),
+                    expected_kind=getattr(
+                        getattr(input_spec, "view", None),
+                        "object_kind",
+                        None,
+                    ),
+                    input_spec=input_spec,
+                )
+            ),
+        )
     elif isinstance(derivation, SourceObjectIdentityDerivationSpec):
         upstream = _typed_source_for_named_input(
             derivation.source_input,
@@ -1285,7 +1346,10 @@ def _typed_input_selected_source(
             condition_authority_index=condition_authority_index,
             stack=_stack + (input_name,),
         )
-        identity = _source_object_identity(upstream)
+        identity = _source_object_identity(
+            upstream,
+            calls_by_id=calls_by_id,
+        )
         if identity is not None:
             add(f"source_object:{derivation.source_input}", [identity])
     elif isinstance(derivation, FreeSymbolBasisDerivationSpec):
@@ -1532,6 +1596,8 @@ def _typed_source_for_named_input(
 
 def _source_object_identity(
     source: FunctionalArgSourceIdentity | None,
+    *,
+    calls_by_id: Mapping[str, FunctionalCallReconciliation] | None = None,
 ) -> FunctionalArgSourceIdentity | None:
     if source is None:
         return None
@@ -1539,6 +1605,28 @@ def _source_object_identity(
     object_id = source.math_object_id
     if object_id is None and source.state_version_id is not None:
         object_id = source.state_version_id.slot_id.logical_key.object_id
+    if (
+        object_id is None
+        and calls_by_id is not None
+        and source.source_call_id is not None
+        and source.source_return_name is not None
+    ):
+        producer = calls_by_id.get(source.source_call_id)
+        return_object_ids = {
+            item.math_object_id
+            for item in (producer.returns if producer is not None else ())
+            if item.return_name == source.source_return_name
+            and item.math_object_id is not None
+        }
+        if len(return_object_ids) > 1:
+            raise FunctionalBindingContextError(
+                "planner.method_input_view_authority_drift",
+                "exact result maps to multiple return object identities: "
+                f"call={source.source_call_id}, "
+                f"return={source.source_return_name}",
+            )
+        if return_object_ids:
+            object_id = next(iter(return_object_ids))
     if object_id is None:
         return None
     return FunctionalArgSourceIdentity(

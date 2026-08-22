@@ -401,6 +401,29 @@ def build_equal_length_ray_execution_witness(
 
 
 def _prepared_runtime_arg_value(prepared: Any, arg_name: str) -> Any | None:
+    prepared_sources = tuple(
+        item.source
+        for item in getattr(prepared, "macro_method_inputs", ())
+        if getattr(
+            getattr(item.declaration.binding, "source", None),
+            "role",
+            None,
+        )
+        == arg_name
+        and getattr(item, "source", None) is not None
+    )
+    if len(prepared_sources) == 1:
+        state_version_id = getattr(
+            prepared_sources[0], "state_version_id", None
+        )
+        state_values = tuple(
+            item.runtime_value
+            for item in prepared.state_reads
+            if item.selected_version_id == state_version_id
+        )
+        if len(state_values) == 1:
+            return state_values[0]
+
     candidates = tuple(
         item.runtime_value
         for item in prepared.arg_bindings

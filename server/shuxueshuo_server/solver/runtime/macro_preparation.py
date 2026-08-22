@@ -6,7 +6,13 @@ from dataclasses import dataclass, field, replace
 from types import MappingProxyType
 from typing import Any, Callable, Iterable, Mapping, Sequence
 
-from shuxueshuo_server.solver.contracts import MacroSearchSpec
+from shuxueshuo_server.solver.contracts import (
+    ExactCallResultSourceSpec,
+    MacroPreparedRoleSourceSpec,
+    MacroSearchSpec,
+    MethodInputBindingSpec,
+    PreviousOutputIdentityDerivationSpec,
+)
 from shuxueshuo_server.solver.extraction.source_identity import stable_hash
 from shuxueshuo_server.solver.runtime.macro_runtime_search import (
     MacroCandidateEvaluation,
@@ -248,6 +254,45 @@ class PreparedMacroInvocation:
     debug_only: bool = False
 
 
+@dataclass(frozen=True)
+class MacroMethodInputBindingSpec:
+    """Registry-owned source contract for one internal Method input."""
+
+    method_id: str
+    input_name: str
+    binding: MethodInputBindingSpec
+
+    def __post_init__(self) -> None:
+        if not self.method_id or not self.input_name:
+            raise ValueError("Macro Method input binding names must be non-empty")
+        source = self.binding.source
+        derivation = self.binding.derivation
+        if not (
+            isinstance(
+                source,
+                (MacroPreparedRoleSourceSpec, ExactCallResultSourceSpec),
+            )
+            or isinstance(
+                derivation,
+                PreviousOutputIdentityDerivationSpec,
+            )
+        ):
+            raise ValueError(
+                "planner.macro_contract_invalid: internal Method input must "
+                "come from a prepared role, exact invocation result, or "
+                "output identity"
+            )
+        if self.binding.input_name != self.input_name:
+            raise ValueError(
+                "planner.macro_contract_invalid: internal Method input name "
+                "differs from its typed binding"
+            )
+
+    @property
+    def target(self) -> str:
+        return f"{self.method_id}.{self.input_name}"
+
+
 MacroCandidateBuilder = Callable[
     [MacroPreparationRequest], Sequence[MacroRoleAssignmentCandidate]
 ]
@@ -273,6 +318,7 @@ class MacroImplementation:
     lowerer: MacroCandidateLowerer
     postcondition: MacroPostcondition
     evidence_builder: MacroEvidenceBuilder
+    method_input_bindings: tuple[MacroMethodInputBindingSpec, ...] = ()
 
 
 class MacroImplementationRegistry:
@@ -287,6 +333,14 @@ class MacroImplementationRegistry:
         if implementation.macro_id in self._items:
             raise ValueError(
                 f"duplicate Macro implementation {implementation.macro_id}"
+            )
+        targets = tuple(
+            item.target for item in implementation.method_input_bindings
+        )
+        if len(set(targets)) != len(targets):
+            raise ValueError(
+                "planner.macro_contract_invalid: duplicate internal Method "
+                f"input binding for {implementation.macro_id}"
             )
         self._items[implementation.macro_id] = implementation
 
@@ -316,6 +370,100 @@ class MacroImplementationRegistry:
                 "planner.macro_contract_invalid: Macro search spec and "
                 f"implementation differ for {macro_id}"
             )
+        return implementation
+
+    def require_lowering_contract(
+        self,
+        macro_id: str,
+        search_spec: MacroSearchSpec,
+        *,
+        macro_spec: Any,
+        method_specs: Any,
+    ) -> MacroImplementation:
+        implementation = self.require(macro_id, search_spec)
+        prepared_roles = {
+            item.binding.source.role
+            for item in implementation.method_input_bindings
+            if isinstance(
+                item.binding.source,
+                MacroPreparedRoleSourceSpec,
+            )
+        }
+        if prepared_roles != set(search_spec.searchable_roles):
+            raise ValueError(
+                "planner.macro_contract_invalid: prepared Method role wiring "
+                f"differs for {macro_id}: expected="
+                f"{sorted(search_spec.searchable_roles)}, observed="
+                f"{sorted(prepared_roles)}"
+            )
+        internal_order = {
+            item.capability_id: item.order
+            for item in macro_spec.internal_calls
+        }
+        by_target = {
+            item.target: item for item in implementation.method_input_bindings
+        }
+        missing_strategy_targets = set(
+            macro_spec.adapter.strategy_input_targets
+        ) - set(by_target)
+        if missing_strategy_targets:
+            raise ValueError(
+                "planner.macro_contract_invalid: Registry does not own all "
+                f"strategy inputs for {macro_id}: "
+                f"{sorted(missing_strategy_targets)}"
+            )
+        for item in implementation.method_input_bindings:
+            if item.method_id not in internal_order:
+                raise ValueError(
+                    "planner.macro_contract_invalid: Registry references a "
+                    f"non-internal Method: {macro_id}.{item.method_id}"
+                )
+            method = method_specs.require(item.method_id)
+            input_spec = method.inputs.get(item.input_name)
+            if input_spec is None:
+                raise ValueError(
+                    "planner.macro_contract_invalid: Registry references an "
+                    f"unknown Method input: {macro_id}.{item.target}"
+                )
+            source = item.binding.source
+            derivation = item.binding.derivation
+            if isinstance(source, ExactCallResultSourceSpec):
+                source_method, separator, return_name = (
+                    source.arg_name.partition(".")
+                )
+                if (
+                    not separator
+                    or source_method not in internal_order
+                    or return_name
+                    not in method_specs.require(source_method).outputs
+                    or internal_order[source_method] >= internal_order[item.method_id]
+                ):
+                    raise ValueError(
+                        "planner.macro_contract_invalid: invalid internal "
+                        f"result wiring {source.arg_name!r} -> {item.target}"
+                    )
+            if isinstance(
+                derivation,
+                PreviousOutputIdentityDerivationSpec,
+            ) and derivation.output_name not in method.outputs:
+                raise ValueError(
+                    "planner.macro_contract_invalid: output identity wiring "
+                    f"references {item.method_id}.{derivation.output_name}"
+                )
+        for source, target in macro_spec.adapter.intermediate_wiring:
+            binding = by_target.get(target)
+            if not (
+                binding is not None
+                and isinstance(
+                    binding.binding.source,
+                    ExactCallResultSourceSpec,
+                )
+                and binding.binding.source.arg_name == source
+            ):
+                raise ValueError(
+                    "planner.macro_contract_invalid: intermediate wiring is "
+                    f"not Registry-owned: {source} -> {target}"
+                )
         return implementation
 
 
@@ -454,6 +602,62 @@ def default_macro_implementation_registry() -> MacroImplementationRegistry:
                 lowerer=_lower_equal_length_ray_candidate,
                 postcondition=_equal_length_ray_postcondition,
                 evidence_builder=_equal_length_ray_evidence,
+                method_input_bindings=(
+                    MacroMethodInputBindingSpec(
+                        "equal_length_ray_point",
+                        "anchor",
+                        MethodInputBindingSpec(
+                            input_name="anchor",
+                            source=MacroPreparedRoleSourceSpec("anchor"),
+                        ),
+                    ),
+                    MacroMethodInputBindingSpec(
+                        "equal_length_ray_point",
+                        "reference_point",
+                        MethodInputBindingSpec(
+                            input_name="reference_point",
+                            source=MacroPreparedRoleSourceSpec(
+                                "reference_point"
+                            ),
+                        ),
+                    ),
+                    MacroMethodInputBindingSpec(
+                        "equal_length_ray_point",
+                        "ray_point",
+                        MethodInputBindingSpec(
+                            input_name="ray_point",
+                            source=MacroPreparedRoleSourceSpec("ray_point"),
+                        ),
+                    ),
+                    MacroMethodInputBindingSpec(
+                        "equal_length_ray_point",
+                        "target",
+                        MethodInputBindingSpec(
+                            input_name="target",
+                            derivation=PreviousOutputIdentityDerivationSpec(
+                                "point"
+                            ),
+                        ),
+                    ),
+                    MacroMethodInputBindingSpec(
+                        "distance_between_points",
+                        "p1",
+                        MethodInputBindingSpec(
+                            input_name="p1",
+                            source=MacroPreparedRoleSourceSpec("fixed_point"),
+                        ),
+                    ),
+                    MacroMethodInputBindingSpec(
+                        "distance_between_points",
+                        "p2",
+                        MethodInputBindingSpec(
+                            input_name="p2",
+                            source=ExactCallResultSourceSpec(
+                                "equal_length_ray_point.point"
+                            ),
+                        ),
+                    ),
+                ),
             ),
         )
     )
@@ -631,6 +835,7 @@ __all__ = [
     "MacroImplementation",
     "MacroImplementationPreparationContext",
     "MacroImplementationRegistry",
+    "MacroMethodInputBindingSpec",
     "MacroPreparationEnvironment",
     "MacroPreparationAuthority",
     "MacroPreparationRequest",

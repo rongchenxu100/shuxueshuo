@@ -16,10 +16,14 @@ import sympy as sp
 
 from shuxueshuo_server.solver.contracts import (
     CoefficientExtractionDerivationSpec,
+    EntityIdentitySourceSpec,
+    ExactCallResultSourceSpec,
     LatestStateSourceSpec,
+    MacroPreparedRoleSourceSpec,
     MethodInputBindingSpec,
     OrdinalZeroTemplateDerivationSpec,
     PointRef,
+    PreviousOutputIdentityDerivationSpec,
 )
 from shuxueshuo_server.solver.extraction.problem_planning_binding import (
     FunctionalProblemBindingLedger,
@@ -105,6 +109,8 @@ from shuxueshuo_server.solver.runtime.macro_runtime_search import (
 )
 from shuxueshuo_server.solver.runtime.macro_preparation import (
     MacroCandidateBindingAuthority,
+    MacroImplementation,
+    MacroMethodInputBindingSpec,
     MacroPreparationEnvironment,
     MacroPreparationRequest,
     MacroPreparationService,
@@ -223,6 +229,7 @@ class PreparedFunctionalCall:
     problem_call_binding: FunctionalProblemCallBinding | None = None
     macro_role_overrides: Mapping[str, str] = field(default_factory=dict)
     macro_candidate_binding: MacroCandidateBindingAuthority | None = None
+    macro_method_inputs: tuple["PreparedMacroMethodInput", ...] = ()
     prepared_macro: Any | None = None
 
     def __post_init__(self) -> None:
@@ -241,6 +248,22 @@ class PreparedFunctionalArgBinding:
     selected_state_version_id: StateVersionId | None = None
     runtime_path: str | None = None
     runtime_value: TypedValue | None = None
+
+
+@dataclass(frozen=True)
+class PreparedMacroMethodInput:
+    """One Registry-declared internal Method input and its exact source."""
+
+    declaration: MacroMethodInputBindingSpec
+    source: Any | None = None
+
+    @property
+    def method_id(self) -> str:
+        return self.declaration.method_id
+
+    @property
+    def input_name(self) -> str:
+        return self.declaration.input_name
 
 
 @dataclass(frozen=True)
@@ -287,6 +310,7 @@ class CompiledFunctionalCall:
     macro_preparation_authority: Any | None = None
     macro_search_report: MacroRuntimeSearchReport | None = None
     path_minimum_witness: PathMinimumWitness | None = None
+    materialized_state_sources: tuple[tuple[str, StateVersionId], ...] = ()
 
 
 @dataclass(frozen=True)
@@ -1565,6 +1589,10 @@ class FunctionalCallPreparationService:
                         "planner.functional_binding_context_incomplete: "
                         f"call={call_id}, arg={arg_name}[{item_index}]"
                     )
+                if logical_binding.consumption_mode == "resolver_evidence":
+                    # Planner-authored Macro role hints influence candidate
+                    # ordering only. They are not runtime read authority.
+                    continue
                 selection: Literal["exact", "latest"] = (
                     "latest"
                     if logical_binding.selection_policy == "latest"
@@ -2012,7 +2040,10 @@ def _audit_problem_binding_preparation(
                 "planner.problem_source_binding_drift: "
                 f"call={call_id}, prepared binding missing"
             )
-        if logical.source.kind == "state_version":
+        if (
+            logical.source.kind == "state_version"
+            and logical.consumption_mode in {"runtime_input", "typed_binding"}
+        ):
             if (
                 logical.selection_policy != "exact"
                 or prepared.selected_state_version_id
@@ -2123,7 +2154,32 @@ def _prepare_non_state_runtime_path(
         if object_id is None:
             return None
         physical = runtime_bindings.bindings.get(object_id.value)
-        return runtime_bindings.runtime_path_for_object_identity(
+        identity_resolver = (
+            runtime_bindings.runtime_path_for_return_object_identity
+            if (
+                problem_input_binding is not None
+                and problem_input_binding.source_kind == "return_allocation"
+            )
+            or (
+                declaration is not None
+                and isinstance(
+                    declaration.derivation,
+                    PreviousOutputIdentityDerivationSpec,
+                )
+            )
+            or (
+                declaration is not None
+                and isinstance(
+                    declaration.source,
+                    EntityIdentitySourceSpec,
+                )
+                and declaration.source.arg_name == binding.key.arg_name
+                and binding.binding_authority == "compiler"
+                and binding.key.arg_name == "target"
+            )
+            else runtime_bindings.runtime_path_for_object_identity
+        )
+        return identity_resolver(
             object_id,
             expected_type=(
                 physical.value_type
@@ -2463,11 +2519,87 @@ def _stamp_method_input_read_authorities(
     state_reads_by_path = {
         item.snapshot_runtime_path: item for item in prepared_call.state_reads
     }
+    materialized_state_sources = dict(compiled.materialized_state_sources)
+    declared_entity_handles = {
+        declaration.path: (
+            f"point:{declaration.scope_id}:{declaration.name}"
+            if declaration.type == "PointRef"
+            else f"{declaration.type.lower()}:{declaration.scope_id}:"
+            f"{declaration.name}"
+        )
+        for declaration in compiled.declarations
+    }
     producer_by_path: dict[str, tuple[str, str]] = {}
+    output_paths_by_key: dict[str, list[str]] = {}
+    promotion_targets: dict[str, str] = {}
     for plan in compiled.plans:
         for invocation in plan.invocations:
             for return_name, path in invocation.outputs.items():
                 producer_by_path[path] = (invocation.invocation_id, return_name)
+                for key in (
+                    return_name,
+                    f"{invocation.method_id}.{return_name}",
+                    f"{invocation.invocation_id}.{return_name}",
+                ):
+                    output_paths_by_key.setdefault(key, []).append(path)
+        promotion_targets.update(plan.promote_outputs)
+        pending_promotions = dict(plan.promote_outputs)
+        while pending_promotions:
+            progressed = False
+            for source_path, target_path in tuple(pending_promotions.items()):
+                producer = producer_by_path.get(source_path)
+                if producer is None:
+                    continue
+                producer_by_path[target_path] = producer
+                del pending_promotions[source_path]
+                progressed = True
+            if not progressed:
+                break
+
+    return_identity_by_path: dict[str, str] = {}
+
+    def register_return_identity(path: str, object_ref: str) -> None:
+        previous = return_identity_by_path.setdefault(path, object_ref)
+        if previous != object_ref:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_input_view_authority_drift: "
+                f"call={prepared_call.call_id}, path={path}, "
+                f"return_objects={[previous, object_ref]}"
+            )
+
+    for public_return in compiled.public_returns:
+        allocation = public_return.allocation
+        object_ref = (
+            allocation.math_object_id.value
+            if allocation.math_object_id is not None
+            else allocation.object_ref
+        )
+        expected_write = public_return.expected_write
+        if object_ref is None or expected_write is None:
+            continue
+        source_paths = tuple(
+            dict.fromkeys(
+                output_paths_by_key.get(expected_write.output_key, ())
+            )
+        )
+        if len(source_paths) > 1:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_input_view_authority_drift: "
+                f"call={prepared_call.call_id}, return="
+                f"{public_return.return_name}, output_key="
+                f"{expected_write.output_key}, paths={source_paths}"
+            )
+        if not source_paths:
+            continue
+        path = source_paths[0]
+        register_return_identity(path, object_ref)
+        visited: set[str] = set()
+        while path in promotion_targets and path not in visited:
+            visited.add(path)
+            path = promotion_targets[path]
+            register_return_identity(path, object_ref)
 
     def latest_state_source(
         path: str,
@@ -2606,6 +2738,20 @@ def _stamp_method_input_read_authorities(
             )
             return EntityIdentityReadSource(
                 object_id.value,
+                path,
+            )
+        materialized_version_id = materialized_state_sources.get(path)
+        if materialized_version_id is not None:
+            if view_mode == "identity":
+                return EntityIdentityReadSource(
+                    materialized_version_id.slot_id.logical_key.object_id.value,
+                    path,
+                )
+            if view_mode == "latest_state":
+                return StateVersionReadSource(materialized_version_id, path)
+        if view_mode == "identity" and path in return_identity_by_path:
+            return EntityIdentityReadSource(
+                return_identity_by_path[path],
                 path,
             )
         if (
@@ -2779,6 +2925,11 @@ def _stamp_method_input_read_authorities(
                 if selected_state is not None:
                     return selected_state
             return CompilerSelectorReadSource(selector_id, path)
+        if view_mode == "identity" and path in declared_entity_handles:
+            return EntityIdentityReadSource(
+                declared_entity_handles[path],
+                path,
+            )
         producer = producer_by_path.get(path)
         if producer is not None:
             return InvocationResultReadSource(producer[0], producer[1], path)
@@ -3204,6 +3355,16 @@ def _stamp_method_input_read_authorities(
             spec = method_specs.require(invocation.method_id)
             invocation_inputs = dict(invocation.inputs)
             authorities: dict[str, tuple[MethodInputReadAuthority, ...]] = {}
+            unknown_prestamped = set(invocation.input_read_authorities) - set(
+                invocation.inputs
+            )
+            if unknown_prestamped:
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.method_input_view_authority_drift: "
+                    f"invocation={invocation.invocation_id}, "
+                    f"unknown_inputs={sorted(unknown_prestamped)}"
+                )
             for input_name, raw in invocation.inputs.items():
                 input_spec = spec.inputs[input_name]
                 paths = raw if isinstance(raw, tuple) else (raw,)
@@ -3212,6 +3373,35 @@ def _stamp_method_input_read_authorities(
                     if isinstance(raw, tuple)
                     else input_spec.runtime_type
                 )
+                prestamped = tuple(
+                    invocation.input_read_authorities.get(input_name, ())
+                )
+                if prestamped:
+                    if len(prestamped) != len(paths):
+                        raise ValueError(
+                            "planner_configuration_error: "
+                            "planner.method_input_view_authority_drift: "
+                            f"invocation={invocation.invocation_id}, "
+                            f"input={input_name}, paths={len(paths)}, "
+                            f"authorities={len(prestamped)}"
+                        )
+                    for index, (path, authority) in enumerate(
+                        zip(paths, prestamped, strict=True)
+                    ):
+                        authority.verify(
+                            method_id=invocation.method_id,
+                            invocation_id=invocation.invocation_id,
+                            input_name=input_name,
+                            item_index=index,
+                            view_mode=input_spec.view.mode,
+                            domain_type=input_spec.domain_type,
+                            runtime_type=item_runtime_type,
+                            scope_id=invocation.scope,
+                            raw_path=path,
+                            production=True,
+                        )
+                    authorities[input_name] = prestamped
+                    continue
                 authorities[input_name] = tuple(
                     MethodInputReadAuthority(
                         method_id=invocation.method_id,
@@ -3679,6 +3869,168 @@ def _require_macro_canonical_plan_id(
     return plan_id
 
 
+def _materialize_prepared_macro_method_inputs(
+    prepared: PreparedFunctionalCall,
+    *,
+    implementation: MacroImplementation,
+    candidate: MacroCandidateBindingAuthority,
+    finalized_call_binding: FunctionalProblemCallBinding | None,
+    working: WorkingPlannerState,
+    runtime_context: RuntimeContext,
+    object_registry: MathObjectRegistry,
+    method_specs: Any,
+) -> PreparedFunctionalCall:
+    """Pin Registry-declared role reads before shadow or clean compilation."""
+
+    chosen_roles = dict(candidate.candidate.roles)
+    finalized_by_role = {
+        item.arg_name: item
+        for item in (
+            finalized_call_binding.input_bindings
+            if finalized_call_binding is not None
+            else ()
+        )
+    }
+    state_reads = list(prepared.state_reads)
+    snapshots = {
+        item.selected_version_id: item.snapshot_runtime_path
+        for item in state_reads
+    }
+    resolved: list[PreparedMacroMethodInput] = []
+    for declaration in implementation.method_input_bindings:
+        source_spec = declaration.binding.source
+        if not isinstance(source_spec, MacroPreparedRoleSourceSpec):
+            resolved.append(PreparedMacroMethodInput(declaration))
+            continue
+        chosen_ref = chosen_roles.get(source_spec.role)
+        if chosen_ref is None:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_input_view_authority_missing: "
+                f"call={prepared.call_id}, role={source_spec.role}"
+            )
+        object_id = object_registry.resolve(chosen_ref)
+        finalized_source = finalized_by_role.get(source_spec.role)
+        if finalized_call_binding is not None:
+            if finalized_source is None or finalized_source.typed_source is None:
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.method_input_view_authority_missing: "
+                    f"call={prepared.call_id}, role={source_spec.role}, "
+                    "source=F5-C"
+                )
+            typed_source = finalized_source.typed_source
+            finalized_object_id = (
+                typed_source.math_object_id
+                or (
+                    typed_source.state_version_id.slot_id.logical_key.object_id
+                    if typed_source.state_version_id is not None
+                    else None
+                )
+            )
+            if object_id is None:
+                object_id = finalized_object_id
+            if finalized_object_id != object_id:
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.method_input_view_authority_drift: "
+                    f"call={prepared.call_id}, role={source_spec.role}, "
+                    f"chosen={getattr(object_id, 'value', None)}, "
+                    f"F5-C={getattr(finalized_object_id, 'value', None)}"
+                )
+        if object_id is None:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_input_view_authority_missing: "
+                f"call={prepared.call_id}, role={source_spec.role}, "
+                f"chosen_ref={chosen_ref}"
+            )
+        method_input = method_specs.require(
+            declaration.method_id
+        ).inputs[declaration.input_name]
+        if method_input.view.mode != "latest_state":
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.macro_contract_invalid: prepared role currently "
+                "requires a latest_state Method input: "
+                f"{declaration.target}={method_input.view.mode}"
+            )
+        selected_version_id = None
+        if finalized_source is not None and finalized_source.typed_source is not None:
+            selected_version_id = finalized_source.typed_source.state_version_id
+        selected = (
+            working.identity_index.version(
+                working.resolve_runtime_version_id(selected_version_id)
+            )
+            if selected_version_id is not None
+            else working.identity_index.latest_visible_for_object(
+                object_id,
+                consumer_scope_id=prepared.execution_scope_id,
+            )
+        )
+        if selected is None or not working.identity_index.visibility.is_visible(
+            selected.valid_scope_id,
+            consumer_scope_id=prepared.execution_scope_id,
+        ):
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_input_view_authority_missing: "
+                f"call={prepared.call_id}, role={source_spec.role}, "
+                "state=visible_latest"
+            )
+        if selected.version_id.slot_id.logical_key.object_id != object_id:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_input_view_authority_drift: "
+                f"call={prepared.call_id}, role={source_spec.role}, "
+                "state object differs from winner"
+            )
+        runtime_value = working.runtime_version_values.get(selected.version_id)
+        original_path = _indexed_runtime_path(selected)
+        if runtime_value is None or original_path is None:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_input_view_authority_missing: "
+                f"call={prepared.call_id}, role={source_spec.role}, "
+                "state runtime value/path missing"
+            )
+        snapshot_path = snapshots.setdefault(
+            selected.version_id,
+            _transaction_snapshot_path(
+                runtime_context,
+                scope_id=prepared.execution_scope_id,
+                call_id=prepared.call_id,
+                item_index=len(snapshots),
+            ),
+        )
+        state_reads.append(
+            PreparedFunctionalStateRead(
+                arg_name=(
+                    f"$macro.{declaration.method_id}."
+                    f"{declaration.input_name}"
+                ),
+                item_index=0,
+                selection="exact",
+                original_version_id=selected.version_id,
+                selected_version_id=selected.version_id,
+                original_runtime_path=original_path,
+                snapshot_runtime_path=snapshot_path,
+                runtime_value=runtime_value,
+            )
+        )
+        resolved.append(
+            PreparedMacroMethodInput(
+                declaration,
+                StateVersionReadSource(selected.version_id, original_path),
+            )
+        )
+    return replace(
+        prepared,
+        state_reads=tuple(state_reads),
+        macro_method_inputs=tuple(resolved),
+    )
+
+
 def _prepare_runtime_search_macro(
     prepared: PreparedFunctionalCall,
     *,
@@ -3717,6 +4069,13 @@ def _prepare_runtime_search_macro(
             "planner.macro_contract_invalid: runtime-search Macro has no "
             f"F5-C draft authority: call={prepared.call_id}"
         )
+    registry = default_macro_implementation_registry()
+    implementation = registry.require_lowering_contract(
+        macro.macro_id,
+        macro.search,
+        macro_spec=macro,
+        method_specs=inputs.method_specs,
+    )
     request = MacroPreparationRequest(
         planning_context_id=(
             problem_context.planning_context_id
@@ -3780,6 +4139,16 @@ def _prepare_runtime_search_macro(
             prepared,
             macro_role_overrides=dict(candidate.candidate.roles),
             macro_candidate_binding=candidate,
+        )
+        candidate_prepared = _materialize_prepared_macro_method_inputs(
+            candidate_prepared,
+            implementation=implementation,
+            candidate=candidate,
+            finalized_call_binding=None,
+            working=working,
+            runtime_context=runtime_context,
+            object_registry=object_registry,
+            method_specs=inputs.method_specs,
         )
         shadow_working = working.fork()
         shadow_context = runtime_context.fork()
@@ -3963,21 +4332,29 @@ def _prepare_runtime_search_macro(
                 candidate_id=candidate.candidate.candidate_id,
             )
 
-    selected = MacroPreparationService(
-        default_macro_implementation_registry()
-    ).prepare(
+    selected = MacroPreparationService(registry).prepare(
         request,
         search_spec=macro.search,
         evaluator=evaluate,
     )
     if debug_preparation:
-        return replace(
+        debug_prepared = replace(
             prepared,
             macro_role_overrides=dict(
                 selected.authority.winner.candidate.roles
             ),
             macro_candidate_binding=selected.authority.winner,
             prepared_macro=replace(selected, debug_only=True),
+        )
+        return _materialize_prepared_macro_method_inputs(
+            debug_prepared,
+            implementation=implementation,
+            candidate=selected.authority.winner,
+            finalized_call_binding=None,
+            working=working,
+            runtime_context=runtime_context,
+            object_registry=object_registry,
+            method_specs=inputs.method_specs,
         )
     if not isinstance(ledger, FunctionalProblemBindingLedger):
         raise ValueError(
@@ -3988,12 +4365,23 @@ def _prepare_runtime_search_macro(
         prepared.call_id,
         preparation_authority=selected.authority,
     )
-    return replace(
+    finalized_binding = finalized_ledger.call_binding(prepared.call_id)
+    finalized_prepared = replace(
         prepared,
         macro_role_overrides=dict(selected.authority.winner.candidate.roles),
         macro_candidate_binding=selected.authority.winner,
         prepared_macro=selected,
-        problem_call_binding=finalized_ledger.call_binding(prepared.call_id),
+        problem_call_binding=finalized_binding,
+    )
+    return _materialize_prepared_macro_method_inputs(
+        finalized_prepared,
+        implementation=implementation,
+        candidate=selected.authority.winner,
+        finalized_call_binding=finalized_binding,
+        working=working,
+        runtime_context=runtime_context,
+        object_registry=object_registry,
+        method_specs=inputs.method_specs,
     )
 
 
@@ -5917,6 +6305,55 @@ def _materialize_compiled_parameter_inputs(
     }
     rewrites: dict[str, str] = {}
     materialized_values: dict[str, TypedValue] = {}
+    materialized_state_sources = dict(compiled.materialized_state_sources)
+
+    def exact_source_version(path: str) -> StateVersionId | None:
+        pinned = {
+            item.selected_version_id
+            for item in prepared.state_reads
+            if path in {
+                item.original_runtime_path,
+                item.snapshot_runtime_path,
+            }
+        }
+        if len(pinned) > 1:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_input_view_authority_drift: "
+                f"call={compiled.call_id}, path={path}, "
+                f"pinned_version_count={len(pinned)}"
+            )
+        if pinned:
+            return next(iter(pinned))
+        visible = tuple(
+            item
+            for item in working.identity_index.all_versions()
+            if _indexed_runtime_path(item) == path
+            and working.identity_index.visibility.is_visible(
+                item.valid_scope_id,
+                consumer_scope_id=execution_scope_id,
+            )
+        )
+        object_ids = {
+            item.version_id.slot_id.logical_key.object_id for item in visible
+        }
+        if len(object_ids) > 1:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_input_view_authority_drift: "
+                f"call={compiled.call_id}, path={path}, "
+                f"object_count={len(object_ids)}"
+            )
+        if not visible:
+            return None
+        return max(
+            visible,
+            key=lambda item: (
+                item.version_id.ordinal,
+                item.producer_call_id or "",
+            ),
+        ).version_id
+
     next_index = len(
         {item.snapshot_runtime_path for item in prepared.state_reads}
     )
@@ -5965,6 +6402,11 @@ def _materialize_compiled_parameter_inputs(
                 )
                 rewrites[path] = snapshot_path
                 materialized_values[path] = closure.runtime_value
+                source_version_id = exact_source_version(path)
+                if source_version_id is not None:
+                    materialized_state_sources[snapshot_path] = (
+                        source_version_id
+                    )
                 parameter_versions.update(
                     (item.version_id, item)
                     for item in closure.parameter_versions
@@ -6011,6 +6453,9 @@ def _materialize_compiled_parameter_inputs(
     )
     compiled = replace(
         compiled,
+        materialized_state_sources=tuple(
+            sorted(materialized_state_sources.items())
+        ),
         plans=tuple(
             _rewrite_plan_input_paths(plan, rewrites)
             for plan in compiled.plans
@@ -6432,6 +6877,26 @@ def _rewrite_plan_input_paths(
             return tuple(rewrites.get(item, item) for item in value)
         return rewrites.get(value, value)
 
+    def rewrite_authorities(
+        authorities: Mapping[str, tuple[MethodInputReadAuthority, ...]],
+    ) -> dict[str, tuple[MethodInputReadAuthority, ...]]:
+        return {
+            name: tuple(
+                replace(
+                    authority,
+                    source=replace(
+                        authority.source,
+                        runtime_path=rewrites.get(
+                            authority.source.runtime_path,
+                            authority.source.runtime_path,
+                        ),
+                    ),
+                )
+                for authority in values
+            )
+            for name, values in authorities.items()
+        }
+
     return replace(
         plan,
         invocations=[
@@ -6441,6 +6906,12 @@ def _rewrite_plan_input_paths(
                     name: rewrite(value)
                     for name, value in invocation.inputs.items()
                 },
+                input_read_authorities=rewrite_authorities(
+                    invocation.input_read_authorities
+                ),
+                supporting_input_read_authorities=rewrite_authorities(
+                    invocation.supporting_input_read_authorities
+                ),
             )
             for invocation in plan.invocations
         ],

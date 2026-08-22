@@ -1,146 +1,16 @@
 {
   "schema_version": "legacy-method-input-selectors/v1",
-  "source_declaration_count": 28,
+  "source_declaration_count": 2,
   "bindings": [
-    [
-      "angle_sum_equal_angle_candidates",
-      "target",
-      "angle_sum:target"
-    ],
-    [
-      "axis_intercept_from_equal_acute_angles",
-      "target",
-      "angle_equality:target"
-    ],
-    [
-      "equal_length_ray_point",
-      "anchor",
-      "equal_length_ray:anchor"
-    ],
-    [
-      "equal_length_ray_point",
-      "ray_point",
-      "equal_length_ray:ray_point"
-    ],
-    [
-      "equal_length_ray_point",
-      "reference_point",
-      "equal_length_ray:reference_point"
-    ],
-    [
-      "equal_length_ray_point",
-      "target",
-      "equal_length_ray:target"
-    ],
-    [
-      "line_intersection_point",
-      "target",
-      "intersection:target"
-    ],
-    [
-      "line_locus_minimum_point",
-      "minimum_point_1",
-      "straightening_minimum:p1"
-    ],
-    [
-      "line_locus_minimum_point",
-      "minimum_point_2",
-      "straightening_minimum:p2"
-    ],
-    [
-      "line_locus_minimum_point",
-      "target",
-      "point_transition_target"
-    ],
-    [
-      "line_parabola_second_intersection_point",
-      "target",
-      "line_parabola:target"
-    ],
-    [
-      "midpoint_point",
-      "target",
-      "midpoint:target"
-    ],
     [
       "parameter_from_curve_point_on_quadratic",
       "known_parameter_value",
       "known_parameter_value_from_reads"
     ],
     [
-      "point_on_parabola_at_x",
-      "target",
-      "point_output_ref"
-    ],
-    [
-      "quadratic_axis_from_relation",
-      "target",
-      "point_output_ref"
-    ],
-    [
-      "quadratic_axis_parameterized_point",
-      "target",
-      "point_output_ref"
-    ],
-    [
-      "quadratic_axis_x_intercept_point",
-      "target",
-      "point_output_ref"
-    ],
-    [
       "quadratic_from_constraints",
       "free_parameter",
       "free_parameter:a_if_single_curve_point"
-    ],
-    [
-      "quadratic_vertex_point",
-      "target",
-      "point_output_ref"
-    ],
-    [
-      "quadratic_x_axis_intercept_point",
-      "known_point",
-      "x_axis_known_point"
-    ],
-    [
-      "quadratic_x_axis_intercept_point",
-      "target",
-      "point_output_ref"
-    ],
-    [
-      "quadratic_x_axis_intercept_point",
-      "target_state",
-      "point_output_state"
-    ],
-    [
-      "quadratic_y_axis_intercept_point",
-      "target",
-      "point_output_ref"
-    ],
-    [
-      "right_angle_equal_length_candidates",
-      "target",
-      "right_angle:target"
-    ],
-    [
-      "square_adjacent_vertex_from_side",
-      "parameter",
-      "parameter_symbol"
-    ],
-    [
-      "square_adjacent_vertex_from_side",
-      "target",
-      "point_transition_target"
-    ],
-    [
-      "translated_point",
-      "target",
-      "translated_point:target"
-    ],
-    [
-      "weighted_axis_path_triangle_transform",
-      "auxiliary_point_ref",
-      "weighted_path:auxiliary_point_ref"
     ]
   ]
 }

@@ -7,8 +7,11 @@ import re
 from typing import Any, Mapping, Sequence
 
 from shuxueshuo_server.solver.contracts import (
+    EntityIdentitySourceSpec,
     FunctionalResultForm,
     LatestStateSourceSpec,
+    MethodInputBindingSpec,
+    PreviousOutputIdentityDerivationSpec,
     SymbolicClosureSpec,
 )
 from shuxueshuo_server.solver.family.models import (
@@ -9452,12 +9455,32 @@ def _hidden_point_target_arg(
     candidates = [
         item.name
         for item in capability.auto_args
-        if item.selector is not None
-        and selector_semantics(item.selector).mechanical
+        if (
+            (
+                item.selector is not None
+                and selector_semantics(item.selector).mechanical
+            )
+            or _typed_auto_arg_owns_output_identity(item)
+        )
         and "target" in item.name.lower()
         and not call.args.get(item.name)
     ]
     return candidates[0] if len(candidates) == 1 else None
+
+
+def _typed_auto_arg_owns_output_identity(auto: Any) -> bool:
+    binding = getattr(auto, "input_binding", None)
+    if not isinstance(binding, MethodInputBindingSpec):
+        return False
+    if isinstance(
+        binding.derivation,
+        PreviousOutputIdentityDerivationSpec,
+    ):
+        return True
+    return (
+        isinstance(binding.source, EntityIdentitySourceSpec)
+        and binding.source.arg_name == auto.name
+    )
 
 
 def _required_identity_auto_arg_issues(

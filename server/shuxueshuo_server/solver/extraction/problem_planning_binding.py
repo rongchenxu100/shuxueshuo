@@ -7,6 +7,8 @@ from types import MappingProxyType
 from typing import Any, Literal, Mapping, Sequence
 
 from shuxueshuo_server.solver.contracts import (
+    EntityIdentitySourceSpec,
+    PreviousOutputIdentityDerivationSpec,
     SourceObjectIdentityDerivationSpec,
 )
 from shuxueshuo_server.solver.extraction.problem_planning_context import (
@@ -415,6 +417,7 @@ def functional_problem_binding_context_schema() -> dict[str, Any]:
                 "enum": [
                     "problem_source",
                     "call_result",
+                    "return_allocation",
                     "compiler_selector",
                 ]
             },
@@ -1351,7 +1354,21 @@ def _finalize_macro_role_inputs(
             arg_name=role,
             item_index=0,
             source_kind="problem_source",
-            selection_policy="identity_only",
+            selection_policy=(
+                "exact"
+                if source.typed_sources
+                and min(
+                    source.typed_sources,
+                    key=lambda item: {
+                        "state_version": 0,
+                        "math_object": 1,
+                        "condition": 2,
+                        "answer_target": 3,
+                    }[item.kind],
+                ).kind
+                == "state_version"
+                else "identity_only"
+            ),
             semantic_ref=source.semantic_ref,
             runtime_node_id=source.runtime_node_id,
             source_unit_ids=source.source_unit_ids,
@@ -2071,6 +2088,112 @@ def build_functional_problem_binding_context(
             f"[{binding.key.arg_name!r}]"
         )
         declaration = binding.input_binding
+        if (
+            declaration is not None
+            and isinstance(
+                declaration.derivation,
+                PreviousOutputIdentityDerivationSpec,
+            )
+        ):
+            reconciled_call = reconciled.get(call_id)
+            allocation = next(
+                (
+                    item
+                    for item in (
+                        reconciled_call.returns
+                        if reconciled_call is not None
+                        else ()
+                    )
+                    if item.return_name
+                    == declaration.derivation.output_name
+                ),
+                None,
+            )
+            allocation_object_id = (
+                allocation.math_object_id
+                if allocation is not None
+                else None
+            )
+            if (
+                allocation is None
+                or allocation_object_id is None
+                or binding.source.kind != "math_object"
+                or binding.source.math_object_id != allocation_object_id
+            ):
+                raise _error(
+                    "planner.method_input_view_authority_drift",
+                    input_path,
+                    "output identity differs from its canonical return allocation",
+                )
+            inputs.append(
+                FunctionalProblemInputBinding(
+                    call_id=call_id,
+                    arg_name=binding.key.arg_name,
+                    item_index=binding.key.item_index,
+                    source_kind="return_allocation",
+                    selection_policy="identity_only",
+                    semantic_ref=allocation.bound_ref,
+                    runtime_node_id=(
+                        allocation.object_ref
+                        or allocation_object_id.value
+                    ),
+                    typed_source=binding.source,
+                )
+            )
+            continue
+        if (
+            binding.binding_authority == "compiler"
+            and binding.source.kind == "math_object"
+            and binding.source.math_object_id is not None
+            and declaration is not None
+            and isinstance(declaration.source, EntityIdentitySourceSpec)
+            and binding.key.arg_name == "target"
+            and declaration.source.arg_name == "target"
+        ):
+            shared_allocations = tuple(
+                allocation
+                for consumer_call_id, consumer_call in wire_calls.items()
+                if any(
+                    isinstance(ref, CallResultRef)
+                    and ref.from_call == call_id
+                    for refs in consumer_call.args.values()
+                    for ref in refs
+                )
+                for allocation in (
+                    reconciled.get(consumer_call_id).returns
+                    if reconciled.get(consumer_call_id) is not None
+                    else ()
+                )
+                if allocation.math_object_id == binding.source.math_object_id
+            )
+            unique_allocations = {
+                (item.call_id, item.return_name): item
+                for item in shared_allocations
+            }
+            if len(unique_allocations) > 1:
+                raise _error(
+                    "planner.method_input_view_authority_drift",
+                    input_path,
+                    "relation output maps to multiple Point return allocations",
+                )
+            if unique_allocations:
+                allocation = next(iter(unique_allocations.values()))
+                inputs.append(
+                    FunctionalProblemInputBinding(
+                        call_id=call_id,
+                        arg_name=binding.key.arg_name,
+                        item_index=binding.key.item_index,
+                        source_kind="return_allocation",
+                        selection_policy="identity_only",
+                        semantic_ref=allocation.bound_ref,
+                        runtime_node_id=(
+                            allocation.object_ref
+                            or binding.source.math_object_id.value
+                        ),
+                        typed_source=binding.source,
+                    )
+                )
+                continue
         if (
             declaration is not None
             and isinstance(

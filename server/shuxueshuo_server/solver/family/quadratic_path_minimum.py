@@ -39,6 +39,7 @@ from shuxueshuo_server.solver.family.common_binding_rules import (
     condition_arg_binding,
     exact_call_result_binding,
     parameter_basis_binding,
+    previous_output_identity_binding,
     public_arg_binding,
     quadratic_coefficients_binding,
     quadratic_latest_state_binding,
@@ -320,7 +321,10 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 condition_arg_binding("coefficient_relation"),
                 canonical_symbol_binding("a", symbol_name="a"),
                 canonical_symbol_binding("b", symbol_name="b"),
-                LegacySelectorInputBindingSpec("target", "point_output_ref"),
+                previous_output_identity_binding(
+                    "target",
+                    output_name="axis_point",
+                ),
             ),
         ),
         MethodBindingRuleSpec(

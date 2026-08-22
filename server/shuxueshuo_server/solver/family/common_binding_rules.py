@@ -12,7 +12,9 @@ from shuxueshuo_server.solver.contracts import (
     LegacyExpansionSelectorSpec,
     LegacySelectorInputBindingSpec,
     LatestStateSourceSpec,
+    MacroPreparedRoleSourceSpec,
     MethodInputBindingSpec,
+    PreviousOutputIdentityDerivationSpec,
     ProducerLinkedSourceSpec,
     PublicArgSourceSpec,
     SourceObjectIdentityDerivationSpec,
@@ -64,9 +66,11 @@ def latest_state_binding(
     input_name: str,
     *,
     entity_arg: str | None = None,
+    required: bool = True,
 ) -> MethodInputBindingSpec:
     return MethodInputBindingSpec(
         input_name=input_name,
+        required=required,
         source=LatestStateSourceSpec(entity_arg or input_name),
     )
 
@@ -98,12 +102,44 @@ def exact_call_result_binding(
     *,
     public_arg: str | None = None,
     required: bool = True,
+    semantic_roles: tuple[str, ...] = (),
 ) -> MethodInputBindingSpec:
     """Bind an anonymous intermediate to its exact producer return."""
     return MethodInputBindingSpec(
         input_name=input_name,
         required=required,
-        source=ExactCallResultSourceSpec(public_arg or input_name),
+        source=ExactCallResultSourceSpec(
+            public_arg or input_name,
+            semantic_roles,
+        ),
+    )
+
+
+def previous_output_identity_binding(
+    input_name: str,
+    *,
+    output_name: str,
+    required: bool = True,
+) -> MethodInputBindingSpec:
+    """Bind an identity input to this call's canonical return allocation."""
+    return MethodInputBindingSpec(
+        input_name=input_name,
+        required=required,
+        derivation=PreviousOutputIdentityDerivationSpec(output_name),
+    )
+
+
+def macro_prepared_role_binding(
+    input_name: str,
+    *,
+    role: str | None = None,
+    required: bool = True,
+) -> MethodInputBindingSpec:
+    """Bind one internal Method input to a verified Macro winner role."""
+    return MethodInputBindingSpec(
+        input_name=input_name,
+        required=required,
+        source=MacroPreparedRoleSourceSpec(role or input_name),
     )
 
 
@@ -298,7 +334,7 @@ def quadratic_vertex_point_rule() -> MethodBindingRuleSpec:
         input_bindings=(
             quadratic_public_state_binding("parabola"),
             canonical_x_binding(),
-            LegacySelectorInputBindingSpec("target", "point_output_ref"),
+            previous_output_identity_binding("target", output_name="point"),
         ),
         prep_invocations=QUADRATIC_STATE_PREP_INVOCATIONS,
     )
@@ -315,17 +351,13 @@ def quadratic_x_axis_intercept_point_rule() -> MethodBindingRuleSpec:
                 public_arg="parabola",
             ),
             canonical_x_binding(),
-            LegacySelectorInputBindingSpec("target", "point_output_ref"),
-            LegacySelectorInputBindingSpec(
+            previous_output_identity_binding("target", output_name="point"),
+            latest_state_binding(
                 "target_state",
-                "point_output_state",
+                entity_arg="target",
                 required=False,
             ),
-            LegacySelectorInputBindingSpec(
-                "known_point",
-                "x_axis_known_point",
-                required=False,
-            ),
+            public_arg_binding("known_point", required=False),
         ),
         prep_invocations=QUADRATIC_STATE_PREP_INVOCATIONS,
     )
@@ -338,7 +370,7 @@ def quadratic_y_axis_intercept_point_rule() -> MethodBindingRuleSpec:
         input_bindings=(
             quadratic_latest_state_binding("quadratic"),
             canonical_x_binding(),
-            LegacySelectorInputBindingSpec("target", "point_output_ref"),
+            previous_output_identity_binding("target", output_name="point"),
         ),
     )
 
@@ -367,7 +399,7 @@ def point_on_parabola_at_x_rule() -> MethodBindingRuleSpec:
         input_bindings=(
             quadratic_public_state_binding("parabola"),
             canonical_x_binding(),
-            LegacySelectorInputBindingSpec("target", "point_output_ref"),
+            previous_output_identity_binding("target", output_name="point"),
         ),
         prep_invocations=QUADRATIC_STATE_PREP_INVOCATIONS,
     )
@@ -383,7 +415,7 @@ def line_parabola_second_intersection_point_rule() -> MethodBindingRuleSpec:
             public_arg_binding("line_p1"),
             public_arg_binding("line_p2"),
             public_arg_binding("known_point"),
-            LegacySelectorInputBindingSpec("target", "line_parabola:target"),
+            previous_output_identity_binding("target", output_name="point"),
         ),
         prep_invocations=QUADRATIC_STATE_PREP_INVOCATIONS,
     )
@@ -408,9 +440,9 @@ def midpoint_point_rule() -> MethodBindingRuleSpec:
     return MethodBindingRuleSpec(
         method_id="midpoint_point",
         input_bindings=(
-            public_arg_binding("p1"),
-            public_arg_binding("p2"),
-            LegacySelectorInputBindingSpec("target", "midpoint:target"),
+            entity_identity_binding("p1"),
+            entity_identity_binding("p2"),
+            previous_output_identity_binding("target", output_name="midpoint"),
         ),
     )
 
@@ -421,7 +453,7 @@ def translated_point_rule() -> MethodBindingRuleSpec:
         method_id="translated_point",
         input_bindings=(
             public_arg_binding("source"),
-            LegacySelectorInputBindingSpec("target", "translated_point:target"),
+            previous_output_identity_binding("target", output_name="point"),
         ),
     )
 
@@ -435,7 +467,10 @@ def line_intersection_point_rule() -> MethodBindingRuleSpec:
             public_arg_binding("line1_p2"),
             public_arg_binding("line2_p1"),
             public_arg_binding("line2_p2"),
-            LegacySelectorInputBindingSpec("target", "intersection:target"),
+            previous_output_identity_binding(
+                "target",
+                output_name="intersection",
+            ),
         ),
         expansion_selectors=(
             LegacyExpansionSelectorSpec("intersection_parameter_value_if_read"),

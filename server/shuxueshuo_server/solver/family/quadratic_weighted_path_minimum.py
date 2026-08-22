@@ -6,7 +6,6 @@ RuntimeOrchestrator 匹配 family，并给 Planner 提供题型级参考，不�
 
 from __future__ import annotations
 
-from shuxueshuo_server.solver.contracts import LegacySelectorInputBindingSpec
 from shuxueshuo_server.solver.family.models import (
     CapabilityContractSpec,
     ConditionPattern,
@@ -32,6 +31,7 @@ from shuxueshuo_server.solver.family.common_binding_rules import (
     exact_call_result_binding,
     latest_state_binding,
     parameter_basis_binding,
+    previous_output_identity_binding,
     public_arg_binding,
     related_condition_binding,
     source_object_identity_binding,
@@ -304,7 +304,7 @@ _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             input_bindings=(
                 latest_state_binding("anchor"),
                 latest_state_binding("reference"),
-                LegacySelectorInputBindingSpec("target", "right_angle:target"),
+                public_arg_binding("target"),
             ),
         ),
         MethodBindingRuleSpec(
@@ -349,7 +349,10 @@ _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                     ("moving_point", "condition"),
                     input_name="dynamic_parameter",
                 ),
-                LegacySelectorInputBindingSpec("auxiliary_point_ref", "weighted_path:auxiliary_point_ref"),
+                previous_output_identity_binding(
+                    "auxiliary_point_ref",
+                    output_name="auxiliary_point",
+                ),
             ),
             always_emit_outputs=("auxiliary_point", "auxiliary_locus"),
             companion_outputs=(

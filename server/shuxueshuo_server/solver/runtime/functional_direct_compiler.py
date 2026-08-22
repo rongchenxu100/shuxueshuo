@@ -106,6 +106,8 @@ class FunctionalCapabilityCompileCall:
     input_handles: tuple[str, ...]
     created_entities: tuple[FunctionalCreatedEntity, ...]
     return_outputs: tuple[FunctionalReturnOutput, ...]
+    return_allocations: tuple[FunctionalReturnAllocation, ...] = ()
+    macro_method_inputs: tuple[Any, ...] = ()
     macro_role_overrides: dict[str, str] | None = None
 
 
@@ -188,6 +190,7 @@ def _runtime_arg_bindings(
                 consumption_mode=binding.consumption_mode,
                 state_version_id=(
                     prepared.selected_state_version_id
+                    or binding.source.state_version_id
                     or (
                         selected_source.state_version_id
                         if selected_source is not None
@@ -297,6 +300,8 @@ def _compile_call(
         input_handles=reads,
         created_entities=creates,
         return_outputs=produces,
+        return_allocations=request.return_allocations,
+        macro_method_inputs=request.prepared_call.macro_method_inputs,
         macro_role_overrides=(
             dict(request.prepared_call.macro_role_overrides)
             if request.prepared_call.macro_role_overrides

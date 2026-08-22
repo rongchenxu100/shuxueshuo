@@ -452,7 +452,7 @@ def test_return_binding_rejects_sibling_private_object() -> None:
     assert "ii.G" in issue.message
 
 
-def test_optional_condition_uses_the_selected_parameter_authority() -> None:
+def test_optional_condition_uses_derived_parameter_value_authority() -> None:
     result, _catalog = _reconcile("heping-ermo")
     context = result.functional_binding_context
     assert context is not None
@@ -464,7 +464,8 @@ def test_optional_condition_uses_the_selected_parameter_authority() -> None:
         and item.binding_authority == "compiler"
     )
 
-    assert len(bindings) == 3
+    assert len(bindings) == 1
+    assert bindings[0].key.call_id == "recover_target_point_E_ii"
     assert {
         (item.source.kind, item.source.condition_id)
         for item in bindings

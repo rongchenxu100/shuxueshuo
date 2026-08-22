@@ -281,9 +281,21 @@ ordinal-0模板和公共二次函数parameter symbol均使用strict binding。�
 SourceRef；F5-C负责把其latest StateVersion与唯一可见的上游call result对账，
 derivation再消费同一个exact pin。Method或compiler不得因为需要系数、模板或Symbol
 而重新扫描Context，也不得把derived runtime path当成新的数学source authority。
-仍作为输出/transition辅助输入的`parameter_symbol`属于C3；在它退役前可以作为已登记
-的legacy F5-C source被strict Condition消费，但Condition resolver不得重新扫描Context。
-不得用free-symbol basis替换一个由输出身份契约明确指定的参数语义。
+C3几何输出与transition迁移也已完成。输出对象身份必须由
+`PreviousOutputIdentityDerivationSpec(output_name)`指向当前call的canonical return
+allocation；不得再按Point名称、类型、created entity或物理path猜目标。同一Method若同时
+需要对象身份与旧状态，必须声明两个input：identity input读取allocation的
+`MathObjectId`，latest-state input读取同一allocation的`previous_version_id`。无旧版本且
+input可选时省略；对象、scope或version不一致时fail loud。不得用free-symbol basis替换
+一个由输出身份契约明确指定的参数语义。
+
+匿名几何结果使用`ExactCallResultSourceSpec`，并保留独立producer、return和
+`item_index`。若输入只接受特定公开return角色，必须在source spec的
+`semantic_roles`中声明；例如两个拉直端点分别接受
+`straightened_endpoint_1/2`，不能依赖已退役selector补充角色。interchangeable group
+只允许在完整typed authority确定后交换槽位，不允许按runtime type重新搜索。由ParameterValue恢复其Symbol身份时使用
+`ProducerLinkedSourceSpec(source_arg="parameter_value", producer_arg="parameter")`，只跟
+该exact result的producer，不扫描当前call的其他producer或全局Context。
 
 通用Entity/State竖切也已经完成：公开参数中由Plan明确指定的Point/Function使用
 `PublicArgSourceSpec`，F5-C再根据Method view生成纯identity或exact latest-state
@@ -928,6 +940,14 @@ Macro 不应固定整道题路线。family-specific path reduction 可以是 Mac
 builder、validation policy、lowerer、postcondition和evidence builder；缺少任一项都
 是`planner.macro_contract_invalid`，不能退化为结构选择或执行后补报告。尚未完成
 pre-binding实现的Macro必须明确声明`direct`。
+
+`runtime_search` Macro的内部Method wiring由Registry-owned
+`MacroMethodInputBindingSpec`声明。可选来源仅为`MacroPreparedRoleSourceSpec`、内部
+`ExactCallResultSourceSpec`或`PreviousOutputIdentityDerivationSpec`。winner确定前这些
+角色不形成最终F5-C binding；winner确定后chosen对象与exact state pin一次性写入read
+authority，clean replay不得重新搜索。authored hint只保存在search report。transaction
+可把canonical path临时改写到隔离snapshot执行，但checkpoint、witness和最终replay必须
+保存canonical source及同一个authority signature。
 
 Runtime-search Macro 可以把 LLM 声明的策略角色作为首选提示，但必须在隔离 branch
 中执行有限候选并通过 Method checks、Macro postcondition、active return、identity、

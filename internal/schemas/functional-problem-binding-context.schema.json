@@ -218,6 +218,7 @@
           "enum": [
             "problem_source",
             "call_result",
+            "return_allocation",
             "compiler_selector"
           ]
         },
@@ -668,6 +669,7 @@
             "enum": [
               "problem_source",
               "call_result",
+              "return_allocation",
               "compiler_selector"
             ]
           },

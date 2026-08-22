@@ -7,6 +7,7 @@ from typing import Any, Mapping, Protocol, Sequence
 
 from shuxueshuo_server.solver.contracts import (
     ConditionSourceSpec,
+    EntityIdentitySourceSpec,
     ExactCallResultSourceSpec,
     FreeSymbolBasisDerivationSpec,
     LegacySelectorInputBindingSpec,
@@ -560,9 +561,24 @@ def _function_capability(
         )
         for item in spec.args
     }
-    context_owned_arg_names = {
+    context_role_arg_names = {
         item.arg_name for item in spec.context_role_bindings
     }
+    explicit_context_arg_names = {
+        item.name
+        for item in spec.args
+        if item.name in context_role_arg_names
+        or (item.method_input or item.name) in context_role_arg_names
+        if (
+            binding := binding_by_input.get(item.method_input or item.name)
+        )
+        is not None
+        and isinstance(binding, MethodInputBindingSpec)
+        and isinstance(binding.source, PublicArgSourceSpec)
+    }
+    context_owned_arg_names = (
+        context_role_arg_names - explicit_context_arg_names
+    )
     public_source_args = tuple(
         item
         for item in spec.args
@@ -610,9 +626,7 @@ def _function_capability(
                 )
             ),
             required_override=(False if evidence_resolver else None),
-            accepted_semantic_roles=_selector_semantic_roles(
-                selector
-            ),
+            accepted_semantic_roles=_binding_semantic_roles(binding),
             accepted_condition_kinds=_selector_condition_kinds(
                 selector
             ),
@@ -655,17 +669,21 @@ def _function_capability(
         for item in public_args_list
         for kind in item.accepted_condition_kinds
     }
-    # Contracts may declare structural evidence consumed only by selector
-    # primitives. Expose that evidence as one semantic Condition arg while the
-    # selector-derived runtime inputs remain hidden from the LLM.
-    selector_prerequisite_kinds = {
+    # Structural evidence remains public when either a legacy selector or the
+    # declared Condition-role resolver consumes it. Typed output allocation
+    # must not make the Fact disappear merely because the selector was retired.
+    prerequisite_condition_kinds = {
         primitive.prerequisite_condition_kind
         for binding in binding_by_input.values()
         if (selector := _legacy_binding_selector(binding)) is not None
         if (primitive := _selector_primitive(selector)) is not None
     }
+    if "condition_object_roles" in context_resolvers:
+        prerequisite_condition_kinds.update(
+            pattern.condition_kind for pattern in remaining_condition_patterns
+        )
     for pattern in remaining_condition_patterns:
-        if pattern.condition_kind not in selector_prerequisite_kinds:
+        if pattern.condition_kind not in prerequisite_condition_kinds:
             continue
         if pattern.condition_kind in represented_condition_kinds:
             continue
@@ -1005,6 +1023,19 @@ def _normalize_object_role_projection_args(
 
 def _selector_semantic_roles(selector: str | None) -> tuple[str, ...]:
     return selector_semantics(selector).semantic_roles
+
+
+def _binding_semantic_roles(binding: Any | None) -> tuple[str, ...]:
+    if isinstance(binding, ExactCallResultSourceSpec):
+        return binding.semantic_roles
+    if isinstance(binding, MethodInputBindingSpec):
+        source = binding.source
+        if isinstance(source, ExactCallResultSourceSpec):
+            return source.semantic_roles
+        if isinstance(source, EntityIdentitySourceSpec):
+            return source.semantic_roles
+        return ()
+    return _selector_semantic_roles(_legacy_binding_selector(binding))
 
 
 def _selector_condition_kinds(selector: str | None) -> tuple[str, ...]:

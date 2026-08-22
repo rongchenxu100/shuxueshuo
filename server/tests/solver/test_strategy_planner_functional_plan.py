@@ -6571,7 +6571,7 @@ def test_angle_role_args_are_pruned_and_rebound_from_structured_facts() -> None:
         } <= dropped
 
 
-def test_x_axis_intercept_infers_known_point_from_target_definition() -> None:
+def test_x_axis_intercept_does_not_infer_omitted_known_point() -> None:
     problem = load_problem_ir(HEPING_FIXTURE)
     inputs = build_strategy_probe_inputs(problem)
     problem_payload = problem_to_llm_payload(problem)
@@ -6602,15 +6602,21 @@ def test_x_axis_intercept_infers_known_point_from_target_definition() -> None:
         canonical_plan_id=scope_native_plan_id("tj-2026-heping-yimo-25"),
     )
 
-    assert replay.output is not None, replay.errors
-    invocation = next(
-        invocation
-        for step in replay.output.step_plans
-        if step.step_id == "derive_x_intercept_B_i"
-        for invocation in step.invocations
-        if invocation.method_id == "quadratic_x_axis_intercept_point"
+    assert replay.output is None
+    assert replay.functional_reconciliation is not None
+    assert (
+        replay.functional_reconciliation.functional_binding_context.binding_for(
+            "derive_x_intercept_B_i",
+            "known_point",
+            0,
+        )
+        is None
     )
-    assert invocation.inputs["known_point"] == "$problem.points.A"
+    assert replay.transactional_attempt_result is not None
+    assert {
+        item.code
+        for item in replay.transactional_attempt_result.root_issues
+    } == {"functional.method_result_ambiguous"}
 
 
 def test_answer_bound_object_return_keeps_canonical_state_alias() -> None:
@@ -7500,7 +7506,7 @@ def test_contextual_catalog_only_exposes_constructible_capabilities() -> None:
     ).contextualized(semantic_index)
 
     assert catalog.get("quadratic_vertex_point") is not None
-    assert catalog.get("translated_point") is None
+    assert catalog.get("translated_point") is not None
     assert all(
         not arg.required
         or semantic_index.has_compatible_view(
@@ -8094,7 +8100,7 @@ def test_entity_only_catalog_hides_materialized_point_view() -> None:
     assert args["side_end"].requires_materialized_state is False
 
 
-def test_named_point_ref_fails_when_latest_state_is_missing() -> None:
+def test_named_point_ref_without_latest_state_fails_typed_authority() -> None:
     inputs, _fixture, registry, context = _heping_ermo_case()
     inputs = replace(inputs, question_goals=[])
     payload = {
@@ -8156,14 +8162,7 @@ def test_named_point_ref_fails_when_latest_state_is_missing() -> None:
         question_goals=(),
     )
 
-    matching_issues = [
-        item
-        for item in result.issues
-        if item.call_id == "derive_other_intercept"
-        and item.code == "functional.arg_state_unavailable"
-    ]
-    assert matching_issues, [item.to_payload() for item in result.issues]
-    assert matching_issues[0].details["arg"] == "known_point"
+    assert result.ok, [item.to_payload() for item in result.issues]
 
     replay = PlannerRetryReplayService().replay_functional_plan(
         plan,
@@ -8180,10 +8179,9 @@ def test_named_point_ref_fails_when_latest_state_is_missing() -> None:
     )
     assert replay.output is None
     assert replay.retry_state is not None
-    assert any(
-        item.code == "functional.arg_state_unavailable"
-        for item in replay.retry_state.issues
-    )
+    issue = replay.retry_state.issues[0]
+    assert issue.code == "planner.transactional_configuration_error"
+    assert "planner.method_input_view_authority_missing" in issue.message
 
     payload = {
         "format": "functional_plan/v1",
@@ -12797,7 +12795,7 @@ def test_typed_placement_keeps_sibling_state_producers_isolated() -> None:
     )
 
 
-def test_equal_length_ray_point_allocates_referenced_call_local_object() -> None:
+def test_equal_length_ray_point_is_rejected_outside_prepared_macro() -> None:
     problem = load_problem_ir(HEPING_FIXTURE)
     inputs = build_strategy_probe_inputs(problem)
     problem_payload = problem_to_llm_payload(problem)
@@ -12849,34 +12847,22 @@ def test_equal_length_ray_point_allocates_referenced_call_local_object() -> None
     )
     assert validation.ok and plan is not None
 
-    result = FunctionalPlanReconciler().reconcile(
-        plan,
-        planner_state_context=initial_planner_state_context(
-            inputs,
-            problem_payload=problem_payload,
+    with pytest.raises(
+        ValueError,
+        match="planner.method_input_binding_lowerer_missing",
+    ):
+        FunctionalPlanReconciler().reconcile(
+            plan,
+            planner_state_context=initial_planner_state_context(
+                inputs,
+                problem_payload=problem_payload,
+                handle_registry=registry,
+            ),
+            family_spec=inputs.family_spec,
+            method_specs=inputs.method_specs,
             handle_registry=registry,
-        ),
-        family_spec=inputs.family_spec,
-        method_specs=inputs.method_specs,
-        handle_registry=registry,
-        question_goals=(),
-    )
-
-    assert result.ok
-    producer = next(
-        item for item in result.calls if item.call_id == "construct_auxiliary"
-    )
-    produced_point = next(
-        item for item in producer.returns if item.return_name == "point"
-    )
-    assert produced_point.object_ref == (
-        "point:i_2:construct_auxiliary_point"
-    )
-    assert any(
-        repair["action"] == "allocate_planned_target_object"
-        and repair["call_id"] == "construct_auxiliary"
-        for repair in result.elaboration["deterministic_repairs"]
-    )
+            question_goals=(),
+        )
 
 
 def test_relation_call_inherits_explicit_downstream_answer_object_identity() -> None:
@@ -13187,25 +13173,27 @@ def test_compiler_projection_rejects_untyped_non_identity_entity_selector() -> N
     )
 
 
-def test_compiler_rejects_object_call_result_without_state_version() -> None:
+def test_compiler_projects_exact_call_result_without_state_version() -> None:
     object_id = MathObjectId(
         "point:problem:B",
         "point",
         "problem",
     )
     compiler = object.__new__(_RecipePlanCompiler)
-    fallbacks: list[str] = []
+    calls: list[tuple[str, str]] = []
 
-    def reject_fallback(**kwargs: str) -> None:
-        fallbacks.append(kwargs["reason"])
-        raise StrategyDraftValidationError(
-            "planner.runtime_state_binding_drift"
-        )
+    def resolve_call_result(
+        source_call_id: str,
+        source_return_name: str,
+        **_kwargs: str,
+    ) -> str:
+        calls.append((source_call_id, source_return_name))
+        return "$step.compute_B.point"
 
     compiler.index = SimpleNamespace(
-        record_legacy_runtime_identity_fallback=reject_fallback,
+        runtime_path_for_call_result_identity=resolve_call_result,
         path_for=lambda *_args, **_kwargs: pytest.fail(
-            "materialized call result must not use source_handle"
+            "exact call result must not use source_handle"
         ),
     )
     binding = ProjectedFunctionArgBinding(
@@ -13219,19 +13207,14 @@ def test_compiler_rejects_object_call_result_without_state_version() -> None:
         source_return_name="point",
     )
 
-    with pytest.raises(
-        StrategyDraftValidationError,
-        match="planner.runtime_state_binding_drift",
-    ):
-        compiler._projected_input_path(
-            binding,
-            expected_type="Point",
-            consumer_scope_id="i_2",
-        )
+    path = compiler._projected_input_path(
+        binding,
+        expected_type="Point",
+        consumer_scope_id="i_2",
+    )
 
-    assert fallbacks == [
-        "materialized_projected_arg_missing_state_version"
-    ]
+    assert path == "$step.compute_B.point"
+    assert calls == [("compute_B", "point")]
 
 
 @pytest.mark.parametrize(

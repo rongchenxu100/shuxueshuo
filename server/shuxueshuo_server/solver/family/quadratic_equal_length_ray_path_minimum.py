@@ -36,8 +36,11 @@ from shuxueshuo_server.solver.family.capability_packs import (
 from shuxueshuo_server.solver.family.common_binding_rules import (
     canonical_x_binding,
     condition_arg_binding,
+    entity_identity_binding,
     exact_call_result_binding,
     latest_state_binding,
+    macro_prepared_role_binding,
+    previous_output_identity_binding,
     producer_linked_binding,
     public_arg_binding,
     quadratic_coefficients_binding,
@@ -255,7 +258,7 @@ _QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 latest_state_binding("y_axis_point"),
                 latest_state_binding("reference_x_axis_point"),
                 latest_state_binding("origin"),
-                LegacySelectorInputBindingSpec("target", "angle_sum:target"),
+                entity_identity_binding("target"),
             ),
         ),
         MethodBindingRuleSpec(
@@ -282,16 +285,22 @@ _QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                     input_name="origin",
                     producer_input="origin",
                 ),
-                LegacySelectorInputBindingSpec("target", "angle_equality:target"),
+                previous_output_identity_binding(
+                    "target",
+                    output_name="point",
+                ),
             ),
         ),
         MethodBindingRuleSpec(
             method_id="equal_length_ray_point",
             input_bindings=(
-                LegacySelectorInputBindingSpec("anchor", "equal_length_ray:anchor"),
-                LegacySelectorInputBindingSpec("reference_point", "equal_length_ray:reference_point"),
-                LegacySelectorInputBindingSpec("ray_point", "equal_length_ray:ray_point"),
-                LegacySelectorInputBindingSpec("target", "equal_length_ray:target"),
+                macro_prepared_role_binding("anchor"),
+                macro_prepared_role_binding("reference_point"),
+                macro_prepared_role_binding("ray_point"),
+                previous_output_identity_binding(
+                    "target",
+                    output_name="point",
+                ),
             ),
         ),
     ),

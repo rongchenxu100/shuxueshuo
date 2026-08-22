@@ -75,6 +75,10 @@ SOURCE_VARIANTS = (
         related_args=("point", "quadratic"),
     ),
     ExactCallResultSourceSpec("candidate_set"),
+    ExactCallResultSourceSpec(
+        "minimum_point",
+        ("straightened_endpoint_1",),
+    ),
     ProducerLinkedSourceSpec("parameter_value", "parameter"),
     MacroPreparedRoleSourceSpec("moving_point"),
 )
@@ -255,8 +259,8 @@ C2_MIGRATED_BINDINGS = {
         "parameter_constraint",
         "condition",
     ),
-    ("midpoint_point", "p1", "public_arg"),
-    ("midpoint_point", "p2", "public_arg"),
+    ("midpoint_point", "p1", "entity_identity"),
+    ("midpoint_point", "p2", "entity_identity"),
     (
         "parameter_from_curve_point_on_quadratic",
         "parameter_constraint",
@@ -363,6 +367,79 @@ C2_MIGRATED_BINDINGS = {
     ),
 }
 
+C3_MIGRATED_BINDINGS = {
+    ("angle_sum_equal_angle_candidates", "target", "entity_identity"),
+    (
+        "axis_intercept_from_equal_acute_angles",
+        "target",
+        "previous_output_identity",
+    ),
+    ("equal_length_ray_point", "anchor", "macro_prepared_role"),
+    ("equal_length_ray_point", "ray_point", "macro_prepared_role"),
+    (
+        "equal_length_ray_point",
+        "reference_point",
+        "macro_prepared_role",
+    ),
+    ("equal_length_ray_point", "target", "previous_output_identity"),
+    ("line_intersection_point", "target", "previous_output_identity"),
+    ("line_locus_minimum_point", "minimum_point_1", "exact_call_result"),
+    ("line_locus_minimum_point", "minimum_point_2", "exact_call_result"),
+    (
+        "line_locus_minimum_point",
+        "target",
+        "previous_output_identity",
+    ),
+    (
+        "line_parabola_second_intersection_point",
+        "target",
+        "previous_output_identity",
+    ),
+    ("midpoint_point", "target", "previous_output_identity"),
+    ("point_on_parabola_at_x", "target", "previous_output_identity"),
+    ("quadratic_axis_from_relation", "target", "previous_output_identity"),
+    (
+        "quadratic_axis_parameterized_point",
+        "target",
+        "previous_output_identity",
+    ),
+    (
+        "quadratic_axis_x_intercept_point",
+        "target",
+        "previous_output_identity",
+    ),
+    ("quadratic_vertex_point", "target", "previous_output_identity"),
+    ("quadratic_x_axis_intercept_point", "known_point", "public_arg"),
+    (
+        "quadratic_x_axis_intercept_point",
+        "target",
+        "previous_output_identity",
+    ),
+    ("quadratic_x_axis_intercept_point", "target_state", "latest_state"),
+    (
+        "quadratic_y_axis_intercept_point",
+        "target",
+        "previous_output_identity",
+    ),
+    ("right_angle_equal_length_candidates", "target", "public_arg"),
+    (
+        "square_adjacent_vertex_from_side",
+        "parameter",
+        "producer_linked",
+    ),
+    (
+        "square_adjacent_vertex_from_side",
+        "target",
+        "previous_output_identity",
+    ),
+    ("translated_point", "target", "previous_output_identity"),
+    (
+        "weighted_axis_path_triangle_transform",
+        "auxiliary_point_ref",
+        "previous_output_identity",
+    ),
+}
+
 
 def _schema_validator() -> Draft202012Validator:
     schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
@@ -432,6 +509,10 @@ def test_strict_binding_has_no_selector_or_legacy_authority_fields() -> None:
             source=object(),  # type: ignore[arg-type]
         ),
         lambda: EntityIdentitySourceSpec(semantic_roles=("point", "point")),
+        lambda: ExactCallResultSourceSpec(
+            "minimum_point",
+            ("straightened_endpoint", "straightened_endpoint"),
+        ),
         lambda: ConditionSourceSpec(
             condition_kinds=("point_on_curve",),
             related_args=(),
@@ -634,6 +715,7 @@ def test_migrated_inputs_use_the_strict_binding_contract() -> None:
         MIGRATED_QUADRATIC_BINDINGS
         | C1_MIGRATED_BINDINGS
         | C2_MIGRATED_BINDINGS
+        | C3_MIGRATED_BINDINGS
     )
     assert all(
         isinstance(selector, LegacyExpansionSelectorSpec)
@@ -662,7 +744,7 @@ def test_legacy_source_declaration_count_is_frozen() -> None:
 
     assert sum(
         source.count("LegacySelectorInputBindingSpec(") for source in sources
-    ) == baseline["source_declaration_count"] == 28
+    ) == baseline["source_declaration_count"] == 2
 
 
 def test_c1_retires_all_production_read_type_selectors() -> None:
@@ -728,6 +810,22 @@ def test_c2_retires_fact_and_immutable_value_selectors() -> None:
         "angle_equality:origin",
     }
     assert retired_registry_keys.isdisjoint(DEFAULT_BINDING_SELECTORS)
+
+
+def test_c3_retires_output_transition_and_geometry_selectors() -> None:
+    selectors = {
+        binding.selector
+        for family in DEFAULT_FAMILY_REGISTRY.families
+        for rule in family.method_binding_rules
+        for binding in rule.input_bindings
+        if isinstance(binding, LegacySelectorInputBindingSpec)
+    }
+
+    assert selectors == {
+        "free_parameter:a_if_single_curve_point",
+        "known_parameter_value_from_reads",
+    }
+    assert len(C3_MIGRATED_BINDINGS) == 26
 
 
 def test_new_schema_excludes_legacy_selector_payload() -> None:

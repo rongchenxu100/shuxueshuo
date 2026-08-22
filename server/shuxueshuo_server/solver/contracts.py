@@ -163,6 +163,7 @@ class ConditionSourceSpec:
 @dataclass(frozen=True)
 class ExactCallResultSourceSpec:
     arg_name: str
+    semantic_roles: tuple[str, ...] = ()
     kind: Literal["exact_call_result"] = field(
         default="exact_call_result",
         init=False,
@@ -170,9 +171,17 @@ class ExactCallResultSourceSpec:
 
     def __post_init__(self) -> None:
         _required_name(self.arg_name, "arg_name")
+        if self.semantic_roles:
+            _required_unique_names(self.semantic_roles, "semantic_roles")
 
     def to_payload(self) -> dict[str, Any]:
-        return {"kind": self.kind, "arg_name": self.arg_name}
+        payload: dict[str, Any] = {
+            "kind": self.kind,
+            "arg_name": self.arg_name,
+        }
+        if self.semantic_roles:
+            payload["semantic_roles"] = list(self.semantic_roles)
+        return payload
 
 
 @dataclass(frozen=True)
@@ -579,12 +588,17 @@ def method_input_source_from_payload(
     if kind == "exact_call_result":
         _strict_payload_fields(
             payload,
-            allowed={"kind", "arg_name"},
+            allowed={"kind", "arg_name", "semantic_roles"},
             required={"kind", "arg_name"},
             context=kind,
         )
         return ExactCallResultSourceSpec(
-            _strict_name_value(payload["arg_name"], "arg_name")
+            _strict_name_value(payload["arg_name"], "arg_name"),
+            (
+                _string_tuple(payload["semantic_roles"], "semantic_roles")
+                if "semantic_roles" in payload
+                else ()
+            ),
         )
     if kind == "producer_linked":
         _strict_payload_fields(

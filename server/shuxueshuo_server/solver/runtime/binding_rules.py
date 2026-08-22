@@ -93,6 +93,16 @@ _CURVE_MEMBERSHIP_FACT_TYPES = frozenset(
     }
 )
 
+DEBUG_ONLY_BINDING_SELECTORS = frozenset(
+    {
+        "equal_length_ray:anchor",
+        "equal_length_ray:reference_point",
+        "equal_length_ray:ray_point",
+        "equal_length_ray:target",
+    }
+)
+
+
 class MethodBindingRuleRegistry:
     """把 FunctionalCompileStepView semantic handles 绑定到 method input slots。
 
@@ -122,6 +132,19 @@ class MethodBindingRuleRegistry:
     @classmethod
     def from_family_spec(cls, family_spec: SolverFamilySpec) -> "MethodBindingRuleRegistry":
         """从 FamilySpec 构建 binding rule registry。"""
+        debug_bindings = tuple(
+            (rule.method_id, binding.input_name, binding.selector)
+            for rule in family_spec.method_binding_rules
+            for binding in rule.input_bindings
+            if isinstance(binding, LegacySelectorInputBindingSpec)
+            and binding.selector in DEBUG_ONLY_BINDING_SELECTORS
+        )
+        if debug_bindings:
+            raise ValueError(
+                "planner.method_input_binding_contract_invalid: "
+                "production family references debug-only selectors: "
+                f"{debug_bindings!r}"
+            )
         return cls(tuple(family_spec.method_binding_rules))
 
     def bind(

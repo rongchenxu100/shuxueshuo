@@ -44,6 +44,9 @@ from shuxueshuo_server.solver.family.common_binding_rules import (
     condition_arg_binding,
     entity_identity_binding,
     exact_call_result_binding,
+    latest_state_binding,
+    previous_output_identity_binding,
+    producer_linked_binding,
     public_arg_binding,
     quadratic_coefficients_binding,
     quadratic_latest_state_binding,
@@ -329,7 +332,10 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             input_bindings=(
                 quadratic_public_state_binding("parabola"),
                 canonical_x_binding(),
-                LegacySelectorInputBindingSpec("target", "point_output_ref"),
+                previous_output_identity_binding(
+                    "target",
+                    output_name="axis_point",
+                ),
             ),
             prep_invocations=QUADRATIC_STATE_PREP_INVOCATIONS,
         ),
@@ -375,7 +381,10 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             input_bindings=(
                 quadratic_public_state_binding("parabola"),
                 canonical_x_binding(),
-                LegacySelectorInputBindingSpec("target", "point_output_ref"),
+                previous_output_identity_binding(
+                    "target",
+                    output_name="point",
+                ),
             ),
             prep_invocations=QUADRATIC_STATE_PREP_INVOCATIONS,
             companion_outputs=(
@@ -393,7 +402,10 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 public_arg_binding("side_start"),
                 public_arg_binding("side_end"),
                 condition_arg_binding("square_condition", public_arg="square"),
-                LegacySelectorInputBindingSpec("target", "point_transition_target"),
+                previous_output_identity_binding(
+                    "target",
+                    output_name="adjacent_vertex",
+                ),
                 source_object_identity_binding(
                     "side_start",
                     input_name="side_start_ref",
@@ -404,12 +416,11 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                     input_name="side_end_ref",
                     required=False,
                 ),
-                LegacySelectorInputBindingSpec(
-                    "parameter",
-                    "parameter_symbol",
+                producer_linked_binding(
+                    "parameter_value",
+                    input_name="parameter",
+                    producer_input="parameter",
                     required=False,
-                    functional_authority="wire",
-                    functional_resolver="unique_parameter_symbol",
                 ),
                 related_condition_binding(
                     "parameter_constraint",
@@ -442,9 +453,18 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             method_id="line_locus_minimum_point",
             input_bindings=(
                 exact_call_result_binding("moving_locus"),
-                LegacySelectorInputBindingSpec("minimum_point_1", "straightening_minimum:p1"),
-                LegacySelectorInputBindingSpec("minimum_point_2", "straightening_minimum:p2"),
-                LegacySelectorInputBindingSpec("target", "point_transition_target"),
+                exact_call_result_binding(
+                    "minimum_point_1",
+                    semantic_roles=("straightened_endpoint_1",),
+                ),
+                exact_call_result_binding(
+                    "minimum_point_2",
+                    semantic_roles=("straightened_endpoint_2",),
+                ),
+                previous_output_identity_binding(
+                    "target",
+                    output_name="point",
+                ),
             ),
             expansion_selectors=(
                 LegacyExpansionSelectorSpec("parameter_value_if_read"),

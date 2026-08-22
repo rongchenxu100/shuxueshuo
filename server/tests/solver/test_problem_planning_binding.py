@@ -163,7 +163,7 @@ def test_binding_wire_schema_snapshots_validate_five_cases(tmp_path) -> None:
 
     catalog_validator = Draft202012Validator(catalog_schema)
     sidecar_validator = Draft202012Validator(sidecar_schema)
-    selected_source_checked = False
+    validated_sidecar_payload = None
     for case in CASES:
         *_, catalog, _plan, _validation, reconciliation = (
             scope_native_reconciliation_fixture(
@@ -177,34 +177,22 @@ def test_binding_wire_schema_snapshots_validate_five_cases(tmp_path) -> None:
             catalog_validator.iter_errors(catalog.authority_payload())
         ) == []
         assert list(sidecar_validator.iter_errors(sidecar.to_payload())) == []
-        compiler_binding = next(
-            (
-                item
-                for item in sidecar.to_payload()["input_bindings"]
-                if item["source_kind"] == "compiler_selector"
-                and item["typed_source"] is not None
-                and item["typed_source"].get("selected_source") is not None
-            ),
-            None,
-        )
-        if compiler_binding is None:
-            continue
-        selected_source_checked = True
-        invalid = deepcopy(sidecar.to_payload())
-        invalid_binding = next(
-            item
-            for item in invalid["input_bindings"]
-            if item["call_id"] == compiler_binding["call_id"]
-            and item["arg_name"] == compiler_binding["arg_name"]
-            and item["item_index"] == compiler_binding["item_index"]
-        )
-        invalid_binding["typed_source"]["selected_source"] = {
+        validated_sidecar_payload = sidecar.to_payload()
+
+    assert validated_sidecar_payload is not None
+    invalid = deepcopy(validated_sidecar_payload)
+    invalid_binding = invalid["input_bindings"][0]
+    invalid_binding["source_kind"] = "compiler_selector"
+    invalid_binding["selection_policy"] = "compiler"
+    invalid_binding["typed_source"] = {
+        "kind": "compiler_selector",
+        "compiler_selector_id": "outer_selector",
+        "selected_source": {
             "kind": "compiler_selector",
             "compiler_selector_id": "nested_selector_is_forbidden",
-        }
-        assert list(sidecar_validator.iter_errors(invalid))
-
-    assert selected_source_checked
+        },
+    }
+    assert list(sidecar_validator.iter_errors(invalid))
 
 
 def test_scope_local_symbol_values_share_object_but_not_state_version(

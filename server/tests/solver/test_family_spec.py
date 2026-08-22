@@ -32,6 +32,7 @@ from shuxueshuo_server.solver.contracts import (
     ConditionSourceSpec,
     MethodInputBindingSpec,
     MethodSpec,
+    PreviousOutputIdentityDerivationSpec,
 )
 from shuxueshuo_server.solver.fixtures import load_problem_ir
 from shuxueshuo_server.solver.runtime.binding_rules import MethodBindingRuleRegistry
@@ -177,11 +178,10 @@ def test_path_family_binding_rules_are_declared_in_spec() -> None:
         binding.input_name: binding
         for binding in rules["quadratic_axis_from_relation"].input_bindings
     }
-    assert isinstance(
-        axis_bindings["target"],
-        LegacySelectorInputBindingSpec,
+    assert isinstance(axis_bindings["target"], MethodInputBindingSpec)
+    assert axis_bindings["target"].derivation == (
+        PreviousOutputIdentityDerivationSpec("axis_point")
     )
-    assert axis_bindings["target"].selector == "point_output_ref"
     relation = axis_bindings["coefficient_relation"]
     assert isinstance(relation, MethodInputBindingSpec)
     assert relation.source == ConditionSourceSpec(

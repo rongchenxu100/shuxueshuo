@@ -19,6 +19,9 @@ from shuxueshuo_server.solver.question_goals import extract_question_goals
 from shuxueshuo_server.solver.runtime.binding_index import (
     CanonicalRuntimeBindingIndex,
 )
+from shuxueshuo_server.solver.runtime.auxiliary_points import (
+    fresh_auxiliary_point_handle,
+)
 from shuxueshuo_server.solver.runtime.binding_rules import (
     MethodBindingRuleRegistry,
 )
@@ -51,6 +54,7 @@ from shuxueshuo_server.solver.runtime.planner_state_context import (
 from shuxueshuo_server.solver.runtime.planner import PlannerInputs
 from shuxueshuo_server.solver.runtime.state_identity import MathObjectRegistry
 from shuxueshuo_server.solver.runtime.strategy_models import (
+    CreatedEntity,
     StrategyDraftValidationError,
 )
 
@@ -489,6 +493,12 @@ def _typed_preflight_exact_inputs(
         index=index,
         context=context,
     )
+    auxiliary_point_ref = _preflight_output_point_identity(
+        output_name="auxiliary_point",
+        scope_id=scope_id,
+        call=call,
+        index=index,
+    )
     return {
         "condition": index.path_for(
             authority.runtime_handle,
@@ -499,7 +509,47 @@ def _typed_preflight_exact_inputs(
         "moving_point_ref": index.point_identity_path_for(moving),
         "linked_fixed_endpoint_ref": index.point_identity_path_for(curve),
         "dynamic_parameter": dynamic_parameter,
+        "auxiliary_point_ref": auxiliary_point_ref,
     }
+
+
+def _preflight_output_point_identity(
+    *,
+    output_name: str,
+    scope_id: str,
+    call: FunctionalCapabilityCompileCall,
+    index: CanonicalRuntimeBindingIndex,
+) -> str:
+    """Allocate an isolated typed output identity for a source-only dry run.
+
+    Extraction preflight intentionally has no FunctionalPlan return allocation.
+    Its debug authority adapter therefore allocates a deterministic throwaway
+    Point identity and passes it as an exact input. Production compilation must
+    instead resolve PreviousOutputIdentityDerivationSpec from the finalized
+    FunctionalReturnAllocation.
+    """
+
+    handle = fresh_auxiliary_point_handle(
+        scope_id,
+        set(index.bindings) | set(index.handle_registry.entity_handles),
+        prefix=f"Preflight{output_name.title().replace('_', '')}",
+    )
+    if handle is None:
+        raise ValueError(
+            f"typed preflight cannot allocate output identity for {output_name!r}"
+        )
+    index.register_created_entity(
+        CreatedEntity(
+            handle=handle,
+            entity_type="point",
+            valid_scope=scope_id,
+            description=(
+                f"typed extraction preflight identity for {call.step_id}."
+                f"{output_name}"
+            ),
+        )
+    )
+    return index.path_for(handle, expected_type="PointRef")
 
 
 def _weighted_preflight_point_roles(
