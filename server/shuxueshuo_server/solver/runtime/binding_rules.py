@@ -230,27 +230,6 @@ def _explicit_symbol_paths(
     )
 
 
-def _known_parameter_substitution_pair(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-) -> tuple[str, str] | None:
-    """Resolve one already-known Symbol value used by the current input state."""
-    target_path = _parameter_symbol_from_reads_selector(step, index, {})
-    candidates = [
-        pair
-        for pair in parameter_substitution_pairs_from_reads(step, index)
-        if pair[0] != target_path
-    ]
-    if not candidates:
-        return None
-    if len(candidates) > 1:
-        raise StrategyDraftValidationError(
-            "function.arg_ambiguous: multiple known parameter substitutions "
-            "are required by the input state"
-        )
-    return candidates[0]
-
-
 def parameter_substitution_pairs_from_reads(
     step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,

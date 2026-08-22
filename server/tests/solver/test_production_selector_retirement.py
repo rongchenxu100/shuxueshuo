@@ -10,6 +10,7 @@ from shuxueshuo_server.solver.contracts import (
     MethodInputBindingSpec,
 )
 from shuxueshuo_server.solver.family import DEFAULT_FAMILY_REGISTRY
+from shuxueshuo_server.solver.runtime import binding_rules
 from shuxueshuo_server.solver.runtime.function_specs import (
     FunctionAdapterRegistry,
 )
@@ -44,6 +45,7 @@ RETIRED_INPUT_SELECTOR_SYMBOLS = (
     "CompilerSelectorReadSource",
     "compiler_selector",
     "binding_selector_semantics",
+    "_parameter_symbol_from_reads_selector",
 )
 
 
@@ -102,6 +104,50 @@ def test_production_input_selector_runtime_is_physically_retired() -> None:
 
     assert not hasattr(FunctionAdapterRegistry, "_select")
     assert not hasattr(FunctionAdapterRegistry, "_expand")
+    assert not hasattr(binding_rules, "_known_parameter_substitution_pair")
+
+
+def test_companion_output_selector_debt_is_fixed_and_output_only() -> None:
+    actual = {
+        (
+            rule.method_id,
+            companion.output_name,
+            companion.target_selector,
+            companion.registration_selector,
+        )
+        for family in DEFAULT_FAMILY_REGISTRY.families
+        for rule in family.method_binding_rules
+        for companion in rule.companion_outputs
+    }
+
+    # This output-registration compatibility boundary may only shrink until
+    # F4.3 replaces it with a typed companion-output contract.
+    assert actual == {
+        (
+            "quadratic_axis_parameterized_point",
+            "parameter",
+            "axis_parameter_symbol",
+            "axis_parameter_symbol",
+        ),
+        (
+            "quadratic_from_constraints",
+            "coefficients",
+            "answer_scope_output:coefficients",
+            "runtime_step_output:coefficients",
+        ),
+        (
+            "weighted_axis_path_triangle_transform",
+            "auxiliary_locus",
+            "scope_output:auxiliary_locus",
+            "runtime_step_output:auxiliary_locus",
+        ),
+        (
+            "weighted_axis_path_triangle_transform",
+            "auxiliary_point",
+            "weighted_path_auxiliary_point",
+            "weighted_path_auxiliary_point",
+        ),
+    }
 
 
 def test_every_production_method_input_binding_is_strict() -> None:

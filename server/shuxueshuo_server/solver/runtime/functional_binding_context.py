@@ -628,7 +628,7 @@ class FunctionalBindingContextBuilder:
                                 "wire" if authored_on_wire else "resolver"
                             ),
                             selection_policy=(
-                                _selection_policy_for_view(spec)
+                                _wire_resolution_policy_for_view(spec)
                                 if item_index < len(wire_values)
                                 and isinstance(
                                     wire_values[item_index],
@@ -1951,7 +1951,18 @@ def _allocation_sources_for_input_view(
     )
 
 
-def _selection_policy_for_view(spec: Any) -> FunctionalArgSelectionPolicy:
+def _wire_resolution_policy_for_view(
+    spec: Any,
+) -> FunctionalArgSelectionPolicy:
+    """Describe pre-finalization wire intent, not runtime read policy.
+
+    ``latest`` means that a SourceRef requests the latest lexically visible
+    state during F5-C finalization.  A catalog-backed build converts the
+    selected state to an exact source in ``_value_binding``; compiler and
+    runtime consumers must never interpret this value as permission to
+    reselect latest state.
+    """
+
     mode = getattr(spec, "input_view_mode", None)
     if mode == "identity":
         return "identity_only"

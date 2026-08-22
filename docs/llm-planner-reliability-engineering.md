@@ -129,6 +129,13 @@ C5 symbolic closure门禁仍然有效，它验证的是参数闭合、分支数�
 - retry feedback 是否有效；
 - token 与延迟成本。
 
+`scoped_functional_plan_smoke`是严格生产authority smoke：每个样本都从accepted Bundle
+构建`ProblemPlanningBindingCatalog`，并把同一catalog传给payload builder与Goal retry
+execution。直接调用底层reconciler且省略catalog的测试属于deterministic/debug软模式，
+允许typed source暂缺，不能用于宣称F5-C、exact StateVersion或restore authority通过。
+smoke报告中的`reconciliation_ok`也不单独代表可执行；最终仍必须通过compile后的
+binding consumption、transaction、Goal与completion gate。
+
 标准批次至少报告：
 
 - 每题 raw pass 与 executable-plan pass；

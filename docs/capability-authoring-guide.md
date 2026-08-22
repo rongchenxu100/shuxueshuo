@@ -73,7 +73,7 @@ compile/run/check，winner 再从干净 Context 重放后提交。
 | `binding_authority` | `wire`、`resolver` 或 `compiler` |
 | `runtime_type` | method 实际接收的类型 |
 | `cardinality` | 单值、可选值或有序集合 |
-| `selection_policy` | `exact`、`latest`、`identity_only` 或 `compiler` |
+| `selection_policy` | 内部binding阶段策略；`latest`仅表示F5-C解析意图，严格finalization后必须成为`exact`；identity使用`identity_only` |
 | `runtime_input_targets` | 对应的 method/Macro 输入 |
 
 同类型参数必须靠 `semantic_role` 区分。例如：

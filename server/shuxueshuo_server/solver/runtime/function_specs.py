@@ -1255,10 +1255,10 @@ def function_adapter_from_binding_rule(
 ) -> FunctionAdapterSpec:
     """Project a generic binding rule into a FunctionSpec compile adapter.
 
-    Phase 5 deliberately keeps ``MethodBindingRuleSpec`` as the single source
-    of selector truth.  Function adapters add typed function-call diagnostics
-    and prompt/context projections, but they should not duplicate selector
-    strings while the legacy binding rules are still the rollback oracle.
+    ``MethodBindingRuleSpec`` already contains the finalized typed input
+    declarations. Function adapters preserve those declarations while adding
+    function-call diagnostics and prompt/context projections; they must not
+    infer or reselect a mathematical input source.
     """
     input_bindings = rule.input_bindings
     aggregate_input_bindings = tuple(

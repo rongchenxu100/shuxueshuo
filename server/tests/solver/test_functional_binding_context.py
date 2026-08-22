@@ -10,6 +10,7 @@ from shuxueshuo_server.solver.contracts import (
     ConditionSourceSpec,
     ExactCallResultSourceSpec,
     FreeSymbolBasisDerivationSpec,
+    LatestStateSourceSpec,
     MethodInputBindingSpec,
     ProducerLinkedSourceSpec,
 )
@@ -133,6 +134,30 @@ def test_authored_fixtures_have_complete_binding_context(case_id: str) -> None:
             or binding.consumption_mode == "resolver_evidence"
         )
         for binding in result.functional_binding_context.bindings
+    )
+
+
+@pytest.mark.parametrize("case_id", tuple(FUNCTIONAL_BATCH_CASES))
+def test_catalog_backed_latest_state_bindings_are_finalized_exact(
+    case_id: str,
+) -> None:
+    result, _catalog = _reconcile(case_id)
+    context = result.functional_binding_context
+    assert context is not None
+    latest_state_bindings = tuple(
+        binding
+        for binding in context.bindings
+        if binding.input_binding is not None
+        and isinstance(
+            binding.input_binding.source,
+            LatestStateSourceSpec,
+        )
+    )
+
+    assert latest_state_bindings
+    assert all(
+        binding.selection_policy == "exact"
+        for binding in latest_state_bindings
     )
 
 

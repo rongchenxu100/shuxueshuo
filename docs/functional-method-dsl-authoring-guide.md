@@ -275,6 +275,23 @@ typed binding；compiler、reconciliation和runtime中不存在selector registry
 grammar或按Context类型扫描的fallback。缺少typed source或derivation必须fail loud，
 不能用新名称重新包装一次隐式选源。
 
+输入映射采用两阶段审计，但只有一个执行门禁。reconciliation中的
+`audit_functional_arg_binding_projection`比较F5-C ledger与派生v1 projection；此时尚未
+产生Method invocation，因此mismatch作为diagnostic artifact保留，不把“返回了
+reconciliation结果”解释为可执行。compiler完成后，transaction中的
+`audit_compiled_functional_arg_consumption`比较实际invocation input、runtime target与
+exact source，任一mismatch在Method执行前以
+`planner.functional_runtime_input_mapping_drift`硬失败。recorded fixture必须同时满足
+projection mismatch为0和transaction consumption audit通过。
+
+`selection_policy="latest"`只描述SourceRef在F5-C finalization之前请求“当前scope最近
+可见状态”的wire解析意图，不是compiler/runtime重新选择latest的许可。带
+`ProblemPlanningBindingCatalog`的严格路径必须把选中的StateVersion或CallResult写成
+`selection_policy="exact"`；checkpoint与restore也只消费该exact pin。底层reconciler
+省略catalog时允许缺少typed source，只是deterministic/debug兼容模式，不能作为生产
+F5-C或runtime authority的通过证据。真实`scoped_functional_plan_smoke`始终构建并传入
+binding catalog，因此走严格路径。
+
 公共二次函数竖切已经完成该迁移：Function latest state、canonical `x`、系数提取、
 ordinal-0模板和公共二次函数parameter symbol均使用strict binding。具名Function在Plan中仍写
 SourceRef；F5-C负责把其latest StateVersion与唯一可见的上游call result对账，

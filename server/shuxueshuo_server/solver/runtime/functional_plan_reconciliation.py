@@ -2473,12 +2473,18 @@ class _PlacementLivenessProjectionStage:
             ),
             condition_authority_index=condition_authority_index,
         )
-        functional_binding_audit = audit_functional_arg_binding_projection(
-            functional_binding_context,
-            build_functional_runtime_arg_bindings_from_context(
-                tuple(reconciled),
+        # Reconciliation can compare the typed ledger with its derived-v1
+        # projection, but no compiled Method invocation exists yet.  Keep
+        # these mismatches as diagnostic evidence; the transaction-side
+        # consumption audit is the hard gate before any Method executes.
+        functional_binding_projection_audit = (
+            audit_functional_arg_binding_projection(
                 functional_binding_context,
-            ),
+                build_functional_runtime_arg_bindings_from_context(
+                    tuple(reconciled),
+                    functional_binding_context,
+                ),
+            )
         )
         functional_problem_binding_context = None
         functional_problem_binding_ledger = None
@@ -2596,13 +2602,13 @@ class _PlacementLivenessProjectionStage:
                 ),
                 condition_binding_authority_index=condition_authority_index,
                 functional_binding_decisions=(
-                    functional_binding_audit.decisions
+                    functional_binding_projection_audit.decisions
                 ),
                 functional_binding_mismatches=(
-                    functional_binding_audit.mismatches
+                    functional_binding_projection_audit.mismatches
                 ),
                 legacy_binding_role_fallback_count=(
-                    functional_binding_audit.legacy_fallback_count
+                    functional_binding_projection_audit.legacy_fallback_count
                 ),
             )
         return FunctionalPlanReconciliationResult(
@@ -2653,10 +2659,14 @@ class _PlacementLivenessProjectionStage:
                 functional_problem_binding_ledger
             ),
             condition_binding_authority_index=condition_authority_index,
-            functional_binding_decisions=functional_binding_audit.decisions,
-            functional_binding_mismatches=functional_binding_audit.mismatches,
+            functional_binding_decisions=(
+                functional_binding_projection_audit.decisions
+            ),
+            functional_binding_mismatches=(
+                functional_binding_projection_audit.mismatches
+            ),
             legacy_binding_role_fallback_count=(
-                functional_binding_audit.legacy_fallback_count
+                functional_binding_projection_audit.legacy_fallback_count
             ),
         )
 
