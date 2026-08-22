@@ -12,10 +12,9 @@ from typing import Literal
 
 from shuxueshuo_server.solver.contracts import (
     FunctionalArgBindingAuthority,
-    LegacyExpansionSelectorSpec,
     MacroExecutionMode,
     MacroSearchSpec,
-    MethodInputBindingDeclaration,
+    MethodInputBindingSpec,
     ScalarResultFormSpec,
     SourceObjectIdentityDerivationSpec,
 )
@@ -575,17 +574,16 @@ class MethodPrepInvocationSpec:
     """method 前置补位 invocation 的声明式规则。
 
     有些 method 的教学 step 会把“先生成可读前置对象”和“使用前置对象求目标”
-    合并表达。prep 规则只处理这类可确定补位：满足 ``trigger_selector`` 时，
-    先执行 ``method_id``，把 ``output_aliases`` promote 到当前 scope 的临时输出，
-    再通过 ``local_output_aliases`` 暴露给主 method 的 binding selector 使用。
+    合并表达。prep 只检查父调用已经 finalize 的 ``source_input`` authority；
+    当该输入尚不是 ``produced_runtime_type`` 时执行 ``method_id``，再把结果作为
+    当前调用的本地 typed input。它不得扫描 Context 选择新的数学 source。
     """
 
-    trigger_selector: str
     method_id: str
+    source_input: str
+    produced_runtime_type: str
     output_aliases: tuple[tuple[str, str], ...] = ()
     local_output_aliases: tuple[tuple[str, str], ...] = ()
-    include_expansion_selectors: bool = True
-    expansion_selectors: tuple[LegacyExpansionSelectorSpec, ...] | None = None
 
 
 @dataclass(frozen=True)
@@ -650,13 +648,18 @@ class FunctionalOutputTargetSelectorSpec:
             }
         return payload
 
+    def to_prompt_payload(self) -> dict[str, object]:
+        payload = self.to_payload()
+        payload["policy"] = payload.pop("selector")
+        return payload
+
 
 @dataclass(frozen=True)
 class MethodBindingRuleSpec:
     """一个 method 的 declarative binding 规则。
 
-    ``input_bindings`` 负责固定 slot；``expansion_selectors`` 用于一次性补充一组
-    可选输入，例如 quadratic_from_constraints 的已知系数、参数值和曲线点。
+    ``input_bindings`` 负责typed source/derivation；aggregate lowerings负责把公开
+    集合按声明映射到runtime slots，不允许再通过字符串selector扩展输入。
     """
 
     method_id: str
@@ -667,12 +670,11 @@ class MethodBindingRuleSpec:
     functional_output_target_selectors: tuple[
         FunctionalOutputTargetSelectorSpec, ...
     ] = ()
-    input_bindings: tuple[MethodInputBindingDeclaration, ...] = ()
+    input_bindings: tuple[MethodInputBindingSpec, ...] = ()
     aggregate_input_bindings: tuple[MethodAggregateInputBindingSpec, ...] = ()
     scalar_aggregate_lowerings: tuple[
         MethodScalarAggregateLoweringSpec, ...
     ] = ()
-    expansion_selectors: tuple[LegacyExpansionSelectorSpec, ...] = ()
     prep_invocations: tuple[MethodPrepInvocationSpec, ...] = ()
     always_emit_outputs: tuple[str, ...] = ()
     companion_outputs: tuple[MethodCompanionOutputSpec, ...] = ()

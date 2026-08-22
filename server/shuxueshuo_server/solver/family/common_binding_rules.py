@@ -8,9 +8,8 @@ from shuxueshuo_server.solver.contracts import (
     ConditionSourceSpec,
     EntityIdentitySourceSpec,
     ExactCallResultSourceSpec,
+    ExactParameterSubstitutionSourceSpec,
     FreeSymbolBasisDerivationSpec,
-    LegacyExpansionSelectorSpec,
-    LegacySelectorInputBindingSpec,
     LatestStateSourceSpec,
     MacroPreparedRoleSourceSpec,
     MethodInputBindingSpec,
@@ -29,26 +28,24 @@ from shuxueshuo_server.solver.family.models import (
 )
 
 
-QUADRATIC_STATE_PREP_INVOCATIONS = (
-    MethodPrepInvocationSpec(
-        trigger_selector=(
-            "missing_readable_type_with_quadratic_source:Parabola"
+def quadratic_state_prep_invocations(
+    source_input: str,
+) -> tuple[MethodPrepInvocationSpec, ...]:
+    return (
+        MethodPrepInvocationSpec(
+            method_id="quadratic_from_constraints",
+            source_input=source_input,
+            produced_runtime_type="Parabola",
+            output_aliases=(
+                ("coefficients", "__local_only__"),
+                ("parabola", "__local_only__"),
+            ),
+            local_output_aliases=(
+                ("type:Coefficients", "coefficients"),
+                ("type:Parabola", "parabola"),
+            ),
         ),
-        method_id="quadratic_from_constraints",
-        output_aliases=(
-            ("coefficients", "__local_only__"),
-            ("parabola", "__local_only__"),
-        ),
-        local_output_aliases=(
-            ("type:Coefficients", "coefficients"),
-            ("type:Parabola", "parabola"),
-        ),
-        expansion_selectors=(
-            LegacyExpansionSelectorSpec("known_coefficients_if_read"),
-            LegacyExpansionSelectorSpec("free_quadratic_parameter_if_read"),
-        ),
-    ),
-)
+    )
 
 
 def quadratic_latest_state_binding(
@@ -111,6 +108,23 @@ def exact_call_result_binding(
         source=ExactCallResultSourceSpec(
             public_arg or input_name,
             semantic_roles,
+        ),
+    )
+
+
+def exact_parameter_substitution_binding(
+    input_name: str,
+    *,
+    source_inputs: tuple[str, ...],
+    target_input: str,
+    required: bool = False,
+) -> MethodInputBindingSpec:
+    return MethodInputBindingSpec(
+        input_name=input_name,
+        required=required,
+        source=ExactParameterSubstitutionSourceSpec(
+            source_inputs=source_inputs,
+            target_input=target_input,
         ),
     )
 
@@ -288,6 +302,12 @@ def quadratic_from_constraints_rule() -> MethodBindingRuleSpec:
             quadratic_latest_state_binding("quadratic"),
             canonical_x_binding(),
             quadratic_coefficients_binding(),
+            public_arg_binding("parameter_value", required=False),
+            source_parameter_identity_binding(
+                "parameter_value",
+                input_name="parameter",
+                required=False,
+            ),
         ),
         scalar_aggregate_lowerings=(
             MethodScalarAggregateLoweringSpec(
@@ -308,12 +328,6 @@ def quadratic_from_constraints_rule() -> MethodBindingRuleSpec:
                 item_inputs=(),
                 singleton_input="free_parameter",
             ),
-        ),
-        expansion_selectors=(
-            LegacyExpansionSelectorSpec("known_coefficients_if_read"),
-            LegacyExpansionSelectorSpec("free_quadratic_parameter_if_read"),
-            LegacyExpansionSelectorSpec("curve_point_if_read"),
-            LegacyExpansionSelectorSpec("parameter_value_if_read"),
         ),
         always_emit_outputs=("coefficients",),
         companion_outputs=(
@@ -336,7 +350,7 @@ def quadratic_vertex_point_rule() -> MethodBindingRuleSpec:
             canonical_x_binding(),
             previous_output_identity_binding("target", output_name="point"),
         ),
-        prep_invocations=QUADRATIC_STATE_PREP_INVOCATIONS,
+        prep_invocations=quadratic_state_prep_invocations("parabola"),
     )
 
 
@@ -359,7 +373,7 @@ def quadratic_x_axis_intercept_point_rule() -> MethodBindingRuleSpec:
             ),
             public_arg_binding("known_point", required=False),
         ),
-        prep_invocations=QUADRATIC_STATE_PREP_INVOCATIONS,
+        prep_invocations=quadratic_state_prep_invocations("quadratic"),
     )
 
 
@@ -401,7 +415,7 @@ def point_on_parabola_at_x_rule() -> MethodBindingRuleSpec:
             canonical_x_binding(),
             previous_output_identity_binding("target", output_name="point"),
         ),
-        prep_invocations=QUADRATIC_STATE_PREP_INVOCATIONS,
+        prep_invocations=quadratic_state_prep_invocations("parabola"),
     )
 
 
@@ -417,7 +431,7 @@ def line_parabola_second_intersection_point_rule() -> MethodBindingRuleSpec:
             public_arg_binding("known_point"),
             previous_output_identity_binding("target", output_name="point"),
         ),
-        prep_invocations=QUADRATIC_STATE_PREP_INVOCATIONS,
+        prep_invocations=quadratic_state_prep_invocations("parabola"),
     )
 
 
@@ -428,9 +442,11 @@ def distance_between_points_rule() -> MethodBindingRuleSpec:
         input_bindings=(
             public_arg_binding("p1"),
             public_arg_binding("p2"),
-        ),
-        expansion_selectors=(
-            LegacyExpansionSelectorSpec("distance_parameter_value_if_read"),
+            source_object_identity_binding(
+                "parameter_value",
+                input_name="parameter",
+                required=False,
+            ),
         ),
     )
 
@@ -471,9 +487,11 @@ def line_intersection_point_rule() -> MethodBindingRuleSpec:
                 "target",
                 output_name="intersection",
             ),
-        ),
-        expansion_selectors=(
-            LegacyExpansionSelectorSpec("intersection_parameter_value_if_read"),
+            source_object_identity_binding(
+                "parameter_value",
+                input_name="parameter",
+                required=False,
+            ),
         ),
     )
 
@@ -504,10 +522,10 @@ def parameter_from_curve_point_on_quadratic_rule() -> MethodBindingRuleSpec:
                 "known_parameter_value",
                 input_name="known_parameter",
             ),
-            LegacySelectorInputBindingSpec(
+            exact_parameter_substitution_binding(
                 "known_parameter_value",
-                "known_parameter_value_from_reads",
-                required=False,
+                source_inputs=("quadratic", "point"),
+                target_input="parameter",
             ),
         ),
     )
@@ -521,9 +539,6 @@ def evaluate_expression_at_parameter_rule() -> MethodBindingRuleSpec:
             exact_call_result_binding("expression"),
             parameter_basis_binding(("expression", "parameter_value")),
         ),
-        expansion_selectors=(
-            LegacyExpansionSelectorSpec("parameter_value_if_read"),
-        ),
     )
 
 
@@ -533,9 +548,11 @@ def evaluate_point_at_parameter_rule() -> MethodBindingRuleSpec:
         method_id="evaluate_point_at_parameter",
         input_bindings=(
             public_arg_binding("point"),
-        ),
-        expansion_selectors=(
-            LegacyExpansionSelectorSpec("parameter_value_if_read"),
+            source_object_identity_binding(
+                "parameter_value",
+                input_name="parameter",
+                required=False,
+            ),
         ),
     )
 

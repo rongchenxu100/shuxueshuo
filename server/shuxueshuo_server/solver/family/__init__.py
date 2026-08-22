@@ -4,11 +4,7 @@ family 包只承载题型级 spec 和 registry，不执行求解。通用 Runtim
 这里的 FamilySpec 作为 planner 上下文。
 """
 
-from shuxueshuo_server.solver.contracts import (
-    LegacyExpansionSelectorSpec,
-    LegacySelectorInputBindingSpec,
-    MethodInputBindingSpec,
-)
+from shuxueshuo_server.solver.contracts import MethodInputBindingSpec
 
 from shuxueshuo_server.solver.family.models import (
     CapabilityCardinality,
@@ -81,8 +77,6 @@ __all__ = [
     "FamilyRuntimePreflightSpec",
     "FamilySourceGoalContractSpec",
     "FamilySourceRequirementSpec",
-    "LegacyExpansionSelectorSpec",
-    "LegacySelectorInputBindingSpec",
     "MethodBindingRuleSpec",
     "MethodCompanionOutputSpec",
     "MethodInputBindingSpec",

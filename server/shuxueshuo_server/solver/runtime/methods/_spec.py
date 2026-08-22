@@ -12,6 +12,7 @@ from typing import Any
 import inspect
 
 from shuxueshuo_server.solver.contracts import (
+    CanonicalSymbolDerivationSpec,
     MethodInputBindingSpec,
     MethodExplanationSpec,
     MethodInputRelationSpec,
@@ -30,6 +31,19 @@ from shuxueshuo_server.solver.runtime.method_input_contracts import (
 
 class MethodSpecContractError(RuntimeError):
     """A code-authored MethodSpec is internally inconsistent."""
+
+
+def canonical_symbol_input(symbol_name: str) -> dict[str, Any]:
+    """Declare one required Symbol identity owned by a typed derivation."""
+
+    return {
+        "type": "Symbol",
+        "required": True,
+        "binding": MethodInputBindingSpec(
+            input_name=symbol_name,
+            derivation=CanonicalSymbolDerivationSpec(symbol_name),
+        ),
+    }
 
 
 def declare_input_views(

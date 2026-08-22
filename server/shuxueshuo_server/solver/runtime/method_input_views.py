@@ -6,13 +6,16 @@ from dataclasses import dataclass
 
 from shuxueshuo_server.solver.contracts import MethodInputSpec, PointRef, TypedValue
 from shuxueshuo_server.solver.runtime.context import RuntimeContext
+from shuxueshuo_server.solver.runtime.debug_method_input_authority import (
+    DebugMethodInputAuthorityAdapter,
+)
 from shuxueshuo_server.solver.runtime.functional_diagnostics import (
     StatelessMethodError,
     method_input_state_unavailable,
 )
 from shuxueshuo_server.solver.runtime.method_input_read_authority import (
-    CompilerSelectorReadSource,
     EntityIdentityReadSource,
+    InvocationResultReadSource,
     MethodInputReadAuthority,
 )
 from shuxueshuo_server.solver.runtime.models import ContextPath
@@ -214,20 +217,19 @@ def debug_method_input_read_authority(
             runtime_path=selected_path,
         )
         if entity_handle is not None
-        else CompilerSelectorReadSource(
-            selector_id=f"debug:{input_name}",
+        else InvocationResultReadSource(
+            invocation_id=f"debug:{invocation_id}",
+            return_name=input_name,
             runtime_path=selected_path,
         )
     )
-    return MethodInputReadAuthority(
+    return DebugMethodInputAuthorityAdapter.build(
         method_id=method_id,
         invocation_id=invocation_id,
+        scope_id=scope_id,
         input_name=input_name,
         item_index=item_index,
-        view_mode=input_spec.view.mode,
-        domain_type=input_spec.domain_type,
-        runtime_type=input_spec.runtime_type,
-        scope_id=scope_id,
+        input_spec=input_spec,
         source=source,
     )
 

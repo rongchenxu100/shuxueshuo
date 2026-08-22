@@ -50,7 +50,9 @@
           "authority": "wire",
           "target": "known_coefficients",
           "paths": [
-            "$question.i.coefficients.known"
+            "$question.i.facts.__functional_transaction_derive_parabola_i_0",
+            "$question.i.facts.__functional_transaction_derive_parabola_i_1",
+            "$question.i.facts.__functional_transaction_derive_parabola_i_2"
           ]
         },
         {
@@ -60,7 +62,9 @@
           "authority": "wire",
           "target": "known_coefficients",
           "paths": [
-            "$question.i.coefficients.known"
+            "$question.i.facts.__functional_transaction_derive_parabola_i_0",
+            "$question.i.facts.__functional_transaction_derive_parabola_i_1",
+            "$question.i.facts.__functional_transaction_derive_parabola_i_2"
           ]
         },
         {
@@ -70,7 +74,9 @@
           "authority": "wire",
           "target": "known_coefficients",
           "paths": [
-            "$question.i.coefficients.known"
+            "$question.i.facts.__functional_transaction_derive_parabola_i_0",
+            "$question.i.facts.__functional_transaction_derive_parabola_i_1",
+            "$question.i.facts.__functional_transaction_derive_parabola_i_2"
           ]
         },
         {
@@ -238,7 +244,6 @@
                 "all_coefficients",
                 "curve_point",
                 "free_parameter",
-                "known_coefficients",
                 "parameter",
                 "parameter_value",
                 "quadratic",
@@ -676,7 +681,6 @@
                 "all_coefficients",
                 "curve_point",
                 "free_parameter",
-                "known_coefficients",
                 "parameter",
                 "parameter_value",
                 "quadratic",

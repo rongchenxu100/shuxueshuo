@@ -29,7 +29,7 @@ from shuxueshuo_server.solver.runtime.symbolic_state_representation import (
 )
 
 from ._common import *
-from ._spec import MethodSpecSource, declare_input_views
+from ._spec import MethodSpecSource, canonical_symbol_input, declare_input_views
 
 
 QuadraticConstraintStatus = Literal[
@@ -625,7 +625,7 @@ SPEC = MethodSpecSource(
                 "ordinal-0原始系数模板；不得使用已消元的latest state代替。"
             ),
         },
-        "x": {"type": "Symbol", "required": True},
+        "x": canonical_symbol_input("x"),
         "all_coefficients": {"type": "SymbolList", "required": True},
         "known_coefficients": {
             "type": "Coefficients",

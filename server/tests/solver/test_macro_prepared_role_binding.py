@@ -6,15 +6,15 @@ import pytest
 
 from shuxueshuo_server.solver.contracts import (
     ExactCallResultSourceSpec,
-    LegacySelectorInputBindingSpec,
     MacroPreparedRoleSourceSpec,
+    MethodInputBindingSpec,
     PreviousOutputIdentityDerivationSpec,
 )
 from shuxueshuo_server.solver.runtime.equal_length_ray_path_search import (
     _prepared_runtime_arg_value,
 )
-from shuxueshuo_server.solver.runtime.binding_rules import (
-    DEBUG_ONLY_BINDING_SELECTORS,
+from shuxueshuo_server.solver.runtime.debug_equal_length_ray_roles import (
+    DebugEqualLengthRayRoleProvider,
 )
 from shuxueshuo_server.solver.family import DEFAULT_FAMILY_REGISTRY
 from shuxueshuo_server.solver.runtime.macro_preparation import (
@@ -71,19 +71,15 @@ def test_registry_owns_every_equal_length_internal_method_input() -> None:
     )
 
 
-def test_legacy_equal_length_selectors_are_debug_only_and_not_in_families() -> None:
-    assert DEBUG_ONLY_BINDING_SELECTORS == {
-        "equal_length_ray:anchor",
-        "equal_length_ray:reference_point",
-        "equal_length_ray:ray_point",
-        "equal_length_ray:target",
-    }
+def test_equal_length_role_provider_is_debug_only_and_families_are_strict() -> None:
+    assert DebugEqualLengthRayRoleProvider.__module__.endswith(
+        ".debug_equal_length_ray_roles"
+    )
     assert all(
-        binding.selector not in DEBUG_ONLY_BINDING_SELECTORS
+        isinstance(binding, MethodInputBindingSpec)
         for family in DEFAULT_FAMILY_REGISTRY.families
         for rule in family.method_binding_rules
         for binding in rule.input_bindings
-        if isinstance(binding, LegacySelectorInputBindingSpec)
     )
 
 

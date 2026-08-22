@@ -270,11 +270,10 @@ lowering不得声明字符串selector；typed binding尚未有lowerer时必须�
 `planner.method_input_binding_lowerer_missing`作为configuration error中止，不能
 回退到`FunctionAdapterRegistry._select()`。
 
-F5-F4.2R迁移期间，既有selector只能通过显式
-`LegacySelectorInputBindingSpec`存在。它的payload与运行行为保持原样，并由固定
-基线禁止新增。`LegacyExpansionSelectorSpec`同样只标记旧expansion边界。新协议
-`method-input-binding/v1`只接受typed binding，不接受Legacy selector。后续迁移应
-逐项减少Legacy基线，不能用新名字包装一次context扫描。
+生产代码不再提供Legacy input或expansion binding。`method-input-binding/v1`只接受
+typed binding；compiler、reconciliation和runtime中不存在selector registry、prefix
+grammar或按Context类型扫描的fallback。缺少typed source或derivation必须fail loud，
+不能用新名称重新包装一次隐式选源。
 
 公共二次函数竖切已经完成该迁移：Function latest state、canonical `x`、系数提取、
 ordinal-0模板和公共二次函数parameter symbol均使用strict binding。具名Function在Plan中仍写
@@ -296,6 +295,12 @@ input可选时省略；对象、scope或version不一致时fail loud。不得用
 只允许在完整typed authority确定后交换槽位，不允许按runtime type重新搜索。由ParameterValue恢复其Symbol身份时使用
 `ProducerLinkedSourceSpec(source_arg="parameter_value", producer_arg="parameter")`，只跟
 该exact result的producer，不扫描当前call的其他producer或全局Context。
+
+可选的已知参数代入使用`ExactParameterSubstitutionSourceSpec`。它只沿声明的
+`source_inputs`所pin住的exact StateVersion/CallResult lineage查找ParameterValue，并
+排除`target_input`对应的待求参数。零候选时同时省略value与配对Symbol derivation；
+唯一候选时保存exact pin；多个候选、scope不可见或restore版本漂移均为
+`planner.method_input_view_authority_drift`，不得重新搜索latest state。
 
 通用Entity/State竖切也已经完成：公开参数中由Plan明确指定的Point/Function使用
 `PublicArgSourceSpec`，F5-C再根据Method view生成纯identity或exact latest-state
@@ -516,6 +521,26 @@ LLM 看到的输入与返回值不是同一种投影：
 
 若 optional input 会改变主要算法、输出类型或数学含义，应拆成不同 Method 或不同公开 Function。避免一个 capability 声明多个互斥输入组合，让 Planner 猜实际模式。
 
+optional只放宽“完全没有证据”这一种情况，统一投影规则为：
+
+```text
+零证据 + optional + 未消费
+→ FunctionalTypedInputOmission(optional_no_evidence)
+→ 不写binding、read authority或F5-C ledger
+
+唯一且一致的证据
+→ 建立typed binding
+
+任一证据桶内部多候选，或多个非空证据桶不一致
+→ planner.method_input_view_authority_drift
+
+required或实际被消费的input零证据
+→ planner.method_input_view_authority_missing
+```
+
+因此optional不是“遇到冲突就忽略”的开关。omission只进入内部审计，不进入LLM wire
+或binding signature；lowering不得再为省略项扫描Context补值。
+
 ### 5.3 题面表达式与 Symbol identity
 
 题面 JSON 中的 `x`、`vector`、`x_range`、condition `value`、relation `scale` 等数学字符串只能在 `RuntimeContext` 构建边界解析一次。解析时必须使用该题唯一的 canonical symbol environment：
@@ -582,6 +607,10 @@ x² + (c+1)x + c
 - `[b]` 与 `[c]` 是否等价不能由名字、输入顺序或下游 Goal 决定，必须由 runtime 对同一组约束逐个证明。
 - `[b,c]` 不是一维状态的完整独立基底；“包含了所有出现过的字母”不等于正确基底。
 - JSON Schema 只负责接收 `[]`；状态是开放还是闭合只能在实际约束分析后判定。因此 wire 可以宽容，runtime 语义必须严格。
+
+内部单值`free_parameter`不再拥有独立选源规则。它只能从已经通过上述校验的公开
+`free_parameters` aggregate按稳定顺序lower；开放状态要求恰好得到Method契约所需的
+基底项，闭合状态的`[]`或省略均不生成内部binding、read authority或ledger记录。
 
 若一个 optional collection 在 wire 上需要接受 `[]`，在 Method input source 中显式声明：
 
@@ -896,28 +925,12 @@ runtime path，已不是生产authority。Method spec只声明所需domain/runti
 和`MethodInputReadAuthority`唯一决定本次实际读取的Entity、Condition、
 StateVersion或CallResult。
 
-在selector物理删除前，过渡投影必须遵守：
-
-- `projection_source_arg`、`projection_source_return`、
-  `projection_source_producer_arg`、return identity、literal symbol、
-  `projection_entity_roles`和`projection_free_symbol_basis`都是并列证据通道，
-  不存在“第一个命中即返回”的优先级。
-- 当同一selector同时声明`projection_source_arg`和
-  `projection_source_producer_arg`时，producer证据只能沿前者实际值的
-  `source_call_id`读取；当前call消费的其他producer不得进入该证据桶。
-- 对required或已被消费的input，每个非空通道必须恰好指向一个
-  `FunctionalArgSourceIdentity`，所有通道必须一致；否则报
-  `planner.method_input_view_authority_drift`。未被消费的optional input零候选或
-  多候选、或通道互相冲突时表示“未选择”，不形成binding。这是等待F4.2R
-  删除selector的过渡行为，不代表typed authority验证成功。
-- `projection_entity_roles`确实会在当前scope及祖先中搜索角色与类型
-  兼容的Entity；这是明确的过渡契约，不得跨sibling，零个或多个候选
-  都不得猜测。
-- `projection_free_symbol_basis`只在全部可见自由Symbol唯一时形成证据；
-  禁止按出现次数、coverage、参数名或排序选择winner。
-- 可选或机械input没有typed selected source时，不得写入仅含selector id的
-  F5-C ledger记录。过渡期v1 adapter可在派生execution IR中完成机械lowering，
-  但不得伪装为typed source authority。
+所有候选证据通道是并列约束，不存在“第一个命中即返回”的优先级。producer-linked
+证据只能沿其声明的source arg之`source_call_id`读取；当前call的其他producer不得混入。
+每个非空通道必须唯一，所有通道必须指向同一`FunctionalArgSourceIdentity`，否则在
+F5-C报`planner.method_input_view_authority_drift`。free-symbol basis不得按出现次数、
+coverage、参数名或排序选winner；显式参数必须属于typed candidate basis。没有typed
+source的optional项只能按5.2节明确省略，不能生成空binding或推迟给lowering猜测。
 
 ### Macro
 

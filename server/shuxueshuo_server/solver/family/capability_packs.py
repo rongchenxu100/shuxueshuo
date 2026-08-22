@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from shuxueshuo_server.solver.contracts import (
-    LegacySelectorInputBindingSpec,
     ScalarResultFormSpec,
     SourceObjectIdentityDerivationSpec,
 )

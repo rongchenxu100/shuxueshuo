@@ -318,7 +318,6 @@ class ProblemIRRuntimeReadinessValidator:
                 preflight.method_id,
                 call,
                 index,
-                include_expansion_selectors=False,
                 exact_inputs=exact_inputs,
                 apply_constraint_analyzer=False,
             )

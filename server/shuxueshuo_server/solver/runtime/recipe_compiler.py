@@ -22,7 +22,7 @@ from shuxueshuo_server.solver.contracts import (
     CoefficientExtractionDerivationSpec,
     ConditionSourceSpec,
     ExactCallResultSourceSpec,
-    LegacySelectorInputBindingSpec,
+    FreeSymbolBasisDerivationSpec,
     LatestStateSourceSpec,
     MethodInputBindingSpec,
     MacroPreparedRoleSourceSpec,
@@ -77,10 +77,6 @@ from shuxueshuo_server.solver.runtime.functional_compile_contract import (
     compile_input_handles as _compile_input_handles,
     compile_return_outputs as _compile_return_outputs,
     compile_target_handle as _compile_target_handle,
-)
-from shuxueshuo_server.solver.runtime.binding_selector_semantics import (
-    expansion_selector_semantics,
-    selector_semantics,
 )
 from shuxueshuo_server.solver.runtime.models import (
     ContextPath,
@@ -232,6 +228,7 @@ class PrepInvocationBuilder:
         method_id: str,
         step: FunctionalCompileStepView,
         *,
+        parent_inputs: Mapping[str, str],
         exact_inputs_for_prep: Callable[[str], Mapping[str, str]] | None = None,
     ) -> _PrepInvocationBuildResult:
         """为 method 构建所有命中的 prep invocation。"""
@@ -243,7 +240,12 @@ class PrepInvocationBuilder:
         promote: dict[str, str] = {}
         local_outputs: dict[str, str] = {}
         for prep in rule.prep_invocations:
-            if not _prep_trigger_matches(prep, step, self.index):
+            if not _prep_trigger_matches(
+                prep,
+                parent_inputs=parent_inputs,
+                index=self.index,
+                step_id=step.step_id,
+            ):
                 continue
             outputs = _prep_outputs(step, prep, self.index)
             invocations.append(
@@ -255,8 +257,6 @@ class PrepInvocationBuilder:
                         prep.method_id,
                         step,
                         self.index,
-                        include_expansion_selectors=prep.include_expansion_selectors,
-                        expansion_selectors_override=prep.expansion_selectors,
                         method_input_specs=(
                             self.method_specs.require(prep.method_id).inputs
                         ),
@@ -379,12 +379,11 @@ def _projected_recipe_method_arg_bindings(
     return result
 
 
-def _compiler_input_authority_error(
+def _typed_input_authority_error(
     *,
     step_id: str,
     method_id: str,
     input_name: str,
-    selector_id: str | None,
     candidate: Any,
     reason: str,
 ) -> StatelessMethodError:
@@ -408,7 +407,7 @@ def _compiler_input_authority_error(
     }
     return StatelessMethodError(
         "planner.method_input_view_authority_missing",
-        "compiler-selected Method input has no usable typed read authority",
+        "Method input has no usable typed read authority",
         category="configuration",
         retryability="configuration",
         method_id=method_id,
@@ -428,7 +427,6 @@ def _compiler_input_authority_error(
         },
         observed={
             "consumer_step": step_id,
-            "compiler_selector_id": selector_id,
             "reason": reason,
             "typed_candidate": typed_candidate,
         },
@@ -436,7 +434,7 @@ def _compiler_input_authority_error(
         details={
             "missing_role": input_name,
             "consumer_step": step_id,
-            "authority_source": "compiler_selector_typed_binding",
+            "authority_source": "typed_method_input_binding",
             "typed_candidate": typed_candidate,
         },
     )
@@ -1043,13 +1041,6 @@ class _RecipePlanCompiler:
             )
         )
         exact_inputs.update(
-            self._projected_compiler_selector_inputs(
-                step,
-                spec,
-                existing=exact_inputs,
-            )
-        )
-        exact_inputs.update(
             self._projected_typed_binding_inputs(
                 step,
                 spec,
@@ -1070,6 +1061,7 @@ class _RecipePlanCompiler:
         ).build(
             method_id,
             step,
+            parent_inputs=exact_inputs,
             exact_inputs_for_prep=lambda prep_method_id: (
                 self._typed_prep_inputs_from_parent(
                     prep_method_id,
@@ -1088,9 +1080,6 @@ class _RecipePlanCompiler:
             step,
             self.index,
             local_outputs=prep.local_outputs or {},
-            expansion_selectors_override=(
-                self._projected_expansion_selectors(step, method_id)
-            ),
             exact_inputs=exact_inputs,
             method_input_specs=spec.inputs,
             distinct_arg_groups=spec.distinct_arg_groups,
@@ -1315,57 +1304,6 @@ class _RecipePlanCompiler:
             result[write.produced_handle] = return_spec.output_key
         return result
 
-    def _projected_expansion_selectors(
-        self,
-        step: FunctionalCompileStepView,
-        method_id: str,
-    ) -> tuple[str, ...] | None:
-        """Keep expansion selectors inside reconciliation's chosen arg set.
-
-        A Functional projected step may read transitive provenance states that
-        were not selected as call arguments. Legacy expansion selectors must
-        not turn those inherited reads into additional runtime inputs.
-        """
-        selected_args = {
-            item.arg_name
-            for item in self.projected_function_arg_bindings
-            if item.step_id == step.step_id
-        }
-        selected_args.update(
-            item.arg_name
-            for item in self.projected_state_dependencies
-            if item.step_id == step.step_id and item.arg_name is not None
-        )
-        if not selected_args:
-            return None
-        rule = self.binding_rules.rules.get(method_id)
-        if rule is None:
-            return None
-        return tuple(
-            selector
-            for selector in rule.expansion_selectors
-            if (
-                # C3 owns the free-parameter role for Functional calls. Keep
-                # this selector only on the legacy compile contract.
-                selector != "free_quadratic_parameter_if_read"
-                and not any(
-                    arg_name in selected_args
-                    for arg_name in expansion_selector_semantics(
-                        selector
-                    ).suppressed_by_args
-                )
-                and (
-                    not expansion_selector_semantics(selector).arg_resolvers
-                    or any(
-                        arg_name in selected_args
-                        for arg_name, _resolver in (
-                            expansion_selector_semantics(selector).arg_resolvers
-                        )
-                    )
-                )
-            )
-        )
-
     def _projected_exact_function_inputs(
         self,
         step: FunctionalCompileStepView,
@@ -1439,22 +1377,17 @@ class _RecipePlanCompiler:
                     )
                 )
             ):
-                declared_authority = (
-                    adapter_binding.functional_authority
-                    if isinstance(adapter_binding, LegacySelectorInputBindingSpec)
-                    else None
-                )
                 typed_derivation_owned = (
                     isinstance(adapter_binding, MethodInputBindingSpec)
                     and adapter_binding.derivation is not None
                 )
-                if declared_authority == "compiler" or typed_derivation_owned:
+                if typed_derivation_owned:
                     raise StrategyDraftValidationError(
                         "planner_configuration_error: compiler-owned "
                         "Functional arg reached exact binding: "
                         f"method={spec.method_id}, arg={item.arg_name}, "
                         f"sidecar_authority={item.binding_authority}, "
-                        "declared_authority=compiler"
+                        "declared_authority=typed_derivation"
                     )
                 grouped.setdefault(runtime_input_name, []).append(item)
         result: dict[str, str] = {}
@@ -1600,113 +1533,6 @@ class _RecipePlanCompiler:
         )
         return result
 
-    def _projected_compiler_selector_inputs(
-        self,
-        step: FunctionalCompileStepView,
-        spec: Any,
-        *,
-        existing: Mapping[str, str],
-    ) -> dict[str, str]:
-        """Lower already-resolved compiler roles without re-running v1 selectors."""
-
-        function = self.function_specs.get(spec.method_id)
-        if function is None:
-            return {}
-        runtime_input_by_public_name = {
-            item.name: item.method_input or item.name
-            for item in getattr(function, "args", ())
-        }
-        result: dict[str, str] = {}
-        for item in self.projected_function_arg_bindings:
-            if (
-                item.step_id != step.step_id
-                or getattr(item, "consumption_mode", "runtime_input")
-                != "compiler_selector"
-            ):
-                continue
-            targets = tuple(getattr(item, "runtime_input_targets", ())) or (
-                runtime_input_by_public_name.get(item.arg_name, item.arg_name),
-            )
-            unresolved_targets = tuple(
-                input_name
-                for input_name in targets
-                if input_name not in existing and input_name not in result
-            )
-            if not unresolved_targets:
-                continue
-            for input_name in unresolved_targets:
-                if spec.inputs.get(input_name) is None:
-                    raise _compiler_input_authority_error(
-                        step_id=step.step_id,
-                        method_id=spec.method_id,
-                        input_name=input_name,
-                        selector_id=getattr(item, "compiler_selector_id", None),
-                        candidate=item,
-                        reason="runtime_input_target_unknown",
-                    )
-            has_typed_candidate = any(
-                value is not None
-                for value in (
-                    getattr(item, "runtime_path", None),
-                    getattr(item, "math_object_id", None),
-                    getattr(item, "state_version_id", None),
-                    getattr(item, "condition_id", None),
-                    getattr(item, "source_call_id", None),
-                )
-            )
-            if not has_typed_candidate:
-                if not getattr(item, "runtime_input_required", True):
-                    continue
-                entity_targets = tuple(
-                    input_name
-                    for input_name in unresolved_targets
-                    if method_input_requires_typed_entity_authority(
-                        spec.inputs.get(input_name)
-                    )
-                )
-                if entity_targets:
-                    input_name = entity_targets[0]
-                    raise _compiler_input_authority_error(
-                        step_id=step.step_id,
-                        method_id=spec.method_id,
-                        input_name=input_name,
-                        selector_id=getattr(item, "compiler_selector_id", None),
-                        candidate=item,
-                        reason="typed_entity_candidate_missing",
-                    )
-                # Compiler-generated coefficient tuples and similar values do
-                # not name Math Entities and may still use the adapter.
-                continue
-            for input_name in unresolved_targets:
-                input_spec = spec.inputs[input_name]
-                try:
-                    path = self._projected_input_path(
-                        item,
-                        expected_type=input_spec.type,
-                        consumer_scope_id=step.scope_id,
-                    )
-                except StrategyDraftValidationError as exc:
-                    raise _compiler_input_authority_error(
-                        step_id=step.step_id,
-                        method_id=spec.method_id,
-                        input_name=input_name,
-                        selector_id=getattr(item, "compiler_selector_id", None),
-                        candidate=item,
-                        reason="typed_candidate_unresolvable",
-                    ) from exc
-                previous = existing.get(input_name) or result.get(input_name)
-                if previous is not None and previous != path:
-                    raise _compiler_input_authority_error(
-                        step_id=step.step_id,
-                        method_id=spec.method_id,
-                        input_name=input_name,
-                        selector_id=getattr(item, "compiler_selector_id", None),
-                        candidate=item,
-                        reason="typed_candidate_conflicts_with_existing_input",
-                    )
-                result[input_name] = path
-        return result
-
     def _projected_typed_binding_inputs(
         self,
         step: FunctionalCompileStepView,
@@ -1730,11 +1556,10 @@ class _RecipePlanCompiler:
                     continue
                 input_spec = spec.inputs.get(input_name)
                 if input_spec is None:
-                    raise _compiler_input_authority_error(
+                    raise _typed_input_authority_error(
                         step_id=step.step_id,
                         method_id=spec.method_id,
                         input_name=input_name,
-                        selector_id=None,
                         candidate=item,
                         reason="typed_runtime_input_target_unknown",
                     )
@@ -1749,11 +1574,10 @@ class _RecipePlanCompiler:
                     SourceObjectIdentityDerivationSpec,
                 ):
                     if item.math_object_id is None:
-                        raise _compiler_input_authority_error(
+                        raise _typed_input_authority_error(
                             step_id=step.step_id,
                             method_id=spec.method_id,
                             input_name=input_name,
-                            selector_id=None,
                             candidate=item,
                             reason="typed_object_identity_missing",
                         )
@@ -1771,11 +1595,10 @@ class _RecipePlanCompiler:
                             consumer_scope_id=step.scope_id,
                         )
                     except StrategyDraftValidationError as exc:
-                        raise _compiler_input_authority_error(
+                        raise _typed_input_authority_error(
                             step_id=step.step_id,
                             method_id=spec.method_id,
                             input_name=input_name,
-                            selector_id=None,
                             candidate=item,
                             reason="typed_binding_candidate_unresolvable",
                         ) from exc
@@ -2237,6 +2060,7 @@ class _RecipePlanCompiler:
         items: list[ProjectedFunctionArgBinding],
     ) -> str | tuple[str, ...] | None:
         item_type = {
+            "Coefficients": "ParameterValue",
             "SymbolList": "Symbol",
             "PointList": "Point",
         }.get(expected_type)
@@ -2385,6 +2209,62 @@ class _RecipePlanCompiler:
                 expected_type=input_spec.type,
                 consumer_scope_id=step.scope_id,
                 consumer=f"{step.step_id}.{input_name}",
+            )
+
+        for target in execution.strategy_input_targets:
+            target_method, separator, input_name = target.partition(".")
+            if target_method != method_id:
+                continue
+            input_spec = method_spec.inputs.get(input_name)
+            if not separator or input_spec is None:
+                raise macro_contract_invalid(
+                    "Macro strategy input targets an unknown Method input",
+                    capability_id=capability_id,
+                    scope_id=step.scope_id,
+                    step_id=step.step_id,
+                    expected={"target": target},
+                )
+            binding = input_spec.binding
+            derivation = binding.derivation if binding is not None else None
+            if isinstance(derivation, CanonicalSymbolDerivationSpec):
+                result[input_name] = self.index.path_for(
+                    f"symbol:problem:{derivation.symbol_name}",
+                    expected_type="Symbol",
+                )
+                continue
+            if isinstance(derivation, FreeSymbolBasisDerivationSpec):
+                symbol_paths = {
+                    symbol_path
+                    for source_input in derivation.source_inputs
+                    if (source_path := result.get(source_input)) is not None
+                    if (
+                        symbol_path := self.index.symbol_path_from_exact_source(
+                            source_path,
+                            consumer=f"{step.step_id}.{target}",
+                        )
+                    )
+                    is not None
+                }
+                if len(symbol_paths) != 1:
+                    raise macro_contract_invalid(
+                        "Macro typed free-symbol derivation is not unique",
+                        capability_id=capability_id,
+                        scope_id=step.scope_id,
+                        step_id=step.step_id,
+                        expected={"target": target, "symbol_count": 1},
+                        observed={"symbol_paths": sorted(symbol_paths)},
+                    )
+                result[input_name] = next(iter(symbol_paths))
+                continue
+            raise macro_contract_invalid(
+                "Macro strategy input lacks a typed derivation",
+                capability_id=capability_id,
+                scope_id=step.scope_id,
+                step_id=step.step_id,
+                expected={"target": target},
+                observed={
+                    "binding": binding.to_payload() if binding is not None else None
+                },
             )
         return result
 
@@ -2816,7 +2696,20 @@ class _RecipePlanCompiler:
         point = _temp(step.step_id, "point")
         parameter_value = _temp(step.step_id, "parameter_value")
         parabola = _temp(step.step_id, "parabola")
-        primary_symbol = self.index.parameter_symbol_path()
+        filter_parameter = filter_inputs.get("parameter")
+        parameter_parameter = parameter_inputs.get("parameter")
+        if (
+            filter_parameter is None
+            or parameter_parameter is None
+            or filter_parameter != parameter_parameter
+        ):
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: "
+                "planner.method_input_view_authority_drift: "
+                f"step={step.step_id}, input=parameter, "
+                f"filter={filter_parameter}, solve={parameter_parameter}"
+            )
+        primary_symbol = filter_parameter
         primary_constraint = filter_inputs.get("parameter_constraint")
         if primary_constraint is None and not has_functional_input_sidecar:
             primary_constraint = self.index.parameter_constraint_path()
@@ -4172,46 +4065,35 @@ def _temp(step_id: str, output_key: str) -> str:
 
 def _prep_trigger_matches(
     prep: MethodPrepInvocationSpec,
-    step: FunctionalCompileStepView,
+    *,
+    parent_inputs: Mapping[str, str],
     index: CanonicalRuntimeBindingIndex,
+    step_id: str,
 ) -> bool:
-    """判断 prep rule 是否需要触发。"""
-    selector = prep.trigger_selector
-    if selector.startswith("missing_readable_type:"):
-        value_type = selector.split(":", 1)[1]
-        return _path_for_readable_type_or_none(index, step, value_type) is None
-    if selector.startswith("missing_readable_type_with_quadratic_source:"):
-        value_type = selector.split(":", 1)[1]
-        return (
-            not _step_declares_runtime_type(step, index, value_type)
-            and _step_has_quadratic_source_reads(step, index)
+    """Trigger only from the parent call's finalized typed input authority."""
+    source_path = parent_inputs.get(prep.source_input)
+    if source_path is None:
+        return False
+    source_types = {
+        binding.value_type
+        for binding in index.bindings.values()
+        if binding.path == source_path
+    }
+    if not source_types:
+        raise StrategyDraftValidationError(
+            "planner.method_input_view_authority_missing: "
+            f"step={step_id}, input={prep.source_input}, path={source_path}"
         )
-    raise StrategyDraftValidationError(f"prep_trigger_selector_missing: {selector}")
-
-
-def _step_declares_runtime_type(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-    value_type: str,
-) -> bool:
-    """Match the read-closed Function adapter boundary used by the main call."""
-    return any(
-        (binding := index.bindings.get(handle)) is not None
-        and binding.value_type == value_type
-        for handle in _compile_input_handles(step)
+    if len(source_types) != 1:
+        raise StrategyDraftValidationError(
+            "planner.method_input_view_authority_drift: "
+            f"step={step_id}, input={prep.source_input}, "
+            f"runtime_types={sorted(source_types)}"
+        )
+    return not runtime_type_compatible(
+        prep.produced_runtime_type,
+        next(iter(source_types)),
     )
-
-
-def _step_has_quadratic_source_reads(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-) -> bool:
-    """判断 step 是否具备临时构造 Parabola 的题设来源。"""
-    # The Function template itself is a sufficient source. The shared
-    # quadratic constraint analyzer decides whether it is closed, single-free,
-    # or underdetermined; duplicating that symbolic check in this trigger would
-    # make prep applicability drift from runtime behavior.
-    return any(handle.startswith("function:") for handle in _compile_input_handles(step))
 
 
 def _prep_outputs(
@@ -4443,10 +4325,6 @@ def _promote_outputs_for_step(
     """根据 produces/answer 自动生成 promote_outputs。"""
     promote: dict[str, str] = {}
     source_to_produced: dict[str, list[ProducedFact]] = {}
-    point_transition = point_transition or _binding_rule_writes_point_transition(
-        method_id,
-        binding_rules,
-    )
     projected_output_keys = projected_output_keys or {}
     for produced in _compile_return_outputs(step):
         output_name = projected_output_keys.get(produced.handle)
@@ -4562,20 +4440,6 @@ def _answer_promote_scope_is_visible_from_step(
 ) -> bool:
     target_scope = ContextPath.parse(target).scope_id
     return target_scope in index.handle_registry.ancestor_scopes(step.scope_id)
-
-
-def _binding_rule_writes_point_transition(
-    method_id: str,
-    binding_rules: MethodBindingRuleRegistry,
-) -> bool:
-    rule = binding_rules.rule_for(method_id)
-    if rule is None:
-        return False
-    return any(
-        isinstance(binding, LegacySelectorInputBindingSpec)
-        and binding.selector == "point_transition_target"
-        for binding in rule.input_bindings
-    )
 
 
 def _function_writes_point_transition(function: Any | None) -> bool:

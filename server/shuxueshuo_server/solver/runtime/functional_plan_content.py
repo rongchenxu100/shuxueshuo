@@ -2226,7 +2226,7 @@ def _wire_return_object_resolution(
         ),
         identity_constraint_targets=constrained,
         declared_identity_targets=declared,
-        compiler_selector_targets=selected,
+        code_selected_targets=selected,
     )
 
 
@@ -2340,17 +2340,11 @@ def _wire_auto_input_object_refs(
     frame: FunctionalPlanAuthorityFrame,
     seen: frozenset[tuple[str, str]],
 ) -> frozenset[str]:
-    """Resolve a hidden identity input from its typed or legacy contract."""
+    """Resolve a hidden identity input from its typed contract."""
 
-    if auto_arg.selector is not None:
-        return _wire_auto_selector_object_refs(
-            auto_arg.selector,
-            owner_scope_id=owner_scope_id,
-            frame=frame,
-        )
     declaration = auto_arg.input_binding
-    source = declaration.source if declaration is not None else None
-    derivation = declaration.derivation if declaration is not None else None
+    source = declaration.source
+    derivation = declaration.derivation
     source_arg: str | None = None
     declared_entity_ref: str | None = None
     if isinstance(source, LatestStateSourceSpec):

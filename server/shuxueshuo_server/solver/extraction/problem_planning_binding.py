@@ -205,28 +205,10 @@ def _problem_binding_schema_defs() -> dict[str, Any]:
                 },
                 "additionalProperties": False,
             }
-    functional_selected_source = {
-        "oneOf": [
-            *functional_direct_sources,
-            functional_call_result_source,
-        ]
-    }
     functional_source = {
         "oneOf": [
             *functional_direct_sources,
             functional_call_result_source,
-            {
-                "type": "object",
-                "required": ["kind", "compiler_selector_id"],
-                "properties": {
-                    "kind": {"const": "compiler_selector"},
-                    "compiler_selector_id": nonempty_string,
-                    "selected_source": {
-                        "$ref": "#/$defs/functional_selected_source"
-                    },
-                },
-                "additionalProperties": False,
-            },
         ]
     }
     return {
@@ -236,7 +218,6 @@ def _problem_binding_schema_defs() -> dict[str, Any]:
         "state_version_id": state_version_id,
         "semantic_ref": semantic_ref,
         "problem_typed_source": problem_typed_source,
-        "functional_selected_source": functional_selected_source,
         "functional_source": functional_source,
         "scoped_source_ref_key": {
             "type": "object",
@@ -418,11 +399,10 @@ def functional_problem_binding_context_schema() -> dict[str, Any]:
                     "problem_source",
                     "call_result",
                     "return_allocation",
-                    "compiler_selector",
                 ]
             },
             "selection_policy": {
-                "enum": ["exact", "latest", "identity_only", "compiler"]
+                "enum": ["exact", "latest", "identity_only"]
             },
             "semantic_ref": nullable_semantic_ref,
             "runtime_node_id": {
@@ -2071,18 +2051,6 @@ def build_functional_problem_binding_context(
                 )
             )
             continue
-        if binding.source.kind == "compiler_selector":
-            inputs.append(
-                FunctionalProblemInputBinding(
-                    call_id=call_id,
-                    arg_name=binding.key.arg_name,
-                    item_index=binding.key.item_index,
-                    source_kind="compiler_selector",
-                    selection_policy=binding.selection_policy,
-                    typed_source=binding.source,
-                )
-            )
-            continue
         input_path = (
             f"$.calls[{call_id!r}].args"
             f"[{binding.key.arg_name!r}]"
@@ -2201,6 +2169,35 @@ def build_functional_problem_binding_context(
                 SourceObjectIdentityDerivationSpec,
             )
         ):
+            try:
+                derived_object_binding = _authority_for_c3_source(
+                    catalog,
+                    binding.source,
+                    goal_unit_ids=call_goals.effective_goal_unit_ids,
+                    path=input_path,
+                )
+            except ProblemPlanningBindingError as exc:
+                if (
+                    exc.code != "planner.problem_source_binding_unresolved"
+                    or "maps to 0" not in exc.message
+                ):
+                    raise
+                derived_object_binding = None
+            if derived_object_binding is not None:
+                inputs.append(
+                    FunctionalProblemInputBinding(
+                        call_id=call_id,
+                        arg_name=binding.key.arg_name,
+                        item_index=binding.key.item_index,
+                        source_kind="problem_source",
+                        selection_policy=binding.selection_policy,
+                        semantic_ref=derived_object_binding.semantic_ref,
+                        runtime_node_id=derived_object_binding.runtime_node_id,
+                        source_unit_ids=derived_object_binding.source_unit_ids,
+                        typed_source=binding.source,
+                    )
+                )
+                continue
             upstream = logical_bindings.get(
                 (
                     call_id,

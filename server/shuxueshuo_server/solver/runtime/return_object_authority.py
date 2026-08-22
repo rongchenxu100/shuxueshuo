@@ -32,7 +32,7 @@ class ReturnObjectAuthorityResolver:
         "goal_answer_target",
         "identity_constraint",
         "declared_identity_arg",
-        "compiler_selector",
+        "code_selected_object",
     )
 
     @classmethod
@@ -43,14 +43,14 @@ class ReturnObjectAuthorityResolver:
         goal_answer_targets: Iterable[str] = (),
         identity_constraint_targets: Iterable[str] = (),
         declared_identity_targets: Iterable[str] = (),
-        compiler_selector_targets: Iterable[str] = (),
+        code_selected_targets: Iterable[str] = (),
     ) -> ReturnObjectAuthorityResolution:
         candidates: Mapping[str, Iterable[str]] = {
             "explicit_output_target": explicit_output_targets,
             "goal_answer_target": goal_answer_targets,
             "identity_constraint": identity_constraint_targets,
             "declared_identity_arg": declared_identity_targets,
-            "compiler_selector": compiler_selector_targets,
+            "code_selected_object": code_selected_targets,
         }
         for basis in cls._PRECEDENCE:
             refs = frozenset(item for item in candidates[basis] if item)

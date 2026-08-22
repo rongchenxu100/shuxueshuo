@@ -1363,8 +1363,7 @@ def test_hexi_singleton_known_mapping_reaches_closure_with_typed_identity(
         runtime_args = kwargs.get("args", {})
         if (
             kwargs.get("target_binding") == "target_parameter"
-            and isinstance(runtime_args.get("known_coefficients"), dict)
-            and len(runtime_args["known_coefficients"]) == 1
+            and "parameter_value" in runtime_args
         ):
             observed.append(dict(kwargs.get("arg_object_ids", {})))
         return execute_symbolic_closure(*args, **kwargs)
@@ -1409,7 +1408,7 @@ def test_hexi_singleton_known_mapping_reaches_closure_with_typed_identity(
     )
     assert call_result.status == "verified", call_result.root_issues
     assert observed
-    assert observed[0]["known_coefficients"] == (
+    assert observed[0]["parameter_value"] == (
         MathObjectId("symbol:problem:a", "symbol", "problem"),
     )
 

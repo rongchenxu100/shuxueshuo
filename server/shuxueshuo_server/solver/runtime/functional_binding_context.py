@@ -21,9 +21,9 @@ from shuxueshuo_server.solver.contracts import (
     ConditionSourceSpec,
     EntityIdentitySourceSpec,
     ExactCallResultSourceSpec,
+    ExactParameterSubstitutionSourceSpec,
     FreeSymbolBasisDerivationSpec,
     LatestStateSourceSpec,
-    LegacySelectorInputBindingSpec,
     MacroPreparedRoleSourceSpec,
     MethodInputBindingSpec,
     OrdinalZeroTemplateDerivationSpec,
@@ -38,9 +38,6 @@ from shuxueshuo_server.solver.runtime.condition_binding_authority import (
 )
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
-)
-from shuxueshuo_server.solver.runtime.binding_selector_semantics import (
-    selector_semantics,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_models import (
     FunctionalCallReconciliation,
@@ -75,12 +72,10 @@ FunctionalArgSelectionPolicy = Literal[
     "exact",
     "latest",
     "identity_only",
-    "compiler",
 ]
 FunctionalArgConsumptionMode = Literal[
     "runtime_input",
     "resolver_evidence",
-    "compiler_selector",
     "typed_binding",
 ]
 FunctionalArgSourceKind = Literal[
@@ -88,7 +83,6 @@ FunctionalArgSourceKind = Literal[
     "condition",
     "math_object",
     "call_result",
-    "compiler_selector",
 ]
 
 
@@ -114,6 +108,22 @@ class FunctionalArgBindingKey:
         }
 
 
+@dataclass(frozen=True, order=True)
+class FunctionalTypedInputOmission:
+    """Audit-only record for an optional typed input with no evidence."""
+
+    call_id: str
+    input_name: str
+    reason: Literal["optional_no_evidence"] = "optional_no_evidence"
+
+    def to_payload(self) -> dict[str, str]:
+        return {
+            "call_id": self.call_id,
+            "input_name": self.input_name,
+            "reason": self.reason,
+        }
+
+
 @dataclass(frozen=True)
 class FunctionalArgSourceIdentity:
     kind: FunctionalArgSourceKind
@@ -122,8 +132,6 @@ class FunctionalArgSourceIdentity:
     math_object_id: MathObjectId | None = None
     source_call_id: str | None = None
     source_return_name: str | None = None
-    compiler_selector_id: str | None = None
-    selected_source: FunctionalArgSourceIdentity | None = None
 
     def __post_init__(self) -> None:
         populated = {
@@ -134,25 +142,11 @@ class FunctionalArgSourceIdentity:
                 self.source_call_id is not None
                 and self.source_return_name is not None
             ),
-            "compiler_selector": self.compiler_selector_id is not None,
         }
         if not populated[self.kind] or sum(populated.values()) != 1:
             raise FunctionalBindingContextError(
                 "planner.functional_binding_context_incomplete",
                 f"source kind {self.kind} is not uniquely identified",
-            )
-        if self.selected_source is not None and self.kind != "compiler_selector":
-            raise FunctionalBindingContextError(
-                "planner.functional_binding_context_incomplete",
-                "only compiler selectors may carry a selected typed source",
-            )
-        if (
-            self.selected_source is not None
-            and self.selected_source.kind == "compiler_selector"
-        ):
-            raise FunctionalBindingContextError(
-                "planner.functional_binding_context_incomplete",
-                "compiler selected source cannot contain another selector",
             )
 
     def to_payload(self) -> dict[str, Any]:
@@ -166,10 +160,6 @@ class FunctionalArgSourceIdentity:
         if self.source_call_id is not None:
             payload["source_call_id"] = self.source_call_id
             payload["source_return_name"] = self.source_return_name
-        if self.compiler_selector_id is not None:
-            payload["compiler_selector_id"] = self.compiler_selector_id
-        if self.selected_source is not None:
-            payload["selected_source"] = self.selected_source.to_payload()
         return payload
 
     @classmethod
@@ -180,7 +170,6 @@ class FunctionalArgSourceIdentity:
         kind = str(payload.get("kind", ""))
         state_version = payload.get("state_version_id")
         math_object = payload.get("math_object_id")
-        selected = payload.get("selected_source")
         return cls(
             kind=cast(FunctionalArgSourceKind, kind),
             state_version_id=(
@@ -206,16 +195,6 @@ class FunctionalArgSourceIdentity:
             source_return_name=(
                 str(payload["source_return_name"])
                 if payload.get("source_return_name") is not None
-                else None
-            ),
-            compiler_selector_id=(
-                str(payload["compiler_selector_id"])
-                if payload.get("compiler_selector_id") is not None
-                else None
-            ),
-            selected_source=(
-                cls.from_payload(selected)
-                if isinstance(selected, Mapping)
                 else None
             ),
         )
@@ -260,6 +239,7 @@ class FunctionalBindingContext:
     bindings: tuple[FunctionalArgBinding, ...]
     binding_signature: str
     relation_bindings: tuple[FunctionalMethodRelationBinding, ...] = ()
+    typed_input_omissions: tuple[FunctionalTypedInputOmission, ...] = ()
 
     def for_call(self, call_id: str) -> tuple[FunctionalArgBinding, ...]:
         return tuple(item for item in self.bindings if item.key.call_id == call_id)
@@ -294,6 +274,9 @@ class FunctionalBindingContext:
             "relation_bindings": [
                 item.to_payload() for item in self.relation_bindings
             ],
+            "typed_input_omissions": [
+                item.to_payload() for item in self.typed_input_omissions
+            ],
             "binding_signature": self.binding_signature,
         }
 
@@ -318,6 +301,7 @@ class FunctionalBindingContextBuilder:
         wire_calls = {item.call_id: item for item in plan.calls}
         calls_by_id = {item.call_id: item for item in calls}
         bindings: list[FunctionalArgBinding] = []
+        omissions: list[FunctionalTypedInputOmission] = []
         for call in calls:
             capability = catalog.get(call.capability_id)
             if capability is None:
@@ -383,41 +367,24 @@ class FunctionalBindingContextBuilder:
                         else None
                     )
                     if auto_spec is not None:
-                        if auto_spec.input_binding is not None:
-                            selected_source = _typed_input_selected_source(
-                                arg_name=auto_spec.name,
-                                binding=auto_spec.input_binding,
-                                runtime_input=auto_spec.runtime_input,
-                                required=bool(values) or auto_spec.required,
-                                capability=capability,
-                                call=call,
-                                calls_by_id=calls_by_id,
-                                object_registry=object_registry,
-                                handle_registry=handle_registry,
-                                method_specs=method_specs,
-                                allow_missing_typed_source=(
-                                    allow_missing_typed_sources
-                                ),
-                                condition_authority_index=(
-                                    condition_authority_index
-                                ),
-                            )
-                        else:
-                            selected_source = _compiler_auto_selected_source(
-                                arg_name=auto_spec.name,
-                                selector=cast(str, auto_spec.selector),
-                                runtime_input=auto_spec.runtime_input,
-                                required=bool(values) or auto_spec.required,
-                                capability=capability,
-                                call=call,
-                                calls_by_id=calls_by_id,
-                                object_registry=object_registry,
-                                handle_registry=handle_registry,
-                                method_specs=method_specs,
-                                allow_missing_typed_source=(
-                                    allow_missing_typed_sources
-                                ),
-                            )
+                        selected_source = _typed_input_selected_source(
+                            arg_name=auto_spec.name,
+                            binding=auto_spec.input_binding,
+                            runtime_input=auto_spec.runtime_input,
+                            required=bool(values) or auto_spec.required,
+                            capability=capability,
+                            call=call,
+                            calls_by_id=calls_by_id,
+                            object_registry=object_registry,
+                            handle_registry=handle_registry,
+                            method_specs=method_specs,
+                            allow_missing_typed_source=(
+                                allow_missing_typed_sources
+                            ),
+                            condition_authority_index=(
+                                condition_authority_index
+                            ),
+                        )
                         if selected_source is None:
                             continue
                         bindings.append(
@@ -446,36 +413,15 @@ class FunctionalBindingContextBuilder:
                                         ),
                                         method_specs=method_specs,
                                     )
-                                    if auto_spec.input_binding is not None
-                                    else "compiler_owned"
                                 ),
-                                source=(
-                                    selected_source
-                                    if auto_spec.input_binding is not None
-                                    else FunctionalArgSourceIdentity(
-                                        kind="compiler_selector",
-                                        compiler_selector_id=cast(
-                                            str,
-                                            auto_spec.selector,
-                                        ),
-                                        selected_source=selected_source,
-                                    )
+                                source=selected_source,
+                                selection_policy=_typed_binding_selection_policy(
+                                    auto_spec.input_binding,
+                                    capability=capability,
+                                    runtime_input=auto_spec.runtime_input,
+                                    method_specs=method_specs,
                                 ),
-                                selection_policy=(
-                                    _typed_binding_selection_policy(
-                                        auto_spec.input_binding,
-                                        capability=capability,
-                                        runtime_input=auto_spec.runtime_input,
-                                        method_specs=method_specs,
-                                    )
-                                    if auto_spec.input_binding is not None
-                                    else "compiler"
-                                ),
-                                consumption_mode=(
-                                    "typed_binding"
-                                    if auto_spec.input_binding is not None
-                                    else "compiler_selector"
-                                ),
+                                consumption_mode="typed_binding",
                                 runtime_input_targets=(
                                     auto_spec.runtime_input or arg_name,
                                 ),
@@ -721,38 +667,28 @@ class FunctionalBindingContextBuilder:
             for auto_arg in capability.auto_args:
                 if auto_arg.name in call.resolved_args:
                     continue
-                if auto_arg.input_binding is not None:
-                    selected_source = _typed_input_selected_source(
-                        arg_name=auto_arg.name,
-                        binding=auto_arg.input_binding,
-                        runtime_input=auto_arg.runtime_input,
-                        required=auto_arg.required,
-                        capability=capability,
-                        call=call,
-                        calls_by_id=calls_by_id,
-                        object_registry=object_registry,
-                        handle_registry=handle_registry,
-                        method_specs=method_specs,
-                        allow_missing_typed_source=allow_missing_typed_sources,
-                        condition_authority_index=condition_authority_index,
-                    )
-                else:
-                    selected_source = _compiler_auto_selected_source(
-                        arg_name=auto_arg.name,
-                        selector=cast(str, auto_arg.selector),
-                        runtime_input=auto_arg.runtime_input,
-                        required=auto_arg.required,
-                        capability=capability,
-                        call=call,
-                        calls_by_id=calls_by_id,
-                        object_registry=object_registry,
-                        handle_registry=handle_registry,
-                        method_specs=method_specs,
-                        allow_missing_typed_source=(
-                            allow_missing_typed_sources
-                        ),
-                    )
+                selected_source = _typed_input_selected_source(
+                    arg_name=auto_arg.name,
+                    binding=auto_arg.input_binding,
+                    runtime_input=auto_arg.runtime_input,
+                    required=auto_arg.required,
+                    capability=capability,
+                    call=call,
+                    calls_by_id=calls_by_id,
+                    object_registry=object_registry,
+                    handle_registry=handle_registry,
+                    method_specs=method_specs,
+                    allow_missing_typed_source=allow_missing_typed_sources,
+                    condition_authority_index=condition_authority_index,
+                )
                 if selected_source is None:
+                    if not auto_arg.required:
+                        omissions.append(
+                            FunctionalTypedInputOmission(
+                                call.call_id,
+                                auto_arg.name,
+                            )
+                        )
                     continue
                 bindings.append(
                     FunctionalArgBinding(
@@ -767,44 +703,21 @@ class FunctionalBindingContextBuilder:
                         ),
                         binding_authority="compiler",
                         cardinality="one",
-                        runtime_type=(
-                            _declared_typed_runtime_type(
-                                capability,
-                                runtime_input=(
-                                    auto_arg.runtime_input or auto_arg.name
-                                ),
-                                method_specs=method_specs,
-                            )
-                            if auto_arg.input_binding is not None
-                            else "compiler_owned"
+                        runtime_type=_declared_typed_runtime_type(
+                            capability,
+                            runtime_input=(
+                                auto_arg.runtime_input or auto_arg.name
+                            ),
+                            method_specs=method_specs,
                         ),
-                        source=(
-                            selected_source
-                            if auto_arg.input_binding is not None
-                            else FunctionalArgSourceIdentity(
-                                kind="compiler_selector",
-                                compiler_selector_id=cast(
-                                    str,
-                                    auto_arg.selector,
-                                ),
-                                selected_source=selected_source,
-                            )
+                        source=selected_source,
+                        selection_policy=_typed_binding_selection_policy(
+                            auto_arg.input_binding,
+                            capability=capability,
+                            runtime_input=auto_arg.runtime_input,
+                            method_specs=method_specs,
                         ),
-                        selection_policy=(
-                            _typed_binding_selection_policy(
-                                auto_arg.input_binding,
-                                capability=capability,
-                                runtime_input=auto_arg.runtime_input,
-                                method_specs=method_specs,
-                            )
-                            if auto_arg.input_binding is not None
-                            else "compiler"
-                        ),
-                        consumption_mode=(
-                            "typed_binding"
-                            if auto_arg.input_binding is not None
-                            else "compiler_selector"
-                        ),
+                        consumption_mode="typed_binding",
                         runtime_input_targets=(
                             auto_arg.runtime_input or auto_arg.name,
                         ),
@@ -819,44 +732,29 @@ class FunctionalBindingContextBuilder:
                 adapter_binding = adapter_bindings.get(runtime_input)
                 if adapter_binding is None:
                     continue
-                if isinstance(adapter_binding, MethodInputBindingSpec):
-                    binding_required = (
-                        public_arg.required or adapter_binding.required
-                    )
-                    selected_source = _typed_input_selected_source(
-                        arg_name=public_arg.name,
-                        binding=adapter_binding,
-                        runtime_input=runtime_input,
-                        required=binding_required,
-                        capability=capability,
-                        call=call,
-                        calls_by_id=calls_by_id,
-                        object_registry=object_registry,
-                        handle_registry=handle_registry,
-                        method_specs=method_specs,
-                        allow_missing_typed_source=allow_missing_typed_sources,
-                        condition_authority_index=condition_authority_index,
-                    )
-                else:
-                    semantics = selector_semantics(adapter_binding.selector)
-                    if semantics.projection_source_arg is None:
-                        continue
-                    selected_source = _compiler_auto_selected_source(
-                        arg_name=public_arg.name,
-                        selector=adapter_binding.selector,
-                        runtime_input=runtime_input,
-                        required=public_arg.required,
-                        capability=capability,
-                        call=call,
-                        calls_by_id=calls_by_id,
-                        object_registry=object_registry,
-                        handle_registry=handle_registry,
-                        method_specs=method_specs,
-                        allow_missing_typed_source=(
-                            allow_missing_typed_sources
-                        ),
-                    )
+                binding_required = public_arg.required or adapter_binding.required
+                selected_source = _typed_input_selected_source(
+                    arg_name=public_arg.name,
+                    binding=adapter_binding,
+                    runtime_input=runtime_input,
+                    required=binding_required,
+                    capability=capability,
+                    call=call,
+                    calls_by_id=calls_by_id,
+                    object_registry=object_registry,
+                    handle_registry=handle_registry,
+                    method_specs=method_specs,
+                    allow_missing_typed_source=allow_missing_typed_sources,
+                    condition_authority_index=condition_authority_index,
+                )
                 if selected_source is None:
+                    if not binding_required:
+                        omissions.append(
+                            FunctionalTypedInputOmission(
+                                call.call_id,
+                                runtime_input,
+                            )
+                        )
                     continue
                 bindings.append(
                     FunctionalArgBinding(
@@ -871,61 +769,25 @@ class FunctionalBindingContextBuilder:
                         ),
                         binding_authority="compiler",
                         cardinality="one",
-                        runtime_type=(
-                            _declared_typed_runtime_type(
-                                capability,
-                                runtime_input=runtime_input,
-                                method_specs=method_specs,
-                            )
-                            if isinstance(
-                                adapter_binding,
-                                MethodInputBindingSpec,
-                            )
-                            else "compiler_owned"
+                        runtime_type=_declared_typed_runtime_type(
+                            capability,
+                            runtime_input=runtime_input,
+                            method_specs=method_specs,
                         ),
-                        source=(
-                            selected_source
-                            if isinstance(adapter_binding, MethodInputBindingSpec)
-                            else FunctionalArgSourceIdentity(
-                                kind="compiler_selector",
-                                compiler_selector_id=adapter_binding.selector,
-                                selected_source=selected_source,
-                            )
+                        source=selected_source,
+                        selection_policy=_typed_binding_selection_policy(
+                            adapter_binding,
+                            capability=capability,
+                            runtime_input=runtime_input,
+                            method_specs=method_specs,
                         ),
-                        selection_policy=(
-                            _typed_binding_selection_policy(
-                                adapter_binding,
-                                capability=capability,
-                                runtime_input=runtime_input,
-                                method_specs=method_specs,
-                            )
-                            if isinstance(
-                                adapter_binding,
-                                MethodInputBindingSpec,
-                            )
-                            else "compiler"
-                        ),
-                        consumption_mode=(
-                            "typed_binding"
-                            if isinstance(adapter_binding, MethodInputBindingSpec)
-                            else "compiler_selector"
-                        ),
+                        consumption_mode="typed_binding",
                         runtime_input_targets=(runtime_input,),
                         runtime_input_required=(
                             public_arg.required
-                            or (
-                                isinstance(
-                                    adapter_binding,
-                                    MethodInputBindingSpec,
-                                )
-                                and adapter_binding.required
-                            )
+                            or adapter_binding.required
                         ),
-                        input_binding=(
-                            adapter_binding
-                            if isinstance(adapter_binding, MethodInputBindingSpec)
-                            else None
-                        ),
+                        input_binding=adapter_binding,
                     )
                 )
         ordered = tuple(sorted(bindings, key=lambda item: item.key))
@@ -952,6 +814,7 @@ class FunctionalBindingContextBuilder:
                 relation_bindings=relation_bindings,
             ),
             relation_bindings=relation_bindings,
+            typed_input_omissions=tuple(sorted(set(omissions))),
         )
 
 
@@ -977,10 +840,15 @@ class FunctionalBindingContextBuilder:
                 "planner.functional_runtime_input_mapping_drift",
                 f"{call_id}.{arg_name} has no runtime input target",
             )
-        if spec.requires_materialized_state and source.kind not in {
-            "state_version",
-            "call_result",
-        }:
+        debug_materialized_value = (
+            not force_exact_source_versions
+            and value.materialized_runtime_type is not None
+        )
+        if (
+            spec.requires_materialized_state
+            and source.kind not in {"state_version", "call_result"}
+            and not debug_materialized_value
+        ):
             raise FunctionalBindingContextError(
                 "planner.functional_arg_version_drift",
                 f"materialized arg {call_id}.{arg_name}[{item_index}] has no StateVersionId",
@@ -1234,10 +1102,10 @@ def _typed_input_selected_source(
                         scope_id=call.scope_id,
                     )
                 except ConditionBindingAuthorityError as exc:
-                    if not required:
-                        # An unconsumed optional Condition forms no binding.
-                        # C2 forbids selecting an arbitrary candidate; stage D
-                        # will make optional evidence conflicts fail loud.
+                    if not required and exc.code.endswith("_missing"):
+                        # Optional means that no evidence may be omitted. It
+                        # never turns ambiguous or conflicting evidence into
+                        # an omission.
                         return None
                     code = (
                         "planner.method_input_view_authority_missing"
@@ -1260,17 +1128,55 @@ def _typed_input_selected_source(
                         )
                     ],
                 )
-    elif isinstance(source, ProducerLinkedSourceSpec):
+    elif isinstance(source, ExactParameterSubstitutionSourceSpec):
+        target_ids = _exact_parameter_target_ids(
+            source.target_input,
+            capability=capability,
+            call=call,
+            calls_by_id=calls_by_id,
+            object_registry=object_registry,
+            handle_registry=handle_registry,
+            method_specs=method_specs,
+            allow_missing_typed_source=allow_missing_typed_source,
+            condition_authority_index=condition_authority_index,
+            stack=_stack + (input_name,),
+        )
         add(
-            f"producer:{source.source_arg}.{source.producer_arg}",
-            _producer_linked_sources(
-                source.source_arg,
-                source.producer_arg,
+            "exact_parameter_substitution",
+            _exact_parameter_substitution_sources(
+                source.source_inputs,
+                target_ids=target_ids,
                 call=call,
-                calls_by_id=calls_by_id,
-                input_spec=input_spec,
-                object_registry=object_registry,
+                scope_id=call.scope_id,
+                handle_registry=handle_registry,
             ),
+        )
+    elif isinstance(source, ProducerLinkedSourceSpec):
+        linked_sources = _producer_linked_sources(
+            source.source_arg,
+            source.producer_arg,
+            call=call,
+            calls_by_id=calls_by_id,
+            input_spec=input_spec,
+            object_registry=object_registry,
+        )
+        linked_kinds = {item.kind for item in linked_sources}
+        # ``source_arg`` identifies which producer edge to follow. It is also
+        # an independent identity witness only when its typed view has the
+        # same authority shape as the producer role (for example a
+        # ParameterValue and its Symbol). A Condition CallResult leading to a
+        # Point role is routing evidence, not a competing Point source.
+        add(
+            f"arg:{source.source_arg}",
+            [
+                item
+                for item in resolved_sources(source.source_arg)
+                if item.kind in linked_kinds
+            ],
+        )
+        add(
+            f"producer_arg:{source.producer_arg}",
+            linked_sources,
         )
     elif isinstance(source, MacroPreparedRoleSourceSpec):
         if getattr(capability.source, "execution_mode", None) != "runtime_search":
@@ -1334,6 +1240,24 @@ def _typed_input_selected_source(
             ),
         )
     elif isinstance(derivation, SourceObjectIdentityDerivationSpec):
+        add(
+            f"source_object_arg:{derivation.source_input}",
+            [
+                item
+                for value in call.resolved_args.get(
+                    derivation.source_input,
+                    (),
+                )
+                if (
+                    item := _source_for_input_view(
+                        value,
+                        input_spec=_identity_input_spec(input_spec),
+                        object_registry=object_registry,
+                    )
+                )
+                is not None
+            ],
+        )
         upstream = _typed_source_for_named_input(
             derivation.source_input,
             capability=capability,
@@ -1351,7 +1275,10 @@ def _typed_input_selected_source(
             calls_by_id=calls_by_id,
         )
         if identity is not None:
-            add(f"source_object:{derivation.source_input}", [identity])
+            add(
+                f"source_object_authority:{derivation.source_input}",
+                [identity],
+            )
     elif isinstance(derivation, FreeSymbolBasisDerivationSpec):
         declared = resolved_sources(arg_name, identity=True)
         basis = _free_symbol_basis_sources(
@@ -1367,7 +1294,25 @@ def _typed_input_selected_source(
             f"resolved_arg:{arg_name}",
             declared,
         )
-        if not declared:
+        if declared and basis:
+            declared_keys = {
+                _source_authority_key(item, input_spec=input_spec)
+                for item in declared
+            }
+            basis_keys = {
+                _source_authority_key(item, input_spec=input_spec)
+                for item in basis
+            }
+            if not declared_keys.issubset(basis_keys):
+                raise FunctionalBindingContextError(
+                    "planner.method_input_view_authority_drift",
+                    (
+                        f"{call.call_id}.{arg_name} explicit parameter is "
+                        "outside the typed free-symbol basis; evidence="
+                        f"{_typed_evidence_payload([('resolved_arg', tuple(declared)), ('free_symbol_basis', tuple(basis))])}"
+                    ),
+                )
+        elif not declared:
             add("free_symbol_basis", basis)
 
     ambiguous = tuple(label for label, values in channels if len(values) != 1)
@@ -1376,11 +1321,6 @@ def _typed_input_selected_source(
         for value in values:
             by_authority[_source_authority_key(value, input_spec=input_spec)] = value
     if ambiguous or len(by_authority) > 1:
-        if not required:
-            # F4.2R keeps the established optional-slot behavior until the
-            # production selector fallback is retired in stage D. An unused
-            # optional input forms no binding instead of guessing a source.
-            return None
         raise FunctionalBindingContextError(
             "planner.method_input_view_authority_drift",
             (
@@ -1400,6 +1340,115 @@ def _typed_input_selected_source(
             ),
         )
     return None
+
+
+def _exact_parameter_target_ids(
+    target_input: str,
+    *,
+    capability: Any,
+    call: FunctionalCallReconciliation,
+    calls_by_id: Mapping[str, FunctionalCallReconciliation],
+    object_registry: MathObjectRegistry | None,
+    handle_registry: CanonicalHandleRegistry | None,
+    method_specs: MethodSpecRegistry | None,
+    allow_missing_typed_source: bool,
+    condition_authority_index: ConditionBindingAuthorityIndex | None,
+    stack: tuple[str, ...],
+) -> frozenset[MathObjectId]:
+    result = {
+        value.math_object_id
+        or (
+            object_registry.resolve(value.object_ref or value.handle)
+            if object_registry is not None
+            else None
+        )
+        for value in call.resolved_args.get(target_input, ())
+    }
+    result.discard(None)
+    if not result:
+        target_source = _typed_source_for_named_input(
+            target_input,
+            capability=capability,
+            call=call,
+            calls_by_id=calls_by_id,
+            object_registry=object_registry,
+            handle_registry=handle_registry,
+            method_specs=method_specs,
+            allow_missing_typed_source=allow_missing_typed_source,
+            condition_authority_index=condition_authority_index,
+            stack=stack,
+        )
+        target_identity = _source_object_identity(
+            target_source,
+            calls_by_id=calls_by_id,
+        )
+        if target_identity is not None and target_identity.math_object_id is not None:
+            result.add(target_identity.math_object_id)
+    if len(result) > 1:
+        raise FunctionalBindingContextError(
+            "planner.method_input_view_authority_drift",
+            f"{call.call_id}.{target_input} has multiple target identities",
+        )
+    return frozenset(result)
+
+
+def _exact_parameter_substitution_sources(
+    source_inputs: tuple[str, ...],
+    *,
+    target_ids: frozenset[MathObjectId],
+    call: FunctionalCallReconciliation,
+    scope_id: str,
+    handle_registry: CanonicalHandleRegistry | None,
+) -> list[FunctionalArgSourceIdentity]:
+    """Collect ParameterValue pins only from declared exact input lineage."""
+
+    versions: dict[StateVersionId, FunctionalArgSourceIdentity] = {}
+    results: dict[tuple[str, str], FunctionalArgSourceIdentity] = {}
+    for source_input in source_inputs:
+        for value in call.resolved_args.get(source_input, ()):
+            pinned_parameter_version = False
+            candidate_versions = tuple(
+                dict.fromkeys(
+                    (
+                        *((value.state_version_id,) if value.state_version_id else ()),
+                        *value.source_version_ids,
+                    )
+                )
+            )
+            for version_id in candidate_versions:
+                logical_key = version_id.slot_id.logical_key
+                if logical_key.runtime_type != "ParameterValue":
+                    continue
+                if logical_key.object_id in target_ids:
+                    continue
+                if (
+                    handle_registry is not None
+                    and not visible_from_valid_scope(
+                        version_id.slot_id.storage_scope_id,
+                        scope_id=scope_id,
+                        registry=handle_registry,
+                    )
+                ):
+                    continue
+                versions[version_id] = FunctionalArgSourceIdentity(
+                    kind="state_version",
+                    state_version_id=version_id,
+                )
+                pinned_parameter_version = True
+            if (
+                not pinned_parameter_version
+                and value.runtime_type == "ParameterValue"
+                and value.source_call_id is not None
+                and value.return_name is not None
+                and value.math_object_id not in target_ids
+            ):
+                key = (value.source_call_id, value.return_name)
+                results[key] = FunctionalArgSourceIdentity(
+                    kind="call_result",
+                    source_call_id=value.source_call_id,
+                    source_return_name=value.return_name,
+                )
+    return [*versions.values(), *results.values()]
 
 
 def _typed_binding_selection_policy(
@@ -1514,7 +1563,7 @@ def _typed_source_for_named_input(
         for item in capability.auto_args
         if item.name == input_name or item.runtime_input == input_name
     )
-    if len(candidates) == 1 and candidates[0].input_binding is not None:
+    if len(candidates) == 1:
         item = candidates[0]
         return _typed_input_selected_source(
             arg_name=item.name,
@@ -1531,24 +1580,6 @@ def _typed_source_for_named_input(
             condition_authority_index=condition_authority_index,
             _stack=stack,
         )
-    if len(candidates) == 1 and candidates[0].selector is not None:
-        # C2 Conditions may depend on one C3 input that is still represented
-        # by an explicit legacy declaration. Consume its already-defined F5-C
-        # source selection; never invoke the runtime adapter `_select()`.
-        item = candidates[0]
-        return _compiler_auto_selected_source(
-            arg_name=item.name,
-            selector=item.selector,
-            runtime_input=item.runtime_input,
-            required=item.required,
-            capability=capability,
-            call=call,
-            calls_by_id=calls_by_id,
-            object_registry=object_registry,
-            handle_registry=handle_registry,
-            method_specs=method_specs,
-            allow_missing_typed_source=allow_missing_typed_source,
-        )
     declarations = tuple(
         item
         for item in capability.input_bindings
@@ -1562,27 +1593,11 @@ def _typed_source_for_named_input(
     if len(declarations) == 1 and len(public_args) == 1:
         declaration = declarations[0]
         public_arg = public_args[0]
-        if isinstance(declaration, MethodInputBindingSpec):
-            return _typed_input_selected_source(
-                arg_name=public_arg.name,
-                binding=declaration,
-                runtime_input=input_name,
-                required=public_arg.required or declaration.required,
-                capability=capability,
-                call=call,
-                calls_by_id=calls_by_id,
-                object_registry=object_registry,
-                handle_registry=handle_registry,
-                method_specs=method_specs,
-                allow_missing_typed_source=allow_missing_typed_source,
-                condition_authority_index=condition_authority_index,
-                _stack=stack,
-            )
-        return _compiler_auto_selected_source(
+        return _typed_input_selected_source(
             arg_name=public_arg.name,
-            selector=declaration.selector,
+            binding=declaration,
             runtime_input=input_name,
-            required=public_arg.required,
+            required=public_arg.required or declaration.required,
             capability=capability,
             call=call,
             calls_by_id=calls_by_id,
@@ -1590,6 +1605,8 @@ def _typed_source_for_named_input(
             handle_registry=handle_registry,
             method_specs=method_specs,
             allow_missing_typed_source=allow_missing_typed_source,
+            condition_authority_index=condition_authority_index,
+            _stack=stack,
         )
     return None
 
@@ -1601,7 +1618,6 @@ def _source_object_identity(
 ) -> FunctionalArgSourceIdentity | None:
     if source is None:
         return None
-    source = source.selected_source or source
     object_id = source.math_object_id
     if object_id is None and source.state_version_id is not None:
         object_id = source.state_version_id.slot_id.logical_key.object_id
@@ -1613,11 +1629,33 @@ def _source_object_identity(
     ):
         producer = calls_by_id.get(source.source_call_id)
         return_object_ids = {
-            item.math_object_id
+            (
+                item.math_object_id
+                or (
+                    item.logical_state_key.object_id
+                    if item.logical_state_key is not None
+                    else None
+                )
+                or (
+                    item.typed_slot_id.logical_key.object_id
+                    if item.typed_slot_id is not None
+                    else None
+                )
+                or (
+                    item.selected_version_id.slot_id.logical_key.object_id
+                    if item.selected_version_id is not None
+                    else None
+                )
+                or (
+                    item.previous_version_id.slot_id.logical_key.object_id
+                    if item.previous_version_id is not None
+                    else None
+                )
+            )
             for item in (producer.returns if producer is not None else ())
             if item.return_name == source.source_return_name
-            and item.math_object_id is not None
         }
+        return_object_ids.discard(None)
         if len(return_object_ids) > 1:
             raise FunctionalBindingContextError(
                 "planner.method_input_view_authority_drift",
@@ -1772,7 +1810,6 @@ def _source_authority_key(
     *,
     input_spec: Any | None,
 ) -> tuple[Any, ...]:
-    source = source.selected_source or source
     if getattr(getattr(input_spec, "view", None), "mode", None) == "identity":
         identity = _source_object_identity(source)
         if identity is not None:
@@ -1855,320 +1892,6 @@ def _typed_evidence_payload(
         label: [item.to_payload() for item in values]
         for label, values in channels
     }
-
-
-def _compiler_auto_selected_source(
-    *,
-    arg_name: str,
-    selector: str,
-    runtime_input: str | None,
-    required: bool,
-    capability: Any,
-    call: FunctionalCallReconciliation,
-    calls_by_id: Mapping[str, FunctionalCallReconciliation],
-    object_registry: MathObjectRegistry | None,
-    handle_registry: CanonicalHandleRegistry | None,
-    method_specs: MethodSpecRegistry | None,
-    allow_missing_typed_source: bool = False,
-) -> FunctionalArgSourceIdentity | None:
-    """Project a hidden entity slot from canonical call authority.
-
-    Selector execution is intentionally absent here.  Declared same-call
-    links, scoped entity roles, and free-symbol basis evidence are all typed
-    authority channels. For a required or already consumed input, every
-    non-empty channel must identify exactly one source and all channels must
-    agree. An unconsumed optional input may decline projection instead of
-    creating an empty ledger row. No channel wins by declaration order,
-    candidate frequency, or legacy selector precedence.
-    """
-
-    input_spec = None
-    method_id = getattr(capability.source, "method_id", None)
-    if method_specs is not None and isinstance(method_id, str):
-        try:
-            input_spec = method_specs.require(method_id).inputs.get(
-                runtime_input or arg_name
-            )
-        except KeyError:
-            input_spec = None
-    expected_kind = getattr(
-        getattr(input_spec, "view", None),
-        "object_kind",
-        None,
-    )
-    exact_evidence: list[
-        tuple[str, dict[str, FunctionalArgSourceIdentity]]
-    ] = []
-    semantics = selector_semantics(selector)
-
-    def add_exact_evidence(
-        label: str,
-        values: list[FunctionalArgSourceIdentity],
-    ) -> None:
-        by_payload = {
-            json.dumps(item.to_payload(), sort_keys=True): item
-            for item in values
-        }
-        if by_payload:
-            exact_evidence.append((label, by_payload))
-
-    source_arg = semantics.projection_source_arg
-    if source_arg is not None and source_arg != arg_name:
-        sources: list[FunctionalArgSourceIdentity] = []
-        for value in call.resolved_args.get(source_arg, ()):
-            source = _source_for_input_view(
-                value,
-                input_spec=input_spec,
-                object_registry=object_registry,
-            )
-            if source is not None:
-                sources.append(source)
-        add_exact_evidence(f"arg:{source_arg}", sources)
-
-    source_return = semantics.projection_source_return
-    if source_return is not None:
-        add_exact_evidence(
-            f"return:{source_return}",
-            list(
-                _allocation_sources_for_input_view(
-                    call,
-                    return_names=(source_return,),
-                    expected_kind=expected_kind,
-                    input_spec=input_spec,
-                )
-            ),
-        )
-
-    producer_arg = semantics.projection_source_producer_arg
-    if producer_arg is not None:
-        producer_source_values = (
-            call.resolved_args.get(source_arg, ())
-            if source_arg is not None
-            else tuple(
-                value
-                for values in call.resolved_args.values()
-                for value in values
-            )
-        )
-        producer_ids = tuple(
-            dict.fromkeys(
-                value.source_call_id
-                for value in producer_source_values
-                if value.source_call_id is not None
-            )
-        )
-        sources = []
-        for producer_id in producer_ids:
-            producer = calls_by_id.get(producer_id)
-            if producer is None:
-                continue
-            for value in producer.resolved_args.get(producer_arg, ()):
-                source = _source_for_input_view(
-                    value,
-                    input_spec=input_spec,
-                    object_registry=object_registry,
-                )
-                if source is not None:
-                    sources.append(source)
-        add_exact_evidence(f"producer_arg:{producer_arg}", sources)
-
-    identity_returns = tuple(
-        item.name
-        for item in capability.returns
-        if item.identity_arg == arg_name
-    )
-    add_exact_evidence(
-        "return_identity",
-        list(
-            _allocation_sources_for_input_view(
-                call,
-                return_names=identity_returns,
-                expected_kind=expected_kind,
-                input_spec=input_spec,
-            )
-        ),
-    )
-
-    if selector.startswith("symbol:") and object_registry is not None:
-        object_id = object_registry.resolve(
-            selector.split(":", 1)[1]
-        )
-        if object_id is not None:
-            add_exact_evidence(
-                "literal_symbol",
-                [
-                    FunctionalArgSourceIdentity(
-                        kind="math_object",
-                        math_object_id=object_id,
-                    )
-                ],
-            )
-
-    direct_sources: list[FunctionalArgSourceIdentity] = []
-    for value in call.resolved_args.get(arg_name, ()):
-        source = _source_for_input_view(
-            value,
-            input_spec=input_spec,
-            object_registry=object_registry,
-        )
-        if source is not None:
-            direct_sources.append(source)
-    add_exact_evidence(f"resolved_arg:{arg_name}", direct_sources)
-
-    if (
-        semantics.projection_entity_roles
-        and handle_registry is not None
-        and object_registry is not None
-    ):
-        role_sources: list[FunctionalArgSourceIdentity] = []
-        for handle, payload in handle_registry.entity_payloads.items():
-            if payload.get("role") not in semantics.projection_entity_roles:
-                continue
-            if (
-                expected_kind is not None
-                and payload.get("entity_type") != expected_kind
-            ):
-                continue
-            valid_scope = handle_registry.handle_valid_scopes.get(handle, "")
-            if not visible_from_valid_scope(
-                valid_scope,
-                scope_id=call.scope_id,
-                registry=handle_registry,
-            ):
-                continue
-            object_id = object_registry.resolve(handle)
-            if object_id is not None:
-                role_sources.append(
-                    FunctionalArgSourceIdentity(
-                        kind="math_object",
-                        math_object_id=object_id,
-                    )
-                )
-        add_exact_evidence(
-            "entity_roles:" + ",".join(semantics.projection_entity_roles),
-            role_sources,
-        )
-
-    basis_candidates: list[FunctionalArgSourceIdentity] = []
-    basis_refs_by_input: dict[str, tuple[str, ...]] = {}
-    if (
-        semantics.projection_free_symbol_basis
-        and object_registry is not None
-    ):
-        claimed_roles = {
-            role
-            for auto_arg in capability.auto_args
-            if auto_arg.name != arg_name
-            and auto_arg.selector is not None
-            for role in selector_semantics(
-                auto_arg.selector
-            ).projection_entity_roles
-        }
-        raw_refs_by_input = {
-            input_name: tuple(
-                dict.fromkeys(
-                    ref
-                    for value in values
-                    for ref in (
-                        *value.free_symbol_refs,
-                        *(
-                            (value.object_ref,)
-                            if value.runtime_type == "Symbol"
-                            else ()
-                        ),
-                    )
-                    if ref is not None and ref.startswith("symbol:")
-                )
-            )
-            for input_name, values in call.resolved_args.items()
-            if input_name != arg_name
-        }
-        basis_refs_by_input = {
-            input_name: tuple(
-                ref
-                for ref in refs
-                if not (
-                    handle_registry is not None
-                    and handle_registry.entity_payloads.get(ref, {}).get(
-                        "role"
-                    )
-                    in claimed_roles
-                )
-            )
-            for input_name, refs in raw_refs_by_input.items()
-        }
-        symbol_refs = tuple(
-            sorted(
-                {
-                    ref
-                    for refs in basis_refs_by_input.values()
-                    for ref in refs
-                }
-            )
-        )
-        for ref in symbol_refs:
-            if handle_registry is not None:
-                valid_scope = handle_registry.handle_valid_scopes.get(ref, "")
-                if not visible_from_valid_scope(
-                    valid_scope,
-                    scope_id=call.scope_id,
-                    registry=handle_registry,
-                ):
-                    continue
-            object_id = object_registry.resolve(ref)
-            if object_id is None:
-                continue
-            if expected_kind is not None and object_id.kind != expected_kind:
-                continue
-            basis_candidates.append(
-                FunctionalArgSourceIdentity(
-                    kind="math_object",
-                    math_object_id=object_id,
-                )
-            )
-    add_exact_evidence("free_symbol_basis", basis_candidates)
-
-    evidence_payload = {
-        label: [
-            item.to_payload()
-            for _, item in sorted(bucket.items())
-        ]
-        for label, bucket in exact_evidence
-    }
-    ambiguous_channels = tuple(
-        label for label, bucket in exact_evidence if len(bucket) != 1
-    )
-    candidates = {
-        payload_key: source
-        for _, bucket in exact_evidence
-        for payload_key, source in bucket.items()
-    }
-    if ambiguous_channels or len(candidates) > 1:
-        if not required:
-            return None
-        raise FunctionalBindingContextError(
-            "planner.method_input_view_authority_drift",
-            (
-                f"{call.call_id}.{arg_name} has inconsistent typed compiler "
-                f"source evidence; ambiguous_channels={ambiguous_channels}, "
-                f"evidence={evidence_payload}, "
-                f"basis_by_input={basis_refs_by_input}"
-            ),
-        )
-    if (
-        not candidates
-        and required
-        and not allow_missing_typed_source
-        and method_input_requires_typed_entity_authority(input_spec)
-    ):
-        raise FunctionalBindingContextError(
-            "planner.method_input_view_authority_missing",
-            (
-                f"{call.call_id}.{arg_name} requires a typed compiler source; "
-                f"selector={selector}, runtime_input={runtime_input or arg_name}"
-            ),
-        )
-    return next(iter(candidates.values()), None)
 
 
 def _source_for_input_view(
@@ -2346,6 +2069,8 @@ def _binding_declared_source_args(
         return (source.arg_name,) if source.arg_name is not None else ()
     if isinstance(source, ExactCallResultSourceSpec):
         return (source.arg_name,)
+    if isinstance(source, ExactParameterSubstitutionSourceSpec):
+        return source.source_inputs
     return ()
 
 
@@ -2402,23 +2127,8 @@ def build_functional_runtime_arg_bindings_from_context(
                 binding.key.item_index,
             )
         )
-        selected_source = binding.source.selected_source
-        strict_source = (
-            selected_source or binding.source
-            if binding.input_binding is not None
-            else None
-        )
-        strict_math_object_id = (
-            _source_math_object_id(strict_source)
-            if strict_source is not None
-            else None
-        )
-        if (
-            value is None
-            and selected_source is None
-            and binding.input_binding is None
-        ):
-            continue
+        strict_source = binding.source
+        strict_math_object_id = _source_math_object_id(strict_source)
         projected.append(
             ProjectedFunctionArgBinding(
                 step_id=binding.key.call_id,
@@ -2440,92 +2150,30 @@ def build_functional_runtime_arg_bindings_from_context(
                     value.object_ref
                     if value is not None
                     else (
-                        selected_source.math_object_id.value
-                        if selected_source is not None
-                        and selected_source.math_object_id is not None
+                        strict_math_object_id.value
+                        if strict_math_object_id is not None
                         else None
                     )
                 ),
                 math_object_id=(
                     strict_math_object_id
-                    if strict_source is not None
-                    else (
-                        binding.source.math_object_id
-                        or (
-                            selected_source.math_object_id
-                            if selected_source is not None
-                            else None
-                        )
-                        or (
-                            value.math_object_id
-                            if value is not None
-                            else None
-                        )
-                    )
+                    or (value.math_object_id if value is not None else None)
                 ),
                 state_version_id=(
                     strict_source.state_version_id
-                    if strict_source is not None
-                    else (
-                        binding.source.state_version_id
-                        or (
-                            selected_source.state_version_id
-                            if selected_source is not None
-                            else None
-                        )
-                        or (
-                            value.state_version_id
-                            if value is not None
-                            else None
-                        )
-                    )
+                    or (value.state_version_id if value is not None else None)
                 ),
                 condition_id=(
                     strict_source.condition_id
-                    if strict_source is not None
-                    else (
-                        binding.source.condition_id
-                        or (
-                            selected_source.condition_id
-                            if selected_source is not None
-                            else None
-                        )
-                        or (
-                            value.condition_id if value is not None else None
-                        )
-                    )
+                    or (value.condition_id if value is not None else None)
                 ),
                 source_call_id=(
                     strict_source.source_call_id
-                    if strict_source is not None
-                    else (
-                        binding.source.source_call_id
-                        or (
-                            selected_source.source_call_id
-                            if selected_source is not None
-                            else None
-                        )
-                        or (
-                            value.source_call_id
-                            if value is not None
-                            else None
-                        )
-                    )
+                    or (value.source_call_id if value is not None else None)
                 ),
                 source_return_name=(
                     strict_source.source_return_name
-                    if strict_source is not None
-                    else (
-                        binding.source.source_return_name
-                        or (
-                            selected_source.source_return_name
-                            if selected_source is not None
-                            else None
-                        )
-                        or (
-                            value.return_name if value is not None else None
-                        )
-                    )
+                    or (value.return_name if value is not None else None)
                 ),
                 binding_authority=binding.binding_authority,
                 semantic_role=binding.semantic_role,
@@ -2533,12 +2181,6 @@ def build_functional_runtime_arg_bindings_from_context(
                 item_index=binding.key.item_index,
                 selection_policy=binding.selection_policy,
                 consumption_mode=binding.consumption_mode,
-                compiler_selector_id=binding.source.compiler_selector_id,
-                compiler_selected_source_kind=(
-                    selected_source.kind
-                    if selected_source is not None
-                    else None
-                ),
                 runtime_input_targets=binding.runtime_input_targets,
                 runtime_input_required=binding.runtime_input_required,
                 input_binding=binding.input_binding,
@@ -2590,9 +2232,9 @@ def audit_functional_arg_binding_projection(
             binding.key.arg_name,
             binding.key.item_index,
         )
-        # Mechanical compiler selectors need not be projected into the v1
-        # compatibility IR. When a typed compiler binding is projected (for
-        # example a hidden target identity), audit it like every other source.
+        # An omitted optional typed input has no ledger row. Every finalized
+        # binding that reaches the derived v1 IR is audited like any other
+        # exact source.
         if (
             binding.binding_authority == "compiler"
             and key not in projected_by_key
@@ -2617,7 +2259,10 @@ def audit_functional_arg_binding_projection(
                 details.append("selection_policy")
             if item.runtime_input_targets != binding.runtime_input_targets:
                 details.append("runtime_input_targets")
-            if _projected_source_payload(item) != binding.source.to_payload():
+            if _projected_source_payload(
+                item,
+                expected_kind=binding.source.kind,
+            ) != binding.source.to_payload():
                 details.append("source_identity")
         decision = {
             "call_id": binding.key.call_id,
@@ -2859,58 +2504,13 @@ def audit_compiled_functional_arg_consumption(
 
 def _projected_source_payload(
     item: ProjectedFunctionArgBinding,
+    *,
+    expected_kind: FunctionalArgSourceKind,
 ) -> dict[str, Any]:
-    if (
-        item.binding_authority == "compiler"
-        and item.compiler_selector_id is not None
-    ):
-        payload: dict[str, Any] = {
-            "kind": "compiler_selector",
-            "compiler_selector_id": item.compiler_selector_id,
-        }
-        selected = _projected_compiler_selected_source_payload(item)
-        if selected is not None:
-            payload["selected_source"] = selected
-        return payload
-    if item.condition_id is not None:
+    if expected_kind == "condition" and item.condition_id is not None:
         return {"kind": "condition", "condition_id": item.condition_id}
-    if item.source_call_id is not None and item.source_return_name is not None:
-        return {
-            "kind": "call_result",
-            "source_call_id": item.source_call_id,
-            "source_return_name": item.source_return_name,
-        }
-    if item.state_version_id is not None:
-        return {
-            "kind": "state_version",
-            "state_version_id": item.state_version_id.to_payload(),
-        }
-    if item.math_object_id is not None:
-        return {
-            "kind": "math_object",
-            "math_object_id": item.math_object_id.to_payload(),
-        }
-    if item.compiler_selector_id is not None:
-        return {
-            "kind": "compiler_selector",
-            "compiler_selector_id": item.compiler_selector_id,
-        }
-    return {"kind": "unresolved"}
-
-
-def _projected_compiler_selected_source_payload(
-    item: ProjectedFunctionArgBinding,
-) -> dict[str, Any] | None:
-    kind = item.compiler_selected_source_kind
-    if kind == "condition" and item.condition_id is not None:
-        return {"kind": "condition", "condition_id": item.condition_id}
-    if kind == "state_version" and item.state_version_id is not None:
-        return {
-            "kind": "state_version",
-            "state_version_id": item.state_version_id.to_payload(),
-        }
     if (
-        kind == "call_result"
+        expected_kind == "call_result"
         and item.source_call_id is not None
         and item.source_return_name is not None
     ):
@@ -2919,16 +2519,21 @@ def _projected_compiler_selected_source_payload(
             "source_call_id": item.source_call_id,
             "source_return_name": item.source_return_name,
         }
-    if kind == "math_object" and item.math_object_id is not None:
+    if expected_kind == "state_version" and item.state_version_id is not None:
+        return {
+            "kind": "state_version",
+            "state_version_id": item.state_version_id.to_payload(),
+        }
+    if expected_kind == "math_object" and item.math_object_id is not None:
         return {
             "kind": "math_object",
             "math_object_id": item.math_object_id.to_payload(),
         }
-    return None
+    return {"kind": "unresolved"}
 
 
 def _binding_source_handle(binding: FunctionalArgBinding) -> str | None:
-    source = binding.source.selected_source or binding.source
+    source = binding.source
     if source.math_object_id is not None:
         return source.math_object_id.value
     if source.state_version_id is not None:

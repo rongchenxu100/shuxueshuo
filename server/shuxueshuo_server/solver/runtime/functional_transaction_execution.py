@@ -15,9 +15,11 @@ from typing import Any, Callable, Literal, Mapping, Sequence
 import sympy as sp
 
 from shuxueshuo_server.solver.contracts import (
+    CanonicalSymbolDerivationSpec,
     CoefficientExtractionDerivationSpec,
     EntityIdentitySourceSpec,
     ExactCallResultSourceSpec,
+    FreeSymbolBasisDerivationSpec,
     LatestStateSourceSpec,
     MacroPreparedRoleSourceSpec,
     MethodInputBindingSpec,
@@ -123,7 +125,6 @@ from shuxueshuo_server.solver.runtime.planner_failure_classification import (
 from shuxueshuo_server.solver.runtime.macro_specs import MacroSpec
 from shuxueshuo_server.solver.runtime.method_input_read_authority import (
     CallResultReadSource,
-    CompilerSelectorReadSource,
     ConditionReadSource,
     DerivedInputReadSource,
     EntityIdentityReadSource,
@@ -134,6 +135,7 @@ from shuxueshuo_server.solver.runtime.method_input_read_authority import (
 from shuxueshuo_server.solver.runtime.methods import default_stateless_registry
 from shuxueshuo_server.solver.runtime.models import (
     ContextDeclaration,
+    ContextPath,
     MethodInvocation,
     PlannerOutput,
     StepExecutionResult,
@@ -145,6 +147,9 @@ from shuxueshuo_server.solver.runtime.planner import PlannerInputs
 from shuxueshuo_server.solver.runtime.planner_state_context import (
     Condition,
     PlannerStateContext,
+)
+from shuxueshuo_server.solver.runtime.output_type_inference import (
+    semantic_name_from_handle,
 )
 from shuxueshuo_server.solver.runtime.problem_source_provenance import (
     ProblemCallSourceProvenance,
@@ -1811,11 +1816,6 @@ class FunctionalCallPreparationService:
         parameter_selector_object_ids = _parameter_selector_object_ids(
             reconciled.resolved_args,
             object_registry=object_registry,
-            compiler_selectors=(
-                item.selector
-                for item in capability.auto_args
-                if item.selector is not None
-            ),
         )
         parameter_selector_object_ids = frozenset(
             (
@@ -2104,8 +2104,6 @@ def _prepare_non_state_runtime_path(
         OrdinalZeroTemplateDerivationSpec,
     ):
         return None
-    if binding.source.kind == "compiler_selector":
-        return None
     consumer = (
         f"{binding.key.call_id}.{binding.key.arg_name}"
         f"[{binding.key.item_index}]"
@@ -2196,7 +2194,7 @@ def _prepare_non_state_runtime_path(
 def _functional_binding_object_id(
     binding: FunctionalArgBinding,
 ) -> MathObjectId | None:
-    source = binding.source.selected_source or binding.source
+    source = binding.source
     if source.math_object_id is not None:
         return source.math_object_id
     if source.state_version_id is not None:
@@ -2210,12 +2208,11 @@ def _functional_binding_source_handle(
     object_id = _functional_binding_object_id(binding)
     if object_id is not None:
         return object_id.value
-    source = binding.source.selected_source or binding.source
+    source = binding.source
     if source.condition_id is not None:
         return source.condition_id
     if source.source_call_id is not None and source.source_return_name is not None:
         return f"{source.source_call_id}.{source.source_return_name}"
-    return None
     return None
 
 
@@ -2484,21 +2481,38 @@ def _stamp_method_input_read_authorities(
     method_specs: Any,
     branch: RuntimeContext,
     working: WorkingPlannerState,
+    condition_authority_index: Any | None = None,
 ) -> CompiledFunctionalCall:
     """Attach the only runtime-readable source choice to every Method input."""
+
+    debug_authority = prepared_call.problem_call_binding is None
+    problem_inputs_by_key = {
+        (item.arg_name, item.item_index): item
+        for item in (
+            prepared_call.problem_call_binding.input_bindings
+            if prepared_call.problem_call_binding is not None
+            else ()
+        )
+    }
+    parent_dependency_object_refs = frozenset(
+        object_ref
+        for values in prepared_call.reconciliation.resolved_args.values()
+        for value in values
+        for object_ref in (
+            *value.dependency_object_refs,
+            *((value.object_ref,) if value.object_ref is not None else ()),
+            *(
+                role_ref
+                for _role, role_refs in value.object_roles
+                for role_ref in role_refs
+            ),
+        )
+    )
 
     bindings_by_path = {
         item.runtime_path: item
         for item in prepared_call.arg_bindings
         if item.runtime_path is not None
-    }
-    compiler_bindings_by_input = {
-        (
-            item.logical_binding.key.arg_name,
-            item.logical_binding.key.item_index,
-        ): item
-        for item in prepared_call.arg_bindings
-        if item.logical_binding.source.kind == "compiler_selector"
     }
     typed_bindings_by_target: dict[
         tuple[str, int], PreparedFunctionalArgBinding
@@ -2516,9 +2530,78 @@ def _stamp_method_input_read_authorities(
                     f"call={prepared_call.call_id}, input={target}, "
                     "multiple typed bindings target one Method input"
                 )
-    state_reads_by_path = {
-        item.snapshot_runtime_path: item for item in prepared_call.state_reads
-    }
+    state_reads_by_path: dict[str, PreparedFunctionalStateRead] = {}
+    for item in prepared_call.state_reads:
+        for runtime_path in (
+            item.original_runtime_path,
+            item.snapshot_runtime_path,
+        ):
+            previous = state_reads_by_path.setdefault(runtime_path, item)
+            if previous.selected_version_id != item.selected_version_id:
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.method_input_view_authority_drift: "
+                    f"call={prepared_call.call_id}, path={runtime_path}, "
+                    "multiple exact StateVersions"
+                )
+    lineage_state_sources_by_path: dict[str, StateVersionReadSource] = {}
+
+    def register_lineage_state_source(
+        runtime_path: str,
+        version_id: StateVersionId,
+    ) -> None:
+        source = StateVersionReadSource(version_id, runtime_path)
+        previous = lineage_state_sources_by_path.setdefault(
+            runtime_path,
+            source,
+        )
+        if previous.state_version_id != version_id:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_input_view_authority_drift: "
+                f"call={prepared_call.call_id}, path={runtime_path}, "
+                "multiple exact lineage StateVersions"
+            )
+
+    for values in prepared_call.reconciliation.resolved_args.values():
+        for value in values:
+            if value.state_version_id is not None:
+                selected_version_id = working.resolve_runtime_version_id(
+                    value.state_version_id
+                )
+                selected = working.identity_index.version(selected_version_id)
+                if selected is None:
+                    raise ValueError(
+                        "planner_configuration_error: "
+                        "planner.method_input_view_authority_missing: "
+                        f"call={prepared_call.call_id}, selected_version="
+                        f"{selected_version_id.to_payload()}"
+                    )
+                register_lineage_state_source(
+                    value.handle,
+                    selected_version_id,
+                )
+                register_lineage_state_source(
+                    _indexed_runtime_path(selected),
+                    selected_version_id,
+                )
+            for version_id in value.source_version_ids:
+                runtime_version_id = working.resolve_runtime_version_id(
+                    version_id
+                )
+                indexed = working.identity_index.version(runtime_version_id)
+                if indexed is None:
+                    raise ValueError(
+                        "planner_configuration_error: "
+                        "planner.method_input_view_authority_missing: "
+                        f"call={prepared_call.call_id}, source_version="
+                        f"{runtime_version_id.to_payload()}"
+                    )
+                runtime_path = _indexed_runtime_path(indexed)
+                register_lineage_state_source(
+                    runtime_path,
+                    runtime_version_id,
+                )
     materialized_state_sources = dict(compiled.materialized_state_sources)
     declared_entity_handles = {
         declaration.path: (
@@ -2637,12 +2720,84 @@ def _stamp_method_input_read_authorities(
         )
         return StateVersionReadSource(selected.version_id, path)
 
+    def condition_source_for_path(
+        path: str,
+        *,
+        input_name: str,
+    ) -> ConditionReadSource | None:
+        if condition_authority_index is None:
+            return None
+        try:
+            condition_value = branch.read_path(
+                path,
+                from_scope_id=prepared_call.execution_scope_id,
+                expected_type="Condition",
+            ).value
+        except (KeyError, PermissionError, TypeError, ValueError):
+            return None
+        authority = None
+        if isinstance(condition_value, Condition):
+            authority = condition_authority_index.require(
+                condition_value.condition_id
+            )
+        elif isinstance(condition_value, Mapping):
+            condition_id = condition_value.get("condition_id")
+            if isinstance(condition_id, str) and condition_id:
+                authority = condition_authority_index.require(condition_id)
+            else:
+                runtime_handle = condition_value.get("handle")
+                condition_kind = condition_value.get("type")
+                if (
+                    isinstance(runtime_handle, str)
+                    and runtime_handle
+                    and isinstance(condition_kind, str)
+                    and condition_kind
+                ):
+                    authority = condition_authority_index.resolve_runtime_handle(
+                        runtime_handle,
+                        condition_kinds=(condition_kind,),
+                        scope_id=prepared_call.execution_scope_id,
+                    )
+            owner_scope = condition_value.get("scope_id")
+            if (
+                authority is not None
+                and isinstance(owner_scope, str)
+                and owner_scope
+                and owner_scope != authority.owner_scope_id
+            ):
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.method_input_view_authority_drift: "
+                    f"call={prepared_call.call_id}, input={input_name}, "
+                    f"condition={authority.condition_id}, "
+                    f"expected_owner={authority.owner_scope_id}, "
+                    f"observed_owner={owner_scope}"
+                )
+        if authority is None:
+            return None
+        related_refs = frozenset(authority.related_object_refs)
+        if (
+            parent_dependency_object_refs
+            and not related_refs.issubset(parent_dependency_object_refs)
+        ):
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_input_view_authority_drift: "
+                f"call={prepared_call.call_id}, input={input_name}, "
+                f"condition={authority.condition_id}, "
+                "related objects are outside the parent provenance"
+            )
+        return ConditionReadSource(authority.condition_id, path)
+
     def source_for(
         path: str,
         *,
         input_name: str,
         item_index: int,
         view_mode: str,
+        identity_companion_path: str | None = None,
+        input_binding: MethodInputBindingSpec | None = None,
+        invocation_inputs: Mapping[str, str | tuple[str, ...]] | None = None,
     ) -> Any:
         def typed_prepared_source(
             prepared: PreparedFunctionalArgBinding | None,
@@ -2731,6 +2886,78 @@ def _stamp_method_input_read_authorities(
             if item_index < len(resolved_values)
             else None
         )
+        problem_input = problem_inputs_by_key.get((input_name, item_index))
+        if (
+            view_mode == "exact_result"
+            and problem_input is not None
+            and problem_input.typed_source is not None
+            and problem_input.typed_source.kind == "call_result"
+        ):
+            typed_source = problem_input.typed_source
+            if (
+                typed_source.source_call_id is None
+                or typed_source.source_return_name is None
+            ):
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.method_input_view_authority_missing: "
+                    f"call={prepared_call.call_id}, input={input_name}, "
+                    "view=exact_result"
+                )
+            if (
+                resolved_value is None
+                or resolved_value.source_call_id
+                != typed_source.source_call_id
+                or resolved_value.return_name
+                != typed_source.source_return_name
+            ):
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.method_input_view_authority_drift: "
+                    f"call={prepared_call.call_id}, input={input_name}, "
+                    f"expected={typed_source.source_call_id}."
+                    f"{typed_source.source_return_name}, observed="
+                    f"{getattr(resolved_value, 'source_call_id', None)}."
+                    f"{getattr(resolved_value, 'return_name', None)}"
+                )
+            return CallResultReadSource(
+                typed_source.source_call_id,
+                typed_source.source_return_name,
+                path,
+            )
+        if view_mode == "latest_state":
+            lineage_source = lineage_state_sources_by_path.get(path)
+            if lineage_source is not None:
+                if (
+                    problem_input is not None
+                    and problem_input.typed_source.kind == "call_result"
+                    and (
+                        resolved_value is None
+                        or resolved_value.source_call_id
+                        != problem_input.typed_source.source_call_id
+                        or resolved_value.return_name
+                        != problem_input.typed_source.source_return_name
+                    )
+                ):
+                    raise ValueError(
+                        "planner_configuration_error: "
+                        "planner.method_input_view_authority_drift: "
+                        f"call={prepared_call.call_id}, input={input_name}, "
+                        "the exact state producer differs from the finalized "
+                        "call-result binding"
+                    )
+                return lineage_source
+        if (
+            not debug_authority
+            and view_mode == "immutable_value"
+            and condition_authority_index is not None
+        ):
+            exact_condition = condition_source_for_path(
+                path,
+                input_name=input_name,
+            )
+            if exact_condition is not None:
+                return exact_condition
         if state_read is not None and view_mode == "identity":
             object_id = (
                 state_read.selected_version_id
@@ -2842,12 +3069,11 @@ def _stamp_method_input_read_authorities(
                     binding.selected_state_version_id,
                     path,
                 )
-            if source.kind == "compiler_selector":
-                return CompilerSelectorReadSource(
-                    binding.logical_binding.semantic_role or input_name,
-                    path,
-                )
-            if view_mode == "latest_state" and binding.source_handle is not None:
+            if (
+                debug_authority
+                and view_mode == "latest_state"
+                and binding.source_handle is not None
+            ):
                 object_versions = tuple(
                     item
                     for item in working.identity_index.all_versions()
@@ -2888,53 +3114,222 @@ def _stamp_method_input_read_authorities(
         )
         if exact_typed_source is not None:
             return exact_typed_source
-        compiler_binding = compiler_bindings_by_input.get(
-            (input_name, item_index)
-        )
-        if compiler_binding is not None:
-            selector_id = (
-                compiler_binding.logical_binding.source.compiler_selector_id
-                or input_name
-            )
-            if view_mode == "identity" and (
-                compiler_binding.source_handle is not None
-                or compiler_binding.source_math_object_id is not None
-            ):
-                return EntityIdentityReadSource(
-                    (
-                        compiler_binding.source_math_object_id.value
-                        if compiler_binding.source_math_object_id is not None
-                        else compiler_binding.source_handle
-                    ),
-                    path,
-                )
-            if (
-                view_mode == "latest_state"
-                and resolved_value is not None
-                and resolved_value.state_version_id is not None
-            ):
-                return StateVersionReadSource(
-                    resolved_value.state_version_id,
-                    path,
-                )
-            if view_mode == "latest_state":
-                selected_state = latest_state_source(
-                    path,
-                    scope_id=prepared_call.execution_scope_id,
-                )
-                if selected_state is not None:
-                    return selected_state
-            return CompilerSelectorReadSource(selector_id, path)
         if view_mode == "identity" and path in declared_entity_handles:
             return EntityIdentityReadSource(
                 declared_entity_handles[path],
                 path,
             )
+        if (
+            view_mode == "identity"
+            and input_binding is not None
+            and isinstance(
+                input_binding.derivation,
+                CanonicalSymbolDerivationSpec,
+            )
+        ):
+            return EntityIdentityReadSource(
+                f"symbol:problem:{input_binding.derivation.symbol_name}",
+                path,
+            )
+        if (
+            debug_authority
+            and input_binding is not None
+            and isinstance(
+                input_binding.derivation,
+                CoefficientExtractionDerivationSpec,
+            )
+        ):
+            source_value = (invocation_inputs or {}).get(
+                input_binding.derivation.source_input
+            )
+            source_paths = (
+                (source_value,)
+                if isinstance(source_value, str)
+                else tuple(source_value or ())
+            )
+            if len(source_paths) != 1:
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.method_input_view_authority_drift: "
+                    f"call={prepared_call.call_id}, input={input_name}, "
+                    "derivation=coefficient_extraction, "
+                    f"source_count={len(source_paths)}"
+                )
+            source_path = source_paths[0]
+            upstream: Any | None = None
+            source_read = state_reads_by_path.get(source_path)
+            if source_read is not None:
+                upstream = StateVersionReadSource(
+                    source_read.selected_version_id,
+                    source_path,
+                )
+            materialized_version = materialized_state_sources.get(source_path)
+            if upstream is None and materialized_version is not None:
+                upstream = StateVersionReadSource(
+                    materialized_version,
+                    source_path,
+                )
+            source_producer = producer_by_path.get(source_path)
+            if upstream is None and source_producer is not None:
+                upstream = InvocationResultReadSource(
+                    source_producer[0],
+                    source_producer[1],
+                    source_path,
+                )
+            if upstream is None:
+                parsed_source = ContextPath.parse(source_path)
+                object_kind = {
+                    "functions": "function",
+                    "object_refs": "object",
+                }.get(parsed_source.container)
+                if object_kind is not None:
+                    upstream = EntityIdentityReadSource(
+                        f"{object_kind}:{parsed_source.scope_id}:"
+                        f"{parsed_source.key}",
+                        source_path,
+                    )
+            if upstream is None:
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.method_input_view_authority_missing: "
+                    f"call={prepared_call.call_id}, input={input_name}, "
+                    "derivation=coefficient_extraction, "
+                    f"source_path={source_path}"
+                )
+            return DerivedInputReadSource(input_binding, upstream, path)
+        if (
+            view_mode == "identity"
+            and input_binding is not None
+            and isinstance(
+                input_binding.derivation,
+                FreeSymbolBasisDerivationSpec,
+            )
+        ):
+            exact_conditions: dict[str, ConditionReadSource] = {}
+            exact_states: dict[StateVersionId, StateVersionReadSource] = {}
+            for source_input in input_binding.derivation.source_inputs:
+                source_value = (invocation_inputs or {}).get(source_input)
+                source_paths = (
+                    (source_value,)
+                    if isinstance(source_value, str)
+                    else tuple(source_value or ())
+                )
+                for source_path in source_paths:
+                    prepared = bindings_by_path.get(source_path)
+                    prepared_source = typed_prepared_source(prepared)
+                    if (
+                        prepared_source is None
+                        and prepared is not None
+                        and prepared.logical_binding.source.condition_id
+                        is not None
+                    ):
+                        prepared_source = ConditionReadSource(
+                            prepared.logical_binding.source.condition_id,
+                            source_path,
+                        )
+                    if prepared_source is None:
+                        prepared_source = lineage_state_sources_by_path.get(
+                            source_path
+                        )
+                    if prepared_source is None and not debug_authority:
+                        prepared_source = condition_source_for_path(
+                            source_path,
+                            input_name=input_name,
+                        )
+                    if prepared_source is None and debug_authority:
+                        try:
+                            exact_condition = branch.read_path(
+                                source_path,
+                                from_scope_id=prepared_call.execution_scope_id,
+                                expected_type="Condition",
+                            ).value
+                        except (KeyError, PermissionError, TypeError, ValueError):
+                            exact_condition = None
+                        if isinstance(exact_condition, Condition):
+                            prepared_source = ConditionReadSource(
+                                exact_condition.condition_id,
+                                source_path,
+                            )
+                        elif isinstance(exact_condition, Mapping):
+                            condition_id = exact_condition.get("condition_id")
+                            if isinstance(condition_id, str) and condition_id:
+                                prepared_source = ConditionReadSource(
+                                    condition_id,
+                                    source_path,
+                                )
+                            else:
+                                parsed_source = ContextPath.parse(source_path)
+                                if parsed_source.container in {
+                                    "conditions",
+                                    "constraints",
+                                }:
+                                    prepared_source = ConditionReadSource(
+                                        f"condition:{parsed_source.key}@"
+                                        f"{parsed_source.scope_id}",
+                                        source_path,
+                                    )
+                    if isinstance(prepared_source, ConditionReadSource):
+                        exact_conditions[prepared_source.condition_id] = (
+                            prepared_source
+                        )
+                    selected = state_reads_by_path.get(source_path)
+                    if selected is not None:
+                        state_source = StateVersionReadSource(
+                            selected.selected_version_id,
+                            source_path,
+                        )
+                        exact_states[state_source.state_version_id] = state_source
+            if len(exact_conditions) > 1:
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.method_input_view_authority_drift: "
+                    f"call={prepared_call.call_id}, input={input_name}, "
+                    f"condition_count={len(exact_conditions)}"
+                )
+            upstream = (
+                next(iter(exact_conditions.values()))
+                if exact_conditions
+                else (
+                    next(iter(exact_states.values()))
+                    if len(exact_states) == 1
+                    else None
+                )
+            )
+            if upstream is None:
+                declared_source_paths = {
+                    source_input: (invocation_inputs or {}).get(source_input)
+                    for source_input in input_binding.derivation.source_inputs
+                }
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.method_input_view_authority_missing: "
+                    f"call={prepared_call.call_id}, input={input_name}, "
+                    "derivation=free_symbol_basis, "
+                    f"source_paths={declared_source_paths}, "
+                    f"prepared_paths={sorted(bindings_by_path)}"
+                )
+            return DerivedInputReadSource(input_binding, upstream, path)
+        if view_mode == "identity" and identity_companion_path is not None:
+            companion_read = state_reads_by_path.get(identity_companion_path)
+            if companion_read is not None:
+                return EntityIdentityReadSource(
+                    companion_read.selected_version_id.slot_id.logical_key.object_id.value,
+                    path,
+                )
+            companion_version = materialized_state_sources.get(
+                identity_companion_path
+            )
+            if companion_version is not None:
+                return EntityIdentityReadSource(
+                    companion_version.slot_id.logical_key.object_id.value,
+                    path,
+                )
         producer = producer_by_path.get(path)
-        if producer is not None:
+        if producer is not None and view_mode != "identity":
             return InvocationResultReadSource(producer[0], producer[1], path)
         if (
-            view_mode == "exact_result"
+            debug_authority
+            and view_mode == "exact_result"
             and resolved_value is not None
             and resolved_value.source_call_id is not None
             and resolved_value.return_name is not None
@@ -2945,7 +3340,8 @@ def _stamp_method_input_read_authorities(
                 path,
             )
         if (
-            view_mode == "latest_state"
+            debug_authority
+            and view_mode == "latest_state"
             and resolved_value is not None
             and resolved_value.state_version_id is not None
         ):
@@ -2953,20 +3349,91 @@ def _stamp_method_input_read_authorities(
                 resolved_value.state_version_id,
                 path,
             )
-        if view_mode == "latest_state":
+        if (
+            debug_authority
+            and view_mode == "identity"
+            and resolved_value is not None
+            and (
+                resolved_value.math_object_id is not None
+                or resolved_value.object_ref is not None
+            )
+        ):
+            return EntityIdentityReadSource(
+                (
+                    resolved_value.math_object_id.value
+                    if resolved_value.math_object_id is not None
+                    else resolved_value.object_ref
+                ),
+                path,
+            )
+        if debug_authority and view_mode == "identity":
+            parsed_source = ContextPath.parse(path)
+            debug_object_kind = {
+                "symbols": "symbol",
+                "points": "point",
+                "functions": "function",
+            }.get(parsed_source.container)
+            if debug_object_kind is not None:
+                return EntityIdentityReadSource(
+                    f"{debug_object_kind}:{parsed_source.scope_id}:"
+                    f"{parsed_source.key}",
+                    path,
+                )
+            selected_state = latest_state_source(
+                path,
+                scope_id=prepared_call.execution_scope_id,
+            )
+            if selected_state is not None:
+                return EntityIdentityReadSource(
+                    selected_state.state_version_id.slot_id.logical_key.object_id.value,
+                    path,
+                )
+        if debug_authority and view_mode == "immutable_value":
+            try:
+                condition_value = branch.read_path(
+                    path,
+                    from_scope_id=prepared_call.execution_scope_id,
+                    expected_type="Condition",
+                ).value
+            except (KeyError, PermissionError, TypeError):
+                condition_value = None
+            if isinstance(condition_value, Condition):
+                return ConditionReadSource(condition_value.condition_id, path)
+            if isinstance(condition_value, Mapping):
+                condition_id = condition_value.get("condition_id")
+                if isinstance(condition_id, str) and condition_id:
+                    return ConditionReadSource(condition_id, path)
+                handle = condition_value.get("handle")
+                owner_scope = condition_value.get("scope_id")
+                if (
+                    isinstance(handle, str)
+                    and handle
+                    and isinstance(owner_scope, str)
+                    and owner_scope
+                ):
+                    return ConditionReadSource(
+                        f"condition:{semantic_name_from_handle(handle)}@{owner_scope}",
+                        path,
+                    )
+            parsed_source = ContextPath.parse(path)
+            if parsed_source.container in {"conditions", "constraints"}:
+                return ConditionReadSource(
+                    f"condition:{parsed_source.key}@"
+                    f"{parsed_source.scope_id}",
+                    path,
+                )
+            return InvocationResultReadSource(
+                f"debug:{prepared_call.call_id}",
+                input_name,
+                path,
+            )
+        if debug_authority and view_mode == "latest_state":
             selected_state = latest_state_source(
                 path,
                 scope_id=prepared_call.execution_scope_id,
             )
             if selected_state is not None:
                 return selected_state
-        if view_mode == "identity":
-            return CompilerSelectorReadSource(
-                f"compiled_identity:{input_name}",
-                path,
-            )
-        if view_mode == "immutable_value":
-            return CompilerSelectorReadSource(f"compiled:{input_name}", path)
         raise ValueError(
             "planner_configuration_error: "
             "planner.method_input_view_authority_missing: "
@@ -3417,6 +3884,19 @@ def _stamp_method_input_read_authorities(
                             input_name=input_name,
                             item_index=index,
                             view_mode=input_spec.view.mode,
+                            input_binding=input_spec.binding,
+                            invocation_inputs=invocation.inputs,
+                            identity_companion_path=(
+                                invocation.inputs.get(f"{input_name}_value")
+                                if input_spec.view.mode == "identity"
+                                and isinstance(
+                                    invocation.inputs.get(
+                                        f"{input_name}_value"
+                                    ),
+                                    str,
+                                )
+                                else None
+                            ),
                         ),
                     )
                     for index, path in enumerate(paths)
@@ -3514,6 +3994,7 @@ def _stamp_method_input_read_authorities(
 
 def _aggregate_method_input_item_type(runtime_type: str) -> str:
     aggregate = {
+        "Coefficients": "ParameterValue",
         "PointList": "Point",
         "SymbolList": "Symbol",
     }.get(runtime_type)
@@ -4186,6 +4667,9 @@ def _prepare_runtime_search_macro(
                 method_specs=inputs.method_specs,
                 branch=shadow_context,
                 working=shadow_working,
+                condition_authority_index=(
+                    reconciliation.condition_binding_authority_index
+                ),
             )
             lowered_call_count = sum(
                 len(plan.invocations) for plan in compiled.plans
@@ -5129,6 +5613,9 @@ class FunctionalTransactionalInterpreter:
                     method_specs=inputs.method_specs,
                     branch=branch,
                     working=working,
+                    condition_authority_index=(
+                        reconciliation.condition_binding_authority_index
+                    ),
                 )
                 executor = self._executor_factory(inputs, branch)
                 symbolic_spec = (
@@ -6190,9 +6677,8 @@ def _parameter_selector_object_ids(
     resolved_args: Mapping[str, Sequence[Any]],
     *,
     object_registry: MathObjectRegistry,
-    compiler_selectors: Sequence[str] = (),
 ) -> frozenset[MathObjectId]:
-    """Return symbols a method explicitly asks to keep as selectors."""
+    """Return symbols a method explicitly asks to retain in its basis."""
 
     result: set[MathObjectId] = set()
     for values in resolved_args.values():
@@ -6210,12 +6696,6 @@ def _parameter_selector_object_ids(
                 object_id = object_registry.resolve(value.object_ref)
                 if object_id is not None and object_id.kind == "symbol":
                     result.add(object_id)
-    for selector in compiler_selectors:
-        object_id = object_registry.resolve(selector)
-        if object_id is None and selector.startswith("symbol:"):
-            object_id = object_registry.resolve(selector.removeprefix("symbol:"))
-        if object_id is not None and object_id.kind == "symbol":
-            result.add(object_id)
     return frozenset(result)
 
 

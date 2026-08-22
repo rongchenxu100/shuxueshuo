@@ -14,7 +14,6 @@ from shuxueshuo_server.solver.family import (
     QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY,
     QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY,
     MethodBindingRuleSpec,
-    LegacySelectorInputBindingSpec,
     RecipeExecutionSpec,
     SolverFamilySpec,
     StateSlotPattern,
@@ -33,6 +32,7 @@ from shuxueshuo_server.solver.contracts import (
     MethodInputBindingSpec,
     MethodSpec,
     PreviousOutputIdentityDerivationSpec,
+    PublicArgSourceSpec,
 )
 from shuxueshuo_server.solver.fixtures import load_problem_ir
 from shuxueshuo_server.solver.runtime.binding_rules import MethodBindingRuleRegistry
@@ -321,11 +321,21 @@ def test_capability_pack_expansion_deduplicates_methods_and_overrides_recipes() 
 def test_capability_pack_expansion_merges_binding_rules_and_family_override() -> None:
     pack_rule = MethodBindingRuleSpec(
         method_id="method_a",
-        input_bindings=(LegacySelectorInputBindingSpec("value", "pack_selector"),),
+        input_bindings=(
+            MethodInputBindingSpec(
+                input_name="value",
+                source=PublicArgSourceSpec("pack_value"),
+            ),
+        ),
     )
     family_rule = MethodBindingRuleSpec(
         method_id="method_a",
-        input_bindings=(LegacySelectorInputBindingSpec("value", "family_selector"),),
+        input_bindings=(
+            MethodInputBindingSpec(
+                input_name="value",
+                source=PublicArgSourceSpec("family_value"),
+            ),
+        ),
     )
     registry = CapabilityPackRegistry((
         CapabilityPackSpec(
@@ -360,7 +370,12 @@ def test_capability_pack_expansion_rejects_conflicting_pack_binding_rules() -> N
             method_binding_rules=(
                 MethodBindingRuleSpec(
                     method_id="method_a",
-                    input_bindings=(LegacySelectorInputBindingSpec("value", "base_selector"),),
+                    input_bindings=(
+                        MethodInputBindingSpec(
+                            input_name="value",
+                            source=PublicArgSourceSpec("base_value"),
+                        ),
+                    ),
                 ),
             ),
         ),
@@ -370,7 +385,12 @@ def test_capability_pack_expansion_rejects_conflicting_pack_binding_rules() -> N
             method_binding_rules=(
                 MethodBindingRuleSpec(
                     method_id="method_a",
-                    input_bindings=(LegacySelectorInputBindingSpec("value", "mechanism_selector"),),
+                    input_bindings=(
+                        MethodInputBindingSpec(
+                            input_name="value",
+                            source=PublicArgSourceSpec("mechanism_value"),
+                        ),
+                    ),
                 ),
             ),
         ),
@@ -392,7 +412,12 @@ def test_capability_pack_expansion_rejects_conflicting_pack_binding_rules() -> N
 def test_capability_pack_expansion_allows_identical_pack_binding_rules() -> None:
     rule = MethodBindingRuleSpec(
         method_id="method_a",
-        input_bindings=(LegacySelectorInputBindingSpec("value", "selector"),),
+        input_bindings=(
+            MethodInputBindingSpec(
+                input_name="value",
+                source=PublicArgSourceSpec("value"),
+            ),
+        ),
     )
     registry = CapabilityPackRegistry((
         CapabilityPackSpec(

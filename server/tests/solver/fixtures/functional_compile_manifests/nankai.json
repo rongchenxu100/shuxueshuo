@@ -61,7 +61,8 @@
           "authority": "wire",
           "target": "known_coefficients",
           "paths": [
-            "$question.i.coefficients.known"
+            "$question.i.facts.__functional_transaction_i_derive_parabola_0",
+            "$question.i.facts.__functional_transaction_i_derive_parabola_1"
           ]
         },
         {
@@ -71,7 +72,8 @@
           "authority": "wire",
           "target": "known_coefficients",
           "paths": [
-            "$question.i.coefficients.known"
+            "$question.i.facts.__functional_transaction_i_derive_parabola_0",
+            "$question.i.facts.__functional_transaction_i_derive_parabola_1"
           ]
         },
         {
@@ -1393,6 +1395,16 @@
           "target": "line2_p2",
           "paths": [
             "$subquestion.ii_2.facts.__functional_transaction_ii_2_derive_G_3"
+          ]
+        },
+        {
+          "arg": "parameter",
+          "item": 0,
+          "role": "parameter",
+          "authority": "compiler",
+          "target": "parameter",
+          "paths": [
+            "$problem.symbols.m"
           ]
         },
         {

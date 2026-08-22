@@ -14,10 +14,9 @@ from shuxueshuo_server.solver.contracts import (
     ConditionSourceSpec,
     EntityIdentitySourceSpec,
     ExactCallResultSourceSpec,
+    ExactParameterSubstitutionSourceSpec,
     FreeSymbolBasisDerivationSpec,
     LatestStateSourceSpec,
-    LegacyExpansionSelectorSpec,
-    LegacySelectorInputBindingSpec,
     MacroPreparedRoleSourceSpec,
     MethodInputBindingContractError,
     MethodInputBindingSpec,
@@ -32,28 +31,18 @@ from shuxueshuo_server.solver.contracts import (
     validate_method_input_binding_view,
 )
 from shuxueshuo_server.solver.family import DEFAULT_FAMILY_REGISTRY
-from shuxueshuo_server.solver.family.models import (
-    MethodBindingRuleSpec,
-    RecipeInputDerivationSpec,
-)
+from shuxueshuo_server.solver.family.models import RecipeInputDerivationSpec
 from shuxueshuo_server.solver.runtime.functional_diagnostics import (
     StatelessMethodError,
 )
 from shuxueshuo_server.solver.runtime.function_specs import (
     FunctionAdapterRegistry,
     FunctionAdapterSpec,
-    function_adapter_from_binding_rule,
-)
-from shuxueshuo_server.solver.runtime.binding_rules import (
-    DEFAULT_BINDING_SELECTORS,
 )
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 SCHEMA_PATH = REPO_ROOT / "internal/schemas/method-input-binding.schema.json"
-BASELINE_PATH = (
-    Path(__file__).parent / "fixtures/legacy_method_input_selectors.json"
-)
 FAMILY_BINDING_FILES = (
     "shuxueshuo_server/solver/family/capability_packs.py",
     "shuxueshuo_server/solver/family/common_binding_rules.py",
@@ -78,6 +67,10 @@ SOURCE_VARIANTS = (
     ExactCallResultSourceSpec(
         "minimum_point",
         ("straightened_endpoint_1",),
+    ),
+    ExactParameterSubstitutionSourceSpec(
+        ("quadratic", "point"),
+        "parameter",
     ),
     ProducerLinkedSourceSpec("parameter_value", "parameter"),
     MacroPreparedRoleSourceSpec("moving_point"),
@@ -383,8 +376,10 @@ C3_MIGRATED_BINDINGS = {
     ),
     ("equal_length_ray_point", "target", "previous_output_identity"),
     ("line_intersection_point", "target", "previous_output_identity"),
+    ("line_intersection_point", "parameter", "source_object_identity"),
     ("line_locus_minimum_point", "minimum_point_1", "exact_call_result"),
     ("line_locus_minimum_point", "minimum_point_2", "exact_call_result"),
+    ("line_locus_minimum_point", "parameter", "source_object_identity"),
     (
         "line_locus_minimum_point",
         "target",
@@ -422,10 +417,12 @@ C3_MIGRATED_BINDINGS = {
         "previous_output_identity",
     ),
     ("right_angle_equal_length_candidates", "target", "public_arg"),
+    ("distance_between_points", "parameter", "source_object_identity"),
+    ("evaluate_point_at_parameter", "parameter", "source_object_identity"),
     (
         "square_adjacent_vertex_from_side",
         "parameter",
-        "producer_linked",
+        "source_object_identity",
     ),
     (
         "square_adjacent_vertex_from_side",
@@ -437,6 +434,24 @@ C3_MIGRATED_BINDINGS = {
         "weighted_axis_path_triangle_transform",
         "auxiliary_point_ref",
         "previous_output_identity",
+    ),
+}
+
+D_MIGRATED_BINDINGS = {
+    (
+        "quadratic_from_constraints",
+        "parameter_value",
+        "public_arg",
+    ),
+    (
+        "quadratic_from_constraints",
+        "parameter",
+        "source_object_identity",
+    ),
+    (
+        "parameter_from_curve_point_on_quadratic",
+        "known_parameter_value",
+        "exact_parameter_substitution",
     ),
 }
 
@@ -598,9 +613,7 @@ def test_source_contract_rejects_an_incompatible_method_view(
         validate_method_input_binding_view(binding, incompatible)
 
 
-def test_typed_binding_reaching_legacy_lowerer_fails_before_selector(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
+def test_typed_binding_without_lowerer_fails_without_selection_fallback() -> None:
     adapter = FunctionAdapterSpec(
         adapter_id="typed_not_migrated",
         input_bindings=(
@@ -610,18 +623,7 @@ def test_typed_binding_reaching_legacy_lowerer_fails_before_selector(
             ),
         ),
     )
-    registry = FunctionAdapterRegistry(
-        selectors={},
-        expansion_selectors={},
-        adapters={"typed_not_migrated": adapter},
-    )
-    selector_calls: list[str] = []
-
-    def forbidden_selector(*_args, **_kwargs):
-        selector_calls.append("called")
-        return "$problem.points.A"
-
-    monkeypatch.setattr(registry, "_select", forbidden_selector)
+    registry = FunctionAdapterRegistry(adapters={"typed_not_migrated": adapter})
     with pytest.raises(StatelessMethodError) as error:
         registry.bind(
             "typed_not_migrated",
@@ -631,33 +633,8 @@ def test_typed_binding_reaching_legacy_lowerer_fails_before_selector(
 
     assert error.value.code == "planner.method_input_binding_lowerer_missing"
     assert error.value.retryability == "configuration"
-    assert selector_calls == []
-
-
-def test_legacy_binding_payload_and_adapter_projection_are_unchanged() -> None:
-    binding = LegacySelectorInputBindingSpec(
-        input_name="point",
-        selector="read_type:Point",
-        required=False,
-        functional_authority="compiler",
-        functional_resolver="unique_visible_point",
-    )
-    expected = {
-        "input_name": "point",
-        "selector": "read_type:Point",
-        "required": False,
-        "functional_authority": "compiler",
-        "functional_resolver": "unique_visible_point",
-    }
-    rule = MethodBindingRuleSpec(
-        method_id="legacy_method",
-        input_bindings=(binding,),
-    )
-    adapter = function_adapter_from_binding_rule(rule)
-
-    assert binding.to_payload() == expected
-    assert adapter.input_bindings[0] is binding
-    assert adapter.to_payload()["input_bindings"] == [expected]
+    assert not hasattr(registry, "_select")
+    assert not hasattr(registry, "_expand")
 
 
 def test_recipe_derivation_wraps_shared_contract_without_payload_drift() -> None:
@@ -673,25 +650,9 @@ def test_recipe_derivation_wraps_shared_contract_without_payload_drift() -> None
     }
 
 
-def test_remaining_production_selectors_are_explicit_legacy_and_match_baseline() -> None:
-    baseline = json.loads(BASELINE_PATH.read_text(encoding="utf-8"))
-    actual = sorted(
-        {
-            (rule.method_id, binding.input_name, binding.selector)
-            for family in DEFAULT_FAMILY_REGISTRY.families
-            for rule in family.method_binding_rules
-            for binding in rule.input_bindings
-            if isinstance(binding, LegacySelectorInputBindingSpec)
-        }
-    )
-
-    assert baseline["schema_version"] == "legacy-method-input-selectors/v1"
-    assert [list(item) for item in actual] == baseline["bindings"]
+def test_all_production_bindings_use_the_strict_contract() -> None:
     assert all(
-        isinstance(
-            binding,
-            (LegacySelectorInputBindingSpec, MethodInputBindingSpec),
-        )
+        isinstance(binding, MethodInputBindingSpec)
         for family in DEFAULT_FAMILY_REGISTRY.families
         for rule in family.method_binding_rules
         for binding in rule.input_bindings
@@ -716,119 +677,52 @@ def test_migrated_inputs_use_the_strict_binding_contract() -> None:
         | C1_MIGRATED_BINDINGS
         | C2_MIGRATED_BINDINGS
         | C3_MIGRATED_BINDINGS
+        | D_MIGRATED_BINDINGS
     )
     assert all(
-        isinstance(selector, LegacyExpansionSelectorSpec)
+        not hasattr(rule, "expansion_selectors")
         for family in DEFAULT_FAMILY_REGISTRY.families
         for rule in family.method_binding_rules
-        for selector in rule.expansion_selectors
-    )
-    assert all(
-        prep.expansion_selectors is None
-        or all(
-            isinstance(selector, LegacyExpansionSelectorSpec)
-            for selector in prep.expansion_selectors
-        )
-        for family in DEFAULT_FAMILY_REGISTRY.families
-        for rule in family.method_binding_rules
-        for prep in rule.prep_invocations
     )
 
 
-def test_legacy_source_declaration_count_is_frozen() -> None:
-    baseline = json.loads(BASELINE_PATH.read_text(encoding="utf-8"))
+def test_legacy_source_declaration_count_is_zero() -> None:
     sources = [
         (REPO_ROOT / "server" / relative).read_text(encoding="utf-8")
         for relative in FAMILY_BINDING_FILES
     ]
 
-    assert sum(
-        source.count("LegacySelectorInputBindingSpec(") for source in sources
-    ) == baseline["source_declaration_count"] == 2
+    assert all("LegacySelectorInputBindingSpec" not in source for source in sources)
+    assert all("LegacyExpansionSelectorSpec" not in source for source in sources)
 
 
 def test_c1_retires_all_production_read_type_selectors() -> None:
-    selectors = {
-        binding.selector
+    assert all(
+        "read_type:" not in binding.to_payload().__repr__()
         for family in DEFAULT_FAMILY_REGISTRY.families
         for rule in family.method_binding_rules
         for binding in rule.input_bindings
-        if isinstance(binding, LegacySelectorInputBindingSpec)
-    }
-
-    assert not any(selector.startswith("read_type:") for selector in selectors)
+    )
 
 
 def test_c2_retires_fact_and_immutable_value_selectors() -> None:
-    selectors = {
-        binding.selector
+    assert all(
+        isinstance(binding, MethodInputBindingSpec)
         for family in DEFAULT_FAMILY_REGISTRY.families
         for rule in family.method_binding_rules
         for binding in rule.input_bindings
-        if isinstance(binding, LegacySelectorInputBindingSpec)
-    }
-
-    assert not any(selector.startswith("fact:") for selector in selectors)
-    assert selectors.isdisjoint(
-        {
-            "angle_sum:condition",
-            "angle_equality:fact",
-            "dynamic_constraint",
-            "parameter_constraint",
-            "path_reduction:relation",
-            "path_reduction:first_membership",
-            "path_reduction:second_membership",
-            "weighted_path:condition",
-        }
     )
-    retired_registry_keys = {
-        "fact:coefficient_relation:Equation",
-        "fact:path_minimum_target:Condition",
-        "fact:square:Condition",
-        "fact:midpoint_definition:Condition",
-        "fact:square_center:Condition",
-        "fact:length_squared:Condition",
-        "fact:length_condition:Condition",
-        "fact:minimum_value:Condition",
-        "parameter_constraint",
-        "dynamic_constraint",
-        "path_reduction:first_membership",
-        "path_reduction:second_membership",
-        "path_reduction:relation",
-        "path_reduction:first_segment_start",
-        "path_reduction:joint_point",
-        "path_reduction:second_segment_end",
-        "angle_sum:condition",
-        "angle_sum:x_axis_point",
-        "angle_sum:y_axis_point",
-        "angle_sum:reference_x_axis_point",
-        "angle_sum:origin",
-        "angle_equality:fact",
-        "angle_equality:x_axis_point",
-        "angle_equality:y_axis_point",
-        "angle_equality:reference_x_axis_point",
-        "angle_equality:origin",
-    }
-    assert retired_registry_keys.isdisjoint(DEFAULT_BINDING_SELECTORS)
 
 
 def test_c3_retires_output_transition_and_geometry_selectors() -> None:
-    selectors = {
-        binding.selector
-        for family in DEFAULT_FAMILY_REGISTRY.families
-        for rule in family.method_binding_rules
-        for binding in rule.input_bindings
-        if isinstance(binding, LegacySelectorInputBindingSpec)
-    }
-
-    assert selectors == {
-        "free_parameter:a_if_single_curve_point",
-        "known_parameter_value_from_reads",
-    }
-    assert len(C3_MIGRATED_BINDINGS) == 26
+    assert len(C3_MIGRATED_BINDINGS) == 30
 
 
 def test_new_schema_excludes_legacy_selector_payload() -> None:
-    legacy = LegacySelectorInputBindingSpec("point", "read_type:Point")
+    legacy = {
+        "input_name": "point",
+        "selector": "read_type:Point",
+        "required": True,
+    }
 
-    assert tuple(_schema_validator().iter_errors(legacy.to_payload()))
+    assert tuple(_schema_validator().iter_errors(legacy))

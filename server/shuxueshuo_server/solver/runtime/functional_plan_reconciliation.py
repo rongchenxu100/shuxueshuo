@@ -21,17 +21,10 @@ from shuxueshuo_server.solver.family.models import (
     StateIdentityConstraintSpec,
 )
 from shuxueshuo_server.solver.problem_models import QuestionGoal
-from shuxueshuo_server.solver.runtime.context_closure import (
-    midpoint_endpoint_position,
-)
-from shuxueshuo_server.solver.runtime.binding_selector_semantics import (
-    selector_semantics,
-)
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
 )
 from shuxueshuo_server.solver.runtime.functional_context_values import (
-    latest_point_state_for_object as _latest_point_state_for_object,
     state_producer_locations_for_object,
 )
 from shuxueshuo_server.solver.runtime.functional_binding_context import (
@@ -1066,13 +1059,6 @@ class FunctionalPlanReconciler:
         call_reports: list[FunctionalCallReport] = []
         dependency_graph = prepared.dependency_graph
         planned_target_objects = prepared.planned_target_objects
-        planned_return_expectations = {
-            (planned_call.call_id, return_name): expectation
-            for planned_call in plan.calls
-            for return_name, expectation in (
-                planned_call.return_expectations.items()
-            )
-        }
         answer_bindings: dict[str, str] = {}
         explicitly_bound_answer_refs = set(
             prepared.explicitly_bound_answer_refs
@@ -1254,6 +1240,20 @@ class FunctionalPlanReconciler:
                         planned_object,
                     )
                 )
+            typed_auto_args, typed_auto_repairs, typed_auto_issues = (
+                _resolve_typed_latest_state_args(
+                    capability,
+                    resolved_args,
+                    call_id=call.call_id,
+                    scope_id=resolution_scope_id,
+                    produced=produced,
+                    semantic_index=call_semantic_index,
+                    handle_registry=handle_registry,
+                )
+            )
+            resolved_args.update(typed_auto_args)
+            reconciliation_repairs.extend(typed_auto_repairs)
+            issues.extend(typed_auto_issues)
             deterministic_args, deterministic_repairs = (
                 _resolve_deterministic_optional_args(
                     capability,
@@ -1267,44 +1267,6 @@ class FunctionalPlanReconciler:
             )
             resolved_args.update(deterministic_args)
             reconciliation_repairs.extend(deterministic_repairs)
-            supplied_context_auto_names = {
-                auto.name
-                for auto in capability.auto_args
-                if auto.name in resolved_args
-                and _has_context_auto_resolver(auto.selector)
-            }
-            auto_resolution_args = {
-                name: values
-                for name, values in resolved_args.items()
-                if name not in supplied_context_auto_names
-            }
-            auto_args, auto_repairs, auto_issues = _resolve_context_auto_args(
-                capability,
-                auto_resolution_args,
-                call_id=call.call_id,
-                scope_id=resolution_scope_id,
-                produced=produced,
-                semantic_index=call_semantic_index,
-                handle_registry=handle_registry,
-                planned_return_expectations=planned_return_expectations,
-            )
-            (
-                accepted_auto_args,
-                accepted_auto_repairs,
-                accepted_auto_issues,
-            ) = _reconcile_supplied_context_auto_args(
-                capability,
-                resolved_args=resolved_args,
-                resolved_auto_args=auto_args,
-                resolver_repairs=auto_repairs,
-                resolver_issues=auto_issues,
-                supplied_names=supplied_context_auto_names,
-                call_id=call.call_id,
-                scope_id=scope.scope_id,
-            )
-            resolved_args.update(accepted_auto_args)
-            reconciliation_repairs.extend(accepted_auto_repairs)
-            issues.extend(accepted_auto_issues)
             for optional_arg_name in tuple(deterministic_args):
                 optional_arg = next(
                     (
@@ -1367,10 +1329,7 @@ class FunctionalPlanReconciler:
                 semantic_index=call_semantic_index,
                 handle_registry=handle_registry,
                 condition_authority_index=condition_authority_index,
-                allow_legacy_planned_producer_visibility=not bool(
-                    plan.typed_dependency_graph
-                    or plan.typed_input_source_pins
-                ),
+                allow_legacy_planned_producer_visibility=False,
             )
             resolved_args.update(closure_args)
             reconciliation_repairs.extend(closure_repairs)
@@ -1402,22 +1361,15 @@ class FunctionalPlanReconciler:
             )
             resolved_args.update(post_closure_args)
             reconciliation_repairs.extend(post_closure_repairs)
-            issues.extend(
-                _required_identity_auto_arg_issues(
-                    capability,
-                    resolved_args,
-                    call_id=call.call_id,
-                    scope_id=scope.scope_id,
-                    has_downstream_consumer=any(
-                        source_call_id == call.call_id
-                        for source_call_id, _return_name in consumers
-                    ),
-                )
-            )
             active_return_specs = _active_return_specs(
                 capability,
                 resolved_args,
             )
+            referenced_return_names = {
+                return_name
+                for (source_call, return_name) in consumers
+                if source_call == call.call_id
+            }
             (
                 call,
                 variant_repairs,
@@ -1427,11 +1379,7 @@ class FunctionalPlanReconciler:
                 call,
                 capability=capability,
                 active_returns=active_return_specs,
-                referenced_return_names={
-                    return_name
-                    for (source_call, return_name) in consumers
-                    if source_call == call.call_id
-                },
+                referenced_return_names=referenced_return_names,
                 scope_id=scope.scope_id,
             )
             reconciliation_repairs.extend(variant_repairs)
@@ -1522,6 +1470,11 @@ class FunctionalPlanReconciler:
                 capability,
                 call,
                 resolved_args,
+                active_return_specs=_identity_relevant_return_specs(
+                    active_return_specs,
+                    call=call,
+                    referenced_return_names=referenced_return_names,
+                ),
                 identity_hints=future_identity_hints.get(
                     call.call_id,
                     (),
@@ -4924,6 +4877,7 @@ def _functional_symbol_identity_issues(
     call: FunctionalCall,
     resolved_args: dict[str, tuple[ResolvedFunctionalValue, ...]],
     *,
+    active_return_specs: Sequence[FunctionalCapabilityReturn],
     identity_hints: tuple[str, ...],
     produced: Mapping[tuple[str, str], ResolvedFunctionalValue],
     scope_id: str,
@@ -4935,6 +4889,7 @@ def _functional_symbol_identity_issues(
     auto_issues, auto_repairs = _resolve_auto_symbol_args(
         capability,
         resolved_args,
+        active_return_specs=active_return_specs,
         call_id=call.call_id,
         scope_id=scope_id,
         identity_hints=(
@@ -5105,6 +5060,7 @@ def _resolve_explicit_call_args(
             if (
                 arg.requires_materialized_state
                 and value.state_version_id is None
+                and value.materialized_runtime_type is None
                 and not (
                     value.source_call_id is not None
                     and value.return_name is not None
@@ -5134,6 +5090,11 @@ def _resolve_explicit_call_args(
                             "semantic_role": arg.semantic_role or arg.name,
                             "accepted_item_types": list(accepted_types),
                             "current_binding": ref.to_payload(),
+                            **(
+                                {"object_ref": value.object_ref}
+                                if value.object_ref is not None
+                                else {}
+                            ),
                             "state_requirement": "materialized_state",
                             "required_producer_scope": resolution_scope_id,
                             "existing_producer_scopes": sorted(
@@ -5516,7 +5477,18 @@ def _resolve_functional_ref(
         accepted_types=accepted_types,
         accepted_condition_kinds=accepted_condition_kinds,
     )
-    if resolved is None:
+    needs_function_materialization = (
+        "Parabola" in accepted_types
+        and input_closure_policy != "any"
+        and (
+            resolved is None
+            or (
+                resolved.runtime_type == "Function"
+                and resolved.state_version_id is None
+            )
+        )
+    )
+    if needs_function_materialization:
         materialization = semantic_index.materialize_function_state(
             ref,
             scope_id=scope_id,
@@ -5580,6 +5552,7 @@ def _resolve_functional_ref(
                     },
                 ),
             )
+    if resolved is None:
         if value_type_mismatch:
             return None, (
                 _issue(
@@ -7478,18 +7451,6 @@ def _semantic_object_consumer_scopes(
                                 ).append(
                                     (call.call_id, scope.scope_id)
                                 )
-            capability = catalog.get(call.capability_id)
-            if capability is None:
-                continue
-            for object_ref in _hidden_auto_arg_object_refs(
-                call,
-                scope_id=scope.scope_id,
-                capability=capability,
-                semantic_index=semantic_index,
-            ):
-                consumers_by_object.setdefault(object_ref, []).append(
-                    (call.call_id, scope.scope_id)
-                )
 
     result: dict[tuple[str, str], list[tuple[str, str]]] = {}
     registry = semantic_index.handle_registry
@@ -7686,6 +7647,25 @@ def _active_return_specs(
         for item in capability.returns
         if item.runtime_type not in variant_types
         or item.runtime_type in active_variant_types
+    )
+
+
+def _identity_relevant_return_specs(
+    active_returns: Sequence[FunctionalCapabilityReturn],
+    *,
+    call: FunctionalCall,
+    referenced_return_names: set[str],
+) -> tuple[FunctionalCapabilityReturn, ...]:
+    """Keep optional returns out of identity inference until they are used."""
+    declared_names = {
+        *call.return_bindings,
+        *call.return_expectations,
+        *referenced_return_names,
+    }
+    return tuple(
+        item
+        for item in active_returns
+        if item.required or item.name in declared_names
     )
 
 
@@ -8076,14 +8056,7 @@ def _refresh_context_auto_args_for_effective_order(
     tuple[FunctionalDeterministicRepair, ...],
     tuple[FunctionalPlanIssue, ...],
 ]:
-    """Re-resolve hidden Context inputs at their final call position.
-
-    The first reconciliation pass may run before deterministic plan rewriting
-    has established the effective call order. Context-owned selectors and
-    typed Condition roles must not retain a stale object version from that
-    provisional pass. Replaying only those inputs here gives both the legacy
-    bridge and the transactional interpreter the same call-time dependency.
-    """
+    """Re-resolve typed Context roles at their final call position."""
 
     calls_by_id = {call.call_id: call for call in plan.calls}
     reconciled_by_id = {item.call_id: item for item in reconciled}
@@ -8093,11 +8066,6 @@ def _refresh_context_auto_args_for_effective_order(
             call.call_id: index for index, call in enumerate(plan.calls)
         }
     )
-    planned_return_expectations = {
-        (call.call_id, return_name): expectation
-        for call in plan.calls
-        for return_name, expectation in call.return_expectations.items()
-    }
     updated_by_id: dict[str, FunctionalCallReconciliation] = {}
     repairs: list[FunctionalDeterministicRepair] = []
     issues: list[FunctionalPlanIssue] = []
@@ -8109,22 +8077,21 @@ def _refresh_context_auto_args_for_effective_order(
         capability = catalog.get(call.capability_id)
         if item is None or capability is None:
             continue
-        context_auto_names = {
-            auto.name
-            for auto in capability.auto_args
-            if _has_context_auto_resolver(auto.selector)
-            and any(
-                value.state_version_id is not None
-                for value in item.resolved_args.get(auto.name, ())
-            )
-        }
         context_role_names = {
             binding.arg_name
             for binding in capability.context_arg_bindings
             if binding.arg_name in item.resolved_args
             and binding.arg_name not in call.args
         }
-        if not context_auto_names and not context_role_names:
+        typed_latest_state_names = {
+            auto.name
+            for auto in capability.auto_args
+            if auto.name in item.resolved_args
+            and auto.name not in call.args
+            and isinstance(auto.input_binding.source, LatestStateSourceSpec)
+            and auto.name not in context_role_names
+        }
+        if not context_role_names and not typed_latest_state_names:
             updated_by_id[call.call_id] = item
             continue
         current_order = effective_call_order[call.call_id]
@@ -8137,20 +8104,21 @@ def _refresh_context_auto_args_for_effective_order(
         base_args = {
             name: values
             for name, values in item.resolved_args.items()
-            if name not in context_auto_names
-            and name not in context_role_names
+            if name not in context_role_names
+            and name not in typed_latest_state_names
         }
-        additions, call_repairs, call_issues = _resolve_context_auto_args(
-            capability,
-            base_args,
-            call_id=call.call_id,
-            scope_id=item.scope_id,
-            produced=prior_produced,
-            semantic_index=semantic_index,
-            handle_registry=handle_registry,
-            planned_return_expectations=planned_return_expectations,
+        typed_additions, typed_repairs, typed_issues = (
+            _resolve_typed_latest_state_args(
+                capability,
+                base_args,
+                call_id=call.call_id,
+                scope_id=item.scope_id,
+                produced=prior_produced,
+                semantic_index=semantic_index.for_call(call.call_id),
+                handle_registry=handle_registry,
+            )
         )
-        base_args.update(additions)
+        base_args.update(typed_additions)
         (
             closure_additions,
             closure_repairs,
@@ -8166,10 +8134,7 @@ def _refresh_context_auto_args_for_effective_order(
             semantic_index=semantic_index.for_call(call.call_id),
             handle_registry=handle_registry,
             condition_authority_index=condition_authority_index,
-            allow_legacy_planned_producer_visibility=not bool(
-                plan.typed_dependency_graph
-                or plan.typed_input_source_pins
-            ),
+            allow_legacy_planned_producer_visibility=False,
         )
         base_args.update(closure_additions)
         updated_by_id[call.call_id] = replace(
@@ -8177,10 +8142,10 @@ def _refresh_context_auto_args_for_effective_order(
             resolved_args=base_args,
             reads_closed=item.reads_closed or reads_closed,
         )
-        repairs.extend(call_repairs)
         repairs.extend(closure_repairs)
-        issues.extend(call_issues)
+        repairs.extend(typed_repairs)
         issues.extend(closure_issues)
+        issues.extend(typed_issues)
     return (
         [
             updated_by_id.get(item.call_id, item)
@@ -8190,6 +8155,114 @@ def _refresh_context_auto_args_for_effective_order(
         tuple(repairs),
         tuple(issues),
     )
+
+
+def _resolve_typed_latest_state_args(
+    capability: FunctionalCapability,
+    resolved_args: Mapping[str, tuple[ResolvedFunctionalValue, ...]],
+    *,
+    call_id: str,
+    scope_id: str,
+    produced: Mapping[tuple[str, str], ResolvedFunctionalValue],
+    semantic_index: FunctionalSemanticIndex,
+    handle_registry: CanonicalHandleRegistry,
+) -> tuple[
+    dict[str, tuple[ResolvedFunctionalValue, ...]],
+    tuple[FunctionalDeterministicRepair, ...],
+    tuple[FunctionalPlanIssue, ...],
+]:
+    """Materialize explicit typed latest-state declarations before relations."""
+
+    additions: dict[str, tuple[ResolvedFunctionalValue, ...]] = {}
+    repairs: list[FunctionalDeterministicRepair] = []
+    issues: list[FunctionalPlanIssue] = []
+    context_owned_args = {
+        binding.arg_name for binding in capability.context_arg_bindings
+    }
+    for auto in capability.auto_args:
+        if auto.name in resolved_args or auto.name in context_owned_args:
+            continue
+        source = auto.input_binding.source
+        if not isinstance(source, LatestStateSourceSpec):
+            continue
+        view, matching = semantic_index.resolve(
+            SemanticRef(source.entity_arg, "function"),
+            scope_id=scope_id,
+            accepted_types=("Function", "Parabola", "Expression"),
+        )
+        if view is None:
+            if auto.required:
+                issues.append(
+                    _issue(
+                        "functional_reconciliation",
+                        (
+                            "planner.method_input_view_authority_missing"
+                            if not matching
+                            else "planner.method_input_view_authority_drift"
+                        ),
+                        (
+                            f"typed latest-state source {source.entity_arg} "
+                            f"cannot be resolved for {auto.name}"
+                        ),
+                        call_id=call_id,
+                        scope_id=scope_id,
+                        details={
+                            "arg": auto.name,
+                            "entity_arg": source.entity_arg,
+                            "candidate_count": len(matching),
+                            "repair_action": "fix_runtime_contract",
+                        },
+                    )
+                )
+            continue
+        dynamic = tuple(
+            value
+            for value in produced.values()
+            if visible_from_valid_scope(
+                value.valid_scope,
+                scope_id=scope_id,
+                registry=handle_registry,
+            )
+            and (
+                (
+                    view.math_object_id is not None
+                    and value.math_object_id == view.math_object_id
+                )
+                or (
+                    view.object_ref is not None
+                    and value.object_ref == view.object_ref
+                )
+            )
+        )
+        selected = dynamic[-1] if dynamic else ResolvedFunctionalValue(
+            handle=view.handle,
+            runtime_type=view.runtime_type,
+            valid_scope=view.valid_scope,
+            state_slot_id=view.state_slot_id,
+            object_ref=view.object_ref,
+            condition_id=view.condition_id,
+            object_roles=view.object_roles,
+            dependency_object_refs=view.dependency_object_refs,
+            free_symbol_refs=view.free_symbol_refs,
+            source_state_slot_ids=view.source_state_slot_ids,
+            provides_semantic_roles=view.provides_semantic_roles,
+            lineage=view.lineage,
+            math_object_id=view.math_object_id,
+            logical_state_key=view.logical_state_key,
+            typed_slot_id=view.typed_slot_id,
+            state_version_id=view.state_version_id,
+            source_version_ids=view.source_version_ids,
+        )
+        additions[auto.name] = (selected,)
+        repairs.append(
+            FunctionalDeterministicRepair(
+                call_id,
+                "resolve_typed_latest_state_arg",
+                f"{auto.name}=omitted",
+                f"{auto.name}={source.entity_arg}",
+            )
+        )
+    return additions, tuple(repairs), tuple(issues)
 
 
 def _resolved_wire_semantic_value(
@@ -8835,6 +8908,15 @@ def _with_hidden_condition_object_dependencies(
                             resolved,
                             policy=arg.input_closure_policy,
                         )
+                        and (
+                            not (
+                                arg.requires_materialized_state
+                                or consumes_point_state
+                            )
+                            or resolved.state_version_id is not None
+                            or resolved.state_slot_id is not None
+                            or resolved.condition_id is not None
+                        )
                     ):
                         continue
                     for object_ref in semantic_index.object_refs_for(
@@ -8865,42 +8947,6 @@ def _with_hidden_condition_object_dependencies(
                 (*result.get(call.call_id, ()), *hidden_dependencies)
             )
             continue
-        for object_ref, requires_closed_state in (
-            _hidden_auto_arg_object_requirements(
-                call,
-                scope_id=scope_id,
-                capability=capability,
-                semantic_index=semantic_index,
-            )
-        ):
-            if _call_explicitly_supplies_object(
-                call,
-                object_ref=object_ref,
-                scope_id=scope_id,
-                requires_closed_state=requires_closed_state,
-                semantic_index=semantic_index,
-            ):
-                continue
-            if _context_has_materialized_object_state(
-                semantic_index,
-                object_ref=object_ref,
-                scope_id=scope_id,
-                requires_closed_state=requires_closed_state,
-            ):
-                continue
-            producer = _select_planned_state_producer(
-                object_ref,
-                consumer_call=call,
-                consumer_scope_id=scope_id,
-                producers_by_object=producers_by_object,
-                calls_by_id=calls_by_id,
-                dependency_graph=result,
-                order_by_id=order_by_id,
-                handle_registry=semantic_index.handle_registry,
-                requires_closed_state=requires_closed_state,
-            )
-            if producer is not None:
-                hidden_dependencies.append(producer)
         for refs in call.args.values():
             for ref in refs:
                 if not isinstance(ref, SemanticRef):
@@ -9053,71 +9099,6 @@ def _call_explicitly_supplies_object(
     )
 
 
-def _hidden_auto_arg_object_refs(
-    call: FunctionalCall,
-    *,
-    scope_id: str,
-    capability: FunctionalCapability,
-    semantic_index: FunctionalSemanticIndex,
-) -> tuple[str, ...]:
-    """Project structured auto-role selectors to their MathObject inputs.
-
-    This pre-resolution projection is intentionally limited to selectors whose
-    object role is fully determined by structured ProblemIR fields. It lets
-    placement see the same hidden object dependency that the later resolver
-    will consume, without parsing descriptions or guessing from visible
-    objects.
-    """
-
-    result: list[str] = []
-    for auto in capability.auto_args:
-        if auto.selector is None or not auto.selector.startswith("angle_sum:"):
-            continue
-        role = auto.selector.split(":", 1)[1]
-        if role in {"condition", "target"}:
-            continue
-        object_ref = _angle_sum_role_object_ref(
-            call,
-            role=role,
-            scope_id=scope_id,
-            semantic_index=semantic_index,
-        )
-        if object_ref is not None:
-            result.append(object_ref)
-    return unique_ordered(result)
-
-
-def _hidden_auto_arg_object_requirements(
-    call: FunctionalCall,
-    *,
-    scope_id: str,
-    capability: FunctionalCapability,
-    semantic_index: FunctionalSemanticIndex,
-) -> tuple[tuple[str, bool], ...]:
-    result: list[tuple[str, bool]] = []
-    for auto in capability.auto_args:
-        if auto.selector is None or not auto.selector.startswith("angle_sum:"):
-            continue
-        role = auto.selector.split(":", 1)[1]
-        if role in {"condition", "target"}:
-            continue
-        object_ref = _angle_sum_role_object_ref(
-            call,
-            role=role,
-            scope_id=scope_id,
-            semantic_index=semantic_index,
-        )
-        if object_ref is None:
-            continue
-        result.append(
-            (
-                object_ref,
-                selector_semantics(auto.selector).requires_closed_state,
-            )
-        )
-    return unique_ordered(result)
-
-
 def _select_planned_state_producer(
     object_ref: str,
     *,
@@ -9213,82 +9194,6 @@ def _dependency_reaches(
         visited.add(call_id)
         pending.extend(dependency_graph.get(call_id, ()))
     return False
-
-
-def _angle_sum_role_object_ref(
-    call: FunctionalCall,
-    *,
-    role: str,
-    scope_id: str,
-    semantic_index: FunctionalSemanticIndex,
-) -> str | None:
-    conditions: list[FunctionalSemanticView] = []
-    for refs in call.args.values():
-        for ref in refs:
-            if not isinstance(ref, SemanticRef):
-                continue
-            condition, _matches = semantic_index.resolve(
-                ref,
-                scope_id=scope_id,
-                accepted_types=("Condition",),
-            )
-            if (
-                condition is not None
-                and semantic_index.handle_registry.fact_types.get(
-                    condition.handle
-                )
-                == "angle_sum"
-            ):
-                conditions.append(condition)
-    if len(conditions) != 1:
-        return None
-    payload = semantic_index.handle_registry.fact_payloads.get(
-        conditions[0].handle,
-        {},
-    )
-    terms = payload.get("angle_terms")
-    if (
-        not isinstance(terms, list | tuple)
-        or len(terms) != 2
-        or any(
-            not isinstance(term, str) or len(term) != 3
-            for term in terms
-        )
-    ):
-        return None
-    point_name = _angle_sum_role_point_name(terms, role)
-    if point_name is None:
-        return None
-    matches = tuple(
-        handle
-        for handle in semantic_index.handle_registry.entity_handles
-        if handle.startswith("point:")
-        and handle.rsplit(":", 1)[-1] == point_name
-        and visible_from_valid_scope(
-            semantic_index.handle_registry.handle_valid_scopes.get(
-                handle,
-                scope_id,
-            ),
-            scope_id=scope_id,
-            registry=semantic_index.handle_registry,
-        )
-    )
-    return matches[0] if len(matches) == 1 else None
-
-
-def _angle_sum_role_point_name(
-    terms: Sequence[str],
-    role: str,
-) -> str | None:
-    """Map one structured angle-sum role to its declared point name."""
-
-    left, right = terms
-    return {
-        "x_axis_point": left[1],
-        "y_axis_point": left[0],
-        "reference_x_axis_point": right[0],
-        "origin": right[2],
-    }.get(role)
 
 
 def _context_has_materialized_object_state(
@@ -9455,13 +9360,7 @@ def _hidden_point_target_arg(
     candidates = [
         item.name
         for item in capability.auto_args
-        if (
-            (
-                item.selector is not None
-                and selector_semantics(item.selector).mechanical
-            )
-            or _typed_auto_arg_owns_output_identity(item)
-        )
+        if _typed_auto_arg_owns_output_identity(item)
         and "target" in item.name.lower()
         and not call.args.get(item.name)
     ]
@@ -9480,46 +9379,6 @@ def _typed_auto_arg_owns_output_identity(auto: Any) -> bool:
     return (
         isinstance(binding.source, EntityIdentitySourceSpec)
         and binding.source.arg_name == auto.name
-    )
-
-
-def _required_identity_auto_arg_issues(
-    capability: Any,
-    resolved_args: Mapping[str, tuple[ResolvedFunctionalValue, ...]],
-    *,
-    call_id: str,
-    scope_id: str,
-    has_downstream_consumer: bool,
-) -> tuple[FunctionalPlanIssue, ...]:
-    """Reject unresolved compiler targets before direct compilation."""
-
-    return tuple(
-        _issue(
-            "functional_reconciliation",
-            "functional.auto_arg_identity_unresolved",
-            (
-                f"capability {capability.capability_id} requires a uniquely "
-                f"resolved target object for hidden argument {auto.name}"
-            ),
-            call_id=call_id,
-            scope_id=scope_id,
-            details={
-                "arg": auto.name,
-                "selector": auto.selector,
-                "expected_identity": "Point MathObject",
-            },
-        )
-        for auto in capability.auto_args
-        if auto.required
-        and auto.selector is not None
-        and selector_semantics(auto.selector).owns_identity_binding
-        and not any(
-            returned.runtime_type == "Point"
-            and returned.identity_policy == "target_object"
-            for returned in capability.returns
-        )
-        and not has_downstream_consumer
-        and not resolved_args.get(auto.name)
     )
 
 
@@ -9924,842 +9783,11 @@ def _resolve_deterministic_optional_args(
     return additions, tuple(repairs)
 
 
-def _has_context_auto_resolver(selector: str | None) -> bool:
-    if selector is None:
-        return False
-    return (
-        selector.startswith("function:")
-        or selector.startswith("angle_sum:")
-        or midpoint_endpoint_position(selector) is not None
-    )
-
-
-def _reconcile_supplied_context_auto_args(
-    capability: Any,
-    *,
-    resolved_args: Mapping[str, tuple[ResolvedFunctionalValue, ...]],
-    resolved_auto_args: Mapping[str, tuple[ResolvedFunctionalValue, ...]],
-    resolver_repairs: tuple[FunctionalDeterministicRepair, ...],
-    resolver_issues: tuple[FunctionalPlanIssue, ...],
-    supplied_names: set[str],
-    call_id: str,
-    scope_id: str,
-) -> tuple[
-    dict[str, tuple[ResolvedFunctionalValue, ...]],
-    tuple[FunctionalDeterministicRepair, ...],
-    tuple[FunctionalPlanIssue, ...],
-]:
-    """Accept a hidden override only when it equals the resolver's choice."""
-
-    additions = {
-        name: values
-        for name, values in resolved_auto_args.items()
-        if name not in supplied_names
-    }
-    repairs = [
-        repair
-        for repair in resolver_repairs
-        if not any(
-            repair.from_value.startswith(f"{name}=")
-            for name in supplied_names
-        )
-    ]
-    issues = [
-        issue
-        for issue in resolver_issues
-        if not (
-            issue.details is not None
-            and issue.details.get("arg") in supplied_names
-            and issue.details.get("arg") in resolved_auto_args
-        )
-    ]
-    auto_by_name = {item.name: item for item in capability.auto_args}
-    for name in sorted(supplied_names):
-        supplied = resolved_args.get(name, ())
-        expected = resolved_auto_args.get(name, ())
-        if len(supplied) != 1 or len(expected) != 1:
-            continue
-        if _same_resolved_auto_value(supplied[0], expected[0]):
-            repairs.append(
-                FunctionalDeterministicRepair(
-                    call_id,
-                    "absorb_equivalent_auto_arg_override",
-                    f"{name}={supplied[0].handle}",
-                    f"{name}=auto",
-                )
-            )
-            continue
-        auto = auto_by_name[name]
-        issues.append(
-            _issue(
-                "functional_reconciliation",
-                "functional.auto_arg_override_mismatch",
-                (
-                    f"hidden argument {capability.capability_id}.{name} "
-                    "does not match its deterministic Context resolution"
-                ),
-                call_id=call_id,
-                scope_id=scope_id,
-                details={
-                    "arg": name,
-                    "selector": auto.selector,
-                    "supplied_handle": supplied[0].handle,
-                    "resolved_handle": expected[0].handle,
-                    "supplied_state_slot_id": supplied[0].state_slot_id,
-                    "resolved_state_slot_id": expected[0].state_slot_id,
-                },
-            )
-        )
-    return additions, tuple(repairs), tuple(issues)
-
-
-def _same_resolved_auto_value(
-    supplied: ResolvedFunctionalValue,
-    expected: ResolvedFunctionalValue,
-) -> bool:
-    if supplied.state_slot_id is not None or expected.state_slot_id is not None:
-        return (
-            supplied.state_slot_id is not None
-            and supplied.state_slot_id == expected.state_slot_id
-        )
-    if supplied.source_call_id is not None or expected.source_call_id is not None:
-        return (
-            supplied.source_call_id == expected.source_call_id
-            and supplied.return_name == expected.return_name
-        )
-    return (
-        supplied.handle == expected.handle
-        and supplied.object_ref == expected.object_ref
-        and runtime_type_compatible(
-            supplied.runtime_type,
-            expected.runtime_type,
-        )
-    )
-
-
-def _resolve_context_auto_args(
-    capability: Any,
-    resolved_args: Mapping[str, tuple[ResolvedFunctionalValue, ...]],
-    *,
-    call_id: str,
-    scope_id: str,
-    produced: Mapping[tuple[str, str], ResolvedFunctionalValue],
-    semantic_index: FunctionalSemanticIndex,
-    handle_registry: CanonicalHandleRegistry,
-    planned_return_expectations: Mapping[tuple[str, str], str],
-) -> tuple[
-    dict[str, tuple[ResolvedFunctionalValue, ...]],
-    tuple[FunctionalDeterministicRepair, ...],
-    tuple[FunctionalPlanIssue, ...],
-]:
-    """Resolve hidden object selectors through Context object identity."""
-    additions: dict[str, tuple[ResolvedFunctionalValue, ...]] = {}
-    repairs: list[FunctionalDeterministicRepair] = []
-    issues: list[FunctionalPlanIssue] = []
-    context_owned_args = {
-        binding.arg_name for binding in capability.context_arg_bindings
-    }
-    for auto in capability.auto_args:
-        if auto.name in resolved_args:
-            continue
-        if auto.selector is None:
-            if auto.name in context_owned_args:
-                # The structured Context resolver owns both role selection
-                # and state materialization for this input.  Running the
-                # generic latest-state lookup first would manufacture a
-                # second authority and report a false missing-input issue.
-                continue
-            if (
-                auto.input_binding is not None
-                and isinstance(
-                    auto.input_binding.source,
-                    LatestStateSourceSpec,
-                )
-            ):
-                source = auto.input_binding.source
-                view, matching = semantic_index.resolve(
-                    SemanticRef(source.entity_arg, "function"),
-                    scope_id=scope_id,
-                    accepted_types=("Function", "Parabola", "Expression"),
-                )
-                if view is None:
-                    if auto.required:
-                        issues.append(
-                            _issue(
-                                "functional_reconciliation",
-                                (
-                                    "planner.method_input_view_authority_missing"
-                                    if not matching
-                                    else "planner.method_input_view_authority_drift"
-                                ),
-                                (
-                                    f"typed latest-state source {source.entity_arg} "
-                                    f"cannot be resolved for {auto.name}"
-                                ),
-                                call_id=call_id,
-                                scope_id=scope_id,
-                                details={
-                                    "arg": auto.name,
-                                    "entity_arg": source.entity_arg,
-                                    "candidate_count": len(matching),
-                                },
-                            )
-                        )
-                    continue
-                dynamic = [
-                    value
-                    for value in produced.values()
-                    if visible_from_valid_scope(
-                        value.valid_scope,
-                        scope_id=scope_id,
-                        registry=handle_registry,
-                    )
-                    and (
-                        (
-                            view.math_object_id is not None
-                            and value.math_object_id == view.math_object_id
-                        )
-                        or (
-                            view.object_ref is not None
-                            and value.object_ref == view.object_ref
-                        )
-                    )
-                ]
-                selected = dynamic[-1] if dynamic else ResolvedFunctionalValue(
-                    handle=view.handle,
-                    runtime_type=view.runtime_type,
-                    valid_scope=view.valid_scope,
-                    state_slot_id=view.state_slot_id,
-                    object_ref=view.object_ref,
-                    condition_id=view.condition_id,
-                    object_roles=view.object_roles,
-                    dependency_object_refs=view.dependency_object_refs,
-                    free_symbol_refs=view.free_symbol_refs,
-                    source_state_slot_ids=view.source_state_slot_ids,
-                    provides_semantic_roles=view.provides_semantic_roles,
-                    lineage=view.lineage,
-                    math_object_id=view.math_object_id,
-                    logical_state_key=view.logical_state_key,
-                    typed_slot_id=view.typed_slot_id,
-                    state_version_id=view.state_version_id,
-                    source_version_ids=view.source_version_ids,
-                )
-                additions[auto.name] = (selected,)
-                repairs.append(
-                    FunctionalDeterministicRepair(
-                        call_id,
-                        "resolve_typed_latest_state_arg",
-                        f"{auto.name}=omitted",
-                        f"{auto.name}={source.entity_arg}",
-                    )
-                )
-            continue
-        if auto.selector.startswith("angle_sum:"):
-            value, repair, issue = _resolve_angle_sum_auto_arg(
-                auto,
-                resolved_args=resolved_args,
-                produced=produced,
-                semantic_index=semantic_index,
-                handle_registry=handle_registry,
-                call_id=call_id,
-                scope_id=scope_id,
-                planned_return_expectations=planned_return_expectations,
-            )
-            if value is not None:
-                additions[auto.name] = (value,)
-            if repair is not None:
-                repairs.append(repair)
-            if issue is not None:
-                issues.append(issue)
-            continue
-        if midpoint_endpoint_position(auto.selector) is not None:
-            value, repair, issue = _resolve_midpoint_auto_arg(
-                auto,
-                resolved_args=resolved_args,
-                produced=produced,
-                semantic_index=semantic_index,
-                handle_registry=handle_registry,
-                call_id=call_id,
-                scope_id=scope_id,
-            )
-            if value is not None:
-                additions[auto.name] = (value,)
-            if repair is not None:
-                repairs.append(repair)
-            if issue is not None:
-                issues.append(issue)
-            continue
-        if not auto.selector.startswith("function:"):
-            continue
-        object_name = auto.selector.split(":", 1)[1]
-        dynamic = [
-            value
-            for value in produced.values()
-            if value.object_ref is not None
-            and value.object_ref.startswith("function:")
-            and value.object_ref.rsplit(":", 1)[-1] == object_name
-            and value.runtime_type in {"Function", "Parabola"}
-            and visible_from_valid_scope(
-                value.valid_scope,
-                scope_id=scope_id,
-                registry=handle_registry,
-            )
-        ]
-        if dynamic:
-            candidates = [dynamic[-1]]
-        else:
-            candidates = [
-                ResolvedFunctionalValue(
-                    handle=view.handle,
-                    runtime_type=view.runtime_type,
-                    valid_scope=view.valid_scope,
-                    state_slot_id=view.state_slot_id,
-                    object_ref=view.object_ref,
-                    dependency_object_refs=view.dependency_object_refs,
-                    free_symbol_refs=view.free_symbol_refs,
-                    source_state_slot_ids=view.source_state_slot_ids,
-                    provides_semantic_roles=view.provides_semantic_roles,
-                    lineage=view.lineage,
-                    math_object_id=view.math_object_id,
-                    logical_state_key=view.logical_state_key,
-                    typed_slot_id=view.typed_slot_id,
-                    state_version_id=view.state_version_id,
-                    source_version_ids=view.source_version_ids,
-                )
-                for view in semantic_index.compatible_views(
-                    scope_id=scope_id,
-                    accepted_types=("Function", "Parabola"),
-                )
-                if view.object_ref is not None
-                and view.object_ref.startswith("function:")
-                and view.object_ref.rsplit(":", 1)[-1] == object_name
-            ]
-        candidates_by_object = {
-            candidate.object_ref: candidate
-            for candidate in candidates
-            if candidate.object_ref is not None
-        }
-        if len(candidates_by_object) == 1:
-            selected = next(iter(candidates_by_object.values()))
-            object_ref = selected.object_ref
-            if object_ref is None:
-                issues.append(
-                    _issue(
-                        "functional_elaboration",
-                        "functional.auto_arg_identity_unresolved",
-                        (
-                            "auto-selected function state has no object "
-                            f"identity for argument {auto.name}"
-                        ),
-                        call_id=call_id,
-                        scope_id=scope_id,
-                        details={
-                            "arg": auto.name,
-                            "selector": auto.selector,
-                            "selected_handle": selected.handle,
-                        },
-                    )
-                )
-                continue
-            if selector_semantics(auto.selector).requires_materialized_state:
-                additions[auto.name] = (selected,)
-            else:
-                additions[auto.name] = (
-                    ResolvedFunctionalValue(
-                        handle=object_ref,
-                        runtime_type="Function",
-                        valid_scope=handle_registry.handle_valid_scopes.get(
-                            object_ref,
-                            selected.valid_scope,
-                        ),
-                        object_ref=object_ref,
-                        dependency_object_refs=(object_ref,),
-                    ),
-                )
-            repairs.append(
-                FunctionalDeterministicRepair(
-                    call_id,
-                    "auto_fill_object_arg",
-                    f"{auto.name}=omitted",
-                    f"{auto.name}={object_ref}",
-                )
-            )
-            continue
-        if auto.required:
-            issues.append(
-                _issue(
-                    "functional_elaboration",
-                    (
-                        "functional.auto_arg_unresolved"
-                        if not candidates_by_object
-                        else "functional.auto_arg_ambiguous"
-                    ),
-                    f"object identity cannot be determined for {auto.name}",
-                    call_id=call_id,
-                    scope_id=scope_id,
-                    details={
-                        "arg": auto.name,
-                        "available_refs": sorted(
-                            item for item in candidates_by_object if item
-                        ),
-                    },
-                )
-            )
-    return additions, tuple(repairs), tuple(issues)
-
-
-def _resolve_angle_sum_auto_arg(
-    auto: Any,
-    *,
-    resolved_args: Mapping[str, tuple[ResolvedFunctionalValue, ...]],
-    produced: Mapping[tuple[str, str], ResolvedFunctionalValue],
-    semantic_index: FunctionalSemanticIndex,
-    handle_registry: CanonicalHandleRegistry,
-    call_id: str,
-    scope_id: str,
-    planned_return_expectations: Mapping[tuple[str, str], str] | None = None,
-) -> tuple[
-    ResolvedFunctionalValue | None,
-    FunctionalDeterministicRepair | None,
-    FunctionalPlanIssue | None,
-]:
-    """Resolve an angle-sum selector to the latest exact Point state."""
-
-    role = auto.selector.split(":", 1)[1]
-    if role in {"condition", "target"}:
-        return None, None, None
-    conditions = tuple(
-        value
-        for values in resolved_args.values()
-        for value in values
-        if value.runtime_type == "Condition"
-        and handle_registry.fact_types.get(value.handle) == "angle_sum"
-    )
-    if len(conditions) != 1:
-        return (
-            None,
-            None,
-            _issue(
-                "functional_reconciliation",
-                (
-                    "functional.auto_arg_unresolved"
-                    if not conditions
-                    else "functional.auto_arg_ambiguous"
-                ),
-                f"angle-sum role {role} requires one structured angle condition",
-                call_id=call_id,
-                scope_id=scope_id,
-                details={"arg": auto.name, "selector": auto.selector},
-            ),
-        )
-    condition = conditions[0]
-    payload = handle_registry.fact_payloads.get(condition.handle, {})
-    terms = payload.get("angle_terms")
-    if (
-        not isinstance(terms, list | tuple)
-        or len(terms) != 2
-        or any(not isinstance(term, str) or len(term) != 3 for term in terms)
-    ):
-        return (
-            None,
-            None,
-            _issue(
-                "functional_reconciliation",
-                "functional.auto_arg_unresolved",
-                "angle-sum condition has no structured three-point angle terms",
-                call_id=call_id,
-                scope_id=scope_id,
-                details={"arg": auto.name, "selector": auto.selector},
-            ),
-        )
-    point_name = _angle_sum_role_point_name(terms, role)
-    if point_name is None:
-        return None, None, None
-    object_refs = tuple(
-        handle
-        for handle in handle_registry.entity_handles
-        if handle.startswith("point:") and handle.rsplit(":", 1)[-1] == point_name
-    )
-    visible_object_refs = tuple(
-        handle
-        for handle in object_refs
-        if visible_from_valid_scope(
-            handle_registry.handle_valid_scopes.get(handle, scope_id),
-            scope_id=scope_id,
-            registry=handle_registry,
-        )
-    )
-    if len(visible_object_refs) != 1:
-        return (
-            None,
-            None,
-            _issue(
-                "functional_reconciliation",
-                (
-                    "functional.auto_arg_unresolved"
-                    if not visible_object_refs
-                    else "functional.auto_arg_ambiguous"
-                ),
-                f"angle-sum role {role} does not identify one visible Point object",
-                call_id=call_id,
-                scope_id=scope_id,
-                details={
-                    "arg": auto.name,
-                    "selector": auto.selector,
-                    "object_candidates": list(visible_object_refs),
-                },
-            ),
-        )
-    object_ref = visible_object_refs[0]
-    value = _latest_point_state_for_object(
-        object_ref,
-        scope_id=scope_id,
-        produced=produced,
-        semantic_index=semantic_index,
-        handle_registry=handle_registry,
-        allow_unique_planned_producer=True,
-    )
-    if value is None:
-        immutable_views = tuple(
-            view
-            for view in semantic_index.views
-            if view.object_ref == object_ref
-            and view.runtime_type == "Point"
-            and view.state_slot_id is None
-            and _problem_point_has_coordinates(
-                object_ref,
-                handle_registry=handle_registry,
-            )
-            and visible_from_valid_scope(
-                view.valid_scope,
-                scope_id=scope_id,
-                registry=handle_registry,
-            )
-        )
-        if len(immutable_views) == 1:
-            view = immutable_views[0]
-            value = ResolvedFunctionalValue(
-                handle=view.handle,
-                runtime_type=view.runtime_type,
-                valid_scope=view.valid_scope,
-                object_ref=view.object_ref,
-                dependency_object_refs=view.dependency_object_refs,
-                free_symbol_refs=view.free_symbol_refs,
-                source_state_slot_ids=view.source_state_slot_ids,
-                provides_semantic_roles=view.provides_semantic_roles,
-                lineage=view.lineage,
-                math_object_id=view.math_object_id,
-                logical_state_key=view.logical_state_key,
-                typed_slot_id=view.typed_slot_id,
-                state_version_id=view.state_version_id,
-                source_version_ids=view.source_version_ids,
-            )
-    if value is None:
-        producer_locations = state_producer_locations_for_object(
-            object_ref,
-            produced=produced,
-        )
-        return (
-            None,
-            None,
-            _issue(
-                "functional_reconciliation",
-                "functional.arg_state_unavailable",
-                f"angle-sum role {role} requires a materialized Point state",
-                call_id=call_id,
-                scope_id=scope_id,
-                details={
-                    "arg": auto.name,
-                    "selector": auto.selector,
-                    "object_ref": object_ref,
-                    "required_producer_scope": scope_id,
-                    "existing_producer_scopes": sorted(
-                        {
-                            producer_scope
-                            for _producer_id, producer_scope in producer_locations
-                        }
-                    ),
-                    "existing_producers": [
-                        {
-                            "step_id": producer_id,
-                            "scope_ref": producer_scope,
-                        }
-                        for producer_id, producer_scope in producer_locations
-                    ],
-                },
-            ),
-        )
-    if (
-        selector_semantics(auto.selector).requires_closed_state
-        and value.free_symbol_refs
-    ):
-        expectation = (
-            planned_return_expectations.get(
-                (value.source_call_id, value.return_name)
-            )
-            if planned_return_expectations is not None
-            and value.source_call_id is not None
-            and value.return_name is not None
-            else None
-        )
-        if expectation in {"closed_state", "closed_value"}:
-            return (
-                value,
-                FunctionalDeterministicRepair(
-                    call_id,
-                    "defer_closed_state_check_to_runtime",
-                    f"{auto.name}={value.handle}",
-                    (
-                        f"{auto.name}={value.handle}; "
-                        f"producer_expectation={expectation}"
-                    ),
-                ),
-                None,
-            )
-        repair_call_ids = unique_ordered(
-            (
-                *(
-                    (value.source_call_id,)
-                    if value.source_call_id is not None
-                    else ()
-                ),
-                call_id,
-            )
-        )
-        return (
-            None,
-            None,
-            _issue(
-                "functional_reconciliation",
-                "functional.arg_state_open",
-                f"angle-sum role {role} requires a closed Point state",
-                call_id=call_id,
-                scope_id=scope_id,
-                details={
-                    "arg": auto.name,
-                    "selector": auto.selector,
-                    "object_ref": object_ref,
-                    "free_symbol_refs": list(value.free_symbol_refs),
-                    "producer_call_id": value.source_call_id,
-                    "producer_return_name": value.return_name,
-                    "expected_form": "closed_state",
-                    "actual_form": "open_state",
-                    "repair_call_ids": list(repair_call_ids),
-                },
-            ),
-        )
-    return (
-        value,
-        FunctionalDeterministicRepair(
-            call_id,
-            "resolve_angle_sum_role_state",
-            f"{auto.name}=omitted",
-            f"{auto.name}={value.handle}",
-        ),
-        None,
-    )
-
-
-def _problem_point_has_coordinates(
-    object_ref: str,
-    *,
-    handle_registry: CanonicalHandleRegistry,
-) -> bool:
-    payload = handle_registry.entity_payloads.get(object_ref, {})
-    if payload.get("definition") == "coordinate_origin":
-        return True
-    coordinate = payload.get("coordinate")
-    return (
-        isinstance(coordinate, list | tuple)
-        and len(coordinate) == 2
-        and all(item is not None for item in coordinate)
-    )
-
-
-def _resolve_midpoint_auto_arg(
-    auto: Any,
-    *,
-    resolved_args: Mapping[str, tuple[ResolvedFunctionalValue, ...]],
-    produced: Mapping[tuple[str, str], ResolvedFunctionalValue],
-    semantic_index: FunctionalSemanticIndex,
-    handle_registry: CanonicalHandleRegistry,
-    call_id: str,
-    scope_id: str,
-) -> tuple[
-    ResolvedFunctionalValue | None,
-    FunctionalDeterministicRepair | None,
-    FunctionalPlanIssue | None,
-]:
-    """Resolve midpoint endpoints from structured Condition evidence."""
-    condition_match = next(
-        (
-            (arg_name, value)
-            for arg_name, values in resolved_args.items()
-            for value in values
-            if handle_registry.fact_types.get(value.handle)
-            == "midpoint_definition"
-        ),
-        None,
-    )
-    condition_arg = condition_match[0] if condition_match is not None else None
-    condition = condition_match[1] if condition_match is not None else None
-    payload = (
-        handle_registry.fact_payloads.get(condition.handle, {})
-        if condition is not None
-        else {}
-    )
-    endpoints = payload.get("of")
-    position = midpoint_endpoint_position(auto.selector)
-    if position is None:
-        raise ValueError(
-            "planner_configuration_error: unsupported midpoint selector: "
-            f"{auto.selector}"
-        )
-    endpoint_value = (
-        str(endpoints[position])
-        if isinstance(endpoints, list) and len(endpoints) > position
-        else None
-    )
-    endpoint_ref = endpoint_value
-    if endpoint_value is not None and endpoint_value.startswith("point:"):
-        object_refs = (endpoint_value,)
-        entity = handle_registry.entity_payloads.get(endpoint_value, {})
-        visible_refs = unique_ordered(
-            view.ref
-            for view in semantic_index.views
-            if view.kind == "point"
-            and view.object_ref == endpoint_value
-        )
-        endpoint_ref = next(
-            (ref for ref in visible_refs if "." in ref),
-            str(
-                entity.get("semantic_ref")
-                or endpoint_value.rsplit(":", 1)[-1]
-            ),
-        )
-    else:
-        object_refs = (
-            semantic_index.object_refs_for(
-                SemanticRef(ref=endpoint_value, kind="point"),
-                scope_id=scope_id,
-            )
-            if endpoint_value is not None
-            else ()
-        )
-    dynamic = [
-        value
-        for value in produced.values()
-        if value.runtime_type == "Point"
-        and value.state_slot_id is not None
-        and value.object_ref in object_refs
-        and visible_from_valid_scope(
-            value.valid_scope,
-            scope_id=scope_id,
-            registry=handle_registry,
-        )
-    ]
-    selected = dynamic[-1] if dynamic else None
-    if selected is None and endpoint_ref is not None:
-        state_views = [
-            view
-            for view in semantic_index.compatible_views(
-                scope_id=scope_id,
-                accepted_types=("Point",),
-            )
-            if view.state_slot_id is not None
-            and view.object_ref in object_refs
-        ]
-        selected_view = state_views[-1] if state_views else None
-        if selected_view is not None:
-            selected = ResolvedFunctionalValue(
-                handle=selected_view.handle,
-                runtime_type=selected_view.runtime_type,
-                valid_scope=selected_view.valid_scope,
-                state_slot_id=selected_view.state_slot_id,
-                object_ref=selected_view.object_ref,
-                dependency_object_refs=selected_view.dependency_object_refs,
-                free_symbol_refs=selected_view.free_symbol_refs,
-                source_state_slot_ids=selected_view.source_state_slot_ids,
-                provides_semantic_roles=(
-                    selected_view.provides_semantic_roles
-                ),
-                lineage=selected_view.lineage,
-                math_object_id=selected_view.math_object_id,
-                logical_state_key=selected_view.logical_state_key,
-                typed_slot_id=selected_view.typed_slot_id,
-                state_version_id=selected_view.state_version_id,
-                source_version_ids=selected_view.source_version_ids,
-            )
-    if selected is not None:
-        return (
-            selected,
-            FunctionalDeterministicRepair(
-                call_id,
-                "resolve_condition_endpoint_state",
-                f"{auto.name}=omitted",
-                f"{auto.name}={endpoint_ref}",
-            ),
-            None,
-        )
-    producer_locations = (
-        state_producer_locations_for_object(
-            object_refs[0],
-            produced=produced,
-        )
-        if len(object_refs) == 1
-        else ()
-    )
-    return (
-        None,
-        None,
-        _issue(
-            "functional_elaboration",
-            "functional.arg_state_unavailable",
-            (
-                f"argument {condition_arg or 'midpoint_definition'} requires "
-                f"a materialized Point state for "
-                f"{endpoint_ref or 'a midpoint endpoint'}"
-            ),
-            call_id=call_id,
-            scope_id=scope_id,
-            details={
-                "arg": condition_arg or "midpoint_definition",
-                "hidden_arg": auto.name,
-                "selector": auto.selector,
-                "semantic_role": "midpoint_endpoint",
-                "accepted_item_types": ["Point"],
-                "state_requirement": "materialized_state",
-                "required_ref": endpoint_ref,
-                "unresolved_point_ref": endpoint_ref,
-                "error_code": "function.arg_state_unavailable",
-                "required_producer_scope": scope_id,
-                "existing_producer_scopes": sorted(
-                    {
-                        producer_scope
-                        for _producer_id, producer_scope in producer_locations
-                    }
-                ),
-                "existing_producers": [
-                    {
-                        "step_id": producer_id,
-                        "scope_ref": producer_scope,
-                    }
-                    for producer_id, producer_scope in producer_locations
-                ],
-                **(
-                    {"object_ref": object_refs[0]}
-                    if len(object_refs) == 1
-                    else {}
-                ),
-            },
-        ),
-    )
-
-
 def _resolve_auto_symbol_args(
     capability: Any,
     resolved_args: dict[str, tuple[ResolvedFunctionalValue, ...]],
     *,
+    active_return_specs: Sequence[FunctionalCapabilityReturn],
     call_id: str,
     scope_id: str,
     identity_hints: Sequence[str] = (),
@@ -10767,44 +9795,33 @@ def _resolve_auto_symbol_args(
     tuple[FunctionalPlanIssue, ...],
     tuple[FunctionalDeterministicRepair, ...],
 ]:
+    public_by_name = {item.name: item for item in capability.args}
     identity_args = {
         item.identity_arg
-        for item in capability.returns
-        if item.identity_policy == "preserve_input_object" and item.identity_arg
+        for item in active_return_specs
+        if item.identity_policy == "preserve_input_object"
+        and item.identity_arg in public_by_name
     }
-    auto_by_name = {item.name: item for item in capability.auto_args}
     semantic_auto_by_name = {
         item.name: item
         for item in capability.args
         if item.deterministic_resolver == "unique_parameter_symbol"
     }
-    # Hidden compiler-owned Symbol inputs are finalized by the per-call
-    # binding ledger.  Resolving them here would create a second authority
-    # from the legacy selector heuristics and then ask F5-C to overwrite it.
-    # A hidden Symbol still participates when it is an explicit return
-    # identity_arg; that case is carried by identity_args above.
-    mechanical_parameter_args: frozenset[str] = frozenset()
+    # Hidden Symbol inputs are finalized by the per-call typed binding ledger.
+    # Reconciliation only resolves explicit public symbol roles.
     issues: list[FunctionalPlanIssue] = []
     repairs: list[FunctionalDeterministicRepair] = []
     for arg_name in unique_ordered(
         (
             *identity_args,
-            *mechanical_parameter_args,
             *semantic_auto_by_name,
         )
     ):
         if arg_name in resolved_args:
             continue
-        auto = auto_by_name.get(arg_name)
         semantic_auto = semantic_auto_by_name.get(arg_name)
-        if (
-            semantic_auto is None
-            and (
-                auto is None
-                or auto.selector is None
-                or "parameter" not in auto.selector
-            )
-        ):
+        public_arg = public_by_name.get(arg_name)
+        if public_arg is None:
             continue
         if (
             semantic_auto is not None
@@ -10894,19 +9911,6 @@ def _resolve_auto_symbol_args(
                 )
             )
         )
-        if (
-            not hinted_symbols
-            and len(parameter_value_symbols) == 1
-            and arg_name in mechanical_parameter_args
-        ):
-            repairs.append(
-                FunctionalDeterministicRepair(
-                    call_id,
-                    "infer_parameter_from_value_identity",
-                    f"{arg_name}=omitted",
-                    f"{arg_name}={parameter_value_symbols[0]}",
-                )
-            )
         inferred = (
             infer_unique_target_symbol_ref(resolved_args, candidates)
             if len(candidates) > 1
@@ -10923,11 +9927,7 @@ def _resolve_auto_symbol_args(
                 )
             )
         if len(candidates) != 1:
-            resolver_is_required = bool(
-                semantic_auto.required
-                if semantic_auto is not None
-                else (auto.required if auto is not None else False)
-            )
+            resolver_is_required = public_arg.required
             if not resolver_is_required:
                 continue
             issues.append(

@@ -8,7 +8,11 @@ import os
 
 import pytest
 
-from shuxueshuo_server.solver.contracts import MacroSearchSpec
+from shuxueshuo_server.solver.contracts import (
+    CoefficientExtractionDerivationSpec,
+    MacroSearchSpec,
+    MethodInputBindingSpec,
+)
 from shuxueshuo_server.solver.runtime.macro_preparation import (
     MacroImplementation,
     MacroImplementationPreparationContext,
@@ -23,8 +27,8 @@ from shuxueshuo_server.solver.runtime.macro_runtime_search import (
 )
 from shuxueshuo_server.solver.runtime.method_input_read_authority import (
     CallResultReadSource,
-    CompilerSelectorReadSource,
     ConditionReadSource,
+    DerivedInputReadSource,
     EntityIdentityReadSource,
     InvocationResultReadSource,
     MethodInputReadAuthority,
@@ -52,7 +56,7 @@ SOURCE_KINDS = (
     "condition",
     "call_result",
     "invocation_result",
-    "compiler_selector",
+    "typed_derivation",
 )
 SCOPE_RELATIONS = ("same", "ancestor", "root", "sibling")
 MUTATIONS = ("exact", "signature_drift", "path_drift", "scope_drift")
@@ -103,7 +107,14 @@ def _source(kind: str, source_scope: str, path: str):
         return CallResultReadSource("producer", "value", path)
     if kind == "invocation_result":
         return InvocationResultReadSource("producer:method", "value", path)
-    return CompilerSelectorReadSource("selector:value", path)
+    return DerivedInputReadSource(
+        MethodInputBindingSpec(
+            input_name="value",
+            derivation=CoefficientExtractionDerivationSpec("source"),
+        ),
+        StateVersionReadSource(_state_version(source_scope), path),
+        path,
+    )
 
 
 def _types(view_mode: str) -> tuple[str, str]:
@@ -122,14 +133,14 @@ def _oracle_accepts(
     mutation: str,
 ) -> bool:
     allowed = {
-        "identity": {"entity_identity", "compiler_selector"},
+        "identity": {"entity_identity"},
         "latest_state": {"state_version", "invocation_result"},
         "immutable_value": {
             "entity_identity",
             "state_version",
             "condition",
             "invocation_result",
-            "compiler_selector",
+            "typed_derivation",
         },
         "exact_result": {"call_result", "invocation_result"},
     }

@@ -12,7 +12,7 @@ from shuxueshuo_server.solver.contracts import (
 )
 
 from ._common import *
-from ._spec import MethodSpecSource, declare_input_views
+from ._spec import MethodSpecSource, canonical_symbol_input, declare_input_views
 
 
 class PointCandidatesFromCurvePointConditionMethod:
@@ -130,7 +130,7 @@ SPEC = MethodSpecSource(
             "required": True,
             "symbolic_basis_role": "state_anchor",
         },
-        "x": {"type": "Symbol", "required": True},
+        "x": canonical_symbol_input("x"),
         "parameter": {
             "type": "Symbol",
             "required": True,

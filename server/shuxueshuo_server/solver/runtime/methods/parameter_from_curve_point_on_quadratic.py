@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from shuxueshuo_server.solver.contracts import (
+    FreeSymbolBasisDerivationSpec,
     MethodInputBindingSpec,
     MethodInputRelationSpec,
     OrdinalZeroTemplateDerivationSpec,
@@ -21,7 +22,7 @@ from shuxueshuo_server.solver.runtime.symbolic_closure_execution import (
 )
 
 from ._common import *
-from ._spec import MethodSpecSource, declare_input_views
+from ._spec import MethodSpecSource, canonical_symbol_input, declare_input_views
 
 
 class ParameterFromCurvePointOnQuadraticMethod:
@@ -157,13 +158,27 @@ SPEC = MethodSpecSource(
             "required": True,
             "symbolic_basis_role": "state_anchor",
         },
-        "x": {"type": "Symbol", "required": True},
+        "x": canonical_symbol_input("x"),
         "point": {
             "type": "Point",
             "required": True,
             "symbolic_basis_role": "align_to_anchor",
         },
-        "parameter": {"type": "Symbol", "required": True},
+        "parameter": {
+            "type": "Symbol",
+            "required": True,
+            "binding": MethodInputBindingSpec(
+                input_name="parameter",
+                derivation=FreeSymbolBasisDerivationSpec(
+                    (
+                        "quadratic",
+                        "point",
+                        "parameter_constraint",
+                        "known_parameter_value",
+                    )
+                ),
+            ),
+        },
         "parameter_constraint": {
             "type": "Constraint",
             "required": False,

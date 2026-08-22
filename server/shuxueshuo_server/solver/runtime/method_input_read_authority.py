@@ -6,8 +6,14 @@ from dataclasses import dataclass, field
 from typing import Any, Literal, Mapping, TypeAlias
 
 from shuxueshuo_server.solver.contracts import (
+    CanonicalSymbolDerivationSpec,
+    CoefficientExtractionDerivationSpec,
+    FreeSymbolBasisDerivationSpec,
     MethodInputBindingSpec,
     MethodInputViewMode,
+    OrdinalZeroTemplateDerivationSpec,
+    PreviousOutputIdentityDerivationSpec,
+    SourceObjectIdentityDerivationSpec,
 )
 from shuxueshuo_server.solver.extraction.source_identity import stable_hash
 from shuxueshuo_server.solver.runtime.state_identity import StateVersionId
@@ -88,20 +94,6 @@ class InvocationResultReadSource:
 
 
 @dataclass(frozen=True)
-class CompilerSelectorReadSource:
-    selector_id: str
-    runtime_path: str
-    kind: Literal["compiler_selector"] = "compiler_selector"
-
-    def to_payload(self) -> dict[str, Any]:
-        return {
-            "kind": self.kind,
-            "selector_id": self.selector_id,
-            "runtime_path": self.runtime_path,
-        }
-
-
-@dataclass(frozen=True)
 class DerivedInputReadSource:
     binding: MethodInputBindingSpec
     upstream: "MethodInputReadSource"
@@ -113,7 +105,7 @@ class DerivedInputReadSource:
             raise ValueError(
                 "typed derivation read source requires a derivation binding"
             )
-        if isinstance(self.upstream, (CompilerSelectorReadSource, DerivedInputReadSource)):
+        if isinstance(self.upstream, DerivedInputReadSource):
             raise ValueError(
                 "typed derivation upstream must be an exact source authority"
             )
@@ -133,7 +125,6 @@ MethodInputReadSource: TypeAlias = (
     | ConditionReadSource
     | CallResultReadSource
     | InvocationResultReadSource
-    | CompilerSelectorReadSource
     | DerivedInputReadSource
 )
 
@@ -276,24 +267,21 @@ def _validate_source_for_view(
     source: MethodInputReadSource,
 ) -> None:
     allowed: dict[str, tuple[type[Any], ...]] = {
-        "identity": (EntityIdentityReadSource, CompilerSelectorReadSource),
+        "identity": (EntityIdentityReadSource, DerivedInputReadSource),
         "latest_state": (
             StateVersionReadSource,
             InvocationResultReadSource,
-            CompilerSelectorReadSource,
         ),
         "immutable_value": (
             EntityIdentityReadSource,
             StateVersionReadSource,
             ConditionReadSource,
             InvocationResultReadSource,
-            CompilerSelectorReadSource,
             DerivedInputReadSource,
         ),
         "exact_result": (
             CallResultReadSource,
             InvocationResultReadSource,
-            CompilerSelectorReadSource,
         ),
     }
     if not isinstance(source, allowed[view_mode]):
@@ -301,23 +289,23 @@ def _validate_source_for_view(
             "planner.method_input_view_authority_drift: "
             f"view={view_mode}, source={source.kind}"
         )
+    _validate_derivation_for_view(view_mode, source)
 
 
 def _validate_production_source_for_view(
     view_mode: MethodInputViewMode,
     source: MethodInputReadSource,
 ) -> None:
-    """Reject debug selectors where production requires a pinned authority."""
+    """Require a pinned typed source at the production boundary."""
 
     allowed: dict[str, tuple[type[Any], ...]] = {
-        "identity": (EntityIdentityReadSource, CompilerSelectorReadSource),
+        "identity": (EntityIdentityReadSource, DerivedInputReadSource),
         "latest_state": (StateVersionReadSource, InvocationResultReadSource),
         "immutable_value": (
             EntityIdentityReadSource,
             StateVersionReadSource,
             ConditionReadSource,
             InvocationResultReadSource,
-            CompilerSelectorReadSource,
             DerivedInputReadSource,
         ),
         "exact_result": (CallResultReadSource, InvocationResultReadSource),
@@ -326,6 +314,36 @@ def _validate_production_source_for_view(
         raise ValueError(
             "planner.method_input_view_authority_drift: "
             f"production view={view_mode}, source={source.kind}"
+        )
+    _validate_derivation_for_view(view_mode, source)
+
+
+def _validate_derivation_for_view(
+    view_mode: MethodInputViewMode,
+    source: MethodInputReadSource,
+) -> None:
+    if not isinstance(source, DerivedInputReadSource):
+        return
+    derivation = source.binding.derivation
+    allowed: dict[str, tuple[type[Any], ...]] = {
+        "identity": (
+            CanonicalSymbolDerivationSpec,
+            PreviousOutputIdentityDerivationSpec,
+            SourceObjectIdentityDerivationSpec,
+            FreeSymbolBasisDerivationSpec,
+        ),
+        "latest_state": (),
+        "immutable_value": (
+            CoefficientExtractionDerivationSpec,
+            OrdinalZeroTemplateDerivationSpec,
+        ),
+        "exact_result": (),
+    }
+    if not isinstance(derivation, allowed[view_mode]):
+        raise ValueError(
+            "planner.method_input_view_authority_drift: "
+            f"view={view_mode}, derivation="
+            f"{getattr(derivation, 'kind', type(derivation).__name__)}"
         )
 
 
@@ -360,11 +378,6 @@ def _source_from_payload(payload: Mapping[str, Any]) -> MethodInputReadSource:
         return InvocationResultReadSource(
             _required_string(payload, "invocation_id"),
             _required_string(payload, "return_name"),
-            runtime_path,
-        )
-    if kind == "compiler_selector":
-        return CompilerSelectorReadSource(
-            _required_string(payload, "selector_id"),
             runtime_path,
         )
     if kind == "typed_derivation":
@@ -405,7 +418,6 @@ def _required_view_mode(payload: Mapping[str, Any]) -> MethodInputViewMode:
 
 __all__ = [
     "CallResultReadSource",
-    "CompilerSelectorReadSource",
     "ConditionReadSource",
     "DerivedInputReadSource",
     "EntityIdentityReadSource",

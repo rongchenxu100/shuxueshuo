@@ -11,7 +11,6 @@ from shuxueshuo_server.solver.contracts import (
 from shuxueshuo_server.solver.family import DEFAULT_FAMILY_REGISTRY
 from shuxueshuo_server.solver.runtime.method_input_read_authority import (
     CallResultReadSource,
-    CompilerSelectorReadSource,
     EntityIdentityReadSource,
 )
 
@@ -159,10 +158,7 @@ def test_c3_geometry_inputs_never_lower_through_compiler_selector() -> None:
                             continue
                         checked += len(authorities)
                         assert all(
-                            not isinstance(
-                                authority.source,
-                                CompilerSelectorReadSource,
-                            )
+                            authority.source.kind != "compiler_selector"
                             for authority in authorities
                         )
 

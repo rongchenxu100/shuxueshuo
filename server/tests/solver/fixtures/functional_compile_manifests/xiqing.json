@@ -16,7 +16,6 @@
               "inputs": [
                 "all_coefficients",
                 "curve_point",
-                "known_coefficients",
                 "parameter",
                 "parameter_value",
                 "quadratic",

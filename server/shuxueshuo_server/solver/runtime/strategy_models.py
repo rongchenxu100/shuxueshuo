@@ -489,19 +489,10 @@ class ProjectedFunctionArgBinding:
     semantic_role: str | None = None
     cardinality: str = "one"
     item_index: int = 0
-    selection_policy: Literal[
-        "exact", "latest", "identity_only", "compiler"
-    ] = "exact"
+    selection_policy: Literal["exact", "latest", "identity_only"] = "exact"
     consumption_mode: Literal[
-        "runtime_input", "resolver_evidence", "compiler_selector", "typed_binding"
+        "runtime_input", "resolver_evidence", "typed_binding"
     ] = "runtime_input"
-    compiler_selector_id: str | None = None
-    compiler_selected_source_kind: Literal[
-        "state_version",
-        "condition",
-        "math_object",
-        "call_result",
-    ] | None = None
     runtime_input_targets: tuple[str, ...] = ()
     runtime_input_required: bool = True
     input_binding: MethodInputBindingSpec | None = None
@@ -538,12 +529,6 @@ class ProjectedFunctionArgBinding:
             payload["source_call_id"] = self.source_call_id
         if self.source_return_name is not None:
             payload["source_return_name"] = self.source_return_name
-        if self.compiler_selector_id is not None:
-            payload["compiler_selector_id"] = self.compiler_selector_id
-        if self.compiler_selected_source_kind is not None:
-            payload["compiler_selected_source_kind"] = (
-                self.compiler_selected_source_kind
-            )
         payload["binding_authority"] = self.binding_authority
         return payload
 
@@ -609,16 +594,6 @@ class ProjectedFunctionArgBinding:
             item_index=int(payload.get("item_index", 0)),
             selection_policy=str(payload.get("selection_policy", "exact")),  # type: ignore[arg-type]
             consumption_mode=str(payload.get("consumption_mode", "runtime_input")),  # type: ignore[arg-type]
-            compiler_selector_id=(
-                str(payload["compiler_selector_id"])
-                if payload.get("compiler_selector_id") is not None
-                else None
-            ),
-            compiler_selected_source_kind=(
-                str(payload["compiler_selected_source_kind"])  # type: ignore[arg-type]
-                if payload.get("compiler_selected_source_kind") is not None
-                else None
-            ),
             runtime_input_targets=tuple(
                 str(item) for item in payload.get("runtime_input_targets", ())
             ),

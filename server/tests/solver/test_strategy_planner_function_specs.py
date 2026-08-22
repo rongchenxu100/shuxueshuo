@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import replace
+from dataclasses import asdict, replace
 import json
 from pathlib import Path
 from types import SimpleNamespace
@@ -9,10 +9,12 @@ import pytest
 import sympy as sp
 
 from shuxueshuo_server.solver.contracts import (
-    LegacySelectorInputBindingSpec,
+    CoefficientExtractionDerivationSpec,
+    MethodInputBindingSpec,
     MethodInputSpec,
     MethodInputViewSpec,
     MethodSpec,
+    PublicArgSourceSpec,
 )
 from shuxueshuo_server.solver.family.models import (
     CapabilityContractSpec,
@@ -644,7 +646,7 @@ def test_migrated_function_specs_have_no_required_contract_return_mismatch() -> 
 
 
 def test_generic_function_adapters_are_projected_from_common_binding_rules() -> None:
-    """Generic adapter selector truth lives in common binding rules."""
+    """Generic adapter input truth lives in common binding rules."""
     assert set(GENERIC_FUNCTION_ADAPTERS) == set(GENERIC_FUNCTION_METHOD_IDS)
     assert {rule.method_id for rule in GENERIC_FUNCTION_BINDING_RULES} == set(
         GENERIC_FUNCTION_METHOD_IDS
@@ -655,7 +657,12 @@ def test_generic_function_adapters_are_projected_from_common_binding_rules() -> 
         assert [item.to_payload() for item in adapter.input_bindings] == [
             item.to_payload() for item in rule.input_bindings
         ]
-        assert adapter.expansion_selectors == rule.expansion_selectors
+        assert [asdict(item) for item in adapter.aggregate_input_bindings] == [
+            asdict(item) for item in rule.aggregate_input_bindings
+        ]
+        assert [asdict(item) for item in adapter.scalar_aggregate_lowerings] == [
+            asdict(item) for item in rule.scalar_aggregate_lowerings
+        ]
 
 
 def test_migrated_function_adapter_failure_does_not_fallback_to_legacy_rule() -> None:
@@ -664,23 +671,8 @@ def test_migrated_function_adapter_failure_does_not_fallback_to_legacy_rule() ->
         if rule.method_id == "distance_between_points"
     )
 
-    selector_calls: list[str] = []
-
-    def failing_selector(_step, _index, _local_outputs):
-        selector_calls.append("distance:p1")
-        raise StrategyDraftValidationError("forced_missing_distance_endpoint")
-
     registry = MethodBindingRuleRegistry(
         rules=(distance_rule,),
-        selectors={
-            "distance:p1": failing_selector,
-            "distance:p2": lambda _step, _index, _local_outputs: "$fake.p2",
-        },
-        expansion_selectors={
-            "distance_parameter_value_if_read": (
-                lambda _step, _index, _local_outputs: {}
-            ),
-        },
     )
     step = FunctionalCapabilityCompileCall(
         scope_id="problem",
@@ -704,29 +696,20 @@ def test_migrated_function_adapter_failure_does_not_fallback_to_legacy_rule() ->
         registry.bind("distance_between_points", step, object())
 
     assert error.value.code == "planner.method_input_binding_lowerer_missing"
-    assert selector_calls == []
     assert registry.function_binding_events == []
 
 
 def test_production_adapter_requires_typed_authority_for_every_entity_input() -> None:
-    selector_calls: list[str] = []
-
-    def legacy_selector(_step, _index, _local_outputs):
-        selector_calls.append("legacy_entity_selector")
-        return "$problem.points.B"
-
     adapter = FunctionAdapterSpec(
         adapter_id="synthetic_entity_consumer",
         input_bindings=(
-            LegacySelectorInputBindingSpec(
+            MethodInputBindingSpec(
                 input_name="anchor",
-                selector="legacy_entity_selector",
+                source=PublicArgSourceSpec("anchor"),
             ),
         ),
     )
     registry = FunctionAdapterRegistry(
-        selectors={"legacy_entity_selector": legacy_selector},
-        expansion_selectors={},
         adapters={"synthetic_entity_consumer": adapter},
     )
     step = SimpleNamespace(step_id="consume_anchor")
@@ -751,18 +734,13 @@ def test_production_adapter_requires_typed_authority_for_every_entity_input() ->
             method_input_specs={"anchor": entity_input},
         )
 
-    assert error.value.authority.code == (
-        "planner.method_input_view_authority_missing"
-    )
+    assert error.value.authority.code == "planner.method_input_binding_lowerer_missing"
     assert error.value.authority.subjects[0].arg_name == "anchor"
-    assert error.value.authority.observed["compiler_selector_id"] == (
-        "legacy_entity_selector"
+    assert error.value.authority.observed["binding"] == (
+        adapter.input_bindings[0].to_payload()
     )
-    assert selector_calls == []
 
     optional_registry = FunctionAdapterRegistry(
-        selectors={"legacy_entity_selector": legacy_selector},
-        expansion_selectors={},
         adapters={
             "synthetic_entity_consumer": replace(
                 adapter,
@@ -782,29 +760,19 @@ def test_production_adapter_requires_typed_authority_for_every_entity_input() ->
     )
 
     assert optional_inputs == {}
-    assert selector_calls == []
 
 
-def test_production_adapter_keeps_v1_selector_only_for_non_entity_values() -> None:
-    selector_calls: list[str] = []
-
-    def mechanical_selector(_step, _index, _local_outputs):
-        selector_calls.append("mechanical_selector")
-        return "$runtime.coefficient_tuple"
-
+def test_production_adapter_requires_typed_lowering_for_mechanical_values() -> None:
     adapter = FunctionAdapterSpec(
         adapter_id="synthetic_mechanical_consumer",
         input_bindings=(
-            LegacySelectorInputBindingSpec(
+            MethodInputBindingSpec(
                 input_name="coefficients",
-                selector="mechanical_selector",
-                functional_authority="compiler",
+                derivation=CoefficientExtractionDerivationSpec("quadratic"),
             ),
         ),
     )
     registry = FunctionAdapterRegistry(
-        selectors={"mechanical_selector": mechanical_selector},
-        expansion_selectors={},
         adapters={"synthetic_mechanical_consumer": adapter},
     )
     mechanical_input = MethodInputSpec(
@@ -817,15 +785,24 @@ def test_production_adapter_keeps_v1_selector_only_for_non_entity_values() -> No
         ),
     )
 
+    step = SimpleNamespace(step_id="consume_coefficients")
+    with pytest.raises(StatelessMethodError) as error:
+        registry.bind(
+            "synthetic_mechanical_consumer",
+            step,
+            SimpleNamespace(problem_binding_authority=True),
+            method_input_specs={"coefficients": mechanical_input},
+        )
+    assert error.value.code == "planner.method_input_binding_lowerer_missing"
+
     inputs = registry.bind(
         "synthetic_mechanical_consumer",
-        SimpleNamespace(step_id="consume_coefficients"),
+        step,
         SimpleNamespace(problem_binding_authority=True),
+        exact_inputs={"coefficients": "$runtime.coefficient_tuple"},
         method_input_specs={"coefficients": mechanical_input},
     )
-
     assert inputs == {"coefficients": "$runtime.coefficient_tuple"}
-    assert selector_calls == ["mechanical_selector"]
 
 
 def _diagnostic_payload(value: Any) -> dict[str, Any]:

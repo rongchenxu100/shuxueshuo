@@ -185,6 +185,33 @@ class ExactCallResultSourceSpec:
 
 
 @dataclass(frozen=True)
+class ExactParameterSubstitutionSourceSpec:
+    """Select one exact ParameterValue from already-pinned input lineage."""
+
+    source_inputs: tuple[str, ...]
+    target_input: str
+    kind: Literal["exact_parameter_substitution"] = field(
+        default="exact_parameter_substitution",
+        init=False,
+    )
+
+    def __post_init__(self) -> None:
+        _required_unique_names(self.source_inputs, "source_inputs")
+        _required_name(self.target_input, "target_input")
+        if self.target_input in self.source_inputs:
+            raise MethodInputBindingContractError(
+                "target_input must not also be a source_input"
+            )
+
+    def to_payload(self) -> dict[str, Any]:
+        return {
+            "kind": self.kind,
+            "source_inputs": list(self.source_inputs),
+            "target_input": self.target_input,
+        }
+
+
+@dataclass(frozen=True)
 class ProducerLinkedSourceSpec:
     source_arg: str
     producer_arg: str
@@ -226,6 +253,7 @@ MethodInputSourceSpec: TypeAlias = (
     | LatestStateSourceSpec
     | ConditionSourceSpec
     | ExactCallResultSourceSpec
+    | ExactParameterSubstitutionSourceSpec
     | ProducerLinkedSourceSpec
     | MacroPreparedRoleSourceSpec
 )
@@ -336,6 +364,7 @@ _METHOD_INPUT_SOURCE_TYPES = (
     LatestStateSourceSpec,
     ConditionSourceSpec,
     ExactCallResultSourceSpec,
+    ExactParameterSubstitutionSourceSpec,
     ProducerLinkedSourceSpec,
     MacroPreparedRoleSourceSpec,
 )
@@ -435,52 +464,6 @@ class MethodInputBindingSpec:
                 else None
             ),
         )
-
-
-@dataclass(frozen=True)
-class LegacySelectorInputBindingSpec:
-    """Explicit compatibility boundary for one pre-F4.2R selector binding."""
-
-    input_name: str
-    selector: str
-    required: bool = True
-    functional_authority: FunctionalArgBindingAuthority | None = None
-    functional_resolver: str | None = None
-
-    def __post_init__(self) -> None:
-        _required_name(self.input_name, "input_name")
-        _required_name(self.selector, "selector")
-        if self.functional_resolver is not None:
-            _required_name(self.functional_resolver, "functional_resolver")
-
-    def to_payload(self) -> dict[str, Any]:
-        payload: dict[str, Any] = {
-            "input_name": self.input_name,
-            "selector": self.selector,
-            "required": self.required,
-        }
-        if self.functional_authority is not None:
-            payload["functional_authority"] = self.functional_authority
-        if self.functional_resolver is not None:
-            payload["functional_resolver"] = self.functional_resolver
-        return payload
-
-
-MethodInputBindingDeclaration: TypeAlias = (
-    MethodInputBindingSpec | LegacySelectorInputBindingSpec
-)
-
-
-class LegacyExpansionSelectorSpec(str):
-    """String-compatible marker for a pre-F4.2R expansion selector."""
-
-    def __new__(cls, selector_id: str) -> "LegacyExpansionSelectorSpec":
-        _required_name(selector_id, "selector_id")
-        return str.__new__(cls, selector_id)
-
-    @property
-    def selector_id(self) -> str:
-        return str(self)
 
 
 def _strict_payload_fields(
@@ -600,6 +583,17 @@ def method_input_source_from_payload(
                 else ()
             ),
         )
+    if kind == "exact_parameter_substitution":
+        _strict_payload_fields(
+            payload,
+            allowed={"kind", "source_inputs", "target_input"},
+            required={"kind", "source_inputs", "target_input"},
+            context=kind,
+        )
+        return ExactParameterSubstitutionSourceSpec(
+            _string_tuple(payload["source_inputs"], "source_inputs"),
+            _strict_name_value(payload["target_input"], "target_input"),
+        )
     if kind == "producer_linked":
         _strict_payload_fields(
             payload,
@@ -683,6 +677,14 @@ def validate_method_input_binding_view(
         expected_mode = "immutable_value"
     elif isinstance(binding.source, ExactCallResultSourceSpec):
         expected_mode = "exact_result"
+    elif isinstance(binding.source, ExactParameterSubstitutionSourceSpec):
+        if input_spec.view.mode not in {"latest_state", "exact_result"}:
+            raise MethodInputBindingContractError(
+                f"input {binding.input_name} exact parameter substitution "
+                f"requires latest_state or exact_result, observed "
+                f"{input_spec.view.mode}"
+            )
+        return
     if expected_mode is not None and input_spec.view.mode != expected_mode:
         raise MethodInputBindingContractError(
             f"input {binding.input_name} source requires view {expected_mode}, "

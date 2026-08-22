@@ -6,11 +6,8 @@
 
 from __future__ import annotations
 
-from shuxueshuo_server.solver.contracts import (
-    LegacyExpansionSelectorSpec,
-    LegacySelectorInputBindingSpec,
-)
 from shuxueshuo_server.solver.family.models import (
+    MethodAggregateInputBindingSpec,
     CapabilityContextRoleBindingSpec,
     CapabilityContractSpec,
     ConditionPattern,
@@ -229,17 +226,18 @@ _QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 quadratic_latest_state_binding("quadratic"),
                 canonical_x_binding(),
                 quadratic_coefficients_binding(),
-                LegacySelectorInputBindingSpec(
-                    "free_parameter",
-                    "free_parameter:a_if_single_curve_point",
-                    required=False,
-                    functional_authority="wire",
-                ),
             ),
-            expansion_selectors=(
-                LegacyExpansionSelectorSpec("known_coefficients_if_read"),
-                LegacyExpansionSelectorSpec("curve_point_if_read"),
-                LegacyExpansionSelectorSpec("parameter_value_if_read"),
+            aggregate_input_bindings=(
+                MethodAggregateInputBindingSpec(
+                    source_input="curve_points",
+                    item_inputs=(),
+                    singleton_input="curve_point",
+                ),
+                MethodAggregateInputBindingSpec(
+                    source_input="free_parameters",
+                    item_inputs=(),
+                    singleton_input="free_parameter",
+                ),
             ),
             always_emit_outputs=("coefficients",),
             companion_outputs=(

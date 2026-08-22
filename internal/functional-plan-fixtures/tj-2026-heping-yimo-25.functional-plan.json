@@ -2,8 +2,8 @@
   "format": "functional_plan/v1",
   "scopes": [
     {
-      "scope_id": "i_1",
-      "label": "第（Ⅰ）①问",
+      "scope_id": "problem",
+      "label": "题目公共步骤",
       "calls": [
         {
           "call_id": "derive_y_intercept_C_i",
@@ -40,7 +40,13 @@
           },
           "strategy": "按题面平移定义由源点得到目标点。",
           "reason": "目标点在曲线上的条件用于确定函数系数。"
-        },
+        }
+      ]
+    },
+    {
+      "scope_id": "i",
+      "label": "第（Ⅰ）问公共步骤",
+      "calls": [
         {
           "call_id": "derive_parabola_i",
           "capability_id": "quadratic_from_constraints",

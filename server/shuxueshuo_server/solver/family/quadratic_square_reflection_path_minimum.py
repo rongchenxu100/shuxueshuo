@@ -12,8 +12,6 @@
 from __future__ import annotations
 
 from shuxueshuo_server.solver.contracts import (
-    LegacyExpansionSelectorSpec,
-    LegacySelectorInputBindingSpec,
     SourceObjectIdentityDerivationSpec,
 )
 from shuxueshuo_server.solver.family.models import (
@@ -39,7 +37,7 @@ from shuxueshuo_server.solver.family.capability_packs import (
     STRAIGHTENED_ENDPOINT_RESULT_FORM,
 )
 from shuxueshuo_server.solver.family.common_binding_rules import (
-    QUADRATIC_STATE_PREP_INVOCATIONS,
+    quadratic_state_prep_invocations,
     canonical_x_binding,
     condition_arg_binding,
     entity_identity_binding,
@@ -314,10 +312,6 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 canonical_x_binding(),
                 quadratic_coefficients_binding(),
             ),
-            expansion_selectors=(
-                LegacyExpansionSelectorSpec("known_coefficients_if_read"),
-                LegacyExpansionSelectorSpec("curve_point_if_read"),
-            ),
             always_emit_outputs=("coefficients",),
             companion_outputs=(
                 MethodCompanionOutputSpec(
@@ -337,7 +331,7 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                     output_name="axis_point",
                 ),
             ),
-            prep_invocations=QUADRATIC_STATE_PREP_INVOCATIONS,
+            prep_invocations=quadratic_state_prep_invocations("parabola"),
         ),
         MethodBindingRuleSpec(
             method_id="square_path_dimension_reduction",
@@ -386,7 +380,7 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                     output_name="point",
                 ),
             ),
-            prep_invocations=QUADRATIC_STATE_PREP_INVOCATIONS,
+            prep_invocations=quadratic_state_prep_invocations("parabola"),
             companion_outputs=(
                 MethodCompanionOutputSpec(
                     output_name="parameter",
@@ -416,10 +410,9 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                     input_name="side_end_ref",
                     required=False,
                 ),
-                producer_linked_binding(
+                source_object_identity_binding(
                     "parameter_value",
                     input_name="parameter",
-                    producer_input="parameter",
                     required=False,
                 ),
                 related_condition_binding(
@@ -428,9 +421,6 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                     related_args=("parameter",),
                     required=False,
                 ),
-            ),
-            expansion_selectors=(
-                LegacyExpansionSelectorSpec("parameter_value_if_read"),
             ),
         ),
         MethodBindingRuleSpec(
@@ -441,7 +431,7 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 quadratic_public_state_binding("parabola"),
                 canonical_x_binding(),
             ),
-            prep_invocations=QUADRATIC_STATE_PREP_INVOCATIONS,
+            prep_invocations=quadratic_state_prep_invocations("parabola"),
         ),
         MethodBindingRuleSpec(
             method_id="parameterized_point_locus_line",
@@ -465,9 +455,11 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                     "target",
                     output_name="point",
                 ),
-            ),
-            expansion_selectors=(
-                LegacyExpansionSelectorSpec("parameter_value_if_read"),
+                source_object_identity_binding(
+                    "parameter_value",
+                    input_name="parameter",
+                    required=False,
+                ),
             ),
         ),
     ),

@@ -50,7 +50,8 @@
           "authority": "wire",
           "target": "known_coefficients",
           "paths": [
-            "$question.i.coefficients.known"
+            "$question.i.facts.__functional_transaction_derive_parabola_i_0",
+            "$question.i.facts.__functional_transaction_derive_parabola_i_1"
           ]
         },
         {
@@ -60,7 +61,8 @@
           "authority": "wire",
           "target": "known_coefficients",
           "paths": [
-            "$question.i.coefficients.known"
+            "$question.i.facts.__functional_transaction_derive_parabola_i_0",
+            "$question.i.facts.__functional_transaction_derive_parabola_i_1"
           ]
         },
         {
@@ -1474,6 +1476,16 @@
       ],
       "bindings": [
         {
+          "arg": "parameter",
+          "item": 0,
+          "role": "parameter",
+          "authority": "compiler",
+          "target": "parameter",
+          "paths": [
+            "$problem.symbols.c"
+          ]
+        },
+        {
           "arg": "parameter_value",
           "item": 0,
           "role": "parameter_value",
@@ -1574,6 +1586,16 @@
           "target": "moving_locus",
           "paths": [
             "$question.ii.outputs.derive_locus_G_ii_line"
+          ]
+        },
+        {
+          "arg": "parameter",
+          "item": 0,
+          "role": "parameter",
+          "authority": "compiler",
+          "target": "parameter",
+          "paths": [
+            "$problem.symbols.c"
           ]
         },
         {

@@ -13,7 +13,7 @@ from shuxueshuo_server.solver.contracts import (
 from shuxueshuo_server.solver.math_ops import y_axis_intercept
 
 from ._common import *
-from ._spec import MethodSpecSource, declare_input_views
+from ._spec import MethodSpecSource, canonical_symbol_input, declare_input_views
 
 
 class QuadraticYAxisInterceptPointMethod:
@@ -69,7 +69,7 @@ SPEC = MethodSpecSource(
             "required": True,
             "symbolic_basis_role": "state_anchor",
         },
-        "x": {"type": "Symbol", "required": True},
+        "x": canonical_symbol_input("x"),
         "target": {
             "type": "PointRef",
             "required": True,

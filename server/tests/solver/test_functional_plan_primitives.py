@@ -1,10 +1,5 @@
 from types import SimpleNamespace
 
-from shuxueshuo_server.solver.runtime.binding_selector_semantics import (
-    expansion_selector_semantics,
-    selector_context_binding,
-    selector_semantics,
-)
 from shuxueshuo_server.solver.runtime.functional_plan_graph import (
     canonical_call_aliases,
     rewrite_call_aliases,
@@ -75,34 +70,6 @@ def test_wire_stability_uses_dependency_policy_not_capability_id() -> None:
 
     assert wire_inputs_are_stable(call, explicit)
     assert not wire_inputs_are_stable(call, closure)
-
-
-def test_selector_semantics_are_one_descriptor_per_selector_grammar() -> None:
-    midpoint = selector_semantics("midpoint:p1")
-    endpoint = selector_semantics("straightening_minimum:p1")
-    intersection = selector_semantics("intersection:line1_p1")
-    expansion = expansion_selector_semantics(
-        "distance_parameter_value_if_read"
-    )
-
-    assert midpoint.mechanical
-    assert midpoint.prerequisite_condition_kind == "midpoint_definition"
-    assert endpoint.semantic_roles == ("straightened_endpoint_1",)
-    assert endpoint.requires_materialized_state
-    assert not intersection.mechanical
-    assert intersection.context_prerequisites == ()
-    assert expansion.arg_resolvers == (
-        ("parameter_value", "unique_related_state"),
-    )
-    assert selector_context_binding("right_angle:anchor") == (
-        "condition_object_roles",
-        "anchor",
-    )
-    assert selector_context_binding("path_reduction:relation") == (
-        "path_reduction_roles",
-        "binding_relation",
-    )
-    assert selector_context_binding("point_output_ref") is None
 
 
 def test_structured_object_dependencies_are_shared_and_transitive() -> None:

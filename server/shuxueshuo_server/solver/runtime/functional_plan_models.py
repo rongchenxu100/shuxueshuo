@@ -8,7 +8,6 @@ from typing import Any, Literal, Mapping
 
 from shuxueshuo_server.solver.contracts import (
     FunctionalResultForm,
-    MethodInputBindingDeclaration,
     MethodInputBindingSpec,
     MethodInputViewMode,
 )
@@ -310,31 +309,19 @@ class FunctionalCapabilityArg:
 class FunctionalAutoArg:
     name: str
     required: bool
-    selector: str | None = None
-    input_binding: MethodInputBindingSpec | None = None
+    input_binding: MethodInputBindingSpec
     binding_authority: FunctionalArgBindingAuthority = "compiler"
     semantic_role: str | None = None
     runtime_input: str | None = None
 
-    def __post_init__(self) -> None:
-        if (self.selector is None) == (self.input_binding is None):
-            raise ValueError(
-                "FunctionalAutoArg requires exactly one of selector or "
-                "input_binding"
-            )
-
     def to_payload(self) -> dict[str, Any]:
-        payload: dict[str, Any] = {
+        return {
             "name": self.name,
             "required": self.required,
             "semantic_role": self.semantic_role or self.name,
             "runtime_input": self.runtime_input or self.name,
+            "input_binding": self.input_binding.to_payload(),
         }
-        if self.selector is not None:
-            payload["selector"] = self.selector
-        else:
-            payload["input_binding"] = self.input_binding.to_payload()
-        return payload
 
 
 @dataclass(frozen=True)
@@ -423,7 +410,7 @@ class FunctionalCapabilityReturn:
             payload["provides"] = list(self.provides_semantic_roles)
         if self.output_target_selector is not None:
             payload["target_selection"] = (
-                self.output_target_selector.to_payload()
+                self.output_target_selector.to_prompt_payload()
             )
         return payload
 
@@ -490,15 +477,11 @@ class FunctionalCapability:
         default=(),
         repr=False,
     )
-    input_bindings: tuple[MethodInputBindingDeclaration, ...] = field(
+    input_bindings: tuple[MethodInputBindingSpec, ...] = field(
         default=(),
         repr=False,
     )
     auto_args: tuple[FunctionalAutoArg, ...] = field(default=(), repr=False)
-    context_preflight_selectors: tuple[str, ...] = field(
-        default=(),
-        repr=False,
-    )
     input_closure_requirements: tuple[
         FunctionalInputClosureRequirement, ...
     ] = ()

@@ -9,7 +9,6 @@ from shuxueshuo_server.solver.runtime.condition_binding_authority import (
 )
 from shuxueshuo_server.solver.runtime.method_input_read_authority import (
     CallResultReadSource,
-    CompilerSelectorReadSource,
     ConditionReadSource,
     MethodInputReadAuthority,
 )
@@ -206,7 +205,7 @@ def test_recorded_fact_and_role_inputs_use_typed_read_authority() -> None:
         ),
     }
     assert all(
-        not isinstance(authority.source, CompilerSelectorReadSource)
+        authority.source.kind != "compiler_selector"
         for authorities in invocation.input_read_authorities.values()
         for authority in authorities
     )

@@ -29,6 +29,15 @@
         "domain_type": "Symbol",
         "object_kind": "symbol",
         "state_kind": "value"
+      },
+      "binding": {
+        "schema_version": "method-input-binding/v1",
+        "input_name": "x",
+        "required": true,
+        "derivation": {
+          "kind": "canonical_symbol",
+          "symbol_name": "x"
+        }
       }
     },
     "line_p1": {

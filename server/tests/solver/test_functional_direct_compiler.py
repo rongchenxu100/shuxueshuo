@@ -25,9 +25,6 @@ from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
 from shuxueshuo_server.solver.runtime.function_specs import (
     FunctionAdapterRegistry,
 )
-from shuxueshuo_server.solver.runtime.method_input_read_authority import (
-    CompilerSelectorReadSource,
-)
 from shuxueshuo_server.solver.runtime.models import ContextDeclaration
 from shuxueshuo_server.solver.runtime import recipe_compiler
 from shuxueshuo_server.solver.runtime.recipe_compiler import (
@@ -195,24 +192,12 @@ def test_authored_direct_compile_manifest_is_stable(case_id: str) -> None:
     assert _functional_compile_manifest(case_id) == expected
 
 
-def test_recorded_strict_slices_do_not_call_legacy_selectors(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    original = FunctionAdapterRegistry._select
-    observed: list[str] = []
-
-    def guarded_select(self, selector, step, index, local_outputs):
-        observed.append(selector)
-        assert selector not in _RETIRED_QUADRATIC_INPUT_SELECTORS
-        return original(self, selector, step, index, local_outputs)
-
-    monkeypatch.setattr(FunctionAdapterRegistry, "_select", guarded_select)
-
+def test_recorded_strict_slices_have_no_legacy_selector_entrypoint() -> None:
+    assert not hasattr(FunctionAdapterRegistry, "_select")
+    assert not hasattr(FunctionAdapterRegistry, "_expand")
     for case_id in FUNCTIONAL_BATCH_CASES:
         replay = _replay(case_id, mode="context_authoritative")
         assert replay.output is not None
-
-    assert observed == []
 
 
 def test_recorded_typed_bindings_never_use_selector_read_authority() -> None:
@@ -237,11 +222,8 @@ def test_recorded_typed_bindings_never_use_selector_read_authority() -> None:
                     authorities = invocations[
                         invocation_id
                     ].input_read_authorities[input_name]
-                    assert not any(
-                        isinstance(
-                            authority.source,
-                            CompilerSelectorReadSource,
-                        )
+                    assert all(
+                        authority.source.kind != "compiler_selector"
                         for authority in authorities
                     )
                     checked += 1

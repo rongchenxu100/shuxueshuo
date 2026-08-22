@@ -12,10 +12,7 @@ from dataclasses import dataclass, replace
 from typing import Any, Callable, Literal, Mapping
 
 from shuxueshuo_server.solver.contracts import (
-    LegacyExpansionSelectorSpec,
-    LegacySelectorInputBindingSpec,
     LatestStateSourceSpec,
-    MethodInputBindingDeclaration,
     MethodInputBindingSpec,
     MethodInputViewMode,
     MethodSpec,
@@ -93,10 +90,6 @@ from shuxueshuo_server.solver.utils import unique_ordered
 FunctionArgKind = Literal["slot_read", "condition_read", "point_ref", "symbol", "auto"]
 FunctionSpecSource = Literal["explicit_contract", "projected_contract", "method_spec"]
 FunctionBindingStatus = Literal["success", "failure"]
-
-BindingSelectorFn = Callable[[FunctionalCompileStepView, Any, Mapping[str, str]], str | None]
-ExpansionSelectorFn = Callable[[FunctionalCompileStepView, Any, Mapping[str, str]], dict[str, str]]
-
 
 @dataclass(frozen=True)
 class FunctionArgSpec:
@@ -262,12 +255,11 @@ class FunctionAdapterSpec:
     functional_output_target_selectors: tuple[
         FunctionalOutputTargetSelectorSpec, ...
     ] = ()
-    input_bindings: tuple[MethodInputBindingDeclaration, ...] = ()
+    input_bindings: tuple[MethodInputBindingSpec, ...] = ()
     aggregate_input_bindings: tuple[FunctionAggregateInputBindingSpec, ...] = ()
     scalar_aggregate_lowerings: tuple[
         FunctionScalarAggregateLoweringSpec, ...
     ] = ()
-    expansion_selectors: tuple[LegacyExpansionSelectorSpec, ...] = ()
     constraint_analyzer: str | None = None
 
     def to_payload(self) -> dict[str, Any]:
@@ -290,7 +282,6 @@ class FunctionAdapterSpec:
             "scalar_aggregate_lowerings": [
                 item.to_payload() for item in self.scalar_aggregate_lowerings
             ],
-            "expansion_selectors": list(self.expansion_selectors),
             "constraint_analyzer": self.constraint_analyzer,
         }
 
@@ -472,12 +463,8 @@ class FunctionAdapterRegistry:
     def __init__(
         self,
         *,
-        selectors: Mapping[str, BindingSelectorFn],
-        expansion_selectors: Mapping[str, ExpansionSelectorFn],
         adapters: Mapping[str, FunctionAdapterSpec] | None = None,
     ) -> None:
-        self.selectors = dict(selectors)
-        self.expansion_selectors = dict(expansion_selectors)
         self.adapters = dict(adapters or GENERIC_FUNCTION_ADAPTERS)
         self.last_arg_repairs: tuple[FunctionArgBindingRepair, ...] = ()
 
@@ -491,9 +478,7 @@ class FunctionAdapterRegistry:
         index: Any,
         *,
         local_outputs: Mapping[str, str] | None = None,
-        include_expansion_selectors: bool = True,
-        expansion_selectors_override: tuple[str, ...] | None = None,
-        input_bindings_override: tuple[MethodInputBindingDeclaration, ...]
+        input_bindings_override: tuple[MethodInputBindingSpec, ...]
         | None = None,
         exact_inputs: Mapping[str, str] | None = None,
         method_input_specs: Mapping[str, object] | None = None,
@@ -514,174 +499,36 @@ class FunctionAdapterRegistry:
         ):
             if binding.input_name in inputs:
                 continue
-            if isinstance(binding, MethodInputBindingSpec):
-                if isinstance(
-                    binding.derivation,
-                    OrdinalZeroTemplateDerivationSpec,
-                ):
-                    continue
-                if not binding.required:
-                    continue
-                raise StatelessMethodError(
-                    "planner.method_input_binding_lowerer_missing",
-                    "typed Method input binding has no registered lowerer",
-                    category="configuration",
-                    retryability="configuration",
-                    method_id=method_id,
-                    step_id=step.step_id,
-                    subjects=(
-                        FunctionalDiagnosticSubject(
-                            role=binding.input_name,
-                            arg_name=binding.input_name,
-                        ),
+            if isinstance(
+                binding.derivation,
+                OrdinalZeroTemplateDerivationSpec,
+            ):
+                continue
+            if not binding.required:
+                continue
+            raise StatelessMethodError(
+                "planner.method_input_binding_lowerer_missing",
+                "typed Method input binding has no registered lowerer",
+                category="configuration",
+                retryability="configuration",
+                method_id=method_id,
+                step_id=step.step_id,
+                subjects=(
+                    FunctionalDiagnosticSubject(
+                        role=binding.input_name,
+                        arg_name=binding.input_name,
                     ),
-                    expected={
-                        "binding_schema": binding.schema_version,
-                        "lowerer": "registered_typed_input_lowerer",
-                    },
-                    observed={
-                        "binding": binding.to_payload(),
-                        "lowerer": None,
-                    },
-                    repair_action="fix_runtime_contract",
-                )
-            input_spec = (method_input_specs or {}).get(binding.input_name)
-            if (
-                getattr(index, "problem_binding_authority", False)
-                and method_input_requires_typed_entity_authority(input_spec)
-            ):
-                if not binding.required:
-                    continue
-                raise StatelessMethodError(
-                    "planner.method_input_view_authority_missing",
-                    "production compiler entity input has no typed authority",
-                    category="configuration",
-                    retryability="configuration",
-                    method_id=method_id,
-                    step_id=step.step_id,
-                    subjects=(
-                        FunctionalDiagnosticSubject(
-                            role=binding.input_name,
-                            arg_name=binding.input_name,
-                            expected_type=getattr(input_spec, "domain_type", None),
-                            expected_state=getattr(
-                                getattr(input_spec, "view", None),
-                                "mode",
-                                None,
-                            ),
-                        ),
-                    ),
-                    expected={
-                        "missing_role": binding.input_name,
-                        "authority_source": "method_input_read_authority",
-                        "domain_type": getattr(input_spec, "domain_type", None),
-                    },
-                    observed={
-                        "consumer_step": step.step_id,
-                        "compiler_selector_id": binding.selector,
-                        "typed_candidate_count": 0,
-                    },
-                    repair_action="fix_runtime_contract",
-                    details={
-                        "missing_role": binding.input_name,
-                        "consumer_step": step.step_id,
-                        "authority_source": "compiler_selector_typed_binding",
-                    },
-                )
-            if (
-                getattr(index, "problem_binding_authority", False)
-                and binding.functional_authority == "wire"
-                and binding.functional_resolver is None
-            ):
-                if binding.required:
-                    raise StrategyDraftValidationError(
-                        "planner_configuration_error: wire-owned Functional "
-                        "argument has no exact reconciled binding: "
-                        f"method={method_id}, arg={binding.input_name}"
-                    )
-                continue
-            try:
-                value = self._select(binding.selector, step, index, local_outputs)
-            except StrategyDraftValidationError as exc:
-                if binding.required:
-                    raise StrategyDraftValidationError(
-                        "function.arg_missing: "
-                        f"method={method_id}, arg={binding.input_name}, "
-                        f"selector={binding.selector}, reason={exc}"
-                    ) from exc
-                continue
-            if value is None:
-                if binding.required:
-                    raise StrategyDraftValidationError(
-                        "function.arg_missing: "
-                        f"method={method_id}, arg={binding.input_name}, "
-                        f"selector={binding.selector}"
-                    )
-                continue
-            if _expansion_conflicts_with_exact_arg(
-                binding.input_name,
-                value,
-                exact_inputs=exact_inputs,
-                distinct_arg_groups=distinct_arg_groups,
-            ):
-                if binding.required:
-                    raise StrategyDraftValidationError(
-                        "planner_configuration_error: required selector conflicts "
-                        "with explicit Functional argument identity: "
-                        f"method={method_id}, arg={binding.input_name}"
-                    )
-                continue
-            if _selector_requires_declared_read(binding.selector) and not _path_is_declared_read(
-                value,
-                step=step,
-                index=index,
-                local_outputs=local_outputs,
-            ):
-                if not binding.required:
-                    continue
-                raise StrategyDraftValidationError(
-                    "function.arg_not_read: "
-                    f"method={method_id}, arg={binding.input_name}, "
-                    f"selector={binding.selector}"
-                )
-            inputs[binding.input_name] = value
-        if expansion_selectors_override is not None:
-            expansions = expansion_selectors_override
-        elif include_expansion_selectors:
-            expansions = adapter.expansion_selectors
-        else:
-            expansions = ()
-        for selector in expansions:
-            expanded = self._expand(selector, step, index, local_outputs)
-            expanded = identity_safe_parameter_value_expansion(
-                expanded,
-                existing_inputs=inputs,
+                ),
+                expected={
+                    "binding_schema": binding.schema_version,
+                    "lowerer": "registered_typed_input_lowerer",
+                },
+                observed={
+                    "binding": binding.to_payload(),
+                    "lowerer": None,
+                },
+                repair_action="fix_runtime_contract",
             )
-            for input_name, path in expanded.items():
-                if (
-                    input_name in {"parameter", "x", "all_coefficients"}
-                    or selector in _DECLARATIVE_EXPANSIONS
-                ):
-                    continue
-                if not _path_is_declared_read(
-                    path,
-                    step=step,
-                    index=index,
-                    local_outputs=local_outputs,
-                ):
-                    raise StrategyDraftValidationError(
-                        "function.arg_not_read: "
-                        f"method={method_id}, arg={input_name}, expansion={selector}"
-                    )
-            for input_name, path in expanded.items():
-                if _expansion_conflicts_with_exact_arg(
-                    input_name,
-                    path,
-                    exact_inputs=exact_inputs,
-                    distinct_arg_groups=distinct_arg_groups,
-                ):
-                    continue
-                inputs.setdefault(input_name, path)
         if apply_constraint_analyzer and adapter.constraint_analyzer is not None:
             analyzed = _apply_constraint_analyzer(
                 adapter.constraint_analyzer,
@@ -692,120 +539,6 @@ class FunctionAdapterRegistry:
             inputs = analyzed.inputs
             self.last_arg_repairs = analyzed.arg_repairs
         return inputs
-
-    def _select(
-        self,
-        selector: str,
-        step: FunctionalCompileStepView,
-        index: Any,
-        local_outputs: Mapping[str, str],
-    ) -> str | None:
-        fn = self.selectors.get(selector)
-        if fn is None:
-            raise StrategyDraftValidationError(
-                f"function.adapter_selector_missing: {selector}"
-            )
-        return fn(step, index, local_outputs)
-
-    def _expand(
-        self,
-        selector: str,
-        step: FunctionalCompileStepView,
-        index: Any,
-        local_outputs: Mapping[str, str],
-    ) -> dict[str, str]:
-        fn = self.expansion_selectors.get(selector)
-        if fn is None:
-            raise StrategyDraftValidationError(
-                f"function.adapter_expansion_missing: {selector}"
-            )
-        return fn(step, index, local_outputs)
-
-
-def identity_safe_parameter_value_expansion(
-    expanded: Mapping[str, str],
-    *,
-    existing_inputs: Mapping[str, str],
-) -> dict[str, str]:
-    """Keep an automatic ParameterValue only for the same Symbol input.
-
-    ParameterValue expansion resolves its Symbol from write provenance and
-    therefore emits the canonical runtime path for both members of the pair.
-    If another selector has already bound a different ``parameter``, retaining
-    only the value would create an invalid cross-Symbol substitution.  An
-    explicit ParameterValue makes that mismatch a malformed call and must fail
-    loud.  A legacy optional expansion may still be discarded when no explicit
-    value was selected.
-    """
-    result = dict(expanded)
-    parameter_value = result.get("parameter_value")
-    expanded_parameter = result.get("parameter")
-    existing_parameter = existing_inputs.get("parameter")
-    if (
-        parameter_value is not None
-        and expanded_parameter is not None
-        and existing_parameter is not None
-        and existing_parameter != expanded_parameter
-    ):
-        if existing_inputs.get("parameter_value") is not None:
-            raise StrategyDraftValidationError(
-                "function.parameter_value_object_mismatch: "
-                f"parameter={existing_parameter}, "
-                f"parameter_value_owner={expanded_parameter}"
-            )
-        result.pop("parameter", None)
-        result.pop("parameter_value", None)
-    return result
-
-
-def _expansion_conflicts_with_exact_arg(
-    input_name: str,
-    path: str,
-    *,
-    exact_inputs: Mapping[str, str] | None,
-    distinct_arg_groups: tuple[tuple[str, ...], ...],
-) -> bool:
-    """Keep heuristic expansion from reassigning an explicit arg identity."""
-    if not exact_inputs:
-        return False
-    for group in distinct_arg_groups:
-        if input_name not in group:
-            continue
-        if any(
-            peer != input_name and exact_inputs.get(peer) == path
-            for peer in group
-        ):
-            return True
-    return False
-
-
-def _selector_requires_declared_read(selector: str) -> bool:
-    return selector.startswith("read_type:") or selector.startswith("fact:")
-
-
-_DECLARATIVE_EXPANSIONS = frozenset(
-    {
-        "known_coefficients_if_read",
-        "free_quadratic_parameter_if_read",
-        "curve_point_if_read",
-        "curve_points_if_parameterized",
-    }
-)
-
-
-def _path_is_declared_read(
-    path: str,
-    *,
-    step: FunctionalCompileStepView,
-    index: Any,
-    local_outputs: Mapping[str, str],
-) -> bool:
-    if path in local_outputs.values():
-        return True
-    return any(
-        getattr(index.bindings.get(handle), "path", None) == path
-        for handle in _compile_input_handles(step)
-    )
 
 def _with_method_input_binding_defaults(
     method_spec: MethodSpec,
@@ -833,9 +566,9 @@ def _with_method_input_binding_defaults(
 
 
 def _merge_input_binding_declarations(
-    defaults: tuple[MethodInputBindingDeclaration, ...],
-    overrides: tuple[MethodInputBindingDeclaration, ...],
-) -> tuple[MethodInputBindingDeclaration, ...]:
+    defaults: tuple[MethodInputBindingSpec, ...],
+    overrides: tuple[MethodInputBindingSpec, ...],
+) -> tuple[MethodInputBindingSpec, ...]:
     by_name = {item.input_name: item for item in defaults}
     order = [item.input_name for item in defaults]
     for item in overrides:
@@ -1234,14 +967,7 @@ def _function_return_identity(
         function_inputs = [
             binding.input_name
             for binding in adapter.input_bindings
-            if (
-                isinstance(binding, LegacySelectorInputBindingSpec)
-                and binding.selector.startswith("function:")
-            )
-            or (
-                isinstance(binding, MethodInputBindingSpec)
-                and isinstance(binding.source, LatestStateSourceSpec)
-            )
+            if isinstance(binding.source, LatestStateSourceSpec)
         ]
         if len(function_inputs) == 1:
             return "preserve_input_object", function_inputs[0]
@@ -1562,7 +1288,6 @@ def function_adapter_from_binding_rule(
         input_bindings=tuple(input_bindings),
         aggregate_input_bindings=aggregate_input_bindings,
         scalar_aggregate_lowerings=scalar_aggregate_lowerings,
-        expansion_selectors=rule.expansion_selectors,
         constraint_analyzer=rule.constraint_analyzer,
     )
 
@@ -1615,6 +1340,11 @@ def _analyze_quadratic_coefficient_inputs(
 
     runtime_inputs: dict[str, Any] = {}
     for name, path in inputs.items():
+        if name == "known_coefficients" and isinstance(path, tuple):
+            # A multi-value Coefficients input is keyed by each item's exact
+            # Symbol StateVersion authority. Context paths carry values, not
+            # those identities, so compile-time analysis must not guess them.
+            return ConstraintAnalyzerResult(inputs)
         try:
             if isinstance(path, tuple):
                 item_expected_type = (
@@ -1830,8 +1560,8 @@ _CONSTRAINT_ANALYZERS: dict[str, ConstraintAnalyzer] = {
 def _effective_input_bindings(
     adapter: FunctionAdapterSpec,
     *,
-    input_bindings_override: tuple[MethodInputBindingDeclaration, ...] | None,
-) -> tuple[MethodInputBindingDeclaration, ...]:
+    input_bindings_override: tuple[MethodInputBindingSpec, ...] | None,
+) -> tuple[MethodInputBindingSpec, ...]:
     if input_bindings_override is None:
         return adapter.input_bindings
     by_name = {

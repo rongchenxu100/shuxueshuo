@@ -15,6 +15,9 @@ from shuxueshuo_server.solver.contracts import (
 )
 from shuxueshuo_server.solver.fixtures import load_problem_ir
 from shuxueshuo_server.solver.runtime.context import ContextBuilder
+from shuxueshuo_server.solver.runtime.debug_method_input_authority import (
+    DebugMethodInputAuthorityAdapter,
+)
 from shuxueshuo_server.solver.runtime.executor import InvocationExecutor
 from shuxueshuo_server.solver.runtime.functional_diagnostics import (
     FunctionalDiagnosticSubject,
@@ -22,7 +25,6 @@ from shuxueshuo_server.solver.runtime.functional_diagnostics import (
 )
 from shuxueshuo_server.solver.runtime.method_input_read_authority import (
     CallResultReadSource,
-    CompilerSelectorReadSource,
     ConditionReadSource,
     DerivedInputReadSource,
     EntityIdentityReadSource,
@@ -233,45 +235,16 @@ def test_read_authority_rejects_source_kind_incompatible_with_view(mode, source)
         )
 
 
-@pytest.mark.parametrize("mode", ["latest_state", "exact_result"])
-def test_production_resolver_rejects_debug_compiler_selector(mode) -> None:
-    runtime_type = "Point"
-    input_spec = _input(
-        mode=mode,
-        domain_type="Point",
-        runtime_type=runtime_type,
-    )
-    authority = MethodInputReadAuthority(
-        method_id="test_method",
-        invocation_id="test_invocation",
-        input_name="value",
-        item_index=0,
-        view_mode=mode,
-        domain_type="Point",
-        runtime_type=runtime_type,
-        scope_id="i",
-        source=CompilerSelectorReadSource(
-            "debug:value",
-            "$question.i.points.D",
-        ),
-    )
+def test_read_authority_rejects_retired_selector_payload() -> None:
+    payload = _authority().authority_payload()
+    payload["source"] = {
+        "kind": "compiler_selector",
+        "compiler_selector_id": "debug:value",
+        "runtime_path": "$question.i.points.D",
+    }
 
-    with pytest.raises(Exception) as error:
-        MethodInputViewResolver().resolve(
-            _context(),
-            method_id="test_method",
-            invocation_id="test_invocation",
-            scope_id="i",
-            input_name="value",
-            input_spec=input_spec,
-            raw_path="$question.i.points.D",
-            authority=authority,
-            require_authority=True,
-        )
-
-    assert getattr(error.value, "code", None) == (
-        "planner.method_input_view_authority_drift"
-    )
+    with pytest.raises(ValueError, match="unsupported Method input read source"):
+        MethodInputReadAuthority.from_payload(payload)
 
 
 def test_point_identity_is_pure_and_does_not_capture_coordinate_state() -> None:
@@ -478,3 +451,27 @@ def test_production_resolver_requires_authority() -> None:
     assert getattr(error.value, "code", None) == (
         "planner.method_input_view_authority_missing"
     )
+
+
+def test_debug_adapter_requires_an_explicit_typed_source() -> None:
+    source = EntityIdentityReadSource(
+        "point:i:D",
+        "$question.i.points.D",
+    )
+    authority = DebugMethodInputAuthorityAdapter.build(
+        method_id="test_method",
+        invocation_id="debug_invocation",
+        scope_id="i",
+        input_name="value",
+        item_index=0,
+        input_spec=_input(
+            mode="identity",
+            domain_type="Point",
+            runtime_type="PointRef",
+        ),
+        source=source,
+    )
+
+    assert authority.source == source
+    assert authority.view_mode == "identity"
+    assert authority.scope_id == "i"

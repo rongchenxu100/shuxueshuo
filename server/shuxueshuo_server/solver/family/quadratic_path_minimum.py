@@ -6,10 +6,6 @@ Planner 参考。它不包含南开 25 的固定 StepPlan，也不包含最终�
 
 from __future__ import annotations
 
-from shuxueshuo_server.solver.contracts import (
-    LegacyExpansionSelectorSpec,
-    LegacySelectorInputBindingSpec,
-)
 from shuxueshuo_server.solver.family.models import (
     FamilyMatchRule,
     FamilySourceRequirementSpec,
@@ -337,13 +333,6 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                     required=False,
                 ),
                 quadratic_coefficients_binding(),
-            ),
-            expansion_selectors=(
-                LegacyExpansionSelectorSpec("known_coefficients_if_read"),
-                LegacyExpansionSelectorSpec("free_quadratic_parameter_if_read"),
-                LegacyExpansionSelectorSpec("parameter_value_if_read"),
-                LegacyExpansionSelectorSpec("curve_point_if_read"),
-                LegacyExpansionSelectorSpec("curve_points_if_parameterized"),
             ),
             always_emit_outputs=("coefficients",),
             companion_outputs=(

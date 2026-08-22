@@ -385,7 +385,7 @@ def test_v2_catalog_uses_public_facade_names_without_return_binding_wire(
     )
     assert point_return.output_target_selector is not None
     assert point_return.to_prompt_payload()["target_selection"] == {
-        "selector": "unique_visible_fact_target",
+        "policy": "unique_visible_fact_target",
         "fact_kind": "axis_membership",
         "target_field": "point",
         "related_arg": "parabola",

@@ -987,6 +987,55 @@ class CanonicalRuntimeBindingIndex:
         except KeyError as exc:
             raise StrategyDraftValidationError(f"fact_payload_not_found: {handle}") from exc
 
+    def symbol_path_from_exact_source(
+        self,
+        source_path: str,
+        *,
+        consumer: str,
+    ) -> str | None:
+        """Derive one Symbol only from an already selected typed source.
+
+        This is deliberately narrower than the retired parameter selector: it
+        never scans all symbols or constraints.  A source path must already be
+        present in the finalized call input, and only that exact source may
+        contribute a Symbol identity.
+        """
+
+        candidates: dict[str, str] = {}
+        exact_bindings = tuple(
+            binding
+            for binding in self.bindings.values()
+            if binding.path == source_path
+        )
+        for binding in exact_bindings:
+            if binding.value_type == "Symbol":
+                candidates[binding.handle] = binding.path
+                continue
+            if self.fact_types.get(binding.handle) != "symbol_constraint":
+                continue
+            subject = self.fact_payload(binding.handle).get("subject")
+            if not isinstance(subject, str) or not subject.startswith("symbol:"):
+                raise StrategyDraftValidationError(
+                    "planner.method_input_view_authority_missing: "
+                    f"consumer={consumer}, source={binding.handle}, "
+                    "expected=symbol_constraint.subject"
+                )
+            symbol_binding = self.binding_for(subject)
+            if symbol_binding.value_type != "Symbol":
+                raise StrategyDraftValidationError(
+                    "planner.method_input_view_authority_drift: "
+                    f"consumer={consumer}, source={binding.handle}, "
+                    f"subject_type={symbol_binding.value_type}"
+                )
+            candidates[subject] = symbol_binding.path
+        if len(candidates) > 1:
+            raise StrategyDraftValidationError(
+                "planner.method_input_view_authority_drift: "
+                f"consumer={consumer}, source_path={source_path}, "
+                f"symbol_candidates={sorted(candidates)}"
+            )
+        return next(iter(candidates.values()), None)
+
     def entity_handles(self, kind: str, *, step: FunctionalCompileStepView | None = None) -> list[str]:
         """按实体类型返回 handle；若提供 step，优先保留 step.reads 中出现的实体。"""
         handles = [

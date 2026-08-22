@@ -10,7 +10,6 @@ from shuxueshuo_server.solver.contracts import (
     EntityIdentitySourceSpec,
     ExactCallResultSourceSpec,
     FreeSymbolBasisDerivationSpec,
-    LegacySelectorInputBindingSpec,
     MethodInputBindingSpec,
     MethodInputViewMode,
     MethodSpec,
@@ -34,11 +33,6 @@ from shuxueshuo_server.solver.runtime.function_specs import (
 from shuxueshuo_server.solver.runtime.capability_contracts import (
     contract_is_prompt_executable,
     effective_contract_by_id,
-)
-from shuxueshuo_server.solver.runtime.binding_selector_semantics import (
-    expansion_selector_semantics,
-    selector_context_binding,
-    selector_semantics,
 )
 from shuxueshuo_server.solver.runtime.context_closure import (
     validate_context_closure_resolvers,
@@ -100,9 +94,6 @@ class FunctionalSemanticCatalog(Protocol):
         accepted_semantic_roles: Sequence[str] = (),
         requires_materialized_state: bool = False,
     ) -> bool: ...
-
-    def auto_selector_is_satisfiable(self, selector: str) -> bool: ...
-
 
 @dataclass(frozen=True)
 class FunctionalIdentityArgOmission:
@@ -339,15 +330,6 @@ class FunctionalCapabilityCatalog:
                     for arg in capability.args
                 )
                 and all(
-                    auto.selector is None
-                    or semantic_catalog.auto_selector_is_satisfiable(auto.selector)
-                    for auto in capability.auto_args
-                )
-                and all(
-                    semantic_catalog.auto_selector_is_satisfiable(selector)
-                    for selector in capability.context_preflight_selectors
-                )
-                and all(
                     _input_requirement_is_satisfiable(
                         capability,
                         requirement,
@@ -471,7 +453,7 @@ class FunctionalCapabilityCatalog:
                 ):
                     raise ValueError(
                         "planner_configuration_error: context resolver has no "
-                        "selector-projected arguments: "
+                        "typed projected arguments: "
                         f"{capability.capability_id}.{resolver_id}"
                     )
 
@@ -545,18 +527,6 @@ def _function_capability(
             functional_exposed=method_spec.inputs[
                 item.method_input or item.name
             ].functional_exposed,
-            public_identity_arg=(
-                item.kind == "point_ref"
-                and (
-                    binding := binding_by_input.get(
-                        item.method_input or item.name
-                    )
-                )
-                is not None
-                and isinstance(binding, LegacySelectorInputBindingSpec)
-                and binding.selector == "right_angle:target"
-            ),
-            point_ref_arg=item.kind == "point_ref",
             arg_kind=item.kind,
         )
         for item in spec.args
@@ -591,9 +561,6 @@ def _function_capability(
         getattr(contract, "condition_reads", ()) if contract is not None else ()
     )
     remaining_condition_patterns = list(condition_patterns)
-    deterministic_resolvers = _deterministic_arg_resolvers(
-        spec.adapter.expansion_selectors if spec.adapter is not None else ()
-    )
     public_args_list: list[FunctionalCapabilityArg] = []
     for item in public_source_args:
         runtime_input = item.method_input or item.name
@@ -612,27 +579,18 @@ def _function_capability(
         if condition_pattern is not None:
             remaining_condition_patterns.remove(condition_pattern)
         binding = binding_by_input.get(runtime_input)
-        selector = _legacy_binding_selector(binding)
         evidence_resolver = _binding_evidence_resolver(binding)
         functional_arg = _function_arg(
             item,
             condition_pattern=condition_pattern,
             deterministic_resolver=(
                 evidence_resolver
-                or (
-                    deterministic_resolvers.get(runtime_input)
-                    if item.required
-                    else None
-                )
             ),
             required_override=(False if evidence_resolver else None),
             accepted_semantic_roles=_binding_semantic_roles(binding),
-            accepted_condition_kinds=_selector_condition_kinds(
-                selector
-            ),
+            accepted_condition_kinds=_binding_condition_kinds(binding),
             requires_materialized_state=_arg_requires_materialized_state(
                 item,
-                selector,
             ),
             aliases=arg_aliases.get(runtime_input, ()),
             binding_authority=(
@@ -669,14 +627,14 @@ def _function_capability(
         for item in public_args_list
         for kind in item.accepted_condition_kinds
     }
-    # Structural evidence remains public when either a legacy selector or the
-    # declared Condition-role resolver consumes it. Typed output allocation
-    # must not make the Fact disappear merely because the selector was retired.
+    # Structural evidence remains public when a declared Condition relation or
+    # resolver consumes it. Typed output allocation must not make the Fact
+    # disappear merely because it is not a Method's public scalar argument.
     prerequisite_condition_kinds = {
-        primitive.prerequisite_condition_kind
+        kind
         for binding in binding_by_input.values()
-        if (selector := _legacy_binding_selector(binding)) is not None
-        if (primitive := _selector_primitive(selector)) is not None
+        if isinstance(binding.source, ConditionSourceSpec)
+        for kind in binding.source.condition_kinds
     }
     if "condition_object_roles" in context_resolvers:
         prerequisite_condition_kinds.update(
@@ -698,10 +656,7 @@ def _function_capability(
         FunctionalAutoArg(
             name=item.method_input or item.name,
             required=binding.required,
-            selector=_legacy_binding_selector(binding),
-            input_binding=(
-                binding if isinstance(binding, MethodInputBindingSpec) else None
-            ),
+            input_binding=binding,
             binding_authority=authority_by_input[item.method_input or item.name],
             semantic_role=getattr(item, "semantic_role", None) or item.name,
             runtime_input=item.method_input or item.name,
@@ -764,12 +719,6 @@ def _function_capability(
         context_resolvers=context_resolvers,
         context_arg_bindings=_merge_context_arg_bindings(
             (
-                *_context_arg_bindings(
-                    spec.adapter.input_bindings
-                    if spec.adapter is not None
-                    else (),
-                    context_resolvers=context_resolvers,
-                ),
                 *(
                     FunctionalContextArgBinding(
                         resolver_id=item.resolver_id,
@@ -778,11 +727,6 @@ def _function_capability(
                         consumption_mode="resolver_evidence",
                         input_binding=(
                             binding_by_input.get(item.arg_name)
-                            if isinstance(
-                                binding_by_input.get(item.arg_name),
-                                MethodInputBindingSpec,
-                            )
-                            else None
                         ),
                     )
                     for item in spec.context_role_bindings
@@ -795,13 +739,6 @@ def _function_capability(
             else ()
         ),
         auto_args=auto_args,
-        context_preflight_selectors=_context_preflight_selectors(
-            tuple(
-                selector
-                for binding in binding_by_input.values()
-                if (selector := _legacy_binding_selector(binding)) is not None
-            )
-        ),
         input_closure_requirements=_input_closure_requirements(
             spec.input_closure_requirements
         ),
@@ -822,24 +759,34 @@ def _validate_function_facade_coverage(
     input_names = [
         item.runtime_input or item.name for item in (*public_args, *auto_args)
     ]
-    expansion_inputs = {
-        runtime_input
-        for selector in (
-            spec.adapter.expansion_selectors
+    lowered_inputs = {
+        input_name
+        for binding in (
+            spec.adapter.aggregate_input_bindings
             if spec.adapter is not None
             else ()
         )
-        for runtime_input in expansion_selector_semantics(
-            selector
-        ).runtime_inputs
+        for input_name in (
+            *binding.item_inputs,
+            *((binding.singleton_input,) if binding.singleton_input else ()),
+        )
     }
+    lowered_inputs.update(
+        input_name
+        for lowering in (
+            spec.adapter.scalar_aggregate_lowerings
+            if spec.adapter is not None
+            else ()
+        )
+        for input_name in (lowering.identity_input, lowering.value_input)
+    )
     required_inputs = {
         name
         for name, item in method_spec.inputs.items()
         if bool(getattr(item, "required", True))
     }
     missing_inputs = sorted(
-        required_inputs - set(input_names) - expansion_inputs
+        required_inputs - set(input_names) - lowered_inputs
     )
     duplicate_inputs = sorted(
         name for name in set(input_names) if input_names.count(name) > 1
@@ -922,11 +869,9 @@ def _functional_binding_authority(
     *,
     contract_declares_input: bool,
     functional_exposed: bool,
-    public_identity_arg: bool,
-    point_ref_arg: bool,
     arg_kind: str,
 ) -> str:
-    if contract_declares_input or public_identity_arg:
+    if contract_declares_input:
         return "wire"
     if binding is None:
         return (
@@ -934,60 +879,34 @@ def _functional_binding_authority(
             if arg_kind in {"slot_read", "condition_read"}
             else "compiler"
         )
-    if isinstance(binding, MethodInputBindingSpec):
-        if isinstance(
-            binding.source,
-            (
-                PublicArgSourceSpec,
-                ExactCallResultSourceSpec,
-                ConditionSourceSpec,
-            ),
-        ):
-            if not isinstance(binding.source, ConditionSourceSpec) or (
-                binding.source.arg_name is not None
-            ):
-                return "wire"
-            return "resolver"
-        if (
-            functional_exposed
-            and isinstance(binding.derivation, FreeSymbolBasisDerivationSpec)
+    if isinstance(
+        binding.source,
+        (
+            PublicArgSourceSpec,
+            ExactCallResultSourceSpec,
+            ConditionSourceSpec,
+        ),
+    ):
+        if not isinstance(binding.source, ConditionSourceSpec) or (
+            binding.source.arg_name is not None
         ):
             return "wire"
-        return "compiler"
-    if binding.functional_authority is not None:
-        return binding.functional_authority
-    semantics = selector_semantics(binding.selector)
-    if point_ref_arg and not public_identity_arg:
-        return "compiler"
-    if not semantics.mechanical:
-        return "wire"
-    if semantics.semantic_evidence_resolver is not None:
         return "resolver"
+    if (
+        functional_exposed
+        and isinstance(binding.derivation, FreeSymbolBasisDerivationSpec)
+    ):
+        return "wire"
     return "compiler"
 
 
-def _legacy_binding_selector(binding: Any | None) -> str | None:
-    if isinstance(binding, LegacySelectorInputBindingSpec):
-        return binding.selector
-    return None
-
-
 def _binding_evidence_resolver(binding: Any | None) -> str | None:
-    if isinstance(binding, LegacySelectorInputBindingSpec):
-        return (
-            binding.functional_resolver
-            or _semantic_evidence_resolver(binding.selector)
-        )
     if isinstance(binding, MethodInputBindingSpec) and isinstance(
         binding.derivation,
         (FreeSymbolBasisDerivationSpec, SourceObjectIdentityDerivationSpec),
     ):
         return "unique_parameter_symbol"
     return None
-
-
-def _selector_is_mechanical(selector: str | None) -> bool:
-    return selector_semantics(selector).mechanical
 
 
 def _normalize_object_role_projection_args(
@@ -1021,10 +940,6 @@ def _normalize_object_role_projection_args(
     )
 
 
-def _selector_semantic_roles(selector: str | None) -> tuple[str, ...]:
-    return selector_semantics(selector).semantic_roles
-
-
 def _binding_semantic_roles(binding: Any | None) -> tuple[str, ...]:
     if isinstance(binding, ExactCallResultSourceSpec):
         return binding.semantic_roles
@@ -1035,63 +950,34 @@ def _binding_semantic_roles(binding: Any | None) -> tuple[str, ...]:
         if isinstance(source, EntityIdentitySourceSpec):
             return source.semantic_roles
         return ()
-    return _selector_semantic_roles(_legacy_binding_selector(binding))
+    return ()
 
 
-def _selector_condition_kinds(selector: str | None) -> tuple[str, ...]:
-    return selector_semantics(selector).condition_kinds
-
-
-def _selector_requires_state(selector: str | None) -> bool:
-    return selector_semantics(selector).requires_materialized_state
+def _binding_condition_kinds(binding: Any | None) -> tuple[str, ...]:
+    if not isinstance(binding, MethodInputBindingSpec):
+        return ()
+    if isinstance(binding.source, ConditionSourceSpec):
+        return binding.source.condition_kinds
+    return ()
 
 
 def _arg_requires_materialized_state(
     item: FunctionArgSpec,
-    selector: str | None,
 ) -> bool:
     """Distinguish local Function projections from full-state consumers.
 
     A Function object already carries its expression template. An unrestricted
     ``Expression`` input can therefore evaluate a local projection such as
     ``f(0)`` without solving every coefficient first. Full ``Parabola``
-    consumers retain the selector's materialized-state requirement.
+    consumers retain the declared latest-state requirement.
     """
     if (
-        selector is not None
-        and selector.startswith("function:")
+        item.view_mode == "latest_state"
         and item.input_closure_policy == "any"
         and "Expression" in split_runtime_types(item.runtime_type)
     ):
         return False
-    return _selector_requires_state(selector)
-
-
-def _context_preflight_selectors(
-    selectors: Sequence[str],
-) -> tuple[str, ...]:
-    return tuple(
-        dict.fromkeys(
-            prerequisite
-            for selector in selectors
-            for prerequisite in selector_semantics(
-                selector
-            ).context_prerequisites
-        )
-    )
-
-
-def _semantic_evidence_resolver(selector: str | None) -> str | None:
-    return selector_semantics(selector).semantic_evidence_resolver
-
-
-def _selector_primitive(selector: str) -> Any | None:
-    semantics = selector_semantics(selector)
-    return (
-        semantics
-        if semantics.prerequisite_condition_kind is not None
-        else None
-    )
+    return item.view_mode == "latest_state"
 
 
 def _contract_condition_arg(pattern: Any) -> FunctionalCapabilityArg:
@@ -1112,23 +998,6 @@ def _contract_condition_arg(pattern: Any) -> FunctionalCapabilityArg:
         description=pattern.description,
         consumption_mode="resolver_evidence",
     )
-
-
-def _deterministic_arg_resolvers(
-    expansion_selectors: Sequence[str],
-) -> dict[str, str]:
-    result: dict[str, str] = {}
-    for selector in expansion_selectors:
-        for arg_name, resolver in expansion_selector_semantics(
-            selector
-        ).arg_resolvers:
-            previous = result.setdefault(arg_name, resolver)
-            if previous != resolver:
-                raise ValueError(
-                    "planner_configuration_error: conflicting functional arg "
-                    f"resolvers for {arg_name}: {previous}, {resolver}"
-                )
-    return result
 
 
 def _macro_capability(
@@ -1318,7 +1187,7 @@ def _input_requirement_is_satisfiable(
 def _macro_context_arg_bindings(
     spec: MacroSpec,
     *,
-    input_bindings: Sequence[Any],
+    input_bindings: Sequence[MethodInputBindingSpec],
     method_specs: MethodSpecRegistry,
 ) -> tuple[FunctionalContextArgBinding, ...]:
     declared_bindings: list[FunctionalContextArgBinding] = []
@@ -1348,13 +1217,8 @@ def _macro_context_arg_bindings(
         for item in input_bindings
         if isinstance(item, MethodInputBindingSpec)
     }
-    selector_bindings = _context_arg_bindings(
-        tuple(input_bindings),
-        context_resolvers=spec.context_resolvers,
-    )
     return _merge_context_arg_bindings(
         (
-            *selector_bindings,
             *declared_bindings,
             *(
                 FunctionalContextArgBinding(
@@ -1375,10 +1239,10 @@ def _macro_method_input_bindings(
     *,
     functions: FunctionSpecRegistry,
     family_binding_rules: Mapping[str, Any],
-) -> tuple[Any, ...]:
+) -> tuple[MethodInputBindingSpec, ...]:
     """Collect one unambiguous binding declaration per Macro Method input."""
 
-    result: dict[str, Any] = {}
+    result: dict[str, MethodInputBindingSpec] = {}
     for internal_call in spec.internal_calls:
         function = functions.get(internal_call.capability_id)
         adapter = function.adapter if function is not None else None
@@ -1395,38 +1259,6 @@ def _macro_method_input_bindings(
                     "planner_configuration_error: Macro internal inputs "
                     f"disagree for {spec.macro_id}.{binding.input_name}"
                 )
-    return tuple(result.values())
-
-
-def _context_arg_bindings(
-    input_bindings: Sequence[Any],
-    *,
-    context_resolvers: Sequence[CapabilityContextResolver],
-) -> tuple[FunctionalContextArgBinding, ...]:
-    result: dict[tuple[str, str], FunctionalContextArgBinding] = {}
-    enabled = set(context_resolvers)
-    for input_binding in input_bindings:
-        selector = _legacy_binding_selector(input_binding)
-        if selector is None:
-            continue
-        context_binding = selector_context_binding(selector)
-        if context_binding is None:
-            continue
-        resolver_id, semantic_role = context_binding
-        if resolver_id not in enabled:
-            continue
-        key = (resolver_id, semantic_role)
-        projected = FunctionalContextArgBinding(
-            resolver_id=resolver_id,
-            semantic_role=semantic_role,
-            arg_name=input_binding.input_name,
-        )
-        previous = result.setdefault(key, projected)
-        if previous != projected:
-            raise ValueError(
-                "planner_configuration_error: conflicting context resolver "
-                f"argument binding: {resolver_id}.{semantic_role}"
-            )
     return tuple(result.values())
 
 

@@ -28,6 +28,9 @@ from shuxueshuo_server.solver.runtime.binding_rules import (
 from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
     FunctionalTransactionalInterpreter,
 )
+from shuxueshuo_server.solver.runtime.functional_binding_context import (
+    FunctionalBindingContextError,
+)
 from shuxueshuo_server.solver.runtime.planner_state_context import (
     PlannerStateContext,
 )
@@ -402,7 +405,7 @@ def test_scope_native_recorded_plan_reconciles_compiles_and_executes(
     assert attempt.execution_report.functional_compile_count > 0
 
 
-def test_intermediate_parameter_c_does_not_bind_final_goal_b(tmp_path) -> None:
+def test_intermediate_parameter_n_does_not_bind_final_goal_b(tmp_path) -> None:
     case = "tj-2026-hexi-yimo-25"
     payload = json.loads(
         (SCOPE_NATIVE_FIXTURES / f"{case}.functional-plan.json").read_text(
@@ -414,11 +417,11 @@ def test_intermediate_parameter_c_does_not_bind_final_goal_b(tmp_path) -> None:
     )
     original_answer = scope_iii["calls"][-1]
     assert original_answer["call_id"] == "solve_parameter_iii"
-    solve_c = deepcopy(original_answer)
-    solve_c["call_id"] = "solve_c"
-    solve_c["args"]["parameter"] = {"kind": "symbol", "ref": "c"}
-    solve_c["return_bindings"] = {
-        "parameter_value": {"kind": "symbol", "ref": "c"}
+    solve_n = deepcopy(original_answer)
+    solve_n["call_id"] = "solve_n"
+    solve_n["args"]["parameter"] = {"kind": "symbol", "ref": "n"}
+    solve_n["return_bindings"] = {
+        "parameter_value": {"kind": "symbol", "ref": "n"}
     }
     solve_b = {
         "call_id": "solve_b",
@@ -429,7 +432,7 @@ def test_intermediate_parameter_c_does_not_bind_final_goal_b(tmp_path) -> None:
                 "ref": "symbol_value_a",
             },
             "curve_point": {"kind": "point", "ref": "A"},
-            "parameter_value": {"kind": "symbol", "ref": "c"},
+            "parameter_value": {"kind": "symbol", "ref": "n"},
             "target_parameter": {"kind": "symbol", "ref": "b"},
         },
         "return_bindings": {
@@ -438,7 +441,7 @@ def test_intermediate_parameter_c_does_not_bind_final_goal_b(tmp_path) -> None:
         "strategy": "先使用中间参数 c，再求最终目标 b。",
         "reason": "验证中间同类型返回不会被提升成 Goal answer。",
     }
-    scope_iii["calls"][-1:] = [solve_c, solve_b]
+    scope_iii["calls"][-1:] = [solve_n, solve_b]
 
     *_, reconciliation = scope_native_reconciliation_fixture(
         tmp_path,
@@ -453,11 +456,11 @@ def test_intermediate_parameter_c_does_not_bind_final_goal_b(tmp_path) -> None:
         (item.call_id, item.return_name): item
         for item in sidecar.return_bindings
     }
-    intermediate = returns[("solve_c", "parameter_value")]
+    intermediate = returns[("solve_n", "parameter_value")]
     answer = returns[("solve_b", "parameter_value")]
     assert intermediate.semantic_ref.to_payload() == {
         "kind": "symbol",
-        "ref": "c",
+        "ref": "n",
     }
     assert intermediate.goal_unit_id is None
     assert answer.semantic_ref.to_payload() == {
@@ -467,12 +470,33 @@ def test_intermediate_parameter_c_does_not_bind_final_goal_b(tmp_path) -> None:
     assert answer.goal_unit_id is not None
     assert intermediate.math_object_id != answer.math_object_id
 
-    c_input = sidecar.input_binding_for("solve_b", "parameter_value", 0)
-    assert c_input is not None
-    assert c_input.source_kind == "call_result"
-    assert c_input.typed_source is not None
-    assert c_input.typed_source.source_call_id == "solve_c"
-    assert c_input.typed_source.source_return_name == "parameter_value"
+    n_input = sidecar.input_binding_for("solve_b", "parameter_value", 0)
+    assert n_input is not None
+    assert n_input.source_kind == "call_result"
+    assert n_input.typed_source is not None
+    solve_n_call = next(
+        call for call in reconciliation.calls if call.call_id == "solve_n"
+    )
+    solve_n_return = next(
+        allocation
+        for allocation in solve_n_call.returns
+        if allocation.return_name == "parameter_value"
+    )
+    solve_b_call = next(
+        call for call in reconciliation.calls if call.call_id == "solve_b"
+    )
+    resolved_n = solve_b_call.resolved_args["parameter_value"][0]
+    assert resolved_n.source_call_id == "solve_n"
+    assert resolved_n.return_name == "parameter_value"
+    assert n_input.typed_source.kind == "state_version"
+    assert (
+        n_input.typed_source.state_version_id
+        == solve_n_return.selected_version_id
+    )
+    assert (
+        n_input.typed_source.state_version_id.slot_id.logical_key.object_id
+        == intermediate.math_object_id
+    )
 
 
 def test_recorded_replay_explicitly_consumes_problem_binding_catalog(
@@ -622,42 +646,17 @@ def test_parameter_value_compiles_from_exact_problem_source_identity(
 
 def test_parameter_value_rejects_an_explicit_different_symbol(tmp_path) -> None:
     case = "tj-2026-xiqing-yimo-25"
-    (
-        _bundle,
-        _planning_context,
-        problem,
-        inputs,
-        problem_payload,
-        registry,
-        planner_context,
-        _catalog,
-        plan,
-        _validation,
-        reconciliation,
-    ) = scope_native_reconciliation_fixture(
-        tmp_path,
-        case=case,
-        plan_payload=_xiqing_parameter_evaluation_payload(parameter_ref="c"),
-    )
+    with pytest.raises(FunctionalBindingContextError) as error:
+        scope_native_reconciliation_fixture(
+            tmp_path,
+            case=case,
+            plan_payload=_xiqing_parameter_evaluation_payload(
+                parameter_ref="c"
+            ),
+        )
 
-    assert reconciliation.ok, reconciliation.to_payload()
-    attempt = FunctionalTransactionalInterpreter(
-        symbolic_closure_mode="authoritative"
-    ).execute_attempt(
-        raw_plan=plan,
-        reconciliation=reconciliation,
-        runtime_context=ContextBuilder().build(problem),
-        parent_context=planner_context,
-        inputs=inputs,
-        handle_registry=registry,
-        problem_payload=problem_payload,
-    )
-
-    assert attempt.compiled_output is None
-    assert any(
-        "function.parameter_value_object_mismatch" in issue.message
-        for issue in attempt.root_issues
-    )
+    assert error.value.code == "planner.method_input_view_authority_drift"
+    assert "evaluate_parabola_i.parameter" in str(error.value)
 
 
 def test_call_result_parameter_value_keeps_its_symbol_object_identity(

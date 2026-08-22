@@ -36,6 +36,11 @@ from shuxueshuo_server.solver.runtime.method_input_views import (
     MethodInputViewResolver,
     expected_runtime_type_for_view,
 )
+from shuxueshuo_server.solver.runtime.method_input_read_authority import (
+    DerivedInputReadSource,
+    MethodInputReadAuthority,
+    StateVersionReadSource,
+)
 from shuxueshuo_server.solver.runtime.methods import (
     StatelessMethodRegistry,
     default_stateless_registry,
@@ -638,7 +643,16 @@ class InvocationExecutor:
                     for index, item_path in enumerate(raw_path)
                 ]
                 input_types[input_name] = input_spec.type
-                inputs[input_name] = [item.value for item in values]
+                if input_spec.type == "Coefficients":
+                    inputs[input_name] = _coefficient_mapping_from_authorities(
+                        values,
+                        authorities=authorities,
+                        invocation=invocation,
+                        input_name=input_name,
+                        canonical_symbols=inputs.get("all_coefficients"),
+                    )
+                else:
+                    inputs[input_name] = [item.value for item in values]
                 continue
             if len(authorities) > 1:
                 raise StatelessMethodError(
@@ -865,6 +879,117 @@ def _materialize_symbolic_method_input_views(
 
 def _aggregate_item_type(runtime_type: str) -> str | None:
     return {
+        "Coefficients": "ParameterValue",
         "PointList": "Point",
         "SymbolList": "Symbol",
     }.get(runtime_type)
+
+
+def _coefficient_mapping_from_authorities(
+    values: list[object],
+    *,
+    authorities: tuple[MethodInputReadAuthority, ...],
+    invocation: MethodInvocation,
+    input_name: str,
+    canonical_symbols: object,
+) -> dict[sp.Symbol, object]:
+    """Materialize coefficient values from their exact Symbol state lineage."""
+
+    if len(authorities) != len(values):
+        raise StatelessMethodError(
+            "planner.method_input_view_authority_missing",
+            "coefficient aggregate requires one exact authority per item",
+            category="configuration",
+            retryability="configuration",
+            method_id=invocation.method_id,
+            scope_id=invocation.scope,
+            step_id=invocation.invocation_id,
+            arg_name=input_name,
+            expected={"authority_count": len(values)},
+            observed={"authority_count": len(authorities)},
+            repair_action="fix_runtime_contract",
+        )
+    result: dict[sp.Symbol, object] = {}
+    for index, (resolved, authority) in enumerate(
+        zip(values, authorities, strict=True)
+    ):
+        source = authority.source
+        if isinstance(source, DerivedInputReadSource):
+            source = source.upstream
+        if not isinstance(source, StateVersionReadSource):
+            raise StatelessMethodError(
+                "planner.method_input_view_authority_drift",
+                "coefficient aggregate item is not pinned to a ParameterValue state",
+                category="configuration",
+                retryability="configuration",
+                method_id=invocation.method_id,
+                scope_id=invocation.scope,
+                step_id=invocation.invocation_id,
+                arg_name=input_name,
+                expected={"source_kind": "state_version"},
+                observed={"item_index": index, "source_kind": source.kind},
+                repair_action="fix_runtime_contract",
+            )
+        object_id = source.state_version_id.slot_id.logical_key.object_id
+        if object_id.kind != "symbol" or not object_id.value.startswith("symbol:"):
+            raise StatelessMethodError(
+                "planner.method_input_view_authority_drift",
+                "coefficient aggregate item does not belong to a Symbol object",
+                category="configuration",
+                retryability="configuration",
+                method_id=invocation.method_id,
+                scope_id=invocation.scope,
+                step_id=invocation.invocation_id,
+                arg_name=input_name,
+                expected={"object_kind": "symbol"},
+                observed={
+                    "item_index": index,
+                    "object_kind": object_id.kind,
+                },
+                repair_action="fix_runtime_contract",
+            )
+        symbol_identity = object_id.value.removeprefix("symbol:")
+        symbol_name = (
+            symbol_identity.split("@", 1)[0]
+            if "@" in symbol_identity
+            else symbol_identity.rsplit(":", 1)[-1]
+        )
+        symbol_candidates = tuple(
+            symbol
+            for symbol in (
+                canonical_symbols
+                if isinstance(canonical_symbols, (list, tuple))
+                else ()
+            )
+            if isinstance(symbol, sp.Symbol) and symbol.name == symbol_name
+        )
+        if len(symbol_candidates) != 1:
+            raise StatelessMethodError(
+                "planner.method_input_view_authority_drift",
+                "coefficient Symbol identity is not unique in the canonical basis",
+                category="configuration",
+                retryability="configuration",
+                method_id=invocation.method_id,
+                scope_id=invocation.scope,
+                step_id=invocation.invocation_id,
+                arg_name=input_name,
+                expected={"symbol": symbol_name, "candidate_count": 1},
+                observed={"candidate_count": len(symbol_candidates)},
+                repair_action="fix_runtime_contract",
+            )
+        symbol = symbol_candidates[0]
+        if symbol in result:
+            raise StatelessMethodError(
+                "planner.method_input_view_authority_drift",
+                "coefficient aggregate contains duplicate Symbol identities",
+                category="configuration",
+                retryability="configuration",
+                method_id=invocation.method_id,
+                scope_id=invocation.scope,
+                step_id=invocation.invocation_id,
+                arg_name=input_name,
+                observed={"duplicate_symbol": symbol_name},
+                repair_action="fix_runtime_contract",
+            )
+        result[symbol] = resolved.value
+    return result

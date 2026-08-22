@@ -9,7 +9,9 @@ import pytest
 from shuxueshuo_server.solver.contracts import (
     ConditionSourceSpec,
     ExactCallResultSourceSpec,
+    FreeSymbolBasisDerivationSpec,
     MethodInputBindingSpec,
+    ProducerLinkedSourceSpec,
 )
 from shuxueshuo_server.solver.deepseek_functional_batch import (
     FUNCTIONAL_BATCH_CASES,
@@ -19,7 +21,7 @@ from shuxueshuo_server.solver.runtime.functional_binding_context import (
     FunctionalArgSourceIdentity,
     FunctionalBindingContextBuilder,
     FunctionalBindingContextError,
-    _compiler_auto_selected_source,
+    _binding_signature,
     _typed_input_selected_source,
     audit_compiled_functional_arg_consumption,
     audit_functional_arg_binding_projection,
@@ -124,7 +126,6 @@ def test_authored_fixtures_have_complete_binding_context(case_id: str) -> None:
         and binding.source.kind
         and (
             binding.binding_authority != "compiler"
-            or binding.source.selected_source is not None
             or binding.input_binding is not None
         )
         and (
@@ -323,39 +324,6 @@ def test_post_compile_binding_audit_checks_actual_target_and_source_path() -> No
     assert foreign_audit.mismatches[0]["details"] == [
         "runtime_source_path_drift"
     ]
-
-    optional_missing = audit_compiled_functional_arg_consumption(
-        (
-            replace(
-                binding,
-                runtime_input_targets=("method.missing",),
-                consumption_mode="compiler_selector",
-                runtime_input_required=False,
-            ),
-        ),
-        (plan,),
-        expected_runtime_paths={binding.key: None},
-    )
-    assert not optional_missing.mismatches
-    assert optional_missing.decisions[0]["matches"] is True
-    assert optional_missing.decisions[0]["actual_runtime_paths"] == []
-
-    required_compiler_missing = audit_compiled_functional_arg_consumption(
-        (
-            replace(
-                binding,
-                runtime_input_targets=("method.missing",),
-                consumption_mode="compiler_selector",
-                runtime_input_required=True,
-            ),
-        ),
-        (plan,),
-        expected_runtime_paths={binding.key: None},
-    )
-    assert required_compiler_missing.mismatches[0]["details"] == [
-        "runtime_target_not_consumed"
-    ]
-
 
 def test_post_compile_binding_audit_accepts_deterministic_basis_repair() -> None:
     result, _catalog = _reconcile("nankai")
@@ -612,7 +580,7 @@ def test_source_identity_requires_exactly_one_typed_category() -> None:
         )
 
 
-def test_compiler_selected_typed_sources_survive_payload_round_trip() -> None:
+def test_typed_sources_survive_payload_round_trip() -> None:
     result, _catalog = _reconcile("xiqing")
     context = result.functional_binding_context
     assert context is not None
@@ -620,10 +588,7 @@ def test_compiler_selected_typed_sources_survive_payload_round_trip() -> None:
         binding
         for binding in context.bindings
         if binding.binding_authority == "compiler"
-        and (
-            binding.source.selected_source is not None
-            or binding.input_binding is not None
-        )
+        and binding.input_binding is not None
     )
     assert selected_bindings
     for binding in selected_bindings:
@@ -654,11 +619,7 @@ def test_compiler_selected_typed_sources_survive_payload_round_trip() -> None:
                 binding.key.item_index,
             )
         ]
-        selected = binding.source.selected_source or binding.source
-        if binding.source.selected_source is not None:
-            assert item.compiler_selected_source_kind == selected.kind
-        else:
-            assert item.compiler_selected_source_kind is None
+        selected = binding.source
         if selected.math_object_id is not None:
             assert item.math_object_id == selected.math_object_id
         if selected.state_version_id is not None:
@@ -671,9 +632,8 @@ def test_compiler_selected_typed_sources_survive_payload_round_trip() -> None:
 
     selected_by_key = {
         (binding.key.call_id, binding.key.arg_name): (
-            (binding.source.selected_source or binding.source).math_object_id.value
-            if (binding.source.selected_source or binding.source).math_object_id
-            is not None
+            binding.source.math_object_id.value
+            if binding.source.math_object_id is not None
             else None
         )
         for binding in selected_bindings
@@ -733,8 +693,7 @@ def test_dynamic_symbol_projection_ignores_sibling_role_candidate() -> None:
         0,
     )
     assert dynamic is not None
-    selected_source = dynamic.source.selected_source or dynamic.source
-    assert selected_source.math_object_id == MathObjectId(
+    assert dynamic.source.math_object_id == MathObjectId(
         "symbol:ii_2:m",
         "symbol",
         "ii_2",
@@ -893,9 +852,12 @@ def test_producer_arg_evidence_follows_the_declared_source_arg_producer() -> Non
         returns=(),
     )
 
-    selected = _compiler_auto_selected_source(
+    selected = _typed_input_selected_source(
         arg_name="parameter",
-        selector="parameter_symbol",
+        binding=MethodInputBindingSpec(
+            input_name="parameter",
+            source=ProducerLinkedSourceSpec("parameter_value", "parameter"),
+        ),
         runtime_input="parameter",
         required=True,
         capability=capability,
@@ -952,9 +914,15 @@ def test_compiler_projection_requires_all_declared_evidence_to_agree() -> None:
         FunctionalBindingContextError,
         match="arg:parameter_value.*producer_arg:parameter",
     ):
-        _compiler_auto_selected_source(
+        _typed_input_selected_source(
             arg_name="parameter",
-            selector="parameter_symbol",
+            binding=MethodInputBindingSpec(
+                input_name="parameter",
+                source=ProducerLinkedSourceSpec(
+                    "parameter_value",
+                    "parameter",
+                ),
+            ),
             runtime_input="parameter",
             required=True,
             capability=capability,
@@ -1002,9 +970,14 @@ def test_free_symbol_projection_never_uses_max_coverage_as_winner() -> None:
         FunctionalBindingContextError,
         match="ambiguous_channels=.*free_symbol_basis",
     ):
-        _compiler_auto_selected_source(
+        _typed_input_selected_source(
             arg_name="parameter",
-            selector="parameter_symbol",
+            binding=MethodInputBindingSpec(
+                input_name="parameter",
+                derivation=FreeSymbolBasisDerivationSpec(
+                    ("left", "right", "minority")
+                ),
+            ),
             runtime_input="parameter",
             required=True,
             capability=capability,
@@ -1016,7 +989,7 @@ def test_free_symbol_projection_never_uses_max_coverage_as_winner() -> None:
         )
 
 
-def test_ambiguous_unconsumed_optional_source_is_not_written_to_ledger() -> None:
+def test_ambiguous_unconsumed_optional_source_fails_loud() -> None:
     registry, consumer, producer, method_specs, capability = (
         _symbol_projection_fixture(
             resolved_args={
@@ -1035,17 +1008,46 @@ def test_ambiguous_unconsumed_optional_source_is_not_written_to_ledger() -> None
         )
     )
 
-    selected = _compiler_auto_selected_source(
-        arg_name="parameter",
-        selector="parameter_symbol",
-        runtime_input="parameter",
-        required=False,
-        capability=capability,
-        call=consumer,
-        calls_by_id={"producer": producer},
-        object_registry=registry,
-        handle_registry=None,
-        method_specs=method_specs,
-    )
+    with pytest.raises(
+        FunctionalBindingContextError,
+        match="ambiguous_channels=.*free_symbol_basis",
+    ):
+        _typed_input_selected_source(
+            arg_name="parameter",
+            binding=MethodInputBindingSpec(
+                input_name="parameter",
+                required=False,
+                derivation=FreeSymbolBasisDerivationSpec(("left",)),
+            ),
+            runtime_input="parameter",
+            required=False,
+            capability=capability,
+            call=consumer,
+            calls_by_id={"producer": producer},
+            object_registry=registry,
+            handle_registry=None,
+            method_specs=method_specs,
+        )
 
-    assert selected is None
+
+def test_optional_zero_evidence_is_audited_without_a_binding() -> None:
+    result, _catalog = _reconcile("heping-ermo")
+    context = result.functional_binding_context
+    assert context is not None
+
+    omission = next(
+        item
+        for item in context.typed_input_omissions
+        if item.call_id == "derive_x_intercept_A_i"
+        and item.input_name == "known_point"
+    )
+    assert omission.reason == "optional_no_evidence"
+    assert context.binding_for(
+        "derive_x_intercept_A_i",
+        "known_point",
+        0,
+    ) is None
+    assert context.binding_signature == _binding_signature(
+        context.bindings,
+        relation_bindings=context.relation_bindings,
+    )

@@ -4471,7 +4471,7 @@ def _return_object_target_refs(
         goal_answer_targets=answer_object_refs.get(key, ()),
         identity_constraint_targets=constrained,
         declared_identity_targets=declared,
-        compiler_selector_targets=selected,
+        code_selected_targets=selected,
     ).target_refs
 
 
@@ -4633,18 +4633,11 @@ def _auto_input_object_refs(
     binding_catalog: ProblemPlanningBindingCatalog,
     seen: frozenset[tuple[str, str]],
 ) -> frozenset[str]:
-    """Resolve a hidden identity input from its legacy or typed contract."""
+    """Resolve a hidden identity input from its typed contract."""
 
-    selector = auto_arg.selector
-    if selector is not None:
-        return _auto_selector_object_refs(
-            selector,
-            producer=producer,
-            binding_catalog=binding_catalog,
-        )
     declaration = auto_arg.input_binding
-    source = declaration.source if declaration is not None else None
-    derivation = declaration.derivation if declaration is not None else None
+    source = declaration.source
+    derivation = declaration.derivation
     declared_entity_ref: str | None = None
     if isinstance(source, LatestStateSourceSpec):
         source_arg = source.entity_arg
