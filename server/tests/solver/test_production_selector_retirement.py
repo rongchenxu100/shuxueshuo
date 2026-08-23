@@ -107,47 +107,68 @@ def test_production_input_selector_runtime_is_physically_retired() -> None:
     assert not hasattr(binding_rules, "_known_parameter_substitution_pair")
 
 
-def test_companion_output_selector_debt_is_fixed_and_output_only() -> None:
+def test_companion_outputs_are_method_owned_typed_contracts() -> None:
+    registry = MethodSpecRegistry.load_from_code()
     actual = {
         (
-            rule.method_id,
+            spec.method_id,
             companion.output_name,
-            companion.target_selector,
-            companion.registration_selector,
+            companion.emission,
+            companion.authority,
         )
-        for family in DEFAULT_FAMILY_REGISTRY.families
-        for rule in family.method_binding_rules
-        for companion in rule.companion_outputs
+        for spec in registry.specs.values()
+        for companion in spec.companion_outputs
     }
 
-    # This output-registration compatibility boundary may only shrink until
-    # F4.3 replaces it with a typed companion-output contract.
     assert actual == {
         (
             "quadratic_axis_parameterized_point",
             "parameter",
-            "axis_parameter_symbol",
-            "axis_parameter_symbol",
+            "always",
+            "return_allocation",
         ),
         (
             "quadratic_from_constraints",
             "coefficients",
-            "answer_scope_output:coefficients",
-            "runtime_step_output:coefficients",
+            "always",
+            "return_allocation",
         ),
         (
             "weighted_axis_path_triangle_transform",
             "auxiliary_locus",
-            "scope_output:auxiliary_locus",
-            "runtime_step_output:auxiliary_locus",
+            "always",
+            "return_allocation",
         ),
         (
             "weighted_axis_path_triangle_transform",
             "auxiliary_point",
-            "weighted_path_auxiliary_point",
-            "weighted_path_auxiliary_point",
+            "always",
+            "return_allocation",
         ),
     }
+    assert all(
+        not hasattr(rule, "companion_outputs")
+        and not hasattr(rule, "always_emit_outputs")
+        for family in DEFAULT_FAMILY_REGISTRY.families
+        for rule in family.method_binding_rules
+    )
+    output_runtime_source = "\n".join(
+        (
+            (
+                SOLVER_ROOT / "runtime/recipe_compiler.py"
+            ).read_text(encoding="utf-8"),
+            (
+                SOLVER_ROOT / "runtime/binding_rules.py"
+            ).read_text(encoding="utf-8"),
+        )
+    )
+    for retired in (
+        "_companion_target_path",
+        "_companion_registration_handle",
+        "_axis_parameter_symbol_handle",
+        "_weighted_auxiliary_point_handle_for_step",
+    ):
+        assert retired not in output_runtime_source
 
 
 def test_every_production_method_input_binding_is_strict() -> None:
@@ -270,14 +291,11 @@ def test_binding_schemas_reject_retired_selector_payloads() -> None:
     )
 
 
-def test_equal_length_role_provider_is_debug_only() -> None:
-    production_sources = tuple(
-        path.read_text(encoding="utf-8")
-        for path in SOLVER_ROOT.rglob("*.py")
-        if path.name != "debug_equal_length_ray_roles.py"
-    )
-
+def test_equal_length_debug_role_provider_is_physically_removed() -> None:
+    assert not (
+        SOLVER_ROOT / "runtime/debug_equal_length_ray_roles.py"
+    ).exists()
     assert all(
-        "debug_equal_length_ray_roles" not in source
-        for source in production_sources
+        "debug_equal_length_ray_roles" not in path.read_text(encoding="utf-8")
+        for path in SOLVER_ROOT.rglob("*.py")
     )

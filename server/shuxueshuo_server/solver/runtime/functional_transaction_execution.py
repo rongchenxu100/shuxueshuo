@@ -64,6 +64,11 @@ from shuxueshuo_server.solver.runtime.functional_direct_compiler import (
     FunctionalCompileRequest,
     FunctionalDirectCompiler,
 )
+from shuxueshuo_server.solver.runtime.method_output_write_authority import (
+    CallResultOutputDestinationAuthority,
+    MethodOutputWriteAuthority,
+    StateOutputDestinationAuthority,
+)
 from shuxueshuo_server.solver.runtime.functional_diagnostics import (
     FunctionalDiagnosticAuthority,
     StatelessMethodError,
@@ -316,6 +321,7 @@ class CompiledFunctionalCall:
     macro_search_report: MacroRuntimeSearchReport | None = None
     path_minimum_witness: PathMinimumWitness | None = None
     materialized_state_sources: tuple[tuple[str, StateVersionId], ...] = ()
+    output_write_authorities: tuple[MethodOutputWriteAuthority, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -4150,7 +4156,15 @@ def _wrap_exact_compiled_call(
         if item.path in referenced_paths
     }
     declarations = tuple(declarations_by_path.values())
-    return CompiledFunctionalCall(
+    output_write_authorities = tuple(
+        authority
+        for plan in plans
+        for invocation in plan.invocations
+        for _output_name, authority in sorted(
+            invocation.output_write_authorities.items()
+        )
+    )
+    wrapped = CompiledFunctionalCall(
         call_id=prepared_call.call_id,
         step_ids=prepared_call.step_ids,
         declarations=declarations,
@@ -4158,7 +4172,194 @@ def _wrap_exact_compiled_call(
         public_returns=public_returns,
         replay_plans=replay_plans,
         binding_consumption_decisions=audit.decisions,
+        output_write_authorities=output_write_authorities,
     )
+    _audit_method_output_write_authorities(wrapped)
+    return wrapped
+
+
+def _audit_method_output_write_authorities(
+    compiled: CompiledFunctionalCall,
+) -> None:
+    allocations = {
+        item.return_name: item.allocation
+        for item in compiled.public_returns
+    }
+    writes = {
+        item.return_name: item.expected_write
+        for item in compiled.public_returns
+    }
+    invocations = {
+        invocation.invocation_id: (plan, invocation)
+        for plan in compiled.plans
+        for invocation in plan.invocations
+    }
+    seen: set[tuple[str, str]] = set()
+    for authority in compiled.output_write_authorities:
+        key = (authority.invocation_id, authority.output_name)
+        if key in seen:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_output_binding_contract_invalid: "
+                f"call={compiled.call_id}, duplicate={key!r}"
+            )
+        seen.add(key)
+        allocation = allocations.get(authority.function_return_name)
+        if allocation is None:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_output_write_authority_missing: "
+                f"call={compiled.call_id}, output={authority.output_name}, "
+                "reason=public return allocation missing"
+            )
+        invocation_entry = invocations.get(authority.invocation_id)
+        if invocation_entry is None:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_output_write_authority_missing: "
+                f"call={compiled.call_id}, output={authority.output_name}, "
+                "reason=compiled invocation missing"
+            )
+        plan, invocation = invocation_entry
+        source_path = invocation.outputs.get(authority.output_name)
+        runtime_path = plan.promote_outputs.get(source_path or "")
+        if source_path is None or runtime_path is None:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_output_write_authority_missing: "
+                f"call={compiled.call_id}, output={authority.output_name}, "
+                "reason=compiled destination missing"
+            )
+        try:
+            authority.verify(
+                allocation=allocation,
+                runtime_path=runtime_path,
+            )
+        except ValueError as exc:
+            raise ValueError(str(exc)) from exc
+
+        write = writes.get(authority.function_return_name)
+        if write is None:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_output_write_authority_missing: "
+                f"call={compiled.call_id}, output={authority.output_name}, "
+                "reason=compiled write provenance missing"
+            )
+        common_expected = (
+            authority.function_return_name,
+            authority.runtime_type,
+            authority.valid_scope,
+        )
+        common_observed = (
+            write.return_name,
+            write.runtime_type,
+            write.valid_scope_id,
+        )
+        if common_observed != common_expected:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_output_write_authority_drift: "
+                f"call={compiled.call_id}, output={authority.output_name}, "
+                "reason=compiled write differs from authority, "
+                f"expected={common_expected!r}, observed={common_observed!r}"
+            )
+        if isinstance(authority.destination, StateOutputDestinationAuthority):
+            state_expected = (
+                authority.destination.logical_state_key,
+                authority.destination.selected_version_id,
+                authority.destination.previous_version_id,
+            )
+            state_observed = (
+                write.logical_state_key,
+                write.selected_version_id,
+                write.previous_version_id,
+            )
+            if state_observed != state_expected:
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.method_output_write_authority_drift: "
+                    f"call={compiled.call_id}, output={authority.output_name}, "
+                    "reason=compiled StateVersion differs from authority, "
+                    f"expected={state_expected!r}, observed={state_observed!r}"
+                )
+        elif not isinstance(
+            authority.destination,
+            CallResultOutputDestinationAuthority,
+        ):
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_output_binding_contract_invalid: "
+                f"call={compiled.call_id}, output={authority.output_name}, "
+                "reason=unknown output destination"
+            )
+
+
+def _audit_committed_method_output_writes(
+    compiled: CompiledFunctionalCall,
+    *,
+    writes: tuple[StateWriteProvenance, ...],
+) -> None:
+    writes_by_return = {
+        write.return_name: write
+        for write in writes
+        if write.return_name is not None
+    }
+    for authority in compiled.output_write_authorities:
+        write = writes_by_return.get(authority.function_return_name)
+        if write is None:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_output_write_authority_missing: "
+                f"call={compiled.call_id}, output={authority.output_name}, "
+                "reason=committed write missing"
+            )
+        if isinstance(authority.destination, StateOutputDestinationAuthority):
+            runtime_path = (
+                write.runtime_destination_key.runtime_path
+                if write.runtime_destination_key is not None
+                else None
+            )
+            expected = (
+                authority.destination.logical_state_key,
+                authority.destination.selected_version_id,
+                authority.destination.previous_version_id,
+                authority.runtime_path,
+            )
+            observed = (
+                write.logical_state_key,
+                write.selected_version_id,
+                write.previous_version_id,
+                runtime_path,
+            )
+            if observed != expected:
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.method_output_write_authority_drift: "
+                    f"call={compiled.call_id}, output={authority.output_name}, "
+                    "reason=committed destination differs from authority"
+                )
+
+
+def _audit_method_output_runtime_results(
+    compiled: CompiledFunctionalCall,
+    *,
+    branch: RuntimeContext,
+) -> None:
+    for authority in compiled.output_write_authorities:
+        try:
+            branch.read_path(
+                authority.runtime_path,
+                from_scope_id=authority.valid_scope,
+                expected_type=authority.runtime_type,
+            )
+        except (KeyError, PermissionError, TypeError, ValueError) as exc:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_output_write_authority_drift: "
+                f"call={compiled.call_id}, output={authority.output_name}, "
+                "reason=runtime result does not match authorized destination"
+            ) from exc
 
 
 def _compiled_call_signature(
@@ -4200,6 +4401,12 @@ def _compiled_call_signature(
                                 for input_name, authorities in (
                                     invocation.supporting_input_read_authorities.items()
                                 )
+                            )
+                        ),
+                        tuple(
+                            sorted(
+                                authority.authority_signature
+                                for authority in invocation.output_write_authorities.values()
                             )
                         ),
                     )
@@ -4257,6 +4464,10 @@ def _compiled_call_signature(
             compiled.path_minimum_witness.witness_id
             if compiled.path_minimum_witness is not None
             else None
+        ),
+        tuple(
+            authority.authority_signature
+            for authority in compiled.output_write_authorities
         ),
     )
 
@@ -4671,12 +4882,17 @@ def _prepare_runtime_search_macro(
                     reconciliation.condition_binding_authority_index
                 ),
             )
+            _audit_method_output_write_authorities(compiled)
             lowered_call_count = sum(
                 len(plan.invocations) for plan in compiled.plans
             )
             execution = executor_factory(inputs, shadow_context).execute_plan(
                 shadow_context,
                 list(compiled.plans),
+            )
+            _audit_method_output_runtime_results(
+                compiled,
+                branch=shadow_context,
             )
             failed_check_items = tuple(
                 item
@@ -5617,6 +5833,7 @@ class FunctionalTransactionalInterpreter:
                         reconciliation.condition_binding_authority_index
                     ),
                 )
+                _audit_method_output_write_authorities(compiled)
                 executor = self._executor_factory(inputs, branch)
                 symbolic_spec = (
                     getattr(capability.source, "symbolic_closure", None)
@@ -5720,6 +5937,10 @@ class FunctionalTransactionalInterpreter:
                 execution = executor.execute_plan(
                     branch,
                     list(compiled.plans),
+                )
+                _audit_method_output_runtime_results(
+                    compiled,
+                    branch=branch,
                 )
                 call_symbol_bindings = _declared_runtime_symbol_bindings(
                     compiled,
@@ -5842,6 +6063,10 @@ class FunctionalTransactionalInterpreter:
                         )
                     )
                     continue
+                _audit_committed_method_output_writes(
+                    compiled,
+                    writes=writes,
+                )
                 _validate_macro_winner_clean_replay(
                     compiled,
                     runtime_results=runtime_results,

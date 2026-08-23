@@ -96,6 +96,18 @@
     "auxiliary_locus": "Line"
   },
   "is_pure": true,
+  "companion_outputs": [
+    {
+      "output_name": "auxiliary_point",
+      "emission": "always",
+      "authority": "return_allocation"
+    },
+    {
+      "output_name": "auxiliary_locus",
+      "emission": "always",
+      "authority": "return_allocation"
+    }
+  ],
   "preconditions": [
     "fixed_point 与 moving_point 在 x 轴上",
     "加权路径的权重必须在 method 的辅助三角形几何白名单中，当前为 sqrt(2) 或 2",

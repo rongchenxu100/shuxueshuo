@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
@@ -12,9 +13,6 @@ from shuxueshuo_server.solver.contracts import (
 )
 from shuxueshuo_server.solver.runtime.equal_length_ray_path_search import (
     _prepared_runtime_arg_value,
-)
-from shuxueshuo_server.solver.runtime.debug_equal_length_ray_roles import (
-    DebugEqualLengthRayRoleProvider,
 )
 from shuxueshuo_server.solver.family import DEFAULT_FAMILY_REGISTRY
 from shuxueshuo_server.solver.runtime.macro_preparation import (
@@ -71,10 +69,12 @@ def test_registry_owns_every_equal_length_internal_method_input() -> None:
     )
 
 
-def test_equal_length_role_provider_is_debug_only_and_families_are_strict() -> None:
-    assert DebugEqualLengthRayRoleProvider.__module__.endswith(
-        ".debug_equal_length_ray_roles"
+def test_equal_length_role_provider_is_removed_and_families_are_strict() -> None:
+    runtime_root = (
+        Path(__file__).resolve().parents[2]
+        / "shuxueshuo_server/solver/runtime"
     )
+    assert not (runtime_root / "debug_equal_length_ray_roles.py").exists()
     assert all(
         isinstance(binding, MethodInputBindingSpec)
         for family in DEFAULT_FAMILY_REGISTRY.families

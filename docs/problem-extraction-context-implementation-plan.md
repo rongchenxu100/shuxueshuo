@@ -35,8 +35,9 @@ Track F把题目来源转换为可追溯、可局部修复并可确定投影到S
 | F5-F4 Math Entity inputs / Method views / Macro search | `IN PROGRESS` |
 | F5-F4.1 Equal-length ray unique-role reference path | `COMPLETE` |
 | F5-F4.2 Runtime Authority Convergence | `COMPLETE` |
-| F5-F4.3 Path Macro migration | `PENDING` |
-| F5-F5 Teaching scope / v1 retirement | `PENDING` |
+| F5-F4.2R 输入Selector退役 | `COMPLETE` |
+| F5-F4.3 路径Macro迁移 | `IN PROGRESS`（F4.3A完成） |
+| F5-F5 教学scope与v1退役 | `PENDING` |
 
 系统尚未上线。Extraction只支持当前schema，不保留旧candidate、整份ProblemIR retry或Context迁移链。
 
@@ -589,16 +590,20 @@ functional-goal-repair/v4    # Retry输出Goal steps+answer与scope步骤替换
      - reconciliation projection audit是诊断层，不冒充最终执行门禁：它记录ledger与派生v1 projection的全部`functional_binding_mismatches`；真正的硬门禁位于compile后、Method执行前的transaction consumption audit，漂移统一报`planner.functional_runtime_input_mapping_drift`。五份recorded fixture固定要求前者为空，后者通过。wire阶段的`selection_policy=latest`只表示F5-C解析意图；catalog-backed最终typed binding必须为`exact`，compiler和restore不得重新选择latest。
      - 底层reconciler的`problem_binding_catalog=None`仍是显式deterministic/debug兼容边界，此时允许typed source暂缺，结果不能作为生产F5-C通过证据；它继续列入F5-F5物理删除项。真实`scoped_functional_plan_smoke`始终从accepted authority构建并传入binding catalog，因此不经过该软模式。
      - 生产`LegacySelectorInputBindingSpec`、Legacy expansion、`FunctionAdapterRegistry._select/_expand`、selector registry、prefix grammar、`SelectorSemantics`、`compiler_selector` read source与空ledger占位行均已物理删除。纯机械转换保留为可枚举的typed derivation；Registry的candidate builder、validation policy、lowerer和evidence builder ID只标识算法实现，不选择数学source。
-     - standalone `equal_length_ray_point`只保留在显式debug provider中；`DebugMethodInputAuthorityAdapter`要求调用者显式提供typed Entity、Condition、StateVersion或CallResult，生产compiler、scoped replay和公开Solver入口不可达。该debug能力随F4.3/F5-F5后续边界继续收口。
+     - standalone `equal_length_ray_point`的平行debug角色provider已在F4.3A物理删除；Method单元测试由`DebugMethodInputAuthorityAdapter`显式提供typed Entity、Condition、StateVersion或CallResult。结构化Fact到等长射线角色候选只通过`macro_preparation`模块的owner入口构建。
      - 五份recorded Plan继续通过相同的数学结果、对象身份、exact versions、provenance和checkpoint restore。compile manifest只记录typed source/read-authority的预期变化；Planner与repair wire没有新增内部字段。
      - **验收状态**：D阶段定向契约套件`220 passed`；L0 affected为`1204 passed, 27 deselected`，L2 contract为`2330 passed`，L3 full为`2384 passed`。生产旧input/expansion selector、registry、prefix grammar、`compiler_selector` payload/read source及fallback静态引用均为0，`git diff --check`通过。补充live批次`f5f42r-selector-retirement-live-5x3-20260823`为`15/15`，共17次semantic attempt、2次Goal repair和16个solved restore；configuration、unclassified、ghost write、repair drift、identity leak及solved Goal重执行均为0。
 
-   - **F5-F4.3 Path Macro migration（PENDING）**
-     - 只有F4.2全部门禁与F4.2R生产selector退役门禁通过后，才把同一pre-binding机制迁移到`two_moving_points_path_reduction`、拉直、反射、端点构造和其余路径family；不得复制F4.1当前的compiler唯一候选加事后报告模式，也不得为新Macro增加binding selector。
-     - `MethodCompanionOutputSpec.target_selector/registration_selector`仍是output promote/register的字符串兼容协议，不属于已经关闭的Method input selector。当前4条规则由固定allowlist约束为只减不增；F4.3将其迁为typed companion-output target/registration contract，新Path Macro不得增加字符串分发分支。
-     - 迁移首项先退役`binding_rules._equal_length_ray_selector`及standalone `equal_length_ray_point`的平行角色推断，或让debug入口同样消费`MacroPreparationAuthority`；任何新Macro不得复制现场推断并要求唯一候选的selector模式。
-     - family Macro统一公开数学实体、Fact、可选角色hint与`minimum_expression`等最终结果。`PathTransformation`、`PathWitness`、内部端点、内部Method输入和wiring全部退出Planner wire，进入`VerifiedFunctionalPlanExecution`证据树。
-     - 退出门禁先要求南开`1×3`全部单provider attempt、`finish_reason=length == 0`、Prompt内部Path类型为0，再运行五题并发`5×3`；每个启用runtime search的Macro必须覆盖错误hint纠正、歧义、不可达、clean replay和checkpoint恢复。
+   - **F5-F4.3 Path Macro migration（IN PROGRESS）**
+     - 本阶段分为六个独立提交，不一次性迁移全部family。任何Macro只有在candidate builder、validation policy、lowerer、postcondition、evidence builder、clean replay和checkpoint restore全部接通后，才能从`direct`切换为`runtime_search`。
+     - **F4.3A 伴随输出权威（COMPLETE）**：四个固有伴随输出已迁入MethodSpec，`MethodOutputWriteAuthority`从唯一return allocation生成state或exact call-result destination，并贯通compiler、transaction与checkpoint v3。family重复声明、生产字符串selector、companion专用handle推断和standalone等长射线debug角色provider均已删除；结构化角色候选只通过Macro preparation owner入口生成。Planner/repair wire与数学Method实现不变。
+     - **F4.3B 共享路径运行时内核**：新增`PathObjective`、`MacroRoleAssignmentCandidate`、`PathAttainmentCandidate`、`StraighteningResult`及统一`PathMinimumWitness`；内部化直达、反射、端点、拉直、距离、合法域与可达性检查。角色候选与最值策略候选分别记录winner，transaction不得按Macro ID分支。运行kernel专项、L0/L2。
+     - **F4.3C 标准路径与两动点路径**：迁移`quadratic_path_minimum` family，公开`two_moving_points_path_minimum`与`single_moving_point_path_minimum`；Planner只给path target、运动/绑定Fact、Entity和可选hint，内部完成降维、轨迹恢复、拉直、端点与距离。以南开`1×3`验证单provider attempt及`finish_reason=length == 0`。
+     - **F4.3D 正方形路径**：将`quadratic_square_reflection_path_minimum`收敛为`square_relation_path_minimum`，内部完成正方形降维、轨迹恢复、反射/拉直与最值证明；以和平二模`1×3`验证错误动点hint可由唯一runtime winner纠正且source binding drift为0。
+     - **F4.3E 加权路径**：将`weighted_axis_path_triangle_transform`与`linked_broken_path_minimum_expression`合并为`weighted_axis_path_minimum`；辅助点、辅助轨迹、三角形变换和Path witness全部进入执行证据，删除按点名或Context顺序寻找辅助对象的helper。运行对应family定向`1×3`与L0/L2。
+     - **F4.3F Planner协议清理**：所有family迁移完成后，从prompt、schema、catalog、repair、few-shot和fixture删除`PathTransformation`、`PathWitness`、`PathCandidate`、内部端点及Method wiring；重写compile manifest，增加静态零引用门禁，最后运行L3与并发15的Planner-only`5×3`。
+     - family Macro最终只公开数学实体、Fact、可选角色hint和`minimum_expression`等真正结果；内部构造与证明进入`VerifiedFunctionalPlanExecution`证据树。每个runtime-search Macro必须覆盖错误hint纠正、非等价歧义、不可达、shadow零ghost write、winner clean replay及checkpoint恢复。
+     - 完整的Macro逐项输入输出、分段测试和提交边界见[路径最值Macro重构](path-minimum-macro-redesign.md#6-f5-f43-分段实施计划)。当前下一项为F4.3B共享路径运行时内核；新Macro不得重新引入output selector或专用handle推断。
    - **F5-F5 Teaching scope与v1退役**
    - 新增`TeachingStepPlacement`，将compiled step确定映射到学生讲解scope。Plan已按Problem scope/Goal组织，但该位置仍需由Goal authority验证；Goal步骤归入Goal owner scope，scope-level步骤若其输入对全部consumer Goal的共同祖先可见，则在最近公共祖先讲解一次，否则按Goal生成引用而不复制runtime计算。
    - `execution_scope_id`只回答状态和method在哪里执行，`teaching_scope_id`只回答步骤在哪个题干/小问下呈现，二者分别审计，禁止Explanation用runtime placement猜教学结构。

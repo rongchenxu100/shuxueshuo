@@ -742,11 +742,20 @@ def _build_equal_length_ray_preparation_context(
 def _build_equal_length_ray_candidates(
     request: MacroPreparationRequest,
 ) -> Sequence[MacroRoleAssignmentCandidate]:
+    return build_equal_length_ray_macro_role_candidates(
+        request.builder_context,
+    )
+
+
+def build_equal_length_ray_macro_role_candidates(
+    context: Mapping[str, Any] | object,
+) -> tuple[MacroRoleAssignmentCandidate, ...]:
+    """Build structured role candidates through the Macro-owned entrypoint."""
+
     from shuxueshuo_server.solver.runtime.equal_length_ray_roles import (
         build_equal_length_ray_role_candidates,
     )
 
-    context = request.builder_context
     if not isinstance(context, Mapping):
         raise ValueError(
             "planner.macro_contract_invalid: equal-length candidate builder "
@@ -842,5 +851,6 @@ __all__ = [
     "MacroPreparationService",
     "MacroRoleAssignmentCandidate",
     "PreparedMacroInvocation",
+    "build_equal_length_ray_macro_role_candidates",
     "default_macro_implementation_registry",
 ]

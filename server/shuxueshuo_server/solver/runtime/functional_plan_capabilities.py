@@ -1573,6 +1573,7 @@ def _function_return(item: FunctionReturnSpec) -> FunctionalCapabilityReturn:
             else ()
         ),
         item.output_target_selector,
+        item.materialization_policy,
     )
 
 

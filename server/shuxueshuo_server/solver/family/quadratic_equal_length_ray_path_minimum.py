@@ -16,7 +16,6 @@ from shuxueshuo_server.solver.family.models import (
     FamilySourceRequirementSpec,
     GoalEvidencePolicySpec,
     MethodBindingRuleSpec,
-    MethodCompanionOutputSpec,
     MacroSearchSpec,
     RecipeExecutionSpec,
     recipe_output_alias,
@@ -237,14 +236,6 @@ _QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                     source_input="free_parameters",
                     item_inputs=(),
                     singleton_input="free_parameter",
-                ),
-            ),
-            always_emit_outputs=("coefficients",),
-            companion_outputs=(
-                MethodCompanionOutputSpec(
-                    "coefficients",
-                    "answer_scope_output:coefficients",
-                    "runtime_step_output:coefficients",
                 ),
             ),
         ),

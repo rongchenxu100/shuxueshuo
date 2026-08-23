@@ -17,6 +17,7 @@ CORE_INVARIANT_TESTS = (
     "tests/solver/test_functional_plan_content_schema.py",
     "tests/solver/test_scoped_functional_plan_authority.py",
     "tests/solver/test_method_input_read_authority.py",
+    "tests/solver/test_method_output_write_authority.py",
     "tests/solver/test_functional_goal_checkpoint_v3.py",
 )
 
@@ -30,6 +31,7 @@ CONTRACT_TEST_FILES = frozenset(
         "test_functional_goal_retry_projection.py",
         "test_functional_transaction_execution.py",
         "test_macro_prebinding_runtime_search.py",
+        "test_method_output_write_authority.py",
         "test_problem_planning_binding.py",
         "test_runtime_authority_convergence.py",
         "test_scoped_functional_plan_replay.py",
@@ -106,12 +108,16 @@ OWNERSHIP_RULES = (
         (
             "server/shuxueshuo_server/solver/runtime/methods/*.py",
             "server/shuxueshuo_server/solver/runtime/method_input*.py",
+            "server/shuxueshuo_server/solver/runtime/method_output*.py",
             "server/shuxueshuo_server/solver/runtime/invocation*.py",
+            "internal/method-specs/*.json",
+            "internal/schemas/method-*.schema.json",
         ),
         (
             "tests/solver/test_runtime_stateless_methods.py",
             "tests/solver/test_method_input_views.py",
             "tests/solver/test_method_input_read_authority.py",
+            "tests/solver/test_method_output_write_authority.py",
             "tests/solver/test_method_input_relations.py",
             "tests/solver/test_invocation_executor.py",
             "tests/solver/test_functional_diagnostics.py",

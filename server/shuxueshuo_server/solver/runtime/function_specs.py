@@ -166,6 +166,7 @@ class FunctionReturnSpec:
     lineage_closures: tuple[StateLineageClosureSpec, ...] = ()
     return_binding: FunctionalReturnBindingPolicy = "auto"
     output_target_selector: FunctionalOutputTargetSelectorSpec | None = None
+    materialization_policy: Literal["on_demand", "always"] = "on_demand"
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -206,6 +207,8 @@ class FunctionReturnSpec:
             payload["output_target_selector"] = (
                 self.output_target_selector.to_payload()
             )
+        if self.materialization_policy != "on_demand":
+            payload["materialization_policy"] = self.materialization_policy
         return payload
 
 
@@ -651,6 +654,9 @@ def function_spec_from_method(
         for name, input_spec in method_spec.inputs.items()
     )
     returns: list[FunctionReturnSpec] = []
+    companion_output_names = {
+        item.output_name for item in method_spec.companion_outputs
+    }
     for output_name, output_type in method_spec.outputs.items():
         if output_name in method_spec.internal_outputs:
             continue
@@ -760,6 +766,11 @@ def function_spec_from_method(
                     )
                     if output_name in output_target_selectors
                     else None
+                ),
+                materialization_policy=(
+                    "always"
+                    if output_name in companion_output_names
+                    else "on_demand"
                 ),
             )
         )

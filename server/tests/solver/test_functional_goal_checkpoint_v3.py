@@ -52,6 +52,16 @@ def test_goal_checkpoint_v3_round_trip_preserves_typed_restore_authority(tmp_pat
     assert restored.restore_state.runtime_write_signatures
     assert restored.restore_state.publication_signatures
     assert restored.restore_state.macro_preparations
+    assert any(
+        call.get("method_output_writes")
+        for call in restored.restore_state.compiled_calls
+    )
+    for call in restored.restore_state.compiled_calls:
+        for authority in call.get("method_output_writes", ()):
+            assert authority["schema_version"] == (
+                "method-output-write-authority/v1"
+            )
+            assert authority["authority_signature"]
 
 
 def test_goal_checkpoint_prompt_does_not_expose_private_restore_state(tmp_path) -> None:
@@ -95,6 +105,21 @@ def test_restore_namespace_signature_drift_fails_loud(tmp_path) -> None:
     payload["restore_state"]["state_versions"][0]["typed_value"][
         "source"
     ] = "tampered"
+
+    with pytest.raises(FunctionalGoalExecutionCheckpointError) as error:
+        FunctionalGoalExecutionCheckpoint.from_payload(payload)
+
+    assert error.value.path == "$.restore_state.restore_signature"
+
+
+def test_method_output_authority_drift_fails_checkpoint_restore(tmp_path) -> None:
+    payload = deepcopy(_execute(tmp_path).authority_payload())
+    compiled_call = next(
+        item
+        for item in payload["restore_state"]["compiled_calls"]
+        if item.get("method_output_writes")
+    )
+    compiled_call["method_output_writes"][0]["valid_scope"] = "sibling"
 
     with pytest.raises(FunctionalGoalExecutionCheckpointError) as error:
         FunctionalGoalExecutionCheckpoint.from_payload(payload)

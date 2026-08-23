@@ -18,9 +18,8 @@ from shuxueshuo_server.solver.runtime.condition_kinds import (
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
 )
-from shuxueshuo_server.solver.runtime.equal_length_ray_roles import (
-    EqualLengthRayRoleError,
-    build_equal_length_ray_role_candidates,
+from shuxueshuo_server.solver.runtime.macro_preparation import (
+    build_equal_length_ray_macro_role_candidates,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_graph import (
     rewrite_call_result_aliases as _rewrite_call_result_aliases,
@@ -1179,31 +1178,29 @@ class FunctionalSemanticIndex:
             or handle.startswith("point:")
         )
 
-        def resolve_point_name(name: str) -> str:
-            matches = tuple(
-                handle
-                for handle in point_handles
-                if self.entity_payloads.get(handle, {}).get("name") == name
-            )
-            if len(matches) != 1:
-                raise EqualLengthRayRoleError(
-                    "point_name_unresolved",
-                    "structured role point name must resolve uniquely",
-                    details={"name": name, "candidates": matches},
-                )
-            return matches[0]
-
+        by_name: dict[str, list[str]] = {}
+        for handle in point_handles:
+            name = str(
+                self.entity_payloads.get(handle, {}).get("name", "")
+            ).strip() or handle.rsplit(":", 1)[-1]
+            by_name.setdefault(name, []).append(handle)
         try:
-            candidates = build_equal_length_ray_role_candidates(
-                ray_facts=fact_groups["point_on_ray"],
-                segment_facts=fact_groups["point_on_segment"],
-                equal_facts=fact_groups["equal_length_condition"],
-                target_facts=fact_groups["path_minimum_target"],
-                entity_payload=lambda handle: self.entity_payloads[handle],
-                visible_point_handles=point_handles,
-                resolve_point_name=resolve_point_name,
+            candidates = build_equal_length_ray_macro_role_candidates(
+                {
+                    "ray_facts": fact_groups["point_on_ray"],
+                    "segment_facts": fact_groups["point_on_segment"],
+                    "equal_facts": fact_groups["equal_length_condition"],
+                    "target_facts": fact_groups["path_minimum_target"],
+                    "entity_payloads": self.entity_payloads,
+                    "point_names": {
+                        name: handles[0]
+                        for name, handles in by_name.items()
+                        if len(handles) == 1
+                    },
+                    "max_candidates": 32,
+                }
             )
-        except (EqualLengthRayRoleError, KeyError):
+        except (ValueError, KeyError):
             return {}
         refs_by_handle: dict[str, tuple[str, ...]] = {}
         for handle in point_handles:
@@ -1222,7 +1219,7 @@ class FunctionalSemanticIndex:
             handles = tuple(
                 sorted(
                     {
-                        getattr(candidate.roles, role)
+                        candidate.roles[role]
                         for candidate in candidates
                     }
                 )

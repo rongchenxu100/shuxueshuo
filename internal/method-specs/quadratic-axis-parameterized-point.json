@@ -57,6 +57,13 @@
     "parameter": "Symbol"
   },
   "is_pure": true,
+  "companion_outputs": [
+    {
+      "output_name": "parameter",
+      "emission": "always",
+      "authority": "return_allocation"
+    }
+  ],
   "scalar_result_forms": {
     "point": {
       "possible_forms": [

@@ -935,6 +935,39 @@ class MethodOutputActivationSpec:
 
 
 @dataclass(frozen=True)
+class MethodCompanionOutputSpec:
+    """Declare one code-owned Method output that is always materialized.
+
+    The declaration deliberately contains no target, handle, or runtime-path
+    policy.  A concrete invocation obtains those details exclusively from its
+    finalized ``FunctionalReturnAllocation``.
+    """
+
+    output_name: str
+    emission: Literal["always"] = "always"
+    authority: Literal["return_allocation"] = "return_allocation"
+
+    def __post_init__(self) -> None:
+        if not self.output_name.strip():
+            raise ValueError(
+                "planner.method_output_binding_contract_invalid: "
+                "companion output name must be non-empty"
+            )
+        if self.emission != "always" or self.authority != "return_allocation":
+            raise ValueError(
+                "planner.method_output_binding_contract_invalid: "
+                "companion output must use always/return_allocation"
+            )
+
+    def to_payload(self) -> dict[str, str]:
+        return {
+            "output_name": self.output_name,
+            "emission": self.emission,
+            "authority": self.authority,
+        }
+
+
+@dataclass(frozen=True)
 class ScalarResultFormSpec:
     """LLM-facing closure metadata for symbolic scalar or object outputs.
 
@@ -1122,6 +1155,7 @@ class MethodSpec:
     solves: tuple[str, ...]
     inputs: dict[str, MethodInputSpec]
     outputs: dict[str, str]
+    companion_outputs: tuple[MethodCompanionOutputSpec, ...] = ()
     input_relations: tuple[MethodInputRelationSpec, ...] = ()
     internal_outputs: tuple[str, ...] = ()
     output_activation: dict[str, MethodOutputActivationSpec] = field(

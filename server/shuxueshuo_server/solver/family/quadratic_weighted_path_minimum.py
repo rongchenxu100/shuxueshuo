@@ -12,7 +12,6 @@ from shuxueshuo_server.solver.family.models import (
     FamilyMatchRule,
     FamilyRuntimePreflightSpec,
     FamilySourceRequirementSpec,
-    MethodCompanionOutputSpec,
     MethodBindingRuleSpec,
     MacroSearchSpec,
     RecipeExecutionSpec,
@@ -352,19 +351,6 @@ _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 previous_output_identity_binding(
                     "auxiliary_point_ref",
                     output_name="auxiliary_point",
-                ),
-            ),
-            always_emit_outputs=("auxiliary_point", "auxiliary_locus"),
-            companion_outputs=(
-                MethodCompanionOutputSpec(
-                    "auxiliary_point",
-                    "weighted_path_auxiliary_point",
-                    "weighted_path_auxiliary_point",
-                ),
-                MethodCompanionOutputSpec(
-                    "auxiliary_locus",
-                    "scope_output:auxiliary_locus",
-                    "runtime_step_output:auxiliary_locus",
                 ),
             ),
         ),

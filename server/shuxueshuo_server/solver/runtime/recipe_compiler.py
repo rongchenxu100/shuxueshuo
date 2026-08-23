@@ -9,7 +9,6 @@ from typing import Any, Callable, Literal, Mapping, Protocol
 import sympy as sp
 
 from shuxueshuo_server.solver.family.models import (
-    MethodCompanionOutputSpec,
     MethodPrepInvocationSpec,
     RecipeExecutionSpec as FamilyRecipeExecutionSpec,
     SolverFamilySpec,
@@ -38,7 +37,6 @@ from shuxueshuo_server.solver.state_semantics import (
     StateObjectRoleBinding,
     StateSemanticLineage,
     StateSymbolClosureBinding,
-    dependent_role_object_ref,
     derived_role_object_ref,
     merge_state_semantic_lineages,
     object_kind_for_runtime_type,
@@ -56,6 +54,10 @@ from shuxueshuo_server.solver.runtime._planner_helpers import single_invocation_
 from shuxueshuo_server.solver.runtime.method_specs import (
     MethodSpecRegistry,
     active_method_output_names,
+)
+from shuxueshuo_server.solver.runtime.method_output_write_authority import (
+    MethodOutputWriteAuthority,
+    MethodOutputWriteAuthorityFinalizer,
 )
 from shuxueshuo_server.solver.runtime.functional_diagnostics import (
     FunctionalDiagnosticSubject,
@@ -147,7 +149,6 @@ from shuxueshuo_server.solver.runtime.binding_rules import (
     _path_for_readable_type,
     _path_for_readable_type_or_none,
     _point_output_handle,
-    _weighted_auxiliary_point_handle_for_step,
     parameter_substitution_pairs_from_reads,
 )
 from shuxueshuo_server.solver.runtime.functional_symbol_identity import (
@@ -1093,7 +1094,6 @@ class _RecipePlanCompiler:
             step,
             spec.outputs,
             self.index,
-            self.binding_rules,
             input_bindings=inputs,
             input_specs=spec.inputs,
             method_spec=spec,
@@ -1105,7 +1105,6 @@ class _RecipePlanCompiler:
             outputs,
             spec.outputs,
             self.index,
-            self.binding_rules,
             point_transition=_function_writes_point_transition(
                 self.function_specs.get(method_id)
             ),
@@ -1154,6 +1153,19 @@ class _RecipePlanCompiler:
                 step=step,
                 index=self.index,
             )
+        output_write_authorities = _method_output_write_authorities(
+            step,
+            method_id=method_id,
+            plan=plan,
+            method_spec=spec,
+            function_spec=function,
+            projected_state_writes=self.projected_state_writes,
+        )
+        plan = _attach_method_output_write_authorities(
+            plan,
+            method_id=method_id,
+            authorities=output_write_authorities,
+        )
         produced_registrations = _produced_registrations(
             step,
             method_id,
@@ -1164,16 +1176,11 @@ class _RecipePlanCompiler:
             RuntimeHandleBinding(handle, path, spec.outputs[output_name], f"step:{step.step_id}")
             for handle, output_name, path in produced_registrations
         ]
-        companion_registrations = _companion_registrations_for_step(
-                step,
-                method_id,
-                outputs,
-                promote,
-                spec.outputs,
-                self.index,
-                self.binding_rules,
-            )
-        registrations.extend(companion_registrations)
+        output_authority_registrations = _method_output_registrations(
+            output_write_authorities,
+            step_id=step.step_id,
+        )
+        registrations.extend(output_authority_registrations)
         for created in _compile_created_entities(step):
             binding = self.index.bindings.get(created.handle)
             if created.entity_type == "point" and binding is not None and binding.path in promote.values():
@@ -1199,7 +1206,7 @@ class _RecipePlanCompiler:
                 method_id=method_id,
                 plan=plan,
                 registrations=produced_registrations,
-                companion_registrations=companion_registrations,
+                output_authority_registrations=output_authority_registrations,
                 function_specs=self.function_specs,
                 index=self.index,
                 prior=tuple(self.state_write_provenance),
@@ -4118,7 +4125,6 @@ def _method_outputs_for_step(
     step: FunctionalCompileStepView,
     spec_outputs: dict[str, str],
     index: CanonicalRuntimeBindingIndex,
-    binding_rules: MethodBindingRuleRegistry,
     *,
     input_bindings: Mapping[str, str] | None = None,
     input_specs: Mapping[str, Any] | None = None,
@@ -4146,11 +4152,8 @@ def _method_outputs_for_step(
             )
         if output_name is not None:
             output_names.append(output_name)
-    rule = binding_rules.rule_for(method_id)
-    if rule is not None:
-        for output_name in rule.always_emit_outputs:
-            _append_declared_output_name(output_names, output_name, method_id, spec_outputs)
-        for companion in rule.companion_outputs:
+    if method_spec is not None:
+        for companion in method_spec.companion_outputs:
             _append_declared_output_name(
                 output_names,
                 companion.output_name,
@@ -4316,7 +4319,6 @@ def _promote_outputs_for_step(
     outputs: dict[str, str],
     output_types: dict[str, str],
     index: CanonicalRuntimeBindingIndex,
-    binding_rules: MethodBindingRuleRegistry,
     *,
     point_transition: bool = False,
     projected_state_writes: tuple[ProjectedStateWrite, ...] = (),
@@ -4390,7 +4392,6 @@ def _promote_outputs_for_step(
         source_to_produced,
         index,
     )
-    _add_companion_promotes(step, method_id, outputs, promote, output_types, index, binding_rules)
     if not promote and outputs:
         first_key, first_path = next(iter(outputs.items()))
         promote[first_path] = _scoped_output_path(index.context, step.scope_id, first_key)
@@ -4492,157 +4493,154 @@ def _produced_output_alias_identity(
     output_type = _produced_output_type(produced, index.handle_registry)
     return f"{output_type}:{_semantic_name(produced.handle)}"
 
-def _add_companion_promotes(
+def _method_output_write_authorities(
     step: FunctionalCompileStepView,
+    *,
     method_id: str,
-    outputs: dict[str, str],
-    promote: dict[str, str],
-    output_types: dict[str, str],
-    index: CanonicalRuntimeBindingIndex,
-    binding_rules: MethodBindingRuleRegistry,
-) -> None:
-    """为 method 固有伴随输出补 promote target。
-
-    这些输出不是 LLM 的独立结论，而是同一个 method 调用天然产生的中间几何对象。
-    将它们注册为 runtime alias 可以减少 prompt 负担，同时仍由 method checks 验证。
-    """
-    rule = binding_rules.rule_for(method_id)
-    if rule is None:
-        return
-    for companion in rule.companion_outputs:
-        source = outputs.get(companion.output_name)
-        if source is None:
-            continue
-        target = _companion_target_path(step, companion, index)
-        output_type = _companion_output_type(companion, method_id, output_types)
-        _ensure_declaration_for_promote_target(target, output_type, index)
-        promote.setdefault(source, target)
-
-def _companion_registrations_for_step(
-    step: FunctionalCompileStepView,
-    method_id: str,
-    outputs: dict[str, str],
-    promote: dict[str, str],
-    output_types: dict[str, str],
-    index: CanonicalRuntimeBindingIndex,
-    binding_rules: MethodBindingRuleRegistry,
-) -> list[RuntimeHandleBinding]:
-    """注册 method 伴随输出的可读 alias。"""
-    rule = binding_rules.rule_for(method_id)
-    if rule is None:
-        return []
-    result: list[RuntimeHandleBinding] = []
-    for companion in rule.companion_outputs:
-        source = outputs.get(companion.output_name)
-        if source not in promote or companion.registration_selector is None:
-            continue
-        handle = _companion_registration_handle(step, companion, index)
-        output_type = _companion_output_type(companion, method_id, output_types)
-        result.append(
-            RuntimeHandleBinding(
-                handle,
-                promote[source],
-                output_type,
-                f"step:{step.step_id}",
-                companion.output_name,
-            )
+    plan: StepPlan,
+    method_spec: MethodSpec,
+    function_spec: FunctionSpec | None,
+    projected_state_writes: tuple[ProjectedStateWrite, ...],
+) -> dict[str, MethodOutputWriteAuthority]:
+    if not method_spec.companion_outputs:
+        return {}
+    if function_spec is None:
+        raise StrategyDraftValidationError(
+            "planner_configuration_error: "
+            "planner.method_output_binding_contract_invalid: "
+            f"method={method_id}, reason=FunctionSpec missing"
         )
+
+    invocations = tuple(
+        invocation
+        for invocation in plan.invocations
+        if invocation.method_id == method_id
+    )
+    if len(invocations) != 1:
+        raise StrategyDraftValidationError(
+            "planner_configuration_error: "
+            "planner.method_output_binding_contract_invalid: "
+            f"method={method_id}, invocation_matches={len(invocations)}"
+        )
+    invocation = invocations[0]
+    result: dict[str, MethodOutputWriteAuthority] = {}
+    for companion in method_spec.companion_outputs:
+        output_name = companion.output_name
+        return_matches = tuple(
+            item
+            for item in function_spec.returns
+            if item.output_key == output_name
+        )
+        if len(return_matches) != 1:
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: "
+                "planner.method_output_binding_contract_invalid: "
+                f"method={method_id}, output={output_name}, "
+                f"return_matches={len(return_matches)}"
+            )
+        function_return = return_matches[0]
+        allocation_matches = tuple(
+            item
+            for item in step.return_allocations
+            if item.return_name == function_return.name
+        )
+        if len(allocation_matches) != 1:
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: "
+                "planner.method_output_write_authority_missing: "
+                f"call={step.step_id}, output={output_name}, "
+                f"allocations={len(allocation_matches)}"
+            )
+        write_matches = tuple(
+            item
+            for item in projected_state_writes
+            if item.step_id == step.step_id
+            and item.return_name == function_return.name
+        )
+        if len(write_matches) != 1:
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: "
+                "planner.method_output_write_authority_missing: "
+                f"call={step.step_id}, output={output_name}, "
+                f"projected_writes={len(write_matches)}"
+            )
+        source = invocation.outputs.get(output_name)
+        runtime_path = plan.promote_outputs.get(source or "")
+        if source is None or runtime_path is None:
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: "
+                "planner.method_output_write_authority_missing: "
+                f"call={step.step_id}, output={output_name}, "
+                "reason=compiled output destination missing"
+            )
+        try:
+            result[output_name] = MethodOutputWriteAuthorityFinalizer.finalize(
+                call_id=step.step_id,
+                invocation_id=f"{step.step_id}.{method_id}",
+                method_id=method_id,
+                output_name=output_name,
+                function_return_name=function_return.name,
+                runtime_type=function_return.runtime_type,
+                allocation=allocation_matches[0],
+                projected_write=write_matches[0],
+                runtime_path=runtime_path,
+            )
+        except ValueError as exc:
+            raise StrategyDraftValidationError(str(exc)) from exc
     return result
 
 
-def _companion_target_path(
-    step: FunctionalCompileStepView,
-    companion: MethodCompanionOutputSpec,
-    index: CanonicalRuntimeBindingIndex,
-) -> str:
-    """根据 companion output selector 生成 promote target。"""
-    selector = companion.target_selector
-    if selector.startswith("answer_scope_output:"):
-        key = selector.split(":", 1)[1]
-        return _scoped_output_path(index.context, _answer_target_scope_from_step(step, index), key)
-    if selector.startswith("scope_output:"):
-        key = selector.split(":", 1)[1]
-        return _scoped_output_path(index.context, step.scope_id, key)
-    if selector == "weighted_path_auxiliary_point":
-        auxiliary_handle = _weighted_auxiliary_point_handle_for_step(step, index)
-        return index.path_for(auxiliary_handle, expected_type="PointRef")
-    if selector == "axis_parameter_symbol":
-        handle = _axis_parameter_symbol_handle(step, index)
-        return _runtime_path_for_scope(
-            index.context,
-            _handle_scope(handle),
-            "symbols",
-            _handle_name(handle),
-        )
-    raise StrategyDraftValidationError(f"companion_target_selector_missing: {selector}")
-
-
-def _answer_target_scope_from_step(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-) -> str:
-    """从 QuestionGoal target_path 读取 answer 实际写入 scope。"""
-    handles = [_compile_target_handle(step), *(item.handle for item in _compile_return_outputs(step))]
-    for handle in handles:
-        if not handle.startswith("answer:"):
-            continue
-        goal = index.question_goals.get(handle)
-        if goal is not None:
-            return ContextPath.parse(goal.target_path).scope_id
-    return _answer_scope_from_step(step)
-
-
-def _companion_registration_handle(
-    step: FunctionalCompileStepView,
-    companion: MethodCompanionOutputSpec,
-    index: CanonicalRuntimeBindingIndex,
-) -> str:
-    """根据 companion registration selector 生成 runtime handle。"""
-    selector = companion.registration_selector
-    if selector is None:
-        raise StrategyDraftValidationError(
-            f"companion_registration_selector_missing: {companion.output_name}"
-        )
-    if selector.startswith("runtime_step_output:"):
-        key = selector.split(":", 1)[1]
-        return f"runtime:{step.step_id}:{key}"
-    if selector == "weighted_path_auxiliary_point":
-        return _weighted_auxiliary_point_handle_for_step(step, index)
-    if selector == "axis_parameter_symbol":
-        return _axis_parameter_symbol_handle(step, index)
-    raise StrategyDraftValidationError(f"companion_registration_selector_missing: {selector}")
-
-
-def _companion_output_type(
-    companion: MethodCompanionOutputSpec,
+def _attach_method_output_write_authorities(
+    plan: StepPlan,
+    *,
     method_id: str,
-    output_types: dict[str, str],
-) -> str:
-    """从 MethodSpec 读取 companion output 的 runtime 类型。"""
-    try:
-        return output_types[companion.output_name]
-    except KeyError as exc:
+    authorities: Mapping[str, MethodOutputWriteAuthority],
+) -> StepPlan:
+    if not authorities:
+        return plan
+    matches = tuple(
+        index
+        for index, invocation in enumerate(plan.invocations)
+        if invocation.method_id == method_id
+    )
+    if len(matches) != 1:
         raise StrategyDraftValidationError(
-            f"companion_output_missing: {method_id}.{companion.output_name}"
-        ) from exc
+            "planner_configuration_error: "
+            "planner.method_output_binding_contract_invalid: "
+            f"method={method_id}, invocation_matches={len(matches)}"
+        )
+    invocation_index = matches[0]
+    invocations = list(plan.invocations)
+    invocations[invocation_index] = replace(
+        invocations[invocation_index],
+        output_write_authorities=dict(authorities),
+    )
+    return replace(plan, invocations=invocations)
 
 
-def _axis_parameter_symbol_handle(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-) -> str:
-    point_object_id = _point_return_object_id(step, index)
-    point_handle = (
-        point_object_id.value
-        if point_object_id is not None
-        else _point_output_handle(step, index)
-    )
-    return dependent_role_object_ref(
-        source_object_ref=point_handle,
-        semantic_role="axis_parameter",
-        scope_id=_handle_scope(point_handle),
-        runtime_type="Symbol",
-    )
+def _method_output_registrations(
+    authorities: Mapping[str, MethodOutputWriteAuthority],
+    *,
+    step_id: str,
+) -> list[RuntimeHandleBinding]:
+    registrations: list[RuntimeHandleBinding] = []
+    seen: set[tuple[str, str]] = set()
+    for output_name, authority in authorities.items():
+        for alias in authority.registration_aliases:
+            key = (alias.handle, alias.runtime_path)
+            if key in seen:
+                continue
+            seen.add(key)
+            registrations.append(
+                RuntimeHandleBinding(
+                    alias.handle,
+                    alias.runtime_path,
+                    alias.runtime_type,
+                    f"step:{step_id}",
+                    output_name,
+                )
+            )
+    return registrations
 
 
 def _point_object_id_for_handle(
@@ -4656,28 +4654,6 @@ def _point_object_id_for_handle(
         index.handle_registry
     ).resolve(handle)
 
-
-def _point_return_object_id(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-) -> MathObjectId | None:
-    candidates = {
-        write.math_object_id
-        for write in index.projected_state_writes
-        if write.step_id == step.step_id
-        and write.runtime_type == "Point"
-        and write.math_object_id is not None
-    }
-    if len(candidates) == 1:
-        return next(iter(candidates))
-    if index.functional_consumer_identity_mode == "authoritative":
-        raise StrategyDraftValidationError(
-            "planner_configuration_error: "
-            "planner.state_identity_incomplete: "
-            f"step={step.step_id}, return_type=Point, "
-            f"identity_count={len(candidates)}"
-        )
-    return None
 
 def _produced_registrations(
     step: FunctionalCompileStepView,
@@ -4797,7 +4773,7 @@ def _function_write_provenance(
     method_id: str,
     plan: StepPlan,
     registrations: list[tuple[str, str, str]],
-    companion_registrations: list[RuntimeHandleBinding],
+    output_authority_registrations: list[RuntimeHandleBinding],
     function_specs: FunctionSpecRegistry,
     index: CanonicalRuntimeBindingIndex,
     prior: tuple[StateWriteProvenance, ...],
@@ -4820,15 +4796,22 @@ def _function_write_provenance(
         None,
     )
     result: list[StateWriteProvenance] = []
+    missing_output_keys = tuple(
+        item.handle
+        for item in output_authority_registrations
+        if item.output_key is None
+    )
+    if missing_output_keys:
+        raise StrategyDraftValidationError(
+            "planner_configuration_error: "
+            "planner.method_output_binding_contract_invalid: "
+            f"method={method_id}, aliases_without_output={missing_output_keys!r}"
+        )
     all_registrations = [
         *registrations,
         *(
-            (
-                item.handle,
-                item.output_key or _output_key_for_companion_path(item.path, plan),
-                item.path,
-            )
-            for item in companion_registrations
+            (item.handle, str(item.output_key), item.path)
+            for item in output_authority_registrations
         ),
     ]
     for produced_handle, output_key, _path in all_registrations:
@@ -5077,15 +5060,6 @@ def _object_ref_for_compiled_input(
             if isinstance(value, PointRef):
                 return f"point:{value.scope_id}:{value.name}"
     return _object_handle_for_path(path, runtime_type, index)
-
-
-def _output_key_for_companion_path(path: str, plan: StepPlan) -> str:
-    for source, target in plan.promote_outputs.items():
-        if target == path:
-            return ContextPath.parse(source).key
-    raise StrategyDraftValidationError(
-        f"companion_output_source_not_found: path={path}, step={plan.step_id}"
-    )
 
 
 def _state_write_provenance(

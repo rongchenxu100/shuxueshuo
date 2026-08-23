@@ -150,6 +150,7 @@ class MethodInvocation:
     supporting_input_read_authorities: dict[str, tuple[Any, ...]] = field(
         default_factory=dict
     )
+    output_write_authorities: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass

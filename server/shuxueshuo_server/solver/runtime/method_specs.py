@@ -19,6 +19,7 @@ from shuxueshuo_server.solver.contracts import (
     MethodInputSpec,
     MethodInputBindingSpec,
     MethodInputViewSpec,
+    MethodCompanionOutputSpec,
     validate_method_input_binding_view,
     MethodOutputActivationKind,
     MethodOutputActivationSpec,
@@ -164,6 +165,13 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
         input_names=frozenset(inputs),
     )
     outputs = _parse_outputs(raw["outputs"])
+    companion_outputs = _parse_companion_outputs(
+        raw.get("companion_outputs", ()),
+        output_names=frozenset(outputs),
+        activated_output_names=frozenset(
+            str(name) for name in dict(raw.get("output_activation", {}))
+        ),
+    )
     internal_outputs = _parse_identifier_list(
         raw.get("internal_outputs", ()),
         field_name="MethodSpec.internal_outputs",
@@ -197,6 +205,7 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
         solves=tuple(str(item) for item in raw["solves"]),
         inputs=inputs,
         outputs=outputs,
+        companion_outputs=companion_outputs,
         input_relations=input_relations,
         internal_outputs=internal_outputs,
         output_activation=output_activation,
@@ -250,6 +259,63 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
         ),
         is_pure=is_pure,
     )
+
+
+def _parse_companion_outputs(
+    raw: object,
+    *,
+    output_names: frozenset[str],
+    activated_output_names: frozenset[str],
+) -> tuple[MethodCompanionOutputSpec, ...]:
+    if raw in (None, (), []):
+        return ()
+    if not isinstance(raw, list | tuple):
+        raise ValueError("MethodSpec.companion_outputs must be a list")
+    result: list[MethodCompanionOutputSpec] = []
+    for item in raw:
+        if not isinstance(item, dict):
+            raise ValueError(
+                "planner.method_output_binding_contract_invalid: companion "
+                "output declaration must be an object"
+            )
+        allowed = {"output_name", "emission", "authority"}
+        unknown_fields = sorted(set(item) - allowed)
+        if unknown_fields:
+            raise ValueError(
+                "planner.method_output_binding_contract_invalid: companion "
+                "output contains unsupported fields: "
+                + ", ".join(unknown_fields)
+            )
+        result.append(
+            MethodCompanionOutputSpec(
+                output_name=str(item.get("output_name", "")),
+                emission=str(item.get("emission", "always")),  # type: ignore[arg-type]
+                authority=str(  # type: ignore[arg-type]
+                    item.get("authority", "return_allocation")
+                ),
+            )
+        )
+    names = tuple(item.output_name for item in result)
+    if len(names) != len(set(names)):
+        raise ValueError(
+            "planner.method_output_binding_contract_invalid: duplicate "
+            "companion output"
+        )
+    unknown_outputs = sorted(set(names) - output_names)
+    if unknown_outputs:
+        raise ValueError(
+            "planner.method_output_binding_contract_invalid: companion "
+            "outputs reference unknown Method outputs: "
+            + ", ".join(unknown_outputs)
+        )
+    conditional = sorted(set(names) & activated_output_names)
+    if conditional:
+        raise ValueError(
+            "planner.method_output_binding_contract_invalid: always-emitted "
+            "companion outputs cannot be conditionally activated: "
+            + ", ".join(conditional)
+        )
+    return tuple(result)
 
 
 def _parse_input_relations(

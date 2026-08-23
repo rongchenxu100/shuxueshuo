@@ -10827,7 +10827,6 @@ def test_projected_point_transition_uses_writable_state_destination() -> None:
         {"point": "$step.refine_A.outputs.point"},
         {"point": "Point"},
         index,
-        MethodBindingRuleRegistry(),
         projected_state_writes=(write,),
     )
 

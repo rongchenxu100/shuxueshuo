@@ -14,6 +14,7 @@ from shuxueshuo_server.solver.contracts import (
     MethodExplanationSpec,
     MethodInputBindingSpec,
     MethodInputRelationSpec,
+    MethodCompanionOutputSpec,
     MethodOutputActivationSpec,
     OrdinalZeroTemplateDerivationSpec,
     ScalarResultFormSpec,
@@ -722,6 +723,7 @@ SPEC = MethodSpecSource(
         "parabola": "Parabola",
         "parameter_value": "ParameterValue",
     },
+    companion_outputs=(MethodCompanionOutputSpec("coefficients"),),
     output_activation={
         "parameter_value": MethodOutputActivationSpec(
             kind="requires_inputs",

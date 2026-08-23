@@ -556,20 +556,6 @@ class MethodScalarAggregateLoweringSpec:
 
 
 @dataclass(frozen=True)
-class MethodCompanionOutputSpec:
-    """method 固有伴随输出的 promote/register 规则。
-
-    伴随输出不是 LLM 独立规划出来的结论，而是某个 method 调用稳定返回、后续
-    runtime 常需要读取的输出。例如 ``quadratic_from_constraints`` 总会返回
-    ``coefficients``，weighted path 三角形转化总会返回辅助点和辅助点轨迹。
-    """
-
-    output_name: str
-    target_selector: str
-    registration_selector: str | None = None
-
-
-@dataclass(frozen=True)
 class MethodPrepInvocationSpec:
     """method 前置补位 invocation 的声明式规则。
 
@@ -676,8 +662,6 @@ class MethodBindingRuleSpec:
         MethodScalarAggregateLoweringSpec, ...
     ] = ()
     prep_invocations: tuple[MethodPrepInvocationSpec, ...] = ()
-    always_emit_outputs: tuple[str, ...] = ()
-    companion_outputs: tuple[MethodCompanionOutputSpec, ...] = ()
     constraint_analyzer: str | None = None
 
 

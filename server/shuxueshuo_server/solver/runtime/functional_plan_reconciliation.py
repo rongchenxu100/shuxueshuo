@@ -2992,6 +2992,7 @@ def _allocate_functional_returns(
         for return_spec in active_return_specs
         if (
             return_spec.required
+            or return_spec.materialization_policy == "always"
             or return_spec.name in referenced_returns
             or return_spec.name in call.return_bindings
         )

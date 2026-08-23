@@ -21,7 +21,6 @@ from shuxueshuo_server.solver.family.models import (
     FamilySourceGoalContractSpec,
     FamilySourceRequirementSpec,
     MethodBindingRuleSpec,
-    MethodCompanionOutputSpec,
     MacroSearchSpec,
     RecipeExecutionSpec,
     RecipeInputDerivationSpec,
@@ -312,14 +311,6 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 canonical_x_binding(),
                 quadratic_coefficients_binding(),
             ),
-            always_emit_outputs=("coefficients",),
-            companion_outputs=(
-                MethodCompanionOutputSpec(
-                    "coefficients",
-                    "answer_scope_output:coefficients",
-                    "runtime_step_output:coefficients",
-                ),
-            ),
         ),
         MethodBindingRuleSpec(
             method_id="quadratic_axis_x_intercept_point",
@@ -381,13 +372,6 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 ),
             ),
             prep_invocations=quadratic_state_prep_invocations("parabola"),
-            companion_outputs=(
-                MethodCompanionOutputSpec(
-                    output_name="parameter",
-                    target_selector="axis_parameter_symbol",
-                    registration_selector="axis_parameter_symbol",
-                ),
-            ),
         ),
         MethodBindingRuleSpec(
             method_id="square_adjacent_vertex_from_side",

@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from shuxueshuo_server.solver.contracts import (
+    MethodCompanionOutputSpec,
     MethodExplanationSpec,
     MethodVisualSpec,
     ScalarResultFormSpec,
@@ -89,6 +90,7 @@ SPEC = MethodSpecSource(
         latest_state=("parabola",),
     ),
     outputs={"point": "Point", "parameter": "Symbol"},
+    companion_outputs=(MethodCompanionOutputSpec("parameter"),),
     scalar_result_forms={
         "point": ScalarResultFormSpec(
             possible_forms=("open_state", "closed_state"),

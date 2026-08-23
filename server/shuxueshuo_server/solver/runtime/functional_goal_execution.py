@@ -3255,6 +3255,10 @@ def _compiled_restore_authority_payload(compiled: Any) -> dict[str, Any]:
             for plan in compiled.plans
             for invocation in plan.invocations
         ],
+        "method_output_writes": [
+            authority.authority_payload()
+            for authority in compiled.output_write_authorities
+        ],
         "problem_source_signature": (
             compiled.problem_source_provenance.semantic_signature()
             if compiled.problem_source_provenance is not None

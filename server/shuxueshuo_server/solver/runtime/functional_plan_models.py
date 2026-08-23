@@ -348,6 +348,7 @@ class FunctionalCapabilityReturn:
     result_form_ignored_input_args: tuple[str, ...] = ()
     free_symbol_return_names: tuple[str, ...] = ()
     output_target_selector: FunctionalOutputTargetSelectorSpec | None = None
+    materialization_policy: Literal["on_demand", "always"] = "on_demand"
 
     @property
     def binding_mode(self) -> str:

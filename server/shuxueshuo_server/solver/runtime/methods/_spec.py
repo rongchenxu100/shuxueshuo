@@ -17,6 +17,7 @@ from shuxueshuo_server.solver.contracts import (
     MethodExplanationSpec,
     MethodInputRelationSpec,
     MethodInputViewMode,
+    MethodCompanionOutputSpec,
     MethodOutputActivationSpec,
     MethodVisualSpec,
     PlanTransformerScope,
@@ -85,6 +86,7 @@ class MethodSpecSource:
     inputs: dict[str, dict[str, Any]]
     input_views: dict[str, MethodInputViewMode]
     outputs: dict[str, str]
+    companion_outputs: tuple[MethodCompanionOutputSpec, ...] = ()
     input_relations: tuple[MethodInputRelationSpec, ...] = ()
     internal_outputs: tuple[str, ...] = ()
     output_activation: dict[str, MethodOutputActivationSpec] = field(
@@ -131,6 +133,15 @@ class MethodSpecSource:
             "outputs": self.outputs,
             "is_pure": self.is_pure,
         }
+        if self.companion_outputs:
+            _validate_companion_outputs(
+                self.companion_outputs,
+                output_names=frozenset(self.outputs),
+                activated_output_names=frozenset(self.output_activation),
+            )
+            payload["companion_outputs"] = [
+                item.to_payload() for item in self.companion_outputs
+            ]
         if self.internal_outputs:
             payload["internal_outputs"] = list(self.internal_outputs)
         if self.input_relations:
@@ -205,6 +216,33 @@ class MethodSpecSource:
         if self.symbolic_closure is not None:
             payload["symbolic_closure"] = self.symbolic_closure.to_payload()
         return payload
+
+
+def _validate_companion_outputs(
+    companions: tuple[MethodCompanionOutputSpec, ...],
+    *,
+    output_names: frozenset[str],
+    activated_output_names: frozenset[str],
+) -> None:
+    names = tuple(item.output_name for item in companions)
+    if len(names) != len(set(names)):
+        raise MethodSpecContractError(
+            "planner.method_output_binding_contract_invalid: duplicate "
+            "companion output"
+        )
+    unknown = sorted(set(names) - output_names)
+    if unknown:
+        raise MethodSpecContractError(
+            "planner.method_output_binding_contract_invalid: companion "
+            "outputs reference unknown Method outputs: " + ", ".join(unknown)
+        )
+    conditional = sorted(set(names) & activated_output_names)
+    if conditional:
+        raise MethodSpecContractError(
+            "planner.method_output_binding_contract_invalid: always-emitted "
+            "companion outputs cannot be conditionally activated: "
+            + ", ".join(conditional)
+        )
 
 
 def _validate_input_relations(

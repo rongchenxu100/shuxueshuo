@@ -22,7 +22,6 @@ from shuxueshuo_server.solver.family.models import (
     FunctionalOutputTargetSelectorSpec,
     MethodAggregateInputBindingSpec,
     MethodBindingRuleSpec,
-    MethodCompanionOutputSpec,
     MethodPrepInvocationSpec,
     MethodScalarAggregateLoweringSpec,
 )
@@ -327,14 +326,6 @@ def quadratic_from_constraints_rule() -> MethodBindingRuleSpec:
                 source_input="free_parameters",
                 item_inputs=(),
                 singleton_input="free_parameter",
-            ),
-        ),
-        always_emit_outputs=("coefficients",),
-        companion_outputs=(
-            MethodCompanionOutputSpec(
-                "coefficients",
-                "answer_scope_output:coefficients",
-                "runtime_step_output:coefficients",
             ),
         ),
         constraint_analyzer="quadratic_coefficients",

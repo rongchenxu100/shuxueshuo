@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+from shuxueshuo_server.solver.contracts import MethodCompanionOutputSpec
 from shuxueshuo_server.solver.runtime.weighted_triangle_geometry import (
     WeightedTriangleGeometryUnsupportedError,
     weighted_triangle_geometry_for_weight,
@@ -335,6 +336,10 @@ SPEC = MethodSpecSource(
         "path_transformation": "PathTransformation",
         "auxiliary_locus": "Line",
     },
+    companion_outputs=(
+        MethodCompanionOutputSpec("auxiliary_point"),
+        MethodCompanionOutputSpec("auxiliary_locus"),
+    ),
     preconditions=(
         "fixed_point 与 moving_point 在 x 轴上",
         "加权路径的权重必须在 method 的辅助三角形几何白名单中，当前为 sqrt(2) 或 2",

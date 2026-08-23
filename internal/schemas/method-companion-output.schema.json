@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "method-companion-output.schema.json",
+  "title": "MethodCompanionOutputSpec",
+  "type": "object",
+  "required": [
+    "output_name",
+    "emission",
+    "authority"
+  ],
+  "properties": {
+    "output_name": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": ".*\\S.*"
+    },
+    "emission": {
+      "const": "always"
+    },
+    "authority": {
+      "const": "return_allocation"
+    }
+  },
+  "additionalProperties": false
+}

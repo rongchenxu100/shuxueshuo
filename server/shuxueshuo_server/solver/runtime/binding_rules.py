@@ -11,7 +11,6 @@ from shuxueshuo_server.solver.contracts import (
     OrdinalZeroTemplateDerivationSpec,
 )
 from shuxueshuo_server.solver.family.models import MethodBindingRuleSpec, SolverFamilySpec
-from shuxueshuo_server.solver.runtime.auxiliary_points import fresh_auxiliary_point_handle
 from shuxueshuo_server.solver.runtime.condition_roles import (
     resolve_read_closed_right_angle_method_roles,
 )
@@ -1665,48 +1664,12 @@ def _auxiliary_point_handle_from_reads(
         )
     return unique[0]
 
-def _weighted_auxiliary_point_handle_for_step(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-) -> str:
-    """返回加权路径转化 step 使用的辅助点 handle。"""
-    item = _created_point_handle(step)
-    if item is not None:
-        return item.handle
-    for handle, binding in sorted(index.bindings.items()):
-        if (
-            handle.startswith(f"point:{step.scope_id}:")
-            and binding.source == "created_entity"
-        ):
-            return handle
-    handle = _fresh_auxiliary_point_handle(step, index)
-    if handle in index.bindings:
-        return handle
-    raise StrategyDraftValidationError(
-        f"weighted_auxiliary_point_handle_not_registered: {step.step_id}"
-    )
-
 def _created_point_handle(step: FunctionalCompileStepView) -> CreatedEntity | None:
     """返回 creates[] 中的第一个 point entity。"""
     for item in _compile_created_entities(step):
         if item.entity_type == "point":
             return item
     return None
-
-def _fresh_auxiliary_point_handle(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-) -> str:
-    """为 recipe 自动创建当前 scope 下未占用的辅助点 handle。"""
-    handle = fresh_auxiliary_point_handle(
-        step.scope_id,
-        set(index.bindings) | set(index.handle_registry.entity_handles),
-    )
-    if handle is not None:
-        return handle
-    raise StrategyDraftValidationError(
-        f"auxiliary_point_handle_exhausted: {step.step_id}"
-    )
 
 def _first_pointref_handle(
     step: FunctionalCompileStepView,

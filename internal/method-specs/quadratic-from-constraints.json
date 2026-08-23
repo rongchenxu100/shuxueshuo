@@ -206,6 +206,13 @@
     "parameter_value": "ParameterValue"
   },
   "is_pure": true,
+  "companion_outputs": [
+    {
+      "output_name": "coefficients",
+      "emission": "always",
+      "authority": "return_allocation"
+    }
+  ],
   "input_relations": [
     {
       "relation_kind": "point_on_curve",

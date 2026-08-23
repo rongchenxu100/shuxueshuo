@@ -697,7 +697,27 @@ outputs = {
 7. 多种 result form 使用 `scalar_result_forms` 描述，不要伪装成多个无条件候选 return。
 8. 运行值应尽量 canonicalize，便于后续做可靠的 runtime equivalence。
 
-### 6.1 Result form
+### 6.1 固有伴随输出
+
+Method若每次调用都会产生一个代码必需、但不应要求LLM绑定的输出，应在
+`MethodSpecSource.companion_outputs`声明：
+
+```python
+companion_outputs=(
+    MethodCompanionOutputSpec("coefficients"),
+)
+```
+
+companion只能使用`emission="always"`与`authority="return_allocation"`。目标对象、
+scope、StateVersion、runtime destination和注册别名全部由
+`FunctionalReturnAllocation -> MethodOutputWriteAuthority`确定。禁止在family、compiler
+或Method中增加`target_selector`、`registration_selector`、runtime path、handle规则或
+按类型扫描Context的fallback。companion不得同时声明条件式`output_activation`。
+
+value-only输出使用exact call-result authority；Point、Symbol等state-bearing输出使用
+精确对象与StateVersion authority。checkpoint恢复必须复用原authority，不能重新推导目标。
+
+### 6.2 Result form
 
 `open_expression`、`closed_value`、`open_state` 和 `closed_state` 描述的是实际结果状态，不是 LLM 的主观标签。
 
@@ -1124,6 +1144,7 @@ git diff --check
 - [ ] LLM 只接触 public capability，不需要知道内部 method wiring。
 - [ ] 每个 input 有唯一 domain/runtime 类型、view、角色和 required/exposed 语义。
 - [ ] 每个 output 有稳定 key、类型和 active-return 规则。
+- [ ] 固有伴随输出只由MethodSpec声明，并由return allocation生成output write authority。
 - [ ] open/closed result form 由 runtime value 决定。
 - [ ] Method 不读取 Context、不选 latest、不写 StateVersion。
 - [ ] 题面表达式只在 RuntimeContext 解析一次，Method 不重建同名 Symbol。
