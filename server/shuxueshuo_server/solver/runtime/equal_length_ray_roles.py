@@ -220,8 +220,20 @@ def build_equal_length_ray_role_candidates(
                 visible_point_handles=visible_point_handles,
                 resolve_point_name=resolve_point_name,
             )
-        except (EqualLengthRayRoleError, KeyError):
+        except EqualLengthRayRoleError as exc:
+            if exc.code in {
+                "point_name_ambiguous",
+                "point_name_unresolved",
+                "structured_role_reference_unresolved",
+            }:
+                raise
             continue
+        except KeyError as exc:
+            raise EqualLengthRayRoleError(
+                "structured_role_reference_unresolved",
+                "structured equal-length role reference is not registered",
+                details={"missing_reference": str(exc)},
+            ) from exc
         role_key = (
             roles.anchor,
             roles.reference_point,

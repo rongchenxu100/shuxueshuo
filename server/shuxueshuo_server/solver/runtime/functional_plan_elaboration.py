@@ -20,6 +20,10 @@ from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
 )
 from shuxueshuo_server.solver.runtime.macro_preparation import (
     build_equal_length_ray_macro_role_candidates,
+    build_equal_length_ray_point_name_candidates,
+)
+from shuxueshuo_server.solver.runtime.macro_runtime_search import (
+    MacroRuntimeSearchError,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_graph import (
     rewrite_call_result_aliases as _rewrite_call_result_aliases,
@@ -1178,12 +1182,6 @@ class FunctionalSemanticIndex:
             or handle.startswith("point:")
         )
 
-        by_name: dict[str, list[str]] = {}
-        for handle in point_handles:
-            name = str(
-                self.entity_payloads.get(handle, {}).get("name", "")
-            ).strip() or handle.rsplit(":", 1)[-1]
-            by_name.setdefault(name, []).append(handle)
         try:
             candidates = build_equal_length_ray_macro_role_candidates(
                 {
@@ -1192,14 +1190,17 @@ class FunctionalSemanticIndex:
                     "equal_facts": fact_groups["equal_length_condition"],
                     "target_facts": fact_groups["path_minimum_target"],
                     "entity_payloads": self.entity_payloads,
-                    "point_names": {
-                        name: handles[0]
-                        for name, handles in by_name.items()
-                        if len(handles) == 1
-                    },
+                    "point_name_candidates": (
+                        build_equal_length_ray_point_name_candidates(
+                            point_handles=point_handles,
+                            entity_payloads=self.entity_payloads,
+                        )
+                    ),
                     "max_candidates": 32,
                 }
             )
+        except MacroRuntimeSearchError:
+            raise
         except (ValueError, KeyError):
             return {}
         refs_by_handle: dict[str, tuple[str, ...]] = {}

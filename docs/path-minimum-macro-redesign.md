@@ -444,6 +444,12 @@ flowchart LR
 - family层重复companion声明、字符串target/registration selector、专用handle推断和
   standalone debug角色provider已物理删除；结构化等长射线候选只允许通过
   `macro_preparation`模块的owner入口构建。
+- 等长射线角色上下文保留完整的`point label -> visible handles[]`权威；legacy路径文本
+  真正引用重名点时稳定报`planner.macro_point_name_ambiguous`，不会把重名对象静默移出
+  候选集。使用精确Point handle的结构化Fact不受展示标签重名影响。
+
+`FunctionalOutputTargetSelectorSpec`继续保留：它负责Planner公开return的题面Entity消歧，
+与已经删除的Method companion target/registration字符串分发不是同一层协议。
 
 测试与提交：
 
@@ -478,6 +484,9 @@ PathMinimumWitness
 实施内容：
 
 - 内部化直达、反射、端点、拉直、距离、合法域与可达性检查；
+- 收敛companion物理destination的机械派生：数学权威继续只来自return allocation，最终让
+  promote path直接由allocation/projected write通用规则生成。F4.3A期间仍由transaction的
+  compile前、runtime后和commit后三道审计阻止路径漂移；不得把promote path升级为数学权威。
 - 将 `broken_path_straightening_and_select` 与
   `path_minimum_by_straightened_distance` 收为 kernel 内部步骤；
 - 统一 public return 为 `minimum_expression`；

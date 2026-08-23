@@ -717,6 +717,11 @@ scope、StateVersion、runtime destination和注册别名全部由
 value-only输出使用exact call-result authority；Point、Symbol等state-bearing输出使用
 精确对象与StateVersion authority。checkpoint恢复必须复用原authority，不能重新推导目标。
 
+`FunctionalOutputTargetSelectorSpec`不属于这里退役的companion selector。它位于
+Planner-facing Function contract，只在多个题面对象之间确定公开return写入哪个Entity；
+选定后仍必须生成唯一`FunctionalReturnAllocation`，Method companion不得直接读取或复制
+这套选择逻辑。
+
 ### 6.2 Result form
 
 `open_expression`、`closed_value`、`open_state` 和 `closed_state` 描述的是实际结果状态，不是 LLM 的主观标签。

@@ -715,16 +715,12 @@ def _build_equal_length_ray_preparation_context(
             and handle_registry.handle_valid_scopes.get(handle) in visible_scopes
         )
     )
-    by_name: dict[str, list[str]] = {}
-    for handle in point_handles:
-        payload = handle_registry.entity_payloads.get(handle, {})
-        name = str(payload.get("name", "")).strip() or handle.rsplit(":", 1)[-1]
-        by_name.setdefault(name, []).append(handle)
-    context["point_names"] = {
-        name: handles[0]
-        for name, handles in sorted(by_name.items())
-        if len(handles) == 1
-    }
+    context["point_name_candidates"] = (
+        build_equal_length_ray_point_name_candidates(
+            point_handles=point_handles,
+            entity_payloads=handle_registry.entity_payloads,
+        )
+    )
     dependency_envelope = {
         *point_handles,
         *(
@@ -753,6 +749,7 @@ def build_equal_length_ray_macro_role_candidates(
     """Build structured role candidates through the Macro-owned entrypoint."""
 
     from shuxueshuo_server.solver.runtime.equal_length_ray_roles import (
+        EqualLengthRayRoleError,
         build_equal_length_ray_role_candidates,
     )
 
@@ -762,13 +759,59 @@ def build_equal_length_ray_macro_role_candidates(
             "requires structured Context"
         )
     entity_payloads = context.get("entity_payloads")
-    point_names = context.get("point_names")
+    point_name_candidates = context.get("point_name_candidates")
     if not isinstance(entity_payloads, Mapping) or not isinstance(
-        point_names,
+        point_name_candidates,
         Mapping,
     ):
         raise ValueError(
             "planner.macro_contract_invalid: incomplete equal-length builder Context"
+        )
+
+    normalized_names: dict[str, tuple[str, ...]] = {}
+    for raw_name, raw_handles in point_name_candidates.items():
+        if (
+            not isinstance(raw_name, str)
+            or not raw_name
+            or not isinstance(raw_handles, Sequence)
+            or isinstance(raw_handles, (str, bytes))
+        ):
+            raise ValueError(
+                "planner.macro_contract_invalid: invalid point-name authority"
+            )
+        handles = tuple(
+            sorted(
+                {
+                    str(handle)
+                    for handle in raw_handles
+                    if isinstance(handle, str) and handle
+                }
+            )
+        )
+        if len(handles) != len(raw_handles) or not handles:
+            raise ValueError(
+                "planner.macro_contract_invalid: invalid point-name candidates"
+            )
+        normalized_names[raw_name] = handles
+
+    def resolve_point_name(name: str) -> str:
+        matches = normalized_names.get(name, ())
+        if len(matches) == 1:
+            return matches[0]
+        if not matches:
+            raise EqualLengthRayRoleError(
+                "point_name_unresolved",
+                "structured role point name is not visible",
+                details={"name": name, "candidate_count": 0},
+            )
+        raise EqualLengthRayRoleError(
+            "point_name_ambiguous",
+            "structured role point name resolves to multiple visible objects",
+            details={
+                "name": name,
+                "candidate_count": len(matches),
+                "candidates": matches,
+            },
         )
 
     def fact_group(name: str) -> tuple[tuple[str, Mapping[str, Any]], ...]:
@@ -784,16 +827,35 @@ def build_equal_length_ray_macro_role_candidates(
             and isinstance(item[1], Mapping)
         )
 
-    candidates = build_equal_length_ray_role_candidates(
-        ray_facts=fact_group("ray_facts"),
-        segment_facts=fact_group("segment_facts"),
-        equal_facts=fact_group("equal_facts"),
-        target_facts=fact_group("target_facts"),
-        entity_payload=lambda handle: entity_payloads[handle],
-        visible_point_handles=tuple(str(item) for item in point_names.values()),
-        resolve_point_name=lambda name: str(point_names[name]),
-        max_candidates=int(context.get("max_candidates", 32)),
-    )
+    try:
+        candidates = build_equal_length_ray_role_candidates(
+            ray_facts=fact_group("ray_facts"),
+            segment_facts=fact_group("segment_facts"),
+            equal_facts=fact_group("equal_facts"),
+            target_facts=fact_group("target_facts"),
+            entity_payload=lambda handle: entity_payloads[handle],
+            visible_point_handles=tuple(
+                handle
+                for handles in normalized_names.values()
+                for handle in handles
+            ),
+            resolve_point_name=resolve_point_name,
+            max_candidates=int(context.get("max_candidates", 32)),
+        )
+    except EqualLengthRayRoleError as exc:
+        code = {
+            "point_name_ambiguous": "planner.macro_point_name_ambiguous",
+            "point_name_unresolved": "planner.macro_point_name_unresolved",
+        }.get(exc.code, "planner.macro_contract_invalid")
+        raise MacroRuntimeSearchError(
+            code,
+            str(exc),
+            retryability="configuration",
+            details={
+                "macro_id": "equal_length_ray_path_reduction",
+                **exc.details,
+            },
+        ) from exc
     return tuple(
         MacroRoleAssignmentCandidate(
             candidate_id=item.candidate_id,
@@ -809,6 +871,26 @@ def build_equal_length_ray_macro_role_candidates(
             fact_handles=dict(item.fact_handles),
         )
         for item in candidates
+    )
+
+
+def build_equal_length_ray_point_name_candidates(
+    *,
+    point_handles: Iterable[str],
+    entity_payloads: Mapping[str, Mapping[str, Any]],
+) -> Mapping[str, tuple[str, ...]]:
+    """Preserve every visible object behind a student-facing point label."""
+
+    by_name: dict[str, set[str]] = {}
+    for handle in point_handles:
+        payload = entity_payloads.get(handle, {})
+        name = str(payload.get("name", "")).strip() or handle.rsplit(":", 1)[-1]
+        by_name.setdefault(name, set()).add(handle)
+    return MappingProxyType(
+        {
+            name: tuple(sorted(handles))
+            for name, handles in sorted(by_name.items())
+        }
     )
 
 
@@ -852,5 +934,6 @@ __all__ = [
     "MacroRoleAssignmentCandidate",
     "PreparedMacroInvocation",
     "build_equal_length_ray_macro_role_candidates",
+    "build_equal_length_ray_point_name_candidates",
     "default_macro_implementation_registry",
 ]
