@@ -34,7 +34,7 @@ from _problem_planning_support import scope_native_reconciliation_fixture
 FEW_SHOT_DIR = (
     Path(__file__).resolve().parents[3]
     / "internal"
-    / "functional-few-shots-v2"
+    / "functional-few-shots-v3"
 )
 
 PROMPT_CASES = (
@@ -157,7 +157,6 @@ def test_v2_payload_and_prompt_use_scope_native_authority_only(tmp_path) -> None
     combined = f"{prompt.system}\n{prompt.user}"
     for forbidden in (
         *INTERNAL_VIEW_TERMS,
-        "return_bindings",
         "execution_scope_id",
         "shared_steps",
         "source_unit_ids",
@@ -254,14 +253,14 @@ def test_v2_prompt_renders_only_v2_mechanism_plan(tmp_path) -> None:
     )
     prompt = StrategyPromptRenderer().render_scoped(payload)
 
-    assert '"format":"functional-plan-content/v2"' in prompt.user
+    assert '"format":"functional-plan-content/v3"' in prompt.user
     assert '"step_id":"solve_answer"' in prompt.user
     assert '"goal_plans":{"example.answer"' in prompt.user
     assert '"root_scope":{"scope_ref":"example"' not in prompt.user
     assert "functional_plan/v1" not in prompt.user
 
 
-def test_all_v2_mechanism_assets_are_strict_and_loadable() -> None:
+def test_all_v3_mechanism_assets_are_strict_and_loadable() -> None:
     paths = sorted(FEW_SHOT_DIR.glob("*.functional-few-shot.json"))
     assert len(paths) == 7
 
@@ -303,7 +302,7 @@ def test_all_v2_mechanism_assets_are_strict_and_loadable() -> None:
     }
 
 
-def test_v2_mechanism_assets_do_not_consume_named_outputs_by_step_result() -> None:
+def test_v3_mechanism_assets_do_not_consume_named_outputs_by_step_result() -> None:
     for path in sorted(FEW_SHOT_DIR.glob("*.functional-few-shot.json")):
         payload = json.loads(path.read_text(encoding="utf-8"))
         scopes = [payload["plan"]["root_scope"]]
@@ -318,10 +317,11 @@ def test_v2_mechanism_assets_do_not_consume_named_outputs_by_step_result() -> No
         named_returns = {
             (step["step_id"], return_name): target_ref
             for step in steps
-            for return_name, target_ref in step.get(
-                "output_targets",
+            for return_name, binding in step.get(
+                "return_bindings",
                 {},
             ).items()
+            for target_ref in (binding["ref"],)
         }
         violations: list[tuple[str, str, str, str]] = []
         for consumer in steps:
@@ -352,7 +352,7 @@ def test_v2_mechanism_assets_do_not_consume_named_outputs_by_step_result() -> No
         assert not violations, f"{path.name}: {violations}"
 
 
-def test_v2_catalog_uses_public_facade_names_without_return_binding_wire(
+def test_v3_catalog_uses_public_facade_names_with_typed_return_binding_wire(
     tmp_path,
 ) -> None:
     fixture = scope_native_reconciliation_fixture(
@@ -394,7 +394,7 @@ def test_v2_catalog_uses_public_facade_names_without_return_binding_wire(
         "description": point_return.output_target_selector.description,
     }
     prompt_catalog = catalog.to_prompt_payload()
-    assert "return_bindings" not in json.dumps(
+    assert '"scope_binding"' in json.dumps(
         prompt_catalog,
         ensure_ascii=False,
     )
@@ -453,7 +453,7 @@ def test_scoped_builder_selects_v2_example_without_v1_plan_projection(
         == SCOPED_FUNCTIONAL_PLAN_CONTRACT
     )
     assert payload["functional_few_shot_selection"]["mode"] == (
-        "v2_capability_subset"
+        "v3_capability_subset"
     )
 
 
@@ -526,6 +526,7 @@ def test_v2_catalog_declares_return_expectation_policy_per_return(tmp_path) -> N
         "name": "parameter_value",
         "type": "ParameterValue",
         "binding": "same_object_as:parameter",
+        "scope_binding": {"mode": "existing_only"},
     }
 
     schema = functional_plan_content_schema(

@@ -1,0 +1,71 @@
+{
+  "method_id": "reflect_point_across_line",
+  "title": "点关于直线的对称点",
+  "description": "Reflect a point across the line through two distinct points.",
+  "summary": "",
+  "solves": [
+    "reflect_point_across_line"
+  ],
+  "inputs": {
+    "point": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    },
+    "line_p1": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    },
+    "line_p2": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    },
+    "target": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "PointRef",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    }
+  },
+  "outputs": {
+    "reflected_point": "Point"
+  },
+  "is_pure": true,
+  "distinct_arg_groups": [
+    [
+      "line_p1",
+      "line_p2"
+    ]
+  ],
+  "interchangeable_arg_groups": [
+    [
+      "line_p1",
+      "line_p2"
+    ]
+  ]
+}

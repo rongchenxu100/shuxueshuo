@@ -49,6 +49,19 @@ from .point_candidates_from_curve_point_condition import PointCandidatesFromCurv
 from .square_path_dimension_reduction import SquarePathDimensionReductionMethod, SPEC as SQUARE_PATH_DIMENSION_REDUCTION_SPEC
 from .parameterized_point_locus_line import ParameterizedPointLocusLineMethod, SPEC as PARAMETERIZED_POINT_LOCUS_LINE_SPEC
 from .line_locus_minimum_point import LineLocusMinimumPointMethod, SPEC as LINE_LOCUS_MINIMUM_POINT_SPEC
+from .path_verification_primitives import (
+    PATH_VERIFICATION_METHODS,
+    PATH_VERIFICATION_SPECS,
+    ConstructPointOnRayAtReferenceDistanceMethod,
+    DistanceSumExpressionMethod,
+    ProveDistanceEqualityFromConditionsMethod,
+    ReflectPointAcrossLineMethod,
+    RewriteExpressionByConditionMethod,
+    VerifyDistanceEqualityMethod,
+    VerifyPointOnClosedSegmentMethod,
+    VerifyPointOnRayMethod,
+    VerifyTwoSegmentPathAttainmentMethod,
+)
 
 ALL_METHOD_SPEC_SOURCES = (
     RIGHT_ANGLE_EQUAL_LENGTH_CANDIDATES_SPEC,
@@ -88,6 +101,7 @@ ALL_METHOD_SPEC_SOURCES = (
     SQUARE_PATH_DIMENSION_REDUCTION_SPEC,
     PARAMETERIZED_POINT_LOCUS_LINE_SPEC,
     LINE_LOCUS_MINIMUM_POINT_SPEC,
+    *PATH_VERIFICATION_SPECS,
 )
 
 
@@ -136,6 +150,7 @@ def default_stateless_registry() -> StatelessMethodRegistry:
         SquarePathDimensionReductionMethod(),
         ParameterizedPointLocusLineMethod(),
         LineLocusMinimumPointMethod(),
+        *(method_cls() for method_cls in PATH_VERIFICATION_METHODS),
     ]
     return StatelessMethodRegistry({method.method_id: method for method in methods})
 
@@ -183,4 +198,13 @@ __all__ = [
     "SquarePathDimensionReductionMethod",
     "ParameterizedPointLocusLineMethod",
     "LineLocusMinimumPointMethod",
+    "ConstructPointOnRayAtReferenceDistanceMethod",
+    "VerifyPointOnRayMethod",
+    "VerifyDistanceEqualityMethod",
+    "ProveDistanceEqualityFromConditionsMethod",
+    "RewriteExpressionByConditionMethod",
+    "ReflectPointAcrossLineMethod",
+    "VerifyPointOnClosedSegmentMethod",
+    "DistanceSumExpressionMethod",
+    "VerifyTwoSegmentPathAttainmentMethod",
 ]

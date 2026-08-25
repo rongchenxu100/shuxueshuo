@@ -123,7 +123,7 @@ def test_public_verified_entry_never_calls_legacy_v1_planner(
     assert artifacts.scoped_retry_result is not None
     assert artifacts.scoped_retry_result.status == "accepted"
     checkpoint = artifacts.scoped_retry_result.final_execution.checkpoint
-    assert checkpoint.schema_version == "functional-goal-execution-checkpoint/v3"
+    assert checkpoint.schema_version == "functional-goal-execution-checkpoint/v4"
     assert checkpoint.all_required_goals_verified
     assert success.verified_functional_execution is not None
 

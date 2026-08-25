@@ -1,5 +1,5 @@
 {
-  "format": "functional_plan/v2",
+  "format": "functional_plan/v3",
   "root_scope": {
     "scope_ref": "problem",
     "steps": [
@@ -55,10 +55,13 @@
             "args": {
               "right_angle_equal_length": "right_angle_equal_length_m_d_n_dm_dn"
             },
-            "output_targets": {
-              "selected_target_point": "N"
-            },
-            "intent": "利用直角、等长和象限条件确定点 N 的含参坐标。"
+            "intent": "利用直角、等长和象限条件确定点 N 的含参坐标。",
+            "return_bindings": {
+              "selected_target_point": {
+                "kind": "existing",
+                "ref": "N"
+              }
+            }
           },
           {
             "step_id": "ii_derive_parabola",
@@ -73,10 +76,13 @@
                 "m"
               ]
             },
-            "output_targets": {
-              "parabola": "parabola"
-            },
-            "intent": "利用 M、N 在抛物线上及系数关系，建立关于参数 m 的抛物线。"
+            "intent": "利用 M、N 在抛物线上及系数关系，建立关于参数 m 的抛物线。",
+            "return_bindings": {
+              "parabola": {
+                "kind": "existing",
+                "ref": "parabola"
+              }
+            }
           },
           {
             "step_id": "ii_compute_F",
@@ -84,10 +90,13 @@
             "args": {
               "midpoint_definition": "midpoint_definition_d_n_f"
             },
-            "output_targets": {
-              "midpoint": "F"
-            },
-            "intent": "由中点定义计算路径变换所需固定端点的坐标。"
+            "intent": "由中点定义计算路径变换所需固定端点的坐标。",
+            "return_bindings": {
+              "midpoint": {
+                "kind": "existing",
+                "ref": "F"
+              }
+            }
           },
           {
             "step_id": "ii_reduce_path",
@@ -125,10 +134,13 @@
                   "p1": "M",
                   "p2": "N"
                 },
-                "output_targets": {
-                  "parameter_value": "m"
-                },
-                "intent": "由 MN 的长度条件求参数 m。"
+                "intent": "由 MN 的长度条件求参数 m。",
+                "return_bindings": {
+                  "parameter_value": {
+                    "kind": "existing",
+                    "ref": "m"
+                  }
+                }
               }
             ],
             "goals": [
@@ -189,10 +201,13 @@
                   },
                   "minimum_value": "minimum_value"
                 },
-                "output_targets": {
-                  "parameter_value": "m"
-                },
-                "intent": "由给定最小值和共享最小值表达式反求参数 m。"
+                "intent": "由给定最小值和共享最小值表达式反求参数 m。",
+                "return_bindings": {
+                  "parameter_value": {
+                    "kind": "existing",
+                    "ref": "m"
+                  }
+                }
               }
             ],
             "goals": [

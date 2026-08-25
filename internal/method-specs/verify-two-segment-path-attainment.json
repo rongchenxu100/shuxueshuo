@@ -1,0 +1,114 @@
+{
+  "method_id": "verify_two_segment_path_attainment",
+  "title": "验证两段路径达到候选值",
+  "description": "Verify that a candidate point attains the global two-segment minimum.",
+  "summary": "",
+  "solves": [
+    "verify_two_segment_path_attainment"
+  ],
+  "inputs": {
+    "objective": {
+      "required": true,
+      "allows_anonymous_result": true,
+      "domain_type": "Expression",
+      "runtime_type": "Expression|MinimumExpression",
+      "view": {
+        "mode": "exact_result",
+        "domain_type": "Expression"
+      }
+    },
+    "candidate": {
+      "required": true,
+      "allows_anonymous_result": true,
+      "domain_type": "Expression",
+      "runtime_type": "Expression|MinimumExpression",
+      "view": {
+        "mode": "exact_result",
+        "domain_type": "Expression"
+      }
+    },
+    "candidate_point": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    },
+    "path_start": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    },
+    "path_end": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    },
+    "segment_start": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    },
+    "segment_end": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    },
+    "domain_condition": {
+      "required": false,
+      "domain_type": "Fact",
+      "runtime_type": "Condition",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "Fact"
+      }
+    }
+  },
+  "outputs": {
+    "verified": "Boolean"
+  },
+  "is_pure": true,
+  "predicate_publications": [
+    {
+      "output_name": "verified",
+      "condition_kind": "path_minimum_attained",
+      "related_input_roles": [
+        "objective",
+        "candidate",
+        "candidate_point",
+        "path_start",
+        "path_end",
+        "segment_start",
+        "segment_end"
+      ]
+    }
+  ]
+}

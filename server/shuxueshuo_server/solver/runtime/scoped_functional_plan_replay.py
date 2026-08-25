@@ -14,6 +14,7 @@ from shuxueshuo_server.solver.extraction.problem_planning_context import (
 )
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
+    family_capability_bundle_for_inputs,
 )
 from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
     FunctionalRestoredCallSeed,
@@ -65,7 +66,7 @@ class ScopedFunctionalPlanAuthoringResult:
 
 
 class ScopedFunctionalPlanReplayService:
-    """Parse v2, prove authoring authority, then reuse the typed v1 runtime."""
+    """Parse v3, prove authoring authority, then reuse the typed v1 runtime."""
 
     def replay_raw_json(
         self,
@@ -97,10 +98,7 @@ class ScopedFunctionalPlanReplayService:
             scoped,
             planning_context=planning_context,
             binding_catalog=problem_binding_catalog,
-            capability_catalog=FunctionalCapabilityCatalog.from_family_spec(
-                inputs.family_spec,
-                inputs.method_specs,
-            ),
+            capability_catalog=family_capability_bundle_for_inputs(inputs).catalog,
         )
         replay_service = PlannerRetryReplayService(
             functional_transaction_mode="context_authoritative",
@@ -132,7 +130,7 @@ class ScopedFunctionalPlanReplayService:
             raise ScopedFunctionalPlanError(
                 "functional.step_scope_authority_drift",
                 "$.reconciliation",
-                "v2 replay did not produce reconciliation authority",
+                "v3 replay did not produce reconciliation authority",
             )
         finalized, finalization_report = authority.finalize_reconciliation(
             reconciliation
@@ -185,10 +183,7 @@ class ScopedFunctionalPlanReplayService:
             frame=FunctionalPlanAuthorityFrame.from_planning_context(
                 planning_context
             ),
-            capability_catalog=FunctionalCapabilityCatalog.from_family_spec(
-                inputs.family_spec,
-                inputs.method_specs,
-            ),
+            capability_catalog=family_capability_bundle_for_inputs(inputs).catalog,
         )
         if compilation.plan is None:
             first = compilation.report.issues[0]

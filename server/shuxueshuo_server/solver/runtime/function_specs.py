@@ -12,12 +12,14 @@ from dataclasses import dataclass, replace
 from typing import Any, Callable, Literal, Mapping
 
 from shuxueshuo_server.solver.contracts import (
+    FunctionalReturnNamingSpec,
     LatestStateSourceSpec,
     MethodInputBindingSpec,
     MethodInputViewMode,
     MethodSpec,
     OrdinalZeroTemplateDerivationSpec,
     PlanTransformerScope,
+    PredicatePublicationSpec,
     ScalarResultFormSpec,
     SymbolicClosureSpec,
     default_result_form_spec,
@@ -167,6 +169,8 @@ class FunctionReturnSpec:
     return_binding: FunctionalReturnBindingPolicy = "auto"
     output_target_selector: FunctionalOutputTargetSelectorSpec | None = None
     materialization_policy: Literal["on_demand", "always"] = "on_demand"
+    naming: FunctionalReturnNamingSpec = FunctionalReturnNamingSpec()
+    predicate_publication: PredicatePublicationSpec | None = None
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -209,6 +213,12 @@ class FunctionReturnSpec:
             )
         if self.materialization_policy != "on_demand":
             payload["materialization_policy"] = self.materialization_policy
+        if self.naming.mode != "anonymous":
+            payload["naming"] = self.naming.to_payload()
+        if self.predicate_publication is not None:
+            payload["predicate_publication"] = (
+                self.predicate_publication.to_payload()
+            )
         return payload
 
 
@@ -657,24 +667,32 @@ def function_spec_from_method(
     companion_output_names = {
         item.output_name for item in method_spec.companion_outputs
     }
+    predicate_publications = {
+        item.output_name: item
+        for item in method_spec.predicate_publications
+    }
     for output_name, output_type in method_spec.outputs.items():
         if output_name in method_spec.internal_outputs:
             continue
+        predicate_publication = predicate_publications.get(output_name)
+        public_output_type = (
+            "Condition" if predicate_publication is not None else output_type
+        )
         contract_write = _function_return_contract_write(
             contract,
             output_name=output_name,
-            output_type=output_type,
+            output_type=public_output_type,
         )
         identity_policy, identity_arg = _function_return_identity(
             method_spec,
-            output_type=output_type,
+            output_type=public_output_type,
             adapter=adapter,
             contract_write=contract_write,
         )
         write_mode = _function_return_write_mode(
             contract,
             method_spec=method_spec,
-            output_type=output_type,
+            output_type=public_output_type,
             identity_policy=identity_policy,
             identity_arg=identity_arg,
         )
@@ -682,28 +700,30 @@ def function_spec_from_method(
             FunctionReturnSpec(
                 name=functional_output_names.get(output_name, output_name),
                 output_key=output_name,
-                runtime_type=output_type,
+                runtime_type=public_output_type,
                 state_kind=(
                     contract_write.state_kind
                     if contract_write is not None
-                    else state_kind_for_runtime_type(output_type)
+                    else state_kind_for_runtime_type(public_output_type)
                 ),
                 object_kind=(
                     contract_write.object_kind
                     if contract_write is not None
-                    else object_kind_for_runtime_type(output_type)
+                    else object_kind_for_runtime_type(public_output_type)
                 ),
                 required=_function_return_required(
                     contract,
                     output_name=output_name,
-                    output_type=output_type,
+                    output_type=public_output_type,
                     output_count=len(method_spec.outputs),
                 ),
                 semantic_role=_function_return_semantic_role(
                     contract,
                     output_name=output_name,
-                    output_type=output_type,
-                ),
+                    output_type=public_output_type,
+                )
+                if predicate_publication is None
+                else predicate_publication.condition_kind,
                 identity_policy=identity_policy,
                 identity_arg=identity_arg,
                 write_mode=write_mode,
@@ -719,7 +739,7 @@ def function_spec_from_method(
                         if contract_write is not None
                         else None
                     )
-                    or default_result_form_spec(output_type)
+                    or default_result_form_spec(public_output_type)
                 ),
                 provides_semantic_roles=(
                     contract_write.provides_semantic_roles
@@ -739,7 +759,11 @@ def function_spec_from_method(
                 return_binding=(
                     contract_write.return_binding
                     if contract_write is not None
-                    else "auto"
+                    else (
+                        "call_local_allowed"
+                        if predicate_publication is not None
+                        else "auto"
+                    )
                 ),
                 output_target_selector=(
                     replace(
@@ -772,6 +796,23 @@ def function_spec_from_method(
                     if output_name in companion_output_names
                     else "on_demand"
                 ),
+                naming=_function_return_naming(
+                    public_name=functional_output_names.get(
+                        output_name,
+                        output_name,
+                    ),
+                    return_binding=(
+                        contract_write.return_binding
+                        if contract_write is not None
+                        else (
+                            "call_local_allowed"
+                            if predicate_publication is not None
+                            else "auto"
+                        )
+                    ),
+                    identity_policy=identity_policy,
+                ),
+                predicate_publication=predicate_publication,
             )
         )
     return FunctionSpec(
@@ -813,6 +854,30 @@ def function_spec_from_method(
         symbolic_closure=method_spec.symbolic_closure,
         notes=tuple(unique_ordered(notes)),
     )
+
+
+def _function_return_naming(
+    *,
+    public_name: str,
+    return_binding: FunctionalReturnBindingPolicy,
+    identity_policy: StateIdentityPolicy,
+) -> FunctionalReturnNamingSpec:
+    """Project legacy return policy into one explicit local-name contract."""
+
+    if return_binding == "call_local_allowed":
+        return FunctionalReturnNamingSpec(
+            mode="optional_default",
+            default_name=public_name,
+        )
+    if return_binding == "internal_only" or identity_policy == "derived_role":
+        return FunctionalReturnNamingSpec()
+    if return_binding in {
+        "auto",
+        "external_allowed",
+        "explicit_external_required",
+    } or identity_policy == "preserve_input_object":
+        return FunctionalReturnNamingSpec(mode="existing_only")
+    return FunctionalReturnNamingSpec()
 
 
 def _validate_functional_name_mapping(

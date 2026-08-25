@@ -18,13 +18,13 @@ CORE_INVARIANT_TESTS = (
     "tests/solver/test_scoped_functional_plan_authority.py",
     "tests/solver/test_method_input_read_authority.py",
     "tests/solver/test_method_output_write_authority.py",
-    "tests/solver/test_functional_goal_checkpoint_v3.py",
+    "tests/solver/test_functional_goal_checkpoint_v4.py",
 )
 
 CONTRACT_TEST_FILES = frozenset(
     {
         "test_functional_direct_compiler.py",
-        "test_functional_goal_checkpoint_v3.py",
+        "test_functional_goal_checkpoint_v4.py",
         "test_functional_goal_execution.py",
         "test_functional_goal_repair.py",
         "test_functional_goal_retry_execution.py",
@@ -85,7 +85,7 @@ OWNERSHIP_RULES = (
             "tests/solver/test_functional_goal_execution.py",
             "tests/solver/test_functional_goal_repair.py",
             "tests/solver/test_functional_goal_retry_execution.py",
-            "tests/solver/test_functional_goal_checkpoint_v3.py",
+            "tests/solver/test_functional_goal_checkpoint_v4.py",
             "tests/solver/test_scoped_functional_plan_replay.py",
         ),
     ),

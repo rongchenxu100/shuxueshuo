@@ -1229,7 +1229,9 @@ class FunctionalProblemBindingLedger:
                 f"$.calls[{call_id!r}]",
                 "Macro preparation and F5-C draft identify different Problem authority",
             )
-        chosen_roles = dict(preparation_authority.winner.candidate.roles)
+        chosen_roles = dict(
+            preparation_authority.winner.candidate.role_bindings
+        )
         catalog = self.draft.source_catalog
         if not isinstance(catalog, ProblemPlanningBindingCatalog):
             raise _error(
@@ -3523,6 +3525,11 @@ def _bind_plan_goals(
                             details={"return_name": return_name},
                         )
                     )
+                continue
+            if binding.from_step == call_id:
+                # content/v3 derived bindings are allocated by this call and
+                # are governed by the scoped Plan symbol table. They are not
+                # pre-existing ProblemIR objects in the binding catalog.
                 continue
             try:
                 return_target = catalog.resolve_input_binding(

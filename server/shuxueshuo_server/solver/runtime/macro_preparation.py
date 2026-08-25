@@ -4,71 +4,28 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field, replace
 from types import MappingProxyType
-from typing import Any, Callable, Iterable, Mapping, Sequence
+from typing import Any, Callable, Mapping
 
-from shuxueshuo_server.solver.contracts import (
-    ExactCallResultSourceSpec,
-    MacroPreparedRoleSourceSpec,
-    MacroSearchSpec,
-    MethodInputBindingSpec,
-    PreviousOutputIdentityDerivationSpec,
-)
+from shuxueshuo_server.solver.contracts import MacroSearchSpec
 from shuxueshuo_server.solver.extraction.source_identity import stable_hash
-from shuxueshuo_server.solver.runtime.macro_runtime_search import (
-    MacroCandidateEvaluation,
-    MacroExecutionCandidate,
-    MacroRuntimeSearchError,
-    MacroRuntimeSearchReport,
-    MacroRuntimeSearchService,
+from shuxueshuo_server.solver.runtime.functional_subplan import (
+    CandidateEvaluation,
+    CandidateSearchReport,
+    GenericCandidateSearchService,
+    SearchCandidate,
+    VerifiedSubplanSearchError,
 )
-
-
-@dataclass(frozen=True)
-class MacroRoleAssignmentCandidate:
-    """One scope-safe public-role assignment before Method lowering."""
-
-    candidate_id: str
-    roles: Mapping[str, str]
-    dependency_handles: tuple[str, ...]
-    fact_handles: Mapping[str, str] = field(default_factory=dict)
-    call_count: int = 0
-    symbolic_complexity: int = 0
-
-    def __post_init__(self) -> None:
-        if not self.candidate_id:
-            raise ValueError("Macro candidate_id must be non-empty")
-        roles = dict(sorted(self.roles.items()))
-        if not roles or any(not key or not value for key, value in roles.items()):
-            raise ValueError("Macro role assignment must be complete")
-        object.__setattr__(self, "roles", MappingProxyType(roles))
-        object.__setattr__(
-            self,
-            "dependency_handles",
-            tuple(sorted(set(self.dependency_handles))),
-        )
-        object.__setattr__(
-            self,
-            "fact_handles",
-            MappingProxyType(dict(sorted(self.fact_handles.items()))),
-        )
-
-    def execution_candidate(self) -> MacroExecutionCandidate:
-        return MacroExecutionCandidate(
-            candidate_id=self.candidate_id,
-            roles=self.roles,
-            call_count=self.call_count,
-            symbolic_complexity=self.symbolic_complexity,
-        )
-
-    def authority_payload(self) -> dict[str, Any]:
-        return {
-            "candidate_id": self.candidate_id,
-            "roles": dict(self.roles),
-            "dependency_handles": list(self.dependency_handles),
-            "fact_handles": dict(self.fact_handles),
-            "call_count": self.call_count,
-            "symbolic_complexity": self.symbolic_complexity,
-        }
+from shuxueshuo_server.solver.runtime.macro_definitions import (
+    MacroDefinitionPreparationContext,
+    MacroDefinitionRegistry,
+    MacroDefinitionError,
+    MacroExpansionRequest,
+    build_point_name_candidates,
+    default_macro_definition_registry,
+)
+from shuxueshuo_server.solver.runtime.macro_runtime_search import (
+    MacroRuntimeSearchError,
+)
 
 
 @dataclass(frozen=True)
@@ -77,26 +34,12 @@ class MacroPreparationEnvironment:
 
     prepared_call: Any = field(repr=False, compare=False)
     handle_registry: Any = field(repr=False, compare=False)
+    binding_catalog: Any = field(repr=False, compare=False)
     max_candidates: int
 
     def __post_init__(self) -> None:
         if self.max_candidates <= 0:
             raise ValueError("Macro max_candidates must be positive")
-
-
-@dataclass(frozen=True)
-class MacroImplementationPreparationContext:
-    """Implementation-owned candidate input and its scope-safe envelope."""
-
-    payload: Any = field(repr=False, compare=False)
-    candidate_dependency_envelope: tuple[str, ...]
-
-    def __post_init__(self) -> None:
-        object.__setattr__(
-            self,
-            "candidate_dependency_envelope",
-            tuple(sorted(set(self.candidate_dependency_envelope))),
-        )
 
 
 @dataclass(frozen=True)
@@ -152,7 +95,7 @@ class MacroCandidateBindingAuthority:
     macro_id: str
     call_id: str
     scope_id: str
-    candidate: MacroRoleAssignmentCandidate
+    candidate: SearchCandidate
     allowed_source_handles: tuple[str, ...]
     upstream_exact_state_signature: str
     binding_signature: str = field(init=False)
@@ -168,7 +111,7 @@ class MacroCandidateBindingAuthority:
             "macro_id": self.macro_id,
             "call_id": self.call_id,
             "scope_id": self.scope_id,
-            "candidate": self.candidate.authority_payload(),
+            "candidate": self.candidate.to_payload(),
             "allowed_source_handles": list(self.allowed_source_handles),
             "upstream_exact_state_signature": self.upstream_exact_state_signature,
         }
@@ -193,7 +136,7 @@ class MacroPreparationAuthority:
     candidate_dependency_envelope: tuple[str, ...]
     upstream_exact_state_signature: str
     winner: MacroCandidateBindingAuthority
-    search_report: MacroRuntimeSearchReport
+    search_report: CandidateSearchReport
     preparation_signature: str = field(init=False)
     schema_version: str = "macro-preparation-authority/v1"
 
@@ -254,227 +197,17 @@ class PreparedMacroInvocation:
     debug_only: bool = False
 
 
-@dataclass(frozen=True)
-class MacroMethodInputBindingSpec:
-    """Registry-owned source contract for one internal Method input."""
-
-    method_id: str
-    input_name: str
-    binding: MethodInputBindingSpec
-
-    def __post_init__(self) -> None:
-        if not self.method_id or not self.input_name:
-            raise ValueError("Macro Method input binding names must be non-empty")
-        source = self.binding.source
-        derivation = self.binding.derivation
-        if not (
-            isinstance(
-                source,
-                (MacroPreparedRoleSourceSpec, ExactCallResultSourceSpec),
-            )
-            or isinstance(
-                derivation,
-                PreviousOutputIdentityDerivationSpec,
-            )
-        ):
-            raise ValueError(
-                "planner.macro_contract_invalid: internal Method input must "
-                "come from a prepared role, exact invocation result, or "
-                "output identity"
-            )
-        if self.binding.input_name != self.input_name:
-            raise ValueError(
-                "planner.macro_contract_invalid: internal Method input name "
-                "differs from its typed binding"
-            )
-
-    @property
-    def target(self) -> str:
-        return f"{self.method_id}.{self.input_name}"
-
-
-MacroCandidateBuilder = Callable[
-    [MacroPreparationRequest], Sequence[MacroRoleAssignmentCandidate]
-]
-MacroPreparationContextBuilder = Callable[
-    [MacroPreparationRequest], MacroImplementationPreparationContext
-]
-MacroCandidateLowerer = Callable[[Any, MacroCandidateBindingAuthority], Any]
-MacroPostcondition = Callable[[Any], Sequence[str]]
-MacroEvidenceBuilder = Callable[..., Any]
-
-
-@dataclass(frozen=True)
-class MacroImplementation:
-    implementation_id: str
-    macro_id: str
-    candidate_builder_id: str
-    validation_policy_id: str
-    lowerer_id: str
-    postcondition_id: str
-    evidence_builder_id: str
-    preparation_context_builder: MacroPreparationContextBuilder
-    candidate_builder: MacroCandidateBuilder
-    lowerer: MacroCandidateLowerer
-    postcondition: MacroPostcondition
-    evidence_builder: MacroEvidenceBuilder
-    method_input_bindings: tuple[MacroMethodInputBindingSpec, ...] = ()
-
-
-class MacroImplementationRegistry:
-    """Runtime-owned executable implementations for search-capable Macros."""
-
-    def __init__(self, implementations: Iterable[MacroImplementation] = ()) -> None:
-        self._items: dict[str, MacroImplementation] = {}
-        for implementation in implementations:
-            self.register(implementation)
-
-    def register(self, implementation: MacroImplementation) -> None:
-        if implementation.macro_id in self._items:
-            raise ValueError(
-                f"duplicate Macro implementation {implementation.macro_id}"
-            )
-        targets = tuple(
-            item.target for item in implementation.method_input_bindings
-        )
-        if len(set(targets)) != len(targets):
-            raise ValueError(
-                "planner.macro_contract_invalid: duplicate internal Method "
-                f"input binding for {implementation.macro_id}"
-            )
-        self._items[implementation.macro_id] = implementation
-
-    def require(
-        self,
-        macro_id: str,
-        search_spec: MacroSearchSpec,
-    ) -> MacroImplementation:
-        implementation = self._items.get(macro_id)
-        if implementation is None:
-            raise ValueError(
-                "planner.macro_contract_invalid: runtime_search Macro has no "
-                f"implementation: {macro_id}"
-            )
-        expected = {
-            "candidate_builder_id": search_spec.candidate_builder_id,
-            "validation_policy_id": search_spec.validation_policy_id,
-            "lowerer_id": search_spec.lowerer_id,
-            "postcondition_id": search_spec.postcondition_id,
-            "evidence_builder_id": search_spec.evidence_builder_id,
-        }
-        actual = {
-            name: getattr(implementation, name) for name in expected
-        }
-        if any(value is None for value in expected.values()) or actual != expected:
-            raise ValueError(
-                "planner.macro_contract_invalid: Macro search spec and "
-                f"implementation differ for {macro_id}"
-            )
-        return implementation
-
-    def require_lowering_contract(
-        self,
-        macro_id: str,
-        search_spec: MacroSearchSpec,
-        *,
-        macro_spec: Any,
-        method_specs: Any,
-    ) -> MacroImplementation:
-        implementation = self.require(macro_id, search_spec)
-        prepared_roles = {
-            item.binding.source.role
-            for item in implementation.method_input_bindings
-            if isinstance(
-                item.binding.source,
-                MacroPreparedRoleSourceSpec,
-            )
-        }
-        if prepared_roles != set(search_spec.searchable_roles):
-            raise ValueError(
-                "planner.macro_contract_invalid: prepared Method role wiring "
-                f"differs for {macro_id}: expected="
-                f"{sorted(search_spec.searchable_roles)}, observed="
-                f"{sorted(prepared_roles)}"
-            )
-        internal_order = {
-            item.capability_id: item.order
-            for item in macro_spec.internal_calls
-        }
-        by_target = {
-            item.target: item for item in implementation.method_input_bindings
-        }
-        missing_strategy_targets = set(
-            macro_spec.adapter.strategy_input_targets
-        ) - set(by_target)
-        if missing_strategy_targets:
-            raise ValueError(
-                "planner.macro_contract_invalid: Registry does not own all "
-                f"strategy inputs for {macro_id}: "
-                f"{sorted(missing_strategy_targets)}"
-            )
-        for item in implementation.method_input_bindings:
-            if item.method_id not in internal_order:
-                raise ValueError(
-                    "planner.macro_contract_invalid: Registry references a "
-                    f"non-internal Method: {macro_id}.{item.method_id}"
-                )
-            method = method_specs.require(item.method_id)
-            input_spec = method.inputs.get(item.input_name)
-            if input_spec is None:
-                raise ValueError(
-                    "planner.macro_contract_invalid: Registry references an "
-                    f"unknown Method input: {macro_id}.{item.target}"
-                )
-            source = item.binding.source
-            derivation = item.binding.derivation
-            if isinstance(source, ExactCallResultSourceSpec):
-                source_method, separator, return_name = (
-                    source.arg_name.partition(".")
-                )
-                if (
-                    not separator
-                    or source_method not in internal_order
-                    or return_name
-                    not in method_specs.require(source_method).outputs
-                    or internal_order[source_method] >= internal_order[item.method_id]
-                ):
-                    raise ValueError(
-                        "planner.macro_contract_invalid: invalid internal "
-                        f"result wiring {source.arg_name!r} -> {item.target}"
-                    )
-            if isinstance(
-                derivation,
-                PreviousOutputIdentityDerivationSpec,
-            ) and derivation.output_name not in method.outputs:
-                raise ValueError(
-                    "planner.macro_contract_invalid: output identity wiring "
-                    f"references {item.method_id}.{derivation.output_name}"
-                )
-        for source, target in macro_spec.adapter.intermediate_wiring:
-            binding = by_target.get(target)
-            if not (
-                binding is not None
-                and isinstance(
-                    binding.binding.source,
-                    ExactCallResultSourceSpec,
-                )
-                and binding.binding.source.arg_name == source
-            ):
-                raise ValueError(
-                    "planner.macro_contract_invalid: intermediate wiring is "
-                    f"not Registry-owned: {source} -> {target}"
-                )
-        return implementation
-
-
 MacroPreparationEvaluator = Callable[
-    [MacroCandidateBindingAuthority], MacroCandidateEvaluation
+    [MacroCandidateBindingAuthority], CandidateEvaluation
 ]
 
 
 class MacroPreparationService:
-    def __init__(self, registry: MacroImplementationRegistry) -> None:
-        self._registry = registry
+    def __init__(
+        self,
+        definitions: MacroDefinitionRegistry | None = None,
+    ) -> None:
+        self._definitions = definitions or default_macro_definition_registry()
 
     def prepare(
         self,
@@ -483,11 +216,18 @@ class MacroPreparationService:
         search_spec: MacroSearchSpec,
         evaluator: MacroPreparationEvaluator,
     ) -> PreparedMacroInvocation:
-        implementation = self._registry.require(request.macro_id, search_spec)
-        preparation_context = implementation.preparation_context_builder(request)
+        definition = self._definitions.require(request.macro_id)
+        if not definition.accepts_search_contract(search_spec):
+            raise MacroRuntimeSearchError(
+                "planner.macro_contract_invalid",
+                "Macro catalog search contract differs from its Definition",
+                retryability="configuration",
+                details={"macro_id": request.macro_id},
+            )
+        preparation_context = definition.preparation_context_builder(request)
         if not isinstance(
             preparation_context,
-            MacroImplementationPreparationContext,
+            MacroDefinitionPreparationContext,
         ):
             raise MacroRuntimeSearchError(
                 "planner.macro_contract_invalid",
@@ -502,15 +242,33 @@ class MacroPreparationService:
                 preparation_context.candidate_dependency_envelope
             ),
         )
-        candidates = tuple(implementation.candidate_builder(request))
+        try:
+            candidates = tuple(
+                definition.expander(
+                    MacroExpansionRequest(
+                        macro_id=request.macro_id,
+                        call_id=request.call_id,
+                        scope_id=request.scope_id,
+                        authored_roles=request.authored_roles,
+                        builder_context=request.builder_context,
+                        max_candidates=search_spec.max_candidates,
+                    )
+                )
+            )
+        except MacroDefinitionError as exc:
+            raise MacroRuntimeSearchError(
+                exc.code,
+                str(exc),
+                retryability=(
+                    "planner_repairable" if exc.retryable else "configuration"
+                ),
+                details={"macro_id": request.macro_id, **exc.details},
+            ) from exc
         dependency_envelope = frozenset(
             request.candidate_dependency_envelope
         )
         for candidate in candidates:
-            candidate_sources = {
-                *candidate.dependency_handles,
-                *candidate.fact_handles.values(),
-            }
+            candidate_sources = set(candidate.dependency_envelope)
             outside = tuple(sorted(candidate_sources - dependency_envelope))
             if outside:
                 raise MacroRuntimeSearchError(
@@ -529,14 +287,7 @@ class MacroPreparationService:
                 call_id=request.call_id,
                 scope_id=request.scope_id,
                 candidate=item,
-                allowed_source_handles=tuple(
-                    sorted(
-                        {
-                            *item.dependency_handles,
-                            *item.fact_handles.values(),
-                        }
-                    )
-                ),
+                allowed_source_handles=item.dependency_envelope,
                 upstream_exact_state_signature=(
                     request.upstream_exact_state_signature
                 ),
@@ -544,16 +295,29 @@ class MacroPreparationService:
             for item in candidates
         }
 
-        def evaluate(candidate: MacroExecutionCandidate) -> MacroCandidateEvaluation:
+        def evaluate(candidate: SearchCandidate) -> CandidateEvaluation:
             return evaluator(authorities[candidate.candidate_id])
 
-        winner, report = MacroRuntimeSearchService().search(
-            macro_id=request.macro_id,
-            spec=search_spec,
-            candidates=tuple(item.execution_candidate() for item in candidates),
-            authored_roles=request.authored_roles,
-            evaluator=evaluate,
-        )
+        try:
+            winner, report, _shadow_winner = (
+                GenericCandidateSearchService().search(
+                    macro_id=request.macro_id,
+                    candidates=candidates,
+                    evaluator=evaluate,
+                    max_candidates=search_spec.max_candidates,
+                    selection=definition.selection,
+                    authored_roles=request.authored_roles,
+                )
+            )
+        except VerifiedSubplanSearchError as exc:
+            raise MacroRuntimeSearchError(
+                exc.code,
+                str(exc),
+                retryability=(
+                    "planner_repairable" if exc.retryable else "configuration"
+                ),
+                details={"macro_id": request.macro_id, **exc.details},
+            ) from exc
         winner_authority = authorities[winner.candidate_id]
         authority = MacroPreparationAuthority(
             planning_context_id=request.planning_context_id,
@@ -564,7 +328,7 @@ class MacroPreparationService:
             goal_unit_ids=request.goal_unit_ids,
             scope_id=request.scope_id,
             macro_id=request.macro_id,
-            implementation_id=implementation.implementation_id,
+            implementation_id=definition.implementation_id,
             catalog_signature=request.catalog_signature,
             authored_roles=request.authored_roles,
             candidate_dependency_envelope=(
@@ -577,100 +341,20 @@ class MacroPreparationService:
             search_report=report,
         )
         return PreparedMacroInvocation(
-            implementation_id=implementation.implementation_id,
+            implementation_id=definition.implementation_id,
             authority=authority,
         )
 
 
-def default_macro_implementation_registry() -> MacroImplementationRegistry:
-    """Return the production registry; only implemented search Macros live here."""
-
-    return MacroImplementationRegistry(
-        (
-            MacroImplementation(
-                implementation_id="equal-length-ray-path/v1",
-                macro_id="equal_length_ray_path_reduction",
-                candidate_builder_id="equal_length_ray_role_assignments",
-                validation_policy_id="distance_equivalence_and_provenance",
-                lowerer_id="equal_length_ray_path_reduction",
-                postcondition_id="equal_length_ray_path_postcondition",
-                evidence_builder_id="equal_length_ray_path_witness",
-                preparation_context_builder=(
-                    _build_equal_length_ray_preparation_context
-                ),
-                candidate_builder=_build_equal_length_ray_candidates,
-                lowerer=_lower_equal_length_ray_candidate,
-                postcondition=_equal_length_ray_postcondition,
-                evidence_builder=_equal_length_ray_evidence,
-                method_input_bindings=(
-                    MacroMethodInputBindingSpec(
-                        "equal_length_ray_point",
-                        "anchor",
-                        MethodInputBindingSpec(
-                            input_name="anchor",
-                            source=MacroPreparedRoleSourceSpec("anchor"),
-                        ),
-                    ),
-                    MacroMethodInputBindingSpec(
-                        "equal_length_ray_point",
-                        "reference_point",
-                        MethodInputBindingSpec(
-                            input_name="reference_point",
-                            source=MacroPreparedRoleSourceSpec(
-                                "reference_point"
-                            ),
-                        ),
-                    ),
-                    MacroMethodInputBindingSpec(
-                        "equal_length_ray_point",
-                        "ray_point",
-                        MethodInputBindingSpec(
-                            input_name="ray_point",
-                            source=MacroPreparedRoleSourceSpec("ray_point"),
-                        ),
-                    ),
-                    MacroMethodInputBindingSpec(
-                        "equal_length_ray_point",
-                        "target",
-                        MethodInputBindingSpec(
-                            input_name="target",
-                            derivation=PreviousOutputIdentityDerivationSpec(
-                                "point"
-                            ),
-                        ),
-                    ),
-                    MacroMethodInputBindingSpec(
-                        "distance_between_points",
-                        "p1",
-                        MethodInputBindingSpec(
-                            input_name="p1",
-                            source=MacroPreparedRoleSourceSpec("fixed_point"),
-                        ),
-                    ),
-                    MacroMethodInputBindingSpec(
-                        "distance_between_points",
-                        "p2",
-                        MethodInputBindingSpec(
-                            input_name="p2",
-                            source=ExactCallResultSourceSpec(
-                                "equal_length_ray_point.point"
-                            ),
-                        ),
-                    ),
-                ),
-            ),
-        )
-    )
-
-
 def _build_equal_length_ray_preparation_context(
     request: MacroPreparationRequest,
-) -> MacroImplementationPreparationContext:
+) -> MacroDefinitionPreparationContext:
     """Project generic execution state into this Macro's private context."""
 
     environment = request.environment
     prepared = getattr(environment, "prepared_call", None)
     handle_registry = getattr(environment, "handle_registry", None)
+    binding_catalog = getattr(environment, "binding_catalog", None)
     max_candidates = getattr(environment, "max_candidates", None)
     if (
         prepared is None
@@ -707,6 +391,18 @@ def _build_equal_length_ray_preparation_context(
     visible_scopes = set(
         handle_registry.ancestor_scopes(prepared.execution_scope_id)
     )
+    context["domain_facts"] = tuple(
+        sorted(
+            (
+                handle,
+                payload,
+            )
+            for handle, payload in handle_registry.fact_payloads.items()
+            if payload.get("type") == "symbol_constraint"
+            and handle_registry.handle_valid_scopes.get(handle)
+            in visible_scopes
+        )
+    )
     point_handles = tuple(
         sorted(
             handle
@@ -715,225 +411,59 @@ def _build_equal_length_ray_preparation_context(
             and handle_registry.handle_valid_scopes.get(handle) in visible_scopes
         )
     )
-    context["point_name_candidates"] = (
-        build_equal_length_ray_point_name_candidates(
-            point_handles=point_handles,
-            entity_payloads=handle_registry.entity_payloads,
+    context["point_name_candidates"] = build_point_name_candidates(
+        point_handles=point_handles,
+        entity_payloads=handle_registry.entity_payloads,
+    )
+    visible_scopes = frozenset(
+        handle_registry.ancestor_scopes(prepared.execution_scope_id)
+    )
+    source_refs_by_handle: dict[str, str] = {}
+    if binding_catalog is None:
+        source_refs_by_handle.update(
+            {
+                handle: handle.rsplit(":", 1)[-1]
+                for handle in (*handle_registry.entity_handles, *handle_registry.fact_handles)
+            }
         )
+    else:
+        for source in binding_catalog.bindings.values():
+            if source.usage != "input" or source.owner_scope_id not in visible_scopes:
+                continue
+            handle = source.runtime_node_id
+            ref = source.semantic_ref.ref
+            previous = source_refs_by_handle.get(handle)
+            if previous is not None and previous != ref:
+                raise MacroRuntimeSearchError(
+                    "planner.macro_contract_invalid",
+                    "one runtime source has multiple visible SemanticRefs",
+                    retryability="configuration",
+                    details={"runtime_node_id": handle},
+                )
+            source_refs_by_handle[handle] = ref
+    context["source_refs_by_handle"] = MappingProxyType(
+        dict(sorted(source_refs_by_handle.items()))
     )
     dependency_envelope = {
         *point_handles,
+        *(str(item[0]) for item in context["domain_facts"]),
         *(
             str(item[0])
             for group_name in fact_args
             for item in context[group_name]
         ),
     }
-    return MacroImplementationPreparationContext(
+    return MacroDefinitionPreparationContext(
         payload=MappingProxyType(context),
         candidate_dependency_envelope=tuple(sorted(dependency_envelope)),
     )
 
 
-def _build_equal_length_ray_candidates(
-    request: MacroPreparationRequest,
-) -> Sequence[MacroRoleAssignmentCandidate]:
-    return build_equal_length_ray_macro_role_candidates(
-        request.builder_context,
-    )
-
-
-def build_equal_length_ray_macro_role_candidates(
-    context: Mapping[str, Any] | object,
-) -> tuple[MacroRoleAssignmentCandidate, ...]:
-    """Build structured role candidates through the Macro-owned entrypoint."""
-
-    from shuxueshuo_server.solver.runtime.equal_length_ray_roles import (
-        EqualLengthRayRoleError,
-        build_equal_length_ray_role_candidates,
-    )
-
-    if not isinstance(context, Mapping):
-        raise ValueError(
-            "planner.macro_contract_invalid: equal-length candidate builder "
-            "requires structured Context"
-        )
-    entity_payloads = context.get("entity_payloads")
-    point_name_candidates = context.get("point_name_candidates")
-    if not isinstance(entity_payloads, Mapping) or not isinstance(
-        point_name_candidates,
-        Mapping,
-    ):
-        raise ValueError(
-            "planner.macro_contract_invalid: incomplete equal-length builder Context"
-        )
-
-    normalized_names: dict[str, tuple[str, ...]] = {}
-    for raw_name, raw_handles in point_name_candidates.items():
-        if (
-            not isinstance(raw_name, str)
-            or not raw_name
-            or not isinstance(raw_handles, Sequence)
-            or isinstance(raw_handles, (str, bytes))
-        ):
-            raise ValueError(
-                "planner.macro_contract_invalid: invalid point-name authority"
-            )
-        handles = tuple(
-            sorted(
-                {
-                    str(handle)
-                    for handle in raw_handles
-                    if isinstance(handle, str) and handle
-                }
-            )
-        )
-        if len(handles) != len(raw_handles) or not handles:
-            raise ValueError(
-                "planner.macro_contract_invalid: invalid point-name candidates"
-            )
-        normalized_names[raw_name] = handles
-
-    def resolve_point_name(name: str) -> str:
-        matches = normalized_names.get(name, ())
-        if len(matches) == 1:
-            return matches[0]
-        if not matches:
-            raise EqualLengthRayRoleError(
-                "point_name_unresolved",
-                "structured role point name is not visible",
-                details={"name": name, "candidate_count": 0},
-            )
-        raise EqualLengthRayRoleError(
-            "point_name_ambiguous",
-            "structured role point name resolves to multiple visible objects",
-            details={
-                "name": name,
-                "candidate_count": len(matches),
-                "candidates": matches,
-            },
-        )
-
-    def fact_group(name: str) -> tuple[tuple[str, Mapping[str, Any]], ...]:
-        value = context.get(name)
-        if not isinstance(value, Sequence) or isinstance(value, (str, bytes)):
-            return ()
-        return tuple(
-            (str(item[0]), item[1])
-            for item in value
-            if isinstance(item, Sequence)
-            and not isinstance(item, (str, bytes))
-            and len(item) == 2
-            and isinstance(item[1], Mapping)
-        )
-
-    try:
-        candidates = build_equal_length_ray_role_candidates(
-            ray_facts=fact_group("ray_facts"),
-            segment_facts=fact_group("segment_facts"),
-            equal_facts=fact_group("equal_facts"),
-            target_facts=fact_group("target_facts"),
-            entity_payload=lambda handle: entity_payloads[handle],
-            visible_point_handles=tuple(
-                handle
-                for handles in normalized_names.values()
-                for handle in handles
-            ),
-            resolve_point_name=resolve_point_name,
-            max_candidates=int(context.get("max_candidates", 32)),
-        )
-    except EqualLengthRayRoleError as exc:
-        code = {
-            "point_name_ambiguous": "planner.macro_point_name_ambiguous",
-            "point_name_unresolved": "planner.macro_point_name_unresolved",
-        }.get(exc.code, "planner.macro_contract_invalid")
-        raise MacroRuntimeSearchError(
-            code,
-            str(exc),
-            retryability="configuration",
-            details={
-                "macro_id": "equal_length_ray_path_reduction",
-                **exc.details,
-            },
-        ) from exc
-    return tuple(
-        MacroRoleAssignmentCandidate(
-            candidate_id=item.candidate_id,
-            roles=item.roles.to_payload(),
-            dependency_handles=tuple(
-                sorted(
-                    {
-                        *item.roles.to_payload().values(),
-                        *dict(item.fact_handles).values(),
-                    }
-                )
-            ),
-            fact_handles=dict(item.fact_handles),
-        )
-        for item in candidates
-    )
-
-
-def build_equal_length_ray_point_name_candidates(
-    *,
-    point_handles: Iterable[str],
-    entity_payloads: Mapping[str, Mapping[str, Any]],
-) -> Mapping[str, tuple[str, ...]]:
-    """Preserve every visible object behind a student-facing point label."""
-
-    by_name: dict[str, set[str]] = {}
-    for handle in point_handles:
-        payload = entity_payloads.get(handle, {})
-        name = str(payload.get("name", "")).strip() or handle.rsplit(":", 1)[-1]
-        by_name.setdefault(name, set()).add(handle)
-    return MappingProxyType(
-        {
-            name: tuple(sorted(handles))
-            for name, handles in sorted(by_name.items())
-        }
-    )
-
-
-def _lower_equal_length_ray_candidate(
-    value: Any,
-    authority: MacroCandidateBindingAuthority,
-) -> Any:
-    """Delegate immutable role replacement to the caller's lowering adapter."""
-
-    lower = getattr(value, "with_macro_roles", None)
-    return lower(dict(authority.candidate.roles)) if callable(lower) else value
-
-
-def _equal_length_ray_postcondition(value: Any) -> Sequence[str]:
-    checks = getattr(value, "checks", ())
-    return tuple(
-        str(getattr(item, "name", item))
-        for item in checks
-        if bool(getattr(item, "ok", True))
-    )
-
-
-def _equal_length_ray_evidence(*args: Any, **kwargs: Any) -> Any:
-    from shuxueshuo_server.solver.runtime.equal_length_ray_path_search import (
-        build_equal_length_ray_execution_witness,
-    )
-
-    return build_equal_length_ray_execution_witness(*args, **kwargs)
-
-
 __all__ = [
     "MacroCandidateBindingAuthority",
-    "MacroImplementation",
-    "MacroImplementationPreparationContext",
-    "MacroImplementationRegistry",
-    "MacroMethodInputBindingSpec",
     "MacroPreparationEnvironment",
     "MacroPreparationAuthority",
     "MacroPreparationRequest",
     "MacroPreparationService",
-    "MacroRoleAssignmentCandidate",
     "PreparedMacroInvocation",
-    "build_equal_length_ray_macro_role_candidates",
-    "build_equal_length_ray_point_name_candidates",
-    "default_macro_implementation_registry",
 ]

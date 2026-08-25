@@ -22,7 +22,6 @@ pytestmark = pytest.mark.solver_contract
 
 _OUTPUT_IDENTITIES = {
     ("axis_intercept_from_equal_acute_angles", "target"): "point",
-    ("equal_length_ray_point", "target"): "point",
     ("line_intersection_point", "target"): "intersection",
     ("line_locus_minimum_point", "target"): "point",
     ("line_parabola_second_intersection_point", "target"): "point",
@@ -133,9 +132,6 @@ def test_anonymous_straightening_endpoints_keep_two_exact_result_slots() -> None
 def test_c3_geometry_inputs_never_lower_through_compiler_selector() -> None:
     c3_inputs = set(_OUTPUT_IDENTITIES) | {
         ("angle_sum_equal_angle_candidates", "target"),
-        ("equal_length_ray_point", "anchor"),
-        ("equal_length_ray_point", "reference_point"),
-        ("equal_length_ray_point", "ray_point"),
         ("line_locus_minimum_point", "minimum_point_1"),
         ("line_locus_minimum_point", "minimum_point_2"),
         ("quadratic_x_axis_intercept_point", "known_point"),

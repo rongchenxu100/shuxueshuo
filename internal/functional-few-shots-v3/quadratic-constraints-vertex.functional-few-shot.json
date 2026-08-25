@@ -11,7 +11,7 @@
     ]
   },
   "plan": {
-    "format": "functional_plan/v2",
+    "format": "functional_plan/v3",
     "root_scope": {
       "scope_ref": "example",
       "goals": [
@@ -28,8 +28,8 @@
                   "coefficient_c"
                 ]
               },
-              "output_targets": {
-                "parabola": "curve"
+              "return_bindings": {
+                "parabola": {"kind": "existing", "ref": "curve"}
               },
               "intent": "代入已知系数确定二次函数。"
             },

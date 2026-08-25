@@ -1,5 +1,5 @@
 {
-  "format": "functional_plan/v2",
+  "format": "functional_plan/v3",
   "root_scope": {
     "scope_ref": "problem",
     "steps": [
@@ -9,10 +9,13 @@
         "args": {
           "quadratic": "parabola"
         },
-        "output_targets": {
-          "point": "C"
-        },
-        "intent": "令横坐标为零求题设抛物线的纵轴交点。"
+        "intent": "令横坐标为零求题设抛物线的纵轴交点。",
+        "return_bindings": {
+          "point": {
+            "kind": "existing",
+            "ref": "C"
+          }
+        }
       },
       {
         "step_id": "derive_translated_D_i",
@@ -20,10 +23,13 @@
         "args": {
           "source": "C"
         },
-        "output_targets": {
-          "point": "D"
-        },
-        "intent": "按题面平移定义由源点得到目标点。"
+        "intent": "按题面平移定义由源点得到目标点。",
+        "return_bindings": {
+          "point": {
+            "kind": "existing",
+            "ref": "D"
+          }
+        }
       }
     ],
     "children": [
@@ -72,10 +78,13 @@
                       "parabola": "parabola",
                       "known_point": "A"
                     },
-                    "output_targets": {
-                      "point": "B"
-                    },
-                    "intent": "求横轴上的另一个曲线交点。"
+                    "intent": "求横轴上的另一个曲线交点。",
+                    "return_bindings": {
+                      "point": {
+                        "kind": "existing",
+                        "ref": "B"
+                      }
+                    }
                   },
                   {
                     "step_id": "derive_equal_angle_i",
@@ -85,27 +94,27 @@
                     },
                     "intent": "把角和条件化为可直接使用的等锐角关系。"
                   },
-              {
-                "step_id": "derive_axis_intercept_F_i",
-                "capability_id": "axis_intercept_from_equal_acute_angles",
-                "args": {
+                  {
+                    "step_id": "derive_axis_intercept_F_i",
+                    "capability_id": "axis_intercept_from_equal_acute_angles",
+                    "args": {
                       "angle_equality": {
                         "step_id": "derive_equal_angle_i",
-                    "return": "angle_equality"
-                  }
-                },
-                "intent": "利用等锐角对应的正切比求纵轴截点。"
-              },
+                        "return": "angle_equality"
+                      }
+                    },
+                    "intent": "利用等锐角对应的正切比求纵轴截点。"
+                  },
                   {
                     "step_id": "derive_curve_intersection_E_i",
                     "capability_id": "line_parabola_second_intersection_point",
                     "args": {
                       "parabola": "parabola",
                       "line_p1": "B",
-                  "line_p2": {
-                    "step_id": "derive_axis_intercept_F_i",
-                    "return": "point"
-                  },
+                      "line_p2": {
+                        "step_id": "derive_axis_intercept_F_i",
+                        "return": "point"
+                      },
                       "known_point": "B"
                     },
                     "intent": "联立目标直线与抛物线并排除已知交点。"
@@ -142,10 +151,13 @@
                   "parabola": "parabola",
                   "known_point": "A"
                 },
-                "output_targets": {
-                  "point": "B"
-                },
-                "intent": "求含参抛物线的另一个横轴交点。"
+                "intent": "求含参抛物线的另一个横轴交点。",
+                "return_bindings": {
+                  "point": {
+                    "kind": "existing",
+                    "ref": "B"
+                  }
+                }
               },
               {
                 "step_id": "reduce_equal_length_ray_path_ii",

@@ -27,7 +27,7 @@ ProblemPlanningContext
 
 | 编译语言概念 | Functional Solver 对应物 |
 |---|---|
-| 源程序 | `functional_plan/v2` |
+| 源程序 | `functional_plan/v3` |
 | 公开指令 | `capability_id` |
 | 词法作用域 | Problem/Plan scope tree |
 | 源级引用 | `SourceRef`、`StepResultRef`、answer ref |
@@ -402,7 +402,7 @@ version lineage选择唯一ordinal-0根并注入。compiler supplied path、零�
 都属于configuration/authority错误，不能被执行层静默覆盖。
 
 具名实体不能通过 `StepResultRef`指定普通状态。即使某个 return 的 runtime 类型
-适合 `exact_result`，只要它已通过`output_targets`绑定到题面实体，后续就必须使用
+适合 `exact_result`，只要它已通过`return_bindings`的`existing`分支绑定到题面实体，后续就必须使用
 实体 ref。`StepResultRef`只用于没有稳定题面身份的候选集、路径见证、最小值表达式
 等匿名中间结果。
 

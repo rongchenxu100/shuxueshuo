@@ -20,6 +20,7 @@ from pathlib import Path
 import time
 from typing import Any
 
+from shuxueshuo_server.solver.contracts import StatelessMethodResult
 from shuxueshuo_server.solver.extraction.problem_planner_authority import (
     VerifiedPlannerProblemAuthority,
 )
@@ -294,7 +295,7 @@ class RuntimeOrchestrator:
                 or not checkpoint.all_required_goals_verified
             ):
                 raise ValueError(
-                    "planner.goal_checkpoint_v3_required: accepted scoped "
+                    "planner.goal_checkpoint_v4_required: accepted scoped "
                     "execution has no verified checkpoint v3"
                 )
             verified_execution = scoped_result.verified_execution
@@ -689,10 +690,20 @@ def _plan_execution_from_transaction(report: object) -> PlanExecutionResult:
     """Project the already executed transaction into public result artifacts."""
 
     step_results: list[StepExecutionResult] = []
+    compiled_by_call = {
+        item.call_id: item
+        for item in getattr(report, "compiled_calls", ())
+    }
     for call_result in getattr(report, "call_results", ()):
         if getattr(call_result, "status", None) != "verified":
             continue
         invocation_steps = tuple(getattr(call_result, "step_results", ()))
+        compiled = compiled_by_call.get(call_result.call_id)
+        fragment_execution = getattr(compiled, "fragment_execution", None)
+        fragment_method_results = [
+            StatelessMethodResult(method_id=item.method_id)
+            for item in getattr(fragment_execution, "step_executions", ())
+        ]
         step_results.append(
             StepExecutionResult(
                 step_id=str(call_result.call_id),
@@ -700,7 +711,8 @@ def _plan_execution_from_transaction(report: object) -> PlanExecutionResult:
                     method_result
                     for item in invocation_steps
                     for method_result in item.method_results
-                ],
+                ]
+                + fragment_method_results,
                 checks=[
                     check
                     for item in invocation_steps

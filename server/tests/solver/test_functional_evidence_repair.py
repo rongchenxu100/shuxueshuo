@@ -41,7 +41,7 @@ def _value(
 def test_existing_math_object_can_satisfy_witness_endpoint_by_identity() -> None:
     witness_lineage = state_semantic_lineage(
         semantic_roles=("straightened_endpoint_1",),
-        evidence_tags=("path_minimum_witness",),
+        evidence_tags=("verified_path_minimum_subplan",),
         object_roles=(
             StateObjectRoleBinding(
                 role="fixed_endpoint_2",
@@ -97,9 +97,9 @@ def test_commutative_intersection_groups_accept_reversed_line_order() -> None:
     witness_lineage = state_semantic_lineage(
         semantic_roles=(
             "straightened_endpoint_1",
-            "path_minimum_witness",
+            "verified_path_minimum_subplan",
         ),
-        evidence_tags=("path_minimum_witness",),
+        evidence_tags=("verified_path_minimum_subplan",),
         object_roles=(
             StateObjectRoleBinding(
                 role="fixed_endpoint_2",
@@ -152,7 +152,7 @@ def test_commutative_intersection_groups_accept_reversed_line_order() -> None:
 def test_same_coordinates_do_not_replace_math_object_identity() -> None:
     witness_lineage = state_semantic_lineage(
         semantic_roles=("straightened_endpoint_1",),
-        evidence_tags=("path_minimum_witness",),
+        evidence_tags=("verified_path_minimum_subplan",),
         object_roles=(
             StateObjectRoleBinding(
                 role="fixed_endpoint_2",
@@ -181,12 +181,12 @@ def test_same_coordinates_do_not_replace_math_object_identity() -> None:
 def test_endpoints_from_different_witnesses_do_not_close_evidence() -> None:
     first_lineage = state_semantic_lineage(
         semantic_roles=("straightened_endpoint_1",),
-        evidence_tags=("path_minimum_witness",),
+        evidence_tags=("verified_path_minimum_subplan",),
         source_call_ids=("straighten_one",),
     )
     second_lineage = state_semantic_lineage(
         semantic_roles=("straightened_endpoint_2",),
-        evidence_tags=("path_minimum_witness",),
+        evidence_tags=("verified_path_minimum_subplan",),
         source_call_ids=("straighten_two",),
     )
     evaluation = evaluate_lineage_closure(

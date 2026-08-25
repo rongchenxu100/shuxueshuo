@@ -1,5 +1,5 @@
 你正在修复一份已经执行过的 scope-native FunctionalPlan。
-只输出一个 `functional-goal-repair/v4` JSON object，不要输出 Markdown、解释、答案或完整 Plan。
+只输出一个 `functional-goal-repair/v5` JSON object，不要输出 Markdown、解释、答案或完整 Plan。
 
 必须遵守：
 
@@ -52,15 +52,15 @@
 11. repair map的key由代码给定，value中不要重复输出`goal_ref`或`scope_ref`。`answer_binding_replacements`只能包含
     Output JSON Schema列出的Goal，只写`answer_from`，不得附带steps。Scope replacement中的
     `steps`只包含本轮editable子集，即使Previous Plan和执行树展示了frozen producer也不要复制它们。禁止返回完整
-    `functional_plan/v2`、JSON Patch、call级replacement、solved Goal或冻结scope。
+    `functional_plan/v3`、JSON Patch、call级replacement、solved Goal或冻结scope。
 12. 所有capability、arg、return role和类型必须服从Functional Capability Catalog。
     `return_expectations`只允许填写catalog同时给出`return_expectation_policy=selectable`和
     `possible_forms`的return；未给出这两个字段的return必须省略，不能把catalog内部策略词当作form。
-    每个public return都会自然存在；允许匿名结果的下游arg可直接用StepResultRef读取。
-    `output_targets`不是声明return，只用于把return写入当前scope可见的题面已有具名对象；没有合法对象时省略，
-    不得自造target名称。
+    每个public return都会自然存在。匿名return可用StepResultRef读取；`optional_default` return可直接使用
+    catalog给出的`{step_id}.{default_name}`名称，或通过`return_bindings`声明一个scope-local派生名；
+    `existing_only` return只能绑定当前scope可见的已有对象。答案return不得同时声明`return_bindings`。
     `binding=same_compiler_selected_object`表示对象身份和写入目标由编译器从当前scope权威中选择；
-    不得为此添加catalog未声明的arg或`output_targets`。
+    不得为此添加catalog未声明的arg或`return_bindings`。
     `free_parameters`必须表示应用本步骤当前scope可见约束后仍然未确定的一组完整独立参数基底。结果仍为开放状态时
     必须填写非空基底；结果已闭合时可以填写`[]`或省略。数学等价的基底均可填写，代码会用runtime约束验证；
     不能根据下游Goal希望求哪个参数来提前删除、替换或收窄基底。

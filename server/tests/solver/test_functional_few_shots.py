@@ -58,7 +58,7 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 PROBLEM_DIR = REPO_ROOT / "internal" / "solver-fixtures"
 EXPECTED_DIR = Path(__file__).resolve().parent / "expected"
 FUNCTIONAL_FEW_SHOT_DIR = REPO_ROOT / "internal" / "functional-few-shots"
-SCOPED_FUNCTIONAL_PLAN_DIR = REPO_ROOT / "internal" / "functional-plan-v2-fixtures"
+SCOPED_FUNCTIONAL_PLAN_DIR = REPO_ROOT / "internal" / "functional-plan-v3-fixtures"
 PROBLEM_IDS = (
     "tj-2026-nankai-yimo-25",
     "tj-2026-hexi-yimo-25",
@@ -162,7 +162,7 @@ def test_complete_functional_plan_fixture_replays_to_expected_answers(
     assert result.status == "ok", result.errors
     assert result.answers == expected
     assert client.request is not None
-    assert client.request["planner_protocol"] == "functional-plan-content/v2"
+    assert client.request["planner_protocol"] == "functional-plan-content/v3"
     success = orchestrator.last_success_artifacts
     assert success is not None
     artifacts = success.planner.artifacts
@@ -170,7 +170,7 @@ def test_complete_functional_plan_fixture_replays_to_expected_answers(
     assert artifacts.scoped_retry_result.verified_execution is not None
     assert (
         artifacts.scoped_retry_result.final_execution.checkpoint.schema_version
-        == "functional-goal-execution-checkpoint/v3"
+        == "functional-goal-execution-checkpoint/v4"
     )
     replay = artifacts.retry_replay_result
     assert replay is not None

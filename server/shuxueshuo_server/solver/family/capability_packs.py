@@ -42,6 +42,8 @@ from shuxueshuo_server.solver.family.models import (
 )
 from shuxueshuo_server.solver.family.common_binding_rules import (
     condition_arg_binding,
+    construct_point_on_ray_at_reference_distance_rule,
+    distance_sum_expression_rule,
     distance_between_points_rule,
     evaluate_expression_at_parameter_rule,
     evaluate_point_at_parameter_rule,
@@ -53,11 +55,18 @@ from shuxueshuo_server.solver.family.common_binding_rules import (
     parameter_from_curve_point_on_quadratic_rule,
     parameter_from_expression_value_rule,
     public_arg_binding,
+    prove_distance_equality_from_conditions_rule,
     quadratic_from_constraints_rule,
     quadratic_vertex_point_rule,
     quadratic_x_axis_intercept_point_rule,
     quadratic_y_axis_intercept_point_rule,
     translated_point_rule,
+    reflect_point_across_line_rule,
+    rewrite_expression_by_condition_rule,
+    verify_distance_equality_rule,
+    verify_point_on_closed_segment_rule,
+    verify_point_on_ray_rule,
+    verify_two_segment_path_attainment_rule,
 )
 from shuxueshuo_server.solver.output_type_policy import TRANSIENT_OUTPUT_TYPES
 
@@ -104,12 +113,6 @@ EQUAL_LENGTH_RAY_PATH_REDUCTION_DO_NOT_USE_WHEN = (
         "原路径只是普通两段等长/比例替换、三段正方形路径或带权距离；"
         "这些结构应使用各自的路径降维能力。"
     ),
-)
-BROKEN_PATH_SELECT_DO_NOT_USE_WHEN = (
-    "目标是直接得到最小值表达式、最小值或原路径动点坐标；本能力只选择拉直方案及其内部端点。",
-)
-STRAIGHTENED_DISTANCE_DO_NOT_USE_WHEN = (
-    "尚未得到两个确定的拉直端点，或仍需完成路径降维、反射构造与候选选择。",
 )
 BROKEN_PATH_MINIMUM_EXPRESSION_DO_NOT_USE_WHEN = (
     (
@@ -216,7 +219,7 @@ PATH_MINIMUM_DISTANCE_LINEAGE_CLOSURES = (
             "straightened_endpoint_1",
             "straightened_endpoint_2",
         ),
-        required_evidence_tags=("path_minimum_witness",),
+        required_evidence_tags=("verified_path_minimum_subplan",),
         require_same_source_call=True,
         add_semantic_roles=("path_minimum_expression",),
         add_evidence_tags=("path_minimum_expression",),
@@ -237,7 +240,7 @@ PATH_MINIMUM_INTERSECTION_LINEAGE_CLOSURES = (
                     "straightened_endpoint_1",
                     "straightened_endpoint_2",
                 ),
-                required_evidence_tags=("path_minimum_witness",),
+                required_evidence_tags=("verified_path_minimum_subplan",),
                 witness_role_aliases=(
                     ("straightened_endpoint_2", "fixed_endpoint_2"),
                 ),
@@ -404,7 +407,7 @@ def _method_contract(
 ) -> CapabilityContractSpec:
     return CapabilityContractSpec(
         capability_id=capability_id,
-        kind="method",
+        capability_kind="function",
         execution_status=execution_status,
         slot_reads=slot_reads,
         condition_reads=condition_reads,
@@ -443,7 +446,7 @@ def _recipe_contract(
 ) -> CapabilityContractSpec:
     return CapabilityContractSpec(
         capability_id=capability_id,
-        kind="recipe",
+        capability_kind="macro",
         execution_status=execution_status,
         slot_reads=slot_reads,
         condition_reads=condition_reads,
@@ -958,8 +961,122 @@ COORDINATE_GEOMETRY_CONTRACTS = (
                 "Point",
                 object_kind="point",
                 lineage_closures=PATH_MINIMUM_INTERSECTION_LINEAGE_CLOSURES,
+                return_binding="call_local_allowed",
             ),
         ),
+    ),
+)
+
+
+PATH_VERIFICATION_PRIMITIVE_CONTRACTS = (
+    _method_contract(
+        "construct_point_on_ray_at_reference_distance",
+        slot_reads=tuple(
+            _slot("coordinate", "Point", object_kind="point")
+            for _ in range(3)
+        ),
+        slot_writes=(
+            _slot(
+                "coordinate",
+                "Point",
+                object_kind="point",
+                semantic_role="constructed_point",
+                return_binding="call_local_allowed",
+            ),
+        ),
+    ),
+    _method_contract(
+        "verify_point_on_ray",
+        slot_reads=tuple(
+            _slot("coordinate", "Point", object_kind="point")
+            for _ in range(3)
+        ),
+        condition_writes=(_condition("point_on_ray"),),
+    ),
+    _method_contract(
+        "verify_distance_equality",
+        slot_reads=tuple(
+            _slot("coordinate", "Point", object_kind="point")
+            for _ in range(4)
+        ),
+        condition_writes=(_condition("distance_equality"),),
+    ),
+    _method_contract(
+        "prove_distance_equality_from_conditions",
+        slot_reads=tuple(
+            _slot("coordinate", "Point", object_kind="point")
+            for _ in range(4)
+        ),
+        condition_reads=(
+            _condition("equal_length_condition"),
+            _condition("distance_linking_condition"),
+        ),
+        condition_writes=(_condition("distance_equality"),),
+    ),
+    _method_contract(
+        "rewrite_expression_by_condition",
+        slot_reads=(
+            _slot("expression", "Expression|MinimumExpression"),
+            _slot("expression", "Expression|MinimumExpression"),
+        ),
+        condition_reads=(_condition("distance_equality"),),
+        slot_writes=(
+            _slot(
+                "expression",
+                "Expression",
+                return_binding="call_local_allowed",
+            ),
+        ),
+    ),
+    _method_contract(
+        "reflect_point_across_line",
+        slot_reads=tuple(
+            _slot("coordinate", "Point", object_kind="point")
+            for _ in range(3)
+        ),
+        slot_writes=(
+            _slot(
+                "coordinate",
+                "Point",
+                object_kind="point",
+                semantic_role="reflected_point",
+                return_binding="call_local_allowed",
+            ),
+        ),
+    ),
+    _method_contract(
+        "verify_point_on_closed_segment",
+        slot_reads=tuple(
+            _slot("coordinate", "Point", object_kind="point")
+            for _ in range(3)
+        ),
+        condition_writes=(_condition("point_on_segment"),),
+    ),
+    _method_contract(
+        "distance_sum_expression",
+        slot_reads=tuple(
+            _slot("coordinate", "Point", object_kind="point")
+            for _ in range(3)
+        ),
+        slot_writes=(
+            _slot(
+                "expression",
+                "MinimumExpression",
+                return_binding="call_local_allowed",
+            ),
+        ),
+    ),
+    _method_contract(
+        "verify_two_segment_path_attainment",
+        slot_reads=(
+            _slot("expression", "Expression|MinimumExpression"),
+            _slot("expression", "Expression|MinimumExpression"),
+            *(
+                _slot("coordinate", "Point", object_kind="point")
+                for _ in range(5)
+            ),
+        ),
+        condition_writes=(_condition("path_minimum_attained"),),
     ),
 )
 
@@ -1055,161 +1172,6 @@ TWO_MOVING_POINTS_PATH_REDUCTION = StepRecipeSpec(
     do_not_use_when=TWO_MOVING_POINTS_REDUCTION_DO_NOT_USE_WHEN,
 )
 
-BROKEN_PATH_STRAIGHTENING_AND_SELECT = StepRecipeSpec(
-    recipe_id="broken_path_straightening_and_select",
-    goal_type="straighten_broken_path",
-    title="折线拉直并选择方案",
-    description=(
-        "为单动点折线路径构造拉直候选方案，再选择最方便计算且符合题设"
-        "结构的方案；本 recipe 只产出拉直方案，不直接产出最小值表达式。"
-    ),
-    method_ids=(
-        "broken_path_straightening_candidates",
-        "select_straightening_candidate",
-    ),
-    execution=RecipeExecutionSpec(
-        recipe_id="broken_path_straightening_and_select",
-        method_sequence=(
-            "broken_path_straightening_candidates",
-            "select_straightening_candidate",
-        ),
-        execution_mode="direct",
-        execution_strategy="straightening_candidates_select",
-        creates=("point",),
-        strategy_input_targets=(
-            "broken_path_straightening_candidates.path_transformation",
-            "broken_path_straightening_candidates.moving_point_membership",
-            "broken_path_straightening_candidates.moving_locus",
-            "broken_path_straightening_candidates.fixed_point_1",
-            "broken_path_straightening_candidates.fixed_point_2",
-            "broken_path_straightening_candidates.line_point_1",
-            "broken_path_straightening_candidates.line_point_2",
-            "select_straightening_candidate.target",
-        ),
-        intermediate_wiring=(
-            (
-                "broken_path_straightening_candidates.candidates",
-                "select_straightening_candidate.candidates",
-            ),
-        ),
-        output_aliases=(
-            recipe_output_alias(
-                "select_straightening_candidate.selected_candidate",
-                "StraighteningCandidate",
-                "straightened_scheme",
-                goal_evidence_tags=(
-                    "path_minimum_witness",
-                    "path_minimum_extremal_point",
-                ),
-                object_role_projections=(
-                    STRAIGHTENING_WITNESS_OBJECT_ROLE_PROJECTIONS
-                ),
-            ),
-            recipe_output_alias(
-                "select_straightening_candidate.auxiliary_point",
-                "Point",
-                "straightening_auxiliary_point",
-                required=False,
-                cardinality="optional",
-                identity_policy="derived_role",
-                goal_evidence_tags=("path_minimum_witness",),
-                equivalent_to="straightened_endpoint_1",
-                description=(
-                    "选中候选的反射辅助点，与 straightened_endpoint_1 是同一"
-                    "几何状态；不能把二者作为一条直线的两个不同端点。"
-                ),
-                object_role_projections=(
-                    STRAIGHTENING_WITNESS_OBJECT_ROLE_PROJECTIONS
-                ),
-            ),
-            recipe_output_alias(
-                "select_straightening_candidate.minimum_point_1",
-                "Point",
-                "straightened_endpoint_1",
-                required=False,
-                cardinality="optional",
-                identity_policy="derived_role",
-                goal_evidence_tags=("path_minimum_witness",),
-                result_form=STRAIGHTENED_ENDPOINT_RESULT_FORM,
-                description=(
-                    "拉直后最短等价线段的第一个端点，通常是由反射构造得到的"
-                    "辅助点；它不是原路径动点、极值点或答案点。"
-                ),
-                object_role_projections=(
-                    STRAIGHTENING_WITNESS_OBJECT_ROLE_PROJECTIONS
-                ),
-            ),
-            recipe_output_alias(
-                "select_straightening_candidate.minimum_point_2",
-                "Point",
-                "straightened_endpoint_2",
-                required=False,
-                cardinality="optional",
-                identity_policy="derived_role",
-                goal_evidence_tags=("path_minimum_witness",),
-                result_form=STRAIGHTENED_ENDPOINT_RESULT_FORM,
-                description=(
-                    "拉直后最短等价线段的第二个端点，通常是未被反射的另一"
-                    "固定端点；它不是原路径动点、极值点或答案点。"
-                ),
-                object_role_projections=(
-                    STRAIGHTENING_WITNESS_OBJECT_ROLE_PROJECTIONS
-                ),
-            ),
-        ),
-    ),
-    priority="preferred",
-    do_not_use_when=BROKEN_PATH_SELECT_DO_NOT_USE_WHEN,
-)
-
-PATH_MINIMUM_BY_STRAIGHTENED_DISTANCE = StepRecipeSpec(
-    recipe_id="path_minimum_by_straightened_distance",
-    goal_type="derive_minimum_value",
-    title="拉直后距离求最小值",
-    description=(
-        "在折线已经拉直或等价路径已经确定后，单独用端点间距离或垂线距离"
-        "求路径最小值表达式；不要并入折线拉直步骤。"
-    ),
-    method_ids=("distance_between_points",),
-    execution=RecipeExecutionSpec(
-        recipe_id="path_minimum_by_straightened_distance",
-        method_sequence=("distance_between_points",),
-        execution_mode="direct",
-        execution_strategy="straightened_distance_minimum",
-        input_aliases=(
-            ("endpoint_1", "distance_between_points.p1"),
-            ("endpoint_2", "distance_between_points.p2"),
-            ("parameter_value", "distance_between_points.parameter_value"),
-        ),
-        input_derivations=(
-            RecipeInputDerivationSpec(
-                target="distance_between_points.parameter",
-                derivation=SourceObjectIdentityDerivationSpec(
-                    source_input="parameter_value",
-                ),
-            ),
-        ),
-        output_aliases=(
-            recipe_output_alias(
-                "distance_between_points.distance",
-                "MinimumExpression",
-                "minimum_expression",
-                goal_evidence_tags=("path_minimum_expression",),
-            ),
-            recipe_output_alias(
-                "distance_between_points.evaluated_distance",
-                "MinimumExpression",
-                "evaluated_path_minimum_expression",
-                required=False,
-                cardinality="optional",
-                goal_evidence_tags=("path_minimum_expression",),
-            ),
-        ),
-    ),
-    priority="preferred",
-    do_not_use_when=STRAIGHTENED_DISTANCE_DO_NOT_USE_WHEN,
-)
-
 BROKEN_PATH_STRAIGHTENING_MINIMUM_EXPRESSION = StepRecipeSpec(
     recipe_id="broken_path_straightening_minimum_expression",
     goal_type="derive_path_minimum_expression",
@@ -1281,7 +1243,7 @@ BROKEN_PATH_STRAIGHTENING_MINIMUM_EXPRESSION = StepRecipeSpec(
                 required=False,
                 cardinality="optional",
                 goal_evidence_tags=(
-                    "path_minimum_witness",
+                    "verified_path_minimum_subplan",
                     "path_minimum_extremal_point",
                 ),
                 object_role_projections=(
@@ -1295,7 +1257,7 @@ BROKEN_PATH_STRAIGHTENING_MINIMUM_EXPRESSION = StepRecipeSpec(
                 required=False,
                 cardinality="optional",
                 identity_policy="derived_role",
-                goal_evidence_tags=("path_minimum_witness",),
+                goal_evidence_tags=("verified_path_minimum_subplan",),
                 equivalent_to="straightened_endpoint_1",
                 description=(
                     "选中候选的反射辅助点，与 straightened_endpoint_1 是同一"
@@ -1312,7 +1274,7 @@ BROKEN_PATH_STRAIGHTENING_MINIMUM_EXPRESSION = StepRecipeSpec(
                 required=False,
                 cardinality="optional",
                 identity_policy="derived_role",
-                goal_evidence_tags=("path_minimum_witness",),
+                goal_evidence_tags=("verified_path_minimum_subplan",),
                 result_form=STRAIGHTENED_ENDPOINT_RESULT_FORM,
                 description=(
                     "拉直后最短等价线段的第一个端点，通常是由反射构造得到的"
@@ -1329,7 +1291,7 @@ BROKEN_PATH_STRAIGHTENING_MINIMUM_EXPRESSION = StepRecipeSpec(
                 required=False,
                 cardinality="optional",
                 identity_policy="derived_role",
-                goal_evidence_tags=("path_minimum_witness",),
+                goal_evidence_tags=("verified_path_minimum_subplan",),
                 result_form=STRAIGHTENED_ENDPOINT_RESULT_FORM,
                 description=(
                     "拉直后最短等价线段的第二个端点，通常是未被反射的另一"
@@ -1368,10 +1330,10 @@ EQUAL_LENGTH_RAY_PATH_REDUCTION = StepRecipeSpec(
     goal_type="derive_path_minimum_expression",
     title="等长射线路径降维为单距离最值",
     description=EQUAL_LENGTH_RAY_PATH_REDUCTION_DESCRIPTION,
-    method_ids=("equal_length_ray_point", "distance_between_points"),
+    method_ids=(),
     execution=RecipeExecutionSpec(
         recipe_id="equal_length_ray_path_reduction",
-        method_sequence=("equal_length_ray_point", "distance_between_points"),
+        method_sequence=(),
         execution_mode="runtime_search",
         search=MacroSearchSpec(
             searchable_roles=(
@@ -1381,32 +1343,25 @@ EQUAL_LENGTH_RAY_PATH_REDUCTION = StepRecipeSpec(
                 "fixed_point",
             ),
             candidate_builder_id="equal_length_ray_role_assignments",
-            validation_policy_id="distance_equivalence_and_provenance",
-            lowerer_id="equal_length_ray_path_reduction",
-            postcondition_id="equal_length_ray_path_postcondition",
-            evidence_builder_id="equal_length_ray_path_witness",
+            validation_policy_id="verified_function_fragment",
+            lowerer_id="functional_plan_fragment",
+            postcondition_id="predicate_publication",
+            evidence_builder_id="verified_subplan_execution",
         ),
-        execution_strategy="equal_length_ray_path_reduction",
-        creates=("point",),
-        strategy_input_targets=(
-            "equal_length_ray_point.anchor",
-            "equal_length_ray_point.reference_point",
-            "equal_length_ray_point.ray_point",
-            "equal_length_ray_point.target",
-            "distance_between_points.p1",
-        ),
-        intermediate_wiring=(
-            (
-                "equal_length_ray_point.point",
-                "distance_between_points.p2",
-            ),
-        ),
+        execution_strategy="functional_plan_fragment",
         output_aliases=(
             recipe_output_alias(
-                "distance_between_points.distance",
+                "minimum_expression",
                 "MinimumExpression",
-                "path_minimum_expression",
+                "minimum_expression",
                 goal_evidence_tags=("path_minimum_expression",),
+                result_form=ScalarResultFormSpec(
+                    possible_forms=("open_expression", "closed_value"),
+                    description=(
+                        "选中子图导出的表达式仍含未定参数时为 open_expression；"
+                        "不存在自由参数时为 closed_value。"
+                    ),
+                ),
             ),
         ),
     ),
@@ -1488,8 +1443,6 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
         ),
         step_recipes=(
             TWO_MOVING_POINTS_PATH_REDUCTION,
-            BROKEN_PATH_STRAIGHTENING_AND_SELECT,
-            PATH_MINIMUM_BY_STRAIGHTENED_DISTANCE,
             BROKEN_PATH_STRAIGHTENING_MINIMUM_EXPRESSION,
         ),
         contracts=(
@@ -1567,85 +1520,6 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
                         "moving_locus_endpoint_2",
                     ),
                 ),
-            ),
-            _recipe_contract(
-                "broken_path_straightening_and_select",
-                slot_reads=(
-                    _slot(
-                        "transformation",
-                        "PathTransformation",
-                        semantic_role="path_transformation",
-                        description=(
-                            "前序调用已证明的路径等价变换，例如把双动点路径"
-                            "降为单动点折线路径。"
-                        ),
-                        provides_semantic_roles=("moving_locus",),
-                    ),
-                    _slot(
-                        "locus",
-                        "Line",
-                        object_kind="line",
-                        semantic_role="moving_locus",
-                        required=False,
-                        cardinality="optional",
-                        description=(
-                            "动点所在的已求出 Line 轨迹。仅当 path_transformation 的"
-                            "结构化 provenance 已包含同一动点的轨迹时才可省略；不能从"
-                            "可见的任意 Line 自动选择。"
-                        ),
-                        allows_anonymous_result=True,
-                    ),
-                ),
-                slot_writes=(
-                    _slot("candidate", "StraighteningCandidate"),
-                    _slot("coordinate", "Point", object_kind="point", required=False),
-                ),
-                input_closure_requirements=(
-                    CapabilityInputClosureRequirement(
-                        semantic_role="moving_locus",
-                        provider_arg_roles=("path_transformation",),
-                        description=(
-                            "路径变换必须包含对应运动轨迹，或显式提供该轨迹。"
-                        ),
-                    ),
-                ),
-                identity_constraints=(
-                    PATH_TRANSFORMATION_LOCUS_IDENTITY_CONSTRAINTS
-                ),
-                path_transformation_consumer=STANDARD_BROKEN_PATH_CONSUMER,
-                exposes_to_llm=False,
-            ),
-            _recipe_contract(
-                "path_minimum_by_straightened_distance",
-                slot_reads=(
-                    _slot(
-                        "coordinate",
-                        "Point",
-                        object_kind="point",
-                        semantic_role="endpoint_1",
-                        required=True,
-                    ),
-                    _slot(
-                        "coordinate",
-                        "Point",
-                        object_kind="point",
-                        semantic_role="endpoint_2",
-                        required=True,
-                    ),
-                    _slot(
-                        "value",
-                        "ParameterValue",
-                        object_kind="symbol",
-                        semantic_role="parameter_value",
-                        required=False,
-                        cardinality="optional",
-                        description=(
-                            "若端点距离仍含参数，可提供该参数的已知值；其 Symbol "
-                            "身份由状态账本确定，不需要另行填写参数名。"
-                        ),
-                    ),
-                ),
-                slot_writes=(_slot("expression", "MinimumExpression"),),
             ),
             _recipe_contract(
                 "broken_path_straightening_minimum_expression",
@@ -1914,8 +1788,16 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
         pack_id="equal_length_ray_reduction_core",
         kind="mechanism",
         method_ids=(
-            "equal_length_ray_point",
             "distance_between_points",
+            "construct_point_on_ray_at_reference_distance",
+            "verify_point_on_ray",
+            "verify_distance_equality",
+            "prove_distance_equality_from_conditions",
+            "rewrite_expression_by_condition",
+            "reflect_point_across_line",
+            "verify_point_on_closed_segment",
+            "distance_sum_expression",
+            "verify_two_segment_path_attainment",
         ),
         step_recipes=(EQUAL_LENGTH_RAY_PATH_REDUCTION,),
         contracts=(
@@ -1958,23 +1840,18 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
                     )
                 ),
             ),
-            _method_contract(
-                "equal_length_ray_point",
-                condition_reads=(_condition("equal_length_ray"),),
-                slot_writes=(
-                    _slot(
-                        "coordinate",
-                        "Point",
-                        object_kind="point",
-                        description=(
-                            "射线上的等长构造点。作为中间辅助点时可不绑定"
-                            "题面对象，后续调用直接引用本 call 的 point 结果；"
-                            "作为题面对象或答案时仍应显式绑定。"
-                        ),
-                        return_binding="call_local_allowed",
-                    ),
-                ),
-            ),
+            *PATH_VERIFICATION_PRIMITIVE_CONTRACTS,
+        ),
+        method_binding_rules=(
+            construct_point_on_ray_at_reference_distance_rule(),
+            verify_point_on_ray_rule(),
+            verify_distance_equality_rule(),
+            prove_distance_equality_from_conditions_rule(),
+            rewrite_expression_by_condition_rule(),
+            reflect_point_across_line_rule(),
+            verify_point_on_closed_segment_rule(),
+            distance_sum_expression_rule(),
+            verify_two_segment_path_attainment_rule(),
         ),
     ),
     CapabilityPackSpec(
@@ -2278,8 +2155,6 @@ __all__ = [
     "DEFAULT_CAPABILITY_PACK_REGISTRY",
     "RIGHT_ANGLE_EQUAL_LENGTH_CONSTRUCT_AND_SELECT",
     "TWO_MOVING_POINTS_PATH_REDUCTION",
-    "BROKEN_PATH_STRAIGHTENING_AND_SELECT",
-    "PATH_MINIMUM_BY_STRAIGHTENED_DISTANCE",
     "BROKEN_PATH_STRAIGHTENING_MINIMUM_EXPRESSION",
     "EQUAL_LENGTH_RAY_PATH_REDUCTION",
 ]

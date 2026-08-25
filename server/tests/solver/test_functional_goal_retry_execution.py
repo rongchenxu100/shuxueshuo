@@ -51,7 +51,7 @@ from _functional_goal_retry_support import (
     published_goal_retry_fixture,
 )
 from _problem_planning_support import planning_binding_fixture
-from _scoped_functional_plan_support import load_v2_fixture_payload
+from _scoped_functional_plan_support import load_v3_fixture_payload
 
 
 def _content_json(fixture, plan_payload) -> str:
@@ -230,7 +230,9 @@ def test_scope_repair_can_add_local_object_states_without_invalidating_restored_
                     "return": "parabola",
                 }
             },
-            "output_targets": {"point": "C"},
+            "return_bindings": {
+                "point": {"kind": "existing", "ref": "C"}
+            },
         },
         {
             "step_id": "derive_translated_D_ii_local",
@@ -241,7 +243,9 @@ def test_scope_repair_can_add_local_object_states_without_invalidating_restored_
                     "return": "point",
                 }
             },
-            "output_targets": {"point": "D"},
+            "return_bindings": {
+                "point": {"kind": "existing", "ref": "D"}
+            },
         },
     ]
 
@@ -947,7 +951,7 @@ def test_restored_shared_producer_republishes_all_authored_anonymous_returns(
 ) -> None:
     case = "tj-2026-nankai-yimo-25"
     fixture = planning_binding_fixture(tmp_path / case, case=case)
-    correct = load_v2_fixture_payload(case)
+    correct = load_v3_fixture_payload(case)
     failed = deepcopy(correct)
     failed_scopes = {
         item["scope_ref"]: item
@@ -1042,7 +1046,7 @@ def test_typed_duplicate_goal_producers_reuse_visible_ancestor_steps(
 ) -> None:
     case = "tj-2026-heping-yimo-25"
     fixture = planning_binding_fixture(tmp_path / case, case=case)
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     scopes = {
         item["scope_ref"]: item
         for item in iter_scopes(payload["root_scope"])
@@ -1121,7 +1125,7 @@ def test_named_parabola_uses_latest_state_and_runtime_closes_duplicate_point(
 
     case = "tj-2026-heping-yimo-25"
     fixture = planning_binding_fixture(tmp_path / case, case=case)
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     scopes = {
         item["scope_ref"]: item
         for item in iter_scopes(payload["root_scope"])
@@ -1148,7 +1152,9 @@ def test_named_parabola_uses_latest_state_and_runtime_closes_duplicate_point(
                 "parabola": "parabola",
                 "known_point": "A",
             },
-            "output_targets": {"point": "B"},
+            "return_bindings": {
+                "point": {"kind": "existing", "ref": "B"}
+            },
             "return_expectations": {"point": "open_state"},
             "intent": "在开放状态中求另一个横轴交点。",
         }
@@ -1198,7 +1204,7 @@ def test_heping_retry_compares_new_ancestor_create_with_frozen_child_result(
 
     case = "tj-2026-heping-yimo-25"
     fixture = planning_binding_fixture(tmp_path / case, case=case)
-    base_payload = load_v2_fixture_payload(case)
+    base_payload = load_v3_fixture_payload(case)
     scopes = {
         item["scope_ref"]: item
         for item in iter_scopes(base_payload["root_scope"])

@@ -17,7 +17,7 @@ SCHEMA_PATH = (
     Path(__file__).resolve().parents[3]
     / "internal"
     / "schemas"
-    / "functional-plan-v2.schema.json"
+    / "functional-plan-v3.schema.json"
 )
 
 
@@ -88,7 +88,7 @@ def test_scope_schema_accepts_up_to_four_levels_and_rejects_fifth() -> None:
     parsed, report = validator.validate_payload_with_report(payload_for_depth(5))
     assert parsed is None
     assert report.issues
-    assert report.issues[0].code == "functional.v2_schema_invalid"
+    assert report.issues[0].code == "functional.plan_schema_invalid"
     assert report.issues[0].path == (
         "$.root_scope.children[0].children[0].children[0]"
     )
@@ -153,7 +153,7 @@ def test_optional_empty_step_inputs_are_removed_before_schema_validation() -> No
                     "step_id": "derive_parabola",
                     "capability_id": "quadratic_from_constraints",
                     "args": {"curve_points": "A", "known_coefficients": []},
-                    "output_targets": {},
+                    "return_bindings": {},
                     "return_expectations": {},
                 }
             ],

@@ -1,0 +1,59 @@
+{
+  "method_id": "verify_point_on_ray",
+  "title": "验证点位于射线",
+  "description": "Verify that a point lies on the positive direction of a ray.",
+  "summary": "",
+  "solves": [
+    "verify_point_on_ray"
+  ],
+  "inputs": {
+    "point": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    },
+    "anchor": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    },
+    "ray_point": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    }
+  },
+  "outputs": {
+    "verified": "Boolean"
+  },
+  "is_pure": true,
+  "predicate_publications": [
+    {
+      "output_name": "verified",
+      "condition_kind": "point_on_ray",
+      "related_input_roles": [
+        "point",
+        "anchor",
+        "ray_point"
+      ]
+    }
+  ]
+}

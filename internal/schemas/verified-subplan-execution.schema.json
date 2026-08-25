@@ -1,0 +1,372 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "verified-subplan-execution.schema.json",
+  "title": "VerifiedSubplanExecution",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "plan_id",
+    "scope_id",
+    "selected_fragment",
+    "selection",
+    "clean_execution",
+    "witness",
+    "output_signature",
+    "execution_signature"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "verified-subplan-execution/v2"
+    },
+    "plan_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "scope_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "selected_fragment": {
+      "type": "object",
+      "required": [
+        "source",
+        "scope_id",
+        "steps",
+        "exports",
+        "dependency_envelope",
+        "blueprint_id",
+        "fragment_signature"
+      ],
+      "properties": {
+        "source": {
+          "enum": [
+            "macro",
+            "llm"
+          ]
+        },
+        "scope_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "steps": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object"
+          }
+        },
+        "exports": {
+          "type": "object"
+        },
+        "dependency_envelope": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "blueprint_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "fragment_signature": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "selection": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "macro_id",
+            "preparation_signature",
+            "search_report"
+          ],
+          "properties": {
+            "kind": {
+              "const": "macro_search"
+            },
+            "macro_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "preparation_signature": {
+              "type": "string",
+              "minLength": 1
+            },
+            "search_report": {
+              "type": "object",
+              "required": [
+                "schema_version",
+                "macro_id",
+                "winner_candidate_id",
+                "equivalent_candidate_ids",
+                "evaluations",
+                "report_signature"
+              ],
+              "properties": {
+                "schema_version": {
+                  "const": "candidate-search-report/v1"
+                },
+                "macro_id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "winner_candidate_id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "equivalent_candidate_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "uniqueItems": true
+                },
+                "evaluations": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "candidate_id",
+                      "passed",
+                      "standard_outputs",
+                      "verification",
+                      "failure_code",
+                      "shadow_execution_signature",
+                      "output_signature"
+                    ],
+                    "properties": {
+                      "candidate_id": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "passed": {
+                        "type": "boolean"
+                      },
+                      "standard_outputs": {
+                        "type": "object"
+                      },
+                      "verification": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "passed",
+                            "check_code",
+                            "expected",
+                            "observed",
+                            "evidence"
+                          ],
+                          "properties": {
+                            "passed": {
+                              "type": "boolean"
+                            },
+                            "check_code": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "expected": {},
+                            "observed": {},
+                            "evidence": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "minLength": 1
+                              }
+                            }
+                          },
+                          "additionalProperties": false
+                        }
+                      },
+                      "failure_code": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "shadow_execution_signature": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "output_signature": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                },
+                "report_signature": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "source",
+            "owner_ref"
+          ],
+          "properties": {
+            "kind": {
+              "const": "single_fragment"
+            },
+            "source": {
+              "const": "llm"
+            },
+            "owner_ref": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "clean_execution": {
+      "type": "object",
+      "required": [
+        "member_step_ids",
+        "fragment_execution_signature",
+        "exported_results",
+        "verification",
+        "provenance",
+        "clean_signature"
+      ],
+      "properties": {
+        "member_step_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "fragment_execution_signature": {
+          "type": "string",
+          "minLength": 1
+        },
+        "exported_results": {
+          "type": "object"
+        },
+        "verification": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "passed",
+              "check_code",
+              "expected",
+              "observed",
+              "evidence"
+            ],
+            "properties": {
+              "passed": {
+                "type": "boolean"
+              },
+              "check_code": {
+                "type": "string",
+                "minLength": 1
+              },
+              "expected": {},
+              "observed": {},
+              "evidence": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "provenance": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "clean_signature": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "witness": {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "standard_entities",
+        "standard_conditions",
+        "standard_results",
+        "provenance",
+        "witness_signature"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "verified-subplan-witness/v1"
+        },
+        "standard_entities": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "standard_conditions": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "standard_results": {
+          "type": "object"
+        },
+        "provenance": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "witness_signature": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "output_signature": {
+      "type": "string",
+      "minLength": 1
+    },
+    "execution_signature": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "additionalProperties": false
+}

@@ -311,7 +311,7 @@
         "equal_length_ray_path_reduction"
       ],
       "trace_refs": [
-        "trace:reduce_equal_length_ray_path_ii:0:equal_length_ray_point"
+        "trace:reduce_equal_length_ray_path_ii:fragment:0:construct_point_on_ray_at_reference_distance"
       ],
       "title": "第2步：构造全等三角形，把两动点问题转化为单动点问题",
       "nav_title": "两动点转化单动点",
@@ -356,7 +356,7 @@
         "equal_length_ray_path_reduction"
       ],
       "trace_refs": [
-        "trace:reduce_equal_length_ray_path_ii:1:distance_between_points"
+        "trace:reduce_equal_length_ray_path_ii:fragment:7:distance_between_points"
       ],
       "title": "第3步：将军饮马得到最小值表达式",
       "nav_title": "将军饮马取最小值",

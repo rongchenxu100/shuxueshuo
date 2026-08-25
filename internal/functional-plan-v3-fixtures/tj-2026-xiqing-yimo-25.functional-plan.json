@@ -1,5 +1,5 @@
 {
-  "format": "functional_plan/v2",
+  "format": "functional_plan/v3",
   "root_scope": {
     "scope_ref": "problem",
     "children": [
@@ -52,10 +52,13 @@
             "args": {
               "parabola": "parabola"
             },
-            "output_targets": {
-              "point": "D"
-            },
-            "intent": "将题面给定的横坐标代入含参抛物线。"
+            "intent": "将题面给定的横坐标代入含参抛物线。",
+            "return_bindings": {
+              "point": {
+                "kind": "existing",
+                "ref": "D"
+              }
+            }
           },
           {
             "step_id": "derive_x_intercept_B_ii",
@@ -64,10 +67,13 @@
               "parabola": "parabola",
               "known_point": "A"
             },
-            "output_targets": {
-              "point": "B"
-            },
-            "intent": "求横轴上的另一个曲线交点。"
+            "intent": "求横轴上的另一个曲线交点。",
+            "return_bindings": {
+              "point": {
+                "kind": "existing",
+                "ref": "B"
+              }
+            }
           },
           {
             "step_id": "derive_y_intercept_C_ii",
@@ -75,10 +81,13 @@
             "args": {
               "quadratic": "parabola"
             },
-            "output_targets": {
-              "point": "C"
-            },
-            "intent": "令横坐标为零得到纵轴交点。"
+            "intent": "令横坐标为零得到纵轴交点。",
+            "return_bindings": {
+              "point": {
+                "kind": "existing",
+                "ref": "C"
+              }
+            }
           }
         ],
         "children": [

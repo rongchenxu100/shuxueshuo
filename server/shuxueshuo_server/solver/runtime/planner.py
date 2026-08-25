@@ -14,7 +14,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from dataclasses import dataclass, field
-from typing import Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 from shuxueshuo_server.solver.family.models import SolverFamilySpec
 from shuxueshuo_server.solver.problem_models import ProblemIR, QuestionGoal
@@ -31,6 +31,11 @@ from shuxueshuo_server.solver.runtime.models import (
     StepGoal,
     StepPlan,
 )
+
+if TYPE_CHECKING:
+    from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
+        FamilyCapabilityBundle,
+    )
 
 
 @dataclass(frozen=True)
@@ -51,6 +56,7 @@ class PlannerInputs:
     problem: ProblemIR | None = None
     original_text: dict[str, object] = field(default_factory=dict)
     previous_errors: list[object] = field(default_factory=list)
+    capability_bundle: FamilyCapabilityBundle | None = None
 
 
 @runtime_checkable

@@ -168,7 +168,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         "planner_protocol": "functional_plan/v1",
         "problem_authority": "verified-solver-problem-bundle/v1",
         "planning_context": "planner-problem-view/v2",
-        "retry_checkpoint": "functional-goal-execution-checkpoint/v3",
+        "retry_checkpoint": "functional-goal-execution-checkpoint/v4",
         "f2_input_dir": str(f2_root),
     }
     _write_json(batch_dir / "batch-config.json", batch_config)

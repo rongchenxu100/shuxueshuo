@@ -21,6 +21,7 @@ from shuxueshuo_server.solver.contracts import (
     MethodOutputActivationSpec,
     MethodVisualSpec,
     PlanTransformerScope,
+    PredicatePublicationSpec,
     ScalarResultFormSpec,
     SymbolicClosureSpec,
     TrialErrorHintSpec,
@@ -87,6 +88,7 @@ class MethodSpecSource:
     input_views: dict[str, MethodInputViewMode]
     outputs: dict[str, str]
     companion_outputs: tuple[MethodCompanionOutputSpec, ...] = ()
+    predicate_publications: tuple[PredicatePublicationSpec, ...] = ()
     input_relations: tuple[MethodInputRelationSpec, ...] = ()
     internal_outputs: tuple[str, ...] = ()
     output_activation: dict[str, MethodOutputActivationSpec] = field(
@@ -141,6 +143,15 @@ class MethodSpecSource:
             )
             payload["companion_outputs"] = [
                 item.to_payload() for item in self.companion_outputs
+            ]
+        if self.predicate_publications:
+            _validate_predicate_publications(
+                self.predicate_publications,
+                input_names=frozenset(self.inputs),
+                outputs=self.outputs,
+            )
+            payload["predicate_publications"] = [
+                item.to_payload() for item in self.predicate_publications
             ]
         if self.internal_outputs:
             payload["internal_outputs"] = list(self.internal_outputs)
@@ -245,6 +256,32 @@ def _validate_companion_outputs(
         )
 
 
+def _validate_predicate_publications(
+    publications: tuple[PredicatePublicationSpec, ...],
+    *,
+    input_names: frozenset[str],
+    outputs: dict[str, str],
+) -> None:
+    output_names = tuple(item.output_name for item in publications)
+    if len(output_names) != len(set(output_names)):
+        raise MethodSpecContractError(
+            "planner.predicate_publication_contract_invalid: duplicate output"
+        )
+    for publication in publications:
+        output_type = outputs.get(publication.output_name)
+        if output_type != "Boolean":
+            raise MethodSpecContractError(
+                "planner.predicate_publication_contract_invalid: predicate "
+                f"output {publication.output_name!r} must be Boolean"
+            )
+        unknown_roles = sorted(
+            set(publication.related_input_roles) - input_names
+        )
+        if unknown_roles:
+            raise MethodSpecContractError(
+                "planner.predicate_publication_contract_invalid: unknown "
+                "related input roles: " + ", ".join(unknown_roles)
+            )
 def _validate_input_relations(
     relations: tuple[MethodInputRelationSpec, ...],
     *,

@@ -92,6 +92,14 @@ def sanitized_environment() -> dict[str, str]:
     return environment
 
 
+def existing_test_paths(paths: Sequence[str]) -> tuple[str, ...]:
+    """Drop changed test files that were intentionally deleted or renamed."""
+
+    return tuple(
+        path for path in paths if (SERVER_ROOT / path).is_file()
+    )
+
+
 def pytest_commands(
     profile: str,
     *,
@@ -183,6 +191,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 file=sys.stderr,
             )
             return 2
+        selected_tests = existing_test_paths(selected_tests)
         if not selected_tests:
             print("No Solver-affecting changes detected.")
             return 0

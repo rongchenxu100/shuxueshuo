@@ -42,7 +42,7 @@ from _functional_goal_retry_support import (
     published_goal_retry_fixture,
 )
 from _problem_planning_support import planning_binding_fixture
-from _scoped_functional_plan_support import load_v2_fixture_payload
+from _scoped_functional_plan_support import load_v3_fixture_payload
 
 
 @dataclass(frozen=True)
@@ -123,7 +123,7 @@ def _cached_c5_fixture() -> _C5Fixture:
     root = TemporaryDirectory(prefix="scope-native-c5-")
     _FIXTURE_ROOTS.append(root)
     authority_fixture = planning_binding_fixture(Path(root.name), case=case)
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     plan, report = ScopedFunctionalPlanValidator().validate_payload_with_report(
         payload
     )

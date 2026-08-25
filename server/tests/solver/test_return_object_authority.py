@@ -8,14 +8,14 @@ from shuxueshuo_server.solver.runtime.return_object_authority import (
 
 def test_return_object_authority_uses_first_nonempty_basis() -> None:
     result = ReturnObjectAuthorityResolver.resolve(
-        explicit_output_targets=("M",),
+        explicit_return_bindings=("M",),
         goal_answer_targets=("E",),
         declared_identity_targets=("G",),
     )
 
     assert result.target_refs == frozenset(("M",))
     assert result.unique_target_ref == "M"
-    assert result.basis == "explicit_output_target"
+    assert result.basis == "explicit_return_binding"
 
 
 def test_return_role_authority_solves_global_multi_return_constraints() -> None:

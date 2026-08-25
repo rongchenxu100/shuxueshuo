@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "functional-plan-v2.schema.json",
-  "title": "Scope-native FunctionalPlan v2",
+  "$id": "functional-plan-v3.schema.json",
+  "title": "Scope-native FunctionalPlan v3",
   "type": "object",
   "required": [
     "format",
@@ -9,7 +9,7 @@
   ],
   "properties": {
     "format": {
-      "const": "functional_plan/v2"
+      "const": "functional_plan/v3"
     },
     "root_scope": {
       "$ref": "#/$defs/scope_level_0"
@@ -52,6 +52,26 @@
         }
       ]
     },
+    "return_binding": {
+      "type": "object",
+      "required": [
+        "kind",
+        "ref"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "derived",
+            "existing"
+          ]
+        },
+        "ref": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*(?:\\.[A-Za-z][A-Za-z0-9_]*)*$"
+        }
+      },
+      "additionalProperties": false
+    },
     "step": {
       "type": "object",
       "required": [
@@ -86,13 +106,12 @@
             ]
           }
         },
-        "output_targets": {
+        "return_bindings": {
           "type": "object",
           "minProperties": 1,
-          "description": "Bind non-answer returns to existing visible Problem objects; keys are public capability return roles.",
+          "description": "Bind non-answer returns either to a new scope-local derived SemanticRef or to an existing visible Problem object.",
           "additionalProperties": {
-            "type": "string",
-            "minLength": 1
+            "$ref": "#/$defs/return_binding"
           }
         },
         "return_expectations": {

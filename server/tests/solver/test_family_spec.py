@@ -158,11 +158,13 @@ def test_path_family_recipes_include_execution_specs() -> None:
     assert right_angle.do_not_use_when
     assert any("单个条件" in item for item in right_angle.do_not_use_when)
 
-    straightening = recipes["broken_path_straightening_and_select"]
+    straightening = recipes["broken_path_straightening_minimum_expression"]
     assert straightening.execution is not None
-    assert straightening.execution.execution_strategy == "straightening_candidates_select"
+    assert straightening.execution.execution_strategy == (
+        "broken_path_straightening_minimum_expression"
+    )
     assert straightening.do_not_use_when
-    assert any("原路径动点坐标" in item for item in straightening.do_not_use_when)
+    assert any("原路径动点" in item for item in straightening.do_not_use_when)
 
 
 def test_path_family_binding_rules_are_declared_in_spec() -> None:
@@ -446,10 +448,12 @@ def test_capability_pack_expansion_allows_identical_pack_binding_rules() -> None
 def test_capability_pack_contracts_merge_and_are_json_serializable() -> None:
     pack_contract = CapabilityContractSpec(
         capability_id="method_a",
+        capability_kind="function",
         slot_writes=(StateSlotPattern("expression", "Expression"),),
     )
     family_contract = CapabilityContractSpec(
         capability_id="method_a",
+        capability_kind="function",
         execution_status="catalog_only",
         slot_writes=(StateSlotPattern("expression", "Expression"),),
     )
@@ -541,7 +545,7 @@ def test_expanded_family_catalogs_keep_pack_and_local_capabilities() -> None:
             },
             {
                 "right_angle_equal_length_construct_and_select",
-                "path_minimum_by_straightened_distance",
+                "broken_path_straightening_minimum_expression",
             },
         ),
         QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY.family_id: (
@@ -561,7 +565,7 @@ def test_expanded_family_catalogs_keep_pack_and_local_capabilities() -> None:
             {
                 "quadratic_vertex_point",
                 "angle_sum_equal_angle_candidates",
-                "equal_length_ray_point",
+                "construct_point_on_ray_at_reference_distance",
             },
             {"equal_length_ray_path_reduction"},
         ),
@@ -573,7 +577,6 @@ def test_expanded_family_catalogs_keep_pack_and_local_capabilities() -> None:
                 "line_locus_minimum_point",
             },
             {
-                "broken_path_straightening_and_select",
                 "broken_path_straightening_minimum_expression",
             },
         ),
@@ -689,6 +692,7 @@ def test_functional_catalog_hides_catalog_only_contracts() -> None:
     inputs = build_strategy_probe_inputs(problem)
     catalog_only_override = CapabilityContractSpec(
         capability_id="quadratic_from_constraints",
+        capability_kind="function",
         execution_status="catalog_only",
         slot_writes=(StateSlotPattern("expression", "Parabola"),),
     )

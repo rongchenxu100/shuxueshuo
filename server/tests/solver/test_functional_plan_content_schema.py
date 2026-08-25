@@ -51,6 +51,15 @@ def _content_step(payload: dict, step_id: str) -> dict:
     raise AssertionError(f"missing content step {step_id!r}")
 
 
+def _existing_return_refs(binding_schema: dict) -> set[str]:
+    variants = binding_schema.get("oneOf", (binding_schema,))
+    for variant in variants:
+        properties = variant.get("properties", {})
+        if properties.get("kind", {}).get("const") == "existing":
+            return set(properties["ref"]["enum"])
+    return set()
+
+
 def test_dynamic_schema_owns_exact_scope_and_goal_keys(tmp_path) -> None:
     fixture, frame, content, _ = _content_fixture(tmp_path)
     schema = functional_plan_content_schema(frame)
@@ -71,6 +80,7 @@ def test_dynamic_schema_owns_exact_scope_and_goal_keys(tmp_path) -> None:
         "source_ref",
         "step_result_ref",
         "functional_ref",
+        "return_binding",
         "step",
         "answer_from",
     }
@@ -109,7 +119,7 @@ def test_dynamic_schema_binds_output_and_expectation_roles_per_capability(
     assert set(by_capability) == set(fixture.capability_catalog.items)
     for capability_id, capability in fixture.capability_catalog.items.items():
         properties = by_capability[capability_id]
-        output_schema = properties["output_targets"]
+        output_schema = properties["return_bindings"]
         expectation_schema = properties["return_expectations"]
         assert expectation_schema["additionalProperties"] is False
         public_return_names = {
@@ -123,11 +133,7 @@ def test_dynamic_schema_binds_output_and_expectation_roles_per_capability(
             assert output_schema["additionalProperties"] is False
             target_names = set(output_schema["properties"])
             assert all(
-                item["enum"]
-                for item in output_schema["properties"].values()
-            )
-            assert all(
-                set(item["enum"])
+                _existing_return_refs(item)
                 <= {
                     ref
                     for values in frame.source_ref_domain_types.values()
@@ -152,11 +158,11 @@ def test_dynamic_schema_binds_output_and_expectation_roles_per_capability(
                 ] == list(returned.possible_forms)
 
     quadratic_targets = by_capability["quadratic_from_constraints"][
-        "output_targets"
+        "return_bindings"
     ]
     assert "coefficients" not in quadratic_targets["properties"]
     assert any(
-        properties["output_targets"] is False
+        properties["return_bindings"] is False
         for properties in by_capability.values()
     )
 
@@ -187,7 +193,7 @@ def test_output_target_schema_honors_structural_fact_selector(tmp_path) -> None:
     # M has a complete point_coordinate Fact, not a curve_at_x construction.
     # It is already a Point state and must not be offered as this Method's
     # output target merely because both values have runtime type Point.
-    assert nankai_point_at_x["output_targets"] is False
+    assert nankai_point_at_x["return_bindings"] is False
 
     hexi = planning_binding_fixture(
         tmp_path / "hexi",
@@ -208,9 +214,9 @@ def test_output_target_schema_honors_structural_fact_selector(tmp_path) -> None:
         if item["allOf"][1]["properties"]["capability_id"].get("const")
         == "point_on_parabola_at_x"
     )
-    assert hexi_point_at_x["output_targets"]["properties"]["point"][
-        "enum"
-    ] == ["M"]
+    assert _existing_return_refs(
+        hexi_point_at_x["return_bindings"]["properties"]["point"]
+    ) == {"M"}
 
 
 def test_distinct_symbol_roles_are_schema_checked_after_safe_normalization(
@@ -319,7 +325,7 @@ def test_identity_arg_omission_is_name_agnostic_and_consumer_aware(
         step_id="derive",
         capability=renamed,
         args=args,
-        output_targets={},
+        return_bindings={},
         consumed_returns=frozenset(),
     )
     assert [(item.arg_name, item.return_names) for item in omissions] == [
@@ -340,14 +346,16 @@ def test_identity_arg_omission_is_name_agnostic_and_consumer_aware(
         step_id="derive",
         capability=renamed,
         args=args,
-        output_targets={},
+        return_bindings={},
         consumed_returns=consumers,
     )
     assert not unconsumed_duplicate_identity_arg_omissions(
         step_id="derive",
         capability=renamed,
         args=args,
-        output_targets={"parameter_value": "a"},
+        return_bindings={
+            "parameter_value": {"kind": "existing", "ref": "a"}
+        },
         consumed_returns=frozenset(),
     )
 
@@ -683,7 +691,7 @@ def test_empty_optional_step_maps_are_omitted_before_schema_validation(
     fixture, frame, content, _ = _content_fixture(tmp_path)
     payload = deepcopy(content.to_payload())
     scope_ref, steps = next(iter(payload["scope_steps"].items()))
-    steps[0]["output_targets"] = {}
+    steps[0]["return_bindings"] = {}
     steps[0]["return_expectations"] = {}
 
     result = FunctionalPlanContentCompiler().compile_payload(
@@ -695,14 +703,14 @@ def test_empty_optional_step_maps_are_omitted_before_schema_validation(
     assert result.report.ok
     assert result.content is not None
     normalized = result.content.scope_steps[scope_ref][0]
-    assert "output_targets" not in normalized
+    assert "return_bindings" not in normalized
     assert "return_expectations" not in normalized
     assert [item.code for item in result.normalizations] == [
         "functional.empty_optional_step_map_omitted",
         "functional.empty_optional_step_map_omitted",
     ]
     assert [item.path for item in result.normalizations] == [
-        f"$.scope_steps.{scope_ref}[0].output_targets",
+        f"$.scope_steps.{scope_ref}[0].return_bindings",
         f"$.scope_steps.{scope_ref}[0].return_expectations",
     ]
 

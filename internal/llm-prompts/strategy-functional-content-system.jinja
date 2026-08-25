@@ -1,5 +1,5 @@
 请使用给定数学能力，为全部必答目标填写一份FunctionalPlan内容。
-只输出一个`functional-plan-content/v2` JSON object，不要输出Markdown、解释或答案。
+只输出一个`functional-plan-content/v3` JSON object，不要输出Markdown、解释或答案。
 
 必须遵守：
 
@@ -37,10 +37,12 @@
    `free_parameters`必须表示应用本步骤当前scope可见约束后仍然未确定的一组完整独立参数基底。结果仍为开放状态时
    必须填写非空基底；结果已闭合时可以填写`[]`或省略。数学等价的基底均可填写，代码会用runtime约束验证；
    不能根据下游Goal希望求哪个参数来提前删除、替换或收窄基底。
-7. 每个catalog声明的public return都会自然存在；允许匿名结果的下游arg可直接用
-   `{"step_id":"...","return":"..."}`读取它。`output_targets`不是声明return，而只是把return写入当前scope
-   可见的题面已有具名对象；没有这种对象时必须省略。Goal最终答案用`answer_from`选择producer，代码再根据
-   Goal authority验证其对象身份。不要为答案增加`output_targets`，也不要自造target名称或其他绑定字段。
+7. 每个catalog声明的public return都会自然存在。`scope_binding.mode=anonymous`的return只能由允许匿名结果的
+   下游arg通过`{"step_id":"...","return":"..."}`读取。`optional_default`的return会在Plan assembly时获得
+   `{step_id}.{default_name}`形式的scope-local名称，后续step可在同一份Plan中立即使用；若希望使用更短的数学名，
+   可填写`return_bindings={"return_name":{"kind":"derived","ref":"G"}}`。`existing_only`只能填写
+   `kind=existing`并绑定当前scope可见的已有题面对象。不要填写return类型、角色或scope，这些由catalog拥有。
+   Goal最终答案只用`answer_from`选择producer；答案return不得同时声明`return_bindings`。
 8. `intent`可选，只用于简短说明数学目的。所有step必须通向至少一个必答Goal。
 
 当前题的严格、authority-bound JSON Schema位于user message末尾。

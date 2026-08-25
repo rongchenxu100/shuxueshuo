@@ -1,4 +1,4 @@
-"""Scope-native FunctionalPlan v2 authoring and authority lowering."""
+"""Scope-native FunctionalPlan v3 authoring and authority lowering."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ from collections import Counter
 from dataclasses import dataclass, field, replace
 import json
 from types import MappingProxyType
-from typing import Any, Mapping, Sequence
+from typing import Any, Literal, Mapping, Sequence
 
 from jsonschema import Draft202012Validator
 
@@ -54,11 +54,12 @@ from shuxueshuo_server.solver.runtime.return_object_authority import (
 )
 from shuxueshuo_server.solver.runtime.strategy_models import SemanticRef
 from shuxueshuo_server.solver.state_semantics import (
+    object_kind_for_runtime_type,
     runtime_type_for_object_semantic_kind,
 )
 
 
-SCOPED_FUNCTIONAL_PLAN_CONTRACT = "functional_plan/v2"
+SCOPED_FUNCTIONAL_PLAN_CONTRACT = "functional_plan/v3"
 SCOPED_FUNCTIONAL_PLAN_MAX_SCOPE_DEPTH = 4
 _RESULT_FORMS = (
     "open_expression",
@@ -67,10 +68,13 @@ _RESULT_FORMS = (
     "closed_state",
 )
 _STEP_ID_PATTERN = r"^[A-Za-z][A-Za-z0-9_]*$"
+_LOCAL_REF_PATTERN = (
+    r"^[A-Za-z][A-Za-z0-9_]*(?:\.[A-Za-z][A-Za-z0-9_]*)*$"
+)
 
 
 def scoped_functional_plan_schema() -> dict[str, Any]:
-    """Return the strict four-level FunctionalPlan v2 authoring schema."""
+    """Return the strict four-level FunctionalPlan v3 authoring schema."""
 
     nonempty = {"type": "string", "minLength": 1}
     step_result = {
@@ -114,6 +118,18 @@ def scoped_functional_plan_schema() -> dict[str, Any]:
             {"$ref": "#/$defs/step_result_ref"},
         ],
     }
+    return_binding = {
+        "type": "object",
+        "required": ["kind", "ref"],
+        "properties": {
+            "kind": {"enum": ["derived", "existing"]},
+            "ref": {
+                "type": "string",
+                "pattern": _LOCAL_REF_PATTERN,
+            },
+        },
+        "additionalProperties": False,
+    }
     step = {
         "type": "object",
         "required": ["step_id", "capability_id", "args"],
@@ -138,14 +154,14 @@ def scoped_functional_plan_schema() -> dict[str, Any]:
                     ]
                 },
             },
-            "output_targets": {
+            "return_bindings": {
                 "type": "object",
                 "minProperties": 1,
                 "description": (
-                    "Bind non-answer returns to existing visible Problem objects; "
-                    "keys are public capability return roles."
+                    "Bind non-answer returns either to a new scope-local derived "
+                    "SemanticRef or to an existing visible Problem object."
                 ),
-                "additionalProperties": nonempty,
+                "additionalProperties": {"$ref": "#/$defs/return_binding"},
             },
             "return_expectations": {
                 "type": "object",
@@ -228,8 +244,8 @@ def scoped_functional_plan_schema() -> dict[str, Any]:
         }
     return {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "functional-plan-v2.schema.json",
-        "title": "Scope-native FunctionalPlan v2",
+        "$id": "functional-plan-v3.schema.json",
+        "title": "Scope-native FunctionalPlan v3",
         "type": "object",
         "required": ["format", "root_scope"],
         "properties": {
@@ -240,6 +256,7 @@ def scoped_functional_plan_schema() -> dict[str, Any]:
             "source_ref": source_ref,
             "step_result_ref": step_result,
             "functional_ref": functional_ref,
+            "return_binding": return_binding,
             "step": step,
             "answer_from": answer_from,
             "goal": goal,
@@ -250,7 +267,7 @@ def scoped_functional_plan_schema() -> dict[str, Any]:
 
 
 class ScopedFunctionalPlanError(ValueError):
-    """A retryable v2 authoring error or non-retryable authority drift."""
+    """A retryable v3 authoring error or non-retryable authority drift."""
 
     def __init__(
         self,
@@ -414,6 +431,36 @@ class ScopedStepResultRef:
 
 
 @dataclass(frozen=True)
+class ScopedDerivedResultRef(ScopedStepResultRef):
+    """A named scope-local return resolved to its exact producer edge.
+
+    The public v3 wire remains a SemanticRef string.  The in-memory authority
+    additionally carries the exact producer so dependency construction and
+    restore never need to search by name or runtime type.
+    """
+
+    local_ref: str
+    canonical_ref: str
+    domain_type: str
+    semantic_role: str
+    owner_scope: str
+
+    def to_payload(self) -> str:
+        return self.local_ref
+
+    def authority_payload(self) -> dict[str, Any]:
+        return {
+            "kind": "derived",
+            "ref": self.local_ref,
+            "canonical_ref": self.canonical_ref,
+            "domain_type": self.domain_type,
+            "semantic_role": self.semantic_role,
+            "owner_scope": self.owner_scope,
+            "producer": super().to_payload(),
+        }
+
+
+@dataclass(frozen=True)
 class ScopedPublishedGoalResultRef(ScopedStepResultRef):
     """A trusted retry-only reference to one solved Goal's final answer."""
 
@@ -450,6 +497,8 @@ ScopedFunctionalRef = str | ScopedStepResultRef
 
 
 def _scoped_ref_authority_payload(value: ScopedFunctionalRef) -> Any:
+    if isinstance(value, ScopedDerivedResultRef):
+        return value.authority_payload()
     if isinstance(value, ScopedPublishedGoalResultRef):
         return value.authority_payload()
     if isinstance(value, ScopedStepResultRef):
@@ -457,12 +506,96 @@ def _scoped_ref_authority_payload(value: ScopedFunctionalRef) -> Any:
     return value
 
 
+class ScopedReturnBinding(str):
+    """Structured v3 return binding with string-compatible ref access.
+
+    Keeping the ref string-compatible lets the derived v1 IR reuse generic
+    path and identity plumbing.  ``kind`` remains explicit authority and is
+    always serialized, hashed, and audited separately.
+    """
+
+    kind: Literal["derived", "existing"]
+    naming_origin: Literal["explicit", "default"]
+
+    def __new__(
+        cls,
+        *,
+        kind: Literal["derived", "existing"],
+        ref: str,
+        naming_origin: Literal["explicit", "default"] = "explicit",
+    ) -> "ScopedReturnBinding":
+        if kind not in {"derived", "existing"}:
+            raise ValueError(f"unsupported return binding kind {kind!r}")
+        if not ref:
+            raise ValueError("return binding ref must be non-empty")
+        instance = str.__new__(cls, ref)
+        instance.kind = kind
+        instance.naming_origin = naming_origin
+        return instance
+
+    @property
+    def ref(self) -> str:
+        return str(self)
+
+    def to_payload(self) -> dict[str, str]:
+        return {"kind": self.kind, "ref": self.ref}
+
+
+@dataclass(frozen=True)
+class ScopedDerivedBinding:
+    local_ref: str
+    canonical_ref: str
+    domain_type: str
+    semantic_role: str
+    owner_scope: str
+    producer_step_id: str
+    return_name: str
+    naming_origin: Literal["explicit", "default"]
+    exact_result_authority: Mapping[str, str] | None = None
+
+    def __post_init__(self) -> None:
+        if self.exact_result_authority is not None:
+            object.__setattr__(
+                self,
+                "exact_result_authority",
+                MappingProxyType(dict(self.exact_result_authority)),
+            )
+
+    def to_result_ref(self) -> ScopedDerivedResultRef:
+        return ScopedDerivedResultRef(
+            step_id=self.producer_step_id,
+            return_name=self.return_name,
+            local_ref=self.local_ref,
+            canonical_ref=self.canonical_ref,
+            domain_type=self.domain_type,
+            semantic_role=self.semantic_role,
+            owner_scope=self.owner_scope,
+        )
+
+    def to_payload(self) -> dict[str, Any]:
+        payload: dict[str, Any] = {
+            "local_ref": self.local_ref,
+            "canonical_ref": self.canonical_ref,
+            "domain_type": self.domain_type,
+            "semantic_role": self.semantic_role,
+            "owner_scope": self.owner_scope,
+            "producer_step_id": self.producer_step_id,
+            "return_name": self.return_name,
+            "naming_origin": self.naming_origin,
+        }
+        if self.exact_result_authority is not None:
+            payload["exact_result_authority"] = dict(
+                self.exact_result_authority
+            )
+        return payload
+
+
 @dataclass(frozen=True)
 class ScopedFunctionalStep:
     step_id: str
     capability_id: str
     args: Mapping[str, tuple[ScopedFunctionalRef, ...]]
-    output_targets: Mapping[str, str]
+    return_bindings: Mapping[str, ScopedReturnBinding]
     return_expectations: Mapping[str, FunctionalResultForm]
     intent: str | None = None
 
@@ -479,8 +612,8 @@ class ScopedFunctionalStep:
         )
         object.__setattr__(
             self,
-            "output_targets",
-            MappingProxyType(dict(sorted(self.output_targets.items()))),
+            "return_bindings",
+            MappingProxyType(dict(sorted(self.return_bindings.items()))),
         )
         object.__setattr__(
             self,
@@ -503,8 +636,11 @@ class ScopedFunctionalStep:
             "capability_id": self.capability_id,
             "args": args,
         }
-        if self.output_targets:
-            payload["output_targets"] = dict(self.output_targets)
+        if self.return_bindings:
+            payload["return_bindings"] = {
+                name: binding.to_payload()
+                for name, binding in self.return_bindings.items()
+            }
         if self.return_expectations:
             payload["return_expectations"] = dict(
                 self.return_expectations
@@ -585,7 +721,7 @@ class ScopedFunctionalPlan:
 def scoped_functional_plan_authority_payload(
     plan: ScopedFunctionalPlan,
 ) -> dict[str, Any]:
-    """Serialize internal publication authority without changing the v2 wire."""
+    """Serialize internal publication authority without changing the v3 wire."""
 
     def step_payload(step: ScopedFunctionalStep) -> dict[str, Any]:
         payload = step.to_payload()
@@ -621,7 +757,7 @@ def scoped_functional_plan_authority_payload(
 
 
 def scoped_functional_plan_id(plan: ScopedFunctionalPlan) -> str:
-    """Return the one canonical identifier for an in-memory v2 Plan."""
+    """Return the one canonical identifier for an in-memory v3 Plan."""
 
     return stable_hash(scoped_functional_plan_authority_payload(plan))
 
@@ -729,7 +865,7 @@ def apply_scoped_published_goal_bindings(
 
 
 class ScopedFunctionalPlanValidator:
-    """Strict JSON Schema parser for FunctionalPlan v2."""
+    """Strict JSON Schema parser for FunctionalPlan v3."""
 
     def validate_json_with_report(
         self,
@@ -742,7 +878,7 @@ class ScopedFunctionalPlanValidator:
             payload = json.loads(raw)
         except json.JSONDecodeError as exc:
             issue = ScopedFunctionalPlanIssue(
-                "functional.v2_invalid_json",
+                "functional.plan_invalid_json",
                 "$",
                 str(exc),
             )
@@ -765,7 +901,7 @@ class ScopedFunctionalPlanValidator:
         if errors:
             issues = tuple(
                 ScopedFunctionalPlanIssue(
-                    "functional.v2_schema_invalid",
+                    "functional.plan_schema_invalid",
                     _json_path(error.absolute_path),
                     error.message,
                 )
@@ -780,7 +916,7 @@ class ScopedFunctionalPlanValidator:
 
 
 def normalize_scoped_functional_plan_wire(payload: object) -> object:
-    """Remove optional empty v2 collections without changing plan semantics."""
+    """Remove optional empty v3 collections without changing plan semantics."""
 
     if not isinstance(payload, dict) or payload.get("format") != (
         SCOPED_FUNCTIONAL_PLAN_CONTRACT
@@ -810,7 +946,7 @@ def normalize_scoped_functional_plan_wire(payload: object) -> object:
             normalized["args"] = {
                 key: item for key, item in args.items() if item != []
             }
-        for key in ("output_targets", "return_expectations"):
+        for key in ("return_bindings", "return_expectations"):
             if normalized.get(key) == {}:
                 normalized.pop(key)
         return normalized
@@ -1006,6 +1142,7 @@ class ScopedFunctionalPlanAuthority:
     plan_id: str
     plan_semantic_hash: str
     step_authorities: Mapping[str, FunctionalStepScopeAuthority]
+    derived_bindings: tuple[ScopedDerivedBinding, ...] = ()
     normalizations: tuple[ScopedFunctionalPlanNormalization, ...] = ()
     pruned_step_ids: tuple[str, ...] = ()
 
@@ -1014,6 +1151,20 @@ class ScopedFunctionalPlanAuthority:
             self,
             "step_authorities",
             MappingProxyType(dict(sorted(self.step_authorities.items()))),
+        )
+        object.__setattr__(
+            self,
+            "derived_bindings",
+            tuple(
+                sorted(
+                    self.derived_bindings,
+                    key=lambda item: (
+                        item.owner_scope,
+                        item.producer_step_id,
+                        item.return_name,
+                    ),
+                )
+            ),
         )
         object.__setattr__(self, "normalizations", tuple(self.normalizations))
         object.__setattr__(
@@ -1035,6 +1186,9 @@ class ScopedFunctionalPlanAuthority:
                 key: value.to_payload()
                 for key, value in self.step_authorities.items()
             },
+            "derived_bindings": [
+                item.to_payload() for item in self.derived_bindings
+            ],
             "normalizations": [
                 item.to_payload() for item in self.normalizations
             ],
@@ -1073,7 +1227,7 @@ class ScopedFunctionalPlanAuthority:
                 ScopedFunctionalPlanIssue(
                     "functional.scoped_step_identity_drift",
                     "$.reconciliation.call_aliases",
-                    "FunctionalPlan v2 forbids call aliases; step_id is canonical",
+                    "FunctionalPlan v3 forbids call aliases; step_id is canonical",
                 )
             )
         problem_sidecar = reconciliation.functional_problem_binding_context
@@ -1082,7 +1236,7 @@ class ScopedFunctionalPlanAuthority:
                 ScopedFunctionalPlanIssue(
                     "functional.step_scope_authority_drift",
                     "$.reconciliation.functional_problem_binding_context",
-                    "F5-C Goal authority is required to finalize v2 steps",
+                    "F5-C Goal authority is required to finalize v3 steps",
                 )
             )
         pruned_step_ids = frozenset(
@@ -1122,7 +1276,7 @@ class ScopedFunctionalPlanAuthority:
                     ScopedFunctionalPlanIssue(
                         "functional.scoped_step_identity_drift",
                         f"$.steps[{step_id!r}]",
-                        "step authority canonical id differs from its v2 step id",
+                        "step authority canonical id differs from its v3 step id",
                     )
                 )
                 continue
@@ -1444,7 +1598,7 @@ class _StepLocation:
 
 
 class ScopedFunctionalPlanAuthorityAdapter:
-    """Validate v2 authoring authority and lower it to the v1 runtime graph."""
+    """Validate v3 authoring authority and lower it to the v1 runtime graph."""
 
     def analyze(
         self,
@@ -1539,6 +1693,15 @@ class ScopedFunctionalPlanAuthorityAdapter:
             planning_context=planning_context,
             binding_catalog=binding_catalog,
             capability_catalog=capability_catalog,
+        )
+        canonical_plan = _resolve_scoped_derived_refs(
+            canonical_plan,
+            binding_catalog=binding_catalog,
+            capability_catalog=capability_catalog,
+            scope_parents={
+                item.scope_id: item.parent_scope_id
+                for item in planning_context.scopes
+            },
         )
         canonical_plan, placement_normalizations = (
             _normalize_shared_step_placement(
@@ -1654,6 +1817,11 @@ class ScopedFunctionalPlanAuthorityAdapter:
             capability_catalog=capability_catalog,
             answer_object_refs=answer_object_refs,
             binding_catalog=binding_catalog,
+        )
+        _add_comparable_writer_lineage_dependencies(
+            dependencies,
+            producers_by_target=producers_by_target,
+            scope_parents=scope_parents,
         )
         non_propagating_dependencies: set[tuple[str, str]] = set()
         typed_input_source_pins: dict[
@@ -1900,7 +2068,7 @@ class ScopedFunctionalPlanAuthorityAdapter:
                 for name, values in args.items()
             }
             return_bindings: dict[str, SemanticRef] = {}
-            effective_output_targets = _effective_output_target_refs(
+            effective_return_bindings = _effective_return_bindings(
                 location,
                 capability=capability,
                 answer_return_names=frozenset(
@@ -1911,13 +2079,27 @@ class ScopedFunctionalPlanAuthorityAdapter:
                 answer_object_refs=answer_object_refs,
                 binding_catalog=binding_catalog,
             )
-            for name, target in effective_output_targets.items():
+            for name, target in effective_return_bindings.items():
                 target_path = (
-                    f"$.steps[{step.step_id!r}].output_targets[{name!r}]"
+                    f"$.steps[{step.step_id!r}].return_bindings[{name!r}]"
                 )
+                if target.kind == "derived":
+                    returned = next(
+                        item for item in capability.returns if item.name == name
+                    )
+                    return_bindings[name] = SemanticRef(
+                        ref=target.ref,
+                        kind=(
+                            object_kind_for_runtime_type(returned.runtime_type)
+                            or "value"
+                        ),
+                        value_type=returned.runtime_type,
+                        from_step=step.step_id,
+                    )
+                    continue
                 binding = _input_binding(
                     binding_catalog,
-                    target,
+                    target.ref,
                     scope_id=semantic_owner_scopes[step.step_id],
                     goal_unit_ids=tuple(
                         sorted(consumer_goals[step.step_id])
@@ -1939,8 +2121,8 @@ class ScopedFunctionalPlanAuthorityAdapter:
                 if return_name in return_bindings:
                     raise _error(
                         "functional.output_target_invalid",
-                        f"$.steps[{step.step_id!r}].output_targets",
-                        "answer return must not also declare output_targets",
+                        f"$.steps[{step.step_id!r}].return_bindings",
+                        "answer return must not also declare return_bindings",
                     )
                 goal_id = goal_views[goal_ref].goal_unit_id
                 try:
@@ -1995,7 +2177,10 @@ class ScopedFunctionalPlanAuthorityAdapter:
                     ]
                     for name, values in lowered_args[step.step_id].items()
                 },
-                "output_targets": effective_output_targets,
+                "return_bindings": {
+                    name: binding.to_payload()
+                    for name, binding in effective_return_bindings.items()
+                },
                 "answers": answer_by_step[step.step_id],
             }
             step_authorities[step.step_id] = FunctionalStepScopeAuthority(
@@ -2063,6 +2248,10 @@ class ScopedFunctionalPlanAuthorityAdapter:
                 }
             ),
             step_authorities=step_authorities,
+            derived_bindings=_derived_bindings_for_plan(
+                canonical_plan,
+                capability_catalog=capability_catalog,
+            ),
             normalizations=normalizations,
             pruned_step_ids=tuple(sorted(pruned_step_ids)),
         )
@@ -2076,7 +2265,7 @@ class ScopedFunctionalPlanAuthorityAdapter:
         binding_catalog: ProblemPlanningBindingCatalog,
         capability_catalog: FunctionalCapabilityCatalog,
     ) -> ScopedFunctionalPlanAuthority:
-        """Lower locally valid v2 steps without claiming complete Goal answers."""
+        """Lower locally valid v3 steps without claiming complete Goal answers."""
 
         canonical_plan, normalizations = self.canonicalize(
             plan,
@@ -2339,7 +2528,7 @@ class ScopedFunctionalPlanAuthorityAdapter:
                 for name, values in lowered_args[step.step_id].items()
             }
             return_bindings: dict[str, SemanticRef] = {}
-            effective_output_targets = _effective_output_target_refs(
+            effective_return_bindings = _effective_return_bindings(
                 location,
                 capability=capability,
                 answer_return_names=frozenset(
@@ -2350,15 +2539,31 @@ class ScopedFunctionalPlanAuthorityAdapter:
                 answer_object_refs=answer_object_refs,
                 binding_catalog=binding_catalog,
             )
-            for return_name, target in effective_output_targets.items():
+            for return_name, target in effective_return_bindings.items():
+                if target.kind == "derived":
+                    returned = next(
+                        item
+                        for item in capability.returns
+                        if item.name == return_name
+                    )
+                    return_bindings[return_name] = SemanticRef(
+                        ref=target.ref,
+                        kind=(
+                            object_kind_for_runtime_type(returned.runtime_type)
+                            or "value"
+                        ),
+                        value_type=returned.runtime_type,
+                        from_step=step.step_id,
+                    )
+                    continue
                 return_bindings[return_name] = _input_binding(
                     binding_catalog,
-                    target,
+                    target.ref,
                     scope_id=semantic_owner_scopes[step.step_id],
                     goal_unit_ids=tuple(
                         sorted(consumer_goals[step.step_id])
                     ),
-                    path=f"$.steps[{step.step_id!r}].output_targets[{return_name!r}]",
+                    path=f"$.steps[{step.step_id!r}].return_bindings[{return_name!r}]",
                 ).semantic_ref
             for return_name, goal_ref in answer_by_step[step.step_id].items():
                 goal_id = goal_views[goal_ref].goal_unit_id
@@ -2404,7 +2609,10 @@ class ScopedFunctionalPlanAuthorityAdapter:
                     ]
                     for name, values in lowered_args[step.step_id].items()
                 },
-                "output_targets": effective_output_targets,
+                "return_bindings": {
+                    name: binding.to_payload()
+                    for name, binding in effective_return_bindings.items()
+                },
             }
             step_authorities[step.step_id] = FunctionalStepScopeAuthority(
                 step_id=step.step_id,
@@ -2455,6 +2663,10 @@ class ScopedFunctionalPlanAuthorityAdapter:
             plan_id=scoped_functional_plan_id(canonical_plan),
             plan_semantic_hash=stable_hash(_semantic_plan_payload(canonical_plan)),
             step_authorities=step_authorities,
+            derived_bindings=_derived_bindings_for_plan(
+                canonical_plan,
+                capability_catalog=capability_catalog,
+            ),
             normalizations=normalizations,
         )
 
@@ -2497,9 +2709,12 @@ def _parse_step(value: object) -> ScopedFunctionalStep:
         step_id=str(value["step_id"]),
         capability_id=str(value["capability_id"]),
         args=args,
-        output_targets={
-            str(key): str(target)
-            for key, target in value.get("output_targets", {}).items()
+        return_bindings={
+            str(key): ScopedReturnBinding(
+                kind=str(target["kind"]),  # type: ignore[arg-type]
+                ref=str(target["ref"]),
+            )
+            for key, target in value.get("return_bindings", {}).items()
         },
         return_expectations={
             str(key): form
@@ -2509,10 +2724,30 @@ def _parse_step(value: object) -> ScopedFunctionalStep:
     )
 
 
+def scoped_functional_step_from_payload(
+    payload: Mapping[str, Any],
+) -> ScopedFunctionalStep:
+    """Decode one already schema-validated v3 Function step."""
+
+    return _parse_step(dict(payload))
+
+
 def _parse_ref(value: object) -> ScopedFunctionalRef:
     if isinstance(value, str):
         return value
     assert isinstance(value, dict)
+    if value.get("kind") == "derived":
+        producer = value.get("producer")
+        assert isinstance(producer, dict)
+        return ScopedDerivedResultRef(
+            step_id=str(producer["step_id"]),
+            return_name=str(producer["return"]),
+            local_ref=str(value["ref"]),
+            canonical_ref=str(value["canonical_ref"]),
+            domain_type=str(value["domain_type"]),
+            semantic_role=str(value["semantic_role"]),
+            owner_scope=str(value["owner_scope"]),
+        )
     return ScopedStepResultRef(
         step_id=str(value["step_id"]),
         return_name=str(value["return"]),
@@ -2740,6 +2975,274 @@ def _normalize_shared_step_placement(
     return normalized, records
 
 
+def _replace_scoped_steps(
+    plan: ScopedFunctionalPlan,
+    replacements: Mapping[str, ScopedFunctionalStep],
+) -> ScopedFunctionalPlan:
+    if not replacements:
+        return plan
+
+    def rebuild(scope: ScopedFunctionalScope) -> ScopedFunctionalScope:
+        return replace(
+            scope,
+            steps=tuple(
+                replacements.get(step.step_id, step) for step in scope.steps
+            ),
+            goals=tuple(
+                replace(
+                    goal,
+                    steps=tuple(
+                        replacements.get(step.step_id, step)
+                        for step in goal.steps
+                    ),
+                )
+                for goal in scope.goals
+            ),
+            children=tuple(rebuild(child) for child in scope.children),
+        )
+
+    return replace(plan, root_scope=rebuild(plan.root_scope))
+
+
+def _materialize_default_return_bindings(
+    plan: ScopedFunctionalPlan,
+    *,
+    capability_catalog: FunctionalCapabilityCatalog,
+) -> tuple[
+    ScopedFunctionalPlan,
+    tuple[ScopedFunctionalPlanNormalization, ...],
+]:
+    """Reserve deterministic scope-local names before dependency analysis."""
+
+    answer_roles = {
+        (goal.answer_from.step_id, goal.answer_from.return_name)
+        for scope in _iter_scopes(plan.root_scope)
+        for goal in scope.goals
+    }
+    replacements: dict[str, ScopedFunctionalStep] = {}
+    records: list[ScopedFunctionalPlanNormalization] = []
+    for location in _step_locations(plan):
+        capability = capability_catalog.get(location.step.capability_id)
+        if capability is None:
+            continue
+        declared_returns = {item.name: item for item in capability.returns}
+        bindings = dict(location.step.return_bindings)
+        for return_name, binding in tuple(bindings.items()):
+            returned = declared_returns.get(return_name)
+            if returned is None:
+                continue
+            naming_mode = returned.naming.mode
+            if binding.kind == "derived" and naming_mode != "optional_default":
+                raise _error(
+                    "functional.return_binding_invalid",
+                    f"$.steps[{location.step.step_id!r}].return_bindings[{return_name!r}]",
+                    "derived binding requires an optional_default return contract",
+                )
+            if binding.kind == "existing" and naming_mode == "anonymous":
+                raise _error(
+                    "functional.return_binding_invalid",
+                    f"$.steps[{location.step.step_id!r}].return_bindings[{return_name!r}]",
+                    "anonymous return cannot bind a named object",
+                )
+        for returned in capability.returns:
+            if (
+                returned.naming.mode != "optional_default"
+                or returned.name in bindings
+                or (location.step.step_id, returned.name) in answer_roles
+            ):
+                continue
+            default_ref = returned.naming.default_ref(location.step.step_id)
+            assert default_ref is not None
+            bindings[returned.name] = ScopedReturnBinding(
+                kind="derived",
+                ref=default_ref,
+                naming_origin="default",
+            )
+            records.append(
+                ScopedFunctionalPlanNormalization(
+                    action="materialize_default_return_binding",
+                    reason="capability_optional_default_naming",
+                    step_id=location.step.step_id,
+                    capability_id=location.step.capability_id,
+                    return_name=returned.name,
+                    target_ref=default_ref,
+                    scope_ref=location.scope_id,
+                )
+            )
+        if bindings != dict(location.step.return_bindings):
+            replacements[location.step.step_id] = replace(
+                location.step,
+                return_bindings=bindings,
+            )
+    return _replace_scoped_steps(plan, replacements), tuple(records)
+
+
+def _derived_bindings_for_plan(
+    plan: ScopedFunctionalPlan,
+    *,
+    capability_catalog: FunctionalCapabilityCatalog,
+) -> tuple[ScopedDerivedBinding, ...]:
+    result: list[ScopedDerivedBinding] = []
+    for location in _step_locations(plan):
+        capability = capability_catalog.get(location.step.capability_id)
+        if capability is None:
+            continue
+        returns = {item.name: item for item in capability.returns}
+        for return_name, binding in location.step.return_bindings.items():
+            if binding.kind != "derived":
+                continue
+            returned = returns.get(return_name)
+            if returned is None:
+                continue
+            result.append(
+                ScopedDerivedBinding(
+                    local_ref=binding.ref,
+                    canonical_ref=f"{location.scope_id}::{binding.ref}",
+                    domain_type=planner_input_domain_type(
+                        returned.runtime_type
+                    ),
+                    semantic_role=returned.semantic_role or returned.name,
+                    owner_scope=location.scope_id,
+                    producer_step_id=location.step.step_id,
+                    return_name=return_name,
+                    naming_origin=binding.naming_origin,
+                )
+            )
+    return tuple(result)
+
+
+def _resolve_scoped_derived_refs(
+    plan: ScopedFunctionalPlan,
+    *,
+    binding_catalog: ProblemPlanningBindingCatalog,
+    capability_catalog: FunctionalCapabilityCatalog,
+    scope_parents: Mapping[str, str | None],
+) -> ScopedFunctionalPlan:
+    """Resolve named derived refs to exact producer edges before lowering."""
+
+    locations = _step_locations(plan)
+    by_step = _unique_steps(locations)
+    bindings = _derived_bindings_for_plan(
+        plan,
+        capability_catalog=capability_catalog,
+    )
+    by_scope_ref: dict[tuple[str, str], ScopedDerivedBinding] = {}
+    for binding in bindings:
+        key = (binding.owner_scope, binding.local_ref)
+        if key in by_scope_ref:
+            raise _error(
+                "functional.derived_ref_conflict",
+                f"$.steps[{binding.producer_step_id!r}].return_bindings[{binding.return_name!r}]",
+                f"derived ref {binding.local_ref!r} is declared more than once in its scope",
+            )
+        try:
+            binding_catalog.resolve_input_binding(
+                scope_id=binding.owner_scope,
+                local_ref=binding.local_ref,
+            )
+        except ProblemPlanningBindingError:
+            pass
+        else:
+            raise _error(
+                "functional.derived_ref_conflict",
+                f"$.steps[{binding.producer_step_id!r}].return_bindings[{binding.return_name!r}]",
+                f"derived ref {binding.local_ref!r} conflicts with a visible Problem ref",
+            )
+        for (other_scope, other_ref), _ in by_scope_ref.items():
+            if other_ref != binding.local_ref:
+                continue
+            if _scope_visible(
+                other_scope,
+                binding.owner_scope,
+                scope_parents,
+            ) or _scope_visible(
+                binding.owner_scope,
+                other_scope,
+                scope_parents,
+            ):
+                raise _error(
+                    "functional.derived_ref_conflict",
+                    f"$.steps[{binding.producer_step_id!r}].return_bindings[{binding.return_name!r}]",
+                    f"derived ref {binding.local_ref!r} conflicts on one lexical scope path",
+                )
+        by_scope_ref[key] = binding
+
+    replacements: dict[str, ScopedFunctionalStep] = {}
+    for consumer in locations:
+        args = dict(consumer.step.args)
+        changed = False
+        for arg_name, values in consumer.step.args.items():
+            normalized: list[ScopedFunctionalRef] = []
+            for value in values:
+                if not isinstance(value, str):
+                    normalized.append(value)
+                    continue
+                matching = [
+                    binding
+                    for binding in bindings
+                    if binding.local_ref == value
+                ]
+                if not matching:
+                    normalized.append(value)
+                    continue
+                visible: list[ScopedDerivedBinding] = []
+                forward: list[ScopedDerivedBinding] = []
+                for binding in matching:
+                    producer = by_step[binding.producer_step_id]
+                    scope_visible = _scope_visible(
+                        binding.owner_scope,
+                        consumer.scope_id,
+                        scope_parents,
+                    )
+                    goal_visible = producer.goal_ref is None or (
+                        producer.scope_id == consumer.scope_id
+                        and producer.goal_ref == consumer.goal_ref
+                    )
+                    if not scope_visible or not goal_visible:
+                        continue
+                    if producer.order >= consumer.order:
+                        forward.append(binding)
+                    else:
+                        visible.append(binding)
+                if len(visible) == 1:
+                    normalized.append(visible[0].to_result_ref())
+                    changed = True
+                    continue
+                if len(visible) > 1:
+                    raise _error(
+                        "functional.derived_ref_ambiguous",
+                        _arg_path(consumer, arg_name),
+                        f"derived ref {value!r} resolves to multiple visible producers",
+                    )
+                if forward:
+                    raise _error(
+                        "functional.derived_ref_forward_reference",
+                        _arg_path(consumer, arg_name),
+                        f"derived ref {value!r} is used before its producer",
+                    )
+                try:
+                    binding_catalog.resolve_input_binding(
+                        scope_id=consumer.scope_id,
+                        local_ref=value,
+                    )
+                except ProblemPlanningBindingError:
+                    raise _error(
+                        "functional.derived_ref_not_visible",
+                        _arg_path(consumer, arg_name),
+                        f"derived ref {value!r} is outside the consumer scope",
+                    )
+                normalized.append(value)
+            if tuple(normalized) != values:
+                args[arg_name] = tuple(normalized)
+                changed = True
+        if changed:
+            replacements[consumer.step.step_id] = replace(
+                consumer.step,
+                args=args,
+            )
+    return _replace_scoped_steps(plan, replacements)
+
+
 def _shared_step_promotion_group(
     seed_id: str,
     *,
@@ -2821,11 +3324,15 @@ def _shared_step_promotions_are_safe(
                     )
                 except ProblemPlanningBindingError:
                     return False
-        for target_ref in location.step.output_targets.values():
+        for target_binding in location.step.return_bindings.values():
+            if target_binding.kind == "derived":
+                # A derived binding is owned by its authored scope. Moving its
+                # producer would silently widen the SemanticRef visibility.
+                return False
             try:
                 binding_catalog.resolve_input_binding(
                     scope_id=target_scope_id,
-                    local_ref=target_ref,
+                    local_ref=target_binding.ref,
                 )
             except ProblemPlanningBindingError:
                 return False
@@ -2844,11 +3351,17 @@ def _normalize_capability_wire(
 ]:
     """Apply only one-to-one argument and answer-target normalizations."""
 
+    plan, naming_normalizations = _materialize_default_return_bindings(
+        plan,
+        capability_catalog=capability_catalog,
+    )
     locations = _step_locations(plan)
     by_id = _unique_steps(locations)
     consumed_returns = referenced_functional_step_returns(plan.to_payload())
     replacements: dict[str, ScopedFunctionalStep] = {}
-    normalizations: list[ScopedFunctionalPlanNormalization] = []
+    normalizations: list[ScopedFunctionalPlanNormalization] = list(
+        naming_normalizations
+    )
     for location in locations:
         step = location.step
         capability = capability_catalog.get(step.capability_id)
@@ -2938,7 +3451,7 @@ def _normalize_capability_wire(
             step_id=step.step_id,
             capability=capability,
             args=args,
-            output_targets=step.output_targets,
+            return_bindings=step.return_bindings,
             consumed_returns=consumed_returns,
         )
         for omission in identity_omissions:
@@ -3026,11 +3539,12 @@ def _normalize_capability_wire(
         if capability is None:
             continue
         returns = {item.name: item for item in capability.returns}
-        output_targets = dict(location.step.output_targets)
-        for return_name, target_ref in tuple(output_targets.items()):
+        return_bindings = dict(location.step.return_bindings)
+        for return_name, target_ref in tuple(return_bindings.items()):
             returned = returns.get(return_name)
             if (
                 returned is None
+                or target_ref.kind == "derived"
                 or returned.binding_mode
                 != "call_result_or_answer_or_existing_object"
                 or returned.output_target_selector is not None
@@ -3046,7 +3560,7 @@ def _normalize_capability_wire(
                 )
             ):
                 continue
-            output_targets.pop(return_name)
+            return_bindings.pop(return_name)
             normalizations.append(
                 ScopedFunctionalPlanNormalization(
                     action="drop_unknown_anonymous_output_target",
@@ -3058,10 +3572,10 @@ def _normalize_capability_wire(
                     target_ref=target_ref,
                 )
             )
-        if output_targets != dict(location.step.output_targets):
+        if return_bindings != dict(location.step.return_bindings):
             anonymous_target_replacements[location.step.step_id] = replace(
                 location.step,
-                output_targets=output_targets,
+                return_bindings=return_bindings,
             )
     if anonymous_target_replacements:
         replacements = anonymous_target_replacements
@@ -3209,7 +3723,7 @@ def _normalize_capability_wire(
                 producer.step.step_id,
                 producer.step,
             )
-            target_ref = step.output_targets.get(
+            target_ref = step.return_bindings.get(
                 goal.answer_from.return_name
             )
             if target_ref is None or target_ref not in set(
@@ -3219,11 +3733,11 @@ def _normalize_capability_wire(
                 )
             ):
                 continue
-            output_targets = dict(step.output_targets)
-            output_targets.pop(goal.answer_from.return_name)
+            return_bindings = dict(step.return_bindings)
+            return_bindings.pop(goal.answer_from.return_name)
             answer_replacements[step.step_id] = replace(
                 step,
-                output_targets=output_targets,
+                return_bindings=return_bindings,
             )
             normalizations.append(
                 ScopedFunctionalPlanNormalization(
@@ -3270,12 +3784,12 @@ def _normalize_capability_wire(
         capability = capability_catalog.get(step.capability_id)
         if capability is None:
             continue
-        output_targets = dict(step.output_targets)
+        return_bindings = dict(step.return_bindings)
         for returned in capability.returns:
             selector = returned.output_target_selector
             if (
                 selector is None
-                or returned.name in output_targets
+                or returned.name in return_bindings
                 or (step.step_id, returned.name) in answer_roles
             ):
                 continue
@@ -3291,7 +3805,10 @@ def _normalize_capability_wire(
             )
             if target_ref is None:
                 continue
-            output_targets[returned.name] = target_ref
+            return_bindings[returned.name] = ScopedReturnBinding(
+                kind="existing",
+                ref=target_ref,
+            )
             normalizations.append(
                 ScopedFunctionalPlanNormalization(
                     action="infer_unique_output_target",
@@ -3302,10 +3819,10 @@ def _normalize_capability_wire(
                     reason="capability_selector_source_authority",
                 )
             )
-        if output_targets != dict(step.output_targets):
+        if return_bindings != dict(step.return_bindings):
             target_replacements[step.step_id] = replace(
                 step,
-                output_targets=output_targets,
+                return_bindings=return_bindings,
             )
     if target_replacements:
         replacements = target_replacements
@@ -3398,7 +3915,7 @@ def _normalize_unique_return_roles(
     for step_id, location in by_id.items():
         declared = {item.name for item in returned_by_step.get(step_id, ())}
         referenced_roles[step_id].update(
-            set(location.step.output_targets).intersection(declared)
+            set(location.step.return_bindings).intersection(declared)
         )
         referenced_roles[step_id].update(
             set(location.step.return_expectations).intersection(declared)
@@ -3454,7 +3971,7 @@ def _normalize_unique_return_roles(
         if capability is None:
             continue
         returned = {item.name: item for item in capability.returns}
-        for role, target_ref in location.step.output_targets.items():
+        for role, target_ref in location.step.return_bindings.items():
             candidates = []
             try:
                 target_binding = binding_catalog.resolve_input_binding(
@@ -3478,7 +3995,7 @@ def _normalize_unique_return_roles(
             for item in capability.returns:
                 if item.binding_mode == "internal_only":
                     continue
-                existing = location.step.output_targets.get(item.name)
+                existing = location.step.return_bindings.get(item.name)
                 if existing is not None and existing != target_ref:
                     continue
                 if target_binding is not None and not _binding_accepts_runtime_type(
@@ -3716,10 +4233,10 @@ def _normalize_unique_return_roles(
                     )
                 )
             args[arg_name] = tuple(normalized_values)
-        output_targets = dict(location.step.output_targets)
+        return_bindings = dict(location.step.return_bindings)
         return_expectations = dict(location.step.return_expectations)
         for field_name, values in (
-            ("output_targets", output_targets),
+            ("return_bindings", return_bindings),
             ("return_expectations", return_expectations),
         ):
             for authored_role in tuple(values):
@@ -3750,7 +4267,7 @@ def _normalize_unique_return_roles(
             replacements[location.step.step_id] = replace(
                 location.step,
                 args=args,
-                output_targets=output_targets,
+                return_bindings=return_bindings,
                 return_expectations=return_expectations,
             )
 
@@ -4350,7 +4867,7 @@ def _declared_related_object_refs(
         producer = by_id.get(value.step_id)
         if producer is None:
             continue
-        explicit = producer.step.output_targets.get(value.return_name)
+        explicit = producer.step.return_bindings.get(value.return_name)
         if explicit is not None:
             result.add(explicit)
         result.update(
@@ -4362,7 +4879,7 @@ def _declared_related_object_refs(
     return frozenset(result)
 
 
-def _effective_output_target_refs(
+def _effective_return_bindings(
     producer: _StepLocation,
     *,
     capability: Any,
@@ -4371,10 +4888,10 @@ def _effective_output_target_refs(
     capability_catalog: FunctionalCapabilityCatalog,
     answer_object_refs: Mapping[tuple[str, str], tuple[str, ...]],
     binding_catalog: ProblemPlanningBindingCatalog,
-) -> dict[str, str]:
+) -> dict[str, ScopedReturnBinding]:
     """Complete mechanical named-return bindings before v1 reconciliation."""
 
-    result = dict(producer.step.output_targets)
+    result = dict(producer.step.return_bindings)
     for returned in capability.returns:
         if returned.name in result or returned.name in answer_return_names:
             continue
@@ -4387,7 +4904,10 @@ def _effective_output_target_refs(
             binding_catalog=binding_catalog,
         )
         if len(targets) == 1:
-            result[returned.name] = next(iter(targets))
+            result[returned.name] = ScopedReturnBinding(
+                kind="existing",
+                ref=next(iter(targets)),
+            )
     return dict(sorted(result.items()))
 
 
@@ -4403,7 +4923,7 @@ def _return_object_target_refs(
 ) -> frozenset[str]:
     """Resolve the Problem object written by one public return.
 
-    Explicit output and answer authority take precedence. Declarative identity
+    Explicit return and answer authority take precedence. Declarative identity
     constraints and transition contracts may then prove the same named object
     without requiring the LLM to repeat compiler-owned wiring.
     """
@@ -4462,10 +4982,12 @@ def _return_object_target_refs(
                 binding_catalog=binding_catalog,
                 seen=seen | {key},
             )
+    explicit_binding = producer.step.return_bindings.get(returned.name)
     return ReturnObjectAuthorityResolver.resolve(
-        explicit_output_targets=(
-            (producer.step.output_targets[returned.name],)
-            if returned.name in producer.step.output_targets
+        explicit_return_bindings=(
+            (explicit_binding.ref,)
+            if explicit_binding is not None
+            and explicit_binding.kind == "existing"
             else ()
         ),
         goal_answer_targets=answer_object_refs.get(key, ()),
@@ -4801,7 +5323,7 @@ def audit_scoped_functional_structure(
     plan: ScopedFunctionalPlan,
     context: ProblemPlanningContext,
 ) -> ScopedFunctionalStructureReport:
-    """Compare a v2 plan tree with authenticated PlanningContext authority."""
+    """Compare a v3 plan tree with authenticated PlanningContext authority."""
 
     return _audit_scoped_functional_structure_maps(
         plan,
@@ -5418,9 +5940,9 @@ def _collect_independent_authority_issues(
                         "repair_action": "repair_return_role",
                     },
                 )
-        for role, target in sorted(step.output_targets.items()):
+        for role, target in sorted(step.return_bindings.items()):
             returned = returns.get(role)
-            path = f"$.steps[{step.step_id!r}].output_targets[{role!r}]"
+            path = f"$.steps[{step.step_id!r}].return_bindings[{role!r}]"
             if returned is None or returned.binding_mode == "internal_only":
                 expected_roles = tuple(
                     item.name
@@ -5438,23 +5960,42 @@ def _collect_independent_authority_issues(
                         "capability_id": capability.capability_id,
                         "observed_role": role,
                         "expected_roles": list(expected_roles),
-                        "return_context": "output_targets",
+                        "return_context": "return_bindings",
                         "retryability": "planner_repairable",
                         "repair_action": "repair_return_role",
                     },
                 )
                 continue
+            if target.kind == "derived":
+                if returned.naming.mode != "optional_default":
+                    add(
+                        1,
+                        location.scope_id,
+                        step.step_id,
+                        "functional.return_binding_invalid",
+                        path,
+                        "derived binding is not allowed by the return contract",
+                        {
+                            "capability_id": capability.capability_id,
+                            "observed_role": role,
+                            "observed_target": target.ref,
+                            "expected_naming_mode": returned.naming.mode,
+                            "retryability": "planner_repairable",
+                            "repair_action": "repair_return_binding",
+                        },
+                    )
+                continue
             try:
                 binding = binding_catalog.resolve_input_binding(
                     scope_id=location.scope_id,
-                    local_ref=target,
+                    local_ref=target.ref,
                 )
             except ProblemPlanningBindingError:
                 binding = None
             if binding is None:
                 outside_scope = _input_ref_exists_elsewhere(
                     binding_catalog,
-                    local_ref=target,
+                    local_ref=target.ref,
                 )
                 expected_targets = _visible_compatible_output_target_refs(
                     binding_catalog,
@@ -5471,12 +6012,12 @@ def _collect_independent_authority_issues(
                     (
                         "output target is outside the step scope"
                         if outside_scope
-                        else f"unknown existing-object target {target!r}"
+                        else f"unknown existing-object target {target.ref!r}"
                     ),
                     {
                         "capability_id": capability.capability_id,
                         "observed_role": role,
-                        "observed_target": target,
+                        "observed_target": target.ref,
                         "expected_targets": list(expected_targets),
                         "retryability": "planner_repairable",
                         "repair_action": (
@@ -5546,7 +6087,7 @@ def _collect_independent_authority_issues(
                             "repair_action": repair_action,
                         },
                     )
-        bound_roles = set(step.output_targets) | answer_roles[step.step_id]
+        bound_roles = set(step.return_bindings) | answer_roles[step.step_id]
         for returned in capability.returns:
             if (
                 returned.required
@@ -5558,7 +6099,7 @@ def _collect_independent_authority_issues(
                     location.scope_id,
                     step.step_id,
                     "functional.output_target_invalid",
-                    f"$.steps[{step.step_id!r}].output_targets",
+                    f"$.steps[{step.step_id!r}].return_bindings",
                     f"return {returned.name!r} requires an external target",
                 )
             if (
@@ -5570,11 +6111,11 @@ def _collect_independent_authority_issues(
                     location.scope_id,
                     location.step.step_id,
                     "functional.output_target_invalid",
-                    f"$.steps[{location.step.step_id!r}].output_targets",
+                    f"$.steps[{location.step.step_id!r}].return_bindings",
                     (
                         f"return {returned.name!r} has no unique target from "
                         "its declared source-fact selector; provide an explicit "
-                        "output_targets binding"
+                        "return_bindings binding"
                     ),
                 )
         if len(records) == local_issue_count:
@@ -6559,6 +7100,41 @@ def _nearest_target_producer(
     return None
 
 
+def _add_comparable_writer_lineage_dependencies(
+    dependencies: dict[str, set[str]],
+    *,
+    producers_by_target: Mapping[
+        Any,
+        Sequence[tuple[_StepLocation, str, str]],
+    ],
+    scope_parents: Mapping[str, str | None],
+) -> None:
+    """Chain comparable writers so runtime, not liveness, merges versions."""
+
+    for producers in producers_by_target.values():
+        ordered = sorted(producers, key=lambda item: item[0].order)
+        for index, (current, _return_name, runtime_type) in enumerate(ordered):
+            prior = next(
+                (
+                    item
+                    for item in reversed(ordered[:index])
+                    if (
+                        item[0].goal_ref is None
+                        or item[0].goal_ref == current.goal_ref
+                    )
+                    and _scope_visible(
+                        item[0].scope_id,
+                        current.scope_id,
+                        scope_parents,
+                    )
+                    and runtime_type_compatible(runtime_type, item[2])
+                ),
+                None,
+            )
+            if prior is not None:
+                dependencies[current.step.step_id].add(prior[0].step.step_id)
+
+
 def _propagate_goal_consumers(
     locations: Sequence[_StepLocation],
     dependencies: Mapping[str, set[str]],
@@ -6600,7 +7176,7 @@ def _semantic_owner_scopes(
     capability_catalog: FunctionalCapabilityCatalog,
     scope_parents: Mapping[str, str | None],
 ) -> dict[str, str]:
-    # FunctionalPlan v2 uses the authored scope tree as its only sharing
+    # FunctionalPlan v3 uses the authored scope tree as its only sharing
     # mechanism. A step is never moved across scope boundaries while lowering:
     # shared work must already live in the nearest common ancestor's
     # ``scope.steps``. B2 may later choose a compatible execution scope, but it
@@ -6657,8 +7233,17 @@ def _scope_placement_is_safe(
             scope_parents,
         ):
             return False
+    if any(
+        binding.kind == "derived"
+        for binding in location.step.return_bindings.values()
+    ):
+        return candidate_scope_id == location.scope_id
     for target in (
-        *location.step.output_targets.values(),
+        *(
+            binding.ref
+            for binding in location.step.return_bindings.values()
+            if binding.kind == "existing"
+        ),
         *answer_target_refs,
     ):
         try:
@@ -6734,20 +7319,40 @@ def _audit_return_bindings(
     goal_unit_ids: Sequence[str],
 ) -> None:
     returns = {item.name: item for item in capability.returns}
-    for name, target in step.output_targets.items():
+    for name, target in step.return_bindings.items():
         returned = returns.get(name)
         if returned is None or returned.binding_mode == "internal_only":
             raise _error(
                 "functional.output_target_invalid",
-                f"$.steps[{step.step_id!r}].output_targets[{name!r}]",
+                f"$.steps[{step.step_id!r}].return_bindings[{name!r}]",
                 "return cannot target an external Problem object",
             )
+        if target.kind == "derived":
+            if returned.naming.mode != "optional_default":
+                raise _error(
+                    "functional.return_binding_invalid",
+                    f"$.steps[{step.step_id!r}].return_bindings[{name!r}]",
+                    "derived return lacks an optional_default naming contract",
+                )
+            resolved = return_bindings.get(name)
+            if (
+                resolved is None
+                or resolved.from_step != step.step_id
+                or resolved.ref != target.ref
+            ):
+                raise _error(
+                    "planner.method_output_write_authority_drift",
+                    f"$.steps[{step.step_id!r}].return_bindings[{name!r}]",
+                    "derived return allocation differs from Plan authority",
+                    retryable=False,
+                )
+            continue
         binding = _input_binding(
             binding_catalog,
-            target,
+            target.ref,
             scope_id=scope_id,
             goal_unit_ids=goal_unit_ids,
-            path=f"$.steps[{step.step_id!r}].output_targets[{name!r}]",
+            path=f"$.steps[{step.step_id!r}].return_bindings[{name!r}]",
         )
         actual_types = _binding_runtime_types(binding)
         returned_domain_type = planner_input_domain_type(
@@ -6760,7 +7365,7 @@ def _audit_return_bindings(
         ):
             raise _error(
                 "functional.output_target_invalid",
-                f"$.steps[{step.step_id!r}].output_targets[{name!r}]",
+                f"$.steps[{step.step_id!r}].return_bindings[{name!r}]",
                 "output target type differs from the capability return",
             )
     for returned in capability.returns:
@@ -6772,7 +7377,7 @@ def _audit_return_bindings(
         ):
             raise _error(
                 "functional.output_target_invalid",
-                f"$.steps[{step.step_id!r}].output_targets",
+                f"$.steps[{step.step_id!r}].return_bindings",
                 f"return {returned.name!r} requires an external target",
             )
 
@@ -6921,4 +7526,5 @@ __all__ = [
     "scoped_functional_plan_id",
     "scoped_published_goal_bindings",
     "scoped_functional_plan_schema",
+    "scoped_functional_step_from_payload",
 ]

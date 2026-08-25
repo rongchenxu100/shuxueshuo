@@ -16,7 +16,7 @@
     "answer_type": "Point"
   },
   "plan": {
-    "format": "functional_plan/v2",
+    "format": "functional_plan/v3",
     "root_scope": {
       "scope_ref": "example",
       "goals": [
@@ -31,8 +31,8 @@
                 "curve_point": "anchor_point",
                 "free_parameters": "parameter"
               },
-              "output_targets": {
-                "parabola": "curve"
+              "return_bindings": {
+                "parabola": {"kind": "existing", "ref": "curve"}
               },
               "intent": "得到单参数函数。"
             },
@@ -42,8 +42,8 @@
               "args": {
                 "quadratic": "curve"
               },
-              "output_targets": {
-                "point": "reference_point"
+              "return_bindings": {
+                "point": {"kind": "existing", "ref": "reference_point"}
               },
               "intent": "由函数求几何参考点。"
             },

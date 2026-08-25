@@ -20,16 +20,13 @@ from shuxueshuo_server.solver.contracts import (
     CanonicalSymbolDerivationSpec,
     CoefficientExtractionDerivationSpec,
     ConditionSourceSpec,
-    ExactCallResultSourceSpec,
     FreeSymbolBasisDerivationSpec,
     LatestStateSourceSpec,
     MethodInputBindingSpec,
-    MacroPreparedRoleSourceSpec,
     MethodSpec,
     OrdinalZeroTemplateDerivationSpec,
     PlanTransformerScope,
     PointRef,
-    PreviousOutputIdentityDerivationSpec,
     PublicArgSourceSpec,
     SourceObjectIdentityDerivationSpec,
 )
@@ -453,7 +450,6 @@ class FunctionalCompileStepView(Protocol):
     created_entities: tuple[Any, ...]
     return_outputs: tuple[Any, ...]
     return_allocations: tuple[Any, ...]
-    macro_method_inputs: tuple[Any, ...]
 
 
 class FunctionalCapabilityCompiler:
@@ -2807,323 +2803,6 @@ class _RecipePlanCompiler:
         ]
         return _CompiledStep(plan=plan, registrations=tuple(registrations))
 
-    def _compile_equal_length_ray_path_reduction_recipe(self, step: FunctionalCompileStepView) -> _CompiledStep:
-        """编译“等长射线路径降维为单距离最值” recipe。
-
-        这个 recipe 面向 LLM 是一个高层标准动作：把“两动点距离和”转化为一个
-        固定点到内部辅助点的距离最值。runtime 内部仍复用低层
-        ``equal_length_ray_point`` 与 ``distance_between_points`` method，并由
-        compiler 自动声明辅助点，避免让 LLM 自己命名/创建辅助点。
-        """
-        from shuxueshuo_server.solver.runtime.method_input_read_authority import (
-            EntityIdentityReadSource,
-            InvocationResultReadSource,
-            MethodInputReadAuthority,
-            StateVersionReadSource,
-        )
-
-        macro_inputs = _required_prepared_macro_method_inputs(
-            step,
-            expected_targets={
-                "equal_length_ray_point.anchor",
-                "equal_length_ray_point.reference_point",
-                "equal_length_ray_point.ray_point",
-                "equal_length_ray_point.target",
-                "distance_between_points.p1",
-                "distance_between_points.p2",
-            },
-        )
-        auxiliary_path = _generated_equal_length_auxiliary_point_path(step, self.index)
-        declaration = _point_declaration_for_path(
-            self.index.context,
-            auxiliary_path,
-            definition="equal_length_ray_path_auxiliary_point",
-        )
-        self.index.declarations[auxiliary_path] = declaration
-        auxiliary_point = _temp(step.step_id, "equal_length_auxiliary_point")
-        distance = _temp(step.step_id, "distance")
-        minimum_target = _minimum_expression_target_path(step, self.index)
-        equal_invocation_id = f"{step.step_id}.equal_length_ray_point"
-        distance_invocation_id = f"{step.step_id}.distance_between_points"
-
-        def role_authority(method_id: str, input_name: str) -> tuple[str, MethodInputReadAuthority]:
-            prepared_input = macro_inputs[f"{method_id}.{input_name}"]
-            if not isinstance(
-                prepared_input.declaration.binding.source,
-                MacroPreparedRoleSourceSpec,
-            ) or not isinstance(prepared_input.source, StateVersionReadSource):
-                raise StrategyDraftValidationError(
-                    "planner.method_input_view_authority_missing: "
-                    f"{step.step_id}.{method_id}.{input_name} has no prepared role state"
-                )
-            method_input = self.method_specs.require(method_id).inputs[input_name]
-            invocation_id = (
-                equal_invocation_id
-                if method_id == "equal_length_ray_point"
-                else distance_invocation_id
-            )
-            return (
-                prepared_input.source.runtime_path,
-                MethodInputReadAuthority(
-                    method_id=method_id,
-                    invocation_id=invocation_id,
-                    input_name=input_name,
-                    item_index=0,
-                    view_mode=method_input.view.mode,
-                    domain_type=method_input.domain_type,
-                    runtime_type=method_input.runtime_type,
-                    scope_id=step.step_id,
-                    source=prepared_input.source,
-                ),
-            )
-
-        anchor_path, anchor_authority = role_authority(
-            "equal_length_ray_point", "anchor"
-        )
-        reference_path, reference_authority = role_authority(
-            "equal_length_ray_point", "reference_point"
-        )
-        ray_path, ray_authority = role_authority(
-            "equal_length_ray_point", "ray_point"
-        )
-        fixed_path, fixed_authority = role_authority(
-            "distance_between_points", "p1"
-        )
-        target_binding = macro_inputs["equal_length_ray_point.target"]
-        if not isinstance(
-            target_binding.declaration.binding.derivation,
-            PreviousOutputIdentityDerivationSpec,
-        ):
-            raise StrategyDraftValidationError(
-                "planner.macro_contract_invalid: equal-length target is not output-owned"
-            )
-        target_spec = self.method_specs.require(
-            "equal_length_ray_point"
-        ).inputs["target"]
-        target_object = derived_role_object_ref(
-            call_id=step.step_id,
-            semantic_role="equal_length_auxiliary_point",
-            scope_id=step.scope_id,
-            runtime_type="Point",
-        )
-        target_authority = MethodInputReadAuthority(
-            method_id="equal_length_ray_point",
-            invocation_id=equal_invocation_id,
-            input_name="target",
-            item_index=0,
-            view_mode=target_spec.view.mode,
-            domain_type=target_spec.domain_type,
-            runtime_type=target_spec.runtime_type,
-            scope_id=step.step_id,
-            source=EntityIdentityReadSource(target_object, auxiliary_path),
-        )
-        p2_binding = macro_inputs["distance_between_points.p2"]
-        if not isinstance(
-            p2_binding.declaration.binding.source,
-            ExactCallResultSourceSpec,
-        ):
-            raise StrategyDraftValidationError(
-                "planner.macro_contract_invalid: equal-length p2 is not an exact internal result"
-            )
-        p2_spec = self.method_specs.require("distance_between_points").inputs["p2"]
-        p2_authority = MethodInputReadAuthority(
-            method_id="distance_between_points",
-            invocation_id=distance_invocation_id,
-            input_name="p2",
-            item_index=0,
-            view_mode=p2_spec.view.mode,
-            domain_type=p2_spec.domain_type,
-            runtime_type=p2_spec.runtime_type,
-            scope_id=step.step_id,
-            source=InvocationResultReadSource(
-                equal_invocation_id,
-                "point",
-                auxiliary_point,
-            ),
-        )
-        distance_inputs = {
-            "p1": fixed_path,
-            "p2": auxiliary_point,
-        }
-        projected_outputs, projected_promote = (
-            self._projected_macro_method_outputs(
-                step,
-                "distance_between_points",
-                input_bindings=distance_inputs,
-            )
-        )
-        distance_outputs = projected_outputs or {"distance": distance}
-        invocations = [
-            MethodInvocation(
-                invocation_id=equal_invocation_id,
-                method_id="equal_length_ray_point",
-                scope=step.step_id,
-                inputs={
-                    "anchor": anchor_path,
-                    "reference_point": reference_path,
-                    "ray_point": ray_path,
-                    "target": auxiliary_path,
-                },
-                outputs={"point": auxiliary_point},
-                input_read_authorities={
-                    "anchor": (anchor_authority,),
-                    "reference_point": (reference_authority,),
-                    "ray_point": (ray_authority,),
-                    "target": (target_authority,),
-                },
-            ),
-            MethodInvocation(
-                invocation_id=distance_invocation_id,
-                method_id="distance_between_points",
-                scope=step.step_id,
-                inputs=distance_inputs,
-                outputs=distance_outputs,
-                input_read_authorities={
-                    "p1": (fixed_authority,),
-                    "p2": (p2_authority,),
-                },
-            ),
-        ]
-        promote = {
-            auxiliary_point: auxiliary_path,
-            **(projected_promote or {distance: minimum_target}),
-        }
-        plan = StepPlan(
-            step_id=step.step_id,
-            goal=StepGoal(
-                goal_id=f"{step.goal_type}:{step.step_id}",
-                type=step.goal_type,
-                target_path=minimum_target,
-                scope_id=step.scope_id,
-            ),
-            scope=step.scope_id,
-            invocations=invocations,
-            expected_outputs=list(promote.values()),
-            promote_outputs=promote,
-        )
-        registrations = tuple(
-            RuntimeHandleBinding(item.handle, minimum_target, "MinimumExpression", f"step:{step.step_id}")
-            for item in _compile_return_outputs(step)
-            if _produced_output_type(item, self.index.handle_registry) == "MinimumExpression"
-        )
-        return _CompiledStep(
-            plan=plan,
-            declarations=(declaration,),
-            registrations=registrations,
-        )
-
-    def _compile_straightened_distance_minimum_recipe(self, step: FunctionalCompileStepView) -> _CompiledStep:
-        """编译“已拉直方案 -> 端点距离最值” recipe。
-
-        split recipe 路径中，前序 ``broken_path_straightening_and_select`` 已经确定
-        最短线段端点；这里优先消费这些 endpoint metadata，避免继续让 LLM
-        通过普通 point reads 猜测距离两端。
-        """
-        inputs = self._projected_exact_recipe_inputs(
-            step,
-            "distance_between_points",
-        )
-        if inputs and not {"p1", "p2"}.issubset(inputs):
-            raise StrategyDraftValidationError(
-                "planner_configuration_error: straightened distance macro "
-                "requires projected p1 and p2"
-            )
-        if not inputs:
-            endpoints = _straightening_endpoint_handles_from_reads(step, self.index)
-            if endpoints is None:
-                return self._compile_method(step, "distance_between_points")
-            point_1, point_2 = endpoints
-            inputs = {
-                "p1": self.index.path_for(point_1, expected_type="Point"),
-                "p2": self.index.path_for(point_2, expected_type="Point"),
-            }
-        parameter_handle = _parameter_value_handle(step, self.index)
-        if parameter_handle is not None:
-            inputs["parameter_value"] = self.index.path_for(
-                parameter_handle,
-                expected_type="ParameterValue",
-            )
-            pairs = parameter_substitution_pairs_from_reads(step, self.index)
-            matching = [
-                symbol_path
-                for symbol_path, value_path in pairs
-                if value_path == inputs["parameter_value"]
-            ]
-            if len(matching) != 1:
-                raise method_input_invalid(
-                    "ParameterValue does not resolve to one visible Symbol identity",
-                    method_id="distance_between_points",
-                    capability_id=_compile_capability_id(step),
-                    scope_id=step.scope_id,
-                    step_id=step.step_id,
-                    arg_name="parameter_value",
-                    role="substitution_value",
-                    expected={"matching_symbol_count": 1},
-                    observed={"matching_symbol_count": len(matching)},
-                    repair_action="repair_input_binding",
-                )
-            inputs["parameter"] = matching[0]
-        outputs, promote = self._projected_macro_method_outputs(
-            step,
-            "distance_between_points",
-            input_bindings=inputs,
-        )
-        projected_outputs = bool(outputs)
-        if not outputs:
-            output_name = (
-                "evaluated_distance"
-                if parameter_handle is not None
-                else "distance"
-            )
-            distance = _temp(step.step_id, output_name)
-            target_path = _minimum_expression_target_path(step, self.index)
-            outputs = {output_name: distance}
-            promote = {distance: target_path}
-        else:
-            target_path = _minimum_expression_target_path(step, self.index)
-            if target_path not in promote.values():
-                target_path = next(iter(promote.values()))
-        plan = StepPlan(
-            step_id=step.step_id,
-            goal=StepGoal(
-                goal_id=f"{step.goal_type}:{step.step_id}",
-                type=step.goal_type,
-                target_path=target_path,
-                scope_id=step.scope_id,
-            ),
-            scope=step.scope_id,
-            invocations=[
-                MethodInvocation(
-                    invocation_id=f"{step.step_id}.distance_between_points",
-                    method_id="distance_between_points",
-                    scope=step.step_id,
-                    inputs=inputs,
-                    outputs=outputs,
-                )
-            ],
-            expected_outputs=list(_unique_ordered(promote.values())),
-            promote_outputs=promote,
-        )
-        registrations = (
-            ()
-            if projected_outputs
-            else tuple(
-                RuntimeHandleBinding(
-                    item.handle,
-                    target_path,
-                    "MinimumExpression",
-                    f"step:{step.step_id}",
-                )
-                for item in _compile_return_outputs(step)
-                if _produced_output_type(
-                    item,
-                    self.index.handle_registry,
-                )
-                == "MinimumExpression"
-            )
-        )
-        return _CompiledStep(plan=plan, registrations=registrations)
-
     def _compile_broken_path_straightening_minimum_expression_recipe(self, step: FunctionalCompileStepView) -> _CompiledStep:
         """编译“折线拉直候选 + 选择方案 + 计算最小值表达式” recipe。"""
         (
@@ -3468,24 +3147,6 @@ def _compile_straightening_candidates_select_recipe(
     return compiler._compile_straightening_recipe(step)
 
 
-def _compile_equal_length_ray_path_reduction_recipe(
-    compiler: _RecipePlanCompiler,
-    step: FunctionalCompileStepView,
-    recipe: FamilyRecipeExecutionSpec,
-) -> _CompiledStep:
-    """编译等长射线路径降维 recipe。"""
-    return compiler._compile_equal_length_ray_path_reduction_recipe(step)
-
-
-def _compile_straightened_distance_minimum_recipe(
-    compiler: _RecipePlanCompiler,
-    step: FunctionalCompileStepView,
-    recipe: FamilyRecipeExecutionSpec,
-) -> _CompiledStep:
-    """编译 split 将军饮马后续的端点距离最值 recipe。"""
-    return compiler._compile_straightened_distance_minimum_recipe(step)
-
-
 def _compile_broken_path_straightening_minimum_expression_recipe(
     compiler: _RecipePlanCompiler,
     step: FunctionalCompileStepView,
@@ -3500,30 +3161,8 @@ DEFAULT_RECIPE_COMPILERS: dict[str, RecipeCompileStrategyFn] = {
     "right_angle_construct_select": _compile_right_angle_construct_select_recipe,
     "curve_candidate_parameter_solve": _compile_curve_candidate_parameter_solve_recipe,
     "straightening_candidates_select": _compile_straightening_candidates_select_recipe,
-    "equal_length_ray_path_reduction": _compile_equal_length_ray_path_reduction_recipe,
-    "straightened_distance_minimum": _compile_straightened_distance_minimum_recipe,
     "broken_path_straightening_minimum_expression": _compile_broken_path_straightening_minimum_expression_recipe,
 }
-
-
-def _required_prepared_macro_method_inputs(
-    step: FunctionalCompileStepView,
-    *,
-    expected_targets: set[str],
-) -> dict[str, Any]:
-    """Return the Registry-owned internal wiring for one prepared Macro."""
-
-    declared = {
-        item.declaration.target: item
-        for item in getattr(step, "macro_method_inputs", ())
-    }
-    if set(declared) != expected_targets:
-        raise StrategyDraftValidationError(
-            "planner.macro_preparation_authority_missing: "
-            f"{step.step_id}: expected={sorted(expected_targets)}, "
-            f"observed={sorted(declared)}"
-        )
-    return declared
 
 
 def _point_value_path_for_step(
@@ -3731,20 +3370,6 @@ def _point_definition(point_handle: str, index: CanonicalRuntimeBindingIndex) ->
     return str(value) if isinstance(value, str) else None
 
 
-def _generated_equal_length_auxiliary_point_path(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-) -> str:
-    """生成 recipe 内部辅助点的稳定 points path。"""
-    base = "equal_length_auxiliary_point"
-    for suffix in ("", "_2", "_3"):
-        name = f"{base}{suffix}"
-        path = _runtime_path_for_scope(index.context, step.scope_id, "points", name)
-        if not _context_path_exists(index.context, path):
-            return path
-    return _runtime_path_for_scope(index.context, step.scope_id, "points", f"{base}_{step.step_id}")
-
-
 def _generated_straightening_auxiliary_point_path(
     step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
@@ -3777,7 +3402,8 @@ def _minimum_expression_target_path(
     if candidates:
         return _target_path_for_produced(candidates[0], "MinimumExpression", index, step)
     raise StrategyDraftValidationError(
-        f"equal_length_ray_path_reduction_requires_minimum_expression: {step.step_id}"
+        "planner.method_output_write_authority_missing: "
+        f"{step.step_id} has no MinimumExpression return allocation"
     )
 
 

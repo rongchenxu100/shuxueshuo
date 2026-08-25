@@ -19,7 +19,7 @@ from shuxueshuo_server.solver.runtime.scoped_functional_plan_replay import (
 )
 
 from _problem_planning_support import CASES, planning_binding_fixture
-from _scoped_functional_plan_support import load_v2_fixture_payload
+from _scoped_functional_plan_support import load_v3_fixture_payload
 
 
 class _RecordedClient:
@@ -48,7 +48,7 @@ def test_v2_recorded_plan_reconciles_compiles_and_executes(
         binding_catalog,
     ) = planning_binding_fixture(tmp_path / case, case=case)
     result = ScopedFunctionalPlanReplayService().replay_raw_json(
-        json.dumps(load_v2_fixture_payload(case), ensure_ascii=False),
+        json.dumps(load_v3_fixture_payload(case), ensure_ascii=False),
         inputs=inputs,
         planning_context=planning_context,
         problem_binding_catalog=binding_catalog,
@@ -96,7 +96,7 @@ def test_explicit_live_authoring_boundary_uses_content_prompt_and_replay(
         binding_catalog,
     ) = planning_binding_fixture(tmp_path / case, case=case)
     plan, validation = ScopedFunctionalPlanValidator().validate_payload_with_report(
-        load_v2_fixture_payload(case)
+        load_v3_fixture_payload(case)
     )
     assert validation.ok and plan is not None
     raw_response = json.dumps(

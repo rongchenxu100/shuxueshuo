@@ -28,7 +28,7 @@ class ReturnObjectAuthorityResolver:
     """
 
     _PRECEDENCE = (
-        "explicit_output_target",
+        "explicit_return_binding",
         "goal_answer_target",
         "identity_constraint",
         "declared_identity_arg",
@@ -39,14 +39,14 @@ class ReturnObjectAuthorityResolver:
     def resolve(
         cls,
         *,
-        explicit_output_targets: Iterable[str] = (),
+        explicit_return_bindings: Iterable[str] = (),
         goal_answer_targets: Iterable[str] = (),
         identity_constraint_targets: Iterable[str] = (),
         declared_identity_targets: Iterable[str] = (),
         code_selected_targets: Iterable[str] = (),
     ) -> ReturnObjectAuthorityResolution:
         candidates: Mapping[str, Iterable[str]] = {
-            "explicit_output_target": explicit_output_targets,
+            "explicit_return_binding": explicit_return_bindings,
             "goal_answer_target": goal_answer_targets,
             "identity_constraint": identity_constraint_targets,
             "declared_identity_arg": declared_identity_targets,

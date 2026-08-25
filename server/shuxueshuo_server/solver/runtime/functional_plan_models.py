@@ -7,9 +7,12 @@ import re
 from typing import Any, Literal, Mapping
 
 from shuxueshuo_server.solver.contracts import (
+    FunctionalCapabilityKind,
     FunctionalResultForm,
+    FunctionalReturnNamingSpec,
     MethodInputBindingSpec,
     MethodInputViewMode,
+    PredicatePublicationSpec,
 )
 from shuxueshuo_server.solver.family.models import (
     CapabilityContextResolver,
@@ -54,7 +57,6 @@ from shuxueshuo_server.solver.state_semantics import (
     object_ref_matches_runtime_type,
 )
 
-FunctionalCapabilityKind = Literal["function", "macro"]
 FunctionalIssueLayer = Literal[
     "functional_validation",
     "functional_elaboration",
@@ -349,6 +351,8 @@ class FunctionalCapabilityReturn:
     free_symbol_return_names: tuple[str, ...] = ()
     output_target_selector: FunctionalOutputTargetSelectorSpec | None = None
     materialization_policy: Literal["on_demand", "always"] = "on_demand"
+    naming: FunctionalReturnNamingSpec = FunctionalReturnNamingSpec()
+    predicate_publication: PredicatePublicationSpec | None = None
 
     @property
     def binding_mode(self) -> str:
@@ -379,6 +383,13 @@ class FunctionalCapabilityReturn:
             "type": planner_output_value_type(self.runtime_type),
             "binding": binding_mode,
         }
+        if self.naming.mode != "anonymous":
+            scope_binding = self.naming.to_payload()
+            if self.naming.default_name is not None:
+                scope_binding["default_ref_template"] = (
+                    "{step_id}." + self.naming.default_name
+                )
+            payload["scope_binding"] = scope_binding
         if _is_aggregate_return_type(self.runtime_type):
             payload["value_cardinality"] = "aggregate"
         if not self.required:
@@ -512,6 +523,7 @@ class FunctionalCapability:
         exposed_arg_names = frozenset(item.name for item in self.args)
         payload: dict[str, Any] = {
             "capability_id": self.capability_id,
+            "kind": self.kind,
             "title": self.title,
             "use_when": self.use_when,
             "args": [item.to_prompt_payload() for item in self.args],

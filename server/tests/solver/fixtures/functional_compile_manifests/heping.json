@@ -940,115 +940,15 @@
     {
       "call_id": "reduce_equal_length_ray_path_ii",
       "capability_id": "equal_length_ray_path_reduction",
-      "steps": [
-        {
-          "step_id": "reduce_equal_length_ray_path_ii",
-          "scope": "ii",
-          "invocations": [
-            {
-              "method_id": "equal_length_ray_point",
-              "scope": "reduce_equal_length_ray_path_ii",
-              "inputs": [
-                "anchor",
-                "ray_point",
-                "reference_point",
-                "target"
-              ],
-              "outputs": {
-                "point": "$step.reduce_equal_length_ray_path_ii.temp.equal_length_auxiliary_point"
-              }
-            },
-            {
-              "method_id": "distance_between_points",
-              "scope": "reduce_equal_length_ray_path_ii",
-              "inputs": [
-                "p1",
-                "p2"
-              ],
-              "outputs": {
-                "distance": "$step.reduce_equal_length_ray_path_ii.temp.distance"
-              }
-            }
-          ],
-          "promotions": {
-            "$step.reduce_equal_length_ray_path_ii.temp.distance": "$question.ii.outputs.minimum_expression",
-            "$step.reduce_equal_length_ray_path_ii.temp.equal_length_auxiliary_point": "$question.ii.points.equal_length_auxiliary_point"
-          }
-        }
-      ],
-      "bindings": [
-        {
-          "arg": "anchor",
-          "item": 0,
-          "role": "anchor",
-          "authority": "resolver",
-          "target": null,
-          "paths": []
-        },
-        {
-          "arg": "equal_length_condition",
-          "item": 0,
-          "role": "equal_length_condition",
-          "authority": "wire",
-          "target": null,
-          "paths": []
-        },
-        {
-          "arg": "fixed_point",
-          "item": 0,
-          "role": "fixed_point",
-          "authority": "resolver",
-          "target": null,
-          "paths": []
-        },
-        {
-          "arg": "path_minimum_target",
-          "item": 0,
-          "role": "path_minimum_target",
-          "authority": "wire",
-          "target": null,
-          "paths": []
-        },
-        {
-          "arg": "point_on_ray",
-          "item": 0,
-          "role": "point_on_ray",
-          "authority": "wire",
-          "target": null,
-          "paths": []
-        },
-        {
-          "arg": "point_on_segment",
-          "item": 0,
-          "role": "point_on_segment",
-          "authority": "wire",
-          "target": null,
-          "paths": []
-        },
-        {
-          "arg": "ray_point",
-          "item": 0,
-          "role": "ray_point",
-          "authority": "resolver",
-          "target": null,
-          "paths": []
-        },
-        {
-          "arg": "reference_point",
-          "item": 0,
-          "role": "reference_point",
-          "authority": "resolver",
-          "target": null,
-          "paths": []
-        }
-      ],
+      "steps": [],
+      "bindings": [],
       "public_returns": [
         {
           "name": "minimum_expression",
           "runtime_type": "MinimumExpression",
           "identity_policy": "value_only",
           "write_mode": "value",
-          "output_key": "distance_between_points.distance",
+          "output_key": "minimum_expression",
           "required": true
         }
       ],
@@ -1109,7 +1009,7 @@
           "authority": "wire",
           "target": "expression",
           "paths": [
-            "$question.ii.outputs.minimum_expression"
+            "$question.ii.outputs.__verified_subplan_fc35d073b730eacf06a7"
           ]
         },
         {

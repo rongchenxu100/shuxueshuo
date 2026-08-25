@@ -6,13 +6,7 @@ from types import SimpleNamespace
 import pytest
 
 from shuxueshuo_server.solver.contracts import (
-    ExactCallResultSourceSpec,
-    MacroPreparedRoleSourceSpec,
     MethodInputBindingSpec,
-    PreviousOutputIdentityDerivationSpec,
-)
-from shuxueshuo_server.solver.runtime.equal_length_ray_path_search import (
-    _prepared_runtime_arg_value,
 )
 from shuxueshuo_server.solver.family import DEFAULT_FAMILY_REGISTRY
 from shuxueshuo_server.solver.runtime.functional_plan_elaboration import (
@@ -24,28 +18,28 @@ from shuxueshuo_server.solver.runtime.handle_registry import (
 from shuxueshuo_server.solver.runtime.macro_preparation import (
     MacroPreparationRequest,
     _build_equal_length_ray_preparation_context,
-    build_equal_length_ray_macro_role_candidates,
-    build_equal_length_ray_point_name_candidates,
-    default_macro_implementation_registry,
+)
+from shuxueshuo_server.solver.runtime.macro_definitions import (
+    MacroDefinitionError,
+    build_point_name_candidates,
+    default_macro_definition_registry,
 )
 from shuxueshuo_server.solver.runtime.macro_runtime_search import (
     MacroRuntimeSearchError,
 )
-from shuxueshuo_server.solver.runtime.method_input_read_authority import (
-    InvocationResultReadSource,
-    StateVersionReadSource,
+from shuxueshuo_server.solver.runtime.recipes import (
+    EQUAL_LENGTH_RAY_PATH_REDUCTION_SPEC,
 )
-
 from test_functional_transaction_execution import _replay
 
 
 pytestmark = pytest.mark.solver_contract
 
 
-def _implementation():
-    return default_macro_implementation_registry()._items[
+def _definition():
+    return default_macro_definition_registry().require(
         "equal_length_ray_path_reduction"
-    ]
+    )
 
 
 def _equal_length_role_authority(*, structured: bool):
@@ -112,7 +106,7 @@ def _equal_length_role_authority(*, structured: bool):
             **target_payload,
         },
     }
-    point_names = build_equal_length_ray_point_name_candidates(
+    point_names = build_point_name_candidates(
         point_handles=points,
         entity_payloads=entities,
     )
@@ -146,37 +140,29 @@ def _equal_length_role_authority(*, structured: bool):
     return context, registry, facts
 
 
-def test_registry_owns_every_equal_length_internal_method_input() -> None:
-    bindings = {
-        item.target: item.binding
-        for item in _implementation().method_input_bindings
-    }
+def test_definition_owns_equal_length_search_and_function_fragment() -> None:
+    definition = _definition()
 
-    assert set(bindings) == {
-        "equal_length_ray_point.anchor",
-        "equal_length_ray_point.reference_point",
-        "equal_length_ray_point.ray_point",
-        "equal_length_ray_point.target",
-        "distance_between_points.p1",
-        "distance_between_points.p2",
-    }
-    assert {
-        bindings[name].source.role
-        for name in (
-            "equal_length_ray_point.anchor",
-            "equal_length_ray_point.reference_point",
-            "equal_length_ray_point.ray_point",
-            "distance_between_points.p1",
-        )
-        if isinstance(bindings[name].source, MacroPreparedRoleSourceSpec)
-    } == {"anchor", "reference_point", "ray_point", "fixed_point"}
-    assert isinstance(
-        bindings["equal_length_ray_point.target"].derivation,
-        PreviousOutputIdentityDerivationSpec,
+    assert definition.search_contract.searchable_roles == (
+        "anchor",
+        "reference_point",
+        "ray_point",
+        "fixed_point",
     )
-    assert isinstance(
-        bindings["distance_between_points.p2"].source,
-        ExactCallResultSourceSpec,
+    assert definition.search_contract.validation_policy_id == (
+        "verified_function_fragment"
+    )
+    assert definition.search_contract.evidence_builder_id == (
+        "verified_subplan_execution"
+    )
+    assert {
+        "construct_point_on_ray_at_reference_distance",
+        "verify_distance_equality",
+        "verify_two_segment_path_attainment",
+    } <= set(definition.blueprint.function_capability_ids)
+    assert EQUAL_LENGTH_RAY_PATH_REDUCTION_SPEC.method_sequence == ()
+    assert EQUAL_LENGTH_RAY_PATH_REDUCTION_SPEC.execution_strategy == (
+        "verified_function_fragment_presentation"
     )
 
 
@@ -238,12 +224,15 @@ def test_equal_length_preparation_preserves_ambiguous_point_name_authority() -> 
         "point:problem:C",
     )
     assert set(facts) <= set(preparation.candidate_dependency_envelope)
-    with pytest.raises(MacroRuntimeSearchError) as error:
-        build_equal_length_ray_macro_role_candidates(preparation.payload)
+    with pytest.raises(MacroDefinitionError) as error:
+        default_macro_definition_registry().project_role_bindings(
+            "equal_length_ray_path_reduction",
+            builder_context=preparation.payload,
+            max_candidates=32,
+        )
     assert error.value.code == "planner.macro_point_name_ambiguous"
-    assert error.value.retryability == "configuration"
+    assert not error.value.retryable
     assert error.value.details == {
-        "macro_id": "equal_length_ray_path_reduction",
         "name": "C",
         "candidate_count": 2,
         "candidates": ("point:ii:C", "point:problem:C"),
@@ -272,10 +261,14 @@ def test_equal_length_prompt_projection_does_not_swallow_ambiguous_name() -> Non
 def test_structured_equal_length_roles_allow_duplicate_display_names() -> None:
     context, _registry, _facts = _equal_length_role_authority(structured=True)
 
-    candidates = build_equal_length_ray_macro_role_candidates(context)
+    candidates = default_macro_definition_registry().project_role_bindings(
+        "equal_length_ray_path_reduction",
+        builder_context=context,
+        max_candidates=32,
+    )
 
     assert len(candidates) == 1
-    assert dict(candidates[0].roles) == {
+    assert dict(candidates[0]) == {
         "anchor": "point:problem:C",
         "fixed_point": "point:problem:O",
         "ray_point": "point:problem:D",
@@ -311,7 +304,7 @@ def test_macro_winner_is_the_only_f5c_role_authority() -> None:
     )
 
 
-def test_macro_clean_replay_uses_canonical_paths_and_exact_internal_result() -> None:
+def test_macro_clean_replay_executes_only_the_selected_function_fragment() -> None:
     replay = _replay("heping", mode="context_authoritative")
     report = replay.transactional_execution_report
     assert report is not None
@@ -320,27 +313,23 @@ def test_macro_clean_replay_uses_canonical_paths_and_exact_internal_result() -> 
         for item in report.compiled_calls
         if item.call_id == "reduce_equal_length_ray_path_ii"
     )
-    invocations = {
-        item.method_id: item
-        for plan in compiled.replay_plans
-        for item in plan.invocations
+    assert compiled.plans == ()
+    assert compiled.replay_plans == ()
+    assert compiled.output_write_authorities == ()
+    execution = compiled.fragment_execution
+    assert execution is not None and execution.passed
+    assert execution.standard_outputs["minimum_expression"] is not None
+    assert {
+        item.capability_id for item in execution.step_executions
+    } >= {
+        "construct_point_on_ray_at_reference_distance",
+        "verify_distance_equality",
+        "verify_two_segment_path_attainment",
     }
-
-    for input_name in ("anchor", "reference_point", "ray_point"):
-        source = invocations["equal_length_ray_point"].input_read_authorities[
-            input_name
-        ][0].source
-        assert isinstance(source, StateVersionReadSource)
-        assert "__functional_transaction_" not in source.runtime_path
-    p2 = invocations["distance_between_points"].input_read_authorities["p2"][
-        0
-    ].source
-    assert isinstance(p2, InvocationResultReadSource)
-    assert p2.invocation_id.endswith(".equal_length_ray_point")
-    assert p2.return_name == "point"
+    assert all(item.runtime_path for item in compiled.public_returns)
 
 
-def test_witness_reads_the_registry_owned_state_pin() -> None:
+def test_fragment_reads_finalized_f5c_identity_and_exact_runtime_pins() -> None:
     replay = _replay("heping", mode="context_authoritative")
     report = replay.transactional_execution_report
     assert report is not None
@@ -349,26 +338,26 @@ def test_witness_reads_the_registry_owned_state_pin() -> None:
         for item in report.compiled_calls
         if item.call_id == "reduce_equal_length_ray_path_ii"
     )
-    invocation = compiled.plans[0].invocations[0]
-    source = invocation.input_read_authorities["anchor"][0].source
-    value = report.runtime_version_values[source.state_version_id]
-    declaration = next(
-        item
-        for item in _implementation().method_input_bindings
-        if item.target == "equal_length_ray_point.anchor"
+    binding = compiled.problem_call_binding
+    assert binding is not None
+    by_arg = {item.arg_name: item for item in binding.input_bindings}
+    for role in ("anchor", "reference_point", "ray_point", "fixed_point"):
+        source = by_arg[role].typed_source
+        assert source is not None
+        assert source.math_object_id is not None or source.state_version_id is not None
+        if source.state_version_id is not None:
+            assert source.state_version_id in report.runtime_version_values
+    preparation = compiled.macro_preparation_authority
+    assert preparation is not None
+    assert preparation.upstream_exact_state_signature
+    execution = compiled.fragment_execution
+    assert execution is not None
+    assert all(
+        item.source_authority_signatures
+        for item in execution.step_executions
+        if item.capability_id
+        in {
+            "construct_point_on_ray_at_reference_distance",
+            "distance_between_points",
+        }
     )
-    prepared = SimpleNamespace(
-        macro_method_inputs=(
-            SimpleNamespace(declaration=declaration, source=source),
-        ),
-        state_reads=(
-            SimpleNamespace(
-                selected_version_id=source.state_version_id,
-                runtime_value=value,
-                arg_name="$macro.equal_length_ray_point.anchor",
-            ),
-        ),
-        arg_bindings=(),
-    )
-
-    assert _prepared_runtime_arg_value(prepared, "anchor") == value

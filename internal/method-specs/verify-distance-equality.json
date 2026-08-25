@@ -1,0 +1,71 @@
+{
+  "method_id": "verify_distance_equality",
+  "title": "验证两线段等长",
+  "description": "Verify equality of two Euclidean segment lengths.",
+  "summary": "",
+  "solves": [
+    "verify_distance_equality"
+  ],
+  "inputs": {
+    "first_start": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    },
+    "first_end": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    },
+    "second_start": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    },
+    "second_end": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    }
+  },
+  "outputs": {
+    "verified": "Boolean"
+  },
+  "is_pure": true,
+  "predicate_publications": [
+    {
+      "output_name": "verified",
+      "condition_kind": "distance_equality",
+      "related_input_roles": [
+        "first_start",
+        "first_end",
+        "second_start",
+        "second_end"
+      ]
+    }
+  ]
+}

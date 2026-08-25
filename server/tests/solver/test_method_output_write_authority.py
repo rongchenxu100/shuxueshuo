@@ -200,4 +200,4 @@ def test_standalone_equal_length_role_provider_is_absent() -> None:
         and "build_equal_length_ray_role_candidates"
         in path.read_text(encoding="utf-8")
     )
-    assert direct_builder_users == ("macro_preparation.py",)
+    assert direct_builder_users == ("macro_definitions.py",)

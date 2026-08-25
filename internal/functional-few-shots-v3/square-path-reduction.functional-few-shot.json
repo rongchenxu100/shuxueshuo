@@ -10,7 +10,7 @@
     ]
   },
   "plan": {
-    "format": "functional_plan/v2",
+    "format": "functional_plan/v3",
     "root_scope": {
       "scope_ref": "example",
       "steps": [
@@ -21,8 +21,8 @@
             "curve_point": "known_curve_point",
             "free_parameters": "parameter"
           },
-          "output_targets": {
-            "parabola": "curve"
+          "return_bindings": {
+            "parabola": {"kind": "existing", "ref": "curve"}
           },
           "intent": "得到单参数函数。"
         },
@@ -32,8 +32,8 @@
           "args": {
             "parabola": "curve"
           },
-          "output_targets": {
-            "point": "axis_point"
+          "return_bindings": {
+            "point": {"kind": "existing", "ref": "axis_point"}
           },
           "intent": "参数化轴上点。"
         },
@@ -45,8 +45,8 @@
             "side_end": "axis_point",
             "square": "square_relation"
           },
-          "output_targets": {
-            "adjacent_vertex": "moving_vertex"
+          "return_bindings": {
+            "adjacent_vertex": {"kind": "existing", "ref": "moving_vertex"}
           },
           "intent": "构造并更新题面已有的动点。"
         },
@@ -92,7 +92,7 @@
                 "side_end": "answer_side_end",
                 "square": "answer_square_relation"
               },
-              "intent": "目标点本身就是本Goal答案时，不写output_targets。"
+              "intent": "目标点本身就是本Goal答案时，不写return_bindings。"
             }
           ],
           "answer_from": {

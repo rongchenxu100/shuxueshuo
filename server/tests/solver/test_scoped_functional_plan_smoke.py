@@ -172,7 +172,7 @@ def test_provider_boundary_is_persisted_before_plan_execution(tmp_path) -> None:
         )
 
         def complete(self, _payload):
-            return '{"format":"functional-plan-content/v2"}'
+            return '{"format":"functional-plan-content/v3"}'
 
     client = _RecordingClient(
         Provider(),
@@ -196,7 +196,7 @@ def test_provider_boundary_is_persisted_before_plan_execution(tmp_path) -> None:
     )
 
     assert (tmp_path / "attempt-1.raw-response.txt").read_text() == (
-        '{"format":"functional-plan-content/v2"}'
+        '{"format":"functional-plan-content/v3"}'
     )
     assert (tmp_path / "attempt-1.prompt.system.md").read_text() == (
         "system prompt"
@@ -323,7 +323,7 @@ def test_low_thinking_dry_run_applies_to_pass1_and_retry(capsys) -> None:
 
 def test_terminal_error_comes_from_the_last_attempt_not_an_early_schema_error() -> None:
     early = FunctionalGoalRetryError(
-        "functional.v2_schema_invalid",
+        "functional.plan_schema_invalid",
         "$.root_scope",
         "early schema failure",
     )
@@ -664,7 +664,7 @@ def _problem_view_payload():
 
 def _plan_payload():
     return {
-        "format": "functional_plan/v2",
+        "format": "functional_plan/v3",
         "root_scope": {
             "scope_ref": "i",
             "steps": [

@@ -1,4 +1,4 @@
-"""Strict mechanism examples for scope-native FunctionalPlan v2 prompts."""
+"""Strict mechanism examples for scope-native FunctionalPlan v3 prompts."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
 
 
 def default_scoped_functional_few_shot_dir() -> Path:
-    return repo_root() / "internal" / "functional-few-shots-v2"
+    return repo_root() / "internal" / "functional-few-shots-v3"
 
 
 def load_scoped_functional_few_shot(
@@ -21,7 +21,7 @@ def load_scoped_functional_few_shot(
     *,
     directory: Path | str | None = None,
 ) -> dict[str, Any] | None:
-    """Load one v2 example selected by the existing mechanism index."""
+    """Load one v3 example selected by the existing mechanism index."""
 
     root = Path(directory) if directory is not None else (
         default_scoped_functional_few_shot_dir()
@@ -47,7 +47,7 @@ def select_scoped_functional_few_shot(
     *,
     directory: Path | str | None = None,
 ) -> tuple[dict[str, Any] | None, dict[str, str] | None]:
-    """Select one self-contained v2 mechanism using capability containment."""
+    """Select one self-contained v3 mechanism using capability containment."""
 
     root = Path(directory) if directory is not None else (
         default_scoped_functional_few_shot_dir()
@@ -77,7 +77,7 @@ def select_scoped_functional_few_shot(
         result,
         {
             "example_id": example_id,
-            "mode": "v2_capability_subset",
+            "mode": "v3_capability_subset",
         },
     )
 

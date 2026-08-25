@@ -85,7 +85,6 @@ def test_macro_named_entity_and_anonymous_result_forms_are_explicit() -> None:
     for family in DEFAULT_FAMILY_REGISTRY.families:
         registry = MacroSpecRegistry.from_family_spec(family, methods)
         for macro_id in (
-            "broken_path_straightening_and_select",
             "broken_path_straightening_minimum_expression",
         ):
             spec = registry.specs.get(macro_id)
@@ -122,18 +121,19 @@ def test_all_registered_macros_declare_execution_and_lowering_contract() -> None
             macros.setdefault(macro_id, []).append(spec)
 
     assert set(macros) == {
-        "broken_path_straightening_and_select",
         "broken_path_straightening_minimum_expression",
         "curve_candidate_parameter_solve",
         "equal_length_ray_path_reduction",
-        "path_minimum_by_straightened_distance",
         "right_angle_equal_length_construct_and_select",
         "two_moving_points_path_reduction",
     }
     for specs in macros.values():
         for spec in specs:
             assert spec.execution_mode in {"direct", "runtime_search"}
-            assert spec.internal_calls
+            if spec.adapter.execution_strategy == "functional_plan_fragment":
+                assert spec.internal_calls == ()
+            else:
+                assert spec.internal_calls
             if spec.execution_mode == "direct":
                 assert spec.search is None
             else:

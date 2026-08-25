@@ -1,5 +1,5 @@
 {
-  "format": "functional_plan/v2",
+  "format": "functional_plan/v3",
   "root_scope": {
     "scope_ref": "problem",
     "children": [
@@ -72,10 +72,13 @@
                     "args": {
                       "parabola": "parabola"
                     },
-                    "output_targets": {
-                      "point": "E"
-                    },
-                    "intent": "把对称轴上的目标点表示为单参数点。"
+                    "intent": "把对称轴上的目标点表示为单参数点。",
+                    "return_bindings": {
+                      "point": {
+                        "kind": "existing",
+                        "ref": "E"
+                      }
+                    }
                   },
                   {
                     "step_id": "derive_square_vertex_G_i",
@@ -85,10 +88,13 @@
                       "side_end": "E",
                       "square": "square_ae_a_e_k_g"
                     },
-                    "output_targets": {
-                      "adjacent_vertex": "G"
-                    },
-                    "intent": "将正方形已知边旋转得到相邻顶点。"
+                    "intent": "将正方形已知边旋转得到相邻顶点。",
+                    "return_bindings": {
+                      "adjacent_vertex": {
+                        "kind": "existing",
+                        "ref": "G"
+                      }
+                    }
                   },
                   {
                     "step_id": "solve_axis_point_candidates_i",
@@ -135,10 +141,13 @@
                 "args": {
                   "parabola": "parabola"
                 },
-                "output_targets": {
-                  "axis_point": "M"
-                },
-                "intent": "求对称轴与横轴交点。"
+                "intent": "求对称轴与横轴交点。",
+                "return_bindings": {
+                  "axis_point": {
+                    "kind": "existing",
+                    "ref": "M"
+                  }
+                }
               },
               {
                 "step_id": "reduce_square_path_ii",
@@ -158,10 +167,13 @@
                 "args": {
                   "parabola": "parabola"
                 },
-                "output_targets": {
-                  "point": "E"
-                },
-                "intent": "把对称轴上的目标点表示为单参数点。"
+                "intent": "把对称轴上的目标点表示为单参数点。",
+                "return_bindings": {
+                  "point": {
+                    "kind": "existing",
+                    "ref": "E"
+                  }
+                }
               },
               {
                 "step_id": "derive_square_vertex_G_ii",
@@ -171,10 +183,13 @@
                   "side_end": "E",
                   "square": "square_ae_a_e_k_g"
                 },
-                "output_targets": {
-                  "adjacent_vertex": "G"
-                },
-                "intent": "由正方形边构造参数化顶点。"
+                "intent": "由正方形边构造参数化顶点。",
+                "return_bindings": {
+                  "adjacent_vertex": {
+                    "kind": "existing",
+                    "ref": "G"
+                  }
+                }
               },
               {
                 "step_id": "derive_locus_G_ii",
@@ -217,10 +232,13 @@
                   "minimum_value": "minimum_value",
                   "parameter": "c"
                 },
-                "output_targets": {
-                  "parameter_value": "c"
-                },
-                "intent": "令最小值表达式等于题设值并按参数范围取解。"
+                "intent": "令最小值表达式等于题设值并按参数范围取解。",
+                "return_bindings": {
+                  "parameter_value": {
+                    "kind": "existing",
+                    "ref": "c"
+                  }
+                }
               },
               {
                 "step_id": "evaluate_point_A_ii",
@@ -229,10 +247,13 @@
                   "point": "A",
                   "parameter_value": "c"
                 },
-                "output_targets": {
-                  "evaluated_point": "A"
-                },
-                "intent": "把主参数代入横轴交点坐标。"
+                "intent": "把主参数代入横轴交点坐标。",
+                "return_bindings": {
+                  "evaluated_point": {
+                    "kind": "existing",
+                    "ref": "A"
+                  }
+                }
               },
               {
                 "step_id": "derive_minimum_point_G_ii",
@@ -252,10 +273,13 @@
                   },
                   "parameter_value": "c"
                 },
-                "output_targets": {
-                  "point": "G"
-                },
-                "intent": "求最短线段与动点轨迹的交点并代入主参数。"
+                "intent": "求最短线段与动点轨迹的交点并代入主参数。",
+                "return_bindings": {
+                  "point": {
+                    "kind": "existing",
+                    "ref": "G"
+                  }
+                }
               },
               {
                 "step_id": "recover_target_point_E_ii",

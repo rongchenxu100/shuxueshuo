@@ -16,7 +16,7 @@ from shuxueshuo_server.solver.runtime.scoped_functional_plan_replay import (
 )
 
 from _problem_planning_support import CASES, planning_binding_fixture
-from _scoped_functional_plan_support import load_v2_fixture_payload
+from _scoped_functional_plan_support import load_v3_fixture_payload
 
 
 def _scopes(scope: dict[str, Any]) -> Iterator[dict[str, Any]]:
@@ -46,7 +46,7 @@ def _step_result_refs(value: Any) -> Iterator[tuple[str, str]]:
 
 @pytest.mark.parametrize("case", CASES)
 def test_named_entity_outputs_are_read_by_entity_ref_not_step_result(case) -> None:
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     steps = {step["step_id"]: step for step in _steps(payload)}
 
     observed = 0
@@ -54,7 +54,7 @@ def test_named_entity_outputs_are_read_by_entity_ref_not_step_result(case) -> No
         for producer_id, return_name in _step_result_refs(step.get("args", {})):
             observed += 1
             producer = steps[producer_id]
-            assert return_name not in producer.get("output_targets", {}), (
+            assert return_name not in producer.get("return_bindings", {}), (
                 case,
                 step["step_id"],
                 producer_id,
@@ -78,7 +78,7 @@ def test_named_entity_source_ref_builds_latest_visible_producer_dependency(
         binding_catalog,
     ) = planning_binding_fixture(tmp_path, case=case)
     result = ScopedFunctionalPlanReplayService().replay_raw_json(
-        json.dumps(load_v2_fixture_payload(case), ensure_ascii=False),
+        json.dumps(load_v3_fixture_payload(case), ensure_ascii=False),
         inputs=inputs,
         planning_context=planning_context,
         problem_binding_catalog=binding_catalog,
@@ -102,7 +102,7 @@ def test_hidden_entity_state_can_depend_on_later_same_scope_producer(
     tmp_path,
 ) -> None:
     case = "tj-2026-nankai-yimo-25"
-    payload = deepcopy(load_v2_fixture_payload(case))
+    payload = deepcopy(load_v3_fixture_payload(case))
     scope = next(
         item for item in _scopes(payload["root_scope"])
         if item["scope_ref"] == "ii"
@@ -170,7 +170,7 @@ def test_runtime_search_macro_never_reads_sibling_planned_point(
     tmp_path,
 ) -> None:
     case = "tj-2026-heping-yimo-25"
-    payload = deepcopy(load_v2_fixture_payload(case))
+    payload = deepcopy(load_v3_fixture_payload(case))
     scope_ii = next(
         item for item in _scopes(payload["root_scope"])
         if item["scope_ref"] == "ii"
@@ -227,7 +227,7 @@ def test_named_step_result_normalization_retains_exact_producer_edge(
     tmp_path,
 ) -> None:
     case = "tj-2026-heping-yimo-25"
-    payload = deepcopy(load_v2_fixture_payload(case))
+    payload = deepcopy(load_v3_fixture_payload(case))
     consumer = next(
         step
         for step in _steps(payload)
@@ -276,7 +276,7 @@ def test_unmigrated_direct_macro_does_not_claim_runtime_hint_correction(
     tmp_path,
 ) -> None:
     case = "tj-2026-nankai-yimo-25"
-    payload = deepcopy(load_v2_fixture_payload(case))
+    payload = deepcopy(load_v3_fixture_payload(case))
     reduce_path = next(
         step
         for step in _steps(payload)
@@ -325,7 +325,7 @@ def test_recorded_runtime_search_reports_cover_declared_macro_roles(
         binding_catalog,
     ) = planning_binding_fixture(tmp_path, case=case)
     result = ScopedFunctionalPlanReplayService().replay_raw_json(
-        json.dumps(load_v2_fixture_payload(case), ensure_ascii=False),
+        json.dumps(load_v3_fixture_payload(case), ensure_ascii=False),
         inputs=inputs,
         planning_context=planning_context,
         problem_binding_catalog=binding_catalog,
@@ -340,27 +340,28 @@ def test_recorded_runtime_search_reports_cover_declared_macro_roles(
     )
 
     reports = tuple(
-        item.macro_search_report
+        (item.macro_search_report, item.macro_preparation_authority)
         for item in result.replay.transactional_execution_report.call_results
         if item.macro_search_report is not None
+        and item.macro_preparation_authority is not None
     )
-    for report in reports:
+    for report, preparation in reports:
         spec = macro_specs.require(report.macro_id)
         assert spec.search is not None
-        assert tuple(
-            item.role for item in report.role_resolutions
-        ) == spec.search.searchable_roles
-        assert all(item.chosen_ref.startswith("point:") for item in report.role_resolutions)
-        assert all(
-            item.call_count is not None and item.call_count > 0
-            for item in report.evaluations
-            if item.passed
+        winner = preparation.winner.candidate
+        assert tuple(sorted(winner.role_bindings)) == tuple(
+            sorted(spec.search.searchable_roles)
         )
+        assert all(
+            ref.startswith("point:")
+            for ref in winner.role_bindings.values()
+        )
+        assert winner.fragment.function_step_count > 0
 
 
 def test_named_entity_step_result_ref_is_normalized_before_runtime(tmp_path) -> None:
     case = "tj-2026-nankai-yimo-25"
-    payload = deepcopy(load_v2_fixture_payload(case))
+    payload = deepcopy(load_v3_fixture_payload(case))
     target = next(
         step
         for step in _steps(payload)
@@ -418,7 +419,7 @@ def test_named_entity_step_result_ref_is_normalized_before_runtime(tmp_path) -> 
 
 
 def test_anonymous_path_witness_remains_an_exact_step_result() -> None:
-    payload = load_v2_fixture_payload("tj-2026-nankai-yimo-25")
+    payload = load_v3_fixture_payload("tj-2026-nankai-yimo-25")
     target = next(
         step
         for step in _steps(payload)

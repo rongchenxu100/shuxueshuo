@@ -6,6 +6,19 @@
 
 ## 1. 基本原则
 
+`Capability`是Planner catalog中的统一公共入口，不是第三种执行模型。公共分类只有：
+
+```text
+FunctionalCapability(kind=function) -> FunctionSpec -> runtime Method
+FunctionalCapability(kind=macro)    -> MacroSpec -> FunctionalPlan fragment(s)
+```
+
+因此Catalog包含Function Capability和Macro Capability，不直接包含Method Capability。
+底层Method可以与Function使用相同ID，但LLM消费的是Function的领域参数与返回契约，不是
+Method input view、runtime path或隐藏参数。文档中的“Function”均指Function Capability；
+“Method”只指runtime primitive。`method|recipe`若用于描述实现来源，不能冒充公共
+Capability kind。
+
 FunctionalPlan 中，LLM 只负责：
 
 - 选择合适的 capability；
@@ -26,10 +39,8 @@ FunctionalPlan 中，LLM 只负责：
 ## 2. 权威链
 
 ```text
-MethodSpecSource
-→ MethodSpec
-→ FunctionSpec / MacroSpec
-→ capability catalog
+MethodSpecSource        → MethodSpec → FunctionSpec ┐
+Recipe/Macro definition              → MacroSpec    ┴→ FunctionalCapability catalog
 → FunctionalPlan call
 → typed reconciliation
 → FunctionalBindingContext
@@ -97,7 +108,7 @@ Symbol 等具名对象始终使用数学实体 ref。只有没有题面身份的
 
 Method input view只控制代码如何读取一个具名ref，不控制Planner wire是否能写
 `StepResultRef`。只有公开参数显式声明`allows_anonymous_result`时，response schema
-才同时接受匿名上游return；若该return已经绑定`output_targets`、Goal target或
+才同时接受匿名上游return；若该return已经通过`return_bindings`绑定已有对象、Goal target或
 compiler-selected MathObject，最终authority gate仍会拒绝StepResultRef并要求使用
 对应数学实体ref。
 

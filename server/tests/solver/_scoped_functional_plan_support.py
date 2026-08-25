@@ -17,11 +17,11 @@ from shuxueshuo_server.solver.runtime.functional_plan_models import (
 FIXTURE_DIR = (
     Path(__file__).resolve().parents[3]
     / "internal"
-    / "functional-plan-v2-fixtures"
+    / "functional-plan-v3-fixtures"
 )
 
 
-def load_v2_fixture_payload(case: str) -> dict[str, Any]:
+def load_v3_fixture_payload(case: str) -> dict[str, Any]:
     return json.loads(
         (FIXTURE_DIR / f"{case}.functional-plan.json").read_text(
             encoding="utf-8"
@@ -29,12 +29,12 @@ def load_v2_fixture_payload(case: str) -> dict[str, Any]:
     )
 
 
-def migrate_v1_fixture_payload(
+def migrate_v1_fixture_payload_to_v3(
     plan: FunctionalPlan,
     planning_context: ProblemPlanningContext,
     call_goal_bindings: dict[str, tuple[str, ...]],
 ) -> dict[str, Any]:
-    """One-time test migration used to author and audit checked-in v2 gold."""
+    """One-time test migration used to author and audit checked-in v3 gold."""
 
     scopes = {scope.scope_id: scope for scope in planning_context.scopes}
     parents = {
@@ -113,7 +113,7 @@ def migrate_v1_fixture_payload(
             payload["children"] = [build(item) for item in children[scope_id]]
         return payload
 
-    return {"format": "functional_plan/v2", "root_scope": build(root)}
+    return {"format": "functional_plan/v3", "root_scope": build(root)}
 
 
 def _step_payload(call: Any, *, calls: dict[str, Any]) -> dict[str, Any]:
@@ -158,7 +158,10 @@ def _step_payload(call: Any, *, calls: dict[str, Any]) -> dict[str, Any]:
         if binding.kind != "answer"
     }
     if outputs:
-        payload["output_targets"] = outputs
+        payload["return_bindings"] = {
+            name: {"kind": "existing", "ref": ref}
+            for name, ref in outputs.items()
+        }
     if call.return_expectations:
         payload["return_expectations"] = dict(call.return_expectations)
     intent = call.strategy or call.reason

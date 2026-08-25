@@ -573,7 +573,7 @@ def test_internal_method_output_cannot_be_a_contract_state_write() -> None:
     )
     contract = CapabilityContractSpec(
         capability_id=method.method_id,
-        kind="method",
+        capability_kind="function",
         slot_writes=(
             StateSlotPattern(
                 "coordinate",
@@ -615,7 +615,7 @@ def test_function_spec_notes_contract_return_mismatch() -> None:
         ),
         contract=CapabilityContractSpec(
             capability_id="synthetic_method",
-            kind="method",
+            capability_kind="function",
             slot_writes=(
                 StateSlotPattern("expression", "Expression"),
                 StateSlotPattern("coordinate", "Point", required=False),

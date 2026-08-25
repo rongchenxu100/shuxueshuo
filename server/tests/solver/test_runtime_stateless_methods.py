@@ -41,6 +41,7 @@ from shuxueshuo_server.solver.runtime.methods import (
     QuadraticXAxisInterceptPointMethod,
     QuadraticVertexPointMethod,
     QuadraticYAxisInterceptPointMethod,
+    ReflectPointAcrossLineMethod,
     RightAngleEqualLengthCandidatesMethod,
     SelectPointByQuadrantConstraintMethod,
     SelectStraighteningCandidateMethod,
@@ -2160,6 +2161,15 @@ def test_declared_interchangeable_groups_are_runtime_permutation_invariant() -> 
                 },
                 "minimum_point_1": (-5, 0),
                 "minimum_point_2": (sp.Rational(-7, 2), -3),
+                "target": PointRef("G", "$question.ii.points.G"),
+            },
+        ),
+        "reflect_point_across_line": (
+            ReflectPointAcrossLineMethod(),
+            {
+                "point": (2, 3),
+                "line_p1": (0, 0),
+                "line_p2": (4, 0),
                 "target": PointRef("G", "$question.ii.points.G"),
             },
         ),

@@ -159,15 +159,15 @@ def transactional_functional_steps(
     if reconciliation is None or attempt is None or planner_output is None:
         return ()
     goal_calls = set(getattr(attempt, "goal_reachable_call_ids", ()))
-    calls = {item.call_id: item for item in reconciliation.calls}
+    compiled_plans = {
+        item.step_id: item for item in planner_output.step_plans
+    }
     result: list[dict[str, Any]] = []
-    for compiled_plan in planner_output.step_plans:
-        call_id = compiled_plan.step_id
+    for call in reconciliation.calls:
+        call_id = call.call_id
         if call_id not in goal_calls:
             continue
-        call = calls.get(call_id)
-        if call is None:
-            continue
+        compiled_plan = compiled_plans.get(call_id)
         produced = [
             {
                 "handle": handle,
@@ -203,7 +203,11 @@ def transactional_functional_steps(
             )
         result.append(
             {
-                "scope_id": compiled_plan.scope,
+                "scope_id": (
+                    compiled_plan.scope
+                    if compiled_plan is not None
+                    else call.scope_id
+                ),
                 "step_id": call_id,
                 "recipe_hint": call.capability_id,
                 "goal_type": call.capability_id,

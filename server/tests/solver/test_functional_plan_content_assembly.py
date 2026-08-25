@@ -18,7 +18,7 @@ from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
 
 from _functional_goal_retry_support import goal_retry_fixture
 from _problem_planning_support import planning_binding_fixture
-from _scoped_functional_plan_support import load_v2_fixture_payload
+from _scoped_functional_plan_support import load_v3_fixture_payload
 
 
 def test_content_round_trip_rebuilds_identical_canonical_plan(tmp_path) -> None:
@@ -178,7 +178,7 @@ def test_same_step_id_with_changed_capability_rederives_return_name(
     case = "tj-2026-nankai-yimo-25"
     fixture = planning_binding_fixture(tmp_path / case, case=case)
     expected, report = ScopedFunctionalPlanValidator().validate_payload_with_report(
-        load_v2_fixture_payload(case)
+        load_v3_fixture_payload(case)
     )
     assert report.ok and expected is not None
     frame = FunctionalPlanAuthorityFrame.from_planning_context(fixture[1])
@@ -225,7 +225,7 @@ def test_content_assembly_uses_identity_constraint_for_named_return_target(
     case = "tj-2026-heping-ermo-25"
     fixture = planning_binding_fixture(tmp_path / case, case=case)
     expected, report = ScopedFunctionalPlanValidator().validate_payload_with_report(
-        load_v2_fixture_payload(case)
+        load_v3_fixture_payload(case)
     )
     assert report.ok and expected is not None
     frame = FunctionalPlanAuthorityFrame.from_planning_context(fixture[1])
@@ -235,7 +235,7 @@ def test_content_assembly_uses_identity_constraint_for_named_return_target(
         for item in payload["goal_plans"]["ii.E"]["steps"]
         if item["step_id"] == "derive_minimum_point_G_ii"
     )
-    step.pop("output_targets")
+    step.pop("return_bindings")
     consumer = next(
         item
         for item in payload["goal_plans"]["ii.E"]["steps"]
@@ -275,7 +275,7 @@ def test_invalid_answer_step_keeps_draft_and_ignores_inactive_returns(
     case = "tj-2026-nankai-yimo-25"
     fixture = planning_binding_fixture(tmp_path / case, case=case)
     expected, report = ScopedFunctionalPlanValidator().validate_payload_with_report(
-        load_v2_fixture_payload(case)
+        load_v3_fixture_payload(case)
     )
     assert report.ok and expected is not None
     frame = FunctionalPlanAuthorityFrame.from_planning_context(fixture[1])

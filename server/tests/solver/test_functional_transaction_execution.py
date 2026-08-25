@@ -552,8 +552,15 @@ def test_authored_fixture_executes_declared_symbolic_closures(
     assert report.ok, report.to_payload()
 
 
-@pytest.mark.parametrize("case_id", tuple(FUNCTIONAL_BATCH_CASES))
-def test_context_authoritative_goal_output_replays_in_fresh_context(
+@pytest.mark.parametrize(
+    "case_id",
+    tuple(
+        case_id
+        for case_id in FUNCTIONAL_BATCH_CASES
+        if case_id != "heping"
+    ),
+)
+def test_method_only_goal_output_replays_derived_v1_ir_in_fresh_context(
     case_id: str,
 ) -> None:
     replay = _replay(case_id, mode="context_authoritative")
@@ -596,6 +603,37 @@ def test_context_authoritative_goal_output_replays_in_fresh_context(
         for goal in inputs.question_goals
         if goal.required
     )
+
+
+def test_transparent_macro_replays_selected_fragment_in_fresh_transactions() -> None:
+    first = _replay("heping", mode="context_authoritative")
+    second = _replay("heping", mode="context_authoritative")
+
+    def compiled_macro(replay):
+        report = replay.transactional_execution_report
+        assert report is not None and report.ok
+        return next(
+            item
+            for item in report.compiled_calls
+            if item.call_id == "reduce_equal_length_ray_path_ii"
+        )
+
+    first_macro = compiled_macro(first)
+    second_macro = compiled_macro(second)
+    assert first_macro.plans == second_macro.plans == ()
+    assert first_macro.replay_plans == second_macro.replay_plans == ()
+    assert first_macro.fragment_execution is not None
+    assert second_macro.fragment_execution is not None
+    assert (
+        first_macro.fragment_execution.execution_signature
+        == second_macro.fragment_execution.execution_signature
+    )
+    assert dict(first_macro.fragment_execution.standard_outputs) == dict(
+        second_macro.fragment_execution.standard_outputs
+    )
+    assert str(
+        first_macro.fragment_execution.standard_outputs["minimum_expression"]
+    ) == "3*sqrt(2*a**2 + 1)/Abs(a)"
 
 
 def test_goal_closure_keeps_hidden_equal_length_ray_state_producers() -> None:

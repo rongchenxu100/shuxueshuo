@@ -26,6 +26,7 @@ from shuxueshuo_server.solver.contracts import (
     MethodSpec,
     MethodVisualSpec,
     PlanTransformerScope,
+    PredicatePublicationSpec,
     ScalarResultFormSpec,
     SymbolicClosureSpec,
     TrialErrorHintSpec,
@@ -172,6 +173,11 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
             str(name) for name in dict(raw.get("output_activation", {}))
         ),
     )
+    predicate_publications = _parse_predicate_publications(
+        raw.get("predicate_publications", ()),
+        input_names=frozenset(inputs),
+        outputs=outputs,
+    )
     internal_outputs = _parse_identifier_list(
         raw.get("internal_outputs", ()),
         field_name="MethodSpec.internal_outputs",
@@ -206,6 +212,7 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
         inputs=inputs,
         outputs=outputs,
         companion_outputs=companion_outputs,
+        predicate_publications=predicate_publications,
         input_relations=input_relations,
         internal_outputs=internal_outputs,
         output_activation=output_activation,
@@ -314,6 +321,64 @@ def _parse_companion_outputs(
             "planner.method_output_binding_contract_invalid: always-emitted "
             "companion outputs cannot be conditionally activated: "
             + ", ".join(conditional)
+        )
+    return tuple(result)
+
+
+def _parse_predicate_publications(
+    raw: object,
+    *,
+    input_names: frozenset[str],
+    outputs: dict[str, str],
+) -> tuple[PredicatePublicationSpec, ...]:
+    if raw in (None, (), []):
+        return ()
+    if not isinstance(raw, list | tuple):
+        raise ValueError(
+            "MethodSpec.predicate_publications must be a list"
+        )
+    result: list[PredicatePublicationSpec] = []
+    for item in raw:
+        if not isinstance(item, dict):
+            raise ValueError(
+                "planner.predicate_publication_contract_invalid: "
+                "publication must be an object"
+            )
+        allowed = {"output_name", "condition_kind", "related_input_roles"}
+        unknown = sorted(set(item) - allowed)
+        if unknown:
+            raise ValueError(
+                "planner.predicate_publication_contract_invalid: unknown "
+                "fields: " + ", ".join(unknown)
+            )
+        roles = item.get("related_input_roles")
+        if not isinstance(roles, list | tuple):
+            raise ValueError(
+                "planner.predicate_publication_contract_invalid: "
+                "related_input_roles must be a list"
+            )
+        publication = PredicatePublicationSpec(
+            output_name=str(item.get("output_name", "")),
+            condition_kind=str(item.get("condition_kind", "")),
+            related_input_roles=tuple(str(role) for role in roles),
+        )
+        if outputs.get(publication.output_name) != "Boolean":
+            raise ValueError(
+                "planner.predicate_publication_contract_invalid: predicate "
+                f"output {publication.output_name!r} must be Boolean"
+            )
+        unknown_roles = sorted(
+            set(publication.related_input_roles) - input_names
+        )
+        if unknown_roles:
+            raise ValueError(
+                "planner.predicate_publication_contract_invalid: unknown "
+                "related input roles: " + ", ".join(unknown_roles)
+            )
+        result.append(publication)
+    if len({item.output_name for item in result}) != len(result):
+        raise ValueError(
+            "planner.predicate_publication_contract_invalid: duplicate output"
         )
     return tuple(result)
 
@@ -1122,6 +1187,7 @@ def _resolve_spec_dir(path: str | Path | None) -> Path:
 
 _KNOWN_TYPES = {
     "AngleEquality",
+    "Boolean",
     "Condition",
     "Constraint",
     "Coefficients",

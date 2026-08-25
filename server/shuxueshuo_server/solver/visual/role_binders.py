@@ -368,7 +368,7 @@ class VisualRoleBinderRegistry:
         for item in snapshot.fact_index.values():
             if not isinstance(item, dict) or item.get("type") != "Point":
                 continue
-            if str(item.get("source") or "") != "equal_length_ray_point":
+            if item.get("semantic_role") != "auxiliary_point":
                 continue
             for label in self._geometry_labels_for_point_value(item.get("value")):
                 if label in existing_labels:
@@ -1915,7 +1915,10 @@ class VisualRoleBinderRegistry:
             "minimum_by_segment",
         }.intersection(lesson_step.teaching_substep_ids):
             return {}
-        witness = _path_minimum_witness_for_lesson_step(snapshot, lesson_step)
+        witness = _verified_path_minimum_projection_for_lesson_step(
+            snapshot,
+            lesson_step,
+        )
         facts = _facts_by_handle(snapshot.problem)
         entities = self.index.entities_by_handle
         for step_id in lesson_step.source_step_ids:
@@ -2331,7 +2334,7 @@ def _equal_length_roles_from_step(
     }
 
 
-def _path_minimum_witness_for_lesson_step(
+def _verified_path_minimum_projection_for_lesson_step(
     snapshot: ExplanationSnapshot,
     lesson_step: LessonStep,
 ) -> dict[str, Any] | None:

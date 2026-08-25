@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
+from types import MappingProxyType
 from typing import Any, Mapping, Protocol, Sequence
 
 from shuxueshuo_server.solver.contracts import (
@@ -16,6 +17,7 @@ from shuxueshuo_server.solver.contracts import (
     PublicArgSourceSpec,
     SourceObjectIdentityDerivationSpec,
 )
+from shuxueshuo_server.solver.extraction.source_identity import stable_hash
 from shuxueshuo_server.solver.family.models import (
     CapabilityContextResolver,
     CapabilityInputClosureRequirement,
@@ -66,6 +68,10 @@ from shuxueshuo_server.solver.runtime.macro_specs import (
     MacroReturnSpec,
     MacroSpec,
     MacroSpecRegistry,
+)
+from shuxueshuo_server.solver.runtime.macro_blueprints import (
+    MacroSemanticBlueprint,
+    default_macro_blueprints,
 )
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.planner_public_types import (
@@ -134,14 +140,15 @@ def unconsumed_duplicate_identity_arg_omissions(
     step_id: str,
     capability: FunctionalCapability,
     args: Mapping[str, object],
-    output_targets: Mapping[str, object],
+    return_bindings: Mapping[str, object],
     consumed_returns: frozenset[tuple[str, str]],
 ) -> tuple[FunctionalIdentityArgOmission, ...]:
     """Find optional identity inputs that duplicate another distinct role.
 
-    This is the sole executable contract used by both content/v2 and scoped
+    This is the sole executable contract used by both content/v3 and scoped
     Plan normalization. Return expectations do not count as consumption;
-    StepResultRef/answer consumers and named output targets do.
+    StepResultRef and answer consumers do. Merely declaring a derived return
+    name does not keep an otherwise dead step alive.
     """
 
     remaining = dict(args)
@@ -176,7 +183,7 @@ def unconsumed_duplicate_identity_arg_omissions(
             continue
         if any(
             (step_id, return_name) in consumed_returns
-            or return_name in output_targets
+            or return_name in return_bindings
             for return_name in return_names
         ):
             continue
@@ -456,6 +463,171 @@ class FunctionalCapabilityCatalog:
                         "typed projected arguments: "
                         f"{capability.capability_id}.{resolver_id}"
                     )
+
+
+@dataclass(frozen=True)
+class FamilyCapabilityBundle:
+    """One family-selected capability universe shared by Plan and retry."""
+
+    family_id: str
+    catalog: FunctionalCapabilityCatalog
+    function_ids: tuple[str, ...]
+    macro_ids: tuple[str, ...]
+    macro_blueprints: Mapping[str, MacroSemanticBlueprint]
+    bundle_signature: str
+    schema_version: str = "family-capability-bundle/v1"
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "function_ids", tuple(sorted(self.function_ids)))
+        object.__setattr__(self, "macro_ids", tuple(sorted(self.macro_ids)))
+        object.__setattr__(
+            self,
+            "macro_blueprints",
+            MappingProxyType(dict(sorted(self.macro_blueprints.items()))),
+        )
+        known = set(self.catalog.items)
+        if set(self.function_ids) | set(self.macro_ids) != known:
+            raise ValueError(
+                "planner_configuration_error: capability bundle partitions "
+                "do not cover the catalog"
+            )
+        if set(self.function_ids).intersection(self.macro_ids):
+            raise ValueError(
+                "planner_configuration_error: Function and Macro ids overlap"
+            )
+        if not set(self.macro_blueprints).issubset(self.macro_ids):
+            raise ValueError(
+                "planner_configuration_error: blueprint references a non-Macro"
+            )
+        for macro_id, blueprint in self.macro_blueprints.items():
+            if blueprint.macro_id != macro_id:
+                raise ValueError(
+                    "planner_configuration_error: blueprint Macro id drift"
+                )
+            unknown_functions = set(blueprint.function_capability_ids) - set(
+                self.function_ids
+            )
+            if unknown_functions:
+                raise ValueError(
+                    "planner_configuration_error: blueprint exposes unknown "
+                    f"Functions {sorted(unknown_functions)}"
+                )
+        expected_signature = stable_hash(self.authority_payload(include_signature=False))
+        if self.bundle_signature != expected_signature:
+            raise ValueError("planner.capability_bundle_signature_drift")
+
+    @classmethod
+    def from_family_spec(
+        cls,
+        family_spec: SolverFamilySpec,
+        method_specs: MethodSpecRegistry,
+        *,
+        macro_blueprints: Mapping[str, MacroSemanticBlueprint] | None = None,
+    ) -> "FamilyCapabilityBundle":
+        catalog = FunctionalCapabilityCatalog.from_family_spec(
+            family_spec,
+            method_specs,
+        )
+        function_ids = tuple(
+            capability_id
+            for capability_id, item in catalog.items.items()
+            if item.kind == "function"
+        )
+        macro_ids = tuple(
+            capability_id
+            for capability_id, item in catalog.items.items()
+            if item.kind == "macro"
+        )
+        available_blueprints = (
+            dict(macro_blueprints)
+            if macro_blueprints is not None
+            else default_macro_blueprints()
+        )
+        selected_blueprints = {
+            macro_id: blueprint
+            for macro_id, blueprint in available_blueprints.items()
+            if macro_id in macro_ids
+        }
+        payload = {
+            "schema_version": "family-capability-bundle/v1",
+            "family_id": family_spec.family_id,
+            "capabilities": catalog.to_prompt_payload()["capabilities"],
+            "function_ids": sorted(function_ids),
+            "macro_ids": sorted(macro_ids),
+            "macro_blueprints": {
+                key: value.authority_payload()
+                for key, value in sorted(selected_blueprints.items())
+            },
+        }
+        return cls(
+            family_id=family_spec.family_id,
+            catalog=catalog,
+            function_ids=function_ids,
+            macro_ids=macro_ids,
+            macro_blueprints=selected_blueprints,
+            bundle_signature=stable_hash(payload),
+        )
+
+    def authority_payload(self, *, include_signature: bool = True) -> dict[str, Any]:
+        payload = {
+            "schema_version": self.schema_version,
+            "family_id": self.family_id,
+            "capabilities": self.catalog.to_prompt_payload()["capabilities"],
+            "function_ids": list(self.function_ids),
+            "macro_ids": list(self.macro_ids),
+            "macro_blueprints": {
+                key: value.authority_payload()
+                for key, value in self.macro_blueprints.items()
+            },
+        }
+        if include_signature:
+            payload["bundle_signature"] = self.bundle_signature
+        return payload
+
+    def to_prompt_payload(
+        self,
+        *,
+        semantic_catalog: FunctionalSemanticCatalog | None = None,
+    ) -> dict[str, Any]:
+        catalog = (
+            self.catalog.contextualized(semantic_catalog)
+            if semantic_catalog is not None
+            else self.catalog
+        )
+        capabilities = []
+        for item in catalog.items.values():
+            payload = item.to_prompt_payload()
+            blueprint = self.macro_blueprints.get(item.capability_id)
+            if blueprint is not None:
+                payload["semantic_blueprint"] = blueprint.to_prompt_payload()
+            capabilities.append(payload)
+        return {
+            "schema_version": self.schema_version,
+            "bundle_signature": self.bundle_signature,
+            "capabilities": capabilities,
+        }
+
+
+def family_capability_bundle_for_inputs(inputs: Any) -> FamilyCapabilityBundle:
+    """Return and validate the family-selected capability authority."""
+
+    existing = getattr(inputs, "capability_bundle", None)
+    if existing is None:
+        return FamilyCapabilityBundle.from_family_spec(
+            inputs.family_spec,
+            inputs.method_specs,
+        )
+    if not isinstance(existing, FamilyCapabilityBundle):
+        raise ValueError("planner.capability_bundle_contract_invalid")
+    if existing.family_id != inputs.family_spec.family_id:
+        raise ValueError("planner.capability_bundle_family_drift")
+    expected = FamilyCapabilityBundle.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
+    )
+    if existing.bundle_signature != expected.bundle_signature:
+        raise ValueError("planner.capability_bundle_signature_drift")
+    return existing
 
 
 def _contextualize_dynamic_macro_roles(
@@ -1531,49 +1703,51 @@ def _function_return(item: FunctionReturnSpec) -> FunctionalCapabilityReturn:
         else item.write_mode
     )
     return FunctionalCapabilityReturn(
-        item.name,
-        item.runtime_type,
-        item.required,
-        "one",
-        item.state_kind,
-        item.semantic_role or item.name,
-        item.identity_policy,
-        item.identity_arg,
-        write_mode,
-        item.description,
-        (
+        name=item.name,
+        runtime_type=item.runtime_type,
+        required=item.required,
+        cardinality="one",
+        state_kind=item.state_kind,
+        semantic_role=item.semantic_role or item.name,
+        identity_policy=item.identity_policy,
+        identity_arg=item.identity_arg,
+        write_mode=write_mode,
+        description=item.description,
+        possible_forms=(
             item.scalar_result_form.possible_forms
             if item.scalar_result_form is not None
             else ()
         ),
-        (
+        result_form_description=(
             item.scalar_result_form.description
             if item.scalar_result_form is not None
             else ""
         ),
-        None,
-        item.provides_semantic_roles,
-        (),
-        item.object_role_projections,
-        item.lineage_closures,
-        (
+        equivalent_to=None,
+        provides_semantic_roles=item.provides_semantic_roles,
+        evidence_tags=(),
+        object_role_projections=item.object_role_projections,
+        lineage_closures=item.lineage_closures,
+        max_independent_free_parameters=(
             item.scalar_result_form.max_independent_free_parameters
             if item.scalar_result_form is not None
             else None
         ),
-        item.return_binding,
-        (
+        return_binding=item.return_binding,
+        result_form_ignored_input_args=(
             item.scalar_result_form.ignored_symbol_input_args
             if item.scalar_result_form is not None
             else ()
         ),
-        (
+        free_symbol_return_names=(
             item.scalar_result_form.free_symbol_output_names
             if item.scalar_result_form is not None
             else ()
         ),
-        item.output_target_selector,
-        item.materialization_policy,
+        output_target_selector=item.output_target_selector,
+        materialization_policy=item.materialization_policy,
+        naming=item.naming,
+        predicate_publication=item.predicate_publication,
     )
 
 
@@ -1625,47 +1799,48 @@ def _optionalize_polymorphic_returns(
 
 def _macro_return(item: MacroReturnSpec) -> FunctionalCapabilityReturn:
     return FunctionalCapabilityReturn(
-        item.name,
-        item.runtime_type,
-        item.required,
-        item.cardinality,
-        item.state_kind or state_kind_for_runtime_type(item.runtime_type),
-        item.semantic_role or item.name,
-        item.identity_policy,
-        item.identity_arg,
-        item.write_mode,
-        item.description,
-        (
+        name=item.name,
+        runtime_type=item.runtime_type,
+        required=item.required,
+        cardinality=item.cardinality,
+        state_kind=item.state_kind or state_kind_for_runtime_type(item.runtime_type),
+        semantic_role=item.semantic_role or item.name,
+        identity_policy=item.identity_policy,
+        identity_arg=item.identity_arg,
+        write_mode=item.write_mode,
+        description=item.description,
+        possible_forms=(
             item.scalar_result_form.possible_forms
             if item.scalar_result_form is not None
             else ()
         ),
-        (
+        result_form_description=(
             item.scalar_result_form.description
             if item.scalar_result_form is not None
             else ""
         ),
-        item.equivalent_to,
-        item.provides_semantic_roles,
-        tuple(item.goal_evidence_tags),
-        item.object_role_projections,
-        (),
-        (
+        equivalent_to=item.equivalent_to,
+        provides_semantic_roles=item.provides_semantic_roles,
+        evidence_tags=tuple(item.goal_evidence_tags),
+        object_role_projections=item.object_role_projections,
+        lineage_closures=(),
+        max_independent_free_parameters=(
             item.scalar_result_form.max_independent_free_parameters
             if item.scalar_result_form is not None
             else None
         ),
-        item.return_binding,
-        (
+        return_binding=item.return_binding,
+        result_form_ignored_input_args=(
             item.scalar_result_form.ignored_symbol_input_args
             if item.scalar_result_form is not None
             else ()
         ),
-        (
+        free_symbol_return_names=(
             item.scalar_result_form.free_symbol_output_names
             if item.scalar_result_form is not None
             else ()
         ),
+        naming=item.naming,
     )
 
 

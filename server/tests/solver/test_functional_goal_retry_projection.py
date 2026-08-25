@@ -37,7 +37,7 @@ from _functional_goal_retry_support import (
     step,
 )
 from _problem_planning_support import planning_binding_fixture
-from _scoped_functional_plan_support import load_v2_fixture_payload
+from _scoped_functional_plan_support import load_v3_fixture_payload
 
 
 def test_strict_goal_authority_freezes_only_fully_verified_goals(tmp_path) -> None:
@@ -280,7 +280,7 @@ def test_namespaced_runtime_output_uses_public_return_in_execution_tree(
 ) -> None:
     case = "tj-2026-nankai-yimo-25"
     authority_fixture = planning_binding_fixture(tmp_path / case, case=case)
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     plan, validation = ScopedFunctionalPlanValidator().validate_payload_with_report(
         payload
     )
@@ -361,7 +361,7 @@ def test_named_state_return_is_published_without_answer_handle_alias(
 ) -> None:
     case = "tj-2026-hexi-yimo-25"
     authority_fixture = planning_binding_fixture(tmp_path / case, case=case)
-    payload = deepcopy(load_v2_fixture_payload(case))
+    payload = deepcopy(load_v3_fixture_payload(case))
     step(payload, "transform_weighted_path_iii")["args"]["moving_point"] = (
         "not_a_real_ref"
     )
@@ -401,7 +401,7 @@ def test_named_state_return_is_published_without_answer_handle_alias(
 def test_retry_authority_preserves_authored_scope_tree_without_promotion(tmp_path) -> None:
     case = "tj-2026-heping-yimo-25"
     authority_fixture = planning_binding_fixture(tmp_path / case, case=case)
-    payload = deepcopy(load_v2_fixture_payload(case))
+    payload = deepcopy(load_v3_fixture_payload(case))
     scope_i = next(
         item
         for item in payload["root_scope"]["children"]
@@ -528,7 +528,7 @@ def test_solved_goal_inheritance_ignores_intent_only_drift(tmp_path) -> None:
 def test_missing_condition_role_state_is_localized_to_its_goal(tmp_path) -> None:
     case = "tj-2026-hexi-yimo-25"
     authority_fixture = planning_binding_fixture(tmp_path / case, case=case)
-    payload = deepcopy(load_v2_fixture_payload(case))
+    payload = deepcopy(load_v3_fixture_payload(case))
     goal_payload = _wire_goal(payload["root_scope"], "ii.D")
     goal_payload["steps"] = [
         item
@@ -572,7 +572,7 @@ def test_missing_condition_role_state_is_localized_to_its_goal(tmp_path) -> None
 def test_failed_scope_opens_its_answer_goal_not_blocked_consumers(tmp_path) -> None:
     case = "tj-2026-heping-yimo-25"
     authority_fixture = planning_binding_fixture(tmp_path / case, case=case)
-    payload = deepcopy(load_v2_fixture_payload(case))
+    payload = deepcopy(load_v3_fixture_payload(case))
     scope_i = next(
         item
         for item in payload["root_scope"]["children"]
@@ -621,7 +621,7 @@ def test_descendant_relation_owner_opens_empty_scope_and_affected_blocked_goal(
 ) -> None:
     case = "tj-2026-heping-yimo-25"
     authority_fixture = planning_binding_fixture(tmp_path / case, case=case)
-    payload = deepcopy(load_v2_fixture_payload(case))
+    payload = deepcopy(load_v3_fixture_payload(case))
     root = payload["root_scope"]
     scope_i = next(
         item for item in root["children"] if item["scope_ref"] == "i"
@@ -674,7 +674,7 @@ def test_multi_owner_relation_diagnostic_fails_before_other_cones_open(
 ) -> None:
     case = "tj-2026-heping-yimo-25"
     fixture = planning_binding_fixture(tmp_path / case, case=case)
-    payload = deepcopy(load_v2_fixture_payload(case))
+    payload = deepcopy(load_v3_fixture_payload(case))
     root = payload["root_scope"]
     scope_i = next(
         item for item in root["children"] if item["scope_ref"] == "i"

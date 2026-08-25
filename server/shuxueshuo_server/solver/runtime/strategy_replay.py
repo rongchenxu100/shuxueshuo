@@ -543,6 +543,7 @@ class PlannerRetryReplayService:
                 plan,
                 reconciliation=reconciliation,
                 catalog=functional_catalog,
+                authored_call_goal_bindings=scoped_call_goal_bindings,
             )
             if pruned_call_ids:
                 plan = effective_plan
@@ -796,6 +797,7 @@ def _prune_scoped_dead_pure_calls(
     *,
     reconciliation: FunctionalPlanReconciliationResult,
     catalog: FunctionalCapabilityCatalog,
+    authored_call_goal_bindings: Mapping[str, Sequence[str]],
 ) -> tuple[FunctionalPlan, tuple[str, ...]]:
     """Drop only typed-liveness roots that are observationally pure in v2."""
 
@@ -819,6 +821,11 @@ def _prune_scoped_dead_pure_calls(
     prunable: set[str] = set()
     for call in plan.calls:
         if call.call_id not in unresolved:
+            continue
+        if authored_call_goal_bindings.get(call.call_id):
+            # Scoped v3 liveness is authoritative. The derived v1 pass may
+            # diagnose an incomplete hidden binding, but it must not erase a
+            # producer already proved to belong to a Goal closure.
             continue
         capability = catalog.get(call.capability_id)
         if (

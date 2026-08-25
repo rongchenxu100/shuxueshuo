@@ -1,0 +1,65 @@
+{
+  "method_id": "construct_point_on_ray_at_reference_distance",
+  "title": "在射线上构造参考等长点",
+  "description": "Construct a point on a ray with a prescribed reference distance.",
+  "summary": "",
+  "solves": [
+    "construct_point_on_ray_at_reference_distance"
+  ],
+  "inputs": {
+    "anchor": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    },
+    "ray_point": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    },
+    "reference_point": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    },
+    "target": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "PointRef",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    }
+  },
+  "outputs": {
+    "point": "Point"
+  },
+  "is_pure": true,
+  "preconditions": [
+    "anchor 与 ray_point 必须确定非零射线方向"
+  ],
+  "postconditions": [
+    "输出点位于正向射线且满足参考等长"
+  ]
+}

@@ -26,7 +26,7 @@ from shuxueshuo_server.solver.runtime.symbolic_closure_execution import (
 )
 
 from _problem_planning_support import planning_binding_fixture
-from _scoped_functional_plan_support import load_v2_fixture_payload
+from _scoped_functional_plan_support import load_v3_fixture_payload
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -41,7 +41,7 @@ def _execute(
     fixture = planning_binding_fixture(tmp_path / case, case=case)
     result = ScopedFunctionalGoalExecutionService().execute_raw_json(
         json.dumps(
-            payload if payload is not None else load_v2_fixture_payload(case),
+            payload if payload is not None else load_v3_fixture_payload(case),
             ensure_ascii=False,
         ),
         inputs=fixture[3],
@@ -152,6 +152,18 @@ def test_removed_post_hoc_and_legacy_authority_paths_do_not_return() -> None:
     assert "builder=_build_equal_length" not in transaction
     recipe_compiler = sources["recipe_compiler.py"]
     assert "build_equal_length_ray_role_candidates" not in recipe_compiler
+    assert "_compile_equal_length_ray_path_reduction_recipe" not in recipe_compiler
+    assert "_required_prepared_macro_method_inputs" not in recipe_compiler
+    assert "equal_length_ray_path_search.py" not in sources
+    assert "PathMinimumWitness" not in joined
+    assert "path_minimum_witness_schema" not in joined
+    assert "FunctionalPlanFragmentExecutor" not in joined
+    family_source = (
+        RUNTIME_ROOT.parent
+        / "family"
+        / "quadratic_equal_length_ray_path_minimum.py"
+    ).read_text(encoding="utf-8")
+    assert "StepRecipeSpec(" not in family_source
     macro_preparation = sources["macro_preparation.py"]
     assert "call_count=2" not in macro_preparation.replace(" ", "")
 
@@ -289,7 +301,7 @@ def test_heping_quadratic_closure_supports_full_and_incremental_constraints(
     tmp_path,
     incremental,
 ) -> None:
-    payload = deepcopy(load_v2_fixture_payload("tj-2026-heping-yimo-25"))
+    payload = deepcopy(load_v3_fixture_payload("tj-2026-heping-yimo-25"))
     scope_i = next(
         item
         for item in payload["root_scope"]["children"]

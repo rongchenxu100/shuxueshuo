@@ -148,7 +148,7 @@ class StrategyPlanner:
             else (
                 repo_root(Path(__file__))
                 / "internal"
-                / "functional-plan-v2-fixtures"
+                / "functional-plan-v3-fixtures"
             )
         )
         self.artifacts = StrategyPlannerArtifacts()
@@ -769,10 +769,10 @@ def strategy_planner_provider(
 
 
 class _RecordedScopedFunctionalClient:
-    """Deterministic content/v2 provider for local and offline production tests."""
+    """Deterministic content/v3 provider for local and offline production tests."""
 
     provider_name = "recorded"
-    model = "recorded-functional-plan-content-v2"
+    model = "recorded-functional-plan-content-v3"
     last_usage: dict[str, int] | None = None
     last_response_model = model
     last_provider_attempts: tuple[object, ...] = ()
@@ -784,10 +784,10 @@ class _RecordedScopedFunctionalClient:
     def complete(self, payload: Mapping[str, Any]) -> str:
         self.requests.append(payload)
         protocol = str(payload.get("planner_protocol", ""))
-        if protocol != "functional-plan-content/v2":
+        if protocol != "functional-plan-content/v3":
             raise StrategyDraftValidationError(
                 "planner.recorded_scoped_fixture_requires_repair: "
-                "recorded content/v2 fixture did not pass in one semantic attempt",
+                "recorded content/v3 fixture did not pass in one semantic attempt",
             )
         return self.raw_content
 

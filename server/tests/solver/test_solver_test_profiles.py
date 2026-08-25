@@ -8,7 +8,11 @@ from support.generated_gate_profiles import (
     select_shard,
     stable_bucket,
 )
-from tools.run_solver_tests import pytest_commands, sanitized_environment
+from tools.run_solver_tests import (
+    existing_test_paths,
+    pytest_commands,
+    sanitized_environment,
+)
 from tools.solver_test_profiles import (
     LIVE_LLM_TEST_FILES,
     PROFILE_MARKERS,
@@ -63,6 +67,15 @@ def test_affected_profile_runs_selected_tests_without_xdist() -> None:
     assert commands[0][marker_index + 1] == "not solver_full and not live_llm"
 
 
+def test_affected_profile_ignores_deleted_test_paths() -> None:
+    assert existing_test_paths(
+        (
+            "tests/solver/test_functional_goal_checkpoint_v4.py",
+            "tests/solver/test_functional_goal_checkpoint_v3.py",
+        )
+    ) == ("tests/solver/test_functional_goal_checkpoint_v4.py",)
+
+
 def test_offline_environment_removes_provider_authority(monkeypatch) -> None:
     monkeypatch.setenv("RUN_LLM_INTEGRATION", "1")
     monkeypatch.setenv("RUN_DEEPSEEK_FUNCTIONAL_PLANNER", "1")
@@ -86,7 +99,7 @@ def test_affected_ownership_maps_goal_runtime_to_contract_tests() -> None:
 
     assert not unmapped
     assert "tests/solver/test_functional_goal_retry_execution.py" in selected
-    assert "tests/solver/test_functional_goal_checkpoint_v3.py" in selected
+    assert "tests/solver/test_functional_goal_checkpoint_v4.py" in selected
 
 
 def test_affected_ownership_ignores_docs_only_changes() -> None:

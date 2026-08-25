@@ -96,7 +96,7 @@ def test_pass1_and_retry_use_independent_templates_and_schemas(tmp_path) -> None
     assert FUNCTIONAL_GOAL_REPAIR_CONTRACT in retry_prompt.system
     assert FUNCTIONAL_GOAL_REPAIR_CONTRACT not in pass1_prompt.system
     assert pass1_payload["planner_protocol"] == FUNCTIONAL_PLAN_CONTENT_CONTRACT
-    assert "输出完整的 `functional_plan/v2`" not in retry_prompt.system
+    assert "输出完整的 `functional_plan/v3`" not in retry_prompt.system
     assert "same_compiler_selected_object" in retry_prompt.system
     assert "same_compiler_selected_object" in pass1_prompt.system
     assert "共享题面数学实体不等于共享当前数学状态" in retry_prompt.system
@@ -158,7 +158,7 @@ def test_retry_schema_is_bound_to_exact_authority(tmp_path) -> None:
     ]["description"]
 
 
-def test_retry_v3_projects_verified_path_witness_without_internal_identity(
+def test_retry_v4_projects_verified_subplan_without_internal_identity(
     tmp_path,
 ) -> None:
     fixture = downstream_path_witness_retry_fixture(tmp_path)
@@ -171,19 +171,23 @@ def test_retry_v3_projects_verified_path_witness_without_internal_identity(
 
     assert payload["schema_version"] == "planner-goal-retry-context/v4"
     assert len(step_payload["evidence"]) == 1
-    witness = step_payload["evidence"][0]
-    assert witness["schema_version"] == "path-minimum-prompt-witness/v1"
-    assert {
-        item["role"]: item["chosen_ref"]
-        for item in witness["role_resolutions"]
-    } == {
+    evidence = step_payload["evidence"][0]
+    assert evidence["source"] == "macro"
+    assert evidence["macro_id"] == "equal_length_ray_path_reduction"
+    assert evidence["chosen_roles"] == {
         "anchor": "C",
         "reference_point": "B",
         "ray_point": "D",
         "fixed_point": "O",
     }
-    assert any("BN=MG" in item for item in witness["equivalence_proof"])
-    assert witness["minimum_expression"] == "3*sqrt(2*a**2 + 1)/Abs(a)"
+    assert "prove_distance_equality_from_conditions" in evidence["functions"]
+    assert any(
+        item["check_code"] == "path_minimum_attained" and item["passed"]
+        for item in evidence["verification"]
+    )
+    assert evidence["outputs"]["minimum_expression"] == (
+        "3*sqrt(2*a**2 + 1)/Abs(a)"
+    )
     text = json.dumps(payload, ensure_ascii=False, sort_keys=True)
     for forbidden in (
         "point:problem:",
@@ -248,7 +252,13 @@ def test_retry_schema_binds_return_roles_to_each_capability(tmp_path) -> None:
     assert set(by_capability) == set(fixture.capability_catalog.items)
     for capability_id, capability in fixture.capability_catalog.items.items():
         properties = by_capability[capability_id]
-        assert set(properties["output_targets"]["properties"]) == {
+        binding_schema = properties["return_bindings"]
+        binding_names = (
+            set(binding_schema["properties"])
+            if binding_schema is not False
+            else set()
+        )
+        assert binding_names <= {
             item.name
             for item in capability.returns
             if item.binding_mode != "internal_only"
@@ -259,7 +269,8 @@ def test_retry_schema_binds_return_roles_to_each_capability(tmp_path) -> None:
             if item.possible_forms
             and item.return_expectation_policy != "omit"
         }
-        assert properties["output_targets"]["additionalProperties"] is False
+        if binding_schema is not False:
+            assert binding_schema["additionalProperties"] is False
         assert (
             properties["return_expectations"]["additionalProperties"]
             is False
@@ -350,7 +361,7 @@ def test_retry_user_sections_are_ordered_and_previous_plan_occurs_once(
     assert "steps + answer_from" in prompt.system
     assert "显式选择一个满足该权威的可见return" in prompt.system
     assert prompt.user.count(
-        '"format":"functional_plan/v2"'
+        '"format":"functional_plan/v3"'
     ) == 1
     assert "few-shot" not in prompt.user.lower()
     assert fixture.retry_authority.retry_context_id in prompt.user

@@ -244,7 +244,7 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                         required=False,
                         cardinality="optional",
                         identity_policy="derived_role",
-                        goal_evidence_tags=("path_minimum_witness",),
+                        goal_evidence_tags=("verified_path_minimum_subplan",),
                         result_form=STRAIGHTENED_ENDPOINT_RESULT_FORM,
                         description=(
                             "拉直后最短等价线段的第一个端点，通常是由反射构造"
@@ -265,7 +265,7 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                         required=False,
                         cardinality="optional",
                         identity_policy="derived_role",
-                        goal_evidence_tags=("path_minimum_witness",),
+                        goal_evidence_tags=("verified_path_minimum_subplan",),
                         result_form=STRAIGHTENED_ENDPOINT_RESULT_FORM,
                         description=(
                             "拉直后最短等价线段的第二个端点，通常是未被反射的"
@@ -359,7 +359,7 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                     description=(
                         "若可见 axis_membership 事实唯一确定当前抛物线"
                         "对称轴上的 Point，则代码可绑定该已有对象；存在多个"
-                        "候选时必须显式 output_targets。"
+                        "候选时必须显式 return_bindings。"
                     ),
                 ),
             ),

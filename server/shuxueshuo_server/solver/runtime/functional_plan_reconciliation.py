@@ -51,6 +51,10 @@ from shuxueshuo_server.solver.runtime.functional_input_closure import (
 from shuxueshuo_server.solver.runtime.functional_plan_liveness import (
     FunctionalCallLivenessAnalyzer,
 )
+from shuxueshuo_server.solver.runtime.predicate_condition_publication import (
+    condition_roles_from_resolved_args,
+    derived_condition_id,
+)
 from shuxueshuo_server.solver.runtime.functional_path_context_resolvers import (
     infer_square_path_transformation_roles,
 )
@@ -612,6 +616,9 @@ def _drop_redundant_existing_state_creates(
     graph editing never leaves a dangling reference.
     """
     consumers = _call_result_consumers(plan)
+    call_positions = {
+        call.call_id: index for index, call in enumerate(plan.calls)
+    }
     dropped: set[str] = set()
     replacement_refs: dict[tuple[str, str], SemanticRef] = {}
     repairs: list[FunctionalDeterministicRepair] = []
@@ -645,11 +652,27 @@ def _drop_redundant_existing_state_creates(
                     scope_id=scope.scope_id,
                     accepted_types=(returned.runtime_type,),
                 )
+                source_call_id = getattr(resolved, "source_call_id", None)
                 if (
                     resolved is None
                     or resolved.state_slot_id is None
                     or resolved.object_ref is None
+                    or (
+                        source_call_id is None
+                        and resolved.state_version_id is None
+                    )
                 ):
+                    break
+                source_position = call_positions.get(
+                    source_call_id or ""
+                )
+                if (
+                    source_position is not None
+                    and source_position >= call_positions[call.call_id]
+                ):
+                    # A later writer is not an existing state for this call.
+                    # Keep both calls so transaction equivalence can compare
+                    # them without introducing a forward state dependency.
                     break
                 existing_results.append((return_name, binding, resolved))
             else:
@@ -3247,14 +3270,6 @@ def _allocate_single_functional_return(
         sibling_returns=sibling_returns,
         issues=context.issues,
         reconciliation_repairs=context.reconciliation_repairs,
-        future_object_hints=(
-            ()
-            if return_spec.name in call.return_bindings
-            else context.future_return_object_hints.get(
-                (call.call_id, return_spec.name),
-                (),
-            )
-        ),
         identity_constraints=context.capability.identity_constraints,
     )
     if (
@@ -3672,7 +3687,6 @@ def _resolve_return_identity(
     sibling_returns: tuple[FunctionalReturnAllocation, ...],
     issues: list[FunctionalPlanIssue],
     reconciliation_repairs: list[FunctionalDeterministicRepair],
-    future_object_hints: tuple[str, ...],
     identity_constraints: Sequence[StateIdentityConstraintSpec],
 ) -> tuple[
     SemanticRef | None,
@@ -3700,7 +3714,6 @@ def _resolve_return_identity(
             handle_registry=handle_registry,
             issues=issues,
             reconciliation_repairs=reconciliation_repairs,
-            future_object_hints=future_object_hints,
             identity_constraints=identity_constraints,
         )
 
@@ -3748,7 +3761,6 @@ def _resolve_target_return_binding(
     handle_registry: CanonicalHandleRegistry,
     issues: list[FunctionalPlanIssue],
     reconciliation_repairs: list[FunctionalDeterministicRepair],
-    future_object_hints: tuple[str, ...],
     identity_constraints: Sequence[StateIdentityConstraintSpec],
 ) -> tuple[SemanticRef | None, SemanticReadCatalogItem | None]:
     if (
@@ -3812,46 +3824,9 @@ def _resolve_target_return_binding(
         handle_registry=handle_registry,
         allow_role_inference=bound_item is None,
     )
-    downstream_target = _target_item_from_object_hints(
-        future_object_hints,
-        return_spec=return_spec,
-        scope_id=resolution_scope_id,
-        semantic_items=semantic_items,
-        handle_registry=handle_registry,
-    )
-    if (
-        structured_target is not None
-        and downstream_target is not None
-        and _target_binding_identity(
-            structured_target,
-            handle_registry=handle_registry,
-        )
-        != _target_binding_identity(
-            downstream_target,
-            handle_registry=handle_registry,
-        )
-    ):
-        issues.append(
-            _issue(
-                "functional_reconciliation",
-                "functional.return_identity_mismatch",
-                (
-                    f"return {call.capability_id}.{return_spec.name} has "
-                    "conflicting structured and downstream object identities"
-                ),
-                call_id=call.call_id,
-                scope_id=declared_scope_id,
-                details={
-                    "return": return_spec.name,
-                    "structured_ref": structured_target.ref,
-                    "downstream_ref": downstream_target.ref,
-                },
-            )
-        )
-        downstream_target = None
     inferred_candidates = tuple(
         item
-        for item in (contract_target, downstream_target, structured_target)
+        for item in (contract_target, structured_target)
         if item is not None
     )
     inferred_identities = {
@@ -3866,7 +3841,7 @@ def _resolve_target_return_binding(
                 "functional.return_identity_mismatch",
                 (
                     f"return {call.capability_id}.{return_spec.name} has "
-                    "conflicting contract, structured or downstream identities"
+                    "conflicting contract or structured identities"
                 ),
                 call_id=call.call_id,
                 scope_id=declared_scope_id,
@@ -3889,11 +3864,7 @@ def _resolve_target_return_binding(
                 (
                     "infer_return_identity_from_contract"
                     if contract_target is not None
-                    else (
-                        "propagate_downstream_object_identity"
-                        if downstream_target is not None
-                        else "auto_bind_target_object"
-                    )
+                    else "auto_bind_target_object"
                 ),
                 f"<unbound:{return_spec.name}>",
                 bound_item.ref,
@@ -4318,6 +4289,26 @@ def _materialize_functional_return(
         typed_slot_id=typed_slot_id,
         state_version_id=decision.selected_version_id,
         source_version_ids=source_version_ids,
+        condition_id=(
+            derived_condition_id(
+                call_id=call.call_id,
+                return_name=return_spec.name,
+                condition_kind=(
+                    return_spec.predicate_publication.condition_kind
+                ),
+                scope_id=requested_scope,
+            )
+            if return_spec.predicate_publication is not None
+            else None
+        ),
+        object_roles=(
+            condition_roles_from_resolved_args(
+                return_spec.predicate_publication,
+                resolved_args=resolved_args,
+            )
+            if return_spec.predicate_publication is not None
+            else ()
+        ),
     )
     produced[(call.call_id, return_spec.name)] = produced_value
     for alias_name, canonical_name in call_return_aliases.items():
@@ -7209,6 +7200,8 @@ def _drop_superseded_unobserved_object_bindings(
                     and previous_capability.kind == "function"
                     and previous_capability.is_pure
                     and (previous_call_id, previous_return_name) not in consumers
+                    and previous_call_id
+                    not in plan.typed_dependency_graph.get(call.call_id, ())
                     and not _semantic_binding_read_between(
                         calls,
                         start=previous_index + 1,

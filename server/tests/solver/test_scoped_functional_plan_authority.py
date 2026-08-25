@@ -27,8 +27,8 @@ from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
 
 from _problem_planning_support import CASES, scope_native_reconciliation_fixture
 from _scoped_functional_plan_support import (
-    load_v2_fixture_payload,
-    migrate_v1_fixture_payload,
+    load_v3_fixture_payload,
+    migrate_v1_fixture_payload_to_v3,
 )
 
 
@@ -47,7 +47,7 @@ def test_v2_authority_lowers_five_scope_native_plans(tmp_path, case) -> None:
         _validation,
         reconciliation,
     ) = scope_native_reconciliation_fixture(tmp_path / case, case=case)
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     scoped, report = ScopedFunctionalPlanValidator().validate_payload_with_report(
         payload
     )
@@ -128,7 +128,7 @@ def test_finalize_preserves_distinct_plan_semantic_and_execution_scopes(
     authority, fixture = _lower_payload(
         tmp_path,
         case,
-        load_v2_fixture_payload(case),
+        load_v3_fixture_payload(case),
     )
     (
         _bundle,
@@ -209,7 +209,7 @@ def test_finalize_preserves_distinct_plan_semantic_and_execution_scopes(
 
 def test_single_return_role_is_safely_canonicalized(tmp_path) -> None:
     case = "tj-2026-heping-ermo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     goal = _find_scope(payload["root_scope"], "ii")["goals"][0]
     assert goal["answer_from"] == {
         "step_id": "recover_target_point_E_ii",
@@ -235,7 +235,7 @@ def test_single_return_role_is_safely_canonicalized(tmp_path) -> None:
 
 def test_multi_return_role_uses_unique_global_typed_assignment(tmp_path) -> None:
     case = "tj-2026-heping-ermo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     steps = _find_scope(payload["root_scope"], "ii")["goals"][0]["steps"]
     solve = next(item for item in steps if item["step_id"] == "solve_parameter_c_ii")
     # This is a real public return name on the producer, but its Point type is
@@ -285,7 +285,7 @@ def test_goal_moved_to_parent_scope_fails_loud(tmp_path) -> None:
     )
     sidecar = reconciliation.functional_problem_binding_context
     assert sidecar is not None
-    payload = migrate_v1_fixture_payload(
+    payload = migrate_v1_fixture_payload_to_v3(
         v1_plan,
         planning_context,
         dict(sidecar.call_goal_bindings),
@@ -321,7 +321,7 @@ def test_single_goal_scope_refs_are_canonicalized_deterministically(
     tmp_path,
     case,
 ) -> None:
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     raw_payload = deepcopy(payload)
 
     def replace_goal_refs(scope):
@@ -371,7 +371,7 @@ def test_single_goal_scope_refs_are_canonicalized_deterministically(
 
 def test_multi_goal_scope_ref_is_never_guessed(tmp_path) -> None:
     case = "tj-2026-heping-ermo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     scope_i_1 = _find_scope(payload["root_scope"], "i_1")
     scope_i_1["goals"][0]["goal_ref"] = "i_1"
 
@@ -383,7 +383,7 @@ def test_structure_audit_is_independent_from_step_authority(tmp_path) -> None:
     case = "tj-2026-heping-ermo-25"
     fixture = scope_native_reconciliation_fixture(tmp_path, case=case)
     planning_context = fixture[1]
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     scope_i = _find_scope(payload["root_scope"], "i")
     scope_i["steps"][1]["args"] = {"unexpected_role": "A"}
     scoped, validation = ScopedFunctionalPlanValidator().validate_payload_with_report(
@@ -407,7 +407,7 @@ def test_structure_audit_is_independent_from_step_authority(tmp_path) -> None:
 
 def test_unique_required_arg_type_match_is_recorded(tmp_path) -> None:
     case = "tj-2026-heping-yimo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     step = _find_scope(payload["root_scope"], "i_2")["goals"][0]["steps"][0]
     step["args"]["curve_input"] = step["args"].pop("parabola")
 
@@ -421,7 +421,7 @@ def test_goal_answer_refs_are_canonicalized_to_exact_target_object_refs(
     tmp_path,
 ) -> None:
     case = "tj-2026-hexi-yimo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     original = deepcopy(payload)
     scope_ii = _find_scope(payload["root_scope"], "ii")
     steps = scope_ii["goals"][0]["steps"]
@@ -503,7 +503,7 @@ def test_unique_residual_symbol_constraint_enters_f5c_binding_sidecar(
     tmp_path,
 ) -> None:
     case = "tj-2026-hexi-yimo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     scope_ii = _find_scope(payload["root_scope"], "ii")
     selector = next(
         item
@@ -563,7 +563,7 @@ def test_goal_answer_ref_is_canonicalized_for_same_object_latest_state_arg(
     tmp_path,
 ) -> None:
     case = "tj-2026-hexi-yimo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     scope_ii = _find_scope(payload["root_scope"], "ii")
     step = next(
         item
@@ -606,13 +606,13 @@ def test_fixed_form_return_expectation_is_dropped_without_semantic_drift(
     tmp_path,
 ) -> None:
     case = "tj-2026-heping-yimo-25"
-    baseline_payload = load_v2_fixture_payload(case)
+    baseline_payload = load_v3_fixture_payload(case)
     baseline, _ = _lower_payload(
         tmp_path / "baseline",
         case,
         baseline_payload,
     )
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     original = deepcopy(payload)
     scope_ii = _find_scope(payload["root_scope"], "ii")
     step = scope_ii["goals"][0]["steps"][-1]
@@ -662,7 +662,7 @@ def test_selectable_expectation_is_preserved_and_invalid_form_fails(
     tmp_path,
 ) -> None:
     case = "tj-2026-heping-yimo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     scope_ii = _find_scope(payload["root_scope"], "ii")
     reduction = scope_ii["goals"][0]["steps"][-2]
     assert reduction["return_expectations"] == {
@@ -678,7 +678,7 @@ def test_selectable_expectation_is_preserved_and_invalid_form_fails(
         "return_expectations"
     ] == {"minimum_expression": "open_expression"}
 
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     scope_ii = _find_scope(payload["root_scope"], "ii")
     scope_ii["goals"][0]["steps"][-2]["return_expectations"] = {
         "minimum_expression": "closed_state"
@@ -692,7 +692,7 @@ def test_selectable_expectation_is_preserved_and_invalid_form_fails(
 
 def test_unknown_return_expectation_role_is_not_silently_dropped(tmp_path) -> None:
     case = "tj-2026-heping-yimo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     scope_ii = _find_scope(payload["root_scope"], "ii")
     scope_ii["goals"][0]["steps"][-1]["return_expectations"] = {
         "parameter_result": "closed_value"
@@ -707,7 +707,7 @@ def test_unknown_return_expectation_role_is_not_silently_dropped(tmp_path) -> No
 
 def test_mixed_expectations_only_drop_omit_return(tmp_path) -> None:
     case = "tj-2026-xiqing-yimo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     scope_ii_2 = _find_scope(payload["root_scope"], "ii_2")
     transform = scope_ii_2["goals"][0]["steps"][0]
     assert transform["capability_id"] == "weighted_axis_path_triangle_transform"
@@ -745,7 +745,7 @@ def test_goal_answer_ref_is_not_repaired_across_goals_or_from_scope_step(
     tmp_path,
 ) -> None:
     case = "tj-2026-hexi-yimo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     scope_ii = _find_scope(payload["root_scope"], "ii")
     steps = scope_ii["goals"][0]["steps"]
     candidate_index = next(
@@ -759,7 +759,7 @@ def test_goal_answer_ref_is_not_repaired_across_goals_or_from_scope_step(
     assert cross_goal.value.code == "functional.answer_ref_used_as_input"
     assert "belongs to another Goal" in cross_goal.value.message
 
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     scope_ii = _find_scope(payload["root_scope"], "ii")
     goal_steps = scope_ii["goals"][0]["steps"]
     candidate_index = next(
@@ -788,7 +788,7 @@ def test_goal_answer_ref_requires_one_proven_target_input(
     import shuxueshuo_server.solver.runtime.scoped_functional_plan as scoped_module
 
     case = "tj-2026-hexi-yimo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     scope_ii = _find_scope(payload["root_scope"], "ii")
     step = next(
         item
@@ -811,7 +811,7 @@ def test_goal_answer_ref_requires_one_proven_target_input(
 
 def test_unknown_args_drop_only_after_declared_contract_is_complete(tmp_path) -> None:
     case = "tj-2026-heping-yimo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     step = _find_scope(payload["root_scope"], "i_2")["goals"][0]["steps"][0]
     step["args"]["mystery_point"] = step["args"].pop("known_point")
     step["args"]["unused_hint"] = "A"
@@ -831,7 +831,7 @@ def test_unknown_args_drop_only_after_declared_contract_is_complete(tmp_path) ->
     } == {"mystery_point", "unused_hint"}
 
     case = "tj-2026-heping-ermo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     step = _find_scope(payload["root_scope"], "i_2")["goals"][0]["steps"][1]
     step["args"]["first_point"] = step["args"].pop("side_start")
     step["args"]["second_point"] = step["args"].pop("side_end")
@@ -841,9 +841,11 @@ def test_unknown_args_drop_only_after_declared_contract_is_complete(tmp_path) ->
 
 def test_answer_from_drops_only_the_same_redundant_output_target(tmp_path) -> None:
     case = "tj-2026-heping-ermo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     step = _find_scope(payload["root_scope"], "i")["steps"][1]
-    step["output_targets"] = {"point": "A"}
+    step["return_bindings"] = {
+        "point": {"kind": "existing", "ref": "A"}
+    }
 
     authority, _ = _lower_payload(tmp_path / "same-target", case, payload)
 
@@ -851,8 +853,12 @@ def test_answer_from_drops_only_the_same_redundant_output_target(tmp_path) -> No
         authority.scoped_plan.to_payload()["root_scope"],
         "i",
     )["steps"][1]
-    assert "output_targets" not in canonical_step
-    assert [item.to_payload() for item in authority.normalizations] == [
+    assert "return_bindings" not in canonical_step
+    assert [
+        item.to_payload()
+        for item in authority.normalizations
+        if item.action == "drop_redundant_answer_output_target"
+    ] == [
         {
             "action": "drop_redundant_answer_output_target",
             "step_id": "derive_x_intercept_A_i",
@@ -863,22 +869,22 @@ def test_answer_from_drops_only_the_same_redundant_output_target(tmp_path) -> No
         }
     ]
 
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     _find_scope(payload["root_scope"], "i")["steps"][1][
-        "output_targets"
-    ] = {"point": "P"}
+        "return_bindings"
+    ] = {"point": {"kind": "existing", "ref": "P"}}
     with pytest.raises(
         ScopedFunctionalPlanError,
-        match="answer return must not also declare output_targets",
+        match="answer return must not also declare return_bindings",
     ):
         _lower_payload(tmp_path / "different-target", case, payload)
 
 
 def test_unique_source_fact_target_is_inferred_and_recorded(tmp_path) -> None:
     case = "tj-2026-heping-ermo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     step = _find_scope(payload["root_scope"], "i_2")["goals"][0]["steps"][0]
-    step.pop("output_targets")
+    step.pop("return_bindings")
 
     authority, fixture = _lower_payload(tmp_path, case, payload)
 
@@ -886,7 +892,9 @@ def test_unique_source_fact_target_is_inferred_and_recorded(tmp_path) -> None:
         authority.scoped_plan.to_payload()["root_scope"],
         "i_2",
     )["goals"][0]["steps"][0]
-    assert canonical_step["output_targets"] == {"point": "E"}
+    assert canonical_step["return_bindings"] == {
+        "point": {"kind": "existing", "ref": "E"}
+    }
     assert any(
         item.to_payload()
         == {
@@ -914,14 +922,14 @@ def test_unique_source_fact_target_is_inferred_and_recorded(tmp_path) -> None:
 
 def test_curve_at_x_target_is_inferred_before_liveness(tmp_path) -> None:
     case = "tj-2026-xiqing-yimo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     scope_ii = _find_scope(payload["root_scope"], "ii")
     step = next(
         item
         for item in scope_ii["steps"]
         if item["capability_id"] == "point_on_parabola_at_x"
     )
-    step.pop("output_targets")
+    step.pop("return_bindings")
 
     authority, fixture = _lower_payload(tmp_path, case, payload)
 
@@ -934,7 +942,9 @@ def test_curve_at_x_target_is_inferred_before_liveness(tmp_path) -> None:
         for item in canonical_scope["steps"]
         if item["capability_id"] == "point_on_parabola_at_x"
     )
-    assert canonical_step["output_targets"] == {"point": "D"}
+    assert canonical_step["return_bindings"] == {
+        "point": {"kind": "existing", "ref": "D"}
+    }
     assert any(
         item.action == "infer_unique_output_target"
         and item.step_id == canonical_step["step_id"]
@@ -956,9 +966,9 @@ def test_curve_at_x_target_is_inferred_before_liveness(tmp_path) -> None:
 
 def test_source_fact_target_selector_refuses_multiple_objects(tmp_path) -> None:
     case = "tj-2026-heping-ermo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     step = _find_scope(payload["root_scope"], "i_2")["goals"][0]["steps"][0]
-    step.pop("output_targets")
+    step.pop("return_bindings")
     fixture = scope_native_reconciliation_fixture(tmp_path, case=case)
     context = fixture[1]
     root = next(scope for scope in context.scopes if scope.scope_id == "problem")
@@ -1009,7 +1019,7 @@ def test_source_fact_target_selector_refuses_multiple_objects(tmp_path) -> None:
 
 def test_scope_tree_does_not_lift_branch_step_from_source_ref_read(tmp_path) -> None:
     case = "tj-2026-heping-ermo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     scope_i = _find_scope(payload["root_scope"], "i")
     scope_i_1 = _find_scope(payload["root_scope"], "i_1")
     scope_i_2 = _find_scope(payload["root_scope"], "i_2")
@@ -1041,7 +1051,7 @@ def test_scope_tree_does_not_lift_branch_step_from_source_ref_read(tmp_path) -> 
 
 def test_scope_step_cannot_be_authored_above_its_output_authority(tmp_path) -> None:
     case = "tj-2026-xiqing-yimo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     root = payload["root_scope"]
     scope_ii = _find_scope(root, "ii")
     establish_parabola, derive_d = scope_ii["steps"][:2]
@@ -1059,7 +1069,7 @@ def test_output_target_selector_rejects_type_compatible_wrong_fact_role(
     tmp_path,
 ) -> None:
     case = "tj-2026-nankai-yimo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     scope_ii = _find_scope(payload["root_scope"], "ii")
     scope_ii["steps"].insert(
         0,
@@ -1067,7 +1077,9 @@ def test_output_target_selector_rejects_type_compatible_wrong_fact_role(
             "step_id": "redundant_build_M",
             "capability_id": "point_on_parabola_at_x",
             "args": {"parabola": "parabola"},
-            "output_targets": {"point": "M"},
+            "return_bindings": {
+                "point": {"kind": "existing", "ref": "M"}
+            },
         },
     )
     fixture = scope_native_reconciliation_fixture(tmp_path, case=case)
@@ -1117,7 +1129,7 @@ def test_scope_visibility_feedback_distinguishes_identity_from_local_state(
     tmp_path,
 ) -> None:
     case = "tj-2026-hexi-yimo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     root = payload["root_scope"]
     scope_iii = _find_scope(root, "iii")
     goal_iii = scope_iii["goals"][0]
@@ -1157,11 +1169,11 @@ def test_scope_visibility_feedback_distinguishes_identity_from_local_state(
 
 def test_authority_analysis_aggregates_independent_root_issues(tmp_path) -> None:
     case = "tj-2026-heping-ermo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     scope_i = _find_scope(payload["root_scope"], "i")
     scope_i["steps"][1]["args"] = {"mystery": "A"}
     scope_i_2 = _find_scope(payload["root_scope"], "i_2")
-    scope_i_2["goals"][0]["steps"][1].pop("output_targets")
+    scope_i_2["goals"][0]["steps"][1].pop("return_bindings")
     scope_ii = _find_scope(payload["root_scope"], "ii")
     scope_ii["goals"][0]["steps"][0]["args"]["curve_point"] = (
         "point_on_curve_parabola_g"
@@ -1223,7 +1235,7 @@ def test_structure_audit_classifies_scope_and_goal_drift(tmp_path) -> None:
         assert validation.ok and scoped is not None
         return audit_scoped_functional_structure(scoped, planning_context)
 
-    missing_scope = load_v2_fixture_payload(case)
+    missing_scope = load_v3_fixture_payload(case)
     _find_scope(missing_scope["root_scope"], "i")["children"].pop()
     missing_scope_report = report(missing_scope)
     assert missing_scope_report.missing_scope_refs == ("i_2",)
@@ -1233,41 +1245,41 @@ def test_structure_audit_classifies_scope_and_goal_drift(tmp_path) -> None:
         "message": "scope is missing from the Plan",
     }
 
-    unexpected_scope = load_v2_fixture_payload(case)
+    unexpected_scope = load_v3_fixture_payload(case)
     unexpected_scope["root_scope"]["children"].append(
         {"scope_ref": "unexpected_scope"}
     )
     assert report(unexpected_scope).unexpected_scope_refs == ("unexpected_scope",)
 
-    duplicate_scope = load_v2_fixture_payload(case)
+    duplicate_scope = load_v3_fixture_payload(case)
     duplicate_scope["root_scope"]["children"].append(
         deepcopy(_find_scope(duplicate_scope["root_scope"], "i_1"))
     )
     assert report(duplicate_scope).duplicate_scope_refs == ("i_1",)
 
-    moved_scope = load_v2_fixture_payload(case)
+    moved_scope = load_v3_fixture_payload(case)
     parent_i = _find_scope(moved_scope["root_scope"], "i")
     child_i_1 = parent_i["children"].pop(0)
     moved_scope["root_scope"]["children"].append(child_i_1)
     assert report(moved_scope).moved_scope_refs == ("i_1",)
 
-    missing_goal = load_v2_fixture_payload(case)
+    missing_goal = load_v3_fixture_payload(case)
     _find_scope(missing_goal["root_scope"], "i_1")["goals"].pop()
     assert report(missing_goal).missing_goal_refs == ("i_1.P",)
 
-    unexpected_goal = load_v2_fixture_payload(case)
+    unexpected_goal = load_v3_fixture_payload(case)
     goal = _find_scope(unexpected_goal["root_scope"], "i_1")["goals"][0]
     goal["goal_ref"] = "i_1.unexpected"
     unexpected_report = report(unexpected_goal)
     assert unexpected_report.missing_goal_refs == ("i_1.A",)
     assert unexpected_report.unexpected_goal_refs == ("i_1.unexpected",)
 
-    duplicate_goal = load_v2_fixture_payload(case)
+    duplicate_goal = load_v3_fixture_payload(case)
     goals = _find_scope(duplicate_goal["root_scope"], "i_1")["goals"]
     goals.append(deepcopy(goals[0]))
     assert report(duplicate_goal).duplicate_goal_refs == ("i_1.A",)
 
-    moved_goal = load_v2_fixture_payload(case)
+    moved_goal = load_v3_fixture_payload(case)
     source_goals = _find_scope(moved_goal["root_scope"], "i_1")["goals"]
     moved = source_goals.pop(0)
     _find_scope(moved_goal["root_scope"], "i_2")["goals"].append(moved)
@@ -1288,7 +1300,7 @@ def test_intent_does_not_change_semantic_hash(tmp_path) -> None:
         _validation,
         reconciliation,
     ) = scope_native_reconciliation_fixture(tmp_path)
-    payload = load_v2_fixture_payload("tj-2026-nankai-yimo-25")
+    payload = load_v3_fixture_payload("tj-2026-nankai-yimo-25")
     scoped, report = ScopedFunctionalPlanValidator().validate_payload_with_report(
         payload
     )
@@ -1326,7 +1338,7 @@ def test_intent_does_not_change_semantic_hash(tmp_path) -> None:
 
 def test_missing_scope_and_duplicate_goal_fail_loud(tmp_path) -> None:
     case = "tj-2026-heping-ermo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     missing_scope = deepcopy(payload)
     missing_scope["root_scope"]["children"].pop()
 
@@ -1342,7 +1354,7 @@ def test_missing_scope_and_duplicate_goal_fail_loud(tmp_path) -> None:
 
 def test_forward_reference_fails_loud(tmp_path) -> None:
     case = "tj-2026-xiqing-yimo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     scope_ii = _find_scope(payload["root_scope"], "ii")
     scope_ii["steps"][0]["args"]["curve_point"] = {
         "step_id": "derive_curve_point_D_ii",
@@ -1355,7 +1367,7 @@ def test_forward_reference_fails_loud(tmp_path) -> None:
 
 def test_answer_selected_named_output_is_normalized_to_source_ref(tmp_path) -> None:
     case = "tj-2026-heping-yimo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     scope_i_2 = _find_scope(payload["root_scope"], "i_2")
     target = next(
         item
@@ -1388,7 +1400,7 @@ def test_answer_selected_named_output_is_normalized_to_source_ref(tmp_path) -> N
 
 def test_unknown_targets_on_anonymous_returns_are_removed(tmp_path) -> None:
     case = "tj-2026-heping-yimo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     scope_i = _find_scope(payload["root_scope"], "i")
     steps = [
         step
@@ -1406,10 +1418,15 @@ def test_unknown_targets_on_anonymous_returns_are_removed(tmp_path) -> None:
         for item in steps
         if item["step_id"] == "derive_axis_intercept_F_i"
     )
-    angle["output_targets"] = {
-        "angle_equality": "invented_angle_equality"
+    angle["return_bindings"] = {
+        "angle_equality": {
+            "kind": "existing",
+            "ref": "invented_angle_equality",
+        }
     }
-    axis["output_targets"] = {"point": "invented_axis_point"}
+    axis["return_bindings"] = {
+        "point": {"kind": "existing", "ref": "invented_axis_point"}
+    }
 
     authority, _fixture = _lower_payload(tmp_path, case, payload)
 
@@ -1423,12 +1440,12 @@ def test_unknown_targets_on_anonymous_returns_are_removed(tmp_path) -> None:
         for goal in child.get("goals", [])
         for step in goal.get("steps", [])
     ]
-    assert "output_targets" not in next(
+    assert "return_bindings" not in next(
         item
         for item in canonical_steps
         if item["step_id"] == "derive_equal_angle_i"
     )
-    assert "output_targets" not in next(
+    assert "return_bindings" not in next(
         item
         for item in canonical_steps
         if item["step_id"] == "derive_axis_intercept_F_i"
@@ -1446,7 +1463,7 @@ def test_unknown_targets_on_anonymous_returns_are_removed(tmp_path) -> None:
 
 def test_return_role_diagnostic_exposes_public_contract(tmp_path) -> None:
     case = "tj-2026-heping-ermo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     steps = _find_scope(payload["root_scope"], "ii")["goals"][0]["steps"]
     axis = next(
         item for item in steps if item["step_id"] == "derive_axis_point_M_ii"
@@ -1476,7 +1493,7 @@ def test_return_role_diagnostic_exposes_public_contract(tmp_path) -> None:
 
 def test_scope_local_producer_is_not_promoted_across_sibling_goals(tmp_path) -> None:
     case = "tj-2026-heping-yimo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     scope_i = _find_scope(payload["root_scope"], "i")
     scope_i_1 = _find_scope(payload["root_scope"], "i_1")
     shared = next(
@@ -1509,7 +1526,7 @@ def test_scope_local_producer_is_not_promoted_across_sibling_goals(tmp_path) -> 
 
 def test_goal_authored_shared_producer_is_promoted_to_typed_lca(tmp_path) -> None:
     case = "tj-2026-heping-yimo-25"
-    canonical_payload = load_v2_fixture_payload(case)
+    canonical_payload = load_v3_fixture_payload(case)
     authority, fixture = _lower_payload(
         tmp_path / "canonical",
         case,
@@ -1600,7 +1617,7 @@ def test_goal_authored_shared_producer_is_promoted_to_typed_lca(tmp_path) -> Non
 
 def test_answer_and_output_authority_fail_loud(tmp_path) -> None:
     case = "tj-2026-heping-ermo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     scope_i_1 = _find_scope(payload["root_scope"], "i_1")
     scope_i_1["goals"][1]["answer_from"] = {
         "step_id": "derive_x_intercept_A_i",
@@ -1612,9 +1629,11 @@ def test_answer_and_output_authority_fail_loud(tmp_path) -> None:
     ):
         _lower_payload(tmp_path / "duplicate-answer", case, payload)
 
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     scope_i = _find_scope(payload["root_scope"], "i")
-    scope_i["steps"][1]["output_targets"] = {"point": "minimum_value"}
+    scope_i["steps"][1]["return_bindings"] = {
+        "point": {"kind": "existing", "ref": "minimum_value"}
+    }
     with pytest.raises(
         ScopedFunctionalPlanError,
         match="output target is outside the step scope",
@@ -1636,7 +1655,7 @@ def test_source_ref_keeps_entity_wire_and_pins_latest_visible_producer(
     tmp_path,
 ) -> None:
     case = "tj-2026-heping-yimo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     root_steps = payload["root_scope"]["steps"]
     duplicate = deepcopy(root_steps[0])
     duplicate["step_id"] = "derive_y_intercept_C_again"
@@ -1666,11 +1685,11 @@ def test_source_ref_keeps_entity_wire_and_pins_latest_visible_producer(
 
 def test_source_ref_pins_implicit_preserve_input_object_return(tmp_path) -> None:
     case = "tj-2026-heping-ermo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     scope_ii = _find_scope(payload["root_scope"], "ii")
     goal = scope_ii["goals"][0]
     steps = {item["step_id"]: item for item in goal["steps"]}
-    steps["evaluate_point_A_ii"].pop("output_targets")
+    steps["evaluate_point_A_ii"].pop("return_bindings")
     steps["recover_target_point_E_ii"]["args"]["side_start"] = "A"
 
     authority, _fixture = _lower_payload(tmp_path, case, payload)
@@ -1697,7 +1716,7 @@ def test_source_ref_pins_implicit_preserve_input_object_return(tmp_path) -> None
 
 def test_terminal_dead_pure_goal_step_is_available_for_pruning(tmp_path) -> None:
     case = "tj-2026-heping-yimo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     goal = _find_scope(payload["root_scope"], "i_2")["goals"][0]
     goal["steps"].append(
         {

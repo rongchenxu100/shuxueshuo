@@ -138,7 +138,10 @@ def test_path_minimum_goal_evidence_is_projected_from_recipe_outputs() -> None:
         for tag in item.goal_evidence_tags
     }
 
-    assert tags >= {"path_minimum_witness", "path_minimum_expression"}
+    assert tags >= {
+        "verified_path_minimum_subplan",
+        "path_minimum_expression",
+    }
 
 
 def test_macro_result_forms_are_projected_from_internal_functions() -> None:
@@ -183,7 +186,9 @@ def test_shareable_macro_purity_is_derived_from_internal_functions() -> None:
 
     assert registry.require("right_angle_equal_length_construct_and_select").is_pure
     assert registry.require("two_moving_points_path_reduction").is_pure
-    assert registry.require("broken_path_straightening_and_select").exposes_to_llm is False
+    assert not registry.require(
+        "broken_path_straightening_minimum_expression"
+    ).is_pure
 
 
 def test_macro_catalog_prompt_payload_hides_runtime_wiring_details() -> None:
@@ -231,19 +236,14 @@ def test_every_registered_macro_has_an_audited_lowering_contract() -> None:
             macros.setdefault(macro_id, []).append(spec.to_payload())
 
     assert set(macros) == {
-        "broken_path_straightening_and_select",
         "broken_path_straightening_minimum_expression",
         "curve_candidate_parameter_solve",
         "equal_length_ray_path_reduction",
-        "path_minimum_by_straightened_distance",
         "right_angle_equal_length_construct_and_select",
         "two_moving_points_path_reduction",
     }
 
-    for macro_id in (
-        "path_minimum_by_straightened_distance",
-        "broken_path_straightening_minimum_expression",
-    ):
+    for macro_id in ("broken_path_straightening_minimum_expression",):
         for payload in macros[macro_id]:
             adapter = payload["adapter"]
             assert [
@@ -262,6 +262,14 @@ def test_every_registered_macro_has_an_audited_lowering_contract() -> None:
             for item in payload["adapter"]["output_aliases"]
         }
         assert equal_length_returns == {"minimum_expression"}
+        assert payload["internal_calls"] == []
+        assert payload["adapter"]["execution_strategy"] == (
+            "functional_plan_fragment"
+        )
+        assert payload["adapter"]["input_aliases"] == []
+        assert payload["adapter"]["input_derivations"] == []
+        assert payload["adapter"]["strategy_input_targets"] == []
+        assert payload["adapter"]["intermediate_wiring"] == []
 
 
 def test_every_path_transformation_uses_planner_declared_moving_point() -> None:

@@ -6,10 +6,10 @@ from pathlib import Path
 
 import pytest
 
-from shuxueshuo_server.solver.runtime.functional_execution_authority import (
-    MacroSearchExecutionEvidence,
-    PathMinimumWitness,
-    path_minimum_witness_schema,
+from shuxueshuo_server.solver.runtime.functional_subplan import (
+    MacroSearchSelection,
+    SingleFragmentSelection,
+    VerifiedSubplanExecution,
 )
 from shuxueshuo_server.solver.runtime.functional_goal_execution import (
     FunctionalGoalExecutionCheckpoint,
@@ -21,7 +21,7 @@ from shuxueshuo_server.solver.runtime.functional_goal_retry import (
     planner_goal_retry_context_schema,
 )
 
-from _scoped_functional_plan_support import load_v2_fixture_payload
+from _scoped_functional_plan_support import load_v3_fixture_payload
 from test_functional_goal_execution import _execute
 
 
@@ -51,11 +51,11 @@ def _execution_steps(root_scope):
             yield from goal.steps
 
 
-def test_verified_execution_and_path_witness_round_trip(tmp_path) -> None:
+def test_verified_execution_uses_one_generic_macro_subplan(tmp_path) -> None:
     result, _fixture = _execute(
         tmp_path,
         "tj-2026-heping-yimo-25",
-        load_v2_fixture_payload("tj-2026-heping-yimo-25"),
+        load_v3_fixture_payload("tj-2026-heping-yimo-25"),
     )
     verified = result.verified_execution
     checkpoint = result.checkpoint
@@ -70,18 +70,27 @@ def test_verified_execution_and_path_witness_round_trip(tmp_path) -> None:
     assert restored.execution_id == verified.execution_id
     assert restored.execution_signature == verified.execution_signature
 
-    witnesses = tuple(
+    subplans = tuple(
         item
         for item in _execution_evidence(verified.root_scope)
-        if isinstance(item, PathMinimumWitness)
+        if isinstance(item, VerifiedSubplanExecution)
     )
-    assert len(witnesses) == 1
-    witness = witnesses[0]
-    assert PathMinimumWitness.from_payload(witness.to_payload()).witness_id == (
-        witness.witness_id
+    macro_subplans = tuple(
+        item
+        for item in subplans
+        if isinstance(item.selection, MacroSearchSelection)
     )
-    assert witness.minimum_expression == "3*sqrt(2*a**2 + 1)/Abs(a)"
-    assert any("BN=MG" in item for item in witness.equivalence_proof)
+    assert len(macro_subplans) == 1
+    subplan = macro_subplans[0]
+    assert VerifiedSubplanExecution.from_payload(
+        subplan.to_payload()
+    ).execution_signature == subplan.execution_signature
+    assert subplan.witness.standard_results["minimum_expression"] == (
+        "3*sqrt(2*a**2 + 1)/Abs(a)"
+    )
+    assert {
+        item.check_code for item in subplan.clean_execution.verification
+    } >= {"distance_equality", "path_minimum_attained"}
 
     mutated = verified.to_payload()
     mutated["problem_semantic_hash"] = "drift"
@@ -93,14 +102,17 @@ def test_non_path_macro_uses_same_verified_execution_envelope(tmp_path) -> None:
     result, _fixture = _execute(
         tmp_path,
         "tj-2026-nankai-yimo-25",
-        load_v2_fixture_payload("tj-2026-nankai-yimo-25"),
+        load_v3_fixture_payload("tj-2026-nankai-yimo-25"),
     )
     verified = result.verified_execution
 
     assert verified is not None
     evidence = tuple(_execution_evidence(verified.root_scope))
-    assert not any(
-        isinstance(item, MacroSearchExecutionEvidence) for item in evidence
+    assert evidence
+    assert all(isinstance(item, VerifiedSubplanExecution) for item in evidence)
+    assert any(
+        isinstance(item.selection, SingleFragmentSelection)
+        for item in evidence
     )
     assert any(step.actual_outputs for step in _execution_steps(verified.root_scope))
     assert VerifiedFunctionalPlanExecution.from_payload(
@@ -112,7 +124,7 @@ def test_incomplete_checkpoint_cannot_be_promoted(tmp_path) -> None:
     result, _fixture = _execute(
         tmp_path,
         "tj-2026-heping-yimo-25",
-        load_v2_fixture_payload("tj-2026-heping-yimo-25"),
+        load_v3_fixture_payload("tj-2026-heping-yimo-25"),
     )
     assert result.checkpoint is not None and result.canonical_plan is not None
     incomplete = replace(result.checkpoint, transaction_ok=False)
@@ -139,10 +151,6 @@ def test_incomplete_checkpoint_cannot_be_promoted(tmp_path) -> None:
             "verified-functional-plan-execution.schema.json",
             verified_functional_plan_execution_schema,
         ),
-        (
-            "path-minimum-witness.schema.json",
-            path_minimum_witness_schema,
-        ),
     ),
 )
 def test_execution_authority_schema_snapshots_match_runtime(
@@ -158,7 +166,7 @@ def test_checkpoint_v1_is_rejected(tmp_path) -> None:
     result, _fixture = _execute(
         tmp_path,
         "tj-2026-heping-yimo-25",
-        load_v2_fixture_payload("tj-2026-heping-yimo-25"),
+        load_v3_fixture_payload("tj-2026-heping-yimo-25"),
     )
     assert result.checkpoint is not None
     legacy = result.checkpoint.authority_payload()

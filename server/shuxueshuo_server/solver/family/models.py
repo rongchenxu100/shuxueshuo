@@ -11,6 +11,7 @@ from dataclasses import dataclass, field
 from typing import Literal
 
 from shuxueshuo_server.solver.contracts import (
+    FunctionalCapabilityKind,
     FunctionalArgBindingAuthority,
     MacroExecutionMode,
     MacroSearchSpec,
@@ -30,7 +31,7 @@ StateIdentityPolicy = Literal[
 ]
 StateWriteMode = Literal["create", "transition", "value"]
 GoalEvidenceTag = Literal[
-    "path_minimum_witness",
+    "verified_path_minimum_subplan",
     "path_minimum_expression",
     "path_minimum_extremal_point",
     "curve_membership",
@@ -878,14 +879,14 @@ class PathTransformationConsumerSpec:
 
 @dataclass(frozen=True)
 class CapabilityContractSpec:
-    """Declarative semantic contract for a method or recipe capability.
+    """Declarative semantic contract for a Function or Macro capability.
 
     Contract specs are a prompt/context/preflight declaration layer. Runtime
     execution still uses existing method specs, recipe specs, and binding rules.
     """
 
     capability_id: str
-    kind: str = "method"
+    capability_kind: FunctionalCapabilityKind
     execution_status: CapabilityExecutionStatus = "executable"
     source: CapabilityContractSource = "explicit"
     slot_reads: tuple[StateSlotPattern, ...] = ()
@@ -915,7 +916,7 @@ class CapabilityContractSpec:
     def to_payload(self) -> dict[str, object]:
         return {
             "capability_id": self.capability_id,
-            "kind": self.kind,
+            "capability_kind": self.capability_kind,
             "execution_status": self.execution_status,
             "source": self.source,
             "slot_reads": [item.to_payload() for item in self.slot_reads],

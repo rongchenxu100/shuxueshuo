@@ -29,11 +29,9 @@ from shuxueshuo_server.solver.runtime.functional_goal_execution import (
     _internal_prompt_values,
     _prompt_safe_value,
 )
-from shuxueshuo_server.solver.runtime.functional_execution_authority import (
-    path_minimum_prompt_witness_schema,
-)
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
+    family_capability_bundle_for_inputs,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_content import (
     FUNCTIONAL_PLAN_CONTENT_CONTRACT,
@@ -79,7 +77,7 @@ from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
     scoped_published_goal_bindings,
     scoped_functional_plan_schema,
 )
-FUNCTIONAL_GOAL_REPAIR_CONTRACT = "functional-goal-repair/v4"
+FUNCTIONAL_GOAL_REPAIR_CONTRACT = "functional-goal-repair/v5"
 PLANNER_GOAL_RETRY_CONTEXT_CONTRACT = "planner-goal-retry-context/v4"
 
 GoalRetryStatus = Literal["solved", "failed", "blocked", "pending"]
@@ -221,7 +219,7 @@ def functional_goal_repair_schema() -> dict[str, Any]:
     return {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "$id": "functional-goal-repair.schema.json",
-        "title": "Functional Goal Replacement Repair v4",
+        "title": "Functional Goal Replacement Repair v5",
         "type": "object",
         "required": [
             "schema_version",
@@ -289,6 +287,7 @@ def functional_goal_repair_schema() -> dict[str, Any]:
         "$defs": {
             "source_ref": plan_defs["source_ref"],
             "step_result_ref": plan_defs["step_result_ref"],
+            "return_binding": plan_defs["return_binding"],
             "published_goal_result_ref": published_ref,
             "repair_functional_ref": repair_ref,
             "repair_step": repair_step,
@@ -479,6 +478,53 @@ def planner_goal_retry_context_schema() -> dict[str, Any]:
     """Return the prompt-safe scope/Goal execution authority schema."""
 
     nonempty = {"type": "string", "minLength": 1}
+    verified_subplan_prompt_evidence = {
+        "type": "object",
+        "required": ["source", "functions", "outputs", "verification"],
+        "properties": {
+            "source": {"enum": ["macro", "llm"]},
+            "functions": {
+                "type": "array",
+                "minItems": 1,
+                "items": nonempty,
+            },
+            "outputs": {"type": "object"},
+            "verification": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "required": [
+                        "check_code",
+                        "passed",
+                        "expected",
+                        "observed",
+                    ],
+                    "properties": {
+                        "check_code": nonempty,
+                        "passed": {"type": "boolean"},
+                        "expected": {},
+                        "observed": {},
+                    },
+                    "additionalProperties": False,
+                },
+            },
+            "macro_id": nonempty,
+            "chosen_roles": {
+                "type": "object",
+                "additionalProperties": nonempty,
+            },
+        },
+        "allOf": [
+            {
+                "if": {
+                    "properties": {"source": {"const": "macro"}},
+                    "required": ["source"],
+                },
+                "then": {"required": ["macro_id", "chosen_roles"]},
+            }
+        ],
+        "additionalProperties": False,
+    }
     execution_step = {
         "type": "object",
         "required": ["step_id", "status", "repair_permission"],
@@ -504,7 +550,9 @@ def planner_goal_retry_context_schema() -> dict[str, Any]:
             "evidence": {
                 "type": "array",
                 "minItems": 1,
-                "items": {"$ref": "#/$defs/path_minimum_prompt_witness"},
+                "items": {
+                    "$ref": "#/$defs/verified_subplan_prompt_evidence"
+                },
             },
             "typed_issue": {"type": "object"},
             "blocked_by": {"type": "array", "items": nonempty},
@@ -738,7 +786,9 @@ def planner_goal_retry_context_schema() -> dict[str, Any]:
         "$defs": {
             "step": execution_step,
             "goal": goal,
-            "path_minimum_prompt_witness": path_minimum_prompt_witness_schema(),
+            "verified_subplan_prompt_evidence": (
+                verified_subplan_prompt_evidence
+            ),
             **scope_defs,
         },
         "additionalProperties": False,
@@ -1203,10 +1253,7 @@ class ScopedFunctionalGoalRetryService:
         plan_frame = FunctionalPlanAuthorityFrame.from_planning_context(
             planning_context
         )
-        capability_catalog = FunctionalCapabilityCatalog.from_family_spec(
-            inputs.family_spec,
-            inputs.method_specs,
-        )
+        capability_catalog = family_capability_bundle_for_inputs(inputs).catalog
 
         for semantic_attempt in range(1, max_attempts + 1):
             if current_plan is None or retry_authority is None:

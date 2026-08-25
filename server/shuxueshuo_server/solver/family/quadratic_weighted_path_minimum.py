@@ -232,7 +232,7 @@ _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
     capability_contracts=(
         CapabilityContractSpec(
             capability_id="curve_candidate_parameter_solve",
-            kind="recipe",
+            capability_kind="macro",
             slot_reads=(
                 StateSlotPattern(
                     "candidate",

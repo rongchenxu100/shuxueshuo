@@ -1,0 +1,48 @@
+{
+  "method_id": "distance_sum_expression",
+  "title": "构造两段距离和表达式",
+  "description": "Construct the sum of two consecutive segment lengths.",
+  "summary": "",
+  "solves": [
+    "derive_distance_sum_expression"
+  ],
+  "inputs": {
+    "start": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    },
+    "via": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    },
+    "end": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    }
+  },
+  "outputs": {
+    "expression": "MinimumExpression"
+  },
+  "is_pure": true
+}

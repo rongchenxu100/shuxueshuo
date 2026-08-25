@@ -117,11 +117,11 @@ def test_five_case_runtime_writes_and_results_share_call_source_authority(
             assert runtime_authority.macro_role_resolutions == tuple(
                 sorted(
                     (
-                        item.role,
-                        item.authored_ref,
-                        item.chosen_ref,
+                        role,
+                        call_binding.authored_roles.get(role),
+                        chosen_ref,
                     )
-                    for item in call_result.macro_search_report.role_resolutions
+                    for role, chosen_ref in call_binding.chosen_roles.items()
                 )
             )
         assert all(

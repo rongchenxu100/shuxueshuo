@@ -8,10 +8,11 @@ the runtime execution boundary.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Any, Literal, Mapping
 
 from shuxueshuo_server.solver.contracts import (
+    FunctionalReturnNamingSpec,
     MacroExecutionMode,
     MacroSearchSpec,
     ScalarResultFormSpec,
@@ -81,7 +82,12 @@ from shuxueshuo_server.solver.utils import unique_ordered
 MacroArgKind = Literal["slot_read", "condition_read", "point_ref", "object_ref", "auto"]
 MacroReturnKind = Literal["slot_write", "condition_write"]
 MacroInternalCallKind = Literal["function", "method", "macro"]
-MacroSpecSource = Literal["explicit_contract", "projected_contract", "recipe_execution"]
+MacroSpecSource = Literal[
+    "explicit_contract",
+    "projected_contract",
+    "recipe_execution",
+    "macro_definition_projection",
+]
 
 
 @dataclass(frozen=True)
@@ -158,6 +164,7 @@ class MacroReturnSpec:
     provides_semantic_roles: tuple[str, ...] = ()
     object_role_projections: tuple[StateObjectRoleProjectionSpec, ...] = ()
     return_binding: FunctionalReturnBindingPolicy = "auto"
+    naming: FunctionalReturnNamingSpec = FunctionalReturnNamingSpec()
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -198,6 +205,8 @@ class MacroReturnSpec:
             ]
         if self.return_binding != "auto":
             payload["return_binding"] = self.return_binding
+        if self.naming.mode != "anonymous":
+            payload["naming"] = self.naming.to_payload()
         return payload
 
 
@@ -273,6 +282,7 @@ class MacroSpec:
     identity_constraints: tuple[StateIdentityConstraintSpec, ...] = ()
     repair_feedback_provider_id: str | None = None
     notes: tuple[str, ...] = ()
+    definition_signature: str | None = None
 
     def to_payload(self, *, include_adapter: bool = True) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -305,6 +315,7 @@ class MacroSpec:
             ],
             "repair_feedback_provider_id": self.repair_feedback_provider_id,
             "notes": list(self.notes),
+            "definition_signature": self.definition_signature,
         }
         if include_adapter:
             payload["adapter"] = self.adapter.to_payload()
@@ -354,19 +365,36 @@ class MacroSpecRegistry:
             )
             _validate_macro_lowering_contract(spec, method_specs)
             specs[recipe.recipe_id] = spec
-        from shuxueshuo_server.solver.runtime.macro_preparation import (
-            default_macro_implementation_registry,
+        from shuxueshuo_server.solver.runtime.macro_definitions import (
+            default_macro_definition_registry,
         )
 
-        implementations = default_macro_implementation_registry()
-        for spec in specs.values():
+        definitions = default_macro_definition_registry()
+        for macro_id, spec in tuple(specs.items()):
             if spec.execution_mode == "runtime_search":
                 if spec.search is None:
                     raise ValueError(
                         "planner.macro_contract_invalid: runtime_search Macro "
                         f"has no search spec: {spec.macro_id}"
                     )
-                implementations.require(spec.macro_id, spec.search)
+                definition = definitions.require_catalog_contract(
+                    spec.macro_id,
+                    spec.search,
+                    execution_strategy=spec.adapter.execution_strategy,
+                    internal_call_ids=tuple(
+                        item.call_id for item in spec.internal_calls
+                    ),
+                    export_names=tuple(item.name for item in spec.returns),
+                )
+                # Recipe/pack metadata remains a catalog projection during the
+                # migration, but executable search semantics are always the
+                # exact Definition-owned object after this boundary.
+                specs[macro_id] = replace(
+                    spec,
+                    search=definition.search_contract,
+                    source="macro_definition_projection",
+                    definition_signature=definition.authority_signature,
+                )
         return cls(specs)
 
     def get(self, macro_id: str) -> MacroSpec | None:
@@ -547,6 +575,7 @@ _MACRO_VALIDATION_POLICIES = frozenset(
         "minimum_expression_and_provenance",
         "distance_equivalence_and_provenance",
         "curve_membership_and_provenance",
+        "verified_function_fragment",
     }
 )
 
@@ -759,6 +788,17 @@ def _returns_from_output_aliases(
                 provides_semantic_roles=output.provides_semantic_roles,
                 object_role_projections=output.object_role_projections,
                 return_binding=output.return_binding,
+                naming=(
+                    FunctionalReturnNamingSpec(
+                        mode="optional_default",
+                        default_name=output.semantic_role,
+                    )
+                    if output.return_binding == "call_local_allowed"
+                    else FunctionalReturnNamingSpec()
+                    if output.return_binding == "internal_only"
+                    or output.identity_policy == "derived_role"
+                    else FunctionalReturnNamingSpec(mode="existing_only")
+                ),
             )
         )
     return tuple(returns)
@@ -1012,6 +1052,37 @@ def _validate_macro_lowering_contract(
     method_specs: MethodSpecRegistry,
 ) -> None:
     """Audit every public-to-internal Macro edge before it reaches runtime."""
+
+    if spec.adapter.execution_strategy == "functional_plan_fragment":
+        errors: list[str] = []
+        if spec.execution_mode != "runtime_search" or spec.search is None:
+            errors.append("transparent fragment Macro requires runtime search")
+        if spec.internal_calls:
+            errors.append("transparent fragment Macro cannot declare internal calls")
+        if (
+            spec.adapter.input_aliases
+            or spec.adapter.input_derivations
+            or spec.adapter.strategy_input_targets
+            or spec.adapter.intermediate_wiring
+        ):
+            errors.append("transparent fragment Macro cannot declare recipe wiring")
+        return_names = {item.name for item in spec.returns}
+        output_names = [item.output_key for item in spec.adapter.output_aliases]
+        if not output_names or len(output_names) != len(set(output_names)):
+            errors.append("transparent fragment exports must be nonempty and unique")
+        if any("." in item for item in output_names):
+            errors.append("transparent fragment export cannot name a Method output")
+        if set(output_names) != return_names:
+            errors.append(
+                "transparent fragment exports differ from public returns: "
+                f"exports={sorted(output_names)}, returns={sorted(return_names)}"
+            )
+        if errors:
+            raise ValueError(
+                "planner_configuration_error: macro fragment contract invalid: "
+                f"macro={spec.macro_id}; " + "; ".join(errors)
+            )
+        return
 
     public_args = {_macro_arg_public_name(item): item for item in spec.args}
     internal_methods = {

@@ -93,7 +93,10 @@ def test_prompt_metadata_guard_allows_capability_prefixed_by_example_id() -> Non
         },
     }
     prompt = SimpleNamespace(
-        user='{"capability_id":"broken_path_straightening_and_select"}',
+        user=(
+            '{"capability_id":'
+            '"broken_path_straightening_minimum_expression"}'
+        ),
     )
 
     _assert_prompt_is_functional_and_safe(payload, prompt)

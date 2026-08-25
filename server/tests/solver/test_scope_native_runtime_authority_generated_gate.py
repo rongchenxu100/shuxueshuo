@@ -14,16 +14,26 @@ from shuxueshuo_server.solver.contracts import (
     MethodInputBindingSpec,
 )
 from shuxueshuo_server.solver.runtime.macro_preparation import (
-    MacroImplementation,
-    MacroImplementationPreparationContext,
-    MacroImplementationRegistry,
     MacroPreparationRequest,
     MacroPreparationService,
-    MacroRoleAssignmentCandidate,
 )
-from shuxueshuo_server.solver.runtime.macro_runtime_search import (
-    MacroCandidateEvaluation,
-    MacroRuntimeSearchError,
+from shuxueshuo_server.solver.runtime.functional_subplan import (
+    CandidateEvaluation,
+    CandidateSelectionSpec,
+    FunctionalPlanFragment,
+    SearchCandidate,
+)
+from shuxueshuo_server.solver.runtime.macro_blueprints import (
+    MacroSemanticBlueprint,
+)
+from shuxueshuo_server.solver.runtime.macro_definitions import (
+    MacroDefinition,
+    MacroDefinitionPreparationContext,
+    MacroDefinitionRegistry,
+)
+from shuxueshuo_server.solver.runtime.macro_runtime_search import MacroRuntimeSearchError
+from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
+    ScopedFunctionalStep,
 )
 from shuxueshuo_server.solver.runtime.method_input_read_authority import (
     CallResultReadSource,
@@ -320,43 +330,64 @@ LIFECYCLE_SPEC = MacroSearchSpec(
 
 
 def _lifecycle_registry():
+    def candidate(candidate_id: str, moving_point: str) -> SearchCandidate:
+        step = ScopedFunctionalStep(
+            step_id=f"{candidate_id}_step",
+            capability_id="generated_function",
+            args={},
+            return_bindings={},
+            return_expectations={},
+        )
+        return SearchCandidate(
+            candidate_id=candidate_id,
+            fragment=FunctionalPlanFragment(
+                source="macro",
+                scope_id="ii_1",
+                steps=(step,),
+                exports={"value": (step.step_id, "value")},
+                dependency_envelope=(moving_point,),
+                blueprint_id="generated-blueprint/v1",
+            ),
+            role_bindings={"moving_point": moving_point},
+            strategy_id="generated",
+        )
+
     candidates = (
-        MacroRoleAssignmentCandidate(
-            "candidate-e",
-            {"moving_point": "E"},
-            ("E",),
-            call_count=2,
-        ),
-        MacroRoleAssignmentCandidate(
-            "candidate-g",
-            {"moving_point": "G"},
-            ("G",),
-            call_count=1,
-        ),
+        candidate("candidate-e", "E"),
+        candidate("candidate-g", "G"),
     )
-    return MacroImplementationRegistry(
+    blueprint = MacroSemanticBlueprint(
+        macro_id="generated_macro",
+        summary="generated lifecycle Macro",
+        applicable_structure=("generated structure",),
+        role_invariants=("moving point is visible",),
+        construction_purpose=("exercise candidate lifecycle",),
+        proof_obligations=("verify generated result",),
+        reduction_strategies=("generated",),
+        attainment_checks=("result is attained",),
+        function_capability_ids=("generated_function",),
+        blueprint_version="generated-blueprint/v1",
+    )
+    definition_registry = MacroDefinitionRegistry(
         (
-            MacroImplementation(
-                implementation_id="generated/v1",
+            MacroDefinition(
                 macro_id="generated_macro",
-                candidate_builder_id=LIFECYCLE_SPEC.candidate_builder_id,
-                validation_policy_id=LIFECYCLE_SPEC.validation_policy_id,
-                lowerer_id=LIFECYCLE_SPEC.lowerer_id or "",
-                postcondition_id=LIFECYCLE_SPEC.postcondition_id or "",
-                evidence_builder_id=LIFECYCLE_SPEC.evidence_builder_id or "",
+                implementation_id="generated/v1",
+                blueprint=blueprint,
+                search_contract=LIFECYCLE_SPEC,
                 preparation_context_builder=lambda request: (
-                    MacroImplementationPreparationContext(
-                        payload=request.builder_context,
+                    MacroDefinitionPreparationContext(
+                        payload=request.builder_context or {},
                         candidate_dependency_envelope=("E", "G"),
                     )
                 ),
-                candidate_builder=lambda _request: candidates,
-                lowerer=lambda value, _authority: value,
-                postcondition=lambda _value: (),
-                evidence_builder=lambda *args, **kwargs: None,
+                expander=lambda _request: candidates,
+                selection=CandidateSelectionSpec("equivalent"),
+                export_names=("value",),
             ),
         )
     )
+    return definition_registry
 
 
 def _lifecycle_oracle(scenario: _LifecycleScenario) -> tuple[bool, str | None]:
@@ -399,20 +430,34 @@ def _run_lifecycle(scenario: _LifecycleScenario) -> tuple[bool, str | None]:
     def evaluate(authority):
         candidate_id = authority.candidate.candidate_id
         if scenario.candidate_outcome == "none":
-            return MacroCandidateEvaluation(candidate_id, False)
+            return CandidateEvaluation(
+                candidate_id,
+                False,
+                failure_code="generated_candidate_failed",
+            )
         if scenario.candidate_outcome == "ambiguous":
-            return MacroCandidateEvaluation(candidate_id, True, candidate_id)
+            return CandidateEvaluation(
+                candidate_id,
+                True,
+                standard_outputs={"value": candidate_id},
+            )
         if scenario.candidate_outcome == "unique":
             passed = candidate_id == "candidate-g"
-            return MacroCandidateEvaluation(
+            return CandidateEvaluation(
                 candidate_id,
                 passed,
-                "winner" if passed else None,
+                standard_outputs={"value": "winner"} if passed else {},
+                failure_code=None if passed else "generated_candidate_failed",
             )
-        return MacroCandidateEvaluation(candidate_id, True, "equivalent")
+        return CandidateEvaluation(
+            candidate_id,
+            True,
+            standard_outputs={"value": "equivalent"},
+        )
 
     try:
-        prepared = MacroPreparationService(_lifecycle_registry()).prepare(
+        definitions = _lifecycle_registry()
+        prepared = MacroPreparationService(definitions).prepare(
             request,
             search_spec=LIFECYCLE_SPEC,
             evaluator=evaluate,
@@ -425,7 +470,9 @@ def _run_lifecycle(scenario: _LifecycleScenario) -> tuple[bool, str | None]:
         return False, "planner.macro_winner_replay_drift"
     if scenario.restore_mode == "failed_goal" and scenario.repair_mode != "replace":
         return False, "failed_goal_not_replaced"
-    assert prepared.authority.winner.candidate.roles["moving_point"] in {"E", "G"}
+    assert prepared.authority.winner.candidate.role_bindings[
+        "moving_point"
+    ] in {"E", "G"}
     return True, None
 
 

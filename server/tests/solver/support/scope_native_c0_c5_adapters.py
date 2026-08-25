@@ -2233,7 +2233,7 @@ def run_scope_native_protocol_adapter(
         raise ValueError(f"unknown scope-native protocol probe {probe!r}")
 
     from _problem_planning_support import cached_planning_binding_fixture
-    from _scoped_functional_plan_support import load_v2_fixture_payload
+    from _scoped_functional_plan_support import load_v3_fixture_payload
     from shuxueshuo_server.solver.runtime.context import ContextBuilder
     from shuxueshuo_server.solver.runtime.functional_goal_execution import (
         ScopedFunctionalGoalExecutionService,
@@ -2262,7 +2262,7 @@ def run_scope_native_protocol_adapter(
         binding_catalog,
     ) = cached_planning_binding_fixture(case_id)
     plan, validation = ScopedFunctionalPlanValidator().validate_payload_with_report(
-        load_v2_fixture_payload(case_id)
+        load_v3_fixture_payload(case_id)
     )
     if plan is None or not validation.ok:
         raise AssertionError(validation.to_payload())
@@ -2414,7 +2414,7 @@ def _mutate_protocol_probe(
         return
     if probe == "empty_optional_maps":
         step = _first_protocol_step(payload)
-        step["output_targets"] = {}
+        step["return_bindings"] = {}
         step["return_expectations"] = {}
         return
     if probe in {"revision_drift", "source_binding_drift"}:

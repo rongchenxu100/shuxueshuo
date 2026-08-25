@@ -397,7 +397,7 @@ def point_on_parabola_at_x_rule() -> MethodBindingRuleSpec:
                 description=(
                     "若可见 point_on_curve 事实唯一声明了当前抛物线上、"
                     "具有结构化横坐标的 Point，则代码绑定该已有对象；"
-                    "存在多个候选时必须显式 output_targets。"
+                    "存在多个候选时必须显式 return_bindings。"
                 ),
             ),
         ),
@@ -483,6 +483,135 @@ def line_intersection_point_rule() -> MethodBindingRuleSpec:
                 input_name="parameter",
                 required=False,
             ),
+        ),
+    )
+
+
+def construct_point_on_ray_at_reference_distance_rule() -> MethodBindingRuleSpec:
+    return MethodBindingRuleSpec(
+        method_id="construct_point_on_ray_at_reference_distance",
+        input_bindings=(
+            public_arg_binding("anchor"),
+            public_arg_binding("ray_point"),
+            public_arg_binding("reference_point"),
+            previous_output_identity_binding("target", output_name="point"),
+        ),
+    )
+
+
+def verify_point_on_ray_rule() -> MethodBindingRuleSpec:
+    return MethodBindingRuleSpec(
+        method_id="verify_point_on_ray",
+        functional_output_names=(("verified", "point_on_ray"),),
+        input_bindings=tuple(
+            public_arg_binding(name)
+            for name in ("point", "anchor", "ray_point")
+        ),
+    )
+
+
+def verify_distance_equality_rule() -> MethodBindingRuleSpec:
+    return MethodBindingRuleSpec(
+        method_id="verify_distance_equality",
+        functional_output_names=(("verified", "distance_equality"),),
+        input_bindings=tuple(
+            public_arg_binding(name)
+            for name in (
+                "first_start",
+                "first_end",
+                "second_start",
+                "second_end",
+            )
+        ),
+    )
+
+
+def prove_distance_equality_from_conditions_rule() -> MethodBindingRuleSpec:
+    return MethodBindingRuleSpec(
+        method_id="prove_distance_equality_from_conditions",
+        functional_output_names=(("verified", "distance_equality"),),
+        input_bindings=(
+            condition_arg_binding("equal_length_condition"),
+            condition_arg_binding("linking_condition"),
+            condition_arg_binding("ray_membership_condition"),
+            condition_arg_binding("constructed_equal_length_condition"),
+            condition_arg_binding("constructed_ray_condition"),
+            *(public_arg_binding(name) for name in (
+                "common_vertex",
+                "first_start",
+                "first_end",
+                "second_start",
+                "second_end",
+            )),
+        ),
+    )
+
+
+def rewrite_expression_by_condition_rule() -> MethodBindingRuleSpec:
+    return MethodBindingRuleSpec(
+        method_id="rewrite_expression_by_condition",
+        input_bindings=(
+            exact_call_result_binding("original_expression"),
+            exact_call_result_binding("rewritten_expression"),
+            condition_arg_binding("condition"),
+        ),
+    )
+
+
+def reflect_point_across_line_rule() -> MethodBindingRuleSpec:
+    return MethodBindingRuleSpec(
+        method_id="reflect_point_across_line",
+        input_bindings=(
+            public_arg_binding("point"),
+            public_arg_binding("line_p1"),
+            public_arg_binding("line_p2"),
+            previous_output_identity_binding(
+                "target",
+                output_name="reflected_point",
+            ),
+        ),
+    )
+
+
+def verify_point_on_closed_segment_rule() -> MethodBindingRuleSpec:
+    return MethodBindingRuleSpec(
+        method_id="verify_point_on_closed_segment",
+        functional_output_names=(("verified", "point_on_segment"),),
+        input_bindings=(
+            *(public_arg_binding(name) for name in (
+                "point",
+                "segment_start",
+                "segment_end",
+            )),
+            condition_arg_binding("domain_condition", required=False),
+        ),
+    )
+
+
+def distance_sum_expression_rule() -> MethodBindingRuleSpec:
+    return MethodBindingRuleSpec(
+        method_id="distance_sum_expression",
+        input_bindings=tuple(
+            public_arg_binding(name) for name in ("start", "via", "end")
+        ),
+    )
+
+
+def verify_two_segment_path_attainment_rule() -> MethodBindingRuleSpec:
+    return MethodBindingRuleSpec(
+        method_id="verify_two_segment_path_attainment",
+        functional_output_names=(("verified", "path_attainment"),),
+        input_bindings=(
+            exact_call_result_binding("objective"),
+            exact_call_result_binding("candidate"),
+            *(public_arg_binding(name) for name in (
+                "candidate_point",
+                "path_start",
+                "path_end",
+                "segment_start",
+                "segment_end",
+            )),
+            condition_arg_binding("domain_condition", required=False),
         ),
     )
 

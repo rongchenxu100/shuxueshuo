@@ -150,7 +150,9 @@ def test_strategy_recorded_solves_heping_without_deterministic_planner(
     assert "angle_sum_equal_angle_candidates" in result.methods_used
     assert "axis_intercept_from_equal_acute_angles" in result.methods_used
     assert "line_parabola_second_intersection_point" in result.methods_used
-    assert "equal_length_ray_point" in result.methods_used
+    assert "equal_length_ray_point" not in result.methods_used
+    assert "construct_point_on_ray_at_reference_distance" in result.methods_used
+    assert "verify_two_segment_path_attainment" in result.methods_used
 
 
 def test_strategy_recorded_solves_heping_ermo_without_deterministic_planner(

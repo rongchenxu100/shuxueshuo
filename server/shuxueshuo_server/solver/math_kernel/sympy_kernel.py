@@ -208,8 +208,8 @@ class SympyKernel:
     ) -> tuple[sp.Expr, sp.Expr]:
         """求两条直线（各由两点确定）的交点坐标。
 
-        使用 SymPy ``Line`` 几何对象求交；适用于坐标系中辅助线交点、
-        对称轴与直线交点等。
+        使用二维行列式求交，避免 ``sympy.geometry.Line`` 在含参数方向
+        向量上提前触发不可判定的布尔关系。
 
         Args:
             line1: ``((x1,y1), (x2,y2))`` 确定第一条直线。
@@ -222,17 +222,24 @@ class SympyKernel:
         Raises:
             ValueError: 两直线平行或重合、无唯一交点时。
         """
-        def point(raw: tuple[object, object]) -> sp.Point:
-            """将二元坐标元组转为 SymPy 平面点。"""
-            return sp.Point(self.expr(raw[0], locals_), self.expr(raw[1], locals_))
-
-        intersection = sp.Line(point(line1[0]), point(line1[1])).intersection(
-            sp.Line(point(line2[0]), point(line2[1]))
-        )
-        if not intersection:
+        x1, y1 = (self.expr(value, locals_) for value in line1[0])
+        x2, y2 = (self.expr(value, locals_) for value in line1[1])
+        x3, y3 = (self.expr(value, locals_) for value in line2[0])
+        x4, y4 = (self.expr(value, locals_) for value in line2[1])
+        dx1 = sp.simplify(x2 - x1)
+        dy1 = sp.simplify(y2 - y1)
+        dx2 = sp.simplify(x4 - x3)
+        dy2 = sp.simplify(y4 - y3)
+        denominator = sp.simplify(dx1 * dy2 - dy1 * dx2)
+        if denominator == 0 or denominator.equals(0) is True:
             raise ValueError("lines do not intersect")
-        p = intersection[0]
-        return (sp.simplify(p.x), sp.simplify(p.y))
+        parameter = sp.cancel(
+            ((x3 - x1) * dy2 - (y3 - y1) * dx2) / denominator
+        )
+        return (
+            sp.simplify(x1 + parameter * dx1),
+            sp.simplify(y1 + parameter * dy1),
+        )
 
     def sstr(self, value: object) -> str:
         """将表达式化简后转为 SymPy 标准字符串（便于日志与 JSON 输出）。

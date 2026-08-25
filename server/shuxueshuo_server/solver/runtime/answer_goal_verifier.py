@@ -1264,7 +1264,7 @@ def _minimum_goal_issue(
     )
     witness_roles = _goal_evidence_roles(
         family_spec,
-        "path_minimum_witness",
+        "verified_path_minimum_subplan",
     )
     if not expression_roles or not witness_roles:
         return None

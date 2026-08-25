@@ -26,6 +26,8 @@ from shuxueshuo_server.solver.contracts import (
     OrdinalZeroTemplateDerivationSpec,
     PointRef,
     PreviousOutputIdentityDerivationSpec,
+    TypedValue,
+    VerificationOutcome,
 )
 from shuxueshuo_server.solver.extraction.problem_planning_binding import (
     FunctionalProblemBindingLedger,
@@ -69,6 +71,10 @@ from shuxueshuo_server.solver.runtime.method_output_write_authority import (
     MethodOutputWriteAuthority,
     StateOutputDestinationAuthority,
 )
+from shuxueshuo_server.solver.runtime.predicate_condition_publication import (
+    PredicateConditionPublicationService,
+    PredicatePublicationAuthority,
+)
 from shuxueshuo_server.solver.runtime.functional_diagnostics import (
     FunctionalDiagnosticAuthority,
     StatelessMethodError,
@@ -76,15 +82,10 @@ from shuxueshuo_server.solver.runtime.functional_diagnostics import (
     method_check_failed,
     normalize_macro_diagnostic_authority,
 )
-from shuxueshuo_server.solver.runtime.functional_execution_authority import (
-    PathMinimumWitness,
-)
-from shuxueshuo_server.solver.runtime.equal_length_ray_path_search import (
-    EqualLengthRayPathSearchError,
-)
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
 )
+from shuxueshuo_server.solver.runtime.function_specs import FunctionSpecRegistry
 from shuxueshuo_server.solver.runtime.functional_state_reads import (
     FunctionalStateReadIndex,
 )
@@ -99,6 +100,9 @@ from shuxueshuo_server.solver.runtime.functional_plan_models import (
     FunctionalPlanReconciliationResult,
     FunctionalReturnAllocation,
 )
+from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
+    ScopedDerivedResultRef,
+)
 from shuxueshuo_server.solver.runtime.functional_transaction_shadow import (
     FunctionalCallExecutionState,
     FunctionalTransactionEvent,
@@ -110,19 +114,32 @@ from shuxueshuo_server.solver.runtime.handle_registry import (
     CanonicalHandleRegistry,
 )
 from shuxueshuo_server.solver.runtime.macro_runtime_search import (
-    MacroCandidateEvaluation,
+    MacroCandidateEvaluation as LegacyMacroCandidateEvaluation,
+    MacroRoleResolution,
     MacroRuntimeSearchError,
     MacroRuntimeSearchReport,
 )
+from shuxueshuo_server.solver.runtime.functional_subplan import (
+    CandidateEvaluation,
+    CandidateSearchReport,
+    FragmentRuntimeSource,
+    FunctionalPlanFragmentExecution,
+    FunctionalPlanFragmentTransactionalRunner,
+    MacroSearchSelection,
+    VerifiedSubplanExecution,
+    VerifiedSubplanCleanExecution,
+    VerifiedSubplanWitness,
+    fragment_published_condition_refs,
+)
+from shuxueshuo_server.solver.runtime.macro_definitions import (
+    default_macro_definition_registry,
+)
 from shuxueshuo_server.solver.runtime.macro_preparation import (
     MacroCandidateBindingAuthority,
-    MacroImplementation,
-    MacroMethodInputBindingSpec,
     MacroPreparationEnvironment,
     MacroPreparationRequest,
     MacroPreparationService,
     PreparedMacroInvocation,
-    default_macro_implementation_registry,
 )
 from shuxueshuo_server.solver.runtime.planner_failure_classification import (
     is_planner_configuration_failure_code,
@@ -142,6 +159,7 @@ from shuxueshuo_server.solver.runtime.models import (
     ContextDeclaration,
     ContextPath,
     MethodInvocation,
+    PlanExecutionResult,
     PlannerOutput,
     StepExecutionResult,
     StepGoal,
@@ -239,7 +257,6 @@ class PreparedFunctionalCall:
     problem_call_binding: FunctionalProblemCallBinding | None = None
     macro_role_overrides: Mapping[str, str] = field(default_factory=dict)
     macro_candidate_binding: MacroCandidateBindingAuthority | None = None
-    macro_method_inputs: tuple["PreparedMacroMethodInput", ...] = ()
     prepared_macro: Any | None = None
 
     def __post_init__(self) -> None:
@@ -258,22 +275,6 @@ class PreparedFunctionalArgBinding:
     selected_state_version_id: StateVersionId | None = None
     runtime_path: str | None = None
     runtime_value: TypedValue | None = None
-
-
-@dataclass(frozen=True)
-class PreparedMacroMethodInput:
-    """One Registry-declared internal Method input and its exact source."""
-
-    declaration: MacroMethodInputBindingSpec
-    source: Any | None = None
-
-    @property
-    def method_id(self) -> str:
-        return self.declaration.method_id
-
-    @property
-    def input_name(self) -> str:
-        return self.declaration.input_name
 
 
 @dataclass(frozen=True)
@@ -303,6 +304,7 @@ class CompiledPublicReturn:
     expected_write: StateWriteProvenance | None
     required: bool
     max_independent_free_parameters: int | None = None
+    runtime_path: str | None = None
 
 
 @dataclass(frozen=True)
@@ -318,10 +320,18 @@ class CompiledFunctionalCall:
     problem_source_provenance: ProblemCallSourceProvenance | None = None
     problem_call_binding: FunctionalProblemCallBinding | None = None
     macro_preparation_authority: Any | None = None
-    macro_search_report: MacroRuntimeSearchReport | None = None
-    path_minimum_witness: PathMinimumWitness | None = None
+    macro_search_report: CandidateSearchReport | None = None
+    fragment_execution: FunctionalPlanFragmentExecution | None = field(
+        default=None,
+        repr=False,
+        compare=False,
+    )
+    verified_subplan_execution: VerifiedSubplanExecution | None = None
     materialized_state_sources: tuple[tuple[str, StateVersionId], ...] = ()
     output_write_authorities: tuple[MethodOutputWriteAuthority, ...] = ()
+    predicate_publication_authorities: tuple[
+        PredicatePublicationAuthority, ...
+    ] = ()
 
 
 @dataclass(frozen=True)
@@ -335,8 +345,10 @@ class FunctionalCallExecutionResult:
     root_issues: tuple[PlannerRetryIssue, ...] = ()
     symbolic_closure: SymbolicClosureExecutionResult | None = None
     macro_preparation_authority: Any | None = None
-    macro_search_report: MacroRuntimeSearchReport | None = None
-    path_minimum_witness: PathMinimumWitness | None = None
+    macro_search_report: CandidateSearchReport | None = None
+    verified_subplan_execution: VerifiedSubplanExecution | None = None
+    verification_outcomes: tuple[VerificationOutcome, ...] = ()
+    published_conditions: tuple[Condition, ...] = ()
     step_results: tuple[StepExecutionResult, ...] = field(
         default=(),
         repr=False,
@@ -371,11 +383,17 @@ class FunctionalCallExecutionResult:
                 if self.macro_preparation_authority is not None
                 else None
             ),
-            "path_minimum_witness": (
-                self.path_minimum_witness.authority_payload()
-                if self.path_minimum_witness is not None
+            "verified_subplan_execution": (
+                self.verified_subplan_execution.to_payload()
+                if self.verified_subplan_execution is not None
                 else None
             ),
+            "verification_outcomes": [
+                item.to_payload() for item in self.verification_outcomes
+            ],
+            "published_conditions": [
+                item.to_payload() for item in self.published_conditions
+            ],
         }
 
 
@@ -2401,6 +2419,39 @@ class FunctionalCallCompilerService:
             )
             for item in reconciliation.state_dependencies
         )
+        if isinstance(
+            prepared_call.prepared_macro,
+            PreparedMacroInvocation,
+        ):
+            wrapped = _compile_verified_subplan_publication_envelope(
+                prepared_call,
+                capability=capability,
+                projected_state_writes=all_writes,
+                runtime_context=runtime_context,
+            )
+            problem_call_binding = prepared_call.problem_call_binding
+            if (
+                isinstance(problem_call_binding, FunctionalProblemCallBinding)
+                and problem_call_binding.status == "finalized"
+            ):
+                wrapped = _stamp_compiled_problem_source_provenance(
+                    wrapped,
+                    problem_call_binding.source_provenance(),
+                )
+                wrapped = replace(
+                    wrapped,
+                    problem_call_binding=problem_call_binding,
+                )
+            elif (
+                isinstance(problem_call_binding, FunctionalProblemCallBinding)
+                and problem_call_binding.status != "pending_macro"
+            ):
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.problem_call_binding_pending: "
+                    f"call={prepared_call.call_id}"
+                )
+            return wrapped
         available_call_ids = {
             prepared_call.call_id,
             *(call.call_id for call in committed_calls),
@@ -4063,7 +4114,8 @@ def _known_call_local_runtime_bindings(
             and returned.allocation.allocation_action == "call_local_value"
         )
         for runtime_path in (
-            _runtime_path_for_write(call.plans, returned.expected_write),
+            returned.runtime_path
+            or _runtime_path_for_write(call.plans, returned.expected_write),
         )
         if runtime_path is not None
         for handle in unique_ordered(
@@ -4075,6 +4127,172 @@ def _known_call_local_runtime_bindings(
         )
         if isinstance(handle, str) and handle
     )
+
+
+def _compile_verified_subplan_publication_envelope(
+    prepared_call: PreparedFunctionalCall,
+    *,
+    capability: Any,
+    projected_state_writes: Sequence[ProjectedStateWrite],
+    runtime_context: RuntimeContext,
+) -> CompiledFunctionalCall:
+    """Compile only public return allocation for a prepared Macro fragment.
+
+    Candidate and winner Functions are executed by the fragment runner.  This
+    envelope contains no recipe Method graph; it only gives transaction commit
+    an exact destination and typed write authority for each public export.
+    """
+
+    return_specs = {item.name: item for item in capability.returns}
+    source_handles = tuple(
+        unique_ordered(
+            value.handle
+            for values in prepared_call.reconciliation.resolved_args.values()
+            for value in values
+            if isinstance(value.handle, str) and value.handle
+        )
+    )
+    public_returns: list[CompiledPublicReturn] = []
+    for allocation in prepared_call.reconciliation.returns:
+        return_spec = return_specs.get(allocation.return_name)
+        if return_spec is None:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.functional_compile_contract_incomplete: "
+                f"call={prepared_call.call_id}, unknown Macro return="
+                f"{allocation.return_name}"
+            )
+        matches = tuple(
+            item
+            for item in projected_state_writes
+            if item.step_id == prepared_call.call_id
+            and (
+                item.return_name == allocation.return_name
+                or item.produced_handle
+                in {allocation.handle, allocation.state_handle}
+            )
+        )
+        unique_matches = tuple(
+            {
+                stable_hash(item.to_payload()): item
+                for item in matches
+            }.values()
+        )
+        if len(unique_matches) != 1:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_output_write_authority_missing: "
+                f"call={prepared_call.call_id}, return="
+                f"{allocation.return_name}, projected_writes="
+                f"{len(unique_matches)}"
+            )
+        projected = unique_matches[0]
+        runtime_path = _verified_subplan_publication_path(
+            runtime_context,
+            scope_id=allocation.valid_scope,
+            call_id=prepared_call.call_id,
+            return_name=allocation.return_name,
+        )
+        runtime_destination = (
+            RuntimeDestinationKey(
+                projected.logical_state_key.object_id,
+                projected.logical_state_key.state_kind,
+                projected.logical_state_key.runtime_type,
+                runtime_path,
+            )
+            if projected.logical_state_key is not None
+            else None
+        )
+        write = StateWriteProvenance(
+            step_id=prepared_call.call_id,
+            scope_id=allocation.valid_scope,
+            capability_id=prepared_call.capability_id,
+            produced_handle=allocation.state_handle or allocation.handle,
+            output_key=allocation.return_name,
+            runtime_type=allocation.runtime_type,
+            identity_policy=allocation.identity_policy,
+            identity_role=return_spec.semantic_role or allocation.return_name,
+            evidence_roles=tuple(
+                unique_ordered(
+                    (
+                        return_spec.semantic_role or allocation.return_name,
+                        *return_spec.provides_semantic_roles,
+                    )
+                )
+            ),
+            object_ref=projected.object_ref,
+            source_handles=source_handles,
+            state_slot_id=(
+                projected.state_slot_id
+                if projected.logical_state_key is not None
+                else None
+            ),
+            write_mode=projected.write_mode,
+            previous_write_step_id=projected.previous_write_step_id,
+            transition_kind=projected.transition_kind,
+            dependency_object_refs=projected.dependency_object_refs,
+            source_state_slot_ids=projected.source_state_slot_ids,
+            lineage=projected.lineage,
+            math_object_id=projected.math_object_id,
+            logical_state_key=projected.logical_state_key,
+            typed_slot_id=projected.typed_slot_id,
+            selected_version_id=projected.selected_version_id,
+            previous_version_id=projected.previous_version_id,
+            computation_key=projected.computation_key,
+            source_version_ids=projected.source_version_ids,
+            allocation_action=projected.allocation_action,
+            free_symbol_ids=projected.free_symbol_ids,
+            return_name=allocation.return_name,
+            runtime_destination_key=runtime_destination,
+            canonical_producer_call_id=projected.canonical_producer_call_id,
+            valid_scope_id=projected.valid_scope_id or allocation.valid_scope,
+        )
+        public_returns.append(
+            CompiledPublicReturn(
+                return_name=allocation.return_name,
+                allocation=allocation,
+                expected_write=write,
+                required=(
+                    return_spec.required
+                    or allocation.return_name
+                    in prepared_call.required_return_names
+                ),
+                max_independent_free_parameters=(
+                    return_spec.max_independent_free_parameters
+                ),
+                runtime_path=runtime_path,
+            )
+        )
+    return CompiledFunctionalCall(
+        call_id=prepared_call.call_id,
+        step_ids=prepared_call.step_ids,
+        declarations=(),
+        plans=(),
+        public_returns=tuple(public_returns),
+        replay_plans=(),
+        binding_consumption_decisions=(),
+        output_write_authorities=(),
+    )
+
+
+def _verified_subplan_publication_path(
+    context: RuntimeContext,
+    *,
+    scope_id: str,
+    call_id: str,
+    return_name: str,
+) -> str:
+    scope = context.get_scope(scope_id)
+    key = "__verified_subplan_" + stable_hash(
+        {
+            "scope_id": scope_id,
+            "call_id": call_id,
+            "return_name": return_name,
+        }
+    )[:20]
+    if scope.scope_type == "problem":
+        return f"$problem.outputs.{key}"
+    return f"${scope.scope_type}.{scope.scope_id}.outputs.{key}"
 
 
 def _wrap_exact_compiled_call(
@@ -4144,6 +4362,14 @@ def _wrap_exact_compiled_call(
                     allocation.return_name
                 ].max_independent_free_parameters
                 if allocation.return_name in return_specs
+                else None
+            ),
+            runtime_path=(
+                _runtime_path_for_write(
+                    plans,
+                    writes[allocation.return_name],
+                )
+                if allocation.return_name in writes
                 else None
             ),
         )
@@ -4461,8 +4687,8 @@ def _compiled_call_signature(
             else None
         ),
         (
-            compiled.path_minimum_witness.witness_id
-            if compiled.path_minimum_witness is not None
+            compiled.verified_subplan_execution.execution_signature
+            if compiled.verified_subplan_execution is not None
             else None
         ),
         tuple(
@@ -4551,7 +4777,7 @@ def _require_macro_canonical_plan_id(
     if plan_id is None:
         raise MacroRuntimeSearchError(
             "planner.macro_contract_invalid",
-            "runtime-search Macro requires the canonical scoped v2 plan id",
+            "runtime-search Macro requires the canonical scoped v3 plan id",
             retryability="configuration",
             details={
                 "call_id": call_id,
@@ -4559,168 +4785,6 @@ def _require_macro_canonical_plan_id(
             },
         )
     return plan_id
-
-
-def _materialize_prepared_macro_method_inputs(
-    prepared: PreparedFunctionalCall,
-    *,
-    implementation: MacroImplementation,
-    candidate: MacroCandidateBindingAuthority,
-    finalized_call_binding: FunctionalProblemCallBinding | None,
-    working: WorkingPlannerState,
-    runtime_context: RuntimeContext,
-    object_registry: MathObjectRegistry,
-    method_specs: Any,
-) -> PreparedFunctionalCall:
-    """Pin Registry-declared role reads before shadow or clean compilation."""
-
-    chosen_roles = dict(candidate.candidate.roles)
-    finalized_by_role = {
-        item.arg_name: item
-        for item in (
-            finalized_call_binding.input_bindings
-            if finalized_call_binding is not None
-            else ()
-        )
-    }
-    state_reads = list(prepared.state_reads)
-    snapshots = {
-        item.selected_version_id: item.snapshot_runtime_path
-        for item in state_reads
-    }
-    resolved: list[PreparedMacroMethodInput] = []
-    for declaration in implementation.method_input_bindings:
-        source_spec = declaration.binding.source
-        if not isinstance(source_spec, MacroPreparedRoleSourceSpec):
-            resolved.append(PreparedMacroMethodInput(declaration))
-            continue
-        chosen_ref = chosen_roles.get(source_spec.role)
-        if chosen_ref is None:
-            raise ValueError(
-                "planner_configuration_error: "
-                "planner.method_input_view_authority_missing: "
-                f"call={prepared.call_id}, role={source_spec.role}"
-            )
-        object_id = object_registry.resolve(chosen_ref)
-        finalized_source = finalized_by_role.get(source_spec.role)
-        if finalized_call_binding is not None:
-            if finalized_source is None or finalized_source.typed_source is None:
-                raise ValueError(
-                    "planner_configuration_error: "
-                    "planner.method_input_view_authority_missing: "
-                    f"call={prepared.call_id}, role={source_spec.role}, "
-                    "source=F5-C"
-                )
-            typed_source = finalized_source.typed_source
-            finalized_object_id = (
-                typed_source.math_object_id
-                or (
-                    typed_source.state_version_id.slot_id.logical_key.object_id
-                    if typed_source.state_version_id is not None
-                    else None
-                )
-            )
-            if object_id is None:
-                object_id = finalized_object_id
-            if finalized_object_id != object_id:
-                raise ValueError(
-                    "planner_configuration_error: "
-                    "planner.method_input_view_authority_drift: "
-                    f"call={prepared.call_id}, role={source_spec.role}, "
-                    f"chosen={getattr(object_id, 'value', None)}, "
-                    f"F5-C={getattr(finalized_object_id, 'value', None)}"
-                )
-        if object_id is None:
-            raise ValueError(
-                "planner_configuration_error: "
-                "planner.method_input_view_authority_missing: "
-                f"call={prepared.call_id}, role={source_spec.role}, "
-                f"chosen_ref={chosen_ref}"
-            )
-        method_input = method_specs.require(
-            declaration.method_id
-        ).inputs[declaration.input_name]
-        if method_input.view.mode != "latest_state":
-            raise ValueError(
-                "planner_configuration_error: "
-                "planner.macro_contract_invalid: prepared role currently "
-                "requires a latest_state Method input: "
-                f"{declaration.target}={method_input.view.mode}"
-            )
-        selected_version_id = None
-        if finalized_source is not None and finalized_source.typed_source is not None:
-            selected_version_id = finalized_source.typed_source.state_version_id
-        selected = (
-            working.identity_index.version(
-                working.resolve_runtime_version_id(selected_version_id)
-            )
-            if selected_version_id is not None
-            else working.identity_index.latest_visible_for_object(
-                object_id,
-                consumer_scope_id=prepared.execution_scope_id,
-            )
-        )
-        if selected is None or not working.identity_index.visibility.is_visible(
-            selected.valid_scope_id,
-            consumer_scope_id=prepared.execution_scope_id,
-        ):
-            raise ValueError(
-                "planner_configuration_error: "
-                "planner.method_input_view_authority_missing: "
-                f"call={prepared.call_id}, role={source_spec.role}, "
-                "state=visible_latest"
-            )
-        if selected.version_id.slot_id.logical_key.object_id != object_id:
-            raise ValueError(
-                "planner_configuration_error: "
-                "planner.method_input_view_authority_drift: "
-                f"call={prepared.call_id}, role={source_spec.role}, "
-                "state object differs from winner"
-            )
-        runtime_value = working.runtime_version_values.get(selected.version_id)
-        original_path = _indexed_runtime_path(selected)
-        if runtime_value is None or original_path is None:
-            raise ValueError(
-                "planner_configuration_error: "
-                "planner.method_input_view_authority_missing: "
-                f"call={prepared.call_id}, role={source_spec.role}, "
-                "state runtime value/path missing"
-            )
-        snapshot_path = snapshots.setdefault(
-            selected.version_id,
-            _transaction_snapshot_path(
-                runtime_context,
-                scope_id=prepared.execution_scope_id,
-                call_id=prepared.call_id,
-                item_index=len(snapshots),
-            ),
-        )
-        state_reads.append(
-            PreparedFunctionalStateRead(
-                arg_name=(
-                    f"$macro.{declaration.method_id}."
-                    f"{declaration.input_name}"
-                ),
-                item_index=0,
-                selection="exact",
-                original_version_id=selected.version_id,
-                selected_version_id=selected.version_id,
-                original_runtime_path=original_path,
-                snapshot_runtime_path=snapshot_path,
-                runtime_value=runtime_value,
-            )
-        )
-        resolved.append(
-            PreparedMacroMethodInput(
-                declaration,
-                StateVersionReadSource(selected.version_id, original_path),
-            )
-        )
-    return replace(
-        prepared,
-        state_reads=tuple(state_reads),
-        macro_method_inputs=tuple(resolved),
-    )
 
 
 def _prepare_runtime_search_macro(
@@ -4761,12 +4825,13 @@ def _prepare_runtime_search_macro(
             "planner.macro_contract_invalid: runtime-search Macro has no "
             f"F5-C draft authority: call={prepared.call_id}"
         )
-    registry = default_macro_implementation_registry()
-    implementation = registry.require_lowering_contract(
+    definitions = default_macro_definition_registry()
+    definitions.require_catalog_contract(
         macro.macro_id,
         macro.search,
-        macro_spec=macro,
-        method_specs=inputs.method_specs,
+        execution_strategy=macro.adapter.execution_strategy,
+        internal_call_ids=tuple(item.call_id for item in macro.internal_calls),
+        export_names=tuple(item.name for item in macro.returns),
     )
     request = MacroPreparationRequest(
         planning_context_id=(
@@ -4817,6 +4882,11 @@ def _prepare_runtime_search_macro(
         environment=MacroPreparationEnvironment(
             prepared_call=prepared,
             handle_registry=handle_registry,
+            binding_catalog=(
+                ledger.draft.source_catalog
+                if isinstance(ledger, FunctionalProblemBindingLedger)
+                else getattr(problem_context, "source_catalog", None)
+            ),
             max_candidates=macro.search.max_candidates,
         ),
         upstream_exact_state_signature=_macro_upstream_state_signature(
@@ -4826,203 +4896,41 @@ def _prepare_runtime_search_macro(
 
     def evaluate(
         candidate: MacroCandidateBindingAuthority,
-    ) -> MacroCandidateEvaluation:
+    ) -> CandidateEvaluation:
         candidate_prepared = replace(
             prepared,
-            macro_role_overrides=dict(candidate.candidate.roles),
+            macro_role_overrides=dict(candidate.candidate.role_bindings),
             macro_candidate_binding=candidate,
-        )
-        candidate_prepared = _materialize_prepared_macro_method_inputs(
-            candidate_prepared,
-            implementation=implementation,
-            candidate=candidate,
-            finalized_call_binding=None,
-            working=working,
-            runtime_context=runtime_context,
-            object_registry=object_registry,
-            method_specs=inputs.method_specs,
         )
         shadow_working = working.fork()
         shadow_context = runtime_context.fork()
         try:
-            compiled = compiler.compile(
-                candidate_prepared,
+            fragment_execution = _execute_transparent_macro_fragment(
+                candidate,
+                prepared=candidate_prepared,
                 reconciliation=reconciliation,
-                runtime_context=shadow_context,
                 working=shadow_working,
-                inputs=inputs,
+                object_registry=object_registry,
                 handle_registry=handle_registry,
-                capability_catalog=capability_catalog,
-                committed_state_writes=committed_state_writes,
-                committed_calls=committed_calls,
-            )
-            for plan in compiled.plans:
-                shadow_context.ensure_step_scope(plan.step_id, plan.scope)
-            _apply_missing_declarations(shadow_context, compiled.declarations)
-            _materialize_transaction_state_reads(
-                shadow_context,
-                candidate_prepared.state_reads,
-                scope_id=candidate_prepared.execution_scope_id,
-            )
-            compiled, candidate_prepared = _materialize_compiled_parameter_inputs(
-                compiled,
-                prepared=candidate_prepared,
-                branch=shadow_context,
-                working=shadow_working,
-                object_registry=object_registry,
-                execution_scope_id=candidate_prepared.execution_scope_id,
-            )
-            compiled = _stamp_method_input_read_authorities(
-                compiled,
-                prepared_call=candidate_prepared,
-                method_specs=inputs.method_specs,
-                branch=shadow_context,
-                working=shadow_working,
-                condition_authority_index=(
-                    reconciliation.condition_binding_authority_index
-                ),
-            )
-            _audit_method_output_write_authorities(compiled)
-            lowered_call_count = sum(
-                len(plan.invocations) for plan in compiled.plans
-            )
-            execution = executor_factory(inputs, shadow_context).execute_plan(
-                shadow_context,
-                list(compiled.plans),
-            )
-            _audit_method_output_runtime_results(
-                compiled,
+                inputs=inputs,
                 branch=shadow_context,
             )
-            failed_check_items = tuple(
-                item
-                for item in execution.checks
-                if not bool(getattr(item, "ok", False))
-            )
-            failed_checks = tuple(
-                str(getattr(item, "name", "runtime_check"))
-                for item in failed_check_items
-            )
-            if failed_checks:
-                non_candidate_check = next(
-                    (
-                        item
-                        for item in failed_check_items
-                        if _macro_failure_retryability(item)
-                        != "planner_repairable"
-                    ),
-                    None,
+            if not fragment_execution.passed:
+                return CandidateEvaluation(
+                    candidate_id=candidate.candidate.candidate_id,
+                    passed=False,
+                    failure_code=fragment_execution.failure_code,
+                    verification=fragment_execution.verification,
                 )
-                if non_candidate_check is not None:
-                    raise MacroRuntimeSearchError(
-                        "planner.macro_candidate_execution_error",
-                        "Macro shadow candidate failed a non-repairable runtime check",
-                        retryability=_macro_failure_retryability(
-                            non_candidate_check
-                        ),
-                        details={
-                            "macro_id": macro.macro_id,
-                            "call_id": prepared.call_id,
-                            "candidate_id": candidate.candidate.candidate_id,
-                            "check": str(
-                                getattr(
-                                    non_candidate_check,
-                                    "name",
-                                    "runtime_check",
-                                )
-                            ),
-                            "check_code": getattr(
-                                non_candidate_check,
-                                "code",
-                                None,
-                            ),
-                        },
-                    )
-                return MacroCandidateEvaluation(
-                    candidate.candidate.candidate_id,
-                    False,
-                    checks=failed_checks,
-                )
-            runtime_symbol_bindings = _merge_runtime_symbol_bindings(
-                _merge_runtime_symbol_bindings(
-                    _context_runtime_symbol_bindings(
-                        shadow_context,
-                        registry=object_registry,
-                    ),
-                    _prepared_runtime_symbol_bindings(
-                        candidate_prepared,
-                        working=shadow_working,
-                    ),
-                ),
-                _declared_runtime_symbol_bindings(
-                    compiled,
-                    branch=shadow_context,
-                ),
-            )
-            (
-                runtime_results,
-                writes,
-                _versions,
-                _runtime_values,
-                _call_result_values,
-                issues,
-            ) = committer.commit_payload(
-                compiled,
-                prepared=candidate_prepared,
-                branch=shadow_context,
-                plan=reconciliation.plan,
-                working=shadow_working,
-                object_registry=object_registry,
-                runtime_symbol_bindings=runtime_symbol_bindings,
-            )
-            if issues:
-                non_candidate_issue = next(
-                    (
-                        item
-                        for item in issues
-                        if _macro_failure_retryability(item)
-                        != "planner_repairable"
-                    ),
-                    None,
-                )
-                if non_candidate_issue is not None:
-                    retryability = _macro_failure_retryability(
-                        non_candidate_issue
-                    )
-                    raise MacroRuntimeSearchError(
-                        (
-                            non_candidate_issue.code
-                            if retryability == "problem_semantics"
-                            else "planner.macro_candidate_execution_error"
-                        ),
-                        "Macro shadow candidate encountered a non-repairable "
-                        "execution failure",
-                        retryability=retryability,
-                        details={
-                            "macro_id": macro.macro_id,
-                            "call_id": prepared.call_id,
-                            "candidate_id": candidate.candidate.candidate_id,
-                            "issue": non_candidate_issue.to_authority_payload(),
-                        },
-                    )
-                return MacroCandidateEvaluation(
-                    candidate.candidate.candidate_id,
-                    False,
-                    checks=tuple(item.code for item in issues),
-                )
-            signature = _macro_transaction_output_signature(
-                runtime_results,
-                writes,
-            )
-            return MacroCandidateEvaluation(
-                candidate.candidate.candidate_id,
-                True,
-                output_signature=signature,
-                checks=tuple(
-                    str(getattr(item, "name", "runtime_check"))
-                    for item in execution.checks
-                ),
-                call_count=lowered_call_count,
+            return CandidateEvaluation(
+                candidate_id=candidate.candidate.candidate_id,
+                passed=True,
+                standard_outputs={
+                    name: _candidate_standard_output(value)
+                    for name, value in fragment_execution.standard_outputs.items()
+                },
+                verification=fragment_execution.verification,
+                shadow_execution_signature=fragment_execution.execution_signature,
             )
         except Exception as exc:
             return _macro_candidate_failure_or_raise(
@@ -5032,7 +4940,7 @@ def _prepare_runtime_search_macro(
                 candidate_id=candidate.candidate.candidate_id,
             )
 
-    selected = MacroPreparationService(registry).prepare(
+    selected = MacroPreparationService(definitions).prepare(
         request,
         search_spec=macro.search,
         evaluator=evaluate,
@@ -5041,21 +4949,12 @@ def _prepare_runtime_search_macro(
         debug_prepared = replace(
             prepared,
             macro_role_overrides=dict(
-                selected.authority.winner.candidate.roles
+                selected.authority.winner.candidate.role_bindings
             ),
             macro_candidate_binding=selected.authority.winner,
             prepared_macro=replace(selected, debug_only=True),
         )
-        return _materialize_prepared_macro_method_inputs(
-            debug_prepared,
-            implementation=implementation,
-            candidate=selected.authority.winner,
-            finalized_call_binding=None,
-            working=working,
-            runtime_context=runtime_context,
-            object_registry=object_registry,
-            method_specs=inputs.method_specs,
-        )
+        return debug_prepared
     if not isinstance(ledger, FunctionalProblemBindingLedger):
         raise ValueError(
             "planner.macro_contract_invalid: runtime-search Macro has no "
@@ -5068,21 +4967,14 @@ def _prepare_runtime_search_macro(
     finalized_binding = finalized_ledger.call_binding(prepared.call_id)
     finalized_prepared = replace(
         prepared,
-        macro_role_overrides=dict(selected.authority.winner.candidate.roles),
+        macro_role_overrides=dict(
+            selected.authority.winner.candidate.role_bindings
+        ),
         macro_candidate_binding=selected.authority.winner,
         prepared_macro=selected,
         problem_call_binding=finalized_binding,
     )
-    return _materialize_prepared_macro_method_inputs(
-        finalized_prepared,
-        implementation=implementation,
-        candidate=selected.authority.winner,
-        finalized_call_binding=finalized_binding,
-        working=working,
-        runtime_context=runtime_context,
-        object_registry=object_registry,
-        method_specs=inputs.method_specs,
-    )
+    return finalized_prepared
 
 
 def _macro_failure_retryability(value: Any) -> str:
@@ -5129,13 +5021,40 @@ def _macro_candidate_failure_or_raise(
     macro_id: str,
     call_id: str,
     candidate_id: str,
-) -> MacroCandidateEvaluation:
+) -> CandidateEvaluation:
     retryability = _macro_failure_retryability(exc)
     if retryability == "planner_repairable":
-        return MacroCandidateEvaluation(
-            candidate_id,
-            False,
-            checks=(f"{getattr(exc, 'code', type(exc).__name__)}: {exc}",),
+        return CandidateEvaluation(
+            candidate_id=candidate_id,
+            passed=False,
+            failure_code=str(
+                getattr(exc, "code", "functional.macro_candidate_failed")
+            ),
+            verification=(
+                VerificationOutcome(
+                    passed=False,
+                    check_code=str(
+                        getattr(
+                            exc,
+                            "code",
+                            "functional.macro_candidate_failed",
+                        )
+                    ),
+                    expected=dict(getattr(exc, "expected", {}) or {}),
+                    observed={
+                        "message": str(exc),
+                        "details": dict(getattr(exc, "details", {}) or {}),
+                    },
+                    evidence=tuple(
+                        str(value)
+                        for value in (
+                            getattr(exc, "step_id", None),
+                            getattr(exc, "arg_name", None),
+                        )
+                        if value
+                    ),
+                ),
+            ),
         )
     if isinstance(exc, MacroRuntimeSearchError):
         raise exc
@@ -5150,6 +5069,7 @@ def _macro_candidate_failure_or_raise(
             "exception_type": type(exc).__name__,
             "exception_code": getattr(exc, "code", None),
             "message": str(exc),
+            "exception_details": dict(getattr(exc, "details", {}) or {}),
         },
     ) from exc
 
@@ -5228,6 +5148,265 @@ def _runtime_authority_value_payload(value: Any) -> Any:
     )
 
 
+def _candidate_standard_output(value: Any) -> Any:
+    """Keep searchable scalar exports symbolic while remaining JSON-safe."""
+
+    if isinstance(value, sp.Basic):
+        return str(sp.simplify(value))
+    if isinstance(value, Mapping):
+        return {
+            str(key): _candidate_standard_output(item)
+            for key, item in sorted(value.items(), key=lambda pair: str(pair[0]))
+        }
+    if isinstance(value, (tuple, list)):
+        return [_candidate_standard_output(item) for item in value]
+    if isinstance(value, (str, int, float, bool)) or value is None:
+        return value
+    to_payload = getattr(value, "to_payload", None)
+    if callable(to_payload):
+        return _candidate_standard_output(to_payload())
+    raise MacroRuntimeSearchError(
+        "planner.macro_contract_invalid",
+        "fragment export has no canonical standard-output representation",
+        retryability="configuration",
+        details={"runtime_value_type": type(value).__name__},
+    )
+
+
+def _execute_transparent_macro_fragment(
+    candidate: MacroCandidateBindingAuthority,
+    *,
+    prepared: PreparedFunctionalCall,
+    reconciliation: FunctionalPlanReconciliationResult,
+    working: WorkingPlannerState,
+    object_registry: MathObjectRegistry,
+    handle_registry: CanonicalHandleRegistry,
+    inputs: PlannerInputs,
+    branch: RuntimeContext,
+) -> FunctionalPlanFragmentExecution:
+    """Execute one fragment through typed Method read authorities."""
+
+    binding_context = reconciliation.functional_problem_binding_context
+    ledger = reconciliation.functional_problem_binding_ledger
+    source_catalog = (
+        ledger.draft.source_catalog
+        if isinstance(ledger, FunctionalProblemBindingLedger)
+        else getattr(binding_context, "source_catalog", None)
+    )
+    allowed_handles = frozenset(candidate.allowed_source_handles)
+    materialized_paths: dict[tuple[str, str, str], str] = {}
+
+    def materialize(
+        semantic_ref: str,
+        view_mode: str,
+        runtime_type: str,
+        value: TypedValue,
+    ) -> str:
+        key = (semantic_ref, view_mode, runtime_type)
+        path = materialized_paths.get(key)
+        if path is not None:
+            return path
+        token = stable_hash(
+            {
+                "call_id": prepared.call_id,
+                "fragment": candidate.candidate.fragment.fragment_signature,
+                "semantic_ref": semantic_ref,
+                "view_mode": view_mode,
+                "runtime_type": runtime_type,
+            }
+        )[:20]
+        path = _fragment_source_snapshot_path(
+            branch,
+            scope_id=prepared.execution_scope_id,
+            token=token,
+        )
+        branch.write_path(
+            path,
+            value,
+            from_scope_id=prepared.execution_scope_id,
+        )
+        materialized_paths[key] = path
+        return path
+
+    def resolve_source(
+        semantic_ref: str,
+        view_mode: str,
+        runtime_type: str,
+    ) -> FragmentRuntimeSource:
+        handles: set[str] = set()
+        if source_catalog is not None:
+            handles.update(
+                str(item.runtime_node_id)
+                for item in source_catalog.bindings.values()
+                if item.usage == "input"
+                and item.semantic_ref.ref == semantic_ref
+                and item.runtime_node_id in allowed_handles
+            )
+        if semantic_ref in allowed_handles:
+            handles.add(semantic_ref)
+        if source_catalog is None:
+            handles.update(
+                handle
+                for handle in allowed_handles
+                if handle.rsplit(":", 1)[-1] == semantic_ref
+                or str(
+                    handle_registry.entity_payloads.get(handle, {}).get(
+                        "name", ""
+                    )
+                )
+                == semantic_ref
+            )
+        if len(handles) != 1:
+            raise MacroRuntimeSearchError(
+                "planner.method_input_view_authority_drift",
+                "transparent fragment source is not uniquely pinned",
+                retryability="configuration",
+                details={
+                    "call_id": prepared.call_id,
+                    "semantic_ref": semantic_ref,
+                    "candidate_count": len(handles),
+                },
+            )
+        handle = next(iter(handles))
+        fact_payload = handle_registry.fact_payloads.get(handle)
+        if fact_payload is not None:
+            path = materialize(
+                semantic_ref,
+                view_mode,
+                runtime_type,
+                TypedValue("Condition", dict(fact_payload), source=handle),
+            )
+            return FragmentRuntimeSource(
+                semantic_ref=semantic_ref,
+                runtime_type="Condition",
+                value=dict(fact_payload),
+                authority_signature=stable_hash(
+                    {
+                        "kind": "problem_condition",
+                        "handle": handle,
+                        "payload": dict(fact_payload),
+                    }
+                ),
+                runtime_path=path,
+                read_source=ConditionReadSource(handle, path),
+            )
+
+        object_id = object_registry.resolve(handle)
+        if object_id is None:
+            raise MacroRuntimeSearchError(
+                "planner.method_input_view_authority_missing",
+                "transparent fragment Entity has no MathObject identity",
+                retryability="configuration",
+                details={
+                    "call_id": prepared.call_id,
+                    "semantic_ref": semantic_ref,
+                },
+            )
+        if view_mode == "identity":
+            point_ref = PointRef(
+                name=semantic_ref,
+                path=handle,
+                definition={
+                    "definition": "typed_entity_identity",
+                    "entity_handle": handle,
+                },
+                scope_id=prepared.execution_scope_id,
+            )
+            path = materialize(
+                semantic_ref,
+                view_mode,
+                runtime_type,
+                TypedValue("PointRef", point_ref, source=handle),
+            )
+            return FragmentRuntimeSource(
+                semantic_ref=semantic_ref,
+                runtime_type=runtime_type,
+                value=point_ref,
+                authority_signature=stable_hash(
+                    {
+                        "kind": "entity_identity",
+                        "handle": handle,
+                        "object_id": object_id.to_payload(),
+                    }
+                ),
+                runtime_path=path,
+                read_source=EntityIdentityReadSource(handle, path),
+            )
+        selected = working.identity_index.latest_visible_for_object(
+            object_id,
+            consumer_scope_id=prepared.execution_scope_id,
+        )
+        if selected is None:
+            raise MacroRuntimeSearchError(
+                "planner.method_input_view_authority_missing",
+                "transparent fragment Entity has no visible exact state",
+                retryability="configuration",
+                details={
+                    "call_id": prepared.call_id,
+                    "semantic_ref": semantic_ref,
+                },
+            )
+        runtime_value = working.runtime_version_values.get(selected.version_id)
+        if runtime_value is None:
+            raise MacroRuntimeSearchError(
+                "planner.method_input_view_authority_missing",
+                "transparent fragment exact state has no runtime value",
+                retryability="configuration",
+                details={
+                    "call_id": prepared.call_id,
+                    "semantic_ref": semantic_ref,
+                },
+            )
+        path = materialize(
+            semantic_ref,
+            view_mode,
+            runtime_type,
+            runtime_value,
+        )
+        return FragmentRuntimeSource(
+            semantic_ref=semantic_ref,
+            runtime_type=runtime_type,
+            value=runtime_value.value,
+            authority_signature=stable_hash(
+                {
+                    "kind": "state_version",
+                    "handle": handle,
+                    "version_id": selected.version_id.to_payload(),
+                    "runtime_value": _runtime_authority_value_payload(
+                        runtime_value.value
+                    ),
+                }
+            ),
+            runtime_path=path,
+            read_source=StateVersionReadSource(selected.version_id, path),
+        )
+
+    return FunctionalPlanFragmentTransactionalRunner(
+        FunctionSpecRegistry.from_family_spec(
+            inputs.family_spec,
+            inputs.method_specs,
+        ),
+        inputs.method_specs,
+    ).execute(
+        candidate.candidate.fragment,
+        context=branch,
+        source_resolver=resolve_source,
+    )
+
+
+def _fragment_source_snapshot_path(
+    context: RuntimeContext,
+    *,
+    scope_id: str,
+    token: str,
+) -> str:
+    scope = context.get_scope(scope_id)
+    key = f"__fragment_source_{token}"
+    if scope.scope_type == "problem":
+        return f"$problem.facts.{key}"
+    return f"${scope.scope_type}.{scope.scope_id}.facts.{key}"
+
+
 def _validate_macro_winner_clean_replay(
     compiled: CompiledFunctionalCall,
     *,
@@ -5243,15 +5422,29 @@ def _validate_macro_winner_clean_replay(
         if item.candidate_id
         == authority.search_report.winner_candidate_id
     )
-    if len(winner) != 1 or not winner[0].output_signature:
+    if (
+        len(winner) != 1
+        or not winner[0].output_signature
+        or not winner[0].shadow_execution_signature
+        or compiled.fragment_execution is None
+    ):
         raise MacroRuntimeSearchError(
             "planner.macro_contract_invalid",
             "Macro winner has no authenticated shadow output signature",
             retryability="configuration",
             details={"call_id": compiled.call_id},
         )
-    observed = _macro_transaction_output_signature(runtime_results, writes)
-    if observed != winner[0].output_signature:
+    observed_execution_signature = compiled.fragment_execution.execution_signature
+    observed_output_signature = stable_hash(
+        {
+            name: _candidate_standard_output(value)
+            for name, value in compiled.fragment_execution.standard_outputs.items()
+        }
+    )
+    if (
+        observed_execution_signature != winner[0].shadow_execution_signature
+        or observed_output_signature != winner[0].output_signature
+    ):
         raise MacroRuntimeSearchError(
             "planner.macro_winner_replay_drift",
             "Macro clean replay differs from its shadow winner",
@@ -5259,9 +5452,71 @@ def _validate_macro_winner_clean_replay(
             details={
                 "call_id": compiled.call_id,
                 "winner_candidate_id": winner[0].candidate_id,
+                "expected_fragment_execution_signature": (
+                    winner[0].shadow_execution_signature
+                ),
+                "observed_fragment_execution_signature": (
+                    observed_execution_signature
+                ),
                 "expected_output_signature": winner[0].output_signature,
-                "observed_output_signature": observed,
+                "observed_output_signature": observed_output_signature,
             },
+        )
+
+
+def _materialize_fragment_public_returns(
+    compiled: CompiledFunctionalCall,
+    *,
+    fragment_execution: FunctionalPlanFragmentExecution,
+    branch: RuntimeContext,
+    execution_scope_id: str,
+) -> None:
+    """Publish only selected fragment exports into the Macro return envelope."""
+
+    for returned in compiled.public_returns:
+        write = returned.expected_write
+        value = fragment_execution.standard_outputs.get(returned.return_name)
+        if write is None:
+            if returned.required:
+                raise MacroRuntimeSearchError(
+                    "planner.method_output_write_authority_missing",
+                    "Macro public return has no finalized write authority",
+                    retryability="configuration",
+                    details={
+                        "call_id": compiled.call_id,
+                        "return_name": returned.return_name,
+                    },
+                )
+            continue
+        if value is None:
+            if returned.required:
+                raise MacroRuntimeSearchError(
+                    "planner.macro_contract_invalid",
+                    "selected fragment omitted a required Macro export",
+                    retryability="configuration",
+                    details={
+                        "call_id": compiled.call_id,
+                        "return_name": returned.return_name,
+                    },
+                )
+            continue
+        path = _materialized_runtime_path(compiled, write)
+        if path is None:
+            raise MacroRuntimeSearchError(
+                "planner.method_output_write_authority_missing",
+                "Macro public return has no materialization destination",
+                retryability="configuration",
+                details={
+                    "call_id": compiled.call_id,
+                    "return_name": returned.return_name,
+                },
+            )
+        branch.write_path(
+            path,
+            TypedValue(write.runtime_type, value, source="verified_subplan"),
+            from_scope_id=execution_scope_id,
+            allow_overwrite=True,
+            allow_ancestor_write=True,
         )
 
 
@@ -5318,30 +5573,119 @@ def _with_prepared_macro_evidence(
     compiled: CompiledFunctionalCall,
     *,
     prepared: PreparedFunctionalCall,
-    capability: Any,
-    method_results: Sequence[Any],
-    handle_registry: CanonicalHandleRegistry,
 ) -> CompiledFunctionalCall:
     selected = prepared.prepared_macro
-    macro = capability.source if capability is not None else None
     if not isinstance(selected, PreparedMacroInvocation):
         return compiled
-    if not isinstance(macro, MacroSpec) or macro.search is None:
+    fragment_execution = compiled.fragment_execution
+    if fragment_execution is None or not fragment_execution.passed:
         raise ValueError(
-            "planner.macro_contract_invalid: prepared Macro has no runtime spec"
+            "planner.macro_contract_invalid: verified Macro has no clean "
+            "fragment execution"
         )
-    implementation = default_macro_implementation_registry().require(
-        macro.macro_id,
-        macro.search,
+    authority = selected.authority
+    provenance = compiled.problem_source_provenance
+    standard_results = {
+        name: _candidate_standard_output(value)
+        for name, value in fragment_execution.standard_outputs.items()
+    }
+    clean_execution = VerifiedSubplanCleanExecution(
+        member_step_ids=tuple(
+            item.step_id for item in authority.winner.candidate.fragment.steps
+        ),
+        fragment_execution_signature=fragment_execution.execution_signature,
+        exported_results=standard_results,
+        verification=fragment_execution.verification,
+        provenance=(
+            {
+                "call_id": compiled.call_id,
+                "problem_source_signature": (
+                    provenance.semantic_signature()
+                    if provenance is not None
+                    else None
+                ),
+                "preparation_signature": authority.preparation_signature,
+            },
+        ),
     )
-    evidence = implementation.evidence_builder(
-        compiled=compiled,
-        prepared=prepared,
-        report=selected.authority.search_report,
-        method_results=method_results,
-        handle_registry=handle_registry,
+    subplan_witness = VerifiedSubplanWitness(
+        standard_entities=dict(
+            authority.winner.candidate.role_bindings
+        ),
+        standard_conditions=fragment_published_condition_refs(
+            authority.winner.candidate.fragment,
+            fragment_execution,
+        ),
+        standard_results=standard_results,
+        provenance=(
+            *clean_execution.provenance,
+            *_fragment_derived_output_provenance(
+                authority.winner.candidate.fragment,
+                fragment_execution,
+            ),
+        ),
     )
-    return replace(compiled, path_minimum_witness=evidence)
+    verified_subplan = VerifiedSubplanExecution(
+        plan_id=authority.plan_id,
+        scope_id=authority.scope_id,
+        selected_fragment=authority.winner.candidate.fragment,
+        selection=MacroSearchSelection(
+            macro_id=authority.macro_id,
+            preparation_signature=authority.preparation_signature,
+            search_report=authority.search_report,
+        ),
+        clean_execution=clean_execution,
+        witness=subplan_witness,
+    )
+    return replace(
+        compiled,
+        verified_subplan_execution=verified_subplan,
+    )
+
+
+def _fragment_derived_output_provenance(
+    fragment: FunctionalPlanFragment,
+    execution: FunctionalPlanFragmentExecution,
+) -> tuple[Mapping[str, Any], ...]:
+    """Preserve verified intermediate outputs without a domain-specific witness."""
+
+    executions = {item.step_id: item for item in execution.step_executions}
+    derived_authorities = {
+        (value.step_id, value.return_name): value
+        for consumer in fragment.steps
+        for values in consumer.args.values()
+        for value in values
+        if isinstance(value, ScopedDerivedResultRef)
+    }
+    result: list[Mapping[str, Any]] = []
+    for step in fragment.steps:
+        executed = executions.get(step.step_id)
+        if executed is None:
+            continue
+        for return_name, binding in step.return_bindings.items():
+            if binding.kind != "derived" or return_name not in executed.outputs:
+                continue
+            authority = derived_authorities.get((step.step_id, return_name))
+            payload = {
+                "kind": "fragment_derived_output",
+                "ref": binding.ref,
+                "producer_step_id": step.step_id,
+                "capability_id": step.capability_id,
+                "return_name": return_name,
+                "value": _candidate_standard_output(
+                    executed.outputs[return_name]
+                ),
+            }
+            if authority is not None:
+                payload.update(
+                    {
+                        "domain_type": authority.domain_type,
+                        "semantic_role": authority.semantic_role,
+                        "owner_scope": authority.owner_scope,
+                    }
+                )
+            result.append(payload)
+    return tuple(result)
 
 
 def _authored_macro_roles(
@@ -5746,6 +6090,8 @@ class FunctionalTransactionalInterpreter:
             closure_result: SymbolicClosureExecutionResult | None = None
             prepared: Any | None = None
             compiled: CompiledFunctionalCall | None = None
+            predicate_outcomes: tuple[VerificationOutcome, ...] = ()
+            pending_conditions: tuple[Condition, ...] = ()
             try:
                 prepared = preparer.prepare(
                     call_id=call_id,
@@ -5801,6 +6147,14 @@ class FunctionalTransactionalInterpreter:
                 )
                 _audit_compiled_problem_source_provenance(compiled)
                 branch = current_context.fork()
+                if isinstance(
+                    prepared.prepared_macro,
+                    PreparedMacroInvocation,
+                ):
+                    branch.ensure_step_scope(
+                        prepared.call_id,
+                        prepared.execution_scope_id,
+                    )
                 for plan in compiled.plans:
                     branch.ensure_step_scope(plan.step_id, plan.scope)
                 _apply_missing_declarations(branch, compiled.declarations)
@@ -5815,24 +6169,28 @@ class FunctionalTransactionalInterpreter:
                         )
                     ),
                 )
-                compiled, prepared = _materialize_compiled_parameter_inputs(
-                    compiled,
-                    prepared=prepared,
-                    branch=branch,
-                    working=working,
-                    object_registry=object_registry,
-                    execution_scope_id=prepared.execution_scope_id,
-                )
-                compiled = _stamp_method_input_read_authorities(
-                    compiled,
-                    prepared_call=prepared,
-                    method_specs=inputs.method_specs,
-                    branch=branch,
-                    working=working,
-                    condition_authority_index=(
-                        reconciliation.condition_binding_authority_index
-                    ),
-                )
+                if not isinstance(
+                    prepared.prepared_macro,
+                    PreparedMacroInvocation,
+                ):
+                    compiled, prepared = _materialize_compiled_parameter_inputs(
+                        compiled,
+                        prepared=prepared,
+                        branch=branch,
+                        working=working,
+                        object_registry=object_registry,
+                        execution_scope_id=prepared.execution_scope_id,
+                    )
+                    compiled = _stamp_method_input_read_authorities(
+                        compiled,
+                        prepared_call=prepared,
+                        method_specs=inputs.method_specs,
+                        branch=branch,
+                        working=working,
+                        condition_authority_index=(
+                            reconciliation.condition_binding_authority_index
+                        ),
+                    )
                 _audit_method_output_write_authorities(compiled)
                 executor = self._executor_factory(inputs, branch)
                 symbolic_spec = (
@@ -5934,14 +6292,90 @@ class FunctionalTransactionalInterpreter:
                             )
                         )
                         continue
-                execution = executor.execute_plan(
-                    branch,
-                    list(compiled.plans),
-                )
-                _audit_method_output_runtime_results(
-                    compiled,
-                    branch=branch,
-                )
+                fragment_execution: FunctionalPlanFragmentExecution | None = None
+                if isinstance(prepared.prepared_macro, PreparedMacroInvocation):
+                    candidate = prepared.macro_candidate_binding
+                    if not isinstance(candidate, MacroCandidateBindingAuthority):
+                        raise MacroRuntimeSearchError(
+                            "planner.macro_contract_invalid",
+                            "prepared transparent Macro has no selected fragment",
+                            retryability="configuration",
+                            details={"call_id": call_id},
+                        )
+                    fragment_execution = _execute_transparent_macro_fragment(
+                        candidate,
+                        prepared=prepared,
+                        reconciliation=reconciliation,
+                        working=working,
+                        object_registry=object_registry,
+                        handle_registry=handle_registry,
+                        inputs=inputs,
+                        branch=branch,
+                    )
+                    if not fragment_execution.passed:
+                        raise MacroRuntimeSearchError(
+                            fragment_execution.failure_code
+                            or "functional.macro_candidate_failed",
+                            "clean winner fragment failed verification",
+                            retryability="planner_repairable",
+                            details={
+                                "call_id": call_id,
+                                "fragment_signature": (
+                                    fragment_execution.fragment_signature
+                                ),
+                            },
+                        )
+                    _materialize_fragment_public_returns(
+                        compiled,
+                        fragment_execution=fragment_execution,
+                        branch=branch,
+                        execution_scope_id=prepared.execution_scope_id,
+                    )
+                    compiled = replace(
+                        compiled,
+                        fragment_execution=fragment_execution,
+                    )
+                    execution = PlanExecutionResult()
+                else:
+                    execution = executor.execute_plan(
+                        branch,
+                        list(compiled.plans),
+                    )
+                    _audit_method_output_runtime_results(
+                        compiled,
+                        branch=branch,
+                    )
+                if capability is None:
+                    raise ValueError(
+                        "planner_configuration_error: "
+                        "planner.functional_compile_contract_incomplete: "
+                        f"call={call_id}, capability missing"
+                    )
+                if fragment_execution is not None:
+                    predicate_outcomes = fragment_execution.verification
+                else:
+                    predicate_publication = (
+                        PredicateConditionPublicationService().materialize(
+                            call_id=call_id,
+                            capability=capability,
+                            plans=compiled.plans,
+                            allocations=prepared.reconciliation.returns,
+                            resolved_args=(
+                                prepared.reconciliation.resolved_args
+                            ),
+                            branch=branch,
+                            method_specs=inputs.method_specs,
+                        )
+                    )
+                    predicate_outcomes = predicate_publication.outcomes
+                    pending_conditions = predicate_publication.conditions
+                    if predicate_publication.authorities:
+                        compiled = replace(
+                            compiled,
+                            predicate_publication_authorities=(
+                                predicate_publication.authorities
+                            ),
+                        )
                 call_symbol_bindings = _declared_runtime_symbol_bindings(
                     compiled,
                     branch=branch,
@@ -6010,17 +6444,9 @@ class FunctionalTransactionalInterpreter:
                             None,
                         ),
                     )
-                method_results = tuple(
-                    method_result
-                    for step_result in execution.step_results
-                    for method_result in step_result.method_results
-                )
                 compiled = _with_prepared_macro_evidence(
                     compiled,
                     prepared=prepared,
-                    capability=capability,
-                    method_results=method_results,
-                    handle_registry=handle_registry,
                 )
                 (
                     runtime_results,
@@ -6059,7 +6485,10 @@ class FunctionalTransactionalInterpreter:
                                 compiled.macro_preparation_authority
                             ),
                             macro_search_report=compiled.macro_search_report,
-                            path_minimum_witness=compiled.path_minimum_witness,
+                            verified_subplan_execution=(
+                                compiled.verified_subplan_execution
+                            ),
+                            verification_outcomes=predicate_outcomes,
                         )
                     )
                     continue
@@ -6162,7 +6591,9 @@ class FunctionalTransactionalInterpreter:
                                 compiled.macro_preparation_authority
                             ),
                             macro_search_report=compiled.macro_search_report,
-                            path_minimum_witness=compiled.path_minimum_witness,
+                            verified_subplan_execution=(
+                                compiled.verified_subplan_execution
+                            ),
                         )
                     )
                     continue
@@ -6211,6 +6642,9 @@ class FunctionalTransactionalInterpreter:
                                 write.previous_version_id,
                             )
                     current_context = branch
+                    conditions.update(
+                        {item.condition_id: item for item in pending_conditions}
+                    )
                     compiled_calls.append(compiled)
                     runtime_equivalent_aliases.append(runtime_alias)
                     results.append(
@@ -6227,7 +6661,11 @@ class FunctionalTransactionalInterpreter:
                                 compiled.macro_preparation_authority
                             ),
                             macro_search_report=macro_search_report,
-                            path_minimum_witness=compiled.path_minimum_witness,
+                            verified_subplan_execution=(
+                                compiled.verified_subplan_execution
+                            ),
+                            verification_outcomes=predicate_outcomes,
+                            published_conditions=pending_conditions,
                         )
                     )
                     continue
@@ -6270,6 +6708,9 @@ class FunctionalTransactionalInterpreter:
                         )
                     )
                 current_context = branch
+                conditions.update(
+                    {item.condition_id: item for item in pending_conditions}
+                )
                 compiled_calls.append(compiled)
                 results.append(
                     FunctionalCallExecutionResult(
@@ -6285,7 +6726,11 @@ class FunctionalTransactionalInterpreter:
                             compiled.macro_preparation_authority
                         ),
                         macro_search_report=macro_search_report,
-                        path_minimum_witness=compiled.path_minimum_witness,
+                        verified_subplan_execution=(
+                            compiled.verified_subplan_execution
+                        ),
+                        verification_outcomes=predicate_outcomes,
+                        published_conditions=pending_conditions,
                     )
                 )
             except Exception as exc:
@@ -6322,8 +6767,6 @@ class FunctionalTransactionalInterpreter:
                             )
                     issue_code = diagnostic.code
                 elif isinstance(exc, ProblemSourceProvenanceError):
-                    issue_code = exc.code
-                elif isinstance(exc, EqualLengthRayPathSearchError):
                     issue_code = exc.code
                 elif isinstance(exc, MacroRuntimeSearchError):
                     issue_code = exc.code
@@ -6398,8 +6841,8 @@ class FunctionalTransactionalInterpreter:
                             if compiled is not None
                             else None
                         ),
-                        path_minimum_witness=(
-                            compiled.path_minimum_witness
+                        verified_subplan_execution=(
+                            compiled.verified_subplan_execution
                             if compiled is not None
                             else None
                         ),
@@ -6775,7 +7218,8 @@ def _restore_verified_calls(
                 destination.runtime_path
                 if destination is not None
                 and destination.runtime_path is not None
-                else _runtime_path_for_write(compiled.plans, write)
+                else returned.runtime_path
+                or _runtime_path_for_write(compiled.plans, write)
             )
             if typed is None or runtime_path is None:
                 continue
@@ -7824,7 +8268,19 @@ def _materialized_runtime_path(
     would make every comparison vacuously equal.
     """
 
-    plan_path = _runtime_path_for_write(compiled.plans, write)
+    public_path = next(
+        (
+            item.runtime_path
+            for item in compiled.public_returns
+            if item.expected_write is write
+            or (
+                write.return_name is not None
+                and item.return_name == write.return_name
+            )
+        ),
+        None,
+    )
+    plan_path = public_path or _runtime_path_for_write(compiled.plans, write)
     if write.allocation_action == "reuse" and plan_path is not None:
         return plan_path
     if write.runtime_destination_key is not None:

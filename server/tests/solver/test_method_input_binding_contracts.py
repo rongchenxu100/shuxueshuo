@@ -367,14 +367,6 @@ C3_MIGRATED_BINDINGS = {
         "target",
         "previous_output_identity",
     ),
-    ("equal_length_ray_point", "anchor", "macro_prepared_role"),
-    ("equal_length_ray_point", "ray_point", "macro_prepared_role"),
-    (
-        "equal_length_ray_point",
-        "reference_point",
-        "macro_prepared_role",
-    ),
-    ("equal_length_ray_point", "target", "previous_output_identity"),
     ("line_intersection_point", "target", "previous_output_identity"),
     ("line_intersection_point", "parameter", "source_object_identity"),
     ("line_locus_minimum_point", "minimum_point_1", "exact_call_result"),
@@ -452,6 +444,133 @@ D_MIGRATED_BINDINGS = {
         "parameter_from_curve_point_on_quadratic",
         "known_parameter_value",
         "exact_parameter_substitution",
+    ),
+}
+
+
+F43B_MIGRATED_BINDINGS = {
+    (
+        "construct_point_on_ray_at_reference_distance",
+        "anchor",
+        "public_arg",
+    ),
+    (
+        "construct_point_on_ray_at_reference_distance",
+        "ray_point",
+        "public_arg",
+    ),
+    (
+        "construct_point_on_ray_at_reference_distance",
+        "reference_point",
+        "public_arg",
+    ),
+    (
+        "construct_point_on_ray_at_reference_distance",
+        "target",
+        "previous_output_identity",
+    ),
+    ("distance_sum_expression", "start", "public_arg"),
+    ("distance_sum_expression", "via", "public_arg"),
+    ("distance_sum_expression", "end", "public_arg"),
+    ("prove_distance_equality_from_conditions", "common_vertex", "public_arg"),
+    (
+        "prove_distance_equality_from_conditions",
+        "equal_length_condition",
+        "condition",
+    ),
+    (
+        "prove_distance_equality_from_conditions",
+        "linking_condition",
+        "condition",
+    ),
+    (
+        "prove_distance_equality_from_conditions",
+        "ray_membership_condition",
+        "condition",
+    ),
+    (
+        "prove_distance_equality_from_conditions",
+        "constructed_equal_length_condition",
+        "condition",
+    ),
+    (
+        "prove_distance_equality_from_conditions",
+        "constructed_ray_condition",
+        "condition",
+    ),
+    ("prove_distance_equality_from_conditions", "first_start", "public_arg"),
+    ("prove_distance_equality_from_conditions", "first_end", "public_arg"),
+    ("prove_distance_equality_from_conditions", "second_start", "public_arg"),
+    ("prove_distance_equality_from_conditions", "second_end", "public_arg"),
+    ("reflect_point_across_line", "point", "public_arg"),
+    ("reflect_point_across_line", "line_p1", "public_arg"),
+    ("reflect_point_across_line", "line_p2", "public_arg"),
+    (
+        "reflect_point_across_line",
+        "target",
+        "previous_output_identity",
+    ),
+    ("rewrite_expression_by_condition", "condition", "condition"),
+    (
+        "rewrite_expression_by_condition",
+        "original_expression",
+        "exact_call_result",
+    ),
+    (
+        "rewrite_expression_by_condition",
+        "rewritten_expression",
+        "exact_call_result",
+    ),
+    ("verify_distance_equality", "first_start", "public_arg"),
+    ("verify_distance_equality", "first_end", "public_arg"),
+    ("verify_distance_equality", "second_start", "public_arg"),
+    ("verify_distance_equality", "second_end", "public_arg"),
+    ("verify_point_on_closed_segment", "point", "public_arg"),
+    ("verify_point_on_closed_segment", "segment_start", "public_arg"),
+    ("verify_point_on_closed_segment", "segment_end", "public_arg"),
+    ("verify_point_on_closed_segment", "domain_condition", "condition"),
+    ("verify_point_on_ray", "point", "public_arg"),
+    ("verify_point_on_ray", "anchor", "public_arg"),
+    ("verify_point_on_ray", "ray_point", "public_arg"),
+    (
+        "verify_two_segment_path_attainment",
+        "objective",
+        "exact_call_result",
+    ),
+    (
+        "verify_two_segment_path_attainment",
+        "candidate",
+        "exact_call_result",
+    ),
+    (
+        "verify_two_segment_path_attainment",
+        "candidate_point",
+        "public_arg",
+    ),
+    (
+        "verify_two_segment_path_attainment",
+        "path_start",
+        "public_arg",
+    ),
+    (
+        "verify_two_segment_path_attainment",
+        "path_end",
+        "public_arg",
+    ),
+    (
+        "verify_two_segment_path_attainment",
+        "segment_start",
+        "public_arg",
+    ),
+    (
+        "verify_two_segment_path_attainment",
+        "segment_end",
+        "public_arg",
+    ),
+    (
+        "verify_two_segment_path_attainment",
+        "domain_condition",
+        "condition",
     ),
 }
 
@@ -678,6 +797,7 @@ def test_migrated_inputs_use_the_strict_binding_contract() -> None:
         | C2_MIGRATED_BINDINGS
         | C3_MIGRATED_BINDINGS
         | D_MIGRATED_BINDINGS
+        | F43B_MIGRATED_BINDINGS
     )
     assert all(
         not hasattr(rule, "expansion_selectors")
@@ -715,7 +835,7 @@ def test_c2_retires_fact_and_immutable_value_selectors() -> None:
 
 
 def test_c3_retires_output_transition_and_geometry_selectors() -> None:
-    assert len(C3_MIGRATED_BINDINGS) == 30
+    assert len(C3_MIGRATED_BINDINGS) == 26
 
 
 def test_new_schema_excludes_legacy_selector_payload() -> None:

@@ -1,0 +1,44 @@
+{
+  "method_id": "rewrite_expression_by_condition",
+  "title": "按已证条件改写表达式",
+  "description": "Publish an expression rewrite after consuming its verified Condition.",
+  "summary": "",
+  "solves": [
+    "rewrite_expression_by_condition"
+  ],
+  "inputs": {
+    "original_expression": {
+      "required": true,
+      "allows_anonymous_result": true,
+      "domain_type": "Expression",
+      "runtime_type": "Expression|MinimumExpression",
+      "view": {
+        "mode": "exact_result",
+        "domain_type": "Expression"
+      }
+    },
+    "rewritten_expression": {
+      "required": true,
+      "allows_anonymous_result": true,
+      "domain_type": "Expression",
+      "runtime_type": "Expression|MinimumExpression",
+      "view": {
+        "mode": "exact_result",
+        "domain_type": "Expression"
+      }
+    },
+    "condition": {
+      "required": true,
+      "domain_type": "Fact",
+      "runtime_type": "Condition",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "Fact"
+      }
+    }
+  },
+  "outputs": {
+    "expression": "Expression"
+  },
+  "is_pure": true
+}

@@ -1005,7 +1005,7 @@ def test_recipe_input_aliases_preserve_macro_argument_identity() -> None:
     assert projected["p2"].source_handle == "fact:part:second_state"
 
 
-def test_straightened_distance_recipe_compiles_reconciled_endpoints() -> None:
+def test_direct_distance_function_compiles_reconciled_endpoints() -> None:
     inputs = _base_inputs()
     payload = json.loads(NANKAI_FUNCTIONAL_PLAN.read_text(encoding="utf-8"))
     scope = next(item for item in payload["scopes"] if item["scope_id"] == "ii_2")
@@ -1018,20 +1018,20 @@ def test_straightened_distance_recipe_compiles_reconciled_endpoints() -> None:
         solve_index,
         {
             "call_id": "distance_of_selected_endpoints",
-            "capability_id": "path_minimum_by_straightened_distance",
+            "capability_id": "distance_between_points",
             "args": {
-                "endpoint_1": {
+                "p1": {
                     "from_call": "ii_derive_path_model",
                     "return": "straightened_endpoint_1",
                 },
-                "endpoint_2": {
+                "p2": {
                     "from_call": "ii_derive_path_model",
                     "return": "straightened_endpoint_2",
                 },
             },
             "return_bindings": {},
             "return_expectations": {
-                "minimum_expression": "open_expression"
+                "distance": "open_expression"
             },
             "strategy": "Measure the selected straightening endpoints.",
             "reason": "The selected endpoints define the reduced path length.",
@@ -1042,7 +1042,7 @@ def test_straightened_distance_recipe_compiles_reconciled_endpoints() -> None:
     )
     solve_call["args"]["minimum_expression"] = {
         "from_call": "distance_of_selected_endpoints",
-        "return": "minimum_expression",
+        "return": "distance",
     }
     plan, validation = _validate(payload, inputs)
     assert validation.ok and plan is not None
@@ -1065,7 +1065,7 @@ def test_straightened_distance_recipe_compiles_reconciled_endpoints() -> None:
         for item in replay.diagnostic.runtime_results
         if item.step_id == "distance_of_selected_endpoints"
     )
-    assert distance_result.output_key == "distance_between_points.distance"
+    assert distance_result.output_key == "distance"
     assert distance_result.runtime_type == "MinimumExpression"
     assert distance_result.value is not None
     assert "$" not in json.dumps(
@@ -1094,7 +1094,7 @@ def test_straightened_distance_recipe_compiles_reconciled_endpoints() -> None:
     assert invocation.inputs["p2"] != "$question.ii.points.M"
 
 
-def test_straightened_distance_recipe_emits_base_and_evaluated_returns() -> None:
+def test_direct_distance_function_emits_base_and_evaluated_returns() -> None:
     inputs = _base_inputs()
     payload = json.loads(NANKAI_FUNCTIONAL_PLAN.read_text(encoding="utf-8"))
     scope = next(item for item in payload["scopes"] if item["scope_id"] == "ii_1")
@@ -1112,13 +1112,13 @@ def test_straightened_distance_recipe_emits_base_and_evaluated_returns() -> None
         solve_index + 1,
         {
             "call_id": "evaluate_selected_endpoint_distance",
-            "capability_id": "path_minimum_by_straightened_distance",
+            "capability_id": "distance_between_points",
             "args": {
-                "endpoint_1": {
+                "p1": {
                     "from_call": "ii_derive_path_model",
                     "return": "straightened_endpoint_1",
                 },
-                "endpoint_2": {
+                "p2": {
                     "from_call": "ii_derive_path_model",
                     "return": "straightened_endpoint_2",
                 },
@@ -1128,14 +1128,14 @@ def test_straightened_distance_recipe_emits_base_and_evaluated_returns() -> None
                 },
             },
             "return_bindings": {
-                "evaluated_path_minimum_expression": {
+                "evaluated_distance": {
                     "kind": "answer",
                     "ref": "ii_1.minimum_value",
                 }
             },
             "return_expectations": {
-                "minimum_expression": "open_expression",
-                "evaluated_path_minimum_expression": "closed_value",
+                "distance": "open_expression",
+                "evaluated_distance": "closed_value",
             },
             "strategy": "Measure the endpoints before and after substitution.",
             "reason": "Both states are declared Macro returns.",
@@ -1173,7 +1173,7 @@ def test_straightened_distance_recipe_emits_base_and_evaluated_returns() -> None
     )
 
 
-def test_straightened_distance_recipe_rejects_inactive_evaluated_return() -> None:
+def test_direct_distance_function_rejects_inactive_evaluated_return() -> None:
     inputs = _base_inputs()
     payload = json.loads(NANKAI_FUNCTIONAL_PLAN.read_text(encoding="utf-8"))
     scope = next(item for item in payload["scopes"] if item["scope_id"] == "ii_1")
@@ -1185,25 +1185,25 @@ def test_straightened_distance_recipe_rejects_inactive_evaluated_return() -> Non
     scope["calls"].append(
         {
             "call_id": "evaluate_without_parameter",
-            "capability_id": "path_minimum_by_straightened_distance",
+            "capability_id": "distance_between_points",
             "args": {
-                "endpoint_1": {
+                "p1": {
                     "from_call": "ii_derive_path_model",
                     "return": "straightened_endpoint_1",
                 },
-                "endpoint_2": {
+                "p2": {
                     "from_call": "ii_derive_path_model",
                     "return": "straightened_endpoint_2",
                 },
             },
             "return_bindings": {
-                "evaluated_path_minimum_expression": {
+                "evaluated_distance": {
                     "kind": "answer",
                     "ref": "ii_1.minimum_value",
                 }
             },
             "return_expectations": {
-                "evaluated_path_minimum_expression": "closed_value",
+                "evaluated_distance": "closed_value",
             },
             "strategy": "incorrectly request an evaluated output",
             "reason": "the activating parameter pair is deliberately absent",
@@ -1225,12 +1225,17 @@ def test_straightened_distance_recipe_rejects_inactive_evaluated_return() -> Non
     assert replay.output is None
     assert replay.transactional_attempt_result is not None
     issue = replay.transactional_attempt_result.root_issues[0]
-    assert issue.code == "functional.macro_input_missing"
+    assert issue.code == "functional.method_input_missing"
     assert issue.diagnostic_authority is not None
-    assert issue.diagnostic_authority["expected"]["required_args"] == [
-        "parameter_value"
+    assert issue.diagnostic_authority["expected"]["active_outputs"] == [
+        "distance"
     ]
-    assert "method_id" not in issue.diagnostic_authority
+    assert issue.diagnostic_authority["observed"][
+        "inactive_requested_outputs"
+    ] == ["evaluated_distance"]
+    assert "parameter_value" not in issue.diagnostic_authority["observed"][
+        "provided_inputs"
+    ]
 
 
 def test_direct_distance_keeps_projected_base_return_for_closed_points() -> None:
@@ -1395,11 +1400,11 @@ def test_direct_distance_aliases_preserve_path_minimum_lineage() -> None:
             "call_id": "distance_of_selected_endpoints",
             "capability_id": "distance_between_points",
             "args": {
-                "endpoint_1": {
+                "p1": {
                     "from_call": "ii_derive_path_model",
                     "return": "straightened_endpoint_1",
                 },
-                "endpoint_2": {
+                "p2": {
                     "from_call": "ii_derive_path_model",
                     "return": "straightened_endpoint_2",
                 },
@@ -1438,7 +1443,7 @@ def test_direct_distance_aliases_preserve_path_minimum_lineage() -> None:
     assert set(call.resolved_args) >= {"p1", "p2"}
     assert "path_minimum_expression" in call.returns[0].lineage.semantic_roles
     assert "path_minimum_expression" in call.returns[0].lineage.evidence_tags
-    assert any(
+    assert not any(
         item["action"] == "normalize_arg_role"
         and item["call_id"] == "distance_of_selected_endpoints"
         for item in result.elaboration["deterministic_repairs"]
@@ -2682,10 +2687,11 @@ def test_functional_schema_and_catalog_are_prompt_safe() -> None:
     capabilities = prompt_payload["capabilities"]
     assert capabilities
     assert all(
-        {"capability_id", "title", "use_when", "args", "returns"}
+        {"capability_id", "kind", "title", "use_when", "args", "returns"}
         <= set(item)
         <= {
             "capability_id",
+            "kind",
             "title",
             "use_when",
             "do_not_use_when",
@@ -2813,6 +2819,7 @@ def test_functional_schema_and_catalog_are_prompt_safe() -> None:
             "name": "axis_point",
             "type": "Point",
             "binding": "call_result_or_answer_or_existing_object",
+            "scope_binding": {"mode": "existing_only"},
             "return_expectation_policy": "selectable",
             "desc": (
                 "坐标仍含未确定符号时为 open_state；不存在自由符号时为 "
@@ -2829,7 +2836,6 @@ def test_functional_schema_and_catalog_are_prompt_safe() -> None:
         "runtime_path",
         "binding_selector",
         "goal_type",
-        "kind",
         "llm_mode",
         "state_kind",
         "identity_policy",
@@ -5494,11 +5500,12 @@ def test_functional_catalog_lowers_containers_and_hides_auto_args() -> None:
         item.name for item in parameter_solver.auto_args
     }
 
-    path = catalog.get("path_minimum_by_straightened_distance")
-    assert path is not None
-    assert [item.semantic_role for item in path.args] == [
-        "endpoint_1",
-        "endpoint_2",
+    assert catalog.get("path_minimum_by_straightened_distance") is None
+    distance = catalog.get("distance_between_points")
+    assert distance is not None
+    assert [item.semantic_role for item in distance.args] == [
+        "p1",
+        "p2",
         "parameter_value",
     ]
 
@@ -8400,7 +8407,7 @@ def test_functional_payload_is_the_only_strategy_payload() -> None:
     assert "M" in prompt_refs(
         hexi["problem_planning_context"]["root_scope"]
     )
-    assert functional["planner_protocol"] == "functional_plan/v1"
+    assert functional["planner_protocol"] == "functional_plan/v3"
     assert not CANONICAL_REF_RE.search(json.dumps(functional, ensure_ascii=False))
     prompt = StrategyPromptRenderer().render(functional)
     assert "FunctionalPlan" in prompt.system
@@ -8852,7 +8859,11 @@ def test_reconciler_infers_unique_target_objects_from_structured_problem_ir() ->
     repairs = result.elaboration["deterministic_repairs"]
     assert [item["action"] for item in repairs].count(
         "auto_bind_target_object"
-    ) == 2
+    ) == 3
+    assert not any(
+        item["action"] == "propagate_downstream_object_identity"
+        for item in repairs
+    )
 
 
 def test_reconciler_does_not_treat_object_ref_as_materialized_target_state() -> None:
@@ -9108,7 +9119,7 @@ def test_explicit_return_identity_is_not_inferred_from_downstream_usage() -> Non
     )
 
 
-def test_reconciler_propagates_unique_downstream_object_identity() -> None:
+def test_reconciler_rejects_backpropagating_downstream_answer_identity() -> None:
     inputs = _base_inputs()
     payload = json.loads(NANKAI_FUNCTIONAL_PLAN.read_text(encoding="utf-8"))
     scope = next(item for item in payload["scopes"] if item["scope_id"] == "ii_2")
@@ -9153,18 +9164,19 @@ def test_reconciler_propagates_unique_downstream_object_identity() -> None:
         question_goals=inputs.question_goals,
     )
 
-    assert result.ok, [item.to_payload() for item in result.issues]
-    canonical = next(
-        item for item in result.plan.calls if item.call_id == "ii_2_derive_G"
+    assert not result.ok
+    issue = next(
+        item
+        for item in result.issues
+        if item.code == "functional.return_answer_object_identity_mismatch"
     )
-    assert canonical.return_bindings["intersection"] == SemanticRef(
-        ref="G",
-        kind="point",
-        value_type="Point",
+    assert issue.call_id == "ii_2_evaluate_G"
+    assert issue.details["expected_object_ref"] == "point:ii:G"
+    assert issue.details["actual_object_ref"].endswith(
+        ":ii_2_derive_G_intersection"
     )
-    assert any(
+    assert not any(
         item["action"] == "propagate_downstream_object_identity"
-        and item["call_id"] == "ii_2_derive_G"
         for item in result.elaboration["deterministic_repairs"]
     )
 
@@ -12656,7 +12668,7 @@ def test_typed_placement_keeps_sibling_state_producers_isolated() -> None:
     )
 
 
-def test_equal_length_ray_point_is_rejected_outside_prepared_macro() -> None:
+def test_equal_length_ray_point_is_not_a_production_family_capability() -> None:
     problem = load_problem_ir(HEPING_FIXTURE)
     inputs = build_strategy_probe_inputs(problem)
     problem_payload = problem_to_llm_payload(problem)
@@ -12707,23 +12719,11 @@ def test_equal_length_ray_point_is_rejected_outside_prepared_macro() -> None:
         question_goals=(),
     )
     assert validation.ok and plan is not None
-
-    with pytest.raises(
-        ValueError,
-        match="planner.method_input_binding_lowerer_missing",
-    ):
-        FunctionalPlanReconciler().reconcile(
-            plan,
-            planner_state_context=initial_planner_state_context(
-                inputs,
-                problem_payload=problem_payload,
-                handle_registry=registry,
-            ),
-            family_spec=inputs.family_spec,
-            method_specs=inputs.method_specs,
-            handle_registry=registry,
-            question_goals=(),
-        )
+    assert "equal_length_ray_point" not in inputs.family_spec.method_ids
+    assert all(
+        rule.method_id != "equal_length_ray_point"
+        for rule in inputs.family_spec.method_binding_rules
+    )
 
 
 def test_relation_call_inherits_explicit_downstream_answer_object_identity() -> None:

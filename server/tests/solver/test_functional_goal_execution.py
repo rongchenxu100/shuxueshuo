@@ -36,12 +36,13 @@ from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
     ScopedFunctionalScope,
     ScopedFunctionalStep,
     ScopedFunctionalPlanIssue,
+    ScopedReturnBinding,
     scoped_functional_plan_id,
 )
 from shuxueshuo_server.solver.runtime.strategy_models import SemanticRef
 
 from _problem_planning_support import CASES, planning_binding_fixture
-from _scoped_functional_plan_support import load_v2_fixture_payload
+from _scoped_functional_plan_support import load_v3_fixture_payload
 
 
 SCHEMA_PATH = (
@@ -123,7 +124,7 @@ def test_nonretryable_problem_authority_drift_fails_loud(tmp_path) -> None:
 
     with pytest.raises(ScopedFunctionalPlanError) as error:
         ScopedFunctionalGoalExecutionService().execute_raw_json(
-            json.dumps(load_v2_fixture_payload(case), ensure_ascii=False),
+            json.dumps(load_v3_fixture_payload(case), ensure_ascii=False),
             inputs=fixture[3],
             planning_context=fixture[1],
             problem_binding_catalog=drifted_catalog,
@@ -139,9 +140,9 @@ def test_nonretryable_problem_authority_drift_fails_loud(tmp_path) -> None:
 
 def test_inferred_parent_point_target_survives_liveness_and_executes(tmp_path) -> None:
     case = "tj-2026-xiqing-yimo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     derive_d = _step(payload, "derive_curve_point_D_ii")
-    derive_d.pop("output_targets")
+    derive_d.pop("return_bindings")
 
     result, _fixture = _execute(tmp_path, case, payload)
 
@@ -153,7 +154,7 @@ def test_inferred_parent_point_target_survives_liveness_and_executes(tmp_path) -
 
 def test_same_point_identity_can_have_scope_local_sibling_producers(tmp_path) -> None:
     case = "tj-2026-nankai-yimo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     scope_ii = _scope(payload["root_scope"], "ii")
     shared_steps = scope_ii.pop("steps")
 
@@ -194,7 +195,9 @@ def test_reconciliation_dependency_blocks_never_include_sibling_producer() -> No
         step_id="sibling_writer",
         capability_id="synthetic_point_producer",
         args={},
-        output_targets={"point": "D"},
+        return_bindings={
+            "point": ScopedReturnBinding(kind="existing", ref="D")
+        },
         return_expectations={"point": "closed_state"},
     )
     ancestor_writer = replace(sibling_writer, step_id="ancestor_writer")
@@ -202,7 +205,7 @@ def test_reconciliation_dependency_blocks_never_include_sibling_producer() -> No
         step_id="consumer",
         capability_id="synthetic_point_consumer",
         args={},
-        output_targets={},
+        return_bindings={},
         return_expectations={},
     )
     issue = SimpleNamespace(
@@ -363,7 +366,7 @@ def test_placement_finalization_failure_still_creates_checkpoint(
     result, _fixture = _execute(
         tmp_path,
         CASES[0],
-        load_v2_fixture_payload(CASES[0]),
+        load_v3_fixture_payload(CASES[0]),
     )
 
     assert result.checkpoint is not None
@@ -386,7 +389,7 @@ def test_bad_step_blocks_only_its_suffix_and_executes_independent_goals(
     tmp_path,
 ) -> None:
     case = "tj-2026-heping-yimo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     step = _step(payload, "reduce_equal_length_ray_path_ii")
     step["args"]["point_on_ray"] = "not_a_real_ref"
 
@@ -441,7 +444,7 @@ def test_checkpoint_round_trip_hash_and_current_authority_are_fail_closed(
     result, fixture = _execute(
         tmp_path,
         CASES[-1],
-        load_v2_fixture_payload(CASES[-1]),
+        load_v3_fixture_payload(CASES[-1]),
     )
     checkpoint = result.checkpoint
     assert checkpoint is not None
@@ -473,7 +476,7 @@ def test_checkpoint_prompt_payload_hides_problem_authority(tmp_path) -> None:
     result, fixture = _execute(
         tmp_path,
         CASES[0],
-        load_v2_fixture_payload(CASES[0]),
+        load_v3_fixture_payload(CASES[0]),
     )
     checkpoint = result.checkpoint
     assert checkpoint is not None
@@ -496,7 +499,7 @@ def test_checkpoint_resolved_inputs_include_actual_step_result(tmp_path) -> None
     result, _fixture = _execute(
         tmp_path,
         case,
-        load_v2_fixture_payload(case),
+        load_v3_fixture_payload(case),
     )
     checkpoint = result.checkpoint
     assert checkpoint is not None
@@ -521,7 +524,7 @@ def test_state_writers_keep_v2_semantic_owner_scope(tmp_path, case) -> None:
     result, _fixture = _execute(
         tmp_path,
         case,
-        load_v2_fixture_payload(case),
+        load_v3_fixture_payload(case),
     )
     assert result.authority is not None
     assert result.replay is not None
@@ -555,7 +558,7 @@ def test_checkpoint_uses_public_return_roles_for_facade_runtime_outputs(
     result, _fixture = _execute(
         tmp_path,
         case,
-        load_v2_fixture_payload(case),
+        load_v3_fixture_payload(case),
     )
 
     checkpoint = result.checkpoint
@@ -590,7 +593,7 @@ def test_stable_object_ref_uses_source_snapshot_before_any_visible_write(
     result, _fixture = _execute(
         tmp_path,
         case,
-        load_v2_fixture_payload(case),
+        load_v3_fixture_payload(case),
     )
 
     checkpoint = result.checkpoint
@@ -609,7 +612,7 @@ def test_stable_object_ref_uses_source_snapshot_before_any_visible_write(
 
 def test_unique_fact_placeholder_refs_are_safely_canonicalized(tmp_path) -> None:
     case = "tj-2026-heping-yimo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     step = _step(payload, "reduce_equal_length_ray_path_ii")
     for arg_name in (
         "path_minimum_target",
@@ -642,7 +645,7 @@ def test_unique_fact_placeholder_refs_are_safely_canonicalized(tmp_path) -> None
 
 def test_known_wrong_fact_ref_is_not_rewritten_by_type(tmp_path) -> None:
     case = "tj-2026-heping-yimo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     _step(payload, "reduce_equal_length_ray_path_ii")["args"][
         "point_on_ray"
     ] = "point_on_segment_m_bc"
@@ -660,7 +663,7 @@ def test_complete_call_drops_unknown_capability_arg_before_execution(
     tmp_path,
 ) -> None:
     case = "tj-2026-xiqing-yimo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     step = _step(payload, "derive_curve_point_D_ii")
     step["args"]["point"] = "D"
 
@@ -690,7 +693,7 @@ def test_unknown_arg_is_not_dropped_when_required_arg_is_missing(
     tmp_path,
 ) -> None:
     case = "tj-2026-xiqing-yimo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     step = _step(payload, "derive_curve_point_D_ii")
     step["args"] = {"point": "D"}
 
@@ -739,7 +742,7 @@ def test_unknown_arg_is_not_dropped_when_required_arg_is_missing(
 
 def test_unique_visible_dynamic_source_ref_becomes_exact_step_result(tmp_path) -> None:
     case = "tj-2026-heping-yimo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     _step(payload, "derive_translated_D_i")["args"]["source"] = "C"
 
     result, _fixture = _execute(tmp_path, case, payload)
@@ -769,7 +772,7 @@ def test_answer_target_source_ref_uses_prior_scope_owned_answer_result(
     tmp_path,
 ) -> None:
     case = "tj-2026-heping-ermo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     _step(payload, "derive_square_vertex_G_i")["args"]["side_start"] = "A"
 
     result, _fixture = _execute(tmp_path, case, payload)
@@ -796,7 +799,7 @@ def test_latest_parameter_state_closes_transitive_point_without_llm_wiring(
     tmp_path,
 ) -> None:
     case = "tj-2026-heping-ermo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     goal = _scope(payload["root_scope"], "ii")["goals"][0]
     goal["steps"] = [
         step
@@ -875,9 +878,9 @@ def test_identity_contract_drives_named_entity_latest_state_dependency(
     tmp_path,
 ) -> None:
     case = "tj-2026-heping-ermo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     derive_g = _step(payload, "derive_minimum_point_G_ii")
-    derive_g.pop("output_targets")
+    derive_g.pop("return_bindings")
 
     result, _fixture = _execute(tmp_path, case, payload)
 
@@ -955,7 +958,7 @@ def test_duplicate_a_writer_is_removed_only_after_runtime_equivalence(
     tmp_path,
 ) -> None:
     case = "tj-2026-heping-ermo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     goal = _scope(payload["root_scope"], "ii")["goals"][0]
     source = deepcopy(_step(payload, "evaluate_point_A_ii"))
     source["step_id"] = "evaluate_point_A_ii_duplicate"
@@ -988,7 +991,7 @@ def test_runtime_equivalent_version_alias_is_canonical_for_later_writer(
     tmp_path,
 ) -> None:
     case = "tj-2026-heping-ermo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     goal = _scope(payload["root_scope"], "ii")["goals"][0]
     source = deepcopy(_step(payload, "evaluate_point_A_ii"))
     first_duplicate = deepcopy(source)
@@ -1028,12 +1031,14 @@ def test_recomputed_source_a_is_reused_only_after_runtime_equivalence(
     tmp_path,
 ) -> None:
     case = "tj-2026-heping-ermo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     ii_goal = _scope(payload["root_scope"], "ii")["goals"][0]
     evaluate = _step(payload, "evaluate_point_A_ii")
     evaluate["capability_id"] = "quadratic_x_axis_intercept_point"
     evaluate["args"] = {"parabola": "parabola"}
-    evaluate["output_targets"] = {"point": "A"}
+    evaluate["return_bindings"] = {
+        "point": {"kind": "existing", "ref": "A"}
+    }
     _step(payload, "recover_target_point_E_ii")["args"]["side_start"] = "A"
     evaluate_index = next(
         index
@@ -1085,7 +1090,7 @@ def test_scope_owned_recomputed_source_state_is_removed_before_checkpoint(
     tmp_path,
 ) -> None:
     case = "tj-2026-heping-ermo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     ii_scope = _scope(payload["root_scope"], "ii")
     ii_goal = ii_scope["goals"][0]
     establish = _step(payload, "derive_parametric_parabola_ii")
@@ -1093,7 +1098,9 @@ def test_scope_owned_recomputed_source_state_is_removed_before_checkpoint(
     evaluate["step_id"] = "derive_A_ii"
     evaluate["capability_id"] = "quadratic_x_axis_intercept_point"
     evaluate["args"] = {"parabola": "parabola"}
-    evaluate["output_targets"] = {"point": "A"}
+    evaluate["return_bindings"] = {
+        "point": {"kind": "existing", "ref": "A"}
+    }
     _step(payload, "recover_target_point_E_ii")["args"]["side_start"] = "A"
     ii_goal["steps"] = [
         item
@@ -1169,7 +1176,7 @@ def test_conflicting_duplicate_a_writer_fails_without_ghost_version(
         divergent_second_evaluation,
     )
     case = "tj-2026-heping-ermo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     goal = _scope(payload["root_scope"], "ii")["goals"][0]
     source = deepcopy(_step(payload, "evaluate_point_A_ii"))
     source["step_id"] = "evaluate_point_A_ii_duplicate"
@@ -1205,9 +1212,11 @@ def test_closed_point_role_reuse_is_runtime_checked_before_transition_commit(
     tmp_path,
 ) -> None:
     case = "tj-2026-heping-yimo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     auxiliary = _step(payload, "derive_axis_intercept_F_i")
-    auxiliary["output_targets"] = {"point": "E"}
+    auxiliary["return_bindings"] = {
+        "point": {"kind": "existing", "ref": "E"}
+    }
     final = _step(payload, "derive_curve_intersection_E_i")
     final["args"]["line_p1"] = "E"
     final["args"]["line_p2"] = "B"
@@ -1235,7 +1244,7 @@ def test_identity_mismatch_checkpoint_exposes_public_expected_and_actual_refs(
     tmp_path,
 ) -> None:
     case = "tj-2026-heping-ermo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     _step(payload, "derive_locus_G_ii")["args"]["point"] = "E"
 
     result, _fixture = _execute(tmp_path, case, payload)
@@ -1252,7 +1261,9 @@ def test_identity_mismatch_checkpoint_exposes_public_expected_and_actual_refs(
     assert issue["expected"]["relation"] == "same_object"
     assert issue["expected"]["requirement"]
     assert issue["repair_call_ids"]
-    assert checkpoint.transaction_attempted is True
+    # v3 return/object authority rejects the mismatch before transaction.
+    assert checkpoint.transaction_attempted is False
+    assert checkpoint.blocked_stage == "placement_finalize"
     prompt = json.dumps(checkpoint.to_prompt_payload(), ensure_ascii=False)
     assert "point:problem:E" not in prompt
     assert "point:problem:G" not in prompt
@@ -1262,7 +1273,7 @@ def test_unique_prior_same_object_result_is_canonicalized_in_goal_scope(
     tmp_path,
 ) -> None:
     case = "tj-2026-hexi-yimo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     _step(payload, "derive_weighted_minimum_iii")["args"][
         "curve_point"
     ] = "M"
@@ -1286,7 +1297,7 @@ def test_visible_same_object_result_is_rewritten_only_after_runtime_equivalence(
     tmp_path,
 ) -> None:
     case = "tj-2026-hexi-yimo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     goal = _scope(payload["root_scope"], "iii")["goals"][0]
     producer = deepcopy(_step(payload, "derive_curve_point_iii"))
     producer["step_id"] = "derive_curve_point_iii_alternate"
@@ -1421,7 +1432,7 @@ def test_dead_pure_step_stays_in_authored_plan_but_not_effective_plan(
     tmp_path,
 ) -> None:
     case = "tj-2026-heping-yimo-25"
-    payload = load_v2_fixture_payload(case)
+    payload = load_v3_fixture_payload(case)
     goal = _scope(payload["root_scope"], "i_2")["goals"][0]
     goal.setdefault("steps", []).append(
         {
@@ -1457,7 +1468,7 @@ def test_v2_step_ids_remain_canonical_without_call_aliases(
     result, _fixture = _execute(
         tmp_path,
         case,
-        load_v2_fixture_payload(case),
+        load_v3_fixture_payload(case),
     )
     reconciliation = result.replay.functional_reconciliation
     assert reconciliation is not None and reconciliation.ok
@@ -1470,21 +1481,25 @@ def test_v2_step_ids_remain_canonical_without_call_aliases(
 
 
 def _duplicate_descendant_point_plan_payload():
-    payload = load_v2_fixture_payload("tj-2026-heping-yimo-25")
+    payload = load_v3_fixture_payload("tj-2026-heping-yimo-25")
     goal = _scope(payload["root_scope"], "ii")["goals"][0]
     goal["steps"] = [
         {
             "step_id": "locate_C",
             "capability_id": "quadratic_y_axis_intercept_point",
             "args": {"quadratic": "parabola"},
-            "output_targets": {"point": "C"},
+            "return_bindings": {
+                "point": {"kind": "existing", "ref": "C"}
+            },
             "return_expectations": {"point": "closed_state"},
         },
         {
             "step_id": "locate_D",
             "capability_id": "translated_point",
             "args": {"source": "C"},
-            "output_targets": {"point": "D"},
+            "return_bindings": {
+                "point": {"kind": "existing", "ref": "D"}
+            },
             "return_expectations": {"point": "closed_state"},
         },
         *goal["steps"],

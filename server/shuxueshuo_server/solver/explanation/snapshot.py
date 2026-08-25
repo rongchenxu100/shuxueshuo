@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import asdict, is_dataclass
 from typing import Any
 
@@ -9,9 +10,9 @@ import sympy as sp
 
 from shuxueshuo_server.solver.contracts import PointRef, TypedValue
 from shuxueshuo_server.solver.runtime.context import RuntimeContext
-from shuxueshuo_server.solver.runtime.functional_execution_authority import (
-    PathMinimumPromptWitnessProjector,
-    PathMinimumWitness,
+from shuxueshuo_server.solver.runtime.functional_subplan import (
+    MacroSearchSelection,
+    VerifiedSubplanExecution,
 )
 from shuxueshuo_server.solver.runtime.models import PlanExecutionResult, PlannerOutput, StepPlan
 from shuxueshuo_server.solver.runtime.projection import RuntimeProjection
@@ -50,6 +51,7 @@ class ExplanationSnapshotBuilder:
             replay,
             artifacts.planner_output,
         )
+        macro_evidence = _build_macro_evidence(artifacts)
         effective_fact_steps: tuple[Any, ...] = effective_steps
         if not effective_steps:
             raise ExplanationSnapshotError(
@@ -76,10 +78,12 @@ class ExplanationSnapshotBuilder:
                 artifacts.planner_output,
                 artifacts.execution,
                 step_capabilities,
+                macro_evidence=macro_evidence,
             ),
             fact_index=_build_fact_index(
                 artifacts.context,
                 effective_fact_steps,
+                macro_evidence=macro_evidence,
             ),
             student_step_placements=narrative.placements,
             student_scope_references=narrative.references,
@@ -87,54 +91,63 @@ class ExplanationSnapshotBuilder:
             answers=_clean_value(result.answers, artifacts.context),
             checks=tuple(_check_payload(check) for check in result.checks),
             symbolic_closures=_build_symbolic_closure_teaching(replay),
-            macro_evidence=_build_macro_evidence(artifacts),
+            macro_evidence=macro_evidence,
         )
         _assert_safe_snapshot(snapshot)
         return snapshot
 
 
 def _build_macro_evidence(artifacts: Any) -> tuple[dict[str, Any], ...]:
-    """Project authenticated Macro witnesses into the student-safe snapshot."""
+    """Project generic verified subplans into student-safe Macro evidence."""
 
     execution = getattr(artifacts, "verified_functional_execution", None)
     problem_authority = getattr(artifacts, "problem_authority", None)
     planning_context = getattr(problem_authority, "planning_context", None)
-    if planning_context is None:
-        return ()
-    projector = PathMinimumPromptWitnessProjector()
-    witnesses: list[PathMinimumWitness] = []
+    prompt_refs = {
+        authority.runtime_node_id: authority.semantic_ref.ref
+        for authority in getattr(planning_context, "ref_authorities", {}).values()
+        if authority.usage == "input"
+    }
+    verified_subplans: list[VerifiedSubplanExecution] = []
     if execution is not None:
         for scope in _execution_scopes(execution.root_scope):
             steps = [*scope.scope_steps]
             for goal in scope.goals:
                 steps.extend(goal.steps)
             for step in steps:
-                witnesses.extend(
+                verified_subplans.extend(
                     item
                     for item in step.evidence
-                    if isinstance(item, PathMinimumWitness)
+                    if isinstance(item, VerifiedSubplanExecution)
+                    and isinstance(item.selection, MacroSearchSelection)
                 )
     else:
-        # The transitional RuntimeOrchestrator replay does not yet expose the
-        # v2 execution envelope. It does expose the same typed witness on the
-        # final transactional call result, so no teaching fact is reconstructed
-        # from trace text.
+        # Transitional orchestrator artifacts expose the same authenticated
+        # envelope on each final transactional call result.
         planner_artifacts = getattr(getattr(artifacts, "planner", None), "artifacts", None)
         replay = getattr(planner_artifacts, "retry_replay_result", None)
         attempt = getattr(replay, "transactional_attempt_result", None)
         report = getattr(attempt, "execution_report", None)
         for call_result in getattr(report, "call_results", ()):
-            witness = getattr(call_result, "path_minimum_witness", None)
-            if isinstance(witness, PathMinimumWitness):
-                witnesses.append(witness)
+            subplan = getattr(call_result, "verified_subplan_execution", None)
+            if isinstance(subplan, VerifiedSubplanExecution) and isinstance(
+                subplan.selection,
+                MacroSearchSelection,
+            ):
+                verified_subplans.append(subplan)
 
     evidence: list[dict[str, Any]] = []
     seen: set[str] = set()
-    for witness in witnesses:
-        if witness.witness_id in seen:
+    for subplan in verified_subplans:
+        if subplan.execution_signature in seen:
             continue
-        seen.add(witness.witness_id)
-        evidence.append(projector.project(witness, planning_context).to_payload())
+        seen.add(subplan.execution_signature)
+        evidence.append(
+            _macro_teaching_projection(
+                subplan,
+                prompt_refs=prompt_refs,
+            )
+        )
     return tuple(
         sorted(
             evidence,
@@ -144,6 +157,142 @@ def _build_macro_evidence(artifacts: Any) -> tuple[dict[str, Any], ...]:
             ),
         )
     )
+
+
+def _macro_teaching_projection(
+    execution: VerifiedSubplanExecution,
+    *,
+    prompt_refs: Mapping[str, str],
+) -> dict[str, Any]:
+    """Build a compatibility teaching view without creating a second authority."""
+
+    selection = execution.selection
+    if not isinstance(selection, MacroSearchSelection):
+        raise ValueError("Macro teaching projection requires Macro search authority")
+    witness = execution.witness
+    results = dict(witness.standard_results)
+    minimum_expression = str(results.get("minimum_expression", ""))
+    step_id = next(
+        (
+            str(item.get("call_id"))
+            for item in execution.clean_execution.provenance
+            if item.get("call_id")
+        ),
+        execution.clean_execution.member_step_ids[0],
+    )
+    function_ids = tuple(
+        item.capability_id for item in execution.selected_fragment.steps
+    )
+    if "reflect_point_across_line" in function_ids:
+        minimum_strategy = "reflection_straightening"
+    elif any("endpoint" in item for item in function_ids):
+        minimum_strategy = "segment_endpoint"
+    else:
+        minimum_strategy = "direct_intersection"
+    checks = tuple(
+        {
+            "check": item.check_code,
+            "passed": item.passed,
+        }
+        for item in execution.clean_execution.verification
+    )
+    proved_checks = tuple(
+        item["check"] for item in checks if item["passed"]
+    )
+    minimizing_points = results.get("minimizing_points", {})
+    auxiliary_output = next(
+        (
+            item
+            for item in witness.provenance
+            if item.get("kind") == "fragment_derived_output"
+            and item.get("semantic_role") == "auxiliary_point"
+            and item.get("domain_type") == "Point"
+        ),
+        None,
+    )
+    auxiliary_value = (
+        auxiliary_output.get("value")
+        if isinstance(auxiliary_output, Mapping)
+        else None
+    )
+    constructions = []
+    if (
+        isinstance(auxiliary_value, (tuple, list))
+        and len(auxiliary_value) == 2
+    ):
+        constructions.append(
+            {
+                "ref": str(auxiliary_output.get("ref") or ""),
+                "domain_type": "Point",
+                "semantic_role": "auxiliary_point",
+                "owner_scope": str(
+                    auxiliary_output.get("owner_scope") or execution.scope_id
+                ),
+                "producer_step_id": str(
+                    auxiliary_output.get("producer_step_id") or ""
+                ),
+                "capability_id": str(
+                    auxiliary_output.get("capability_id") or ""
+                ),
+                "coordinate": {
+                    "x": auxiliary_value[0],
+                    "y": auxiliary_value[1],
+                },
+            }
+        )
+
+    def prompt_ref(value: str) -> str:
+        projected = prompt_refs.get(value, value)
+        if ":" in projected:
+            raise ExplanationSnapshotError(
+                "verified subplan Entity cannot be projected to a prompt ref"
+            )
+        return projected
+
+    return {
+        "schema_version": "verified-subplan-teaching-projection/v1",
+        "step_id": step_id,
+        "scope_id": execution.scope_id,
+        "macro_id": selection.macro_id,
+        "function_steps": [
+            {
+                "step_id": item.step_id,
+                "capability_id": item.capability_id,
+                "input_names": sorted(item.args),
+                "output_names": sorted(item.return_bindings),
+            }
+            for item in execution.selected_fragment.steps
+        ],
+        "original_objective": str(results.get("original_objective", "")),
+        "reduced_objective": str(results.get("reduced_objective", "")),
+        "role_resolutions": [
+            {
+                "role": role,
+                "authored_ref": None,
+                "chosen_ref": prompt_ref(chosen_ref),
+                "corrected": False,
+            }
+            for role, chosen_ref in witness.standard_entities.items()
+        ],
+        "constructions": constructions,
+        "equivalence_proof": list(proved_checks),
+        "legal_domain": list(proved_checks),
+        "minimum_strategy": minimum_strategy,
+        "minimum_expression": minimum_expression,
+        "minimizing_points": (
+            dict(minimizing_points)
+            if isinstance(minimizing_points, Mapping)
+            else {}
+        ),
+        "attainment_checks": [
+            {
+                "strategy": minimum_strategy,
+                "feasible": all(item["passed"] for item in checks),
+                "checks": list(checks),
+            }
+        ],
+        "repair_action": "reuse_verified_subplan",
+    }
 
 
 def _execution_scopes(root: Any) -> tuple[Any, ...]:
@@ -162,6 +311,8 @@ def _build_teaching_trace(
     planner_output: PlannerOutput,
     execution: PlanExecutionResult,
     step_capabilities: dict[str, str],
+    *,
+    macro_evidence: tuple[dict[str, Any], ...] = (),
 ) -> tuple[TeachingTraceEntry, ...]:
     """按 invocation 建立 trace，避免同 method 多次调用被合并。"""
     entries: list[TeachingTraceEntry] = []
@@ -190,6 +341,50 @@ def _build_teaching_trace(
                         for fragment in getattr(method_result, "trace_fragments", [])
                     ),
                     hidden_reason=_hidden_reason(plan, index),
+                )
+            )
+    traced_step_ids = {item.source_step_id for item in entries}
+    for evidence in macro_evidence:
+        source_step_id = str(evidence.get("step_id") or "")
+        if not source_step_id or source_step_id in traced_step_ids:
+            continue
+        scope_id = str(evidence.get("scope_id") or "problem")
+        macro_id = str(evidence.get("macro_id") or "macro")
+        checks = tuple(
+            str(item.get("check") or "")
+            for group in evidence.get("attainment_checks", ())
+            if isinstance(group, Mapping)
+            for item in group.get("checks", ())
+            if isinstance(item, Mapping) and item.get("passed")
+        )
+        for index, function_step in enumerate(
+            evidence.get("function_steps", ())
+        ):
+            if not isinstance(function_step, Mapping):
+                continue
+            function_id = str(
+                function_step.get("capability_id") or "verified_function"
+            )
+            entries.append(
+                TeachingTraceEntry(
+                    trace_id=(
+                        f"trace:{source_step_id}:fragment:{index}:{function_id}"
+                    ),
+                    source_step_id=source_step_id,
+                    scope_id=scope_id,
+                    capability_id=macro_id,
+                    method_id=function_id,
+                    input_slots=tuple(
+                        str(item)
+                        for item in function_step.get("input_names", ())
+                    ),
+                    output_slots=tuple(
+                        str(item)
+                        for item in function_step.get("output_names", ())
+                    ),
+                    checks=checks,
+                    trace_fragments=(),
+                    hidden_reason=None,
                 )
             )
     return tuple(entries)
@@ -257,7 +452,10 @@ def _build_symbolic_closure_teaching(
                 target_value=canonical_symbolic_expression(
                     provenance.target_value
                 ),
-                equation_sources=tuple(provenance.equation_sources),
+                equation_sources=tuple(
+                    _student_semantic_ref(item)
+                    for item in provenance.equation_sources
+                ),
                 known_substitutions=tuple(
                     (
                         _student_semantic_ref(symbol_id.value),
@@ -302,6 +500,8 @@ def _student_semantic_ref(value: str) -> str:
 def _build_fact_index(
     context: RuntimeContext,
     effective_steps: tuple[Any, ...],
+    *,
+    macro_evidence: tuple[dict[str, Any], ...] = (),
 ) -> dict[str, dict[str, Any]]:
     """建立讲解可用 fact index，不输出 ContextPath。"""
     index: dict[str, dict[str, Any]] = {}
@@ -356,6 +556,40 @@ def _build_fact_index(
                     "locked": typed.locked,
                     "source": typed.source,
                 }
+    for evidence in macro_evidence:
+        source_step_id = str(evidence.get("step_id") or "")
+        for construction in evidence.get("constructions", ()):
+            if not isinstance(construction, Mapping):
+                continue
+            coordinate = construction.get("coordinate")
+            if (
+                construction.get("domain_type") != "Point"
+                or not isinstance(coordinate, Mapping)
+            ):
+                continue
+            local_ref = str(construction.get("ref") or "")
+            if not local_ref:
+                continue
+            index[local_ref] = {
+                "handle": local_ref,
+                "scope_id": str(
+                    construction.get("owner_scope")
+                    or evidence.get("scope_id")
+                    or "problem"
+                ),
+                "name": str(construction.get("semantic_role") or ""),
+                "semantic_role": str(
+                    construction.get("semantic_role") or ""
+                ),
+                "type": "Point",
+                "value": [coordinate.get("x"), coordinate.get("y")],
+                "source_step_id": source_step_id,
+                "producer_step_id": str(
+                    construction.get("producer_step_id") or ""
+                ),
+                "source": str(construction.get("capability_id") or ""),
+                "authority": "verified_subplan",
+            }
     return index
 
 

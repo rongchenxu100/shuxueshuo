@@ -56,13 +56,13 @@ def _input(
 def test_all_method_inputs_declare_one_explicit_view() -> None:
     registry = MethodSpecRegistry.load_from_code()
 
-    assert len(registry.specs) == 37
+    assert len(registry.specs) == 46
     inputs = tuple(
         item
         for spec in registry.specs.values()
         for item in spec.inputs.values()
     )
-    assert len(inputs) == 200
+    assert len(inputs) == 243
     assert {item.view.mode for item in inputs} == {
         "identity",
         "latest_state",
@@ -105,6 +105,7 @@ def test_interchangeable_method_inputs_have_symmetric_executable_contracts() -> 
             ("p1", "p2"),
             ("reference_p1", "reference_p2"),
         ),
+        "reflect_point_across_line": (("line_p1", "line_p2"),),
         "square_opposite_point": (("adjacent1", "adjacent2"),),
     }
 

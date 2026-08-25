@@ -15,6 +15,7 @@ import sympy as sp
 
 CheckStatus = Literal["passed", "failed"]
 Point = tuple[sp.Expr, sp.Expr]
+FunctionalCapabilityKind = Literal["function", "macro"]
 FunctionalResultForm = Literal[
     "open_expression",
     "closed_value",
@@ -41,6 +42,150 @@ MethodInputViewMode = Literal[
 FunctionalArgBindingAuthority = Literal["wire", "resolver", "compiler"]
 MethodInputRelationCardinality = Literal["one", "for_each"]
 MacroExecutionMode = Literal["direct", "runtime_search"]
+FunctionalReturnNamingMode = Literal[
+    "anonymous",
+    "optional_default",
+    "existing_only",
+]
+
+
+@dataclass(frozen=True)
+class FunctionalReturnNamingSpec:
+    """Planner-visible policy for one return's scope-local semantic name.
+
+    The default template is intentionally code-owned.  A capability declares
+    only the stable suffix; Plan assembly combines it with the authored step
+    id so repeated Function calls cannot collide or require runtime suffixes.
+    """
+
+    mode: FunctionalReturnNamingMode = "anonymous"
+    default_name: str | None = None
+
+    def __post_init__(self) -> None:
+        if self.mode == "optional_default":
+            if self.default_name is None:
+                raise ValueError(
+                    "planner.method_return_naming_contract_invalid: "
+                    "optional_default requires default_name"
+                )
+            _required_name(self.default_name, "default_name")
+            if "." in self.default_name:
+                raise ValueError(
+                    "planner.method_return_naming_contract_invalid: "
+                    "default_name must be one local ref segment"
+                )
+            return
+        if self.default_name is not None:
+            raise ValueError(
+                "planner.method_return_naming_contract_invalid: "
+                f"{self.mode} must not declare default_name"
+            )
+
+    def default_ref(self, step_id: str) -> str | None:
+        if self.mode != "optional_default":
+            return None
+        _required_name(step_id, "step_id")
+        return f"{step_id}.{self.default_name}"
+
+    def to_payload(self) -> dict[str, Any]:
+        payload: dict[str, Any] = {"mode": self.mode}
+        if self.default_name is not None:
+            payload["default_name"] = self.default_name
+        return payload
+
+    @classmethod
+    def from_payload(
+        cls,
+        payload: Mapping[str, Any],
+    ) -> "FunctionalReturnNamingSpec":
+        allowed = {"mode", "default_name"}
+        unexpected = set(payload) - allowed
+        if unexpected:
+            raise ValueError(
+                "planner.method_return_naming_contract_invalid: unexpected "
+                f"fields {sorted(unexpected)}"
+            )
+        mode = payload.get("mode")
+        if mode not in {"anonymous", "optional_default", "existing_only"}:
+            raise ValueError(
+                "planner.method_return_naming_contract_invalid: unknown mode"
+            )
+        default_name = payload.get("default_name")
+        if default_name is not None and not isinstance(default_name, str):
+            raise ValueError(
+                "planner.method_return_naming_contract_invalid: "
+                "default_name must be a string"
+            )
+        return cls(mode=mode, default_name=default_name)
+
+
+@dataclass(frozen=True)
+class PredicatePublicationSpec:
+    """Declare when a Boolean Method result publishes a verified Condition."""
+
+    output_name: str
+    condition_kind: str
+    related_input_roles: tuple[str, ...]
+
+    def __post_init__(self) -> None:
+        if (
+            not isinstance(self.output_name, str)
+            or not self.output_name.strip()
+            or not isinstance(self.condition_kind, str)
+            or not self.condition_kind.strip()
+        ):
+            raise ValueError(
+                "planner.predicate_publication_contract_invalid: output_name "
+                "and condition_kind must be non-empty"
+            )
+        if not self.related_input_roles:
+            raise ValueError(
+                "planner.predicate_publication_contract_invalid: "
+                "related_input_roles must be non-empty"
+            )
+        if any(
+            not isinstance(item, str) or not item.strip()
+            for item in self.related_input_roles
+        ) or len(set(self.related_input_roles)) != len(
+            self.related_input_roles
+        ):
+            raise ValueError(
+                "planner.predicate_publication_contract_invalid: "
+                "related_input_roles must contain unique non-empty names"
+            )
+
+    def to_payload(self) -> dict[str, Any]:
+        return {
+            "output_name": self.output_name,
+            "condition_kind": self.condition_kind,
+            "related_input_roles": list(self.related_input_roles),
+        }
+
+
+@dataclass(frozen=True)
+class VerificationOutcome:
+    """Runtime-only result envelope for deterministic mathematical checks."""
+
+    passed: bool
+    check_code: str
+    expected: Any = None
+    observed: Any = None
+    evidence: tuple[str, ...] = ()
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.check_code, str) or not self.check_code.strip():
+            raise ValueError("VerificationOutcome check_code must be non-empty")
+        if any(not isinstance(item, str) or not item for item in self.evidence):
+            raise ValueError("VerificationOutcome evidence must be non-empty strings")
+
+    def to_payload(self) -> dict[str, Any]:
+        return {
+            "passed": self.passed,
+            "check_code": self.check_code,
+            "expected": self.expected,
+            "observed": self.observed,
+            "evidence": list(self.evidence),
+        }
 
 
 class MethodInputBindingContractError(ValueError):
@@ -1156,6 +1301,7 @@ class MethodSpec:
     inputs: dict[str, MethodInputSpec]
     outputs: dict[str, str]
     companion_outputs: tuple[MethodCompanionOutputSpec, ...] = ()
+    predicate_publications: tuple[PredicatePublicationSpec, ...] = ()
     input_relations: tuple[MethodInputRelationSpec, ...] = ()
     internal_outputs: tuple[str, ...] = ()
     output_activation: dict[str, MethodOutputActivationSpec] = field(

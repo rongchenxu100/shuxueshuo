@@ -62,7 +62,7 @@ from shuxueshuo_server.solver.state_semantics import (
 )
 
 
-FUNCTIONAL_PLAN_CONTENT_CONTRACT = "functional-plan-content/v2"
+FUNCTIONAL_PLAN_CONTENT_CONTRACT = "functional-plan-content/v3"
 
 
 @dataclass(frozen=True)
@@ -428,6 +428,18 @@ class FunctionalPlanContentCompilation:
     draft_only: bool = False
 
 
+def _wire_return_binding(
+    value: object,
+) -> tuple[str, str] | None:
+    if not isinstance(value, Mapping) or set(value) != {"kind", "ref"}:
+        return None
+    kind = value.get("kind")
+    ref = value.get("ref")
+    if kind not in {"derived", "existing"} or not isinstance(ref, str) or not ref:
+        return None
+    return str(kind), ref
+
+
 @dataclass(frozen=True)
 class FunctionalFinalPlanContractValidation:
     """Bind a canonical final Plan audit to one exact Plan identity."""
@@ -567,6 +579,7 @@ def capability_bound_step_schema(
             item
             for item in capability.returns
             if item.binding_mode != "internal_only"
+            and item.naming.mode != "anonymous"
         )
         target_properties: dict[str, Any] = {}
         for returned in target_returns:
@@ -579,15 +592,49 @@ def capability_bound_step_schema(
                 if authority_frame is not None
                 else ()
             )
-            if authority_frame is not None and not candidates:
-                continue
-            target_schema: dict[str, Any] = deepcopy(source_ref_schema)
-            if candidates:
-                target_schema = {
-                    "allOf": [target_schema],
-                    "enum": list(candidates),
-                }
-            target_properties[returned.name] = target_schema
+            variants_for_return: list[dict[str, Any]] = []
+            if candidates or authority_frame is None:
+                existing_ref: dict[str, Any] = deepcopy(source_ref_schema)
+                if candidates:
+                    existing_ref = {
+                        "allOf": [existing_ref],
+                        "enum": list(candidates),
+                    }
+                variants_for_return.append(
+                    {
+                        "type": "object",
+                        "required": ["kind", "ref"],
+                        "properties": {
+                            "kind": {"const": "existing"},
+                            "ref": existing_ref,
+                        },
+                        "additionalProperties": False,
+                    }
+                )
+            if returned.naming.mode == "optional_default":
+                variants_for_return.append(
+                    {
+                        "type": "object",
+                        "required": ["kind", "ref"],
+                        "properties": {
+                            "kind": {"const": "derived"},
+                            "ref": {
+                                "type": "string",
+                                "pattern": (
+                                    r"^[A-Za-z][A-Za-z0-9_]*"
+                                    r"(?:\.[A-Za-z][A-Za-z0-9_]*)*$"
+                                ),
+                            },
+                        },
+                        "additionalProperties": False,
+                    }
+                )
+            if variants_for_return:
+                target_properties[returned.name] = (
+                    variants_for_return[0]
+                    if len(variants_for_return) == 1
+                    else {"oneOf": variants_for_return}
+                )
         expectation_returns = tuple(
             item
             for item in capability.returns
@@ -603,16 +650,15 @@ def capability_bound_step_schema(
                         "properties": {
                             "capability_id": {"const": capability_id},
                             "args": args_schema,
-                            "output_targets": (
+                            "return_bindings": (
                                 {
                                     "type": "object",
                                     "minProperties": 1,
                                     "description": (
                                         "Optional bindings from produced return "
-                                        "roles to visible existing named objects. "
-                                        "This does not declare a return; anonymous "
-                                        "returns are consumed directly as exact "
-                                        "step results."
+                                        "roles to a scope-local derived name or a "
+                                        "visible existing object. Return type and "
+                                        "semantic role come from the capability."
                                     ),
                                     "properties": target_properties,
                                     "additionalProperties": False,
@@ -682,6 +728,7 @@ def functional_plan_content_schema(
             "source_ref",
             "step_result_ref",
             "functional_ref",
+            "return_binding",
             "step",
             "answer_from",
         )
@@ -747,7 +794,7 @@ def functional_plan_content_schema(
     return {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "$id": "functional-plan-content.schema.json",
-        "title": "Code-owned FunctionalPlan content v2",
+        "title": "Code-owned FunctionalPlan content v3",
         "type": "object",
         "required": ["format", "goal_plans"],
         "properties": {
@@ -1294,7 +1341,7 @@ def normalize_empty_optional_step_maps(
             value.get("capability_id"), str
         )
         if is_step:
-            for field_name in ("output_targets", "return_expectations"):
+            for field_name in ("return_bindings", "return_expectations"):
                 if value.get(field_name) != {}:
                     continue
                 value.pop(field_name)
@@ -1331,13 +1378,13 @@ def normalize_unconsumed_duplicate_identity_args(
         args = step.get("args")
         if capability is None or not isinstance(args, dict):
             continue
-        output_targets = step.get("output_targets")
+        return_bindings = step.get("return_bindings")
         omissions = unconsumed_duplicate_identity_arg_omissions(
             step_id=step_id,
             capability=capability,
             args=args,
-            output_targets=(
-                output_targets if isinstance(output_targets, Mapping) else {}
+            return_bindings=(
+                return_bindings if isinstance(return_bindings, Mapping) else {}
             ),
             consumed_returns=consumers,
         )
@@ -1426,7 +1473,7 @@ def normalize_capability_return_roles(
     }
     for step_id, step in steps.items():
         declared = {item.name for item in active_returns.get(step_id, ())}
-        for field_name in ("output_targets", "return_expectations"):
+        for field_name in ("return_bindings", "return_expectations"):
             value = step.get(field_name)
             if isinstance(value, Mapping):
                 referenced_roles[step_id].update(set(value).intersection(declared))
@@ -1495,29 +1542,34 @@ def normalize_capability_return_roles(
         if capability is None or owner_scope_id is None or base_path is None:
             continue
         returned_by_name = {item.name: item for item in returned_items}
-        output_targets = step.get("output_targets")
-        if isinstance(output_targets, Mapping):
-            for role, target in output_targets.items():
+        return_bindings = step.get("return_bindings")
+        if isinstance(return_bindings, Mapping):
+            for role, target in return_bindings.items():
                 if not isinstance(role, str):
                     continue
+                target_binding = _wire_return_binding(target)
+                target_kind = target_binding[0] if target_binding else None
+                target_ref = target_binding[1] if target_binding else None
                 target_types = (
                     _source_ref_runtime_types(
-                        target,
+                        target_ref,
                         owner_scope_id=owner_scope_id,
                         scope_parents=frame.scope_parents,
                         source_ref_domain_types=frame.source_ref_domain_types,
                     )
-                    if isinstance(target, str)
+                    if target_kind == "existing" and target_ref is not None
                     else set()
                 )
                 declared = returned_by_name.get(role)
-                if (
+                target_is_compatible = bool(
                     declared is not None
-                    and declared.binding_mode != "internal_only"
                     and (
-                        not isinstance(target, str)
-                        or _source_ref_accepts_return_type(
-                            target,
+                        target_kind == "derived"
+                        and declared.naming.mode == "optional_default"
+                        or target_kind == "existing"
+                        and target_ref is not None
+                        and _source_ref_accepts_return_type(
+                            target_ref,
                             declared.runtime_type,
                             owner_scope_id=owner_scope_id,
                             scope_parents=frame.scope_parents,
@@ -1526,20 +1578,29 @@ def normalize_capability_return_roles(
                             ),
                         )
                     )
+                )
+                if (
+                    declared is not None
+                    and declared.binding_mode != "internal_only"
+                    and target_is_compatible
                 ):
                     continue
                 candidates = tuple(
                     item
                     for item in returned_items
                     if item.binding_mode != "internal_only"
+                    and (
+                        target_kind != "derived"
+                        or item.naming.mode == "optional_default"
+                    )
                 )
                 if target_types:
                     candidates = tuple(
                         item
                         for item in candidates
-                        if not isinstance(target, str)
+                        if target_ref is None
                         or _source_ref_accepts_return_type(
-                            target,
+                            target_ref,
                             item.runtime_type,
                             owner_scope_id=owner_scope_id,
                             scope_parents=frame.scope_parents,
@@ -1551,8 +1612,10 @@ def normalize_capability_return_roles(
                 candidates = tuple(
                     item
                     for item in candidates
-                    if not isinstance(output_targets.get(item.name), str)
-                    or output_targets[item.name] == target
+                    if _wire_return_binding(
+                        return_bindings.get(item.name)
+                    ) is None
+                    or return_bindings[item.name] == target
                 )
                 if declared is not None and not candidates:
                     continue
@@ -1560,8 +1623,8 @@ def normalize_capability_return_roles(
                     step_id,
                     role,
                     candidate_names(step_id, candidates),
-                    path=(*base_path, "output_targets", role),
-                    context="output_targets",
+                    path=(*base_path, "return_bindings", role),
+                    context="return_bindings",
                 )
         expectations = step.get("return_expectations")
         if isinstance(expectations, Mapping):
@@ -1781,8 +1844,8 @@ def normalize_capability_return_roles(
             continue
         rename_map(
             step_id,
-            "output_targets",
-            step.get("output_targets"),
+            "return_bindings",
+            step.get("return_bindings"),
             base_path=base_path,
         )
         rename_map(
@@ -1834,7 +1897,7 @@ def normalize_capability_return_roles(
 
         def legal_for_context(item: FunctionalCapabilityReturn) -> bool:
             if role_contexts.intersection(
-                {"output_targets", "answer_from", "step_result_ref"}
+                {"return_bindings", "answer_from", "step_result_ref"}
             ) and item.binding_mode == "internal_only":
                 return False
             if "return_expectations" in role_contexts and (
@@ -1916,7 +1979,7 @@ def _normalize_named_entity_result_refs(
 ) -> tuple[object, tuple[FunctionalPlanContentNormalization, ...]]:
     """Replace a result ref with its unique named-Entity SourceRef.
 
-    A return bound through ``output_targets`` or ``identity_arg`` already has a
+    A return bound through ``return_bindings`` or ``identity_arg`` already has a
     stable Problem identity.  Referring to that return as an anonymous step
     result asks the model to choose an implementation view that the compiler
     owns.  Normalize the wire before its capability-bound schema runs; later
@@ -2149,12 +2212,15 @@ def _wire_return_object_resolution(
     )
     if returned is None:
         return ReturnObjectAuthorityResolver.resolve()
-    output_targets = step.get("output_targets", {})
+    return_bindings = step.get("return_bindings", {})
+    explicit_binding = (
+        _wire_return_binding(return_bindings.get(return_name))
+        if isinstance(return_bindings, Mapping)
+        else None
+    )
     explicit = (
-        (str(output_targets[return_name]),)
-        if isinstance(output_targets, Mapping)
-        and isinstance(output_targets.get(return_name), str)
-        and output_targets[return_name]
+        (explicit_binding[1],)
+        if explicit_binding is not None
         else ()
     )
     args = step.get("args", {})
@@ -2220,7 +2286,7 @@ def _wire_return_object_resolution(
         ),
     )
     return ReturnObjectAuthorityResolver.resolve(
-        explicit_output_targets=explicit,
+        explicit_return_bindings=explicit,
         goal_answer_targets=(goal_answer_targets or {}).get(
             (step_id, return_name), ()
         ),
@@ -3014,7 +3080,7 @@ def _assemble_plan_payload(
         return result
 
     return {
-        "format": "functional_plan/v2",
+        "format": "functional_plan/v3",
         "root_scope": build(thaw_json(frame.root_scope)),
     }
 
@@ -3610,11 +3676,11 @@ def _return_target_ref(
     step = steps.get(step_id)
     if step is None:
         return None
-    output_targets = step.get("output_targets", {})
-    if isinstance(output_targets, Mapping):
-        explicit = output_targets.get(return_name)
-        if isinstance(explicit, str) and explicit:
-            return explicit
+    return_bindings = step.get("return_bindings", {})
+    if isinstance(return_bindings, Mapping):
+        explicit = _wire_return_binding(return_bindings.get(return_name))
+        if explicit is not None:
+            return explicit[1]
     capability = capability_catalog.get(str(step.get("capability_id", "")))
     if capability is None:
         return None

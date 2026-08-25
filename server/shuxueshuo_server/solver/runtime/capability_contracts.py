@@ -70,7 +70,7 @@ def project_method_contract(method_spec: MethodSpec) -> CapabilityContractSpec:
     if not method_spec.outputs:
         return CapabilityContractSpec(
             capability_id=method_spec.method_id,
-            kind="method",
+            capability_kind="function",
             execution_status="executable",
             source="projected",
             slot_reads=slot_reads,
@@ -80,7 +80,7 @@ def project_method_contract(method_spec: MethodSpec) -> CapabilityContractSpec:
         )
     return CapabilityContractSpec(
         capability_id=method_spec.method_id,
-        kind="method",
+        capability_kind="function",
         execution_status="executable",
         source="projected",
         slot_reads=slot_reads,
@@ -103,7 +103,7 @@ def project_recipe_contract(recipe: StepRecipeSpec) -> CapabilityContractSpec:
                 output_types.append(output_type)
     return CapabilityContractSpec(
         capability_id=recipe.recipe_id,
-        kind="recipe",
+        capability_kind="macro",
         execution_status="executable",
         source="projected",
         slot_writes=tuple(_output_slot_pattern(output_type) for output_type in output_types),

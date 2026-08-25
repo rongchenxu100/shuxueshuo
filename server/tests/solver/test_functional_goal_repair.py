@@ -40,7 +40,7 @@ from _functional_goal_retry_support import (
     repair_payload,
 )
 from _problem_planning_support import planning_binding_fixture
-from _scoped_functional_plan_support import load_v2_fixture_payload
+from _scoped_functional_plan_support import load_v3_fixture_payload
 
 
 def test_failed_goal_is_replaced_with_code_derived_answer_source(tmp_path) -> None:
@@ -115,7 +115,7 @@ def test_repair_omits_optional_empty_maps_before_schema_validation(
     fixture = goal_retry_fixture(tmp_path)
     payload = repair_payload(fixture)
     step = payload["goal_replacements"][FAILED_GOAL_REF]["steps"][0]
-    step["output_targets"] = {}
+    step["return_bindings"] = {}
     step["return_expectations"] = {}
     payload["answer_binding_replacements"] = {}
 
@@ -125,7 +125,7 @@ def test_repair_omits_optional_empty_maps_before_schema_validation(
     )
 
     normalized_step = repair.goal_replacements[0].steps[0]
-    assert "output_targets" not in normalized_step
+    assert "return_bindings" not in normalized_step
     assert "return_expectations" not in normalized_step
     assert repair.answer_binding_replacements == ()
     assert [item.code for item in repair.normalizations] == [
@@ -134,7 +134,7 @@ def test_repair_omits_optional_empty_maps_before_schema_validation(
         "functional.empty_optional_repair_map_omitted",
     ]
     assert [item.path for item in repair.normalizations] == [
-        "$.goal_replacements.ii.a.steps[0].output_targets",
+        "$.goal_replacements.ii.a.steps[0].return_bindings",
         "$.goal_replacements.ii.a.steps[0].return_expectations",
         "$.answer_binding_replacements",
     ]
@@ -580,7 +580,7 @@ def test_failed_scope_and_all_consumer_goals_are_replaced_atomically(
 ) -> None:
     case = "tj-2026-heping-yimo-25"
     fixture = planning_binding_fixture(tmp_path / case, case=case)
-    correct = load_v2_fixture_payload(case)
+    correct = load_v3_fixture_payload(case)
     failed = deepcopy(correct)
     failed_scope = _scope(failed["root_scope"], "i")
     failed_scope["steps"][0]["args"]["curve_points"] = ["not_a_real_ref"]
@@ -644,7 +644,7 @@ def test_cross_sibling_producer_is_not_semantically_promoted_by_code(
 ) -> None:
     case = "tj-2026-heping-yimo-25"
     fixture = planning_binding_fixture(tmp_path / case, case=case)
-    correct = load_v2_fixture_payload(case)
+    correct = load_v3_fixture_payload(case)
     failed = deepcopy(correct)
     scope_i = _scope(failed["root_scope"], "i")
     scope_i_1 = _scope(failed["root_scope"], "i_1")

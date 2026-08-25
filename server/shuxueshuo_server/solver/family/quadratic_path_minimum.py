@@ -14,16 +14,12 @@ from shuxueshuo_server.solver.family.models import (
     RecipeExecutionSpec,
     recipe_output_alias,
     SolverFamilySpec,
-    StateObjectRoleProjectionSpec,
     StepRecipeSpec,
     expand_family_spec,
 )
 from shuxueshuo_server.solver.family.capability_packs import (
-    BROKEN_PATH_SELECT_DO_NOT_USE_WHEN,
     DEFAULT_CAPABILITY_PACK_REGISTRY,
     RIGHT_ANGLE_EQUAL_LENGTH_DO_NOT_USE_WHEN,
-    STRAIGHTENED_ENDPOINT_RESULT_FORM,
-    STRAIGHTENED_DISTANCE_DO_NOT_USE_WHEN,
     TWO_MOVING_POINTS_PATH_REDUCTION_DESCRIPTION,
     TWO_MOVING_POINTS_REDUCTION_DO_NOT_USE_WHEN,
     TWO_MOVING_PATH_TRANSFORMATION_OBJECT_ROLES,
@@ -202,111 +198,6 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             ),
             priority="preferred",
             do_not_use_when=TWO_MOVING_POINTS_REDUCTION_DO_NOT_USE_WHEN,
-        ),
-        StepRecipeSpec(
-            recipe_id="broken_path_straightening_and_select",
-            goal_type="straighten_broken_path",
-            title="折线拉直并选择方案",
-            description=(
-                "为单动点折线路径构造拉直候选方案，再选择最方便计算且符合题设"
-                "结构的方案；本 recipe 只产出拉直方案，不直接产出最小值表达式。"
-            ),
-            method_ids=(
-                "broken_path_straightening_candidates",
-                "select_straightening_candidate",
-            ),
-            execution=RecipeExecutionSpec(
-                recipe_id="broken_path_straightening_and_select",
-                method_sequence=(
-                    "broken_path_straightening_candidates",
-                    "select_straightening_candidate",
-                ),
-                execution_mode="direct",
-                execution_strategy="straightening_candidates_select",
-                creates=("point",),
-                strategy_input_targets=(
-                    "broken_path_straightening_candidates.path_transformation",
-                    "broken_path_straightening_candidates.moving_point_membership",
-                    "broken_path_straightening_candidates.moving_locus",
-                    "broken_path_straightening_candidates.fixed_point_1",
-                    "broken_path_straightening_candidates.fixed_point_2",
-                    "broken_path_straightening_candidates.line_point_1",
-                    "broken_path_straightening_candidates.line_point_2",
-                    "select_straightening_candidate.target",
-                ),
-                intermediate_wiring=(
-                    ("broken_path_straightening_candidates.candidates", "select_straightening_candidate.candidates"),
-                ),
-                output_aliases=(
-                    recipe_output_alias(
-                        "select_straightening_candidate.selected_candidate",
-                        "StraighteningCandidate",
-                        "straightened_scheme",
-                        goal_evidence_tags=(
-                            "path_minimum_witness",
-                            "path_minimum_extremal_point",
-                        ),
-                    ),
-                    recipe_output_alias(
-                        "select_straightening_candidate.auxiliary_point",
-                        "Point",
-                        "straightening_auxiliary_point",
-                        required=False,
-                        cardinality="optional",
-                        identity_policy="derived_role",
-                        goal_evidence_tags=("path_minimum_witness",),
-                        equivalent_to="straightened_endpoint_1",
-                        description=(
-                            "选中候选的反射辅助点，与 straightened_endpoint_1 是同一"
-                            "几何状态；不能把二者作为一条直线的两个不同端点。"
-                        ),
-                    ),
-                    recipe_output_alias(
-                        "select_straightening_candidate.minimum_point_1",
-                        "Point",
-                        "straightened_endpoint_1",
-                        required=False,
-                        cardinality="optional",
-                        identity_policy="derived_role",
-                        goal_evidence_tags=("path_minimum_witness",),
-                        result_form=STRAIGHTENED_ENDPOINT_RESULT_FORM,
-                        description=(
-                            "拉直后最短等价线段的第一个端点，通常是由反射构造"
-                            "得到的辅助点；它不是原路径动点、极值点或答案点。"
-                        ),
-                        object_role_projections=(
-                            StateObjectRoleProjectionSpec(
-                                role="moving_object",
-                                source_arg="path_transformation",
-                                source_object_role="moving_object",
-                            ),
-                        ),
-                    ),
-                    recipe_output_alias(
-                        "select_straightening_candidate.minimum_point_2",
-                        "Point",
-                        "straightened_endpoint_2",
-                        required=False,
-                        cardinality="optional",
-                        identity_policy="derived_role",
-                        goal_evidence_tags=("path_minimum_witness",),
-                        result_form=STRAIGHTENED_ENDPOINT_RESULT_FORM,
-                        description=(
-                            "拉直后最短等价线段的第二个端点，通常是未被反射的"
-                            "另一固定端点；它不是原路径动点、极值点或答案点。"
-                        ),
-                        object_role_projections=(
-                            StateObjectRoleProjectionSpec(
-                                role="moving_object",
-                                source_arg="path_transformation",
-                                source_object_role="moving_object",
-                            ),
-                        ),
-                    ),
-                ),
-            ),
-            priority="preferred",
-            do_not_use_when=BROKEN_PATH_SELECT_DO_NOT_USE_WHEN,
         ),
     ),
     method_binding_rules=(

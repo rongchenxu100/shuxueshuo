@@ -25,7 +25,7 @@ from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
 )
 
 from _problem_planning_support import planning_binding_fixture
-from _scoped_functional_plan_support import load_v2_fixture_payload
+from _scoped_functional_plan_support import load_v3_fixture_payload
 
 
 CASE = "tj-2026-heping-yimo-25"
@@ -80,7 +80,7 @@ class GoalRetryFixture:
 
 def goal_retry_fixture(tmp_path: Path) -> GoalRetryFixture:
     authority_fixture = planning_binding_fixture(tmp_path / CASE, case=CASE)
-    correct = load_v2_fixture_payload(CASE)
+    correct = load_v3_fixture_payload(CASE)
     failed = deepcopy(correct)
     step(failed, FAILED_STEP_ID)["args"]["point_on_ray"] = "not_a_real_ref"
     failed_plan, validation = (
@@ -117,7 +117,7 @@ def downstream_path_witness_retry_fixture(tmp_path: Path) -> GoalRetryFixture:
     """Keep the path Macro verified while its parameter consumer is invalid."""
 
     authority_fixture = planning_binding_fixture(tmp_path / CASE, case=CASE)
-    correct = load_v2_fixture_payload(CASE)
+    correct = load_v3_fixture_payload(CASE)
     failed = deepcopy(correct)
     step(failed, "solve_parameter_from_minimum_ii")["args"][
         "minimum_value"
@@ -156,7 +156,7 @@ def published_goal_retry_fixture(tmp_path: Path) -> GoalRetryFixture:
     """Fail i_2 after i_1 has published the shared parent-scope parabola."""
 
     authority_fixture = planning_binding_fixture(tmp_path / CASE, case=CASE)
-    correct = load_v2_fixture_payload(CASE)
+    correct = load_v3_fixture_payload(CASE)
     failed = deepcopy(correct)
     step(failed, "derive_curve_intersection_E_i")["args"]["parabola"] = (
         "not_a_real_ref"

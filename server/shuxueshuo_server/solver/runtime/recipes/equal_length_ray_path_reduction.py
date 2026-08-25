@@ -1,4 +1,4 @@
-"""equal_length_ray_path_reduction recipe spec."""
+"""Presentation metadata for the transparent equal-length-ray Macro."""
 
 from __future__ import annotations
 
@@ -19,8 +19,8 @@ SPEC = RecipeSpecSource(
         "reduce a two-moving-point path sum to a single moving-point or fixed "
         "distance minimum."
     ),
-    method_sequence=("equal_length_ray_point", "distance_between_points"),
-    execution_strategy="equal_length_ray_path_reduction",
+    method_sequence=(),
+    execution_strategy="verified_function_fragment_presentation",
     outputs={"minimum_expression": "MinimumExpression"},
     explanation=RecipeExplanationSpec(
         role_schema={
@@ -61,7 +61,10 @@ SPEC = RecipeSpecSource(
                 nav_title="两动点转化单动点",
                 title_required_terms=("两动点", "单动点"),
                 nav_title_required_terms=("两动点", "单动点"),
-                preferred_method_ids=("equal_length_ray_point",),
+                preferred_method_ids=(
+                    "construct_point_on_ray_at_reference_distance",
+                    "prove_distance_equality_from_conditions",
+                ),
             ),
             TeachingSubstepSpec(
                 substep_id="minimum_by_segment",

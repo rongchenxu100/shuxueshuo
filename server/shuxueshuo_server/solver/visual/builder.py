@@ -1474,7 +1474,10 @@ class GeometryPointNamer:
 
     def _raw_label_for_fact(self, item: dict[str, Any]) -> str:
         name = str(item.get("name") or "")
-        if name == "equal_length_auxiliary_point":
+        if (
+            name == "equal_length_auxiliary_point"
+            or item.get("semantic_role") == "auxiliary_point"
+        ):
             auxiliary = (
                 self._auxiliary_label_from_equal_length_roles(item)
                 or self._auxiliary_label_from_equal_length_lesson(item)

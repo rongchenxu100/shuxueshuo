@@ -32,6 +32,9 @@ from shuxueshuo_server.solver.runtime.functional_plan import (
     FUNCTIONAL_PLAN_JSON_SCHEMA,
     FunctionalCapabilityCatalog,
 )
+from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
+    family_capability_bundle_for_inputs,
+)
 from shuxueshuo_server.solver.runtime.functional_plan_elaboration import (
     FunctionalSemanticIndex,
 )
@@ -115,10 +118,7 @@ def _prompt_capability_catalog(
         for item in raw_items
         if isinstance(item, Mapping) and item.get("capability_id")
     )
-    full = FunctionalCapabilityCatalog.from_family_spec(
-        inputs.family_spec,
-        inputs.method_specs,
-    )
+    full = family_capability_bundle_for_inputs(inputs).catalog
     missing = tuple(
         sorted(item for item in capability_ids if full.get(item) is None)
     )
@@ -222,10 +222,10 @@ class StrategyPayloadBuilder:
             problem_binding_catalog.semantic_read_items(),
             handle_registry=handle_registry,
         )
-        functional_catalog = FunctionalCapabilityCatalog.from_family_spec(
-            inputs.family_spec,
-            inputs.method_specs,
-        ).contextualized(semantic_index)
+        capability_bundle = family_capability_bundle_for_inputs(inputs)
+        functional_catalog = capability_bundle.catalog.contextualized(
+            semantic_index
+        )
         if _include_v1_few_shot:
             few_shot_examples, few_shot_selection = (
                 self._functional_few_shot_examples(
@@ -251,13 +251,15 @@ class StrategyPayloadBuilder:
             else problem_planning_context.to_prompt_payload()
         )
         return {
-            "planner_protocol": "functional_plan/v1",
+            "planner_protocol": "functional_plan/v3",
             "problem_id": inputs.problem_id,
             "family_id": inputs.family_spec.family_id,
             "problem_planning_context": prompt_problem_context,
             "strategy_principles": list(inputs.family_spec.strategy_principles),
             "functional_capability_catalog": (
-                functional_catalog.to_prompt_payload()
+                capability_bundle.to_prompt_payload(
+                    semantic_catalog=semantic_index
+                )
             ),
             "few_shot_examples": few_shot_examples,
             "functional_few_shot_selection": few_shot_selection,

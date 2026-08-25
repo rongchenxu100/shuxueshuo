@@ -1,8 +1,8 @@
 """Runtime recipe specs.
 
-Recipe specs are the code source for composite capability metadata, including
-teaching/explanation templates. Execution still uses the existing recipe compiler
-during the migration.
+Recipe specs retain teaching and visual presentation metadata for legacy and
+transparent composite capabilities. Transparent Macro execution is owned solely
+by ``MacroDefinition`` and must not be reconstructed from these specs.
 """
 
 from __future__ import annotations

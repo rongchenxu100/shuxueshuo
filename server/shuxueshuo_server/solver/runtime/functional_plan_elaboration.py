@@ -18,9 +18,10 @@ from shuxueshuo_server.solver.runtime.condition_kinds import (
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
 )
-from shuxueshuo_server.solver.runtime.macro_preparation import (
-    build_equal_length_ray_macro_role_candidates,
-    build_equal_length_ray_point_name_candidates,
+from shuxueshuo_server.solver.runtime.macro_definitions import (
+    MacroDefinitionError,
+    build_point_name_candidates,
+    default_macro_definition_registry,
 )
 from shuxueshuo_server.solver.runtime.macro_runtime_search import (
     MacroRuntimeSearchError,
@@ -1183,26 +1184,28 @@ class FunctionalSemanticIndex:
         )
 
         try:
-            candidates = build_equal_length_ray_macro_role_candidates(
-                {
+            candidates = default_macro_definition_registry().project_role_bindings(
+                capability_id,
+                builder_context={
                     "ray_facts": fact_groups["point_on_ray"],
                     "segment_facts": fact_groups["point_on_segment"],
                     "equal_facts": fact_groups["equal_length_condition"],
                     "target_facts": fact_groups["path_minimum_target"],
                     "entity_payloads": self.entity_payloads,
-                    "point_name_candidates": (
-                        build_equal_length_ray_point_name_candidates(
-                            point_handles=point_handles,
-                            entity_payloads=self.entity_payloads,
-                        )
+                    "point_name_candidates": build_point_name_candidates(
+                        point_handles=point_handles,
+                        entity_payloads=self.entity_payloads,
                     ),
-                    "max_candidates": 32,
-                }
+                },
+                max_candidates=32,
             )
-        except MacroRuntimeSearchError:
-            raise
-        except (ValueError, KeyError):
-            return {}
+        except MacroDefinitionError as exc:
+            raise MacroRuntimeSearchError(
+                exc.code,
+                str(exc),
+                retryability="configuration",
+                details=dict(exc.details),
+            ) from exc
         refs_by_handle: dict[str, tuple[str, ...]] = {}
         for handle in point_handles:
             refs_by_handle[handle] = tuple(
@@ -1220,7 +1223,7 @@ class FunctionalSemanticIndex:
             handles = tuple(
                 sorted(
                     {
-                        candidate.roles[role]
+                        candidate[role]
                         for candidate in candidates
                     }
                 )
@@ -1326,15 +1329,26 @@ class FunctionalSemanticIndex:
             if slot.object_ref:
                 slots_by_object.setdefault(slot.object_ref, []).append(slot)
         problem_ir = context.state.problem_ir
-        entity_payloads = {
+        problem_entity_payloads = {
             item.get("handle"): item
             for item in problem_ir.get("entities", ())
             if isinstance(item, dict) and isinstance(item.get("handle"), str)
         }
-        fact_payloads = {
+        problem_fact_payloads = {
             item.get("handle"): item
             for item in problem_ir.get("facts", ())
             if isinstance(item, dict) and isinstance(item.get("handle"), str)
+        }
+        # The projected handle registry also owns structural entities such as
+        # Segment and Ray. Macro role projection needs their payloads even when
+        # the runtime ProblemIR state stores only state-bearing entities.
+        entity_payloads = {
+            **handle_registry.entity_payloads,
+            **problem_entity_payloads,
+        }
+        fact_payloads = {
+            **handle_registry.fact_payloads,
+            **problem_fact_payloads,
         }
         entity_dependencies = _problem_object_dependencies(
             entity_payloads,

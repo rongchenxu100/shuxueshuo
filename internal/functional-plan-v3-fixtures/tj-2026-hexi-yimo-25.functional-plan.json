@@ -1,5 +1,5 @@
 {
-  "format": "functional_plan/v2",
+  "format": "functional_plan/v3",
   "root_scope": {
     "scope_ref": "problem",
     "children": [
@@ -63,10 +63,13 @@
                 "args": {
                   "quadratic": "parabola"
                 },
-                "output_targets": {
-                  "point": "C"
-                },
-                "intent": "求当前抛物线与纵轴的交点。"
+                "intent": "求当前抛物线与纵轴的交点。",
+                "return_bindings": {
+                  "point": {
+                    "kind": "existing",
+                    "ref": "C"
+                  }
+                }
               },
               {
                 "step_id": "derive_right_angle_candidates_ii",
@@ -122,10 +125,13 @@
                 "args": {
                   "parabola": "parabola"
                 },
-                "output_targets": {
-                  "point": "M"
-                },
-                "intent": "将题面给定的横坐标代入当前抛物线。"
+                "intent": "将题面给定的横坐标代入当前抛物线。",
+                "return_bindings": {
+                  "point": {
+                    "kind": "existing",
+                    "ref": "M"
+                  }
+                }
               },
               {
                 "step_id": "transform_weighted_path_iii",

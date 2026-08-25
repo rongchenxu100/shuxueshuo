@@ -65,7 +65,7 @@ from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
 )
 
 from _problem_extraction_f3_support import make_f3_fixture
-from _scoped_functional_plan_support import load_v2_fixture_payload
+from _scoped_functional_plan_support import load_v3_fixture_payload
 
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -88,7 +88,7 @@ def scope_native_plan_id(case: str) -> str:
     if cached is not None:
         return cached
     plan, report = ScopedFunctionalPlanValidator().validate_payload_with_report(
-        load_v2_fixture_payload(case)
+        load_v3_fixture_payload(case)
     )
     assert report.ok and plan is not None, report.to_payload()
     plan_id = scoped_functional_plan_id(plan)

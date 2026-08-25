@@ -220,7 +220,7 @@ def _equal_length_ray_path_reduction_draft(
     segment_fact = _first_fact(read_facts, "point_on_segment")
     equal_fact = _first_fact(read_facts, "equal_length_condition")
     target_fact = _first_fact(read_facts, "path_minimum_target")
-    verified_witness = _path_minimum_witness(snapshot, group)
+    verified_witness = _verified_path_minimum_projection(snapshot, group)
 
     roles: dict[str, Any] = {}
     unbound: list[str] = []
@@ -334,7 +334,7 @@ def _equal_length_ray_path_reduction_draft(
     return draft
 
 
-def _path_minimum_witness(
+def _verified_path_minimum_projection(
     snapshot: ExplanationSnapshot,
     group: LessonCandidateGroup,
 ) -> dict[str, Any] | None:
@@ -385,23 +385,33 @@ def _apply_verified_path_witness(
     constructions = witness.get("constructions", ())
     construction = constructions[0] if constructions else None
     if isinstance(construction, dict):
-        auxiliary = str(construction.get("label") or "")
+        auxiliary = str(
+            construction.get("label")
+            or (roles.get("auxiliary_point") or {}).get("label")
+            or ""
+        )
+        coordinate = construction.get("coordinate")
         if auxiliary:
             roles["auxiliary_point"] = {
                 "label": auxiliary,
                 "explanation_only_label": True,
+                "coordinate": coordinate,
             }
-        coordinate = construction.get("coordinate")
         if auxiliary and isinstance(coordinate, dict):
             roles["auxiliary_coordinate"] = (
-                f"{auxiliary}=({coordinate.get('x')},{coordinate.get('y')})"
+                f"{auxiliary}({_student_expr(str(coordinate.get('x')))},"
+                f"{_student_expr(str(coordinate.get('y')))})"
             )
-    roles["original_path"] = str(witness.get("original_objective") or "")
-    roles["reduced_path"] = str(witness.get("reduced_objective") or "")
-    roles["minimum_expression"] = str(witness.get("minimum_expression") or "")
-    roles["minimum_expression_display"] = _student_expr(
-        roles["minimum_expression"]
-    )
+    original_path = str(witness.get("original_objective") or "")
+    reduced_path = str(witness.get("reduced_objective") or "")
+    minimum_expression = str(witness.get("minimum_expression") or "")
+    if original_path:
+        roles["original_path"] = original_path
+    if reduced_path:
+        roles["reduced_path"] = reduced_path
+    if minimum_expression:
+        roles["minimum_expression"] = minimum_expression
+        roles["minimum_expression_display"] = _student_expr(minimum_expression)
     auxiliary_label = str(
         (roles.get("auxiliary_point") or {}).get("label") or ""
     )
@@ -725,7 +735,13 @@ def _minimum_segment_calculation_roles(
     roles: dict[str, Any],
     entities: dict[str, dict[str, Any]],
 ) -> dict[str, Any]:
-    auxiliary = _point_pair_for_auxiliary(group, snapshot)
+    auxiliary = _point_pair_for_role(
+        "auxiliary_point",
+        group,
+        snapshot,
+        roles,
+        entities,
+    ) or _point_pair_for_auxiliary(group, snapshot)
     fixed = _point_pair_for_role("fixed_point", group, snapshot, roles, entities)
     if auxiliary is None or fixed is None:
         return {}
@@ -763,6 +779,9 @@ def _point_pair_for_role(
     value = roles.get(role)
     if not isinstance(value, dict):
         return None
+    declared_pair = _point_pair_from_value(value.get("coordinate"))
+    if declared_pair is not None:
+        return declared_pair
     handle = str(value.get("handle") or "")
     label = str(value.get("label") or "")
     entity_pair = _point_pair_from_entity(handle, entities)
@@ -779,7 +798,7 @@ def _point_pair_for_auxiliary(
     for item in snapshot.fact_index.values():
         if not isinstance(item, dict) or item.get("type") != "Point":
             continue
-        if str(item.get("source") or "") != "equal_length_ray_point":
+        if item.get("semantic_role") != "auxiliary_point":
             continue
         pair = _point_pair_from_value(item.get("value"))
         if pair is None:
@@ -845,10 +864,15 @@ def _point_pair_from_entity(
 
 
 def _point_pair_from_value(value: Any) -> tuple[sp.Expr, sp.Expr] | None:
-    if not isinstance(value, list | tuple) or len(value) != 2:
+    if isinstance(value, dict):
+        raw_x = value.get("x")
+        raw_y = value.get("y")
+    elif isinstance(value, list | tuple) and len(value) == 2:
+        raw_x, raw_y = value
+    else:
         return None
-    x = _sympify(value[0])
-    y = _sympify(value[1])
+    x = _sympify(raw_x)
+    y = _sympify(raw_y)
     if x is None or y is None:
         return None
     return (x, y)
