@@ -264,7 +264,7 @@ def test_candidate_cannot_escape_typed_dependency_envelope() -> None:
     ]
 
 
-def test_only_equal_length_ray_macro_is_registered_for_runtime_search() -> None:
+def test_only_transparent_macros_are_registered_for_runtime_search() -> None:
     method_specs = MethodSpecRegistry.load_from_code()
     runtime_search_ids = {
         macro.macro_id
@@ -276,7 +276,10 @@ def test_only_equal_length_ray_macro_is_registered_for_runtime_search() -> None:
         if macro.execution_mode == "runtime_search"
     }
 
-    assert runtime_search_ids == {"equal_length_ray_path_reduction"}
+    assert runtime_search_ids == {
+        "coupled_segment_endpoint_replacement_path_minimum",
+        "equal_length_ray_path_reduction",
+    }
 
 
 def test_shadow_unknown_exception_is_configuration_not_candidate_miss() -> None:

@@ -1,7 +1,7 @@
 # 路径最值 Macro 重构
 
-状态：F5-F4.1、F5-F4.2、F5-F4.2R、F5-F4.3A、F5-F4.3B与
-F5-F4.3C1已完成；当前下一阶段是F5-F4.3C2透明Macro展开。
+状态：F5-F4.1、F5-F4.2、F5-F4.2R、F5-F4.3A、F5-F4.3B、
+F5-F4.3C1与F5-F4.3C2已完成；当前下一阶段是F5-F4.3C3生产切换与清理。
 
 统一运行时权威链记录在
 [F5-F4.2运行时权威收敛](problem-extraction-context-implementation-plan.md#f5-f4-2-runtime-authority-convergence)。
@@ -1202,7 +1202,7 @@ Condition及最终标准输出。Goal execution与Scoped replay现在共用同�
 新生成的普通Function step建立最终per-call F5-C binding。复审补强后的L2 contract为
 `2370 passed`，schema snapshot与`git diff --check`均通过；未重复运行付费LLM冒烟。
 
-### 6.3 F4.3C：标准路径与耦合线段端点替换（C1完成；C2下一项）
+### 6.3 F4.3C：标准路径与耦合线段端点替换（C1/C2完成；C3下一项）
 
 目标：迁移 `quadratic_path_minimum` family，并优先解决南开题中 Planner 需要拼装
 PathTransformation、端点和拉直步骤导致的超长输出。
@@ -1266,38 +1266,33 @@ ii_2.G = (4, -13/3)
 生产五题recorded Plan仍走原路径，结果没有切换。C1定向组合为`205 passed`，L0 affected为
 `683 passed, 9 deselected`，补齐静态契约后L2 contract为`2377 passed`；未运行L3或付费LLM冒烟。
 
-#### 6.3.2 C2：透明Macro展开（NEXT）
+#### 6.3.2 C2：透明Macro展开（COMPLETE）
 
-C2计划公开能力：
+C2新增公开能力：
 
 ```text
 coupled_segment_endpoint_replacement_path_minimum
-single_moving_point_path_minimum
 ```
 
-实施内容：
+实现结果：
 
 - 已知路线下Planner只传path target、运动约束/绑定Fact、题面Entity与可选角色hint；
 - Macro blueprint同时向LLM公开降维、轨迹恢复、拉直、端点构造、距离与最值证明的完整
   数学思路及可展开Function Capability，不把这些语义只藏进实现；
-- Macro模板与LLM显式组合的标准/耦合线段端点替换fragment都复用F4.3B的通用candidate、Condition
-  publication、execution与witness协议；
+- Macro模板与LLM显式组合的耦合线段端点替换fragment复用F4.3B的通用candidate、Condition
+  publication与普通Function执行协议；
 - `PathTransformation`、内部端点和 Method 连线不进入 prompt；
-- family 的 Registry 实现完整后，原子地从 `direct` 切换为 `runtime_search`；
+- 新Macro在family Registry中注册为`runtime_search`，角色上下文只从结构化Condition与可见
+  Entity authority投影；
 - 输出 `minimum_expression`，仅在 Goal 需要时公开 minimizing point/configuration；
-- 南开recorded Plan迁移完成后删除`two_moving_points_path_reduction`的公开Macro、同名策略
-  Method、PathTransformation return及专用binding/lowering；
-- `broken_path_straightening_minimum_expression`在本阶段从南开family移除，但为避免跨family
-  半迁移，只允许作为和平二模迁移期依赖保留到F4.3D，不得再被新fixture或few-shot引用。
-
-C2只实现Macro定义、角色候选与展开模板：
-
-- `coupled_segment_endpoint_replacement_path_minimum`必须展开为C1已经验证的普通Function steps，
+- `coupled_segment_endpoint_replacement_path_minimum`展开为C1已经验证的七个普通Function steps，
   不调用旧`two_moving_points_path_reduction`或隐藏Path Method；
 - candidate search只选择结构角色与合法展开，不拥有第二套几何公式；winner物化后仍走普通Plan；
 - Macro物化step图与独立C1 fixture做alpha-normalized graph、Condition、F5-C、exact version、
-  provenance和标准输出等价比较；
-- C2仍不切换生产fixture，不删除旧Macro，不运行付费live。
+  provenance和标准输出等价比较，并验证checkpoint恢复不会重新搜索Macro；
+- shadow Condition publication与正式执行统一使用直接对象角色和exact Condition authority；
+- C2定向Macro/C1/checkpoint组合为`39 passed`，L2 contract为`2379 passed`；没有切换生产
+  fixture，没有删除旧Macro，也没有运行付费live。这些动作仍属于C3。
 
 #### 6.3.3 C3：生产切换与物理删除（PENDING）
 
@@ -1482,9 +1477,9 @@ configuration / unclassified error == 0
 
 ## 9. 当前下一步
 
-下一项实现是 **F4.3C2 透明Macro展开**。F4.3A已经关闭输出侧字符串selector与等长射线
-平行角色owner；B已经把Macro winner物化为普通Function steps；C1已经证明南开耦合线段
-端点替换可由独立LLM-style普通Plan完成。C2只能把同一组Function steps注册为Macro展开，
-并比较typed graph、Condition、exact authority与provenance，不得重新引入按名称、类型或
-Context顺序选择对象的helper，不得把数学证明只放进Macro专用adapter，也不得新增路径最值
-或其他题型专用执行类型。生产fixture切换、live验收与旧Path链删除留到C3。
+下一项实现是 **F4.3C3 生产切换与物理删除**。F4.3A已经关闭输出侧字符串selector与
+等长射线平行角色owner；B已经把Macro winner物化为普通Function steps；C1证明南开耦合
+线段端点替换可由独立LLM-style普通Plan完成；C2已把同一七步Function图注册为透明Macro，
+并通过typed graph、Condition、exact authority、provenance、标准输出和checkpoint恢复等价门禁。
+C3才切换生产南开fixture、运行定向live`1x3`并删除旧Path链；不得在切换前提前删除和平二模
+仍依赖的共享能力。

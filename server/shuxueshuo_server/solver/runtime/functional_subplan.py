@@ -10,6 +10,7 @@ import sympy as sp
 
 from shuxueshuo_server.solver.contracts import (
     PointRef,
+    SourceObjectIdentityDerivationSpec,
     TypedValue,
     VerificationOutcome,
 )
@@ -32,10 +33,12 @@ from shuxueshuo_server.solver.runtime.methods import (
     default_stateless_registry,
 )
 from shuxueshuo_server.solver.runtime.method_input_read_authority import (
+    DerivedInputReadSource,
     EntityIdentityReadSource,
     InvocationResultReadSource,
     MethodInputReadAuthority,
     MethodInputReadSource,
+    StateVersionReadSource,
 )
 from shuxueshuo_server.solver.runtime.runtime_value_signature import (
     runtime_value_signature,
@@ -92,6 +95,18 @@ def _canonical_runtime_payload(value: Any) -> Any:
         "fragment runtime value has no canonical serialization: "
         f"{type(value).__name__}"
     )
+
+
+def _read_source_object_ref(source: MethodInputReadSource) -> str | None:
+    """Mirror production Condition publication's direct-object projection."""
+
+    if isinstance(source, EntityIdentityReadSource):
+        return source.entity_handle
+    if isinstance(source, StateVersionReadSource):
+        return source.state_version_id.slot_id.logical_key.object_id.value
+    if isinstance(source, DerivedInputReadSource):
+        return _read_source_object_ref(source.upstream)
+    return None
 
 
 def _fragment_argument_ref(value: Any) -> str:
@@ -628,11 +643,13 @@ class MacroCandidateShadowRunner:
         function_specs: FunctionSpecRegistry,
         method_specs: Any,
         *,
+        capability_catalog: Any | None = None,
         methods: StatelessMethodRegistry | None = None,
         kernel: SympyKernel | None = None,
     ) -> None:
         self._function_specs = function_specs
         self._method_specs = method_specs
+        self._capability_catalog = capability_catalog
         self._methods = methods or default_stateless_registry()
         self._kernel = kernel or SympyKernel()
 
@@ -650,6 +667,12 @@ class MacroCandidateShadowRunner:
             for step in fragment.steps
             for return_name, binding in step.return_bindings.items()
             if binding.kind == "derived"
+        }
+        existing_refs = {
+            binding.ref: (step.step_id, return_name)
+            for step in fragment.steps
+            for return_name, binding in step.return_bindings.items()
+            if binding.kind == "existing"
         }
         referenced_results: set[tuple[str, str]] = set(fragment.exports.values())
         for consumer in fragment.steps:
@@ -676,11 +699,25 @@ class MacroCandidateShadowRunner:
             if isinstance(value, ScopedStepResultRef):
                 return value.step_id, value.return_name
             if isinstance(value, str):
-                return derived_refs.get(value)
+                derived = derived_refs.get(value)
+                if derived is not None:
+                    return derived
+                existing = existing_refs.get(value)
+                return existing if existing in result_paths else None
             return None
 
         for step_index, step in enumerate(fragment.steps):
             function = self._function_specs.require(step.capability_id)
+            functional_capability = (
+                self._capability_catalog.get(step.capability_id)
+                if self._capability_catalog is not None
+                else None
+            )
+            if self._capability_catalog is not None and functional_capability is None:
+                raise ValueError(
+                    "Macro candidate references an unknown Function Capability: "
+                    f"{step.capability_id}"
+                )
             method_spec = self._method_specs.require(function.method_id)
             active_returns = tuple(
                 returned
@@ -792,6 +829,74 @@ class MacroCandidateShadowRunner:
                 argument_ref = _fragment_argument_ref(value)
                 method_input_refs[method_input_name] = argument_ref
 
+            for auto_arg in getattr(functional_capability, "auto_args", ()):
+                method_input_name = auto_arg.runtime_input or auto_arg.name
+                if method_input_name in invocation_inputs:
+                    continue
+                if any(
+                    returned.identity_arg == method_input_name
+                    for returned in active_returns
+                ):
+                    # Return allocation below owns previous-output identity.
+                    continue
+                derivation = auto_arg.input_binding.derivation
+                if not isinstance(
+                    derivation,
+                    SourceObjectIdentityDerivationSpec,
+                ):
+                    if auto_arg.required:
+                        raise ValueError(
+                            "Macro candidate shadow cannot lower required typed "
+                            f"derivation: {step.capability_id}.{method_input_name}"
+                        )
+                    continue
+                source_values = step.args.get(derivation.source_input, ())
+                if not source_values and not auto_arg.required:
+                    continue
+                if len(source_values) != 1 or not isinstance(
+                    source_values[0], str
+                ):
+                    raise ValueError(
+                        "Macro candidate identity derivation requires one "
+                        f"Entity source: {step.capability_id}."
+                        f"{derivation.source_input}"
+                    )
+                semantic_ref = source_values[0]
+                input_spec = method_spec.inputs[method_input_name]
+                cache_key = (
+                    semantic_ref,
+                    input_spec.view.mode,
+                    input_spec.runtime_type,
+                )
+                source = source_cache.get(cache_key)
+                if source is None:
+                    source = source_resolver(
+                        semantic_ref,
+                        input_spec.view.mode,
+                        input_spec.runtime_type,
+                    )
+                    source_cache[cache_key] = source
+                if source.runtime_path is None or source.read_source is None:
+                    raise ValueError(
+                        "planner.method_input_view_authority_missing: "
+                        f"fragment derived identity {semantic_ref} is not shadow-ready"
+                    )
+                authority = MethodInputReadAuthority(
+                    method_id=function.method_id,
+                    invocation_id=invocation_id,
+                    input_name=method_input_name,
+                    item_index=0,
+                    view_mode=input_spec.view.mode,
+                    domain_type=input_spec.domain_type,
+                    runtime_type=input_spec.runtime_type,
+                    scope_id=step.step_id,
+                    source=source.read_source,
+                )
+                invocation_inputs[method_input_name] = source.runtime_path
+                input_authorities[method_input_name] = (authority,)
+                method_input_refs[method_input_name] = semantic_ref
+                source_signatures.append(source.authority_signature)
+
             for returned in active_returns:
                 identity_arg = returned.identity_arg
                 if identity_arg is None or identity_arg in invocation_inputs:
@@ -813,23 +918,42 @@ class MacroCandidateShadowRunner:
                     f"fragment:{fragment.fragment_signature}:"
                     f"{step.step_id}:{returned.name}"
                 )
-                context.write_path(
-                    identity_path,
-                    TypedValue(
+                identity_source = None
+                if binding.kind == "existing":
+                    identity_source = source_resolver(
+                        binding.ref,
+                        "identity",
                         "PointRef",
-                        PointRef(
-                            name=binding.ref,
-                            path=identity_path,
-                            definition={
-                                "definition": "fragment_derived",
-                                "semantic_role": returned.semantic_role,
-                            },
-                            scope_id=fragment.scope_id,
+                    )
+                    identity_path = identity_source.runtime_path or identity_path
+                    if isinstance(
+                        identity_source.read_source,
+                        EntityIdentityReadSource,
+                    ):
+                        entity_handle = (
+                            identity_source.read_source.entity_handle
+                        )
+                    source_signatures.append(
+                        identity_source.authority_signature
+                    )
+                else:
+                    context.write_path(
+                        identity_path,
+                        TypedValue(
+                            "PointRef",
+                            PointRef(
+                                name=binding.ref,
+                                path=identity_path,
+                                definition={
+                                    "definition": "fragment_derived",
+                                    "semantic_role": returned.semantic_role,
+                                },
+                                scope_id=fragment.scope_id,
+                            ),
+                            source="fragment_return_allocation",
                         ),
-                        source="fragment_return_allocation",
-                    ),
-                    from_scope_id=fragment.scope_id,
-                )
+                        from_scope_id=fragment.scope_id,
+                    )
                 input_spec = method_spec.inputs[identity_arg]
                 authority = MethodInputReadAuthority(
                     method_id=function.method_id,
@@ -944,21 +1068,29 @@ class MacroCandidateShadowRunner:
                             failure_code="functional.predicate_false",
                         )
                     binding = step.return_bindings.get(returned.name)
+                    object_roles = {
+                        role: [object_ref]
+                        for role in publication.related_input_roles
+                        if (
+                            object_ref := _read_source_object_ref(
+                                input_authorities[role][0].source
+                            )
+                        )
+                        is not None
+                    }
                     raw_output = {
                         "kind": publication.condition_kind,
                         "ref": binding.ref if binding is not None else None,
                         "producer_step_id": step.step_id,
-                        "related_refs": {
-                            role: method_input_refs[role]
-                            for role in publication.related_input_roles
-                        },
+                        "object_roles": object_roles,
                         "result_roles": {
                             role: [method_input_refs[role]]
-                            for role in publication.attested_input_roles
+                            for role in publication.related_input_roles
                             if isinstance(
                                 input_authorities[role][0].source,
                                 InvocationResultReadSource,
                             )
+                            and role not in object_roles
                         },
                         "attested_value_signatures": {
                             role: runtime_value_signature(

@@ -122,6 +122,7 @@ def test_all_registered_macros_declare_execution_and_lowering_contract() -> None
 
     assert set(macros) == {
         "broken_path_straightening_minimum_expression",
+        "coupled_segment_endpoint_replacement_path_minimum",
         "curve_candidate_parameter_solve",
         "equal_length_ray_path_reduction",
         "right_angle_equal_length_construct_and_select",

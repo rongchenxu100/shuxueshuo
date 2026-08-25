@@ -443,6 +443,198 @@ def resolve_equal_length_ray_path_args(
     )
 
 
+def resolve_coupled_segment_endpoint_args(
+    capability: FunctionalCapability,
+    call: FunctionalCall,
+    resolved_args: Mapping[str, tuple[ResolvedFunctionalValue, ...]],
+    resolver: ContextClosureResolverSpec,
+    *,
+    call_id: str,
+    scope_id: str,
+    produced: Mapping[tuple[str, str], ResolvedFunctionalValue],
+    semantic_index: FunctionalSemanticIndex,
+    handle_registry: CanonicalHandleRegistry,
+) -> ContextClosureResolution:
+    """Project one structured coupled-segment graph into Macro role hints."""
+
+    del call
+    if (
+        capability.kind != "macro"
+        or capability.capability_id
+        != "coupled_segment_endpoint_replacement_path_minimum"
+    ):
+        return {}, (), (), False
+    path_targets = tuple(
+        value
+        for values in resolved_args.values()
+        for value in values
+        if handle_registry.fact_types.get(value.handle)
+        == "path_minimum_target"
+    )
+    if len(path_targets) != 1:
+        return (
+            {},
+            (),
+            (
+                _issue(
+                    "functional_elaboration",
+                    "functional.coupled_segment_path_target_unresolved",
+                    "coupled-segment path minimum requires one path target",
+                    call_id=call_id,
+                    scope_id=scope_id,
+                    details={"match_count": len(path_targets)},
+                ),
+            ),
+            False,
+        )
+    try:
+        roles = PathReductionRoleResolver.resolve(
+            path_target=path_targets[0].handle,
+            scope_id=scope_id,
+            registry=handle_registry,
+        )
+    except PathReductionRoleError as exc:
+        return (
+            {},
+            (),
+            (
+                _issue(
+                    "functional_elaboration",
+                    f"functional.{exc.code}",
+                    str(exc),
+                    call_id=call_id,
+                    scope_id=scope_id,
+                    details=exc.details,
+                ),
+            ),
+            False,
+        )
+
+    supplied_conditions = {
+        value.handle
+        for values in resolved_args.values()
+        for value in values
+        if value.runtime_type == "Condition"
+    }
+    missing_conditions = tuple(
+        handle
+        for handle in roles.required_condition_handles
+        if handle not in supplied_conditions
+    )
+    if missing_conditions:
+        return (
+            {},
+            (),
+            (
+                _issue(
+                    "functional_elaboration",
+                    "functional.coupled_segment_condition_unavailable",
+                    "Macro call omitted a structured coupled-path Fact",
+                    call_id=call_id,
+                    scope_id=scope_id,
+                    details={
+                        "missing_condition_handles": list(missing_conditions),
+                        "repair_action": "supply_coupled_segment_path_facts",
+                    },
+                ),
+            ),
+            False,
+        )
+
+    additions: dict[str, tuple[ResolvedFunctionalValue, ...]] = {}
+    issues: list[FunctionalPlanIssue] = []
+    identity_roles = (
+        ("first_moving_point", roles.first_moving_point),
+        ("second_moving_point", roles.second_moving_point),
+    )
+    state_roles = (
+        ("first_track_fixed_endpoint", roles.first_segment_start),
+        ("joint_point", roles.joint_point),
+        ("second_track_fixed_endpoint", roles.second_segment_end),
+        ("fixed_path_endpoint", roles.transformed_fixed_endpoint),
+    )
+    for semantic_role, object_ref in identity_roles:
+        arg_name = resolver.arg_name(
+            semantic_role,
+            capability.context_arg_bindings,
+        )
+        point = object_identity_value(
+            object_ref,
+            domain_runtime_types=("Point", "PointRef"),
+            scope_id=scope_id,
+            semantic_index=semantic_index,
+            handle_registry=handle_registry,
+        )
+        if point is None:
+            issues.append(
+                _issue(
+                    "functional_elaboration",
+                    "functional.coupled_segment_point_identity_unavailable",
+                    f"coupled path role is not a visible Point: {object_ref}",
+                    call_id=call_id,
+                    scope_id=scope_id,
+                    details={"semantic_role": semantic_role, "object_ref": object_ref},
+                )
+            )
+        else:
+            additions[arg_name] = (point,)
+    for semantic_role, object_ref in state_roles:
+        arg_name = resolver.arg_name(
+            semantic_role,
+            capability.context_arg_bindings,
+        )
+        point = latest_point_state_for_object(
+            object_ref,
+            scope_id=scope_id,
+            produced=produced,
+            semantic_index=semantic_index,
+            handle_registry=handle_registry,
+            allow_unique_planned_producer=True,
+        )
+        if point is None:
+            issues.append(
+                _issue(
+                    "functional_elaboration",
+                    "functional.coupled_segment_point_state_unavailable",
+                    f"coupled path role needs a materialized Point: {object_ref}",
+                    call_id=call_id,
+                    scope_id=scope_id,
+                    details={
+                        "semantic_role": semantic_role,
+                        "object_ref": object_ref,
+                        **_state_scope_diagnostic_details(
+                            object_ref,
+                            scope_id=scope_id,
+                            produced=produced,
+                        ),
+                    },
+                )
+            )
+        else:
+            additions[arg_name] = (point,)
+    if issues:
+        return additions, (), tuple(issues), False
+    return (
+        additions,
+        (
+            FunctionalDeterministicRepair(
+                call_id,
+                "expand_coupled_segment_endpoint_roles",
+                roles.path_target,
+                ",".join(
+                    (
+                        f"first_moving={roles.first_moving_point}",
+                        f"second_moving={roles.second_moving_point}",
+                        f"joint={roles.joint_point}",
+                    )
+                ),
+            ),
+        ),
+        (),
+        True,
+    )
+
+
 def resolve_path_reduction_args(
     capability: FunctionalCapability,
     call: FunctionalCall,
@@ -1053,6 +1245,7 @@ __all__ = [
     "SquarePathTransformationRoleError",
     "SquarePathTransformationRoles",
     "infer_square_path_transformation_roles",
+    "resolve_coupled_segment_endpoint_args",
     "resolve_equal_length_ray_path_args",
     "resolve_path_reduction_args",
     "resolve_square_path_transformation_args",

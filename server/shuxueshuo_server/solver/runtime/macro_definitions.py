@@ -20,8 +20,14 @@ from shuxueshuo_server.solver.runtime.functional_subplan import (
     SearchCandidate,
 )
 from shuxueshuo_server.solver.runtime.macro_blueprints import (
+    COUPLED_SEGMENT_ENDPOINT_REPLACEMENT_BLUEPRINT,
     EQUAL_LENGTH_RAY_PATH_BLUEPRINT,
     MacroSemanticBlueprint,
+)
+from shuxueshuo_server.solver.runtime.path_reduction_roles import (
+    PathReductionRoleError,
+    PathReductionRoleResolver,
+    PathReductionRoles,
 )
 from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
     ScopedDerivedResultRef,
@@ -227,10 +233,11 @@ def default_macro_definition_registry() -> MacroDefinitionRegistry:
     # Imported lazily to keep the generic preparation request independent from
     # the concrete execution environment while retaining one Definition object.
     from shuxueshuo_server.solver.runtime.macro_preparation import (
+        _build_coupled_segment_preparation_context,
         _build_equal_length_ray_preparation_context,
     )
 
-    search_contract = MacroSearchSpec(
+    equal_length_search_contract = MacroSearchSpec(
         searchable_roles=("anchor", "reference_point", "ray_point", "fixed_point"),
         candidate_builder_id="equal_length_ray_role_assignments",
         validation_policy_id="verified_function_fragment",
@@ -242,10 +249,47 @@ def default_macro_definition_registry() -> MacroDefinitionRegistry:
     return MacroDefinitionRegistry(
         (
             MacroDefinition(
+                macro_id=(
+                    "coupled_segment_endpoint_replacement_path_minimum"
+                ),
+                implementation_id=(
+                    "coupled-segment-endpoint-transparent/v1"
+                ),
+                blueprint=(
+                    COUPLED_SEGMENT_ENDPOINT_REPLACEMENT_BLUEPRINT
+                ),
+                search_contract=MacroSearchSpec(
+                    searchable_roles=(
+                        "first_moving_point",
+                        "second_moving_point",
+                        "first_track_fixed_endpoint",
+                        "joint_point",
+                        "second_track_fixed_endpoint",
+                        "fixed_path_endpoint",
+                    ),
+                    candidate_builder_id="path_role_assignments",
+                    validation_policy_id="verified_function_fragment",
+                    lowerer_id="functional_plan_fragment",
+                    postcondition_id="predicate_publication",
+                    evidence_builder_id="ordinary_plan_execution",
+                    max_candidates=32,
+                ),
+                preparation_context_builder=(
+                    _build_coupled_segment_preparation_context
+                ),
+                expander=_expand_coupled_segment_endpoint_path,
+                selection=CandidateSelectionSpec(
+                    "minimize",
+                    "minimum_expression",
+                ),
+                export_names=("minimum_expression",),
+                role_projector=_project_coupled_segment_roles,
+            ),
+            MacroDefinition(
                 macro_id="equal_length_ray_path_reduction",
                 implementation_id="equal-length-ray-transparent/v1",
                 blueprint=EQUAL_LENGTH_RAY_PATH_BLUEPRINT,
-                search_contract=search_contract,
+                search_contract=equal_length_search_contract,
                 preparation_context_builder=(
                     _build_equal_length_ray_preparation_context
                 ),
@@ -258,6 +302,361 @@ def default_macro_definition_registry() -> MacroDefinitionRegistry:
                 role_projector=_project_equal_length_ray_roles,
             ),
         )
+    )
+
+
+def _expand_coupled_segment_endpoint_path(
+    request: MacroExpansionRequest,
+) -> tuple[SearchCandidate, ...]:
+    context = request.builder_context
+    source_refs = {
+        str(key): str(value)
+        for key, value in _required_mapping(
+            context.get("source_refs_by_handle"),
+            "source_refs_by_handle",
+        ).items()
+    }
+    role_candidates = _coupled_segment_role_candidates(
+        context,
+        max_candidates=request.max_candidates,
+    )
+    domain_handles: tuple[str | None, ...] = (
+        tuple(handle for handle, _payload in _fact_group(context, "domain_facts"))
+        or (None,)
+    )
+    if len(role_candidates) * len(domain_handles) > request.max_candidates:
+        raise MacroDefinitionError(
+            "functional.macro_search_budget_exceeded",
+            "coupled-segment expansion exceeded its declared candidate budget",
+            retryable=False,
+            details={
+                "candidate_count": len(role_candidates) * len(domain_handles),
+                "max_candidates": request.max_candidates,
+            },
+        )
+    candidates: list[SearchCandidate] = []
+    for roles in role_candidates:
+        role_bindings = _coupled_segment_role_bindings(roles)
+        for domain_handle in domain_handles:
+            dependencies = tuple(
+                sorted(
+                    {
+                        *role_bindings.values(),
+                        *roles.required_condition_handles,
+                        *((domain_handle,) if domain_handle is not None else ()),
+                    }
+                )
+            )
+            fragment = _coupled_segment_fragment(
+                call_id=request.call_id,
+                scope_id=request.scope_id,
+                roles=roles,
+                role_bindings=role_bindings,
+                source_refs=source_refs,
+                domain_condition_handle=domain_handle,
+                dependency_envelope=dependencies,
+            )
+            candidate_id = stable_hash(
+                {
+                    "macro_id": request.macro_id,
+                    "roles": role_bindings,
+                    "domain_condition": domain_handle,
+                    "fragment": fragment.fragment_signature,
+                }
+            )
+            candidates.append(
+                SearchCandidate(
+                    candidate_id=candidate_id,
+                    fragment=fragment,
+                    role_bindings=role_bindings,
+                    strategy_id="reflection_straightening",
+                    symbolic_complexity=1,
+                )
+            )
+    return tuple(candidates)
+
+
+def _project_coupled_segment_roles(
+    context: Mapping[str, Any],
+    max_candidates: int,
+) -> tuple[Mapping[str, str], ...]:
+    return tuple(
+        MappingProxyType(_coupled_segment_role_bindings(roles))
+        for roles in _coupled_segment_role_candidates(
+            context,
+            max_candidates=max_candidates,
+        )
+    )
+
+
+def _coupled_segment_role_candidates(
+    context: Mapping[str, Any],
+    *,
+    max_candidates: int,
+) -> tuple[PathReductionRoles, ...]:
+    registry = context.get("handle_registry")
+    scope_id = context.get("scope_id")
+    target_handles = tuple(
+        str(item) for item in context.get("target_handles", ()) if item
+    )
+    allowed_conditions = {
+        str(item) for item in context.get("condition_handles", ()) if item
+    }
+    if registry is None or not isinstance(scope_id, str) or not scope_id:
+        raise MacroDefinitionError(
+            "planner.macro_contract_invalid",
+            "coupled-segment role search requires typed Context authority",
+            retryable=False,
+        )
+    if len(target_handles) > max_candidates:
+        raise MacroDefinitionError(
+            "functional.macro_search_budget_exceeded",
+            "coupled-segment role search exceeded its candidate budget",
+            retryable=False,
+            details={
+                "candidate_count": len(target_handles),
+                "max_candidates": max_candidates,
+            },
+        )
+    by_roles: dict[tuple[str, ...], PathReductionRoles] = {}
+    for target_handle in sorted(set(target_handles)):
+        try:
+            roles = PathReductionRoleResolver.resolve(
+                path_target=target_handle,
+                scope_id=scope_id,
+                registry=registry,
+            )
+        except PathReductionRoleError as exc:
+            if exc.code.endswith("_ambiguous"):
+                raise MacroDefinitionError(
+                    f"functional.{exc.code}",
+                    str(exc),
+                    retryable=True,
+                    details=exc.details,
+                ) from exc
+            continue
+        if allowed_conditions and not set(
+            roles.required_condition_handles
+        ).issubset(allowed_conditions):
+            continue
+        bindings = _coupled_segment_role_bindings(roles)
+        key = tuple(bindings[name] for name in sorted(bindings))
+        previous = by_roles.get(key)
+        if previous is None or roles.path_target < previous.path_target:
+            by_roles[key] = roles
+    return tuple(by_roles[key] for key in sorted(by_roles))
+
+
+def _coupled_segment_role_bindings(
+    roles: PathReductionRoles,
+) -> dict[str, str]:
+    return {
+        "first_moving_point": roles.first_moving_point,
+        "second_moving_point": roles.second_moving_point,
+        "first_track_fixed_endpoint": roles.first_segment_start,
+        "joint_point": roles.joint_point,
+        "second_track_fixed_endpoint": roles.second_segment_end,
+        "fixed_path_endpoint": roles.transformed_fixed_endpoint,
+    }
+
+
+def _coupled_segment_fragment(
+    *,
+    call_id: str,
+    scope_id: str,
+    roles: PathReductionRoles,
+    role_bindings: Mapping[str, str],
+    source_refs: Mapping[str, str],
+    domain_condition_handle: str | None,
+    dependency_envelope: tuple[str, ...],
+) -> FunctionalPlanFragment:
+    role_ref = {
+        name: _source_ref(handle, source_refs)
+        for name, handle in role_bindings.items()
+    }
+    prefix = (
+        f"{call_id}__"
+        f"{stable_hash({'roles': dict(role_bindings), 'domain': domain_condition_handle})[:10]}"
+    )
+    steps: list[ScopedFunctionalStep] = []
+
+    def add_step(
+        suffix: str,
+        capability_id: str,
+        args: Mapping[str, Any],
+        *,
+        derived: Mapping[str, tuple[str, str, str]] = MappingProxyType({}),
+        existing: Mapping[str, str] = MappingProxyType({}),
+    ) -> tuple[ScopedFunctionalStep, Mapping[str, ScopedDerivedResultRef]]:
+        step_id = f"{prefix}__{suffix}"
+        bindings = {
+            return_name: ScopedReturnBinding(kind="derived", ref=local_ref)
+            for return_name, (local_ref, _domain_type, _semantic_role) in derived.items()
+        }
+        bindings.update(
+            {
+                return_name: ScopedReturnBinding(kind="existing", ref=ref)
+                for return_name, ref in existing.items()
+            }
+        )
+        step = ScopedFunctionalStep(
+            step_id=step_id,
+            capability_id=capability_id,
+            args={
+                name: tuple(value) if isinstance(value, (tuple, list)) else (value,)
+                for name, value in args.items()
+            },
+            return_bindings=bindings,
+            return_expectations={},
+            intent=None,
+        )
+        refs = {
+            return_name: ScopedDerivedResultRef(
+                step_id=step_id,
+                return_name=return_name,
+                local_ref=local_ref,
+                canonical_ref=f"{scope_id}::{local_ref}",
+                domain_type=domain_type,
+                semantic_role=semantic_role,
+                owner_scope=scope_id,
+            )
+            for return_name, (local_ref, domain_type, semantic_role) in derived.items()
+        }
+        steps.append(step)
+        return step, MappingProxyType(refs)
+
+    _proof, proof_refs = add_step(
+        "prove_endpoint_distance",
+        "prove_coupled_segment_endpoint_distance_equality",
+        {
+            "first_moving_membership": _source_ref(
+                roles.first_membership, source_refs
+            ),
+            "second_moving_membership": _source_ref(
+                roles.second_membership, source_refs
+            ),
+            "binding_relation": _source_ref(
+                roles.binding_relation, source_refs
+            ),
+            "first_moving_point": role_ref["first_moving_point"],
+            "second_moving_point": role_ref["second_moving_point"],
+            "first_track_fixed_endpoint": role_ref[
+                "first_track_fixed_endpoint"
+            ],
+            "joint_point": role_ref["joint_point"],
+            "second_track_fixed_endpoint": role_ref[
+                "second_track_fixed_endpoint"
+            ],
+        },
+        derived={
+            "distance_equality": (
+                f"{prefix}.distance_equality",
+                "Condition",
+                "distance_equality",
+            )
+        },
+    )
+    _reflect, reflect_refs = add_step(
+        "reflect_endpoint",
+        "reflect_point_across_line",
+        {
+            "point": role_ref["first_track_fixed_endpoint"],
+            "line_p1": role_ref["joint_point"],
+            "line_p2": role_ref["second_track_fixed_endpoint"],
+        },
+        derived={
+            "reflected_point": (
+                f"{prefix}.reflected_point",
+                "Point",
+                "reflected_point",
+            )
+        },
+    )
+    reflected = reflect_refs["reflected_point"]
+    _intersection, _intersection_refs = add_step(
+        "construct_attainment_point",
+        "line_intersection_point",
+        {
+            "line1_p1": reflected,
+            "line1_p2": role_ref["fixed_path_endpoint"],
+            "line2_p1": role_ref["joint_point"],
+            "line2_p2": role_ref["second_track_fixed_endpoint"],
+        },
+        existing={"intersection": role_ref["second_moving_point"]},
+    )
+    _rewrite, rewrite_refs = add_step(
+        "rewrite_path",
+        "rewrite_path_target_by_distance_equality",
+        {
+            "path_minimum_target": _source_ref(roles.path_target, source_refs),
+            "distance_equality": proof_refs["distance_equality"],
+            "replacement_start": role_ref["first_track_fixed_endpoint"],
+            "via": role_ref["second_moving_point"],
+            "end": role_ref["fixed_path_endpoint"],
+        },
+        derived={
+            "expression": (
+                f"{prefix}.rewritten_path",
+                "Expression",
+                "path_expression",
+            )
+        },
+    )
+    candidate, _candidate_refs = add_step(
+        "compute_minimum",
+        "distance_between_points",
+        {
+            "p1": reflected,
+            "p2": role_ref["fixed_path_endpoint"],
+        },
+    )
+    attainment_args: dict[str, Any] = {
+        "objective": rewrite_refs["expression"],
+        "candidate": ScopedStepResultRef(candidate.step_id, "distance"),
+        "candidate_point": role_ref["second_moving_point"],
+        "path_start": role_ref["first_track_fixed_endpoint"],
+        "path_end": role_ref["fixed_path_endpoint"],
+        "segment_start": role_ref["joint_point"],
+        "segment_end": role_ref["second_track_fixed_endpoint"],
+    }
+    if domain_condition_handle is not None:
+        attainment_args["domain_condition"] = _source_ref(
+            domain_condition_handle,
+            source_refs,
+        )
+    _attainment, attainment_refs = add_step(
+        "verify_attainment",
+        "verify_two_segment_path_attainment",
+        attainment_args,
+        derived={
+            "path_attainment": (
+                f"{prefix}.path_attainment",
+                "Condition",
+                "path_minimum_attained",
+            )
+        },
+    )
+    publication, _publication_refs = add_step(
+        "publish_minimum",
+        "certify_minimum_expression",
+        {
+            "expression": ScopedStepResultRef(candidate.step_id, "distance"),
+            "attainment_condition": attainment_refs["path_attainment"],
+        },
+    )
+    return FunctionalPlanFragment(
+        scope_id=scope_id,
+        steps=tuple(steps),
+        exports={
+            "minimum_expression": (
+                publication.step_id,
+                "minimum_expression",
+            )
+        },
+        dependency_envelope=dependency_envelope,
+        blueprint_id=(
+            COUPLED_SEGMENT_ENDPOINT_REPLACEMENT_BLUEPRINT.blueprint_version
+        ),
     )
 
 

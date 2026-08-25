@@ -20,6 +20,7 @@ from shuxueshuo_server.solver.family.models import (
     CapabilityPackSpec,
     CapabilityStateClosurePolicy,
     CONDITION_OBJECT_ROLES_RESOLVER,
+    COUPLED_SEGMENT_ENDPOINT_ROLES_RESOLVER,
     EQUAL_LENGTH_RAY_PATH_ROLES_RESOLVER,
     ConditionPattern,
     EvidenceInputGroupSpec,
@@ -357,12 +358,14 @@ def _condition(
     condition_kind: str,
     *,
     runtime_type: str = "Condition",
+    cardinality: CapabilityCardinality = "one",
     required: bool = True,
     description: str = "",
 ) -> ConditionPattern:
     return ConditionPattern(
         condition_kind=condition_kind,
         runtime_type=runtime_type,
+        cardinality=cardinality,
         required=required,
         description=description,
     )
@@ -1462,6 +1465,60 @@ EQUAL_LENGTH_RAY_PATH_REDUCTION = StepRecipeSpec(
     do_not_use_when=EQUAL_LENGTH_RAY_PATH_REDUCTION_DO_NOT_USE_WHEN,
 )
 
+COUPLED_SEGMENT_ENDPOINT_REPLACEMENT_PATH_MINIMUM = StepRecipeSpec(
+    recipe_id="coupled_segment_endpoint_replacement_path_minimum",
+    goal_type="derive_path_minimum_expression",
+    title="耦合线段端点替换并拉直求路径最值",
+    description=(
+        "当两个动点分别位于有公共端点的两条线段上，且结构化长度关系"
+        "能够把原路径中的动线段替换为第一条轨迹固定端点到第二动点的"
+        "线段时，先证明距离等价，再关于第二条轨迹反射、求交并验证"
+        "闭线段达到性，最终发布最小值表达式。"
+    ),
+    method_ids=(),
+    execution=RecipeExecutionSpec(
+        recipe_id="coupled_segment_endpoint_replacement_path_minimum",
+        method_sequence=(),
+        execution_mode="runtime_search",
+        search=MacroSearchSpec(
+            searchable_roles=(
+                "first_moving_point",
+                "second_moving_point",
+                "first_track_fixed_endpoint",
+                "joint_point",
+                "second_track_fixed_endpoint",
+                "fixed_path_endpoint",
+            ),
+            candidate_builder_id="path_role_assignments",
+            validation_policy_id="verified_function_fragment",
+            lowerer_id="functional_plan_fragment",
+            postcondition_id="predicate_publication",
+            evidence_builder_id="ordinary_plan_execution",
+        ),
+        execution_strategy="functional_plan_fragment",
+        output_aliases=(
+            recipe_output_alias(
+                "minimum_expression",
+                "MinimumExpression",
+                "minimum_expression",
+                goal_evidence_tags=("path_minimum_expression",),
+                result_form=ScalarResultFormSpec(
+                    possible_forms=("open_expression", "closed_value"),
+                    description=(
+                        "含未定参数时输出 open_expression；参数已闭合时输出 closed_value。"
+                    ),
+                ),
+            ),
+        ),
+    ),
+    priority="preferred",
+    do_not_use_when=(
+        "两动点轨迹没有共享端点，或长度关系不能证明端点替换距离等价。",
+        "目标已经是单动点标准折线路径，不需要耦合端点替换。",
+        "路径依赖射线等长、正方形或非1权重等不同数学机制。",
+    ),
+)
+
 
 DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
     CapabilityPackSpec(
@@ -1965,6 +2022,9 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
         method_ids=(
             "prove_coupled_segment_endpoint_distance_equality",
         ),
+        step_recipes=(
+            COUPLED_SEGMENT_ENDPOINT_REPLACEMENT_PATH_MINIMUM,
+        ),
         strategy_notes=(
             "当两个动点分别位于共享端点的两条线段上，且题面长度关系能够"
             "把两动点线段替换为已有固定端点到第二动点的线段时，先发布"
@@ -1972,6 +2032,70 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
             "Function完成最值证明；不要构造PathTransformation。",
         ),
         contracts=(
+            _recipe_contract(
+                "coupled_segment_endpoint_replacement_path_minimum",
+                slot_reads=(
+                    _slot(
+                        "coordinate",
+                        "PointRef",
+                        object_kind="point",
+                        semantic_role="first_moving_point",
+                        cardinality="optional",
+                        required=False,
+                        semantic_ref_role="object_identity",
+                    ),
+                    _slot(
+                        "coordinate",
+                        "PointRef",
+                        object_kind="point",
+                        semantic_role="second_moving_point",
+                        cardinality="optional",
+                        required=False,
+                        semantic_ref_role="object_identity",
+                    ),
+                    *(
+                        _slot(
+                            "coordinate",
+                            "Point",
+                            object_kind="point",
+                            semantic_role=role,
+                            cardinality="optional",
+                            required=False,
+                        )
+                        for role in (
+                            "first_track_fixed_endpoint",
+                            "joint_point",
+                            "second_track_fixed_endpoint",
+                            "fixed_path_endpoint",
+                        )
+                    ),
+                ),
+                condition_reads=(
+                    _condition("path_minimum_target"),
+                    _condition("point_on_segment", cardinality="many"),
+                    _condition("segment_length_relation"),
+                ),
+                slot_writes=(_slot("expression", "MinimumExpression"),),
+                dependency_policy="context_closure",
+                context_resolvers=(
+                    COUPLED_SEGMENT_ENDPOINT_ROLES_RESOLVER,
+                ),
+                context_role_bindings=tuple(
+                    CapabilityContextRoleBindingSpec(
+                        COUPLED_SEGMENT_ENDPOINT_ROLES_RESOLVER,
+                        role,
+                        role,
+                    )
+                    for role in (
+                        "first_moving_point",
+                        "second_moving_point",
+                        "first_track_fixed_endpoint",
+                        "joint_point",
+                        "second_track_fixed_endpoint",
+                        "fixed_path_endpoint",
+                    )
+                ),
+            ),
             PROVE_COUPLED_SEGMENT_ENDPOINT_DISTANCE_EQUALITY_CONTRACT,
         ),
         method_binding_rules=(
@@ -2280,5 +2404,6 @@ __all__ = [
     "RIGHT_ANGLE_EQUAL_LENGTH_CONSTRUCT_AND_SELECT",
     "TWO_MOVING_POINTS_PATH_REDUCTION",
     "BROKEN_PATH_STRAIGHTENING_MINIMUM_EXPRESSION",
+    "COUPLED_SEGMENT_ENDPOINT_REPLACEMENT_PATH_MINIMUM",
     "EQUAL_LENGTH_RAY_PATH_REDUCTION",
 ]

@@ -91,7 +91,7 @@ def test_capability_bundle_signature_covers_transparent_blueprint(tmp_path) -> N
         )
 
 
-def test_nankai_bundle_exposes_explicit_coupled_path_functions_without_new_macro(
+def test_nankai_bundle_exposes_coupled_path_functions_and_transparent_macro(
     tmp_path,
 ) -> None:
     fixture = planning_binding_fixture(
@@ -108,7 +108,12 @@ def test_nankai_bundle_exposes_explicit_coupled_path_functions_without_new_macro
         "prove_coupled_segment_endpoint_distance_equality",
         "rewrite_path_target_by_distance_equality",
     }.issubset(bundle.function_ids)
-    assert not any("coupled_segment_endpoint" in item for item in bundle.macro_ids)
+    macro_id = "coupled_segment_endpoint_replacement_path_minimum"
+    assert macro_id in bundle.macro_ids
+    assert macro_id in bundle.macro_blueprints
+    assert set(
+        bundle.macro_blueprints[macro_id].function_capability_ids
+    ) <= set(bundle.function_ids)
     assert "path_verification_core" in fixture[3].family_spec.base_packs
     assert (
         "coupled_segment_endpoint_replacement_core"

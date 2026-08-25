@@ -119,7 +119,11 @@ def test_macro_spec_registry_derives_executable_recipes_from_contracts() -> None
         assert spec.macro_id == recipe_id
         assert spec.recipe_id == recipe_id
         assert spec.returns
-        assert spec.internal_calls
+        if spec.adapter.execution_strategy == "functional_plan_fragment":
+            assert spec.internal_calls == ()
+            assert spec.execution_mode == "runtime_search"
+        else:
+            assert spec.internal_calls
         json.dumps(spec.to_payload(), ensure_ascii=False, sort_keys=True)
 
 
@@ -237,6 +241,7 @@ def test_every_registered_macro_has_an_audited_lowering_contract() -> None:
 
     assert set(macros) == {
         "broken_path_straightening_minimum_expression",
+        "coupled_segment_endpoint_replacement_path_minimum",
         "curve_candidate_parameter_solve",
         "equal_length_ray_path_reduction",
         "right_angle_equal_length_construct_and_select",
@@ -256,20 +261,24 @@ def test_every_registered_macro_has_an_audited_lowering_contract() -> None:
                 "target": "distance_between_points.parameter",
             } in adapter["input_derivations"]
 
-    for payload in macros["equal_length_ray_path_reduction"]:
-        equal_length_returns = {
-            item["semantic_role"]
-            for item in payload["adapter"]["output_aliases"]
-        }
-        assert equal_length_returns == {"minimum_expression"}
-        assert payload["internal_calls"] == []
-        assert payload["adapter"]["execution_strategy"] == (
-            "functional_plan_fragment"
-        )
-        assert payload["adapter"]["input_aliases"] == []
-        assert payload["adapter"]["input_derivations"] == []
-        assert payload["adapter"]["strategy_input_targets"] == []
-        assert payload["adapter"]["intermediate_wiring"] == []
+    for macro_id in (
+        "equal_length_ray_path_reduction",
+        "coupled_segment_endpoint_replacement_path_minimum",
+    ):
+        for payload in macros[macro_id]:
+            return_roles = {
+                item["semantic_role"]
+                for item in payload["adapter"]["output_aliases"]
+            }
+            assert return_roles == {"minimum_expression"}
+            assert payload["internal_calls"] == []
+            assert payload["adapter"]["execution_strategy"] == (
+                "functional_plan_fragment"
+            )
+            assert payload["adapter"]["input_aliases"] == []
+            assert payload["adapter"]["input_derivations"] == []
+            assert payload["adapter"]["strategy_input_targets"] == []
+            assert payload["adapter"]["intermediate_wiring"] == []
 
 
 def test_every_path_transformation_uses_planner_declared_moving_point() -> None:

@@ -1160,33 +1160,34 @@ class FunctionalSemanticIndex:
         establish a structurally legal candidate.
         """
 
-        if capability_id != "equal_length_ray_path_reduction":
+        definitions = default_macro_definition_registry()
+        if capability_id not in definitions.macro_ids:
             return None
-        fact_groups: dict[str, list[tuple[str, Mapping[str, Any]]]] = {
-            "point_on_ray": [],
-            "point_on_segment": [],
-            "equal_length_condition": [],
-            "path_minimum_target": [],
-        }
-        for handle, payload in self.fact_payloads.items():
-            fact_type = str(
-                self.handle_registry.fact_types.get(handle)
-                or payload.get("type")
-                or ""
-            )
-            if fact_type in fact_groups:
-                fact_groups[fact_type].append((handle, payload))
         point_handles = tuple(
             handle
             for handle, payload in self.entity_payloads.items()
             if str(payload.get("type", "")).lower() == "point"
             or handle.startswith("point:")
         )
-
         try:
-            candidates = default_macro_definition_registry().project_role_bindings(
-                capability_id,
-                builder_context={
+            if capability_id == "equal_length_ray_path_reduction":
+                fact_groups: dict[
+                    str, list[tuple[str, Mapping[str, Any]]]
+                ] = {
+                    "point_on_ray": [],
+                    "point_on_segment": [],
+                    "equal_length_condition": [],
+                    "path_minimum_target": [],
+                }
+                for handle, payload in self.fact_payloads.items():
+                    fact_type = str(
+                        self.handle_registry.fact_types.get(handle)
+                        or payload.get("type")
+                        or ""
+                    )
+                    if fact_type in fact_groups:
+                        fact_groups[fact_type].append((handle, payload))
+                builder_contexts = ({
                     "ray_facts": fact_groups["point_on_ray"],
                     "segment_facts": fact_groups["point_on_segment"],
                     "equal_facts": fact_groups["equal_length_condition"],
@@ -1196,14 +1197,47 @@ class FunctionalSemanticIndex:
                         point_handles=point_handles,
                         entity_payloads=self.entity_payloads,
                     ),
-                },
-                max_candidates=32,
+                },)
+            else:
+                target_handles = tuple(
+                    handle
+                    for handle, payload in self.fact_payloads.items()
+                    if str(
+                        self.handle_registry.fact_types.get(handle)
+                        or payload.get("type")
+                        or ""
+                    )
+                    == "path_minimum_target"
+                )
+                condition_handles = tuple(self.fact_payloads)
+                builder_contexts = tuple(
+                    {
+                        "handle_registry": self.handle_registry,
+                        "scope_id": self.handle_registry.handle_valid_scopes.get(
+                            target_handle,
+                            "problem",
+                        ),
+                        "target_handles": (target_handle,),
+                        "condition_handles": condition_handles,
+                    }
+                    for target_handle in target_handles
+                )
+            candidates = tuple(
+                candidate
+                for builder_context in builder_contexts
+                for candidate in definitions.project_role_bindings(
+                    capability_id,
+                    builder_context=builder_context,
+                    max_candidates=32,
+                )
             )
         except MacroDefinitionError as exc:
             raise MacroRuntimeSearchError(
                 exc.code,
                 str(exc),
-                retryability="configuration",
+                retryability=(
+                    "planner_repairable" if exc.retryable else "configuration"
+                ),
                 details=dict(exc.details),
             ) from exc
         refs_by_handle: dict[str, tuple[str, ...]] = {}
@@ -1219,7 +1253,10 @@ class FunctionalSemanticIndex:
                 )
             )
         result: dict[str, tuple[str, ...]] = {}
-        for role in ("anchor", "reference_point", "ray_point", "fixed_point"):
+        role_names = definitions.require(
+            capability_id
+        ).search_contract.searchable_roles
+        for role in role_names:
             handles = tuple(
                 sorted(
                     {

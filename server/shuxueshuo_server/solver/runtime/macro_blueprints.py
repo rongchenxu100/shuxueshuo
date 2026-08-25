@@ -113,8 +113,60 @@ EQUAL_LENGTH_RAY_PATH_BLUEPRINT = MacroSemanticBlueprint(
 )
 
 
+COUPLED_SEGMENT_ENDPOINT_REPLACEMENT_BLUEPRINT = MacroSemanticBlueprint(
+    macro_id="coupled_segment_endpoint_replacement_path_minimum",
+    summary=(
+        "Use two segment-membership Facts and their binding length relation "
+        "to replace a coupled moving endpoint, then reflect and straighten "
+        "the resulting single-moving-point path."
+    ),
+    applicable_structure=(
+        "the objective is a two-term path whose terms share the second moving point",
+        "the two moving points lie on closed segments with one common track endpoint",
+        "a structured segment-length relation links the two moving positions",
+        "the replacement and fixed path endpoints have materialized Point states",
+    ),
+    role_invariants=(
+        "all path, membership, relation, and Point roles come from visible structured sources",
+        "the first and second track share exactly one joint endpoint",
+        "the path target identifies exactly one fixed endpoint outside the moving pair",
+    ),
+    construction_purpose=(
+        "prove the moving segment equals the segment from the first fixed endpoint to the second moving point",
+        "reflect the replacement endpoint across the second moving point's supporting line",
+        "materialize the equality point as the reflected path's line intersection with the legal segment",
+    ),
+    proof_obligations=(
+        "publish distance_equality only from both memberships and the exact binding relation",
+        "rewrite the exact path target with that published distance_equality Condition",
+        "certify only the exact candidate value attested by path_minimum_attained",
+    ),
+    reduction_strategies=(
+        "coupled segment endpoint replacement",
+        "reflection straightening across the second moving point track",
+    ),
+    attainment_checks=(
+        "the reflected line intersects the closed moving segment",
+        "the structured parameter domain makes the intersection attainable",
+        "the straightened distance is the same candidate consumed by minimum certification",
+    ),
+    function_capability_ids=(
+        "prove_coupled_segment_endpoint_distance_equality",
+        "reflect_point_across_line",
+        "line_intersection_point",
+        "rewrite_path_target_by_distance_equality",
+        "distance_between_points",
+        "verify_two_segment_path_attainment",
+        "certify_minimum_expression",
+    ),
+)
+
+
 def default_macro_blueprints() -> dict[str, MacroSemanticBlueprint]:
     return {
+        COUPLED_SEGMENT_ENDPOINT_REPLACEMENT_BLUEPRINT.macro_id: (
+            COUPLED_SEGMENT_ENDPOINT_REPLACEMENT_BLUEPRINT
+        ),
         EQUAL_LENGTH_RAY_PATH_BLUEPRINT.macro_id: (
             EQUAL_LENGTH_RAY_PATH_BLUEPRINT
         )
@@ -122,6 +174,7 @@ def default_macro_blueprints() -> dict[str, MacroSemanticBlueprint]:
 
 
 __all__ = [
+    "COUPLED_SEGMENT_ENDPOINT_REPLACEMENT_BLUEPRINT",
     "EQUAL_LENGTH_RAY_PATH_BLUEPRINT",
     "MacroSemanticBlueprint",
     "default_macro_blueprints",

@@ -459,6 +459,120 @@ def _build_equal_length_ray_preparation_context(
     )
 
 
+def _build_coupled_segment_preparation_context(
+    request: MacroPreparationRequest,
+) -> MacroDefinitionPreparationContext:
+    """Project exact public Facts and visible sources for the C2 Macro."""
+
+    environment = request.environment
+    prepared = getattr(environment, "prepared_call", None)
+    handle_registry = getattr(environment, "handle_registry", None)
+    binding_catalog = getattr(environment, "binding_catalog", None)
+    max_candidates = getattr(environment, "max_candidates", None)
+    if (
+        prepared is None
+        or handle_registry is None
+        or not isinstance(max_candidates, int)
+        or max_candidates <= 0
+    ):
+        raise MacroRuntimeSearchError(
+            "planner.macro_contract_invalid",
+            "coupled-segment Macro preparation requires a typed execution environment",
+            retryability="configuration",
+        )
+    resolved_args = getattr(prepared.reconciliation, "resolved_args", {})
+    condition_handles = tuple(
+        sorted(
+            {
+                value.handle
+                for values in resolved_args.values()
+                for value in values
+                if value.handle in handle_registry.fact_handles
+            }
+        )
+    )
+    target_handles = tuple(
+        handle
+        for handle in condition_handles
+        if handle_registry.fact_types.get(handle) == "path_minimum_target"
+    )
+    if not target_handles:
+        raise MacroRuntimeSearchError(
+            "planner.macro_contract_invalid",
+            "coupled-segment Macro has no exact path target",
+            retryability="configuration",
+        )
+    visible_scopes = frozenset(
+        handle_registry.ancestor_scopes(prepared.execution_scope_id)
+    )
+    domain_facts = tuple(
+        sorted(
+            (handle, payload)
+            for handle, payload in handle_registry.fact_payloads.items()
+            if payload.get("type") == "symbol_constraint"
+            and handle_registry.handle_valid_scopes.get(handle)
+            in visible_scopes
+        )
+    )
+    point_handles = tuple(
+        sorted(
+            handle
+            for handle in handle_registry.entity_handles
+            if handle.startswith("point:")
+            and handle_registry.handle_valid_scopes.get(handle)
+            in visible_scopes
+        )
+    )
+    source_refs_by_handle: dict[str, str] = {}
+    if binding_catalog is None:
+        source_refs_by_handle.update(
+            {
+                handle: handle.rsplit(":", 1)[-1]
+                for handle in (
+                    *handle_registry.entity_handles,
+                    *handle_registry.fact_handles,
+                )
+            }
+        )
+    else:
+        for source in binding_catalog.bindings.values():
+            if source.usage != "input" or source.owner_scope_id not in visible_scopes:
+                continue
+            handle = source.runtime_node_id
+            ref = source.semantic_ref.ref
+            previous = source_refs_by_handle.get(handle)
+            if previous is not None and previous != ref:
+                raise MacroRuntimeSearchError(
+                    "planner.macro_contract_invalid",
+                    "one runtime source has multiple visible SemanticRefs",
+                    retryability="configuration",
+                    details={"runtime_node_id": handle},
+                )
+            source_refs_by_handle[handle] = ref
+    context = MappingProxyType(
+        {
+            "handle_registry": handle_registry,
+            "scope_id": prepared.execution_scope_id,
+            "target_handles": target_handles,
+            "condition_handles": condition_handles,
+            "domain_facts": domain_facts,
+            "source_refs_by_handle": MappingProxyType(
+                dict(sorted(source_refs_by_handle.items()))
+            ),
+            "max_candidates": max_candidates,
+        }
+    )
+    dependency_envelope = {
+        *point_handles,
+        *condition_handles,
+        *(handle for handle, _payload in domain_facts),
+    }
+    return MacroDefinitionPreparationContext(
+        payload=context,
+        candidate_dependency_envelope=tuple(sorted(dependency_envelope)),
+    )
+
+
 __all__ = [
     "MacroCandidateBindingAuthority",
     "MacroPreparationEnvironment",
@@ -466,4 +580,5 @@ __all__ = [
     "MacroPreparationRequest",
     "MacroPreparationService",
     "PreparedMacroInvocation",
+    "_build_coupled_segment_preparation_context",
 ]

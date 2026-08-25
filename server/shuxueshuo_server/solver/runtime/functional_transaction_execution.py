@@ -4925,6 +4925,7 @@ def _prepare_runtime_search_macro(
                 object_registry=object_registry,
                 handle_registry=handle_registry,
                 inputs=inputs,
+                capability_catalog=capability_catalog,
                 branch=shadow_context,
             )
             if not fragment_execution.passed:
@@ -5179,6 +5180,7 @@ def _execute_macro_candidate_shadow_fragment(
     object_registry: MathObjectRegistry,
     handle_registry: CanonicalHandleRegistry,
     inputs: PlannerInputs,
+    capability_catalog: FunctionalCapabilityCatalog,
     branch: RuntimeContext,
 ) -> FunctionalPlanFragmentExecution:
     """Execute one fragment through typed Method read authorities."""
@@ -5267,25 +5269,63 @@ def _execute_macro_candidate_shadow_fragment(
         handle = next(iter(handles))
         fact_payload = handle_registry.fact_payloads.get(handle)
         if fact_payload is not None:
+            condition_index = reconciliation.condition_binding_authority_index
+            condition_authorities = tuple(
+                item
+                for item in (
+                    condition_index.authorities
+                    if condition_index is not None
+                    else ()
+                )
+                if item.runtime_handle == handle
+            )
+            if len(condition_authorities) != 1:
+                raise MacroRuntimeSearchError(
+                    "planner.method_input_view_authority_drift",
+                    "transparent fragment Condition has no unique typed authority",
+                    retryability="configuration",
+                    details={
+                        "call_id": prepared.call_id,
+                        "semantic_ref": semantic_ref,
+                        "runtime_node_id": handle,
+                        "candidate_count": len(condition_authorities),
+                    },
+                )
+            condition_authority = condition_authorities[0]
+            normalized_condition = {
+                **dict(fact_payload),
+                "condition_id": condition_authority.condition_id,
+                "kind": condition_authority.condition_kind,
+                "scope_id": condition_authority.owner_scope_id,
+                "valid_scope": condition_authority.valid_scope_id,
+                "object_roles": {
+                    role: list(refs)
+                    for role, refs in condition_authority.object_role_refs
+                },
+            }
             path = materialize(
                 semantic_ref,
                 view_mode,
                 runtime_type,
-                TypedValue("Condition", dict(fact_payload), source=handle),
+                TypedValue("Condition", normalized_condition, source=handle),
             )
             return FragmentRuntimeSource(
                 semantic_ref=semantic_ref,
                 runtime_type="Condition",
-                value=dict(fact_payload),
+                value=normalized_condition,
                 authority_signature=stable_hash(
                     {
                         "kind": "problem_condition",
                         "handle": handle,
-                        "payload": dict(fact_payload),
+                        "condition_id": condition_authority.condition_id,
+                        "payload": normalized_condition,
                     }
                 ),
                 runtime_path=path,
-                read_source=ConditionReadSource(handle, path),
+                read_source=ConditionReadSource(
+                    condition_authority.condition_id,
+                    path,
+                ),
             )
 
         object_id = object_registry.resolve(handle)
@@ -5384,6 +5424,7 @@ def _execute_macro_candidate_shadow_fragment(
             inputs.method_specs,
         ),
         inputs.method_specs,
+        capability_catalog=capability_catalog,
     ).execute(
         candidate.candidate.fragment,
         context=branch,

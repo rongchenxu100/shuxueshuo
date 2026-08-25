@@ -709,6 +709,7 @@ CapabilityStateClosurePolicy = Literal[
 ]
 CapabilityContextResolver = Literal[
     "condition_object_roles",
+    "coupled_segment_endpoint_roles",
     "equal_length_ray_path_roles",
     "path_reduction_roles",
     "square_path_transformation_roles",
@@ -716,6 +717,9 @@ CapabilityContextResolver = Literal[
 ]
 CONDITION_OBJECT_ROLES_RESOLVER: CapabilityContextResolver = (
     "condition_object_roles"
+)
+COUPLED_SEGMENT_ENDPOINT_ROLES_RESOLVER: CapabilityContextResolver = (
+    "coupled_segment_endpoint_roles"
 )
 EQUAL_LENGTH_RAY_PATH_ROLES_RESOLVER: CapabilityContextResolver = (
     "equal_length_ray_path_roles"
