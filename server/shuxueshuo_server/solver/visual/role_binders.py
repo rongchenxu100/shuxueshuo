@@ -313,7 +313,10 @@ class VisualRoleBinderRegistry:
                 continue
             meta = point_meta.get(geometry_id) if isinstance(point_meta, dict) else None
             label = str((meta or {}).get("label") or geometry_id)
-            coordinates[geometry_id] = f"{label}({_coordinate_expr(pair[0])},{_coordinate_expr(pair[1])})"
+            coordinates[geometry_id] = (
+                f"{label}({_coordinate_expr(pair[0])}, "
+                f"{_coordinate_expr(pair[1])})"
+            )
         return coordinates
 
     def _curve_ids_for_scope(self, scope_id: str) -> list[str]:
@@ -345,6 +348,12 @@ class VisualRoleBinderRegistry:
                 if not isinstance(item, dict) or item.get("type") != "MinimumExpression":
                     continue
                 source_step_id = str(item.get("source_step_id") or "")
+                labels.update(
+                    self._macro_export_dependency_labels(
+                        source_step_id,
+                        snapshot,
+                    )
+                )
                 source_step = source_steps.get(source_step_id)
                 if not source_step:
                     continue
@@ -354,6 +363,48 @@ class VisualRoleBinderRegistry:
                         source_step_id,
                         snapshot,
                         labels,
+                    )
+                )
+        return labels
+
+    def _macro_export_dependency_labels(
+        self,
+        source_step_id: str,
+        snapshot: ExplanationSnapshot,
+    ) -> set[str]:
+        """Recover drawable roles when a value is exported by generated steps."""
+
+        labels: set[str] = set()
+        for evidence in snapshot.macro_evidence:
+            exports = evidence.get("exports")
+            if not isinstance(exports, dict) or not any(
+                isinstance(item, dict)
+                and item.get("step_id") == source_step_id
+                for item in exports.values()
+            ):
+                continue
+            for resolution in evidence.get("role_resolutions", ()):
+                if (
+                    isinstance(resolution, dict)
+                    and resolution.get("role") == "fixed_point"
+                ):
+                    labels.update(
+                        _capital_point_labels(
+                            str(resolution.get("chosen_ref") or "")
+                        )
+                    )
+            for construction in evidence.get("constructions", ()):
+                if (
+                    not isinstance(construction, dict)
+                    or construction.get("semantic_role") != "auxiliary_point"
+                ):
+                    continue
+                coordinate = construction.get("coordinate")
+                if not isinstance(coordinate, dict):
+                    continue
+                labels.update(
+                    self._geometry_labels_for_point_value(
+                        [coordinate.get("x"), coordinate.get("y")]
                     )
                 )
         return labels

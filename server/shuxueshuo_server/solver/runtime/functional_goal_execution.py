@@ -27,20 +27,6 @@ from shuxueshuo_server.solver.runtime.functional_diagnostics import (
     FunctionalPromptDiagnosticProjector,
     diagnostic_authority_from_issue,
 )
-from shuxueshuo_server.solver.runtime.functional_execution_authority import (
-    FunctionalExecutionEvidence,
-    VERIFIED_FUNCTIONAL_PLAN_EXECUTION_CONTRACT,
-    functional_execution_evidence_from_payload,
-    functional_execution_evidence_schema,
-)
-from shuxueshuo_server.solver.runtime.functional_subplan import (
-    FunctionalPlanFragment,
-    SingleFragmentSelection,
-    VerificationOutcome,
-    VerifiedSubplanCleanExecution,
-    VerifiedSubplanExecution,
-    VerifiedSubplanWitness,
-)
 from shuxueshuo_server.solver.runtime.functional_debug_aliases import (
     functional_call_local_debug_alias,
 )
@@ -77,7 +63,17 @@ from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
     FunctionalRuntimeEquivalentCallAlias,
     FunctionalRestoredCallSeed,
     build_functional_execution_restore_seed,
+    merge_macro_materialization_prefix_report,
     rebase_restored_call_seed,
+)
+from shuxueshuo_server.solver.runtime.macro_plan_materialization import (
+    MacroExpansionRecord,
+    MacroPlanMaterializationError,
+    MacroWinnerPlanMaterializationRequired,
+    macro_expansion_record_schema,
+    materialize_macro_winner,
+    rebase_macro_expansion_records,
+    verify_macro_expansion_clean_outputs,
 )
 
 
@@ -86,6 +82,9 @@ FUNCTIONAL_GOAL_EXECUTION_CHECKPOINT_CONTRACT = (
 )
 FUNCTIONAL_EXECUTION_RESTORE_STATE_CONTRACT = (
     "functional-execution-restore-state/v1"
+)
+VERIFIED_FUNCTIONAL_PLAN_EXECUTION_CONTRACT = (
+    "verified-functional-plan-execution/v2"
 )
 FunctionalGoalStepStatus = Literal[
     "valid",
@@ -171,11 +170,6 @@ def functional_goal_execution_checkpoint_schema() -> dict[str, Any]:
                     },
                     "additionalProperties": False,
                 },
-            },
-            "evidence": {
-                "type": "array",
-                "minItems": 1,
-                "items": {"$ref": "#/$defs/execution_evidence"},
             },
             "typed_issue": {"type": "object"},
             "blocked_by": {
@@ -300,6 +294,11 @@ def functional_goal_execution_checkpoint_schema() -> dict[str, Any]:
                 "type": "array",
                 "items": {"type": "object"},
             },
+            "macro_expansions": {
+                "type": "array",
+                "minItems": 1,
+                "items": {"$ref": "#/$defs/macro_expansion_record"},
+            },
             "metrics": {"$ref": "#/$defs/metrics"},
             "planning_context_id": nonempty,
             "problem_revision_id": nonempty,
@@ -319,6 +318,7 @@ def functional_goal_execution_checkpoint_schema() -> dict[str, Any]:
                 "required": [
                     "schema_version",
                     "state_versions",
+                    "state_version_aliases",
                     "call_results",
                     "conditions",
                     "compiled_calls",
@@ -327,7 +327,6 @@ def functional_goal_execution_checkpoint_schema() -> dict[str, Any]:
                     "source_read_signatures",
                     "runtime_write_signatures",
                     "publication_signatures",
-                    "macro_preparations",
                     "restore_signature",
                 ],
                 "properties": {
@@ -335,6 +334,10 @@ def functional_goal_execution_checkpoint_schema() -> dict[str, Any]:
                         "const": FUNCTIONAL_EXECUTION_RESTORE_STATE_CONTRACT,
                     },
                     "state_versions": {
+                        "type": "array",
+                        "items": {"type": "object"},
+                    },
+                    "state_version_aliases": {
                         "type": "array",
                         "items": {"type": "object"},
                     },
@@ -370,10 +373,6 @@ def functional_goal_execution_checkpoint_schema() -> dict[str, Any]:
                         "type": "object",
                         "additionalProperties": nonempty,
                     },
-                    "macro_preparations": {
-                        "type": "array",
-                        "items": {"type": "object"},
-                    },
                     "restore_signature": nonempty,
                 },
                 "additionalProperties": False,
@@ -387,7 +386,7 @@ def functional_goal_execution_checkpoint_schema() -> dict[str, Any]:
             "return_binding": plan_defs["return_binding"],
             "authored_step": plan_defs["step"],
             "execution_step": execution_step,
-            "execution_evidence": functional_execution_evidence_schema(),
+            "macro_expansion_record": macro_expansion_record_schema(),
             "execution_goal": goal,
             "metrics": metrics,
             **scope_defs,
@@ -403,7 +402,6 @@ class FunctionalGoalExecutionStep:
     authored_step: Mapping[str, Any]
     resolved_inputs: tuple[Mapping[str, Any], ...] = ()
     actual_outputs: tuple[Mapping[str, Any], ...] = ()
-    evidence: tuple[FunctionalExecutionEvidence, ...] = ()
     typed_issue: Mapping[str, Any] | None = None
     blocked_by: tuple[str, ...] = ()
 
@@ -419,21 +417,6 @@ class FunctionalGoalExecutionStep:
             "actual_outputs",
             tuple(MappingProxyType(dict(item)) for item in self.actual_outputs),
         )
-        object.__setattr__(self, "evidence", tuple(self.evidence))
-        evidence_ids = tuple(
-            getattr(
-                item,
-                "witness_id",
-                getattr(
-                    item,
-                    "evidence_id",
-                    getattr(item, "execution_signature", None),
-                ),
-            )
-            for item in self.evidence
-        )
-        if len(evidence_ids) != len(set(evidence_ids)):
-            raise ValueError("Functional execution evidence must be unique")
         if self.typed_issue is not None:
             object.__setattr__(
                 self,
@@ -465,8 +448,6 @@ class FunctionalGoalExecutionStep:
 
     def authority_payload(self) -> dict[str, Any]:
         payload = self.to_prompt_payload(include_authored_step=True)
-        if self.evidence:
-            payload["evidence"] = [item.authority_payload() for item in self.evidence]
         return payload
 
     def to_retry_prompt_payload(
@@ -477,16 +458,6 @@ class FunctionalGoalExecutionStep:
         """Project execution delta; Previous Canonical Plan owns authored wire."""
 
         payload = self.to_prompt_payload(include_authored_step=False)
-        if planning_context is not None:
-            prompt_evidence = tuple(
-                _verified_subplan_prompt_evidence(
-                    item,
-                    planning_context=planning_context,
-                )
-                for item in self.evidence
-            )
-            if prompt_evidence:
-                payload["evidence"] = list(prompt_evidence)
         return payload
 
 
@@ -556,6 +527,7 @@ class FunctionalExecutionRestoreState:
     """Private typed namespaces and signatures owned by one Goal checkpoint."""
 
     state_versions: tuple[Mapping[str, Any], ...] = ()
+    state_version_aliases: tuple[Mapping[str, Any], ...] = ()
     call_results: tuple[Mapping[str, Any], ...] = ()
     conditions: tuple[Mapping[str, Any], ...] = ()
     compiled_calls: tuple[Mapping[str, Any], ...] = ()
@@ -564,7 +536,6 @@ class FunctionalExecutionRestoreState:
     source_read_signatures: Mapping[str, str] = field(default_factory=dict)
     runtime_write_signatures: Mapping[str, str] = field(default_factory=dict)
     publication_signatures: Mapping[str, str] = field(default_factory=dict)
-    macro_preparations: tuple[Mapping[str, Any], ...] = ()
     runtime_seed: FunctionalRestoredCallSeed | None = field(
         default=None,
         repr=False,
@@ -582,12 +553,12 @@ class FunctionalExecutionRestoreState:
             )
         for name in (
             "state_versions",
+            "state_version_aliases",
             "call_results",
             "conditions",
             "compiled_calls",
             "call_reconciliations",
             "finalized_call_bindings",
-            "macro_preparations",
         ):
             object.__setattr__(
                 self,
@@ -617,6 +588,9 @@ class FunctionalExecutionRestoreState:
         payload = {
             "schema_version": self.schema_version,
             "state_versions": [dict(item) for item in self.state_versions],
+            "state_version_aliases": [
+                dict(item) for item in self.state_version_aliases
+            ],
             "call_results": [dict(item) for item in self.call_results],
             "conditions": [dict(item) for item in self.conditions],
             "compiled_calls": [dict(item) for item in self.compiled_calls],
@@ -631,9 +605,6 @@ class FunctionalExecutionRestoreState:
                 self.runtime_write_signatures
             ),
             "publication_signatures": dict(self.publication_signatures),
-            "macro_preparations": [
-                dict(item) for item in self.macro_preparations
-            ],
         }
         if include_signature:
             payload["restore_signature"] = self.restore_signature
@@ -694,6 +665,16 @@ class FunctionalExecutionRestoreState:
                 key=lambda item: stable_hash(item[0].to_payload()),
             )
         )
+        state_version_aliases = tuple(
+            {
+                "candidate_version_id": candidate.to_payload(),
+                "canonical_version_id": canonical.to_payload(),
+            }
+            for candidate, canonical in sorted(
+                seed.runtime_version_aliases.items(),
+                key=lambda item: stable_hash(item[0].to_payload()),
+            )
+        )
         call_results = tuple(
             {
                 "call_id": record.call_id,
@@ -722,13 +703,9 @@ class FunctionalExecutionRestoreState:
             )
             if binding.status == "finalized"
         )
-        macro_preparations = tuple(
-            item.macro_preparation_authority.authority_payload()
-            for item in seed.compiled_calls
-            if item.macro_preparation_authority is not None
-        )
         return cls(
             state_versions=state_versions,
+            state_version_aliases=state_version_aliases,
             call_results=call_results,
             conditions=tuple(
                 condition.to_payload()
@@ -743,7 +720,6 @@ class FunctionalExecutionRestoreState:
             source_read_signatures=seed.source_read_authorities,
             runtime_write_signatures=seed.runtime_write_authorities,
             publication_signatures=seed.publication_authorities,
-            macro_preparations=macro_preparations,
             runtime_seed=seed,
         )
 
@@ -778,13 +754,31 @@ class FunctionalExecutionRestoreState:
             for result in selected_results
             for version in result.committed_versions
         }
+        selected_compiled = tuple(
+            compiled_by_call[call_id]
+            for call_id in seed.call_ids
+            if call_id in call_ids
+        )
+        selected_output_versions = {
+            returned.expected_write.selected_version_id
+            for compiled in selected_compiled
+            for returned in compiled.public_returns
+            if returned.expected_write is not None
+            and returned.expected_write.selected_version_id is not None
+        }
+        all_published_condition_ids = {
+            condition.condition_id
+            for result in seed.call_results
+            for condition in result.published_conditions
+        }
+        selected_published_condition_ids = {
+            condition.condition_id
+            for result in selected_results
+            for condition in result.published_conditions
+        }
         return FunctionalRestoredCallSeed(
             call_results=selected_results,
-            compiled_calls=tuple(
-                compiled_by_call[call_id]
-                for call_id in seed.call_ids
-                if call_id in call_ids
-            ),
+            compiled_calls=selected_compiled,
             runtime_version_values={
                 key: value
                 for key, value in seed.runtime_version_values.items()
@@ -797,12 +791,24 @@ class FunctionalExecutionRestoreState:
                 )
                 if key in selected_versions
             },
+            runtime_version_aliases={
+                candidate: canonical
+                for candidate, canonical in (
+                    seed.runtime_version_aliases.items()
+                )
+                if candidate in selected_output_versions
+            },
             call_result_records={
                 key: value
                 for key, value in seed.call_result_records.items()
                 if key[0] in call_ids
             },
-            conditions=seed.conditions,
+            conditions={
+                condition_id: condition
+                for condition_id, condition in seed.conditions.items()
+                if condition_id not in all_published_condition_ids
+                or condition_id in selected_published_condition_ids
+            },
             source_read_authorities={
                 key: value
                 for key, value in seed.source_read_authorities.items()
@@ -856,6 +862,12 @@ class FunctionalExecutionRestoreState:
                 _mapping(item)
                 for item in _sequence(candidate.get("state_versions", ()))
             ),
+            state_version_aliases=tuple(
+                _mapping(item)
+                for item in _sequence(
+                    candidate.get("state_version_aliases", ())
+                )
+            ),
             call_results=tuple(
                 _mapping(item)
                 for item in _sequence(candidate.get("call_results", ()))
@@ -898,12 +910,6 @@ class FunctionalExecutionRestoreState:
                     candidate.get("publication_signatures", {})
                 ).items()
             },
-            macro_preparations=tuple(
-                _mapping(item)
-                for item in _sequence(
-                    candidate.get("macro_preparations", ())
-                )
-            ),
         )
         if observed_signature != state.restore_signature:
             raise FunctionalGoalExecutionCheckpointError(
@@ -934,6 +940,7 @@ class FunctionalGoalExecutionCheckpoint:
     blocked_stage: str | None
     checkpoint_id: str
     diagnostic_authorities: tuple[Mapping[str, Any], ...] = ()
+    macro_expansions: tuple[MacroExpansionRecord, ...] = ()
     schema_version: str = FUNCTIONAL_GOAL_EXECUTION_CHECKPOINT_CONTRACT
 
     def __post_init__(self) -> None:
@@ -949,6 +956,16 @@ class FunctionalGoalExecutionCheckpoint:
                 MappingProxyType(dict(item))
                 for item in self.diagnostic_authorities
             ),
+        )
+        object.__setattr__(
+            self,
+            "macro_expansions",
+            tuple(self.macro_expansions),
+        )
+        _validate_macro_expansion_chain(
+            self.macro_expansions,
+            final_plan_id=self.plan_id,
+            root_scope=self.root_scope,
         )
         object.__setattr__(
             self,
@@ -993,7 +1010,7 @@ class FunctionalGoalExecutionCheckpoint:
         }
 
     def authority_payload(self) -> dict[str, Any]:
-        return {
+        payload = {
             **self.to_prompt_payload(),
             "root_scope": self.root_scope.authority_payload(),
             "diagnostic_authorities": [
@@ -1018,6 +1035,11 @@ class FunctionalGoalExecutionCheckpoint:
             "restore_state": self.restore_state.authority_payload(),
             "checkpoint_id": self.checkpoint_id,
         }
+        if self.macro_expansions:
+            payload["macro_expansions"] = [
+                item.to_payload() for item in self.macro_expansions
+            ]
+        return payload
 
     def verify_authority(
         self,
@@ -1195,6 +1217,10 @@ class FunctionalGoalExecutionCheckpoint:
                 else None
             ),
             checkpoint_id=str(candidate["checkpoint_id"]),
+            macro_expansions=tuple(
+                MacroExpansionRecord.from_payload(_mapping(item))
+                for item in _sequence(candidate.get("macro_expansions", ()))
+            ),
         )
         expected = stable_hash(_checkpoint_identity_payload(checkpoint))
         if checkpoint.checkpoint_id != expected:
@@ -1418,6 +1444,7 @@ class ScopedFunctionalGoalExecutionResult:
         FunctionalRuntimeEquivalentCallAlias, ...
     ] = ()
     verified_execution: VerifiedFunctionalPlanExecution | None = None
+    macro_expansions: tuple[MacroExpansionRecord, ...] = ()
 
 
 def _normalize_runtime_equivalent_reuses(
@@ -1655,6 +1682,79 @@ def _checkpoint_identity_payload(
     return payload
 
 
+def _validate_macro_expansion_chain(
+    records: Sequence[MacroExpansionRecord],
+    *,
+    final_plan_id: str,
+    root_scope: FunctionalGoalExecutionScope,
+) -> None:
+    seen_macro_steps: set[str] = set()
+    authored_steps: dict[str, Mapping[str, Any]] = {}
+
+    def visit(scope: FunctionalGoalExecutionScope) -> None:
+        for step in scope.scope_steps:
+            authored_steps[step.step_id] = step.authored_step
+        for goal in scope.goals:
+            for step in goal.steps:
+                authored_steps[step.step_id] = step.authored_step
+        for child in scope.children:
+            visit(child)
+
+    visit(root_scope)
+    for record in records:
+        if record.macro_step_id in seen_macro_steps:
+            raise ValueError("Macro expansion chain repeats one authored step")
+        seen_macro_steps.add(record.macro_step_id)
+        if record.materialized_plan_id != final_plan_id:
+            raise ValueError(
+                "Macro expansion final Plan identity drift: "
+                f"expected={record.materialized_plan_id}, "
+                f"observed={final_plan_id}"
+            )
+        for step_id, signature in record.generated_step_signatures.items():
+            authored_step = authored_steps.get(step_id)
+            if authored_step is None or stable_hash(dict(authored_step)) != signature:
+                raise ValueError("Macro generated-step authority drift")
+
+
+def _merge_materialization_prefix_execution(
+    result: ScopedFunctionalGoalExecutionResult,
+    prefix_report: Any | None,
+) -> ScopedFunctionalGoalExecutionResult:
+    replay = result.replay
+    if (
+        prefix_report is None
+        or replay is None
+        or replay.transactional_attempt_result is None
+    ):
+        return result
+    attempt = replay.transactional_attempt_result
+    merged_report = merge_macro_materialization_prefix_report(
+        attempt.execution_report,
+        prefix_report,
+    )
+    merged_attempt = replace(attempt, execution_report=merged_report)
+    merged_replay = replace(
+        replay,
+        transactional_execution_report=merged_report,
+        transactional_attempt_result=merged_attempt,
+    )
+    aliases = tuple(
+        {
+            stable_hash(item.to_payload()): item
+            for item in (
+                *prefix_report.runtime_equivalent_aliases,
+                *result.runtime_equivalent_aliases,
+            )
+        }.values()
+    )
+    return replace(
+        result,
+        replay=merged_replay,
+        runtime_equivalent_aliases=aliases,
+    )
+
+
 def _execution_graph_signature(
     dependency_graph: Mapping[str, Sequence[str]],
 ) -> str:
@@ -1715,10 +1815,6 @@ def _step_from_payload(
             _mapping(item)
             for item in _sequence(payload.get("actual_outputs", ()))
         ),
-        evidence=tuple(
-            functional_execution_evidence_from_payload(_mapping(item))
-            for item in _sequence(payload.get("evidence", ()))
-        ),
         typed_issue=(
             _mapping(typed_issue) if typed_issue is not None else None
         ),
@@ -1771,6 +1867,7 @@ class ScopedFunctionalGoalExecutionService:
         attempt: int = 0,
         restored_seed: FunctionalRestoredCallSeed | None = None,
         published_goal_bindings: Sequence[ScopedPublishedGoalBinding] = (),
+        macro_expansions: Sequence[MacroExpansionRecord] = (),
     ) -> ScopedFunctionalGoalExecutionResult:
         plan, validation = ScopedFunctionalPlanValidator().validate_json_with_report(
             raw_response
@@ -1815,6 +1912,10 @@ class ScopedFunctionalGoalExecutionService:
             ) from exc
         catalog = family_capability_bundle_for_inputs(inputs).catalog
         adapter = ScopedFunctionalPlanAuthorityAdapter()
+        macro_expansions = rebase_macro_expansion_records(
+            tuple(macro_expansions),
+            plan,
+        )
         entity_state_dependencies = scoped_entity_state_dependencies(
             plan,
             planning_context=planning_context,
@@ -1827,6 +1928,10 @@ class ScopedFunctionalGoalExecutionService:
                 planning_context=planning_context,
                 binding_catalog=problem_binding_catalog,
                 capability_catalog=catalog,
+            )
+            macro_expansions = rebase_macro_expansion_records(
+                tuple(macro_expansions),
+                canonical_plan,
             )
         except ScopedFunctionalPlanError as exc:
             if not exc.retryable:
@@ -1864,6 +1969,7 @@ class ScopedFunctionalGoalExecutionService:
                 step_issues=step_issues,
                 root_issues=root_issues,
                 blocked_stage="authoring_authority",
+                macro_expansions=macro_expansions,
             )
             return ScopedFunctionalGoalExecutionResult(
                 validation,
@@ -1873,6 +1979,7 @@ class ScopedFunctionalGoalExecutionService:
                 None,
                 checkpoint,
                 plan,
+                macro_expansions=tuple(macro_expansions),
             )
         entity_state_dependencies = scoped_entity_state_dependencies(
             canonical_plan,
@@ -2126,17 +2233,126 @@ class ScopedFunctionalGoalExecutionService:
                 restored_seed,
                 reconciliation,
             )
-            replay = replay_service.execute_reconciled_functional_plan(
-                prepared,
-                raw_plan=finalized.lowered_plan,
-                parent_context=planner_state_context,
-                inputs=inputs,
-                handle_registry=handle_registry,
-                problem_payload=problem_payload,
-                runtime_context=context,
-                finalized_authority=finalized,
-                restored_seed=restored_seed,
-            )
+            try:
+                replay = replay_service.execute_reconciled_functional_plan(
+                    prepared,
+                    raw_plan=finalized.lowered_plan,
+                    parent_context=planner_state_context,
+                    inputs=inputs,
+                    handle_registry=handle_registry,
+                    problem_payload=problem_payload,
+                    runtime_context=context,
+                    finalized_authority=finalized,
+                    restored_seed=restored_seed,
+                )
+            except MacroWinnerPlanMaterializationRequired as signal:
+                if signal.request.authority.call_id in {
+                    item.macro_step_id for item in macro_expansions
+                }:
+                    raise MacroPlanMaterializationError(
+                        "planner.macro_contract_invalid",
+                        "Macro expansion repeated without Plan progress",
+                        details={
+                            "macro_step_id": signal.request.authority.call_id,
+                        },
+                    )
+                materialized_plan, expansion = materialize_macro_winner(
+                    canonical_plan,
+                    signal.request,
+                    capability_catalog=catalog,
+                )
+                materialized_plan, _materialization_normalizations = (
+                    adapter.canonicalize(
+                        materialized_plan,
+                        planning_context=planning_context,
+                        binding_catalog=problem_binding_catalog,
+                        capability_catalog=catalog,
+                    )
+                )
+                expansion = replace(
+                    expansion,
+                    materialized_plan_id=scoped_functional_plan_id(
+                        materialized_plan
+                    ),
+                    generated_step_signatures={
+                        step.step_id: stable_hash(step.to_payload())
+                        for step in materialized_plan.steps
+                        if step.step_id in expansion.generated_step_ids
+                    },
+                )
+                retained_expansions = rebase_macro_expansion_records(
+                    tuple(macro_expansions),
+                    materialized_plan,
+                )
+                expanded_result = self.execute_raw_json(
+                    json.dumps(
+                        materialized_plan.to_payload(),
+                        ensure_ascii=False,
+                    ),
+                    inputs=inputs,
+                    planning_context=planning_context,
+                    problem_binding_catalog=problem_binding_catalog,
+                    handle_registry=handle_registry,
+                    context=context,
+                    planner_state_context=planner_state_context,
+                    problem_payload=problem_payload,
+                    attempt=attempt,
+                    restored_seed=(
+                        signal.restored_seed
+                        if signal.restored_seed is not None
+                        else restored_seed
+                    ),
+                    published_goal_bindings=published_goal_bindings,
+                    macro_expansions=(*retained_expansions, expansion),
+                )
+                expanded_result = _merge_materialization_prefix_execution(
+                    expanded_result,
+                    signal.prefix_report,
+                )
+                verify_macro_expansion_clean_outputs(
+                    expansion,
+                    (
+                        expanded_result.replay.transactional_attempt_result.execution_report
+                        if expanded_result.replay is not None
+                        and expanded_result.replay.transactional_attempt_result
+                        is not None
+                        else None
+                    ),
+                )
+                combined_normalizations = tuple(
+                    dict.fromkeys(
+                        (
+                            *normalizations,
+                            *_materialization_normalizations,
+                            *expanded_result.authority_report.normalizations,
+                        )
+                    )
+                )
+                expanded_authority = (
+                    replace(
+                        expanded_result.authority,
+                        normalizations=combined_normalizations,
+                    )
+                    if expanded_result.authority is not None
+                    else None
+                )
+                expanded_authoring_authority = (
+                    replace(
+                        expanded_result.authoring_authority,
+                        normalizations=combined_normalizations,
+                    )
+                    if expanded_result.authoring_authority is not None
+                    else None
+                )
+                return replace(
+                    expanded_result,
+                    authority_report=replace(
+                        expanded_result.authority_report,
+                        normalizations=combined_normalizations,
+                    ),
+                    authoring_authority=expanded_authoring_authority,
+                    authority=expanded_authority,
+                )
             transaction = replay.transactional_attempt_result
             runtime_aliases = (
                 transaction.execution_report.runtime_equivalent_aliases
@@ -2166,6 +2382,7 @@ class ScopedFunctionalGoalExecutionService:
                     attempt=attempt,
                     restored_seed=restored_seed,
                     published_goal_bindings=published_goal_bindings,
+                    macro_expansions=macro_expansions,
                 )
                 return replace(
                     normalized_result,
@@ -2201,6 +2418,7 @@ class ScopedFunctionalGoalExecutionService:
             step_issues=step_issues,
             root_issues=tuple(root_issues),
             blocked_stage=blocked_stage,
+            macro_expansions=macro_expansions,
         )
         verified_execution = (
             VerifiedFunctionalPlanExecution.from_checkpoint(
@@ -2222,6 +2440,7 @@ class ScopedFunctionalGoalExecutionService:
             checkpoint,
             canonical_plan,
             verified_execution=verified_execution,
+            macro_expansions=tuple(macro_expansions),
         )
 
 
@@ -2643,294 +2862,6 @@ def _transaction_call_result_prompt_refs(
     return refs
 
 
-def _transaction_execution_evidence(
-    transaction: Any | None,
-    *,
-    canonical_plan: ScopedFunctionalPlan,
-    capability_catalog: FunctionalCapabilityCatalog | None,
-) -> dict[str, tuple[FunctionalExecutionEvidence, ...]]:
-    """Collect one verified envelope per selected Macro or authored Function graph."""
-
-    if transaction is None:
-        return {}
-    evidence: dict[str, tuple[FunctionalExecutionEvidence, ...]] = {}
-    report = transaction.execution_report
-    results = {item.call_id: item for item in report.call_results}
-    authored_steps: dict[str, tuple[Any, str, str]] = {}
-    authored_groups: list[tuple[str, str, tuple[Any, ...]]] = []
-    for scope in _iter_scopes(canonical_plan.root_scope):
-        if scope.steps:
-            authored_groups.append(
-                (scope.scope_ref, f"scope:{scope.scope_ref}", tuple(scope.steps))
-            )
-        for step in scope.steps:
-            authored_steps[step.step_id] = (
-                step,
-                scope.scope_ref,
-                f"scope:{scope.scope_ref}",
-            )
-        for goal in scope.goals:
-            if goal.steps:
-                authored_groups.append(
-                    (scope.scope_ref, goal.goal_ref, tuple(goal.steps))
-                )
-            for step in goal.steps:
-                authored_steps[step.step_id] = (
-                    step,
-                    scope.scope_ref,
-                    goal.goal_ref,
-                )
-    plan_id = scoped_functional_plan_id(canonical_plan)
-    compiled_by_call = {item.call_id: item for item in report.compiled_calls}
-    for compiled in report.compiled_calls:
-        if compiled.verified_subplan_execution is not None:
-            evidence[compiled.call_id] = (compiled.verified_subplan_execution,)
-            continue
-        search_report = compiled.macro_search_report
-        if search_report is not None:
-            raise ValueError(
-                "planner.macro_contract_invalid: generic Macro report has no "
-                "VerifiedSubplanExecution"
-            )
-
-    graph_calls = {item.call_id: item for item in report.graph.calls}
-    if capability_catalog is None:
-        return evidence
-    for scope_ref, owner_ref, owner_steps in authored_groups:
-        function_steps = tuple(
-            step
-            for step in owner_steps
-            if (
-                (capability := capability_catalog.get(step.capability_id))
-                is not None
-                and capability.kind == "function"
-                and step.step_id in compiled_by_call
-                and step.step_id in results
-                and results[step.step_id].status == "verified"
-            )
-        )
-        if not function_steps:
-            continue
-        member_ids = frozenset(item.step_id for item in function_steps)
-        dependency_envelope = tuple(
-            sorted(
-                {
-                    dependency
-                    for step_id in member_ids
-                    for dependency in (
-                        graph_calls[step_id].dependency_call_ids
-                        if step_id in graph_calls
-                        else ()
-                    )
-                    if dependency not in member_ids
-                }
-            )
-        )
-        execution = _llm_verified_subplan_execution(
-            plan_id=plan_id,
-            scope_ref=scope_ref,
-            owner_ref=owner_ref,
-            steps=function_steps,
-            compiled_by_call=compiled_by_call,
-            results=results,
-            dependency_envelope=dependency_envelope,
-        )
-        # Evidence belongs to the authored fragment, not every member call.
-        # The terminal member is a stable checkpoint anchor while
-        # clean_execution.member_step_ids preserves the complete boundary.
-        evidence[function_steps[-1].step_id] = (execution,)
-    return evidence
-
-
-def _llm_verified_subplan_execution(
-    *,
-    plan_id: str,
-    scope_ref: str,
-    owner_ref: str,
-    steps: Sequence[Any],
-    compiled_by_call: Mapping[str, Any],
-    results: Mapping[str, Any],
-    dependency_envelope: Sequence[str] = (),
-) -> VerifiedSubplanExecution:
-    return_records: list[tuple[Any, Any, Any, Any]] = []
-    return_name_counts: dict[str, int] = {}
-    for step in steps:
-        compiled = compiled_by_call[step.step_id]
-        result = results[step.step_id]
-        for returned in compiled.public_returns:
-            runtime_result = _runtime_result_for_return(
-                result,
-                returned.return_name,
-            )
-            if runtime_result is None:
-                continue
-            return_records.append((step, compiled, returned, runtime_result))
-            return_name_counts[returned.return_name] = (
-                return_name_counts.get(returned.return_name, 0) + 1
-            )
-
-    exports: dict[str, tuple[str, str]] = {}
-    exported_results: dict[str, Any] = {}
-    standard_entities: dict[str, str] = {}
-    standard_conditions: dict[str, str] = {}
-    for step, _compiled, returned, runtime_result in return_records:
-        export_name = (
-            returned.return_name
-            if return_name_counts[returned.return_name] == 1
-            else f"{step.step_id}.{returned.return_name}"
-        )
-        exports[export_name] = (step.step_id, returned.return_name)
-        exported_results[export_name] = runtime_result.value
-        binding = step.return_bindings.get(returned.return_name)
-        runtime_type = str(runtime_result.runtime_type)
-        if binding is not None and runtime_type == "Condition":
-            standard_conditions[export_name] = binding.ref
-        elif binding is not None and runtime_type in {
-            "Point",
-            "Parabola",
-            "QuadraticFunction",
-            "Symbol",
-        }:
-            standard_entities[export_name] = binding.ref
-    if not exports:
-        raise ValueError(
-            "planner.verified_subplan_contract_invalid: verified Function "
-            f"fragment has no exported runtime result: {owner_ref}"
-        )
-    fragment = FunctionalPlanFragment(
-        source="llm",
-        scope_id=scope_ref,
-        steps=tuple(steps),
-        exports=exports,
-        dependency_envelope=tuple(dependency_envelope),
-    )
-    verification = tuple(
-        outcome
-        for step in steps
-        for outcome in results[step.step_id].verification_outcomes
-    )
-    if not verification:
-        verification = tuple(
-            VerificationOutcome(
-                passed=True,
-                check_code="transaction_verified",
-                expected=True,
-                observed=True,
-                evidence=(step.step_id,),
-            )
-            for step in steps
-        )
-    provenance: list[Mapping[str, Any]] = []
-    for step in steps:
-        compiled = compiled_by_call[step.step_id]
-        if compiled.problem_source_provenance is not None:
-            provenance.append(
-                {
-                    "kind": "problem_source_provenance",
-                    "step_id": step.step_id,
-                    "value": compiled.problem_source_provenance.to_payload(),
-                }
-            )
-        provenance.extend(
-            {
-                "kind": "method_output_write_authority",
-                "step_id": step.step_id,
-                "value": item.authority_payload(),
-            }
-            for item in compiled.output_write_authorities
-        )
-    execution_signature = stable_hash(
-        {
-            "calls": [
-                {
-                    "call_id": results[step.step_id].call_id,
-                    "status": results[step.step_id].status,
-                    "runtime_results": [
-                        item.authority_payload()
-                        for item in results[step.step_id].runtime_results
-                    ],
-                    "state_writes": [
-                        item.to_payload()
-                        for item in results[step.step_id].state_writes
-                    ],
-                    "committed_versions": [
-                        item.to_payload()
-                        for item in results[step.step_id].committed_versions
-                    ],
-                }
-                for step in steps
-            ],
-            "verification": [item.to_payload() for item in verification],
-            "fragment": fragment.fragment_signature,
-        }
-    )
-    clean = VerifiedSubplanCleanExecution(
-        member_step_ids=tuple(step.step_id for step in steps),
-        fragment_execution_signature=execution_signature,
-        exported_results=exported_results,
-        verification=verification,
-        provenance=tuple(provenance),
-    )
-    witness = VerifiedSubplanWitness(
-        standard_entities=standard_entities,
-        standard_conditions=standard_conditions,
-        standard_results=exported_results,
-        provenance=tuple(provenance),
-    )
-    return VerifiedSubplanExecution(
-        plan_id=plan_id,
-        scope_id=scope_ref,
-        selected_fragment=fragment,
-        selection=SingleFragmentSelection(owner_ref=owner_ref),
-        clean_execution=clean,
-        witness=witness,
-    )
-
-
-def _verified_subplan_prompt_evidence(
-    execution: FunctionalExecutionEvidence,
-    *,
-    planning_context: ProblemPlanningContext,
-) -> dict[str, Any]:
-    """Expose only standard mathematical outputs and checks to retry."""
-
-    selection = execution.selection
-    payload: dict[str, Any] = {
-        "source": execution.selected_fragment.source,
-        "functions": [
-            item.capability_id for item in execution.selected_fragment.steps
-        ],
-        "outputs": dict(execution.witness.standard_results),
-        "verification": [
-            {
-                "check_code": item.check_code,
-                "passed": item.passed,
-                "expected": item.expected,
-                "observed": item.observed,
-            }
-            for item in execution.clean_execution.verification
-        ],
-    }
-    if getattr(selection, "kind", None) == "macro_search":
-        prompt_refs = {
-            authority.runtime_node_id: authority.semantic_ref.ref
-            for authority in planning_context.ref_authorities.values()
-            if authority.usage == "input"
-        }
-        chosen_roles: dict[str, str] = {}
-        for role, chosen in execution.witness.standard_entities.items():
-            projected = prompt_refs.get(chosen, chosen)
-            if ":" in projected:
-                raise ValueError(
-                    "planner.verified_subplan_prompt_projection_invalid: "
-                    f"role={role}, source={chosen}"
-                )
-            chosen_roles[role] = projected
-        payload["macro_id"] = selection.macro_id
-        payload["chosen_roles"] = chosen_roles
-    return payload
-
-
 def _build_checkpoint(
     plan: ScopedFunctionalPlan,
     *,
@@ -2946,14 +2877,10 @@ def _build_checkpoint(
     step_issues: Mapping[str, Mapping[str, Any]],
     root_issues: Sequence[Mapping[str, Any]],
     blocked_stage: str | None,
+    macro_expansions: Sequence[MacroExpansionRecord] = (),
 ) -> FunctionalGoalExecutionCheckpoint:
     invalid_issues = dict(step_issues)
     transaction = replay.transactional_attempt_result if replay is not None else None
-    execution_evidence = _transaction_execution_evidence(
-        transaction,
-        canonical_plan=canonical_plan,
-        capability_catalog=capability_catalog,
-    )
     exact_result_refs = _transaction_call_result_prompt_refs(transaction)
     call_states = {
         item.call_id: item
@@ -3082,7 +3009,6 @@ def _build_checkpoint(
                 forbidden_values=forbidden_prompt_values,
             ),
             actual_outputs=outputs,
-            evidence=execution_evidence.get(step.step_id, ()),
             typed_issue=(
                 prompt_diagnostic(dict(issue))
                 if issue is not None
@@ -3201,6 +3127,7 @@ def _build_checkpoint(
         transaction_ok=transaction_ok,
         all_required_goals_verified=all_required_goals_verified,
         blocked_stage=blocked_stage,
+        macro_expansions=tuple(macro_expansions),
         checkpoint_id="pending",
     )
     checkpoint = replace(
@@ -3553,26 +3480,6 @@ def _compiled_restore_authority_payload(compiled: Any) -> dict[str, Any]:
         "problem_call_binding_signature": (
             compiled.problem_call_binding.binding_signature
             if compiled.problem_call_binding is not None
-            else None
-        ),
-        "macro_preparation_signature": (
-            compiled.macro_preparation_authority.preparation_signature
-            if compiled.macro_preparation_authority is not None
-            else None
-        ),
-        "macro_winner_candidate_id": (
-            compiled.macro_preparation_authority.winner.candidate.candidate_id
-            if compiled.macro_preparation_authority is not None
-            else None
-        ),
-        "macro_search_signature": (
-            compiled.macro_search_report.search_signature
-            if compiled.macro_search_report is not None
-            else None
-        ),
-        "verified_subplan_execution_signature": (
-            compiled.verified_subplan_execution.execution_signature
-            if compiled.verified_subplan_execution is not None
             else None
         ),
     }

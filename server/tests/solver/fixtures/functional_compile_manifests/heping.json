@@ -741,7 +741,7 @@
           ],
           "promotions": {
             "$step.derive_parametric_parabola_ii.temp.coefficients": "$question.ii.outputs.derive_parametric_parabola_ii_coefficients",
-            "$step.derive_parametric_parabola_ii.temp.parabola": "$question.ii.outputs.derive_parametric_parabola_ii_parabola"
+            "$step.derive_parametric_parabola_ii.temp.parabola": "$question.ii.outputs.parabola_expression"
           }
         }
       ],
@@ -938,10 +938,937 @@
       ]
     },
     {
-      "call_id": "reduce_equal_length_ray_path_ii",
-      "capability_id": "equal_length_ray_path_reduction",
-      "steps": [],
-      "bindings": [],
+      "call_id": "reduce_equal_length_ray_path_ii__31b121c7a3__construct_auxiliary",
+      "capability_id": "construct_point_on_ray_at_reference_distance",
+      "steps": [
+        {
+          "step_id": "reduce_equal_length_ray_path_ii__31b121c7a3__construct_auxiliary",
+          "scope": "ii",
+          "invocations": [
+            {
+              "method_id": "construct_point_on_ray_at_reference_distance",
+              "scope": "reduce_equal_length_ray_path_ii__31b121c7a3__construct_auxiliary",
+              "inputs": [
+                "anchor",
+                "ray_point",
+                "reference_point",
+                "target"
+              ],
+              "outputs": {
+                "point": "$step.reduce_equal_length_ray_path_ii__31b121c7a3__construct_auxiliary.temp.point"
+              }
+            }
+          ],
+          "promotions": {
+            "$step.reduce_equal_length_ray_path_ii__31b121c7a3__construct_auxiliary.temp.point": "$question.ii.points.reduce_equal_length_ray_path_ii__31b121c7a3__construct_auxiliary_constructed_point"
+          }
+        }
+      ],
+      "bindings": [
+        {
+          "arg": "anchor",
+          "item": 0,
+          "role": "anchor",
+          "authority": "wire",
+          "target": "anchor",
+          "paths": [
+            "$question.ii.facts.__functional_transaction_reduce_equal_length_ray_path_ii__31b121c7a3__construct_auxiliary_0"
+          ]
+        },
+        {
+          "arg": "ray_point",
+          "item": 0,
+          "role": "ray_point",
+          "authority": "wire",
+          "target": "ray_point",
+          "paths": [
+            "$question.ii.facts.__functional_transaction_reduce_equal_length_ray_path_ii__31b121c7a3__construct_auxiliary_1"
+          ]
+        },
+        {
+          "arg": "reference_point",
+          "item": 0,
+          "role": "reference_point",
+          "authority": "wire",
+          "target": "reference_point",
+          "paths": [
+            "$question.ii.facts.__functional_transaction_reduce_equal_length_ray_path_ii__31b121c7a3__construct_auxiliary_2"
+          ]
+        },
+        {
+          "arg": "target",
+          "item": 0,
+          "role": "target",
+          "authority": "compiler",
+          "target": "target",
+          "paths": [
+            "$question.ii.points.reduce_equal_length_ray_path_ii__31b121c7a3__construct_auxiliary_constructed_point"
+          ]
+        }
+      ],
+      "public_returns": [
+        {
+          "name": "point",
+          "runtime_type": "Point",
+          "identity_policy": "target_object",
+          "write_mode": "create",
+          "output_key": "point",
+          "required": true
+        }
+      ],
+      "provenance": [
+        {
+          "return_name": "point",
+          "runtime_type": "Point",
+          "allocation_action": "create",
+          "result_form": "open_state",
+          "object_id": "point:ii:reduce_equal_length_ray_path_ii__31b121c7a3__construct_auxiliary_constructed_point",
+          "source_version_count": 3,
+          "closure_signature": null
+        }
+      ]
+    },
+    {
+      "call_id": "reduce_equal_length_ray_path_ii__31b121c7a3__verify_auxiliary_ray",
+      "capability_id": "verify_point_on_ray",
+      "steps": [
+        {
+          "step_id": "reduce_equal_length_ray_path_ii__31b121c7a3__verify_auxiliary_ray",
+          "scope": "ii",
+          "invocations": [
+            {
+              "method_id": "verify_point_on_ray",
+              "scope": "reduce_equal_length_ray_path_ii__31b121c7a3__verify_auxiliary_ray",
+              "inputs": [
+                "anchor",
+                "point",
+                "ray_point"
+              ],
+              "outputs": {
+                "verified": "$step.reduce_equal_length_ray_path_ii__31b121c7a3__verify_auxiliary_ray.temp.verified"
+              }
+            }
+          ],
+          "promotions": {
+            "$step.reduce_equal_length_ray_path_ii__31b121c7a3__verify_auxiliary_ray.temp.verified": "$question.ii.outputs.reduce_equal_length_ray_path_ii__31b121c7a3__verify_auxiliary_ray_point_on_ray"
+          }
+        }
+      ],
+      "bindings": [
+        {
+          "arg": "anchor",
+          "item": 0,
+          "role": "anchor",
+          "authority": "wire",
+          "target": "anchor",
+          "paths": [
+            "$question.ii.facts.__functional_transaction_reduce_equal_length_ray_path_ii__31b121c7a3__verify_auxiliary_ray_1"
+          ]
+        },
+        {
+          "arg": "point",
+          "item": 0,
+          "role": "point",
+          "authority": "wire",
+          "target": "point",
+          "paths": [
+            "$question.ii.facts.__functional_transaction_reduce_equal_length_ray_path_ii__31b121c7a3__verify_auxiliary_ray_0"
+          ]
+        },
+        {
+          "arg": "ray_point",
+          "item": 0,
+          "role": "ray_point",
+          "authority": "wire",
+          "target": "ray_point",
+          "paths": [
+            "$question.ii.facts.__functional_transaction_reduce_equal_length_ray_path_ii__31b121c7a3__verify_auxiliary_ray_2"
+          ]
+        }
+      ],
+      "public_returns": [
+        {
+          "name": "point_on_ray",
+          "runtime_type": "Condition",
+          "identity_policy": "value_only",
+          "write_mode": "value",
+          "output_key": "verified",
+          "required": true
+        }
+      ],
+      "provenance": [
+        {
+          "return_name": "point_on_ray",
+          "runtime_type": "Condition",
+          "allocation_action": "call_local_value",
+          "result_form": "closed_state",
+          "object_id": null,
+          "source_version_count": 3,
+          "closure_signature": null
+        }
+      ]
+    },
+    {
+      "call_id": "reduce_equal_length_ray_path_ii__31b121c7a3__verify_auxiliary_distance",
+      "capability_id": "verify_distance_equality",
+      "steps": [
+        {
+          "step_id": "reduce_equal_length_ray_path_ii__31b121c7a3__verify_auxiliary_distance",
+          "scope": "ii",
+          "invocations": [
+            {
+              "method_id": "verify_distance_equality",
+              "scope": "reduce_equal_length_ray_path_ii__31b121c7a3__verify_auxiliary_distance",
+              "inputs": [
+                "first_end",
+                "first_start",
+                "second_end",
+                "second_start"
+              ],
+              "outputs": {
+                "verified": "$step.reduce_equal_length_ray_path_ii__31b121c7a3__verify_auxiliary_distance.temp.verified"
+              }
+            }
+          ],
+          "promotions": {
+            "$step.reduce_equal_length_ray_path_ii__31b121c7a3__verify_auxiliary_distance.temp.verified": "$question.ii.outputs.reduce_equal_length_ray_path_ii__31b121c7a3__verify_auxiliary_distance_distance_equality"
+          }
+        }
+      ],
+      "bindings": [
+        {
+          "arg": "first_end",
+          "item": 0,
+          "role": "first_end",
+          "authority": "wire",
+          "target": "first_end",
+          "paths": [
+            "$question.ii.facts.__functional_transaction_reduce_equal_length_ray_path_ii__31b121c7a3__verify_auxiliary_distance_1"
+          ]
+        },
+        {
+          "arg": "first_start",
+          "item": 0,
+          "role": "first_start",
+          "authority": "wire",
+          "target": "first_start",
+          "paths": [
+            "$question.ii.facts.__functional_transaction_reduce_equal_length_ray_path_ii__31b121c7a3__verify_auxiliary_distance_0"
+          ]
+        },
+        {
+          "arg": "second_end",
+          "item": 0,
+          "role": "second_end",
+          "authority": "wire",
+          "target": "second_end",
+          "paths": [
+            "$question.ii.facts.__functional_transaction_reduce_equal_length_ray_path_ii__31b121c7a3__verify_auxiliary_distance_2"
+          ]
+        },
+        {
+          "arg": "second_start",
+          "item": 0,
+          "role": "second_start",
+          "authority": "wire",
+          "target": "second_start",
+          "paths": [
+            "$question.ii.facts.__functional_transaction_reduce_equal_length_ray_path_ii__31b121c7a3__verify_auxiliary_distance_0"
+          ]
+        }
+      ],
+      "public_returns": [
+        {
+          "name": "distance_equality",
+          "runtime_type": "Condition",
+          "identity_policy": "value_only",
+          "write_mode": "value",
+          "output_key": "verified",
+          "required": true
+        }
+      ],
+      "provenance": [
+        {
+          "return_name": "distance_equality",
+          "runtime_type": "Condition",
+          "allocation_action": "call_local_value",
+          "result_form": "closed_state",
+          "object_id": null,
+          "source_version_count": 3,
+          "closure_signature": null
+        }
+      ]
+    },
+    {
+      "call_id": "reduce_equal_length_ray_path_ii__31b121c7a3__prove_path_replacement",
+      "capability_id": "prove_distance_equality_from_conditions",
+      "steps": [
+        {
+          "step_id": "reduce_equal_length_ray_path_ii__31b121c7a3__prove_path_replacement",
+          "scope": "ii",
+          "invocations": [
+            {
+              "method_id": "prove_distance_equality_from_conditions",
+              "scope": "reduce_equal_length_ray_path_ii__31b121c7a3__prove_path_replacement",
+              "inputs": [
+                "common_vertex",
+                "constructed_equal_length_condition",
+                "constructed_ray_condition",
+                "equal_length_condition",
+                "first_end",
+                "first_start",
+                "linking_condition",
+                "ray_membership_condition",
+                "second_end",
+                "second_start"
+              ],
+              "outputs": {
+                "verified": "$step.reduce_equal_length_ray_path_ii__31b121c7a3__prove_path_replacement.temp.verified"
+              }
+            }
+          ],
+          "promotions": {
+            "$step.reduce_equal_length_ray_path_ii__31b121c7a3__prove_path_replacement.temp.verified": "$question.ii.outputs.reduce_equal_length_ray_path_ii__31b121c7a3__prove_path_replacement_distance_equality"
+          }
+        }
+      ],
+      "bindings": [
+        {
+          "arg": "common_vertex",
+          "item": 0,
+          "role": "common_vertex",
+          "authority": "wire",
+          "target": "common_vertex",
+          "paths": [
+            "$problem.points.C"
+          ]
+        },
+        {
+          "arg": "constructed_equal_length_condition",
+          "item": 0,
+          "role": "distance_equality",
+          "authority": "wire",
+          "target": "constructed_equal_length_condition",
+          "paths": [
+            "$question.ii.outputs.reduce_equal_length_ray_path_ii__31b121c7a3__verify_auxiliary_distance_distance_equality"
+          ]
+        },
+        {
+          "arg": "constructed_ray_condition",
+          "item": 0,
+          "role": "point_on_ray",
+          "authority": "wire",
+          "target": "constructed_ray_condition",
+          "paths": [
+            "$question.ii.outputs.reduce_equal_length_ray_path_ii__31b121c7a3__verify_auxiliary_ray_point_on_ray"
+          ]
+        },
+        {
+          "arg": "equal_length_condition",
+          "item": 0,
+          "role": "equal_length_condition",
+          "authority": "wire",
+          "target": "equal_length_condition",
+          "paths": [
+            "$question.ii.conditions.equal_length_7efb4d5d5022"
+          ]
+        },
+        {
+          "arg": "first_end",
+          "item": 0,
+          "role": "first_end",
+          "authority": "wire",
+          "target": "first_end",
+          "paths": [
+            "$question.ii.points.N"
+          ]
+        },
+        {
+          "arg": "first_start",
+          "item": 0,
+          "role": "first_start",
+          "authority": "wire",
+          "target": "first_start",
+          "paths": [
+            "$problem.points.B"
+          ]
+        },
+        {
+          "arg": "linking_condition",
+          "item": 0,
+          "role": "point_on_segment",
+          "authority": "wire",
+          "target": "linking_condition",
+          "paths": [
+            "$question.ii.conditions.point_on_segment_64012395189c"
+          ]
+        },
+        {
+          "arg": "ray_membership_condition",
+          "item": 0,
+          "role": "point_on_ray",
+          "authority": "wire",
+          "target": "ray_membership_condition",
+          "paths": [
+            "$question.ii.conditions.point_on_ray_b95ca409c2ff"
+          ]
+        },
+        {
+          "arg": "second_end",
+          "item": 0,
+          "role": "second_end",
+          "authority": "wire",
+          "target": "second_end",
+          "paths": [
+            "$question.ii.facts.__functional_transaction_reduce_equal_length_ray_path_ii__31b121c7a3__prove_path_replacement_0"
+          ]
+        },
+        {
+          "arg": "second_start",
+          "item": 0,
+          "role": "second_start",
+          "authority": "wire",
+          "target": "second_start",
+          "paths": [
+            "$question.ii.points.M"
+          ]
+        }
+      ],
+      "public_returns": [
+        {
+          "name": "distance_equality",
+          "runtime_type": "Condition",
+          "identity_policy": "value_only",
+          "write_mode": "value",
+          "output_key": "verified",
+          "required": true
+        }
+      ],
+      "provenance": [
+        {
+          "return_name": "distance_equality",
+          "runtime_type": "Condition",
+          "allocation_action": "call_local_value",
+          "result_form": "closed_state",
+          "object_id": null,
+          "source_version_count": 1,
+          "closure_signature": null
+        }
+      ]
+    },
+    {
+      "call_id": "reduce_equal_length_ray_path_ii__31b121c7a3__intersection",
+      "capability_id": "line_intersection_point",
+      "steps": [
+        {
+          "step_id": "reduce_equal_length_ray_path_ii__31b121c7a3__intersection",
+          "scope": "ii",
+          "invocations": [
+            {
+              "method_id": "line_intersection_point",
+              "scope": "reduce_equal_length_ray_path_ii__31b121c7a3__intersection",
+              "inputs": [
+                "line1_p1",
+                "line1_p2",
+                "line2_p1",
+                "line2_p2",
+                "target"
+              ],
+              "outputs": {
+                "intersection": "$step.reduce_equal_length_ray_path_ii__31b121c7a3__intersection.temp.intersection"
+              }
+            }
+          ],
+          "promotions": {
+            "$step.reduce_equal_length_ray_path_ii__31b121c7a3__intersection.temp.intersection": "$question.ii.points.reduce_equal_length_ray_path_ii__31b121c7a3__intersection_intersection"
+          }
+        }
+      ],
+      "bindings": [
+        {
+          "arg": "line1_p1",
+          "item": 0,
+          "role": "line1_p1",
+          "authority": "wire",
+          "target": "line1_p1",
+          "paths": [
+            "$question.ii.facts.__functional_transaction_reduce_equal_length_ray_path_ii__31b121c7a3__intersection_0"
+          ]
+        },
+        {
+          "arg": "line1_p2",
+          "item": 0,
+          "role": "line1_p2",
+          "authority": "wire",
+          "target": "line1_p2",
+          "paths": [
+            "$question.ii.facts.__functional_transaction_reduce_equal_length_ray_path_ii__31b121c7a3__intersection_1"
+          ]
+        },
+        {
+          "arg": "line2_p1",
+          "item": 0,
+          "role": "line2_p1",
+          "authority": "wire",
+          "target": "line2_p1",
+          "paths": [
+            "$question.ii.facts.__functional_transaction_reduce_equal_length_ray_path_ii__31b121c7a3__intersection_2"
+          ]
+        },
+        {
+          "arg": "line2_p2",
+          "item": 0,
+          "role": "line2_p2",
+          "authority": "wire",
+          "target": "line2_p2",
+          "paths": [
+            "$question.ii.facts.__functional_transaction_reduce_equal_length_ray_path_ii__31b121c7a3__intersection_3"
+          ]
+        },
+        {
+          "arg": "target",
+          "item": 0,
+          "role": "target",
+          "authority": "compiler",
+          "target": "target",
+          "paths": [
+            "$question.ii.points.reduce_equal_length_ray_path_ii__31b121c7a3__intersection_intersection"
+          ]
+        }
+      ],
+      "public_returns": [
+        {
+          "name": "intersection",
+          "runtime_type": "Point",
+          "identity_policy": "target_object",
+          "write_mode": "create",
+          "output_key": "intersection",
+          "required": true
+        }
+      ],
+      "provenance": [
+        {
+          "return_name": "intersection",
+          "runtime_type": "Point",
+          "allocation_action": "create",
+          "result_form": "open_state",
+          "object_id": "point:ii:reduce_equal_length_ray_path_ii__31b121c7a3__intersection_intersection",
+          "source_version_count": 4,
+          "closure_signature": null
+        }
+      ]
+    },
+    {
+      "call_id": "reduce_equal_length_ray_path_ii__31b121c7a3__original_path",
+      "capability_id": "distance_sum_expression",
+      "steps": [
+        {
+          "step_id": "reduce_equal_length_ray_path_ii__31b121c7a3__original_path",
+          "scope": "ii",
+          "invocations": [
+            {
+              "method_id": "distance_sum_expression",
+              "scope": "reduce_equal_length_ray_path_ii__31b121c7a3__original_path",
+              "inputs": [
+                "end",
+                "start",
+                "via"
+              ],
+              "outputs": {
+                "expression": "$step.reduce_equal_length_ray_path_ii__31b121c7a3__original_path.temp.expression"
+              }
+            }
+          ],
+          "promotions": {
+            "$step.reduce_equal_length_ray_path_ii__31b121c7a3__original_path.temp.expression": "$question.ii.outputs.minimum_expression"
+          }
+        }
+      ],
+      "bindings": [
+        {
+          "arg": "end",
+          "item": 0,
+          "role": "end",
+          "authority": "wire",
+          "target": "end",
+          "paths": [
+            "$question.ii.facts.__functional_transaction_reduce_equal_length_ray_path_ii__31b121c7a3__original_path_2"
+          ]
+        },
+        {
+          "arg": "start",
+          "item": 0,
+          "role": "start",
+          "authority": "wire",
+          "target": "start",
+          "paths": [
+            "$question.ii.facts.__functional_transaction_reduce_equal_length_ray_path_ii__31b121c7a3__original_path_0"
+          ]
+        },
+        {
+          "arg": "via",
+          "item": 0,
+          "role": "via",
+          "authority": "wire",
+          "target": "via",
+          "paths": [
+            "$question.ii.facts.__functional_transaction_reduce_equal_length_ray_path_ii__31b121c7a3__original_path_1"
+          ]
+        }
+      ],
+      "public_returns": [
+        {
+          "name": "expression",
+          "runtime_type": "MinimumExpression",
+          "identity_policy": "value_only",
+          "write_mode": "value",
+          "output_key": "expression",
+          "required": true
+        }
+      ],
+      "provenance": [
+        {
+          "return_name": "expression",
+          "runtime_type": "MinimumExpression",
+          "allocation_action": "call_local_value",
+          "result_form": "open_state",
+          "object_id": null,
+          "source_version_count": 3,
+          "closure_signature": null
+        }
+      ]
+    },
+    {
+      "call_id": "reduce_equal_length_ray_path_ii__31b121c7a3__straightened_distance",
+      "capability_id": "distance_between_points",
+      "steps": [
+        {
+          "step_id": "reduce_equal_length_ray_path_ii__31b121c7a3__straightened_distance",
+          "scope": "ii",
+          "invocations": [
+            {
+              "method_id": "distance_between_points",
+              "scope": "reduce_equal_length_ray_path_ii__31b121c7a3__straightened_distance",
+              "inputs": [
+                "p1",
+                "p2"
+              ],
+              "outputs": {
+                "distance": "$step.reduce_equal_length_ray_path_ii__31b121c7a3__straightened_distance.temp.distance"
+              }
+            }
+          ],
+          "promotions": {
+            "$step.reduce_equal_length_ray_path_ii__31b121c7a3__straightened_distance.temp.distance": "$question.ii.outputs.minimum_expression"
+          }
+        }
+      ],
+      "bindings": [
+        {
+          "arg": "p1",
+          "item": 0,
+          "role": "p1",
+          "authority": "wire",
+          "target": "p1",
+          "paths": [
+            "$question.ii.facts.__functional_transaction_reduce_equal_length_ray_path_ii__31b121c7a3__straightened_distance_0"
+          ]
+        },
+        {
+          "arg": "p2",
+          "item": 0,
+          "role": "p2",
+          "authority": "wire",
+          "target": "p2",
+          "paths": [
+            "$question.ii.facts.__functional_transaction_reduce_equal_length_ray_path_ii__31b121c7a3__straightened_distance_1"
+          ]
+        }
+      ],
+      "public_returns": [
+        {
+          "name": "distance",
+          "runtime_type": "MinimumExpression",
+          "identity_policy": "value_only",
+          "write_mode": "value",
+          "output_key": "distance",
+          "required": true
+        }
+      ],
+      "provenance": [
+        {
+          "return_name": "distance",
+          "runtime_type": "MinimumExpression",
+          "allocation_action": "call_local_value",
+          "result_form": "open_state",
+          "object_id": null,
+          "source_version_count": 2,
+          "closure_signature": null
+        }
+      ]
+    },
+    {
+      "call_id": "reduce_equal_length_ray_path_ii__31b121c7a3__rewrite_path",
+      "capability_id": "rewrite_expression_by_condition",
+      "steps": [
+        {
+          "step_id": "reduce_equal_length_ray_path_ii__31b121c7a3__rewrite_path",
+          "scope": "ii",
+          "invocations": [
+            {
+              "method_id": "rewrite_expression_by_condition",
+              "scope": "reduce_equal_length_ray_path_ii__31b121c7a3__rewrite_path",
+              "inputs": [
+                "condition",
+                "original_expression",
+                "rewritten_expression"
+              ],
+              "outputs": {
+                "expression": "$step.reduce_equal_length_ray_path_ii__31b121c7a3__rewrite_path.temp.expression"
+              }
+            }
+          ],
+          "promotions": {
+            "$step.reduce_equal_length_ray_path_ii__31b121c7a3__rewrite_path.temp.expression": "$question.ii.outputs.reduce_equal_length_ray_path_ii__31b121c7a3__rewrite_path_expression"
+          }
+        }
+      ],
+      "bindings": [
+        {
+          "arg": "condition",
+          "item": 0,
+          "role": "distance_equality",
+          "authority": "wire",
+          "target": "condition",
+          "paths": [
+            "$question.ii.outputs.reduce_equal_length_ray_path_ii__31b121c7a3__prove_path_replacement_distance_equality"
+          ]
+        },
+        {
+          "arg": "original_expression",
+          "item": 0,
+          "role": "original_expression",
+          "authority": "wire",
+          "target": "original_expression",
+          "paths": [
+            "$question.ii.outputs.minimum_expression"
+          ]
+        },
+        {
+          "arg": "rewritten_expression",
+          "item": 0,
+          "role": "rewritten_expression",
+          "authority": "wire",
+          "target": "rewritten_expression",
+          "paths": [
+            "$question.ii.outputs.minimum_expression"
+          ]
+        }
+      ],
+      "public_returns": [
+        {
+          "name": "expression",
+          "runtime_type": "Expression",
+          "identity_policy": "value_only",
+          "write_mode": "value",
+          "output_key": "expression",
+          "required": true
+        }
+      ],
+      "provenance": [
+        {
+          "return_name": "expression",
+          "runtime_type": "Expression",
+          "allocation_action": "call_local_value",
+          "result_form": "open_state",
+          "object_id": null,
+          "source_version_count": 0,
+          "closure_signature": null
+        }
+      ]
+    },
+    {
+      "call_id": "reduce_equal_length_ray_path_ii__31b121c7a3__verify_attainment",
+      "capability_id": "verify_two_segment_path_attainment",
+      "steps": [
+        {
+          "step_id": "reduce_equal_length_ray_path_ii__31b121c7a3__verify_attainment",
+          "scope": "ii",
+          "invocations": [
+            {
+              "method_id": "verify_two_segment_path_attainment",
+              "scope": "reduce_equal_length_ray_path_ii__31b121c7a3__verify_attainment",
+              "inputs": [
+                "candidate",
+                "candidate_point",
+                "domain_condition",
+                "objective",
+                "path_end",
+                "path_start",
+                "segment_end",
+                "segment_start"
+              ],
+              "outputs": {
+                "verified": "$step.reduce_equal_length_ray_path_ii__31b121c7a3__verify_attainment.temp.verified"
+              }
+            }
+          ],
+          "promotions": {
+            "$step.reduce_equal_length_ray_path_ii__31b121c7a3__verify_attainment.temp.verified": "$question.ii.outputs.reduce_equal_length_ray_path_ii__31b121c7a3__verify_attainment_path_minimum_attained"
+          }
+        }
+      ],
+      "bindings": [
+        {
+          "arg": "candidate",
+          "item": 0,
+          "role": "candidate",
+          "authority": "wire",
+          "target": "candidate",
+          "paths": [
+            "$question.ii.outputs.minimum_expression"
+          ]
+        },
+        {
+          "arg": "candidate_point",
+          "item": 0,
+          "role": "candidate_point",
+          "authority": "wire",
+          "target": "candidate_point",
+          "paths": [
+            "$question.ii.facts.__functional_transaction_reduce_equal_length_ray_path_ii__31b121c7a3__verify_attainment_0"
+          ]
+        },
+        {
+          "arg": "domain_condition",
+          "item": 0,
+          "role": "domain_condition",
+          "authority": "wire",
+          "target": "domain_condition",
+          "paths": [
+            "$problem.conditions.symbol_constraint_56d59dfe1975"
+          ]
+        },
+        {
+          "arg": "objective",
+          "item": 0,
+          "role": "objective",
+          "authority": "wire",
+          "target": "objective",
+          "paths": [
+            "$question.ii.outputs.reduce_equal_length_ray_path_ii__31b121c7a3__rewrite_path_expression"
+          ]
+        },
+        {
+          "arg": "path_end",
+          "item": 0,
+          "role": "path_end",
+          "authority": "wire",
+          "target": "path_end",
+          "paths": [
+            "$question.ii.facts.__functional_transaction_reduce_equal_length_ray_path_ii__31b121c7a3__verify_attainment_2"
+          ]
+        },
+        {
+          "arg": "path_start",
+          "item": 0,
+          "role": "path_start",
+          "authority": "wire",
+          "target": "path_start",
+          "paths": [
+            "$question.ii.facts.__functional_transaction_reduce_equal_length_ray_path_ii__31b121c7a3__verify_attainment_1"
+          ]
+        },
+        {
+          "arg": "segment_end",
+          "item": 0,
+          "role": "segment_end",
+          "authority": "wire",
+          "target": "segment_end",
+          "paths": [
+            "$question.ii.facts.__functional_transaction_reduce_equal_length_ray_path_ii__31b121c7a3__verify_attainment_4"
+          ]
+        },
+        {
+          "arg": "segment_start",
+          "item": 0,
+          "role": "segment_start",
+          "authority": "wire",
+          "target": "segment_start",
+          "paths": [
+            "$question.ii.facts.__functional_transaction_reduce_equal_length_ray_path_ii__31b121c7a3__verify_attainment_3"
+          ]
+        }
+      ],
+      "public_returns": [
+        {
+          "name": "path_attainment",
+          "runtime_type": "Condition",
+          "identity_policy": "value_only",
+          "write_mode": "value",
+          "output_key": "verified",
+          "required": true
+        }
+      ],
+      "provenance": [
+        {
+          "return_name": "path_attainment",
+          "runtime_type": "Condition",
+          "allocation_action": "call_local_value",
+          "result_form": "closed_state",
+          "object_id": null,
+          "source_version_count": 5,
+          "closure_signature": null
+        }
+      ]
+    },
+    {
+      "call_id": "reduce_equal_length_ray_path_ii__31b121c7a3__publish_minimum",
+      "capability_id": "certify_minimum_expression",
+      "steps": [
+        {
+          "step_id": "reduce_equal_length_ray_path_ii__31b121c7a3__publish_minimum",
+          "scope": "ii",
+          "invocations": [
+            {
+              "method_id": "certify_minimum_expression",
+              "scope": "reduce_equal_length_ray_path_ii__31b121c7a3__publish_minimum",
+              "inputs": [
+                "attainment_condition",
+                "expression"
+              ],
+              "outputs": {
+                "minimum_expression": "$step.reduce_equal_length_ray_path_ii__31b121c7a3__publish_minimum.temp.minimum_expression"
+              }
+            }
+          ],
+          "promotions": {
+            "$step.reduce_equal_length_ray_path_ii__31b121c7a3__publish_minimum.temp.minimum_expression": "$question.ii.outputs.minimum_expression"
+          }
+        }
+      ],
+      "bindings": [
+        {
+          "arg": "attainment_condition",
+          "item": 0,
+          "role": "path_minimum_attained",
+          "authority": "wire",
+          "target": "attainment_condition",
+          "paths": [
+            "$question.ii.outputs.reduce_equal_length_ray_path_ii__31b121c7a3__verify_attainment_path_minimum_attained"
+          ]
+        },
+        {
+          "arg": "expression",
+          "item": 0,
+          "role": "expression",
+          "authority": "wire",
+          "target": "expression",
+          "paths": [
+            "$question.ii.outputs.minimum_expression"
+          ]
+        }
+      ],
       "public_returns": [
         {
           "name": "minimum_expression",
@@ -957,9 +1884,9 @@
           "return_name": "minimum_expression",
           "runtime_type": "MinimumExpression",
           "allocation_action": "call_local_value",
-          "result_form": "open_expression",
+          "result_form": "open_state",
           "object_id": null,
-          "source_version_count": 4,
+          "source_version_count": 0,
           "closure_signature": null
         }
       ]
@@ -1009,7 +1936,7 @@
           "authority": "wire",
           "target": "expression",
           "paths": [
-            "$question.ii.outputs.__verified_subplan_fc35d073b730eacf06a7"
+            "$question.ii.outputs.minimum_expression"
           ]
         },
         {
@@ -1051,7 +1978,7 @@
           "result_form": "closed_state",
           "object_id": "symbol:problem:a",
           "source_version_count": 0,
-          "closure_signature": null
+          "closure_signature": "('unique', MathObjectId(value='symbol:problem:a', kind='symbol', origin_scope_id='problem'), '3/4', ((MathObjectId(value='symbol:problem:a', kind='symbol', origin_scope_id='problem'), '3/4'),), (), 1, 'expression_equals_value', None, 'parameter_value_constraint', 'parameter', ('condition', 'expression'), (), (), ('parameter_value',))"
         }
       ]
     }

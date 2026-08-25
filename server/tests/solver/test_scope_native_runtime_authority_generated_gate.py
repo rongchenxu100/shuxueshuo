@@ -341,7 +341,6 @@ def _lifecycle_registry():
         return SearchCandidate(
             candidate_id=candidate_id,
             fragment=FunctionalPlanFragment(
-                source="macro",
                 scope_id="ii_1",
                 steps=(step,),
                 exports={"value": (step.step_id, "value")},

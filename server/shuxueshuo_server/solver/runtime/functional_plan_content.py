@@ -30,7 +30,9 @@ from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
     ScopedFunctionalPlanIssue,
     ScopedFunctionalPlanValidationReport,
     ScopedFunctionalPlanValidator,
+    apply_scoped_derived_ref_bindings,
     apply_scoped_published_goal_bindings,
+    scoped_derived_ref_bindings,
     scoped_published_goal_bindings,
     scoped_functional_plan_id,
     scoped_functional_plan_schema,
@@ -1106,6 +1108,22 @@ class FunctionalPlanContentCompiler:
         )
         issues = list(compilation.report.issues)
         round_trip_plan = compilation.plan
+        derived_ref_bindings = scoped_derived_ref_bindings(plan)
+        if round_trip_plan is not None and derived_ref_bindings:
+            try:
+                round_trip_plan = apply_scoped_derived_ref_bindings(
+                    round_trip_plan,
+                    derived_ref_bindings,
+                )
+            except ValueError as exc:
+                issues.append(
+                    ScopedFunctionalPlanIssue(
+                        "functional.final_plan_derived_ref_drift",
+                        "$",
+                        str(exc),
+                    )
+                )
+                round_trip_plan = None
         publication_bindings = scoped_published_goal_bindings(plan)
         if round_trip_plan is not None and publication_bindings:
             try:

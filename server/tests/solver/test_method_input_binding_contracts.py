@@ -450,6 +450,16 @@ D_MIGRATED_BINDINGS = {
 
 F43B_MIGRATED_BINDINGS = {
     (
+        "certify_minimum_expression",
+        "expression",
+        "exact_call_result",
+    ),
+    (
+        "certify_minimum_expression",
+        "attainment_condition",
+        "condition",
+    ),
+    (
         "construct_point_on_ray_at_reference_distance",
         "anchor",
         "public_arg",

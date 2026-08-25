@@ -97,6 +97,7 @@ def goal_retry_fixture(tmp_path: Path) -> GoalRetryFixture:
         planner_state_context=authority_fixture[6],
         problem_payload=authority_fixture[4],
     )
+    failed_plan = execution.canonical_plan or failed_plan
     retry_authority = FunctionalGoalRetryProjector().project(
         plan=failed_plan,
         execution=execution,
@@ -136,6 +137,7 @@ def downstream_path_witness_retry_fixture(tmp_path: Path) -> GoalRetryFixture:
         planner_state_context=authority_fixture[6],
         problem_payload=authority_fixture[4],
     )
+    failed_plan = execution.canonical_plan or failed_plan
     retry_authority = FunctionalGoalRetryProjector().project(
         plan=failed_plan,
         execution=execution,
@@ -175,6 +177,7 @@ def published_goal_retry_fixture(tmp_path: Path) -> GoalRetryFixture:
         planner_state_context=authority_fixture[6],
         problem_payload=authority_fixture[4],
     )
+    failed_plan = execution.canonical_plan or failed_plan
     retry_authority = FunctionalGoalRetryProjector().project(
         plan=failed_plan,
         execution=execution,

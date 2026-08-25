@@ -89,6 +89,7 @@ def _publication_inputs(tmp_path, *, passed: bool):
                 runtime_type="Point",
                 valid_scope="problem",
                 object_ref=ref,
+                dependency_object_refs=(f"transitive:{ref}",),
             ),
         )
         for role, ref in {
@@ -125,6 +126,12 @@ def test_true_predicate_publishes_exact_scope_local_condition(tmp_path) -> None:
         condition_kind="distance_equality",
         scope_id="ii",
     )
+    assert dict(result.conditions[0].object_roles) == {
+        "first_start": ("A",),
+        "first_end": ("B",),
+        "second_start": ("C",),
+        "second_end": ("D",),
+    }
     assert branch.writes[0][1].type == "Condition"
 
 

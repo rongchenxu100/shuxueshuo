@@ -1,8 +1,7 @@
 # 路径最值 Macro 重构
 
-状态：F5-F4.1、F5-F4.2、F5-F4.2R与F5-F4.3A已完成；F5-F4.3B为
-`IN PROGRESS`，当前子阶段是F5-F4.3B-R Runner Convergence；完成后再进入
-F5-F4.3C标准路径与两动点路径。
+状态：F5-F4.1、F5-F4.2、F5-F4.2R、F5-F4.3A与F5-F4.3B已完成；
+当前下一阶段是F5-F4.3C标准路径与两动点路径。
 
 统一运行时权威链记录在
 [F5-F4.2运行时权威收敛](problem-extraction-context-implementation-plan.md#f5-f4-2-runtime-authority-convergence)。
@@ -45,7 +44,7 @@ FunctionalCapability
   若代码仍需记录实现来源，使用独立的内部字段，不得继续占用`kind`。
 
 Planner默认优先选择高层数学能力，并引用题面中的Entity与Fact。已知Macro可以把成熟
-解法压缩成一个step；LLM也可以使用同一份`FunctionalPlan content/v2`和同一bundle中的
+解法压缩成一个step；LLM也可以使用同一份`FunctionalPlan content/v3`和同一bundle中的
 Function显式组合解法。不存在第二套路径策略DSL，也不存在只供Macro理解的路径类型系统。
 
 LLM 不负责：
@@ -65,37 +64,32 @@ compiler/runtime。
 ```mermaid
 flowchart TD
   F["FamilyCapabilityBundle<br/>一次选择并固定signature"]
-  L["LLM每个provider attempt<br/>只输出一个Plan"]
+  L["LLM每个provider attempt<br/>只输出一个普通Plan"]
   D{"当前Goal的authoring选择"}
   M["一个Macro step<br/>附可选角色hint"]
-  P["Macro candidate provider<br/>生成1..N个SearchCandidate&lt;Fragment&gt;"]
+  P["Macro candidate provider<br/>生成1..N个Fragment候选"]
   S["隔离shadow runtime<br/>逐个验证Macro候选"]
-  W["一个winner Fragment"]
-  A["一组显式Function steps<br/>一个authored Fragment"]
-  V["typed contract validation<br/>不做候选搜索"]
-  C["一个selected FunctionalPlanFragment"]
-  B["finalized F5-C binding<br/>钉住对象与 exact state"]
-  R["transaction<br/>Macro winner clean replay / authored正常执行"]
-  O["标准输出<br/>Entity / Condition / Expression / Scalar"]
-  E["VerifiedSubplanWitness<br/>Explanation / Visual / retry"]
+  W["一个winner"]
+  X["winner物化为普通Function steps"]
+  A["LLM显式Function steps"]
+  G["现有TypedExecutionGraph与F5-C"]
+  R["现有step execution / checkpoint / repair cone"]
+  O["标准输出与普通step evidence"]
 
   F --> L --> D
-  D --> M --> P --> S --> W --> C
-  D --> A --> V --> C
-  C --> B --> R
-  R --> O
-  R --> E
+  D --> M --> P --> S --> W --> X --> G
+  D --> A --> G
+  G --> R --> O
 ```
 
-“Macro与LLM生成同一种fragment”只表示两者最终交付相同的`FunctionalPlanFragment`结构，
-不表示候选数量和选择生命周期相同。LLM每个provider attempt只author一个Plan：选择Macro
-时，一个Macro step可由代码展开为1..N个有限候选；选择显式Function时，本轮只有一个
-authored fragment，直接进入typed validation，不生成search report或winner tie-break。
+`FunctionalPlanFragment`只存在于Macro候选生成和shadow选择阶段。LLM每个provider attempt
+只author一个普通Plan，不声明fragment；Macro winner选中后也不保留第二套fragment执行协议，
+而是确定性转换为普通Function steps。二者从普通step进入TypedExecutionGraph时汇合。
 
 Macro候选中的LLM角色hint只是优先尝试的数学假设，不是source authority。若存在唯一的
 runtime-valid替代项，代码可以纠正；若存在多个非等价的有效候选，则必须以prompt-safe
-诊断要求LLM消歧，不能静默猜测。显式Function fragment若数学验证失败，则进入下一次Goal
-semantic retry，由LLM返回一个新的完整fragment；runtime不会在同一provider response中
+诊断要求LLM消歧，不能静默猜测。显式Function step若数学验证失败，则进入下一次Goal
+semantic retry，由LLM返回新的Goal steps；runtime不会在同一provider response中
 替LLM创造第二套开放解法。
 
 ## 2. 已完成的基础
@@ -113,9 +107,9 @@ semantic retry，由LLM返回一个新的完整fragment；runtime不会在同一
 ```
 
 这里的`PathMinimumWitness`只描述F4.1退出时的历史形状，不是当前production。F4.3B已将
-其表达内容迁到通用`VerifiedSubplanWitness`中的标准Entity、Condition、Expression、Scalar、
-verification outcome与provenance记录，并物理删除旧类、schema和同步入口；Explanation/Visual
-直接从通用证据投影教学字段，不再保留同名兼容模型。
+其表达内容迁到普通step evidence与Macro expansion provenance中的标准Entity、Condition、
+Expression、Scalar、verification outcome和provenance记录，并物理删除旧类、schema和同步
+入口；Explanation/Visual直接从这些标准证据投影教学字段，不再保留同名兼容模型。
 
 它证明了以下边界可行：
 
@@ -377,11 +371,11 @@ verify_attainment.condition   -> derived Condition minimum_attained_at_P
 后续Function直接引用`G`、`BN_eq_MG`、`reduced_objective`和`P`。Macro展开与LLM显式展开
 都必须生成同一种派生绑定；它们的可读名字可以不同，但canonical authority和运行证据必须等价。
 
-### 4.4 统一运行证据
+### 4.4 搜索证据与普通step证据
 
 F4.1历史实现曾为路径Macro生成非Planner-facing的`PathMinimumWitness`。当前实现已经改为
-Macro winner与LLM显式子图共用`VerifiedSubplanExecution`和`VerifiedSubplanWitness`。
-只有Macro/runtime candidate provider使用搜索外壳：
+通用候选搜索记录和标准step execution evidence。只有Macro/runtime candidate provider使用
+搜索外壳：
 
 ```text
 VerificationOutcome
@@ -394,20 +388,17 @@ SearchCandidate[TFragment]
 CandidateEvaluation[TResult]
 CandidateSearchReport[TResult]
 
-VerifiedSubplanWitness
-  verified_fragment
-  actual_outputs[]
-  published_conditions[]
-  verification_outcomes[]
-  provenance
-  execution_signature
+MacroExpansionRecord
+  winner candidate
+  generated step ids
+  export map
+  search / expansion signature
 ```
 
 `TFragment`固定为普通`FunctionalPlanFragment`，`TResult`只由标准基础数学值和引用组成。
-不得为路径最值、正方形、加权路径或后续特殊题型再定义新的candidate、evaluation或witness
-外壳。Macro内部的角色选择、机械解法变化和达到方式都只是不同fragment payload，统一由
-同一候选协议执行。LLM-authored fragment不进入候选集合；它只复用相同的typed contract、
-predicate、transaction、Condition publication、checkpoint和witness assembler。
+不得为路径最值、正方形、加权路径或后续特殊题型再定义新的candidate或evaluation外壳。
+Macro内部的角色选择、机械解法变化和达到方式都只是不同fragment payload，统一由同一候选
+协议执行。LLM普通steps不进入候选集合；Macro winner物化后也只产生普通step evidence。
 
 `FunctionalPlan` 只保存求解意图。实际输出与证据进入：
 
@@ -422,9 +413,10 @@ VerifiedFunctionalPlanExecution
     typed evidence
 ```
 
-retry只接收`VerifiedSubplanWitness`的prompt-safe摘要；Explanation与Visual从标准输出、
-Condition和provenance生成领域展示，不把witness重新塞回Plan。现有
-`PathMinimumPromptWitness`作为兼容projector逐步退役，不再向其他family复制。
+retry只接收普通step diagnostic及Macro search report的prompt-safe摘要；Explanation与Visual
+从生成step的标准输出、Condition、provenance和`MacroExpansionRecord`生成领域展示，不把
+搜索或教学投影重新塞回Plan。现有`PathMinimumPromptWitness`作为兼容projector逐步退役，
+不再向其他family复制。
 
 ## 5. 各 Macro 的目标输入输出
 
@@ -449,7 +441,7 @@ output:
   selected_point
 
 internal:
-  VerifiedSubplanWitness（标准Point与Condition输出）
+  普通step evidence + MacroExpansionRecord（标准Point与Condition输出）
 ```
 
 候选构造与分支验证由 runtime search 完成，LLM 不选择象限实现路径。
@@ -489,7 +481,7 @@ output:
   solved_parabola?
 
 internal:
-  VerifiedSubplanWitness（标准Entity、Condition与Scalar输出）
+  普通step evidence + MacroExpansionRecord（标准Entity、Condition与Scalar输出）
 ```
 
 ### 5.3 两动点路径
@@ -515,7 +507,7 @@ internal:
   straightening
   endpoint construction
   distance / attainment proof
-  VerifiedSubplanWitness
+  普通step evidence + MacroExpansionRecord
 ```
 
 `two_moving_points_path_reduction` 不再作为 Planner 可见的独立阶段。
@@ -551,7 +543,7 @@ internal:
   selected construction
   endpoints
   attainment proof
-  VerifiedSubplanWitness
+  普通step evidence + MacroExpansionRecord
 ```
 
 ### 5.6 正方形路径
@@ -578,7 +570,7 @@ internal:
   locus derivation
   straightening
   distance / attainment proof
-  VerifiedSubplanWitness
+  普通step evidence + MacroExpansionRecord
 ```
 
 ### 5.7 加权路径
@@ -613,7 +605,7 @@ internal:
   auxiliary point / locus
   path equivalence
   linked minimum calculation
-  VerifiedSubplanWitness
+  普通step evidence + MacroExpansionRecord
 ```
 
 题目给出的最小值仍应作为后续参数求解输入，不能冒充路径结构 Fact。
@@ -646,8 +638,9 @@ segment_minimizing_point / ray_minimizing_point（仅 Goal 需要时）
 ```
 
 内部搜索角色、等长辅助点、SAS与路径恒等式、直达/反射/端点候选、合法域与可达性，
-并将标准Point、Condition、Expression与验证结果组装进通用`VerifiedSubplanWitness`。
-Explanation/Visual只从该通用证据生成展示projection，不再消费路径专用witness类型。
+并将标准Point、Condition、Expression与验证结果保存在生成step的普通执行证据中，
+`MacroExpansionRecord`只补充winner与step来源。Explanation/Visual从二者生成展示projection，
+不再消费路径专用witness类型。
 
 ### 5.9 Macro 透明性与开放组合
 
@@ -679,10 +672,10 @@ FamilyCapabilityBundle
 
 - `semantic_blueprint`向 LLM 公开适用结构、数学角色、构造步骤、保持量、证明义务、
   目标改写、最值达到策略、限制条件及可展开的Function Capability；
-- `functional_plan_fragment_templates`使用现有 `FunctionalPlan content/v2` 的 step、
+- `functional_plan_fragment_templates`使用现有 `FunctionalPlan content/v3` 的 step、
   arg、return 与 dependency 语义，不建立第二套 LLM DSL；
-- Macro 生成的 fragment 与 LLM 直接生成的 fragment 必须进入同一个 typed compiler、
-  `VerifiedSubplanExecution`、transaction、checkpoint 与 witness assembler；
+- Macro candidate fragment只用于shadow搜索；winner物化为普通Function steps后，与LLM直接
+  生成的steps进入同一个typed graph、F5-C、step executor、checkpoint与repair cone；
 - Macro 可在普通 prompt 中表现为一个 step，但不能把数学证明只藏在专用 lowerer、
   post-hoc witness builder 或 transaction 分支中；
 - runtime authority、StateVersion、candidate hash、物理 path、shadow Context 与
@@ -781,7 +774,7 @@ L2 contract
 commit: refactor(solver): type companion output authority
 ```
 
-### 6.2 F4.3B：通用可验证子图内核与透明 Macro 展开（IN PROGRESS；B-R统一runner待收口）
+### 6.2 F4.3B：通用可验证子图内核与透明 Macro 展开（COMPLETE）
 
 目标：先关闭“Macro拥有一套隐藏数学逻辑、LLM显式Plan只能调用不完备Method”的断层，
 同时避免为路径最值、正方形、加权路径或未来题型创建专用candidate、result与witness
@@ -800,16 +793,15 @@ VerificationOutcome
 SearchCandidate[TFragment]
 CandidateEvaluation[TResult]
 CandidateSearchReport[TResult]
-VerifiedSubplanExecution
-VerifiedSubplanWitness
+MacroExpansionRecord
 ```
 
 `FunctionalPlanFragment`复用现有Plan step语义，只是一个Goal局部、可嵌入的代码侧模型，
 不形成新的LLM wire。`SearchCandidate`只包装Macro/runtime generator产生的fragment、
 dependency envelope与稳定signature；
-`CandidateEvaluation`只记录通用验证结果和标准输出；`VerifiedSubplanWitness`只聚合标准
-Entity、Condition、Expression、Scalar、provenance与diagnostic。泛型参数不能由新的题型
-专用Python/JSON模型填充。
+`CandidateEvaluation`只记录通用验证结果和标准输出；`MacroExpansionRecord`只记录winner、
+生成step、export mapping与search/expansion signature，不复制数学运行结果。泛型参数不能由
+新的题型专用Python/JSON模型填充。
 
 `ScopedDerivedBinding`是普通Plan return在scope树中的通用语义别名，不是路径题专用结果类型。
 Entity输出获得scope-local MathObject身份，Condition输出在谓词验证成功后发布，Expression与
@@ -820,9 +812,9 @@ Scalar保留exact result authority。LLM后续使用SemanticRef读取这些变�
 端点等不同方案通过不同`FunctionalPlanFragment`表达。它们不再分别建立
 `MacroRoleAssignmentCandidate`、`PathReductionCandidate`、`StraighteningResult`或
 `PathAttainmentCandidate`。候选来源只能是Macro模板或声明式runtime generator，并全部进入
-同一个搜索外壳。LLM显式步骤每个provider attempt只形成一个authored fragment，不包装为
-Planner可见的候选数组；若底层为了复用执行器进行singleton包装，该包装不得产生search
-authority、search report、tie-break或“自动尝试其他思路”的语义。
+同一个搜索外壳。LLM显式步骤每个provider attempt只形成一个普通authored Plan，不包装为
+fragment或Planner可见的候选数组，也不产生search authority、search report、tie-break或
+“自动尝试其他思路”的语义。
 
 实施内容：
 
@@ -863,23 +855,18 @@ authority、search report、tie-break或“自动尝试其他思路”的语义�
   exact input authority发布标准Condition，false时不发布Condition并返回结构化
   `VerificationOutcome`。禁止Function返回`DistanceEquality`、`PathEquivalence`、
   `ConstructionEvidence`等题型专用结果；
-- 建立通用`VerifiedSubplanExecution`：Macro的1..N个候选共享隔离执行、非等价歧义、
-  等价tie-break与winner clean replay；LLM-authored fragment不经过该搜索阶段。Macro winner
-  与LLM-authored fragment共享selection、clean execution、witness、checkpoint和restore信封，
-  但截至B阶段物理执行粒度仍不同：Macro由fragment runner一次执行selected fragment，LLM
-  普通Function仍由主transaction按call执行。canonical Plan会在transaction前按scope/Goal
-  owner声明一个多步LLM fragment边界，checkpoint只为该边界生成一个evidence，不再事后为
-  N个call伪造N个单步fragment；把这份边界直接交给同一原子runner是进入F4.3C前的门禁；
-- clean winner不再编译或执行历史Recipe：Macro的派生v1编译结果只包含公开return的
-  publication envelope，`plans/replay_plans/method_output_authorities`均为空；shadow与clean两次
-  执行都由`FunctionalPlanFragmentTransactionalRunner`逐个运行selected fragment中的普通
-  Function。公开`minimum_expression`直接来自fragment export，最值搜索或达到性证明只能作为
-  fragment中的验证Function，不能在fragment之外重算并覆盖结论；
-- `FunctionalExecutionEvidence`只接受`VerifiedSubplanExecution/v2`。Macro使用
-  `MacroSearchSelection`保存真实search report，LLM-authored Function使用
-  `SingleFragmentSelection`且不伪造search report。历史`PathMinimumWitness`不再由transaction、
-  checkpoint或retry构造/保存；Explanation与Visual需要旧教学字段时，只从通用selected
-  fragment、verification、standard outputs和provenance确定性投影兼容视图；
+- Macro的1..N个候选继续共享隔离shadow执行、非等价歧义与等价tie-break；但候选一旦选出，
+  winner必须确定性物化为当前scope树中的普通Function steps，随后只经过现有typed graph、
+  per-step F5-C、普通执行、checkpoint和repair cone。LLM-authored Function本来就是普通step，
+  不建立额外fragment边界、selection信封或原子transaction；
+- Macro candidate的shadow branch仍由搜索层隔离，失败候选不得产生write。winner clean阶段不得
+  再执行历史Recipe或独立fragment runner，而是将选中fragment的Function steps写入代码派生的
+  当前Plan revision，再由现有step executor重放。公开`minimum_expression`只能来自展开step的
+  export，最值搜索或达到性证明只能作为普通验证Function，不能在展开图之外重算并覆盖结论；
+- Macro search report只记录候选选择过程；实际Entity、Condition、Expression、StateVersion、
+  provenance与step状态全部以普通step执行结果为权威。LLM Function不再事后聚合或伪造
+  `VerifiedSubplanExecution`。历史`PathMinimumWitness`继续保持物理删除；Explanation与Visual
+  从Macro expansion provenance及普通step evidence确定性投影教学字段；
 - Macro无已知结构或全部候选以数学原因失败时，Goal retry直接在原
   `FamilyCapabilityBundle`中改用Function Capability显式组合，不得再次运行能力筛选；
 - 收敛companion物理destination的机械派生：数学权威继续只来自return allocation，最终让
@@ -895,9 +882,10 @@ authority、search report、tie-break或“自动尝试其他思路”的语义�
   只指单一可执行语义owner。transaction不得按Macro ID分支。
 
 参考等价门禁：和平一模分别通过“一步调用`equal_length_ray_path_reduction`”与“显式展开
-构造等长点、证明SAS距离等价、改写路径、证明折线路径最值”两条Plan完成；二者的最终
-标准输出、发布Condition、对象authority、transaction、provenance及`VerifiedSubplanWitness`
-必须runtime等价。临时从catalog移除该Macro后，recorded显式fragment仍须通过。
+构造等长点、证明SAS距离等价、改写路径、证明折线路径最值”两条Plan完成。Macro winner
+物化后的普通step图与LLM显式step图经过alpha-normalization后，其最终输出、发布Condition、
+对象authority、exact version及provenance必须runtime等价。临时从catalog移除该Macro后，
+recorded显式Function Plan仍须通过。
 
 测试与提交：
 
@@ -909,286 +897,264 @@ L0 affected + L2 contract
 commit: refactor(solver): add generic verified subplan kernel
 ```
 
-验收状态：架构复审后的专项门禁额外验证了clean Macro无Recipe plan、Macro/LLM单一
-`VerifiedSubplanExecution`信封、LLM同owner多步Function只形成一个预声明fragment evidence、
-fragment export为标准输出权威、公共Capability kind仅为
+验收状态：B主体的专项门禁验证了clean Macro无Recipe plan、fragment export为标准输出权威、
+公共Capability kind仅为
 `function|macro`、`MacroDefinition`与catalog签名一致，以及历史Path witness builder和
 等长射线专用runtime recipe入口为0。旧`equal_length_ray_point`已从生产family、Capability
 bundle、contract和typed binding中删除，只保留为显式v1 debug Method；presentation
 RecipeSpec的`method_sequence`为空，不再构成第二份执行图。B阶段初次验收的L3 full为
-`2427 passed`；复审收口后最终定向回归为`75 passed`、L0 affected为
-`1576 passed, 57 deselected`、L2 contract为`2366 passed`，`git diff --check`通过；本轮未
-重复运行L3或付费LLM冒烟。
+`2427 passed`；复审收口后定向回归为`75 passed`、L0 affected为
+`1576 passed, 57 deselected`、L2 contract为`2366 passed`。随后确认“Macro/LLM共享
+VerifiedSubplan信封”不是需要保留的
+执行架构，而是B-R必须删除的迁移态：LLM保持普通steps，Macro winner物化后加入同一普通Plan。
 复审后已物理删除无生产消费者的`PathMinimumWitness`、其schema/sync入口及测试专用
-`search_segment_path_minimum`，lineage标签改为`verified_path_minimum_subplan`。尚未完成的
-唯一B级架构项正式记为**F4.3B-R Runner Convergence**：LLM多步fragment的原子runner统一。
-完成前F4.3B不得标记COMPLETE，也不得宣称“一步Macro与显式多步Plan从selected fragment
-起使用同一物理执行路径”。
+`search_segment_path_minimum`，lineage标签改为`verified_path_minimum_subplan`。进一步审查
+确认不应为LLM普通step新增fragment事务：现有step状态、producer DAG、失败传播、frozen/editable、
+repair cone与checkpoint已经拥有失败影响范围权威。B-R已将Macro生命周期收窄为“只在winner
+选择前特殊”；winner选中后展开为普通Plan steps并复用现有执行协议。最终L2 contract为
+`2368 passed`，L3 full为`2422 passed`，未运行付费LLM冒烟，F4.3B据此关闭。
 
-### 6.2.1 F4.3B-R：Runner Convergence 实现计划
+### 6.2.1 F4.3B-R：Macro Winner普通Plan化（COMPLETE）
 
-#### 目标链路
+#### 问题与原则
+
+B-R不再引入LLM fragment边界、统一subplan transaction、原子commit或checkpoint v5。现有
+Goal execution已经能够按普通step记录`passed / failed / blocked`，并通过producer DAG、
+frozen/editable authority、repair cone、provisional write和checkpoint判断失败影响范围。
+重复建立fragment事务只会产生第二套owner。
+
+唯一需要收口的双路径是：Macro winner当前仍可能由专用Recipe或fragment runner clean执行，
+而LLM Function始终作为普通Plan step执行。目标改为：
 
 ```mermaid
 flowchart LR
-  P["FunctionalPlan v3"]
-  G["TypedExecutionGraph"]
-  I["FunctionalPlanFragmentBoundaryIndex"]
-  S["Macro winner或LLM single selection"]
-  F["finalized per-step F5-C"]
-  C["FunctionalSubplanTransactionCoordinator"]
-  B["isolated Context与WorkingState branch"]
-  A["fragment-wide audit"]
-  M["atomic commit或完整rollback"]
-  V["VerifiedSubplanExecution"]
-  K["Goal checkpoint v5"]
+  M["LLM authored Macro step"]
+  C["Macro展开1..N个候选fragment"]
+  S["隔离shadow验证"]
+  W["选择唯一或等价winner"]
+  X["winner物化为普通Function steps"]
+  P["当前ScopedFunctionalPlan revision"]
+  G["现有TypedExecutionGraph与per-step F5-C"]
+  E["现有step executor"]
+  K["现有checkpoint v4与repair cone"]
 
-  P --> G --> I --> S --> F --> C --> B --> A --> M --> V --> K
+  M --> C --> S --> W --> X --> P --> G --> E --> K
 ```
 
-B-R只收敛执行、提交、证据与恢复权威，不新增Planner DSL，不修改LLM-facing
-`FunctionalPlan v3`、`functional-goal-repair/v5`或`FamilyCapabilityBundle`。Macro与LLM
-仍有不同的选择生命周期：Macro先搜索1..N个候选，LLM只有一份authored fragment；二者从
-`selected FunctionalPlanFragment`开始必须使用同一个transaction coordinator。
+LLM直接编写Function时从`ScopedFunctionalPlan revision`进入同一条链，不生成候选数组，也不
+包装成fragment。核心不变量是：
 
-#### 1. Canonical Fragment Boundary
+> Macro候选只在winner选择前特殊；winner一旦选出，就只是代码生成的一组普通Plan steps。
 
-新增不可变契约：
+#### 1. 最小Macro展开记录
+
+保留`FunctionalPlanFragment`作为Macro candidate builder的临时数据，不把它升级为LLM DSL、
+transaction边界、checkpoint owner或restore单位。新增或收敛为一个轻量不可变sidecar：
 
 ```text
-FunctionalPlanFragmentBoundary
-  fragment_id
-  source = macro | llm
-  scope_id / semantic_owner_ref / repair_authority_ref
-  member_step_ids[]
-  external_dependency_ids[]
-  export_bindings{}
-  boundary_signature
+MacroExpansionRecord
+  authored_plan_id / materialized_plan_id
+  macro_step_id / macro_id
+  implementation_id / preparation_signature
+  winner_candidate_id / search_signature
+  generated_step_ids[]
+  export_map{}
+  expansion_signature
 
-FunctionalPlanFragmentBoundaryIndex
-  plan_id / typed_graph_signature
-  boundaries[]
-  step_to_fragment{}
-  index_signature
+MacroGeneratedStepOrigin
+  macro_step_id
+  winner_candidate_id
+  generated_ordinal
 ```
 
-边界在TypedExecutionGraph完成后、任何runtime执行前确定：
+- `MacroExpansionRecord`只证明“哪些普通step来自哪个已验证winner”，不决定step能否提交、
+  冻结、恢复或编辑；
+- `generated_step_ids`使用Macro step identity、Function capability和稳定ordinal确定性生成，
+  禁止runtime随机后缀；
+- `export_map`将Macro公开return映射到某个生成step的精确return，不能按类型或名称重新猜测；
+- authored hint和失败候选只进入search report，不能进入winner step的F5-C、source units或
+  provenance；
+- record与生成step进入debug、checkpoint和Explanation provenance，但不进入LLM response schema。
 
-- 一个Macro winner天然形成一个边界；候选搜索期间使用同一候选边界的临时signature，winner
-  确定后才写入最终index；
-- LLM Function按“同scope、同semantic owner、同repair authority”的Function-only依赖图划分
-  最大弱连通分量；Macro节点、restore边界和不同owner都是硬分隔；
-- 相互独立的Function不因为碰巧位于同一Goal而被捆成一个transaction；
-- 每个Function step必须且只能属于一个边界，跨边界依赖只进入
-  `external_dependency_ids`，sibling不可见边不得进入index；
-- fragment内部保持typed graph拓扑序；forward reference、环、跨scope写入或一个step多owner
-  在执行前fail loud；
-- `fragment_id`由plan、owner、成员call identity和图结构生成；alpha-equivalence另由
-  `FunctionalPlanFragment.fragment_signature`负责，二者不得混用。
+不新增`FunctionalPlanFragmentBoundaryIndex`、`PreparedFunctionalSubplan`、
+`FunctionalSubplanTransactionCoordinator`、`FunctionalSubplanCommitBundle`或新的
+fragment restore authority。
 
-新增稳定错误：
+#### 2. Winner确定性物化
+
+Macro candidate search继续在独立`RuntimeContext.fork()`与`WorkingPlannerState.fork()`
+中验证候选：
+
+1. configuration、contract或authority异常立即fail loud，不能降为数学候选失败；
+2. predicate为false、合法域不满足或数学postcondition失败只淘汰当前候选；
+3. 唯一有效候选直接采用；多个runtime等价候选使用现有确定性tie-break；多个非等价候选
+   报`functional.macro_search_ambiguous`；
+4. shadow branch只用于选择，任何Entity、StateVersion、CallResult、Condition或checkpoint
+   write都不得复制到正式执行；
+5. winner确定后，将其`FunctionalPlanFragment.steps`转换为普通
+   `ScopedFunctionalPlanStep`，替换当前代码派生Plan revision中的Macro执行槽；
+6. 生成step保留Macro原scope与semantic owner。任何跨scope读写、sibling依赖或代码自动提升
+   都按现有scope authority拒绝；
+7. Macro return consumer、`answer_from`及下游依赖通过`export_map`改写为生成step的标准
+   return binding；
+8. 物化后的完整Plan重新经过现有tree、owner、dependency、return、F5-C和compile审计；
+9. winner clean执行从第一个生成step开始走普通step executor，不再调用Macro Recipe clean
+   lowerer或独立fragment runner；
+10. clean结果与shadow winner的公开输出、Condition和chosen-role signature漂移时报
+    `planner.macro_winner_replay_drift`，但正式状态只来自clean普通step执行。
+
+Macro authored Plan仍作为source provenance保存；执行、retry与checkpoint使用
+`materialized_plan_id`对应的当前Plan revision，避免同一个plan identity同时代表“一个Macro
+step”和“若干生成Function steps”。
+
+#### 3. 复用现有失败影响范围
+
+生成step不获得特殊的原子语义。假设winner展开为：
 
 ```text
-planner.functional_fragment_boundary_invalid
-planner.functional_fragment_owner_drift
-planner.functional_fragment_dependency_drift
+construct_G
+→ verify_G_on_ray
+→ verify_CG_equals_CB
+→ rewrite_path
+→ build_minimum_expression
 ```
 
-全部属于configuration error，不消耗semantic retry。
-
-#### 2. Unified Preparation 与 F5-C
-
-新增：
+若第三步失败，现有执行结果应直接是：
 
 ```text
-PreparedFunctionalSubplan
-  boundary
-  selected_fragment
-  selection_authority
-  prepared_calls[]
-  finalized_call_bindings[]
-  exact_read_authorities[]
-  output_write_authorities[]
-  publication_authorities[]
-  preparation_signature
+construct_G                 passed
+verify_G_on_ray             passed
+verify_CG_equals_CB         failed
+rewrite_path                blocked_by_upstream
+build_minimum_expression    blocked_by_upstream
 ```
 
-- LLM fragment复用现有per-call F5-C ledger，但必须在整个fragment开始前完成所有外部source、
-  exact StateVersion、Condition、CallResult、return allocation和destination finalization；
-- fragment内部结果统一使用`InvocationResultReadAuthority`，producer未成功前不得物化；
-- Macro shadow候选只消费`MacroCandidateBindingAuthority`允许的外部Entity、Fact和exact state；
-  configuration/authority错误立即终止整个search，数学predicate为false才淘汰单个候选；
-- Macro winner确定后，使用chosen role与winner fragment生成正式per-step F5-C binding；authored
-  hint和失败候选不得进入binding、source units或provenance；
-- clean replay和LLM执行都只接收`PreparedFunctionalSubplan`，coordinator不得重新查latest、扫描
-  Context或推断output target。
+后续完全复用现有规则：
 
-#### 3. 单一 Transaction Coordinator
+- 已通过且位于solved closure中的生成step可以冻结；
+- 直接失败step进入editable集合；
+- 下游blocked step是否开放由现有repair cone、Goal状态和owner authority决定；
+- 一个失败Goal不得扩大到sibling scope或删除其他solved Goal的frozen producer；
+- retry可以保留生成step、替换失败Goal的普通Function steps，或重新输出Macro step触发新搜索；
+- 若重新调用Macro，旧`MacroExpansionRecord`与其未冻结provisional结果必须丢弃；
+- 不因“这些step来自同一个Macro”而整体rollback、整体冻结或整体开放。
 
-将当前主transaction中“prepare -> compile -> stamp -> Method execute -> closure -> commit”的
-单call逻辑抽为不提交全局状态的`PreparedFunctionalStepTransactionService`。新增：
+候选shadow失败仍然整体丢弃，因为它尚未进入正式Plan；winner进入正式Plan后不再拥有这项特殊
+生命周期。
+
+#### 4. Checkpoint与Restore保持v4
+
+本阶段不升级checkpoint或retry协议，继续使用：
 
 ```text
-FunctionalSubplanTransactionCoordinator
-FunctionalSubplanStagedResult
-FunctionalSubplanCommitBundle
+functional-goal-execution-checkpoint/v4
+functional-execution-restore-state/v1
+functional-goal-repair/v5
+planner-goal-retry-context/v4
 ```
 
-执行规则：
+- checkpoint按现有普通step保存exact StateVersion、CallResult、Condition、compiled authority和
+  execution status；
+- 额外保存`MacroExpansionRecord`，用于证明生成step集合、winner、implementation和export
+  mapping没有漂移；
+- solved/frozen生成step按现有exact authority恢复，不重新运行candidate builder、不重新选择
+  latest state；
+- editable生成step按当前materialized Plan正常重编译和执行；
+- retry重新选择Macro时才丢弃旧record并重新搜索；
+- expansion signature、winner、generated step、export、exact read或write漂移继续使用现有
+  configuration error路径，semantic retry增量为0；
+- 不引入fragment级restore，不禁止现有step级frozen/editable合并。
 
-1. 为整个fragment各创建一个`RuntimeContext.fork()`和`WorkingPlannerState.fork()`；
-2. 按fragment拓扑序执行成员step，每步仍经过现有MethodInputReadAuthority、MethodOutputWriteAuthority、
-   symbolic closure、predicate publication、StateFinalization和runtime equivalence probe；
-3. 内部成功结果只写入fragment branch，供后续成员读取，不更新父WorkingState、全局CallResult索引、
-   checkpoint或Goal状态；
-4. 任一步失败时丢弃整个branch。先前成功成员标为`provisional_verified_rolled_back`，不得冻结、
-   恢复或产生Condition/StateVersion/CallResult ghost write；
-5. 全部成员成功后执行fragment-wide export、answer binding、object identity、Condition、closure、
-   provenance和write-set审计；
-6. 审计通过后以一个`FunctionalSubplanCommitBundle`原子合并Context、StateVersion、CallResult、
-   Condition、symbol binding及per-call状态；合并签名漂移时报configuration error；
-7. Macro shadow使用`mode=shadow`，永不提交；Macro winner clean replay和LLM selected fragment都
-   使用`mode=clean`及同一commit实现；
-8. call-level execution result继续作为fragment result的派生视图供Goal closure/debug使用，不能
-   再拥有独立commit生命周期。
+#### 5. 证据、Explanation与等价门禁
 
-完成迁移后删除当前轻量`FunctionalPlanFragmentTransactionalRunner`；生产只保留
-`FunctionalSubplanTransactionCoordinator`。禁止在`functional_subplan.py`中直接建立第二个
-`InvocationExecutor`执行协议。
+普通step execution result是唯一数学执行证据：
 
-#### 4. Verified Execution 等价
+- Entity、Condition、Expression、Scalar、StateVersion和provenance从生成step的标准执行结果读取；
+- Macro search report只说明尝试了哪些候选以及为何选中winner；
+- `MacroExpansionRecord`只连接search provenance与生成step，不复制运行结果；
+- LLM Function不再构造`SingleFragmentSelection`或事后聚合
+  `VerifiedSubplanExecution`；
+- 若`VerifiedSubplanExecution`在迁移后没有独立消费者，则物理删除model、schema与checkpoint
+  分支；Explanation/Visual从expansion record和普通step evidence投影；
+- Predicate Condition无论来自Macro展开还是LLM显式step，都只由同一个publication逻辑在
+  Method返回true后发布。
 
-`VerifiedSubplanExecution`继续使用v2，但新增确定性的数学等价projection：
+Macro与LLM等价比较发生在普通Plan层：
 
 ```text
-VerifiedSubplanEquivalenceProjection
-  alpha_fragment_signature
-  chosen_external_object_authorities
-  exact_input_version_signatures
-  standard_entities / standard_conditions / standard_results
-  verification outcomes
-  committed state/result/condition signatures
-  semantic provenance signature
-  equivalence_signature
+materialized Macro winner steps
+vs
+LLM authored Function steps
+→ alpha-normalized typed graph
+→ outputs / Conditions / exact versions / provenance比较
 ```
 
-- `MacroSearchSelection`与`SingleFragmentSelection`、候选失败记录、tie-break及authored名字不进入
-  等价signature，因为它们描述来源而非数学执行结果；
-- selected graph、Function顺序、公开及被消费的派生Entity/Condition、exact source、最终输出、
-  state lineage和provenance必须等价；
-- Macro与LLM的Condition均只从同一个predicate publication结果生成；false或未发布Condition不能
-  出现在witness；
-- 多个return重名继续使用`step_id.return`消歧，但alpha projection按producer角色比较，不因变量
-  拼写不同而漂移；
-- 门禁比较完整equivalence projection，不直接比较包含不同selection来源的原始JSON，也不能只
-  比较`minimum_expression`。
+比较忽略step拼写、派生变量名、candidate id和search report；必须比较Function capability图、
+公开及被消费的derived binding、chosen对象、exact input version、最终结果、Condition publication
+和semantic provenance。不能只比较`minimum_expression`。
 
-`VerifiedSubplanExecution`必须由coordinator的clean result直接创建。删除checkpoint阶段的
-`_llm_verified_subplan_execution()`和任何“先提交calls、再重建fragment evidence”的路径。
+#### 6. 删除双执行路径
 
-#### 5. Checkpoint v5 与 Retry
+物理删除或禁止生产引用：
 
-执行恢复协议升级为：
+- Macro winner的legacy Recipe clean执行；
+- `FunctionalPlanFragmentTransactionalRunner`的winner clean路径；
+- LLM Function的fragment boundary推断与事后`VerifiedSubplanExecution`聚合；
+- 任何以Macro ID分支重新计算minimum、Condition或standard output的post-hoc adapter；
+- “先执行Macro结果，再执行fragment只作校验”的并行权威；
+- 为B-R规划但尚未实现的fragment transaction、commit bundle和checkpoint v5契约。
 
-```text
-functional-goal-execution-checkpoint/v5
-functional-execution-restore-state/v2
-```
+允许保留：
 
-Plan v3、repair v5、retry prompt context v4和Verified execution v2保持不变。restore state新增：
-
-```text
-FunctionalFragmentRestoreAuthority
-  boundary payload/signature
-  selected fragment/selection signature
-  member call bindings与compiled authorities
-  exact StateVersion / CallResult / Condition records
-  commit bundle signature
-  VerifiedSubplanExecution signature
-```
-
-- solved fragment作为整体恢复，不重新compile、搜索Macro候选、选择latest或逐call提交；
-- restore逐项验证plan、typed graph、boundary、implementation、exact reads、writes、publication、
-  commit bundle和VerifiedSubplan signature；任一漂移fail loud；
-- failed/editable fragment丢弃旧preparation、partial evidence和provisional writes后重新执行；
-- 一个失败fragment中的前缀成功step不能成为frozen producer；同Goal内其他已经原子提交且不在
-  repair cone中的fragment仍可冻结；
-- mixed-scope repair继续由现有step-level authority决定可编辑范围，但checkpoint只能按完整
-  fragment恢复；若repair需要修改fragment内部任一步，则该fragment全体进入editable execution
-  boundary，不能拼接新旧半个transaction；
-- v4 checkpoint稳定报`planner.goal_checkpoint_version_unsupported`，不做hydrate兼容。
-
-#### 6. 清理与静态门禁
-
-物理删除：
-
-- `_transaction_execution_evidence()`中的LLM事后聚合逻辑与`_llm_verified_subplan_execution()`；
-- call循环中的独立commit分支；
-- Macro专用fragment clean runner及任何只对Macro生效的Method执行旁路；
-- checkpoint中的call-first、fragment-later证据装配；
-- 允许一个fragment成员已提交、后续成员失败的兼容测试和fixture。
-
-静态门禁要求：
-
-```text
-生产fragment executor/coordinator数量 == 1
-LLM post-hoc VerifiedSubplan builder引用 == 0
-Macro-only clean runner引用 == 0
-fragment外独立call commit入口 == 0
-checkpoint v4生产引用 == 0
-```
+- Macro candidate shadow evaluator及其fork隔离；
+- `FunctionalPlanFragment`候选生成模型；
+- 通用candidate search、预算、等价tie-break和prompt-safe diagnostic；
+- 当前普通step executor、Goal checkpoint、repair cone和transaction审计。
 
 #### 7. 分段提交与测试
 
-建议使用三个可独立审查的提交：
+建议拆成两个独立提交：
 
-1. `refactor(solver): declare canonical functional subplan boundaries`
-   - 增加boundary index、partition oracle和equivalence projection；
-   - production仍保持原执行路径，先验证五题边界稳定、无step遗漏或重复；
-2. `refactor(solver): unify functional subplan transactions`
-   - 抽取staged step service与统一coordinator；
-   - 迁移Macro shadow/clean和LLM clean执行，启用原子commit/rollback；
-3. `refactor(solver): restore verified subplans atomically`
-   - checkpoint v5、restore v2、retry边界迁移；
-   - 删除旧runner、post-hoc evidence和call-level commit入口，开启静态零引用门禁。
+1. `refactor(solver): materialize macro winners as plan steps`
+   - 增加expansion record、稳定step id、export rewrite及materialized Plan审计；
+   - winner clean改走现有普通step执行器；
+2. `refactor(solver): remove parallel macro fragment execution`
+   - 删除Recipe/fragment clean旁路、LLM fragment聚合及冗余VerifiedSubplan authority；
+   - checkpoint v4保存expansion record并开启静态零引用门禁。
 
-新增测试：
+新增或重构：
 
 ```text
-test_functional_fragment_boundaries.py
-test_functional_subplan_transaction_coordinator.py
-test_functional_subplan_atomic_commit.py
-test_functional_subplan_equivalence.py
-test_functional_goal_checkpoint_v5.py
-test_functional_subplan_retry_restore.py
-test_scope_native_subplan_generated_gate.py
+test_macro_winner_plan_materialization.py
+test_macro_generated_step_retry.py
+test_macro_explicit_plan_equivalence.py
+test_functional_goal_checkpoint_v4.py
+test_verified_functional_plan_execution.py
 ```
 
 必须覆盖：
 
-- LLM链式多步、独立同Goal steps、scope producer、Macro前后Function被正确分区；
-- 第二/第k步失败时前缀StateVersion、CallResult、Condition和对象allocation均为0；
-- configuration异常不降级为候选失败，predicate false只淘汰Macro候选；
-- symbolic closure、answer producer、runtime-equivalent alias和create/transition在fragment原子提交后
-  与当前五题结果一致；
-- Macro一步与显式Function fragment的Entity、Condition、结果、exact versions、state lineage、
-  verification和semantic provenance等价；
-- solved fragment restore执行次数为0，Macro candidate builder调用次数为0，latest重选次数为0；
-- mixed-scope frozen/editable repair不产生半fragment恢复；
-- 至少256个`boundary -> transaction -> failure/commit -> checkpoint -> retry/restore`生成场景；
-- 五份recorded Plan的答案、Goal状态、transaction、provenance和Explanation/Visual输入不漂移。
+- wrong hint经shadow search选择唯一winner，正式F5-C只记录chosen对象；
+- loser candidate ghost write为0；
+- winner生成step的scope、owner、依赖、return binding和export map稳定；
+- winner clean调用普通step executor，Recipe/fragment clean runner调用数为0；
+- 第1步、第k步和末步失败时，step状态、blocked传播、frozen/editable与现有repair cone完全一致；
+- 成功前缀不会仅因Macro来源被回滚，sibling和solved Goal不会被错误开放；
+- solved生成step restore不搜索candidate、不重选latest、不重执行；
+- retry重新输出Macro时旧winner provisional authority被丢弃；
+- Macro物化step图与LLM显式Function Plan的标准结果、Condition、exact version及provenance等价；
+- 五份recorded Plan的答案、Goal状态、checkpoint、Explanation和Visual输入不漂移。
 
-验收顺序：
+验收：
 
 ```bash
 cd server
 uv run pytest \
-  tests/solver/test_functional_fragment_boundaries.py \
-  tests/solver/test_functional_subplan_transaction_coordinator.py \
-  tests/solver/test_functional_subplan_atomic_commit.py \
-  tests/solver/test_functional_subplan_equivalence.py \
-  tests/solver/test_functional_goal_checkpoint_v5.py \
-  tests/solver/test_functional_subplan_retry_restore.py -q
+  tests/solver/test_macro_winner_plan_materialization.py \
+  tests/solver/test_macro_generated_step_retry.py \
+  tests/solver/test_macro_explicit_plan_equivalence.py \
+  tests/solver/test_functional_goal_checkpoint_v4.py \
+  tests/solver/test_verified_functional_plan_execution.py -q
 
 uv run python tools/run_solver_tests.py affected
 uv run python tools/run_solver_tests.py contract --workers 4
@@ -1196,28 +1162,48 @@ uv run python tools/run_solver_tests.py full --workers 4
 git diff --check
 ```
 
-本阶段不运行付费LLM冒烟；B-R只改变执行权威，不改变Planner能力选择。完成门禁：
+本阶段不运行付费LLM冒烟；B-R只删除Macro winner的第二套执行路径，不改变Family能力选择、
+LLM Plan语义或现有失败影响范围。完成门禁：
 
 ```text
-Function step fragment归属覆盖率 == 100%
-生产subplan transaction coordinator数量 == 1
-Macro/LLM完整等价projection mismatch == 0
-fragment中途失败ghost write == 0
-fragment外独立call commit次数 == 0
-restore重新执行/search/latest选择次数 == 0
+Macro winner物化为普通step覆盖率 == 100%
+Macro Recipe/fragment clean执行次数 == 0
+LLM fragment边界与事后聚合引用 == 0
+新增subplan transaction/checkpoint协议数量 == 0
+candidate shadow ghost write == 0
+生成step failure/repair与普通step语义差异 == 0
+restore重新搜索或选择latest次数 == 0
+Macro物化Plan与LLM显式Plan等价mismatch == 0
 configuration/unclassified error == 0
 L3 full通过
 ```
+
+实施结果：Macro winner会以稳定step ID替换原Macro step，`export_map`重写下游consumer和
+`answer_from`；正式执行只经过普通typed graph、per-step F5-C、transaction与checkpoint v4。
+`MacroExpansionRecord`额外保存generated return的实例级semantic role，Explanation/Visual据此
+投影辅助点和交点，不参与执行决策。旧VerifiedSubplan执行对象、schema、Macro clean envelope与
+`__verified_subplan_*`调用均已删除。L2为`2368 passed`，L3为`2422 passed`，完整generated gate
+无mismatch。
+
+复审后补强了三项字面门禁：`test_macro_explicit_plan_equivalence.py`不再回放Macro生成的
+`canonical_plan`，而是读取独立静态fixture，其中十个`llm_*` Function step、派生名`G/P`及
+Condition名称均由测试作者显式声明。它与Macro物化图分别通过完整assembly、F5-C和transaction，
+随后比较alpha-normalized普通step图、逐input exact typed authority、source provenance、发布
+Condition及最终标准输出。Goal execution与Scoped replay现在共用同一个clean-output verifier，
+两条入口都会将普通Function export与shadow winner signature对账。Macro选择结束后不再调用
+`finalize_macro()`再抛出物化控制信号；旧Macro F5-C行保持pending并随Macro step一同消失，只有
+新生成的普通Function step建立最终per-call F5-C binding。复审补强后的L2 contract为
+`2370 passed`，schema snapshot与`git diff --check`均通过；未重复运行付费LLM冒烟。
 
 ### 6.3 F4.3C：标准路径与两动点路径
 
 目标：迁移 `quadratic_path_minimum` family，并优先解决南开题中 Planner 需要拼装
 PathTransformation、端点和拉直步骤导致的超长输出。
 
-进入条件：先完成F4.3B-R Runner Convergence。LLM显式多步fragment必须由与Macro winner
-相同的transaction coordinator执行、一次形成clean execution并按fragment边界提交或回滚；
-禁止继续“普通call先提交、checkpoint再聚合证据”的双路径。Macro与显式Plan的等价门禁必须
-比较整个`VerifiedSubplanExecution`，而不是只比较最终表达式。
+进入条件：先完成F4.3B-R Macro Winner普通Plan化。Macro winner必须先物化为普通Function
+steps，再与LLM显式Plan共用现有typed graph、F5-C、step executor、checkpoint和repair cone；
+不得保留Recipe或fragment clean执行旁路。等价门禁比较alpha-normalized普通step图、标准输出、
+Condition、exact version和provenance，而不是只比较最终表达式或额外执行信封。
 
 公开能力：
 
@@ -1316,9 +1302,9 @@ commit: refactor(solver): migrate weighted path minimum macro
 - 重写五份 fixture、few-shot 与 compile manifest；
 - 静态门禁禁止生产 internal Path type、companion 字符串 selector、standalone role
   inference 和 Macro ID transaction 分支；
-- Explanation / Visual 全部从`VerifiedFunctionalPlanExecution`中的通用
-  `VerifiedSubplanWitness`读取标准Entity、Condition、Expression与provenance，不依赖
-  题型专用witness类型。
+- Explanation / Visual 全部从`VerifiedFunctionalPlanExecution`中的普通step evidence及
+  `MacroExpansionRecord`读取标准Entity、Condition、Expression与provenance，不依赖题型
+  专用witness类型。
 
 测试与提交：
 
@@ -1334,7 +1320,7 @@ commit: refactor(solver): retire planner path implementation wire
 
 每段都遵守以下规则：
 
-1. 一个提交只改变一个权威边界或一个family，不把通用verified-subplan kernel与family
+1. 一个提交只改变一个权威边界或一个family，不把通用candidate/winner物化内核与family
    迁移混在一起。
 2. Macro 只有在 candidate builder、validation policy、lowerer、postcondition、evidence
    builder 与 restore 全部接通后，才可声明 `runtime_search`。
@@ -1344,9 +1330,9 @@ commit: refactor(solver): retire planner path implementation wire
 5. clean replay 必须从干净 Context 重新执行，禁止复制 shadow write 或 result。
 6. 每个 family 定向 live 通过后再迁下一个；只有 F4.3F 运行全量 L3 与 5x3。
 7. 中间提交不得通过兼容 alias 让新旧公开 Path 契约同时长期存在。
-8. 每个Macro必须有结构化semantic blueprint和普通FunctionalPlan fragment展开；Macro
-   winner与LLM-authored fragment在selected-fragment边界后汇入同一typed执行协议，不要求
-   LLM fragment进入Macro候选搜索。
+8. 每个Macro必须有结构化semantic blueprint和普通FunctionalPlan fragment候选展开；winner
+   选中后必须物化为普通Function steps并进入现有typed执行协议。LLM直接author普通steps，
+   不建立fragment边界，也不进入Macro候选搜索。
 9. Macro适用条件必须使用数学角色与关系不变量；示例题的点名、题号、朝向或坐标不得
    成为结构匹配条件。
 10. Family只选择一次`FamilyCapabilityBundle`。Registry只提供已知候选；无已知数学候选
@@ -1354,11 +1340,11 @@ commit: refactor(solver): retire planner path implementation wire
     configuration、authority或restore错误不得借此消耗LLM retry。
 11. Method只返回bool或基础数学值；成功谓词由runtime发布标准Condition。禁止新增
     `DistanceEquality`、`PathEquivalence`等题型专用公共结果。
-12. candidate、evaluation、search report和witness只能使用F4.3B的通用外壳；family只能
-    提供普通FunctionalPlan fragment与标准数学值，不得定义题型专用执行模型。
+12. candidate、evaluation和search report只能使用F4.3B的通用外壳；family只能提供普通
+    FunctionalPlan fragment候选与标准数学值，不得定义题型专用执行或witness模型。
 13. 可复用中间Entity、Condition、Expression和Scalar使用显式scope-local派生绑定。局部名
-    只用于Plan可读性，不能参与对象选择；Macro与LLM fragment的等价比较必须支持局部变量
-    alpha-renaming，并以producer、return role、scope、类型和exact authority为准。
+    只用于Plan可读性，不能参与对象选择；Macro物化step图与LLM显式step图的等价比较必须支持
+    局部变量alpha-renaming，并以producer、return role、scope、类型和exact authority为准。
 14. 旧能力只能按3.2退役矩阵删除：先有runtime等价的新fragment与recorded Plan，再删除旧
     Capability/Method。已判定为直接重复的两个Recipe不得被后续family重新引用。
 15. 同一`capability_id`只能由一个`MacroDefinition`拥有；pack、family、catalog与runtime
@@ -1389,15 +1375,15 @@ Macro blueprint挂载到Function Capability数量 == 0
 题型专用candidate/evaluation/search-report/witness新增数量 == 0
 Method题型专用evidence result新增数量 == 0
 验证成功谓词的标准Condition publication覆盖率 == 100%
-标准输出与通用witness provenance覆盖率 == 100%
+标准输出与普通step provenance覆盖率 == 100%
 生产Macro semantic blueprint覆盖率 == 100%
 生产Macro FunctionalPlan fragment展开覆盖率 == 100%
-Macro调用与显式展开fragment runtime等价漂移 == 0
+Macro物化step图与显式Function Plan runtime等价漂移 == 0
 LLM每个provider attempt的authored Plan数量 == 1
-LLM显式fragment产生search authority/report/tie-break次数 == 0
+LLM普通Plan产生search authority/report/tie-break次数 == 0
 可复用中间对象的scope-local派生绑定覆盖率 == 100%
 派生对象sibling泄漏、名称碰撞与restore producer漂移 == 0
-Macro与LLM fragment局部变量alpha-renaming等价漂移 == 0
+Macro物化Plan与LLM显式Plan局部变量alpha-renaming等价漂移 == 0
 示例点名进入Macro适用结构契约数量 == 0
 移除参考Macro后recorded显式fragment仍可执行
 broken_path_straightening_and_select生产引用 == 0

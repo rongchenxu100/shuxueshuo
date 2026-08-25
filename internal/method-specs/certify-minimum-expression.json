@@ -1,0 +1,34 @@
+{
+  "method_id": "certify_minimum_expression",
+  "title": "由达到性条件认证最小值表达式",
+  "description": "Publish a standard minimum expression from a verified attainment.",
+  "summary": "",
+  "solves": [
+    "certify_minimum_expression"
+  ],
+  "inputs": {
+    "expression": {
+      "required": true,
+      "allows_anonymous_result": true,
+      "domain_type": "Expression",
+      "runtime_type": "Expression|MinimumExpression",
+      "view": {
+        "mode": "exact_result",
+        "domain_type": "Expression"
+      }
+    },
+    "attainment_condition": {
+      "required": true,
+      "domain_type": "Fact",
+      "runtime_type": "Condition",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "Fact"
+      }
+    }
+  },
+  "outputs": {
+    "minimum_expression": "MinimumExpression"
+  },
+  "is_pure": true
+}

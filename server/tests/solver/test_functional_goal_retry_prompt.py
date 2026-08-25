@@ -158,35 +158,29 @@ def test_retry_schema_is_bound_to_exact_authority(tmp_path) -> None:
     ]["description"]
 
 
-def test_retry_v4_projects_verified_subplan_without_internal_identity(
+def test_retry_v4_projects_materialized_macro_as_ordinary_steps(
     tmp_path,
 ) -> None:
     fixture = downstream_path_witness_retry_fixture(tmp_path)
     payload = fixture.retry_authority.retry_context.to_prompt_payload()
-    step_payload = next(
-        item
-        for item in _retry_steps(payload["root_scope"])
-        if item["step_id"] == "reduce_equal_length_ray_path_ii"
-    )
+    steps = {item["step_id"]: item for item in _retry_steps(payload["root_scope"])}
+    expansions = fixture.execution.macro_expansions
 
     assert payload["schema_version"] == "planner-goal-retry-context/v4"
-    assert len(step_payload["evidence"]) == 1
-    evidence = step_payload["evidence"][0]
-    assert evidence["source"] == "macro"
-    assert evidence["macro_id"] == "equal_length_ray_path_reduction"
-    assert evidence["chosen_roles"] == {
-        "anchor": "C",
-        "reference_point": "B",
-        "ray_point": "D",
-        "fixed_point": "O",
-    }
-    assert "prove_distance_equality_from_conditions" in evidence["functions"]
-    assert any(
-        item["check_code"] == "path_minimum_attained" and item["passed"]
-        for item in evidence["verification"]
+    assert len(expansions) == 1
+    expansion = expansions[0]
+    assert expansion.macro_step_id not in steps
+    assert set(expansion.generated_step_ids) <= set(steps)
+    export_step_id = expansion.export_map["minimum_expression"][0]
+    assert steps[export_step_id]["status"] == "pruned_dead"
+    assert all(
+        steps[step_id]["status"] == "runtime_verified"
+        for step_id in expansion.generated_step_ids
+        if step_id != export_step_id
     )
-    assert evidence["outputs"]["minimum_expression"] == (
-        "3*sqrt(2*a**2 + 1)/Abs(a)"
+    assert all(
+        "evidence" not in steps[step_id]
+        for step_id in expansion.generated_step_ids
     )
     text = json.dumps(payload, ensure_ascii=False, sort_keys=True)
     for forbidden in (

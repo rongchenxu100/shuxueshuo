@@ -558,6 +558,16 @@ def rewrite_expression_by_condition_rule() -> MethodBindingRuleSpec:
     )
 
 
+def certify_minimum_expression_rule() -> MethodBindingRuleSpec:
+    return MethodBindingRuleSpec(
+        method_id="certify_minimum_expression",
+        input_bindings=(
+            exact_call_result_binding("expression"),
+            condition_arg_binding("attainment_condition"),
+        ),
+    )
+
+
 def reflect_point_across_line_rule() -> MethodBindingRuleSpec:
     return MethodBindingRuleSpec(
         method_id="reflect_point_across_line",

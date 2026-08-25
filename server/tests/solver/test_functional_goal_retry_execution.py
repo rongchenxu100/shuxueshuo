@@ -131,7 +131,9 @@ def test_semantic_attempt_retains_merged_plan_on_execution_configuration_error(
     assert attempt.error.retryable is False
 
 
-def test_goal_repair_restores_solved_calls_without_reexecution(tmp_path) -> None:
+def test_goal_repair_and_macro_materialization_restore_verified_calls_once(
+    tmp_path,
+) -> None:
     fixture = goal_retry_fixture(tmp_path)
     client = _RepairingClient(fixture)
     service = ScopedFunctionalGoalRetryService(client)
@@ -175,15 +177,23 @@ def test_goal_repair_restores_solved_calls_without_reexecution(tmp_path) -> None
         "derive_axis_intercept_F_i",
         "derive_curve_intersection_E_i",
     } <= restored
-    assert "derive_parametric_parabola_ii" not in restored
-    assert "derive_x_intercept_B_ii" not in restored
+    materialization_prefix = {
+        "derive_parametric_parabola_ii",
+        "derive_x_intercept_B_ii",
+    }
+    assert materialization_prefix <= restored
     final_calls = {
         item.call_id: item
         for item in result.final_execution.replay.functional_reconciliation.calls
     }
     for call_id in restored:
         assert final_calls[call_id] == previous_calls[call_id]
-    assert result.solved_goal_restore_count == len(restored)
+    # Goal retry restores seven solved-Goal calls. The two open-Goal prefix
+    # calls execute once in this attempt, then the Macro materialization pass
+    # restores them while running the generated ordinary Function steps.
+    assert result.solved_goal_restore_count == len(
+        restored - materialization_prefix
+    )
     assert result.final_execution.checkpoint.all_required_goals_verified
 
 
@@ -294,7 +304,14 @@ def test_scope_repair_can_add_local_object_states_without_invalidating_restored_
         .execution_report.restored_call_ids
     )
     assert "derive_y_intercept_C_i" in restored
-    assert "derive_y_intercept_C_ii_local" not in restored
+    assert {
+        "derive_y_intercept_C_ii_local",
+        "derive_translated_D_ii_local",
+    } <= restored
+    restore_state = result.final_execution.checkpoint.restore_state
+    assert restore_state.state_version_aliases
+    assert restore_state.runtime_seed is not None
+    assert restore_state.runtime_seed.runtime_version_aliases
 
 
 def test_blocked_goal_in_editable_scope_allows_consumer_dag_refinement(

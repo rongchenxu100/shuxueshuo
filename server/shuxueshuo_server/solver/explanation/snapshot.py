@@ -10,10 +10,6 @@ import sympy as sp
 
 from shuxueshuo_server.solver.contracts import PointRef, TypedValue
 from shuxueshuo_server.solver.runtime.context import RuntimeContext
-from shuxueshuo_server.solver.runtime.functional_subplan import (
-    MacroSearchSelection,
-    VerifiedSubplanExecution,
-)
 from shuxueshuo_server.solver.runtime.models import PlanExecutionResult, PlannerOutput, StepPlan
 from shuxueshuo_server.solver.runtime.projection import RuntimeProjection
 from shuxueshuo_server.solver.runtime.strategy_models import (
@@ -47,12 +43,31 @@ class ExplanationSnapshotBuilder:
         problem_payload = RuntimeProjection(artifacts.problem).to_llm_problem_payload()
         replay = getattr(planner_artifacts, "retry_replay_result", None)
         functional_reconciliation = getattr(replay, "functional_reconciliation", None)
-        effective_steps = transactional_functional_steps(
+        runtime_effective_steps = transactional_functional_steps(
             replay,
             artifacts.planner_output,
         )
-        macro_evidence = _build_macro_evidence(artifacts)
-        effective_fact_steps: tuple[Any, ...] = effective_steps
+        macro_evidence = _build_macro_evidence(
+            artifacts,
+            problem_payload=problem_payload,
+        )
+        problem_authority = getattr(artifacts, "problem_authority", None)
+        planning_context = getattr(problem_authority, "planning_context", None)
+        prompt_handles_by_ref = {
+            authority.semantic_ref.ref: authority.runtime_node_id
+            for authority in getattr(
+                planning_context,
+                "ref_authorities",
+                {},
+            ).values()
+            if authority.usage == "input"
+        }
+        effective_steps = _macro_presentation_steps(
+            runtime_effective_steps,
+            macro_evidence,
+            prompt_handles_by_ref=prompt_handles_by_ref,
+        )
+        effective_fact_steps: tuple[Any, ...] = runtime_effective_steps
         if not effective_steps:
             raise ExplanationSnapshotError(
                 "strategy planner verified execution steps are required"
@@ -97,10 +112,17 @@ class ExplanationSnapshotBuilder:
         return snapshot
 
 
-def _build_macro_evidence(artifacts: Any) -> tuple[dict[str, Any], ...]:
-    """Project generic verified subplans into student-safe Macro evidence."""
+def _build_macro_evidence(
+    artifacts: Any,
+    *,
+    problem_payload: Mapping[str, Any],
+) -> tuple[dict[str, Any], ...]:
+    """Project Macro provenance from expansion records and ordinary steps."""
 
     execution = getattr(artifacts, "verified_functional_execution", None)
+    records = tuple(getattr(artifacts, "macro_expansions", ()))
+    if execution is None or not records:
+        return ()
     problem_authority = getattr(artifacts, "problem_authority", None)
     planning_context = getattr(problem_authority, "planning_context", None)
     prompt_refs = {
@@ -108,46 +130,22 @@ def _build_macro_evidence(artifacts: Any) -> tuple[dict[str, Any], ...]:
         for authority in getattr(planning_context, "ref_authorities", {}).values()
         if authority.usage == "input"
     }
-    verified_subplans: list[VerifiedSubplanExecution] = []
-    if execution is not None:
-        for scope in _execution_scopes(execution.root_scope):
-            steps = [*scope.scope_steps]
-            for goal in scope.goals:
-                steps.extend(goal.steps)
-            for step in steps:
-                verified_subplans.extend(
-                    item
-                    for item in step.evidence
-                    if isinstance(item, VerifiedSubplanExecution)
-                    and isinstance(item.selection, MacroSearchSelection)
-                )
-    else:
-        # Transitional orchestrator artifacts expose the same authenticated
-        # envelope on each final transactional call result.
-        planner_artifacts = getattr(getattr(artifacts, "planner", None), "artifacts", None)
-        replay = getattr(planner_artifacts, "retry_replay_result", None)
-        attempt = getattr(replay, "transactional_attempt_result", None)
-        report = getattr(attempt, "execution_report", None)
-        for call_result in getattr(report, "call_results", ()):
-            subplan = getattr(call_result, "verified_subplan_execution", None)
-            if isinstance(subplan, VerifiedSubplanExecution) and isinstance(
-                subplan.selection,
-                MacroSearchSelection,
-            ):
-                verified_subplans.append(subplan)
-
-    evidence: list[dict[str, Any]] = []
-    seen: set[str] = set()
-    for subplan in verified_subplans:
-        if subplan.execution_signature in seen:
-            continue
-        seen.add(subplan.execution_signature)
-        evidence.append(
-            _macro_teaching_projection(
-                subplan,
-                prompt_refs=prompt_refs,
-            )
+    step_index: dict[str, tuple[Any, str]] = {}
+    for scope in _execution_scopes(execution.root_scope):
+        for step in scope.scope_steps:
+            step_index[step.step_id] = (step, scope.scope_ref)
+        for goal in scope.goals:
+            for step in goal.steps:
+                step_index[step.step_id] = (step, scope.scope_ref)
+    evidence = [
+        _macro_expansion_teaching_projection(
+            record,
+            step_index=step_index,
+            prompt_refs=prompt_refs,
+            problem_facts=tuple(problem_payload.get("facts", ())),
         )
+        for record in records
+    ]
     return tuple(
         sorted(
             evidence,
@@ -159,29 +157,120 @@ def _build_macro_evidence(artifacts: Any) -> tuple[dict[str, Any], ...]:
     )
 
 
-def _macro_teaching_projection(
-    execution: VerifiedSubplanExecution,
+def _macro_presentation_steps(
+    execution_steps: tuple[dict[str, Any], ...],
+    macro_evidence: tuple[dict[str, Any], ...],
     *,
-    prompt_refs: Mapping[str, str],
-) -> dict[str, Any]:
-    """Build a compatibility teaching view without creating a second authority."""
+    prompt_handles_by_ref: Mapping[str, str],
+) -> tuple[dict[str, Any], ...]:
+    """Collapse generated steps only in the explanation-facing projection."""
 
-    selection = execution.selection
-    if not isinstance(selection, MacroSearchSelection):
-        raise ValueError("Macro teaching projection requires Macro search authority")
-    witness = execution.witness
-    results = dict(witness.standard_results)
-    minimum_expression = str(results.get("minimum_expression", ""))
-    step_id = next(
-        (
-            str(item.get("call_id"))
-            for item in execution.clean_execution.provenance
-            if item.get("call_id")
-        ),
-        execution.clean_execution.member_step_ids[0],
-    )
+    if not macro_evidence:
+        return execution_steps
+    step_by_id = {str(step.get("step_id") or ""): step for step in execution_steps}
+    generated_to_macro: dict[str, dict[str, Any]] = {}
+    presentations: dict[str, dict[str, Any]] = {}
+    for evidence in macro_evidence:
+        generated_ids = tuple(
+            str(item)
+            for item in evidence.get("generated_step_ids", ())
+            if str(item)
+        )
+        if not generated_ids:
+            raise ExplanationSnapshotError(
+                "Macro explanation projection has no generated steps"
+            )
+        generated_steps = []
+        for step_id in generated_ids:
+            if step_id in generated_to_macro:
+                raise ExplanationSnapshotError(
+                    "Macro explanation projections overlap on a generated step"
+                )
+            step = step_by_id.get(step_id)
+            if step is None:
+                raise ExplanationSnapshotError(
+                    "Macro explanation projection cannot find generated step: "
+                    f"{step_id}"
+                )
+            generated_to_macro[step_id] = evidence
+            generated_steps.append(step)
+
+        def collect(key: str) -> list[Any]:
+            result: list[Any] = []
+            seen: set[str] = set()
+            for step in generated_steps:
+                for item in step.get(key, ()):
+                    marker = repr(item)
+                    if marker in seen:
+                        continue
+                    seen.add(marker)
+                    result.append(item)
+            return result
+
+        internal_handles = {
+            str(item.get("handle") or "")
+            for key in ("creates", "produces")
+            for item in collect(key)
+            if isinstance(item, Mapping) and item.get("handle")
+        }
+        authored_reads = [
+            prompt_handles_by_ref[ref]
+            for refs in evidence.get("authored_input_refs", {}).values()
+            for ref in refs
+            if ref in prompt_handles_by_ref
+        ]
+        reads = list(dict.fromkeys(authored_reads + [
+            item
+            for item in collect("reads")
+            if str(item) not in internal_handles
+        ]))
+        macro_step_id = str(evidence.get("step_id") or "")
+        macro_id = str(evidence.get("macro_id") or "")
+        if not macro_step_id or not macro_id:
+            raise ExplanationSnapshotError(
+                "Macro explanation projection is missing its public identity"
+            )
+        presentations[macro_step_id] = {
+            "scope_id": str(evidence.get("scope_id") or "problem"),
+            "step_id": macro_step_id,
+            "recipe_hint": macro_id,
+            "goal_type": macro_id,
+            "target": generated_steps[-1].get("target"),
+            "strategy": str(evidence.get("minimum_strategy") or ""),
+            "reads": reads,
+            "creates": collect("creates"),
+            "produces": collect("produces"),
+            "reason": "",
+        }
+
+    projected: list[dict[str, Any]] = []
+    emitted: set[str] = set()
+    for step in execution_steps:
+        step_id = str(step.get("step_id") or "")
+        evidence = generated_to_macro.get(step_id)
+        if evidence is None:
+            projected.append(step)
+            continue
+        macro_step_id = str(evidence.get("step_id") or "")
+        if macro_step_id not in emitted:
+            projected.append(presentations[macro_step_id])
+            emitted.add(macro_step_id)
+    return tuple(projected)
+
+
+def _macro_expansion_teaching_projection(
+    record: Any,
+    *,
+    step_index: Mapping[str, tuple[Any, str]],
+    prompt_refs: Mapping[str, str],
+    problem_facts: tuple[Any, ...],
+) -> dict[str, Any]:
+    """Build a student view without inventing a second execution object."""
+
+    generated = [step_index[step_id] for step_id in record.generated_step_ids]
+    authored_steps = [dict(step.authored_step) for step, _scope in generated]
     function_ids = tuple(
-        item.capability_id for item in execution.selected_fragment.steps
+        str(step.get("capability_id") or "") for step in authored_steps
     )
     if "reflect_point_across_line" in function_ids:
         minimum_strategy = "reflection_straightening"
@@ -191,99 +280,129 @@ def _macro_teaching_projection(
         minimum_strategy = "direct_intersection"
     checks = tuple(
         {
-            "check": item.check_code,
-            "passed": item.passed,
+            "check": capability_id,
+            "passed": execution_step.status == "runtime_verified",
         }
-        for item in execution.clean_execution.verification
+        for (execution_step, _scope), capability_id in zip(
+            generated,
+            function_ids,
+            strict=True,
+        )
     )
-    proved_checks = tuple(
-        item["check"] for item in checks if item["passed"]
-    )
-    minimizing_points = results.get("minimizing_points", {})
-    auxiliary_output = next(
+    proved_checks = tuple(item["check"] for item in checks if item["passed"])
+
+    export_step_id, export_return = record.export_map["minimum_expression"]
+    export_step = step_index[export_step_id][0]
+    export_output = next(
         (
             item
-            for item in witness.provenance
-            if item.get("kind") == "fragment_derived_output"
-            and item.get("semantic_role") == "auxiliary_point"
-            and item.get("domain_type") == "Point"
+            for item in export_step.actual_outputs
+            if item.get("return") == export_return
         ),
-        None,
+        {},
     )
-    auxiliary_value = (
-        auxiliary_output.get("value")
-        if isinstance(auxiliary_output, Mapping)
-        else None
-    )
-    constructions = []
-    if (
-        isinstance(auxiliary_value, (tuple, list))
-        and len(auxiliary_value) == 2
+    minimum_expression = str(export_output.get("value", ""))
+
+    constructions: list[dict[str, Any]] = []
+    for (execution_step, scope_id), authored in zip(
+        generated,
+        authored_steps,
+        strict=True,
     ):
-        constructions.append(
-            {
-                "ref": str(auxiliary_output.get("ref") or ""),
-                "domain_type": "Point",
-                "semantic_role": "auxiliary_point",
-                "owner_scope": str(
-                    auxiliary_output.get("owner_scope") or execution.scope_id
-                ),
-                "producer_step_id": str(
-                    auxiliary_output.get("producer_step_id") or ""
-                ),
-                "capability_id": str(
-                    auxiliary_output.get("capability_id") or ""
-                ),
-                "coordinate": {
-                    "x": auxiliary_value[0],
-                    "y": auxiliary_value[1],
-                },
-            }
-        )
+        bindings = authored.get("return_bindings", {})
+        if not isinstance(bindings, Mapping):
+            continue
+        for output in execution_step.actual_outputs:
+            if output.get("runtime_type") != "Point":
+                continue
+            value = output.get("value")
+            if not isinstance(value, (tuple, list)) or len(value) != 2:
+                continue
+            binding = bindings.get(str(output.get("return") or ""), {})
+            ref = binding.get("ref") if isinstance(binding, Mapping) else None
+            semantic_role = record.generated_return_roles.get(
+                execution_step.step_id,
+                {},
+            ).get(str(output.get("return") or ""))
+            constructions.append(
+                {
+                    "ref": str(ref or ""),
+                    "domain_type": "Point",
+                    "semantic_role": semantic_role or str(
+                        output.get("return") or "point"
+                    ),
+                    "owner_scope": scope_id,
+                    "producer_step_id": execution_step.step_id,
+                    "capability_id": str(authored.get("capability_id") or ""),
+                    "coordinate": {"x": value[0], "y": value[1]},
+                }
+            )
 
     def prompt_ref(value: str) -> str:
         projected = prompt_refs.get(value, value)
         if ":" in projected:
             raise ExplanationSnapshotError(
-                "verified subplan Entity cannot be projected to a prompt ref"
+                "Macro expansion Entity cannot be projected to a prompt ref"
             )
         return projected
 
+    original_objective = _macro_path_objective(
+        record,
+        problem_facts=problem_facts,
+        prompt_refs=prompt_refs,
+        scope_id=generated[0][1],
+    )
     return {
-        "schema_version": "verified-subplan-teaching-projection/v1",
-        "step_id": step_id,
-        "scope_id": execution.scope_id,
-        "macro_id": selection.macro_id,
+        "schema_version": "macro-expansion-teaching-projection/v1",
+        "step_id": record.macro_step_id,
+        "scope_id": generated[0][1],
+        "macro_id": record.macro_id,
+        "authored_input_refs": {
+            name: list(refs)
+            for name, refs in record.authored_input_refs.items()
+        },
+        "generated_step_ids": list(record.generated_step_ids),
+        "exports": {
+            name: {"step_id": producer, "return": return_name}
+            for name, (producer, return_name) in record.export_map.items()
+        },
         "function_steps": [
             {
-                "step_id": item.step_id,
-                "capability_id": item.capability_id,
-                "input_names": sorted(item.args),
-                "output_names": sorted(item.return_bindings),
+                "step_id": execution_step.step_id,
+                "capability_id": str(authored.get("capability_id") or ""),
+                "input_names": sorted(authored.get("args", {})),
+                "output_names": sorted(authored.get("return_bindings", {})),
             }
-            for item in execution.selected_fragment.steps
+            for (execution_step, _scope), authored in zip(
+                generated,
+                authored_steps,
+                strict=True,
+            )
         ],
-        "original_objective": str(results.get("original_objective", "")),
-        "reduced_objective": str(results.get("reduced_objective", "")),
+        "original_objective": original_objective,
+        "reduced_objective": "",
         "role_resolutions": [
             {
                 "role": role,
-                "authored_ref": None,
+                "authored_ref": (
+                    prompt_ref(record.authored_roles[role])
+                    if role in record.authored_roles
+                    else None
+                ),
                 "chosen_ref": prompt_ref(chosen_ref),
-                "corrected": False,
+                "corrected": (
+                    role in record.authored_roles
+                    and record.authored_roles[role] != chosen_ref
+                ),
             }
-            for role, chosen_ref in witness.standard_entities.items()
+            for role, chosen_ref in record.chosen_roles.items()
         ],
         "constructions": constructions,
         "equivalence_proof": list(proved_checks),
         "legal_domain": list(proved_checks),
         "minimum_strategy": minimum_strategy,
         "minimum_expression": minimum_expression,
-        "minimizing_points": (
-            dict(minimizing_points)
-            if isinstance(minimizing_points, Mapping)
-            else {}
-        ),
+        "minimizing_points": {},
         "attainment_checks": [
             {
                 "strategy": minimum_strategy,
@@ -291,8 +410,36 @@ def _macro_teaching_projection(
                 "checks": list(checks),
             }
         ],
-        "repair_action": "reuse_verified_subplan",
+        "repair_action": "reuse_verified_macro_steps",
     }
+
+
+def _macro_path_objective(
+    record: Any,
+    *,
+    problem_facts: tuple[Any, ...],
+    prompt_refs: Mapping[str, str],
+    scope_id: str,
+) -> str:
+    refs = tuple(record.authored_input_refs.get("path_minimum_target", ()))
+    if len(refs) != 1:
+        return ""
+    ref = refs[0]
+    candidates = [
+        fact
+        for fact in problem_facts
+        if isinstance(fact, Mapping)
+        and (
+            str(fact.get("handle") or "") == ref
+            or prompt_refs.get(str(fact.get("handle") or "")) == ref
+            or str(fact.get("type") or "") == ref
+        )
+        and str(fact.get("scope_id") or fact.get("valid_scope") or "problem")
+        in {"problem", scope_id}
+    ]
+    if len(candidates) != 1:
+        return ""
+    return str(candidates[0].get("path") or "")
 
 
 def _execution_scopes(root: Any) -> tuple[Any, ...]:
@@ -588,7 +735,7 @@ def _build_fact_index(
                     construction.get("producer_step_id") or ""
                 ),
                 "source": str(construction.get("capability_id") or ""),
-                "authority": "verified_subplan",
+                "authority": "macro_expansion",
             }
     return index
 

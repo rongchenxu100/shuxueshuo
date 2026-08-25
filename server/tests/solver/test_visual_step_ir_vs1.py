@@ -924,7 +924,7 @@ def test_vs1_axis_intercept_step_reuses_be_visual_handle_and_adds_f() -> None:
     }
     assert coordinate_labels["A"] == "A(-1,0)"
     assert coordinate_labels["B1"] == "B(3, 0)"
-    assert coordinate_labels["C"] == "C(0,-3)"
+    assert coordinate_labels["C"] == "C(0, -3)"
     assert coordinate_labels["F1"] == "F(0, -1)"
     assert "E1" not in coordinate_labels
     assert any(

@@ -1261,9 +1261,14 @@ def test_identity_mismatch_checkpoint_exposes_public_expected_and_actual_refs(
     assert issue["expected"]["relation"] == "same_object"
     assert issue["expected"]["requirement"]
     assert issue["repair_call_ids"]
-    # v3 return/object authority rejects the mismatch before transaction.
-    assert checkpoint.transaction_attempted is False
-    assert checkpoint.blocked_stage == "placement_finalize"
+    # The invalid step is rejected before execution; independent valid prefixes
+    # still use the normal provisional transaction.
+    assert checkpoint.transaction_attempted is True
+    assert checkpoint.blocked_stage == "reconciliation_binding"
+    assert "derive_path_minimum_ii" not in {
+        str(item.get("call_id") or "")
+        for item in checkpoint.restore_state.call_results
+    }
     prompt = json.dumps(checkpoint.to_prompt_payload(), ensure_ascii=False)
     assert "point:problem:E" not in prompt
     assert "point:problem:G" not in prompt
@@ -1333,7 +1338,7 @@ def test_visible_same_object_result_is_rewritten_only_after_runtime_equivalence(
     ] == "M"
 
 
-def test_hidden_macro_roles_do_not_keep_duplicate_descendant_steps_live(
+def test_materialized_macro_dependencies_normalize_equivalent_local_writers(
     tmp_path,
 ) -> None:
     case = "tj-2026-heping-yimo-25"
@@ -1345,18 +1350,26 @@ def test_hidden_macro_roles_do_not_keep_duplicate_descendant_steps_live(
     assert checkpoint is not None
     assert checkpoint.blocked_stage is None
     assert checkpoint.all_required_goals_verified is True
-    assert result.runtime_equivalent_aliases == ()
+    aliases = {
+        item.duplicate_call_id: item.canonical_call_id
+        for item in result.runtime_equivalent_aliases
+    }
+    assert aliases == {
+        "locate_C": "derive_y_intercept_C_i",
+        "locate_D": "derive_translated_D_i",
+    }
     canonical = result.canonical_plan
     assert canonical is not None
-    assert {"locate_C", "locate_D"}.issubset(
+    assert {"locate_C", "locate_D"}.isdisjoint(
         item.step_id for item in canonical.steps
     )
     checkpoint_steps = _checkpoint_steps(checkpoint)
-    assert checkpoint_steps["locate_C"].status == "pruned_dead"
-    assert checkpoint_steps["locate_D"].status == "pruned_dead"
-    assert "ray_point" not in _step(
-        canonical.to_payload(), "reduce_equal_length_ray_path_ii"
-    )["args"]
+    assert {"locate_C", "locate_D"}.isdisjoint(checkpoint_steps)
+    assert checkpoint.macro_expansions
+    assert all(
+        origin.generated_step_id in checkpoint_steps
+        for origin in checkpoint.macro_expansions[0].generated_step_origins
+    )
     final_report = result.replay.transactional_attempt_result.execution_report
     assert final_report.runtime_equivalent_aliases == ()
     assert {"locate_C", "locate_D"}.isdisjoint(
@@ -1369,7 +1382,7 @@ def test_hidden_macro_roles_do_not_keep_duplicate_descendant_steps_live(
     )
 
 
-def test_hidden_macro_role_dead_step_is_not_shadow_executed(
+def test_materialized_macro_reuses_verified_prefix_before_local_writer_failure(
     tmp_path,
     monkeypatch,
 ) -> None:
@@ -1416,16 +1429,30 @@ def test_hidden_macro_role_dead_step_is_not_shadow_executed(
 
     checkpoint = result.checkpoint
     assert checkpoint is not None
-    assert checkpoint.blocked_stage is None
-    assert checkpoint.all_required_goals_verified is True
+    assert checkpoint.blocked_stage == "runtime"
+    assert checkpoint.all_required_goals_verified is False
     assert result.runtime_equivalent_aliases == ()
     canonical = result.canonical_plan
     assert canonical is not None
     assert "locate_C" in {item.step_id for item in canonical.steps}
-    assert intercept_calls == 1
-    assert _checkpoint_steps(checkpoint)["locate_C"].status == "pruned_dead"
+    # The ancestor producer ran before Macro materialization and is restored;
+    # only the distinct local writer executes in the clean ordinary Plan.
+    assert intercept_calls == 2
+    checkpoint_steps = _checkpoint_steps(checkpoint)
+    assert checkpoint_steps["locate_C"].status == "runtime_failed"
+    assert any(
+        item.status == "blocked_by_dependency"
+        for step_id, item in checkpoint_steps.items()
+        if step_id in checkpoint.macro_expansions[0].generated_step_ids
+    )
     report = result.replay.transactional_attempt_result.execution_report
-    assert all(item.call_id != "locate_C" for item in report.call_results)
+    assert sum(
+        item.call_id == "derive_y_intercept_C_i"
+        for item in report.call_results
+    ) == 1
+    assert next(
+        item for item in report.call_results if item.call_id == "locate_C"
+    ).status == "failed"
 
 
 def test_dead_pure_step_stays_in_authored_plan_but_not_effective_plan(

@@ -190,15 +190,20 @@ def test_goal_closure_keeps_implicit_materialized_state_dependencies(
     closure = set(
         fixture.retry_authority.goal_authorities["ii.a"].closure_step_ids
     )
+    assert len(fixture.execution.macro_expansions) == 1
+    generated_macro_steps = set(
+        fixture.execution.macro_expansions[0].generated_step_ids
+    )
 
     assert {
         "derive_y_intercept_C_i",
         "derive_translated_D_i",
         "derive_parametric_parabola_ii",
         "derive_x_intercept_B_ii",
-        "reduce_equal_length_ray_path_ii",
         "solve_parameter_from_minimum_ii",
     } <= closure
+    assert generated_macro_steps <= closure
+    assert "reduce_equal_length_ray_path_ii" not in closure
 
 
 def test_retry_context_keeps_failed_goal_prefix_results_but_does_not_freeze_them(

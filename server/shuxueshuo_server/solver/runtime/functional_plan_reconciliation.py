@@ -33,6 +33,8 @@ from shuxueshuo_server.solver.runtime.functional_binding_context import (
     build_functional_runtime_arg_bindings_from_context,
 )
 from shuxueshuo_server.solver.runtime.condition_binding_authority import (
+    ConditionBindingAuthority,
+    ConditionBindingAuthorityError,
     ConditionBindingAuthorityIndex,
 )
 from shuxueshuo_server.solver.runtime.functional_context_closure_handlers import (
@@ -914,12 +916,20 @@ def _pinned_call_reconciliation_issue(
 def _register_pinned_call_reconciliation(
     pinned: FunctionalCallReconciliation,
     *,
+    capability: FunctionalCapability,
     identity_index: StateIdentityIndex,
     produced: dict[tuple[str, str], ResolvedFunctionalValue],
 ) -> None:
     """Publish exact checkpoint bindings without resolving latest state again."""
 
+    returns_by_name = {item.name: item for item in capability.returns}
     for allocation in pinned.returns:
+        return_spec = returns_by_name.get(allocation.return_name)
+        publication = (
+            return_spec.predicate_publication
+            if return_spec is not None
+            else None
+        )
         if allocation.selected_version_id is not None:
             identity_index.register(
                 IndexedStateVersion(
@@ -956,8 +966,95 @@ def _register_pinned_call_reconciliation(
                 typed_slot_id=allocation.typed_slot_id,
                 state_version_id=allocation.selected_version_id,
                 source_version_ids=allocation.source_version_ids,
+                condition_id=(
+                    derived_condition_id(
+                        call_id=pinned.call_id,
+                        return_name=allocation.return_name,
+                        condition_kind=publication.condition_kind,
+                        scope_id=allocation.valid_scope,
+                    )
+                    if publication is not None
+                    else None
+                ),
+                object_roles=(
+                    condition_roles_from_resolved_args(
+                        publication,
+                        resolved_args=pinned.resolved_args,
+                    )
+                    if publication is not None
+                    else ()
+                ),
             )
         )
+
+
+def _predicate_condition_authorities(
+    capability: FunctionalCapability,
+    call: FunctionalCallReconciliation,
+    *,
+    object_registry: MathObjectRegistry,
+) -> tuple[ConditionBindingAuthority, ...]:
+    """Project predicate returns into pre-execution Condition authority."""
+
+    returns_by_name = {item.name: item for item in capability.returns}
+    result: list[ConditionBindingAuthority] = []
+    for allocation in call.returns:
+        return_spec = returns_by_name.get(allocation.return_name)
+        publication = (
+            return_spec.predicate_publication
+            if return_spec is not None
+            else None
+        )
+        if publication is None:
+            continue
+        role_refs = condition_roles_from_resolved_args(
+            publication,
+            resolved_args=call.resolved_args,
+        )
+        typed_roles: list[tuple[str, tuple[MathObjectId, ...]]] = []
+        for role, refs in role_refs:
+            object_ids_list: list[MathObjectId] = []
+            for ref in refs:
+                object_id = object_registry.resolve(ref)
+                if object_id is None:
+                    object_id = object_registry.register_handle(ref)
+                if object_id is None:
+                    raise ConditionBindingAuthorityError(
+                        "planner.method_input_view_authority_drift",
+                        "predicate Condition role has no MathObject identity",
+                        details={
+                            "call_id": call.call_id,
+                            "return_name": allocation.return_name,
+                            "role": role,
+                            "object_ref": ref,
+                        },
+                    )
+                object_ids_list.append(object_id)
+            object_ids = tuple(object_ids_list)
+            typed_roles.append((role, object_ids))
+        result.append(
+            ConditionBindingAuthority(
+                condition_id=derived_condition_id(
+                    call_id=call.call_id,
+                    return_name=allocation.return_name,
+                    condition_kind=publication.condition_kind,
+                    scope_id=allocation.valid_scope,
+                ),
+                source_ref=(
+                    allocation.bound_ref.ref
+                    if allocation.bound_ref is not None
+                    else None
+                ),
+                condition_kind=publication.condition_kind,
+                owner_scope_id=allocation.valid_scope,
+                valid_scope_id=allocation.valid_scope,
+                object_roles=tuple(typed_roles),
+                object_role_refs=role_refs,
+                runtime_type="Condition",
+                runtime_handle=allocation.state_handle or allocation.handle,
+            )
+        )
+    return tuple(result)
 
 
 class FunctionalPlanReconciler:
@@ -1184,8 +1281,16 @@ class FunctionalPlanReconciler:
                     continue
                 _register_pinned_call_reconciliation(
                     pinned_call,
+                    capability=capability,
                     identity_index=identity_index,
                     produced=produced,
+                )
+                condition_authority_index = condition_authority_index.extended(
+                    _predicate_condition_authorities(
+                        capability,
+                        pinned_call,
+                        object_registry=typed_object_registry,
+                    )
                 )
                 for allocation in pinned_call.returns:
                     if (
@@ -1702,20 +1807,26 @@ class FunctionalPlanReconciler:
                 continue
             identity_index = call_identity_index
             processed_call_ids.add(call.call_id)
-            reconciled.append(
-                FunctionalCallReconciliation(
-                    call_id=call.call_id,
-                    scope_id=scope.scope_id,
-                    capability_id=call.capability_id,
-                    resolved_args=resolved_args,
-                    returns=tuple(allocations),
-                    reads_closed=reads_closed,
-                    authored_macro_roles=authored_macro_roles,
-                    relation_bindings=(
-                        relation_resolution.bindings
-                        if relation_resolution is not None
-                        else ()
-                    ),
+            reconciled_call = FunctionalCallReconciliation(
+                call_id=call.call_id,
+                scope_id=scope.scope_id,
+                capability_id=call.capability_id,
+                resolved_args=resolved_args,
+                returns=tuple(allocations),
+                reads_closed=reads_closed,
+                authored_macro_roles=authored_macro_roles,
+                relation_bindings=(
+                    relation_resolution.bindings
+                    if relation_resolution is not None
+                    else ()
+                ),
+            )
+            reconciled.append(reconciled_call)
+            condition_authority_index = condition_authority_index.extended(
+                _predicate_condition_authorities(
+                    capability,
+                    reconciled_call,
+                    object_registry=typed_object_registry,
                 )
             )
             call_reports.append(

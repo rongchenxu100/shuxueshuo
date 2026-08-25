@@ -310,7 +310,7 @@ def test_unmigrated_direct_macro_does_not_claim_runtime_hint_correction(
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_recorded_runtime_search_reports_cover_declared_macro_roles(
+def test_recorded_macro_expansions_cover_declared_macro_roles(
     tmp_path,
     case,
 ) -> None:
@@ -339,24 +339,25 @@ def test_recorded_runtime_search_reports_cover_declared_macro_roles(
         inputs.method_specs,
     )
 
-    reports = tuple(
-        (item.macro_search_report, item.macro_preparation_authority)
-        for item in result.replay.transactional_execution_report.call_results
-        if item.macro_search_report is not None
-        and item.macro_preparation_authority is not None
-    )
-    for report, preparation in reports:
-        spec = macro_specs.require(report.macro_id)
+    materialized_steps = {
+        step.step_id: step for step in result.authority.scoped_plan.steps
+    }
+    for expansion in result.macro_expansions:
+        spec = macro_specs.require(expansion.macro_id)
         assert spec.search is not None
-        winner = preparation.winner.candidate
-        assert tuple(sorted(winner.role_bindings)) == tuple(
-            sorted(spec.search.searchable_roles)
-        )
-        assert all(
-            ref.startswith("point:")
-            for ref in winner.role_bindings.values()
-        )
-        assert winner.fragment.function_step_count > 0
+        generated = [
+            materialized_steps[step_id]
+            for step_id in expansion.generated_step_ids
+        ]
+        assert generated
+        selected_refs = {
+            value
+            for step in generated
+            for values in step.args.values()
+            for value in values
+            if isinstance(value, str)
+        }
+        assert {"B", "C", "D", "O"} <= selected_refs
 
 
 def test_named_entity_step_result_ref_is_normalized_before_runtime(tmp_path) -> None:

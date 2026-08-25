@@ -763,7 +763,7 @@ class FunctionalProblemReturnBinding:
     runtime_node_id: str
     source_unit_ids: tuple[str, ...]
     goal_unit_id: str | None
-    math_object_id: MathObjectId
+    math_object_id: MathObjectId | None
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -773,7 +773,11 @@ class FunctionalProblemReturnBinding:
             "runtime_node_id": self.runtime_node_id,
             "source_unit_ids": list(self.source_unit_ids),
             "goal_unit_id": self.goal_unit_id,
-            "math_object_id": self.math_object_id.to_payload(),
+            "math_object_id": (
+                self.math_object_id.to_payload()
+                if self.math_object_id is not None
+                else None
+            ),
         }
 
 
@@ -838,70 +842,13 @@ class FunctionalProblemBindingContext:
         )
 
     def call_binding_signature(self, call_id: str) -> str:
-        goal_ids = self.call_goal_bindings.get(call_id)
-        if not goal_ids:
-            raise _error(
-                "functional.call_goal_unresolved",
-                f"$.calls[{call_id!r}]",
-                "call has no Goal authority",
-            )
-        return stable_hash(
-            {
-                "planning_context_id": self.planning_context_id,
-                "problem_revision_id": self.problem_revision_id,
-                "problem_semantic_hash": self.problem_semantic_hash,
-                "call_id": call_id,
-                "goal_unit_ids": list(goal_ids),
-                "inputs": [
-                    item.to_payload()
-                    for item in self.inputs_for_call(call_id)
-                ],
-                "relations": [
-                    item.to_payload()
-                    for item in self.relations_for_call(call_id)
-                ],
-                "returns": [
-                    item.to_payload()
-                    for item in self.returns_for_call(call_id)
-                ],
-            }
-        )
+        return self.call_binding(call_id).binding_signature
 
     def source_provenance_for_call(
         self,
         call_id: str,
     ) -> ProblemCallSourceProvenance:
-        goal_ids = self.call_goal_bindings.get(call_id)
-        if not goal_ids:
-            raise _error(
-                "functional.call_goal_unresolved",
-                f"$.calls[{call_id!r}]",
-                "call has no Goal authority",
-            )
-        source_unit_ids = {
-            source_unit_id
-            for source_units in (
-                *(
-                    item.source_unit_ids
-                    for item in self.inputs_for_call(call_id)
-                    if item.source_kind == "problem_source"
-                ),
-                *(
-                    item.source_unit_ids
-                    for item in self.relations_for_call(call_id)
-                ),
-            )
-            for source_unit_id in source_units
-        }
-        return ProblemCallSourceProvenance(
-            planning_context_id=self.planning_context_id,
-            problem_revision_id=self.problem_revision_id,
-            problem_semantic_hash=self.problem_semantic_hash,
-            canonical_call_id=call_id,
-            goal_unit_ids=tuple(goal_ids),
-            input_source_unit_ids=tuple(sorted(source_unit_ids)),
-            call_binding_signature=self.call_binding_signature(call_id),
-        )
+        return self.call_binding(call_id).source_provenance()
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -1197,70 +1144,6 @@ class FunctionalProblemBindingLedger:
                 "F5-C ledger has no call binding",
             ) from exc
 
-    def finalize_macro(
-        self,
-        call_id: str,
-        *,
-        preparation_authority: Any,
-    ) -> "FunctionalProblemBindingLedger":
-        current = self.call_binding(call_id)
-        if current.status != "pending_macro":
-            raise _error(
-                "planner.macro_binding_finalization_invalid",
-                f"$.calls[{call_id!r}]",
-                "only pending runtime-search calls can be finalized",
-            )
-        if preparation_authority.call_id != call_id:
-            raise _error(
-                "planner.macro_binding_finalization_invalid",
-                f"$.calls[{call_id!r}]",
-                "Macro preparation belongs to another call",
-            )
-        if (
-            preparation_authority.planning_context_id
-            != current.planning_context_id
-            or preparation_authority.problem_revision_id
-            != current.problem_revision_id
-            or preparation_authority.problem_semantic_hash
-            != current.problem_semantic_hash
-        ):
-            raise _error(
-                "planner.problem_revision_drift",
-                f"$.calls[{call_id!r}]",
-                "Macro preparation and F5-C draft identify different Problem authority",
-            )
-        chosen_roles = dict(
-            preparation_authority.winner.candidate.role_bindings
-        )
-        catalog = self.draft.source_catalog
-        if not isinstance(catalog, ProblemPlanningBindingCatalog):
-            raise _error(
-                "planner.macro_binding_finalization_invalid",
-                f"$.calls[{call_id!r}]",
-                "F5-C draft has no immutable source catalog",
-            )
-        finalized_inputs = _finalize_macro_role_inputs(
-            current,
-            chosen_roles=chosen_roles,
-            catalog=catalog,
-        )
-        finalized = replace(
-            current,
-            status="finalized",
-            input_bindings=finalized_inputs,
-            macro_preparation_signature=(
-                preparation_authority.preparation_signature
-            ),
-            macro_search_signature=(
-                preparation_authority.search_report.search_signature
-            ),
-            authored_roles=dict(preparation_authority.authored_roles),
-            chosen_roles=chosen_roles,
-        )
-        calls = dict(self.calls)
-        calls[call_id] = finalized
-        return FunctionalProblemBindingLedger(draft=self.draft, calls=calls)
-
     def aggregate_context(self, *, require_complete: bool = True) -> FunctionalProblemBindingContext:
         if require_complete:
             pending = [
@@ -1316,114 +1199,6 @@ class FunctionalProblemBindingLedger:
             binding_signature=stable_hash(payload),
         )
 
-
-def _finalize_macro_role_inputs(
-    call: FunctionalProblemCallBinding,
-    *,
-    chosen_roles: Mapping[str, str],
-    catalog: "ProblemPlanningBindingCatalog",
-) -> tuple[FunctionalProblemInputBinding, ...]:
-    result = list(call.input_bindings)
-    by_key = {(item.arg_name, item.item_index): index for index, item in enumerate(result)}
-    for role, chosen_ref in sorted(chosen_roles.items()):
-        source = _problem_source_binding_for_runtime_ref(
-            catalog,
-            chosen_ref,
-            goal_unit_ids=call.goal_unit_ids,
-        )
-        replacement = FunctionalProblemInputBinding(
-            call_id=call.call_id,
-            arg_name=role,
-            item_index=0,
-            source_kind="problem_source",
-            selection_policy=(
-                "exact"
-                if source.typed_sources
-                and min(
-                    source.typed_sources,
-                    key=lambda item: {
-                        "state_version": 0,
-                        "math_object": 1,
-                        "condition": 2,
-                        "answer_target": 3,
-                    }[item.kind],
-                ).kind
-                == "state_version"
-                else "identity_only"
-            ),
-            semantic_ref=source.semantic_ref,
-            runtime_node_id=source.runtime_node_id,
-            source_unit_ids=source.source_unit_ids,
-            typed_source=_functional_source_for_problem_binding(source),
-        )
-        key = (role, 0)
-        if key in by_key:
-            result[by_key[key]] = replacement
-        else:
-            result.append(replacement)
-    return tuple(result)
-
-
-def _problem_source_binding_for_runtime_ref(
-    catalog: "ProblemPlanningBindingCatalog",
-    chosen_ref: str,
-    *,
-    goal_unit_ids: Sequence[str],
-) -> ProblemPlanningSourceBinding:
-    local = chosen_ref.rsplit(":", 1)[-1]
-    candidates = tuple(
-        binding
-        for binding in catalog.bindings.values()
-        if (
-            binding.runtime_node_id == chosen_ref
-            or binding.semantic_ref.ref == chosen_ref
-            or binding.semantic_ref.ref == local
-            or any(
-                item.math_object_id is not None
-                and item.math_object_id.value == chosen_ref
-                for item in binding.typed_sources
-            )
-        )
-        and set(goal_unit_ids).intersection(binding.visible_goal_unit_ids)
-    )
-    unique = {
-        (item.runtime_node_id, item.semantic_ref.ref): item
-        for item in candidates
-    }
-    if len(unique) != 1:
-        raise _error(
-            "planner.macro_binding_finalization_invalid",
-            "$.winner.roles",
-            f"chosen Macro role {chosen_ref!r} has {len(unique)} F5-C sources",
-        )
-    return next(iter(unique.values()))
-
-
-def _functional_source_for_problem_binding(
-    binding: ProblemPlanningSourceBinding,
-) -> FunctionalArgSourceIdentity:
-    priority = {"state_version": 0, "math_object": 1, "condition": 2, "answer_target": 3}
-    selected = min(binding.typed_sources, key=lambda item: priority[item.kind])
-    if selected.kind == "state_version" and selected.state_version_id is not None:
-        return FunctionalArgSourceIdentity(
-            kind="state_version",
-            state_version_id=selected.state_version_id,
-        )
-    if selected.kind == "condition" and selected.condition_id is not None:
-        return FunctionalArgSourceIdentity(
-            kind="condition",
-            condition_id=selected.condition_id,
-        )
-    if selected.math_object_id is not None:
-        return FunctionalArgSourceIdentity(
-            kind="math_object",
-            math_object_id=selected.math_object_id,
-        )
-    raise _error(
-        "planner.macro_binding_finalization_invalid",
-        "$.winner.roles",
-        "chosen Macro role has no executable typed source",
-    )
 
 @dataclass(frozen=True)
 class ProblemPlanningBindingCatalog:
@@ -1995,6 +1770,76 @@ def build_functional_problem_binding_context(
             continue
         if (
             isinstance(wire_ref, CallResultRef)
+            and binding.source.kind == "condition"
+            and binding.source.condition_id is not None
+        ):
+            producer = reconciled.get(wire_ref.from_call)
+            producer_allocation = next(
+                (
+                    item
+                    for item in (producer.returns if producer is not None else ())
+                    if item.return_name == wire_ref.return_name
+                ),
+                None,
+            )
+            if producer_allocation is None:
+                raise _error(
+                    "planner.method_input_view_authority_drift",
+                    f"$.calls[{call_id!r}].args",
+                    "derived Condition has no exact producer return",
+                )
+            inputs.append(
+                FunctionalProblemInputBinding(
+                    call_id=call_id,
+                    arg_name=binding.key.arg_name,
+                    item_index=binding.key.item_index,
+                    source_kind="call_result",
+                    selection_policy="exact",
+                    semantic_ref=producer_allocation.bound_ref,
+                    runtime_node_id=(
+                        producer_allocation.state_handle
+                        or producer_allocation.handle
+                    ),
+                    typed_source=binding.source,
+                )
+            )
+            continue
+        if (
+            isinstance(wire_ref, CallResultRef)
+            and binding.source.kind == "math_object"
+        ):
+            allocation = _audit_derived_object_call_result(
+                wire_ref=wire_ref,
+                source=binding.source,
+                consumer_call_id=call_id,
+                consumer_goal_binding=call_goals,
+                reconciled_calls=reconciled,
+                goal_bindings=goal_bindings,
+                catalog=catalog,
+                path=(
+                    f"$.calls[{call_id!r}].args"
+                    f"[{binding.key.arg_name!r}]"
+                    f"[{binding.key.item_index}]"
+                ),
+            )
+            inputs.append(
+                FunctionalProblemInputBinding(
+                    call_id=call_id,
+                    arg_name=binding.key.arg_name,
+                    item_index=binding.key.item_index,
+                    source_kind="call_result",
+                    selection_policy=binding.selection_policy,
+                    semantic_ref=allocation.bound_ref,
+                    runtime_node_id=(
+                        allocation.object_ref
+                        or allocation.math_object_id.value
+                    ),
+                    typed_source=binding.source,
+                )
+            )
+            continue
+        if (
+            isinstance(wire_ref, CallResultRef)
             and binding.source.kind == "state_version"
         ):
             producer = reconciled.get(wire_ref.from_call)
@@ -2407,11 +2252,62 @@ def build_functional_problem_binding_context(
         )
         for return_name, semantic_ref in canonical_return_refs.items():
             allocation = allocations.get(return_name)
-            if allocation is None or allocation.math_object_id is None:
+            if allocation is None:
                 raise _error(
                     "planner.problem_source_binding_drift",
                     f"$.calls[{call_id!r}].returns[{return_name!r}]",
-                    "B1 allocation has no MathObjectId",
+                    "B1 has no exact return allocation",
+                )
+            if semantic_ref.from_step is not None:
+                if semantic_ref.from_step != call_id:
+                    raise _error(
+                        "planner.problem_source_binding_drift",
+                        f"$.calls[{call_id!r}].returns[{return_name!r}]",
+                        "Plan-owned return ref identifies a different producer",
+                    )
+                if (
+                    allocation.math_object_id is not None
+                    and semantic_ref.kind != allocation.math_object_id.kind
+                ):
+                    raise _error(
+                        "planner.problem_source_binding_drift",
+                        f"$.calls[{call_id!r}].returns[{return_name!r}]",
+                        "Plan-owned return ref differs from its allocation kind",
+                    )
+                source_unit_ids = tuple(
+                    sorted(
+                        {
+                            source_unit_id
+                            for item in (*inputs, *relations)
+                            if item.call_id == call_id
+                            for source_unit_id in item.source_unit_ids
+                        }
+                    )
+                )
+                returns.append(
+                    FunctionalProblemReturnBinding(
+                        call_id=call_id,
+                        return_name=return_name,
+                        semantic_ref=semantic_ref,
+                        runtime_node_id=(
+                            allocation.object_ref
+                            or (
+                                allocation.math_object_id.value
+                                if allocation.math_object_id is not None
+                                else allocation.handle
+                            )
+                        ),
+                        source_unit_ids=source_unit_ids,
+                        goal_unit_id=None,
+                        math_object_id=allocation.math_object_id,
+                    )
+                )
+                continue
+            if allocation.math_object_id is None:
+                raise _error(
+                    "planner.problem_source_binding_drift",
+                    f"$.calls[{call_id!r}].returns[{return_name!r}]",
+                    "Problem-owned return allocation has no MathObjectId",
                 )
             source_binding = _binding_for_return_semantic_ref(
                 catalog,
@@ -3041,6 +2937,99 @@ def _audit_implicit_same_object_call_result(
             path,
             "implicit dynamic source is not the latest Goal-visible object state",
         )
+
+
+def _audit_derived_object_call_result(
+    *,
+    wire_ref: CallResultRef,
+    source: FunctionalArgSourceIdentity,
+    consumer_call_id: str,
+    consumer_goal_binding: ProblemCallGoalBinding,
+    reconciled_calls: Mapping[str, FunctionalCallReconciliation],
+    goal_bindings: ProblemPlanGoalBindings,
+    catalog: ProblemPlanningBindingCatalog,
+    path: str,
+) -> FunctionalReturnAllocation:
+    """Authorize one scope-local derived object through its exact producer.
+
+    Derived Entity returns are Plan-owned authorities, not ProblemIR sources.
+    F5-C therefore pins their producer edge and allocation identity directly
+    instead of requiring a synthetic entry in the immutable Problem catalog.
+    """
+
+    if source.math_object_id is None:
+        raise _error(
+            "planner.problem_source_binding_drift",
+            path,
+            "derived object source has no exact MathObject identity",
+        )
+    producer = reconciled_calls.get(wire_ref.from_call)
+    consumer = reconciled_calls.get(consumer_call_id)
+    if producer is None or consumer is None:
+        raise _error(
+            "planner.problem_source_binding_drift",
+            path,
+            "derived object source does not identify two reconciled calls",
+        )
+    call_order = _topologically_order_reconciled_calls(reconciled_calls)
+    if call_order.index(wire_ref.from_call) >= call_order.index(consumer_call_id):
+        raise _error(
+            "planner.problem_source_binding_drift",
+            path,
+            "derived object source is not an exact earlier producer",
+        )
+    allocations = tuple(
+        item
+        for item in producer.returns
+        if item.return_name == wire_ref.return_name
+    )
+    if len(allocations) != 1:
+        raise _error(
+            "planner.problem_source_binding_drift",
+            path,
+            "derived object source has no unique producer return allocation",
+        )
+    allocation = allocations[0]
+    if allocation.math_object_id != source.math_object_id:
+        raise _error(
+            "planner.problem_source_binding_drift",
+            path,
+            "derived object source differs from its producer allocation",
+        )
+
+    consumer_goal_ids = set(
+        consumer_goal_binding.effective_goal_unit_ids
+    )
+    producer_goal_binding = goal_bindings.calls.get(wire_ref.from_call)
+    if (
+        producer_goal_binding is None
+        or not consumer_goal_ids.issubset(
+            producer_goal_binding.effective_goal_unit_ids
+        )
+    ):
+        raise _error(
+            "planner.problem_scope_visibility_drift",
+            path,
+            "derived object producer is outside the consumer Goal authority",
+        )
+    invisible_goals = tuple(
+        sorted(
+            goal_id
+            for goal_id in consumer_goal_ids
+            if allocation.valid_scope
+            not in catalog.goal_visible_scope_ids.get(goal_id, ())
+        )
+    )
+    if invisible_goals:
+        raise _error(
+            "planner.problem_scope_visibility_drift",
+            path,
+            (
+                "derived object scope is not visible to consumer Goals: "
+                f"{list(invisible_goals)}"
+            ),
+        )
+    return allocation
 
 
 def _topologically_order_reconciled_calls(

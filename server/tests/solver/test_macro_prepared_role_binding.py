@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from dataclasses import replace
+import json
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -12,12 +14,16 @@ from shuxueshuo_server.solver.family import DEFAULT_FAMILY_REGISTRY
 from shuxueshuo_server.solver.runtime.functional_plan_elaboration import (
     FunctionalSemanticIndex,
 )
+from shuxueshuo_server.solver.runtime.context import ContextBuilder
 from shuxueshuo_server.solver.runtime.handle_registry import (
     CanonicalHandleRegistry,
 )
 from shuxueshuo_server.solver.runtime.macro_preparation import (
     MacroPreparationRequest,
     _build_equal_length_ray_preparation_context,
+)
+from shuxueshuo_server.solver.runtime.macro_plan_materialization import (
+    MacroPlanMaterializationError,
 )
 from shuxueshuo_server.solver.runtime.macro_definitions import (
     MacroDefinitionError,
@@ -30,7 +36,15 @@ from shuxueshuo_server.solver.runtime.macro_runtime_search import (
 from shuxueshuo_server.solver.runtime.recipes import (
     EQUAL_LENGTH_RAY_PATH_REDUCTION_SPEC,
 )
-from test_functional_transaction_execution import _replay
+from shuxueshuo_server.solver.runtime.scoped_functional_plan_replay import (
+    ScopedFunctionalPlanReplayService,
+)
+from shuxueshuo_server.solver.runtime import (
+    functional_transaction_execution as transaction_module,
+    scoped_functional_plan_replay as scoped_replay_module,
+)
+from _problem_planning_support import planning_binding_fixture
+from _scoped_functional_plan_support import load_v3_fixture_payload
 
 
 pytestmark = pytest.mark.solver_contract
@@ -40,6 +54,75 @@ def _definition():
     return default_macro_definition_registry().require(
         "equal_length_ray_path_reduction"
     )
+
+
+def _materialized_replay(tmp_path: Path):
+    case = "tj-2026-heping-yimo-25"
+    (
+        _bundle,
+        planning_context,
+        problem,
+        inputs,
+        problem_payload,
+        registry,
+        planner_context,
+        binding_catalog,
+    ) = planning_binding_fixture(tmp_path / case, case=case)
+    return ScopedFunctionalPlanReplayService().replay_raw_json(
+        json.dumps(load_v3_fixture_payload(case), ensure_ascii=False),
+        inputs=inputs,
+        planning_context=planning_context,
+        problem_binding_catalog=binding_catalog,
+        handle_registry=registry,
+        context=ContextBuilder().build(problem),
+        planner_state_context=planner_context,
+        problem_payload=problem_payload,
+    )
+
+
+def test_scoped_replay_audits_materialized_winner_outputs(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    observed: list[tuple[str, bool]] = []
+    original = scoped_replay_module.verify_macro_expansion_clean_outputs
+
+    def track(record, execution_report):
+        observed.append((record.macro_step_id, execution_report is not None))
+        return original(record, execution_report)
+
+    monkeypatch.setattr(
+        scoped_replay_module,
+        "verify_macro_expansion_clean_outputs",
+        track,
+    )
+
+    replay = _materialized_replay(tmp_path)
+
+    assert replay.macro_expansions
+    assert observed == [("reduce_equal_length_ray_path_ii", True)]
+
+
+def test_scoped_replay_rejects_materialized_winner_output_drift(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    original = scoped_replay_module.materialize_macro_winner
+
+    def corrupt_winner_signature(*args, **kwargs):
+        plan, record = original(*args, **kwargs)
+        return plan, replace(record, winner_output_signature="drifted")
+
+    monkeypatch.setattr(
+        scoped_replay_module,
+        "materialize_macro_winner",
+        corrupt_winner_signature,
+    )
+
+    with pytest.raises(MacroPlanMaterializationError) as error:
+        _materialized_replay(tmp_path)
+
+    assert error.value.code == "planner.macro_winner_replay_drift"
 
 
 def _equal_length_role_authority(*, structured: bool):
@@ -153,7 +236,7 @@ def test_definition_owns_equal_length_search_and_function_fragment() -> None:
         "verified_function_fragment"
     )
     assert definition.search_contract.evidence_builder_id == (
-        "verified_subplan_execution"
+        "ordinary_plan_execution"
     )
     assert {
         "construct_point_on_ray_at_reference_distance",
@@ -276,88 +359,151 @@ def test_structured_equal_length_roles_allow_duplicate_display_names() -> None:
     }
 
 
-def test_macro_winner_is_the_only_f5c_role_authority() -> None:
-    replay = _replay("heping", mode="context_authoritative")
-    report = replay.transactional_execution_report
+def test_macro_winner_is_the_only_f5c_role_authority(tmp_path) -> None:
+    replay = _materialized_replay(tmp_path)
+    report = replay.replay.transactional_execution_report
     assert report is not None
-    compiled = next(
-        item
-        for item in report.compiled_calls
-        if item.call_id == "reduce_equal_length_ray_path_ii"
-    )
-    binding = compiled.problem_call_binding
-    assert binding is not None
-
-    assert dict(binding.authored_roles) == {}
-    assert dict(binding.chosen_roles) == {
-        "anchor": "point:problem:C",
-        "fixed_point": "point:problem:O",
-        "ray_point": "point:problem:D",
-        "reference_point": "point:problem:B",
+    assert len(replay.macro_expansions) == 1
+    expansion = replay.macro_expansions[0]
+    assert expansion.macro_step_id not in {
+        item.call_id for item in report.compiled_calls
     }
-    assert binding.macro_preparation_signature
-    assert binding.macro_search_signature
-    assert compiled.problem_source_provenance is not None
-    assert (
-        compiled.problem_source_provenance.macro_search_signature
-        == binding.macro_search_signature
-    )
-
-
-def test_macro_clean_replay_executes_only_the_selected_function_fragment() -> None:
-    replay = _replay("heping", mode="context_authoritative")
-    report = replay.transactional_execution_report
-    assert report is not None
     compiled = next(
         item
         for item in report.compiled_calls
-        if item.call_id == "reduce_equal_length_ray_path_ii"
-    )
-    assert compiled.plans == ()
-    assert compiled.replay_plans == ()
-    assert compiled.output_write_authorities == ()
-    execution = compiled.fragment_execution
-    assert execution is not None and execution.passed
-    assert execution.standard_outputs["minimum_expression"] is not None
-    assert {
-        item.capability_id for item in execution.step_executions
-    } >= {
-        "construct_point_on_ray_at_reference_distance",
-        "verify_distance_equality",
-        "verify_two_segment_path_attainment",
-    }
-    assert all(item.runtime_path for item in compiled.public_returns)
-
-
-def test_fragment_reads_finalized_f5c_identity_and_exact_runtime_pins() -> None:
-    replay = _replay("heping", mode="context_authoritative")
-    report = replay.transactional_execution_report
-    assert report is not None
-    compiled = next(
-        item
-        for item in report.compiled_calls
-        if item.call_id == "reduce_equal_length_ray_path_ii"
+        if any(
+            invocation.method_id
+            == "construct_point_on_ray_at_reference_distance"
+            for plan in item.plans
+            for invocation in plan.invocations
+        )
     )
     binding = compiled.problem_call_binding
     assert binding is not None
     by_arg = {item.arg_name: item for item in binding.input_bindings}
-    for role in ("anchor", "reference_point", "ray_point", "fixed_point"):
+
+    def source_label(role: str) -> str:
         source = by_arg[role].typed_source
-        assert source is not None
-        assert source.math_object_id is not None or source.state_version_id is not None
-        if source.state_version_id is not None:
-            assert source.state_version_id in report.runtime_version_values
-    preparation = compiled.macro_preparation_authority
-    assert preparation is not None
-    assert preparation.upstream_exact_state_signature
-    execution = compiled.fragment_execution
-    assert execution is not None
+        object_id = source.math_object_id
+        if object_id is None:
+            object_id = source.state_version_id.slot_id.logical_key.object_id
+        return object_id.value.rsplit(":", 1)[-1]
+
+    assert {
+        role: source_label(role)
+        for role in ("anchor", "reference_point", "ray_point")
+    } == {
+        "anchor": "C",
+        "reference_point": "B",
+        "ray_point": "D",
+    }
+    assert compiled.problem_source_provenance is not None
+    assert expansion.search_signature
+
+
+def test_macro_clean_replay_executes_materialized_ordinary_steps(tmp_path) -> None:
+    replay = _materialized_replay(tmp_path)
+    report = replay.replay.transactional_execution_report
+    assert report is not None
+    expansion = replay.macro_expansions[0]
+    generated = {
+        item.call_id: item
+        for item in report.compiled_calls
+        if item.call_id in expansion.generated_step_ids
+    }
+    assert set(generated) == set(expansion.generated_step_ids)
+    assert all(item.plans for item in generated.values())
+    method_ids = {
+        invocation.method_id
+        for item in generated.values()
+        for plan in item.plans
+        for invocation in plan.invocations
+    }
+    assert method_ids >= {
+        "construct_point_on_ray_at_reference_distance",
+        "verify_distance_equality",
+        "verify_two_segment_path_attainment",
+    }
+
+
+def test_fragment_runner_is_used_only_for_shadow_candidates(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    case = "tj-2026-heping-yimo-25"
+    (
+        _bundle,
+        planning_context,
+        problem,
+        inputs,
+        problem_payload,
+        registry,
+        planner_context,
+        binding_catalog,
+    ) = planning_binding_fixture(tmp_path / case, case=case)
+    shadow_calls = 0
+    captured = None
+    original_shadow_execute = (
+        transaction_module._execute_macro_candidate_shadow_fragment
+    )
+
+    def track_shadow(*args, **kwargs):
+        nonlocal shadow_calls
+        shadow_calls += 1
+        return original_shadow_execute(*args, **kwargs)
+
+    class StopAfterSearch(RuntimeError):
+        pass
+
+    def stop_before_materialization(_plan, request, **_kwargs):
+        nonlocal captured
+        captured = request
+        raise StopAfterSearch
+
+    monkeypatch.setattr(
+        transaction_module,
+        "_execute_macro_candidate_shadow_fragment",
+        track_shadow,
+    )
+    monkeypatch.setattr(
+        scoped_replay_module,
+        "materialize_macro_winner",
+        stop_before_materialization,
+    )
+
+    with pytest.raises(StopAfterSearch):
+        ScopedFunctionalPlanReplayService().replay_raw_json(
+            json.dumps(load_v3_fixture_payload(case), ensure_ascii=False),
+            inputs=inputs,
+            planning_context=planning_context,
+            problem_binding_catalog=binding_catalog,
+            handle_registry=registry,
+            context=ContextBuilder().build(problem),
+            planner_state_context=planner_context,
+            problem_payload=problem_payload,
+        )
+
+    assert captured is not None
+    evaluations = captured.authority.search_report.evaluations
+    assert evaluations
+    assert shadow_calls == len(evaluations)
+
+
+def test_generated_steps_read_finalized_f5c_exact_runtime_pins(tmp_path) -> None:
+    replay = _materialized_replay(tmp_path)
+    report = replay.replay.transactional_execution_report
+    assert report is not None
+    expansion = replay.macro_expansions[0]
+    generated = tuple(
+        item
+        for item in report.compiled_calls
+        if item.call_id in expansion.generated_step_ids
+    )
+    assert generated
     assert all(
-        item.source_authority_signatures
-        for item in execution.step_executions
-        if item.capability_id
-        in {
-            "construct_point_on_ray_at_reference_distance",
-            "distance_between_points",
-        }
+        invocation.input_read_authorities
+        for item in generated
+        for plan in item.plans
+        for invocation in plan.invocations
+        if invocation.inputs
     )

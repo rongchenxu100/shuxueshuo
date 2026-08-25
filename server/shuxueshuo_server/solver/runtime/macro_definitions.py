@@ -236,7 +236,7 @@ def default_macro_definition_registry() -> MacroDefinitionRegistry:
         validation_policy_id="verified_function_fragment",
         lowerer_id="functional_plan_fragment",
         postcondition_id="predicate_publication",
-        evidence_builder_id="verified_subplan_execution",
+        evidence_builder_id="ordinary_plan_execution",
         max_candidates=32,
     )
     return MacroDefinitionRegistry(
@@ -554,7 +554,7 @@ def _equal_length_fragment(
             )
         },
     )
-    add_step(
+    _path_replacement, path_replacement_refs = add_step(
         "prove_path_replacement",
         "prove_distance_equality_from_conditions",
         {
@@ -613,28 +613,6 @@ def _equal_length_fragment(
             segment_start=segment_start,
             segment_end=segment_end,
         )
-        verification_args: dict[str, Any] = {
-            "point": intersection,
-            "segment_start": segment_start,
-            "segment_end": segment_end,
-        }
-        if domain_condition_handle is not None:
-            verification_args["domain_condition"] = _source_ref(
-                domain_condition_handle,
-                source_refs,
-            )
-        add_step(
-            "verify_intersection",
-            "verify_point_on_closed_segment",
-            verification_args,
-            derived={
-                "point_on_segment": (
-                    f"{prefix}.point_on_segment",
-                    "Condition",
-                    "point_on_segment",
-                )
-            },
-        )
         objective, _ = add_step(
             "original_path",
             "distance_sum_expression",
@@ -656,28 +634,6 @@ def _equal_length_fragment(
             first_end=auxiliary,
             segment_start=segment_start,
             segment_end=segment_end,
-        )
-        verification_args = {
-            "point": intersection,
-            "segment_start": segment_start,
-            "segment_end": segment_end,
-        }
-        if domain_condition_handle is not None:
-            verification_args["domain_condition"] = _source_ref(
-                domain_condition_handle,
-                source_refs,
-            )
-        add_step(
-            "verify_intersection",
-            "verify_point_on_closed_segment",
-            verification_args,
-            derived={
-                "point_on_segment": (
-                    f"{prefix}.point_on_segment",
-                    "Condition",
-                    "point_on_segment",
-                )
-            },
         )
         objective, _ = add_step(
             "original_path",
@@ -703,8 +659,25 @@ def _equal_length_fragment(
         objective_result = candidate_result
         candidate_point = endpoint
 
+    _rewrite, rewrite_refs = add_step(
+        "rewrite_path",
+        "rewrite_expression_by_condition",
+        {
+            "original_expression": objective_result,
+            "rewritten_expression": candidate_result,
+            "condition": path_replacement_refs["distance_equality"],
+        },
+        derived={
+            "expression": (
+                f"{prefix}.rewritten_path",
+                "Expression",
+                "path_expression",
+            )
+        },
+    )
+    rewritten_result = rewrite_refs["expression"]
     attainment_args: dict[str, Any] = {
-        "objective": objective_result,
+        "objective": rewritten_result,
         "candidate": candidate_result,
         "candidate_point": candidate_point,
         "path_start": fixed,
@@ -717,7 +690,7 @@ def _equal_length_fragment(
             domain_condition_handle,
             source_refs,
         )
-    add_step(
+    _attainment, attainment_refs = add_step(
         "verify_attainment",
         "verify_two_segment_path_attainment",
         attainment_args,
@@ -729,14 +702,21 @@ def _equal_length_fragment(
             )
         },
     )
+    final_expression, _ = add_step(
+        "publish_minimum",
+        "certify_minimum_expression",
+        {
+            "expression": candidate_result,
+            "attainment_condition": attainment_refs["path_attainment"],
+        },
+    )
     return FunctionalPlanFragment(
-        source="macro",
         scope_id=scope_id,
         steps=tuple(steps),
         exports={
             "minimum_expression": (
-                candidate_result.step_id,
-                candidate_result.return_name,
+                final_expression.step_id,
+                "minimum_expression",
             )
         },
         dependency_envelope=dependency_envelope,

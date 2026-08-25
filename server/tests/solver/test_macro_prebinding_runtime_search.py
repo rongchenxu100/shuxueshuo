@@ -75,7 +75,6 @@ def _candidate(
     return SearchCandidate(
         candidate_id=candidate_id,
         fragment=FunctionalPlanFragment(
-            source="macro",
             scope_id="ii",
             steps=steps,
             exports={"result": (steps[-1].step_id, "result")},

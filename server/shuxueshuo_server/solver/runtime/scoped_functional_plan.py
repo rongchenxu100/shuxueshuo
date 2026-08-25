@@ -493,6 +493,20 @@ class ScopedPublishedGoalBinding:
     semantic_ref: str | None = None
 
 
+@dataclass(frozen=True)
+class ScopedDerivedRefBinding:
+    consumer_step_id: str
+    arg_name: str
+    item_index: int
+    local_ref: str
+    canonical_ref: str
+    domain_type: str
+    semantic_role: str
+    owner_scope: str
+    producer_step_id: str
+    return_name: str
+
+
 ScopedFunctionalRef = str | ScopedStepResultRef
 
 
@@ -782,6 +796,126 @@ def scoped_published_goal_bindings(
         for index, value in enumerate(values)
         if isinstance(value, ScopedPublishedGoalResultRef)
     )
+
+
+def scoped_derived_ref_bindings(
+    plan: ScopedFunctionalPlan,
+) -> tuple[ScopedDerivedRefBinding, ...]:
+    """Return exact producer edges hidden behind public derived refs."""
+
+    return tuple(
+        ScopedDerivedRefBinding(
+            consumer_step_id=step.step_id,
+            arg_name=arg_name,
+            item_index=index,
+            local_ref=value.local_ref,
+            canonical_ref=value.canonical_ref,
+            domain_type=value.domain_type,
+            semantic_role=value.semantic_role,
+            owner_scope=value.owner_scope,
+            producer_step_id=value.step_id,
+            return_name=value.return_name,
+        )
+        for step in plan.steps
+        for arg_name, values in step.args.items()
+        for index, value in enumerate(values)
+        if isinstance(value, ScopedDerivedResultRef)
+    )
+
+
+def apply_scoped_derived_ref_bindings(
+    plan: ScopedFunctionalPlan,
+    bindings: Sequence[ScopedDerivedRefBinding],
+) -> ScopedFunctionalPlan:
+    """Reattach exact derived-name producer edges after a public wire parse."""
+
+    by_step: dict[str, list[ScopedDerivedRefBinding]] = {}
+    identities: set[tuple[str, str, int]] = set()
+    for binding in bindings:
+        identity = (
+            binding.consumer_step_id,
+            binding.arg_name,
+            binding.item_index,
+        )
+        if identity in identities:
+            raise ValueError(f"duplicate derived ref binding: {identity!r}")
+        identities.add(identity)
+        by_step.setdefault(binding.consumer_step_id, []).append(binding)
+
+    steps_by_id = {step.step_id: step for step in plan.steps}
+    seen: set[tuple[str, str, int]] = set()
+
+    def rebuild_step(step: ScopedFunctionalStep) -> ScopedFunctionalStep:
+        step_bindings = by_step.get(step.step_id, ())
+        if not step_bindings:
+            return step
+        args = {name: list(values) for name, values in step.args.items()}
+        for binding in step_bindings:
+            values = args.get(binding.arg_name)
+            if values is None or binding.item_index >= len(values):
+                raise ValueError(
+                    "derived ref binding does not resolve to a Plan argument"
+                )
+            producer = steps_by_id.get(binding.producer_step_id)
+            producer_binding = (
+                producer.return_bindings.get(binding.return_name)
+                if producer is not None
+                else None
+            )
+            if (
+                producer_binding is None
+                or producer_binding.kind != "derived"
+                or producer_binding.ref != binding.local_ref
+            ):
+                raise ValueError(
+                    "derived ref binding disagrees with its producer return binding"
+                )
+            current = values[binding.item_index]
+            exact_result_matches = (
+                isinstance(current, ScopedDerivedResultRef)
+                and (current.step_id, current.return_name)
+                == (binding.producer_step_id, binding.return_name)
+                and current.local_ref == binding.local_ref
+            )
+            if not exact_result_matches and current != binding.local_ref:
+                raise ValueError(
+                    "derived ref binding disagrees with the validated Plan edge"
+                )
+            values[binding.item_index] = ScopedDerivedResultRef(
+                step_id=binding.producer_step_id,
+                return_name=binding.return_name,
+                local_ref=binding.local_ref,
+                canonical_ref=binding.canonical_ref,
+                domain_type=binding.domain_type,
+                semantic_role=binding.semantic_role,
+                owner_scope=binding.owner_scope,
+            )
+            seen.add(
+                (binding.consumer_step_id, binding.arg_name, binding.item_index)
+            )
+        return replace(
+            step,
+            args={name: tuple(values) for name, values in args.items()},
+        )
+
+    def rebuild_scope(scope: ScopedFunctionalScope) -> ScopedFunctionalScope:
+        return replace(
+            scope,
+            steps=tuple(rebuild_step(item) for item in scope.steps),
+            goals=tuple(
+                replace(
+                    goal,
+                    steps=tuple(rebuild_step(item) for item in goal.steps),
+                )
+                for goal in scope.goals
+            ),
+            children=tuple(rebuild_scope(item) for item in scope.children),
+        )
+
+    result = replace(plan, root_scope=rebuild_scope(plan.root_scope))
+    if seen != identities:
+        raise ValueError("derived ref binding references an unknown consumer step")
+    return result
 
 
 def apply_scoped_published_goal_bindings(
@@ -1246,6 +1380,28 @@ class ScopedFunctionalPlanAuthority:
                 (),
             )
         ) | frozenset(self.pruned_step_ids)
+        lowered_call_ids = {
+            call.call_id
+            for scope in self.lowered_plan.scopes
+            for call in scope.calls
+        }
+        reconciled_call_ids = {
+            call.call_id
+            for scope in reconciliation.plan.scopes
+            for call in scope.calls
+        }
+        issue_call_ids = {
+            issue.call_id
+            for issue in reconciliation.issues
+            if issue.call_id is not None
+        }
+        # v1 elaboration may deterministically remove a pure call after an
+        # invalid downstream consumer has been excluded.  Preserve that
+        # mechanical result as ordinary dead-step authority; an omission with
+        # an issue or alias remains a hard finalization error.
+        pruned_step_ids |= frozenset(
+            lowered_call_ids - reconciled_call_ids - issue_call_ids
+        )
         scoped_steps = {
             step.step_id: step for step in self.scoped_plan.steps
         }
@@ -7515,15 +7671,18 @@ __all__ = [
     "ScopedFunctionalPlanValidator",
     "ScopedFunctionalScope",
     "ScopedFunctionalStep",
+    "ScopedDerivedRefBinding",
     "ScopedPublishedGoalBinding",
     "ScopedPublishedGoalResultRef",
     "ScopedStepResultRef",
+    "apply_scoped_derived_ref_bindings",
     "apply_scoped_published_goal_bindings",
     "audit_scoped_functional_structure",
     "audit_scoped_functional_structure_prompt_payload",
     "normalize_unique_scoped_goal_refs",
     "scoped_functional_plan_authority_payload",
     "scoped_functional_plan_id",
+    "scoped_derived_ref_bindings",
     "scoped_published_goal_bindings",
     "scoped_functional_plan_schema",
     "scoped_functional_step_from_payload",

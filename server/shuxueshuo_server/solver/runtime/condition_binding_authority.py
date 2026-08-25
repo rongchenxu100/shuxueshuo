@@ -184,6 +184,44 @@ class ConditionBindingAuthorityIndex:
     def authorities(self) -> tuple[ConditionBindingAuthority, ...]:
         return tuple(self._by_id.values())
 
+    def extended(
+        self,
+        authorities: Sequence[ConditionBindingAuthority],
+    ) -> "ConditionBindingAuthorityIndex":
+        """Return a new index containing deterministic produced Conditions."""
+
+        if not authorities:
+            return self
+        object_ids_by_ref = dict(self._object_ids_by_ref)
+        for authority in authorities:
+            typed_roles = dict(authority.object_roles)
+            for role, refs in authority.object_role_refs:
+                ids = typed_roles.get(role, ())
+                if len(ids) != len(refs):
+                    raise ConditionBindingAuthorityError(
+                        "planner.method_input_view_authority_drift",
+                        "Condition role refs do not match typed object roles",
+                        details={
+                            "condition_id": authority.condition_id,
+                            "role": role,
+                            "object_refs": list(refs),
+                            "typed_object_count": len(ids),
+                        },
+                    )
+                for ref, object_id in zip(refs, ids, strict=True):
+                    previous = object_ids_by_ref.setdefault(ref, object_id)
+                    if previous != object_id:
+                        raise ConditionBindingAuthorityError(
+                            "planner.method_input_view_authority_drift",
+                            f"Condition object ref differs for {ref!r}",
+                            details={"object_ref": ref},
+                        )
+        return ConditionBindingAuthorityIndex(
+            (*self.authorities, *authorities),
+            scope_parent_ids=self._scope_parent_ids,
+            object_ids_by_ref=object_ids_by_ref,
+        )
+
     def require(self, condition_id: str) -> ConditionBindingAuthority:
         try:
             return self._by_id[condition_id]

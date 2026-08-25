@@ -1,0 +1,189 @@
+{
+  "schema_version": "explicit-function-fragment/v1",
+  "case_id": "tj-2026-heping-yimo-25",
+  "scope_ref": "ii",
+  "replaces_step_id": "reduce_equal_length_ray_path_ii",
+  "steps": [
+    {
+      "step_id": "llm_construct_G",
+      "capability_id": "construct_point_on_ray_at_reference_distance",
+      "args": {
+        "anchor": "C",
+        "ray_point": "D",
+        "reference_point": "B"
+      },
+      "return_bindings": {
+        "point": {
+          "kind": "derived",
+          "ref": "G"
+        }
+      },
+      "intent": "在射线 CD 上构造点 G，使 CG=CB。"
+    },
+    {
+      "step_id": "llm_verify_G_on_ray",
+      "capability_id": "verify_point_on_ray",
+      "args": {
+        "point": "G",
+        "anchor": "C",
+        "ray_point": "D"
+      },
+      "return_bindings": {
+        "point_on_ray": {
+          "kind": "derived",
+          "ref": "G_on_ray_CD"
+        }
+      },
+      "intent": "验证辅助点 G 位于射线 CD 上。"
+    },
+    {
+      "step_id": "llm_verify_CG_eq_CB",
+      "capability_id": "verify_distance_equality",
+      "args": {
+        "first_start": "C",
+        "first_end": "G",
+        "second_start": "C",
+        "second_end": "B"
+      },
+      "return_bindings": {
+        "distance_equality": {
+          "kind": "derived",
+          "ref": "CG_eq_CB"
+        }
+      },
+      "intent": "验证构造满足 CG=CB。"
+    },
+    {
+      "step_id": "llm_prove_BN_eq_MG",
+      "capability_id": "prove_distance_equality_from_conditions",
+      "args": {
+        "equal_length_condition": "equal_length_condition",
+        "linking_condition": "point_on_segment_m_bc",
+        "ray_membership_condition": "point_on_ray_n_cd",
+        "constructed_equal_length_condition": "CG_eq_CB",
+        "constructed_ray_condition": "G_on_ray_CD",
+        "common_vertex": "C",
+        "first_start": "B",
+        "first_end": "N",
+        "second_start": "M",
+        "second_end": "G"
+      },
+      "return_bindings": {
+        "distance_equality": {
+          "kind": "derived",
+          "ref": "BN_eq_MG"
+        }
+      },
+      "intent": "由等长与共线条件证明 BN=MG。"
+    },
+    {
+      "step_id": "llm_intersect_OG_BC",
+      "capability_id": "line_intersection_point",
+      "args": {
+        "line1_p1": "O",
+        "line1_p2": "G",
+        "line2_p1": "C",
+        "line2_p2": "B"
+      },
+      "return_bindings": {
+        "intersection": {
+          "kind": "derived",
+          "ref": "P"
+        }
+      },
+      "intent": "取直线 OG 与线段 BC 所在直线的交点 P。"
+    },
+    {
+      "step_id": "llm_build_original_path",
+      "capability_id": "distance_sum_expression",
+      "args": {
+        "start": "O",
+        "via": "P",
+        "end": "G"
+      },
+      "return_bindings": {
+        "expression": {
+          "kind": "derived",
+          "ref": "OP_plus_PG"
+        }
+      },
+      "intent": "写出取等位置对应的折线路径 OP+PG。"
+    },
+    {
+      "step_id": "llm_compute_OG",
+      "capability_id": "distance_between_points",
+      "args": {
+        "p1": "O",
+        "p2": "G"
+      },
+      "intent": "计算拉直后的距离 OG。"
+    },
+    {
+      "step_id": "llm_rewrite_path",
+      "capability_id": "rewrite_expression_by_condition",
+      "args": {
+        "original_expression": {
+          "step_id": "llm_build_original_path",
+          "return": "expression"
+        },
+        "rewritten_expression": {
+          "step_id": "llm_compute_OG",
+          "return": "distance"
+        },
+        "condition": "BN_eq_MG"
+      },
+      "return_bindings": {
+        "expression": {
+          "kind": "derived",
+          "ref": "rewritten_path"
+        }
+      },
+      "intent": "利用 BN=MG 将原目标改写为拉直距离。"
+    },
+    {
+      "step_id": "llm_verify_attainment",
+      "capability_id": "verify_two_segment_path_attainment",
+      "args": {
+        "objective": "rewritten_path",
+        "candidate": {
+          "step_id": "llm_compute_OG",
+          "return": "distance"
+        },
+        "candidate_point": "P",
+        "path_start": "O",
+        "path_end": "G",
+        "segment_start": "C",
+        "segment_end": "B",
+        "domain_condition": "symbol_constraint_a"
+      },
+      "return_bindings": {
+        "path_attainment": {
+          "kind": "derived",
+          "ref": "minimum_attained"
+        }
+      },
+      "intent": "验证交点位于合法线段并且最小值能够取到。"
+    },
+    {
+      "step_id": "llm_publish_minimum",
+      "capability_id": "certify_minimum_expression",
+      "args": {
+        "expression": {
+          "step_id": "llm_compute_OG",
+          "return": "distance"
+        },
+        "attainment_condition": "minimum_attained"
+      },
+      "return_expectations": {
+        "minimum_expression": "open_expression"
+      },
+      "intent": "发布已经证明可达的最小值表达式。"
+    }
+  ],
+  "exports": {
+    "minimum_expression": {
+      "step_id": "llm_publish_minimum",
+      "return": "minimum_expression"
+    }
+  }
+}

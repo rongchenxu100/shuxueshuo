@@ -356,7 +356,7 @@
         "equal_length_ray_path_reduction"
       ],
       "trace_refs": [
-        "trace:reduce_equal_length_ray_path_ii:fragment:7:distance_between_points"
+        "trace:reduce_equal_length_ray_path_ii:fragment:6:distance_between_points"
       ],
       "title": "第3步：将军饮马得到最小值表达式",
       "nav_title": "将军饮马取最小值",

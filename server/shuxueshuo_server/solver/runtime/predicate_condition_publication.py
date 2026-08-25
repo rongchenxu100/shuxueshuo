@@ -268,22 +268,39 @@ def condition_roles_from_resolved_args(
     *,
     resolved_args: Mapping[str, Sequence[ResolvedFunctionalValue]],
 ) -> tuple[tuple[str, tuple[str, ...]], ...]:
+    """Project direct semantic objects, never a value's dependency closure."""
+
     roles: list[tuple[str, tuple[str, ...]]] = []
     for role in publication.related_input_roles:
         refs = tuple(
             unique_ordered(
                 ref
                 for value in resolved_args.get(role, ())
-                for ref in (
-                    value.object_ref,
-                    *value.dependency_object_refs,
-                )
+                for ref in _condition_role_object_refs(value)
                 if isinstance(ref, str) and ref
             )
         )
         if refs:
             roles.append((role, refs))
     return tuple(roles)
+
+
+def _condition_role_object_refs(
+    value: ResolvedFunctionalValue,
+) -> tuple[str, ...]:
+    if value.object_ref is not None:
+        return (value.object_ref,)
+    if value.condition_id is not None:
+        return unique_ordered(
+            ref
+            for _role, refs in value.object_roles
+            for ref in refs
+        )
+    return unique_ordered(
+        ref
+        for binding in value.lineage.object_roles
+        for ref in binding.object_refs
+    )
 
 
 def _contract_error(

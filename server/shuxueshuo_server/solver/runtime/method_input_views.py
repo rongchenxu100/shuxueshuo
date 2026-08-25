@@ -316,6 +316,10 @@ def _point_ref_from_entity_handle(
     return PointRef(
         name=parts[2],
         path=raw_path,
+        definition={
+            "definition": "typed_entity_identity",
+            "entity_handle": handle,
+        },
         scope_id=parts[1],
     )
 

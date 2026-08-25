@@ -13,9 +13,6 @@ from shuxueshuo_server.solver.runtime.functional_goal_execution import (
     functional_goal_execution_checkpoint_schema,
     verified_functional_plan_execution_schema,
 )
-from shuxueshuo_server.solver.runtime.functional_execution_authority import (
-    verified_subplan_execution_schema,
-)
 from shuxueshuo_server.solver.runtime.functional_goal_retry import (
     functional_goal_repair_schema,
     planner_goal_retry_context_schema,
@@ -45,9 +42,6 @@ def main() -> None:
         ),
         "verified-functional-plan-execution.schema.json": (
             verified_functional_plan_execution_schema()
-        ),
-        "verified-subplan-execution.schema.json": (
-            verified_subplan_execution_schema()
         ),
         "functional-goal-repair.schema.json": functional_goal_repair_schema(),
         "planner-goal-retry-context.schema.json": (

@@ -37,6 +37,12 @@ from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
     _substitute_runtime_parameters,
     _validate_symbolic_closure_write_set,
 )
+from shuxueshuo_server.solver.runtime.functional_goal_execution import (
+    ScopedFunctionalGoalExecutionService,
+)
+from shuxueshuo_server.solver.runtime.macro_plan_materialization import (
+    MacroWinnerPlanMaterializationRequired,
+)
 from shuxueshuo_server.solver.runtime.problem_source_provenance import (
     ProblemCallSourceProvenance,
 )
@@ -120,6 +126,7 @@ from _problem_planning_support import (
     planning_binding_fixture,
     scope_native_plan_id,
 )
+from _scoped_functional_plan_support import load_v3_fixture_payload
 
 
 _SCOPE_NATIVE_AUTHORITY: dict[str, tuple] = {}
@@ -246,6 +253,7 @@ def _replay(
     *,
     mode: str,
     symbolic_closure_mode: str = "disabled",
+    materialize_macros: bool = True,
 ):
     case = FUNCTIONAL_BATCH_CASES[case_id]
     (
@@ -258,6 +266,26 @@ def _replay(
         planner_context,
         binding_catalog,
     ) = _authority_fixture(case_id)
+    if (
+        case_id == "heping"
+        and mode == "context_authoritative"
+        and materialize_macros
+    ):
+        execution = ScopedFunctionalGoalExecutionService().execute_raw_json(
+            json.dumps(
+                load_v3_fixture_payload(case.problem_id),
+                ensure_ascii=False,
+            ),
+            inputs=inputs,
+            planning_context=_planning_context,
+            problem_binding_catalog=binding_catalog,
+            handle_registry=registry,
+            context=ContextBuilder().build(problem),
+            planner_state_context=planner_context,
+            problem_payload=problem_payload,
+        )
+        assert execution.replay is not None
+        return execution.replay
     plan, validation = FunctionalPlanValidator().validate_payload_with_report(
         json.loads(case.functional_fixture_path.read_text(encoding="utf-8")),
         handle_registry=registry,
@@ -278,6 +306,21 @@ def _replay(
         validation_report=validation,
         problem_binding_catalog=binding_catalog,
         canonical_plan_id=scope_native_plan_id(case.problem_id),
+    )
+
+
+def _scoped_heping_execution(tmp_path: Path):
+    problem_id = FUNCTIONAL_BATCH_CASES["heping"].problem_id
+    fixture = planning_binding_fixture(tmp_path, case=problem_id)
+    return ScopedFunctionalGoalExecutionService().execute_raw_json(
+        json.dumps(load_v3_fixture_payload(problem_id), ensure_ascii=False),
+        inputs=fixture[3],
+        planning_context=fixture[1],
+        problem_binding_catalog=fixture[7],
+        handle_registry=fixture[5],
+        context=ContextBuilder().build(fixture[2]),
+        planner_state_context=fixture[6],
+        problem_payload=fixture[4],
     )
 
 
@@ -447,7 +490,14 @@ def _active_singleton_mapping_closure_plan():
     )
 
 
-@pytest.mark.parametrize("case_id", tuple(FUNCTIONAL_BATCH_CASES))
+@pytest.mark.parametrize(
+    "case_id",
+    tuple(
+        case_id
+        for case_id in FUNCTIONAL_BATCH_CASES
+        if case_id != "heping"
+    ),
+)
 def test_authored_fixture_direct_transaction_execution_is_authoritative(
     case_id: str,
 ) -> None:
@@ -605,49 +655,35 @@ def test_method_only_goal_output_replays_derived_v1_ir_in_fresh_context(
     )
 
 
-def test_transparent_macro_replays_selected_fragment_in_fresh_transactions() -> None:
-    first = _replay("heping", mode="context_authoritative")
-    second = _replay("heping", mode="context_authoritative")
-
-    def compiled_macro(replay):
-        report = replay.transactional_execution_report
-        assert report is not None and report.ok
-        return next(
-            item
-            for item in report.compiled_calls
-            if item.call_id == "reduce_equal_length_ray_path_ii"
+def test_v1_transaction_requests_macro_plan_materialization() -> None:
+    with pytest.raises(MacroWinnerPlanMaterializationRequired):
+        _replay(
+            "heping",
+            mode="context_authoritative",
+            materialize_macros=False,
         )
 
-    first_macro = compiled_macro(first)
-    second_macro = compiled_macro(second)
-    assert first_macro.plans == second_macro.plans == ()
-    assert first_macro.replay_plans == second_macro.replay_plans == ()
-    assert first_macro.fragment_execution is not None
-    assert second_macro.fragment_execution is not None
-    assert (
-        first_macro.fragment_execution.execution_signature
-        == second_macro.fragment_execution.execution_signature
-    )
-    assert dict(first_macro.fragment_execution.standard_outputs) == dict(
-        second_macro.fragment_execution.standard_outputs
-    )
-    assert str(
-        first_macro.fragment_execution.standard_outputs["minimum_expression"]
-    ) == "3*sqrt(2*a**2 + 1)/Abs(a)"
 
-
-def test_goal_closure_keeps_hidden_equal_length_ray_state_producers() -> None:
-    replay = _replay("heping", mode="context_authoritative")
+def test_goal_closure_keeps_materialized_path_state_producers(tmp_path) -> None:
+    execution = _scoped_heping_execution(tmp_path)
+    replay = execution.replay
+    assert replay is not None
     attempt = replay.transactional_attempt_result
 
     assert attempt is not None and attempt.compiled_output is not None
     assert "derive_parametric_parabola_ii" in attempt.goal_reachable_call_ids
     assert "derive_x_intercept_B_ii" in attempt.goal_reachable_call_ids
-    assert "reduce_equal_length_ray_path_ii" in attempt.goal_reachable_call_ids
+    assert execution.macro_expansions
+    assert set(execution.macro_expansions[0].generated_step_ids) <= set(
+        attempt.goal_reachable_call_ids
+    )
 
 
-def test_sibling_question_states_do_not_publish_through_object_origin() -> None:
-    replay = _replay("heping", mode="context_authoritative")
+def test_sibling_question_states_do_not_publish_through_object_origin(
+    tmp_path,
+) -> None:
+    replay = _scoped_heping_execution(tmp_path).replay
+    assert replay is not None
     reconciliation = replay.functional_reconciliation
     assert reconciliation is not None
     calls = {item.call_id: item for item in reconciliation.calls}

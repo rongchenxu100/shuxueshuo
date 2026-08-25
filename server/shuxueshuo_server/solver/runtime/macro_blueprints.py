@@ -102,6 +102,7 @@ EQUAL_LENGTH_RAY_PATH_BLUEPRINT = MacroSemanticBlueprint(
         "verify_distance_equality",
         "prove_distance_equality_from_conditions",
         "rewrite_expression_by_condition",
+        "certify_minimum_expression",
         "reflect_point_across_line",
         "line_intersection_point",
         "verify_point_on_closed_segment",

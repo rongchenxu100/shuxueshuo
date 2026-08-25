@@ -1,4 +1,4 @@
-"""Generic, verifiable FunctionalPlan fragments shared by Macros and the LLM."""
+"""Transient Function fragments used only for isolated Macro candidate search."""
 
 from __future__ import annotations
 
@@ -44,7 +44,6 @@ from shuxueshuo_server.solver.runtime.models import (
 )
 
 
-FragmentSource = Literal["macro", "llm"]
 CandidateSelectionMode = Literal["equivalent", "minimize", "maximize"]
 
 
@@ -104,9 +103,8 @@ def _fragment_argument_ref(value: Any) -> str:
 
 @dataclass(frozen=True)
 class FunctionalPlanFragment:
-    """A normal Function subgraph that can be authored or Macro-expanded."""
+    """A transient Function subgraph generated for one Macro shadow candidate."""
 
-    source: FragmentSource
     scope_id: str
     steps: tuple[ScopedFunctionalStep, ...]
     exports: Mapping[str, tuple[str, str]]
@@ -115,8 +113,6 @@ class FunctionalPlanFragment:
     fragment_signature: str = field(init=False)
 
     def __post_init__(self) -> None:
-        if self.source not in {"macro", "llm"}:
-            raise ValueError("unknown FunctionalPlan fragment source")
         if not self.scope_id or not self.steps:
             raise ValueError("FunctionalPlan fragment requires scope and steps")
         step_ids = tuple(item.step_id for item in self.steps)
@@ -212,7 +208,6 @@ class FunctionalPlanFragment:
 
     def to_payload(self) -> dict[str, Any]:
         return {
-            "source": self.source,
             "scope_id": self.scope_id,
             "steps": [_fragment_step_payload(item) for item in self.steps],
             "exports": {
@@ -228,7 +223,6 @@ class FunctionalPlanFragment:
     def from_payload(cls, payload: Mapping[str, Any]) -> "FunctionalPlanFragment":
         exports_payload = _required_mapping(payload.get("exports"), "exports")
         fragment = cls(
-            source=_required_string(payload, "source"),  # type: ignore[arg-type]
             scope_id=_required_string(payload, "scope_id"),
             steps=tuple(
                 scoped_functional_step_from_payload(
@@ -623,8 +617,8 @@ def fragment_published_condition_refs(
     )
 
 
-class FunctionalPlanFragmentTransactionalRunner:
-    """Run a selected fragment through production Method read authorities."""
+class MacroCandidateShadowRunner:
+    """Execute one Macro candidate in an isolated shadow runtime branch."""
 
     def __init__(
         self,
@@ -713,7 +707,7 @@ class FunctionalPlanFragmentTransactionalRunner:
                 arg_spec = function_args[arg_name]
                 if len(values) != 1 or arg_spec.cardinality != "one":
                     raise ValueError(
-                        "fragment transaction only accepts scalar Function args: "
+                        "Macro candidate shadow only accepts scalar Function args: "
                         f"{step.capability_id}.{arg_name}"
                     )
                 method_input_name = arg_spec.method_input or arg_name
@@ -775,7 +769,7 @@ class FunctionalPlanFragmentTransactionalRunner:
                     if source.runtime_path is None or source.read_source is None:
                         raise ValueError(
                             "planner.method_input_view_authority_missing: "
-                            f"fragment source {value} is not transaction-ready"
+                            f"fragment source {value} is not shadow-ready"
                         )
                     path = source.runtime_path
                     authority = MethodInputReadAuthority(
@@ -1129,347 +1123,6 @@ class CandidateSelectionSpec:
         return payload
 
 
-@dataclass(frozen=True)
-class VerifiedSubplanWitness:
-    standard_entities: Mapping[str, str]
-    standard_conditions: Mapping[str, str]
-    standard_results: Mapping[str, Any]
-    provenance: tuple[Mapping[str, Any], ...]
-    witness_signature: str = field(init=False)
-    schema_version: str = "verified-subplan-witness/v1"
-
-    def __post_init__(self) -> None:
-        object.__setattr__(
-            self,
-            "standard_entities",
-            MappingProxyType(dict(sorted(self.standard_entities.items()))),
-        )
-        object.__setattr__(
-            self,
-            "standard_conditions",
-            MappingProxyType(dict(sorted(self.standard_conditions.items()))),
-        )
-        object.__setattr__(self, "standard_results", _freeze_json(self.standard_results))
-        object.__setattr__(
-            self,
-            "provenance",
-            tuple(_freeze_json(item) for item in self.provenance),
-        )
-        object.__setattr__(
-            self,
-            "witness_signature",
-            stable_hash(self._payload(include_signature=False)),
-        )
-
-    def _payload(self, *, include_signature: bool) -> dict[str, Any]:
-        payload = {
-            "schema_version": self.schema_version,
-            "standard_entities": dict(self.standard_entities),
-            "standard_conditions": dict(self.standard_conditions),
-            "standard_results": _thaw_json(self.standard_results),
-            "provenance": [_thaw_json(item) for item in self.provenance],
-        }
-        if include_signature:
-            payload["witness_signature"] = self.witness_signature
-        return payload
-
-    def to_payload(self) -> dict[str, Any]:
-        return self._payload(include_signature=True)
-
-    def authority_payload(self) -> dict[str, Any]:
-        return self.to_payload()
-
-    @classmethod
-    def from_payload(cls, payload: Mapping[str, Any]) -> "VerifiedSubplanWitness":
-        witness = cls(
-            standard_entities={
-                str(key): str(value)
-                for key, value in _required_mapping(
-                    payload.get("standard_entities"),
-                    "standard_entities",
-                ).items()
-            },
-            standard_conditions={
-                str(key): str(value)
-                for key, value in _required_mapping(
-                    payload.get("standard_conditions"),
-                    "standard_conditions",
-                ).items()
-            },
-            standard_results=_required_mapping(
-                payload.get("standard_results", {}),
-                "standard_results",
-            ),
-            provenance=tuple(
-                _required_mapping(item, "provenance[]")
-                for item in _required_sequence(
-                    payload.get("provenance", ()),
-                    "provenance",
-                )
-            ),
-            schema_version=_required_string(payload, "schema_version"),
-        )
-        if payload.get("witness_signature") != witness.witness_signature:
-            raise ValueError("verified subplan witness signature drift")
-        return witness
-
-
-@dataclass(frozen=True)
-class MacroSearchSelection:
-    macro_id: str
-    preparation_signature: str
-    search_report: CandidateSearchReport
-    kind: Literal["macro_search"] = "macro_search"
-
-    def __post_init__(self) -> None:
-        if not self.macro_id or not self.preparation_signature:
-            raise ValueError("Macro subplan selection authority is incomplete")
-        if self.search_report.macro_id != self.macro_id:
-            raise ValueError("verified subplan/search Macro drift")
-
-    def to_payload(self) -> dict[str, Any]:
-        return {
-            "kind": self.kind,
-            "macro_id": self.macro_id,
-            "preparation_signature": self.preparation_signature,
-            "search_report": self.search_report.to_payload(),
-        }
-
-
-@dataclass(frozen=True)
-class SingleFragmentSelection:
-    owner_ref: str
-    kind: Literal["single_fragment"] = "single_fragment"
-    source: Literal["llm"] = "llm"
-
-    def __post_init__(self) -> None:
-        if not self.owner_ref:
-            raise ValueError("LLM subplan selection requires owner_ref")
-
-    def to_payload(self) -> dict[str, Any]:
-        return {
-            "kind": self.kind,
-            "source": self.source,
-            "owner_ref": self.owner_ref,
-        }
-
-
-SubplanSelectionAuthority = MacroSearchSelection | SingleFragmentSelection
-
-
-@dataclass(frozen=True)
-class VerifiedSubplanCleanExecution:
-    """Canonical clean-transaction result for one selected fragment."""
-
-    member_step_ids: tuple[str, ...]
-    fragment_execution_signature: str
-    exported_results: Mapping[str, Any]
-    verification: tuple[VerificationOutcome, ...]
-    provenance: tuple[Mapping[str, Any], ...] = ()
-    clean_signature: str = field(init=False)
-
-    def __post_init__(self) -> None:
-        if not self.member_step_ids or not self.fragment_execution_signature:
-            raise ValueError("verified clean subplan execution is incomplete")
-        if len(self.member_step_ids) != len(set(self.member_step_ids)):
-            raise ValueError("verified clean subplan step ids must be unique")
-        object.__setattr__(self, "exported_results", _freeze_json(self.exported_results))
-        object.__setattr__(self, "verification", tuple(self.verification))
-        object.__setattr__(
-            self,
-            "provenance",
-            tuple(_freeze_json(item) for item in self.provenance),
-        )
-        object.__setattr__(
-            self,
-            "clean_signature",
-            stable_hash(self._payload(include_signature=False)),
-        )
-
-    def _payload(self, *, include_signature: bool) -> dict[str, Any]:
-        payload = {
-            "member_step_ids": list(self.member_step_ids),
-            "fragment_execution_signature": self.fragment_execution_signature,
-            "exported_results": _thaw_json(self.exported_results),
-            "verification": [item.to_payload() for item in self.verification],
-            "provenance": [_thaw_json(item) for item in self.provenance],
-        }
-        if include_signature:
-            payload["clean_signature"] = self.clean_signature
-        return payload
-
-    def to_payload(self) -> dict[str, Any]:
-        return self._payload(include_signature=True)
-
-    @classmethod
-    def from_payload(
-        cls,
-        payload: Mapping[str, Any],
-    ) -> "VerifiedSubplanCleanExecution":
-        execution = cls(
-            member_step_ids=tuple(
-                str(item)
-                for item in _required_sequence(
-                    payload.get("member_step_ids"),
-                    "member_step_ids",
-                )
-            ),
-            fragment_execution_signature=_required_string(
-                payload,
-                "fragment_execution_signature",
-            ),
-            exported_results=_required_mapping(
-                payload.get("exported_results"),
-                "exported_results",
-            ),
-            verification=tuple(
-                _verification_outcome_from_payload(
-                    _required_mapping(item, "verification[]")
-                )
-                for item in _required_sequence(
-                    payload.get("verification"),
-                    "verification",
-                )
-            ),
-            provenance=tuple(
-                _required_mapping(item, "provenance[]")
-                for item in _required_sequence(
-                    payload.get("provenance"),
-                    "provenance",
-                )
-            ),
-        )
-        if payload.get("clean_signature") != execution.clean_signature:
-            raise ValueError("verified clean subplan signature drift")
-        return execution
-
-
-@dataclass(frozen=True)
-class VerifiedSubplanExecution:
-    plan_id: str
-    scope_id: str
-    selected_fragment: FunctionalPlanFragment
-    selection: SubplanSelectionAuthority
-    clean_execution: VerifiedSubplanCleanExecution
-    witness: VerifiedSubplanWitness
-    execution_signature: str = field(init=False)
-    schema_version: str = "verified-subplan-execution/v2"
-
-    def __post_init__(self) -> None:
-        if not self.plan_id or not self.scope_id:
-            raise ValueError("verified subplan execution identity is incomplete")
-        if self.selected_fragment.scope_id != self.scope_id:
-            raise ValueError("verified subplan scope differs from its fragment")
-        member_steps = tuple(item.step_id for item in self.selected_fragment.steps)
-        if self.clean_execution.member_step_ids != member_steps:
-            raise ValueError("verified subplan clean execution step drift")
-        if isinstance(self.selection, MacroSearchSelection):
-            if self.selected_fragment.source != "macro":
-                raise ValueError("Macro search selected a non-Macro fragment")
-            if (
-                self.selection.search_report.winner_candidate_id
-                not in {
-                    item.candidate_id
-                    for item in self.selection.search_report.evaluations
-                    if item.passed
-                }
-            ):
-                raise ValueError("verified subplan search winner is invalid")
-        elif self.selected_fragment.source != "llm":
-            raise ValueError("single-fragment selection requires an LLM fragment")
-        object.__setattr__(
-            self,
-            "execution_signature",
-            stable_hash(self._payload(include_signature=False)),
-        )
-
-    @property
-    def output_signature(self) -> str:
-        return stable_hash(_thaw_json(self.clean_execution.exported_results))
-
-    @property
-    def evidence_id(self) -> str:
-        return self.execution_signature
-
-    def _payload(self, *, include_signature: bool) -> dict[str, Any]:
-        payload = {
-            "schema_version": self.schema_version,
-            "plan_id": self.plan_id,
-            "scope_id": self.scope_id,
-            "selected_fragment": self.selected_fragment.to_payload(),
-            "selection": self.selection.to_payload(),
-            "clean_execution": self.clean_execution.to_payload(),
-            "witness": self.witness.to_payload(),
-            "output_signature": self.output_signature,
-        }
-        if include_signature:
-            payload["execution_signature"] = self.execution_signature
-        return payload
-
-    def to_payload(self) -> dict[str, Any]:
-        return self._payload(include_signature=True)
-
-    def authority_payload(self) -> dict[str, Any]:
-        return self.to_payload()
-
-    @classmethod
-    def from_payload(cls, payload: Mapping[str, Any]) -> "VerifiedSubplanExecution":
-        selection_payload = _required_mapping(
-            payload.get("selection"),
-            "selection",
-        )
-        selection_kind = selection_payload.get("kind")
-        if selection_kind == "macro_search":
-            selection: SubplanSelectionAuthority = MacroSearchSelection(
-                macro_id=_required_string(selection_payload, "macro_id"),
-                preparation_signature=_required_string(
-                    selection_payload,
-                    "preparation_signature",
-                ),
-                search_report=CandidateSearchReport.from_payload(
-                    _required_mapping(
-                        selection_payload.get("search_report"),
-                        "search_report",
-                    )
-                ),
-            )
-        elif selection_kind == "single_fragment":
-            selection = SingleFragmentSelection(
-                owner_ref=_required_string(
-                    selection_payload,
-                    "owner_ref",
-                )
-            )
-        else:
-            raise ValueError("unknown verified subplan selection kind")
-        execution = cls(
-            plan_id=_required_string(payload, "plan_id"),
-            scope_id=_required_string(payload, "scope_id"),
-            selected_fragment=FunctionalPlanFragment.from_payload(
-                _required_mapping(
-                    payload.get("selected_fragment"),
-                    "selected_fragment",
-                )
-            ),
-            selection=selection,
-            clean_execution=VerifiedSubplanCleanExecution.from_payload(
-                _required_mapping(
-                    payload.get("clean_execution"),
-                    "clean_execution",
-                )
-            ),
-            witness=VerifiedSubplanWitness.from_payload(
-                _required_mapping(payload.get("witness"), "witness")
-            ),
-            schema_version=_required_string(payload, "schema_version"),
-        )
-        if payload.get("output_signature") != execution.output_signature:
-            raise ValueError("verified subplan output signature drift")
-        if payload.get("execution_signature") != execution.execution_signature:
-            raise ValueError("verified subplan execution signature drift")
-        return execution
-
-
 class VerifiedSubplanSearchError(ValueError):
     def __init__(
         self,
@@ -1768,15 +1421,10 @@ __all__ = [
     "CandidateSelectionSpec",
     "CandidateSearchReport",
     "FunctionalPlanFragment",
-    "FunctionalPlanFragmentTransactionalRunner",
+    "MacroCandidateShadowRunner",
     "fragment_published_condition_refs",
     "GenericCandidateSearchService",
-    "MacroSearchSelection",
     "MacroSemanticBlueprint",
     "SearchCandidate",
-    "SingleFragmentSelection",
-    "VerifiedSubplanExecution",
-    "VerifiedSubplanCleanExecution",
     "VerifiedSubplanSearchError",
-    "VerifiedSubplanWitness",
 ]

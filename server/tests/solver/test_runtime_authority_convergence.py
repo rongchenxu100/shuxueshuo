@@ -79,39 +79,31 @@ def test_named_entity_wire_remains_source_ref_while_typed_graph_pins_producer(
     assert pin.producer_call_id == "derive_parametric_parabola_ii"
 
 
-def test_macro_winner_finalizes_f5c_before_provenance_is_created(tmp_path) -> None:
+def test_macro_winner_materializes_before_function_f5c_is_finalized(tmp_path) -> None:
     result = _execute(tmp_path)
     report = result.replay.transactional_execution_report
     assert report is not None
     ledger = report.functional_problem_binding_ledger
     assert ledger is not None
-    binding = ledger.call_binding("reduce_equal_length_ray_path_ii")
-
-    assert binding.status == "finalized"
-    assert dict(binding.authored_roles) == {}
-    assert dict(binding.chosen_roles) == {
+    assert "reduce_equal_length_ray_path_ii" not in ledger.calls
+    expansion = result.macro_expansions[0]
+    assert dict(expansion.authored_roles) == {}
+    assert dict(expansion.chosen_roles) == {
         "anchor": "point:problem:C",
         "fixed_point": "point:problem:O",
         "ray_point": "point:problem:D",
         "reference_point": "point:problem:B",
     }
-    by_arg = {
-        item.arg_name: item.semantic_ref.ref
-        for item in binding.input_bindings
-        if item.semantic_ref is not None
-    }
-    assert by_arg["anchor"] == "C"
-    assert by_arg["fixed_point"] == "O"
-    assert by_arg["ray_point"] == "D"
-    assert by_arg["reference_point"] == "B"
-    provenance = binding.source_provenance()
-    assert provenance.call_binding_signature == binding.binding_signature
-    assert provenance.macro_search_signature == binding.macro_search_signature
-    assert provenance.macro_role_resolutions == (
-        ("anchor", None, "point:problem:C"),
-        ("fixed_point", None, "point:problem:O"),
-        ("ray_point", None, "point:problem:D"),
-        ("reference_point", None, "point:problem:B"),
+    generated = tuple(
+        ledger.call_binding(step_id)
+        for step_id in expansion.generated_step_ids
+    )
+    assert generated
+    assert all(binding.status == "finalized" for binding in generated)
+    assert all(
+        binding.source_provenance().call_binding_signature
+        == binding.binding_signature
+        for binding in generated
     )
 
 
@@ -150,6 +142,9 @@ def test_removed_post_hoc_and_legacy_authority_paths_do_not_return() -> None:
     assert "_macro_candidate_builder_context" not in transaction
     assert "_build_equal_length_ray_execution_witness" not in transaction
     assert "builder=_build_equal_length" not in transaction
+    assert "_compile_verified_subplan_publication_envelope" not in transaction
+    assert "_verified_subplan_publication_path" not in transaction
+    assert "__verified_subplan_" not in transaction
     recipe_compiler = sources["recipe_compiler.py"]
     assert "build_equal_length_ray_role_candidates" not in recipe_compiler
     assert "_compile_equal_length_ray_path_reduction_recipe" not in recipe_compiler
@@ -158,6 +153,18 @@ def test_removed_post_hoc_and_legacy_authority_paths_do_not_return() -> None:
     assert "PathMinimumWitness" not in joined
     assert "path_minimum_witness_schema" not in joined
     assert "FunctionalPlanFragmentExecutor" not in joined
+    for removed_symbol in (
+        "FunctionalPlanFragmentTransactionalRunner",
+        "_execute_transparent_macro_fragment",
+        "_with_prepared_macro_evidence",
+        "VerifiedSubplanExecution",
+    ):
+        assert removed_symbol not in joined
+    binding_source = (
+        RUNTIME_ROOT.parent / "extraction" / "problem_planning_binding.py"
+    ).read_text(encoding="utf-8")
+    assert "def finalize_macro(" not in binding_source
+    assert ".finalize_macro(" not in transaction
     family_source = (
         RUNTIME_ROOT.parent
         / "family"

@@ -28,6 +28,9 @@ from shuxueshuo_server.solver.runtime.binding_rules import (
 from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
     FunctionalTransactionalInterpreter,
 )
+from shuxueshuo_server.solver.runtime.functional_goal_execution import (
+    ScopedFunctionalGoalExecutionService,
+)
 from shuxueshuo_server.solver.runtime.functional_binding_context import (
     FunctionalBindingContextError,
 )
@@ -50,6 +53,7 @@ from _problem_planning_support import (
     planning_binding_fixture,
     scope_native_reconciliation_fixture,
 )
+from _scoped_functional_plan_support import load_v3_fixture_payload
 
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -384,6 +388,23 @@ def test_scope_native_recorded_plan_reconciles_compiles_and_executes(
         .call_goal_bindings.values()
     )
     assert catalog.binding_signature
+
+    if case == "tj-2026-heping-yimo-25":
+        execution = ScopedFunctionalGoalExecutionService().execute_raw_json(
+            json.dumps(load_v3_fixture_payload(case), ensure_ascii=False),
+            inputs=inputs,
+            planning_context=_planning_context,
+            problem_binding_catalog=catalog,
+            handle_registry=registry,
+            context=ContextBuilder().build(problem),
+            planner_state_context=planner_context,
+            problem_payload=problem_payload,
+        )
+        assert execution.checkpoint is not None
+        assert execution.checkpoint.transaction_ok
+        assert execution.checkpoint.all_required_goals_verified
+        assert execution.macro_expansions
+        return
 
     attempt = FunctionalTransactionalInterpreter(
         symbolic_closure_mode="authoritative"

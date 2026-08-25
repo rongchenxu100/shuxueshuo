@@ -15,7 +15,7 @@ from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
 pytestmark = pytest.mark.solver_contract
 
 
-def _fragment(*, source: str, prefix: str, derived_ref: str) -> FunctionalPlanFragment:
+def _fragment(*, prefix: str, derived_ref: str) -> FunctionalPlanFragment:
     producer_id = f"{prefix}_construct"
     consumer_id = f"{prefix}_verify"
     producer = ScopedFunctionalStep(
@@ -44,7 +44,6 @@ def _fragment(*, source: str, prefix: str, derived_ref: str) -> FunctionalPlanFr
         return_expectations={},
     )
     return FunctionalPlanFragment(
-        source=source,  # type: ignore[arg-type]
         scope_id="ii",
         steps=(producer, consumer),
         exports={"auxiliary_point": (producer_id, "point")},
@@ -55,7 +54,6 @@ def _fragment(*, source: str, prefix: str, derived_ref: str) -> FunctionalPlanFr
 
 def test_fragment_round_trip_preserves_typed_derived_refs() -> None:
     fragment = _fragment(
-        source="macro",
         prefix="macro",
         derived_ref="macro.point",
     )
@@ -66,38 +64,33 @@ def test_fragment_round_trip_preserves_typed_derived_refs() -> None:
     assert isinstance(restored.steps[1].args["point"][0], ScopedDerivedResultRef)
 
 
-def test_macro_and_llm_fragments_share_alpha_normalized_graph_identity() -> None:
-    macro = _fragment(
-        source="macro",
+def test_macro_candidates_share_alpha_normalized_graph_identity() -> None:
+    first = _fragment(
         prefix="macro",
         derived_ref="macro.point",
     )
-    authored = _fragment(
-        source="llm",
-        prefix="authored",
+    second = _fragment(
+        prefix="alternative",
         derived_ref="G",
     )
 
-    assert macro.fragment_signature == authored.fragment_signature
-    assert macro.alpha_normalized_payload() == authored.alpha_normalized_payload()
+    assert first.fragment_signature == second.fragment_signature
+    assert first.alpha_normalized_payload() == second.alpha_normalized_payload()
 
 
 def test_fragment_rejects_duplicate_step_ids_and_invalid_exports() -> None:
     fragment = _fragment(
-        source="macro",
         prefix="macro",
         derived_ref="macro.point",
     )
     with pytest.raises(ValueError, match="step ids must be unique"):
         FunctionalPlanFragment(
-            source="macro",
             scope_id="ii",
             steps=(fragment.steps[0], fragment.steps[0]),
             exports={},
         )
     with pytest.raises(ValueError, match="export is invalid"):
         FunctionalPlanFragment(
-            source="macro",
             scope_id="ii",
             steps=fragment.steps,
             exports={"value": ("missing", "value")},

@@ -84,6 +84,9 @@ from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
     FunctionalTransactionalExecutionReport,
     FunctionalTransactionalInterpreter,
 )
+from shuxueshuo_server.solver.runtime.macro_plan_materialization import (
+    MacroWinnerPlanMaterializationRequired,
+)
 from shuxueshuo_server.solver.runtime.symbolic_closure_execution import (
     FunctionalSymbolicClosureMode,
 )
@@ -736,6 +739,8 @@ class PlannerRetryReplayService:
                         restored_seed=restored_seed,
                     )
                 )
+            except MacroWinnerPlanMaterializationRequired:
+                raise
             except Exception as exc:
                 raise StrategyDraftValidationError(
                     "planner_configuration_error: "

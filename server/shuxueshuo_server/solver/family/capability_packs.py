@@ -41,6 +41,7 @@ from shuxueshuo_server.solver.family.models import (
     StepRecipeSpec,
 )
 from shuxueshuo_server.solver.family.common_binding_rules import (
+    certify_minimum_expression_rule,
     condition_arg_binding,
     construct_point_on_ray_at_reference_distance_rule,
     distance_sum_expression_rule,
@@ -1009,7 +1010,10 @@ PATH_VERIFICATION_PRIMITIVE_CONTRACTS = (
         ),
         condition_reads=(
             _condition("equal_length_condition"),
-            _condition("distance_linking_condition"),
+            _condition("point_on_segment"),
+            _condition("point_on_ray"),
+            _condition("distance_equality"),
+            _condition("point_on_ray"),
         ),
         condition_writes=(_condition("distance_equality"),),
     ),
@@ -1024,6 +1028,20 @@ PATH_VERIFICATION_PRIMITIVE_CONTRACTS = (
             _slot(
                 "expression",
                 "Expression",
+                return_binding="call_local_allowed",
+            ),
+        ),
+    ),
+    _method_contract(
+        "certify_minimum_expression",
+        slot_reads=(
+            _slot("expression", "Expression|MinimumExpression"),
+        ),
+        condition_reads=(_condition("path_minimum_attained"),),
+        slot_writes=(
+            _slot(
+                "minimum_expression",
+                "MinimumExpression",
                 return_binding="call_local_allowed",
             ),
         ),
@@ -1346,7 +1364,7 @@ EQUAL_LENGTH_RAY_PATH_REDUCTION = StepRecipeSpec(
             validation_policy_id="verified_function_fragment",
             lowerer_id="functional_plan_fragment",
             postcondition_id="predicate_publication",
-            evidence_builder_id="verified_subplan_execution",
+            evidence_builder_id="ordinary_plan_execution",
         ),
         execution_strategy="functional_plan_fragment",
         output_aliases=(
@@ -1794,6 +1812,7 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
             "verify_distance_equality",
             "prove_distance_equality_from_conditions",
             "rewrite_expression_by_condition",
+            "certify_minimum_expression",
             "reflect_point_across_line",
             "verify_point_on_closed_segment",
             "distance_sum_expression",
@@ -1848,6 +1867,7 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
             verify_distance_equality_rule(),
             prove_distance_equality_from_conditions_rule(),
             rewrite_expression_by_condition_rule(),
+            certify_minimum_expression_rule(),
             reflect_point_across_line_rule(),
             verify_point_on_closed_segment_rule(),
             distance_sum_expression_rule(),

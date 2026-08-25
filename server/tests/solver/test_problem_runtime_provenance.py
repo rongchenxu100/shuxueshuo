@@ -29,6 +29,9 @@ from shuxueshuo_server.solver.runtime.functional_retry_versions import (
 from shuxueshuo_server.solver.runtime.functional_call_memory import (
     build_functional_call_memory,
 )
+from shuxueshuo_server.solver.runtime.functional_goal_execution import (
+    ScopedFunctionalGoalExecutionService,
+)
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
 )
@@ -47,6 +50,7 @@ from _problem_planning_support import (
     CASES,
     scope_native_reconciliation_fixture,
 )
+from _scoped_functional_plan_support import load_v3_fixture_payload
 
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -59,31 +63,60 @@ def test_five_case_runtime_writes_and_results_share_call_source_authority(
 ) -> None:
     (
         _bundle,
-        _planning_context,
+        planning_context,
         problem,
         inputs,
         problem_payload,
         registry,
         planner_context,
-        _catalog,
+        problem_binding_catalog,
         plan,
         _validation,
         reconciliation,
     ) = scope_native_reconciliation_fixture(tmp_path / case, case=case)
+    macro_expansions = ()
+    if case == "tj-2026-heping-yimo-25":
+        scoped = ScopedFunctionalGoalExecutionService().execute_raw_json(
+            json.dumps(load_v3_fixture_payload(case), ensure_ascii=False),
+            inputs=inputs,
+            planning_context=planning_context,
+            problem_binding_catalog=problem_binding_catalog,
+            handle_registry=registry,
+            context=ContextBuilder().build(problem),
+            planner_state_context=planner_context,
+            problem_payload=problem_payload,
+        )
+        assert scoped.checkpoint is not None
+        assert scoped.checkpoint.all_required_goals_verified
+        assert scoped.replay is not None
+        assert scoped.replay.functional_reconciliation is not None
+        assert scoped.replay.transactional_attempt_result is not None
+        reconciliation = scoped.replay.functional_reconciliation
+        attempt = scoped.replay.transactional_attempt_result
+        macro_expansions = scoped.macro_expansions
+        assert macro_expansions
+    else:
+        attempt = FunctionalTransactionalInterpreter(
+            symbolic_closure_mode="authoritative"
+        ).execute_attempt(
+            raw_plan=plan,
+            reconciliation=reconciliation,
+            runtime_context=ContextBuilder().build(problem),
+            parent_context=planner_context,
+            inputs=inputs,
+            handle_registry=registry,
+            problem_payload=problem_payload,
+        )
     sidecar = reconciliation.functional_problem_binding_context
     assert isinstance(sidecar, FunctionalProblemBindingContext)
-
-    attempt = FunctionalTransactionalInterpreter(
-        symbolic_closure_mode="authoritative"
-    ).execute_attempt(
-        raw_plan=plan,
-        reconciliation=reconciliation,
-        runtime_context=ContextBuilder().build(problem),
-        parent_context=planner_context,
-        inputs=inputs,
-        handle_registry=registry,
-        problem_payload=problem_payload,
-    )
+    for call_id in sidecar.call_goal_bindings:
+        call_binding = sidecar.call_binding(call_id)
+        assert sidecar.call_binding_signature(call_id) == (
+            call_binding.binding_signature
+        )
+        assert sidecar.source_provenance_for_call(call_id) == (
+            call_binding.source_provenance()
+        )
 
     assert attempt.compiled_output is not None, attempt.root_issues
     ledger = attempt.execution_report.functional_problem_binding_ledger
@@ -104,26 +137,13 @@ def test_five_case_runtime_writes_and_results_share_call_source_authority(
         assert all(
             item == expected
             for item in observed_provenance
-        )
+        ), (call_result.call_id, expected, observed_provenance)
         assert len(set(observed_provenance)) == 1
         runtime_authority = observed_provenance[0]
         assert runtime_authority is not None
         assert runtime_authority == expected
-        if call_result.macro_search_report is not None:
-            assert (
-                runtime_authority.macro_search_signature
-                == call_result.macro_search_report.search_signature
-            )
-            assert runtime_authority.macro_role_resolutions == tuple(
-                sorted(
-                    (
-                        role,
-                        call_binding.authored_roles.get(role),
-                        chosen_ref,
-                    )
-                    for role, chosen_ref in call_binding.chosen_roles.items()
-                )
-            )
+        assert runtime_authority.macro_search_signature is None
+        assert runtime_authority.macro_role_resolutions == ()
         assert all(
             "problem_source_provenance" not in result.to_payload()
             and result.authority_payload()["problem_source_provenance"]
@@ -169,6 +189,10 @@ def test_five_case_runtime_writes_and_results_share_call_source_authority(
         )
     )
     assert call_result_consumers
+    if macro_expansions:
+        assert set(macro_expansions[0].generated_step_ids).issubset(
+            observed_calls
+        )
 
 
 @pytest.mark.parametrize("case", CASES)

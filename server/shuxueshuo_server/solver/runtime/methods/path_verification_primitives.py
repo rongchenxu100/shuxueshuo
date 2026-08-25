@@ -213,6 +213,55 @@ class RewriteExpressionByConditionMethod:
         )
 
 
+class CertifyMinimumExpressionMethod:
+    """Publish a standard minimum expression from a verified attainment."""
+
+    method_id = "certify_minimum_expression"
+
+    def run(
+        self,
+        inputs: dict[str, Any],
+        kernel: SympyKernel,
+    ) -> StatelessMethodResult:
+        expression = sp.simplify(sp.sympify(inputs["expression"]))
+        condition = _condition_payload(inputs["attainment_condition"])
+        if _condition_kind(condition) != "path_minimum_attained":
+            raise method_input_invalid(
+                "minimum certification requires a verified attainment Condition",
+                arg_name="attainment_condition",
+                role="minimum_attainment_authority",
+                expected={"condition_kind": "path_minimum_attained"},
+                observed={"condition_kind": _condition_kind(condition)},
+            )
+        return StatelessMethodResult(
+            method_id=self.method_id,
+            outputs={
+                "minimum_expression": TypedValue(
+                    "MinimumExpression",
+                    expression,
+                    source=self.method_id,
+                )
+            },
+            checks=[
+                _check(
+                    "minimum_attainment_condition_consumed",
+                    True,
+                    "the exact verified attainment authorizes the minimum expression",
+                )
+            ],
+            trace_fragments=[
+                _step(
+                    self.method_id,
+                    "认证最小值表达式",
+                    "使用已验证的达到性条件发布最小值",
+                    "只有达到性 Condition 已发布时才认证该表达式。",
+                    kernel.sstr(expression),
+                    kernel.sstr(expression),
+                )
+            ],
+        )
+
+
 class ReflectPointAcrossLineMethod:
     """Reflect a point across the line through two distinct points."""
 
@@ -816,6 +865,26 @@ REWRITE_EXPRESSION_BY_CONDITION_SPEC = MethodSpecSource(
 )
 
 
+CERTIFY_MINIMUM_EXPRESSION_SPEC = MethodSpecSource(
+    method_cls=CertifyMinimumExpressionMethod,
+    title="由达到性条件认证最小值表达式",
+    solves=("certify_minimum_expression",),
+    inputs={
+        "expression": {
+            "type": "Expression|MinimumExpression",
+            "required": True,
+            "allows_anonymous_result": True,
+        },
+        "attainment_condition": {"type": "Condition", "required": True},
+    },
+    input_views=declare_input_views(
+        exact_result=("expression",),
+        immutable_value=("attainment_condition",),
+    ),
+    outputs={"minimum_expression": "MinimumExpression"},
+)
+
+
 REFLECT_POINT_ACROSS_LINE_SPEC = MethodSpecSource(
     method_cls=ReflectPointAcrossLineMethod,
     title="点关于直线的对称点",
@@ -933,6 +1002,7 @@ PATH_VERIFICATION_METHODS = (
     VerifyDistanceEqualityMethod,
     ProveDistanceEqualityFromConditionsMethod,
     RewriteExpressionByConditionMethod,
+    CertifyMinimumExpressionMethod,
     ReflectPointAcrossLineMethod,
     VerifyPointOnClosedSegmentMethod,
     DistanceSumExpressionMethod,
@@ -946,6 +1016,7 @@ PATH_VERIFICATION_SPECS = (
     VERIFY_DISTANCE_EQUALITY_SPEC,
     PROVE_DISTANCE_EQUALITY_FROM_CONDITIONS_SPEC,
     REWRITE_EXPRESSION_BY_CONDITION_SPEC,
+    CERTIFY_MINIMUM_EXPRESSION_SPEC,
     REFLECT_POINT_ACROSS_LINE_SPEC,
     VERIFY_POINT_ON_CLOSED_SEGMENT_SPEC,
     DISTANCE_SUM_EXPRESSION_SPEC,

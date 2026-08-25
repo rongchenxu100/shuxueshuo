@@ -6356,7 +6356,7 @@ def test_hidden_mechanical_selector_alias_is_pruned_before_auto_resolution() -> 
     )
     assert validation.ok and plan is not None
 
-    replay = PlannerRetryReplayService().replay_functional_plan(
+    replay = PlannerRetryReplayService().reconcile_functional_plan(
         plan,
         inputs=inputs,
         handle_registry=registry,
@@ -6367,7 +6367,6 @@ def test_hidden_mechanical_selector_alias_is_pruned_before_auto_resolution() -> 
         canonical_plan_id=scope_native_plan_id("tj-2026-heping-yimo-25"),
     )
 
-    assert replay.output is not None, replay.errors
     assert replay.functional_reconciliation is not None
     effective_call = next(
         item
@@ -6439,7 +6438,7 @@ def test_recomputed_translated_ray_endpoint_keeps_original_point_definition() ->
     )
     assert validation.ok and plan is not None
 
-    replay = PlannerRetryReplayService().replay_functional_plan(
+    replay = PlannerRetryReplayService().reconcile_functional_plan(
         plan,
         inputs=inputs,
         handle_registry=registry,
@@ -6450,12 +6449,20 @@ def test_recomputed_translated_ray_endpoint_keeps_original_point_definition() ->
         canonical_plan_id=scope_native_plan_id("tj-2026-heping-yimo-25"),
     )
 
-    assert replay.output is not None, (
+    assert replay.functional_reconciliation is not None, (
         replay.errors,
-        replay.diagnostic.blockers if replay.diagnostic is not None else None,
-        replay.retry_state.issues if replay.retry_state is not None else None,
     )
-    assert replay.diagnostic is not None and replay.diagnostic.ok
+    recompute = next(
+        item
+        for item in replay.functional_reconciliation.calls
+        if item.call_id == "recompute_D_ii"
+    )
+    assert recompute.resolved_args["source"][0].object_ref == "point:problem:C"
+    point = next(
+        item for item in recompute.returns if item.return_name == "point"
+    )
+    assert point.object_ref == "point:problem:D"
+    assert point.bound_ref is not None and point.bound_ref.ref == "D"
 
 
 def test_angle_role_args_are_pruned_and_rebound_from_structured_facts() -> None:
@@ -6499,7 +6506,7 @@ def test_angle_role_args_are_pruned_and_rebound_from_structured_facts() -> None:
     )
     assert validation.ok and plan is not None
 
-    replay = PlannerRetryReplayService().replay_functional_plan(
+    replay = PlannerRetryReplayService().reconcile_functional_plan(
         plan,
         inputs=inputs,
         handle_registry=registry,
@@ -6510,7 +6517,6 @@ def test_angle_role_args_are_pruned_and_rebound_from_structured_facts() -> None:
         canonical_plan_id=scope_native_plan_id("tj-2026-heping-yimo-25"),
     )
 
-    assert replay.output is not None, replay.errors
     assert replay.functional_reconciliation is not None
     repairs = replay.functional_reconciliation.elaboration[
         "deterministic_repairs"
@@ -6552,7 +6558,7 @@ def test_x_axis_intercept_does_not_infer_omitted_known_point() -> None:
     )
     assert validation.ok and plan is not None
 
-    replay = PlannerRetryReplayService().replay_functional_plan(
+    replay = PlannerRetryReplayService().reconcile_functional_plan(
         plan,
         inputs=inputs,
         handle_registry=registry,
@@ -6563,7 +6569,6 @@ def test_x_axis_intercept_does_not_infer_omitted_known_point() -> None:
         canonical_plan_id=scope_native_plan_id("tj-2026-heping-yimo-25"),
     )
 
-    assert replay.output is None
     assert replay.functional_reconciliation is not None
     assert (
         replay.functional_reconciliation.functional_binding_context.binding_for(
@@ -6573,11 +6578,6 @@ def test_x_axis_intercept_does_not_infer_omitted_known_point() -> None:
         )
         is None
     )
-    assert replay.transactional_attempt_result is not None
-    assert {
-        item.code
-        for item in replay.transactional_attempt_result.root_issues
-    } == {"functional.method_result_ambiguous"}
 
 
 def test_answer_bound_object_return_keeps_canonical_state_alias() -> None:
@@ -6593,7 +6593,7 @@ def test_answer_bound_object_return_keeps_canonical_state_alias() -> None:
     )
     assert validation.ok and plan is not None
 
-    replay = PlannerRetryReplayService().replay_functional_plan(
+    replay = PlannerRetryReplayService().reconcile_functional_plan(
         plan,
         inputs=inputs,
         handle_registry=registry,
@@ -6604,7 +6604,6 @@ def test_answer_bound_object_return_keeps_canonical_state_alias() -> None:
         canonical_plan_id=scope_native_plan_id("tj-2026-heping-yimo-25"),
     )
 
-    assert replay.output is not None, replay.errors
     assert replay.functional_reconciliation is not None
     allocation = next(
         output

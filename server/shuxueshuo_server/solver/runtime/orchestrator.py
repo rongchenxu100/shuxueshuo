@@ -20,7 +20,6 @@ from pathlib import Path
 import time
 from typing import Any
 
-from shuxueshuo_server.solver.contracts import StatelessMethodResult
 from shuxueshuo_server.solver.extraction.problem_planner_authority import (
     VerifiedPlannerProblemAuthority,
 )
@@ -47,6 +46,9 @@ from shuxueshuo_server.solver.runtime.context_inventory import ContextInventoryB
 from shuxueshuo_server.solver.runtime.functional_goal_execution import (
     FUNCTIONAL_GOAL_EXECUTION_CHECKPOINT_CONTRACT,
     VerifiedFunctionalPlanExecution,
+)
+from shuxueshuo_server.solver.runtime.macro_plan_materialization import (
+    MacroExpansionRecord,
 )
 from shuxueshuo_server.solver.runtime.executor import (
     DeclarationValidator,
@@ -98,6 +100,15 @@ class RuntimeSuccessArtifacts:
     problem_binding_catalog: ProblemPlanningBindingCatalog | None = None
     planner_state_context: PlannerStateContext | None = None
     verified_functional_execution: VerifiedFunctionalPlanExecution | None = None
+    macro_expansions: tuple[MacroExpansionRecord, ...] = ()
+
+
+def _planner_macro_expansions(
+    planner_artifacts: Any | None,
+) -> tuple[MacroExpansionRecord, ...]:
+    scoped_retry = getattr(planner_artifacts, "scoped_retry_result", None)
+    final_execution = getattr(scoped_retry, "final_execution", None)
+    return tuple(getattr(final_execution, "macro_expansions", ()))
 
 
 def _nankai25_planner_provider(context: RuntimeContext) -> GenericPlanner:
@@ -419,6 +430,7 @@ class RuntimeOrchestrator:
                 None,
             ),
             verified_functional_execution=verified_execution,
+            macro_expansions=_planner_macro_expansions(planner_artifacts),
         )
         return result
 
@@ -673,6 +685,9 @@ class RuntimeOrchestrator:
                     "verified_execution",
                     None,
                 ),
+                macro_expansions=_planner_macro_expansions(
+                    getattr(planner, "artifacts", None)
+                ),
             )
             return result
 
@@ -690,20 +705,10 @@ def _plan_execution_from_transaction(report: object) -> PlanExecutionResult:
     """Project the already executed transaction into public result artifacts."""
 
     step_results: list[StepExecutionResult] = []
-    compiled_by_call = {
-        item.call_id: item
-        for item in getattr(report, "compiled_calls", ())
-    }
     for call_result in getattr(report, "call_results", ()):
         if getattr(call_result, "status", None) != "verified":
             continue
         invocation_steps = tuple(getattr(call_result, "step_results", ()))
-        compiled = compiled_by_call.get(call_result.call_id)
-        fragment_execution = getattr(compiled, "fragment_execution", None)
-        fragment_method_results = [
-            StatelessMethodResult(method_id=item.method_id)
-            for item in getattr(fragment_execution, "step_executions", ())
-        ]
         step_results.append(
             StepExecutionResult(
                 step_id=str(call_result.call_id),
@@ -711,8 +716,7 @@ def _plan_execution_from_transaction(report: object) -> PlanExecutionResult:
                     method_result
                     for item in invocation_steps
                     for method_result in item.method_results
-                ]
-                + fragment_method_results,
+                ],
                 checks=[
                     check
                     for item in invocation_steps

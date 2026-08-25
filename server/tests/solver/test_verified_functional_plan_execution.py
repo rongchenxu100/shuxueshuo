@@ -6,11 +6,6 @@ from pathlib import Path
 
 import pytest
 
-from shuxueshuo_server.solver.runtime.functional_subplan import (
-    MacroSearchSelection,
-    SingleFragmentSelection,
-    VerifiedSubplanExecution,
-)
 from shuxueshuo_server.solver.runtime.functional_goal_execution import (
     FunctionalGoalExecutionCheckpoint,
     VerifiedFunctionalPlanExecution,
@@ -29,18 +24,6 @@ ROOT = Path(__file__).resolve().parents[3]
 SCHEMAS = ROOT / "internal" / "schemas"
 
 
-def _execution_evidence(root_scope):
-    scopes = [root_scope]
-    while scopes:
-        scope = scopes.pop()
-        scopes.extend(scope.children)
-        for step in (
-            *scope.scope_steps,
-            *(item for goal in scope.goals for item in goal.steps),
-        ):
-            yield from step.evidence
-
-
 def _execution_steps(root_scope):
     scopes = [root_scope]
     while scopes:
@@ -51,7 +34,7 @@ def _execution_steps(root_scope):
             yield from goal.steps
 
 
-def test_verified_execution_uses_one_generic_macro_subplan(tmp_path) -> None:
+def test_verified_execution_uses_materialized_macro_function_steps(tmp_path) -> None:
     result, _fixture = _execute(
         tmp_path,
         "tj-2026-heping-yimo-25",
@@ -70,27 +53,27 @@ def test_verified_execution_uses_one_generic_macro_subplan(tmp_path) -> None:
     assert restored.execution_id == verified.execution_id
     assert restored.execution_signature == verified.execution_signature
 
-    subplans = tuple(
-        item
-        for item in _execution_evidence(verified.root_scope)
-        if isinstance(item, VerifiedSubplanExecution)
+    assert len(result.macro_expansions) == 1
+    expansion = result.macro_expansions[0]
+    assert checkpoint.macro_expansions == result.macro_expansions
+    authored_ids = {step.step_id for step in result.canonical_plan.steps}
+    assert expansion.macro_step_id not in authored_ids
+    assert set(expansion.generated_step_ids) <= authored_ids
+    execution_steps = {
+        step.step_id: step for step in _execution_steps(verified.root_scope)
+    }
+    assert all(
+        execution_steps[step_id].status == "runtime_verified"
+        for step_id in expansion.generated_step_ids
     )
-    macro_subplans = tuple(
-        item
-        for item in subplans
-        if isinstance(item.selection, MacroSearchSelection)
-    )
-    assert len(macro_subplans) == 1
-    subplan = macro_subplans[0]
-    assert VerifiedSubplanExecution.from_payload(
-        subplan.to_payload()
-    ).execution_signature == subplan.execution_signature
-    assert subplan.witness.standard_results["minimum_expression"] == (
-        "3*sqrt(2*a**2 + 1)/Abs(a)"
-    )
-    assert {
-        item.check_code for item in subplan.clean_execution.verification
-    } >= {"distance_equality", "path_minimum_attained"}
+    export_step_id, export_return = expansion.export_map[
+        "minimum_expression"
+    ]
+    export_outputs = {
+        item["return"]: item
+        for item in execution_steps[export_step_id].actual_outputs
+    }
+    assert export_return in export_outputs
 
     mutated = verified.to_payload()
     mutated["problem_semantic_hash"] = "drift"
@@ -98,7 +81,7 @@ def test_verified_execution_uses_one_generic_macro_subplan(tmp_path) -> None:
         VerifiedFunctionalPlanExecution.from_payload(mutated)
 
 
-def test_non_path_macro_uses_same_verified_execution_envelope(tmp_path) -> None:
+def test_non_search_capabilities_remain_ordinary_execution_steps(tmp_path) -> None:
     result, _fixture = _execute(
         tmp_path,
         "tj-2026-nankai-yimo-25",
@@ -107,13 +90,7 @@ def test_non_path_macro_uses_same_verified_execution_envelope(tmp_path) -> None:
     verified = result.verified_execution
 
     assert verified is not None
-    evidence = tuple(_execution_evidence(verified.root_scope))
-    assert evidence
-    assert all(isinstance(item, VerifiedSubplanExecution) for item in evidence)
-    assert any(
-        isinstance(item.selection, SingleFragmentSelection)
-        for item in evidence
-    )
+    assert result.macro_expansions == ()
     assert any(step.actual_outputs for step in _execution_steps(verified.root_scope))
     assert VerifiedFunctionalPlanExecution.from_payload(
         verified.to_payload()

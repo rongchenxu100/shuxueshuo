@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 import json
 from typing import Any
 
@@ -12,12 +12,21 @@ from shuxueshuo_server.solver.extraction.problem_planning_binding import (
 from shuxueshuo_server.solver.extraction.problem_planning_context import (
     ProblemPlanningContext,
 )
+from shuxueshuo_server.solver.extraction.source_identity import stable_hash
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
     family_capability_bundle_for_inputs,
 )
 from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
     FunctionalRestoredCallSeed,
+    merge_macro_materialization_prefix_report,
+)
+from shuxueshuo_server.solver.runtime.macro_plan_materialization import (
+    MacroExpansionRecord,
+    MacroWinnerPlanMaterializationRequired,
+    materialize_macro_winner,
+    rebase_macro_expansion_records,
+    verify_macro_expansion_clean_outputs,
 )
 from shuxueshuo_server.solver.runtime.handle_registry import (
     CanonicalHandleRegistry,
@@ -38,6 +47,7 @@ from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
     ScopedFunctionalPlanError,
     ScopedFunctionalPlanValidationReport,
     ScopedFunctionalPlanValidator,
+    scoped_functional_plan_id,
 )
 from shuxueshuo_server.solver.runtime.strategy_models import StrategyPrompt
 from shuxueshuo_server.solver.runtime.strategy_payload import (
@@ -55,6 +65,32 @@ class ScopedFunctionalPlanReplayResult:
     validation_report: ScopedFunctionalPlanValidationReport
     authority: ScopedFunctionalPlanAuthority
     replay: PlannerRetryReplayResult
+    macro_expansions: tuple[MacroExpansionRecord, ...] = ()
+
+
+def _merge_materialization_prefix_replay(
+    result: ScopedFunctionalPlanReplayResult,
+    prefix_report: Any | None,
+) -> ScopedFunctionalPlanReplayResult:
+    replay = result.replay
+    attempt = replay.transactional_attempt_result
+    if prefix_report is None or attempt is None:
+        return result
+    merged_report = merge_macro_materialization_prefix_report(
+        attempt.execution_report,
+        prefix_report,
+    )
+    return replace(
+        result,
+        replay=replace(
+            replay,
+            transactional_execution_report=merged_report,
+            transactional_attempt_result=replace(
+                attempt,
+                execution_report=merged_report,
+            ),
+        ),
+    )
 
 
 @dataclass(frozen=True)
@@ -81,6 +117,7 @@ class ScopedFunctionalPlanReplayService:
         problem_payload: dict[str, Any],
         attempt: int = 0,
         restored_seed: FunctionalRestoredCallSeed | None = None,
+        macro_expansions: tuple[MacroExpansionRecord, ...] = (),
     ) -> ScopedFunctionalPlanReplayResult:
         scoped, validation = (
             ScopedFunctionalPlanValidator().validate_json_with_report(
@@ -94,11 +131,12 @@ class ScopedFunctionalPlanReplayService:
                 first.path,
                 first.message,
             )
+        capability_catalog = family_capability_bundle_for_inputs(inputs).catalog
         authority = ScopedFunctionalPlanAuthorityAdapter().lower(
             scoped,
             planning_context=planning_context,
             binding_catalog=problem_binding_catalog,
-            capability_catalog=family_capability_bundle_for_inputs(inputs).catalog,
+            capability_catalog=capability_catalog,
         )
         replay_service = PlannerRetryReplayService(
             functional_transaction_mode="context_authoritative",
@@ -145,21 +183,81 @@ class ScopedFunctionalPlanReplayService:
                 issues=finalization_report.issues,
                 normalizations=finalization_report.normalizations,
             )
-        replay = replay_service.execute_reconciled_functional_plan(
-            prepared,
-            raw_plan=finalized.lowered_plan,
-            parent_context=planner_state_context,
-            inputs=inputs,
-            handle_registry=handle_registry,
-            problem_payload=problem_payload,
-            runtime_context=context,
-            finalized_authority=finalized,
-            restored_seed=restored_seed,
-        )
+        try:
+            replay = replay_service.execute_reconciled_functional_plan(
+                prepared,
+                raw_plan=finalized.lowered_plan,
+                parent_context=planner_state_context,
+                inputs=inputs,
+                handle_registry=handle_registry,
+                problem_payload=problem_payload,
+                runtime_context=context,
+                finalized_authority=finalized,
+                restored_seed=restored_seed,
+            )
+        except MacroWinnerPlanMaterializationRequired as signal:
+            materialized, expansion = materialize_macro_winner(
+                finalized.scoped_plan,
+                signal.request,
+                capability_catalog=capability_catalog,
+            )
+            materialized, _normalizations = (
+                ScopedFunctionalPlanAuthorityAdapter().canonicalize(
+                    materialized,
+                    planning_context=planning_context,
+                    binding_catalog=problem_binding_catalog,
+                    capability_catalog=capability_catalog,
+                )
+            )
+            expansion = replace(
+                expansion,
+                materialized_plan_id=scoped_functional_plan_id(materialized),
+                generated_step_signatures={
+                    step.step_id: stable_hash(step.to_payload())
+                    for step in materialized.steps
+                    if step.step_id in expansion.generated_step_ids
+                },
+            )
+            retained_expansions = rebase_macro_expansion_records(
+                macro_expansions,
+                materialized,
+            )
+            result = self.replay_raw_json(
+                json.dumps(materialized.to_payload(), ensure_ascii=False),
+                inputs=inputs,
+                planning_context=planning_context,
+                problem_binding_catalog=problem_binding_catalog,
+                handle_registry=handle_registry,
+                context=context,
+                planner_state_context=planner_state_context,
+                problem_payload=problem_payload,
+                attempt=attempt,
+                restored_seed=(
+                    signal.restored_seed
+                    if signal.restored_seed is not None
+                    else restored_seed
+                ),
+                macro_expansions=(*retained_expansions, expansion),
+            )
+            result = _merge_materialization_prefix_replay(
+                result,
+                signal.prefix_report,
+            )
+            attempt_result = result.replay.transactional_attempt_result
+            verify_macro_expansion_clean_outputs(
+                expansion,
+                (
+                    attempt_result.execution_report
+                    if attempt_result is not None
+                    else None
+                ),
+            )
+            return result
         return ScopedFunctionalPlanReplayResult(
             validation_report=validation,
             authority=finalized,
             replay=replay,
+            macro_expansions=macro_expansions,
         )
 
     def replay_content_json(
@@ -203,11 +301,13 @@ class ScopedFunctionalPlanReplayService:
             problem_payload=problem_payload,
             attempt=attempt,
             restored_seed=restored_seed,
+            macro_expansions=(),
         )
         return ScopedFunctionalPlanReplayResult(
             validation_report=compilation.report,
             authority=result.authority,
             replay=result.replay,
+            macro_expansions=result.macro_expansions,
         )
 
 

@@ -1982,6 +1982,14 @@ def _source_identity(
     object_registry: MathObjectRegistry | None,
     prefer_call_result: bool = False,
 ) -> FunctionalArgSourceIdentity:
+    # A predicate return is published as an exact Condition.  Its
+    # CallResultRef is only the DAG edge used to reach that authority and must
+    # not replace the published Condition identity during F5-C finalization.
+    if value.condition_id is not None:
+        return FunctionalArgSourceIdentity(
+            kind="condition",
+            condition_id=value.condition_id,
+        )
     if (
         prefer_call_result
         and value.source_call_id is not None
@@ -1992,8 +2000,6 @@ def _source_identity(
             source_call_id=value.source_call_id,
             source_return_name=value.return_name,
         )
-    if value.condition_id is not None:
-        return FunctionalArgSourceIdentity(kind="condition", condition_id=value.condition_id)
     if value.state_version_id is not None:
         return FunctionalArgSourceIdentity(
             kind="state_version",
