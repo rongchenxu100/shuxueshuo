@@ -17,6 +17,7 @@ from shuxueshuo_server.solver.runtime.methods import (
     AngleSumEqualAngleCandidatesMethod,
     AxisInterceptFromEqualAcuteAnglesMethod,
     BrokenPathStraighteningCandidatesMethod,
+    CertifyMinimumExpressionMethod,
     DistanceBetweenPointsMethod,
     EqualLengthRayPointMethod,
     EvaluateExpressionAtParameterMethod,
@@ -35,6 +36,7 @@ from shuxueshuo_server.solver.runtime.methods import (
     PointOnParabolaAtXMethod,
     PointCandidatesFromCurvePointConditionMethod,
     ParameterizedPointLocusLineMethod,
+    ProveCoupledSegmentEndpointDistanceEqualityMethod,
     QuadraticAxisFromRelationMethod,
     QuadraticAxisParameterizedPointMethod,
     QuadraticFromConstraintsMethod,
@@ -50,10 +52,15 @@ from shuxueshuo_server.solver.runtime.methods import (
     SquarePathDimensionReductionMethod,
     TwoMovingPointsPathReductionMethod,
     TranslatedPointMethod,
+    RewritePathTargetByDistanceEqualityMethod,
+    VerifyTwoSegmentPathAttainmentMethod,
     WeightedAxisPathTriangleTransformMethod,
 )
 from shuxueshuo_server.solver.runtime.models import PointRef
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
+from shuxueshuo_server.solver.runtime.runtime_value_signature import (
+    runtime_value_signature,
+)
 from shuxueshuo_server.solver.runtime.symbolic_target_closure import (
     solve_target_symbol_closure,
 )
@@ -65,6 +72,15 @@ from shuxueshuo_server.solver.runtime.methods.quadratic_from_constraints import 
     analyze_quadratic_constraints,
     equivalent_quadratic_free_parameter_bases,
 )
+
+
+def _typed_point_ref(name: str, scope_id: str = "ii") -> PointRef:
+    return PointRef(
+        name,
+        f"$question.{scope_id}.points.{name}",
+        definition={"entity_handle": f"point:{scope_id}:{name}"},
+        scope_id=scope_id,
+    )
 
 
 @pytest.mark.parametrize(
@@ -1986,6 +2002,173 @@ def test_two_moving_points_path_reduction_method() -> None:
         "fact:ii:segment_DE_eq_sqrt2_NG",
     ]
     assert all(check.ok for check in result.checks)
+
+
+def _nankai_coupled_function_inputs(kernel: SympyKernel) -> dict[str, object]:
+    m = kernel.symbols(["m"])["m"]
+    return {
+        "first_moving_membership": {
+            "type": "point_on_segment",
+            "object_roles": {
+                "point": ["point:ii:E"],
+                "segment": ["segment:ii:DM"],
+                "segment_endpoint": ["point:problem:D", "point:ii:M"],
+            },
+        },
+        "second_moving_membership": {
+            "type": "point_on_segment",
+            "object_roles": {
+                "point": ["point:ii:G"],
+                "segment": ["segment:ii:MN"],
+                "segment_endpoint": ["point:ii:M", "point:ii:N"],
+            },
+        },
+        "binding_relation": {
+            "type": "segment_length_relation",
+            "scale": sp.sqrt(2),
+            "object_roles": {
+                "endpoint": ["point:problem:D", "point:ii:E"],
+                "reference_endpoint": ["point:ii:N", "point:ii:G"],
+            },
+        },
+        "first_moving_point": _typed_point_ref("E"),
+        "second_moving_point": _typed_point_ref("G"),
+        "first_track_fixed_endpoint": (sp.Integer(1), sp.Integer(0)),
+        "first_track_fixed_endpoint_ref": _typed_point_ref("D", "problem"),
+        "joint_point": (m, sp.Integer(1)),
+        "joint_point_ref": _typed_point_ref("M"),
+        "second_track_fixed_endpoint": (sp.Integer(2), 1 - m),
+        "second_track_fixed_endpoint_ref": _typed_point_ref("N"),
+    }
+
+
+def test_coupled_segment_function_proves_endpoint_distance_equality() -> None:
+    kernel = SympyKernel()
+    result = ProveCoupledSegmentEndpointDistanceEqualityMethod().run(
+        _nankai_coupled_function_inputs(kernel),
+        kernel,
+    )
+
+    assert result.outputs["verified"].value is True
+    assert all(check.ok for check in result.checks)
+
+
+def test_coupled_segment_function_rejects_mismatched_membership_roles() -> None:
+    kernel = SympyKernel()
+    inputs = _nankai_coupled_function_inputs(kernel)
+    inputs["first_moving_membership"] = {
+        "type": "point_on_segment",
+        "object_roles": {
+            "point": ["point:ii:E"],
+            "segment_endpoint": ["point:ii:N", "point:ii:M"],
+        },
+    }
+
+    with pytest.raises(StatelessMethodError) as error:
+        ProveCoupledSegmentEndpointDistanceEqualityMethod().run(inputs, kernel)
+
+    assert error.value.code == "functional.method_input_invalid"
+    assert error.value.authority.subjects[0].arg_name == (
+        "first_moving_membership"
+    )
+
+
+def test_nankai_path_rewrite_and_symbolic_affine_attainment() -> None:
+    kernel = SympyKernel()
+    m = kernel.symbols(["m"])["m"]
+    reflected_d = (m + 1, 2 - m)
+    minimizing_g = ((m + 4) / 3, (3 - 2 * m) / 3)
+    midpoint_f = (sp.Rational(3, 2), (1 - m) / 2)
+    equality = {
+        "kind": "distance_equality",
+        "object_roles": {
+            "first_moving_point": ["point:ii:E"],
+            "second_moving_point": ["point:ii:G"],
+            "first_track_fixed_endpoint": ["point:problem:D"],
+        },
+    }
+    rewritten = RewritePathTargetByDistanceEqualityMethod().run(
+        {
+            "path_minimum_target": {
+                "type": "path_minimum_target",
+                "path": "EG+FG",
+                "terms": [
+                    ["point:ii:E", "point:ii:G"],
+                    ["point:ii:F", "point:ii:G"],
+                ],
+            },
+            "distance_equality": equality,
+            "replacement_start": (sp.Integer(1), sp.Integer(0)),
+            "replacement_start_ref": _typed_point_ref("D", "problem"),
+            "via": minimizing_g,
+            "via_ref": _typed_point_ref("G"),
+            "end": midpoint_f,
+            "end_ref": _typed_point_ref("F"),
+        },
+        kernel,
+    )
+    candidate = sp.simplify(kernel.distance(reflected_d, midpoint_f))
+    attainment = VerifyTwoSegmentPathAttainmentMethod().run(
+        {
+            "objective": rewritten.outputs["expression"].value,
+            "candidate": candidate,
+            "candidate_point": minimizing_g,
+            "path_start": (sp.Integer(1), sp.Integer(0)),
+            "path_end": midpoint_f,
+            "segment_start": (m, sp.Integer(1)),
+            "segment_end": (sp.Integer(2), 1 - m),
+            "domain_condition": {
+                "type": "symbol_constraint",
+                "subject": "symbol:problem:m",
+                "operator": ">",
+                "value": sp.Integer(2),
+            },
+        },
+        kernel,
+    )
+
+    assert sp.simplify(candidate**2 - 5 * (m**2 - 2 * m + 2) / 4) == 0
+    assert attainment.outputs["verified"].value is True
+
+
+def test_minimum_certification_requires_the_attained_candidate_value() -> None:
+    kernel = SympyKernel()
+    m = kernel.symbols(["m"])["m"]
+    candidate = sp.sqrt(5 * m**2 - 10 * m + 10) / 2
+    condition = {
+        "kind": "path_minimum_attained",
+        "result_roles": {
+            "candidate": ["compute_candidate.distance"],
+        },
+        "attested_value_signatures": {
+            "candidate": runtime_value_signature(candidate),
+        },
+    }
+
+    result = CertifyMinimumExpressionMethod().run(
+        {
+            "expression": candidate,
+            "attainment_condition": condition,
+        },
+        kernel,
+    )
+    assert sp.simplify(
+        result.outputs["minimum_expression"].value - candidate
+    ) == 0
+
+    with pytest.raises(StatelessMethodError) as error:
+        CertifyMinimumExpressionMethod().run(
+            {
+                "expression": candidate + 1,
+                "attainment_condition": condition,
+            },
+            kernel,
+        )
+
+    assert error.value.code == "functional.method_input_invalid"
+    assert error.value.authority.subjects[0].role == (
+        "path_minimum_candidate"
+    )
 
 
 def test_broken_path_straightening_candidates_method() -> None:

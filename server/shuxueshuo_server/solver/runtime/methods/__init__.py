@@ -52,6 +52,7 @@ from .line_locus_minimum_point import LineLocusMinimumPointMethod, SPEC as LINE_
 from .path_verification_primitives import (
     PATH_VERIFICATION_METHODS,
     PATH_VERIFICATION_SPECS,
+    CertifyMinimumExpressionMethod,
     ConstructPointOnRayAtReferenceDistanceMethod,
     DistanceSumExpressionMethod,
     ProveDistanceEqualityFromConditionsMethod,
@@ -61,6 +62,12 @@ from .path_verification_primitives import (
     VerifyPointOnClosedSegmentMethod,
     VerifyPointOnRayMethod,
     VerifyTwoSegmentPathAttainmentMethod,
+)
+from .coupled_segment_path_functions import (
+    COUPLED_SEGMENT_PATH_METHODS,
+    COUPLED_SEGMENT_PATH_SPECS,
+    ProveCoupledSegmentEndpointDistanceEqualityMethod,
+    RewritePathTargetByDistanceEqualityMethod,
 )
 
 ALL_METHOD_SPEC_SOURCES = (
@@ -102,6 +109,7 @@ ALL_METHOD_SPEC_SOURCES = (
     PARAMETERIZED_POINT_LOCUS_LINE_SPEC,
     LINE_LOCUS_MINIMUM_POINT_SPEC,
     *PATH_VERIFICATION_SPECS,
+    *COUPLED_SEGMENT_PATH_SPECS,
 )
 
 
@@ -151,6 +159,7 @@ def default_stateless_registry() -> StatelessMethodRegistry:
         ParameterizedPointLocusLineMethod(),
         LineLocusMinimumPointMethod(),
         *(method_cls() for method_cls in PATH_VERIFICATION_METHODS),
+        *(method_cls() for method_cls in COUPLED_SEGMENT_PATH_METHODS),
     ]
     return StatelessMethodRegistry({method.method_id: method for method in methods})
 
@@ -207,4 +216,6 @@ __all__ = [
     "VerifyPointOnClosedSegmentMethod",
     "DistanceSumExpressionMethod",
     "VerifyTwoSegmentPathAttainmentMethod",
+    "ProveCoupledSegmentEndpointDistanceEqualityMethod",
+    "RewritePathTargetByDistanceEqualityMethod",
 ]

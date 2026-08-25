@@ -1,7 +1,7 @@
 # 路径最值 Macro 重构
 
-状态：F5-F4.1、F5-F4.2、F5-F4.2R、F5-F4.3A与F5-F4.3B已完成；
-当前下一阶段是F5-F4.3C标准路径与两动点路径。
+状态：F5-F4.1、F5-F4.2、F5-F4.2R、F5-F4.3A、F5-F4.3B与
+F5-F4.3C1已完成；当前下一阶段是F5-F4.3C2透明Macro展开。
 
 统一运行时权威链记录在
 [F5-F4.2运行时权威收敛](problem-extraction-context-implementation-plan.md#f5-f4-2-runtime-authority-convergence)。
@@ -188,7 +188,7 @@ F4.3A已经删除四条companion字符串selector和standalone debug角色provid
 
 | 题目 | 当前公开调用链 | 实际内部Method链 | F4.3目标 |
 |---|---|---|---|
-| 南开一模 | `right_angle_equal_length_construct_and_select` -> `two_moving_points_path_reduction` -> `broken_path_straightening_minimum_expression` | 候选构造/筛选；两动点降维；拉直候选/选择/距离 | 保留构造Macro；后两段替换为`two_moving_points_path_minimum`，并提供通用`single_moving_point_path_minimum` |
+| 南开一模 | `right_angle_equal_length_construct_and_select` -> `two_moving_points_path_reduction` -> `broken_path_straightening_minimum_expression` | 候选构造/筛选；两动点降维；拉直候选/选择/距离 | 保留构造Macro；后两段替换为`coupled_segment_endpoint_replacement_path_minimum`，并提供通用`single_moving_point_path_minimum` |
 | 河西一模 | `curve_candidate_parameter_solve` -> `weighted_axis_path_triangle_transform` -> `linked_broken_path_minimum_expression` | 曲线筛选/参数求解；加权三角形构造；联动折线最值 | 保留曲线筛选Macro；后两段合并为`weighted_axis_path_minimum` |
 | 西青一模 | `weighted_axis_path_triangle_transform` -> `linked_broken_path_minimum_expression` | 与河西相同的两段加权路径链 | 合并为`weighted_axis_path_minimum` |
 | 和平一模 | `equal_length_ray_path_reduction` | 等长辅助点构造 -> 距离计算，并由pre-binding search确定角色 | 保留公开capability ID，迁入F4.3B通用fragment与witness协议 |
@@ -238,7 +238,7 @@ broken_path_straightening_minimum_expression
 |---|---|---|
 | F4.3B可直接删除 | `broken_path_straightening_and_select` | 五题和few-shot均不消费，且已不向LLM公开；删除独立Recipe/compiler分支，底层通用Function按需保留 |
 | F4.3B可直接删除 | `path_minimum_by_straightened_distance` | 只是`distance_between_points`的一层Macro别名；显式Plan直接调用Function Capability |
-| F4.3C迁移后删除 | `two_moving_points_path_reduction` | 删除同名一Method Macro与策略Method；其数学证明拆为普通Function/predicate并由`two_moving_points_path_minimum`展开 |
+| F4.3C迁移后删除 | `two_moving_points_path_reduction` | 删除同名一Method Macro与策略Method；其数学证明拆为普通Function/predicate并由`coupled_segment_endpoint_replacement_path_minimum`展开 |
 | F4.3D迁移后删除 | `broken_path_straightening_minimum_expression` | C完成后只允许作为和平二模迁移期临时依赖；D完成后由`single_moving_point_path_minimum`/`square_relation_path_minimum`取代 |
 | F4.3D迁移后删除 | `square_path_dimension_reduction` | 删除Planner-facing策略Method；正方形关系证明进入透明Macro fragment |
 | F4.3E迁移后删除 | `weighted_axis_path_triangle_transform` | 与下一项共同被`weighted_axis_path_minimum`取代 |
@@ -484,12 +484,12 @@ internal:
   普通step evidence + MacroExpansionRecord（标准Entity、Condition与Scalar输出）
 ```
 
-### 5.3 两动点路径
+### 5.3 耦合线段端点替换路径
 
 当前公开 `two_moving_points_path_reduction -> PathWitness`，目标替换为：
 
 ```text
-two_moving_points_path_minimum
+coupled_segment_endpoint_replacement_path_minimum
 
 input:
   path_minimum_target Fact
@@ -511,6 +511,13 @@ internal:
 ```
 
 `two_moving_points_path_reduction` 不再作为 Planner 可见的独立阶段。
+
+公共Macro ID按数学机制命名，不按动点数量命名。该Macro只覆盖“两个动点分别位于
+具有公共端点的线段上，长度或比例绑定能够证明两动点线段等于已有固定端点到剩余动点
+线段”的结构；它不宣称覆盖所有双动点路径题。`coupled_moving_points`、
+`dimension_reduction`、`fixed_endpoint_replacement`和`path_minimum`只作为检索与
+Family匹配标签。等长射线、正方形和加权辅助点虽然也可能把双动点降为单动点，仍分别由
+对应数学机制的Macro处理，最终共享普通轨迹、反射、距离和达到性Function。
 
 ### 5.4 拉直与距离
 
@@ -734,7 +741,7 @@ postcondition 与 evidence builder 的 Macro 保持 `direct`，不能提前改�
 flowchart LR
   A["F4.3A<br/>伴随输出权威"]
   B["F4.3B<br/>通用可验证子图内核<br/>与透明Macro展开"]
-  C["F4.3C<br/>标准路径与两动点路径"]
+  C["F4.3C<br/>标准路径与耦合线段端点替换"]
   D["F4.3D<br/>正方形路径"]
   E["F4.3E<br/>加权路径"]
   F["F4.3F<br/>Planner协议清理"]
@@ -1195,7 +1202,7 @@ Condition及最终标准输出。Goal execution与Scoped replay现在共用同�
 新生成的普通Function step建立最终per-call F5-C binding。复审补强后的L2 contract为
 `2370 passed`，schema snapshot与`git diff --check`均通过；未重复运行付费LLM冒烟。
 
-### 6.3 F4.3C：标准路径与两动点路径
+### 6.3 F4.3C：标准路径与耦合线段端点替换（C1完成；C2下一项）
 
 目标：迁移 `quadratic_path_minimum` family，并优先解决南开题中 Planner 需要拼装
 PathTransformation、端点和拉直步骤导致的超长输出。
@@ -1205,10 +1212,66 @@ steps，再与LLM显式Plan共用现有typed graph、F5-C、step executor、chec
 不得保留Recipe或fragment clean执行旁路。等价门禁比较alpha-normalized普通step图、标准输出、
 Condition、exact version和provenance，而不是只比较最终表达式或额外执行信封。
 
-公开能力：
+#### 6.3.1 C1：显式Function解法闭环（COMPLETE）
+
+C1没有新增Macro，也没有切换生产南开fixture。它先证明LLM只使用普通Function steps就能完成
+同一条数学证明链：
 
 ```text
-two_moving_points_path_minimum
+结构化Fact
+-> 证明EG=DG
+-> 反射D得到D'
+-> 求D'F与MN的交点G
+-> 将EG+FG改写为DG+GF
+-> 验证D'F可达且为全局最小值
+-> 发布minimum_expression
+```
+
+新增公开Function：
+
+- `prove_coupled_segment_endpoint_distance_equality`消费两个`point_on_segment`、一个
+  `segment_length_relation`以及明确的Point角色，runtime Method只返回Boolean；为true时由统一
+  Predicate门禁发布`distance_equality` Condition；
+- `rewrite_path_target_by_distance_equality`消费精确`path_minimum_target`与上一步Condition，验证
+  对象角色后输出标准`Expression`，不按点名、description或Context顺序猜测；
+- `certify_minimum_expression`的标准return现在显式携带`path_minimum_expression`语义角色。最终
+  answer closure接受两种完整证明族：旧Macro的verified witness，或标准
+  `path_minimum_attained` Condition；两者都必须保留可见path target与最小值表达式。Predicate
+  Condition同时钉住`candidate`精确结果角色与规范化运行值签名，认证步骤必须消费同一候选值，
+  不能再用任意Expression借用另一个attainment Condition过门。
+
+Capability assembly新增`path_verification_core`与
+`coupled_segment_endpoint_replacement_core`。前者由等长射线与南开family复用，并拥有通用
+`rewrite_path_target_by_distance_equality`；后者只加入耦合结构专用的
+`prove_coupled_segment_endpoint_distance_equality`和策略说明，不注册Macro。旧
+`two_moving_points_path_reduction`与新Function暂时共用`coupled_segment_endpoint_residuals`纯数学
+helper，避免迁移期维护两份公式。
+
+Condition authority从ProblemIR结构化字段生成`point_on_segment`、
+`segment_length_relation`与`path_minimum_target`对象角色；Method不解析handle名称。闭线段达到性
+先证明统一仿射参数`point=start+lambda(end-start)`及`0<=lambda<=1`，单符号范围推理支持任意
+结构化边界，不硬编码`m>2`。直达交点位于路径延长线但不在线段上时稳定淘汰，不再误作可达候选。
+
+独立fixture`nankai_coupled_segment.json`替换测试副本中的旧路径两步，并把`ii_2.G`改为对共享
+`G`执行`evaluate_point_at_parameter`。完整assembly、typed graph、F5-C、transaction、六个Goal、
+Predicate publication与checkpoint均通过；测试禁止调用路径Macro preparation，并验证：
+
+```text
+D' = (m+1, 2-m)
+G  = ((m+4)/3, (3-2m)/3)
+minimum = sqrt(5*m^2-10*m+10)/2
+ii_2.G = (4, -13/3)
+```
+
+生产五题recorded Plan仍走原路径，结果没有切换。C1定向组合为`205 passed`，L0 affected为
+`683 passed, 9 deselected`，补齐静态契约后L2 contract为`2377 passed`；未运行L3或付费LLM冒烟。
+
+#### 6.3.2 C2：透明Macro展开（NEXT）
+
+C2计划公开能力：
+
+```text
+coupled_segment_endpoint_replacement_path_minimum
 single_moving_point_path_minimum
 ```
 
@@ -1217,7 +1280,7 @@ single_moving_point_path_minimum
 - 已知路线下Planner只传path target、运动约束/绑定Fact、题面Entity与可选角色hint；
 - Macro blueprint同时向LLM公开降维、轨迹恢复、拉直、端点构造、距离与最值证明的完整
   数学思路及可展开Function Capability，不把这些语义只藏进实现；
-- Macro模板与LLM显式组合的标准/两动点fragment都复用F4.3B的通用candidate、Condition
+- Macro模板与LLM显式组合的标准/耦合线段端点替换fragment都复用F4.3B的通用candidate、Condition
   publication、execution与witness协议；
 - `PathTransformation`、内部端点和 Method 连线不进入 prompt；
 - family 的 Registry 实现完整后，原子地从 `direct` 切换为 `runtime_search`；
@@ -1227,14 +1290,28 @@ single_moving_point_path_minimum
 - `broken_path_straightening_minimum_expression`在本阶段从南开family移除，但为避免跨family
   半迁移，只允许作为和平二模迁移期依赖保留到F4.3D，不得再被新fixture或few-shot引用。
 
+C2只实现Macro定义、角色候选与展开模板：
+
+- `coupled_segment_endpoint_replacement_path_minimum`必须展开为C1已经验证的普通Function steps，
+  不调用旧`two_moving_points_path_reduction`或隐藏Path Method；
+- candidate search只选择结构角色与合法展开，不拥有第二套几何公式；winner物化后仍走普通Plan；
+- Macro物化step图与独立C1 fixture做alpha-normalized graph、Condition、F5-C、exact version、
+  provenance和标准输出等价比较；
+- C2仍不切换生产fixture，不删除旧Macro，不运行付费live。
+
+#### 6.3.3 C3：生产切换与物理删除（PENDING）
+
+C3将南开recorded Plan切换到C2 Macro，运行南开定向live`1x3`，然后删除旧
+`two_moving_points_path_reduction`公开Macro/Method、PathTransformation return及南开对
+`broken_path_straightening_minimum_expression`的引用。只有C3完成后，F4.3C才整体关闭。
+
 测试与提交：
 
 ```text
-L0 affected + L2 contract
-南开定向 live 1x3
-单 provider attempt 为目标
-finish_reason=length 数量 == 0
-commit: refactor(solver): migrate standard path minimum macro
+C1: L0 affected + L2 contract
+C2: L0 affected + L2 contract
+C3: L0 affected + L2 contract + 南开定向live 1x3
+C3 live目标: single provider attempt，finish_reason=length数量 == 0
 ```
 
 ### 6.4 F4.3D：正方形路径
@@ -1405,8 +1482,9 @@ configuration / unclassified error == 0
 
 ## 9. 当前下一步
 
-下一项实现是 **F4.3C 标准路径与两动点路径**。F4.3A已经关闭输出侧
-字符串selector与等长射线平行角色owner；B先证明Macro模板和LLM显式Plan能够产生同一种
-可验证fragment，并由通用candidate、Condition publication与witness协议执行，再迁后续
-family。新能力不得重新引入按名称、类型或Context顺序选择输出对象的helper，不得把数学
-证明只放进Macro专用adapter，也不得新增路径最值或其他题型专用执行类型。
+下一项实现是 **F4.3C2 透明Macro展开**。F4.3A已经关闭输出侧字符串selector与等长射线
+平行角色owner；B已经把Macro winner物化为普通Function steps；C1已经证明南开耦合线段
+端点替换可由独立LLM-style普通Plan完成。C2只能把同一组Function steps注册为Macro展开，
+并比较typed graph、Condition、exact authority与provenance，不得重新引入按名称、类型或
+Context顺序选择对象的helper，不得把数学证明只放进Macro专用adapter，也不得新增路径最值
+或其他题型专用执行类型。生产fixture切换、live验收与旧Path链删除留到C3。

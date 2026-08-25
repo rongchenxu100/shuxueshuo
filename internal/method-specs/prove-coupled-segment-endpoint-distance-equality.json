@@ -1,0 +1,148 @@
+{
+  "method_id": "prove_coupled_segment_endpoint_distance_equality",
+  "title": "证明耦合线段端点替换等长",
+  "description": "Prove that a coupled moving segment equals one fixed-endpoint segment.",
+  "summary": "由两个动点的线段归属、绑定长度关系和三个位形点的精确状态，证明两动点线段可替换为已有固定端点到第二动点的等长线段。",
+  "solves": [
+    "prove_coupled_segment_endpoint_distance_equality"
+  ],
+  "inputs": {
+    "first_moving_membership": {
+      "required": true,
+      "domain_type": "Fact",
+      "runtime_type": "Condition",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "Fact"
+      }
+    },
+    "second_moving_membership": {
+      "required": true,
+      "domain_type": "Fact",
+      "runtime_type": "Condition",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "Fact"
+      }
+    },
+    "binding_relation": {
+      "required": true,
+      "domain_type": "Fact",
+      "runtime_type": "Condition",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "Fact"
+      }
+    },
+    "first_moving_point": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "PointRef",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    },
+    "second_moving_point": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "PointRef",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    },
+    "first_track_fixed_endpoint": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    },
+    "first_track_fixed_endpoint_ref": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "PointRef",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    },
+    "joint_point": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    },
+    "joint_point_ref": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "PointRef",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    },
+    "second_track_fixed_endpoint": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    },
+    "second_track_fixed_endpoint_ref": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "PointRef",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    }
+  },
+  "outputs": {
+    "verified": "Boolean"
+  },
+  "is_pure": true,
+  "predicate_publications": [
+    {
+      "output_name": "verified",
+      "condition_kind": "distance_equality",
+      "related_input_roles": [
+        "first_moving_point",
+        "second_moving_point",
+        "first_track_fixed_endpoint"
+      ]
+    }
+  ],
+  "preconditions": [
+    "两个动点分别位于共享端点的两条非退化线段上",
+    "绑定关系分别连接第一固定端点与第一动点、第二固定端点与第二动点"
+  ],
+  "postconditions": [
+    "发布固定端点替换所需的精确 distance_equality Condition"
+  ]
+}

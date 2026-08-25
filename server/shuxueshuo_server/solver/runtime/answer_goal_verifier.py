@@ -1319,7 +1319,9 @@ def _minimum_goal_issue(
             for handle in (item.produced_handle, *item.source_handles)
         )
         has_expression = bool(lineage_roles & expression_roles)
-        has_witness = bool(lineage_roles & witness_roles)
+        has_macro_witness = bool(lineage_roles & witness_roles)
+        has_predicate_witness = "path_minimum_attained" in lineage_roles
+        has_witness = has_macro_witness or has_predicate_witness
         has_path_target = bool(set(lineage_handles) & set(path_targets))
         if not has_expression:
             return _minimum_goal_provenance_issue(
@@ -1348,7 +1350,7 @@ def _minimum_goal_issue(
                 message=(
                     f"{step.step_id} writes a path-minimum answer, but its "
                     "provenance dependency graph does not contain the required "
-                    "path target and straightening witnesses."
+                    "path target and a verified Macro or predicate witness."
                 ),
                 path_targets=path_targets,
                 lineage_handles=lineage_handles,
@@ -1372,11 +1374,20 @@ def _minimum_goal_issue(
         scope_id=step.scope_id,
         handle_registry=handle_registry,
     )
-    if not straightening_witnesses:
+    predicate_witnesses = _goal_evidence_handles(
+        diagnostic,
+        roles=("path_minimum_attained",),
+        scope_id=step.scope_id,
+        handle_registry=handle_registry,
+    )
+    verified_witnesses = unique_ordered(
+        (*straightening_witnesses, *predicate_witnesses)
+    )
+    if not verified_witnesses:
         return None
-    if any(handle in set(step.reads) for handle in straightening_witnesses):
+    if any(handle in set(step.reads) for handle in verified_witnesses):
         return None
-    related = unique_ordered((*path_targets, *straightening_witnesses, *step.reads))
+    related = unique_ordered((*path_targets, *verified_witnesses, *step.reads))
     return PlannerRetryIssue(
         layer="goal_verification",
         code="minimum_goal_lineage_incomplete",
@@ -1389,7 +1400,7 @@ def _minimum_goal_issue(
             "witnesses that prove this expression is the requested final goal."
         ),
         hints=(
-            "路径最值 final answer 需要保留从 path_minimum_target 到拉直方案、端点/距离 witness 的证明链。",
+            "路径最值 final answer 需要保留从 path_minimum_target 到 Macro witness 或 path_minimum_attained Condition 的证明链。",
             "请从该 step 起重写 suffix；不要只把一个 MinimumExpression 当普通表达式代入。",
         ),
         related_handles=related,

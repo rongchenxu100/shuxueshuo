@@ -23,6 +23,9 @@ from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.context import RuntimeContext
 from shuxueshuo_server.solver.runtime.models import StepPlan
 from shuxueshuo_server.solver.runtime.planner_state_context import Condition
+from shuxueshuo_server.solver.runtime.runtime_value_signature import (
+    runtime_value_signature,
+)
 from shuxueshuo_server.solver.utils import unique_ordered
 
 
@@ -38,6 +41,8 @@ class PredicatePublicationAuthority:
     owner_scope: str
     canonical_handle: str
     object_roles: tuple[tuple[str, tuple[str, ...]], ...]
+    result_roles: tuple[tuple[str, tuple[str, ...]], ...]
+    attested_value_signatures: tuple[tuple[str, str], ...]
     runtime_path: str
     allocation_signature: str
     authority_signature: str
@@ -54,6 +59,8 @@ class PredicatePublicationAuthority:
         function_return_name: str,
         allocation: FunctionalReturnAllocation,
         object_roles: tuple[tuple[str, tuple[str, ...]], ...],
+        result_roles: tuple[tuple[str, tuple[str, ...]], ...],
+        attested_value_signatures: tuple[tuple[str, str], ...],
         runtime_path: str,
     ) -> "PredicatePublicationAuthority":
         condition_id = derived_condition_id(
@@ -75,6 +82,10 @@ class PredicatePublicationAuthority:
             "object_roles": {
                 role: list(refs) for role, refs in object_roles
             },
+            "result_roles": {
+                role: list(refs) for role, refs in result_roles
+            },
+            "attested_value_signatures": dict(attested_value_signatures),
             "runtime_path": runtime_path,
             "allocation_signature": stable_hash(allocation.to_payload()),
         }
@@ -89,6 +100,8 @@ class PredicatePublicationAuthority:
             owner_scope=allocation.valid_scope,
             canonical_handle=allocation.state_handle or allocation.handle,
             object_roles=object_roles,
+            result_roles=result_roles,
+            attested_value_signatures=attested_value_signatures,
             runtime_path=runtime_path,
             allocation_signature=payload["allocation_signature"],
             authority_signature=stable_hash(payload),
@@ -109,6 +122,12 @@ class PredicatePublicationAuthority:
             "object_roles": {
                 role: list(refs) for role, refs in self.object_roles
             },
+            "result_roles": {
+                role: list(refs) for role, refs in self.result_roles
+            },
+            "attested_value_signatures": dict(
+                self.attested_value_signatures
+            ),
             "runtime_path": self.runtime_path,
             "allocation_signature": self.allocation_signature,
             "authority_signature": self.authority_signature,
@@ -206,6 +225,17 @@ class PredicateConditionPublicationService:
                         publication,
                         resolved_args=resolved_args,
                     )
+                    result_roles = condition_result_roles_from_resolved_args(
+                        publication,
+                        resolved_args=resolved_args,
+                    )
+                    attested_value_signatures = (
+                        _attested_value_signatures(
+                            publication,
+                            invocation=invocation,
+                            branch=branch,
+                        )
+                    )
                     authority = PredicatePublicationAuthority.create(
                         call_id=call_id,
                         method_id=invocation.method_id,
@@ -214,6 +244,10 @@ class PredicateConditionPublicationService:
                         function_return_name=function_return.name,
                         allocation=allocation,
                         object_roles=roles,
+                        result_roles=result_roles,
+                        attested_value_signatures=(
+                            attested_value_signatures
+                        ),
                         runtime_path=runtime_path,
                     )
                     condition = Condition(
@@ -224,6 +258,10 @@ class PredicateConditionPublicationService:
                         object_roles=authority.object_roles,
                         source_step_id=call_id,
                         valid_scope=authority.owner_scope,
+                        result_roles=authority.result_roles,
+                        attested_value_signatures=(
+                            authority.attested_value_signatures
+                        ),
                     )
                     branch.write_path(
                         runtime_path,
@@ -301,6 +339,56 @@ def _condition_role_object_refs(
         for binding in value.lineage.object_roles
         for ref in binding.object_refs
     )
+
+
+def condition_result_roles_from_resolved_args(
+    publication: PredicatePublicationSpec,
+    *,
+    resolved_args: Mapping[str, Sequence[ResolvedFunctionalValue]],
+) -> tuple[tuple[str, tuple[str, ...]], ...]:
+    """Project exact call-result identities separately from MathObject roles."""
+
+    roles: list[tuple[str, tuple[str, ...]]] = []
+    for role in publication.related_input_roles:
+        result_ids = tuple(
+            unique_ordered(
+                f"{value.source_call_id}.{value.return_name}"
+                for value in resolved_args.get(role, ())
+                if value.source_call_id is not None
+                and value.return_name is not None
+                and value.object_ref is None
+                and value.condition_id is None
+            )
+        )
+        if result_ids:
+            roles.append((role, result_ids))
+    return tuple(roles)
+
+
+def _attested_value_signatures(
+    publication: PredicatePublicationSpec,
+    *,
+    invocation: Any,
+    branch: RuntimeContext,
+) -> tuple[tuple[str, str], ...]:
+    signatures: list[tuple[str, str]] = []
+    for role in publication.attested_input_roles:
+        source = invocation.inputs.get(role)
+        if source is None:
+            raise _contract_error(
+                invocation.invocation_id,
+                invocation.method_id,
+                publication.output_name,
+                f"attested predicate input {role!r} is missing",
+            )
+        paths = source if isinstance(source, tuple) else (source,)
+        values = tuple(
+            branch.read_path(path, from_scope_id=invocation.scope).value
+            for path in paths
+        )
+        value: Any = values[0] if len(values) == 1 else values
+        signatures.append((role, runtime_value_signature(value)))
+    return tuple(signatures)
 
 
 def _contract_error(

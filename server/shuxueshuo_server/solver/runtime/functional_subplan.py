@@ -37,6 +37,9 @@ from shuxueshuo_server.solver.runtime.method_input_read_authority import (
     MethodInputReadAuthority,
     MethodInputReadSource,
 )
+from shuxueshuo_server.solver.runtime.runtime_value_signature import (
+    runtime_value_signature,
+)
 from shuxueshuo_server.solver.runtime.models import (
     MethodInvocation,
     StepGoal,
@@ -700,7 +703,7 @@ class MacroCandidateShadowRunner:
             context.ensure_step_scope(step.step_id, fragment.scope_id)
             invocation_inputs: dict[str, str | tuple[str, ...]] = {}
             input_authorities: dict[str, tuple[MethodInputReadAuthority, ...]] = {}
-            argument_refs: dict[str, str] = {}
+            method_input_refs: dict[str, str] = {}
             source_signatures: list[str] = []
 
             for arg_name, values in step.args.items():
@@ -786,7 +789,8 @@ class MacroCandidateShadowRunner:
                     source_signatures.append(source.authority_signature)
                 invocation_inputs[method_input_name] = path
                 input_authorities[method_input_name] = (authority,)
-                argument_refs[arg_name] = _fragment_argument_ref(value)
+                argument_ref = _fragment_argument_ref(value)
+                method_input_refs[method_input_name] = argument_ref
 
             for returned in active_returns:
                 identity_arg = returned.identity_arg
@@ -945,8 +949,25 @@ class MacroCandidateShadowRunner:
                         "ref": binding.ref if binding is not None else None,
                         "producer_step_id": step.step_id,
                         "related_refs": {
-                            role: argument_refs[role]
+                            role: method_input_refs[role]
                             for role in publication.related_input_roles
+                        },
+                        "result_roles": {
+                            role: [method_input_refs[role]]
+                            for role in publication.attested_input_roles
+                            if isinstance(
+                                input_authorities[role][0].source,
+                                InvocationResultReadSource,
+                            )
+                        },
+                        "attested_value_signatures": {
+                            role: runtime_value_signature(
+                                context.read_path(
+                                    invocation_inputs[role],
+                                    from_scope_id=step.step_id,
+                                ).value
+                            )
+                            for role in publication.attested_input_roles
                         },
                     }
                     condition_path = _fragment_runtime_path(

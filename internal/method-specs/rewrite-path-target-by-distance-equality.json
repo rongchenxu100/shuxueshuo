@@ -1,0 +1,106 @@
+{
+  "method_id": "rewrite_path_target_by_distance_equality",
+  "title": "按距离等式改写两段路径目标",
+  "description": "Rewrite one two-term path target using an exact distance equality.",
+  "summary": "消费结构化两段路径目标和已验证的距离等式，输出使用替换端点后的标准Expression。",
+  "solves": [
+    "rewrite_path_target_by_distance_equality"
+  ],
+  "inputs": {
+    "path_minimum_target": {
+      "required": true,
+      "domain_type": "Fact",
+      "runtime_type": "Condition",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "Fact"
+      }
+    },
+    "distance_equality": {
+      "required": true,
+      "domain_type": "Fact",
+      "runtime_type": "Condition",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "Fact"
+      }
+    },
+    "replacement_start": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    },
+    "replacement_start_ref": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "PointRef",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    },
+    "via": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    },
+    "via_ref": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "PointRef",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    },
+    "end": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    },
+    "end_ref": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "PointRef",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    }
+  },
+  "outputs": {
+    "expression": "Expression"
+  },
+  "is_pure": true,
+  "preconditions": [
+    "path_minimum_target包含恰好两段且共享via",
+    "distance_equality的对象角色与被替换线段完全一致"
+  ],
+  "postconditions": [
+    "输出替换后的两段距离和Expression，不直接声明其为最小值"
+  ]
+}

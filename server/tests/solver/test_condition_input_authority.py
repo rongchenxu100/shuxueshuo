@@ -106,6 +106,35 @@ def test_condition_alias_and_parameter_symbol_identity_are_canonical() -> None:
     assert parameter_constraint.source_ref == "symbol_constraint_m"
 
 
+def test_nankai_coupled_path_conditions_expose_structured_object_roles() -> None:
+    index = _condition_index("tj-2026-nankai-yimo-25")
+    by_ref = {item.source_ref: item for item in index.authorities}
+
+    assert dict(by_ref["point_on_segment_e_dm"].object_role_refs) == {
+        "point": ("point:ii:E",),
+        "segment": ("segment:ii:DM",),
+        "segment_endpoint": ("point:problem:D", "point:ii:M"),
+    }
+    assert dict(by_ref["point_on_segment_g_mn"].object_role_refs) == {
+        "point": ("point:ii:G",),
+        "segment": ("segment:ii:MN",),
+        "segment_endpoint": ("point:ii:M", "point:ii:N"),
+    }
+    assert dict(by_ref["segment_length_relation_de_ng"].object_role_refs) == {
+        "segment": ("segment:ii:DE",),
+        "endpoint": ("point:problem:D", "point:ii:E"),
+        "reference_segment": ("segment:ii:NG",),
+        "reference_endpoint": ("point:ii:N", "point:ii:G"),
+    }
+    assert dict(by_ref["path_minimum_target_e_g_f"].object_role_refs) == {
+        "term_1_endpoint": ("point:ii:E", "point:ii:G"),
+        "term_2_endpoint": ("point:ii:F", "point:ii:G"),
+        "path_point": ("point:ii:E", "point:ii:G", "point:ii:F"),
+        "shared_point": ("point:ii:G",),
+        "outer_point": ("point:ii:E", "point:ii:F"),
+    }
+
+
 def test_sibling_or_descendant_condition_is_not_visible() -> None:
     index = _condition_index("tj-2026-nankai-yimo-25")
 

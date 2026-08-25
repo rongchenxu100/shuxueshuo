@@ -222,6 +222,86 @@ def _segment_condition_roles(
     return ()
 
 
+def _point_on_segment_roles(
+    payload: Mapping[str, Any],
+    *,
+    entity_payloads: Mapping[str, Mapping[str, Any]] | None,
+) -> ConditionObjectRoles:
+    point = payload.get("point")
+    segment = payload.get("segment")
+    if not _is_point_handle(point) or not isinstance(segment, str):
+        raise ConditionRoleResolutionError(
+            "condition.roles_invalid",
+            "point_on_segment requires one Point and one Segment entity",
+            details={"fields": ["point", "segment"]},
+        )
+    if entity_payloads is None:
+        return (("point", (str(point),)), ("segment", (segment,)))
+    entity = entity_payloads.get(segment)
+    endpoints = entity.get("endpoints") if entity is not None else None
+    if (
+        not isinstance(endpoints, list)
+        or len(endpoints) != 2
+        or not all(_is_point_handle(item) for item in endpoints)
+    ):
+        raise ConditionRoleResolutionError(
+            "condition.roles_invalid",
+            "point_on_segment Segment requires two structured Point endpoints",
+            details={"segment": segment},
+        )
+    return (
+        ("point", (str(point),)),
+        ("segment", (segment,)),
+        ("segment_endpoint", tuple(str(item) for item in endpoints)),
+    )
+
+
+def _path_minimum_target_roles(
+    payload: Mapping[str, Any],
+) -> ConditionObjectRoles:
+    terms = payload.get("terms")
+    if not isinstance(terms, list) or not terms:
+        # Older non-canonical path targets remain readable, but they do not
+        # gain typed path roles and cannot satisfy the new Function contract.
+        return ()
+    if any(
+        not isinstance(term, list)
+        or len(term) != 2
+        or not all(_is_point_handle(item) for item in term)
+        for term in terms
+    ):
+        raise ConditionRoleResolutionError(
+            "condition.roles_invalid",
+            "path_minimum_target requires structured two-Point terms",
+            details={"field": "terms"},
+        )
+    normalized_terms = tuple(
+        tuple(str(item) for item in term) for term in terms
+    )
+    ordered_points = unique_ordered(
+        point for term in normalized_terms for point in term
+    )
+    counts = {
+        point: sum(point in term for term in normalized_terms)
+        for point in ordered_points
+    }
+    return (
+        *(
+            (f"term_{index}_endpoint", term)
+            for index, term in enumerate(normalized_terms, start=1)
+        ),
+        ("path_point", ordered_points),
+        (
+            "shared_point",
+            tuple(point for point in ordered_points if counts[point] > 1),
+        ),
+        (
+            "outer_point",
+            tuple(point for point in ordered_points if counts[point] == 1),
+        ),
+    )
+
+
 def _roles_for_segment_field(
     payload: Mapping[str, Any],
     *,
@@ -311,6 +391,15 @@ class ConditionRoleResolver:
         return (
             condition_kind in _CONDITION_ROLE_EXTRACTORS
             or condition_kind == "angle_sum"
+            or condition_kind
+            in {
+                "length",
+                "length_squared",
+                "segment_length_relation",
+                "point_on_segment",
+                "segment_membership",
+                "path_minimum_target",
+            }
         )
 
     @classmethod
@@ -325,7 +414,18 @@ class ConditionRoleResolver:
         extracted = (
             _angle_sum_roles(payload, entity_payloads=entity_payloads)
             if condition_kind == "angle_sum"
-            else (extractor(payload) if extractor is not None else ())
+            else (
+                _point_on_segment_roles(
+                    payload,
+                    entity_payloads=entity_payloads,
+                )
+                if condition_kind in {"point_on_segment", "segment_membership"}
+                else (
+                    _path_minimum_target_roles(payload)
+                    if condition_kind == "path_minimum_target"
+                    else (extractor(payload) if extractor is not None else ())
+                )
+            )
         )
         declared = (
             *extracted,

@@ -5,6 +5,9 @@ from __future__ import annotations
 from collections.abc import Mapping
 
 from shuxueshuo_server.solver.contracts import PredicatePublicationSpec
+from shuxueshuo_server.solver.runtime.runtime_value_signature import (
+    runtime_value_signature,
+)
 
 from ._common import *
 from ._spec import MethodSpecSource, declare_input_views
@@ -233,6 +236,46 @@ class CertifyMinimumExpressionMethod:
                 expected={"condition_kind": "path_minimum_attained"},
                 observed={"condition_kind": _condition_kind(condition)},
             )
+        result_roles = condition.get("result_roles")
+        candidate_refs = (
+            tuple(result_roles.get("candidate", ()))
+            if isinstance(result_roles, Mapping)
+            else ()
+        )
+        signatures = condition.get("attested_value_signatures")
+        candidate_signature = (
+            signatures.get("candidate")
+            if isinstance(signatures, Mapping)
+            else None
+        )
+        if len(candidate_refs) != 1 or not isinstance(
+            candidate_signature, str
+        ):
+            raise method_input_invalid(
+                "minimum attainment Condition has no exact candidate authority",
+                arg_name="attainment_condition",
+                role="candidate",
+                expected={
+                    "candidate_role_count": 1,
+                    "candidate_value_attested": True,
+                },
+                observed={
+                    "candidate_role_count": len(candidate_refs),
+                    "candidate_value_attested": isinstance(
+                        candidate_signature, str
+                    ),
+                },
+                repair_action="use_matching_attainment_condition",
+            )
+        if runtime_value_signature(expression) != candidate_signature:
+            raise method_input_invalid(
+                "minimum expression does not match the attained candidate",
+                arg_name="expression",
+                role="path_minimum_candidate",
+                expected={"source": "attainment_condition.candidate"},
+                observed={"source": "different_runtime_value"},
+                repair_action="use_attained_candidate_expression",
+            )
         return StatelessMethodResult(
             method_id=self.method_id,
             outputs={
@@ -422,6 +465,11 @@ def _two_segment_candidate_is_global_minimum(
         segment_start,
         segment_end,
         domain_condition=domain_condition,
+    ) and _point_on_closed_segment(
+        direct,
+        path_start,
+        path_end,
+        domain_condition=domain_condition,
     ):
         return _points_symbolically_equal(candidate_point, direct)
 
@@ -572,12 +620,88 @@ def _point_on_closed_segment(
         domain_condition=domain_condition,
     ):
         return False
+    affine_result = _affine_segment_membership(
+        point,
+        start,
+        end,
+        domain_condition=domain_condition,
+    )
+    if affine_result is not None:
+        return affine_result
     dot = _refine_with_domain_condition(
         (point[0] - start[0]) * (point[0] - end[0])
         + (point[1] - start[1]) * (point[1] - end[1]),
         domain_condition,
     )
-    return bool(dot == 0 or _manifestly_nonnegative_real(-dot))
+    return bool(
+        dot == 0
+        or _nonnegative_under_domain(-dot, domain_condition)
+    )
+
+
+def _affine_segment_membership(
+    point: Point,
+    start: Point,
+    end: Point,
+    *,
+    domain_condition: Mapping[str, Any] | None,
+) -> bool | None:
+    """Prove closed-segment membership through one exact affine parameter."""
+
+    directions = tuple(
+        _refine_with_domain_condition(end[index] - start[index], domain_condition)
+        for index in range(2)
+    )
+    offsets = tuple(
+        _refine_with_domain_condition(point[index] - start[index], domain_condition)
+        for index in range(2)
+    )
+    if all(direction == 0 for direction in directions):
+        return False
+    parameters: list[sp.Expr] = []
+    for direction, offset in zip(directions, offsets, strict=True):
+        if direction == 0:
+            if offset != 0:
+                return False
+            continue
+        if not _nonzero_under_domain(direction, domain_condition):
+            continue
+        parameters.append(
+            _refine_with_domain_condition(
+                sp.cancel(offset / direction),
+                domain_condition,
+            )
+        )
+    if not parameters:
+        return None
+    parameter = parameters[0]
+    if any(
+        _refine_with_domain_condition(candidate - parameter, domain_condition)
+        != 0
+        for candidate in parameters[1:]
+    ):
+        return False
+    if any(
+        _refine_with_domain_condition(
+            point[index]
+            - start[index]
+            - parameter * (end[index] - start[index]),
+            domain_condition,
+        )
+        != 0
+        for index in range(2)
+    ):
+        return False
+    lower_ok = _nonnegative_under_domain(parameter, domain_condition)
+    upper_ok = _nonnegative_under_domain(1 - parameter, domain_condition)
+    if lower_ok and upper_ok:
+        return True
+    if _negative_under_domain(parameter, domain_condition) or _negative_under_domain(
+        1 - parameter,
+        domain_condition,
+    ):
+        return False
+    return None
 
 
 def _points_symbolically_collinear(
@@ -607,29 +731,89 @@ def _refine_with_domain_condition(
     condition: Mapping[str, Any] | None,
 ) -> sp.Expr:
     expression = sp.sympify(value)
+    assumption = _domain_assumption(expression, condition)
+    if assumption is None:
+        return sp.simplify(expression)
+    return sp.simplify(sp.refine(expression, assumption))
+
+
+def _domain_assumption(
+    expression: sp.Expr,
+    condition: Mapping[str, Any] | None,
+) -> object | None:
     if not condition or _condition_kind(condition) != "symbol_constraint":
-        return sp.simplify(expression)
+        return None
     subject = str(condition.get("subject") or "").rsplit(":", 1)[-1]
-    operator = str(condition.get("operator") or "")
-    try:
-        boundary = sp.sympify(condition.get("value"))
-    except (TypeError, ValueError):
-        return sp.simplify(expression)
     symbol = next(
         (item for item in expression.free_symbols if item.name == subject),
         None,
     )
-    assumptions = {
-        (">", sp.Integer(0)): {"positive": True},
-        (">=", sp.Integer(0)): {"nonnegative": True},
-        ("<", sp.Integer(0)): {"negative": True},
-        ("<=", sp.Integer(0)): {"nonpositive": True},
-    }.get((operator, boundary))
-    if symbol is None or assumptions is None:
-        return sp.simplify(expression)
-    assumed_symbol = sp.Symbol(symbol.name, **assumptions)
-    refined = sp.simplify(expression.xreplace({symbol: assumed_symbol}))
-    return refined.xreplace({assumed_symbol: symbol})
+    if symbol is None:
+        return None
+    try:
+        boundary = sp.sympify(condition.get("value"))
+    except (TypeError, ValueError):
+        return None
+    operator = str(condition.get("operator") or "")
+    predicate = {
+        ">": sp.Q.gt,
+        ">=": sp.Q.ge,
+        "<": sp.Q.lt,
+        "<=": sp.Q.le,
+        "=": sp.Q.eq,
+        "==": sp.Q.eq,
+    }.get(operator)
+    return predicate(symbol, boundary) if predicate is not None else None
+
+
+def _ask_under_domain(
+    predicate: object,
+    expression: sp.Expr,
+    condition: Mapping[str, Any] | None,
+) -> bool:
+    assumption = _domain_assumption(expression, condition)
+    try:
+        if assumption is None:
+            return sp.ask(predicate) is True
+        return sp.ask(predicate, assumption) is True
+    except (AttributeError, TypeError, ValueError):
+        return False
+
+
+def _nonzero_under_domain(
+    value: object,
+    condition: Mapping[str, Any] | None,
+) -> bool:
+    expression = sp.simplify(sp.sympify(value))
+    if expression.is_zero is False:
+        return True
+    return _ask_under_domain(sp.Q.nonzero(expression), expression, condition)
+
+
+def _nonnegative_under_domain(
+    value: object,
+    condition: Mapping[str, Any] | None,
+) -> bool:
+    expression = sp.simplify(sp.sympify(value))
+    if _manifestly_nonnegative_real(expression):
+        return True
+    if expression.is_negative is True:
+        return False
+    return _ask_under_domain(
+        sp.Q.nonnegative(expression),
+        expression,
+        condition,
+    )
+
+
+def _negative_under_domain(
+    value: object,
+    condition: Mapping[str, Any] | None,
+) -> bool:
+    expression = sp.simplify(sp.sympify(value))
+    if expression.is_negative is True:
+        return True
+    return _ask_under_domain(sp.Q.negative(expression), expression, condition)
 
 
 def _manifestly_nonnegative_real(value: object) -> bool:
@@ -991,6 +1175,7 @@ VERIFY_TWO_SEGMENT_PATH_ATTAINMENT_SPEC = MethodSpecSource(
                 "segment_start",
                 "segment_end",
             ),
+            attested_input_roles=("objective", "candidate"),
         ),
     ),
 )

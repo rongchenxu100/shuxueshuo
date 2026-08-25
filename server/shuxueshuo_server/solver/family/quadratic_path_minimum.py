@@ -95,9 +95,13 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         "quadratic_core",
         "parameter_solving_core",
         "coordinate_geometry_core",
+        "path_verification_core",
         "broken_path_minimum_core",
     ),
-    mechanism_packs=("right_angle_equal_length_core",),
+    mechanism_packs=(
+        "right_angle_equal_length_core",
+        "coupled_segment_endpoint_replacement_core",
+    ),
     method_ids=(
         "quadratic_axis_from_relation",
         "quadratic_from_constraints",

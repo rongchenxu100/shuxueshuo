@@ -1,0 +1,162 @@
+{
+  "schema_version": "explicit-function-fragment/v1",
+  "case_id": "tj-2026-nankai-yimo-25",
+  "scope_ref": "ii",
+  "replaces_step_ids": [
+    "ii_reduce_path",
+    "ii_derive_path_model"
+  ],
+  "steps": [
+    {
+      "step_id": "llm_prove_EG_eq_DG",
+      "capability_id": "prove_coupled_segment_endpoint_distance_equality",
+      "args": {
+        "first_moving_membership": "point_on_segment_e_dm",
+        "second_moving_membership": "point_on_segment_g_mn",
+        "binding_relation": "segment_length_relation_de_ng",
+        "first_moving_point": "E",
+        "second_moving_point": "G",
+        "first_track_fixed_endpoint": "D",
+        "joint_point": "M",
+        "second_track_fixed_endpoint": "N"
+      },
+      "return_bindings": {
+        "distance_equality": {
+          "kind": "derived",
+          "ref": "EG_eq_DG"
+        }
+      },
+      "intent": "由 E、G 的线段归属与 DE=sqrt(2)NG 证明 EG=DG。"
+    },
+    {
+      "step_id": "llm_reflect_D",
+      "capability_id": "reflect_point_across_line",
+      "args": {
+        "point": "D",
+        "line_p1": "M",
+        "line_p2": "N"
+      },
+      "return_bindings": {
+        "reflected_point": {
+          "kind": "derived",
+          "ref": "D_reflected"
+        }
+      },
+      "intent": "作点 D 关于直线 MN 的对称点 D'。"
+    },
+    {
+      "step_id": "llm_construct_G",
+      "capability_id": "line_intersection_point",
+      "args": {
+        "line1_p1": "D_reflected",
+        "line1_p2": "F",
+        "line2_p1": "M",
+        "line2_p2": "N"
+      },
+      "return_bindings": {
+        "intersection": {
+          "kind": "existing",
+          "ref": "G"
+        }
+      },
+      "intent": "取直线 D'F 与 MN 的交点 G，作为路径取等点。"
+    },
+    {
+      "step_id": "llm_rewrite_path",
+      "capability_id": "rewrite_path_target_by_distance_equality",
+      "args": {
+        "path_minimum_target": "path_minimum_target_e_g_f",
+        "distance_equality": "EG_eq_DG",
+        "replacement_start": "D",
+        "via": "G",
+        "end": "F"
+      },
+      "return_bindings": {
+        "expression": {
+          "kind": "derived",
+          "ref": "DG_plus_GF"
+        }
+      },
+      "intent": "利用 EG=DG 将原目标 EG+FG 改写为 DG+GF。"
+    },
+    {
+      "step_id": "llm_compute_minimum",
+      "capability_id": "distance_between_points",
+      "args": {
+        "p1": "D_reflected",
+        "p2": "F"
+      },
+      "intent": "计算拉直后的距离 D'F。"
+    },
+    {
+      "step_id": "llm_verify_attainment",
+      "capability_id": "verify_two_segment_path_attainment",
+      "args": {
+        "objective": "DG_plus_GF",
+        "candidate": {
+          "step_id": "llm_compute_minimum",
+          "return": "distance"
+        },
+        "candidate_point": "G",
+        "path_start": "D",
+        "path_end": "F",
+        "segment_start": "M",
+        "segment_end": "N",
+        "domain_condition": "symbol_constraint_m"
+      },
+      "return_bindings": {
+        "path_attainment": {
+          "kind": "derived",
+          "ref": "minimum_attained"
+        }
+      },
+      "intent": "验证 G 在线段 MN 上且 D'F 是能够取到的全局最小值。"
+    },
+    {
+      "step_id": "llm_publish_minimum",
+      "capability_id": "certify_minimum_expression",
+      "args": {
+        "expression": {
+          "step_id": "llm_compute_minimum",
+          "return": "distance"
+        },
+        "attainment_condition": "minimum_attained"
+      },
+      "return_expectations": {
+        "minimum_expression": "open_expression"
+      },
+      "intent": "发布已经证明可达的路径最小值表达式。"
+    }
+  ],
+  "exports": {
+    "minimum_expression": {
+      "step_id": "llm_publish_minimum",
+      "return": "minimum_expression"
+    }
+  },
+  "child_goal_replacements": {
+    "ii_2.G": {
+      "steps": [
+        {
+          "step_id": "llm_evaluate_G",
+          "capability_id": "evaluate_point_at_parameter",
+          "args": {
+            "point": "G",
+            "parameter_value": "m"
+          },
+          "return_bindings": {
+            "evaluated_point": {
+              "kind": "existing",
+              "ref": "G"
+            }
+          },
+          "intent": "把反求的参数 m 代入共享取等点 G 的含参坐标。"
+        }
+      ],
+      "answer_from": {
+        "step_id": "llm_evaluate_G",
+        "return": "evaluated_point"
+      }
+    }
+  }
+}

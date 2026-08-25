@@ -585,6 +585,77 @@ F43B_MIGRATED_BINDINGS = {
 }
 
 
+F43C1_MIGRATED_BINDINGS = {
+    (
+        "prove_coupled_segment_endpoint_distance_equality",
+        "first_moving_membership",
+        "condition",
+    ),
+    (
+        "prove_coupled_segment_endpoint_distance_equality",
+        "second_moving_membership",
+        "condition",
+    ),
+    (
+        "prove_coupled_segment_endpoint_distance_equality",
+        "binding_relation",
+        "condition",
+    ),
+    *(
+        (
+            "prove_coupled_segment_endpoint_distance_equality",
+            input_name,
+            "public_arg",
+        )
+        for input_name in (
+            "first_moving_point",
+            "second_moving_point",
+            "first_track_fixed_endpoint",
+            "joint_point",
+            "second_track_fixed_endpoint",
+        )
+    ),
+    *(
+        (
+            "prove_coupled_segment_endpoint_distance_equality",
+            input_name,
+            "source_object_identity",
+        )
+        for input_name in (
+            "first_track_fixed_endpoint_ref",
+            "joint_point_ref",
+            "second_track_fixed_endpoint_ref",
+        )
+    ),
+    (
+        "rewrite_path_target_by_distance_equality",
+        "path_minimum_target",
+        "condition",
+    ),
+    (
+        "rewrite_path_target_by_distance_equality",
+        "distance_equality",
+        "condition",
+    ),
+    *(
+        (
+            "rewrite_path_target_by_distance_equality",
+            input_name,
+            "public_arg",
+        )
+        for input_name in ("replacement_start", "via", "end")
+    ),
+    *(
+        (
+            "rewrite_path_target_by_distance_equality",
+            input_name,
+            "source_object_identity",
+        )
+        for input_name in ("replacement_start_ref", "via_ref", "end_ref")
+    ),
+}
+
+
 def _schema_validator() -> Draft202012Validator:
     schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
     Draft202012Validator.check_schema(schema)
@@ -808,7 +879,9 @@ def test_migrated_inputs_use_the_strict_binding_contract() -> None:
         | C3_MIGRATED_BINDINGS
         | D_MIGRATED_BINDINGS
         | F43B_MIGRATED_BINDINGS
+        | F43C1_MIGRATED_BINDINGS
     )
+    assert len(F43C1_MIGRATED_BINDINGS) == 19
     assert all(
         not hasattr(rule, "expansion_selectors")
         for family in DEFAULT_FAMILY_REGISTRY.families

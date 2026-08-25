@@ -108,6 +108,10 @@
         "path_end",
         "segment_start",
         "segment_end"
+      ],
+      "attested_input_roles": [
+        "objective",
+        "candidate"
       ]
     }
   ]

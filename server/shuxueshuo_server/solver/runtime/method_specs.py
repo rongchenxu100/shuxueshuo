@@ -344,7 +344,12 @@ def _parse_predicate_publications(
                 "planner.predicate_publication_contract_invalid: "
                 "publication must be an object"
             )
-        allowed = {"output_name", "condition_kind", "related_input_roles"}
+        allowed = {
+            "output_name",
+            "condition_kind",
+            "related_input_roles",
+            "attested_input_roles",
+        }
         unknown = sorted(set(item) - allowed)
         if unknown:
             raise ValueError(
@@ -357,10 +362,17 @@ def _parse_predicate_publications(
                 "planner.predicate_publication_contract_invalid: "
                 "related_input_roles must be a list"
             )
+        attested_roles = item.get("attested_input_roles", ())
+        if not isinstance(attested_roles, list | tuple):
+            raise ValueError(
+                "planner.predicate_publication_contract_invalid: "
+                "attested_input_roles must be a list"
+            )
         publication = PredicatePublicationSpec(
             output_name=str(item.get("output_name", "")),
             condition_kind=str(item.get("condition_kind", "")),
             related_input_roles=tuple(str(role) for role in roles),
+            attested_input_roles=tuple(str(role) for role in attested_roles),
         )
         if outputs.get(publication.output_name) != "Boolean":
             raise ValueError(

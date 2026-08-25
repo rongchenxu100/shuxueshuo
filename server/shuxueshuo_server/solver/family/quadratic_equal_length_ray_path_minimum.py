@@ -136,6 +136,7 @@ _QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         "quadratic_core",
         "parameter_solving_core",
         "coordinate_geometry_core",
+        "path_verification_core",
     ),
     mechanism_packs=("equal_length_ray_reduction_core",),
     goal_evidence_policies=(

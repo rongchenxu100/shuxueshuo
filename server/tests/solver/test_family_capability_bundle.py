@@ -25,6 +25,10 @@ def test_family_capability_bundle_partitions_functions_and_macros(tmp_path) -> N
     )
 
     bundle = family_capability_bundle_for_inputs(fixture[3])
+    prompt_by_id = {
+        item["capability_id"]: item
+        for item in bundle.to_prompt_payload()["capabilities"]
+    }
     prompt_payload = bundle.to_prompt_payload()
     by_id = {
         item["capability_id"]: item
@@ -85,3 +89,45 @@ def test_capability_bundle_signature_covers_transparent_blueprint(tmp_path) -> N
             macro_blueprints=bundle.macro_blueprints,
             bundle_signature="stale",
         )
+
+
+def test_nankai_bundle_exposes_explicit_coupled_path_functions_without_new_macro(
+    tmp_path,
+) -> None:
+    fixture = planning_binding_fixture(
+        tmp_path,
+        case="tj-2026-nankai-yimo-25",
+    )
+    bundle = family_capability_bundle_for_inputs(fixture[3])
+    prompt_by_id = {
+        item["capability_id"]: item
+        for item in bundle.to_prompt_payload()["capabilities"]
+    }
+
+    assert {
+        "prove_coupled_segment_endpoint_distance_equality",
+        "rewrite_path_target_by_distance_equality",
+    }.issubset(bundle.function_ids)
+    assert not any("coupled_segment_endpoint" in item for item in bundle.macro_ids)
+    assert "path_verification_core" in fixture[3].family_spec.base_packs
+    assert (
+        "coupled_segment_endpoint_replacement_core"
+        in fixture[3].family_spec.mechanism_packs
+    )
+    assert {
+        arg["name"]
+        for capability_id in (
+            "prove_coupled_segment_endpoint_distance_equality",
+            "rewrite_path_target_by_distance_equality",
+        )
+        for arg in prompt_by_id[capability_id]["args"]
+    }.isdisjoint(
+        {
+            "first_track_fixed_endpoint_ref",
+            "joint_point_ref",
+            "second_track_fixed_endpoint_ref",
+            "replacement_start_ref",
+            "via_ref",
+            "end_ref",
+        }
+    )

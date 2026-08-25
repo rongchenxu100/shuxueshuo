@@ -626,6 +626,66 @@ def verify_two_segment_path_attainment_rule() -> MethodBindingRuleSpec:
     )
 
 
+def prove_coupled_segment_endpoint_distance_equality_rule() -> MethodBindingRuleSpec:
+    return MethodBindingRuleSpec(
+        method_id="prove_coupled_segment_endpoint_distance_equality",
+        functional_output_names=(("verified", "distance_equality"),),
+        input_bindings=(
+            condition_arg_binding("first_moving_membership"),
+            condition_arg_binding("second_moving_membership"),
+            condition_arg_binding("binding_relation"),
+            public_arg_binding("first_moving_point"),
+            public_arg_binding("second_moving_point"),
+            public_arg_binding("first_track_fixed_endpoint"),
+            source_object_identity_binding(
+                "first_track_fixed_endpoint",
+                input_name="first_track_fixed_endpoint_ref",
+                required=True,
+            ),
+            public_arg_binding("joint_point"),
+            source_object_identity_binding(
+                "joint_point",
+                input_name="joint_point_ref",
+                required=True,
+            ),
+            public_arg_binding("second_track_fixed_endpoint"),
+            source_object_identity_binding(
+                "second_track_fixed_endpoint",
+                input_name="second_track_fixed_endpoint_ref",
+                required=True,
+            ),
+        ),
+    )
+
+
+def rewrite_path_target_by_distance_equality_rule() -> MethodBindingRuleSpec:
+    return MethodBindingRuleSpec(
+        method_id="rewrite_path_target_by_distance_equality",
+        input_bindings=(
+            condition_arg_binding("path_minimum_target"),
+            condition_arg_binding("distance_equality"),
+            public_arg_binding("replacement_start"),
+            source_object_identity_binding(
+                "replacement_start",
+                input_name="replacement_start_ref",
+                required=True,
+            ),
+            public_arg_binding("via"),
+            source_object_identity_binding(
+                "via",
+                input_name="via_ref",
+                required=True,
+            ),
+            public_arg_binding("end"),
+            source_object_identity_binding(
+                "end",
+                input_name="end_ref",
+                required=True,
+            ),
+        ),
+    )
+
+
 def parameter_from_curve_point_on_quadratic_rule() -> MethodBindingRuleSpec:
     """Bind a curve point on the current quadratic to solve the parameter."""
     return MethodBindingRuleSpec(

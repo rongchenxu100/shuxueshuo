@@ -29,6 +29,9 @@ from shuxueshuo_server.solver.math_ops import (
 )
 from shuxueshuo_server.solver.math_kernel import SympyKernel
 from shuxueshuo_server.solver.problem_models import ProblemIR
+from shuxueshuo_server.solver.runtime.condition_roles import (
+    ConditionRoleResolver,
+)
 from shuxueshuo_server.solver.runtime.models import (
     ContextDeclaration,
     ContextPath,
@@ -743,6 +746,11 @@ class ContextBuilder:
             "point_coordinate",
             "symbol_value",
         }
+        entity_payloads = {
+            str(item["handle"]): item
+            for item in context.problem.data.get("entities", {}).get("items", ())
+            if isinstance(item, Mapping) and item.get("handle")
+        }
         for fact in context.problem.data.get("facts", ()):
             if not isinstance(fact, Mapping):
                 continue
@@ -761,10 +769,20 @@ class ContextBuilder:
             value_type = (
                 "Constraint" if fact_type == "symbol_constraint" else "Condition"
             )
+            condition_payload = dict(fact)
+            object_roles = ConditionRoleResolver.object_roles(
+                fact_type,
+                condition_payload,
+                entity_payloads=entity_payloads,
+            )
+            if object_roles:
+                condition_payload["object_roles"] = {
+                    role: list(refs) for role, refs in object_roles
+                }
             context.get_scope(scope_id).container("conditions")[key] = TypedValue(
                 value_type,
                 _canonicalize_condition_payload(
-                    fact,
+                    condition_payload,
                     context.kernel,
                     context.symbols,
                 ),

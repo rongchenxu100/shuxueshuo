@@ -56,6 +56,7 @@ from shuxueshuo_server.solver.family.common_binding_rules import (
     parameter_from_curve_point_on_quadratic_rule,
     parameter_from_expression_value_rule,
     public_arg_binding,
+    prove_coupled_segment_endpoint_distance_equality_rule,
     prove_distance_equality_from_conditions_rule,
     quadratic_from_constraints_rule,
     quadratic_vertex_point_rule,
@@ -63,6 +64,7 @@ from shuxueshuo_server.solver.family.common_binding_rules import (
     quadratic_y_axis_intercept_point_rule,
     translated_point_rule,
     reflect_point_across_line_rule,
+    rewrite_path_target_by_distance_equality_rule,
     rewrite_expression_by_condition_rule,
     verify_distance_equality_rule,
     verify_point_on_closed_segment_rule,
@@ -1042,6 +1044,7 @@ PATH_VERIFICATION_PRIMITIVE_CONTRACTS = (
             _slot(
                 "minimum_expression",
                 "MinimumExpression",
+                semantic_role="path_minimum_expression",
                 return_binding="call_local_allowed",
             ),
         ),
@@ -1096,6 +1099,78 @@ PATH_VERIFICATION_PRIMITIVE_CONTRACTS = (
         ),
         condition_writes=(_condition("path_minimum_attained"),),
     ),
+)
+
+REWRITE_PATH_TARGET_BY_DISTANCE_EQUALITY_CONTRACT = _method_contract(
+    "rewrite_path_target_by_distance_equality",
+    slot_reads=tuple(
+        _slot("coordinate", "Point", object_kind="point")
+        for _ in range(3)
+    ),
+    condition_reads=(
+        _condition("path_minimum_target"),
+        _condition("distance_equality"),
+    ),
+    slot_writes=(
+        _slot(
+            "expression",
+            "Expression",
+            return_binding="call_local_allowed",
+        ),
+    ),
+)
+
+PROVE_COUPLED_SEGMENT_ENDPOINT_DISTANCE_EQUALITY_CONTRACT = _method_contract(
+    "prove_coupled_segment_endpoint_distance_equality",
+    slot_reads=(
+        _slot(
+            "coordinate",
+            "Point",
+            object_kind="point",
+            semantic_role="first_moving_point",
+            semantic_ref_role="object_identity",
+        ),
+        _slot(
+            "coordinate",
+            "Point",
+            object_kind="point",
+            semantic_role="second_moving_point",
+            semantic_ref_role="object_identity",
+        ),
+        *(
+            _slot("coordinate", "Point", object_kind="point")
+            for _ in range(3)
+        ),
+    ),
+    condition_reads=(
+        _condition("point_on_segment"),
+        _condition("point_on_segment"),
+        _condition("segment_length_relation"),
+    ),
+    condition_writes=(_condition("distance_equality"),),
+)
+
+_GENERIC_PATH_VERIFICATION_IDS = frozenset({
+    "verify_distance_equality",
+    "rewrite_expression_by_condition",
+    "certify_minimum_expression",
+    "reflect_point_across_line",
+    "verify_point_on_closed_segment",
+    "distance_sum_expression",
+    "verify_two_segment_path_attainment",
+})
+GENERIC_PATH_VERIFICATION_CONTRACTS = (
+    *(
+        contract
+        for contract in PATH_VERIFICATION_PRIMITIVE_CONTRACTS
+        if contract.capability_id in _GENERIC_PATH_VERIFICATION_IDS
+    ),
+    REWRITE_PATH_TARGET_BY_DISTANCE_EQUALITY_CONTRACT,
+)
+EQUAL_LENGTH_RAY_FUNCTION_CONTRACTS = tuple(
+    contract
+    for contract in PATH_VERIFICATION_PRIMITIVE_CONTRACTS
+    if contract.capability_id not in _GENERIC_PATH_VERIFICATION_IDS
 )
 
 
@@ -1446,6 +1521,31 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
             midpoint_point_rule(),
             translated_point_rule(),
             line_intersection_point_rule(),
+        ),
+    ),
+    CapabilityPackSpec(
+        pack_id="path_verification_core",
+        kind="base",
+        method_ids=(
+            "verify_distance_equality",
+            "rewrite_expression_by_condition",
+            "certify_minimum_expression",
+            "reflect_point_across_line",
+            "verify_point_on_closed_segment",
+            "distance_sum_expression",
+            "verify_two_segment_path_attainment",
+            "rewrite_path_target_by_distance_equality",
+        ),
+        contracts=GENERIC_PATH_VERIFICATION_CONTRACTS,
+        method_binding_rules=(
+            verify_distance_equality_rule(),
+            rewrite_expression_by_condition_rule(),
+            certify_minimum_expression_rule(),
+            reflect_point_across_line_rule(),
+            verify_point_on_closed_segment_rule(),
+            distance_sum_expression_rule(),
+            verify_two_segment_path_attainment_rule(),
+            rewrite_path_target_by_distance_equality_rule(),
         ),
     ),
     CapabilityPackSpec(
@@ -1806,17 +1906,9 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
         pack_id="equal_length_ray_reduction_core",
         kind="mechanism",
         method_ids=(
-            "distance_between_points",
             "construct_point_on_ray_at_reference_distance",
             "verify_point_on_ray",
-            "verify_distance_equality",
             "prove_distance_equality_from_conditions",
-            "rewrite_expression_by_condition",
-            "certify_minimum_expression",
-            "reflect_point_across_line",
-            "verify_point_on_closed_segment",
-            "distance_sum_expression",
-            "verify_two_segment_path_attainment",
         ),
         step_recipes=(EQUAL_LENGTH_RAY_PATH_REDUCTION,),
         contracts=(
@@ -1859,19 +1951,31 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
                     )
                 ),
             ),
-            *PATH_VERIFICATION_PRIMITIVE_CONTRACTS,
+            *EQUAL_LENGTH_RAY_FUNCTION_CONTRACTS,
         ),
         method_binding_rules=(
             construct_point_on_ray_at_reference_distance_rule(),
             verify_point_on_ray_rule(),
-            verify_distance_equality_rule(),
             prove_distance_equality_from_conditions_rule(),
-            rewrite_expression_by_condition_rule(),
-            certify_minimum_expression_rule(),
-            reflect_point_across_line_rule(),
-            verify_point_on_closed_segment_rule(),
-            distance_sum_expression_rule(),
-            verify_two_segment_path_attainment_rule(),
+        ),
+    ),
+    CapabilityPackSpec(
+        pack_id="coupled_segment_endpoint_replacement_core",
+        kind="mechanism",
+        method_ids=(
+            "prove_coupled_segment_endpoint_distance_equality",
+        ),
+        strategy_notes=(
+            "当两个动点分别位于共享端点的两条线段上，且题面长度关系能够"
+            "把两动点线段替换为已有固定端点到第二动点的线段时，先发布"
+            "distance_equality Condition，再用普通反射、求交、路径改写和达到性"
+            "Function完成最值证明；不要构造PathTransformation。",
+        ),
+        contracts=(
+            PROVE_COUPLED_SEGMENT_ENDPOINT_DISTANCE_EQUALITY_CONTRACT,
+        ),
+        method_binding_rules=(
+            prove_coupled_segment_endpoint_distance_equality_rule(),
         ),
     ),
     CapabilityPackSpec(

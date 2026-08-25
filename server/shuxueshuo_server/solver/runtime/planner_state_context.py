@@ -192,9 +192,11 @@ class Condition:
     value_type: str | None = None
     source_step_id: str | None = None
     valid_scope: str | None = None
+    result_roles: tuple[tuple[str, tuple[str, ...]], ...] = ()
+    attested_value_signatures: tuple[tuple[str, str], ...] = ()
 
     def to_payload(self) -> dict[str, Any]:
-        return {
+        payload = {
             "condition_id": self.condition_id,
             "kind": self.kind,
             "scope_id": self.scope_id,
@@ -208,6 +210,17 @@ class Condition:
             "source_step_id": self.source_step_id,
             "valid_scope": self.valid_scope,
         }
+        if self.attested_value_signatures:
+            payload["attested_value_signatures"] = {
+                role: signature
+                for role, signature in self.attested_value_signatures
+            }
+        if self.result_roles:
+            payload["result_roles"] = {
+                role: list(result_ids)
+                for role, result_ids in self.result_roles
+            }
+        return payload
 
 
 @dataclass(frozen=True)

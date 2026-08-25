@@ -126,6 +126,7 @@ class PredicatePublicationSpec:
     output_name: str
     condition_kind: str
     related_input_roles: tuple[str, ...]
+    attested_input_roles: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
         if (
@@ -153,13 +154,35 @@ class PredicatePublicationSpec:
                 "planner.predicate_publication_contract_invalid: "
                 "related_input_roles must contain unique non-empty names"
             )
+        if any(
+            not isinstance(item, str) or not item.strip()
+            for item in self.attested_input_roles
+        ) or len(set(self.attested_input_roles)) != len(
+            self.attested_input_roles
+        ):
+            raise ValueError(
+                "planner.predicate_publication_contract_invalid: "
+                "attested_input_roles must contain unique non-empty names"
+            )
+        unknown_attested = sorted(
+            set(self.attested_input_roles) - set(self.related_input_roles)
+        )
+        if unknown_attested:
+            raise ValueError(
+                "planner.predicate_publication_contract_invalid: attested "
+                "input roles must also be related input roles: "
+                + ", ".join(unknown_attested)
+            )
 
     def to_payload(self) -> dict[str, Any]:
-        return {
+        payload: dict[str, Any] = {
             "output_name": self.output_name,
             "condition_kind": self.condition_kind,
             "related_input_roles": list(self.related_input_roles),
         }
+        if self.attested_input_roles:
+            payload["attested_input_roles"] = list(self.attested_input_roles)
+        return payload
 
 
 @dataclass(frozen=True)

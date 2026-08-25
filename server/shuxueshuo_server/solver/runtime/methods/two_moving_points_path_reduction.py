@@ -11,6 +11,10 @@ from typing import Any, Mapping
 from ._common import *
 from ._common import _canonical_reference_name, _canonical_segment_name
 from ._spec import MethodSpecSource, declare_input_views
+from .coupled_segment_geometry import (
+    CoupledSegmentGeometryError,
+    coupled_segment_endpoint_residuals,
+)
 
 
 class TwoMovingPointsPathReductionMethod:
@@ -73,24 +77,24 @@ class TwoMovingPointsPathReductionMethod:
         replacement_segment = f"{fixed_name}{second_moving_name}"
         transformed_path = _replace_segment_in_path(path_text, replaced_segment, replacement_segment)
 
-        t = sp.Symbol("t", real=True)
-        first_ratio = sp.simplify(
-            (right_scale / left_scale)
-            * kernel.distance(second_segment_end, joint_point)
-            / kernel.distance(first_segment_start, joint_point)
-        )
-        first_moving_point = (
-            sp.simplify(first_segment_start[0] + first_ratio * t * (joint_point[0] - first_segment_start[0])),
-            sp.simplify(first_segment_start[1] + first_ratio * t * (joint_point[1] - first_segment_start[1])),
-        )
-        second_moving_point = (
-            sp.simplify(second_segment_end[0] + t * (joint_point[0] - second_segment_end[0])),
-            sp.simplify(second_segment_end[1] + t * (joint_point[1] - second_segment_end[1])),
-        )
-        left_distance_squared = kernel.distance_squared(first_segment_start, first_moving_point)
-        right_distance_squared = kernel.distance_squared(second_segment_end, second_moving_point)
-        moving_distance_squared = kernel.distance_squared(first_moving_point, second_moving_point)
-        replacement_distance_squared = kernel.distance_squared(first_segment_start, second_moving_point)
+        try:
+            binding_residual, replacement_residual = (
+                coupled_segment_endpoint_residuals(
+                    kernel,
+                    first_track_fixed_endpoint=first_segment_start,
+                    joint_point=joint_point,
+                    second_track_fixed_endpoint=second_segment_end,
+                    first_relation_scale=left_scale,
+                    second_relation_scale=right_scale,
+                )
+            )
+        except CoupledSegmentGeometryError as exc:
+            raise method_precondition_failed(
+                str(exc),
+                role="coupled_segment_tracks",
+                expected={"tracks": "nondegenerate", "scales": "nonzero"},
+                repair_action="select_nondegenerate_coupled_segments",
+            ) from exc
         transformation = {
             "type": "existing_fixed_endpoint_replacement",
             "original_path": path_text,
@@ -121,15 +125,12 @@ class TwoMovingPointsPathReductionMethod:
             checks=[
                 _check(
                     "moving_points_binding_relation",
-                    sp.simplify(
-                        left_scale**2 * left_distance_squared
-                        - right_scale**2 * right_distance_squared
-                    ) == 0,
+                    binding_residual == 0,
                     "两个动点的绑定线段关系成立",
                 ),
                 _check(
                     "moving_segment_equal_fixed_segment",
-                    sp.simplify(moving_distance_squared - replacement_distance_squared) == 0,
+                    replacement_residual == 0,
                     f"{replaced_segment} 与 {replacement_segment} 等长",
                 ),
             ],

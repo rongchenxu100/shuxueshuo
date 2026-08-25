@@ -41,6 +41,7 @@ class ConditionBindingAuthority:
     runtime_type: str
     runtime_handle: str
     source_unit_ids: tuple[str, ...] = ()
+    result_role_refs: tuple[tuple[str, tuple[str, ...]], ...] = ()
 
     @property
     def related_object_ids(self) -> frozenset[MathObjectId]:
@@ -172,6 +173,7 @@ class ConditionBindingAuthorityIndex:
                     runtime_type=condition.value_type or "Condition",
                     runtime_handle=runtime_node_id,
                     source_unit_ids=source_units,
+                    result_role_refs=condition.result_roles,
                 )
             )
         return cls(

@@ -54,6 +54,7 @@ from shuxueshuo_server.solver.runtime.functional_plan_liveness import (
     FunctionalCallLivenessAnalyzer,
 )
 from shuxueshuo_server.solver.runtime.predicate_condition_publication import (
+    condition_result_roles_from_resolved_args,
     condition_roles_from_resolved_args,
     derived_condition_id,
 )
@@ -1011,6 +1012,10 @@ def _predicate_condition_authorities(
             publication,
             resolved_args=call.resolved_args,
         )
+        result_role_refs = condition_result_roles_from_resolved_args(
+            publication,
+            resolved_args=call.resolved_args,
+        )
         typed_roles: list[tuple[str, tuple[MathObjectId, ...]]] = []
         for role, refs in role_refs:
             object_ids_list: list[MathObjectId] = []
@@ -1052,6 +1057,7 @@ def _predicate_condition_authorities(
                 object_role_refs=role_refs,
                 runtime_type="Condition",
                 runtime_handle=allocation.state_handle or allocation.handle,
+                result_role_refs=result_role_refs,
             )
         )
     return tuple(result)
