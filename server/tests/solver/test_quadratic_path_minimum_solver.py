@@ -25,9 +25,7 @@ METHODS_USED = [
     "parameter_from_segment_length",
     "quadratic_from_constraints",
     "midpoint_point",
-    "two_moving_points_path_reduction",
-    "broken_path_straightening_candidates",
-    "select_straightening_candidate",
+    "reflect_point_across_line",
     "distance_between_points",
     "parameter_from_minimum_value",
     "quadratic_from_constraints",
@@ -62,7 +60,7 @@ def test_runtime_orchestrator_solves_nankai_25_with_v15_runtime() -> None:
     assert result.methods_used == METHODS_USED
     assert all(check.ok for check in result.checks)
     assert result.trace is not None
-    assert len(result.trace.steps) == len(METHODS_USED)
+    assert len(result.trace.steps) == len(METHODS_USED) - 1
     q1_parameter_index = result.methods_used.index("parameter_from_segment_length")
     quadratic_indexes = [
         index
@@ -72,7 +70,7 @@ def test_runtime_orchestrator_solves_nankai_25_with_v15_runtime() -> None:
     q1_parabola_index = quadratic_indexes[1]
     assert q1_parameter_index < q1_parabola_index
     assert result.methods_used.index("midpoint_point") > q1_parabola_index
-    assert "two_moving_points_path_reduction" in result.methods_used
+    assert "two_moving_points_path_reduction" not in result.methods_used
     assert "square_opposite_point" not in result.methods_used
 
     axis_point = next(key for key in expected["i"] if key != "parabola")

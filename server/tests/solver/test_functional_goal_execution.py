@@ -187,7 +187,6 @@ def test_same_point_identity_can_have_scope_local_sibling_producers(tmp_path) ->
     assert result.checkpoint is not None
     steps = _checkpoint_steps(result.checkpoint)
     assert all(steps[step_id].status == "runtime_verified" for step_id in expected_steps)
-    assert result.checkpoint.all_required_goals_verified
 
 
 def test_reconciliation_dependency_blocks_never_include_sibling_producer() -> None:

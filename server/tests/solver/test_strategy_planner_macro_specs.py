@@ -24,7 +24,7 @@ from shuxueshuo_server.solver.runtime.macro_specs import (
 )
 from shuxueshuo_server.solver.family.models import (
     CONDITION_OBJECT_ROLES_RESOLVER,
-    PATH_REDUCTION_ROLES_RESOLVER,
+    COUPLED_SEGMENT_ENDPOINT_ROLES_RESOLVER,
 )
 from shuxueshuo_server.solver.family import DEFAULT_FAMILY_REGISTRY
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
@@ -88,14 +88,15 @@ def test_macro_context_closure_resolvers_come_from_contracts() -> None:
         "right_angle_equal_length_construct_and_select"
     ).context_resolvers == (CONDITION_OBJECT_ROLES_RESOLVER,)
     assert registry.require(
-        "two_moving_points_path_reduction"
-    ).context_resolvers == (PATH_REDUCTION_ROLES_RESOLVER,)
+        "coupled_segment_endpoint_replacement_path_minimum"
+    ).context_resolvers == (COUPLED_SEGMENT_ENDPOINT_ROLES_RESOLVER,)
 
 
 def test_context_closure_specs_and_handlers_are_complete() -> None:
     validate_context_closure_handler_registry()
 
     assert context_closure_handler_ids() == context_closure_resolver_ids()
+    assert "path_reduction_roles" not in context_closure_resolver_ids()
 
 
 def test_macro_spec_registry_derives_executable_recipes_from_contracts() -> None:
@@ -142,14 +143,12 @@ def test_path_minimum_goal_evidence_is_projected_from_recipe_outputs() -> None:
         for tag in item.goal_evidence_tags
     }
 
-    assert tags >= {
-        "verified_path_minimum_subplan",
-        "path_minimum_expression",
-    }
+    assert "path_minimum_expression" in tags
+    assert "verified_path_minimum_subplan" not in tags
 
 
 def test_macro_result_forms_are_projected_from_internal_functions() -> None:
-    problem = load_problem_ir(str(FUNCTIONAL_FIXTURES[0]))
+    problem = load_problem_ir(str(FUNCTIONAL_FIXTURES[4]))
     inputs = build_strategy_probe_inputs(problem)
     registry = MacroSpecRegistry.from_family_spec(
         inputs.family_spec,
@@ -189,8 +188,18 @@ def test_shareable_macro_purity_is_derived_from_internal_functions() -> None:
     )
 
     assert registry.require("right_angle_equal_length_construct_and_select").is_pure
-    assert registry.require("two_moving_points_path_reduction").is_pure
     assert not registry.require(
+        "coupled_segment_endpoint_replacement_path_minimum"
+    ).is_pure
+    assert "broken_path_straightening_minimum_expression" not in registry.specs
+
+    legacy_problem = load_problem_ir(str(FUNCTIONAL_FIXTURES[4]))
+    legacy_inputs = build_strategy_probe_inputs(legacy_problem)
+    legacy_registry = MacroSpecRegistry.from_family_spec(
+        legacy_inputs.family_spec,
+        legacy_inputs.method_specs,
+    )
+    assert legacy_registry.require(
         "broken_path_straightening_minimum_expression"
     ).is_pure
 
@@ -203,7 +212,8 @@ def test_macro_catalog_prompt_payload_hides_runtime_wiring_details() -> None:
 
     assert catalog["item_count"] > 0
     macro_ids = {item["macro_id"] for item in catalog["items"]}
-    assert "broken_path_straightening_minimum_expression" in macro_ids
+    assert "coupled_segment_endpoint_replacement_path_minimum" in macro_ids
+    assert "broken_path_straightening_minimum_expression" not in macro_ids
     assert "broken_path_straightening_and_select" not in macro_ids
     encoded = json.dumps(catalog, ensure_ascii=False)
     assert "runtime_path" not in encoded
@@ -245,7 +255,6 @@ def test_every_registered_macro_has_an_audited_lowering_contract() -> None:
         "curve_candidate_parameter_solve",
         "equal_length_ray_path_reduction",
         "right_angle_equal_length_construct_and_select",
-        "two_moving_points_path_reduction",
     }
 
     for macro_id in ("broken_path_straightening_minimum_expression",):
@@ -261,10 +270,7 @@ def test_every_registered_macro_has_an_audited_lowering_contract() -> None:
                 "target": "distance_between_points.parameter",
             } in adapter["input_derivations"]
 
-    for macro_id in (
-        "equal_length_ray_path_reduction",
-        "coupled_segment_endpoint_replacement_path_minimum",
-    ):
+    for macro_id in ("equal_length_ray_path_reduction",):
         for payload in macros[macro_id]:
             return_roles = {
                 item["semantic_role"]
@@ -279,6 +285,19 @@ def test_every_registered_macro_has_an_audited_lowering_contract() -> None:
             assert payload["adapter"]["input_derivations"] == []
             assert payload["adapter"]["strategy_input_targets"] == []
             assert payload["adapter"]["intermediate_wiring"] == []
+
+    for payload in macros[
+        "coupled_segment_endpoint_replacement_path_minimum"
+    ]:
+        return_roles = {
+            item["semantic_role"]
+            for item in payload["adapter"]["output_aliases"]
+        }
+        assert return_roles == {"minimum_expression", "attainment_point"}
+        assert payload["internal_calls"] == []
+        assert payload["adapter"]["execution_strategy"] == (
+            "functional_plan_fragment"
+        )
 
 
 def test_every_path_transformation_uses_planner_declared_moving_point() -> None:
@@ -313,7 +332,6 @@ def test_every_path_transformation_uses_planner_declared_moving_point() -> None:
 
     assert set(producers) >= {
         "square_path_dimension_reduction",
-        "two_moving_points_path_reduction",
         "weighted_axis_path_triangle_transform",
     }
 
@@ -367,7 +385,8 @@ def test_macro_adapter_reports_typed_return_failure() -> None:
 
 def test_macro_rejects_point_output_without_declared_identity_role() -> None:
     problem = load_problem_ir(str(FUNCTIONAL_FIXTURES[0]))
-    inputs = build_strategy_probe_inputs(problem)
+    legacy_problem = load_problem_ir(str(FUNCTIONAL_FIXTURES[4]))
+    inputs = build_strategy_probe_inputs(legacy_problem)
     handles = CanonicalHandleRegistry.from_problem_payload(
         problem_to_llm_payload(problem)
     )
@@ -410,7 +429,8 @@ def test_macro_rejects_point_output_without_declared_identity_role() -> None:
 
 def test_macro_exact_return_metadata_disambiguates_prefixed_roles() -> None:
     problem = load_problem_ir(str(FUNCTIONAL_FIXTURES[0]))
-    inputs = build_strategy_probe_inputs(problem)
+    legacy_problem = load_problem_ir(str(FUNCTIONAL_FIXTURES[4]))
+    inputs = build_strategy_probe_inputs(legacy_problem)
     handles = CanonicalHandleRegistry.from_problem_payload(
         problem_to_llm_payload(problem)
     )

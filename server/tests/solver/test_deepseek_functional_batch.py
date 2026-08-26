@@ -86,7 +86,7 @@ def test_prompt_metadata_guard_allows_capability_prefixed_by_example_id() -> Non
             "root_scope": {"id": "problem", "text": ["x"]},
         },
         "functional_few_shot_selection": {
-            "example_id": "broken_path_straightening",
+            "example_id": "coupled_segment_endpoint_replacement",
             "source_problem_id": "synthetic-source",
             "family_id": "SyntheticFamily",
             "selection_tier": "cross_family",
@@ -95,7 +95,7 @@ def test_prompt_metadata_guard_allows_capability_prefixed_by_example_id() -> Non
     prompt = SimpleNamespace(
         user=(
             '{"capability_id":'
-            '"broken_path_straightening_minimum_expression"}'
+            '"coupled_segment_endpoint_replacement_path_minimum"}'
         ),
     )
 

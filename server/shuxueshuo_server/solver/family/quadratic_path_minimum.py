@@ -20,9 +20,6 @@ from shuxueshuo_server.solver.family.models import (
 from shuxueshuo_server.solver.family.capability_packs import (
     DEFAULT_CAPABILITY_PACK_REGISTRY,
     RIGHT_ANGLE_EQUAL_LENGTH_DO_NOT_USE_WHEN,
-    TWO_MOVING_POINTS_PATH_REDUCTION_DESCRIPTION,
-    TWO_MOVING_POINTS_REDUCTION_DO_NOT_USE_WHEN,
-    TWO_MOVING_PATH_TRANSFORMATION_OBJECT_ROLES,
 )
 from shuxueshuo_server.solver.family.common_binding_rules import (
     canonical_symbol_binding,
@@ -46,12 +43,13 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
     ),
     title="普通二次函数路径最值",
     description=(
-        "二次函数题中的普通点、线段或折线路径最值；核心机制是不带特殊权重、"
-        "射线等长替换或正方形反射的通用路径降维与拉直。"
+        "二次函数题中的共享端点耦合双动点路径最值；题面长度关系必须足以"
+        "证明端点距离替换，再由一个透明Macro完成反射、求交、目标改写和"
+        "达到性认证。"
     ),
     use_when=(
-        "题面要求普通距离和或折线路径的最小值，允许出现辅助性的直角、等长或"
-        "中点关系，但路径机制本身不依赖非1权重、射线等长构造或正方形反射。"
+        "两个动点分别位于共享端点的两条线段上，且结构化长度关系能够把"
+        "两动点之间的线段替换为已有固定端点到第二动点的线段。"
     ),
     required_source_requirements=(
         FamilySourceRequirementSpec(
@@ -66,6 +64,7 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         ),
     ),
     do_not_use_when=(
+        "原目标已经是无需端点替换的单动点普通折线路径。",
         "目标路径含明确的非1权重系数，并以加权几何变换为核心。",
         "题面明确声明射线、射线上动点和等长条件，并用它们替换路径。",
         "题面以正方形顶点、中点、中心或对角线关系完成路径降维或反射。",
@@ -87,8 +86,8 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         "若构造点坐标未知，先由几何关系生成候选，再用题设约束筛选。",
         "能先确定未知参数时，优先先求参数再代入后续表达式。",
         "每一步优先消去已确定的信息：若当前问条件已能确定参数数值，先求参数再代入；若参数暂不能定值，但代入已知系数、已知点或系数关系能减少未知量，则可以先化简表达式。",
-        "路径最值先做路径转化，再做折线拉直或等价最短路径处理。",
-        "普通路径最值按阶段独立推导：先把两动点路径降为单动点路径，再选择合适的折线拉直方案，最后根据拉直后的端点距离求最小值表达式。",
+        "路径最值必须按题面结构选择一个公开机制，并由该机制一次完成等价改写、最短路径证明与结果认证；不要拼接已经退役的中间Path能力。",
+        "耦合双动点且两条轨迹共享端点时，直接使用耦合线段端点替换Macro：先证明端点距离等价，再在同一透明Function图中反射、求交、改写目标、验证达到性并发布最小值表达式。",
         "最短路径对应点通常来自约束轨迹与拉直线段的交点。",
     ),
     base_packs=(
@@ -96,7 +95,6 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         "parameter_solving_core",
         "coordinate_geometry_core",
         "path_verification_core",
-        "broken_path_minimum_core",
     ),
     mechanism_packs=(
         "right_angle_equal_length_core",
@@ -109,9 +107,6 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         "select_point_by_quadrant_constraint",
         "parameter_from_segment_length",
         "midpoint_point",
-        "two_moving_points_path_reduction",
-        "broken_path_straightening_candidates",
-        "select_straightening_candidate",
         "distance_between_points",
         "parameter_from_minimum_value",
         "line_intersection_point",
@@ -160,48 +155,6 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 ),
             ),
             do_not_use_when=RIGHT_ANGLE_EQUAL_LENGTH_DO_NOT_USE_WHEN,
-        ),
-        StepRecipeSpec(
-            recipe_id="two_moving_points_path_reduction",
-            goal_type="reduce_path_expression",
-            title="两动点路径降维：已有固定点替换",
-            description=TWO_MOVING_POINTS_PATH_REDUCTION_DESCRIPTION,
-            method_ids=("two_moving_points_path_reduction",),
-            execution=RecipeExecutionSpec(
-                recipe_id="two_moving_points_path_reduction",
-                method_sequence=("two_moving_points_path_reduction",),
-                execution_mode="direct",
-                execution_strategy="single_method",
-                strategy_input_targets=(
-                    "two_moving_points_path_reduction.original_path",
-                    "two_moving_points_path_reduction.first_moving_membership",
-                    "two_moving_points_path_reduction.second_moving_membership",
-                    "two_moving_points_path_reduction.binding_relation",
-                    "two_moving_points_path_reduction.first_segment_start",
-                    "two_moving_points_path_reduction.joint_point",
-                    "two_moving_points_path_reduction.second_segment_end",
-                ),
-                output_aliases=(
-                    recipe_output_alias(
-                        "two_moving_points_path_reduction.path_transformation",
-                        "PathTransformation",
-                        "path_transformation",
-                        identity_policy="derived_role",
-                        write_mode="create",
-                        description=(
-                            "包含降维后的动点、两个固定端点，以及由题面线段"
-                            "归属条件提供的动点轨迹证据；后续路径拉直可据此"
-                            "省略 moving_locus。"
-                        ),
-                        provides_semantic_roles=("moving_locus",),
-                        object_role_projections=(
-                            TWO_MOVING_PATH_TRANSFORMATION_OBJECT_ROLES
-                        ),
-                    ),
-                ),
-            ),
-            priority="preferred",
-            do_not_use_when=TWO_MOVING_POINTS_REDUCTION_DO_NOT_USE_WHEN,
         ),
     ),
     method_binding_rules=(

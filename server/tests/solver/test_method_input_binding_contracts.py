@@ -317,29 +317,6 @@ C2_MIGRATED_BINDINGS = {
         "square_condition",
         "condition",
     ),
-    ("two_moving_points_path_reduction", "binding_relation", "condition"),
-    (
-        "two_moving_points_path_reduction",
-        "first_moving_membership",
-        "condition",
-    ),
-    (
-        "two_moving_points_path_reduction",
-        "first_segment_start",
-        "latest_state",
-    ),
-    ("two_moving_points_path_reduction", "joint_point", "latest_state"),
-    ("two_moving_points_path_reduction", "original_path", "condition"),
-    (
-        "two_moving_points_path_reduction",
-        "second_moving_membership",
-        "condition",
-    ),
-    (
-        "two_moving_points_path_reduction",
-        "second_segment_end",
-        "latest_state",
-    ),
     ("weighted_axis_path_triangle_transform", "condition", "condition"),
     (
         "weighted_axis_path_triangle_transform",

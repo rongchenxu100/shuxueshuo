@@ -282,7 +282,7 @@ def default_macro_definition_registry() -> MacroDefinitionRegistry:
                     "minimize",
                     "minimum_expression",
                 ),
-                export_names=("minimum_expression",),
+                export_names=("minimum_expression", "attainment_point"),
                 role_projector=_project_coupled_segment_roles,
             ),
             MacroDefinition(
@@ -573,7 +573,7 @@ def _coupled_segment_fragment(
         },
     )
     reflected = reflect_refs["reflected_point"]
-    _intersection, _intersection_refs = add_step(
+    intersection, _intersection_refs = add_step(
         "construct_attainment_point",
         "line_intersection_point",
         {
@@ -651,7 +651,11 @@ def _coupled_segment_fragment(
             "minimum_expression": (
                 publication.step_id,
                 "minimum_expression",
-            )
+            ),
+            "attainment_point": (
+                intersection.step_id,
+                "intersection",
+            ),
         },
         dependency_envelope=dependency_envelope,
         blueprint_id=(

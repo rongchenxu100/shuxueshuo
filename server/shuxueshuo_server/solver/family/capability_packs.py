@@ -27,7 +27,6 @@ from shuxueshuo_server.solver.family.models import (
     GoalEvidencePolicySpec,
     MethodBindingRuleSpec,
     MacroSearchSpec,
-    PATH_REDUCTION_ROLES_RESOLVER,
     PathTransformationConsumerSpec,
     SQUARE_PATH_TRANSFORMATION_ROLES_RESOLVER,
     WEIGHTED_PATH_TRANSFORMATION_ROLES_RESOLVER,
@@ -83,27 +82,6 @@ RIGHT_ANGLE_EQUAL_LENGTH_DO_NOT_USE_WHEN = (
         "条件筛选，不能假定默认旋转方向。"
     ),
 )
-TWO_MOVING_POINTS_PATH_REDUCTION_DESCRIPTION = (
-    "仅用于原目标路径恰好由两段组成、两段涉及两个相关动点，且题设的"
-    "共线、所属、等长或定比例关系能够把其中一段替换为题面已有固定端点"
-    "到另一动点的线段；输出等价的单动点两段折线路径。"
-    "调用前，变换所需的每个固定端点都必须已有可读取的 Point 坐标状态；"
-    "定义、构造或中点 Condition 只说明对象关系，不等于已经计算出坐标。"
-    "本 recipe 不创建辅助点、补算固定端点或生成辅助轨迹。"
-    "Planner 必须显式声明降维后保留的 moving_point；代码只根据题面路径、"
-    "所属关系和长度关系验证该选择并恢复证明所需的固定端点。"
-)
-TWO_MOVING_POINTS_REDUCTION_DO_NOT_USE_WHEN = (
-    "目标是直接求路径最小值、最小值表达式或极值点坐标；本能力只产生后续路径处理所需的等价变换。",
-    (
-        "原路径包含三段或更多线段，或必须利用正方形中点/中心、"
-        "线段与射线等长、加权距离辅助构造才能降维。"
-    ),
-    (
-        "变换所需的任一固定端点尚无可读取的 Point 坐标状态；"
-        "仅有定义、构造或中点关系时，应先得到对应对象的坐标状态。"
-    ),
-)
 EQUAL_LENGTH_RAY_PATH_REDUCTION_DESCRIPTION = (
     "仅用于一个动点在线段上、另一个动点在射线上，并且题设给出二者相对"
     "同一端点的等长关系。该能力在内部完成辅助点构造，把两动点距离和直接"
@@ -147,37 +125,6 @@ PATH_TRANSFORMATION_LOCUS_IDENTITY_CONSTRAINTS = (
             "显式轨迹所属动点必须与 PathTransformation 声明的 moving object 相同。"
         ),
         applicability="when_all_present",
-    ),
-)
-TWO_MOVING_PATH_TRANSFORMATION_OBJECT_ROLES = (
-    StateObjectRoleProjectionSpec(
-        role="moving_object",
-        source_arg="moving_point",
-    ),
-    StateObjectRoleProjectionSpec(
-        role="fixed_endpoint_1",
-        source_arg="first_segment_start",
-        state_requirement="materialized",
-    ),
-    StateObjectRoleProjectionSpec(
-        role="fixed_endpoint_2",
-        source_arg="transformed_fixed_endpoint",
-        state_requirement="materialized",
-    ),
-    StateObjectRoleProjectionSpec(
-        role="moving_locus",
-        source_arg="second_moving_membership",
-        source_object_role="moving_locus",
-    ),
-    StateObjectRoleProjectionSpec(
-        role="moving_locus_endpoint_1",
-        source_arg="moving_locus_endpoint_1",
-        state_requirement="materialized",
-    ),
-    StateObjectRoleProjectionSpec(
-        role="moving_locus_endpoint_2",
-        source_arg="moving_locus_endpoint_2",
-        state_requirement="materialized",
     ),
 )
 STANDARD_BROKEN_PATH_CONSUMER = PathTransformationConsumerSpec(
@@ -1226,48 +1173,6 @@ RIGHT_ANGLE_EQUAL_LENGTH_CONSTRUCT_AND_SELECT = StepRecipeSpec(
     do_not_use_when=RIGHT_ANGLE_EQUAL_LENGTH_DO_NOT_USE_WHEN,
 )
 
-TWO_MOVING_POINTS_PATH_REDUCTION = StepRecipeSpec(
-    recipe_id="two_moving_points_path_reduction",
-    goal_type="reduce_path_expression",
-    title="两动点路径降维：已有固定点替换",
-    description=TWO_MOVING_POINTS_PATH_REDUCTION_DESCRIPTION,
-    method_ids=("two_moving_points_path_reduction",),
-    execution=RecipeExecutionSpec(
-        recipe_id="two_moving_points_path_reduction",
-        method_sequence=("two_moving_points_path_reduction",),
-        execution_mode="direct",
-        execution_strategy="single_method",
-        strategy_input_targets=(
-            "two_moving_points_path_reduction.original_path",
-            "two_moving_points_path_reduction.first_moving_membership",
-            "two_moving_points_path_reduction.second_moving_membership",
-            "two_moving_points_path_reduction.binding_relation",
-            "two_moving_points_path_reduction.first_segment_start",
-            "two_moving_points_path_reduction.joint_point",
-            "two_moving_points_path_reduction.second_segment_end",
-        ),
-        output_aliases=(
-            recipe_output_alias(
-                "two_moving_points_path_reduction.path_transformation",
-                "PathTransformation",
-                "path_transformation",
-                identity_policy="derived_role",
-                write_mode="create",
-                description=(
-                    "包含降维后的动点、两个固定端点，以及由题面线段归属条件"
-                    "提供的动点轨迹证据；后续路径拉直可据此省略 moving_locus。"
-                ),
-                provides_semantic_roles=("moving_locus",),
-                object_role_projections=(
-                    TWO_MOVING_PATH_TRANSFORMATION_OBJECT_ROLES
-                ),
-            ),
-        ),
-    ),
-    priority="preferred",
-    do_not_use_when=TWO_MOVING_POINTS_REDUCTION_DO_NOT_USE_WHEN,
-)
-
 BROKEN_PATH_STRAIGHTENING_MINIMUM_EXPRESSION = StepRecipeSpec(
     recipe_id="broken_path_straightening_minimum_expression",
     goal_type="derive_path_minimum_expression",
@@ -1473,7 +1378,9 @@ COUPLED_SEGMENT_ENDPOINT_REPLACEMENT_PATH_MINIMUM = StepRecipeSpec(
         "当两个动点分别位于有公共端点的两条线段上，且结构化长度关系"
         "能够把原路径中的动线段替换为第一条轨迹固定端点到第二动点的"
         "线段时，先证明距离等价，再关于第二条轨迹反射、求交并验证"
-        "闭线段达到性，最终发布最小值表达式。"
+        "闭线段达到性，最终发布最小值表达式。若多个子问复用该表达式或"
+        "取等点，只在最近公共父 scope 调用一次，再由子问消费公开返回；"
+        "参数尚未求定时 minimum_expression 必须是 open_expression。"
     ),
     method_ids=(),
     execution=RecipeExecutionSpec(
@@ -1509,6 +1416,26 @@ COUPLED_SEGMENT_ENDPOINT_REPLACEMENT_PATH_MINIMUM = StepRecipeSpec(
                     ),
                 ),
             ),
+            recipe_output_alias(
+                "attainment_point",
+                "Point",
+                "attainment_point",
+                required=False,
+                cardinality="optional",
+                identity_policy="target_object",
+                identity_arg="second_moving_point",
+                write_mode="transition",
+                result_form=ScalarResultFormSpec(
+                    possible_forms=("open_state", "closed_state"),
+                    description=(
+                        "坐标仍含未定参数时为 open_state；代入参数后为 closed_state。"
+                    ),
+                ),
+                description=(
+                    "透明子图中已经验证达到最小值的第二动点状态；仅在后续"
+                    "子问需要代入该点时绑定到题面 existing Point。"
+                ),
+            ),
         ),
     ),
     priority="preferred",
@@ -1516,6 +1443,10 @@ COUPLED_SEGMENT_ENDPOINT_REPLACEMENT_PATH_MINIMUM = StepRecipeSpec(
         "两动点轨迹没有共享端点，或长度关系不能证明端点替换距离等价。",
         "目标已经是单动点标准折线路径，不需要耦合端点替换。",
         "路径依赖射线等长、正方形或非1权重等不同数学机制。",
+        "不要在兄弟 scope 用相同三个公开参数重复调用；应提升到最近公共父 scope。",
+        "不要给 minimum_expression 写 return_bindings；它是匿名计算返回，后续用 StepResultRef 消费。",
+        "不要添加 joint_point 等内部角色参数；公开参数只有目录声明的三个。",
+        "不要因最终问题要求数值就把含未定参数的 minimum_expression 标成 closed_value。",
     ),
 )
 
@@ -1611,91 +1542,14 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
         pack_id="broken_path_minimum_core",
         kind="base",
         method_ids=(
-            "two_moving_points_path_reduction",
             "broken_path_straightening_candidates",
             "select_straightening_candidate",
             "distance_between_points",
         ),
         step_recipes=(
-            TWO_MOVING_POINTS_PATH_REDUCTION,
             BROKEN_PATH_STRAIGHTENING_MINIMUM_EXPRESSION,
         ),
         contracts=(
-            _recipe_contract(
-                "two_moving_points_path_reduction",
-                slot_reads=(
-                    _slot(
-                        "moving_point",
-                        "Point",
-                        object_kind="point",
-                        semantic_role="moving_point",
-                        description=(
-                            "Planner 选择并声明降维后两段路径共享的动点身份。"
-                            "代码会验证该点确实能由所选路径和题面关系得到，"
-                            "不会按点序或隐藏规则替 Planner 选择。"
-                        ),
-                        semantic_ref_role="object_identity",
-                    ),
-                ),
-                condition_reads=(_condition("path_minimum_target"),),
-                slot_writes=(
-                    _slot(
-                        "transformation",
-                        "PathTransformation",
-                        identity_policy="derived_role",
-                        write_mode="create",
-                    ),
-                ),
-                dependency_policy="context_closure",
-                context_resolvers=(PATH_REDUCTION_ROLES_RESOLVER,),
-                context_role_bindings=(
-                    CapabilityContextRoleBindingSpec(
-                        PATH_REDUCTION_ROLES_RESOLVER,
-                        "first_membership",
-                        "first_moving_membership",
-                    ),
-                    CapabilityContextRoleBindingSpec(
-                        PATH_REDUCTION_ROLES_RESOLVER,
-                        "second_membership",
-                        "second_moving_membership",
-                    ),
-                    CapabilityContextRoleBindingSpec(
-                        PATH_REDUCTION_ROLES_RESOLVER,
-                        "binding_relation",
-                        "binding_relation",
-                    ),
-                    CapabilityContextRoleBindingSpec(
-                        PATH_REDUCTION_ROLES_RESOLVER,
-                        "first_segment_start",
-                        "first_segment_start",
-                    ),
-                    CapabilityContextRoleBindingSpec(
-                        PATH_REDUCTION_ROLES_RESOLVER,
-                        "joint_point",
-                        "joint_point",
-                    ),
-                    CapabilityContextRoleBindingSpec(
-                        PATH_REDUCTION_ROLES_RESOLVER,
-                        "second_segment_end",
-                        "second_segment_end",
-                    ),
-                    CapabilityContextRoleBindingSpec(
-                        PATH_REDUCTION_ROLES_RESOLVER,
-                        "transformed_fixed_endpoint",
-                        "transformed_fixed_endpoint",
-                    ),
-                    CapabilityContextRoleBindingSpec(
-                        PATH_REDUCTION_ROLES_RESOLVER,
-                        "moving_locus_endpoint_1",
-                        "moving_locus_endpoint_1",
-                    ),
-                    CapabilityContextRoleBindingSpec(
-                        PATH_REDUCTION_ROLES_RESOLVER,
-                        "moving_locus_endpoint_2",
-                        "moving_locus_endpoint_2",
-                    ),
-                ),
-            ),
             _recipe_contract(
                 "broken_path_straightening_minimum_expression",
                 slot_reads=(
@@ -1757,23 +1611,6 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
                     PATH_TRANSFORMATION_LOCUS_IDENTITY_CONSTRAINTS
                 ),
                 path_transformation_consumer=STANDARD_BROKEN_PATH_CONSUMER,
-            ),
-        ),
-        method_binding_rules=(
-            MethodBindingRuleSpec(
-                method_id="two_moving_points_path_reduction",
-                input_bindings=(
-                    condition_arg_binding(
-                        "original_path",
-                        public_arg="path_minimum_target",
-                    ),
-                    condition_arg_binding("first_moving_membership"),
-                    condition_arg_binding("second_moving_membership"),
-                    condition_arg_binding("binding_relation"),
-                    latest_state_binding("first_segment_start"),
-                    latest_state_binding("joint_point"),
-                    latest_state_binding("second_segment_end"),
-                ),
             ),
         ),
         goal_evidence_policies=(
@@ -2030,6 +1867,9 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
             "把两动点线段替换为已有固定端点到第二动点的线段时，先发布"
             "distance_equality Condition，再用普通反射、求交、路径改写和达到性"
             "Function完成最值证明；不要构造PathTransformation。",
+            "多个子问复用最小值表达式或取等点时，把 Macro 放在最近公共父"
+            "scope 且只调用一次；minimum_expression 保持匿名 open_expression，"
+            "attainment_point 才可按需绑定 existing Point。",
         ),
         contracts=(
             _recipe_contract(
@@ -2402,7 +2242,6 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
 __all__ = [
     "DEFAULT_CAPABILITY_PACK_REGISTRY",
     "RIGHT_ANGLE_EQUAL_LENGTH_CONSTRUCT_AND_SELECT",
-    "TWO_MOVING_POINTS_PATH_REDUCTION",
     "BROKEN_PATH_STRAIGHTENING_MINIMUM_EXPRESSION",
     "COUPLED_SEGMENT_ENDPOINT_REPLACEMENT_PATH_MINIMUM",
     "EQUAL_LENGTH_RAY_PATH_REDUCTION",

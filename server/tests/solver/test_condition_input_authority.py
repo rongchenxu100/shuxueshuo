@@ -210,13 +210,16 @@ def test_recorded_fact_and_role_inputs_use_typed_read_authority() -> None:
     report = replay.transactional_execution_report
     assert report is not None
     compiled = next(
-        item for item in report.compiled_calls if item.call_id == "ii_reduce_path"
+        item
+        for item in report.compiled_calls
+        if item.call_id.endswith("__prove_endpoint_distance")
     )
     invocation = next(
         invocation
         for plan in compiled.plans
         for invocation in plan.invocations
-        if invocation.method_id == "two_moving_points_path_reduction"
+        if invocation.method_id
+        == "prove_coupled_segment_endpoint_distance_equality"
     )
 
     assert {
@@ -224,7 +227,6 @@ def test_recorded_fact_and_role_inputs_use_typed_read_authority() -> None:
         for name, authorities in invocation.input_read_authorities.items()
         if isinstance(authorities[0].source, ConditionReadSource)
     } == {
-        "original_path": "condition:minimum_target_0cdb0e4b1c87@ii",
         "binding_relation": "condition:length_relation_70154fb39055@ii",
         "first_moving_membership": (
             "condition:point_on_segment_5d1a87767221@ii"

@@ -531,7 +531,7 @@ def test_semantic_latest_and_call_result_exact_are_part_of_binding() -> None:
     assert call_result is not None and call_result.selection_policy == "exact"
     assert call_result.source.kind == "call_result"
     assert call_result.source.source_call_id == "ii_derive_path_model"
-    assert call_result.source.source_return_name == "path_minimum_expression"
+    assert call_result.source.source_return_name == "minimum_expression"
     assert call_result.input_binding is not None
     assert call_result.input_binding.source is not None
     assert call_result.input_binding.source.kind == "exact_call_result"

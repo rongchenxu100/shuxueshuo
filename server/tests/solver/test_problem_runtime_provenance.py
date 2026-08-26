@@ -75,7 +75,10 @@ def test_five_case_runtime_writes_and_results_share_call_source_authority(
         reconciliation,
     ) = scope_native_reconciliation_fixture(tmp_path / case, case=case)
     macro_expansions = ()
-    if case == "tj-2026-heping-yimo-25":
+    if case in {
+        "tj-2026-nankai-yimo-25",
+        "tj-2026-heping-yimo-25",
+    }:
         scoped = ScopedFunctionalGoalExecutionService().execute_raw_json(
             json.dumps(load_v3_fixture_payload(case), ensure_ascii=False),
             inputs=inputs,
@@ -282,7 +285,7 @@ def test_missing_compiled_problem_provenance_rolls_back_before_method(
         plan,
         _validation,
         reconciliation,
-    ) = scope_native_reconciliation_fixture(tmp_path, case=CASES[0])
+    ) = scope_native_reconciliation_fixture(tmp_path, case=CASES[2])
     original = transaction_module._stamp_compiled_problem_source_provenance
 
     def omit_first_write(compiled, provenance):
@@ -343,7 +346,7 @@ def test_planner_context_hydrates_problem_source_provenance_fail_closed(
         plan,
         _validation,
         reconciliation,
-    ) = scope_native_reconciliation_fixture(tmp_path, case=CASES[0])
+    ) = scope_native_reconciliation_fixture(tmp_path, case=CASES[2])
     attempt = FunctionalTransactionalInterpreter(
         symbolic_closure_mode="authoritative"
     ).execute_attempt(

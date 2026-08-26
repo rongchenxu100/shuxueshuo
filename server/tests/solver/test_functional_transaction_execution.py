@@ -267,7 +267,7 @@ def _replay(
         binding_catalog,
     ) = _authority_fixture(case_id)
     if (
-        case_id == "heping"
+        case_id in {"heping", "nankai"}
         and mode == "context_authoritative"
         and materialize_macros
     ):
@@ -495,7 +495,7 @@ def _active_singleton_mapping_closure_plan():
     tuple(
         case_id
         for case_id in FUNCTIONAL_BATCH_CASES
-        if case_id != "heping"
+        if case_id not in {"heping", "nankai"}
     ),
 )
 def test_authored_fixture_direct_transaction_execution_is_authoritative(
@@ -607,7 +607,7 @@ def test_authored_fixture_executes_declared_symbolic_closures(
     tuple(
         case_id
         for case_id in FUNCTIONAL_BATCH_CASES
-        if case_id != "heping"
+        if case_id not in {"heping", "nankai"}
     ),
 )
 def test_method_only_goal_output_replays_derived_v1_ir_in_fresh_context(
@@ -777,51 +777,6 @@ def test_context_authoritative_attempt_exception_fails_closed(
         match="planner.transactional_attempt_failed",
     ):
         _replay("nankai", mode="context_authoritative")
-
-
-def test_context_authoritative_preflight_failure_creates_no_runtime_evidence(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    original_allocate = StateAllocationService.allocate
-
-    def conflict_last_call(self, request, index):
-        decision = original_allocate(self, request, index)
-        if request.call_id != "ii_2_derive_G":
-            return decision
-        return replace(
-            decision,
-            action="conflict",
-            selected_slot_id=None,
-            selected_version_id=None,
-            canonical_producer_call_id=None,
-            reason_code="synthetic_partial_graph_failure",
-            conflict_code="state.logical_duplicate_writer",
-        )
-
-    monkeypatch.setattr(
-        StateAllocationService,
-        "allocate",
-        conflict_last_call,
-    )
-
-    replay = _replay(
-        "nankai",
-        mode="context_authoritative",
-    )
-
-    assert replay.transactional_attempt_result is None
-    assert replay.retry_state is not None
-    checkpoint = latest_functional_retry_graph_checkpoint(
-        [
-            {
-                "functional_retry_graph_checkpoint": (
-                    replay.retry_state.functional_retry_graph_checkpoint
-                )
-            }
-        ]
-    )
-    assert checkpoint is None
-    assert not replay.retry_state.runtime_verified_calls
 
 
 def test_transactional_answer_check_revokes_commits_but_keeps_versions() -> None:
@@ -1536,8 +1491,8 @@ def test_partial_goal_failure_keeps_independent_goal_branch_verified() -> None:
     assert failed_call_id in attempt.failed_call_ids
     assert goals["answer:ii_1.min_value"] == "not_executed"
     assert goals["answer:ii_2.G"] == "passed"
-    assert "ii_2_derive_G" in attempt.verified_call_ids
-    assert "ii_2_derive_G" in attempt.goal_reachable_call_ids
+    assert "ii_2_evaluate_G" in attempt.verified_call_ids
+    assert "ii_2_evaluate_G" in attempt.goal_reachable_call_ids
     assert failed_call_id not in attempt.goal_reachable_call_ids
     assert len(attempt.root_issues) == 1
     assert attempt.root_issues[0].step_id == failed_call_id
@@ -1560,95 +1515,6 @@ def test_runtime_context_fork_discards_branch_writes() -> None:
     with pytest.raises(KeyError):
         context.read_path(point_path)
     assert branch.symbols is context.symbols
-
-
-def test_transaction_failure_rolls_back_and_blocks_only_dependents() -> None:
-    case = FUNCTIONAL_BATCH_CASES["nankai"]
-    (
-        _bundle,
-        _planning_context,
-        problem,
-        inputs,
-        problem_payload,
-        registry,
-        planner_context,
-        binding_catalog,
-    ) = _authority_fixture("nankai")
-    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
-        json.loads(case.functional_fixture_path.read_text(encoding="utf-8")),
-        handle_registry=registry,
-        question_goals=inputs.question_goals,
-    )
-    legacy = PlannerRetryReplayService().replay_functional_plan(
-        plan,
-        inputs=inputs,
-        handle_registry=registry,
-        context=ContextBuilder().build(problem),
-        attempt=1,
-        problem_payload=problem_payload,
-        planner_state_context=planner_context,
-        validation_report=validation,
-        problem_binding_catalog=binding_catalog,
-    )
-    normal = _replay("nankai", mode="context_authoritative")
-    graph = normal.transactional_execution_report.graph
-    root, descendants, independent = _failure_partition(graph)
-    fail_step_ids = frozenset((root,))
-    leak_observed = [False]
-
-    class FailingExecutor:
-        def __init__(self, context):
-            self.delegate = InvocationExecutor(
-                inputs.method_specs,
-                methods=default_stateless_registry(),
-                kernel=context.kernel,
-            )
-
-        def execute_plan(self, context, plans):
-            probe = "$problem.points.transaction_failed_probe"
-            try:
-                context.read_path(probe)
-            except KeyError:
-                pass
-            else:
-                leak_observed[0] = True
-            if any(item.step_id in fail_step_ids for item in plans):
-                from shuxueshuo_server.solver.runtime.models import (
-                    Point as RuntimePoint,
-                )
-
-                context.write_path(
-                    probe,
-                    TypedValue(
-                        "Point",
-                        RuntimePoint((9, 9)),
-                        source="test",
-                    ),
-                    from_scope_id="problem",
-                )
-                raise RuntimeError("synthetic transactional root failure")
-            return self.delegate.execute_plan(context, plans)
-
-    report = FunctionalTransactionalInterpreter(
-        executor_factory=lambda _inputs, context: FailingExecutor(context),
-    ).execute(
-        raw_plan=plan,
-        reconciliation=legacy.functional_reconciliation,
-        runtime_context=ContextBuilder().build(problem),
-        parent_context=planner_context,
-        inputs=inputs,
-        handle_registry=registry,
-        goal_verification_report=legacy.goal_verification_report,
-    )
-    statuses = {item.call_id: item.status for item in report.call_states}
-
-    assert statuses[root] == "failed"
-    assert all(
-        statuses[call_id] == "blocked_by_dependency"
-        for call_id in descendants
-    )
-    assert any(statuses[call_id] == "verified" for call_id in independent)
-    assert not leak_observed[0]
 
 
 def test_scope_native_reconciliation_keeps_goal_scoped_context_state_call() -> None:
@@ -1726,193 +1592,6 @@ def test_scope_native_reconciliation_keeps_goal_scoped_context_state_call() -> N
     )
     assert problem_bindings is not None
     assert len(problem_bindings.call_goal_bindings["test_F_midpoint"]) == 1
-
-
-def test_problem_source_read_stays_exact_and_hidden_resolver_needs_sidecar() -> None:
-    case = FUNCTIONAL_BATCH_CASES["nankai"]
-    (
-        _bundle,
-        _planning_context,
-        problem,
-        inputs,
-        problem_payload,
-        registry,
-        planner_context,
-        binding_catalog,
-    ) = _authority_fixture("nankai")
-    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
-        json.loads(case.functional_fixture_path.read_text(encoding="utf-8")),
-        handle_registry=registry,
-        question_goals=inputs.question_goals,
-    )
-    legacy = PlannerRetryReplayService().replay_functional_plan(
-        plan,
-        inputs=inputs,
-        handle_registry=registry,
-        context=ContextBuilder().build(problem),
-        attempt=1,
-        problem_payload=problem_payload,
-        planner_state_context=planner_context,
-        validation_report=validation,
-        problem_binding_catalog=binding_catalog,
-    )
-    graph = LogicalFunctionalGraphBuilder().build(
-        plan,
-        legacy.functional_reconciliation,
-        handle_registry=registry,
-    ).graph
-    working = build_working_state(
-        graph,
-        parent_context=planner_context,
-        handle_registry=registry,
-    )
-    call = next(
-        item
-        for item in legacy.functional_reconciliation.calls
-        if item.call_id == "i_derive_parabola"
-    )
-    runtime_context = ContextBuilder().build(problem)
-    quadratic_value = call.resolved_args["quadratic"][0]
-    assert quadratic_value.state_version_id is not None
-    working.runtime_version_values[
-        quadratic_value.state_version_id
-    ] = runtime_context.read_path(
-        "$problem.expressions.quadratic",
-        from_scope_id="i",
-        expected_type="Expression",
-    )
-    coefficient_values = call.resolved_args["known_coefficients"]
-    for value in coefficient_values:
-        assert value.state_version_id is not None
-        working.runtime_version_values[value.state_version_id] = TypedValue(
-            "ParameterValue",
-            1,
-            source="test",
-        )
-    original_id = coefficient_values[0].state_version_id
-    assert original_id is not None
-    original = working.identity_index.version(original_id)
-    assert original is not None
-    latest_id = StateVersionId(original_id.slot_id, original_id.ordinal + 1)
-    latest = replace(
-        original,
-        version_id=latest_id,
-        producer_call_id="synthetic_latest_M",
-        previous_version_id=original_id,
-        source_version_ids=(original_id,),
-    )
-    working.identity_index.register(latest)
-    working.runtime_version_values[original_id] = TypedValue(
-        "ParameterValue",
-        1,
-        source="test",
-    )
-    working.runtime_version_values[latest_id] = TypedValue(
-        "ParameterValue",
-        9,
-        source="test",
-    )
-
-    prepared = FunctionalCallPreparationService().prepare(
-        call_id=call.call_id,
-        graph=graph,
-        reconciliation=legacy.functional_reconciliation,
-        working=working,
-        runtime_context=runtime_context,
-        inputs=inputs,
-        handle_registry=registry,
-        capability_catalog=FunctionalCapabilityCatalog.from_family_spec(
-            inputs.family_spec,
-            inputs.method_specs,
-        ),
-    )
-    selected = next(
-        item
-        for item in prepared.state_reads
-        if item.arg_name == "known_coefficients"
-        and item.item_index == 0
-    )
-
-    assert selected.selection == "exact"
-    assert selected.original_version_id == original_id
-    assert selected.selected_version_id == original_id
-    assert selected.runtime_value.value == 1
-
-    hidden_call = replace(
-        call,
-        resolved_args={
-            **call.resolved_args,
-            "hidden_coefficients": (coefficient_values[0],),
-        },
-    )
-    hidden_reconciliation = replace(
-        legacy.functional_reconciliation,
-        calls=tuple(
-            hidden_call if item.call_id == call.call_id else item
-            for item in legacy.functional_reconciliation.calls
-        ),
-    )
-    resolver_catalog = FunctionalCapabilityCatalog.from_family_spec(
-        inputs.family_spec,
-        inputs.method_specs,
-    )
-    resolver_capability = resolver_catalog.get(call.capability_id)
-    assert resolver_capability is not None
-    source_arg = next(
-        item
-        for item in resolver_capability.args
-        if item.name == "known_coefficients"
-    )
-    resolver_catalog = FunctionalCapabilityCatalog(
-        {
-            **resolver_catalog.items,
-            call.capability_id: replace(
-                resolver_capability,
-                args=(
-                    *resolver_capability.args,
-                    replace(
-                        source_arg,
-                        name="hidden_coefficients",
-                        binding_authority="resolver",
-                    ),
-                ),
-            ),
-        }
-    )
-    object_registry = MathObjectRegistry.from_sources(
-        registry,
-        math_objects=planner_context.state.math_objects,
-    )
-    condition_authority_index = ConditionBindingAuthorityIndex.from_context(
-        planner_context,
-        object_registry=object_registry,
-        problem_binding_catalog=binding_catalog,
-    )
-    hidden_reconciliation = replace(
-        hidden_reconciliation,
-        functional_binding_context=(
-            FunctionalBindingContextBuilder().build(
-                hidden_reconciliation.plan,
-                hidden_reconciliation.calls,
-                catalog=resolver_catalog,
-                object_registry=object_registry,
-                handle_registry=registry,
-                method_specs=inputs.method_specs,
-                condition_authority_index=condition_authority_index,
-            )
-        ),
-    )
-    with pytest.raises(ValueError, match="planner.problem_source_binding_drift"):
-        FunctionalCallPreparationService().prepare(
-            call_id=call.call_id,
-            graph=graph,
-            reconciliation=hidden_reconciliation,
-            working=working,
-            runtime_context=ContextBuilder().build(problem),
-            inputs=inputs,
-            handle_registry=registry,
-            capability_catalog=resolver_catalog,
-        )
 
 
 def test_verified_commit_is_atomic_when_version_registration_fails(

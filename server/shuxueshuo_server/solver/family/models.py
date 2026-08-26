@@ -711,7 +711,6 @@ CapabilityContextResolver = Literal[
     "condition_object_roles",
     "coupled_segment_endpoint_roles",
     "equal_length_ray_path_roles",
-    "path_reduction_roles",
     "square_path_transformation_roles",
     "weighted_path_transformation_roles",
 ]
@@ -723,9 +722,6 @@ COUPLED_SEGMENT_ENDPOINT_ROLES_RESOLVER: CapabilityContextResolver = (
 )
 EQUAL_LENGTH_RAY_PATH_ROLES_RESOLVER: CapabilityContextResolver = (
     "equal_length_ray_path_roles"
-)
-PATH_REDUCTION_ROLES_RESOLVER: CapabilityContextResolver = (
-    "path_reduction_roles"
 )
 SQUARE_PATH_TRANSFORMATION_ROLES_RESOLVER: CapabilityContextResolver = (
     "square_path_transformation_roles"

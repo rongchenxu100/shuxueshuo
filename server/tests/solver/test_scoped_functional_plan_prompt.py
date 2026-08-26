@@ -300,6 +300,20 @@ def test_all_v3_mechanism_assets_are_strict_and_loadable() -> None:
         "target_ref": "target_point",
         "answer_type": "Point",
     }
+    coupled = next(
+        json.loads(path.read_text(encoding="utf-8"))
+        for path in paths
+        if "coupled-segment-endpoint-replacement" in path.name
+    )
+    coupled_root = coupled["plan"]["root_scope"]
+    assert [step["capability_id"] for step in coupled_root["steps"]] == [
+        "coupled_segment_endpoint_replacement_path_minimum"
+    ]
+    assert {
+        goal["answer_from"]["return"]
+        for child in coupled_root["children"]
+        for goal in child["goals"]
+    } == {"minimum_expression", "attainment_point"}
 
 
 def test_v3_mechanism_assets_do_not_consume_named_outputs_by_step_result() -> None:

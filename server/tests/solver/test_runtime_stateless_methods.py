@@ -50,7 +50,6 @@ from shuxueshuo_server.solver.runtime.methods import (
     SquareAdjacentVertexFromSideMethod,
     SquareOppositePointMethod,
     SquarePathDimensionReductionMethod,
-    TwoMovingPointsPathReductionMethod,
     TranslatedPointMethod,
     RewritePathTargetByDistanceEqualityMethod,
     VerifyTwoSegmentPathAttainmentMethod,
@@ -114,7 +113,6 @@ def test_parameter_methods_delegate_solving_to_shared_closure_core(
         SelectPointByQuadrantConstraintMethod,
         SquareAdjacentVertexFromSideMethod,
         TranslatedPointMethod,
-        TwoMovingPointsPathReductionMethod,
     ),
 )
 def test_problem_expression_consumers_use_canonical_runtime_boundary(
@@ -1911,96 +1909,6 @@ def test_quadratic_x_axis_intercept_point_method_uses_right_target_side() -> Non
     )
 
     assert result.outputs["point"].value == (1, 0)
-    assert all(check.ok for check in result.checks)
-
-
-def test_two_moving_points_path_reduction_method() -> None:
-    kernel = SympyKernel()
-    m = kernel.symbols(["m"])["m"]
-
-    result = TwoMovingPointsPathReductionMethod().run(
-        {
-            "original_path": {
-                "path": "EG+FG",
-                "condition_ref": "fact:ii:path_minimum_target",
-                "terms": [
-                    ["point:ii:E", "point:ii:G"],
-                    ["point:ii:F", "point:ii:G"],
-                ],
-            },
-            "first_moving_membership": {
-                "point": "E",
-                "segment": ["D", "M"],
-                "condition_ref": "fact:ii:segment_E_on_DM",
-                "point_ref": "point:ii:E",
-                "segment_ref": "segment:ii:DM",
-                "segment_endpoint_refs": [
-                    "point:problem:D",
-                    "point:ii:M",
-                ],
-            },
-            "second_moving_membership": {
-                "point": "G",
-                "segment": ["M", "N"],
-                "condition_ref": "fact:ii:segment_G_on_MN",
-                "point_ref": "point:ii:G",
-                "segment_ref": "segment:ii:MN",
-                "segment_endpoint_refs": [
-                    "point:ii:M",
-                    "point:ii:N",
-                ],
-            },
-            "binding_relation": {
-                "left": "DE",
-                "right": "sqrt(2)*NG",
-                "description": "DE=√2·NG",
-                "condition_ref": "fact:ii:segment_DE_eq_sqrt2_NG",
-                "left_term": {
-                    "scale": "1",
-                    "segment": ["point:problem:D", "point:ii:E"],
-                },
-                "right_term": {
-                    "scale": "sqrt(2)",
-                    "segment": ["point:ii:N", "point:ii:G"],
-                },
-            },
-            "first_segment_start": (sp.Integer(1), sp.Integer(0)),
-            "joint_point": (m, sp.Integer(1)),
-            "second_segment_end": (sp.Integer(2), 1 - m),
-        },
-        kernel,
-    )
-
-    transformation = result.outputs["path_transformation"].value
-    assert transformation["original_path"] == "EG+FG"
-    assert transformation["transformed_path"] == "DG+FG"
-    assert transformation["segment_equality"] == "EG=DG"
-    assert transformation["type"] == "existing_fixed_endpoint_replacement"
-    assert transformation["replacement_fixed_endpoint"] == "D"
-    assert transformation["replacement_moving_point"] == "G"
-    assert transformation["creates_auxiliary_point"] is False
-    assert transformation["transformed_terms"] == [
-        ["point:problem:D", "point:ii:G"],
-        ["point:ii:F", "point:ii:G"],
-    ]
-    assert transformation["moving_point_ref"] == "point:ii:G"
-    assert transformation["fixed_endpoint_refs"] == [
-        "point:problem:D",
-        "point:ii:F",
-    ]
-    assert transformation["moving_locus_condition_ref"] == (
-        "fact:ii:segment_G_on_MN"
-    )
-    assert transformation["moving_locus_endpoint_refs"] == [
-        "point:ii:M",
-        "point:ii:N",
-    ]
-    assert transformation["source_condition_refs"] == [
-        "fact:ii:path_minimum_target",
-        "fact:ii:segment_E_on_DM",
-        "fact:ii:segment_G_on_MN",
-        "fact:ii:segment_DE_eq_sqrt2_NG",
-    ]
     assert all(check.ok for check in result.checks)
 
 

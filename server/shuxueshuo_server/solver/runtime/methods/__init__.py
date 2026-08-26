@@ -19,7 +19,6 @@ from .quadratic_axis_x_intercept_point import QuadraticAxisXInterceptPointMethod
 from .point_on_parabola_at_x import PointOnParabolaAtXMethod, SPEC as POINT_ON_PARABOLA_AT_X_SPEC
 from .midpoint_point import MidpointPointMethod, SPEC as MIDPOINT_POINT_SPEC
 from .parameter_from_segment_length import ParameterFromSegmentLengthMethod, SPEC as PARAMETER_FROM_SEGMENT_LENGTH_SPEC
-from .two_moving_points_path_reduction import TwoMovingPointsPathReductionMethod, SPEC as TWO_MOVING_POINTS_PATH_REDUCTION_SPEC
 from .broken_path_straightening_candidates import BrokenPathStraighteningCandidatesMethod, SPEC as BROKEN_PATH_STRAIGHTENING_CANDIDATES_SPEC
 from .select_straightening_candidate import SelectStraighteningCandidateMethod, SPEC as SELECT_STRAIGHTENING_CANDIDATE_SPEC
 from .square_opposite_point import SquareOppositePointMethod, SPEC as SQUARE_OPPOSITE_POINT_SPEC
@@ -82,7 +81,6 @@ ALL_METHOD_SPEC_SOURCES = (
     POINT_ON_PARABOLA_AT_X_SPEC,
     MIDPOINT_POINT_SPEC,
     PARAMETER_FROM_SEGMENT_LENGTH_SPEC,
-    TWO_MOVING_POINTS_PATH_REDUCTION_SPEC,
     BROKEN_PATH_STRAIGHTENING_CANDIDATES_SPEC,
     SELECT_STRAIGHTENING_CANDIDATE_SPEC,
     SQUARE_OPPOSITE_POINT_SPEC,
@@ -132,7 +130,6 @@ def default_stateless_registry() -> StatelessMethodRegistry:
         PointOnParabolaAtXMethod(),
         MidpointPointMethod(),
         ParameterFromSegmentLengthMethod(),
-        TwoMovingPointsPathReductionMethod(),
         BrokenPathStraighteningCandidatesMethod(),
         SelectStraighteningCandidateMethod(),
         SquareOppositePointMethod(),
@@ -181,7 +178,6 @@ __all__ = [
     "PointOnParabolaAtXMethod",
     "MidpointPointMethod",
     "ParameterFromSegmentLengthMethod",
-    "TwoMovingPointsPathReductionMethod",
     "BrokenPathStraighteningCandidatesMethod",
     "SelectStraighteningCandidateMethod",
     "SquareOppositePointMethod",

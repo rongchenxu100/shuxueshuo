@@ -246,7 +246,7 @@ def test_stored_functional_few_shots_use_only_functional_plan_protocol() -> None
             ensure_ascii=False,
         )
     assert annotated_paths == [
-        "broken-path-straightening.functional-few-shot.json",
+        "coupled-segment-endpoint-replacement.functional-few-shot.json",
         "quadratic-constraints-vertex.functional-few-shot.json",
         "right-angle-equal-length-construction.functional-few-shot.json",
     ]
@@ -260,12 +260,15 @@ def test_nankai_functional_few_shot_annotations_are_safe_and_complete() -> None:
     }
 
     assert set(entries) == {
-        "broken_path_straightening",
+        "coupled_segment_endpoint_replacement",
         "right_angle_equal_length_construction",
     }
-    assert entries["broken_path_straightening"].selection_role == "core"
     assert (
-        entries["broken_path_straightening"].family_id
+        entries["coupled_segment_endpoint_replacement"].selection_role
+        == "core"
+    )
+    assert (
+        entries["coupled_segment_endpoint_replacement"].family_id
         == "QuadraticPathMinimumSolver"
     )
     assert (
@@ -333,7 +336,7 @@ def test_explicit_functional_mode_wins_over_legacy_boolean() -> None:
     )
     assert explicit["functional_few_shot_selection"]["mode"] == "new_problem"
     assert explicit["functional_few_shot_selection"]["example_id"] == (
-        "broken_path_straightening"
+        "coupled_segment_endpoint_replacement"
     )
 
 
@@ -407,7 +410,7 @@ def test_mechanism_subgraphs_are_closed_neutralized_projections() -> None:
             if call["call_id"] in entry.source_call_ids
         }
 
-        assert 2 <= len(calls) <= 5
+        assert 1 <= len(calls) <= 5
         assert [call["capability_id"] for call in calls] == [
             source_calls[call_id]["capability_id"]
             for call_id in entry.source_call_ids
@@ -471,8 +474,8 @@ def test_selection_is_catalog_gated_cross_family_and_stable() -> None:
         ),
         (
             "tj-2026-heping-ermo-25",
-            "broken_path_straightening",
-            "cross_family",
+            "quadratic_constraints_vertex",
+            "fallback",
         ),
     ),
 )
@@ -510,15 +513,17 @@ def test_nankai_core_annotation_is_rendered_before_strict_plan() -> None:
     )
 
     example = payload["few_shot_examples"][0]
-    assert example["annotation"]["purpose"] == "双动点路径降维与折线拉直。"
+    assert example["annotation"]["purpose"] == (
+        "用透明 Macro 完成共享端点耦合线段的端点替换、反射拉直与最小值认证。"
+    )
     prompt = StrategyPromptRenderer().render(payload).user
     assert "### 机制说明" in prompt
-    assert "双动点路径降维与折线拉直" in prompt
-    assert "先建立显式路径等价变换" in prompt
-    assert "本例的变换已携带动点轨迹证据" in prompt
-    assert "必须先根据变换发布的动点身份求出同一对象的轨迹" in prompt
-    assert "变换发布的动点身份" in prompt
-    assert "不能使用最终答案对象或任意可见直线" in prompt
+    assert "共享端点耦合线段的端点替换、反射拉直与最小值认证" in prompt
+    assert "Macro 透明展开为普通 Function 图" in prompt
+    assert "只发布已经验证可达的最小值表达式" in prompt
+    assert "两条动点轨迹不共享端点" in prompt
+    assert "缺少能连接两条动线段的结构化长度关系" in prompt
+    assert "只凭点名、文本描述或最终答案猜测动点角色" in prompt
     assert "### FunctionalPlan 示例" in prompt
     assert '"format":"functional_plan/v1"' in prompt
     assert '"annotation"' not in prompt
@@ -550,8 +555,7 @@ def test_nankai_family_new_problem_prefers_core_path_fragment() -> None:
 
     assert len(selected) == 1
     assert _capability_ids(selected[0]) == [
-        "two_moving_points_path_reduction",
-        "broken_path_straightening_minimum_expression",
+        "coupled_segment_endpoint_replacement_path_minimum",
     ]
 
 

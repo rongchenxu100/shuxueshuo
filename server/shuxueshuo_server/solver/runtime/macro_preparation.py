@@ -502,6 +502,24 @@ def _build_coupled_segment_preparation_context(
             "coupled-segment Macro has no exact path target",
             retryability="configuration",
         )
+    target_scope_ids = frozenset(
+        handle_registry.handle_valid_scopes.get(handle)
+        for handle in target_handles
+    )
+    if None in target_scope_ids or len(target_scope_ids) != 1:
+        raise MacroRuntimeSearchError(
+            "planner.macro_contract_invalid",
+            "coupled-segment Macro targets do not share one role-resolution scope",
+            retryability="configuration",
+            details={
+                "target_handles": target_handles,
+                "target_scope_ids": tuple(
+                    sorted(str(item) for item in target_scope_ids)
+                ),
+            },
+        )
+    role_resolution_scope_id = next(iter(target_scope_ids))
+    assert isinstance(role_resolution_scope_id, str)
     visible_scopes = frozenset(
         handle_registry.ancestor_scopes(prepared.execution_scope_id)
     )
@@ -552,7 +570,13 @@ def _build_coupled_segment_preparation_context(
     context = MappingProxyType(
         {
             "handle_registry": handle_registry,
-            "scope_id": prepared.execution_scope_id,
+            # Prompt projection resolves the structural roles from the path
+            # target's valid scope.  Runtime search must use that same
+            # authority even when the Macro executes in a descendant scope;
+            # otherwise descendant-local shadow Facts can change or
+            # invalidate the candidate set after the planner saw the prompt.
+            "scope_id": role_resolution_scope_id,
+            "execution_scope_id": prepared.execution_scope_id,
             "target_handles": target_handles,
             "condition_handles": condition_handles,
             "domain_facts": domain_facts,

@@ -46,6 +46,9 @@ from shuxueshuo_server.solver.runtime.functional_plan_reconciliation import (
 from shuxueshuo_server.solver.runtime.functional_plan_validation import (
     FunctionalPlanValidator,
 )
+from shuxueshuo_server.solver.runtime.functional_goal_execution import (
+    ScopedFunctionalGoalExecutionService,
+)
 from shuxueshuo_server.solver.runtime.planner_state_context import (
     initial_planner_state_context,
 )
@@ -295,21 +298,39 @@ def scope_native_retry_checkpoint_fixture(
         validation,
         _reconciliation,
     ) = fixture
-    replay = PlannerRetryReplayService(
-        functional_transaction_mode="context_authoritative",
-        functional_symbolic_closure_mode="authoritative",
-    ).replay_functional_plan(
-        plan,
-        inputs=inputs,
-        handle_registry=registry,
-        context=ContextBuilder().build(problem),
-        attempt=1,
-        problem_payload=problem_payload,
-        planner_state_context=planner_context,
-        validation_report=validation,
-        problem_binding_catalog=catalog,
-        canonical_plan_id=scope_native_plan_id(case),
-    )
+    if case in {
+        "tj-2026-nankai-yimo-25",
+        "tj-2026-heping-yimo-25",
+    }:
+        scoped = ScopedFunctionalGoalExecutionService().execute_raw_json(
+            json.dumps(load_v3_fixture_payload(case), ensure_ascii=False),
+            inputs=inputs,
+            planning_context=_planning_context,
+            problem_binding_catalog=catalog,
+            handle_registry=registry,
+            context=ContextBuilder().build(problem),
+            planner_state_context=planner_context,
+            problem_payload=problem_payload,
+            attempt=1,
+        )
+        assert scoped.replay is not None
+        replay = scoped.replay
+    else:
+        replay = PlannerRetryReplayService(
+            functional_transaction_mode="context_authoritative",
+            functional_symbolic_closure_mode="authoritative",
+        ).replay_functional_plan(
+            plan,
+            inputs=inputs,
+            handle_registry=registry,
+            context=ContextBuilder().build(problem),
+            attempt=1,
+            problem_payload=problem_payload,
+            planner_state_context=planner_context,
+            validation_report=validation,
+            problem_binding_catalog=catalog,
+            canonical_plan_id=scope_native_plan_id(case),
+        )
     attempt_result = replay.transactional_attempt_result
     assert attempt_result is not None
     diagnostic = attempt_result.diagnostic

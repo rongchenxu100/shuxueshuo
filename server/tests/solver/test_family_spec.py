@@ -136,7 +136,8 @@ def test_family_spec_contains_only_family_level_context() -> None:
     assert "quadratic_from_constraints" in spec.method_ids
     recipe_ids = {recipe.recipe_id for recipe in spec.step_recipes}
     assert "right_angle_equal_length_construct_and_select" in recipe_ids
-    assert "two_moving_points_path_reduction" in recipe_ids
+    assert "coupled_segment_endpoint_replacement_path_minimum" in recipe_ids
+    assert "two_moving_points_path_reduction" not in recipe_ids
     assert any(recipe.priority == "preferred" for recipe in spec.step_recipes)
     assert spec.method_binding_rules
 
@@ -158,13 +159,22 @@ def test_path_family_recipes_include_execution_specs() -> None:
     assert right_angle.do_not_use_when
     assert any("单个条件" in item for item in right_angle.do_not_use_when)
 
-    straightening = recipes["broken_path_straightening_minimum_expression"]
-    assert straightening.execution is not None
-    assert straightening.execution.execution_strategy == (
-        "broken_path_straightening_minimum_expression"
+    assert "coupled_segment_endpoint_replacement_path_minimum" in recipes
+    assert "broken_path_straightening_minimum_expression" not in recipes
+    assert "broken_path_minimum_core" not in (
+        QUADRATIC_PATH_MINIMUM_FAMILY.base_packs
     )
-    assert straightening.do_not_use_when
-    assert any("原路径动点" in item for item in straightening.do_not_use_when)
+    assert "broken_path_straightening_candidates" not in (
+        QUADRATIC_PATH_MINIMUM_FAMILY.method_ids
+    )
+    assert not any(
+        "先把两动点路径降为单动点路径" in principle
+        for principle in QUADRATIC_PATH_MINIMUM_FAMILY.strategy_principles
+    )
+    assert any(
+        "耦合线段端点替换Macro" in principle
+        for principle in QUADRATIC_PATH_MINIMUM_FAMILY.strategy_principles
+    )
 
 
 def test_path_family_binding_rules_are_declared_in_spec() -> None:
@@ -175,7 +185,7 @@ def test_path_family_binding_rules_are_declared_in_spec() -> None:
     }
 
     assert "quadratic_axis_from_relation" in rules
-    assert "two_moving_points_path_reduction" in rules
+    assert "two_moving_points_path_reduction" not in rules
     axis_bindings = {
         binding.input_name: binding
         for binding in rules["quadratic_axis_from_relation"].input_bindings
@@ -545,7 +555,7 @@ def test_expanded_family_catalogs_keep_pack_and_local_capabilities() -> None:
             },
             {
                 "right_angle_equal_length_construct_and_select",
-                "broken_path_straightening_minimum_expression",
+                "coupled_segment_endpoint_replacement_path_minimum",
             },
         ),
         QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY.family_id: (
@@ -572,7 +582,6 @@ def test_expanded_family_catalogs_keep_pack_and_local_capabilities() -> None:
         QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY.family_id: (
             QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY,
             {
-                "two_moving_points_path_reduction",
                 "square_path_dimension_reduction",
                 "line_locus_minimum_point",
             },

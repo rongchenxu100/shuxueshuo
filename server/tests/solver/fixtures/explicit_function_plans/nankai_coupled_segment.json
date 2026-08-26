@@ -3,7 +3,6 @@
   "case_id": "tj-2026-nankai-yimo-25",
   "scope_ref": "ii",
   "replaces_step_ids": [
-    "ii_reduce_path",
     "ii_derive_path_model"
   ],
   "steps": [
@@ -129,6 +128,10 @@
     }
   ],
   "exports": {
+    "attainment_point": {
+      "step_id": "llm_construct_G",
+      "return": "intersection"
+    },
     "minimum_expression": {
       "step_id": "llm_publish_minimum",
       "return": "minimum_expression"

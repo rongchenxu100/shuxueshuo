@@ -6,7 +6,10 @@ from collections.abc import Iterable
 
 
 _CONDITION_KIND_GROUPS = (
-    frozenset(("length_squared", "segment_length_relation")),
+    frozenset(
+        ("length_squared", "segment_length_relation", "segment_relation")
+    ),
+    frozenset(("point_on_segment", "segment_membership")),
     frozenset(("dynamic_constraint", "symbol_constraint")),
 )
 

@@ -1,7 +1,7 @@
 # 路径最值 Macro 重构
 
-状态：F5-F4.1、F5-F4.2、F5-F4.2R、F5-F4.3A、F5-F4.3B、
-F5-F4.3C1与F5-F4.3C2已完成；当前下一阶段是F5-F4.3C3生产切换与清理。
+状态：F5-F4.1、F5-F4.2、F5-F4.2R、F5-F4.3A、F5-F4.3B与
+F5-F4.3C已完成；当前下一阶段是F5-F4.3D正方形路径迁移。
 
 统一运行时权威链记录在
 [F5-F4.2运行时权威收敛](problem-extraction-context-implementation-plan.md#f5-f4-2-runtime-authority-convergence)。
@@ -1202,7 +1202,7 @@ Condition及最终标准输出。Goal execution与Scoped replay现在共用同�
 新生成的普通Function step建立最终per-call F5-C binding。复审补强后的L2 contract为
 `2370 passed`，schema snapshot与`git diff --check`均通过；未重复运行付费LLM冒烟。
 
-### 6.3 F4.3C：标准路径与耦合线段端点替换（C1/C2完成；C3下一项）
+### 6.3 F4.3C：标准路径与耦合线段端点替换（COMPLETE）
 
 目标：迁移 `quadratic_path_minimum` family，并优先解决南开题中 Planner 需要拼装
 PathTransformation、端点和拉直步骤导致的超长输出。
@@ -1294,11 +1294,37 @@ coupled_segment_endpoint_replacement_path_minimum
 - C2定向Macro/C1/checkpoint组合为`39 passed`，L2 contract为`2379 passed`；没有切换生产
   fixture，没有删除旧Macro，也没有运行付费live。这些动作仍属于C3。
 
-#### 6.3.3 C3：生产切换与物理删除（PENDING）
+#### 6.3.3 C3：生产切换与物理删除（COMPLETE）
 
-C3将南开recorded Plan切换到C2 Macro，运行南开定向live`1x3`，然后删除旧
-`two_moving_points_path_reduction`公开Macro/Method、PathTransformation return及南开对
-`broken_path_straightening_minimum_expression`的引用。只有C3完成后，F4.3C才整体关闭。
+C3已将南开三份recorded Plan切换到
+`coupled_segment_endpoint_replacement_path_minimum`。共享Macro位于两个子问的最近公共父
+scope，一次发布匿名`minimum_expression`和可选`attainment_point`；两个子问分别通过
+StepResultRef或题面Point状态消费，不重复构造Path链。南开不再依赖
+`broken_path_straightening_minimum_expression`。
+
+旧`two_moving_points_path_reduction`公开Macro、Method、MethodSpec、family recipe/rule与固定
+planner调用已物理删除；新Macro的普通公开返回中不再存在`PathTransformation`。和平二模仍使用
+`broken_path_straightening_minimum_expression`，其迁移和全局Path壳删除按D/F阶段边界处理。
+prompt角色投影与runtime candidate search现在统一以path target的valid scope解析结构角色，Macro
+在后代scope执行时不会被后代local/shadow Fact改变候选集；可见性与写入仍以execution scope为
+权威。prompt上下文分派按Macro ID显式注册，新增第三种Macro而未提供builder会配置级fail-loud，
+不会静默复用coupled builder。新Macro专项门禁已覆盖错误hint由唯一runtime winner纠正、不可比较
+的非等价候选报歧义、shadow写入零泄漏、clean replay、显式Function等价与checkpoint恢复。
+
+最值Goal closure暂时仍接受`verified_path_minimum_subplan ∨ path_minimum_attained`：前者只为D前仍在
+生产使用的和平二模旧拉直链保留。D迁移该链时必须将相应family收敛到predicate witness；C3不提前
+全局删除这条兼容分支。
+
+最终L0 affected为`1153 passed, 9 deselected`，L2 contract为`2330 passed`。真实DeepSeek批次
+`f5-f4.3c3-nankai-live-1x3-20260826-r3`为`3/3`：compile、transaction、六个Goal、
+Plan authority与completion全部通过；三个样本均只有一次semantic attempt和一次provider
+sub-attempt，provider `finish_reason`全部为`stop`，`length`数量为`0`。configuration error、
+unclassified error、repair authority drift、failed transaction ghost write、prompt identity leak与
+solved Goal重执行均为`0`。首次真实批次暴露的兄弟scope重复Macro调用已通过公开Capability契约
+和采样结果消除；最终验收批次无需Goal retry。debug authority表明该`1×3`实际统一选中的few-shot
+是`quadratic_constraints_vertex`（三份同ID、同hash），不是现已正名的
+`coupled_segment_endpoint_replacement`。后者是使用占位角色的可复用机制示例，但不能用于归因本次live
+改善，更不是为南开题点名定制的测试片段。
 
 测试与提交：
 
@@ -1477,9 +1503,6 @@ configuration / unclassified error == 0
 
 ## 9. 当前下一步
 
-下一项实现是 **F4.3C3 生产切换与物理删除**。F4.3A已经关闭输出侧字符串selector与
-等长射线平行角色owner；B已经把Macro winner物化为普通Function steps；C1证明南开耦合
-线段端点替换可由独立LLM-style普通Plan完成；C2已把同一七步Function图注册为透明Macro，
-并通过typed graph、Condition、exact authority、provenance、标准输出和checkpoint恢复等价门禁。
-C3才切换生产南开fixture、运行定向live`1x3`并删除旧Path链；不得在切换前提前删除和平二模
-仍依赖的共享能力。
+下一项实现是 **F4.3D 正方形路径迁移**。F4.3C已经完成南开生产切换、旧耦合Path链物理删除、
+Macro/显式Function等价门禁和定向live`1x3`。D阶段迁移和平二模时仍应复用F4.3B通用内核，
+不得重新引入PathTransformation输出、output selector、专用handle推断或题型专用witness体系。

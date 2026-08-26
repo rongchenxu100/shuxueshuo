@@ -126,7 +126,6 @@ def test_all_registered_macros_declare_execution_and_lowering_contract() -> None
         "curve_candidate_parameter_solve",
         "equal_length_ray_path_reduction",
         "right_angle_equal_length_construct_and_select",
-        "two_moving_points_path_reduction",
     }
     for specs in macros.values():
         for spec in specs:

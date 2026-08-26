@@ -1,0 +1,59 @@
+{
+  "example_id": "coupled_segment_endpoint_replacement",
+  "source_problem_id": "tj-2026-nankai-yimo-25",
+  "family_id": "QuadraticPathMinimumSolver",
+  "pack_ids": [
+    "coupled_segment_endpoint_replacement_core"
+  ],
+  "capability_ids": [
+    "coupled_segment_endpoint_replacement_path_minimum"
+  ],
+  "answer_value_types": [
+    "MinimumExpression"
+  ],
+  "source_call_ids": [
+    "ii_derive_path_model"
+  ],
+  "selection_role": "core",
+  "conditions": [
+    {
+      "ref": "path_goal",
+      "kind": "fact",
+      "description": "两个耦合动点构成的两段路径最值目标"
+    },
+    {
+      "ref": "first_membership",
+      "kind": "fact",
+      "description": "第一动点在线段上的结构化归属条件"
+    },
+    {
+      "ref": "second_membership",
+      "kind": "fact",
+      "description": "第二动点在线段上的结构化归属条件"
+    },
+    {
+      "ref": "binding_relation",
+      "kind": "fact",
+      "description": "连接两条动线段的结构化长度关系"
+    },
+    {
+      "ref": "moving_point",
+      "kind": "point",
+      "description": "透明子图中取得最小值的第二动点"
+    }
+  ],
+  "neutralization_map": {
+    "call_ids": {
+      "ii_derive_path_model": "derive_path_model"
+    },
+    "semantic_refs": {
+      "path_minimum_target": "path_goal",
+      "segment_E_on_DM": "first_membership",
+      "segment_G_on_MN": "second_membership",
+      "segment_DE_eq_sqrt2_NG": "binding_relation",
+      "G": "moving_point"
+    },
+    "text_replacements": {}
+  },
+  "neutralized": true
+}

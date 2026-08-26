@@ -11,15 +11,21 @@ from shuxueshuo_server.solver.contracts import (
     MethodInputBindingSpec,
 )
 from shuxueshuo_server.solver.family import DEFAULT_FAMILY_REGISTRY
+from shuxueshuo_server.solver.runtime import (
+    functional_plan_elaboration as elaboration_module,
+    functional_transaction_execution as transaction_module,
+    scoped_functional_plan_replay as scoped_replay_module,
+)
+from shuxueshuo_server.solver.runtime.context import ContextBuilder
 from shuxueshuo_server.solver.runtime.functional_plan_elaboration import (
     FunctionalSemanticIndex,
 )
-from shuxueshuo_server.solver.runtime.context import ContextBuilder
 from shuxueshuo_server.solver.runtime.handle_registry import (
     CanonicalHandleRegistry,
 )
 from shuxueshuo_server.solver.runtime.macro_preparation import (
     MacroPreparationRequest,
+    _build_coupled_segment_preparation_context,
     _build_equal_length_ray_preparation_context,
 )
 from shuxueshuo_server.solver.runtime.macro_plan_materialization import (
@@ -39,12 +45,9 @@ from shuxueshuo_server.solver.runtime.recipes import (
 from shuxueshuo_server.solver.runtime.scoped_functional_plan_replay import (
     ScopedFunctionalPlanReplayService,
 )
-from shuxueshuo_server.solver.runtime import (
-    functional_transaction_execution as transaction_module,
-    scoped_functional_plan_replay as scoped_replay_module,
-)
 from _problem_planning_support import planning_binding_fixture
 from _scoped_functional_plan_support import load_v3_fixture_payload
+from test_path_reduction_roles import _registry as _coupled_role_registry
 
 
 pytestmark = pytest.mark.solver_contract
@@ -357,6 +360,116 @@ def test_structured_equal_length_roles_allow_duplicate_display_names() -> None:
         "ray_point": "point:problem:D",
         "reference_point": "point:problem:B",
     }
+
+
+def test_coupled_prompt_and_runtime_search_share_target_scope_authority() -> None:
+    base = _coupled_role_registry()
+    shadow_relation = "fact:part_child:shadow_coupled_lengths"
+    source_relation = "fact:part:coupled_lengths"
+    registry = replace(
+        base,
+        scope_ids=frozenset((*base.scope_ids, "part_child")),
+        scope_parents={
+            **base.scope_parents,
+            "part_child": "part",
+        },
+        fact_handles=frozenset((*base.fact_handles, shadow_relation)),
+        fact_types={
+            **base.fact_types,
+            shadow_relation: "segment_relation",
+        },
+        handle_valid_scopes={
+            **base.handle_valid_scopes,
+            shadow_relation: "part_child",
+        },
+        fact_payloads={
+            **base.fact_payloads,
+            shadow_relation: dict(base.fact_payloads[source_relation]),
+        },
+    )
+    resolved_args = {
+        "path_minimum_target": (
+            SimpleNamespace(handle="fact:part:path_goal"),
+        ),
+        "point_on_segment": tuple(
+            SimpleNamespace(handle=handle)
+            for handle in (
+                "fact:part:left_membership",
+                "fact:part:right_membership",
+            )
+        ),
+        "segment_length_relation": (
+            SimpleNamespace(handle=source_relation),
+        ),
+    }
+    request = MacroPreparationRequest(
+        planning_context_id="context:test",
+        problem_revision_id="revision:test",
+        problem_semantic_hash="semantic:test",
+        plan_id="plan:test",
+        call_id="reduce_path",
+        goal_unit_ids=("part_child.a",),
+        scope_id="part_child",
+        macro_id="coupled_segment_endpoint_replacement_path_minimum",
+        catalog_signature="catalog:test",
+        authored_roles={},
+        candidate_dependency_envelope=(),
+        upstream_exact_state_signature="state:test",
+        environment=SimpleNamespace(
+            prepared_call=SimpleNamespace(
+                execution_scope_id="part_child",
+                reconciliation=SimpleNamespace(resolved_args=resolved_args),
+            ),
+            handle_registry=registry,
+            max_candidates=32,
+        ),
+    )
+
+    preparation = _build_coupled_segment_preparation_context(request)
+
+    assert preparation.payload["scope_id"] == "part"
+    assert preparation.payload["execution_scope_id"] == "part_child"
+    candidates = default_macro_definition_registry().project_role_bindings(
+        "coupled_segment_endpoint_replacement_path_minimum",
+        builder_context=preparation.payload,
+        max_candidates=32,
+    )
+    assert len(candidates) == 1
+
+    drifted_context = dict(preparation.payload)
+    drifted_context["scope_id"] = "part_child"
+    with pytest.raises(MacroDefinitionError) as error:
+        default_macro_definition_registry().project_role_bindings(
+            "coupled_segment_endpoint_replacement_path_minimum",
+            builder_context=drifted_context,
+            max_candidates=32,
+        )
+    assert error.value.code == "functional.path_reduction.binding_relation_ambiguous"
+
+
+def test_new_macro_definition_without_prompt_context_builder_fails_loud(
+    monkeypatch,
+) -> None:
+    registry = _coupled_role_registry()
+    monkeypatch.setattr(
+        elaboration_module,
+        "default_macro_definition_registry",
+        lambda: SimpleNamespace(macro_ids=frozenset({"third_macro"})),
+    )
+    semantic_index = FunctionalSemanticIndex(
+        (),
+        handle_registry=registry,
+        entity_payloads=registry.entity_payloads,
+        fact_payloads=registry.fact_payloads,
+        relation_authority_views=(),
+    )
+
+    with pytest.raises(MacroRuntimeSearchError) as error:
+        semantic_index.macro_role_ref_candidates("third_macro")
+
+    assert error.value.code == "planner.macro_contract_invalid"
+    assert error.value.retryability == "configuration"
+    assert error.value.details == {"macro_id": "third_macro"}
 
 
 def test_macro_winner_is_the_only_f5c_role_authority(tmp_path) -> None:

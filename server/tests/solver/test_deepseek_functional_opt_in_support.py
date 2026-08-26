@@ -147,7 +147,7 @@ def test_prompt_safety_allows_call_id_equal_to_hidden_example_id() -> None:
         },
         "functional_few_shot_selection": {
             "mode": "strict_test",
-            "example_id": "broken_path_straightening",
+            "example_id": "coupled_segment_endpoint_replacement",
             "source_problem_id": "hidden_problem",
             "family_id": "HiddenFamily",
             "selection_tier": "cross_family",
@@ -159,7 +159,7 @@ def test_prompt_safety_allows_call_id_equal_to_hidden_example_id() -> None:
     prompt = SimpleNamespace(
         user=(
             '{"format":"functional_plan/v1","scopes":[{"calls":['
-            '{"call_id":"broken_path_straightening"}]}]}'
+            '{"call_id":"coupled_segment_endpoint_replacement"}]}]}'
         )
     )
 

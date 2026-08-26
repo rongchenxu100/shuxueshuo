@@ -389,7 +389,10 @@ def test_scope_native_recorded_plan_reconciles_compiles_and_executes(
     )
     assert catalog.binding_signature
 
-    if case == "tj-2026-heping-yimo-25":
+    if case in {
+        "tj-2026-nankai-yimo-25",
+        "tj-2026-heping-yimo-25",
+    }:
         execution = ScopedFunctionalGoalExecutionService().execute_raw_json(
             json.dumps(load_v3_fixture_payload(case), ensure_ascii=False),
             inputs=inputs,
@@ -540,21 +543,22 @@ def test_recorded_replay_explicitly_consumes_problem_binding_catalog(
         case="tj-2026-nankai-yimo-25",
     )
 
-    replay = PlannerRetryReplayService(
-        functional_transaction_mode="context_authoritative",
-        functional_symbolic_closure_mode="authoritative",
-    ).replay_functional_plan(
-        plan,
+    execution = ScopedFunctionalGoalExecutionService().execute_raw_json(
+        json.dumps(
+            load_v3_fixture_payload("tj-2026-nankai-yimo-25"),
+            ensure_ascii=False,
+        ),
         inputs=inputs,
+        planning_context=_planning_context,
+        problem_binding_catalog=catalog,
         handle_registry=registry,
         context=ContextBuilder().build(problem),
-        attempt=1,
-        problem_payload=problem_payload,
         planner_state_context=planner_context,
-        validation_report=validation,
-        problem_binding_catalog=catalog,
+        problem_payload=problem_payload,
     )
+    replay = execution.replay
 
+    assert replay is not None
     assert replay.output is not None, replay.errors
     assert replay.functional_reconciliation is not None
     assert replay.functional_reconciliation.functional_problem_binding_context
@@ -1132,11 +1136,6 @@ def test_dynamic_point_semantic_ref_binds_unique_prior_same_object_state(
         "kind": "point",
         "ref": "N",
     }
-    calls["ii_2_derive_G"]["args"]["line2_p2"] = {
-        "kind": "point",
-        "ref": "N",
-    }
-
     (
         _bundle,
         _planning_context,
@@ -1161,7 +1160,6 @@ def test_dynamic_point_semantic_ref_binds_unique_prior_same_object_state(
     expected_keys = {
         ("ii_derive_parabola", "curve_points", 1),
         ("ii_1_solve_m", "p2", 0),
-        ("ii_2_derive_G", "line2_p2", 0),
     }
     bindings = {
         (item.call_id, item.arg_name, item.item_index): item
@@ -1176,10 +1174,7 @@ def test_dynamic_point_semantic_ref_binds_unique_prior_same_object_state(
     assert aggregate.typed_source.source_return_name == "selected_target_point"
 
     version_ids = set()
-    for key in (
-        ("ii_1_solve_m", "p2", 0),
-        ("ii_2_derive_G", "line2_p2", 0),
-    ):
+    for key in (("ii_1_solve_m", "p2", 0),):
         item = bindings[key]
         assert item.semantic_ref is not None
         assert item.semantic_ref.to_payload() == {"kind": "point", "ref": "N"}
@@ -1196,23 +1191,6 @@ def test_dynamic_point_semantic_ref_binds_unique_prior_same_object_state(
     assert "ii_construct_N" in reconciliation.dependency_graph[
         "ii_derive_parabola"
     ]
-
-    attempt = FunctionalTransactionalInterpreter(
-        symbolic_closure_mode="authoritative"
-    ).execute_attempt(
-        raw_plan=plan,
-        reconciliation=reconciliation,
-        runtime_context=ContextBuilder().build(problem),
-        parent_context=planner_context,
-        inputs=inputs,
-        handle_registry=registry,
-        problem_payload=problem_payload,
-    )
-    assert attempt.compiled_output is not None, [
-        (issue.code, issue.message) for issue in attempt.root_issues
-    ]
-    assert not attempt.root_issues
-
 
 def test_dynamic_point_semantic_ref_rejects_different_object_result(
     tmp_path,

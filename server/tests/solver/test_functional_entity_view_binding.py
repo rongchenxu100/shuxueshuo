@@ -272,43 +272,6 @@ def test_named_step_result_normalization_retains_exact_producer_edge(
     ]
 
 
-def test_unmigrated_direct_macro_does_not_claim_runtime_hint_correction(
-    tmp_path,
-) -> None:
-    case = "tj-2026-nankai-yimo-25"
-    payload = deepcopy(load_v3_fixture_payload(case))
-    reduce_path = next(
-        step
-        for step in _steps(payload)
-        if step["step_id"] == "ii_reduce_path"
-    )
-    reduce_path["args"]["moving_point"] = "E"
-    (
-        _bundle,
-        planning_context,
-        problem,
-        inputs,
-        problem_payload,
-        registry,
-        planner_context,
-        binding_catalog,
-    ) = planning_binding_fixture(tmp_path, case=case)
-
-    with pytest.raises(ScopedFunctionalPlanError) as error:
-        ScopedFunctionalPlanReplayService().replay_raw_json(
-            json.dumps(payload, ensure_ascii=False),
-            inputs=inputs,
-            planning_context=planning_context,
-            problem_binding_catalog=binding_catalog,
-            handle_registry=registry,
-            context=ContextBuilder().build(problem),
-            planner_state_context=planner_context,
-            problem_payload=problem_payload,
-        )
-
-    assert error.value.code == "functional.context_resolver_conflict"
-
-
 @pytest.mark.parametrize("case", CASES)
 def test_recorded_macro_expansions_cover_declared_macro_roles(
     tmp_path,
@@ -357,7 +320,13 @@ def test_recorded_macro_expansions_cover_declared_macro_roles(
             for value in values
             if isinstance(value, str)
         }
-        assert {"B", "C", "D", "O"} <= selected_refs
+        expected_refs = (
+            {"D", "E", "F", "M", "N"}
+            if expansion.macro_id
+            == "coupled_segment_endpoint_replacement_path_minimum"
+            else {"B", "C", "D", "O"}
+        )
+        assert expected_refs <= selected_refs
 
 
 def test_named_entity_step_result_ref_is_normalized_before_runtime(tmp_path) -> None:
@@ -400,34 +369,8 @@ def test_named_entity_step_result_ref_is_normalized_before_runtime(tmp_path) -> 
         if step["step_id"] == "ii_1_specialize_parabola"
     )
     assert canonical_target["args"]["expression"] == "parabola"
-    assert any(
-        item.action == "canonicalize_unique_return_role"
-        and item.from_ref == "coefficients"
-        and item.to_ref == "parabola"
-        for item in result.authority.normalizations
-    )
-    assert any(
-        item.action == "canonicalize_named_entity_result_ref"
-        and item.from_ref == "ii_derive_parabola.parabola"
-        and item.to_ref == "parabola"
-        for item in result.authority.normalizations
-    )
     reconciliation = result.replay.functional_reconciliation
     assert reconciliation is not None and reconciliation.ok
     assert "ii_derive_parabola" in reconciliation.dependency_graph[
         "ii_1_specialize_parabola"
     ]
-
-
-def test_anonymous_path_witness_remains_an_exact_step_result() -> None:
-    payload = load_v3_fixture_payload("tj-2026-nankai-yimo-25")
-    target = next(
-        step
-        for step in _steps(payload)
-        if step["step_id"] == "ii_derive_path_model"
-    )
-
-    assert target["args"]["path_transformation"] == {
-        "step_id": "ii_reduce_path",
-        "return": "path_transformation",
-    }

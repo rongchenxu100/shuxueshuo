@@ -45,9 +45,7 @@ class QuadraticPathMinimumPlannerV15:
                 self._derive_q1_parameter(),
                 self._derive_q1_parabola(),
                 self._derive_midpoint(),
-                self._derive_path_reduction(),
-                self._derive_straightening_candidates(),
-                self._select_straightening_candidate(),
+                self._reflect_path_endpoint(),
                 self._derive_minimum_expression(),
                 self._derive_q2_parameter(),
                 self._derive_q2_parabola(),
@@ -196,68 +194,25 @@ class QuadraticPathMinimumPlannerV15:
             target_path="$subquestion.ii_1.outputs.parabola",
         )
 
-    def _derive_straightening_candidates(self) -> StepPlan:
+    def _reflect_path_endpoint(self) -> StepPlan:
         return _single_invocation_step(
-            step_id="derive_straightening_candidates",
+            step_id="reflect_D_across_MN",
             parent_scope="ii",
-            method_id="broken_path_straightening_candidates",
+            method_id="reflect_point_across_line",
             inputs={
-                "path_transformation": "$question.ii.outputs.path_transformation",
-                "moving_point_membership": "$problem.conditions.segment_membership_G",
-                "fixed_point_1": "$problem.points.D",
-                "fixed_point_2": "$question.ii.points.F",
-                "line_point_1": "$question.ii.points.M",
-                "line_point_2": "$question.ii.points.N",
-            },
-            outputs={"candidates": "$step.derive_straightening_candidates.temp.candidates"},
-            promote={
-                "$step.derive_straightening_candidates.temp.candidates": "$question.ii.outputs.straightening_candidates"
-            },
-            goal_type="derive_broken_path_straightening_candidates",
-            target_path="$question.ii.outputs.straightening_candidates",
-        )
-
-    def _select_straightening_candidate(self) -> StepPlan:
-        return _single_invocation_step(
-            step_id="select_straightening_candidate",
-            parent_scope="ii",
-            method_id="select_straightening_candidate",
-            inputs={
-                "candidates": "$question.ii.outputs.straightening_candidates",
+                "point": "$problem.points.D",
+                "line_p1": "$question.ii.points.M",
+                "line_p2": "$question.ii.points.N",
                 "target": "$question.ii.points.D_prime",
             },
             outputs={
-                "selected_candidate": "$step.select_straightening_candidate.temp.selected_candidate",
-                "auxiliary_point": "$step.select_straightening_candidate.temp.auxiliary_point",
+                "reflected_point": "$step.reflect_D_across_MN.temp.reflected_point"
             },
             promote={
-                "$step.select_straightening_candidate.temp.selected_candidate": "$question.ii.outputs.straightening_candidate",
-                "$step.select_straightening_candidate.temp.auxiliary_point": "$question.ii.points.D_prime",
+                "$step.reflect_D_across_MN.temp.reflected_point": "$question.ii.points.D_prime"
             },
-            goal_type="select_broken_path_straightening_candidate",
+            goal_type="reflect_path_endpoint",
             target_path="$question.ii.points.D_prime",
-        )
-
-    def _derive_path_reduction(self) -> StepPlan:
-        return _single_invocation_step(
-            step_id="reduce_path",
-            parent_scope="ii",
-            method_id="two_moving_points_path_reduction",
-            inputs={
-                "original_path": "$problem.conditions.path_minimum",
-                "first_moving_membership": "$problem.conditions.segment_membership_E",
-                "second_moving_membership": "$problem.conditions.segment_membership_G",
-                "binding_relation": "$problem.conditions.segment_relation_DE_NG",
-                "first_segment_start": "$problem.points.D",
-                "joint_point": "$question.ii.points.M",
-                "second_segment_end": "$question.ii.points.N",
-            },
-            outputs={"path_transformation": "$step.reduce_path.temp.path_transformation"},
-            promote={
-                "$step.reduce_path.temp.path_transformation": "$question.ii.outputs.path_transformation"
-            },
-            goal_type="reduce_two_moving_point_path",
-            target_path="$question.ii.outputs.path_transformation",
         )
 
     def _derive_minimum_expression(self) -> StepPlan:

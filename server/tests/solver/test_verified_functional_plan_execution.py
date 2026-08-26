@@ -84,8 +84,8 @@ def test_verified_execution_uses_materialized_macro_function_steps(tmp_path) -> 
 def test_non_search_capabilities_remain_ordinary_execution_steps(tmp_path) -> None:
     result, _fixture = _execute(
         tmp_path,
-        "tj-2026-nankai-yimo-25",
-        load_v3_fixture_payload("tj-2026-nankai-yimo-25"),
+        "tj-2026-xiqing-yimo-25",
+        load_v3_fixture_payload("tj-2026-xiqing-yimo-25"),
     )
     verified = result.verified_execution
 

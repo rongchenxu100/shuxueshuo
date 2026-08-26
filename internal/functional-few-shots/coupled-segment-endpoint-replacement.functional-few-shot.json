@@ -1,0 +1,58 @@
+{
+  "format": "functional_plan/v1",
+  "annotation": {
+    "purpose": "用透明 Macro 完成共享端点耦合线段的端点替换、反射拉直与最小值认证。",
+    "use_when": "两个动点分别位于共享端点的线段上，结构化长度关系足以证明原路径可替换为关于第二动点的单动点折线路径。",
+    "key_idea": "把路径目标、两条线段归属和绑定长度关系显式交给 Macro；Macro 透明展开为普通 Function 图，只发布已经验证可达的最小值表达式。多个子问复用时只在最近公共父 scope 调用一次；minimum_expression 是匿名 open_expression，用 StepResultRef 消费，只有 attainment_point 可按需绑定 existing Point。",
+    "do_not_use_when": [
+      "原路径已经是无需端点替换的单动点路径。",
+      "两条动点轨迹不共享端点。",
+      "缺少能连接两条动线段的结构化长度关系。",
+      "只凭点名、文本描述或最终答案猜测动点角色。",
+      "在兄弟 scope 用相同参数重复调用 Macro，或把含未定参数的 minimum_expression 标成 closed_value。"
+    ]
+  },
+  "scopes": [
+    {
+      "scope_id": "example",
+      "label": "机制示例",
+      "calls": [
+        {
+          "call_id": "derive_path_model",
+          "capability_id": "coupled_segment_endpoint_replacement_path_minimum",
+          "args": {
+            "path_minimum_target": {
+              "kind": "fact",
+              "ref": "path_goal"
+            },
+            "point_on_segment": [
+              {
+                "kind": "fact",
+                "ref": "first_membership"
+              },
+              {
+                "kind": "fact",
+                "ref": "second_membership"
+              }
+            ],
+            "segment_length_relation": {
+              "kind": "fact",
+              "ref": "binding_relation"
+            }
+          },
+          "return_bindings": {
+            "attainment_point": {
+              "kind": "point",
+              "ref": "moving_point"
+            }
+          },
+          "strategy": "用耦合线段端点替换并反射拉直，得到含参最小值表达式。",
+          "reason": "最小值表达式供两个子问求值或反求参数。",
+          "return_expectations": {
+            "minimum_expression": "open_expression"
+          }
+        }
+      ]
+    }
+  ]
+}

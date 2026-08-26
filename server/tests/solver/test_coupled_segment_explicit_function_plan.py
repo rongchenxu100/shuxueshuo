@@ -115,7 +115,7 @@ def _explicit_function_payload() -> tuple[dict[str, Any], dict[str, Any]]:
     payload = _rewrite_step_result(
         payload,
         replaced_step_id="ii_derive_path_model",
-        replaced_return="path_minimum_expression",
+        replaced_return="minimum_expression",
         replacement=export,
     )
     return payload, fragment

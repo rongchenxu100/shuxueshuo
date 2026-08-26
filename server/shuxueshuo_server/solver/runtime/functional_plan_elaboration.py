@@ -1198,7 +1198,9 @@ class FunctionalSemanticIndex:
                         entity_payloads=self.entity_payloads,
                     ),
                 },)
-            else:
+            elif capability_id == (
+                "coupled_segment_endpoint_replacement_path_minimum"
+            ):
                 target_handles = tuple(
                     handle
                     for handle, payload in self.fact_payloads.items()
@@ -1221,6 +1223,13 @@ class FunctionalSemanticIndex:
                         "condition_handles": condition_handles,
                     }
                     for target_handle in target_handles
+                )
+            else:
+                raise MacroRuntimeSearchError(
+                    "planner.macro_contract_invalid",
+                    "runtime-search Macro has no prompt role projection context builder",
+                    retryability="configuration",
+                    details={"macro_id": capability_id},
                 )
             candidates = tuple(
                 candidate

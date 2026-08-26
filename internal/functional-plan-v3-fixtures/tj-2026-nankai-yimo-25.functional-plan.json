@@ -99,27 +99,26 @@
             }
           },
           {
-            "step_id": "ii_reduce_path",
-            "capability_id": "two_moving_points_path_reduction",
+            "step_id": "ii_derive_path_model",
+            "capability_id": "coupled_segment_endpoint_replacement_path_minimum",
             "args": {
               "path_minimum_target": "path_minimum_target_e_g_f",
-              "moving_point": "G"
+              "point_on_segment": [
+                "point_on_segment_e_dm",
+                "point_on_segment_g_mn"
+              ],
+              "segment_length_relation": "segment_length_relation_de_ng"
             },
-            "intent": "利用线段位置关系和长度关系，把双动点路径化为单动点折线路径。"
+          "return_expectations": {
+            "minimum_expression": "open_expression"
           },
-          {
-            "step_id": "ii_derive_path_model",
-            "capability_id": "broken_path_straightening_minimum_expression",
-            "args": {
-              "path_transformation": {
-                "step_id": "ii_reduce_path",
-                "return": "path_transformation"
-              }
-            },
-            "return_expectations": {
-              "path_minimum_expression": "open_expression"
-            },
-            "intent": "将折线路径拉直，得到含参最小值表达式。"
+          "return_bindings": {
+            "attainment_point": {
+              "kind": "existing",
+              "ref": "G"
+            }
+          },
+            "intent": "用耦合线段端点替换并反射拉直，得到含参最小值表达式。"
           }
         ],
         "children": [
@@ -157,7 +156,7 @@
                     "args": {
                       "expression": {
                         "step_id": "ii_derive_path_model",
-                        "return": "path_minimum_expression"
+                        "return": "minimum_expression"
                       },
                       "parameter_value": "m"
                     },
@@ -197,7 +196,7 @@
                 "args": {
                   "minimum_expression": {
                     "step_id": "ii_derive_path_model",
-                    "return": "path_minimum_expression"
+                    "return": "minimum_expression"
                   },
                   "minimum_value": "minimum_value"
                 },
@@ -214,27 +213,24 @@
               {
                 "goal_ref": "ii_2.G",
                 "answer_from": {
-                  "step_id": "ii_2_derive_G",
-                  "return": "intersection"
+                  "step_id": "ii_2_evaluate_G",
+                  "return": "evaluated_point"
                 },
                 "steps": [
                   {
-                    "step_id": "ii_2_derive_G",
-                    "capability_id": "line_intersection_point",
+                    "step_id": "ii_2_evaluate_G",
+                    "capability_id": "evaluate_point_at_parameter",
                     "args": {
-                      "line1_p1": {
-                        "step_id": "ii_derive_path_model",
-                        "return": "straightened_endpoint_1"
-                      },
-                      "line1_p2": {
-                        "step_id": "ii_derive_path_model",
-                        "return": "straightened_endpoint_2"
-                      },
-                      "line2_p1": "M",
-                      "line2_p2": "N",
+              "point": "G",
                       "parameter_value": "m"
                     },
-                    "intent": "求拉直方案确定的辅助直线与 MN 所在直线的交点。"
+                    "return_bindings": {
+                      "evaluated_point": {
+                        "kind": "existing",
+                        "ref": "G"
+                      }
+                    },
+                    "intent": "把反求的参数 m 代入共享取等点 G 的含参坐标。"
                   }
                 ]
               },
