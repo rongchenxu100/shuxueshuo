@@ -8,6 +8,7 @@ from pathlib import Path
 from jsonschema import Draft202012Validator
 import pytest
 
+from shuxueshuo_server.solver.runtime.context import ContextBuilder
 from shuxueshuo_server.solver.runtime.functional_goal_execution import (
     FunctionalGoalExecutionGoal,
     FunctionalGoalExecutionScope,
@@ -19,18 +20,28 @@ from shuxueshuo_server.solver.runtime.functional_scope_retry import (
     FunctionalScopeRepairCompiler,
     FunctionalScopeRetryAuthorityProjector,
     FunctionalScopeRetryError,
+    ScopedFunctionalScopeRetryService,
     build_scope_retry_restore_seed,
     functional_annotated_plan_schema,
     functional_scope_repair_schema,
     functional_scope_repair_schema_for_authority,
 )
+from shuxueshuo_server.solver.runtime.functional_plan_content import (
+    FunctionalPlanAuthorityFrame,
+    functional_plan_content_from_plan,
+)
 from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
     ScopedFunctionalPlanError,
+    ScopedFunctionalPlanValidator,
     ScopedFunctionalStep,
     ScopedStepResultRef,
     _StepLocation,
     _audit_explicit_dependency,
     scoped_functional_plan_id,
+)
+from shuxueshuo_server.solver.runtime.strategy_payload import (
+    StrategyPayloadBuilder,
+    StrategyPromptRenderer,
 )
 
 from _functional_goal_retry_support import (
@@ -486,3 +497,125 @@ def test_scope_repair_auto_rebinds_one_unique_answer_successor(tmp_path) -> None
     repaired_goal = application.plan.root_scope.children[1].goals[0]
 
     assert repaired_goal.answer_from.step_id == "repaired_answer_producer"
+
+
+def test_scope_repair_prompt_has_one_annotated_plan_and_one_replacement_map(
+    tmp_path,
+) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    authority = FunctionalScopeRetryAuthorityProjector().project(
+        plan=fixture.failed_plan,
+        execution=fixture.execution,
+    )
+    annotated, _ = FunctionalAnnotatedPlanProjector().project(
+        plan=fixture.failed_plan,
+        execution=fixture.execution,
+        editable_scope_refs=authority.editable_scope_refs,
+        planning_context=fixture.planning_context,
+        binding_catalog=fixture.binding_catalog,
+    )
+    payload = StrategyPayloadBuilder(
+        scoped_functional_few_shot_examples=[]
+    ).build_scope_repair(
+        fixture.inputs,
+        annotated_plan=annotated,
+        retry_authority=authority,
+        problem_payload=fixture.problem_payload,
+        planner_state_context=fixture.planner_state_context,
+        problem_planning_context=fixture.planning_context,
+        problem_binding_catalog=fixture.binding_catalog,
+    )
+    prompt = StrategyPromptRenderer().render_scope_repair(payload)
+    combined = f"{prompt.system}\n{prompt.user}"
+
+    assert payload["planner_protocol"] == "functional-scope-repair/v1"
+    assert set(payload) == {
+        "planner_protocol",
+        "problem_id",
+        "family_id",
+        "problem_planning_context",
+        "annotated_previous_plan",
+        "functional_capability_catalog",
+        "output_json_schema",
+    }
+    assert "## Annotated Previous Plan" in prompt.user
+    assert "整块替换" in prompt.system
+    assert "Macro 始终是一个原子" in prompt.system
+    for removed in (
+        "goal_retry_context",
+        "goal_replacements",
+        "scope_step_replacements",
+        "answer_binding_replacements",
+        "base_plan_id",
+        "base_retry_context_id",
+        "published_goal_ref",
+    ):
+        assert removed not in combined
+
+
+def test_scope_retry_service_switches_from_pass1_to_vnext_and_accepts_repair(
+    tmp_path,
+) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    correct_plan, report = ScopedFunctionalPlanValidator().validate_payload_with_report(
+        fixture.correct_payload
+    )
+    assert correct_plan is not None and report.ok
+    pass1 = functional_plan_content_from_plan(
+        fixture.failed_plan,
+        frame=FunctionalPlanAuthorityFrame.from_planning_context(
+            fixture.planning_context
+        ),
+    ).to_payload()
+    repair = _scope_repair_payload(correct_plan, "ii")
+
+    class Client:
+        provider_name = "recorded-test"
+
+        def __init__(self):
+            self.responses = [
+                json.dumps(pass1, ensure_ascii=False),
+                json.dumps(repair, ensure_ascii=False),
+            ]
+            self.requests = []
+
+        def complete(self, request):
+            self.requests.append(request)
+            return self.responses.pop(0)
+
+    client = Client()
+    result = ScopedFunctionalScopeRetryService(
+        client,
+        payload_builder=StrategyPayloadBuilder(
+            scoped_functional_few_shot_examples=[]
+        ),
+        prompt_renderer=StrategyPromptRenderer(),
+    ).run(
+        inputs=fixture.inputs,
+        planning_context=fixture.planning_context,
+        problem_binding_catalog=fixture.binding_catalog,
+        handle_registry=fixture.handle_registry,
+        runtime_context=ContextBuilder().build(fixture.problem),
+        planner_state_context=fixture.planner_state_context,
+        problem_payload=fixture.problem_payload,
+        max_attempts=2,
+    )
+
+    assert result.status == "accepted"
+    assert [item.planner_protocol for item in result.attempts] == [
+        "functional-plan-content/v2",
+        "functional-scope-repair/v1",
+    ]
+    assert set(result.attempts[1].payload) == {
+        "planner_protocol",
+        "problem_id",
+        "family_id",
+        "problem_planning_context",
+        "annotated_previous_plan",
+        "functional_capability_catalog",
+        "output_json_schema",
+    }
+    assert all(
+        "functional-goal-repair/v4" not in json.dumps(request, ensure_ascii=False)
+        for request in client.requests
+    )

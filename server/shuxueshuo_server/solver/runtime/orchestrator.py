@@ -1033,6 +1033,17 @@ def _write_debug_attempt(
                 debug_dir / f"{prefix}.payload.{key}.json",
                 value,
             )
+    scope_authority = getattr(scoped_attempt, "scope_authority", None)
+    if scope_authority is not None:
+        debug_payload = getattr(scope_authority, "debug_payload", None)
+        _write_json(
+            debug_dir / f"{prefix}.scope-retry-authority.json",
+            (
+                debug_payload()
+                if callable(debug_payload)
+                else _safe_json(scope_authority)
+            ),
+        )
     planner_artifacts = getattr(planner, "artifacts", None)
     problem_authority = getattr(planner_artifacts, "problem_authority", None)
     problem_binding_catalog = getattr(

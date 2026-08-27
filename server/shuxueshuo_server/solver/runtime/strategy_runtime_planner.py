@@ -25,9 +25,9 @@ from shuxueshuo_server.solver.extraction.problem_solver_bundle import (
 )
 from shuxueshuo_server.solver.runtime.context import RuntimeContext
 from shuxueshuo_server.solver.runtime._paths import repo_root
-from shuxueshuo_server.solver.runtime.functional_goal_retry import (
-    ScopedFunctionalGoalRetryRunResult,
-    ScopedFunctionalGoalRetryService,
+from shuxueshuo_server.solver.runtime.functional_scope_retry import (
+    ScopedFunctionalScopeRetryRunResult,
+    ScopedFunctionalScopeRetryService,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_content import (
     FunctionalPlanAuthorityFrame,
@@ -106,7 +106,7 @@ class StrategyPlannerArtifacts:
     problem_authority: VerifiedPlannerProblemAuthority | None = None
     problem_binding_catalog: ProblemPlanningBindingCatalog | None = None
     initial_planner_state_context: PlannerStateContext | None = None
-    scoped_retry_result: ScopedFunctionalGoalRetryRunResult | None = None
+    scoped_retry_result: ScopedFunctionalScopeRetryRunResult | None = None
     verified_execution: object | None = None
 
 
@@ -292,8 +292,8 @@ class StrategyPlanner:
         inputs: PlannerInputs,
         *,
         max_attempts: int = 3,
-    ) -> ScopedFunctionalGoalRetryRunResult:
-        """Run the production content/v2 -> Goal retry -> checkpoint v3 path."""
+    ) -> ScopedFunctionalScopeRetryRunResult:
+        """Run Pass 1 followed by annotated whole-Scope retries."""
 
         (
             problem_payload,
@@ -316,7 +316,7 @@ class StrategyPlanner:
                 f"unknown strategy planner mode: {self.mode}"
             )
 
-        run_result = ScopedFunctionalGoalRetryService(
+        run_result = ScopedFunctionalScopeRetryService(
             client,
             payload_builder=self.payload_builder,
             prompt_renderer=self.prompt_renderer,

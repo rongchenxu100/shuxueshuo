@@ -8,7 +8,7 @@ switched only after the complete contract is covered by tests.
 from __future__ import annotations
 
 from copy import deepcopy
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 import json
 from types import MappingProxyType
 from typing import Any, Literal, Mapping, Sequence
@@ -26,12 +26,29 @@ from shuxueshuo_server.solver.runtime.functional_goal_execution import (
     FunctionalGoalExecutionScope,
     FunctionalGoalExecutionStep,
     ScopedFunctionalGoalExecutionResult,
+    VerifiedFunctionalPlanExecution,
     _internal_prompt_values,
     _json_safe_value,
     _prompt_safe_value,
 )
+from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
+    FunctionalCapabilityCatalog,
+)
+from shuxueshuo_server.solver.runtime.functional_plan_content import (
+    FUNCTIONAL_PLAN_CONTENT_CONTRACT,
+    FunctionalFinalPlanContractValidation,
+    FunctionalPlanAuthorityFrame,
+    FunctionalPlanContent,
+    FunctionalPlanContentCompiler,
+)
 from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
     FunctionalRestoredCallSeed,
+)
+from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
+from shuxueshuo_server.solver.runtime.llm_clients import LLMPlannerClient
+from shuxueshuo_server.solver.runtime.planner import PlannerInputs
+from shuxueshuo_server.solver.runtime.planner_state_context import (
+    PlannerStateContext,
 )
 from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
     ScopedFunctionalGoalPlan,
@@ -39,6 +56,7 @@ from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
     ScopedFunctionalScope,
     ScopedFunctionalStep,
     ScopedFunctionalPlanValidator,
+    scoped_published_goal_bindings,
     scoped_functional_plan_id,
     scoped_functional_plan_schema,
 )
@@ -355,6 +373,37 @@ class FunctionalScopeRepairApplication:
     validation_report: Any
 
 
+@dataclass(frozen=True)
+class ScopedFunctionalScopeRetryAttempt:
+    semantic_attempt: int
+    planner_protocol: str
+    payload: Mapping[str, Any]
+    prompt: Any
+    raw_response: str
+    plan: ScopedFunctionalPlan | None
+    execution: ScopedFunctionalGoalExecutionResult | None
+    merged_plan: ScopedFunctionalPlan | None = None
+    scope_authority: FunctionalScopeRetryAuthority | None = None
+    annotated_plan: FunctionalAnnotatedPlan | None = None
+    repair: FunctionalScopeRepair | None = None
+    error: FunctionalScopeRetryError | None = None
+    plan_content: FunctionalPlanContent | None = None
+    content_validation_report: Any | None = None
+    final_plan_contract_validation: FunctionalFinalPlanContractValidation | None = None
+    llm_metadata: Mapping[str, Any] | None = None
+
+
+@dataclass(frozen=True)
+class ScopedFunctionalScopeRetryRunResult:
+    status: Literal["accepted", "blocked"]
+    attempts: tuple[ScopedFunctionalScopeRetryAttempt, ...]
+    final_plan: ScopedFunctionalPlan | None
+    final_execution: ScopedFunctionalGoalExecutionResult | None
+    solved_goal_restore_count: int
+    no_progress: bool = False
+    verified_execution: VerifiedFunctionalPlanExecution | None = None
+
+
 class FunctionalScopeRetryAuthorityProjector:
     """Compute the minimal Scope-level repair authority from direct failures."""
 
@@ -363,6 +412,7 @@ class FunctionalScopeRetryAuthorityProjector:
         *,
         plan: ScopedFunctionalPlan,
         execution: ScopedFunctionalGoalExecutionResult,
+        additional_issues: Sequence[Mapping[str, Any]] = (),
     ) -> FunctionalScopeRetryAuthority:
         checkpoint = execution.checkpoint
         if checkpoint is None:
@@ -402,7 +452,7 @@ class FunctionalScopeRetryAuthorityProjector:
                     owner = step_owners.get(step.step_id)
                     if owner is not None:
                         editable.add(owner)
-        for issue in checkpoint.root_issues:
+        for issue in (*checkpoint.root_issues, *additional_issues):
             retryability = str(issue.get("retryability") or "")
             category = str(issue.get("category") or "")
             if retryability in {"configuration", "nonretryable"} or category in {
@@ -654,6 +704,295 @@ class FunctionalScopeRepairCompiler:
             plan=candidate,
             plan_hash=scoped_functional_plan_id(candidate),
             validation_report=validation,
+        )
+
+
+class ScopedFunctionalScopeRetryService:
+    """Run Pass 1 once, then repair complete Scopes with the vNext protocol."""
+
+    def __init__(
+        self,
+        client: LLMPlannerClient,
+        *,
+        payload_builder: Any | None = None,
+        prompt_renderer: Any | None = None,
+        execution_service: Any | None = None,
+    ) -> None:
+        if payload_builder is None or prompt_renderer is None:
+            from shuxueshuo_server.solver.runtime.strategy_payload import (
+                StrategyPayloadBuilder,
+                StrategyPromptRenderer,
+            )
+
+            payload_builder = payload_builder or StrategyPayloadBuilder()
+            prompt_renderer = prompt_renderer or StrategyPromptRenderer()
+        if execution_service is None:
+            from shuxueshuo_server.solver.runtime.functional_goal_execution import (
+                ScopedFunctionalGoalExecutionService,
+            )
+
+            execution_service = ScopedFunctionalGoalExecutionService()
+        self.client = client
+        self.payload_builder = payload_builder
+        self.prompt_renderer = prompt_renderer
+        self.execution_service = execution_service
+
+    def run(
+        self,
+        *,
+        inputs: PlannerInputs,
+        planning_context: ProblemPlanningContext,
+        problem_binding_catalog: ProblemPlanningBindingCatalog,
+        handle_registry: CanonicalHandleRegistry,
+        runtime_context: Any,
+        planner_state_context: PlannerStateContext,
+        problem_payload: dict[str, Any],
+        max_attempts: int = 3,
+    ) -> ScopedFunctionalScopeRetryRunResult:
+        if max_attempts < 1:
+            raise ValueError("max_attempts must be positive")
+        attempts: list[ScopedFunctionalScopeRetryAttempt] = []
+        current_plan: ScopedFunctionalPlan | None = None
+        current_execution: ScopedFunctionalGoalExecutionResult | None = None
+        current_authority: FunctionalScopeRetryAuthority | None = None
+        previous_response_error: Mapping[str, Any] | None = None
+        authoring_feedback: tuple[Mapping[str, Any], ...] = ()
+        previous_invalid_content: Mapping[str, Any] | None = None
+        no_progress = False
+        restored_count = 0
+        signatures: list[tuple[str, str]] = []
+        frame = FunctionalPlanAuthorityFrame.from_planning_context(planning_context)
+        capability_catalog = FunctionalCapabilityCatalog.from_family_spec(
+            inputs.family_spec,
+            inputs.method_specs,
+        )
+
+        for semantic_attempt in range(1, max_attempts + 1):
+            annotated: FunctionalAnnotatedPlan | None = None
+            if current_plan is None or current_authority is None or current_execution is None:
+                payload = self.payload_builder.build_scoped(
+                    inputs,
+                    problem_payload=problem_payload,
+                    planner_state_context=planner_state_context,
+                    problem_planning_context=planning_context,
+                    problem_binding_catalog=problem_binding_catalog,
+                    authoring_feedback=authoring_feedback,
+                    previous_invalid_content=previous_invalid_content,
+                )
+                prompt = self.prompt_renderer.render_scoped(payload)
+                protocol = FUNCTIONAL_PLAN_CONTENT_CONTRACT
+            else:
+                annotated, projected_authority = FunctionalAnnotatedPlanProjector().project(
+                    plan=current_plan,
+                    execution=current_execution,
+                    editable_scope_refs=current_authority.editable_scope_refs,
+                    planning_context=planning_context,
+                    binding_catalog=problem_binding_catalog,
+                    previous_response_error=previous_response_error,
+                )
+                if projected_authority.base_plan_hash != current_authority.base_plan_hash:
+                    raise FunctionalScopeRetryError(
+                        "functional.scope_retry_authority_drift",
+                        "$.annotated_previous_plan",
+                        "annotated Plan no longer matches the internal retry envelope",
+                        retryable=False,
+                    )
+                payload = self.payload_builder.build_scope_repair(
+                    inputs,
+                    annotated_plan=annotated,
+                    retry_authority=current_authority,
+                    problem_payload=problem_payload,
+                    planner_state_context=planner_state_context,
+                    problem_planning_context=planning_context,
+                    problem_binding_catalog=problem_binding_catalog,
+                )
+                prompt = self.prompt_renderer.render_scope_repair(payload)
+                protocol = FUNCTIONAL_SCOPE_REPAIR_CONTRACT
+            raw_response = self.client.complete(
+                {
+                    "messages": prompt.messages,
+                    "family_id": inputs.family_spec.family_id,
+                    "problem_id": inputs.problem_id,
+                    "planner_protocol": protocol,
+                    "planner_attempt": semantic_attempt,
+                    "planner_payload": payload,
+                }
+            )
+            metadata = _scope_attempt_llm_metadata(
+                self.client,
+                semantic_attempt=semantic_attempt,
+                planner_protocol=protocol,
+            )
+            repair: FunctionalScopeRepair | None = None
+            next_plan: ScopedFunctionalPlan | None = None
+            plan_content: FunctionalPlanContent | None = None
+            validation_report: Any | None = None
+            attempt_execution: ScopedFunctionalGoalExecutionResult | None = None
+            final_validation: FunctionalFinalPlanContractValidation | None = None
+            try:
+                if protocol == FUNCTIONAL_PLAN_CONTENT_CONTRACT:
+                    compilation = FunctionalPlanContentCompiler().compile_json(
+                        raw_response,
+                        frame=frame,
+                        capability_catalog=capability_catalog,
+                    )
+                    plan_content = compilation.content
+                    validation_report = compilation.report
+                    if compilation.plan is None or not compilation.report.ok:
+                        authoring_feedback = tuple(
+                            item.to_payload() for item in compilation.report.issues
+                        )
+                        previous_invalid_content = (
+                            plan_content.to_payload() if plan_content is not None else None
+                        )
+                        first = compilation.report.issues[0]
+                        raise FunctionalScopeRetryError(
+                            first.code,
+                            first.path,
+                            first.message,
+                        )
+                    next_plan = compilation.plan
+                    authoring_feedback = ()
+                    previous_invalid_content = None
+                else:
+                    assert current_plan is not None
+                    assert current_authority is not None
+                    repair = FunctionalScopeRepairCompiler().parse_json(
+                        raw_response,
+                        authority=current_authority,
+                    )
+                    next_plan = FunctionalScopeRepairCompiler().apply(
+                        repair,
+                        base_plan=current_plan,
+                        authority=current_authority,
+                    ).plan
+
+                restored_seed = None
+                if current_authority is not None and current_execution is not None:
+                    restored_seed = build_scope_retry_restore_seed(
+                        current_authority,
+                        current_execution,
+                        next_plan=next_plan,
+                    )
+                    restored_count += len(restored_seed.call_ids)
+                execution = self.execution_service.execute_raw_json(
+                    json.dumps(next_plan.to_payload(), ensure_ascii=False),
+                    inputs=inputs,
+                    planning_context=planning_context,
+                    problem_binding_catalog=problem_binding_catalog,
+                    handle_registry=handle_registry,
+                    context=runtime_context,
+                    planner_state_context=planner_state_context,
+                    problem_payload=problem_payload,
+                    attempt=semantic_attempt - 1,
+                    restored_seed=restored_seed,
+                    published_goal_bindings=scoped_published_goal_bindings(next_plan),
+                )
+                attempt_execution = execution
+                current_plan = execution.canonical_plan or next_plan
+                current_execution = execution
+                final_validation = FunctionalPlanContentCompiler().validate_final_plan(
+                    current_plan,
+                    frame=frame,
+                    capability_catalog=capability_catalog,
+                )
+                record = ScopedFunctionalScopeRetryAttempt(
+                    semantic_attempt=semantic_attempt,
+                    planner_protocol=protocol,
+                    payload=payload,
+                    prompt=prompt,
+                    raw_response=raw_response,
+                    plan=current_plan,
+                    execution=execution,
+                    merged_plan=next_plan,
+                    scope_authority=current_authority,
+                    annotated_plan=annotated,
+                    repair=repair,
+                    plan_content=plan_content,
+                    content_validation_report=validation_report,
+                    final_plan_contract_validation=final_validation,
+                    llm_metadata=metadata,
+                )
+                checkpoint = execution.checkpoint
+                if (
+                    checkpoint is not None
+                    and checkpoint.all_required_goals_verified
+                    and execution.replay is not None
+                    and execution.replay.output is not None
+                    and final_validation.ok
+                ):
+                    attempts.append(record)
+                    return ScopedFunctionalScopeRetryRunResult(
+                        status="accepted",
+                        attempts=tuple(attempts),
+                        final_plan=current_plan,
+                        final_execution=execution,
+                        solved_goal_restore_count=restored_count,
+                        verified_execution=execution.verified_execution,
+                    )
+                additional_issues = _final_contract_retry_issues(final_validation)
+                next_authority = FunctionalScopeRetryAuthorityProjector().project(
+                    plan=current_plan,
+                    execution=execution,
+                    additional_issues=additional_issues,
+                )
+                record = replace(record, scope_authority=next_authority)
+                signature = (
+                    scoped_functional_plan_id(current_plan),
+                    stable_hash(
+                        {
+                            "editable_scope_refs": list(next_authority.editable_scope_refs),
+                            "issues": _execution_issue_signature(execution),
+                            "final_contract": additional_issues,
+                        }
+                    ),
+                )
+                attempts.append(record)
+                if signatures and signatures[-1] == signature:
+                    current_authority = next_authority
+                    no_progress = True
+                    break
+                signatures.append(signature)
+                current_authority = next_authority
+                previous_response_error = None
+            except FunctionalScopeRetryError as exc:
+                attempts.append(
+                    ScopedFunctionalScopeRetryAttempt(
+                        semantic_attempt=semantic_attempt,
+                        planner_protocol=protocol,
+                        payload=payload,
+                        prompt=prompt,
+                        raw_response=raw_response,
+                        plan=current_plan,
+                        execution=attempt_execution,
+                        merged_plan=next_plan,
+                        scope_authority=current_authority,
+                        annotated_plan=annotated,
+                        repair=repair,
+                        error=exc,
+                        plan_content=plan_content,
+                        content_validation_report=validation_report,
+                        final_plan_contract_validation=final_validation,
+                        llm_metadata=metadata,
+                    )
+                )
+                if not exc.retryable:
+                    break
+                if protocol == FUNCTIONAL_SCOPE_REPAIR_CONTRACT:
+                    previous_response_error = exc.to_prompt_payload()
+
+        return ScopedFunctionalScopeRetryRunResult(
+            status="blocked",
+            attempts=tuple(attempts),
+            final_plan=current_plan,
+            final_execution=current_execution,
+            solved_goal_restore_count=restored_count,
+            no_progress=no_progress,
+            verified_execution=(
+                current_execution.verified_execution
+                if current_execution is not None
+                else None
+            ),
         )
 
 
@@ -1404,6 +1743,47 @@ def _step_reads_any_answer(
     )
 
 
+def _final_contract_retry_issues(
+    validation: FunctionalFinalPlanContractValidation,
+) -> tuple[Mapping[str, Any], ...]:
+    if validation.ok:
+        return ()
+    return tuple(
+        {
+            **item.to_payload(),
+            "stage": "validation",
+            "retryability": "planner_repairable",
+        }
+        for item in validation.report.issues
+    )
+
+
+def _execution_issue_signature(
+    execution: ScopedFunctionalGoalExecutionResult,
+) -> list[Mapping[str, Any]]:
+    checkpoint = execution.checkpoint
+    if checkpoint is None:
+        return []
+    return [dict(item) for item in checkpoint.root_issues]
+
+
+def _scope_attempt_llm_metadata(
+    client: LLMPlannerClient,
+    *,
+    semantic_attempt: int,
+    planner_protocol: str,
+) -> dict[str, Any]:
+    return {
+        "semantic_attempt": semantic_attempt,
+        "planner_protocol": planner_protocol,
+        "provider": getattr(client, "provider_name", client.__class__.__name__),
+        "request_model": getattr(client, "model", None),
+        "response_model": getattr(client, "last_response_model", None),
+        "usage": getattr(client, "last_usage", None),
+        "provider_attempts": getattr(client, "last_provider_attempts", None),
+    }
+
+
 def _iter_scopes(scope: ScopedFunctionalScope) -> tuple[ScopedFunctionalScope, ...]:
     return (scope, *(item for child in scope.children for item in _iter_scopes(child)))
 
@@ -1470,6 +1850,9 @@ __all__ = [
     "FunctionalScopeRetryAuthority",
     "FunctionalScopeRetryAuthorityProjector",
     "FunctionalScopeRetryError",
+    "ScopedFunctionalScopeRetryAttempt",
+    "ScopedFunctionalScopeRetryRunResult",
+    "ScopedFunctionalScopeRetryService",
     "build_scope_retry_restore_seed",
     "functional_annotated_plan_schema",
     "functional_scope_repair_schema",

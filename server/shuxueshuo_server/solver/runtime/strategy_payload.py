@@ -76,6 +76,12 @@ from shuxueshuo_server.solver.runtime.functional_goal_retry import (
     FunctionalGoalRetryAuthority,
     functional_goal_repair_schema_for_authority,
 )
+from shuxueshuo_server.solver.runtime.functional_scope_retry import (
+    FUNCTIONAL_SCOPE_REPAIR_CONTRACT,
+    FunctionalAnnotatedPlan,
+    FunctionalScopeRetryAuthority,
+    functional_scope_repair_schema_for_authority,
+)
 from shuxueshuo_server.solver.runtime.semantic_reads import ContextSemanticReadSource
 from shuxueshuo_server.solver.runtime.strategy_models import (
     FunctionalExecutionDiagnostic,
@@ -381,6 +387,42 @@ class StrategyPayloadBuilder:
                 authority_frame=FunctionalPlanAuthorityFrame.from_planning_context(
                     problem_planning_context
                 ),
+            ),
+        }
+
+    def build_scope_repair(
+        self,
+        inputs: PlannerInputs,
+        *,
+        annotated_plan: FunctionalAnnotatedPlan,
+        retry_authority: FunctionalScopeRetryAuthority,
+        problem_payload: dict[str, Any] | None = None,
+        planner_state_context: ContextSemanticReadSource | None = None,
+        problem_planning_context: ProblemPlanningContext,
+        problem_binding_catalog: ProblemPlanningBindingCatalog,
+    ) -> dict[str, Any]:
+        """Build the vNext annotated-plan / whole-Scope repair payload."""
+
+        base = self.build_scoped(
+            inputs,
+            problem_payload=problem_payload,
+            planner_state_context=planner_state_context,
+            problem_planning_context=problem_planning_context,
+            problem_binding_catalog=problem_binding_catalog,
+        )
+        return {
+            "planner_protocol": FUNCTIONAL_SCOPE_REPAIR_CONTRACT,
+            "problem_id": inputs.problem_id,
+            "family_id": inputs.family_spec.family_id,
+            "problem_planning_context": (
+                problem_planning_context.to_prompt_payload()
+            ),
+            "annotated_previous_plan": annotated_plan.to_prompt_payload(),
+            "functional_capability_catalog": (
+                base["functional_capability_catalog"]
+            ),
+            "output_json_schema": functional_scope_repair_schema_for_authority(
+                retry_authority
             ),
         }
 
@@ -1145,6 +1187,26 @@ class StrategyPromptRenderer:
         ).render()
         user = self.env.get_template(
             "strategy-functional-goal-repair-user.jinja"
+        ).render(payload=payload)
+        return StrategyPrompt(system=system.strip(), user=user.strip())
+
+    def render_scope_repair(self, payload: dict[str, Any]) -> StrategyPrompt:
+        """Render the vNext complete-Scope repair prompt."""
+
+        if payload.get("planner_protocol") != FUNCTIONAL_SCOPE_REPAIR_CONTRACT:
+            raise ValueError(
+                "functional.scope_repair_prompt_invalid: wrong planner protocol"
+            )
+        if not isinstance(payload.get("output_json_schema"), Mapping):
+            raise ValueError(
+                "functional.scope_repair_prompt_invalid: missing authority-bound "
+                "output schema"
+            )
+        system = self.env.get_template(
+            "strategy-functional-scope-repair-system.jinja"
+        ).render()
+        user = self.env.get_template(
+            "strategy-functional-scope-repair-user.jinja"
         ).render(payload=payload)
         return StrategyPrompt(system=system.strip(), user=user.strip())
 
