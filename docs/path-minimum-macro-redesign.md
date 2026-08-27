@@ -1,646 +1,392 @@
-# 路径最值 Macro 重构
+# 路径最值原子 Macro 设计
 
-状态：F5-F4.1、F5-F4.2、F5-F4.2R 与 F5-F4.3A 已完成；下一项为
-F5-F4.3B 共享路径运行时内核。
+状态：F5-F4.1、F5-F4.2、F5-F4.2R 与 F5-F4.3A 已完成。原 F4.3B
+“透明 Macro 展开为普通 FunctionalPlan 子图”的实现已回滚；当前下一阶段是
+**F5-F4.3B 原子 Macro 边界与参考实现固化**。
 
-统一运行时权威链记录在
-[F5-F4.2运行时权威收敛](problem-extraction-context-implementation-plan.md#f5-f4-2-runtime-authority-convergence)。
-本文聚焦 Planner 可见的路径最值 Macro 契约、内部数学搜索，以及 F5-F4.3
-的迁移顺序。
+统一运行时权威链见
+[F5-F4.2 运行时权威收敛](problem-extraction-context-implementation-plan.md#f5-f4-2-runtime-authority-convergence)。
+本文只规定路径最值 Macro 的 Planner 边界、runtime 原子执行、retry 投影、family
+迁移顺序与验收门禁。
 
-## 1. 目标边界
+## 1. 决策记录
 
-Planner 只负责选择高层数学能力，并引用题面中的 Entity 与 Fact；它不负责：
+2026-08-27 将代码直接回滚到 F4.3A 最后提交 `56500bb`。本轮重新设计作出以下
+不可逆向扩张的决策：
 
-- 组装内部 Method 调用；
-- 区分 Entity identity、latest state 或 exact result；
-- 选择运行时状态版本；
-- 传递 `PathTransformation`、辅助点或拉直端点；
-- 决定反射、直达、端点等内部最值策略。
+1. Macro 对 LLM 与 canonical FunctionalPlan 是一个原子 step。
+2. Macro 内部可以调用多个 Method、执行有界候选搜索并生成完整验证证据，但内部
+   invocation 永不物化为 Planner-authored 或 retry-editable steps。
+3. 不再引入 `FunctionalPlanFragment`、`ScopedDerivedBinding`、derived name、
+   `MacroSemanticBlueprint` 的 LLM 投影或 `MacroExpansionRecord` 的 Planner wire。
+4. 不新增 Macro 专用 Plan/Retry schema；Function 与 Macro 在 LLM Plan 中都使用同一
+   个普通 capability step 结构。
+5. 中间结果仍只有两种公开消费方式：匿名新结果使用 `StepResultRef`；写入题面已有对象
+   使用现有 `output_targets`。Goal 答案继续使用 `answer_from`。
+6. runtime 内部复杂性不得转化为 LLM 需要学习、回显或合并的协议复杂性。
 
-目标链路为：
+“原子”只描述 Planner 边界，不表示 runtime 不验证。Macro 必须比普通黑箱拥有更严格的
+候选隔离、数学 postcondition、clean replay、checkpoint 与 evidence 门禁。
+
+## 2. 目标链路
 
 ```mermaid
 flowchart LR
-  L["LLM：选择 family Macro<br/>引用 Entity / Fact"]
-  P["MacroPreparationAuthority<br/>构造有限角色候选"]
-  S["隔离 shadow runtime<br/>验证候选调用图"]
-  W["唯一或等价最优 winner"]
-  B["finalized F5-C binding<br/>钉住对象与 exact state"]
-  R["clean replay / transaction"]
-  O["minimum_expression"]
-  E["PathMinimumWitness<br/>Explanation / Visual / retry"]
+  L["LLM Plan<br/>一个 Macro step"]
+  B["绑定公开 args<br/>冻结输入权威"]
+  S["可选：有限候选搜索<br/>隔离 shadow branch"]
+  E["内部 Method 链<br/>不进入 Plan wire"]
+  V["输出、等价性、合法域、达到性<br/>identity 与 provenance 验证"]
+  P["clean replay<br/>原子发布 public returns"]
+  D["一个 Macro 级根诊断"]
 
-  L --> P --> S --> W --> B --> R
-  R --> O
-  R --> E
+  L --> B --> S --> E --> V
+  V -->|成功| P
+  V -->|失败| D
 ```
 
-LLM 给出的角色只是优先尝试的数学假设，不是 source authority。若存在唯一的
-runtime-valid 替代项，代码可以纠正；若存在多个非等价的有效候选，则必须以
-prompt-safe 诊断要求 LLM 消歧，不能静默猜测。
+Planner 只负责：
 
-## 2. 已完成的基础
+- 选择一个公开数学 capability；
+- 填写该 capability 固定公开的 Entity、Fact 或允许的匿名结果参数；
+- 用 `answer_from` 选择 Goal 答案 producer；
+- Macro 失败时替换其所属 Goal 或 scope block。
 
-### 2.1 F5-F4.1：参考 Macro
+Planner 不负责：
 
-`equal_length_ray_path_reduction` 已成为第一条完整竖切：
+- 组装 Macro 内部 Method 调用；
+- 传递 `PathTransformation`、`PathWitness`、`PathCandidate`、内部端点或辅助轨迹；
+- 选择 StateVersion、runtime path、candidate winner 或 clean replay 策略；
+- 编辑、冻结、重排或引用 Macro 内部 invocation；
+- 解释 checkpoint、search signature 或内部证据对象。
+
+## 3. LLM 公开契约
+
+### 3.1 Catalog
+
+一个 Macro 的 LLM-facing catalog 只允许投影：
 
 ```text
-四个结构化 Fact
-  -> 有界角色搜索
-  -> shadow runtime 验证
-  -> winner clean replay
-  -> minimum_expression + PathMinimumWitness
+capability_id
+title
+use_when
+do_not_use_when              # 只写数学适用性
+args[]                       # name/domain_type/required/cardinality/role/allowed_refs
+returns[]                    # name/type/binding/简短数学说明
 ```
 
-它证明了以下边界可行：
-
-- 角色唯一时不向 LLM 暴露角色字段；
-- 角色有歧义时只暴露候选受限的数学实体；
-- 错误 hint 不进入最终 F5-C binding 或 provenance；
-- 辅助构造、SAS 等价证明、合法域和最值点进入 witness，不进入 Plan；
-- Explanation 与 Visual 从 verified witness 读取证据，不解析 trace 文本。
-
-### 2.2 F5-F4.2：运行时权威收敛
-
-Macro 搜索已经移动到 per-call F5-C finalization 之前：
+不得投影：
 
 ```text
-TypedExecutionGraph
-  -> Macro pre-binding search
-  -> MacroPreparationAuthority
-  -> finalized FunctionalProblemCallBinding
-  -> MethodInputReadAuthority
-  -> derived v1 execution IR
-  -> transaction / checkpoint v3 / VerifiedExecution
+recipe_id / Method id / internal call graph
+execution_mode / candidate provider / search budget / winner
+runtime input slot / adapter / resolver / StateVersion
+semantic blueprint / expansion dependencies / proof fragment
+internal witness / checkpoint / provenance signature
 ```
 
-shadow 候选彼此隔离，winner 必须从干净分支重放；恢复时复用 checkpoint 中的
-winner、exact input version 和 write signature，不重新搜索候选，也不重新选择
-latest state。
+LLM 不需要根据 `kind=function|macro` 改变 authoring 语法；两者都是一个普通 step。
+实现来源与执行模式只属于代码。
 
-### 2.3 F5-F4.2R：Method input selector 退役
+### 3.2 Plan step
 
-生产 Method input 已不再通过字符串 selector 扫描 Context。当前单向链为：
+```json
+{
+  "step_id": "ii_path_minimum",
+  "capability_id": "square_relation_path_minimum",
+  "args": {
+    "path_target": "fact_ii_path_target",
+    "square_relation": "fact_square_ABCD"
+  }
+}
+```
+
+Macro public return 自然存在。后续步骤读取匿名结果时使用：
+
+```json
+{"step_id": "ii_path_minimum", "return": "minimum_expression"}
+```
+
+Goal 使用：
+
+```json
+{
+  "answer_from": {
+    "step_id": "ii_path_minimum",
+    "return": "minimum_expression"
+  }
+}
+```
+
+不得为 Macro 增加 `return_bindings`、derived name、scope-local symbol 或第三种中间结果
+引用形式。Macro 的结果 form 由公开 return contract 与 runtime 决定；路径 Macro 不要求
+LLM 填写 `return_expectations`。
+
+## 4. 参数与角色规则
+
+每个 Macro 参数必须在定义时固定为以下两类之一：
+
+1. **LLM-owned public arg**：数学选择确实会改变解法或产生非等价结果。该参数始终出现在
+   catalog；必需时始终 `required=true`。
+2. **code-owned hidden arg**：可由结构化 Fact、typed Context 或前序精确结果唯一机械推出。
+   该参数永不出现在 catalog，由 F5-C / Macro preparation 绑定。
+
+明确禁止：
+
+- 因当前候选数为一而临时隐藏 public arg；
+- 候选数变多时再动态恢复同一 arg；
+- Schema 允许填写、Catalog 却省略该 arg；
+- hidden role 同时作为 public return identity 的未公开来源；
+- 用点名、顶点数组位置、Context 顺序或字符串相似度决定数学角色。
+
+可选 role hint 只有在确实降低搜索成本、且错误 hint 可被 runtime 验证或纠正时才允许。
+一旦公开，它必须在所有相同 family/context 投影中保持同一名称和可见性。优先用结构化
+Fact 表达角色关系，减少裸 `moving_point/fixed_point` 参数。
+
+## 5. Runtime 原子执行契约
+
+复用现有 `MacroSpec`、`MacroImplementationRegistry`、`MacroPreparationAuthority`、
+`MacroRuntimeSearchService`、transaction 与 checkpoint，不建立第二套 subplan runtime。
+
+每次 Macro 调用必须满足：
+
+1. 公开 args 与所有 code-owned inputs 在执行前完成 typed binding 并冻结。
+2. `direct` Macro 只有一个确定调用图；`runtime_search` Macro 只搜索声明的有限机械候选。
+3. 每个候选在 disposable branch 中执行完整内部 Method 链。
+4. 候选必须通过 active return、runtime type、identity、数学等价、合法域、达到性、Goal
+   closure 与 provenance 检查。
+5. 只能选择唯一成功候选，或实际 public outputs 数学等价的多个成功候选。
+6. 非等价多 winner 必须返回歧义诊断，禁止按 candidate id、调用数或符号复杂度静默选取。
+7. winner 必须从干净 Context clean replay；shadow result/write 不得复制进正式事务。
+8. 全部检查通过后才能一次性发布 public returns、Condition、StateVersion 与 evidence。
+9. 任一内部 invocation 失败时整个 Macro 不产生公开部分结果，不产生 ghost write。
+10. checkpoint 保存 winner、exact input authority、write/result signature；restore 不重新搜索、
+    不重新选择 latest state。
+
+允许内部复用通用距离、反射、构造、轨迹、表达式改写和验证 Method。共享的是确定性数学
+原语与执行外壳，不是 Planner 可见的通用路径子图 DSL。
+
+## 6. 诊断与 Retry
+
+### 6.1 一个公开根诊断
+
+Macro 内部可以在 debug artifact 中保存完整 candidate、Method 与 postcondition 记录；
+Planner retry 只接收一个 Macro 级可操作根诊断，例如：
+
+```json
+{
+  "code": "functional.macro_no_valid_candidate",
+  "step_id": "ii_path_minimum",
+  "capability_id": "square_relation_path_minimum",
+  "message": "给定公开条件不能确定唯一有效的路径最值构造",
+  "repair_action": "修正公开参数，或选择其他可用 capability"
+}
+```
+
+不得把内部调用链投影成多个失败/blocked Planner steps。后续内部步骤的 blocked 状态只是
+debug evidence，不是多个独立错误。
+
+失败分类固定为：
+
+- public arg、可见数学条件或非等价候选歧义：`planner_repairable`；
+- 候选全部因公开数学前提不满足而失败：`planner_repairable`；
+- Registry、binding authority、checkpoint、signature、contract drift、未知异常：
+  `configuration/nonretryable`，不得消耗 LLM retry。
+
+### 6.2 不新增 Macro repair 协议
+
+不增加 `macro_repair_policies`、`repair_mode` 或“先修 Macro、下一轮才允许展开”的状态机。
+Macro 失败仍使用现有 owner replacement：
 
 ```text
-MethodInputBindingSpec(source | derivation)
-  -> FunctionalProblemCallBinding
-  -> MethodInputReadAuthority
-  -> compiler 机械投影 runtime path
-  -> MethodInputViewResolver
-  -> Method
+Goal-owned Macro  -> 完整替换该 Goal 的 steps + answer_from
+Scope-owned Macro -> 替换 repair authority 给出的 scope editable block
 ```
 
-Entity、StateVersion、Condition、CallResult 和 Macro prepared role 均在 F5-C
-阶段确定。compiler 与 runtime 缺少 typed authority 时 fail loud，不得回退到
-`FunctionAdapterRegistry._select()`。
+LLM 可以保留 Macro 并修公开 args、改选另一个 Macro，或改用 catalog 已有 Functions；
+但永远不能编辑 Macro 内部 invocation。Solved Goal 与 frozen producer 继续由代码保护，
+不要求 LLM 理解 Macro 内部冻结或 merge 规则。
 
-F4.3 仍需处理的相邻债务是：
+## 7. 证据、Explanation 与 Visual
 
-- 四条 `MethodCompanionOutputSpec.target_selector/registration_selector` 字符串协议；
-- standalone debug `equal_length_ray_point` 的平行角色推断；
-- Path family 中仍存在的几何 helper 与公开内部 Path 类型；
-- 尚未迁移的 Macro 当前必须保持 `direct`，不能提前宣称 `runtime_search`。
-
-## 3. 当前能力清单
-
-现有七个 `StepRecipeSpec` Macro：
-
-1. `right_angle_equal_length_construct_and_select`
-2. `curve_candidate_parameter_solve`
-3. `two_moving_points_path_reduction`
-4. `broken_path_straightening_and_select`
-5. `path_minimum_by_straightened_distance`
-6. `broken_path_straightening_minimum_expression`
-7. `equal_length_ray_path_reduction`
-
-另外三个 Method 实际承担了 Macro 级策略，也必须在同一阶段迁移：
-
-1. `square_path_dimension_reduction`
-2. `weighted_axis_path_triangle_transform`
-3. `linked_broken_path_minimum_expression`
-
-若只迁移七个已注册 Macro，而保留后三个 Planner-facing Method，
-`PathWitness`、辅助点和内部连线仍会从另一入口泄漏到 Plan。
-
-## 4. 中间类型边界
-
-### 4.1 从 Planner wire 删除
-
-以下类型只属于 Macro 内部执行证据：
-
-- `PathTransformation` / `PathWitness`；
-- `PathCandidate`；
-- 没有题面身份的反射点、构造点和辅助点；
-- `straightened_endpoint_1` / `straightened_endpoint_2`；
-- 仅用于连接两个内部 Method 的运动轨迹；
-- 内部 Method 的 call id、input name 与 return name。
-
-它们不得出现在 Planner prompt、response schema、`FunctionalPlan` 或 repair wire。
-
-### 4.2 保留公开数学结果
-
-`MinimumExpression` 是可以被下游参数求解消费的匿名数学结果，因此保留
-`StepResultRef`。所有高层路径 Macro 统一公开：
+Macro 原子性不降低数学可验证性。路径 Macro 必须生成内部 verified evidence，至少覆盖：
 
 ```text
-minimum_expression: MinimumExpression
+原目标与改写目标
+公开角色与 runtime chosen 角色
+必要构造及其条件
+路径/距离等价证明
+合法域
+最值策略
+最小值表达式
+达到点或达到条件
+candidate search summary
+source/provenance signature
 ```
 
-结果是 `open_expression` 还是 `closed_value` 由 runtime result form 决定，不再用
-`path_minimum_expression`、`evaluated_path_minimum_expression` 等多个名字表达同一语义。
+证据保存在 `VerifiedFunctionalPlanExecution`、checkpoint 或 Explanation projection 的内部
+payload 中，不成为 Planner public return。Explanation/Visual 从 verified evidence 生成
+教学内容，不解析 LLM prose，也不要求 Planner 重现内部证明 steps。
 
-### 4.3 统一运行证据
+## 8. 当前基线与遗留问题
 
-每个路径 Macro 生成非 Planner-facing 的严格 witness：
+F4.3A 已具备：
 
-```text
-PathMinimumWitness
-  original_objective
-  reduced_objective
-  role_resolutions
-  constructions
-  equivalence_proof
-  legal_domain
-  minimum_strategy
-  minimum_expression
-  minimizing_points
-  attainment_checks
-  macro_search_report
-  provenance_signature
-```
+- per-call Macro preparation 与 bounded runtime search；
+- shadow branch 隔离与 clean replay；
+- finalized F5-C binding 与 typed Method input authority；
+- transaction、checkpoint v3 与 restore signature；
+- output allocation 与 companion output authority；
+- 重名点 fail-loud 与生产 input selector 退役。
 
-`FunctionalPlan` 只保存求解意图。实际输出与证据进入：
+仍需处理：
 
-```text
-VerifiedFunctionalPlanExecution
-  canonical_plan
-  plan / planning-context / revision authority
-  checkpoint_id
-  scope-shaped execution tree
-    step status
-    actual outputs
-    typed evidence
-```
+1. `PathTransformation`、`PathWitness`、`PathCandidate`、内部端点和轨迹仍进入当前 Planner
+   catalog、schema、fixture 与 recipe chain。
+2. 南开仍要求 LLM 拼接“两动点降维 -> 拉直求最值”。
+3. 和平二模仍要求 `square_path_dimension_reduction -> locus -> broken path`，并恢复了已知
+   `PathTransformation` moving-object identity 风险。
+4. 河西/西青仍要求 `weighted_axis_path_triangle_transform -> linked minimum`。
+5. 只有 `equal_length_ray_path_reduction` 是完整 `runtime_search` 参考 Macro；其他未迁
+   Macro 必须保持 `direct`。
+6. contextual catalog 当前仍会在动态角色只有一个候选时删除该参数，必须改为固定的
+   public/code-owned 参数规则。
+7. debug writer 的真实逐 attempt 保存、自由符号 basis 的 planner-repairable 诊断属于
+   独立通用缺陷；回滚后仍需重新实现，但不得借机增加 Macro wire。
+8. `functional-goal-repair/v4` 自身仍有 status、editable/frozen、三类 replacement map、
+   opaque ID 与 `return_expectations` 等复杂性；它们属于独立 Retry 简化阶段，不与原子
+   Macro 迁移捆绑。
 
-retry 只接收裁剪后的 `PathMinimumPromptWitness`；Explanation 与 Visual 读取
-verified witness，而不是把 witness 重新塞回 Plan。
+## 9. 目标 Macro
 
-## 5. 各 Macro 的目标输入输出
+### 9.1 Golden reference
 
-### 5.1 `right_angle_equal_length_construct_and_select`
+`equal_length_ray_path_reduction` 保持公开 capability ID，并作为原子 Macro golden
+reference。LLM 只提交结构化 path/equal-length/membership Facts；角色搜索、辅助构造、
+SAS 等价、路径恒等式、合法域与达到性留在 runtime。
 
-当前：
-
-```text
-input:  right_angle_equal_length Fact
-output: selected_target_point
-```
-
-目标：
-
-```text
-input:
-  right_angle_equal_length Fact
-  target Point（仅 Goal 无法唯一确定目标身份时）
-  optional direction / quadrant / symbol constraint Facts
-
-output:
-  selected_point
-
-internal:
-  ConstructedPointWitness
-```
-
-候选构造与分支验证由 runtime search 完成，LLM 不选择象限实现路径。
-
-### 5.2 `curve_candidate_parameter_solve`
-
-当前：
-
-```text
-input:
-  candidates: PointList
-  parabola
-  target_point
-  point_on_curve Fact?
-  symbol_constraint Fact?
-
-output:
-  selected_curve_point
-  parameter_value?
-  solved_parabola?
-```
-
-目标仍允许真正可复用的匿名 `PointList`，但常见的“构造候选再筛选”应封装为
-family composite Macro：
-
-```text
-input:
-  candidate-producing Fact 或 authenticated anonymous candidate result
-  parabola Entity
-  target Point
-  point_on_curve Fact
-  optional symbol constraint Fact
-
-output:
-  selected_curve_point
-  parameter_value?
-  solved_parabola?
-
-internal:
-  CurveCandidateSelectionWitness
-```
-
-### 5.3 两动点路径
-
-当前公开 `two_moving_points_path_reduction -> PathWitness`，目标替换为：
-
-```text
-two_moving_points_path_minimum
-
-input:
-  path_minimum_target Fact
-  moving-point membership Facts
-  length/proportion binding Fact
-  optional moving-point role hint
-
-output:
-  minimum_expression
-  minimizing_configuration?（仅 Goal 明确询问时）
-
-internal:
-  path reduction
-  locus recovery
-  straightening
-  endpoint construction
-  distance / attainment proof
-  PathMinimumWitness
-```
-
-`two_moving_points_path_reduction` 不再作为 Planner 可见的独立阶段。
-
-### 5.4 拉直与距离
-
-`broken_path_straightening_and_select` 目标是内部共享搜索引擎，不再有
-Planner-facing 契约。
-
-`path_minimum_by_straightened_distance` 目标是内部距离原语。只有当两个端点本身就是
-题面数学输入时，才允许保留直接距离能力；公开返回统一为 `minimum_expression`。
-
-### 5.5 单动点路径
-
-当前 `broken_path_straightening_minimum_expression` 同时公开 scheme、辅助点、端点和
-表达式。目标替换为：
-
-```text
-single_moving_point_path_minimum
-
-input:
-  path_minimum_target Fact
-  moving-locus Fact
-  optional moving-point role hint
-  optional parameter Entity
-
-output:
-  minimum_expression
-  minimizing_point?（仅 Goal 明确询问时）
-
-internal:
-  straightening candidates
-  selected construction
-  endpoints
-  attainment proof
-  PathMinimumWitness
-```
-
-### 5.6 正方形路径
-
-当前 `square_path_dimension_reduction -> PathWitness`，目标替换为：
+### 9.2 正方形路径
 
 ```text
 square_relation_path_minimum
 
-input:
+public input:
   path target Fact
-  square Fact
-  midpoint Fact
-  center Fact
-  relevant locus Facts
-  optional moving-point role hint
+  square / midpoint / center / locus Facts
+  必要的题面 Entity
+  固定可见性的 optional role hint（确有必要时）
 
-output:
+public output:
   minimum_expression
-  minimizing_configuration?（仅 Goal 明确询问时）
+  Goal确实需要的最终 minimizing result
 
 internal:
-  square reduction
-  locus derivation
-  straightening
-  distance / attainment proof
-  PathMinimumWitness
+  正方形降维、轨迹恢复、反射/拉直、距离、合法域与达到性
 ```
 
-### 5.7 加权路径
+优先迁移该 family，以直接消除当前 `PathTransformation` identity 已知问题。
 
-当前公开两步链：
+### 9.3 两动点/标准路径
 
 ```text
-weighted_axis_path_triangle_transform
-  -> auxiliary_point / path_transformation / auxiliary_locus
+coupled_segment_endpoint_replacement_path_minimum
+single_moving_point_path_minimum
 
-linked_broken_path_minimum_expression
-  -> minimum_expression
+public input:
+  path target、运动范围、绑定关系 Facts及必要Entity
+
+public output:
+  minimum_expression
+
+internal:
+  降维、轨迹恢复、端点替换、拉直、距离与达到性
 ```
 
-目标合并为：
+南开不再由 LLM 传递 `PathTransformation` 或拼装拉直阶段。
+
+### 9.4 加权路径
 
 ```text
 weighted_axis_path_minimum
 
-input:
-  path_minimum_target Fact
-  weight/binding Fact
-  axis-membership Fact
-  dynamic-constraint Fact
-  optional moving/fixed role hints
+public input:
+  path target、weight/binding、axis membership、dynamic constraint Facts
 
-output:
+public output:
   minimum_expression
 
 internal:
-  weighted triangle construction
-  auxiliary point / locus
-  path equivalence
-  linked minimum calculation
-  PathMinimumWitness
+  加权三角形构造、辅助点/轨迹、等价性、合法域与达到性
 ```
 
-题目给出的最小值仍应作为后续参数求解输入，不能冒充路径结构 Fact。
+`right_angle_equal_length_construct_and_select` 与 `curve_candidate_parameter_solve` 表达
+独立的候选构造/筛选机制，继续保留为原子能力，不因名称相近并入路径 Macro。
 
-### 5.8 等长射线路径参考实现
+## 10. 分阶段实施
 
-`equal_length_ray_path_reduction` 保持公开 capability ID，输入固定为：
+### F4.3B：原子边界与 golden reference
+
+- 在测试中固定“一个 Macro = 一个 canonical Plan step”；
+- 固定 Catalog/Schema/Retry 不含内部 step、blueprint、fragment、derived binding；
+- 重写动态角色投影为固定 public/code-owned contract；
+- 固化 `equal_length_ray_path_reduction` 的错误 hint、非等价歧义、ghost write、clean
+  replay 与 restore 门禁；
+- 恢复逐 attempt debug artifact 与清晰的自由符号诊断，但不修改 Macro wire；
+- 只运行专项、L0 affected 与 L2 contract，不运行付费 live。
+
+### F4.3C：和平二模正方形原子 Macro
+
+- 新增 `square_relation_path_minimum` 原子入口；
+- 内部复用现有确定性 Method，不物化 generated Plan steps；
+- 删除该 family 对公开 `square_path_dimension_reduction`、locus handoff 与
+  `broken_path_straightening_minimum_expression` 的依赖；
+- 运行和平二模并行 live `1x3`。
+
+### F4.3D：南开路径原子 Macro
+
+- 迁移耦合线段端点替换与单动点路径；
+- 删除 LLM-facing `two_moving_points_path_reduction -> broken path` 两阶段链；
+- 运行南开并行 live `1x3`，检查每轮实际 few-shot ID/hash。
+
+### F4.3E：加权路径原子 Macro
+
+- 合并 weighted transform 与 linked minimum；
+- 删除按点名、`aux` 子串或 Context 顺序寻找辅助对象的 helper；
+- 运行河西/西青对应 family 并行 live。
+
+### F4.3F：Planner 协议与旧能力清理
+
+- 从 prompt、catalog、dynamic schema、repair、fixture 与 few-shot 物理删除内部 Path 类型；
+- 删除旧公开 recipe/Method、compiler dispatch、Explanation/Visual fallback 和孤儿注册；
+- 重写 compile manifest；
+- 运行 L3 full 与 Planner-only `5x3 --concurrency 15`。
+
+每个 family 独立提交、独立离线门禁、独立定向 live。禁止先建设一个会进入 Planner wire
+的“通用路径子图内核”。
+
+## 11. 硬门禁
 
 ```text
-path_minimum_target
-equal_length_condition
-point_on_segment
-point_on_ray
-```
-
-四个 Fact 无法唯一确定结构时，才动态暴露：
-
-```text
-anchor
-reference_point
-ray_point
-fixed_point
-```
-
-公开返回：
-
-```text
-minimum_expression
-segment_minimizing_point / ray_minimizing_point（仅 Goal 需要时）
-```
-
-内部搜索角色、等长辅助点、SAS 与路径恒等式、直达/反射/端点候选、合法域与
-可达性，并生成完整 `PathMinimumWitness`。
-
-## 6. F5-F4.3 分段实施计划
-
-F4.3 不一次性完成。每一段必须形成独立可回滚提交；未完成 Registry、lowerer、
-postcondition 与 evidence builder 的 Macro 保持 `direct`，不能提前改为
-`runtime_search`。
-
-```mermaid
-flowchart LR
-  A["F4.3A<br/>伴随输出权威"]
-  B["F4.3B<br/>共享路径运行时内核"]
-  C["F4.3C<br/>标准路径与两动点路径"]
-  D["F4.3D<br/>正方形路径"]
-  E["F4.3E<br/>加权路径"]
-  F["F4.3F<br/>Planner协议清理"]
-
-  A --> B --> C --> D --> E --> F
-```
-
-### 6.1 F4.3A：伴随输出权威（COMPLETE）
-
-目标：先移除输出侧剩余的字符串分发协议，避免新 Macro 继续复制 input selector
-已经退役的旧模式。
-
-已完成：
-
-- 四个固有伴随输出改由MethodSpec声明`emission=always`与
-  `authority=return_allocation`，FunctionSpec只投影内部materialization policy；
-- `MethodOutputWriteAuthority`按Function return key与唯一
-  `FunctionalReturnAllocation`生成state或exact call-result destination，compiler只做机械lowering；
-- transaction在执行前、运行结果产生后与commit后分别审计allocation、promote路径、
-  runtime type、MathObject、scope和exact StateVersion；checkpoint v3保存authority payload与签名；
-- family层重复companion声明、字符串target/registration selector、专用handle推断和
-  standalone debug角色provider已物理删除；结构化等长射线候选只允许通过
-  `macro_preparation`模块的owner入口构建。
-- 等长射线角色上下文保留完整的`point label -> visible handles[]`权威；legacy路径文本
-  真正引用重名点时稳定报`planner.macro_point_name_ambiguous`，不会把重名对象静默移出
-  候选集。使用精确Point handle的结构化Fact不受展示标签重名影响。
-
-`FunctionalOutputTargetSelectorSpec`继续保留：它负责Planner公开return的题面Entity消歧，
-与已经删除的Method companion target/registration字符串分发不是同一层协议。
-
-测试与提交：
-
-```text
-L0 affected
-L2 contract
-不运行付费 live
-commit: refactor(solver): type companion output authority
-```
-
-### 6.2 F4.3B：共享路径运行时内核
-
-目标：建立所有 Path Macro 共用的内部数学内核，先统一候选与 witness，再迁 family。
-
-新增内部契约：
-
-```text
-PathObjective
-MacroRoleAssignmentCandidate
-PathAttainmentCandidate
-StraighteningResult
-PathMinimumWitness
-```
-
-固定区分：
-
-- `MacroRoleAssignmentCandidate`：谁是动点、固定点、参考点等对象角色；
-- `PathAttainmentCandidate`：直达、反射、端点等最值策略。
-
-两类候选分别拥有 winner 与诊断，禁止共用模糊的 `candidate/search` authority。
-
-实施内容：
-
-- 内部化直达、反射、端点、拉直、距离、合法域与可达性检查；
-- 收敛companion物理destination的机械派生：数学权威继续只来自return allocation，最终让
-  promote path直接由allocation/projected write通用规则生成。F4.3A期间仍由transaction的
-  compile前、runtime后和commit后三道审计阻止路径漂移；不得把promote path升级为数学权威。
-- 将 `broken_path_straightening_and_select` 与
-  `path_minimum_by_straightened_distance` 收为 kernel 内部步骤；
-- 统一 public return 为 `minimum_expression`；
-- 将 `right_angle_equal_length_construct_and_select` 和
-  `curve_candidate_parameter_solve` 接入相同 shadow/clean replay 框架；
-- Registry 统一拥有 candidate builder、validation policy、lowerer、postcondition
-  与 evidence builder，transaction 不得按 Macro ID 分支。
-
-测试与提交：
-
-```text
-kernel 单元测试 + L0 affected + L2 contract
-现有未迁移 family 仍保持 direct
-不运行全题 live
-commit: refactor(solver): add shared path minimum runtime kernel
-```
-
-### 6.3 F4.3C：标准路径与两动点路径
-
-目标：迁移 `quadratic_path_minimum` family，并优先解决南开题中 Planner 需要拼装
-PathTransformation、端点和拉直步骤导致的超长输出。
-
-公开能力：
-
-```text
-two_moving_points_path_minimum
-single_moving_point_path_minimum
-```
-
-实施内容：
-
-- Planner 只传 path target、运动约束/绑定 Fact、题面 Entity 与可选角色 hint；
-- 降维、轨迹恢复、拉直、端点构造、距离与最值证明全部进入 Macro；
-- `PathTransformation`、内部端点和 Method 连线不进入 prompt；
-- family 的 Registry 实现完整后，原子地从 `direct` 切换为 `runtime_search`；
-- 输出 `minimum_expression`，仅在 Goal 需要时公开 minimizing point/configuration。
-
-测试与提交：
-
-```text
-L0 affected + L2 contract
-南开定向 live 1x3
-单 provider attempt 为目标
-finish_reason=length 数量 == 0
-commit: refactor(solver): migrate standard path minimum macro
-```
-
-### 6.4 F4.3D：正方形路径
-
-目标：将 `quadratic_square_reflection_path_minimum` family 收敛为
-`square_relation_path_minimum`。
-
-实施内容：
-
-- Macro 消费 square、midpoint、center、locus 与 path target Facts；
-- 内部完成正方形降维、动点轨迹恢复、反射/拉直、端点与最值计算；
-- LLM 的 moving-point hint 只影响候选顺序，唯一 runtime winner 可以纠正；
-- witness 保存正方形关系、等价路径、最值策略与 minimizing configuration；
-- 删除公开 `square_path_dimension_reduction` 与内部 Path witness 连线。
-
-测试与提交：
-
-```text
-L0 affected + L2 contract
-和平二模定向 live 1x3
-错误动点 hint 自动纠正且 source binding drift == 0
-commit: refactor(solver): migrate square path minimum macro
-```
-
-### 6.5 F4.3E：加权路径
-
-目标：将两步公开链合并为 `weighted_axis_path_minimum`。
-
-实施内容：
-
-- 合并 `weighted_axis_path_triangle_transform` 与
-  `linked_broken_path_minimum_expression`；
-- 辅助点、辅助轨迹、三角形转换和 `PathTransformation` 全部进入 witness；
-- public input 只保留 path target、weight/binding、axis membership、dynamic
-  constraint Facts 与必要角色 hint；
-- runtime 验证权重变换恒等式、合法域、候选可达性和最终表达式；
-- 删除 compiler 中按点名、`aux` 子串或 Context 顺序寻找辅助对象的 helper。
-
-测试与提交：
-
-```text
-L0 affected + L2 contract
-河西或对应 weighted family 定向 live 1x3
-内部辅助对象 identity 泄漏 == 0
-commit: refactor(solver): migrate weighted path minimum macro
-```
-
-### 6.6 F4.3F：Planner 协议清理
-
-目标：所有 family 迁移完成后，一次性删除 Planner wire 中的内部 Path 实现细节。
-
-实施内容：
-
-- 从 prompt、dynamic schema、catalog 与 repair wire 删除
-  `PathTransformation`、`PathWitness`、`PathCandidate`、内部端点和 Method wiring；
-- 删除旧公开 recipe、return alias、few-shot 旧写法和 debug bypass；
-- 重写五份 fixture、few-shot 与 compile manifest；
-- 静态门禁禁止生产 internal Path type、companion 字符串 selector、standalone role
-  inference 和 Macro ID transaction 分支；
-- Explanation / Visual 全部从 `VerifiedFunctionalPlanExecution` witness 读取路径证据。
-
-测试与提交：
-
-```text
-L0 affected
-L2 contract
-L3 full
-Planner-only live 5x3 --concurrency 15
-commit: refactor(solver): retire planner path implementation wire
-```
-
-## 7. 分段原则与提交边界
-
-每段都遵守以下规则：
-
-1. 一个提交只改变一个权威边界或一个 family，不把共享 kernel 与 family 迁移混在一起。
-2. Macro 只有在 candidate builder、validation policy、lowerer、postcondition、evidence
-   builder 与 restore 全部接通后，才可声明 `runtime_search`。
-3. shadow 候选只能读取 dependency envelope 内的 Entity、Fact 与 exact state；任意
-   configuration/contract 异常必须 fail loud，不能伪装成“候选不通过”。
-4. winner 确定后才生成最终 F5-C binding；authored hint 只能进入 search report。
-5. clean replay 必须从干净 Context 重新执行，禁止复制 shadow write 或 result。
-6. 每个 family 定向 live 通过后再迁下一个；只有 F4.3F 运行全量 L3 与 5x3。
-7. 中间提交不得通过兼容 alias 让新旧公开 Path 契约同时长期存在。
-
-## 8. 最终门禁
-
-```text
-Planner prompt internal Path types == 0
-Planner-authored internal Method arguments == 0
-production input selector == 0
-production companion-output string selector == 0
-standalone production role inference == 0
-transaction Macro ID branch == 0
+每个LLM-authored Macro canonical step数量 == 1
+Macro内部generated Planner step数量 == 0
+Planner/Retry可编辑Macro内部step数量 == 0
+Planner wire derived binding / scope-local name数量 == 0
+Planner prompt semantic blueprint / expansion metadata数量 == 0
+Planner prompt internal Path types == 0（F4.3F最终）
+Macro失败公开根诊断数量 == 1
 runtime_search Macro缺失Registry实现数量 == 0
-wrong role hint唯一纠正成功率 == 100%
-non-equivalent runtime ambiguity全部fail loud
+错误hint唯一纠正成功率 == 100%
+非等价runtime ambiguity全部fail loud
 shadow candidate ghost write == 0
 winner clean replay drift == 0
 restore重新搜索/重新选择latest次数 == 0
-minimum_expression与witness provenance覆盖率 == 100%
-Explanation无需解析LLM prose即可还原路径证明
-定向family live全部通过
-Planner-only 5x3在三轮内15/15通过
-configuration / unclassified error == 0
+configuration/unclassified error == 0
+每个family定向live通过
+最终Planner-only 5x3在三轮内15/15通过
 ```
 
-## 9. 当前下一步
+## 12. 当前下一步
 
-下一项实现是 **F4.3B 共享路径运行时内核**。F4.3A已经关闭输出侧字符串selector
-与等长射线平行角色owner；后续Path family必须复用typed output authority，不能重新
-引入按名称、类型或Context顺序选择输出对象的helper。
+下一项实现是 **F4.3B 原子边界与 golden reference**。先增加静态/契约门禁并修正
+动态角色公开规则；不新增数学 Macro，不修改 LLM wire。该阶段通过后，首先迁移和平二模
+`square_relation_path_minimum`。

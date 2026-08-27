@@ -55,12 +55,29 @@ MethodSpecSource
 - 中间输出不应暴露给 LLM；
 - public return 需要从内部 `output_key` 映射。
 
+Macro 对 LLM 与 canonical FunctionalPlan 必须是原子能力：一个 authored Macro
+调用始终对应一个 Plan step。内部 invocation、candidate、winner、witness 和 debug
+step 不得物化为 Planner step，也不得成为 retry 的 editable/frozen step。Macro
+失败只投影一个公开根诊断；完整内部执行记录只进入 debug、checkpoint 与 verified
+evidence。
+
+LLM-facing Macro catalog 与 Function 使用相同的普通 capability 外壳，只公开
+`capability_id/title/use_when/do_not_use_when/args/returns`。不得公开内部 Method、
+execution mode、candidate provider、semantic blueprint、expansion dependency、runtime
+slot 或 checkpoint 信息。不要为 Macro 新增 Plan/Retry schema、derived name 或
+scope-local return binding。
+
 每个 Macro 必须声明 `execution_mode=direct|runtime_search`。`runtime_search`还必须
 声明 `searchable_roles`、`candidate_builder_id`、`validation_policy_id`和不超过32的
 候选预算。Method 永远不能搜索；Macro 的每个候选必须在 disposable branch 中
 compile/run/check，winner 再从干净 Context 重放后提交。
 
 不要用 Macro 固定某一道题的完整路线。Macro 应表达稳定的数学机制。
+
+Macro 参数必须在定义时固定为始终公开的 LLM-owned arg，或始终隐藏的 code-owned
+arg。不得因为当前候选只有一个就从 catalog 删除公开参数，也不得在候选变多时动态恢复。
+hidden arg 不得成为 public return identity 的未公开来源。可选 role hint 一旦公开，
+在同一 capability 的所有 contextual catalog 中必须保持相同名称和可见性。
 
 ## 4. 参数契约
 
@@ -92,8 +109,9 @@ name / domain_type / required / cardinality / role
 
 不得投影 `PointRef`、`ParameterValue`、`Parabola`、`PathTransformation`、
 `semantic_ref_role`、state kind、version 或 runtime path。Point、Function、Line、
-Symbol 等具名对象始终使用数学实体 ref。只有没有题面身份的候选集、路径见证和
-中间表达式才使用 `StepResultRef`。
+Symbol 等具名对象始终使用数学实体 ref。只有真正公开、没有题面身份的候选集和
+中间表达式才使用 `StepResultRef`。Macro 内部 witness 不是 public return，不能进入
+Planner wire。
 
 Method input view只控制代码如何读取一个具名ref，不控制Planner wire是否能写
 `StepResultRef`。只有公开参数显式声明`allows_anonymous_result`时，response schema

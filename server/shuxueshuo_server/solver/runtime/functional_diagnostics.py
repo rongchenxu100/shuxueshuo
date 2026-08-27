@@ -119,6 +119,13 @@ _REPAIR_MESSAGES = {
         "free-parameter basis from allowed_free_parameter_bases. For a closed "
         "state, use an empty array or omit free_parameters."
     ),
+    "reduce_symbolic_state_to_expected_parameter_count": (
+        "The current inputs and visible constraints leave too many independent "
+        "unknown parameters. Add or select a visible constraint, or rebuild the "
+        "upstream symbolic state, so the return contains no more than "
+        "expected_max_independent_free_parameters. Do not merely delete a name "
+        "from free_parameters while that symbol remains in the expression."
+    ),
     "revise_quadratic_constraints": (
         "Revise the quadratic constraints so they retain at least one "
         "consistent solution branch."
@@ -1712,6 +1719,8 @@ def _category_for_code(code: str) -> FunctionalDiagnosticCategory:
         return "binding"
     if code.startswith("functional.arg_"):
         return "input"
+    if code.startswith("functional.return_"):
+        return "result"
     if "unavailable" in lowered or "missing" in lowered or "unresolved" in lowered:
         return "input"
     return "precondition"

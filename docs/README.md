@@ -18,7 +18,7 @@
 - `llm-sample-failure-review-guide.md`：逐 sample 检查 prompt、thinking、Plan、runtime 与 retry 的证据流程；包含输出超长专项和逐轮图示规范。
 - `solver-test-strategy.md`：Solver 测试分级、affected ownership、并行分片、单场景重放和真实 LLM 隔离规范。
 - `scope-native-c0-c5-executable-gate.md`：scope、typed state、Goal retry 与 closure 生成式门禁。
-- `path-minimum-macro-redesign.md`：路径最值Macro的Planner边界、运行证据与F5-F4.3分段迁移计划。
+- `path-minimum-macro-redesign.md`：路径最值原子Macro的Planner边界、runtime证据、retry约束与F5-F4.3分段迁移计划。
 - `dynamic-few-shot-strategy-plan.md`：FunctionalPlan mechanism few-shot 资产规则。
 - `entity-fact-handle-naming.md`：ProblemIR 展示引用与 typed identity 边界。
 

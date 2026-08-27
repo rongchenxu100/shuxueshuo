@@ -1131,6 +1131,7 @@ class ScopedFunctionalGoalRetryAttempt:
     final_plan_contract_validation: (
         FunctionalFinalPlanContractValidation | None
     ) = None
+    llm_metadata: Mapping[str, Any] | None = None
 
 
 @dataclass(frozen=True)
@@ -1243,6 +1244,11 @@ class ScopedFunctionalGoalRetryService:
                     "planner_attempt": semantic_attempt,
                     "planner_payload": payload,
                 }
+            )
+            llm_metadata = _scoped_attempt_llm_metadata(
+                self.client,
+                semantic_attempt=semantic_attempt,
+                planner_protocol=protocol,
             )
             repair: FunctionalGoalRepair | None = None
             next_plan: ScopedFunctionalPlan | None = None
@@ -1358,6 +1364,7 @@ class ScopedFunctionalGoalRetryService:
                     final_plan_contract_validation=(
                         final_plan_contract_validation
                     ),
+                    llm_metadata=llm_metadata,
                 )
                 if _requires_complete_plan_retry(execution):
                     attempts.append(attempt_record)
@@ -1469,6 +1476,7 @@ class ScopedFunctionalGoalRetryService:
                         final_plan_contract_validation=(
                             final_plan_contract_validation
                         ),
+                        llm_metadata=llm_metadata,
                     )
                 )
                 if exc.code == "functional.goal_repair_no_progress":
@@ -1527,6 +1535,7 @@ class ScopedFunctionalGoalRetryService:
                         final_plan_contract_validation=(
                             final_plan_contract_validation
                         ),
+                        llm_metadata=llm_metadata,
                     )
                 )
                 if not exc.retryable:
@@ -1570,6 +1579,7 @@ class ScopedFunctionalGoalRetryService:
                         final_plan_contract_validation=(
                             final_plan_contract_validation
                         ),
+                        llm_metadata=llm_metadata,
                     )
                 )
                 break
@@ -1600,6 +1610,7 @@ class ScopedFunctionalGoalRetryService:
                         final_plan_contract_validation=(
                             final_plan_contract_validation
                         ),
+                        llm_metadata=llm_metadata,
                     )
                 )
                 break
@@ -1638,6 +1649,7 @@ class ScopedFunctionalGoalRetryService:
                         final_plan_contract_validation=(
                             final_plan_contract_validation
                         ),
+                        llm_metadata=llm_metadata,
                     )
                 )
                 break
@@ -4538,6 +4550,35 @@ def _execution_steps(
             *(item for goal in scope.goals for item in goal.steps),
         )
     }
+
+
+def _scoped_attempt_llm_metadata(
+    client: Any,
+    *,
+    semantic_attempt: int,
+    planner_protocol: str,
+) -> Mapping[str, Any]:
+    """Freeze provider metadata before a later retry overwrites ``last_*``."""
+
+    return _freeze_mapping(
+        {
+            "provider": getattr(
+                client,
+                "provider_name",
+                client.__class__.__name__,
+            ),
+            "request_model": getattr(client, "model", None),
+            "response_model": getattr(client, "last_response_model", None),
+            "usage": getattr(client, "last_usage", None),
+            "provider_attempts": getattr(
+                client,
+                "last_provider_attempts",
+                None,
+            ),
+            "planner_protocol": planner_protocol,
+            "semantic_attempt": semantic_attempt,
+        }
+    )
 
 
 def _freeze_mapping(value: Mapping[str, Any]) -> Mapping[str, Any]:

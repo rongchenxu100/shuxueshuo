@@ -1155,6 +1155,54 @@ def test_return_form_mismatch_preserves_runtime_closure_details(tmp_path) -> Non
     assert payload["repair_action"] == "provide_visible_state_producer"
 
 
+def test_return_complexity_exceeded_explains_two_unknown_parameter_repair(
+    tmp_path,
+) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    issue = FunctionalPlanIssue(
+        layer="trial_execution",
+        code="functional.return_complexity_exceeded",
+        message=(
+            "return quadratic_state must contain at most 1 independent unknown "
+            "parameter, but the current inputs leave 2: ['b', 'c']"
+        ),
+        call_id="derive_parametric_parabola_ii",
+        scope_id="ii",
+        details={
+            "return": "quadratic_state",
+            "expected_max_independent_free_parameters": 1,
+            "observed_independent_free_parameter_count": 2,
+            "observed_free_symbol_names": ["b", "c"],
+            "retryability": "planner_repairable",
+            "repair_action": (
+                "reduce_symbolic_state_to_expected_parameter_count"
+            ),
+        },
+    )
+
+    payload = _reconciliation_issue_payload(
+        issue,
+        binding_catalog=fixture.binding_catalog,
+        planning_context=fixture.planning_context,
+    )
+    payload.pop("_diagnostic_authority")
+
+    assert payload["category"] == "result"
+    assert payload["retryability"] == "planner_repairable"
+    assert payload["expected"] == {
+        "expected_max_independent_free_parameters": 1
+    }
+    assert payload["observed"] == {
+        "observed_free_symbol_names": ["b", "c"],
+        "observed_independent_free_parameter_count": 2,
+    }
+    assert payload["repair_action"] == (
+        "reduce_symbolic_state_to_expected_parameter_count"
+    )
+    assert "current inputs and visible constraints" in payload["message"]
+    assert "Do not merely delete a name from free_parameters" in payload["message"]
+
+
 def test_method_check_failure_preserves_structured_check_details() -> None:
     error = method_check_failed(
         (

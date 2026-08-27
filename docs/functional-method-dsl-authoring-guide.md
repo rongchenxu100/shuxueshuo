@@ -983,7 +983,24 @@ source的optional项只能按5.2节明确省略，不能生成空binding或推�
 - 定义typed input derivations、aliases 和 public returns；
 - 保证多个内部步骤作为一个事务提交或回滚。
 
+Macro 对 LLM 与 canonical FunctionalPlan 是原子节点。一个 authored Macro call 只能
+对应一个 Plan step；内部 invocation 不得获得 Planner step identity，不得物化为
+canonical Plan steps，也不得进入 retry replacement、editable/frozen merge 或
+`answer_from`。只有 Macro 的 public return 可以被下游 `StepResultRef`、`output_targets`
+或 Goal `answer_from`消费。禁止为内部结果增加 derived name、scope-local symbol 或第三种
+引用通道。
+
+原子边界不限制 runtime 验证。内部 Method 结果、候选检查和 witness 可以完整保存在
+debug、checkpoint 与 `VerifiedFunctionalPlanExecution` evidence 中；Planner retry 只接收
+一个 Macro 级根诊断。Registry、binding、checkpoint 或 contract drift 必须
+nonretryable，不能伪装成内部候选失败后交给 LLM。
+
 Macro 不应固定整道题路线。family-specific path reduction 可以是 Macro；通用的距离、反射、候选筛选仍应是复用 Method。
+
+Macro 的 LLM-facing catalog 只公开稳定数学契约：`capability_id/title/use_when/
+do_not_use_when/args/returns`。`execution_mode`、search spec、internal wiring、candidate、
+winner、witness 与 provenance signature 均只属于代码。Function 与 Macro 在 Plan wire
+中使用同一个普通 step schema，不能为 Macro 建立第二套 authoring DSL。
 
 每个 Macro 必须声明执行模式：
 
@@ -1012,6 +1029,11 @@ Goal 与 provenance 门禁。唯一成功候选可以纠正提示；多个成功
 winner确定前只能持有pending F5-C draft；只有winner选择完成后才能finalize该call的
 input/relation/return binding和provenance。authored错误hint只进入search report，不能
 进入chosen对象的source binding。
+
+每个角色参数必须固定为始终公开的 LLM-owned arg 或始终隐藏的 code-owned arg；不得按
+contextual candidate 数量改变 catalog shape。hidden role 不得同时承担 public return
+identity source。若多个候选产生非等价 public outputs，必须返回一个 Macro 级歧义诊断；
+内部候选和级联 blocked Method 不得投影为多个 Planner 错误。
 
 Function/Macro 必须区分“策略提示”和“证明 lowering”：
 

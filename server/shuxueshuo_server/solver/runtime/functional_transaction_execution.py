@@ -5506,9 +5506,25 @@ class FunctionalRuntimeWriteCommitter:
                     _issue(
                         compiled.call_id,
                         "functional.return_complexity_exceeded",
-                        f"return {returned.return_name} retains "
-                        f"{len(free_symbol_ids)} free symbols; maximum is "
-                        f"{returned.max_independent_free_parameters}",
+                        f"return {returned.return_name} must contain at most "
+                        f"{returned.max_independent_free_parameters} independent "
+                        "unknown parameter(s), but the current inputs and visible "
+                        f"constraints still leave {len(free_symbol_ids)}: "
+                        f"{list(free_symbols)}",
+                        details={
+                            "return": returned.return_name,
+                            "expected_max_independent_free_parameters": (
+                                returned.max_independent_free_parameters
+                            ),
+                            "observed_independent_free_parameter_count": len(
+                                free_symbol_ids
+                            ),
+                            "observed_free_symbol_names": list(free_symbols),
+                            "retryability": "planner_repairable",
+                            "repair_action": (
+                                "reduce_symbolic_state_to_expected_parameter_count"
+                            ),
+                        },
                     )
                 )
                 continue

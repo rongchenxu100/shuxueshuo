@@ -239,6 +239,7 @@ class RuntimeOrchestrator:
         self.last_session = session
         stage = "context"
         planner: GenericPlanner | None = None
+        scoped_result: Any | None = None
         try:
             kernel = self.kernel or SympyKernel()
             context = ContextBuilder(kernel).build(problem)
@@ -270,12 +271,10 @@ class RuntimeOrchestrator:
                 max_attempts=self.max_attempts,
             )
             llm_call = _llm_call_from_planner(planner)
-            _write_debug_attempt(
+            _write_scoped_debug_attempts(
                 self.debug_dir,
-                max(1, len(scoped_result.attempts)),
                 planner,
-                getattr(getattr(planner, "artifacts", None), "output", None),
-                None,
+                scoped_result,
             )
             if scoped_result.status != "accepted":
                 raise PlannerExecutionError(
@@ -339,16 +338,36 @@ class RuntimeOrchestrator:
             )
         except Exception as exc:
             error = structured_error_from_exception(stage=stage, exc=exc)
-            _write_debug_attempt(
-                self.debug_dir,
-                1,
-                planner,
-                None,
-                error,
+            scoped_attempts = tuple(
+                getattr(scoped_result, "attempts", ())
+                if scoped_result is not None
+                else ()
             )
+            attempt_index = (
+                int(scoped_attempts[-1].semantic_attempt)
+                if scoped_attempts
+                else 1
+            )
+            if scoped_attempts:
+                _write_debug_attempt(
+                    self.debug_dir,
+                    attempt_index,
+                    planner,
+                    None,
+                    error,
+                    scoped_attempt=scoped_attempts[-1],
+                )
+            else:
+                _write_debug_attempt(
+                    self.debug_dir,
+                    attempt_index,
+                    planner,
+                    None,
+                    error,
+                )
             session.add_attempt(
                 _attempt_record(
-                    1,
+                    attempt_index,
                     "failed",
                     stage,
                     started,
@@ -966,6 +985,8 @@ def _write_debug_attempt(
     planner: GenericPlanner | None,
     planner_output: PlannerOutput | None,
     error: StructuredSolveError | None,
+    *,
+    scoped_attempt: Any | None = None,
 ) -> None:
     """按 attempt 写出 prompt、raw response、draft、compiled output 和错误。
 
@@ -975,8 +996,16 @@ def _write_debug_attempt(
         return
     debug_dir.mkdir(parents=True, exist_ok=True)
     prefix = f"attempt-{attempt_index}"
-    prompt = getattr(planner, "last_prompt", None)
-    payload = getattr(planner, "last_payload", None)
+    prompt = (
+        getattr(scoped_attempt, "prompt", None)
+        if scoped_attempt is not None
+        else getattr(planner, "last_prompt", None)
+    )
+    payload = (
+        getattr(scoped_attempt, "payload", None)
+        if scoped_attempt is not None
+        else getattr(planner, "last_payload", None)
+    )
     if prompt is not None:
         messages = (
             prompt.as_messages()
@@ -998,7 +1027,7 @@ def _write_debug_attempt(
             str(getattr(prompt, "user", "")),
             encoding="utf-8",
         )
-    if isinstance(payload, dict):
+    if isinstance(payload, Mapping):
         for key, value in payload.items():
             _write_json(
                 debug_dir / f"{prefix}.payload.{key}.json",
@@ -1021,7 +1050,11 @@ def _write_debug_attempt(
             debug_dir / f"{prefix}.problem-planning-binding-catalog.json",
             problem_binding_catalog.authority_payload(),
         )
-    raw_response = getattr(planner, "last_raw_response", None)
+    raw_response = (
+        getattr(scoped_attempt, "raw_response", None)
+        if scoped_attempt is not None
+        else getattr(planner, "last_raw_response", None)
+    )
     if raw_response is not None:
         (debug_dir / f"{prefix}.raw-response.txt").write_text(
             str(raw_response),
@@ -1036,7 +1069,17 @@ def _write_debug_attempt(
             functional_payload,
         )
     client = getattr(planner, "client", None)
-    if client is not None:
+    llm_metadata = (
+        getattr(scoped_attempt, "llm_metadata", None)
+        if scoped_attempt is not None
+        else None
+    )
+    if llm_metadata is not None:
+        _write_json(
+            debug_dir / f"{prefix}.llm-metadata.json",
+            llm_metadata,
+        )
+    elif client is not None:
         scoped_attempts = tuple(
             getattr(
                 getattr(
@@ -1076,22 +1119,34 @@ def _write_debug_attempt(
                 "planner_protocol": planner_protocol,
             },
         )
-    validation_report = getattr(planner, "last_validation_report", None)
+    validation_report = (
+        getattr(scoped_attempt, "content_validation_report", None)
+        if scoped_attempt is not None
+        else getattr(planner, "last_validation_report", None)
+    )
     if validation_report is not None:
         _write_json(
             debug_dir / f"{prefix}.validation-report.json",
             _safe_json(validation_report),
         )
-    diagnostic = getattr(planner, "last_execution_diagnostic", None)
+    diagnostic = (
+        None
+        if scoped_attempt is not None
+        else getattr(planner, "last_execution_diagnostic", None)
+    )
     if diagnostic is not None:
         _write_json(
             debug_dir / f"{prefix}.execution-diagnostic.json",
             _safe_json(diagnostic),
         )
-    replay = getattr(
-        getattr(planner, "artifacts", None),
-        "retry_replay_result",
-        None,
+    replay = (
+        getattr(getattr(scoped_attempt, "execution", None), "replay", None)
+        if scoped_attempt is not None
+        else getattr(
+            getattr(planner, "artifacts", None),
+            "retry_replay_result",
+            None,
+        )
     )
     if replay is not None:
         replay_artifacts = {
@@ -1133,17 +1188,29 @@ def _write_debug_attempt(
                     debug_dir / f"{prefix}.{artifact_name}.json",
                     _safe_json(artifact_payload),
                 )
-    repair_payload = _planner_repair_attempt_payload(
-        planner,
-        attempt_index,
-        [error.message] if error is not None else [],
+    repair_payload = (
+        None
+        if scoped_attempt is not None
+        else _planner_repair_attempt_payload(
+            planner,
+            attempt_index,
+            [error.message] if error is not None else [],
+        )
     )
     if repair_payload is not None:
         _write_json(
             debug_dir / f"{prefix}.previous-attempt-payload.json",
             repair_payload,
         )
-    output = planner_output or getattr(planner, "last_output", None)
+    output = (
+        planner_output
+        or getattr(replay, "output", None)
+        or (
+            None
+            if scoped_attempt is not None
+            else getattr(planner, "last_output", None)
+        )
+    )
     if output is not None:
         _write_json(
             debug_dir / f"{prefix}.compiled-planner-output.json",
@@ -1153,6 +1220,31 @@ def _write_debug_attempt(
         _write_json(
             debug_dir / f"{prefix}.structured-error.json",
             error.to_payload(),
+        )
+    scoped_error = getattr(scoped_attempt, "error", None)
+    if scoped_error is not None:
+        to_payload = getattr(scoped_error, "to_prompt_payload", None)
+        _write_json(
+            debug_dir / f"{prefix}.goal-retry-error.json",
+            to_payload() if callable(to_payload) else _safe_json(scoped_error),
+        )
+
+
+def _write_scoped_debug_attempts(
+    debug_dir: Path | None,
+    planner: GenericPlanner | None,
+    scoped_result: Any,
+) -> None:
+    """Persist each scoped retry from its own immutable attempt snapshot."""
+
+    for attempt in tuple(getattr(scoped_result, "attempts", ())):
+        _write_debug_attempt(
+            debug_dir,
+            int(attempt.semantic_attempt),
+            planner,
+            None,
+            None,
+            scoped_attempt=attempt,
         )
 
 
