@@ -21,6 +21,9 @@ from shuxueshuo_server.solver.extraction.source_identity import stable_hash
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
 )
+from shuxueshuo_server.solver.runtime.functional_binding_context import (
+    FunctionalBindingContextError,
+)
 from shuxueshuo_server.solver.runtime.functional_diagnostics import (
     FunctionalDiagnosticAuthority,
     FunctionalPromptDiagnosticProjector,
@@ -46,8 +49,6 @@ from shuxueshuo_server.solver.runtime.planner_state_context import (
     PlannerStateContext,
 )
 from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
-    ScopedPublishedGoalBinding,
-    ScopedPublishedGoalResultRef,
     ScopedFunctionalPlan,
     ScopedFunctionalPlanAuthority,
     ScopedFunctionalPlanAuthorityAdapter,
@@ -58,7 +59,6 @@ from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
     ScopedFunctionalPlanValidator,
     ScopedFunctionalScope,
     ScopedStepResultRef,
-    apply_scoped_published_goal_bindings,
     scoped_entity_state_dependencies,
     scoped_functional_plan_id,
     scoped_functional_plan_schema,
@@ -1411,7 +1411,6 @@ def _normalize_runtime_equivalent_reuses(
     authority: ScopedFunctionalPlanAuthority,
     runtime_aliases: Sequence[FunctionalRuntimeEquivalentCallAlias],
     restored_seed: FunctionalRestoredCallSeed | None,
-    published_goal_bindings: Sequence[ScopedPublishedGoalBinding],
 ) -> ScopedFunctionalPlan | None:
     """Remove duplicate steps only after actual typed runtime equivalence."""
 
@@ -1446,11 +1445,7 @@ def _normalize_runtime_equivalent_reuses(
         for scope in _walk_scopes(plan.root_scope)
         for goal in scope.goals
     }
-    protected_step_ids = {
-        item.consumer_step_id for item in published_goal_bindings
-    } | {
-        item.producer_step_id for item in published_goal_bindings
-    }
+    protected_step_ids: set[str] = set()
     if restored_seed is not None:
         protected_step_ids.update(restored_seed.call_ids)
 
@@ -1755,7 +1750,6 @@ class ScopedFunctionalGoalExecutionService:
         problem_payload: dict[str, Any],
         attempt: int = 0,
         restored_seed: FunctionalRestoredCallSeed | None = None,
-        published_goal_bindings: Sequence[ScopedPublishedGoalBinding] = (),
     ) -> ScopedFunctionalGoalExecutionResult:
         plan, validation = ScopedFunctionalPlanValidator().validate_json_with_report(
             raw_response
@@ -1769,11 +1763,6 @@ class ScopedFunctionalGoalExecutionService:
                 None,
                 None,
                 None,
-            )
-        if published_goal_bindings:
-            plan = apply_scoped_published_goal_bindings(
-                plan,
-                published_goal_bindings,
             )
         try:
             if (
@@ -1958,35 +1947,83 @@ class ScopedFunctionalGoalExecutionService:
 
             if working_authority is None or not working_authority.lowered_plan.calls:
                 break
-            prepared = replay_service.reconcile_functional_plan(
-                working_authority.lowered_plan,
-                inputs=inputs,
-                handle_registry=handle_registry,
-                context=context,
-                attempt=attempt,
-                problem_payload=problem_payload,
-                planner_state_context=planner_state_context,
-                problem_binding_catalog=problem_binding_catalog,
-                preserve_scoped_step_identity=True,
-                scoped_call_goal_bindings={
-                    step_id: item.consumer_goal_unit_ids
-                    for step_id, item in (
-                        working_authority.step_authorities.items()
-                    )
-                },
-                scoped_semantic_owner_scopes={
-                    step_id: item.semantic_owner_scope_id
-                    for step_id, item in (
-                        working_authority.step_authorities.items()
-                    )
-                },
-                allow_incomplete_goals=bool(excluded),
-                restored_seed=restored_seed,
-                authored_return_consumers=(
-                    _scoped_authored_return_consumers(canonical_plan)
-                ),
-                canonical_plan_id=scoped_functional_plan_id(canonical_plan),
-            )
+            try:
+                prepared = replay_service.reconcile_functional_plan(
+                    working_authority.lowered_plan,
+                    inputs=inputs,
+                    handle_registry=handle_registry,
+                    context=context,
+                    attempt=attempt,
+                    problem_payload=problem_payload,
+                    planner_state_context=planner_state_context,
+                    problem_binding_catalog=problem_binding_catalog,
+                    preserve_scoped_step_identity=True,
+                    scoped_call_goal_bindings={
+                        step_id: item.consumer_goal_unit_ids
+                        for step_id, item in (
+                            working_authority.step_authorities.items()
+                        )
+                    },
+                    scoped_semantic_owner_scopes={
+                        step_id: item.semantic_owner_scope_id
+                        for step_id, item in (
+                            working_authority.step_authorities.items()
+                        )
+                    },
+                    allow_incomplete_goals=bool(excluded),
+                    restored_seed=restored_seed,
+                    authored_return_consumers=(
+                        _scoped_authored_return_consumers(canonical_plan)
+                    ),
+                    canonical_plan_id=scoped_functional_plan_id(canonical_plan),
+                )
+            except FunctionalBindingContextError as exc:
+                if not exc.retryable or not exc.step_id:
+                    raise
+                step_authority = working_authority.step_authorities.get(
+                    exc.step_id
+                )
+                authored_step = next(
+                    (
+                        item
+                        for item in canonical_plan.steps
+                        if item.step_id == exc.step_id
+                    ),
+                    None,
+                )
+                diagnostic = FunctionalDiagnosticAuthority(
+                    code=exc.code,
+                    category="input",
+                    stage="reconciliation_binding",
+                    retryability="planner_repairable",
+                    capability_id=(
+                        authored_step.capability_id
+                        if authored_step is not None
+                        else None
+                    ),
+                    scope_id=(
+                        step_authority.semantic_owner_scope_id
+                        if step_authority is not None
+                        else None
+                    ),
+                    step_id=exc.step_id,
+                    expected=exc.expected,
+                    observed=exc.observed,
+                    repair_action=exc.repair_action,
+                    original_message=(
+                        "The selected parameter is not one of the independent "
+                        "unknowns in the input expression. Select a parameter "
+                        "from free_symbol_names or repair the upstream expression."
+                    ),
+                )
+                step_issues[exc.step_id] = {
+                    "stage": "reconciliation_binding",
+                    "step_id": exc.step_id,
+                    "_diagnostic_authority": diagnostic.to_payload(),
+                }
+                invalid.add(exc.step_id)
+                blocked_stage = "reconciliation_binding"
+                continue
             replay = prepared
             reconciliation = prepared.functional_reconciliation
             if reconciliation is None:
@@ -2135,7 +2172,6 @@ class ScopedFunctionalGoalExecutionService:
                 authority=working_authority,
                 runtime_aliases=runtime_aliases,
                 restored_seed=restored_seed,
-                published_goal_bindings=published_goal_bindings,
             )
             if normalized_reuse_plan is not None:
                 normalized_result = self.execute_raw_json(
@@ -2152,7 +2188,6 @@ class ScopedFunctionalGoalExecutionService:
                     problem_payload=problem_payload,
                     attempt=attempt,
                     restored_seed=restored_seed,
-                    published_goal_bindings=published_goal_bindings,
                 )
                 return replace(
                     normalized_result,
@@ -2478,7 +2513,6 @@ def _complete_goal_unit_ids(
     dependencies: dict[str, set[str]] = {
         step_id: set() for step_id in steps
     }
-    non_propagating: set[tuple[str, str]] = set()
     consumers: dict[str, set[str]] = {
         step_id: set(
             goal_authority.step_authorities[step_id].consumer_goal_unit_ids
@@ -2512,8 +2546,6 @@ def _complete_goal_unit_ids(
                 if value.step_id not in steps:
                     continue
                 dependencies[step.step_id].add(value.step_id)
-                if isinstance(value, ScopedPublishedGoalResultRef):
-                    non_propagating.add((step.step_id, value.step_id))
         for root in blocked_by.get(step.step_id, ()):
             if root in steps:
                 dependencies[step.step_id].add(root)
@@ -2528,8 +2560,6 @@ def _complete_goal_unit_ids(
         changed = False
         for consumer_id, producer_ids in dependencies.items():
             for producer_id in producer_ids:
-                if (consumer_id, producer_id) in non_propagating:
-                    continue
                 before = len(consumers[producer_id])
                 consumers[producer_id].update(consumers[consumer_id])
                 changed = changed or len(consumers[producer_id]) != before
@@ -2758,8 +2788,9 @@ def _build_checkpoint(
                 "runtime_type": item.runtime_type,
                 **(
                     {
-                        "value": _prompt_safe_value(
+                        "value": _public_runtime_result_value(
                             item.value,
+                            runtime_type=item.runtime_type,
                             forbidden_values=forbidden_prompt_values,
                         )
                     }
@@ -3387,6 +3418,36 @@ def _prompt_safe_value(
     ):
         return "<internal-identity-omitted>"
     return safe
+
+
+def _public_runtime_result_value(
+    value: Any,
+    *,
+    runtime_type: str,
+    forbidden_values: frozenset[str],
+) -> Any:
+    """Project one materialized result to its lossless public value.
+
+    ``PathTransformation`` carries private runtime references in addition to
+    its public geometric description.  Those references are execution
+    provenance, not part of the capability return contract: downstream calls
+    receive them through the typed in-process value, while retry receives the
+    complete public description (names, construction, equations and paths).
+    Removing the private ``*_ref`` channel here avoids manufacturing
+    ``<internal-identity-omitted>`` placeholders in an otherwise valid result.
+    """
+
+    safe = _json_safe_value(value)
+    if runtime_type == "PathTransformation" and isinstance(safe, Mapping):
+        safe = {
+            str(key): item
+            for key, item in safe.items()
+            if not str(key).endswith(("_ref", "_refs"))
+        }
+    return _prompt_safe_value(
+        safe,
+        forbidden_values=forbidden_values,
+    )
 
 
 def _audit_prompt_checkpoint(

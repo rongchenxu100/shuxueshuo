@@ -69,12 +69,6 @@ from shuxueshuo_server.solver.runtime.functional_plan_content import (
     FUNCTIONAL_PLAN_CONTENT_CONTRACT,
     FunctionalPlanAuthorityFrame,
     functional_plan_content_schema,
-    functional_plan_prompt_payload,
-)
-from shuxueshuo_server.solver.runtime.functional_goal_retry import (
-    FUNCTIONAL_GOAL_REPAIR_CONTRACT,
-    FunctionalGoalRetryAuthority,
-    functional_goal_repair_schema_for_authority,
 )
 from shuxueshuo_server.solver.runtime.functional_scope_retry import (
     FUNCTIONAL_SCOPE_REPAIR_CONTRACT,
@@ -329,67 +323,6 @@ class StrategyPayloadBuilder:
         result.pop("previous_attempt_state", None)
         return result
 
-    def build_goal_repair(
-        self,
-        inputs: PlannerInputs,
-        *,
-        previous_plan: ScopedFunctionalPlan,
-        retry_authority: FunctionalGoalRetryAuthority,
-        problem_payload: dict[str, Any] | None = None,
-        planner_state_context: ContextSemanticReadSource | None = None,
-        problem_planning_context: ProblemPlanningContext,
-        problem_binding_catalog: ProblemPlanningBindingCatalog,
-        previous_repair_issue: Mapping[str, Any] | None = None,
-    ) -> dict[str, Any]:
-        """Build the dedicated F5-F3 Goal replacement payload."""
-
-        if retry_authority.planning_context_id != (
-            problem_planning_context.planning_context_id
-        ):
-            raise ValueError(
-                "planner.problem_revision_drift: retry and planning Context differ"
-            )
-        if retry_authority.problem_binding_catalog_signature != (
-            problem_binding_catalog.binding_signature
-        ):
-            raise ValueError(
-                "planner.retry_problem_source_binding_drift: retry and binding "
-                "catalog differ"
-            )
-        base = self.build_scoped(
-            inputs,
-            problem_payload=problem_payload,
-            planner_state_context=planner_state_context,
-            problem_planning_context=problem_planning_context,
-            problem_binding_catalog=problem_binding_catalog,
-        )
-        schema_catalog = _prompt_capability_catalog(inputs, base)
-        return {
-            "planner_protocol": FUNCTIONAL_GOAL_REPAIR_CONTRACT,
-            "problem_id": inputs.problem_id,
-            "family_id": inputs.family_spec.family_id,
-            "problem_planning_context": (
-                problem_planning_context.to_prompt_payload()
-            ),
-            "previous_plan": functional_plan_prompt_payload(previous_plan),
-            "goal_retry_context": (
-                retry_authority.retry_context.to_prompt_payload(
-                    previous_repair_issue=previous_repair_issue,
-                )
-            ),
-            "strategy_principles": base["strategy_principles"],
-            "functional_capability_catalog": (
-                base["functional_capability_catalog"]
-            ),
-            "output_json_schema": functional_goal_repair_schema_for_authority(
-                retry_authority,
-                capability_catalog=schema_catalog,
-                authority_frame=FunctionalPlanAuthorityFrame.from_planning_context(
-                    problem_planning_context
-                ),
-            ),
-        }
-
     def build_scope_repair(
         self,
         inputs: PlannerInputs,
@@ -422,7 +355,7 @@ class StrategyPayloadBuilder:
                 base["functional_capability_catalog"]
             ),
             "output_json_schema": functional_scope_repair_schema_for_authority(
-                retry_authority
+                retry_authority,
             ),
         }
 
@@ -1169,27 +1102,6 @@ class StrategyPromptRenderer:
         ).render(payload=payload)
         return StrategyPrompt(system=system.strip(), user=user.strip())
 
-    def render_goal_repair(self, payload: dict[str, Any]) -> StrategyPrompt:
-        """Render the independent F5-F3 Goal replacement prompt."""
-
-        if payload.get("planner_protocol") != FUNCTIONAL_GOAL_REPAIR_CONTRACT:
-            raise ValueError(
-                "functional.goal_repair_prompt_invalid: wrong planner protocol"
-            )
-        output_json_schema = payload.get("output_json_schema")
-        if not isinstance(output_json_schema, Mapping):
-            raise ValueError(
-                "functional.goal_repair_prompt_invalid: missing authority-bound "
-                "output schema"
-            )
-        system = self.env.get_template(
-            "strategy-functional-goal-repair-system.jinja"
-        ).render()
-        user = self.env.get_template(
-            "strategy-functional-goal-repair-user.jinja"
-        ).render(payload=payload)
-        return StrategyPrompt(system=system.strip(), user=user.strip())
-
     def render_scope_repair(self, payload: dict[str, Any]) -> StrategyPrompt:
         """Render the vNext complete-Scope repair prompt."""
 
@@ -1272,8 +1184,7 @@ def write_strategy_debug_artifacts(
         "previous_attempt_state",
         "authoring_feedback",
         "previous_invalid_content",
-        "previous_plan",
-        "goal_retry_context",
+        "annotated_previous_plan",
     ]
     for key in source_keys:
         _write_json(target / f"payload.{key}.json", payload.get(key))

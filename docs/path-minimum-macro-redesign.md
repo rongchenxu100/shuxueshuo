@@ -1,5 +1,10 @@
 # 路径最值原子 Macro 设计
 
+> 2026-08-27 更新：Scope Retry vNext R0–R5 已完成。Macro 在 Annotated Plan 与
+> Scope replacement 中始终保持原子 step；文中对 `functional-goal-repair/v4` 的描述
+> 仅用于解释已退役方案。现行 Retry 合同见
+> [FunctionalPlan Scope-level Retry vNext](functional-scope-retry-vnext-design.md)。
+
 状态：F5-F4.1、F5-F4.2、F5-F4.2R 与 F5-F4.3A 已完成。原 F4.3B
 “透明 Macro 展开为普通 FunctionalPlan 子图”的实现已回滚；当前下一阶段是
 **F5-F4.3B 原子 Macro 边界与参考实现固化**。

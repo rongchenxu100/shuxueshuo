@@ -184,7 +184,7 @@ def test_scoped_prompts_do_not_name_internal_path_types() -> None:
             "strategy-functional-content-system.jinja"
         ).render(),
         renderer.env.get_template(
-            "strategy-functional-goal-repair-system.jinja"
+            "strategy-functional-scope-repair-system.jinja"
         ).render(),
     )
 

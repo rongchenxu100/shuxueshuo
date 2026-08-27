@@ -28,7 +28,6 @@ from shuxueshuo_server.solver.runtime.functional_plan_models import (
     CallResultRef,
     FunctionalCallReconciliation,
     FunctionalPlan,
-    PublishedGoalCallResultRef,
 )
 from shuxueshuo_server.solver.runtime.functional_binding_context import (
     FunctionalArgBinding,
@@ -3351,7 +3350,6 @@ def _bind_plan_goals(
     }
     goals_by_call: dict[str, set[str]] = {call_id: set() for call_id in calls}
     dependencies: dict[str, set[str]] = {call_id: set() for call_id in calls}
-    non_propagating_dependencies: set[tuple[str, str]] = set()
     for consumer_id, producer_ids in (additional_dependencies or {}).items():
         if consumer_id not in dependencies:
             continue
@@ -3387,10 +3385,6 @@ def _bind_plan_goals(
             for value in values:
                 if isinstance(value, CallResultRef):
                     dependencies[call.call_id].add(value.from_call)
-                    if isinstance(value, PublishedGoalCallResultRef):
-                        non_propagating_dependencies.add(
-                            (call.call_id, value.from_call)
-                        )
         for binding in call.return_bindings.values():
             if binding.kind != "answer":
                 continue
@@ -3412,11 +3406,6 @@ def _bind_plan_goals(
         changed = False
         for consumer_id, producer_ids in dependencies.items():
             for producer_id in producer_ids:
-                if (
-                    consumer_id,
-                    producer_id,
-                ) in non_propagating_dependencies:
-                    continue
                 if producer_id not in goals_by_call:
                     continue
                 before = len(goals_by_call[producer_id])

@@ -1853,7 +1853,9 @@ def test_missing_free_parameter_basis_is_not_inferred_from_transitive_consumer()
             question_goals=inputs.question_goals,
         )
 
-    assert error.value.code == "planner.method_input_view_authority_drift"
+    assert error.value.code == "functional.parameter_outside_free_symbol_basis"
+    assert error.value.retryable is True
+    assert error.value.repair_action == "align_symbolic_state_basis"
     assert "explicit parameter is outside the typed free-symbol basis" in str(
         error.value
     )

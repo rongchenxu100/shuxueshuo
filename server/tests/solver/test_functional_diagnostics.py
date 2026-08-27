@@ -41,12 +41,12 @@ from shuxueshuo_server.solver.runtime.functional_goal_execution import (
 from shuxueshuo_server.solver.runtime.functional_plan_models import (
     FunctionalPlanIssue,
 )
-from shuxueshuo_server.solver.runtime.functional_goal_retry import (
-    FunctionalGoalRetryError,
-    FunctionalGoalRetryProjector,
+from shuxueshuo_server.solver.runtime.functional_scope_retry import (
+    FunctionalScopeRetryAuthorityProjector,
+    FunctionalScopeRetryError,
 )
 
-from _functional_goal_retry_support import goal_retry_fixture
+from _functional_scope_retry_support import scope_retry_fixture as goal_retry_fixture
 from _problem_planning_support import planning_binding_fixture
 
 
@@ -1268,12 +1268,10 @@ def test_configuration_diagnostic_prevents_goal_repair_attempt(tmp_path) -> None
     )
     execution = replace(fixture.execution, checkpoint=drifted)
 
-    with pytest.raises(FunctionalGoalRetryError) as error:
-        FunctionalGoalRetryProjector().project(
+    with pytest.raises(FunctionalScopeRetryError) as error:
+        FunctionalScopeRetryAuthorityProjector().project(
             plan=fixture.failed_plan,
             execution=execution,
-            planning_context=fixture.planning_context,
-            binding_catalog=fixture.binding_catalog,
         )
 
     assert error.value.retryable is False

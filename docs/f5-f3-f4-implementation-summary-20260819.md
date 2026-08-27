@@ -1,5 +1,9 @@
 # F5-F3 / F5-F4 三次本地提交实施总结
 
+> 历史说明：本文记录 2026-08-19 的 v4 实现。该 Retry wire 已于 2026-08-27
+> 被 `functional-annotated-plan/v1` → `functional-scope-repair/v1` 取代并物理删除。
+> 当前实现见 [FunctionalPlan Scope-level Retry vNext](functional-scope-retry-vnext-design.md)。
+
 日期：2026-08-19
 
 上游基线：`7564eeb`（`origin/main`）

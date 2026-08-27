@@ -80,12 +80,12 @@ def test_offline_environment_removes_provider_authority(monkeypatch) -> None:
 def test_affected_ownership_maps_goal_runtime_to_contract_tests() -> None:
     selected, unmapped = _tests_for_changed_paths(
         (
-            "server/shuxueshuo_server/solver/runtime/functional_goal_retry.py",
+            "server/shuxueshuo_server/solver/runtime/functional_scope_retry.py",
         )
     )
 
     assert not unmapped
-    assert "tests/solver/test_functional_goal_retry_execution.py" in selected
+    assert "tests/solver/test_functional_scope_retry.py" in selected
     assert "tests/solver/test_functional_goal_checkpoint_v3.py" in selected
 
 

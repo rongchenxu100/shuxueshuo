@@ -17,10 +17,6 @@ from shuxueshuo_server.solver.runtime.functional_goal_execution import (
     functional_goal_execution_checkpoint_schema,
     verified_functional_plan_execution_schema,
 )
-from shuxueshuo_server.solver.runtime.functional_goal_retry import (
-    planner_goal_retry_context_schema,
-)
-
 from _scoped_functional_plan_support import load_v2_fixture_payload
 from test_functional_goal_execution import _execute
 
@@ -130,10 +126,6 @@ def test_incomplete_checkpoint_cannot_be_promoted(tmp_path) -> None:
         (
             "functional-goal-execution-checkpoint.schema.json",
             functional_goal_execution_checkpoint_schema,
-        ),
-        (
-            "planner-goal-retry-context.schema.json",
-            planner_goal_retry_context_schema,
         ),
         (
             "verified-functional-plan-execution.schema.json",

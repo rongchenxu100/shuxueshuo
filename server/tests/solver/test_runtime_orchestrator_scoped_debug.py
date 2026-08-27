@@ -3,11 +3,11 @@ from __future__ import annotations
 import json
 from types import SimpleNamespace
 
-from shuxueshuo_server.solver.runtime.functional_goal_retry import (
-    FUNCTIONAL_GOAL_REPAIR_CONTRACT,
-    ScopedFunctionalGoalRetryAttempt,
-    ScopedFunctionalGoalRetryRunResult,
-    _scoped_attempt_llm_metadata,
+from shuxueshuo_server.solver.runtime.functional_scope_retry import (
+    FUNCTIONAL_SCOPE_REPAIR_CONTRACT,
+    ScopedFunctionalScopeRetryAttempt,
+    ScopedFunctionalScopeRetryRunResult,
+    _scope_attempt_llm_metadata,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_content import (
     FUNCTIONAL_PLAN_CONTENT_CONTRACT,
@@ -19,8 +19,8 @@ from shuxueshuo_server.solver.runtime.orchestrator import (
 from shuxueshuo_server.solver.runtime.session import StructuredSolveError
 
 
-def _attempt(index: int, protocol: str) -> ScopedFunctionalGoalRetryAttempt:
-    return ScopedFunctionalGoalRetryAttempt(
+def _attempt(index: int, protocol: str) -> ScopedFunctionalScopeRetryAttempt:
+    return ScopedFunctionalScopeRetryAttempt(
         semantic_attempt=index,
         planner_protocol=protocol,
         payload={"attempt_marker": index},
@@ -43,15 +43,15 @@ def _attempt(index: int, protocol: str) -> ScopedFunctionalGoalRetryAttempt:
 def test_scoped_debug_writes_each_attempt_from_its_own_snapshot(tmp_path) -> None:
     attempts = (
         _attempt(1, FUNCTIONAL_PLAN_CONTENT_CONTRACT),
-        _attempt(2, FUNCTIONAL_GOAL_REPAIR_CONTRACT),
-        _attempt(3, FUNCTIONAL_GOAL_REPAIR_CONTRACT),
+        _attempt(2, FUNCTIONAL_SCOPE_REPAIR_CONTRACT),
+        _attempt(3, FUNCTIONAL_SCOPE_REPAIR_CONTRACT),
     )
-    run_result = ScopedFunctionalGoalRetryRunResult(
+    run_result = ScopedFunctionalScopeRetryRunResult(
         status="blocked",
         attempts=attempts,
         final_plan=None,
         final_execution=None,
-        solved_goal_restore_count=0,
+        restored_call_count=0,
     )
     planner = SimpleNamespace(
         last_prompt=attempts[-1].prompt,
@@ -83,7 +83,7 @@ def test_scoped_debug_writes_each_attempt_from_its_own_snapshot(tmp_path) -> Non
 def test_terminal_error_is_added_to_last_real_scoped_attempt(tmp_path) -> None:
     attempts = (
         _attempt(1, FUNCTIONAL_PLAN_CONTENT_CONTRACT),
-        _attempt(2, FUNCTIONAL_GOAL_REPAIR_CONTRACT),
+        _attempt(2, FUNCTIONAL_SCOPE_REPAIR_CONTRACT),
     )
     planner = SimpleNamespace(artifacts=None, client=None)
     _write_scoped_debug_attempts(
@@ -124,7 +124,7 @@ def test_scoped_attempt_metadata_is_frozen_before_next_provider_call() -> None:
         last_provider_attempts=provider_attempts,
     )
 
-    metadata = _scoped_attempt_llm_metadata(
+    metadata = _scope_attempt_llm_metadata(
         client,
         semantic_attempt=1,
         planner_protocol=FUNCTIONAL_PLAN_CONTENT_CONTRACT,

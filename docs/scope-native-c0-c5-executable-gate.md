@@ -1,5 +1,9 @@
 # Scope-native C0-C5 可执行门禁
 
+> 2026-08-27 更新：本文中的 Goal replacement reference model 属于已退役 v4
+> 门禁。当前 Retry 使用 Annotated Plan、Scope-only authority 和完整 Scope replacement；
+> 新门禁见 [FunctionalPlan Scope-level Retry vNext](functional-scope-retry-vnext-design.md#18-测试矩阵)。
+
 ## 目标
 
 Planner 的 scope、typed state、Goal replacement 与 symbolic closure 不能依赖真实 LLM 样本偶然发现。测试侧因此维护三层确定性门禁：
@@ -31,7 +35,7 @@ scope-native-gate-regressions/v1
 - `C4`：Goal 状态、frozen/editable step、checkpoint 和 repair 原子应用。
 - `C5`：symbolic closure、provenance、answer gate 和最终 commit。
 
-当前 wire probe 从 authenticated Bundle fixture 建立 `ProblemPlanningContext` 和 F5-C `ProblemPlanningBindingCatalog`，再编译 `functional-plan-content/v2` 并生成 Goal checkpoint。Goal repair gate 使用真实 `functional-goal-repair/v4`、restore 与 transaction。
+当前 wire probe 从 authenticated Bundle fixture 建立 `ProblemPlanningContext` 和 F5-C `ProblemPlanningBindingCatalog`，再编译 `functional-plan-content/v2` 并生成 Goal checkpoint。旧 Goal-replacement 生成矩阵已经随 v4 退役；现行 Retry 门禁直接覆盖 `functional-annotated-plan/v1`、Scope-only authority、`functional-scope-repair/v1` 整块替换、restore 与 transaction。
 
 ## 生成维度
 

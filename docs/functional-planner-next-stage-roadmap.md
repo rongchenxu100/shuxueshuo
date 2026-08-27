@@ -1,5 +1,11 @@
 # 数学说系统路线图
 
+> 2026-08-27 更新：Retry vNext R0–R5 已完成，生产协议为
+> `functional-annotated-plan/v1` → `functional-scope-repair/v1`。本文后文出现的
+> `functional-goal-repair/v4`、Goal/Step 权限和三张 replacement map 仅为历史实施记录，
+> 已退役，不再代表当前入口。当前设计见
+> [FunctionalPlan Scope-level Retry vNext](functional-scope-retry-vnext-design.md)。
+
 ## 总目标
 
 建立一条从题目图片到课程页的可追溯主链：

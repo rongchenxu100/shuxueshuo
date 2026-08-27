@@ -89,8 +89,26 @@ FunctionalArgSourceKind = Literal[
 class FunctionalBindingContextError(ValueError):
     """A Functional binding ledger cannot be built without guessing."""
 
-    def __init__(self, code: str, detail: str) -> None:
+    def __init__(
+        self,
+        code: str,
+        detail: str,
+        *,
+        retryable: bool = False,
+        step_id: str | None = None,
+        arg_name: str | None = None,
+        expected: Mapping[str, Any] | None = None,
+        observed: Mapping[str, Any] | None = None,
+        repair_action: str = "fix_runtime_contract",
+    ) -> None:
         self.code = code
+        self.detail = detail
+        self.retryable = retryable
+        self.step_id = step_id
+        self.arg_name = arg_name
+        self.expected = dict(expected or {})
+        self.observed = dict(observed or {})
+        self.repair_action = repair_action
         super().__init__(f"planner_configuration_error: {code}: {detail}")
 
 
@@ -1304,13 +1322,24 @@ def _typed_input_selected_source(
                 for item in basis
             }
             if not declared_keys.issubset(basis_keys):
+                selected_names = _public_math_object_names(declared)
+                basis_names = _public_math_object_names(basis)
                 raise FunctionalBindingContextError(
-                    "planner.method_input_view_authority_drift",
+                    "functional.parameter_outside_free_symbol_basis",
                     (
                         f"{call.call_id}.{arg_name} explicit parameter is "
                         "outside the typed free-symbol basis; evidence="
                         f"{_typed_evidence_payload([('resolved_arg', tuple(declared)), ('free_symbol_basis', tuple(basis))])}"
                     ),
+                    retryable=True,
+                    step_id=call.call_id,
+                    arg_name=arg_name,
+                    expected={
+                        "free_symbol_names": basis_names,
+                        "expected_parameter_count": len(basis_names),
+                    },
+                    observed={"selected_parameter_names": selected_names},
+                    repair_action="align_symbolic_state_basis",
                 )
         elif not declared:
             add("free_symbol_basis", basis)
@@ -1892,6 +1921,20 @@ def _typed_evidence_payload(
         label: [item.to_payload() for item in values]
         for label, values in channels
     }
+
+
+def _public_math_object_names(
+    sources: tuple[FunctionalArgSourceIdentity, ...],
+) -> list[str]:
+    """Return stable public names without exposing typed MathObject ids."""
+
+    return sorted(
+        {
+            item.math_object_id.value.rsplit(":", 1)[-1]
+            for item in sources
+            if item.math_object_id is not None
+        }
+    )
 
 
 def _source_for_input_view(

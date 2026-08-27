@@ -13,6 +13,8 @@ from shuxueshuo_server.solver.runtime.functional_goal_execution import (
     FunctionalGoalExecutionGoal,
     FunctionalGoalExecutionScope,
     FunctionalGoalExecutionStep,
+    ScopedFunctionalGoalExecutionService,
+    _public_runtime_result_value,
 )
 from shuxueshuo_server.solver.runtime.functional_scope_retry import (
     FUNCTIONAL_ANNOTATED_PLAN_CONTRACT,
@@ -30,6 +32,9 @@ from shuxueshuo_server.solver.runtime.functional_plan_content import (
     FunctionalPlanAuthorityFrame,
     functional_plan_content_from_plan,
 )
+from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
+    rebase_restored_call_seed,
+)
 from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
     ScopedFunctionalPlanError,
     ScopedFunctionalPlanValidator,
@@ -44,14 +49,18 @@ from shuxueshuo_server.solver.runtime.strategy_payload import (
     StrategyPromptRenderer,
 )
 
-from _functional_goal_retry_support import (
+from _functional_scope_retry_support import (
     FAILED_STEP_ID,
-    goal_retry_fixture,
     iter_scopes,
+    scope_retry_fixture,
+    step,
 )
 
 
 ROOT = Path(__file__).resolve().parents[3]
+
+
+goal_retry_fixture = scope_retry_fixture
 
 
 def _canonical_shape(scope):
@@ -298,6 +307,118 @@ def test_runtime_output_projection_fails_loud_on_omission_or_internal_identity(
     assert captured.value.retryable is False
 
 
+def test_path_transformation_runtime_projection_keeps_public_value_without_private_refs(
+) -> None:
+    value = {
+        "construction": "right_isosceles_triangle",
+        "moving_point_name": "N",
+        "auxiliary_point_name": "Q",
+        "moving_point_ref": "point:problem:N@state-1",
+        "auxiliary_point_ref": "point:problem:Q@state-2",
+        "fixed_endpoint_refs": (
+            "point:problem:A@state-1",
+            "point:problem:B@state-1",
+        ),
+        "transformed_path": "sqrt(2)*(MN+QN)",
+    }
+
+    projected = _public_runtime_result_value(
+        value,
+        runtime_type="PathTransformation",
+        forbidden_values=frozenset(
+            {"point:problem:N@state-1", "point:problem:Q@state-2"}
+        ),
+    )
+
+    assert projected == {
+        "auxiliary_point_name": "Q",
+        "construction": "right_isosceles_triangle",
+        "moving_point_name": "N",
+        "transformed_path": "sqrt(2)*(MN+QN)",
+    }
+    assert "<internal-identity-omitted>" not in json.dumps(projected)
+
+
+def test_runtime_reference_pair_is_snapshotted_as_refs_not_as_point(tmp_path) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    runtime_context = ContextBuilder().build(fixture.problem)
+
+    projected = runtime_context.to_answer_value(
+        {
+            "type": "square_path_dimension_reduction",
+            "fixed_endpoint_refs": (
+                "point:problem:A@state-1",
+                "point:problem:B@state-1",
+            ),
+        }
+    )
+
+    assert projected["fixed_endpoint_refs"] == [
+        "point:problem:A@state-1",
+        "point:problem:B@state-1",
+    ]
+
+
+def test_parameter_outside_free_symbol_basis_is_scope_repairable(tmp_path) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    payload = deepcopy(fixture.correct_payload)
+    step(payload, "solve_parameter_from_minimum_ii")["args"]["parameter"] = "b"
+
+    executed = ScopedFunctionalGoalExecutionService().execute_raw_json(
+        json.dumps(payload, ensure_ascii=False),
+        inputs=fixture.inputs,
+        planning_context=fixture.planning_context,
+        problem_binding_catalog=fixture.binding_catalog,
+        handle_registry=fixture.handle_registry,
+        context=ContextBuilder().build(fixture.problem),
+        planner_state_context=fixture.planner_state_context,
+        problem_payload=fixture.problem_payload,
+    )
+    authority = FunctionalScopeRetryAuthorityProjector().project(
+        plan=executed.canonical_plan,
+        execution=executed,
+    )
+    annotated, _ = FunctionalAnnotatedPlanProjector().project(
+        plan=executed.canonical_plan,
+        execution=executed,
+        editable_scope_refs=authority.editable_scope_refs,
+        planning_context=fixture.planning_context,
+        binding_catalog=fixture.binding_catalog,
+    )
+    prompt = json.dumps(annotated.to_prompt_payload(), ensure_ascii=False)
+
+    assert "ii" in authority.editable_scope_refs
+    assert "functional.parameter_outside_free_symbol_basis" in prompt
+    assert '"free_symbol_names": ["a"]' in prompt
+    assert '"selected_parameter_names": ["b"]' in prompt
+    assert "planner_configuration_error" not in prompt
+
+
+def test_restore_rebase_drops_call_absent_from_next_authority(tmp_path) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    checkpoint = fixture.execution.checkpoint
+    reconciliation = fixture.execution.replay.functional_reconciliation
+    assert checkpoint is not None
+    assert reconciliation is not None
+    seed = checkpoint.restore_state.runtime_seed
+    assert seed is not None and seed.call_ids
+    missing_call_id = seed.call_ids[0]
+    selected = checkpoint.restore_state.seed_for_calls(
+        frozenset({missing_call_id})
+    )
+    next_reconciliation = replace(
+        reconciliation,
+        calls=tuple(
+            item for item in reconciliation.calls if item.call_id != missing_call_id
+        ),
+    )
+
+    rebased = rebase_restored_call_seed(selected, next_reconciliation)
+
+    assert rebased is not None
+    assert rebased.call_ids == ()
+
+
 def test_scope_authority_opens_owner_scope_without_step_permissions(tmp_path) -> None:
     fixture = goal_retry_fixture(tmp_path)
     authority = FunctionalScopeRetryAuthorityProjector().project(
@@ -358,6 +479,67 @@ def test_scope_repair_schema_requires_exact_scopes_and_direct_goals(tmp_path) ->
         "execution"
     ] = {"status": "not_run"}
     assert tuple(Draft202012Validator(schema).iter_errors(annotated_step))
+
+
+def test_repair_schema_allows_named_or_anonymous_point_inputs(tmp_path) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    authority = FunctionalScopeRetryAuthorityProjector().project(
+        plan=fixture.failed_plan,
+        execution=fixture.execution,
+    )
+    schema = functional_scope_repair_schema_for_authority(
+        authority,
+    )
+    payload = _scope_repair_payload(fixture.failed_plan, "ii")
+    goal = payload["scope_replacements"]["ii"]["goals"]["ii.a"]
+    goal["steps"][0] = {
+        "step_id": "intersection_probe",
+        "capability_id": "line_intersection_point",
+        "args": {
+            "line1_p1": "A",
+            "line1_p2": "K",
+            "line2_p1": "E",
+            "line2_p2": "G",
+        },
+    }
+
+    assert not tuple(Draft202012Validator(schema).iter_errors(payload))
+
+    goal["steps"][0]["args"]["line1_p1"] = {
+        "step_id": "produce_a",
+        "return": "point",
+    }
+    assert not tuple(Draft202012Validator(schema).iter_errors(payload))
+
+
+def test_scope_repair_normalizes_optional_empty_capability_args(tmp_path) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    authority = FunctionalScopeRetryAuthorityProjector().project(
+        plan=fixture.failed_plan,
+        execution=fixture.execution,
+    )
+    payload = _scope_repair_payload(fixture.failed_plan, "ii")
+    goal = payload["scope_replacements"]["ii"]["goals"]["ii.a"]
+    goal["steps"][0] = {
+        "step_id": "closed_parabola",
+        "capability_id": "quadratic_from_constraints",
+        "args": {
+            "curve_points": ["A"],
+            "free_parameters": [],
+        },
+    }
+
+    repair = FunctionalScopeRepairCompiler().parse_json(
+        json.dumps(payload),
+        authority=authority,
+        capability_catalog=fixture.capability_catalog,
+    )
+    normalized = repair.scope_replacements["ii"].goals["ii.a"].steps[0]
+
+    assert "free_parameters" not in normalized["args"]
+    assert [item.code for item in repair.normalizations] == [
+        "functional.empty_optional_capability_arg_omitted"
+    ]
 
 
 def test_scope_repair_applies_complete_scope_atomically_and_preserves_children(
@@ -541,6 +723,10 @@ def test_scope_repair_prompt_has_one_annotated_plan_and_one_replacement_map(
     assert "## Annotated Previous Plan" in prompt.user
     assert "整块替换" in prompt.system
     assert "Macro 始终是一个原子" in prompt.system
+    assert "repair_step_base" not in payload["output_json_schema"]["$defs"]
+    assert len(json.dumps(payload["output_json_schema"])) < 10_000
+    # R0 captured a 68,481-character v4 prompt for the same repair class.
+    assert len(combined) < 68_481
     for removed in (
         "goal_retry_context",
         "goal_replacements",
@@ -619,3 +805,42 @@ def test_scope_retry_service_switches_from_pass1_to_vnext_and_accepts_repair(
         "functional-goal-repair/v4" not in json.dumps(request, ensure_ascii=False)
         for request in client.requests
     )
+
+
+def test_production_retry_tree_contains_no_retired_v4_contract() -> None:
+    retired_module = (
+        ROOT
+        / "server/shuxueshuo_server/solver/runtime/functional_goal_retry.py"
+    )
+    assert not retired_module.exists()
+    production_files = [
+        ROOT
+        / "server/shuxueshuo_server/solver/runtime/functional_scope_retry.py",
+        ROOT / "server/shuxueshuo_server/solver/runtime/strategy_payload.py",
+        ROOT
+        / "server/shuxueshuo_server/solver/runtime/strategy_runtime_planner.py",
+        ROOT
+        / "server/shuxueshuo_server/solver/runtime/scoped_functional_plan.py",
+        ROOT
+        / "server/shuxueshuo_server/solver/runtime/functional_plan_models.py",
+        ROOT
+        / "internal/llm-prompts/strategy-functional-scope-repair-system.jinja",
+        ROOT
+        / "internal/llm-prompts/strategy-functional-scope-repair-user.jinja",
+        ROOT / "internal/schemas/functional-annotated-plan.schema.json",
+        ROOT / "internal/schemas/functional-scope-repair.schema.json",
+    ]
+    combined = "\n".join(path.read_text() for path in production_files)
+    for retired in (
+        "functional-goal-repair/v4",
+        "planner-goal-retry-context/v4",
+        "goal_replacements",
+        "scope_step_replacements",
+        "answer_binding_replacements",
+        "editable_step_ids",
+        "frozen_step_ids",
+        "base_retry_context_id",
+        "published_goal_ref",
+        "ScopedPublishedGoalResultRef",
+    ):
+        assert retired not in combined

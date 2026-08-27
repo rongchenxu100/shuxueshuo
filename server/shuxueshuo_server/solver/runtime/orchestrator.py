@@ -1236,7 +1236,7 @@ def _write_debug_attempt(
     if scoped_error is not None:
         to_payload = getattr(scoped_error, "to_prompt_payload", None)
         _write_json(
-            debug_dir / f"{prefix}.goal-retry-error.json",
+            debug_dir / f"{prefix}.scope-retry-error.json",
             to_payload() if callable(to_payload) else _safe_json(scoped_error),
         )
 

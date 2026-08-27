@@ -1,5 +1,11 @@
 # Track F：图片到 Problem 领域模型实现计划
 
+> 2026-08-27 更新：Retry vNext R0–R5 已完成，生产协议为
+> `functional-annotated-plan/v1` → `functional-scope-repair/v1`。本文关于
+> `functional-goal-repair/v4`、mixed editable/frozen merge 和 publication wire 的段落
+> 是历史记录，均已退役。现行合同见
+> [FunctionalPlan Scope-level Retry vNext](functional-scope-retry-vnext-design.md)。
+
 ## 1. 目标与状态
 
 Track F把题目来源转换为可追溯、可局部修复并可确定投影到Solver的领域对象：

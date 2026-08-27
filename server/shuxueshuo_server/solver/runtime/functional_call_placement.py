@@ -33,7 +33,6 @@ from shuxueshuo_server.solver.runtime.functional_plan_models import (
     FunctionalCallReport,
     FunctionalPlan,
     FunctionalPlanIssue,
-    PublishedGoalCallResultRef,
     FunctionalReturnAllocation,
     ResolvedFunctionalValue,
     _issue,
@@ -223,10 +222,7 @@ class FunctionalCallPlacementService:
                 )
             },
         )
-        placement_dependencies = _placement_dependency_graph(
-            canonical_plan,
-            canonical_dependencies,
-        )
+        placement_dependencies = canonical_dependencies
         consumer_scopes = _dependency_consumer_scopes(
             placement_dependencies,
             call_scopes={
@@ -2802,43 +2798,6 @@ def _transitive_dependency_consumer_scopes(
         if scopes:
             result[producer_id] = tuple(dict.fromkeys(scopes))
     return result
-
-
-def _placement_dependency_graph(
-    plan: FunctionalPlan,
-    dependency_graph: Mapping[str, tuple[str, ...]],
-) -> dict[str, tuple[str, ...]]:
-    """Exclude published solved-Goal values from producer scope propagation.
-
-    A published Goal answer remains a real DAG edge and is still included in the
-    authoritative dependency graph. Its producer has already executed and is
-    restored from a typed checkpoint, so a sibling repair consumer may not pull
-    that producer or its private inputs to their least common ancestor.
-    """
-
-    ordinary_edges = {
-        (call.call_id, ref.from_call)
-        for call in plan.calls
-        for values in call.args.values()
-        for ref in values
-        if isinstance(ref, CallResultRef)
-        and not isinstance(ref, PublishedGoalCallResultRef)
-    }
-    published_only_edges = {
-        (call.call_id, ref.from_call)
-        for call in plan.calls
-        for values in call.args.values()
-        for ref in values
-        if isinstance(ref, PublishedGoalCallResultRef)
-    } - ordinary_edges
-    return {
-        call_id: tuple(
-            dependency
-            for dependency in dependencies
-            if (call_id, dependency) not in published_only_edges
-        )
-        for call_id, dependencies in dependency_graph.items()
-    }
 
 
 def _return_consumer_scopes(

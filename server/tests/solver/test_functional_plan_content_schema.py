@@ -22,7 +22,7 @@ from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
     ScopedFunctionalPlanValidator,
 )
 
-from _functional_goal_retry_support import goal_retry_fixture
+from _functional_scope_retry_support import scope_retry_fixture as goal_retry_fixture
 from _problem_planning_support import planning_binding_fixture
 
 

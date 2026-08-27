@@ -417,7 +417,13 @@ class RuntimeContext:
             return [self.to_answer_value(child) for child in value]
         if isinstance(value, dict):
             return {
-                str(getattr(key, "name", key)): self.to_answer_value(child)
+                str(getattr(key, "name", key)): (
+                    _runtime_reference_snapshot(child)
+                    if str(getattr(key, "name", key)).endswith(
+                        ("_ref", "_refs")
+                    )
+                    else self.to_answer_value(child)
+                )
                 for key, child in value.items()
             }
         if isinstance(value, sp.Expr):
@@ -427,6 +433,21 @@ class RuntimeContext:
     def _json_value(self, value: Any) -> Any:
         """兼容旧测试/旧调用的私有别名。"""
         return self.to_answer_value(value)
+
+
+def _runtime_reference_snapshot(value: Any) -> Any:
+    """Serialize private provenance references without treating pairs as Points."""
+
+    if isinstance(value, Mapping):
+        return {
+            str(getattr(key, "name", key)): _runtime_reference_snapshot(child)
+            for key, child in value.items()
+        }
+    if isinstance(value, (tuple, list)):
+        return [_runtime_reference_snapshot(child) for child in value]
+    if isinstance(value, sp.Expr):
+        return str(value)
+    return value
 
 
 class ContextBuilder:

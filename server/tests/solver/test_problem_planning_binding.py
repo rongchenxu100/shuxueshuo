@@ -655,7 +655,9 @@ def test_parameter_value_rejects_an_explicit_different_symbol(tmp_path) -> None:
             ),
         )
 
-    assert error.value.code == "planner.method_input_view_authority_drift"
+    assert error.value.code == "functional.parameter_outside_free_symbol_basis"
+    assert error.value.retryable is True
+    assert error.value.repair_action == "align_symbolic_state_basis"
     assert "evaluate_parabola_i.parameter" in str(error.value)
 
 

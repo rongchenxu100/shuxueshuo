@@ -59,11 +59,11 @@ from shuxueshuo_server.solver.runtime.functional_goal_execution import (
     FunctionalGoalExecutionCheckpoint,
     ScopedFunctionalGoalExecutionResult,
 )
-from shuxueshuo_server.solver.runtime.functional_goal_retry import (
-    FUNCTIONAL_GOAL_REPAIR_CONTRACT,
-    FunctionalGoalRetryError,
-    ScopedFunctionalGoalRetryRunResult,
-    ScopedFunctionalGoalRetryService,
+from shuxueshuo_server.solver.runtime.functional_scope_retry import (
+    FUNCTIONAL_SCOPE_REPAIR_CONTRACT,
+    FunctionalScopeRetryError,
+    ScopedFunctionalScopeRetryRunResult,
+    ScopedFunctionalScopeRetryService,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_content import (
     FUNCTIONAL_PLAN_CONTENT_CONTRACT,
@@ -164,9 +164,9 @@ class ScopedV2SmokeSampleResult:
     sample_dir: str
     semantic_attempt_count: int = 1
     retry_attempt_count: int = 0
-    goal_retry_accepted: bool = False
-    solved_goal_restore_count: int = 0
-    solved_goal_reexecution_count: int = 0
+    scope_retry_accepted: bool = False
+    restored_call_count: int = 0
+    restored_call_reexecution_count: int = 0
     repair_authority_drift_count: int = 0
     failed_transaction_ghost_write_count: int = 0
     planner_protocols: tuple[str, ...] = ()
@@ -187,11 +187,11 @@ class ScopedV2SmokeSampleResult:
     def completion_ok(self) -> bool:
         return (
             self.primary_ok
-            and self.goal_retry_accepted
+            and self.scope_retry_accepted
             and self.output_ok
             and self.goal_count > 0
             and self.passed_goal_count == self.goal_count
-            and self.solved_goal_reexecution_count == 0
+            and self.restored_call_reexecution_count == 0
             and self.repair_authority_drift_count == 0
             and self.failed_transaction_ghost_write_count == 0
         )
@@ -241,9 +241,9 @@ class ScopedV2SmokeSampleResult:
             "sample_dir": self.sample_dir,
             "semantic_attempt_count": self.semantic_attempt_count,
             "retry_attempt_count": self.retry_attempt_count,
-            "goal_retry_accepted": self.goal_retry_accepted,
-            "solved_goal_restore_count": self.solved_goal_restore_count,
-            "solved_goal_reexecution_count": self.solved_goal_reexecution_count,
+            "scope_retry_accepted": self.scope_retry_accepted,
+            "restored_call_count": self.restored_call_count,
+            "restored_call_reexecution_count": self.restored_call_reexecution_count,
             "repair_authority_drift_count": self.repair_authority_drift_count,
             "failed_transaction_ghost_write_count": (
                 self.failed_transaction_ghost_write_count
@@ -558,11 +558,11 @@ def _run_sample(
         problem_binding_catalog=fixture.binding_catalog,
     )
     expected_prompt = renderer.render_scoped(expected_payload)
-    run_result: ScopedFunctionalGoalRetryRunResult | None = None
+    run_result: ScopedFunctionalScopeRetryRunResult | None = None
     goal_execution: ScopedFunctionalGoalExecutionResult | None = None
     error: Exception | None = None
     try:
-        run_result = ScopedFunctionalGoalRetryService(
+        run_result = ScopedFunctionalScopeRetryService(
             client,
             payload_builder=builder,
             prompt_renderer=renderer,
@@ -578,7 +578,7 @@ def _run_sample(
         )
         goal_execution = run_result.final_execution
         if run_result.status != "accepted":
-            error = _goal_retry_terminal_error(run_result)
+            error = _scope_retry_terminal_error(run_result)
     except Exception as exc:
         error = exc
 
@@ -858,7 +858,7 @@ def _sample_result(
     leaks: tuple[str, ...],
     raw_response: str,
     client: _RecordingClient,
-    run_result: ScopedFunctionalGoalRetryRunResult | None,
+    run_result: ScopedFunctionalScopeRetryRunResult | None,
     duration_seconds: float,
     error: Exception | None,
 ) -> ScopedV2SmokeSampleResult:
@@ -913,15 +913,15 @@ def _sample_result(
         item.planner_protocol
         for item in (run_result.attempts if run_result is not None else ())
     )
-    solved_reexecution_count = _solved_goal_reexecution_count(run_result)
+    solved_reexecution_count = _restored_call_reexecution_count(run_result)
     drift_count = sum(
         bool(
             item.error is not None
             and item.error.code
             in {
                 "functional.goal_repair_authority_drift",
-                "functional.goal_retry_authority_drift",
-                "functional.goal_retry_restore_drift",
+                "functional.scope_retry_authority_drift",
+                "functional.scope_retry_restore_drift",
                 "planner.problem_revision_drift",
                 "planner.retry_problem_source_binding_drift",
             }
@@ -990,17 +990,17 @@ def _sample_result(
             len(run_result.attempts) if run_result is not None else len(client.records)
         ),
         retry_attempt_count=sum(
-            item == FUNCTIONAL_GOAL_REPAIR_CONTRACT for item in protocols
+            item == FUNCTIONAL_SCOPE_REPAIR_CONTRACT for item in protocols
         ),
-        goal_retry_accepted=bool(
+        scope_retry_accepted=bool(
             run_result is not None and run_result.status == "accepted"
         ),
-        solved_goal_restore_count=(
-            run_result.solved_goal_restore_count
+        restored_call_count=(
+            run_result.restored_call_count
             if run_result is not None
             else 0
         ),
-        solved_goal_reexecution_count=solved_reexecution_count,
+        restored_call_reexecution_count=solved_reexecution_count,
         repair_authority_drift_count=drift_count,
         failed_transaction_ghost_write_count=0,
         planner_protocols=protocols,
@@ -1008,7 +1008,7 @@ def _sample_result(
 
 
 def _representative_plan_attempt(
-    run_result: ScopedFunctionalGoalRetryRunResult | None,
+    run_result: ScopedFunctionalScopeRetryRunResult | None,
 ) -> Any | None:
     if run_result is None:
         return None
@@ -1024,7 +1024,7 @@ def _representative_plan_attempt(
 
 
 def _pass1_plan_attempt(
-    run_result: ScopedFunctionalGoalRetryRunResult | None,
+    run_result: ScopedFunctionalScopeRetryRunResult | None,
 ) -> Any | None:
     if run_result is None:
         return None
@@ -1039,19 +1039,19 @@ def _pass1_plan_attempt(
 
 
 def _repair_wire_schema_valid_by_attempt(
-    run_result: ScopedFunctionalGoalRetryRunResult | None,
+    run_result: ScopedFunctionalScopeRetryRunResult | None,
 ) -> tuple[bool, ...]:
     if run_result is None:
         return ()
     return tuple(
         item.repair is not None
         for item in run_result.attempts
-        if item.planner_protocol == FUNCTIONAL_GOAL_REPAIR_CONTRACT
+        if item.planner_protocol == FUNCTIONAL_SCOPE_REPAIR_CONTRACT
     )
 
 
 def _repair_wire_validation_payload(
-    run_result: ScopedFunctionalGoalRetryRunResult | None,
+    run_result: ScopedFunctionalScopeRetryRunResult | None,
 ) -> list[dict[str, Any]]:
     if run_result is None:
         return []
@@ -1071,7 +1071,7 @@ def _repair_wire_validation_payload(
             ),
         }
         for item in run_result.attempts
-        if item.planner_protocol == FUNCTIONAL_GOAL_REPAIR_CONTRACT
+        if item.planner_protocol == FUNCTIONAL_SCOPE_REPAIR_CONTRACT
     ]
 
 
@@ -1094,8 +1094,8 @@ def representative_attempt_request(
     )
 
 
-def _goal_retry_terminal_error(
-    run_result: ScopedFunctionalGoalRetryRunResult,
+def _scope_retry_terminal_error(
+    run_result: ScopedFunctionalScopeRetryRunResult,
 ) -> Exception:
     last_attempt = run_result.attempts[-1] if run_result.attempts else None
     if last_attempt is not None and last_attempt.error is not None:
@@ -1108,33 +1108,27 @@ def _goal_retry_terminal_error(
     checkpoint = execution.checkpoint if execution is not None else None
     issue = _first_checkpoint_issue(checkpoint) if checkpoint is not None else None
     if issue is not None:
-        return FunctionalGoalRetryError(
-            str(issue.get("code") or "functional.goal_retry_exhausted"),
+        return FunctionalScopeRetryError(
+            str(issue.get("code") or "functional.scope_retry_exhausted"),
             str(issue.get("path") or "$"),
             str(issue.get("message") or "Goal replacement retry was exhausted"),
         )
-    return FunctionalGoalRetryError(
-        "functional.goal_retry_exhausted",
+    return FunctionalScopeRetryError(
+        "functional.scope_retry_exhausted",
         "$",
         "semantic attempt budget was exhausted before every Goal passed",
     )
 
 
-def _solved_goal_reexecution_count(
-    run_result: ScopedFunctionalGoalRetryRunResult | None,
+def _restored_call_reexecution_count(
+    run_result: ScopedFunctionalScopeRetryRunResult | None,
 ) -> int:
     if run_result is None:
         return 0
     count = 0
     for attempt in run_result.attempts:
-        if attempt.retry_authority is None or attempt.execution is None:
+        if not attempt.restored_call_ids or attempt.execution is None:
             continue
-        solved_calls = {
-            call_id
-            for goal in attempt.retry_authority.goal_authorities.values()
-            if goal.status == "solved"
-            for call_id in goal.closure_step_ids
-        }
         transaction = (
             attempt.execution.replay.transactional_attempt_result
             if attempt.execution.replay is not None
@@ -1147,7 +1141,7 @@ def _solved_goal_reexecution_count(
             for event in transaction.execution_report.events
             if event.event == "running"
         }
-        count += len(solved_calls & executed)
+        count += len(set(attempt.restored_call_ids) & executed)
     return count
 
 
@@ -1197,7 +1191,7 @@ def _write_sample_artifacts(
     error: Exception | None,
     sample_result: ScopedV2SmokeSampleResult,
     thinking_profile: SmokeThinkingProfile,
-    run_result: ScopedFunctionalGoalRetryRunResult | None,
+    run_result: ScopedFunctionalScopeRetryRunResult | None,
 ) -> None:
     replay = goal_execution.replay if goal_execution is not None else None
     checkpoint = (
@@ -1273,7 +1267,7 @@ def _write_sample_artifacts(
         "provider_attempts": list(client.last_provider_attempts),
     }
     _write_json(sample_dir / "llm-metadata.json", llm_metadata)
-    _write_goal_retry_attempt_artifacts(
+    _write_scope_retry_attempt_artifacts(
         sample_dir,
         run_result=run_result,
         client=client,
@@ -1574,10 +1568,10 @@ def _attempt_state_finalization_payload(replay: Any | None) -> Any:
     }
 
 
-def _write_goal_retry_attempt_artifacts(
+def _write_scope_retry_attempt_artifacts(
     sample_dir: Path,
     *,
-    run_result: ScopedFunctionalGoalRetryRunResult | None,
+    run_result: ScopedFunctionalScopeRetryRunResult | None,
     client: _RecordingClient,
     thinking_profile: SmokeThinkingProfile,
 ) -> None:
@@ -1672,26 +1666,26 @@ def _write_goal_retry_attempt_artifacts(
             attempt.repair.to_payload() if attempt.repair is not None else None,
         )
         _write_json(
-            prefix.with_suffix(".goal-retry-context.json"),
+            prefix.with_suffix(".annotated-previous-plan.json"),
             (
-                attempt.retry_authority.retry_context.to_prompt_payload()
-                if attempt.retry_authority is not None
+                attempt.annotated_plan.to_prompt_payload()
+                if attempt.annotated_plan is not None
                 else None
             ),
         )
         _write_json(
-            prefix.with_suffix(".goal-retry-authority.json"),
+            prefix.with_suffix(".scope-retry-authority.json"),
             (
-                attempt.retry_authority.authority_payload()
-                if attempt.retry_authority is not None
+                attempt.scope_authority.debug_payload()
+                if attempt.scope_authority is not None
                 else None
             ),
         )
         _write_json(
-            prefix.with_suffix(".goal-retry-result-authority.json"),
+            prefix.with_suffix(".scope-retry-result-authority.json"),
             (
-                attempt.result_retry_authority.authority_payload()
-                if attempt.result_retry_authority is not None
+                attempt.result_scope_authority.debug_payload()
+                if attempt.result_scope_authority is not None
                 else None
             ),
         )
@@ -1753,8 +1747,8 @@ def _write_goal_retry_attempt_artifacts(
                     if replay is not None
                     else False
                 ),
-                "has_result_retry_authority": (
-                    attempt.result_retry_authority is not None
+                "has_result_scope_authority": (
+                    attempt.result_scope_authority is not None
                 ),
                 "error_code": (
                     attempt.error.code if attempt.error is not None else None
@@ -1788,12 +1782,12 @@ def _write_goal_retry_attempt_artifacts(
             },
         )
     _write_json(
-        sample_dir / "goal-retry-attempt-index.json",
+        sample_dir / "scope-retry-attempt-index.json",
         {
             "status": run_result.status if run_result is not None else "error",
             "attempts": index,
-            "solved_goal_restore_count": (
-                run_result.solved_goal_restore_count
+            "restored_call_count": (
+                run_result.restored_call_count
                 if run_result is not None
                 else 0
             ),
@@ -1910,14 +1904,14 @@ def _batch_summary(
             item.semantic_attempt_count for item in results
         ),
         "retry_attempt_count": sum(item.retry_attempt_count for item in results),
-        "goal_retry_accepted_count": sum(
-            item.goal_retry_accepted for item in results
+        "scope_retry_accepted_count": sum(
+            item.scope_retry_accepted for item in results
         ),
-        "solved_goal_restore_count": sum(
-            item.solved_goal_restore_count for item in results
+        "restored_call_count": sum(
+            item.restored_call_count for item in results
         ),
-        "solved_goal_reexecution_count": sum(
-            item.solved_goal_reexecution_count for item in results
+        "restored_call_reexecution_count": sum(
+            item.restored_call_reexecution_count for item in results
         ),
         "repair_authority_drift_count": sum(
             item.repair_authority_drift_count for item in results
@@ -1936,7 +1930,7 @@ def _batch_summary(
     )
     summary["completion_gate_ok"] = (
         summary["completion_passed"] == total
-        and summary["solved_goal_reexecution_count"] == 0
+        and summary["restored_call_reexecution_count"] == 0
         and summary["repair_authority_drift_count"] == 0
         and summary["failed_transaction_ghost_write_count"] == 0
         and summary["configuration_error_count"] == 0
@@ -1993,7 +1987,7 @@ def _error_details(error: Exception | None) -> tuple[str | None, str | None]:
         return None, None
     if isinstance(error, ScopedFunctionalPlanError):
         return error.code, str(error)
-    if isinstance(error, FunctionalGoalRetryError):
+    if isinstance(error, FunctionalScopeRetryError):
         return error.code, str(error)
     if isinstance(error, ProblemPlanningBindingError):
         return error.code, str(error)
@@ -2089,9 +2083,9 @@ def _write_sample_review(
             "output_ok",
             "semantic_attempt_count",
             "retry_attempt_count",
-            "goal_retry_accepted",
-            "solved_goal_restore_count",
-            "solved_goal_reexecution_count",
+            "scope_retry_accepted",
+            "restored_call_count",
+            "restored_call_reexecution_count",
             "repair_authority_drift_count",
             "failed_transaction_ghost_write_count",
             "planner_protocols",

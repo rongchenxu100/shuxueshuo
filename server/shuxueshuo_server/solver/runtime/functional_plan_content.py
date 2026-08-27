@@ -30,8 +30,6 @@ from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
     ScopedFunctionalPlanIssue,
     ScopedFunctionalPlanValidationReport,
     ScopedFunctionalPlanValidator,
-    apply_scoped_published_goal_bindings,
-    scoped_published_goal_bindings,
     scoped_functional_plan_id,
     scoped_functional_plan_schema,
 )
@@ -1059,22 +1057,6 @@ class FunctionalPlanContentCompiler:
         )
         issues = list(compilation.report.issues)
         round_trip_plan = compilation.plan
-        publication_bindings = scoped_published_goal_bindings(plan)
-        if round_trip_plan is not None and publication_bindings:
-            try:
-                round_trip_plan = apply_scoped_published_goal_bindings(
-                    round_trip_plan,
-                    publication_bindings,
-                )
-            except ValueError as exc:
-                issues.append(
-                    ScopedFunctionalPlanIssue(
-                        "functional.final_plan_publication_drift",
-                        "$",
-                        str(exc),
-                    )
-                )
-                round_trip_plan = None
         round_trip_plan_id = (
             scoped_functional_plan_id(round_trip_plan)
             if round_trip_plan is not None
@@ -2980,10 +2962,8 @@ def _interchangeable_arg_source_rank(value: object) -> int | None:
         return 0
     if not isinstance(value, Mapping):
         return None
-    if set(value) == {"published_goal_ref"}:
-        return 1
     if set(value) == {"step_id", "return"}:
-        return 2
+        return 1
     return None
 
 

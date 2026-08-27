@@ -118,7 +118,7 @@ def test_macro_winner_finalizes_f5c_before_provenance_is_created(tmp_path) -> No
 def test_scope_native_production_has_one_goal_checkpoint_owner() -> None:
     scope_native_modules = (
         "functional_goal_execution.py",
-        "functional_goal_retry.py",
+        "functional_scope_retry.py",
         "scoped_functional_plan_replay.py",
     )
     forbidden = (

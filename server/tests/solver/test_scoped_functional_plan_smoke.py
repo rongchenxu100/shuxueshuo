@@ -3,11 +3,11 @@ from __future__ import annotations
 import json
 from types import SimpleNamespace
 
-from shuxueshuo_server.solver.runtime.functional_goal_retry import (
-    FUNCTIONAL_GOAL_REPAIR_CONTRACT,
-    FunctionalGoalRetryError,
-    ScopedFunctionalGoalRetryAttempt,
-    ScopedFunctionalGoalRetryRunResult,
+from shuxueshuo_server.solver.runtime.functional_scope_retry import (
+    FUNCTIONAL_SCOPE_REPAIR_CONTRACT,
+    FunctionalScopeRetryError as FunctionalGoalRetryError,
+    ScopedFunctionalScopeRetryAttempt as ScopedFunctionalGoalRetryAttempt,
+    ScopedFunctionalScopeRetryRunResult as ScopedFunctionalGoalRetryRunResult,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_content import (
     FUNCTIONAL_PLAN_CONTENT_CONTRACT,
@@ -16,11 +16,11 @@ from shuxueshuo_server.solver.scoped_functional_plan_smoke import (
     ScopedV2SmokeSampleResult,
     _RecordingClient,
     _batch_summary,
-    _goal_retry_terminal_error,
+    _scope_retry_terminal_error,
     _repair_wire_schema_valid_by_attempt,
-    _solved_goal_reexecution_count,
+    _restored_call_reexecution_count,
     _smoke_completion_request_options,
-    _write_goal_retry_attempt_artifacts,
+    _write_scope_retry_attempt_artifacts,
     _write_provider_attempt_snapshot,
     _write_sample_review,
     main,
@@ -96,7 +96,7 @@ def test_repaired_final_plan_is_not_rejected_by_pass1_wire_failure() -> None:
             **result.__dict__,
             "pass1_wire_schema_valid": False,
             "repair_wire_schema_valid_by_attempt": (True,),
-            "goal_retry_accepted": True,
+            "scope_retry_accepted": True,
         }
     )
 
@@ -272,10 +272,10 @@ def test_each_semantic_attempt_persists_runtime_authority_artifacts(
         attempts=(attempt,),
         final_plan=plan,
         final_execution=execution,
-        solved_goal_restore_count=0,
+        restored_call_count=0,
     )
 
-    _write_goal_retry_attempt_artifacts(
+    _write_scope_retry_attempt_artifacts(
         tmp_path,
         run_result=run_result,
         client=SimpleNamespace(records=(), model="test-model"),
@@ -355,7 +355,7 @@ def test_terminal_error_comes_from_the_last_attempt_not_an_early_schema_error() 
         ),
         ScopedFunctionalGoalRetryAttempt(
             semantic_attempt=2,
-            planner_protocol=FUNCTIONAL_GOAL_REPAIR_CONTRACT,
+            planner_protocol=FUNCTIONAL_SCOPE_REPAIR_CONTRACT,
             payload={},
             prompt=SimpleNamespace(system="", user=""),
             raw_response="{}",
@@ -368,10 +368,10 @@ def test_terminal_error_comes_from_the_last_attempt_not_an_early_schema_error() 
         attempts=attempts,
         final_plan=None,
         final_execution=final_execution,
-        solved_goal_restore_count=0,
+        restored_call_count=0,
     )
 
-    error = _goal_retry_terminal_error(result)
+    error = _scope_retry_terminal_error(result)
 
     assert isinstance(error, FunctionalGoalRetryError)
     assert error.code == "functional.transactional_call_failed"
@@ -391,7 +391,7 @@ def test_repair_wire_schema_validity_is_recorded_per_repair_attempt() -> None:
         ),
         ScopedFunctionalGoalRetryAttempt(
             semantic_attempt=2,
-            planner_protocol=FUNCTIONAL_GOAL_REPAIR_CONTRACT,
+            planner_protocol=FUNCTIONAL_SCOPE_REPAIR_CONTRACT,
             payload={},
             prompt=SimpleNamespace(system="", user=""),
             raw_response="{}",
@@ -401,7 +401,7 @@ def test_repair_wire_schema_validity_is_recorded_per_repair_attempt() -> None:
         ),
         ScopedFunctionalGoalRetryAttempt(
             semantic_attempt=3,
-            planner_protocol=FUNCTIONAL_GOAL_REPAIR_CONTRACT,
+            planner_protocol=FUNCTIONAL_SCOPE_REPAIR_CONTRACT,
             payload={},
             prompt=SimpleNamespace(system="", user=""),
             raw_response="{}",
@@ -414,46 +414,26 @@ def test_repair_wire_schema_validity_is_recorded_per_repair_attempt() -> None:
         attempts=attempts,
         final_plan=None,
         final_execution=None,
-        solved_goal_restore_count=0,
+        restored_call_count=0,
     )
 
     assert _repair_wire_schema_valid_by_attempt(run_result) == (True, False)
 
 
-def test_solved_goal_reexecution_ignores_attempt_without_transaction() -> None:
-    authority = SimpleNamespace(
-        goal_authorities={
-            "goal": SimpleNamespace(
-                status="solved",
-                closure_step_ids=("solved_a", "solved_b"),
-            )
-        }
-    )
+def test_restored_call_reexecution_ignores_attempt_without_transaction() -> None:
     run_result = SimpleNamespace(
         attempts=(
             SimpleNamespace(
-                retry_authority=authority,
+                restored_call_ids=("restored_a",),
                 execution=SimpleNamespace(replay=None),
             ),
         )
     )
 
-    assert _solved_goal_reexecution_count(run_result) == 0
+    assert _restored_call_reexecution_count(run_result) == 0
 
 
-def test_solved_goal_reexecution_counts_only_actual_running_events() -> None:
-    authority = SimpleNamespace(
-        goal_authorities={
-            "goal": SimpleNamespace(
-                status="solved",
-                closure_step_ids=(
-                    "restored_call",
-                    "executed_call",
-                    "not_touched_call",
-                ),
-            )
-        }
-    )
+def test_restored_call_reexecution_counts_only_actual_running_events() -> None:
     report = SimpleNamespace(
         restored_call_ids=("restored_call",),
         events=(
@@ -466,7 +446,7 @@ def test_solved_goal_reexecution_counts_only_actual_running_events() -> None:
     run_result = SimpleNamespace(
         attempts=(
             SimpleNamespace(
-                retry_authority=authority,
+                restored_call_ids=("restored_call", "executed_call"),
                 execution=SimpleNamespace(
                     replay=SimpleNamespace(
                         transactional_attempt_result=SimpleNamespace(
@@ -478,7 +458,7 @@ def test_solved_goal_reexecution_counts_only_actual_running_events() -> None:
         )
     )
 
-    assert _solved_goal_reexecution_count(run_result) == 1
+    assert _restored_call_reexecution_count(run_result) == 1
 
 
 def test_review_displays_exact_problem_view_without_internal_authority(tmp_path) -> None:

@@ -88,28 +88,6 @@ class CallResultRef:
         return {"from_call": self.from_call, "return": self.return_name}
 
 
-@dataclass(frozen=True)
-class PublishedGoalCallResultRef(CallResultRef):
-    """A solved Goal's final answer published to a repair consumer.
-
-    The execution wire remains a normal call-result edge.  The extra Goal
-    authority is intentionally internal so it cannot be authored by Pass 1 or
-    inferred from a display value.
-    """
-
-    published_goal_ref: str
-    semantic_ref: str | None = None
-
-    def authority_payload(self) -> dict[str, Any]:
-        payload: dict[str, Any] = {
-            "published_goal_ref": self.published_goal_ref,
-            "producer": self.to_payload(),
-        }
-        if self.semantic_ref is not None:
-            payload["semantic_ref"] = self.semantic_ref
-        return payload
-
-
 FunctionalRef = SemanticRef | CallResultRef
 
 

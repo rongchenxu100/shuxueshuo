@@ -1025,13 +1025,19 @@ def rebase_restored_call_seed(
     for result in seed.call_results:
         call_id = result.call_id
         call = calls.get(call_id)
+        # A whole-Scope replacement may remove a previously verified call, or
+        # canonicalization may replace it with an equivalent successor.  Such
+        # a call is no longer a restore candidate; absence from the next
+        # reconciliation authority is therefore a deterministic exclusion,
+        # not authority drift.
+        if call is None:
+            continue
         compiled = compiled_by_call.get(call_id)
         expected_source = seed.source_read_authorities.get(call_id)
         expected_write = seed.runtime_write_authorities.get(call_id)
         expected_publication = seed.publication_authorities.get(call_id)
         if (
-            call is None
-            or compiled is None
+            compiled is None
             or expected_source is None
             or expected_write is None
             or expected_publication is None

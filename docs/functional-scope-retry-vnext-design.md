@@ -1,9 +1,18 @@
 # FunctionalPlan Scope-level Retry vNext 设计
 
-> 状态：设计已确认，待实现  
+> 状态：R0–R5 已实现；生产已切换到 `functional-scope-repair/v1`，v4 已退役
 > 日期：2026-08-27  
 > 适用范围：FunctionalPlan 首轮计划失败后的 LLM repair 及其编译、执行、checkpoint 恢复  
 > 相关但独立的设计：[原子 Macro 重设计](./path-minimum-macro-redesign.md)
+
+实现记录：
+
+- R0 `5004d3a`：设计、fixtures 与 v4 基线；
+- R1 `de8ff21`：Annotated Plan 与无损 runtime projection；
+- R2 `b16ca28`：Scope-only authority、严格 Schema 与整块 apply；
+- R3 `d39f68b`：普通公共答案引用、自动 answer rebind 与 restore seed；
+- R4 `e64498c`：生产入口原子切换；
+- R5（本提交）：删除 v4 实现、prompt、Schema、publication 类型与旧 wire 测试，完成静态退役门禁。
 
 ## 1. 背景
 
@@ -1204,14 +1213,14 @@ attempt-N/
 
 为避免再次出现长期双执行路径，迁移采用“测试并行、生产单路切换”：vNext 可在测试/debug 中生成 shadow projection，但不得与 v4 同时驱动生产执行。
 
-### R0：基线与 fixtures
+### R0：基线与 fixtures（COMPLETE）
 
 - 固化当前 F4.3A 后的 recorded replay；
 - 固化多 Goal、嵌套 Scope、跨 Goal 引用、Macro 失败 fixtures；
 - 固化每轮 debug attempt 正确写入；
 - 记录当前 v4 prompt 大小与 Schema 字段数。
 
-### R1：Annotated execution 投影
+### R1：Annotated execution 投影（COMPLETE）
 
 - 新增 internal status → `succeeded/failed/not_run` 投影；
 - 以 Previous Canonical Plan 为骨架生成 `functional-annotated-plan/v1`；
@@ -1224,7 +1233,7 @@ attempt-N/
 - 从 LLM context 隐藏 promoted/checkpoint/internal status 原名；
 - 暂不改变生产 repair apply。
 
-### R2：Scope-only authority 与完整替换
+### R2：Scope-only authority 与完整替换（COMPLETE）
 
 - 实现 root failure → owner Scope；
 - 实现最小祖先与消费者影响闭包；
@@ -1232,21 +1241,21 @@ attempt-N/
 - 实现 Scope 计划体整块替换；
 - 禁止 vNext 进入旧 mixed-scope merge。
 
-### R3：引用简化
+### R3：引用简化（COMPLETE）
 
 - 用 producer Goal 的公开 `answer_from` StepResultRef 取代 `published_goal_ref`；
 - 禁止读取其他 Goal 的内部返回值；
 - 清除通用 derived-name/return-binding 通道；
 - 保留合法的 SourceRef 与 StepResultRef。
 
-### R4：移除 LLM authority 回显与 return expectations
+### R4：移除 LLM authority 回显与 return expectations（COMPLETE）
 
 - 把 base Plan/retry context authority 移入 orchestrator envelope；
 - 删除 LLM output 中 opaque IDs；
 - compiler 从 capability、consumer 和 Goal 合同推导 return form；
 - 删除 LLM-authored `return_expectations`。
 
-### R5：切换与删除旧协议
+### R5：切换与删除旧协议（COMPLETE）
 
 - 在 recorded、unit、integration 和定向 live smoke 通过后原子切换生产协议；
 - 删除 v4 三张 replacement map；
@@ -1254,6 +1263,14 @@ attempt-N/
 - 删除 mixed editable/frozen merge；
 - 删除 LLM-facing publication/promotion 字段；
 - 同步 roadmap、设计文档和 debug 规范。
+
+R5 最终验收（2026-08-28）：
+
+- 全量 Solver 并行回归：`2281 passed, 12 skipped in 148.34s`；无额外 `serial` 测试；
+- live 批次 `functional-scope-retry-vnext-5x3-final-4`：五题各三份、并发 15，`15/15` completion、compile、Plan authority、final contract 与 transaction gate 全部通过；
+- 共 `20` 次 semantic attempt、`4` 次 Scope Retry、恢复 `10` 个 call，solved call 重执行为 `0`；
+- configuration error、unclassified error、ghost write、repair authority drift 与 prompt identity leak 均为 `0`；
+- 代表性 live Scope Retry prompt 为 `45,936` 字符，低于 R0 v4 基线 `68,481` 字符约 `32.9%`；response Schema 为 `3,745` 字符、`19` 个 property occurrence，替换表从 `3` 张降为 `1` 张。
 
 ## 18. 测试矩阵
 

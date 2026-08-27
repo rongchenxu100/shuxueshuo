@@ -38,7 +38,6 @@ from shuxueshuo_server.solver.runtime.functional_plan_models import (
     FunctionalPlanReconciliationResult,
     FunctionalScope,
     FunctionalTypedInputSourcePin,
-    PublishedGoalCallResultRef,
 )
 from shuxueshuo_server.solver.runtime.planner_public_types import (
     planner_input_domain_type,
@@ -413,45 +412,10 @@ class ScopedStepResultRef:
         return {"step_id": self.step_id, "return": self.return_name}
 
 
-@dataclass(frozen=True)
-class ScopedPublishedGoalResultRef(ScopedStepResultRef):
-    """A trusted retry-only reference to one solved Goal's final answer."""
-
-    published_goal_ref: str
-    semantic_ref: str | None = None
-
-    def to_payload(self) -> str | dict[str, str]:
-        if self.semantic_ref is not None:
-            return self.semantic_ref
-        return super().to_payload()
-
-    def authority_payload(self) -> dict[str, Any]:
-        payload: dict[str, Any] = {
-            "published_goal_ref": self.published_goal_ref,
-            "producer": super().to_payload(),
-        }
-        if self.semantic_ref is not None:
-            payload["semantic_ref"] = self.semantic_ref
-        return payload
-
-
-@dataclass(frozen=True)
-class ScopedPublishedGoalBinding:
-    consumer_step_id: str
-    arg_name: str
-    item_index: int
-    published_goal_ref: str
-    producer_step_id: str
-    return_name: str
-    semantic_ref: str | None = None
-
-
 ScopedFunctionalRef = str | ScopedStepResultRef
 
 
 def _scoped_ref_authority_payload(value: ScopedFunctionalRef) -> Any:
-    if isinstance(value, ScopedPublishedGoalResultRef):
-        return value.authority_payload()
     if isinstance(value, ScopedStepResultRef):
         return value.to_payload()
     return value
@@ -624,108 +588,6 @@ def scoped_functional_plan_id(plan: ScopedFunctionalPlan) -> str:
     """Return the one canonical identifier for an in-memory v2 Plan."""
 
     return stable_hash(scoped_functional_plan_authority_payload(plan))
-
-
-def scoped_published_goal_bindings(
-    plan: ScopedFunctionalPlan,
-) -> tuple[ScopedPublishedGoalBinding, ...]:
-    """Return the trusted publication sidecar carried by an in-memory Plan."""
-
-    return tuple(
-        ScopedPublishedGoalBinding(
-            consumer_step_id=step.step_id,
-            arg_name=arg_name,
-            item_index=index,
-            published_goal_ref=value.published_goal_ref,
-            producer_step_id=value.step_id,
-            return_name=value.return_name,
-            semantic_ref=value.semantic_ref,
-        )
-        for step in plan.steps
-        for arg_name, values in step.args.items()
-        for index, value in enumerate(values)
-        if isinstance(value, ScopedPublishedGoalResultRef)
-    )
-
-
-def apply_scoped_published_goal_bindings(
-    plan: ScopedFunctionalPlan,
-    bindings: Sequence[ScopedPublishedGoalBinding],
-) -> ScopedFunctionalPlan:
-    """Reattach validated retry-only publication markers to a parsed Plan."""
-
-    by_step: dict[str, list[ScopedPublishedGoalBinding]] = {}
-    identities: set[tuple[str, str, int]] = set()
-    for binding in bindings:
-        identity = (
-            binding.consumer_step_id,
-            binding.arg_name,
-            binding.item_index,
-        )
-        if identity in identities:
-            raise ValueError(f"duplicate published Goal binding: {identity!r}")
-        identities.add(identity)
-        by_step.setdefault(binding.consumer_step_id, []).append(binding)
-
-    seen: set[tuple[str, str, int]] = set()
-
-    def rebuild_step(step: ScopedFunctionalStep) -> ScopedFunctionalStep:
-        step_bindings = by_step.get(step.step_id, ())
-        if not step_bindings:
-            return step
-        args = {name: list(values) for name, values in step.args.items()}
-        for binding in step_bindings:
-            values = args.get(binding.arg_name)
-            if values is None or binding.item_index >= len(values):
-                raise ValueError(
-                    "published Goal binding does not resolve to a Plan argument"
-                )
-            current = values[binding.item_index]
-            exact_result_matches = (
-                isinstance(current, ScopedStepResultRef)
-                and (current.step_id, current.return_name)
-                == (binding.producer_step_id, binding.return_name)
-            )
-            semantic_ref_matches = (
-                binding.semantic_ref is not None
-                and current == binding.semantic_ref
-            )
-            if not exact_result_matches and not semantic_ref_matches:
-                raise ValueError(
-                    "published Goal binding disagrees with the validated Plan edge"
-                )
-            values[binding.item_index] = ScopedPublishedGoalResultRef(
-                step_id=binding.producer_step_id,
-                return_name=binding.return_name,
-                published_goal_ref=binding.published_goal_ref,
-                semantic_ref=binding.semantic_ref,
-            )
-            seen.add(
-                (binding.consumer_step_id, binding.arg_name, binding.item_index)
-            )
-        return replace(
-            step,
-            args={name: tuple(values) for name, values in args.items()},
-        )
-
-    def rebuild_scope(scope: ScopedFunctionalScope) -> ScopedFunctionalScope:
-        return replace(
-            scope,
-            steps=tuple(rebuild_step(item) for item in scope.steps),
-            goals=tuple(
-                replace(
-                    goal,
-                    steps=tuple(rebuild_step(item) for item in goal.steps),
-                )
-                for goal in scope.goals
-            ),
-            children=tuple(rebuild_scope(item) for item in scope.children),
-        )
-
-    result = replace(plan, root_scope=rebuild_scope(plan.root_scope))
-    if seen != identities:
-        raise ValueError("published Goal binding references an unknown consumer step")
-    return result
 
 
 class ScopedFunctionalPlanValidator:
@@ -1095,21 +957,6 @@ class ScopedFunctionalPlanAuthority:
         scoped_steps = {
             step.step_id: step for step in self.scoped_plan.steps
         }
-        goals_by_ref = {
-            goal.goal_ref: goal
-            for scope in _iter_scopes(self.scoped_plan.root_scope)
-            for goal in scope.goals
-        }
-        publication_goal_ids_by_producer: dict[str, set[str]] = {}
-        for publication in scoped_published_goal_bindings(self.scoped_plan):
-            published_goal = goals_by_ref.get(publication.published_goal_ref)
-            consumer = self.step_authorities.get(publication.consumer_step_id)
-            if published_goal is None or consumer is None:
-                continue
-            publication_goal_ids_by_producer.setdefault(
-                published_goal.answer_from.step_id,
-                set(),
-            ).update(consumer.consumer_goal_unit_ids)
         finalized: dict[str, FunctionalStepScopeAuthority] = {}
         automatic_scope_promotions: dict[str, str] = {}
         for step_id, authority in self.step_authorities.items():
@@ -1149,46 +996,15 @@ class ScopedFunctionalPlanAuthority:
                 )
             )
             expected_goals = set(authority.consumer_goal_unit_ids)
-            publication_only_goals = publication_goal_ids_by_producer.get(
-                step_id,
-                set(),
-            )
-            unexpected_goals = (
-                set(raw_actual_goals)
-                - expected_goals
-                - publication_only_goals
-            )
+            unexpected_goals = set(raw_actual_goals) - expected_goals
             missing_goals = expected_goals - set(raw_actual_goals)
-            ignored_publication_goals = bool(
-                set(raw_actual_goals) - expected_goals
-            ) and not unexpected_goals and not missing_goals
-            actual_goals = (
-                tuple(sorted(expected_goals))
-                if ignored_publication_goals
-                else raw_actual_goals
-            )
+            actual_goals = raw_actual_goals
             if not actual_goals:
                 issues.append(
                     ScopedFunctionalPlanIssue(
                         "functional.step_goal_mismatch",
                         f"$.steps[{step_id!r}]",
                         "typed Goal closure is empty for an executable step",
-                    )
-                )
-                continue
-            if (
-                ignored_publication_goals
-                and placement.execution_scope_id
-                != authority.semantic_owner_scope_id
-            ):
-                issues.append(
-                    ScopedFunctionalPlanIssue(
-                        "functional.step_scope_authority_drift",
-                        f"$.steps[{step_id!r}]",
-                        (
-                            "published Goal consumption changed producer "
-                            "execution placement"
-                        ),
                     )
                 )
                 continue
@@ -1655,7 +1471,6 @@ class ScopedFunctionalPlanAuthorityAdapter:
             answer_object_refs=answer_object_refs,
             binding_catalog=binding_catalog,
         )
-        non_propagating_dependencies: set[tuple[str, str]] = set()
         typed_input_source_pins: dict[
             tuple[str, str, int], FunctionalTypedInputSourcePin
         ] = {}
@@ -1704,10 +1519,6 @@ class ScopedFunctionalPlanAuthorityAdapter:
                                 "step result references must point backward",
                             )
                         dependencies[location.step.step_id].add(value.step_id)
-                        if isinstance(value, ScopedPublishedGoalResultRef):
-                            non_propagating_dependencies.add(
-                                (location.step.step_id, value.step_id)
-                            )
                         normalized.append(value)
                         continue
                     binding = _input_binding(
@@ -1785,7 +1596,6 @@ class ScopedFunctionalPlanAuthorityAdapter:
             locations,
             dependencies,
             goal_seed,
-            non_propagating_dependencies=non_propagating_dependencies,
         )
         pruned_step_ids: set[str] = set()
         for location in locations:
@@ -1868,14 +1678,7 @@ class ScopedFunctionalPlanAuthorityAdapter:
             assert capability is not None
             args = {
                 name: tuple(
-                    PublishedGoalCallResultRef(
-                        value.step_id,
-                        value.return_name,
-                        value.published_goal_ref,
-                        value.semantic_ref,
-                    )
-                    if isinstance(value, ScopedPublishedGoalResultRef)
-                    else CallResultRef(value.step_id, value.return_name)
+                    CallResultRef(value.step_id, value.return_name)
                     if isinstance(value, ScopedStepResultRef)
                     else _input_binding(
                         binding_catalog,
@@ -2119,7 +1922,6 @@ class ScopedFunctionalPlanAuthorityAdapter:
             answer_object_refs=answer_object_refs,
             binding_catalog=binding_catalog,
         )
-        non_propagating_dependencies: set[tuple[str, str]] = set()
         typed_input_source_pins: dict[
             tuple[str, str, int], FunctionalTypedInputSourcePin
         ] = {}
@@ -2161,10 +1963,6 @@ class ScopedFunctionalPlanAuthorityAdapter:
                             scope_parents=scope_parents,
                         )
                         dependencies[location.step.step_id].add(value.step_id)
-                        if isinstance(value, ScopedPublishedGoalResultRef):
-                            non_propagating_dependencies.add(
-                                (location.step.step_id, value.step_id)
-                            )
                     else:
                         binding = _input_binding(
                             binding_catalog,
@@ -2282,7 +2080,6 @@ class ScopedFunctionalPlanAuthorityAdapter:
             locations,
             dependencies,
             goal_seed,
-            non_propagating_dependencies=non_propagating_dependencies,
         )
         for location in locations:
             if location.goal_ref is None and not consumer_goals[location.step.step_id]:
@@ -2314,14 +2111,7 @@ class ScopedFunctionalPlanAuthorityAdapter:
             assert capability is not None
             args = {
                 name: tuple(
-                    PublishedGoalCallResultRef(
-                        value.step_id,
-                        value.return_name,
-                        value.published_goal_ref,
-                        value.semantic_ref,
-                    )
-                    if isinstance(value, ScopedPublishedGoalResultRef)
-                    else CallResultRef(value.step_id, value.return_name)
+                    CallResultRef(value.step_id, value.return_name)
                     if isinstance(value, ScopedStepResultRef)
                     else _runtime_input_ref(
                         _input_binding(
@@ -3869,76 +3659,6 @@ def _normalize_unique_return_roles(
             )
             normalized_values: list[ScopedFunctionalRef] = []
             for value in values:
-                if isinstance(value, ScopedPublishedGoalResultRef):
-                    producer = by_id.get(value.step_id)
-                    producer_capability = (
-                        capability_catalog.get(producer.step.capability_id)
-                        if producer is not None
-                        else None
-                    )
-                    returned = next(
-                        (
-                            item
-                            for item in (
-                                producer_capability.returns
-                                if producer_capability is not None
-                                else ()
-                            )
-                            if item.name == value.return_name
-                        ),
-                        None,
-                    )
-                    targets = (
-                        _return_object_target_refs(
-                            producer,
-                            returned=returned,
-                            by_id=by_id,
-                            capability_catalog=capability_catalog,
-                            answer_object_refs=answer_object_refs,
-                            binding_catalog=binding_catalog,
-                        )
-                        if producer is not None and returned is not None
-                        else frozenset()
-                    )
-                    target_ref = next(iter(targets)) if len(targets) == 1 else None
-                    if target_ref is None:
-                        normalized_values.append(value)
-                        continue
-                    try:
-                        target_binding = binding_catalog.resolve_input_binding(
-                            scope_id=location.scope_id,
-                            local_ref=target_ref,
-                        )
-                    except ProblemPlanningBindingError:
-                        normalized_values.append(value)
-                        continue
-                    if not _binding_accepts_runtime_type(
-                        target_binding,
-                        returned.runtime_type,
-                    ):
-                        normalized_values.append(value)
-                        continue
-                    normalized_values.append(
-                        replace(value, semantic_ref=target_ref)
-                    )
-                    if value.semantic_ref != target_ref:
-                        changed = True
-                        normalizations.append(
-                            ScopedFunctionalPlanNormalization(
-                                action=(
-                                    "canonicalize_published_goal_entity_ref"
-                                ),
-                                reason="unique_return_object_authority",
-                                step_id=location.step.step_id,
-                                capability_id=location.step.capability_id,
-                                arg_name=arg_name,
-                                from_ref=(
-                                    f"published_goal:{value.published_goal_ref}"
-                                ),
-                                to_ref=target_ref,
-                            )
-                        )
-                    continue
                 if not isinstance(value, ScopedStepResultRef):
                     normalized_values.append(value)
                     continue
@@ -5636,61 +5356,31 @@ def _collect_independent_authority_issues(
                             if len(named_targets) == 1
                             else None
                         )
-                        if isinstance(value, ScopedPublishedGoalResultRef):
-                            if value.semantic_ref != expected_ref:
-                                add(
-                                    2,
-                                    location.scope_id,
-                                    location.step.step_id,
-                                    "functional.published_goal_result_invalid",
-                                    path,
-                                    (
-                                        "published Goal result does not resolve "
-                                        "to one canonical named Entity"
-                                    ),
-                                    {
-                                        "published_goal_ref": (
-                                            value.published_goal_ref
-                                        ),
-                                        "producer": {
-                                            "step_id": value.step_id,
-                                            "return": value.return_name,
-                                        },
-                                        "observed_ref": value.semantic_ref,
-                                        "expected_refs": sorted(named_targets),
-                                        "repair_action": (
-                                            "use_published_goal_result"
-                                        ),
-                                    },
-                                )
-                        else:
-                            add(
-                                2,
-                                location.scope_id,
-                                location.step.step_id,
-                                "functional.named_entity_requires_source_ref",
-                                path,
-                                (
-                                    f"return {value.return_name!r} updates named "
-                                    f"Entity {sorted(named_targets)!r}; use that "
-                                    "Entity ref and let the Method view select "
-                                    "its state"
-                                ),
-                                {
-                                    "named_entity_refs": sorted(named_targets),
-                                    "arg_name": arg_name,
-                                    "expected_ref": expected_ref,
-                                    "expected_object_ref": expected_ref,
-                                    "producer": {
-                                        "step_id": value.step_id,
-                                        "return": value.return_name,
-                                    },
-                                    "target": expected_ref,
-                                    "repair_action": (
-                                        "use_named_entity_source_ref"
-                                    ),
+                        add(
+                            2,
+                            location.scope_id,
+                            location.step.step_id,
+                            "functional.named_entity_requires_source_ref",
+                            path,
+                            (
+                                f"return {value.return_name!r} updates named "
+                                f"Entity {sorted(named_targets)!r}; use that "
+                                "Entity ref and let the Method view select "
+                                "its state"
+                            ),
+                            {
+                                "named_entity_refs": sorted(named_targets),
+                                "arg_name": arg_name,
+                                "expected_ref": expected_ref,
+                                "expected_object_ref": expected_ref,
+                                "producer": {
+                                    "step_id": value.step_id,
+                                    "return": value.return_name,
                                 },
-                            )
+                                "target": expected_ref,
+                                "repair_action": "use_named_entity_source_ref",
+                            },
+                        )
                     if producer_capability is None or value.return_name not in {
                         item.name for item in producer_capability.returns
                     }:
@@ -5748,24 +5438,7 @@ def _collect_independent_authority_issues(
                             path,
                             "step result references must point backward",
                         )
-                    if isinstance(value, ScopedPublishedGoalResultRef):
-                        if not _published_dependency_valid(
-                            value,
-                            producer,
-                            published_answer_sources,
-                        ):
-                            add(
-                                3,
-                                location.scope_id,
-                                location.step.step_id,
-                                "functional.published_goal_result_invalid",
-                                path,
-                                (
-                                    "published Goal ref must name the exact final "
-                                    "answer source of that Goal"
-                                ),
-                            )
-                    elif producer.goal_ref is not None and (
+                    if producer.goal_ref is not None and (
                         producer.goal_ref != location.goal_ref
                     ):
                         if not _goal_answer_dependency_valid(
@@ -6046,17 +5719,6 @@ def _goal_answer_sources(
     }
 
 
-def _published_dependency_valid(
-    ref: ScopedPublishedGoalResultRef,
-    producer: _StepLocation,
-    answer_sources: Mapping[str, tuple[str, str]],
-) -> bool:
-    return answer_sources.get(ref.published_goal_ref) == (
-        producer.step.step_id,
-        ref.return_name,
-    )
-
-
 def _goal_answer_dependency_valid(
     ref: ScopedStepResultRef,
     producer: _StepLocation,
@@ -6089,14 +5751,6 @@ def _audit_explicit_dependency(
     published_answer_sources: Mapping[str, tuple[str, str]],
     scope_parents: Mapping[str, str | None],
 ) -> None:
-    if isinstance(ref, ScopedPublishedGoalResultRef):
-        if _published_dependency_valid(ref, producer, published_answer_sources):
-            return
-        raise _error(
-            "functional.published_goal_result_invalid",
-            f"$.steps[{consumer.step.step_id!r}]",
-            "published Goal ref is not that Goal's exact final answer source",
-        )
     if producer.goal_ref is not None and producer.goal_ref != consumer.goal_ref:
         if not _goal_answer_dependency_valid(
             ref,
@@ -6604,10 +6258,7 @@ def _propagate_goal_consumers(
     locations: Sequence[_StepLocation],
     dependencies: Mapping[str, set[str]],
     seeds: Mapping[str, set[str]],
-    *,
-    non_propagating_dependencies: set[tuple[str, str]] | None = None,
 ) -> dict[str, set[str]]:
-    non_propagating_dependencies = non_propagating_dependencies or set()
     result = {step_id: set(values) for step_id, values in seeds.items()}
     changed = True
     while changed:
@@ -6615,11 +6266,6 @@ def _propagate_goal_consumers(
         for consumer in reversed(locations):
             consumer_goals = result[consumer.step.step_id]
             for producer_id in dependencies[consumer.step.step_id]:
-                if (
-                    consumer.step.step_id,
-                    producer_id,
-                ) in non_propagating_dependencies:
-                    continue
                 before = len(result[producer_id])
                 result[producer_id].update(consumer_goals)
                 changed = changed or len(result[producer_id]) != before
@@ -6951,15 +6597,11 @@ __all__ = [
     "ScopedFunctionalPlanValidator",
     "ScopedFunctionalScope",
     "ScopedFunctionalStep",
-    "ScopedPublishedGoalBinding",
-    "ScopedPublishedGoalResultRef",
     "ScopedStepResultRef",
-    "apply_scoped_published_goal_bindings",
     "audit_scoped_functional_structure",
     "audit_scoped_functional_structure_prompt_payload",
     "normalize_unique_scoped_goal_refs",
     "scoped_functional_plan_authority_payload",
     "scoped_functional_plan_id",
-    "scoped_published_goal_bindings",
     "scoped_functional_plan_schema",
 ]

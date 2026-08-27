@@ -40,6 +40,7 @@ from shuxueshuo_server.solver.runtime.functional_plan_content import (
     FunctionalPlanAuthorityFrame,
     FunctionalPlanContent,
     FunctionalPlanContentCompiler,
+    normalize_empty_optional_capability_args,
 )
 from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
     FunctionalRestoredCallSeed,
@@ -56,7 +57,6 @@ from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
     ScopedFunctionalScope,
     ScopedFunctionalStep,
     ScopedFunctionalPlanValidator,
-    scoped_published_goal_bindings,
     scoped_functional_plan_id,
     scoped_functional_plan_schema,
 )
@@ -345,6 +345,7 @@ class FunctionalScopeReplacement:
 class FunctionalScopeRepair:
     scope_replacements: Mapping[str, FunctionalScopeReplacement]
     schema_version: str = FUNCTIONAL_SCOPE_REPAIR_CONTRACT
+    normalizations: tuple[Any, ...] = ()
 
     def __post_init__(self) -> None:
         if self.schema_version != FUNCTIONAL_SCOPE_REPAIR_CONTRACT:
@@ -354,6 +355,7 @@ class FunctionalScopeRepair:
             "scope_replacements",
             MappingProxyType(dict(sorted(self.scope_replacements.items()))),
         )
+        object.__setattr__(self, "normalizations", tuple(self.normalizations))
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -384,10 +386,13 @@ class ScopedFunctionalScopeRetryAttempt:
     execution: ScopedFunctionalGoalExecutionResult | None
     merged_plan: ScopedFunctionalPlan | None = None
     scope_authority: FunctionalScopeRetryAuthority | None = None
+    result_scope_authority: FunctionalScopeRetryAuthority | None = None
     annotated_plan: FunctionalAnnotatedPlan | None = None
+    restored_call_ids: tuple[str, ...] = ()
     repair: FunctionalScopeRepair | None = None
     error: FunctionalScopeRetryError | None = None
     plan_content: FunctionalPlanContent | None = None
+    content_normalizations: tuple[Any, ...] = ()
     content_validation_report: Any | None = None
     final_plan_contract_validation: FunctionalFinalPlanContractValidation | None = None
     llm_metadata: Mapping[str, Any] | None = None
@@ -399,7 +404,7 @@ class ScopedFunctionalScopeRetryRunResult:
     attempts: tuple[ScopedFunctionalScopeRetryAttempt, ...]
     final_plan: ScopedFunctionalPlan | None
     final_execution: ScopedFunctionalGoalExecutionResult | None
-    solved_goal_restore_count: int
+    restored_call_count: int
     no_progress: bool = False
     verified_execution: VerifiedFunctionalPlanExecution | None = None
 
@@ -533,6 +538,7 @@ class FunctionalScopeRepairCompiler:
         raw: str,
         *,
         authority: FunctionalScopeRetryAuthority,
+        capability_catalog: FunctionalCapabilityCatalog | None = None,
     ) -> FunctionalScopeRepair:
         try:
             payload = json.loads(raw)
@@ -543,7 +549,9 @@ class FunctionalScopeRepairCompiler:
                 "scope repair response must be one JSON object",
                 details={"line": exc.lineno, "column": exc.colno},
             ) from exc
-        schema = functional_scope_repair_schema_for_authority(authority)
+        schema = functional_scope_repair_schema_for_authority(
+            authority,
+        )
         errors = tuple(Draft202012Validator(schema).iter_errors(payload))
         if errors:
             first = sorted(errors, key=lambda item: tuple(item.absolute_path))[0]
@@ -551,6 +559,12 @@ class FunctionalScopeRepairCompiler:
                 "functional.scope_repair_schema_invalid",
                 _json_path(first.absolute_path),
                 first.message,
+            )
+        normalizations: tuple[Any, ...] = ()
+        if capability_catalog is not None:
+            payload, normalizations = normalize_empty_optional_capability_args(
+                payload,
+                capability_catalog=capability_catalog,
             )
         replacements = {
             scope_ref: FunctionalScopeReplacement(
@@ -567,7 +581,10 @@ class FunctionalScopeRepairCompiler:
             )
             for scope_ref, value in payload["scope_replacements"].items()
         }
-        return FunctionalScopeRepair(scope_replacements=replacements)
+        return FunctionalScopeRepair(
+            scope_replacements=replacements,
+            normalizations=normalizations,
+        )
 
     def apply_json(
         self,
@@ -575,9 +592,14 @@ class FunctionalScopeRepairCompiler:
         *,
         base_plan: ScopedFunctionalPlan,
         authority: FunctionalScopeRetryAuthority,
+        capability_catalog: FunctionalCapabilityCatalog | None = None,
     ) -> FunctionalScopeRepairApplication:
         return self.apply(
-            self.parse_json(raw, authority=authority),
+            self.parse_json(
+                raw,
+                authority=authority,
+                capability_catalog=capability_catalog,
+            ),
             base_plan=base_plan,
             authority=authority,
         )
@@ -827,6 +849,7 @@ class ScopedFunctionalScopeRetryService:
             next_plan: ScopedFunctionalPlan | None = None
             plan_content: FunctionalPlanContent | None = None
             validation_report: Any | None = None
+            content_normalizations: tuple[Any, ...] = ()
             attempt_execution: ScopedFunctionalGoalExecutionResult | None = None
             final_validation: FunctionalFinalPlanContractValidation | None = None
             try:
@@ -838,6 +861,7 @@ class ScopedFunctionalScopeRetryService:
                     )
                     plan_content = compilation.content
                     validation_report = compilation.report
+                    content_normalizations = compilation.normalizations
                     if compilation.plan is None or not compilation.report.ok:
                         authoring_feedback = tuple(
                             item.to_payload() for item in compilation.report.issues
@@ -860,7 +884,9 @@ class ScopedFunctionalScopeRetryService:
                     repair = FunctionalScopeRepairCompiler().parse_json(
                         raw_response,
                         authority=current_authority,
+                        capability_catalog=capability_catalog,
                     )
+                    content_normalizations = repair.normalizations
                     next_plan = FunctionalScopeRepairCompiler().apply(
                         repair,
                         base_plan=current_plan,
@@ -874,7 +900,6 @@ class ScopedFunctionalScopeRetryService:
                         current_execution,
                         next_plan=next_plan,
                     )
-                    restored_count += len(restored_seed.call_ids)
                 execution = self.execution_service.execute_raw_json(
                     json.dumps(next_plan.to_payload(), ensure_ascii=False),
                     inputs=inputs,
@@ -886,9 +911,10 @@ class ScopedFunctionalScopeRetryService:
                     problem_payload=problem_payload,
                     attempt=semantic_attempt - 1,
                     restored_seed=restored_seed,
-                    published_goal_bindings=scoped_published_goal_bindings(next_plan),
                 )
                 attempt_execution = execution
+                restored_call_ids = _actual_restored_call_ids(execution)
+                restored_count += len(restored_call_ids)
                 current_plan = execution.canonical_plan or next_plan
                 current_execution = execution
                 final_validation = FunctionalPlanContentCompiler().validate_final_plan(
@@ -907,9 +933,11 @@ class ScopedFunctionalScopeRetryService:
                     merged_plan=next_plan,
                     scope_authority=current_authority,
                     annotated_plan=annotated,
+                    restored_call_ids=restored_call_ids,
                     repair=repair,
                     plan_content=plan_content,
                     content_validation_report=validation_report,
+                    content_normalizations=content_normalizations,
                     final_plan_contract_validation=final_validation,
                     llm_metadata=metadata,
                 )
@@ -927,7 +955,7 @@ class ScopedFunctionalScopeRetryService:
                         attempts=tuple(attempts),
                         final_plan=current_plan,
                         final_execution=execution,
-                        solved_goal_restore_count=restored_count,
+                        restored_call_count=restored_count,
                         verified_execution=execution.verified_execution,
                     )
                 additional_issues = _final_contract_retry_issues(final_validation)
@@ -936,7 +964,7 @@ class ScopedFunctionalScopeRetryService:
                     execution=execution,
                     additional_issues=additional_issues,
                 )
-                record = replace(record, scope_authority=next_authority)
+                record = replace(record, result_scope_authority=next_authority)
                 signature = (
                     scoped_functional_plan_id(current_plan),
                     stable_hash(
@@ -972,6 +1000,7 @@ class ScopedFunctionalScopeRetryService:
                         error=exc,
                         plan_content=plan_content,
                         content_validation_report=validation_report,
+                        content_normalizations=content_normalizations,
                         final_plan_contract_validation=final_validation,
                         llm_metadata=metadata,
                     )
@@ -986,7 +1015,7 @@ class ScopedFunctionalScopeRetryService:
             attempts=tuple(attempts),
             final_plan=current_plan,
             final_execution=current_execution,
-            solved_goal_restore_count=restored_count,
+            restored_call_count=restored_count,
             no_progress=no_progress,
             verified_execution=(
                 current_execution.verified_execution
@@ -1002,6 +1031,9 @@ def functional_scope_repair_schema() -> dict[str, Any]:
     plan_defs = deepcopy(scoped_functional_plan_schema()["$defs"])
     repair_step = deepcopy(plan_defs["step"])
     repair_step["properties"].pop("return_expectations", None)
+    repair_step["properties"]["args"]["additionalProperties"]["oneOf"][1][
+        "minItems"
+    ] = 0
     goal_body = {
         "type": "object",
         "required": ["steps", "answer_from"],
@@ -1779,9 +1811,22 @@ def _scope_attempt_llm_metadata(
         "provider": getattr(client, "provider_name", client.__class__.__name__),
         "request_model": getattr(client, "model", None),
         "response_model": getattr(client, "last_response_model", None),
-        "usage": getattr(client, "last_usage", None),
-        "provider_attempts": getattr(client, "last_provider_attempts", None),
+        "usage": deepcopy(getattr(client, "last_usage", None)),
+        "provider_attempts": deepcopy(
+            getattr(client, "last_provider_attempts", None)
+        ),
     }
+
+
+def _actual_restored_call_ids(
+    execution: ScopedFunctionalGoalExecutionResult,
+) -> tuple[str, ...]:
+    replay = execution.replay
+    transaction = (
+        replay.transactional_attempt_result if replay is not None else None
+    )
+    report = transaction.execution_report if transaction is not None else None
+    return tuple(report.restored_call_ids) if report is not None else ()
 
 
 def _iter_scopes(scope: ScopedFunctionalScope) -> tuple[ScopedFunctionalScope, ...]:
