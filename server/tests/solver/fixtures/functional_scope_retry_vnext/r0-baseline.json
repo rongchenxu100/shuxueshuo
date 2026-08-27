@@ -1,0 +1,58 @@
+{
+  "schema_version": "functional-scope-retry-vnext-r0-baseline/v1",
+  "source_commit": "6a97b8d",
+  "specialized_test_baseline": {
+    "modules": 6,
+    "tests": 150,
+    "elapsed_seconds": 109.12
+  },
+  "v4_prompt_baseline": {
+    "fixture": "tj-2026-heping-yimo-25:ii.a validation failure",
+    "system_chars": 4407,
+    "user_chars": 64074,
+    "total_chars": 68481,
+    "schema_property_occurrences": 181,
+    "replacement_maps": 3
+  },
+  "semantic_fixture_classes": [
+    {
+      "id": "same_scope_one_succeeded_one_failed",
+      "expected_open_scope_rule": "open the direct parent Scope and replace both direct Goals"
+    },
+    {
+      "id": "scope_owned_shared_producer_failed",
+      "expected_open_scope_rule": "open the producer owner Scope; dependent steps remain not_run unless consumer closure requires another Scope"
+    },
+    {
+      "id": "ancestor_child_sibling_scopes",
+      "expected_open_scope_rule": "open the minimal owner or legal placement ancestor; do not open children or siblings by containment alone"
+    },
+    {
+      "id": "cross_goal_public_answer",
+      "expected_open_scope_rule": "allow only the producer Goal current answer_from StepResultRef"
+    },
+    {
+      "id": "atomic_macro_validation_and_runtime_failure",
+      "expected_open_scope_rule": "project one atomic Macro step and never expose internal invocations"
+    },
+    {
+      "id": "runtime_output_types",
+      "runtime_types": [
+        "expression",
+        "exact_number",
+        "Point",
+        "candidate_set",
+        "witness"
+      ],
+      "expected_projection_rule": "include every actually materialized public runtime result without omission or internal identity"
+    }
+  ],
+  "semantic_baseline_fields": [
+    "editable_scope_set",
+    "final_plan_hash",
+    "checkpoint_restore_set",
+    "failure_classification",
+    "attempt_count",
+    "debug_attempt_count"
+  ]
+}
