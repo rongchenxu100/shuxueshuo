@@ -19,11 +19,17 @@ from shuxueshuo_server.solver.runtime.functional_scope_retry import (
     FunctionalScopeRepairCompiler,
     FunctionalScopeRetryAuthorityProjector,
     FunctionalScopeRetryError,
+    build_scope_retry_restore_seed,
     functional_annotated_plan_schema,
     functional_scope_repair_schema,
     functional_scope_repair_schema_for_authority,
 )
 from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
+    ScopedFunctionalPlanError,
+    ScopedFunctionalStep,
+    ScopedStepResultRef,
+    _StepLocation,
+    _audit_explicit_dependency,
     scoped_functional_plan_id,
 )
 
@@ -379,3 +385,104 @@ def test_scope_repair_applies_complete_scope_atomically_and_preserves_children(
             authority=authority,
         )
     assert captured.value.code == "functional.scope_repair_stale_plan"
+
+
+def test_cross_goal_step_ref_allows_only_exact_visible_public_answer() -> None:
+    producer_step = ScopedFunctionalStep(
+        step_id="produce_answer",
+        capability_id="producer",
+        args={},
+        output_targets={},
+        return_expectations={},
+    )
+    consumer_step = ScopedFunctionalStep(
+        step_id="consume_answer",
+        capability_id="consumer",
+        args={},
+        output_targets={},
+        return_expectations={},
+    )
+    producer = _StepLocation(producer_step, "ii", "ii.a", 0)
+    consumer = _StepLocation(consumer_step, "ii", "ii.b", 1)
+    answers = {"ii.a": ("produce_answer", "answer")}
+    parents = {"problem": None, "ii": "problem", "iii": "problem"}
+
+    _audit_explicit_dependency(
+        producer,
+        consumer,
+        ref=ScopedStepResultRef("produce_answer", "answer"),
+        published_answer_sources=answers,
+        scope_parents=parents,
+    )
+
+    with pytest.raises(ScopedFunctionalPlanError):
+        _audit_explicit_dependency(
+            producer,
+            consumer,
+            ref=ScopedStepResultRef("produce_answer", "internal_witness"),
+            published_answer_sources=answers,
+            scope_parents=parents,
+        )
+
+    sibling_consumer = _StepLocation(consumer_step, "iii", "iii.a", 1)
+    with pytest.raises(ScopedFunctionalPlanError):
+        _audit_explicit_dependency(
+            producer,
+            sibling_consumer,
+            ref=ScopedStepResultRef("produce_answer", "answer"),
+            published_answer_sources=answers,
+            scope_parents=parents,
+        )
+
+
+def test_restore_seed_excludes_open_scope_calls_and_dependency_descendants(
+    tmp_path,
+) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    authority = FunctionalScopeRetryAuthorityProjector().project(
+        plan=fixture.failed_plan,
+        execution=fixture.execution,
+    )
+    restored = build_scope_retry_restore_seed(
+        authority,
+        fixture.execution,
+        next_plan=fixture.failed_plan,
+    )
+    ii_scope = fixture.failed_plan.root_scope.children[1]
+    open_call_ids = {
+        step.step_id
+        for step in (
+            *ii_scope.steps,
+            *(step for goal in ii_scope.goals for step in goal.steps),
+        )
+    }
+
+    assert not set(restored.call_ids).intersection(open_call_ids)
+    assert set(restored.call_ids) <= {
+        item.call_id
+        for item in fixture.execution.checkpoint.restore_state.runtime_seed.call_results
+    }
+
+
+def test_scope_repair_auto_rebinds_one_unique_answer_successor(tmp_path) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    authority = FunctionalScopeRetryAuthorityProjector().project(
+        plan=fixture.failed_plan,
+        execution=fixture.execution,
+    )
+    payload = _scope_repair_payload(fixture.failed_plan, "ii")
+    goal_body = payload["scope_replacements"]["ii"]["goals"]["ii.a"]
+    old_answer_id = goal_body["answer_from"]["step_id"]
+    producer = next(
+        step for step in goal_body["steps"] if step["step_id"] == old_answer_id
+    )
+    producer["step_id"] = "repaired_answer_producer"
+
+    application = FunctionalScopeRepairCompiler().apply_json(
+        json.dumps(payload),
+        base_plan=fixture.failed_plan,
+        authority=authority,
+    )
+    repaired_goal = application.plan.root_scope.children[1].goals[0]
+
+    assert repaired_goal.answer_from.step_id == "repaired_answer_producer"

@@ -30,6 +30,9 @@ from shuxueshuo_server.solver.runtime.functional_goal_execution import (
     _json_safe_value,
     _prompt_safe_value,
 )
+from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
+    FunctionalRestoredCallSeed,
+)
 from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
     ScopedFunctionalGoalPlan,
     ScopedFunctionalPlan,
@@ -552,6 +555,52 @@ class FunctionalScopeRepairCompiler:
                 f"expected exactly {sorted(expected_refs)}, got {sorted(actual_refs)}",
             )
 
+        previous_steps = {step.step_id: step for step in base_plan.steps}
+        previous_goals = {
+            goal.goal_ref: goal
+            for scope in _iter_scopes(base_plan.root_scope)
+            for goal in scope.goals
+        }
+
+        def resolved_answer_from(
+            scope_replacement: FunctionalScopeReplacement,
+            goal_replacement: FunctionalScopeGoalReplacement,
+        ) -> dict[str, str]:
+            authored = dict(goal_replacement.answer_from)
+            replacement_steps = (
+                *scope_replacement.scope_steps,
+                *goal_replacement.steps,
+            )
+            replacement_ids = {
+                str(step.get("step_id") or "") for step in replacement_steps
+            }
+            if authored.get("step_id") in replacement_ids:
+                return authored
+            previous_goal = previous_goals.get(goal_replacement.goal_ref)
+            previous_producer = (
+                previous_steps.get(previous_goal.answer_from.step_id)
+                if previous_goal is not None
+                else None
+            )
+            if previous_producer is None:
+                return authored
+            candidates = [
+                str(step.get("step_id"))
+                for step in replacement_steps
+                if step.get("capability_id") == previous_producer.capability_id
+                and step.get("step_id")
+            ]
+            if len(candidates) == 1:
+                return {**authored, "step_id": candidates[0]}
+            raise FunctionalScopeRetryError(
+                "functional.scope_repair_answer_source_ambiguous",
+                f"$.scope_replacements[{scope_replacement.scope_ref!r}]"
+                f".goals[{goal_replacement.goal_ref!r}].answer_from",
+                "answer_from names no replacement step and code could not "
+                "identify one unique compatible successor",
+                details={"compatible_step_ids": sorted(candidates)},
+            )
+
         def rebuild(scope: ScopedFunctionalScope) -> dict[str, Any]:
             replacement = repair.scope_replacements.get(scope.scope_ref)
             if replacement is None:
@@ -564,7 +613,10 @@ class FunctionalScopeRepairCompiler:
                         {
                             "goal_ref": goal_ref,
                             "steps": [_thaw(item) for item in goal.steps],
-                            "answer_from": dict(goal.answer_from),
+                            "answer_from": resolved_answer_from(
+                                replacement,
+                                goal,
+                            ),
                         }
                         for goal_ref, goal in replacement.goals.items()
                     ],
@@ -701,6 +753,68 @@ def functional_scope_repair_schema_for_authority(
         "additionalProperties": False,
     }
     return schema
+
+
+def build_scope_retry_restore_seed(
+    authority: FunctionalScopeRetryAuthority,
+    execution: ScopedFunctionalGoalExecutionResult,
+    *,
+    next_plan: ScopedFunctionalPlan,
+) -> FunctionalRestoredCallSeed:
+    """Restore only verified calls outside open Scope dependency descendants.
+
+    Exact source-read, write, and publication signatures are rechecked by the
+    existing ``rebase_restored_call_seed`` step after next-Plan reconciliation.
+    This selector only establishes the maximum safe candidate set.
+    """
+
+    checkpoint = execution.checkpoint
+    if checkpoint is None or checkpoint.restore_state.runtime_seed is None:
+        return FunctionalRestoredCallSeed()
+    seed = checkpoint.restore_state.runtime_seed
+    open_scopes = set(authority.editable_scope_refs)
+    invalid: set[str] = set()
+    for scope in _iter_scopes(authority.base_plan.root_scope):
+        if scope.scope_ref not in open_scopes:
+            continue
+        invalid.update(step.step_id for step in scope.steps)
+        invalid.update(
+            step.step_id for goal in scope.goals for step in goal.steps
+        )
+    reconciliation = (
+        execution.replay.functional_reconciliation
+        if execution.replay is not None
+        else None
+    )
+    dependency_graph = (
+        reconciliation.dependency_graph
+        if reconciliation is not None
+        else {}
+    )
+    changed = True
+    while changed:
+        changed = False
+        for call_id, dependencies in dependency_graph.items():
+            if call_id not in invalid and set(dependencies).intersection(invalid):
+                invalid.add(call_id)
+                changed = True
+    next_step_ids = {step.step_id for step in next_plan.steps}
+    selected = frozenset(
+        call_id
+        for call_id in seed.call_ids
+        if call_id not in invalid and call_id in next_step_ids
+    )
+    if not selected:
+        return FunctionalRestoredCallSeed()
+    try:
+        return checkpoint.restore_state.seed_for_calls(selected)
+    except Exception as exc:
+        raise FunctionalScopeRetryError(
+            "functional.scope_retry_restore_drift",
+            "$.checkpoint.restore_state",
+            str(exc),
+            retryable=False,
+        ) from exc
 
 
 class FunctionalAnnotatedPlanProjector:
@@ -1356,6 +1470,7 @@ __all__ = [
     "FunctionalScopeRetryAuthority",
     "FunctionalScopeRetryAuthorityProjector",
     "FunctionalScopeRetryError",
+    "build_scope_retry_restore_seed",
     "functional_annotated_plan_schema",
     "functional_scope_repair_schema",
     "functional_scope_repair_schema_for_authority",

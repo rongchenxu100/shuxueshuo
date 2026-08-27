@@ -5768,14 +5768,23 @@ def _collect_independent_authority_issues(
                     elif producer.goal_ref is not None and (
                         producer.goal_ref != location.goal_ref
                     ):
-                        add(
-                            3,
-                            location.scope_id,
-                            location.step.step_id,
-                            "functional.step_scope_visibility_drift",
-                            path,
-                            "a Goal-owned result cannot be read outside that Goal",
-                        )
+                        if not _goal_answer_dependency_valid(
+                            value,
+                            producer,
+                            consumer=location,
+                            answer_sources=published_answer_sources,
+                            scope_parents=scope_parents,
+                        ):
+                            add(
+                                3,
+                                location.scope_id,
+                                location.step.step_id,
+                                "functional.step_scope_visibility_drift",
+                                path,
+                                "a cross-Goal StepResultRef must be the exact "
+                                "producer Goal answer_from and visible from the "
+                                "consumer Scope",
+                            )
                     elif producer.goal_ref is None and not _scope_visible(
                         producer.scope_id,
                         location.scope_id,
@@ -6048,6 +6057,30 @@ def _published_dependency_valid(
     )
 
 
+def _goal_answer_dependency_valid(
+    ref: ScopedStepResultRef,
+    producer: _StepLocation,
+    *,
+    consumer: _StepLocation,
+    answer_sources: Mapping[str, tuple[str, str]],
+    scope_parents: Mapping[str, str | None],
+) -> bool:
+    """Allow only the ordinary public answer channel across Goal ownership."""
+
+    if producer.goal_ref is None:
+        return False
+    if answer_sources.get(producer.goal_ref) != (
+        producer.step.step_id,
+        ref.return_name,
+    ):
+        return False
+    return _scope_visible(
+        producer.scope_id,
+        consumer.scope_id,
+        scope_parents,
+    )
+
+
 def _audit_explicit_dependency(
     producer: _StepLocation,
     consumer: _StepLocation,
@@ -6065,11 +6098,19 @@ def _audit_explicit_dependency(
             "published Goal ref is not that Goal's exact final answer source",
         )
     if producer.goal_ref is not None and producer.goal_ref != consumer.goal_ref:
-        raise _error(
-            "functional.step_scope_visibility_drift",
-            f"$.steps[{consumer.step.step_id!r}]",
-            "a Goal-owned result cannot be read outside that Goal",
-        )
+        if not _goal_answer_dependency_valid(
+            ref,
+            producer,
+            consumer=consumer,
+            answer_sources=published_answer_sources,
+            scope_parents=scope_parents,
+        ):
+            raise _error(
+                "functional.step_scope_visibility_drift",
+                f"$.steps[{consumer.step.step_id!r}]",
+                "a cross-Goal StepResultRef must be the exact producer Goal "
+                "answer_from and visible from the consumer Scope",
+            )
     if producer.goal_ref is None and not _scope_visible(
         producer.scope_id,
         consumer.scope_id,
