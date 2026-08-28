@@ -242,6 +242,11 @@ class FunctionalPlanElaborator:
                     capability=capability,
                     repairs=repairs,
                 )
+                call = _drop_compiler_selected_return_bindings(
+                    call,
+                    capability=capability,
+                    repairs=repairs,
+                )
                 arg_specs = {item.name: item for item in capability.args}
                 alias_to_name = {
                     alias: item.name
@@ -415,6 +420,63 @@ def _drop_internal_only_return_bindings(
             FunctionalDeterministicRepair(
                 call.call_id,
                 "drop_internal_only_return_binding",
+                f"{return_name}:{binding.kind}:{binding.ref}",
+                f"{call.call_id}.{return_name}",
+            )
+        )
+    if bindings == call.return_bindings:
+        return call
+    return replace(call, return_bindings=bindings)
+
+
+def _drop_compiler_selected_return_bindings(
+    call: FunctionalCall,
+    *,
+    capability: Any,
+    repairs: list[FunctionalDeterministicRepair],
+) -> FunctionalCall:
+    """Keep code-owned return identity out of the authored Plan contract.
+
+    An atomic Macro may publish a Point whose identity is one of its hidden,
+    resolver-owned roles.  In that case an authored destination is neither
+    necessary nor authoritative: reconciliation can infer the exact object
+    from the prepared role.  Drop any guessed destination before identity
+    reconciliation so the hidden role remains code-owned.
+    """
+
+    if not call.return_bindings:
+        return call
+    if capability.kind != "macro" or getattr(
+        capability.source, "execution_mode", None
+    ) != "runtime_search":
+        return call
+    exposed_args = {item.name for item in capability.args}
+    return_specs = {item.name: item for item in capability.returns}
+    bindings = dict(call.return_bindings)
+    for return_name, binding in tuple(bindings.items()):
+        return_spec = return_specs.get(return_name)
+        if return_spec is None:
+            bindings.pop(return_name)
+            repairs.append(
+                FunctionalDeterministicRepair(
+                    call.call_id,
+                    "drop_unknown_call_local_return_binding",
+                    f"{binding.kind}:{binding.ref}",
+                    return_name,
+                )
+            )
+            continue
+        if (
+            return_spec.identity_policy != "target_object"
+            or return_spec.identity_arg is None
+            or return_spec.identity_arg in exposed_args
+        ):
+            continue
+        bindings.pop(return_name)
+        repairs.append(
+            FunctionalDeterministicRepair(
+                call.call_id,
+                "drop_compiler_selected_return_binding",
                 f"{return_name}:{binding.kind}:{binding.ref}",
                 f"{call.call_id}.{return_name}",
             )

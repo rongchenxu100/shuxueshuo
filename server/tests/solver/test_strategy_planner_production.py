@@ -175,13 +175,14 @@ def test_strategy_recorded_solves_heping_ermo_without_deterministic_planner(
     assert "square_adjacent_vertex_from_side" in result.methods_used
     assert "point_candidates_from_curve_point_condition" in result.methods_used
     assert "square_reflection_path_minimum_expression" not in result.methods_used
-    assert "square_path_dimension_reduction" in result.methods_used
-    assert "parameterized_point_locus_line" in result.methods_used
-    assert "broken_path_straightening_candidates" in result.methods_used
-    assert "select_straightening_candidate" in result.methods_used
-    assert "distance_between_points" in result.methods_used
+    assert "quadratic_square_path_minimum_kernel" in result.methods_used
+    assert "square_path_dimension_reduction" not in result.methods_used
+    assert "parameterized_point_locus_line" not in result.methods_used
+    assert "broken_path_straightening_candidates" not in result.methods_used
+    assert "select_straightening_candidate" not in result.methods_used
+    assert "distance_between_points" not in result.methods_used
     assert "evaluate_point_at_parameter" in result.methods_used
-    assert "line_locus_minimum_point" in result.methods_used
+    assert "line_locus_minimum_point" not in result.methods_used
     assert "square_reflection_extremal_axis_point" not in result.methods_used
 
 

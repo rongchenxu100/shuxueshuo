@@ -742,616 +742,158 @@
       ]
     },
     {
-      "call_id": "derive_axis_point_M_ii",
-      "capability_id": "quadratic_axis_x_intercept_point",
-      "steps": [
-        {
-          "step_id": "derive_axis_point_M_ii",
-          "scope": "ii",
-          "invocations": [
-            {
-              "method_id": "quadratic_axis_x_intercept_point",
-              "scope": "derive_axis_point_M_ii",
-              "inputs": [
-                "parabola",
-                "target",
-                "x"
-              ],
-              "outputs": {
-                "axis_point": "$step.derive_axis_point_M_ii.temp.axis_point"
-              }
-            }
-          ],
-          "promotions": {
-            "$step.derive_axis_point_M_ii.temp.axis_point": "$question.ii.outputs.M_coordinate"
-          }
-        }
-      ],
-      "bindings": [
-        {
-          "arg": "parabola",
-          "item": 0,
-          "role": "parabola",
-          "authority": "wire",
-          "target": "parabola",
-          "paths": [
-            "$question.ii.facts.__functional_transaction_derive_axis_point_M_ii_0"
-          ]
-        },
-        {
-          "arg": "target",
-          "item": 0,
-          "role": "target",
-          "authority": "compiler",
-          "target": "target",
-          "paths": [
-            "$problem.points.M"
-          ]
-        },
-        {
-          "arg": "x",
-          "item": 0,
-          "role": "x",
-          "authority": "compiler",
-          "target": "x",
-          "paths": [
-            "$problem.symbols.x"
-          ]
-        }
-      ],
-      "public_returns": [
-        {
-          "name": "axis_point",
-          "runtime_type": "Point",
-          "identity_policy": "target_object",
-          "write_mode": "create",
-          "output_key": "axis_point",
-          "required": true
-        }
-      ],
-      "provenance": [
-        {
-          "return_name": "axis_point",
-          "runtime_type": "Point",
-          "allocation_action": "create",
-          "result_form": "open_state",
-          "object_id": "point:problem:M",
-          "source_version_count": 1,
-          "closure_signature": null
-        }
-      ]
-    },
-    {
-      "call_id": "reduce_square_path_ii",
-      "capability_id": "square_path_dimension_reduction",
-      "steps": [
-        {
-          "step_id": "reduce_square_path_ii",
-          "scope": "ii",
-          "invocations": [
-            {
-              "method_id": "square_path_dimension_reduction",
-              "scope": "reduce_square_path_ii",
-              "inputs": [
-                "fixed_endpoint_1_ref",
-                "fixed_endpoint_2_ref",
-                "midpoint_condition",
-                "moving_point",
-                "path_condition",
-                "square_center_condition",
-                "square_condition"
-              ],
-              "outputs": {
-                "path_transformation": "$step.reduce_square_path_ii.temp.path_transformation"
-              }
-            }
-          ],
-          "promotions": {
-            "$step.reduce_square_path_ii.temp.path_transformation": "$question.ii.outputs.reduce_square_path_ii_path_transformation"
-          }
-        }
-      ],
-      "bindings": [
-        {
-          "arg": "fixed_endpoint_1_ref",
-          "item": 0,
-          "role": "fixed_endpoint_1",
-          "authority": "resolver",
-          "target": "fixed_endpoint_1_ref",
-          "paths": [
-            "$question.ii.facts.__functional_transaction_reduce_square_path_ii_0"
-          ]
-        },
-        {
-          "arg": "fixed_endpoint_2_ref",
-          "item": 0,
-          "role": "fixed_endpoint_2",
-          "authority": "resolver",
-          "target": "fixed_endpoint_2_ref",
-          "paths": [
-            "$question.ii.facts.__functional_transaction_reduce_square_path_ii_1"
-          ]
-        },
-        {
-          "arg": "midpoint_definition",
-          "item": 0,
-          "role": "midpoint_definition",
-          "authority": "wire",
-          "target": "midpoint_condition",
-          "paths": [
-            "$question.ii.conditions.midpoint_cedb805e7c47"
-          ]
-        },
-        {
-          "arg": "moving_point",
-          "item": 0,
-          "role": "moving_point",
-          "authority": "wire",
-          "target": "moving_point",
-          "paths": [
-            "$problem.points.G"
-          ]
-        },
-        {
-          "arg": "path_minimum_target",
-          "item": 0,
-          "role": "path_minimum_target",
-          "authority": "wire",
-          "target": "path_condition",
-          "paths": [
-            "$question.ii.conditions.minimum_target_5babd8366140"
-          ]
-        },
-        {
-          "arg": "square",
-          "item": 0,
-          "role": "square",
-          "authority": "wire",
-          "target": "square_condition",
-          "paths": [
-            "$problem.conditions.square_b19d8510e827"
-          ]
-        },
-        {
-          "arg": "square_center",
-          "item": 0,
-          "role": "square_center",
-          "authority": "wire",
-          "target": "square_center_condition",
-          "paths": [
-            "$question.ii.conditions.square_center_aafb6d47462b"
-          ]
-        }
-      ],
-      "public_returns": [
-        {
-          "name": "path_transformation",
-          "runtime_type": "PathTransformation",
-          "identity_policy": "derived_role",
-          "write_mode": "create",
-          "output_key": "path_transformation",
-          "required": true
-        }
-      ],
-      "provenance": [
-        {
-          "return_name": "path_transformation",
-          "runtime_type": "PathTransformation",
-          "allocation_action": "create",
-          "result_form": "closed_state",
-          "object_id": "path_transformation:problem:derived_3441677c556cf5c901d59c16",
-          "source_version_count": 2,
-          "closure_signature": null
-        }
-      ]
-    },
-    {
-      "call_id": "parameterize_axis_point_E_ii",
-      "capability_id": "quadratic_axis_parameterized_point",
-      "steps": [
-        {
-          "step_id": "parameterize_axis_point_E_ii",
-          "scope": "ii",
-          "invocations": [
-            {
-              "method_id": "quadratic_axis_parameterized_point",
-              "scope": "parameterize_axis_point_E_ii",
-              "inputs": [
-                "parabola",
-                "target",
-                "x"
-              ],
-              "outputs": {
-                "parameter": "$step.parameterize_axis_point_E_ii.temp.parameter",
-                "point": "$step.parameterize_axis_point_E_ii.temp.point"
-              }
-            }
-          ],
-          "promotions": {
-            "$step.parameterize_axis_point_E_ii.temp.parameter": "$question.ii.outputs.parameterize_axis_point_E_ii_axis_parameter",
-            "$step.parameterize_axis_point_E_ii.temp.point": "$question.ii.outputs.E_coordinate"
-          }
-        }
-      ],
-      "bindings": [
-        {
-          "arg": "parabola",
-          "item": 0,
-          "role": "parabola",
-          "authority": "wire",
-          "target": "parabola",
-          "paths": [
-            "$question.ii.facts.__functional_transaction_parameterize_axis_point_E_ii_0"
-          ]
-        },
-        {
-          "arg": "target",
-          "item": 0,
-          "role": "target",
-          "authority": "compiler",
-          "target": "target",
-          "paths": [
-            "$problem.points.E"
-          ]
-        },
-        {
-          "arg": "x",
-          "item": 0,
-          "role": "x",
-          "authority": "compiler",
-          "target": "x",
-          "paths": [
-            "$problem.symbols.x"
-          ]
-        }
-      ],
-      "public_returns": [
-        {
-          "name": "point",
-          "runtime_type": "Point",
-          "identity_policy": "target_object",
-          "write_mode": "create",
-          "output_key": "point",
-          "required": true
-        },
-        {
-          "name": "parameter",
-          "runtime_type": "Symbol",
-          "identity_policy": "derived_role",
-          "write_mode": "create",
-          "output_key": "parameter",
-          "required": true
-        }
-      ],
-      "provenance": [
-        {
-          "return_name": "point",
-          "runtime_type": "Point",
-          "allocation_action": "isolated",
-          "result_form": "open_state",
-          "object_id": "point:problem:E",
-          "source_version_count": 2,
-          "closure_signature": null
-        },
-        {
-          "return_name": "parameter",
-          "runtime_type": "Symbol",
-          "allocation_action": "create",
-          "result_form": "open_state",
-          "object_id": "symbol:ii:E_axis_parameter",
-          "source_version_count": 1,
-          "closure_signature": null
-        }
-      ]
-    },
-    {
-      "call_id": "derive_square_vertex_G_ii",
-      "capability_id": "square_adjacent_vertex_from_side",
-      "steps": [
-        {
-          "step_id": "derive_square_vertex_G_ii",
-          "scope": "ii",
-          "invocations": [
-            {
-              "method_id": "square_adjacent_vertex_from_side",
-              "scope": "derive_square_vertex_G_ii",
-              "inputs": [
-                "side_end",
-                "side_end_ref",
-                "side_start",
-                "side_start_ref",
-                "square_condition",
-                "target"
-              ],
-              "outputs": {
-                "point": "$step.derive_square_vertex_G_ii.temp.point"
-              }
-            }
-          ],
-          "promotions": {
-            "$step.derive_square_vertex_G_ii.temp.point": "$question.ii.outputs.G_square_adjacent_vertex"
-          }
-        }
-      ],
-      "bindings": [
-        {
-          "arg": "side_end",
-          "item": 0,
-          "role": "side_end",
-          "authority": "wire",
-          "target": "side_end",
-          "paths": [
-            "$question.ii.facts.__functional_transaction_derive_square_vertex_G_ii_1"
-          ]
-        },
-        {
-          "arg": "side_end_ref",
-          "item": 0,
-          "role": "side_end_ref",
-          "authority": "compiler",
-          "target": "side_end_ref",
-          "paths": [
-            "$problem.object_refs.E"
-          ]
-        },
-        {
-          "arg": "side_start",
-          "item": 0,
-          "role": "side_start",
-          "authority": "wire",
-          "target": "side_start",
-          "paths": [
-            "$question.ii.facts.__functional_transaction_derive_square_vertex_G_ii_0"
-          ]
-        },
-        {
-          "arg": "side_start_ref",
-          "item": 0,
-          "role": "side_start_ref",
-          "authority": "compiler",
-          "target": "side_start_ref",
-          "paths": [
-            "$problem.object_refs.A"
-          ]
-        },
-        {
-          "arg": "square",
-          "item": 0,
-          "role": "square",
-          "authority": "wire",
-          "target": "square_condition",
-          "paths": [
-            "$problem.conditions.square_b19d8510e827"
-          ]
-        },
-        {
-          "arg": "target",
-          "item": 0,
-          "role": "target",
-          "authority": "compiler",
-          "target": "target",
-          "paths": [
-            "$problem.points.G"
-          ]
-        }
-      ],
-      "public_returns": [
-        {
-          "name": "adjacent_vertex",
-          "runtime_type": "Point",
-          "identity_policy": "target_object",
-          "write_mode": "create",
-          "output_key": "point",
-          "required": true
-        }
-      ],
-      "provenance": [
-        {
-          "return_name": "adjacent_vertex",
-          "runtime_type": "Point",
-          "allocation_action": "create",
-          "result_form": "open_state",
-          "object_id": "point:problem:G",
-          "source_version_count": 2,
-          "closure_signature": null
-        }
-      ]
-    },
-    {
-      "call_id": "derive_locus_G_ii",
-      "capability_id": "parameterized_point_locus_line",
-      "steps": [
-        {
-          "step_id": "derive_locus_G_ii",
-          "scope": "ii",
-          "invocations": [
-            {
-              "method_id": "parameterized_point_locus_line",
-              "scope": "derive_locus_G_ii",
-              "inputs": [
-                "parameter",
-                "point"
-              ],
-              "outputs": {
-                "line": "$step.derive_locus_G_ii.temp.line"
-              }
-            }
-          ],
-          "promotions": {
-            "$step.derive_locus_G_ii.temp.line": "$question.ii.outputs.derive_locus_G_ii_line"
-          }
-        }
-      ],
-      "bindings": [
-        {
-          "arg": "parameter",
-          "item": 0,
-          "role": "parameter",
-          "authority": "wire",
-          "target": "parameter",
-          "paths": [
-            "$question.ii.facts.__functional_transaction_derive_locus_G_ii_1"
-          ]
-        },
-        {
-          "arg": "point",
-          "item": 0,
-          "role": "point",
-          "authority": "wire",
-          "target": "point",
-          "paths": [
-            "$question.ii.facts.__functional_transaction_derive_locus_G_ii_0"
-          ]
-        }
-      ],
-      "public_returns": [
-        {
-          "name": "line",
-          "runtime_type": "Line",
-          "identity_policy": "value_only",
-          "write_mode": "value",
-          "output_key": "line",
-          "required": true
-        }
-      ],
-      "provenance": [
-        {
-          "return_name": "line",
-          "runtime_type": "Line",
-          "allocation_action": "call_local_value",
-          "result_form": "open_state",
-          "object_id": null,
-          "source_version_count": 2,
-          "closure_signature": null
-        }
-      ]
-    },
-    {
       "call_id": "derive_path_minimum_ii",
-      "capability_id": "broken_path_straightening_minimum_expression",
+      "capability_id": "quadratic_square_path_minimum",
       "steps": [
         {
           "step_id": "derive_path_minimum_ii",
           "scope": "ii",
           "invocations": [
             {
-              "method_id": "broken_path_straightening_candidates",
+              "method_id": "quadratic_square_path_minimum_kernel",
               "scope": "derive_path_minimum_ii",
               "inputs": [
-                "fixed_point_1",
-                "fixed_point_2",
-                "moving_locus",
-                "path_transformation"
+                "axis_membership",
+                "axis_point",
+                "fixed_endpoint",
+                "midpoint_definition",
+                "moving_point",
+                "parabola",
+                "path_condition",
+                "side_start",
+                "side_start_ref",
+                "square_center",
+                "square_condition"
               ],
               "outputs": {
-                "candidates": "$step.derive_path_minimum_ii.temp.candidates"
-              }
-            },
-            {
-              "method_id": "select_straightening_candidate",
-              "scope": "derive_path_minimum_ii",
-              "inputs": [
-                "candidates",
-                "target"
-              ],
-              "outputs": {
-                "auxiliary_point": "$step.derive_path_minimum_ii.temp.auxiliary_point",
-                "minimum_point_1": "$step.derive_path_minimum_ii.temp.minimum_point_1",
-                "minimum_point_2": "$step.derive_path_minimum_ii.temp.minimum_point_2",
-                "selected_candidate": "$step.derive_path_minimum_ii.temp.selected_candidate"
-              }
-            },
-            {
-              "method_id": "distance_between_points",
-              "scope": "derive_path_minimum_ii",
-              "inputs": [
-                "p1",
-                "p2"
-              ],
-              "outputs": {
-                "distance": "$step.derive_path_minimum_ii.temp.distance"
+                "attainment_point": "$step.derive_path_minimum_ii.temp.attainment_point",
+                "evidence": "$step.derive_path_minimum_ii.temp.path_witness",
+                "minimum_expression": "$step.derive_path_minimum_ii.temp.minimum_expression"
               }
             }
           ],
           "promotions": {
-            "$step.derive_path_minimum_ii.temp.auxiliary_point": "$problem.points.derived_6e74433f47e0172f9310fc55",
-            "$step.derive_path_minimum_ii.temp.candidates": "$question.ii.outputs.straightening_candidates",
-            "$step.derive_path_minimum_ii.temp.distance": "$question.ii.outputs.minimum_expression",
-            "$step.derive_path_minimum_ii.temp.minimum_point_1": "$question.ii.outputs.derive_path_minimum_ii_straightened_endpoint_1",
-            "$step.derive_path_minimum_ii.temp.minimum_point_2": "$question.ii.outputs.derive_path_minimum_ii_straightened_endpoint_2",
-            "$step.derive_path_minimum_ii.temp.selected_candidate": "$question.ii.outputs.straightening_candidate"
+            "$step.derive_path_minimum_ii.temp.attainment_point": "$question.ii.outputs.G_coordinate",
+            "$step.derive_path_minimum_ii.temp.minimum_expression": "$question.ii.outputs.minimum_expression"
           }
         }
       ],
       "bindings": [
         {
-          "arg": "moving_locus",
+          "arg": "axis_membership",
           "item": 0,
-          "role": "moving_locus",
+          "role": "axis_membership",
+          "authority": "resolver",
+          "target": null,
+          "paths": []
+        },
+        {
+          "arg": "axis_point",
+          "item": 0,
+          "role": "axis_point",
+          "authority": "resolver",
+          "target": null,
+          "paths": []
+        },
+        {
+          "arg": "fixed_endpoint",
+          "item": 0,
+          "role": "fixed_endpoint",
+          "authority": "resolver",
+          "target": null,
+          "paths": []
+        },
+        {
+          "arg": "midpoint_definition",
+          "item": 0,
+          "role": "midpoint_definition",
+          "authority": "resolver",
+          "target": null,
+          "paths": []
+        },
+        {
+          "arg": "moving_point",
+          "item": 0,
+          "role": "moving_point",
+          "authority": "resolver",
+          "target": null,
+          "paths": []
+        },
+        {
+          "arg": "parabola",
+          "item": 0,
+          "role": "parabola",
           "authority": "wire",
           "target": null,
           "paths": []
         },
         {
-          "arg": "path_transformation",
+          "arg": "path_minimum_target",
           "item": 0,
-          "role": "path_transformation",
+          "role": "path_minimum_target",
           "authority": "wire",
+          "target": null,
+          "paths": []
+        },
+        {
+          "arg": "side_start",
+          "item": 0,
+          "role": "side_start",
+          "authority": "resolver",
+          "target": null,
+          "paths": []
+        },
+        {
+          "arg": "square",
+          "item": 0,
+          "role": "square",
+          "authority": "wire",
+          "target": null,
+          "paths": []
+        },
+        {
+          "arg": "square_center",
+          "item": 0,
+          "role": "square_center",
+          "authority": "resolver",
           "target": null,
           "paths": []
         }
       ],
       "public_returns": [
         {
-          "name": "straightened_endpoint_1",
-          "runtime_type": "Point",
-          "identity_policy": "derived_role",
-          "write_mode": "create",
-          "output_key": "select_straightening_candidate.minimum_point_1",
-          "required": true
-        },
-        {
-          "name": "straightened_endpoint_2",
-          "runtime_type": "Point",
-          "identity_policy": "derived_role",
-          "write_mode": "create",
-          "output_key": "select_straightening_candidate.minimum_point_2",
-          "required": true
-        },
-        {
-          "name": "path_minimum_expression",
+          "name": "minimum_expression",
           "runtime_type": "MinimumExpression",
           "identity_policy": "value_only",
           "write_mode": "value",
-          "output_key": "distance_between_points.distance",
+          "output_key": "quadratic_square_path_minimum_kernel.minimum_expression",
+          "required": true
+        },
+        {
+          "name": "attainment_point",
+          "runtime_type": "Point",
+          "identity_policy": "target_object",
+          "write_mode": "create",
+          "output_key": "quadratic_square_path_minimum_kernel.attainment_point",
           "required": true
         }
       ],
       "provenance": [
         {
-          "return_name": "straightened_endpoint_1",
-          "runtime_type": "Point",
-          "allocation_action": "create",
-          "result_form": "open_state",
-          "object_id": "point:problem:derived_6e74433f47e0172f9310fc55",
-          "source_version_count": 2,
-          "closure_signature": null
-        },
-        {
-          "return_name": "straightened_endpoint_2",
-          "runtime_type": "Point",
-          "allocation_action": "create",
-          "result_form": "open_state",
-          "object_id": "point:problem:derived_048c7bc5afd22d5c9b979460",
-          "source_version_count": 2,
-          "closure_signature": null
-        },
-        {
-          "return_name": "path_minimum_expression",
+          "return_name": "minimum_expression",
           "runtime_type": "MinimumExpression",
           "allocation_action": "call_local_value",
-          "result_form": "open_expression",
+          "result_form": "open_state",
           "object_id": null,
+          "source_version_count": 2,
+          "closure_signature": null
+        },
+        {
+          "return_name": "attainment_point",
+          "runtime_type": "Point",
+          "allocation_action": "isolated",
+          "result_form": "open_state",
+          "object_id": "point:problem:G",
           "source_version_count": 2,
           "closure_signature": null
         }
@@ -1529,65 +1071,32 @@
       ]
     },
     {
-      "call_id": "derive_minimum_point_G_ii",
-      "capability_id": "line_locus_minimum_point",
+      "call_id": "evaluate_minimum_point_G_ii",
+      "capability_id": "evaluate_point_at_parameter",
       "steps": [
         {
-          "step_id": "derive_minimum_point_G_ii",
+          "step_id": "evaluate_minimum_point_G_ii",
           "scope": "ii",
           "invocations": [
             {
-              "method_id": "line_locus_minimum_point",
-              "scope": "derive_minimum_point_G_ii",
+              "method_id": "evaluate_point_at_parameter",
+              "scope": "evaluate_minimum_point_G_ii",
               "inputs": [
-                "minimum_point_1",
-                "minimum_point_2",
-                "moving_locus",
                 "parameter",
                 "parameter_value",
-                "target"
+                "point"
               ],
               "outputs": {
-                "point": "$step.derive_minimum_point_G_ii.temp.point"
+                "evaluated_point": "$step.evaluate_minimum_point_G_ii.temp.evaluated_point"
               }
             }
           ],
           "promotions": {
-            "$step.derive_minimum_point_G_ii.temp.point": "$question.ii.outputs.G_point"
+            "$step.evaluate_minimum_point_G_ii.temp.evaluated_point": "$question.ii.outputs.G_evaluated_point"
           }
         }
       ],
       "bindings": [
-        {
-          "arg": "minimum_point_1",
-          "item": 0,
-          "role": "minimum_point_1",
-          "authority": "wire",
-          "target": "minimum_point_1",
-          "paths": [
-            "$question.ii.facts.__functional_transaction_derive_minimum_point_G_ii_0"
-          ]
-        },
-        {
-          "arg": "minimum_point_2",
-          "item": 0,
-          "role": "minimum_point_2",
-          "authority": "wire",
-          "target": "minimum_point_2",
-          "paths": [
-            "$question.ii.facts.__functional_transaction_derive_minimum_point_G_ii_1"
-          ]
-        },
-        {
-          "arg": "moving_locus",
-          "item": 0,
-          "role": "moving_locus",
-          "authority": "wire",
-          "target": "moving_locus",
-          "paths": [
-            "$question.ii.outputs.derive_locus_G_ii_line"
-          ]
-        },
         {
           "arg": "parameter",
           "item": 0,
@@ -1605,38 +1114,38 @@
           "authority": "wire",
           "target": "parameter_value",
           "paths": [
-            "$question.ii.facts.__functional_transaction_derive_minimum_point_G_ii_2"
+            "$question.ii.facts.__functional_transaction_evaluate_minimum_point_G_ii_1"
           ]
         },
         {
-          "arg": "target",
+          "arg": "point",
           "item": 0,
-          "role": "target",
-          "authority": "compiler",
-          "target": "target",
+          "role": "point",
+          "authority": "wire",
+          "target": "point",
           "paths": [
-            "$problem.object_refs.G"
+            "$question.ii.facts.__functional_transaction_evaluate_minimum_point_G_ii_0"
           ]
         }
       ],
       "public_returns": [
         {
-          "name": "point",
+          "name": "evaluated_point",
           "runtime_type": "Point",
-          "identity_policy": "target_object",
+          "identity_policy": "preserve_input_object",
           "write_mode": "transition",
-          "output_key": "point",
+          "output_key": "evaluated_point",
           "required": true
         }
       ],
       "provenance": [
         {
-          "return_name": "point",
+          "return_name": "evaluated_point",
           "runtime_type": "Point",
           "allocation_action": "transition",
           "result_form": "closed_state",
           "object_id": "point:problem:G",
-          "source_version_count": 4,
+          "source_version_count": 2,
           "closure_signature": null
         }
       ]
@@ -1761,7 +1270,7 @@
           "authority": "compiler",
           "target": "target",
           "paths": [
-            "$problem.object_refs.E"
+            "$problem.points.E"
           ]
         }
       ],
@@ -1770,7 +1279,7 @@
           "name": "adjacent_vertex",
           "runtime_type": "Point",
           "identity_policy": "target_object",
-          "write_mode": "transition",
+          "write_mode": "create",
           "output_key": "point",
           "required": true
         }
@@ -1779,7 +1288,7 @@
         {
           "return_name": "adjacent_vertex",
           "runtime_type": "Point",
-          "allocation_action": "transition",
+          "allocation_action": "create",
           "result_form": "closed_state",
           "object_id": "point:problem:E",
           "source_version_count": 3,

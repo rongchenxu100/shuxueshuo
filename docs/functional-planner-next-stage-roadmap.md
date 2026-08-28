@@ -25,7 +25,8 @@
 | F5-A–F5-F3：Scoped Solver | `COMPLETE` | Bundle、Planning View、binding、增量执行和 Scope Retry 完成 |
 | F5-F4.1–F5-F4.3A：Macro runtime 基础 | `COMPLETE` | preparation、bounded search、typed binding、companion output authority 完成 |
 | F5-F4.3B：原子 Macro golden reference | `COMPLETE` | equal-length 四 Fact 固定契约、shadow/replay/restore 与单根诊断门禁完成 |
-| F5-F4.3C–F：原子路径 Macro 迁移 | `NEXT` | 逐 family 迁移并删除公开 Path 内部类型 |
+| F5-F4.3C：和平二模正方形 Macro | `COMPLETE` | 三公开输入、两公开输出；离线门禁及最终 live `1x3` 发布验收通过 |
+| F5-F4.3D–F：剩余原子路径 Macro | `NEXT` | 迁移南开与加权 family，并删除公开 Path 内部类型 |
 | F5-F5：Teaching scope | `AFTER F4.3` | 从 verified execution 派生教学归属并退役剩余兼容入口 |
 | G：Post-solver Context | `AFTER F5` | Explanation、Diagram、Voiceover、Animation Context |
 | E：端到端优化 | `AFTER F/G` | cache、最小失效、并发去重、条件式 Best-of-N |
@@ -71,10 +72,15 @@ VerifiedSolverProblemBundle
    - `equal_length_ray_path_reduction` 的四个公开 Fact 与四个 code-owned role 已固定；
    - 覆盖结构不匹配、非等价歧义、shadow 隔离、clean replay 和 restore；
    - Macro 失败只向 Retry 投影一个公开根诊断。
-2. **F4.3C 和平二模正方形路径（NEXT）**
-   - 新增 `square_relation_path_minimum` 原子入口；
+2. **F4.3C 和平二模正方形路径（COMPLETE）**
+   - 新增 `quadratic_square_path_minimum` 原子入口；
+   - 公开参数固定为 `parabola + path_minimum_target + square`；
+   - midpoint/center/axis/moving/fixed roles 由代码从结构化关系唯一解析；
+   - `attainment_point` 的降维后动点 identity 由代码绑定，Planner 只用 StepResultRef 消费；
    - 删除该 family 对公开路径降维、locus handoff 和 broken-path 链的依赖。
-3. **F4.3D 南开路径**
+   - 最终 live `1x3` 为 `3/3` completion；一次对象身份错误由 Scope Retry 正确修复，
+     无 authority drift、ghost write、identity leak 或未分类异常。
+3. **F4.3D 南开路径（NEXT）**
    - 迁移耦合线段端点替换和单动点路径；
    - 删除 LLM-facing 两阶段路径链。
 4. **F4.3E 加权路径**

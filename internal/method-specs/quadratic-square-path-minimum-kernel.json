@@ -1,0 +1,163 @@
+{
+  "method_id": "quadratic_square_path_minimum_kernel",
+  "title": "二次函数正方形路径最值内核",
+  "description": "Compose square reduction, locus propagation and path straightening.",
+  "summary": "Given a current quadratic state, one square-governed path objective, and code-resolved structural roles, derive the exact minimum expression and the original moving point at equality.",
+  "solves": [
+    "derive_quadratic_square_path_minimum"
+  ],
+  "inputs": {
+    "parabola": {
+      "required": true,
+      "domain_type": "QuadraticFunction",
+      "runtime_type": "Parabola",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "QuadraticFunction",
+        "object_kind": "function",
+        "state_kind": "expression"
+      }
+    },
+    "path_condition": {
+      "required": true,
+      "domain_type": "Fact",
+      "runtime_type": "Condition",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "Fact"
+      }
+    },
+    "square_condition": {
+      "required": true,
+      "domain_type": "Fact",
+      "runtime_type": "Condition",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "Fact"
+      }
+    },
+    "midpoint_definition": {
+      "required": true,
+      "domain_type": "Fact",
+      "runtime_type": "Condition",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "Fact"
+      }
+    },
+    "square_center": {
+      "required": true,
+      "domain_type": "Fact",
+      "runtime_type": "Condition",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "Fact"
+      }
+    },
+    "axis_membership": {
+      "required": true,
+      "domain_type": "Fact",
+      "runtime_type": "Condition",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "Fact"
+      }
+    },
+    "side_start": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    },
+    "side_start_ref": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "PointRef",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    },
+    "axis_point": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "PointRef",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    },
+    "moving_point": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "PointRef",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    },
+    "fixed_endpoint": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "PointRef",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    }
+  },
+  "outputs": {
+    "minimum_expression": "MinimumExpression",
+    "attainment_point": "Point",
+    "evidence": "PathWitness"
+  },
+  "is_pure": true,
+  "internal_outputs": [
+    "evidence"
+  ],
+  "preconditions": [
+    "the selected square, midpoint, center and axis facts form one connected proof closure",
+    "the three-segment source path admits one square reduction to a line-locus moving point"
+  ],
+  "postconditions": [
+    "minimum_expression equals the original path minimum",
+    "attainment_point lies on the moving locus and the straightened minimum segment"
+  ],
+  "explanation": {
+    "role_schema": {
+      "original_path": "题设三段路径。",
+      "reduced_path": "由正方形关系得到的单动点折线路径。",
+      "moving_locus": "正方形动点的轨迹直线。",
+      "minimum_expression": "拉直后得到的最小值表达式。",
+      "attainment_point": "路径取最小值时的原题动点。"
+    },
+    "student_goal_template": "利用二次函数与正方形关系求路径最小值。",
+    "student_title_template": "正方形关系下的路径最值",
+    "student_title_templates_by_goal": {},
+    "derive_templates": [
+      "把 {original_path} 化为 {reduced_path}。",
+      "求出动点轨迹 {moving_locus}。",
+      "拉直路径得到 {minimum_expression}，并确定 {attainment_point}。"
+    ],
+    "box_templates": [
+      "{minimum_expression}",
+      "{attainment_point}"
+    ],
+    "explanation_level": "template",
+    "role_binding_strategy": "role_name_registry",
+    "role_binder_id": "quadratic_square_path_minimum"
+  }
+}

@@ -891,6 +891,7 @@ def test_context_authoritative_commits_runtime_symbolic_closure(
         planner_state_context=planner_context,
         validation_report=validation,
         problem_binding_catalog=binding_catalog,
+        canonical_plan_id="test:context-authoritative-scoped-plan",
     )
 
     assert replay.output is not None, (
@@ -1575,83 +1576,6 @@ def test_transaction_failure_rolls_back_and_blocks_only_dependents() -> None:
     )
     assert any(statuses[call_id] == "verified" for call_id in independent)
     assert not leak_observed[0]
-
-
-def test_scope_native_reconciliation_keeps_goal_scoped_context_state_call() -> None:
-    case = FUNCTIONAL_BATCH_CASES["heping-ermo"]
-    (
-        _bundle,
-        _planning_context,
-        problem,
-        inputs,
-        problem_payload,
-        registry,
-        planner_context,
-        binding_catalog,
-    ) = _authority_fixture("heping-ermo")
-    payload = json.loads(
-        case.functional_fixture_path.read_text(encoding="utf-8")
-    )
-    ii_scope = next(
-        scope for scope in payload["scopes"] if scope["scope_id"] == "ii"
-    )
-    ii_scope["calls"].append(
-        {
-            "call_id": "test_F_midpoint",
-            "capability_id": "midpoint_point",
-            "args": {
-                "midpoint_definition": {
-                    "kind": "fact",
-                    "ref": "midpoint_definition_a_e_f",
-                },
-            },
-            "return_bindings": {
-                "midpoint": {"kind": "point", "ref": "F"},
-            },
-            "return_expectations": {"midpoint": "closed_state"},
-            "strategy": "derive the midpoint after endpoint transitions",
-            "reason": "exercise final-position Context resolution",
-        }
-    )
-    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
-        payload,
-        handle_registry=registry,
-        question_goals=inputs.question_goals,
-    )
-    assert plan is not None and validation.ok
-
-    replay = PlannerRetryReplayService(
-        functional_transaction_mode="context_authoritative",
-    ).replay_functional_plan(
-        plan,
-        inputs=inputs,
-        handle_registry=registry,
-        context=ContextBuilder().build(problem),
-        attempt=1,
-        problem_payload=problem_payload,
-        planner_state_context=planner_context,
-        validation_report=validation,
-        problem_binding_catalog=binding_catalog,
-    )
-
-    assert replay.output is not None
-    assert replay.functional_reconciliation is not None
-    assert "test_F_midpoint" in {
-        call.call_id for call in replay.functional_reconciliation.plan.calls
-    }
-    consumers = {
-        call_id
-        for call_id, dependencies in (
-            replay.functional_reconciliation.dependency_graph.items()
-        )
-        if "test_F_midpoint" in dependencies
-    }
-    assert not consumers, consumers
-    problem_bindings = (
-        replay.functional_reconciliation.functional_problem_binding_context
-    )
-    assert problem_bindings is not None
-    assert len(problem_bindings.call_goal_bindings["test_F_midpoint"]) == 1
 
 
 def test_problem_source_read_stays_exact_and_hidden_resolver_needs_sidecar() -> None:

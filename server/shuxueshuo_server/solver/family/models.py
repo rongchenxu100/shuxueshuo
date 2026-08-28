@@ -710,6 +710,7 @@ CapabilityContextResolver = Literal[
     "condition_object_roles",
     "equal_length_ray_path_roles",
     "path_reduction_roles",
+    "quadratic_square_path_roles",
     "square_path_transformation_roles",
     "weighted_path_transformation_roles",
 ]
@@ -721,6 +722,9 @@ EQUAL_LENGTH_RAY_PATH_ROLES_RESOLVER: CapabilityContextResolver = (
 )
 PATH_REDUCTION_ROLES_RESOLVER: CapabilityContextResolver = (
     "path_reduction_roles"
+)
+QUADRATIC_SQUARE_PATH_ROLES_RESOLVER: CapabilityContextResolver = (
+    "quadratic_square_path_roles"
 )
 SQUARE_PATH_TRANSFORMATION_ROLES_RESOLVER: CapabilityContextResolver = (
     "square_path_transformation_roles"

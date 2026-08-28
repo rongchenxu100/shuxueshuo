@@ -27,6 +27,7 @@ from shuxueshuo_server.solver.family.models import (
     MethodBindingRuleSpec,
     MacroSearchSpec,
     PATH_REDUCTION_ROLES_RESOLVER,
+    QUADRATIC_SQUARE_PATH_ROLES_RESOLVER,
     PathTransformationConsumerSpec,
     SQUARE_PATH_TRANSFORMATION_ROLES_RESOLVER,
     WEIGHTED_PATH_TRANSFORMATION_ROLES_RESOLVER,
@@ -1415,6 +1416,97 @@ EQUAL_LENGTH_RAY_PATH_REDUCTION = StepRecipeSpec(
 )
 
 
+QUADRATIC_SQUARE_PATH_MINIMUM = StepRecipeSpec(
+    recipe_id="quadratic_square_path_minimum",
+    goal_type="derive_path_minimum_expression",
+    title="二次函数正方形路径最值",
+    description=(
+        "当二次函数确定正方形相关点的参数化状态，且题面路径可由正方形的"
+        "中点、中心和旋转关系降为单动点直线轨迹时，原子地求出最小值表达式"
+        "和取等号时的降维后正方形动点。Planner 只选择当前抛物线、路径目标和"
+        "正方形；相关中点、中心、轴成员关系及几何角色由代码解析并验证。"
+        "attainment_point 的对象身份也由代码绑定，不是当前 Goal 的最终答案点；"
+        "后续应通过 StepResultRef 消费，不要为它设置 output_targets。"
+    ),
+    method_ids=("quadratic_square_path_minimum_kernel",),
+    execution=RecipeExecutionSpec(
+        recipe_id="quadratic_square_path_minimum",
+        method_sequence=("quadratic_square_path_minimum_kernel",),
+        execution_mode="runtime_search",
+        search=MacroSearchSpec(
+            searchable_roles=(
+                "midpoint_definition",
+                "square_center",
+                "axis_membership",
+                "side_start",
+                "axis_point",
+                "moving_point",
+                "fixed_endpoint",
+            ),
+            candidate_builder_id="quadratic_square_path_role_assignments",
+            validation_policy_id="path_equivalence_and_attainment",
+            lowerer_id="quadratic_square_path_minimum",
+            postcondition_id="quadratic_square_path_postcondition",
+            evidence_builder_id="quadratic_square_path_witness",
+        ),
+        execution_strategy="quadratic_square_path_minimum",
+        input_aliases=(
+            ("parabola", "quadratic_square_path_minimum_kernel.parabola"),
+            (
+                "path_minimum_target",
+                "quadratic_square_path_minimum_kernel.path_condition",
+            ),
+            ("square", "quadratic_square_path_minimum_kernel.square_condition"),
+        ),
+        strategy_input_targets=(
+            "quadratic_square_path_minimum_kernel.midpoint_definition",
+            "quadratic_square_path_minimum_kernel.square_center",
+            "quadratic_square_path_minimum_kernel.axis_membership",
+            "quadratic_square_path_minimum_kernel.side_start",
+            "quadratic_square_path_minimum_kernel.side_start_ref",
+            "quadratic_square_path_minimum_kernel.axis_point",
+            "quadratic_square_path_minimum_kernel.moving_point",
+            "quadratic_square_path_minimum_kernel.fixed_endpoint",
+        ),
+        output_aliases=(
+            recipe_output_alias(
+                "quadratic_square_path_minimum_kernel.minimum_expression",
+                "MinimumExpression",
+                "minimum_expression",
+                goal_evidence_tags=("path_minimum_expression",),
+                result_form=ScalarResultFormSpec(
+                    possible_forms=("open_expression", "closed_value"),
+                    description=(
+                        "仍依赖二次函数主参数时为 open_expression；参数已确定"
+                        "且表达式无自由符号时为 closed_value。"
+                    ),
+                ),
+            ),
+            recipe_output_alias(
+                "quadratic_square_path_minimum_kernel.attainment_point",
+                "Point",
+                "attainment_point",
+                identity_policy="target_object",
+                identity_arg="moving_point",
+                goal_evidence_tags=("path_minimum_extremal_point",),
+                description=(
+                    "正方形关系降维后唯一动点的取等坐标；对象身份由代码从"
+                    "结构化路径和正方形中解析。不要把它绑定为当前 Goal 的"
+                    "最终答案点，后续直接用 StepResultRef 消费。"
+                ),
+            ),
+        ),
+    ),
+    priority="preferred",
+    do_not_use_when=(
+        "正方形不参与路径降维或轨迹传播。",
+        "路径含有无法消除的两个独立动点。",
+        "有效动点轨迹不是直线，或目标是加权距离。",
+        "当前函数状态不是二次函数。",
+    ),
+)
+
+
 DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
     CapabilityPackSpec(
         pack_id="quadratic_core",
@@ -1972,6 +2064,175 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
                             "作为题面对象或答案时仍应显式绑定。"
                         ),
                         return_binding="call_local_allowed",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    CapabilityPackSpec(
+        pack_id="quadratic_square_path_minimum_core",
+        kind="mechanism",
+        method_ids=(
+            "quadratic_square_path_minimum_kernel",
+            "quadratic_axis_parameterized_point",
+            "square_adjacent_vertex_from_side",
+            "point_candidates_from_curve_point_condition",
+        ),
+        step_recipes=(QUADRATIC_SQUARE_PATH_MINIMUM,),
+        contracts=(
+            _recipe_contract(
+                "quadratic_square_path_minimum",
+                slot_reads=(
+                    _parabola_read(semantic_role="parabola"),
+                    *tuple(
+                        _slot(
+                            "coordinate",
+                            "Point",
+                            object_kind="point",
+                            semantic_role=role,
+                        )
+                        for role in (
+                            "side_start",
+                            "axis_point",
+                            "moving_point",
+                            "fixed_endpoint",
+                        )
+                    ),
+                ),
+                condition_reads=(
+                    _condition("path_minimum_target"),
+                    _condition("square"),
+                    _condition("midpoint_definition"),
+                    _condition("square_center"),
+                    _condition("axis_membership"),
+                ),
+                slot_writes=(
+                    _slot(
+                        "expression",
+                        "MinimumExpression",
+                        output_key=(
+                            "quadratic_square_path_minimum_kernel."
+                            "minimum_expression"
+                        ),
+                        result_form=ScalarResultFormSpec(
+                            possible_forms=(
+                                "open_expression",
+                                "closed_value",
+                            ),
+                            description=(
+                                "仍依赖二次函数主参数时为 open_expression；"
+                                "参数已确定且表达式无自由符号时为 closed_value。"
+                            ),
+                        ),
+                    ),
+                    _slot(
+                        "coordinate",
+                        "Point",
+                        object_kind="point",
+                        semantic_role="attainment_point",
+                        output_key=(
+                            "quadratic_square_path_minimum_kernel."
+                            "attainment_point"
+                        ),
+                        identity_policy="target_object",
+                        identity_arg="moving_point",
+                        write_mode="transition",
+                        return_binding="explicit_external_required",
+                    ),
+                ),
+                dependency_policy="context_closure",
+                context_resolvers=(QUADRATIC_SQUARE_PATH_ROLES_RESOLVER,),
+                context_role_bindings=tuple(
+                    CapabilityContextRoleBindingSpec(
+                        QUADRATIC_SQUARE_PATH_ROLES_RESOLVER,
+                        role,
+                        role,
+                    )
+                    for role in (
+                        "midpoint_definition",
+                        "square_center",
+                        "axis_membership",
+                        "side_start",
+                        "axis_point",
+                        "moving_point",
+                        "fixed_endpoint",
+                    )
+                ),
+            ),
+            _method_contract(
+                "quadratic_axis_parameterized_point",
+                slot_reads=(_parabola_read(),),
+                slot_writes=(
+                    _slot(
+                        "coordinate",
+                        "Point",
+                        object_kind="point",
+                        semantic_role="axis_point",
+                        output_key="point",
+                        write_mode="create",
+                    ),
+                    _slot(
+                        "parameter",
+                        "Symbol",
+                        object_kind="symbol",
+                        semantic_role="axis_parameter",
+                        output_key="parameter",
+                        write_mode="value",
+                    ),
+                ),
+            ),
+            _method_contract(
+                "square_adjacent_vertex_from_side",
+                slot_reads=(
+                    _slot(
+                        "coordinate",
+                        "Point",
+                        object_kind="point",
+                        semantic_role="side_start",
+                    ),
+                    _slot(
+                        "coordinate",
+                        "Point",
+                        object_kind="point",
+                        semantic_role="side_end",
+                    ),
+                ),
+                condition_reads=(_condition("square"),),
+                slot_writes=(
+                    _slot(
+                        "coordinate",
+                        "Point",
+                        object_kind="point",
+                        semantic_role="square_adjacent_vertex",
+                        output_key="point",
+                        write_mode="transition",
+                        return_binding="explicit_external_required",
+                        description=(
+                            "由正方形的一条有向边恢复相邻顶点；返回必须绑定"
+                            "本次实际求出的题面对象。"
+                        ),
+                    ),
+                ),
+            ),
+            _method_contract(
+                "point_candidates_from_curve_point_condition",
+                slot_reads=(
+                    _parabola_read(semantic_role="parabola"),
+                    _slot(
+                        "parameter",
+                        "Symbol",
+                        object_kind="symbol",
+                        semantic_role="parameter",
+                    ),
+                ),
+                condition_reads=(_condition("point_on_curve"),),
+                slot_writes=(
+                    _slot(
+                        "candidate",
+                        "PointList",
+                        object_kind="point",
+                        identity_policy="preserve_input_object",
+                        identity_arg="target_point",
                     ),
                 ),
             ),

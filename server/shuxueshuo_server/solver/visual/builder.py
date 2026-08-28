@@ -203,6 +203,13 @@ class GeometrySpecBuilder:
             point_meta=point_meta,
             parameter_name=parameter_name,
         )
+        _add_quadratic_square_macro_points(
+            snapshot=snapshot,
+            fixed=fixed_points,
+            moving=moving_points,
+            point_meta=point_meta,
+            parameter_name=parameter_name,
+        )
         domain = _domain_from_geometry_points(
             fixed_points,
             moving_points,
@@ -861,8 +868,6 @@ def _add_locus_line_endpoint_points(
         for source_id in step.source_step_ids
         if "parameterized_point_locus_line" in step.capability_ids
     }
-    if not source_ids:
-        return
     effective_steps = {
         str(step.get("step_id")): step
         for step in snapshot.effective_steps
@@ -896,6 +901,128 @@ def _add_locus_line_endpoint_points(
                 pair=pair,
                 parameter_name=parameter_name,
             )
+    for witness in snapshot.macro_evidence:
+        if witness.get("macro_id") != "quadratic_square_path_minimum":
+            continue
+        step = effective_steps.get(str(witness.get("step_id") or ""), {})
+        scope_id = str(step.get("scope_id") or "")
+        moving_label = next(
+            (
+                str(item.get("chosen_ref") or "")
+                for item in witness.get("role_resolutions", ())
+                if isinstance(item, dict) and item.get("role") == "moving_point"
+            ),
+            "",
+        )
+        construction = next(
+            (
+                item
+                for item in witness.get("constructions", ())
+                if isinstance(item, dict)
+                and item.get("kind") == "square_midpoint_center_reduction"
+            ),
+            None,
+        )
+        equation = str((construction or {}).get("moving_locus") or "")
+        if not moving_label or "=" not in equation:
+            continue
+        lhs, rhs = (item.strip() for item in equation.split("=", 1))
+        if lhs != "y":
+            continue
+        y_value = _page_expr(sp.sympify(rhs))
+        pairs = (
+            [_page_expr(sp.sympify(str(domain.get("minX", -5)))), y_value],
+            [_page_expr(sp.sympify(str(domain.get("maxX", 5)))), y_value],
+        )
+        for side, pair in zip(("start", "end"), pairs, strict=True):
+            _add_structural_visual_point(
+                fixed=fixed,
+                moving=moving,
+                all_points=all_points,
+                point_meta=point_meta,
+                point_id=locus_line_endpoint_id(
+                    moving_label,
+                    scope_id,
+                    side,
+                ),
+                label="",
+                scope_id=scope_id,
+                pair=pair,
+                parameter_name=parameter_name,
+            )
+
+
+def _add_quadratic_square_macro_points(
+    *,
+    snapshot: ExplanationSnapshot,
+    fixed: dict[str, list[str]],
+    moving: dict[str, list[str]],
+    point_meta: dict[str, JsonObject],
+    parameter_name: str,
+) -> None:
+    all_points = {**fixed, **moving}
+    steps = {
+        str(step.get("step_id") or ""): step
+        for step in snapshot.effective_steps
+        if isinstance(step, dict)
+    }
+    for witness in snapshot.macro_evidence:
+        if witness.get("macro_id") != "quadratic_square_path_minimum":
+            continue
+        scope_id = str(
+            steps.get(str(witness.get("step_id") or ""), {}).get(
+                "scope_id", ""
+            )
+        )
+        fixed_label = next(
+            (
+                str(item.get("chosen_ref") or "")
+                for item in witness.get("role_resolutions", ())
+                if isinstance(item, dict)
+                and item.get("role") == "fixed_endpoint"
+            ),
+            "",
+        )
+        fixed_pair = all_points.get(fixed_label)
+        if fixed_label and fixed_pair is not None:
+            _add_structural_visual_point(
+                fixed=fixed,
+                moving=moving,
+                all_points=all_points,
+                point_meta=point_meta,
+                point_id=axis_parameter_point_id(fixed_label, scope_id),
+                label=fixed_label,
+                scope_id=scope_id,
+                pair=list(fixed_pair),
+                parameter_name=parameter_name,
+            )
+        construction = next(
+            (
+                item
+                for item in witness.get("constructions", ())
+                if isinstance(item, dict)
+                and item.get("kind") == "line_reflection"
+            ),
+            None,
+        )
+        if construction is None:
+            continue
+        label = str(construction.get("reflected_point_name") or "")
+        pair = construction.get("reflected_point")
+        if not label or not isinstance(pair, list | tuple) or len(pair) != 2:
+            continue
+        point_id = label.replace("′", "_prime")
+        _add_structural_visual_point(
+            fixed=fixed,
+            moving=moving,
+            all_points=all_points,
+            point_meta=point_meta,
+            point_id=point_id,
+            label=_student_point_label(point_id),
+            scope_id=scope_id,
+            pair=[str(item) for item in pair],
+            parameter_name=parameter_name,
+        )
 
 
 def _runtime_line_for_locus_step(step: dict[str, Any], snapshot: ExplanationSnapshot) -> dict[str, Any] | None:
@@ -4515,6 +4642,7 @@ _RECIPE_VISUAL_TEMPLATE_RENDERERS: dict[str, _VisualTemplateRenderer] = {
     "CongruentTriangleMarker": _congruent_triangle_marker_items,
     "EquivalentSegmentMarker": _equivalent_segment_marker_items,
     "PathMinimumTriangleMarker": _path_minimum_triangle_marker_items,
+    "SquarePathDimensionMarker": _square_path_dimension_marker_items,
 }
 
 

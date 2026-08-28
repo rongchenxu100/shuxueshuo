@@ -3,14 +3,12 @@ from __future__ import annotations
 import pytest
 
 from shuxueshuo_server.solver.contracts import (
-    ExactCallResultSourceSpec,
     LatestStateSourceSpec,
     MethodInputBindingSpec,
     PreviousOutputIdentityDerivationSpec,
 )
 from shuxueshuo_server.solver.family import DEFAULT_FAMILY_REGISTRY
 from shuxueshuo_server.solver.runtime.method_input_read_authority import (
-    CallResultReadSource,
     EntityIdentityReadSource,
 )
 
@@ -24,13 +22,11 @@ _OUTPUT_IDENTITIES = {
     ("axis_intercept_from_equal_acute_angles", "target"): "point",
     ("equal_length_ray_point", "target"): "point",
     ("line_intersection_point", "target"): "intersection",
-    ("line_locus_minimum_point", "target"): "point",
     ("line_parabola_second_intersection_point", "target"): "point",
     ("midpoint_point", "target"): "midpoint",
     ("point_on_parabola_at_x", "target"): "point",
     ("quadratic_axis_from_relation", "target"): "axis_point",
     ("quadratic_axis_parameterized_point", "target"): "point",
-    ("quadratic_axis_x_intercept_point", "target"): "axis_point",
     ("quadratic_vertex_point", "target"): "point",
     ("quadratic_x_axis_intercept_point", "target"): "point",
     ("quadratic_y_axis_intercept_point", "target"): "point",
@@ -101,33 +97,21 @@ def test_relation_and_point_producer_share_one_allocated_identity() -> None:
     ]
 
 
-def test_anonymous_straightening_endpoints_keep_two_exact_result_slots() -> None:
-    first = _binding("line_locus_minimum_point", "minimum_point_1")
-    second = _binding("line_locus_minimum_point", "minimum_point_2")
-    assert isinstance(first.source, ExactCallResultSourceSpec)
-    assert isinstance(second.source, ExactCallResultSourceSpec)
-
+def test_atomic_square_path_macro_hides_internal_straightening_slots() -> None:
     replay = _replay("heping-ermo", mode="context_authoritative")
     report = replay.transactional_execution_report
     assert report is not None
     compiled = next(
         item
         for item in report.compiled_calls
-        if item.call_id == "derive_minimum_point_G_ii"
+        if item.call_id == "derive_path_minimum_ii"
     )
-    invocation = compiled.replay_plans[0].invocations[0]
-    sources = tuple(
-        invocation.input_read_authorities[name][0].source
-        for name in ("minimum_point_1", "minimum_point_2")
-    )
-
-    assert all(isinstance(item, CallResultReadSource) for item in sources)
-    assert {item.call_id for item in sources} == {"derive_path_minimum_ii"}
-    assert [item.return_name for item in sources] == [
-        "straightened_endpoint_1",
-        "straightened_endpoint_2",
-    ]
-    assert sources[0].runtime_path != sources[1].runtime_path
+    assert len(compiled.plans) == 1
+    invocation = compiled.plans[0].invocations[0]
+    assert invocation.method_id == "quadratic_square_path_minimum_kernel"
+    assert "minimum_point_1" not in invocation.input_read_authorities
+    assert "minimum_point_2" not in invocation.input_read_authorities
+    assert compiled.path_minimum_witness is not None
 
 
 def test_c3_geometry_inputs_never_lower_through_compiler_selector() -> None:

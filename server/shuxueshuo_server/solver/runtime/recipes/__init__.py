@@ -12,11 +12,13 @@ from .broken_path_straightening_minimum_expression import (
     SPEC as BROKEN_PATH_STRAIGHTENING_MINIMUM_EXPRESSION_SPEC,
 )
 from .equal_length_ray_path_reduction import SPEC as EQUAL_LENGTH_RAY_PATH_REDUCTION_SPEC
+from .quadratic_square_path_minimum import SPEC as QUADRATIC_SQUARE_PATH_MINIMUM_SPEC
 from .registry import RecipeSpecRegistry, recipe_spec_payloads
 
 
 ALL_RECIPE_SPEC_SOURCES = (
     EQUAL_LENGTH_RAY_PATH_REDUCTION_SPEC,
+    QUADRATIC_SQUARE_PATH_MINIMUM_SPEC,
     BROKEN_PATH_STRAIGHTENING_MINIMUM_EXPRESSION_SPEC,
 )
 
@@ -25,6 +27,7 @@ __all__ = [
     "ALL_RECIPE_SPEC_SOURCES",
     "BROKEN_PATH_STRAIGHTENING_MINIMUM_EXPRESSION_SPEC",
     "EQUAL_LENGTH_RAY_PATH_REDUCTION_SPEC",
+    "QUADRATIC_SQUARE_PATH_MINIMUM_SPEC",
     "RecipeExplanationSpec",
     "RecipeSpec",
     "RecipeSpecRegistry",

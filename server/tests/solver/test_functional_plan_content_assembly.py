@@ -219,7 +219,7 @@ def test_same_step_id_with_changed_capability_rederives_return_name(
     )
 
 
-def test_content_assembly_uses_identity_constraint_for_named_return_target(
+def test_content_assembly_keeps_named_macro_consumer_for_identity_reconciliation(
     tmp_path,
 ) -> None:
     case = "tj-2026-heping-ermo-25"
@@ -233,18 +233,14 @@ def test_content_assembly_uses_identity_constraint_for_named_return_target(
     step = next(
         item
         for item in payload["goal_plans"]["ii.E"]["steps"]
-        if item["step_id"] == "derive_minimum_point_G_ii"
+        if item["step_id"] == "derive_path_minimum_ii"
     )
-    step.pop("output_targets")
+    step.pop("output_targets", None)
     consumer = next(
         item
         for item in payload["goal_plans"]["ii.E"]["steps"]
-        if item["step_id"] == "recover_target_point_E_ii"
+        if item["step_id"] == "evaluate_minimum_point_G_ii"
     )
-    consumer["args"]["side_end"] = {
-        "step_id": "derive_minimum_point_G_ii",
-        "return": "point",
-    }
 
     compiled = FunctionalPlanContentCompiler().compile_payload(
         payload,
@@ -259,14 +255,15 @@ def test_content_assembly_uses_identity_constraint_for_named_return_target(
     compiled_consumer = next(
         item
         for item in compiled.plan.steps
-        if item.step_id == "recover_target_point_E_ii"
+        if item.step_id == "evaluate_minimum_point_G_ii"
     )
-    assert compiled_consumer.args["side_end"] == ("G",)
-    assert any(
-        item.code == "functional.named_entity_result_ref_normalized"
-        and item.path.endswith(".args.side_end")
-        for item in compiled.normalizations
+    assert compiled_consumer.args["point"] == ("G",)
+    compiled_macro = next(
+        item
+        for item in compiled.plan.steps
+        if item.step_id == "derive_path_minimum_ii"
     )
+    assert "attainment_point" not in compiled_macro.output_targets
 
 
 def test_invalid_answer_step_keeps_draft_and_ignores_inactive_returns(

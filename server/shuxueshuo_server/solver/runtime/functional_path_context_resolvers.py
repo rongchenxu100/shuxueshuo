@@ -44,6 +44,10 @@ from shuxueshuo_server.solver.runtime.path_term_parsing import (
     PathTermParseError,
     parse_path_terms,
 )
+from shuxueshuo_server.solver.runtime.quadratic_square_path_roles import (
+    QuadraticSquarePathRoleError,
+    build_quadratic_square_path_role_candidates,
+)
 from shuxueshuo_server.solver.state_semantics import (
     StateObjectRoleBinding,
     merge_state_semantic_lineages,
@@ -836,6 +840,192 @@ def resolve_square_path_transformation_args(
                     f"fixed_1={roles.fixed_endpoint_1},"
                     f"fixed_2={roles.fixed_endpoint_2}"
                 ),
+            ),
+        ),
+        (),
+        True,
+    )
+
+
+def resolve_quadratic_square_path_args(
+    capability: FunctionalCapability,
+    call: FunctionalCall,
+    resolved_args: Mapping[str, tuple[ResolvedFunctionalValue, ...]],
+    resolver: ContextClosureResolverSpec,
+    *,
+    call_id: str,
+    scope_id: str,
+    produced: Mapping[tuple[str, str], ResolvedFunctionalValue],
+    semantic_index: FunctionalSemanticIndex,
+    handle_registry: CanonicalHandleRegistry,
+) -> ContextClosureResolution:
+    """Resolve the minimal connected proof closure for the atomic Macro."""
+
+    del call
+    if (
+        capability.kind != "macro"
+        or capability.capability_id != "quadratic_square_path_minimum"
+    ):
+        return {}, (), (), False
+    path_values = tuple(
+        value
+        for values in resolved_args.values()
+        for value in values
+        if handle_registry.fact_types.get(value.handle) == "path_minimum_target"
+    )
+    square_values = tuple(
+        value
+        for values in resolved_args.values()
+        for value in values
+        if handle_registry.fact_types.get(value.handle) == "square"
+    )
+    parabola_refs = resolved_value_object_refs(
+        resolved_args.get("parabola", ())
+    )
+    if len(path_values) != 1 or len(square_values) != 1 or len(parabola_refs) != 1:
+        return {}, (), (), False
+    try:
+        candidates = build_quadratic_square_path_role_candidates(
+            path_minimum_target=path_values[0].handle,
+            square=square_values[0].handle,
+            parabola_ref=parabola_refs[0],
+            scope_id=scope_id,
+            registry=handle_registry,
+        )
+    except QuadraticSquarePathRoleError as exc:
+        return (
+            {},
+            (),
+            (
+                _issue(
+                    "functional_elaboration",
+                    f"functional.quadratic_square_path.{exc.code}",
+                    str(exc),
+                    call_id=call_id,
+                    scope_id=scope_id,
+                    details=exc.details,
+                ),
+            ),
+            False,
+        )
+    if len(candidates) != 1:
+        return (
+            {},
+            (),
+            (
+                _issue(
+                    "functional_elaboration",
+                    (
+                        "functional.quadratic_square_path_no_structural_candidate"
+                        if not candidates
+                        else "functional.quadratic_square_path_candidate_ambiguous"
+                    ),
+                    (
+                        "the selected quadratic state, path and square do not "
+                        "determine one midpoint/center path-minimum mechanism"
+                    ),
+                    call_id=call_id,
+                    scope_id=scope_id,
+                    details={
+                        "candidate_count": len(candidates),
+                        "candidate_ids": [item.candidate_id for item in candidates],
+                        "repair_action": (
+                            "select_a_compatible_quadratic_path_and_square_or_"
+                            "choose_another_capability"
+                        ),
+                    },
+                ),
+            ),
+            False,
+        )
+    roles = candidates[0]
+    additions: dict[str, tuple[ResolvedFunctionalValue, ...]] = {}
+    issues: list[FunctionalPlanIssue] = []
+    for role, handle in (
+        ("midpoint_definition", roles.midpoint_definition),
+        ("square_center", roles.square_center),
+        ("axis_membership", roles.axis_membership),
+    ):
+        value = condition_value_by_handle(
+            handle,
+            semantic_index=semantic_index,
+            scope_id=scope_id,
+        )
+        if value is None:
+            issues.append(
+                _issue(
+                    "functional_elaboration",
+                    "functional.quadratic_square_path_condition_unavailable",
+                    f"connected proof condition is unavailable: {handle}",
+                    call_id=call_id,
+                    scope_id=scope_id,
+                    details={"role": role, "handle": handle},
+                )
+            )
+        else:
+            additions[resolver.arg_name(role, capability.context_arg_bindings)] = (
+                value,
+            )
+    side_start = latest_point_state_for_object(
+        roles.side_start,
+        scope_id=scope_id,
+        produced=produced,
+        semantic_index=semantic_index,
+        handle_registry=handle_registry,
+        allow_unique_planned_producer=True,
+    )
+    if side_start is None:
+        issues.append(
+            _issue(
+                "functional_elaboration",
+                "functional.quadratic_square_path_state_unavailable",
+                "the square side start requires one materialized Point state",
+                call_id=call_id,
+                scope_id=scope_id,
+                details={"role": "side_start", "object_ref": roles.side_start},
+            )
+        )
+    else:
+        additions[
+            resolver.arg_name("side_start", capability.context_arg_bindings)
+        ] = (side_start,)
+    for role, object_ref in (
+        ("axis_point", roles.axis_point),
+        ("moving_point", roles.moving_point),
+        ("fixed_endpoint", roles.fixed_endpoint),
+    ):
+        value = object_identity_value(
+            object_ref,
+            domain_runtime_types=("Point", "PointRef"),
+            scope_id=scope_id,
+            semantic_index=semantic_index,
+            handle_registry=handle_registry,
+        )
+        if value is None:
+            issues.append(
+                _issue(
+                    "functional_elaboration",
+                    "functional.quadratic_square_path_identity_unavailable",
+                    f"the path role has no unique Point identity: {object_ref}",
+                    call_id=call_id,
+                    scope_id=scope_id,
+                    details={"role": role, "object_ref": object_ref},
+                )
+            )
+        else:
+            additions[resolver.arg_name(role, capability.context_arg_bindings)] = (
+                value,
+            )
+    if issues:
+        return additions, (), tuple(issues), False
+    return (
+        additions,
+        (
+            FunctionalDeterministicRepair(
+                call_id,
+                "resolve_quadratic_square_path_proof_closure",
+                path_values[0].handle,
+                roles.candidate_id,
             ),
         ),
         (),

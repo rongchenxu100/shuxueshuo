@@ -1133,6 +1133,7 @@ _KNOWN_TYPES = {
     "Parabola",
     "ParameterValue",
     "PathTransformation",
+    "PathWitness",
     "Point",
     "PointList",
     "PointRef",

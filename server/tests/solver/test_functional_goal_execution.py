@@ -561,26 +561,60 @@ def test_checkpoint_uses_public_return_roles_for_facade_runtime_outputs(
     checkpoint = result.checkpoint
     assert checkpoint is not None
     steps = _checkpoint_steps(checkpoint)
-    adjacent = steps["derive_square_vertex_G_ii"]
-    assert [item["return"] for item in adjacent.actual_outputs] == [
-        "adjacent_vertex"
-    ]
     minimum = steps["derive_path_minimum_ii"]
-    assert {
-        item["return"] for item in minimum.actual_outputs
-    } >= {
+    assert {item["return"] for item in minimum.actual_outputs} == {
+        "minimum_expression",
+        "attainment_point",
+    }
+    assert not {
+        "path_transformation",
+        "moving_locus",
         "straightened_endpoint_1",
         "straightened_endpoint_2",
-        "path_minimum_expression",
-    }
-    consumer = steps["derive_minimum_point_G_ii"]
-    endpoint_inputs = tuple(
-        item
-        for item in consumer.resolved_inputs
-        if item["arg"] in {"minimum_point_1", "minimum_point_2"}
+        "evidence",
+    } & {item["return"] for item in minimum.actual_outputs}
+
+
+def test_quadratic_square_path_macro_executes_as_one_atomic_call(
+    tmp_path,
+) -> None:
+    case = "tj-2026-heping-ermo-25"
+    result, _fixture = _execute(
+        tmp_path,
+        case,
+        load_v2_fixture_payload(case),
     )
-    assert len(endpoint_inputs) == 2
-    assert all(item["resolution"] == "step_result" for item in endpoint_inputs)
+
+    report = result.replay.transactional_attempt_result.execution_report
+    compiled = next(
+        item
+        for item in report.compiled_calls
+        if item.call_id == "derive_path_minimum_ii"
+    )
+    assert len(compiled.plans) == 1
+    assert [
+        invocation.method_id
+        for plan in compiled.plans
+        for invocation in plan.invocations
+    ] == ["quadratic_square_path_minimum_kernel"]
+    assert compiled.macro_search_report is not None
+    assert compiled.path_minimum_witness is not None
+
+    call_result = next(
+        item
+        for item in report.call_results
+        if item.call_id == "derive_path_minimum_ii"
+    )
+    assert call_result.status == "verified"
+    assert call_result.macro_search_report is not None
+    assert call_result.path_minimum_witness is not None
+    assert {
+        item.output_key.rsplit(".", 1)[-1]
+        for item in call_result.runtime_results
+    } == {
+        "minimum_expression",
+        "attainment_point",
+    }
 
 
 def test_stable_object_ref_uses_source_snapshot_before_any_visible_write(
@@ -803,20 +837,10 @@ def test_latest_parameter_state_closes_transitive_point_without_llm_wiring(
         for step in goal["steps"]
         if step["step_id"] != "evaluate_point_A_ii"
     ]
-    solve_c = next(
-        step
-        for step in goal["steps"]
-        if step["step_id"] == "solve_parameter_c_ii"
-    )
-    goal["steps"] = [
-        step for step in goal["steps"] if step is not solve_c
-    ]
-    goal["steps"].append(solve_c)
     recover = _step(payload, "recover_target_point_E_ii")
     recover["args"]["side_start"] = "A"
     recover["args"].pop("parameter_value", None)
-    derive_g = _step(payload, "derive_minimum_point_G_ii")
-    derive_g["args"].pop("parameter_value", None)
+    derive_g = _step(payload, "evaluate_minimum_point_G_ii")
 
     result, _fixture = _execute(tmp_path, case, payload)
 
@@ -826,7 +850,7 @@ def test_latest_parameter_state_closes_transitive_point_without_llm_wiring(
     report = result.replay.transactional_attempt_result.execution_report
     runtime_order = [item.call_id for item in report.call_states]
     assert runtime_order.index("solve_parameter_c_ii") < runtime_order.index(
-        "derive_minimum_point_G_ii"
+        "evaluate_minimum_point_G_ii"
     )
     assert runtime_order.index("solve_parameter_c_ii") < runtime_order.index(
         "recover_target_point_E_ii"
@@ -864,9 +888,9 @@ def test_latest_parameter_state_closes_transitive_point_without_llm_wiring(
     derive_g_write = next(
         write
         for call_result in report.call_results
-        if call_result.call_id == "derive_minimum_point_G_ii"
+        if call_result.call_id == "evaluate_minimum_point_G_ii"
         for write in call_result.state_writes
-        if write.return_name == "point"
+        if write.return_name == "evaluated_point"
     )
     assert c_versions <= set(derive_g_write.source_version_ids)
 
@@ -876,8 +900,8 @@ def test_identity_contract_drives_named_entity_latest_state_dependency(
 ) -> None:
     case = "tj-2026-heping-ermo-25"
     payload = load_v2_fixture_payload(case)
-    derive_g = _step(payload, "derive_minimum_point_G_ii")
-    derive_g.pop("output_targets")
+    derive_g = _step(payload, "derive_path_minimum_ii")
+    derive_g.pop("output_targets", None)
 
     result, _fixture = _execute(tmp_path, case, payload)
 
@@ -889,20 +913,18 @@ def test_identity_contract_drives_named_entity_latest_state_dependency(
     lowered_g = next(
         call
         for call in authority.lowered_plan.calls
-        if call.call_id == "derive_minimum_point_G_ii"
+        if call.call_id == "derive_path_minimum_ii"
     )
-    assert lowered_g.return_bindings["point"].ref == "G"
-    _assert_named_entity_pin(
-        authority,
-        consumer_call_id="recover_target_point_E_ii",
-        arg_name="side_end",
-        semantic_ref="G",
-        producer_call_id="derive_minimum_point_G_ii",
-        return_name="point",
+    assert lowered_g.return_bindings["attainment_point"].ref == "G"
+    lowered_evaluation = next(
+        call
+        for call in authority.lowered_plan.calls
+        if call.call_id == "evaluate_minimum_point_G_ii"
     )
+    assert lowered_evaluation.args["point"][0].ref == "G"
     reconciliation = result.replay.functional_reconciliation
-    assert "derive_minimum_point_G_ii" in reconciliation.dependency_graph[
-        "recover_target_point_E_ii"
+    assert "derive_path_minimum_ii" in reconciliation.dependency_graph[
+        "evaluate_minimum_point_G_ii"
     ]
     runtime_values = (
         result.replay.transactional_attempt_result.execution_report
@@ -1044,7 +1066,7 @@ def test_recomputed_source_a_is_reused_only_after_runtime_equivalence(
     path_reduction_index = next(
         index
         for index, step in enumerate(ii_goal["steps"])
-        if step["step_id"] == "reduce_square_path_ii"
+        if step["step_id"] == "derive_path_minimum_ii"
     )
     ii_goal["steps"].insert(path_reduction_index, evaluate)
 
@@ -1231,31 +1253,36 @@ def test_closed_point_role_reuse_is_runtime_checked_before_transition_commit(
     )
 
 
-def test_identity_mismatch_checkpoint_exposes_public_expected_and_actual_refs(
+def test_compiler_selected_macro_return_identity_ignores_authored_target(
     tmp_path,
 ) -> None:
     case = "tj-2026-heping-ermo-25"
     payload = load_v2_fixture_payload(case)
-    _step(payload, "derive_locus_G_ii")["args"]["point"] = "E"
+    _step(payload, "derive_path_minimum_ii")["output_targets"] = {
+        "attainment_point": "E"
+    }
 
     result, _fixture = _execute(tmp_path, case, payload)
 
     checkpoint = result.checkpoint
     assert checkpoint is not None
-    failed = _checkpoint_steps(checkpoint)["derive_path_minimum_ii"]
-    assert failed.status == "authority_invalid"
-    assert failed.typed_issue is not None
-    issue = failed.typed_issue
-    assert issue["step_id"] == "derive_path_minimum_ii"
-    assert issue["observed"]["actual_object_refs"] == ["E"]
-    assert issue["expected"]["expected_object_refs"] == ["G"]
-    assert issue["expected"]["relation"] == "same_object"
-    assert issue["expected"]["requirement"]
-    assert issue["repair_call_ids"]
+    minimum = _checkpoint_steps(checkpoint)["derive_path_minimum_ii"]
+    assert minimum.status == "runtime_verified"
     assert checkpoint.transaction_attempted is True
-    prompt = json.dumps(checkpoint.to_prompt_payload(), ensure_ascii=False)
-    assert "point:problem:E" not in prompt
-    assert "point:problem:G" not in prompt
+    reconciliation = result.replay.functional_reconciliation
+    assert reconciliation is not None
+    assert {
+        "call_id": "derive_path_minimum_ii",
+        "action": "drop_compiler_selected_return_binding",
+        "from": "attainment_point:point:E",
+        "to": "derive_path_minimum_ii.attainment_point",
+    } in reconciliation.elaboration["deterministic_repairs"]
+    effective = next(
+        call
+        for call in reconciliation.plan.calls
+        if call.call_id == "derive_path_minimum_ii"
+    )
+    assert effective.return_bindings["attainment_point"].ref == "G"
 
 
 def test_unique_prior_same_object_result_is_canonicalized_in_goal_scope(

@@ -4575,6 +4575,8 @@ def _materialize_prepared_macro_method_inputs(
     finalized_call_binding: FunctionalProblemCallBinding | None,
     working: WorkingPlannerState,
     runtime_context: RuntimeContext,
+    runtime_bindings: CanonicalRuntimeBindingIndex,
+    condition_authority_index: Any | None,
     object_registry: MathObjectRegistry,
     method_specs: Any,
 ) -> PreparedFunctionalCall:
@@ -4607,17 +4609,144 @@ def _materialize_prepared_macro_method_inputs(
                 "planner.method_input_view_authority_missing: "
                 f"call={prepared.call_id}, role={source_spec.role}"
             )
-        object_id = object_registry.resolve(chosen_ref)
+        method_input = method_specs.require(
+            declaration.method_id
+        ).inputs[declaration.input_name]
         finalized_source = finalized_by_role.get(source_spec.role)
-        if finalized_call_binding is not None:
-            if finalized_source is None or finalized_source.typed_source is None:
+        if finalized_call_binding is not None and (
+            finalized_source is None or finalized_source.typed_source is None
+        ):
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_input_view_authority_missing: "
+                f"call={prepared.call_id}, role={source_spec.role}, "
+                "source=F5-C"
+            )
+        typed_source = (
+            finalized_source.typed_source
+            if finalized_source is not None
+            else None
+        )
+        role_bindings = tuple(
+            item
+            for item in prepared.arg_bindings
+            if (
+                item.logical_binding.key.arg_name == source_spec.role
+                or item.logical_binding.semantic_role == source_spec.role
+                or item.source_handle == chosen_ref
+            )
+            and item.runtime_path is not None
+        )
+        if method_input.view.mode == "immutable_value":
+            condition_values = tuple(
+                value
+                for value in prepared.reconciliation.resolved_args.get(
+                    source_spec.role, ()
+                )
+                if value.handle == chosen_ref and value.condition_id is not None
+            )
+            condition_ids = tuple(
+                dict.fromkeys(value.condition_id for value in condition_values)
+            )
+            runtime_path = (
+                role_bindings[0].runtime_path
+                if len(role_bindings) == 1
+                else (
+                    _runtime_condition_path_for_macro_role(
+                        runtime_bindings,
+                        condition_authority_index=condition_authority_index,
+                        condition_id=(
+                            condition_ids[0] if len(condition_ids) == 1 else None
+                        ),
+                        source_handle=chosen_ref,
+                        consumer_scope_id=prepared.execution_scope_id,
+                        consumer=(
+                            f"{prepared.call_id}.{declaration.method_id}."
+                            f"{declaration.input_name}"
+                        ),
+                    )
+                    or _visible_condition_path(
+                        runtime_context,
+                        condition_id=(
+                            condition_ids[0] if len(condition_ids) == 1 else None
+                        ),
+                        source_handle=chosen_ref,
+                        consumer_scope_id=prepared.execution_scope_id,
+                    )
+                )
+            )
+            if (
+                len(condition_ids) != 1
+                or runtime_path is None
+                or (
+                    typed_source is not None
+                    and (
+                        typed_source.kind != "condition"
+                        or typed_source.condition_id != condition_ids[0]
+                    )
+                )
+            ):
                 raise ValueError(
                     "planner_configuration_error: "
                     "planner.method_input_view_authority_missing: "
                     f"call={prepared.call_id}, role={source_spec.role}, "
-                    "source=F5-C"
+                    "state=immutable_condition"
                 )
-            typed_source = finalized_source.typed_source
+            resolved.append(
+                PreparedMacroMethodInput(
+                    declaration,
+                    ConditionReadSource(
+                        condition_ids[0],
+                        runtime_path,
+                    ),
+                )
+            )
+            continue
+        if method_input.view.mode == "identity":
+            object_id = object_registry.resolve(chosen_ref)
+            finalized_object_id = (
+                typed_source.math_object_id
+                if typed_source is not None
+                else None
+            )
+            if object_id is None:
+                object_id = finalized_object_id
+            runtime_path = (
+                role_bindings[0].runtime_path
+                if len(role_bindings) == 1
+                else _visible_object_identity_path(
+                    runtime_context,
+                    object_ref=chosen_ref,
+                    consumer_scope_id=prepared.execution_scope_id,
+                )
+            )
+            if (
+                object_id is None
+                or (
+                    finalized_object_id is not None
+                    and finalized_object_id != object_id
+                )
+                or runtime_path is None
+            ):
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.method_input_view_authority_missing: "
+                    f"call={prepared.call_id}, role={source_spec.role}, "
+                    "state=object_identity"
+                )
+            resolved.append(
+                PreparedMacroMethodInput(
+                    declaration,
+                    EntityIdentityReadSource(
+                        object_id.value,
+                        runtime_path,
+                    ),
+                )
+            )
+            continue
+        object_id = object_registry.resolve(chosen_ref)
+        if finalized_call_binding is not None:
+            assert typed_source is not None
             finalized_object_id = (
                 typed_source.math_object_id
                 or (
@@ -4643,9 +4772,6 @@ def _materialize_prepared_macro_method_inputs(
                 f"call={prepared.call_id}, role={source_spec.role}, "
                 f"chosen_ref={chosen_ref}"
             )
-        method_input = method_specs.require(
-            declaration.method_id
-        ).inputs[declaration.input_name]
         if method_input.view.mode != "latest_state":
             raise ValueError(
                 "planner_configuration_error: "
@@ -4729,6 +4855,93 @@ def _materialize_prepared_macro_method_inputs(
     )
 
 
+def _visible_condition_path(
+    runtime_context: RuntimeContext,
+    *,
+    condition_id: str | None,
+    source_handle: str,
+    consumer_scope_id: str,
+) -> str | None:
+    """Find one exact visible Condition path for a code-owned Macro role."""
+
+    matches: list[str] = []
+    current: str | None = consumer_scope_id
+    while current is not None:
+        scope = runtime_context.scopes[current]
+        containers = {**scope.facts, "constraints": scope.constraints}
+        for container_name, values in containers.items():
+            for key, typed in values.items():
+                if typed.type != "Condition":
+                    continue
+                value = typed.value
+                observed_id = getattr(value, "condition_id", None)
+                observed_handle = getattr(value, "handle", None)
+                if isinstance(value, Mapping):
+                    observed_id = value.get("condition_id", observed_id)
+                    observed_handle = value.get("handle", observed_handle)
+                if not (
+                    (condition_id is not None and observed_id == condition_id)
+                    or observed_handle == source_handle
+                ):
+                    continue
+                prefix = (
+                    "$problem"
+                    if scope.scope_type == "problem"
+                    else f"${scope.scope_type}.{scope.scope_id}"
+                )
+                matches.append(f"{prefix}.{container_name}.{key}")
+        current = scope.parent_id
+    unique = tuple(dict.fromkeys(matches))
+    return unique[0] if len(unique) == 1 else None
+
+
+def _runtime_condition_path_for_macro_role(
+    runtime_bindings: CanonicalRuntimeBindingIndex,
+    *,
+    condition_authority_index: Any | None,
+    condition_id: str | None,
+    source_handle: str,
+    consumer_scope_id: str,
+    consumer: str,
+) -> str | None:
+    if condition_authority_index is None or condition_id is None:
+        return None
+    authority = condition_authority_index.require(condition_id)
+    physical = runtime_bindings.bindings.get(authority.runtime_handle)
+    return runtime_bindings.runtime_path_for_condition_identity(
+        condition_id,
+        source_handle=authority.runtime_handle or source_handle,
+        expected_type=(
+            physical.value_type if physical is not None else authority.runtime_type
+        ),
+        consumer_scope_id=consumer_scope_id,
+        consumer=consumer,
+    )
+
+
+def _visible_object_identity_path(
+    runtime_context: RuntimeContext,
+    *,
+    object_ref: str,
+    consumer_scope_id: str,
+) -> str | None:
+    """Project one code-owned point role to its immutable identity path."""
+
+    name = object_ref.rsplit(":", 1)[-1]
+    candidates = tuple(
+        path
+        for container in ("object_refs", "points")
+        if (
+            path := runtime_context.find_visible_path(
+                container,
+                name,
+                from_scope_id=consumer_scope_id,
+            )
+        )
+    )
+    return candidates[0] if candidates else None
+
+
 def _prepare_runtime_search_macro(
     prepared: PreparedFunctionalCall,
     *,
@@ -4756,6 +4969,18 @@ def _prepare_runtime_search_macro(
         or macro.search is None
     ):
         return prepared
+    macro_runtime_bindings = CanonicalRuntimeBindingIndex.from_context(
+        runtime_context,
+        handle_registry=handle_registry,
+        question_goals=inputs.question_goals,
+        functional_consumer_identity_mode="authoritative",
+        problem_binding_authority=(
+            reconciliation.functional_problem_binding_context is not None
+        ),
+    )
+    macro_runtime_bindings.state_write_provenance.extend(
+        committed_state_writes
+    )
     problem_context = reconciliation.functional_problem_binding_context
     ledger = reconciliation.functional_problem_binding_ledger
     debug_preparation = problem_context is None and ledger is None
@@ -4845,6 +5070,10 @@ def _prepare_runtime_search_macro(
             finalized_call_binding=None,
             working=working,
             runtime_context=runtime_context,
+            runtime_bindings=macro_runtime_bindings,
+            condition_authority_index=(
+                reconciliation.condition_binding_authority_index
+            ),
             object_registry=object_registry,
             method_specs=inputs.method_specs,
         )
@@ -5059,6 +5288,10 @@ def _prepare_runtime_search_macro(
             finalized_call_binding=None,
             working=working,
             runtime_context=runtime_context,
+            runtime_bindings=macro_runtime_bindings,
+            condition_authority_index=(
+                reconciliation.condition_binding_authority_index
+            ),
             object_registry=object_registry,
             method_specs=inputs.method_specs,
         )
@@ -5086,6 +5319,10 @@ def _prepare_runtime_search_macro(
         finalized_call_binding=finalized_binding,
         working=working,
         runtime_context=runtime_context,
+        runtime_bindings=macro_runtime_bindings,
+        condition_authority_index=(
+            reconciliation.condition_binding_authority_index
+        ),
         object_registry=object_registry,
         method_specs=inputs.method_specs,
     )

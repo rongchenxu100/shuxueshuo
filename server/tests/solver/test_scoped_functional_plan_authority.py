@@ -233,37 +233,51 @@ def test_single_return_role_is_safely_canonicalized(tmp_path) -> None:
     )
 
 
-def test_multi_return_role_uses_unique_global_typed_assignment(tmp_path) -> None:
+def test_wrong_typed_macro_return_normalizes_to_unique_compatible_return(
+    tmp_path,
+) -> None:
     case = "tj-2026-heping-ermo-25"
     payload = load_v2_fixture_payload(case)
     steps = _find_scope(payload["root_scope"], "ii")["goals"][0]["steps"]
     solve = next(item for item in steps if item["step_id"] == "solve_parameter_c_ii")
-    # This is a real public return name on the producer, but its Point type is
-    # incompatible with the MinimumExpression consumer. The producer's other
-    # authored constraints make exactly one compatible return active.
-    solve["args"]["expression"]["return"] = "straightened_endpoint_1"
+    # The Point return is incompatible with the MinimumExpression consumer.
+    # Because the Macro return identity is code-owned and there is exactly one
+    # type-compatible public return, canonicalization repairs the role.
+    solve["args"]["expression"]["return"] = "attainment_point"
 
     authority, _fixture = _lower_payload(tmp_path, case, payload)
 
-    canonical_steps = _find_scope(
-        authority.scoped_plan.to_payload()["root_scope"], "ii"
-    )["goals"][0]["steps"]
-    canonical_solve = next(
-        item
-        for item in canonical_steps
-        if item["step_id"] == "solve_parameter_c_ii"
-    )
-    assert canonical_solve["args"]["expression"] == {
-        "step_id": "derive_path_minimum_ii",
-        "return": "path_minimum_expression",
-    }
     assert any(
         item.action == "canonicalize_unique_return_role"
-        and item.from_ref == "straightened_endpoint_1"
-        and item.to_ref == "path_minimum_expression"
-        and item.reason == "unique_typed_return_assignment"
+        and item.step_id == "solve_parameter_c_ii"
+        and item.from_ref == "attainment_point"
+        and item.to_ref == "minimum_expression"
         for item in authority.normalizations
     )
+
+
+def test_quadratic_square_macro_accepts_declared_open_return_forms(
+    tmp_path,
+) -> None:
+    case = "tj-2026-heping-ermo-25"
+    payload = load_v2_fixture_payload(case)
+    steps = _find_scope(payload["root_scope"], "ii")["goals"][0]["steps"]
+    macro = next(
+        item for item in steps if item["step_id"] == "derive_path_minimum_ii"
+    )
+    macro["return_expectations"] = {
+        "minimum_expression": "open_expression",
+        "attainment_point": "open_state",
+    }
+
+    authority, _fixture = _lower_payload(tmp_path, case, payload)
+
+    lowered = next(
+        step
+        for step in authority.scoped_plan.steps
+        if step.step_id == "derive_path_minimum_ii"
+    )
+    assert lowered.return_expectations == macro["return_expectations"]
 
 
 def test_goal_moved_to_parent_scope_fails_loud(tmp_path) -> None:
@@ -852,7 +866,11 @@ def test_answer_from_drops_only_the_same_redundant_output_target(tmp_path) -> No
         "i",
     )["steps"][1]
     assert "output_targets" not in canonical_step
-    assert [item.to_payload() for item in authority.normalizations] == [
+    assert [
+        item.to_payload()
+        for item in authority.normalizations
+        if item.action == "drop_redundant_answer_output_target"
+    ] == [
         {
             "action": "drop_redundant_answer_output_target",
             "step_id": "derive_x_intercept_A_i",
@@ -1444,34 +1462,34 @@ def test_unknown_targets_on_anonymous_returns_are_removed(tmp_path) -> None:
     }
 
 
-def test_return_role_diagnostic_exposes_public_contract(tmp_path) -> None:
+def test_return_expectation_role_uses_public_macro_contract(tmp_path) -> None:
     case = "tj-2026-heping-ermo-25"
     payload = load_v2_fixture_payload(case)
     steps = _find_scope(payload["root_scope"], "ii")["goals"][0]["steps"]
-    axis = next(
-        item for item in steps if item["step_id"] == "derive_axis_point_M_ii"
+    macro = next(
+        item for item in steps if item["step_id"] == "derive_path_minimum_ii"
     )
-    axis["return_expectations"] = {"point": "closed_value"}
+    macro["return_expectations"] = {"attainment_point": "closed_value"}
 
-    with pytest.raises(ScopedFunctionalPlanError) as captured:
-        _lower_payload(tmp_path, case, payload)
+    authority, _fixture = _lower_payload(tmp_path, case, payload)
 
-    issue = next(
+    canonical = next(
         item
-        for item in captured.value.issues
-        if item.details.get("observed_role") == "point"
+        for item in _find_scope(
+            authority.scoped_plan.to_payload()["root_scope"], "ii"
+        )["goals"][0]["steps"]
+        if item["step_id"] == "derive_path_minimum_ii"
     )
-    assert issue.details == {
-        "capability_id": "quadratic_axis_x_intercept_point",
-        "observed_role": "point",
-        "observed_form": "closed_value",
-        "expected_roles": ["axis_point"],
-        "expected_forms": {
-            "axis_point": ["open_state", "closed_state"],
-        },
-        "retryability": "planner_repairable",
-        "repair_action": "repair_return_role",
+    assert canonical["return_expectations"] == {
+        "minimum_expression": "closed_value"
     }
+    assert any(
+        item.action == "canonicalize_unique_return_role"
+        and item.step_id == "derive_path_minimum_ii"
+        and item.from_ref == "attainment_point"
+        and item.to_ref == "minimum_expression"
+        for item in authority.normalizations
+    )
 
 
 def test_scope_local_producer_is_not_promoted_across_sibling_goals(tmp_path) -> None:

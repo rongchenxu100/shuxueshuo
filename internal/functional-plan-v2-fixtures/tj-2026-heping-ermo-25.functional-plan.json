@@ -130,81 +130,17 @@
                 "intent": "代入横轴交点条件，把函数化成只含主参数的形式。"
               },
               {
-                "step_id": "derive_axis_point_M_ii",
-                "capability_id": "quadratic_axis_x_intercept_point",
+                "step_id": "derive_path_minimum_ii",
+                "capability_id": "quadratic_square_path_minimum",
                 "args": {
-                  "parabola": "parabola"
-                },
-                "output_targets": {
-                  "axis_point": "M"
-                },
-                "intent": "求对称轴与横轴交点。"
-              },
-              {
-                "step_id": "reduce_square_path_ii",
-                "capability_id": "square_path_dimension_reduction",
-                "args": {
+                  "parabola": {
+                    "step_id": "derive_parametric_parabola_ii",
+                    "return": "parabola"
+                  },
                   "path_minimum_target": "path_minimum_target_h_f_m_g",
-                  "square": "square_ae_a_e_k_g",
-                  "midpoint_definition": "midpoint_definition_a_e_f",
-                  "square_center": "square_center_h_square_ae_a_e_k_g",
-                  "moving_point": "G"
-                },
-                "intent": "利用正方形中点和中心关系把三段路径降为单动点折线。"
-              },
-              {
-                "step_id": "parameterize_axis_point_E_ii",
-                "capability_id": "quadratic_axis_parameterized_point",
-                "args": {
-                  "parabola": "parabola"
-                },
-                "output_targets": {
-                  "point": "E"
-                },
-                "intent": "把对称轴上的目标点表示为单参数点。"
-              },
-              {
-                "step_id": "derive_square_vertex_G_ii",
-                "capability_id": "square_adjacent_vertex_from_side",
-                "args": {
-                  "side_start": "A",
-                  "side_end": "E",
                   "square": "square_ae_a_e_k_g"
                 },
-                "output_targets": {
-                  "adjacent_vertex": "G"
-                },
-                "intent": "由正方形边构造参数化顶点。"
-              },
-              {
-                "step_id": "derive_locus_G_ii",
-                "capability_id": "parameterized_point_locus_line",
-                "args": {
-                  "point": "G",
-                  "parameter": {
-                    "step_id": "parameterize_axis_point_E_ii",
-                    "return": "parameter"
-                  }
-                },
-                "intent": "消去点坐标中的线性参数得到轨迹直线。"
-              },
-              {
-                "step_id": "derive_path_minimum_ii",
-                "capability_id": "broken_path_straightening_minimum_expression",
-                "args": {
-                  "path_transformation": {
-                    "step_id": "reduce_square_path_ii",
-                    "return": "path_transformation"
-                  },
-                  "moving_locus": {
-                    "step_id": "derive_locus_G_ii",
-                    "return": "line"
-                  }
-                },
-                "return_expectations": {
-                  "path_minimum_expression": "open_expression"
-                },
-                "intent": "沿动点轨迹拉直折线并得到最小值表达式和最短线段端点。"
+                "intent": "原子完成正方形路径降维、轨迹、拉直和达到性；达到点的正方形动点身份由代码绑定。"
               },
               {
                 "step_id": "solve_parameter_c_ii",
@@ -212,7 +148,7 @@
                 "args": {
                   "expression": {
                     "step_id": "derive_path_minimum_ii",
-                    "return": "path_minimum_expression"
+                    "return": "minimum_expression"
                   },
                   "minimum_value": "minimum_value",
                   "parameter": "c"
@@ -235,27 +171,16 @@
                 "intent": "把主参数代入横轴交点坐标。"
               },
               {
-                "step_id": "derive_minimum_point_G_ii",
-                "capability_id": "line_locus_minimum_point",
+                "step_id": "evaluate_minimum_point_G_ii",
+                "capability_id": "evaluate_point_at_parameter",
                 "args": {
-                  "moving_locus": {
-                    "step_id": "derive_locus_G_ii",
-                    "return": "line"
-                  },
-                  "minimum_point_1": {
-                    "step_id": "derive_path_minimum_ii",
-                    "return": "straightened_endpoint_1"
-                  },
-                  "minimum_point_2": {
-                    "step_id": "derive_path_minimum_ii",
-                    "return": "straightened_endpoint_2"
-                  },
+                  "point": "G",
                   "parameter_value": "c"
                 },
                 "output_targets": {
-                  "point": "G"
+                  "evaluated_point": "G"
                 },
-                "intent": "求最短线段与动点轨迹的交点并代入主参数。"
+                "intent": "把已求出的二次函数参数代入 Macro 返回的取等号点 G。"
               },
               {
                 "step_id": "recover_target_point_E_ii",

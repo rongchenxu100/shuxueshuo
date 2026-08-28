@@ -81,7 +81,7 @@ def test_vs1_recorded_heping_ermo_builds_valid_generated_page(heping_ermo_page: 
 
     assert page.visual_ir.metadata["base_source"] == "generated"
     assert len(page.visual_ir.steps) == len(page.lesson.steps)
-    assert len(page.lesson.steps) >= 9
+    assert len(page.lesson.steps) >= 8
     assert page.snapshot.answers == load_expected_answers(HEPING_ERMO_EXPECTED)
     assert len(page.compiled.lesson_data["steps"]) == len(page.lesson.steps)
 
@@ -124,57 +124,31 @@ def test_vs1_heping_ermo_lesson_steps_are_grouped_by_reusable_capabilities(
     assert candidate_step.nav_title == "求点E候选"
     assert candidate_step.box == ("E(－1,2＋√6) 或 E(－1,2－√6)",)
 
-    reduce_step = _lesson_step(lesson, "explain_reduce_square_path_ii")
-    assert reduce_step.title == "由斜边中线和中位线转化线段"
-    assert reduce_step.nav_title == "多动点转化为单动点问题"
-    assert reduce_step.box == ("FM＝AE/2", "HF＝AG/2", "HF＋FM＝AG", "HF＋FM＋MG＝AG＋MG")
-
-    simplify_step = _lesson_step(lesson, "explain_derive_parametric_parabola_ii_derive_axis_point_M_ii")
-    assert simplify_step.capability_ids == (
-        "quadratic_from_constraints",
-        "quadratic_axis_x_intercept_point",
-    )
-    assert simplify_step.title == "化简函数解析式，求对称轴与X轴交点M"
-    assert simplify_step.nav_title == "化简解析式求M"
-    assert simplify_step.box == ("y＝－x²＋(1－c)x＋c", "M(1/2－c/2,0)")
-
-    axis_square_ii_step = _lesson_step(
-        lesson,
-        "explain_parameterize_axis_point_E_ii_derive_square_vertex_G_ii_derive_locus_G_ii",
-    )
-    assert axis_square_ii_step.capability_ids == (
-        "quadratic_axis_parameterized_point",
-        "square_adjacent_vertex_from_side",
-        "parameterized_point_locus_line",
-    )
-    assert axis_square_ii_step.title == "正方形求顶点G轨迹"
-    assert axis_square_ii_step.box == (
-        "E(1/2－c/2,t)",
-        "G(－c＋t,－c/2－1/2)",
-        "y＝－(c＋1)/2",
-    )
+    simplify_step = _lesson_step(lesson, "explain_derive_parametric_parabola_ii")
+    assert simplify_step.capability_ids == ("quadratic_from_constraints",)
+    assert simplify_step.title == "化简函数解析式"
+    assert simplify_step.box == ("y＝－x²＋(1－c)x＋c",)
 
     minimum_step = _lesson_step(lesson, "explain_derive_path_minimum_ii")
-    assert minimum_step.capability_ids == ("broken_path_straightening_minimum_expression",)
-    assert minimum_step.title == "将军饮马计算最小值表达式"
-    assert minimum_step.nav_title == "将军饮马算最小值"
+    assert minimum_step.capability_ids == ("quadratic_square_path_minimum",)
+    assert minimum_step.title == "正方形关系降维，再用将军饮马求最短路径"
+    assert minimum_step.nav_title == "正方形路径最值"
     assert minimum_step.box == (
-        "A′(-c,-c-1)",
-        "A′M＝√(((c＋1)/2)²＋(c＋1)²)＝√5|c＋1|/2",
+        "最小值＝√5|c+1|/2",
+        "G(1/4-3c/4,-c/2-1/2)",
     )
 
     parameter_step = _lesson_step(
         lesson,
-        "explain_solve_parameter_c_ii_evaluate_point_A_ii_derive_minimum_point_G_ii",
+        "explain_solve_parameter_c_ii_evaluate_point_A_ii",
     )
     assert parameter_step.capability_ids == (
         "parameter_from_expression_value",
         "evaluate_point_at_parameter",
-        "line_locus_minimum_point",
     )
-    assert parameter_step.title == "由最小值反求参数，并求A、G坐标"
-    assert parameter_step.nav_title == "反求参数求A、G"
-    assert parameter_step.box == ("c＝5", "A(－5,0)", "G(－7/2,－3)")
+    assert parameter_step.title == "由表达式取值反求参数，并求A坐标"
+    assert parameter_step.nav_title == "反求参数求A"
+    assert parameter_step.box == ("c＝5", "A(－5,0)")
 
 
 def test_vs1_heping_ermo_geometry_shell_has_scope_safe_points_and_answers(
@@ -199,8 +173,9 @@ def test_vs1_heping_ermo_geometry_shell_has_scope_safe_points_and_answers(
     assert geometry["fixedPoints"]["E_axis_i_2_candidate_2"] == ["-1", "2-sqrt(6)"]
     assert "A" not in geometry["fixedPoints"]
     assert geometry["movingPoints"]["A"] == ["-c", "0"]
-    assert geometry["movingPoints"]["G_axis_ii"] == ["3/2-c", "-c/2-1/2"]
-    assert geometry["movingPoints"]["A_prime"] == ["-c", "-c-1"]
+    assert geometry["movingPoints"]["G"] == ["1/4-3*c/4", "-c/2-1/2"]
+    assert geometry["movingPoints"]["M_axis_ii"] == ["1/2-c/2", "0"]
+    assert geometry["movingPoints"]["A_prime"] == ["-c", "-c - 1"]
     assert geometry["pointMeta"]["A_prime"]["label"] == "A′"
 
     problem_lines = lesson_data["problem"]["lines"]
@@ -254,16 +229,22 @@ def test_vs1_heping_ermo_square_candidate_and_path_decorations_are_bound(
         "dy": 34,
     } in candidate_decorations
 
-    reduce_step = _lesson_step(lesson, "explain_reduce_square_path_ii")
+    reduce_step = _lesson_step(lesson, "explain_derive_path_minimum_ii")
     reduce_decorations = _step_decorations(page, reduce_step.id)
     assert any(
         item.get("type") == "outlineRegion"
-        and item.get("vertices") == ["A", "E_axis_ii", "K", "G_axis_ii"]
+        and item.get("vertices") == ["A", "E", "K", "G"]
         and str(item.get("fill") or "").startswith("rgba(15, 118, 110")
         for item in reduce_decorations
     )
     assert {"type": "coloredLine", "from": "H", "to": "F", "color": "#7c3aed", "width": 2.0} in reduce_decorations
-    assert {"type": "coloredLine", "from": "A", "to": "G_axis_ii", "color": "#b45309", "width": 2.4} in reduce_decorations
+    assert {"type": "coloredLine", "from": "A", "to": "G", "color": "#b45309", "width": 2.4} in reduce_decorations
+    assert any(
+        item.get("type") == "segment"
+        and item.get("from") == "A_prime"
+        and item.get("to") == "M_axis_ii"
+        for item in reduce_decorations
+    )
     assert not any(
         item.get("type") == "segment"
         and str(item.get("label") or "") in {"HF=AG/2", "FM=AE/2"}
@@ -277,10 +258,7 @@ def test_vs1_heping_ermo_locus_minimum_and_parameter_interactions_are_bound(
     page = heping_ermo_page
     lesson = page.lesson
 
-    axis_square_ii_step = _lesson_step(
-        lesson,
-        "explain_parameterize_axis_point_E_ii_derive_square_vertex_G_ii_derive_locus_G_ii",
-    )
+    axis_square_ii_step = _lesson_step(lesson, "explain_derive_path_minimum_ii")
     axis_square_ii_decorations = _step_decorations(page, axis_square_ii_step.id)
     assert {
         "type": "dashedLine",
@@ -290,17 +268,7 @@ def test_vs1_heping_ermo_locus_minimum_and_parameter_interactions_are_bound(
         "width": 2.0,
         "dash": "7 5",
     } in axis_square_ii_decorations
-    assert not any(
-        item.get("type") == "point" and item.get("at") in {"F", "H"}
-        for item in axis_square_ii_decorations
-    )
-    axis_square_ii_data = _lesson_data_step(page, axis_square_ii_step.id)
-    assert axis_square_ii_data["localControls"]["values"]["u"] == 1.5
-    axis_square_ii_overrides = page.compiled.step_decorations["steps"][axis_square_ii_step.id]["pointOverrides"]
-    assert axis_square_ii_overrides["E_axis_ii"] == ["1/2-c/2", "u"]
-    assert axis_square_ii_overrides["G_axis_ii"] == ["-c+u", "-c/2-1/2"]
-
-    minimum_step = _lesson_step(lesson, "explain_derive_path_minimum_ii")
+    minimum_step = axis_square_ii_step
     minimum_decorations = _step_decorations(page, minimum_step.id)
     assert {
         "type": "coordinateLabel",
@@ -312,26 +280,18 @@ def test_vs1_heping_ermo_locus_minimum_and_parameter_interactions_are_bound(
     assert {
         "type": "segment",
         "from": "A_prime",
-        "to": "M",
+        "to": "M_axis_ii",
         "label": "A′M",
         "color": "#b45309",
         "width": 2.8,
         "offsetPx": 16,
     } in minimum_decorations
-    minimum_data = _lesson_data_step(page, minimum_step.id)
-    assert minimum_data["localControls"]["controls"][0]["var"] == "u"
-    assert minimum_data["localControls"]["controls"][0]["label"].startswith("动点 G")
-    minimum_overrides = page.compiled.step_decorations["steps"][minimum_step.id]["pointOverrides"]
-    assert minimum_overrides["G_axis_ii"] == ["10.049*u-6.8", "-c/2-1/2"]
-    assert "G" not in minimum_overrides
-
     parameter_step = _lesson_step(
         lesson,
-        "explain_solve_parameter_c_ii_evaluate_point_A_ii_derive_minimum_point_G_ii",
+        "explain_evaluate_minimum_point_G_ii",
     )
     parameter_decorations = _step_decorations(page, parameter_step.id)
-    assert {"type": "coordinateLabel", "at": "A", "text": "A(－5,0)", "dx": 14, "dy": -28} in parameter_decorations
-    assert {"type": "coordinateLabel", "at": "G", "text": "G(－7/2,－3)", "dx": 14, "dy": 34} in parameter_decorations
+    assert {"type": "coordinateLabel", "at": "G", "text": "G(－7/2,－3)", "dx": 14, "dy": -28} in parameter_decorations
     assert not any(
         item.get("type") == "point"
         and item.get("at") == "G_axis_ii"

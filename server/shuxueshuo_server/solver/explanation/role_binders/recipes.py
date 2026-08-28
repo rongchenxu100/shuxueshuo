@@ -86,11 +86,84 @@ class BrokenPathStraighteningMinimumRoleBinder:
         )
 
 
+class QuadraticSquarePathMinimumRoleBinder:
+    """Bind the atomic square-path Macro from verified runtime evidence."""
+
+    def bind(
+        self,
+        *,
+        recipe_spec: RecipeSpec,
+        group: LessonCandidateGroup,
+        snapshot: ExplanationSnapshot,
+    ) -> dict[str, Any]:
+        explanation = recipe_spec.explanation
+        assert explanation is not None
+        witness = _path_minimum_witness(
+            snapshot,
+            group,
+            macro_id="quadratic_square_path_minimum",
+        )
+        if witness is None:
+            return GenericRecipeRoleBinder().bind(
+                recipe_spec=recipe_spec,
+                group=group,
+                snapshot=snapshot,
+            )
+        minimizing_points = witness.get("minimizing_points") or {}
+        moving_point, attainment_point = next(
+            iter(minimizing_points.items()),
+            ("动点", "经过验证的达到点"),
+        )
+        roles = {
+            "original_objective": str(witness.get("original_objective") or ""),
+            "reduced_objective": str(witness.get("reduced_objective") or ""),
+            "moving_point": str(moving_point),
+            "attainment_point": attainment_point,
+            "minimum_strategy": str(witness.get("minimum_strategy") or ""),
+            "minimum_expression": str(witness.get("minimum_expression") or ""),
+        }
+        attainment_display = (
+            f"{moving_point}("
+            + ",".join(_student_expr(str(item)) for item in attainment_point)
+            + ")"
+            if isinstance(attainment_point, list | tuple)
+            else str(attainment_point)
+        )
+        proof = [str(item) for item in witness.get("equivalence_proof", ())]
+        proof.extend(
+            (
+                "经过验证的折线拉直策略为："
+                f"{roles['minimum_strategy']}。",
+                "因此最小值为 "
+                f"{_student_expr(roles['minimum_expression'])}，"
+                f"在 {attainment_point} 处取得。",
+            )
+        )
+        return {
+            "confidence": "complete",
+            "bound_roles": roles,
+            "unbound_roles": [],
+            "student_intent_draft": explanation.student_intent_template,
+            "proof_draft": proof,
+            "box": [
+                f"最小值＝{_student_expr(roles['minimum_expression'])}",
+                attainment_display,
+            ],
+            "recommended_lesson_splits": list(
+                explanation.recommended_lesson_splits
+            ),
+            "llm_can_complete": list(explanation.allowed_llm_completion),
+            "llm_must_not_invent": generic_must_not_invent()
+            + ["只能使用 verified Macro evidence 中的角色、表达式和达到点。"],
+        }
+
+
 def recipe_role_binders() -> dict[str, RecipeRoleBinder]:
     return {
         "generic_recipe": GenericRecipeRoleBinder(),
         "equal_length_ray_path_reduction": EqualLengthRayPathReductionRoleBinder(),
         "broken_path_straightening_minimum_expression": BrokenPathStraighteningMinimumRoleBinder(),
+        "quadratic_square_path_minimum": QuadraticSquarePathMinimumRoleBinder(),
     }
 
 
@@ -337,6 +410,8 @@ def _equal_length_ray_path_reduction_draft(
 def _path_minimum_witness(
     snapshot: ExplanationSnapshot,
     group: LessonCandidateGroup,
+    *,
+    macro_id: str = "equal_length_ray_path_reduction",
 ) -> dict[str, Any] | None:
     source_step_ids = {
         str(item)
@@ -347,7 +422,7 @@ def _path_minimum_witness(
         if item
     }
     for item in snapshot.macro_evidence:
-        if item.get("macro_id") != "equal_length_ray_path_reduction":
+        if item.get("macro_id") != macro_id:
             continue
         if str(item.get("step_id") or "") in source_step_ids:
             return item

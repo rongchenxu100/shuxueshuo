@@ -568,14 +568,11 @@ def test_expanded_family_catalogs_keep_pack_and_local_capabilities() -> None:
         QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY.family_id: (
             QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY,
             {
-                "two_moving_points_path_reduction",
-                "square_path_dimension_reduction",
-                "line_locus_minimum_point",
+                "quadratic_square_path_minimum_kernel",
+                "quadratic_axis_parameterized_point",
+                "square_adjacent_vertex_from_side",
             },
-            {
-                "broken_path_straightening_and_select",
-                "broken_path_straightening_minimum_expression",
-            },
+            {"quadratic_square_path_minimum"},
         ),
     }
 

@@ -464,16 +464,17 @@ def test_answer_binding_rejects_preserved_identity_from_another_object() -> None
     assert issue.details["identity_arg"] == "target_point"
 
 
-def test_unknown_call_local_line_binding_is_dropped() -> None:
+def test_unknown_atomic_macro_return_binding_is_dropped() -> None:
     _, payload, _, _ = _heping_ermo_case()
-    locus_call = next(
+    macro_call = next(
         call
         for scope in payload["scopes"]
         for call in scope["calls"]
-        if call["call_id"] == "derive_locus_G_ii"
+        if call["call_id"] == "derive_path_minimum_ii"
     )
-    locus_call["return_bindings"] = {
-        "line": {"kind": "line", "ref": "display_locus"}
+    macro_call["return_bindings"]["internal_locus"] = {
+        "kind": "line",
+        "ref": "display_locus",
     }
 
     result = _reconcile_heping_ermo_payload(payload)
@@ -481,20 +482,20 @@ def test_unknown_call_local_line_binding_is_dropped() -> None:
     assert not [
         item
         for item in result.issues
-        if item.call_id == "derive_locus_G_ii"
+        if item.call_id == "derive_path_minimum_ii"
         and item.code == "functional.return_binding_unknown"
     ]
     effective_call = next(
         call
         for call in result.plan.calls
-        if call.call_id == "derive_locus_G_ii"
+        if call.call_id == "derive_path_minimum_ii"
     )
-    assert effective_call.return_bindings == {}
+    assert "internal_locus" not in effective_call.return_bindings
     assert {
-        "call_id": "derive_locus_G_ii",
+        "call_id": "derive_path_minimum_ii",
         "action": "drop_unknown_call_local_return_binding",
         "from": "line:display_locus",
-        "to": "line",
+        "to": "internal_locus",
     } in result.elaboration["deterministic_repairs"]
 
 
@@ -2934,22 +2935,25 @@ def test_heping_ermo_functional_catalog_explains_stateful_geometry_args() -> Non
     ).to_prompt_payload()["capabilities"]
     by_id = {item["capability_id"]: item for item in capabilities}
 
-    line_minimum = by_id["line_locus_minimum_point"]
-    line_args = {item["name"]: item for item in line_minimum["args"]}
-    assert line_args["moving_locus"]["domain_type"] == "Line"
-    assert line_args["minimum_point_1"]["domain_type"] == "Point"
-    assert line_args["minimum_point_2"]["domain_type"] == "Point"
-    assert "另一个几何点" in line_minimum["returns"][0]["desc"]
-    assert any(
-        "本能力只返回路径动点自身" in item
-        for item in line_minimum["do_not_use_when"]
-    )
+    macro = by_id["quadratic_square_path_minimum"]
+    assert [item["name"] for item in macro["args"]] == [
+        "parabola",
+        "path_minimum_target",
+        "square",
+    ]
+    assert [item["name"] for item in macro["returns"]] == [
+        "minimum_expression",
+        "attainment_point",
+    ]
+    assert "line_locus_minimum_point" not in by_id
+    assert "square_path_dimension_reduction" not in by_id
+    assert "broken_path_straightening_minimum_expression" not in by_id
 
     square_vertex = by_id["square_adjacent_vertex_from_side"]
     square_args = {item["name"]: item for item in square_vertex["args"]}
     assert square_args["side_start"]["domain_type"] == "Point"
     assert square_args["side_end"]["domain_type"] == "Point"
-    assert "分别绑定 V3、V4" in square_vertex["returns"][0]["desc"]
+    assert "题面对象" in square_vertex["returns"][0]["desc"]
     assert square_vertex["returns"][0]["binding"] == (
         "explicit_answer_or_existing_object"
     )
@@ -3385,51 +3389,6 @@ def test_open_expression_answer_binding_is_normalized_for_runtime_verification()
         "from": "path_minimum_expression=open_expression",
         "to": "closed_value",
     } in result.elaboration["deterministic_repairs"]
-
-
-def test_consumed_open_point_answer_binding_becomes_existing_object_state() -> None:
-    inputs, payload, registry, context = _heping_ermo_case()
-    calls = {
-        call["call_id"]: call
-        for scope in payload["scopes"]
-        for call in scope["calls"]
-    }
-    parameterized = calls["parameterize_axis_point_E_ii"]
-    parameterized["return_bindings"] = {
-        "point": {"kind": "answer", "ref": "ii.E"}
-    }
-    parameterized["return_expectations"] = {"point": "open_state"}
-    final = calls["recover_target_point_E_ii"]
-    final["return_expectations"] = {"adjacent_vertex": "closed_state"}
-    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
-        payload,
-        handle_registry=registry,
-        question_goals=inputs.question_goals,
-    )
-    assert validation.ok and plan is not None
-
-    result = FunctionalPlanReconciler().reconcile(
-        plan,
-        planner_state_context=context,
-        family_spec=inputs.family_spec,
-        method_specs=inputs.method_specs,
-        handle_registry=registry,
-        question_goals=inputs.question_goals,
-    )
-
-    assert result.ok, [item.to_payload() for item in result.issues]
-    effective = next(
-        call
-        for call in result.plan.calls
-        if call.call_id == "parameterize_axis_point_E_ii"
-    )
-    assert effective.return_bindings["point"].ref == "ii.E"
-    assert effective.return_bindings["point"].kind == "point"
-    assert any(
-        item["action"] == "demote_intermediate_open_state_answer_binding"
-        and item["call_id"] == "parameterize_axis_point_E_ii"
-        for item in result.elaboration["deterministic_repairs"]
-    )
 
 
 def test_closed_result_expectation_blocks_runtime_when_symbols_remain() -> None:
@@ -5584,39 +5543,21 @@ def test_functional_catalog_lowers_containers_and_hides_auto_args() -> None:
 
     heping_ermo = load_problem_ir(HEPING_ERMO_FIXTURE)
     heping_inputs = build_strategy_probe_inputs(heping_ermo)
-    square_reduction = FunctionalCapabilityCatalog.from_family_spec(
+    square_macro = FunctionalCapabilityCatalog.from_family_spec(
         heping_inputs.family_spec,
         heping_inputs.method_specs,
-    ).get("square_path_dimension_reduction")
-    assert square_reduction is not None
-    square_prompt = square_reduction.to_prompt_payload()
-    assert "原目标路径恰好由三段组成" in square_prompt["use_when"]
-    assert "输出不携带动点轨迹" in square_prompt["use_when"]
-    assert any(
-        "原路径只有两段" in item
-        for item in square_prompt["do_not_use_when"]
-    )
-    square_transformation = next(
-        item
-        for item in square_reduction.returns
-        if item.name == "path_transformation"
-    )
-    assert square_transformation.provides_semantic_roles == ()
-    assert "provides" not in square_transformation.to_prompt_payload()
-    assert "必须显式提供属于同一动点的 Line" in (
-        square_transformation.to_prompt_payload()["desc"]
-    )
-    square_args = {item["name"]: item for item in square_prompt["args"]}
-    assert square_args["moving_point"] == {
-        "name": "moving_point",
-        "domain_type": "Point",
-        "required": True,
-        "cardinality": "one",
-        "role": (
-            "Planner 显式选择路径降维后保留的正方形动点。代码只验证该选择"
-            "与正方形邻接、中点、中心和原路径一致，不会按顶点序号自动选择。"
-        ),
-    }
+    ).get("quadratic_square_path_minimum")
+    assert square_macro is not None
+    square_prompt = square_macro.to_prompt_payload()
+    assert [item["name"] for item in square_prompt["args"]] == [
+        "parabola",
+        "path_minimum_target",
+        "square",
+    ]
+    assert [item["name"] for item in square_prompt["returns"]] == [
+        "minimum_expression",
+        "attainment_point",
+    ]
     axis_parameterized = FunctionalCapabilityCatalog.from_family_spec(
         heping_inputs.family_spec,
         heping_inputs.method_specs,
@@ -5626,23 +5567,20 @@ def test_functional_catalog_lowers_containers_and_hides_auto_args() -> None:
         item.name: item.to_prompt_payload()
         for item in axis_parameterized.returns
     }
-    assert "默认不等于抛物线系数" in axis_returns["point"]["desc"]
-    assert "只有同身份 ParameterValue 才能代入" in (
-        axis_returns["parameter"]["desc"]
-    )
+    assert "Point 专属参数" in axis_returns["point"]["desc"]
+    assert "默认不等于抛物线系数" in axis_parameterized.use_when
+    assert axis_returns["parameter"]["binding"] == "internal_only"
     assert any(
         "不同 Symbol identity 的参数值不能互相代入" in item
         for item in axis_parameterized.do_not_use_when
     )
     assert {
         item.semantic_role: item.accepted_condition_kinds
-        for item in square_reduction.args
+        for item in square_macro.args
         if item.accepted_condition_kinds
     } == {
         "path_minimum_target": ("path_minimum_target",),
         "square": ("square",),
-        "midpoint_definition": ("midpoint_definition",),
-        "square_center": ("square_center",),
     }
 
     midpoint = catalog.get("midpoint_point")
@@ -7494,344 +7432,6 @@ def test_contextual_catalog_keeps_selector_with_declared_target_metadata() -> No
     assert catalog.get("translated_point") is not None
 
 
-def test_selector_state_roles_reject_type_compatible_wrong_points() -> None:
-    problem = load_problem_ir(HEPING_ERMO_FIXTURE)
-    inputs = replace(build_strategy_probe_inputs(problem), question_goals=[])
-    problem_payload = problem_to_llm_payload(problem)
-    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
-    context = initial_planner_state_context(
-        inputs,
-        problem_payload=problem_payload,
-        handle_registry=registry,
-    )
-    catalog = FunctionalCapabilityCatalog.from_family_spec(
-        inputs.family_spec,
-        inputs.method_specs,
-    )
-    capability = catalog.get("line_locus_minimum_point")
-    assert capability is not None
-    args = {item.name: item for item in capability.args}
-    assert args["minimum_point_1"].accepted_semantic_roles == (
-        "straightened_endpoint_1",
-    )
-    assert args["minimum_point_2"].accepted_semantic_roles == (
-        "straightened_endpoint_2",
-    )
-    assert capability.identity_constraints
-    prompt_payload = capability.to_prompt_payload()
-    assert any(
-        "同一对象" in requirement["requirement"]
-        for requirement in prompt_payload["input_requirements"]
-    )
-
-    payload = {
-        "format": "functional_plan/v1",
-        "scopes": [
-            {
-                "scope_id": "ii",
-                "label": "ii",
-                "calls": [
-                    {
-                        "call_id": "locate_minimum_point",
-                        "capability_id": "line_locus_minimum_point",
-                        "args": {
-                            "moving_locus": {
-                                "ref": "ii.A",
-                                "kind": "point",
-                            },
-                            "minimum_point_1": {
-                                "ref": "ii.A",
-                                "kind": "point",
-                            },
-                            "minimum_point_2": {
-                                "ref": "M",
-                                "kind": "point",
-                            },
-                        },
-                        "return_bindings": {},
-                        "strategy": "try ordinary endpoints",
-                        "reason": "exercise semantic role validation",
-                    }
-                ],
-            }
-        ],
-    }
-    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
-        payload,
-        handle_registry=registry,
-        question_goals=(),
-    )
-    assert validation.ok and plan is not None
-
-    result = FunctionalPlanReconciler().reconcile(
-        plan,
-        planner_state_context=context,
-        family_spec=inputs.family_spec,
-        method_specs=inputs.method_specs,
-        handle_registry=registry,
-        question_goals=(),
-    )
-
-    role_issues = [
-        item
-        for item in result.issues
-        if item.code == "functional.state_role_mismatch"
-    ]
-    assert {item.details["arg"] for item in role_issues if item.details} == {
-        "minimum_point_1",
-        "minimum_point_2",
-    }
-
-
-def test_evaluated_path_endpoints_preserve_semantic_lineage() -> None:
-    problem = load_problem_ir(HEPING_ERMO_FIXTURE)
-    inputs = build_strategy_probe_inputs(problem)
-    problem_payload = problem_to_llm_payload(problem)
-    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
-    context = initial_planner_state_context(
-        inputs,
-        problem_payload=problem_payload,
-        handle_registry=registry,
-    )
-    payload = json.loads(HEPING_ERMO_FUNCTIONAL_PLAN.read_text(encoding="utf-8"))
-    scope = next(item for item in payload["scopes"] if item["scope_id"] == "ii")
-    calls = scope["calls"]
-    minimum_index = next(
-        index
-        for index, call in enumerate(calls)
-        if call["call_id"] == "derive_minimum_point_G_ii"
-    )
-    evaluated_calls = [
-        {
-            "call_id": f"evaluate_path_endpoint_{number}_ii",
-            "capability_id": "evaluate_point_at_parameter",
-                "args": {
-                    "point": {
-                        "from_call": "derive_path_minimum_ii",
-                        "return": f"straightened_endpoint_{number}",
-                    },
-                "parameter_value": {
-                    "from_call": "solve_parameter_c_ii",
-                    "return": "parameter_value",
-                },
-            },
-            "return_bindings": {},
-            "strategy": "代入已确定参数并保留端点对象身份。",
-            "reason": "验证状态转移后的语义 lineage。",
-        }
-        for number in (1, 2)
-    ]
-    calls[minimum_index:minimum_index] = evaluated_calls
-    minimum_call = next(
-        call for call in calls if call["call_id"] == "derive_minimum_point_G_ii"
-    )
-    for number in (1, 2):
-        minimum_call["args"][f"minimum_point_{number}"] = {
-            "from_call": f"evaluate_path_endpoint_{number}_ii",
-            "return": "evaluated_point",
-        }
-
-    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
-        payload,
-        handle_registry=registry,
-        question_goals=inputs.question_goals,
-    )
-    assert validation.ok and plan is not None
-    result = FunctionalPlanReconciler().reconcile(
-        plan,
-        planner_state_context=context,
-        family_spec=inputs.family_spec,
-        method_specs=inputs.method_specs,
-        handle_registry=registry,
-        question_goals=inputs.question_goals,
-    )
-
-    assert not [
-        issue
-        for issue in result.issues
-        if issue.code
-        in {"functional.state_role_mismatch", "functional.object_identity_mismatch"}
-    ]
-    allocations = {
-        (item.call_id, item.return_name): item
-        for call in result.calls
-        for item in call.returns
-    }
-    for number in (1, 2):
-        allocation = allocations[
-            (f"evaluate_path_endpoint_{number}_ii", "evaluated_point")
-        ]
-        assert (
-            f"straightened_endpoint_{number}"
-            in allocation.lineage.semantic_roles
-        )
-        assert allocation.lineage.object_roles
-        assert "derive_path_minimum_ii" in allocation.lineage.source_call_ids
-
-    evaluated = tuple(
-        ResolvedFunctionalValue(
-            handle=allocation.handle,
-            runtime_type="Point",
-            valid_scope=allocation.valid_scope,
-            source_call_id=f"evaluate_path_endpoint_{number}_ii",
-            lineage=allocation.lineage,
-        )
-        for number, allocation in (
-            (number, allocations[
-                (f"evaluate_path_endpoint_{number}_ii", "evaluated_point")
-            ])
-            for number in (1, 2)
-        )
-    )
-    assert _values_share_lineage_source_call(evaluated)
-
-
-def test_role_mismatch_feedback_lists_unallocated_declared_returns() -> None:
-    problem = load_problem_ir(HEPING_ERMO_FIXTURE)
-    inputs = build_strategy_probe_inputs(problem)
-    problem_payload = problem_to_llm_payload(problem)
-    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
-    payload = json.loads(
-        HEPING_ERMO_FUNCTIONAL_PLAN.read_text(encoding="utf-8")
-    )
-    minimum_call = next(
-        call
-        for scope in payload["scopes"]
-        for call in scope["calls"]
-        if call["call_id"] == "derive_minimum_point_G_ii"
-    )
-    minimum_call["args"]["minimum_point_1"] = {
-        "from_call": "evaluate_point_A_ii",
-        "return": "evaluated_point",
-    }
-    minimum_call["args"]["minimum_point_2"] = {
-        "from_call": "derive_axis_point_M_ii",
-        "return": "axis_point",
-    }
-
-    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
-        payload,
-        handle_registry=registry,
-        question_goals=inputs.question_goals,
-    )
-    assert validation.ok and plan is not None
-    replay = PlannerRetryReplayService().replay_functional_plan(
-        plan,
-        inputs=inputs,
-        handle_registry=registry,
-        context=ContextBuilder().build(problem),
-        attempt=1,
-        problem_payload=problem_payload,
-        validation_report=validation,
-    )
-
-    assert replay.retry_state is not None
-    issues = [
-        issue
-        for issue in replay.retry_state.issues
-        if issue.code == "functional.state_role_mismatch"
-    ]
-    assert {issue.details["arg"] for issue in issues if issue.details} == {
-        "minimum_point_1",
-        "minimum_point_2",
-    }
-    candidates_by_arg = {
-        issue.details["arg"]: {
-            (item["from_call"], item["return"])
-            for item in issue.details["compatible_call_results"]
-        }
-        for issue in issues
-        if issue.details is not None
-    }
-    assert (
-        "derive_path_minimum_ii",
-        "straightened_endpoint_1",
-    ) in candidates_by_arg["minimum_point_1"]
-    assert (
-        "derive_path_minimum_ii",
-        "straightened_endpoint_2",
-    ) in candidates_by_arg["minimum_point_2"]
-
-
-def test_path_locus_identity_mismatch_repairs_wrong_locus_subgraph() -> None:
-    problem = load_problem_ir(HEPING_ERMO_FIXTURE)
-    inputs = build_strategy_probe_inputs(problem)
-    problem_payload = problem_to_llm_payload(problem)
-    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
-    context = initial_planner_state_context(
-        inputs,
-        problem_payload=problem_payload,
-        handle_registry=registry,
-    )
-    payload = json.loads(HEPING_ERMO_FUNCTIONAL_PLAN.read_text(encoding="utf-8"))
-    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
-        payload,
-        handle_registry=registry,
-        question_goals=inputs.question_goals,
-    )
-    assert validation.ok and plan is not None
-    result = FunctionalPlanReconciler().reconcile(
-        plan,
-        planner_state_context=context,
-        family_spec=inputs.family_spec,
-        method_specs=inputs.method_specs,
-        handle_registry=registry,
-        question_goals=inputs.question_goals,
-    )
-    assert result.ok
-    call = next(
-        item
-        for item in result.calls
-        if item.call_id == "derive_path_minimum_ii"
-    )
-    catalog = FunctionalCapabilityCatalog.from_family_spec(
-        inputs.family_spec,
-        inputs.method_specs,
-    )
-    capability = catalog.get(call.capability_id)
-    assert capability is not None
-    wrong_locus = replace(
-        call.resolved_args["moving_locus"][0],
-        source_call_id="derive_locus_G_ii",
-        lineage=state_semantic_lineage(
-            object_roles=(
-                StateObjectRoleBinding(
-                    role="subject",
-                    object_refs=("point:ii:E",),
-                    object_ids=(
-                        MathObjectId("point:ii:E", "point", "ii"),
-                    ),
-                ),
-            ),
-        ),
-    )
-    resolved_args = {
-        **call.resolved_args,
-        "moving_locus": (wrong_locus,),
-    }
-    issues = StateIdentityConstraintValidator().validate(
-        capability.identity_constraints,
-        call_id=call.call_id,
-        scope_id=call.scope_id,
-        resolved_args=resolved_args,
-        returns=call.returns,
-    )
-    issue = next(
-        item for item in issues
-        if item.code == "functional.object_identity_mismatch"
-    )
-    assert issue.details["actual_object_refs"] == ["point:ii:E"]
-    assert issue.details["expected_object_refs"] == ["point:ii:G"]
-    assert "derive_locus_G_ii" in issue.details["repair_call_ids"]
-    assert "derive_path_minimum_ii" in issue.details["repair_call_ids"]
-    repair_roots = strategy_replay_module._root_repair_call_ids(
-        replace(result, issues=issues)
-    )
-    assert "derive_locus_G_ii" in repair_roots
-    assert "derive_path_minimum_ii" in repair_roots
-    assert "derive_minimum_point_G_ii" not in repair_roots
-
-
 def test_identity_constraint_compares_unordered_math_object_sets() -> None:
     first = MathObjectId("point:part:first", "point", "part")
     second = MathObjectId("point:part:second", "point", "part")
@@ -8941,82 +8541,6 @@ def test_explicit_return_identity_is_not_replaced_by_structured_role() -> None:
     )
 
 
-def test_reconciler_reuses_open_state_for_incomplete_parameter_transition() -> None:
-    inputs, payload, registry, context = _heping_ermo_case()
-    scope = next(item for item in payload["scopes"] if item["scope_id"] == "ii")
-    square_index = next(
-        index
-        for index, call in enumerate(scope["calls"])
-        if call["call_id"] == "derive_square_vertex_G_ii"
-    )
-    scope["calls"].insert(
-        square_index,
-        {
-            "call_id": "redundant_materialize_A",
-            "capability_id": "evaluate_point_at_parameter",
-            "args": {
-                "point": {
-                    "ref": "ii.A",
-                    "kind": "point",
-                }
-            },
-            "return_bindings": {
-                "evaluated_point": {
-                    "ref": "ii.A",
-                    "kind": "point",
-                }
-            },
-            "return_expectations": {
-                "evaluated_point": "open_state",
-            },
-            "strategy": "repeat the existing open point state",
-            "reason": "exercise incomplete transition normalization",
-        },
-    )
-    square_call = next(
-        call
-        for call in scope["calls"]
-        if call["call_id"] == "derive_square_vertex_G_ii"
-    )
-    square_call["args"]["side_start"] = {
-        "from_call": "redundant_materialize_A",
-        "return": "evaluated_point",
-    }
-    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
-        payload,
-        handle_registry=registry,
-        question_goals=inputs.question_goals,
-    )
-    assert validation.ok and plan is not None
-
-    result = FunctionalPlanReconciler().reconcile(
-        plan,
-        planner_state_context=context,
-        family_spec=inputs.family_spec,
-        method_specs=inputs.method_specs,
-        handle_registry=registry,
-        question_goals=inputs.question_goals,
-    )
-
-    assert result.ok, [item.to_payload() for item in result.issues]
-    assert "redundant_materialize_A" not in {
-        call.call_id for call in result.plan.calls
-    }
-    canonical_square = next(
-        call
-        for call in result.plan.calls
-        if call.call_id == "derive_square_vertex_G_ii"
-    )
-    assert canonical_square.args["side_start"] == (
-        SemanticRef(ref="ii.A", kind="point"),
-    )
-    assert any(
-        item["action"] == "reuse_open_state_for_incomplete_transition"
-        and item["call_id"] == "redundant_materialize_A"
-        for item in result.elaboration["deterministic_repairs"]
-    )
-
-
 def test_reconciler_keeps_incomplete_transition_when_closed_state_is_required() -> None:
     inputs, _payload, registry, context = _heping_ermo_case()
     payload = {
@@ -9070,43 +8594,6 @@ def test_reconciler_keeps_incomplete_transition_when_closed_state_is_required() 
     assert all(
         item["action"] != "reuse_open_state_for_incomplete_transition"
         for item in result.elaboration["deterministic_repairs"]
-    )
-
-
-def test_explicit_return_identity_is_not_inferred_from_downstream_usage() -> None:
-    inputs, payload, registry, context = _heping_ermo_case()
-    call = next(
-        call
-        for scope in payload["scopes"]
-        for call in scope["calls"]
-        if call["call_id"] == "derive_square_vertex_G_ii"
-    )
-    call["return_bindings"] = {}
-    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
-        payload,
-        handle_registry=registry,
-        question_goals=inputs.question_goals,
-    )
-    assert validation.ok and plan is not None
-
-    result = FunctionalPlanReconciler().reconcile(
-        plan,
-        planner_state_context=context,
-        family_spec=inputs.family_spec,
-        method_specs=inputs.method_specs,
-        handle_registry=registry,
-        question_goals=inputs.question_goals,
-    )
-
-    issue = next(
-        item
-        for item in result.issues
-        if item.call_id == "derive_square_vertex_G_ii"
-        and item.code == "functional.return_identity_unresolved"
-    )
-    assert issue.details is not None
-    assert issue.details["binding_requirement"] == (
-        "explicit_answer_or_existing_object"
     )
 
 
@@ -9332,80 +8819,6 @@ def test_reconciler_normalizes_exact_question_goal_ref_with_object_kind() -> Non
     })
 
 
-def test_reconciler_binds_terminal_object_state_to_required_answer() -> None:
-    problem = load_problem_ir(HEPING_ERMO_FIXTURE)
-    inputs = build_strategy_probe_inputs(problem)
-    problem_payload = problem_to_llm_payload(problem)
-    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
-    context = initial_planner_state_context(
-        inputs,
-        problem_payload=problem_payload,
-        handle_registry=registry,
-    )
-    payload = json.loads(HEPING_ERMO_FUNCTIONAL_PLAN.read_text(encoding="utf-8"))
-    call = next(
-        call
-        for scope in payload["scopes"]
-        for call in scope["calls"]
-        if call["call_id"] == "recover_target_point_E_ii"
-    )
-    call["capability_id"] = "evaluate_point_at_parameter"
-    call["args"] = {
-        "point": {
-            "from_call": "parameterize_axis_point_E_ii",
-            "return": "point",
-        },
-        "parameter_value": {
-            "from_call": "solve_parameter_c_ii",
-            "return": "parameter_value",
-        },
-    }
-    call["return_bindings"] = {}
-    call.pop("return_expectations", None)
-    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
-        payload,
-        handle_registry=registry,
-        question_goals=inputs.question_goals,
-    )
-    assert validation.ok and plan is not None
-
-    result = FunctionalPlanReconciler().reconcile(
-        plan,
-        planner_state_context=context,
-        family_spec=inputs.family_spec,
-        method_specs=inputs.method_specs,
-        handle_registry=registry,
-        question_goals=inputs.question_goals,
-    )
-
-    assert result.ok, [item.to_payload() for item in result.issues]
-    answer_calls = [
-        item
-        for item in result.plan.calls
-        if any(
-            binding.kind == "answer" and binding.ref == "ii.E"
-            for binding in item.return_bindings.values()
-        )
-    ]
-    assert len(answer_calls) == 1
-    allocation = next(
-        item
-        for resolved in result.calls
-        for item in resolved.returns
-        if item.handle == "answer:ii.E"
-    )
-    assert allocation.handle == "answer:ii.E"
-    answer_repairs = [
-        item
-        for item in result.elaboration["deterministic_repairs"]
-        if "answer" in item["action"]
-    ]
-    assert any(
-        item["action"] == "bind_resolved_object_state_to_required_answer"
-        for item in answer_repairs
-    ), answer_repairs
-
-
 def test_answer_target_object_scope_constrains_runtime_placement() -> None:
     inputs, payload, registry, context = _heping_ermo_case()
     first_scope = next(
@@ -9456,49 +8869,6 @@ def test_answer_target_object_scope_constrains_runtime_placement() -> None:
         if entry.call_id == "derive_vertex_P_i"
     )
     assert execution.execution_scope_id == "i_1"
-
-
-def test_identity_constraint_infers_unique_target_object_return() -> None:
-    inputs, payload, registry, context = _heping_ermo_case()
-    call = next(
-        call
-        for scope in payload["scopes"]
-        for call in scope["calls"]
-        if call["call_id"] == "derive_minimum_point_G_ii"
-    )
-    call["return_bindings"] = {}
-    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
-        payload,
-        handle_registry=registry,
-        question_goals=inputs.question_goals,
-    )
-    assert validation.ok and plan is not None
-
-    result = FunctionalPlanReconciler().reconcile(
-        plan,
-        planner_state_context=context,
-        family_spec=inputs.family_spec,
-        method_specs=inputs.method_specs,
-        handle_registry=registry,
-        question_goals=inputs.question_goals,
-    )
-
-    assert result.ok, [item.to_payload() for item in result.issues]
-    effective = next(
-        item
-        for item in result.plan.calls
-        if item.call_id == "derive_minimum_point_G_ii"
-    )
-    assert effective.return_bindings["point"] == SemanticRef(
-        ref="ii.G",
-        kind="point",
-        value_type="Point",
-    )
-    assert any(
-        item["action"] == "infer_return_identity_from_contract"
-        and item["call_id"] == "derive_minimum_point_G_ii"
-        for item in result.elaboration["deterministic_repairs"]
-    )
 
 
 def test_required_goal_unbound_identifies_object_producer_for_graph_retry(
@@ -9833,100 +9203,44 @@ def test_functional_projected_arg_sidecar_exports_wire_and_resolver_ledger() -> 
     assert reconciliation.legacy_identity_fallback_count == 0
 
 
-def test_path_transformation_producers_publish_distinct_role_profiles() -> None:
-    weighted_inputs, weighted_registry, weighted_context, weighted_payload = (
-        _hexi_case()
+def test_weighted_path_transformation_publishes_auxiliary_role_profile() -> None:
+    inputs, registry, context, payload = _hexi_case()
+    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
+        payload,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
     )
-    weighted_plan, weighted_validation = (
-        FunctionalPlanValidator().validate_payload_with_report(
-            weighted_payload,
-            handle_registry=weighted_registry,
-            question_goals=weighted_inputs.question_goals,
-        )
+    assert validation.ok and plan is not None
+    reconciliation = FunctionalPlanReconciler().reconcile(
+        plan,
+        planner_state_context=context,
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
     )
-    assert weighted_validation.ok and weighted_plan is not None
-    weighted = FunctionalPlanReconciler().reconcile(
-        weighted_plan,
-        planner_state_context=weighted_context,
-        family_spec=weighted_inputs.family_spec,
-        method_specs=weighted_inputs.method_specs,
-        handle_registry=weighted_registry,
-        question_goals=weighted_inputs.question_goals,
-    )
-    weighted_call = next(
+    call = next(
         item
-        for item in weighted.calls
+        for item in reconciliation.calls
         if item.call_id == "transform_weighted_path_iii"
     )
-    weighted_return = next(
-        item
-        for item in weighted_call.returns
-        if item.runtime_type == "PathTransformation"
+    transformation = next(
+        item for item in call.returns if item.runtime_type == "PathTransformation"
     )
-    weighted_auxiliary = next(
-        item
-        for item in weighted_call.returns
-        if item.return_name == "auxiliary_point"
+    auxiliary = next(
+        item for item in call.returns if item.return_name == "auxiliary_point"
     )
-    assert {
-        item.role for item in weighted_return.lineage.object_roles
-    } == {
+    roles = {item.role: item for item in transformation.lineage.object_roles}
+
+    assert set(roles) == {
         "moving_object",
         "fixed_endpoint_1",
         "auxiliary_object",
     }
-    weighted_auxiliary_role = next(
-        item
-        for item in weighted_return.lineage.object_roles
-        if item.role == "auxiliary_object"
+    assert roles["auxiliary_object"].object_ids == (auxiliary.math_object_id,)
+    assert roles["auxiliary_object"].source_version_ids == (
+        auxiliary.selected_version_id,
     )
-    assert weighted_auxiliary_role.object_ids == (
-        weighted_auxiliary.math_object_id,
-    )
-    assert weighted_auxiliary_role.source_version_ids == (
-        weighted_auxiliary.selected_version_id,
-    )
-
-    square_inputs, square_payload, square_registry, square_context = (
-        _heping_ermo_case()
-    )
-    square_plan, square_validation = (
-        FunctionalPlanValidator().validate_payload_with_report(
-            square_payload,
-            handle_registry=square_registry,
-            question_goals=square_inputs.question_goals,
-        )
-    )
-    assert square_validation.ok and square_plan is not None
-    square = FunctionalPlanReconciler().reconcile(
-        square_plan,
-        planner_state_context=square_context,
-        family_spec=square_inputs.family_spec,
-        method_specs=square_inputs.method_specs,
-        handle_registry=square_registry,
-        question_goals=square_inputs.question_goals,
-    )
-    square_call = next(
-        item
-        for item in square.calls
-        if item.call_id == "reduce_square_path_ii"
-    )
-    square_return = next(
-        item
-        for item in square_call.returns
-        if item.runtime_type == "PathTransformation"
-    )
-    square_roles = {
-        item.role: item for item in square_return.lineage.object_roles
-    }
-    assert set(square_roles) == {
-        "moving_object",
-        "fixed_endpoint_1",
-        "fixed_endpoint_2",
-    }
-    assert "moving_locus" not in square_roles
-    assert square_roles["fixed_endpoint_1"].state_requirement == "materialized"
-    assert square_roles["fixed_endpoint_2"].state_requirement == "materialized"
 
 
 def test_path_transformation_source_roles_follow_final_placed_versions() -> None:
@@ -19053,142 +18367,22 @@ def test_partial_reconciliation_defers_checkpoint_version_verification(
     assert verification_modes == [False]
 
 
-def test_runtime_macro_arg_failure_becomes_typed_functional_work_order() -> None:
+def test_quadratic_square_family_hides_retired_path_chain_capabilities() -> None:
     problem = load_problem_ir(HEPING_ERMO_FIXTURE)
-    inputs = replace(build_strategy_probe_inputs(problem), question_goals=[])
-    problem_payload = problem_to_llm_payload(problem)
-    handles = CanonicalHandleRegistry.from_problem_payload(problem_payload)
-    payload = {
-        "format": "functional_plan/v1",
-        "scopes": [
-            {
-                "scope_id": "ii",
-                "label": "ii",
-                "calls": [
-                    {
-                        "call_id": "reduce_path",
-                        "capability_id": "square_path_dimension_reduction",
-                        "args": {
-                            "path_minimum_target": {
-                                "ref": "path_minimum_target",
-                                "kind": "fact",
-                            },
-                            "square": {
-                                "ref": "square_AEKG",
-                                "kind": "fact",
-                            },
-                            "midpoint_condition": {
-                                "ref": "F_midpoint_of_AE",
-                                "kind": "fact",
-                            },
-                            "square_center_condition": {
-                                "ref": "H_square_diagonal_intersection",
-                                "kind": "fact",
-                            },
-                            "moving_point": {
-                                "ref": "ii.G",
-                                "kind": "point",
-                            },
-                        },
-                        "return_bindings": {},
-                        "strategy": "reduce the path dimension",
-                        "reason": "produce the path transformation",
-                    },
-                    {
-                        "call_id": "straighten_path",
-                        "capability_id": (
-                            "broken_path_straightening_minimum_expression"
-                        ),
-                        "args": {
-                            "path_transformation": {
-                                "from_call": "reduce_path",
-                                "return": "path_transformation",
-                            },
-                        },
-                        "return_bindings": {},
-                        "strategy": "straighten the path",
-                        "reason": "derive a minimum expression",
-                    },
-                    {
-                        "call_id": "solve_parameter",
-                        "capability_id": "parameter_from_expression_value",
-                        "args": {
-                            "expression": {
-                                "from_call": "straighten_path",
-                                "return": "path_minimum_expression",
-                            },
-                            "minimum_value": {
-                                "ref": "path_minimum_value_given",
-                                "kind": "fact",
-                            },
-                        },
-                        "return_bindings": {},
-                        "strategy": "solve the remaining parameter",
-                        "reason": "exercise inherited Symbol provenance",
-                    },
-                ],
-            }
-        ],
-    }
-
-    replay = PlannerRetryReplayService().replay_functional_raw_json(
-        json.dumps(payload),
-        inputs=inputs,
-        handle_registry=handles,
-        context=ContextBuilder().build(problem),
-        attempt=1,
-        problem_payload=problem_payload,
+    inputs = build_strategy_probe_inputs(problem)
+    catalog = FunctionalCapabilityCatalog.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
     )
 
-    assert replay.retry_state is not None
-    issue = next(
-        item
-        for item in replay.retry_state.issues
-        if item.step_id == "reduce_path"
-    )
-    assert issue.repair_target == "functional_call"
-    assert issue.code == "functional.path_transformation_state_unavailable"
-    assert "Point state" in issue.message
-    assert issue.details["state_requirement"].startswith(
-        "materialized Point state"
-    )
-    assert issue.details["repair_action"] == "materialize_required_point_state"
-    assert issue.details["recommended_producer"] == {
-        "source_definition": "axis_x_intercept",
-        "capability_id": "quadratic_axis_x_intercept_point",
-        "return_name": "axis_point",
-        "input_requirement": "computed Parabola state for the definition owner",
-        "placement_requirement": (
-            "before the dependent call in the same scope or a visible ancestor"
-        ),
-        "definition_owner": "function:problem:parabola",
-        "return_binding": {"kind": "point", "ref": "M"},
-    }
-    assert "recommended producer" in issue.details["repair_guidance"]
-    assert not any(
-        item.code in {
-            "functional.auto_arg_unresolved",
-            "functional.auto_arg_ambiguous",
-        }
-        and item.step_id == "solve_parameter"
-        for item in replay.retry_state.issues
-    )
-    reconciliation = replay.functional_reconciliation
-    assert reconciliation is not None
-    solve_report = next(
-        item
-        for item in reconciliation.call_reports
-        if item.call_id == "solve_parameter"
-    )
-    assert solve_report.status == "blocked_by_dependency"
-    assert solve_report.blocked_by == ("straighten_path",)
-    straighten_report = next(
-        item
-        for item in reconciliation.call_reports
-        if item.call_id == "straighten_path"
-    )
-    assert straighten_report.status == "blocked_by_dependency"
-    assert straighten_report.blocked_by == ("reduce_path",)
+    assert catalog.get("quadratic_square_path_minimum") is not None
+    for capability_id in (
+        "square_path_dimension_reduction",
+        "parameterized_point_locus_line",
+        "broken_path_straightening_minimum_expression",
+        "line_locus_minimum_point",
+    ):
+        assert catalog.get(capability_id) is None
 
 
 def test_unique_required_call_result_omits_broad_candidate_lists() -> None:

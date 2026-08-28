@@ -455,6 +455,13 @@ D_MIGRATED_BINDINGS = {
     ),
 }
 
+F4_3C_RETIRED_PUBLIC_METHODS = {
+    "quadratic_axis_x_intercept_point",
+    "square_path_dimension_reduction",
+    "parameterized_point_locus_line",
+    "line_locus_minimum_point",
+}
+
 
 def _schema_validator() -> Draft202012Validator:
     schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
@@ -672,13 +679,17 @@ def test_migrated_inputs_use_the_strict_binding_contract() -> None:
         if isinstance(binding, MethodInputBindingSpec)
     }
 
-    assert actual == (
+    expected = (
         MIGRATED_QUADRATIC_BINDINGS
         | C1_MIGRATED_BINDINGS
         | C2_MIGRATED_BINDINGS
         | C3_MIGRATED_BINDINGS
         | D_MIGRATED_BINDINGS
     )
+    expected = {
+        item for item in expected if item[0] not in F4_3C_RETIRED_PUBLIC_METHODS
+    }
+    assert actual == expected
     assert all(
         not hasattr(rule, "expansion_selectors")
         for family in DEFAULT_FAMILY_REGISTRY.families

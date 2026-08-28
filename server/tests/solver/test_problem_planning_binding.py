@@ -939,7 +939,7 @@ def test_goal_answer_target_recovery_does_not_cross_scope(tmp_path) -> None:
     )
 
 
-def test_square_path_hidden_endpoint_uses_consumer_scope_producer(
+def test_square_path_hidden_endpoint_is_not_a_planner_dependency(
     tmp_path,
 ) -> None:
     case = "tj-2026-heping-ermo-25"
@@ -948,36 +948,15 @@ def test_square_path_hidden_endpoint_uses_consumer_scope_producer(
             encoding="utf-8"
         )
     )
-    sibling_scope = next(
-        scope for scope in payload["scopes"] if scope["scope_id"] == "i_1"
-    )
-    sibling_scope["calls"].append(
-        {
-            "call_id": "derive_axis_point_M_i",
-            "capability_id": "quadratic_axis_x_intercept_point",
-            "args": {
-                "parabola": {
-                    "from_call": "derive_parabola_i",
-                    "return": "parabola",
-                }
-            },
-            "return_bindings": {
-                "axis_point": {"ref": "M", "kind": "point"}
-            },
-            "strategy": "构造当前分支的轴点。",
-            "reason": "制造同对象的 sibling producer 以验证作用域选择。",
-        }
-    )
-
     *_, reconciliation = scope_native_reconciliation_fixture(
         tmp_path,
         case=case,
         plan_payload=payload,
     )
 
-    dependencies = reconciliation.dependency_graph["reduce_square_path_ii"]
-    assert "derive_axis_point_M_ii" in dependencies
-    assert "derive_axis_point_M_i" not in dependencies
+    dependencies = reconciliation.dependency_graph["derive_path_minimum_ii"]
+    assert dependencies == ("derive_parametric_parabola_ii",)
+    assert all("axis_point_M" not in item for item in dependencies)
 
 
 def test_hidden_sibling_dependency_does_not_propagate_foreign_goal_authority(

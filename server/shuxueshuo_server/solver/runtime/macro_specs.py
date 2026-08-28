@@ -332,8 +332,7 @@ class MacroSpec:
             "args": [
                 _macro_prompt_arg(item)
                 for item in self.args
-                if (item.semantic_role or item.name)
-                not in self.code_owned_search_roles
+                if _macro_arg_public_name(item) not in self.code_owned_search_roles
             ],
             "returns": [_macro_prompt_return(item) for item in self.returns],
             "notes": [_macro_prompt_text(item) for item in self.notes],
@@ -555,6 +554,7 @@ _MACRO_CANDIDATE_BUILDERS = frozenset(
         "path_role_assignments",
         "straightening_role_assignments",
         "equal_length_ray_role_assignments",
+        "quadratic_square_path_role_assignments",
         "curve_role_assignments",
     }
 )
@@ -564,6 +564,7 @@ _MACRO_VALIDATION_POLICIES = frozenset(
         "path_equivalence_and_provenance",
         "minimum_expression_and_provenance",
         "distance_equivalence_and_provenance",
+        "path_equivalence_and_attainment",
         "curve_membership_and_provenance",
     }
 )

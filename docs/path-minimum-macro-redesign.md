@@ -3,9 +3,10 @@
 Macro 在 Annotated Plan 与 Scope replacement 中始终保持原子 step。现行 Retry 合同见
 [FunctionalPlan Scope Retry](functional-scope-retry-design.md)。
 
-状态：F5-F4.1、F5-F4.2、F5-F4.2R、F5-F4.3A 与 F5-F4.3B 已完成。当前下一阶段是
-**F5-F4.3C 和平二模正方形原子 Macro**；Macro 不得透明展开为 Planner-authored
-Function 子图。
+状态：F5-F4.1、F5-F4.2、F5-F4.2R、F5-F4.3A、F5-F4.3B 与
+**F5-F4.3C** 已完成：代码、离线门禁和最终付费 live `1x3` 发布验收全部通过。
+当前下一阶段是 **F5-F4.3D 南开路径原子 Macro**；Macro 不得透明展开为
+Planner-authored Function 子图。
 
 统一运行时权威链见 [Method Solver 架构](method-solver-architecture.md) 与
 [Capability authoring guide](capability-authoring-guide.md)。
@@ -95,10 +96,11 @@ LLM 不需要根据 `kind=function|macro` 改变 authoring 语法；两者都是
 ```json
 {
   "step_id": "ii_path_minimum",
-  "capability_id": "square_relation_path_minimum",
+  "capability_id": "quadratic_square_path_minimum",
   "args": {
-    "path_target": "fact_ii_path_target",
-    "square_relation": "fact_square_ABCD"
+    "parabola": "parabola",
+    "path_minimum_target": "fact_ii_path_target",
+    "square": "fact_square_ABCD"
   }
 }
 ```
@@ -179,7 +181,7 @@ Planner retry 只接收一个 Macro 级可操作根诊断，例如：
 {
   "code": "functional.macro_no_valid_candidate",
   "step_id": "ii_path_minimum",
-  "capability_id": "square_relation_path_minimum",
+  "capability_id": "quadratic_square_path_minimum",
   "message": "给定公开条件不能确定唯一有效的路径最值构造",
   "repair_action": "修正公开参数，或选择其他可用 capability"
 }
@@ -233,7 +235,7 @@ payload 中，不成为 Planner public return。Explanation/Visual 从 verified 
 
 ## 8. 当前基线与遗留问题
 
-F4.3B 当前已具备：
+F4.3C 当前已具备：
 
 - per-call Macro preparation 与 bounded runtime search；
 - shadow branch 隔离与 clean replay；
@@ -249,16 +251,25 @@ F4.3B 当前已具备：
 - 真实执行门禁覆盖失败 shadow 零 ghost write、非等价歧义、clean replay drift 与
   checkpoint restore 免重搜；
 - transaction 向 Retry 投影时保留 Macro 错误的 `retryability`。
+- `quadratic_square_path_minimum` 固定公开 `parabola`、`path_minimum_target`、
+  `square` 三个输入以及 `minimum_expression`、`attainment_point` 两个输出；
+- midpoint、square center、axis membership、side start、axis point、moving point 与
+  fixed endpoint 全部由结构化题面关系解析，公开 Catalog 不含这些角色；
+- M 一类固定端点按 `axis_x_intercept(of=parabola)` 定义确定，其坐标由当前 parabola
+  状态计算，不通过点名或录制答案注入；
+- 和平二模生产 Plan 已由公开 path chain 迁移为一个原子 Macro step；参数方程求解和最终
+  题面点恢复仍作为独立 Goal steps 留在 Macro 外；
+- Macro 内部只执行一个 kernel invocation，完成正方形降维、轨迹、拉直、距离、合法域和
+  达到性验证，并原子发布两个 public returns 与 verified witness；
+- Family catalog、recorded fixture、scope-native fixture 与 few-shot 已迁移到相同公开契约。
 
 仍需处理：
 
-1. `PathTransformation`、`PathWitness`、`PathCandidate`、内部端点和轨迹仍进入当前 Planner
-   catalog、schema、fixture 与 recipe chain。
+1. 未迁移 family 的 `PathTransformation`、`PathWitness`、`PathCandidate`、内部端点和
+   轨迹仍可能进入 Planner catalog、schema、fixture 与 recipe chain，最终在 F4.3F 清理。
 2. 南开仍要求 LLM 拼接“两动点降维 -> 拉直求最值”。
-3. 和平二模仍要求 `square_path_dimension_reduction -> locus -> broken path`，并恢复了已知
-   `PathTransformation` moving-object identity 风险。
-4. 河西/西青仍要求 `weighted_axis_path_triangle_transform -> linked minimum`。
-5. 只有 `equal_length_ray_path_reduction` 是完整 `runtime_search` 参考 Macro；其他未迁
+3. 河西/西青仍要求 `weighted_axis_path_triangle_transform -> linked minimum`。
+4. 已迁移的 equal-length 与 quadratic-square Macro 使用完整 `runtime_search`；其他未迁
    Macro 必须保持 `direct`。
 
 ## 9. 目标 Macro
@@ -272,23 +283,46 @@ SAS 等价、路径恒等式、合法域与达到性留在 runtime。
 ### 9.2 正方形路径
 
 ```text
-square_relation_path_minimum
+quadratic_square_path_minimum
 
-public input:
-  path target Fact
-  square / midpoint / center / locus Facts
-  必要的题面 Entity
-  固定可见性的 optional role hint（确有必要时）
+public input（固定且全部 required）:
+  parabola: Function
+  path_minimum_target: Fact[path_minimum_target]
+  square: Fact[square]
 
 public output:
-  minimum_expression
-  Goal确实需要的最终 minimizing result
+  minimum_expression: MinimumExpression
+  attainment_point: Point  # 降维后唯一正方形动点的取等坐标，身份由代码绑定
+
+code-owned hidden input:
+  midpoint_definition
+  square_center
+  axis_membership
+  side_start
+  axis_point
+  moving_point
+  fixed_endpoint
 
 internal:
-  正方形降维、轨迹恢复、反射/拉直、距离、合法域与达到性
+  正方形降维、轨迹恢复、反射/拉直、距离、合法域、达到性与 PathMinimumWitness
 ```
 
-优先迁移该 family，以直接消除当前 `PathTransformation` identity 已知问题。
+这是“二次函数约束下，正方形结构中的三段路径最小值”题型能力，不是和平二模题号或
+`HF+FM+MG` 的封装。候选解析只使用结构化关系：中点必须位于正方形一条边，中心必须属于
+同一正方形，边上另一端点必须满足所选抛物线的轴关系，固定端点必须定义为该抛物线的
+x 轴交点，原路径必须连通这些角色。顶点轮换、反向排列和点名变化不改变角色解析结果。
+
+M 一类输入按两层权威处理：`axis_x_intercept` 定义来自 ProblemIR，具体坐标由 Macro 读取
+当前 `parabola` 状态并计算。因此 LLM 不传 M，Macro 也不硬编码 M 的点名或坐标。
+
+`attainment_point` 也不要求 LLM 猜测对象身份。角色搜索已经唯一确定降维后正方形动点，
+所以 Planner 不为该 return 设置 `output_targets`；后续步骤直接使用
+`{"step_id": "ii_path_minimum", "return": "attainment_point"}`。这一区分很重要：
+Macro 返回的是降维后动点的取等状态，不一定就是当前 Goal 最终要求的题面点；最终点恢复仍在
+Macro 外完成。
+
+参数方程求解、把解代回题面点以及最终恢复其他题面对象不属于该 Macro；这些步骤继续在
+Macro 外通过普通 `StepResultRef` 消费 `minimum_expression` 或 `attainment_point`。
 
 ### 9.3 两动点/标准路径
 
@@ -341,11 +375,33 @@ internal:
 
 ### F4.3C：和平二模正方形原子 Macro
 
-- 新增 `square_relation_path_minimum` 原子入口；
+- 状态：`COMPLETE`；
+- 新增 `quadratic_square_path_minimum` 原子入口；
 - 内部复用现有确定性 Method，不物化 generated Plan steps；
 - 删除该 family 对公开 `square_path_dimension_reduction`、locus handoff 与
   `broken_path_straightening_minimum_expression` 的依赖；
-- 运行和平二模并行 live `1x3`。
+- 固定三 public inputs、两 public returns 和七个 code-owned hidden roles；
+- `attainment_point` 的 hidden `moving_point` identity 由代码自动绑定；LLM 猜测的
+  `output_targets` 会在 elaboration 中丢弃，避免把降维后动点误绑为最终 Goal 答案点；
+- 迁移 Family、recorded fixtures、scope-native fixture、few-shot 与教学 recipe；
+- 离线 recorded 门禁通过后运行和平二模并行 live `1x3`。
+
+当前验收记录：
+
+- 受影响测试 `696 passed, 2 skipped`；Scope Retry/C0–C5 generated gate
+  `82 passed`；
+- 旧公开 square-path 子图的专用测试已物理删除，并由原子 Macro、旧能力不可见、加权
+  family 不回归等新断言替代；
+- live r3 为 `2/3`，唯一失败是 `required_goal_unbound(scope_id=ii)` 未打开 Scope；修复后
+  已用原始 checkpoint 精确回放确认 `editable_scope_refs=(ii)`；
+- live r4 三份均未收到 provider response，统一为 `APIConnectionError`，不计作产品失败；
+- provider 恢复后的 r6 `1x1` 首轮通过：`4/4` Goal、`11/11` authority-valid step、transaction
+  成功，且 identity leak、ghost write、retry drift 均为零；
+- 最终 batch `f5-f4.3c-quadratic-square-release-1x3` 为 `3/3` completion、`3/3` transaction、
+  `33/33` authority-valid step。sample-02/03 首轮通过；sample-01 首轮把 Macro 的
+  `attainment_point` 错绑为 E，identity authority 正确拒绝后，`functional-scope-repair/v1`
+  开放 Scope ii，将输出改绑 G 并由正方形关系求 E，第二轮通过；恢复 6 个调用且没有重执行。
+  全批次 authority drift、ghost write、identity leak、configuration error 与未分类异常均为零。
 
 ### F4.3D：南开路径原子 Macro
 
@@ -392,7 +448,6 @@ configuration/unclassified error == 0
 
 ## 12. 当前下一步
 
-下一项实现是 **F4.3C 和平二模正方形原子 Macro**：新增
-`square_relation_path_minimum`，在 runtime 内合并正方形降维、轨迹、拉直、合法域和
-达到性，并删除该 family 的公开 `PathTransformation` handoff。F4.3B 没有新增 LLM
-字段，也没有修改 Plan/Retry wire。
+下一项实现是 **F4.3D 南开路径原子 Macro**：迁移耦合线段端点替换与单动点路径，删除
+LLM-facing `two_moving_points_path_reduction -> broken path` 两阶段链。F4.3C 没有新增
+LLM 字段，也没有修改 Plan/Retry wire；和平二模现在只向 LLM 暴露一个题型级路径 Macro。

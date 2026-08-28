@@ -120,11 +120,15 @@ def test_function_spec_registry_models_non_adapter_point_identity() -> None:
     assert returns["parameter"].runtime_type == "Symbol"
     assert returns["parameter"].identity_policy == "derived_role"
 
-    locus_minimum = registry.require("line_locus_minimum_point")
-    assert locus_minimum.returns[0].write_mode == "transition"
     assert candidates.returns[0].runtime_type == "PointList"
     assert candidates.returns[0].identity_policy == "preserve_input_object"
     assert candidates.returns[0].identity_arg == "target_point"
+    assert "line_locus_minimum_point" not in registry.specs
+    kernel = registry.require("quadratic_square_path_minimum_kernel")
+    assert {item.output_key for item in kernel.returns} >= {
+        "minimum_expression",
+        "attainment_point",
+    }
 
 
 def test_optional_parameter_value_requires_explicit_wire_authority() -> None:

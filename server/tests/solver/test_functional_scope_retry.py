@@ -170,7 +170,10 @@ def test_annotated_plan_is_canonical_tree_with_three_state_execution(tmp_path) -
             payload
         )
     )
-    scopes = {item.scope_ref: item for item in _walk_annotated(annotated.root_scope)}
+    scopes = {
+        item.scope_ref: item
+        for item in _walk_annotated(annotated.root_scope)
+    }
     assert {key: value.retry_editable for key, value in scopes.items()} == {
         "problem": False,
         "i": False,
@@ -444,6 +447,69 @@ def test_scope_authority_opens_owner_scope_without_step_permissions(tmp_path) ->
         "promoted_step_ids",
     ):
         assert removed not in text
+
+
+def test_scope_authority_opens_scope_for_unbound_goal_root_diagnostic(
+    tmp_path,
+) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    execution = ScopedFunctionalGoalExecutionService().execute_raw_json(
+        json.dumps(fixture.correct_payload, ensure_ascii=False),
+        inputs=fixture.inputs,
+        planning_context=fixture.planning_context,
+        problem_binding_catalog=fixture.binding_catalog,
+        handle_registry=fixture.handle_registry,
+        context=ContextBuilder().build(fixture.problem),
+        planner_state_context=fixture.planner_state_context,
+        problem_payload=fixture.problem_payload,
+    )
+    assert execution.checkpoint is not None
+    issue = {
+        "code": "functional.required_goal_unbound",
+        "stage": "reconciliation_binding",
+        "retryability": "planner_repairable",
+        "scope_id": "ii",
+        "message": "required answer E has no compatible producer",
+        "expected": {"expected_object_refs": ["E"]},
+        "observed": {"observed_object_ref": "G"},
+        "details": {
+            "answer_handle": "answer:ii.E",
+            "candidate_producer_call_ids": [],
+        },
+    }
+    checkpoint = replace(
+        execution.checkpoint,
+        root_issues=(issue,),
+        all_required_goals_verified=False,
+        transaction_ok=False,
+    )
+    failed = replace(execution, checkpoint=checkpoint)
+
+    authority = FunctionalScopeRetryAuthorityProjector().project(
+        plan=execution.canonical_plan,
+        execution=failed,
+    )
+    annotated, _ = FunctionalAnnotatedPlanProjector().project(
+        plan=execution.canonical_plan,
+        execution=failed,
+        editable_scope_refs=authority.editable_scope_refs,
+        planning_context=fixture.planning_context,
+        binding_catalog=fixture.binding_catalog,
+    )
+    scopes = {item.scope_ref: item for item in _walk_annotated(annotated.root_scope)}
+
+    assert authority.editable_scope_refs == ("ii",)
+    assert scopes["ii"].retry_editable is True
+    assert scopes["ii"].diagnostics[0]["code"] == (
+        "functional.required_goal_unbound"
+    )
+    assert scopes["ii"].diagnostics[0]["expected"] == {
+        "expected_object_refs": ("E",)
+    }
+    assert scopes["ii"].diagnostics[0]["observed"] == {
+        "observed_object_ref": "G"
+    }
+    assert not scopes["problem"].diagnostics
 
 
 def test_scope_repair_schema_requires_exact_scopes_and_direct_goals(tmp_path) -> None:

@@ -236,6 +236,7 @@ def test_every_registered_macro_has_an_audited_lowering_contract() -> None:
         "curve_candidate_parameter_solve",
         "equal_length_ray_path_reduction",
         "path_minimum_by_straightened_distance",
+        "quadratic_square_path_minimum",
         "right_angle_equal_length_construct_and_select",
         "two_moving_points_path_reduction",
     }
@@ -295,10 +296,10 @@ def test_every_path_transformation_uses_planner_declared_moving_point() -> None:
                 producers.append(capability.capability_id)
 
     assert set(producers) >= {
-        "square_path_dimension_reduction",
         "two_moving_points_path_reduction",
         "weighted_axis_path_triangle_transform",
     }
+    assert "square_path_dimension_reduction" not in producers
 
 
 def test_macro_adapter_reports_typed_return_failure() -> None:

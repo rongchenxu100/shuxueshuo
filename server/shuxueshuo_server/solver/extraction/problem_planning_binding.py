@@ -1368,10 +1368,18 @@ def _problem_source_binding_for_runtime_ref(
     goal_unit_ids: Sequence[str],
 ) -> ProblemPlanningSourceBinding:
     local = chosen_ref.rsplit(":", 1)[-1]
-    candidates = tuple(
-        binding
+    ranked_candidates = tuple(
+        (
+            0
+            if binding.runtime_node_id == chosen_ref
+            else 1
+            if binding.semantic_ref.ref in {chosen_ref, local}
+            else 2,
+            binding,
+        )
         for binding in catalog.bindings.values()
-        if (
+        if binding.usage == "input"
+        and (
             binding.runtime_node_id == chosen_ref
             or binding.semantic_ref.ref == chosen_ref
             or binding.semantic_ref.ref == local
@@ -1382,6 +1390,12 @@ def _problem_source_binding_for_runtime_ref(
             )
         )
         and set(goal_unit_ids).intersection(binding.visible_goal_unit_ids)
+    )
+    best_rank = min((rank for rank, _binding in ranked_candidates), default=None)
+    candidates = tuple(
+        binding
+        for rank, binding in ranked_candidates
+        if rank == best_rank
     )
     unique = {
         (item.runtime_node_id, item.semantic_ref.ref): item

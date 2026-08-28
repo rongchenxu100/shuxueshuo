@@ -659,8 +659,220 @@ def default_macro_implementation_registry() -> MacroImplementationRegistry:
                     ),
                 ),
             ),
+            MacroImplementation(
+                implementation_id="quadratic-square-path/v1",
+                macro_id="quadratic_square_path_minimum",
+                candidate_builder_id="quadratic_square_path_role_assignments",
+                validation_policy_id="path_equivalence_and_attainment",
+                lowerer_id="quadratic_square_path_minimum",
+                postcondition_id="quadratic_square_path_postcondition",
+                evidence_builder_id="quadratic_square_path_witness",
+                preparation_context_builder=(
+                    _build_quadratic_square_path_preparation_context
+                ),
+                candidate_builder=_build_quadratic_square_path_candidates,
+                lowerer=_lower_quadratic_square_path_candidate,
+                postcondition=_quadratic_square_path_postcondition,
+                evidence_builder=_quadratic_square_path_evidence,
+                method_input_bindings=tuple(
+                    MacroMethodInputBindingSpec(
+                        "quadratic_square_path_minimum_kernel",
+                        input_name,
+                        MethodInputBindingSpec(
+                            input_name=input_name,
+                            source=MacroPreparedRoleSourceSpec(role),
+                        ),
+                    )
+                    for input_name, role in (
+                        ("midpoint_definition", "midpoint_definition"),
+                        ("square_center", "square_center"),
+                        ("axis_membership", "axis_membership"),
+                        ("side_start", "side_start"),
+                        ("side_start_ref", "side_start"),
+                        ("axis_point", "axis_point"),
+                        ("moving_point", "moving_point"),
+                        ("fixed_endpoint", "fixed_endpoint"),
+                    )
+                ),
+            ),
         )
     )
+
+
+def _build_quadratic_square_path_preparation_context(
+    request: MacroPreparationRequest,
+) -> MacroImplementationPreparationContext:
+    environment = request.environment
+    prepared = getattr(environment, "prepared_call", None)
+    handle_registry = getattr(environment, "handle_registry", None)
+    if prepared is None or handle_registry is None:
+        raise MacroRuntimeSearchError(
+            "planner.macro_contract_invalid",
+            "quadratic-square Macro preparation requires a typed execution environment",
+            retryability="configuration",
+        )
+    resolved_args = getattr(prepared.reconciliation, "resolved_args", {})
+
+    def one_handle(arg_name: str) -> str:
+        values = tuple(resolved_args.get(arg_name, ()))
+        if len(values) != 1:
+            raise MacroRuntimeSearchError(
+                "planner.macro_contract_invalid",
+                f"quadratic-square Macro requires one {arg_name}",
+                retryability="configuration",
+                details={"arg": arg_name, "count": len(values)},
+            )
+        return str(values[0].handle)
+
+    parabola_values = tuple(resolved_args.get("parabola", ()))
+    parabola_refs = tuple(
+        dict.fromkeys(
+            str(value.object_ref)
+            for value in parabola_values
+            if value.object_ref is not None
+        )
+    )
+    if len(parabola_refs) != 1:
+        raise MacroRuntimeSearchError(
+            "planner.macro_contract_invalid",
+            "quadratic-square Macro requires one parabola object identity",
+            retryability="configuration",
+            details={"candidate_count": len(parabola_refs)},
+        )
+    context = MappingProxyType(
+        {
+            "path_minimum_target": one_handle("path_minimum_target"),
+            "square": one_handle("square"),
+            "parabola_ref": parabola_refs[0],
+            "scope_id": request.scope_id,
+            "handle_registry": handle_registry,
+        }
+    )
+    dependency_envelope = {
+        context["path_minimum_target"],
+        context["square"],
+        context["parabola_ref"],
+    }
+    for values in resolved_args.values():
+        dependency_envelope.update(
+            value.handle for value in values if getattr(value, "handle", None)
+        )
+        dependency_envelope.update(
+            value.object_ref
+            for value in values
+            if getattr(value, "object_ref", None)
+        )
+    return MacroImplementationPreparationContext(
+        payload=context,
+        candidate_dependency_envelope=tuple(sorted(dependency_envelope)),
+    )
+
+
+def _build_quadratic_square_path_candidates(
+    request: MacroPreparationRequest,
+) -> Sequence[MacroRoleAssignmentCandidate]:
+    from shuxueshuo_server.solver.runtime.quadratic_square_path_roles import (
+        QuadraticSquarePathRoleError,
+        build_quadratic_square_path_role_candidates,
+    )
+
+    context = request.builder_context
+    if not isinstance(context, Mapping):
+        raise MacroRuntimeSearchError(
+            "planner.macro_contract_invalid",
+            "quadratic-square candidate builder requires structured Context",
+            retryability="configuration",
+        )
+    try:
+        candidates = build_quadratic_square_path_role_candidates(
+            path_minimum_target=str(context["path_minimum_target"]),
+            square=str(context["square"]),
+            parabola_ref=str(context["parabola_ref"]),
+            scope_id=str(context["scope_id"]),
+            registry=context["handle_registry"],
+        )
+    except (QuadraticSquarePathRoleError, KeyError) as exc:
+        raise MacroRuntimeSearchError(
+            "functional.macro_search_no_structural_candidate",
+            str(exc),
+            retryability="planner_repairable",
+            details={
+                "macro_id": "quadratic_square_path_minimum",
+                "repair_action": (
+                    "select_a_compatible_quadratic_path_and_square_or_choose_"
+                    "another_capability"
+                ),
+                **(exc.details if isinstance(exc, QuadraticSquarePathRoleError) else {}),
+            },
+        ) from exc
+    if not candidates:
+        raise MacroRuntimeSearchError(
+            "functional.macro_search_no_structural_candidate",
+            (
+                "the selected quadratic state, path target and square do not "
+                "form a supported square path-minimum mechanism"
+            ),
+            retryability="planner_repairable",
+            details={
+                "macro_id": "quadratic_square_path_minimum",
+                "public_args": ["parabola", "path_minimum_target", "square"],
+                "repair_action": (
+                    "select_a_compatible_quadratic_path_and_square_or_choose_"
+                    "another_capability"
+                ),
+            },
+        )
+    return tuple(
+        MacroRoleAssignmentCandidate(
+            candidate_id=item.candidate_id,
+            roles={
+                role: getattr(item, role)
+                for role in (
+                    "midpoint_definition",
+                    "square_center",
+                    "axis_membership",
+                    "side_start",
+                    "axis_point",
+                    "moving_point",
+                    "fixed_endpoint",
+                )
+            },
+            dependency_handles=tuple(item.to_payload().values()),
+            fact_handles={
+                role: getattr(item, role)
+                for role in (
+                    "midpoint_definition",
+                    "square_center",
+                    "axis_membership",
+                )
+            },
+        )
+        for item in candidates
+    )
+
+
+def _lower_quadratic_square_path_candidate(
+    value: Any,
+    authority: MacroCandidateBindingAuthority,
+) -> Any:
+    lower = getattr(value, "with_macro_roles", None)
+    return lower(dict(authority.candidate.roles)) if callable(lower) else value
+
+
+def _quadratic_square_path_postcondition(value: Any) -> Sequence[str]:
+    return tuple(
+        str(getattr(item, "name", item))
+        for item in getattr(value, "checks", ())
+        if bool(getattr(item, "ok", True))
+    )
+
+
+def _quadratic_square_path_evidence(*args: Any, **kwargs: Any) -> Any:
+    from shuxueshuo_server.solver.runtime.quadratic_square_path_evidence import (
+        build_quadratic_square_path_execution_witness,
+    )
+
+    return build_quadratic_square_path_execution_witness(*args, **kwargs)
 
 
 def _build_equal_length_ray_preparation_context(

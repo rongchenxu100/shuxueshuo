@@ -472,7 +472,7 @@ class FunctionalScopeRetryAuthorityProjector:
                 )
             step_id = str(issue.get("step_id") or "")
             goal_ref = str(issue.get("goal_ref") or "")
-            scope_ref = str(issue.get("scope_ref") or "")
+            scope_ref = _diagnostic_scope_ref(issue)
             if step_id and step_id in step_owners:
                 editable.add(step_owners[step_id])
             elif goal_ref and goal_ref in goal_owners:
@@ -1260,7 +1260,10 @@ class FunctionalAnnotatedPlanProjector:
         for issue in root_issues:
             if issue.get("step_id") or issue.get("goal_ref"):
                 continue
-            owner = str(issue.get("scope_ref") or canonical.root_scope.scope_ref)
+            owner = (
+                _diagnostic_scope_ref(issue)
+                or canonical.root_scope.scope_ref
+            )
             scoped_issues.setdefault(owner, []).append(
                 _project_diagnostic(issue, forbidden_values=forbidden_values)
             )
@@ -1641,12 +1644,69 @@ def _project_diagnostic(
         payload["suggestion"] = str(suggestion)
     for key in ("expected", "observed", "details"):
         if key in issue and issue[key] not in (None, {}, []):
-            payload[key] = _project_value_fail_loud(
+            payload[key] = _project_diagnostic_value(
                 issue[key],
                 forbidden_values=forbidden_values,
                 path=f"$.diagnostic.{key}",
             )
     return payload
+
+
+def _project_diagnostic_value(
+    value: Any,
+    *,
+    forbidden_values: frozenset[str],
+    path: str,
+) -> Any:
+    """Preserve an upstream-projected diagnostic and audit its values.
+
+    ``FunctionalPromptDiagnosticProjector`` has already mapped canonical
+    identities to public refs.  Diagnostic keys such as
+    ``expected_object_refs`` are part of the public repair contract and must
+    not be filtered merely because their names contain ``object_ref``.
+    """
+
+    projected = _json_safe_value(value)
+    if _contains_internal_projection_marker(projected) or (
+        _contains_forbidden_prompt_value(projected, forbidden_values)
+    ):
+        raise FunctionalScopeRetryError(
+            "functional.retry_runtime_output_projection_invalid",
+            path,
+            "diagnostic contains an internal identity without public projection",
+            retryable=False,
+        )
+    return projected
+
+
+def _contains_forbidden_prompt_value(
+    value: Any,
+    forbidden_values: frozenset[str],
+) -> bool:
+    if isinstance(value, Mapping):
+        return any(
+            _contains_forbidden_prompt_value(item, forbidden_values)
+            for item in value.values()
+        )
+    if isinstance(value, Sequence) and not isinstance(value, (str, bytes)):
+        return any(
+            _contains_forbidden_prompt_value(item, forbidden_values)
+            for item in value
+        )
+    return isinstance(value, str) and any(
+        forbidden in value for forbidden in forbidden_values
+    )
+
+
+def _diagnostic_scope_ref(issue: Mapping[str, Any]) -> str:
+    """Return the canonical Scope locator used by runtime diagnostics.
+
+    Reconciliation diagnostics predate the scope-retry wire and use
+    ``scope_id``.  Scope-retry-owned diagnostics use ``scope_ref``.  Both
+    identify the same canonical Scope and must drive the same authority.
+    """
+
+    return str(issue.get("scope_ref") or issue.get("scope_id") or "")
 
 
 def _answer_output(

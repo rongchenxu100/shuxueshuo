@@ -471,8 +471,8 @@ def test_selection_is_catalog_gated_cross_family_and_stable() -> None:
         ),
         (
             "tj-2026-heping-ermo-25",
-            "broken_path_straightening",
-            "cross_family",
+            "quadratic_constraints_vertex",
+            "fallback",
         ),
     ),
 )

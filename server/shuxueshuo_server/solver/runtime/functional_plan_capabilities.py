@@ -1004,8 +1004,7 @@ def _macro_capability(
             )
             for item in spec.args
             if item.kind != "auto"
-            and (item.semantic_role or item.name)
-            not in spec.code_owned_search_roles
+            and _macro_semantic_role(item) not in spec.code_owned_search_roles
         ),
         returns=tuple(_macro_return(item) for item in spec.returns),
         source=spec,

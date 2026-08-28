@@ -1572,6 +1572,112 @@ class VisualRoleBinderRegistry:
         lesson_step: LessonStep,
         snapshot: ExplanationSnapshot,
     ) -> dict[str, Any]:
+        if "quadratic_square_path_minimum" in lesson_step.capability_ids:
+            witness = _macro_evidence_for_lesson_step(
+                snapshot,
+                lesson_step,
+                macro_id="quadratic_square_path_minimum",
+            )
+            if witness is not None:
+                chosen = {
+                    str(item.get("role") or ""): str(
+                        item.get("chosen_ref") or ""
+                    )
+                    for item in witness.get("role_resolutions", ())
+                    if isinstance(item, dict)
+                }
+                side_start = chosen.get("side_start", "")
+                side_end = chosen.get("axis_point", "")
+                moving = chosen.get("moving_point", "")
+                fixed = chosen.get("fixed_endpoint", "")
+                square_fact = next(
+                    (
+                        fact
+                        for fact in snapshot.problem.get("facts", ())
+                        if isinstance(fact, dict)
+                        and fact.get("type") == "square"
+                        and {
+                            side_start,
+                            side_end,
+                            moving,
+                        }
+                        <= {
+                            _label_from_point_handle_or_entity(
+                                str(handle), self.index
+                            )
+                            for handle in fact.get("vertices", ())
+                        }
+                    ),
+                    None,
+                )
+                midpoint_fact = next(
+                    (
+                        fact
+                        for fact in snapshot.problem.get("facts", ())
+                        if isinstance(fact, dict)
+                        and fact.get("type") == "midpoint_definition"
+                        and {
+                            _label_from_point_handle_or_entity(
+                                str(handle), self.index
+                            )
+                            for handle in fact.get("of", ())
+                        }
+                        == {side_start, side_end}
+                    ),
+                    None,
+                )
+                center_fact = next(
+                    (
+                        fact
+                        for fact in snapshot.problem.get("facts", ())
+                        if isinstance(fact, dict)
+                        and fact.get("type") == "square_center"
+                        and (
+                            square_fact is None
+                            or fact.get("square") == square_fact.get("handle")
+                        )
+                    ),
+                    None,
+                )
+                midpoint = _label_from_point_handle_or_entity(
+                    str((midpoint_fact or {}).get("point") or ""),
+                    self.index,
+                )
+                center = _label_from_point_handle_or_entity(
+                    str((center_fact or {}).get("point") or ""),
+                    self.index,
+                )
+                vertices = [
+                    _label_from_point_handle_or_entity(str(handle), self.index)
+                    for handle in (square_fact or {}).get("vertices", ())
+                ]
+                if all((side_start, side_end, moving, fixed, midpoint, center)):
+                    return {
+                        "type": "square_path_dimension_reduction",
+                        "original_path": str(
+                            witness.get("original_objective") or ""
+                        ),
+                        "transformed_path": str(
+                            witness.get("reduced_objective") or ""
+                        ),
+                        "roles": {
+                            "side_start": side_start,
+                            "side_end": side_end,
+                            "midpoint": midpoint,
+                            "center": center,
+                            "other_fixed": fixed,
+                            "moving_vertex": moving,
+                            "square_vertices": vertices,
+                        },
+                        "segments": {
+                            "center_midpoint": f"{center}{midpoint}",
+                            "midpoint_fixed": f"{midpoint}{fixed}",
+                            "fixed_moving": f"{fixed}{moving}",
+                            "replacement": f"{side_start}{moving}",
+                            "square_side": f"{side_start}{side_end}",
+                        },
+                        "relations": {},
+                    }
         if "square_path_dimension_reduction" not in lesson_step.capability_ids:
             return {}
         source_ids = set(lesson_step.source_step_ids)
@@ -1614,7 +1720,12 @@ class VisualRoleBinderRegistry:
         if not all((side_start, side_end, midpoint, center, other_fixed, moving_vertex)):
             return []
 
-        axis_labels = {side_end, moving_vertex, *square_vertices}
+        axis_labels = {
+            side_end,
+            moving_vertex,
+            other_fixed,
+            *square_vertices,
+        }
 
         def geom(label: str) -> str | None:
             if label in axis_labels:
@@ -1719,6 +1830,42 @@ class VisualRoleBinderRegistry:
         snapshot: ExplanationSnapshot,
         source_steps: dict[str, dict[str, Any]],
     ) -> dict[str, Any]:
+        if "quadratic_square_path_minimum" in lesson_step.capability_ids:
+            witness = _macro_evidence_for_lesson_step(
+                snapshot,
+                lesson_step,
+                macro_id="quadratic_square_path_minimum",
+            )
+            if witness is not None:
+                construction = next(
+                    (
+                        item
+                        for item in witness.get("constructions", ())
+                        if isinstance(item, dict)
+                        and item.get("kind") == "line_reflection"
+                    ),
+                    None,
+                )
+                locus = next(
+                    (
+                        item
+                        for item in witness.get("constructions", ())
+                        if isinstance(item, dict)
+                        and item.get("kind")
+                        == "square_midpoint_center_reduction"
+                    ),
+                    None,
+                )
+                if construction is not None:
+                    return {
+                        **construction,
+                        "moving_line": str(
+                            (locus or {}).get("moving_locus") or ""
+                        ),
+                        "minimum_expression": str(
+                            witness.get("minimum_expression") or ""
+                        ),
+                    }
         if "broken_path_straightening_minimum_expression" not in lesson_step.capability_ids:
             return {}
         source_ids = set(lesson_step.source_step_ids)
@@ -1771,9 +1918,11 @@ class VisualRoleBinderRegistry:
             return []
 
         def geom(label: str) -> str | None:
+            axis_id = axis_parameter_point_id(label, lesson_step.scope_id)
+            if axis_id in self._known_points:
+                return axis_id
             return point_handles.get(label) or self.index.geometry_point_name(
-                label,
-                lesson_step.scope_id,
+                label, lesson_step.scope_id
             )
 
         moving_locus = str(roles_payload.get("moving_line") or "")
@@ -2335,9 +2484,22 @@ def _path_minimum_witness_for_lesson_step(
     snapshot: ExplanationSnapshot,
     lesson_step: LessonStep,
 ) -> dict[str, Any] | None:
+    return _macro_evidence_for_lesson_step(
+        snapshot,
+        lesson_step,
+        macro_id="equal_length_ray_path_reduction",
+    )
+
+
+def _macro_evidence_for_lesson_step(
+    snapshot: ExplanationSnapshot,
+    lesson_step: LessonStep,
+    *,
+    macro_id: str,
+) -> dict[str, Any] | None:
     source_step_ids = set(lesson_step.source_step_ids)
     for item in snapshot.macro_evidence:
-        if item.get("macro_id") != "equal_length_ray_path_reduction":
+        if item.get("macro_id") != macro_id:
             continue
         if str(item.get("step_id") or "") in source_step_ids:
             return item

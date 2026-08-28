@@ -412,7 +412,10 @@ class PathMinimumPromptWitnessProjector:
             legal_domain=witness.legal_domain,
             minimum_strategy=witness.minimum_strategy,
             minimum_expression=witness.minimum_expression,
-            minimizing_points=thaw_json(witness.minimizing_points),
+            minimizing_points={
+                str(prompt_ref(str(key), required=True)): thaw_json(value)
+                for key, value in witness.minimizing_points.items()
+            },
             attainment_checks=attainment_checks,
             repair_action="reuse_verified_path_witness",
         )
