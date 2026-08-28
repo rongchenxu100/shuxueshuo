@@ -260,12 +260,12 @@ def test_nankai_functional_few_shot_annotations_are_safe_and_complete() -> None:
     }
 
     assert set(entries) == {
-        "broken_path_straightening",
+        "coupled_segment_path_minimum",
         "right_angle_equal_length_construction",
     }
-    assert entries["broken_path_straightening"].selection_role == "core"
+    assert entries["coupled_segment_path_minimum"].selection_role == "core"
     assert (
-        entries["broken_path_straightening"].family_id
+        entries["coupled_segment_path_minimum"].family_id
         == "QuadraticPathMinimumSolver"
     )
     assert (
@@ -333,7 +333,7 @@ def test_explicit_functional_mode_wins_over_legacy_boolean() -> None:
     )
     assert explicit["functional_few_shot_selection"]["mode"] == "new_problem"
     assert explicit["functional_few_shot_selection"]["example_id"] == (
-        "broken_path_straightening"
+        "coupled_segment_path_minimum"
     )
 
 
@@ -407,7 +407,7 @@ def test_mechanism_subgraphs_are_closed_neutralized_projections() -> None:
             if call["call_id"] in entry.source_call_ids
         }
 
-        assert 2 <= len(calls) <= 5
+        assert 1 <= len(calls) <= 5
         assert [call["capability_id"] for call in calls] == [
             source_calls[call_id]["capability_id"]
             for call_id in entry.source_call_ids
@@ -510,21 +510,43 @@ def test_nankai_core_annotation_is_rendered_before_strict_plan() -> None:
     )
 
     example = payload["few_shot_examples"][0]
-    assert example["annotation"]["purpose"] == "双动点路径降维与折线拉直。"
+    assert example["annotation"]["purpose"] == (
+        "用题设线段关系原子求解耦合双动点路径最值。"
+    )
     prompt = StrategyPromptRenderer().render(payload).user
     assert "### 机制说明" in prompt
-    assert "双动点路径降维与折线拉直" in prompt
-    assert "先建立显式路径等价变换" in prompt
-    assert "本例的变换已携带动点轨迹证据" in prompt
-    assert "必须先根据变换发布的动点身份求出同一对象的轨迹" in prompt
-    assert "变换发布的动点身份" in prompt
-    assert "不能使用最终答案对象或任意可见直线" in prompt
+    assert "用题设线段关系原子求解耦合双动点路径最值" in prompt
+    assert "Planner 只选择路径目标和负责耦合的线段关系" in prompt
+    assert "成员关系、端点角色、内部反射与取等恢复均由 Macro 验证" in prompt
+    assert "同时返回最小值表达式与原题动点的取等状态" in prompt
+    assert "先在该构造所属 Scope 用普通 Function 物化端点坐标" in prompt
+    assert "把该 Macro 放在它们最近公共父 Scope，只调用一次" in prompt
+    assert '"capability_id":"coupled_segment_endpoint_replacement_path_minimum"' in prompt
     assert "### FunctionalPlan 示例" in prompt
     assert '"format":"functional_plan/v1"' in prompt
     assert '"annotation"' not in prompt
     assert "selection_role" not in prompt
     assert FUNCTIONAL_PLAN_JSON_SCHEMA["additionalProperties"] is False
     assert "annotation" not in FUNCTIONAL_PLAN_JSON_SCHEMA["properties"]
+
+
+def test_scoped_nankai_prompt_selects_atomic_macro_few_shot() -> None:
+    problem = load_problem_ir(
+        PROBLEM_DIR / "tj-2026-nankai-yimo-25.json"
+    )
+    inputs = build_strategy_probe_inputs(problem)
+    payload = StrategyPayloadBuilder().build_scoped(
+        inputs,
+        **cached_scope_native_payload_args(inputs.problem_id),
+    )
+
+    selection = payload["functional_few_shot_selection"]
+    assert selection["example_id"] == "coupled_segment_path_minimum"
+    assert selection["mode"] == "v2_capability_subset"
+    assert len(selection["asset_sha256"]) == 64
+    assert payload["few_shot_examples"][0]["annotation"]["purpose"] == (
+        "用题设线段关系原子求解耦合双动点路径最值。"
+    )
 
 
 def test_nankai_family_new_problem_prefers_core_path_fragment() -> None:
@@ -550,8 +572,7 @@ def test_nankai_family_new_problem_prefers_core_path_fragment() -> None:
 
     assert len(selected) == 1
     assert _capability_ids(selected[0]) == [
-        "two_moving_points_path_reduction",
-        "broken_path_straightening_minimum_expression",
+        "coupled_segment_endpoint_replacement_path_minimum",
     ]
 
 

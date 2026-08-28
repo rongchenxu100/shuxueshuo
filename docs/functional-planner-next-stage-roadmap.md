@@ -26,7 +26,8 @@
 | F5-F4.1–F5-F4.3A：Macro runtime 基础 | `COMPLETE` | preparation、bounded search、typed binding、companion output authority 完成 |
 | F5-F4.3B：原子 Macro golden reference | `COMPLETE` | equal-length 四 Fact 固定契约、shadow/replay/restore 与单根诊断门禁完成 |
 | F5-F4.3C：和平二模正方形 Macro | `COMPLETE` | 三公开输入、两公开输出；离线门禁及最终 live `1x3` 发布验收通过 |
-| F5-F4.3D–F：剩余原子路径 Macro | `NEXT` | 迁移南开与加权 family，并删除公开 Path 内部类型 |
+| F5-F4.3D：南开耦合路径 Macro | `COMPLETE` | 两公开输入、两公开输出；共享 Scope、构造点诊断、few-shot hash 与最终 live `1x3` 通过 |
+| F5-F4.3E–F：剩余原子路径 Macro | `NEXT` | 迁移加权 family，并删除公开 Path 内部类型 |
 | F5-F5：Teaching scope | `AFTER F4.3` | 从 verified execution 派生教学归属并退役剩余兼容入口 |
 | G：Post-solver Context | `AFTER F5` | Explanation、Diagram、Voiceover、Animation Context |
 | E：端到端优化 | `AFTER F/G` | cache、最小失效、并发去重、条件式 Best-of-N |
@@ -80,10 +81,14 @@ VerifiedSolverProblemBundle
    - 删除该 family 对公开路径降维、locus handoff 和 broken-path 链的依赖。
    - 最终 live `1x3` 为 `3/3` completion；一次对象身份错误由 Scope Retry 正确修复，
      无 authority drift、ghost write、identity leak 或未分类异常。
-3. **F4.3D 南开路径（NEXT）**
+3. **F4.3D 南开路径（COMPLETE）**
    - 迁移耦合线段端点替换和单动点路径；
-   - 删除 LLM-facing 两阶段路径链。
-4. **F4.3E 加权路径**
+   - 删除 LLM-facing 两阶段路径链；
+   - release smoke 五题统一使用 synthetic `quadratic_constraints_vertex`
+     few-shot，禁止把当前题抽取出的机制片段喂回同题；
+   - 公平条件下最终 live `1x3` 为 `3/3`，三份均首次 response 通过且
+     few-shot payload hash 一致。
+4. **F4.3E 加权路径（NEXT）**
    - 合并 weighted transform 与 linked minimum；
    - 删除基于名称、子串或 Context 顺序猜辅助对象的逻辑。
 5. **F4.3F 清理与验收**

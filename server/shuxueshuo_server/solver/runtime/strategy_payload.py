@@ -296,6 +296,11 @@ class StrategyPayloadBuilder:
             }
             selected, selection = select_scoped_functional_few_shot(
                 capability_ids,
+                preferred_capability_ids={
+                    recipe.recipe_id
+                    for recipe in inputs.family_spec.step_recipes
+                    if recipe.execution.execution_mode == "runtime_search"
+                },
                 directory=self.scoped_functional_few_shot_dir,
             )
             examples = [selected] if selected is not None else []

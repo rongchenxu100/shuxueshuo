@@ -50,6 +50,7 @@ from .square_path_dimension_reduction import SquarePathDimensionReductionMethod,
 from .parameterized_point_locus_line import ParameterizedPointLocusLineMethod, SPEC as PARAMETERIZED_POINT_LOCUS_LINE_SPEC
 from .line_locus_minimum_point import LineLocusMinimumPointMethod, SPEC as LINE_LOCUS_MINIMUM_POINT_SPEC
 from .quadratic_square_path_minimum import QuadraticSquarePathMinimumMethod, SPEC as QUADRATIC_SQUARE_PATH_MINIMUM_SPEC
+from .coupled_segment_path_minimum import CoupledSegmentPathMinimumMethod, SPEC as COUPLED_SEGMENT_PATH_MINIMUM_SPEC
 
 ALL_METHOD_SPEC_SOURCES = (
     RIGHT_ANGLE_EQUAL_LENGTH_CANDIDATES_SPEC,
@@ -90,6 +91,7 @@ ALL_METHOD_SPEC_SOURCES = (
     PARAMETERIZED_POINT_LOCUS_LINE_SPEC,
     LINE_LOCUS_MINIMUM_POINT_SPEC,
     QUADRATIC_SQUARE_PATH_MINIMUM_SPEC,
+    COUPLED_SEGMENT_PATH_MINIMUM_SPEC,
 )
 
 
@@ -139,6 +141,7 @@ def default_stateless_registry() -> StatelessMethodRegistry:
         ParameterizedPointLocusLineMethod(),
         LineLocusMinimumPointMethod(),
         QuadraticSquarePathMinimumMethod(),
+        CoupledSegmentPathMinimumMethod(),
     ]
     return StatelessMethodRegistry({method.method_id: method for method in methods})
 
@@ -187,4 +190,5 @@ __all__ = [
     "ParameterizedPointLocusLineMethod",
     "LineLocusMinimumPointMethod",
     "QuadraticSquarePathMinimumMethod",
+    "CoupledSegmentPathMinimumMethod",
 ]

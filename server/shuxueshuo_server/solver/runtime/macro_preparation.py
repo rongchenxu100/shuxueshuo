@@ -660,6 +660,49 @@ def default_macro_implementation_registry() -> MacroImplementationRegistry:
                 ),
             ),
             MacroImplementation(
+                implementation_id="coupled-segment-path/v1",
+                macro_id=(
+                    "coupled_segment_endpoint_replacement_path_minimum"
+                ),
+                candidate_builder_id="coupled_segment_path_role_assignments",
+                validation_policy_id="path_equivalence_and_attainment",
+                lowerer_id="coupled_segment_path_minimum",
+                postcondition_id="coupled_segment_path_postcondition",
+                evidence_builder_id="coupled_segment_path_witness",
+                preparation_context_builder=(
+                    _build_coupled_segment_path_preparation_context
+                ),
+                candidate_builder=_build_coupled_segment_path_candidates,
+                lowerer=_lower_coupled_segment_path_candidate,
+                postcondition=_coupled_segment_path_postcondition,
+                evidence_builder=_coupled_segment_path_evidence,
+                method_input_bindings=tuple(
+                    MacroMethodInputBindingSpec(
+                        (
+                            "coupled_segment_endpoint_replacement_"
+                            "path_minimum_kernel"
+                        ),
+                        input_name,
+                        MethodInputBindingSpec(
+                            input_name=input_name,
+                            source=MacroPreparedRoleSourceSpec(role),
+                        ),
+                    )
+                    for input_name, role in (
+                        ("first_membership", "first_membership"),
+                        ("second_membership", "second_membership"),
+                        ("first_segment_start", "first_segment_start"),
+                        ("joint_point", "joint_point"),
+                        ("second_segment_end", "second_segment_end"),
+                        (
+                            "transformed_fixed_endpoint",
+                            "transformed_fixed_endpoint",
+                        ),
+                        ("moving_point", "moving_point"),
+                    )
+                ),
+            ),
+            MacroImplementation(
                 implementation_id="quadratic-square-path/v1",
                 macro_id="quadratic_square_path_minimum",
                 candidate_builder_id="quadratic_square_path_role_assignments",
@@ -697,6 +740,174 @@ def default_macro_implementation_registry() -> MacroImplementationRegistry:
             ),
         )
     )
+
+
+def _build_coupled_segment_path_preparation_context(
+    request: MacroPreparationRequest,
+) -> MacroImplementationPreparationContext:
+    environment = request.environment
+    prepared = getattr(environment, "prepared_call", None)
+    handle_registry = getattr(environment, "handle_registry", None)
+    if prepared is None or handle_registry is None:
+        raise MacroRuntimeSearchError(
+            "planner.macro_contract_invalid",
+            "coupled-segment Macro requires a typed execution environment",
+            retryability="configuration",
+        )
+    resolved_args = getattr(prepared.reconciliation, "resolved_args", {})
+
+    def one_handle(arg_name: str) -> str:
+        values = tuple(resolved_args.get(arg_name, ()))
+        if len(values) != 1:
+            raise MacroRuntimeSearchError(
+                "planner.macro_contract_invalid",
+                f"coupled-segment Macro requires one {arg_name}",
+                retryability="configuration",
+                details={"arg": arg_name, "count": len(values)},
+            )
+        return str(values[0].handle)
+
+    context = MappingProxyType(
+        {
+            "path_minimum_target": one_handle("path_minimum_target"),
+            "segment_binding_relation": one_handle(
+                "segment_binding_relation"
+            ),
+            "scope_id": request.scope_id,
+            "handle_registry": handle_registry,
+        }
+    )
+    dependency_envelope = {
+        context["path_minimum_target"],
+        context["segment_binding_relation"],
+    }
+    for values in resolved_args.values():
+        dependency_envelope.update(
+            value.handle for value in values if getattr(value, "handle", None)
+        )
+        dependency_envelope.update(
+            value.object_ref
+            for value in values
+            if getattr(value, "object_ref", None)
+        )
+    return MacroImplementationPreparationContext(
+        payload=context,
+        candidate_dependency_envelope=tuple(sorted(dependency_envelope)),
+    )
+
+
+def _build_coupled_segment_path_candidates(
+    request: MacroPreparationRequest,
+) -> Sequence[MacroRoleAssignmentCandidate]:
+    from shuxueshuo_server.solver.runtime.coupled_segment_path_roles import (
+        CoupledSegmentPathRoleError,
+        build_coupled_segment_path_role_candidates,
+    )
+
+    context = request.builder_context
+    if not isinstance(context, Mapping):
+        raise MacroRuntimeSearchError(
+            "planner.macro_contract_invalid",
+            "coupled-segment candidate builder requires structured Context",
+            retryability="configuration",
+        )
+    macro_id = "coupled_segment_endpoint_replacement_path_minimum"
+    try:
+        candidates = build_coupled_segment_path_role_candidates(
+            path_minimum_target=str(context["path_minimum_target"]),
+            segment_binding_relation=str(context["segment_binding_relation"]),
+            scope_id=str(context["scope_id"]),
+            registry=context["handle_registry"],
+        )
+    except (CoupledSegmentPathRoleError, KeyError) as exc:
+        raise MacroRuntimeSearchError(
+            "functional.macro_search_no_structural_candidate",
+            str(exc),
+            retryability="planner_repairable",
+            details={
+                "macro_id": macro_id,
+                "repair_action": "select_compatible_path_and_segment_relation",
+                **(
+                    exc.details
+                    if isinstance(exc, CoupledSegmentPathRoleError)
+                    else {}
+                ),
+            },
+        ) from exc
+    if not candidates:
+        raise MacroRuntimeSearchError(
+            "functional.macro_search_no_structural_candidate",
+            "the selected path and segment relation do not form one endpoint-replacement mechanism",
+            retryability="planner_repairable",
+            details={
+                "macro_id": macro_id,
+                "public_args": [
+                    "path_minimum_target",
+                    "segment_binding_relation",
+                ],
+                "repair_action": "select_compatible_path_and_segment_relation",
+            },
+        )
+    return tuple(
+        MacroRoleAssignmentCandidate(
+            candidate_id=item.candidate_id,
+            roles={
+                role: getattr(item, role)
+                for role in (
+                    "first_membership",
+                    "second_membership",
+                    "first_segment_start",
+                    "joint_point",
+                    "second_segment_end",
+                    "transformed_fixed_endpoint",
+                    "moving_point",
+                )
+            },
+            dependency_handles=tuple(
+                getattr(item, role)
+                for role in (
+                    "path_minimum_target",
+                    "segment_binding_relation",
+                    "first_membership",
+                    "second_membership",
+                    "first_segment_start",
+                    "joint_point",
+                    "second_segment_end",
+                    "transformed_fixed_endpoint",
+                    "moving_point",
+                )
+            ),
+            fact_handles={
+                role: getattr(item, role)
+                for role in ("first_membership", "second_membership")
+            },
+        )
+        for item in candidates
+    )
+
+
+def _lower_coupled_segment_path_candidate(
+    value: Any,
+    authority: MacroCandidateBindingAuthority,
+) -> Any:
+    lower = getattr(value, "with_macro_roles", None)
+    return lower(dict(authority.candidate.roles)) if callable(lower) else value
+
+
+def _coupled_segment_path_postcondition(value: Any) -> Sequence[str]:
+    return tuple(
+        str(getattr(item, "name", item))
+        for item in getattr(value, "checks", ())
+        if bool(getattr(item, "ok", True))
+    )
+
+
+def _coupled_segment_path_evidence(*args: Any, **kwargs: Any) -> Any:
+    from shuxueshuo_server.solver.runtime.coupled_segment_path_evidence import (
+        build_coupled_segment_path_execution_witness,
+    )
+
+    return build_coupled_segment_path_execution_witness(*args, **kwargs)
 
 
 def _build_quadratic_square_path_preparation_context(

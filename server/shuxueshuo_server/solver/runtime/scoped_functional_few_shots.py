@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from hashlib import sha256
 import json
 from pathlib import Path
 from typing import Any
@@ -45,6 +46,7 @@ def load_scoped_functional_few_shot(
 def select_scoped_functional_few_shot(
     capability_ids: set[str] | frozenset[str],
     *,
+    preferred_capability_ids: set[str] | frozenset[str] = frozenset(),
     directory: Path | str | None = None,
 ) -> tuple[dict[str, Any] | None, dict[str, str] | None]:
     """Select one self-contained v2 mechanism using capability containment."""
@@ -52,7 +54,8 @@ def select_scoped_functional_few_shot(
     root = Path(directory) if directory is not None else (
         default_scoped_functional_few_shot_dir()
     )
-    candidates: list[tuple[int, str, dict[str, Any]]] = []
+    preferred = set(preferred_capability_ids)
+    candidates: list[tuple[int, int, str, str, dict[str, Any]]] = []
     if root.exists():
         for path in sorted(root.glob("*.functional-few-shot.json")):
             payload = _validated_asset(
@@ -62,11 +65,19 @@ def select_scoped_functional_few_shot(
             required = _plan_capability_ids(payload["plan"])
             if required <= capability_ids:
                 candidates.append(
-                    (-len(required), payload["example_id"], payload)
+                    (
+                        -len(required.intersection(preferred)),
+                        -len(required),
+                        payload["example_id"],
+                        sha256(path.read_bytes()).hexdigest(),
+                        payload,
+                    )
                 )
     if not candidates:
         return None, None
-    _score, example_id, selected = min(candidates)
+    _preferred_score, _size_score, example_id, asset_sha256, selected = min(
+        candidates
+    )
     result: dict[str, Any] = {
         "annotation": selected["annotation"],
         "plan": selected["plan"],
@@ -78,6 +89,7 @@ def select_scoped_functional_few_shot(
         {
             "example_id": example_id,
             "mode": "v2_capability_subset",
+            "asset_sha256": asset_sha256,
         },
     )
 

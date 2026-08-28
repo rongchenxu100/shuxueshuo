@@ -3,10 +3,10 @@
 Macro 在 Annotated Plan 与 Scope replacement 中始终保持原子 step。现行 Retry 合同见
 [FunctionalPlan Scope Retry](functional-scope-retry-design.md)。
 
-状态：F5-F4.1、F5-F4.2、F5-F4.2R、F5-F4.3A、F5-F4.3B 与
-**F5-F4.3C** 已完成：代码、离线门禁和最终付费 live `1x3` 发布验收全部通过。
-当前下一阶段是 **F5-F4.3D 南开路径原子 Macro**；Macro 不得透明展开为
-Planner-authored Function 子图。
+状态：F5-F4.1、F5-F4.2、F5-F4.2R、F5-F4.3A、F5-F4.3B、
+**F5-F4.3C 与 F5-F4.3D** 已完成：代码、离线门禁和最终付费 live `1x3`
+发布验收全部通过。当前下一阶段是 **F5-F4.3E 加权路径原子 Macro**；Macro
+不得透明展开为 Planner-authored Function 子图。
 
 统一运行时权威链见 [Method Solver 架构](method-solver-architecture.md) 与
 [Capability authoring guide](capability-authoring-guide.md)。
@@ -420,9 +420,46 @@ internal:
 
 ### F4.3D：南开路径原子 Macro
 
-- 迁移耦合线段端点替换与单动点路径；
-- 删除 LLM-facing `two_moving_points_path_reduction -> broken path` 两阶段链；
-- 运行南开并行 live `1x3`，检查每轮实际 few-shot ID/hash。
+- 状态：`COMPLETE`；
+- 新增 `coupled_segment_endpoint_replacement_path_minimum` 原子入口；公开只接收
+  `path_minimum_target + segment_binding_relation`，公开返回
+  `minimum_expression + attainment_point`；
+- 代码从所选两个 Fact 唯一解析 E/G、D/M/N/F、两条成员关系与保留动点 G；
+- F 等由题面构造定义的固定端点仍先由普通 Function 在其 owner Scope 物化，随后
+  作为 code-owned hidden state 进入 Macro；这不是公开路径子图；
+- 内部 kernel 复用 `two_moving_points_path_reduction` 与 broken-path Method，但它们
+  只处于 internal composition boundary，不生成 Planner/retry step；
+- 取等点除了承载直线共线检查，还必须证明位于原动线段内；南开 witness 的线段参数
+  为恒定 `t=2/3`；
+- Family catalog、recorded Plan、scope-native fixture、compile manifest、few-shot、
+  explanation recipe 与 witness 已迁移；旧两阶段 capability 不再向南开 Planner 暴露；
+- 当固定端点 state 缺失时，诊断给出对象与 `required_scope_ref`，Scope Retry 开放
+  构造点所属祖先 Scope，不再诱导 LLM 在多个子 Scope 重复构造；
+- scope-native few-shot selector 优先匹配当前 runtime-search Macro，并把实际
+  `example_id + asset_sha256` 写入只读 selection sidecar。
+
+当前验收记录：
+
+- 受影响离线门禁 `595 passed, 2 skipped`；few-shot/Scope 专项补充门禁
+  `64 passed`；本轮 fixed-form normalization、统一 smoke few-shot 与 repair
+  canonicalization 受影响模块并行门禁另为 `455 passed`，最终专项为 `78 passed`；
+- 初次 live 暴露“F 未物化却只开放 ii_1/ii_2”的错误修复范围，导致重复 N producer
+  和 `runtime_source_path_drift`；修复后缺失 state 会打开 ii；
+- 旧 batch `f5-f43d-nankai-release-1x3-r4` 使用了从南开 authored Plan
+  匿名抽取的 `coupled_segment_path_minimum`；它可用于同机制诊断，但不得作为
+  release 泛化证据；
+- release smoke harness 现固定五题共享 synthetic
+  `quadratic_constraints_vertex`，不再按当前题选择同题机制 few-shot；
+- fixed-form return 上误写的 `return_expectations` 会在 capability-bound Schema
+  前确定性删除并记录 normalization，不再消耗一次 LLM wire feedback；Scope Repair
+  candidate 也会在执行前经过与 Pass 1 相同的 content canonicalization；
+- 公平验收 batch
+  `f5-f43d-nankai-shared-fewshot-normalization-1x3-r2` 为 `3/3`
+  completion、`3/3` transaction、`39/39` authority-valid step；三份均
+  `pass1_wire_schema_valid=true`、`semantic_attempt_count=1`、`retry_attempt_count=0`；
+- 三份实际 few-shot payload SHA-256 均为
+  `d1fdcd478eb6edd5029369cfe185420f29345a1f35738f0860cb99167207f0bb`，其中不存在
+  `coupled_segment*`、南开 problem id、路径目标或线段耦合关系。
 
 ### F4.3E：加权路径原子 Macro
 
@@ -463,6 +500,7 @@ configuration/unclassified error == 0
 
 ## 12. 当前下一步
 
-下一项实现是 **F4.3D 南开路径原子 Macro**：迁移耦合线段端点替换与单动点路径，删除
-LLM-facing `two_moving_points_path_reduction -> broken path` 两阶段链。F4.3C 没有新增
-LLM 字段，也没有修改 Plan/Retry wire；和平二模现在只向 LLM 暴露一个题型级路径 Macro。
+下一项实现是 **F4.3E 加权路径原子 Macro**：合并 weighted transform 与 linked
+minimum，并删除基于点名、`aux` 子串或 Context 顺序猜测辅助对象的逻辑。F4.3D
+没有新增 Plan/Retry wire 字段；南开现在只向 LLM 暴露一个耦合路径原子 Macro，旧
+PathTransformation 链只保留为 kernel 内部实现。

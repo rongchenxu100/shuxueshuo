@@ -96,6 +96,7 @@ class MacroArgSpec:
     cardinality: str = "one"
     state_kind: str | None = None
     condition_kind: str | None = None
+    accepted_condition_kinds: tuple[str, ...] = ()
     object_kind: str | None = None
     semantic_role: str | None = None
     description: str = ""
@@ -116,6 +117,10 @@ class MacroArgSpec:
             payload["state_kind"] = self.state_kind
         if self.condition_kind is not None:
             payload["condition_kind"] = self.condition_kind
+        if self.accepted_condition_kinds:
+            payload["accepted_condition_kinds"] = list(
+                self.accepted_condition_kinds
+            )
         if self.object_kind is not None:
             payload["object_kind"] = self.object_kind
         if self.semantic_role is not None:
@@ -557,6 +562,7 @@ _MACRO_CANDIDATE_BUILDERS = frozenset(
         "visible_point_role_assignments",
         "path_role_assignments",
         "straightening_role_assignments",
+        "coupled_segment_path_role_assignments",
         "equal_length_ray_role_assignments",
         "quadratic_square_path_role_assignments",
         "curve_role_assignments",
@@ -738,6 +744,11 @@ def _condition_arg(condition: ConditionPattern, index: int) -> MacroArgSpec:
         required=condition.required,
         cardinality=condition.cardinality,
         condition_kind=condition.condition_kind,
+        accepted_condition_kinds=(
+            condition.accepted_condition_kinds
+            or (condition.condition_kind,)
+        ),
+        semantic_role=condition.semantic_role,
         deterministic_resolver=condition.deterministic_resolver,
         description=condition.description,
     )

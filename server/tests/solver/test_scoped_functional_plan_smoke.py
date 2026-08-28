@@ -13,12 +13,15 @@ from shuxueshuo_server.solver.runtime.functional_plan_content import (
     FUNCTIONAL_PLAN_CONTENT_CONTRACT,
 )
 from shuxueshuo_server.solver.scoped_functional_plan_smoke import (
+    SMOKE_FEW_SHOT_EXAMPLE_ID,
+    SMOKE_FEW_SHOT_SOURCE_PROBLEM_ID,
     ScopedV2SmokeSampleResult,
     _RecordingClient,
     _batch_summary,
     _scope_retry_terminal_error,
     _repair_wire_schema_valid_by_attempt,
     _restored_call_reexecution_count,
+    _smoke_payload_builder,
     _smoke_completion_request_options,
     _write_scope_retry_attempt_artifacts,
     _write_provider_attempt_snapshot,
@@ -146,6 +149,25 @@ def test_dry_run_does_not_require_live_integration_flag(capsys) -> None:
     output = capsys.readouterr().out
     assert f'"planner_protocol": "{FUNCTIONAL_PLAN_CONTENT_CONTRACT}"' in output
     assert '"semantic_attempts": 3' in output
+    assert '"few_shot_policy": "shared_synthetic_reference"' in output
+    assert f'"few_shot_example_id": "{SMOKE_FEW_SHOT_EXAMPLE_ID}"' in output
+
+
+def test_release_smoke_uses_one_synthetic_few_shot_for_every_case() -> None:
+    builder = _smoke_payload_builder()
+
+    assert SMOKE_FEW_SHOT_EXAMPLE_ID == "quadratic_constraints_vertex"
+    assert SMOKE_FEW_SHOT_SOURCE_PROBLEM_ID == (
+        "synthetic-quadratic-core-reference"
+    )
+    assert builder.scoped_functional_few_shot_examples is not None
+    assert len(builder.scoped_functional_few_shot_examples) == 1
+    serialized = json.dumps(
+        builder.scoped_functional_few_shot_examples[0],
+        ensure_ascii=False,
+    )
+    assert '"capability_id": "quadratic_from_constraints"' in serialized
+    assert "tj-2026-" not in serialized
 
 
 def test_smoke_disabled_thinking_profile_is_explicit() -> None:

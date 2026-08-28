@@ -205,7 +205,7 @@ token 与耗时
 
 Track F0–F4 不再新增迁移阶段。F5-F4.3B 已固化 LLM-facing 原子 Macro 边界与
 `equal_length_ray_path_reduction` golden reference；F5-F4.3C 已将和平二模迁移为
-`quadratic_square_path_minimum`，公开只保留 parabola、path target 与 square，并通过最终
-live `1x3` 发布验收。下一项工程
-工作属于 F5-F4.3D，迁移南开路径 Macro。完成原子路径 Macro 后，再进入 F5-F5 teaching
+`quadratic_square_path_minimum`；F5-F4.3D 已将南开迁移为
+`coupled_segment_endpoint_replacement_path_minimum`，并通过最终 live `1x3`。下一项工程
+工作属于 F5-F4.3E，迁移加权路径 Macro；F4.3F 清理完成后，再进入 F5-F5 teaching
 scope 与 Track G。

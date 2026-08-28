@@ -1,27 +1,25 @@
 {
-  "example_id": "broken_path_straightening",
+  "example_id": "coupled_segment_path_minimum",
   "source_problem_id": "tj-2026-nankai-yimo-25",
   "family_id": "QuadraticPathMinimumSolver",
   "pack_ids": [
-    "broken_path_minimum_core"
+    "coupled_segment_path_minimum_core"
   ],
   "capability_ids": [
-    "two_moving_points_path_reduction",
-    "broken_path_straightening_minimum_expression"
+    "coupled_segment_endpoint_replacement_path_minimum"
   ],
   "answer_value_types": [
     "MinimumExpression"
   ],
   "source_call_ids": [
-    "ii_reduce_path",
-    "ii_derive_path_model"
+    "ii_path_minimum"
   ],
   "selection_role": "core",
   "conditions": [
     {
-      "ref": "moving_point",
-      "kind": "point",
-      "description": "由解题策略选定的路径变换动点"
+      "ref": "segment_relation",
+      "kind": "fact",
+      "description": "负责耦合两个动点并证明端点替换的题设线段关系"
     },
     {
       "ref": "path_goal",
@@ -31,18 +29,15 @@
   ],
   "neutralization_map": {
     "call_ids": {
-      "ii_reduce_path": "reduce_path",
-      "ii_derive_path_model": "derive_path_model"
+      "ii_path_minimum": "derive_path_minimum"
     },
     "semantic_refs": {
-      "G": "moving_point",
-      "path_minimum_target": "path_goal"
+      "path_minimum_target": "path_goal",
+      "segment_DE_eq_sqrt2_NG": "segment_relation"
     },
     "text_replacements": {
-      "利用线段位置关系和长度关系，把双动点路径化为单动点折线路径。": "利用题设关系把双动点路径化为单动点折线路径。",
-      "建立两个子问共同使用的路径等价变换。": "建立后续计算共同使用的路径等价变换。",
-      "将折线路径拉直，得到含参最小值表达式。": "将折线路径拉直，得到最小值表达式。",
-      "最小值表达式供两个子问求值或反求参数。": "前序路径变换已携带动点轨迹证据，因此可省略 moving_locus；最小值表达式供后续求值或反求参数。"
+      "利用题设线段关系原子完成端点替换和折线拉直。": "利用题设线段关系原子完成端点替换、折线拉直和最小值推导。",
+      "同一 Macro 返回最小值表达式与动点 G 的取等状态。": "内部路径变换不暴露给 Planner；同一 Macro 还可返回原题动点的取等状态。"
     }
   },
   "neutralized": true

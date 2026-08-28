@@ -714,6 +714,7 @@ CapabilityStateClosurePolicy = Literal[
 ]
 CapabilityContextResolver = Literal[
     "condition_object_roles",
+    "coupled_segment_path_roles",
     "equal_length_ray_path_roles",
     "path_reduction_roles",
     "quadratic_square_path_roles",
@@ -722,6 +723,9 @@ CapabilityContextResolver = Literal[
 ]
 CONDITION_OBJECT_ROLES_RESOLVER: CapabilityContextResolver = (
     "condition_object_roles"
+)
+COUPLED_SEGMENT_PATH_ROLES_RESOLVER: CapabilityContextResolver = (
+    "coupled_segment_path_roles"
 )
 EQUAL_LENGTH_RAY_PATH_ROLES_RESOLVER: CapabilityContextResolver = (
     "equal_length_ray_path_roles"
@@ -828,6 +832,8 @@ class ConditionPattern:
     cardinality: CapabilityCardinality = "one"
     required: bool = True
     deterministic_resolver: str | None = None
+    semantic_role: str | None = None
+    accepted_condition_kinds: tuple[str, ...] = ()
     description: str = ""
 
     def to_payload(self) -> dict[str, object]:
@@ -840,6 +846,12 @@ class ConditionPattern:
         }
         if self.description:
             payload["description"] = self.description
+        if self.semantic_role is not None:
+            payload["semantic_role"] = self.semantic_role
+        if self.accepted_condition_kinds:
+            payload["accepted_condition_kinds"] = list(
+                self.accepted_condition_kinds
+            )
         if self.deterministic_resolver is not None:
             payload["deterministic_resolver"] = self.deterministic_resolver
         return payload

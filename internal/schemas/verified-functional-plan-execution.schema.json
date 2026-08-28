@@ -75,7 +75,7 @@
     },
     "step_result_ref": {
       "type": "object",
-      "description": "Read one named return from an earlier visible step. Use this for anonymous results only. A named Math Entity must use its SourceRef; the compiler obtains the exact input required by the capability.",
+      "description": "Read one named return from an earlier visible step. Use this for anonymous results, or for a producer return explicitly declared with reference_mode=exact_result. Other named Math Entities must use SourceRef; the compiler obtains the exact input required by the capability.",
       "required": [
         "step_id",
         "return"
@@ -94,7 +94,7 @@
       "additionalProperties": false
     },
     "functional_ref": {
-      "description": "Use a SourceRef string for every named Entity or visible Fact. Use StepResultRef only for a return without a named Math Entity identity.",
+      "description": "Use a SourceRef string for a named Entity or visible Fact by default. Use StepResultRef for an anonymous return or a producer return whose catalog reference_mode is exact_result.",
       "oneOf": [
         {
           "$ref": "#/$defs/source_ref"

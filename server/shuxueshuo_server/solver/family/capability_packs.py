@@ -20,6 +20,7 @@ from shuxueshuo_server.solver.family.models import (
     CapabilityPackSpec,
     CapabilityStateClosurePolicy,
     CONDITION_OBJECT_ROLES_RESOLVER,
+    COUPLED_SEGMENT_PATH_ROLES_RESOLVER,
     EQUAL_LENGTH_RAY_PATH_ROLES_RESOLVER,
     ConditionPattern,
     EvidenceInputGroupSpec,
@@ -353,12 +354,16 @@ def _condition(
     *,
     runtime_type: str = "Condition",
     required: bool = True,
+    semantic_role: str | None = None,
+    accepted_condition_kinds: tuple[str, ...] = (),
     description: str = "",
 ) -> ConditionPattern:
     return ConditionPattern(
         condition_kind=condition_kind,
         runtime_type=runtime_type,
         required=required,
+        semantic_role=semantic_role,
+        accepted_condition_kinds=accepted_condition_kinds,
         description=description,
     )
 
@@ -1508,6 +1513,103 @@ QUADRATIC_SQUARE_PATH_MINIMUM = StepRecipeSpec(
 )
 
 
+COUPLED_SEGMENT_ENDPOINT_REPLACEMENT_PATH_MINIMUM = StepRecipeSpec(
+    recipe_id="coupled_segment_endpoint_replacement_path_minimum",
+    goal_type="derive_path_minimum_expression",
+    title="耦合线段端点替换路径最值",
+    description=(
+        "当两动点分别位于两条相接线段，且题面比例/等长关系能够把两动点"
+        "之间的距离替换为已有固定端点到保留动点的距离时，原子完成端点"
+        "替换、单动点轨迹、折线拉直、最小值和取等点。Planner 只选择路径"
+        "目标与负责耦合的线段关系；成员关系、端点和保留动点由代码解析。"
+        "若其中的固定端点由中点等题面构造定义，先用对应普通 Function 物化"
+        "该点坐标；这只是准备输入，不是展开 Macro。"
+    ),
+    method_ids=("coupled_segment_endpoint_replacement_path_minimum_kernel",),
+    execution=RecipeExecutionSpec(
+        recipe_id="coupled_segment_endpoint_replacement_path_minimum",
+        method_sequence=(
+            "coupled_segment_endpoint_replacement_path_minimum_kernel",
+        ),
+        execution_mode="runtime_search",
+        search=MacroSearchSpec(
+            searchable_roles=(
+                "first_membership",
+                "second_membership",
+                "first_segment_start",
+                "joint_point",
+                "second_segment_end",
+                "transformed_fixed_endpoint",
+                "moving_point",
+            ),
+            candidate_builder_id="coupled_segment_path_role_assignments",
+            validation_policy_id="path_equivalence_and_attainment",
+            lowerer_id="coupled_segment_path_minimum",
+            postcondition_id="coupled_segment_path_postcondition",
+            evidence_builder_id="coupled_segment_path_witness",
+        ),
+        execution_strategy="coupled_segment_path_minimum",
+        input_aliases=(
+            (
+                "path_minimum_target",
+                "coupled_segment_endpoint_replacement_path_minimum_kernel.path_condition",
+            ),
+            (
+                "segment_binding_relation",
+                "coupled_segment_endpoint_replacement_path_minimum_kernel.segment_binding_relation",
+            ),
+        ),
+        strategy_input_targets=tuple(
+            "coupled_segment_endpoint_replacement_path_minimum_kernel."
+            + role
+            for role in (
+                "first_membership",
+                "second_membership",
+                "first_segment_start",
+                "joint_point",
+                "second_segment_end",
+                "transformed_fixed_endpoint",
+                "moving_point",
+            )
+        ),
+        output_aliases=(
+            recipe_output_alias(
+                "coupled_segment_endpoint_replacement_path_minimum_kernel.minimum_expression",
+                "MinimumExpression",
+                "minimum_expression",
+                goal_evidence_tags=("path_minimum_expression",),
+                result_form=ScalarResultFormSpec(
+                    possible_forms=("open_expression", "closed_value"),
+                    description=(
+                        "仍依赖题面参数时为 open_expression；参数确定后为 closed_value。"
+                    ),
+                ),
+            ),
+            recipe_output_alias(
+                "coupled_segment_endpoint_replacement_path_minimum_kernel.attainment_point",
+                "Point",
+                "attainment_point",
+                identity_policy="target_object",
+                identity_arg="moving_point",
+                reference_mode="exact_result",
+                goal_evidence_tags=("path_minimum_extremal_point",),
+                description=(
+                    "端点替换后保留动点的取等状态；身份由代码从路径和线段关系"
+                    "中确定，后续通过 StepResultRef 消费。"
+                ),
+            ),
+        ),
+    ),
+    priority="preferred",
+    do_not_use_when=(
+        "路径本身已经只有一个动点，不需要耦合端点替换。",
+        "比例关系要求创建新的辅助点、射线、正方形变换或非1权重构造。",
+        "两动点的成员关系与耦合线段不能形成唯一连通结构。",
+        "保留动点的轨迹不是直线。",
+    ),
+)
+
+
 DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
     CapabilityPackSpec(
         pack_id="quadratic_core",
@@ -2066,6 +2168,95 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
                         ),
                         return_binding="call_local_allowed",
                     ),
+                ),
+            ),
+        ),
+    ),
+    CapabilityPackSpec(
+        pack_id="coupled_segment_path_minimum_core",
+        kind="mechanism",
+        method_ids=(
+            "coupled_segment_endpoint_replacement_path_minimum_kernel",
+        ),
+        step_recipes=(COUPLED_SEGMENT_ENDPOINT_REPLACEMENT_PATH_MINIMUM,),
+        contracts=(
+            _recipe_contract(
+                "coupled_segment_endpoint_replacement_path_minimum",
+                slot_reads=tuple(
+                        _slot(
+                            "coordinate",
+                            "Point",
+                            object_kind="point",
+                            semantic_role=role,
+                        )
+                        for role in (
+                            "first_segment_start",
+                            "joint_point",
+                            "second_segment_end",
+                            "transformed_fixed_endpoint",
+                            "moving_point",
+                        )
+                ),
+                condition_reads=(
+                    _condition("path_minimum_target"),
+                    _condition(
+                        "segment_length_relation",
+                        semantic_role="segment_binding_relation",
+                        accepted_condition_kinds=(
+                            "segment_relation",
+                            "segment_length_relation",
+                        ),
+                    ),
+                    _condition("first_membership"),
+                    _condition("second_membership"),
+                ),
+                slot_writes=(
+                    _slot(
+                        "expression",
+                        "MinimumExpression",
+                        output_key=(
+                            "coupled_segment_endpoint_replacement_path_minimum_kernel."
+                            "minimum_expression"
+                        ),
+                        result_form=ScalarResultFormSpec(
+                            possible_forms=("open_expression", "closed_value"),
+                            description=(
+                                "仍依赖题面参数时为 open_expression；参数确定后为 closed_value。"
+                            ),
+                        ),
+                    ),
+                    _slot(
+                        "coordinate",
+                        "Point",
+                        object_kind="point",
+                        semantic_role="attainment_point",
+                        output_key=(
+                            "coupled_segment_endpoint_replacement_path_minimum_kernel."
+                            "attainment_point"
+                        ),
+                        identity_policy="target_object",
+                        identity_arg="moving_point",
+                        write_mode="transition",
+                        return_binding="explicit_external_required",
+                    ),
+                ),
+                dependency_policy="context_closure",
+                context_resolvers=(COUPLED_SEGMENT_PATH_ROLES_RESOLVER,),
+                context_role_bindings=tuple(
+                    CapabilityContextRoleBindingSpec(
+                        COUPLED_SEGMENT_PATH_ROLES_RESOLVER,
+                        role,
+                        role,
+                    )
+                    for role in (
+                        "first_membership",
+                        "second_membership",
+                        "first_segment_start",
+                        "joint_point",
+                        "second_segment_end",
+                        "transformed_fixed_endpoint",
+                        "moving_point",
+                    )
                 ),
             ),
         ),

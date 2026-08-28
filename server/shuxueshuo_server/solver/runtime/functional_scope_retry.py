@@ -40,6 +40,7 @@ from shuxueshuo_server.solver.runtime.functional_plan_content import (
     FunctionalPlanAuthorityFrame,
     FunctionalPlanContent,
     FunctionalPlanContentCompiler,
+    functional_plan_content_from_plan,
     normalize_empty_optional_capability_args,
 )
 from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
@@ -451,7 +452,13 @@ class FunctionalScopeRetryAuthorityProjector:
                 if step.status in {"authority_invalid", "runtime_failed"}:
                     owner = step_owners.get(step.step_id)
                     if owner is not None:
-                        editable.add(owner)
+                        editable.add(
+                            _required_scope_from_step_issue(
+                                step,
+                                scope_by_ref=scope_by_ref,
+                            )
+                            or owner
+                        )
         for issue in (*checkpoint.root_issues, *additional_issues):
             retryability = str(issue.get("retryability") or "")
             category = str(issue.get("category") or "")
@@ -883,11 +890,37 @@ class ScopedFunctionalScopeRetryService:
                         capability_catalog=capability_catalog,
                     )
                     content_normalizations = repair.normalizations
-                    next_plan = FunctionalScopeRepairCompiler().apply(
+                    applied_plan = FunctionalScopeRepairCompiler().apply(
                         repair,
                         base_plan=current_plan,
                         authority=current_authority,
                     ).plan
+                    repair_content = functional_plan_content_from_plan(
+                        applied_plan,
+                        frame=frame,
+                    )
+                    repair_compilation = (
+                        FunctionalPlanContentCompiler().compile_payload(
+                            repair_content.to_payload(),
+                            frame=frame,
+                            capability_catalog=capability_catalog,
+                        )
+                    )
+                    content_normalizations = (
+                        *content_normalizations,
+                        *repair_compilation.normalizations,
+                    )
+                    if (
+                        repair_compilation.plan is None
+                        or not repair_compilation.report.ok
+                    ):
+                        first = repair_compilation.report.issues[0]
+                        raise FunctionalScopeRetryError(
+                            first.code,
+                            first.path,
+                            first.message,
+                        )
+                    next_plan = repair_compilation.plan
 
                 restored_seed = None
                 if current_authority is not None and current_execution is not None:
@@ -1809,6 +1842,23 @@ def _scope_lca(
             break
         common = values[0]
     return common
+
+
+def _required_scope_from_step_issue(
+    step: Any,
+    *,
+    scope_by_ref: Mapping[str, Any],
+) -> str | None:
+    """Honor a typed missing-producer diagnostic's code-owned repair Scope."""
+
+    issue = step.typed_issue
+    if not isinstance(issue, Mapping):
+        return None
+    expected = issue.get("expected")
+    if not isinstance(expected, Mapping):
+        return None
+    required = str(expected.get("required_scope_ref") or "")
+    return required if required in scope_by_ref else None
 
 
 def _is_placement_issue(issue: Mapping[str, Any]) -> bool:

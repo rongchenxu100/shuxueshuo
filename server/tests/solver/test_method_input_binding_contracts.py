@@ -460,6 +460,7 @@ F4_3C_RETIRED_PUBLIC_METHODS = {
     "square_path_dimension_reduction",
     "parameterized_point_locus_line",
     "line_locus_minimum_point",
+    "two_moving_points_path_reduction",
 }
 
 

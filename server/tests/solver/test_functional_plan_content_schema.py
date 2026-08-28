@@ -256,6 +256,85 @@ def test_distinct_symbol_roles_are_schema_checked_after_safe_normalization(
     }
 
 
+def test_fixed_form_return_expectation_is_omitted_before_schema_validation(
+    tmp_path,
+) -> None:
+    fixture, frame, content, _plan = _content_fixture(tmp_path)
+    payload = deepcopy(content.to_payload())
+    step = _content_step(payload, "solve_parameter_from_minimum_ii")
+    step["return_expectations"] = {"parameter_value": "closed_state"}
+
+    result = FunctionalPlanContentCompiler().compile_payload(
+        payload,
+        frame=frame,
+        capability_catalog=fixture.capability_catalog,
+    )
+
+    assert result.report.ok
+    assert result.plan is not None
+    canonical = next(
+        item
+        for item in result.plan.steps
+        if item.step_id == "solve_parameter_from_minimum_ii"
+    )
+    assert canonical.return_expectations == {}
+    assert [
+        item.code
+        for item in result.normalizations
+        if item.code == "functional.fixed_form_return_expectation_omitted"
+    ] == ["functional.fixed_form_return_expectation_omitted"]
+
+
+def test_selectable_return_expectation_is_preserved(tmp_path) -> None:
+    fixture, frame, content, _plan = _content_fixture(tmp_path)
+    payload = deepcopy(content.to_payload())
+    step = _content_step(payload, "reduce_equal_length_ray_path_ii")
+    assert step["return_expectations"] == {
+        "minimum_expression": "open_expression"
+    }
+
+    result = FunctionalPlanContentCompiler().compile_payload(
+        payload,
+        frame=frame,
+        capability_catalog=fixture.capability_catalog,
+    )
+
+    assert result.report.ok
+    assert result.plan is not None
+    canonical = next(
+        item
+        for item in result.plan.steps
+        if item.step_id == "reduce_equal_length_ray_path_ii"
+    )
+    assert canonical.return_expectations == {
+        "minimum_expression": "open_expression"
+    }
+    assert "functional.fixed_form_return_expectation_omitted" not in {
+        item.code for item in result.normalizations
+    }
+
+
+def test_unknown_return_expectation_is_not_silently_omitted(tmp_path) -> None:
+    fixture, frame, content, _plan = _content_fixture(tmp_path)
+    payload = deepcopy(content.to_payload())
+    step = _content_step(payload, "solve_parameter_from_minimum_ii")
+    step["return_expectations"] = {"invented_result": "closed_state"}
+
+    result = FunctionalPlanContentCompiler().compile_payload(
+        payload,
+        frame=frame,
+        capability_catalog=fixture.capability_catalog,
+    )
+
+    assert not result.report.ok
+    assert {
+        item.code for item in result.report.issues
+    } >= {"functional.step_contract_invalid"}
+    assert "functional.fixed_form_return_expectation_omitted" not in {
+        item.code for item in result.normalizations
+    }
+
+
 def test_consumed_duplicate_identity_arg_is_left_for_typed_reconciliation(
     tmp_path,
 ) -> None:

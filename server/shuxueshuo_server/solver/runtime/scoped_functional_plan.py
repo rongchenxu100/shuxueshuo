@@ -42,6 +42,10 @@ from shuxueshuo_server.solver.runtime.functional_plan_models import (
 from shuxueshuo_server.solver.runtime.handle_registry import (
     CanonicalHandleRegistry,
 )
+from shuxueshuo_server.solver.runtime.coupled_segment_path_roles import (
+    CoupledSegmentPathRoleError,
+    build_coupled_segment_path_role_candidates,
+)
 from shuxueshuo_server.solver.runtime.planner_public_types import (
     planner_input_domain_type,
 )
@@ -3959,36 +3963,52 @@ def _contextual_return_object_hints(
 
     for location in locations:
         capability = capability_catalog.get(location.step.capability_id)
-        if (
-            capability is None
-            or "quadratic_square_path_roles"
-            not in capability.context_resolvers
-        ):
+        if capability is None:
             continue
+        resolver_ids = set(capability.context_resolvers)
         path_binding = source_binding(location, "path_minimum_target")
-        square_binding = source_binding(location, "square")
-        parabola_binding = source_binding(location, "parabola")
-        if (
-            path_binding is None
-            or square_binding is None
-            or parabola_binding is None
-        ):
-            continue
-        parabola_ids = {
-            object_id.value
-            for object_id in _binding_math_object_ids(parabola_binding)
-        }
-        if len(parabola_ids) != 1:
-            continue
-        try:
-            candidates = build_quadratic_square_path_role_candidates(
-                path_minimum_target=path_binding.runtime_node_id,
-                square=square_binding.runtime_node_id,
-                parabola_ref=next(iter(parabola_ids)),
-                scope_id=location.scope_id,
-                registry=handle_registry,
+        if "quadratic_square_path_roles" in resolver_ids:
+            square_binding = source_binding(location, "square")
+            parabola_binding = source_binding(location, "parabola")
+            if (
+                path_binding is None
+                or square_binding is None
+                or parabola_binding is None
+            ):
+                continue
+            parabola_ids = {
+                object_id.value
+                for object_id in _binding_math_object_ids(parabola_binding)
+            }
+            if len(parabola_ids) != 1:
+                continue
+            try:
+                candidates = build_quadratic_square_path_role_candidates(
+                    path_minimum_target=path_binding.runtime_node_id,
+                    square=square_binding.runtime_node_id,
+                    parabola_ref=next(iter(parabola_ids)),
+                    scope_id=location.scope_id,
+                    registry=handle_registry,
+                )
+            except QuadraticSquarePathRoleError:
+                continue
+        elif "coupled_segment_path_roles" in resolver_ids:
+            relation_binding = source_binding(
+                location,
+                "segment_binding_relation",
             )
-        except QuadraticSquarePathRoleError:
+            if path_binding is None or relation_binding is None:
+                continue
+            try:
+                candidates = build_coupled_segment_path_role_candidates(
+                    path_minimum_target=path_binding.runtime_node_id,
+                    segment_binding_relation=relation_binding.runtime_node_id,
+                    scope_id=location.scope_id,
+                    registry=handle_registry,
+                )
+            except CoupledSegmentPathRoleError:
+                continue
+        else:
             continue
         if len(candidates) != 1:
             continue

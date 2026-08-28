@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from shuxueshuo_server.solver.family.models import (
     CapabilityContextResolver,
     CONDITION_OBJECT_ROLES_RESOLVER,
+    COUPLED_SEGMENT_PATH_ROLES_RESOLVER,
     EQUAL_LENGTH_RAY_PATH_ROLES_RESOLVER,
     PATH_REDUCTION_ROLES_RESOLVER,
     QUADRATIC_SQUARE_PATH_ROLES_RESOLVER,
@@ -64,6 +65,9 @@ class ContextClosureResolverSpec:
 _CONTEXT_CLOSURE_RESOLVERS = {
     CONDITION_OBJECT_ROLES_RESOLVER: ContextClosureResolverSpec(
         resolver_id=CONDITION_OBJECT_ROLES_RESOLVER,
+    ),
+    COUPLED_SEGMENT_PATH_ROLES_RESOLVER: ContextClosureResolverSpec(
+        resolver_id=COUPLED_SEGMENT_PATH_ROLES_RESOLVER,
     ),
     EQUAL_LENGTH_RAY_PATH_ROLES_RESOLVER: ContextClosureResolverSpec(
         resolver_id=EQUAL_LENGTH_RAY_PATH_ROLES_RESOLVER,

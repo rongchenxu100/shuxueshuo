@@ -54,6 +54,11 @@ _REPAIR_MESSAGES = {
     "provide_visible_state_producer": (
         "Add or repair a visible producer for the required object state."
     ),
+    "materialize_constructed_point_before_macro": (
+        "In the listed Scope, materialize the named constructed Point from "
+        "its source Fact before calling the atomic Macro. Do not expand the "
+        "Macro's internal path transformation."
+    ),
     "align_call_with_goal_scope": (
         "Keep the call inside a scope visible to every listed Goal, or remove "
         "the foreign Goal dependency."

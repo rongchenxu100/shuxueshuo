@@ -136,7 +136,8 @@ def test_family_spec_contains_only_family_level_context() -> None:
     assert "quadratic_from_constraints" in spec.method_ids
     recipe_ids = {recipe.recipe_id for recipe in spec.step_recipes}
     assert "right_angle_equal_length_construct_and_select" in recipe_ids
-    assert "two_moving_points_path_reduction" in recipe_ids
+    assert "coupled_segment_endpoint_replacement_path_minimum" in recipe_ids
+    assert "two_moving_points_path_reduction" not in recipe_ids
     assert any(recipe.priority == "preferred" for recipe in spec.step_recipes)
     assert spec.method_binding_rules
 
@@ -158,11 +159,13 @@ def test_path_family_recipes_include_execution_specs() -> None:
     assert right_angle.do_not_use_when
     assert any("单个条件" in item for item in right_angle.do_not_use_when)
 
-    straightening = recipes["broken_path_straightening_and_select"]
-    assert straightening.execution is not None
-    assert straightening.execution.execution_strategy == "straightening_candidates_select"
-    assert straightening.do_not_use_when
-    assert any("原路径动点坐标" in item for item in straightening.do_not_use_when)
+    coupled = recipes["coupled_segment_endpoint_replacement_path_minimum"]
+    assert coupled.execution is not None
+    assert coupled.execution.execution_mode == "runtime_search"
+    assert coupled.execution.method_sequence == (
+        "coupled_segment_endpoint_replacement_path_minimum_kernel",
+    )
+    assert coupled.do_not_use_when
 
 
 def test_path_family_binding_rules_are_declared_in_spec() -> None:
@@ -173,7 +176,7 @@ def test_path_family_binding_rules_are_declared_in_spec() -> None:
     }
 
     assert "quadratic_axis_from_relation" in rules
-    assert "two_moving_points_path_reduction" in rules
+    assert "two_moving_points_path_reduction" not in rules
     axis_bindings = {
         binding.input_name: binding
         for binding in rules["quadratic_axis_from_relation"].input_bindings
@@ -538,10 +541,11 @@ def test_expanded_family_catalogs_keep_pack_and_local_capabilities() -> None:
                 "quadratic_from_constraints",
                 "quadratic_vertex_point",
                 "right_angle_equal_length_candidates",
+                "coupled_segment_endpoint_replacement_path_minimum_kernel",
             },
             {
                 "right_angle_equal_length_construct_and_select",
-                "path_minimum_by_straightened_distance",
+                "coupled_segment_endpoint_replacement_path_minimum",
             },
         ),
         QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY.family_id: (
@@ -600,6 +604,8 @@ def test_pack_bound_methods_enter_functional_capability_catalog() -> None:
     assert rules.rule_for("quadratic_vertex_point") is not None
     assert "quadratic_vertex_point" in capability_ids
     assert "quadratic_from_constraints" in capability_ids
+    assert "coupled_segment_endpoint_replacement_path_minimum" in capability_ids
+    assert "two_moving_points_path_reduction" not in capability_ids
 
 
 def test_functional_catalog_only_exposes_executable_contracts_for_real_families() -> None:

@@ -449,6 +449,45 @@ def test_scope_authority_opens_owner_scope_without_step_permissions(tmp_path) ->
         assert removed not in text
 
 
+def test_missing_producer_diagnostic_opens_required_ancestor_scope(tmp_path) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    checkpoint = fixture.execution.checkpoint
+    assert checkpoint is not None
+    root_scope = _replace_execution_step(
+        checkpoint.root_scope,
+        FAILED_STEP_ID,
+        lambda item: replace(
+            item,
+            typed_issue={
+                "schema_version": "functional-prompt-diagnostic/v1",
+                "code": "functional.coupled_segment_path_state_unavailable",
+                "category": "input",
+                "stage": "reconciliation_binding",
+                "retryability": "planner_repairable",
+                "message": "Materialize the constructed Point in its owner Scope.",
+                "repair_action": "materialize_constructed_point_before_macro",
+                "step_id": FAILED_STEP_ID,
+                "scope_id": "ii",
+                "subjects": ({"ref": "F"},),
+                "expected": {"required_scope_ref": "problem"},
+                "observed": {"existing_producers": ()},
+                "repair_call_ids": (),
+            },
+        ),
+    )
+    execution = replace(
+        fixture.execution,
+        checkpoint=replace(checkpoint, root_scope=root_scope),
+    )
+
+    authority = FunctionalScopeRetryAuthorityProjector().project(
+        plan=fixture.failed_plan,
+        execution=execution,
+    )
+
+    assert authority.editable_scope_refs == ("problem",)
+
+
 def test_scope_authority_opens_scope_for_unbound_goal_root_diagnostic(
     tmp_path,
 ) -> None:
@@ -861,6 +900,17 @@ def test_scope_retry_service_switches_from_pass1_to_vnext_and_accepts_repair(
         ),
     ).to_payload()
     repair = _scope_repair_payload(correct_plan, "ii")
+    repaired_steps = repair["scope_replacements"]["ii"]["goals"][
+        "ii.a"
+    ]["steps"]
+    next(
+        item
+        for item in repaired_steps
+        if item["step_id"] == "derive_x_intercept_B_ii"
+    )["args"]["parabola"] = {
+        "step_id": "derive_parametric_parabola_ii",
+        "return": "parabola",
+    }
 
     class Client:
         provider_name = "recorded-test"
@@ -899,6 +949,18 @@ def test_scope_retry_service_switches_from_pass1_to_vnext_and_accepts_repair(
         "functional-plan-content/v2",
         "functional-scope-repair/v1",
     ]
+    assert any(
+        item.code == "functional.named_entity_result_ref_normalized"
+        for item in result.attempts[1].content_normalizations
+    )
+    repaired_plan = result.attempts[1].merged_plan
+    assert repaired_plan is not None
+    repaired_intercept = next(
+        item
+        for item in repaired_plan.steps
+        if item.step_id == "derive_x_intercept_B_ii"
+    )
+    assert repaired_intercept.args["parabola"] == ("parabola",)
     assert set(result.attempts[1].payload) == {
         "planner_protocol",
         "problem_id",

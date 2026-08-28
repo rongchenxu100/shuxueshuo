@@ -90,27 +90,16 @@
             "intent": "由中点定义计算路径变换所需固定端点的坐标。"
           },
           {
-            "step_id": "ii_reduce_path",
-            "capability_id": "two_moving_points_path_reduction",
+            "step_id": "ii_path_minimum",
+            "capability_id": "coupled_segment_endpoint_replacement_path_minimum",
             "args": {
               "path_minimum_target": "path_minimum_target_e_g_f",
-              "moving_point": "G"
-            },
-            "intent": "利用线段位置关系和长度关系，把双动点路径化为单动点折线路径。"
-          },
-          {
-            "step_id": "ii_derive_path_model",
-            "capability_id": "broken_path_straightening_minimum_expression",
-            "args": {
-              "path_transformation": {
-                "step_id": "ii_reduce_path",
-                "return": "path_transformation"
-              }
+              "segment_binding_relation": "segment_length_relation_de_ng"
             },
             "return_expectations": {
-              "path_minimum_expression": "open_expression"
+              "minimum_expression": "open_expression"
             },
-            "intent": "将折线路径拉直，得到含参最小值表达式。"
+            "intent": "利用题设线段关系原子完成端点替换和折线拉直，得到最小值表达式与动点 G 的取等状态。"
           }
         ],
         "children": [
@@ -144,8 +133,8 @@
                     "capability_id": "evaluate_expression_at_parameter",
                     "args": {
                       "expression": {
-                        "step_id": "ii_derive_path_model",
-                        "return": "path_minimum_expression"
+                        "step_id": "ii_path_minimum",
+                        "return": "minimum_expression"
                       },
                       "parameter_value": "m"
                     },
@@ -184,8 +173,8 @@
                 "capability_id": "parameter_from_minimum_value",
                 "args": {
                   "minimum_expression": {
-                    "step_id": "ii_derive_path_model",
-                    "return": "path_minimum_expression"
+                    "step_id": "ii_path_minimum",
+                    "return": "minimum_expression"
                   },
                   "minimum_value": "minimum_value"
                 },
@@ -199,27 +188,24 @@
               {
                 "goal_ref": "ii_2.G",
                 "answer_from": {
-                  "step_id": "ii_2_derive_G",
-                  "return": "intersection"
+                  "step_id": "ii_2_evaluate_G",
+                  "return": "evaluated_point"
                 },
                 "steps": [
                   {
-                    "step_id": "ii_2_derive_G",
-                    "capability_id": "line_intersection_point",
+                    "step_id": "ii_2_evaluate_G",
+                    "capability_id": "evaluate_point_at_parameter",
                     "args": {
-                      "line1_p1": {
-                        "step_id": "ii_derive_path_model",
-                        "return": "straightened_endpoint_1"
+                      "point": {
+                        "step_id": "ii_path_minimum",
+                        "return": "attainment_point"
                       },
-                      "line1_p2": {
-                        "step_id": "ii_derive_path_model",
-                        "return": "straightened_endpoint_2"
-                      },
-                      "line2_p1": "M",
-                      "line2_p2": "N",
                       "parameter_value": "m"
                     },
-                    "intent": "求拉直方案确定的辅助直线与 MN 所在直线的交点。"
+                    "output_targets": {
+                      "evaluated_point": "G"
+                    },
+                    "intent": "把反求的参数值代入 Macro 返回的动点 G 取等状态。"
                   }
                 ]
               },

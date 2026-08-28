@@ -35,6 +35,7 @@
    `goal_ref`不是step输入，禁止scope前缀、参数名、Fact kind或自造ref。
 6. `capability_id`、args、return role、结果类型和`return_expectations`必须服从Capability Catalog。
    `binding=same_compiler_selected_object`不允许增加catalog未声明的arg或target。
+   只有return明确展示`possible_forms`时才可为它填写`return_expectations`；固定形态return必须省略。
    `free_parameters`必须表示应用本步骤当前scope可见约束后仍然未确定的一组完整独立参数基底。结果仍为开放状态时
    必须填写非空基底；结果已闭合时可以填写`[]`或省略。数学等价的基底均可填写，代码会用runtime约束验证；
    不能根据下游Goal希望求哪个参数来提前删除、替换或收窄基底。
@@ -42,7 +43,9 @@
    `reference_mode=exact_result` return时，可直接用`{"step_id":"...","return":"..."}`读取它。
    `output_targets`不是声明return，而只是把return写入当前scope
    可见的题面已有具名对象；没有这种对象时必须省略。Goal最终答案用`answer_from`选择producer，代码再根据
-   Goal authority验证其对象身份。不要为答案增加`output_targets`，也不要自造target名称或其他绑定字段。
+   Goal authority验证其对象身份。`reference_mode=exact_result`或`binding=exact_call_result_or_answer`的return
+   即使表示题面已有Entity，也禁止填写`output_targets`；后续step必须直接使用它的StepResultRef。
+   不要为答案增加`output_targets`，也不要自造target名称或其他绑定字段。
 8. `intent`可选，只用于简短说明数学目的。所有step必须通向至少一个必答Goal。
 
 当前题的严格、authority-bound JSON Schema位于user message末尾。

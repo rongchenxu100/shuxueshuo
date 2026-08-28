@@ -122,7 +122,12 @@ def test_v2_payload_and_prompt_use_scope_native_authority_only(tmp_path) -> None
     assert "互斥的step所有权容器" in prompt.system
     assert "每个step完整对象只能出现一次" in prompt.system
     assert "只为该Goal答案服务的局部推导" in prompt.system
-    assert "Entity始终使用字符串SourceRef" in prompt.system
+    assert "Entity默认使用字符串SourceRef" in prompt.system
+    assert "exact-result即使携带" in prompt.system
+    assert "只有return明确展示`possible_forms`时" in prompt.system
+    assert "即使表示题面已有Entity，也禁止填写`output_targets`" in (
+        prompt.system
+    )
     assert "free_parameters" in prompt.system
     assert "不能根据下游Goal希望求哪个参数" in prompt.system
     assert "只在该scope及其子孙scope可见" in prompt.user

@@ -536,7 +536,9 @@ def _function_capability(
                 (
                     pattern
                     for pattern in remaining_condition_patterns
-                    if pattern.condition_kind == item.name
+                    if (
+                        pattern.semantic_role or pattern.condition_kind
+                    ) == item.name
                 ),
                 remaining_condition_patterns[0]
                 if remaining_condition_patterns
@@ -947,18 +949,22 @@ def _arg_requires_materialized_state(
 
 
 def _contract_condition_arg(pattern: Any) -> FunctionalCapabilityArg:
+    semantic_role = pattern.semantic_role or pattern.condition_kind
     return FunctionalCapabilityArg(
-        name=pattern.condition_kind,
+        name=semantic_role,
         runtime_type=pattern.runtime_type,
         required=pattern.required,
         cardinality=pattern.cardinality,
         kind="condition_read",
         domain_type="Fact",
         input_view_mode="immutable_value",
-        semantic_role=pattern.condition_kind,
+        semantic_role=semantic_role,
         llm_mode=("explicit" if pattern.required else "optional"),
         accepted_item_types=(pattern.runtime_type,),
-        accepted_condition_kinds=(pattern.condition_kind,),
+        accepted_condition_kinds=(
+            pattern.accepted_condition_kinds
+            or (pattern.condition_kind,)
+        ),
         aggregation="none",
         runtime_input=None,
         description=pattern.description,
@@ -1266,14 +1272,15 @@ def _function_arg(
             dict.fromkeys((*accepted_item_types, "Condition"))
         )
     semantic_role = (
-        condition_pattern.condition_kind
+        condition_pattern.semantic_role or condition_pattern.condition_kind
         if condition_pattern is not None
         else item.name
     )
     runtime_condition_kinds = expand_condition_kinds(
         accepted_condition_kinds
         or (
-            (condition_pattern.condition_kind,)
+            condition_pattern.accepted_condition_kinds
+            or (condition_pattern.condition_kind,)
             if condition_pattern is not None
             else ()
         )
@@ -1389,7 +1396,8 @@ def _macro_arg(item: MacroArgSpec) -> FunctionalCapabilityArg:
         llm_mode=("explicit" if item.required else "optional"),
         accepted_item_types=accepted_item_types,
         accepted_condition_kinds=(
-            (item.condition_kind,) if item.condition_kind else ()
+            item.accepted_condition_kinds
+            or ((item.condition_kind,) if item.condition_kind else ())
         ),
         aggregation=aggregation,
         runtime_input=item.name,

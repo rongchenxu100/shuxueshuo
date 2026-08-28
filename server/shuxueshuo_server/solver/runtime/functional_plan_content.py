@@ -1253,6 +1253,12 @@ def _normalize_content_wire(
             capability_catalog=capability_catalog,
         )
     )
+    normalized, fixed_expectation_records = (
+        normalize_fixed_form_return_expectations(
+            normalized,
+            capability_catalog=capability_catalog,
+        )
+    )
     normalized, role_records, role_issues = normalize_capability_return_roles(
         normalized,
         frame=frame,
@@ -1275,6 +1281,7 @@ def _normalize_content_wire(
         *unknown_arg_records,
         *interchangeable_arg_records,
         *duplicate_identity_records,
+        *fixed_expectation_records,
         *role_records,
         *named_ref_records,
         *ownership_records,
@@ -1389,6 +1396,71 @@ def normalize_unconsumed_duplicate_identity_args(
                 )
             if expectations == {}:
                 step.pop("return_expectations", None)
+    return normalized, tuple(records)
+
+
+def normalize_fixed_form_return_expectations(
+    payload: object,
+    *,
+    capability_catalog: FunctionalCapabilityCatalog,
+) -> tuple[object, tuple[FunctionalPlanContentNormalization, ...]]:
+    """Drop form hints that cannot affect a declared fixed-form return.
+
+    ``return_expectations`` selects among forms explicitly published by a
+    capability.  A declared return whose policy is ``omit`` has no planner
+    choice, so an authored hint is redundant and safe to discard before the
+    capability-bound JSON Schema runs.  Unknown return names and invalid forms
+    on selectable returns remain untouched for strict validation.
+    """
+
+    normalized = deepcopy(payload)
+    records: list[FunctionalPlanContentNormalization] = []
+
+    def visit(value: object, path: tuple[Any, ...]) -> None:
+        if isinstance(value, list):
+            for index, item in enumerate(value):
+                visit(item, (*path, index))
+            return
+        if not isinstance(value, dict):
+            return
+        capability_id = value.get("capability_id")
+        expectations = value.get("return_expectations")
+        capability = (
+            capability_catalog.get(capability_id)
+            if isinstance(capability_id, str)
+            else None
+        )
+        if capability is not None and isinstance(expectations, dict):
+            returns = {item.name: item for item in capability.returns}
+            for return_name in tuple(expectations):
+                returned = returns.get(return_name)
+                if (
+                    returned is None
+                    or returned.return_expectation_policy != "omit"
+                ):
+                    continue
+                form = expectations.pop(return_name)
+                records.append(
+                    FunctionalPlanContentNormalization(
+                        code=(
+                            "functional.fixed_form_return_expectation_omitted"
+                        ),
+                        path=_json_path(
+                            (*path, "return_expectations", return_name)
+                        ),
+                        message=(
+                            "omitted redundant result-form hint "
+                            f"{capability_id}.{return_name}={form!r}; the "
+                            "declared return has one fixed form"
+                        ),
+                    )
+                )
+            if not expectations:
+                value.pop("return_expectations", None)
+        for key, item in tuple(value.items()):
+            visit(item, (*path, key))
+
+    visit(normalized, ())
     return normalized, tuple(records)
 
 

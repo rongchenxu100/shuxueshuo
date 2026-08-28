@@ -8,6 +8,10 @@ from typing import Any, Mapping, Sequence
 from shuxueshuo_server.solver.runtime.context_closure import (
     ContextClosureResolverSpec,
 )
+from shuxueshuo_server.solver.runtime.coupled_segment_path_roles import (
+    CoupledSegmentPathRoleError,
+    build_coupled_segment_path_role_candidates,
+)
 from shuxueshuo_server.solver.runtime.equal_length_ray_roles import (
     EqualLengthRayRoleError,
     resolve_equal_length_ray_path_roles,
@@ -63,18 +67,253 @@ ContextClosureResolution = tuple[
 ]
 
 
+def resolve_coupled_segment_path_args(
+    capability: FunctionalCapability,
+    call: FunctionalCall,
+    resolved_args: Mapping[str, tuple[ResolvedFunctionalValue, ...]],
+    resolver: ContextClosureResolverSpec,
+    *,
+    call_id: str,
+    scope_id: str,
+    produced: Mapping[tuple[str, str], ResolvedFunctionalValue],
+    semantic_index: FunctionalSemanticIndex,
+    handle_registry: CanonicalHandleRegistry,
+) -> ContextClosureResolution:
+    """Resolve the private proof closure for the coupled-segment Macro."""
+
+    del call
+    if (
+        capability.kind != "macro"
+        or capability.capability_id
+        != "coupled_segment_endpoint_replacement_path_minimum"
+    ):
+        return {}, (), (), False
+    path_values = tuple(
+        value
+        for value in resolved_args.get("path_minimum_target", ())
+        if handle_registry.fact_types.get(value.handle) == "path_minimum_target"
+    )
+    relation_values = tuple(
+        value
+        for value in resolved_args.get("segment_binding_relation", ())
+        if handle_registry.fact_types.get(value.handle)
+        in {"segment_relation", "segment_length_relation"}
+    )
+    counts = {
+        "path_minimum_target": len(path_values),
+        "segment_binding_relation": len(relation_values),
+    }
+    if any(count != 1 for count in counts.values()):
+        return (
+            {},
+            (),
+            (
+                _issue(
+                    "functional_elaboration",
+                    "functional.macro_search_public_input_invalid",
+                    "coupled path minimum requires one path target and one segment relation",
+                    call_id=call_id,
+                    scope_id=scope_id,
+                    details={
+                        "macro_id": capability.capability_id,
+                        "expected_candidate_counts": {name: 1 for name in counts},
+                        "observed_candidate_counts": counts,
+                        "repair_action": "repair_macro_public_inputs",
+                        "retryability": "planner_repairable",
+                    },
+                ),
+            ),
+            False,
+        )
+    try:
+        candidates = build_coupled_segment_path_role_candidates(
+            path_minimum_target=path_values[0].handle,
+            segment_binding_relation=relation_values[0].handle,
+            scope_id=scope_id,
+            registry=handle_registry,
+        )
+    except CoupledSegmentPathRoleError as exc:
+        return (
+            {},
+            (),
+            (
+                _issue(
+                    "functional_elaboration",
+                    "functional.macro_search_no_structural_candidate",
+                    str(exc),
+                    call_id=call_id,
+                    scope_id=scope_id,
+                    details={
+                        "macro_id": capability.capability_id,
+                        "repair_action": "select_compatible_path_and_segment_relation",
+                        "retryability": "planner_repairable",
+                        **exc.details,
+                    },
+                ),
+            ),
+            False,
+        )
+    if len(candidates) != 1:
+        return (
+            {},
+            (),
+            (
+                _issue(
+                    "functional_elaboration",
+                    (
+                        "functional.macro_search_no_structural_candidate"
+                        if not candidates
+                        else "functional.macro_search_ambiguous"
+                    ),
+                    "the public Facts do not determine one coupled path mechanism",
+                    call_id=call_id,
+                    scope_id=scope_id,
+                    details={
+                        "macro_id": capability.capability_id,
+                        "candidate_count": len(candidates),
+                        "candidate_ids": [item.candidate_id for item in candidates],
+                        "phase": "structural_elaboration",
+                        "repair_action": "select_compatible_path_and_segment_relation",
+                        "retryability": "planner_repairable",
+                    },
+                ),
+            ),
+            False,
+        )
+    roles = candidates[0]
+    additions: dict[str, tuple[ResolvedFunctionalValue, ...]] = {}
+    issues: list[FunctionalPlanIssue] = []
+    for role, handle in (
+        ("first_membership", roles.first_membership),
+        ("second_membership", roles.second_membership),
+    ):
+        arg_name = resolver.arg_name(role, capability.context_arg_bindings)
+        condition = condition_value_by_handle(
+            handle,
+            semantic_index=semantic_index,
+            scope_id=scope_id,
+        )
+        if condition is None:
+            issues.append(
+                _issue(
+                    "functional_elaboration",
+                    "functional.coupled_segment_path_condition_unavailable",
+                    f"connected proof condition is unavailable: {handle}",
+                    call_id=call_id,
+                    scope_id=scope_id,
+                    details={"arg": arg_name, "condition_handle": handle},
+                )
+            )
+        else:
+            additions[arg_name] = (condition,)
+    for role, object_ref in (
+        ("first_segment_start", roles.first_segment_start),
+        ("joint_point", roles.joint_point),
+        ("second_segment_end", roles.second_segment_end),
+        ("transformed_fixed_endpoint", roles.transformed_fixed_endpoint),
+    ):
+        arg_name = resolver.arg_name(role, capability.context_arg_bindings)
+        point = latest_point_state_for_object(
+            object_ref,
+            scope_id=scope_id,
+            produced=produced,
+            semantic_index=semantic_index,
+            handle_registry=handle_registry,
+            allow_unique_planned_producer=True,
+        )
+        if point is None:
+            issues.append(
+                _issue(
+                    "functional_elaboration",
+                    "functional.coupled_segment_path_state_unavailable",
+                    f"coupled path minimum requires Point state: {object_ref}",
+                    call_id=call_id,
+                    scope_id=scope_id,
+                    details={
+                        "arg": arg_name,
+                        "object_ref": object_ref,
+                        "repair_action": (
+                            "materialize_constructed_point_before_macro"
+                            if role == "transformed_fixed_endpoint"
+                            else "provide_visible_state_producer"
+                        ),
+                        **_state_scope_diagnostic_details(
+                            object_ref,
+                            scope_id=scope_id,
+                            produced=produced,
+                            required_scope_ref=(
+                                handle_registry.handle_valid_scopes.get(object_ref)
+                                or scope_id
+                            ),
+                        ),
+                    },
+                )
+            )
+        else:
+            additions[arg_name] = (point,)
+    moving_arg = resolver.arg_name("moving_point", capability.context_arg_bindings)
+    moving_identity = object_identity_value(
+        roles.moving_point,
+        domain_runtime_types=("Point", "PointRef"),
+        scope_id=scope_id,
+        semantic_index=semantic_index,
+        handle_registry=handle_registry,
+    )
+    if moving_identity is None:
+        issues.append(
+            _issue(
+                "functional_elaboration",
+                "functional.coupled_segment_path_identity_unavailable",
+                "coupled path minimum requires the reduced moving Point identity",
+                call_id=call_id,
+                scope_id=scope_id,
+                details={
+                    "arg": moving_arg,
+                    "object_ref": roles.moving_point,
+                    "repair_action": "select_compatible_path_and_segment_relation",
+                },
+            )
+        )
+    else:
+        additions[moving_arg] = (moving_identity,)
+    if issues:
+        return additions, (), tuple(issues), False
+    return (
+        additions,
+        (
+            FunctionalDeterministicRepair(
+                call_id,
+                "expand_coupled_segment_path_roles",
+                roles.path_minimum_target,
+                ",".join(
+                    (
+                        f"first_moving={roles.first_moving_point}",
+                        f"moving={roles.moving_point}",
+                        f"joint={roles.joint_point}",
+                    )
+                ),
+            ),
+        ),
+        (),
+        True,
+    )
+
+
 def _state_scope_diagnostic_details(
     object_ref: str,
     *,
     scope_id: str,
     produced: Mapping[tuple[str, str], ResolvedFunctionalValue],
+    required_scope_ref: str | None = None,
 ) -> dict[str, Any]:
     producers = state_producer_locations_for_object(
         object_ref,
         produced=produced,
     )
+    producer_scope = required_scope_ref or scope_id
     return {
-        "required_producer_scope": scope_id,
+        "required_producer_scope": producer_scope,
+        "required_scope_ref": producer_scope,
         "existing_producer_scopes": sorted(
             {producer_scope for _step_id, producer_scope in producers}
         ),

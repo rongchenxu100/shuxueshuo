@@ -101,6 +101,9 @@ from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
     audit_scoped_functional_structure_prompt_payload,
     normalize_unique_scoped_goal_refs,
 )
+from shuxueshuo_server.solver.runtime.scoped_functional_few_shots import (
+    load_scoped_functional_few_shot,
+)
 from shuxueshuo_server.solver.runtime.strategy_payload import (
     StrategyPayloadBuilder,
     StrategyPromptRenderer,
@@ -112,6 +115,8 @@ DEFAULT_OUTPUT_ROOT = (
     "internal/solver-runs/strategy-planner-deepseek-functional-v2"
 )
 PLANNER_PROTOCOL = FUNCTIONAL_PLAN_CONTENT_CONTRACT
+SMOKE_FEW_SHOT_EXAMPLE_ID = "quadratic_constraints_vertex"
+SMOKE_FEW_SHOT_SOURCE_PROBLEM_ID = "synthetic-quadratic-core-reference"
 SmokeThinkingProfile = Literal["disabled", "low"]
 
 
@@ -413,6 +418,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         "batch_id": args.batch_id,
         "started_at": datetime.now().astimezone().isoformat(),
         "planner_protocol": PLANNER_PROTOCOL,
+        "few_shot_policy": "shared_synthetic_reference",
+        "few_shot_example_id": SMOKE_FEW_SHOT_EXAMPLE_ID,
+        "few_shot_source_problem_id": SMOKE_FEW_SHOT_SOURCE_PROBLEM_ID,
         "case_ids": [item.problem_id for item in cases],
         "samples_per_case": args.samples_per_case,
         "concurrency": min(args.concurrency, len(jobs)),
@@ -515,6 +523,20 @@ def _parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _smoke_payload_builder() -> StrategyPayloadBuilder:
+    """Use one cross-case synthetic mechanism example for release smokes."""
+
+    example = load_scoped_functional_few_shot(SMOKE_FEW_SHOT_EXAMPLE_ID)
+    if example is None:
+        raise RuntimeError(
+            "planner_configuration_error: shared smoke few-shot is missing: "
+            f"{SMOKE_FEW_SHOT_EXAMPLE_ID}"
+        )
+    return StrategyPayloadBuilder(
+        scoped_functional_few_shot_examples=[example]
+    )
+
+
 def _run_sample(
     case: GoldCorpusCase,
     sample_id: str,
@@ -548,7 +570,7 @@ def _run_sample(
             )
         ),
     )
-    builder = StrategyPayloadBuilder()
+    builder = _smoke_payload_builder()
     renderer = StrategyPromptRenderer()
     expected_payload = builder.build_scoped(
         fixture.inputs,
@@ -1235,6 +1257,7 @@ def _write_sample_artifacts(
         "problem_planning_context",
         "functional_capability_catalog",
         "few_shot_examples",
+        "functional_few_shot_selection",
         "output_json_schema",
     ):
         _write_json(sample_dir / f"payload.{key}.json", payload.get(key))
