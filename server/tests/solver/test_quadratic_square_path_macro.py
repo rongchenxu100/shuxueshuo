@@ -2,13 +2,28 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
 from shuxueshuo_server.solver.family import DEFAULT_FAMILY_REGISTRY
 from shuxueshuo_server.solver.fixtures import load_problem_ir
+from shuxueshuo_server.solver.runtime.context_closure import (
+    QUADRATIC_SQUARE_PATH_ROLES_RESOLVER,
+    context_closure_resolver,
+)
+from shuxueshuo_server.solver.runtime.functional_path_context_resolvers import (
+    resolve_quadratic_square_path_args,
+)
+from shuxueshuo_server.solver.runtime.functional_plan_elaboration import (
+    FunctionalSemanticIndex,
+)
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
+)
+from shuxueshuo_server.solver.runtime.functional_plan_models import (
+    FunctionalCall,
+    ResolvedFunctionalValue,
 )
 from shuxueshuo_server.solver.runtime.handle_registry import (
     CanonicalHandleRegistry,
@@ -22,6 +37,73 @@ from shuxueshuo_server.solver.runtime.quadratic_square_path_roles import (
 pytestmark = pytest.mark.solver_contract
 
 ROOT = Path(__file__).resolve().parents[3]
+
+
+def _square_macro_capability():
+    problem = load_problem_ir(
+        ROOT / "internal/solver-fixtures/tj-2026-heping-ermo-25.json"
+    )
+    family = DEFAULT_FAMILY_REGISTRY.match(problem)
+    assert family is not None
+    capability = FunctionalCapabilityCatalog.from_family_spec(
+        family,
+        MethodSpecRegistry.load_from_code(),
+    ).get("quadratic_square_path_minimum")
+    assert capability is not None
+    return capability
+
+
+def _resolve_square_roles(registry, resolved_args):
+    capability = _square_macro_capability()
+    return resolve_quadratic_square_path_args(
+        capability,
+        FunctionalCall(
+            call_id="minimum",
+            capability_id=capability.capability_id,
+            args={},
+            return_bindings={},
+            strategy="test",
+            reason="test",
+        ),
+        resolved_args,
+        context_closure_resolver(QUADRATIC_SQUARE_PATH_ROLES_RESOLVER),
+        call_id="minimum",
+        scope_id="ii",
+        produced={},
+        semantic_index=FunctionalSemanticIndex(
+            (),
+            handle_registry=registry,
+            relation_authority_views=(),
+        ),
+        handle_registry=registry,
+    )
+
+
+def _resolved_square_public_args(registry):
+    return {
+        "path_minimum_target": (
+            ResolvedFunctionalValue(
+                handle="fact:ii:path",
+                runtime_type="Condition",
+                valid_scope="ii",
+            ),
+        ),
+        "square": (
+            ResolvedFunctionalValue(
+                handle="fact:problem:square",
+                runtime_type="Condition",
+                valid_scope="problem",
+            ),
+        ),
+        "parabola": (
+            ResolvedFunctionalValue(
+                handle="function:problem:q",
+                runtime_type="Parabola",
+                valid_scope="problem",
+                object_ref="function:problem:q",
+            ),
+        ),
+    }
 
 
 def _registry(vertices: tuple[str, ...]) -> CanonicalHandleRegistry:
@@ -165,6 +247,17 @@ def test_catalog_exposes_only_three_public_inputs_and_two_outputs() -> None:
         "open_expression",
         "closed_value",
     )
+    attainment_return = next(
+        item
+        for item in capability.returns
+        if item.name == "attainment_point"
+    )
+    assert minimum_return.reference_mode == "default"
+    assert attainment_return.reference_mode == "exact_result"
+    assert attainment_return.to_prompt_payload()["reference_mode"] == (
+        "exact_result"
+    )
+    assert attainment_return.binding_mode == "exact_call_result_or_answer"
     prompt_text = json.dumps(capability.to_prompt_payload(), ensure_ascii=False)
     for hidden_name in (
         "midpoint_definition",
@@ -176,6 +269,8 @@ def test_catalog_exposes_only_three_public_inputs_and_two_outputs() -> None:
         "fixed_endpoint",
         "PathTransformation",
         "PathWitness",
+        "#quadratic-square-reflection",
+        "straightening_auxiliary_point",
     ):
         assert hidden_name not in prompt_text
 
@@ -219,3 +314,81 @@ def test_role_search_returns_no_candidate_for_disconnected_path() -> None:
         scope_id="ii",
         registry=registry,
     ) == ()
+
+
+def test_context_resolver_fails_loud_when_public_inputs_are_not_unique() -> None:
+    registry = _registry(
+        (
+            "point:problem:U",
+            "point:problem:V",
+            "point:problem:W",
+            "point:problem:Z",
+        )
+    )
+
+    _additions, _repairs, issues, closed = _resolve_square_roles(
+        registry,
+        {},
+    )
+
+    assert closed is False
+    assert len(issues) == 1
+    assert issues[0].code == "functional.macro_search_public_input_invalid"
+    assert issues[0].details == {
+        "macro_id": "quadratic_square_path_minimum",
+        "expected_candidate_counts": {
+            "path_minimum_target": 1,
+            "square": 1,
+            "parabola": 1,
+        },
+        "observed_candidate_counts": {
+            "path_minimum_target": 0,
+            "square": 0,
+            "parabola": 0,
+        },
+        "repair_action": "repair_macro_public_inputs",
+        "retryability": "planner_repairable",
+    }
+
+
+@pytest.mark.parametrize(
+    ("candidate_count", "expected_code"),
+    (
+        (0, "functional.macro_search_no_structural_candidate"),
+        (2, "functional.macro_search_ambiguous"),
+    ),
+)
+def test_context_resolver_uses_runtime_search_diagnostic_codes(
+    monkeypatch,
+    candidate_count,
+    expected_code,
+) -> None:
+    registry = _registry(
+        (
+            "point:problem:U",
+            "point:problem:V",
+            "point:problem:W",
+            "point:problem:Z",
+        )
+    )
+    monkeypatch.setattr(
+        "shuxueshuo_server.solver.runtime.functional_path_context_resolvers."
+        "build_quadratic_square_path_role_candidates",
+        lambda **_kwargs: tuple(
+            SimpleNamespace(candidate_id=f"candidate-{index}")
+            for index in range(candidate_count)
+        ),
+    )
+
+    _additions, _repairs, issues, closed = _resolve_square_roles(
+        registry,
+        _resolved_square_public_args(registry),
+    )
+
+    assert closed is False
+    assert len(issues) == 1
+    assert issues[0].code == expected_code
+    assert issues[0].details is not None
+    assert issues[0].details["candidate_count"] == candidate_count
+    assert issues[0].details["phase"] == "structural_elaboration"
+    assert issues[0].details["retryability"] == "planner_repairable"

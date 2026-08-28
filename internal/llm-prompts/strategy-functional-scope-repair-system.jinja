@@ -9,8 +9,9 @@
 
 引用规则：
 
-- 命名题面 Entity/Fact 使用可见 SourceRef 字符串。
-- 匿名中间结果使用较早、可见步骤的 `{ "step_id": "...", "return": "..." }`。
+- 命名题面 Entity/Fact 默认使用可见 SourceRef 字符串。
+- 匿名中间结果，以及catalog声明`reference_mode=exact_result`的producer return，使用较早、可见步骤的
+  `{ "step_id": "...", "return": "..." }`；exact-result即使携带已有Entity身份也不得改写成SourceRef。
 - 跨 Goal 只能引用 producer Goal 当前 `answer_from` 所指向的精确 StepResultRef；不能读取其内部 return。
 - sibling、child-to-parent 或不可见 Scope 引用非法。
 

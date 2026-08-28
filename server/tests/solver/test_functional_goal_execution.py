@@ -28,6 +28,9 @@ from shuxueshuo_server.solver.runtime.functional_plan_models import (
     FunctionalPlan,
     FunctionalScope,
 )
+from shuxueshuo_server.solver.runtime.functional_scope_retry import (
+    FunctionalAnnotatedPlanProjector,
+)
 from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
     ScopedFunctionalPlan,
     ScopedFunctionalPlanAuthority,
@@ -616,6 +619,21 @@ def test_quadratic_square_path_macro_executes_as_one_atomic_call(
         "attainment_point",
     }
 
+    annotated, _ = FunctionalAnnotatedPlanProjector().project(
+        plan=result.canonical_plan,
+        execution=result,
+        editable_scope_refs=("ii",),
+        planning_context=_fixture[1],
+        binding_catalog=_fixture[7],
+    )
+    prompt_payload = json.dumps(
+        annotated.to_prompt_payload(),
+        ensure_ascii=False,
+        sort_keys=True,
+    )
+    assert "#quadratic-square-reflection" not in prompt_payload
+    assert "straightening_auxiliary_point" not in prompt_payload
+
 
 def test_stable_object_ref_uses_source_snapshot_before_any_visible_write(
     tmp_path,
@@ -921,7 +939,9 @@ def test_identity_contract_drives_named_entity_latest_state_dependency(
         for call in authority.lowered_plan.calls
         if call.call_id == "evaluate_minimum_point_G_ii"
     )
-    assert lowered_evaluation.args["point"][0].ref == "G"
+    exact_point = lowered_evaluation.args["point"][0]
+    assert exact_point.from_call == "derive_path_minimum_ii"
+    assert exact_point.return_name == "attainment_point"
     reconciliation = result.replay.functional_reconciliation
     assert "derive_path_minimum_ii" in reconciliation.dependency_graph[
         "evaluate_minimum_point_G_ii"
@@ -1253,7 +1273,7 @@ def test_closed_point_role_reuse_is_runtime_checked_before_transition_commit(
     )
 
 
-def test_compiler_selected_macro_return_identity_ignores_authored_target(
+def test_exact_result_macro_return_rejects_authored_target(
     tmp_path,
 ) -> None:
     case = "tj-2026-heping-ermo-25"
@@ -1267,22 +1287,57 @@ def test_compiler_selected_macro_return_identity_ignores_authored_target(
     checkpoint = result.checkpoint
     assert checkpoint is not None
     minimum = _checkpoint_steps(checkpoint)["derive_path_minimum_ii"]
-    assert minimum.status == "runtime_verified"
+    assert minimum.status == "authority_invalid"
+    assert minimum.typed_issue is not None
+    assert minimum.typed_issue["code"] == "functional.output_target_invalid"
+    assert minimum.typed_issue["step_id"] == "derive_path_minimum_ii"
     assert checkpoint.transaction_attempted is True
-    reconciliation = result.replay.functional_reconciliation
-    assert reconciliation is not None
-    assert {
-        "call_id": "derive_path_minimum_ii",
-        "action": "drop_compiler_selected_return_binding",
-        "from": "attainment_point:point:E",
-        "to": "derive_path_minimum_ii.attainment_point",
-    } in reconciliation.elaboration["deterministic_repairs"]
-    effective = next(
-        call
-        for call in reconciliation.plan.calls
-        if call.call_id == "derive_path_minimum_ii"
+    assert not any(
+        item.producer_call_id == "derive_path_minimum_ii"
+        for item in result.replay.transactional_attempt_result.execution_report.committed_versions
     )
-    assert effective.return_bindings["attainment_point"].ref == "G"
+
+
+def test_same_object_result_after_exact_macro_is_normalized_to_source_ref(
+    tmp_path,
+) -> None:
+    case = "tj-2026-heping-ermo-25"
+    payload = load_v2_fixture_payload(case)
+    evaluated = _step(payload, "evaluate_minimum_point_G_ii")
+    evaluated.pop("output_targets")
+    recovered = _step(payload, "recover_target_point_E_ii")
+    recovered["args"]["side_end"] = {
+        "step_id": "evaluate_minimum_point_G_ii",
+        "return": "evaluated_point",
+    }
+
+    result, _fixture = _execute(tmp_path, case, payload)
+
+    checkpoint = result.checkpoint
+    assert checkpoint is not None
+    assert checkpoint.all_required_goals_verified is True
+    assert result.canonical_plan is not None
+    canonical_recovered = _step(
+        result.canonical_plan.to_payload(),
+        "recover_target_point_E_ii",
+    )
+    assert canonical_recovered["args"]["side_end"] == "G"
+    assert any(
+        item.action == "canonicalize_named_entity_result_ref"
+        and item.step_id == "recover_target_point_E_ii"
+        and item.from_ref == "evaluate_minimum_point_G_ii.evaluated_point"
+        and item.to_ref == "G"
+        for item in result.authority_report.normalizations
+    )
+    assert result.authority is not None
+    _assert_named_entity_pin(
+        result.authority,
+        consumer_call_id="recover_target_point_E_ii",
+        arg_name="side_end",
+        semantic_ref="G",
+        producer_call_id="evaluate_minimum_point_G_ii",
+        return_name="evaluated_point",
+    )
 
 
 def test_unique_prior_same_object_result_is_canonicalized_in_goal_scope(

@@ -29,6 +29,7 @@ StateIdentityPolicy = Literal[
     "value_only",
 ]
 StateWriteMode = Literal["create", "transition", "value"]
+FunctionalReturnReferenceMode = Literal["default", "exact_result"]
 GoalEvidenceTag = Literal[
     "path_minimum_witness",
     "path_minimum_expression",
@@ -392,6 +393,7 @@ class RecipeOutputAliasSpec:
     object_role_projections: tuple[StateObjectRoleProjectionSpec, ...] = ()
     return_binding: FunctionalReturnBindingPolicy = "auto"
     result_form: ScalarResultFormSpec | None = None
+    reference_mode: FunctionalReturnReferenceMode = "default"
 
     def to_payload(self) -> dict[str, object]:
         payload: dict[str, object] = {
@@ -422,6 +424,8 @@ class RecipeOutputAliasSpec:
             payload["return_binding"] = self.return_binding
         if self.result_form is not None:
             payload["result_form"] = self.result_form.to_payload()
+        if self.reference_mode != "default":
+            payload["reference_mode"] = self.reference_mode
         return payload
 
 
@@ -442,6 +446,7 @@ def recipe_output_alias(
     object_role_projections: tuple[StateObjectRoleProjectionSpec, ...] = (),
     return_binding: FunctionalReturnBindingPolicy = "auto",
     result_form: ScalarResultFormSpec | None = None,
+    reference_mode: FunctionalReturnReferenceMode = "default",
 ) -> RecipeOutputAliasSpec:
     """Build a structured recipe return without duplicating state-kind rules."""
     return RecipeOutputAliasSpec(
@@ -465,6 +470,7 @@ def recipe_output_alias(
         object_role_projections=object_role_projections,
         return_binding=return_binding,
         result_form=result_form,
+        reference_mode=reference_mode,
     )
 
 

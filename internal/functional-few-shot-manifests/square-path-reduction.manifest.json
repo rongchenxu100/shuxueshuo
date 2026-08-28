@@ -8,14 +8,18 @@
   ],
   "capability_ids": [
     "quadratic_from_constraints",
-    "quadratic_square_path_minimum"
+    "quadratic_square_path_minimum",
+    "parameter_from_expression_value",
+    "evaluate_point_at_parameter"
   ],
   "answer_value_types": [
     "Point"
   ],
   "source_call_ids": [
     "derive_parametric_parabola_ii",
-    "derive_path_minimum_ii"
+    "derive_path_minimum_ii",
+    "solve_parameter_c_ii",
+    "evaluate_minimum_point_G_ii"
   ],
   "conditions": [
     {
@@ -37,24 +41,42 @@
       "ref": "square_relation",
       "kind": "fact",
       "description": "正方形顶点与方向条件"
+    },
+    {
+      "ref": "given_minimum",
+      "kind": "fact",
+      "description": "题设给出的路径最小值"
+    },
+    {
+      "ref": "attainment_object",
+      "kind": "point",
+      "description": "Macro在runtime确定并由求值步骤闭合状态的同一动点对象"
     }
   ],
   "neutralization_map": {
     "call_ids": {
       "derive_parametric_parabola_ii": "derive_parametric_curve",
-      "derive_path_minimum_ii": "derive_square_path_minimum"
+      "derive_path_minimum_ii": "derive_square_path_minimum",
+      "solve_parameter_c_ii": "solve_main_parameter",
+      "evaluate_minimum_point_G_ii": "evaluate_attainment_point"
     },
     "semantic_refs": {
       "ii.A": "known_curve_point",
       "c": "parameter",
       "path_minimum_target": "path_goal",
-      "square_AEKG": "square_relation"
+      "square_AEKG": "square_relation",
+      "path_minimum_value_given": "given_minimum",
+      "ii.G": "attainment_object"
     },
     "text_replacements": {
       "代入横轴交点条件，把函数化成只含主参数的形式。": "代入曲线点条件，把函数化成单参数形式。",
       "后续轴点、正方形顶点和最值表达式都依赖该函数。": "路径最值 Macro 读取当前二次函数状态。",
       "原子完成正方形路径降维、轨迹、拉直和达到性。": "原子完成正方形路径降维、轨迹、拉直和达到性。",
-      "只公开最小值表达式与取等号时的降维后动点；动点身份由代码绑定。": "Planner 只提供当前抛物线、路径目标和正方形；达到点身份由代码绑定，后续直接引用本 call 的 attainment_point。"
+      "只公开最小值表达式与取等号时的降维后动点；动点身份由代码绑定。": "Planner 只提供当前抛物线、路径目标和正方形；达到点身份由代码绑定，后续直接引用本 call 的 attainment_point。",
+      "令最小值表达式等于题设值并按参数范围取解。": "令最小值表达式等于给定值并求主参数。",
+      "后续点坐标需要先得到主参数数值。": "取等点的坐标需要先闭合主参数。",
+      "把已求出的二次函数参数代入 Macro 返回的 G。": "把已求主参数代入 Macro 的精确 attainment_point。",
+      "恢复最终点 E 前先得到定值 G。": "通过 StepResultRef 保留 Macro 到下游的精确依赖。"
     }
   },
   "neutralized": true

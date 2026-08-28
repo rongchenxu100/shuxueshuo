@@ -462,17 +462,25 @@ def capability_bound_step_schema(
     base_step_ref: str,
     capability_catalog: FunctionalCapabilityCatalog,
     source_ref_schema: Mapping[str, Any],
-    exact_result_ref_schema: Mapping[str, Any],
+    step_result_ref_schema: Mapping[str, Any],
     authority_frame: FunctionalPlanAuthorityFrame | None = None,
 ) -> dict[str, Any]:
     """Bind every public argument to its declared Method input view.
 
-    Named entities and verified source facts use SourceRef. A capability input
-    may consume an anonymous step result only when its public contract opts in
-    via ``allows_anonymous_result``. This wire choice is orthogonal to the
-    Method view used to materialize a named SourceRef at runtime.
+    Named entities and verified source facts use SourceRef by default. A
+    capability input may consume an anonymous step result when its public
+    contract opts in via ``allows_anonymous_result``; it may also consume a
+    type-compatible producer return declared with ``reference_mode=exact_result``.
+    This wire choice is orthogonal to the Method input view.
     """
 
+    exact_result_types = tuple(
+        returned.runtime_type
+        for capability in capability_catalog.items.values()
+        for returned in capability.returns
+        if returned.reference_mode == "exact_result"
+        and returned.binding_mode != "internal_only"
+    )
     variants: list[dict[str, Any]] = []
     for capability_id, capability in sorted(capability_catalog.items.items()):
         arg_properties: dict[str, Any] = {}
@@ -483,16 +491,26 @@ def capability_bound_step_schema(
                     "planner_configuration_error: capability argument has no "
                     f"input view: {capability_id}.{arg.name}"
                 )
-            item_schema = deepcopy(
-                exact_result_ref_schema
-                if arg.allows_anonymous_result
-                else source_ref_schema
-            )
+            source_item_schema = deepcopy(source_ref_schema)
             if arg.allowed_refs:
-                item_schema = {
-                    "allOf": [item_schema],
+                source_item_schema = {
+                    "allOf": [source_item_schema],
                     "enum": list(arg.allowed_refs),
                 }
+            accepts_exact_result = any(
+                _argument_accepts_return_type(arg, actual)
+                for actual in exact_result_types
+            )
+            item_schema = (
+                {
+                    "oneOf": [
+                        source_item_schema,
+                        deepcopy(step_result_ref_schema),
+                    ]
+                }
+                if arg.allows_anonymous_result or accepts_exact_result
+                else source_item_schema
+            )
             if arg.cardinality == "one":
                 value_schema = item_schema
             else:
@@ -565,6 +583,7 @@ def capability_bound_step_schema(
             item
             for item in capability.returns
             if item.binding_mode != "internal_only"
+            and item.reference_mode != "exact_result"
         )
         target_properties: dict[str, Any] = {}
         for returned in target_returns:
@@ -642,11 +661,26 @@ def capability_bound_step_schema(
     return {
         "description": (
             "A capability-bound step. Named Math Entities and source Facts use "
-            "string SourceRefs; object StepResultRefs are accepted only by "
-            "arguments declared as exact anonymous results."
+            "string SourceRefs by default. Object StepResultRefs are accepted "
+            "for declared anonymous-result inputs and type-compatible producer "
+            "returns whose reference_mode is exact_result."
         ),
         "oneOf": variants,
     }
+
+
+def _argument_accepts_return_type(argument: Any, runtime_type: str) -> bool:
+    accepted = argument.accepted_item_types or (argument.runtime_type,)
+    if any(
+        runtime_type_compatible(expected, runtime_type)
+        for expected in accepted
+    ):
+        return True
+    return runtime_type == {
+        "coefficients_by_symbol": "Coefficients",
+        "point_list": "PointList",
+        "symbol_list": "SymbolList",
+    }.get(argument.aggregation)
 
 
 def capability_bound_base_step_schema(
@@ -721,12 +755,7 @@ def functional_plan_content_schema(
             base_step_ref="#/$defs/step_base",
             capability_catalog=capability_catalog,
             source_ref_schema={"$ref": "#/$defs/source_ref"},
-            exact_result_ref_schema={
-                "oneOf": [
-                    {"$ref": "#/$defs/source_ref"},
-                    {"$ref": "#/$defs/step_result_ref"},
-                ]
-            },
+            step_result_ref_schema={"$ref": "#/$defs/step_result_ref"},
             authority_frame=frame,
         )
     goal_plan_properties: dict[str, Any] = {}
@@ -2006,6 +2035,8 @@ def _normalize_named_entity_result_refs(
             else None
         )
         if returned is None or returned.binding_mode == "internal_only":
+            return value
+        if returned.reference_mode == "exact_result":
             return value
         target_ref = _wire_return_object_resolution(
             producer_step_id,

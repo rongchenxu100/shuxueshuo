@@ -13,6 +13,7 @@ from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
 )
 from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
     ScopedFunctionalPlanValidator,
+    ScopedStepResultRef,
     scoped_functional_plan_authority_payload,
 )
 
@@ -257,7 +258,12 @@ def test_content_assembly_keeps_named_macro_consumer_for_identity_reconciliation
         for item in compiled.plan.steps
         if item.step_id == "evaluate_minimum_point_G_ii"
     )
-    assert compiled_consumer.args["point"] == ("G",)
+    assert compiled_consumer.args["point"] == (
+        ScopedStepResultRef(
+            step_id="derive_path_minimum_ii",
+            return_name="attainment_point",
+        ),
+    )
     compiled_macro = next(
         item
         for item in compiled.plan.steps

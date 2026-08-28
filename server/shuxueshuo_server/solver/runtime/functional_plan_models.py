@@ -18,6 +18,7 @@ from shuxueshuo_server.solver.family.models import (
     FunctionalArgBindingAuthority,
     FunctionalSemanticRefRole,
     FunctionalOutputTargetSelectorSpec,
+    FunctionalReturnReferenceMode,
     StateIdentityConstraintSpec,
     StateLineageClosureSpec,
     StateObjectRoleProjectionSpec,
@@ -327,6 +328,7 @@ class FunctionalCapabilityReturn:
     free_symbol_return_names: tuple[str, ...] = ()
     output_target_selector: FunctionalOutputTargetSelectorSpec | None = None
     materialization_policy: Literal["on_demand", "always"] = "on_demand"
+    reference_mode: FunctionalReturnReferenceMode = "default"
 
     @property
     def binding_mode(self) -> str:
@@ -357,6 +359,8 @@ class FunctionalCapabilityReturn:
             "type": planner_output_value_type(self.runtime_type),
             "binding": binding_mode,
         }
+        if self.reference_mode != "default":
+            payload["reference_mode"] = self.reference_mode
         if _is_aggregate_return_type(self.runtime_type):
             payload["value_cardinality"] = "aggregate"
         if not self.required:
@@ -542,6 +546,8 @@ class FunctionalCapability:
 
 
 def _prompt_return_binding(result: FunctionalCapabilityReturn) -> str:
+    if result.reference_mode == "exact_result":
+        return "exact_call_result_or_answer"
     if result.return_binding == "internal_only":
         return "internal_only"
     if result.return_binding == "external_allowed":

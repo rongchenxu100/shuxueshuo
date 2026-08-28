@@ -1488,6 +1488,7 @@ QUADRATIC_SQUARE_PATH_MINIMUM = StepRecipeSpec(
                 "attainment_point",
                 identity_policy="target_object",
                 identity_arg="moving_point",
+                reference_mode="exact_result",
                 goal_evidence_tags=("path_minimum_extremal_point",),
                 description=(
                     "正方形关系降维后唯一动点的取等坐标；对象身份由代码从"

@@ -1,8 +1,10 @@
 """Deterministic kernel for a quadratic-function square path minimum.
 
-This Method is internal to the atomic Macro.  It composes existing verified
-geometry Methods and publishes only the minimum expression and the original
-moving point at equality.
+INTERNAL COMPOSITION BOUNDARY: this Method is private to the atomic Macro.
+It deliberately keeps using the verified PathTransformation composition
+Methods even if their public planner-facing capabilities are later retired.
+Only the minimum expression and the original moving point at equality cross
+this boundary.
 """
 
 from __future__ import annotations
@@ -27,7 +29,7 @@ from .square_path_dimension_reduction import SquarePathDimensionReductionMethod
 
 
 class QuadraticSquarePathMinimumMethod:
-    """Compose square reduction, locus propagation and path straightening."""
+    """Internal-only composition of reduction, locus and straightening."""
 
     method_id = "quadratic_square_path_minimum_kernel"
 

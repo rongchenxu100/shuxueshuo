@@ -372,7 +372,7 @@ scope、producer或类型变化统一为`planner.method_input_view_authority_dri
 | `identity` | 稳定 MathObject 身份 | 具名数学实体 ref |
 | `latest_state` | 当前 scope 最近可见、已验证的对象状态 | 同一个具名实体 ref |
 | `immutable_value` | 不可变 Fact、Constraint 或 source 常量 | Fact/entity ref |
-| `exact_result` | 某个匿名 call return 的精确结果 | `StepResultRef` |
+| `exact_result` | 某个 call return 的精确结果；是否允许携带具名对象身份由 producer return contract 决定 | `StepResultRef` |
 
 Method 不读取 Context，也不自己寻找 latest。Typed execution graph先证明唯一、
 scope-safe的producer；call preparation再为每个input和每个聚合元素创建严格的
@@ -387,8 +387,9 @@ Method所需的runtime表示；物理runtime path只是执行地址，不能参�
 2. `latest_state`在首次执行前解析一次并pin exact StateVersion；checkpoint restore直接
    复用该pin，不重新查询latest。
 3. `immutable_value`只能来自明确的Entity/Fact/Condition authority。
-4. `exact_result`只能来自明确的CallResult或InvocationResult，不能成为具名Entity读取
-   最新状态的旁路。
+4. `exact_result`只能来自明确的CallResult或InvocationResult。普通具名Entity仍不得借此
+   绕过latest-state选择；只有producer return显式声明`reference_mode="exact_result"`
+   时，具名对象的该次精确运行状态才允许沿StepResultRef传递。
 5. tuple/list输入逐项拥有独立read authority；compiler按稳定`item_index`逐项lower，
    executor逐项resolve。两层都不得对聚合值直接`context.read_path`，缺号、重复source
    或重新排序必须报`planner.method_input_view_authority_drift`。
@@ -401,16 +402,24 @@ call preparation根据同一`QuadraticFunction`的exact latest-state authority�
 version lineage选择唯一ordinal-0根并注入。compiler supplied path、零个根或多个根
 都属于configuration/authority错误，不能被执行层静默覆盖。
 
-具名实体不能通过 `StepResultRef`指定普通状态。即使某个 return 的 runtime 类型
-适合 `exact_result`，只要它已通过`output_targets`绑定到题面实体，后续就必须使用
-实体 ref。`StepResultRef`只用于没有稳定题面身份的候选集、路径见证、最小值表达式
-等匿名中间结果。
+默认情况下，具名实体不能通过`StepResultRef`指定普通状态。只要return具有编译期可知
+且稳定的题面身份，后续应使用实体ref，由F5-C选择当前scope唯一可见的latest state。
+候选集、路径见证、最小值表达式等没有稳定题面身份的中间结果继续使用
+`StepResultRef`。
+
+存在一类显式例外：Function/Macro在runtime搜索、选择或求值后才确定某个已有对象的
+精确状态，并且下游数学语义要求消费“本次调用产生的结果”，而不是按对象名重新读取
+latest state。此时producer的public return必须声明
+`reference_mode="exact_result"`；该return即使携带具名`MathObjectId`也必须保留
+`StepResultRef`，不得规范化为`SourceRef`。完整规则见6.1节。
 
 `view`与Planner wire允许的来源形式是两个正交契约。`view`决定一个具名
 `SourceRef`在调用边界被解析成identity、latest state、immutable value还是精确值；
-`allows_anonymous_result=True`只表示同一个公开参数还可以接收匿名
-`StepResultRef`。不得因为内部Method使用`latest_state`就自动开放
-`StepResultRef`，也不得因为参数允许匿名结果就跳过具名MathObject的SourceRef规则。
+`allows_anonymous_result=True`只表示同一个公开参数还可以接收普通匿名
+`StepResultRef`。producer return声明`reference_mode="exact_result"`时，不要求每个
+consumer参数重复声明该开关；中央authority依据producer return类型与consumer输入
+类型/view完成兼容性校验。不得因为内部Method使用`latest_state`就自动开放普通
+StepResultRef，也不得因为参数允许匿名结果就跳过普通具名MathObject的SourceRef规则。
 
 典型例子：
 
@@ -419,10 +428,14 @@ version lineage选择唯一ordinal-0根并注入。compiler supplied path、零�
   `allows_anonymous_result=True`；
 - 一个参数同时接受具名Point的最新状态和匿名候选Point时，仍声明
   `latest_state + allows_anonymous_result=True`，两条路径最终都必须通过相同runtime
-  type、scope和provenance校验。
+  type、scope和provenance校验；
+- 二次函数动点路径Macro的`attainment_point`若在runtime才确定具体对象及其最优状态，
+  producer return声明`reference_mode="exact_result"`。下游任何类型兼容的Point参数
+  都可直接使用该StepResultRef，无需逐个修改Method input spec。
 
-新增或修改Method时，生成spec与测试必须分别断言`view`和
-`allows_anonymous_result`。这两个字段不能根据参数名、runtime type或`*_ref`后缀推断。
+新增或修改Method时，生成spec与测试必须分别断言`view`和现有匿名结果策略；Function/
+Macro若发布deferred-identity结果，还必须单独断言producer return的`reference_mode`。
+这些字段不能根据参数名、runtime type或`*_ref`后缀推断。
 
 `latest_state`必须满足词法 scope 可见性。sibling 私有状态、多个不可比较 writer
 或不存在可见状态都必须 fail loud；不得按 label 或生成顺序猜测。
@@ -490,14 +503,16 @@ interchangeable_arg_groups=(
 2. `interchangeable_arg_groups`与`distinct_arg_groups`正交。直线的两个端点既可交换，
    又必须是不同对象，应同时声明两项。
 3. Planner可按任意合法顺序填写。wire canonicalizer根据结构化spec稳定排列输入来源：
-   具名Entity SourceRef优先，随后是published Goal result和匿名StepResultRef；同类来源
+   具名Entity SourceRef优先，随后是published Goal result和StepResultRef；同类来源
    保持原顺序，并记录`functional.interchangeable_args_permuted` normalization。
 4. canonicalizer的换位不是数学证明。换位后的调用仍必须执行Method checks、result
    form、对象身份、runtime等价/收敛和transaction门禁。
 5. 只声明真正具有置换不变性的角色。`known_point/target`、有方向的起点/终点、旋转
    左右侧、射线端点等即使类型相同，也不得为了容错而加入可交换组。
-6. 若组内任一槽位允许匿名结果，所有槽位必须一致允许；不得再出现“同一条无向直线
-   的第一个端点只能SourceRef、第二个端点却允许StepResultRef”的非对称schema。
+6. 若组内任一槽位允许普通匿名结果，所有槽位必须一致允许；不得再出现“同一条无向
+   直线的第一个端点只能SourceRef、第二个端点却允许普通匿名StepResultRef”的非对称
+   schema。producer-owned exact-result return不改变组内input contract，但仍须通过每个
+   槽位相同的type/view/role校验。
 7. 新增或修改可交换组时，必须用真实Method `run()`逐组交换输入并比较typed outputs与
    checks。spec合同一致只证明两个槽位可以使用同一种source形态；canonicalizer也只做
    确定性容错，它们都不能证明Method实现具有数学置换不变性。具名Entity默认保持LLM
@@ -697,7 +712,68 @@ outputs = {
 7. 多种 result form 使用 `scalar_result_forms` 描述，不要伪装成多个无条件候选 return。
 8. 运行值应尽量 canonicalize，便于后续做可靠的 runtime equivalence。
 
-### 6.1 固有伴随输出
+### 6.1 Public return 引用策略
+
+Function/Macro的每个public return使用producer-owned `reference_mode`声明其公开引用
+语义：
+
+```text
+reference_mode = "default" | "exact_result"
+```
+
+默认值为`default`，保持当前行为：
+
+- return没有稳定题面身份时，使用`StepResultRef`；consumer仍按现有
+  `allows_anonymous_result`契约决定是否接受普通匿名结果；
+- return具有编译期可知且唯一的具名对象身份时，使用`SourceRef`；若LLM写成
+  StepResultRef，normalizer可在证明唯一对象和唯一latest producer后改写为SourceRef；
+- F5-C继续负责latest StateVersion选择、精确pin、scope可见性与producer依赖。
+
+`reference_mode="exact_result"`只用于以下条件同时成立的return：
+
+1. 对象身份或对象的目标状态在runtime搜索、选择或求值后才完整确定；
+2. 下游必须消费本次producer的精确public return，改用同名对象的SourceRef会改变或
+   弱化数学语义；
+3. return contract能够通过`runtime_type`、`identity_policy/identity_arg`和write policy
+   证明其类型、对象身份及状态来源；
+4. 该需求属于可复用机制，而不是某一道题、某个step id或某个具体点名的特判。
+
+该模式具有以下固定语义：
+
+- LLM必须用`StepResultRef(step_id, return)`消费该结果；
+- named-result normalizer不得把它改写成SourceRef；
+- 该return不接受LLM authored `output_targets`；已有对象身份必须由
+  `identity_policy/identity_arg`或其他code-owned return authority确定，Goal仍可通过
+  `answer_from`选择它；
+- consumer不需要增加`allows_anonymous_result`或“允许StepResultRef”的题型声明；
+- 中央authority必须校验producer/return存在、scope与顺序可见、runtime type兼容、
+  identity/state完整，以及consumer已有的view、semantic role和relation约束；
+- dependency DAG、checkpoint、retry影响闭包、dead-step pruning和provenance必须保留
+  producer-return-consumer精确边；
+- 它不是第三种引用通道，也不创建`G'`一类新MathObject。若return携带已有对象G的身份，
+  其语义仍是“同一G在本次producer求得的精确状态”。
+
+示例：通用二次函数动点路径最值Macro在runtime确定达到最值的动点状态：
+
+```text
+quadratic_square_path_minimum.attainment_point
+  runtime_type = Point
+  identity_policy = target_object
+  identity_arg = moving_point
+  reference_mode = exact_result
+```
+
+下游普通几何Method只需继续声明`Point`参数。它既不感知具体题目，也不需要为和平、
+南开或西青的不同动点逐个增加StepResultRef开关；中央authority从producer return
+contract判断该精确Point能否满足consumer参数。
+
+不得把`exact_result`用于普通具名状态更新。若下游真正需要的是“当前可见的对象G”，
+仍应写SourceRef G；若需要的是“step S实际求出的G状态”，才写
+`StepResultRef(S, return)`。两种写法不自动互换。若exact return随后进入
+`preserve_input_object`状态更新，代码应沿同一对象身份把该更新的普通具名return规范化为
+SourceRef；这属于normalizer职责，不要求LLM改写或重复声明对象身份。
+
+### 6.2 固有伴随输出
 
 Method若每次调用都会产生一个代码必需、但不应要求LLM绑定的输出，应在
 `MethodSpecSource.companion_outputs`声明：
@@ -722,7 +798,7 @@ Planner-facing Function contract，只在多个题面对象之间确定公开ret
 选定后仍必须生成唯一`FunctionalReturnAllocation`，Method companion不得直接读取或复制
 这套选择逻辑。
 
-### 6.2 Result form
+### 6.3 Result form
 
 `open_expression`、`closed_value`、`open_state` 和 `closed_state` 描述的是实际结果状态，不是 LLM 的主观标签。
 
@@ -1002,6 +1078,11 @@ do_not_use_when/args/returns`。`execution_mode`、search spec、internal wiring
 winner、witness 与 provenance signature 均只属于代码。Function 与 Macro 在 Plan wire
 中使用同一个普通 step schema，不能为 Macro 建立第二套 authoring DSL。
 
+Macro public return若在runtime才确定已有对象的精确状态，并要求下游保留对该Macro
+call的因果依赖，按6.1节声明`reference_mode="exact_result"`。该声明属于producer
+return contract，不得要求所有潜在consumer逐个增加StepResultRef开关；也不得把内部
+winner、candidate或identity handle暴露给Planner。
+
 每个 Macro 必须声明执行模式：
 
 - `direct`：唯一确定的内部调用图，不声明 search spec；
@@ -1086,7 +1167,8 @@ Function/Macro 必须区分“策略提示”和“证明 lowering”：
 5. **实现 Method 与 typed diagnostic**。
 6. **在同文件写 SPEC**，生成 `internal/method-specs`。
 7. **注册 Method**：class、SPEC source 和默认实例三处一致。
-8. **定义 Function 或 Macro**：补 typed adapter、returns、identity/write policy。
+8. **定义 Function 或 Macro**：补 typed adapter、returns、identity/write policy；仅在
+   producer精确结果具有不可替代的因果语义时声明`reference_mode="exact_result"`。
 9. **补静态编译测试**：错误参数、错类型、错 scope、active returns。
 10. **补 transaction 测试**：runtime result、checks、rollback、版本和 provenance。
 11. **补 retry diagnostic 测试**：prompt-safe ref、repairability、无内部身份泄漏。
@@ -1125,6 +1207,10 @@ Function/Macro 必须区分“策略提示”和“证明 lowering”：
 - active return 集合与 invocation outputs 一致；
 - Function lowering 不做候选搜索；Macro 仅按显式 execution/search contract 搜索。
 - Macro role 的 authored/chosen 值及 runtime checks 进入 provenance/checkpoint。
+- `reference_mode="exact_result"`的return保留StepResultRef，不被named-result normalizer
+  改写；普通具名return继续按旧规则使用SourceRef。
+- exact-result producer只可进入runtime type兼容且满足view/role/relation约束的consumer，
+  不要求consumer增加题型专用输入声明。
 
 ### Runtime transaction
 
@@ -1134,6 +1220,8 @@ Function/Macro 必须区分“策略提示”和“证明 lowering”：
 - failed call 无 ghost write；
 - exact input version 和 provenance 不漂移；
 - companion writes/results 共享同一 call authority。
+- deferred-identity exact result携带同一MathObject身份和本次物化状态，不创建影子对象；
+  identity缺失、类型不符或状态未物化均在consumer执行前fail loud。
 
 ### Retry diagnostic
 
@@ -1171,6 +1259,8 @@ git diff --check
 - [ ] LLM 只接触 public capability，不需要知道内部 method wiring。
 - [ ] 每个 input 有唯一 domain/runtime 类型、view、角色和 required/exposed 语义。
 - [ ] 每个 output 有稳定 key、类型和 active-return 规则。
+- [ ] 每个public return使用默认引用策略；确需保留精确producer因果边时才声明
+  `reference_mode="exact_result"`，且有deferred-identity与普通具名return的对照测试。
 - [ ] 固有伴随输出只由MethodSpec声明，并由return allocation生成output write authority。
 - [ ] open/closed result form 由 runtime value 决定。
 - [ ] Method 不读取 Context、不选 latest、不写 StateVersion。
@@ -1184,6 +1274,8 @@ git diff --check
 - [ ] SPEC 与实现同文件，生成 JSON 无漂移。
 - [ ] Function 不搜索；Macro 搜索有显式模式、预算、隔离运行和歧义门禁。
 - [ ] 动点等角色只保存 LLM authored 值和 runtime 验证后的 chosen 值，不由位置规则创造。
+- [ ] exact-result return可被所有类型/view兼容的通用consumer使用，没有为具体题目或
+  下游Method逐个增加StepResultRef开关。
 - [ ] method/compiler/transaction/retry/provenance 均有测试。
 - [ ] 没有 problem id、具体答案、gold fixture 或点名特判。
 

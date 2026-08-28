@@ -882,8 +882,38 @@ def resolve_quadratic_square_path_args(
     parabola_refs = resolved_value_object_refs(
         resolved_args.get("parabola", ())
     )
-    if len(path_values) != 1 or len(square_values) != 1 or len(parabola_refs) != 1:
-        return {}, (), (), False
+    public_input_counts = {
+        "path_minimum_target": len(path_values),
+        "square": len(square_values),
+        "parabola": len(parabola_refs),
+    }
+    if any(count != 1 for count in public_input_counts.values()):
+        return (
+            {},
+            (),
+            (
+                _issue(
+                    "functional_elaboration",
+                    "functional.macro_search_public_input_invalid",
+                    (
+                        "quadratic_square_path_minimum requires exactly one "
+                        "resolved parabola, path target and square"
+                    ),
+                    call_id=call_id,
+                    scope_id=scope_id,
+                    details={
+                        "macro_id": "quadratic_square_path_minimum",
+                        "expected_candidate_counts": {
+                            name: 1 for name in public_input_counts
+                        },
+                        "observed_candidate_counts": public_input_counts,
+                        "repair_action": "repair_macro_public_inputs",
+                        "retryability": "planner_repairable",
+                    },
+                ),
+            ),
+            False,
+        )
     try:
         candidates = build_quadratic_square_path_role_candidates(
             path_minimum_target=path_values[0].handle,
@@ -916,9 +946,9 @@ def resolve_quadratic_square_path_args(
                 _issue(
                     "functional_elaboration",
                     (
-                        "functional.quadratic_square_path_no_structural_candidate"
+                        "functional.macro_search_no_structural_candidate"
                         if not candidates
-                        else "functional.quadratic_square_path_candidate_ambiguous"
+                        else "functional.macro_search_ambiguous"
                     ),
                     (
                         "the selected quadratic state, path and square do not "
@@ -929,6 +959,9 @@ def resolve_quadratic_square_path_args(
                     details={
                         "candidate_count": len(candidates),
                         "candidate_ids": [item.candidate_id for item in candidates],
+                        "macro_id": "quadratic_square_path_minimum",
+                        "phase": "structural_elaboration",
+                        "retryability": "planner_repairable",
                         "repair_action": (
                             "select_a_compatible_quadratic_path_and_square_or_"
                             "choose_another_capability"

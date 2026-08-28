@@ -39,8 +39,15 @@ from shuxueshuo_server.solver.runtime.functional_plan_models import (
     FunctionalScope,
     FunctionalTypedInputSourcePin,
 )
+from shuxueshuo_server.solver.runtime.handle_registry import (
+    CanonicalHandleRegistry,
+)
 from shuxueshuo_server.solver.runtime.planner_public_types import (
     planner_input_domain_type,
+)
+from shuxueshuo_server.solver.runtime.quadratic_square_path_roles import (
+    QuadraticSquarePathRoleError,
+    build_quadratic_square_path_role_candidates,
 )
 from shuxueshuo_server.solver.runtime.runtime_type_compatibility import (
     runtime_type_compatible,
@@ -76,8 +83,10 @@ def scoped_functional_plan_schema() -> dict[str, Any]:
         "type": "object",
         "description": (
             "Read one named return from an earlier visible step. Use this for "
-            "anonymous results only. A named Math Entity must use its SourceRef; "
-            "the compiler obtains the exact input required by the capability."
+            "anonymous results, or for a producer return explicitly declared "
+            "with reference_mode=exact_result. Other named Math Entities must "
+            "use SourceRef; the compiler obtains the exact input required by "
+            "the capability."
         ),
         "required": ["step_id", "return"],
         "properties": {
@@ -105,8 +114,9 @@ def scoped_functional_plan_schema() -> dict[str, Any]:
     }
     functional_ref = {
         "description": (
-            "Use a SourceRef string for every named Entity or visible Fact. Use "
-            "StepResultRef only for a return without a named Math Entity identity."
+            "Use a SourceRef string for a named Entity or visible Fact by "
+            "default. Use StepResultRef for an anonymous return or a producer "
+            "return whose catalog reference_mode is exact_result."
         ),
         "oneOf": [
             {"$ref": "#/$defs/source_ref"},
@@ -1269,6 +1279,7 @@ class ScopedFunctionalPlanAuthorityAdapter:
         planning_context: ProblemPlanningContext,
         binding_catalog: ProblemPlanningBindingCatalog,
         capability_catalog: FunctionalCapabilityCatalog,
+        handle_registry: CanonicalHandleRegistry | None = None,
     ) -> tuple[
         ScopedFunctionalPlanAuthority | None,
         ScopedFunctionalPlanAuthorityReport,
@@ -1283,6 +1294,7 @@ class ScopedFunctionalPlanAuthorityAdapter:
                 planning_context=planning_context,
                 binding_catalog=binding_catalog,
                 capability_catalog=capability_catalog,
+                handle_registry=handle_registry,
             )
         except ScopedFunctionalPlanError as exc:
             return None, ScopedFunctionalPlanAuthorityReport(
@@ -1300,12 +1312,14 @@ class ScopedFunctionalPlanAuthorityAdapter:
         planning_context: ProblemPlanningContext,
         binding_catalog: ProblemPlanningBindingCatalog,
         capability_catalog: FunctionalCapabilityCatalog,
+        handle_registry: CanonicalHandleRegistry | None = None,
     ) -> ScopedFunctionalPlanAuthority:
         canonical_plan, normalizations = self.canonicalize(
             plan,
             planning_context=planning_context,
             binding_catalog=binding_catalog,
             capability_catalog=capability_catalog,
+            handle_registry=handle_registry,
         )
         return self._lower_canonical(
             canonical_plan,
@@ -1313,6 +1327,7 @@ class ScopedFunctionalPlanAuthorityAdapter:
             planning_context=planning_context,
             binding_catalog=binding_catalog,
             capability_catalog=capability_catalog,
+            handle_registry=handle_registry,
         )
 
     def canonicalize(
@@ -1322,6 +1337,7 @@ class ScopedFunctionalPlanAuthorityAdapter:
         planning_context: ProblemPlanningContext,
         binding_catalog: ProblemPlanningBindingCatalog,
         capability_catalog: FunctionalCapabilityCatalog,
+        handle_registry: CanonicalHandleRegistry | None = None,
     ) -> tuple[
         ScopedFunctionalPlan,
         tuple[ScopedFunctionalPlanNormalization, ...],
@@ -1355,6 +1371,7 @@ class ScopedFunctionalPlanAuthorityAdapter:
             planning_context=planning_context,
             binding_catalog=binding_catalog,
             capability_catalog=capability_catalog,
+            handle_registry=handle_registry,
         )
         canonical_plan, placement_normalizations = (
             _normalize_shared_step_placement(
@@ -1379,6 +1396,7 @@ class ScopedFunctionalPlanAuthorityAdapter:
         planning_context: ProblemPlanningContext,
         binding_catalog: ProblemPlanningBindingCatalog,
         capability_catalog: FunctionalCapabilityCatalog,
+        handle_registry: CanonicalHandleRegistry | None = None,
     ) -> ScopedFunctionalPlanAuthority:
         locations = _step_locations(canonical_plan)
         by_id = _unique_steps(locations)
@@ -1464,12 +1482,20 @@ class ScopedFunctionalPlanAuthorityAdapter:
             goal_views=goal_views,
             binding_catalog=binding_catalog,
         )
+        contextual_return_targets = _contextual_return_object_hints(
+            canonical_plan,
+            planning_context=planning_context,
+            binding_catalog=binding_catalog,
+            capability_catalog=capability_catalog,
+            handle_registry=handle_registry,
+        )
         producers_by_target = _entity_state_producers(
             locations,
             by_id=by_id,
             capability_catalog=capability_catalog,
             answer_object_refs=answer_object_refs,
             binding_catalog=binding_catalog,
+            contextual_return_targets=contextual_return_targets,
         )
         typed_input_source_pins: dict[
             tuple[str, str, int], FunctionalTypedInputSourcePin
@@ -1713,6 +1739,7 @@ class ScopedFunctionalPlanAuthorityAdapter:
                 capability_catalog=capability_catalog,
                 answer_object_refs=answer_object_refs,
                 binding_catalog=binding_catalog,
+                contextual_return_targets=contextual_return_targets,
             )
             for name, target in effective_output_targets.items():
                 target_path = (
@@ -1878,6 +1905,7 @@ class ScopedFunctionalPlanAuthorityAdapter:
         planning_context: ProblemPlanningContext,
         binding_catalog: ProblemPlanningBindingCatalog,
         capability_catalog: FunctionalCapabilityCatalog,
+        handle_registry: CanonicalHandleRegistry | None = None,
     ) -> ScopedFunctionalPlanAuthority:
         """Lower locally valid v2 steps without claiming complete Goal answers."""
 
@@ -1886,6 +1914,7 @@ class ScopedFunctionalPlanAuthorityAdapter:
             planning_context=planning_context,
             binding_catalog=binding_catalog,
             capability_catalog=capability_catalog,
+            handle_registry=handle_registry,
         )
         excluded = frozenset(excluded_step_ids)
         all_locations = _step_locations(canonical_plan)
@@ -1915,12 +1944,20 @@ class ScopedFunctionalPlanAuthorityAdapter:
             goal_views=goal_views,
             binding_catalog=binding_catalog,
         )
+        contextual_return_targets = _contextual_return_object_hints(
+            canonical_plan,
+            planning_context=planning_context,
+            binding_catalog=binding_catalog,
+            capability_catalog=capability_catalog,
+            handle_registry=handle_registry,
+        )
         producers_by_target = _entity_state_producers(
             locations,
             by_id=by_id,
             capability_catalog=capability_catalog,
             answer_object_refs=answer_object_refs,
             binding_catalog=binding_catalog,
+            contextual_return_targets=contextual_return_targets,
         )
         typed_input_source_pins: dict[
             tuple[str, str, int], FunctionalTypedInputSourcePin
@@ -2139,6 +2176,7 @@ class ScopedFunctionalPlanAuthorityAdapter:
                 capability_catalog=capability_catalog,
                 answer_object_refs=answer_object_refs,
                 binding_catalog=binding_catalog,
+                contextual_return_targets=contextual_return_targets,
             )
             for return_name, target in effective_output_targets.items():
                 return_bindings[return_name] = _input_binding(
@@ -2628,6 +2666,7 @@ def _normalize_capability_wire(
     planning_context: ProblemPlanningContext,
     binding_catalog: ProblemPlanningBindingCatalog,
     capability_catalog: FunctionalCapabilityCatalog,
+    handle_registry: CanonicalHandleRegistry | None = None,
 ) -> tuple[
     ScopedFunctionalPlan,
     tuple[ScopedFunctionalPlanNormalization, ...],
@@ -2795,15 +2834,31 @@ def _normalize_capability_wire(
         if replacements
         else plan
     )
-    normalized_plan, return_role_normalizations = (
-        _normalize_unique_return_roles(
-            normalized_plan,
-            planning_context=planning_context,
-            binding_catalog=binding_catalog,
-            capability_catalog=capability_catalog,
-        )
+    normalized_plan, return_role_normalizations = _normalize_unique_return_roles(
+        normalized_plan,
+        planning_context=planning_context,
+        binding_catalog=binding_catalog,
+        capability_catalog=capability_catalog,
     )
     normalizations.extend(return_role_normalizations)
+    contextual_return_targets = _contextual_return_object_hints(
+        normalized_plan,
+        planning_context=planning_context,
+        binding_catalog=binding_catalog,
+        capability_catalog=capability_catalog,
+        handle_registry=handle_registry,
+    )
+    if contextual_return_targets:
+        normalized_plan, contextual_role_normalizations = (
+            _normalize_unique_return_roles(
+                normalized_plan,
+                planning_context=planning_context,
+                binding_catalog=binding_catalog,
+                capability_catalog=capability_catalog,
+                contextual_return_targets=contextual_return_targets,
+            )
+        )
+        normalizations.extend(contextual_role_normalizations)
 
     answer_roles = {
         (goal.answer_from.step_id, goal.answer_from.return_name)
@@ -3166,6 +3221,7 @@ def _normalize_unique_return_roles(
     planning_context: ProblemPlanningContext,
     binding_catalog: ProblemPlanningBindingCatalog,
     capability_catalog: FunctionalCapabilityCatalog,
+    contextual_return_targets: Mapping[tuple[str, str], str] = MappingProxyType({}),
 ) -> tuple[
     ScopedFunctionalPlan,
     tuple[ScopedFunctionalPlanNormalization, ...],
@@ -3219,6 +3275,10 @@ def _normalize_unique_return_roles(
                 ).add(goal.answer_from.return_name)
 
     constraints: dict[tuple[str, str], set[str]] = {}
+    constrained_arg_refs: set[tuple[str, str, int]] = set()
+    constrained_output_targets: set[tuple[str, str]] = set()
+    constrained_return_expectations: set[tuple[str, str]] = set()
+    constrained_goal_answers: set[tuple[str, str, str]] = set()
 
     def constrain(
         producer_step_id: str,
@@ -3283,6 +3343,7 @@ def _normalize_unique_return_roles(
                 role,
                 contextual_candidates(step_id, candidates),
             )
+            constrained_output_targets.add((step_id, role))
         for role, form in location.step.return_expectations.items():
             declared_return = returned.get(role)
             if (
@@ -3308,6 +3369,7 @@ def _normalize_unique_return_roles(
                 role,
                 contextual_candidates(step_id, candidates),
             )
+            constrained_return_expectations.add((step_id, role))
 
     for location in locations:
         capability = capability_catalog.get(location.step.capability_id)
@@ -3321,7 +3383,7 @@ def _normalize_unique_return_roles(
                 if argument is not None
                 else ()
             )
-            for value in values:
+            for value_index, value in enumerate(values):
                 if not isinstance(value, ScopedStepResultRef):
                     continue
                 returned = returned_by_step.get(value.step_id, ())
@@ -3358,6 +3420,9 @@ def _normalize_unique_return_roles(
                     value.step_id,
                     value.return_name,
                     contextual_candidates(value.step_id, candidates),
+                )
+                constrained_arg_refs.add(
+                    (location.step.step_id, arg_name, value_index)
                 )
 
     goal_views = {
@@ -3434,6 +3499,13 @@ def _normalize_unique_return_roles(
                 goal.answer_from.return_name,
                 contextual_candidates(goal.answer_from.step_id, candidates),
             )
+            constrained_goal_answers.add(
+                (
+                    goal.goal_ref,
+                    goal.answer_from.step_id,
+                    goal.answer_from.return_name,
+                )
+            )
 
     assignments: dict[tuple[str, str], str] = {}
     by_producer: dict[str, set[str]] = {}
@@ -3481,8 +3553,15 @@ def _normalize_unique_return_roles(
         changed = False
         for arg_name, values in location.step.args.items():
             normalized_values: list[ScopedFunctionalRef] = []
-            for value in values:
+            for value_index, value in enumerate(values):
                 if not isinstance(value, ScopedStepResultRef):
+                    normalized_values.append(value)
+                    continue
+                if (
+                    location.step.step_id,
+                    arg_name,
+                    value_index,
+                ) not in constrained_arg_refs:
                     normalized_values.append(value)
                     continue
                 return_name = assignments.get(
@@ -3513,6 +3592,16 @@ def _normalize_unique_return_roles(
             ("return_expectations", return_expectations),
         ):
             for authored_role in tuple(values):
+                constrained_fields = (
+                    constrained_output_targets
+                    if field_name == "output_targets"
+                    else constrained_return_expectations
+                )
+                if (
+                    location.step.step_id,
+                    authored_role,
+                ) not in constrained_fields:
+                    continue
                 public_role = assignments.get(
                     (location.step.step_id, authored_role)
                 )
@@ -3572,8 +3661,15 @@ def _normalize_unique_return_roles(
         goals: list[ScopedFunctionalGoalPlan] = []
         for goal in scope.goals:
             answer_from = goal.answer_from
-            return_name = assignments.get(
-                (answer_from.step_id, answer_from.return_name)
+            return_name = (
+                assignments.get((answer_from.step_id, answer_from.return_name))
+                if (
+                    goal.goal_ref,
+                    answer_from.step_id,
+                    answer_from.return_name,
+                )
+                in constrained_goal_answers
+                else None
             )
             if return_name is not None:
                 producer = by_id.get(answer_from.step_id)
@@ -3635,6 +3731,7 @@ def _normalize_unique_return_roles(
         capability_catalog=capability_catalog,
         answer_object_refs=answer_object_refs,
         binding_catalog=binding_catalog,
+        contextual_return_targets=contextual_return_targets,
     )
     dependency_scratch: dict[str, set[str]] = {
         item.step.step_id: set() for item in locations
@@ -3681,6 +3778,12 @@ def _normalize_unique_return_roles(
                     None,
                 )
                 if (
+                    returned is not None
+                    and returned.reference_mode == "exact_result"
+                ):
+                    normalized_values.append(value)
+                    continue
+                if (
                     producer is None
                     or returned is None
                     or returned.binding_mode == "internal_only"
@@ -3704,6 +3807,11 @@ def _normalize_unique_return_roles(
                     answer_object_refs=answer_object_refs,
                     binding_catalog=binding_catalog,
                 )
+                contextual_target = contextual_return_targets.get(
+                    (producer.step.step_id, returned.name)
+                )
+                if not targets and contextual_target is not None:
+                    targets = frozenset((contextual_target,))
                 if len(targets) != 1:
                     normalized_values.append(value)
                     continue
@@ -3789,6 +3897,144 @@ def _normalize_unique_return_roles(
             root_scope=rebuild_named(normalized_plan.root_scope)
         )
     return normalized_plan, tuple(normalizations)
+
+
+def _contextual_return_object_hints(
+    plan: ScopedFunctionalPlan,
+    *,
+    planning_context: ProblemPlanningContext,
+    binding_catalog: ProblemPlanningBindingCatalog,
+    capability_catalog: FunctionalCapabilityCatalog,
+    handle_registry: CanonicalHandleRegistry | None,
+) -> dict[tuple[str, str], str]:
+    """Resolve code-owned Macro identities, then propagate same-object writes.
+
+    These hints never change an ``exact_result`` reference itself. They only
+    let the ordinary named-result normalizer prove that a later
+    ``preserve_input_object`` return updates one existing SourceRef.
+    """
+
+    if handle_registry is None:
+        return {}
+    locations = _step_locations(plan)
+    scope_parents = {
+        item.scope_id: item.parent_scope_id
+        for item in planning_context.scopes
+    }
+    hints: dict[tuple[str, str], str] = {}
+
+    def source_binding(location: _StepLocation, arg_name: str) -> Any | None:
+        values = location.step.args.get(arg_name, ())
+        if len(values) != 1 or not isinstance(values[0], str):
+            return None
+        try:
+            return binding_catalog.resolve_input_binding(
+                scope_id=location.scope_id,
+                local_ref=values[0],
+            )
+        except ProblemPlanningBindingError:
+            return None
+
+    def local_ref_for_object(
+        object_handle: str,
+        *,
+        scope_id: str,
+    ) -> str | None:
+        refs = {
+            binding.semantic_ref.ref
+            for binding in binding_catalog.bindings.values()
+            if binding.usage == "input"
+            and _scope_visible(
+                binding.owner_scope_id,
+                scope_id,
+                scope_parents,
+            )
+            and object_handle
+            in {
+                object_id.value
+                for object_id in _binding_math_object_ids(binding)
+            }
+        }
+        return next(iter(refs)) if len(refs) == 1 else None
+
+    for location in locations:
+        capability = capability_catalog.get(location.step.capability_id)
+        if (
+            capability is None
+            or "quadratic_square_path_roles"
+            not in capability.context_resolvers
+        ):
+            continue
+        path_binding = source_binding(location, "path_minimum_target")
+        square_binding = source_binding(location, "square")
+        parabola_binding = source_binding(location, "parabola")
+        if (
+            path_binding is None
+            or square_binding is None
+            or parabola_binding is None
+        ):
+            continue
+        parabola_ids = {
+            object_id.value
+            for object_id in _binding_math_object_ids(parabola_binding)
+        }
+        if len(parabola_ids) != 1:
+            continue
+        try:
+            candidates = build_quadratic_square_path_role_candidates(
+                path_minimum_target=path_binding.runtime_node_id,
+                square=square_binding.runtime_node_id,
+                parabola_ref=next(iter(parabola_ids)),
+                scope_id=location.scope_id,
+                registry=handle_registry,
+            )
+        except QuadraticSquarePathRoleError:
+            continue
+        if len(candidates) != 1:
+            continue
+        roles = candidates[0]
+        for returned in capability.returns:
+            if returned.identity_arg is None:
+                continue
+            object_handle = getattr(roles, returned.identity_arg, None)
+            if not isinstance(object_handle, str):
+                continue
+            target_ref = local_ref_for_object(
+                object_handle,
+                scope_id=location.scope_id,
+            )
+            if target_ref is not None:
+                hints[(location.step.step_id, returned.name)] = target_ref
+
+    # A normal same-object transition inherits identity, not reference mode.
+    # Iteration supports chains of multiple state-updating Methods.
+    changed = True
+    while changed:
+        changed = False
+        for location in locations:
+            capability = capability_catalog.get(location.step.capability_id)
+            if capability is None:
+                continue
+            for returned in capability.returns:
+                key = (location.step.step_id, returned.name)
+                if (
+                    key in hints
+                    or returned.identity_policy != "preserve_input_object"
+                    or returned.identity_arg is None
+                ):
+                    continue
+                targets: set[str] = set()
+                for value in location.step.args.get(returned.identity_arg, ()):
+                    if isinstance(value, str):
+                        targets.add(value)
+                    else:
+                        target = hints.get((value.step_id, value.return_name))
+                        if target is not None:
+                            targets.add(target)
+                if len(targets) == 1:
+                    hints[key] = next(iter(targets))
+                    changed = True
+    return hints
 
 
 def _values_uniquely_match_required_arg(
@@ -4091,6 +4337,7 @@ def _effective_output_target_refs(
     capability_catalog: FunctionalCapabilityCatalog,
     answer_object_refs: Mapping[tuple[str, str], tuple[str, ...]],
     binding_catalog: ProblemPlanningBindingCatalog,
+    contextual_return_targets: Mapping[tuple[str, str], str] = MappingProxyType({}),
 ) -> dict[str, str]:
     """Complete mechanical named-return bindings before v1 reconciliation."""
 
@@ -4106,6 +4353,15 @@ def _effective_output_target_refs(
             answer_object_refs=answer_object_refs,
             binding_catalog=binding_catalog,
         )
+        contextual_target = contextual_return_targets.get(
+            (producer.step.step_id, returned.name)
+        )
+        if (
+            not targets
+            and contextual_target is not None
+            and returned.reference_mode != "exact_result"
+        ):
+            targets = frozenset((contextual_target,))
         if len(targets) == 1:
             result[returned.name] = next(iter(targets))
     return dict(sorted(result.items()))
@@ -4492,6 +4748,20 @@ def _binding_accepts_arg(binding: Any | None, arg: Any) -> bool:
         for expected in accepted
         for actual in _binding_runtime_types(binding)
     )
+
+
+def _argument_accepts_return_type(argument: Any, runtime_type: str) -> bool:
+    accepted = argument.accepted_item_types or (argument.runtime_type,)
+    if any(
+        runtime_type_compatible(expected, runtime_type)
+        for expected in accepted
+    ):
+        return True
+    return runtime_type == {
+        "coefficients_by_symbol": "Coefficients",
+        "point_list": "PointList",
+        "symbol_list": "SymbolList",
+    }.get(argument.aggregation)
 
 
 def _binding_accepts_runtime_type(binding: Any, runtime_type: str) -> bool:
@@ -5141,11 +5411,16 @@ def _collect_independent_authority_issues(
         for role, target in sorted(step.output_targets.items()):
             returned = returns.get(role)
             path = f"$.steps[{step.step_id!r}].output_targets[{role!r}]"
-            if returned is None or returned.binding_mode == "internal_only":
+            if (
+                returned is None
+                or returned.binding_mode == "internal_only"
+                or returned.reference_mode == "exact_result"
+            ):
                 expected_roles = tuple(
                     item.name
                     for item in capability.returns
                     if item.binding_mode != "internal_only"
+                    and item.reference_mode != "exact_result"
                 )
                 add(
                     1,
@@ -5350,7 +5625,10 @@ def _collect_independent_authority_issues(
                         if returned is not None
                         else frozenset()
                     )
-                    if named_targets:
+                    if named_targets and (
+                        returned is None
+                        or returned.reference_mode != "exact_result"
+                    ):
                         expected_ref = (
                             next(iter(named_targets))
                             if len(named_targets) == 1
@@ -5379,6 +5657,75 @@ def _collect_independent_authority_issues(
                                 },
                                 "target": expected_ref,
                                 "repair_action": "use_named_entity_source_ref",
+                            },
+                        )
+                    argument = declared_args.get(arg_name)
+                    accepted_types = (
+                        argument.accepted_item_types
+                        or (argument.runtime_type,)
+                        if argument is not None
+                        else ()
+                    )
+                    if (
+                        returned is not None
+                        and argument is not None
+                        and not _argument_accepts_return_type(
+                            argument,
+                            returned.runtime_type,
+                        )
+                    ):
+                        add(
+                            2,
+                            location.scope_id,
+                            location.step.step_id,
+                            "functional.arg_type_mismatch",
+                            path,
+                            (
+                                f"return {value.return_name!r} has runtime type "
+                                f"{returned.runtime_type!r}; argument {arg_name!r} "
+                                f"accepts {sorted(set(accepted_types))!r}"
+                            ),
+                            {
+                                "arg_name": arg_name,
+                                "producer": {
+                                    "step_id": value.step_id,
+                                    "return": value.return_name,
+                                },
+                                "expected_types": sorted(set(accepted_types)),
+                                "observed_type": returned.runtime_type,
+                                "retryability": "planner_repairable",
+                                "repair_action": "use_type_compatible_step_result",
+                            },
+                        )
+                    if (
+                        returned is not None
+                        and returned.reference_mode != "exact_result"
+                        and not named_targets
+                        and (
+                            argument is None
+                            or not argument.allows_anonymous_result
+                        )
+                    ):
+                        add(
+                            2,
+                            location.scope_id,
+                            location.step.step_id,
+                            "functional.step_result_reference_mode_invalid",
+                            path,
+                            (
+                                f"return {value.return_name!r} is a default "
+                                "anonymous result, but this argument does not "
+                                "accept anonymous StepResultRef values"
+                            ),
+                            {
+                                "arg_name": arg_name,
+                                "producer": {
+                                    "step_id": value.step_id,
+                                    "return": value.return_name,
+                                },
+                                "reference_mode": returned.reference_mode,
+                                "retryability": "planner_repairable",
+                                "repair_action": "use_allowed_input_reference",
                             },
                         )
                     if producer_capability is None or value.return_name not in {
@@ -6076,6 +6423,7 @@ def _entity_state_producers(
     capability_catalog: FunctionalCapabilityCatalog,
     answer_object_refs: Mapping[tuple[str, str], tuple[str, ...]],
     binding_catalog: ProblemPlanningBindingCatalog,
+    contextual_return_targets: Mapping[tuple[str, str], str] = MappingProxyType({}),
 ) -> dict[Any, tuple[tuple[_StepLocation, str, str], ...]]:
     """Index named Math Entity state writers without rewriting the LLM wire."""
 
@@ -6096,6 +6444,11 @@ def _entity_state_producers(
                 answer_object_refs=answer_object_refs,
                 binding_catalog=binding_catalog,
             )
+            contextual_target = contextual_return_targets.get(
+                (location.step.step_id, returned.name)
+            )
+            if not targets and contextual_target is not None:
+                targets = frozenset((contextual_target,))
             for target in targets:
                 try:
                     binding = binding_catalog.resolve_input_binding(

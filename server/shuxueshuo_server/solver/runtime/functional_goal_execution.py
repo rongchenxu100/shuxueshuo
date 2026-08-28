@@ -1804,6 +1804,7 @@ class ScopedFunctionalGoalExecutionService:
                 planning_context=planning_context,
                 binding_catalog=problem_binding_catalog,
                 capability_catalog=catalog,
+                handle_registry=handle_registry,
             )
         except ScopedFunctionalPlanError as exc:
             if not exc.retryable:
@@ -1862,6 +1863,7 @@ class ScopedFunctionalGoalExecutionService:
             planning_context=planning_context,
             binding_catalog=problem_binding_catalog,
             capability_catalog=catalog,
+            handle_registry=handle_registry,
         )
         if authority is not None:
             authority = replace(
@@ -1917,6 +1919,7 @@ class ScopedFunctionalGoalExecutionService:
                         planning_context=planning_context,
                         binding_catalog=problem_binding_catalog,
                         capability_catalog=catalog,
+                        handle_registry=handle_registry,
                     )
                 except ScopedFunctionalPlanError as exc:
                     new_step_issues = _scoped_step_issue_payloads(

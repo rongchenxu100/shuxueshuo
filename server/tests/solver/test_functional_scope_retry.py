@@ -512,6 +512,47 @@ def test_scope_authority_opens_scope_for_unbound_goal_root_diagnostic(
     assert not scopes["problem"].diagnostics
 
 
+def test_scope_authority_opens_cross_scope_exact_result_consumer(
+    tmp_path,
+) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    payload = deepcopy(fixture.failed_payload)
+    scope_ii = next(
+        item
+        for item in iter_scopes(payload["root_scope"])
+        if item["scope_ref"] == "ii"
+    )
+    scope_ii["children"] = [
+        {
+            "scope_ref": "ii_child",
+            "steps": [
+                {
+                    "step_id": "consume_exact_result_in_child",
+                    "capability_id": "test_consumer",
+                    "args": {
+                        "value": {
+                            "step_id": FAILED_STEP_ID,
+                            "return": "minimum_expression",
+                        }
+                    },
+                }
+            ],
+        }
+    ]
+    plan, report = ScopedFunctionalPlanValidator().validate_payload_with_report(
+        payload
+    )
+    assert report.ok and plan is not None
+    execution = replace(fixture.execution, canonical_plan=plan)
+
+    authority = FunctionalScopeRetryAuthorityProjector().project(
+        plan=plan,
+        execution=execution,
+    )
+
+    assert authority.editable_scope_refs == ("ii", "ii_child")
+
+
 def test_scope_repair_schema_requires_exact_scopes_and_direct_goals(tmp_path) -> None:
     fixture = goal_retry_fixture(tmp_path)
     authority = FunctionalScopeRetryAuthorityProjector().project(

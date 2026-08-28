@@ -1404,6 +1404,64 @@ def test_answer_selected_named_output_is_normalized_to_source_ref(tmp_path) -> N
     )
 
 
+def test_exact_result_named_entity_ref_is_not_normalized_to_source_ref(
+    tmp_path,
+) -> None:
+    case = "tj-2026-heping-ermo-25"
+    payload = load_v2_fixture_payload(case)
+    scope_ii = _find_scope(payload["root_scope"], "ii")
+    steps = scope_ii["goals"][0]["steps"]
+    consumer = next(
+        item
+        for item in steps
+        if item["step_id"] == "evaluate_minimum_point_G_ii"
+    )
+    exact_ref = {
+        "step_id": "derive_path_minimum_ii",
+        "return": "attainment_point",
+    }
+    consumer["args"]["point"] = exact_ref
+
+    authority, _fixture = _lower_payload(tmp_path, case, payload)
+
+    canonical_scope = _find_scope(
+        authority.scoped_plan.to_payload()["root_scope"], "ii"
+    )
+    canonical_consumer = next(
+        item
+        for item in canonical_scope["goals"][0]["steps"]
+        if item["step_id"] == "evaluate_minimum_point_G_ii"
+    )
+    assert canonical_consumer["args"]["point"] == exact_ref
+    assert "derive_path_minimum_ii" in authority.lowered_plan.typed_dependency_graph[
+        "evaluate_minimum_point_G_ii"
+    ]
+    assert all(
+        not (
+            item.action == "canonicalize_named_entity_result_ref"
+            and item.from_ref == "derive_path_minimum_ii.attainment_point"
+        )
+        for item in authority.normalizations
+    )
+
+
+def test_exact_result_return_rejects_llm_output_target(tmp_path) -> None:
+    case = "tj-2026-heping-ermo-25"
+    payload = load_v2_fixture_payload(case)
+    scope_ii = _find_scope(payload["root_scope"], "ii")
+    producer = next(
+        item
+        for item in scope_ii["goals"][0]["steps"]
+        if item["step_id"] == "derive_path_minimum_ii"
+    )
+    producer["output_targets"] = {"attainment_point": "E"}
+
+    with pytest.raises(ScopedFunctionalPlanError) as captured:
+        _lower_payload(tmp_path, case, payload)
+
+    assert captured.value.code == "functional.output_target_invalid"
+
+
 def test_unknown_targets_on_anonymous_returns_are_removed(tmp_path) -> None:
     case = "tj-2026-heping-yimo-25"
     payload = load_v2_fixture_payload(case)

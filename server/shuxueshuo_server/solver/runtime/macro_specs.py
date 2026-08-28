@@ -26,6 +26,7 @@ from shuxueshuo_server.solver.family.models import (
     GoalEvidenceTag,
     PathTransformationConsumerSpec,
     FunctionalReturnBindingPolicy,
+    FunctionalReturnReferenceMode,
     FunctionalSemanticRefRole,
     RecipeExecutionSpec,
     RecipeInputDerivationSpec,
@@ -158,6 +159,7 @@ class MacroReturnSpec:
     provides_semantic_roles: tuple[str, ...] = ()
     object_role_projections: tuple[StateObjectRoleProjectionSpec, ...] = ()
     return_binding: FunctionalReturnBindingPolicy = "auto"
+    reference_mode: FunctionalReturnReferenceMode = "default"
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -198,6 +200,8 @@ class MacroReturnSpec:
             ]
         if self.return_binding != "auto":
             payload["return_binding"] = self.return_binding
+        if self.reference_mode != "default":
+            payload["reference_mode"] = self.reference_mode
         return payload
 
 
@@ -717,6 +721,8 @@ def _macro_prompt_return(item: MacroReturnSpec) -> dict[str, Any]:
         payload["cardinality"] = item.cardinality
     if item.description:
         payload["desc"] = planner_prompt_text(item.description)
+    if item.reference_mode != "default":
+        payload["reference_mode"] = item.reference_mode
     return payload
 
 
@@ -778,6 +784,7 @@ def _returns_from_output_aliases(
                 provides_semantic_roles=output.provides_semantic_roles,
                 object_role_projections=output.object_role_projections,
                 return_binding=output.return_binding,
+                reference_mode=output.reference_mode,
             )
         )
     return tuple(returns)

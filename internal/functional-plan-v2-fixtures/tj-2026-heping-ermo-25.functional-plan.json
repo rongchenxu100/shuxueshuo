@@ -174,7 +174,10 @@
                 "step_id": "evaluate_minimum_point_G_ii",
                 "capability_id": "evaluate_point_at_parameter",
                 "args": {
-                  "point": "G",
+                  "point": {
+                    "step_id": "derive_path_minimum_ii",
+                    "return": "attainment_point"
+                  },
                   "parameter_value": "c"
                 },
                 "output_targets": {

@@ -105,7 +105,8 @@ LLM 不需要根据 `kind=function|macro` 改变 authoring 语法；两者都是
 }
 ```
 
-Macro public return 自然存在。后续步骤读取匿名结果时使用：
+Macro public return自然存在。后续步骤读取匿名结果，或读取声明
+`reference_mode="exact_result"`的runtime精确结果时使用：
 
 ```json
 {"step_id": "ii_path_minimum", "return": "minimum_expression"}
@@ -306,6 +307,20 @@ code-owned hidden input:
 internal:
   正方形降维、轨迹恢复、反射/拉直、距离、合法域、达到性与 PathMinimumWitness
 ```
+
+`quadratic_square_path_minimum_kernel` 是明确的 **internal composition boundary**。
+它内部继续复用 `SquarePathDimensionReductionMethod`、
+`BrokenPathStraighteningCandidatesMethod` 及 `PathTransformation` 状态；F4.3F 删除的是
+这些类型和能力的 Planner-facing 暴露，不得误删 kernel 的私有组合依赖。kernel 内创建的
+反射辅助 `PointRef` 同样只属于 shadow/runtime witness，不得进入 capability catalog、
+Canonical/Annotated Plan 或公开 runtime outputs。
+
+该 Macro 在 elaboration 与 runtime search 共用同一诊断族：public input 未唯一解析为
+`functional.macro_search_public_input_invalid`，结构候选为零时为
+`functional.macro_search_no_structural_candidate`，执行后无合法候选时为
+`functional.macro_search_no_valid_candidate`，多条非唯一候选为
+`functional.macro_search_ambiguous`。这些错误均保留发生阶段和候选数量，并统一投影为
+planner-repairable；统计层不再使用 quadratic-square 专属别名。
 
 这是“二次函数约束下，正方形结构中的三段路径最小值”题型能力，不是和平二模题号或
 `HF+FM+MG` 的封装。候选解析只使用结构化关系：中点必须位于正方形一条边，中心必须属于

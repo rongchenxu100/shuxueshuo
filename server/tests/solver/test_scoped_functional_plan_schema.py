@@ -35,10 +35,10 @@ def test_reference_schema_exposes_entity_only_state_contract() -> None:
     functional_description = definitions["functional_ref"]["description"]
     assert "only wire form for a named Entity" in source_description
     assert "producer dependencies" in source_description
-    assert "anonymous results only" in result_description
-    assert "must use its SourceRef" in result_description
-    assert "every named Entity" in functional_description
-    assert "without a named Math Entity identity" in functional_description
+    assert "anonymous results" in result_description
+    assert "exact_result" in result_description
+    assert "by default" in functional_description
+    assert "exact_result" in functional_description
 
 
 def test_scope_schema_is_expanded_to_four_non_recursive_levels() -> None:

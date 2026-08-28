@@ -232,8 +232,8 @@
           "capability_id": "evaluate_point_at_parameter",
           "args": {
             "point": {
-              "ref": "ii.G",
-              "kind": "point"
+              "from_call": "derive_path_minimum_ii",
+              "return": "attainment_point"
             },
             "parameter_value": {
               "from_call": "solve_parameter_c_ii",

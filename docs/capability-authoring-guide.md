@@ -110,14 +110,14 @@ name / domain_type / required / cardinality / role
 不得投影 `PointRef`、`ParameterValue`、`Parabola`、`PathTransformation`、
 `semantic_ref_role`、state kind、version 或 runtime path。Point、Function、Line、
 Symbol 等具名对象始终使用数学实体 ref。只有真正公开、没有题面身份的候选集和
-中间表达式才使用 `StepResultRef`。Macro 内部 witness 不是 public return，不能进入
-Planner wire。
+中间表达式，以及producer public return显式声明`reference_mode="exact_result"`的
+deferred-identity结果，才使用`StepResultRef`。Macro内部witness不是public return，
+不能进入Planner wire。
 
 Method input view只控制代码如何读取一个具名ref，不控制Planner wire是否能写
-`StepResultRef`。只有公开参数显式声明`allows_anonymous_result`时，response schema
-才同时接受匿名上游return；若该return已经绑定`output_targets`、Goal target或
-compiler-selected MathObject，最终authority gate仍会拒绝StepResultRef并要求使用
-对应数学实体ref。
+`StepResultRef`。普通匿名上游return仍要求公开参数声明`allows_anonymous_result`；
+producer return声明`reference_mode="exact_result"`时，由中央authority按类型/view
+兼容性接受，不要求consumer逐个声明。普通具名return仍要求对应数学实体ref。
 
 ### 策略角色权威
 

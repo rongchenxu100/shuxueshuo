@@ -48,6 +48,7 @@ from shuxueshuo_server.solver.family.models import (
     CapabilityStateClosurePolicy,
     FunctionalSemanticRefRole,
     FunctionalOutputTargetSelectorSpec,
+    FunctionalReturnReferenceMode,
     FunctionalReturnBindingPolicy,
     MethodBindingRuleSpec,
     PathTransformationConsumerSpec,
@@ -167,6 +168,7 @@ class FunctionReturnSpec:
     return_binding: FunctionalReturnBindingPolicy = "auto"
     output_target_selector: FunctionalOutputTargetSelectorSpec | None = None
     materialization_policy: Literal["on_demand", "always"] = "on_demand"
+    reference_mode: FunctionalReturnReferenceMode = "default"
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -209,6 +211,8 @@ class FunctionReturnSpec:
             )
         if self.materialization_policy != "on_demand":
             payload["materialization_policy"] = self.materialization_policy
+        if self.reference_mode != "default":
+            payload["reference_mode"] = self.reference_mode
         return payload
 
 

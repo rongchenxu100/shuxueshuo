@@ -434,16 +434,11 @@ class FunctionalScopeRetryAuthorityProjector:
         parents = _scope_parent_map(canonical.root_scope)
         step_owners: dict[str, str] = {}
         goal_owners: dict[str, str] = {}
-        goal_answers: dict[str, tuple[str, str]] = {}
         for scope in scope_by_ref.values():
             for step in scope.steps:
                 step_owners[step.step_id] = scope.scope_ref
             for goal in scope.goals:
                 goal_owners[goal.goal_ref] = scope.scope_ref
-                goal_answers[goal.goal_ref] = (
-                    goal.answer_from.step_id,
-                    goal.answer_from.return_name,
-                )
                 for step in goal.steps:
                     step_owners[step.step_id] = scope.scope_ref
 
@@ -491,22 +486,23 @@ class FunctionalScopeRetryAuthorityProjector:
                 elif candidate_refs:
                     editable.add(_scope_lca(candidate_refs, parents))
 
-        # Anonymous public answers are ordinary StepResultRefs.  When their
-        # producer Scope is opened, open each cross-Scope consumer in the same
-        # retry so the complete replacement remains self-consistent.
+        # StepResultRef pins one exact producer return. When its producer Scope
+        # is opened, open each cross-Scope consumer in the same retry so a
+        # complete Scope replacement may rename or replace that producer
+        # without leaving a closed consumer bound to the old exact result.
         changed = True
         while changed:
             changed = False
-            opened_answer_sources = {
-                source
-                for goal_ref, source in goal_answers.items()
-                if goal_owners[goal_ref] in editable
+            opened_step_ids = {
+                step_id
+                for step_id, owner_scope in step_owners.items()
+                if owner_scope in editable
             }
             for scope in scope_by_ref.values():
                 if scope.scope_ref in editable:
                     continue
                 if any(
-                    _step_reads_any_answer(step, opened_answer_sources)
+                    _step_reads_any_result(step, opened_step_ids)
                     for step in (
                         *scope.steps,
                         *(step for goal in scope.goals for step in goal.steps),
@@ -1823,13 +1819,12 @@ def _is_placement_issue(issue: Mapping[str, Any]) -> bool:
     return "placement" in text or "visibility" in text
 
 
-def _step_reads_any_answer(
+def _step_reads_any_result(
     step: ScopedFunctionalStep,
-    answer_sources: set[tuple[str, str]],
+    producer_step_ids: set[str],
 ) -> bool:
     return any(
-        (getattr(ref, "step_id", None), getattr(ref, "return_name", None))
-        in answer_sources
+        getattr(ref, "step_id", None) in producer_step_ids
         for values in step.args.values()
         for ref in values
     )

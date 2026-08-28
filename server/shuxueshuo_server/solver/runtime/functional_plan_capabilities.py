@@ -1541,6 +1541,7 @@ def _function_return(item: FunctionReturnSpec) -> FunctionalCapabilityReturn:
         ),
         item.output_target_selector,
         item.materialization_policy,
+        item.reference_mode,
     )
 
 
@@ -1633,6 +1634,7 @@ def _macro_return(item: MacroReturnSpec) -> FunctionalCapabilityReturn:
             if item.scalar_result_form is not None
             else ()
         ),
+        reference_mode=item.reference_mode,
     )
 
 

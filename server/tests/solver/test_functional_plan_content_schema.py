@@ -24,6 +24,8 @@ from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
 
 from _functional_scope_retry_support import scope_retry_fixture as goal_retry_fixture
 from _problem_planning_support import planning_binding_fixture
+from _problem_planning_support import scope_native_reconciliation_fixture
+from _scoped_functional_plan_support import load_v2_fixture_payload
 
 
 def _content_fixture(tmp_path):
@@ -540,6 +542,49 @@ def test_capability_bound_schema_normalizes_named_entity_step_result(
     assert [item.code for item in result.normalizations] == [
         "functional.named_entity_result_ref_normalized"
     ]
+
+
+def test_exact_result_named_entity_ref_is_preserved_for_plain_point_arg(
+    tmp_path,
+) -> None:
+    case = "tj-2026-heping-ermo-25"
+    fixture = scope_native_reconciliation_fixture(tmp_path, case=case)
+    planning_context = fixture[1]
+    inputs = fixture[3]
+    frame = FunctionalPlanAuthorityFrame.from_planning_context(
+        planning_context
+    )
+    catalog = FunctionalCapabilityCatalog.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
+    )
+    plan, report = ScopedFunctionalPlanValidator().validate_payload_with_report(
+        load_v2_fixture_payload(case)
+    )
+    assert report.ok and plan is not None
+    payload = functional_plan_content_from_plan(plan, frame=frame).to_payload()
+    exact_ref = {
+        "step_id": "derive_path_minimum_ii",
+        "return": "attainment_point",
+    }
+    _content_step(payload, "evaluate_minimum_point_G_ii")["args"][
+        "point"
+    ] = exact_ref
+
+    result = FunctionalPlanContentCompiler().compile_payload(
+        payload,
+        frame=frame,
+        capability_catalog=catalog,
+    )
+
+    assert result.report.ok and result.content is not None
+    assert _content_step(
+        result.content.to_payload(), "evaluate_minimum_point_G_ii"
+    )["args"]["point"] == exact_ref
+    assert all(
+        "derive_path_minimum_ii.attainment_point" not in item.message
+        for item in result.normalizations
+    )
 
 
 def test_content_compiler_normalizes_unique_public_return_role(tmp_path) -> None:
