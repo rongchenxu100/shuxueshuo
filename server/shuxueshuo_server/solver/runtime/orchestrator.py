@@ -47,6 +47,9 @@ from shuxueshuo_server.solver.runtime.functional_goal_execution import (
     FUNCTIONAL_GOAL_EXECUTION_CHECKPOINT_CONTRACT,
     VerifiedFunctionalPlanExecution,
 )
+from shuxueshuo_server.solver.runtime.functional_plan_content import (
+    FUNCTIONAL_PLAN_CONTENT_CONTRACT,
+)
 from shuxueshuo_server.solver.runtime.executor import (
     DeclarationValidator,
     InvocationExecutor,
@@ -811,7 +814,7 @@ def _scoped_run_failure(scoped_result: object) -> StructuredSolveError:
         if error is not None:
             return StructuredSolveError(
                 stage="scoped_planner",
-                code=str(getattr(error, "code", "planner.goal_retry_failed")),
+                code=str(getattr(error, "code", "planner.scope_retry_failed")),
                 message=str(getattr(error, "message", error)),
                 retryable=bool(getattr(error, "retryable", False)),
                 path=getattr(error, "path", None),
@@ -824,16 +827,16 @@ def _scoped_run_failure(scoped_result: object) -> StructuredSolveError:
         issue = dict(root_issues[0])
         return StructuredSolveError(
             stage=str(issue.get("layer") or issue.get("stage") or "scoped_planner"),
-            code=str(issue.get("code") or "planner.goal_retry_failed"),
-            message=str(issue.get("message") or "scope-native Goal retry failed"),
+            code=str(issue.get("code") or "planner.scope_retry_failed"),
+            message=str(issue.get("message") or "scope-native Scope retry failed"),
             retryable=False,
             step_id=(str(issue["step_id"]) if issue.get("step_id") else None),
             details={"root_issues": [dict(item) for item in root_issues]},
         )
     return StructuredSolveError(
         stage="scoped_planner",
-        code="planner.goal_retry_exhausted",
-        message="scope-native Goal retry exhausted without a verified execution",
+        code="planner.scope_retry_exhausted",
+        message="scope-native Scope retry exhausted without a verified execution",
         retryable=False,
         details={"no_progress": bool(getattr(scoped_result, "no_progress", False))},
     )
@@ -1105,7 +1108,7 @@ def _write_debug_attempt(
         planner_protocol = (
             str(scoped_attempts[-1].planner_protocol)
             if scoped_attempts
-            else "functional_plan/v1"
+            else FUNCTIONAL_PLAN_CONTENT_CONTRACT
         )
         _write_json(
             debug_dir / f"{prefix}.llm-metadata.json",

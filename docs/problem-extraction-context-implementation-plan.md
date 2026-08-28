@@ -671,8 +671,7 @@ uv run pytest \
   tests/solver/test_functional_transaction_execution.py \
   tests/solver/test_strategy_planner_retry_state.py \
   tests/solver/test_scope_native_c0_c5_generated_gate.py \
-  tests/solver/test_scope_native_goal_retry_generated_gate.py \
-  tests/solver/test_symbolic_closure_generated_gate.py -q
+  tests/solver/test_functional_scope_retry_generated_gate.py -q
 uv run pytest tests/solver -q
 git diff --check
 ```

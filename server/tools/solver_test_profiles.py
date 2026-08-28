@@ -20,6 +20,7 @@ CORE_INVARIANT_TESTS = (
     "tests/solver/test_method_output_write_authority.py",
     "tests/solver/test_functional_goal_checkpoint_v3.py",
     "tests/solver/test_functional_scope_retry.py",
+    "tests/solver/test_functional_scope_retry_generated_gate.py",
 )
 
 CONTRACT_TEST_FILES = frozenset(
@@ -28,6 +29,7 @@ CONTRACT_TEST_FILES = frozenset(
         "test_functional_goal_checkpoint_v3.py",
         "test_functional_goal_execution.py",
         "test_functional_scope_retry.py",
+        "test_functional_scope_retry_generated_gate.py",
         "test_functional_transaction_execution.py",
         "test_macro_prebinding_runtime_search.py",
         "test_method_output_write_authority.py",
@@ -84,6 +86,7 @@ OWNERSHIP_RULES = (
         (
             "tests/solver/test_functional_goal_execution.py",
             "tests/solver/test_functional_scope_retry.py",
+            "tests/solver/test_functional_scope_retry_generated_gate.py",
             "tests/solver/test_functional_goal_checkpoint_v3.py",
             "tests/solver/test_scoped_functional_plan_replay.py",
         ),
@@ -190,6 +193,7 @@ OWNERSHIP_RULES = (
             "tests/solver/test_scoped_functional_plan_schema.py",
             "tests/solver/test_scoped_functional_plan_prompt.py",
             "tests/solver/test_functional_scope_retry.py",
+            "tests/solver/test_functional_scope_retry_generated_gate.py",
         ),
     ),
     OwnershipRule(
@@ -216,6 +220,7 @@ OWNERSHIP_RULES = (
             "tests/solver/test_scope_native_c0_c5_oracle.py",
             "tests/solver/test_scope_native_c0_c5_generated_gate.py",
             "tests/solver/test_functional_scope_retry.py",
+            "tests/solver/test_functional_scope_retry_generated_gate.py",
             "tests/solver/test_scope_native_runtime_authority_generated_gate.py",
         ),
     ),

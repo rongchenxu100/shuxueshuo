@@ -86,6 +86,7 @@ def test_affected_ownership_maps_goal_runtime_to_contract_tests() -> None:
 
     assert not unmapped
     assert "tests/solver/test_functional_scope_retry.py" in selected
+    assert "tests/solver/test_functional_scope_retry_generated_gate.py" in selected
     assert "tests/solver/test_functional_goal_checkpoint_v3.py" in selected
 
 

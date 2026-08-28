@@ -13,6 +13,7 @@ from shuxueshuo_server.solver.runtime.functional_plan_content import (
     FUNCTIONAL_PLAN_CONTENT_CONTRACT,
 )
 from shuxueshuo_server.solver.runtime.orchestrator import (
+    _scoped_run_failure,
     _write_debug_attempt,
     _write_scoped_debug_attempts,
 )
@@ -134,3 +135,16 @@ def test_scoped_attempt_metadata_is_frozen_before_next_provider_call() -> None:
 
     assert metadata["usage"]["completion_tokens"] == 1
     assert metadata["provider_attempts"][0]["provider_attempt"] == 1
+
+
+def test_scoped_run_failure_uses_scope_retry_error_names() -> None:
+    error = _scoped_run_failure(
+        SimpleNamespace(
+            attempts=(),
+            final_execution=None,
+            no_progress=True,
+        )
+    )
+
+    assert error.code == "planner.scope_retry_exhausted"
+    assert "Scope retry exhausted" in error.message

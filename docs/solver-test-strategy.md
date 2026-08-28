@@ -143,16 +143,15 @@ Quick抽样只影响日常执行成本，不改变Full门禁或历史回归语�
 
 ```text
 SCOPE_NATIVE_SCENARIO_ID
-SCOPE_NATIVE_RETRY_SCENARIO_ID
+FUNCTIONAL_SCOPE_RETRY_SCENARIO_ID
 SCOPE_NATIVE_RUNTIME_AUTHORITY_SCENARIO_ID
-SCOPE_NATIVE_C5_SCENARIO_ID
 ```
 
 例如：
 
 ```bash
-SCOPE_NATIVE_RETRY_SCENARIO_ID=<id> uv run pytest \
-  tests/solver/test_scope_native_goal_retry_generated_gate.py -q
+FUNCTIONAL_SCOPE_RETRY_SCENARIO_ID=<id> uv run pytest \
+  tests/solver/test_functional_scope_retry_generated_gate.py -q
 ```
 
 设置单场景变量后，完整shard会跳过，只有Quick入口执行该场景，避免重复运行。

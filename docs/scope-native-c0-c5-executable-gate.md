@@ -76,8 +76,7 @@ single-scenario replay command
 
 ```text
 SCOPE_NATIVE_SCENARIO_ID
-SCOPE_NATIVE_RETRY_SCENARIO_ID
-SCOPE_NATIVE_C5_SCENARIO_ID
+FUNCTIONAL_SCOPE_RETRY_SCENARIO_ID
 ```
 
 ## 门禁命令
@@ -87,8 +86,7 @@ cd server
 uv run pytest \
   tests/solver/test_scope_native_c0_c5_oracle.py \
   tests/solver/test_scope_native_c0_c5_generated_gate.py \
-  tests/solver/test_scope_native_goal_retry_generated_gate.py \
-  tests/solver/test_symbolic_closure_generated_gate.py -q
+  tests/solver/test_functional_scope_retry_generated_gate.py -q
 ```
 
-完成条件：C0-C3 mismatch、Goal repair mismatch、scope tree drift、solved Goal reexecution、ghost write 和未分类错误均为零；stale revision/source/destination mutation 必须 fail loud。
+完成条件：C0-C3 mismatch、Scope repair mismatch、scope tree drift、开放 Scope restore leak、ghost write 和未分类错误均为零；stale revision/source/destination mutation 必须 fail loud。
