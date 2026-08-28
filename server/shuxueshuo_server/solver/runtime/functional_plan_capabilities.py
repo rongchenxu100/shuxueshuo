@@ -348,15 +348,7 @@ class FunctionalCapabilityCatalog:
                 "planner_configuration_error: no functional capability is "
                 "constructible from the current Context"
             )
-        return FunctionalCapabilityCatalog(
-            {
-                capability_id: _contextualize_dynamic_macro_roles(
-                    capability,
-                    semantic_catalog=semantic_catalog,
-                )
-                for capability_id, capability in ready.items()
-            }
-        )
+        return FunctionalCapabilityCatalog(ready)
 
     def require_satisfiable_configuration(self) -> None:
         validate_capability_repair_feedback_provider_ids(
@@ -456,32 +448,6 @@ class FunctionalCapabilityCatalog:
                         "typed projected arguments: "
                         f"{capability.capability_id}.{resolver_id}"
                     )
-
-
-def _contextualize_dynamic_macro_roles(
-    capability: FunctionalCapability,
-    *,
-    semantic_catalog: FunctionalSemanticCatalog,
-) -> FunctionalCapability:
-    """Hide roles already proved by source structure; constrain ambiguities."""
-
-    projector = getattr(semantic_catalog, "macro_role_ref_candidates", None)
-    if not callable(projector):
-        return capability
-    candidates = projector(capability.capability_id)
-    if candidates is None or not candidates:
-        return capability
-    dynamic_roles = frozenset(candidates)
-    projected_args: list[FunctionalCapabilityArg] = []
-    for arg in capability.args:
-        if arg.name not in dynamic_roles:
-            projected_args.append(arg)
-            continue
-        refs = tuple(candidates.get(arg.name, ()))
-        if len(refs) <= 1:
-            continue
-        projected_args.append(replace(arg, allowed_refs=refs))
-    return replace(capability, args=tuple(projected_args))
 
 
 def functional_capability_catalog_payload(
@@ -1038,6 +1004,8 @@ def _macro_capability(
             )
             for item in spec.args
             if item.kind != "auto"
+            and (item.semantic_role or item.name)
+            not in spec.code_owned_search_roles
         ),
         returns=tuple(_macro_return(item) for item in spec.returns),
         source=spec,

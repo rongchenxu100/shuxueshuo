@@ -274,6 +274,19 @@ class MacroSpec:
     repair_feedback_provider_id: str | None = None
     notes: tuple[str, ...] = ()
 
+    @property
+    def code_owned_search_roles(self) -> frozenset[str]:
+        """Roles resolved by Context/preparation and never authored by the LLM."""
+
+        if self.execution_mode != "runtime_search" or self.search is None:
+            return frozenset()
+        searchable = frozenset(self.search.searchable_roles)
+        return frozenset(
+            item.semantic_role
+            for item in self.context_role_bindings
+            if item.semantic_role in searchable
+        )
+
     def to_payload(self, *, include_adapter: bool = True) -> dict[str, Any]:
         payload: dict[str, Any] = {
             "macro_id": self.macro_id,
@@ -316,7 +329,12 @@ class MacroSpec:
             "macro_id": self.macro_id,
             "recipe_id": self.recipe_id,
             "goal_types": list(self.goal_types),
-            "args": [_macro_prompt_arg(item) for item in self.args],
+            "args": [
+                _macro_prompt_arg(item)
+                for item in self.args
+                if (item.semantic_role or item.name)
+                not in self.code_owned_search_roles
+            ],
             "returns": [_macro_prompt_return(item) for item in self.returns],
             "notes": [_macro_prompt_text(item) for item in self.notes],
         }
@@ -677,7 +695,7 @@ def _slot_arg(slot: StateSlotPattern, index: int) -> MacroArgSpec:
 
 def _macro_prompt_arg(item: MacroArgSpec) -> dict[str, Any]:
     payload: dict[str, Any] = {
-        "name": item.semantic_role or item.name,
+        "name": _macro_arg_public_name(item),
         "domain_type": planner_input_domain_type(item.runtime_type),
         "required": item.required,
         "cardinality": item.cardinality,

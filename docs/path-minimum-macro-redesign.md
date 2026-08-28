@@ -1,23 +1,20 @@
 # 路径最值原子 Macro 设计
 
-> 2026-08-27 更新：Scope Retry vNext R0–R5 已完成。Macro 在 Annotated Plan 与
-> Scope replacement 中始终保持原子 step；文中对 `functional-goal-repair/v4` 的描述
-> 仅用于解释已退役方案。现行 Retry 合同见
-> [FunctionalPlan Scope-level Retry vNext](functional-scope-retry-vnext-design.md)。
+Macro 在 Annotated Plan 与 Scope replacement 中始终保持原子 step。现行 Retry 合同见
+[FunctionalPlan Scope Retry](functional-scope-retry-design.md)。
 
-状态：F5-F4.1、F5-F4.2、F5-F4.2R 与 F5-F4.3A 已完成。原 F4.3B
-“透明 Macro 展开为普通 FunctionalPlan 子图”的实现已回滚；当前下一阶段是
-**F5-F4.3B 原子 Macro 边界与参考实现固化**。
+状态：F5-F4.1、F5-F4.2、F5-F4.2R、F5-F4.3A 与 F5-F4.3B 已完成。当前下一阶段是
+**F5-F4.3C 和平二模正方形原子 Macro**；Macro 不得透明展开为 Planner-authored
+Function 子图。
 
-统一运行时权威链见
-[F5-F4.2 运行时权威收敛](problem-extraction-context-implementation-plan.md#f5-f4-2-runtime-authority-convergence)。
+统一运行时权威链见 [Method Solver 架构](method-solver-architecture.md) 与
+[Capability authoring guide](capability-authoring-guide.md)。
 本文只规定路径最值 Macro 的 Planner 边界、runtime 原子执行、retry 投影、family
 迁移顺序与验收门禁。
 
-## 1. 决策记录
+## 1. 固定设计决策
 
-2026-08-27 将代码直接回滚到 F4.3A 最后提交 `56500bb`。本轮重新设计作出以下
-不可逆向扩张的决策：
+以下边界不得逆向扩张：
 
 1. Macro 对 LLM 与 canonical FunctionalPlan 是一个原子 step。
 2. Macro 内部可以调用多个 Method、执行有界候选搜索并生成完整验证证据，但内部
@@ -201,16 +198,17 @@ debug evidence，不是多个独立错误。
 ### 6.2 不新增 Macro repair 协议
 
 不增加 `macro_repair_policies`、`repair_mode` 或“先修 Macro、下一轮才允许展开”的状态机。
-Macro 失败仍使用现有 owner replacement：
+Macro 失败仍使用 Scope replacement：
 
 ```text
-Goal-owned Macro  -> 完整替换该 Goal 的 steps + answer_from
-Scope-owned Macro -> 替换 repair authority 给出的 scope editable block
+Goal-owned Macro  -> 打开 Goal 的直接父 Scope
+Scope-owned Macro -> 打开 Macro 的 owner Scope
+开放 Scope        -> 完整替换 scope_steps + 全部直属 Goal body
 ```
 
 LLM 可以保留 Macro 并修公开 args、改选另一个 Macro，或改用 catalog 已有 Functions；
-但永远不能编辑 Macro 内部 invocation。Solved Goal 与 frozen producer 继续由代码保护，
-不要求 LLM 理解 Macro 内部冻结或 merge 规则。
+但永远不能编辑 Macro 内部 invocation。关闭 Scope、child Scope、checkpoint 与 restore 由
+代码保护，不要求 LLM 理解细粒度冻结或合并规则。
 
 ## 7. 证据、Explanation 与 Visual
 
@@ -235,7 +233,7 @@ payload 中，不成为 Planner public return。Explanation/Visual 从 verified 
 
 ## 8. 当前基线与遗留问题
 
-F4.3A 已具备：
+F4.3B 当前已具备：
 
 - per-call Macro preparation 与 bounded runtime search；
 - shadow branch 隔离与 clean replay；
@@ -243,6 +241,14 @@ F4.3A 已具备：
 - transaction、checkpoint v3 与 restore signature；
 - output allocation 与 companion output authority；
 - 重名点 fail-loud 与生产 input selector 退役。
+- `equal_length_ray_path_reduction` 固定只公开 path/equal-length/segment/ray 四个 Fact；
+- `anchor/reference_point/ray_point/fixed_point` 永久由代码解析，不再动态改变 catalog；
+- 结构上没有合法候选时返回 planner-repairable 根诊断，Registry/budget/未知错误仍为
+  configuration；
+- 该 Macro 只有一个 recipe/spec owner，公开 return 固定为 `minimum_expression`；
+- 真实执行门禁覆盖失败 shadow 零 ghost write、非等价歧义、clean replay drift 与
+  checkpoint restore 免重搜；
+- transaction 向 Retry 投影时保留 Macro 错误的 `retryability`。
 
 仍需处理：
 
@@ -254,13 +260,6 @@ F4.3A 已具备：
 4. 河西/西青仍要求 `weighted_axis_path_triangle_transform -> linked minimum`。
 5. 只有 `equal_length_ray_path_reduction` 是完整 `runtime_search` 参考 Macro；其他未迁
    Macro 必须保持 `direct`。
-6. contextual catalog 当前仍会在动态角色只有一个候选时删除该参数，必须改为固定的
-   public/code-owned 参数规则。
-7. debug writer 的真实逐 attempt 保存、自由符号 basis 的 planner-repairable 诊断属于
-   独立通用缺陷；回滚后仍需重新实现，但不得借机增加 Macro wire。
-8. `functional-goal-repair/v4` 自身仍有 status、editable/frozen、三类 replacement map、
-   opaque ID 与 `return_expectations` 等复杂性；它们属于独立 Retry 简化阶段，不与原子
-   Macro 迁移捆绑。
 
 ## 9. 目标 Macro
 
@@ -331,12 +330,13 @@ internal:
 
 ### F4.3B：原子边界与 golden reference
 
+状态：`COMPLETE`。
+
 - 在测试中固定“一个 Macro = 一个 canonical Plan step”；
 - 固定 Catalog/Schema/Retry 不含内部 step、blueprint、fragment、derived binding；
 - 重写动态角色投影为固定 public/code-owned contract；
-- 固化 `equal_length_ray_path_reduction` 的错误 hint、非等价歧义、ghost write、clean
-  replay 与 restore 门禁；
-- 恢复逐 attempt debug artifact 与清晰的自由符号诊断，但不修改 Macro wire；
+- 固化 `equal_length_ray_path_reduction` 的结构错误反馈、非等价歧义、ghost write、
+  clean replay 与 restore 门禁；该 Macro 不公开 role hint；
 - 只运行专项、L0 affected 与 L2 contract，不运行付费 live。
 
 ### F4.3C：和平二模正方形原子 Macro
@@ -380,7 +380,7 @@ Planner prompt semantic blueprint / expansion metadata数量 == 0
 Planner prompt internal Path types == 0（F4.3F最终）
 Macro失败公开根诊断数量 == 1
 runtime_search Macro缺失Registry实现数量 == 0
-错误hint唯一纠正成功率 == 100%
+公开role hint的Macro错误hint唯一纠正成功率 == 100%（equal-length不公开hint）
 非等价runtime ambiguity全部fail loud
 shadow candidate ghost write == 0
 winner clean replay drift == 0
@@ -392,6 +392,7 @@ configuration/unclassified error == 0
 
 ## 12. 当前下一步
 
-下一项实现是 **F4.3B 原子边界与 golden reference**。先增加静态/契约门禁并修正
-动态角色公开规则；不新增数学 Macro，不修改 LLM wire。该阶段通过后，首先迁移和平二模
-`square_relation_path_minimum`。
+下一项实现是 **F4.3C 和平二模正方形原子 Macro**：新增
+`square_relation_path_minimum`，在 runtime 内合并正方形降维、轨迹、拉直、合法域和
+达到性，并删除该 family 的公开 `PathTransformation` handoff。F4.3B 没有新增 LLM
+字段，也没有修改 Plan/Retry wire。

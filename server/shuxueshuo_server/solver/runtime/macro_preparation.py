@@ -856,6 +856,29 @@ def build_equal_length_ray_macro_role_candidates(
                 **exc.details,
             },
         ) from exc
+    if not candidates:
+        raise MacroRuntimeSearchError(
+            "functional.macro_search_no_structural_candidate",
+            (
+                "The selected path target, equal-length condition, segment "
+                "membership, and ray membership do not form a valid "
+                "equal-length ray path reduction"
+            ),
+            retryability="planner_repairable",
+            details={
+                "macro_id": "equal_length_ray_path_reduction",
+                "public_args": [
+                    "path_minimum_target",
+                    "equal_length_condition",
+                    "point_on_segment",
+                    "point_on_ray",
+                ],
+                "repair_action": (
+                    "select_four_compatible_structured_facts_or_choose_"
+                    "another_capability"
+                ),
+            },
+        )
     return tuple(
         MacroRoleAssignmentCandidate(
             candidate_id=item.candidate_id,

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import replace
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -11,17 +12,16 @@ from shuxueshuo_server.solver.contracts import (
     MethodInputBindingSpec,
     PreviousOutputIdentityDerivationSpec,
 )
+from shuxueshuo_server.solver.runtime.context import ContextBuilder
 from shuxueshuo_server.solver.runtime.equal_length_ray_path_search import (
     _prepared_runtime_arg_value,
 )
 from shuxueshuo_server.solver.family import DEFAULT_FAMILY_REGISTRY
-from shuxueshuo_server.solver.runtime.functional_plan_elaboration import (
-    FunctionalSemanticIndex,
-)
 from shuxueshuo_server.solver.runtime.handle_registry import (
     CanonicalHandleRegistry,
 )
 from shuxueshuo_server.solver.runtime.macro_preparation import (
+    MacroPreparationService,
     MacroPreparationRequest,
     _build_equal_length_ray_preparation_context,
     build_equal_length_ray_macro_role_candidates,
@@ -35,8 +35,14 @@ from shuxueshuo_server.solver.runtime.method_input_read_authority import (
     InvocationResultReadSource,
     StateVersionReadSource,
 )
+from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
+    build_functional_execution_restore_seed,
+)
+from shuxueshuo_server.solver.runtime.strategy_replay import (
+    PlannerRetryReplayService,
+)
 
-from test_functional_transaction_execution import _replay
+from test_functional_transaction_execution import _authority_fixture, _replay
 
 
 pytestmark = pytest.mark.solver_contract
@@ -250,23 +256,35 @@ def test_equal_length_preparation_preserves_ambiguous_point_name_authority() -> 
     }
 
 
-def test_equal_length_prompt_projection_does_not_swallow_ambiguous_name() -> None:
-    _context, registry, facts = _equal_length_role_authority(structured=False)
-    semantic_index = FunctionalSemanticIndex(
-        (),
-        handle_registry=registry,
-        entity_payloads=registry.entity_payloads,
-        fact_payloads=facts,
-        relation_authority_views=(),
+def test_equal_length_public_fact_mismatch_is_planner_repairable() -> None:
+    context, _registry, _facts = _equal_length_role_authority(structured=True)
+    incompatible = dict(context)
+    incompatible["target_facts"] = (
+        (
+            "fact:ii:path_target",
+            {
+                "type": "path_minimum_target",
+                "terms": [
+                    ["point:problem:O", "point:problem:B"],
+                    ["point:problem:C", "point:problem:D"],
+                ],
+            },
+        ),
     )
 
     with pytest.raises(MacroRuntimeSearchError) as error:
-        semantic_index.macro_role_ref_candidates(
-            "equal_length_ray_path_reduction"
-        )
+        build_equal_length_ray_macro_role_candidates(incompatible)
 
-    assert error.value.code == "planner.macro_point_name_ambiguous"
-    assert error.value.details["name"] == "C"
+    assert error.value.code == (
+        "functional.macro_search_no_structural_candidate"
+    )
+    assert error.value.retryability == "planner_repairable"
+    assert error.value.details["public_args"] == [
+        "path_minimum_target",
+        "equal_length_condition",
+        "point_on_segment",
+        "point_on_ray",
+    ]
 
 
 def test_structured_equal_length_roles_allow_duplicate_display_names() -> None:
@@ -281,6 +299,25 @@ def test_structured_equal_length_roles_allow_duplicate_display_names() -> None:
         "ray_point": "point:problem:D",
         "reference_point": "point:problem:B",
     }
+
+
+def test_equal_length_family_has_one_macro_spec_owner_and_one_public_return() -> None:
+    family = next(
+        item
+        for item in DEFAULT_FAMILY_REGISTRY.families
+        if item.family_id == "QuadraticEqualLengthRayPathMinimumSolver"
+    )
+    recipes = tuple(
+        item
+        for item in family.step_recipes
+        if item.recipe_id == "equal_length_ray_path_reduction"
+    )
+
+    assert len(recipes) == 1
+    assert recipes[0].execution is not None
+    assert tuple(
+        item.semantic_role for item in recipes[0].execution.output_aliases
+    ) == ("minimum_expression",)
 
 
 def test_macro_winner_is_the_only_f5c_role_authority() -> None:
@@ -338,6 +375,201 @@ def test_macro_clean_replay_uses_canonical_paths_and_exact_internal_result() -> 
     assert isinstance(p2, InvocationResultReadSource)
     assert p2.invocation_id.endswith(".equal_length_ray_point")
     assert p2.return_name == "point"
+
+
+def test_equal_length_failed_shadow_candidate_leaves_no_ghost_write(
+    monkeypatch,
+) -> None:
+    import shuxueshuo_server.solver.runtime.macro_preparation as preparation
+
+    baseline = _replay("heping", mode="context_authoritative")
+    baseline_report = baseline.transactional_execution_report
+    assert baseline_report is not None
+    original = preparation.build_equal_length_ray_macro_role_candidates
+
+    def candidates_with_invalid_shadow(context):
+        valid = original(context)[0]
+        invalid_roles = dict(valid.roles)
+        invalid_roles["ray_point"] = invalid_roles["anchor"]
+        invalid = replace(
+            valid,
+            candidate_id="000-invalid-ray",
+            roles=invalid_roles,
+        )
+        return invalid, valid
+
+    monkeypatch.setattr(
+        preparation,
+        "build_equal_length_ray_macro_role_candidates",
+        candidates_with_invalid_shadow,
+    )
+    replay = _replay("heping", mode="context_authoritative")
+    report = replay.transactional_execution_report
+    assert replay.output is not None and report is not None
+    compiled = next(
+        item
+        for item in report.compiled_calls
+        if item.call_id == "reduce_equal_length_ray_path_ii"
+    )
+
+    assert [
+        (item.candidate_id, item.passed)
+        for item in compiled.macro_search_report.evaluations
+    ][0] == ("000-invalid-ray", False)
+    assert report.runtime_version_values == baseline_report.runtime_version_values
+    assert report.runtime_result_values == baseline_report.runtime_result_values
+
+
+def test_equal_length_equivalent_shadow_candidates_choose_deterministically(
+    monkeypatch,
+) -> None:
+    import shuxueshuo_server.solver.runtime.macro_preparation as preparation
+
+    original = preparation.build_equal_length_ray_macro_role_candidates
+
+    def equivalent_candidates(context):
+        valid = original(context)[0]
+        return (
+            replace(valid, candidate_id="candidate-b"),
+            replace(valid, candidate_id="candidate-a"),
+        )
+
+    monkeypatch.setattr(
+        preparation,
+        "build_equal_length_ray_macro_role_candidates",
+        equivalent_candidates,
+    )
+    replay = _replay("heping", mode="context_authoritative")
+    report = replay.transactional_execution_report
+    assert replay.output is not None and report is not None
+    compiled = next(
+        item
+        for item in report.compiled_calls
+        if item.call_id == "reduce_equal_length_ray_path_ii"
+    )
+
+    assert all(item.passed for item in compiled.macro_search_report.evaluations)
+    assert compiled.macro_search_report.winner_candidate_id == "candidate-a"
+
+
+def test_equal_length_non_equivalent_shadow_results_fail_as_one_macro_issue(
+    monkeypatch,
+) -> None:
+    import shuxueshuo_server.solver.runtime.functional_transaction_execution as tx
+    import shuxueshuo_server.solver.runtime.macro_preparation as preparation
+
+    original_candidates = (
+        preparation.build_equal_length_ray_macro_role_candidates
+    )
+
+    def two_structurally_valid_candidates(context):
+        valid = original_candidates(context)[0]
+        return (
+            replace(valid, candidate_id="candidate-a"),
+            replace(valid, candidate_id="candidate-b"),
+        )
+
+    signatures = iter(("output-a", "output-b"))
+    monkeypatch.setattr(
+        preparation,
+        "build_equal_length_ray_macro_role_candidates",
+        two_structurally_valid_candidates,
+    )
+    monkeypatch.setattr(
+        tx,
+        "_macro_transaction_output_signature",
+        lambda *_args, **_kwargs: next(signatures),
+    )
+
+    replay = _replay("heping", mode="context_authoritative")
+    issues = replay.retry_state.issues if replay.retry_state is not None else ()
+    report = replay.transactional_execution_report
+
+    assert replay.output is None and report is not None
+    assert [(item.code, item.step_id) for item in issues] == [
+        (
+            "functional.macro_search_ambiguous",
+            "reduce_equal_length_ray_path_ii",
+        )
+    ]
+    assert not {
+        "equal_length_ray_point",
+        "distance_between_points",
+    }.intersection(item.call_id for item in report.call_states)
+
+
+def test_equal_length_clean_replay_drift_is_configuration_failure(
+    monkeypatch,
+) -> None:
+    import shuxueshuo_server.solver.runtime.functional_transaction_execution as tx
+
+    signatures = iter(("shadow-signature", "clean-signature"))
+    monkeypatch.setattr(
+        tx,
+        "_macro_transaction_output_signature",
+        lambda *_args, **_kwargs: next(signatures),
+    )
+
+    replay = _replay("heping", mode="context_authoritative")
+    issues = replay.retry_state.issues if replay.retry_state is not None else ()
+
+    assert replay.output is None
+    assert [
+        (item.code, (item.details or {}).get("retryability"))
+        for item in issues
+    ] == [
+        ("planner.macro_winner_replay_drift", "configuration")
+    ]
+
+
+def test_equal_length_verified_checkpoint_restore_does_not_search_again(
+    monkeypatch,
+) -> None:
+    first = _replay("heping", mode="context_authoritative")
+    first_report = first.transactional_execution_report
+    reconciliation = first.functional_reconciliation
+    assert first_report is not None and reconciliation is not None
+    restored_seed = build_functional_execution_restore_seed(
+        first_report,
+        reconciliation,
+    )
+    macro_call_id = "reduce_equal_length_ray_path_ii"
+    assert macro_call_id in restored_seed.call_ids
+
+    def unexpected_search(*_args, **_kwargs):
+        raise AssertionError("verified Macro restore must not rerun search")
+
+    monkeypatch.setattr(MacroPreparationService, "prepare", unexpected_search)
+    (
+        _bundle,
+        _planning_context,
+        problem,
+        inputs,
+        problem_payload,
+        registry,
+        planner_context,
+        _binding_catalog,
+    ) = _authority_fixture("heping")
+    replay = PlannerRetryReplayService(
+        functional_transaction_mode="context_authoritative",
+    ).execute_reconciled_functional_plan(
+        first,
+        raw_plan=first.functional_plan,
+        parent_context=planner_context,
+        inputs=inputs,
+        handle_registry=registry,
+        problem_payload=problem_payload,
+        runtime_context=ContextBuilder().build(problem),
+        restored_seed=restored_seed,
+    )
+    report = replay.transactional_execution_report
+
+    assert replay.output is not None and report is not None
+    assert macro_call_id in report.restored_call_ids
+    assert not any(
+        item.call_id == macro_call_id and item.event == "running"
+        for item in report.events
+    )
 
 
 def test_witness_reads_the_registry_owned_state_pin() -> None:

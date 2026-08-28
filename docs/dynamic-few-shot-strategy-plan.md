@@ -2,7 +2,9 @@
 
 ## 目标
 
-Few-shot 只教学可复用数学机制和 call dependency，不复制整题答案，也不是第二份题面事实源。唯一 wire schema 是 `functional_plan/v1`。
+Few-shot 只教学可复用数学机制和 step dependency，不复制整题答案，也不是第二份题面事实源。
+它只进入首轮 `functional-plan-content/v2` prompt；Scope Retry 直接消费 Annotated Previous
+Plan、根诊断和 capability catalog，不重复发送 few-shot。
 
 ```text
 authored FunctionalPlan fixture
@@ -29,7 +31,7 @@ Manifest 选择 2–5 个 call 的依赖闭包，并声明 capability、goal val
 - 匿名化后必须重新通过 FunctionalPlan parser 与 validator。
 - 示例不能新增 source plan 中不存在的 fact 或 dependency。
 - Prompt annotation 只说明用途、适用条件、关键思路和不适用情况。
-- Retry 沿用同一 example selection，不因失败随机更换机制。
+- 同一首轮请求的 example selection 必须可确定重放；Retry 不重新检索或注入 example。
 
 ## 选择
 

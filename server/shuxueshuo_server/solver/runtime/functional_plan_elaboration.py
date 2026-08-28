@@ -18,13 +18,6 @@ from shuxueshuo_server.solver.runtime.condition_kinds import (
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
 )
-from shuxueshuo_server.solver.runtime.macro_preparation import (
-    build_equal_length_ray_macro_role_candidates,
-    build_equal_length_ray_point_name_candidates,
-)
-from shuxueshuo_server.solver.runtime.macro_runtime_search import (
-    MacroRuntimeSearchError,
-)
 from shuxueshuo_server.solver.runtime.functional_plan_graph import (
     rewrite_call_result_aliases as _rewrite_call_result_aliases,
 )
@@ -1147,97 +1140,6 @@ class FunctionalSemanticIndex:
         self.allowed_ref_keys_by_call = dict(
             allowed_ref_keys_by_call or {}
         )
-
-    def macro_role_ref_candidates(
-        self,
-        capability_id: str,
-    ) -> Mapping[str, tuple[str, ...]] | None:
-        """Return prompt-safe role candidates proved by structured Context.
-
-        ``None`` means the capability has no dynamic role projector. An empty
-        mapping means the projector exists but the current Context cannot
-        establish a structurally legal candidate.
-        """
-
-        if capability_id != "equal_length_ray_path_reduction":
-            return None
-        fact_groups: dict[str, list[tuple[str, Mapping[str, Any]]]] = {
-            "point_on_ray": [],
-            "point_on_segment": [],
-            "equal_length_condition": [],
-            "path_minimum_target": [],
-        }
-        for handle, payload in self.fact_payloads.items():
-            fact_type = str(
-                self.handle_registry.fact_types.get(handle)
-                or payload.get("type")
-                or ""
-            )
-            if fact_type in fact_groups:
-                fact_groups[fact_type].append((handle, payload))
-        point_handles = tuple(
-            handle
-            for handle, payload in self.entity_payloads.items()
-            if str(payload.get("type", "")).lower() == "point"
-            or handle.startswith("point:")
-        )
-
-        try:
-            candidates = build_equal_length_ray_macro_role_candidates(
-                {
-                    "ray_facts": fact_groups["point_on_ray"],
-                    "segment_facts": fact_groups["point_on_segment"],
-                    "equal_facts": fact_groups["equal_length_condition"],
-                    "target_facts": fact_groups["path_minimum_target"],
-                    "entity_payloads": self.entity_payloads,
-                    "point_name_candidates": (
-                        build_equal_length_ray_point_name_candidates(
-                            point_handles=point_handles,
-                            entity_payloads=self.entity_payloads,
-                        )
-                    ),
-                    "max_candidates": 32,
-                }
-            )
-        except MacroRuntimeSearchError:
-            raise
-        except (ValueError, KeyError):
-            return {}
-        refs_by_handle: dict[str, tuple[str, ...]] = {}
-        for handle in point_handles:
-            refs_by_handle[handle] = tuple(
-                sorted(
-                    {
-                        view.ref
-                        for view in self.views
-                        if (view.object_ref or view.handle) == handle
-                        and view.kind != "answer"
-                    }
-                )
-            )
-        result: dict[str, tuple[str, ...]] = {}
-        for role in ("anchor", "reference_point", "ray_point", "fixed_point"):
-            handles = tuple(
-                sorted(
-                    {
-                        candidate.roles[role]
-                        for candidate in candidates
-                    }
-                )
-            )
-            refs = tuple(
-                sorted(
-                    {
-                        ref
-                        for handle in handles
-                        for ref in refs_by_handle.get(handle, ())
-                    }
-                )
-            )
-            if handles and not refs:
-                return {}
-            result[role] = refs
-        return result
 
     @classmethod
     def from_context(

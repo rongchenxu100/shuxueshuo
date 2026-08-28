@@ -1405,7 +1405,7 @@ EQUAL_LENGTH_RAY_PATH_REDUCTION = StepRecipeSpec(
             recipe_output_alias(
                 "distance_between_points.distance",
                 "MinimumExpression",
-                "path_minimum_expression",
+                "minimum_expression",
                 goal_evidence_tags=("path_minimum_expression",),
             ),
         ),

@@ -2,15 +2,9 @@
 
 本文档是 Solver 测试入口、分级、并行和 generated gate 维护的唯一规范。
 
-## 目标与基线
+## 目标
 
-改造前，`tests/solver`串行全量基线为：
-
-```text
-2186 passed, 12 skipped in 974.03s (16:14)
-```
-
-日常开发不再默认运行全量测试。测试按风险分为五级：
+日常开发不默认串行运行全量测试。测试按风险分为五级：
 
 | 级别 | Profile | 适用场景 | 目标耗时 |
 |---|---|---|---:|
@@ -22,15 +16,8 @@
 
 耗时目标用于发现测试结构退化，不作为不同机器之间的硬性断言。测试不能通过减少场景覆盖来满足耗时目标。
 
-首次启用4-worker门禁的实测结果：
-
-| Profile | 通过数 | 耗时 |
-|---|---:|---:|
-| `fast` | 1,902 | 1:57 |
-| `contract` | 2,206 | 2:49 |
-| `full` | 2,260 | 5:31 |
-
-同一版本的Full串行对照为`2,260 passed, 12 deselected in 17:00`，与4-worker结果一致。分片后pytest case数量会增加；Full中的底层语义场景数量与改造前保持一致。
+具体通过数和实测耗时随测试集变化，不写入规范；以当前 CI、测试报告和 batch artifact
+为准。分片后 pytest case 数量可能增加，但不能减少底层语义场景覆盖。
 
 ## 本地命令
 
@@ -69,7 +56,7 @@ uv run python tools/run_solver_tests.py fast -- -x -vv
 | 修改内容 | 开发中 | 提交或合并前 |
 |---|---|---|
 | 单个Method、纯函数、局部parser | `affected`，随后`fast` | `contract` |
-| Goal retry、checkpoint、scope、F5-C binding | `affected`，随后`contract` | `full` |
+| Scope Retry、checkpoint、scope、F5-C binding | `affected`，随后`contract` | `full` |
 | Macro preparation、transaction、state authority | `affected`，随后`contract` | `full` |
 | Prompt、schema、content assembly | `affected`，随后`contract` | `full` |
 | generated oracle、scenario generator、adapter | 对应单文件和单scenario | `full` |
@@ -111,7 +98,7 @@ live_llm         可能调用网络或付费模型
 3. 显式ownership manifest选出的测试。
 4. 固定的小型authority invariant集合。
 
-Production模块按Goal retry、Macro/runtime、Method、Family、Math Kernel、Extraction、Explanation、Visual、Binding和Plan/schema等子系统映射测试。新增Solver子系统但没有ownership规则时必须fail loud，先补映射再继续。
+Production模块按Scope Retry、Macro/runtime、Method、Family、Math Kernel、Extraction、Explanation、Visual、Binding和Plan/schema等子系统映射测试。新增Solver子系统但没有ownership规则时必须fail loud，先补映射再继续。
 
 文档和其他非Solver路径不会触发测试。修改测试support或generated fixture时会选择对应门禁。
 
@@ -129,7 +116,7 @@ Production模块按Goal retry、Macro/runtime、Method、Family、Math Kernel、
 | Gate | Quick | Full |
 |---|---:|---:|
 | C0-C3 scope-native | 512 | 不少于 10,000 |
-| Goal retry | 64 | 512 |
+| Scope Retry | 64 | 512 |
 | Runtime authority view | 256 | 4,608 |
 | Runtime authority lifecycle | 64 | 256 |
 | Symbolic closure | 256 | 2,048 |

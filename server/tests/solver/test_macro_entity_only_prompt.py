@@ -5,7 +5,6 @@ import json
 from shuxueshuo_server.solver.family import DEFAULT_FAMILY_REGISTRY
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
-    _contextualize_dynamic_macro_roles,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_elaboration import (
     FunctionalSemanticIndex,
@@ -176,6 +175,20 @@ def test_equal_length_macro_hides_roles_proved_by_four_structured_facts(
         for term in ("PathTransformation", "PathWitness", "PathCandidate")
     )
 
+    macro = MacroSpecRegistry.from_family_spec(
+        fixture[3].family_spec,
+        fixture[3].method_specs,
+    ).require("equal_length_ray_path_reduction")
+    assert macro.code_owned_search_roles == frozenset(
+        {"anchor", "reference_point", "ray_point", "fixed_point"}
+    )
+    assert [item["name"] for item in macro.to_prompt_payload()["args"]] == [
+        "path_minimum_target",
+        "equal_length_condition",
+        "point_on_segment",
+        "point_on_ray",
+    ]
+
 
 def test_scoped_prompts_do_not_name_internal_path_types() -> None:
     renderer = StrategyPromptRenderer()
@@ -195,7 +208,7 @@ def test_scoped_prompts_do_not_name_internal_path_types() -> None:
         )
 
 
-def test_equal_length_macro_exposes_only_ambiguous_roles_as_enums(
+def test_equal_length_macro_keeps_code_owned_roles_hidden_when_runtime_is_ambiguous(
     tmp_path,
 ) -> None:
     fixture = planning_binding_fixture(
@@ -207,30 +220,28 @@ def test_equal_length_macro_exposes_only_ambiguous_roles_as_enums(
         fixture[3].method_specs,
     ).items["equal_length_ray_path_reduction"]
 
-    class AmbiguousRoles:
+    class AmbiguousRuntimeContext:
+        @staticmethod
+        def has_compatible_view(**_kwargs):
+            return True
+
         @staticmethod
         def macro_role_ref_candidates(_capability_id):
-            return {
-                "anchor": ("C",),
-                "reference_point": ("B", "M"),
-                "ray_point": ("D",),
-                "fixed_point": ("O",),
-            }
+            raise AssertionError("runtime candidates must not reshape the catalog")
 
-    projected = _contextualize_dynamic_macro_roles(
-        capability,
-        semantic_catalog=AmbiguousRoles(),
-    )
-    role_args = {
-        item.name: item.allowed_refs
-        for item in projected.args
-        if item.name in {"anchor", "reference_point", "ray_point", "fixed_point"}
-    }
+    projected = FunctionalCapabilityCatalog(
+        {capability.capability_id: capability}
+    ).contextualized(AmbiguousRuntimeContext()).items[capability.capability_id]
 
-    assert role_args == {"reference_point": ("B", "M")}
-    reference_payload = next(
-        item
-        for item in projected.to_prompt_payload()["args"]
-        if item["name"] == "reference_point"
-    )
-    assert reference_payload["allowed_refs"] == ["B", "M"]
+    assert [item.name for item in projected.args] == [
+        "path_minimum_target",
+        "equal_length_condition",
+        "point_on_segment",
+        "point_on_ray",
+    ]
+    assert not {
+        "anchor",
+        "reference_point",
+        "ray_point",
+        "fixed_point",
+    }.intersection(item.name for item in projected.args)

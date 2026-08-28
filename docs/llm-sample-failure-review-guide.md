@@ -8,7 +8,7 @@
 - provider timeout、空响应和 transport retry；
 - JSON、Schema 与 Plan assembly 错误；
 - scope、Goal、binding、compiler、Method、Macro 和 runtime 错误；
-- answer、closure、provenance、checkpoint 与 Goal repair 错误；
+- answer、closure、provenance、checkpoint 与 Scope Retry 错误；
 - 同题不同 sample 的模型方差与上下文缺陷。
 
 审查目标不是复述最终错误，而是还原完整因果链：
@@ -37,7 +37,7 @@ LLM 看到了什么
 - 模型可见输出以`attempt-N.raw-response.txt`为准；
 - canonical Plan 以归一、校验后的 Plan artifact 为准；
 - 实际运行结果以 transaction 和 checkpoint 为准；
-- retry 权限以 Goal retry authority/context 为准。
+- retry 权限以 Annotated Plan 的 `retry_editable` 与内部 Scope authority 为准。
 
 文件存在但内容为`null`表示该阶段没有建立产物。例如 Plan 为`null`时，不能根据
 thinking 猜测“模型本来会输出什么”；transaction 为`null`时，不能把静态推导当成
@@ -64,7 +64,7 @@ Semantic Attempt 1
   Provider Attempt 2: finish_reason=stop，返回完整 JSON
 
 Semantic Attempt 2
-  Provider Attempt 1: Goal repair
+  Provider Attempt 1: Scope repair
 ```
 
 provider transport retry不等于新的 Plan retry。审查报告和图中必须同时标出两层编号，
@@ -100,9 +100,10 @@ provider transport retry不等于新的 Plan retry。审查报告和图中必须
 | `attempt-N.transaction.json` | 实际调用、输入、结果、write、blocked 与 root issue |
 | `attempt-N.goal-execution-checkpoint.json` | 内部 typed execution authority |
 | `attempt-N.goal-execution-checkpoint.prompt.json` | 可发送给 LLM 的执行树 |
-| `attempt-N.goal-retry-authority.json` | solved/failed/blocked Goal 与 editable scope 权威 |
-| `attempt-N.goal-retry-context.json` | retry 内部 Context；没有 canonical Plan 时可为`null` |
-| `attempt-N.repair.json` | repair wire 与应用结果 |
+| `attempt-N.annotated-previous-plan.json` | 与 canonical Plan 同构的三态执行结果和 `retry_editable` |
+| `attempt-N.scope-retry-authority.json` | 本轮 base Plan/checkpoint 与开放 Scope 的内部权威 |
+| `attempt-N.scope-retry-result-authority.json` | candidate Plan 失败后下一轮的 Scope 权威 |
+| `attempt-N.repair.json` | `functional-scope-repair/v1` response 与解析结果 |
 | `effective-execution-plan.json` | 最终实际执行 Plan |
 
 不同失败阶段不会生成所有文件。缺失或`null`本身就是证据，应写入报告。
@@ -116,7 +117,7 @@ provider transport retry不等于新的 Plan retry。审查报告和图中必须
 | Semantic attempt | 协议 | Provider attempts | thinking | visible output | 结束阶段 |
 |---|---|---:|---|---|---|
 | 1 | Pass 1 | 2 | low | 第2次有 | answer binding |
-| 2 | Goal repair | 1 | low | 有 | runtime |
+| 2 | Scope repair | 1 | low | 有 | runtime |
 
 每个 provider attempt至少记录：
 
@@ -357,10 +358,11 @@ flowchart LR
 
 对比上一轮与下一轮的实际prompt，确认：
 
-- Previous Plan是否只出现一次；
-- solved Goal是否只读但仍携带每步实际结果；
-- failed Goal是否可完整替换steps和answer binding；
-- blocked Goal是否因依赖等待，而非被错误标成editable；
+- Annotated Previous Plan 是否与 canonical Plan 同构且只出现一次；
+- 每个 Goal/Step 是否就地携带三态 status 和完整实际 runtime outputs；
+- `retry_editable=true` 是否只标在根因要求开放的 Scope；
+- replacement 是否完整返回开放 Scope 的 `scope_steps`、全部直属 Goal steps 和 `answer_from`；
+- blocked Goal 是否只表达依赖等待，而没有被当成独立根因扩大 Scope；
 - root issue是否保留对象、role、expected/observed和候选详情；
 - scope/Goal结构是否与Problem View对齐；
 - 下一轮是否收到上一轮canonical Plan，而不是空Plan或过期Plan；
@@ -379,7 +381,7 @@ flowchart LR
   A1P1["Semantic 1 / Provider 1\nPass 1\nfinish=length\nno visible JSON"]
   A1P2["Semantic 1 / Provider 2\nPass 1\nfinish=stop\nPlan parsed"]
   V1["Validation\n[FAIL] answer producer unresolved"]
-  A2["Semantic 2\nGoal repair"]
+  A2["Semantic 2\nScope repair"]
   R2["Runtime\n[OK] all Goals verified"]
 
   A1P1 -->|"transport retry; no validator feedback"| A1P2

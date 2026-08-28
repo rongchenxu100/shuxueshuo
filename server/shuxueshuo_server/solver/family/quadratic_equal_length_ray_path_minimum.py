@@ -16,18 +16,12 @@ from shuxueshuo_server.solver.family.models import (
     FamilySourceRequirementSpec,
     GoalEvidencePolicySpec,
     MethodBindingRuleSpec,
-    MacroSearchSpec,
-    RecipeExecutionSpec,
-    recipe_output_alias,
     SolverFamilySpec,
     StateSlotPattern,
-    StepRecipeSpec,
     expand_family_spec,
 )
 from shuxueshuo_server.solver.family.capability_packs import (
     DEFAULT_CAPABILITY_PACK_REGISTRY,
-    EQUAL_LENGTH_RAY_PATH_REDUCTION_DESCRIPTION,
-    EQUAL_LENGTH_RAY_PATH_REDUCTION_DO_NOT_USE_WHEN,
 )
 from shuxueshuo_server.solver.family.common_binding_rules import (
     canonical_x_binding,
@@ -165,58 +159,6 @@ _QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         "equal_length_ray_point",
         "distance_between_points",
         "parameter_from_expression_value",
-    ),
-    step_recipes=(
-        StepRecipeSpec(
-            recipe_id="equal_length_ray_path_reduction",
-            goal_type="derive_path_minimum_expression",
-            title="等长射线路径降维为单距离最值",
-            description=EQUAL_LENGTH_RAY_PATH_REDUCTION_DESCRIPTION,
-            method_ids=("equal_length_ray_point", "distance_between_points"),
-            execution=RecipeExecutionSpec(
-                recipe_id="equal_length_ray_path_reduction",
-                method_sequence=("equal_length_ray_point", "distance_between_points"),
-                execution_mode="runtime_search",
-                search=MacroSearchSpec(
-                    searchable_roles=(
-                        "anchor",
-                        "reference_point",
-                        "ray_point",
-                        "fixed_point",
-                    ),
-                    candidate_builder_id="equal_length_ray_role_assignments",
-                    validation_policy_id="distance_equivalence_and_provenance",
-                    lowerer_id="equal_length_ray_path_reduction",
-                    postcondition_id="equal_length_ray_path_postcondition",
-                    evidence_builder_id="equal_length_ray_path_witness",
-                ),
-                execution_strategy="equal_length_ray_path_reduction",
-                creates=("point",),
-                strategy_input_targets=(
-                    "equal_length_ray_point.anchor",
-                    "equal_length_ray_point.reference_point",
-                    "equal_length_ray_point.ray_point",
-                    "equal_length_ray_point.target",
-                    "distance_between_points.p1",
-                ),
-                intermediate_wiring=(
-                    (
-                        "equal_length_ray_point.point",
-                        "distance_between_points.p2",
-                    ),
-                ),
-                output_aliases=(
-                    recipe_output_alias(
-                        "distance_between_points.distance",
-                        "MinimumExpression",
-                        "minimum_expression",
-                        goal_evidence_tags=("path_minimum_expression",),
-                    ),
-                ),
-            ),
-            priority="preferred",
-            do_not_use_when=EQUAL_LENGTH_RAY_PATH_REDUCTION_DO_NOT_USE_WHEN,
-        ),
     ),
     method_binding_rules=(
         MethodBindingRuleSpec(

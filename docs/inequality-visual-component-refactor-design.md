@@ -67,7 +67,8 @@ graph LR
 
 ### 2.2 LLM 不直接调用前端组件
 
-LLM 的稳定输出仍是 `functional_plan/v1`。LLM 可以决定：
+LLM 首轮稳定输出是 `functional-plan-content/v2`，代码组装为 canonical
+`functional_plan/v2`。LLM 可以决定：
 
 - 使用哪个 method 或 recipe；
 - method 的 canonical inputs；
@@ -772,15 +773,15 @@ LLM Planner 不看到：
 
 ### 10.2 FunctionalPlan 不新增前端字段
 
-`functional_plan/v1` 的 call 仍只描述数学执行：
+`functional-plan-content/v2` 的 step 仍只描述数学执行：
 
 ```json
 {
-  "call_id": "c3",
+  "step_id": "c3",
   "capability_id": "solve_rational_inequality_by_sign",
   "args": {
-    "expression": "@goal.expression",
-    "domain": "@problem.domain"
+    "expression": "goal_expression",
+    "domain": "problem_domain"
   }
 }
 ```

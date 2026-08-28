@@ -91,7 +91,7 @@ LLM 只选择能力和公开语义参数。身份、版本、scope、binding、c
 
 ### 生成式测试
 
-旧C0.5 oracle系统覆盖：
+C0–C5 oracle覆盖：
 
 - scope topology；
 - create/reuse/transition；
@@ -101,7 +101,13 @@ LLM 只选择能力和公开语义参数。身份、版本、scope、binding、c
 - committed/provisional retry；
 - role/binding 与 closure checkpoint。
 
-旧adapter只经过扁平FunctionalPlan及B1-B5/C0局部服务，不能继续作为scope-native覆盖证据。它由`scope-native-c0-c5/v1`与`scope-native-goal-retry/v1`直接替代：Problem/Plan/Retry三棵scope树逐项对齐，生产adapter真实经过Bundle、PlanningContext、F5-C binding、content/v2、Goal execution checkpoint与repair/v4。门禁同时覆盖唯一前序producer、显式CallResult、多个producer歧义、sibling producer拒绝、scope-local answer规范化，以及scope-level/单Goal replacement；前缀成功后第`k`个step失败、dependent suffix阻断、独立Goal继续并整体冻结、ancestor-scope producer影响多个Goal、失败Goal完整替换不修改solved Goal和provisional write零提交也属于硬门禁。Reference model保持独立，不导入生产placement、binding、retry或closure helper。
+Scope-native authority gate 与 Scope Retry gate 使用独立 reference model 和 production
+adapter。Production adapter 真实经过 Bundle、PlanningContext、F5-C binding、content/v2、
+Goal execution checkpoint、Annotated Plan、Scope-only authority、完整 replacement、restore
+与 transaction。门禁覆盖唯一前序 producer、显式 CallResult、多个 producer 歧义、
+sibling 拒绝、Scope 一成一败、ancestor producer、开放 Scope restore leak、no-progress 和
+provisional write 零提交。Reference model 不导入生产 placement、binding、retry 或
+closure helper。
 
 F5-F1.1进一步把LLM可见Function facade与Method runtime contract分离：prompt只出现稳定语义名，例如`parabola`和`adjacent_vertex`，compiler再映射到`quadratic`和`point`。确定性修复只能处理显式alias，或唯一未知输入与唯一缺失required参数之间可证明的一对一类型映射；optional参数、多个同类型参数和多对象候选不得参与猜测。输出对象也只能由显式target、Goal answer，或capability声明的source-fact selector唯一确定；selector必须同时通过scope可见性、F5-C对象authority和runtime type检查，零候选或多候选不得按名称兜底。pure scope step的提升同样必须由consumer Goal依赖、LCA可见性、对象authority和exact state共同证明。authority诊断应聚合相互独立的参数、输出身份、scope与DAG root issues，但任何issue存在时都不能产生部分lowered authority。
 
@@ -130,7 +136,7 @@ C5 symbolic closure门禁仍然有效，它验证的是参数闭合、分支数�
 - token 与延迟成本。
 
 `scoped_functional_plan_smoke`是严格生产authority smoke：每个样本都从accepted Bundle
-构建`ProblemPlanningBindingCatalog`，并把同一catalog传给payload builder与Goal retry
+构建`ProblemPlanningBindingCatalog`，并把同一catalog传给payload builder与Scope Retry
 execution。直接调用底层reconciler且省略catalog的测试属于deterministic/debug软模式，
 允许typed source暂缺，不能用于宣称F5-C、exact StateVersion或restore authority通过。
 smoke报告中的`reconciliation_ok`也不单独代表可执行；最终仍必须通过compile后的
@@ -163,15 +169,16 @@ semantic attempt都必须按scope/Goal画出Plan依赖，标注实际runtime结�
 
 ## 8. Retry 设计
 
-- freeze的权威单位是完成全部answer/runtime/closure/provenance gate的Goal，以及独立验证通过的scope-level execution block；
-- retry始终发送上一版完整canonical `functional_plan/v2`，包含全部scope、`scope.steps`和Goal steps；执行树通过`step_id`关联，不重复复制计划定义；
-- solved Goal在retry执行树中携带逐step实际输入、输出、状态、错误和`published_results`，但标记`editable=false`；
-- failed Goal的逐step实际输入、输出、状态、typed error及blocked suffix全部进入反馈；该Goal内部没有call级冻结，模型可以完整重写全部steps；
-- blocked dependents不生成次生root issue，独立sibling Goal继续执行；
-- scope-level步骤块失败时按typed dependency确定consumer Goal repair group，不因共享根Entity扩大范围；
-- runtime actual value/form/free symbols优先于静态预测；compile失败不得伪造输出，closure feedback说明target、status、branch count、剩余自由元和来源；
-- retry payload按Problem的scope/Goal树组织，不再暴露平面的repair/validated/locked call列表；
-- prompt不暴露typed ids、runtime path或expected answer，跨Goal绑定只允许使用`published_results`。
+- 输入是与 canonical Plan 同构的 `functional-annotated-plan/v1`；每个 Goal/Step 就地携带三态 status、实际 runtime outputs 和根诊断；
+- 权限只在 Scope 上表达为 `retry_editable=true/false`，不向 LLM 暴露 Goal/Step 权限；
+- 同一 Scope 只要存在直接失败，该 Scope 的 `scope_steps` 和全部直属 Goal body 一起开放并重算；
+- blocked dependents 不生成次生 root issue，独立 sibling Scope 保持关闭；
+- runtime actual value、form 和 free symbols 优先于静态预测；validation 失败不得伪造输出；
+- LLM 对每个开放 Scope 返回完整 `scope_steps + direct Goals + answer_from`；代码整块替换并原子应用；
+- 跨 Goal 只允许读取 producer Goal 当前 `answer_from` 指向的公开 StepResultRef；
+- prompt 不暴露 typed IDs、runtime path、checkpoint、authority ID 或 expected answer。
+
+完整合同见 [FunctionalPlan Scope Retry](functional-scope-retry-design.md)。
 
 ## 9. Prompt 成本策略
 
@@ -200,7 +207,7 @@ Track E 在 F/G 完成后进行。它可以：
 ## 11. 发布门禁
 
 - 全量 solver tests 通过；
-- scope-native C0-C5与Goal retry generated gate零mismatch；
+- scope-native C0-C5与Scope Retry generated gate零mismatch；
 - 五题真实 smoke 达到当前 acceptance；
 - configuration/unclassified error 为零；
 -所有 authority drift 为零；

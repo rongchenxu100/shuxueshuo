@@ -6367,7 +6367,14 @@ class FunctionalTransactionalInterpreter:
                         dict(diagnostic.authority_details)
                         if diagnostic is not None
                         else (
-                            dict(getattr(exc, "details", {}) or {})
+                            {
+                                **dict(getattr(exc, "details", {}) or {}),
+                                **(
+                                    {"retryability": exc.retryability}
+                                    if isinstance(exc, MacroRuntimeSearchError)
+                                    else {}
+                                ),
+                            }
                             if getattr(exc, "details", None) is not None
                             else None
                         )

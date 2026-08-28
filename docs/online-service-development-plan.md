@@ -142,12 +142,12 @@ API 至少覆盖 source、problem、lesson、scene、timeline、tutor session �
 
 当前顺序：
 
-1. Track F：ExtractionContext 与 ProblemIR source/evidence。
-2. Track G：统一 Context orchestration 和 artifact dependency。
+1. F5-F4.3：完成原子路径 Macro 与旧 Path 能力清理。
+2. F5-F5 / Track G：统一 teaching scope、Context orchestration 和 artifact dependency。
 3. 完成图片到网页与动画的完整冷路径门禁。
-4. Track E：最终artifact cache、并发去重、分层复用和条件式Best-of-N。
+4. Track E：最终 artifact cache、并发去重、分层复用和条件式 Best-of-N。
 5. 完成作者生成/修改闭环。
-6. 完成学生TutorContext与临时交互。
+6. 完成学生 TutorContext 与临时交互。
 
 ## 12. 验收
 
