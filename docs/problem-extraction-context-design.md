@@ -208,5 +208,5 @@ Track F0–F4 不再新增迁移阶段。F5-F4.3B 已固化 LLM-facing 原子 Ma
 `quadratic_square_path_minimum`；F5-F4.3D 已将南开迁移为
 `coupled_segment_endpoint_replacement_path_minimum`；F5-F4.3E 已将河西/西青迁移为
 `weighted_axis_path_minimum`，并在共享 synthetic few-shot 下各通过最终 live `1x3`。
-下一项工程工作是 F5-F4.3F 旧公开 Path 能力清理与全量验收；完成后再进入 F5-F5
-teaching scope 与 Track G。
+F5-F4.3F 已删除旧公开 Path 能力、内部类型投影和兼容链，并加入 compiler 原子门禁。
+下一项工程工作是 F5-F5 teaching scope，随后进入 Track G。

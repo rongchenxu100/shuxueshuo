@@ -86,7 +86,7 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         "若路径 Macro 需要的固定端点由中点等题面构造定义，先在该构造所属 Scope 用普通 Function 物化端点坐标；不要在各子问重复构造。",
         "若目标路径中的两动点通过一条题设线段关系耦合，直接调用耦合线段端点替换路径最值 Macro；只选择路径目标和负责耦合的线段关系。",
         "若多个子问消费同一含参最小值表达式或取等状态，把该 Macro 放在它们最近公共父 Scope，只调用一次；子问通过 StepResultRef 求值。",
-        "端点替换、保留动点、轨迹、内部反射和取等恢复均由 Macro 验证；Planner 不拆写 PathTransformation、反射辅助点或拉直端点。",
+        "端点替换、保留动点、内部反射和取等恢复均由 Macro 验证；Planner 只调用原子能力，不拆写其内部几何构造。",
         "Macro 同时返回最小值表达式与原题动点的取等状态；后续求具体坐标时用 StepResultRef 消费 attainment_point。",
     ),
     base_packs=(

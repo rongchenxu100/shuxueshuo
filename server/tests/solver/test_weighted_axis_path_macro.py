@@ -5,6 +5,7 @@ from dataclasses import replace
 import json
 
 import pytest
+import sympy as sp
 
 from _problem_planning_support import cached_planning_binding_fixture
 from _scoped_functional_plan_support import load_v2_fixture_payload
@@ -12,6 +13,13 @@ from test_functional_goal_execution import _checkpoint_steps, _execute
 
 from shuxueshuo_server.solver.runtime.functional_execution_authority import (
     PathMinimumWitness,
+)
+from shuxueshuo_server.solver.math_kernel import SympyKernel
+from shuxueshuo_server.solver.runtime.functional_diagnostics import (
+    StatelessMethodError,
+)
+from shuxueshuo_server.solver.runtime.methods import (
+    weighted_axis_path_minimum as weighted_axis_path_minimum_module,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
@@ -164,6 +172,10 @@ def test_weighted_macro_executes_as_one_public_kernel(
     )
     assert len(call_result.step_results) == 1
     assert call_result.step_results[0].methods_used == [KERNEL_ID]
+    assert [
+        item.method_id
+        for item in call_result.step_results[0].trace_fragments
+    ] == [KERNEL_ID]
 
     public_projection = json.dumps(
         {
@@ -231,3 +243,75 @@ def test_missing_curve_endpoint_state_is_one_macro_diagnostic(tmp_path) -> None:
         {"ref": "M", "role": "curve_point"}
     ]
     assert failed.typed_issue["expected"]["required_scope_ref"] == "iii"
+
+
+def test_weighted_domain_proof_has_true_false_and_unknown_outcomes(
+    monkeypatch,
+) -> None:
+    parameter = sp.Symbol("b", real=True)
+    parameter_constraint = {"operator": ">", "value": sp.Integer(0)}
+
+    satisfiable = weighted_axis_path_minimum_module._conditions_have_solution(
+        (sp.StrictGreaterThan(parameter, 1),),
+        parameter=parameter,
+        parameter_constraint=parameter_constraint,
+    )
+    impossible = weighted_axis_path_minimum_module._conditions_have_solution(
+        (sp.StrictLessThan(parameter, 0),),
+        parameter=parameter,
+        parameter_constraint=parameter_constraint,
+    )
+    assert satisfiable.verdict.value == "proved_true"
+    assert impossible.verdict.value == "proved_false"
+
+    def unsupported(*_args, **_kwargs):
+        raise NotImplementedError("synthetic unsupported inequality")
+
+    monkeypatch.setattr(
+        weighted_axis_path_minimum_module.sp,
+        "reduce_inequalities",
+        unsupported,
+    )
+    unknown = weighted_axis_path_minimum_module._conditions_have_solution(
+        (sp.StrictGreaterThan(parameter, 1),),
+        parameter=parameter,
+        parameter_constraint=parameter_constraint,
+    )
+    assert unknown.verdict.value == "unknown"
+    assert unknown.error == (
+        "NotImplementedError: synthetic unsupported inequality"
+    )
+
+
+def test_weighted_symbolic_proof_unknown_fails_loud(monkeypatch) -> None:
+    parameter = sp.Symbol("b", real=True)
+    dynamic_parameter = sp.Symbol("n", real=True)
+
+    def unsupported(*_args, **_kwargs):
+        raise NotImplementedError("synthetic unsupported inequality")
+
+    monkeypatch.setattr(
+        weighted_axis_path_minimum_module.sp,
+        "reduce_inequalities",
+        unsupported,
+    )
+    with pytest.raises(StatelessMethodError) as error:
+        weighted_axis_path_minimum_module._minimum_with_dynamic_domain(
+            interior_minimum=parameter + 1,
+            dynamic_expression=parameter / 2 - sp.Rational(1, 4),
+            curve_point=(parameter, sp.Integer(1)),
+            fixed_point=(sp.Integer(0), sp.Integer(0)),
+            moving_point=(dynamic_parameter, sp.Integer(0)),
+            dynamic_parameter=dynamic_parameter,
+            target_constraint={"operator": ">", "value": sp.Integer(0)},
+            parameter=parameter,
+            parameter_constraint={"operator": ">", "value": sp.Integer(0)},
+            weight=sp.sqrt(2),
+            kernel=SympyKernel(),
+        )
+
+    assert error.value.authority.code == (
+        "functional.weighted_path_symbolic_proof_inconclusive"
+    )
+    assert error.value.authority.retryability == "configuration"
+    assert error.value.authority.observed["operation"] == "domain_implication"

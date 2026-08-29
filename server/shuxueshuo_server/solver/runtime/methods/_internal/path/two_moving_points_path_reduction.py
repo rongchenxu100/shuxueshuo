@@ -1,16 +1,15 @@
-"""two_moving_points_path_reduction 无状态 method。
+"""Private two-moving-point reduction for the atomic coupled kernel.
 
-本文件同时保存该 method 的实现与 SPEC；生成的 MethodSpec JSON 只是
-从这里派生出的资产，不作为事实源。
+No ``SPEC`` is defined here; this implementation cannot be registered as a
+Planner-facing Method without crossing the tested internal boundary.
 """
 
 from __future__ import annotations
 
 from typing import Any, Mapping
 
-from ._common import *
-from ._common import _canonical_reference_name, _canonical_segment_name
-from ._spec import MethodSpecSource, declare_input_views
+from ..._common import *
+from ..._common import _canonical_reference_name, _canonical_segment_name
 
 
 class TwoMovingPointsPathReductionMethod:
@@ -144,71 +143,6 @@ class TwoMovingPointsPathReductionMethod:
                 )
             ],
         )
-
-
-SPEC = MethodSpecSource(
-    method_cls=TwoMovingPointsPathReductionMethod,
-    title='两动点路径降维：已有固定点替换',
-    summary='输入: 两动点所在关系与线段比例关系；输出: 把两动点线段替换为题面已有固定点到动点的等长线段；不创建辅助点或新轨迹。',
-    solves=('reduce_two_moving_point_path',),
-    inputs={
-    "original_path": {
-        "type": "Condition",
-        "required": True,
-        "description": "原路径条件，例如 {\"path\": \"EG+FG\"}。"
-    },
-    "first_moving_membership": {
-        "type": "Condition",
-        "required": True,
-        "description": "第一个动点所在边，例如 E 在线段 DM 上。"
-    },
-    "second_moving_membership": {
-        "type": "Condition",
-        "required": True,
-        "description": "第二个动点所在边，例如 G 在线段 MN 上。"
-    },
-    "binding_relation": {
-        "type": "Condition",
-        "required": True,
-        "description": "两个动点的线段绑定关系，例如 DE=sqrt(2)*NG。"
-    },
-    "first_segment_start": {
-        "type": "Point",
-        "required": True,
-        "description": "第一条动点边上绑定线段的固定端点，例如 D。"
-    },
-    "joint_point": {
-        "type": "Point",
-        "required": True,
-        "description": "两条动点边的公共端点，例如 M。"
-    },
-    "second_segment_end": {
-        "type": "Point",
-        "required": True,
-        "description": "第二条动点边上绑定线段的固定端点，例如 N。"
-    }
-},
-    input_views=declare_input_views(
-        latest_state=("first_segment_start", "joint_point", "second_segment_end"),
-        immutable_value=(
-            "original_path",
-            "first_moving_membership",
-            "second_moving_membership",
-            "binding_relation",
-        ),
-    ),
-    outputs={
-    "path_transformation": "PathTransformation"
-},
-    preconditions=(
-        '两个动点分别位于两条有公共端点的线段上',
-        'binding_relation 将第一个动点到已有固定端点的距离与第二个动点到固定端点的距离绑定',
-        'original_path 包含需要替换的两动点线段',
-        '本 method 不创建辅助点；若需要新辅助点或新轨迹，应使用加权路径/辅助构造类 method',
-    ),
-    postconditions=('原路径中的两动点线段被替换为题面已有固定点到第二动点的等长线段',),
-    trace_template=(),
-)
 
 
 def _binding_relation_terms(
@@ -390,3 +324,6 @@ def _canonical_path_terms(value: Any) -> tuple[tuple[str, str], ...]:
 
 def _canonical_point_ref(value: Any) -> str | None:
     return value if isinstance(value, str) and value.startswith("point:") else None
+
+
+__all__ = ["TwoMovingPointsPathReductionMethod"]

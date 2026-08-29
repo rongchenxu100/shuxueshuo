@@ -3,10 +3,10 @@
 Macro 在 Annotated Plan 与 Scope replacement 中始终保持原子 step。现行 Retry 合同见
 [FunctionalPlan Scope Retry](functional-scope-retry-design.md)。
 
-状态：F5-F4.1、F5-F4.2、F5-F4.2R、F5-F4.3A、F5-F4.3B 以及
-**F5-F4.3C–E** 已完成：代码、离线门禁和对应定向 live `1x3` 发布验收全部
-通过。当前下一阶段是 **F5-F4.3F 旧能力清理与全量验收**；Macro 不得透明展开为
-Planner-authored Function 子图。
+状态：**F5-F4.1–F5-F4.3F 已完成**。路径最值只向 Planner 暴露四个原子 Macro；旧的
+降维、轨迹、拉直、candidate 和 `PathTransformation` 能力只保留为 kernel 私有数学
+实现，不再注册为 Method/Recipe、进入 catalog/Schema/fixture/few-shot，或投影到
+Plan/Retry。Macro 不得透明展开为 Planner-authored Function 子图。
 
 统一运行时权威链见 [Method Solver 架构](method-solver-architecture.md) 与
 [Capability authoring guide](capability-authoring-guide.md)。
@@ -264,10 +264,13 @@ F4.3C 当前已具备：
   达到性验证，并原子发布两个 public returns 与 verified witness；
 - Family catalog、recorded fixture、scope-native fixture 与 few-shot 已迁移到相同公开契约。
 
-仍需处理：旧 MethodSpec、兼容 capability pack、deterministic planner、Explanation/
-Visual fallback 中还保留部分 `PathTransformation`、内部辅助端点和旧 recipe 名称。
-这些对象已经不进入当前五个 family 的 Planner catalog、dynamic schema、recorded Plan
-或 Scope Retry wire；F4.3F 将物理删除兼容链并运行全量门禁。
+F4.3F 已物理删除旧 MethodSpec、兼容 capability pack、公开 recipe/compiler dispatch、
+Explanation/Visual fallback 和孤儿注册；deterministic planner、recorded/scope-native
+fixture、compile manifest 与 mechanism few-shot 均只使用原子 Macro。仍被三个 kernel
+复用的数学实现已迁入 `runtime/methods/_internal/path/`，模块不再声明 `SPEC`，静态门禁
+只允许三个 `*_path_minimum.py` kernel 导入它们，并要求每个内部 `method_id` 都存在原子
+Macro tombstone。内部 trace 被 kernel 自有 trace 封装；任何私有 Path runtime type、
+synthetic `#*-reflection` path 或 witness 若越过公开 output/retry projection 都会 fail loud。
 
 ## 9. 目标 Macro
 
@@ -521,10 +524,37 @@ flowchart LR
 
 ### F4.3F：Planner 协议与旧能力清理
 
-- 从 prompt、catalog、dynamic schema、repair、fixture 与 few-shot 物理删除内部 Path 类型；
-- 删除旧公开 recipe/Method、compiler dispatch、Explanation/Visual fallback 和孤儿注册；
-- 重写 compile manifest；
-- 运行 L3 full 与 Planner-only `5x3 --concurrency 15`。
+- 状态：`COMPLETE`；
+- prompt、catalog、dynamic schema、repair、fixture、compile manifest 与 few-shot 中的内部
+  Path 类型和旧 capability 已归零；
+- 旧 MethodSpec/Registry、recipe/compiler dispatch、Family pack/resolver、Explanation/
+  Visual fallback 和孤儿注册已删除，visual marker 改为原子 Macro 语义命名；
+- 旧数学 helper 物理迁入 `methods/_internal/path/` 并移除 `SPEC`；registry invariant 保证
+  root method 的每个 `SPEC` 都已注册，private helper 的每个 `method_id` 都已登记 tombstone，
+  import-lint 只允许三个原子 path kernel 依赖该目录；
+- `functional.macro_inline_expansion_forbidden` 在 content compiler 与 elaborator 两层
+  fail loud，不能通过绕开 prompt 来拼装旧子图；
+- `PathTransformation`、candidate、synthetic auxiliary `PointRef` 和私有 witness 只允许
+  存在于 kernel 内部组合边界；公开 runtime/retry projection 对私有 runtime type 与
+  `#coupled-segment-reflection`、`#quadratic-square-reflection`、`#weighted-axis-triangle`
+  字符串标记做递归审计，命中后直接报
+  `functional.retry_runtime_output_projection_invalid`；
+- 加权 kernel 的符号证明使用 `true/false/unknown` 三态；SymPy 无法证明时返回
+  `functional.weighted_path_symbolic_proof_inconclusive`，不再静默当作 `false`。新增
+  weight/profile/domain 必须补 kernel 代码与三态边界测试，不属于 Planner retry 或 prompt
+  调优范围；
+- Scope Retry 在 failed-step 与 root diagnostic 两条路径都读取代码给出的
+  `expected.required_scope_ref`，再决定最小开放 Scope；
+- deterministic planner 与三个 kernel 的公开 trace 都已收敛为一个原子 invocation。
+- 最终 Planner-only batch `f5-f43f-atomic-path-release-5x3-20260829` 在共享 synthetic
+  `quadratic_constraints_vertex` few-shot 下为 `15/15` completion、`15/15` transaction、
+  `160/160` authority-valid step；21 个 semantic attempt 中 6 个 Scope Retry wire 全部合法，
+  restore `34` 个调用且重执行为 `0`；configuration error、unclassified error、ghost write、
+  authority drift 与 prompt identity leak 均为 `0`。
+- 该 batch 的 prompt/raw response/Annotated Plan 中旧 Path 类型和 capability 名称命中为
+  `0`；五题 few-shot payload SHA-256 均为
+  `d1fdcd478eb6edd5029369cfe185420f29345a1f35738f0860cb99167207f0bb`。6 次 Retry 均来自
+  普通题目建模或 Scope 引用修复，不是 Macro 内联、私有 Path 投影或 kernel 失败。
 
 每个 family 独立提交、独立离线门禁、独立定向 live。禁止先建设一个会进入 Planner wire
 的“通用路径子图内核”。
@@ -552,7 +582,6 @@ configuration/unclassified error == 0
 
 ## 12. 当前下一步
 
-下一项是 **F4.3F 旧能力清理与全量验收**：物理删除已经不可达的公开
-PathTransformation capability、旧 recipe/compiler dispatch、Explanation/Visual
-fallback 和孤儿注册，再运行 Solver full gate 与 Planner-only `5x3`。F4.3E 没有新增
-Plan/Retry wire 字段；河西与西青现在都只向 LLM 暴露一个加权路径原子 Macro。
+路径 Macro 重构在 F4.3F 收口，下一阶段进入 **F5-F5 Teaching scope**：教学链只消费
+verified execution 与 kernel evidence，把内部证明投影成讲解/图形步骤，但绝不反向生成
+Planner-authored Macro 子步骤。F4.3F 没有新增 Plan/Retry wire 字段。

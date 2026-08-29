@@ -25,13 +25,11 @@ METHODS_USED = [
     "parameter_from_segment_length",
     "quadratic_from_constraints",
     "midpoint_point",
-    "two_moving_points_path_reduction",
-    "broken_path_straightening_candidates",
-    "select_straightening_candidate",
-    "distance_between_points",
+    "coupled_segment_endpoint_replacement_path_minimum_kernel",
+    "evaluate_expression_at_parameter",
     "parameter_from_minimum_value",
     "quadratic_from_constraints",
-    "line_intersection_point",
+    "evaluate_point_at_parameter",
 ]
 HEXI_METHODS_USED = [
     "quadratic_from_constraints",
@@ -43,8 +41,8 @@ HEXI_METHODS_USED = [
     "parameter_from_curve_point_on_quadratic",
     "quadratic_from_constraints",
     "point_on_parabola_at_x",
-    "weighted_axis_path_triangle_transform",
-    "linked_broken_path_geometric_minimum",
+    "weighted_axis_path_minimum_kernel",
+    "parameter_from_expression_value",
 ]
 
 
@@ -62,7 +60,9 @@ def test_runtime_orchestrator_solves_nankai_25_with_v15_runtime() -> None:
     assert result.methods_used == METHODS_USED
     assert all(check.ok for check in result.checks)
     assert result.trace is not None
-    assert len(result.trace.steps) == len(METHODS_USED)
+    assert {step.method_id for step in result.trace.steps}.issuperset(
+        result.methods_used
+    )
     q1_parameter_index = result.methods_used.index("parameter_from_segment_length")
     quadratic_indexes = [
         index
@@ -72,7 +72,11 @@ def test_runtime_orchestrator_solves_nankai_25_with_v15_runtime() -> None:
     q1_parabola_index = quadratic_indexes[1]
     assert q1_parameter_index < q1_parabola_index
     assert result.methods_used.index("midpoint_point") > q1_parabola_index
-    assert "two_moving_points_path_reduction" in result.methods_used
+    assert (
+        "coupled_segment_endpoint_replacement_path_minimum_kernel"
+        in result.methods_used
+    )
+    assert "two_moving_points_path_reduction" not in result.methods_used
     assert "square_opposite_point" not in result.methods_used
 
     axis_point = next(key for key in expected["i"] if key != "parabola")
@@ -102,7 +106,9 @@ def test_runtime_orchestrator_solves_hexi_25_with_weighted_runtime() -> None:
     assert result.methods_used == HEXI_METHODS_USED
     assert all(check.ok for check in result.checks)
     assert result.trace is not None
-    assert len(result.trace.steps) == len(HEXI_METHODS_USED)
+    assert {step.method_id for step in result.trace.steps}.issuperset(
+        result.methods_used
+    )
 
     assert result.answers == expected
     assert result.answers["i"]["P"] == expected["i"]["P"]
@@ -111,8 +117,9 @@ def test_runtime_orchestrator_solves_hexi_25_with_weighted_runtime() -> None:
     assert "parabola" not in result.answers["i"]
     assert "b" not in result.answers["ii"]
     assert "N" not in result.answers["iii"]
-    assert "weighted_axis_path_triangle_transform" in result.methods_used
-    assert "linked_broken_path_geometric_minimum" in result.methods_used
+    assert "weighted_axis_path_minimum_kernel" in result.methods_used
+    assert "weighted_axis_path_triangle_transform" not in result.methods_used
+    assert "linked_broken_path_geometric_minimum" not in result.methods_used
 
 
 def test_unsupported_problem_returns_unsupported() -> None:

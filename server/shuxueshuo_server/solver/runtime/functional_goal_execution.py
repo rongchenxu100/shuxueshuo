@@ -44,6 +44,10 @@ from shuxueshuo_server.solver.runtime.functional_debug_aliases import (
 from shuxueshuo_server.solver.runtime.handle_registry import (
     CanonicalHandleRegistry,
 )
+from shuxueshuo_server.solver.runtime.macro_atomicity import (
+    PRIVATE_PATH_RUNTIME_TYPES,
+    contains_private_path_projection_marker,
+)
 from shuxueshuo_server.solver.runtime.planner import PlannerInputs
 from shuxueshuo_server.solver.runtime.planner_state_context import (
     PlannerStateContext,
@@ -3429,28 +3433,29 @@ def _public_runtime_result_value(
     runtime_type: str,
     forbidden_values: frozenset[str],
 ) -> Any:
-    """Project one materialized result to its lossless public value.
+    """Project one materialized result to its lossless public value."""
 
-    ``PathTransformation`` carries private runtime references in addition to
-    its public geometric description.  Those references are execution
-    provenance, not part of the capability return contract: downstream calls
-    receive them through the typed in-process value, while retry receives the
-    complete public description (names, construction, equations and paths).
-    Removing the private ``*_ref`` channel here avoids manufacturing
-    ``<internal-identity-omitted>`` placeholders in an otherwise valid result.
-    """
-
+    if runtime_type in PRIVATE_PATH_RUNTIME_TYPES:
+        raise FunctionalGoalExecutionCheckpointError(
+            "$.runtime_results",
+            (
+                "private path runtime state cannot cross an atomic Macro "
+                f"boundary: {runtime_type}"
+            ),
+            code="functional.retry_runtime_output_projection_invalid",
+        )
     safe = _json_safe_value(value)
-    if runtime_type == "PathTransformation" and isinstance(safe, Mapping):
-        safe = {
-            str(key): item
-            for key, item in safe.items()
-            if not str(key).endswith(("_ref", "_refs"))
-        }
-    return _prompt_safe_value(
+    projected = _prompt_safe_value(
         safe,
         forbidden_values=forbidden_values,
     )
+    if contains_private_path_projection_marker(projected):
+        raise FunctionalGoalExecutionCheckpointError(
+            "$.runtime_results",
+            "private path marker cannot cross an atomic Macro boundary",
+            code="functional.retry_runtime_output_projection_invalid",
+        )
+    return projected
 
 
 def _audit_prompt_checkpoint(

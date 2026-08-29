@@ -321,10 +321,12 @@ input可选时省略；对象、scope或version不一致时fail loud。不得用
 
 通用Entity/State竖切也已经完成：公开参数中由Plan明确指定的Point/Function使用
 `PublicArgSourceSpec`，F5-C再根据Method view生成纯identity或exact latest-state
-authority；匿名Expression、MinimumExpression、Line和PathTransformation使用
-`ExactCallResultSourceSpec`，必须保留精确producer与return。生产family中不再声明
-`read_type:*`。仍需从题面关系、提取preflight或context closure推导的几何角色不属于
-PublicArg，必须留到对应typed resolver迁移，不能为了减少selector而伪装成显式输入。
+authority；公开匿名 Expression、MinimumExpression 和 Line 使用
+`ExactCallResultSourceSpec`，必须保留精确 producer 与 return。`PathTransformation`、
+straightening candidate 和 Path witness 是原子 Macro 的 kernel 私有状态，禁止声明为
+Planner-facing source spec 或 public return。生产 family 中不再声明 `read_type:*`。
+仍需从题面关系、提取 preflight 或 context closure 推导的几何角色不属于 PublicArg，
+必须留到对应 typed resolver，不能为了减少 selector 而伪装成显式输入。
 
 Fact/Condition与语义角色竖切也已经完成。所有题面Fact和运行期Condition先注册到
 不可变`ConditionBindingAuthorityIndex`，索引保存exact `ConditionId`、公开
@@ -857,6 +859,12 @@ Planner-facing Function contract，只在多个题面对象之间确定公开ret
 - runtime type、identity、destination 或 provenance contract 漂移。
 
 不要把代码 bug 包装成“Planner 选错步骤”。
+
+加权路径的 `functional.weighted_path_symbolic_proof_inconclusive` 也属于这一类：它表示
+当前 kernel 无法在给定定义域内证明或否证可达条件，而不是 LLM 选错了参数。新增权重、
+几何构造或参数定义域时，onboarding 必须同时增加代码侧 geometry profile、定义域证明
+分支，以及 `proved_true`、`proved_false`、`unknown` 的 synthetic 边界测试；不能通过修改
+prompt、增加 retry 或把 `unknown` 降级为 `false` 来接入新 profile。
 
 ## 8. 统一诊断契约
 

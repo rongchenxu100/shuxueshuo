@@ -11,7 +11,7 @@ from copy import deepcopy
 from dataclasses import dataclass, field, replace
 import json
 from types import MappingProxyType
-from typing import Any, Literal, Mapping, Sequence
+from typing import Any, Collection, Literal, Mapping, Sequence
 
 from jsonschema import Draft202012Validator
 
@@ -48,6 +48,9 @@ from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
 )
 from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
 from shuxueshuo_server.solver.runtime.llm_clients import LLMPlannerClient
+from shuxueshuo_server.solver.runtime.macro_atomicity import (
+    contains_private_path_projection_marker,
+)
 from shuxueshuo_server.solver.runtime.planner import PlannerInputs
 from shuxueshuo_server.solver.runtime.planner_state_context import (
     PlannerStateContext,
@@ -475,7 +478,13 @@ class FunctionalScopeRetryAuthorityProjector:
             step_id = str(issue.get("step_id") or "")
             goal_ref = str(issue.get("goal_ref") or "")
             scope_ref = _diagnostic_scope_ref(issue)
-            if step_id and step_id in step_owners:
+            required_scope = _required_scope_from_issue(
+                issue,
+                valid_scope_refs=scope_by_ref,
+            )
+            if required_scope is not None:
+                editable.add(required_scope)
+            elif step_id and step_id in step_owners:
                 editable.add(step_owners[step_id])
             elif goal_ref and goal_ref in goal_owners:
                 editable.add(goal_owners[goal_ref])
@@ -487,10 +496,7 @@ class FunctionalScopeRetryAuthorityProjector:
                     for item in issue.get("valid_scope_refs", ())
                     if str(item) in scope_by_ref
                 )
-                required_scope = str(issue.get("required_scope_ref") or "")
-                if required_scope in scope_by_ref:
-                    editable.add(required_scope)
-                elif candidate_refs:
+                if candidate_refs:
                     editable.add(_scope_lca(candidate_refs, parents))
 
         # StepResultRef pins one exact producer return. When its producer Scope
@@ -1290,7 +1296,8 @@ class FunctionalAnnotatedPlanProjector:
             if issue.get("step_id") or issue.get("goal_ref"):
                 continue
             owner = (
-                _diagnostic_scope_ref(issue)
+                _required_scope_from_issue(issue, valid_scope_refs=scope_refs)
+                or _diagnostic_scope_ref(issue)
                 or canonical.root_scope.scope_ref
             )
             scoped_issues.setdefault(owner, []).append(
@@ -1805,7 +1812,10 @@ def _contains_internal_projection_marker(value: Any) -> bool:
         )
     if isinstance(value, Sequence) and not isinstance(value, (str, bytes)):
         return any(_contains_internal_projection_marker(item) for item in value)
-    return isinstance(value, str) and value == "<internal-identity-omitted>"
+    return isinstance(value, str) and (
+        value == "<internal-identity-omitted>"
+        or contains_private_path_projection_marker(value)
+    )
 
 
 def _scope_parent_map(root: ScopedFunctionalScope) -> dict[str, str | None]:
@@ -1854,11 +1864,24 @@ def _required_scope_from_step_issue(
     issue = step.typed_issue
     if not isinstance(issue, Mapping):
         return None
+    return _required_scope_from_issue(issue, valid_scope_refs=scope_by_ref)
+
+
+def _required_scope_from_issue(
+    issue: Mapping[str, Any],
+    *,
+    valid_scope_refs: Collection[str],
+) -> str | None:
+    """Read the code-owned repair Scope from either diagnostic wire shape."""
+
     expected = issue.get("expected")
-    if not isinstance(expected, Mapping):
-        return None
-    required = str(expected.get("required_scope_ref") or "")
-    return required if required in scope_by_ref else None
+    nested = (
+        str(expected.get("required_scope_ref") or "")
+        if isinstance(expected, Mapping)
+        else ""
+    )
+    required = str(issue.get("required_scope_ref") or "") or nested
+    return required if required in valid_scope_refs else None
 
 
 def _is_placement_issue(issue: Mapping[str, Any]) -> bool:

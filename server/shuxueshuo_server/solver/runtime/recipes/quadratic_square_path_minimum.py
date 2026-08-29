@@ -60,11 +60,10 @@ SPEC = RecipeSpecSource(
         },
         teaching_substep_templates={
             "path_minimum": (
-                {"component": "SquarePathDimensionMarker"},
-                {"component": "BrokenPathStraighteningMarker"},
+                {"component": "AtomicSquarePathReductionMarker"},
+                {"component": "AtomicPathMinimumMarker"},
             ),
         },
         role_binder_id="generic_visual",
     ),
 )
-

@@ -53,6 +53,48 @@ def _content_step(payload: dict, step_id: str) -> dict:
     raise AssertionError(f"missing content step {step_id!r}")
 
 
+def test_retired_path_component_is_rejected_before_dynamic_schema(tmp_path) -> None:
+    fixture, frame, content, _plan = _content_fixture(tmp_path)
+    expected_replacements = {
+        "two_moving_points_path_reduction": [
+            "coupled_segment_endpoint_replacement_path_minimum"
+        ],
+        "line_locus_minimum_point": [
+            "coupled_segment_endpoint_replacement_path_minimum",
+            "quadratic_square_path_minimum",
+        ],
+        "coupled_segment_endpoint_replacement_path_minimum_kernel": [
+            "coupled_segment_endpoint_replacement_path_minimum"
+        ],
+    }
+    for capability_id, required_macros in expected_replacements.items():
+        payload = content.to_payload()
+        step = next(
+            item
+            for goal in payload["goal_plans"].values()
+            for item in goal.get("steps", ())
+        )
+        step["capability_id"] = capability_id
+
+        result = FunctionalPlanContentCompiler().compile_payload(
+            payload,
+            frame=frame,
+            capability_catalog=fixture.capability_catalog,
+        )
+
+        issue = result.report.issues[0]
+        assert issue.code == "functional.macro_inline_expansion_forbidden"
+        assert issue.details["observed_capability"] == capability_id
+        assert issue.details["required_macros"] == required_macros
+        if len(required_macros) == 1:
+            assert issue.details["required_macro"] == required_macros[0]
+        else:
+            assert "required_macro" not in issue.details
+        assert issue.details["repair_action"] == (
+            "replace_scope_body_with_atomic_macro"
+        )
+
+
 def test_dynamic_schema_owns_exact_scope_and_goal_keys(tmp_path) -> None:
     fixture, frame, content, _ = _content_fixture(tmp_path)
     schema = functional_plan_content_schema(frame)

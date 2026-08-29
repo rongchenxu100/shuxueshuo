@@ -10,6 +10,7 @@ import pytest
 
 from shuxueshuo_server.solver.runtime.context import ContextBuilder
 from shuxueshuo_server.solver.runtime.functional_goal_execution import (
+    FunctionalGoalExecutionCheckpointError,
     FunctionalGoalExecutionGoal,
     FunctionalGoalExecutionScope,
     FunctionalGoalExecutionStep,
@@ -307,11 +308,9 @@ def test_runtime_output_projection_fails_loud_on_omission_or_internal_identity(
     assert captured.value.code == (
         "functional.retry_runtime_output_projection_invalid"
     )
-    assert captured.value.retryable is False
 
 
-def test_path_transformation_runtime_projection_keeps_public_value_without_private_refs(
-) -> None:
+def test_path_transformation_runtime_projection_fails_at_atomic_boundary() -> None:
     value = {
         "construction": "right_isosceles_triangle",
         "moving_point_name": "N",
@@ -325,21 +324,41 @@ def test_path_transformation_runtime_projection_keeps_public_value_without_priva
         "transformed_path": "sqrt(2)*(MN+QN)",
     }
 
-    projected = _public_runtime_result_value(
-        value,
-        runtime_type="PathTransformation",
-        forbidden_values=frozenset(
-            {"point:problem:N@state-1", "point:problem:Q@state-2"}
-        ),
+    with pytest.raises(FunctionalGoalExecutionCheckpointError) as captured:
+        _public_runtime_result_value(
+            value,
+            runtime_type="PathTransformation",
+            forbidden_values=frozenset(
+                {"point:problem:N@state-1", "point:problem:Q@state-2"}
+            ),
+        )
+
+    assert captured.value.code == (
+        "functional.retry_runtime_output_projection_invalid"
     )
 
-    assert projected == {
-        "auxiliary_point_name": "Q",
-        "construction": "right_isosceles_triangle",
-        "moving_point_name": "N",
-        "transformed_path": "sqrt(2)*(MN+QN)",
-    }
-    assert "<internal-identity-omitted>" not in json.dumps(projected)
+
+@pytest.mark.parametrize(
+    "synthetic_path",
+    (
+        "point:ii:G#quadratic-square-reflection",
+        "point:ii:N#coupled-segment-reflection",
+        "point:iii:Q#weighted-axis-triangle",
+    ),
+)
+def test_synthetic_path_ref_projection_fails_at_atomic_boundary(
+    synthetic_path: str,
+) -> None:
+    with pytest.raises(FunctionalGoalExecutionCheckpointError) as captured:
+        _public_runtime_result_value(
+            {"point_ref": synthetic_path},
+            runtime_type="Point",
+            forbidden_values=frozenset(),
+        )
+
+    assert captured.value.code == (
+        "functional.retry_runtime_output_projection_invalid"
+    )
 
 
 def test_runtime_reference_pair_is_snapshotted_as_refs_not_as_point(tmp_path) -> None:
@@ -348,7 +367,7 @@ def test_runtime_reference_pair_is_snapshotted_as_refs_not_as_point(tmp_path) ->
 
     projected = runtime_context.to_answer_value(
         {
-            "type": "square_path_dimension_reduction",
+            "type": "reference_pair",
             "fixed_endpoint_refs": (
                 "point:problem:A@state-1",
                 "point:problem:B@state-1",
@@ -483,6 +502,49 @@ def test_missing_producer_diagnostic_opens_required_ancestor_scope(tmp_path) -> 
     authority = FunctionalScopeRetryAuthorityProjector().project(
         plan=fixture.failed_plan,
         execution=execution,
+    )
+
+    assert authority.editable_scope_refs == ("problem",)
+
+
+def test_root_issue_expected_required_scope_opens_ancestor_scope(tmp_path) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    execution = ScopedFunctionalGoalExecutionService().execute_raw_json(
+        json.dumps(fixture.correct_payload, ensure_ascii=False),
+        inputs=fixture.inputs,
+        planning_context=fixture.planning_context,
+        problem_binding_catalog=fixture.binding_catalog,
+        handle_registry=fixture.handle_registry,
+        context=ContextBuilder().build(fixture.problem),
+        planner_state_context=fixture.planner_state_context,
+        problem_payload=fixture.problem_payload,
+    )
+    assert execution.checkpoint is not None
+    issue = {
+        "schema_version": "functional-prompt-diagnostic/v1",
+        "code": "functional.coupled_segment_path_state_unavailable",
+        "category": "input",
+        "stage": "reconciliation_binding",
+        "retryability": "planner_repairable",
+        "message": "Materialize the constructed Point in its owner Scope.",
+        "step_id": FAILED_STEP_ID,
+        "scope_id": "ii",
+        "expected": {"required_scope_ref": "problem"},
+        "observed": {"existing_producers": []},
+    }
+    failed = replace(
+        execution,
+        checkpoint=replace(
+            execution.checkpoint,
+            root_issues=(issue,),
+            all_required_goals_verified=False,
+            transaction_ok=False,
+        ),
+    )
+
+    authority = FunctionalScopeRetryAuthorityProjector().project(
+        plan=execution.canonical_plan,
+        execution=failed,
     )
 
     assert authority.editable_scope_refs == ("problem",)

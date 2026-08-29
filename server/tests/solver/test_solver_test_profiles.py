@@ -90,6 +90,22 @@ def test_affected_ownership_maps_goal_runtime_to_contract_tests() -> None:
     assert "tests/solver/test_functional_goal_checkpoint_v3.py" in selected
 
 
+def test_affected_ownership_maps_private_path_helpers_to_atomic_macro_tests() -> None:
+    selected, unmapped = _tests_for_changed_paths(
+        (
+            "server/shuxueshuo_server/solver/runtime/methods/"
+            "_internal/path/square_path_dimension_reduction.py",
+        )
+    )
+
+    assert not unmapped
+    assert "tests/solver/test_method_spec_loader.py" in selected
+    assert "tests/solver/test_runtime_stateless_methods.py" in selected
+    assert "tests/solver/test_coupled_segment_path_macro.py" in selected
+    assert "tests/solver/test_quadratic_square_path_macro.py" in selected
+    assert "tests/solver/test_weighted_axis_path_macro.py" in selected
+
+
 def test_affected_ownership_ignores_docs_only_changes() -> None:
     selected, unmapped = _tests_for_changed_paths(
         ("docs/solver-test-strategy.md",)

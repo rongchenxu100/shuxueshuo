@@ -1132,7 +1132,6 @@ _KNOWN_TYPES = {
     "OrientationHint",
     "Parabola",
     "ParameterValue",
-    "PathTransformation",
     "PathWitness",
     "Point",
     "PointList",
@@ -1141,8 +1140,6 @@ _KNOWN_TYPES = {
     "Segment",
     "Symbol",
     "SymbolList",
-    "StraighteningCandidate",
-    "StraighteningCandidateList",
 }
 
 

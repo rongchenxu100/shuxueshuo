@@ -1033,7 +1033,6 @@ def _macro_capability(
 
 
 def _validate_identity_contract(capability: FunctionalCapability) -> None:
-    public_args = {item.name: item for item in capability.args}
     arg_names = tuple(
         dict.fromkeys(
             (
@@ -1065,36 +1064,6 @@ def _validate_identity_contract(capability: FunctionalCapability) -> None:
                     "references unknown return: "
                     f"{capability.capability_id}."
                     f"{projection.source_return}"
-                )
-        if returned.runtime_type == "PathTransformation":
-            moving_roles = tuple(
-                projection
-                for projection in returned.object_role_projections
-                if projection.role == "moving_object"
-            )
-            if len(moving_roles) != 1:
-                raise ValueError(
-                    "planner_configuration_error: PathTransformation must "
-                    "declare exactly one planner-selected moving object: "
-                    f"{capability.capability_id}.{returned.name}"
-                )
-            moving_role = moving_roles[0]
-            moving_arg = (
-                public_args.get(moving_role.source_arg)
-                if moving_role.source_arg is not None
-                else None
-            )
-            if (
-                moving_arg is None
-                or moving_arg.binding_authority != "wire"
-                or moving_role.source_object_role is not None
-            ):
-                raise ValueError(
-                    "planner_configuration_error: PathTransformation moving "
-                    "object must come directly from an explicit wire argument; "
-                    "condition roles, vertex positions, resolver args, and "
-                    "sibling returns cannot choose it: "
-                    f"{capability.capability_id}.{returned.name}"
                 )
         for closure in returned.lineage_closures:
             missing = set(closure.source_args) - known_args
@@ -1415,13 +1384,7 @@ def _macro_arg_view_mode(item: MacroArgSpec) -> MethodInputViewMode:
         return "identity"
     if item.kind == "condition_read":
         return "immutable_value"
-    if item.runtime_type in {
-        "PathTransformation",
-        "StraighteningCandidate",
-        "StraighteningCandidates",
-        "PointCandidates",
-        "PointList",
-    }:
+    if item.runtime_type in {"PointCandidates", "PointList"}:
         return "exact_result"
     return "latest_state"
 

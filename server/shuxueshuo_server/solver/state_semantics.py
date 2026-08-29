@@ -396,7 +396,6 @@ OBJECT_SEMANTIC_KIND_ORDER = (
     "angle",
     "circle",
     "polygon",
-    "path_transformation",
 )
 OBJECT_SEMANTIC_KINDS = frozenset(OBJECT_SEMANTIC_KIND_ORDER)
 
@@ -416,8 +415,6 @@ _STATE_KIND_BY_RUNTIME_TYPE: dict[str, str] = {
     "Circle": "circle",
     "Polygon": "polygon",
     "Coefficients": "coefficients",
-    "PathTransformation": "transformation",
-    "StraighteningCandidate": "candidate",
     "ParameterValue": "value",
     "Symbol": "symbol",
     "Condition": "condition",
@@ -438,7 +435,6 @@ _OBJECT_KIND_BY_RUNTIME_TYPE: dict[str, str] = {
     "Polygon": "polygon",
     "ParameterValue": "symbol",
     "Symbol": "symbol",
-    "PathTransformation": "path_transformation",
 }
 
 _RUNTIME_TYPE_BY_OBJECT_SEMANTIC_KIND: dict[str, str] = {
@@ -448,7 +444,6 @@ _RUNTIME_TYPE_BY_OBJECT_SEMANTIC_KIND: dict[str, str] = {
     "ray": "Ray",
     "function": "Parabola|Function",
     "symbol": "Symbol",
-    "path_transformation": "PathTransformation",
     "angle": "Angle",
     "circle": "Circle",
     "polygon": "Polygon",

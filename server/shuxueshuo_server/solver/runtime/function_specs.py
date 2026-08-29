@@ -51,7 +51,6 @@ from shuxueshuo_server.solver.family.models import (
     FunctionalReturnReferenceMode,
     FunctionalReturnBindingPolicy,
     MethodBindingRuleSpec,
-    PathTransformationConsumerSpec,
     SolverFamilySpec,
     StateIdentityConstraintSpec,
     StateIdentityPolicy,
@@ -314,7 +313,6 @@ class FunctionSpec:
     interchangeable_arg_groups: tuple[tuple[str, ...], ...] = ()
     dependency_policy: CapabilityDependencyPolicy = "explicit_args"
     context_role_bindings: tuple[CapabilityContextRoleBindingSpec, ...] = ()
-    path_transformation_consumer: PathTransformationConsumerSpec | None = None
     input_closure_requirements: tuple[
         CapabilityInputClosureRequirement, ...
     ] = ()
@@ -345,11 +343,6 @@ class FunctionSpec:
             "context_role_bindings": [
                 item.to_payload() for item in self.context_role_bindings
             ],
-            "path_transformation_consumer": (
-                self.path_transformation_consumer.to_payload()
-                if self.path_transformation_consumer is not None
-                else None
-            ),
             "input_closure_requirements": [
                 item.to_payload() for item in self.input_closure_requirements
             ],
@@ -800,11 +793,6 @@ def function_spec_from_method(
         ),
         context_role_bindings=(
             contract.context_role_bindings if contract is not None else ()
-        ),
-        path_transformation_consumer=(
-            contract.path_transformation_consumer
-            if contract is not None
-            else None
         ),
         input_closure_requirements=(
             contract.input_closure_requirements

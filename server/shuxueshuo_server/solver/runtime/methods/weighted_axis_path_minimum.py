@@ -8,6 +8,7 @@ Planner-facing capability boundary.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from enum import Enum
 from typing import Any
 
 from shuxueshuo_server.solver.contracts import (
@@ -16,18 +17,18 @@ from shuxueshuo_server.solver.contracts import (
     ScalarResultFormSpec,
 )
 
+from ._internal.path.linked_broken_path_geometric_minimum import (
+    LinkedBrokenPathMinimumExpressionMethod,
+)
+from ._internal.path.weighted_axis_path_triangle_transform import (
+    WeightedAxisPathTriangleTransformMethod,
+)
 from ._common import *
 from ._common import (
     is_definitely_nonnegative,
     is_definitely_positive_under_lower_bound,
 )
 from ._spec import MethodSpecSource, declare_input_views
-from .linked_broken_path_geometric_minimum import (
-    LinkedBrokenPathMinimumExpressionMethod,
-)
-from .weighted_axis_path_triangle_transform import (
-    WeightedAxisPathTriangleTransformMethod,
-)
 
 
 @dataclass(frozen=True)
@@ -44,6 +45,19 @@ class _WeightedOrientationCandidate:
     auxiliary_attainment_point: Point
     ray_parameter: sp.Expr
     path_segment_parameter: sp.Expr
+
+
+class _ProofVerdict(str, Enum):
+    PROVED_TRUE = "proved_true"
+    PROVED_FALSE = "proved_false"
+    UNKNOWN = "unknown"
+
+
+@dataclass(frozen=True)
+class _ProofResult:
+    verdict: _ProofVerdict
+    reduced: sp.Expr | None = None
+    error: str | None = None
 
 
 class WeightedAxisPathMinimumMethod:
@@ -256,8 +270,17 @@ class WeightedAxisPathMinimumMethod:
                 ),
             ],
             trace_fragments=[
-                *winner.transform.trace_fragments,
-                *winner.minimum.trace_fragments,
+                _step(
+                    self.method_id,
+                    "加权轴上路径最值",
+                    "求完整最小值表达式",
+                    "在内部构造与权重匹配的辅助三角形，拉直路径并验证取等状态覆盖声明定义域。",
+                    (
+                        f"权重={evidence['weight']}，"
+                        f"构造={evidence['geometry_profile_id']}"
+                    ),
+                    f"最小值表达式为 {kernel.sstr(winner.minimum_expression)}",
+                )
             ],
         )
 
@@ -492,23 +515,51 @@ def _prove_constraint_on_parameter_domain(
     target_constraint: dict[str, sp.Expr | str],
     parameter: sp.Symbol,
     parameter_constraint: dict[str, sp.Expr | str],
-) -> bool:
+) -> _ProofResult:
     if str(target_constraint.get("operator", "")) != ">":
-        return False
+        return _ProofResult(
+            _ProofVerdict.UNKNOWN,
+            error="unsupported target constraint operator",
+        )
     lower = target_constraint.get("value")
     if not isinstance(lower, sp.Basic):
-        return False
+        return _ProofResult(
+            _ProofVerdict.UNKNOWN,
+            error="target constraint has no canonical symbolic bound",
+        )
     positive = sp.simplify(expression - lower)
     if is_definitely_positive(positive):
-        return True
+        return _ProofResult(_ProofVerdict.PROVED_TRUE, sp.S.true)
     parameter_lower = _constraint_lower_bound(parameter_constraint)
-    return (
-        parameter_lower is not None
-        and is_definitely_positive_under_lower_bound(
+    if parameter_lower is not None and is_definitely_positive_under_lower_bound(
             positive,
             parameter,
             parameter_lower,
+        ):
+        return _ProofResult(_ProofVerdict.PROVED_TRUE, sp.S.true)
+    if parameter_lower is None:
+        return _ProofResult(
+            _ProofVerdict.UNKNOWN,
+            error="unsupported parameter-domain constraint",
         )
+    counterexample = (
+        sp.StrictGreaterThan(parameter, parameter_lower),
+        sp.LessThan(expression, lower),
+    )
+    try:
+        reduced = sp.reduce_inequalities(counterexample, parameter)
+    except (NotImplementedError, TypeError, ValueError) as exc:
+        return _ProofResult(
+            _ProofVerdict.UNKNOWN,
+            error=f"{type(exc).__name__}: {exc}",
+        )
+    return _ProofResult(
+        (
+            _ProofVerdict.PROVED_TRUE
+            if reduced is sp.S.false
+            else _ProofVerdict.PROVED_FALSE
+        ),
+        reduced,
     )
 
 
@@ -535,13 +586,6 @@ def _minimum_with_dynamic_domain(
     one-dimensional convex objective with the declared lower endpoint.
     """
 
-    if _prove_constraint_on_parameter_domain(
-        dynamic_expression,
-        target_constraint=target_constraint,
-        parameter=parameter,
-        parameter_constraint=parameter_constraint,
-    ):
-        return sp.simplify(interior_minimum), sp.S.true, None
     if str(target_constraint.get("operator", "")) != ">":
         raise method_precondition_failed(
             "conditional weighted-path attainment requires a lower-bound moving domain",
@@ -560,15 +604,40 @@ def _minimum_with_dynamic_domain(
             role="dynamic_parameter_domain",
             repair_action="fix_runtime_contract",
         )
+    domain_proof = _prove_constraint_on_parameter_domain(
+        dynamic_expression,
+        target_constraint=target_constraint,
+        parameter=parameter,
+        parameter_constraint=parameter_constraint,
+    )
+    if domain_proof.verdict == _ProofVerdict.UNKNOWN:
+        _raise_symbolic_proof_inconclusive(
+            operation="domain_implication",
+            expressions=(sp.StrictGreaterThan(dynamic_expression, lower),),
+            parameter=parameter,
+            parameter_constraint=parameter_constraint,
+            proof=domain_proof,
+        )
+    if domain_proof.verdict == _ProofVerdict.PROVED_TRUE:
+        return sp.simplify(interior_minimum), sp.S.true, None
     attainment_condition = sp.StrictGreaterThan(
         sp.simplify(dynamic_expression),
         lower,
     )
-    if not _conditions_have_solution(
+    solution_proof = _conditions_have_solution(
         (attainment_condition,),
         parameter=parameter,
         parameter_constraint=parameter_constraint,
-    ):
+    )
+    if solution_proof.verdict == _ProofVerdict.UNKNOWN:
+        _raise_symbolic_proof_inconclusive(
+            operation="satisfiability",
+            expressions=(attainment_condition,),
+            parameter=parameter,
+            parameter_constraint=parameter_constraint,
+            proof=solution_proof,
+        )
+    if solution_proof.verdict == _ProofVerdict.PROVED_FALSE:
         raise method_precondition_failed(
             "the weighted-path interior equality state is unreachable in the parameter domain",
             role="dynamic_parameter",
@@ -601,16 +670,53 @@ def _conditions_have_solution(
     *,
     parameter: sp.Symbol,
     parameter_constraint: dict[str, sp.Expr | str],
-) -> bool:
+) -> _ProofResult:
     domain: list[sp.Expr] = list(conditions)
     lower = _constraint_lower_bound(parameter_constraint)
     if lower is not None:
         domain.append(sp.StrictGreaterThan(parameter, lower))
     try:
         reduced = sp.reduce_inequalities(domain, parameter)
-    except (NotImplementedError, TypeError, ValueError):
-        return False
-    return reduced is not sp.S.false
+    except (NotImplementedError, TypeError, ValueError) as exc:
+        return _ProofResult(
+            _ProofVerdict.UNKNOWN,
+            error=f"{type(exc).__name__}: {exc}",
+        )
+    return _ProofResult(
+        (
+            _ProofVerdict.PROVED_FALSE
+            if reduced is sp.S.false
+            else _ProofVerdict.PROVED_TRUE
+        ),
+        reduced,
+    )
+
+
+def _raise_symbolic_proof_inconclusive(
+    *,
+    operation: str,
+    expressions: tuple[sp.Expr, ...],
+    parameter: sp.Symbol,
+    parameter_constraint: dict[str, sp.Expr | str],
+    proof: _ProofResult,
+) -> None:
+    raise StatelessMethodError(
+        "functional.weighted_path_symbolic_proof_inconclusive",
+        "the weighted-path kernel could not prove a required domain statement",
+        category="configuration",
+        retryability="configuration",
+        role="weighted_path_domain_proof",
+        observed={
+            "operation": operation,
+            "expressions": [str(item) for item in expressions],
+            "parameter": str(parameter),
+            "parameter_constraint": {
+                key: str(value) for key, value in parameter_constraint.items()
+            },
+            "proof_error": proof.error,
+        },
+        repair_action="extend_weighted_path_symbolic_prover",
+    )
 
 
 def _constraint_branch_is_represented(
@@ -620,13 +726,12 @@ def _constraint_branch_is_represented(
     parameter: sp.Symbol,
     parameter_constraint: dict[str, sp.Expr | str],
 ) -> bool:
-    if _prove_constraint_on_parameter_domain(
-        candidate.dynamic_parameter_expression,
-        target_constraint=target_constraint,
-        parameter=parameter,
-        parameter_constraint=parameter_constraint,
-    ):
-        return candidate.boundary_minimum_expression is None
+    del target_constraint, parameter, parameter_constraint
+    if candidate.attainment_condition is sp.S.true:
+        return (
+            candidate.boundary_minimum_expression is None
+            and not isinstance(candidate.minimum_expression, sp.Piecewise)
+        )
     return (
         candidate.boundary_minimum_expression is not None
         and candidate.attainment_condition is not sp.S.false

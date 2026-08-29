@@ -1,5 +1,5 @@
 {
-  "example_id": "weighted_path_transform",
+  "example_id": "weighted_axis_path_minimum",
   "source_problem_id": "tj-2026-hexi-yimo-25",
   "family_id": "QuadraticWeightedPathMinimumSolver",
   "pack_ids": [

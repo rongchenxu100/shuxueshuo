@@ -113,6 +113,10 @@ def test_nankai_coupled_macro_executes_as_one_public_kernel(tmp_path) -> None:
     )
     assert len(call_result.step_results) == 1
     assert call_result.step_results[0].methods_used == [KERNEL_ID]
+    assert [
+        item.method_id
+        for item in call_result.step_results[0].trace_fragments
+    ] == [KERNEL_ID]
 
     public_projection = json.dumps(
         {

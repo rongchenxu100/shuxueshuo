@@ -291,10 +291,7 @@ def test_all_v2_mechanism_assets_are_strict_and_loadable() -> None:
         if "square" in path.name
     )
     goals = square["plan"]["root_scope"]["goals"]
-    assert {item["goal_ref"] for item in goals} == {
-        "example.answer",
-        "example.target_point",
-    }
+    assert {item["goal_ref"] for item in goals} == {"example.answer"}
     curve = next(
         json.loads(path.read_text(encoding="utf-8"))
         for path in paths

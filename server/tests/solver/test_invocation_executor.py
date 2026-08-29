@@ -94,50 +94,29 @@ def test_executor_reads_point_identity_from_canonical_entity_path() -> None:
     """Identity-view inputs come from the canonical entity, not a Point value."""
     context = ContextBuilder().build(load_problem_ir(NANKAI_FIXTURE))
     specs = MethodSpecRegistry.load_from_code()
-    outputs = context.get_scope("ii").container("outputs")
-    outputs["G_locus_line"] = TypedValue(
-        "Line",
-        {
-            "kind": "line",
-            "start_point": (sp.Integer(0), sp.Integer(0)),
-            "direction": (sp.Integer(1), sp.Integer(0)),
-        },
-        source="test",
-    )
-    outputs["path_minimum_point_1"] = TypedValue(
-        "Point",
-        (sp.Integer(2), sp.Integer(-1)),
-        source="test",
-    )
-    outputs["path_minimum_point_2"] = TypedValue(
-        "Point",
-        (sp.Integer(2), sp.Integer(1)),
-        source="test",
-    )
     invocation = MethodInvocation(
-        invocation_id="derive_minimum_G_point.line_locus_minimum_point",
-        method_id="line_locus_minimum_point",
+        invocation_id="derive_D.quadratic_axis_from_relation",
+        method_id="quadratic_axis_from_relation",
         scope="ii",
         inputs={
-            "moving_locus": "$question.ii.outputs.G_locus_line",
-            "minimum_point_1": "$question.ii.outputs.path_minimum_point_1",
-            "minimum_point_2": "$question.ii.outputs.path_minimum_point_2",
-            "target": "$question.ii.points.G",
+            "coefficient_relation": "$problem.equations.coefficient_relation",
+            "a": "$problem.symbols.a",
+            "b": "$problem.symbols.b",
+            "target": "$problem.points.D",
         },
-        outputs={"point": "$question.ii.outputs.optimal_G_coordinate"},
+        outputs={"axis_point": "$question.ii.outputs.axis_point"},
     )
 
     result = InvocationExecutor(specs).execute_invocation(context, invocation)
 
-    assert result.outputs["point"].value == (sp.Integer(2), sp.Integer(0))
-    assert result.trace_fragments[0].goal == "确定 G 的坐标"
-    assert "moving_point" not in result.trace_fragments[0].goal
+    assert result.outputs["axis_point"].value == (sp.Integer(1), sp.Integer(0))
+    assert result.trace_fragments[0].title == "由系数关系确定 D"
     written = context.read_path(
-        "$question.ii.outputs.optimal_G_coordinate",
+        "$question.ii.outputs.axis_point",
         from_scope_id="ii",
         expected_type="Point",
     )
-    assert written.value == (sp.Integer(2), sp.Integer(0))
+    assert written.value == (sp.Integer(1), sp.Integer(0))
 
 
 def test_executor_keeps_point_identity_separate_from_existing_point_state() -> None:

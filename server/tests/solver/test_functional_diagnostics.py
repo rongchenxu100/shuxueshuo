@@ -412,22 +412,25 @@ def test_macro_missing_public_arg_projects_only_the_public_contract(tmp_path) ->
         family
         for family in DEFAULT_FAMILY_REGISTRY.families
         if any(
-            recipe.recipe_id == "broken_path_straightening_minimum_expression"
+            recipe.recipe_id
+            == "coupled_segment_endpoint_replacement_path_minimum"
             for recipe in family.step_recipes
         )
     )
     macro = MacroSpecRegistry.from_family_spec(
         family,
         fixture.inputs.method_specs,
-    ).require("broken_path_straightening_minimum_expression")
+    ).require("coupled_segment_endpoint_replacement_path_minimum")
     inner = method_input_missing(
-        "distance evaluation requires a substitution pair",
-        method_id="distance_between_points",
+        "path minimum kernel requires the source objective",
+        method_id=(
+            "coupled_segment_endpoint_replacement_path_minimum_kernel"
+        ),
         capability_id=macro.macro_id,
-        step_id="derive_closed_minimum",
+        step_id="derive_path_minimum",
         observed={
-            "missing_inputs": ["parameter", "parameter_value"],
-            "provided_inputs": ["p1", "p2"],
+            "missing_inputs": ["path_condition"],
+            "provided_inputs": ["segment_binding_relation"],
         },
         repair_action="provide_required_input",
     ).authority
@@ -435,7 +438,7 @@ def test_macro_missing_public_arg_projects_only_the_public_contract(tmp_path) ->
     authority = normalize_macro_diagnostic_authority(
         inner,
         macro_spec=macro,
-        provided_arg_names=("path_transformation",),
+        provided_arg_names=("segment_binding_relation",),
     )
     prompt = FunctionalPromptDiagnosticProjector().project(
         authority,
@@ -446,11 +449,11 @@ def test_macro_missing_public_arg_projects_only_the_public_contract(tmp_path) ->
     assert prompt.code == "functional.macro_input_missing"
     assert prompt.retryability == "planner_repairable"
     assert prompt.method_id is None
-    assert prompt.expected == {"required_args": ("parameter_value",)}
-    assert prompt.subjects[0].arg_name == "parameter_value"
+    assert prompt.expected == {"required_args": ("path_minimum_target",)}
+    assert prompt.subjects[0].arg_name == "path_minimum_target"
     wire = json.dumps(prompt.to_payload(), ensure_ascii=False)
-    assert "distance_between_points" not in wire
-    assert '"arg_name": "parameter"' not in wire
+    assert "coupled_segment_endpoint_replacement_path_minimum_kernel" not in wire
+    assert "path_condition" not in wire
 
 
 def test_supplied_macro_arg_that_fails_lowering_is_configuration_drift(
@@ -461,22 +464,25 @@ def test_supplied_macro_arg_that_fails_lowering_is_configuration_drift(
         family
         for family in DEFAULT_FAMILY_REGISTRY.families
         if any(
-            recipe.recipe_id == "broken_path_straightening_minimum_expression"
+            recipe.recipe_id
+            == "coupled_segment_endpoint_replacement_path_minimum"
             for recipe in family.step_recipes
         )
     )
     macro = MacroSpecRegistry.from_family_spec(
         family,
         fixture.inputs.method_specs,
-    ).require("broken_path_straightening_minimum_expression")
+    ).require("coupled_segment_endpoint_replacement_path_minimum")
     inner = method_input_missing(
-        "distance evaluation requires a substitution pair",
-        method_id="distance_between_points",
+        "path minimum kernel requires the source objective",
+        method_id=(
+            "coupled_segment_endpoint_replacement_path_minimum_kernel"
+        ),
         capability_id=macro.macro_id,
-        step_id="derive_closed_minimum",
+        step_id="derive_path_minimum",
         observed={
-            "missing_inputs": ["parameter", "parameter_value"],
-            "provided_inputs": ["p1", "p2"],
+            "missing_inputs": ["path_condition"],
+            "provided_inputs": ["segment_binding_relation"],
         },
         repair_action="provide_required_input",
     ).authority
@@ -484,7 +490,10 @@ def test_supplied_macro_arg_that_fails_lowering_is_configuration_drift(
     authority = normalize_macro_diagnostic_authority(
         inner,
         macro_spec=macro,
-        provided_arg_names=("path_transformation", "parameter_value"),
+        provided_arg_names=(
+            "path_minimum_target",
+            "segment_binding_relation",
+        ),
     )
 
     assert authority.code == "planner.macro_contract_invalid"
@@ -501,14 +510,15 @@ def test_macro_method_failure_keeps_public_object_role_not_hidden_arg(
         family
         for family in DEFAULT_FAMILY_REGISTRY.families
         if any(
-            recipe.recipe_id == "broken_path_straightening_minimum_expression"
+            recipe.recipe_id
+            == "coupled_segment_endpoint_replacement_path_minimum"
             for recipe in family.step_recipes
         )
     )
     macro = MacroSpecRegistry.from_family_spec(
         family,
         fixture.inputs.method_specs,
-    ).require("broken_path_straightening_minimum_expression")
+    ).require("coupled_segment_endpoint_replacement_path_minimum")
     binding = next(
         item
         for item in fixture.binding_catalog.bindings.values()
@@ -521,10 +531,12 @@ def test_macro_method_failure_keeps_public_object_role_not_hidden_arg(
     )
     inner = method_input_invalid(
         "fixed endpoint violates the geometric precondition",
-        method_id="broken_path_straightening_candidates",
+        method_id=(
+            "coupled_segment_endpoint_replacement_path_minimum_kernel"
+        ),
         capability_id=macro.macro_id,
         step_id="derive_minimum",
-        arg_name="fixed_point_1",
+        arg_name="first_segment_start",
         role="fixed_endpoint",
         internal_ref=internal_ref,
         expected={"type": "Point", "state": "materialized"},
@@ -535,7 +547,10 @@ def test_macro_method_failure_keeps_public_object_role_not_hidden_arg(
     authority = normalize_macro_diagnostic_authority(
         inner,
         macro_spec=macro,
-        provided_arg_names=("path_transformation",),
+        provided_arg_names=(
+            "path_minimum_target",
+            "segment_binding_relation",
+        ),
     )
     prompt = FunctionalPromptDiagnosticProjector().project(
         authority,
@@ -548,8 +563,8 @@ def test_macro_method_failure_keeps_public_object_role_not_hidden_arg(
     assert prompt.subjects[0].role == "fixed_endpoint"
     assert prompt.subjects[0].arg_name is None
     wire = json.dumps(prompt.to_payload(), ensure_ascii=False)
-    assert "broken_path_straightening_candidates" not in wire
-    assert "fixed_point_1" not in wire
+    assert "coupled_segment_endpoint_replacement_path_minimum_kernel" not in wire
+    assert "first_segment_start" not in wire
 
 
 def test_identity_projection_prefers_problem_input_over_answer_aliases(tmp_path) -> None:

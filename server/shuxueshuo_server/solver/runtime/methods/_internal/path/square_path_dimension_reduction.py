@@ -1,14 +1,11 @@
-"""square_path_dimension_reduction 无状态 method。
+"""Private square-path dimension reduction for the atomic square kernel.
 
 把正方形中点/中心结构中的三段路径降维为单动点两段折线路径。
 """
 
 from __future__ import annotations
 
-from shuxueshuo_server.solver.contracts import MethodExplanationSpec, MethodVisualSpec
-
-from ._common import *
-from ._spec import MethodSpecSource, declare_input_views
+from ..._common import *
 
 
 class SquarePathDimensionReductionMethod:
@@ -542,110 +539,4 @@ def _segment_with_endpoint(segments: list[str], endpoint: str, *, exclude: str) 
     return matches[0]
 
 
-SPEC = MethodSpecSource(
-    method_cls=SquarePathDimensionReductionMethod,
-    title="正方形路径降维",
-    summary=(
-        "仅用于原目标路径恰好由三段组成，并且正方形边、中点、中心或对角线"
-        "交点关系能够通过斜边中线与三角形中位线把其中两段合并为一段的结构。"
-        "路径中的结构化固定端点必须先由其题面定义在当前 scope 或祖先 scope"
-        "物化为 Point state；PointRef 或点名本身不是可执行坐标。"
-        "输出等价的单动点两段 PathTransformation，不负责拉直或求最小值；"
-        "moving_point 必须由 Planner 显式声明，Method 只验证这一解释；输出不携带"
-        "动点轨迹，后续必须先求 PathTransformation 声明动点的 Line。"
-    ),
-    do_not_use_when=(
-        "原路径只有两段，或不需要正方形的中点和中心关系即可完成等长/比例替换。",
-        "缺少三段路径、正方形、中点、中心或对角线交点中的必要结构化条件。",
-        "路径固定端点只有 PointRef、定义或点名而没有已计算 Point state；应先用"
-        "与题面构造匹配的 capability 物化该点，不能拿任意可见 Point 代替。",
-        "目标是处理线段与射线等长、加权距离，或已经完成降维的普通两段折线路径。",
-    ),
-    solves=("reduce_square_path_dimension", "derive_path_transformation"),
-    inputs={
-        "path_condition": {"type": "Condition", "required": True},
-        "square_condition": {"type": "Condition", "required": True},
-        "midpoint_condition": {"type": "Condition", "required": True},
-        "square_center_condition": {"type": "Condition", "required": True},
-        "moving_point": {
-            "type": "PointRef",
-            "required": True,
-            "description": (
-                "Planner 选择的降维后单动点身份；Method 根据正方形和路径"
-                "结构验证，不按顶点序号自动选择。"
-            ),
-        },
-        "fixed_endpoint_1_ref": {"type": "PointRef", "required": False},
-        "fixed_endpoint_2_ref": {"type": "PointRef", "required": False},
-    },
-    input_views=declare_input_views(
-        identity=("moving_point", "fixed_endpoint_1_ref", "fixed_endpoint_2_ref"),
-        immutable_value=(
-            "path_condition",
-            "square_condition",
-            "midpoint_condition",
-            "square_center_condition",
-        ),
-    ),
-    outputs={"path_transformation": "PathTransformation"},
-    preconditions=(
-        "path_condition.path 是三段路径",
-        "midpoint_condition 指向正方形一边的中点",
-        "square_center_condition 指向该正方形中心或对角线交点",
-        "中点到另一固定点的半边关系已有直角三角形斜边中线依据",
-        "两个结构化固定端点都已有当前 scope 可见的 Point state",
-        "moving_point 是 Planner 显式选择且通过正方形邻接与三段路径验算的对象",
-    ),
-    postconditions=(
-        "输出 transformed_path 是两段共享同一动点的折线路径",
-        "输出 payload 保留已经验证的 moving_point_name 与 fixed_point_names，供后续调用建立同一对象身份",
-    ),
-    explanation=MethodExplanationSpec(
-        role_schema={
-            "midpoint_statement": "说明哪个点是正方形边的中点。",
-            "right_triangle_statement": "用于斜边中线关系的直角三角形。",
-            "midpoint_fixed_half": "边中点到固定点线段的半长关系。",
-            "center_midpoint_statement": "说明哪个点是正方形对角线中心。",
-            "midline_statement": "正方形边与动点构成三角形中的中位线关系。",
-            "center_midpoint_half": "中心到中点线段的半长关系。",
-            "square_side_equality": "用于合并两段半长的正方形相邻边相等关系。",
-            "merged_segment": "合并后的线段等量关系。",
-            "path_equality": "最终路径转化等式。",
-        },
-        student_goal_template="利用斜边中线和三角形中位线，把正方形路径中的两段合并为一段。",
-        student_title_template="由斜边中线和中位线转化线段",
-        student_nav_title_template="多动点转化为单动点问题",
-        derive_templates=(
-            "∵{midpoint_statement}",
-            "∴{right_triangle_statement}，{midpoint_fixed_half}",
-            "∵{center_midpoint_statement}",
-            "∴{midline_statement}",
-            "∴{center_midpoint_half}",
-            "∵{square_side_equality}",
-            "∴{merged_segment}",
-            "∴{path_equality}",
-        ),
-        box_templates=("{midpoint_fixed_half}", "{center_midpoint_half}", "{merged_segment}", "{path_equality}"),
-        role_binder_id="square_path_dimension_reduction",
-    ),
-    visual=MethodVisualSpec(
-        role_schema={
-            "square_path_marker": "正方形路径降维中的直角三角形和中位线视觉证明。",
-        },
-        role_binder_id="square_path_dimension_reduction",
-        scene_templates=(
-            {
-                "component": "SquarePathDimensionMarker",
-                "persistence": "carry_forward",
-                "square_fill": "rgba(15, 118, 110, 0.055)",
-                "square_color": "rgba(15, 118, 110, 0.50)",
-                "right_triangle_fill": "rgba(14, 165, 233, 0.12)",
-                "midline_triangle_fill": "rgba(245, 158, 11, 0.12)",
-                "half_segment_color": "#7c3aed",
-                "path_segment_color": "#dc2626",
-                "replacement_color": "#b45309",
-                "show_half_segment_labels": False,
-            },
-        ),
-    ),
-)
+__all__ = ["SquarePathDimensionReductionMethod"]

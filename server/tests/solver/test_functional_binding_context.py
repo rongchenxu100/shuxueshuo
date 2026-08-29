@@ -530,8 +530,8 @@ def test_semantic_latest_and_call_result_exact_are_part_of_binding() -> None:
     assert semantic is not None and semantic.selection_policy == "exact"
     assert call_result is not None and call_result.selection_policy == "exact"
     assert call_result.source.kind == "call_result"
-    assert call_result.source.source_call_id == "ii_derive_path_model"
-    assert call_result.source.source_return_name == "path_minimum_expression"
+    assert call_result.source.source_call_id == "ii_path_minimum"
+    assert call_result.source.source_return_name == "minimum_expression"
     assert call_result.input_binding is not None
     assert call_result.input_binding.source is not None
     assert call_result.input_binding.source.kind == "exact_call_result"
@@ -663,15 +663,17 @@ def test_typed_sources_survive_payload_round_trip() -> None:
         )
         for binding in selected_bindings
     }
-    assert selected_by_key[
-        ("transform_weighted_path_ii", "dynamic_parameter")
-    ] == "symbol:ii_2:m"
-    assert selected_by_key[
-        ("derive_weighted_minimum_ii", "parameter")
-    ] == "symbol:problem:b"
+    assert not any(
+        call_id in {
+            "transform_weighted_path_ii",
+            "derive_weighted_minimum_ii",
+        }
+        and arg_name in {"dynamic_parameter", "parameter"}
+        for call_id, arg_name in selected_by_key
+    )
 
 
-def test_dynamic_symbol_projection_ignores_sibling_role_candidate() -> None:
+def test_atomic_weighted_hidden_symbol_ignores_sibling_candidate() -> None:
     result, catalog = _reconcile("xiqing")
     case = FUNCTIONAL_BATCH_CASES["xiqing"]
     *_, registry, planner_context, problem_binding_catalog = (
@@ -713,11 +715,13 @@ def test_dynamic_symbol_projection_ignores_sibling_role_candidate() -> None:
         condition_authority_index=condition_index,
     )
     dynamic = rebuilt.binding_for(
-        "transform_weighted_path_ii",
+        "derive_weighted_minimum_ii",
         "dynamic_parameter",
         0,
     )
     assert dynamic is not None
+    assert dynamic.input_binding is None
+    assert dynamic.consumption_mode == "resolver_evidence"
     assert dynamic.source.math_object_id == MathObjectId(
         "symbol:ii_2:m",
         "symbol",
@@ -725,7 +729,7 @@ def test_dynamic_symbol_projection_ignores_sibling_role_candidate() -> None:
     )
 
 
-def test_typed_symbol_derivation_ignores_unrelated_visible_role_candidate() -> None:
+def test_atomic_weighted_hidden_symbol_is_not_a_public_binding() -> None:
     result, catalog = _reconcile("xiqing")
     case = FUNCTIONAL_BATCH_CASES["xiqing"]
     *_, registry, planner_context, problem_binding_catalog = (
@@ -767,12 +771,14 @@ def test_typed_symbol_derivation_ignores_unrelated_visible_role_candidate() -> N
         condition_authority_index=condition_index,
     )
     dynamic = rebuilt.binding_for(
-        "transform_weighted_path_ii",
+        "derive_weighted_minimum_ii",
         "dynamic_parameter",
         0,
     )
 
     assert dynamic is not None
+    assert dynamic.input_binding is None
+    assert dynamic.consumption_mode == "resolver_evidence"
     assert dynamic.source.math_object_id == MathObjectId(
         "symbol:ii_2:m",
         "symbol",

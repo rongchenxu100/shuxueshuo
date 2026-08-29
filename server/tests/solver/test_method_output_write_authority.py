@@ -29,8 +29,6 @@ SCHEMA_ROOT = REPO_ROOT / "internal/schemas"
 EXPECTED_COMPANIONS = {
     ("quadratic_from_constraints", "coefficients"),
     ("quadratic_axis_parameterized_point", "parameter"),
-    ("weighted_axis_path_triangle_transform", "auxiliary_point"),
-    ("weighted_axis_path_triangle_transform", "auxiliary_locus"),
 }
 EXPECTED_RUNTIME_COMPANIONS = {
     ("quadratic_from_constraints", "coefficients"),

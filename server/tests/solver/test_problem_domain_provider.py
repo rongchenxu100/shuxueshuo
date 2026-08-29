@@ -102,22 +102,7 @@ def test_family_catalog_contains_only_source_selection_contract() -> None:
         for item in catalog
         if item["family_id"] == "QuadraticSquareReflectionPathMinimumSolver"
     )
-    assert square["conditional_source_requirements"] == [
-        {
-            "when_fact_types": ["minimum_value_given"],
-            "require_visible_fact_types": [
-                "minimum_target",
-                "square",
-                "midpoint",
-                "square_center",
-                ],
-                "description": (
-                    "路径目标须具备正方形、中点、中心和可解析的三段路径结构；"
-                    "moving_point 由 Planner 显式选择，再由这些事实和实际路径"
-                    "等价性验证。"
-                ),
-        }
-    ]
+    assert square["conditional_source_requirements"] == []
     assert "PointList" not in json.dumps(catalog, ensure_ascii=False)
 
 

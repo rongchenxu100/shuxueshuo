@@ -532,6 +532,7 @@ def test_recorded_replay_explicitly_consumes_problem_binding_catalog(
         planner_state_context=planner_context,
         validation_report=validation,
         problem_binding_catalog=catalog,
+        canonical_plan_id="test:nankai:binding-catalog",
     )
 
     assert replay.output is not None, replay.errors
@@ -1092,11 +1093,6 @@ def test_dynamic_point_semantic_ref_binds_unique_prior_same_object_state(
         "kind": "point",
         "ref": "N",
     }
-    calls["ii_2_derive_G"]["args"]["line2_p2"] = {
-        "kind": "point",
-        "ref": "N",
-    }
-
     (
         _bundle,
         _planning_context,
@@ -1121,7 +1117,6 @@ def test_dynamic_point_semantic_ref_binds_unique_prior_same_object_state(
     expected_keys = {
         ("ii_derive_parabola", "curve_points", 1),
         ("ii_1_solve_m", "p2", 0),
-        ("ii_2_derive_G", "line2_p2", 0),
     }
     bindings = {
         (item.call_id, item.arg_name, item.item_index): item
@@ -1136,10 +1131,7 @@ def test_dynamic_point_semantic_ref_binds_unique_prior_same_object_state(
     assert aggregate.typed_source.source_return_name == "selected_target_point"
 
     version_ids = set()
-    for key in (
-        ("ii_1_solve_m", "p2", 0),
-        ("ii_2_derive_G", "line2_p2", 0),
-    ):
+    for key in (("ii_1_solve_m", "p2", 0),):
         item = bindings[key]
         assert item.semantic_ref is not None
         assert item.semantic_ref.to_payload() == {"kind": "point", "ref": "N"}

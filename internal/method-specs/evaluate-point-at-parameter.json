@@ -73,16 +73,6 @@
       ]
     }
   ],
-  "trial_error_hints": [
-    {
-      "error_contains": "missing required input: parameter",
-      "code": "final_point_requires_square_recovery",
-      "requires_point_answer": true,
-      "requires_planner_output_types": [
-        "PathTransformation"
-      ]
-    }
-  ],
   "explanation": {
     "role_schema": {
       "source_point": "代入前的含参点坐标。",

@@ -42,6 +42,10 @@ from shuxueshuo_server.solver.runtime.functional_plan_models import (
     FunctionalCapability,
     FunctionalCapabilityReturn,
 )
+from shuxueshuo_server.solver.runtime.macro_atomicity import (
+    MACRO_INLINE_EXPANSION_FORBIDDEN,
+    atomic_macro_replacements,
+)
 from shuxueshuo_server.solver.runtime.runtime_type_compatibility import (
     normalize_runtime_type,
     runtime_type_compatible,
@@ -1215,6 +1219,11 @@ def _normalize_content_wire(
         return payload, (), ()
     normalized = deepcopy(payload)
     records: list[FunctionalPlanContentNormalization] = []
+    inline_issues = _macro_inline_expansion_issues(
+        normalized,
+        frame=frame,
+        capability_catalog=capability_catalog,
+    )
     normalized, step_map_records = normalize_empty_optional_step_maps(
         normalized
     )
@@ -1285,7 +1294,58 @@ def _normalize_content_wire(
         *role_records,
         *named_ref_records,
         *ownership_records,
-    ), role_issues
+    ), (*inline_issues, *role_issues)
+
+
+def _macro_inline_expansion_issues(
+    payload: object,
+    *,
+    frame: FunctionalPlanAuthorityFrame,
+    capability_catalog: FunctionalCapabilityCatalog,
+) -> tuple[ScopedFunctionalPlanIssue, ...]:
+    """Reject retired path subgraphs before capability-bound schema checks."""
+
+    if not isinstance(payload, dict):
+        return ()
+    steps, step_scopes = _content_steps_and_scopes(payload, frame=frame)
+    issues: list[ScopedFunctionalPlanIssue] = []
+    for step_id, step in steps.items():
+        capability_id = str(step.get("capability_id", ""))
+        replacements = atomic_macro_replacements(
+            capability_id,
+            available_capability_ids=capability_catalog.items,
+        )
+        if not replacements:
+            continue
+        step_path = _content_step_path(payload, step_id)
+        path = (
+            _json_path((*step_path, "capability_id"))
+            if step_path is not None
+            else "$"
+        )
+        details: dict[str, Any] = {
+            "step_id": step_id,
+            "scope_ref": step_scopes.get(step_id),
+            "observed_capability": capability_id,
+            "required_macros": list(replacements),
+            "retryability": "planner_repairable",
+            "repair_action": "replace_scope_body_with_atomic_macro",
+        }
+        if len(replacements) == 1:
+            details["required_macro"] = replacements[0]
+        issues.append(
+            ScopedFunctionalPlanIssue(
+                MACRO_INLINE_EXPANSION_FORBIDDEN,
+                path,
+                (
+                    f"capability {capability_id!r} is a retired internal "
+                    "path component; author the available atomic Macro "
+                    f"{', '.join(replacements)!r} instead"
+                ),
+                details,
+            )
+        )
+    return tuple(issues)
 
 
 def normalize_empty_optional_step_maps(
@@ -3535,7 +3595,6 @@ def _source_ref_runtime_types(
             return {
                 {
                     "QuadraticFunction": "Parabola",
-                    "PathWitness": "PathTransformation",
                     "PointCandidates": "PointList",
                 }.get(domain_type, domain_type)
             }

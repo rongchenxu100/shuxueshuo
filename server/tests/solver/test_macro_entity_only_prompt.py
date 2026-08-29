@@ -23,6 +23,21 @@ RUNTIME_TERMS = (
     "MathObjectId",
     "runtime_path",
     "PathTransformation",
+    "PathWitness",
+    "PathCandidate",
+    "StraighteningCandidate",
+)
+
+RETIRED_PATH_CAPABILITIES = (
+    "two_moving_points_path_reduction",
+    "square_path_dimension_reduction",
+    "parameterized_point_locus_line",
+    "line_locus_minimum_point",
+    "broken_path_straightening_candidates",
+    "select_straightening_candidate",
+    "weighted_axis_path_triangle_transform",
+    "linked_broken_path_minimum_expression",
+    "linked_broken_path_geometric_minimum",
 )
 
 STATE_VALUE_TYPES = {"ParameterValue", "Parabola"}
@@ -38,6 +53,10 @@ def test_functional_capability_prompt_exposes_only_domain_arguments() -> None:
         ).to_prompt_payload()
         encoded = json.dumps(payload, ensure_ascii=False, sort_keys=True)
         assert all(term not in encoded for term in RUNTIME_TERMS), family.family_id
+        assert all(
+            capability_id not in encoded
+            for capability_id in RETIRED_PATH_CAPABILITIES
+        ), family.family_id
         for capability in payload["capabilities"]:
             for arg in capability["args"]:
                 assert set(arg) <= {
@@ -77,38 +96,32 @@ def test_macro_catalog_hides_internal_methods_and_runtime_views() -> None:
                 assert arg["domain_type"] not in STATE_VALUE_TYPES
 
 
-def test_macro_named_entity_and_anonymous_result_forms_are_explicit() -> None:
+def test_atomic_path_macros_expose_only_problem_entities_and_public_results() -> None:
     methods = MethodSpecRegistry.load_from_code()
-    matching_specs = []
+    matching_specs = {}
 
     for family in DEFAULT_FAMILY_REGISTRY.families:
         registry = MacroSpecRegistry.from_family_spec(family, methods)
         for macro_id in (
-            "broken_path_straightening_and_select",
-            "broken_path_straightening_minimum_expression",
+            "coupled_segment_endpoint_replacement_path_minimum",
+            "quadratic_square_path_minimum",
+            "weighted_axis_path_minimum",
         ):
             spec = registry.specs.get(macro_id)
             if spec is not None:
-                matching_specs.append(spec)
+                matching_specs[macro_id] = spec
 
-    assert matching_specs
-    for spec in matching_specs:
-        line_args = tuple(
-            item for item in spec.args if item.runtime_type == "Line"
+    assert set(matching_specs) == {
+        "coupled_segment_endpoint_replacement_path_minimum",
+        "quadratic_square_path_minimum",
+        "weighted_axis_path_minimum",
+    }
+    for spec in matching_specs.values():
+        encoded = json.dumps(spec.to_prompt_payload(), ensure_ascii=False)
+        assert all(
+            term not in encoded
+            for term in ("PathTransformation", "PathWitness", "PathCandidate")
         )
-        assert len(line_args) == 1
-        moving_locus = line_args[0]
-        assert moving_locus.runtime_type == "Line"
-        assert moving_locus.allows_anonymous_result
-
-        prompt_line_args = tuple(
-            item
-            for item in spec.to_prompt_payload()["args"]
-            if item["domain_type"] == "Line"
-        )
-        assert len(prompt_line_args) == 1
-        prompt_arg = prompt_line_args[0]
-        assert "allows_anonymous_result" not in prompt_arg
 
 
 def test_all_registered_macros_declare_execution_and_lowering_contract() -> None:
@@ -121,14 +134,12 @@ def test_all_registered_macros_declare_execution_and_lowering_contract() -> None
             macros.setdefault(macro_id, []).append(spec)
 
     assert set(macros) == {
-        "broken_path_straightening_and_select",
-        "broken_path_straightening_minimum_expression",
+        "coupled_segment_endpoint_replacement_path_minimum",
         "curve_candidate_parameter_solve",
         "equal_length_ray_path_reduction",
-        "path_minimum_by_straightened_distance",
         "quadratic_square_path_minimum",
         "right_angle_equal_length_construct_and_select",
-        "two_moving_points_path_reduction",
+        "weighted_axis_path_minimum",
     }
     for specs in macros.values():
         for spec in specs:

@@ -42,6 +42,10 @@ from shuxueshuo_server.solver.runtime.functional_few_shots import (
     split_functional_few_shot_asset,
 )
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
+from shuxueshuo_server.solver.runtime.macro_atomicity import (
+    PRIVATE_PATH_RUNTIME_TYPES,
+    contains_private_path_projection_marker,
+)
 from shuxueshuo_server.solver.runtime.planner import PlannerInputs
 from shuxueshuo_server.solver.runtime.projection import problem_to_llm_payload
 from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
@@ -747,6 +751,11 @@ def _compact_functional_result_snapshot(
     value_type = snapshot.get("type")
     if not isinstance(return_name, str) or not isinstance(value_type, str):
         return None
+    if value_type in PRIVATE_PATH_RUNTIME_TYPES:
+        raise ValueError(
+            "functional.retry_runtime_output_projection_invalid: private "
+            f"path runtime state cannot enter a Planner prompt: {value_type}"
+        )
     result: dict[str, Any] = {
         "return": return_name,
         "type": value_type,
@@ -755,7 +764,18 @@ def _compact_functional_result_snapshot(
     if isinstance(semantic_ref, str) and semantic_ref:
         result["ref"] = semantic_ref
     if "value" in snapshot:
-        value = _sanitize_functional_runtime_value(snapshot["value"])
+        raw_value = snapshot["value"]
+        if contains_private_path_projection_marker(raw_value):
+            raise ValueError(
+                "functional.retry_runtime_output_projection_invalid: private "
+                "path marker cannot enter a Planner prompt"
+            )
+        value = _sanitize_functional_runtime_value(raw_value)
+        if contains_private_path_projection_marker(value):
+            raise ValueError(
+                "functional.retry_runtime_output_projection_invalid: private "
+                "path marker cannot enter a Planner prompt"
+            )
         encoded = json.dumps(value, ensure_ascii=False, sort_keys=True)
         if len(encoded) <= _FUNCTIONAL_PROMPT_RESULT_VALUE_MAX_CHARS:
             result["value"] = value
@@ -792,13 +812,7 @@ def _compact_functional_result_snapshot(
         if prompt_closure:
             result["closure"] = prompt_closure
     object_roles = snapshot.get("object_roles")
-    if value_type == "PathTransformation" and isinstance(object_roles, dict):
-        prompt_roles = _sanitize_functional_runtime_value(object_roles)
-        result["structure"] = {
-            **prompt_roles,
-            "moving_locus_available": "moving_locus" in object_roles,
-        }
-    elif include_identity:
+    if include_identity:
         semantic_roles = snapshot.get("semantic_roles")
         if isinstance(semantic_roles, list) and semantic_roles:
             result["roles"] = [

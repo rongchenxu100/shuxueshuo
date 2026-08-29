@@ -31,7 +31,7 @@
           },
           "return_bindings": {},
           "strategy": "利用题设线段关系原子完成端点替换、折线拉直和最小值推导。",
-          "reason": "内部路径变换不暴露给 Planner；同一 Macro 还可返回原题动点的取等状态。",
+          "reason": "内部几何构造不暴露给 Planner；同一 Macro 还可返回原题动点的取等状态。",
           "return_expectations": {
             "minimum_expression": "open_expression"
           }

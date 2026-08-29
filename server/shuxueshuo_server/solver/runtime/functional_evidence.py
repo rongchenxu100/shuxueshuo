@@ -10,9 +10,6 @@ from shuxueshuo_server.solver.family.models import (
     EvidenceInputGroupSpec,
     StateLineageClosureSpec,
 )
-from shuxueshuo_server.solver.runtime.straightening_metadata import (
-    canonical_straightening_endpoint_name,
-)
 from shuxueshuo_server.solver.state_semantics import (
     StateSemanticLineage,
     state_object_refs_for_role,
@@ -219,7 +216,7 @@ def _evaluate_input_groups(
         aliases = dict(group.witness_role_aliases)
         used_indexes: set[int] = set()
         for raw_role in group.required_semantic_roles:
-            role = canonical_straightening_endpoint_name(raw_role) or raw_role
+            role = raw_role
             match_index = _matching_value_index(
                 values,
                 role=role,
@@ -276,10 +273,7 @@ def _matching_value_index(
     for index, value in enumerate(values):
         if index in used_indexes:
             continue
-        roles = {
-            canonical_straightening_endpoint_name(item) or item
-            for item in value.lineage.semantic_roles
-        }
+        roles = set(value.lineage.semantic_roles)
         if role in roles:
             return index
     object_role = aliases.get(role)

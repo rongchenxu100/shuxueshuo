@@ -121,4 +121,10 @@ def test_active_architecture_and_onboarding_docs_use_functional_plan() -> None:
         source = (_REPO_ROOT / relative_path).read_text(encoding="utf-8")
         assert "executable-step-intents" not in source
         assert "internal/few-shots/" not in source
-        assert "functional_plan/v1" in source
+        assert "functional" in source.lower()
+    architecture = (_REPO_ROOT / "docs/method-solver-architecture.md").read_text(
+        encoding="utf-8"
+    )
+    assert "functional-plan-content/v2" in architecture
+    assert "functional-scope-repair/v1" in architecture
+    assert "functional_plan/v2" in architecture

@@ -120,9 +120,6 @@ from shuxueshuo_server.solver.runtime.state_identity import (
     StateIdentityIndex,
     StateVersionId,
 )
-from shuxueshuo_server.solver.runtime.straightening_metadata import (
-    canonical_straightening_endpoint_name,
-)
 from shuxueshuo_server.solver.utils import unique_ordered
 
 
@@ -1892,105 +1889,6 @@ def _enrich_functional_retry_issues(
         )
         error_code = details.get("error_code") or issue.code
         if (
-            error_code == "functional.path_transformation_state_unavailable"
-            and call is not None
-        ):
-            object_ref = details.get("object_ref")
-            point_label = (
-                object_ref.rsplit(":", 1)[-1]
-                if isinstance(object_ref, str)
-                else "the required point"
-            )
-            compatible_results = [
-                {
-                    "from_call": prior.call_id,
-                    "return": allocation.return_name,
-                    "value_type": allocation.runtime_type,
-                }
-                for prior in reconciliation.calls
-                if call_order.get(prior.call_id, -1)
-                < call_order.get(call.call_id, -1)
-                for allocation in prior.returns
-                if allocation.runtime_type == "Point"
-                and isinstance(object_ref, str)
-                and allocation.object_ref == object_ref
-            ]
-            compatible_results = list(
-                {
-                    (item["from_call"], item["return"]): item
-                    for item in compatible_results
-                }.values()
-            )
-            details.update(
-                {
-                    "repair_action": "materialize_required_point_state",
-                    "repair_call_ids": list(
-                        unique_ordered(
-                            (
-                                *(
-                                    item["from_call"]
-                                    for item in compatible_results
-                                ),
-                                call.call_id,
-                            )
-                        )
-                    ),
-                }
-            )
-            producer_contract = _point_materialization_producer_contract(
-                object_ref,
-                semantic_index=semantic_index,
-            )
-            if producer_contract is not None:
-                details["recommended_producer"] = producer_contract
-            if compatible_results:
-                details["compatible_call_results"] = compatible_results
-            if len(compatible_results) == 1:
-                required = {
-                    key: compatible_results[0][key]
-                    for key in ("from_call", "return")
-                }
-                details["required_call_result"] = required
-                details["repair_guidance"] = (
-                    "Retain the Point producer and make the dynamic dependency "
-                    "explicit with required_call_result. Do not substitute the "
-                    "same-name SemanticRef."
-                )
-                message = (
-                    f"call {call.call_id} requires the computed Point state "
-                    f"for {point_label}; use {required['from_call']}."
-                    f"{required['return']} as a CallResultRef"
-                )
-            else:
-                if producer_contract is not None:
-                    details["repair_guidance"] = (
-                        "Insert the recommended producer before this call in "
-                        "the same scope or a visible ancestor. Bind its Point "
-                        f"return to {point_label}; use the current-scope "
-                        "computed inputs named by the producer contract."
-                    )
-                else:
-                    details["repair_guidance"] = (
-                        "Add or retain exactly one earlier call that "
-                        f"materializes Point {point_label}, then connect its "
-                        "Point return to the dependent call with CallResultRef."
-                    )
-                message = (
-                    f"call {call.call_id} requires a computed Point state for "
-                    f"{point_label}, but no unique earlier Point producer is "
-                    "available"
-                )
-            result.append(
-                replace(
-                    issue,
-                    step_id=call.call_id,
-                    repair_target="functional_call",
-                    message=message,
-                    details=details,
-                )
-            )
-            continue
-        if (
             error_code == "function.transition_dependency_missing"
             and call is not None
         ):
@@ -2543,10 +2441,7 @@ def _declared_compatible_call_results(
     if required_object_refs:
         return []
 
-    accepted_roles = {
-        canonical_straightening_endpoint_name(role) or role
-        for role in accepted_semantic_roles
-    }
+    accepted_roles = set(accepted_semantic_roles)
     result: list[dict[str, str]] = []
     for prior in plan.calls:
         if call_order.get(prior.call_id, -1) >= call_order[consumer_call_id]:
@@ -2567,11 +2462,7 @@ def _declared_compatible_call_results(
                 returned.equivalent_to,
                 *returned.provides_semantic_roles,
             }
-            canonical_roles = {
-                canonical_straightening_endpoint_name(role) or role
-                for role in return_roles
-                if role
-            }
+            canonical_roles = {role for role in return_roles if role}
             if accepted_roles and not accepted_roles.intersection(
                 canonical_roles
             ):

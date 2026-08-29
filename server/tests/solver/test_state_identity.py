@@ -48,11 +48,7 @@ from shuxueshuo_server.solver.runtime.planner_state_context import (
     StateWriteVersion,
     _attach_typed_initial_identity,
 )
-from shuxueshuo_server.solver.runtime.path_transformation_state import (
-    PathTransformationStateResolver,
-)
 from shuxueshuo_server.solver.runtime.recipe_compiler import (
-    _required_path_role_point_input,
     _previous_state_write,
 )
 from shuxueshuo_server.solver.runtime.state_identity import (
@@ -926,8 +922,6 @@ def test_functional_authority_has_no_legacy_identity_lookup() -> None:
 def test_functional_runtime_consumers_do_not_call_legacy_state_selectors() -> None:
     typed_consumers = (
         EntityStateResolver._resolve_typed,
-        PathTransformationStateResolver._resolve_typed_role,
-        _required_path_role_point_input,
     )
     forbidden_calls = {
         "_legacy_explicit_state",
@@ -948,21 +942,6 @@ def test_functional_runtime_consumers_do_not_call_legacy_state_selectors() -> No
             function.__qualname__,
             called,
         )
-    path_role_tree = ast.parse(
-        textwrap.dedent(
-            inspect.getsource(_required_path_role_point_input)
-        )
-    )
-    assert any(
-        isinstance(node, ast.Attribute)
-        and node.attr == "runtime_path_for_state_version"
-        for node in ast.walk(path_role_tree)
-    )
-    assert not any(
-        isinstance(node, ast.Attribute)
-        and node.attr == "path_for"
-        for node in ast.walk(path_role_tree)
-    )
 
 
 def test_final_return_role_reprojection_fails_when_source_disappears() -> None:

@@ -228,8 +228,10 @@ def test_atomic_path_macros_are_registered_for_runtime_search() -> None:
     }
 
     assert runtime_search_ids == {
+        "coupled_segment_endpoint_replacement_path_minimum",
         "equal_length_ray_path_reduction",
         "quadratic_square_path_minimum",
+        "weighted_axis_path_minimum",
     }
 
 

@@ -716,11 +716,8 @@ CapabilityContextResolver = Literal[
     "condition_object_roles",
     "coupled_segment_path_roles",
     "equal_length_ray_path_roles",
-    "path_reduction_roles",
     "quadratic_square_path_roles",
-    "square_path_transformation_roles",
     "weighted_axis_path_minimum_roles",
-    "weighted_path_transformation_roles",
 ]
 CONDITION_OBJECT_ROLES_RESOLVER: CapabilityContextResolver = (
     "condition_object_roles"
@@ -731,20 +728,11 @@ COUPLED_SEGMENT_PATH_ROLES_RESOLVER: CapabilityContextResolver = (
 EQUAL_LENGTH_RAY_PATH_ROLES_RESOLVER: CapabilityContextResolver = (
     "equal_length_ray_path_roles"
 )
-PATH_REDUCTION_ROLES_RESOLVER: CapabilityContextResolver = (
-    "path_reduction_roles"
-)
 QUADRATIC_SQUARE_PATH_ROLES_RESOLVER: CapabilityContextResolver = (
     "quadratic_square_path_roles"
 )
-SQUARE_PATH_TRANSFORMATION_ROLES_RESOLVER: CapabilityContextResolver = (
-    "square_path_transformation_roles"
-)
 WEIGHTED_AXIS_PATH_MINIMUM_ROLES_RESOLVER: CapabilityContextResolver = (
     "weighted_axis_path_minimum_roles"
-)
-WEIGHTED_PATH_TRANSFORMATION_ROLES_RESOLVER: CapabilityContextResolver = (
-    "weighted_path_transformation_roles"
 )
 
 
@@ -887,22 +875,6 @@ class CapabilityInputClosureRequirement:
 
 
 @dataclass(frozen=True)
-class PathTransformationConsumerSpec:
-    """Declare the semantic role profile consumed from a transformation."""
-
-    transformation_arg: str
-    required_roles: tuple[str, ...]
-    profile: Literal["standard_broken_path", "linked_auxiliary"]
-
-    def to_payload(self) -> dict[str, object]:
-        return {
-            "transformation_arg": self.transformation_arg,
-            "required_roles": list(self.required_roles),
-            "profile": self.profile,
-        }
-
-
-@dataclass(frozen=True)
 class CapabilityContractSpec:
     """Declarative semantic contract for a method or recipe capability.
 
@@ -929,7 +901,6 @@ class CapabilityContractSpec:
         CapabilityInputClosureRequirement, ...
     ] = ()
     identity_constraints: tuple[StateIdentityConstraintSpec, ...] = ()
-    path_transformation_consumer: PathTransformationConsumerSpec | None = None
 
     @property
     def is_complete(self) -> bool:
@@ -963,11 +934,6 @@ class CapabilityContractSpec:
             "identity_constraints": [
                 item.to_payload() for item in self.identity_constraints
             ],
-            "path_transformation_consumer": (
-                self.path_transformation_consumer.to_payload()
-                if self.path_transformation_consumer is not None
-                else None
-            ),
         }
 
 

@@ -56,7 +56,11 @@ def test_solve_problem_cli_outputs_json() -> None:
     payload = json.loads(completed.stdout)
     assert payload["problem_id"] == "tj-2026-nankai-yimo-25"
     assert payload["solver_family"] == "QuadraticPathMinimumSolver"
-    assert "distance_between_points" in payload["methods_used"]
+    assert (
+        "coupled_segment_endpoint_replacement_path_minimum_kernel"
+        in payload["methods_used"]
+    )
+    assert "two_moving_points_path_reduction" not in payload["methods_used"]
     assert payload["answers"]["ii_2"]["G"] == ["4", "-13/3"]
     assert all(check["status"] == "passed" for check in payload["checks"])
 
@@ -134,8 +138,9 @@ def test_solve_problem_cli_solves_hexi_weighted_25() -> None:
         "ii": {"D": ["sqrt(2)", "1"]},
         "iii": {"b": "2"},
     }
-    assert "weighted_axis_path_triangle_transform" in payload["methods_used"]
-    assert "linked_broken_path_geometric_minimum" in payload["methods_used"]
+    assert "weighted_axis_path_minimum_kernel" in payload["methods_used"]
+    assert "weighted_axis_path_triangle_transform" not in payload["methods_used"]
+    assert "linked_broken_path_geometric_minimum" not in payload["methods_used"]
 
 
 def test_solve_problem_cli_strategy_recorded_explicit(tmp_path) -> None:

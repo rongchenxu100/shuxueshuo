@@ -44,17 +44,8 @@ def planner_input_domain_type(
         "OrientationHint",
     }:
         return "Fact"
-    if variants == {"PathTransformation"}:
-        return "PathWitness"
     if variants <= {"PointList", "PointCandidates"}:
         return "PointList"
-    if variants == {"StraighteningCandidate"}:
-        return "PathCandidate"
-    if variants <= {
-        "StraighteningCandidates",
-        "StraighteningCandidateList",
-    }:
-        return "PathCandidateList"
     if variants == {"CandidateSet"}:
         return "CandidateList"
     if len(variants) == 1:
@@ -85,7 +76,6 @@ def planner_prompt_text(value: str) -> str:
         ("StateVersion", "state"),
         ("MathObjectId", "math entity"),
         ("PointRef", "Point identity"),
-        ("PathTransformation", "PathWitness"),
         ("runtime path", "internal state locator"),
     )
     result = value
@@ -115,11 +105,7 @@ def _planner_output_variant(runtime_type: str) -> str:
         "Equation": "Fact",
         "OrientationHint": "Fact",
         "Expression": "Expression",
-        "PathTransformation": "PathWitness",
         "PointList": "PointList",
         "PointCandidates": "PointList",
         "CandidateSet": "CandidateList",
-        "StraighteningCandidate": "PathCandidate",
-        "StraighteningCandidates": "PathCandidateList",
-        "StraighteningCandidateList": "PathCandidateList",
     }.get(runtime_type, runtime_type)

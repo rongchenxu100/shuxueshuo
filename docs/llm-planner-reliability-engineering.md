@@ -113,7 +113,11 @@ F5-F1.1进一步把LLM可见Function facade与Method runtime contract分离：pr
 
 Source-fact selector同时区分内部Domain fact kind与Planner Problem View公开kind。例如参数化对称轴点内部匹配`point_on_axis`，Prompt只展示实际可引用的`axis_membership`；两者由Function facade显式映射，避免让模型学习内部命名。真实批次若provider在请求超时窗口后仍悬挂且没有sample artifact，必须终止并记录为transport failure，不能把其余样本汇总成完整验收，也不能静默补跑后覆盖原批次。
 
-C5 symbolic closure门禁仍然有效，它验证的是参数闭合、分支数、残余自由元和checkpoint语义，不依赖LLM是否输出scope。F5-F高层路径macro接入后，C5需补macro内部closure与Goal/source provenance，同时断言内部`PathTransformation`不会出现在Planner wire；还要验证method实际产生结果但closure失败时，retry接收真实残余自由元而不是泛化编译错误，且独立Goal的closure checkpoint可继续冻结。不得用新macro替换或删减原有unique/ambiguous/inconsistent/underdetermined场景。
+C5 symbolic closure门禁仍然有效，它验证的是参数闭合、分支数、残余自由元和 checkpoint
+语义，不依赖 LLM 是否输出 scope。F5-F4.3 已补齐原子 Macro 的 Goal/source provenance、
+内部 `PathTransformation` 零 wire 投影，以及 method 产生结果但 closure 失败时的真实残余
+自由元诊断；独立 Goal 的 closure checkpoint 仍可恢复。原有 unique/ambiguous/
+inconsistent/underdetermined 场景继续保留，不能用新 Macro 替换或删减。
 
 生成式门禁必须覆盖真实维度，不能只统计场景数量。比较器必须 fail closed，缺字段、缺 owner、多余边和错误 issue 都应失败。
 

@@ -260,14 +260,17 @@ def test_vs1_heping_ermo_locus_minimum_and_parameter_interactions_are_bound(
 
     axis_square_ii_step = _lesson_step(lesson, "explain_derive_path_minimum_ii")
     axis_square_ii_decorations = _step_decorations(page, axis_square_ii_step.id)
-    assert {
-        "type": "dashedLine",
-        "from": "G_locus_ii_start",
-        "to": "G_locus_ii_end",
-        "color": "#0f766e",
-        "width": 2.0,
-        "dash": "7 5",
-    } in axis_square_ii_decorations
+    assert not any(
+        item.get("from") == "G_locus_ii_start"
+        or item.get("to") == "G_locus_ii_end"
+        for item in axis_square_ii_decorations
+    )
+    assert any(
+        item.get("type") == "coloredLine"
+        and item.get("from") == "M_axis_ii"
+        and item.get("to") == "G"
+        for item in axis_square_ii_decorations
+    )
     minimum_step = axis_square_ii_step
     minimum_decorations = _step_decorations(page, minimum_step.id)
     assert {

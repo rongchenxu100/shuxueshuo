@@ -15,13 +15,6 @@ from shuxueshuo_server.solver.runtime.condition_roles import (
     resolve_read_closed_right_angle_method_roles,
 )
 from shuxueshuo_server.solver.runtime.models import ContextPath
-from shuxueshuo_server.solver.runtime.path_reduction_roles import (
-    resolve_read_closed_path_reduction_inputs,
-)
-from shuxueshuo_server.solver.runtime.path_term_parsing import (
-    PathTermParseError,
-    parse_legacy_path_expression,
-)
 from shuxueshuo_server.solver.runtime.function_specs import FunctionAdapterRegistry
 from shuxueshuo_server.solver.runtime.functional_compile_contract import (
     compile_capability_id as _compile_capability_id,
@@ -265,227 +258,6 @@ def parameter_substitution_pairs_from_reads(
             f"the same Symbol: {conflicts}"
         )
     return tuple(candidates)
-
-
-def _square_path_fixed_endpoint_handles(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-) -> tuple[str, str]:
-    """Resolve square-path roles from exact fact references when available."""
-
-    square_handle = index.fact_handle_by_type("square", step=step)
-    square = index.fact_payload(square_handle)
-    vertices = tuple(str(item) for item in square.get("vertices", ()))
-    if (
-        len(vertices) < 4
-        or not all(
-            handle.startswith("point:") and handle in index.bindings
-            for handle in vertices[:4]
-        )
-    ):
-        raise StrategyDraftValidationError(
-            "square_path_roles_missing: ordered square vertices"
-        )
-    side_start, side_end, _, moving_vertex = vertices[:4]
-
-    midpoint_handle = index.fact_handle_by_type(
-        "midpoint_definition",
-        step=step,
-    )
-    midpoint = index.fact_payload(midpoint_handle)
-    midpoint_point = str(midpoint.get("point", ""))
-    midpoint_of = tuple(str(item) for item in midpoint.get("of", ()))
-    if (
-        midpoint_point not in index.bindings
-        or len(midpoint_of) != 2
-        or set(midpoint_of) != {side_start, side_end}
-    ):
-        raise StrategyDraftValidationError(
-            "square_path_roles_missing: midpoint of square side"
-        )
-
-    center_handle = index.fact_handle_by_type("square_center", step=step)
-    center = index.fact_payload(center_handle)
-    center_point = str(center.get("point", ""))
-    if (
-        center_point not in index.bindings
-        or str(center.get("square", "")) not in {"", square_handle}
-    ):
-        raise StrategyDraftValidationError(
-            "square_path_roles_missing: square center"
-        )
-
-    target_handle = index.fact_handle_by_type(
-        "path_minimum_target",
-        step=step,
-    )
-    target = index.fact_payload(target_handle)
-    structured = target.get("terms")
-    if isinstance(structured, list):
-        endpoint_pairs = _typed_path_endpoint_pairs(
-            structured,
-            step=step,
-            index=index,
-            context="square_path",
-        )
-        if len(endpoint_pairs) != 3:
-            raise StrategyDraftValidationError(
-                "square_path_roles_missing: three typed path terms"
-            )
-        _validate_typed_path_display(
-            endpoint_pairs,
-            str(target.get("path", "")),
-            step=step,
-            index=index,
-            context="square_path",
-        )
-        center_midpoint = _find_endpoint_pair(
-            endpoint_pairs,
-            center_point,
-            midpoint_point,
-        )
-        remaining = [pair for pair in endpoint_pairs if pair != center_midpoint]
-        midpoint_pairs = [pair for pair in remaining if midpoint_point in pair]
-        if len(midpoint_pairs) != 1:
-            raise StrategyDraftValidationError(
-                "square_path_roles_missing: midpoint segment"
-            )
-        other_fixed = _other_endpoint_handle(
-            midpoint_pairs[0],
-            midpoint_point,
-        )
-        final_pairs = [pair for pair in remaining if pair != midpoint_pairs[0]]
-        if len(final_pairs) != 1 or set(final_pairs[0]) != {
-            other_fixed,
-            moving_vertex,
-        }:
-            raise StrategyDraftValidationError(
-                "square_path_roles_missing: moving segment"
-            )
-        return side_start, other_fixed
-
-    # Old authored fixtures predate typed path terms. Restrict compatibility
-    # to source-visible names; local handle ids still never become authority.
-    segments = _segments_from_path_text(str(target.get("path", "")))
-    moving_name = index.entity_semantic_name(moving_vertex)
-    incident = tuple(segment for segment in segments if moving_name in segment)
-    if len(incident) != 1:
-        raise StrategyDraftValidationError(
-            "square_path_roles_missing: moving segment"
-        )
-    fixed_name = _other_endpoint(incident[0], moving_name)
-    return side_start, index.point_handle_by_name(fixed_name, step=step)
-
-
-def _typed_path_endpoint_pairs(
-    raw_terms: list[Any],
-    *,
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-    context: str,
-) -> list[tuple[str, str]]:
-    pairs: list[tuple[str, str]] = []
-    for term_index, raw_pair in enumerate(raw_terms):
-        if (
-            not isinstance(raw_pair, list)
-            or len(raw_pair) != 2
-            or not all(
-                isinstance(handle, str)
-                and handle.startswith("point:")
-                and handle in index.bindings
-                and index._handle_binding_visible(handle, step.scope_id)
-                for handle in raw_pair
-            )
-        ):
-            raise StrategyDraftValidationError(
-                f"{context}_typed_term_invalid: "
-                f"index={term_index}, term={raw_pair!r}"
-            )
-        pairs.append((str(raw_pair[0]), str(raw_pair[1])))
-    return pairs
-
-
-def _validate_typed_path_display(
-    endpoint_pairs: list[tuple[str, str]],
-    raw_path: str,
-    *,
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-    context: str,
-) -> None:
-    point_names = tuple(
-        sorted(
-            {
-                index.entity_semantic_name(handle)
-                for pair in endpoint_pairs
-                for handle in pair
-            }
-        )
-    )
-    try:
-        display_terms = parse_legacy_path_expression(
-            raw_path,
-            point_names=point_names,
-            resolve_point=lambda name: name,
-        )
-    except PathTermParseError as exc:
-        raise StrategyDraftValidationError(
-            f"{context}_expression_invalid: {exc.code}: {exc}"
-        ) from exc
-    if len(display_terms) != len(endpoint_pairs):
-        raise StrategyDraftValidationError(
-            f"{context}_term_count_drift: "
-            f"display={len(display_terms)}, structured={len(endpoint_pairs)}"
-        )
-    for term_index, (pair, display_term) in enumerate(
-        zip(endpoint_pairs, display_terms)
-    ):
-        typed_names = {
-            index.entity_semantic_name(pair[0]),
-            index.entity_semantic_name(pair[1]),
-        }
-        display_names = {display_term.start, display_term.end}
-        if typed_names != display_names:
-            raise StrategyDraftValidationError(
-                f"{context}_display_term_drift: index={term_index}, "
-                f"typed={sorted(typed_names)}, display={sorted(display_names)}"
-            )
-
-
-def _find_endpoint_pair(
-    pairs: list[tuple[str, str]],
-    first: str,
-    second: str,
-) -> tuple[str, str]:
-    matches = [pair for pair in pairs if set(pair) == {first, second}]
-    if len(matches) != 1:
-        raise StrategyDraftValidationError(
-            "square_path_roles_missing: center-midpoint segment"
-        )
-    return matches[0]
-
-def _straightening_minimum_endpoint_handles(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-    *,
-    semantic_suffixes: tuple[str, ...],
-    handles: tuple[str, ...],
-) -> list[str]:
-    """读取当前 step 可见的拉直最短线段端点 handles。"""
-    matches: list[str] = []
-    for handle in handles:
-        binding = index.bindings.get(handle)
-        if binding is None or binding.value_type != "Point":
-            continue
-        try:
-            if not index.context.is_visible(step.scope_id, _binding_scope(binding.path)):
-                continue
-        except Exception:
-            continue
-        semantic_name = _answer_key_from_handle(handle) if handle.startswith("answer:") else _semantic_name(handle)
-        if any(suffix in semantic_name for suffix in semantic_suffixes):
-            matches.append(handle)
-    return matches
 
 
 def _parameter_symbol_path_for_value(
@@ -1409,89 +1181,6 @@ def _segment_membership_segment(name: str) -> str:
         raise StrategyDraftValidationError(f"invalid_segment_membership_name: {name}")
     return match.group("segment")
 
-def _path_reduction_roles(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-) -> dict[str, Any]:
-    """Consume the read-closed structured path-reduction role set."""
-    roles = resolve_read_closed_path_reduction_inputs(step, index)
-    second_track_payload = index.handle_registry.entity_payloads.get(
-        roles.second_track,
-        {},
-    )
-    second_track = tuple(second_track_payload.get("endpoints", ()))
-    return {
-        "relation": roles.binding_relation,
-        "first_membership": roles.first_membership,
-        "second_membership": roles.second_membership,
-        "first_segment_start": roles.first_segment_start,
-        "joint_point": roles.joint_point,
-        "second_segment_end": roles.second_segment_end,
-        "second_track": second_track,
-        "second_moving": roles.second_moving_point,
-    }
-
-def _moving_membership_for_straightening(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-) -> str:
-    """选择折线拉直时的动点所在条件。"""
-    roles = _path_reduction_roles(step, index)
-    return roles["second_membership"]
-
-def _straightening_point_roles(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-) -> tuple[str, str, str, str]:
-    """推断 broken_path_straightening_candidates 的四个点。"""
-    roles = _path_reduction_roles(step, index)
-    fixed_1 = roles["first_segment_start"]
-    midpoint_fact = index.fact_handle_by_type("midpoint_definition", step=step)
-    midpoint_name = _semantic_name(midpoint_fact).split("_midpoint_of_", 1)[0]
-    fixed_2 = index.point_handle_by_name(midpoint_name, step=step)
-    track = roles["second_track"]
-    if len(track) < 2:
-        raise StrategyDraftValidationError(f"invalid_motion_track: {track}")
-    line_1 = track[0]
-    line_2 = track[1]
-    return fixed_1, fixed_2, line_1, line_2
-
-def _other_endpoint_handle(
-    pair: tuple[str, str],
-    endpoint: str,
-) -> str:
-    """Return the other typed endpoint without interpreting its name."""
-
-    remaining = tuple(item for item in pair if item != endpoint)
-    if len(remaining) != 1:
-        raise StrategyDraftValidationError(
-            "segment_other_endpoint_not_found: "
-            f"pair={pair!r}, endpoint={endpoint!r}"
-        )
-    return remaining[0]
-
-
-def _segments_from_path_text(raw_path: str) -> list[str]:
-    """Compatibility parser for non-weighted legacy selectors."""
-
-    return re.findall(r"[A-Z]{2}", raw_path)
-
-
-def _common_endpoint(first: str, second: str) -> str | None:
-    for name in first:
-        if name in second:
-            return name
-    return None
-
-
-def _other_endpoint(segment: str, endpoint: str) -> str:
-    for name in segment:
-        if name != endpoint:
-            return name
-    raise StrategyDraftValidationError(
-        f"segment_other_endpoint_not_found: {segment}"
-    )
-
 def _created_point_handle(step: FunctionalCompileStepView) -> CreatedEntity | None:
     """返回 creates[] 中的第一个 point entity。"""
     for item in _compile_created_entities(step):
@@ -2035,13 +1724,13 @@ def _line_intersection_roles(
     explicit = _explicit_line_intersection_roles(step, index)
     if explicit is not None:
         return explicit
-    structured = _straightening_candidate_intersection_roles(step, index)
-    if structured is not None:
-        return structured
     track = _intersection_track_from_membership_read(step, index)
     if track is None:
-        roles = _path_reduction_roles(step, index)
-        track = roles["second_track"]
+        raise StrategyDraftValidationError(
+            "line_intersection_roles_missing: "
+            f"step={step.step_id}, provide explicit line endpoints or one "
+            "target-point membership"
+        )
     line1_p1, line1_p2 = track
     aux = None
     for handle in _compile_input_handles(step):
@@ -2104,66 +1793,6 @@ def _intersection_track_from_membership_read(
             f"membership={memberships[0]}, segment={segment}"
         )
     return endpoints[0], endpoints[1]
-
-
-def _straightening_candidate_intersection_roles(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-) -> tuple[str, str, str, str, str] | None:
-    """Resolve the intersection lines from one read-closed candidate state."""
-
-    candidate_reads = tuple(
-        handle
-        for handle in _compile_input_handles(step)
-        if (
-            (binding := index.bindings.get(handle)) is not None
-            and binding.value_type == "StraighteningCandidate"
-        )
-    )
-    if not candidate_reads:
-        return None
-    if len(candidate_reads) != 1:
-        raise StrategyDraftValidationError(
-            "intersection_straightening_candidate_ambiguous: "
-            f"step={step.step_id}, candidates={list(candidate_reads)}"
-        )
-    candidate_path = index.path_for(
-        candidate_reads[0],
-        expected_type="StraighteningCandidate",
-    )
-    candidate = index.context.read_path(
-        candidate_path,
-        from_scope_id=step.scope_id,
-        expected_type="StraighteningCandidate",
-    ).value
-    if not isinstance(candidate, Mapping):
-        return None
-    locus_refs = candidate.get("moving_locus_endpoint_refs")
-    fixed_ref = candidate.get("other_fixed_point_ref")
-    auxiliary_name = candidate.get("auxiliary_point_name")
-    if not (
-        isinstance(locus_refs, list)
-        and len(locus_refs) == 2
-        and all(
-            isinstance(item, str) and item.startswith("point:")
-            for item in locus_refs
-        )
-        and isinstance(fixed_ref, str)
-        and fixed_ref.startswith("point:")
-        and isinstance(auxiliary_name, str)
-        and auxiliary_name
-    ):
-        return None
-    auxiliary = _point_read_by_name(
-        auxiliary_name,
-        step=step,
-        index=index,
-    )
-    target = _point_output_handle(step, index)
-    index.ensure_point_declaration(target, definition="line_intersection")
-    for handle in (*locus_refs, fixed_ref, auxiliary):
-        _point_path_from_step_reads(handle, step, index)
-    return locus_refs[0], locus_refs[1], auxiliary, fixed_ref, target
 
 
 def _point_read_by_name(

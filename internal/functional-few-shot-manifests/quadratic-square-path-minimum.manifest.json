@@ -1,5 +1,5 @@
 {
-  "example_id": "square_path_reduction",
+  "example_id": "quadratic_square_path_minimum",
   "source_problem_id": "tj-2026-heping-ermo-25",
   "family_id": "QuadraticSquareReflectionPathMinimumSolver",
   "pack_ids": [

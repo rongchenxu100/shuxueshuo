@@ -24,7 +24,6 @@ from shuxueshuo_server.solver.family.models import (
     CapabilityInputClosureRequirement,
     ConditionPattern,
     GoalEvidenceTag,
-    PathTransformationConsumerSpec,
     FunctionalReturnBindingPolicy,
     FunctionalReturnReferenceMode,
     FunctionalSemanticRefRole,
@@ -65,9 +64,6 @@ from shuxueshuo_server.solver.runtime.runtime_type_declarations import (
 )
 from shuxueshuo_server.solver.runtime.runtime_type_compatibility import (
     runtime_type_compatible,
-)
-from shuxueshuo_server.solver.runtime.straightening_metadata import (
-    canonical_straightening_endpoint_name,
 )
 from shuxueshuo_server.solver.runtime.strategy_models import (
     ProducedFact,
@@ -275,7 +271,6 @@ class MacroSpec:
     dependency_policy: CapabilityDependencyPolicy = "explicit_args"
     context_resolvers: tuple[CapabilityContextResolver, ...] = ()
     context_role_bindings: tuple[CapabilityContextRoleBindingSpec, ...] = ()
-    path_transformation_consumer: PathTransformationConsumerSpec | None = None
     input_closure_requirements: tuple[
         CapabilityInputClosureRequirement, ...
     ] = ()
@@ -313,11 +308,6 @@ class MacroSpec:
             "context_role_bindings": [
                 item.to_payload() for item in self.context_role_bindings
             ],
-            "path_transformation_consumer": (
-                self.path_transformation_consumer.to_payload()
-                if self.path_transformation_consumer is not None
-                else None
-            ),
             "context_resolvers": list(self.context_resolvers),
             "input_closure_requirements": [
                 item.to_payload() for item in self.input_closure_requirements
@@ -539,11 +529,6 @@ def macro_spec_from_recipe(
         context_role_bindings=(
             contract.context_role_bindings if contract is not None else ()
         ),
-        path_transformation_consumer=(
-            contract.path_transformation_consumer
-            if contract is not None
-            else None
-        ),
         input_closure_requirements=(
             contract.input_closure_requirements
             if contract is not None
@@ -559,9 +544,6 @@ def macro_spec_from_recipe(
 
 _MACRO_CANDIDATE_BUILDERS = frozenset(
     {
-        "visible_point_role_assignments",
-        "path_role_assignments",
-        "straightening_role_assignments",
         "coupled_segment_path_role_assignments",
         "equal_length_ray_role_assignments",
         "quadratic_square_path_role_assignments",
@@ -572,8 +554,6 @@ _MACRO_CANDIDATE_BUILDERS = frozenset(
 _MACRO_VALIDATION_POLICIES = frozenset(
     {
         "method_checks_and_macro_postconditions",
-        "path_equivalence_and_provenance",
-        "minimum_expression_and_provenance",
         "distance_equivalence_and_provenance",
         "path_equivalence_and_attainment",
         "curve_membership_and_provenance",
@@ -1028,10 +1008,6 @@ def _semantic_role_matches(
         return False
     name = produced_semantic_role(produced).lower()
     role = semantic_role.lower()
-    canonical_name = canonical_straightening_endpoint_name(name)
-    canonical_role = canonical_straightening_endpoint_name(role)
-    if canonical_name is not None or canonical_role is not None:
-        return canonical_name == canonical_role
     if " return " in produced.description:
         return name == role
     return name == role or name.endswith(f"_{role}") or role.endswith(f"_{name}")

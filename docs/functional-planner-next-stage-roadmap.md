@@ -28,8 +28,8 @@
 | F5-F4.3C：和平二模正方形 Macro | `COMPLETE` | 三公开输入、两公开输出；离线门禁及最终 live `1x3` 发布验收通过 |
 | F5-F4.3D：南开耦合路径 Macro | `COMPLETE` | 两公开输入、两公开输出；共享 Scope、构造点诊断、few-shot hash 与最终 live `1x3` 通过 |
 | F5-F4.3E：加权路径原子 Macro | `COMPLETE` | 单路径 Fact 输入、单表达式输出；河西/西青最终 live 各 `1x3` 均首轮通过 |
-| F5-F4.3F：旧能力清理与全量验收 | `NEXT` | 物理删除公开 Path 内部类型与兼容链，运行 full gate 和 Planner-only `5x3` |
-| F5-F5：Teaching scope | `AFTER F4.3` | 从 verified execution 派生教学归属并退役剩余兼容入口 |
+| F5-F4.3F：旧能力清理与全量验收 | `COMPLETE` | 公开 Path 内部类型与兼容链已删除，compiler 原子门禁及完整投影门禁已落地 |
+| F5-F5：Teaching scope | `NEXT` | 从 verified execution 派生教学归属并退役剩余兼容入口 |
 | G：Post-solver Context | `AFTER F5` | Explanation、Diagram、Voiceover、Animation Context |
 | E：端到端优化 | `AFTER F/G` | cache、最小失效、并发去重、条件式 Best-of-N |
 
@@ -61,7 +61,7 @@ VerifiedSolverProblemBundle
 6. runtime 持有 placement、typed binding、checkpoint、restore、transaction 和 provenance。
 7. Macro 对 LLM 始终是一个原子 step；内部 Method、candidate、winner 和 witness 不进入 Plan/Retry wire。
 
-## 当前工作：F5-F4.3 原子路径 Macro
+## 已完成：F5-F4.3 原子路径 Macro
 
 目标不是建立一套可由 LLM 编辑的路径子图 DSL，而是让复杂路径能力保持原子 Planner
 接口，并在 runtime 内完成有界搜索、数学验证和 clean replay。
@@ -97,10 +97,16 @@ VerifiedSolverProblemBundle
    - kernel 内完成 transform、straightening、取等可达性与定义域边界分支，不公开
      auxiliary Point/Line 或 `PathTransformation`；
    - 河西/西青公平 live 各 `3/3`，六份均首次 response 完成。
-5. **F4.3F 清理与验收**
+5. **F4.3F 清理与验收（COMPLETE）**
    - 从 prompt、catalog、Schema、fixture 和 few-shot 删除公开 Path 内部类型；
    - 删除旧 capability、recipe、Explanation/Visual fallback 与孤儿注册；
-   - 运行 Solver full gate 和并行 Planner-only `5x3` live smoke。
+   - compiler/elaborator 双门禁拒绝 Macro 内联展开，公开 runtime projection 拒绝私有
+     Path value；
+   - kernel 私有组合实现迁入 `methods/_internal/path/`，移除 `SPEC`，由 registry/tombstone/
+     import-lint 三项静态不变量约束，不进入 public trace 或 Planner wire；
+   - 最终共享 synthetic few-shot Planner-only `5x3` 为 `15/15` completion、`160/160`
+     authority-valid step，旧 Path 名称、configuration/unclassified、ghost write、authority
+     drift 与 prompt identity leak 均为零。
 
 详细契约与分段门禁见 [路径最值原子 Macro 设计](path-minimum-macro-redesign.md)。
 

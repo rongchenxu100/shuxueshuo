@@ -43,12 +43,10 @@ class VisualRoleBindings:
     axis_intercept_markers: tuple[dict[str, Any], ...] = ()
     x_axis_intercept_points: tuple[dict[str, Any], ...] = ()
     equal_length_path_markers: tuple[dict[str, Any], ...] = ()
-    square_path_dimension_markers: tuple[dict[str, Any], ...] = ()
-    broken_path_minimum_markers: tuple[dict[str, Any], ...] = ()
+    atomic_square_reduction_markers: tuple[dict[str, Any], ...] = ()
+    atomic_path_minimum_markers: tuple[dict[str, Any], ...] = ()
     curve_point_candidate_markers: tuple[dict[str, Any], ...] = ()
-    locus_lines: tuple[dict[str, Any], ...] = ()
     evaluated_points: tuple[dict[str, Any], ...] = ()
-    line_locus_minimum_markers: tuple[dict[str, Any], ...] = ()
     source_step_ids: tuple[str, ...] = ()
     capability_ids: tuple[str, ...] = ()
 
@@ -192,23 +190,23 @@ class VisualRoleBinderRegistry:
             source_steps,
         )
         labels.update(_point_labels_from_equal_length_roles(equal_length_roles))
-        square_path_roles = self._square_path_dimension_roles(
+        square_path_roles = self._atomic_square_reduction_roles(
             lesson_step,
             snapshot,
         )
         labels.update(_point_labels_from_square_path_roles(square_path_roles))
-        broken_path_roles = self._broken_path_straightening_roles(
+        atomic_path_roles = self._atomic_path_minimum_roles(
             lesson_step,
             snapshot,
             source_steps,
         )
-        labels.update(_point_labels_from_broken_path_roles(broken_path_roles))
+        labels.update(_point_labels_from_atomic_path_roles(atomic_path_roles))
         labels.update(
-            self._linked_square_labels_for_broken_path(
+            self._linked_square_labels_for_atomic_path(
                 lesson_step,
                 snapshot,
                 source_steps,
-                broken_path_roles,
+                atomic_path_roles,
             )
         )
 
@@ -260,37 +258,27 @@ class VisualRoleBinderRegistry:
                     point_handles,
                 )
             ),
-            square_path_dimension_markers=tuple(
-                self._square_path_dimension_markers(
+            atomic_square_reduction_markers=tuple(
+                self._atomic_square_reduction_markers(
                     lesson_step,
                     square_path_roles,
                     point_handles,
                 )
             ),
-            broken_path_minimum_markers=tuple(
-                self._broken_path_minimum_markers(
+            atomic_path_minimum_markers=tuple(
+                self._atomic_path_minimum_markers(
                     lesson_step,
-                    broken_path_roles,
+                    atomic_path_roles,
                     point_handles,
                     snapshot,
                     source_steps,
                 )
-            ),
-            locus_lines=tuple(
-                self._parameterized_locus_lines(lesson_step, snapshot, source_steps)
             ),
             evaluated_points=tuple(
                 self._evaluated_points(
                     lesson_step,
                     source_steps,
                     point_handles,
-                )
-            ),
-            line_locus_minimum_markers=tuple(
-                self._line_locus_minimum_markers(
-                    lesson_step,
-                    snapshot,
-                    source_steps,
                 )
             ),
             source_step_ids=tuple(lesson_step.source_step_ids),
@@ -404,68 +392,6 @@ class VisualRoleBinderRegistry:
                         "display": _coordinate_text_from_boxes(label, lesson_step.box),
                     }
                 )
-        return markers
-
-    def _line_locus_minimum_markers(
-        self,
-        lesson_step: LessonStep,
-        snapshot: ExplanationSnapshot,
-        source_steps: dict[str, dict[str, Any]],
-    ) -> list[dict[str, Any]]:
-        if "line_locus_minimum_point" not in lesson_step.capability_ids:
-            return []
-        markers: list[dict[str, Any]] = []
-        for step_id in lesson_step.source_step_ids:
-            step = source_steps.get(step_id)
-            if not step or step.get("recipe_hint") != "line_locus_minimum_point":
-                continue
-            target_label = _label_from_locus_target(str(step.get("target") or ""))
-            target_value = _runtime_point_value_for_step(step_id, snapshot)
-            target_point = self._geometry_point_for_value(
-                target_label,
-                target_value,
-                lesson_step.scope_id,
-            )
-            minimum_endpoints = _minimum_endpoint_refs_for_step(
-                step,
-                snapshot,
-                self.index,
-                lesson_step.scope_id,
-            )
-            if len(minimum_endpoints) != 2:
-                continue
-            locus_label = target_label or _locus_point_label_for_step(step)
-            locus_start = locus_line_endpoint_id(locus_label, lesson_step.scope_id, "start")
-            locus_end = locus_line_endpoint_id(locus_label, lesson_step.scope_id, "end")
-            if (
-                not target_point
-                or locus_start not in self._known_points
-                or locus_end not in self._known_points
-            ):
-                continue
-            target_display = (
-                _coordinate_text_from_boxes(target_label, lesson_step.box)
-                or _point_display_from_geometry_with_label(target_label, target_point, self.geometry_spec)
-            )
-            markers.append(
-                {
-                    "target_label": target_label,
-                    "target_point": target_point,
-                    "target_display": target_display,
-                    "locus_line": {
-                        "from": locus_start,
-                        "to": locus_end,
-                    },
-                    "minimum_segment": {
-                        "from": minimum_endpoints[0]["point"],
-                        "to": minimum_endpoints[1]["point"],
-                        "label": _student_segment_label(
-                            f"{minimum_endpoints[0]['label']}{minimum_endpoints[1]['label']}"
-                        ),
-                    },
-                    "source_step_id": step_id,
-                }
-            )
         return markers
 
     def _geometry_point_for_value(
@@ -637,7 +563,7 @@ class VisualRoleBinderRegistry:
             markers.append(marker)
         return markers
 
-    def _linked_square_labels_for_broken_path(
+    def _linked_square_labels_for_atomic_path(
         self,
         lesson_step: LessonStep,
         snapshot: ExplanationSnapshot,
@@ -647,7 +573,7 @@ class VisualRoleBinderRegistry:
         moving = str(roles_payload.get("moving_point") or "")
         if not moving:
             return set()
-        marker = self._linked_square_marker_for_broken_path(
+        marker = self._linked_square_marker_for_atomic_path(
             lesson_step,
             snapshot,
             source_steps,
@@ -657,7 +583,7 @@ class VisualRoleBinderRegistry:
             return set()
         return {str(label) for label in marker.get("labels") or () if str(label)}
 
-    def _linked_square_marker_for_broken_path(
+    def _linked_square_marker_for_atomic_path(
         self,
         lesson_step: LessonStep,
         snapshot: ExplanationSnapshot,
@@ -802,51 +728,6 @@ class VisualRoleBinderRegistry:
         if step_scope_id and scope_root(item_scope_id) == scope_root(step_scope_id):
             score += 10
         return score
-
-    def _parameterized_locus_lines(
-        self,
-        lesson_step: LessonStep,
-        snapshot: ExplanationSnapshot,
-        source_steps: dict[str, dict[str, Any]],
-    ) -> list[dict[str, Any]]:
-        if "parameterized_point_locus_line" not in lesson_step.capability_ids:
-            return []
-        markers: list[dict[str, Any]] = []
-        for step_id in lesson_step.source_step_ids:
-            step = source_steps.get(step_id)
-            if not step or step.get("recipe_hint") != "parameterized_point_locus_line":
-                continue
-            line = _runtime_line_for_step(step, snapshot)
-            if not isinstance(line, dict):
-                continue
-            point_label = _locus_point_label_for_step(step)
-            if not point_label:
-                point_label = _label_from_locus_target(str(step.get("target") or ""))
-            if not point_label:
-                continue
-            start = locus_line_endpoint_id(point_label, lesson_step.scope_id, "start")
-            end = locus_line_endpoint_id(point_label, lesson_step.scope_id, "end")
-            if start not in self._known_points or end not in self._known_points:
-                continue
-            moving_point = self._axis_or_geometry_point_ref(point_label, lesson_step.scope_id)
-            markers.append(
-                {
-                    "label": point_label,
-                    "moving_point": moving_point,
-                    "from": start,
-                    "to": end,
-                    "equation": _line_equation_display(line),
-                    "source_step_id": step_id,
-                    "line": line,
-                }
-            )
-        return markers
-
-    def _axis_or_geometry_point_ref(self, label: str, scope_id: str) -> str:
-        axis_id = axis_parameter_point_id(label, scope_id)
-        if axis_id in self._known_points:
-            return axis_id
-        return self.index.geometry_point_name(label, scope_id) or ""
 
     def _curve_point_candidate_markers(
         self,
@@ -1567,7 +1448,7 @@ class VisualRoleBinderRegistry:
             "translated_point",
         }
 
-    def _square_path_dimension_roles(
+    def _atomic_square_reduction_roles(
         self,
         lesson_step: LessonStep,
         snapshot: ExplanationSnapshot,
@@ -1653,7 +1534,7 @@ class VisualRoleBinderRegistry:
                 ]
                 if all((side_start, side_end, moving, fixed, midpoint, center)):
                     return {
-                        "type": "square_path_dimension_reduction",
+                        "type": "quadratic_square_path_minimum",
                         "original_path": str(
                             witness.get("original_objective") or ""
                         ),
@@ -1678,24 +1559,9 @@ class VisualRoleBinderRegistry:
                         },
                         "relations": {},
                     }
-        if "square_path_dimension_reduction" not in lesson_step.capability_ids:
-            return {}
-        source_ids = set(lesson_step.source_step_ids)
-        fallback: dict[str, Any] = {}
-        for handle, fact in snapshot.fact_index.items():
-            if not isinstance(fact, dict) or fact.get("type") != "PathTransformation":
-                continue
-            value = fact.get("value")
-            if not isinstance(value, dict) or value.get("type") != "square_path_dimension_reduction":
-                continue
-            fact_source = str(fact.get("source_step_id") or fact.get("scope_id") or "")
-            if fact_source in source_ids or any(f":{source_id}:" in str(handle) for source_id in source_ids):
-                return value
-            if str(fact.get("source") or "") == "square_path_dimension_reduction":
-                fallback = value
-        return fallback
+        return {}
 
-    def _square_path_dimension_markers(
+    def _atomic_square_reduction_markers(
         self,
         lesson_step: LessonStep,
         roles_payload: dict[str, Any],
@@ -1824,7 +1690,7 @@ class VisualRoleBinderRegistry:
         }
         return [marker]
 
-    def _broken_path_straightening_roles(
+    def _atomic_path_minimum_roles(
         self,
         lesson_step: LessonStep,
         snapshot: ExplanationSnapshot,
@@ -1866,41 +1732,9 @@ class VisualRoleBinderRegistry:
                             witness.get("minimum_expression") or ""
                         ),
                     }
-        if "broken_path_straightening_minimum_expression" not in lesson_step.capability_ids:
-            return {}
-        source_ids = set(lesson_step.source_step_ids)
-        fallback: dict[str, Any] = {}
-        for handle, item in snapshot.fact_index.items():
-            if not isinstance(item, dict) or item.get("type") != "StraighteningCandidate":
-                continue
-            value = item.get("value")
-            if not isinstance(value, dict):
-                continue
-            fact_step_id = self._fact_source_step_id(str(handle), item, source_steps)
-            if fact_step_id in source_ids:
-                return value
-            if str(item.get("source") or "") == "select_straightening_candidate":
-                fallback = value
-        return fallback
+        return {}
 
-    def _fact_source_step_id(
-        self,
-        handle: str,
-        item: dict[str, Any],
-        source_steps: dict[str, dict[str, Any]],
-    ) -> str:
-        explicit = str(item.get("source_step_id") or "")
-        if explicit:
-            return explicit
-        scope_id = str(item.get("scope_id") or "")
-        if scope_id in source_steps:
-            return scope_id
-        match = re.match(r"runtime:([^:]+):", handle)
-        if match and match.group(1) in source_steps:
-            return match.group(1)
-        return ""
-
-    def _broken_path_minimum_markers(
+    def _atomic_path_minimum_markers(
         self,
         lesson_step: LessonStep,
         roles_payload: dict[str, Any],
@@ -1935,7 +1769,7 @@ class VisualRoleBinderRegistry:
         other_ref = geom(other)
         if not all((source_ref, reflected_ref, moving_ref, other_ref)):
             return []
-        linked_square = self._linked_square_marker_for_broken_path(
+        linked_square = self._linked_square_marker_for_atomic_path(
             lesson_step,
             snapshot,
             source_steps,
@@ -2551,7 +2385,7 @@ def _point_labels_from_square_path_roles(payload: dict[str, Any]) -> set[str]:
     return labels
 
 
-def _point_labels_from_broken_path_roles(payload: dict[str, Any]) -> set[str]:
+def _point_labels_from_atomic_path_roles(payload: dict[str, Any]) -> set[str]:
     labels: set[str] = set()
     for key in (
         "reflect_source",
@@ -2565,160 +2399,6 @@ def _point_labels_from_broken_path_roles(payload: dict[str, Any]) -> set[str]:
     for key in ("transformed_path", "straightened_path", "segment_equality", "minimum_segment"):
         labels.update(_capital_point_labels(str(payload.get(key) or "")))
     return labels
-
-
-def _runtime_point_value_for_step(
-    step_id: str,
-    snapshot: ExplanationSnapshot,
-) -> Any:
-    for item in snapshot.fact_index.values():
-        if not isinstance(item, dict) or item.get("type") != "Point":
-            continue
-        if _fact_step_id(item) == step_id:
-            return item.get("value")
-    return None
-
-
-def _minimum_endpoint_refs_for_step(
-    step: dict[str, Any],
-    snapshot: ExplanationSnapshot,
-    index: VisualGeometryIndex,
-    scope_id: str,
-) -> list[dict[str, str]]:
-    labels = _minimum_endpoint_labels_for_step(step, snapshot)
-    refs: list[dict[str, str]] = []
-    for label in labels:
-        point = index.geometry_point_name(label, scope_id)
-        if point:
-            refs.append({"label": label, "point": point})
-    return refs
-
-
-def _minimum_endpoint_labels_for_step(
-    step: dict[str, Any],
-    snapshot: ExplanationSnapshot,
-) -> tuple[str, ...]:
-    candidate = _straightening_candidate_for_line_locus_step(step, snapshot)
-    if isinstance(candidate, dict):
-        reflected = str(candidate.get("reflected_point_name") or "")
-        other = str(candidate.get("other_fixed_point") or "")
-        if reflected and other:
-            return (reflected, other)
-        labels = _point_labels_in_path_term(str(candidate.get("minimum_segment") or ""))
-        if len(labels) == 2:
-            return tuple(labels)
-    return ()
-
-
-def _straightening_candidate_for_line_locus_step(
-    step: dict[str, Any],
-    snapshot: ExplanationSnapshot,
-) -> dict[str, Any] | None:
-    endpoint_pairs = _minimum_endpoint_pairs_for_line_locus_step(step, snapshot)
-    for item in snapshot.fact_index.values():
-        if not isinstance(item, dict) or item.get("type") != "StraighteningCandidate":
-            continue
-        value = item.get("value")
-        if not isinstance(value, dict):
-            continue
-        endpoints = [
-            pair
-            for pair in (_sympy_pair(raw) for raw in value.get("minimum_endpoints") or ())
-            if pair is not None
-        ]
-        if len(endpoint_pairs) == 2 and len(endpoints) == 2:
-            if _same_point_set(endpoint_pairs, endpoints):
-                return value
-        if not endpoint_pairs:
-            return value
-    return None
-
-
-def _minimum_endpoint_pairs_for_line_locus_step(
-    step: dict[str, Any],
-    snapshot: ExplanationSnapshot,
-) -> list[tuple[sp.Expr, sp.Expr]]:
-    pairs: list[tuple[sp.Expr, sp.Expr]] = []
-    for handle in step.get("reads") or ():
-        if not isinstance(handle, str) or "path_minimum_point" not in handle:
-            continue
-        pair = _point_pair_for_handle(handle, snapshot)
-        if pair is not None:
-            pairs.append(pair)
-    return pairs[:2]
-
-
-def _point_pair_for_handle(
-    handle: str,
-    snapshot: ExplanationSnapshot,
-) -> tuple[sp.Expr, sp.Expr] | None:
-    fact = snapshot.fact_index.get(handle)
-    if isinstance(fact, dict):
-        pair = _sympy_pair(fact.get("value"))
-        if pair is not None:
-            return pair
-    source_step_id = str(fact.get("source_step_id") or "") if isinstance(fact, dict) else ""
-    tail = _handle_tail(handle)
-    scope = _canonical_scope_from_handle(handle)
-    aliases = _point_runtime_name_aliases(tail)
-    uses_runtime_alias = aliases != {tail}
-    scored: list[tuple[int, tuple[sp.Expr, sp.Expr]]] = []
-    for item in snapshot.fact_index.values():
-        if not isinstance(item, dict) or item.get("type") != "Point":
-            continue
-        item_handle = str(item.get("handle") or "")
-        item_scope = str(item.get("scope_id") or "")
-        item_name = str(item.get("name") or _handle_tail(item_handle))
-        score = 0
-        if item_handle == handle:
-            score = 20
-        elif uses_runtime_alias and item_name in aliases and source_step_id and item_scope == source_step_id:
-            score = 18
-        elif uses_runtime_alias and item_name in aliases and (not scope or item_scope == scope):
-            score = 16
-        elif uses_runtime_alias and any(item_handle.endswith(f":outputs:{alias}") for alias in aliases) and (
-            not scope or item_scope == scope
-        ):
-            score = 14
-        elif source_step_id and item_scope == source_step_id:
-            score = 9
-        if score <= 0:
-            continue
-        pair = _sympy_pair(item.get("value"))
-        if pair is not None:
-            scored.append((score, pair))
-    if not scored:
-        return None
-    scored.sort(key=lambda item: item[0], reverse=True)
-    return scored[0][1]
-
-
-def _point_runtime_name_aliases(name: str) -> set[str]:
-    aliases = {str(name or "")}
-    match = re.fullmatch(r"path_minimum_point_(\d+)", str(name or ""))
-    if match:
-        aliases.add(f"minimum_point_{match.group(1)}")
-    return {alias for alias in aliases if alias}
-
-
-def _canonical_scope_from_handle(handle: str) -> str:
-    parts = str(handle).split(":")
-    return parts[1] if len(parts) > 2 else ""
-
-
-def _same_point_set(
-    left: list[tuple[sp.Expr, sp.Expr]],
-    right: list[tuple[sp.Expr, sp.Expr]],
-) -> bool:
-    unmatched = list(right)
-    for candidate in left:
-        for index, other in enumerate(unmatched):
-            if _same_point_pair(candidate, other):
-                unmatched.pop(index)
-                break
-        else:
-            return False
-    return not unmatched
 
 
 def _point_label_from_handle(handle: str, entities: dict[str, dict[str, Any]]) -> str:

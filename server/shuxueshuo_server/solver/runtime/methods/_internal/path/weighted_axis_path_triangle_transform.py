@@ -1,20 +1,17 @@
-"""weighted_axis_path_triangle_transform 无状态 method。
+"""Private weighted-path triangle transform for the atomic weighted kernel.
 
-本文件同时保存该 method 的实现与 SPEC；生成的 MethodSpec JSON 只是
-从这里派生出的资产，不作为事实源。
+No ``SPEC`` is defined here; this implementation cannot be registered as a
+Planner-facing Method without crossing the tested internal boundary.
 """
 
 from __future__ import annotations
 
-from shuxueshuo_server.solver.contracts import MethodCompanionOutputSpec
 from shuxueshuo_server.solver.runtime.weighted_triangle_geometry import (
     WeightedTriangleGeometryUnsupportedError,
     weighted_triangle_geometry_for_weight,
-    weighted_triangle_geometry_payloads,
 )
 
-from ._common import *
-from ._spec import MethodSpecSource, declare_input_views
+from ..._common import *
 
 
 class WeightedAxisPathTriangleTransformMethod:
@@ -354,90 +351,4 @@ def _locus_equation_text(
     return f"{kernel.sstr(dy)}*(x-({kernel.sstr(fixed_x)}))-{kernel.sstr(dx)}*y=0"
 
 
-SPEC = MethodSpecSource(
-    method_cls=WeightedAxisPathTriangleTransformMethod,
-    title="加权路径的直角三角形转化",
-    summary=(
-        "距离和中有一项带大于 1 的权重，且目标恰为“一个加权线段 + 一个普通线段”、"
-        "两项共享同一个 x 轴动点时，"
-        "用已登记的直角三角形构造把加权项改写为普通距离。公开输入中的 "
-        "minimum_value 必须引用 type=minimum_value 的题面已知最小值 fact，"
-        "不能引用 path_minimum_target；该 fact 在这里只负责提供原路径，不表示"
-        "本能力会求最小值。本能力只"
-        "输出辅助点、等价的 PathTransformation 和辅助点轨迹，后续 linked-path "
-        "最值能力再消费这些状态求最小值表达式。当前只支持权重 sqrt(2) 和 2。"
-    ),
-    do_not_use_when=(
-        "原距离和没有权重，或只是普通两段等长/比例替换、正方形三段路径、线段与射线等长结构。",
-        "动点不在声明的坐标轴上，或路径权重不是当前支持的 sqrt(2) 或 2。",
-        "目标是直接得到最小值表达式、最小值或参数值；该能力只产生辅助对象、轨迹和等价路径变换。",
-        "只有 path_minimum_target 而没有携带同一路径的 minimum_value fact。",
-    ),
-    solves=("transform_weighted_axis_path_by_triangle",),
-    inputs={
-        "condition": {
-            "type": "Condition",
-            "required": True,
-            "description": (
-                "type=minimum_value 的题面已知最小值条件，其中必须携带加权"
-                "路径；path_minimum_target 不是该输入。"
-            ),
-        },
-        "fixed_point": {
-            "type": "Point",
-            "required": True,
-            "description": "x 轴上的固定端点，例如 A。",
-        },
-        "moving_point": {
-            "type": "Point",
-            "required": True,
-            "description": "x 轴上的动点，例如 N(n,0)。",
-        },
-        "moving_point_ref": {
-            "type": "PointRef",
-            "required": False,
-            "description": "compiler 注入的动点对象身份。",
-        },
-        "linked_fixed_endpoint_ref": {
-            "type": "PointRef",
-            "required": False,
-            "description": "compiler 注入的联动折线路径固定端点身份。",
-        },
-        "dynamic_parameter": {
-            "type": "Symbol",
-            "required": True,
-            "description": "动点横坐标参数，例如 n。",
-        },
-        "auxiliary_point_ref": {
-            "type": "PointRef",
-            "required": True,
-            "description": "planner 声明的辅助点引用；method 使用它的点名生成路径转化。",
-        },
-    },
-    input_views=declare_input_views(
-        identity=(
-            "moving_point_ref",
-            "linked_fixed_endpoint_ref",
-            "dynamic_parameter",
-            "auxiliary_point_ref",
-        ),
-        latest_state=("fixed_point", "moving_point"),
-        immutable_value=("condition",),
-    ),
-    outputs={
-        "auxiliary_point": "Point",
-        "path_transformation": "PathTransformation",
-        "auxiliary_locus": "Line",
-    },
-    companion_outputs=(
-        MethodCompanionOutputSpec("auxiliary_point"),
-        MethodCompanionOutputSpec("auxiliary_locus"),
-    ),
-    preconditions=(
-        "fixed_point 与 moving_point 在 x 轴上",
-        "加权路径的权重必须在 method 的辅助三角形几何白名单中，当前为 sqrt(2) 或 2",
-        "新增权重时必须同时登记 geometry/direction 并补充 transform 与 linked minimum 验算",
-    ),
-    postconditions=("输出 planner 指定的辅助点、路径转化说明与辅助点运动射线",),
-    geometry_profiles=weighted_triangle_geometry_payloads(),
-)
+__all__ = ["WeightedAxisPathTriangleTransformMethod"]

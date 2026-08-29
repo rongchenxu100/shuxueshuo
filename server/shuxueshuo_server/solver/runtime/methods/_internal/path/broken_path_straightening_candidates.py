@@ -1,14 +1,13 @@
-"""broken_path_straightening_candidates 无状态 method。
+"""Private broken-path straightening candidates for atomic path kernels.
 
-本文件同时保存该 method 的实现与 SPEC；生成的 MethodSpec JSON 只是
-从这里派生出的资产，不作为事实源。
+No ``SPEC`` is defined here; this implementation cannot be registered as a
+Planner-facing Method without crossing the tested internal boundary.
 """
 
 from __future__ import annotations
 
-from ._common import *
-from ._common import _canonical_reference_name, _canonical_segment_name
-from ._spec import MethodSpecSource, declare_input_views
+from ..._common import *
+from ..._common import _canonical_reference_name, _canonical_segment_name
 
 
 class BrokenPathStraighteningCandidatesMethod:
@@ -133,67 +132,6 @@ class BrokenPathStraighteningCandidatesMethod:
         )
 
 
-SPEC = MethodSpecSource(
-    method_cls=BrokenPathStraighteningCandidatesMethod,
-    title='折线拉直候选生成',
-    summary='输入: 折线路径两端点、运动线段和辅助点定义；输出: 可用于将军饮马/折线拉直的候选方案。',
-    solves=('derive_broken_path_straightening_candidates',),
-    inputs={
-    "path_transformation": {
-        "type": "PathTransformation",
-        "required": True,
-        "description": "上一步得到的路径转化，例如 EG+FG=DG+FG。"
-    },
-    "moving_point_membership": {
-        "type": "Condition",
-        "required": False,
-        "description": "动点所在直线/线段，例如 G 在线段 MN 上。"
-    },
-    "moving_locus": {
-        "type": "Line",
-        "required": False,
-        "description": "动点轨迹直线；若提供该输入，则不需要 moving_point_membership 和 line_point_1/line_point_2。"
-    },
-    "fixed_point_1": {
-        "type": "Point",
-        "required": True,
-        "description": "折线路径的第一个固定端点。"
-    },
-    "fixed_point_2": {
-        "type": "Point",
-        "required": True,
-        "description": "折线路径的第二个固定端点。"
-    },
-    "line_point_1": {
-        "type": "Point",
-        "required": False,
-        "description": "动点所在直线上的第一个点。"
-    },
-    "line_point_2": {
-        "type": "Point",
-        "required": False,
-        "description": "动点所在直线上的第二个点。"
-    }
-},
-    input_views=declare_input_views(
-        latest_state=(
-            "fixed_point_1",
-            "fixed_point_2",
-            "line_point_1",
-            "line_point_2",
-        ),
-        immutable_value=("moving_point_membership",),
-        exact_result=("path_transformation", "moving_locus"),
-    ),
-    outputs={
-    "candidates": "StraighteningCandidateList"
-},
-    preconditions=('path_transformation.transformed_path 是由两条线段组成的单动点折线', '提供 moving_locus，或同时提供 moving_point_membership、line_point_1 和 line_point_2', '动点轨迹直线与 transformed_path 的公共动点一致'),
-    postconditions=('每个候选都包含一个反射点和对应的最短线段',),
-    trace_template=(),
-)
-
-
 def _line_from_inputs(
     *,
     moving_membership: dict[str, Any] | None,
@@ -308,3 +246,6 @@ def _attach_structured_candidate_roles(
 
 def _canonical_point_ref(value: Any) -> bool:
     return isinstance(value, str) and value.startswith("point:")
+
+
+__all__ = ["BrokenPathStraighteningCandidatesMethod"]

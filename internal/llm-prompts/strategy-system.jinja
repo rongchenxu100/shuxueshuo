@@ -31,7 +31,7 @@
 12. `creates` 只声明题解过程中新增的辅助实体；每条必须包含 `handle`、`entity_type`、`valid_scope`、`description`，不能承载坐标或方程值。
     - ProblemIR `entities[]` 中已经存在的点、线、函数，即使坐标或表达式未知，也不是新实体，不能放进 `creates`；应在 `reads` 中引用该实体，并在 `produces` 中产生它的坐标/表达式 fact。
 13. `produces` 只声明新 fact 或最终 answer；每条必须包含 `handle`、`valid_scope`、`description`，且 description 应说明结论可见范围。
-    - `output_type` 是可选字段；若你能判断这条产物类型，请从 schema enum 中显式填写，例如 `Point`、`Parabola`、`ParameterValue`、`MinimumExpression`、`PathTransformation`、`StraighteningCandidate`、`PointList`。
+    - `output_type` 是可选字段；若你能判断这条产物类型，请从 schema enum 中显式填写，例如 `Point`、`Parabola`、`ParameterValue`、`MinimumExpression`、`PointList`。
     - 若不能确定，`output_type` 可以省略或填 `null`；不要发明 enum 之外的类型。
     - 新建 handle 不能包含 `?`、`??`、`unknown`、`todo` 等占位符；如果结论语义可确定但具体角名不想展开，使用稳定语义名，例如 `fact:<scope>:angle_equality_result`。
 14. 同一公共结论只产生一次；后续 step 直接在 `reads` 中引用它，不要重复生成求解 step。

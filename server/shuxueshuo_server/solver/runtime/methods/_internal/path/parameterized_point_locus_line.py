@@ -1,14 +1,11 @@
-"""parameterized_point_locus_line 无状态 method。
+"""Private parameterized-point locus solver for atomic path kernels.
 
 由单参数仿射点坐标推出动点轨迹直线。
 """
 
 from __future__ import annotations
 
-from shuxueshuo_server.solver.contracts import MethodExplanationSpec, MethodVisualSpec
-
-from ._common import *
-from ._spec import MethodSpecSource, declare_input_views
+from ..._common import *
 
 
 class ParameterizedPointLocusLineMethod:
@@ -105,71 +102,4 @@ def _line_equation_text(start_point: Point, direction: Point, kernel: SympyKerne
     )
 
 
-SPEC = MethodSpecSource(
-    method_cls=ParameterizedPointLocusLineMethod,
-    title="由参数化点求轨迹直线",
-    summary=(
-        "Given 单参数仿射点坐标 P(t), derive 该动点的直线轨迹。"
-        "Line 可作为 call-local 中间结果直接被后续调用引用；只有题面确实"
-        "声明了同一条 Line 对象时才绑定已有对象，不要为展示名称虚构 Line ref。"
-        "适用于几何构造得到点坐标后，再把折线路径最值转化到动点所在直线的场景。"
-    ),
-    solves=("derive_parameterized_point_locus_line",),
-    inputs={
-        "point": {"type": "Point", "required": True},
-        "target": {"type": "PointRef", "required": False},
-        "parameter": {
-            "type": "Symbol",
-            "required": True,
-            "allows_anonymous_result": True,
-            "description": (
-                "驱动该Point运动的确切Symbol身份；通常直接引用产生参数化点的"
-                "前序call之parameter返回值，不能由自由符号名称猜测"
-            ),
-        },
-    },
-    input_views=declare_input_views(
-        identity=("target", "parameter"),
-        latest_state=("point",),
-    ),
-    outputs={"line": "Line"},
-    preconditions=(
-        "parameter必须是point坐标中实际出现的同一Symbol身份",
-        "point坐标关于parameter为一次式；其他题目参数可以作为轨迹族常量保留",
-    ),
-    postconditions=("输出 Line 包含 start_point、direction 和 point_name",),
-    explanation=MethodExplanationSpec(
-        role_schema={
-            "parameterized_point": "含一个参数的动点坐标。",
-            "point_label": "动点的学生可见名称。",
-            "locus_line": "消去参数后的轨迹直线。",
-        },
-        student_goal_template="由参数化坐标看出动点所在的轨迹直线。",
-        student_title_template="由参数化点确定轨迹直线",
-        derive_templates=(
-            "∵{parameterized_point}",
-            "∴{point_label} 始终在直线 {locus_line} 上",
-        ),
-        box_templates=("{locus_line}",),
-        role_binder_id="parameterized_point_locus_line",
-    ),
-    visual=MethodVisualSpec(
-        role_schema={
-            "moving_point": "产生轨迹的参数化动点。",
-            "locus_line": "该动点所在的轨迹直线。",
-        },
-        role_binder_id="parameterized_point_locus_line",
-        scene_templates=(
-            {
-                "component": "LocusLineMarker",
-                "persistence": "carry_forward",
-                "color": "#0f766e",
-                "dash": "7 5",
-                "width": 2.0,
-                "label_anchor": "end",
-                "label_dx": -170,
-                "label_dy": -14,
-            },
-        ),
-    ),
-)
+__all__ = ["ParameterizedPointLocusLineMethod"]

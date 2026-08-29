@@ -16,17 +16,13 @@ from shuxueshuo_server.solver.runtime.functional_diagnostics import (
 from shuxueshuo_server.solver.runtime.methods import (
     AngleSumEqualAngleCandidatesMethod,
     AxisInterceptFromEqualAcuteAnglesMethod,
-    BrokenPathStraighteningCandidatesMethod,
     DistanceBetweenPointsMethod,
     EqualLengthRayPointMethod,
     EvaluateExpressionAtParameterMethod,
     EvaluatePointAtParameterMethod,
     FilterPointCandidatesByQuadraticCurveMethod,
-    LineLocusMinimumPointMethod,
     LineParabolaSecondIntersectionPointMethod,
     LineIntersectionPointMethod,
-    LinkedBrokenPathGeometricMinimumMethod,
-    LinkedBrokenPathMinimumExpressionMethod,
     MidpointPointMethod,
     ParameterFromExpressionValueMethod,
     ParameterFromMinimumValueMethod,
@@ -34,7 +30,6 @@ from shuxueshuo_server.solver.runtime.methods import (
     ParameterFromCurvePointOnQuadraticMethod,
     PointOnParabolaAtXMethod,
     PointCandidatesFromCurvePointConditionMethod,
-    ParameterizedPointLocusLineMethod,
     QuadraticAxisFromRelationMethod,
     QuadraticAxisParameterizedPointMethod,
     QuadraticFromConstraintsMethod,
@@ -43,12 +38,33 @@ from shuxueshuo_server.solver.runtime.methods import (
     QuadraticYAxisInterceptPointMethod,
     RightAngleEqualLengthCandidatesMethod,
     SelectPointByQuadrantConstraintMethod,
-    SelectStraighteningCandidateMethod,
     SquareAdjacentVertexFromSideMethod,
     SquareOppositePointMethod,
-    SquarePathDimensionReductionMethod,
-    TwoMovingPointsPathReductionMethod,
     TranslatedPointMethod,
+)
+from shuxueshuo_server.solver.runtime.methods._internal.path.broken_path_straightening_candidates import (
+    BrokenPathStraighteningCandidatesMethod,
+)
+from shuxueshuo_server.solver.runtime.methods._internal.path.line_locus_minimum_point import (
+    LineLocusMinimumPointMethod,
+)
+from shuxueshuo_server.solver.runtime.methods._internal.path.linked_broken_path_geometric_minimum import (
+    LinkedBrokenPathGeometricMinimumMethod,
+    LinkedBrokenPathMinimumExpressionMethod,
+)
+from shuxueshuo_server.solver.runtime.methods._internal.path.parameterized_point_locus_line import (
+    ParameterizedPointLocusLineMethod,
+)
+from shuxueshuo_server.solver.runtime.methods._internal.path.select_straightening_candidate import (
+    SelectStraighteningCandidateMethod,
+)
+from shuxueshuo_server.solver.runtime.methods._internal.path.square_path_dimension_reduction import (
+    SquarePathDimensionReductionMethod,
+)
+from shuxueshuo_server.solver.runtime.methods._internal.path.two_moving_points_path_reduction import (
+    TwoMovingPointsPathReductionMethod,
+)
+from shuxueshuo_server.solver.runtime.methods._internal.path.weighted_axis_path_triangle_transform import (
     WeightedAxisPathTriangleTransformMethod,
 )
 from shuxueshuo_server.solver.runtime.models import PointRef
@@ -2147,20 +2163,6 @@ def test_declared_interchangeable_groups_are_runtime_permutation_invariant() -> 
                     "scale": "2",
                 },
                 "constraint": {"operator": ">", "value": 0},
-            },
-        ),
-        "line_locus_minimum_point": (
-            LineLocusMinimumPointMethod(),
-            {
-                "moving_locus": {
-                    "kind": "line",
-                    "point_name": "G",
-                    "start_point": (0, -3),
-                    "direction": (1, 0),
-                },
-                "minimum_point_1": (-5, 0),
-                "minimum_point_2": (sp.Rational(-7, 2), -3),
-                "target": PointRef("G", "$question.ii.points.G"),
             },
         ),
     }

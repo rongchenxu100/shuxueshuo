@@ -246,7 +246,7 @@ def test_stored_functional_few_shots_use_only_functional_plan_protocol() -> None
             ensure_ascii=False,
         )
     assert annotated_paths == [
-        "broken-path-straightening.functional-few-shot.json",
+        "coupled-segment-path-minimum.functional-few-shot.json",
         "quadratic-constraints-vertex.functional-few-shot.json",
         "right-angle-equal-length-construction.functional-few-shot.json",
     ]
@@ -432,7 +432,7 @@ def test_mechanism_subgraphs_are_closed_neutralized_projections() -> None:
 
 
 def test_selection_is_catalog_gated_cross_family_and_stable() -> None:
-    entry = _entry("weighted_path_transform")
+    entry = _entry("weighted_axis_path_minimum")
     kwargs = {
         "capability_ids": entry.capability_ids,
         "base_pack_ids": ("quadratic_core",),

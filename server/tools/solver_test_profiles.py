@@ -108,6 +108,19 @@ OWNERSHIP_RULES = (
     ),
     OwnershipRule(
         (
+            "server/shuxueshuo_server/solver/runtime/methods/_internal/*.py",
+            "server/shuxueshuo_server/solver/runtime/methods/_internal/**/*.py",
+        ),
+        (
+            "tests/solver/test_method_spec_loader.py",
+            "tests/solver/test_runtime_stateless_methods.py",
+            "tests/solver/test_coupled_segment_path_macro.py",
+            "tests/solver/test_quadratic_square_path_macro.py",
+            "tests/solver/test_weighted_axis_path_macro.py",
+        ),
+    ),
+    OwnershipRule(
+        (
             "server/shuxueshuo_server/solver/runtime/methods/*.py",
             "server/shuxueshuo_server/solver/runtime/method_input*.py",
             "server/shuxueshuo_server/solver/runtime/method_output*.py",

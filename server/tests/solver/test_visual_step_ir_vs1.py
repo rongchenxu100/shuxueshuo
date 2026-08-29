@@ -101,7 +101,8 @@ def test_method_and_recipe_visual_template_dispatch_uses_component_registry() ->
     assert method_components <= set(visual_builder._METHOD_VISUAL_TEMPLATE_RENDERERS)
     assert recipe_components <= set(visual_builder._RECIPE_VISUAL_TEMPLATE_RENDERERS)
     assert "CurvePointCandidateMarker" in visual_builder._METHOD_VISUAL_TEMPLATE_RENDERERS
-    assert "BrokenPathStraighteningMarker" in visual_builder._RECIPE_VISUAL_TEMPLATE_RENDERERS
+    assert "AtomicPathMinimumMarker" in visual_builder._RECIPE_VISUAL_TEMPLATE_RENDERERS
+    assert "BrokenPathStraighteningMarker" not in visual_builder._RECIPE_VISUAL_TEMPLATE_RENDERERS
     assert "elif" not in inspect.getsource(visual_builder._method_visual_template_items)
     assert "elif" not in inspect.getsource(visual_builder._recipe_visual_template_items)
 

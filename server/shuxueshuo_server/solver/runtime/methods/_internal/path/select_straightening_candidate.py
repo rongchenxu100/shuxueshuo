@@ -1,13 +1,12 @@
-"""select_straightening_candidate 无状态 method。
+"""Private straightening-candidate selector for atomic path kernels.
 
-本文件同时保存该 method 的实现与 SPEC；生成的 MethodSpec JSON 只是
-从这里派生出的资产，不作为事实源。
+No ``SPEC`` is defined here; this implementation cannot be registered as a
+Planner-facing Method without crossing the tested internal boundary.
 """
 
 from __future__ import annotations
 
-from ._common import *
-from ._spec import MethodSpecSource, declare_input_views
+from ..._common import *
 
 
 class SelectStraighteningCandidateMethod:
@@ -120,37 +119,4 @@ class SelectStraighteningCandidateMethod:
         )
 
 
-SPEC = MethodSpecSource(
-    method_cls=SelectStraighteningCandidateMethod,
-    title='折线拉直候选选择',
-    summary=(
-        "输入折线拉直候选方案，输出最适合计算的方案、反射辅助点以及"
-        "最短等价线段的两个内部端点；这些端点不是原路径动点或极值点。"
-    ),
-    solves=('select_broken_path_straightening_candidate',),
-    inputs={
-    "candidates": {
-        "type": "StraighteningCandidateList",
-        "required": True,
-        "description": "broken_path_straightening_candidates 生成的候选列表。"
-    },
-    "target": {
-        "type": "PointRef",
-        "required": True,
-        "description": "计划希望写回的辅助点引用，仅用于命名和验算选择结果。"
-    }
-},
-    input_views=declare_input_views(
-        identity=("target",),
-        exact_result=("candidates",),
-    ),
-    outputs={
-    "selected_candidate": "StraighteningCandidate",
-    "auxiliary_point": "Point",
-    "minimum_point_1": "Point",
-    "minimum_point_2": "Point"
-},
-    preconditions=('candidates 至少包含一个候选', '候选包含 complexity_score'),
-    postconditions=('唯一最低复杂度候选被选中', '选中候选的反射点坐标作为辅助点输出', '选中候选的最短线段两端点可直接交给 distance_between_points'),
-    trace_template=(),
-)
+__all__ = ["SelectStraighteningCandidateMethod"]

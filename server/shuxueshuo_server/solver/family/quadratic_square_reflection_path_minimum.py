@@ -87,7 +87,7 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         "轴上点的对象身份来自 axis_membership；其坐标由当前抛物线的对称轴在 Macro 内推导，Planner 不单独构造或传入该点。",
         "Macro 内部完成正方形降维、参数化动点、直线轨迹、折线拉直、合法域与达到性验证，只公开 minimum_expression 和 attainment_point。attainment_point 的正方形动点身份由代码绑定，Planner 不设置 output_targets。",
         "题设给出最小值时，用 minimum_expression 反求二次函数参数；需要最终正方形顶点时，通过 StepResultRef 消费 attainment_point，再与已定值相邻点使用 square_adjacent_vertex_from_side。",
-        "不得在本 family 中调用 square_path_dimension_reduction、parameterized_point_locus_line、broken_path_straightening_minimum_expression 或 line_locus_minimum_point 拼装公开路径子图。",
+        "不得把正方形降维、轨迹求解、内部反射或取等恢复拆成公开步骤；这些证明必须由原子 Macro 一次完成。",
         "网页讲解与图形从 Macro 的 verified evidence 展开，不要求 Planner 重写内部证明步骤。",
     ),
     base_packs=(

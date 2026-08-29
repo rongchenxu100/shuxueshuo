@@ -6,6 +6,9 @@ from types import SimpleNamespace
 
 import pytest
 
+from _scoped_functional_plan_support import load_v2_fixture_payload
+from test_functional_goal_execution import _checkpoint_steps, _execute
+
 from shuxueshuo_server.solver.family import DEFAULT_FAMILY_REGISTRY
 from shuxueshuo_server.solver.fixtures import load_problem_ir
 from shuxueshuo_server.solver.runtime.context_closure import (
@@ -14,6 +17,9 @@ from shuxueshuo_server.solver.runtime.context_closure import (
 )
 from shuxueshuo_server.solver.runtime.functional_path_context_resolvers import (
     resolve_quadratic_square_path_args,
+)
+from shuxueshuo_server.solver.runtime.functional_execution_authority import (
+    PathMinimumWitness,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_elaboration import (
     FunctionalSemanticIndex,
@@ -37,6 +43,9 @@ from shuxueshuo_server.solver.runtime.quadratic_square_path_roles import (
 pytestmark = pytest.mark.solver_contract
 
 ROOT = Path(__file__).resolve().parents[3]
+CASE = "tj-2026-heping-ermo-25"
+MACRO_ID = "quadratic_square_path_minimum"
+KERNEL_ID = "quadratic_square_path_minimum_kernel"
 
 
 def _square_macro_capability():
@@ -273,6 +282,52 @@ def test_catalog_exposes_only_three_public_inputs_and_two_outputs() -> None:
         "straightening_auxiliary_point",
     ):
         assert hidden_name not in prompt_text
+
+
+def test_square_macro_keeps_internal_composition_out_of_public_results(
+    tmp_path,
+) -> None:
+    result, _fixture = _execute(
+        tmp_path,
+        CASE,
+        load_v2_fixture_payload(CASE),
+    )
+    checkpoint = result.checkpoint
+    assert checkpoint is not None
+    macro_step = _checkpoint_steps(checkpoint)["derive_path_minimum_ii"]
+    assert macro_step.status == "runtime_verified"
+    assert {item["return"] for item in macro_step.actual_outputs} == {
+        "minimum_expression",
+        "attainment_point",
+    }
+    witnesses = [
+        item
+        for item in macro_step.evidence
+        if isinstance(item, PathMinimumWitness)
+    ]
+    assert len(witnesses) == 1
+    report = result.replay.transactional_attempt_result.execution_report
+    call_result = next(
+        item
+        for item in report.call_results
+        if item.call_id == "derive_path_minimum_ii"
+    )
+    assert call_result.step_results[0].methods_used == [KERNEL_ID]
+    assert [
+        item.method_id
+        for item in call_result.step_results[0].trace_fragments
+    ] == [KERNEL_ID]
+
+    public_projection = json.dumps(
+        {
+            "outputs": [dict(item) for item in macro_step.actual_outputs],
+            "evidence": [item.to_payload() for item in witnesses],
+        },
+        ensure_ascii=False,
+    )
+    assert "#quadratic-square-reflection" not in public_projection
+    assert "PointRef" not in public_projection
+    assert "PathTransformation" not in public_projection
 
 
 def test_role_search_returns_no_candidate_for_disconnected_path() -> None:

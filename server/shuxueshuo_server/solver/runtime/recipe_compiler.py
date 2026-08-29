@@ -99,10 +99,6 @@ from shuxueshuo_server.solver.runtime.runtime_type_declarations import (
 from shuxueshuo_server.solver.runtime.method_input_contracts import (
     method_input_requires_typed_entity_authority,
 )
-from shuxueshuo_server.solver.runtime.path_transformation_state import (
-    PathTransformationStateResolver,
-    ResolvedPathTransformationRole,
-)
 from shuxueshuo_server.solver.runtime.handle_registry import (
     CanonicalHandleRegistry,
     _handle_name,
@@ -119,13 +115,6 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     StateWriteProvenance,
     StrategyDraftValidationError,
     answer_output_type_compatible,
-)
-from shuxueshuo_server.solver.runtime.straightening_metadata import (
-    STRAIGHTENED_ENDPOINT_1,
-    STRAIGHTENED_ENDPOINT_2,
-    canonical_straightening_endpoint_name,
-    collect_straightening_endpoint_handles,
-    straightening_endpoint_position,
 )
 from shuxueshuo_server.solver.runtime.student_symbolic_complexity import (
     analyze_student_symbolic_complexity,
@@ -1011,24 +1000,6 @@ class _RecipePlanCompiler:
         """编译单 method step。"""
         spec = self.method_specs.require(method_id)
         function = self.function_specs.get(method_id)
-        consumer = (
-            function.path_transformation_consumer
-            if function is not None
-            else None
-        )
-        if consumer is not None:
-            transformation_handle, _transformation_path = (
-                self._path_transformation_input(step)
-            )
-            PathTransformationStateResolver(
-                index=self.index,
-                projected_state_writes=self.projected_state_writes,
-                projected_state_dependencies=self.projected_state_dependencies,
-            ).resolve(
-                transformation_handle,
-                step=step,
-                required_roles=consumer.required_roles,
-            )
         declaration_keys_before = set(self.index.declarations)
         for created in _compile_created_entities(step):
             if created.entity_type == "point" and created.handle not in self.index.bindings:
@@ -1612,99 +1583,6 @@ class _RecipePlanCompiler:
                 result[input_name] = path
         return result
 
-    def _path_transformation_input(
-        self,
-        step: FunctionalCompileStepView,
-    ) -> tuple[str, str]:
-        """Resolve a Functional transformation by producer, not shared path."""
-
-        exact = tuple(
-            item
-            for item in self.projected_state_dependencies
-            if item.step_id == step.step_id
-            and item.arg_name == "path_transformation"
-            and item.runtime_type is not None
-            and runtime_type_compatible(
-                "PathTransformation",
-                item.runtime_type,
-            )
-        )
-        if len(exact) > 1:
-            raise StrategyDraftValidationError(
-                "planner_configuration_error: Functional "
-                "path_transformation dependency is ambiguous: "
-                f"step={step.step_id}, "
-                f"producers={[item.source_step_id for item in exact]}"
-            )
-        if exact:
-            dependency = exact[0]
-            handle = dependency.produced_handle
-            if dependency.state_version_id is None:
-                raise StrategyDraftValidationError(
-                    "planner_configuration_error: "
-                    "planner.runtime_state_version_unresolved: "
-                    f"step={step.step_id}, arg=path_transformation"
-                )
-            return (
-                handle,
-                self.index.runtime_path_for_state_version(
-                    dependency.state_version_id,
-                    consumer_scope_id=step.scope_id,
-                    consumer=f"{step.step_id}.path_transformation",
-                ),
-            )
-        wire_exact = tuple(
-            item
-            for item in getattr(
-                self,
-                "projected_function_arg_bindings",
-                (),
-            )
-            if item.step_id == step.step_id
-            and item.arg_name == "path_transformation"
-            and item.runtime_type is not None
-            and runtime_type_compatible(
-                "PathTransformation",
-                item.runtime_type,
-            )
-        )
-        if len(wire_exact) > 1:
-            raise StrategyDraftValidationError(
-                "planner_configuration_error: Functional "
-                "path_transformation wire binding is ambiguous: "
-                f"step={step.step_id}, "
-                f"sources={[item.source_call_id for item in wire_exact]}"
-            )
-        if wire_exact:
-            binding = wire_exact[0]
-            return (
-                binding.source_handle,
-                self._projected_input_path(
-                    binding,
-                    expected_type="PathTransformation",
-                    consumer_scope_id=step.scope_id,
-                ),
-            )
-        if self.index.functional_consumer_identity_mode is not None:
-            self.index.record_legacy_runtime_identity_fallback(
-                consumer=f"{step.step_id}.path_transformation",
-                handle="PathTransformation",
-                reason="path_transformation_dependency_missing",
-            )
-        path = _path_for_readable_type(
-            self.index,
-            step,
-            "PathTransformation",
-        )
-        return (
-            _handle_for_runtime_path(
-                self.index,
-                step,
-                path,
-                expected_type="PathTransformation",
-            ),
-            path,
-        )
 
     def _projected_exact_state_dependency_inputs(
         self,
@@ -2453,215 +2331,6 @@ class _RecipePlanCompiler:
         )
         return _CompiledStep(plan=plan, registrations=registrations)
 
-    def _compile_straightening_recipe(self, step: FunctionalCompileStepView) -> _CompiledStep:
-        """编译“折线拉直候选 + 选择方案” recipe。"""
-        auxiliary_handle = _created_point_handle(step)
-        declarations = []
-        if auxiliary_handle is not None:
-            self.index.register_created_entity(auxiliary_handle)
-            declarations.append(self.index.declarations[auxiliary_handle.handle])
-            auxiliary_path = self.index.path_for(auxiliary_handle.handle, expected_type="PointRef")
-        else:
-            auxiliary_handle = _auto_created_recipe_point(step, self.index)
-            self.index.register_created_entity(auxiliary_handle)
-            declarations.append(self.index.declarations[auxiliary_handle.handle])
-            auxiliary_path = self.index.path_for(auxiliary_handle.handle, expected_type="PointRef")
-        candidates = _temp(step.step_id, "candidates")
-        selected = _temp(step.step_id, "selected_candidate")
-        auxiliary = _temp(step.step_id, "auxiliary_point")
-        minimum_point_1 = _temp(step.step_id, "minimum_point_1")
-        minimum_point_2 = _temp(step.step_id, "minimum_point_2")
-        (
-            path_transformation_handle,
-            path_transformation,
-        ) = self._path_transformation_input(
-            step,
-        )
-        straightening_inputs: dict[str, str] = {
-            "path_transformation": path_transformation
-        }
-        transformation_state = PathTransformationStateResolver(
-            index=self.index,
-            projected_state_writes=self.projected_state_writes,
-            projected_state_dependencies=self.projected_state_dependencies,
-        ).resolve(
-            path_transformation_handle,
-            step=step,
-            required_roles=("fixed_endpoint_1", "fixed_endpoint_2"),
-        )
-        fixed_1_role = transformation_state.require("fixed_endpoint_1")
-        fixed_2_role = transformation_state.require("fixed_endpoint_2")
-        fixed_1_path, fixed_1_prep = _required_path_role_point_input(
-            fixed_1_role,
-            step=step,
-            index=self.index,
-        )
-        fixed_2_path, fixed_2_prep = _required_path_role_point_input(
-            fixed_2_role,
-            step=step,
-            index=self.index,
-        )
-        moving_locus = _path_for_readable_type_or_none(self.index, step, "Line")
-        role_point_preps: list[
-            tuple[tuple[MethodInvocation, ...], dict[str, str]]
-        ] = []
-        role_map = {item.role: item for item in transformation_state.roles}
-        if (
-            moving_locus is None
-            and all(
-                role in role_map
-                for role in (
-                    "moving_locus",
-                    "moving_locus_endpoint_1",
-                    "moving_locus_endpoint_2",
-                )
-            )
-        ):
-            moving_membership = _required_path_role_source(
-                role_map["moving_locus"],
-                step=step,
-            )
-            line_1_path, line_1_prep = _required_path_role_point_input(
-                role_map["moving_locus_endpoint_1"],
-                step=step,
-                index=self.index,
-            )
-            line_2_path, line_2_prep = _required_path_role_point_input(
-                role_map["moving_locus_endpoint_2"],
-                step=step,
-                index=self.index,
-            )
-            role_point_preps.extend((line_1_prep, line_2_prep))
-            straightening_inputs.update(
-                {
-                    "moving_point_membership": self.index.path_for(
-                        moving_membership,
-                        expected_type="Condition",
-                    ),
-                    "line_point_1": line_1_path,
-                    "line_point_2": line_2_path,
-                }
-            )
-        elif moving_locus is not None:
-            straightening_inputs["moving_locus"] = moving_locus
-        else:
-            raise StrategyDraftValidationError(
-                "functional.path_transformation_role_missing: "
-                f"transformation={path_transformation_handle}, "
-                "role=moving_locus"
-            )
-        straightening_inputs.update(
-            {
-                "fixed_point_1": fixed_1_path,
-                "fixed_point_2": fixed_2_path,
-            }
-        )
-        prep_invocations = [
-            *fixed_1_prep[0],
-            *fixed_2_prep[0],
-            *(
-                invocation
-                for invocations, _ in role_point_preps
-                for invocation in invocations
-            ),
-        ]
-        prep_promote = {
-            **fixed_1_prep[1],
-            **fixed_2_prep[1],
-            **{
-                source: target
-                for _, promote in role_point_preps
-                for source, target in promote.items()
-            },
-        }
-        invocations = [
-            *prep_invocations,
-            MethodInvocation(
-                invocation_id=f"{step.step_id}.broken_path_straightening_candidates",
-                method_id="broken_path_straightening_candidates",
-                scope=step.step_id,
-                inputs=straightening_inputs,
-                outputs={"candidates": candidates},
-            ),
-            MethodInvocation(
-                invocation_id=f"{step.step_id}.select_straightening_candidate",
-                method_id="select_straightening_candidate",
-                scope=step.step_id,
-                inputs={"candidates": candidates, "target": auxiliary_path},
-                outputs={
-                    "selected_candidate": selected,
-                    "auxiliary_point": auxiliary,
-                    "minimum_point_1": minimum_point_1,
-                    "minimum_point_2": minimum_point_2,
-                },
-            ),
-        ]
-        endpoint_point_1, endpoint_point_2 = _straightening_endpoint_target_paths(
-            step,
-            self.index,
-        )
-        promote = {
-            **prep_promote,
-            candidates: _scoped_output_path(self.index.context, step.scope_id, "straightening_candidates"),
-            selected: _straightening_candidate_target_path(step, self.index),
-            auxiliary: auxiliary_path,
-            minimum_point_1: endpoint_point_1,
-            minimum_point_2: endpoint_point_2,
-        }
-        plan = StepPlan(
-            step_id=step.step_id,
-            goal=StepGoal(
-                goal_id=f"{step.goal_type}:{step.step_id}",
-                type=step.goal_type,
-                target_path=promote[selected],
-                scope_id=step.scope_id,
-            ),
-            scope=step.scope_id,
-            invocations=invocations,
-            expected_outputs=list(promote.values()),
-            promote_outputs=promote,
-        )
-        registrations: list[RuntimeHandleBinding] = []
-        for item in _compile_return_outputs(step):
-            output_type = _produced_output_type(item, self.index.handle_registry)
-            if output_type == "StraighteningCandidate":
-                registrations.append(
-                    RuntimeHandleBinding(
-                        item.handle,
-                        promote[selected],
-                        "StraighteningCandidate",
-                        f"step:{step.step_id}",
-                    )
-                )
-            elif output_type == "Point":
-                semantic = produced_semantic_role(item)
-                if straightening_endpoint_position(semantic) == 1:
-                    registrations.append(
-                        RuntimeHandleBinding(
-                            item.handle,
-                            endpoint_point_1,
-                            "Point",
-                            f"step:{step.step_id}",
-                        )
-                    )
-                elif straightening_endpoint_position(semantic) == 2:
-                    registrations.append(
-                        RuntimeHandleBinding(
-                            item.handle,
-                            endpoint_point_2,
-                            "Point",
-                            f"step:{step.step_id}",
-                        )
-                    )
-        if auxiliary_handle is not None:
-            registrations.append(
-                RuntimeHandleBinding(auxiliary_handle.handle, auxiliary_path, "Point", f"step:{step.step_id}")
-            )
-        return _CompiledStep(
-            plan=plan,
-            declarations=tuple(declarations),
-            registrations=tuple(registrations),
-        )
 
     def _compile_curve_candidate_parameter_recipe(self, step: FunctionalCompileStepView) -> _CompiledStep:
         """编译“候选点曲线筛选 + 曲线点反求参数” recipe。
@@ -3017,117 +2686,6 @@ class _RecipePlanCompiler:
             registrations=registrations,
         )
 
-    def _compile_straightened_distance_minimum_recipe(self, step: FunctionalCompileStepView) -> _CompiledStep:
-        """编译“已拉直方案 -> 端点距离最值” recipe。
-
-        split recipe 路径中，前序 ``broken_path_straightening_and_select`` 已经确定
-        最短线段端点；这里优先消费这些 endpoint metadata，避免继续让 LLM
-        通过普通 point reads 猜测距离两端。
-        """
-        inputs = self._projected_exact_recipe_inputs(
-            step,
-            "distance_between_points",
-        )
-        if inputs and not {"p1", "p2"}.issubset(inputs):
-            raise StrategyDraftValidationError(
-                "planner_configuration_error: straightened distance macro "
-                "requires projected p1 and p2"
-            )
-        if not inputs:
-            endpoints = _straightening_endpoint_handles_from_reads(step, self.index)
-            if endpoints is None:
-                return self._compile_method(step, "distance_between_points")
-            point_1, point_2 = endpoints
-            inputs = {
-                "p1": self.index.path_for(point_1, expected_type="Point"),
-                "p2": self.index.path_for(point_2, expected_type="Point"),
-            }
-        parameter_handle = _parameter_value_handle(step, self.index)
-        if parameter_handle is not None:
-            inputs["parameter_value"] = self.index.path_for(
-                parameter_handle,
-                expected_type="ParameterValue",
-            )
-            pairs = parameter_substitution_pairs_from_reads(step, self.index)
-            matching = [
-                symbol_path
-                for symbol_path, value_path in pairs
-                if value_path == inputs["parameter_value"]
-            ]
-            if len(matching) != 1:
-                raise method_input_invalid(
-                    "ParameterValue does not resolve to one visible Symbol identity",
-                    method_id="distance_between_points",
-                    capability_id=_compile_capability_id(step),
-                    scope_id=step.scope_id,
-                    step_id=step.step_id,
-                    arg_name="parameter_value",
-                    role="substitution_value",
-                    expected={"matching_symbol_count": 1},
-                    observed={"matching_symbol_count": len(matching)},
-                    repair_action="repair_input_binding",
-                )
-            inputs["parameter"] = matching[0]
-        outputs, promote = self._projected_macro_method_outputs(
-            step,
-            "distance_between_points",
-            input_bindings=inputs,
-        )
-        projected_outputs = bool(outputs)
-        if not outputs:
-            output_name = (
-                "evaluated_distance"
-                if parameter_handle is not None
-                else "distance"
-            )
-            distance = _temp(step.step_id, output_name)
-            target_path = _minimum_expression_target_path(step, self.index)
-            outputs = {output_name: distance}
-            promote = {distance: target_path}
-        else:
-            target_path = _minimum_expression_target_path(step, self.index)
-            if target_path not in promote.values():
-                target_path = next(iter(promote.values()))
-        plan = StepPlan(
-            step_id=step.step_id,
-            goal=StepGoal(
-                goal_id=f"{step.goal_type}:{step.step_id}",
-                type=step.goal_type,
-                target_path=target_path,
-                scope_id=step.scope_id,
-            ),
-            scope=step.scope_id,
-            invocations=[
-                MethodInvocation(
-                    invocation_id=f"{step.step_id}.distance_between_points",
-                    method_id="distance_between_points",
-                    scope=step.step_id,
-                    inputs=inputs,
-                    outputs=outputs,
-                )
-            ],
-            expected_outputs=list(_unique_ordered(promote.values())),
-            promote_outputs=promote,
-        )
-        registrations = (
-            ()
-            if projected_outputs
-            else tuple(
-                RuntimeHandleBinding(
-                    item.handle,
-                    target_path,
-                    "MinimumExpression",
-                    f"step:{step.step_id}",
-                )
-                for item in _compile_return_outputs(step)
-                if _produced_output_type(
-                    item,
-                    self.index.handle_registry,
-                )
-                == "MinimumExpression"
-            )
-        )
-        return _CompiledStep(plan=plan, registrations=registrations)
 
     def _compile_coupled_segment_path_minimum_recipe(
         self,
@@ -3459,244 +3017,6 @@ class _RecipePlanCompiler:
         )
         return _CompiledStep(plan=plan)
 
-    def _compile_broken_path_straightening_minimum_expression_recipe(self, step: FunctionalCompileStepView) -> _CompiledStep:
-        """编译“折线拉直候选 + 选择方案 + 计算最小值表达式” recipe。"""
-        (
-            path_transformation_handle,
-            path_transformation,
-        ) = self._path_transformation_input(
-            step,
-        )
-        straightening_inputs: dict[str, str] = {}
-        transformation_state = PathTransformationStateResolver(
-            index=self.index,
-            projected_state_writes=self.projected_state_writes,
-            projected_state_dependencies=self.projected_state_dependencies,
-        ).resolve(
-            path_transformation_handle,
-            step=step,
-            required_roles=("fixed_endpoint_1", "fixed_endpoint_2"),
-        )
-        fixed_1_path, fixed_1_prep = _required_path_role_point_input(
-            transformation_state.require("fixed_endpoint_1"),
-            step=step,
-            index=self.index,
-        )
-        fixed_2_path, fixed_2_prep = _required_path_role_point_input(
-            transformation_state.require("fixed_endpoint_2"),
-            step=step,
-            index=self.index,
-        )
-        moving_locus = _path_for_readable_type_or_none(self.index, step, "Line")
-        role_point_preps: list[
-            tuple[tuple[MethodInvocation, ...], dict[str, str]]
-        ] = []
-        role_map = {item.role: item for item in transformation_state.roles}
-        if (
-            moving_locus is None
-            and all(
-                role in role_map
-                for role in (
-                    "moving_locus",
-                    "moving_locus_endpoint_1",
-                    "moving_locus_endpoint_2",
-                )
-            )
-        ):
-            moving_membership = _required_path_role_source(
-                role_map["moving_locus"],
-                step=step,
-            )
-            line_1_path, line_1_prep = _required_path_role_point_input(
-                role_map["moving_locus_endpoint_1"],
-                step=step,
-                index=self.index,
-            )
-            line_2_path, line_2_prep = _required_path_role_point_input(
-                role_map["moving_locus_endpoint_2"],
-                step=step,
-                index=self.index,
-            )
-            role_point_preps.extend((line_1_prep, line_2_prep))
-            straightening_inputs.update(
-                {
-                    "moving_point_membership": self.index.path_for(
-                        moving_membership,
-                        expected_type="Condition",
-                    ),
-                    "line_point_1": line_1_path,
-                    "line_point_2": line_2_path,
-                }
-            )
-        elif moving_locus is not None:
-            straightening_inputs["moving_locus"] = moving_locus
-        else:
-            raise StrategyDraftValidationError(
-                "functional.path_transformation_role_missing: "
-                f"transformation={path_transformation_handle}, "
-                "role=moving_locus"
-            )
-        candidates = _temp(step.step_id, "candidates")
-        selected = _temp(step.step_id, "selected_candidate")
-        auxiliary = _temp(step.step_id, "auxiliary_point")
-        minimum_point_1 = _temp(step.step_id, "minimum_point_1")
-        minimum_point_2 = _temp(step.step_id, "minimum_point_2")
-        distance = _temp(step.step_id, "distance")
-        target_path = _minimum_expression_target_path(step, self.index)
-        distance_inputs = {
-            "p1": minimum_point_1,
-            "p2": minimum_point_2,
-            **self._projected_exact_recipe_inputs(
-                step,
-                "distance_between_points",
-            ),
-        }
-        projected_distance_outputs, projected_distance_promote = (
-            self._projected_macro_method_outputs(
-                step,
-                "distance_between_points",
-                input_bindings=distance_inputs,
-            )
-        )
-        distance_outputs = (
-            projected_distance_outputs
-            if projected_distance_outputs
-            else {"distance": distance}
-        )
-        declarations = []
-        auxiliary_handle = _created_point_handle(step)
-        if auxiliary_handle is not None:
-            self.index.register_created_entity(auxiliary_handle)
-            declarations.append(self.index.declarations[auxiliary_handle.handle])
-            auxiliary_path = self.index.path_for(auxiliary_handle.handle, expected_type="PointRef")
-        else:
-            auxiliary_path = _generated_straightening_auxiliary_point_path(step, self.index)
-            declarations.append(
-                _point_declaration_for_path(
-                    self.index.context,
-                    auxiliary_path,
-                    definition="straightening_auxiliary_point",
-                )
-            )
-        prep_invocations = [
-            *fixed_1_prep[0],
-            *fixed_2_prep[0],
-            *(
-                invocation
-                for invocations, _ in role_point_preps
-                for invocation in invocations
-            ),
-        ]
-        prep_promote = {
-            **fixed_1_prep[1],
-            **fixed_2_prep[1],
-            **{
-                source: target
-                for _, promote in role_point_preps
-                for source, target in promote.items()
-            },
-        }
-        invocations = [
-            *prep_invocations,
-            MethodInvocation(
-                invocation_id=f"{step.step_id}.broken_path_straightening_candidates",
-                method_id="broken_path_straightening_candidates",
-                scope=step.step_id,
-                inputs={
-                    "path_transformation": path_transformation,
-                    "fixed_point_1": fixed_1_path,
-                    "fixed_point_2": fixed_2_path,
-                    **straightening_inputs,
-                },
-                outputs={"candidates": candidates},
-            ),
-            MethodInvocation(
-                invocation_id=f"{step.step_id}.select_straightening_candidate",
-                method_id="select_straightening_candidate",
-                scope=step.step_id,
-                inputs={"candidates": candidates, "target": auxiliary_path},
-                outputs={
-                    "selected_candidate": selected,
-                    "auxiliary_point": auxiliary,
-                    "minimum_point_1": minimum_point_1,
-                    "minimum_point_2": minimum_point_2,
-                },
-            ),
-            MethodInvocation(
-                invocation_id=f"{step.step_id}.distance_between_points",
-                method_id="distance_between_points",
-                scope=step.step_id,
-                inputs=distance_inputs,
-                outputs=distance_outputs,
-            ),
-        ]
-        endpoint_point_1, endpoint_point_2 = _straightening_endpoint_target_paths(
-            step,
-            self.index,
-        )
-        promote = {
-            **prep_promote,
-            candidates: _scoped_output_path(self.index.context, step.scope_id, "straightening_candidates"),
-            selected: _straightening_candidate_target_path(step, self.index),
-            auxiliary: auxiliary_path,
-            minimum_point_1: endpoint_point_1,
-            minimum_point_2: endpoint_point_2,
-            **(
-                projected_distance_promote
-                if projected_distance_outputs
-                else {distance: target_path}
-            ),
-        }
-        plan = StepPlan(
-            step_id=step.step_id,
-            goal=StepGoal(
-                goal_id=f"{step.goal_type}:{step.step_id}",
-                type=step.goal_type,
-                target_path=target_path,
-                scope_id=step.scope_id,
-            ),
-            scope=step.scope_id,
-            invocations=invocations,
-            expected_outputs=list(promote.values()),
-            promote_outputs=promote,
-        )
-        registrations: list[RuntimeHandleBinding] = []
-        if not projected_distance_outputs:
-            for item in _compile_return_outputs(step):
-                output_type = _produced_output_type(
-                    item,
-                    self.index.handle_registry,
-                )
-                if output_type == "MinimumExpression":
-                    registrations.append(
-                        RuntimeHandleBinding(
-                            item.handle,
-                            target_path,
-                            "MinimumExpression",
-                            f"step:{step.step_id}",
-                        )
-                    )
-                elif output_type == "Point":
-                    semantic = produced_semantic_role(item)
-                    if straightening_endpoint_position(semantic) == 1:
-                        registrations.append(
-                            RuntimeHandleBinding(
-                                item.handle,
-                                promote[minimum_point_1],
-                                "Point",
-                                f"step:{step.step_id}",
-                            )
-                        )
-                    elif straightening_endpoint_position(semantic) == 2:
-                        registrations.append(
-                            RuntimeHandleBinding(
-                                item.handle,
-                                promote[minimum_point_2],
-                                "Point",
-                                f"step:{step.step_id}",
-                            )
-                        )
-        return _CompiledStep(plan=plan, declarations=tuple(declarations), registrations=registrations)
 
 def _with_macro_return_registrations(
     compiled: _CompiledStep,
@@ -3794,13 +3114,6 @@ def _compile_curve_candidate_parameter_solve_recipe(
     return compiler._compile_curve_candidate_parameter_recipe(step)
 
 
-def _compile_straightening_candidates_select_recipe(
-    compiler: _RecipePlanCompiler,
-    step: FunctionalCompileStepView,
-    recipe: FamilyRecipeExecutionSpec,
-) -> _CompiledStep:
-    """编译折线拉直候选筛选 recipe。"""
-    return compiler._compile_straightening_recipe(step)
 
 
 def _compile_equal_length_ray_path_reduction_recipe(
@@ -3812,22 +3125,8 @@ def _compile_equal_length_ray_path_reduction_recipe(
     return compiler._compile_equal_length_ray_path_reduction_recipe(step)
 
 
-def _compile_straightened_distance_minimum_recipe(
-    compiler: _RecipePlanCompiler,
-    step: FunctionalCompileStepView,
-    recipe: FamilyRecipeExecutionSpec,
-) -> _CompiledStep:
-    """编译 split 将军饮马后续的端点距离最值 recipe。"""
-    return compiler._compile_straightened_distance_minimum_recipe(step)
 
 
-def _compile_broken_path_straightening_minimum_expression_recipe(
-    compiler: _RecipePlanCompiler,
-    step: FunctionalCompileStepView,
-    recipe: FamilyRecipeExecutionSpec,
-) -> _CompiledStep:
-    """编译通用将军饮马求最值表达式 recipe。"""
-    return compiler._compile_broken_path_straightening_minimum_expression_recipe(step)
 
 
 def _compile_quadratic_square_path_minimum_recipe(
@@ -3861,10 +3160,7 @@ DEFAULT_RECIPE_COMPILERS: dict[str, RecipeCompileStrategyFn] = {
     "single_method": _compile_single_method_recipe,
     "right_angle_construct_select": _compile_right_angle_construct_select_recipe,
     "curve_candidate_parameter_solve": _compile_curve_candidate_parameter_solve_recipe,
-    "straightening_candidates_select": _compile_straightening_candidates_select_recipe,
     "equal_length_ray_path_reduction": _compile_equal_length_ray_path_reduction_recipe,
-    "straightened_distance_minimum": _compile_straightened_distance_minimum_recipe,
-    "broken_path_straightening_minimum_expression": _compile_broken_path_straightening_minimum_expression_recipe,
     "coupled_segment_path_minimum": _compile_coupled_segment_path_minimum_recipe,
     "quadratic_square_path_minimum": _compile_quadratic_square_path_minimum_recipe,
     "weighted_axis_path_minimum": _compile_weighted_axis_path_minimum_recipe,
@@ -4110,18 +3406,6 @@ def _generated_equal_length_auxiliary_point_path(
     return _runtime_path_for_scope(index.context, step.scope_id, "points", f"{base}_{step.step_id}")
 
 
-def _generated_straightening_auxiliary_point_path(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-) -> str:
-    """生成通用折线拉直 recipe 的内部辅助点 path。"""
-    base = "straightening_auxiliary_point"
-    for suffix in ("", "_2", "_3"):
-        name = f"{base}{suffix}"
-        path = _runtime_path_for_scope(index.context, step.scope_id, "points", name)
-        if not _context_path_exists(index.context, path):
-            return path
-    return _runtime_path_for_scope(index.context, step.scope_id, "points", f"{base}_{step.step_id}")
 
 
 def _minimum_expression_target_path(
@@ -4146,162 +3430,18 @@ def _minimum_expression_target_path(
     )
 
 
-def _straightening_endpoint_target_paths(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-) -> tuple[str, str]:
-    """返回 split 拉直 recipe 推广的最短线段端点路径。"""
-    return (
-        _straightening_endpoint_target_path(step, index, STRAIGHTENED_ENDPOINT_1),
-        _straightening_endpoint_target_path(step, index, STRAIGHTENED_ENDPOINT_2),
-    )
 
 
-def _straightening_candidate_target_path(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-) -> str:
-    """Publish a selected candidate at its declared semantic scope."""
-
-    for produced in _compile_return_outputs(step):
-        if (
-            _produced_output_type(produced, index.handle_registry)
-            == "StraighteningCandidate"
-        ):
-            return _target_path_for_produced(
-                produced,
-                "StraighteningCandidate",
-                index,
-                step,
-            )
-    return _scoped_output_path(
-        index.context,
-        step.scope_id,
-        "straightening_candidate",
-    )
 
 
-def _straightening_endpoint_target_path(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-    semantic_name: str,
-) -> str:
-    """优先使用 step 显式 produced endpoint fact 的 valid_scope。"""
-    canonical_name = canonical_straightening_endpoint_name(semantic_name)
-    for produced in _compile_return_outputs(step):
-        if (
-            _produced_output_type(produced, index.handle_registry) == "Point"
-            and canonical_straightening_endpoint_name(
-                produced_semantic_role(produced)
-            )
-            == canonical_name
-        ):
-            return _target_path_for_produced(produced, "Point", index, step)
-    return _scoped_output_path(
-        index.context,
-        step.scope_id,
-        canonical_name or semantic_name,
-    )
 
 
-def _straightening_endpoint_handles_from_reads(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-) -> tuple[str, str] | None:
-    """从 step reads 中读取前序拉直 recipe 暴露的 endpoint facts。"""
-    candidates: list[tuple[str, str]] = []
-    for handle in _compile_input_handles(step):
-        binding = index.bindings.get(handle)
-        if binding is None or binding.value_type != "Point":
-            continue
-        provenance = next(
-            (
-                item
-                for item in reversed(index.state_write_provenance)
-                if item.produced_handle == handle
-                and item.runtime_type == "Point"
-            ),
-            None,
-        )
-        semantic_role = (
-            provenance.identity_role
-            if provenance is not None and provenance.identity_role is not None
-            else _semantic_name(handle)
-        )
-        candidates.append((semantic_role, handle))
-    return collect_straightening_endpoint_handles(candidates)
 
 
-def _handle_for_runtime_path(
-    index: CanonicalRuntimeBindingIndex,
-    step: FunctionalCompileStepView,
-    path: str,
-    *,
-    expected_type: str,
-) -> str:
-    matches = tuple(
-        handle
-        for handle in _compile_input_handles(step)
-        if (
-            (binding := index.bindings.get(handle)) is not None
-            and binding.path == path
-            and runtime_type_compatible(binding.value_type, expected_type)
-        )
-    )
-    if len(matches) != 1:
-        raise StrategyDraftValidationError(
-            "functional.path_transformation_state_unavailable: "
-            f"step={step.step_id}, path={path}, matches={list(matches)}"
-        )
-    return matches[0]
 
 
-def _required_path_role_point_input(
-    role: ResolvedPathTransformationRole,
-    *,
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-) -> tuple[str, tuple[tuple[MethodInvocation, ...], dict[str, str]]]:
-    if index.functional_consumer_identity_mode is not None:
-        if role.state_version_id is None or role.runtime_path is None:
-            raise StrategyDraftValidationError(
-                "planner_configuration_error: "
-                "planner.path_transformation_role_version_unresolved: "
-                f"step={step.step_id}, role={role.role}"
-            )
-        exact_path = index.runtime_path_for_state_version(
-            role.state_version_id,
-            consumer_scope_id=step.scope_id,
-            consumer=f"{step.step_id}.{role.role}",
-        )
-        if exact_path != role.runtime_path:
-            raise StrategyDraftValidationError(
-                "planner_configuration_error: "
-                "planner.runtime_state_binding_drift: "
-                f"step={step.step_id}, role={role.role}"
-            )
-        return exact_path, ((), {})
-    if role.state_handle is None:
-        raise StrategyDraftValidationError(
-            "functional.path_transformation_state_unavailable: "
-            f"step={step.step_id}, role={role.role}, "
-            f"object_ref={role.object_ref}"
-        )
-    return _point_value_path_or_prepare(role.state_handle, step, index)
 
 
-def _required_path_role_source(
-    role: ResolvedPathTransformationRole,
-    *,
-    step: FunctionalCompileStepView,
-) -> str:
-    if len(role.source_handles) != 1:
-        raise StrategyDraftValidationError(
-            "functional.path_transformation_state_unavailable: "
-            f"step={step.step_id}, role={role.role}, "
-            f"source_count={len(role.source_handles)}"
-        )
-    return role.source_handles[0]
 
 
 def _point_handle_from_point_state_fact(
@@ -4667,8 +3807,6 @@ def _output_key_for_produced(
         "ParameterValue": ("parameter_value",),
         "Symbol": ("parameter", "symbol"),
         "MinimumExpression": ("minimum_expression", "distance", "evaluated_distance", "minimum_value"),
-        "PathTransformation": ("path_transformation",),
-        "StraighteningCandidate": ("selected_candidate",),
     }
     for key in preferred_by_type.get(str(output_type), ()):
         if key in spec_outputs:
@@ -5879,8 +5017,6 @@ def _enrich_write_provenance_runtime_symbols(
         if path is not None:
             try:
                 value = runtime_values[item.produced_handle]
-                _enrich_runtime_lineage_payload(item, value)
-                _validate_runtime_lineage_payload(item, value)
                 free_symbols.update(runtime_free_symbol_names(value))
             except StrategyDraftValidationError:
                 raise
@@ -6025,68 +5161,6 @@ def _result_form_ignored_symbol_names(
         if isinstance(value, sp.Symbol):
             names.append(str(value))
     return tuple(_unique_ordered(names))
-
-
-def _validate_runtime_lineage_payload(
-    provenance: StateWriteProvenance,
-    value: Any,
-) -> None:
-    """Detect contract/runtime identity drift for structured state payloads."""
-    if provenance.runtime_type != "PathTransformation" or not isinstance(
-        value,
-        dict,
-    ):
-        return
-    expected = state_object_refs_for_role(
-        provenance.lineage,
-        "moving_object",
-    )
-    actual = value.get("moving_point_ref")
-    if not expected:
-        return
-    if not isinstance(actual, str) or actual not in expected:
-        raise StrategyDraftValidationError(
-            "planner.contract_runtime_identity_drift: "
-            f"step={provenance.step_id}, role=moving_object, "
-            f"expected={','.join(expected)}, actual={actual or 'missing'}"
-        )
-
-
-def _enrich_runtime_lineage_payload(
-    provenance: StateWriteProvenance,
-    value: Any,
-) -> None:
-    """Attach canonical role refs while keeping runtime names display-only."""
-    if provenance.runtime_type != "PathTransformation" or not isinstance(
-        value,
-        dict,
-    ):
-        return
-    moving_refs = state_object_refs_for_role(
-        provenance.lineage,
-        "moving_object",
-    )
-    if "moving_point_ref" not in value and len(moving_refs) == 1:
-        value["moving_point_ref"] = moving_refs[0]
-    fixed_refs = tuple(
-        refs[0]
-        for role in ("fixed_endpoint_1", "fixed_endpoint_2")
-        if len(
-            refs := state_object_refs_for_role(
-                provenance.lineage,
-                role,
-            )
-        )
-        == 1
-    )
-    if "fixed_endpoint_refs" not in value and len(fixed_refs) == 2:
-        value["fixed_endpoint_refs"] = fixed_refs
-    auxiliary_refs = state_object_refs_for_role(
-        provenance.lineage,
-        "auxiliary_object",
-    )
-    if "auxiliary_point_ref" not in value and len(auxiliary_refs) == 1:
-        value["auxiliary_point_ref"] = auxiliary_refs[0]
 
 
 def _validate_state_transition(
@@ -6661,8 +5735,6 @@ def _structured_output_key_from_produced(
         return _first_candidate(candidates, "candidates", "filtered_candidates")
     if output_type == "Line":
         return _first_candidate(candidates, semantic_name, "auxiliary_locus", "line")
-    if output_type == "PathTransformation":
-        return _first_candidate(candidates, semantic_name, "path_transformation")
     return None
 
 def _answer_semantic_name(handle: str) -> str:
@@ -6809,34 +5881,6 @@ def _target_path_for_produced(
             # Untyped compatibility callers have no state sidecar.
             symbol = semantic_name.split("_", 1)[0]
         return _scoped_output_path(index.context, produced.valid_scope, symbol)
-    if output_type == "PathTransformation":
-        return _scoped_output_path(
-            index.context,
-            produced.valid_scope,
-            (
-                semantic_name
-                if _has_functional_projected_write(
-                    produced,
-                    step=step,
-                    index=index,
-                )
-                else "path_transformation"
-            ),
-        )
-    if output_type == "StraighteningCandidate":
-        return _scoped_output_path(
-            index.context,
-            produced.valid_scope,
-            (
-                semantic_name
-                if _has_functional_projected_write(
-                    produced,
-                    step=step,
-                    index=index,
-                )
-                else "straightening_candidate"
-            ),
-        )
     if output_type == "MinimumExpression":
         key = "minimum_expression"
         if produced.handle.startswith("answer:"):

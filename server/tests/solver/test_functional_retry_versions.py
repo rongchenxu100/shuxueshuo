@@ -321,44 +321,56 @@ def test_prompt_closure_summary_is_compact_and_hides_typed_identity() -> None:
     assert "closure" not in projected[0]["results"][0]
 
 
-def test_prompt_runtime_result_removes_nested_canonical_object_refs() -> None:
-    projected = _compact_functional_runtime_verified(
-        [
-            {
-                "call_id": "reduce_path",
-                "execution_status": "runtime_verified",
-                "results": [
-                    {
-                        "return": "path_transformation",
-                        "type": "PathTransformation",
-                        "value": {
-                            "auxiliary_point_name": "T",
-                            "auxiliary_point_ref": "point:problem:T",
-                            "linked_fixed_endpoint_ref": "point:ii:D",
-                            "moving_point_name": "M",
-                            "moving_point_ref": "point:ii_2:M",
-                            "original_path": "2*DM+AM",
-                        },
-                        "object_roles": {
-                            "moving_object": ["point:ii_2:M"],
-                            "fixed_endpoint_1": ["point:ii:D"],
-                        },
-                    }
-                ],
-            }
-        ],
-        issues=[],
-    )
+def test_prompt_runtime_result_rejects_private_path_state() -> None:
+    with pytest.raises(
+        ValueError,
+        match="functional.retry_runtime_output_projection_invalid",
+    ):
+        _compact_functional_runtime_verified(
+            [
+                {
+                    "call_id": "reduce_path",
+                    "execution_status": "runtime_verified",
+                    "results": [
+                        {
+                            "return": "path_transformation",
+                            "type": "PathTransformation",
+                            "value": {
+                                "moving_point_ref": "point:ii_2:M",
+                            },
+                        }
+                    ],
+                }
+            ],
+            issues=[],
+        )
 
-    result = projected[0]["results"][0]
-    assert result["value"] == {
-        "auxiliary_point_name": "T",
-        "moving_point_name": "M",
-        "original_path": "2*DM+AM",
-    }
-    assert result["structure"]["moving_object"] == ["M"]
-    assert result["structure"]["fixed_endpoint_1"] == ["D"]
-    assert "point:" not in str(projected)
+
+def test_prompt_runtime_result_rejects_synthetic_private_path_ref() -> None:
+    with pytest.raises(
+        ValueError,
+        match="functional.retry_runtime_output_projection_invalid",
+    ):
+        _compact_functional_runtime_verified(
+            [
+                {
+                    "call_id": "atomic_square_path",
+                    "execution_status": "runtime_verified",
+                    "results": [
+                        {
+                            "return": "attainment_point",
+                            "type": "Point",
+                            "value": {
+                                "point_ref": (
+                                    "point:ii:G#quadratic-square-reflection"
+                                )
+                            },
+                        }
+                    ],
+                }
+            ],
+            issues=[],
+        )
 
 
 @pytest.mark.parametrize("closure_value", ("c", "1"))

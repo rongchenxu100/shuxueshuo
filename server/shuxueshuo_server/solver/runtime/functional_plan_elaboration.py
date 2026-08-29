@@ -37,6 +37,10 @@ from shuxueshuo_server.solver.runtime.functional_plan_models import (
 from shuxueshuo_server.solver.runtime.handle_alias_index import (
     visible_from_valid_scope,
 )
+from shuxueshuo_server.solver.runtime.macro_atomicity import (
+    MACRO_INLINE_EXPANSION_FORBIDDEN,
+    atomic_macro_replacements,
+)
 from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
 from shuxueshuo_server.solver.runtime.planner_state_context import (
     PlannerStateContext,
@@ -223,6 +227,39 @@ class FunctionalPlanElaborator:
         for scope in plan.scopes:
             calls: list[FunctionalCall] = []
             for call in scope.calls:
+                replacements = atomic_macro_replacements(
+                    call.capability_id,
+                    available_capability_ids=catalog.items,
+                )
+                if replacements:
+                    issues.append(
+                        _issue(
+                            "functional_elaboration",
+                            MACRO_INLINE_EXPANSION_FORBIDDEN,
+                            (
+                                f"capability {call.capability_id!r} is a "
+                                "retired internal path component; use atomic "
+                                f"Macro {', '.join(replacements)!r}"
+                            ),
+                            call_id=call.call_id,
+                            scope_id=scope.scope_id,
+                            details={
+                                "observed_capability": call.capability_id,
+                                "required_macros": list(replacements),
+                                **(
+                                    {"required_macro": replacements[0]}
+                                    if len(replacements) == 1
+                                    else {}
+                                ),
+                                "retryability": "planner_repairable",
+                                "repair_action": (
+                                    "replace_scope_body_with_atomic_macro"
+                                ),
+                            },
+                        )
+                    )
+                    calls.append(call)
+                    continue
                 call_semantic_index = (
                     semantic_index.for_call(call.call_id)
                     if semantic_index is not None
@@ -766,7 +803,6 @@ def _runtime_input_requires_state_version(runtime_type: str) -> bool:
             "Expression",
             "MinimumExpression",
             "ParameterValue",
-            "PathTransformation",
         }
         for item in split_runtime_types(runtime_type)
     )

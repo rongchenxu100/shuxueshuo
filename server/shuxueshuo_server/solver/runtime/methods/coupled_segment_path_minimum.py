@@ -10,14 +10,18 @@ from shuxueshuo_server.solver.contracts import MethodExplanationSpec, PointRef
 
 from ._common import *
 from ._common import is_definitely_nonnegative
-from ._spec import MethodSpecSource, declare_input_views
-from .broken_path_straightening_candidates import (
+from ._internal.path.broken_path_straightening_candidates import (
     BrokenPathStraighteningCandidatesMethod,
 )
+from ._internal.path.line_locus_minimum_point import LineLocusMinimumPointMethod
+from ._internal.path.select_straightening_candidate import (
+    SelectStraighteningCandidateMethod,
+)
+from ._internal.path.two_moving_points_path_reduction import (
+    TwoMovingPointsPathReductionMethod,
+)
+from ._spec import MethodSpecSource, declare_input_views
 from .distance_between_points import DistanceBetweenPointsMethod
-from .line_locus_minimum_point import LineLocusMinimumPointMethod
-from .select_straightening_candidate import SelectStraighteningCandidateMethod
-from .two_moving_points_path_reduction import TwoMovingPointsPathReductionMethod
 
 
 class CoupledSegmentPathMinimumMethod:
@@ -165,7 +169,21 @@ class CoupledSegmentPathMinimumMethod:
             },
             checks=[check for result in results for check in result.checks],
             trace_fragments=[
-                fragment for result in results for fragment in result.trace_fragments
+                _step(
+                    self.method_id,
+                    "耦合线段路径最值",
+                    "求路径最小值和取等点",
+                    "先用题设线段关系替换耦合端点，再在保留动点的合法轨迹上完成最短路径证明。",
+                    (
+                        f"{evidence['original_objective']}="
+                        f"{evidence['reduced_objective']}"
+                    ),
+                    (
+                        f"最小值为 {kernel.sstr(minimum_expression)}，"
+                        f"在 {moving_point_ref.name}"
+                        f"{_fmt_point(attainment_point, kernel)} 处取得"
+                    ),
+                )
             ],
         )
 

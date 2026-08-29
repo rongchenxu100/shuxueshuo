@@ -36,7 +36,6 @@ from shuxueshuo_server.solver.explanation.models import (
 from shuxueshuo_server.solver.explanation.presentation import StudentScopeReference
 from shuxueshuo_server.solver.explanation.role_binders import RoleBinderRegistry, RoleBindingError
 from shuxueshuo_server.solver.explanation.role_binders import methods as method_role_binder_methods
-from shuxueshuo_server.solver.explanation.role_binders import recipes as recipe_role_binder_recipes
 from shuxueshuo_server.solver.explanation.teaching_expansion import (
     explanation_payload_for_group,
 )
@@ -164,9 +163,6 @@ def test_explanation_scope_roots_keep_later_roman_questions_distinct() -> None:
     assert method_role_binder_methods._scope_root_for_explanation("iii") == "iii"
     assert method_role_binder_methods._scope_root_for_explanation("iii_1") == "iii"
     assert method_role_binder_methods._scope_root_for_explanation("iv") == "iv"
-    assert recipe_role_binder_recipes._scope_root("iii") == "iii"
-    assert recipe_role_binder_recipes._scope_root("iii_1") == "iii"
-    assert recipe_role_binder_recipes._scope_root("iv") == "iv"
 
 
 def test_answer_candidate_matching_does_not_accept_substring_collisions() -> None:
@@ -174,69 +170,6 @@ def test_answer_candidate_matching_does_not_accept_substring_collisions() -> Non
     assert explanation_builder._answer_candidate_matches_box("x=1", "x=1-2") is False
     assert explanation_builder._answer_candidate_matches_box("x=1", "x=1") is True
     assert explanation_builder._answer_candidate_matches_box("x=1", "x=1,C(0,-3)") is True
-
-
-def test_axis_square_locus_merge_without_label_does_not_default_to_g() -> None:
-    steps = [
-        LessonStep(
-            id="axis",
-            scope_id="ii",
-            source_step_ids=("axis",),
-            capability_ids=("quadratic_axis_parameterized_point",),
-            trace_refs=(),
-            title="设对称轴上的参数点",
-            goal="",
-            nav_title="",
-            derive=(),
-            box=(),
-        ),
-        LessonStep(
-            id="square",
-            scope_id="ii",
-            source_step_ids=("square",),
-            capability_ids=("square_adjacent_vertex_from_side",),
-            trace_refs=(),
-            title="由正方形求相邻顶点",
-            goal="",
-            nav_title="",
-            derive=(),
-            box=(),
-        ),
-        LessonStep(
-            id="locus",
-            scope_id="ii",
-            source_step_ids=("locus",),
-            capability_ids=("parameterized_point_locus_line",),
-            trace_refs=(),
-            title="确定轨迹直线",
-            goal="",
-            nav_title="",
-            derive=(),
-            box=(),
-        ),
-    ]
-
-    merged = explanation_builder._merge_axis_square_locus_steps(steps)
-
-    assert merged.title == "正方形求顶点轨迹"
-    assert "G" not in merged.title
-
-
-def test_axis_square_locus_merge_uses_locus_box_label() -> None:
-    steps = [
-        _lesson_step("axis", "quadratic_axis_parameterized_point", title="设对称轴上的参数点"),
-        _lesson_step("square", "square_adjacent_vertex_from_side", title="由正方形求相邻顶点"),
-        _lesson_step(
-            "locus",
-            "parameterized_point_locus_line",
-            title="确定轨迹直线",
-            box=("H 的轨迹：y=2x-1",),
-        ),
-    ]
-
-    merged = explanation_builder._merge_axis_square_locus_steps(steps)
-
-    assert merged.title == "正方形求顶点H轨迹"
 
 
 def test_lesson_merge_rules_drive_deterministic_and_llm_suggestions() -> None:
@@ -262,16 +195,14 @@ def test_lesson_merge_rules_drive_deterministic_and_llm_suggestions() -> None:
     assert "def _target_point_label_for_group" not in inspect.getsource(explanation_llm)
 
 
-def test_lesson_merge_hint_and_duplicate_recipe_rules_are_registry_backed() -> None:
+def test_lesson_merge_hint_builders_are_registry_backed() -> None:
     title_source = inspect.getsource(explanation_llm._merge_title_hint)
     nav_source = inspect.getsource(explanation_llm._merge_nav_title_hint)
-    duplicate_source = inspect.getsource(explanation_builder._should_merge_duplicate_recipe_steps)
 
     assert "if rule.rule_id" not in title_source
     assert "if rule.rule_id" not in nav_source
-    assert "broken_path_straightening_minimum_expression" not in duplicate_source
     assert "parameter_value_point_evaluation" in explanation_llm._MERGE_TITLE_HINT_BUILDERS
-    assert explanation_builder.DUPLICATE_LESSON_STEP_MERGE_RULES
+    assert not hasattr(explanation_builder, "DUPLICATE_LESSON_STEP_MERGE_RULES")
 
 
 def test_llm_adjacent_step_merge_matches_deterministic_capability_sequences() -> None:
@@ -287,8 +218,13 @@ def test_llm_adjacent_step_merge_matches_deterministic_capability_sequences() ->
         ),
         _lesson_step("axis_point", "quadratic_axis_x_intercept_point", box=("M(-1,0)",)),
         _lesson_step("axis_param_locus", "quadratic_axis_parameterized_point", box=("E(-1,t)",)),
-        _lesson_step("square_locus", "square_adjacent_vertex_from_side", box=("H(t-3,-2)",)),
-        _lesson_step("locus", "parameterized_point_locus_line", box=("H 的轨迹：y=2x-1",)),
+        _lesson_step(
+            "square_locus",
+            "square_adjacent_vertex_from_side",
+            title="由正方形求相邻顶点H",
+            nav_title="正方形求H",
+            box=("H(t-3,-2)",),
+        ),
         _lesson_step("axis_param_square", "quadratic_axis_parameterized_point", box=("E(-1,t)",)),
         _lesson_step(
             "square",
@@ -299,7 +235,6 @@ def test_llm_adjacent_step_merge_matches_deterministic_capability_sequences() ->
         ),
         _lesson_step("param_min", "parameter_from_expression_value", box=("a=3/4",)),
         _lesson_step("eval_min", "evaluate_point_at_parameter", box=("K(2,3)",)),
-        _lesson_step("minimum", "line_locus_minimum_point", title="求K到直线的最短距离"),
         _lesson_step("param_eval", "parameter_from_expression_value", box=("t=1",)),
         _lesson_step("eval", "evaluate_point_at_parameter", box=("H(0,1)",)),
     ]
@@ -313,25 +248,17 @@ def test_llm_adjacent_step_merge_matches_deterministic_capability_sequences() ->
             "quadratic_x_axis_intercept_point",
         ),
         ("quadratic_from_constraints", "quadratic_axis_x_intercept_point"),
-        (
-            "quadratic_axis_parameterized_point",
-            "square_adjacent_vertex_from_side",
-            "parameterized_point_locus_line",
-        ),
         ("quadratic_axis_parameterized_point", "square_adjacent_vertex_from_side"),
-        (
-            "parameter_from_expression_value",
-            "evaluate_point_at_parameter",
-            "line_locus_minimum_point",
-        ),
+        ("quadratic_axis_parameterized_point", "square_adjacent_vertex_from_side"),
+        ("parameter_from_expression_value", "evaluate_point_at_parameter"),
         ("parameter_from_expression_value", "evaluate_point_at_parameter"),
     ]
     assert [step.title for step in merged] == [
         "代入已知条件，求解析式、顶点和 x 轴交点",
         "化简函数解析式，求对称轴与X轴交点M",
-        "正方形求顶点H轨迹",
+        "由正方形求相邻顶点H",
         "由正方形求相邻顶点F",
-        "由最小值反求参数，并求K坐标",
+        "由表达式取值反求参数，并求K坐标",
         "由表达式取值反求参数，并求H坐标",
     ]
     assert merged[1].nav_title == "化简解析式求M"

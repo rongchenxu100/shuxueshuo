@@ -4,6 +4,8 @@
 资产没有和代码事实源漂移。
 """
 
+import ast
+import importlib
 import json
 from pathlib import Path
 import re
@@ -15,12 +17,26 @@ from shuxueshuo_server.solver.runtime.method_specs import (
     method_output_activity,
     parse_method_spec,
 )
-from shuxueshuo_server.solver.runtime.methods import method_spec_payloads
+from shuxueshuo_server.solver.runtime.macro_atomicity import (
+    RETIRED_PATH_COMPONENT_REPLACEMENTS,
+)
+from shuxueshuo_server.solver.runtime.methods import (
+    ALL_METHOD_SPEC_SOURCES,
+    method_spec_payloads,
+)
 from shuxueshuo_server.solver.runtime.recipes import RecipeSpecRegistry
 
 
 PLACEHOLDER_RE = re.compile(r"{([A-Za-z_][A-Za-z0-9_]*)}")
 ENGLISH_WORD_RE = re.compile(r"[A-Za-z]{2,}")
+METHODS_DIR = (
+    Path(__file__).resolve().parents[2]
+    / "shuxueshuo_server"
+    / "solver"
+    / "runtime"
+    / "methods"
+)
+PRIVATE_PATH_METHODS_DIR = METHODS_DIR / "_internal" / "path"
 
 
 def test_loads_right_angle_candidate_and_selector_specs() -> None:
@@ -36,15 +52,116 @@ def test_loads_right_angle_candidate_and_selector_specs() -> None:
     assert selector_spec.outputs["selected_point"] == "Point"
 
 
-def test_loads_broken_path_straightening_specs() -> None:
+def test_retired_path_component_specs_are_not_planner_registered() -> None:
     registry = MethodSpecRegistry.load_from_code()
-    candidate_spec = registry.require("broken_path_straightening_candidates")
-    selector_spec = registry.require("select_straightening_candidate")
+    retired = {
+        "two_moving_points_path_reduction",
+        "broken_path_straightening_candidates",
+        "select_straightening_candidate",
+        "square_path_dimension_reduction",
+        "parameterized_point_locus_line",
+        "line_locus_minimum_point",
+        "weighted_axis_path_triangle_transform",
+        "linked_broken_path_minimum_expression",
+        "linked_broken_path_geometric_minimum",
+    }
 
-    assert candidate_spec.inputs["path_transformation"].type == "PathTransformation"
-    assert candidate_spec.outputs["candidates"] == "StraighteningCandidateList"
-    assert selector_spec.inputs["candidates"].type == "StraighteningCandidateList"
-    assert selector_spec.outputs["auxiliary_point"] == "Point"
+    assert retired.isdisjoint(registry.specs)
+    assert {
+        "coupled_segment_endpoint_replacement_path_minimum_kernel",
+        "quadratic_square_path_minimum_kernel",
+        "weighted_axis_path_minimum_kernel",
+    } <= set(registry.specs)
+    retired_recipes = {
+        "broken_path_straightening_and_select",
+        "broken_path_straightening_minimum_expression",
+        "path_minimum_by_straightened_distance",
+    }
+    assert retired_recipes.isdisjoint(RecipeSpecRegistry.load_from_code().specs)
+
+
+def test_every_root_method_spec_source_is_registered() -> None:
+    """A new root ``SPEC`` cannot silently remain outside the registry."""
+
+    registered_ids = {
+        str(item.to_payload()["method_id"])
+        for item in ALL_METHOD_SPEC_SOURCES
+    }
+    discovered_ids: set[str] = set()
+    for source_path in METHODS_DIR.glob("*.py"):
+        tree = ast.parse(source_path.read_text(), filename=str(source_path))
+        if not any(
+            isinstance(node, (ast.Assign, ast.AnnAssign))
+            and any(
+                isinstance(target, ast.Name) and target.id == "SPEC"
+                for target in (
+                    node.targets if isinstance(node, ast.Assign) else (node.target,)
+                )
+            )
+            for node in tree.body
+        ):
+            continue
+        module = importlib.import_module(
+            f"shuxueshuo_server.solver.runtime.methods.{source_path.stem}"
+        )
+        discovered_ids.add(str(module.SPEC.to_payload()["method_id"]))
+
+    assert discovered_ids == registered_ids
+
+
+def test_private_path_helpers_have_no_specs_and_all_ids_are_tombstoned() -> None:
+    """Kernel helpers cannot be re-exported without updating atomicity policy."""
+
+    internal_method_ids: set[str] = set()
+    for source_path in PRIVATE_PATH_METHODS_DIR.glob("*.py"):
+        tree = ast.parse(source_path.read_text(), filename=str(source_path))
+        assigned_names = {
+            target.id
+            for node in tree.body
+            if isinstance(node, (ast.Assign, ast.AnnAssign))
+            for target in (
+                node.targets if isinstance(node, ast.Assign) else (node.target,)
+            )
+            if isinstance(target, ast.Name)
+        }
+        assert "SPEC" not in assigned_names
+        assert "MINIMUM_EXPRESSION_SPEC" not in assigned_names
+        for node in ast.walk(tree):
+            if not isinstance(node, (ast.Assign, ast.AnnAssign)):
+                continue
+            targets = node.targets if isinstance(node, ast.Assign) else (node.target,)
+            value = node.value
+            if (
+                any(
+                    isinstance(target, ast.Name) and target.id == "method_id"
+                    for target in targets
+                )
+                and isinstance(value, ast.Constant)
+                and isinstance(value.value, str)
+            ):
+                internal_method_ids.add(value.value)
+
+    assert internal_method_ids
+    assert internal_method_ids <= set(RETIRED_PATH_COMPONENT_REPLACEMENTS)
+
+
+def test_only_atomic_path_kernels_import_private_path_helpers() -> None:
+    allowed_importers = {
+        "coupled_segment_path_minimum.py",
+        "quadratic_square_path_minimum.py",
+        "weighted_axis_path_minimum.py",
+    }
+    actual_importers: set[str] = set()
+    for source_path in METHODS_DIR.glob("*.py"):
+        tree = ast.parse(source_path.read_text(), filename=str(source_path))
+        if any(
+            isinstance(node, ast.ImportFrom)
+            and str(node.module or "").startswith("_internal.path")
+            for node in ast.walk(tree)
+        ):
+            actual_importers.add(source_path.name)
+
+    assert actual_importers == allowed_importers
 
 
 def test_loads_quadratic_from_constraints_spec() -> None:
@@ -111,7 +228,6 @@ def test_loads_square_axis_candidate_atomic_specs() -> None:
     square_vertex = registry.require("square_adjacent_vertex_from_side")
     curve_condition = registry.require("point_candidates_from_curve_point_condition")
     point_at_parameter = registry.require("evaluate_point_at_parameter")
-    minimum_point = registry.require("line_locus_minimum_point")
 
     assert axis_point.inputs["parabola"].type == "Parabola"
     assert axis_point.outputs["point"] == "Point"
@@ -125,9 +241,6 @@ def test_loads_square_axis_candidate_atomic_specs() -> None:
     assert curve_condition.outputs["candidates"] == "PointList"
     assert point_at_parameter.inputs["point"].type == "Point"
     assert point_at_parameter.outputs["evaluated_point"] == "Point"
-    assert minimum_point.inputs["moving_locus"].type == "Line"
-    assert minimum_point.inputs["target"].type == "PointRef|Point"
-    assert minimum_point.outputs["point"] == "Point"
 
 
 def test_loads_parameter_from_curve_point_on_quadratic_spec() -> None:
@@ -143,26 +256,16 @@ def test_loads_parameter_from_curve_point_on_quadratic_spec() -> None:
     assert spec.outputs["parabola"] == "Parabola"
 
 
-def test_loads_weighted_geometric_path_specs() -> None:
-    """加权路径的几何转化与折线最短应作为独立 method 暴露给 planner。"""
+def test_loads_atomic_weighted_path_kernel_spec() -> None:
+    """Planner registry only exposes the atomic weighted-path kernel."""
     registry = MethodSpecRegistry.load_from_code()
-    transform = registry.require("weighted_axis_path_triangle_transform")
-    minimum = registry.require("linked_broken_path_minimum_expression")
+    minimum = registry.require("weighted_axis_path_minimum_kernel")
     parameter = registry.require("parameter_from_expression_value")
 
-    assert transform.inputs["condition"].type == "Condition"
-    assert transform.inputs["auxiliary_point_ref"].type == "PointRef"
-    assert transform.outputs["auxiliary_point"] == "Point"
-    assert transform.outputs["path_transformation"] == "PathTransformation"
-    assert transform.outputs["auxiliary_locus"] == "Line"
-    assert minimum.inputs["path_transformation"].type == "PathTransformation"
-    assert minimum.inputs["auxiliary_locus"].type == "Line"
-    assert minimum.inputs["auxiliary_point"].type == "Point"
+    assert minimum.inputs["path_condition"].type == "Condition"
+    assert minimum.inputs["moving_point_ref"].type == "PointRef"
     assert minimum.outputs["minimum_expression"] == "MinimumExpression"
-    assert minimum.internal_outputs == (
-        "dynamic_parameter_expression",
-        "dynamic_point_expression",
-    )
+    assert minimum.internal_outputs == ("evidence",)
     assert "parameter_value" not in minimum.outputs
     assert parameter.inputs["expression"].type == "MinimumExpression"
     assert parameter.outputs["parameter_value"] == "ParameterValue"
@@ -174,7 +277,7 @@ def test_method_spec_internal_outputs_must_reference_declared_outputs() -> None:
     payload = next(
         item
         for item in method_spec_payloads()
-        if item["method_id"] == "linked_broken_path_minimum_expression"
+        if item["method_id"] == "weighted_axis_path_minimum_kernel"
     )
     invalid = dict(payload)
     invalid["internal_outputs"] = ["missing_output"]
@@ -310,37 +413,26 @@ def test_generated_json_specs_match_code_source() -> None:
     assert actual == expected
 
 
-def test_weighted_methods_share_declarative_geometry_profiles() -> None:
-    registry = MethodSpecRegistry.load_from_code()
-    transform = registry.require("weighted_axis_path_triangle_transform")
-    geometric = registry.require("linked_broken_path_geometric_minimum")
-    expression = registry.require(
-        "linked_broken_path_minimum_expression"
+def test_weighted_geometry_profiles_are_code_owned_by_atomic_kernel() -> None:
+    from shuxueshuo_server.solver.runtime.weighted_triangle_geometry import (
+        WEIGHTED_TRIANGLE_GEOMETRY_PROFILES,
     )
 
-    assert transform.geometry_profiles
-    assert geometric.geometry_profiles == transform.geometry_profiles
-    assert expression.geometry_profiles == transform.geometry_profiles
     assert {
-        profile["profile_id"]
-        for profile in transform.geometry_profiles
+        profile.profile_id
+        for profile in WEIGHTED_TRIANGLE_GEOMETRY_PROFILES
     } == {
         "sqrt2_right_isosceles",
         "weight2_30_60",
     }
 
 
-def test_evaluate_point_trial_error_mapping_is_method_owned() -> None:
+def test_evaluate_point_has_no_retired_path_trial_hint() -> None:
     spec = MethodSpecRegistry.load_from_code().require(
         "evaluate_point_at_parameter"
     )
 
-    assert len(spec.trial_error_hints) == 1
-    hint = spec.trial_error_hints[0]
-    assert hint.error_contains == "missing required input: parameter"
-    assert hint.code == "final_point_requires_square_recovery"
-    assert hint.requires_point_answer is True
-    assert hint.requires_planner_output_types == ("PathTransformation",)
+    assert spec.trial_error_hints == ()
 
 
 def test_trial_error_hint_rejects_non_boolean_predicate() -> None:
@@ -350,12 +442,11 @@ def test_trial_error_hint_rejects_non_boolean_predicate() -> None:
         if item["method_id"] == "evaluate_point_at_parameter"
     )
     malformed = dict(payload)
-    malformed["trial_error_hints"] = [
-        {
-            **payload["trial_error_hints"][0],
-            "requires_point_answer": "true",
-        }
-    ]
+    malformed["trial_error_hints"] = [{
+        "error_contains": "synthetic failure",
+        "code": "synthetic_hint",
+        "requires_point_answer": "true",
+    }]
 
     with pytest.raises(
         ValueError,

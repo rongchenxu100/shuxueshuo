@@ -1,21 +1,18 @@
-"""linked_broken_path_geometric_minimum 无状态 method。
+"""Private linked-path minimum implementation for atomic path kernels.
 
-本文件同时保存该 method 的实现与 SPEC；生成的 MethodSpec JSON 只是
-从这里派生出的资产，不作为事实源。
+No ``SPEC`` is defined here; this implementation cannot be registered as a
+Planner-facing Method without crossing the tested internal boundary.
 """
 
 from __future__ import annotations
 
-from shuxueshuo_server.solver.contracts import ScalarResultFormSpec
 from shuxueshuo_server.solver.runtime.weighted_triangle_geometry import (
     WeightedTriangleGeometryContractError,
     WeightedTriangleGeometryUnsupportedError,
     weighted_triangle_geometry_for_transformation,
-    weighted_triangle_geometry_payloads,
 )
 
-from ._common import *
-from ._spec import MethodSpecSource, declare_input_views
+from ..._common import *
 
 
 class LinkedBrokenPathGeometricMinimumMethod:
@@ -641,149 +638,7 @@ def _simplify_abs_by_lower_bound(
     return sp.simplify(expression.xreplace(replacements))
 
 
-SPEC = MethodSpecSource(
-    method_cls=LinkedBrokenPathGeometricMinimumMethod,
-    title="联动点折线拉直最值",
-    summary=(
-        "输入: 已完成的加权辅助三角形转化与辅助点轨迹；输出: 几何最小值与极值点。"
-        "使用边界: 支持 sqrt(2)/45° 与 2/30° 两类 weighted transform。"
-    ),
-    solves=("derive_linked_broken_path_geometric_minimum",),
-    inputs={
-        "condition": {"type": "Condition", "required": True},
-        "path_transformation": {"type": "PathTransformation", "required": True},
-        "auxiliary_locus": {
-            "type": "Line",
-            "required": True,
-            "allows_anonymous_result": True,
-        },
-        "fixed_point": {"type": "Point", "required": True},
-        "curve_point": {"type": "Point", "required": True},
-        "moving_point": {"type": "Point", "required": True},
-        "auxiliary_point": {
-            "type": "Point",
-            "required": True,
-            "allows_anonymous_result": True,
-        },
-        "parameter": {
-            "type": "Symbol",
-            "required": True,
-            "functional_exposed": False,
-        },
-        "dynamic_parameter": {
-            "type": "Symbol",
-            "required": True,
-            "functional_exposed": False,
-        },
-        "parameter_constraint": {"type": "Constraint", "required": True},
-        "dynamic_constraint": {"type": "Constraint", "required": True},
-    },
-    input_views=declare_input_views(
-        identity=("parameter", "dynamic_parameter"),
-        latest_state=(
-            "fixed_point",
-            "curve_point",
-            "moving_point",
-            "auxiliary_point",
-        ),
-        immutable_value=("condition", "parameter_constraint", "dynamic_constraint"),
-        exact_result=("path_transformation", "auxiliary_locus"),
-    ),
-    outputs={
-        "parameter_value": "ParameterValue",
-        "dynamic_parameter_value": "ParameterValue",
-        "minimum_value": "MinimumExpression",
-        "dynamic_point": "Point",
-    },
-    preconditions=(
-        "已经完成加权路径到普通折线的辅助点转化",
-        "path_transformation.scale/geometry 必须来自受支持的 weighted_axis_path_triangle_transform",
-        "Q 随 N 在固定射线上运动",
-    ),
-    postconditions=("输出参数值满足题设最小值和动点范围",),
-    geometry_profiles=weighted_triangle_geometry_payloads(),
-)
-
-
-MINIMUM_EXPRESSION_SPEC = MethodSpecSource(
-    method_cls=LinkedBrokenPathMinimumExpressionMethod,
-    title="联动点折线最短表达式",
-    summary=(
-        "输入: 已完成的加权辅助三角形转化、曲线点和动点表达式；输出: 关于参数的几何最小值表达式。"
-        "使用边界: 支持 sqrt(2)/45° 与 2/30° 两类 weighted transform。"
-        "使用原则: 本 method 只求表达式，不反求参数；若输入已经不含自由参数，结果会自然闭合为具体值。"
-    ),
-    solves=("derive_linked_broken_path_minimum_expression",),
-    inputs={
-        "path_transformation": {"type": "PathTransformation", "required": True},
-        "auxiliary_locus": {
-            "type": "Line",
-            "required": True,
-            "allows_anonymous_result": True,
-        },
-        "fixed_point": {"type": "Point", "required": True},
-        "curve_point": {"type": "Point", "required": True},
-        "moving_point": {"type": "Point", "required": True},
-        "auxiliary_point": {
-            "type": "Point",
-            "required": True,
-            "allows_anonymous_result": True,
-        },
-        "parameter": {
-            "type": "Symbol",
-            "required": True,
-            "functional_exposed": False,
-        },
-        "dynamic_parameter": {
-            "type": "Symbol",
-            "required": True,
-            "functional_exposed": False,
-        },
-        "parameter_constraint": {"type": "Constraint", "required": True},
-        "dynamic_constraint": {"type": "Constraint", "required": True},
-    },
-    input_views=declare_input_views(
-        identity=("parameter", "dynamic_parameter"),
-        latest_state=(
-            "fixed_point",
-            "curve_point",
-            "moving_point",
-            "auxiliary_point",
-        ),
-        immutable_value=("parameter_constraint", "dynamic_constraint"),
-        exact_result=("path_transformation", "auxiliary_locus"),
-    ),
-    outputs={
-        "minimum_expression": "MinimumExpression",
-        "dynamic_parameter_expression": "Expression",
-        "dynamic_point_expression": "Point",
-    },
-    internal_outputs=(
-        "dynamic_parameter_expression",
-        "dynamic_point_expression",
-    ),
-    scalar_result_forms={
-        "minimum_expression": ScalarResultFormSpec(
-            possible_forms=("open_expression", "closed_value"),
-            description=(
-                "路径状态仍含未确定参数时为 open_expression；全部输入已确定时为 "
-                "closed_value。"
-            ),
-        ),
-        "dynamic_parameter_expression": ScalarResultFormSpec(
-            possible_forms=("open_expression", "closed_value"),
-            description=(
-                "联动参数仍依赖未确定参数时为 open_expression；不存在自由参数时为 "
-                "closed_value。"
-            ),
-        ),
-    },
-    preconditions=(
-        "已经完成加权路径到普通折线的辅助点转化",
-        "path_transformation.scale/geometry 必须来自受支持的 weighted_axis_path_triangle_transform",
-        "辅助点沿固定射线运动",
-    ),
-    postconditions=("输出最小值表达式供后续反求参数",),
-    distinct_arg_groups=(("parameter", "dynamic_parameter"),),
-    geometry_profiles=weighted_triangle_geometry_payloads(),
-)
+__all__ = [
+    "LinkedBrokenPathGeometricMinimumMethod",
+    "LinkedBrokenPathMinimumExpressionMethod",
+]

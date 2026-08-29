@@ -133,18 +133,6 @@ def test_companion_outputs_are_method_owned_typed_contracts() -> None:
             "always",
             "return_allocation",
         ),
-        (
-            "weighted_axis_path_triangle_transform",
-            "auxiliary_locus",
-            "always",
-            "return_allocation",
-        ),
-        (
-            "weighted_axis_path_triangle_transform",
-            "auxiliary_point",
-            "always",
-            "return_allocation",
-        ),
     }
     assert all(
         not hasattr(rule, "companion_outputs")

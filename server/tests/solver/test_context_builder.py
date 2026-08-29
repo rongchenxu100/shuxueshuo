@@ -202,21 +202,24 @@ class TestContextBuilderNankaiPoints:
     def test_context_builder_does_not_inject_straightening_auxiliary_point(self, context) -> None:
         assert "D_prime" not in context.get_scope("ii").container("points")
 
-    def test_planner_declares_straightening_auxiliary_point_placeholder(self, context) -> None:
+    def test_planner_declares_only_public_attainment_point(self, context) -> None:
         output = QuadraticPathMinimumPlannerV15().plan(context)
 
         assert "D_prime" not in context.get_scope("ii").container("points")
         DeclarationValidator().validate_declarations(context, output.context_declarations)
         context.apply_declarations(output.context_declarations)
 
-        d_prime = context.read_path(
-            "$question.ii.points.D_prime",
+        attainment = context.read_path(
+            "$question.ii.points.G",
             from_scope_id="ii_2",
             expected_type="PointRef",
         ).value
-        assert isinstance(d_prime, PointRef)
-        assert d_prime.definition["definition"] == "straightening_auxiliary_point"
-        assert d_prime.scope_id == "ii"
+        assert isinstance(attainment, PointRef)
+        assert attainment.definition["definition"] == "line_intersection"
+        assert attainment.scope_id == "ii"
+        assert {item.path for item in output.context_declarations} == {
+            "$question.ii.points.G"
+        }
 
     def test_constructed_point_scope_uses_definition_dependencies_without_ii_hardcode(
         self,

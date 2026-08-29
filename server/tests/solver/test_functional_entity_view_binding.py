@@ -272,43 +272,6 @@ def test_named_step_result_normalization_retains_exact_producer_edge(
     ]
 
 
-def test_unmigrated_direct_macro_does_not_claim_runtime_hint_correction(
-    tmp_path,
-) -> None:
-    case = "tj-2026-nankai-yimo-25"
-    payload = deepcopy(load_v2_fixture_payload(case))
-    reduce_path = next(
-        step
-        for step in _steps(payload)
-        if step["step_id"] == "ii_reduce_path"
-    )
-    reduce_path["args"]["moving_point"] = "E"
-    (
-        _bundle,
-        planning_context,
-        problem,
-        inputs,
-        problem_payload,
-        registry,
-        planner_context,
-        binding_catalog,
-    ) = planning_binding_fixture(tmp_path, case=case)
-
-    with pytest.raises(ScopedFunctionalPlanError) as error:
-        ScopedFunctionalPlanReplayService().replay_raw_json(
-            json.dumps(payload, ensure_ascii=False),
-            inputs=inputs,
-            planning_context=planning_context,
-            problem_binding_catalog=binding_catalog,
-            handle_registry=registry,
-            context=ContextBuilder().build(problem),
-            planner_state_context=planner_context,
-            problem_payload=problem_payload,
-        )
-
-    assert error.value.code == "functional.context_resolver_conflict"
-
-
 @pytest.mark.parametrize("case", CASES)
 def test_recorded_runtime_search_reports_cover_declared_macro_roles(
     tmp_path,
@@ -350,7 +313,13 @@ def test_recorded_runtime_search_reports_cover_declared_macro_roles(
         assert tuple(
             item.role for item in report.role_resolutions
         ) == spec.search.searchable_roles
-        assert all(item.chosen_ref.startswith("point:") for item in report.role_resolutions)
+        assert all(
+            item.chosen_ref.startswith(
+                ("point:", "fact:", "symbol:", "function:")
+            )
+            for item in report.role_resolutions
+        )
+        assert all("#" not in item.chosen_ref for item in report.role_resolutions)
         assert all(
             item.call_count is not None and item.call_count > 0
             for item in report.evaluations
@@ -417,15 +386,17 @@ def test_named_entity_step_result_ref_is_normalized_before_runtime(tmp_path) -> 
     ]
 
 
-def test_anonymous_path_witness_remains_an_exact_step_result() -> None:
+def test_atomic_path_macro_does_not_expose_internal_path_result() -> None:
     payload = load_v2_fixture_payload("tj-2026-nankai-yimo-25")
     target = next(
         step
         for step in _steps(payload)
-        if step["step_id"] == "ii_derive_path_model"
+        if step["step_id"] == "ii_path_minimum"
     )
 
-    assert target["args"]["path_transformation"] == {
-        "step_id": "ii_reduce_path",
-        "return": "path_transformation",
+    assert set(target["args"]) == {
+        "path_minimum_target",
+        "segment_binding_relation",
     }
+    assert "PathTransformation" not in json.dumps(target, ensure_ascii=False)
+    assert "path_witness" not in json.dumps(target, ensure_ascii=False)

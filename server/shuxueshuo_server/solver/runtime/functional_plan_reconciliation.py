@@ -51,9 +51,6 @@ from shuxueshuo_server.solver.runtime.functional_input_closure import (
 from shuxueshuo_server.solver.runtime.functional_plan_liveness import (
     FunctionalCallLivenessAnalyzer,
 )
-from shuxueshuo_server.solver.runtime.functional_path_context_resolvers import (
-    infer_square_path_transformation_roles,
-)
 from shuxueshuo_server.solver.runtime.functional_object_identity_hints import (
     infer_future_return_object_hints,
 )
@@ -165,9 +162,6 @@ from shuxueshuo_server.solver.runtime.runtime_type_compatibility import (
 )
 from shuxueshuo_server.solver.runtime.runtime_type_declarations import (
     split_runtime_types,
-)
-from shuxueshuo_server.solver.runtime.straightening_metadata import (
-    canonical_straightening_endpoint_name,
 )
 from shuxueshuo_server.solver.runtime.strategy_models import (
     SemanticRef,
@@ -310,12 +304,9 @@ class _NormalizeElaborateScopeStage:
             )
             for call_id in cyclic_call_ids
         )
-        plan, semantic_return_role_repairs = (
-            _normalize_declared_return_role_aliases(
-                plan,
-                catalog=catalog,
-            )
-        )
+        semantic_return_role_repairs: tuple[
+            FunctionalDeterministicRepair, ...
+        ] = ()
         plan, return_role_repairs = _normalize_unique_return_roles(
             plan,
             catalog=catalog,
@@ -4080,22 +4071,6 @@ def _materialize_functional_return(
         identity_factory=identity_factory,
         identity_index=identity_index,
     )
-    if (
-        return_spec.identity_policy == "derived_role"
-        and return_spec.identity_arg is None
-        and bound_item is None
-        and object_kind_for_runtime_type(return_spec.runtime_type)
-        == "path_transformation"
-    ):
-        object_ref = identity_factory.derived_computation_object_ref(
-            computation_key=computation_key,
-            semantic_role=(
-                return_spec.equivalent_to
-                or return_spec.semantic_role
-                or return_spec.name
-            ),
-            runtime_type=return_spec.runtime_type,
-        )
     handle = factory.handle_for(
         call_id=call.call_id,
         return_spec=return_spec,
@@ -4610,10 +4585,7 @@ def _compatible_evidence_result_refs(
 
     calls_by_id = {call.call_id: call for call in plan.calls}
     result: list[str] = []
-    missing = {
-        canonical_straightening_endpoint_name(role) or role
-        for role in missing_roles
-    }
+    missing = set(missing_roles)
     for call_id in witness_call_ids:
         call = calls_by_id.get(call_id)
         capability = (
@@ -4629,11 +4601,7 @@ def _compatible_evidence_result_refs(
                 returned.equivalent_to,
                 *returned.provides_semantic_roles,
             }
-            canonical_roles = {
-                canonical_straightening_endpoint_name(role) or role
-                for role in roles
-                if role
-            }
+            canonical_roles = {role for role in roles if role}
             if not canonical_roles.intersection(missing):
                 continue
             result.append(f"{call_id}.{returned.name}")
@@ -6543,122 +6511,6 @@ def _normalize_unique_return_roles(
             calls.append(replace(call, args=args))
         rewritten_scopes.append(replace(scope, calls=tuple(calls)))
     return replace(plan, scopes=tuple(rewritten_scopes)), tuple(repairs)
-
-
-def _normalize_declared_return_role_aliases(
-    plan: FunctionalPlan,
-    *,
-    catalog: FunctionalCapabilityCatalog,
-) -> tuple[FunctionalPlan, tuple[FunctionalDeterministicRepair, ...]]:
-    """Normalize shared semantic-role vocabulary before contract validation.
-
-    This is intentionally stricter than fuzzy return-name matching: an alias
-    is accepted only when the shared role registry maps it to a return that the
-    selected capability actually declares. Conflicting projections remain in
-    the plan so normal contract validation can report them.
-    """
-
-    aliases: dict[tuple[str, str], str] = {}
-    repairs: list[FunctionalDeterministicRepair] = []
-    scopes: list[FunctionalScope] = []
-    for scope in plan.scopes:
-        calls: list[FunctionalCall] = []
-        for call in scope.calls:
-            capability = catalog.get(call.capability_id)
-            declared = (
-                {item.name for item in capability.returns}
-                if capability is not None
-                else set()
-            )
-            bindings = dict(call.return_bindings)
-            expectations = dict(call.return_expectations)
-            candidate_names = unique_ordered(
-                (*bindings.keys(), *expectations.keys())
-            )
-            changed = False
-            for source in candidate_names:
-                if source in declared:
-                    continue
-                canonical = canonical_straightening_endpoint_name(source)
-                if canonical is None or canonical not in declared:
-                    continue
-                source_binding = bindings.get(source)
-                canonical_binding = bindings.get(canonical)
-                source_expectation = expectations.get(source)
-                canonical_expectation = expectations.get(canonical)
-                if (
-                    source_binding is not None
-                    and canonical_binding is not None
-                    and source_binding != canonical_binding
-                ):
-                    continue
-                if (
-                    source_expectation is not None
-                    and canonical_expectation is not None
-                    and source_expectation != canonical_expectation
-                ):
-                    continue
-                if source_binding is not None:
-                    bindings[canonical] = source_binding
-                    bindings.pop(source, None)
-                if source_expectation is not None:
-                    expectations[canonical] = source_expectation
-                    expectations.pop(source, None)
-                aliases[(call.call_id, source)] = canonical
-                repairs.append(
-                    FunctionalDeterministicRepair(
-                        call.call_id,
-                        "normalize_declared_return_role_alias",
-                        source,
-                        canonical,
-                    )
-                )
-                changed = True
-            calls.append(
-                replace(
-                    call,
-                    return_bindings=bindings,
-                    return_expectations=expectations,
-                )
-                if changed
-                else call
-            )
-        scopes.append(replace(scope, calls=tuple(calls)))
-    if not aliases:
-        return plan, ()
-    return (
-        replace(
-            plan,
-            scopes=tuple(
-                replace(
-                    scope,
-                    calls=tuple(
-                        replace(
-                            call,
-                            args={
-                                name: tuple(
-                                    replace(
-                                        ref,
-                                        return_name=aliases.get(
-                                            (ref.from_call, ref.return_name),
-                                            ref.return_name,
-                                        ),
-                                    )
-                                    if isinstance(ref, CallResultRef)
-                                    else ref
-                                    for ref in refs
-                                )
-                                for name, refs in call.args.items()
-                            },
-                        )
-                        for call in scope.calls
-                    ),
-                )
-                for scope in scopes
-            ),
-        ),
-        tuple(repairs),
-    )
 
 
 def _merge_unique_return_projection_binding(
@@ -8823,67 +8675,6 @@ def _with_hidden_condition_object_dependencies(
             for object_ref in object_refs
         )
         hidden_dependencies: list[str] = []
-        if "square_path_transformation_roles" in capability.context_resolvers:
-            condition_views: list[FunctionalSemanticView] = []
-            for refs in call.args.values():
-                for ref in refs:
-                    if not isinstance(ref, SemanticRef):
-                        continue
-                    condition, _matches = semantic_index.resolve(
-                        ref,
-                        scope_id=scope_id,
-                        accepted_types=("Condition",),
-                    )
-                    if condition is not None:
-                        condition_views.append(condition)
-            moving_refs = call.args.get("moving_point", ())
-            moving_object_refs = (
-                semantic_index.object_refs_for(
-                    moving_refs[0],
-                    scope_id=scope_id,
-                )
-                if len(moving_refs) == 1
-                and isinstance(moving_refs[0], SemanticRef)
-                else ()
-            )
-            try:
-                square_path_roles = (
-                    infer_square_path_transformation_roles(
-                        condition_views,
-                        moving_object_ref=moving_object_refs[0],
-                        scope_id=scope_id,
-                        handle_registry=semantic_index.handle_registry,
-                    )
-                    if len(moving_object_refs) == 1
-                    else None
-                )
-            except ValueError:
-                # The context resolver owns the typed diagnostic. Dependency
-                # inference remains a positive-only authority projection.
-                square_path_roles = None
-            if square_path_roles is not None:
-                for object_ref in (
-                    square_path_roles.fixed_endpoint_1,
-                    square_path_roles.fixed_endpoint_2,
-                ):
-                    if _context_has_materialized_object_state(
-                        semantic_index,
-                        object_ref=object_ref,
-                        scope_id=scope_id,
-                    ):
-                        continue
-                    producer = _select_planned_state_producer(
-                        object_ref,
-                        consumer_call=call,
-                        consumer_scope_id=scope_id,
-                        producers_by_object=producers_by_object,
-                        calls_by_id=calls_by_id,
-                        dependency_graph=result,
-                        order_by_id=order_by_id,
-                        handle_registry=semantic_index.handle_registry,
-                    )
-                    if producer is not None:
-                        hidden_dependencies.append(producer)
         if include_explicit_object_refs:
             args_by_name = {item.name: item for item in capability.args}
             for arg_name, refs in call.args.items():

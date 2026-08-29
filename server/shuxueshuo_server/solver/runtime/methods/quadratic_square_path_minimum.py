@@ -12,20 +12,26 @@ from __future__ import annotations
 from shuxueshuo_server.solver.contracts import MethodExplanationSpec, PointRef
 
 from ._common import *
-from ._spec import MethodSpecSource, declare_input_views
-from .broken_path_straightening_candidates import (
+from ._internal.path.broken_path_straightening_candidates import (
     BrokenPathStraighteningCandidatesMethod,
 )
+from ._internal.path.line_locus_minimum_point import LineLocusMinimumPointMethod
+from ._internal.path.parameterized_point_locus_line import (
+    ParameterizedPointLocusLineMethod,
+)
+from ._internal.path.select_straightening_candidate import (
+    SelectStraighteningCandidateMethod,
+)
+from ._internal.path.square_path_dimension_reduction import (
+    SquarePathDimensionReductionMethod,
+)
+from ._spec import MethodSpecSource, declare_input_views
 from .distance_between_points import DistanceBetweenPointsMethod
-from .line_locus_minimum_point import LineLocusMinimumPointMethod
-from .parameterized_point_locus_line import ParameterizedPointLocusLineMethod
 from .quadratic_axis_parameterized_point import (
     QuadraticAxisParameterizedPointMethod,
 )
 from .quadratic_axis_x_intercept_point import QuadraticAxisXInterceptPointMethod
-from .select_straightening_candidate import SelectStraighteningCandidateMethod
 from .square_adjacent_vertex_from_side import SquareAdjacentVertexFromSideMethod
-from .square_path_dimension_reduction import SquarePathDimensionReductionMethod
 
 
 class QuadraticSquarePathMinimumMethod:
@@ -219,7 +225,21 @@ class QuadraticSquarePathMinimumMethod:
             },
             checks=[check for result in results for check in result.checks],
             trace_fragments=[
-                fragment for result in results for fragment in result.trace_fragments
+                _step(
+                    self.method_id,
+                    "正方形约束下的路径最值",
+                    "求路径最小值和取等点",
+                    "由当前抛物线与正方形关系确定动点状态，在内部完成等价降维、反射与取等验证。",
+                    (
+                        f"{evidence['original_objective']}="
+                        f"{evidence['reduced_objective']}"
+                    ),
+                    (
+                        f"最小值为 {kernel.sstr(minimum_expression)}，"
+                        f"在 {moving_point_ref.name}"
+                        f"{_fmt_point(attainment_point, kernel)} 处取得"
+                    ),
+                )
             ],
         )
 

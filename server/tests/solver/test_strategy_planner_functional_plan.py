@@ -137,7 +137,6 @@ from shuxueshuo_server.solver.runtime.recipe_compiler import (
     _validate_student_single_degree_of_freedom,
     _projected_recipe_method_arg_bindings,
     _target_path_for_produced,
-    _validate_runtime_lineage_payload,
 )
 from shuxueshuo_server.solver.runtime.strategy_payload import (
     StrategyPayloadBuilder,
@@ -2798,7 +2797,7 @@ def test_elaborator_does_not_guess_between_compatible_required_args() -> None:
     )
 
 
-def test_context_closure_calls_wait_for_resolved_state_versions_before_merge() -> None:
+def test_elaborator_rejects_retired_path_components_as_macro_inline_expansion() -> None:
     inputs = _base_inputs()
 
     def reduction(call_id: str) -> FunctionalCall:
@@ -2833,12 +2832,23 @@ def test_context_closure_calls_wait_for_resolved_state_versions_before_merge() -
         ),
     )
 
-    assert result.ok
+    assert not result.ok
     assert [item.call_id for item in result.plan.calls] == [
         "reduce_first",
         "reduce_second",
     ]
-    assert result.call_aliases == {}
+    assert [item.code for item in result.issues] == [
+        "functional.macro_inline_expansion_forbidden",
+        "functional.macro_inline_expansion_forbidden",
+    ]
+    assert all(
+        item.details is not None
+        and item.details["required_macro"]
+        == "coupled_segment_endpoint_replacement_path_minimum"
+        and item.details["repair_action"]
+        == "replace_scope_body_with_atomic_macro"
+        for item in result.issues
+    )
 
 
 @pytest.mark.parametrize(
@@ -4763,147 +4773,6 @@ def test_mechanical_auto_arg_with_state_version_projects_exact_dependency() -> N
     assert dependencies[0].source_step_id == "produce_target"
 
 
-def test_path_transformation_consumer_uses_exact_projected_producer() -> None:
-    compiler = object.__new__(_RecipePlanCompiler)
-    object_id = MathObjectId(
-        "path_transformation:branch:selected",
-        "path_transformation",
-        "branch",
-    )
-    logical_key = LogicalStateKey(
-        object_id,
-        "transformation",
-        "PathTransformation",
-    )
-    version_id = StateVersionId(
-        StateSlotId(logical_key, "branch"),
-        1,
-    )
-    compiler.projected_state_dependencies = (
-        ProjectedStateDependency(
-            step_id="consume_transform",
-            state_slot_id="functional:branch:selected_transform",
-            produced_handle="fact:branch:selected_transform",
-            runtime_type="PathTransformation",
-            arg_name="path_transformation",
-            source="wire",
-            source_step_id="produce_selected_transform",
-            source_return_name="path_transformation",
-            state_version_id=version_id,
-        ),
-    )
-    compiler.index = SimpleNamespace(
-        runtime_path_for_state_version=lambda selected, **_kwargs: (
-            f"$version[{selected.ordinal}]"
-        ),
-        bindings={},
-    )
-    step = FunctionalCompileStep(
-        step_id="consume_transform",
-        scope_id="branch",
-        recipe_hint="broken_path_straightening_minimum_expression",
-        goal_type="derive_minimum_expression",
-        target="",
-        strategy="consume the selected transformation",
-    )
-
-    handle, path = compiler._path_transformation_input(step)
-
-    assert handle == "fact:branch:selected_transform"
-    assert path == "$version[1]"
-
-
-def test_functional_path_transformation_missing_dependency_fails_closed() -> None:
-    compiler = object.__new__(_RecipePlanCompiler)
-    compiler.projected_state_dependencies = ()
-    fallback_reasons: list[str] = []
-
-    def reject_fallback(**kwargs: str) -> None:
-        fallback_reasons.append(kwargs["reason"])
-        raise StrategyDraftValidationError(
-            "planner.runtime_state_binding_drift"
-        )
-
-    compiler.index = SimpleNamespace(
-        functional_consumer_identity_mode="authoritative",
-        record_legacy_runtime_identity_fallback=reject_fallback,
-        bindings={},
-    )
-    step = FunctionalCompileStep(
-        step_id="consume_transform",
-        scope_id="branch",
-        recipe_hint="broken_path_straightening_minimum_expression",
-        goal_type="derive_minimum_expression",
-        target="",
-        strategy="consume a typed transformation",
-    )
-
-    with pytest.raises(
-        StrategyDraftValidationError,
-        match="planner.runtime_state_binding_drift",
-    ):
-        compiler._path_transformation_input(step)
-
-    assert fallback_reasons == [
-        "path_transformation_dependency_missing"
-    ]
-
-
-def test_path_transformation_consumer_accepts_exact_wire_sidecar() -> None:
-    compiler = object.__new__(_RecipePlanCompiler)
-    object_id = MathObjectId(
-        "path_transformation:branch:selected",
-        "path_transformation",
-        "branch",
-    )
-    logical_key = LogicalStateKey(
-        object_id,
-        "transformation",
-        "PathTransformation",
-    )
-    version_id = StateVersionId(
-        StateSlotId(logical_key, "branch"),
-        1,
-    )
-    compiler.projected_state_dependencies = ()
-    compiler.projected_function_arg_bindings = (
-        ProjectedFunctionArgBinding(
-            step_id="consume_transform",
-            arg_name="path_transformation",
-            source_handle="fact:branch:selected_transform",
-            runtime_type="PathTransformation",
-            math_object_id=object_id,
-            state_version_id=version_id,
-            source_call_id="produce_selected_transform",
-            source_return_name="path_transformation",
-        ),
-    )
-    compiler.index = SimpleNamespace(
-        functional_consumer_identity_mode="authoritative",
-        runtime_path_for_state_version=lambda selected, **_kwargs: (
-            "$version[1]"
-            if selected == version_id
-            else pytest.fail("wrong transformation version")
-        ),
-        record_legacy_runtime_identity_fallback=lambda **_kwargs: pytest.fail(
-            "exact wire sidecar must not fall back"
-        ),
-    )
-    step = FunctionalCompileStep(
-        step_id="consume_transform",
-        scope_id="branch",
-        recipe_hint="broken_path_straightening_minimum_expression",
-        goal_type="derive_minimum_expression",
-        target="",
-        strategy="consume the selected transformation",
-    )
-
-    handle, path = compiler._path_transformation_input(step)
-
-    assert handle == "fact:branch:selected_transform"
-    assert path == "$version[1]"
-
-
 def test_typed_merge_rejects_distinct_exact_arg_producers() -> None:
     left = {
         "point": (
@@ -6216,36 +6085,6 @@ def test_segment_length_condition_rejects_points_from_another_segment() -> None:
     assert set(issue.details["actual_object_refs"]) != set(
         issue.details["expected_object_refs"]
     )
-
-
-def test_runtime_path_transformation_identity_drift_is_configuration_error() -> None:
-    provenance = StateWriteProvenance(
-        step_id="reduce_path",
-        scope_id="ii",
-        capability_id="synthetic_path_reduction",
-        produced_handle="fact:ii:path_transformation",
-        output_key="path_transformation",
-        runtime_type="PathTransformation",
-        identity_policy="value_only",
-        identity_role="path_transformation",
-        lineage=state_semantic_lineage(
-            object_roles=(
-                StateObjectRoleBinding(
-                    role="moving_object",
-                    object_refs=("point:ii:P",),
-                ),
-            ),
-        ),
-    )
-
-    with pytest.raises(
-        StrategyDraftValidationError,
-        match="planner.contract_runtime_identity_drift",
-    ):
-        _validate_runtime_lineage_payload(
-            provenance,
-            {"moving_point_ref": "point:ii:Q"},
-        )
 
 
 def test_entity_only_prompt_hides_internal_materialized_point_view() -> None:
@@ -8319,7 +8158,7 @@ def test_final_derived_identity_uses_final_computation_key() -> None:
     objects = MathObjectRegistry()
     factory = StateIdentityFactory(objects)
     final_key = ComputationKey(
-        "synthetic_path_reduction",
+        "synthetic_candidate_derivation",
         (
             ArgVersionBinding(
                 "condition",
@@ -8329,32 +8168,32 @@ def test_final_derived_identity_uses_final_computation_key() -> None:
         ),
     )
     provisional_refs = (
-        "path_transformation:problem:derived_provisional_a",
-        "path_transformation:problem:derived_provisional_b",
+        "point:problem:derived_provisional_a",
+        "point:problem:derived_provisional_b",
     )
     allocations = tuple(
         FunctionalReturnAllocation(
-            call_id="reduce_path",
-            return_name="path_transformation",
-            handle=f"fact:ii:path_transformation_{index}",
-            runtime_type="PathTransformation",
+            call_id="derive_candidates",
+            return_name="candidates",
+            handle=f"fact:ii:candidates_{index}",
+            runtime_type="PointList",
             valid_scope="ii",
-            state_slot_id=f"{object_ref}.transformation@ii",
+            state_slot_id=f"{object_ref}.coordinate@ii",
             object_ref=object_ref,
             identity_policy="derived_role",
             write_mode="create",
             logical_state_key=LogicalStateKey(
                 factory.object_id(object_ref),
-                "transformation",
-                "PathTransformation",
+                "coordinate",
+                "PointList",
             ),
         )
         for index, object_ref in enumerate(provisional_refs)
     )
     return_spec = SimpleNamespace(
-        name="path_transformation",
-        runtime_type="PathTransformation",
-        semantic_role="path_transformation",
+        name="candidates",
+        runtime_type="PointList",
+        semantic_role="candidate_points",
         equivalent_to=None,
         identity_policy="derived_role",
         identity_arg=None,
@@ -14526,24 +14365,6 @@ def test_functional_prompt_compacts_large_and_structured_runtime_results() -> No
                     }
                 ],
             },
-            {
-                "call_id": "reduce_path",
-                "execution_status": "runtime_verified",
-                "commit_status": "provisional",
-                "repair_required": False,
-                "results": [
-                    {
-                        "return": "path_transformation",
-                        "type": "PathTransformation",
-                        "semantic_ref": "reduced_path",
-                        "object_roles": {
-                            "moving_object": ["G"],
-                            "fixed_endpoint_1": ["D"],
-                            "fixed_endpoint_2": ["F"],
-                        },
-                    }
-                ],
-            },
         ],
         issues=[],
     )
@@ -14555,9 +14376,7 @@ def test_functional_prompt_compacts_large_and_structured_runtime_results() -> No
     )
     assert "roles" not in expression
     assert "identity" not in expression
-    transformation = compact[1]["results"][0]
-    assert transformation["structure"]["moving_object"] == ["G"]
-    assert transformation["structure"]["moving_locus_available"] is False
+    assert len(compact) == 1
 
 
 def test_verified_closed_form_is_memory_not_hard_retry_overlay() -> None:
