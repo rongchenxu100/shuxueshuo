@@ -128,40 +128,12 @@
                 "intent": "将题面给定的横坐标代入当前抛物线。"
               },
               {
-                "step_id": "transform_weighted_path_iii",
-                "capability_id": "weighted_axis_path_triangle_transform",
-                "args": {
-                  "minimum_value": "minimum_value",
-                  "fixed_point": "A",
-                  "moving_point": "N"
-                },
-                "intent": "用辅助直角三角形把加权路径转为普通折线路径。"
-              },
-              {
                 "step_id": "derive_weighted_minimum_iii",
-                "capability_id": "linked_broken_path_minimum_expression",
+                "capability_id": "weighted_axis_path_minimum",
                 "args": {
-                  "path_transformation": {
-                    "step_id": "transform_weighted_path_iii",
-                    "return": "path_transformation"
-                  },
-                  "auxiliary_locus": {
-                    "step_id": "transform_weighted_path_iii",
-                    "return": "auxiliary_locus"
-                  },
-                  "fixed_point": "A",
-                  "curve_point": "M",
-                  "moving_point": "N",
-                  "auxiliary_point": {
-                    "step_id": "transform_weighted_path_iii",
-                    "return": "auxiliary_point"
-                  },
-                  "dynamic_constraint": "symbol_constraint_n"
+                  "path_minimum_target": "path_minimum_target"
                 },
-                "return_expectations": {
-                  "minimum_expression": "open_expression"
-                },
-                "intent": "拉直转化后的联动折线，得到关于主参数的最小值表达式。"
+                "intent": "原子完成加权三角形、折线拉直和定义域验证，得到完整最小值表达式。"
               },
               {
                 "step_id": "solve_parameter_iii",

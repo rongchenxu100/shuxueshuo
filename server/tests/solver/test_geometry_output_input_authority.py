@@ -32,10 +32,6 @@ _OUTPUT_IDENTITIES = {
     ("quadratic_y_axis_intercept_point", "target"): "point",
     ("square_adjacent_vertex_from_side", "target"): "adjacent_vertex",
     ("translated_point", "target"): "point",
-    (
-        "weighted_axis_path_triangle_transform",
-        "auxiliary_point_ref",
-    ): "auxiliary_point",
 }
 
 

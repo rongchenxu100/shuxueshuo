@@ -565,6 +565,7 @@ _MACRO_CANDIDATE_BUILDERS = frozenset(
         "coupled_segment_path_role_assignments",
         "equal_length_ray_role_assignments",
         "quadratic_square_path_role_assignments",
+        "weighted_axis_path_role_assignments",
         "curve_role_assignments",
     }
 )

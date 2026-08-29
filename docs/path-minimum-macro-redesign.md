@@ -3,10 +3,10 @@
 Macro 在 Annotated Plan 与 Scope replacement 中始终保持原子 step。现行 Retry 合同见
 [FunctionalPlan Scope Retry](functional-scope-retry-design.md)。
 
-状态：F5-F4.1、F5-F4.2、F5-F4.2R、F5-F4.3A、F5-F4.3B、
-**F5-F4.3C 与 F5-F4.3D** 已完成：代码、离线门禁和最终付费 live `1x3`
-发布验收全部通过。当前下一阶段是 **F5-F4.3E 加权路径原子 Macro**；Macro
-不得透明展开为 Planner-authored Function 子图。
+状态：F5-F4.1、F5-F4.2、F5-F4.2R、F5-F4.3A、F5-F4.3B 以及
+**F5-F4.3C–E** 已完成：代码、离线门禁和对应定向 live `1x3` 发布验收全部
+通过。当前下一阶段是 **F5-F4.3F 旧能力清理与全量验收**；Macro 不得透明展开为
+Planner-authored Function 子图。
 
 统一运行时权威链见 [Method Solver 架构](method-solver-architecture.md) 与
 [Capability authoring guide](capability-authoring-guide.md)。
@@ -264,14 +264,10 @@ F4.3C 当前已具备：
   达到性验证，并原子发布两个 public returns 与 verified witness；
 - Family catalog、recorded fixture、scope-native fixture 与 few-shot 已迁移到相同公开契约。
 
-仍需处理：
-
-1. 未迁移 family 的 `PathTransformation`、`PathWitness`、`PathCandidate`、内部端点和
-   轨迹仍可能进入 Planner catalog、schema、fixture 与 recipe chain，最终在 F4.3F 清理。
-2. 南开仍要求 LLM 拼接“两动点降维 -> 拉直求最值”。
-3. 河西/西青仍要求 `weighted_axis_path_triangle_transform -> linked minimum`。
-4. 已迁移的 equal-length 与 quadratic-square Macro 使用完整 `runtime_search`；其他未迁
-   Macro 必须保持 `direct`。
+仍需处理：旧 MethodSpec、兼容 capability pack、deterministic planner、Explanation/
+Visual fallback 中还保留部分 `PathTransformation`、内部辅助端点和旧 recipe 名称。
+这些对象已经不进入当前五个 family 的 Planner catalog、dynamic schema、recorded Plan
+或 Scope Retry wire；F4.3F 将物理删除兼容链并运行全量门禁。
 
 ## 9. 目标 Macro
 
@@ -463,9 +459,65 @@ internal:
 
 ### F4.3E：加权路径原子 Macro
 
-- 合并 weighted transform 与 linked minimum；
-- 删除按点名、`aux` 子串或 Context 顺序寻找辅助对象的 helper；
-- 运行河西/西青对应 family 并行 live。
+状态：`COMPLETE`。
+
+Planner 公开合同固定为：
+
+```json
+{
+  "capability_id": "weighted_axis_path_minimum",
+  "args": {"path_minimum_target": "..."},
+  "returns": ["minimum_expression"]
+}
+```
+
+题设给定的最小值和最终主参数不进入 Macro。后续仍由普通
+`parameter_from_expression_value` 读取 `minimum_expression`、`minimum_value` 与
+主参数 Symbol。曲线端点、轴上动点、固定端点、主参数、动点参数及两者定义域均为
+code-owned role，不成为 LLM 参数。
+
+```mermaid
+flowchart LR
+  subgraph OLD["旧 Planner 两阶段公开链"]
+    T["weighted transform<br/>多个点、参数与辅助点"]
+    H["PathTransformation + auxiliary Point/Line"]
+    M["linked minimum<br/>再次传端点、轨迹与定义域"]
+    T --> H --> M
+  end
+
+  subgraph NEW["F4.3E 原子边界"]
+    P["path_minimum_target"]
+    A["weighted_axis_path_minimum<br/>一个 canonical step"]
+    O["minimum_expression"]
+    P --> A --> O
+  end
+
+  A -. "runtime internal composition" .-> K["typed roles → registered triangle profile<br/>straightening → reachability/domain proof"]
+```
+
+实现结果：
+
+- `path_minimum_target.terms` 现在无损保存每项 canonical endpoint handle 与 scale；
+  `sqrt(2)` 和 `2` 分别选择已登记的等腰直角与 30°/60° 三角形 profile；
+- runtime-search 只从 typed path graph 解析共享动点和两端点，再由对象状态解析唯一的
+  主参数/动点参数及其约束；不读取点名、`aux` 子串或 Context 遍历顺序；
+- kernel 内部复用旧 transform 与 linked minimum 作为 internal composition boundary，
+  synthetic auxiliary `PointRef`、`PathTransformation`、locus 和内部 evidence 不进入
+  Planner/Retry 或 public runtime outputs；
+- 河西原旧链把仅在 `b>1/2` 可达到的直线垂足表达式当成全域最小值；新 kernel 将
+  动点定义域闭包写成一个 `Piecewise` 最小值表达式，仍由外部参数求解得到 `b=2`；
+- 西青输出保持等价的 `(b+3)(1+sqrt(3))`，但不再公开辅助点、轨迹或中间 Path 类型；
+- Family catalog、两代 recorded Plan、scope-native fixture、compile manifest、MethodSpec、
+  mechanism few-shot、Explanation recipe 与 witness 均已迁移；旧两步 capability 不再向
+  河西/西青 Planner 暴露；
+- 受影响离线门禁为 `804 passed`（并行 `67.70s`）；发布 batch
+  `f5-f43e-weighted-atomic-release-1x3` 中河西 `3/3`、西青 `3/3`，六份均首轮通过、
+  `57/57` authority-valid step、0 Retry、0 configuration/unclassified、0 ghost write、
+  0 identity leak；
+- 六份 live 均使用 shared synthetic `quadratic_constraints_vertex`，few-shot payload
+  SHA-256 均为
+  `d1fdcd478eb6edd5029369cfe185420f29345a1f35738f0860cb99167207f0bb`；其内容不含
+  河西/西青题面或加权路径解法。
 
 ### F4.3F：Planner 协议与旧能力清理
 
@@ -500,7 +552,7 @@ configuration/unclassified error == 0
 
 ## 12. 当前下一步
 
-下一项实现是 **F4.3E 加权路径原子 Macro**：合并 weighted transform 与 linked
-minimum，并删除基于点名、`aux` 子串或 Context 顺序猜测辅助对象的逻辑。F4.3D
-没有新增 Plan/Retry wire 字段；南开现在只向 LLM 暴露一个耦合路径原子 Macro，旧
-PathTransformation 链只保留为 kernel 内部实现。
+下一项是 **F4.3F 旧能力清理与全量验收**：物理删除已经不可达的公开
+PathTransformation capability、旧 recipe/compiler dispatch、Explanation/Visual
+fallback 和孤儿注册，再运行 Solver full gate 与 Planner-only `5x3`。F4.3E 没有新增
+Plan/Retry wire 字段；河西与西青现在都只向 LLM 暴露一个加权路径原子 Macro。

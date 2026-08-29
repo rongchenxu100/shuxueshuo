@@ -436,7 +436,7 @@ def test_selection_is_catalog_gated_cross_family_and_stable() -> None:
     kwargs = {
         "capability_ids": entry.capability_ids,
         "base_pack_ids": ("quadratic_core",),
-        "mechanism_pack_ids": ("weighted_path_transform_core",),
+        "mechanism_pack_ids": ("weighted_axis_path_minimum_core",),
         "answer_value_types": ("ParameterValue",),
         "problem_id": "synthetic-cross-family-problem",
         "allow_same_problem": False,

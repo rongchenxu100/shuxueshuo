@@ -3353,6 +3353,112 @@ class _RecipePlanCompiler:
         )
         return _CompiledStep(plan=plan)
 
+    def _compile_weighted_axis_path_minimum_recipe(
+        self,
+        step: FunctionalCompileStepView,
+    ) -> _CompiledStep:
+        """Compile the weighted-path Macro as one internal kernel call."""
+        from shuxueshuo_server.solver.runtime.method_input_read_authority import (
+            MethodInputReadAuthority,
+        )
+
+        method_id = "weighted_axis_path_minimum_kernel"
+        invocation_id = f"{step.step_id}.{method_id}"
+        hidden_inputs = (
+            "fixed_point",
+            "curve_point",
+            "moving_point",
+            "moving_point_ref",
+            "parameter",
+            "dynamic_parameter",
+            "parameter_constraint",
+            "dynamic_constraint",
+        )
+        prepared_inputs = _required_prepared_macro_method_inputs(
+            step,
+            expected_targets={f"{method_id}.{name}" for name in hidden_inputs},
+        )
+        inputs = dict(
+            self._projected_exact_recipe_inputs(
+                step,
+                method_id,
+                include_strategy_inputs=False,
+            )
+        )
+        read_authorities: dict[str, tuple[MethodInputReadAuthority, ...]] = {}
+        method_spec = self.method_specs.require(method_id)
+        for target, prepared_input in prepared_inputs.items():
+            owner, _, input_name = target.partition(".")
+            if owner != method_id or not input_name or prepared_input.source is None:
+                raise StrategyDraftValidationError(
+                    "planner.method_input_view_authority_missing: "
+                    f"{step.step_id}.{target} has no prepared source"
+                )
+            source = prepared_input.source
+            inputs[input_name] = source.runtime_path
+            input_spec = method_spec.inputs[input_name]
+            read_authorities[input_name] = (
+                MethodInputReadAuthority(
+                    method_id=method_id,
+                    invocation_id=invocation_id,
+                    input_name=input_name,
+                    item_index=0,
+                    view_mode=input_spec.view.mode,
+                    domain_type=input_spec.domain_type,
+                    runtime_type=input_spec.runtime_type,
+                    scope_id=step.step_id,
+                    source=source,
+                ),
+            )
+        if set(inputs) != set(method_spec.inputs):
+            raise StrategyDraftValidationError(
+                "planner.macro_preparation_authority_missing: "
+                f"{step.step_id}: expected method inputs="
+                f"{sorted(method_spec.inputs)}, observed={sorted(inputs)}"
+            )
+        outputs, promote = self._projected_macro_method_outputs(
+            step,
+            method_id,
+            input_bindings=inputs,
+        )
+        outputs.setdefault("evidence", _temp(step.step_id, "path_witness"))
+        if not promote:
+            raise StrategyDraftValidationError(
+                "planner.macro_contract_invalid: weighted-axis Macro has no "
+                "allocated public returns"
+            )
+        minimum_target = next(
+            (
+                target
+                for source, target in promote.items()
+                if source == outputs.get("minimum_expression")
+            ),
+            _minimum_expression_target_path(step, self.index),
+        )
+        plan = StepPlan(
+            step_id=step.step_id,
+            goal=StepGoal(
+                goal_id=f"{step.goal_type}:{step.step_id}",
+                type=step.goal_type,
+                target_path=minimum_target,
+                scope_id=step.scope_id,
+            ),
+            scope=step.scope_id,
+            invocations=[
+                MethodInvocation(
+                    invocation_id=invocation_id,
+                    method_id=method_id,
+                    scope=step.step_id,
+                    inputs=inputs,
+                    outputs=outputs,
+                    input_read_authorities=read_authorities,
+                )
+            ],
+            expected_outputs=list(_unique_ordered(promote.values())),
+            promote_outputs=promote,
+        )
+        return _CompiledStep(plan=plan)
+
     def _compile_broken_path_straightening_minimum_expression_recipe(self, step: FunctionalCompileStepView) -> _CompiledStep:
         """编译“折线拉直候选 + 选择方案 + 计算最小值表达式” recipe。"""
         (
@@ -3742,6 +3848,15 @@ def _compile_coupled_segment_path_minimum_recipe(
     return compiler._compile_coupled_segment_path_minimum_recipe(step)
 
 
+def _compile_weighted_axis_path_minimum_recipe(
+    compiler: _RecipePlanCompiler,
+    step: FunctionalCompileStepView,
+    recipe: FamilyRecipeExecutionSpec,
+) -> _CompiledStep:
+    """Compile the atomic weighted-axis path minimum Macro."""
+    return compiler._compile_weighted_axis_path_minimum_recipe(step)
+
+
 DEFAULT_RECIPE_COMPILERS: dict[str, RecipeCompileStrategyFn] = {
     "single_method": _compile_single_method_recipe,
     "right_angle_construct_select": _compile_right_angle_construct_select_recipe,
@@ -3752,6 +3867,7 @@ DEFAULT_RECIPE_COMPILERS: dict[str, RecipeCompileStrategyFn] = {
     "broken_path_straightening_minimum_expression": _compile_broken_path_straightening_minimum_expression_recipe,
     "coupled_segment_path_minimum": _compile_coupled_segment_path_minimum_recipe,
     "quadratic_square_path_minimum": _compile_quadratic_square_path_minimum_recipe,
+    "weighted_axis_path_minimum": _compile_weighted_axis_path_minimum_recipe,
 }
 
 

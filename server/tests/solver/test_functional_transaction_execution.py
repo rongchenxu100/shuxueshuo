@@ -712,7 +712,7 @@ def test_context_authoritative_preflight_failure_creates_no_runtime_evidence(
 
     def conflict_last_call(self, request, index):
         decision = original_allocate(self, request, index)
-        if request.call_id != "ii_2_derive_G":
+        if request.call_id != "ii_2_evaluate_G":
             return decision
         return replace(
             decision,
@@ -1463,8 +1463,8 @@ def test_partial_goal_failure_keeps_independent_goal_branch_verified() -> None:
     assert failed_call_id in attempt.failed_call_ids
     assert goals["answer:ii_1.min_value"] == "not_executed"
     assert goals["answer:ii_2.G"] == "passed"
-    assert "ii_2_derive_G" in attempt.verified_call_ids
-    assert "ii_2_derive_G" in attempt.goal_reachable_call_ids
+    assert "ii_2_evaluate_G" in attempt.verified_call_ids
+    assert "ii_2_evaluate_G" in attempt.goal_reachable_call_ids
     assert failed_call_id not in attempt.goal_reachable_call_ids
     assert len(attempt.root_issues) == 1
     assert attempt.root_issues[0].step_id == failed_call_id

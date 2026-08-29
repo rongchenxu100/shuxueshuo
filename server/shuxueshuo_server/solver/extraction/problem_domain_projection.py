@@ -1260,14 +1260,37 @@ class ProblemDomainProjector:
                 "type": "path_minimum_target",
                 "path": _length_sum_name(segments, scope, attrs["expression"]),
             }
-            # Solver ProblemIR's legacy ``terms`` shape cannot encode weights and
-            # is authoritative whenever present. Keep a weighted path as text so
-            # the shared parser sees every term and its coefficient.
-            if all(_is_one(str(item["scale"])) for item in expression_terms):
-                projected["terms"] = [
-                    list(_segment_endpoint_handles(index, scope.path_id, item["segment"]))
-                    for item in expression_terms
-                ]
+            # ``terms`` is the object-identity authority.  The legacy pair form
+            # remains valid for unweighted paths; weighted targets use an
+            # explicit scale plus canonical endpoint handles so runtime code
+            # never has to recover mathematical roles from display point names.
+            projected["terms"] = [
+                (
+                    list(
+                        _segment_endpoint_handles(
+                            index,
+                            scope.path_id,
+                            item["segment"],
+                        )
+                    )
+                    if _is_one(str(item["scale"]))
+                    else {
+                        "scale": _canonical_math_text(
+                            index,
+                            scope.path_id,
+                            item["scale"],
+                        ),
+                        "segment": list(
+                            _segment_endpoint_handles(
+                                index,
+                                scope.path_id,
+                                item["segment"],
+                            )
+                        ),
+                    }
+                )
+                for item in expression_terms
+            ]
             return projected
         if kind == "minimum_value_given":
             return {

@@ -31,6 +31,7 @@ from shuxueshuo_server.solver.family.models import (
     QUADRATIC_SQUARE_PATH_ROLES_RESOLVER,
     PathTransformationConsumerSpec,
     SQUARE_PATH_TRANSFORMATION_ROLES_RESOLVER,
+    WEIGHTED_AXIS_PATH_MINIMUM_ROLES_RESOLVER,
     WEIGHTED_PATH_TRANSFORMATION_ROLES_RESOLVER,
     RecipeExecutionSpec,
     RecipeInputDerivationSpec,
@@ -1513,6 +1514,86 @@ QUADRATIC_SQUARE_PATH_MINIMUM = StepRecipeSpec(
 )
 
 
+WEIGHTED_AXIS_PATH_MINIMUM = StepRecipeSpec(
+    recipe_id="weighted_axis_path_minimum",
+    goal_type="derive_path_minimum_expression",
+    title="加权轴上路径最值",
+    description=(
+        "当路径目标恰由一个非单位权重线段和一个普通线段组成、两项共享同一"
+        "轴上动点，且加权端点已有单参数坐标状态时，原子完成辅助三角形、"
+        "轨迹、折线拉直、合法域和取等可达性验证。Planner 只选择完整的 "
+        "path_minimum_target；曲线端点、轴上固定端点、动点、两个参数及其"
+        "定义域全部由代码从 typed path terms 和可见状态唯一解析。该 Macro "
+        "只返回最小值表达式；题设给定最小值后，继续用普通参数求解能力。"
+    ),
+    method_ids=("weighted_axis_path_minimum_kernel",),
+    execution=RecipeExecutionSpec(
+        recipe_id="weighted_axis_path_minimum",
+        method_sequence=("weighted_axis_path_minimum_kernel",),
+        execution_mode="runtime_search",
+        search=MacroSearchSpec(
+            searchable_roles=(
+                "fixed_point",
+                "curve_point",
+                "moving_point",
+                "parameter",
+                "dynamic_parameter",
+                "parameter_constraint",
+                "dynamic_constraint",
+            ),
+            candidate_builder_id="weighted_axis_path_role_assignments",
+            validation_policy_id="path_equivalence_and_attainment",
+            lowerer_id="weighted_axis_path_minimum",
+            postcondition_id="weighted_axis_path_postcondition",
+            evidence_builder_id="weighted_axis_path_witness",
+        ),
+        execution_strategy="weighted_axis_path_minimum",
+        input_aliases=(
+            (
+                "path_minimum_target",
+                "weighted_axis_path_minimum_kernel.path_condition",
+            ),
+        ),
+        strategy_input_targets=tuple(
+            f"weighted_axis_path_minimum_kernel.{name}"
+            for name in (
+                "fixed_point",
+                "curve_point",
+                "moving_point",
+                "moving_point_ref",
+                "parameter",
+                "dynamic_parameter",
+                "parameter_constraint",
+                "dynamic_constraint",
+            )
+        ),
+        output_aliases=(
+            recipe_output_alias(
+                "weighted_axis_path_minimum_kernel.minimum_expression",
+                "MinimumExpression",
+                "minimum_expression",
+                goal_evidence_tags=("path_minimum_expression",),
+                result_form=ScalarResultFormSpec(
+                    possible_forms=("open_expression", "closed_value"),
+                    description=(
+                        "仍依赖主参数时为 open_expression；参数已确定且结果"
+                        "无自由符号时为 closed_value。定义域边界会由内核"
+                        "直接表示为 Piecewise，不增加 Planner 步骤。"
+                    ),
+                ),
+            ),
+        ),
+    ),
+    priority="preferred",
+    do_not_use_when=(
+        "路径没有非单位权重，或两项不共享同一个轴上动点。",
+        "加权系数没有登记对应的辅助三角形几何 profile。",
+        "加权端点尚未物化为只含一个主参数的 Point 状态。",
+        "目标需要正方形降维、两动点端点替换或等长射线构造。",
+    ),
+)
+
+
 COUPLED_SEGMENT_ENDPOINT_REPLACEMENT_PATH_MINIMUM = StepRecipeSpec(
     recipe_id="coupled_segment_endpoint_replacement_path_minimum",
     goal_type="derive_path_minimum_expression",
@@ -2102,6 +2183,91 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
                 slot_writes=(_slot("expression", "MinimumExpression"),),
                 identity_constraints=LINKED_AUXILIARY_IDENTITY_CONSTRAINTS,
                 path_transformation_consumer=LINKED_AUXILIARY_PATH_CONSUMER,
+            ),
+        ),
+    ),
+    CapabilityPackSpec(
+        pack_id="weighted_axis_path_minimum_core",
+        kind="mechanism",
+        method_ids=("weighted_axis_path_minimum_kernel",),
+        step_recipes=(WEIGHTED_AXIS_PATH_MINIMUM,),
+        contracts=(
+            _recipe_contract(
+                "weighted_axis_path_minimum",
+                slot_reads=(
+                    *tuple(
+                        _slot(
+                            "coordinate",
+                            "Point",
+                            object_kind="point",
+                            semantic_role=role,
+                        )
+                        for role in (
+                            "fixed_point",
+                            "curve_point",
+                            "moving_point",
+                        )
+                    ),
+                    _slot(
+                        "symbol",
+                        "Symbol",
+                        object_kind="symbol",
+                        semantic_role="parameter",
+                    ),
+                    _slot(
+                        "symbol",
+                        "Symbol",
+                        object_kind="symbol",
+                        semantic_role="dynamic_parameter",
+                    ),
+                ),
+                condition_reads=(
+                    _condition("path_minimum_target"),
+                    _condition(
+                        "symbol_constraint",
+                        semantic_role="parameter_constraint",
+                    ),
+                    _condition(
+                        "symbol_constraint",
+                        semantic_role="dynamic_constraint",
+                    ),
+                ),
+                slot_writes=(
+                    _slot(
+                        "expression",
+                        "MinimumExpression",
+                        output_key=(
+                            "weighted_axis_path_minimum_kernel.minimum_expression"
+                        ),
+                        result_form=ScalarResultFormSpec(
+                            possible_forms=("open_expression", "closed_value"),
+                            description=(
+                                "仍依赖主参数时为 open_expression；定义域边界"
+                                "由同一个表达式中的 Piecewise 分支表示。"
+                            ),
+                        ),
+                    ),
+                ),
+                dependency_policy="context_closure",
+                context_resolvers=(
+                    WEIGHTED_AXIS_PATH_MINIMUM_ROLES_RESOLVER,
+                ),
+                context_role_bindings=tuple(
+                    CapabilityContextRoleBindingSpec(
+                        WEIGHTED_AXIS_PATH_MINIMUM_ROLES_RESOLVER,
+                        role,
+                        role,
+                    )
+                    for role in (
+                        "fixed_point",
+                        "curve_point",
+                        "moving_point",
+                        "parameter",
+                        "dynamic_parameter",
+                        "parameter_constraint",
+                        "dynamic_constraint",
+                    )
+                ),
             ),
         ),
     ),
@@ -2735,4 +2901,5 @@ __all__ = [
     "PATH_MINIMUM_BY_STRAIGHTENED_DISTANCE",
     "BROKEN_PATH_STRAIGHTENING_MINIMUM_EXPRESSION",
     "EQUAL_LENGTH_RAY_PATH_REDUCTION",
+    "WEIGHTED_AXIS_PATH_MINIMUM",
 ]

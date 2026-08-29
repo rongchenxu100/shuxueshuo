@@ -530,7 +530,7 @@ def test_internal_method_outputs_are_not_functional_returns() -> None:
     problem = load_problem_ir(str(FUNCTIONAL_FIXTURES[2]))
     inputs = build_strategy_probe_inputs(problem)
     method = inputs.method_specs.require(
-        "linked_broken_path_minimum_expression"
+        "weighted_axis_path_minimum_kernel"
     )
     functions = FunctionSpecRegistry.from_family_spec(
         inputs.family_spec,
@@ -543,24 +543,21 @@ def test_internal_method_outputs_are_not_functional_returns() -> None:
 
     assert set(method.outputs) == {
         "minimum_expression",
-        "dynamic_parameter_expression",
-        "dynamic_point_expression",
+        "evidence",
     }
-    assert method.internal_outputs == (
-        "dynamic_parameter_expression",
-        "dynamic_point_expression",
-    )
+    assert method.internal_outputs == ("evidence",)
     assert tuple(
         item.name
         for item in functions.require(
-            "linked_broken_path_minimum_expression"
+            "weighted_axis_path_minimum_kernel"
         ).returns
     ) == ("minimum_expression",)
-    capability = catalog.get("linked_broken_path_minimum_expression")
+    capability = catalog.get("weighted_axis_path_minimum")
     assert capability is not None
     assert tuple(item.name for item in capability.returns) == (
         "minimum_expression",
     )
+    assert catalog.get("weighted_axis_path_minimum_kernel") is None
 
 
 def test_internal_method_output_cannot_be_a_contract_state_write() -> None:

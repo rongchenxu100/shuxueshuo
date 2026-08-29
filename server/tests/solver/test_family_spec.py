@@ -553,11 +553,12 @@ def test_expanded_family_catalogs_keep_pack_and_local_capabilities() -> None:
             {
                 "quadratic_axis_from_relation",
                 "filter_point_candidates_by_quadratic_curve",
-                "linked_broken_path_minimum_expression",
+                "weighted_axis_path_minimum_kernel",
             },
             {
                 "right_angle_equal_length_construct_and_select",
                 "curve_candidate_parameter_solve",
+                "weighted_axis_path_minimum",
             },
         ),
         QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY.family_id: (

@@ -1890,6 +1890,7 @@ class ScopedFunctionalPlanAuthorityAdapter:
                         if item.action
                         not in {
                             "canonicalize_goal_target_input_ref",
+                            "canonicalize_unique_fact_ref",
                             "drop_fixed_form_return_expectation",
                             "drop_dead_pure_goal_unreachable_branch",
                         }

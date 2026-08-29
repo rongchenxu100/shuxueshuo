@@ -231,6 +231,7 @@ def test_every_registered_macro_has_an_audited_lowering_contract() -> None:
         "equal_length_ray_path_reduction",
         "quadratic_square_path_minimum",
         "right_angle_equal_length_construct_and_select",
+        "weighted_axis_path_minimum",
     }
 
     for payload in macros["equal_length_ray_path_reduction"]:
@@ -241,8 +242,8 @@ def test_every_registered_macro_has_an_audited_lowering_contract() -> None:
         assert equal_length_returns == {"minimum_expression"}
 
 
-def test_every_path_transformation_uses_planner_declared_moving_point() -> None:
-    """A Function/Macro may validate a strategy role, never invent it."""
+def test_no_family_exposes_internal_path_transformation_to_planner() -> None:
+    """Atomic path Macros keep every PathTransformation inside the kernel."""
 
     method_specs = MethodSpecRegistry.load_from_code()
     producers = []
@@ -271,7 +272,7 @@ def test_every_path_transformation_uses_planner_declared_moving_point() -> None:
                 assert arg.binding_authority == "wire"
                 producers.append(capability.capability_id)
 
-    assert set(producers) >= {"weighted_axis_path_triangle_transform"}
+    assert producers == []
     assert "two_moving_points_path_reduction" not in producers
     assert "square_path_dimension_reduction" not in producers
 

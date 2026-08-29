@@ -660,6 +660,42 @@ def default_macro_implementation_registry() -> MacroImplementationRegistry:
                 ),
             ),
             MacroImplementation(
+                implementation_id="weighted-axis-path/v1",
+                macro_id="weighted_axis_path_minimum",
+                candidate_builder_id="weighted_axis_path_role_assignments",
+                validation_policy_id="path_equivalence_and_attainment",
+                lowerer_id="weighted_axis_path_minimum",
+                postcondition_id="weighted_axis_path_postcondition",
+                evidence_builder_id="weighted_axis_path_witness",
+                preparation_context_builder=(
+                    _build_weighted_axis_path_preparation_context
+                ),
+                candidate_builder=_build_weighted_axis_path_candidates,
+                lowerer=_lower_weighted_axis_path_candidate,
+                postcondition=_weighted_axis_path_postcondition,
+                evidence_builder=_weighted_axis_path_evidence,
+                method_input_bindings=tuple(
+                    MacroMethodInputBindingSpec(
+                        "weighted_axis_path_minimum_kernel",
+                        input_name,
+                        MethodInputBindingSpec(
+                            input_name=input_name,
+                            source=MacroPreparedRoleSourceSpec(role),
+                        ),
+                    )
+                    for input_name, role in (
+                        ("fixed_point", "fixed_point"),
+                        ("curve_point", "curve_point"),
+                        ("moving_point", "moving_point"),
+                        ("moving_point_ref", "moving_point"),
+                        ("parameter", "parameter"),
+                        ("dynamic_parameter", "dynamic_parameter"),
+                        ("parameter_constraint", "parameter_constraint"),
+                        ("dynamic_constraint", "dynamic_constraint"),
+                    )
+                ),
+            ),
+            MacroImplementation(
                 implementation_id="coupled-segment-path/v1",
                 macro_id=(
                     "coupled_segment_endpoint_replacement_path_minimum"
@@ -740,6 +776,148 @@ def default_macro_implementation_registry() -> MacroImplementationRegistry:
             ),
         )
     )
+
+
+def _build_weighted_axis_path_preparation_context(
+    request: MacroPreparationRequest,
+) -> MacroImplementationPreparationContext:
+    environment = request.environment
+    prepared = getattr(environment, "prepared_call", None)
+    handle_registry = getattr(environment, "handle_registry", None)
+    if prepared is None or handle_registry is None:
+        raise MacroRuntimeSearchError(
+            "planner.macro_contract_invalid",
+            "weighted-axis Macro requires a typed execution environment",
+            retryability="configuration",
+        )
+    resolved_args = getattr(prepared.reconciliation, "resolved_args", {})
+    values = tuple(resolved_args.get("path_minimum_target", ()))
+    if len(values) != 1:
+        raise MacroRuntimeSearchError(
+            "planner.macro_contract_invalid",
+            "weighted-axis Macro requires one path_minimum_target",
+            retryability="configuration",
+            details={"count": len(values)},
+        )
+    path_handle = str(values[0].handle)
+    context = MappingProxyType(
+        {
+            "path_minimum_target": path_handle,
+            "scope_id": request.scope_id,
+            "handle_registry": handle_registry,
+        }
+    )
+    dependency_envelope = {path_handle}
+    for resolved in resolved_args.values():
+        dependency_envelope.update(
+            value.handle for value in resolved if getattr(value, "handle", None)
+        )
+        dependency_envelope.update(
+            value.object_ref
+            for value in resolved
+            if getattr(value, "object_ref", None)
+        )
+    return MacroImplementationPreparationContext(
+        payload=context,
+        candidate_dependency_envelope=tuple(sorted(dependency_envelope)),
+    )
+
+
+def _build_weighted_axis_path_candidates(
+    request: MacroPreparationRequest,
+) -> Sequence[MacroRoleAssignmentCandidate]:
+    from shuxueshuo_server.solver.runtime.weighted_axis_path_roles import (
+        WeightedAxisPathRoleError,
+        build_weighted_axis_path_role_candidates,
+    )
+
+    context = request.builder_context
+    if not isinstance(context, Mapping):
+        raise MacroRuntimeSearchError(
+            "planner.macro_contract_invalid",
+            "weighted-axis candidate builder requires structured Context",
+            retryability="configuration",
+        )
+    try:
+        candidates = build_weighted_axis_path_role_candidates(
+            path_minimum_target=str(context["path_minimum_target"]),
+            scope_id=str(context["scope_id"]),
+            registry=context["handle_registry"],
+        )
+    except (WeightedAxisPathRoleError, KeyError) as exc:
+        raise MacroRuntimeSearchError(
+            "functional.macro_search_no_structural_candidate",
+            str(exc),
+            retryability="planner_repairable",
+            details={
+                "macro_id": "weighted_axis_path_minimum",
+                "repair_action": "select_compatible_weighted_path_target",
+                **(
+                    exc.details
+                    if isinstance(exc, WeightedAxisPathRoleError)
+                    else {}
+                ),
+            },
+        ) from exc
+    if not candidates:
+        raise MacroRuntimeSearchError(
+            "functional.macro_search_no_structural_candidate",
+            "the path target does not form a supported weighted-axis mechanism",
+            retryability="planner_repairable",
+            details={
+                "macro_id": "weighted_axis_path_minimum",
+                "public_args": ["path_minimum_target"],
+                "repair_action": "select_compatible_weighted_path_target",
+            },
+        )
+    role_names = (
+        "fixed_point",
+        "curve_point",
+        "moving_point",
+        "parameter",
+        "dynamic_parameter",
+        "parameter_constraint",
+        "dynamic_constraint",
+    )
+    return tuple(
+        MacroRoleAssignmentCandidate(
+            candidate_id=item.candidate_id,
+            roles={role: getattr(item, role) for role in role_names},
+            dependency_handles=(
+                item.path_minimum_target,
+                *(getattr(item, role) for role in role_names),
+            ),
+            fact_handles={
+                role: getattr(item, role)
+                for role in ("parameter_constraint", "dynamic_constraint")
+            },
+        )
+        for item in candidates
+    )
+
+
+def _lower_weighted_axis_path_candidate(
+    value: Any,
+    authority: MacroCandidateBindingAuthority,
+) -> Any:
+    lower = getattr(value, "with_macro_roles", None)
+    return lower(dict(authority.candidate.roles)) if callable(lower) else value
+
+
+def _weighted_axis_path_postcondition(value: Any) -> Sequence[str]:
+    return tuple(
+        str(getattr(item, "name", item))
+        for item in getattr(value, "checks", ())
+        if bool(getattr(item, "ok", True))
+    )
+
+
+def _weighted_axis_path_evidence(*args: Any, **kwargs: Any) -> Any:
+    from shuxueshuo_server.solver.runtime.weighted_axis_path_evidence import (
+        build_weighted_axis_path_execution_witness,
+    )
+
+    return build_weighted_axis_path_execution_witness(*args, **kwargs)
 
 
 def _build_coupled_segment_path_preparation_context(

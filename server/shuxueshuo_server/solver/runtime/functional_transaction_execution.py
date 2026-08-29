@@ -4925,12 +4925,24 @@ def _visible_object_identity_path(
     object_ref: str,
     consumer_scope_id: str,
 ) -> str | None:
-    """Project one code-owned point role to its immutable identity path."""
+    """Project one code-owned object role to its immutable identity path.
+
+    Runtime-search Macros may bind immutable identities for both geometric
+    entities and symbolic parameters.  The canonical handle owns the object
+    kind, so use it to select the matching RuntimeContext container instead of
+    treating every identity as a Point.
+    """
 
     name = object_ref.rsplit(":", 1)[-1]
+    if object_ref.startswith("symbol:"):
+        containers = ("symbols",)
+    elif object_ref.startswith("point:"):
+        containers = ("object_refs", "points")
+    else:
+        return None
     candidates = tuple(
         path
-        for container in ("object_refs", "points")
+        for container in containers
         if (
             path := runtime_context.find_visible_path(
                 container,

@@ -168,65 +168,17 @@
       "label": "第（Ⅱ）②问",
       "calls": [
         {
-          "call_id": "transform_weighted_path_ii",
-          "capability_id": "weighted_axis_path_triangle_transform",
-          "args": {
-            "minimum_value": {
-              "ref": "path_minimum_value_given",
-              "kind": "fact"
-            },
-            "fixed_point": {
-              "ref": "A",
-              "kind": "point"
-            },
-            "moving_point": {
-              "ref": "M",
-              "kind": "point"
-            }
-          },
-          "return_bindings": {},
-          "strategy": "用辅助直角三角形把加权路径转成普通折线路径。",
-          "reason": "转化后才能用几何最短距离建立参数表达式。"
-        },
-        {
           "call_id": "derive_weighted_minimum_ii",
-          "capability_id": "linked_broken_path_minimum_expression",
+          "capability_id": "weighted_axis_path_minimum",
           "args": {
-            "path_transformation": {
-              "from_call": "transform_weighted_path_ii",
-              "return": "path_transformation"
-            },
-            "auxiliary_locus": {
-              "from_call": "transform_weighted_path_ii",
-              "return": "auxiliary_locus"
-            },
-            "fixed_point": {
-              "ref": "A",
-              "kind": "point"
-            },
-            "curve_point": {
-              "from_call": "derive_curve_point_D_ii",
-              "return": "point"
-            },
-            "moving_point": {
-              "ref": "M",
-              "kind": "point"
-            },
-            "auxiliary_point": {
-              "from_call": "transform_weighted_path_ii",
-              "return": "auxiliary_point"
-            },
-            "dynamic_constraint": {
-              "ref": "m_gt_0",
+            "path_minimum_target": {
+              "ref": "path_minimum_target",
               "kind": "fact"
             }
           },
           "return_bindings": {},
-          "return_expectations": {
-            "minimum_expression": "open_expression"
-          },
-          "strategy": "拉直联动折线得到只含主参数的最小值表达式。",
-          "reason": "题设给定的最小值将在下一调用中用于反求参数。"
+          "strategy": "原子完成加权三角形、折线拉直和定义域验证。",
+          "reason": "先得到完整最小值表达式，再由题设给定值反求参数。"
         },
         {
           "call_id": "solve_parameter_from_minimum_ii",

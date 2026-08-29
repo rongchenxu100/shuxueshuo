@@ -188,65 +188,17 @@
           "reason": "加权路径转化需要曲线动点的坐标状态。"
         },
         {
-          "call_id": "transform_weighted_path_iii",
-          "capability_id": "weighted_axis_path_triangle_transform",
-          "args": {
-            "minimum_value": {
-              "ref": "minimum_value",
-              "kind": "fact"
-            },
-            "fixed_point": {
-              "ref": "A",
-              "kind": "point"
-            },
-            "moving_point": {
-              "ref": "N",
-              "kind": "point"
-            }
-          },
-          "return_bindings": {},
-          "strategy": "用辅助直角三角形把加权路径转为普通折线路径。",
-          "reason": "几何转化先产生等价路径和辅助点轨迹。"
-        },
-        {
           "call_id": "derive_weighted_minimum_iii",
-          "capability_id": "linked_broken_path_minimum_expression",
+          "capability_id": "weighted_axis_path_minimum",
           "args": {
-            "path_transformation": {
-              "from_call": "transform_weighted_path_iii",
-              "return": "path_transformation"
-            },
-            "auxiliary_locus": {
-              "from_call": "transform_weighted_path_iii",
-              "return": "auxiliary_locus"
-            },
-            "fixed_point": {
-              "ref": "A",
-              "kind": "point"
-            },
-            "curve_point": {
-              "from_call": "derive_curve_point_iii",
-              "return": "point"
-            },
-            "moving_point": {
-              "ref": "N",
-              "kind": "point"
-            },
-            "auxiliary_point": {
-              "from_call": "transform_weighted_path_iii",
-              "return": "auxiliary_point"
-            },
-            "dynamic_constraint": {
-              "ref": "symbol_constraint_n",
+            "path_minimum_target": {
+              "ref": "path_minimum_target",
               "kind": "fact"
             }
           },
           "return_bindings": {},
-          "return_expectations": {
-            "minimum_expression": "open_expression"
-          },
-          "strategy": "拉直转化后的联动折线，得到关于主参数的最小值表达式。",
-          "reason": "题设给定最小值只能在表达式建立后用于反求参数。"
+          "strategy": "原子完成加权三角形、折线拉直和定义域验证。",
+          "reason": "先得到完整最小值表达式，再由题设给定值反求参数。"
         },
         {
           "call_id": "solve_parameter_iii",

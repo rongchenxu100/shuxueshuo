@@ -458,6 +458,8 @@ D_MIGRATED_BINDINGS = {
 F4_3C_RETIRED_PUBLIC_METHODS = {
     "quadratic_axis_x_intercept_point",
     "square_path_dimension_reduction",
+    "weighted_axis_path_triangle_transform",
+    "linked_broken_path_minimum_expression",
     "parameterized_point_locus_line",
     "line_locus_minimum_point",
     "two_moving_points_path_reduction",

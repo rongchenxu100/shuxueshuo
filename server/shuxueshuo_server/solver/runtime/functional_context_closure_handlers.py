@@ -13,6 +13,7 @@ from shuxueshuo_server.solver.runtime.context_closure import (
     PATH_REDUCTION_ROLES_RESOLVER,
     QUADRATIC_SQUARE_PATH_ROLES_RESOLVER,
     SQUARE_PATH_TRANSFORMATION_ROLES_RESOLVER,
+    WEIGHTED_AXIS_PATH_MINIMUM_ROLES_RESOLVER,
     WEIGHTED_PATH_TRANSFORMATION_ROLES_RESOLVER,
     context_closure_resolver,
     context_closure_resolver_ids,
@@ -33,6 +34,7 @@ from shuxueshuo_server.solver.runtime.functional_path_context_resolvers import (
     resolve_path_reduction_args,
     resolve_quadratic_square_path_args,
     resolve_square_path_transformation_args,
+    resolve_weighted_axis_path_minimum_args,
     resolve_weighted_path_transformation_args,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_elaboration import (
@@ -64,6 +66,9 @@ _CONTEXT_CLOSURE_HANDLERS: Mapping[
     QUADRATIC_SQUARE_PATH_ROLES_RESOLVER: resolve_quadratic_square_path_args,
     SQUARE_PATH_TRANSFORMATION_ROLES_RESOLVER: (
         resolve_square_path_transformation_args
+    ),
+    WEIGHTED_AXIS_PATH_MINIMUM_ROLES_RESOLVER: (
+        resolve_weighted_axis_path_minimum_args
     ),
     WEIGHTED_PATH_TRANSFORMATION_ROLES_RESOLVER: (
         resolve_weighted_path_transformation_args

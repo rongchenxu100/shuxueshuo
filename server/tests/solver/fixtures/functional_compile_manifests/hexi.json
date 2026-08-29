@@ -901,191 +901,29 @@
       ]
     },
     {
-      "call_id": "transform_weighted_path_iii",
-      "capability_id": "weighted_axis_path_triangle_transform",
-      "steps": [
-        {
-          "step_id": "transform_weighted_path_iii",
-          "scope": "iii",
-          "invocations": [
-            {
-              "method_id": "weighted_axis_path_triangle_transform",
-              "scope": "transform_weighted_path_iii",
-              "inputs": [
-                "auxiliary_point_ref",
-                "condition",
-                "dynamic_parameter",
-                "fixed_point",
-                "linked_fixed_endpoint_ref",
-                "moving_point",
-                "moving_point_ref"
-              ],
-              "outputs": {
-                "auxiliary_locus": "$step.transform_weighted_path_iii.temp.auxiliary_locus",
-                "auxiliary_point": "$step.transform_weighted_path_iii.temp.auxiliary_point",
-                "path_transformation": "$step.transform_weighted_path_iii.temp.path_transformation"
-              }
-            }
-          ],
-          "promotions": {
-            "$step.transform_weighted_path_iii.temp.auxiliary_locus": "$question.iii.outputs.transform_weighted_path_iii_auxiliary_locus",
-            "$step.transform_weighted_path_iii.temp.auxiliary_point": "$question.iii.outputs.transform_weighted_path_iii_auxiliary_point",
-            "$step.transform_weighted_path_iii.temp.path_transformation": "$question.iii.outputs.transform_weighted_path_iii_path_transformation"
-          }
-        }
-      ],
-      "bindings": [
-        {
-          "arg": "auxiliary_point_ref",
-          "item": 0,
-          "role": "auxiliary_point_ref",
-          "authority": "compiler",
-          "target": "auxiliary_point_ref",
-          "paths": [
-            "$problem.points.derived_80a6f96bd96a1650511c8f30"
-          ]
-        },
-        {
-          "arg": "dynamic_parameter",
-          "item": 0,
-          "role": "dynamic_parameter",
-          "authority": "compiler",
-          "target": "dynamic_parameter",
-          "paths": [
-            "$problem.symbols.n"
-          ]
-        },
-        {
-          "arg": "fixed_point",
-          "item": 0,
-          "role": "fixed_point",
-          "authority": "wire",
-          "target": "fixed_point",
-          "paths": [
-            "$question.iii.facts.__functional_transaction_transform_weighted_path_iii_0"
-          ]
-        },
-        {
-          "arg": "linked_fixed_endpoint_ref",
-          "item": 0,
-          "role": "linked_fixed_endpoint",
-          "authority": "resolver",
-          "target": "linked_fixed_endpoint_ref",
-          "paths": [
-            "$question.iii.facts.__functional_transaction_transform_weighted_path_iii_2"
-          ]
-        },
-        {
-          "arg": "minimum_value",
-          "item": 0,
-          "role": "minimum_value",
-          "authority": "wire",
-          "target": "condition",
-          "paths": [
-            "$question.iii.conditions.minimum_value_given_9ce4abfafb08"
-          ]
-        },
-        {
-          "arg": "moving_point",
-          "item": 0,
-          "role": "moving_point",
-          "authority": "wire",
-          "target": "moving_point",
-          "paths": [
-            "$question.iii.facts.__functional_transaction_transform_weighted_path_iii_1"
-          ]
-        },
-        {
-          "arg": "moving_point_ref",
-          "item": 0,
-          "role": "moving_point_ref",
-          "authority": "compiler",
-          "target": "moving_point_ref",
-          "paths": [
-            "$question.iii.object_refs.N"
-          ]
-        }
-      ],
-      "public_returns": [
-        {
-          "name": "auxiliary_point",
-          "runtime_type": "Point",
-          "identity_policy": "derived_role",
-          "write_mode": "create",
-          "output_key": "auxiliary_point",
-          "required": true
-        },
-        {
-          "name": "path_transformation",
-          "runtime_type": "PathTransformation",
-          "identity_policy": "derived_role",
-          "write_mode": "create",
-          "output_key": "path_transformation",
-          "required": true
-        },
-        {
-          "name": "auxiliary_locus",
-          "runtime_type": "Line",
-          "identity_policy": "value_only",
-          "write_mode": "value",
-          "output_key": "auxiliary_locus",
-          "required": true
-        }
-      ],
-      "provenance": [
-        {
-          "return_name": "auxiliary_point",
-          "runtime_type": "Point",
-          "allocation_action": "create",
-          "result_form": "open_state",
-          "object_id": "point:problem:derived_80a6f96bd96a1650511c8f30",
-          "source_version_count": 3,
-          "closure_signature": null
-        },
-        {
-          "return_name": "path_transformation",
-          "runtime_type": "PathTransformation",
-          "allocation_action": "create",
-          "result_form": "closed_state",
-          "object_id": "path_transformation:problem:derived_93bc7573322cb4f904a47bbf",
-          "source_version_count": 3,
-          "closure_signature": null
-        },
-        {
-          "return_name": "auxiliary_locus",
-          "runtime_type": "Line",
-          "allocation_action": "call_local_value",
-          "result_form": "closed_state",
-          "object_id": null,
-          "source_version_count": 3,
-          "closure_signature": null
-        }
-      ]
-    },
-    {
       "call_id": "derive_weighted_minimum_iii",
-      "capability_id": "linked_broken_path_minimum_expression",
+      "capability_id": "weighted_axis_path_minimum",
       "steps": [
         {
           "step_id": "derive_weighted_minimum_iii",
           "scope": "iii",
           "invocations": [
             {
-              "method_id": "linked_broken_path_minimum_expression",
+              "method_id": "weighted_axis_path_minimum_kernel",
               "scope": "derive_weighted_minimum_iii",
               "inputs": [
-                "auxiliary_locus",
-                "auxiliary_point",
                 "curve_point",
                 "dynamic_constraint",
                 "dynamic_parameter",
                 "fixed_point",
                 "moving_point",
+                "moving_point_ref",
                 "parameter",
                 "parameter_constraint",
-                "path_transformation"
+                "path_condition"
               ],
               "outputs": {
+                "evidence": "$step.derive_weighted_minimum_iii.temp.path_witness",
                 "minimum_expression": "$step.derive_weighted_minimum_iii.temp.minimum_expression"
               }
             }
@@ -1097,104 +935,68 @@
       ],
       "bindings": [
         {
-          "arg": "auxiliary_locus",
-          "item": 0,
-          "role": "auxiliary_locus",
-          "authority": "wire",
-          "target": "auxiliary_locus",
-          "paths": [
-            "$question.iii.outputs.transform_weighted_path_iii_auxiliary_locus"
-          ]
-        },
-        {
-          "arg": "auxiliary_point",
-          "item": 0,
-          "role": "auxiliary_point",
-          "authority": "wire",
-          "target": "auxiliary_point",
-          "paths": [
-            "$question.iii.facts.__functional_transaction_derive_weighted_minimum_iii_3"
-          ]
-        },
-        {
           "arg": "curve_point",
           "item": 0,
           "role": "curve_point",
-          "authority": "wire",
-          "target": "curve_point",
-          "paths": [
-            "$question.iii.facts.__functional_transaction_derive_weighted_minimum_iii_2"
-          ]
+          "authority": "resolver",
+          "target": null,
+          "paths": []
         },
         {
           "arg": "dynamic_constraint",
           "item": 0,
           "role": "dynamic_constraint",
-          "authority": "wire",
-          "target": "dynamic_constraint",
-          "paths": [
-            "$question.iii.conditions.symbol_constraint_97f06befa39f"
-          ]
+          "authority": "resolver",
+          "target": null,
+          "paths": []
         },
         {
           "arg": "dynamic_parameter",
           "item": 0,
           "role": "dynamic_parameter",
-          "authority": "compiler",
-          "target": "dynamic_parameter",
-          "paths": [
-            "$problem.symbols.n"
-          ]
+          "authority": "resolver",
+          "target": null,
+          "paths": []
         },
         {
           "arg": "fixed_point",
           "item": 0,
           "role": "fixed_point",
-          "authority": "wire",
-          "target": "fixed_point",
-          "paths": [
-            "$question.iii.facts.__functional_transaction_derive_weighted_minimum_iii_4"
-          ]
+          "authority": "resolver",
+          "target": null,
+          "paths": []
         },
         {
           "arg": "moving_point",
           "item": 0,
           "role": "moving_point",
-          "authority": "wire",
-          "target": "moving_point",
-          "paths": [
-            "$question.iii.facts.__functional_transaction_derive_weighted_minimum_iii_1"
-          ]
+          "authority": "resolver",
+          "target": null,
+          "paths": []
         },
         {
           "arg": "parameter",
           "item": 0,
           "role": "parameter",
-          "authority": "compiler",
-          "target": "parameter",
-          "paths": [
-            "$problem.symbols.b"
-          ]
+          "authority": "resolver",
+          "target": null,
+          "paths": []
         },
         {
           "arg": "parameter_constraint",
           "item": 0,
           "role": "parameter_constraint",
-          "authority": "compiler",
-          "target": "parameter_constraint",
-          "paths": [
-            "$problem.conditions.symbol_constraint_f11ebacac514"
-          ]
+          "authority": "resolver",
+          "target": null,
+          "paths": []
         },
         {
-          "arg": "path_transformation",
+          "arg": "path_minimum_target",
           "item": 0,
-          "role": "path_transformation",
+          "role": "path_minimum_target",
           "authority": "wire",
-          "target": "path_transformation",
-          "paths": [
-            "$question.iii.facts.__functional_transaction_derive_weighted_minimum_iii_0"
-          ]
+          "target": null,
+          "paths": []
         }
       ],
       "public_returns": [
@@ -1203,7 +1005,7 @@
           "runtime_type": "MinimumExpression",
           "identity_policy": "value_only",
           "write_mode": "value",
-          "output_key": "minimum_expression",
+          "output_key": "weighted_axis_path_minimum_kernel.minimum_expression",
           "required": true
         }
       ],
@@ -1212,9 +1014,9 @@
           "return_name": "minimum_expression",
           "runtime_type": "MinimumExpression",
           "allocation_action": "call_local_value",
-          "result_form": "open_expression",
+          "result_form": "open_state",
           "object_id": null,
-          "source_version_count": 5,
+          "source_version_count": 3,
           "closure_signature": null
         }
       ]

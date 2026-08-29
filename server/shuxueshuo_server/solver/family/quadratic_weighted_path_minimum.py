@@ -26,14 +26,10 @@ from shuxueshuo_server.solver.family.capability_packs import (
 )
 from shuxueshuo_server.solver.family.common_binding_rules import (
     condition_arg_binding,
-    entity_identity_binding,
-    exact_call_result_binding,
     latest_state_binding,
     parameter_basis_binding,
-    previous_output_identity_binding,
     public_arg_binding,
     related_condition_binding,
-    source_object_identity_binding,
 )
 _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
     family_id="QuadraticWeightedPathMinimumSolver",
@@ -71,21 +67,16 @@ _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
     ),
     runtime_preflights=(
         FamilyRuntimePreflightSpec(
-            method_id="weighted_axis_path_triangle_transform",
-            trigger_fact_types=("minimum_value",),
+            method_id="weighted_axis_path_minimum_kernel",
+            trigger_fact_types=("path_minimum_target",),
             trigger_selector_id="weighted_path_minimum",
-            required_fact_types=("path_minimum_target",),
-            source_trigger_fact_types=("minimum_value_given",),
-            source_required_fact_types=("minimum_target",),
-            source_input_names=(
-                "condition",
-                "fixed_point",
-                "moving_point",
-                "dynamic_parameter",
-            ),
+            source_input_names=("path_condition",),
+            execution_mode="source_structure_only",
+            planner_authored_roles=("path_minimum_target",),
             description=(
-                "每个 minimum_value scope 须试运行加权转化；所需 Point 须有"
-                " coordinate；仅有点名或描述不能代替已计算坐标。"
+                "每个加权 path_minimum_target 必须能从 typed terms 或唯一"
+                "可解析的旧路径文本恢复两条线段；曲线端点状态由 Planner"
+                "前序步骤物化后，再由原子 Macro 的代码角色解析器验证。"
             ),
         ),
     ),
@@ -105,8 +96,8 @@ _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         "先将每一问的已知系数与已知曲线点尽量代入，得到当前问最简抛物线表达式。",
         "函数化简只有在能显著减少未知量时才单独成步：理想状态是 a、b、c 完全确定，或只剩一个后续条件会直接求解/引用的未知量；若 b、c 等多个参数都能表达同一函数，应结合后续曲线点、几何筛选、最值或答案目标选择保留哪个参数。",
         "几何构造点先列候选；若候选点还需落在含参曲线上，再用候选曲线点求参 recipe 筛选并反求参数。",
-        "加权路径最值优先寻找几何转化：用辅助直角三角形把加权段转成同倍率折线，再用折线拉直或等价最短路径处理。",
-        "加权路径最值按可执行颗粒拆成：weighted_axis_path_triangle_transform 做几何转化，linked_broken_path_minimum_expression 求最小值表达式，parameter_from_expression_value 由给定值反求参数；不要把三步合成一个 utility step。",
+        "加权路径最值只调用一次 weighted_axis_path_minimum：代码从完整 path_minimum_target 唯一解析端点、权重、参数和定义域，并在 Macro 内完成辅助三角形、折线拉直与可达性验证。",
+        "题设给定的最小值不传入路径 Macro；先从 Macro 得到完整最小值表达式，再用 parameter_from_expression_value 反求主参数。定义域边界分支由 Macro 表达式内部处理，不增加 Planner step。",
     ),
     base_packs=(
         "quadratic_core",
@@ -115,7 +106,7 @@ _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
     ),
     mechanism_packs=(
         "right_angle_equal_length_core",
-        "weighted_path_transform_core",
+        "weighted_axis_path_minimum_core",
     ),
     method_ids=(
         "quadratic_from_constraints",
@@ -128,8 +119,7 @@ _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         "point_on_parabola_at_x",
         "evaluate_expression_at_parameter",
         "parameter_from_segment_length",
-        "weighted_axis_path_triangle_transform",
-        "linked_broken_path_minimum_expression",
+        "weighted_axis_path_minimum_kernel",
         "parameter_from_expression_value",
     ),
     step_recipes=(
@@ -330,53 +320,6 @@ _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                     related_args=("parameter",),
                     required=False,
                 ),
-            ),
-        ),
-        MethodBindingRuleSpec(
-            method_id="weighted_axis_path_triangle_transform",
-            input_bindings=(
-                condition_arg_binding("condition", public_arg="minimum_value"),
-                public_arg_binding("fixed_point"),
-                public_arg_binding("moving_point"),
-                source_object_identity_binding(
-                    "moving_point",
-                    input_name="moving_point_ref",
-                    required=True,
-                ),
-                entity_identity_binding("linked_fixed_endpoint_ref"),
-                parameter_basis_binding(
-                    ("moving_point", "condition"),
-                    input_name="dynamic_parameter",
-                ),
-                previous_output_identity_binding(
-                    "auxiliary_point_ref",
-                    output_name="auxiliary_point",
-                ),
-            ),
-        ),
-        MethodBindingRuleSpec(
-            method_id="linked_broken_path_minimum_expression",
-            input_bindings=(
-                exact_call_result_binding("path_transformation"),
-                exact_call_result_binding("auxiliary_locus"),
-                public_arg_binding("fixed_point"),
-                public_arg_binding("curve_point"),
-                public_arg_binding("moving_point"),
-                public_arg_binding("auxiliary_point"),
-                parameter_basis_binding(
-                    ("curve_point",),
-                    input_name="parameter",
-                ),
-                parameter_basis_binding(
-                    ("moving_point", "dynamic_constraint"),
-                    input_name="dynamic_parameter",
-                ),
-                related_condition_binding(
-                    "parameter_constraint",
-                    condition_kinds=("symbol_constraint",),
-                    related_args=("parameter",),
-                ),
-                condition_arg_binding("dynamic_constraint"),
             ),
         ),
     ),

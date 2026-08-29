@@ -27,7 +27,8 @@
 | F5-F4.3B：原子 Macro golden reference | `COMPLETE` | equal-length 四 Fact 固定契约、shadow/replay/restore 与单根诊断门禁完成 |
 | F5-F4.3C：和平二模正方形 Macro | `COMPLETE` | 三公开输入、两公开输出；离线门禁及最终 live `1x3` 发布验收通过 |
 | F5-F4.3D：南开耦合路径 Macro | `COMPLETE` | 两公开输入、两公开输出；共享 Scope、构造点诊断、few-shot hash 与最终 live `1x3` 通过 |
-| F5-F4.3E–F：剩余原子路径 Macro | `NEXT` | 迁移加权 family，并删除公开 Path 内部类型 |
+| F5-F4.3E：加权路径原子 Macro | `COMPLETE` | 单路径 Fact 输入、单表达式输出；河西/西青最终 live 各 `1x3` 均首轮通过 |
+| F5-F4.3F：旧能力清理与全量验收 | `NEXT` | 物理删除公开 Path 内部类型与兼容链，运行 full gate 和 Planner-only `5x3` |
 | F5-F5：Teaching scope | `AFTER F4.3` | 从 verified execution 派生教学归属并退役剩余兼容入口 |
 | G：Post-solver Context | `AFTER F5` | Explanation、Diagram、Voiceover、Animation Context |
 | E：端到端优化 | `AFTER F/G` | cache、最小失效、并发去重、条件式 Best-of-N |
@@ -88,9 +89,14 @@ VerifiedSolverProblemBundle
      few-shot，禁止把当前题抽取出的机制片段喂回同题；
    - 公平条件下最终 live `1x3` 为 `3/3`，三份均首次 response 通过且
      few-shot payload hash 一致。
-4. **F4.3E 加权路径（NEXT）**
-   - 合并 weighted transform 与 linked minimum；
-   - 删除基于名称、子串或 Context 顺序猜辅助对象的逻辑。
+4. **F4.3E 加权路径（COMPLETE）**
+   - 新增 `weighted_axis_path_minimum` 原子入口，只公开一个
+     `path_minimum_target` 输入和一个 `minimum_expression` 输出；
+   - typed path terms 无损保存权重与 canonical endpoints，代码解析端点、参数、定义域
+     和登记过的三角形 profile；
+   - kernel 内完成 transform、straightening、取等可达性与定义域边界分支，不公开
+     auxiliary Point/Line 或 `PathTransformation`；
+   - 河西/西青公平 live 各 `3/3`，六份均首次 response 完成。
 5. **F4.3F 清理与验收**
    - 从 prompt、catalog、Schema、fixture 和 few-shot 删除公开 Path 内部类型；
    - 删除旧 capability、recipe、Explanation/Visual fallback 与孤儿注册；

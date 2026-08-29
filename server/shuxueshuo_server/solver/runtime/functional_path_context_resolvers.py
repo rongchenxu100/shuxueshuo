@@ -52,6 +52,10 @@ from shuxueshuo_server.solver.runtime.quadratic_square_path_roles import (
     QuadraticSquarePathRoleError,
     build_quadratic_square_path_role_candidates,
 )
+from shuxueshuo_server.solver.runtime.weighted_axis_path_roles import (
+    WeightedAxisPathRoleError,
+    build_weighted_axis_path_role_candidates,
+)
 from shuxueshuo_server.solver.state_semantics import (
     StateObjectRoleBinding,
     merge_state_semantic_lineages,
@@ -1305,6 +1309,220 @@ def resolve_quadratic_square_path_args(
     )
 
 
+def resolve_weighted_axis_path_minimum_args(
+    capability: FunctionalCapability,
+    call: FunctionalCall,
+    resolved_args: Mapping[str, tuple[ResolvedFunctionalValue, ...]],
+    resolver: ContextClosureResolverSpec,
+    *,
+    call_id: str,
+    scope_id: str,
+    produced: Mapping[tuple[str, str], ResolvedFunctionalValue],
+    semantic_index: FunctionalSemanticIndex,
+    handle_registry: CanonicalHandleRegistry,
+) -> ContextClosureResolution:
+    """Resolve every code-owned role of the atomic weighted-path Macro."""
+
+    del call
+    if (
+        capability.kind != "macro"
+        or capability.capability_id != "weighted_axis_path_minimum"
+    ):
+        return {}, (), (), False
+    path_values = tuple(
+        value
+        for value in resolved_args.get("path_minimum_target", ())
+        if handle_registry.fact_types.get(value.handle) == "path_minimum_target"
+    )
+    if len(path_values) != 1:
+        return (
+            {},
+            (),
+            (
+                _issue(
+                    "functional_elaboration",
+                    "functional.macro_search_public_input_invalid",
+                    "weighted_axis_path_minimum requires exactly one path target",
+                    call_id=call_id,
+                    scope_id=scope_id,
+                    details={
+                        "macro_id": capability.capability_id,
+                        "expected_candidate_counts": {"path_minimum_target": 1},
+                        "observed_candidate_counts": {
+                            "path_minimum_target": len(path_values)
+                        },
+                        "repair_action": "repair_macro_public_inputs",
+                        "retryability": "planner_repairable",
+                    },
+                ),
+            ),
+            False,
+        )
+    try:
+        candidates = build_weighted_axis_path_role_candidates(
+            path_minimum_target=path_values[0].handle,
+            scope_id=scope_id,
+            registry=handle_registry,
+        )
+    except WeightedAxisPathRoleError as exc:
+        return (
+            {},
+            (),
+            (
+                _issue(
+                    "functional_elaboration",
+                    f"functional.weighted_axis_path.{exc.code}",
+                    str(exc),
+                    call_id=call_id,
+                    scope_id=scope_id,
+                    details={
+                        "macro_id": capability.capability_id,
+                        "repair_action": "select_compatible_weighted_path_target",
+                        "retryability": "planner_repairable",
+                        **exc.details,
+                    },
+                ),
+            ),
+            False,
+        )
+    if len(candidates) != 1:
+        return (
+            {},
+            (),
+            (
+                _issue(
+                    "functional_elaboration",
+                    (
+                        "functional.macro_search_no_structural_candidate"
+                        if not candidates
+                        else "functional.macro_search_ambiguous"
+                    ),
+                    "the path target does not determine one weighted-axis mechanism",
+                    call_id=call_id,
+                    scope_id=scope_id,
+                    details={
+                        "macro_id": capability.capability_id,
+                        "candidate_count": len(candidates),
+                        "candidate_ids": [item.candidate_id for item in candidates],
+                        "phase": "structural_elaboration",
+                        "repair_action": "select_compatible_weighted_path_target",
+                        "retryability": "planner_repairable",
+                    },
+                ),
+            ),
+            False,
+        )
+    roles = candidates[0]
+    additions: dict[str, tuple[ResolvedFunctionalValue, ...]] = {}
+    issues: list[FunctionalPlanIssue] = []
+    for role, object_ref in (
+        ("fixed_point", roles.fixed_point),
+        ("curve_point", roles.curve_point),
+        ("moving_point", roles.moving_point),
+    ):
+        value = latest_point_state_for_object(
+            object_ref,
+            scope_id=scope_id,
+            produced=produced,
+            semantic_index=semantic_index,
+            handle_registry=handle_registry,
+            allow_unique_planned_producer=True,
+        )
+        if value is None:
+            issues.append(
+                _issue(
+                    "functional_elaboration",
+                    "functional.weighted_axis_path.state_unavailable",
+                    f"weighted path minimum requires Point state: {object_ref}",
+                    call_id=call_id,
+                    scope_id=scope_id,
+                    details={
+                        "role": role,
+                        "object_ref": object_ref,
+                        "repair_action": "materialize_weighted_path_endpoint_before_macro",
+                        **_state_scope_diagnostic_details(
+                            object_ref,
+                            scope_id=scope_id,
+                            produced=produced,
+                            required_scope_ref=(
+                                handle_registry.handle_valid_scopes.get(object_ref)
+                                or scope_id
+                            ),
+                        ),
+                    },
+                )
+            )
+        else:
+            additions[
+                resolver.arg_name(role, capability.context_arg_bindings)
+            ] = (value,)
+    for role, object_ref in (
+        ("parameter", roles.parameter),
+        ("dynamic_parameter", roles.dynamic_parameter),
+    ):
+        value = object_identity_value(
+            object_ref,
+            domain_runtime_types=("Symbol",),
+            scope_id=scope_id,
+            semantic_index=semantic_index,
+            handle_registry=handle_registry,
+        )
+        if value is None:
+            issues.append(
+                _issue(
+                    "functional_elaboration",
+                    "functional.weighted_axis_path.identity_unavailable",
+                    f"weighted path role has no unique Symbol identity: {object_ref}",
+                    call_id=call_id,
+                    scope_id=scope_id,
+                    details={"role": role, "object_ref": object_ref},
+                )
+            )
+        else:
+            additions[
+                resolver.arg_name(role, capability.context_arg_bindings)
+            ] = (value,)
+    for role, handle in (
+        ("parameter_constraint", roles.parameter_constraint),
+        ("dynamic_constraint", roles.dynamic_constraint),
+    ):
+        value = condition_value_by_handle(
+            handle,
+            semantic_index=semantic_index,
+            scope_id=scope_id,
+        )
+        if value is None:
+            issues.append(
+                _issue(
+                    "functional_elaboration",
+                    "functional.weighted_axis_path.condition_unavailable",
+                    f"weighted path domain condition is unavailable: {handle}",
+                    call_id=call_id,
+                    scope_id=scope_id,
+                    details={"role": role, "condition_handle": handle},
+                )
+            )
+        else:
+            additions[
+                resolver.arg_name(role, capability.context_arg_bindings)
+            ] = (value,)
+    if issues:
+        return additions, (), tuple(issues), False
+    return (
+        additions,
+        (
+            FunctionalDeterministicRepair(
+                call_id,
+                "resolve_weighted_axis_path_roles",
+                roles.path_minimum_target,
+                roles.candidate_id,
+            ),
+        ),
+        (),
+        True,
+    )
+
+
 def resolve_weighted_path_transformation_args(
     capability: FunctionalCapability,
     call: FunctionalCall,
@@ -1518,5 +1736,6 @@ __all__ = [
     "resolve_equal_length_ray_path_args",
     "resolve_path_reduction_args",
     "resolve_square_path_transformation_args",
+    "resolve_weighted_axis_path_minimum_args",
     "resolve_weighted_path_transformation_args",
 ]

@@ -119,40 +119,12 @@
                 },
                 "steps": [
                   {
-                    "step_id": "transform_weighted_path_ii",
-                    "capability_id": "weighted_axis_path_triangle_transform",
-                    "args": {
-                      "minimum_value": "minimum_value",
-                      "fixed_point": "A",
-                      "moving_point": "M"
-                    },
-                    "intent": "用辅助直角三角形把加权路径转成普通折线路径。"
-                  },
-                  {
                     "step_id": "derive_weighted_minimum_ii",
-                    "capability_id": "linked_broken_path_minimum_expression",
+                    "capability_id": "weighted_axis_path_minimum",
                     "args": {
-                      "path_transformation": {
-                        "step_id": "transform_weighted_path_ii",
-                        "return": "path_transformation"
-                      },
-                      "auxiliary_locus": {
-                        "step_id": "transform_weighted_path_ii",
-                        "return": "auxiliary_locus"
-                      },
-                      "fixed_point": "A",
-                      "curve_point": "D",
-                      "moving_point": "M",
-                      "auxiliary_point": {
-                        "step_id": "transform_weighted_path_ii",
-                        "return": "auxiliary_point"
-                      },
-                      "dynamic_constraint": "symbol_constraint_m"
+                      "path_minimum_target": "path_minimum_target"
                     },
-                    "return_expectations": {
-                      "minimum_expression": "open_expression"
-                    },
-                    "intent": "拉直联动折线得到只含主参数的最小值表达式。"
+                    "intent": "原子完成加权三角形、折线拉直和定义域验证，得到完整最小值表达式。"
                   },
                   {
                     "step_id": "solve_parameter_from_minimum_ii",

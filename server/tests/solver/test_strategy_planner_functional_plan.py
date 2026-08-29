@@ -1038,6 +1038,9 @@ def test_macro_parabola_return_inherits_internal_closure_exclusions() -> None:
         attempt=1,
         problem_payload=problem_to_llm_payload(problem),
         validation_report=validation,
+        canonical_plan_id=scope_native_plan_id(
+            "tj-2026-hexi-yimo-25"
+        ),
     )
 
     assert replay.output is not None, replay.errors
@@ -1241,6 +1244,9 @@ def test_curve_candidate_auto_binds_unique_visible_residual_symbol_constraint() 
         attempt=1,
         problem_payload=problem_to_llm_payload(load_problem_ir(HEXI_FIXTURE)),
         validation_report=validation,
+        canonical_plan_id=scope_native_plan_id(
+            "tj-2026-hexi-yimo-25"
+        ),
     )
 
     assert replay.output is not None, replay.errors
@@ -1433,7 +1439,7 @@ def test_free_parameter_does_not_auto_fill_optional_symbol_value() -> None:
     )
 
 
-def test_missing_free_parameter_basis_is_not_inferred_from_transitive_consumer() -> None:
+def test_missing_free_parameter_basis_is_not_inferred_from_hidden_macro_role() -> None:
     inputs, registry, context, payload = _hexi_case()
     producer = next(
         call
@@ -1449,21 +1455,26 @@ def test_missing_free_parameter_basis_is_not_inferred_from_transitive_consumer()
     )
     assert validation.ok and plan is not None
 
-    with pytest.raises(FunctionalBindingContextError) as error:
-        FunctionalPlanReconciler().reconcile(
-            plan,
-            planner_state_context=context,
-            family_spec=inputs.family_spec,
-            method_specs=inputs.method_specs,
-            handle_registry=registry,
-            question_goals=inputs.question_goals,
-        )
+    result = FunctionalPlanReconciler().reconcile(
+        plan,
+        planner_state_context=context,
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
 
-    assert error.value.code == "functional.parameter_outside_free_symbol_basis"
-    assert error.value.retryable is True
-    assert error.value.repair_action == "align_symbolic_state_basis"
-    assert "explicit parameter is outside the typed free-symbol basis" in str(
-        error.value
+    assert result.ok, [item.to_payload() for item in result.issues]
+    producer_call = next(
+        item
+        for item in result.calls
+        if item.call_id == "derive_parametric_parabola_iii"
+    )
+    assert "free_parameters" not in producer_call.resolved_args
+    assert not any(
+        item["call_id"] == "derive_parametric_parabola_iii"
+        and item["action"] == "infer_parameter_from_transitive_consumer"
+        for item in result.elaboration["deterministic_repairs"]
     )
 
 
@@ -1842,6 +1853,9 @@ def test_functional_replay_accepts_scalar_symbol_value_for_parabola_evaluation()
         attempt=1,
         problem_payload=problem_payload,
         validation_report=validation,
+        canonical_plan_id=scope_native_plan_id(
+            "tj-2026-xiqing-yimo-25"
+        ),
     )
 
     assert replay.output is not None, (
@@ -1933,6 +1947,9 @@ def test_functional_point_evaluation_reads_initial_parameter_value_version() -> 
         attempt=1,
         problem_payload=problem_payload,
         validation_report=validation,
+        canonical_plan_id=scope_native_plan_id(
+            "tj-2026-xiqing-yimo-25"
+        ),
     )
 
     assert replay.output is not None, (
@@ -2005,6 +2022,9 @@ def test_explicit_target_parameter_is_not_reinferred_as_free_parameter() -> None
         attempt=1,
         problem_payload=problem_payload,
         validation_report=validation,
+        canonical_plan_id=scope_native_plan_id(
+            "tj-2026-xiqing-yimo-25"
+        ),
     )
 
     assert replay.output is not None, (
@@ -4467,36 +4487,34 @@ def test_context_semantic_index_does_not_invent_condition_for_value_fact() -> No
     assert range_condition.runtime_type == "Condition"
 
 
-def test_weighted_minimum_catalog_requires_symbol_range_constraint() -> None:
+def test_weighted_minimum_catalog_exposes_only_the_path_target() -> None:
     _problem, inputs, _payload, _registry, _context, _plan = _xiqing_case()
     catalog = FunctionalCapabilityCatalog.from_family_spec(
         inputs.family_spec,
         inputs.method_specs,
     )
-    capability = catalog.get("linked_broken_path_minimum_expression")
+    capability = catalog.get("weighted_axis_path_minimum")
     assert capability is not None
-    assert "parameter" not in {item.name for item in capability.args}
-    assert "dynamic_parameter" not in {
-        item.name for item in capability.args
-    }
-    assert {
-        item.name: item.binding_authority
-        for item in capability.auto_args
-        if item.name in {"parameter", "dynamic_parameter"}
-    } == {
-        "parameter": "compiler",
-        "dynamic_parameter": "compiler",
-    }
-    dynamic_constraint = next(
-        item for item in capability.args
-        if item.name == "dynamic_constraint"
+    assert tuple(item.name for item in capability.args) == (
+        "path_minimum_target",
     )
-
-    assert dynamic_constraint.accepted_condition_kinds == (
-        "dynamic_constraint",
-        "symbol_constraint",
+    assert tuple(item.name for item in capability.returns) == (
+        "minimum_expression",
     )
-    assert "不是点坐标" in dynamic_constraint.description
+    assert tuple(
+        (item.semantic_role, item.arg_name)
+        for item in capability.context_arg_bindings
+    ) == (
+        ("fixed_point", "fixed_point"),
+        ("curve_point", "curve_point"),
+        ("moving_point", "moving_point"),
+        ("parameter", "parameter"),
+        ("dynamic_parameter", "dynamic_parameter"),
+        ("parameter_constraint", "parameter_constraint"),
+        ("dynamic_constraint", "dynamic_constraint"),
+    )
+    assert catalog.get("weighted_axis_path_triangle_transform") is None
+    assert catalog.get("linked_broken_path_minimum_expression") is None
     segment_solver = catalog.get("parameter_from_segment_length")
     assert segment_solver is not None
     parameter = next(
@@ -4527,57 +4545,36 @@ def test_weighted_minimum_internal_outputs_are_not_allocated() -> None:
     )
 
     assert result.ok, [item.to_payload() for item in result.issues]
-    linked = next(
+    weighted = next(
         item
         for item in result.calls
-        if item.capability_id == "linked_broken_path_minimum_expression"
+        if item.capability_id == "weighted_axis_path_minimum"
     )
-    assert tuple(item.return_name for item in linked.returns) == (
+    assert tuple(item.return_name for item in weighted.returns) == (
         "minimum_expression",
     )
 
 
-def test_typed_derived_primary_parameter_rejects_wire_sidecar_override() -> None:
-    """An explicit dynamic symbol must not replace the family primary symbol."""
+def test_weighted_macro_symbol_roles_are_not_wire_overridable() -> None:
+    """Primary and moving parameters are code-owned roles, not public args."""
 
     hexi_problem = load_problem_ir(HEXI_FIXTURE)
     hexi_inputs = build_strategy_probe_inputs(hexi_problem)
-    compiler = object.__new__(_RecipePlanCompiler)
-    compiler.function_specs = FunctionSpecRegistry.from_family_spec(
+    catalog = FunctionalCapabilityCatalog.from_family_spec(
         hexi_inputs.family_spec,
         hexi_inputs.method_specs,
     )
-    compiler.binding_rules = MethodBindingRuleRegistry.from_family_spec(
-        hexi_inputs.family_spec
-    )
-    compiler.projected_function_arg_bindings = (
-        ProjectedFunctionArgBinding(
-            step_id="synthetic_weighted_minimum",
-            arg_name="parameter",
-            source_handle="symbol:problem:v",
-            runtime_type="Symbol",
-            object_ref="symbol:problem:v",
-            binding_authority="wire",
-        ),
-    )
-    step = FunctionalCompileStep(
-        scope_id="iii",
-        step_id="synthetic_weighted_minimum",
-        recipe_hint="linked_broken_path_minimum_expression",
-        goal_type="derive_minimum_expression",
-        target="fact:iii:minimum_expression",
-        reads=("symbol:problem:u", "symbol:problem:v"),
-        strategy="derive the weighted minimum expression",
-    )
-    spec = hexi_inputs.method_specs.require(
-        "linked_broken_path_minimum_expression"
-    )
-
-    with pytest.raises(
-        StrategyDraftValidationError,
-        match="declared_authority=typed_derivation",
-    ):
-        compiler._projected_exact_function_inputs(step, spec)
+    capability = catalog.get("weighted_axis_path_minimum")
+    assert capability is not None
+    assert {item.name for item in capability.args} == {
+        "path_minimum_target"
+    }
+    assert {item.semantic_role for item in capability.context_arg_bindings} >= {
+        "parameter",
+        "dynamic_parameter",
+        "parameter_constraint",
+        "dynamic_constraint",
+    }
 
 
 def test_quadratic_constraint_adapter_rejects_duplicate_curve_points() -> None:
@@ -7497,7 +7494,7 @@ def test_right_angle_macro_projection_is_structured_and_read_closed() -> None:
     )
 
 
-def test_weighted_path_transformation_publishes_auxiliary_role_profile() -> None:
+def test_weighted_macro_reconciliation_keeps_internal_path_objects_hidden() -> None:
     inputs, registry, context, payload = _hexi_case()
     plan, validation = FunctionalPlanValidator().validate_payload_with_report(
         payload,
@@ -7516,25 +7513,25 @@ def test_weighted_path_transformation_publishes_auxiliary_role_profile() -> None
     call = next(
         item
         for item in reconciliation.calls
-        if item.call_id == "transform_weighted_path_iii"
+        if item.call_id == "derive_weighted_minimum_iii"
     )
-    transformation = next(
-        item for item in call.returns if item.runtime_type == "PathTransformation"
+    assert tuple(item.return_name for item in call.returns) == (
+        "minimum_expression",
     )
-    auxiliary = next(
-        item for item in call.returns if item.return_name == "auxiliary_point"
+    assert not any(
+        item.runtime_type in {"PathTransformation", "Line"}
+        for item in call.returns
     )
-    roles = {item.role: item for item in transformation.lineage.object_roles}
-
-    assert set(roles) == {
-        "moving_object",
-        "fixed_endpoint_1",
-        "auxiliary_object",
+    assert set(call.resolved_args) == {
+        "path_minimum_target",
+        "fixed_point",
+        "curve_point",
+        "moving_point",
+        "parameter",
+        "dynamic_parameter",
+        "parameter_constraint",
+        "dynamic_constraint",
     }
-    assert roles["auxiliary_object"].object_ids == (auxiliary.math_object_id,)
-    assert roles["auxiliary_object"].source_version_ids == (
-        auxiliary.selected_version_id,
-    )
 
 
 def test_single_dynamic_known_coefficient_lowers_to_parameter_pair() -> None:

@@ -1340,7 +1340,7 @@ def test_same_object_result_after_exact_macro_is_normalized_to_source_ref(
     )
 
 
-def test_unique_prior_same_object_result_is_canonicalized_in_goal_scope(
+def test_atomic_macro_drops_authored_hidden_role_and_uses_code_owned_producer(
     tmp_path,
 ) -> None:
     case = "tj-2026-hexi-yimo-25"
@@ -1354,17 +1354,25 @@ def test_unique_prior_same_object_result_is_canonicalized_in_goal_scope(
     checkpoint = result.checkpoint
     assert checkpoint is not None
     assert checkpoint.all_required_goals_verified is True
-    _assert_named_entity_pin(
-        result.authority,
-        consumer_call_id="derive_weighted_minimum_iii",
-        arg_name="curve_point",
-        semantic_ref="M",
-        producer_call_id="derive_curve_point_iii",
-        return_name="point",
+    assert result.authority is not None
+    assert any(
+        item.action == "drop_unknown_capability_arg"
+        and item.step_id == "derive_weighted_minimum_iii"
+        and item.arg_name == "curve_point"
+        for item in result.authority.normalizations
     )
+    macro = next(
+        item
+        for item in result.replay.functional_reconciliation.calls
+        if item.call_id == "derive_weighted_minimum_iii"
+    )
+    assert tuple(
+        (item.object_ref, item.source_call_id, item.return_name)
+        for item in macro.resolved_args["curve_point"]
+    ) == (("point:iii:M", "derive_curve_point_iii", "point"),)
 
 
-def test_visible_same_object_result_is_rewritten_only_after_runtime_equivalence(
+def test_dead_duplicate_curve_producer_is_pruned_before_atomic_macro(
     tmp_path,
 ) -> None:
     case = "tj-2026-hexi-yimo-25"
@@ -1387,21 +1395,23 @@ def test_visible_same_object_result_is_rewritten_only_after_runtime_equivalence(
     checkpoint = result.checkpoint
     assert checkpoint is not None
     assert checkpoint.all_required_goals_verified is True
-    aliases = {
-        item.duplicate_call_id: item.canonical_call_id
-        for item in result.runtime_equivalent_aliases
-    }
-    assert aliases["derive_curve_point_iii_alternate"] == (
-        "derive_curve_point_iii"
+    assert result.authority is not None
+    assert "derive_curve_point_iii_alternate" in (
+        result.authority.pruned_step_ids
     )
-    canonical = result.canonical_plan
-    assert canonical is not None
-    assert "derive_curve_point_iii_alternate" not in {
-        item.step_id for item in canonical.steps
-    }
-    assert _step(canonical.to_payload(), "derive_weighted_minimum_iii")["args"][
-        "curve_point"
-    ] == "M"
+    assert any(
+        item.action == "drop_dead_pure_goal_unreachable_branch"
+        and item.step_id == "derive_curve_point_iii_alternate"
+        for item in result.authority.normalizations
+    )
+    macro = next(
+        item
+        for item in result.replay.functional_reconciliation.calls
+        if item.call_id == "derive_weighted_minimum_iii"
+    )
+    assert tuple(
+        item.source_call_id for item in macro.resolved_args["curve_point"]
+    ) == ("derive_curve_point_iii",)
 
 
 def test_hidden_macro_roles_do_not_keep_duplicate_descendant_steps_live(

@@ -40,6 +40,19 @@ class WeightedAxisPathTriangleTransformMethod:
         moving_point: Point = inputs["moving_point"]
         dynamic_parameter = inputs["dynamic_parameter"]
         auxiliary_point_ref: PointRef = inputs["auxiliary_point_ref"]
+        orientation_sign = int(inputs.get("_orientation_sign", 1))
+        if orientation_sign not in {-1, 1}:
+            raise StatelessMethodError(
+                "planner.method_contract_invalid",
+                "weighted triangle orientation must be +1 or -1",
+                category="configuration",
+                retryability="configuration",
+                arg_name="_orientation_sign",
+                role="internal_geometry_orientation",
+                expected={"values": [-1, 1]},
+                observed={"value": orientation_sign},
+                repair_action="fix_runtime_contract",
+            )
         moving_point_ref: PointRef | None = inputs.get("moving_point_ref")
         linked_fixed_endpoint_ref: PointRef | None = inputs.get(
             "linked_fixed_endpoint_ref"
@@ -61,7 +74,7 @@ class WeightedAxisPathTriangleTransformMethod:
                 observed={"x": moving_point[0]},
             )
 
-        path_info = _parse_weighted_axis_path(str(condition["path"]), kernel)
+        path_info = _parse_weighted_axis_path_condition(condition, kernel)
         weight = path_info["weight"]
         try:
             geometry = weighted_triangle_geometry_for_weight(weight)
@@ -99,12 +112,17 @@ class WeightedAxisPathTriangleTransformMethod:
         height_factor = sp.simplify(sp.sqrt(weight_sq - 1) / weight_sq)
         auxiliary_point = (
             sp.simplify(ax + offset * leg_factor),
-            sp.simplify(offset * height_factor),
+            sp.simplify(orientation_sign * offset * height_factor),
         )
         qn_squared = kernel.distance_squared(auxiliary_point, moving_point)
         an_squared = kernel.distance_squared(fixed_point, moving_point)
         right_angle_dot = dot_from_origin(auxiliary_point, fixed_point, moving_point)
-        direction = geometry.direction_value
+        direction = (
+            geometry.direction_value[0],
+            sp.simplify(
+                orientation_sign * geometry.direction_value[1]
+            ),
+        )
         locus_cross = sp.simplify(
             (auxiliary_point[0] - ax) * direction[1]
             - auxiliary_point[1] * direction[0]
@@ -136,6 +154,7 @@ class WeightedAxisPathTriangleTransformMethod:
             "inner_path": inner_path,
             "scale": weight,
             "geometry": geometry.geometry,
+            "orientation_sign": orientation_sign,
             "reason": (
                 f"构造{geometry.title} {fixed_name}{auxiliary_name}{moving_name}，"
                 f"使 {fixed_name}{moving_name}={kernel.sstr(weight)}*{auxiliary_segment}。"
@@ -209,6 +228,80 @@ class WeightedAxisPathTriangleTransformMethod:
                 )
             ],
         )
+
+
+def _parse_weighted_axis_path_condition(
+    condition: dict[str, Any],
+    kernel: SympyKernel,
+) -> dict[str, Any]:
+    """Prefer canonical typed terms; keep path text for legacy callers only."""
+
+    terms = condition.get("terms")
+    if isinstance(terms, list):
+        parsed: list[tuple[sp.Expr, tuple[str, str]]] = []
+        for item in terms:
+            if isinstance(item, dict):
+                segment = item.get("segment")
+                scale = item.get("scale", "1")
+            else:
+                segment = item
+                scale = "1"
+            if (
+                not isinstance(segment, list)
+                or len(segment) != 2
+                or not all(isinstance(value, str) for value in segment)
+            ):
+                raise method_input_invalid(
+                    "weighted-axis typed path term is invalid",
+                    arg_name="condition",
+                    role="weighted_path",
+                )
+            parsed.append(
+                (
+                    sp.simplify(
+                        _require_canonical_runtime_expression(
+                            scale,
+                            kernel,
+                            arg_name="condition",
+                            role="path_scale",
+                        )
+                    ),
+                    (str(segment[0]), str(segment[1])),
+                )
+            )
+        weighted = tuple(item for item in parsed if sp.simplify(item[0] - 1) != 0)
+        unit = tuple(item for item in parsed if sp.simplify(item[0] - 1) == 0)
+        if len(weighted) != 1 or len(unit) != 1:
+            raise method_precondition_failed(
+                "weighted-axis typed path requires one weighted and one unit term",
+                arg_name="condition",
+                role="weighted_path",
+            )
+        weight, weighted_pair = weighted[0]
+        _, unit_pair = unit[0]
+        shared = tuple(item for item in weighted_pair if item in unit_pair)
+        if len(shared) != 1:
+            raise method_precondition_failed(
+                "weighted-axis typed path terms must share one endpoint",
+                arg_name="condition",
+                role="weighted_path",
+            )
+        moving = shared[0]
+        curve = next(item for item in weighted_pair if item != moving)
+        fixed = next(item for item in unit_pair if item != moving)
+        return {
+            "weight": weight,
+            "weighted_segment": f"{_point_label(curve)}{_point_label(moving)}",
+            "axis_segment": f"{_point_label(fixed)}{_point_label(moving)}",
+            "moving_name": _point_label(moving),
+            "fixed_name": _point_label(fixed),
+            "curve_name": _point_label(curve),
+        }
+    return _parse_weighted_axis_path(str(condition["path"]), kernel)
+
+
+def _point_label(handle: str) -> str:
+    return handle.rsplit(":", 1)[-1]
 
 
 def _parse_weighted_axis_path(path: str, kernel: SympyKernel) -> dict[str, Any]:

@@ -89,8 +89,9 @@ def test_strategy_recorded_solves_hexi_without_deterministic_planner(
 
     assert result.status == "ok", result.errors
     assert result.answers == load_expected_answers(HEXI_EXPECTED)
-    assert "weighted_axis_path_triangle_transform" in result.methods_used
-    assert "linked_broken_path_minimum_expression" in result.methods_used
+    assert "weighted_axis_path_minimum_kernel" in result.methods_used
+    assert "weighted_axis_path_triangle_transform" not in result.methods_used
+    assert "linked_broken_path_minimum_expression" not in result.methods_used
 
 
 def test_strategy_recorded_solves_xiqing_without_deterministic_planner(
@@ -124,8 +125,9 @@ def test_strategy_recorded_solves_xiqing_without_deterministic_planner(
     assert result.status == "ok", result.errors
     assert result.answers == load_expected_answers(XIQING_EXPECTED)
     assert "parameter_from_segment_length" in result.methods_used
-    assert "weighted_axis_path_triangle_transform" in result.methods_used
-    assert "linked_broken_path_minimum_expression" in result.methods_used
+    assert "weighted_axis_path_minimum_kernel" in result.methods_used
+    assert "weighted_axis_path_triangle_transform" not in result.methods_used
+    assert "linked_broken_path_minimum_expression" not in result.methods_used
     assert "parameter_from_expression_value" in result.methods_used
 
 

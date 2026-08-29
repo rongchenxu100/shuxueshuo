@@ -719,27 +719,24 @@ def test_unknown_return_expectation_role_is_not_silently_dropped(tmp_path) -> No
         _lower_payload(tmp_path, case, payload)
 
 
-def test_mixed_expectations_only_drop_omit_return(tmp_path) -> None:
+def test_fixed_form_expectation_is_dropped_before_capability_validation(
+    tmp_path,
+) -> None:
     case = "tj-2026-xiqing-yimo-25"
     payload = load_v2_fixture_payload(case)
-    scope_ii_2 = _find_scope(payload["root_scope"], "ii_2")
-    transform = scope_ii_2["goals"][0]["steps"][0]
-    assert transform["capability_id"] == "weighted_axis_path_triangle_transform"
-    transform["return_expectations"] = {
-        "auxiliary_point": "open_state",
-        "auxiliary_locus": "open_state",
-    }
+    scope_ii_1 = _find_scope(payload["root_scope"], "ii_1")
+    solver = scope_ii_1["goals"][0]["steps"][0]
+    assert solver["capability_id"] == "parameter_from_segment_length"
+    solver["return_expectations"] = {"parameter_value": "open_expression"}
 
     authority, _ = _lower_payload(tmp_path, case, payload)
 
     canonical_scope = _find_scope(
         authority.scoped_plan.to_payload()["root_scope"],
-        "ii_2",
+        "ii_1",
     )
-    canonical_transform = canonical_scope["goals"][0]["steps"][0]
-    assert canonical_transform["return_expectations"] == {
-        "auxiliary_point": "open_state"
-    }
+    canonical_solver = canonical_scope["goals"][0]["steps"][0]
+    assert "return_expectations" not in canonical_solver
     assert [
         item.to_payload()
         for item in authority.normalizations
@@ -748,10 +745,10 @@ def test_mixed_expectations_only_drop_omit_return(tmp_path) -> None:
         {
             "action": "drop_fixed_form_return_expectation",
             "reason": "return_expectation_policy_omit",
-            "step_id": "transform_weighted_path_ii",
-            "capability_id": "weighted_axis_path_triangle_transform",
-            "return_name": "auxiliary_locus",
-            "from_form": "open_state",
+            "step_id": "solve_parameter_from_segment_relation_ii",
+            "capability_id": "parameter_from_segment_length",
+            "return_name": "parameter_value",
+            "from_form": "open_expression",
         }
     ]
 

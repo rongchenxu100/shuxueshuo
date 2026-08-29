@@ -32,6 +32,10 @@ EXPECTED_COMPANIONS = {
     ("weighted_axis_path_triangle_transform", "auxiliary_point"),
     ("weighted_axis_path_triangle_transform", "auxiliary_locus"),
 }
+EXPECTED_RUNTIME_COMPANIONS = {
+    ("quadratic_from_constraints", "coefficients"),
+    ("quadratic_axis_parameterized_point", "parameter"),
+}
 
 
 @pytest.fixture(scope="module")
@@ -91,7 +95,7 @@ def test_all_companion_outputs_receive_exact_write_authority(
         for call in recorded_companion_calls
         for authority in call.output_write_authorities
     }
-    assert actual == EXPECTED_COMPANIONS
+    assert actual == EXPECTED_RUNTIME_COMPANIONS
 
     for call in recorded_companion_calls:
         allocations = {

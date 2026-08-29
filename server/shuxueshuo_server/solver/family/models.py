@@ -719,6 +719,7 @@ CapabilityContextResolver = Literal[
     "path_reduction_roles",
     "quadratic_square_path_roles",
     "square_path_transformation_roles",
+    "weighted_axis_path_minimum_roles",
     "weighted_path_transformation_roles",
 ]
 CONDITION_OBJECT_ROLES_RESOLVER: CapabilityContextResolver = (
@@ -738,6 +739,9 @@ QUADRATIC_SQUARE_PATH_ROLES_RESOLVER: CapabilityContextResolver = (
 )
 SQUARE_PATH_TRANSFORMATION_ROLES_RESOLVER: CapabilityContextResolver = (
     "square_path_transformation_roles"
+)
+WEIGHTED_AXIS_PATH_MINIMUM_ROLES_RESOLVER: CapabilityContextResolver = (
+    "weighted_axis_path_minimum_roles"
 )
 WEIGHTED_PATH_TRANSFORMATION_ROLES_RESOLVER: CapabilityContextResolver = (
     "weighted_path_transformation_roles"
