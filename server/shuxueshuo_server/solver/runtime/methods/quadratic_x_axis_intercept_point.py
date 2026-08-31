@@ -9,7 +9,7 @@ from __future__ import annotations
 from shuxueshuo_server.solver.contracts import MethodExplanationSpec, MethodVisualSpec
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, canonical_symbol_input, declare_input_views
 
 
 class QuadraticXAxisInterceptPointMethod:
@@ -28,6 +28,7 @@ class QuadraticXAxisInterceptPointMethod:
         quadratic = inputs["quadratic"]
         x = inputs["x"]
         target: PointRef = inputs["target"]
+        target_state: Point | None = inputs.get("target_state")
         known_point: Point | None = inputs.get("known_point")
 
         roots = [sp.simplify(root) for root in kernel.solve_values(sp.Eq(quadratic, 0), x)]
@@ -38,14 +39,31 @@ class QuadraticXAxisInterceptPointMethod:
                 for point in candidates
                 if sp.simplify(point[0] - known_point[0]) != 0
             ]
+        if len(candidates) > 1 and _is_point(target_state):
+            matching = [
+                point
+                for point in candidates
+                if _points_equivalent(point, target_state)
+            ]
+            if len(matching) == 1:
+                candidates = matching
         if len(candidates) > 1:
             side = _target_intercept_side(target)
             if side is not None:
                 candidates = _pick_side_intercept(candidates, side)
         if len(candidates) != 1:
-            raise ValueError(
-                f"x_axis_intercept cannot uniquely determine {target.name}: "
-                f"{[kernel.sstr(point[0]) for point in candidates]}"
+            raise method_result_ambiguous(
+                f"x_axis_intercept cannot uniquely determine {target.name}",
+                role="target_x_axis_intercept",
+                internal_ref=target.name,
+                expected={"candidate_count": 1, "runtime_type": "Point"},
+                observed={
+                    "candidate_count": len(candidates),
+                    "candidate_x_values": [
+                        kernel.sstr(point[0]) for point in candidates
+                    ],
+                },
+                repair_action="supply_disambiguating_constraint",
             )
         point = candidates[0]
         checks = [
@@ -69,13 +87,19 @@ class QuadraticXAxisInterceptPointMethod:
             other_xs = [root for root in roots if sp.simplify(root - point[0]) != 0]
             if other_xs:
                 comparisons = [sp.simplify(point[0] - other_x) for other_x in other_xs]
-                if side == "left":
-                    passed = all(_is_negative(value) for value in comparisons)
-                    detail = "目标点声明为左侧 x 轴交点"
-                else:
-                    passed = all(_is_positive(value) for value in comparisons)
-                    detail = "目标点声明为右侧 x 轴交点"
-                checks.append(_check(f"{side}_x_axis_intercept", passed, detail))
+                signs = tuple(_comparison_sign(value) for value in comparisons)
+                expected_sign = -1 if side == "left" else 1
+                # A known intercept may already leave one unique symbolic root.
+                # Its ordering belongs to the surrounding problem constraints;
+                # only a decidable, contradictory ordering is a runtime failure.
+                if all(sign is not None for sign in signs):
+                    checks.append(
+                        _check(
+                            f"{side}_x_axis_intercept",
+                            all(sign == expected_sign for sign in signs),
+                            f"目标点声明为{'左' if side == 'left' else '右'}侧 x 轴交点",
+                        )
+                    )
         return StatelessMethodResult(
             method_id=self.method_id,
             outputs={"point": TypedValue("Point", point, source=self.method_id)},
@@ -102,6 +126,17 @@ def _target_intercept_side(target: PointRef) -> str | None:
     return None
 
 
+def _is_point(value: Any) -> bool:
+    return isinstance(value, (tuple, list)) and len(value) == 2
+
+
+def _points_equivalent(left: Point, right: Any) -> bool:
+    return _is_point(right) and all(
+        sp.simplify(left[index] - right[index]) == 0
+        for index in range(2)
+    )
+
+
 def _pick_side_intercept(candidates: list[Point], side: str) -> list[Point]:
     selected: list[Point] = []
     for candidate in candidates:
@@ -118,23 +153,32 @@ def _pick_side_intercept(candidates: list[Point], side: str) -> list[Point]:
 
 
 def _is_negative(value: sp.Expr) -> bool:
-    simplified = sp.simplify(value)
-    if simplified.is_negative is not None:
-        return bool(simplified.is_negative)
-    try:
-        return bool(sp.N(simplified) < 0)
-    except TypeError:
-        return False
+    return _comparison_sign(value) == -1
 
 
 def _is_positive(value: sp.Expr) -> bool:
+    return _comparison_sign(value) == 1
+
+
+def _comparison_sign(value: sp.Expr) -> int | None:
     simplified = sp.simplify(value)
-    if simplified.is_positive is not None:
-        return bool(simplified.is_positive)
+    if simplified.is_zero is True:
+        return 0
+    if simplified.is_positive is True:
+        return 1
+    if simplified.is_negative is True:
+        return -1
     try:
-        return bool(sp.N(simplified) > 0)
+        numeric = sp.N(simplified)
+        if numeric > 0:
+            return 1
+        if numeric < 0:
+            return -1
+        if numeric == 0:
+            return 0
     except TypeError:
-        return False
+        pass
+    return None
 
 
 SPEC = MethodSpecSource(
@@ -155,11 +199,33 @@ SPEC = MethodSpecSource(
     ),
     solves=("derive_quadratic_x_axis_intercept_point",),
     inputs={
-        "quadratic": {"type": "Parabola", "required": True},
-        "x": {"type": "Symbol", "required": True},
-        "target": {"type": "PointRef", "required": True},
-        "known_point": {"type": "Point", "required": False},
+        "quadratic": {
+            "type": "Parabola",
+            "required": True,
+            "symbolic_basis_role": "state_anchor",
+        },
+        "x": canonical_symbol_input("x"),
+        "target": {
+            "type": "PointRef",
+            "required": True,
+            "symbolic_basis_role": "align_to_anchor",
+        },
+        "target_state": {
+            "type": "Point",
+            "required": False,
+            "functional_exposed": False,
+            "symbolic_basis_role": "align_to_anchor",
+        },
+        "known_point": {
+            "type": "Point",
+            "required": False,
+            "symbolic_basis_role": "align_to_anchor",
+        },
     },
+    input_views=declare_input_views(
+        identity=("x", "target"),
+        latest_state=("quadratic", "target_state", "known_point"),
+    ),
     outputs={"point": "Point"},
     preconditions=("quadratic 是关于 x 的函数表达式，可以含未定系数",),
     postconditions=("输出点纵坐标为 0 且在曲线上；若给定 known_point，则输出另一个 x 轴交点；若目标 PointRef 声明 side=left/right，则输出对应左右交点",),

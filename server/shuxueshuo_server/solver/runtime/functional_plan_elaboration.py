@@ -12,6 +12,9 @@ from shuxueshuo_server.solver.family.models import (
     CapabilityStateClosurePolicy,
 )
 
+from shuxueshuo_server.solver.runtime.condition_kinds import (
+    condition_kind_matches,
+)
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
 )
@@ -33,6 +36,10 @@ from shuxueshuo_server.solver.runtime.functional_plan_models import (
 )
 from shuxueshuo_server.solver.runtime.handle_alias_index import (
     visible_from_valid_scope,
+)
+from shuxueshuo_server.solver.runtime.macro_atomicity import (
+    MACRO_INLINE_EXPANSION_FORBIDDEN,
+    atomic_macro_replacements,
 )
 from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
 from shuxueshuo_server.solver.runtime.planner_state_context import (
@@ -108,6 +115,7 @@ class FunctionalSemanticView:
     typed_slot_id: StateSlotId | None = None
     state_version_id: StateVersionId | None = None
     source_version_ids: tuple[StateVersionId, ...] = ()
+    authority_scope_id: str | None = None
 
     def to_prompt_payload(self) -> dict[str, Any]:
         return {
@@ -219,6 +227,39 @@ class FunctionalPlanElaborator:
         for scope in plan.scopes:
             calls: list[FunctionalCall] = []
             for call in scope.calls:
+                replacements = atomic_macro_replacements(
+                    call.capability_id,
+                    available_capability_ids=catalog.items,
+                )
+                if replacements:
+                    issues.append(
+                        _issue(
+                            "functional_elaboration",
+                            MACRO_INLINE_EXPANSION_FORBIDDEN,
+                            (
+                                f"capability {call.capability_id!r} is a "
+                                "retired internal path component; use atomic "
+                                f"Macro {', '.join(replacements)!r}"
+                            ),
+                            call_id=call.call_id,
+                            scope_id=scope.scope_id,
+                            details={
+                                "observed_capability": call.capability_id,
+                                "required_macros": list(replacements),
+                                **(
+                                    {"required_macro": replacements[0]}
+                                    if len(replacements) == 1
+                                    else {}
+                                ),
+                                "retryability": "planner_repairable",
+                                "repair_action": (
+                                    "replace_scope_body_with_atomic_macro"
+                                ),
+                            },
+                        )
+                    )
+                    calls.append(call)
+                    continue
                 call_semantic_index = (
                     semantic_index.for_call(call.call_id)
                     if semantic_index is not None
@@ -234,6 +275,11 @@ class FunctionalPlanElaborator:
                     repairs=repairs,
                 )
                 call = _drop_internal_only_return_bindings(
+                    call,
+                    capability=capability,
+                    repairs=repairs,
+                )
+                call = _drop_compiler_selected_return_bindings(
                     call,
                     capability=capability,
                     repairs=repairs,
@@ -328,15 +374,10 @@ class FunctionalPlanElaborator:
                 calls.append(replace(call, args=normalized_args))
             scopes.append(replace(scope, calls=tuple(calls)))
         elaborated_plan = replace(plan, scopes=tuple(scopes))
-        elaborated_plan, call_aliases = _merge_equivalent_object_calls(
-            elaborated_plan,
-            catalog=catalog,
-            repairs=repairs,
-            issues=issues,
-            semantic_index=semantic_index,
-            call_authority_signatures=call_authority_signatures,
-            pinned_canonical_call_ids=pinned_canonical_call_ids,
-        )
+        # Execution/input fingerprints are candidate-discovery metadata only.
+        # A call may be removed or aliased only after the transactional runtime
+        # has compared its actual typed result with the canonical StateVersion.
+        call_aliases: dict[str, str] = {}
         final_call_ids = {call.call_id for call in elaborated_plan.calls}
         return FunctionalPlanElaborationResult(
             raw_plan=plan,
@@ -416,6 +457,63 @@ def _drop_internal_only_return_bindings(
             FunctionalDeterministicRepair(
                 call.call_id,
                 "drop_internal_only_return_binding",
+                f"{return_name}:{binding.kind}:{binding.ref}",
+                f"{call.call_id}.{return_name}",
+            )
+        )
+    if bindings == call.return_bindings:
+        return call
+    return replace(call, return_bindings=bindings)
+
+
+def _drop_compiler_selected_return_bindings(
+    call: FunctionalCall,
+    *,
+    capability: Any,
+    repairs: list[FunctionalDeterministicRepair],
+) -> FunctionalCall:
+    """Keep code-owned return identity out of the authored Plan contract.
+
+    An atomic Macro may publish a Point whose identity is one of its hidden,
+    resolver-owned roles.  In that case an authored destination is neither
+    necessary nor authoritative: reconciliation can infer the exact object
+    from the prepared role.  Drop any guessed destination before identity
+    reconciliation so the hidden role remains code-owned.
+    """
+
+    if not call.return_bindings:
+        return call
+    if capability.kind != "macro" or getattr(
+        capability.source, "execution_mode", None
+    ) != "runtime_search":
+        return call
+    exposed_args = {item.name for item in capability.args}
+    return_specs = {item.name: item for item in capability.returns}
+    bindings = dict(call.return_bindings)
+    for return_name, binding in tuple(bindings.items()):
+        return_spec = return_specs.get(return_name)
+        if return_spec is None:
+            bindings.pop(return_name)
+            repairs.append(
+                FunctionalDeterministicRepair(
+                    call.call_id,
+                    "drop_unknown_call_local_return_binding",
+                    f"{binding.kind}:{binding.ref}",
+                    return_name,
+                )
+            )
+            continue
+        if (
+            return_spec.identity_policy != "target_object"
+            or return_spec.identity_arg is None
+            or return_spec.identity_arg in exposed_args
+        ):
+            continue
+        bindings.pop(return_name)
+        repairs.append(
+            FunctionalDeterministicRepair(
+                call.call_id,
+                "drop_compiler_selected_return_binding",
                 f"{return_name}:{binding.kind}:{binding.ref}",
                 f"{call.call_id}.{return_name}",
             )
@@ -705,7 +803,6 @@ def _runtime_input_requires_state_version(runtime_type: str) -> bool:
             "Expression",
             "MinimumExpression",
             "ParameterValue",
-            "PathTransformation",
         }
         for item in split_runtime_types(runtime_type)
     )
@@ -1004,7 +1101,36 @@ def _semantic_ref_satisfies_arg(
         ),
         accepted_condition_kinds=arg_spec.accepted_condition_kinds,
     )
-    return resolved is not None
+    if resolved is not None:
+        return True
+    if getattr(arg_spec, "input_view_mode", None) not in {
+        "identity",
+        "latest_state",
+    }:
+        return False
+    identity_types = _domain_identity_runtime_types(
+        getattr(arg_spec, "domain_type", None)
+    )
+    if not identity_types:
+        return False
+    identity, _identity_candidates = semantic_index.resolve(
+        ref,
+        scope_id=scope_id,
+        accepted_types=identity_types,
+        accepted_condition_kinds=arg_spec.accepted_condition_kinds,
+    )
+    return identity is not None
+
+
+def _domain_identity_runtime_types(domain_type: str | None) -> tuple[str, ...]:
+    return {
+        "Point": ("PointRef", "Point"),
+        "QuadraticFunction": ("Expression", "Parabola"),
+        "Symbol": ("Symbol", "ParameterValue"),
+        "Line": ("Line",),
+        "Ray": ("Ray",),
+        "Polygon": ("Polygon",),
+    }.get(domain_type or "", ())
 
 
 def _drop_redundant_incompatible_optional_args(
@@ -1096,11 +1222,16 @@ class FunctionalSemanticIndex:
         handle_registry: CanonicalHandleRegistry,
         entity_payloads: Mapping[str, Mapping[str, Any]] | None = None,
         fact_payloads: Mapping[str, Mapping[str, Any]] | None = None,
+        relation_authority_views: Sequence[FunctionalSemanticView],
         allowed_ref_keys_by_call: Mapping[
-            str, frozenset[tuple[str, str]]
+            str, frozenset[tuple[str, str, str]]
         ] | None = None,
     ) -> None:
         self.views = tuple(views)
+        # Call-local views remain the only readable inputs.  The unfiltered
+        # relation authority is retained solely to explain when an exact Fact
+        # exists in a descendant scope; it is never materialized as a read.
+        self.relation_authority_views = tuple(relation_authority_views)
         self.handle_registry = handle_registry
         self.entity_payloads = dict(entity_payloads or {})
         self.fact_payloads = dict(fact_payloads or {})
@@ -1115,10 +1246,64 @@ class FunctionalSemanticIndex:
         *,
         handle_registry: CanonicalHandleRegistry,
     ) -> "FunctionalSemanticIndex":
-        return cls.from_semantic_items(
+        index = cls.from_semantic_items(
             context,
             context.semantic_read_catalog(),
             handle_registry=handle_registry,
+        )
+        derived_condition_views: list[FunctionalSemanticView] = []
+        for condition in context.state.conditions:
+            if condition.canonical_handle is not None:
+                continue
+            point_refs = dict(condition.object_roles).get("point", ())
+            if len(point_refs) != 1:
+                continue
+            point_ref = point_refs[0]
+            for source in index.views:
+                if source.kind != "point" or source.object_ref != point_ref:
+                    continue
+                derived_condition_views.append(
+                    FunctionalSemanticView(
+                        ref=source.ref,
+                        kind=source.kind,
+                        handle=source.handle,
+                        runtime_type="Condition",
+                        valid_scope=(
+                            condition.valid_scope or condition.scope_id
+                        ),
+                        authority_scope_id=condition.scope_id,
+                        condition_id=condition.condition_id,
+                        condition_kind=condition.kind,
+                        object_roles=condition.object_roles,
+                        dependency_object_refs=tuple(
+                            dict.fromkeys(
+                                object_ref
+                                for _role, object_refs in condition.object_roles
+                                for object_ref in object_refs
+                            )
+                        ),
+                        lineage=state_semantic_lineage(
+                            semantic_roles=(condition.kind,),
+                            object_roles=(
+                                StateObjectRoleBinding(
+                                    role=role,
+                                    object_refs=object_refs,
+                                )
+                                for role, object_refs in condition.object_roles
+                            ),
+                        ),
+                    )
+                )
+        if not derived_condition_views:
+            return index
+        return cls(
+            _unique_views((*index.views, *derived_condition_views)),
+            handle_registry=handle_registry,
+            entity_payloads=index.entity_payloads,
+            fact_payloads=index.fact_payloads,
+            relation_authority_views=_unique_views(
+                (*index.relation_authority_views, *derived_condition_views)
+            ),
         )
 
     @classmethod
@@ -1129,7 +1314,7 @@ class FunctionalSemanticIndex:
         *,
         handle_registry: CanonicalHandleRegistry,
         allowed_ref_keys_by_call: Mapping[
-            str, frozenset[tuple[str, str]]
+            str, frozenset[tuple[str, str, str]]
         ] | None = None,
     ) -> "FunctionalSemanticIndex":
         state_slots = {item.slot_id: item for item in context.state.state_slots}
@@ -1169,6 +1354,7 @@ class FunctionalSemanticIndex:
                         item.handle,
                         slot.runtime_type,
                         item.valid_scope,
+                        authority_scope_id=item.authority_scope_id,
                         object_ref=slot.object_ref,
                         state_slot_id=slot.slot_id,
                         dependency_object_refs=slot.dependency_object_refs,
@@ -1243,6 +1429,7 @@ class FunctionalSemanticIndex:
                             item.handle,
                             "Condition",
                             item.valid_scope,
+                            authority_scope_id=item.authority_scope_id,
                             condition_id=item.condition_id,
                             condition_kind=fact_type,
                             object_roles=condition.object_roles,
@@ -1272,6 +1459,7 @@ class FunctionalSemanticIndex:
                             item.handle,
                             value_runtime_type,
                             item.valid_scope,
+                            authority_scope_id=item.authority_scope_id,
                             condition_id=item.condition_id,
                             object_ref=_primary_value_object_ref(
                                 fact_payload,
@@ -1302,6 +1490,39 @@ class FunctionalSemanticIndex:
                             ),
                         )
                     )
+            elif item.condition_id is not None:
+                condition = conditions.get(item.condition_id)
+                if condition is not None:
+                    views.append(
+                        FunctionalSemanticView(
+                            item.ref,
+                            item.kind,
+                            item.handle,
+                            "Condition",
+                            item.valid_scope,
+                            authority_scope_id=item.authority_scope_id,
+                            condition_id=item.condition_id,
+                            condition_kind=condition.kind,
+                            object_roles=condition.object_roles,
+                            dependency_object_refs=tuple(
+                                dict.fromkeys(
+                                    object_ref
+                                    for _role, object_refs in condition.object_roles
+                                    for object_ref in object_refs
+                                )
+                            ),
+                            lineage=state_semantic_lineage(
+                                semantic_roles=(condition.kind,),
+                                object_roles=(
+                                    StateObjectRoleBinding(
+                                        role=role,
+                                        object_refs=object_refs,
+                                    )
+                                    for role, object_refs in condition.object_roles
+                                ),
+                            ),
+                        )
+                    )
             payload = entity_payloads.get(item.handle)
             if payload is not None:
                 runtime_type = _entity_runtime_type(payload)
@@ -1328,6 +1549,7 @@ class FunctionalSemanticIndex:
                         item.handle,
                         runtime_type,
                         item.valid_scope,
+                        authority_scope_id=item.authority_scope_id,
                         object_ref=item.handle,
                         dependency_object_refs=dependencies,
                         free_symbol_refs=free_symbol_refs,
@@ -1345,6 +1567,7 @@ class FunctionalSemanticIndex:
                             object_slot.canonical_handle or item.handle,
                             object_slot.runtime_type,
                             object_slot.valid_scope or object_slot.scope_id,
+                            authority_scope_id=item.authority_scope_id,
                             object_ref=item.handle,
                             state_slot_id=object_slot.slot_id,
                             dependency_object_refs=(
@@ -1409,13 +1632,14 @@ class FunctionalSemanticIndex:
             handle_registry=handle_registry,
             entity_payloads=entity_payloads,
             fact_payloads=fact_payloads,
+            relation_authority_views=_unique_views(views),
             allowed_ref_keys_by_call=allowed_ref_keys_by_call,
         )
 
     def with_call_allowlists(
         self,
         allowed_ref_keys_by_call: Mapping[
-            str, frozenset[tuple[str, str]]
+            str, frozenset[tuple[str, str, str]]
         ],
     ) -> "FunctionalSemanticIndex":
         return FunctionalSemanticIndex(
@@ -1423,6 +1647,7 @@ class FunctionalSemanticIndex:
             handle_registry=self.handle_registry,
             entity_payloads=self.entity_payloads,
             fact_payloads=self.fact_payloads,
+            relation_authority_views=self.relation_authority_views,
             allowed_ref_keys_by_call=allowed_ref_keys_by_call,
         )
 
@@ -1434,11 +1659,16 @@ class FunctionalSemanticIndex:
             tuple(
                 item
                 for item in self.views
-                if (item.ref, item.kind) in allowed
+                if (
+                    item.authority_scope_id,
+                    item.ref,
+                    item.kind,
+                ) in allowed
             ),
             handle_registry=self.handle_registry,
             entity_payloads=self.entity_payloads,
             fact_payloads=self.fact_payloads,
+            relation_authority_views=self.relation_authority_views,
         )
 
     def materialize_function_state(
@@ -1618,7 +1848,10 @@ class FunctionalSemanticIndex:
             )
             and (
                 not accepted_condition_kinds
-                or item.condition_kind in accepted_condition_kinds
+                or condition_kind_matches(
+                    item.condition_kind,
+                    accepted_condition_kinds,
+                )
             )
         )
         if not compatible:
@@ -1737,7 +1970,10 @@ class FunctionalSemanticIndex:
                 continue
             if (
                 accepted_condition_kinds
-                and item.condition_kind not in accepted_condition_kinds
+                and not condition_kind_matches(
+                    item.condition_kind,
+                    accepted_condition_kinds,
+                )
             ):
                 continue
             if (
@@ -1774,7 +2010,10 @@ class FunctionalSemanticIndex:
             )
             and (
                 not accepted_condition_kinds
-                or item.condition_kind in accepted_condition_kinds
+                or condition_kind_matches(
+                    item.condition_kind,
+                    accepted_condition_kinds,
+                )
             )
             and (
                 not accepted_semantic_roles
@@ -1817,7 +2056,10 @@ class FunctionalSemanticIndex:
             )
             and (
                 not accepted_condition_kinds
-                or item.condition_kind in accepted_condition_kinds
+                or condition_kind_matches(
+                    item.condition_kind,
+                    accepted_condition_kinds,
+                )
             )
         )
 

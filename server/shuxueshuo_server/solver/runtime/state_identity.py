@@ -135,6 +135,43 @@ class StateVersionId:
         )
 
 
+@dataclass(frozen=True)
+class StateRuntimeEquivalenceProbe:
+    """Runtime proof required for two scope-comparable create writers.
+
+    The probe does not rewrite either writer's checkpointed allocation. It
+    records the exact versions that transaction execution must compare before
+    either provisional write can be accepted as the same logical state.
+    """
+
+    logical_state_key: LogicalStateKey
+    ancestor_call_id: str
+    ancestor_return_name: str
+    ancestor_version_id: StateVersionId
+    ancestor_scope_id: str
+    descendant_call_id: str
+    descendant_return_name: str
+    descendant_version_id: StateVersionId
+    descendant_scope_id: str
+    comparison_scope_id: str
+    reason_code: str = "scope_comparable_create_create"
+
+    def to_payload(self) -> dict[str, Any]:
+        return {
+            "logical_state_key": self.logical_state_key.to_payload(),
+            "ancestor_call_id": self.ancestor_call_id,
+            "ancestor_return_name": self.ancestor_return_name,
+            "ancestor_version_id": self.ancestor_version_id.to_payload(),
+            "ancestor_scope_id": self.ancestor_scope_id,
+            "descendant_call_id": self.descendant_call_id,
+            "descendant_return_name": self.descendant_return_name,
+            "descendant_version_id": self.descendant_version_id.to_payload(),
+            "descendant_scope_id": self.descendant_scope_id,
+            "comparison_scope_id": self.comparison_scope_id,
+            "reason_code": self.reason_code,
+        }
+
+
 @dataclass(frozen=True, order=True)
 class RuntimeDestinationKey:
     object_id: MathObjectId
@@ -489,6 +526,7 @@ class StateAllocationRequest:
     free_symbol_ids: tuple[MathObjectId, ...] = ()
     runtime_destination: RuntimeDestinationKey | None = None
     result_form: str | None = None
+    allow_runtime_equivalence_probe: bool = False
 
 
 @dataclass(frozen=True)
@@ -1092,6 +1130,24 @@ class StateIdentityIndex:
             consumer_scope_id=consumer_scope_id,
         )
 
+    def latest_visible_for_object(
+        self,
+        object_id: MathObjectId,
+        *,
+        consumer_scope_id: str,
+    ) -> IndexedStateVersion | None:
+        """Return the unique latest visible state across one object's slots."""
+
+        return self._latest_visible(
+            (
+                version
+                for versions in self._versions_by_logical.values()
+                for version in versions
+                if version.version_id.slot_id.logical_key.object_id == object_id
+            ),
+            consumer_scope_id=consumer_scope_id,
+        )
+
     def next_ordinal(self, slot_id: StateSlotId) -> int:
         return (
             max(
@@ -1164,7 +1220,8 @@ class StateIdentityIndex:
             raise ValueError(
                 "planner_configuration_error: "
                 "planner.state_identity_incomplete: "
-                f"logical_key={visible[0].logical_state_key.to_payload()}, "
+                "logical_key="
+                f"{visible[0].version_id.slot_id.logical_key.to_payload()}, "
                 f"consumer_scope={consumer_scope_id}, "
                 "reason=ambiguous_latest_visible"
             )
@@ -1288,6 +1345,64 @@ class StateAllocationService:
             if maximal_explicit_sources
             else None
         )
+
+        if (
+            request.allow_runtime_equivalence_probe
+            and request.identity_policy
+            in {"target_object", "preserve_input_object"}
+            and request.runtime_type != "ParameterValue"
+            and request.source_version_ids
+        ):
+            previous = explicit_previous or visible
+            repeated_explicit_computation = (
+                explicit_previous is not None
+                and _computation_refines(
+                    explicit_previous.computation_key,
+                    request.computation_key,
+                    index=index,
+                )
+            )
+            if previous is not None and (
+                repeated_explicit_computation
+                or (
+                    explicit_previous is None
+                    and request.requested_write_mode != "transition"
+                )
+            ):
+                if (
+                    same_state_source_ids
+                    and not explicit_sources
+                    and previous.version_id not in same_state_source_ids
+                ):
+                    return self._conflict(
+                        request,
+                        logical_key,
+                        requested_slot,
+                        "state.transition_source_mismatch",
+                        "transition_does_not_depend_on_latest_visible_version",
+                    )
+                version_id = StateVersionId(
+                    requested_slot,
+                    index.next_ordinal(requested_slot),
+                )
+                return StateAllocationDecision(
+                    action="transition",
+                    call_id=request.call_id,
+                    return_name=request.return_name,
+                    logical_state_key=logical_key,
+                    selected_slot_id=requested_slot,
+                    selected_version_id=version_id,
+                    previous_version_id=previous.version_id,
+                    canonical_producer_call_id=request.call_id,
+                    runtime_destination=request.runtime_destination,
+                    reason_code="runtime_state_equivalence_probe",
+                    previous_producer_call_id=previous.producer_call_id,
+                    transition_kind="direct",
+                    previous_free_symbol_refs=previous.free_symbol_refs,
+                    current_free_symbol_refs=request.free_symbol_refs,
+                    previous_free_symbol_ids=previous.free_symbol_ids,
+                    current_free_symbol_ids=request.free_symbol_ids,
+                )
 
         if request.requested_write_mode == "transition":
             previous = explicit_previous or visible

@@ -6,11 +6,17 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, replace
-from typing import Literal
+from dataclasses import dataclass
+from itertools import combinations
+from typing import Any, Literal, Mapping
 
 from shuxueshuo_server.solver.contracts import (
     MethodExplanationSpec,
+    MethodInputBindingSpec,
+    MethodInputRelationSpec,
+    MethodCompanionOutputSpec,
+    MethodOutputActivationSpec,
+    OrdinalZeroTemplateDerivationSpec,
     ScalarResultFormSpec,
     SymbolicClosureSpec,
 )
@@ -19,9 +25,12 @@ from shuxueshuo_server.solver.runtime.quadratic_constraint_solver import (
     QuadraticConstraintSolveResult,
     solve_quadratic_constraint_system,
 )
+from shuxueshuo_server.solver.runtime.symbolic_state_representation import (
+    SymbolicStateRepresentationError,
+)
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, canonical_symbol_input, declare_input_views
 
 
 QuadraticConstraintStatus = Literal[
@@ -29,6 +38,7 @@ QuadraticConstraintStatus = Literal[
     "single_free",
     "underdetermined",
     "ambiguous",
+    "inconsistent",
 ]
 
 
@@ -69,19 +79,8 @@ def analyze_quadratic_constraints(
         request,
         kernel=SympyKernel(),
     )
-    active_preferred = preferred_free_parameters
-    if preferred_free_parameters and not _preserved_basis_is_valid(
-        result,
-        preferred=preferred_free_parameters,
-        coefficient_symbols=coefficients,
-    ):
-        result = solve_quadratic_constraint_system(
-            replace(request, preserve_symbols=()),
-            kernel=SympyKernel(),
-        )
-        active_preferred = ()
     if result.status == "inconsistent":
-        return QuadraticConstraintAnalysis("ambiguous", branch_count=0)
+        return QuadraticConstraintAnalysis("inconsistent", branch_count=0)
     if result.status == "ambiguous":
         return QuadraticConstraintAnalysis(
             "ambiguous",
@@ -90,7 +89,7 @@ def analyze_quadratic_constraints(
     analyzer_free = tuple(
         symbol
         for symbol in result.free_symbols
-        if symbol in set(coefficients) or symbol in set(active_preferred)
+        if symbol in set(coefficients) or symbol in set(preferred_free_parameters)
     )
     if not analyzer_free:
         return QuadraticConstraintAnalysis("determined", branch_count=1)
@@ -101,19 +100,69 @@ def analyze_quadratic_constraints(
     )
 
 
-def _preserved_basis_is_valid(
-    result: QuadraticConstraintSolveResult,
-    *,
-    preferred: tuple[sp.Symbol, ...],
-    coefficient_symbols: tuple[sp.Symbol, ...],
-) -> bool:
-    if result.status in {"ambiguous", "inconsistent"}:
-        return False
-    free = set(result.free_symbols)
-    preferred_set = set(preferred)
-    if not preferred_set.issubset(free):
-        return False
-    return not ((free & set(coefficient_symbols)) - preferred_set)
+def equivalent_quadratic_free_parameter_bases(
+    inputs: dict[str, Any],
+) -> tuple[tuple[sp.Symbol, ...], ...]:
+    """Enumerate every exact free-symbol basis accepted by the same constraints.
+
+    The solver's elimination order may represent a one-dimensional state using
+    ``b`` or ``c``.  That order is an implementation choice, not mathematical
+    evidence that one symbol is the unique valid basis.  Candidate bases are
+    therefore verified by rerunning the shared solver with each finite basis.
+    """
+
+    x = inputs["x"]
+    known = set(dict(inputs.get("known_coefficients", {})))
+    substitutions = set(_parameter_substitution(inputs))
+    candidates = tuple(
+        sorted(
+            (
+                _input_free_symbols(inputs)
+                - {x}
+                - known
+                - substitutions
+            ),
+            key=lambda symbol: symbol.name,
+        )
+    )
+    for dimension in range(1, len(candidates) + 1):
+        bases: list[tuple[sp.Symbol, ...]] = []
+        for basis in combinations(candidates, dimension):
+            try:
+                analysis = analyze_quadratic_constraints(
+                    inputs,
+                    preferred_free_parameters=tuple(basis),
+                )
+            except SymbolicStateRepresentationError:
+                continue
+            if (
+                analysis.status in {"single_free", "underdetermined"}
+                and set(analysis.free_parameters) == set(basis)
+            ):
+                bases.append(tuple(basis))
+        if bases:
+            return tuple(bases)
+    return ()
+
+
+def _input_free_symbols(value: Any) -> set[sp.Symbol]:
+    if isinstance(value, Mapping):
+        return {
+            symbol
+            for key, item in value.items()
+            for symbol in (
+                *_input_free_symbols(key),
+                *_input_free_symbols(item),
+            )
+        }
+    if isinstance(value, (tuple, list, set, frozenset)):
+        return {
+            symbol for item in value for symbol in _input_free_symbols(item)
+        }
+    try:
+        return set(sp.sympify(value).free_symbols)
+    except (TypeError, ValueError, AttributeError):
+        return set()
 
 
 class QuadraticFromConstraintsMethod:
@@ -126,20 +175,17 @@ class QuadraticFromConstraintsMethod:
     - 由已知系数和一个曲线点求含参抛物线；
     - 只代入部分已知系数，得到仍含自由系数的当前问抛物线。
 
-    作为“化简函数表达式”的 method，它的使用原则是：只有当代入约束后能明显降低
-    当前问表达式复杂度时才值得单独调用。理想化简结果是二次函数系数 ``a,b,c``
-    只剩一个未知参数，或已经完全确定；如果化简后仍有多个等价自由参数，Planner
-    应结合后续题面条件选择最有用的参数方向，而不是随意缓存一组含参系数。
-    例如 ``b``、``c`` 都能作为自由参数时，优先保留后续长度、最值、曲线点或答案
-    目标会直接求解/引用的那个参数；无法从上下文唯一判断时，应推迟到更多约束出现。
+    ``free_parameter/free_parameters`` 是 typed Symbol authority，而不是可由编译器
+    改名的表达式变量。当前状态若采用等价的另一组系数表示，shared solver 只有在
+    能证明唯一换基时才投影到指定 Symbol；不能证明时直接失败，不会偷换参数身份。
 
     Functional 编译可以把任意数量的 Point ContextPath 聚合为 ``curve_points``。
     ``curve_point/p1/p2`` 仅保留给历史 binding rule 兼容路径，method
     内部会把两种输入统一组装成约束方程。
-    ``free_parameter/free_parameters`` 表示本步骤允许保留的自由系数，例如先把
-    ``a=2`` 代入，保留 ``b,c``，供后续曲线点和联立方程继续约束。后续有
-    ContextValue 构造器后，可以收敛成真正的 ``curve_points`` /
-    ``extra_equations`` / ``free_symbols`` 列表输入。
+    ``free_parameter/free_parameters`` 表示本步骤结果的一组完整独立参数基底。
+    开放状态必须显式声明非空基底；闭合状态可传 ``[]`` 或省略。若约束证明
+    ``b`` 与 ``c`` 是同一一维状态的等价表示，任一单元素基底都可接受；Method
+    不按下游Goal偏好猜测或收窄基底。
     """
 
     method_id = "quadratic_from_constraints"
@@ -179,8 +225,16 @@ class QuadraticFromConstraintsMethod:
             target_parameter=target_parameter,
         )
         if result.parabola is None:
-            raise ValueError(
-                "function.constraints_inconsistent: quadratic state was not produced"
+            raise StatelessMethodError(
+                "planner.method_contract_invalid",
+                "quadratic solver reported success without a parabola result",
+                category="configuration",
+                retryability="configuration",
+                arg_name="quadratic",
+                role="quadratic_state",
+                expected={"type": "Parabola", "state": "materialized"},
+                observed={"type": "None", "solver_status": result.status},
+                repair_action="fix_runtime_contract",
             )
         values = {
             **known,
@@ -241,13 +295,25 @@ def _raise_constraint_failure(
     target_parameter: sp.Symbol | None,
 ) -> None:
     if result.status == "inconsistent":
-        raise ValueError(
-            "function.constraints_inconsistent: quadratic constraints conflict"
+        raise method_result_inconsistent(
+            "function.constraints_inconsistent: quadratic constraints conflict",
+            arg_name="quadratic",
+            role="quadratic_constraint_system",
+            expected={"state": "consistent"},
+            observed={"state": "inconsistent", "branch_count": result.branch_count},
+            retryability="planner_repairable",
+            repair_action="revise_quadratic_constraints",
         )
     if result.status == "ambiguous":
-        raise ValueError(
+        raise method_result_ambiguous(
             "function.constraints_ambiguous: "
-            f"branch_count={result.branch_count}; 二次函数约束不能唯一确定缺失系数"
+            f"branch_count={result.branch_count}; "
+            "二次函数约束不能唯一确定缺失系数",
+            arg_name="quadratic",
+            role="quadratic_constraint_system",
+            expected={"state": "unique_solution"},
+            observed={"state": "ambiguous", "candidate_count": result.branch_count},
+            repair_action="provide_additional_quadratic_constraint",
         )
     if target_parameter is not None and result.target_value is not None:
         unexpected_target_dependencies = (
@@ -261,11 +327,20 @@ def _raise_constraint_failure(
                     for symbol in unexpected_target_dependencies
                 )
             )
-            raise ValueError(
+            raise method_input_state_unavailable(
                 "function.constraints_underdetermined: "
                 f"target={target_parameter.name}, "
                 f"undeclared_dependencies={names}; "
-                "目标参数依赖未声明的自由符号"
+                "target parameter depends on undeclared free symbols",
+                arg_name="target_parameter",
+                role="coefficient_target",
+                internal_ref=target_parameter,
+                expected={"type": "Symbol", "state": "dependencies_declared"},
+                observed={
+                    "state": "undeclared_dependencies",
+                    "symbols": names,
+                },
+                repair_action="declare_visible_free_parameters",
             )
     if target_parameter is not None and result.target_value is None:
         equation_symbols = {
@@ -277,36 +352,78 @@ def _raise_constraint_failure(
             names = ", ".join(
                 sorted(symbol.name for symbol in equation_symbols)
             ) or "<none>"
-            raise ValueError(
+            raise method_input_missing(
                 "function.target_parameter_not_constrained: "
-                f"target={target_parameter.name}, "
-                f"constraint_symbols={names}; "
-                "新增曲线点或方程化简后没有约束目标系数"
+                f"target={target_parameter.name}, constraint_symbols={names}; "
+                "the supplied curve points and equations do not constrain the target parameter",
+                arg_name="target_parameter",
+                role="coefficient_target",
+                internal_ref=target_parameter,
+                expected={"type": "Symbol", "state": "constrained"},
+                observed={"state": "unconstrained", "constraint_symbols": names},
+                repair_action="provide_additional_quadratic_constraint",
             )
+    actual_free_symbols = set(result.free_symbols)
+    if explicit_free_symbols and actual_free_symbols != explicit_free_symbols:
+        actual = ",".join(
+            sorted(symbol.name for symbol in actual_free_symbols)
+        ) or "none"
+        declared = ",".join(
+            sorted(symbol.name for symbol in explicit_free_symbols)
+        ) or "none"
+        raise method_input_state_unavailable(
+            "function.state_representation_mismatch: "
+            f"declared={declared}, actual={actual}",
+            arg_name="free_parameters",
+            role="free_coefficient_state",
+            expected={"type": "SymbolList", "state": "declared", "symbols": declared},
+            observed={"type": "SymbolList", "state": "derived", "symbols": actual},
+            repair_action="align_free_parameter_state",
+        )
     unresolved = (
         set(result.free_symbols) & coefficient_symbols
     ) - explicit_free_symbols
     if unresolved:
         names = ", ".join(sorted(symbol.name for symbol in unresolved))
-        raise ValueError(
+        raise method_input_missing(
             "function.constraints_underdetermined: "
-            f"residual_symbols={names}; 约束不足以确定系数: {names}"
+            f"residual_symbols={names}; 约束不足以确定系数: {names}",
+            arg_name="quadratic",
+            role="quadratic_constraint_system",
+            expected={"state": "closed_or_explicitly_parameterized"},
+            observed={"state": "underdetermined", "residual_symbols": names},
+            repair_action="provide_additional_quadratic_constraint",
         )
     if target_parameter is not None and result.target_value is None:
         names = ", ".join(symbol.name for symbol in result.free_symbols) or "<none>"
-        raise ValueError(
+        raise method_result_empty(
             "function.constraints_underdetermined: "
-            f"target={target_parameter.name}, residual_symbols={names}"
+            f"target={target_parameter.name}, residual_symbols={names}; "
+            "target parameter was not solved from the supplied quadratic constraints",
+            arg_name="target_parameter",
+            role="coefficient_target",
+            internal_ref=target_parameter,
+            expected={"type": "ParameterValue", "state": "materialized"},
+            observed={"state": "unsolved", "residual_symbols": names},
+            repair_action="provide_additional_quadratic_constraint",
         )
 
 
 def _parameter_substitution(inputs: dict[str, Any]) -> dict[sp.Symbol, sp.Expr]:
-    """把可选参数值整理成统一 substitutions。"""
-    parameter = inputs.get("parameter")
-    parameter_value = inputs.get("parameter_value")
-    if parameter is None or parameter_value is None:
-        return {}
-    return {parameter: parameter_value}
+    """Validate and normalize one explicitly authored parameter substitution."""
+    return _optional_parameter_substitution(
+        inputs,
+        inputs.get("quadratic"),
+        inputs.get("quadratic_template"),
+        inputs.get("known_coefficients"),
+        inputs.get("coefficient_relation"),
+        inputs.get("extra_equation"),
+        inputs.get("curve_point"),
+        inputs.get("curve_points"),
+        inputs.get("p1"),
+        inputs.get("p2"),
+        allow_closed_noop=True,
+    )
 
 
 def _collect_free_symbols(inputs: dict[str, Any]) -> set[sp.Symbol]:
@@ -444,17 +561,21 @@ SPEC = MethodSpecSource(
     method_cls=QuadraticFromConstraintsMethod,
     title="由二次函数约束求抛物线",
     summary=(
-        "从题面函数模板建立抛物线，或在当前同一抛物线状态上追加已知系数、"
-        "系数关系、曲线点和参数值；输出当前约束下最简的系数与抛物线。指定 "
-        "target_parameter 时还可输出该系数关于 free_parameters 的开放或闭合状态。"
-        "使用原则：建立曲线和继续追加约束都使用这一能力；多个已知系数使用 "
-        "known_coefficients，单个运行参数代入才使用 parameter_value。题面函数模板"
-        "已有多个系数值时，应把这些系数一次放入 known_coefficients，不要逐个调用"
-        "表达式参数代入能力来建立抛物线。"
+        "根据当前scope中由编译器注入的唯一题面二次函数身份与可见状态，联立本步骤"
+        "新增的已知系数、系数关系、曲线点、等式或参数值，输出最简系数与抛物线。"
+        "Plan只填写catalog公开的约束参数；quadratic、parabola、x和all_coefficients"
+        "均由编译器确定，不得自行放入args。指定target_parameter时还可输出该系数"
+        "关于free_parameters的开放或闭合状态。使用原则：多个已知系数应一次放入 "
+        "known_coefficients；单个运行参数代入才使用parameter_value；"
+        "free_parameters必须给出应用本步骤当前scope约束后的一组完整独立参数"
+        "基底：开放状态必填非空，闭合状态可填[]或省略。"
     ),
     do_not_use_when=(
         "当前目标所需的同一抛物线状态已经由前序调用完整确定，无需用相同约束重复求解。",
-        "现有约束仍有多个自由参数，且无法唯一选择一个会被后续条件或答案目标消费的参数。",
+        (
+            "不能根据下游Goal希望求哪个参数来选择或缩减free_parameters；它必须是"
+            "当前scope约束后完整的独立基底。runtime可证明等价的基底均合法。"
+        ),
         (
             "要求 closed_state 时，不能遗漏当前抛物线仍含自由符号对应的 "
             "parameter_value；代码只会在 Symbol 身份唯一时确定性补全。"
@@ -467,12 +588,13 @@ SPEC = MethodSpecSource(
             "当前 Parabola 状态。"
         ),
         (
-            "目标只是把已求出的参数值代回当前抛物线；此时应读取该抛物线状态并"
-            "使用参数求值能力，而不是建立一条互不依赖的同对象状态链。"
+            "目标只是把已求出的参数值代回同一题面抛物线时，继续使用该Function的"
+            "SourceRef；编译器会读取当前scope最近可见的Parabola状态和参数值。不要"
+            "用StepResultRef指定具名Function的普通状态，也不要再次建立抛物线。"
         ),
         (
-            "不读取当前函数状态，却再次写入同一函数对象；只有新增约束能够形成"
-            "可证明的状态细化时，才应继续使用该能力。"
+            "不要添加quadratic、parabola、x或all_coefficients参数；这些内部输入由"
+            "编译器从当前scope的题面权威中注入，且不属于公开args。"
         ),
         (
             "新增曲线点或方程代入后成为恒等式，或只约束其他符号，却仍指定一个"
@@ -480,11 +602,12 @@ SPEC = MethodSpecSource(
         ),
     ),
     description=(
-        "由题面模板建立，或继续化简当前同一对象的抛物线状态。通过已知系数、"
-        "曲线点、系数关系和额外方程求当前问需要的最简抛物线。"
-        "它适合在代入后能把 a,b,c 完全确定，或至少化简到只剩一个上下文有用的"
-        "未知参数时使用；若 b、c 等多个参数都可作为自由参数，应结合后续长度、"
-        "最值、曲线点或答案目标选择保留哪个参数，无法判断时应等待更多约束。"
+        "由编译器选择当前scope的题面二次函数身份与可见状态，Plan只提交当前scope"
+        "新增的已知系数、曲线点、系数关系和额外方程，求该scope约束下的最简抛物线。"
+        "应用本步骤当前scope约束后，free_parameters必须给出仍未确定状态的一组"
+        "完整独立参数基底；开放状态必须非空，闭合状态允许[]或省略。runtime可证明"
+        "等价的基底均可使用，但不能根据下游Goal提前收窄。兄弟scope使用不同局部"
+        "条件时，应在各自scope分别生成状态。"
     ),
     solves=("derive_quadratic_from_constraints",),
     inputs={
@@ -493,14 +616,35 @@ SPEC = MethodSpecSource(
             "type": "Expression",
             "required": False,
             "functional_exposed": False,
+            "binding": MethodInputBindingSpec(
+                input_name="quadratic_template",
+                required=False,
+                derivation=OrdinalZeroTemplateDerivationSpec("quadratic"),
+            ),
+            "description": (
+                "由MethodInputReadAuthority注入同一二次函数对象的"
+                "ordinal-0原始系数模板；不得使用已消元的latest state代替。"
+            ),
         },
-        "x": {"type": "Symbol", "required": True},
+        "x": canonical_symbol_input("x"),
         "all_coefficients": {"type": "SymbolList", "required": True},
-        "known_coefficients": {"type": "Coefficients", "required": False},
+        "known_coefficients": {
+            "type": "Coefficients",
+            "required": False,
+            "description": (
+                "当前scope可见的零个或多个 symbol_value Fact；每个Fact提供一个"
+                "已知二次函数系数值。"
+            ),
+        },
         "coefficient_relation": {"type": "Equation", "required": False},
         "extra_equation": {"type": "Equation", "required": False},
         "curve_point": {"type": "Point", "required": False},
-        "curve_points": {"type": "PointList", "required": False},
+        "curve_points": {
+            "type": "PointList",
+            "required": False,
+            "object_kind": "point",
+            "state_kind": "coordinate",
+        },
         "p1": {
             "type": "Point",
             "required": False,
@@ -512,7 +656,16 @@ SPEC = MethodSpecSource(
             "functional_exposed": False,
         },
         "free_parameter": {"type": "Symbol", "required": False},
-        "free_parameters": {"type": "SymbolList", "required": False},
+        "free_parameters": {
+            "type": "SymbolList",
+            "required": False,
+            "allows_empty_collection": True,
+            "role": (
+                "应用本步骤当前scope可见约束后仍未确定的一组完整独立参数基底。"
+                "开放状态必须填写非空基底；闭合状态可填写[]或省略。代码接受"
+                "runtime证明等价的基底，但不得按下游Goal目标人为收窄"
+            ),
+        },
         "parameter": {"type": "Symbol", "required": False},
         "parameter_value": {"type": "ParameterValue", "required": False},
         "target_parameter": {
@@ -524,10 +677,58 @@ SPEC = MethodSpecSource(
             ),
         },
     },
+    input_views=declare_input_views(
+        identity=("x", "free_parameter", "parameter", "target_parameter"),
+        latest_state=(
+            "quadratic",
+            "curve_point",
+            "curve_points",
+            "p1",
+            "p2",
+            "parameter_value",
+        ),
+        immutable_value=(
+            "quadratic_template",
+            "all_coefficients",
+            "known_coefficients",
+            "coefficient_relation",
+            "extra_equation",
+            "free_parameters",
+        ),
+    ),
+    input_relations=(
+        MethodInputRelationSpec(
+            relation_kind="point_on_curve",
+            point_arg="curve_point",
+            curve_arg="quadratic",
+            cardinality="one",
+            accepted_condition_kinds=(
+                "point_on_curve",
+                "point_on_curve_with_x_coordinate",
+            ),
+        ),
+        MethodInputRelationSpec(
+            relation_kind="point_on_curve",
+            point_arg="curve_points",
+            curve_arg="quadratic",
+            cardinality="for_each",
+            accepted_condition_kinds=(
+                "point_on_curve",
+                "point_on_curve_with_x_coordinate",
+            ),
+        ),
+    ),
     outputs={
         "coefficients": "Coefficients",
         "parabola": "Parabola",
         "parameter_value": "ParameterValue",
+    },
+    companion_outputs=(MethodCompanionOutputSpec("coefficients"),),
+    output_activation={
+        "parameter_value": MethodOutputActivationSpec(
+            kind="requires_inputs",
+            required_inputs=("target_parameter",),
+        ),
     },
     scalar_result_forms={
         "parameter_value": ScalarResultFormSpec(
@@ -540,8 +741,14 @@ SPEC = MethodSpecSource(
     },
     preconditions=(
         "输入约束必须能唯一确定除 free_parameter/free_parameters 外的缺失系数",
-        "若作为独立化简步骤，化简后应完全确定系数，或只保留一个由后续条件/目标明确需要的自由参数",
-        "当多个自由参数都可表达同一函数时，应由 Planner 结合后续条件选择参数；不能唯一判断时不要提前缓存含参系数",
+        (
+            "开放状态的free_parameter/free_parameters必须给出应用当前scope可见"
+            "约束后的完整独立基底；闭合状态允许[]或省略"
+        ),
+        (
+            "局部条件属于子scope或兄弟scope时，状态producer必须位于对应局部scope，"
+            "不能仅因共享同一抛物线身份而提升到祖先"
+        ),
     ),
     postconditions=(
         "输出抛物线满足已知系数、曲线点和额外方程约束",

@@ -3,6 +3,8 @@ from __future__ import annotations
 import inspect
 import json
 from dataclasses import replace
+from pathlib import Path
+import tempfile
 from types import SimpleNamespace
 
 import pytest
@@ -13,6 +15,9 @@ from shuxueshuo_server.solver.deepseek_functional_batch import (
 )
 from shuxueshuo_server.solver.fixtures import load_problem_ir
 from shuxueshuo_server.solver.runtime.context import ContextBuilder
+from shuxueshuo_server.solver.runtime.condition_binding_authority import (
+    ConditionBindingAuthorityIndex,
+)
 from shuxueshuo_server.solver.runtime.functional_plan import (
     FunctionalPlanValidator,
 )
@@ -24,8 +29,16 @@ from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
     PreparedFunctionalArgBinding,
     PreparedFunctionalCall,
     _closure_failure_details,
+    _canonicalize_projected_state_write_versions,
+    _latest_visible_parameter_version,
+    _materialize_runtime_parameter_closure,
     _prepared_runtime_arg_object_ids,
+    _restored_problem_source_authority_difference,
+    _substitute_runtime_parameters,
     _validate_symbolic_closure_write_set,
+)
+from shuxueshuo_server.solver.runtime.problem_source_provenance import (
+    ProblemCallSourceProvenance,
 )
 from shuxueshuo_server.solver.runtime.functional_binding_context import (
     FunctionalArgBinding,
@@ -60,7 +73,7 @@ from shuxueshuo_server.solver.runtime.methods import default_stateless_registry
 from shuxueshuo_server.solver.runtime.methods.quadratic_from_constraints import (
     QuadraticFromConstraintsMethod,
 )
-from shuxueshuo_server.solver.runtime.models import Point, TypedValue
+from shuxueshuo_server.solver.runtime.models import Point, PointRef, TypedValue
 from shuxueshuo_server.solver.runtime.planner_state_context import (
     initial_planner_state_context,
 )
@@ -75,6 +88,8 @@ from shuxueshuo_server.solver.runtime.strategy_replay import (
     transactional_repair_attempt_payload_from_replay,
 )
 from shuxueshuo_server.solver.runtime.state_identity import (
+    ArgVersionBinding,
+    ComputationKey,
     IndexedStateVersion,
     LogicalStateKey,
     MathObjectId,
@@ -90,11 +105,140 @@ from shuxueshuo_server.solver.runtime.state_finalization import (
 )
 from shuxueshuo_server.solver.runtime.strategy_models import (
     PlannerRetryIssue,
+    ProjectedStateWrite,
     StrategyDraftValidationError,
 )
 from shuxueshuo_server.solver.runtime.symbolic_closure_execution import (
     execute_symbolic_closure,
 )
+from shuxueshuo_server.solver.state_semantics import (
+    StateObjectRoleBinding,
+    StateSemanticLineage,
+)
+
+from _problem_planning_support import (
+    planning_binding_fixture,
+    scope_native_plan_id,
+)
+
+
+_SCOPE_NATIVE_AUTHORITY: dict[str, tuple] = {}
+
+
+def test_projected_write_canonicalizes_every_version_bearing_field() -> None:
+    object_id = MathObjectId(
+        value="point:problem:A",
+        kind="point",
+        origin_scope_id="problem",
+    )
+    logical_key = LogicalStateKey(
+        object_id=object_id,
+        state_kind="point",
+        runtime_type="Point",
+    )
+    slot_id = StateSlotId(logical_key, "ii")
+    canonical_id = StateVersionId(slot_id, 0)
+    equivalent_id = StateVersionId(slot_id, 1)
+    selected_id = StateVersionId(slot_id, 2)
+    projected = ProjectedStateWrite(
+        step_id="evaluate_A_ii",
+        produced_handle="point:problem:A",
+        state_slot_id="slot:A",
+        write_mode="transition",
+        selected_version_id=selected_id,
+        previous_version_id=equivalent_id,
+        source_version_ids=(equivalent_id,),
+        computation_key=ComputationKey(
+            capability_id="evaluate_point_at_parameter",
+            arg_bindings=(
+                ArgVersionBinding(
+                    arg_name="point",
+                    item_index=0,
+                    version_id=equivalent_id,
+                ),
+            ),
+        ),
+        lineage=StateSemanticLineage(
+            source_version_ids=(equivalent_id,),
+            object_roles=(
+                StateObjectRoleBinding(
+                    role="point",
+                    source_version_ids=(equivalent_id,),
+                ),
+            ),
+        ),
+    )
+
+    canonical = _canonicalize_projected_state_write_versions(
+        projected,
+        resolve_version_id=lambda version_id: (
+            canonical_id
+            if version_id == equivalent_id
+            else version_id
+        ),
+    )
+
+    assert canonical.selected_version_id == selected_id
+    assert canonical.previous_version_id == canonical_id
+    assert canonical.source_version_ids == (canonical_id,)
+    assert canonical.computation_key is not None
+    assert (
+        canonical.computation_key.arg_bindings[0].version_id
+        == canonical_id
+    )
+    assert canonical.lineage.source_version_ids == (canonical_id,)
+    assert canonical.lineage.object_roles[0].source_version_ids == (
+        canonical_id,
+    )
+
+
+def test_restored_source_authority_excludes_derived_goal_consumers() -> None:
+    previous = ProblemCallSourceProvenance(
+        planning_context_id="planning:1",
+        problem_revision_id="revision:1",
+        problem_semantic_hash="semantic:1",
+        canonical_call_id="compute_F",
+        goal_unit_ids=("goal:solved", "goal:repair"),
+        input_source_unit_ids=("fact:midpoint",),
+        call_binding_signature="binding:1",
+    )
+    refined = replace(
+        previous,
+        goal_unit_ids=("goal:solved",),
+        call_binding_signature="binding:2",
+    )
+
+    assert (
+        _restored_problem_source_authority_difference(previous, refined)
+        is None
+    )
+
+    changed_source = replace(
+        refined,
+        input_source_unit_ids=("fact:sibling",),
+    )
+    assert _restored_problem_source_authority_difference(
+        previous,
+        changed_source,
+    ) == {
+        "path": "$.input_source_unit_ids",
+        "expected": ("fact:midpoint",),
+        "actual": ("fact:sibling",),
+    }
+
+
+def _authority_fixture(case_id: str):
+    cached = _SCOPE_NATIVE_AUTHORITY.get(case_id)
+    if cached is not None:
+        return cached
+    case = FUNCTIONAL_BATCH_CASES[case_id]
+    with tempfile.TemporaryDirectory(prefix="f5e-transaction-") as directory:
+        fixture = planning_binding_fixture(
+            Path(directory),
+            case=case.problem_id,
+        )
+    _SCOPE_NATIVE_AUTHORITY[case_id] = fixture
+    return fixture
 
 
 def _replay(
@@ -104,10 +248,16 @@ def _replay(
     symbolic_closure_mode: str = "disabled",
 ):
     case = FUNCTIONAL_BATCH_CASES[case_id]
-    problem = load_problem_ir(case.problem_fixture_path)
-    inputs = build_strategy_probe_inputs(problem)
-    problem_payload = problem_to_llm_payload(problem)
-    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    (
+        _bundle,
+        _planning_context,
+        problem,
+        inputs,
+        problem_payload,
+        registry,
+        planner_context,
+        binding_catalog,
+    ) = _authority_fixture(case_id)
     plan, validation = FunctionalPlanValidator().validate_payload_with_report(
         json.loads(case.functional_fixture_path.read_text(encoding="utf-8")),
         handle_registry=registry,
@@ -124,16 +274,25 @@ def _replay(
         context=ContextBuilder().build(problem),
         attempt=1,
         problem_payload=problem_payload,
+        planner_state_context=planner_context,
         validation_report=validation,
+        problem_binding_catalog=binding_catalog,
+        canonical_plan_id=scope_native_plan_id(case.problem_id),
     )
 
 
-def test_constraint_analyzer_basis_repair_is_not_runtime_mapping_drift() -> None:
+def test_constraint_analyzer_rejects_incorrect_explicit_free_basis() -> None:
     case = FUNCTIONAL_BATCH_CASES["heping"]
-    problem = load_problem_ir(case.problem_fixture_path)
-    inputs = build_strategy_probe_inputs(problem)
-    problem_payload = problem_to_llm_payload(problem)
-    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    (
+        _bundle,
+        _planning_context,
+        problem,
+        inputs,
+        problem_payload,
+        registry,
+        planner_context,
+        binding_catalog,
+    ) = _authority_fixture("heping")
     payload = json.loads(case.functional_fixture_path.read_text(encoding="utf-8"))
     call = next(
         item
@@ -162,37 +321,50 @@ def test_constraint_analyzer_basis_repair_is_not_runtime_mapping_drift() -> None
         context=ContextBuilder().build(problem),
         attempt=1,
         problem_payload=problem_payload,
+        planner_state_context=planner_context,
         validation_report=validation,
+        problem_binding_catalog=binding_catalog,
     )
 
     report = replay.transactional_execution_report
     assert report is not None
-    compiled = next(
-        item
-        for item in report.compiled_calls
-        if item.call_id == "derive_parametric_parabola_ii"
+    assert "derive_parametric_parabola_ii" not in {
+        item.call_id for item in report.compiled_calls
+    }
+    issues = replay.retry_state.issues if replay.retry_state else ()
+    assert replay.transactional_attempt_result is not None
+    root_issue = replay.transactional_attempt_result.root_issues[0]
+    assert root_issue.code == "functional.method_input_state_unavailable"
+    assert root_issue.diagnostic_authority is not None
+    assert root_issue.diagnostic_authority["expected"] == {
+        "allowed_free_parameter_bases": [["a"], ["b"]],
+        "basis_cardinality": 1,
+    }
+    assert root_issue.diagnostic_authority["observed"] == {
+        "declared_free_parameters": ["a", "b"],
+    }
+    assert (
+        root_issue.diagnostic_authority["repair_action"]
+        == "provide_or_align_symbolic_state_basis"
     )
-    decisions = tuple(
-        item
-        for item in compiled.binding_consumption_decisions
-        if item["arg_name"] == "free_parameters"
+    assert not any(
+        "functional_runtime_input_mapping_drift" in issue.message
+        for issue in issues
     )
-    assert len(decisions) == 2
-    assert all(item["matches"] is True for item in decisions)
-    assert all(item["deterministic_arg_repair"] for item in decisions)
-    assert not [
-        issue
-        for issue in (replay.retry_state.issues if replay.retry_state else ())
-        if "functional_runtime_input_mapping_drift" in issue.message
-    ]
 
 
 def _active_symbolic_closure_plan():
     case = FUNCTIONAL_BATCH_CASES["heping-ermo"]
-    problem = load_problem_ir(case.problem_fixture_path)
-    inputs = build_strategy_probe_inputs(problem)
-    problem_payload = problem_to_llm_payload(problem)
-    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    (
+        _bundle,
+        _planning_context,
+        problem,
+        inputs,
+        problem_payload,
+        registry,
+        planner_context,
+        binding_catalog,
+    ) = _authority_fixture("heping-ermo")
     payload = json.loads(
         case.functional_fixture_path.read_text(encoding="utf-8")
     )
@@ -216,15 +388,30 @@ def _active_symbolic_closure_plan():
         question_goals=inputs.question_goals,
     )
     assert validation.ok and plan is not None
-    return problem, inputs, problem_payload, registry, plan, validation
+    return (
+        problem,
+        inputs,
+        problem_payload,
+        registry,
+        planner_context,
+        binding_catalog,
+        plan,
+        validation,
+    )
 
 
 def _active_singleton_mapping_closure_plan():
     case = FUNCTIONAL_BATCH_CASES["hexi"]
-    problem = load_problem_ir(case.problem_fixture_path)
-    inputs = build_strategy_probe_inputs(problem)
-    problem_payload = problem_to_llm_payload(problem)
-    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    (
+        _bundle,
+        _planning_context,
+        problem,
+        inputs,
+        problem_payload,
+        registry,
+        planner_context,
+        binding_catalog,
+    ) = _authority_fixture("hexi")
     payload = json.loads(
         case.functional_fixture_path.read_text(encoding="utf-8")
     )
@@ -248,7 +435,16 @@ def _active_singleton_mapping_closure_plan():
         question_goals=inputs.question_goals,
     )
     assert validation.ok and plan is not None
-    return problem, inputs, problem_payload, registry, plan, validation
+    return (
+        problem,
+        inputs,
+        problem_payload,
+        registry,
+        planner_context,
+        binding_catalog,
+        plan,
+        validation,
+    )
 
 
 @pytest.mark.parametrize("case_id", tuple(FUNCTIONAL_BATCH_CASES))
@@ -363,9 +559,16 @@ def test_context_authoritative_goal_output_replays_in_fresh_context(
     replay = _replay(case_id, mode="context_authoritative")
     attempt = replay.transactional_attempt_result
     assert attempt is not None and attempt.compiled_output is not None
-    case = FUNCTIONAL_BATCH_CASES[case_id]
-    problem = load_problem_ir(case.problem_fixture_path)
-    inputs = build_strategy_probe_inputs(problem)
+    (
+        _bundle,
+        _planning_context,
+        problem,
+        inputs,
+        _problem_payload,
+        _registry,
+        _planner_context,
+        _binding_catalog,
+    ) = _authority_fixture(case_id)
     context = ContextBuilder().build(problem)
     output = attempt.compiled_output
 
@@ -509,7 +712,7 @@ def test_context_authoritative_preflight_failure_creates_no_runtime_evidence(
 
     def conflict_last_call(self, request, index):
         decision = original_allocate(self, request, index)
-        if request.call_id != "ii_2_derive_G":
+        if request.call_id != "ii_2_evaluate_G":
             return decision
         return replace(
             decision,
@@ -588,22 +791,22 @@ def test_transactional_answer_check_revokes_commits_but_keeps_versions() -> None
 
 def test_exact_transaction_attempt_does_not_require_legacy_output() -> None:
     legacy = _replay("nankai", mode="context_authoritative")
-    case = FUNCTIONAL_BATCH_CASES["nankai"]
-    problem = load_problem_ir(case.problem_fixture_path)
-    inputs = build_strategy_probe_inputs(problem)
-    problem_payload = problem_to_llm_payload(problem)
-    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    (
+        _bundle,
+        _planning_context,
+        problem,
+        inputs,
+        problem_payload,
+        registry,
+        planner_context,
+        _binding_catalog,
+    ) = _authority_fixture("nankai")
 
     attempt = FunctionalTransactionalInterpreter().execute_attempt(
         raw_plan=legacy.functional_reconciliation.plan,
         reconciliation=legacy.functional_reconciliation,
         runtime_context=ContextBuilder().build(problem),
-        parent_context=initial_planner_state_context(
-            inputs,
-            problem_payload=problem_payload,
-            handle_registry=registry,
-            attempt=1,
-        ),
+        parent_context=planner_context,
         inputs=inputs,
         handle_registry=registry,
         problem_payload=problem_payload,
@@ -641,10 +844,16 @@ def test_context_authoritative_commits_runtime_symbolic_closure(
         capture_finalized_provenance,
     )
     case = FUNCTIONAL_BATCH_CASES["heping-ermo"]
-    problem = load_problem_ir(case.problem_fixture_path)
-    inputs = build_strategy_probe_inputs(problem)
-    problem_payload = problem_to_llm_payload(problem)
-    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    (
+        _bundle,
+        _planning_context,
+        problem,
+        inputs,
+        problem_payload,
+        registry,
+        planner_context,
+        binding_catalog,
+    ) = _authority_fixture("heping-ermo")
     payload = json.loads(
         case.functional_fixture_path.read_text(encoding="utf-8")
     )
@@ -679,7 +888,10 @@ def test_context_authoritative_commits_runtime_symbolic_closure(
         context=ContextBuilder().build(problem),
         attempt=1,
         problem_payload=problem_payload,
+        planner_state_context=planner_context,
         validation_report=validation,
+        problem_binding_catalog=binding_catalog,
+        canonical_plan_id="test:context-authoritative-scoped-plan",
     )
 
     assert replay.output is not None, (
@@ -742,10 +954,16 @@ def test_context_authoritative_commits_runtime_symbolic_closure(
 
 def test_non_unique_symbolic_closure_rolls_back_entire_call() -> None:
     case = FUNCTIONAL_BATCH_CASES["heping-ermo"]
-    problem = load_problem_ir(case.problem_fixture_path)
-    inputs = build_strategy_probe_inputs(problem)
-    problem_payload = problem_to_llm_payload(problem)
-    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    (
+        _bundle,
+        _planning_context,
+        problem,
+        inputs,
+        problem_payload,
+        registry,
+        planner_context,
+        binding_catalog,
+    ) = _authority_fixture("heping-ermo")
     payload = json.loads(
         case.functional_fixture_path.read_text(encoding="utf-8")
     )
@@ -781,7 +999,9 @@ def test_non_unique_symbolic_closure_rolls_back_entire_call() -> None:
         context=ContextBuilder().build(problem),
         attempt=1,
         problem_payload=problem_payload,
+        planner_state_context=planner_context,
         validation_report=validation,
+        problem_binding_catalog=binding_catalog,
     )
 
     report = replay.transactional_execution_report
@@ -945,10 +1165,16 @@ def test_authoritative_closure_rejects_wrong_method_companion_outputs(
     )
 
     case = FUNCTIONAL_BATCH_CASES["heping-ermo"]
-    problem = load_problem_ir(case.problem_fixture_path)
-    inputs = build_strategy_probe_inputs(problem)
-    problem_payload = problem_to_llm_payload(problem)
-    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    (
+        _bundle,
+        _planning_context,
+        problem,
+        inputs,
+        problem_payload,
+        registry,
+        planner_context,
+        binding_catalog,
+    ) = _authority_fixture("heping-ermo")
     payload = json.loads(
         case.functional_fixture_path.read_text(encoding="utf-8")
     )
@@ -983,7 +1209,9 @@ def test_authoritative_closure_rejects_wrong_method_companion_outputs(
         context=ContextBuilder().build(problem),
         attempt=1,
         problem_payload=problem_payload,
+        planner_state_context=planner_context,
         validation_report=validation,
+        problem_binding_catalog=binding_catalog,
     )
 
     report = replay.transactional_execution_report
@@ -1031,6 +1259,8 @@ def test_commit_payload_issue_does_not_stamp_closure_provenance(
         inputs,
         problem_payload,
         registry,
+        planner_context,
+        binding_catalog,
         plan,
         validation,
     ) = _active_symbolic_closure_plan()
@@ -1045,7 +1275,9 @@ def test_commit_payload_issue_does_not_stamp_closure_provenance(
         context=ContextBuilder().build(problem),
         attempt=1,
         problem_payload=problem_payload,
+        planner_state_context=planner_context,
         validation_report=validation,
+        problem_binding_catalog=binding_catalog,
     )
 
     report = replay.transactional_execution_report
@@ -1132,8 +1364,7 @@ def test_hexi_singleton_known_mapping_reaches_closure_with_typed_identity(
         runtime_args = kwargs.get("args", {})
         if (
             kwargs.get("target_binding") == "target_parameter"
-            and isinstance(runtime_args.get("known_coefficients"), dict)
-            and len(runtime_args["known_coefficients"]) == 1
+            and "parameter_value" in runtime_args
         ):
             observed.append(dict(kwargs.get("arg_object_ids", {})))
         return execute_symbolic_closure(*args, **kwargs)
@@ -1148,6 +1379,8 @@ def test_hexi_singleton_known_mapping_reaches_closure_with_typed_identity(
         inputs,
         problem_payload,
         registry,
+        planner_context,
+        binding_catalog,
         plan,
         validation,
     ) = _active_singleton_mapping_closure_plan()
@@ -1162,7 +1395,9 @@ def test_hexi_singleton_known_mapping_reaches_closure_with_typed_identity(
         context=ContextBuilder().build(problem),
         attempt=1,
         problem_payload=problem_payload,
+        planner_state_context=planner_context,
         validation_report=validation,
+        problem_binding_catalog=binding_catalog,
     )
 
     report = replay.transactional_execution_report
@@ -1174,18 +1409,23 @@ def test_hexi_singleton_known_mapping_reaches_closure_with_typed_identity(
     )
     assert call_result.status == "verified", call_result.root_issues
     assert observed
-    assert observed[0]["known_coefficients"] == (
+    assert observed[0]["parameter_value"] == (
         MathObjectId("symbol:problem:a", "symbol", "problem"),
     )
 
 
 def test_partial_goal_failure_keeps_independent_goal_branch_verified() -> None:
     legacy = _replay("nankai", mode="context_authoritative")
-    case = FUNCTIONAL_BATCH_CASES["nankai"]
-    problem = load_problem_ir(case.problem_fixture_path)
-    inputs = build_strategy_probe_inputs(problem)
-    problem_payload = problem_to_llm_payload(problem)
-    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    (
+        _bundle,
+        _planning_context,
+        problem,
+        inputs,
+        problem_payload,
+        registry,
+        planner_context,
+        _binding_catalog,
+    ) = _authority_fixture("nankai")
     failed_call_id = "ii_1_evaluate_minimum"
 
     class FailingExecutor:
@@ -1209,12 +1449,7 @@ def test_partial_goal_failure_keeps_independent_goal_branch_verified() -> None:
         raw_plan=legacy.functional_reconciliation.plan,
         reconciliation=legacy.functional_reconciliation,
         runtime_context=ContextBuilder().build(problem),
-        parent_context=initial_planner_state_context(
-            inputs,
-            problem_payload=problem_payload,
-            handle_registry=registry,
-            attempt=1,
-        ),
+        parent_context=planner_context,
         inputs=inputs,
         handle_registry=registry,
         problem_payload=problem_payload,
@@ -1226,10 +1461,10 @@ def test_partial_goal_failure_keeps_independent_goal_branch_verified() -> None:
 
     assert attempt.compiled_output is None
     assert failed_call_id in attempt.failed_call_ids
-    assert goals["answer:ii_1.minimum_value"] == "not_executed"
-    assert goals["answer:ii_2.intersection"] == "passed"
-    assert "ii_2_derive_G" in attempt.verified_call_ids
-    assert "ii_2_derive_G" in attempt.goal_reachable_call_ids
+    assert goals["answer:ii_1.min_value"] == "not_executed"
+    assert goals["answer:ii_2.G"] == "passed"
+    assert "ii_2_evaluate_G" in attempt.verified_call_ids
+    assert "ii_2_evaluate_G" in attempt.goal_reachable_call_ids
     assert failed_call_id not in attempt.goal_reachable_call_ids
     assert len(attempt.root_issues) == 1
     assert attempt.root_issues[0].step_id == failed_call_id
@@ -1256,10 +1491,16 @@ def test_runtime_context_fork_discards_branch_writes() -> None:
 
 def test_transaction_failure_rolls_back_and_blocks_only_dependents() -> None:
     case = FUNCTIONAL_BATCH_CASES["nankai"]
-    problem = load_problem_ir(case.problem_fixture_path)
-    inputs = build_strategy_probe_inputs(problem)
-    problem_payload = problem_to_llm_payload(problem)
-    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    (
+        _bundle,
+        _planning_context,
+        problem,
+        inputs,
+        problem_payload,
+        registry,
+        planner_context,
+        binding_catalog,
+    ) = _authority_fixture("nankai")
     plan, validation = FunctionalPlanValidator().validate_payload_with_report(
         json.loads(case.functional_fixture_path.read_text(encoding="utf-8")),
         handle_registry=registry,
@@ -1272,7 +1513,9 @@ def test_transaction_failure_rolls_back_and_blocks_only_dependents() -> None:
         context=ContextBuilder().build(problem),
         attempt=1,
         problem_payload=problem_payload,
+        planner_state_context=planner_context,
         validation_report=validation,
+        problem_binding_catalog=binding_catalog,
     )
     normal = _replay("nankai", mode="context_authoritative")
     graph = normal.transactional_execution_report.graph
@@ -1319,12 +1562,7 @@ def test_transaction_failure_rolls_back_and_blocks_only_dependents() -> None:
         raw_plan=plan,
         reconciliation=legacy.functional_reconciliation,
         runtime_context=ContextBuilder().build(problem),
-        parent_context=initial_planner_state_context(
-            inputs,
-            problem_payload=problem_payload,
-            handle_registry=registry,
-            attempt=1,
-        ),
+        parent_context=planner_context,
         inputs=inputs,
         handle_registry=registry,
         goal_verification_report=legacy.goal_verification_report,
@@ -1340,73 +1578,18 @@ def test_transaction_failure_rolls_back_and_blocks_only_dependents() -> None:
     assert not leak_observed[0]
 
 
-def test_context_auto_args_refresh_at_final_effective_call_position() -> None:
-    case = FUNCTIONAL_BATCH_CASES["heping-ermo"]
-    problem = load_problem_ir(case.problem_fixture_path)
-    inputs = build_strategy_probe_inputs(problem)
-    problem_payload = problem_to_llm_payload(problem)
-    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
-    payload = json.loads(
-        case.functional_fixture_path.read_text(encoding="utf-8")
-    )
-    ii_scope = next(
-        scope for scope in payload["scopes"] if scope["scope_id"] == "ii"
-    )
-    ii_scope["calls"].append(
-        {
-            "call_id": "test_F_midpoint",
-            "capability_id": "midpoint_point",
-            "args": {
-                "midpoint_definition": {
-                    "kind": "fact",
-                    "ref": "F_midpoint_of_AE",
-                },
-            },
-            "return_bindings": {
-                "midpoint": {"kind": "point", "ref": "F"},
-            },
-            "return_expectations": {"midpoint": "closed_state"},
-            "strategy": "derive the midpoint after endpoint transitions",
-            "reason": "exercise final-position Context resolution",
-        }
-    )
-    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
-        payload,
-        handle_registry=registry,
-        question_goals=inputs.question_goals,
-    )
-    assert plan is not None and validation.ok
-
-    replay = PlannerRetryReplayService(
-        functional_transaction_mode="context_authoritative",
-    ).replay_functional_plan(
-        plan,
-        inputs=inputs,
-        handle_registry=registry,
-        context=ContextBuilder().build(problem),
-        attempt=1,
-        problem_payload=problem_payload,
-        validation_report=validation,
-    )
-
-    assert replay.output is not None
-    report = replay.transactional_execution_report
-    assert report is not None and report.ok, report.to_payload()
-    reconciled = next(
-        item
-        for item in replay.functional_reconciliation.calls
-        if item.call_id == "test_F_midpoint"
-    )
-    assert reconciled.resolved_args["p1"][0].state_version_id.ordinal == 1
-    assert reconciled.resolved_args["p2"][0].state_version_id.ordinal == 2
-
-
-def test_call_time_semantic_read_selects_latest_working_version() -> None:
+def test_problem_source_read_stays_exact_and_hidden_resolver_needs_sidecar() -> None:
     case = FUNCTIONAL_BATCH_CASES["nankai"]
-    problem = load_problem_ir(case.problem_fixture_path)
-    inputs = build_strategy_probe_inputs(problem)
-    problem_payload = problem_to_llm_payload(problem)
-    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    (
+        _bundle,
+        _planning_context,
+        problem,
+        inputs,
+        problem_payload,
+        registry,
+        planner_context,
+        binding_catalog,
+    ) = _authority_fixture("nankai")
     plan, validation = FunctionalPlanValidator().validate_payload_with_report(
         json.loads(case.functional_fixture_path.read_text(encoding="utf-8")),
         handle_registry=registry,
@@ -1419,7 +1602,9 @@ def test_call_time_semantic_read_selects_latest_working_version() -> None:
         context=ContextBuilder().build(problem),
         attempt=1,
         problem_payload=problem_payload,
+        planner_state_context=planner_context,
         validation_report=validation,
+        problem_binding_catalog=binding_catalog,
     )
     graph = LogicalFunctionalGraphBuilder().build(
         plan,
@@ -1428,18 +1613,23 @@ def test_call_time_semantic_read_selects_latest_working_version() -> None:
     ).graph
     working = build_working_state(
         graph,
-        parent_context=initial_planner_state_context(
-            inputs,
-            problem_payload=problem_payload,
-            handle_registry=registry,
-            attempt=1,
-        ),
+        parent_context=planner_context,
         handle_registry=registry,
     )
     call = next(
         item
         for item in legacy.functional_reconciliation.calls
         if item.call_id == "i_derive_parabola"
+    )
+    runtime_context = ContextBuilder().build(problem)
+    quadratic_value = call.resolved_args["quadratic"][0]
+    assert quadratic_value.state_version_id is not None
+    working.runtime_version_values[
+        quadratic_value.state_version_id
+    ] = runtime_context.read_path(
+        "$problem.expressions.quadratic",
+        from_scope_id="i",
+        expected_type="Expression",
     )
     coefficient_values = call.resolved_args["known_coefficients"]
     for value in coefficient_values:
@@ -1478,7 +1668,7 @@ def test_call_time_semantic_read_selects_latest_working_version() -> None:
         graph=graph,
         reconciliation=legacy.functional_reconciliation,
         working=working,
-        runtime_context=ContextBuilder().build(problem),
+        runtime_context=runtime_context,
         inputs=inputs,
         handle_registry=registry,
         capability_catalog=FunctionalCapabilityCatalog.from_family_spec(
@@ -1493,10 +1683,10 @@ def test_call_time_semantic_read_selects_latest_working_version() -> None:
         and item.item_index == 0
     )
 
-    assert selected.selection == "latest"
+    assert selected.selection == "exact"
     assert selected.original_version_id == original_id
-    assert selected.selected_version_id == latest_id
-    assert selected.runtime_value.value == 9
+    assert selected.selected_version_id == original_id
+    assert selected.runtime_value.value == 1
 
     hidden_call = replace(
         call,
@@ -1539,6 +1729,15 @@ def test_call_time_semantic_read_selects_latest_working_version() -> None:
             ),
         }
     )
+    object_registry = MathObjectRegistry.from_sources(
+        registry,
+        math_objects=planner_context.state.math_objects,
+    )
+    condition_authority_index = ConditionBindingAuthorityIndex.from_context(
+        planner_context,
+        object_registry=object_registry,
+        problem_binding_catalog=binding_catalog,
+    )
     hidden_reconciliation = replace(
         hidden_reconciliation,
         functional_binding_context=(
@@ -1546,28 +1745,24 @@ def test_call_time_semantic_read_selects_latest_working_version() -> None:
                 hidden_reconciliation.plan,
                 hidden_reconciliation.calls,
                 catalog=resolver_catalog,
-                object_registry=MathObjectRegistry.from_sources(registry),
+                object_registry=object_registry,
+                handle_registry=registry,
+                method_specs=inputs.method_specs,
+                condition_authority_index=condition_authority_index,
             )
         ),
     )
-    hidden_prepared = FunctionalCallPreparationService().prepare(
-        call_id=call.call_id,
-        graph=graph,
-        reconciliation=hidden_reconciliation,
-        working=working,
-        runtime_context=ContextBuilder().build(problem),
-        inputs=inputs,
-        handle_registry=registry,
-        capability_catalog=resolver_catalog,
-    )
-    hidden_selected = next(
-        item
-        for item in hidden_prepared.state_reads
-        if item.arg_name == "hidden_coefficients"
-    )
-
-    assert hidden_selected.selection == "latest"
-    assert hidden_selected.selected_version_id == latest_id
+    with pytest.raises(ValueError, match="planner.problem_source_binding_drift"):
+        FunctionalCallPreparationService().prepare(
+            call_id=call.call_id,
+            graph=graph,
+            reconciliation=hidden_reconciliation,
+            working=working,
+            runtime_context=ContextBuilder().build(problem),
+            inputs=inputs,
+            handle_registry=registry,
+            capability_catalog=resolver_catalog,
+        )
 
 
 def test_verified_commit_is_atomic_when_version_registration_fails(
@@ -1632,6 +1827,163 @@ def test_verified_commit_is_atomic_when_version_registration_fails(
     assert not state.committed_versions
     assert not state.runtime_version_values
     assert not state.events
+
+
+class _ParameterScopeRegistry:
+    _parents = {
+        "problem": None,
+        "i": "problem",
+        "i_1": "i",
+        "i_2": "i",
+        "iii": "problem",
+    }
+
+    def ancestor_scopes(self, scope_id: str) -> tuple[str, ...]:
+        result: list[str] = []
+        current: str | None = scope_id
+        while current is not None:
+            result.append(current)
+            current = self._parents[current]
+        return tuple(result)
+
+
+def _parameter_runtime_state(
+    *versions: IndexedStateVersion,
+) -> WorkingPlannerState:
+    index = StateIdentityIndex(
+        ScopeVisibilityResolver(_ParameterScopeRegistry())
+    )
+    runtime_values: dict[StateVersionId, TypedValue] = {}
+    for ordinal, version in enumerate(versions, start=1):
+        index.register(version)
+        runtime_values[version.version_id] = TypedValue(
+            "ParameterValue",
+            sp.Integer(ordinal + 4),
+        )
+    return WorkingPlannerState(
+        parent_context_id="parameter-runtime-test",
+        identity_index=index,
+        call_states={},
+        runtime_version_values=runtime_values,
+    )
+
+
+def _parameter_version(
+    *,
+    scope_id: str,
+    ordinal: int,
+) -> IndexedStateVersion:
+    object_id = MathObjectId("symbol:problem:c", "symbol", "problem")
+    return IndexedStateVersion(
+        version_id=StateVersionId(
+            StateSlotId(
+                LogicalStateKey(object_id, "value", "ParameterValue"),
+                scope_id,
+            ),
+            ordinal,
+        ),
+        valid_scope_id=scope_id,
+        producer_call_id=None,
+        produced_handle=f"fact:{scope_id}:c_value_{ordinal}",
+    )
+
+
+def test_sibling_parameter_state_is_not_implicitly_visible() -> None:
+    working = _parameter_runtime_state(
+        _parameter_version(scope_id="i_1", ordinal=1)
+    )
+
+    assert (
+        _latest_visible_parameter_version(
+            MathObjectId("symbol:problem:c", "symbol", "problem"),
+            consumer_scope_id="i_2",
+            working=working,
+        )
+        is None
+    )
+
+
+def test_parallel_parameter_writers_are_never_selected_by_order() -> None:
+    working = _parameter_runtime_state(
+        _parameter_version(scope_id="i", ordinal=1),
+        _parameter_version(scope_id="i", ordinal=2),
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="planner.runtime_parameter_state_ambiguous",
+    ):
+        _latest_visible_parameter_version(
+            MathObjectId("symbol:problem:c", "symbol", "problem"),
+            consumer_scope_id="i_1",
+            working=working,
+        )
+
+
+def test_runtime_parameter_substitution_closes_point_ref_definition() -> None:
+    b = sp.Symbol("b", real=True)
+    point_ref = PointRef(
+        "M",
+        "$question.iii.points.M",
+        definition={"x": b + sp.Rational(1, 2)},
+        scope_id="iii",
+    )
+
+    closed = _substitute_runtime_parameters(point_ref, {b: sp.Integer(2)})
+
+    assert isinstance(closed, PointRef)
+    assert closed.definition["x"] == sp.Rational(5, 2)
+    assert point_ref.definition["x"] == b + sp.Rational(1, 2)
+
+
+def test_latest_parameter_state_closes_canonical_point_ref_expression() -> None:
+    runtime_context = ContextBuilder().build(
+        load_problem_ir("../internal/solver-fixtures/tj-2026-hexi-yimo-25.json")
+    )
+    point_ref = runtime_context.read_path(
+        "$question.iii.points.M",
+        from_scope_id="iii",
+        expected_type="PointRef",
+    ).value
+    object_registry = MathObjectRegistry()
+    object_id = object_registry.register_handle("symbol:problem:b")
+    assert object_id is not None
+    version = IndexedStateVersion(
+        version_id=StateVersionId(
+            StateSlotId(
+                LogicalStateKey(object_id, "value", "ParameterValue"),
+                "iii",
+            ),
+            1,
+        ),
+        valid_scope_id="iii",
+        producer_call_id=None,
+        produced_handle="fact:iii:b_value",
+    )
+    index = StateIdentityIndex(
+        ScopeVisibilityResolver(_ParameterScopeRegistry())
+    )
+    index.register(version)
+    working = WorkingPlannerState(
+        parent_context_id="point-ref-closure-test",
+        identity_index=index,
+        call_states={},
+        runtime_version_values={
+            version.version_id: TypedValue("ParameterValue", sp.Integer(2))
+        },
+    )
+
+    closure = _materialize_runtime_parameter_closure(
+        TypedValue("PointRef", point_ref),
+        consumer_scope_id="iii",
+        working=working,
+        runtime_context=runtime_context,
+        object_registry=object_registry,
+        declared_runtime_symbols={},
+    )
+
+    assert closure.runtime_value.value.definition["x"] == sp.Rational(5, 2)
+    assert closure.parameter_versions == (version,)
 
 
 def _failure_partition(graph):

@@ -16,6 +16,15 @@ from shuxueshuo_server.solver.family import (
 )
 from shuxueshuo_server.solver.problem_models import ProblemIR
 from shuxueshuo_server.solver.question_goals import extract_question_goals
+from shuxueshuo_server.solver.extraction.problem_planning_context import (
+    ProblemPlanningContext,
+)
+from shuxueshuo_server.solver.extraction.problem_planning_binding import (
+    ProblemPlanningBindingCatalog,
+)
+from shuxueshuo_server.solver.extraction.problem_planning_retry import (
+    ProblemPlanningRetryProjector,
+)
 from shuxueshuo_server.solver.runtime._paths import repo_root
 from shuxueshuo_server.solver.runtime.context import ContextBuilder
 from shuxueshuo_server.solver.runtime.context_inventory import ContextInventory
@@ -33,6 +42,10 @@ from shuxueshuo_server.solver.runtime.functional_few_shots import (
     split_functional_few_shot_asset,
 )
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
+from shuxueshuo_server.solver.runtime.macro_atomicity import (
+    PRIVATE_PATH_RUNTIME_TYPES,
+    contains_private_path_projection_marker,
+)
 from shuxueshuo_server.solver.runtime.planner import PlannerInputs
 from shuxueshuo_server.solver.runtime.projection import problem_to_llm_payload
 from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
@@ -48,6 +61,24 @@ from shuxueshuo_server.solver.runtime.functional_retry_versions import (
 )
 from shuxueshuo_server.solver.runtime.functional_plan_retry import (
     retry_state_from_attempt,
+)
+from shuxueshuo_server.solver.runtime.scoped_functional_few_shots import (
+    select_scoped_functional_few_shot,
+)
+from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
+    ScopedFunctionalPlan,
+    scoped_functional_plan_authority_payload,
+)
+from shuxueshuo_server.solver.runtime.functional_plan_content import (
+    FUNCTIONAL_PLAN_CONTENT_CONTRACT,
+    FunctionalPlanAuthorityFrame,
+    functional_plan_content_schema,
+)
+from shuxueshuo_server.solver.runtime.functional_scope_retry import (
+    FUNCTIONAL_SCOPE_REPAIR_CONTRACT,
+    FunctionalAnnotatedPlan,
+    FunctionalScopeRetryAuthority,
+    functional_scope_repair_schema_for_authority,
 )
 from shuxueshuo_server.solver.runtime.semantic_reads import ContextSemanticReadSource
 from shuxueshuo_server.solver.runtime.strategy_models import (
@@ -70,12 +101,46 @@ class PlannerStateContextDebugSource(ContextSemanticReadSource, Protocol):
     def events_payload(self) -> list[dict[str, Any]]:
         """Return context event payload."""
 
+
+def _prompt_capability_catalog(
+    inputs: PlannerInputs,
+    payload: Mapping[str, Any],
+) -> FunctionalCapabilityCatalog:
+    """Recover the exact contextualized catalog represented in one prompt."""
+
+    raw_catalog = payload.get("functional_capability_catalog", {})
+    raw_items = (
+        raw_catalog.get("capabilities", ())
+        if isinstance(raw_catalog, Mapping)
+        else ()
+    )
+    capability_ids = tuple(
+        str(item.get("capability_id", ""))
+        for item in raw_items
+        if isinstance(item, Mapping) and item.get("capability_id")
+    )
+    full = FunctionalCapabilityCatalog.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
+    )
+    missing = tuple(
+        sorted(item for item in capability_ids if full.get(item) is None)
+    )
+    if missing:
+        raise ValueError(
+            "planner_configuration_error: prompt catalog contains unknown "
+            f"capabilities {list(missing)}"
+        )
+    return FunctionalCapabilityCatalog(
+        {item: full.get(item) for item in capability_ids if full.get(item) is not None}
+    )
+
+
 class StrategyPayloadBuilder:
     """把 PlannerInputs 压缩成 LLM 可读的 probe payload。
 
-    Phase 1 不再把 RuntimeContext 拆成 scope/relation/signal 多张工程表，而是把
-    结构化 ProblemIR 作为主要读题材料直接交给 LLM。这样模型更像在读题，而不是
-    在做 ContextPath 查表。
+    题目语义仅通过 scope-native Planner Problem View 进入 prompt；完整
+    PlannerStateContext 只作为内部绑定、执行和 debug authority。
     """
 
     def __init__(
@@ -86,6 +151,8 @@ class StrategyPayloadBuilder:
         functional_plan_fixture_dir: Path | str | None = None,
         allow_same_problem_few_shot: bool = True,
         functional_few_shot_mode: FunctionalFewShotSelectionMode | None = None,
+        scoped_functional_few_shot_examples: list[dict[str, Any]] | None = None,
+        scoped_functional_few_shot_dir: Path | str | None = None,
         problem_payload: dict[str, Any] | None = None,
     ) -> None:
         self.functional_few_shot_examples = functional_few_shot_examples
@@ -101,6 +168,14 @@ class StrategyPayloadBuilder:
         )
         self.allow_same_problem_few_shot = allow_same_problem_few_shot
         self.functional_few_shot_mode = functional_few_shot_mode
+        self.scoped_functional_few_shot_examples = (
+            scoped_functional_few_shot_examples
+        )
+        self.scoped_functional_few_shot_dir = (
+            Path(scoped_functional_few_shot_dir)
+            if scoped_functional_few_shot_dir is not None
+            else None
+        )
         self.problem_payload = problem_payload
 
     def build(
@@ -109,8 +184,24 @@ class StrategyPayloadBuilder:
         *,
         problem_payload: dict[str, Any] | None = None,
         planner_state_context: ContextSemanticReadSource | None = None,
+        problem_planning_context: ProblemPlanningContext | None = None,
+        problem_binding_catalog: ProblemPlanningBindingCatalog | None = None,
+        _include_v1_few_shot: bool = True,
     ) -> dict[str, Any]:
         """生成唯一的 FunctionalPlan prompt payload。"""
+        if problem_planning_context is None or problem_binding_catalog is None:
+            raise ValueError(
+                "planner.problem_bundle_required: Strategy payload requires "
+                "ProblemPlanningContext and ProblemPlanningBindingCatalog"
+            )
+        if (
+            problem_binding_catalog.planning_context_id
+            != problem_planning_context.planning_context_id
+        ):
+            raise ValueError(
+                "planner.problem_revision_drift: planning Context and binding "
+                "catalog differ"
+            )
         problem_payload = problem_payload or self.problem_payload
         if problem_payload is None:
             if inputs.problem is not None:
@@ -120,8 +211,8 @@ class StrategyPayloadBuilder:
                     "StrategyPayloadBuilder requires canonical problem payload; "
                     "StrategyPlanner should provide it via RuntimeProjection"
                 )
-        # 显式传入的 LLM ProblemIR 是 prompt 的唯一题目事实源。这里在 payload 边界
-        # 校验，避免旧 solver fixture 的 relations/target_path 等字段混入 LLM 链路。
+        # Canonical payload 只用于构造内部 handle registry；LLM 的题目事实源是下方
+        # prompt-safe Planner Problem View，不会序列化这个 payload 或 PlannerStateContext。
         handle_registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
         if planner_state_context is None:
             planner_state_context = initial_planner_state_context(
@@ -130,36 +221,151 @@ class StrategyPayloadBuilder:
                 handle_registry=handle_registry,
             )
         previous_attempts = list(inputs.previous_errors)
-        semantic_index = FunctionalSemanticIndex.from_context(
+        semantic_index = FunctionalSemanticIndex.from_semantic_items(
             planner_state_context,
+            problem_binding_catalog.semantic_read_items(),
             handle_registry=handle_registry,
         )
         functional_catalog = FunctionalCapabilityCatalog.from_family_spec(
             inputs.family_spec,
             inputs.method_specs,
         ).contextualized(semantic_index)
-        few_shot_examples, few_shot_selection = self._functional_few_shot_examples(
-            inputs,
-            functional_catalog=functional_catalog,
+        if _include_v1_few_shot:
+            few_shot_examples, few_shot_selection = (
+                self._functional_few_shot_examples(
+                    inputs,
+                    functional_catalog=functional_catalog,
+                )
+            )
+        else:
+            few_shot_examples, few_shot_selection = [], None
+        previous_attempt_state = _functional_previous_attempt_state(
+            previous_attempts,
+            problem_planning_context=problem_planning_context,
+        )
+        latest_retry_state = previous_attempt_state.get("latest_retry_state")
+        retry_problem_context = (
+            latest_retry_state.pop("problem_retry_context", None)
+            if isinstance(latest_retry_state, dict)
+            else None
+        )
+        prompt_problem_context = (
+            retry_problem_context
+            if isinstance(retry_problem_context, dict)
+            else problem_planning_context.to_prompt_payload()
         )
         return {
             "planner_protocol": "functional_plan/v1",
             "problem_id": inputs.problem_id,
             "family_id": inputs.family_spec.family_id,
-            "problem_ir": _functional_problem_ir_payload(
-                problem_payload,
-                planner_state_context,
-            ),
+            "problem_planning_context": prompt_problem_context,
             "strategy_principles": list(inputs.family_spec.strategy_principles),
             "functional_capability_catalog": (
                 functional_catalog.to_prompt_payload()
             ),
             "few_shot_examples": few_shot_examples,
             "functional_few_shot_selection": few_shot_selection,
-            "previous_attempt_state": _functional_previous_attempt_state(
-                previous_attempts
-            ),
+            "previous_attempt_state": previous_attempt_state,
             "output_json_schema": FUNCTIONAL_PLAN_JSON_SCHEMA,
+        }
+
+    def build_scoped(
+        self,
+        inputs: PlannerInputs,
+        *,
+        problem_payload: dict[str, Any] | None = None,
+        planner_state_context: ContextSemanticReadSource | None = None,
+        problem_planning_context: ProblemPlanningContext,
+        problem_binding_catalog: ProblemPlanningBindingCatalog,
+        authoring_feedback: tuple[Mapping[str, Any], ...] = (),
+        previous_invalid_content: Mapping[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Build code-owned Scope/Goal content authoring payload."""
+
+        payload = self.build(
+            inputs,
+            problem_payload=problem_payload,
+            planner_state_context=planner_state_context,
+            problem_planning_context=problem_planning_context,
+            problem_binding_catalog=problem_binding_catalog,
+            _include_v1_few_shot=False,
+        )
+        examples = self.scoped_functional_few_shot_examples
+        selection = None
+        if examples is None:
+            catalog_payload = payload["functional_capability_catalog"]
+            capability_ids = {
+                item["capability_id"]
+                for item in catalog_payload["capabilities"]
+            }
+            selected, selection = select_scoped_functional_few_shot(
+                capability_ids,
+                preferred_capability_ids={
+                    recipe.recipe_id
+                    for recipe in inputs.family_spec.step_recipes
+                    if recipe.execution.execution_mode == "runtime_search"
+                },
+                directory=self.scoped_functional_few_shot_dir,
+            )
+            examples = [selected] if selected is not None else []
+        frame = FunctionalPlanAuthorityFrame.from_planning_context(
+            problem_planning_context
+        )
+        schema_catalog = _prompt_capability_catalog(inputs, payload)
+        result = {
+            **payload,
+            "planner_protocol": FUNCTIONAL_PLAN_CONTENT_CONTRACT,
+            "problem_planning_context": (
+                problem_planning_context.to_prompt_payload()
+            ),
+            "plan_authority_frame": frame.to_prompt_payload(),
+            "few_shot_examples": examples,
+            "functional_few_shot_selection": selection,
+            "authoring_feedback": [dict(item) for item in authoring_feedback],
+            "output_json_schema": functional_plan_content_schema(
+                frame,
+                capability_catalog=schema_catalog,
+            ),
+        }
+        if previous_invalid_content is not None:
+            result["previous_invalid_content"] = dict(previous_invalid_content)
+        result.pop("previous_attempt_state", None)
+        return result
+
+    def build_scope_repair(
+        self,
+        inputs: PlannerInputs,
+        *,
+        annotated_plan: FunctionalAnnotatedPlan,
+        retry_authority: FunctionalScopeRetryAuthority,
+        problem_payload: dict[str, Any] | None = None,
+        planner_state_context: ContextSemanticReadSource | None = None,
+        problem_planning_context: ProblemPlanningContext,
+        problem_binding_catalog: ProblemPlanningBindingCatalog,
+    ) -> dict[str, Any]:
+        """Build the vNext annotated-plan / whole-Scope repair payload."""
+
+        base = self.build_scoped(
+            inputs,
+            problem_payload=problem_payload,
+            planner_state_context=planner_state_context,
+            problem_planning_context=problem_planning_context,
+            problem_binding_catalog=problem_binding_catalog,
+        )
+        return {
+            "planner_protocol": FUNCTIONAL_SCOPE_REPAIR_CONTRACT,
+            "problem_id": inputs.problem_id,
+            "family_id": inputs.family_spec.family_id,
+            "problem_planning_context": (
+                problem_planning_context.to_prompt_payload()
+            ),
+            "annotated_previous_plan": annotated_plan.to_prompt_payload(),
+            "functional_capability_catalog": (
+                base["functional_capability_catalog"]
+            ),
+            "output_json_schema": functional_scope_repair_schema_for_authority(
+                retry_authority,
+            ),
         }
 
     def _functional_few_shot_examples(
@@ -197,6 +403,8 @@ class StrategyPayloadBuilder:
 
 def _functional_previous_attempt_state(
     previous_attempts: list[Any],
+    *,
+    problem_planning_context: ProblemPlanningContext | None = None,
 ) -> dict[str, Any]:
     """Project only formal call-level retry memory into the Functional prompt."""
     latest_attempt = next(
@@ -244,6 +452,27 @@ def _functional_previous_attempt_state(
         else None
     )
     has_typed_checkpoint = checkpoint is not None
+    if checkpoint is not None and checkpoint.problem_authority is not None:
+        if problem_planning_context is None:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.retry_problem_revision_drift: "
+                "authoritative retry requires ProblemPlanningContext"
+            )
+        repair_call_ids = selected.get("repair_call_ids")
+        if isinstance(repair_call_ids, list) and repair_call_ids:
+            projection = ProblemPlanningRetryProjector().project(
+                problem_planning_context,
+                checkpoint,
+                tuple(
+                    item
+                    for item in repair_call_ids
+                    if isinstance(item, str) and item
+                ),
+            )
+            selected["problem_retry_context"] = (
+                projection.to_prompt_payload()
+            )
     selected["locked_call_ids"] = (
         list(checkpoint.committed_call_ids)
         if has_typed_checkpoint
@@ -522,6 +751,11 @@ def _compact_functional_result_snapshot(
     value_type = snapshot.get("type")
     if not isinstance(return_name, str) or not isinstance(value_type, str):
         return None
+    if value_type in PRIVATE_PATH_RUNTIME_TYPES:
+        raise ValueError(
+            "functional.retry_runtime_output_projection_invalid: private "
+            f"path runtime state cannot enter a Planner prompt: {value_type}"
+        )
     result: dict[str, Any] = {
         "return": return_name,
         "type": value_type,
@@ -530,7 +764,18 @@ def _compact_functional_result_snapshot(
     if isinstance(semantic_ref, str) and semantic_ref:
         result["ref"] = semantic_ref
     if "value" in snapshot:
-        value = snapshot["value"]
+        raw_value = snapshot["value"]
+        if contains_private_path_projection_marker(raw_value):
+            raise ValueError(
+                "functional.retry_runtime_output_projection_invalid: private "
+                "path marker cannot enter a Planner prompt"
+            )
+        value = _sanitize_functional_runtime_value(raw_value)
+        if contains_private_path_projection_marker(value):
+            raise ValueError(
+                "functional.retry_runtime_output_projection_invalid: private "
+                "path marker cannot enter a Planner prompt"
+            )
         encoded = json.dumps(value, ensure_ascii=False, sort_keys=True)
         if len(encoded) <= _FUNCTIONAL_PROMPT_RESULT_VALUE_MAX_CHARS:
             result["value"] = value
@@ -548,7 +793,7 @@ def _compact_functional_result_snapshot(
         ]
     closure = snapshot.get("symbolic_closure")
     if isinstance(closure, dict):
-        prompt_closure = {
+        prompt_closure = _sanitize_functional_runtime_value({
             key: value
             for key, value in closure.items()
             if key
@@ -561,26 +806,54 @@ def _compact_functional_result_snapshot(
                 "equation_sources",
                 "constraint_used",
             }
-        }
+        })
         if prompt_closure.get("value") == result.get("value"):
             prompt_closure.pop("value", None)
         if prompt_closure:
             result["closure"] = prompt_closure
     object_roles = snapshot.get("object_roles")
-    if value_type == "PathTransformation" and isinstance(object_roles, dict):
-        result["structure"] = {
-            **object_roles,
-            "moving_locus_available": "moving_locus" in object_roles,
-        }
-    elif include_identity:
+    if include_identity:
         semantic_roles = snapshot.get("semantic_roles")
         if isinstance(semantic_roles, list) and semantic_roles:
             result["roles"] = [
                 item for item in semantic_roles if isinstance(item, str)
             ]
         if isinstance(object_roles, dict) and object_roles:
-            result["identity"] = object_roles
+            result["identity"] = _sanitize_functional_runtime_value(object_roles)
+    _audit_prompt_safe_runtime_result(result)
     return result
+
+
+def _sanitize_functional_runtime_value(value: Any) -> Any:
+    """Remove typed runtime addresses while preserving student-meaningful values."""
+
+    if isinstance(value, dict):
+        result: dict[str, Any] = {}
+        for key, child in value.items():
+            if (
+                str(key).endswith("_ref")
+                and isinstance(child, str)
+                and _FUNCTIONAL_INTERNAL_REF_RE.search(child)
+            ):
+                continue
+            result[str(key)] = _sanitize_functional_runtime_value(child)
+        return result
+    if isinstance(value, list):
+        return [_sanitize_functional_runtime_value(item) for item in value]
+    if isinstance(value, tuple):
+        return [_sanitize_functional_runtime_value(item) for item in value]
+    if isinstance(value, str):
+        return _sanitize_functional_ticket_value(value)
+    return value
+
+
+def _audit_prompt_safe_runtime_result(value: Mapping[str, Any]) -> None:
+    serialized = json.dumps(value, ensure_ascii=False, sort_keys=True)
+    if _FUNCTIONAL_INTERNAL_REF_RE.search(serialized):
+        raise ValueError(
+            "planner.runtime_prompt_projection_drift: retry result exposes "
+            "an internal runtime reference"
+        )
 
 
 def _functional_identity_issue_calls(issues: Any) -> set[str]:
@@ -745,71 +1018,61 @@ _FUNCTIONAL_INTERNAL_REF_RE = re.compile(
     r"answer|role):[A-Za-z0-9_@:-]+(?:\.[A-Za-z0-9_@:-]+)*"
 )
 
-_FUNCTIONAL_PROMPT_METADATA_KEYS = {
-    "display",
-    "pattern",
-    "problem_id",
-    "problem_type",
-    "purpose",
-    "title",
-}
-
-
 def _functional_internal_ref_replacement(match: re.Match[str]) -> str:
     value = match.group(0)
     if value.startswith("role:"):
         return value.removeprefix("role:").split("@", 1)[0]
     return value.rsplit(":", 1)[-1]
 
-
-def _functional_problem_ir_payload(
-    problem_payload: dict[str, Any],
-    planner_state_context: ContextSemanticReadSource,
-) -> dict[str, Any]:
-    """Project ProblemIR to short semantic refs for the Functional protocol."""
-    ref_by_handle = {
-        item.handle: item.ref
-        for item in planner_state_context.semantic_read_catalog()
-        if item.prompt_visible
-    }
-
-    def project(value: Any) -> Any:
-        if isinstance(value, dict):
-            result: dict[str, Any] = {}
-            for key, item in value.items():
-                projected_key = (
-                    "semantic_ref" if key == "handle"
-                    else "target_ref" if key == "target_handle"
-                    else key
-                )
-                result[projected_key] = project(item)
-            return result
-        if isinstance(value, list):
-            return [project(item) for item in value]
-        if isinstance(value, str):
-            semantic_ref = ref_by_handle.get(value)
-            if semantic_ref is not None:
-                return semantic_ref
-            if looks_like_canonical_ref(
-                value,
-                allowed_kinds=SEMANTIC_READ_KINDS,
-            ):
-                return value.rsplit(":", 1)[-1]
-        return value
-
-    projected = project(problem_payload)
-    if not isinstance(projected, dict):
-        return {}
-    return {
-        key: value
-        for key, value in projected.items()
-        if key not in _FUNCTIONAL_PROMPT_METADATA_KEYS
-    }
-
-
 def _functional_few_shot_plan(value: object) -> dict[str, Any]:
     _annotation, plan = split_functional_few_shot_asset(value)
     return plan
+
+
+def _scoped_functional_few_shot_plan(value: object) -> dict[str, Any]:
+    if not isinstance(value, dict) or not isinstance(value.get("plan"), dict):
+        raise ValueError("scope-native FunctionalPlan example is malformed")
+    return value["plan"]
+
+
+def _scoped_functional_few_shot_content(value: object) -> dict[str, Any]:
+    plan = _scoped_functional_few_shot_plan(value)
+    root = plan.get("root_scope")
+    if not isinstance(root, dict):
+        raise ValueError("scope-native FunctionalPlan example has no root scope")
+    scope_steps: dict[str, Any] = {}
+    goal_plans: dict[str, Any] = {}
+
+    def visit(scope: Mapping[str, Any]) -> None:
+        scope_ref = scope.get("scope_ref")
+        if not isinstance(scope_ref, str) or not scope_ref:
+            raise ValueError("scope-native FunctionalPlan example has a bad scope")
+        if scope.get("steps"):
+            scope_steps[scope_ref] = scope["steps"]
+        for goal in scope.get("goals", ()):
+            if not isinstance(goal, Mapping):
+                raise ValueError("scope-native FunctionalPlan example has a bad Goal")
+            goal_ref = goal.get("goal_ref")
+            if not isinstance(goal_ref, str) or not goal_ref:
+                raise ValueError("scope-native FunctionalPlan example has a bad Goal ref")
+            goal_plans[goal_ref] = {
+                key: child
+                for key, child in goal.items()
+                if key != "goal_ref"
+            }
+        for child in scope.get("children", ()):
+            if not isinstance(child, Mapping):
+                raise ValueError("scope-native FunctionalPlan example has a bad child")
+            visit(child)
+
+    visit(root)
+    result: dict[str, Any] = {
+        "format": FUNCTIONAL_PLAN_CONTENT_CONTRACT,
+        "goal_plans": goal_plans,
+    }
+    if scope_steps:
+        result["scope_steps"] = scope_steps
+    return result
 
 
 class StrategyPromptRenderer:
@@ -831,6 +1094,12 @@ class StrategyPromptRenderer:
         self.env.filters["functional_few_shot_plan"] = (
             _functional_few_shot_plan
         )
+        self.env.filters["scoped_functional_few_shot_plan"] = (
+            _scoped_functional_few_shot_plan
+        )
+        self.env.filters["scoped_functional_few_shot_content"] = (
+            _scoped_functional_few_shot_content
+        )
 
     def render(self, payload: dict[str, Any]) -> StrategyPrompt:
         system = self.env.get_template("strategy-functional-system.jinja").render(
@@ -839,6 +1108,37 @@ class StrategyPromptRenderer:
         user = self.env.get_template("strategy-functional-user.jinja").render(
             payload=payload,
         )
+        return StrategyPrompt(system=system.strip(), user=user.strip())
+
+    def render_scoped(self, payload: dict[str, Any]) -> StrategyPrompt:
+        """Render code-owned Scope/Goal content authoring prompt."""
+
+        system = self.env.get_template(
+            "strategy-functional-content-system.jinja"
+        ).render()
+        user = self.env.get_template(
+            "strategy-functional-content-user.jinja"
+        ).render(payload=payload)
+        return StrategyPrompt(system=system.strip(), user=user.strip())
+
+    def render_scope_repair(self, payload: dict[str, Any]) -> StrategyPrompt:
+        """Render the vNext complete-Scope repair prompt."""
+
+        if payload.get("planner_protocol") != FUNCTIONAL_SCOPE_REPAIR_CONTRACT:
+            raise ValueError(
+                "functional.scope_repair_prompt_invalid: wrong planner protocol"
+            )
+        if not isinstance(payload.get("output_json_schema"), Mapping):
+            raise ValueError(
+                "functional.scope_repair_prompt_invalid: missing authority-bound "
+                "output schema"
+            )
+        system = self.env.get_template(
+            "strategy-functional-scope-repair-system.jinja"
+        ).render()
+        user = self.env.get_template(
+            "strategy-functional-scope-repair-user.jinja"
+        ).render(payload=payload)
         return StrategyPrompt(system=system.strip(), user=user.strip())
 
 
@@ -884,6 +1184,8 @@ def write_strategy_debug_artifacts(
     llm_metadata: dict[str, Any] | None = None,
     functional_plan: Any | None = None,
     functional_reconciliation: Any | None = None,
+    problem_authority: Any | None = None,
+    problem_binding_catalog: ProblemPlanningBindingCatalog | None = None,
 ) -> None:
     """把 DeepSeek probe 的输入输出按来源落盘，方便人工 review prompt。"""
     target = Path(debug_dir)
@@ -892,15 +1194,35 @@ def write_strategy_debug_artifacts(
     (target / "prompt.system.md").write_text(prompt.system, encoding="utf-8")
     (target / "prompt.user.md").write_text(prompt.user, encoding="utf-8")
     source_keys = [
-        "problem_ir",
+        "problem_planning_context",
+        "plan_authority_frame",
         "strategy_principles",
         "functional_capability_catalog",
         "few_shot_examples",
         "functional_few_shot_selection",
         "previous_attempt_state",
+        "authoring_feedback",
+        "previous_invalid_content",
+        "annotated_previous_plan",
     ]
     for key in source_keys:
         _write_json(target / f"payload.{key}.json", payload.get(key))
+    _write_json(
+        target / "problem-bundle-authority.json",
+        (
+            problem_authority.authority_payload()
+            if problem_authority is not None
+            else None
+        ),
+    )
+    _write_json(
+        target / "problem-planning-binding-catalog.json",
+        (
+            problem_binding_catalog.authority_payload()
+            if problem_binding_catalog is not None
+            else None
+        ),
+    )
     _write_json(
         target / "functional-plan.json",
         _to_jsonable(functional_plan),
@@ -930,15 +1252,6 @@ def write_strategy_debug_artifacts(
     _write_json(
         target / "functional-reconciliation-report.json",
         functional_reconciliation_payload,
-    )
-    context_catalog = (
-        planner_state_context.semantic_read_catalog_payload()
-        if planner_state_context is not None
-        else None
-    )
-    _write_json(
-        target / "context-semantic-read-catalog.json",
-        context_catalog,
     )
     retry_payload = _retry_state_payload(planner_retry_state)
     _write_json(target / "planner-retry-state.json", retry_payload)

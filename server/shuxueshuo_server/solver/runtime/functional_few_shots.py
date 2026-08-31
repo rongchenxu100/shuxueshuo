@@ -319,9 +319,9 @@ class FunctionalFewShotEntry:
             selection_role=_selection_role(payload.get("selection_role")),
             neutralized=payload.get("neutralized") is True,
         )
-        if not 2 <= len(entry.source_call_ids) <= 5:
+        if not 1 <= len(entry.source_call_ids) <= 5:
             raise ValueError(
-                "functional few-shot source_call_ids must contain 2-5 calls"
+                "functional few-shot source_call_ids must contain 1-5 calls"
             )
         if len(entry.source_call_ids) != len(set(entry.source_call_ids)):
             raise ValueError(
@@ -336,6 +336,14 @@ class FunctionalFewShotEntry:
 
 def default_functional_plan_fixture_dir() -> Path:
     return repo_root(Path(__file__)) / "internal" / "functional-plan-fixtures"
+
+
+def default_scope_native_functional_plan_fixture_dir() -> Path:
+    return (
+        repo_root(Path(__file__))
+        / "internal"
+        / "functional-plan-scope-native-fixtures"
+    )
 
 
 def default_functional_few_shot_dir() -> Path:

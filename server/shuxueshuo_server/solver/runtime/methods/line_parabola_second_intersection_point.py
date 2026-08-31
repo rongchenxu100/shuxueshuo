@@ -9,7 +9,7 @@ from __future__ import annotations
 from shuxueshuo_server.solver.contracts import MethodExplanationSpec
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, canonical_symbol_input, declare_input_views
 
 
 class LineParabolaSecondIntersectionPointMethod:
@@ -26,7 +26,27 @@ class LineParabolaSecondIntersectionPointMethod:
         target: PointRef = inputs["target"]
 
         if sp.simplify(line_p1[0] - line_p2[0]) == 0:
-            raise ValueError("vertical line is not supported for line-parabola second intersection")
+            raise method_precondition_failed(
+                "line-parabola second-intersection requires a nonvertical line",
+                subjects=(
+                    FunctionalDiagnosticSubject(
+                        role="line_point_1",
+                        arg_name="line_p1",
+                        expected_type="Point",
+                    ),
+                    FunctionalDiagnosticSubject(
+                        role="line_point_2",
+                        arg_name="line_p2",
+                        expected_type="Point",
+                    ),
+                ),
+                expected={"line_state": "nonvertical"},
+                observed={
+                    "line_state": "vertical",
+                    "x_coordinate": kernel.sstr(line_p1[0]),
+                },
+                repair_action="choose_applicable_intersection_capability",
+            )
         slope = sp.simplify((line_p2[1] - line_p1[1]) / (line_p2[0] - line_p1[0]))
         line_expr = sp.simplify(line_p1[1] + slope * (x - line_p1[0]))
         roots = [
@@ -39,10 +59,27 @@ class LineParabolaSecondIntersectionPointMethod:
             if sp.simplify(root - known_point[0]) != 0
         ]
         candidates = _filter_by_x_range(candidates, target, kernel)
-        if len(candidates) != 1:
-            raise ValueError(
-                f"line/parabola second intersection cannot uniquely determine {target.name}: "
-                f"{[kernel.sstr(point[0]) for point in candidates]}"
+        candidate_x_values = [kernel.sstr(point[0]) for point in candidates]
+        if not candidates:
+            raise method_result_empty(
+                f"line/parabola second intersection cannot determine {target.name}",
+                role="target_second_intersection",
+                internal_ref=target.name,
+                expected={"candidate_count": 1, "runtime_type": "Point"},
+                observed={"candidate_count": 0, "candidate_x_values": []},
+                repair_action="repair_intersection_inputs",
+            )
+        if len(candidates) > 1:
+            raise method_result_ambiguous(
+                f"line/parabola second intersection cannot uniquely determine {target.name}",
+                role="target_second_intersection",
+                internal_ref=target.name,
+                expected={"candidate_count": 1, "runtime_type": "Point"},
+                observed={
+                    "candidate_count": len(candidates),
+                    "candidate_x_values": candidate_x_values,
+                },
+                repair_action="supply_disambiguating_constraint",
             )
         point = candidates[0]
         return StatelessMethodResult(
@@ -87,18 +124,53 @@ def _filter_by_x_range(
     raw = target.definition.get("x_range")
     if not (isinstance(raw, list) and len(raw) == 2):
         return candidates
-    locals_ = {
-        symbol.name: symbol
-        for point in candidates
-        for value in point
-        for symbol in sp.sympify(value).free_symbols
-    }
-    lower = kernel.expr(str(raw[0]), locals_)
-    upper = kernel.expr(str(raw[1]), locals_)
-    return [
-        point for point in candidates
-        if sp.simplify(point[0] - lower) > 0 and sp.simplify(point[0] - upper) < 0
-    ]
+    lower = _require_canonical_runtime_expression(
+        raw[0],
+        kernel,
+        arg_name="target",
+        role="x_range_lower_bound",
+    )
+    upper = _require_canonical_runtime_expression(
+        raw[1],
+        kernel,
+        arg_name="target",
+        role="x_range_upper_bound",
+    )
+    selected: list[Point] = []
+    unresolved: list[Point] = []
+    for point in candidates:
+        above_lower = sp.simplify(point[0] - lower)
+        below_upper = sp.simplify(point[0] - upper)
+        if is_definitely_positive(
+            above_lower
+        ) and is_definitely_negative(below_upper):
+            selected.append(point)
+            continue
+        if is_definitely_nonpositive(
+            above_lower
+        ) or is_definitely_nonnegative(below_upper):
+            continue
+        unresolved.append(point)
+    if not selected and unresolved:
+        raise method_result_ambiguous(
+            "line/parabola intersection x-range membership is symbolic",
+            role="target_second_intersection",
+            internal_ref=target.name,
+            expected={
+                "candidate_count": 1,
+                "x_range": [kernel.sstr(lower), kernel.sstr(upper)],
+            },
+            observed={
+                "candidate_count": len(unresolved),
+                "candidates": [
+                    [kernel.sstr(value) for value in point]
+                    for point in unresolved
+                ],
+                "state": "range_membership_unresolved",
+            },
+            repair_action="supply_disambiguating_constraint",
+        )
+    return selected
 
 
 SPEC = MethodSpecSource(
@@ -106,23 +178,68 @@ SPEC = MethodSpecSource(
     title="求直线与抛物线的另一交点",
     summary=(
         "输入: 抛物线、确定直线的两点、已知交点和目标 PointRef；"
-        "输出: 直线与抛物线的另一个交点。可用 target.x_range 选择符合题设范围的点。"
+        "输出: 直线与抛物线的另一个交点。line_p1/line_p2 顺序可交换，"
+        "且任一端点都可来自匿名步骤结果。可用 target.x_range 选择符合题设范围的点。"
     ),
     solves=(
         "derive_line_parabola_second_intersection",
         "derive_curve_intersection_point",
     ),
     inputs={
-        "parabola": {"type": "Parabola", "required": True},
-        "x": {"type": "Symbol", "required": True},
-        "line_p1": {"type": "Point", "required": True},
-        "line_p2": {"type": "Point", "required": True},
-        "known_point": {"type": "Point", "required": True},
-        "target": {"type": "PointRef", "required": True},
+        "parabola": {
+            "type": "Parabola",
+            "required": True,
+            "symbolic_basis_role": "state_anchor",
+        },
+        "x": canonical_symbol_input("x"),
+        "line_p1": {
+            "type": "Point",
+            "required": True,
+            "allows_anonymous_result": True,
+            "symbolic_basis_role": "align_to_anchor",
+            "role": (
+                "确定目标直线的第一个点；必须与 line_p2 的横坐标不同。"
+                "若该点也是抛物线已知交点，通常同时把它传给 known_point。"
+            ),
+        },
+        "line_p2": {
+            "type": "Point",
+            "required": True,
+            "allows_anonymous_result": True,
+            "symbolic_basis_role": "align_to_anchor",
+            "role": (
+                "确定目标直线的第二个点；必须与 line_p1 的横坐标不同，"
+                "从而得到非竖直直线。"
+            ),
+        },
+        "known_point": {
+            "type": "Point",
+            "required": True,
+            "symbolic_basis_role": "align_to_anchor",
+            "role": (
+                "目标直线与抛物线共有、并需要从联立结果中排除的已知交点；"
+                "通常直接复用 line_p1 或 line_p2，禁止传入不在目标直线上的点。"
+            ),
+        },
+        "target": {
+            "type": "PointRef",
+            "required": True,
+            "symbolic_basis_role": "align_to_anchor",
+        },
     },
+    input_views=declare_input_views(
+        identity=("x", "target"),
+        latest_state=("parabola", "line_p1", "line_p2", "known_point"),
+    ),
     outputs={"point": "Point"},
+    do_not_use_when=(
+        "line_p1 与 line_p2 横坐标相同或两点重合，无法确定本方法支持的非竖直直线。",
+        "known_point 不同时位于目标直线和抛物线上；不要仅因它在抛物线上就把它作为排除点。",
+    ),
     preconditions=("line_p1 与 line_p2 不能形成竖直线", "已知交点必须在直线和抛物线上"),
     postconditions=("输出点在直线和抛物线上，且不同于 known_point",),
+    distinct_arg_groups=(("line_p1", "line_p2"),),
+    interchangeable_arg_groups=(("line_p1", "line_p2"),),
     explanation=MethodExplanationSpec(
         role_schema={
             "line_points": "确定目标直线的两个已知点。",

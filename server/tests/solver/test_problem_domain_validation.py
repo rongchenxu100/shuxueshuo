@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 
+from shuxueshuo_server.solver.extraction import problem_ir_runtime_preflight
 from shuxueshuo_server.solver.extraction.problem_domain import ProblemDraft
 from shuxueshuo_server.solver.extraction.problem_domain_validation import (
     ProblemDomainValidator,
@@ -39,6 +40,29 @@ def test_five_authored_domain_graphs_pass_full_pure_preflight(case: str) -> None
         for stamp in result.draft.verification_stamps.values()
     )
     assert result.draft.repairable_unit_ids == ()
+
+
+def test_source_structure_preflight_does_not_choose_planner_role(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class _ForbiddenMethod:
+        def run(self, *_args, **_kwargs):
+            raise AssertionError(
+                "source preflight must not execute a strategy-dependent Method"
+            )
+
+    class _Registry:
+        def require(self, _method_id: str) -> _ForbiddenMethod:
+            return _ForbiddenMethod()
+
+    monkeypatch.setattr(problem_ir_runtime_preflight, "_methods", _Registry)
+
+    result = ProblemDomainValidator().validate(
+        ProblemDraft.create(_gold("tj-2026-heping-ermo-25"))
+    )
+
+    assert result.report.ok, result.report.to_payload()
+    assert result.projection is not None
 
 
 def test_lexical_scope_reads_ancestors_but_rejects_siblings_and_shadowing() -> None:

@@ -1,0 +1,50 @@
+{
+  "format": "functional_plan/v1",
+  "scopes": [
+    {
+      "scope_id": "example",
+      "label": "机制示例",
+      "calls": [
+        {
+          "call_id": "derive_minimum_expression",
+          "capability_id": "weighted_axis_path_minimum",
+          "args": {
+            "path_minimum_target": {
+              "ref": "path_minimum_target",
+              "kind": "fact"
+            }
+          },
+          "return_bindings": {},
+          "strategy": "原子完成加权构造、拉直和定义域验证。",
+          "reason": "最小值条件在完整表达式建立后用于反求参数。"
+        },
+        {
+          "call_id": "solve_parameter",
+          "capability_id": "parameter_from_expression_value",
+          "args": {
+            "expression": {
+              "from_call": "derive_minimum_expression",
+              "return": "minimum_expression"
+            },
+            "minimum_value": {
+              "ref": "minimum_condition",
+              "kind": "fact"
+            },
+            "parameter": {
+              "ref": "parameter",
+              "kind": "symbol"
+            }
+          },
+          "return_bindings": {
+            "parameter_value": {
+              "ref": "parameter_answer",
+              "kind": "answer"
+            }
+          },
+          "strategy": "令最小值表达式等于给定值并按范围取解。",
+          "reason": "将求得的参数值绑定答案目标。"
+        }
+      ]
+    }
+  ]
+}

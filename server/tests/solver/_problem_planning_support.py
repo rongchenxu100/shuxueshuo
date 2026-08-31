@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+import tempfile
 
 from shuxueshuo_server.solver.extraction.context import (
     ExtractionAttemptLedger,
@@ -23,11 +24,21 @@ from shuxueshuo_server.solver.extraction.problem_planning_binding import (
 from shuxueshuo_server.solver.extraction.problem_planning_context import (
     ProblemPlanningContextProjector,
 )
+from shuxueshuo_server.solver.extraction.problem_planner_authority import (
+    VerifiedPlannerProblemAuthority,
+)
 from shuxueshuo_server.solver.extraction.problem_solver_bundle import (
     VerifiedSolverProblemBundleLoader,
 )
 from shuxueshuo_server.solver.runtime.handle_registry import (
     CanonicalHandleRegistry,
+)
+from shuxueshuo_server.solver.runtime.context import ContextBuilder
+from shuxueshuo_server.solver.runtime.functional_call_memory import (
+    build_functional_call_memory,
+)
+from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
+    FunctionalCapabilityCatalog,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_reconciliation import (
     FunctionalPlanReconciler,
@@ -38,12 +49,23 @@ from shuxueshuo_server.solver.runtime.functional_plan_validation import (
 from shuxueshuo_server.solver.runtime.planner_state_context import (
     initial_planner_state_context,
 )
+from shuxueshuo_server.solver.runtime.functional_retry_versions import (
+    build_functional_retry_graph_checkpoint,
+)
 from shuxueshuo_server.solver.runtime.projection import problem_to_llm_payload
+from shuxueshuo_server.solver.runtime.strategy_replay import (
+    PlannerRetryReplayService,
+)
 from shuxueshuo_server.solver.runtime.strategy_payload import (
     build_strategy_probe_inputs,
 )
+from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
+    ScopedFunctionalPlanValidator,
+    scoped_functional_plan_id,
+)
 
 from _problem_extraction_f3_support import make_f3_fixture
+from _scoped_functional_plan_support import load_v2_fixture_payload
 
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -56,6 +78,22 @@ CASES = (
     "tj-2026-hexi-yimo-25",
     "tj-2026-heping-yimo-25",
 )
+
+_PLANNING_AUTHORITY_CACHE: dict[str, tuple] = {}
+_SCOPE_NATIVE_PLAN_ID_CACHE: dict[str, str] = {}
+
+
+def scope_native_plan_id(case: str) -> str:
+    cached = _SCOPE_NATIVE_PLAN_ID_CACHE.get(case)
+    if cached is not None:
+        return cached
+    plan, report = ScopedFunctionalPlanValidator().validate_payload_with_report(
+        load_v2_fixture_payload(case)
+    )
+    assert report.ok and plan is not None, report.to_payload()
+    plan_id = scoped_functional_plan_id(plan)
+    _SCOPE_NATIVE_PLAN_ID_CACHE[case] = plan_id
+    return plan_id
 
 
 def domain_payload(case: str) -> dict:
@@ -74,10 +112,11 @@ def accepted_bundle_fixture(
     verified_ref_update=None,
     projection_ref_update=None,
     validation_ref_update=None,
+    domain_payload_override: dict | None = None,
 ):
     fixture, _, context, store, _ = make_f3_fixture(tmp_path)
     validation = ProblemDomainValidator().validate(
-        ProblemDraft.create(domain_payload(case))
+        ProblemDraft.create(domain_payload_override or domain_payload(case))
     )
     assert validation.report.ok and validation.projection is not None
     verified = ProblemPromotionService().promote(validation.draft)
@@ -151,6 +190,51 @@ def planning_binding_fixture(tmp_path: Path, *, case: str = CASES[0]):
     )
 
 
+def cached_planning_binding_fixture(case: str = CASES[0]):
+    """Build one immutable F5-E authority fixture for tests without tmp_path."""
+
+    cached = _PLANNING_AUTHORITY_CACHE.get(case)
+    if cached is not None:
+        return cached
+    with tempfile.TemporaryDirectory(prefix="f5e-authority-") as directory:
+        fixture = planning_binding_fixture(Path(directory), case=case)
+    _PLANNING_AUTHORITY_CACHE[case] = fixture
+    return fixture
+
+
+def cached_scope_native_payload_args(case: str = CASES[0]) -> dict:
+    """Return the complete authenticated input set for Strategy payload tests."""
+
+    (
+        _bundle,
+        planning_context,
+        _problem,
+        _inputs,
+        problem_payload,
+        _registry,
+        planner_context,
+        binding_catalog,
+    ) = cached_planning_binding_fixture(case)
+    return {
+        "problem_payload": problem_payload,
+        "planner_state_context": planner_context,
+        "problem_planning_context": planning_context,
+        "problem_binding_catalog": binding_catalog,
+    }
+
+
+def cached_problem_planner_authority(
+    case: str = CASES[0],
+) -> VerifiedPlannerProblemAuthority:
+    """Return the authenticated Bundle/PlanningContext pair for Strategy tests."""
+
+    bundle, planning_context, *_ = cached_planning_binding_fixture(case)
+    return VerifiedPlannerProblemAuthority(
+        bundle=bundle,
+        planning_context=planning_context,
+    )
+
+
 def scope_native_reconciliation_fixture(
     tmp_path: Path,
     *,
@@ -187,5 +271,70 @@ def scope_native_reconciliation_fixture(
         handle_registry=registry,
         question_goals=inputs.question_goals,
         problem_binding_catalog=binding_catalog,
+        canonical_plan_id=scope_native_plan_id(case),
     )
     return (*fixture, plan, validation, reconciliation)
+
+
+def scope_native_retry_checkpoint_fixture(
+    tmp_path: Path,
+    *,
+    case: str = CASES[0],
+):
+    fixture = scope_native_reconciliation_fixture(tmp_path, case=case)
+    (
+        _bundle,
+        _planning_context,
+        problem,
+        inputs,
+        problem_payload,
+        registry,
+        planner_context,
+        catalog,
+        plan,
+        validation,
+        _reconciliation,
+    ) = fixture
+    replay = PlannerRetryReplayService(
+        functional_transaction_mode="context_authoritative",
+        functional_symbolic_closure_mode="authoritative",
+    ).replay_functional_plan(
+        plan,
+        inputs=inputs,
+        handle_registry=registry,
+        context=ContextBuilder().build(problem),
+        attempt=1,
+        problem_payload=problem_payload,
+        planner_state_context=planner_context,
+        validation_report=validation,
+        problem_binding_catalog=catalog,
+        canonical_plan_id=scope_native_plan_id(case),
+    )
+    attempt_result = replay.transactional_attempt_result
+    assert attempt_result is not None
+    diagnostic = attempt_result.diagnostic
+    verified_call_ids = tuple(
+        item.call_id
+        for item in attempt_result.execution_report.call_states
+        if item.status == "verified"
+    )
+    call_memory = build_functional_call_memory(
+        replay.functional_reconciliation,
+        catalog=FunctionalCapabilityCatalog.from_family_spec(
+            inputs.family_spec,
+            inputs.method_specs,
+        ),
+        runtime_verified_call_ids=verified_call_ids,
+        runtime_results=diagnostic.runtime_results,
+        provenance=diagnostic.state_write_provenance,
+        goal_report=attempt_result.goal_report,
+        active_issues=(),
+        attempt=1,
+    )
+    checkpoint = build_functional_retry_graph_checkpoint(
+        context=planner_context,
+        reconciliation=replay.functional_reconciliation,
+        call_memory=call_memory,
+        provenance=diagnostic.state_write_provenance,
+    )
+    return (*fixture, replay, checkpoint)

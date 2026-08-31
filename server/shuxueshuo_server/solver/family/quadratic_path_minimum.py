@@ -9,25 +9,28 @@ from __future__ import annotations
 from shuxueshuo_server.solver.family.models import (
     FamilyMatchRule,
     FamilySourceRequirementSpec,
-    MethodCompanionOutputSpec,
     MethodBindingRuleSpec,
-    MethodInputBindingSpec,
     RecipeExecutionSpec,
     recipe_output_alias,
     SolverFamilySpec,
-    StateObjectRoleProjectionSpec,
     StepRecipeSpec,
     expand_family_spec,
 )
 from shuxueshuo_server.solver.family.capability_packs import (
-    BROKEN_PATH_SELECT_DO_NOT_USE_WHEN,
     DEFAULT_CAPABILITY_PACK_REGISTRY,
     RIGHT_ANGLE_EQUAL_LENGTH_DO_NOT_USE_WHEN,
-    STRAIGHTENED_ENDPOINT_RESULT_FORM,
-    STRAIGHTENED_DISTANCE_DO_NOT_USE_WHEN,
-    TWO_MOVING_POINTS_PATH_REDUCTION_DESCRIPTION,
-    TWO_MOVING_POINTS_REDUCTION_DO_NOT_USE_WHEN,
-    TWO_MOVING_PATH_TRANSFORMATION_OBJECT_ROLES,
+)
+from shuxueshuo_server.solver.family.common_binding_rules import (
+    canonical_symbol_binding,
+    canonical_x_binding,
+    condition_arg_binding,
+    exact_call_result_binding,
+    parameter_basis_binding,
+    previous_output_identity_binding,
+    public_arg_binding,
+    quadratic_coefficients_binding,
+    quadratic_latest_state_binding,
+    related_condition_binding,
 )
 
 
@@ -80,17 +83,21 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         "若构造点坐标未知，先由几何关系生成候选，再用题设约束筛选。",
         "能先确定未知参数时，优先先求参数再代入后续表达式。",
         "每一步优先消去已确定的信息：若当前问条件已能确定参数数值，先求参数再代入；若参数暂不能定值，但代入已知系数、已知点或系数关系能减少未知量，则可以先化简表达式。",
-        "路径最值先做路径转化，再做折线拉直或等价最短路径处理。",
-        "普通路径最值按阶段独立推导：先把两动点路径降为单动点路径，再选择合适的折线拉直方案，最后根据拉直后的端点距离求最小值表达式。",
-        "最短路径对应点通常来自约束轨迹与拉直线段的交点。",
+        "若路径 Macro 需要的固定端点由中点等题面构造定义，先在该构造所属 Scope 用普通 Function 物化端点坐标；不要在各子问重复构造。",
+        "若目标路径中的两动点通过一条题设线段关系耦合，直接调用耦合线段端点替换路径最值 Macro；只选择路径目标和负责耦合的线段关系。",
+        "若多个子问消费同一含参最小值表达式或取等状态，把该 Macro 放在它们最近公共父 Scope，只调用一次；子问通过 StepResultRef 求值。",
+        "端点替换、保留动点、内部反射和取等恢复均由 Macro 验证；Planner 只调用原子能力，不拆写其内部几何构造。",
+        "Macro 同时返回最小值表达式与原题动点的取等状态；后续求具体坐标时用 StepResultRef 消费 attainment_point。",
     ),
     base_packs=(
         "quadratic_core",
         "parameter_solving_core",
         "coordinate_geometry_core",
-        "broken_path_minimum_core",
     ),
-    mechanism_packs=("right_angle_equal_length_core",),
+    mechanism_packs=(
+        "right_angle_equal_length_core",
+        "coupled_segment_path_minimum_core",
+    ),
     method_ids=(
         "quadratic_axis_from_relation",
         "quadratic_from_constraints",
@@ -98,12 +105,7 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         "select_point_by_quadrant_constraint",
         "parameter_from_segment_length",
         "midpoint_point",
-        "two_moving_points_path_reduction",
-        "broken_path_straightening_candidates",
-        "select_straightening_candidate",
-        "distance_between_points",
         "parameter_from_minimum_value",
-        "line_intersection_point",
     ),
     step_recipes=(
         StepRecipeSpec(
@@ -124,7 +126,17 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                     "right_angle_equal_length_candidates",
                     "select_point_by_quadrant_constraint",
                 ),
+                execution_mode="direct",
                 execution_strategy="right_angle_construct_select",
+                strategy_input_targets=(
+                    "right_angle_equal_length_candidates.anchor",
+                    "right_angle_equal_length_candidates.reference",
+                    "right_angle_equal_length_candidates.target",
+                    "select_point_by_quadrant_constraint.target",
+                    "select_point_by_quadrant_constraint.quadrant",
+                    "select_point_by_quadrant_constraint.parameter",
+                    "select_point_by_quadrant_constraint.parameter_constraint",
+                ),
                 intermediate_wiring=(
                     ("right_angle_equal_length_candidates.candidates", "select_point_by_quadrant_constraint.candidates"),
                 ),
@@ -140,198 +152,68 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             ),
             do_not_use_when=RIGHT_ANGLE_EQUAL_LENGTH_DO_NOT_USE_WHEN,
         ),
-        StepRecipeSpec(
-            recipe_id="two_moving_points_path_reduction",
-            goal_type="reduce_path_expression",
-            title="两动点路径降维：已有固定点替换",
-            description=TWO_MOVING_POINTS_PATH_REDUCTION_DESCRIPTION,
-            method_ids=("two_moving_points_path_reduction",),
-            execution=RecipeExecutionSpec(
-                recipe_id="two_moving_points_path_reduction",
-                method_sequence=("two_moving_points_path_reduction",),
-                execution_strategy="single_method",
-                output_aliases=(
-                    recipe_output_alias(
-                        "two_moving_points_path_reduction.path_transformation",
-                        "PathTransformation",
-                        "path_transformation",
-                        identity_policy="derived_role",
-                        write_mode="create",
-                        description=(
-                            "包含降维后的动点、两个固定端点，以及由题面线段"
-                            "归属条件提供的动点轨迹证据；后续路径拉直可据此"
-                            "省略 moving_locus。"
-                        ),
-                        provides_semantic_roles=("moving_locus",),
-                        object_role_projections=(
-                            TWO_MOVING_PATH_TRANSFORMATION_OBJECT_ROLES
-                        ),
-                    ),
-                ),
-            ),
-            priority="preferred",
-            do_not_use_when=TWO_MOVING_POINTS_REDUCTION_DO_NOT_USE_WHEN,
-        ),
-        StepRecipeSpec(
-            recipe_id="broken_path_straightening_and_select",
-            goal_type="straighten_broken_path",
-            title="折线拉直并选择方案",
-            description=(
-                "为单动点折线路径构造拉直候选方案，再选择最方便计算且符合题设"
-                "结构的方案；本 recipe 只产出拉直方案，不直接产出最小值表达式。"
-            ),
-            method_ids=(
-                "broken_path_straightening_candidates",
-                "select_straightening_candidate",
-            ),
-            execution=RecipeExecutionSpec(
-                recipe_id="broken_path_straightening_and_select",
-                method_sequence=(
-                    "broken_path_straightening_candidates",
-                    "select_straightening_candidate",
-                ),
-                execution_strategy="straightening_candidates_select",
-                creates=("point",),
-                intermediate_wiring=(
-                    ("broken_path_straightening_candidates.candidates", "select_straightening_candidate.candidates"),
-                ),
-                output_aliases=(
-                    recipe_output_alias(
-                        "select_straightening_candidate.selected_candidate",
-                        "StraighteningCandidate",
-                        "straightened_scheme",
-                        goal_evidence_tags=(
-                            "path_minimum_witness",
-                            "path_minimum_extremal_point",
-                        ),
-                    ),
-                    recipe_output_alias(
-                        "select_straightening_candidate.auxiliary_point",
-                        "Point",
-                        "straightening_auxiliary_point",
-                        required=False,
-                        cardinality="optional",
-                        identity_policy="derived_role",
-                        goal_evidence_tags=("path_minimum_witness",),
-                        equivalent_to="straightened_endpoint_1",
-                        description=(
-                            "选中候选的反射辅助点，与 straightened_endpoint_1 是同一"
-                            "几何状态；不能把二者作为一条直线的两个不同端点。"
-                        ),
-                    ),
-                    recipe_output_alias(
-                        "select_straightening_candidate.minimum_point_1",
-                        "Point",
-                        "straightened_endpoint_1",
-                        required=False,
-                        cardinality="optional",
-                        identity_policy="derived_role",
-                        goal_evidence_tags=("path_minimum_witness",),
-                        result_form=STRAIGHTENED_ENDPOINT_RESULT_FORM,
-                        description=(
-                            "拉直后最短等价线段的第一个端点，通常是由反射构造"
-                            "得到的辅助点；它不是原路径动点、极值点或答案点。"
-                        ),
-                        object_role_projections=(
-                            StateObjectRoleProjectionSpec(
-                                role="moving_object",
-                                source_arg="path_transformation",
-                                source_object_role="moving_object",
-                            ),
-                        ),
-                    ),
-                    recipe_output_alias(
-                        "select_straightening_candidate.minimum_point_2",
-                        "Point",
-                        "straightened_endpoint_2",
-                        required=False,
-                        cardinality="optional",
-                        identity_policy="derived_role",
-                        goal_evidence_tags=("path_minimum_witness",),
-                        result_form=STRAIGHTENED_ENDPOINT_RESULT_FORM,
-                        description=(
-                            "拉直后最短等价线段的第二个端点，通常是未被反射的"
-                            "另一固定端点；它不是原路径动点、极值点或答案点。"
-                        ),
-                        object_role_projections=(
-                            StateObjectRoleProjectionSpec(
-                                role="moving_object",
-                                source_arg="path_transformation",
-                                source_object_role="moving_object",
-                            ),
-                        ),
-                    ),
-                ),
-            ),
-            priority="preferred",
-            do_not_use_when=BROKEN_PATH_SELECT_DO_NOT_USE_WHEN,
-        ),
     ),
     method_binding_rules=(
         MethodBindingRuleSpec(
             method_id="quadratic_axis_from_relation",
             input_bindings=(
-                MethodInputBindingSpec("coefficient_relation", "fact:coefficient_relation:Equation"),
-                MethodInputBindingSpec("a", "symbol:a"),
-                MethodInputBindingSpec("b", "symbol:b"),
-                MethodInputBindingSpec("target", "point_output_ref"),
+                condition_arg_binding("coefficient_relation"),
+                canonical_symbol_binding("a", symbol_name="a"),
+                canonical_symbol_binding("b", symbol_name="b"),
+                previous_output_identity_binding(
+                    "target",
+                    output_name="axis_point",
+                ),
             ),
         ),
         MethodBindingRuleSpec(
             method_id="quadratic_from_constraints",
             input_bindings=(
-                MethodInputBindingSpec("quadratic", "function:parabola"),
-                MethodInputBindingSpec("x", "symbol:x"),
-                MethodInputBindingSpec(
+                quadratic_latest_state_binding("quadratic"),
+                canonical_x_binding(),
+                condition_arg_binding(
                     "coefficient_relation",
-                    "fact:coefficient_relation:Equation",
                     required=False,
                 ),
-                MethodInputBindingSpec("all_coefficients", "quadratic_coefficients"),
-            ),
-            expansion_selectors=(
-                "known_coefficients_if_read",
-                "free_quadratic_parameter_if_read",
-                "parameter_value_if_read",
-                "curve_point_if_read",
-                "curve_points_if_parameterized",
-            ),
-            always_emit_outputs=("coefficients",),
-            companion_outputs=(
-                MethodCompanionOutputSpec(
-                    "coefficients",
-                    "answer_scope_output:coefficients",
-                    "runtime_step_output:coefficients",
-                ),
+                quadratic_coefficients_binding(),
             ),
         ),
         MethodBindingRuleSpec(
             method_id="parameter_from_segment_length",
             input_bindings=(
-                MethodInputBindingSpec("p1", "length_segment:p1"),
-                MethodInputBindingSpec("p2", "length_segment:p2"),
-                MethodInputBindingSpec(
-                    "parameter",
-                    "parameter_symbol",
-                    functional_authority="wire",
-                    functional_resolver="unique_parameter_symbol",
+                public_arg_binding("p1"),
+                public_arg_binding("p2"),
+                parameter_basis_binding(
+                    (
+                        "p1",
+                        "p2",
+                        "reference_p1",
+                        "reference_p2",
+                        "condition",
+                        "constraint",
+                    )
                 ),
-                MethodInputBindingSpec("condition", "fact:length_squared:Condition"),
-                MethodInputBindingSpec("constraint", "parameter_constraint"),
+                condition_arg_binding("condition", public_arg="length_squared"),
+                related_condition_binding(
+                    "constraint",
+                    condition_kinds=("symbol_constraint",),
+                    related_args=("parameter",),
+                ),
             ),
         ),
         MethodBindingRuleSpec(
             method_id="parameter_from_minimum_value",
             input_bindings=(
-                MethodInputBindingSpec("minimum_expression", "read_type:MinimumExpression"),
-                MethodInputBindingSpec("condition", "fact:minimum_value:Condition"),
-                MethodInputBindingSpec(
-                    "parameter",
-                    "parameter_symbol",
-                    functional_authority="wire",
-                    functional_resolver="unique_parameter_symbol",
+                exact_call_result_binding("minimum_expression"),
+                condition_arg_binding("condition", public_arg="minimum_value"),
+                parameter_basis_binding(
+                    ("minimum_expression", "condition", "constraint")
                 ),
-                MethodInputBindingSpec("constraint", "parameter_constraint"),
+                related_condition_binding(
+                    "constraint",
+                    condition_kinds=("symbol_constraint",),
+                    related_args=("parameter",),
+                ),
             ),
         ),
     ),

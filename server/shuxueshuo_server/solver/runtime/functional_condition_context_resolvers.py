@@ -8,6 +8,10 @@ from shuxueshuo_server.solver.runtime.condition_roles import (
     ConditionRoleResolutionError,
     ConditionRoleResolver,
 )
+from shuxueshuo_server.solver.runtime.condition_binding_authority import (
+    ConditionBindingAuthorityError,
+    ConditionBindingAuthorityIndex,
+)
 from shuxueshuo_server.solver.runtime.context_closure import (
     ContextClosureResolverSpec,
 )
@@ -53,6 +57,7 @@ def resolve_condition_role_args(
     produced: Mapping[tuple[str, str], ResolvedFunctionalValue],
     semantic_index: FunctionalSemanticIndex,
     handle_registry: CanonicalHandleRegistry,
+    condition_authority_index: ConditionBindingAuthorityIndex | None = None,
 ) -> ContextClosureResolution:
     """Expand a structured Condition into complete internal macro inputs."""
 
@@ -60,15 +65,15 @@ def resolve_condition_role_args(
         value
         for values in resolved_args.values()
         for value in values
-        if value.runtime_type == "Condition"
-        and value.object_roles
+        if value.object_roles
         and ConditionRoleResolver.supports(
-            handle_registry.fact_types.get(value.handle, "")
+            _resolved_condition_kind(value, handle_registry)
         )
     )
     if not conditions:
         return {}, (), (), False
     if len(conditions) != 1:
+        condition_refs = [item.handle for item in conditions]
         return (
             {},
             (),
@@ -79,12 +84,66 @@ def resolve_condition_role_args(
                     "multiple structured Conditions require role expansion",
                     call_id=call_id,
                     scope_id=scope_id,
-                    details={"conditions": [item.handle for item in conditions]},
+                    details={
+                        "role": "condition",
+                        "expected_candidate_count": 1,
+                        "expected_type": "Condition",
+                        "candidate_count": len(condition_refs),
+                        "condition_candidates": condition_refs,
+                        "subjects": _candidate_subjects(
+                            condition_refs,
+                            role="condition_candidate",
+                            expected_type="Condition",
+                        ),
+                        "repair_action": "supply_disambiguating_constraint",
+                    },
                 ),
             ),
             False,
         )
     condition = conditions[0]
+    condition_kind = _resolved_condition_kind(condition, handle_registry)
+    authority_issue = _condition_authority_issue(
+        condition,
+        condition_kind=condition_kind,
+        condition_authority_index=condition_authority_index,
+        call_id=call_id,
+        scope_id=scope_id,
+    )
+    if authority_issue is not None:
+        return {}, (), (authority_issue,), False
+    if condition_kind == "midpoint_definition":
+        return _resolve_direct_point_roles(
+            capability,
+            resolver,
+            condition,
+            role_sources={"p1": ("endpoint", 0), "p2": ("endpoint", 1)},
+            call_id=call_id,
+            scope_id=scope_id,
+            produced=produced,
+            semantic_index=semantic_index,
+            handle_registry=handle_registry,
+        )
+    if condition_kind == "angle_sum":
+        return _resolve_direct_point_roles(
+            capability,
+            resolver,
+            condition,
+            role_sources={
+                "x_axis_point": ("x_axis_point", 0),
+                "y_axis_point": ("y_axis_point", 0),
+                "reference_x_axis_point": (
+                    "reference_x_axis_point",
+                    0,
+                ),
+                "origin": ("origin", 0),
+            },
+            call_id=call_id,
+            scope_id=scope_id,
+            produced=produced,
+            semantic_index=semantic_index,
+            handle_registry=handle_registry,
+        )
     target_hints = _condition_target_hints(
         call,
         scope_id=scope_id,
@@ -145,6 +204,7 @@ def resolve_condition_role_args(
             materialized_points=materialized_points,
         )
     except ConditionRoleResolutionError as exc:
+        details = _condition_role_error_details(exc)
         return (
             {},
             (),
@@ -155,7 +215,7 @@ def resolve_condition_role_args(
                     str(exc),
                     call_id=call_id,
                     scope_id=scope_id,
-                    details=exc.details,
+                    details=details,
                 ),
             ),
             False,
@@ -264,7 +324,20 @@ def resolve_condition_role_args(
                 "condition selection requires one parameter Symbol",
                 call_id=call_id,
                 scope_id=scope_id,
-                details={"symbol_candidates": list(symbol_refs)},
+                details={
+                    "role": "parameter",
+                    "expected_candidate_count": 1,
+                    "expected_type": "Symbol",
+                    "expected_state": "unique_visible_parameter",
+                    "candidate_count": len(symbol_refs),
+                    "symbol_candidates": list(symbol_refs),
+                    "subjects": _candidate_subjects(
+                        symbol_refs,
+                        role="parameter_candidate",
+                        expected_type="Symbol",
+                    ),
+                    "repair_action": "supply_disambiguating_constraint",
+                },
             )
         )
     elif needs_parameter:
@@ -325,6 +398,161 @@ def resolve_condition_role_args(
                         f"target={roles.target}",
                     )
                 ),
+            ),
+        ),
+        (),
+        True,
+    )
+
+
+def _condition_authority_issue(
+    condition: ResolvedFunctionalValue,
+    *,
+    condition_kind: str,
+    condition_authority_index: ConditionBindingAuthorityIndex | None,
+    call_id: str,
+    scope_id: str,
+) -> FunctionalPlanIssue | None:
+    if condition_authority_index is None:
+        return None
+    if condition.condition_id is None:
+        return _issue(
+            "functional_reconciliation",
+            "planner.method_input_view_authority_missing",
+            "structured Condition has no exact ConditionId authority",
+            call_id=call_id,
+            scope_id=scope_id,
+            details={
+                "arg_name": "condition",
+                "candidate_fact_refs": [condition.handle],
+                "repair_action": "fix_condition_authority",
+            },
+        )
+    try:
+        authority = condition_authority_index.require(condition.condition_id)
+    except ConditionBindingAuthorityError as exc:
+        return _issue(
+            "functional_reconciliation",
+            exc.code,
+            str(exc),
+            call_id=call_id,
+            scope_id=scope_id,
+            details=dict(exc.details),
+        )
+    if (
+        authority.condition_kind == condition_kind
+        and authority.valid_scope_id == condition.valid_scope
+    ):
+        return None
+    return _issue(
+        "functional_reconciliation",
+        "planner.method_input_view_authority_drift",
+        "resolved Condition differs from its indexed authority",
+        call_id=call_id,
+        scope_id=scope_id,
+        details={
+            "arg_name": "condition",
+            "expected": {
+                "condition_kind": authority.condition_kind,
+                "owner_scope": authority.owner_scope_id,
+            },
+            "observed": {
+                "condition_kind": condition_kind,
+                "owner_scope": condition.valid_scope,
+            },
+            "repair_action": "fix_condition_authority",
+        },
+    )
+
+
+def _resolve_direct_point_roles(
+    capability: FunctionalCapability,
+    resolver: ContextClosureResolverSpec,
+    condition: ResolvedFunctionalValue,
+    *,
+    role_sources: Mapping[str, tuple[str, int]],
+    call_id: str,
+    scope_id: str,
+    produced: Mapping[tuple[str, str], ResolvedFunctionalValue],
+    semantic_index: FunctionalSemanticIndex,
+    handle_registry: CanonicalHandleRegistry,
+) -> ContextClosureResolution:
+    roles = dict(condition.object_roles)
+    additions: dict[str, tuple[ResolvedFunctionalValue, ...]] = {}
+    issues: list[FunctionalPlanIssue] = []
+    resolved_summary: list[str] = []
+    for semantic_role, (condition_role, position) in role_sources.items():
+        if not _resolver_role_is_used(capability, resolver, semantic_role):
+            continue
+        candidates = roles.get(condition_role, ())
+        if position >= len(candidates):
+            issues.append(
+                _issue(
+                    "functional_elaboration",
+                    "functional.method_input_condition_missing",
+                    "Condition does not provide the declared Point role",
+                    call_id=call_id,
+                    scope_id=scope_id,
+                    details={
+                        "arg_name": semantic_role,
+                        "related_roles": [condition_role],
+                        "candidate_fact_refs": [condition.handle],
+                        "expected": {"runtime_type": "Point"},
+                        "observed": {
+                            "role_count": len(candidates),
+                        },
+                        "repair_action": "supply_matching_condition",
+                    },
+                )
+            )
+            continue
+        object_ref = candidates[position]
+        value = latest_point_state_for_object(
+            object_ref,
+            scope_id=scope_id,
+            produced=produced,
+            semantic_index=semantic_index,
+            handle_registry=handle_registry,
+        )
+        if value is None:
+            issues.append(
+                _issue(
+                    "functional_elaboration",
+                    "functional.condition_role_state_unavailable",
+                    f"Condition role {semantic_role} requires a Point state",
+                    call_id=call_id,
+                    scope_id=scope_id,
+                    details={
+                        "arg_name": semantic_role,
+                        "related_roles": [condition_role],
+                        "related_refs": [object_ref],
+                        "object_ref": object_ref,
+                        "expected": {
+                            "runtime_type": "Point",
+                            "state": "materialized",
+                        },
+                        "observed": {"state": "unavailable"},
+                        "repair_action": "provide_visible_point_producer",
+                    },
+                )
+            )
+            continue
+        arg_name = resolver.arg_name(
+            semantic_role,
+            capability.context_arg_bindings,
+        )
+        additions[arg_name] = (value,)
+        resolved_summary.append(f"{semantic_role}={object_ref}")
+    if issues:
+        return additions, (), tuple(issues), False
+    return (
+        additions,
+        (
+            FunctionalDeterministicRepair(
+                call_id,
+                "expand_condition_object_roles",
+                condition.handle,
+                ",".join(resolved_summary),
             ),
         ),
         (),
@@ -401,6 +629,7 @@ def _unique_condition_value(
 ) -> ResolvedFunctionalValue | None:
     unique = {item.handle: item for item in candidates}
     if len(unique) != 1:
+        candidate_refs = sorted(unique)
         issues.append(
             _issue(
                 "functional_elaboration",
@@ -414,7 +643,16 @@ def _unique_condition_value(
                 scope_id=scope_id,
                 details={
                     "role": role,
-                    "condition_candidates": sorted(unique),
+                    "expected_candidate_count": 1,
+                    "expected_type": "Condition",
+                    "candidate_count": len(candidate_refs),
+                    "condition_candidates": candidate_refs,
+                    "subjects": _candidate_subjects(
+                        candidate_refs,
+                        role=f"{role}_condition_candidate",
+                        expected_type="Condition",
+                    ),
+                    "repair_action": "supply_disambiguating_constraint",
                 },
             )
         )
@@ -431,6 +669,58 @@ def _unique_condition_value(
         source_state_slot_ids=item.source_state_slot_ids,
         provides_semantic_roles=item.provides_semantic_roles,
         lineage=item.lineage,
+    )
+
+
+def _condition_role_error_details(
+    error: ConditionRoleResolutionError,
+) -> dict[str, Any]:
+    details = dict(error.details)
+    candidates = tuple(
+        str(item) for item in details.get("target_candidates", ())
+    )
+    details.setdefault("role", "constructed_target")
+    details.setdefault("expected_candidate_count", 1)
+    details.setdefault("expected_type", "Point")
+    details.setdefault("candidate_count", len(candidates))
+    details.setdefault("repair_action", "supply_disambiguating_constraint")
+    if candidates:
+        details.setdefault(
+            "subjects",
+            _candidate_subjects(
+                candidates,
+                role="target_candidate",
+                expected_type="Point",
+            ),
+        )
+    return details
+
+
+def _candidate_subjects(
+    candidates: Sequence[str],
+    *,
+    role: str,
+    expected_type: str,
+) -> list[dict[str, str]]:
+    return [
+        {
+            "role": role,
+            "internal_ref": str(candidate),
+            "expected_type": expected_type,
+            "expected_state": "candidate",
+        }
+        for candidate in candidates
+    ]
+
+
+def _resolved_condition_kind(
+    value: ResolvedFunctionalValue,
+    handle_registry: CanonicalHandleRegistry,
+) -> str:
+    """Use the typed Fact kind when the runtime handle is canonicalized."""
+
+    return handle_registry.fact_types.get(value.handle) or (
+        value.runtime_type or ""
     )
 
 

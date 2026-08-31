@@ -1,0 +1,160 @@
+{
+  "method_id": "weighted_axis_path_minimum_kernel",
+  "title": "加权轴上路径最值内核",
+  "description": "Transform one weighted two-term axis path and prove its minimum.",
+  "summary": "Given a two-term weighted path with one shared axis moving point, resolve the registered auxiliary-triangle geometry internally, prove that the straightening equality state is reachable in the declared domains, and return only the minimum expression.",
+  "solves": [
+    "derive_weighted_axis_path_minimum"
+  ],
+  "inputs": {
+    "path_condition": {
+      "required": true,
+      "domain_type": "Fact",
+      "runtime_type": "Condition",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "Fact"
+      }
+    },
+    "fixed_point": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    },
+    "curve_point": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    },
+    "moving_point": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    },
+    "moving_point_ref": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "PointRef",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    },
+    "parameter": {
+      "required": true,
+      "domain_type": "Symbol",
+      "runtime_type": "Symbol",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Symbol",
+        "object_kind": "symbol",
+        "state_kind": "value"
+      }
+    },
+    "dynamic_parameter": {
+      "required": true,
+      "domain_type": "Symbol",
+      "runtime_type": "Symbol",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Symbol",
+        "object_kind": "symbol",
+        "state_kind": "value"
+      }
+    },
+    "parameter_constraint": {
+      "required": true,
+      "domain_type": "Fact",
+      "runtime_type": "Constraint",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "Fact"
+      }
+    },
+    "dynamic_constraint": {
+      "required": true,
+      "domain_type": "Fact",
+      "runtime_type": "Constraint",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "Fact"
+      }
+    }
+  },
+  "outputs": {
+    "minimum_expression": "MinimumExpression",
+    "evidence": "PathWitness"
+  },
+  "is_pure": true,
+  "internal_outputs": [
+    "evidence"
+  ],
+  "scalar_result_forms": {
+    "minimum_expression": {
+      "possible_forms": [
+        "open_expression",
+        "closed_value"
+      ],
+      "description": "仍依赖主参数时为 open_expression；参数已确定且结果无自由符号时为 closed_value。",
+      "closure_policy": "no_free_symbols"
+    }
+  },
+  "preconditions": [
+    "path_condition contains exactly one registered non-unit weighted term and one unit term",
+    "the two terms share one materialized axis moving point",
+    "the curve endpoint is materialized with one primary parameter",
+    "the primary and dynamic parameter domains are explicit"
+  ],
+  "postconditions": [
+    "minimum_expression equals the source weighted path minimum",
+    "the selected auxiliary-ray foot and original moving point make equality reachable"
+  ],
+  "explanation": {
+    "role_schema": {
+      "original_path": "题设加权路径。",
+      "weighted_triangle": "把普通轴上线段换成同倍率辅助线段的直角三角形。",
+      "auxiliary_locus": "辅助点的合法射线轨迹。",
+      "minimum_expression": "在合法取等状态下得到的路径最小值表达式。"
+    },
+    "student_goal_template": "用辅助三角形把加权路径化为可拉直折线并求最小值。",
+    "student_title_template": "辅助三角形转化加权路径",
+    "student_title_templates_by_goal": {},
+    "derive_templates": [
+      "构造 {weighted_triangle}，把 {original_path} 化为同倍率普通折线。",
+      "沿 {auxiliary_locus} 拉直折线并验证取等状态合法。",
+      "得到最小值表达式 {minimum_expression}。"
+    ],
+    "box_templates": [
+      "{minimum_expression}"
+    ],
+    "explanation_level": "template",
+    "role_binding_strategy": "role_name_registry",
+    "role_binder_id": "weighted_axis_path_minimum"
+  },
+  "distinct_arg_groups": [
+    [
+      "parameter",
+      "dynamic_parameter"
+    ]
+  ]
+}

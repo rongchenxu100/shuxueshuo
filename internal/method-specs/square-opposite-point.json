@@ -8,24 +8,58 @@
   ],
   "inputs": {
     "vertex": {
-      "type": "Point",
-      "required": true
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "adjacent1": {
-      "type": "Point",
-      "required": true
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "adjacent2": {
-      "type": "Point",
-      "required": true
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "target": {
-      "type": "PointRef",
-      "required": true
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "PointRef",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     }
   },
   "outputs": {
     "point": "Point"
   },
-  "is_pure": true
+  "is_pure": true,
+  "interchangeable_arg_groups": [
+    [
+      "adjacent1",
+      "adjacent2"
+    ]
+  ]
 }

@@ -8,32 +8,85 @@
   ],
   "inputs": {
     "line1_p1": {
-      "type": "Point",
-      "required": true
+      "required": true,
+      "allows_anonymous_result": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "line1_p2": {
-      "type": "Point",
-      "required": true
+      "required": true,
+      "allows_anonymous_result": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "line2_p1": {
-      "type": "Point",
-      "required": true
+      "required": true,
+      "allows_anonymous_result": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "line2_p2": {
-      "type": "Point",
-      "required": true
+      "required": true,
+      "allows_anonymous_result": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "target": {
-      "type": "PointRef",
-      "required": true
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "PointRef",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "parameter": {
-      "type": "Symbol",
-      "required": false
+      "required": false,
+      "domain_type": "Symbol",
+      "runtime_type": "Symbol",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Symbol",
+        "object_kind": "symbol",
+        "state_kind": "value"
+      }
     },
     "parameter_value": {
-      "type": "ParameterValue",
-      "required": false
+      "required": false,
+      "domain_type": "Symbol",
+      "runtime_type": "ParameterValue",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Symbol",
+        "object_kind": "symbol",
+        "state_kind": "value"
+      }
     }
   },
   "outputs": {
@@ -42,6 +95,16 @@
   "is_pure": true,
   "repair_feedback_provider_id": "line_intersection_evidence",
   "distinct_arg_groups": [
+    [
+      "line1_p1",
+      "line1_p2"
+    ],
+    [
+      "line2_p1",
+      "line2_p2"
+    ]
+  ],
+  "interchangeable_arg_groups": [
     [
       "line1_p1",
       "line1_p2"

@@ -65,6 +65,7 @@ from shuxueshuo_server.solver.runtime.runtime_type_compatibility import (
 from shuxueshuo_server.solver.runtime.state_identity import (
     ComputationKey,
     FunctionalCallIdentityKey,
+    IndexedStateVersion,
     LogicalReturnEffect,
     LogicalStateKey,
     MathObjectRegistry,
@@ -132,6 +133,11 @@ class FunctionalCallPlacementService:
         pinned_canonical_call_ids: Sequence[str] = (),
         pinned_execution_scopes: Mapping[str, str] | None = None,
         pinned_return_scopes: Mapping[str, Mapping[str, str]] | None = None,
+        pinned_call_reconciliations: Mapping[
+            str,
+            FunctionalCallReconciliation,
+        ] | None = None,
+        scoped_semantic_owner_scopes: Mapping[str, str] | None = None,
     ) -> FunctionalCallPlacementResult:
         source_calls = {call.call_id: call for call in source_plan.calls}
         source_scopes = {
@@ -145,6 +151,12 @@ class FunctionalCallPlacementService:
             call_id: dict(scopes)
             for call_id, scopes in (pinned_return_scopes or {}).items()
         }
+        pinned_call_reconciliations = dict(
+            pinned_call_reconciliations or {}
+        )
+        scoped_semantic_owner_scopes = dict(
+            scoped_semantic_owner_scopes or {}
+        )
         reconciled_by_id = {item.call_id: item for item in reconciled}
         aliases = _canonical_aliases(dict(initial_aliases or {}))
         groups = _alias_groups(
@@ -156,30 +168,12 @@ class FunctionalCallPlacementService:
         issues: list[FunctionalPlanIssue] = []
         transferred_return_expectations: dict[str, dict[str, str]] = {}
         transferred_return_bindings: dict[str, dict[str, SemanticRef]] = {}
-        (
-            aliases,
-            groups,
-            reconciled_by_id,
-            typed_identity_keys,
-            typed_repairs,
-            typed_issues,
-            transferred_return_bindings,
-            transferred_return_expectations,
-        ) = _canonicalize_typed_calls(
+        typed_identity_keys = _typed_runtime_equivalence_candidate_keys(
             plan,
-            source_scopes=source_scopes,
             reconciled_by_id=reconciled_by_id,
             catalog=catalog,
             aliases=aliases,
-            groups=groups,
-            handle_registry=handle_registry,
-            pinned_canonical_call_ids=frozenset(
-                pinned_canonical_call_ids
-            ),
-            pinned_return_scopes=pinned_return_scopes,
         )
-        repairs.extend(typed_repairs)
-        issues.extend(typed_issues)
 
         aliases = _canonical_aliases(aliases)
         plan = _apply_transferred_return_bindings(
@@ -228,8 +222,16 @@ class FunctionalCallPlacementService:
                 )
             },
         )
+        placement_dependencies = canonical_dependencies
         consumer_scopes = _dependency_consumer_scopes(
-            canonical_dependencies,
+            placement_dependencies,
+            call_scopes={
+                call_id: tuple(source_scopes[item] for item in members)
+                for call_id, members in groups.items()
+            },
+        )
+        transitive_consumer_scopes = _transitive_dependency_consumer_scopes(
+            placement_dependencies,
             call_scopes={
                 call_id: tuple(source_scopes[item] for item in members)
                 for call_id, members in groups.items()
@@ -237,9 +239,29 @@ class FunctionalCallPlacementService:
         )
         branch_private_scopes = _branch_private_state_storage_scopes(
             canonical_reconciled,
-            consumer_scopes=consumer_scopes,
+            consumer_scopes=transitive_consumer_scopes,
             registry=handle_registry,
+            enforce_semantic_owner=bool(scoped_semantic_owner_scopes),
         )
+        state_owner_scopes = _state_bearing_semantic_owner_scopes(
+            canonical_reconciled,
+            plan=canonical_plan,
+            catalog=catalog,
+            semantic_owner_scopes=scoped_semantic_owner_scopes,
+        )
+        restored_execution_scopes = {
+            call_id: item.scope_id
+            for call_id, item in pinned_call_reconciliations.items()
+            if call_id in canonical_reconciled
+        }
+        restored_return_scopes = {
+            call_id: {
+                allocation.return_name: allocation.valid_scope
+                for allocation in item.returns
+            }
+            for call_id, item in pinned_call_reconciliations.items()
+            if call_id in canonical_reconciled
+        }
         requested_execution_scopes: dict[str, str] = {}
         answer_scope_by_ref = {
             goal.id: goal.question_id
@@ -282,7 +304,50 @@ class FunctionalCallPlacementService:
             pinned_execution_scope = pinned_execution_scopes.get(
                 call.call_id
             )
-            if pinned_execution_scope is not None:
+            state_owner_scope = state_owner_scopes.get(call.call_id)
+            if state_owner_scope is not None:
+                proposed = state_owner_scope
+                restored_scope = restored_execution_scopes.get(call.call_id)
+                if (
+                    restored_scope is not None
+                    and restored_scope != state_owner_scope
+                ):
+                    issues.append(
+                        _issue(
+                            "functional_reconciliation",
+                            "planner.retry_problem_source_binding_drift",
+                            "restored state writer belongs to another scope",
+                            call_id=call.call_id,
+                            scope_id=state_owner_scope,
+                            details={
+                                "semantic_owner_scope": state_owner_scope,
+                                "restored_execution_scope": restored_scope,
+                            },
+                        )
+                    )
+                if (
+                    pinned_execution_scope is not None
+                    and pinned_execution_scope != state_owner_scope
+                ):
+                    issues.append(
+                        _issue(
+                            "functional_reconciliation",
+                            "planner.state_scope_authority_drift",
+                            (
+                                "checkpoint execution scope conflicts with "
+                                "the state writer's semantic owner scope"
+                            ),
+                            call_id=call.call_id,
+                            scope_id=state_owner_scope,
+                            details={
+                                "semantic_owner_scope": state_owner_scope,
+                                "checkpoint_scope": pinned_execution_scope,
+                            },
+                        )
+                    )
+            elif call.call_id in restored_execution_scopes:
+                proposed = restored_execution_scopes[call.call_id]
+            elif pinned_execution_scope is not None:
                 proposed = _scope_at_or_above_checkpoint(
                     proposed,
                     checkpoint_scope=pinned_execution_scope,
@@ -297,7 +362,7 @@ class FunctionalCallPlacementService:
         provisional_execution_scopes = _close_execution_scope_dependencies(
             canonical_plan,
             reconciled=canonical_reconciled,
-            dependency_graph=canonical_dependencies,
+            dependency_graph=placement_dependencies,
             requested_scopes=requested_execution_scopes,
             declared_scopes={
                 call_id: source_scopes[call_id]
@@ -307,10 +372,16 @@ class FunctionalCallPlacementService:
             registry=handle_registry,
             fixed_scopes={
                 **branch_private_scopes,
+                **restored_execution_scopes,
+                **state_owner_scopes,
             },
         )
         for call_id, scope_id in pinned_execution_scopes.items():
-            if call_id in provisional_execution_scopes:
+            if (
+                call_id in provisional_execution_scopes
+                and call_id not in state_owner_scopes
+                and call_id not in restored_execution_scopes
+            ):
                 provisional_execution_scopes[call_id] = (
                     _scope_at_or_above_checkpoint(
                         provisional_execution_scopes[call_id],
@@ -322,7 +393,31 @@ class FunctionalCallPlacementService:
             if (
                 call_id in provisional_execution_scopes
                 and call_id not in pinned_execution_scopes
+                and call_id not in restored_execution_scopes
+                and call_id not in state_owner_scopes
             ):
+                provisional_execution_scopes[call_id] = scope_id
+
+        # A branch-private storage hint may narrow a pure value producer, but
+        # it cannot override the semantic owner of a StateVersion writer.  The
+        # latter is authored scope authority, not a placement heuristic.
+        for call_id, scope_id in state_owner_scopes.items():
+            if provisional_execution_scopes.get(call_id) != scope_id:
+                issues.append(
+                    _issue(
+                        "functional_reconciliation",
+                        "planner.state_scope_authority_drift",
+                        "state writer execution scope differs from its semantic owner",
+                        call_id=call_id,
+                        scope_id=scope_id,
+                        details={
+                            "semantic_owner_scope": scope_id,
+                            "execution_scope": provisional_execution_scopes.get(
+                                call_id
+                            ),
+                        },
+                    )
+                )
                 provisional_execution_scopes[call_id] = scope_id
 
         return_consumer_scopes = _return_consumer_scopes(
@@ -339,6 +434,11 @@ class FunctionalCallPlacementService:
                 continue
             scopes_by_return: dict[str, str] = {}
             for allocation in item.returns:
+                state_owner_scope = state_owner_scopes.get(call.call_id)
+                restored_return_scope = restored_return_scopes.get(
+                    call.call_id,
+                    {},
+                ).get(allocation.return_name)
                 consumers = return_consumer_scopes.get(
                     (call.call_id, allocation.return_name),
                     (),
@@ -361,7 +461,11 @@ class FunctionalCallPlacementService:
                     allocation,
                     base_identity_index=base_identity_index,
                 )
-                if (
+                if state_owner_scope is not None:
+                    proposed = state_owner_scope
+                elif restored_return_scope is not None:
+                    proposed = restored_return_scope
+                elif (
                     state_target_scope is not None
                     and all(
                         source_scopes[member_id]
@@ -378,12 +482,16 @@ class FunctionalCallPlacementService:
                     # object's origin keeps its narrower consumer-derived
                     # return scope.
                     proposed = state_target_scope
-                if not _inputs_publishable_at_scope(
-                    item.resolved_args.values(),
-                    proposed,
-                    aliases=aliases,
-                    execution_scopes=provisional_execution_scopes,
-                    registry=handle_registry,
+                if (
+                    state_owner_scope is None
+                    and restored_return_scope is None
+                    and not _inputs_publishable_at_scope(
+                        item.resolved_args.values(),
+                        proposed,
+                        aliases=aliases,
+                        execution_scopes=provisional_execution_scopes,
+                        registry=handle_registry,
+                    )
                 ):
                     # A return cannot be published above the visibility
                     # boundary of the exact StateVersions used to compute it.
@@ -393,7 +501,32 @@ class FunctionalCallPlacementService:
                     call.call_id,
                     {},
                 ).get(allocation.return_name)
-                if (
+                if state_owner_scope is not None:
+                    if (
+                        pinned_return_scope is not None
+                        and pinned_return_scope != state_owner_scope
+                    ):
+                        issues.append(
+                            _issue(
+                                "functional_reconciliation",
+                                "planner.state_scope_authority_drift",
+                                (
+                                    "checkpoint return scope conflicts with "
+                                    "the state writer's semantic owner scope"
+                                ),
+                                call_id=call.call_id,
+                                scope_id=state_owner_scope,
+                                details={
+                                    "return": allocation.return_name,
+                                    "semantic_owner_scope": state_owner_scope,
+                                    "checkpoint_scope": pinned_return_scope,
+                                },
+                            )
+                        )
+                    proposed = state_owner_scope
+                elif restored_return_scope is not None:
+                    proposed = restored_return_scope
+                elif (
                     allocation.allocation_action == "isolated"
                     and allocation.typed_slot_id is not None
                 ):
@@ -447,6 +580,7 @@ class FunctionalCallPlacementService:
                 execution_scopes=provisional_execution_scopes,
                 return_scopes=return_scopes,
                 pinned_return_scopes=pinned_return_scopes,
+                pinned_call_reconciliations=pinned_call_reconciliations,
                 identity_factory=identity_factory,
                 identity_index=base_identity_index.clone(),
                 allocation_service=allocation_service,
@@ -589,6 +723,40 @@ def _is_shareable(
     if not capability.is_pure:
         return False
     return not any(item.runtime_type == "Condition" for item in capability.returns)
+
+
+def _typed_runtime_equivalence_candidate_keys(
+    plan: FunctionalPlan,
+    *,
+    reconciled_by_id: Mapping[str, FunctionalCallReconciliation],
+    catalog: FunctionalCapabilityCatalog,
+    aliases: Mapping[str, str],
+) -> dict[str, FunctionalCallIdentityKey]:
+    """Index possible reuse candidates without authorizing a call alias.
+
+    Typed computation/effect identity is useful for allocation and placement,
+    but it is not a semantic equality proof. The transactional interpreter
+    must execute each candidate and compare its actual runtime result before a
+    step can be merged or deleted.
+    """
+
+    result: dict[str, FunctionalCallIdentityKey] = {}
+    for call in plan.calls:
+        if call.call_id in aliases:
+            continue
+        reconciled = reconciled_by_id.get(call.call_id)
+        capability = catalog.get(call.capability_id)
+        if reconciled is None or capability is None:
+            continue
+        identity_key = _typed_call_identity_key(
+            reconciled,
+            capability=capability,
+            aliases=aliases,
+            version_aliases={},
+        )
+        if identity_key is not None:
+            result[call.call_id] = identity_key
+    return result
 
 
 def _canonicalize_typed_calls(
@@ -1582,6 +1750,7 @@ def _project_placed_calls(
             allocations,
             specs=specs,
             resolved_args=resolved_args,
+            object_registry=object_registry,
         )
         for allocation in allocations:
             produced[(call.call_id, allocation.return_name)] = allocation
@@ -1605,6 +1774,10 @@ def _finalize_typed_allocations(
     execution_scopes: Mapping[str, str],
     return_scopes: Mapping[str, Mapping[str, str]],
     pinned_return_scopes: Mapping[str, Mapping[str, str]],
+    pinned_call_reconciliations: Mapping[
+        str,
+        FunctionalCallReconciliation,
+    ],
     identity_factory: StateIdentityFactory,
     identity_index: StateIdentityIndex,
     allocation_service: StateAllocationService,
@@ -1630,6 +1803,16 @@ def _finalize_typed_allocations(
         item = reconciled_by_id.get(call.call_id)
         capability = catalog.get(call.capability_id)
         if item is None or capability is None:
+            continue
+        pinned = pinned_call_reconciliations.get(call.call_id)
+        if pinned is not None:
+            for allocation in pinned.returns:
+                produced[(call.call_id, allocation.return_name)] = allocation
+                _register_pinned_allocation(
+                    allocation,
+                    identity_index=identity_index,
+                )
+            result.append(pinned)
             continue
         scope_id = execution_scopes[call.call_id]
         resolved_args = {
@@ -1718,13 +1901,16 @@ def _finalize_typed_allocations(
             if spec is None:
                 continue
             valid_scope = return_scopes[call.call_id][old.return_name]
-            # A committed version keeps its storage identity across retry.
-            # Placement may widen only its publication scope when a new
-            # sibling consumer makes the state safely shareable.
-            storage_scope = pinned_return_scopes.get(
-                call.call_id,
-                {},
-            ).get(old.return_name, valid_scope)
+            # State-bearing returns are owned by their authored semantic
+            # scope. Checkpoints may pin a pure published value, but they may
+            # never widen or relocate a StateVersion.
+            if old.logical_state_key is not None and old.typed_slot_id is not None:
+                storage_scope = valid_scope
+            else:
+                storage_scope = pinned_return_scopes.get(
+                    call.call_id,
+                    {},
+                ).get(old.return_name, valid_scope)
             object_ref = final_object_refs[old.return_name]
             state_math_object_id = identity_factory.object_id(object_ref)
             projection_math_object_id = (
@@ -1758,6 +1944,7 @@ def _finalize_typed_allocations(
                 free_symbol_ids=old.free_symbol_ids,
                 runtime_destination=runtime_destination,
                 result_form=call.return_expectations.get(old.return_name),
+                allow_runtime_equivalence_probe=True,
             )
             decision = allocation_service.allocate(request, identity_index)
             if decision.action == "conflict":
@@ -1846,6 +2033,7 @@ def _finalize_typed_allocations(
             allocations,
             specs=specs,
             resolved_args=resolved_args,
+            object_registry=identity_factory.objects,
         )
         for allocation in allocations:
             produced[(call.call_id, allocation.return_name)] = allocation
@@ -1865,6 +2053,7 @@ def _reproject_final_return_object_roles(
     *,
     specs: Mapping[str, Any],
     resolved_args: Mapping[str, tuple[ResolvedFunctionalValue, ...]],
+    object_registry: MathObjectRegistry,
 ) -> list[FunctionalReturnAllocation]:
     """Bind all declared roles to B2's final StateVersion allocations."""
 
@@ -2018,6 +2207,13 @@ def _reproject_final_return_object_roles(
                 for value in source_values
             )
 
+        projected_roles = [
+            _resolve_projected_role_object_ids(
+                role,
+                object_registry=object_registry,
+            )
+            for role in projected_roles
+        ]
         lineage = state_semantic_lineage(
             semantic_roles=allocation.lineage.semantic_roles,
             evidence_tags=allocation.lineage.evidence_tags,
@@ -2054,6 +2250,23 @@ def _reproject_final_return_object_roles(
         )
         result.append(replace(allocation, lineage=lineage))
     return result
+
+
+def _resolve_projected_role_object_ids(
+    role: StateObjectRoleBinding,
+    *,
+    object_registry: MathObjectRegistry,
+) -> StateObjectRoleBinding:
+    """Keep typed role identity while B2 reprojects final return lineage."""
+
+    resolved_ids = list(role.object_ids)
+    for object_ref in role.object_refs:
+        object_id = object_registry.resolve(object_ref)
+        if object_id is None:
+            object_id = object_registry.register_handle(object_ref)
+        if object_id is not None:
+            resolved_ids.append(object_id)
+    return replace(role, object_ids=unique_ordered(resolved_ids))
 
 
 def _raise_role_projection_incomplete(
@@ -2306,6 +2519,7 @@ def _typed_placement_mismatches(
                 )
             if (
                 allocation.typed_slot_id is not None
+                and allocation.allocation_action != "reuse"
                 and allocation.typed_slot_id.storage_scope_id
                 != allocation.valid_scope
                 and allocation.valid_scope
@@ -2468,9 +2682,16 @@ def _canonical_dependency_graph(
     for producer_id, item in reconciled.items():
         for allocation in item.returns:
             if allocation.selected_version_id is not None:
-                producers_by_version[
-                    allocation.selected_version_id
-                ] = producer_id
+                canonical_producer_id = (
+                    allocation.canonical_producer_call_id
+                    if allocation.allocation_action == "reuse"
+                    and allocation.canonical_producer_call_id is not None
+                    else producer_id
+                )
+                producers_by_version.setdefault(
+                    allocation.selected_version_id,
+                    canonical_producer_id,
+                )
 
     for call in plan.calls:
         dependencies = [
@@ -2491,6 +2712,7 @@ def _canonical_dependency_graph(
                 producer_id
                 for values in item.resolved_args.values()
                 for value in values
+                if value.source_call_id is None
                 for version_id in unique_ordered(
                     (value.state_version_id,)
                     if value.state_version_id is not None
@@ -2538,6 +2760,44 @@ def _dependency_consumer_scopes(
         call_id: tuple(dict.fromkeys(scopes))
         for call_id, scopes in result.items()
     }
+
+
+def _transitive_dependency_consumer_scopes(
+    dependency_graph: Mapping[str, tuple[str, ...]],
+    *,
+    call_scopes: Mapping[str, tuple[str, ...]],
+) -> dict[str, tuple[str, ...]]:
+    """Collect every downstream scope reached through the call DAG.
+
+    Independent sibling writers stay isolated, but the first materialized
+    state may need to be published to an ancestor because one of its
+    consumers is itself shared by later Goals. Direct consumers alone miss
+    that case and can pin a producer below the scope where its dependent call
+    executes.
+    """
+
+    consumers_by_producer: dict[str, list[str]] = {}
+    for consumer_id, dependency_ids in dependency_graph.items():
+        for dependency_id in dependency_ids:
+            consumers_by_producer.setdefault(dependency_id, []).append(
+                consumer_id
+            )
+
+    result: dict[str, tuple[str, ...]] = {}
+    for producer_id in call_scopes:
+        pending = list(consumers_by_producer.get(producer_id, ()))
+        seen: set[str] = set()
+        scopes: list[str] = []
+        while pending:
+            consumer_id = pending.pop()
+            if consumer_id in seen:
+                continue
+            seen.add(consumer_id)
+            scopes.extend(call_scopes.get(consumer_id, ()))
+            pending.extend(consumers_by_producer.get(consumer_id, ()))
+        if scopes:
+            result[producer_id] = tuple(dict.fromkeys(scopes))
+    return result
 
 
 def _return_consumer_scopes(
@@ -3171,12 +3431,14 @@ def _branch_private_state_storage_scopes(
     *,
     consumer_scopes: Mapping[str, tuple[str, ...]] | None = None,
     registry: CanonicalHandleRegistry | None = None,
+    enforce_semantic_owner: bool = True,
 ) -> dict[str, str]:
-    """Pin every independent sibling writer, including the first create.
+    """Pin every independent sibling writer to its allocated owner scope.
 
     B1 labels the first branch writer ``create`` and later sibling writers
     ``isolated``. Looking only for ``isolated`` leaves the first writer free to
     hoist and can turn two valid sibling states into overlapping writers.
+    Consumer scopes never widen storage authority.
     """
 
     by_state: dict[
@@ -3212,7 +3474,8 @@ def _branch_private_state_storage_scopes(
         for call_id, allocation in allocations:
             storage_scope = allocation.typed_slot_id.storage_scope_id
             if (
-                registry is not None
+                not enforce_semantic_owner
+                and registry is not None
                 and allocation.allocation_action != "isolated"
             ):
                 storage_scope = _least_common_scope(
@@ -3230,6 +3493,74 @@ def _branch_private_state_storage_scopes(
         for call_id, scopes in scopes_by_call.items()
         if len(scopes) == 1
     }
+
+
+def _state_bearing_semantic_owner_scopes(
+    reconciled: Mapping[str, FunctionalCallReconciliation],
+    *,
+    semantic_owner_scopes: Mapping[str, str],
+    plan: FunctionalPlan | None = None,
+    catalog: FunctionalCapabilityCatalog | None = None,
+) -> dict[str, str]:
+    """Return the immutable semantic owner for every StateVersion writer.
+
+    B2 may place pure computations at an LCA, but a call that allocates a
+    logical state belongs to the scope where the scoped Plan authored it. Its
+    execution, storage, and publication scopes cannot be widened by consumers.
+    """
+
+    result: dict[str, str] = {}
+    calls = (
+        tuple((call.call_id, call.capability_id) for call in plan.calls)
+        if plan is not None
+        else tuple((call_id, None) for call_id in reconciled)
+    )
+    for call_id, capability_id in calls:
+        if call_id not in semantic_owner_scopes:
+            continue
+        item = reconciled.get(call_id)
+        capability = (
+            catalog.get(capability_id)
+            if catalog is not None and capability_id is not None
+            else None
+        )
+        writes_state = item is not None and any(
+            allocation.logical_state_key is not None
+            and allocation.typed_slot_id is not None
+            for allocation in item.returns
+        )
+        if capability is not None:
+            writes_state = writes_state or any(
+                output.identity_policy != "value_only"
+                for output in capability.returns
+            )
+        if writes_state:
+            result[call_id] = semantic_owner_scopes[call_id]
+    return result
+
+
+def _register_pinned_allocation(
+    allocation: FunctionalReturnAllocation,
+    *,
+    identity_index: StateIdentityIndex,
+) -> None:
+    """Restore one checkpointed version into the attempt-local identity index."""
+
+    if allocation.selected_version_id is None:
+        return
+    identity_index.register(
+        IndexedStateVersion(
+            version_id=allocation.selected_version_id,
+            valid_scope_id=allocation.valid_scope,
+            producer_call_id=allocation.call_id,
+            produced_handle=allocation.state_handle or allocation.handle,
+            computation_key=allocation.computation_key,
+            free_symbol_refs=allocation.free_symbol_refs,
+            free_symbol_ids=allocation.free_symbol_ids,
+            previous_version_id=allocation.previous_version_id,
+            source_version_ids=allocation.source_version_ids,
+        )
+    )
 
 
 def _answer_target_object_scopes(

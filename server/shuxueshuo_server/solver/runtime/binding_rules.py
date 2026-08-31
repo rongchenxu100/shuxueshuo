@@ -1,32 +1,21 @@
-"""Method binding selector registry。
-
-FamilySpec 通过 selector 字符串声明 method input 的语义绑定；本模块把这些
-selector 解析成具体 RuntimeContext path。
-"""
+"""Typed Method binding rules used by the derived execution IR."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 import re
-from typing import Any, Callable, Mapping
+from typing import Any, Mapping
 
+from shuxueshuo_server.solver.contracts import (
+    MethodInputBindingSpec,
+    OrdinalZeroTemplateDerivationSpec,
+)
 from shuxueshuo_server.solver.family.models import MethodBindingRuleSpec, SolverFamilySpec
-from shuxueshuo_server.solver.runtime.auxiliary_points import fresh_auxiliary_point_handle
 from shuxueshuo_server.solver.runtime.condition_roles import (
     resolve_read_closed_right_angle_method_roles,
 )
 from shuxueshuo_server.solver.runtime.models import ContextPath
-from shuxueshuo_server.solver.runtime.path_reduction_roles import (
-    resolve_read_closed_path_reduction_inputs,
-)
-from shuxueshuo_server.solver.runtime.path_term_parsing import (
-    PathTermParseError,
-    parse_legacy_path_expression,
-)
-from shuxueshuo_server.solver.runtime.function_specs import (
-    FunctionAdapterRegistry,
-    identity_safe_parameter_value_expansion,
-)
+from shuxueshuo_server.solver.runtime.function_specs import FunctionAdapterRegistry
 from shuxueshuo_server.solver.runtime.functional_compile_contract import (
     compile_capability_id as _compile_capability_id,
     compile_created_entities as _compile_created_entities,
@@ -57,17 +46,6 @@ from shuxueshuo_server.solver.runtime.binding_index import (
 )
 from shuxueshuo_server.solver.runtime.entity_state_resolver import EntityStateResolver
 
-BindingSelectorFn = Callable[
-    [FunctionalCompileStepView, CanonicalRuntimeBindingIndex, Mapping[str, str]],
-    str | None,
-]
-
-ExpansionSelectorFn = Callable[
-    [FunctionalCompileStepView, CanonicalRuntimeBindingIndex, Mapping[str, str]],
-    dict[str, str],
-]
-
-
 @dataclass(frozen=True)
 class _PointValueCandidate:
     """A readable Point value for one geometric point object."""
@@ -88,27 +66,17 @@ class MethodBindingRuleRegistry:
     """把 FunctionalCompileStepView semantic handles 绑定到 method input slots。
 
     这里不再按 method_id 写一大段专属分支。FamilySpec 提供
-    ``MethodBindingRuleSpec``，runtime 只根据 selector 名调用通用解析器。这样新增
-    或调整某个 family 的 method slot 映射时，优先改 family spec，而不是改编译器
-    主流程。
+        ``MethodBindingRuleSpec``，runtime只消费已经finalize的typed input。
+        新增或调整family的method slot映射时，优先改family spec，而不是改编译器主流程。
     """
 
     def __init__(
         self,
         rules: tuple[MethodBindingRuleSpec, ...] = (),
-        *,
-        selectors: Mapping[str, BindingSelectorFn] | None = None,
-        expansion_selectors: Mapping[str, ExpansionSelectorFn] | None = None,
     ) -> None:
         self.rules = {rule.method_id: rule for rule in rules}
-        self.selectors = dict(selectors or DEFAULT_BINDING_SELECTORS)
-        self.expansion_selectors = dict(expansion_selectors or DEFAULT_EXPANSION_SELECTORS)
-        self.function_adapters = FunctionAdapterRegistry(
-            selectors=self.selectors,
-            expansion_selectors=self.expansion_selectors,
-        )
+        self.function_adapters = FunctionAdapterRegistry()
         self.function_binding_events: list[FunctionalFunctionBindingEvent] = []
-        self._validate_rule_selectors()
 
     @classmethod
     def from_family_spec(cls, family_spec: SolverFamilySpec) -> "MethodBindingRuleRegistry":
@@ -122,9 +90,8 @@ class MethodBindingRuleRegistry:
         index: CanonicalRuntimeBindingIndex,
         *,
         local_outputs: dict[str, str] | None = None,
-        include_expansion_selectors: bool = True,
-        expansion_selectors_override: tuple[str, ...] | None = None,
         exact_inputs: Mapping[str, str] | None = None,
+        method_input_specs: Mapping[str, object] | None = None,
         distinct_arg_groups: tuple[tuple[str, ...], ...] = (),
         apply_constraint_analyzer: bool = True,
     ) -> dict[str, str]:
@@ -139,22 +106,13 @@ class MethodBindingRuleRegistry:
                     step,
                     index,
                     local_outputs=local_outputs,
-                    include_expansion_selectors=include_expansion_selectors,
-                    expansion_selectors_override=(
-                        expansion_selectors_override
-                        if expansion_selectors_override is not None
-                        else (
-                            rule.expansion_selectors
-                            if rule is not None and include_expansion_selectors
-                            else None
-                        )
-                    ),
                     input_bindings_override=(
                         rule.input_bindings
                         if rule is not None
                         else None
                     ),
                     exact_inputs=exact_inputs,
+                    method_input_specs=method_input_specs,
                     distinct_arg_groups=distinct_arg_groups,
                     apply_constraint_analyzer=apply_constraint_analyzer,
                 )
@@ -189,278 +147,22 @@ class MethodBindingRuleRegistry:
         for binding in rule.input_bindings:
             if binding.input_name in inputs:
                 continue
-            try:
-                value = self._select(binding.selector, step, index, local_outputs=local_outputs)
-            except StrategyDraftValidationError:
-                if binding.required:
-                    raise
+            if isinstance(
+                binding.derivation,
+                OrdinalZeroTemplateDerivationSpec,
+            ):
                 continue
-            if value is not None:
-                inputs[binding.input_name] = value
-        if expansion_selectors_override is not None:
-            expansion_selectors = expansion_selectors_override
-        elif include_expansion_selectors:
-            expansion_selectors = rule.expansion_selectors
-        else:
-            expansion_selectors = ()
-        for selector in expansion_selectors:
-            expanded = identity_safe_parameter_value_expansion(
-                self._expand(
-                    selector,
-                    step,
-                    index,
-                    local_outputs=local_outputs,
-                ),
-                existing_inputs=inputs,
+            if not binding.required:
+                continue
+            raise StrategyDraftValidationError(
+                "planner.method_input_binding_lowerer_missing: "
+                f"method={method_id}, input={binding.input_name}"
             )
-            for input_name, path in expanded.items():
-                inputs.setdefault(input_name, path)
         return inputs
 
     def rule_for(self, method_id: str) -> MethodBindingRuleSpec | None:
         """返回 method 的 binding rule；不存在时返回 None。"""
         return self.rules.get(method_id)
-
-    def _select(
-        self,
-        selector: str,
-        step: FunctionalCompileStepView,
-        index: CanonicalRuntimeBindingIndex,
-        *,
-        local_outputs: dict[str, str],
-    ) -> str | None:
-        """执行一个通用 selector。"""
-        fn = self.selectors.get(selector)
-        if fn is None:
-            raise StrategyDraftValidationError(f"binding_selector_missing: {selector}")
-        return fn(step, index, local_outputs)
-
-    def _expand(
-        self,
-        selector: str,
-        step: FunctionalCompileStepView,
-        index: CanonicalRuntimeBindingIndex,
-        *,
-        local_outputs: dict[str, str],
-    ) -> dict[str, str]:
-        """执行一个可选输入扩展 selector。"""
-        fn = self.expansion_selectors.get(selector)
-        if fn is None:
-            raise StrategyDraftValidationError(f"binding_expansion_selector_missing: {selector}")
-        return fn(step, index, local_outputs)
-
-    def _validate_rule_selectors(self) -> None:
-        """构造 registry 时提前发现 FamilySpec selector 拼写错误。"""
-        for rule in self.rules.values():
-            for binding in rule.input_bindings:
-                if binding.selector not in self.selectors:
-                    raise StrategyDraftValidationError(
-                        f"binding_selector_missing: {binding.selector}"
-                    )
-            for selector in rule.expansion_selectors:
-                if selector not in self.expansion_selectors:
-                    raise StrategyDraftValidationError(
-                        f"binding_expansion_selector_missing: {selector}"
-                    )
-
-def _fact_selector(fact_type: str, expected_type: str) -> BindingSelectorFn:
-    """创建按 fact type 读取 ContextPath 的 selector。"""
-
-    def select(
-        step: FunctionalCompileStepView,
-        index: CanonicalRuntimeBindingIndex,
-        local_outputs: Mapping[str, str],
-    ) -> str:
-        return index.path_for(
-            index.fact_handle_by_type(fact_type, step=step),
-            expected_type=expected_type,
-        )
-
-    return select
-
-def _optional_fact_selector(fact_type: str, expected_type: str) -> BindingSelectorFn:
-    """创建可选 fact selector；找不到时返回 None。"""
-
-    def select(
-        step: FunctionalCompileStepView,
-        index: CanonicalRuntimeBindingIndex,
-        local_outputs: Mapping[str, str],
-    ) -> str | None:
-        try:
-            return index.path_for(
-                index.fact_handle_by_type(fact_type, step=step),
-                expected_type=expected_type,
-            )
-        except StrategyDraftValidationError:
-            return None
-
-    return select
-
-def _symbol_selector(name: str) -> BindingSelectorFn:
-    """创建读取 problem scope symbol 的 selector。"""
-
-    def select(
-        step: FunctionalCompileStepView,
-        index: CanonicalRuntimeBindingIndex,
-        local_outputs: Mapping[str, str],
-    ) -> str:
-        return index.path_for(f"symbol:problem:{name}", expected_type="Symbol")
-
-    return select
-
-def _free_parameter_if_single_curve_point_selector(name: str) -> BindingSelectorFn:
-    """仅当 step 只读到一个曲线点约束时，保留指定自由参数。
-
-    这类 selector 用于“先把函数化简成单参数表达式”的场景。若同一步读到了
-    两个或更多曲线点，通常已经足以完全确定系数，此时不应再强行保留自由参数。
-    """
-
-    def select(
-        step: FunctionalCompileStepView,
-        index: CanonicalRuntimeBindingIndex,
-        local_outputs: Mapping[str, str],
-    ) -> str | None:
-        if len(_curve_point_handles_from_reads(step, index)) != 1:
-            return None
-        return index.path_for(f"symbol:problem:{name}", expected_type="Symbol")
-
-    return select
-
-def _read_type_selector(value_type: str) -> BindingSelectorFn:
-    """创建从当前 step reads 或可见父级中读取指定 runtime 类型的 selector。"""
-
-    def select(
-        step: FunctionalCompileStepView,
-        index: CanonicalRuntimeBindingIndex,
-        local_outputs: Mapping[str, str],
-    ) -> str:
-        local_path = local_outputs.get(f"type:{value_type}")
-        if local_path is not None:
-            return local_path
-        return _path_for_readable_type(index, step, value_type)
-
-    return select
-
-
-def _read_type_union_selector(*value_types: str) -> BindingSelectorFn:
-    """创建可读取一组 runtime 类型的 selector，优先遵守 _compile_input_handles(step) 顺序。"""
-
-    def select(
-        step: FunctionalCompileStepView,
-        index: CanonicalRuntimeBindingIndex,
-        local_outputs: Mapping[str, str],
-    ) -> str:
-        for value_type in value_types:
-            local_path = local_outputs.get(f"type:{value_type}")
-            if local_path is not None:
-                return local_path
-        value_type_set = set(value_types)
-        for handle in _compile_input_handles(step):
-            binding = index.bindings.get(handle)
-            if binding is not None and binding.value_type in value_type_set:
-                return binding.path
-        for value_type in value_types:
-            path = _path_for_readable_type_or_none(index, step, value_type)
-            if path is not None:
-                return path
-        joined = "|".join(value_types)
-        raise StrategyDraftValidationError(
-            f"binding_type_not_found: step={step.step_id}, type={joined}"
-        )
-
-    return select
-
-def _constant_selector(value: str) -> BindingSelectorFn:
-    """创建返回固定 runtime path 的 selector。"""
-
-    def select(
-        step: FunctionalCompileStepView,
-        index: CanonicalRuntimeBindingIndex,
-        local_outputs: Mapping[str, str],
-    ) -> str:
-        return value
-
-    return select
-
-def _function_parabola_selector(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-    local_outputs: Mapping[str, str],
-) -> str:
-    """Prefer an explicitly read Parabola state, then use the IR template.
-
-    The runtime index already contains paths reserved for the current step's
-    outputs. Scanning every visible binding here can therefore select the
-    Parabola that this invocation has not produced yet. Functional
-    reconciliation puts a prior materialized state in ``reads`` when this is
-    a refinement call, so the read list is the authoritative continuation
-    signal.
-    """
-    for handle in _compile_input_handles(step):
-        binding = index.bindings.get(handle)
-        if binding is not None and binding.value_type == "Parabola":
-            return binding.path
-    return index.path_for("function:problem:parabola", expected_type="Expression")
-
-
-def _quadratic_template_selector(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-    local_outputs: Mapping[str, str],
-) -> str:
-    """Read the immutable ProblemIR function template, not a refined state."""
-
-    return index.path_for(
-        "function:problem:parabola",
-        expected_type="Expression",
-    )
-
-def _square_side_start_selector(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-    local_outputs: Mapping[str, str],
-) -> str:
-    """读取 square fact 的第一个顶点，作为以 AE 为边的起点 A。"""
-    side_start = _square_side_start_handle(step, index)
-    try:
-        return _point_state_path_for_name(
-            _handle_name(side_start),
-            step,
-            index,
-            error_code="square_side_start_state_not_found",
-        )
-    except StrategyDraftValidationError:
-        return _point_path_from_step_reads(side_start, step, index)
-
-def _square_side_end_selector(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-    local_outputs: Mapping[str, str],
-) -> str:
-    """读取 square step 的已知边第二端点。"""
-    side_end = _square_side_end_handle(step, index)
-    return _point_state_path_for_name(
-        _handle_name(side_end),
-        step,
-        index,
-        error_code="square_side_end_state_not_found",
-    )
-
-def _square_side_start_ref_selector(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-    local_outputs: Mapping[str, str],
-) -> str:
-    """读取 square 已知边起点 PointRef。"""
-    return index.point_identity_path_for(_square_side_start_handle(step, index))
-
-def _square_side_end_ref_selector(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-    local_outputs: Mapping[str, str],
-) -> str:
-    """读取 square 已知边终点 PointRef。"""
-    return index.point_identity_path_for(_square_side_end_handle(step, index))
 
 def _square_side_start_handle(
     step: FunctionalCompileStepView,
@@ -508,261 +210,6 @@ def _square_side_end_handle(
         f"step={step.step_id}, candidates={','.join(unique)}"
     )
 
-def _point_output_ref_selector(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-    local_outputs: Mapping[str, str],
-) -> str:
-    """读取当前 step 目标点的 PointRef。"""
-    handle = _point_output_handle(step, index)
-    if any(
-        write.step_id == step.step_id
-        and write.runtime_type == "Point"
-        and write.object_ref == handle
-        and write.write_mode == "transition"
-        for write in index.projected_state_writes
-    ):
-        return _point_transition_target_selector(step, index, local_outputs)
-    index.ensure_point_declaration(handle, definition="method_output_point")
-    return index.point_ref_path_for(handle)
-
-
-def _point_transition_target_selector(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-    local_outputs: Mapping[str, str],
-) -> str:
-    """Bind a PointRef|Point target without treating an existing Point as duplicate."""
-    handle = _point_output_handle(step, index)
-    binding = index.binding_for(handle)
-    if binding.value_type == "Point":
-        return index.path_for(handle, expected_type="PointRef|Point")
-    index.ensure_point_declaration(handle, definition="method_transition_point")
-    return index.path_for(handle, expected_type="PointRef|Point")
-
-def _translated_point_selector(role: str) -> BindingSelectorFn:
-    """创建平移点 method 的 source/target selector。"""
-
-    def select(
-        step: FunctionalCompileStepView,
-        index: CanonicalRuntimeBindingIndex,
-        local_outputs: Mapping[str, str],
-    ) -> str:
-        target_handle = _point_output_handle(step, index)
-        target_path = index.immutable_problem_point_ref_path_for(target_handle)
-        if role == "target":
-            return target_path
-        target_payload = index.handle_registry.entity_payloads.get(target_handle)
-        if isinstance(target_payload, Mapping):
-            source_name = (
-                target_payload.get("of")
-                or target_payload.get("source")
-                or target_payload.get("base")
-            )
-        else:
-            try:
-                target_ref = index.context.read_path(
-                    target_path,
-                    from_scope_id=step.scope_id,
-                    expected_type="PointRef",
-                ).value
-            except (KeyError, PermissionError, TypeError, ValueError) as exc:
-                raise StrategyDraftValidationError(
-                    f"translated_point_target_ref_not_found: {target_handle}"
-                ) from exc
-            source_name = (
-                target_ref.definition.get("of")
-                or target_ref.definition.get("source")
-                or target_ref.definition.get("base")
-            )
-        if not source_name:
-            raise StrategyDraftValidationError(
-                f"translated_point_source_not_found: {target_handle}"
-            )
-        source_handle = index.point_handle_by_name(str(source_name), step=step)
-        return _point_path_from_step_reads(source_handle, step, index)
-
-    return select
-
-def _midpoint_selector(role: str) -> BindingSelectorFn:
-    """创建中点 method 的角色 selector。"""
-
-    def select(
-        step: FunctionalCompileStepView,
-        index: CanonicalRuntimeBindingIndex,
-        local_outputs: Mapping[str, str],
-    ) -> str:
-        target, p1, p2 = _midpoint_roles(step, index)
-        values = {
-            "target": (target, "PointRef"),
-            "p1": (p1, "Point"),
-            "p2": (p2, "Point"),
-        }
-        handle, expected_type = values[role]
-        return index.path_for(handle, expected_type=expected_type)
-
-    return select
-
-def _right_angle_selector(role: str) -> BindingSelectorFn:
-    """创建直角等腰候选 method 的角色 selector。"""
-
-    def select(
-        step: FunctionalCompileStepView,
-        index: CanonicalRuntimeBindingIndex,
-        local_outputs: Mapping[str, str],
-    ) -> str:
-        roles = resolve_read_closed_right_angle_method_roles(
-            step,
-            index,
-        )
-        values = {
-            "anchor": (roles.anchor, "Point"),
-            "reference": (roles.reference, "Point"),
-            "target": (roles.target, "PointRef"),
-        }
-        handle, expected_type = values[role]
-        return index.path_for(handle, expected_type=expected_type)
-
-    return select
-
-def _length_segment_selector(role: str) -> BindingSelectorFn:
-    """创建线段长度条件的端点 selector。"""
-
-    def select(
-        step: FunctionalCompileStepView,
-        index: CanonicalRuntimeBindingIndex,
-        local_outputs: Mapping[str, str],
-    ) -> str:
-        p1, p2 = _length_condition_points(step, index)
-        values = {"p1": p1, "p2": p2}
-        return index.path_for(values[role], expected_type="Point")
-
-    return select
-
-def _length_reference_segment_selector(role: str) -> BindingSelectorFn:
-    """创建线段比例条件右侧参考线段的端点 selector。"""
-
-    def select(
-        step: FunctionalCompileStepView,
-        index: CanonicalRuntimeBindingIndex,
-        local_outputs: Mapping[str, str],
-    ) -> str | None:
-        points = _length_reference_condition_points(step, index)
-        if points is None:
-            return None
-        values = {"p1": points[0], "p2": points[1]}
-        return index.path_for(values[role], expected_type="Point")
-
-    return select
-
-def _length_condition_selector(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-    local_outputs: Mapping[str, str],
-) -> str:
-    """读取长度条件，兼容长度平方与两线段比例关系。"""
-    return index.path_for(_length_condition_handle(step, index), expected_type="Condition")
-
-def _parameter_symbol_selector(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-    local_outputs: Mapping[str, str],
-) -> str:
-    """读取 family/runtime 选定的主参数符号。"""
-    return index.parameter_symbol_path()
-
-
-def _parameter_symbol_from_reads_selector(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-    local_outputs: Mapping[str, str],
-) -> str:
-    """Prefer an explicit target Symbol without changing legacy semantics."""
-    explicit = _explicit_symbol_paths(step, index)
-    if len(explicit) == 1:
-        return explicit[0]
-    return index.parameter_symbol_path()
-
-
-def _parameter_symbol_from_reads_or_expression_selector(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-    local_outputs: Mapping[str, str],
-) -> str:
-    """Bind the unique Symbol identity read by, or free in, the input expression."""
-    explicit = [
-        binding.path
-        for handle in _compile_input_handles(step)
-        if (binding := index.bindings.get(handle)) is not None
-        and binding.value_type == "Symbol"
-    ]
-    explicit = _unique_ordered(explicit)
-    if len(explicit) == 1:
-        return explicit[0]
-    if len(explicit) > 1:
-        raise StrategyDraftValidationError(
-            "function.arg_ambiguous: parameter Symbol has multiple explicit reads"
-        )
-    expression_path = _path_for_readable_type(index, step, "MinimumExpression")
-    expression = index.context.read_path(
-        expression_path,
-        from_scope_id=step.scope_id,
-        expected_type="MinimumExpression",
-    ).value
-    free_symbols = set(getattr(expression, "free_symbols", set()))
-    candidates: list[str] = []
-    for binding in index.bindings.values():
-        if binding.value_type != "Symbol":
-            continue
-        try:
-            symbol = index.context.read_path(
-                binding.path,
-                from_scope_id=step.scope_id,
-                expected_type="Symbol",
-            ).value
-        except (KeyError, PermissionError, TypeError, ValueError):
-            continue
-        if symbol in free_symbols:
-            candidates.append(binding.path)
-    candidates = _unique_ordered(candidates)
-    if len(candidates) == 1:
-        return candidates[0]
-    if not candidates:
-        raise StrategyDraftValidationError(
-            "function.return_identity_unresolved: "
-            "no visible Symbol StateSlot matches the expression free symbols"
-        )
-    raise StrategyDraftValidationError(
-        "function.arg_ambiguous: parameter Symbol matches multiple free symbols"
-    )
-
-def _parameter_constraint_selector(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-    local_outputs: Mapping[str, str],
-) -> str | None:
-    """读取与当前待求 Symbol identity 对应的参数约束。"""
-    explicit = _explicit_symbol_paths(step, index)
-    if len(explicit) == 1:
-        symbol_path = explicit[0]
-        symbol_handles = {
-            handle
-            for handle, binding in index.bindings.items()
-            if binding.path == symbol_path and binding.value_type == "Symbol"
-        }
-        matching = [
-            handle
-            for handle in index.handles_by_fact_type("symbol_constraint")
-            if index.handle_registry.fact_payloads.get(handle, {}).get("subject")
-            in symbol_handles
-        ]
-        if len(matching) == 1:
-            return index.path_for(matching[0], expected_type="Constraint")
-        if not matching:
-            return None
-    return index.parameter_constraint_path()
-
-
 def _explicit_symbol_paths(
     step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
@@ -773,27 +220,6 @@ def _explicit_symbol_paths(
         if (binding := index.bindings.get(handle)) is not None
         and binding.value_type == "Symbol"
     )
-
-
-def _known_parameter_substitution_pair(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-) -> tuple[str, str] | None:
-    """Resolve one already-known Symbol value used by the current input state."""
-    target_path = _parameter_symbol_from_reads_selector(step, index, {})
-    candidates = [
-        pair
-        for pair in parameter_substitution_pairs_from_reads(step, index)
-        if pair[0] != target_path
-    ]
-    if not candidates:
-        return None
-    if len(candidates) > 1:
-        raise StrategyDraftValidationError(
-            "function.arg_ambiguous: multiple known parameter substitutions "
-            "are required by the input state"
-        )
-    return candidates[0]
 
 
 def parameter_substitution_pairs_from_reads(
@@ -811,7 +237,11 @@ def parameter_substitution_pairs_from_reads(
         binding = index.bindings.get(handle)
         if binding is None or binding.value_type != "ParameterValue":
             continue
-        symbol_path = _parameter_symbol_path_for_value(handle, index)
+        symbol_path = _parameter_symbol_path_for_value(
+            handle,
+            index,
+            step=step,
+        )
         candidates.append((symbol_path, binding.path))
     candidates = list(dict.fromkeys(candidates))
     values_by_symbol: dict[str, set[str]] = {}
@@ -830,680 +260,98 @@ def parameter_substitution_pairs_from_reads(
     return tuple(candidates)
 
 
-def _known_parameter_symbol_from_reads_selector(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-    local_outputs: Mapping[str, str],
-) -> str | None:
-    pair = _known_parameter_substitution_pair(step, index)
-    return pair[0] if pair is not None else None
-
-
-def _known_parameter_value_from_reads_selector(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-    local_outputs: Mapping[str, str],
-) -> str | None:
-    pair = _known_parameter_substitution_pair(step, index)
-    return pair[1] if pair is not None else None
-
-def _dynamic_constraint_selector(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-    local_outputs: Mapping[str, str],
-) -> str:
-    """读取动点参数范围约束。"""
-    return index.dynamic_constraint_path(step=step)
-
-def _dynamic_symbol_selector(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-    local_outputs: Mapping[str, str],
-) -> str:
-    """读取动点参数符号。"""
-    return index.dynamic_parameter_symbol_path(step=step)
-
-def _x_axis_known_point_selector(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-    local_outputs: Mapping[str, str],
-) -> str | None:
-    """读取 x 轴另一交点 method 用来排除的已知交点。"""
-    target_handle = _point_output_handle(step, index)
-    index.ensure_point_declaration(target_handle, definition="method_output_point")
-    target_path = index.point_ref_path_for(target_handle)
-    try:
-        target_ref = index.context.read_path(
-            target_path,
-            from_scope_id=step.scope_id,
-            expected_type="PointRef",
-        ).value
-        exclude_name = target_ref.definition.get("exclude_point") or target_ref.definition.get("known_point")
-        if exclude_name:
-            return index.path_for(
-                index.point_handle_by_name(str(exclude_name), step=step),
-                expected_type="Point",
-            )
-    except (KeyError, PermissionError, TypeError, ValueError):
-        pass
-    for handle in _compile_input_handles(step):
-        if handle.startswith("point:"):
-            try:
-                binding = index.binding_for(handle)
-                if binding.value_type != "Point":
-                    continue
-                return index.path_for(handle, expected_type="Point")
-            except StrategyDraftValidationError:
-                continue
-    return None
-
-def _read_minimum_expression_selector(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-    local_outputs: Mapping[str, str],
-) -> str:
-    """读取当前 scope 可见的 MinimumExpression。"""
-    return _path_for_readable_type(index, step, "MinimumExpression")
-
-def _weighted_path_condition_selector(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-    local_outputs: Mapping[str, str],
-) -> str:
-    """读取加权路径题设条件。"""
-    return index.path_for(
-        index.fact_handle_by_type("minimum_value", step=step),
-        expected_type="Condition",
-    )
-
-def _weighted_path_selector(role: str) -> BindingSelectorFn:
-    """创建 weighted path method 的几何角色 selector。"""
-
-    def select(
-        step: FunctionalCompileStepView,
-        index: CanonicalRuntimeBindingIndex,
-        local_outputs: Mapping[str, str],
-    ) -> str:
-        fixed, moving, curve = _weighted_path_roles(step, index)
-        values = {
-            "fixed_point": fixed,
-            "moving_point": moving,
-            "curve_point": curve,
-        }
-        return index.path_for(values[role], expected_type="Point")
-
-    return select
-
-
-def _weighted_path_identity_selector(role: str) -> BindingSelectorFn:
-    """Bind an immutable canonical PointRef for transformation metadata."""
-
-    def select(
-        step: FunctionalCompileStepView,
-        index: CanonicalRuntimeBindingIndex,
-        local_outputs: Mapping[str, str],
-    ) -> str:
-        fixed, moving, curve = _weighted_path_roles(step, index)
-        values = {
-            "moving_point_ref": moving,
-            "linked_fixed_endpoint_ref": curve,
-        }
-        return index.point_identity_path_for(values[role])
-
-    return select
-
-def _weighted_auxiliary_point_ref_selector(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-    local_outputs: Mapping[str, str],
-) -> str:
-    """读取或声明加权路径辅助点 PointRef。"""
-    item = _created_point_handle(step)
-    if item is None:
-        item = CreatedEntity(
-            handle=_fresh_auxiliary_point_handle(step, index),
-            entity_type="point",
-            valid_scope=step.scope_id,
-            description="weighted_axis_path_triangle_transform 自动声明的加权路径辅助点",
-        )
-    index.register_created_entity(item)
-    return index.path_for(item.handle, expected_type="PointRef")
-
-def _weighted_auxiliary_point_selector(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-    local_outputs: Mapping[str, str],
-) -> str:
-    """读取加权路径辅助点坐标。"""
-    auxiliary = _auxiliary_point_handle_from_reads(step, index)
-    return index.path_for(auxiliary, expected_type="Point")
-
-
-def _square_path_fixed_endpoint_ref_selector(
-    position: int,
-) -> BindingSelectorFn:
-    """Bind producer-owned square-path endpoint identity metadata."""
-
-    def select(
-        step: FunctionalCompileStepView,
-        index: CanonicalRuntimeBindingIndex,
-        local_outputs: Mapping[str, str],
-    ) -> str:
-        side_start, other_fixed = _square_path_fixed_endpoint_handles(
-            step,
-            index,
-        )
-        handle = side_start if position == 1 else other_fixed
-        return index.point_identity_path_for(handle)
-
-    return select
-
-
-def _square_path_fixed_endpoint_handles(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-) -> tuple[str, str]:
-    """Resolve square-path roles from exact fact references when available."""
-
-    square_handle = index.fact_handle_by_type("square", step=step)
-    square = index.fact_payload(square_handle)
-    vertices = tuple(str(item) for item in square.get("vertices", ()))
-    if (
-        len(vertices) < 4
-        or not all(
-            handle.startswith("point:") and handle in index.bindings
-            for handle in vertices[:4]
-        )
-    ):
-        raise StrategyDraftValidationError(
-            "square_path_roles_missing: ordered square vertices"
-        )
-    side_start, side_end, _, moving_vertex = vertices[:4]
-
-    midpoint_handle = index.fact_handle_by_type(
-        "midpoint_definition",
-        step=step,
-    )
-    midpoint = index.fact_payload(midpoint_handle)
-    midpoint_point = str(midpoint.get("point", ""))
-    midpoint_of = tuple(str(item) for item in midpoint.get("of", ()))
-    if (
-        midpoint_point not in index.bindings
-        or len(midpoint_of) != 2
-        or set(midpoint_of) != {side_start, side_end}
-    ):
-        raise StrategyDraftValidationError(
-            "square_path_roles_missing: midpoint of square side"
-        )
-
-    center_handle = index.fact_handle_by_type("square_center", step=step)
-    center = index.fact_payload(center_handle)
-    center_point = str(center.get("point", ""))
-    if (
-        center_point not in index.bindings
-        or str(center.get("square", "")) not in {"", square_handle}
-    ):
-        raise StrategyDraftValidationError(
-            "square_path_roles_missing: square center"
-        )
-
-    target_handle = index.fact_handle_by_type(
-        "path_minimum_target",
-        step=step,
-    )
-    target = index.fact_payload(target_handle)
-    structured = target.get("terms")
-    if isinstance(structured, list):
-        endpoint_pairs = _typed_path_endpoint_pairs(
-            structured,
-            step=step,
-            index=index,
-            context="square_path",
-        )
-        if len(endpoint_pairs) != 3:
-            raise StrategyDraftValidationError(
-                "square_path_roles_missing: three typed path terms"
-            )
-        _validate_typed_path_display(
-            endpoint_pairs,
-            str(target.get("path", "")),
-            step=step,
-            index=index,
-            context="square_path",
-        )
-        center_midpoint = _find_endpoint_pair(
-            endpoint_pairs,
-            center_point,
-            midpoint_point,
-        )
-        remaining = [pair for pair in endpoint_pairs if pair != center_midpoint]
-        midpoint_pairs = [pair for pair in remaining if midpoint_point in pair]
-        if len(midpoint_pairs) != 1:
-            raise StrategyDraftValidationError(
-                "square_path_roles_missing: midpoint segment"
-            )
-        other_fixed = _other_endpoint_handle(
-            midpoint_pairs[0],
-            midpoint_point,
-        )
-        final_pairs = [pair for pair in remaining if pair != midpoint_pairs[0]]
-        if len(final_pairs) != 1 or set(final_pairs[0]) != {
-            other_fixed,
-            moving_vertex,
-        }:
-            raise StrategyDraftValidationError(
-                "square_path_roles_missing: moving segment"
-            )
-        return side_start, other_fixed
-
-    # Old authored fixtures predate typed path terms. Restrict compatibility
-    # to source-visible names; local handle ids still never become authority.
-    segments = _segments_from_path_text(str(target.get("path", "")))
-    moving_name = index.entity_semantic_name(moving_vertex)
-    incident = tuple(segment for segment in segments if moving_name in segment)
-    if len(incident) != 1:
-        raise StrategyDraftValidationError(
-            "square_path_roles_missing: moving segment"
-        )
-    fixed_name = _other_endpoint(incident[0], moving_name)
-    return side_start, index.point_handle_by_name(fixed_name, step=step)
-
-
-def _typed_path_endpoint_pairs(
-    raw_terms: list[Any],
-    *,
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-    context: str,
-) -> list[tuple[str, str]]:
-    pairs: list[tuple[str, str]] = []
-    for term_index, raw_pair in enumerate(raw_terms):
-        if (
-            not isinstance(raw_pair, list)
-            or len(raw_pair) != 2
-            or not all(
-                isinstance(handle, str)
-                and handle.startswith("point:")
-                and handle in index.bindings
-                and index._handle_binding_visible(handle, step.scope_id)
-                for handle in raw_pair
-            )
-        ):
-            raise StrategyDraftValidationError(
-                f"{context}_typed_term_invalid: "
-                f"index={term_index}, term={raw_pair!r}"
-            )
-        pairs.append((str(raw_pair[0]), str(raw_pair[1])))
-    return pairs
-
-
-def _validate_typed_path_display(
-    endpoint_pairs: list[tuple[str, str]],
-    raw_path: str,
-    *,
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-    context: str,
-) -> None:
-    point_names = tuple(
-        sorted(
-            {
-                index.entity_semantic_name(handle)
-                for pair in endpoint_pairs
-                for handle in pair
-            }
-        )
-    )
-    try:
-        display_terms = parse_legacy_path_expression(
-            raw_path,
-            point_names=point_names,
-            resolve_point=lambda name: name,
-        )
-    except PathTermParseError as exc:
-        raise StrategyDraftValidationError(
-            f"{context}_expression_invalid: {exc.code}: {exc}"
-        ) from exc
-    if len(display_terms) != len(endpoint_pairs):
-        raise StrategyDraftValidationError(
-            f"{context}_term_count_drift: "
-            f"display={len(display_terms)}, structured={len(endpoint_pairs)}"
-        )
-    for term_index, (pair, display_term) in enumerate(
-        zip(endpoint_pairs, display_terms)
-    ):
-        typed_names = {
-            index.entity_semantic_name(pair[0]),
-            index.entity_semantic_name(pair[1]),
-        }
-        display_names = {display_term.start, display_term.end}
-        if typed_names != display_names:
-            raise StrategyDraftValidationError(
-                f"{context}_display_term_drift: index={term_index}, "
-                f"typed={sorted(typed_names)}, display={sorted(display_names)}"
-            )
-
-
-def _find_endpoint_pair(
-    pairs: list[tuple[str, str]],
-    first: str,
-    second: str,
-) -> tuple[str, str]:
-    matches = [pair for pair in pairs if set(pair) == {first, second}]
-    if len(matches) != 1:
-        raise StrategyDraftValidationError(
-            "square_path_roles_missing: center-midpoint segment"
-        )
-    return matches[0]
-
-def _path_reduction_selector(role: str) -> BindingSelectorFn:
-    """创建两动点路径转化 recipe 的角色 selector。"""
-
-    def select(
-        step: FunctionalCompileStepView,
-        index: CanonicalRuntimeBindingIndex,
-        local_outputs: Mapping[str, str],
-    ) -> str:
-        roles = _path_reduction_roles(step, index)
-        expected_type = "Condition" if role in {
-            "first_membership",
-            "second_membership",
-            "relation",
-        } else "Point"
-        return index.path_for(roles[role], expected_type=expected_type)
-
-    return select
-
-def _distance_selector(role: str) -> BindingSelectorFn:
-    """创建距离 method 的端点 selector。"""
-
-    def select(
-        step: FunctionalCompileStepView,
-        index: CanonicalRuntimeBindingIndex,
-        local_outputs: Mapping[str, str],
-    ) -> str:
-        p1, p2 = _distance_point_handles(step, index)
-        values = {"p1": p1, "p2": p2}
-        return _point_path_from_step_reads(values[role], step, index)
-
-    return select
-
-def _intersection_selector(role: str) -> BindingSelectorFn:
-    """创建直线交点 method 的角色 selector。"""
-
-    def select(
-        step: FunctionalCompileStepView,
-        index: CanonicalRuntimeBindingIndex,
-        local_outputs: Mapping[str, str],
-    ) -> str:
-        line1_p1, line1_p2, line2_p1, line2_p2, target = _line_intersection_roles(step, index)
-        values = {
-            "line1_p1": (line1_p1, "Point"),
-            "line1_p2": (line1_p2, "Point"),
-            "line2_p1": (line2_p1, "Point"),
-            "line2_p2": (line2_p2, "Point"),
-            "target": (target, "PointRef"),
-        }
-        handle, expected_type = values[role]
-        return index.path_for(handle, expected_type=expected_type)
-
-    return select
-
-def _angle_sum_selector(role: str) -> BindingSelectorFn:
-    """创建角和转 y 轴截点 method 的角色 selector。"""
-
-    def select(
-        step: FunctionalCompileStepView,
-        index: CanonicalRuntimeBindingIndex,
-        local_outputs: Mapping[str, str],
-    ) -> str:
-        roles = _angle_sum_y_axis_roles(step, index)
-        expected_type = "Condition" if role == "condition" else "Point"
-        if role == "target":
-            expected_type = "PointRef"
-            index.ensure_point_declaration(roles[role], definition="method_output_point")
-        if expected_type == "Point":
-            return _point_path_from_step_reads(roles[role], step, index)
-        return index.path_for(roles[role], expected_type=expected_type)
-
-    return select
-
-
-def _angle_equality_selector(role: str) -> BindingSelectorFn:
-    """创建等角转轴截点 method 的角色 selector。"""
-
-    def select(
-        step: FunctionalCompileStepView,
-        index: CanonicalRuntimeBindingIndex,
-        local_outputs: Mapping[str, str],
-    ) -> str:
-        roles = _angle_equality_axis_roles(step, index)
-        if role == "angle_equality":
-            return index.path_for(roles[role], expected_type="AngleEquality")
-        expected_type = "PointRef" if role == "target" else "Point"
-        if role == "target":
-            index.ensure_point_declaration(roles[role], definition="method_output_point")
-            return index.point_ref_path_for(roles[role])
-        return _point_path_from_step_reads(roles[role], step, index)
-
-    return select
-
-
-def _line_parabola_selector(role: str) -> BindingSelectorFn:
-    """创建直线与抛物线第二交点 method 的角色 selector。"""
-
-    def select(
-        step: FunctionalCompileStepView,
-        index: CanonicalRuntimeBindingIndex,
-        local_outputs: Mapping[str, str],
-    ) -> str:
-        roles = _line_parabola_roles(step, index)
-        expected_type = "PointRef" if role == "target" else "Point"
-        if role == "target":
-            index.ensure_point_declaration(roles[role], definition="method_output_point")
-        if expected_type == "Point":
-            return _point_path_from_step_reads(roles[role], step, index)
-        return index.path_for(roles[role], expected_type=expected_type)
-
-    return select
-
-def _equal_length_ray_selector(role: str) -> BindingSelectorFn:
-    """创建射线上等长构造点 method 的角色 selector。"""
-
-    def select(
-        step: FunctionalCompileStepView,
-        index: CanonicalRuntimeBindingIndex,
-        local_outputs: Mapping[str, str],
-    ) -> str:
-        roles = _equal_length_ray_roles(step, index)
-        expected_type = "PointRef" if role == "target" else "Point"
-        if role == "target":
-            index.ensure_point_declaration(roles[role], definition="method_output_point")
-        if expected_type == "Point":
-            return _point_path_from_step_reads(roles[role], step, index)
-        return index.path_for(roles[role], expected_type=expected_type)
-
-    return select
-
-def _straightening_minimum_point_selector(role: str) -> BindingSelectorFn:
-    """读取通用将军饮马 recipe 产出的最短线段端点。"""
-
-    def select(
-        step: FunctionalCompileStepView,
-        index: CanonicalRuntimeBindingIndex,
-        local_outputs: Mapping[str, str],
-    ) -> str:
-        semantic_suffixes = (
-            ("point_1", "endpoint1", "endpoint_1")
-            if role == "p1"
-            else ("point_2", "endpoint2", "endpoint_2")
-        )
-        matches = _straightening_minimum_endpoint_handles(
-            step,
-            index,
-            semantic_suffixes=semantic_suffixes,
-            handles=_compile_input_handles(step),
-        )
-        if not matches:
-            matches = _straightening_minimum_endpoint_handles(
-                step,
-                index,
-                semantic_suffixes=semantic_suffixes,
-                handles=tuple(index.bindings),
-            )
-        unique_by_state: dict[tuple[str, str], str] = {}
-        for handle in matches:
-            binding = index.bindings.get(handle)
-            if binding is None:
-                continue
-            identity = (_handle_scope(handle), _semantic_name(handle))
-            existing = unique_by_state.get(identity)
-            if existing is None or (
-                handle.startswith("fact:")
-                and not existing.startswith("fact:")
-            ):
-                unique_by_state[identity] = handle
-        unique = list(unique_by_state.values())
-        if len(unique) != 1:
-            raise StrategyDraftValidationError(
-                f"straightening_minimum_{role}_not_found: "
-                f"step={step.step_id}, candidates={','.join(unique)}"
-            )
-        return index.path_for(unique[0], expected_type="Point")
-
-    return select
-
-
-def _straightening_minimum_endpoint_handles(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-    *,
-    semantic_suffixes: tuple[str, ...],
-    handles: tuple[str, ...],
-) -> list[str]:
-    """读取当前 step 可见的拉直最短线段端点 handles。"""
-    matches: list[str] = []
-    for handle in handles:
-        binding = index.bindings.get(handle)
-        if binding is None or binding.value_type != "Point":
-            continue
-        try:
-            if not index.context.is_visible(step.scope_id, _binding_scope(binding.path)):
-                continue
-        except Exception:
-            continue
-        semantic_name = _answer_key_from_handle(handle) if handle.startswith("answer:") else _semantic_name(handle)
-        if any(suffix in semantic_name for suffix in semantic_suffixes):
-            matches.append(handle)
-    return matches
-
-
-def _curve_condition_point_selector(role: str) -> BindingSelectorFn:
-    """创建“目标点 P(t)、曲线点 Q(t) 且 Q 在曲线上” method 的点 selector。"""
-
-    def select(
-        step: FunctionalCompileStepView,
-        index: CanonicalRuntimeBindingIndex,
-        local_outputs: Mapping[str, str],
-    ) -> str:
-        curve_point_name = _curve_condition_point_name(step, index)
-        if role == "curve_point":
-            return _point_state_path_for_name(
-                curve_point_name,
-                step,
-                index,
-                error_code="curve_condition_curve_point_not_found",
-            )
-        target_name = _curve_condition_target_point_name(step, index, curve_point_name)
-        return _point_state_path_for_name(
-            target_name,
-            step,
-            index,
-            error_code="curve_condition_target_point_not_found",
-        )
-
-    return select
-
-def _known_coefficients_if_read(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-    local_outputs: Mapping[str, str],
-) -> dict[str, str]:
-    """若 step 读取了已知系数，则补充 known_coefficients 输入。"""
-    known_scope = _known_coefficients_scope(step, index)
-    if known_scope is None:
-        return {}
-    return {
-        "known_coefficients": _runtime_path_for_scope(
-            index.context,
-            known_scope,
-            "coefficients",
-            "known",
-        )
-    }
-
-
-def _free_quadratic_parameter_if_read(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-    local_outputs: Mapping[str, str],
-) -> dict[str, str]:
-    """Restore one explicit free coefficient from FunctionalPlan Symbol reads.
-
-    FunctionalPlan exposes ``free_parameters`` as item-level Symbol refs, while
-    the FunctionalCompileStepView compatibility bridge only carries canonical reads. Filtering
-    those reads through the declared quadratic coefficient list recovers an
-    unambiguous coefficient preference without treating dynamic parameters as
-    coefficients or guessing from symbol names.
-    """
-    coefficient_value = index.context.read_path(
-        "$problem.symbol_lists.quadratic_coefficients",
-        from_scope_id=step.scope_id,
-        expected_type="SymbolList",
-    ).value
-    coefficients = set(coefficient_value)
-    matches: list[str] = []
-    for handle in _compile_input_handles(step):
-        binding = index.bindings.get(handle)
-        if binding is None or binding.value_type != "Symbol":
-            continue
-        try:
-            symbol = index.context.read_path(
-                binding.path,
-                from_scope_id=step.scope_id,
-                expected_type="Symbol",
-            ).value
-        except (KeyError, PermissionError, TypeError, ValueError):
-            continue
-        if symbol in coefficients:
-            matches.append(binding.path)
-    matches = _unique_ordered(matches)
-    if len(matches) == 1:
-        return {"free_parameter": matches[0]}
-    return {}
-
-
-def _parameter_value_if_read(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-    local_outputs: Mapping[str, str],
-) -> dict[str, str]:
-    """若 step 显式读取了参数值，则补充参数输入。"""
-    parameter_value = _parameter_value_handle(step, index)
-    if parameter_value is None:
-        return {}
-    parameter_path = _parameter_symbol_path_for_value(parameter_value, index)
-    return {
-        "parameter": parameter_path,
-        "parameter_value": index.path_for(parameter_value, expected_type="ParameterValue"),
-    }
-
-
 def _parameter_symbol_path_for_value(
     parameter_value_handle: str,
     index: CanonicalRuntimeBindingIndex,
+    *,
+    step: FunctionalCompileStepView,
 ) -> str:
-    """Resolve ParameterValue to its input Symbol through write provenance."""
+    """Resolve a ParameterValue through its typed state/object identity.
+
+    F5-C pins every problem-source value to an exact StateVersionId.  The
+    logical key of that version owns the Symbol identity, even when the value
+    is stored in a child scope.  Dynamic CallResult values carry the same
+    identity on their projected producer write.  Only non-F5 compatibility
+    callers may fall back to the older write-provenance lookup.
+    """
+    dependencies = tuple(
+        item
+        for item in index.projected_state_dependencies
+        if item.step_id == step.step_id
+        and item.produced_handle == parameter_value_handle
+        and item.runtime_type == "ParameterValue"
+    )
+    object_ids = set()
+    for dependency in dependencies:
+        if dependency.state_version_id is not None:
+            logical_key = dependency.state_version_id.slot_id.logical_key
+            if (
+                logical_key.state_kind != "value"
+                or logical_key.runtime_type != "ParameterValue"
+                or (
+                    dependency.object_ref is not None
+                    and dependency.object_ref != logical_key.object_id.value
+                )
+            ):
+                raise StrategyDraftValidationError(
+                    "planner_configuration_error: "
+                    "planner.runtime_state_binding_drift: "
+                    f"consumer={step.step_id}.parameter_value, "
+                    f"handle={parameter_value_handle}, "
+                    "reason=typed_parameter_value_identity_drift"
+                )
+            object_ids.add(logical_key.object_id)
+            continue
+        producer_writes = tuple(
+            item
+            for item in index.projected_state_writes
+            if dependency.source_step_id is not None
+            and item.step_id == dependency.source_step_id
+            and item.produced_handle == dependency.produced_handle
+            and (
+                dependency.source_return_name is None
+                or item.return_name == dependency.source_return_name
+            )
+            and item.runtime_type == "ParameterValue"
+        )
+        for write in producer_writes:
+            if write.math_object_id is not None:
+                object_ids.add(write.math_object_id)
+            elif write.logical_state_key is not None:
+                object_ids.add(write.logical_state_key.object_id)
+    if dependencies:
+        if len(object_ids) != 1:
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: "
+                "planner.runtime_state_binding_drift: "
+                f"consumer={step.step_id}.parameter_value, "
+                f"handle={parameter_value_handle}, "
+                f"object_identity_count={len(object_ids)}"
+            )
+        object_id = next(iter(object_ids))
+        if object_id.kind != "symbol":
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: "
+                "planner.runtime_state_binding_drift: "
+                f"consumer={step.step_id}.parameter_value, "
+                f"handle={parameter_value_handle}, "
+                f"object_kind={object_id.kind}"
+            )
+        return index.runtime_path_for_object_identity(
+            object_id,
+            expected_type="Symbol",
+            consumer_scope_id=step.scope_id,
+            consumer=f"{step.step_id}.parameter_value_symbol",
+        )
+    if index.problem_binding_authority:
+        raise StrategyDraftValidationError(
+            "planner_configuration_error: "
+            "planner.runtime_state_binding_drift: "
+            f"consumer={step.step_id}.parameter_value, "
+            f"handle={parameter_value_handle}, "
+            "reason=typed_parameter_value_dependency_missing"
+        )
+
     provenance = next(
         (
             item
@@ -1530,180 +378,6 @@ def _parameter_symbol_path_for_value(
         f"parameter_value={parameter_value_handle}, symbol={provenance.object_ref}"
     )
 
-
-def _curve_points_if_parameterized(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-    local_outputs: Mapping[str, str],
-) -> dict[str, str]:
-    """参数已确定时，若存在曲线点则补充曲线点输入。"""
-    if _parameter_value_handle(step, index) is None:
-        return {}
-    curve_points = _visible_curve_point_handles(step, index)
-    if len(curve_points) < 2:
-        return {}
-    return {
-        "p1": index.path_for(curve_points[0], expected_type="Point"),
-        "p2": index.path_for(curve_points[1], expected_type="Point"),
-    }
-
-def _curve_point_if_read(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-    local_outputs: Mapping[str, str],
-) -> dict[str, str]:
-    """若 step 读取了曲线点 fact，则补充 curve_point/p1/p2 输入。
-
-    河西这类题常先代入 ``A(-1,0)`` 得到含参抛物线，此时参数尚未定值，
-    但曲线点约束仍应传给 ``quadratic_from_constraints``。
-    """
-    curve_points = _curve_point_handles_from_reads(step, index)
-    if not curve_points:
-        return {}
-    if len(curve_points) == 1:
-        return {"curve_point": index.path_for(curve_points[0], expected_type="Point")}
-    return {
-        "p1": index.path_for(curve_points[0], expected_type="Point"),
-        "p2": index.path_for(curve_points[1], expected_type="Point"),
-    }
-
-DEFAULT_BINDING_SELECTORS: dict[str, BindingSelectorFn] = {
-    "fact:coefficient_relation:Equation": _fact_selector("coefficient_relation", "Equation"),
-    "fact:path_minimum_target:Condition": _fact_selector("path_minimum_target", "Condition"),
-    "fact:square:Condition": _optional_fact_selector("square", "Condition"),
-    "fact:midpoint_definition:Condition": _fact_selector("midpoint_definition", "Condition"),
-    "fact:square_center:Condition": _fact_selector("square_center", "Condition"),
-    "fact:length_squared:Condition": _fact_selector("length_squared", "Condition"),
-    "fact:length_condition:Condition": _length_condition_selector,
-    "fact:minimum_value:Condition": _fact_selector("minimum_value", "Condition"),
-    "symbol:a": _symbol_selector("a"),
-    "symbol:b": _symbol_selector("b"),
-    "symbol:c": _symbol_selector("c"),
-    "symbol:x": _symbol_selector("x"),
-    "free_parameter:a_if_single_curve_point": _free_parameter_if_single_curve_point_selector("a"),
-    "free_parameter:b_if_single_curve_point": _free_parameter_if_single_curve_point_selector("b"),
-    "free_parameter:c_if_single_curve_point": _free_parameter_if_single_curve_point_selector("c"),
-    "function:parabola": _function_parabola_selector,
-    "quadratic_template": _quadratic_template_selector,
-    "square:side_start": _square_side_start_selector,
-    "square:side_end": _square_side_end_selector,
-    "square:side_start_ref": _square_side_start_ref_selector,
-    "square:side_end_ref": _square_side_end_ref_selector,
-    "quadratic_coefficients": _constant_selector("$problem.symbol_lists.quadratic_coefficients"),
-    "point_output_ref": _point_output_ref_selector,
-    "point_transition_target": _point_transition_target_selector,
-    "translated_point:source": _translated_point_selector("source"),
-    "translated_point:target": _translated_point_selector("target"),
-    "read_type:Coefficients": _read_type_selector("Coefficients"),
-    "read_type:Expression": _read_type_selector("Expression"),
-    "read_type:Expression|MinimumExpression": _read_type_union_selector(
-        "Expression",
-        "MinimumExpression",
-    ),
-    "read_type:Expression|MinimumExpression|Parabola": _read_type_union_selector(
-        "Expression",
-        "MinimumExpression",
-        "Parabola",
-    ),
-    "read_type:Parabola": _read_type_selector("Parabola"),
-    "read_type:Point": _read_type_selector("Point"),
-    "read_type:PointList": _read_type_selector("PointList"),
-    "read_type:PathTransformation": _read_type_selector("PathTransformation"),
-    "read_type:Line": _read_type_selector("Line"),
-    "read_type:AngleEquality": _read_type_selector("AngleEquality"),
-    "read_type:ParameterValue": _read_type_selector("ParameterValue"),
-    "right_angle:anchor": _right_angle_selector("anchor"),
-    "right_angle:reference": _right_angle_selector("reference"),
-    "right_angle:target": _right_angle_selector("target"),
-    "midpoint:target": _midpoint_selector("target"),
-    "midpoint:p1": _midpoint_selector("p1"),
-    "midpoint:p2": _midpoint_selector("p2"),
-    "length_segment:p1": _length_segment_selector("p1"),
-    "length_segment:p2": _length_segment_selector("p2"),
-    "length_reference_segment:p1": _length_reference_segment_selector("p1"),
-    "length_reference_segment:p2": _length_reference_segment_selector("p2"),
-    "parameter_symbol": _parameter_symbol_selector,
-    "parameter_symbol_from_reads": _parameter_symbol_from_reads_selector,
-    "known_parameter_symbol_from_reads": (
-        _known_parameter_symbol_from_reads_selector
-    ),
-    "known_parameter_value_from_reads": (
-        _known_parameter_value_from_reads_selector
-    ),
-    "parameter_symbol_from_reads_or_expression": (
-        _parameter_symbol_from_reads_or_expression_selector
-    ),
-    "parameter_constraint": _parameter_constraint_selector,
-    "dynamic_symbol": _dynamic_symbol_selector,
-    "dynamic_constraint": _dynamic_constraint_selector,
-    "x_axis_known_point": _x_axis_known_point_selector,
-    "read_type:MinimumExpression": _read_minimum_expression_selector,
-    "weighted_path:condition": _weighted_path_condition_selector,
-    "weighted_path:fixed_point": _weighted_path_selector("fixed_point"),
-    "weighted_path:moving_point": _weighted_path_selector("moving_point"),
-    "weighted_path:curve_point": _weighted_path_selector("curve_point"),
-    "weighted_path:moving_point_ref": _weighted_path_identity_selector(
-        "moving_point_ref"
-    ),
-    "weighted_path:linked_fixed_endpoint_ref": _weighted_path_identity_selector(
-        "linked_fixed_endpoint_ref"
-    ),
-    "weighted_path:auxiliary_point_ref": _weighted_auxiliary_point_ref_selector,
-    "weighted_path:auxiliary_point": _weighted_auxiliary_point_selector,
-    "square_path:fixed_endpoint_1_ref": (
-        _square_path_fixed_endpoint_ref_selector(1)
-    ),
-    "square_path:fixed_endpoint_2_ref": (
-        _square_path_fixed_endpoint_ref_selector(2)
-    ),
-    "path_reduction:first_membership": _path_reduction_selector("first_membership"),
-    "path_reduction:second_membership": _path_reduction_selector("second_membership"),
-    "path_reduction:relation": _path_reduction_selector("relation"),
-    "path_reduction:first_segment_start": _path_reduction_selector("first_segment_start"),
-    "path_reduction:joint_point": _path_reduction_selector("joint_point"),
-    "path_reduction:second_segment_end": _path_reduction_selector("second_segment_end"),
-    "distance:p1": _distance_selector("p1"),
-    "distance:p2": _distance_selector("p2"),
-    "intersection:line1_p1": _intersection_selector("line1_p1"),
-    "intersection:line1_p2": _intersection_selector("line1_p2"),
-    "intersection:line2_p1": _intersection_selector("line2_p1"),
-    "intersection:line2_p2": _intersection_selector("line2_p2"),
-    "intersection:target": _intersection_selector("target"),
-    "angle_sum:condition": _angle_sum_selector("condition"),
-    "angle_sum:x_axis_point": _angle_sum_selector("x_axis_point"),
-    "angle_sum:y_axis_point": _angle_sum_selector("y_axis_point"),
-    "angle_sum:reference_x_axis_point": _angle_sum_selector("reference_x_axis_point"),
-    "angle_sum:origin": _angle_sum_selector("origin"),
-    "angle_sum:target": _angle_sum_selector("target"),
-    "angle_equality:fact": _angle_equality_selector("angle_equality"),
-    "angle_equality:x_axis_point": _angle_equality_selector("x_axis_point"),
-    "angle_equality:y_axis_point": _angle_equality_selector("y_axis_point"),
-    "angle_equality:reference_x_axis_point": _angle_equality_selector("reference_x_axis_point"),
-    "angle_equality:origin": _angle_equality_selector("origin"),
-    "angle_equality:target": _angle_equality_selector("target"),
-    "line_parabola:line_p1": _line_parabola_selector("line_p1"),
-    "line_parabola:line_p2": _line_parabola_selector("line_p2"),
-    "line_parabola:known_point": _line_parabola_selector("known_point"),
-    "line_parabola:target": _line_parabola_selector("target"),
-    "equal_length_ray:anchor": _equal_length_ray_selector("anchor"),
-    "equal_length_ray:reference_point": _equal_length_ray_selector("reference_point"),
-    "equal_length_ray:ray_point": _equal_length_ray_selector("ray_point"),
-    "equal_length_ray:target": _equal_length_ray_selector("target"),
-    "straightening_minimum:p1": _straightening_minimum_point_selector("p1"),
-    "straightening_minimum:p2": _straightening_minimum_point_selector("p2"),
-    "curve_condition:target_point": _curve_condition_point_selector("target_point"),
-    "curve_condition:curve_point": _curve_condition_point_selector("curve_point"),
-}
-
-DEFAULT_EXPANSION_SELECTORS: dict[str, ExpansionSelectorFn] = {
-    "known_coefficients_if_read": _known_coefficients_if_read,
-    "free_quadratic_parameter_if_read": _free_quadratic_parameter_if_read,
-    "parameter_value_if_read": _parameter_value_if_read,
-    "curve_point_if_read": _curve_point_if_read,
-    "curve_points_if_parameterized": _curve_points_if_parameterized,
-    "distance_parameter_value_if_read": _parameter_value_if_read,
-    "intersection_parameter_value_if_read": _parameter_value_if_read,
-}
 
 def _point_output_handle(step: FunctionalCompileStepView, index: CanonicalRuntimeBindingIndex) -> str:
     """找出当前 step 要写回的点实体 handle。"""
@@ -2507,288 +1181,12 @@ def _segment_membership_segment(name: str) -> str:
         raise StrategyDraftValidationError(f"invalid_segment_membership_name: {name}")
     return match.group("segment")
 
-def _path_reduction_roles(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-) -> dict[str, Any]:
-    """Consume the read-closed structured path-reduction role set."""
-    roles = resolve_read_closed_path_reduction_inputs(step, index)
-    second_track_payload = index.handle_registry.entity_payloads.get(
-        roles.second_track,
-        {},
-    )
-    second_track = tuple(second_track_payload.get("endpoints", ()))
-    return {
-        "relation": roles.binding_relation,
-        "first_membership": roles.first_membership,
-        "second_membership": roles.second_membership,
-        "first_segment_start": roles.first_segment_start,
-        "joint_point": roles.joint_point,
-        "second_segment_end": roles.second_segment_end,
-        "second_track": second_track,
-        "second_moving": roles.second_moving_point,
-    }
-
-def _moving_membership_for_straightening(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-) -> str:
-    """选择折线拉直时的动点所在条件。"""
-    roles = _path_reduction_roles(step, index)
-    return roles["second_membership"]
-
-def _straightening_point_roles(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-) -> tuple[str, str, str, str]:
-    """推断 broken_path_straightening_candidates 的四个点。"""
-    roles = _path_reduction_roles(step, index)
-    fixed_1 = roles["first_segment_start"]
-    midpoint_fact = index.fact_handle_by_type("midpoint_definition", step=step)
-    midpoint_name = _semantic_name(midpoint_fact).split("_midpoint_of_", 1)[0]
-    fixed_2 = index.point_handle_by_name(midpoint_name, step=step)
-    track = roles["second_track"]
-    if len(track) < 2:
-        raise StrategyDraftValidationError(f"invalid_motion_track: {track}")
-    line_1 = track[0]
-    line_2 = track[1]
-    return fixed_1, fixed_2, line_1, line_2
-
-def _weighted_path_roles(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-) -> tuple[str, str, str]:
-    """Resolve weighted-path roles from typed endpoint terms.
-
-    The display ``path`` remains useful for coefficients and term order, but it
-    is not an object-identity source. When ``path_minimum_target.terms`` exists,
-    its canonical point handles are authoritative. Legacy ProblemIR without
-    terms is accepted through the semantic-name index only.
-    """
-    condition_handle = index.fact_handle_by_type("minimum_value", step=step)
-    condition_path = index.path_for(condition_handle, expected_type="Condition")
-    condition = index.context.read_path(
-        condition_path,
-        from_scope_id=step.scope_id,
-        expected_type="Condition",
-    ).value
-    raw_path = str(condition.get("path", ""))
-    point_names = tuple(
-        sorted(
-            {
-                index.entity_semantic_name(handle)
-                for handle in index.entity_handles("point", step=step)
-            }
-        )
-    )
-    try:
-        display_terms = parse_legacy_path_expression(
-            raw_path,
-            point_names=point_names,
-            resolve_point=lambda name: name,
-        )
-    except PathTermParseError as exc:
-        raise StrategyDraftValidationError(
-            f"weighted_path_expression_invalid: {exc.code}: {exc}"
-        ) from exc
-    if len(display_terms) != 2:
-        raise StrategyDraftValidationError(
-            f"weighted_path_requires_two_terms: path={raw_path!r}, count={len(display_terms)}"
-        )
-
-    target_handles = [
-        handle
-        for handle in index.handles_by_fact_type("path_minimum_target")
-        if index._handle_binding_visible(handle, step.scope_id)
-        and _normalized_path_text(
-            str(index.fact_payload(handle).get("path", ""))
-        )
-        == _normalized_path_text(raw_path)
-    ]
-    if len(target_handles) != 1:
-        raise StrategyDraftValidationError(
-            "weighted_path_target_not_unique: "
-            f"path={raw_path!r}, candidates={sorted(target_handles)}"
-        )
-    target = index.fact_payload(target_handles[0])
-    structured = target.get("terms")
-    if isinstance(structured, list):
-        if len(structured) != len(display_terms):
-            raise StrategyDraftValidationError(
-                "weighted_path_term_count_drift: "
-                f"display={len(display_terms)}, structured={len(structured)}"
-            )
-        endpoint_pairs: list[tuple[str, str]] = []
-        for term_index, (raw_pair, display_term) in enumerate(
-            zip(structured, display_terms)
-        ):
-            if (
-                not isinstance(raw_pair, list)
-                or len(raw_pair) != 2
-                or not all(
-                    isinstance(handle, str)
-                    and handle.startswith("point:")
-                    and handle in index.bindings
-                    for handle in raw_pair
-                )
-            ):
-                raise StrategyDraftValidationError(
-                    "weighted_path_typed_term_invalid: "
-                    f"index={term_index}, term={raw_pair!r}"
-                )
-            pair = (str(raw_pair[0]), str(raw_pair[1]))
-            typed_names = {
-                index.entity_semantic_name(pair[0]),
-                index.entity_semantic_name(pair[1]),
-            }
-            display_names = {display_term.start, display_term.end}
-            if typed_names != display_names:
-                raise StrategyDraftValidationError(
-                    "weighted_path_display_term_drift: "
-                    f"index={term_index}, typed={sorted(typed_names)}, "
-                    f"display={sorted(display_names)}"
-                )
-            endpoint_pairs.append(pair)
-    else:
-        endpoint_pairs = [
-            (
-                index.point_handle_by_name(term.start, step=step),
-                index.point_handle_by_name(term.end, step=step),
-            )
-            for term in display_terms
-        ]
-
-    non_unit = [
-        index
-        for index, term in enumerate(display_terms)
-        if not _is_unit_path_scale(term.scale)
-    ]
-    if len(non_unit) != 1:
-        raise StrategyDraftValidationError(
-            "weighted_path_weighted_term_not_unique: "
-            f"path={raw_path!r}, scales={[term.scale for term in display_terms]}"
-        )
-    weighted_index = non_unit[0]
-    unit_index = 1 - weighted_index
-    weighted_pair = endpoint_pairs[weighted_index]
-    unit_pair = endpoint_pairs[unit_index]
-    moving = _common_endpoint_handle(weighted_pair, unit_pair)
-    if moving is None:
-        raise StrategyDraftValidationError(f"weighted_path_common_endpoint_not_found: {raw_path}")
-    fixed = _other_endpoint_handle(unit_pair, moving)
-    curve = _other_endpoint_handle(weighted_pair, moving)
-    return fixed, moving, curve
-
-
-def _normalized_path_text(value: str) -> str:
-    return "".join(value.split())
-
-
-def _is_unit_path_scale(value: str) -> bool:
-    return _normalized_path_text(value) in {"1", "1.0", "(1)"}
-
-
-def _common_endpoint_handle(
-    first: tuple[str, str],
-    second: tuple[str, str],
-) -> str | None:
-    shared = tuple(handle for handle in first if handle in second)
-    return shared[0] if len(shared) == 1 else None
-
-
-def _segments_from_path_text(raw_path: str) -> list[str]:
-    """Compatibility parser for non-weighted legacy selectors."""
-
-    return re.findall(r"[A-Z]{2}", raw_path)
-
-
-def _common_endpoint(first: str, second: str) -> str | None:
-    for name in first:
-        if name in second:
-            return name
-    return None
-
-
-def _other_endpoint(segment: str, endpoint: str) -> str:
-    for name in segment:
-        if name != endpoint:
-            return name
-    raise StrategyDraftValidationError(
-        f"segment_other_endpoint_not_found: {segment}"
-    )
-
-def _auxiliary_point_handle_from_reads(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-) -> str:
-    """从 reads 中找加权路径辅助点。
-
-    weighted path 的 fixed/moving/curve 三个点可由题设路径解析得到；剩下在 reads
-    中可见的 Point 通常就是前一步三角形转化产生的辅助点。这里只做确定性排除，
-    不按自然语言猜测点名。
-    """
-    path_roles = set(_weighted_path_roles(step, index))
-    point_candidates: list[str] = []
-    fact_candidates: list[str] = []
-    for handle in _compile_input_handles(step):
-        binding = index.bindings.get(handle)
-        if binding is None or binding.value_type != "Point":
-            continue
-        if handle in path_roles:
-            continue
-        if handle.startswith("point:"):
-            point_candidates.append(handle)
-        elif "aux" in _semantic_name(handle).lower():
-            fact_candidates.append(handle)
-    unique = _unique_ordered(point_candidates or fact_candidates)
-    if len(unique) != 1:
-        raise StrategyDraftValidationError(
-            f"weighted_auxiliary_point_not_unique: step={step.step_id}, candidates={unique}"
-        )
-    return unique[0]
-
-def _weighted_auxiliary_point_handle_for_step(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-) -> str:
-    """返回加权路径转化 step 使用的辅助点 handle。"""
-    item = _created_point_handle(step)
-    if item is not None:
-        return item.handle
-    for handle, binding in sorted(index.bindings.items()):
-        if (
-            handle.startswith(f"point:{step.scope_id}:")
-            and binding.source == "created_entity"
-        ):
-            return handle
-    handle = _fresh_auxiliary_point_handle(step, index)
-    if handle in index.bindings:
-        return handle
-    raise StrategyDraftValidationError(
-        f"weighted_auxiliary_point_handle_not_registered: {step.step_id}"
-    )
-
 def _created_point_handle(step: FunctionalCompileStepView) -> CreatedEntity | None:
     """返回 creates[] 中的第一个 point entity。"""
     for item in _compile_created_entities(step):
         if item.entity_type == "point":
             return item
     return None
-
-def _fresh_auxiliary_point_handle(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-) -> str:
-    """为 recipe 自动创建当前 scope 下未占用的辅助点 handle。"""
-    handle = fresh_auxiliary_point_handle(
-        step.scope_id,
-        set(index.bindings) | set(index.handle_registry.entity_handles),
-    )
-    if handle is not None:
-        return handle
-    raise StrategyDraftValidationError(
-        f"auxiliary_point_handle_exhausted: {step.step_id}"
-    )
 
 def _first_pointref_handle(
     step: FunctionalCompileStepView,
@@ -3294,279 +1692,6 @@ def _curve_membership_point_handle(
         return None
 
 
-def _equal_length_ray_roles(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-) -> dict[str, str]:
-    """推断等长射线构造角色。
-
-    兼容旧的解法产物式 ``G_on_ray_CD_with_CG_eq_CB`` fact；新的 canonical
-    ProblemIR 不预置辅助点 G，而是从题面真实条件（点在射线、点在线段、等长关系）
-    和当前 step 的 ``creates/produces`` 推断要构造的目标点。
-    """
-    if index.handles_by_fact_type("equal_length_ray_point"):
-        return _equal_length_ray_roles_from_constructed_fact(step, index)
-    return _equal_length_ray_roles_from_problem_facts(step, index)
-
-
-def _equal_length_ray_roles_from_constructed_fact(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-) -> dict[str, str]:
-    """从 ``G_on_ray_CD_with_CG_eq_CB`` 这类旧 fact 推断角色。"""
-    fact = index.fact_handle_by_type("equal_length_ray_point", step=step)
-    name = _semantic_name(fact)
-    match = re.fullmatch(
-        r"(?P<target>[A-Za-z0-9_]+)_on_ray_(?P<ray>[A-Za-z]{2})_with_"
-        r"(?P<left>[A-Za-z]{2})_eq_(?P<right>[A-Za-z]{2})",
-        name,
-    )
-    if match is None:
-        raise StrategyDraftValidationError(f"invalid_equal_length_ray_fact_name: {fact}")
-    ray = match.group("ray")
-    left = match.group("left")
-    right = match.group("right")
-    if left[0] != ray[0] or right[0] != ray[0]:
-        raise StrategyDraftValidationError(f"equal_length_ray_anchor_mismatch: {fact}")
-    return {
-        "anchor": index.point_handle_by_name(ray[0], step=step),
-        "ray_point": index.point_handle_by_name(ray[1], step=step),
-        "reference_point": index.point_handle_by_name(right[1], step=step),
-        "target": index.point_handle_by_name(match.group("target"), step=step),
-    }
-
-
-def _equal_length_ray_roles_from_problem_facts(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-) -> dict[str, str]:
-    """从题面原始条件推断射线等长构造角色。
-
-    优先读取 canonical ProblemIR 的结构化字段：``point_on_ray.point/ray``、
-    ``point_on_segment.point/segment``、``equal_length_condition.left/right``。
-    只有旧数据缺少这些字段时，才退回到语义名正则解析。
-    """
-    ray_fact = index.fact_handle_by_type("point_on_ray", step=step)
-    segment_fact = index.fact_handle_by_type("point_on_segment", step=step)
-    equal_fact = index.fact_handle_by_type("equal_length_condition", step=step)
-    if _equal_length_ray_facts_have_structured_payload(
-        index,
-        ray_fact=ray_fact,
-        segment_fact=segment_fact,
-        equal_fact=equal_fact,
-    ):
-        return _equal_length_ray_roles_from_structured_problem_facts(
-            step,
-            index,
-            ray_fact=ray_fact,
-            segment_fact=segment_fact,
-            equal_fact=equal_fact,
-        )
-    return _equal_length_ray_roles_from_legacy_problem_fact_names(
-        step,
-        index,
-        ray_fact=ray_fact,
-        segment_fact=segment_fact,
-        equal_fact=equal_fact,
-    )
-
-
-def _equal_length_ray_facts_have_structured_payload(
-    index: CanonicalRuntimeBindingIndex,
-    *,
-    ray_fact: str,
-    segment_fact: str,
-    equal_fact: str,
-) -> bool:
-    """判断射线等长构造所需 facts 是否携带结构化字段。"""
-    ray_payload = index.fact_payload(ray_fact)
-    segment_payload = index.fact_payload(segment_fact)
-    equal_payload = index.fact_payload(equal_fact)
-    return (
-        isinstance(ray_payload.get("point"), str)
-        and isinstance(ray_payload.get("ray"), str)
-        and isinstance(segment_payload.get("point"), str)
-        and isinstance(segment_payload.get("segment"), str)
-        and "left" in equal_payload
-        and "right" in equal_payload
-    )
-
-
-def _equal_length_ray_roles_from_structured_problem_facts(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-    *,
-    ray_fact: str,
-    segment_fact: str,
-    equal_fact: str,
-) -> dict[str, str]:
-    """从结构化 point_on_ray / point_on_segment / equal_length fact 推断角色。"""
-    ray_payload = index.fact_payload(ray_fact)
-    segment_payload = index.fact_payload(segment_fact)
-    equal_payload = index.fact_payload(equal_fact)
-
-    ray_dynamic_point = _payload_handle(ray_payload, "point", context=ray_fact)
-    ray_handle = _payload_handle(ray_payload, "ray", context=ray_fact)
-    ray_entity = index.entity_payload(ray_handle)
-    ray_origin = _payload_handle(ray_entity, "origin", context=ray_handle)
-    ray_through = _payload_handle(ray_entity, "through", context=ray_handle)
-
-    segment_dynamic_point = _payload_handle(segment_payload, "point", context=segment_fact)
-    segment_handle = _payload_handle(segment_payload, "segment", context=segment_fact)
-    segment_endpoints = _segment_endpoints_from_entity_payload(index, segment_handle)
-
-    left = _length_endpoint_handles(equal_payload.get("left"), step, index, context=f"{equal_fact}.left")
-    right = _length_endpoint_handles(equal_payload.get("right"), step, index, context=f"{equal_fact}.right")
-    common = set(left) & set(right)
-    if len(common) != 1:
-        raise StrategyDraftValidationError(f"equal_length_common_anchor_not_found: {equal_fact}")
-    anchor = next(iter(common))
-    if anchor != ray_origin:
-        raise StrategyDraftValidationError(
-            f"equal_length_ray_anchor_mismatch: {ray_fact}:{equal_fact}"
-        )
-    if anchor not in segment_endpoints:
-        raise StrategyDraftValidationError(
-            f"equal_length_segment_anchor_mismatch: {segment_fact}:{equal_fact}"
-        )
-
-    ray_equal_endpoint = _other_endpoint_handle(left, anchor) if ray_dynamic_point in left else (
-        _other_endpoint_handle(right, anchor) if ray_dynamic_point in right else None
-    )
-    segment_equal_endpoint = _other_endpoint_handle(left, anchor) if segment_dynamic_point in left else (
-        _other_endpoint_handle(right, anchor) if segment_dynamic_point in right else None
-    )
-    if ray_equal_endpoint != ray_dynamic_point:
-        raise StrategyDraftValidationError(
-            f"equal_length_ray_dynamic_point_mismatch: {ray_fact}:{equal_fact}"
-        )
-    if segment_equal_endpoint != segment_dynamic_point:
-        raise StrategyDraftValidationError(
-            f"equal_length_segment_dynamic_point_mismatch: {segment_fact}:{equal_fact}"
-        )
-    reference_candidates = [handle for handle in segment_endpoints if handle != anchor]
-    if len(reference_candidates) != 1:
-        raise StrategyDraftValidationError(f"equal_length_reference_point_not_found: {segment_fact}")
-    return {
-        "anchor": anchor,
-        "ray_point": ray_through,
-        "reference_point": reference_candidates[0],
-        "target": _point_output_handle(step, index),
-    }
-
-
-def _equal_length_ray_roles_from_legacy_problem_fact_names(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-    *,
-    ray_fact: str,
-    segment_fact: str,
-    equal_fact: str,
-) -> dict[str, str]:
-    """从旧语义名 ``N_on_ray_CD``、``M_on_segment_BC``、``CN_eq_CM`` 推断角色。"""
-    ray_match = re.fullmatch(
-        r"(?P<point>[A-Za-z])_on_ray_(?P<ray>[A-Za-z]{2})",
-        _semantic_name(ray_fact),
-    )
-    segment_match = re.fullmatch(
-        r"(?P<point>[A-Za-z])_on_segment_(?P<segment>[A-Za-z]{2})",
-        _semantic_name(segment_fact),
-    )
-    equal_match = re.fullmatch(
-        r"(?P<left>[A-Za-z]{2})_eq_(?P<right>[A-Za-z]{2})",
-        _semantic_name(equal_fact),
-    )
-    if ray_match is None:
-        raise StrategyDraftValidationError(f"invalid_point_on_ray_fact_name: {ray_fact}")
-    if segment_match is None:
-        raise StrategyDraftValidationError(f"invalid_point_on_segment_fact_name: {segment_fact}")
-    if equal_match is None:
-        raise StrategyDraftValidationError(f"invalid_equal_length_condition_name: {equal_fact}")
-
-    ray = ray_match.group("ray")
-    segment = segment_match.group("segment")
-    left = equal_match.group("left")
-    right = equal_match.group("right")
-    common = set(left) & set(right)
-    if len(common) != 1:
-        raise StrategyDraftValidationError(f"equal_length_common_anchor_not_found: {equal_fact}")
-    anchor = next(iter(common))
-    if ray[0] != anchor:
-        raise StrategyDraftValidationError(
-            f"equal_length_ray_anchor_mismatch: {ray_fact}:{equal_fact}"
-        )
-    if anchor not in segment:
-        raise StrategyDraftValidationError(
-            f"equal_length_segment_anchor_mismatch: {segment_fact}:{equal_fact}"
-        )
-    reference_name = _other_endpoint(segment, anchor)
-    return {
-        "anchor": index.point_handle_by_name(anchor, step=step),
-        "ray_point": index.point_handle_by_name(ray[1], step=step),
-        "reference_point": index.point_handle_by_name(reference_name, step=step),
-        "target": _point_output_handle(step, index),
-    }
-
-
-def _payload_handle(payload: Mapping[str, Any], key: str, *, context: str) -> str:
-    """读取 payload 中的 canonical handle 字符串字段。"""
-    value = payload.get(key)
-    if not isinstance(value, str) or not value.strip():
-        raise StrategyDraftValidationError(f"structured_payload_field_missing: {context}.{key}")
-    return value
-
-
-def _segment_endpoints_from_entity_payload(
-    index: CanonicalRuntimeBindingIndex,
-    segment_handle: str,
-) -> tuple[str, str]:
-    """读取 segment entity 的两个端点 handle。"""
-    payload = index.entity_payload(segment_handle)
-    endpoints = payload.get("endpoints")
-    if (
-        not isinstance(endpoints, list)
-        or len(endpoints) != 2
-        or not all(isinstance(item, str) for item in endpoints)
-    ):
-        raise StrategyDraftValidationError(f"segment_endpoints_missing: {segment_handle}")
-    return endpoints[0], endpoints[1]
-
-
-def _length_endpoint_handles(
-    value: Any,
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-    *,
-    context: str,
-) -> tuple[str, str]:
-    """把 equal_length 的一侧解析成两个 point handle。
-
-    支持未来的结构化端点列表，也兼容当前 ``"CN"`` 这种短字符串。
-    """
-    if (
-        isinstance(value, list)
-        and len(value) == 2
-        and all(isinstance(item, str) for item in value)
-    ):
-        return value[0], value[1]
-    if isinstance(value, str) and ":" in value:
-        raise StrategyDraftValidationError(f"invalid_length_endpoint_pair: {context}")
-    if isinstance(value, str) and re.fullmatch(r"[A-Za-z]{2}", value):
-        return (
-            index.point_handle_by_name(value[0], step=step),
-            index.point_handle_by_name(value[1], step=step),
-        )
-    raise StrategyDraftValidationError(f"invalid_length_endpoint_pair: {context}")
-
-
-def _other_endpoint_handle(pair: tuple[str, str], anchor: str) -> str:
-    """返回二元端点中非 anchor 的另一个端点。"""
-    if pair[0] == anchor:
-        return pair[1]
-    if pair[1] == anchor:
-        return pair[0]
-    raise StrategyDraftValidationError(f"endpoint_pair_missing_anchor: {pair}:{anchor}")
-
 def _is_auxiliary_point_handle(
     handle: str,
     index: CanonicalRuntimeBindingIndex,
@@ -3599,13 +1724,13 @@ def _line_intersection_roles(
     explicit = _explicit_line_intersection_roles(step, index)
     if explicit is not None:
         return explicit
-    structured = _straightening_candidate_intersection_roles(step, index)
-    if structured is not None:
-        return structured
     track = _intersection_track_from_membership_read(step, index)
     if track is None:
-        roles = _path_reduction_roles(step, index)
-        track = roles["second_track"]
+        raise StrategyDraftValidationError(
+            "line_intersection_roles_missing: "
+            f"step={step.step_id}, provide explicit line endpoints or one "
+            "target-point membership"
+        )
     line1_p1, line1_p2 = track
     aux = None
     for handle in _compile_input_handles(step):
@@ -3668,66 +1793,6 @@ def _intersection_track_from_membership_read(
             f"membership={memberships[0]}, segment={segment}"
         )
     return endpoints[0], endpoints[1]
-
-
-def _straightening_candidate_intersection_roles(
-    step: FunctionalCompileStepView,
-    index: CanonicalRuntimeBindingIndex,
-) -> tuple[str, str, str, str, str] | None:
-    """Resolve the intersection lines from one read-closed candidate state."""
-
-    candidate_reads = tuple(
-        handle
-        for handle in _compile_input_handles(step)
-        if (
-            (binding := index.bindings.get(handle)) is not None
-            and binding.value_type == "StraighteningCandidate"
-        )
-    )
-    if not candidate_reads:
-        return None
-    if len(candidate_reads) != 1:
-        raise StrategyDraftValidationError(
-            "intersection_straightening_candidate_ambiguous: "
-            f"step={step.step_id}, candidates={list(candidate_reads)}"
-        )
-    candidate_path = index.path_for(
-        candidate_reads[0],
-        expected_type="StraighteningCandidate",
-    )
-    candidate = index.context.read_path(
-        candidate_path,
-        from_scope_id=step.scope_id,
-        expected_type="StraighteningCandidate",
-    ).value
-    if not isinstance(candidate, Mapping):
-        return None
-    locus_refs = candidate.get("moving_locus_endpoint_refs")
-    fixed_ref = candidate.get("other_fixed_point_ref")
-    auxiliary_name = candidate.get("auxiliary_point_name")
-    if not (
-        isinstance(locus_refs, list)
-        and len(locus_refs) == 2
-        and all(
-            isinstance(item, str) and item.startswith("point:")
-            for item in locus_refs
-        )
-        and isinstance(fixed_ref, str)
-        and fixed_ref.startswith("point:")
-        and isinstance(auxiliary_name, str)
-        and auxiliary_name
-    ):
-        return None
-    auxiliary = _point_read_by_name(
-        auxiliary_name,
-        step=step,
-        index=index,
-    )
-    target = _point_output_handle(step, index)
-    index.ensure_point_declaration(target, definition="line_intersection")
-    for handle in (*locus_refs, fixed_ref, auxiliary):
-        _point_path_from_step_reads(handle, step, index)
-    return locus_refs[0], locus_refs[1], auxiliary, fixed_ref, target
 
 
 def _point_read_by_name(

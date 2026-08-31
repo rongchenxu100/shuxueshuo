@@ -650,7 +650,12 @@ class CanonicalRuntimeBindingIndex:
                 )
         return binding.path
 
-    def point_ref_path_for(self, handle: str) -> str:
+    def point_ref_path_for(
+        self,
+        handle: str,
+        *,
+        step_id: str | None = None,
+    ) -> str:
         """读取点实体的 PointRef path，兼容可解析 PointRef 的 Point 绑定。
 
         problem scope 中一些定义点（如 y 轴交点、平移点）在注册时会被标成
@@ -690,6 +695,26 @@ class CanonicalRuntimeBindingIndex:
                 return original_path
         except Exception:
             pass
+        target_writes = tuple(
+            write
+            for write in self.projected_state_writes
+            if write.object_ref == handle
+            and write.runtime_type == "Point"
+            and write.math_object_id is not None
+            and (
+                write.step_id == step_id
+                if step_id is not None
+                else write.allocation_action == "reuse"
+            )
+        )
+        if len(target_writes) == 1:
+            # This does not approve a duplicate write. It preserves the
+            # immutable target identity selected by B1/F5-C while coordinates
+            # remain scope-local state. Runtime equivalence still decides
+            # whether the resulting write may commit.
+            return self.immutable_point_identity_path_for(
+                target_writes[0].math_object_id
+            )
         raise StrategyDraftValidationError(
             "duplicate_point_coordinate_fact: "
             f"handle={handle} is already a computed Point at {binding.path}; "
@@ -758,6 +783,33 @@ class CanonicalRuntimeBindingIndex:
             name=name,
             definition={"definition": "functional_typed_object_identity"},
             scope_id=scope_id,
+            source="typed_object_identity",
+        )
+        return raw_path
+
+    def runtime_reuse_point_probe_path_for(
+        self,
+        handle: str,
+        *,
+        step_id: str,
+    ) -> str:
+        """Create a writable step-local target for runtime equivalence probes."""
+
+        kind, _scope_id, name = _require_scoped_handle(handle)
+        if kind != "point":
+            raise StrategyDraftValidationError(
+                f"point_identity_path_not_found: {handle}"
+            )
+        raw_path = f"$step.{step_id}.temp.reuse_target_{name}"
+        self.declarations[raw_path] = ContextDeclaration(
+            path=raw_path,
+            type="PointRef",
+            name=name,
+            definition={
+                "definition": "functional_runtime_equivalence_probe",
+                "canonical_handle": handle,
+            },
+            scope_id=step_id,
             source="typed_object_identity",
         )
         return raw_path
@@ -934,6 +986,55 @@ class CanonicalRuntimeBindingIndex:
             return self.handle_registry.fact_payloads[handle]
         except KeyError as exc:
             raise StrategyDraftValidationError(f"fact_payload_not_found: {handle}") from exc
+
+    def symbol_path_from_exact_source(
+        self,
+        source_path: str,
+        *,
+        consumer: str,
+    ) -> str | None:
+        """Derive one Symbol only from an already selected typed source.
+
+        This is deliberately narrower than the retired parameter selector: it
+        never scans all symbols or constraints.  A source path must already be
+        present in the finalized call input, and only that exact source may
+        contribute a Symbol identity.
+        """
+
+        candidates: dict[str, str] = {}
+        exact_bindings = tuple(
+            binding
+            for binding in self.bindings.values()
+            if binding.path == source_path
+        )
+        for binding in exact_bindings:
+            if binding.value_type == "Symbol":
+                candidates[binding.handle] = binding.path
+                continue
+            if self.fact_types.get(binding.handle) != "symbol_constraint":
+                continue
+            subject = self.fact_payload(binding.handle).get("subject")
+            if not isinstance(subject, str) or not subject.startswith("symbol:"):
+                raise StrategyDraftValidationError(
+                    "planner.method_input_view_authority_missing: "
+                    f"consumer={consumer}, source={binding.handle}, "
+                    "expected=symbol_constraint.subject"
+                )
+            symbol_binding = self.binding_for(subject)
+            if symbol_binding.value_type != "Symbol":
+                raise StrategyDraftValidationError(
+                    "planner.method_input_view_authority_drift: "
+                    f"consumer={consumer}, source={binding.handle}, "
+                    f"subject_type={symbol_binding.value_type}"
+                )
+            candidates[subject] = symbol_binding.path
+        if len(candidates) > 1:
+            raise StrategyDraftValidationError(
+                "planner.method_input_view_authority_drift: "
+                f"consumer={consumer}, source_path={source_path}, "
+                f"symbol_candidates={sorted(candidates)}"
+            )
+        return next(iter(candidates.values()), None)
 
     def entity_handles(self, kind: str, *, step: FunctionalCompileStepView | None = None) -> list[str]:
         """按实体类型返回 handle；若提供 step，优先保留 step.reads 中出现的实体。"""

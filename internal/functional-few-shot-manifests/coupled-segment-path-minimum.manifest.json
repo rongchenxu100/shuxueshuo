@@ -1,0 +1,44 @@
+{
+  "example_id": "coupled_segment_path_minimum",
+  "source_problem_id": "tj-2026-nankai-yimo-25",
+  "family_id": "QuadraticPathMinimumSolver",
+  "pack_ids": [
+    "coupled_segment_path_minimum_core"
+  ],
+  "capability_ids": [
+    "coupled_segment_endpoint_replacement_path_minimum"
+  ],
+  "answer_value_types": [
+    "MinimumExpression"
+  ],
+  "source_call_ids": [
+    "ii_path_minimum"
+  ],
+  "selection_role": "core",
+  "conditions": [
+    {
+      "ref": "segment_relation",
+      "kind": "fact",
+      "description": "负责耦合两个动点并证明端点替换的题设线段关系"
+    },
+    {
+      "ref": "path_goal",
+      "kind": "fact",
+      "description": "需要求最小值的折线路径"
+    }
+  ],
+  "neutralization_map": {
+    "call_ids": {
+      "ii_path_minimum": "derive_path_minimum"
+    },
+    "semantic_refs": {
+      "path_minimum_target": "path_goal",
+      "segment_DE_eq_sqrt2_NG": "segment_relation"
+    },
+    "text_replacements": {
+      "利用题设线段关系原子完成端点替换和折线拉直。": "利用题设线段关系原子完成端点替换、折线拉直和最小值推导。",
+      "同一 Macro 返回最小值表达式与动点 G 的取等状态。": "内部几何构造不暴露给 Planner；同一 Macro 还可返回原题动点的取等状态。"
+    }
+  },
+  "neutralized": true
+}

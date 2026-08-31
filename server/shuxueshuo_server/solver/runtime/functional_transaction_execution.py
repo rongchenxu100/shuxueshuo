@@ -9,13 +9,31 @@ oracle.
 from __future__ import annotations
 
 from dataclasses import dataclass, field, replace
+from types import MappingProxyType
 from typing import Any, Callable, Literal, Mapping, Sequence
 
 import sympy as sp
 
-from shuxueshuo_server.solver.extraction.problem_planning_binding import (
-    FunctionalProblemBindingContext,
+from shuxueshuo_server.solver.contracts import (
+    CanonicalSymbolDerivationSpec,
+    CoefficientExtractionDerivationSpec,
+    EntityIdentitySourceSpec,
+    ExactCallResultSourceSpec,
+    FreeSymbolBasisDerivationSpec,
+    LatestStateSourceSpec,
+    MacroPreparedRoleSourceSpec,
+    MethodInputBindingSpec,
+    OrdinalZeroTemplateDerivationSpec,
+    PointRef,
+    PreviousOutputIdentityDerivationSpec,
 )
+from shuxueshuo_server.solver.extraction.problem_planning_binding import (
+    FunctionalProblemBindingLedger,
+    FunctionalProblemBindingContext,
+    FunctionalProblemCallBinding,
+    FunctionalProblemInputBinding,
+)
+from shuxueshuo_server.solver.extraction.source_identity import stable_hash
 
 from shuxueshuo_server.solver.runtime.answer_goal_verifier import (
     AnswerGoalVerificationReport,
@@ -46,6 +64,24 @@ from shuxueshuo_server.solver.runtime.functional_direct_compiler import (
     FunctionalCompileRequest,
     FunctionalDirectCompiler,
 )
+from shuxueshuo_server.solver.runtime.method_output_write_authority import (
+    CallResultOutputDestinationAuthority,
+    MethodOutputWriteAuthority,
+    StateOutputDestinationAuthority,
+)
+from shuxueshuo_server.solver.runtime.functional_diagnostics import (
+    FunctionalDiagnosticAuthority,
+    StatelessMethodError,
+    diagnostic_authority_from_issue,
+    method_check_failed,
+    normalize_macro_diagnostic_authority,
+)
+from shuxueshuo_server.solver.runtime.functional_execution_authority import (
+    PathMinimumWitness,
+)
+from shuxueshuo_server.solver.runtime.equal_length_ray_path_search import (
+    EqualLengthRayPathSearchError,
+)
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
 )
@@ -73,33 +109,78 @@ from shuxueshuo_server.solver.runtime.functional_transaction_shadow import (
 from shuxueshuo_server.solver.runtime.handle_registry import (
     CanonicalHandleRegistry,
 )
+from shuxueshuo_server.solver.runtime.macro_runtime_search import (
+    MacroCandidateEvaluation,
+    MacroRuntimeSearchError,
+    MacroRuntimeSearchReport,
+)
+from shuxueshuo_server.solver.runtime.macro_preparation import (
+    MacroCandidateBindingAuthority,
+    MacroImplementation,
+    MacroMethodInputBindingSpec,
+    MacroPreparationEnvironment,
+    MacroPreparationRequest,
+    MacroPreparationService,
+    PreparedMacroInvocation,
+    default_macro_implementation_registry,
+)
+from shuxueshuo_server.solver.runtime.planner_failure_classification import (
+    is_planner_configuration_failure_code,
+)
+from shuxueshuo_server.solver.runtime.macro_specs import MacroSpec
+from shuxueshuo_server.solver.runtime.method_input_read_authority import (
+    CallResultReadSource,
+    ConditionReadSource,
+    DerivedInputReadSource,
+    EntityIdentityReadSource,
+    InvocationResultReadSource,
+    MethodInputReadAuthority,
+    StateVersionReadSource,
+)
 from shuxueshuo_server.solver.runtime.methods import default_stateless_registry
 from shuxueshuo_server.solver.runtime.models import (
     ContextDeclaration,
+    ContextPath,
     MethodInvocation,
     PlannerOutput,
+    StepExecutionResult,
     StepGoal,
     StepPlan,
     TypedValue,
 )
 from shuxueshuo_server.solver.runtime.planner import PlannerInputs
 from shuxueshuo_server.solver.runtime.planner_state_context import (
+    Condition,
     PlannerStateContext,
+)
+from shuxueshuo_server.solver.runtime.output_type_inference import (
+    semantic_name_from_handle,
+)
+from shuxueshuo_server.solver.runtime.problem_source_provenance import (
+    ProblemCallSourceProvenance,
+    ProblemSourceProvenanceError,
 )
 from shuxueshuo_server.solver.runtime.recipe_compiler import (
     ExactCompiledStep,
     FunctionalCapabilityCompiler,
 )
+from shuxueshuo_server.solver.runtime.runtime_type_compatibility import (
+    runtime_type_compatible,
+)
 from shuxueshuo_server.solver.runtime.state_identity import (
+    ArgVersionBinding,
     IndexedStateVersion,
     MathObjectId,
     MathObjectRegistry,
     RuntimeDestinationKey,
+    StateRuntimeEquivalenceProbe,
     StateVersionId,
 )
 from shuxueshuo_server.solver.runtime.strategy_models import (
     PlannerRetryIssue,
     ProjectedFunctionArgBinding,
+    ProjectedStateDependency,
+    ProjectedStateWrite,
     StateWriteProvenance,
     FunctionalAcceptedStep,
     FunctionalExecutionDiagnostic,
@@ -126,6 +207,9 @@ from shuxueshuo_server.solver.runtime.state_finalization import (
 from shuxueshuo_server.solver.runtime.student_symbolic_complexity import (
     runtime_free_symbol_names,
 )
+from shuxueshuo_server.solver.state_semantics import (
+    merge_state_semantic_lineages,
+)
 from shuxueshuo_server.solver.utils import unique_ordered
 
 
@@ -136,6 +220,8 @@ class SymbolicClosureProvenanceError(RuntimeError):
 
 
 FunctionalCallTransactionStatus = Literal["verified", "failed"]
+
+
 @dataclass(frozen=True)
 class PreparedFunctionalCall:
     """One canonical public call with call-time typed state reads."""
@@ -149,6 +235,19 @@ class PreparedFunctionalCall:
     required_return_names: tuple[str, ...] = ()
     state_reads: tuple["PreparedFunctionalStateRead", ...] = ()
     arg_bindings: tuple["PreparedFunctionalArgBinding", ...] = ()
+    parameter_selector_object_ids: frozenset[MathObjectId] = frozenset()
+    problem_call_binding: FunctionalProblemCallBinding | None = None
+    macro_role_overrides: Mapping[str, str] = field(default_factory=dict)
+    macro_candidate_binding: MacroCandidateBindingAuthority | None = None
+    macro_method_inputs: tuple["PreparedMacroMethodInput", ...] = ()
+    prepared_macro: Any | None = None
+
+    def __post_init__(self) -> None:
+        object.__setattr__(
+            self,
+            "macro_role_overrides",
+            MappingProxyType(dict(sorted(self.macro_role_overrides.items()))),
+        )
 
 
 @dataclass(frozen=True)
@@ -159,6 +258,22 @@ class PreparedFunctionalArgBinding:
     selected_state_version_id: StateVersionId | None = None
     runtime_path: str | None = None
     runtime_value: TypedValue | None = None
+
+
+@dataclass(frozen=True)
+class PreparedMacroMethodInput:
+    """One Registry-declared internal Method input and its exact source."""
+
+    declaration: MacroMethodInputBindingSpec
+    source: Any | None = None
+
+    @property
+    def method_id(self) -> str:
+        return self.declaration.method_id
+
+    @property
+    def input_name(self) -> str:
+        return self.declaration.input_name
 
 
 @dataclass(frozen=True)
@@ -173,6 +288,12 @@ class PreparedFunctionalStateRead:
     original_runtime_path: str
     snapshot_runtime_path: str
     runtime_value: TypedValue
+
+
+@dataclass(frozen=True)
+class _RuntimeParameterClosure:
+    runtime_value: TypedValue
+    parameter_versions: tuple[IndexedStateVersion, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -194,6 +315,13 @@ class CompiledFunctionalCall:
     replay_plans: tuple[StepPlan, ...] = ()
     binding_consumption_decisions: tuple[dict[str, Any], ...] = ()
     compile_mismatches: tuple[dict[str, Any], ...] = ()
+    problem_source_provenance: ProblemCallSourceProvenance | None = None
+    problem_call_binding: FunctionalProblemCallBinding | None = None
+    macro_preparation_authority: Any | None = None
+    macro_search_report: MacroRuntimeSearchReport | None = None
+    path_minimum_witness: PathMinimumWitness | None = None
+    materialized_state_sources: tuple[tuple[str, StateVersionId], ...] = ()
+    output_write_authorities: tuple[MethodOutputWriteAuthority, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -206,6 +334,14 @@ class FunctionalCallExecutionResult:
     checks: tuple[Any, ...] = ()
     root_issues: tuple[PlannerRetryIssue, ...] = ()
     symbolic_closure: SymbolicClosureExecutionResult | None = None
+    macro_preparation_authority: Any | None = None
+    macro_search_report: MacroRuntimeSearchReport | None = None
+    path_minimum_witness: PathMinimumWitness | None = None
+    step_results: tuple[StepExecutionResult, ...] = field(
+        default=(),
+        repr=False,
+        compare=False,
+    )
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -223,6 +359,21 @@ class FunctionalCallExecutionResult:
             "symbolic_closure": (
                 self.symbolic_closure.to_payload()
                 if self.symbolic_closure is not None
+                else None
+            ),
+            "macro_search_report": (
+                self.macro_search_report.to_payload()
+                if self.macro_search_report is not None
+                else None
+            ),
+            "macro_preparation_authority": (
+                self.macro_preparation_authority.authority_payload()
+                if self.macro_preparation_authority is not None
+                else None
+            ),
+            "path_minimum_witness": (
+                self.path_minimum_witness.authority_payload()
+                if self.path_minimum_witness is not None
                 else None
             ),
         }
@@ -249,6 +400,72 @@ class FunctionalTransactionalExecutionReport:
         repr=False,
         compare=False,
     )
+    restored_call_ids: tuple[str, ...] = ()
+    runtime_version_values: Mapping[StateVersionId, TypedValue] = field(
+        default_factory=dict,
+        repr=False,
+        compare=False,
+    )
+    runtime_version_symbol_bindings: Mapping[
+        StateVersionId,
+        Mapping[Any, MathObjectId],
+    ] = field(default_factory=dict, repr=False, compare=False)
+    runtime_result_values: Mapping[tuple[str, str], TypedValue] = field(
+        default_factory=dict,
+        repr=False,
+        compare=False,
+    )
+    conditions: Mapping[str, Condition] = field(
+        default_factory=dict,
+        repr=False,
+        compare=False,
+    )
+    runtime_version_aliases: Mapping[
+        StateVersionId,
+        StateVersionId,
+    ] = field(default_factory=dict, repr=False, compare=False)
+    runtime_equivalent_aliases: tuple[
+        "FunctionalRuntimeEquivalentCallAlias", ...
+    ] = ()
+    runtime_state_equivalence_probe_results: tuple[dict[str, Any], ...] = ()
+    functional_problem_binding_ledger: FunctionalProblemBindingLedger | None = field(
+        default=None,
+        repr=False,
+        compare=False,
+    )
+    runtime_context: RuntimeContext | None = field(
+        default=None,
+        repr=False,
+        compare=False,
+    )
+
+    @property
+    def executed_call_ids(self) -> tuple[str, ...]:
+        """Calls that actually entered the runtime, excluding restores."""
+
+        return tuple(
+            dict.fromkeys(
+                event.call_id
+                for event in self.events
+                if event.event == "running"
+            )
+        )
+
+    def resolve_runtime_version_id(
+        self,
+        version_id: StateVersionId,
+    ) -> StateVersionId:
+        current = version_id
+        visited: set[StateVersionId] = set()
+        while current in self.runtime_version_aliases:
+            if current in visited:
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.runtime_equivalent_version_alias_cycle"
+                )
+            visited.add(current)
+            current = self.runtime_version_aliases[current]
+        return current
 
     @property
     def functional_compile_count(self) -> int:
@@ -339,6 +556,10 @@ class FunctionalTransactionalExecutionReport:
             "functional_compile_drift_count": (
                 self.functional_compile_drift_count
             ),
+            "restored_call_ids": list(self.restored_call_ids),
+            "restored_call_count": len(self.restored_call_ids),
+            "executed_call_ids": list(self.executed_call_ids),
+            "executed_call_count": len(self.executed_call_ids),
             "symbolic_closure_execution_count": (
                 self.symbolic_closure_execution_count
             ),
@@ -351,6 +572,69 @@ class FunctionalTransactionalExecutionReport:
             "symbolic_closure_drift_by_capability": (
                 self.symbolic_closure_drift_by_capability
             ),
+            "runtime_equivalent_aliases": [
+                item.to_payload() for item in self.runtime_equivalent_aliases
+            ],
+            "runtime_state_equivalence_probe_results": [
+                dict(item)
+                for item in self.runtime_state_equivalence_probe_results
+            ],
+            "functional_problem_binding_ledger": (
+                {
+                    "schema_version": (
+                        self.functional_problem_binding_ledger.schema_version
+                    ),
+                    "draft_signature": (
+                        self.functional_problem_binding_ledger
+                        .draft.draft_signature
+                    ),
+                    "ledger_signature": (
+                        self.functional_problem_binding_ledger.ledger_signature
+                    ),
+                    "calls": {
+                        call_id: binding.authority_payload()
+                        for call_id, binding in (
+                            self.functional_problem_binding_ledger.calls.items()
+                        )
+                    },
+                }
+                if self.functional_problem_binding_ledger is not None
+                else None
+            ),
+            "runtime_version_aliases": [
+                {
+                    "candidate_version_id": candidate.to_payload(),
+                    "canonical_version_id": canonical.to_payload(),
+                }
+                for candidate, canonical in sorted(
+                    self.runtime_version_aliases.items()
+                )
+            ],
+        }
+
+
+@dataclass(frozen=True)
+class FunctionalRuntimeEquivalentCallAlias:
+    """A duplicate call proven equivalent by its actual typed runtime writes."""
+
+    duplicate_call_id: str
+    canonical_call_id: str
+    return_aliases: tuple[tuple[str, str], ...]
+    selected_version_ids: tuple[StateVersionId, ...]
+    comparison_signature: str
+
+    def to_payload(self) -> dict[str, Any]:
+        return {
+            "duplicate_call_id": self.duplicate_call_id,
+            "canonical_call_id": self.canonical_call_id,
+            "return_aliases": {
+                duplicate: canonical
+                for duplicate, canonical in self.return_aliases
+            },
+            "selected_version_ids": [
+                item.to_payload() for item in self.selected_version_ids
+            ],
+            "comparison_signature": self.comparison_signature,
         }
 
 
@@ -392,6 +676,767 @@ class FunctionalTransactionalAttemptResult:
         }
 
 
+@dataclass(frozen=True)
+class FunctionalRestoredCallResult:
+    """One exact anonymous/public return restored with its typed authority."""
+
+    call_id: str
+    return_name: str
+    scope_id: str
+    runtime_type: str
+    runtime_value: TypedValue
+    problem_source_provenance: ProblemCallSourceProvenance | None = None
+
+    @property
+    def prompt_ref(self) -> dict[str, str]:
+        return {"step_id": self.call_id, "return": self.return_name}
+
+
+@dataclass(frozen=True)
+class FunctionalRestoredTypedValueIndex:
+    """Exact typed namespaces restored from one authenticated checkpoint."""
+
+    state_versions: Mapping[StateVersionId, TypedValue] = field(
+        default_factory=dict
+    )
+    call_results: Mapping[
+        tuple[str, str], FunctionalRestoredCallResult
+    ] = field(
+        default_factory=dict
+    )
+    conditions: Mapping[str, Condition] = field(default_factory=dict)
+
+    def state_value(self, version_id: StateVersionId) -> TypedValue | None:
+        return self.state_versions.get(version_id)
+
+    def call_result_value(
+        self,
+        call_id: str,
+        return_name: str,
+    ) -> TypedValue | None:
+        result = self.call_results.get((call_id, return_name))
+        return result.runtime_value if result is not None else None
+
+    def call_result(
+        self,
+        call_id: str,
+        return_name: str,
+    ) -> FunctionalRestoredCallResult | None:
+        return self.call_results.get((call_id, return_name))
+
+    def condition_value(self, condition_id: str) -> Condition | None:
+        return self.conditions.get(condition_id)
+
+
+@dataclass(frozen=True)
+class FunctionalRestoredCallSeed:
+    """In-process runtime values authenticated by an F5-D checkpoint."""
+
+    call_results: tuple[FunctionalCallExecutionResult, ...] = ()
+    compiled_calls: tuple[CompiledFunctionalCall, ...] = ()
+    runtime_version_values: Mapping[StateVersionId, TypedValue] = field(
+        default_factory=dict
+    )
+    runtime_version_symbol_bindings: Mapping[
+        StateVersionId,
+        Mapping[Any, MathObjectId],
+    ] = field(default_factory=dict)
+    call_result_records: Mapping[
+        tuple[str, str], FunctionalRestoredCallResult
+    ] = field(
+        default_factory=dict
+    )
+    conditions: Mapping[str, Condition] = field(
+        default_factory=dict
+    )
+    source_read_authorities: Mapping[str, str] = field(default_factory=dict)
+    source_read_payloads: Mapping[str, Mapping[str, Any]] = field(
+        default_factory=dict
+    )
+    runtime_write_authorities: Mapping[str, str] = field(default_factory=dict)
+    runtime_write_payloads: Mapping[str, Mapping[str, Any]] = field(
+        default_factory=dict
+    )
+    publication_authorities: Mapping[str, str] = field(default_factory=dict)
+    publication_payloads: Mapping[str, Mapping[str, Any]] = field(
+        default_factory=dict
+    )
+    mutable_publication_goal_unit_ids: tuple[str, ...] = ()
+    call_reconciliations: Mapping[
+        str,
+        FunctionalCallReconciliation,
+    ] = field(default_factory=dict)
+
+    @property
+    def call_ids(self) -> tuple[str, ...]:
+        return tuple(item.call_id for item in self.call_results)
+
+    @property
+    def typed_value_index(self) -> FunctionalRestoredTypedValueIndex:
+        return FunctionalRestoredTypedValueIndex(
+            state_versions=self.runtime_version_values,
+            call_results=self.call_result_records,
+            conditions=self.conditions,
+        )
+
+
+def build_functional_execution_restore_seed(
+    report: FunctionalTransactionalExecutionReport,
+    reconciliation: FunctionalPlanReconciliationResult,
+    *,
+    call_ids: frozenset[str] | None = None,
+    mutable_publication_goal_unit_ids: tuple[str, ...] = (),
+) -> FunctionalRestoredCallSeed:
+    """Build the one typed restore authority from a verified transaction."""
+
+    selected = (
+        frozenset(call_ids)
+        if call_ids is not None
+        else frozenset(
+            item.call_id
+            for item in report.call_results
+            if item.status == "verified"
+        )
+    )
+    result_by_call = {item.call_id: item for item in report.call_results}
+    compiled_by_call = {item.call_id: item for item in report.compiled_calls}
+    reconciliation_by_call = {
+        item.call_id: item for item in reconciliation.calls
+    }
+    missing = tuple(
+        sorted(
+            call_id
+            for call_id in selected
+            if (
+                call_id not in result_by_call
+                or result_by_call[call_id].status != "verified"
+                or call_id not in compiled_by_call
+                or call_id not in reconciliation_by_call
+            )
+        )
+    )
+    if missing:
+        raise ValueError(
+            "planner_configuration_error: "
+            "functional.goal_retry_restore_drift: "
+            f"verified restore authority is missing calls {list(missing)}"
+        )
+    version_ids = {
+        version.version_id
+        for call_id in selected
+        for version in result_by_call[call_id].committed_versions
+    }
+    result_keys = {
+        key for key in report.runtime_result_values if key[0] in selected
+    }
+    call_result_records = _build_restored_call_result_records(
+        report,
+        result_keys=result_keys,
+    )
+    logical_binding_context = reconciliation.functional_binding_context
+    condition_ids = {
+        binding.source.condition_id
+        for binding in (
+            logical_binding_context.bindings
+            if logical_binding_context is not None
+            else ()
+        )
+        if binding.key.call_id in selected
+        and binding.source.kind == "condition"
+        and binding.source.condition_id is not None
+    }
+    missing_conditions = condition_ids - set(report.conditions)
+    if missing_conditions:
+        raise ValueError(
+            "planner_configuration_error: "
+            "functional.goal_retry_restore_drift: "
+            "verified restore authority is missing Conditions "
+            f"{sorted(missing_conditions)}"
+        )
+    authority_payloads = {
+        call_id: functional_restored_call_authority_payloads(
+            reconciliation,
+            call_id,
+        )
+        for call_id in selected
+    }
+    authority_signatures = {
+        call_id: {
+            key: stable_hash(value)
+            for key, value in payloads.items()
+        }
+        for call_id, payloads in authority_payloads.items()
+    }
+    return FunctionalRestoredCallSeed(
+        call_results=tuple(
+            result_by_call[call_id]
+            for call_id in report.graph.canonical_order
+            if call_id in selected
+        ),
+        compiled_calls=tuple(
+            compiled_by_call[call_id]
+            for call_id in report.graph.canonical_order
+            if call_id in selected
+        ),
+        runtime_version_values={
+            version_id: value
+            for version_id, value in report.runtime_version_values.items()
+            if version_id in version_ids
+        },
+        runtime_version_symbol_bindings={
+            version_id: bindings
+            for version_id, bindings in (
+                report.runtime_version_symbol_bindings.items()
+            )
+            if version_id in version_ids
+        },
+        call_result_records=call_result_records,
+        conditions={
+            condition_id: report.conditions[condition_id]
+            for condition_id in sorted(condition_ids)
+        },
+        source_read_authorities={
+            call_id: authority_signatures[call_id]["source_read"]
+            for call_id in selected
+        },
+        source_read_payloads={
+            call_id: authority_payloads[call_id]["source_read"]
+            for call_id in selected
+        },
+        runtime_write_authorities={
+            call_id: authority_signatures[call_id]["runtime_write"]
+            for call_id in selected
+        },
+        runtime_write_payloads={
+            call_id: authority_payloads[call_id]["runtime_write"]
+            for call_id in selected
+        },
+        publication_authorities={
+            call_id: authority_signatures[call_id]["answer_publication"]
+            for call_id in selected
+        },
+        publication_payloads={
+            call_id: authority_payloads[call_id]["answer_publication"]
+            for call_id in selected
+        },
+        mutable_publication_goal_unit_ids=(
+            mutable_publication_goal_unit_ids
+        ),
+        call_reconciliations={
+            call_id: reconciliation_by_call[call_id]
+            for call_id in selected
+        },
+    )
+
+
+def _build_restored_call_result_records(
+    report: FunctionalTransactionalExecutionReport,
+    *,
+    result_keys: set[tuple[str, str]],
+) -> dict[tuple[str, str], FunctionalRestoredCallResult]:
+    runtime_results = {
+        (call.call_id, item.output_key): item
+        for call in report.call_results
+        for item in call.runtime_results
+    }
+    compiled_returns: dict[tuple[str, str], tuple[Any, CompiledPublicReturn]] = {}
+    for compiled in report.compiled_calls:
+        for returned in compiled.public_returns:
+            keys = {returned.return_name}
+            if returned.expected_write is not None:
+                keys.add(returned.expected_write.output_key)
+            for output_key in keys:
+                compiled_returns[(compiled.call_id, output_key)] = (
+                    compiled,
+                    returned,
+                )
+    records: dict[tuple[str, str], FunctionalRestoredCallResult] = {}
+    for key in sorted(result_keys):
+        compiled_return = compiled_returns.get(key)
+        if compiled_return is None:
+            raise ValueError(
+                "planner_configuration_error: "
+                "functional.goal_retry_restore_drift: "
+                f"CallResultId {key!r} has no compiled return authority"
+            )
+        compiled, returned = compiled_return
+        runtime_result = runtime_results.get(key)
+        records[key] = FunctionalRestoredCallResult(
+            call_id=key[0],
+            return_name=key[1],
+            scope_id=returned.allocation.valid_scope,
+            runtime_type=returned.allocation.runtime_type,
+            runtime_value=report.runtime_result_values[key],
+            problem_source_provenance=(
+                runtime_result.problem_source_provenance
+                if runtime_result is not None
+                else compiled.problem_source_provenance
+            ),
+        )
+    return records
+
+
+class FunctionalRestoredCallBindingError(ValueError):
+    """A checkpointed call no longer has the same executable binding."""
+
+    def __init__(
+        self,
+        call_id: str,
+        message: str,
+        *,
+        code: str = "planner.retry_problem_source_binding_drift",
+        details: Mapping[str, Any] | None = None,
+    ) -> None:
+        self.code = code
+        self.path = f"$.restored_calls[{call_id!r}]"
+        self.call_id = call_id
+        self.message = message
+        self.details = dict(details or {})
+        super().__init__(
+            "planner_configuration_error: "
+            f"{self.code}: {message}"
+        )
+
+
+def rebase_restored_call_seed(
+    seed: FunctionalRestoredCallSeed | None,
+    reconciliation: FunctionalPlanReconciliationResult,
+) -> FunctionalRestoredCallSeed | None:
+    """Prove restored calls unchanged, then stamp current Goal provenance.
+
+    Partial F5-F2 execution can omit a failed Goal from a shared scope call's
+    consumer set. A repaired complete graph may add that authenticated Goal
+    without changing the call's inputs, outputs, placement, or source reads.
+    """
+
+    if seed is None or not seed.call_results:
+        return seed
+    binding_context = reconciliation.functional_problem_binding_context
+    if binding_context is None:
+        raise ValueError(
+            "planner_configuration_error: "
+            "planner.retry_problem_source_binding_drift: "
+            "restored calls require F5-C binding authority"
+        )
+    calls = {item.call_id: item for item in reconciliation.calls}
+    compiled_by_call = {item.call_id: item for item in seed.compiled_calls}
+    rebased_results: list[FunctionalCallExecutionResult] = []
+    rebased_compiled: list[CompiledFunctionalCall] = []
+    for result in seed.call_results:
+        call_id = result.call_id
+        call = calls.get(call_id)
+        # A whole-Scope replacement may remove a previously verified call, or
+        # canonicalization may replace it with an equivalent successor.  Such
+        # a call is no longer a restore candidate; absence from the next
+        # reconciliation authority is therefore a deterministic exclusion,
+        # not authority drift.
+        if call is None:
+            continue
+        compiled = compiled_by_call.get(call_id)
+        expected_source = seed.source_read_authorities.get(call_id)
+        expected_write = seed.runtime_write_authorities.get(call_id)
+        expected_publication = seed.publication_authorities.get(call_id)
+        if (
+            compiled is None
+            or expected_source is None
+            or expected_write is None
+            or expected_publication is None
+        ):
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.retry_problem_source_binding_drift: "
+                f"restored call authority is missing for {call_id}"
+            )
+        actual_source_payload = _restorable_call_source_read_payload(
+            call,
+            binding_context=binding_context,
+        )
+        actual_source = stable_hash(actual_source_payload)
+        if actual_source != expected_source:
+            expected_payload = seed.source_read_payloads.get(call_id)
+            raise FunctionalRestoredCallBindingError(
+                call_id,
+                f"source reads changed for restored call {call_id}",
+                details={
+                    "authority_kind": "source_read",
+                    "expected_signature": expected_source,
+                    "actual_signature": actual_source,
+                    "first_difference": (
+                        _first_payload_difference(
+                            expected_payload,
+                            actual_source_payload,
+                        )
+                        if expected_payload is not None
+                        else None
+                    ),
+                    "expected_binding": expected_payload,
+                    "actual_binding": actual_source_payload,
+                },
+            )
+        actual_write_payload = _restorable_call_runtime_write_payload(call)
+        actual_write = stable_hash(actual_write_payload)
+        if actual_write != expected_write:
+            expected_payload = seed.runtime_write_payloads.get(call_id)
+            raise FunctionalRestoredCallBindingError(
+                call_id,
+                f"runtime writes changed for restored call {call_id}",
+                code="planner.contract_runtime_destination_drift",
+                details={
+                    "authority_kind": "runtime_write",
+                    "expected_signature": expected_write,
+                    "actual_signature": actual_write,
+                    "first_difference": (
+                        _first_payload_difference(
+                            expected_payload,
+                            actual_write_payload,
+                        )
+                        if expected_payload is not None
+                        else None
+                    ),
+                    "expected_binding": expected_payload,
+                    "actual_binding": actual_write_payload,
+                },
+            )
+        actual_publication_payload = _restorable_call_publication_payload(
+            call,
+            binding_context=binding_context,
+        )
+        comparable_actual_publication = _filter_mutable_publication_authority(
+            actual_publication_payload,
+            mutable_goal_unit_ids=seed.mutable_publication_goal_unit_ids,
+        )
+        expected_publication_payload = seed.publication_payloads.get(call_id)
+        comparable_expected_publication = _filter_mutable_publication_authority(
+            expected_publication_payload or {},
+            mutable_goal_unit_ids=seed.mutable_publication_goal_unit_ids,
+        )
+        if stable_hash(comparable_actual_publication) != stable_hash(
+            comparable_expected_publication
+        ):
+            raise FunctionalRestoredCallBindingError(
+                call_id,
+                f"answer publication changed for restored call {call_id}",
+                details={
+                    "authority_kind": "answer_publication",
+                    "expected_signature": expected_publication,
+                    "actual_signature": stable_hash(actual_publication_payload),
+                    "first_difference": _first_payload_difference(
+                        comparable_expected_publication,
+                        comparable_actual_publication,
+                    ),
+                    "expected_binding": expected_publication_payload,
+                    "actual_binding": actual_publication_payload,
+                    "comparable_expected_binding": (
+                        comparable_expected_publication
+                    ),
+                    "comparable_actual_binding": (
+                        comparable_actual_publication
+                    ),
+                },
+            )
+        previous = compiled.problem_source_provenance
+        current = binding_context.source_provenance_for_call(call_id)
+        if previous is not None and previous.macro_search_signature is not None:
+            # The checkpoint owns the finalized Macro winner. Reconciliation
+            # may refresh Goal consumers, but it must not rebuild or extend the
+            # winner binding after execution.
+            current = ProblemCallSourceProvenance(
+                planning_context_id=current.planning_context_id,
+                problem_revision_id=current.problem_revision_id,
+                problem_semantic_hash=current.problem_semantic_hash,
+                canonical_call_id=current.canonical_call_id,
+                goal_unit_ids=current.goal_unit_ids,
+                input_source_unit_ids=previous.input_source_unit_ids,
+                call_binding_signature=previous.call_binding_signature,
+                macro_search_signature=previous.macro_search_signature,
+                macro_role_resolutions=previous.macro_role_resolutions,
+            )
+        source_difference = (
+            {"path": "$", "expected": "present", "actual": None}
+            if previous is None
+            else _restored_problem_source_authority_difference(
+                previous,
+                current,
+            )
+        )
+        if source_difference is not None:
+            raise FunctionalRestoredCallBindingError(
+                call_id,
+                f"Problem source authority changed for restored call {call_id}",
+                details={"first_difference": source_difference},
+            )
+        assert previous is not None
+        rebased_results.append(
+            replace(
+                result,
+                runtime_results=tuple(
+                    replace(item, problem_source_provenance=current)
+                    for item in result.runtime_results
+                ),
+                state_writes=tuple(
+                    replace(item, problem_source_provenance=current)
+                    for item in result.state_writes
+                ),
+            )
+        )
+        rebased_compiled.append(
+            replace(
+                compiled,
+                public_returns=tuple(
+                    replace(
+                        item,
+                        expected_write=(
+                            replace(
+                                item.expected_write,
+                                problem_source_provenance=current,
+                            )
+                            if item.expected_write is not None
+                            else None
+                        ),
+                    )
+                    for item in compiled.public_returns
+                ),
+                problem_source_provenance=current,
+            )
+        )
+    return replace(
+        seed,
+        call_results=tuple(rebased_results),
+        compiled_calls=tuple(rebased_compiled),
+    )
+
+
+def functional_restored_call_authority_payloads(
+    reconciliation: FunctionalPlanReconciliationResult,
+    call_id: str,
+) -> dict[str, dict[str, Any]]:
+    """Return the three independently audited restore authorities."""
+
+    binding_context = reconciliation.functional_problem_binding_context
+    call = next(
+        (item for item in reconciliation.calls if item.call_id == call_id),
+        None,
+    )
+    if binding_context is None or call is None:
+        raise ValueError(
+            "planner_configuration_error: "
+            "planner.retry_problem_source_binding_drift: "
+            f"missing restored call binding for {call_id}"
+        )
+    return {
+        "source_read": _restorable_call_source_read_payload(
+            call,
+            binding_context=binding_context,
+        ),
+        "runtime_write": _restorable_call_runtime_write_payload(call),
+        "answer_publication": _restorable_call_publication_payload(
+            call,
+            binding_context=binding_context,
+        ),
+    }
+
+
+def functional_restored_call_authority_signatures(
+    reconciliation: FunctionalPlanReconciliationResult,
+    call_id: str,
+) -> dict[str, Any]:
+    """Hash each restore authority independently."""
+
+    return {
+        key: stable_hash(value)
+        for key, value in functional_restored_call_authority_payloads(
+            reconciliation,
+            call_id,
+        ).items()
+    }
+
+
+def _restorable_call_source_read_payload(
+    call: FunctionalCallReconciliation,
+    *,
+    binding_context: FunctionalProblemBindingContext,
+) -> dict[str, Any]:
+    return {
+        "planning_context_id": binding_context.planning_context_id,
+        "problem_revision_id": binding_context.problem_revision_id,
+        "problem_semantic_hash": binding_context.problem_semantic_hash,
+        "call_id": call.call_id,
+        "scope_id": call.scope_id,
+        "capability_id": call.capability_id,
+        "resolved_args": {
+            name: [item.to_payload() for item in values]
+            for name, values in sorted(call.resolved_args.items())
+        },
+        "inputs": [
+            item.to_payload()
+            for item in binding_context.inputs_for_call(call.call_id)
+        ],
+    }
+
+
+def _restorable_call_runtime_write_payload(
+    call: FunctionalCallReconciliation,
+) -> dict[str, Any]:
+    publication_only_fields = {"bound_ref"}
+    return {
+        "call_id": call.call_id,
+        "scope_id": call.scope_id,
+        "capability_id": call.capability_id,
+        "returns": [
+            {
+                key: value
+                for key, value in item.to_payload().items()
+                if key not in publication_only_fields
+            }
+            for item in call.returns
+        ],
+    }
+
+
+def _restorable_call_publication_payload(
+    call: FunctionalCallReconciliation,
+    *,
+    binding_context: FunctionalProblemBindingContext,
+) -> dict[str, Any]:
+    return {
+        "call_id": call.call_id,
+        "goal_unit_ids": list(
+            binding_context.call_goal_bindings.get(call.call_id, ())
+        ),
+        "returns": [
+            item.to_payload()
+            for item in binding_context.returns_for_call(call.call_id)
+        ],
+    }
+
+
+def _filter_mutable_publication_authority(
+    payload: Mapping[str, Any],
+    *,
+    mutable_goal_unit_ids: Sequence[str],
+) -> dict[str, Any]:
+    """Keep only frozen Goal answer publications in restore comparison.
+
+    Non-answer named returns are reconstructed from the canonical runtime
+    write allocation. Their object, scope, type, and destination are already
+    covered by ``runtime_write`` authority, so a partial graph omitting and a
+    repaired graph restoring that public catalog entry are equivalent here.
+    The call-to-Goal consumer closure is likewise rebuilt from the complete
+    dependency graph; it is scheduling authority, not call identity.
+    """
+
+    mutable = set(mutable_goal_unit_ids)
+    return {
+        "call_id": payload.get("call_id"),
+        "goal_unit_ids": [],
+        "returns": [
+            item
+            for item in payload.get("returns", ())
+            if isinstance(item, Mapping)
+            and item.get("goal_unit_id") is not None
+            and item.get("goal_unit_id") not in mutable
+        ],
+    }
+
+
+def _first_payload_difference(
+    expected: Any,
+    actual: Any,
+    *,
+    path: str = "$",
+) -> dict[str, Any] | None:
+    if type(expected) is not type(actual):
+        return {"path": path, "expected": expected, "actual": actual}
+    if isinstance(expected, Mapping):
+        for key in sorted(set(expected) | set(actual)):
+            child_path = f"{path}.{key}"
+            if key not in expected:
+                return {
+                    "path": child_path,
+                    "expected": None,
+                    "actual": actual[key],
+                }
+            if key not in actual:
+                return {
+                    "path": child_path,
+                    "expected": expected[key],
+                    "actual": None,
+                }
+            difference = _first_payload_difference(
+                expected[key],
+                actual[key],
+                path=child_path,
+            )
+            if difference is not None:
+                return difference
+        return None
+    if isinstance(expected, (list, tuple)):
+        if len(expected) != len(actual):
+            return {
+                "path": f"{path}.length",
+                "expected": len(expected),
+                "actual": len(actual),
+            }
+        for index, (expected_item, actual_item) in enumerate(
+            zip(expected, actual, strict=True)
+        ):
+            difference = _first_payload_difference(
+                expected_item,
+                actual_item,
+                path=f"{path}[{index}]",
+            )
+            if difference is not None:
+                return difference
+        return None
+    if expected != actual:
+        return {"path": path, "expected": expected, "actual": actual}
+    return None
+
+
+def _restored_problem_source_authority_difference(
+    previous: ProblemCallSourceProvenance,
+    current: ProblemCallSourceProvenance,
+) -> dict[str, Any] | None:
+    """Compare only immutable execution-source authority, not consumers."""
+
+    for field_name in (
+        "planning_context_id",
+        "problem_revision_id",
+        "problem_semantic_hash",
+        "canonical_call_id",
+        "input_source_unit_ids",
+    ):
+        expected = getattr(previous, field_name)
+        actual = getattr(current, field_name)
+        if expected != actual:
+            return {
+                "path": f"$.{field_name}",
+                "expected": expected,
+                "actual": actual,
+            }
+    return None
+
+
+def _execution_problem_binding_ledger(
+    reconciliation: FunctionalPlanReconciliationResult,
+    *,
+    compiled_calls: Sequence[CompiledFunctionalCall],
+) -> FunctionalProblemBindingLedger | None:
+    base = reconciliation.functional_problem_binding_ledger
+    if base is None:
+        return None
+    if not isinstance(base, FunctionalProblemBindingLedger):
+        raise ValueError(
+            "planner_configuration_error: invalid F5-C binding ledger"
+        )
+    calls = dict(base.calls)
+    for compiled in compiled_calls:
+        binding = compiled.problem_call_binding
+        if binding is not None:
+            calls[compiled.call_id] = binding
+    return FunctionalProblemBindingLedger(draft=base.draft, calls=calls)
+
+
 class FunctionalCallPreparationService:
     """Prepare a canonical call from typed reconciliation state.
 
@@ -411,7 +1456,11 @@ class FunctionalCallPreparationService:
         inputs: PlannerInputs,
         handle_registry: CanonicalHandleRegistry,
         capability_catalog: FunctionalCapabilityCatalog,
+        object_registry: MathObjectRegistry | None = None,
     ) -> PreparedFunctionalCall:
+        object_registry = object_registry or MathObjectRegistry.from_sources(
+            handle_registry,
+        )
         calls = {item.call_id: item for item in reconciliation.calls}
         reconciled = calls.get(call_id)
         node = next(
@@ -442,8 +1491,9 @@ class FunctionalCallPreparationService:
             for value in values
             if (
                 value.state_version_id is not None
-                and working.identity_index.version(value.state_version_id)
-                is None
+                and working.identity_index.version(
+                    working.resolve_runtime_version_id(value.state_version_id)
+                ) is None
             )
         )
         if missing_versions:
@@ -487,6 +1537,27 @@ class FunctionalCallPreparationService:
                 "planner.problem_source_binding_drift: "
                 f"call={call_id}, invalid F5-C sidecar"
             )
+        problem_binding_ledger = (
+            reconciliation.functional_problem_binding_ledger
+        )
+        if problem_binding_ledger is not None and not isinstance(
+            problem_binding_ledger,
+            FunctionalProblemBindingLedger,
+        ):
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.problem_source_binding_drift: "
+                f"call={call_id}, invalid F5-C ledger"
+            )
+        problem_call_binding = (
+            problem_binding_ledger.call_binding(call_id)
+            if problem_binding_ledger is not None
+            else (
+                problem_binding_context.call_binding(call_id)
+                if problem_binding_context is not None
+                else None
+            )
+        )
         logical_bindings = binding_context.for_call(call_id)
         runtime_bindings = CanonicalRuntimeBindingIndex.from_context(
             runtime_context,
@@ -501,8 +1572,11 @@ class FunctionalCallPreparationService:
             for item_index, value in enumerate(values):
                 if value.state_version_id is None:
                     continue
-                original = working.identity_index.version(
+                resolved_version_id = working.resolve_runtime_version_id(
                     value.state_version_id
+                )
+                original = working.identity_index.version(
+                    resolved_version_id
                 )
                 if original is None:
                     raise ValueError(
@@ -532,6 +1606,10 @@ class FunctionalCallPreparationService:
                         "planner.functional_binding_context_incomplete: "
                         f"call={call_id}, arg={arg_name}[{item_index}]"
                     )
+                if logical_binding.consumption_mode == "resolver_evidence":
+                    # Planner-authored Macro role hints influence candidate
+                    # ordering only. They are not runtime read authority.
+                    continue
                 selection: Literal["exact", "latest"] = (
                     "latest"
                     if logical_binding.selection_policy == "latest"
@@ -575,7 +1653,7 @@ class FunctionalCallPreparationService:
                         arg_name=arg_name,
                         item_index=item_index,
                         selection=selection,
-                        original_version_id=original.version_id,
+                        original_version_id=value.state_version_id,
                         selected_version_id=selected.version_id,
                         original_runtime_path=original_path,
                         snapshot_runtime_path=snapshot_paths.setdefault(
@@ -590,88 +1668,108 @@ class FunctionalCallPreparationService:
                         runtime_value=runtime_value,
                     )
                 )
-                support_version_ids = (
-                    unique_ordered(
-                        source_version_id
-                        for role in value.lineage.object_roles
-                        if role.state_requirement == "materialized"
-                        for source_version_id in role.source_version_ids
-                    )
-                    if value.runtime_type == "PathTransformation"
-                    else ()
+        existing_state_read_keys = {
+            (item.arg_name, item.item_index)
+            for item in state_reads
+            if ".__support_" not in item.arg_name
+        }
+        for logical_binding in logical_bindings:
+            key = (
+                logical_binding.key.arg_name,
+                logical_binding.key.item_index,
+            )
+            if key in existing_state_read_keys:
+                continue
+            declaration = logical_binding.input_binding
+            if (
+                logical_binding.consumption_mode != "typed_binding"
+                or declaration is None
+                or logical_binding.source.state_version_id is None
+            ):
+                continue
+            original_version_id = logical_binding.source.state_version_id
+            selected_version_id = working.resolve_runtime_version_id(
+                original_version_id
+            )
+            selected = working.identity_index.version(selected_version_id)
+            if selected is None:
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.transactional_input_version_unresolved: "
+                    f"call={call_id}, arg={logical_binding.key.arg_name}, "
+                    f"version={original_version_id.to_payload()}"
                 )
-                for support_index, support_version_id in enumerate(
-                    support_version_ids
-                ):
-                    if support_version_id == value.state_version_id:
-                        continue
-                    support = working.identity_index.version(
-                        support_version_id
-                    )
-                    if support is None:
-                        raise ValueError(
-                            "planner_configuration_error: "
-                            "planner.transactional_input_version_unresolved: "
-                            f"call={call_id}, arg={arg_name}, "
-                            f"support={support_version_id.to_payload()}"
-                        )
-                    if not working.identity_index.visibility.is_visible(
-                        support.valid_scope_id,
-                        consumer_scope_id=node.execution_scope_id,
-                    ):
-                        raise ValueError(
-                            "planner_configuration_error: "
-                            "planner.transactional_input_version_invisible: "
-                            f"call={call_id}, arg={arg_name}, "
-                            f"support={support_version_id.to_payload()}"
-                        )
-                    support_value = working.runtime_version_values.get(
-                        support_version_id
-                    )
-                    support_path = _indexed_runtime_path(support)
+            if not working.identity_index.visibility.is_visible(
+                selected.valid_scope_id,
+                consumer_scope_id=node.execution_scope_id,
+            ):
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.transactional_input_version_invisible: "
+                    f"call={call_id}, arg={logical_binding.key.arg_name}, "
+                    f"version={selected_version_id.to_payload()}"
+                )
+            runtime_value = working.runtime_version_values.get(
+                selected_version_id
+            )
+            original_path = _indexed_runtime_path(selected)
+            if runtime_value is None or original_path is None:
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.transactional_runtime_value_missing: "
+                    f"call={call_id}, arg={logical_binding.key.arg_name}, "
+                    f"version={selected_version_id.to_payload()}"
+                )
+            state_reads.append(
+                PreparedFunctionalStateRead(
+                    arg_name=logical_binding.key.arg_name,
+                    item_index=logical_binding.key.item_index,
+                    selection="exact",
+                    original_version_id=original_version_id,
+                    selected_version_id=selected_version_id,
+                    original_runtime_path=original_path,
+                    snapshot_runtime_path=snapshot_paths.setdefault(
+                        selected_version_id,
+                        _transaction_snapshot_path(
+                            runtime_context,
+                            scope_id=node.execution_scope_id,
+                            call_id=call_id,
+                            item_index=len(snapshot_paths),
+                        ),
+                    ),
+                    runtime_value=runtime_value,
+                )
+            )
+        parameter_selector_object_ids = _parameter_selector_object_ids(
+            reconciled.resolved_args,
+            object_registry=object_registry,
+        )
+        parameter_selector_object_ids = frozenset(
+            (
+                *parameter_selector_object_ids,
+                *(
+                    object_id
+                    for binding in logical_bindings
                     if (
-                        support_path is None
-                        and support.produced_handle is not None
-                    ):
-                        try:
-                            support_path = runtime_bindings.path_for(
-                                support.produced_handle,
-                                expected_type=(
-                                    support.version_id.slot_id.logical_key
-                                    .runtime_type
-                                ),
-                            )
-                        except Exception:
-                            support_path = None
-                    if support_value is None or support_path is None:
-                        raise ValueError(
-                            "planner_configuration_error: "
-                            "planner.transactional_runtime_value_missing: "
-                            f"call={call_id}, arg={arg_name}, "
-                            f"support={support_version_id.to_payload()}"
-                        )
-                    state_reads.append(
-                        PreparedFunctionalStateRead(
-                            arg_name=(
-                                f"{arg_name}.__support_{support_index}"
-                            ),
-                            item_index=support_index,
-                            selection="exact",
-                            original_version_id=support_version_id,
-                            selected_version_id=support_version_id,
-                            original_runtime_path=support_path,
-                            snapshot_runtime_path=snapshot_paths.setdefault(
-                                support_version_id,
-                                _transaction_snapshot_path(
-                                    runtime_context,
-                                    scope_id=node.execution_scope_id,
-                                    call_id=call_id,
-                                    item_index=len(snapshot_paths),
-                                ),
-                            ),
-                            runtime_value=support_value,
-                        )
+                        (object_id := _functional_binding_object_id(binding))
+                        is not None
+                        and object_id.kind == "symbol"
+                        and binding.consumption_mode == "typed_binding"
                     )
+                ),
+            )
+        )
+        state_reads = list(
+            _materialize_prepared_parameter_reads(
+                state_reads,
+                call_id=call_id,
+                consumer_scope_id=node.execution_scope_id,
+                working=working,
+                runtime_context=runtime_context,
+                object_registry=object_registry,
+                ignored_parameter_ids=parameter_selector_object_ids,
+            )
+        )
         required_return_names = set(
             wire_call.return_bindings if wire_call is not None else ()
         )
@@ -695,26 +1793,58 @@ class FunctionalCallPreparationService:
             for arg_name, values in reconciled.resolved_args.items()
             for item_index, value in enumerate(values)
         }
+        problem_inputs_by_key = {
+            (item.arg_name, item.item_index): item
+            for item in (
+                problem_call_binding.input_bindings
+                if problem_call_binding is not None
+                else ()
+            )
+        }
         prepared_bindings: list[PreparedFunctionalArgBinding] = []
         for item in logical_bindings:
             key = (item.key.arg_name, item.key.item_index)
             value = resolved_by_key.get(key)
             state_read = reads_by_key.get(key)
+            derived_source_version_id = (
+                working.resolve_runtime_version_id(
+                    item.source.state_version_id
+                )
+                if (
+                    state_read is None
+                    and item.consumption_mode == "typed_binding"
+                    and item.input_binding is not None
+                    and item.input_binding.derivation is not None
+                    and item.source.state_version_id is not None
+                )
+                else None
+            )
             runtime_path = (
                 state_read.snapshot_runtime_path
                 if state_read is not None
                 else _prepare_non_state_runtime_path(
                     item,
                     value=value,
+                    problem_input_binding=problem_inputs_by_key.get(key),
                     runtime_bindings=runtime_bindings,
                     consumer_scope_id=node.execution_scope_id,
+                    condition_authority_index=(
+                        reconciliation.condition_binding_authority_index
+                    ),
                 )
             )
             if (
-                item.consumption_mode == "runtime_input"
+                item.consumption_mode in {"runtime_input", "typed_binding"}
                 and item.runtime_input_required
                 and runtime_path is None
                 and item.source.kind != "call_result"
+                and not (
+                    item.input_binding is not None
+                    and isinstance(
+                        item.input_binding.derivation,
+                        OrdinalZeroTemplateDerivationSpec,
+                    )
+                )
             ):
                 raise ValueError(
                     "planner_configuration_error: "
@@ -726,15 +1856,25 @@ class FunctionalCallPreparationService:
                 PreparedFunctionalArgBinding(
                     logical_binding=item,
                     source_handle=(
-                        value.handle if value is not None else None
+                        value.handle
+                        if value is not None
+                        else (
+                            problem_inputs_by_key[key].runtime_node_id
+                            if key in problem_inputs_by_key
+                            and problem_inputs_by_key[key].runtime_node_id
+                            is not None
+                            else _functional_binding_source_handle(item)
+                        )
                     ),
                     source_math_object_id=(
-                        value.math_object_id if value is not None else None
+                        value.math_object_id
+                        if value is not None
+                        else _functional_binding_object_id(item)
                     ),
                     selected_state_version_id=(
                         state_read.selected_version_id
                         if state_read is not None
-                        else None
+                        else derived_source_version_id
                     ),
                     runtime_path=runtime_path,
                     runtime_value=(
@@ -748,6 +1888,7 @@ class FunctionalCallPreparationService:
             _audit_problem_binding_preparation(
                 call_id=call_id,
                 wire_call=wire_call,
+                reconciled_returns=reconciled.returns,
                 logical_bindings=logical_bindings,
                 prepared_bindings=tuple(prepared_bindings),
                 problem_binding_context=problem_binding_context,
@@ -762,6 +1903,8 @@ class FunctionalCallPreparationService:
             required_return_names=tuple(sorted(required_return_names)),
             state_reads=tuple(state_reads),
             arg_bindings=tuple(prepared_bindings),
+            parameter_selector_object_ids=parameter_selector_object_ids,
+            problem_call_binding=problem_call_binding,
         )
 
 
@@ -769,6 +1912,7 @@ def _audit_problem_binding_preparation(
     *,
     call_id: str,
     wire_call: Any | None,
+    reconciled_returns: Sequence[Any],
     logical_bindings: Sequence[FunctionalArgBinding],
     prepared_bindings: Sequence[PreparedFunctionalArgBinding],
     problem_binding_context: FunctionalProblemBindingContext,
@@ -823,7 +1967,10 @@ def _audit_problem_binding_preparation(
                 "planner.problem_source_binding_drift: "
                 f"call={call_id}, prepared binding missing"
             )
-        if logical.source.kind == "state_version":
+        if (
+            logical.source.kind == "state_version"
+            and logical.consumption_mode in {"runtime_input", "typed_binding"}
+        ):
             if (
                 logical.selection_policy != "exact"
                 or prepared.selected_state_version_id
@@ -845,6 +1992,11 @@ def _audit_problem_binding_preparation(
     expected_returns = set(
         wire_call.return_bindings if wire_call is not None else ()
     )
+    expected_returns.update(
+        allocation.return_name
+        for allocation in reconciled_returns
+        if allocation.bound_ref is not None
+    )
     sidecar_returns = {
         item.return_name
         for item in problem_binding_context.returns_for_call(call_id)
@@ -861,24 +2013,53 @@ def _prepare_non_state_runtime_path(
     binding: FunctionalArgBinding,
     *,
     value: Any | None,
+    problem_input_binding: FunctionalProblemInputBinding | None,
     runtime_bindings: CanonicalRuntimeBindingIndex,
     consumer_scope_id: str,
+    condition_authority_index: Any | None,
 ) -> str | None:
-    if binding.consumption_mode != "runtime_input":
+    if binding.consumption_mode not in {"runtime_input", "typed_binding"}:
         return None
-    if binding.source.kind == "compiler_selector":
-        return None
-    if value is None:
+    declaration = binding.input_binding
+    if declaration is not None and isinstance(
+        declaration.derivation,
+        CoefficientExtractionDerivationSpec,
+    ):
+        return "$problem.symbol_lists.quadratic_coefficients"
+    if declaration is not None and isinstance(
+        declaration.derivation,
+        OrdinalZeroTemplateDerivationSpec,
+    ):
         return None
     consumer = (
         f"{binding.key.call_id}.{binding.key.arg_name}"
         f"[{binding.key.item_index}]"
     )
     if binding.source.kind == "condition":
-        physical = runtime_bindings.bindings.get(value.handle)
+        if condition_authority_index is None:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_input_view_authority_missing: "
+                f"call={binding.key.call_id}, arg={binding.key.arg_name}, "
+                "Condition authority index is unavailable"
+            )
+        condition_id = binding.source.condition_id or ""
+        authority = condition_authority_index.require(condition_id)
+        source_handle = (
+            value.handle
+            if value is not None
+            else (
+                problem_input_binding.runtime_node_id
+                if problem_input_binding is not None
+                else authority.runtime_handle
+            )
+        )
+        if source_handle is None:
+            return None
+        physical = runtime_bindings.bindings.get(source_handle)
         return runtime_bindings.runtime_path_for_condition_identity(
-            binding.source.condition_id or "",
-            source_handle=value.handle,
+            condition_id,
+            source_handle=source_handle,
             expected_type=(
                 physical.value_type
                 if physical is not None
@@ -898,7 +2079,32 @@ def _prepare_non_state_runtime_path(
         if object_id is None:
             return None
         physical = runtime_bindings.bindings.get(object_id.value)
-        return runtime_bindings.runtime_path_for_object_identity(
+        identity_resolver = (
+            runtime_bindings.runtime_path_for_return_object_identity
+            if (
+                problem_input_binding is not None
+                and problem_input_binding.source_kind == "return_allocation"
+            )
+            or (
+                declaration is not None
+                and isinstance(
+                    declaration.derivation,
+                    PreviousOutputIdentityDerivationSpec,
+                )
+            )
+            or (
+                declaration is not None
+                and isinstance(
+                    declaration.source,
+                    EntityIdentitySourceSpec,
+                )
+                and declaration.source.arg_name == binding.key.arg_name
+                and binding.binding_authority == "compiler"
+                and binding.key.arg_name == "target"
+            )
+            else runtime_bindings.runtime_path_for_object_identity
+        )
+        return identity_resolver(
             object_id,
             expected_type=(
                 physical.value_type
@@ -908,7 +2114,122 @@ def _prepare_non_state_runtime_path(
             consumer_scope_id=consumer_scope_id,
             consumer=consumer,
         )
+    if value is None:
+        return None
+
+
+def _functional_binding_object_id(
+    binding: FunctionalArgBinding,
+) -> MathObjectId | None:
+    source = binding.source
+    if source.math_object_id is not None:
+        return source.math_object_id
+    if source.state_version_id is not None:
+        return source.state_version_id.slot_id.logical_key.object_id
     return None
+
+
+def _functional_binding_source_handle(
+    binding: FunctionalArgBinding,
+) -> str | None:
+    object_id = _functional_binding_object_id(binding)
+    if object_id is not None:
+        return object_id.value
+    source = binding.source
+    if source.condition_id is not None:
+        return source.condition_id
+    if source.source_call_id is not None and source.source_return_name is not None:
+        return f"{source.source_call_id}.{source.source_return_name}"
+    return None
+
+
+def _canonicalize_projected_state_dependency_version(
+    dependency: ProjectedStateDependency,
+    *,
+    resolve_version_id: Callable[[StateVersionId], StateVersionId],
+) -> ProjectedStateDependency:
+    """Project a proven runtime-equivalent read onto its canonical version."""
+
+    if dependency.state_version_id is None:
+        return dependency
+    selected = resolve_version_id(dependency.state_version_id)
+    if selected == dependency.state_version_id:
+        return dependency
+    return replace(dependency, state_version_id=selected)
+
+
+def _canonicalize_projected_state_write_versions(
+    write: ProjectedStateWrite,
+    *,
+    resolve_version_id: Callable[[StateVersionId], StateVersionId],
+) -> ProjectedStateWrite:
+    """Keep projected producer provenance aligned with runtime aliases."""
+
+    selected = (
+        resolve_version_id(write.selected_version_id)
+        if write.selected_version_id is not None
+        else None
+    )
+    previous = (
+        resolve_version_id(write.previous_version_id)
+        if write.previous_version_id is not None
+        else None
+    )
+    sources = tuple(
+        resolve_version_id(item)
+        for item in write.source_version_ids
+    )
+    lineage_sources = tuple(
+        resolve_version_id(item)
+        for item in write.lineage.source_version_ids
+    )
+    object_roles = tuple(
+        replace(
+            role,
+            source_version_ids=tuple(
+                resolve_version_id(item)
+                for item in role.source_version_ids
+            ),
+        )
+        for role in write.lineage.object_roles
+    )
+    lineage = replace(
+        write.lineage,
+        source_version_ids=lineage_sources,
+        object_roles=object_roles,
+    )
+    computation_key = write.computation_key
+    if computation_key is not None:
+        computation_key = replace(
+            computation_key,
+            arg_bindings=tuple(
+                replace(
+                    binding,
+                    version_id=(
+                        resolve_version_id(binding.version_id)
+                        if binding.version_id is not None
+                        else None
+                    ),
+                )
+                for binding in computation_key.arg_bindings
+            ),
+        )
+    if (
+        selected == write.selected_version_id
+        and previous == write.previous_version_id
+        and sources == write.source_version_ids
+        and lineage == write.lineage
+        and computation_key == write.computation_key
+    ):
+        return write
+    return replace(
+        write,
+        selected_version_id=selected,
+        previous_version_id=previous,
+        source_version_ids=sources,
+        lineage=lineage,
+        computation_key=computation_key,
+    )
 
 
 class FunctionalCallCompilerService:
@@ -964,6 +2285,17 @@ class FunctionalCallCompilerService:
         committed_state_writes: tuple[StateWriteProvenance, ...],
         committed_calls: tuple[CompiledFunctionalCall, ...],
     ) -> CompiledFunctionalCall:
+        candidate_binding = prepared_call.macro_candidate_binding
+        if candidate_binding is not None:
+            authored_sources = frozenset(prepared_call.macro_role_overrides.values())
+            if not authored_sources <= frozenset(
+                candidate_binding.allowed_source_handles
+            ):
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.macro_candidate_binding_drift: "
+                    f"call={prepared_call.call_id}"
+                )
         capability = capability_catalog.get(prepared_call.capability_id)
         if capability is None:
             raise ValueError(
@@ -976,7 +2308,20 @@ class FunctionalCallCompilerService:
             reconciliation.plan,
             reconciliation.calls,
         )
-        all_dependencies = reconciliation.state_dependencies
+        all_writes = tuple(
+            _canonicalize_projected_state_write_versions(
+                item,
+                resolve_version_id=working.resolve_runtime_version_id,
+            )
+            for item in all_writes
+        )
+        all_dependencies = tuple(
+            _canonicalize_projected_state_dependency_version(
+                item,
+                resolve_version_id=working.resolve_runtime_version_id,
+            )
+            for item in reconciliation.state_dependencies
+        )
         available_call_ids = {
             prepared_call.call_id,
             *(call.call_id for call in committed_calls),
@@ -1026,11 +2371,1566 @@ class FunctionalCallCompilerService:
             if classified is exc:
                 raise
             raise classified from exc
-        return _wrap_exact_compiled_call(
+        wrapped = _wrap_exact_compiled_call(
             compiled,
             prepared_call=prepared_call,
             capability_catalog=capability_catalog,
         )
+        problem_call_binding = prepared_call.problem_call_binding
+        if (
+            isinstance(problem_call_binding, FunctionalProblemCallBinding)
+            and problem_call_binding.status == "finalized"
+        ):
+            wrapped = _stamp_compiled_problem_source_provenance(
+                wrapped,
+                problem_call_binding.source_provenance(),
+            )
+            wrapped = replace(
+                wrapped,
+                problem_call_binding=problem_call_binding,
+            )
+        elif (
+            isinstance(problem_call_binding, FunctionalProblemCallBinding)
+            and problem_call_binding.status != "pending_macro"
+        ):
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.problem_call_binding_pending: "
+                f"call={prepared_call.call_id}"
+            )
+        return wrapped
+
+
+def _stamp_method_input_read_authorities(
+    compiled: CompiledFunctionalCall,
+    *,
+    prepared_call: PreparedFunctionalCall,
+    method_specs: Any,
+    branch: RuntimeContext,
+    working: WorkingPlannerState,
+    condition_authority_index: Any | None = None,
+) -> CompiledFunctionalCall:
+    """Attach the only runtime-readable source choice to every Method input."""
+
+    debug_authority = prepared_call.problem_call_binding is None
+    problem_inputs_by_key = {
+        (item.arg_name, item.item_index): item
+        for item in (
+            prepared_call.problem_call_binding.input_bindings
+            if prepared_call.problem_call_binding is not None
+            else ()
+        )
+    }
+    parent_dependency_object_refs = frozenset(
+        object_ref
+        for values in prepared_call.reconciliation.resolved_args.values()
+        for value in values
+        for object_ref in (
+            *value.dependency_object_refs,
+            *((value.object_ref,) if value.object_ref is not None else ()),
+            *(
+                role_ref
+                for _role, role_refs in value.object_roles
+                for role_ref in role_refs
+            ),
+        )
+    )
+
+    bindings_by_path = {
+        item.runtime_path: item
+        for item in prepared_call.arg_bindings
+        if item.runtime_path is not None
+    }
+    typed_bindings_by_target: dict[
+        tuple[str, int], PreparedFunctionalArgBinding
+    ] = {}
+    for item in prepared_call.arg_bindings:
+        if item.logical_binding.consumption_mode != "typed_binding":
+            continue
+        for target in item.logical_binding.runtime_input_targets:
+            key = (target, item.logical_binding.key.item_index)
+            previous = typed_bindings_by_target.setdefault(key, item)
+            if previous is not item:
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.method_input_view_authority_drift: "
+                    f"call={prepared_call.call_id}, input={target}, "
+                    "multiple typed bindings target one Method input"
+                )
+    state_reads_by_path: dict[str, PreparedFunctionalStateRead] = {}
+    for item in prepared_call.state_reads:
+        for runtime_path in (
+            item.original_runtime_path,
+            item.snapshot_runtime_path,
+        ):
+            previous = state_reads_by_path.setdefault(runtime_path, item)
+            if previous.selected_version_id != item.selected_version_id:
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.method_input_view_authority_drift: "
+                    f"call={prepared_call.call_id}, path={runtime_path}, "
+                    "multiple exact StateVersions"
+                )
+    lineage_state_sources_by_path: dict[str, StateVersionReadSource] = {}
+
+    def register_lineage_state_source(
+        runtime_path: str,
+        version_id: StateVersionId,
+    ) -> None:
+        source = StateVersionReadSource(version_id, runtime_path)
+        previous = lineage_state_sources_by_path.setdefault(
+            runtime_path,
+            source,
+        )
+        if previous.state_version_id != version_id:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_input_view_authority_drift: "
+                f"call={prepared_call.call_id}, path={runtime_path}, "
+                "multiple exact lineage StateVersions"
+            )
+
+    for values in prepared_call.reconciliation.resolved_args.values():
+        for value in values:
+            if value.state_version_id is not None:
+                selected_version_id = working.resolve_runtime_version_id(
+                    value.state_version_id
+                )
+                selected = working.identity_index.version(selected_version_id)
+                if selected is None:
+                    raise ValueError(
+                        "planner_configuration_error: "
+                        "planner.method_input_view_authority_missing: "
+                        f"call={prepared_call.call_id}, selected_version="
+                        f"{selected_version_id.to_payload()}"
+                    )
+                register_lineage_state_source(
+                    value.handle,
+                    selected_version_id,
+                )
+                register_lineage_state_source(
+                    _indexed_runtime_path(selected),
+                    selected_version_id,
+                )
+            for version_id in value.source_version_ids:
+                runtime_version_id = working.resolve_runtime_version_id(
+                    version_id
+                )
+                indexed = working.identity_index.version(runtime_version_id)
+                if indexed is None:
+                    raise ValueError(
+                        "planner_configuration_error: "
+                        "planner.method_input_view_authority_missing: "
+                        f"call={prepared_call.call_id}, source_version="
+                        f"{runtime_version_id.to_payload()}"
+                    )
+                runtime_path = _indexed_runtime_path(indexed)
+                register_lineage_state_source(
+                    runtime_path,
+                    runtime_version_id,
+                )
+    materialized_state_sources = dict(compiled.materialized_state_sources)
+    declared_entity_handles = {
+        declaration.path: (
+            f"point:{declaration.scope_id}:{declaration.name}"
+            if declaration.type == "PointRef"
+            else f"{declaration.type.lower()}:{declaration.scope_id}:"
+            f"{declaration.name}"
+        )
+        for declaration in compiled.declarations
+    }
+    producer_by_path: dict[str, tuple[str, str]] = {}
+    output_paths_by_key: dict[str, list[str]] = {}
+    promotion_targets: dict[str, str] = {}
+    for plan in compiled.plans:
+        for invocation in plan.invocations:
+            for return_name, path in invocation.outputs.items():
+                producer_by_path[path] = (invocation.invocation_id, return_name)
+                for key in (
+                    return_name,
+                    f"{invocation.method_id}.{return_name}",
+                    f"{invocation.invocation_id}.{return_name}",
+                ):
+                    output_paths_by_key.setdefault(key, []).append(path)
+        promotion_targets.update(plan.promote_outputs)
+        pending_promotions = dict(plan.promote_outputs)
+        while pending_promotions:
+            progressed = False
+            for source_path, target_path in tuple(pending_promotions.items()):
+                producer = producer_by_path.get(source_path)
+                if producer is None:
+                    continue
+                producer_by_path[target_path] = producer
+                del pending_promotions[source_path]
+                progressed = True
+            if not progressed:
+                break
+
+    return_identity_by_path: dict[str, str] = {}
+
+    def register_return_identity(path: str, object_ref: str) -> None:
+        previous = return_identity_by_path.setdefault(path, object_ref)
+        if previous != object_ref:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_input_view_authority_drift: "
+                f"call={prepared_call.call_id}, path={path}, "
+                f"return_objects={[previous, object_ref]}"
+            )
+
+    for public_return in compiled.public_returns:
+        allocation = public_return.allocation
+        object_ref = (
+            allocation.math_object_id.value
+            if allocation.math_object_id is not None
+            else allocation.object_ref
+        )
+        expected_write = public_return.expected_write
+        if object_ref is None or expected_write is None:
+            continue
+        source_paths = tuple(
+            dict.fromkeys(
+                output_paths_by_key.get(expected_write.output_key, ())
+            )
+        )
+        if len(source_paths) > 1:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_input_view_authority_drift: "
+                f"call={prepared_call.call_id}, return="
+                f"{public_return.return_name}, output_key="
+                f"{expected_write.output_key}, paths={source_paths}"
+            )
+        if not source_paths:
+            continue
+        path = source_paths[0]
+        register_return_identity(path, object_ref)
+        visited: set[str] = set()
+        while path in promotion_targets and path not in visited:
+            visited.add(path)
+            path = promotion_targets[path]
+            register_return_identity(path, object_ref)
+
+    def latest_state_source(
+        path: str,
+        *,
+        scope_id: str,
+    ) -> StateVersionReadSource | None:
+        visible = tuple(
+            item
+            for item in working.identity_index.all_versions()
+            if _indexed_runtime_path(item) == path
+            and working.identity_index.visibility.is_visible(
+                item.valid_scope_id,
+                consumer_scope_id=scope_id,
+            )
+        )
+        if not visible:
+            return None
+        object_ids = {
+            item.version_id.slot_id.logical_key.object_id
+            for item in visible
+        }
+        if len(object_ids) != 1:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_input_view_authority_drift: "
+                f"path={path}, scope={scope_id}, "
+                f"object_count={len(object_ids)}"
+            )
+        selected = max(
+            visible,
+            key=lambda item: (
+                item.version_id.ordinal,
+                item.producer_call_id or "",
+            ),
+        )
+        return StateVersionReadSource(selected.version_id, path)
+
+    def condition_source_for_path(
+        path: str,
+        *,
+        input_name: str,
+    ) -> ConditionReadSource | None:
+        if condition_authority_index is None:
+            return None
+        try:
+            condition_value = branch.read_path(
+                path,
+                from_scope_id=prepared_call.execution_scope_id,
+                expected_type="Condition",
+            ).value
+        except (KeyError, PermissionError, TypeError, ValueError):
+            return None
+        authority = None
+        if isinstance(condition_value, Condition):
+            authority = condition_authority_index.require(
+                condition_value.condition_id
+            )
+        elif isinstance(condition_value, Mapping):
+            condition_id = condition_value.get("condition_id")
+            if isinstance(condition_id, str) and condition_id:
+                authority = condition_authority_index.require(condition_id)
+            else:
+                runtime_handle = condition_value.get("handle")
+                condition_kind = condition_value.get("type")
+                if (
+                    isinstance(runtime_handle, str)
+                    and runtime_handle
+                    and isinstance(condition_kind, str)
+                    and condition_kind
+                ):
+                    authority = condition_authority_index.resolve_runtime_handle(
+                        runtime_handle,
+                        condition_kinds=(condition_kind,),
+                        scope_id=prepared_call.execution_scope_id,
+                    )
+            owner_scope = condition_value.get("scope_id")
+            if (
+                authority is not None
+                and isinstance(owner_scope, str)
+                and owner_scope
+                and owner_scope != authority.owner_scope_id
+            ):
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.method_input_view_authority_drift: "
+                    f"call={prepared_call.call_id}, input={input_name}, "
+                    f"condition={authority.condition_id}, "
+                    f"expected_owner={authority.owner_scope_id}, "
+                    f"observed_owner={owner_scope}"
+                )
+        if authority is None:
+            return None
+        related_refs = frozenset(authority.related_object_refs)
+        if (
+            parent_dependency_object_refs
+            and not related_refs.issubset(parent_dependency_object_refs)
+        ):
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_input_view_authority_drift: "
+                f"call={prepared_call.call_id}, input={input_name}, "
+                f"condition={authority.condition_id}, "
+                "related objects are outside the parent provenance"
+            )
+        return ConditionReadSource(authority.condition_id, path)
+
+    def source_for(
+        path: str,
+        *,
+        input_name: str,
+        item_index: int,
+        view_mode: str,
+        identity_companion_path: str | None = None,
+        input_binding: MethodInputBindingSpec | None = None,
+        invocation_inputs: Mapping[str, str | tuple[str, ...]] | None = None,
+    ) -> Any:
+        def typed_prepared_source(
+            prepared: PreparedFunctionalArgBinding | None,
+        ) -> Any | None:
+            if prepared is None:
+                return None
+            declaration = prepared.logical_binding.input_binding
+            if declaration is None:
+                return None
+            source = prepared.logical_binding.source
+            selected_version_id = (
+                prepared.selected_state_version_id
+                or source.state_version_id
+            )
+            if isinstance(
+                declaration.derivation,
+                CoefficientExtractionDerivationSpec,
+            ):
+                if selected_version_id is None:
+                    raise ValueError(
+                        "planner_configuration_error: "
+                        "planner.method_input_view_authority_missing: "
+                        f"call={prepared_call.call_id}, input={input_name}, "
+                        "derivation=coefficient_extraction"
+                    )
+                source_version = working.identity_index.version(
+                    working.resolve_runtime_version_id(selected_version_id)
+                )
+                source_path = (
+                    _indexed_runtime_path(source_version)
+                    if source_version is not None
+                    else None
+                )
+                if source_path is None:
+                    raise ValueError(
+                        "planner_configuration_error: "
+                        "planner.method_input_view_authority_missing: "
+                        f"call={prepared_call.call_id}, input={input_name}, "
+                        "derivation=coefficient_extraction"
+                    )
+                return DerivedInputReadSource(
+                    declaration,
+                    StateVersionReadSource(selected_version_id, source_path),
+                    path,
+                )
+            if source.kind == "condition" and source.condition_id is not None:
+                return ConditionReadSource(source.condition_id, path)
+            if (
+                source.kind == "call_result"
+                and source.source_call_id is not None
+                and source.source_return_name is not None
+            ):
+                return CallResultReadSource(
+                    source.source_call_id,
+                    source.source_return_name,
+                    path,
+                )
+            if view_mode == "identity" and (
+                prepared.source_math_object_id is not None
+                or prepared.source_handle is not None
+            ):
+                return EntityIdentityReadSource(
+                    (
+                        prepared.source_math_object_id.value
+                        if prepared.source_math_object_id is not None
+                        else prepared.source_handle
+                    ),
+                    path,
+                )
+            if selected_version_id is not None:
+                return StateVersionReadSource(selected_version_id, path)
+            return None
+
+        state_read = state_reads_by_path.get(path)
+        original_binding = (
+            bindings_by_path.get(state_read.original_runtime_path)
+            if state_read is not None
+            else None
+        )
+        resolved_values = prepared_call.reconciliation.resolved_args.get(
+            input_name,
+            (),
+        )
+        resolved_value = (
+            resolved_values[item_index]
+            if item_index < len(resolved_values)
+            else None
+        )
+        problem_input = problem_inputs_by_key.get((input_name, item_index))
+        if (
+            view_mode == "exact_result"
+            and problem_input is not None
+            and problem_input.typed_source is not None
+            and problem_input.typed_source.kind == "call_result"
+        ):
+            typed_source = problem_input.typed_source
+            if (
+                typed_source.source_call_id is None
+                or typed_source.source_return_name is None
+            ):
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.method_input_view_authority_missing: "
+                    f"call={prepared_call.call_id}, input={input_name}, "
+                    "view=exact_result"
+                )
+            if (
+                resolved_value is None
+                or resolved_value.source_call_id
+                != typed_source.source_call_id
+                or resolved_value.return_name
+                != typed_source.source_return_name
+            ):
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.method_input_view_authority_drift: "
+                    f"call={prepared_call.call_id}, input={input_name}, "
+                    f"expected={typed_source.source_call_id}."
+                    f"{typed_source.source_return_name}, observed="
+                    f"{getattr(resolved_value, 'source_call_id', None)}."
+                    f"{getattr(resolved_value, 'return_name', None)}"
+                )
+            return CallResultReadSource(
+                typed_source.source_call_id,
+                typed_source.source_return_name,
+                path,
+            )
+        if view_mode == "latest_state":
+            lineage_source = lineage_state_sources_by_path.get(path)
+            if lineage_source is not None:
+                if (
+                    problem_input is not None
+                    and problem_input.typed_source.kind == "call_result"
+                    and (
+                        resolved_value is None
+                        or resolved_value.source_call_id
+                        != problem_input.typed_source.source_call_id
+                        or resolved_value.return_name
+                        != problem_input.typed_source.source_return_name
+                    )
+                ):
+                    raise ValueError(
+                        "planner_configuration_error: "
+                        "planner.method_input_view_authority_drift: "
+                        f"call={prepared_call.call_id}, input={input_name}, "
+                        "the exact state producer differs from the finalized "
+                        "call-result binding"
+                    )
+                return lineage_source
+        if (
+            not debug_authority
+            and view_mode == "immutable_value"
+            and condition_authority_index is not None
+        ):
+            exact_condition = condition_source_for_path(
+                path,
+                input_name=input_name,
+            )
+            if exact_condition is not None:
+                return exact_condition
+        if state_read is not None and view_mode == "identity":
+            object_id = (
+                state_read.selected_version_id
+                .slot_id.logical_key.object_id
+            )
+            return EntityIdentityReadSource(
+                object_id.value,
+                path,
+            )
+        materialized_version_id = materialized_state_sources.get(path)
+        if materialized_version_id is not None:
+            if view_mode == "identity":
+                return EntityIdentityReadSource(
+                    materialized_version_id.slot_id.logical_key.object_id.value,
+                    path,
+                )
+            if view_mode == "latest_state":
+                return StateVersionReadSource(materialized_version_id, path)
+        if view_mode == "identity" and path in return_identity_by_path:
+            return EntityIdentityReadSource(
+                return_identity_by_path[path],
+                path,
+            )
+        if (
+            state_read is not None
+            and view_mode == "exact_result"
+            and original_binding is not None
+            and original_binding.logical_binding.source.kind == "call_result"
+            and original_binding.logical_binding.source.source_call_id is not None
+            and original_binding.logical_binding.source.source_return_name is not None
+        ):
+            source = original_binding.logical_binding.source
+            return CallResultReadSource(
+                source.source_call_id,
+                source.source_return_name,
+                path,
+            )
+        if (
+            state_read is not None
+            and view_mode == "exact_result"
+            and resolved_value is not None
+            and resolved_value.source_call_id is not None
+            and resolved_value.return_name is not None
+        ):
+            return CallResultReadSource(
+                resolved_value.source_call_id,
+                resolved_value.return_name,
+                path,
+            )
+        if (
+            state_read is not None
+            and view_mode == "immutable_value"
+            and original_binding is not None
+            and original_binding.logical_binding.source.kind == "condition"
+            and original_binding.logical_binding.source.condition_id is not None
+        ):
+            return ConditionReadSource(
+                original_binding.logical_binding.source.condition_id,
+                path,
+            )
+        if state_read is not None and view_mode == "exact_result":
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_input_view_authority_drift: "
+                f"call={prepared_call.call_id}, input={input_name}, "
+                f"view=exact_result, original_path="
+                f"{state_read.original_runtime_path}, source="
+                f"{getattr(getattr(original_binding, 'logical_binding', None), 'source', None)!r}"
+            )
+        if state_read is not None:
+            return StateVersionReadSource(
+                state_version_id=state_read.selected_version_id,
+                runtime_path=path,
+            )
+        binding = bindings_by_path.get(path)
+        if binding is not None:
+            source = binding.logical_binding.source
+            exact_typed_source = typed_prepared_source(binding)
+            if exact_typed_source is not None:
+                return exact_typed_source
+            if view_mode == "identity" and (
+                binding.source_math_object_id is not None
+                or binding.source_handle is not None
+            ):
+                return EntityIdentityReadSource(
+                    (
+                        binding.source_math_object_id.value
+                        if binding.source_math_object_id is not None
+                        else binding.source_handle
+                    ),
+                    path,
+                )
+            if source.kind == "condition" and source.condition_id is not None:
+                return ConditionReadSource(source.condition_id, path)
+            if (
+                source.kind == "call_result"
+                and source.source_call_id is not None
+                and source.source_return_name is not None
+            ):
+                return CallResultReadSource(
+                    source.source_call_id,
+                    source.source_return_name,
+                    path,
+                )
+            if source.kind == "state_version" and (
+                binding.selected_state_version_id is not None
+            ):
+                return StateVersionReadSource(
+                    binding.selected_state_version_id,
+                    path,
+                )
+            if (
+                debug_authority
+                and view_mode == "latest_state"
+                and binding.source_handle is not None
+            ):
+                object_versions = tuple(
+                    item
+                    for item in working.identity_index.all_versions()
+                    if (
+                        item.version_id.slot_id.logical_key.object_id.value
+                        == binding.source_handle
+                    )
+                )
+                object_ids = {
+                    item.version_id.slot_id.logical_key.object_id
+                    for item in object_versions
+                }
+                if len(object_ids) > 1:
+                    raise ValueError(
+                        "planner_configuration_error: "
+                        "planner.method_input_view_authority_drift: "
+                        f"call={prepared_call.call_id}, input={input_name}, "
+                        f"source_handle={binding.source_handle}, "
+                        f"object_count={len(object_ids)}"
+                    )
+                if object_ids:
+                    selected = working.identity_index.latest_visible_for_object(
+                        next(iter(object_ids)),
+                        consumer_scope_id=prepared_call.execution_scope_id,
+                    )
+                    if selected is not None:
+                        return StateVersionReadSource(
+                            selected.version_id,
+                            path,
+                        )
+            if (
+                binding.source_handle is not None
+                and view_mode in {"identity", "immutable_value"}
+            ):
+                return EntityIdentityReadSource(binding.source_handle, path)
+        exact_typed_source = typed_prepared_source(
+            typed_bindings_by_target.get((input_name, item_index))
+        )
+        if exact_typed_source is not None:
+            return exact_typed_source
+        if view_mode == "identity" and path in declared_entity_handles:
+            return EntityIdentityReadSource(
+                declared_entity_handles[path],
+                path,
+            )
+        if (
+            view_mode == "identity"
+            and input_binding is not None
+            and isinstance(
+                input_binding.derivation,
+                CanonicalSymbolDerivationSpec,
+            )
+        ):
+            return EntityIdentityReadSource(
+                f"symbol:problem:{input_binding.derivation.symbol_name}",
+                path,
+            )
+        if (
+            debug_authority
+            and input_binding is not None
+            and isinstance(
+                input_binding.derivation,
+                CoefficientExtractionDerivationSpec,
+            )
+        ):
+            source_value = (invocation_inputs or {}).get(
+                input_binding.derivation.source_input
+            )
+            source_paths = (
+                (source_value,)
+                if isinstance(source_value, str)
+                else tuple(source_value or ())
+            )
+            if len(source_paths) != 1:
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.method_input_view_authority_drift: "
+                    f"call={prepared_call.call_id}, input={input_name}, "
+                    "derivation=coefficient_extraction, "
+                    f"source_count={len(source_paths)}"
+                )
+            source_path = source_paths[0]
+            upstream: Any | None = None
+            source_read = state_reads_by_path.get(source_path)
+            if source_read is not None:
+                upstream = StateVersionReadSource(
+                    source_read.selected_version_id,
+                    source_path,
+                )
+            materialized_version = materialized_state_sources.get(source_path)
+            if upstream is None and materialized_version is not None:
+                upstream = StateVersionReadSource(
+                    materialized_version,
+                    source_path,
+                )
+            source_producer = producer_by_path.get(source_path)
+            if upstream is None and source_producer is not None:
+                upstream = InvocationResultReadSource(
+                    source_producer[0],
+                    source_producer[1],
+                    source_path,
+                )
+            if upstream is None:
+                parsed_source = ContextPath.parse(source_path)
+                object_kind = {
+                    "functions": "function",
+                    "object_refs": "object",
+                }.get(parsed_source.container)
+                if object_kind is not None:
+                    upstream = EntityIdentityReadSource(
+                        f"{object_kind}:{parsed_source.scope_id}:"
+                        f"{parsed_source.key}",
+                        source_path,
+                    )
+            if upstream is None:
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.method_input_view_authority_missing: "
+                    f"call={prepared_call.call_id}, input={input_name}, "
+                    "derivation=coefficient_extraction, "
+                    f"source_path={source_path}"
+                )
+            return DerivedInputReadSource(input_binding, upstream, path)
+        if (
+            view_mode == "identity"
+            and input_binding is not None
+            and isinstance(
+                input_binding.derivation,
+                FreeSymbolBasisDerivationSpec,
+            )
+        ):
+            exact_conditions: dict[str, ConditionReadSource] = {}
+            exact_states: dict[StateVersionId, StateVersionReadSource] = {}
+            for source_input in input_binding.derivation.source_inputs:
+                source_value = (invocation_inputs or {}).get(source_input)
+                source_paths = (
+                    (source_value,)
+                    if isinstance(source_value, str)
+                    else tuple(source_value or ())
+                )
+                for source_path in source_paths:
+                    prepared = bindings_by_path.get(source_path)
+                    prepared_source = typed_prepared_source(prepared)
+                    if (
+                        prepared_source is None
+                        and prepared is not None
+                        and prepared.logical_binding.source.condition_id
+                        is not None
+                    ):
+                        prepared_source = ConditionReadSource(
+                            prepared.logical_binding.source.condition_id,
+                            source_path,
+                        )
+                    if prepared_source is None:
+                        prepared_source = lineage_state_sources_by_path.get(
+                            source_path
+                        )
+                    if prepared_source is None and not debug_authority:
+                        prepared_source = condition_source_for_path(
+                            source_path,
+                            input_name=input_name,
+                        )
+                    if prepared_source is None and debug_authority:
+                        try:
+                            exact_condition = branch.read_path(
+                                source_path,
+                                from_scope_id=prepared_call.execution_scope_id,
+                                expected_type="Condition",
+                            ).value
+                        except (KeyError, PermissionError, TypeError, ValueError):
+                            exact_condition = None
+                        if isinstance(exact_condition, Condition):
+                            prepared_source = ConditionReadSource(
+                                exact_condition.condition_id,
+                                source_path,
+                            )
+                        elif isinstance(exact_condition, Mapping):
+                            condition_id = exact_condition.get("condition_id")
+                            if isinstance(condition_id, str) and condition_id:
+                                prepared_source = ConditionReadSource(
+                                    condition_id,
+                                    source_path,
+                                )
+                            else:
+                                parsed_source = ContextPath.parse(source_path)
+                                if parsed_source.container in {
+                                    "conditions",
+                                    "constraints",
+                                }:
+                                    prepared_source = ConditionReadSource(
+                                        f"condition:{parsed_source.key}@"
+                                        f"{parsed_source.scope_id}",
+                                        source_path,
+                                    )
+                    if isinstance(prepared_source, ConditionReadSource):
+                        exact_conditions[prepared_source.condition_id] = (
+                            prepared_source
+                        )
+                    selected = state_reads_by_path.get(source_path)
+                    if selected is not None:
+                        state_source = StateVersionReadSource(
+                            selected.selected_version_id,
+                            source_path,
+                        )
+                        exact_states[state_source.state_version_id] = state_source
+            if len(exact_conditions) > 1:
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.method_input_view_authority_drift: "
+                    f"call={prepared_call.call_id}, input={input_name}, "
+                    f"condition_count={len(exact_conditions)}"
+                )
+            upstream = (
+                next(iter(exact_conditions.values()))
+                if exact_conditions
+                else (
+                    next(iter(exact_states.values()))
+                    if len(exact_states) == 1
+                    else None
+                )
+            )
+            if upstream is None:
+                declared_source_paths = {
+                    source_input: (invocation_inputs or {}).get(source_input)
+                    for source_input in input_binding.derivation.source_inputs
+                }
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.method_input_view_authority_missing: "
+                    f"call={prepared_call.call_id}, input={input_name}, "
+                    "derivation=free_symbol_basis, "
+                    f"source_paths={declared_source_paths}, "
+                    f"prepared_paths={sorted(bindings_by_path)}"
+                )
+            return DerivedInputReadSource(input_binding, upstream, path)
+        if view_mode == "identity" and identity_companion_path is not None:
+            companion_read = state_reads_by_path.get(identity_companion_path)
+            if companion_read is not None:
+                return EntityIdentityReadSource(
+                    companion_read.selected_version_id.slot_id.logical_key.object_id.value,
+                    path,
+                )
+            companion_version = materialized_state_sources.get(
+                identity_companion_path
+            )
+            if companion_version is not None:
+                return EntityIdentityReadSource(
+                    companion_version.slot_id.logical_key.object_id.value,
+                    path,
+                )
+        producer = producer_by_path.get(path)
+        if producer is not None and view_mode != "identity":
+            return InvocationResultReadSource(producer[0], producer[1], path)
+        if (
+            debug_authority
+            and view_mode == "exact_result"
+            and resolved_value is not None
+            and resolved_value.source_call_id is not None
+            and resolved_value.return_name is not None
+        ):
+            return CallResultReadSource(
+                resolved_value.source_call_id,
+                resolved_value.return_name,
+                path,
+            )
+        if (
+            debug_authority
+            and view_mode == "latest_state"
+            and resolved_value is not None
+            and resolved_value.state_version_id is not None
+        ):
+            return StateVersionReadSource(
+                resolved_value.state_version_id,
+                path,
+            )
+        if (
+            debug_authority
+            and view_mode == "identity"
+            and resolved_value is not None
+            and (
+                resolved_value.math_object_id is not None
+                or resolved_value.object_ref is not None
+            )
+        ):
+            return EntityIdentityReadSource(
+                (
+                    resolved_value.math_object_id.value
+                    if resolved_value.math_object_id is not None
+                    else resolved_value.object_ref
+                ),
+                path,
+            )
+        if debug_authority and view_mode == "identity":
+            parsed_source = ContextPath.parse(path)
+            debug_object_kind = {
+                "symbols": "symbol",
+                "points": "point",
+                "functions": "function",
+            }.get(parsed_source.container)
+            if debug_object_kind is not None:
+                return EntityIdentityReadSource(
+                    f"{debug_object_kind}:{parsed_source.scope_id}:"
+                    f"{parsed_source.key}",
+                    path,
+                )
+            selected_state = latest_state_source(
+                path,
+                scope_id=prepared_call.execution_scope_id,
+            )
+            if selected_state is not None:
+                return EntityIdentityReadSource(
+                    selected_state.state_version_id.slot_id.logical_key.object_id.value,
+                    path,
+                )
+        if debug_authority and view_mode == "immutable_value":
+            try:
+                condition_value = branch.read_path(
+                    path,
+                    from_scope_id=prepared_call.execution_scope_id,
+                    expected_type="Condition",
+                ).value
+            except (KeyError, PermissionError, TypeError):
+                condition_value = None
+            if isinstance(condition_value, Condition):
+                return ConditionReadSource(condition_value.condition_id, path)
+            if isinstance(condition_value, Mapping):
+                condition_id = condition_value.get("condition_id")
+                if isinstance(condition_id, str) and condition_id:
+                    return ConditionReadSource(condition_id, path)
+                handle = condition_value.get("handle")
+                owner_scope = condition_value.get("scope_id")
+                if (
+                    isinstance(handle, str)
+                    and handle
+                    and isinstance(owner_scope, str)
+                    and owner_scope
+                ):
+                    return ConditionReadSource(
+                        f"condition:{semantic_name_from_handle(handle)}@{owner_scope}",
+                        path,
+                    )
+            parsed_source = ContextPath.parse(path)
+            if parsed_source.container in {"conditions", "constraints"}:
+                return ConditionReadSource(
+                    f"condition:{parsed_source.key}@"
+                    f"{parsed_source.scope_id}",
+                    path,
+                )
+            return InvocationResultReadSource(
+                f"debug:{prepared_call.call_id}",
+                input_name,
+                path,
+            )
+        if debug_authority and view_mode == "latest_state":
+            selected_state = latest_state_source(
+                path,
+                scope_id=prepared_call.execution_scope_id,
+            )
+            if selected_state is not None:
+                return selected_state
+        raise ValueError(
+            "planner_configuration_error: "
+            "planner.method_input_view_authority_missing: "
+            f"call={prepared_call.call_id}, input={input_name}, "
+            f"view={view_mode}, path={path}"
+        )
+
+    def symbolic_basis_authority(
+        *,
+        plan: StepPlan,
+        invocation: MethodInvocation,
+        authorities: Mapping[str, tuple[MethodInputReadAuthority, ...]],
+    ) -> MethodInputReadAuthority | None:
+        spec = method_specs.require(invocation.method_id)
+        anchor_names = tuple(
+            name
+            for name, input_spec in spec.inputs.items()
+            if input_spec.symbolic_basis_role == "state_anchor"
+            and name in invocation.inputs
+        )
+        aligned_names = tuple(
+            name
+            for name, input_spec in spec.inputs.items()
+            if input_spec.symbolic_basis_role == "align_to_anchor"
+            and name in invocation.inputs
+        )
+        if not anchor_names and not aligned_names:
+            return None
+        if len(anchor_names) != 1:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_input_view_authority_missing: "
+                f"method={invocation.method_id}, "
+                f"invocation={invocation.invocation_id}, "
+                f"state_anchors={anchor_names!r}"
+            )
+
+        anchor_authorities = authorities.get(anchor_names[0], ())
+        anchor_object_id: MathObjectId | None = None
+        if len(anchor_authorities) == 1 and isinstance(
+            anchor_authorities[0].source,
+            StateVersionReadSource,
+        ):
+            anchor_object_id = (
+                anchor_authorities[0]
+                .source.state_version_id.slot_id.logical_key.object_id
+            )
+
+        def eligible(version: IndexedStateVersion) -> bool:
+            if version.version_id.ordinal != 0:
+                return False
+            if not working.identity_index.visibility.is_visible(
+                version.valid_scope_id,
+                consumer_scope_id=plan.scope,
+            ):
+                return False
+            value = working.runtime_version_values.get(version.version_id)
+            if value is None or value.type not in {"Expression", "Parabola"}:
+                return False
+            return isinstance(value.value, sp.Basic)
+
+        candidates = tuple(
+            item
+            for item in working.identity_index.all_versions()
+            if eligible(item)
+            and (
+                anchor_object_id is None
+                or item.version_id.slot_id.logical_key.object_id
+                == anchor_object_id
+            )
+        )
+        if not candidates and anchor_object_id is not None:
+            candidates = tuple(
+                item
+                for item in working.identity_index.all_versions()
+                if eligible(item)
+            )
+        unique_candidates = {
+            item.version_id: item for item in candidates
+        }
+        if len(unique_candidates) != 1:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_input_view_authority_missing: "
+                f"method={invocation.method_id}, "
+                f"invocation={invocation.invocation_id}, "
+                "input=symbolic_basis_source, "
+                f"candidate_count={len(unique_candidates)}"
+            )
+        source_version = next(iter(unique_candidates.values()))
+        runtime_value = working.runtime_version_values.get(
+            source_version.version_id
+        )
+        if runtime_value is None:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_input_view_authority_missing: "
+                f"method={invocation.method_id}, "
+                f"invocation={invocation.invocation_id}, "
+                "input=symbolic_basis_source"
+            )
+        support_path = _indexed_runtime_path(source_version)
+        if support_path is None:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_input_view_authority_missing: "
+                f"method={invocation.method_id}, "
+                f"invocation={invocation.invocation_id}, "
+                "input=symbolic_basis_source, source_path=missing"
+            )
+        try:
+            branch.read_path(
+                support_path,
+                from_scope_id=invocation.scope,
+                expected_type=runtime_value.type,
+            )
+        except (KeyError, PermissionError, TypeError, ValueError) as exc:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_input_view_authority_drift: "
+                f"method={invocation.method_id}, "
+                f"invocation={invocation.invocation_id}, "
+                "input=symbolic_basis_source"
+            ) from exc
+        return MethodInputReadAuthority(
+            method_id=invocation.method_id,
+            invocation_id=invocation.invocation_id,
+            input_name="symbolic_basis_source",
+            item_index=0,
+            view_mode="immutable_value",
+            domain_type="QuadraticFunction",
+            runtime_type=runtime_value.type,
+            scope_id=invocation.scope,
+            source=StateVersionReadSource(
+                state_version_id=source_version.version_id,
+                runtime_path=support_path,
+            ),
+        )
+
+    def polynomial_template_authority(
+        *,
+        plan: StepPlan,
+        invocation: MethodInvocation,
+        authorities: Mapping[str, tuple[MethodInputReadAuthority, ...]],
+    ) -> MethodInputReadAuthority | None:
+        spec = method_specs.require(invocation.method_id)
+        declarations = tuple(
+            (input_name, input_spec, input_spec.binding.derivation)
+            for input_name, input_spec in spec.inputs.items()
+            if input_spec.binding is not None
+            and isinstance(
+                input_spec.binding.derivation,
+                OrdinalZeroTemplateDerivationSpec,
+            )
+        )
+        if not declarations:
+            return None
+        if len(declarations) != 1:
+            raise StatelessMethodError(
+                "planner.method_input_binding_contract_invalid",
+                "Method must declare exactly one ordinal-zero template input",
+                category="configuration",
+                retryability="configuration",
+                method_id=invocation.method_id,
+                scope_id=invocation.scope,
+                step_id=invocation.invocation_id,
+                arg_name="quadratic_template",
+                role="coefficient_identity_template",
+                expected={"declaration_count": 1},
+                observed={"declaration_count": len(declarations)},
+                repair_action="fix_method_spec",
+                details={
+                    "declared_inputs": [item[0] for item in declarations],
+                },
+            )
+        template_input_name, input_spec, derivation = declarations[0]
+        source_input_name = derivation.source_input
+        if input_spec.functional_exposed:
+            raise StatelessMethodError(
+                "planner.method_input_view_authority_drift",
+                "polynomial coefficient templates must be code-owned inputs",
+                category="configuration",
+                retryability="configuration",
+                method_id=invocation.method_id,
+                scope_id=invocation.scope,
+                step_id=invocation.invocation_id,
+                arg_name=template_input_name,
+                role="coefficient_identity_template",
+                expected={"functional_exposed": False},
+                observed={"functional_exposed": True},
+                repair_action="fix_method_spec",
+            )
+        if template_input_name in invocation.inputs:
+            raise StatelessMethodError(
+                "planner.method_input_view_authority_drift",
+                "compiler supplied a code-owned polynomial template input",
+                category="configuration",
+                retryability="configuration",
+                method_id=invocation.method_id,
+                scope_id=invocation.scope,
+                step_id=invocation.invocation_id,
+                arg_name=template_input_name,
+                role="coefficient_identity_template",
+                expected={"authority": "method_input_read_stamp"},
+                observed={"authority": "compiler_invocation_input"},
+                repair_action="remove_compiler_owned_hidden_input",
+            )
+
+        anchor_authorities = tuple(
+            authority
+            for authority in authorities.get(source_input_name, ())
+        )
+        anchor_version: IndexedStateVersion | None = None
+        anchor_object_id: MathObjectId | None = None
+        if len(anchor_authorities) == 1 and isinstance(
+            anchor_authorities[0].source,
+            StateVersionReadSource,
+        ):
+            anchor_version_id = anchor_authorities[0].source.state_version_id
+            anchor_object_id = (
+                anchor_version_id.slot_id.logical_key.object_id
+            )
+            anchor_version = next(
+                (
+                    item
+                    for item in working.identity_index.all_versions()
+                    if item.version_id == anchor_version_id
+                ),
+                None,
+            )
+
+        def eligible(version: IndexedStateVersion) -> bool:
+            if version.version_id.ordinal != 0:
+                return False
+            if anchor_object_id is not None and (
+                version.version_id.slot_id.logical_key.object_id
+                != anchor_object_id
+            ):
+                return False
+            if not working.identity_index.visibility.is_visible(
+                version.valid_scope_id,
+                consumer_scope_id=plan.scope,
+            ):
+                return False
+            value = working.runtime_version_values.get(version.version_id)
+            return bool(
+                value is not None
+                and value.type in {"Expression", "Parabola"}
+                and isinstance(value.value, sp.Basic)
+            )
+
+        candidates = {
+            item.version_id: item
+            for item in working.identity_index.all_versions()
+            if eligible(item)
+        }
+        lineage_roots = tuple(
+            candidate
+            for candidate in candidates.values()
+            if all(
+                working.identity_index.is_same_or_descendant(
+                    other.version_id,
+                    candidate.version_id,
+                )
+                for other in candidates.values()
+            )
+        )
+        template_version = (
+            lineage_roots[0]
+            if len(lineage_roots) == 1
+            else None
+        )
+        template_value = (
+            working.runtime_version_values.get(template_version.version_id)
+            if template_version is not None
+            else None
+        )
+        observed_value = (
+            working.runtime_version_values.get(anchor_version.version_id)
+            if anchor_version is not None
+            else None
+        )
+        expected_expression = (
+            sp.sstr(template_value.value)
+            if template_value is not None
+            else "ordinal_0_polynomial_template"
+        )
+        observed_expression = (
+            sp.sstr(observed_value.value)
+            if observed_value is not None
+            and isinstance(observed_value.value, sp.Basic)
+            else "unavailable"
+        )
+        missing_symbols = tuple(
+            sorted(
+                (
+                    set(template_value.value.free_symbols)
+                    - set(observed_value.value.free_symbols)
+                )
+                if template_value is not None
+                and observed_value is not None
+                and isinstance(template_value.value, sp.Basic)
+                and isinstance(observed_value.value, sp.Basic)
+                else (),
+                key=lambda item: item.name,
+            )
+        )
+        detail = {
+            "expected_template": expected_expression,
+            "observed_state": observed_expression,
+            "missing_symbol_roles": [item.name for item in missing_symbols],
+            "candidate_count": len(candidates),
+            "lineage_root_count": len(lineage_roots),
+            "candidate_version_ids": [
+                item.to_payload() for item in sorted(candidates)
+            ],
+        }
+        if len(missing_symbols) == 1:
+            detail["missing_symbol_role"] = missing_symbols[0].name
+
+        if template_version is None:
+            raise StatelessMethodError(
+                "planner.method_input_view_authority_missing",
+                "polynomial closure requires the ordinal-0 function template",
+                category="configuration",
+                retryability="configuration",
+                method_id=invocation.method_id,
+                scope_id=invocation.scope,
+                step_id=invocation.invocation_id,
+                arg_name=template_input_name,
+                role="coefficient_identity_template",
+                expected={
+                    "template": expected_expression,
+                    "state": "ordinal_0",
+                },
+                observed={
+                    "state": observed_expression,
+                    **(
+                        {"missing_symbol_role": missing_symbols[0].name}
+                        if len(missing_symbols) == 1
+                        else {}
+                    ),
+                },
+                repair_action="fix_runtime_contract",
+                details=detail,
+            )
+        source_path = _indexed_runtime_path(template_version)
+        if source_path is None:
+            raise StatelessMethodError(
+                "planner.method_input_view_authority_missing",
+                "ordinal-0 template has no runtime address",
+                category="configuration",
+                retryability="configuration",
+                method_id=invocation.method_id,
+                scope_id=invocation.scope,
+                step_id=invocation.invocation_id,
+                arg_name=template_input_name,
+                role="coefficient_identity_template",
+                expected={"template": expected_expression, "state": "ordinal_0"},
+                observed={"state": observed_expression},
+                repair_action="fix_runtime_contract",
+                details={
+                    **detail,
+                    "expected_runtime_path": source_path,
+                    "observed_runtime_path": None,
+                },
+            )
+        return MethodInputReadAuthority(
+            method_id=invocation.method_id,
+            invocation_id=invocation.invocation_id,
+            input_name=template_input_name,
+            item_index=0,
+            view_mode=input_spec.view.mode,
+            domain_type=input_spec.domain_type,
+            runtime_type=input_spec.runtime_type,
+            scope_id=invocation.scope,
+            source=StateVersionReadSource(
+                state_version_id=template_version.version_id,
+                runtime_path=source_path,
+            ),
+        )
+
+    def stamp_plan(plan: StepPlan) -> StepPlan:
+        invocations: list[MethodInvocation] = []
+        for invocation in plan.invocations:
+            spec = method_specs.require(invocation.method_id)
+            invocation_inputs = dict(invocation.inputs)
+            authorities: dict[str, tuple[MethodInputReadAuthority, ...]] = {}
+            unknown_prestamped = set(invocation.input_read_authorities) - set(
+                invocation.inputs
+            )
+            if unknown_prestamped:
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.method_input_view_authority_drift: "
+                    f"invocation={invocation.invocation_id}, "
+                    f"unknown_inputs={sorted(unknown_prestamped)}"
+                )
+            for input_name, raw in invocation.inputs.items():
+                input_spec = spec.inputs[input_name]
+                paths = raw if isinstance(raw, tuple) else (raw,)
+                item_runtime_type = (
+                    _aggregate_method_input_item_type(input_spec.runtime_type)
+                    if isinstance(raw, tuple)
+                    else input_spec.runtime_type
+                )
+                prestamped = tuple(
+                    invocation.input_read_authorities.get(input_name, ())
+                )
+                if prestamped:
+                    if len(prestamped) != len(paths):
+                        raise ValueError(
+                            "planner_configuration_error: "
+                            "planner.method_input_view_authority_drift: "
+                            f"invocation={invocation.invocation_id}, "
+                            f"input={input_name}, paths={len(paths)}, "
+                            f"authorities={len(prestamped)}"
+                        )
+                    for index, (path, authority) in enumerate(
+                        zip(paths, prestamped, strict=True)
+                    ):
+                        authority.verify(
+                            method_id=invocation.method_id,
+                            invocation_id=invocation.invocation_id,
+                            input_name=input_name,
+                            item_index=index,
+                            view_mode=input_spec.view.mode,
+                            domain_type=input_spec.domain_type,
+                            runtime_type=item_runtime_type,
+                            scope_id=invocation.scope,
+                            raw_path=path,
+                            production=True,
+                        )
+                    authorities[input_name] = prestamped
+                    continue
+                authorities[input_name] = tuple(
+                    MethodInputReadAuthority(
+                        method_id=invocation.method_id,
+                        invocation_id=invocation.invocation_id,
+                        input_name=input_name,
+                        item_index=index,
+                        view_mode=input_spec.view.mode,
+                        domain_type=input_spec.domain_type,
+                        runtime_type=item_runtime_type,
+                        scope_id=invocation.scope,
+                        source=source_for(
+                            path,
+                            input_name=input_name,
+                            item_index=index,
+                            view_mode=input_spec.view.mode,
+                            input_binding=input_spec.binding,
+                            invocation_inputs=invocation.inputs,
+                            identity_companion_path=(
+                                invocation.inputs.get(f"{input_name}_value")
+                                if input_spec.view.mode == "identity"
+                                and isinstance(
+                                    invocation.inputs.get(
+                                        f"{input_name}_value"
+                                    ),
+                                    str,
+                                )
+                                else None
+                            ),
+                        ),
+                    )
+                    for index, path in enumerate(paths)
+                )
+            template_authority = polynomial_template_authority(
+                plan=plan,
+                invocation=invocation,
+                authorities=authorities,
+            )
+            if template_authority is not None:
+                # Hidden coefficient identity is injected only after the
+                # exact ordinal-0 state authority has been proved.
+                invocation_inputs[template_authority.input_name] = (
+                    template_authority.runtime_path
+                )
+                authorities[template_authority.input_name] = (
+                    template_authority,
+                )
+            supporting_authority = symbolic_basis_authority(
+                plan=plan,
+                invocation=invocation,
+                authorities=authorities,
+            )
+            invocations.append(
+                replace(
+                    invocation,
+                    inputs=invocation_inputs,
+                    input_read_authorities=authorities,
+                    supporting_input_read_authorities=(
+                        {
+                            "symbolic_basis_source": (
+                                supporting_authority,
+                            )
+                        }
+                        if supporting_authority is not None
+                        else {}
+                    ),
+                )
+            )
+        return replace(plan, invocations=invocations)
+
+    stamped_plans = tuple(stamp_plan(plan) for plan in compiled.plans)
+    stamped_replay_plans = tuple(
+        stamp_plan(plan) for plan in compiled.replay_plans
+    )
+    typed_bindings = tuple(
+        item.logical_binding
+        for item in prepared_call.arg_bindings
+        if item.logical_binding.consumption_mode == "typed_binding"
+    )
+    decisions = compiled.binding_consumption_decisions
+    if typed_bindings:
+        typed_audit = audit_compiled_functional_arg_consumption(
+            typed_bindings,
+            stamped_plans,
+            expected_runtime_paths={item.key: None for item in typed_bindings},
+        )
+        if typed_audit.mismatches:
+            first = typed_audit.mismatches[0]
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.functional_runtime_input_mapping_drift: "
+                f"call={prepared_call.call_id}, "
+                f"arg={first['arg_name']}[{first['item_index']}], "
+                f"target={first['runtime_target']}, "
+                f"details={first['details']}"
+            )
+        typed_decisions = {
+            (
+                item["arg_name"],
+                item["item_index"],
+                item["runtime_target"],
+            ): item
+            for item in typed_audit.decisions
+        }
+        decisions = tuple(
+            typed_decisions.get(
+                (
+                    item["arg_name"],
+                    item["item_index"],
+                    item["runtime_target"],
+                ),
+                item,
+            )
+            for item in decisions
+        )
+
+    return replace(
+        compiled,
+        plans=stamped_plans,
+        replay_plans=stamped_replay_plans,
+        binding_consumption_decisions=decisions,
+    )
+
+
+def _aggregate_method_input_item_type(runtime_type: str) -> str:
+    aggregate = {
+        "Coefficients": "ParameterValue",
+        "PointList": "Point",
+        "SymbolList": "Symbol",
+    }.get(runtime_type)
+    if aggregate is not None:
+        return aggregate
+    for prefix in ("tuple[", "list["):
+        if runtime_type.startswith(prefix) and runtime_type.endswith("]"):
+            return runtime_type[len(prefix) : -1]
+    return runtime_type
 
 
 def build_functional_runtime_arg_bindings(
@@ -1056,6 +3956,8 @@ def _classified_direct_compile_error(
     call_id: str,
     exc: Exception,
 ) -> Exception:
+    if isinstance(exc, StatelessMethodError):
+        return exc
     message = str(exc)
     if (
         "planner_configuration_error" in message
@@ -1175,7 +4077,15 @@ def _wrap_exact_compiled_call(
         if item.path in referenced_paths
     }
     declarations = tuple(declarations_by_path.values())
-    return CompiledFunctionalCall(
+    output_write_authorities = tuple(
+        authority
+        for plan in plans
+        for invocation in plan.invocations
+        for _output_name, authority in sorted(
+            invocation.output_write_authorities.items()
+        )
+    )
+    wrapped = CompiledFunctionalCall(
         call_id=prepared_call.call_id,
         step_ids=prepared_call.step_ids,
         declarations=declarations,
@@ -1183,7 +4093,194 @@ def _wrap_exact_compiled_call(
         public_returns=public_returns,
         replay_plans=replay_plans,
         binding_consumption_decisions=audit.decisions,
+        output_write_authorities=output_write_authorities,
     )
+    _audit_method_output_write_authorities(wrapped)
+    return wrapped
+
+
+def _audit_method_output_write_authorities(
+    compiled: CompiledFunctionalCall,
+) -> None:
+    allocations = {
+        item.return_name: item.allocation
+        for item in compiled.public_returns
+    }
+    writes = {
+        item.return_name: item.expected_write
+        for item in compiled.public_returns
+    }
+    invocations = {
+        invocation.invocation_id: (plan, invocation)
+        for plan in compiled.plans
+        for invocation in plan.invocations
+    }
+    seen: set[tuple[str, str]] = set()
+    for authority in compiled.output_write_authorities:
+        key = (authority.invocation_id, authority.output_name)
+        if key in seen:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_output_binding_contract_invalid: "
+                f"call={compiled.call_id}, duplicate={key!r}"
+            )
+        seen.add(key)
+        allocation = allocations.get(authority.function_return_name)
+        if allocation is None:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_output_write_authority_missing: "
+                f"call={compiled.call_id}, output={authority.output_name}, "
+                "reason=public return allocation missing"
+            )
+        invocation_entry = invocations.get(authority.invocation_id)
+        if invocation_entry is None:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_output_write_authority_missing: "
+                f"call={compiled.call_id}, output={authority.output_name}, "
+                "reason=compiled invocation missing"
+            )
+        plan, invocation = invocation_entry
+        source_path = invocation.outputs.get(authority.output_name)
+        runtime_path = plan.promote_outputs.get(source_path or "")
+        if source_path is None or runtime_path is None:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_output_write_authority_missing: "
+                f"call={compiled.call_id}, output={authority.output_name}, "
+                "reason=compiled destination missing"
+            )
+        try:
+            authority.verify(
+                allocation=allocation,
+                runtime_path=runtime_path,
+            )
+        except ValueError as exc:
+            raise ValueError(str(exc)) from exc
+
+        write = writes.get(authority.function_return_name)
+        if write is None:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_output_write_authority_missing: "
+                f"call={compiled.call_id}, output={authority.output_name}, "
+                "reason=compiled write provenance missing"
+            )
+        common_expected = (
+            authority.function_return_name,
+            authority.runtime_type,
+            authority.valid_scope,
+        )
+        common_observed = (
+            write.return_name,
+            write.runtime_type,
+            write.valid_scope_id,
+        )
+        if common_observed != common_expected:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_output_write_authority_drift: "
+                f"call={compiled.call_id}, output={authority.output_name}, "
+                "reason=compiled write differs from authority, "
+                f"expected={common_expected!r}, observed={common_observed!r}"
+            )
+        if isinstance(authority.destination, StateOutputDestinationAuthority):
+            state_expected = (
+                authority.destination.logical_state_key,
+                authority.destination.selected_version_id,
+                authority.destination.previous_version_id,
+            )
+            state_observed = (
+                write.logical_state_key,
+                write.selected_version_id,
+                write.previous_version_id,
+            )
+            if state_observed != state_expected:
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.method_output_write_authority_drift: "
+                    f"call={compiled.call_id}, output={authority.output_name}, "
+                    "reason=compiled StateVersion differs from authority, "
+                    f"expected={state_expected!r}, observed={state_observed!r}"
+                )
+        elif not isinstance(
+            authority.destination,
+            CallResultOutputDestinationAuthority,
+        ):
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_output_binding_contract_invalid: "
+                f"call={compiled.call_id}, output={authority.output_name}, "
+                "reason=unknown output destination"
+            )
+
+
+def _audit_committed_method_output_writes(
+    compiled: CompiledFunctionalCall,
+    *,
+    writes: tuple[StateWriteProvenance, ...],
+) -> None:
+    writes_by_return = {
+        write.return_name: write
+        for write in writes
+        if write.return_name is not None
+    }
+    for authority in compiled.output_write_authorities:
+        write = writes_by_return.get(authority.function_return_name)
+        if write is None:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_output_write_authority_missing: "
+                f"call={compiled.call_id}, output={authority.output_name}, "
+                "reason=committed write missing"
+            )
+        if isinstance(authority.destination, StateOutputDestinationAuthority):
+            runtime_path = (
+                write.runtime_destination_key.runtime_path
+                if write.runtime_destination_key is not None
+                else None
+            )
+            expected = (
+                authority.destination.logical_state_key,
+                authority.destination.selected_version_id,
+                authority.destination.previous_version_id,
+                authority.runtime_path,
+            )
+            observed = (
+                write.logical_state_key,
+                write.selected_version_id,
+                write.previous_version_id,
+                runtime_path,
+            )
+            if observed != expected:
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.method_output_write_authority_drift: "
+                    f"call={compiled.call_id}, output={authority.output_name}, "
+                    "reason=committed destination differs from authority"
+                )
+
+
+def _audit_method_output_runtime_results(
+    compiled: CompiledFunctionalCall,
+    *,
+    branch: RuntimeContext,
+) -> None:
+    for authority in compiled.output_write_authorities:
+        try:
+            branch.read_path(
+                authority.runtime_path,
+                from_scope_id=authority.valid_scope,
+                expected_type=authority.runtime_type,
+            )
+        except (KeyError, PermissionError, TypeError, ValueError) as exc:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_output_write_authority_drift: "
+                f"call={compiled.call_id}, output={authority.output_name}, "
+                "reason=runtime result does not match authorized destination"
+            ) from exc
 
 
 def _compiled_call_signature(
@@ -1199,6 +4296,40 @@ def _compiled_call_signature(
                         invocation.method_id,
                         tuple(sorted(invocation.inputs.items())),
                         tuple(sorted(invocation.outputs.items())),
+                        tuple(
+                            sorted(
+                                (
+                                    input_name,
+                                    tuple(
+                                        authority.authority_signature
+                                        for authority in authorities
+                                    ),
+                                )
+                                for input_name, authorities in (
+                                    invocation.input_read_authorities.items()
+                                )
+                            )
+                        ),
+                        tuple(
+                            sorted(
+                                (
+                                    input_name,
+                                    tuple(
+                                        authority.authority_signature
+                                        for authority in authorities
+                                    ),
+                                )
+                                for input_name, authorities in (
+                                    invocation.supporting_input_read_authorities.items()
+                                )
+                            )
+                        ),
+                        tuple(
+                            sorted(
+                                authority.authority_signature
+                                for authority in invocation.output_write_authorities.values()
+                            )
+                        ),
                     )
                     for invocation in plan.invocations
                 ),
@@ -1230,7 +4361,1165 @@ def _compiled_call_signature(
             )
             for item in compiled.public_returns
         ),
+        (
+            compiled.problem_source_provenance.semantic_signature()
+            if compiled.problem_source_provenance is not None
+            else None
+        ),
+        (
+            compiled.problem_call_binding.binding_signature
+            if compiled.problem_call_binding is not None
+            else None
+        ),
+        (
+            compiled.macro_preparation_authority.preparation_signature
+            if compiled.macro_preparation_authority is not None
+            else None
+        ),
+        (
+            compiled.macro_search_report.search_signature
+            if compiled.macro_search_report is not None
+            else None
+        ),
+        (
+            compiled.path_minimum_witness.witness_id
+            if compiled.path_minimum_witness is not None
+            else None
+        ),
+        tuple(
+            authority.authority_signature
+            for authority in compiled.output_write_authorities
+        ),
     )
+
+
+def _stamp_compiled_problem_source_provenance(
+    compiled: CompiledFunctionalCall,
+    provenance: ProblemCallSourceProvenance,
+) -> CompiledFunctionalCall:
+    if provenance.canonical_call_id != compiled.call_id:
+        raise ProblemSourceProvenanceError(
+            "planner.runtime_problem_provenance_drift",
+            f"call={compiled.call_id}, authority call mismatch"
+        )
+    return replace(
+        compiled,
+        public_returns=tuple(
+            replace(
+                returned,
+                expected_write=(
+                    replace(
+                        returned.expected_write,
+                        problem_source_provenance=provenance,
+                    )
+                    if returned.expected_write is not None
+                    else None
+                ),
+            )
+            for returned in compiled.public_returns
+        ),
+        problem_source_provenance=provenance,
+    )
+
+
+def _audit_compiled_problem_source_provenance(
+    compiled: CompiledFunctionalCall,
+) -> None:
+    expected = compiled.problem_source_provenance
+    observed = tuple(
+        returned.expected_write.problem_source_provenance
+        for returned in compiled.public_returns
+        if returned.expected_write is not None
+    )
+    if expected is None:
+        if any(item is not None for item in observed):
+            raise ProblemSourceProvenanceError(
+                "planner.runtime_problem_provenance_drift",
+                f"call={compiled.call_id}, unexpected write authority"
+            )
+        return
+    if not observed or any(item is None for item in observed):
+        raise ProblemSourceProvenanceError(
+            "planner.runtime_problem_provenance_missing",
+            f"call={compiled.call_id}",
+        )
+    expected_signature = expected.semantic_signature()
+    for item in observed:
+        if item is None:
+            continue
+        if (
+            item.planning_context_id != expected.planning_context_id
+            or item.problem_revision_id != expected.problem_revision_id
+            or item.problem_semantic_hash != expected.problem_semantic_hash
+        ):
+            raise ProblemSourceProvenanceError(
+                "planner.problem_revision_drift",
+                f"call={compiled.call_id}, Problem revision drift",
+            )
+        if item.semantic_signature() != expected_signature:
+            raise ProblemSourceProvenanceError(
+                "planner.runtime_problem_provenance_drift",
+                f"call={compiled.call_id}, companion return authority drift"
+            )
+
+
+def _require_macro_canonical_plan_id(
+    reconciliation: FunctionalPlanReconciliationResult,
+    *,
+    call_id: str,
+) -> str:
+    plan_id = reconciliation.canonical_plan_id
+    if plan_id is None:
+        raise MacroRuntimeSearchError(
+            "planner.macro_contract_invalid",
+            "runtime-search Macro requires the canonical scoped v2 plan id",
+            retryability="configuration",
+            details={
+                "call_id": call_id,
+                "missing_authority": "canonical_plan_id",
+            },
+        )
+    return plan_id
+
+
+def _materialize_prepared_macro_method_inputs(
+    prepared: PreparedFunctionalCall,
+    *,
+    implementation: MacroImplementation,
+    candidate: MacroCandidateBindingAuthority,
+    finalized_call_binding: FunctionalProblemCallBinding | None,
+    working: WorkingPlannerState,
+    runtime_context: RuntimeContext,
+    runtime_bindings: CanonicalRuntimeBindingIndex,
+    condition_authority_index: Any | None,
+    object_registry: MathObjectRegistry,
+    method_specs: Any,
+) -> PreparedFunctionalCall:
+    """Pin Registry-declared role reads before shadow or clean compilation."""
+
+    chosen_roles = dict(candidate.candidate.roles)
+    finalized_by_role = {
+        item.arg_name: item
+        for item in (
+            finalized_call_binding.input_bindings
+            if finalized_call_binding is not None
+            else ()
+        )
+    }
+    state_reads = list(prepared.state_reads)
+    snapshots = {
+        item.selected_version_id: item.snapshot_runtime_path
+        for item in state_reads
+    }
+    resolved: list[PreparedMacroMethodInput] = []
+    for declaration in implementation.method_input_bindings:
+        source_spec = declaration.binding.source
+        if not isinstance(source_spec, MacroPreparedRoleSourceSpec):
+            resolved.append(PreparedMacroMethodInput(declaration))
+            continue
+        chosen_ref = chosen_roles.get(source_spec.role)
+        if chosen_ref is None:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_input_view_authority_missing: "
+                f"call={prepared.call_id}, role={source_spec.role}"
+            )
+        method_input = method_specs.require(
+            declaration.method_id
+        ).inputs[declaration.input_name]
+        finalized_source = finalized_by_role.get(source_spec.role)
+        if finalized_call_binding is not None and (
+            finalized_source is None or finalized_source.typed_source is None
+        ):
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_input_view_authority_missing: "
+                f"call={prepared.call_id}, role={source_spec.role}, "
+                "source=F5-C"
+            )
+        typed_source = (
+            finalized_source.typed_source
+            if finalized_source is not None
+            else None
+        )
+        role_bindings = tuple(
+            item
+            for item in prepared.arg_bindings
+            if (
+                item.logical_binding.key.arg_name == source_spec.role
+                or item.logical_binding.semantic_role == source_spec.role
+                or item.source_handle == chosen_ref
+            )
+            and item.runtime_path is not None
+        )
+        if method_input.view.mode == "immutable_value":
+            condition_values = tuple(
+                value
+                for value in prepared.reconciliation.resolved_args.get(
+                    source_spec.role, ()
+                )
+                if value.handle == chosen_ref and value.condition_id is not None
+            )
+            condition_ids = tuple(
+                dict.fromkeys(value.condition_id for value in condition_values)
+            )
+            runtime_path = (
+                role_bindings[0].runtime_path
+                if len(role_bindings) == 1
+                else (
+                    _runtime_condition_path_for_macro_role(
+                        runtime_bindings,
+                        condition_authority_index=condition_authority_index,
+                        condition_id=(
+                            condition_ids[0] if len(condition_ids) == 1 else None
+                        ),
+                        source_handle=chosen_ref,
+                        consumer_scope_id=prepared.execution_scope_id,
+                        consumer=(
+                            f"{prepared.call_id}.{declaration.method_id}."
+                            f"{declaration.input_name}"
+                        ),
+                    )
+                    or _visible_condition_path(
+                        runtime_context,
+                        condition_id=(
+                            condition_ids[0] if len(condition_ids) == 1 else None
+                        ),
+                        source_handle=chosen_ref,
+                        consumer_scope_id=prepared.execution_scope_id,
+                    )
+                )
+            )
+            if (
+                len(condition_ids) != 1
+                or runtime_path is None
+                or (
+                    typed_source is not None
+                    and (
+                        typed_source.kind != "condition"
+                        or typed_source.condition_id != condition_ids[0]
+                    )
+                )
+            ):
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.method_input_view_authority_missing: "
+                    f"call={prepared.call_id}, role={source_spec.role}, "
+                    "state=immutable_condition"
+                )
+            resolved.append(
+                PreparedMacroMethodInput(
+                    declaration,
+                    ConditionReadSource(
+                        condition_ids[0],
+                        runtime_path,
+                    ),
+                )
+            )
+            continue
+        if method_input.view.mode == "identity":
+            object_id = object_registry.resolve(chosen_ref)
+            finalized_object_id = (
+                typed_source.math_object_id
+                if typed_source is not None
+                else None
+            )
+            if object_id is None:
+                object_id = finalized_object_id
+            runtime_path = (
+                role_bindings[0].runtime_path
+                if len(role_bindings) == 1
+                else _visible_object_identity_path(
+                    runtime_context,
+                    object_ref=chosen_ref,
+                    consumer_scope_id=prepared.execution_scope_id,
+                )
+            )
+            if (
+                object_id is None
+                or (
+                    finalized_object_id is not None
+                    and finalized_object_id != object_id
+                )
+                or runtime_path is None
+            ):
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.method_input_view_authority_missing: "
+                    f"call={prepared.call_id}, role={source_spec.role}, "
+                    "state=object_identity"
+                )
+            resolved.append(
+                PreparedMacroMethodInput(
+                    declaration,
+                    EntityIdentityReadSource(
+                        object_id.value,
+                        runtime_path,
+                    ),
+                )
+            )
+            continue
+        object_id = object_registry.resolve(chosen_ref)
+        if finalized_call_binding is not None:
+            assert typed_source is not None
+            finalized_object_id = (
+                typed_source.math_object_id
+                or (
+                    typed_source.state_version_id.slot_id.logical_key.object_id
+                    if typed_source.state_version_id is not None
+                    else None
+                )
+            )
+            if object_id is None:
+                object_id = finalized_object_id
+            if finalized_object_id != object_id:
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.method_input_view_authority_drift: "
+                    f"call={prepared.call_id}, role={source_spec.role}, "
+                    f"chosen={getattr(object_id, 'value', None)}, "
+                    f"F5-C={getattr(finalized_object_id, 'value', None)}"
+                )
+        if object_id is None:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_input_view_authority_missing: "
+                f"call={prepared.call_id}, role={source_spec.role}, "
+                f"chosen_ref={chosen_ref}"
+            )
+        if method_input.view.mode != "latest_state":
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.macro_contract_invalid: prepared role currently "
+                "requires a latest_state Method input: "
+                f"{declaration.target}={method_input.view.mode}"
+            )
+        selected_version_id = None
+        if finalized_source is not None and finalized_source.typed_source is not None:
+            selected_version_id = finalized_source.typed_source.state_version_id
+        selected = (
+            working.identity_index.version(
+                working.resolve_runtime_version_id(selected_version_id)
+            )
+            if selected_version_id is not None
+            else working.identity_index.latest_visible_for_object(
+                object_id,
+                consumer_scope_id=prepared.execution_scope_id,
+            )
+        )
+        if selected is None or not working.identity_index.visibility.is_visible(
+            selected.valid_scope_id,
+            consumer_scope_id=prepared.execution_scope_id,
+        ):
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_input_view_authority_missing: "
+                f"call={prepared.call_id}, role={source_spec.role}, "
+                "state=visible_latest"
+            )
+        if selected.version_id.slot_id.logical_key.object_id != object_id:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_input_view_authority_drift: "
+                f"call={prepared.call_id}, role={source_spec.role}, "
+                "state object differs from winner"
+            )
+        runtime_value = working.runtime_version_values.get(selected.version_id)
+        original_path = _indexed_runtime_path(selected)
+        if runtime_value is None or original_path is None:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_input_view_authority_missing: "
+                f"call={prepared.call_id}, role={source_spec.role}, "
+                "state runtime value/path missing"
+            )
+        snapshot_path = snapshots.setdefault(
+            selected.version_id,
+            _transaction_snapshot_path(
+                runtime_context,
+                scope_id=prepared.execution_scope_id,
+                call_id=prepared.call_id,
+                item_index=len(snapshots),
+            ),
+        )
+        state_reads.append(
+            PreparedFunctionalStateRead(
+                arg_name=(
+                    f"$macro.{declaration.method_id}."
+                    f"{declaration.input_name}"
+                ),
+                item_index=0,
+                selection="exact",
+                original_version_id=selected.version_id,
+                selected_version_id=selected.version_id,
+                original_runtime_path=original_path,
+                snapshot_runtime_path=snapshot_path,
+                runtime_value=runtime_value,
+            )
+        )
+        resolved.append(
+            PreparedMacroMethodInput(
+                declaration,
+                StateVersionReadSource(selected.version_id, original_path),
+            )
+        )
+    return replace(
+        prepared,
+        state_reads=tuple(state_reads),
+        macro_method_inputs=tuple(resolved),
+    )
+
+
+def _visible_condition_path(
+    runtime_context: RuntimeContext,
+    *,
+    condition_id: str | None,
+    source_handle: str,
+    consumer_scope_id: str,
+) -> str | None:
+    """Find one exact visible Condition path for a code-owned Macro role."""
+
+    matches: list[str] = []
+    current: str | None = consumer_scope_id
+    while current is not None:
+        scope = runtime_context.scopes[current]
+        containers = {**scope.facts, "constraints": scope.constraints}
+        for container_name, values in containers.items():
+            for key, typed in values.items():
+                if typed.type != "Condition":
+                    continue
+                value = typed.value
+                observed_id = getattr(value, "condition_id", None)
+                observed_handle = getattr(value, "handle", None)
+                if isinstance(value, Mapping):
+                    observed_id = value.get("condition_id", observed_id)
+                    observed_handle = value.get("handle", observed_handle)
+                if not (
+                    (condition_id is not None and observed_id == condition_id)
+                    or observed_handle == source_handle
+                ):
+                    continue
+                prefix = (
+                    "$problem"
+                    if scope.scope_type == "problem"
+                    else f"${scope.scope_type}.{scope.scope_id}"
+                )
+                matches.append(f"{prefix}.{container_name}.{key}")
+        current = scope.parent_id
+    unique = tuple(dict.fromkeys(matches))
+    return unique[0] if len(unique) == 1 else None
+
+
+def _runtime_condition_path_for_macro_role(
+    runtime_bindings: CanonicalRuntimeBindingIndex,
+    *,
+    condition_authority_index: Any | None,
+    condition_id: str | None,
+    source_handle: str,
+    consumer_scope_id: str,
+    consumer: str,
+) -> str | None:
+    if condition_authority_index is None or condition_id is None:
+        return None
+    authority = condition_authority_index.require(condition_id)
+    physical = runtime_bindings.bindings.get(authority.runtime_handle)
+    return runtime_bindings.runtime_path_for_condition_identity(
+        condition_id,
+        source_handle=authority.runtime_handle or source_handle,
+        expected_type=(
+            physical.value_type if physical is not None else authority.runtime_type
+        ),
+        consumer_scope_id=consumer_scope_id,
+        consumer=consumer,
+    )
+
+
+def _visible_object_identity_path(
+    runtime_context: RuntimeContext,
+    *,
+    object_ref: str,
+    consumer_scope_id: str,
+) -> str | None:
+    """Project one code-owned object role to its immutable identity path.
+
+    Runtime-search Macros may bind immutable identities for both geometric
+    entities and symbolic parameters.  The canonical handle owns the object
+    kind, so use it to select the matching RuntimeContext container instead of
+    treating every identity as a Point.
+    """
+
+    name = object_ref.rsplit(":", 1)[-1]
+    if object_ref.startswith("symbol:"):
+        containers = ("symbols",)
+    elif object_ref.startswith("point:"):
+        containers = ("object_refs", "points")
+    else:
+        return None
+    candidates = tuple(
+        path
+        for container in containers
+        if (
+            path := runtime_context.find_visible_path(
+                container,
+                name,
+                from_scope_id=consumer_scope_id,
+            )
+        )
+    )
+    return candidates[0] if candidates else None
+
+
+def _prepare_runtime_search_macro(
+    prepared: PreparedFunctionalCall,
+    *,
+    capability: Any,
+    graph: LogicalFunctionalGraph,
+    reconciliation: FunctionalPlanReconciliationResult,
+    runtime_context: RuntimeContext,
+    working: WorkingPlannerState,
+    inputs: PlannerInputs,
+    handle_registry: CanonicalHandleRegistry,
+    capability_catalog: FunctionalCapabilityCatalog,
+    compiler: FunctionalCallCompilerService,
+    committer: Any,
+    object_registry: MathObjectRegistry,
+    committed_state_writes: tuple[StateWriteProvenance, ...],
+    committed_calls: tuple[CompiledFunctionalCall, ...],
+    executor_factory: Callable[[PlannerInputs, RuntimeContext], Any],
+) -> PreparedFunctionalCall:
+    """Choose a Macro winner in disposable branches before final compilation."""
+
+    macro = capability.source if capability is not None else None
+    if (
+        not isinstance(macro, MacroSpec)
+        or macro.execution_mode != "runtime_search"
+        or macro.search is None
+    ):
+        return prepared
+    macro_runtime_bindings = CanonicalRuntimeBindingIndex.from_context(
+        runtime_context,
+        handle_registry=handle_registry,
+        question_goals=inputs.question_goals,
+        functional_consumer_identity_mode="authoritative",
+        problem_binding_authority=(
+            reconciliation.functional_problem_binding_context is not None
+        ),
+    )
+    macro_runtime_bindings.state_write_provenance.extend(
+        committed_state_writes
+    )
+    problem_context = reconciliation.functional_problem_binding_context
+    ledger = reconciliation.functional_problem_binding_ledger
+    debug_preparation = problem_context is None and ledger is None
+    if not debug_preparation and not isinstance(
+        problem_context,
+        FunctionalProblemBindingContext,
+    ):
+        raise ValueError(
+            "planner.macro_contract_invalid: runtime-search Macro has no "
+            f"F5-C draft authority: call={prepared.call_id}"
+        )
+    registry = default_macro_implementation_registry()
+    implementation = registry.require_lowering_contract(
+        macro.macro_id,
+        macro.search,
+        macro_spec=macro,
+        method_specs=inputs.method_specs,
+    )
+    request = MacroPreparationRequest(
+        planning_context_id=(
+            problem_context.planning_context_id
+            if isinstance(problem_context, FunctionalProblemBindingContext)
+            else stable_hash(
+                {
+                    "debug_macro_preparation": "planning_context",
+                    "problem_id": inputs.problem_id,
+                }
+            )
+        ),
+        problem_revision_id=(
+            problem_context.problem_revision_id
+            if isinstance(problem_context, FunctionalProblemBindingContext)
+            else stable_hash(
+                {
+                    "debug_macro_preparation": "problem_revision",
+                    "problem_id": inputs.problem_id,
+                }
+            )
+        ),
+        problem_semantic_hash=(
+            problem_context.problem_semantic_hash
+            if isinstance(problem_context, FunctionalProblemBindingContext)
+            else stable_hash(
+                {
+                    "debug_macro_preparation": "problem_semantics",
+                    "problem": repr(inputs.problem),
+                }
+            )
+        ),
+        plan_id=_require_macro_canonical_plan_id(
+            reconciliation,
+            call_id=prepared.call_id,
+        ),
+        call_id=prepared.call_id,
+        goal_unit_ids=(
+            problem_context.call_goal_bindings.get(prepared.call_id, ())
+            if isinstance(problem_context, FunctionalProblemBindingContext)
+            else ()
+        ),
+        scope_id=prepared.execution_scope_id,
+        macro_id=macro.macro_id,
+        catalog_signature=stable_hash(macro.to_payload()),
+        authored_roles=_authored_macro_roles(prepared, macro),
+        candidate_dependency_envelope=(),
+        environment=MacroPreparationEnvironment(
+            prepared_call=prepared,
+            handle_registry=handle_registry,
+            max_candidates=macro.search.max_candidates,
+        ),
+        upstream_exact_state_signature=_macro_upstream_state_signature(
+            prepared
+        ),
+    )
+
+    def evaluate(
+        candidate: MacroCandidateBindingAuthority,
+    ) -> MacroCandidateEvaluation:
+        candidate_prepared = replace(
+            prepared,
+            macro_role_overrides=dict(candidate.candidate.roles),
+            macro_candidate_binding=candidate,
+        )
+        candidate_prepared = _materialize_prepared_macro_method_inputs(
+            candidate_prepared,
+            implementation=implementation,
+            candidate=candidate,
+            finalized_call_binding=None,
+            working=working,
+            runtime_context=runtime_context,
+            runtime_bindings=macro_runtime_bindings,
+            condition_authority_index=(
+                reconciliation.condition_binding_authority_index
+            ),
+            object_registry=object_registry,
+            method_specs=inputs.method_specs,
+        )
+        shadow_working = working.fork()
+        shadow_context = runtime_context.fork()
+        try:
+            compiled = compiler.compile(
+                candidate_prepared,
+                reconciliation=reconciliation,
+                runtime_context=shadow_context,
+                working=shadow_working,
+                inputs=inputs,
+                handle_registry=handle_registry,
+                capability_catalog=capability_catalog,
+                committed_state_writes=committed_state_writes,
+                committed_calls=committed_calls,
+            )
+            for plan in compiled.plans:
+                shadow_context.ensure_step_scope(plan.step_id, plan.scope)
+            _apply_missing_declarations(shadow_context, compiled.declarations)
+            _materialize_transaction_state_reads(
+                shadow_context,
+                candidate_prepared.state_reads,
+                scope_id=candidate_prepared.execution_scope_id,
+            )
+            compiled, candidate_prepared = _materialize_compiled_parameter_inputs(
+                compiled,
+                prepared=candidate_prepared,
+                branch=shadow_context,
+                working=shadow_working,
+                object_registry=object_registry,
+                execution_scope_id=candidate_prepared.execution_scope_id,
+            )
+            compiled = _stamp_method_input_read_authorities(
+                compiled,
+                prepared_call=candidate_prepared,
+                method_specs=inputs.method_specs,
+                branch=shadow_context,
+                working=shadow_working,
+                condition_authority_index=(
+                    reconciliation.condition_binding_authority_index
+                ),
+            )
+            _audit_method_output_write_authorities(compiled)
+            lowered_call_count = sum(
+                len(plan.invocations) for plan in compiled.plans
+            )
+            execution = executor_factory(inputs, shadow_context).execute_plan(
+                shadow_context,
+                list(compiled.plans),
+            )
+            _audit_method_output_runtime_results(
+                compiled,
+                branch=shadow_context,
+            )
+            failed_check_items = tuple(
+                item
+                for item in execution.checks
+                if not bool(getattr(item, "ok", False))
+            )
+            failed_checks = tuple(
+                str(getattr(item, "name", "runtime_check"))
+                for item in failed_check_items
+            )
+            if failed_checks:
+                non_candidate_check = next(
+                    (
+                        item
+                        for item in failed_check_items
+                        if _macro_failure_retryability(item)
+                        != "planner_repairable"
+                    ),
+                    None,
+                )
+                if non_candidate_check is not None:
+                    raise MacroRuntimeSearchError(
+                        "planner.macro_candidate_execution_error",
+                        "Macro shadow candidate failed a non-repairable runtime check",
+                        retryability=_macro_failure_retryability(
+                            non_candidate_check
+                        ),
+                        details={
+                            "macro_id": macro.macro_id,
+                            "call_id": prepared.call_id,
+                            "candidate_id": candidate.candidate.candidate_id,
+                            "check": str(
+                                getattr(
+                                    non_candidate_check,
+                                    "name",
+                                    "runtime_check",
+                                )
+                            ),
+                            "check_code": getattr(
+                                non_candidate_check,
+                                "code",
+                                None,
+                            ),
+                        },
+                    )
+                return MacroCandidateEvaluation(
+                    candidate.candidate.candidate_id,
+                    False,
+                    checks=failed_checks,
+                )
+            runtime_symbol_bindings = _merge_runtime_symbol_bindings(
+                _merge_runtime_symbol_bindings(
+                    _context_runtime_symbol_bindings(
+                        shadow_context,
+                        registry=object_registry,
+                    ),
+                    _prepared_runtime_symbol_bindings(
+                        candidate_prepared,
+                        working=shadow_working,
+                    ),
+                ),
+                _declared_runtime_symbol_bindings(
+                    compiled,
+                    branch=shadow_context,
+                ),
+            )
+            (
+                runtime_results,
+                writes,
+                _versions,
+                _runtime_values,
+                _call_result_values,
+                issues,
+            ) = committer.commit_payload(
+                compiled,
+                prepared=candidate_prepared,
+                branch=shadow_context,
+                plan=reconciliation.plan,
+                working=shadow_working,
+                object_registry=object_registry,
+                runtime_symbol_bindings=runtime_symbol_bindings,
+            )
+            if issues:
+                non_candidate_issue = next(
+                    (
+                        item
+                        for item in issues
+                        if _macro_failure_retryability(item)
+                        != "planner_repairable"
+                    ),
+                    None,
+                )
+                if non_candidate_issue is not None:
+                    retryability = _macro_failure_retryability(
+                        non_candidate_issue
+                    )
+                    raise MacroRuntimeSearchError(
+                        (
+                            non_candidate_issue.code
+                            if retryability == "problem_semantics"
+                            else "planner.macro_candidate_execution_error"
+                        ),
+                        "Macro shadow candidate encountered a non-repairable "
+                        "execution failure",
+                        retryability=retryability,
+                        details={
+                            "macro_id": macro.macro_id,
+                            "call_id": prepared.call_id,
+                            "candidate_id": candidate.candidate.candidate_id,
+                            "issue": non_candidate_issue.to_authority_payload(),
+                        },
+                    )
+                return MacroCandidateEvaluation(
+                    candidate.candidate.candidate_id,
+                    False,
+                    checks=tuple(item.code for item in issues),
+                )
+            signature = _macro_transaction_output_signature(
+                runtime_results,
+                writes,
+            )
+            return MacroCandidateEvaluation(
+                candidate.candidate.candidate_id,
+                True,
+                output_signature=signature,
+                checks=tuple(
+                    str(getattr(item, "name", "runtime_check"))
+                    for item in execution.checks
+                ),
+                call_count=lowered_call_count,
+            )
+        except Exception as exc:
+            return _macro_candidate_failure_or_raise(
+                exc,
+                macro_id=macro.macro_id,
+                call_id=prepared.call_id,
+                candidate_id=candidate.candidate.candidate_id,
+            )
+
+    selected = MacroPreparationService(registry).prepare(
+        request,
+        search_spec=macro.search,
+        evaluator=evaluate,
+    )
+    if debug_preparation:
+        debug_prepared = replace(
+            prepared,
+            macro_role_overrides=dict(
+                selected.authority.winner.candidate.roles
+            ),
+            macro_candidate_binding=selected.authority.winner,
+            prepared_macro=replace(selected, debug_only=True),
+        )
+        return _materialize_prepared_macro_method_inputs(
+            debug_prepared,
+            implementation=implementation,
+            candidate=selected.authority.winner,
+            finalized_call_binding=None,
+            working=working,
+            runtime_context=runtime_context,
+            runtime_bindings=macro_runtime_bindings,
+            condition_authority_index=(
+                reconciliation.condition_binding_authority_index
+            ),
+            object_registry=object_registry,
+            method_specs=inputs.method_specs,
+        )
+    if not isinstance(ledger, FunctionalProblemBindingLedger):
+        raise ValueError(
+            "planner.macro_contract_invalid: runtime-search Macro has no "
+            f"F5-C ledger: call={prepared.call_id}"
+        )
+    finalized_ledger = ledger.finalize_macro(
+        prepared.call_id,
+        preparation_authority=selected.authority,
+    )
+    finalized_binding = finalized_ledger.call_binding(prepared.call_id)
+    finalized_prepared = replace(
+        prepared,
+        macro_role_overrides=dict(selected.authority.winner.candidate.roles),
+        macro_candidate_binding=selected.authority.winner,
+        prepared_macro=selected,
+        problem_call_binding=finalized_binding,
+    )
+    return _materialize_prepared_macro_method_inputs(
+        finalized_prepared,
+        implementation=implementation,
+        candidate=selected.authority.winner,
+        finalized_call_binding=finalized_binding,
+        working=working,
+        runtime_context=runtime_context,
+        runtime_bindings=macro_runtime_bindings,
+        condition_authority_index=(
+            reconciliation.condition_binding_authority_index
+        ),
+        object_registry=object_registry,
+        method_specs=inputs.method_specs,
+    )
+
+
+def _macro_failure_retryability(value: Any) -> str:
+    """Classify only explicit candidate failures as search misses."""
+
+    retryability = getattr(value, "retryability", None)
+    if retryability in {
+        "planner_repairable",
+        "problem_semantics",
+        "configuration",
+    }:
+        return str(retryability)
+    authority = getattr(value, "diagnostic_authority", None)
+    if isinstance(authority, Mapping):
+        retryability = authority.get("retryability")
+        if retryability in {
+            "planner_repairable",
+            "problem_semantics",
+            "configuration",
+        }:
+            return str(retryability)
+    details = getattr(value, "details", None)
+    if isinstance(details, Mapping):
+        retryability = details.get("retryability")
+        if retryability in {
+            "planner_repairable",
+            "problem_semantics",
+            "configuration",
+        }:
+            return str(retryability)
+    code = getattr(value, "code", None)
+    if is_planner_configuration_failure_code(
+        str(code) if code is not None else None
+    ):
+        return "configuration"
+    # An unclassified candidate failure is a runtime contract defect, never a
+    # mathematical search miss.
+    return "configuration"
+
+
+def _macro_candidate_failure_or_raise(
+    exc: Exception,
+    *,
+    macro_id: str,
+    call_id: str,
+    candidate_id: str,
+) -> MacroCandidateEvaluation:
+    retryability = _macro_failure_retryability(exc)
+    if retryability == "planner_repairable":
+        return MacroCandidateEvaluation(
+            candidate_id,
+            False,
+            checks=(f"{getattr(exc, 'code', type(exc).__name__)}: {exc}",),
+        )
+    if isinstance(exc, MacroRuntimeSearchError):
+        raise exc
+    raise MacroRuntimeSearchError(
+        "planner.macro_candidate_execution_error",
+        "Macro shadow candidate raised a non-repairable exception",
+        retryability=retryability,
+        details={
+            "macro_id": macro_id,
+            "call_id": call_id,
+            "candidate_id": candidate_id,
+            "exception_type": type(exc).__name__,
+            "exception_code": getattr(exc, "code", None),
+            "message": str(exc),
+        },
+    ) from exc
+
+
+def _macro_upstream_state_signature(
+    prepared: PreparedFunctionalCall,
+) -> str:
+    return stable_hash(
+        {
+            "state_reads": [
+                {
+                    "arg_name": item.arg_name,
+                    "item_index": item.item_index,
+                    "version": item.selected_version_id.to_payload(),
+                    "runtime_type": item.runtime_value.type,
+                    "value": _runtime_authority_value_payload(
+                        item.runtime_value.value
+                    ),
+                }
+                for item in prepared.state_reads
+            ],
+            "dependencies": list(prepared.dependency_call_ids),
+        }
+    )
+
+
+def _macro_transaction_output_signature(
+    runtime_results: Sequence[Any],
+    writes: Sequence[Any],
+) -> str:
+    return stable_hash(
+        {
+            "results": [
+                {
+                    "output_key": item.output_key,
+                    "runtime_type": item.runtime_type,
+                    "value": _runtime_authority_value_payload(item.value),
+                }
+                for item in runtime_results
+            ],
+            "writes": [
+                {
+                    "return_name": item.return_name,
+                    "runtime_type": item.runtime_type,
+                    "result_form": item.result_form,
+                    "free_symbol_names": list(item.free_symbol_names),
+                }
+                for item in writes
+            ],
+        }
+    )
+
+
+def _runtime_authority_value_payload(value: Any) -> Any:
+    """Canonicalize values used by Macro preparation/replay authority."""
+
+    if isinstance(value, sp.Basic):
+        return {"sympy": sp.srepr(value)}
+    if isinstance(value, Mapping):
+        return {
+            str(key): _runtime_authority_value_payload(item)
+            for key, item in sorted(value.items(), key=lambda pair: str(pair[0]))
+        }
+    if isinstance(value, (tuple, list)):
+        return [_runtime_authority_value_payload(item) for item in value]
+    if isinstance(value, (str, int, float, bool)) or value is None:
+        return value
+    to_payload = getattr(value, "to_payload", None)
+    if callable(to_payload):
+        return _runtime_authority_value_payload(to_payload())
+    raise MacroRuntimeSearchError(
+        "planner.macro_contract_invalid",
+        "Macro authority encountered a runtime value without canonical serialization",
+        retryability="configuration",
+        details={"runtime_value_type": type(value).__name__},
+    )
+
+
+def _validate_macro_winner_clean_replay(
+    compiled: CompiledFunctionalCall,
+    *,
+    runtime_results: Sequence[Any],
+    writes: Sequence[Any],
+) -> None:
+    authority = compiled.macro_preparation_authority
+    if authority is None:
+        return
+    winner = tuple(
+        item
+        for item in authority.search_report.evaluations
+        if item.candidate_id
+        == authority.search_report.winner_candidate_id
+    )
+    if len(winner) != 1 or not winner[0].output_signature:
+        raise MacroRuntimeSearchError(
+            "planner.macro_contract_invalid",
+            "Macro winner has no authenticated shadow output signature",
+            retryability="configuration",
+            details={"call_id": compiled.call_id},
+        )
+    observed = _macro_transaction_output_signature(runtime_results, writes)
+    if observed != winner[0].output_signature:
+        raise MacroRuntimeSearchError(
+            "planner.macro_winner_replay_drift",
+            "Macro clean replay differs from its shadow winner",
+            retryability="configuration",
+            details={
+                "call_id": compiled.call_id,
+                "winner_candidate_id": winner[0].candidate_id,
+                "expected_output_signature": winner[0].output_signature,
+                "observed_output_signature": observed,
+            },
+        )
+
+
+def _stamp_prepared_macro_authority(
+    compiled: CompiledFunctionalCall,
+    *,
+    prepared: PreparedFunctionalCall,
+) -> CompiledFunctionalCall:
+    selected = prepared.prepared_macro
+    if not isinstance(selected, PreparedMacroInvocation):
+        return compiled
+    authority = selected.authority
+    report = authority.search_report
+    provenance = compiled.problem_source_provenance
+    call_binding = compiled.problem_call_binding
+    if selected.debug_only:
+        if provenance is not None or call_binding is not None:
+            raise ValueError(
+                "planner.macro_contract_invalid: debug Macro preparation "
+                f"received production F5-C authority: call={compiled.call_id}"
+            )
+        return replace(
+            compiled,
+            macro_preparation_authority=authority,
+            macro_search_report=report,
+        )
+    if provenance is None or not isinstance(
+        call_binding,
+        FunctionalProblemCallBinding,
+    ):
+        raise ValueError(
+            "planner.macro_contract_invalid: finalized Macro call has no "
+            f"F5-C binding: call={compiled.call_id}"
+        )
+    if (
+        call_binding.macro_preparation_signature
+        != authority.preparation_signature
+        or provenance.call_binding_signature
+        != call_binding.binding_signature
+        or provenance.macro_search_signature != report.search_signature
+    ):
+        raise ValueError(
+            "planner.macro_contract_invalid: Macro preparation and F5-C "
+            f"binding differ: call={compiled.call_id}"
+        )
+    return replace(
+        compiled,
+        macro_preparation_authority=authority,
+        macro_search_report=report,
+    )
+
+
+def _with_prepared_macro_evidence(
+    compiled: CompiledFunctionalCall,
+    *,
+    prepared: PreparedFunctionalCall,
+    capability: Any,
+    method_results: Sequence[Any],
+    handle_registry: CanonicalHandleRegistry,
+) -> CompiledFunctionalCall:
+    selected = prepared.prepared_macro
+    macro = capability.source if capability is not None else None
+    if not isinstance(selected, PreparedMacroInvocation):
+        return compiled
+    if not isinstance(macro, MacroSpec) or macro.search is None:
+        raise ValueError(
+            "planner.macro_contract_invalid: prepared Macro has no runtime spec"
+        )
+    implementation = default_macro_implementation_registry().require(
+        macro.macro_id,
+        macro.search,
+    )
+    evidence = implementation.evidence_builder(
+        compiled=compiled,
+        prepared=prepared,
+        report=selected.authority.search_report,
+        method_results=method_results,
+        handle_registry=handle_registry,
+    )
+    return replace(compiled, path_minimum_witness=evidence)
+
+
+def _authored_macro_roles(
+    prepared: PreparedFunctionalCall,
+    macro: MacroSpec,
+) -> dict[str, str]:
+    assert macro.search is not None
+    return dict(prepared.reconciliation.authored_macro_roles)
 
 
 def _prepared_path_rewrites(
@@ -1271,8 +5560,10 @@ class FunctionalRuntimeWriteCommitter:
         tuple[StateWriteProvenance, ...],
         tuple[IndexedStateVersion, ...],
         dict[StateVersionId, TypedValue],
+        dict[str, TypedValue],
         tuple[PlannerRetryIssue, ...],
     ]:
+        _audit_compiled_problem_source_provenance(compiled)
         wire_call = next(
             (item for item in plan.calls if item.call_id == compiled.call_id),
             None,
@@ -1286,6 +5577,7 @@ class FunctionalRuntimeWriteCommitter:
         actual_writes: list[StateWriteProvenance] = []
         versions: list[IndexedStateVersion] = []
         runtime_values: dict[StateVersionId, TypedValue] = {}
+        result_values: dict[str, TypedValue] = {}
         issues: list[PlannerRetryIssue] = []
         version_rewrites = {
             item.original_version_id: item.selected_version_id
@@ -1311,15 +5603,7 @@ class FunctionalRuntimeWriteCommitter:
                         )
                     )
                 continue
-            path = (
-                write.runtime_destination_key.runtime_path
-                if write.runtime_destination_key is not None
-                else None
-            )
-            path = path or _runtime_path_for_write(
-                compiled.plans,
-                write,
-            )
+            path = _materialized_runtime_path(compiled, write)
             if not path:
                 if returned.required:
                     issues.append(
@@ -1373,6 +5657,13 @@ class FunctionalRuntimeWriteCommitter:
                         f"return {returned.return_name} expected "
                         f"{expected_form} "
                         f"but retains {list(free_symbols)}",
+                        details={
+                            "return": returned.return_name,
+                            "expected_form": expected_form,
+                            "observed_form": actual_form,
+                            "observed_free_symbol_names": list(free_symbols),
+                            "repair_action": "provide_visible_state_producer",
+                        },
                     )
                 )
                 continue
@@ -1385,9 +5676,25 @@ class FunctionalRuntimeWriteCommitter:
                     _issue(
                         compiled.call_id,
                         "functional.return_complexity_exceeded",
-                        f"return {returned.return_name} retains "
-                        f"{len(free_symbol_ids)} free symbols; maximum is "
-                        f"{returned.max_independent_free_parameters}",
+                        f"return {returned.return_name} must contain at most "
+                        f"{returned.max_independent_free_parameters} independent "
+                        "unknown parameter(s), but the current inputs and visible "
+                        f"constraints still leave {len(free_symbol_ids)}: "
+                        f"{list(free_symbols)}",
+                        details={
+                            "return": returned.return_name,
+                            "expected_max_independent_free_parameters": (
+                                returned.max_independent_free_parameters
+                            ),
+                            "observed_independent_free_parameter_count": len(
+                                free_symbol_ids
+                            ),
+                            "observed_free_symbol_names": list(free_symbols),
+                            "retryability": "planner_repairable",
+                            "repair_action": (
+                                "reduce_symbolic_state_to_expected_parameter_count"
+                            ),
+                        },
                     )
                 )
                 continue
@@ -1414,6 +5721,7 @@ class FunctionalRuntimeWriteCommitter:
                 runtime_destination_key=runtime_destination,
             )
             actual_writes.append(actual_write)
+            result_values[write.output_key] = typed
             runtime_results.append(
                 _runtime_result(
                     branch,
@@ -1479,6 +5787,7 @@ class FunctionalRuntimeWriteCommitter:
                 tuple(actual_writes),
                 (),
                 {},
+                result_values,
                 tuple(issues),
             )
         return (
@@ -1486,6 +5795,7 @@ class FunctionalRuntimeWriteCommitter:
             tuple(actual_writes),
             tuple(versions),
             runtime_values,
+            result_values,
             (),
         )
 
@@ -1518,6 +5828,7 @@ class FunctionalTransactionalInterpreter:
         inputs: PlannerInputs,
         handle_registry: CanonicalHandleRegistry,
         goal_verification_report: Any | None = None,
+        restored_seed: FunctionalRestoredCallSeed | None = None,
     ) -> FunctionalTransactionalExecutionReport:
         build = LogicalFunctionalGraphBuilder().build(
             raw_plan,
@@ -1568,7 +5879,27 @@ class FunctionalTransactionalInterpreter:
         )
         results: list[FunctionalCallExecutionResult] = []
         compiled_calls: list[CompiledFunctionalCall] = []
+        runtime_result_values: dict[tuple[str, str], TypedValue] = {}
+        conditions = _restored_conditions(
+            restored_seed,
+            parent_context=parent_context,
+        )
+        runtime_equivalent_aliases: list[
+            FunctionalRuntimeEquivalentCallAlias
+        ] = []
+        runtime_state_equivalence_probe_results: list[dict[str, Any]] = []
+        restored_call_ids = _restore_verified_calls(
+            restored_seed,
+            graph=graph,
+            working=working,
+            current_context=current_context,
+            results=results,
+            compiled_calls=compiled_calls,
+            runtime_result_values=runtime_result_values,
+        )
         for call_id in graph.canonical_order:
+            if call_id in restored_call_ids:
+                continue
             state = working.call_states[call_id]
             dependency_statuses = tuple(
                 working.call_states[item].status
@@ -1599,6 +5930,8 @@ class FunctionalTransactionalInterpreter:
             working.set_status(call_id, "running")
             working.emit(call_id, "running")
             closure_result: SymbolicClosureExecutionResult | None = None
+            prepared: Any | None = None
+            compiled: CompiledFunctionalCall | None = None
             try:
                 prepared = preparer.prepare(
                     call_id=call_id,
@@ -1609,6 +5942,33 @@ class FunctionalTransactionalInterpreter:
                     inputs=inputs,
                     handle_registry=handle_registry,
                     capability_catalog=capability_catalog,
+                    object_registry=object_registry,
+                )
+                capability = capability_catalog.get(
+                    prepared.capability_id
+                )
+                committed_state_writes = tuple(
+                    write
+                    for result in results
+                    if result.status == "verified"
+                    for write in result.state_writes
+                )
+                prepared = _prepare_runtime_search_macro(
+                    prepared,
+                    capability=capability,
+                    graph=graph,
+                    reconciliation=reconciliation,
+                    runtime_context=current_context,
+                    working=working,
+                    inputs=inputs,
+                    handle_registry=handle_registry,
+                    capability_catalog=capability_catalog,
+                    compiler=exact_compiler,
+                    committer=committer,
+                    object_registry=object_registry,
+                    committed_state_writes=committed_state_writes,
+                    committed_calls=tuple(compiled_calls),
+                    executor_factory=self._executor_factory,
                 )
                 compiled = exact_compiler.compile(
                     prepared,
@@ -1618,18 +5978,18 @@ class FunctionalTransactionalInterpreter:
                     inputs=inputs,
                     handle_registry=handle_registry,
                     capability_catalog=capability_catalog,
-                    committed_state_writes=tuple(
-                        write
-                        for result in results
-                        if result.status == "verified"
-                        for write in result.state_writes
-                    ),
+                    committed_state_writes=committed_state_writes,
                     committed_calls=tuple(compiled_calls),
                 )
+                compiled = _stamp_prepared_macro_authority(
+                    compiled,
+                    prepared=prepared,
+                )
+                _audit_compiled_problem_source_provenance(compiled)
                 branch = current_context.fork()
-                _apply_missing_declarations(branch, compiled.declarations)
                 for plan in compiled.plans:
                     branch.ensure_step_scope(plan.step_id, plan.scope)
+                _apply_missing_declarations(branch, compiled.declarations)
                 _materialize_transaction_state_reads(
                     branch,
                     prepared.state_reads,
@@ -1641,10 +6001,26 @@ class FunctionalTransactionalInterpreter:
                         )
                     ),
                 )
-                executor = self._executor_factory(inputs, branch)
-                capability = capability_catalog.get(
-                    prepared.capability_id
+                compiled, prepared = _materialize_compiled_parameter_inputs(
+                    compiled,
+                    prepared=prepared,
+                    branch=branch,
+                    working=working,
+                    object_registry=object_registry,
+                    execution_scope_id=prepared.execution_scope_id,
                 )
+                compiled = _stamp_method_input_read_authorities(
+                    compiled,
+                    prepared_call=prepared,
+                    method_specs=inputs.method_specs,
+                    branch=branch,
+                    working=working,
+                    condition_authority_index=(
+                        reconciliation.condition_binding_authority_index
+                    ),
+                )
+                _audit_method_output_write_authorities(compiled)
+                executor = self._executor_factory(inputs, branch)
                 symbolic_spec = (
                     getattr(capability.source, "symbolic_closure", None)
                     if capability is not None
@@ -1735,12 +6111,22 @@ class FunctionalTransactionalInterpreter:
                                 "failed",
                                 root_issues=(issue,),
                                 symbolic_closure=closure_result,
+                                macro_preparation_authority=(
+                                    compiled.macro_preparation_authority
+                                ),
+                                macro_search_report=(
+                                    compiled.macro_search_report
+                                ),
                             )
                         )
                         continue
                 execution = executor.execute_plan(
                     branch,
                     list(compiled.plans),
+                )
+                _audit_method_output_runtime_results(
+                    compiled,
+                    branch=branch,
                 )
                 call_symbol_bindings = _declared_runtime_symbol_bindings(
                     compiled,
@@ -1786,7 +6172,11 @@ class FunctionalTransactionalInterpreter:
                         if failed_closure_checks:
                             raise SymbolicClosureRuntimeDriftError(
                                 "rewritten outputs violate closure: "
-                                + ", ".join(failed_closure_checks)
+                                + ", ".join(failed_closure_checks),
+                                details=_symbolic_closure_drift_details(
+                                    closure_result,
+                                    failed_closure_checks,
+                                ),
                             )
                         execution.checks.extend(closure_checks)
                 failed_checks = tuple(
@@ -1795,18 +6185,35 @@ class FunctionalTransactionalInterpreter:
                     if not bool(getattr(item, "ok", False))
                 )
                 if failed_checks:
-                    raise RuntimeError(
-                        "transactional runtime checks failed: "
-                        + ", ".join(
-                            str(getattr(item, "name", item))
-                            for item in failed_checks
-                        )
+                    raise method_check_failed(
+                        failed_checks,
+                        method_id=next(
+                            (
+                                str(getattr(item, "method_id"))
+                                for item in failed_checks
+                                if getattr(item, "method_id", None)
+                            ),
+                            None,
+                        ),
                     )
+                method_results = tuple(
+                    method_result
+                    for step_result in execution.step_results
+                    for method_result in step_result.method_results
+                )
+                compiled = _with_prepared_macro_evidence(
+                    compiled,
+                    prepared=prepared,
+                    capability=capability,
+                    method_results=method_results,
+                    handle_registry=handle_registry,
+                )
                 (
                     runtime_results,
                     writes,
                     versions,
                     runtime_values,
+                    call_result_values,
                     issues,
                 ) = committer.commit_payload(
                     compiled,
@@ -1831,11 +6238,26 @@ class FunctionalTransactionalInterpreter:
                             runtime_results=runtime_results,
                             state_writes=writes,
                             checks=tuple(execution.checks),
+                            step_results=tuple(execution.step_results),
                             root_issues=issues,
                             symbolic_closure=closure_result,
+                            macro_preparation_authority=(
+                                compiled.macro_preparation_authority
+                            ),
+                            macro_search_report=compiled.macro_search_report,
+                            path_minimum_witness=compiled.path_minimum_witness,
                         )
                     )
                     continue
+                _audit_committed_method_output_writes(
+                    compiled,
+                    writes=writes,
+                )
+                _validate_macro_winner_clean_replay(
+                    compiled,
+                    runtime_results=runtime_results,
+                    writes=writes,
+                )
                 if (
                     self._symbolic_closure_mode == "authoritative"
                     and closure_result is not None
@@ -1860,7 +6282,12 @@ class FunctionalTransactionalInterpreter:
                         compiled=compiled,
                     )
                 projected_writes = tuple(
-                    item
+                    _canonicalize_projected_state_write_versions(
+                        item,
+                        resolve_version_id=(
+                            working.resolve_runtime_version_id
+                        ),
+                    )
                     for item in build_functional_state_write_manifest(
                         reconciliation.plan,
                         reconciliation.calls,
@@ -1876,6 +6303,120 @@ class FunctionalTransactionalInterpreter:
                     handle_registry=handle_registry,
                     mode="authoritative",
                 )
+                (
+                    runtime_alias,
+                    equivalence_issue,
+                    probe_results,
+                ) = (
+                    _compare_provisional_runtime_state(
+                        call_id=call_id,
+                        writes=writes,
+                        runtime_values=runtime_values,
+                        reconciliation=reconciliation,
+                        working=working,
+                        branch=branch,
+                        object_registry=object_registry,
+                        runtime_result_values={
+                            **runtime_result_values,
+                            **{
+                                (call_id, output_key): typed
+                                for output_key, typed in call_result_values.items()
+                            },
+                        },
+                        restored_call_ids=restored_call_ids,
+                    )
+                )
+                runtime_state_equivalence_probe_results.extend(probe_results)
+                if equivalence_issue is not None:
+                    working.set_status(
+                        call_id,
+                        "failed",
+                        issue_codes=(equivalence_issue.code,),
+                    )
+                    working.emit(call_id, "failed")
+                    results.append(
+                        FunctionalCallExecutionResult(
+                            call_id,
+                            "failed",
+                            runtime_results=runtime_results,
+                            state_writes=writes,
+                            checks=tuple(execution.checks),
+                            step_results=tuple(execution.step_results),
+                            root_issues=(equivalence_issue,),
+                            symbolic_closure=closure_result,
+                            macro_preparation_authority=(
+                                compiled.macro_preparation_authority
+                            ),
+                            macro_search_report=compiled.macro_search_report,
+                            path_minimum_witness=compiled.path_minimum_witness,
+                        )
+                    )
+                    continue
+                lineage_edges = _scope_create_runtime_lineage_edges(
+                    probe_results=probe_results,
+                    reconciliation=reconciliation,
+                    working=working,
+                    current_versions=versions,
+                )
+                macro_search_report = compiled.macro_search_report
+                if runtime_alias is not None:
+                    if lineage_edges:
+                        raise ValueError(
+                            "planner_configuration_error: "
+                            "planner.runtime_state_lineage_alias_conflict"
+                        )
+                    # The isolated branch proved that every reused typed state
+                    # is unchanged. Keep an answer alias so the Goal remains
+                    # bound to the proven existing StateVersion, but never
+                    # commit a second object-state write.
+                    answer_alias_writes = tuple(
+                        write
+                        for write in writes
+                        if write.produced_handle.startswith("answer:")
+                    )
+                    working.set_status(call_id, "verified")
+                    working.emit(call_id, "verified")
+                    runtime_result_values.update(
+                        {
+                            (call_id, output_key): typed
+                            for output_key, typed in call_result_values.items()
+                        }
+                    )
+                    for write in writes:
+                        if write.selected_version_id is None:
+                            continue
+                        typed = runtime_values.get(write.selected_version_id)
+                        if typed is not None:
+                            runtime_result_values[(call_id, write.output_key)] = typed
+                        if (
+                            write.previous_version_id is not None
+                            and write.allocation_action == "transition"
+                        ):
+                            working.register_runtime_equivalent_version_alias(
+                                write.selected_version_id,
+                                write.previous_version_id,
+                            )
+                    current_context = branch
+                    compiled_calls.append(compiled)
+                    runtime_equivalent_aliases.append(runtime_alias)
+                    results.append(
+                        FunctionalCallExecutionResult(
+                            call_id,
+                            "verified",
+                            runtime_results=runtime_results,
+                            state_writes=answer_alias_writes,
+                            committed_versions=(),
+                            checks=tuple(execution.checks),
+                            step_results=tuple(execution.step_results),
+                            symbolic_closure=closure_result,
+                            macro_preparation_authority=(
+                                compiled.macro_preparation_authority
+                            ),
+                            macro_search_report=macro_search_report,
+                            path_minimum_witness=compiled.path_minimum_witness,
+                        )
+                    )
+                    continue
                 working.commit_verified_transaction(
                     call_id,
                     versions,
@@ -1888,6 +6429,32 @@ class FunctionalTransactionalInterpreter:
                         )
                     ),
                 )
+                writes, versions = _commit_scope_create_runtime_lineage(
+                    edges=lineage_edges,
+                    working=working,
+                    prior_results=results,
+                    current_writes=writes,
+                    current_versions=versions,
+                    probe_results=probe_results,
+                    reconciliation=reconciliation,
+                )
+                runtime_result_values.update(
+                    {
+                        (call_id, output_key): typed
+                        for output_key, typed in call_result_values.items()
+                    }
+                )
+                for write in writes:
+                    destination = write.runtime_destination_key
+                    if destination is None or destination.runtime_path is None:
+                        continue
+                    runtime_result_values[(call_id, write.output_key)] = (
+                        branch.read_path(
+                            destination.runtime_path,
+                            from_scope_id=write.scope_id,
+                            expected_type=write.runtime_type,
+                        )
+                    )
                 current_context = branch
                 compiled_calls.append(compiled)
                 results.append(
@@ -1898,11 +6465,55 @@ class FunctionalTransactionalInterpreter:
                         state_writes=writes,
                         committed_versions=versions,
                         checks=tuple(execution.checks),
+                        step_results=tuple(execution.step_results),
                         symbolic_closure=closure_result,
+                        macro_preparation_authority=(
+                            compiled.macro_preparation_authority
+                        ),
+                        macro_search_report=macro_search_report,
+                        path_minimum_witness=compiled.path_minimum_witness,
                     )
                 )
             except Exception as exc:
-                if isinstance(exc, SymbolicClosureProvenanceError):
+                diagnostic: FunctionalDiagnosticAuthority | None = None
+                if isinstance(exc, StatelessMethodError):
+                    enriched = exc.with_context(
+                        capability_id=(
+                            prepared.capability_id
+                            if prepared is not None
+                            else None
+                        ),
+                        scope_id=(
+                            prepared.execution_scope_id
+                            if prepared is not None
+                            else None
+                        ),
+                        step_id=call_id,
+                    )
+                    diagnostic = enriched.authority
+                    if prepared is not None:
+                        failed_capability = capability_catalog.get(
+                            prepared.capability_id
+                        )
+                        if (
+                            failed_capability is not None
+                            and failed_capability.kind == "macro"
+                        ):
+                            diagnostic = normalize_macro_diagnostic_authority(
+                                diagnostic,
+                                macro_spec=failed_capability.source,
+                                provided_arg_names=tuple(
+                                    prepared.reconciliation.resolved_args
+                                ),
+                            )
+                    issue_code = diagnostic.code
+                elif isinstance(exc, ProblemSourceProvenanceError):
+                    issue_code = exc.code
+                elif isinstance(exc, EqualLengthRayPathSearchError):
+                    issue_code = exc.code
+                elif isinstance(exc, MacroRuntimeSearchError):
+                    issue_code = exc.code
+                elif isinstance(exc, SymbolicClosureProvenanceError):
                     issue_code = exc.code
                 elif isinstance(exc, SymbolicClosureRuntimeDriftError):
                     issue_code = "planner.contract_runtime_symbol_drift"
@@ -1916,7 +6527,48 @@ class FunctionalTransactionalInterpreter:
                     call_id,
                     issue_code,
                     f"{type(exc).__name__}: {exc}",
+                    details=(
+                        dict(diagnostic.authority_details)
+                        if diagnostic is not None
+                        else (
+                            {
+                                **dict(getattr(exc, "details", {}) or {}),
+                                **(
+                                    {"retryability": exc.retryability}
+                                    if isinstance(exc, MacroRuntimeSearchError)
+                                    else {}
+                                ),
+                            }
+                            if getattr(exc, "details", None) is not None
+                            else None
+                        )
+                    ),
+                    diagnostic_authority=(
+                        diagnostic.to_payload()
+                        if diagnostic is not None
+                        else None
+                    ),
                 )
+                if diagnostic is None:
+                    diagnostic = diagnostic_authority_from_issue(
+                        issue,
+                        stage="transaction",
+                        capability_id=(
+                            prepared.capability_id
+                            if prepared is not None
+                            else None
+                        ),
+                        scope_id=(
+                            prepared.execution_scope_id
+                            if prepared is not None
+                            else None
+                        ),
+                        step_id=call_id,
+                    )
+                    issue = replace(
+                        issue,
+                        diagnostic_authority=diagnostic.to_payload(),
+                    )
                 working.set_status(
                     call_id,
                     "failed",
@@ -1929,6 +6581,21 @@ class FunctionalTransactionalInterpreter:
                         "failed",
                         root_issues=(issue,),
                         symbolic_closure=closure_result,
+                        macro_preparation_authority=(
+                            compiled.macro_preparation_authority
+                            if compiled is not None
+                            else None
+                        ),
+                        macro_search_report=(
+                            compiled.macro_search_report
+                            if compiled is not None
+                            else None
+                        ),
+                        path_minimum_witness=(
+                            compiled.path_minimum_witness
+                            if compiled is not None
+                            else None
+                        ),
                     )
                 )
 
@@ -1954,6 +6621,34 @@ class FunctionalTransactionalInterpreter:
             compatibility_mismatches=tuple((*mismatches,)),
             compiled_calls=tuple(compiled_calls),
             known_versions=working.identity_index.all_versions(),
+            restored_call_ids=tuple(
+                call_id
+                for call_id in graph.canonical_order
+                if call_id in restored_call_ids
+            ),
+            runtime_version_values=dict(working.runtime_version_values),
+            runtime_version_symbol_bindings={
+                version_id: dict(bindings)
+                for version_id, bindings in (
+                    working.runtime_version_symbol_bindings.items()
+                )
+            },
+            runtime_result_values=runtime_result_values,
+            conditions=conditions,
+            runtime_version_aliases=dict(
+                working.runtime_equivalent_version_aliases
+            ),
+            runtime_equivalent_aliases=tuple(runtime_equivalent_aliases),
+            runtime_state_equivalence_probe_results=tuple(
+                runtime_state_equivalence_probe_results
+            ),
+            functional_problem_binding_ledger=(
+                _execution_problem_binding_ledger(
+                    reconciliation,
+                    compiled_calls=compiled_calls,
+                )
+            ),
+            runtime_context=current_context,
         )
 
     def execute_attempt(
@@ -1966,6 +6661,7 @@ class FunctionalTransactionalInterpreter:
         inputs: PlannerInputs,
         handle_registry: CanonicalHandleRegistry,
         problem_payload: Mapping[str, Any],
+        restored_seed: FunctionalRestoredCallSeed | None = None,
     ) -> FunctionalTransactionalAttemptResult:
         """Execute C2 and derive goal, output and retry facts from runtime."""
         report = self.execute(
@@ -1975,6 +6671,7 @@ class FunctionalTransactionalInterpreter:
             parent_context=parent_context,
             inputs=inputs,
             handle_registry=handle_registry,
+            restored_seed=restored_seed,
         )
         verified_call_ids = frozenset(
             item.call_id
@@ -2009,17 +6706,28 @@ class FunctionalTransactionalInterpreter:
             runtime_results=runtime_results,
             state_writes=state_writes,
         )
-        projected_writes = build_functional_state_write_manifest(
-            reconciliation.plan,
-            reconciliation.calls,
+        projected_writes = tuple(
+            _canonicalize_projected_state_write_versions(
+                item,
+                resolve_version_id=report.resolve_runtime_version_id,
+            )
+            for item in build_functional_state_write_manifest(
+                reconciliation.plan,
+                reconciliation.calls,
+            )
+        )
+        projected_dependencies = tuple(
+            _canonicalize_projected_state_dependency_version(
+                item,
+                resolve_version_id=report.resolve_runtime_version_id,
+            )
+            for item in reconciliation.state_dependencies
         )
         read_index = FunctionalStateReadIndex.from_sources(
             handle_registry=handle_registry,
             mode="authoritative",
             projected_state_writes=projected_writes,
-            projected_state_dependencies=(
-                reconciliation.state_dependencies
-            ),
+            projected_state_dependencies=projected_dependencies,
             state_write_provenance=state_writes,
             known_state_versions=report.known_versions,
         )
@@ -2034,11 +6742,9 @@ class FunctionalTransactionalInterpreter:
         goal_context = FunctionalGoalVerificationContext(
             logical_graph=report.graph,
             state_read_index=read_index,
-            runtime_writes_by_version={
-                item.selected_version_id: item
-                for item in state_writes
-                if item.selected_version_id is not None
-            },
+            runtime_writes_by_version=_canonical_runtime_writes_by_version(
+                state_writes
+            ),
             answer_version_ids=answer_version_ids,
             verified_call_ids=verified_call_ids,
             goal_producers=_functional_goal_producers(
@@ -2159,6 +6865,140 @@ class FunctionalTransactionalInterpreter:
         )
 
 
+def _restore_verified_calls(
+    seed: FunctionalRestoredCallSeed | None,
+    *,
+    graph: LogicalFunctionalGraph,
+    working: WorkingPlannerState,
+    current_context: RuntimeContext,
+    results: list[FunctionalCallExecutionResult],
+    compiled_calls: list[CompiledFunctionalCall],
+    runtime_result_values: dict[tuple[str, str], TypedValue],
+) -> frozenset[str]:
+    """Restore solved calls without invoking their capabilities again."""
+
+    if seed is None:
+        return frozenset()
+    known = set(graph.canonical_order)
+    typed_index = seed.typed_value_index
+    result_by_call = {item.call_id: item for item in seed.call_results}
+    compiled_by_call = {item.call_id: item for item in seed.compiled_calls}
+    if len(result_by_call) != len(seed.call_results):
+        raise ValueError(
+            "planner_configuration_error: "
+            "planner.retry_problem_source_binding_drift: duplicate restored call"
+        )
+    restored = frozenset(result_by_call)
+    if not restored <= known or set(compiled_by_call) != set(restored):
+        raise ValueError(
+            "planner_configuration_error: "
+            "planner.retry_problem_source_binding_drift: restored graph drift"
+        )
+    for call_id in graph.canonical_order:
+        if call_id not in restored:
+            continue
+        result = result_by_call[call_id]
+        compiled = compiled_by_call[call_id]
+        state = working.call_states[call_id]
+        if result.status != "verified" or compiled.call_id != call_id:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.retry_problem_source_binding_drift: invalid restored call"
+            )
+        if any(
+            dependency not in restored
+            and working.call_states[dependency].status != "verified"
+            for dependency in state.dependency_call_ids
+        ):
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.retry_problem_source_binding_drift: restored dependency missing"
+            )
+        versions = tuple(result.committed_versions)
+        _apply_missing_declarations(current_context, compiled.declarations)
+        for plan in compiled.plans:
+            current_context.ensure_step_scope(plan.step_id, plan.scope)
+        runtime_values: dict[StateVersionId, TypedValue] = {}
+        writes_by_version = {
+            item.selected_version_id: item
+            for item in result.state_writes
+            if item.selected_version_id is not None
+        }
+        runtime_result_by_return = {
+            item.output_key: item for item in result.runtime_results
+        }
+        for version in versions:
+            write = writes_by_version.get(version.version_id)
+            if write is None:
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.retry_problem_source_binding_drift: restored write missing"
+                )
+            runtime_result = runtime_result_by_return.get(write.output_key)
+            typed = typed_index.state_value(version.version_id)
+            if runtime_result is None or typed is None:
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.transactional_runtime_value_missing: "
+                    f"restored call={call_id}, return={write.output_key}"
+                )
+            runtime_values[version.version_id] = typed
+            destination = version.runtime_destination
+            if destination is None:
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.contract_runtime_destination_drift: "
+                    f"restored call={call_id}, return={write.output_key}"
+                )
+            current_context.write_path(
+                destination.runtime_path,
+                typed,
+                from_scope_id=write.scope_id,
+                allow_overwrite=True,
+                allow_ancestor_write=True,
+            )
+        for returned in compiled.public_returns:
+            write = returned.expected_write
+            if write is None:
+                continue
+            key = (call_id, write.output_key)
+            typed = typed_index.call_result_value(call_id, write.output_key)
+            destination = write.runtime_destination_key
+            runtime_path = (
+                destination.runtime_path
+                if destination is not None
+                and destination.runtime_path is not None
+                else _runtime_path_for_write(compiled.plans, write)
+            )
+            if typed is None or runtime_path is None:
+                continue
+            current_context.write_path(
+                runtime_path,
+                typed,
+                from_scope_id=write.scope_id,
+                allow_overwrite=True,
+                allow_ancestor_write=True,
+            )
+        working.commit_verified_transaction(
+            call_id,
+            versions,
+            runtime_values,
+            runtime_symbol_bindings={
+                version_id: seed.runtime_version_symbol_bindings.get(
+                    version_id,
+                    {},
+                )
+                for version_id in runtime_values
+            },
+        )
+        for key, restored_result in typed_index.call_results.items():
+            if key[0] == call_id:
+                runtime_result_values[key] = restored_result.runtime_value
+        results.append(result)
+        compiled_calls.append(compiled)
+    return restored
+
+
 def _capture_initial_runtime_version_values(
     working: WorkingPlannerState,
     context: RuntimeContext,
@@ -2206,6 +7046,29 @@ def _capture_initial_runtime_version_values(
         working.runtime_version_values[version.version_id] = value
 
 
+def _restored_conditions(
+    seed: FunctionalRestoredCallSeed | None,
+    *,
+    parent_context: PlannerStateContext,
+) -> dict[str, Condition]:
+    """Audit exact immutable Condition records before restoring solved calls."""
+
+    current = {
+        item.condition_id: item for item in parent_context.state.conditions
+    }
+    if seed is None:
+        return current
+    for condition_id, expected in seed.conditions.items():
+        actual = current.get(condition_id)
+        if actual is None or actual.to_payload() != expected.to_payload():
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.retry_problem_source_binding_drift: "
+                f"restored condition {condition_id!r} changed"
+            )
+    return current
+
+
 def _materialize_transaction_state_reads(
     context: RuntimeContext,
     reads: Sequence[PreparedFunctionalStateRead],
@@ -2223,6 +7086,655 @@ def _materialize_transaction_state_reads(
             allow_overwrite=True,
         )
         written.add(read.snapshot_runtime_path)
+
+
+_IMPLICIT_PARAMETER_ARG = "__implicit_parameter__"
+
+
+def _parameter_selector_object_ids(
+    resolved_args: Mapping[str, Sequence[Any]],
+    *,
+    object_registry: MathObjectRegistry,
+) -> frozenset[MathObjectId]:
+    """Return symbols a method explicitly asks to retain in its basis."""
+
+    result: set[MathObjectId] = set()
+    for values in resolved_args.values():
+        for value in values:
+            if value.runtime_type not in {
+                "ParameterValue",
+                "Symbol",
+                "SymbolList",
+            }:
+                continue
+            if value.math_object_id is not None:
+                result.add(value.math_object_id)
+            result.update(value.free_symbol_ids)
+            if value.object_ref is not None:
+                object_id = object_registry.resolve(value.object_ref)
+                if object_id is not None and object_id.kind == "symbol":
+                    result.add(object_id)
+    return frozenset(result)
+
+
+def _materialize_prepared_parameter_reads(
+    reads: Sequence[PreparedFunctionalStateRead],
+    *,
+    call_id: str,
+    consumer_scope_id: str,
+    working: WorkingPlannerState,
+    runtime_context: RuntimeContext,
+    object_registry: MathObjectRegistry,
+    ignored_parameter_ids: frozenset[MathObjectId],
+) -> tuple[PreparedFunctionalStateRead, ...]:
+    """Close direct state snapshots over verified visible parameters."""
+
+    materialized: list[PreparedFunctionalStateRead] = []
+    parameter_versions: dict[StateVersionId, IndexedStateVersion] = {}
+    declared = _context_runtime_symbol_bindings(
+        runtime_context,
+        registry=object_registry,
+    )
+    for read in reads:
+        read_declared = _merge_runtime_symbol_bindings(
+            declared,
+            working.runtime_version_symbol_bindings.get(
+                read.selected_version_id,
+                {},
+            ),
+        )
+        closure = _materialize_runtime_parameter_closure(
+            read.runtime_value,
+            consumer_scope_id=consumer_scope_id,
+            working=working,
+            runtime_context=runtime_context,
+            object_registry=object_registry,
+            declared_runtime_symbols=read_declared,
+            ignored_parameter_ids=ignored_parameter_ids,
+        )
+        materialized.append(
+            replace(read, runtime_value=closure.runtime_value)
+        )
+        parameter_versions.update(
+            (item.version_id, item) for item in closure.parameter_versions
+        )
+    materialized.extend(
+        _implicit_parameter_reads(
+            tuple(parameter_versions.values()),
+            existing_reads=materialized,
+            call_id=call_id,
+            consumer_scope_id=consumer_scope_id,
+            working=working,
+            runtime_context=runtime_context,
+            object_registry=object_registry,
+            ignored_parameter_ids=ignored_parameter_ids,
+        )
+    )
+    return tuple(materialized)
+
+
+def _materialize_compiled_parameter_inputs(
+    compiled: CompiledFunctionalCall,
+    *,
+    prepared: PreparedFunctionalCall,
+    branch: RuntimeContext,
+    working: WorkingPlannerState,
+    object_registry: MathObjectRegistry,
+    execution_scope_id: str,
+) -> tuple[CompiledFunctionalCall, PreparedFunctionalCall]:
+    """Close call-result and other physical inputs before method execution."""
+
+    declared = _merge_runtime_symbol_bindings(
+        _context_runtime_symbol_bindings(branch, registry=object_registry),
+        _prepared_runtime_symbol_bindings(prepared, working=working),
+    )
+    ignored_parameter_ids = prepared.parameter_selector_object_ids
+    parameter_versions = {
+        read.selected_version_id: working.identity_index.version(
+            read.selected_version_id
+        )
+        for read in prepared.state_reads
+        if read.arg_name.startswith(_IMPLICIT_PARAMETER_ARG)
+    }
+    parameter_versions = {
+        version_id: version
+        for version_id, version in parameter_versions.items()
+        if version is not None
+    }
+    rewrites: dict[str, str] = {}
+    materialized_values: dict[str, TypedValue] = {}
+    materialized_state_sources = dict(compiled.materialized_state_sources)
+
+    def exact_source_version(path: str) -> StateVersionId | None:
+        pinned = {
+            item.selected_version_id
+            for item in prepared.state_reads
+            if path in {
+                item.original_runtime_path,
+                item.snapshot_runtime_path,
+            }
+        }
+        if len(pinned) > 1:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_input_view_authority_drift: "
+                f"call={compiled.call_id}, path={path}, "
+                f"pinned_version_count={len(pinned)}"
+            )
+        if pinned:
+            return next(iter(pinned))
+        visible = tuple(
+            item
+            for item in working.identity_index.all_versions()
+            if _indexed_runtime_path(item) == path
+            and working.identity_index.visibility.is_visible(
+                item.valid_scope_id,
+                consumer_scope_id=execution_scope_id,
+            )
+        )
+        object_ids = {
+            item.version_id.slot_id.logical_key.object_id for item in visible
+        }
+        if len(object_ids) > 1:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.method_input_view_authority_drift: "
+                f"call={compiled.call_id}, path={path}, "
+                f"object_count={len(object_ids)}"
+            )
+        if not visible:
+            return None
+        return max(
+            visible,
+            key=lambda item: (
+                item.version_id.ordinal,
+                item.producer_call_id or "",
+            ),
+        ).version_id
+
+    next_index = len(
+        {item.snapshot_runtime_path for item in prepared.state_reads}
+    )
+    for plan in compiled.plans:
+        for invocation in plan.invocations:
+            paths = (
+                path
+                for raw in invocation.inputs.values()
+                for path in ((raw,) if isinstance(raw, str) else raw)
+            )
+            for path in paths:
+                if path in rewrites:
+                    continue
+                try:
+                    runtime_value = branch.read_path(
+                        path,
+                        from_scope_id=plan.scope,
+                    )
+                except (KeyError, PermissionError, TypeError, ValueError):
+                    # A path produced by an earlier invocation in this same
+                    # compiled call does not exist until execution begins.
+                    continue
+                closure = _materialize_runtime_parameter_closure(
+                    runtime_value,
+                    consumer_scope_id=execution_scope_id,
+                    working=working,
+                    runtime_context=branch,
+                    object_registry=object_registry,
+                    declared_runtime_symbols=declared,
+                    ignored_parameter_ids=ignored_parameter_ids,
+                )
+                if not closure.parameter_versions:
+                    continue
+                snapshot_path = _transaction_snapshot_path(
+                    branch,
+                    scope_id=execution_scope_id,
+                    call_id=f"{compiled.call_id}_parameter_closure",
+                    item_index=next_index,
+                )
+                next_index += 1
+                branch.write_path(
+                    snapshot_path,
+                    closure.runtime_value,
+                    from_scope_id=execution_scope_id,
+                    allow_overwrite=True,
+                )
+                rewrites[path] = snapshot_path
+                materialized_values[path] = closure.runtime_value
+                source_version_id = exact_source_version(path)
+                if source_version_id is not None:
+                    materialized_state_sources[snapshot_path] = (
+                        source_version_id
+                    )
+                parameter_versions.update(
+                    (item.version_id, item)
+                    for item in closure.parameter_versions
+                )
+
+    extra_reads = _implicit_parameter_reads(
+        tuple(parameter_versions.values()),
+        existing_reads=prepared.state_reads,
+        call_id=compiled.call_id,
+        consumer_scope_id=execution_scope_id,
+        working=working,
+        runtime_context=branch,
+        object_registry=object_registry,
+        ignored_parameter_ids=ignored_parameter_ids,
+    )
+    _materialize_transaction_state_reads(
+        branch,
+        extra_reads,
+        scope_id=execution_scope_id,
+    )
+    prepared = replace(
+        prepared,
+        state_reads=tuple((*prepared.state_reads, *extra_reads)),
+        arg_bindings=tuple(
+            replace(
+                binding,
+                runtime_path=rewrites.get(
+                    binding.runtime_path,
+                    binding.runtime_path,
+                ),
+                runtime_value=materialized_values.get(
+                    binding.runtime_path,
+                    binding.runtime_value,
+                ),
+            )
+            for binding in prepared.arg_bindings
+        ),
+    )
+    parameter_version_ids = tuple(
+        sorted(
+            parameter_versions,
+            key=lambda item: stable_hash(item.to_payload()),
+        )
+    )
+    compiled = replace(
+        compiled,
+        materialized_state_sources=tuple(
+            sorted(materialized_state_sources.items())
+        ),
+        plans=tuple(
+            _rewrite_plan_input_paths(plan, rewrites)
+            for plan in compiled.plans
+        ),
+        public_returns=tuple(
+            replace(
+                returned,
+                expected_write=(
+                    _with_runtime_parameter_sources(
+                        returned.expected_write,
+                        parameter_version_ids,
+                    )
+                    if returned.expected_write is not None
+                    else None
+                ),
+            )
+            for returned in compiled.public_returns
+        ),
+    )
+    return compiled, prepared
+
+
+def _implicit_parameter_reads(
+    versions: Sequence[IndexedStateVersion],
+    *,
+    existing_reads: Sequence[PreparedFunctionalStateRead],
+    call_id: str,
+    consumer_scope_id: str,
+    working: WorkingPlannerState,
+    runtime_context: RuntimeContext,
+    object_registry: MathObjectRegistry,
+    ignored_parameter_ids: frozenset[MathObjectId],
+) -> tuple[PreparedFunctionalStateRead, ...]:
+    existing_version_ids = {
+        item.selected_version_id for item in existing_reads
+    }
+    snapshot_paths = {
+        item.selected_version_id: item.snapshot_runtime_path
+        for item in existing_reads
+    }
+    result: list[PreparedFunctionalStateRead] = []
+    ordered = sorted(
+        {item.version_id: item for item in versions}.values(),
+        key=lambda item: stable_hash(item.version_id.to_payload()),
+    )
+    for index, version in enumerate(ordered):
+        if version.version_id in existing_version_ids:
+            continue
+        runtime_value = working.runtime_version_values.get(version.version_id)
+        runtime_path = _indexed_runtime_path(version)
+        if runtime_value is None or runtime_path is None:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.runtime_parameter_state_unavailable: "
+                f"version={version.version_id.to_payload()}"
+            )
+        closure = _materialize_runtime_parameter_closure(
+            runtime_value,
+            consumer_scope_id=consumer_scope_id,
+            working=working,
+            runtime_context=runtime_context,
+            object_registry=object_registry,
+            declared_runtime_symbols=(
+                working.runtime_version_symbol_bindings.get(
+                    version.version_id,
+                    {},
+                )
+            ),
+            resolving=(version.version_id,),
+            ignored_parameter_ids=ignored_parameter_ids,
+        )
+        result.append(
+            PreparedFunctionalStateRead(
+                arg_name=f"{_IMPLICIT_PARAMETER_ARG}{index}",
+                item_index=index,
+                selection="exact",
+                original_version_id=version.version_id,
+                selected_version_id=version.version_id,
+                original_runtime_path=runtime_path,
+                snapshot_runtime_path=snapshot_paths.setdefault(
+                    version.version_id,
+                    _transaction_snapshot_path(
+                        runtime_context,
+                        scope_id=consumer_scope_id,
+                        call_id=call_id,
+                        item_index=len(snapshot_paths),
+                    ),
+                ),
+                runtime_value=closure.runtime_value,
+            )
+        )
+        existing_version_ids.add(version.version_id)
+    return tuple(result)
+
+
+def _materialize_runtime_parameter_closure(
+    runtime_value: TypedValue,
+    *,
+    consumer_scope_id: str,
+    working: WorkingPlannerState,
+    runtime_context: RuntimeContext,
+    object_registry: MathObjectRegistry,
+    declared_runtime_symbols: Mapping[sp.Symbol, MathObjectId],
+    supplemental_parameter_values: Mapping[MathObjectId, Any] | None = None,
+    resolving: tuple[StateVersionId, ...] = (),
+    resolving_parameter_ids: tuple[MathObjectId, ...] = (),
+    ignored_parameter_ids: frozenset[MathObjectId] = frozenset(),
+) -> _RuntimeParameterClosure:
+    supplemental_parameter_values = supplemental_parameter_values or {}
+    # Symbol-valued inputs select an identity (for example the parameter to
+    # solve or substitute).  Replacing that selector with its latest value
+    # would change the method contract rather than materialize object state.
+    if runtime_value.type in {"Symbol", "SymbolList"}:
+        return _RuntimeParameterClosure(runtime_value)
+    substitutions: dict[sp.Symbol, Any] = {}
+    versions: list[IndexedStateVersion] = []
+    for symbol in runtime_free_symbols(runtime_value.value):
+        object_ids = runtime_free_symbol_ids(
+            symbol,
+            context=runtime_context,
+            registry=object_registry,
+            declared_runtime_symbols=declared_runtime_symbols,
+        )
+        if len(object_ids) != 1:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.runtime_symbol_identity_unresolved: "
+                f"runtime_symbol={symbol}"
+            )
+        if object_ids[0] in ignored_parameter_ids:
+            continue
+        object_id = object_ids[0]
+        version = _latest_visible_parameter_version(
+            object_id,
+            consumer_scope_id=consumer_scope_id,
+            working=working,
+        )
+        if version is None:
+            if object_id not in supplemental_parameter_values:
+                continue
+            if object_id in resolving_parameter_ids:
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.runtime_parameter_state_cycle: "
+                    f"objects={[item.to_payload() for item in resolving_parameter_ids]}"
+                )
+            supplemental = supplemental_parameter_values[object_id]
+            if _symbolic_values_equivalent(supplemental, symbol):
+                continue
+            nested = _materialize_runtime_parameter_closure(
+                TypedValue(
+                    "ParameterValue",
+                    supplemental,
+                    source="verified_runtime_scalar_assignment",
+                ),
+                consumer_scope_id=consumer_scope_id,
+                working=working,
+                runtime_context=runtime_context,
+                object_registry=object_registry,
+                declared_runtime_symbols=declared_runtime_symbols,
+                supplemental_parameter_values=supplemental_parameter_values,
+                resolving=resolving,
+                resolving_parameter_ids=(*resolving_parameter_ids, object_id),
+                ignored_parameter_ids=ignored_parameter_ids,
+            )
+            substitutions[symbol] = nested.runtime_value.value
+            versions.extend(nested.parameter_versions)
+            continue
+        if version.version_id in resolving:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.runtime_parameter_state_cycle: "
+                f"versions={[item.to_payload() for item in resolving]}"
+            )
+        parameter_value = working.runtime_version_values.get(
+            version.version_id
+        )
+        if parameter_value is None:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.runtime_parameter_state_unavailable: "
+                f"version={version.version_id.to_payload()}"
+            )
+        nested = _materialize_runtime_parameter_closure(
+            parameter_value,
+            consumer_scope_id=consumer_scope_id,
+            working=working,
+            runtime_context=runtime_context,
+            object_registry=object_registry,
+            declared_runtime_symbols=_merge_runtime_symbol_bindings(
+                declared_runtime_symbols,
+                working.runtime_version_symbol_bindings.get(
+                    version.version_id,
+                    {},
+                ),
+            ),
+            supplemental_parameter_values=supplemental_parameter_values,
+            resolving=(*resolving, version.version_id),
+            resolving_parameter_ids=resolving_parameter_ids,
+            ignored_parameter_ids=ignored_parameter_ids,
+        )
+        substitutions[symbol] = nested.runtime_value.value
+        versions.extend((version, *nested.parameter_versions))
+    if not substitutions:
+        return _RuntimeParameterClosure(runtime_value)
+    return _RuntimeParameterClosure(
+        replace(
+            runtime_value,
+            value=_substitute_runtime_parameters(
+                runtime_value.value,
+                substitutions,
+            ),
+        ),
+        tuple(
+            {item.version_id: item for item in versions}.values()
+        ),
+    )
+
+
+def _latest_visible_parameter_version(
+    object_id: MathObjectId,
+    *,
+    consumer_scope_id: str,
+    working: WorkingPlannerState,
+) -> IndexedStateVersion | None:
+    visible = tuple(
+        item
+        for item in working.identity_index.all_versions()
+        if (
+            item.version_id.slot_id.logical_key.object_id == object_id
+            and item.version_id.slot_id.logical_key.runtime_type
+            == "ParameterValue"
+            and item.version_id in working.runtime_version_values
+            and working.identity_index.visibility.is_visible(
+                item.valid_scope_id,
+                consumer_scope_id=consumer_scope_id,
+            )
+            and (
+                item.producer_call_id is None
+                or (
+                    item.producer_call_id in working.call_states
+                    and working.call_states[item.producer_call_id].status
+                    == "verified"
+                )
+            )
+        )
+    )
+    if not visible:
+        return None
+    ancestors = working.identity_index.visibility.registry.ancestor_scopes(
+        consumer_scope_id
+    )
+    ranks = {scope_id: index for index, scope_id in enumerate(ancestors)}
+    closest_rank = min(
+        ranks.get(item.valid_scope_id, len(ancestors)) for item in visible
+    )
+    closest = tuple(
+        item
+        for item in visible
+        if ranks.get(item.valid_scope_id, len(ancestors)) == closest_rank
+    )
+    maximal = tuple(
+        candidate
+        for candidate in closest
+        if not any(
+            other.version_id != candidate.version_id
+            and _runtime_version_descends_from(
+                other.version_id,
+                candidate.version_id,
+                working=working,
+            )
+            for other in closest
+        )
+    )
+    if len(maximal) != 1:
+        raise ValueError(
+            "planner_configuration_error: "
+            "planner.runtime_parameter_state_ambiguous: "
+            f"object_id={object_id.to_payload()}, versions="
+            f"{[item.version_id.to_payload() for item in maximal]}"
+        )
+    return maximal[0]
+
+
+def _runtime_version_descends_from(
+    candidate_id: StateVersionId,
+    ancestor_id: StateVersionId,
+    *,
+    working: WorkingPlannerState,
+) -> bool:
+    pending = [candidate_id]
+    visited: set[StateVersionId] = set()
+    while pending:
+        current = pending.pop()
+        if current == ancestor_id:
+            return True
+        if current in visited:
+            continue
+        visited.add(current)
+        version = working.identity_index.version(current)
+        if version is None:
+            continue
+        if version.previous_version_id is not None:
+            pending.append(version.previous_version_id)
+        pending.extend(version.source_version_ids)
+    return False
+
+
+def _substitute_runtime_parameters(
+    value: Any,
+    substitutions: Mapping[sp.Symbol, Any],
+) -> Any:
+    if isinstance(value, sp.Basic):
+        return sp.simplify(value.subs(substitutions))
+    if isinstance(value, PointRef):
+        return replace(
+            value,
+            definition=_substitute_runtime_parameters(
+                value.definition,
+                substitutions,
+            ),
+        )
+    if isinstance(value, Mapping):
+        return {
+            key: _substitute_runtime_parameters(item, substitutions)
+            for key, item in value.items()
+        }
+    if isinstance(value, tuple):
+        return tuple(
+            _substitute_runtime_parameters(item, substitutions)
+            for item in value
+        )
+    if isinstance(value, list):
+        return [
+            _substitute_runtime_parameters(item, substitutions)
+            for item in value
+        ]
+    return value
+
+
+def _with_runtime_parameter_sources(
+    write: StateWriteProvenance,
+    parameter_version_ids: Sequence[StateVersionId],
+) -> StateWriteProvenance:
+    if not parameter_version_ids:
+        return write
+    source_version_ids = unique_ordered(
+        (*write.source_version_ids, *parameter_version_ids)
+    )
+    lineage = replace(
+        write.lineage,
+        source_version_ids=unique_ordered(
+            (*write.lineage.source_version_ids, *parameter_version_ids)
+        ),
+    )
+    computation_key = write.computation_key
+    if computation_key is not None:
+        existing_versions = {
+            item.version_id for item in computation_key.arg_bindings
+        }
+        additions = tuple(
+            ArgVersionBinding(
+                arg_name=_IMPLICIT_PARAMETER_ARG,
+                item_index=index,
+                version_id=version_id,
+            )
+            for index, version_id in enumerate(parameter_version_ids)
+            if version_id not in existing_versions
+        )
+        computation_key = replace(
+            computation_key,
+            arg_bindings=tuple(
+                (*computation_key.arg_bindings, *additions)
+            ),
+        )
+    return replace(
+        write,
+        source_version_ids=source_version_ids,
+        lineage=lineage,
+        computation_key=computation_key,
+    )
 
 
 def _indexed_runtime_path(version: IndexedStateVersion) -> str | None:
@@ -2263,6 +7775,26 @@ def _rewrite_plan_input_paths(
             return tuple(rewrites.get(item, item) for item in value)
         return rewrites.get(value, value)
 
+    def rewrite_authorities(
+        authorities: Mapping[str, tuple[MethodInputReadAuthority, ...]],
+    ) -> dict[str, tuple[MethodInputReadAuthority, ...]]:
+        return {
+            name: tuple(
+                replace(
+                    authority,
+                    source=replace(
+                        authority.source,
+                        runtime_path=rewrites.get(
+                            authority.source.runtime_path,
+                            authority.source.runtime_path,
+                        ),
+                    ),
+                )
+                for authority in values
+            )
+            for name, values in authorities.items()
+        }
+
     return replace(
         plan,
         invocations=[
@@ -2272,6 +7804,12 @@ def _rewrite_plan_input_paths(
                     name: rewrite(value)
                     for name, value in invocation.inputs.items()
                 },
+                input_read_authorities=rewrite_authorities(
+                    invocation.input_read_authorities
+                ),
+                supporting_input_read_authorities=rewrite_authorities(
+                    invocation.supporting_input_read_authorities
+                ),
             )
             for invocation in plan.invocations
         ],
@@ -2467,6 +8005,26 @@ def _runtime_path_for_write(
     return None
 
 
+def _materialized_runtime_path(
+    compiled: CompiledFunctionalCall,
+    write: StateWriteProvenance,
+) -> str | None:
+    """Return the path that contains this call's actual materialized value.
+
+    A reuse allocation still points at the selected canonical destination in
+    typed state authority. Its candidate value must instead be read from the
+    isolated runtime probe emitted by the compiler; reading the canonical path
+    would make every comparison vacuously equal.
+    """
+
+    plan_path = _runtime_path_for_write(compiled.plans, write)
+    if write.allocation_action == "reuse" and plan_path is not None:
+        return plan_path
+    if write.runtime_destination_key is not None:
+        return write.runtime_destination_key.runtime_path
+    return plan_path
+
+
 def _declared_runtime_symbol_bindings(
     compiled: CompiledFunctionalCall,
     *,
@@ -2483,11 +8041,7 @@ def _declared_runtime_symbol_bindings(
             or write.math_object_id is None
         ):
             continue
-        path = (
-            write.runtime_destination_key.runtime_path
-            if write.runtime_destination_key is not None
-            else None
-        ) or _runtime_path_for_write(compiled.plans, write)
+        path = _materialized_runtime_path(compiled, write)
         if path is None:
             continue
         try:
@@ -2647,11 +8201,7 @@ def _apply_symbolic_closure_returns(
         write = returned.expected_write
         if write is None:
             continue
-        path = (
-            write.runtime_destination_key.runtime_path
-            if write.runtime_destination_key is not None
-            else None
-        ) or _runtime_path_for_write(compiled.plans, write)
+        path = _materialized_runtime_path(compiled, write)
         if path is None:
             raise SymbolicClosureRuntimeDriftError(
                 f"return path missing: {returned.return_name}"
@@ -2741,11 +8291,7 @@ def _validate_compiled_symbolic_closure_returns(
         write = returned.expected_write
         if write is None:
             continue
-        path = (
-            write.runtime_destination_key.runtime_path
-            if write.runtime_destination_key is not None
-            else None
-        ) or _runtime_path_for_write(compiled.plans, write)
+        path = _materialized_runtime_path(compiled, write)
         if path is None:
             raise SymbolicClosureRuntimeDriftError(
                 f"return path missing: {returned.return_name}"
@@ -2760,6 +8306,1123 @@ def _validate_compiled_symbolic_closure_returns(
             if returned.required:
                 raise
     return validate_symbolic_closure_outputs(outputs, result)
+
+
+def _symbolic_closure_drift_details(
+    result: SymbolicClosureExecutionResult,
+    failed_checks: Sequence[str],
+) -> dict[str, Any]:
+    args = dict(result.validation_args or {})
+    template = args.get("quadratic_template")
+    observed = args.get("quadratic")
+    try:
+        missing_roles = tuple(
+            sorted(
+                str(symbol)
+                for symbol in (
+                    sp.sympify(template).free_symbols
+                    - sp.sympify(observed).free_symbols
+                )
+            )
+        )
+    except (TypeError, ValueError, sp.SympifyError):
+        missing_roles = ()
+    details: dict[str, Any] = {
+        "expected_template": (
+            sp.sstr(template)
+            if template is not None
+            else "ordinal_0_polynomial_template"
+        ),
+        "observed_state": (
+            sp.sstr(observed) if observed is not None else "unavailable"
+        ),
+        "missing_symbol_roles": list(missing_roles),
+        "failed_checks": list(failed_checks),
+        "subjects": [
+            {
+                "role": "coefficient_identity_template",
+                "arg_name": "quadratic_template",
+                "expected_type": "Expression",
+                "expected_state": "ordinal_0",
+                "observed_type": type(observed).__name__,
+                "observed_state": "coefficient_identity_incomplete",
+            }
+        ],
+    }
+    if len(missing_roles) == 1:
+        details["missing_symbol_role"] = missing_roles[0]
+    return details
+
+
+def _compare_scope_create_runtime_probes(
+    *,
+    call_id: str,
+    writes: Sequence[StateWriteProvenance],
+    runtime_values: Mapping[StateVersionId, TypedValue],
+    reconciliation: FunctionalPlanReconciliationResult,
+    working: WorkingPlannerState,
+    branch: RuntimeContext,
+    object_registry: MathObjectRegistry,
+    runtime_result_values: Mapping[tuple[str, str], TypedValue],
+    restored_call_ids: frozenset[str],
+) -> tuple[tuple[dict[str, Any], ...], PlannerRetryIssue | None]:
+    probes = tuple(
+        probe
+        for probe in reconciliation.state_runtime_equivalence_probes
+        if call_id in {probe.ancestor_call_id, probe.descendant_call_id}
+    )
+    if not probes:
+        return (), None
+    current_values = {
+        working.resolve_runtime_version_id(version_id): value
+        for version_id, value in runtime_values.items()
+    }
+    declared = _context_runtime_symbol_bindings(
+        branch,
+        registry=object_registry,
+    )
+    results: list[dict[str, Any]] = []
+    for probe in probes:
+        ancestor_version_id = working.resolve_runtime_version_id(
+            probe.ancestor_version_id
+        )
+        descendant_version_id = working.resolve_runtime_version_id(
+            probe.descendant_version_id
+        )
+        ancestor = current_values.get(ancestor_version_id)
+        if ancestor is None:
+            ancestor = working.runtime_version_values.get(
+                ancestor_version_id
+            )
+        descendant = current_values.get(descendant_version_id)
+        if descendant is None:
+            descendant = working.runtime_version_values.get(
+                descendant_version_id
+            )
+        current_version_id = (
+            ancestor_version_id
+            if call_id == probe.ancestor_call_id
+            else descendant_version_id
+        )
+        if current_version_id not in current_values:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.runtime_state_equivalence_probe_value_missing: "
+                f"call={call_id}, version={current_version_id.to_payload()}"
+            )
+        if ancestor is None or descendant is None:
+            other_call_id = (
+                probe.descendant_call_id
+                if call_id == probe.ancestor_call_id
+                else probe.ancestor_call_id
+            )
+            other_state = working.call_states.get(other_call_id)
+            if other_state is not None and other_state.status == "verified":
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.runtime_state_equivalence_probe_checkpoint_missing: "
+                    f"call={other_call_id}"
+                )
+            continue
+
+        supplemental = _visible_runtime_scalar_assignments(
+            consumer_scope_id=probe.comparison_scope_id,
+            current_call_id=call_id,
+            runtime_result_values=runtime_result_values,
+            reconciliation=reconciliation,
+            working=working,
+            runtime_context=branch,
+            object_registry=object_registry,
+            declared_runtime_symbols=declared,
+        )
+        materialized_ancestor = _materialize_runtime_parameter_closure(
+            ancestor,
+            consumer_scope_id=probe.comparison_scope_id,
+            working=working,
+            runtime_context=branch,
+            object_registry=object_registry,
+            declared_runtime_symbols=_merge_runtime_symbol_bindings(
+                declared,
+                working.runtime_version_symbol_bindings.get(
+                    ancestor_version_id,
+                    {},
+                ),
+            ),
+            supplemental_parameter_values=supplemental,
+        ).runtime_value
+        materialized_descendant = _materialize_runtime_parameter_closure(
+            descendant,
+            consumer_scope_id=probe.comparison_scope_id,
+            working=working,
+            runtime_context=branch,
+            object_registry=object_registry,
+            declared_runtime_symbols=_merge_runtime_symbol_bindings(
+                declared,
+                working.runtime_version_symbol_bindings.get(
+                    descendant_version_id,
+                    {},
+                ),
+            ),
+            supplemental_parameter_values=supplemental,
+        ).runtime_value
+        comparison = "runtime_equivalent"
+        substitutions: dict[sp.Symbol, Any] = {}
+        if not (
+            runtime_type_compatible(ancestor.type, descendant.type)
+            and runtime_type_compatible(descendant.type, ancestor.type)
+        ):
+            comparison = "runtime_type_mismatch"
+        elif _symbolic_values_equivalent(
+            ancestor.value,
+            descendant.value,
+        ):
+            comparison = "runtime_equivalent"
+        elif _symbolic_values_equivalent(
+            materialized_ancestor.value,
+            materialized_descendant.value,
+        ):
+            comparison = "equivalent_after_parameter_closure"
+        else:
+            substitutions = _runtime_refinement_substitutions(
+                materialized_ancestor.value,
+                materialized_descendant.value,
+            )
+            comparison = (
+                "strict_runtime_refinement"
+                if substitutions
+                else "runtime_value_mismatch"
+            )
+        result_payload = {
+            "probe_signature": stable_hash(probe.to_payload()),
+            "current_call_id": call_id,
+            "ancestor_call_id": probe.ancestor_call_id,
+            "descendant_call_id": probe.descendant_call_id,
+            "comparison_scope_id": probe.comparison_scope_id,
+            "comparison": comparison,
+            "lineage_parent_version_id": (
+                ancestor_version_id.to_payload()
+            ),
+            "lineage_child_version_id": (
+                descendant_version_id.to_payload()
+            ),
+            "lineage_rule": (
+                "descendant_create_consumes_nearest_verified_ancestor_create"
+            ),
+            "ancestor_value": _runtime_equivalence_value_payload(
+                ancestor.value
+            ),
+            "descendant_value": _runtime_equivalence_value_payload(
+                descendant.value
+            ),
+            "substitutions": {
+                str(symbol): _runtime_equivalence_value_payload(value)
+                for symbol, value in sorted(
+                    substitutions.items(),
+                    key=lambda item: str(item[0]),
+                )
+            },
+            "used_checkpoint_value": (
+                (
+                    probe.descendant_call_id
+                    if call_id == probe.ancestor_call_id
+                    else probe.ancestor_call_id
+                )
+                in restored_call_ids
+            ),
+        }
+        results.append(result_payload)
+        if comparison in {
+            "runtime_type_mismatch",
+            "runtime_value_mismatch",
+        }:
+            return (
+                tuple(results),
+                _issue(
+                    call_id,
+                    "planner.runtime_state_equivalence_conflict",
+                    (
+                        "scope-comparable create writers produced different "
+                        "typed runtime states"
+                    ),
+                    details={
+                        "probe": probe.to_payload(),
+                        "comparison": result_payload,
+                    },
+                ),
+            )
+    return tuple(results), None
+
+
+@dataclass(frozen=True)
+class _RuntimeCreateLineageEdge:
+    child_version_id: StateVersionId
+    parent_version_id: StateVersionId
+    root_version_id: StateVersionId
+    probe_signature: str
+
+
+def _scope_create_runtime_lineage_edges(
+    *,
+    probe_results: Sequence[dict[str, Any]],
+    reconciliation: FunctionalPlanReconciliationResult,
+    working: WorkingPlannerState,
+    current_versions: Sequence[IndexedStateVersion],
+) -> tuple[_RuntimeCreateLineageEdge, ...]:
+    """Resolve successful create probes into one deterministic version line."""
+
+    successful = {
+        str(item["probe_signature"]): item
+        for item in probe_results
+        if item.get("comparison")
+        in {
+            "runtime_equivalent",
+            "equivalent_after_parameter_closure",
+            "strict_runtime_refinement",
+        }
+    }
+    if not successful:
+        return ()
+
+    versions = {
+        item.version_id: item
+        for item in (
+            *working.identity_index.all_versions(),
+            *current_versions,
+        )
+    }
+    candidates_by_child: dict[
+        StateVersionId,
+        list[tuple[StateVersionId, StateRuntimeEquivalenceProbe, str]],
+    ] = {}
+    for probe in reconciliation.state_runtime_equivalence_probes:
+        signature = stable_hash(probe.to_payload())
+        if signature not in successful:
+            continue
+        parent_id = working.resolve_runtime_version_id(
+            probe.ancestor_version_id
+        )
+        child_id = working.resolve_runtime_version_id(
+            probe.descendant_version_id
+        )
+        parent = versions.get(parent_id)
+        child = versions.get(child_id)
+        if parent is None or child is None:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.runtime_state_lineage_version_missing: "
+                f"probe={signature}"
+            )
+        if (
+            parent.version_id.slot_id.logical_key
+            != child.version_id.slot_id.logical_key
+        ):
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.runtime_state_lineage_object_drift: "
+                f"probe={signature}"
+            )
+        candidates_by_child.setdefault(child_id, []).append(
+            (parent_id, probe, signature)
+        )
+
+    selected: dict[
+        StateVersionId,
+        tuple[StateVersionId, StateRuntimeEquivalenceProbe, str],
+    ] = {}
+    scope_registry = working.identity_index.visibility.registry
+    for child_id, candidates in candidates_by_child.items():
+        child_scope = candidates[0][1].descendant_scope_id
+        scope_rank = {
+            scope_id: index
+            for index, scope_id in enumerate(
+                scope_registry.ancestor_scopes(child_scope)
+            )
+        }
+        ranked = [
+            (
+                scope_rank.get(
+                    candidate[1].ancestor_scope_id,
+                    len(scope_rank),
+                ),
+                candidate,
+            )
+            for candidate in candidates
+        ]
+        best_rank = min(item[0] for item in ranked)
+        nearest = tuple(
+            item[1] for item in ranked if item[0] == best_rank
+        )
+        nearest_parent_ids = {item[0] for item in nearest}
+        if len(nearest_parent_ids) != 1:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.runtime_state_lineage_parent_ambiguous: "
+                f"child={child_id.to_payload()}"
+            )
+        selected[child_id] = nearest[0]
+
+    prospective = dict(versions)
+    for child_id, (parent_id, _probe, _signature) in selected.items():
+        child = prospective[child_id]
+        prospective[child_id] = replace(
+            child,
+            source_version_ids=unique_ordered(
+                (*child.source_version_ids, parent_id)
+            ),
+        )
+
+    def lineage_roots(
+        version_id: StateVersionId,
+        *,
+        visiting: frozenset[StateVersionId] = frozenset(),
+    ) -> frozenset[StateVersionId]:
+        if version_id in visiting:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.runtime_state_lineage_cycle"
+            )
+        version = prospective.get(version_id)
+        if version is None:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.runtime_state_lineage_version_missing: "
+                f"version={version_id.to_payload()}"
+            )
+        same_state_sources = tuple(
+            source_id
+            for source_id in version.source_version_ids
+            if source_id.slot_id.logical_key
+            == version_id.slot_id.logical_key
+        )
+        if not same_state_sources:
+            return frozenset({version_id})
+        return frozenset(
+            root
+            for source_id in same_state_sources
+            for root in lineage_roots(
+                source_id,
+                visiting=frozenset((*visiting, version_id)),
+            )
+        )
+
+    edges: list[_RuntimeCreateLineageEdge] = []
+    for child_id, (parent_id, _probe, signature) in selected.items():
+        roots = lineage_roots(child_id)
+        if len(roots) != 1:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.runtime_state_lineage_root_ambiguous: "
+                f"child={child_id.to_payload()}, "
+                f"roots={[item.to_payload() for item in sorted(roots)]}"
+            )
+        edges.append(
+            _RuntimeCreateLineageEdge(
+                child_version_id=child_id,
+                parent_version_id=parent_id,
+                root_version_id=next(iter(roots)),
+                probe_signature=signature,
+            )
+        )
+    return tuple(sorted(edges, key=lambda item: item.child_version_id))
+
+
+def _commit_scope_create_runtime_lineage(
+    *,
+    edges: Sequence[_RuntimeCreateLineageEdge],
+    working: WorkingPlannerState,
+    prior_results: list[FunctionalCallExecutionResult],
+    current_writes: Sequence[StateWriteProvenance],
+    current_versions: Sequence[IndexedStateVersion],
+    probe_results: Sequence[dict[str, Any]],
+    reconciliation: FunctionalPlanReconciliationResult,
+) -> tuple[
+    tuple[StateWriteProvenance, ...],
+    tuple[IndexedStateVersion, ...],
+]:
+    """Persist a proved lineage in every checkpoint-facing namespace."""
+
+    if not edges:
+        return tuple(current_writes), tuple(current_versions)
+    parent_by_child = {
+        item.child_version_id: item.parent_version_id for item in edges
+    }
+    parent_call_by_child = {
+        child_id: (
+            working.committed_versions[parent_id].producer_call_id
+            if parent_id in working.committed_versions
+            else None
+        )
+        for child_id, parent_id in parent_by_child.items()
+    }
+
+    def update_version(version: IndexedStateVersion) -> IndexedStateVersion:
+        parent_id = parent_by_child.get(version.version_id)
+        if parent_id is None:
+            return version
+        return replace(
+            version,
+            source_version_ids=unique_ordered(
+                (*version.source_version_ids, parent_id)
+            ),
+        )
+
+    def update_write(write: StateWriteProvenance) -> StateWriteProvenance:
+        version_id = write.selected_version_id
+        parent_id = (
+            parent_by_child.get(version_id)
+            if version_id is not None
+            else None
+        )
+        if parent_id is None:
+            return write
+        parent_call_id = parent_call_by_child.get(version_id)
+        return replace(
+            write,
+            source_version_ids=unique_ordered(
+                (*write.source_version_ids, parent_id)
+            ),
+            lineage=merge_state_semantic_lineages(
+                write.lineage,
+                evidence_tags=("runtime_verified_create_lineage",),
+                source_version_ids=(parent_id,),
+                source_call_ids=(
+                    (parent_call_id,) if parent_call_id is not None else ()
+                ),
+            ),
+        )
+
+    for child_id in parent_by_child:
+        current = working.committed_versions[child_id]
+        updated = update_version(current)
+        working.committed_versions[child_id] = updated
+        working.identity_index.update_version(
+            child_id,
+            free_symbol_refs=updated.free_symbol_refs,
+            source_version_ids=updated.source_version_ids,
+        )
+
+    for index, result in enumerate(prior_results):
+        updated_versions = tuple(
+            update_version(item) for item in result.committed_versions
+        )
+        updated_writes = tuple(
+            update_write(item) for item in result.state_writes
+        )
+        if (
+            updated_versions != result.committed_versions
+            or updated_writes != result.state_writes
+        ):
+            prior_results[index] = replace(
+                result,
+                committed_versions=updated_versions,
+                state_writes=updated_writes,
+            )
+
+    edges_by_signature = {item.probe_signature: item for item in edges}
+    for payload in probe_results:
+        edge = edges_by_signature.get(str(payload.get("probe_signature")))
+        if edge is None:
+            continue
+        payload["lineage_committed"] = True
+        payload["lineage_root_version_id"] = (
+            edge.root_version_id.to_payload()
+        )
+        payload["latest_state_authority"] = {
+            "scope_id": next(
+                probe.descendant_scope_id
+                for probe in reconciliation.state_runtime_equivalence_probes
+                if stable_hash(probe.to_payload()) == edge.probe_signature
+            ),
+            "version_id": edge.child_version_id.to_payload(),
+        }
+
+    return (
+        tuple(update_write(item) for item in current_writes),
+        tuple(update_version(item) for item in current_versions),
+    )
+
+
+def _runtime_refinement_substitutions(
+    ancestor: Any,
+    descendant: Any,
+) -> dict[sp.Symbol, Any]:
+    ancestor_symbols = _symbolic_value_free_symbols(ancestor)
+    descendant_symbols = _symbolic_value_free_symbols(descendant)
+    solve_symbols = tuple(
+        sorted(ancestor_symbols - descendant_symbols, key=str)
+    )
+    if not solve_symbols:
+        return {}
+    equations = _symbolic_value_equations(ancestor, descendant)
+    if equations is None or not equations:
+        return {}
+    try:
+        raw_solutions = sp.solve(
+            equations,
+            solve_symbols,
+            dict=True,
+        )
+    except (NotImplementedError, TypeError, ValueError):
+        return {}
+    valid: list[dict[sp.Symbol, Any]] = []
+    for solution in raw_solutions:
+        if not all(symbol in solution for symbol in solve_symbols):
+            continue
+        if any(
+            _symbolic_value_free_symbols(value) - descendant_symbols
+            for value in solution.values()
+        ):
+            continue
+        substituted = _substitute_symbolic_value(ancestor, solution)
+        if _symbolic_values_equivalent(substituted, descendant):
+            valid.append(dict(solution))
+    return valid[0] if len(valid) == 1 else {}
+
+
+def _symbolic_value_free_symbols(value: Any) -> frozenset[sp.Symbol]:
+    if isinstance(value, Mapping):
+        return frozenset(
+            symbol
+            for item in value.values()
+            for symbol in _symbolic_value_free_symbols(item)
+        )
+    if isinstance(value, (tuple, list)):
+        return frozenset(
+            symbol
+            for item in value
+            for symbol in _symbolic_value_free_symbols(item)
+        )
+    try:
+        return frozenset(sp.sympify(value).free_symbols)
+    except (TypeError, ValueError, sp.SympifyError):
+        return frozenset()
+
+
+def _symbolic_value_equations(
+    left: Any,
+    right: Any,
+) -> tuple[sp.Expr, ...] | None:
+    if isinstance(left, Mapping) and isinstance(right, Mapping):
+        if set(left) != set(right):
+            return None
+        result: list[sp.Expr] = []
+        for key in sorted(left, key=str):
+            equations = _symbolic_value_equations(left[key], right[key])
+            if equations is None:
+                return None
+            result.extend(equations)
+        return tuple(result)
+    if isinstance(left, (tuple, list)) and isinstance(right, (tuple, list)):
+        if len(left) != len(right):
+            return None
+        result = []
+        for left_item, right_item in zip(left, right, strict=True):
+            equations = _symbolic_value_equations(left_item, right_item)
+            if equations is None:
+                return None
+            result.extend(equations)
+        return tuple(result)
+    try:
+        return (sp.together(sp.sympify(left) - sp.sympify(right)),)
+    except (TypeError, ValueError, sp.SympifyError):
+        return None
+
+
+def _substitute_symbolic_value(
+    value: Any,
+    substitutions: Mapping[sp.Symbol, Any],
+) -> Any:
+    if isinstance(value, Mapping):
+        return {
+            key: _substitute_symbolic_value(item, substitutions)
+            for key, item in value.items()
+        }
+    if isinstance(value, tuple):
+        return tuple(
+            _substitute_symbolic_value(item, substitutions)
+            for item in value
+        )
+    if isinstance(value, list):
+        return [
+            _substitute_symbolic_value(item, substitutions)
+            for item in value
+        ]
+    try:
+        return sp.sympify(value).subs(substitutions)
+    except (TypeError, ValueError, sp.SympifyError):
+        return value
+
+
+def _compare_provisional_runtime_state(
+    *,
+    call_id: str,
+    writes: Sequence[StateWriteProvenance],
+    runtime_values: Mapping[StateVersionId, TypedValue],
+    reconciliation: FunctionalPlanReconciliationResult,
+    working: WorkingPlannerState,
+    branch: RuntimeContext,
+    object_registry: MathObjectRegistry,
+    runtime_result_values: Mapping[tuple[str, str], TypedValue],
+    restored_call_ids: frozenset[str] = frozenset(),
+) -> tuple[
+    FunctionalRuntimeEquivalentCallAlias | None,
+    PlannerRetryIssue | None,
+    tuple[dict[str, Any], ...],
+]:
+    """Resolve possible duplicate writers using actual typed runtime values.
+
+    Static allocation only identifies a candidate.  Equal values reuse the
+    existing version, a runtime-proven dependency refinement commits the new
+    version, and every other result is rejected before the branch is exposed.
+    """
+
+    probe_results, probe_issue = _compare_scope_create_runtime_probes(
+        call_id=call_id,
+        writes=writes,
+        runtime_values=runtime_values,
+        reconciliation=reconciliation,
+        working=working,
+        branch=branch,
+        object_registry=object_registry,
+        runtime_result_values=runtime_result_values,
+        restored_call_ids=restored_call_ids,
+    )
+    if probe_issue is not None:
+        return None, probe_issue, probe_results
+    if not writes:
+        return None, None, probe_results
+    calls = {item.call_id: item for item in reconciliation.calls}
+    current = calls.get(call_id)
+    if current is None:
+        return None, None, probe_results
+    allocations = {
+        item.return_name: item for item in current.returns
+    }
+    rows: list[
+        tuple[
+            StateWriteProvenance,
+            FunctionalReturnAllocation,
+            StateVersionId,
+            str,
+        ]
+    ] = []
+    for write in writes:
+        if write.selected_version_id is None or write.return_name is None:
+            return None, None, probe_results
+        allocation = allocations.get(write.return_name)
+        if allocation is None:
+            return None, None, probe_results
+        if write.allocation_action == "reuse":
+            existing_version_id = write.selected_version_id
+            producer_id = write.canonical_producer_call_id or call_id
+        elif (
+            write.allocation_action == "transition"
+            and allocation.allocation_reason_code
+            in {
+                "runtime_state_equivalence_probe",
+                "dependency_refines_visible_state",
+            }
+            and write.previous_version_id is not None
+        ):
+            existing_version_id = write.previous_version_id
+            producer_id = allocation.previous_write_step_id or call_id
+        else:
+            return None, None, probe_results
+        rows.append(
+            (write, allocation, existing_version_id, producer_id)
+        )
+
+    producer_ids = {item[3] for item in rows}
+    if len(producer_ids) != 1:
+        return (
+            None,
+            _issue(
+                call_id,
+                "planner.runtime_state_equivalence_conflict",
+                "provisional typed writes do not identify one prior producer",
+                details={
+                    "canonical_producer_call_ids": sorted(producer_ids)
+                },
+            ),
+            probe_results,
+        )
+    producer_id = next(iter(producer_ids))
+    source_state_reuse = producer_id == call_id
+    if not source_state_reuse and (
+        producer_id in working.call_states
+        and working.call_states[producer_id].status != "verified"
+    ):
+        return (
+            None,
+            _issue(
+                call_id,
+                "planner.runtime_state_equivalence_conflict",
+                "reused typed state was not produced by a verified prior call",
+                details={"canonical_producer_call_id": producer_id},
+            ),
+            probe_results,
+        )
+
+    producer = calls.get(producer_id)
+    if producer is None and not source_state_reuse:
+        return (
+            None,
+            _issue(
+                call_id,
+                "planner.runtime_state_equivalence_conflict",
+                "canonical producer is absent from the reconciled plan",
+                details={"canonical_producer_call_id": producer_id},
+            ),
+            probe_results,
+        )
+
+    return_aliases: list[tuple[str, str]] = []
+    comparison_rows: list[dict[str, Any]] = []
+    selected_version_ids: list[StateVersionId] = []
+    conflicts: list[dict[str, Any]] = []
+    refinement_seen = False
+    declared = _context_runtime_symbol_bindings(
+        branch,
+        registry=object_registry,
+    )
+    for write, _allocation, existing_version_id, _ in rows:
+        candidate_version_id = write.selected_version_id
+        assert candidate_version_id is not None
+        candidate = runtime_values.get(candidate_version_id)
+        existing = working.runtime_version_values.get(existing_version_id)
+        indexed = working.identity_index.version(existing_version_id)
+        canonical_returns = (
+            (str(write.return_name),)
+            if source_state_reuse
+            else (
+                tuple(
+                    allocation.return_name
+                    for allocation in producer.returns
+                    if allocation.selected_version_id == existing_version_id
+                )
+                if producer is not None
+                else (str(write.return_name),)
+            )
+        )
+        reasons: list[str] = []
+        comparison = "equivalent"
+        if candidate is None or existing is None or indexed is None:
+            reasons.append("runtime_value_or_state_version_missing")
+        else:
+            if not (
+                runtime_type_compatible(existing.type, candidate.type)
+                and runtime_type_compatible(candidate.type, existing.type)
+            ):
+                reasons.append("runtime_type_mismatch")
+            raw_equivalent = _symbolic_values_equivalent(
+                existing.value,
+                candidate.value,
+            )
+            same_symbols = frozenset(indexed.free_symbol_ids) == frozenset(
+                write.free_symbol_ids
+            )
+            if not (raw_equivalent and same_symbols):
+                consumer_scope_id = write.valid_scope_id or write.scope_id
+                existing_symbols = _runtime_value_symbol_object_ids(
+                    existing,
+                    runtime_context=branch,
+                    object_registry=object_registry,
+                    declared_runtime_symbols=_merge_runtime_symbol_bindings(
+                        declared,
+                        working.runtime_version_symbol_bindings.get(
+                            existing_version_id,
+                            {},
+                        ),
+                    ),
+                )
+                candidate_symbols = _runtime_value_symbol_object_ids(
+                    candidate,
+                    runtime_context=branch,
+                    object_registry=object_registry,
+                    declared_runtime_symbols=declared,
+                )
+                supplemental_parameter_values = (
+                    _visible_runtime_scalar_assignments(
+                        consumer_scope_id=consumer_scope_id,
+                        current_call_id=call_id,
+                        runtime_result_values=runtime_result_values,
+                        reconciliation=reconciliation,
+                        working=working,
+                        runtime_context=branch,
+                        object_registry=object_registry,
+                        declared_runtime_symbols=declared,
+                    )
+                )
+                materialized_existing = _materialize_runtime_parameter_closure(
+                    existing,
+                    consumer_scope_id=consumer_scope_id,
+                    working=working,
+                    runtime_context=branch,
+                    object_registry=object_registry,
+                    declared_runtime_symbols=_merge_runtime_symbol_bindings(
+                        declared,
+                        working.runtime_version_symbol_bindings.get(
+                            existing_version_id,
+                            {},
+                        ),
+                    ),
+                    supplemental_parameter_values=supplemental_parameter_values,
+                )
+                materialized_candidate = _materialize_runtime_parameter_closure(
+                    candidate,
+                    consumer_scope_id=consumer_scope_id,
+                    working=working,
+                    runtime_context=branch,
+                    object_registry=object_registry,
+                    declared_runtime_symbols=declared,
+                    supplemental_parameter_values=supplemental_parameter_values,
+                )
+                materialized_equivalent = _symbolic_values_equivalent(
+                    materialized_existing.runtime_value.value,
+                    materialized_candidate.runtime_value.value,
+                )
+                strictly_closes_symbols = (
+                    candidate_symbols < existing_symbols
+                )
+                if materialized_equivalent:
+                    if strictly_closes_symbols and not source_state_reuse:
+                        comparison = "dependency_refinement"
+                        refinement_seen = True
+                    else:
+                        comparison = "equivalent_after_parameter_closure"
+                else:
+                    if not raw_equivalent:
+                        reasons.append("runtime_value_mismatch")
+                    if not same_symbols:
+                        reasons.append("free_symbol_identity_mismatch")
+        if len(canonical_returns) != 1:
+            reasons.append("canonical_return_ambiguous")
+        if reasons:
+            conflicts.append(
+                {
+                    "return": write.return_name,
+                    "candidate_version_id": candidate_version_id.to_payload(),
+                    "existing_version_id": existing_version_id.to_payload(),
+                    "reasons": reasons,
+                    "canonical_return_candidates": list(canonical_returns),
+                    "existing_value": _runtime_equivalence_value_payload(
+                        existing.value if existing is not None else None
+                    ),
+                    "candidate_value": _runtime_equivalence_value_payload(
+                        candidate.value if candidate is not None else None
+                    ),
+                }
+            )
+            continue
+        return_aliases.append(
+            (str(write.return_name), canonical_returns[0])
+        )
+        selected_version_ids.append(existing_version_id)
+        comparison_rows.append(
+            {
+                "duplicate_return": write.return_name,
+                "canonical_return": canonical_returns[0],
+                "candidate_version_id": candidate_version_id.to_payload(),
+                "selected_version_id": existing_version_id.to_payload(),
+                "runtime_type": candidate.type,
+                "value": _runtime_equivalence_value_payload(candidate.value),
+                "comparison": comparison,
+                "free_symbol_ids": sorted(
+                    (
+                        item.to_payload()
+                        for item in write.free_symbol_ids
+                    ),
+                    key=lambda item: stable_hash(item),
+                ),
+            }
+        )
+    if conflicts:
+        return (
+            None,
+            _issue(
+                call_id,
+                "planner.runtime_state_equivalence_conflict",
+                (
+                    "a possible duplicate call produced a different typed "
+                    "runtime state"
+                ),
+                details={
+                    "canonical_producer_call_id": producer_id,
+                    "comparisons": conflicts,
+                },
+            ),
+            probe_results,
+        )
+    if refinement_seen:
+        return None, None, probe_results
+    alias_payload = {
+        "duplicate_call_id": call_id,
+        "canonical_call_id": producer_id,
+        "return_aliases": sorted(return_aliases),
+        "comparisons": comparison_rows,
+    }
+    return (
+        FunctionalRuntimeEquivalentCallAlias(
+            duplicate_call_id=call_id,
+            canonical_call_id=producer_id,
+            return_aliases=tuple(sorted(return_aliases)),
+            selected_version_ids=unique_ordered(selected_version_ids),
+            comparison_signature=stable_hash(alias_payload),
+        ),
+        None,
+        probe_results,
+    )
+
+
+def _runtime_equivalence_value_payload(value: Any) -> Any:
+    if isinstance(value, sp.Basic):
+        return {"sympy": sp.srepr(value)}
+    if isinstance(value, Mapping):
+        return {
+            str(key): _runtime_equivalence_value_payload(item)
+            for key, item in sorted(value.items(), key=lambda pair: str(pair[0]))
+        }
+    if isinstance(value, (tuple, list)):
+        return [_runtime_equivalence_value_payload(item) for item in value]
+    if isinstance(value, (str, int, float, bool)) or value is None:
+        return value
+    if hasattr(value, "to_payload"):
+        return _runtime_equivalence_value_payload(value.to_payload())
+    return repr(value)
+
+
+def _visible_runtime_scalar_assignments(
+    *,
+    consumer_scope_id: str,
+    current_call_id: str,
+    runtime_result_values: Mapping[tuple[str, str], TypedValue],
+    reconciliation: FunctionalPlanReconciliationResult,
+    working: WorkingPlannerState,
+    runtime_context: RuntimeContext,
+    object_registry: MathObjectRegistry,
+    declared_runtime_symbols: Mapping[sp.Symbol, MathObjectId],
+) -> dict[MathObjectId, Any]:
+    """Collect the closest verified scalar assignments for structural closure.
+
+    Some methods publish a value-only aggregate, such as ``Coefficients``,
+    instead of allocating one ``ParameterValue`` state per Symbol. Those values
+    are still verified runtime facts and must close later Point/Expression
+    states before equivalence is decided. Scope visibility and execution order
+    select the authoritative assignment; sibling results never participate.
+    """
+
+    calls = {item.call_id: item for item in reconciliation.calls}
+    placements = {
+        item.canonical_call_id: item.execution_scope_id
+        for item in reconciliation.call_placements
+    }
+    call_order = {
+        item.call_id: index for index, item in enumerate(reconciliation.calls)
+    }
+    ancestors = working.identity_index.visibility.registry.ancestor_scopes(
+        consumer_scope_id
+    )
+    scope_rank = {
+        scope_id: index for index, scope_id in enumerate(ancestors)
+    }
+    candidates: dict[
+        MathObjectId,
+        tuple[tuple[int, int], Any, str],
+    ] = {}
+    for (producer_call_id, _output_key), typed in runtime_result_values.items():
+        if typed.type != "Coefficients" or not isinstance(typed.value, Mapping):
+            continue
+        call = calls.get(producer_call_id)
+        if call is None:
+            continue
+        if producer_call_id != current_call_id:
+            state = working.call_states.get(producer_call_id)
+            if state is None or state.status != "verified":
+                continue
+        producer_scope_id = placements.get(
+            producer_call_id,
+            call.scope_id,
+        )
+        if not working.identity_index.visibility.is_visible(
+            producer_scope_id,
+            consumer_scope_id=consumer_scope_id,
+        ):
+            continue
+        rank = (
+            scope_rank.get(producer_scope_id, len(ancestors)),
+            -call_order.get(producer_call_id, -1),
+        )
+        for symbol, value in typed.value.items():
+            if not isinstance(symbol, sp.Symbol):
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.runtime_scalar_assignment_invalid: "
+                    f"call={producer_call_id}, key={symbol!r}"
+                )
+            object_ids = runtime_free_symbol_ids(
+                symbol,
+                context=runtime_context,
+                registry=object_registry,
+                declared_runtime_symbols=declared_runtime_symbols,
+            )
+            if len(object_ids) != 1:
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.runtime_symbol_identity_unresolved: "
+                    f"runtime_symbol={symbol}"
+                )
+            object_id = next(iter(object_ids))
+            existing = candidates.get(object_id)
+            if existing is None or rank < existing[0]:
+                candidates[object_id] = (rank, value, producer_call_id)
+                continue
+            if rank == existing[0] and not _symbolic_values_equivalent(
+                existing[1],
+                value,
+            ):
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.runtime_parameter_state_ambiguous: "
+                    f"object_id={object_id.to_payload()}, "
+                    f"calls={[existing[2], producer_call_id]}"
+                )
+    return {
+        object_id: candidate[1]
+        for object_id, candidate in candidates.items()
+    }
+
+
+def _runtime_value_symbol_object_ids(
+    runtime_value: TypedValue,
+    *,
+    runtime_context: RuntimeContext,
+    object_registry: MathObjectRegistry,
+    declared_runtime_symbols: Mapping[sp.Symbol, MathObjectId],
+) -> frozenset[MathObjectId]:
+    """Resolve actual runtime free symbols to canonical object identities.
+
+    State-write metadata is an audit projection and may still describe the
+    pre-materialized expression. Runtime equivalence must use the values that
+    were actually produced, otherwise a valid open-to-closed convergence can
+    be rejected solely because stale metadata retained a parameter id.
+    """
+
+    result: set[MathObjectId] = set()
+    for symbol in runtime_free_symbols(runtime_value.value):
+        object_ids = runtime_free_symbol_ids(
+            symbol,
+            context=runtime_context,
+            registry=object_registry,
+            declared_runtime_symbols=declared_runtime_symbols,
+        )
+        if len(object_ids) != 1:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.runtime_symbol_identity_unresolved: "
+                f"runtime_symbol={symbol}"
+            )
+        result.add(object_ids[0])
+    return frozenset(result)
 
 
 def _symbolic_values_equivalent(left: Any, right: Any) -> bool:
@@ -2864,6 +9527,25 @@ def _actual_form(
     if expected_form in {"open_expression", "closed_value"}:
         return "open_expression" if free_symbols else "closed_value"
     return "open_state" if free_symbols else "closed_state"
+
+
+def _canonical_runtime_writes_by_version(
+    state_writes: Sequence[StateWriteProvenance],
+) -> dict[StateVersionId, StateWriteProvenance]:
+    """Index each version by its real object write, not an answer alias."""
+
+    result: dict[StateVersionId, StateWriteProvenance] = {}
+    for write in state_writes:
+        version_id = write.selected_version_id
+        if version_id is None:
+            continue
+        existing = result.get(version_id)
+        if existing is None or (
+            existing.produced_handle.startswith("answer:")
+            and not write.produced_handle.startswith("answer:")
+        ):
+            result[version_id] = write
+    return result
 
 
 def _transactional_diagnostic(
@@ -3065,7 +9747,10 @@ def _aggregate_transactional_output(
         ),
     )
     projected_writes = tuple(
-        item
+        _canonicalize_projected_state_write_versions(
+            item,
+            resolve_version_id=report.resolve_runtime_version_id,
+        )
         for item in build_functional_state_write_manifest(
             reconciliation.plan,
             reconciliation.calls,
@@ -3270,6 +9955,7 @@ def _issue(
     message: str,
     *,
     details: dict[str, Any] | None = None,
+    diagnostic_authority: dict[str, Any] | None = None,
 ) -> PlannerRetryIssue:
     return PlannerRetryIssue(
         layer="trial_execution",
@@ -3279,6 +9965,7 @@ def _issue(
         preserve_policy="preserve_graph",
         message=message,
         details=details,
+        diagnostic_authority=diagnostic_authority,
     )
 
 
@@ -3301,6 +9988,7 @@ def _runtime_result(
             value_omitted_reason=(
                 f"unsupported_transaction_snapshot:{type(exc).__name__}"
             ),
+            problem_source_provenance=write.problem_source_provenance,
         )
     return FunctionalRuntimeResult(
         step_id=write.step_id,
@@ -3310,6 +9998,7 @@ def _runtime_result(
         output_key=write.output_key,
         runtime_type=write.runtime_type,
         value=projected,
+        problem_source_provenance=write.problem_source_provenance,
     )
 
 
@@ -3321,6 +10010,7 @@ def _default_executor_factory(
         inputs.method_specs,
         methods=default_stateless_registry(),
         kernel=context.kernel,
+        require_input_read_authority=True,
     )
 
 
@@ -3341,6 +10031,8 @@ __all__ = [
     "FunctionalCallExecutionResult",
     "FunctionalCallPreparationService",
     "FunctionalRuntimeWriteCommitter",
+    "FunctionalRuntimeEquivalentCallAlias",
+    "FunctionalRestoredCallSeed",
     "FunctionalTransactionalAttemptResult",
     "FunctionalTransactionalExecutionReport",
     "FunctionalTransactionalInterpreter",

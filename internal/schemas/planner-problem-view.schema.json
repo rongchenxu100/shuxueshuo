@@ -1,0 +1,205 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "planner-problem-view.schema.json",
+  "title": "PlannerProblemView prompt payload",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "problem_id",
+    "family_id",
+    "source",
+    "root_scope"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "planner-problem-view/v2"
+    },
+    "problem_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "family_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source": {
+      "type": "object",
+      "required": [
+        "question_number",
+        "score"
+      ],
+      "properties": {
+        "question_number": {
+          "type": "string"
+        },
+        "score": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "root_scope": {
+      "$ref": "#/$defs/scope"
+    }
+  },
+  "$defs": {
+    "semantic_item": {
+      "type": "object",
+      "required": [
+        "ref",
+        "kind",
+        "owner_scope"
+      ],
+      "properties": {
+        "ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "owner_scope": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The lexical owner of this Entity or Fact. A Fact is visible only from this scope and its descendants."
+        }
+      },
+      "additionalProperties": true
+    },
+    "goal": {
+      "type": "object",
+      "required": [
+        "kind",
+        "goal_ref",
+        "answer_type"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "point_coordinate",
+            "quadratic_equation",
+            "parameter_value",
+            "minimum_value"
+          ]
+        },
+        "goal_ref": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The unique Goal identity. FunctionalPlan.goal_ref must copy this value exactly; a scope id or target name is not a Goal identity."
+        },
+        "target_ref": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The visible Problem object answered by this Goal. Use this SemanticRef for capability object-identity inputs; goal_ref is not an input SemanticRef."
+        },
+        "expression": {
+          "type": "object",
+          "minProperties": 1
+        },
+        "answer_type": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "point_coordinate",
+                  "quadratic_equation",
+                  "parameter_value"
+                ]
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "target_ref"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "minimum_value"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "expression"
+            ]
+          }
+        }
+      ],
+      "additionalProperties": false
+    },
+    "scope": {
+      "type": "object",
+      "required": [
+        "id",
+        "text"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "text": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "entities": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/semantic_item"
+          }
+        },
+        "facts": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/semantic_item"
+          }
+        },
+        "goals": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/goal"
+          }
+        },
+        "children": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/scope"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

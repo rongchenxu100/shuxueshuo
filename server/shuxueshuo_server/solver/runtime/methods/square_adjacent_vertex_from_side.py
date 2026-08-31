@@ -8,7 +8,7 @@ from __future__ import annotations
 from shuxueshuo_server.solver.contracts import MethodExplanationSpec, MethodVisualSpec
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, declare_input_views
 
 
 class SquareAdjacentVertexFromSideMethod:
@@ -24,10 +24,19 @@ class SquareAdjacentVertexFromSideMethod:
         side_start_ref: PointRef | None = inputs.get("side_start_ref")
         side_end_ref: PointRef | None = inputs.get("side_end_ref")
         parameter = inputs.get("parameter")
-        parameter_value = inputs.get("parameter_value")
-        parameter_constraint = inputs.get("parameter_constraint")
-        if parameter is not None and parameter_value is not None:
-            substitutions = {parameter: sp.sympify(parameter_value)}
+        parameter_constraint = _canonicalize_runtime_constraint(
+            inputs.get("parameter_constraint"),
+            kernel,
+            arg_name="parameter_constraint",
+        )
+        substitutions = _optional_parameter_substitution(
+            inputs,
+            side_start,
+            side_end,
+            allow_parameter_without_value=True,
+            allow_closed_noop=True,
+        )
+        if substitutions:
             side_start = _subs_point(side_start, substitutions)
             side_end = _subs_point(side_end, substitutions)
 
@@ -106,7 +115,14 @@ def _square_vertices(condition: dict[str, Any]) -> list[str]:
     """读取 square condition 中的顶点顺序。"""
     vertices = condition.get("vertices")
     if not isinstance(vertices, list) or len(vertices) < 4:
-        raise ValueError("square condition requires ordered vertices")
+        raise method_input_invalid(
+            "square condition requires at least four ordered vertices",
+            arg_name="square_condition",
+            role="square_vertices",
+            expected={"type": "Condition", "state": "ordered_vertices"},
+            observed={"type": type(vertices).__name__, "count": len(vertices) if isinstance(vertices, list) else 0},
+            repair_action="provide_square_vertex_order",
+        )
     return [str(item) for item in vertices]
 
 
@@ -132,7 +148,15 @@ def _target_vertex_role(
         return "from_start_counterclockwise"
     if target_name == names[2]:
         return "from_end"
-    raise ValueError(f"square target {target_name!r} is not adjacent to the declared side")
+    raise method_precondition_failed(
+        f"square target {target_name!r} is not adjacent to the declared side",
+        arg_name="target",
+        role="adjacent_vertex",
+        internal_ref=target_name,
+        expected={"type": "Point", "state": "adjacent_to_known_side"},
+        observed={"state": "not_adjacent", "ordered_vertices": names},
+        repair_action="choose_adjacent_square_vertex",
+    )
 
 
 def _target_vertex_role_from_known_side(
@@ -147,7 +171,20 @@ def _target_vertex_role_from_known_side(
         end_index = names.index(side_end_name)
         target_index = names.index(target_name)
     except ValueError as exc:
-        raise ValueError("known square side and target must be in ordered vertices") from exc
+        raise method_input_invalid(
+            "known square side and target must all occur in ordered vertices",
+            arg_name="square_condition",
+            role="square_vertices",
+            internal_ref=target_name,
+            expected={"type": "Condition", "state": "contains_known_side_and_target"},
+            observed={
+                "ordered_vertices": names,
+                "side_start": side_start_name,
+                "side_end": side_end_name,
+                "target": target_name,
+            },
+            repair_action="provide_square_vertex_order",
+        ) from exc
     size = len(names)
     next_start = (start_index + 1) % size
     prev_start = (start_index - 1) % size
@@ -163,7 +200,15 @@ def _target_vertex_role_from_known_side(
             return "from_start_counterclockwise"
         if target_index == prev_end:
             return "from_end_counterclockwise"
-    raise ValueError("square target is not adjacent to the known side")
+    raise method_precondition_failed(
+        "square target is not adjacent to the known side",
+        arg_name="target",
+        role="adjacent_vertex",
+        internal_ref=target_name,
+        expected={"type": "Point", "state": "adjacent_to_known_side"},
+        observed={"state": "not_adjacent", "ordered_vertices": names},
+        repair_action="choose_adjacent_square_vertex",
+    )
 
 
 def _handle_name(handle: str) -> str:
@@ -196,7 +241,14 @@ def _adjacent_vertex_from_role(base: Point, vector: Point, role: str) -> Point:
     elif role.endswith("_counterclockwise"):
         rotation = (-vector[1], vector[0])
     else:
-        raise ValueError(f"unsupported square adjacent role: {role}")
+        raise method_input_invalid(
+            f"unsupported square adjacent role: {role}",
+            arg_name="target",
+            role="adjacent_vertex",
+            expected={"state": "clockwise_or_counterclockwise"},
+            observed={"state": role},
+            repair_action="choose_adjacent_square_vertex",
+        )
     return (
         sp.simplify(base[0] + rotation[0]),
         sp.simplify(base[1] + rotation[1]),
@@ -238,7 +290,17 @@ def _select_by_orientation(
         ]
         if len(selected) == 1:
             return selected[0]
-    raise ValueError("square adjacent vertex orientation is not unique")
+    raise method_result_ambiguous(
+        "square adjacent vertex orientation does not select exactly one candidate",
+        arg_name="square_condition",
+        role="orientation_constraint",
+        expected={"state": "unique_orientation"},
+        observed={
+            "orientation": orientation or "unspecified",
+            "candidate_count": len(candidates),
+        },
+        repair_action="supply_disambiguating_constraint",
+    )
 
 
 def _definitely_negative(
@@ -247,15 +309,14 @@ def _definitely_negative(
     parameter: sp.Symbol | None = None,
     parameter_constraint: dict[str, Any] | None = None,
 ) -> bool:
-    try:
-        return bool(sp.simplify(value) < 0)
-    except TypeError:
-        return _definitely_signed_under_constraint(
-            value,
-            parameter=parameter,
-            parameter_constraint=parameter_constraint,
-            want_positive=False,
-        )
+    if is_definitely_negative(value):
+        return True
+    return _definitely_signed_under_constraint(
+        value,
+        parameter=parameter,
+        parameter_constraint=parameter_constraint,
+        want_positive=False,
+    )
 
 
 def _definitely_positive(
@@ -264,15 +325,14 @@ def _definitely_positive(
     parameter: sp.Symbol | None = None,
     parameter_constraint: dict[str, Any] | None = None,
 ) -> bool:
-    try:
-        return bool(sp.simplify(value) > 0)
-    except TypeError:
-        return _definitely_signed_under_constraint(
-            value,
-            parameter=parameter,
-            parameter_constraint=parameter_constraint,
-            want_positive=True,
-        )
+    if is_definitely_positive(value):
+        return True
+    return _definitely_signed_under_constraint(
+        value,
+        parameter=parameter,
+        parameter_constraint=parameter_constraint,
+        want_positive=True,
+    )
 
 
 def _definitely_signed_under_constraint(
@@ -287,7 +347,19 @@ def _definitely_signed_under_constraint(
         return False
     if str(parameter_constraint.get("operator", "")) != ">":
         return False
-    lower_bound = sp.sympify(parameter_constraint.get("value"))
+    lower_bound = parameter_constraint.get("value")
+    if not isinstance(lower_bound, sp.Basic):
+        raise StatelessMethodError(
+            "planner.method_contract_invalid",
+            "square parameter constraint is not a canonical runtime expression",
+            category="configuration",
+            retryability="configuration",
+            arg_name="parameter_constraint",
+            role="parameter_lower_bound",
+            expected={"state": "canonical_sympy_expression"},
+            observed={"type": type(lower_bound).__name__},
+            repair_action="fix_runtime_contract",
+        )
     try:
         poly = sp.Poly(value, parameter)
     except sp.PolynomialError:
@@ -298,39 +370,19 @@ def _definitely_signed_under_constraint(
     at_bound = sp.simplify(value.subs(parameter, lower_bound))
     if want_positive:
         return (
-            _is_positive(slope) and _is_nonnegative(at_bound)
+            is_definitely_positive(slope)
+            and is_definitely_nonnegative(at_bound)
         ) or (
-            _is_zero(slope) and _is_positive(at_bound)
+            is_definitely_zero(slope)
+            and is_definitely_positive(at_bound)
         )
     return (
-        _is_negative(slope) and _is_nonpositive(at_bound)
+        is_definitely_negative(slope)
+        and is_definitely_nonpositive(at_bound)
     ) or (
-        _is_zero(slope) and _is_negative(at_bound)
+        is_definitely_zero(slope)
+        and is_definitely_negative(at_bound)
     )
-
-
-def _is_positive(value: sp.Expr) -> bool:
-    value = sp.simplify(value)
-    return value.is_positive is True or (value.is_number and bool(sp.N(value) > 0))
-
-
-def _is_negative(value: sp.Expr) -> bool:
-    value = sp.simplify(value)
-    return value.is_negative is True or (value.is_number and bool(sp.N(value) < 0))
-
-
-def _is_nonnegative(value: sp.Expr) -> bool:
-    value = sp.simplify(value)
-    return value.is_nonnegative is True or (value.is_number and bool(sp.N(value) >= 0))
-
-
-def _is_nonpositive(value: sp.Expr) -> bool:
-    value = sp.simplify(value)
-    return value.is_nonpositive is True or (value.is_number and bool(sp.N(value) <= 0))
-
-
-def _is_zero(value: sp.Expr) -> bool:
-    return sp.simplify(value) == 0
 
 
 SPEC = MethodSpecSource(
@@ -338,15 +390,15 @@ SPEC = MethodSpecSource(
     title="由正方形边求相邻顶点",
     summary=(
         "由正方形一条已知边的两个已计算端点、顶点顺序和方向条件，求指定相邻"
-        "顶点的坐标表达式。必须在 return_bindings.point 中绑定本次要计算的"
-        "正方形顶点；代码用该对象在 ordered vertices 中的角色确定旋转方向，"
+        "顶点的坐标表达式。必须通过公开返回角色 adjacent_vertex 明确绑定本次"
+        "要计算的正方形顶点；代码用该对象在 ordered vertices 中的角色确定旋转方向，"
         "不会在多个剩余顶点之间猜测。该能力只做 90° 旋转构造，不负责把顶点"
         "代入曲线求参数。"
     ),
     do_not_use_when=(
         "已知边任一端点只有对象引用而没有坐标状态。",
         "目标是求当前边端点本身，而不是由这条边旋转得到的相邻顶点。",
-        "正方形关系中仍有多个合法候选顶点，但没有在 return_bindings.point 中明确绑定本次要计算的对象。",
+        "正方形关系中仍有多个合法候选顶点，但没有通过公开返回角色 adjacent_vertex 明确绑定本次要计算的对象。",
         (
             "side_start 或 side_end 来自前序 call，但该返回没有绑定到正方形中"
             "对应的已有顶点对象；call-local Point 不能代替 ordered vertices "
@@ -365,13 +417,18 @@ SPEC = MethodSpecSource(
         "parameter_value": {"type": "ParameterValue", "required": False},
         "parameter_constraint": {"type": "Constraint", "required": False},
     },
+    input_views=declare_input_views(
+        identity=("target", "side_start_ref", "side_end_ref", "parameter"),
+        latest_state=("side_start", "side_end", "parameter_value"),
+        immutable_value=("square_condition", "parameter_constraint"),
+    ),
     outputs={"point": "Point"},
     preconditions=(
         "square_condition 包含 ordered vertices；side_start、side_end 和绑定的目标点都必须对应其中的明确顶点角色",
         "若方向不能由 ordered vertices 唯一确定，则需要可判定的 orientation 或参数范围约束",
     ),
     postconditions=(
-        "输出对象就是 return_bindings.point 绑定的正方形顶点",
+        "输出对象就是公开返回角色 adjacent_vertex 绑定的正方形顶点",
         "输出顶点与给定边构成垂直等长的正方形相邻边",
     ),
     explanation=MethodExplanationSpec(

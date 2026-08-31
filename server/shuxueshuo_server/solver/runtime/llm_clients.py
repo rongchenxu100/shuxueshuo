@@ -69,6 +69,10 @@ class OpenAICompatiblePlannerClient:
         default=(),
         init=False,
     )
+    last_provider_reasoning: tuple[dict[str, Any], ...] = field(
+        default=(),
+        init=False,
+    )
     system_prompt: str = DEFAULT_SYSTEM_PROMPT
 
     def __post_init__(self) -> None:
@@ -102,6 +106,8 @@ class OpenAICompatiblePlannerClient:
         request_options = self._completion_request_options(payload)
         request_audit = _completion_request_audit(request_options)
         attempts: list[dict[str, Any]] = []
+        reasoning_records: list[dict[str, Any]] = []
+        self.last_provider_reasoning = ()
         request_messages = list(messages)
         for provider_attempt in range(1, 3):
             response = self._client.chat.completions.create(
@@ -112,8 +118,16 @@ class OpenAICompatiblePlannerClient:
             )
             usage = _usage_to_dict(getattr(response, "usage", None))
             response_model = getattr(response, "model", None)
-            content = response.choices[0].message.content
+            message = response.choices[0].message
+            content = message.content
             text = "" if content is None else str(content)
+            reasoning_content = _message_reasoning_content(message)
+            reasoning_records.append(
+                {
+                    "provider_attempt": provider_attempt,
+                    "reasoning_content": reasoning_content,
+                }
+            )
             attempts.append(
                 {
                     "provider_attempt": provider_attempt,
@@ -127,10 +141,15 @@ class OpenAICompatiblePlannerClient:
                         None,
                     ),
                     "visible_content": bool(text.strip()),
+                    "reasoning_content_available": bool(
+                        reasoning_content.strip()
+                    ),
+                    "reasoning_content_chars": len(reasoning_content),
                     **request_audit,
                 }
             )
             self.last_provider_attempts = tuple(attempts)
+            self.last_provider_reasoning = tuple(reasoning_records)
             self.last_usage = _sum_usage(
                 tuple(item.get("usage") for item in attempts)
             )
@@ -193,13 +212,20 @@ class DeepSeekPlannerClient(OpenAICompatiblePlannerClient):
         self,
         payload: dict[str, Any],
     ) -> dict[str, Any]:
-        """Use low-effort thinking and JSON Output for every planner pass."""
-        del payload
-        return {
+        """Use direct JSON on pass 1 and low thinking only for semantic repair."""
+        planner_attempt = payload.get("planner_attempt", 1)
+        options: dict[str, Any] = {
             "response_format": {"type": "json_object"},
-            "reasoning_effort": "low",
-            "extra_body": {"thinking": {"type": "enabled"}},
+            "extra_body": {"thinking": {"type": "disabled"}},
         }
+        if isinstance(planner_attempt, int) and planner_attempt > 1:
+            options.update(
+                {
+                    "reasoning_effort": "low",
+                    "extra_body": {"thinking": {"type": "enabled"}},
+                }
+            )
+        return options
 
 
 class DoubaoPlannerClient(OpenAICompatiblePlannerClient):
@@ -249,6 +275,23 @@ def _completion_request_audit(options: dict[str, Any]) -> dict[str, Any]:
         ),
         "reasoning_effort": options.get("reasoning_effort"),
     }
+
+
+def _message_reasoning_content(message: Any) -> str:
+    """Return provider-authored reasoning text when the API exposes it."""
+
+    value = getattr(message, "reasoning_content", None)
+    if value is None and isinstance(message, dict):
+        value = message.get("reasoning_content")
+    if value is None:
+        model_extra = getattr(message, "model_extra", None)
+        if isinstance(model_extra, dict):
+            value = model_extra.get("reasoning_content")
+    if value is None and hasattr(message, "model_dump"):
+        payload = message.model_dump()
+        if isinstance(payload, dict):
+            value = payload.get("reasoning_content")
+    return "" if value is None else str(value)
 
 
 def _usage_to_dict(usage: Any) -> dict[str, Any] | None:

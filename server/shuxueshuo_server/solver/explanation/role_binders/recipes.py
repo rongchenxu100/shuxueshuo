@@ -69,8 +69,8 @@ class EqualLengthRayPathReductionRoleBinder:
         return _equal_length_ray_path_reduction_draft(recipe_spec.explanation, group, snapshot)
 
 
-class BrokenPathStraighteningMinimumRoleBinder:
-    """Binder for one-moving-point broken-path straightening recipes."""
+class QuadraticSquarePathMinimumRoleBinder:
+    """Bind the atomic square-path Macro from verified runtime evidence."""
 
     def bind(
         self,
@@ -79,126 +79,73 @@ class BrokenPathStraighteningMinimumRoleBinder:
         group: LessonCandidateGroup,
         snapshot: ExplanationSnapshot,
     ) -> dict[str, Any]:
-        return _broken_path_straightening_minimum_draft(
-            recipe_spec.explanation,
-            group,
+        explanation = recipe_spec.explanation
+        assert explanation is not None
+        witness = _path_minimum_witness(
             snapshot,
+            group,
+            macro_id="quadratic_square_path_minimum",
         )
+        if witness is None:
+            return GenericRecipeRoleBinder().bind(
+                recipe_spec=recipe_spec,
+                group=group,
+                snapshot=snapshot,
+            )
+        minimizing_points = witness.get("minimizing_points") or {}
+        moving_point, attainment_point = next(
+            iter(minimizing_points.items()),
+            ("动点", "经过验证的达到点"),
+        )
+        roles = {
+            "original_objective": str(witness.get("original_objective") or ""),
+            "reduced_objective": str(witness.get("reduced_objective") or ""),
+            "moving_point": str(moving_point),
+            "attainment_point": attainment_point,
+            "minimum_strategy": str(witness.get("minimum_strategy") or ""),
+            "minimum_expression": str(witness.get("minimum_expression") or ""),
+        }
+        attainment_display = (
+            f"{moving_point}("
+            + ",".join(_student_expr(str(item)) for item in attainment_point)
+            + ")"
+            if isinstance(attainment_point, list | tuple)
+            else str(attainment_point)
+        )
+        proof = [str(item) for item in witness.get("equivalence_proof", ())]
+        proof.extend(
+            (
+                "经过验证的折线拉直策略为："
+                f"{roles['minimum_strategy']}。",
+                "因此最小值为 "
+                f"{_student_expr(roles['minimum_expression'])}，"
+                f"在 {attainment_point} 处取得。",
+            )
+        )
+        return {
+            "confidence": "complete",
+            "bound_roles": roles,
+            "unbound_roles": [],
+            "student_intent_draft": explanation.student_intent_template,
+            "proof_draft": proof,
+            "box": [
+                f"最小值＝{_student_expr(roles['minimum_expression'])}",
+                attainment_display,
+            ],
+            "recommended_lesson_splits": list(
+                explanation.recommended_lesson_splits
+            ),
+            "llm_can_complete": list(explanation.allowed_llm_completion),
+            "llm_must_not_invent": generic_must_not_invent()
+            + ["只能使用 verified Macro evidence 中的角色、表达式和达到点。"],
+        }
 
 
 def recipe_role_binders() -> dict[str, RecipeRoleBinder]:
     return {
         "generic_recipe": GenericRecipeRoleBinder(),
         "equal_length_ray_path_reduction": EqualLengthRayPathReductionRoleBinder(),
-        "broken_path_straightening_minimum_expression": BrokenPathStraighteningMinimumRoleBinder(),
-    }
-
-
-def _broken_path_straightening_minimum_draft(
-    explanation: RecipeExplanationSpec | None,
-    group: LessonCandidateGroup,
-    snapshot: ExplanationSnapshot,
-) -> dict[str, Any]:
-    assert explanation is not None
-    selected = _selected_straightening_candidate(group, snapshot)
-    if not selected:
-        return GenericRecipeRoleBinder().bind(
-            recipe_spec=RecipeSpec(
-                recipe_id="broken_path_straightening_minimum_expression",
-                title="将军饮马折线最值",
-                summary="",
-                method_sequence=(),
-                execution_strategy="",
-                outputs={},
-                explanation=explanation,
-            ),
-            group=group,
-            snapshot=snapshot,
-        )
-
-    source = str(selected.get("reflect_source") or "")
-    reflected = _student_point_label(str(selected.get("reflected_point_name") or ""))
-    moving = str(selected.get("moving_point") or "")
-    other = str(selected.get("other_fixed_point") or "")
-    transformed_path = _student_path_label(str(selected.get("transformed_path") or ""))
-    straightened_path = _student_path_label(str(selected.get("straightened_path") or ""))
-    segment_equality = _student_path_label(str(selected.get("segment_equality") or ""))
-    minimum_segment = _student_path_label(str(selected.get("minimum_segment") or ""))
-    moving_locus = _student_line_label(str(selected.get("moving_line") or ""))
-    reflected_pair = _point_pair_from_value(selected.get("reflected_point"))
-    reflected_text = _point_text(reflected, reflected_pair) if reflected_pair else ""
-    minimum_expression = _minimum_expression_from_distance_trace(group) or _minimum_expression_from_fact(
-        group,
-        snapshot,
-    )
-    minimum_display = _student_expr(minimum_expression, fullwidth_operators=True) if minimum_expression else ""
-    distance_formula = _straightening_distance_formula(
-        selected,
-        minimum_segment=minimum_segment,
-        minimum_display=minimum_display,
-    )
-    roles: dict[str, Any] = {
-        "moving_point": moving,
-        "moving_locus": moving_locus,
-        "source_point": source,
-        "reflected_point": reflected,
-        "other_fixed_point": other,
-        "transformed_path": transformed_path,
-        "straightened_path": straightened_path,
-        "segment_equality": segment_equality,
-        "straightened_segment": minimum_segment,
-        "minimum_expression": minimum_display,
-    }
-    if reflected_text:
-        roles["reflected_point_coordinate"] = reflected_text
-    if distance_formula:
-        roles["distance_formula"] = distance_formula
-
-    proof_templates: list[str] = [
-        "∵由上一步，{transformed_path} 是等价后的单动点折线。",
-        "∵{moving_point} 在直线 {moving_locus} 上运动。",
-        "作 {source_point} 关于 {moving_locus} 的对称点 {reflected_point}。",
-    ]
-    if reflected_text:
-        proof_templates.append("∴{reflected_point_coordinate}。")
-    proof_templates.extend(
-        [
-            "∴{segment_equality}。",
-            "∴{transformed_path}={straightened_path}。",
-            "∴当 {reflected_point}、{moving_point}、{other_fixed_point} 共线时，路径取得最小值 {straightened_segment}。",
-        ]
-    )
-    if distance_formula:
-        proof_templates.append("∴{distance_formula}。")
-    elif minimum_display:
-        proof_templates.append("∴{straightened_segment}={minimum_expression}。")
-
-    proof = [format_template(template, roles) for template in proof_templates]
-    box: list[str] = []
-    if reflected_text:
-        box.append(reflected_text)
-    if distance_formula:
-        box.append(distance_formula)
-    elif minimum_display:
-        box.append(format_template("路径最小值＝{minimum_expression}", roles))
-
-    return {
-        "confidence": "complete",
-        "bound_roles": roles,
-        "unbound_roles": [],
-        "student_intent_draft": format_template(
-            explanation.student_intent_template,
-            roles,
-        ),
-        "proof_draft": proof,
-        "box": box,
-        "recommended_lesson_splits": list(explanation.recommended_lesson_splits),
-        "llm_can_complete": list(explanation.allowed_llm_completion),
-        "llm_must_not_invent": generic_must_not_invent()
-        + [
-            "不得改变选中的对称点、最短线段端点或最小值表达式。",
-            "不得把未选中的拉直候选写成最终方案。",
-        ],
+        "quadratic_square_path_minimum": QuadraticSquarePathMinimumRoleBinder(),
     }
 
 
@@ -220,6 +167,7 @@ def _equal_length_ray_path_reduction_draft(
     segment_fact = _first_fact(read_facts, "point_on_segment")
     equal_fact = _first_fact(read_facts, "equal_length_condition")
     target_fact = _first_fact(read_facts, "path_minimum_target")
+    verified_witness = _path_minimum_witness(snapshot, group)
 
     roles: dict[str, Any] = {}
     unbound: list[str] = []
@@ -265,6 +213,13 @@ def _equal_length_ray_path_reduction_draft(
     else:
         unbound.extend(["point_on_ray", "point_on_segment"])
 
+    if verified_witness is not None:
+        _apply_verified_path_witness(
+            roles,
+            verified_witness,
+            entities=entities,
+        )
+
     for role in explanation.role_schema:
         if role not in roles and role not in {
             "ray_name",
@@ -272,15 +227,22 @@ def _equal_length_ray_path_reduction_draft(
             "minimum_expression",
         }:
             unbound.append(role)
-    minimum_expression = _minimum_expression_from_distance_trace(group)
+    minimum_expression = str(
+        (verified_witness or {}).get("minimum_expression")
+        or _minimum_expression_from_distance_trace(group)
+    )
     if minimum_expression:
         roles["minimum_expression"] = minimum_expression
         roles["minimum_expression_display"] = _student_expr(minimum_expression)
     roles.update(_minimum_segment_calculation_roles(group, snapshot, roles, entities))
-    proof = [
-        format_template(template, roles)
-        for template in explanation.proof_outline_templates
-    ]
+    proof = (
+        [str(item) for item in verified_witness.get("equivalence_proof", ())]
+        if verified_witness is not None
+        else [
+            format_template(template, roles)
+            for template in explanation.proof_outline_templates
+        ]
+    )
     substep_drafts = _equal_length_ray_path_substep_drafts(
         explanation,
         roles=roles,
@@ -317,6 +279,85 @@ def _equal_length_ray_path_reduction_draft(
                     ],
                 }
     return draft
+
+
+def _path_minimum_witness(
+    snapshot: ExplanationSnapshot,
+    group: LessonCandidateGroup,
+    *,
+    macro_id: str = "equal_length_ray_path_reduction",
+) -> dict[str, Any] | None:
+    source_step_ids = {
+        str(item)
+        for item in (
+            group.step_id,
+            *group.step.get("source_step_ids", ()),
+        )
+        if item
+    }
+    for item in snapshot.macro_evidence:
+        if item.get("macro_id") != macro_id:
+            continue
+        if str(item.get("step_id") or "") in source_step_ids:
+            return item
+    return None
+
+
+def _apply_verified_path_witness(
+    roles: dict[str, Any],
+    witness: dict[str, Any],
+    *,
+    entities: dict[str, dict[str, Any]],
+) -> None:
+    role_names = {
+        "anchor": "anchor",
+        "reference_point": "segment_reference_point",
+        "ray_point": "ray_direction_point",
+        "fixed_point": "fixed_point",
+    }
+    chosen: dict[str, str] = {}
+    for resolution in witness.get("role_resolutions", ()):
+        if not isinstance(resolution, dict):
+            continue
+        source_role = str(resolution.get("role") or "")
+        target_role = role_names.get(source_role)
+        label = str(resolution.get("chosen_ref") or "").rsplit(".", 1)[-1]
+        if not target_role or not label:
+            continue
+        chosen[source_role] = label
+        handle = _handle_for_label(label, entities)
+        if handle:
+            _bind_role(roles, target_role, handle, entities)
+        else:
+            roles[target_role] = {"handle": label, "label": label}
+
+    constructions = witness.get("constructions", ())
+    construction = constructions[0] if constructions else None
+    if isinstance(construction, dict):
+        auxiliary = str(construction.get("label") or "")
+        if auxiliary:
+            roles["auxiliary_point"] = {
+                "label": auxiliary,
+                "explanation_only_label": True,
+            }
+        coordinate = construction.get("coordinate")
+        if auxiliary and isinstance(coordinate, dict):
+            roles["auxiliary_coordinate"] = (
+                f"{auxiliary}=({coordinate.get('x')},{coordinate.get('y')})"
+            )
+    roles["original_path"] = str(witness.get("original_objective") or "")
+    roles["reduced_path"] = str(witness.get("reduced_objective") or "")
+    roles["minimum_expression"] = str(witness.get("minimum_expression") or "")
+    roles["minimum_expression_display"] = _student_expr(
+        roles["minimum_expression"]
+    )
+    auxiliary_label = str(
+        (roles.get("auxiliary_point") or {}).get("label") or ""
+    )
+    fixed_label = str((roles.get("fixed_point") or {}).get("label") or "")
+    if auxiliary_label and fixed_label:
+        roles["minimum_segment"] = f"{fixed_label}{auxiliary_label}"
+    roles["minimizing_points"] = witness.get("minimizing_points", {})
 
 
 def _equal_length_ray_path_substep_drafts(
@@ -405,115 +446,6 @@ def _entities_by_handle(snapshot: ExplanationSnapshot) -> dict[str, dict[str, An
 
 def _first_fact(facts: list[dict[str, Any]], fact_type: str) -> dict[str, Any] | None:
     return next((fact for fact in facts if fact.get("type") == fact_type), None)
-
-
-def _selected_straightening_candidate(
-    group: LessonCandidateGroup,
-    snapshot: ExplanationSnapshot,
-) -> dict[str, Any]:
-    scored: list[tuple[int, dict[str, Any]]] = []
-    for item in snapshot.fact_index.values():
-        if not isinstance(item, dict):
-            continue
-        if item.get("type") != "StraighteningCandidate":
-            continue
-        if item.get("source") != "select_straightening_candidate":
-            continue
-        value = item.get("value")
-        if not isinstance(value, dict):
-            continue
-        scope_id = str(item.get("scope_id") or "")
-        source_step_id = str(item.get("source_step_id") or "")
-        score = 1
-        if source_step_id == group.step_id:
-            score += 4
-        if scope_id == group.scope_id:
-            score += 3
-        if _scope_root(scope_id) == _scope_root(group.scope_id):
-            score += 1
-        scored.append((score, value))
-    if not scored:
-        return {}
-    scored.sort(key=lambda pair: pair[0], reverse=True)
-    return scored[0][1]
-
-
-def _scope_root(scope_id: str | None) -> str:
-    if not scope_id:
-        return "problem"
-    text = str(scope_id)
-    return text.split("_", 1)[0] or "problem"
-
-
-def _student_point_label(label: str) -> str:
-    return str(label).replace("_prime", "′")
-
-
-def _student_path_label(text: str) -> str:
-    return _student_point_label(str(text)).replace(" ", "")
-
-
-def _student_line_label(text: str) -> str:
-    raw = str(text).strip()
-    if raw.startswith("y="):
-        expr = _sympify(raw.split("=", 1)[1])
-        if expr is not None:
-            return f"y＝{_student_expr(sp.factor(expr), fullwidth_operators=True, simplify_sympy=False)}"
-    return _student_path_label(raw).replace("=", "＝")
-
-
-def _minimum_expression_from_fact(
-    group: LessonCandidateGroup,
-    snapshot: ExplanationSnapshot,
-) -> str:
-    scored: list[tuple[int, str]] = []
-    for item in snapshot.fact_index.values():
-        if not isinstance(item, dict) or item.get("type") != "MinimumExpression":
-            continue
-        if item.get("source") != "distance_between_points":
-            continue
-        value = str(item.get("value") or "")
-        if not value:
-            continue
-        scope_id = str(item.get("scope_id") or "")
-        source_step_id = str(item.get("source_step_id") or "")
-        score = 1
-        if source_step_id == group.step_id:
-            score += 4
-        if scope_id == group.scope_id:
-            score += 3
-        if _scope_root(scope_id) == _scope_root(group.scope_id):
-            score += 1
-        scored.append((score, value))
-    if not scored:
-        return ""
-    scored.sort(key=lambda pair: pair[0], reverse=True)
-    return scored[0][1]
-
-
-def _straightening_distance_formula(
-    selected: dict[str, Any],
-    *,
-    minimum_segment: str,
-    minimum_display: str,
-) -> str:
-    endpoints = selected.get("minimum_endpoints")
-    if not isinstance(endpoints, list | tuple) or len(endpoints) != 2:
-        return f"{minimum_segment}＝{minimum_display}" if minimum_segment and minimum_display else ""
-    p1 = _point_pair_from_value(endpoints[0])
-    p2 = _point_pair_from_value(endpoints[1])
-    if p1 is None or p2 is None:
-        return f"{minimum_segment}＝{minimum_display}" if minimum_segment and minimum_display else ""
-    dx = sp.simplify(p2[0] - p1[0])
-    dy = sp.simplify(p2[1] - p1[1])
-    distance = minimum_display
-    if not distance:
-        distance = _student_expr(sp.sqrt(dx**2 + dy**2), fullwidth_operators=True)
-    return (
-        f"{minimum_segment}＝"
-        f"√(({_student_expr(sp.factor(dx), fullwidth_operators=True, simplify_sympy=False)})²"
-        f"＋({_student_expr(sp.factor(dy), fullwidth_operators=True, simplify_sympy=False)})²)＝{distance}"
-    )
 
 
 def _segment_reference_point(segment_entity: dict[str, Any], anchor: str) -> str:

@@ -13,6 +13,8 @@ from typing import Any
 import pytest
 import sympy as sp
 
+from _problem_planning_support import cached_planning_binding_fixture
+
 from shuxueshuo_server.solver import load_problem_ir
 from shuxueshuo_server.solver.explanation import (
     ExplanationBuilder,
@@ -99,7 +101,8 @@ def test_method_and_recipe_visual_template_dispatch_uses_component_registry() ->
     assert method_components <= set(visual_builder._METHOD_VISUAL_TEMPLATE_RENDERERS)
     assert recipe_components <= set(visual_builder._RECIPE_VISUAL_TEMPLATE_RENDERERS)
     assert "CurvePointCandidateMarker" in visual_builder._METHOD_VISUAL_TEMPLATE_RENDERERS
-    assert "BrokenPathStraighteningMarker" in visual_builder._RECIPE_VISUAL_TEMPLATE_RENDERERS
+    assert "AtomicPathMinimumMarker" in visual_builder._RECIPE_VISUAL_TEMPLATE_RENDERERS
+    assert "BrokenPathStraighteningMarker" not in visual_builder._RECIPE_VISUAL_TEMPLATE_RENDERERS
     assert "elif" not in inspect.getsource(visual_builder._method_visual_template_items)
     assert "elif" not in inspect.getsource(visual_builder._recipe_visual_template_items)
 
@@ -176,7 +179,7 @@ def test_geometry_spec_builder_extracts_points_curves_and_domain() -> None:
     } == {"a": "1", "b": "-2", "c": "-3"}
     assert (
         curves_by_root["ii"]["sourceHandle"]
-        == "runtime:ii:outputs:derive_parametric_parabola_ii_parabola"
+        == "runtime:ii:outputs:parabola_expression"
     )
     assert {
         key: curves_by_root["ii"][key]
@@ -1086,9 +1089,9 @@ def test_vs1_lesson_data_uses_student_titles_and_distributed_answer_boxes() -> N
     sections = [step["section"] for step in steps]
     boxes_by_id = {step["id"]: step.get("box", []) for step in steps}
 
-    assert meta["pageTitle"] == "2026 年天津市和平区一模 第 25 题（二次函数综合）"
-    assert meta["breadcrumbTitle"] == "2026 天津市和平区一模 第 25 题"
-    assert problem["summary"] == "第 25 题（2026 天津市和平区一模）二次函数综合：解析式、角度条件与 OM+BN 路径最值。"
+    assert meta["pageTitle"] == "第 25 题（二次函数综合）"
+    assert meta["breadcrumbTitle"] == "第 25 题"
+    assert problem["summary"] == "第 25 题二次函数综合：解析式、角度条件与 OM+BN 路径最值。"
     assert problem["lines"][0]["text"].startswith("（25）（本小题 10 分）")
     assert "连接 BC" in problem["lines"][0]["text"]
     assert problem["lines"][1]["answerId"] == "answer_i_1_parabola"
@@ -1448,8 +1451,9 @@ def test_vs1_generated_geometry_and_base_layers_do_not_read_authored_specs() -> 
     assert "M" not in generated_geometry["movingPoints"]
     assert "N" not in generated_geometry["movingPoints"]
     assert any(
-        entity.get("handle") == "segment:problem:BC"
-        for entity in (snapshot.problem or {}).get("entities", [])
+        fact.get("type") == "point_on_segment"
+        and str(fact.get("segment") or "").endswith("BC")
+        for fact in (snapshot.problem or {}).get("facts", [])
     )
     assert generated_layers["section:i"]["elements"]
     assert generated_layers["section:ii"]["elements"]
@@ -1458,7 +1462,6 @@ def test_vs1_generated_geometry_and_base_layers_do_not_read_authored_specs() -> 
     assert visual_ir.layers["section:ii"]["elements"]
     part_i_elements = visual_ir.layers["section:i"]["elements"]
     assert any(item.get("type") == "point" and item.get("at") == "B1" and item.get("labelText") == "B" for item in part_i_elements)
-    assert any(item.get("type") == "coloredLine" and item.get("from") == "B1" and item.get("to") == "C" for item in part_i_elements)
     assert not any(item.get("type") == "point" and item.get("at") == "O" for item in part_i_elements)
     assert "E1" not in {
         item.get("at")
@@ -1792,6 +1795,7 @@ def test_vs3_llm_visual_optimizer_cannot_mutate_timeline(tmp_path: Path) -> None
     assert "timeline" in (tmp_path / "visual-optimization-error.txt").read_text(encoding="utf-8")
 
 
+@pytest.mark.live_llm
 @pytest.mark.skipif(
     not RUN_DEEPSEEK_HEPING_VISUAL,
     reason="DeepSeek Heping visual optimizer integration is opt-in",
@@ -1821,6 +1825,7 @@ def test_deepseek_explanation_and_visual_optimizer_heping_loop() -> None:
     _assert_animation_artifacts(DEBUG_DIR, "heping-visual-optimized.html")
 
 
+@pytest.mark.live_llm
 @pytest.mark.skipif(
     not RUN_DEEPSEEK_HEPING_VISUAL,
     reason="DeepSeek Heping visual optimizer integration is opt-in",
@@ -1862,7 +1867,10 @@ def _solve_heping_snapshot():
         default_planner_provider=config.build_default_planner_provider(),
         max_attempts=config.max_llm_attempts,
     )
-    result = orchestrator.solve(load_problem_ir(HEPING_FIXTURE))
+    bundle, *_ = cached_planning_binding_fixture(
+        "tj-2026-heping-yimo-25"
+    )
+    result = orchestrator.solve_verified(bundle)
     assert result.status == "ok", result.errors
     return ExplanationSnapshotBuilder().build(orchestrator.last_success_artifacts)
 

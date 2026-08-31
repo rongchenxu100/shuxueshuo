@@ -19,11 +19,15 @@ from shuxueshuo_server.solver.extraction.problem_domain_validation import (
     ProblemDomainValidator,
 )
 from shuxueshuo_server.solver.extraction.problem_planning_context import (
+    PLANNER_PROBLEM_VIEW_CONTRACT,
     PROBLEM_PLANNING_CONTEXT_CONTRACT,
     ProblemPlanningContextError,
     ProblemPlanningContextProjector,
+    _RefCandidate,
+    _RuntimeNode,
     _audit_prompt_payload,
-    problem_planning_context_prompt_schema,
+    _materialize_ref_authorities,
+    planner_problem_view_schema,
 )
 from shuxueshuo_server.solver.extraction.problem_solver_bundle import (
     ProblemBundleAuthorityToken,
@@ -36,6 +40,7 @@ from _problem_planning_support import (
     CASES,
     ROOT,
     accepted_bundle_fixture as _accepted_fixture,
+    domain_payload,
 )
 
 
@@ -48,6 +53,26 @@ GOAL_COUNTS = {
 }
 
 
+def _prompt_scopes(payload: dict) -> tuple[dict, ...]:
+    result: list[dict] = []
+
+    def visit(scope: dict) -> None:
+        result.append(scope)
+        for child in scope.get("children", []):
+            visit(child)
+
+    visit(payload["root_scope"])
+    return tuple(result)
+
+
+def _prompt_goals(payload: dict) -> tuple[dict, ...]:
+    return tuple(
+        goal
+        for scope in _prompt_scopes(payload)
+        for goal in scope.get("goals", [])
+    )
+
+
 def _planning_fixture(tmp_path: Path, case: str = CASES[0]):
     root, parent, accepted, store, *_ = _accepted_fixture(tmp_path, case=case)
     bundle = VerifiedSolverProblemBundleLoader().load(
@@ -57,6 +82,60 @@ def _planning_fixture(tmp_path: Path, case: str = CASES[0]):
     )
     context = ProblemPlanningContextProjector().project(bundle)
     return bundle, context
+
+
+def _rename_domain_local_ids(scope: dict, inherited: dict[str, str] | None = None) -> None:
+    inherited = dict(inherited or {})
+    local = {
+        entity["id"]: f"src_{entity['id']}"
+        for entity in scope["entities"]
+    }
+    visible = {**inherited, **local}
+
+    def rewrite(value, *, key: str | None = None):
+        if isinstance(value, str):
+            if key in {
+                    "axis",
+                    "construction",
+                    "kind",
+                    "label",
+                    "operator",
+                    "orientation",
+                    "quadrant",
+                    "role",
+                }:
+                return value
+            if value in visible:
+                return visible[value]
+            result = value
+            for source, target in sorted(
+                visible.items(),
+                key=lambda item: len(item[0]),
+                reverse=True,
+            ):
+                result = re.sub(
+                    rf"(?<![A-Za-z0-9_]){re.escape(source)}(?![A-Za-z0-9_])",
+                    target,
+                    result,
+                )
+            return result
+        if isinstance(value, list):
+            return [rewrite(item, key=key) for item in value]
+        if isinstance(value, dict):
+            return {
+                item_key: rewrite(item, key=item_key)
+                for item_key, item in value.items()
+            }
+        return value
+
+    scope["entities"] = [rewrite(item) for item in scope["entities"]]
+    scope["facts"] = [rewrite(item) for item in scope["facts"]]
+    scope["goals"] = [rewrite(item) for item in scope["goals"]]
+    for position, child in enumerate(scope["children"], start=1):
+        _rename_domain_local_ids(child, visible)
+        child["id"] = f"source_part_{position}"
+    if inherited == {}:
+        scope["id"] = "source_root"
 
 
 @pytest.mark.parametrize("case", CASES)
@@ -71,11 +150,38 @@ def test_five_bundles_project_one_deterministic_context(tmp_path, case) -> None:
     assert first.planning_context_id == second.planning_context_id
     assert first.authority_payload() == second.authority_payload()
     assert first.to_prompt_payload() == second.to_prompt_payload()
+    assert first.to_prompt_payload()["schema_version"] == (
+        PLANNER_PROBLEM_VIEW_CONTRACT
+    )
     assert len(first.goal_views) == GOAL_COUNTS[case]
     assert len(first.goal_views) == sum(
         len(scope.goals)
         for scope in bundle.verified_problem.graph.root_scope.iter_scopes()
     )
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_prompt_view_does_not_depend_on_extraction_local_ids(
+    tmp_path,
+    case,
+) -> None:
+    _, expected = _planning_fixture(tmp_path / "expected", case)
+    payload = domain_payload(case)
+    _rename_domain_local_ids(payload["root"])
+    root, parent, accepted, store, *_ = _accepted_fixture(
+        tmp_path / "renamed",
+        case=case,
+        domain_payload_override=payload,
+    )
+    bundle = VerifiedSolverProblemBundleLoader().load(
+        accepted,
+        store,
+        ancestor_contexts=(root, parent),
+    )
+
+    actual = ProblemPlanningContextProjector().project(bundle)
+
+    assert actual.to_prompt_payload() == expected.to_prompt_payload()
 
 
 def test_goal_views_only_see_owner_scope_and_ancestors(tmp_path) -> None:
@@ -93,22 +199,93 @@ def test_goal_views_only_see_owner_scope_and_ancestors(tmp_path) -> None:
     assert "i_2" not in views["ii.E"].visible_scope_ids
 
 
-def test_shared_scopes_are_serialized_once(tmp_path) -> None:
+def test_nested_scopes_are_serialized_once(tmp_path) -> None:
     _, context = _planning_fixture(
         tmp_path,
         "tj-2026-heping-ermo-25",
     )
     payload = context.to_prompt_payload()
-    shared_ids = [item["scope_id"] for item in payload["shared_context"]]
+    scope_ids = [item["id"] for item in _prompt_scopes(payload)]
 
-    assert shared_ids == ["problem", "i", "i_1"]
-    assert len(shared_ids) == len(set(shared_ids))
-    for goal in payload["goal_views"]:
-        local_ids = [item["scope_id"] for item in goal["local_context"]]
-        assert set(local_ids).isdisjoint(shared_ids)
-    assert next(
-        item for item in payload["goal_views"] if item["goal"]["answer_ref"]["ref"] == "ii.E"
-    )["local_context"][0]["scope_id"] == "ii"
+    assert scope_ids == ["problem", "i", "i_1", "i_2", "ii"]
+    assert len(scope_ids) == len(set(scope_ids))
+    assert len(_prompt_goals(payload)) == GOAL_COUNTS[context.problem_id]
+
+
+def test_prompt_items_publish_explicit_lexical_owner_scope(tmp_path) -> None:
+    _, context = _planning_fixture(
+        tmp_path,
+        "tj-2026-heping-yimo-25",
+    )
+    scopes = _prompt_scopes(context.to_prompt_payload())
+
+    for scope in scopes:
+        for collection in ("entities", "facts"):
+            for item in scope.get(collection, []):
+                assert item["owner_scope"] == scope["id"]
+
+    scope_i = next(scope for scope in scopes if scope["id"] == "i")
+    point_on_curve_d = next(
+        fact
+        for fact in scope_i["facts"]
+        if fact.get("point") == "D" and fact.get("curve") == "parabola"
+    )
+    assert point_on_curve_d["owner_scope"] == "i"
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_prompt_view_embeds_refs_once_and_omits_empty_collections(
+    tmp_path,
+    case,
+) -> None:
+    _, context = _planning_fixture(tmp_path / case, case)
+    payload = context.to_prompt_payload()
+    scopes = _prompt_scopes(payload)
+    input_refs = [
+        (scope["id"], item["ref"])
+        for scope in scopes
+        for key in ("entities", "facts")
+        for item in scope.get(key, [])
+    ]
+    goal_refs = [goal["goal_ref"] for goal in _prompt_goals(payload)]
+    for goal in _prompt_goals(payload):
+        assert "target" not in goal
+        if goal["kind"] in {
+            "point_coordinate",
+            "quadratic_equation",
+            "parameter_value",
+        }:
+            assert isinstance(goal.get("target_ref"), str)
+        if goal["kind"] == "minimum_value":
+            assert "expression" in goal
+            assert "target_ref" not in goal
+
+    assert set(input_refs) == {
+        (authority.owner_scope_id, authority.semantic_ref.ref)
+        for authority in context.ref_authorities.values()
+        if authority.usage == "input"
+    }
+    assert len(input_refs) == len(set(input_refs))
+    assert set(goal_refs) == {
+        authority.semantic_ref.ref
+        for authority in context.ref_authorities.values()
+        if authority.usage == "answer"
+    }
+    assert len(goal_refs) == len(set(goal_refs))
+    for scope in scopes:
+        for key in ("entities", "facts", "goals", "children"):
+            assert key not in scope or scope[key]
+    serialized = json.dumps(payload, ensure_ascii=False)
+    for old_field in (
+        "available_refs",
+        "semantic_reads",
+        "identity_only_reads",
+        "scope_path",
+        "visible_shared_scope_ids",
+        "shared_context",
+        "goal_views",
+    ):
+        assert old_field not in serialized
 
 
 def test_semantic_refs_are_unique_stable_and_source_named(tmp_path) -> None:
@@ -116,22 +293,73 @@ def test_semantic_refs_are_unique_stable_and_source_named(tmp_path) -> None:
         tmp_path,
         "tj-2026-heping-ermo-25",
     )
-    refs = tuple(context.ref_authorities)
+    keys = tuple(context.ref_authorities)
+    refs = tuple(item.local_ref for item in keys)
     non_scope_runtime_nodes = {
         runtime_id
         for runtime_id in bundle.projection_index.runtime_node_source_units
         if not runtime_id.startswith("scope:")
     }
 
-    assert len(refs) == len(set(refs))
+    assert len(keys) == len(set(keys))
     assert {item.runtime_node_id for item in context.ref_authorities.values()} == (
         non_scope_runtime_nodes
     )
     assert {"A", "B", "b", "C", "c", "parabola"}.issubset(refs)
     assert {"i_1.P", "i_1.A", "i_2.E", "ii.E"}.issubset(refs)
     assert not any(":" in ref for ref in refs)
+    assert not any(
+        "." in item.local_ref
+        for item in keys
+        if item.kind != "answer"
+    )
     assert not any(re.search(r"_[0-9a-f]{12,}$", ref) for ref in refs)
     assert "square_center_h_square_ae_a_e_k_g" in refs
+
+
+def test_scope_local_ref_allows_siblings_but_rejects_ancestor_shadow() -> None:
+    def candidate(scope_id: str, runtime_id: str) -> _RefCandidate:
+        return _RefCandidate(
+            runtime_node=_RuntimeNode(
+                runtime_node_id=runtime_id,
+                node_kind="entity",
+                owner_scope_id=scope_id,
+                payload={"kind": "point", "ref": "A"},
+            ),
+            base_ref="A",
+            kind="point",
+            value_type=None,
+            source_unit_ids=(f"unit:{scope_id}:A",),
+            usage="input",
+        )
+
+    sibling_authorities = _materialize_ref_authorities(
+        (candidate("i", "point:i:A"), candidate("ii", "point:ii:A")),
+        visible_goals_by_scope={"i": ("goal:i",), "ii": ("goal:ii",)},
+        scope_paths={"i": ("problem", "i"), "ii": ("problem", "ii")},
+    )
+    assert {(key.owner_scope_id, key.local_ref) for key in sibling_authorities} == {
+        ("i", "A"),
+        ("ii", "A"),
+    }
+
+    with pytest.raises(ProblemPlanningContextError) as error:
+        _materialize_ref_authorities(
+            (
+                candidate("problem", "point:problem:A"),
+                candidate("i", "point:i:A"),
+            ),
+            visible_goals_by_scope={
+                "problem": ("goal:i",),
+                "i": ("goal:i",),
+            },
+            scope_paths={
+                "problem": ("problem",),
+                "i": ("problem", "i"),
+            },
+        )
+
+    assert error.value.code == "planner.problem_planning_ref_ambiguous"
 
 
 def test_entity_fact_and_goal_array_reordering_does_not_drift_context(
@@ -186,7 +414,7 @@ def test_answer_refs_are_not_input_refs_or_cross_goal_visible(tmp_path) -> None:
     assert all(item.semantic_ref.ref not in scope_refs for item in answer_authorities)
     assert all(len(item.visible_goal_unit_ids) == 1 for item in answer_authorities)
     for goal in context.goal_views:
-        authority = context.ref_authorities[goal.answer_ref.ref]
+        authority = context.answer_authority_for_goal(goal.goal_unit_id)
         assert authority.visible_goal_unit_ids == (goal.goal_unit_id,)
 
 
@@ -225,31 +453,24 @@ def test_sibling_facts_do_not_enter_another_goal_prompt_slice(tmp_path) -> None:
         tmp_path,
         "tj-2026-heping-ermo-25",
     )
-    payload = context.to_prompt_payload()
-    shared = {item["scope_id"]: item for item in payload["shared_context"]}
+    goals = {item.answer_ref.ref: item for item in context.goal_views}
 
-    def visible_fact_kinds(answer_ref: str) -> set[str]:
-        goal = next(
-            item
-            for item in payload["goal_views"]
-            if item["goal"]["answer_ref"]["ref"] == answer_ref
+    def visible_fact_refs(answer_ref: str) -> set[str]:
+        payload = context.to_prompt_payload(
+            goal_unit_ids=(goals[answer_ref].goal_unit_id,),
         )
-        scopes = [
-            shared[scope_id]
-            for scope_id in goal["visible_shared_scope_ids"]
-        ] + list(goal["local_context"])
         return {
-            str(fact["kind"])
-            for scope in scopes
-            for fact in scope["facts"]
+            str(fact["ref"])
+            for scope in _prompt_scopes(payload)
+            for fact in scope.get("facts", [])
         }
 
-    i_2_facts = visible_fact_kinds("i_2.E")
-    ii_facts = visible_fact_kinds("ii.E")
-    assert "point_on_curve" in i_2_facts
-    assert "minimum_target" not in i_2_facts
-    assert "minimum_target" in ii_facts
-    assert "point_on_curve" not in ii_facts
+    i_2_facts = visible_fact_refs("i_2.E")
+    ii_facts = visible_fact_refs("ii.E")
+    assert "point_on_curve_parabola_g" in i_2_facts
+    assert "minimum_value" not in i_2_facts
+    assert "minimum_value" in ii_facts
+    assert "point_on_curve_parabola_g" not in ii_facts
 
 
 @pytest.mark.parametrize("case", CASES)
@@ -366,7 +587,7 @@ def test_prompt_audit_rejects_internal_identity_hidden_in_a_value(tmp_path) -> N
     bundle, context = _planning_fixture(tmp_path)
     payload = context.to_prompt_payload()
     runtime_id = next(iter(bundle.projection_index.runtime_node_source_units))
-    payload["shared_context"][0]["label"] = runtime_id
+    payload["root_scope"]["entities"][0]["kind"] = runtime_id
 
     with pytest.raises(ProblemPlanningContextError) as error:
         _audit_prompt_payload(payload, forbidden_values={runtime_id})
@@ -470,7 +691,7 @@ def test_context_is_recursively_immutable_and_prompt_is_a_copy(tmp_path) -> None
     with pytest.raises(TypeError):
         context.source["question_number"] = "changed"  # type: ignore[index]
     with pytest.raises(TypeError):
-        context.ref_authorities["new"] = next(  # type: ignore[index]
+        context.ref_authorities[next(iter(context.ref_authorities))] = next(  # type: ignore[index]
             iter(context.ref_authorities.values())
         )
 
@@ -506,11 +727,11 @@ def test_child_scope_order_is_semantic(tmp_path) -> None:
 def test_prompt_schema_snapshot_matches_runtime_and_validates_five_cases(
     tmp_path,
 ) -> None:
-    runtime_schema = problem_planning_context_prompt_schema()
+    runtime_schema = planner_problem_view_schema()
     checked_in = json.loads(
         (
             ROOT
-            / "internal/schemas/problem-planning-context.schema.json"
+            / "internal/schemas/planner-problem-view.schema.json"
         ).read_text(encoding="utf-8")
     )
     Draft202012Validator.check_schema(runtime_schema)
@@ -520,6 +741,15 @@ def test_prompt_schema_snapshot_matches_runtime_and_validates_five_cases(
     for case in CASES:
         _, context = _planning_fixture(tmp_path / case, case)
         assert list(validator.iter_errors(context.to_prompt_payload())) == []
+
+    _, context = _planning_fixture(tmp_path / "legacy-target", CASES[-1])
+    legacy = context.to_prompt_payload()
+    goal = _prompt_goals(legacy)[0]
+    goal["target"] = goal.pop("target_ref")
+    errors = list(validator.iter_errors(legacy))
+    assert errors
+    assert any("target_ref" in error.message for error in errors)
+    assert any("Additional properties" in error.message for error in errors)
 
 
 def test_projection_does_not_call_runtime_or_generation_services(

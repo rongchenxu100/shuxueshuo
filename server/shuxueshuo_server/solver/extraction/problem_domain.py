@@ -2208,7 +2208,9 @@ def _graph_semantic_equivalence_payload(graph: ProblemGraph) -> dict[str, Any]:
         ]
         source_text: list[str] = []
         for item in scope.source_text:
-            normalized = _semantic_source_text(item)
+            normalized = _semantic_source_text(
+                item if scope is graph.root_scope else _strip_scope_source_marker(item)
+            )
             if scope is graph.root_scope:
                 normalized = _strip_repeated_source_header(
                     normalized,
@@ -2265,6 +2267,18 @@ def _semantic_source_text(value: str) -> str:
 
     normalized = _semantic_text(value).replace(r"\cdot", "")
     return re.sub(r"[,.;:()（）【】\[\]，。；：、*·]", "", normalized)
+
+
+def _strip_scope_source_marker(value: str) -> str:
+    """Remove authored subquestion numbering from scope-local semantic text."""
+
+    return re.sub(
+        r"^\s*(?:(?:[（(]\s*(?:[ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩIVXivx]+|\d+)\s*[）)])|"
+        r"[①②③④⑤⑥⑦⑧⑨⑩]|(?:\d+\s*[.、．]))\s*",
+        "",
+        str(value),
+        count=1,
+    )
 
 
 def _semantic_orientation(value: str) -> str:

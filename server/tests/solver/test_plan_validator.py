@@ -9,6 +9,9 @@ import pytest
 from shuxueshuo_server.solver.fixtures import load_problem_ir
 from shuxueshuo_server.solver.runtime.context import ContextBuilder
 from shuxueshuo_server.solver.runtime.executor import PlanValidator
+from shuxueshuo_server.solver.runtime.functional_diagnostics import (
+    StatelessMethodError,
+)
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.models import StepGoal, MethodInvocation, StepPlan
 
@@ -84,8 +87,10 @@ def test_wrong_input_type_fails(context, validator: PlanValidator) -> None:
     plan = _valid_plan(context)
     plan.invocations[0].inputs["anchor"] = "$question.ii.conditions.length_squared"
 
-    with pytest.raises((TypeError, KeyError)):
+    with pytest.raises(StatelessMethodError) as error:
         validator.validate_step(context, plan)
+
+    assert error.value.code == "functional.method_input_state_unavailable"
 
 
 def test_sibling_scope_reference_fails(context, validator: PlanValidator) -> None:

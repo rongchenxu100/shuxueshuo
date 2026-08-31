@@ -1,79 +1,203 @@
 {
   "method_id": "quadratic_from_constraints",
   "title": "由二次函数约束求抛物线",
-  "description": "由题面模板建立，或继续化简当前同一对象的抛物线状态。通过已知系数、曲线点、系数关系和额外方程求当前问需要的最简抛物线。它适合在代入后能把 a,b,c 完全确定，或至少化简到只剩一个上下文有用的未知参数时使用；若 b、c 等多个参数都可作为自由参数，应结合后续长度、最值、曲线点或答案目标选择保留哪个参数，无法判断时应等待更多约束。",
-  "summary": "从题面函数模板建立抛物线，或在当前同一抛物线状态上追加已知系数、系数关系、曲线点和参数值；输出当前约束下最简的系数与抛物线。指定 target_parameter 时还可输出该系数关于 free_parameters 的开放或闭合状态。使用原则：建立曲线和继续追加约束都使用这一能力；多个已知系数使用 known_coefficients，单个运行参数代入才使用 parameter_value。题面函数模板已有多个系数值时，应把这些系数一次放入 known_coefficients，不要逐个调用表达式参数代入能力来建立抛物线。",
+  "description": "由编译器选择当前scope的题面二次函数身份与可见状态，Plan只提交当前scope新增的已知系数、曲线点、系数关系和额外方程，求该scope约束下的最简抛物线。应用本步骤当前scope约束后，free_parameters必须给出仍未确定状态的一组完整独立参数基底；开放状态必须非空，闭合状态允许[]或省略。runtime可证明等价的基底均可使用，但不能根据下游Goal提前收窄。兄弟scope使用不同局部条件时，应在各自scope分别生成状态。",
+  "summary": "根据当前scope中由编译器注入的唯一题面二次函数身份与可见状态，联立本步骤新增的已知系数、系数关系、曲线点、等式或参数值，输出最简系数与抛物线。Plan只填写catalog公开的约束参数；quadratic、parabola、x和all_coefficients均由编译器确定，不得自行放入args。指定target_parameter时还可输出该系数关于free_parameters的开放或闭合状态。使用原则：多个已知系数应一次放入 known_coefficients；单个运行参数代入才使用parameter_value；free_parameters必须给出应用本步骤当前scope约束后的一组完整独立参数基底：开放状态必填非空，闭合状态可填[]或省略。",
   "solves": [
     "derive_quadratic_from_constraints"
   ],
   "inputs": {
     "quadratic": {
-      "type": "Expression",
-      "required": true
+      "required": true,
+      "domain_type": "QuadraticFunction",
+      "runtime_type": "Expression",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "QuadraticFunction",
+        "object_kind": "function",
+        "state_kind": "expression"
+      }
     },
     "quadratic_template": {
-      "type": "Expression",
       "required": false,
-      "functional_exposed": false
+      "functional_exposed": false,
+      "description": "由MethodInputReadAuthority注入同一二次函数对象的ordinal-0原始系数模板；不得使用已消元的latest state代替。",
+      "domain_type": "QuadraticFunction",
+      "runtime_type": "Expression",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "QuadraticFunction",
+        "object_kind": "function",
+        "state_kind": "expression"
+      },
+      "binding": {
+        "schema_version": "method-input-binding/v1",
+        "input_name": "quadratic_template",
+        "required": false,
+        "derivation": {
+          "kind": "ordinal_zero_template",
+          "source_input": "quadratic"
+        }
+      }
     },
     "x": {
-      "type": "Symbol",
-      "required": true
+      "required": true,
+      "domain_type": "Symbol",
+      "runtime_type": "Symbol",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Symbol",
+        "object_kind": "symbol",
+        "state_kind": "value"
+      },
+      "binding": {
+        "schema_version": "method-input-binding/v1",
+        "input_name": "x",
+        "required": true,
+        "derivation": {
+          "kind": "canonical_symbol",
+          "symbol_name": "x"
+        }
+      }
     },
     "all_coefficients": {
-      "type": "SymbolList",
-      "required": true
+      "required": true,
+      "domain_type": "SymbolList",
+      "runtime_type": "SymbolList",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "SymbolList"
+      }
     },
     "known_coefficients": {
-      "type": "Coefficients",
-      "required": false
+      "required": false,
+      "description": "当前scope可见的零个或多个 symbol_value Fact；每个Fact提供一个已知二次函数系数值。",
+      "domain_type": "Coefficients",
+      "runtime_type": "Coefficients",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "Coefficients"
+      }
     },
     "coefficient_relation": {
-      "type": "Equation",
-      "required": false
+      "required": false,
+      "domain_type": "Fact",
+      "runtime_type": "Equation",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "Fact"
+      }
     },
     "extra_equation": {
-      "type": "Equation",
-      "required": false
+      "required": false,
+      "domain_type": "Fact",
+      "runtime_type": "Equation",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "Fact"
+      }
     },
     "curve_point": {
-      "type": "Point",
-      "required": false
+      "required": false,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "curve_points": {
-      "type": "PointList",
-      "required": false
+      "required": false,
+      "domain_type": "PointList",
+      "runtime_type": "PointList",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "PointList",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "p1": {
-      "type": "Point",
       "required": false,
-      "functional_exposed": false
+      "functional_exposed": false,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "p2": {
-      "type": "Point",
       "required": false,
-      "functional_exposed": false
+      "functional_exposed": false,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "free_parameter": {
-      "type": "Symbol",
-      "required": false
+      "required": false,
+      "domain_type": "Symbol",
+      "runtime_type": "Symbol",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Symbol",
+        "object_kind": "symbol",
+        "state_kind": "value"
+      }
     },
     "free_parameters": {
-      "type": "SymbolList",
-      "required": false
+      "required": false,
+      "allows_empty_collection": true,
+      "role": "应用本步骤当前scope可见约束后仍未确定的一组完整独立参数基底。开放状态必须填写非空基底；闭合状态可填写[]或省略。代码接受runtime证明等价的基底，但不得按下游Goal目标人为收窄",
+      "domain_type": "SymbolList",
+      "runtime_type": "SymbolList",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "SymbolList"
+      }
     },
     "parameter": {
-      "type": "Symbol",
-      "required": false
+      "required": false,
+      "domain_type": "Symbol",
+      "runtime_type": "Symbol",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Symbol",
+        "object_kind": "symbol",
+        "state_kind": "value"
+      }
     },
     "parameter_value": {
-      "type": "ParameterValue",
-      "required": false
+      "required": false,
+      "domain_type": "Symbol",
+      "runtime_type": "ParameterValue",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Symbol",
+        "object_kind": "symbol",
+        "state_kind": "value"
+      }
     },
     "target_parameter": {
-      "type": "Symbol",
       "required": false,
-      "role": "本轮希望明确求出的二次函数系数；只有提供它，parameter_value return 才具有确定的 Symbol 身份"
+      "role": "本轮希望明确求出的二次函数系数；只有提供它，parameter_value return 才具有确定的 Symbol 身份",
+      "domain_type": "Symbol",
+      "runtime_type": "Symbol",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Symbol",
+        "object_kind": "symbol",
+        "state_kind": "value"
+      }
     }
   },
   "outputs": {
@@ -82,6 +206,43 @@
     "parameter_value": "ParameterValue"
   },
   "is_pure": true,
+  "companion_outputs": [
+    {
+      "output_name": "coefficients",
+      "emission": "always",
+      "authority": "return_allocation"
+    }
+  ],
+  "input_relations": [
+    {
+      "relation_kind": "point_on_curve",
+      "point_arg": "curve_point",
+      "curve_arg": "quadratic",
+      "cardinality": "one",
+      "accepted_condition_kinds": [
+        "point_on_curve",
+        "point_on_curve_with_x_coordinate"
+      ]
+    },
+    {
+      "relation_kind": "point_on_curve",
+      "point_arg": "curve_points",
+      "curve_arg": "quadratic",
+      "cardinality": "for_each",
+      "accepted_condition_kinds": [
+        "point_on_curve",
+        "point_on_curve_with_x_coordinate"
+      ]
+    }
+  ],
+  "output_activation": {
+    "parameter_value": {
+      "kind": "requires_inputs",
+      "required_inputs": [
+        "target_parameter"
+      ]
+    }
+  },
   "scalar_result_forms": {
     "parameter_value": {
       "possible_forms": [
@@ -94,18 +255,18 @@
   },
   "preconditions": [
     "输入约束必须能唯一确定除 free_parameter/free_parameters 外的缺失系数",
-    "若作为独立化简步骤，化简后应完全确定系数，或只保留一个由后续条件/目标明确需要的自由参数",
-    "当多个自由参数都可表达同一函数时，应由 Planner 结合后续条件选择参数；不能唯一判断时不要提前缓存含参系数"
+    "开放状态的free_parameter/free_parameters必须给出应用当前scope可见约束后的完整独立基底；闭合状态允许[]或省略",
+    "局部条件属于子scope或兄弟scope时，状态producer必须位于对应局部scope，不能仅因共享同一抛物线身份而提升到祖先"
   ],
   "do_not_use_when": [
     "当前目标所需的同一抛物线状态已经由前序调用完整确定，无需用相同约束重复求解。",
-    "现有约束仍有多个自由参数，且无法唯一选择一个会被后续条件或答案目标消费的参数。",
+    "不能根据下游Goal希望求哪个参数来选择或缩减free_parameters；它必须是当前scope约束后完整的独立基底。runtime可证明等价的基底均合法。",
     "要求 closed_state 时，不能遗漏当前抛物线仍含自由符号对应的 parameter_value；代码只会在 Symbol 身份唯一时确定性补全。",
     "不要把参数范围或不等式放入 extra_equation；它只接受用于求系数的等式。",
     "不要把同一个 Symbol 同时声明为 free_parameters 和 target_parameter。",
     "题面 Function 模板已有多个已知系数时，不要逐个调用 evaluate_expression_at_parameter；使用 known_coefficients 一次建立当前 Parabola 状态。",
-    "目标只是把已求出的参数值代回当前抛物线；此时应读取该抛物线状态并使用参数求值能力，而不是建立一条互不依赖的同对象状态链。",
-    "不读取当前函数状态，却再次写入同一函数对象；只有新增约束能够形成可证明的状态细化时，才应继续使用该能力。",
+    "目标只是把已求出的参数值代回同一题面抛物线时，继续使用该Function的SourceRef；编译器会读取当前scope最近可见的Parabola状态和参数值。不要用StepResultRef指定具名Function的普通状态，也不要再次建立抛物线。",
+    "不要添加quadratic、parabola、x或all_coefficients参数；这些内部输入由编译器从当前scope的题面权威中注入，且不属于公开args。",
     "新增曲线点或方程代入后成为恒等式，或只约束其他符号，却仍指定一个未出现在这些约束中的 target_parameter；该能力不能凭目标名称反求系数。"
   ],
   "postconditions": [

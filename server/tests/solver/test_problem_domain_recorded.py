@@ -27,23 +27,23 @@ ROOT = Path(__file__).resolve().parents[3]
 EXPECTED_IDENTITIES = {
     "tj-2026-heping-ermo-25": (
         "problem-revision:9dfcc08df320f779fde2706c12f04dcdf64d3503879ef11d3f06d9de431e5698",
-        "a7dd9eb1f06eec5385909a38c7c387ec44932153514293b25cce6a433db54aa7",
+        "aa0f5282318c76fc4dd8b452e262ee259e86d8642859e5319a9d19ad28ee4a04",
     ),
     "tj-2026-heping-yimo-25": (
         "problem-revision:a699f5bb0dad4e50f431bd62aed9d40bdb8030cf9f9403fed2e58e9d4fcc83ee",
-        "450953bbd7797da4ff2ae05006cf8faa14037364cbbb773e5d7d968eddddba58",
+        "19a88ed167c0f1da990efa0a2f50b4aab63d527233e8b19cc74900f8f08c4af9",
     ),
     "tj-2026-hexi-yimo-25": (
         "problem-revision:7da2c35c8b6523b8f7ddeabd1d93e1724f10a111b63ddefa29c9cd5e783340b4",
-        "6bd16268033943d569e536ce4e04b1cd7a2321c528d1c475e509cbf04d80eb25",
+        "7e554c69826ffec347153ac3f81988f4803eeda04a30ddb2141989f6b08a2f77",
     ),
     "tj-2026-nankai-yimo-25": (
         "problem-revision:4aad5615f12b11f6f861f7502e715b211b80ab6188efb1fbbb8f386197d8bdec",
-        "8d66378678912def5acb4dd6e4a4ecf98ab166b89ed7d39f2fda6db999f73265",
+        "99970b19089e3506eb71d34190b80c9e4057db1b74afeec36c9d2d8b0decfe9b",
     ),
     "tj-2026-xiqing-yimo-25": (
         "problem-revision:23569dc0db8acf3ca5d8c831bf80487ab0e9262e40ec35953f1f45469ae454d6",
-        "b0b934b687c5c55cf2a394e7b6d4fa708f11d42a11bc1c57bfbb9605bf944bf1",
+        "580d67f75ca4e5e0198c7ad4f6e50e7c0effee6177ae04d6c0c38fdbfe59633a",
     ),
 }
 

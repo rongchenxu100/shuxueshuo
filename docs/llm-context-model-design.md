@@ -258,7 +258,10 @@ PlannerStateContext 与 RuntimeContext 分工不同：
 
 ## 15. 当前后续
 
-下一阶段优先建立 ExtractionContext，再让 Explanation、Diagram、Voiceover 和 Animation 统一消费 Context dependency。详见：
+ExtractionContext、VerifiedProblem 与 Scope Retry 已接通。下一阶段先固化原子路径 Macro，
+再让 Explanation、Diagram、Voiceover 和 Animation 统一消费 verified execution 与 Context
+dependency。详见：
 
-- `docs/problem-extraction-context-implementation-plan.md`
+- `docs/problem-extraction-context-design.md`
 - `docs/functional-planner-next-stage-roadmap.md`
+- `docs/path-minimum-macro-redesign.md`

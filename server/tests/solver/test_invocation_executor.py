@@ -13,6 +13,9 @@ from shuxueshuo_server.solver.fixtures import load_problem_ir
 from shuxueshuo_server.solver.runtime.context import ContextBuilder
 from shuxueshuo_server.solver.runtime.context_inventory import ContextInventoryBuilder
 from shuxueshuo_server.solver.runtime.executor import InvocationExecutor
+from shuxueshuo_server.solver.runtime.functional_diagnostics import (
+    StatelessMethodError,
+)
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.methods import (
     RightAngleEqualLengthCandidatesMethod,
@@ -87,63 +90,37 @@ def test_stateless_methods_do_not_accept_solve_context() -> None:
     assert list(selector_signature.parameters) == ["inputs", "kernel"]
 
 
-def test_executor_recovers_point_ref_from_computed_point_output_path() -> None:
-    """PointRef|Point target 若来自 outputs/fact path，也应恢复学生可见点名。"""
+def test_executor_reads_point_identity_from_canonical_entity_path() -> None:
+    """Identity-view inputs come from the canonical entity, not a Point value."""
     context = ContextBuilder().build(load_problem_ir(NANKAI_FIXTURE))
     specs = MethodSpecRegistry.load_from_code()
-    outputs = context.get_scope("ii").container("outputs")
-    outputs["G_locus_line"] = TypedValue(
-        "Line",
-        {
-            "kind": "line",
-            "start_point": (sp.Integer(0), sp.Integer(0)),
-            "direction": (sp.Integer(1), sp.Integer(0)),
-        },
-        source="test",
-    )
-    outputs["path_minimum_point_1"] = TypedValue(
-        "Point",
-        (sp.Integer(2), sp.Integer(-1)),
-        source="test",
-    )
-    outputs["path_minimum_point_2"] = TypedValue(
-        "Point",
-        (sp.Integer(2), sp.Integer(1)),
-        source="test",
-    )
-    outputs["G_coordinate"] = TypedValue(
-        "Point",
-        (sp.Integer(0), sp.Integer(0)),
-        source="test",
-    )
     invocation = MethodInvocation(
-        invocation_id="derive_minimum_G_point.line_locus_minimum_point",
-        method_id="line_locus_minimum_point",
+        invocation_id="derive_D.quadratic_axis_from_relation",
+        method_id="quadratic_axis_from_relation",
         scope="ii",
         inputs={
-            "moving_locus": "$question.ii.outputs.G_locus_line",
-            "minimum_point_1": "$question.ii.outputs.path_minimum_point_1",
-            "minimum_point_2": "$question.ii.outputs.path_minimum_point_2",
-            "target": "$question.ii.outputs.G_coordinate",
+            "coefficient_relation": "$problem.equations.coefficient_relation",
+            "a": "$problem.symbols.a",
+            "b": "$problem.symbols.b",
+            "target": "$problem.points.D",
         },
-        outputs={"point": "$question.ii.outputs.optimal_G_coordinate"},
+        outputs={"axis_point": "$question.ii.outputs.axis_point"},
     )
 
     result = InvocationExecutor(specs).execute_invocation(context, invocation)
 
-    assert result.outputs["point"].value == (sp.Integer(2), sp.Integer(0))
-    assert result.trace_fragments[0].goal == "确定 G 的坐标"
-    assert "moving_point" not in result.trace_fragments[0].goal
+    assert result.outputs["axis_point"].value == (sp.Integer(1), sp.Integer(0))
+    assert result.trace_fragments[0].title == "由系数关系确定 D"
     written = context.read_path(
-        "$question.ii.outputs.optimal_G_coordinate",
+        "$question.ii.outputs.axis_point",
         from_scope_id="ii",
         expected_type="Point",
     )
-    assert written.value == (sp.Integer(2), sp.Integer(0))
+    assert written.value == (sp.Integer(1), sp.Integer(0))
 
 
-def test_executor_recovers_strict_point_ref_target_from_existing_point_state() -> None:
-    """同一 MathObject 已有 Point 状态时，严格 PointRef target 仍可复用其身份。"""
+def test_executor_keeps_point_identity_separate_from_existing_point_state() -> None:
+    """An identity-view target never relies on a coordinate state's path/name."""
     context = ContextBuilder().build(load_problem_ir(NANKAI_FIXTURE))
     specs = MethodSpecRegistry.load_from_code()
     x = context.symbols["x"]
@@ -158,11 +135,6 @@ def test_executor_recovers_strict_point_ref_target_from_existing_point_state() -
         (sp.Integer(0), sp.Integer(0)),
         source="test",
     )
-    outputs["B_coordinate"] = TypedValue(
-        "Point",
-        (sp.Symbol("a"), sp.Integer(0)),
-        source="test",
-    )
     invocation = MethodInvocation(
         invocation_id="close_existing_B.quadratic_x_axis_intercept_point",
         method_id="quadratic_x_axis_intercept_point",
@@ -170,7 +142,7 @@ def test_executor_recovers_strict_point_ref_target_from_existing_point_state() -
         inputs={
             "quadratic": "$question.ii.outputs.closed_parabola",
             "x": "$problem.symbols.x",
-            "target": "$question.ii.outputs.B_coordinate",
+            "target": "$question.ii.points.G",
             "known_point": "$question.ii.outputs.known_intercept",
         },
         outputs={"point": "$question.ii.outputs.closed_B_coordinate"},
@@ -182,7 +154,55 @@ def test_executor_recovers_strict_point_ref_target_from_existing_point_state() -
         sp.Integer(2),
         sp.Integer(0),
     )
-    assert result.trace_fragments[0].goal == "确定 B 的坐标"
+    assert result.trace_fragments[0].goal == "确定 G 的坐标"
+
+
+def test_executor_projects_structured_point_to_active_function_basis() -> None:
+    """A Method sees an equivalent local view without mutating Problem state."""
+
+    context = ContextBuilder().build(load_problem_ir(HEXI_FIXTURE))
+    specs = MethodSpecRegistry.load_from_code()
+    x = context.symbols["x"]
+    b = context.symbols["b"]
+    c = context.symbols["c"]
+    original = context.read_path(
+        "$question.iii.points.M",
+        from_scope_id="iii",
+        expected_type="PointRef",
+    ).value
+    context.get_scope("iii").container("outputs")["c_basis_parabola"] = TypedValue(
+        "Parabola",
+        x**2 + (c + 1) * x + c,
+        source="test",
+    )
+    invocation = MethodInvocation(
+        invocation_id="derive_M.point_on_parabola_at_x",
+        method_id="point_on_parabola_at_x",
+        scope="iii",
+        inputs={
+            "parabola": "$question.iii.outputs.c_basis_parabola",
+            "x": "$problem.symbols.x",
+            "target": "$question.iii.points.M",
+        },
+        outputs={"point": "$question.iii.outputs.M_coordinate"},
+    )
+
+    resolved = InvocationExecutor(specs).resolve_inputs(context, invocation)
+    projected = resolved["target"]
+    assert projected.definition["x"] == -c - sp.Rational(1, 2)
+
+    result = InvocationExecutor(specs).execute_invocation(context, invocation)
+
+    assert result.outputs["point"].value == (
+        -c - sp.Rational(1, 2),
+        c / 2 - sp.Rational(1, 4),
+    )
+    assert original.definition["x"] == b + sp.Rational(1, 2)
+    assert context.read_path(
+        "$question.iii.points.M",
+        from_scope_id="iii",
+        expected_type="PointRef",
+    ).value is original
 
 
 def test_executor_reports_missing_conditional_method_output() -> None:
@@ -223,14 +243,23 @@ def test_executor_reports_missing_conditional_method_output() -> None:
         },
     )
 
-    with pytest.raises(
-        ValueError,
-        match=(
-            "method_output_unavailable:.*selected_candidate.*"
-            "candidate_selection_ambiguous"
-        ),
-    ):
+    with pytest.raises(StatelessMethodError) as exc_info:
         InvocationExecutor(specs).execute_invocation(context, invocation)
+
+    error = exc_info.value
+    assert error.code == "functional.method_result_ambiguous"
+    assert error.authority.expected["outputs"] == ("selected_candidate",)
+    assert error.authority.observed["missing_outputs"] == (
+        "selected_candidate",
+    )
+    assert (
+        "candidate_selection_ambiguous"
+        in error.authority.observed["failed_checks"]
+    )
+    assert (
+        error.authority.repair_action
+        == "supply_disambiguating_constraint"
+    )
 
 
 def test_promote_outputs_can_update_unlocked_existing_point_state() -> None:

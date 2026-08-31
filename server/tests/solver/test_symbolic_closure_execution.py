@@ -95,6 +95,89 @@ def test_symbolic_closure_solves_target_and_substitutes_all_outputs() -> None:
     assert sp.simplify(parameter.value - (1 - c)) == 0
 
 
+def test_quadratic_closure_requires_explicit_identity_template() -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["x", "b", "c"])
+    x, b, c = (symbols[name] for name in ("x", "b", "c"))
+    ids = {symbol: _symbol_id(symbol.name) for symbol in symbols.values()}
+    closure = execute_symbolic_closure(
+        _quadratic_spec(),
+        args={
+            "quadratic": -x**2 + b * x + c,
+            "quadratic_template": -x**2 + b * x + c,
+            "x": x,
+            "all_coefficients": [b, c],
+            "curve_point": (-c, 0),
+            "free_parameter": c,
+            "target_parameter": b,
+        },
+        target_object_id=ids[b],
+        runtime_symbol_bindings=ids,
+        kernel=kernel,
+    )
+
+    parabola = substitute_symbolic_closure_output(
+        TypedValue("Parabola", -x**2 + (1 - c) * x + c),
+        closure,
+        return_name="parabola",
+    )
+    assert sp.expand(parabola.value) == sp.expand(-x**2 + (1 - c) * x + c)
+
+    with pytest.raises(
+        SymbolicClosureRuntimeDriftError,
+        match="companion output does not match closure",
+    ):
+        substitute_symbolic_closure_output(
+            TypedValue("Parabola", -x**2 + (2 - c) * x + c),
+            closure,
+            return_name="parabola",
+        )
+
+
+def test_quadratic_closure_never_uses_latest_state_as_template() -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["x", "b", "c"])
+    x, b, c = (symbols[name] for name in ("x", "b", "c"))
+    ids = {symbol: _symbol_id(symbol.name) for symbol in symbols.values()}
+    closure = execute_symbolic_closure(
+        _quadratic_spec(),
+        args={
+            "quadratic": -x**2 + b * x + c,
+            "x": x,
+            "all_coefficients": [b, c],
+            "curve_point": (-c, 0),
+            "free_parameter": c,
+            "target_parameter": b,
+        },
+        target_object_id=ids[b],
+        runtime_symbol_bindings=ids,
+        kernel=kernel,
+    )
+
+    with pytest.raises(SymbolicClosureRuntimeDriftError) as captured:
+        substitute_symbolic_closure_output(
+            TypedValue("Parabola", -x**2 + (1 - c) * x + c),
+            closure,
+            return_name="parabola",
+        )
+
+    details = captured.value.details
+    assert details["expected_template"] == "ordinal_0_polynomial_template"
+    assert sp.expand(
+        sp.sympify(details["observed_state"], locals={"x": x, "b": b, "c": c})
+        - (-x**2 + b * x + c)
+    ) == 0
+    assert details["subjects"] == [
+        {
+            "role": "coefficient_identity_template",
+            "arg_name": "quadratic_template",
+            "expected_type": "Expression",
+            "expected_state": "ordinal_0",
+            "observed_state": "missing",
+        }
+    ]
+
+
 def test_materialized_open_target_matches_quadratic_method() -> None:
     kernel = SympyKernel()
     symbols = kernel.symbols(["x", "a", "b", "c"])

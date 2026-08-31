@@ -8,30 +8,95 @@
   ],
   "inputs": {
     "target_point": {
-      "type": "Point",
       "required": true,
-      "description": "需要返回候选坐标的目标 Point；candidates 列表中的每个候选保持这个对象身份，但 candidates 本身仍是 PointList。"
+      "symbolic_basis_role": "align_to_anchor",
+      "description": "需要返回候选坐标的目标 Point；candidates 列表中的每个候选保持这个对象身份，但 candidates 本身仍是 PointList。",
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "curve_point": {
-      "type": "Point",
       "required": true,
-      "description": "代入 parabola 建立参数方程的 Point；只提供约束，不作为返回对象。"
+      "symbolic_basis_role": "align_to_anchor",
+      "description": "代入 parabola 建立参数方程的 Point；只提供约束，不作为返回对象。",
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "parabola": {
-      "type": "Parabola",
-      "required": true
+      "required": true,
+      "symbolic_basis_role": "state_anchor",
+      "domain_type": "QuadraticFunction",
+      "runtime_type": "Parabola",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "QuadraticFunction",
+        "object_kind": "function",
+        "state_kind": "expression"
+      }
     },
     "x": {
-      "type": "Symbol",
-      "required": true
+      "required": true,
+      "domain_type": "Symbol",
+      "runtime_type": "Symbol",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Symbol",
+        "object_kind": "symbol",
+        "state_kind": "value"
+      },
+      "binding": {
+        "schema_version": "method-input-binding/v1",
+        "input_name": "x",
+        "required": true,
+        "derivation": {
+          "kind": "canonical_symbol",
+          "symbol_name": "x"
+        }
+      }
+    },
+    "parameter": {
+      "required": true,
+      "allows_anonymous_result": true,
+      "description": "target_point与curve_point共享的确切运动参数Symbol；应引用生成参数化点的前序call之parameter返回值",
+      "domain_type": "Symbol",
+      "runtime_type": "Symbol",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Symbol",
+        "object_kind": "symbol",
+        "state_kind": "value"
+      }
     }
   },
   "outputs": {
     "candidates": "PointList"
   },
   "is_pure": true,
+  "input_relations": [
+    {
+      "relation_kind": "point_on_curve",
+      "point_arg": "curve_point",
+      "curve_arg": "parabola",
+      "cardinality": "one",
+      "accepted_condition_kinds": [
+        "point_on_curve",
+        "point_on_curve_with_x_coordinate"
+      ]
+    }
+  ],
   "preconditions": [
-    "target_point 与 curve_point 只共享一个待定参数",
+    "parameter必须以同一Symbol身份同时出现在target_point与curve_point中",
     "parabola 已代入当前问已知条件",
     "若目标答案是 P，应令 target_point=P；不要把曲线上的 Q 同时填写为 target_point"
   ],

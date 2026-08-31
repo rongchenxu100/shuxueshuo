@@ -321,6 +321,58 @@ def test_prompt_closure_summary_is_compact_and_hides_typed_identity() -> None:
     assert "closure" not in projected[0]["results"][0]
 
 
+def test_prompt_runtime_result_rejects_private_path_state() -> None:
+    with pytest.raises(
+        ValueError,
+        match="functional.retry_runtime_output_projection_invalid",
+    ):
+        _compact_functional_runtime_verified(
+            [
+                {
+                    "call_id": "reduce_path",
+                    "execution_status": "runtime_verified",
+                    "results": [
+                        {
+                            "return": "path_transformation",
+                            "type": "PathTransformation",
+                            "value": {
+                                "moving_point_ref": "point:ii_2:M",
+                            },
+                        }
+                    ],
+                }
+            ],
+            issues=[],
+        )
+
+
+def test_prompt_runtime_result_rejects_synthetic_private_path_ref() -> None:
+    with pytest.raises(
+        ValueError,
+        match="functional.retry_runtime_output_projection_invalid",
+    ):
+        _compact_functional_runtime_verified(
+            [
+                {
+                    "call_id": "atomic_square_path",
+                    "execution_status": "runtime_verified",
+                    "results": [
+                        {
+                            "return": "attainment_point",
+                            "type": "Point",
+                            "value": {
+                                "point_ref": (
+                                    "point:ii:G#quadratic-square-reflection"
+                                )
+                            },
+                        }
+                    ],
+                }
+            ],
+            issues=[],
+        )
+
+
 @pytest.mark.parametrize("closure_value", ("c", "1"))
 def test_prompt_closure_summary_does_not_use_substring_deduplication(
     closure_value: str,

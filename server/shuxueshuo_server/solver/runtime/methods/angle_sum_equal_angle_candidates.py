@@ -9,7 +9,7 @@ from __future__ import annotations
 from shuxueshuo_server.solver.contracts import MethodExplanationSpec, MethodVisualSpec
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, declare_input_views
 
 
 class AngleSumEqualAngleCandidatesMethod:
@@ -32,40 +32,129 @@ class AngleSumEqualAngleCandidatesMethod:
 
         angle_terms = [str(item) for item in condition.get("angle_terms", [])]
         if len(angle_terms) != 2 or not all(len(item) == 3 for item in angle_terms):
-            raise ValueError("angle_sum condition must contain two 3-letter angle terms")
-        if sp.simplify(kernel.expr(str(condition.get("value", "45"))) - 45) != 0:
-            raise ValueError("current angle equality search expects a 45 degree angle sum")
+            raise method_input_invalid(
+                "angle-sum condition must contain two three-point angle terms",
+                arg_name="condition",
+                role="angle_sum",
+                expected={"angle_count": 2, "point_count_per_angle": 3},
+                observed={"angle_terms": angle_terms},
+            )
+        angle_value = _require_canonical_runtime_expression(
+            condition.get("value", "45"),
+            kernel,
+            arg_name="condition",
+            role="angle_sum_value",
+        )
+        if sp.simplify(angle_value - 45) != 0:
+            raise method_precondition_failed(
+                "angle-equality reduction requires a 45 degree angle sum",
+                arg_name="condition",
+                role="angle_sum",
+                expected={"degrees": 45},
+                observed={"degrees": condition.get("value")},
+            )
 
         if sp.simplify(x_axis_point[1] - origin[1]) != 0:
-            raise ValueError("x_axis_point must lie on the horizontal axis through origin")
+            raise method_precondition_failed(
+                "x-axis point is not horizontal with the origin",
+                arg_name="x_axis_point",
+                role="x_axis_point",
+                expected={"y": origin[1]},
+                observed={"y": x_axis_point[1]},
+            )
         if sp.simplify(y_axis_point[0] - origin[0]) != 0:
-            raise ValueError("y_axis_point must lie on the vertical axis through origin")
+            raise method_precondition_failed(
+                "y-axis point is not vertical with the origin",
+                arg_name="y_axis_point",
+                role="y_axis_point",
+                expected={"x": origin[0]},
+                observed={"x": y_axis_point[0]},
+            )
         if sp.simplify(reference_x_axis_point[1] - origin[1]) != 0:
-            raise ValueError("reference_x_axis_point must lie on the horizontal axis through origin")
+            raise method_precondition_failed(
+                "reference point is not horizontal with the origin",
+                arg_name="reference_x_axis_point",
+                role="reference_x_axis_point",
+                expected={"y": origin[1]},
+                observed={"y": reference_x_axis_point[1]},
+            )
 
         ob = kernel.distance(origin, x_axis_point)
         co = kernel.distance(origin, y_axis_point)
         ao = kernel.distance(origin, reference_x_axis_point)
         if sp.simplify(ob) == 0:
-            raise ValueError(
-                "angle_role_degenerate: x_axis_point must differ from origin"
+            raise method_precondition_failed(
+                "angle_role_degenerate: x-axis point coincides with the origin",
+                arg_name="x_axis_point",
+                role="x_axis_point",
+                expected={"distance_from_origin": "nonzero"},
+                observed={"distance_from_origin": ob},
             )
         if sp.simplify(co) == 0:
-            raise ValueError(
-                "angle_role_degenerate: y_axis_point must differ from origin"
+            raise method_precondition_failed(
+                "angle_role_degenerate: y-axis point coincides with the origin",
+                arg_name="y_axis_point",
+                role="y_axis_point",
+                expected={"distance_from_origin": "nonzero"},
+                observed={"distance_from_origin": co},
             )
         if sp.simplify(ao) == 0:
-            raise ValueError(
-                "angle_role_degenerate: reference_x_axis_point must differ "
-                "from origin"
+            raise method_precondition_failed(
+                "angle_role_degenerate: reference x-axis point coincides with the origin",
+                arg_name="reference_x_axis_point",
+                role="reference_x_axis_point",
+                expected={"distance_from_origin": "nonzero"},
+                observed={"distance_from_origin": ao},
             )
         if _same_point(x_axis_point, reference_x_axis_point):
-            raise ValueError(
-                "angle_role_degenerate: x_axis_point and "
-                "reference_x_axis_point must be distinct"
+            raise method_precondition_failed(
+                "angle_role_degenerate: x-axis point and reference point must be distinct",
+                role="reference_axis_triangle",
+                expected={"distinct_points": True},
+                observed={"x_axis_point": x_axis_point, "reference_point": reference_x_axis_point},
             )
         if sp.simplify(ob - co) != 0:
-            raise ValueError("no unique 45 degree reference angle found from axis triangle")
+            horizontal_free = tuple(
+                sorted(str(item) for item in sp.sympify(ob).free_symbols)
+            )
+            vertical_free = tuple(
+                sorted(str(item) for item in sp.sympify(co).free_symbols)
+            )
+            raise method_result_empty(
+                "axis triangle does not establish the required 45 degree reference angle",
+                subjects=(
+                    FunctionalDiagnosticSubject(
+                        role="horizontal_axis_point",
+                        arg_name="x_axis_point",
+                        expected_type="Point",
+                        expected_state="reference_angle_relation_provable",
+                        observed_type="Point",
+                        observed_state=(
+                            "open_state" if horizontal_free else "closed_state"
+                        ),
+                    ),
+                    FunctionalDiagnosticSubject(
+                        role="vertical_axis_point",
+                        arg_name="y_axis_point",
+                        expected_type="Point",
+                        expected_state="reference_angle_relation_provable",
+                        observed_type="Point",
+                        observed_state=(
+                            "open_state" if vertical_free else "closed_state"
+                        ),
+                    ),
+                ),
+                expected={
+                    "horizontal_length_equals_vertical_length": True,
+                },
+                observed={
+                    "horizontal_length": ob,
+                    "horizontal_free_symbols": horizontal_free,
+                    "vertical_length": co,
+                    "vertical_free_symbols": vertical_free,
+                },
+                repair_action="refresh_derived_input_states",
+            )
 
         shared, reference = _shared_and_reference_angles(angle_terms)
         origin_name = reference[2]
@@ -82,6 +171,7 @@ class AngleSumEqualAngleCandidatesMethod:
             "right_angle_points": list(reference),
             "shared_angle": shared,
             "reference_angle": f"{shared[0]}{shared[1]}{origin_name}",
+            "reference_angle_value": str(condition.get("value") or "45"),
             "source": condition.get("description") or condition.get("source") or "angle_sum",
         }
 
@@ -143,10 +233,13 @@ SPEC = MethodSpecSource(
         "当题面给出两个角之和为 45°，且 angle_terms 的结构能够确定一个"
         "非退化的坐标轴等腰直角参考三角形时，消去公共角并输出 AngleEquality。"
         "只需提供结构化角和条件；水平轴点、竖直轴点、参考点和原点由代码从"
-        "角的顶点顺序确定。本能力只推出等角事实，不计算目标点坐标。"
+        "角的顶点顺序确定。点坐标可以含未定参数，只要坐标轴关系与等腰关系"
+        "能够被符号恒等验证；无需先求出参数。本能力只推出等角事实，不计算"
+        "目标点坐标。"
     ),
     do_not_use_when=(
         "角和不是 45°，或两个角的点顺序不能构成所需的坐标轴参考三角形。",
+        "坐标轴关系或等腰关系只在某个尚未求出的参数值下成立，而不是符号恒等时。",
         "不要手工交换水平轴点、竖直轴点、参考点和原点；这些机械角色由结构化 angle_terms 决定。",
         "目标是直接求坐标时不能跳过等角事实的后续消费能力。",
     ),
@@ -159,6 +252,16 @@ SPEC = MethodSpecSource(
         "origin": {"type": "Point", "required": True},
         "target": {"type": "PointRef", "required": True},
     },
+    input_views=declare_input_views(
+        identity=("target",),
+        latest_state=(
+            "x_axis_point",
+            "y_axis_point",
+            "reference_x_axis_point",
+            "origin",
+        ),
+        immutable_value=("condition",),
+    ),
     outputs={"angle_equality": "AngleEquality"},
     preconditions=(
         "condition 是两个角之和等于 45° 的角和事实",

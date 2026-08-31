@@ -13,7 +13,7 @@ from shuxueshuo_server.solver.extraction.problem_domain_projection import (
     solver_problem_projection_schema,
 )
 from shuxueshuo_server.solver.extraction.problem_planning_context import (
-    problem_planning_context_prompt_schema,
+    planner_problem_view_schema,
 )
 
 
@@ -26,9 +26,7 @@ def main() -> None:
         "problem-domain.schema.json": problem_domain_schema(),
         "problem-repair.schema.json": problem_repair_schema(),
         "solver-problem-projection.schema.json": solver_problem_projection_schema(),
-        "problem-planning-context.schema.json": (
-            problem_planning_context_prompt_schema()
-        ),
+        "planner-problem-view.schema.json": planner_problem_view_schema(),
     }
     for name, payload in schemas.items():
         (destination / name).write_text(

@@ -125,7 +125,6 @@ def test_deterministic_planners_return_declarations_without_mutating_context() -
     assert "D_prime" not in nankai_context.get_scope("ii").container("points")
     assert {item.path for item in nankai_output.context_declarations} == {
         "$question.ii.points.G",
-        "$question.ii.points.D_prime",
     }
 
     hexi_context = ContextBuilder().build(load_problem_ir(HEXI_FIXTURE))
@@ -143,6 +142,4 @@ def test_deterministic_planners_return_declarations_without_mutating_context() -
     hexi_output = Hexi25WeightedPathPlannerV15(hexi_context).plan(hexi_inputs)
 
     assert "Q" not in hexi_context.get_scope("iii").container("points")
-    assert [item.path for item in hexi_output.context_declarations] == [
-        "$question.iii.points.Q"
-    ]
+    assert hexi_output.context_declarations == []

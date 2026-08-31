@@ -9,19 +9,24 @@
    `args.name` 是调用参数名；`accepts/required/cardinality/desc` 定义参数类型、数量和语义角色。
    `input_requirements` 是条件性必需输入，只有上游 return 的 `provides` 明确包含所需角色时才能省略；
    不要因为 runtime type 相同就假定结果携带相同证据。
-3. 题面输入直接使用 ProblemIR 中的 `semantic_ref`：
-   `{ "ref": "...", "kind": "...", "value_type": "..."? }`。
-   entity 的 `kind` 使用其 `entity_type`，fact 使用 `fact`，question goal 使用 `answer`。
-   `value_type` 通常可以省略。只能使用 ProblemIR 已给出的 `semantic_ref`，不要发明其他引用。
+3. 题面输入使用 Planner Problem View 的嵌套 scope 树。Entity 和 Fact 上的 `ref` 是唯一可用的
+   SemanticRef；不要发明其他引用。一个 scope 只能读取自身及祖先 scope 展示的 ref，不能读取
+   sibling scope 的私有 Entity、Fact 或 answer。若前序 call 已为同一题面对象生成唯一、可见且
+   类型兼容的新状态，后续继续写该对象的 SemanticRef 即可；系统会确定性绑定到最近的前序状态。
+   只有结果没有稳定题面 ref、需要指定非最近版本，或存在多个可能 producer 时，才显式使用
+   CallResultRef。
 4. 读取当前计划中更早 call 的返回值时，使用
    `{ "from_call": "earlier_call_id", "return": "declared_return_name" }`。
-   不允许 forward reference 或循环依赖。scope 表示调用的数学归属，不表示物理执行或存储位置。
+   不允许 forward reference 或循环依赖。scope只能取 Planner Problem View 中出现的scope id，
+   表示调用的数学归属，不表示物理执行或存储位置。
    只服务一个小问的调用放在该小问；题面直接给出的公共前提，以及从一开始就被多个小问以
-   完全相同状态消费的计算，可以放在最近公共父 scope。若结果先在一个小问中推导、后来被兄弟
-   小问复用，调用仍留在原小问，后续使用 CallResultRef；不要仅因进入另一个小问而重复计算，
-   也不要事后移动原调用。系统会决定安全的执行位置和发布范围。只有从一开始就被多个小问消费时，
-   才把可共享的开放表达式放入公共 scope，再由各子 scope 的求值 call 消费；不要为了可能的复用预建公共开放状态。
-   若同一对象已有可见状态，后续更新必须消费该状态，或使用能够证明其输入状态来自前序输入状态的调用链。
+   完全相同状态消费的计算，可以放在最近公共父 scope。跨 sibling 复用只允许 producer 的全部题面
+   输入都来自这些 Goal 的共同祖先 scope；由一个子问私有 Fact、Entity、answer 或参数条件推导出的
+   结果，绝不能用于回答 sibling 子问。即使符号同名，各子问也必须分别从本问条件建立自己的状态链。
+   确实由共同祖先前提产生的结果可放在最近公共父 scope，或由后续小问使用 CallResultRef；不要仅因
+   进入另一个小问而重复计算，也不要为了可能的复用预建公共开放状态。系统会决定安全的执行位置和发布范围。
+   若同一对象已有可见状态，后续更新会自动消费最近的唯一状态；存在歧义时必须用 CallResultRef
+   显式消歧，或使用能够证明其输入状态来自前序输入状态的调用链。
    同名对象若输入版本、自由符号或闭合状态不同，应保留为不同状态链，不能按名称强行共享。
 5. `args` 只填写 capability catalog 展示的参数。required arg 必须提供，cardinality 必须匹配。
    若 capability 展示 `input_requirements`，即使对应 arg 标为 optional，也必须满足其中的数学要求：
@@ -30,12 +35,18 @@
 6. `return_bindings` 只绑定最终 answer 或题面中的已有对象/状态：
    - `binding=internal_only` 的 return 不能绑定，只能由后续 call 通过 CallResultRef 消费；
    - `binding=same_object_as:<arg>` 的 return 保持指定输入对象的身份；
+   - `binding=same_compiler_selected_object` 的 return 由编译器从当前scope权威选择对象身份和写入目标，
+     不得为此添加catalog未声明的arg或return binding；
    - `binding=aggregate_elements_same_object_as:<arg>` 的 return 是一个整体的聚合值；只有其中每个元素
      保持 `<arg>` 的对象身份，return 本身不是单个对象。绑定 required answer 时必须使用
      `kind=answer`，并令 `value_type` 等于 catalog 中的 return `type`；不得使用 `kind=point`、
      `kind=symbol` 等单对象 binding；
    - `binding=answer_or_existing_object` 的 return 可以绑定类型和身份兼容的外部目标。
-   后续需要使用的普通中间结果不要绑定，直接通过 CallResultRef 连接。
+   - `binding=explicit_answer_or_existing_object` 的 return 必须绑定最终 answer 或题面中类型、身份兼容的
+     已有对象；即使它只是后续步骤的中间状态，也不能留空。CallResultRef 只证明数据流，不建立对象身份；
+   - `binding=call_result_or_answer_or_existing_object` 的匿名中间结果可不绑定，后续直接通过
+     CallResultRef 消费；若它更新题面已有对象，仍应显式绑定该对象。
+   只有 `internal_only` 或真正匿名、call-local 的普通中间结果保持不绑定。
 7. 只有 return 展示 `possible_forms` 时，才可在 `return_expectations` 中标记结果形态：
    - 有意保留未确定参数供后续求解时写 `open_expression`；
    - 准备直接绑定数值答案时写 `closed_value`；
@@ -52,9 +63,10 @@
 10. 一个 call 只表达一个 catalog capability。每个数学步骤都必须由所选 capability 支持。
 11. retry 时以 `latest_retry_state.baseline_candidate` 为候选解法。
     `locked_call_ids` 对应的调用已经完成答案目标证明，不要修改；
+    `validated_call_ids` 中不属于 `repair_call_ids` 的调用已通过本轮结构校验，也不要修改，代码会从 baseline 恢复；
     `runtime_verified` 是可编辑的局部执行结果，其中 `repair_required` 调用仍需修复；
     issue 通过 `actual_result_refs` 引用这些实际结果。优先处理 `repair_call_ids`；
-    为闭合数据或证据链，可以修改、替换或删除任何不在 `locked_call_ids` 中的调用。
+    为闭合数据或证据链，只修改 `repair_call_ids` 及为修复它们而新增的调用；不得改写已锁定或已验证的无关分支。
     重新输出完整 FunctionalPlan。
 
 JSON Schema:

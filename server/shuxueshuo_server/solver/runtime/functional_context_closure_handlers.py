@@ -8,10 +8,10 @@ from typing import Mapping
 from shuxueshuo_server.solver.family.models import CapabilityContextResolver
 from shuxueshuo_server.solver.runtime.context_closure import (
     CONDITION_OBJECT_ROLES_RESOLVER,
+    COUPLED_SEGMENT_PATH_ROLES_RESOLVER,
     EQUAL_LENGTH_RAY_PATH_ROLES_RESOLVER,
-    PATH_REDUCTION_ROLES_RESOLVER,
-    SQUARE_PATH_TRANSFORMATION_ROLES_RESOLVER,
-    WEIGHTED_PATH_TRANSFORMATION_ROLES_RESOLVER,
+    QUADRATIC_SQUARE_PATH_ROLES_RESOLVER,
+    WEIGHTED_AXIS_PATH_MINIMUM_ROLES_RESOLVER,
     context_closure_resolver,
     context_closure_resolver_ids,
 )
@@ -19,14 +19,17 @@ from shuxueshuo_server.solver.runtime.functional_condition_context_resolvers imp
     ContextClosureResolution,
     resolve_condition_role_args,
 )
+from shuxueshuo_server.solver.runtime.condition_binding_authority import (
+    ConditionBindingAuthorityIndex,
+)
 from shuxueshuo_server.solver.runtime.functional_context_values import (
     resolved_value_object_refs,
 )
 from shuxueshuo_server.solver.runtime.functional_path_context_resolvers import (
     resolve_equal_length_ray_path_args,
-    resolve_path_reduction_args,
-    resolve_square_path_transformation_args,
-    resolve_weighted_path_transformation_args,
+    resolve_coupled_segment_path_args,
+    resolve_quadratic_square_path_args,
+    resolve_weighted_axis_path_minimum_args,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_elaboration import (
     FunctionalDeterministicRepair,
@@ -51,13 +54,11 @@ _CONTEXT_CLOSURE_HANDLERS: Mapping[
     ContextClosureHandler,
 ] = {
     CONDITION_OBJECT_ROLES_RESOLVER: resolve_condition_role_args,
+    COUPLED_SEGMENT_PATH_ROLES_RESOLVER: resolve_coupled_segment_path_args,
     EQUAL_LENGTH_RAY_PATH_ROLES_RESOLVER: resolve_equal_length_ray_path_args,
-    PATH_REDUCTION_ROLES_RESOLVER: resolve_path_reduction_args,
-    SQUARE_PATH_TRANSFORMATION_ROLES_RESOLVER: (
-        resolve_square_path_transformation_args
-    ),
-    WEIGHTED_PATH_TRANSFORMATION_ROLES_RESOLVER: (
-        resolve_weighted_path_transformation_args
+    QUADRATIC_SQUARE_PATH_ROLES_RESOLVER: resolve_quadratic_square_path_args,
+    WEIGHTED_AXIS_PATH_MINIMUM_ROLES_RESOLVER: (
+        resolve_weighted_axis_path_minimum_args
     ),
 }
 
@@ -91,6 +92,8 @@ def resolve_context_closure_args(
     produced: Mapping[tuple[str, str], ResolvedFunctionalValue],
     semantic_index: FunctionalSemanticIndex,
     handle_registry: CanonicalHandleRegistry,
+    condition_authority_index: ConditionBindingAuthorityIndex | None = None,
+    allow_legacy_planned_producer_visibility: bool = False,
 ) -> tuple[
     dict[str, tuple[ResolvedFunctionalValue, ...]],
     tuple[FunctionalDeterministicRepair, ...],
@@ -106,16 +109,27 @@ def resolve_context_closure_args(
     for resolver_id in capability.context_resolvers:
         resolver = context_closure_resolver(resolver_id)
         handler = _CONTEXT_CLOSURE_HANDLERS[resolver_id]
+        handler_kwargs = {
+            "call_id": call_id,
+            "scope_id": scope_id,
+            "produced": produced,
+            "semantic_index": semantic_index,
+            "handle_registry": handle_registry,
+        }
+        if resolver_id == EQUAL_LENGTH_RAY_PATH_ROLES_RESOLVER:
+            handler_kwargs["allow_legacy_planned_producer_visibility"] = (
+                allow_legacy_planned_producer_visibility
+            )
+        if resolver_id == CONDITION_OBJECT_ROLES_RESOLVER:
+            handler_kwargs["condition_authority_index"] = (
+                condition_authority_index
+            )
         resolved, current_repairs, current_issues, closed = handler(
             capability,
             call,
             {**resolved_args, **additions},
             resolver,
-            call_id=call_id,
-            scope_id=scope_id,
-            produced=produced,
-            semantic_index=semantic_index,
-            handle_registry=handle_registry,
+            **handler_kwargs,
         )
         for arg_name, values in resolved.items():
             previous = additions.get(arg_name) or resolved_args.get(arg_name)
@@ -124,6 +138,9 @@ def resolve_context_closure_args(
                 and previous != values
                 and not _same_context_object_values(previous, values)
             ):
+                if _is_runtime_search_role(capability, arg_name):
+                    additions[arg_name] = values
+                    continue
                 issues.append(
                     _issue(
                         "functional_reconciliation",
@@ -151,6 +168,20 @@ def resolve_context_closure_args(
         issues.extend(current_issues)
         reads_closed = reads_closed or closed
     return additions, tuple(repairs), tuple(issues), reads_closed
+
+
+def _is_runtime_search_role(
+    capability: FunctionalCapability,
+    arg_name: str,
+) -> bool:
+    source = capability.source
+    search = getattr(source, "search", None)
+    return (
+        capability.kind == "macro"
+        and getattr(source, "execution_mode", None) == "runtime_search"
+        and search is not None
+        and arg_name in search.searchable_roles
+    )
 
 
 def _same_context_object_values(

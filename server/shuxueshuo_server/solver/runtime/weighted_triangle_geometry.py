@@ -8,6 +8,31 @@ from typing import Any
 import sympy as sp
 
 
+class WeightedTriangleGeometryUnsupportedError(ValueError):
+    """A public weight has no registered geometry profile."""
+
+    def __init__(self, weight: sp.Expr, supported: tuple[str, ...]) -> None:
+        self.weight = sp.simplify(weight)
+        self.supported = supported
+        super().__init__(
+            "weighted triangle geometry is not registered: "
+            f"weight={self.weight}; supported={', '.join(supported)}"
+        )
+
+
+class WeightedTriangleGeometryContractError(ValueError):
+    """A materialized transformation drifts from its registered profile."""
+
+    def __init__(self, field: str, expected: Any, observed: Any) -> None:
+        self.field = field
+        self.expected = expected
+        self.observed = observed
+        super().__init__(
+            "weighted transformation profile drift: "
+            f"field={field}; expected={expected}; observed={observed}"
+        )
+
+
 @dataclass(frozen=True)
 class WeightedTriangleGeometryProfile:
     profile_id: str
@@ -71,14 +96,11 @@ def weighted_triangle_geometry_for_weight(
         if sp.simplify(simplified - profile.weight) == 0
     )
     if len(matches) != 1:
-        supported = ", ".join(
+        supported = tuple(
             profile.weight_expression
             for profile in WEIGHTED_TRIANGLE_GEOMETRY_PROFILES
         )
-        raise ValueError(
-            "weighted triangle geometry is not registered: "
-            f"weight={simplified}; supported={supported}"
-        )
+        raise WeightedTriangleGeometryUnsupportedError(simplified, supported)
     return matches[0]
 
 
@@ -86,29 +108,33 @@ def weighted_triangle_geometry_for_transformation(
     transformation: dict[str, Any],
 ) -> WeightedTriangleGeometryProfile:
     if "scale" not in transformation or "geometry" not in transformation:
-        raise ValueError(
-            "weighted transformation requires scale and geometry profile"
+        raise WeightedTriangleGeometryContractError(
+            "required_fields",
+            ("scale", "geometry"),
+            tuple(sorted(transformation)),
         )
     profile = weighted_triangle_geometry_for_weight(
         sp.sympify(transformation["scale"])
     )
     if str(transformation["geometry"]) != profile.geometry:
-        raise ValueError(
-            "weighted transformation geometry does not match registered "
-            f"profile: expected={profile.geometry}, "
-            f"actual={transformation['geometry']}"
+        raise WeightedTriangleGeometryContractError(
+            "geometry",
+            profile.geometry,
+            transformation["geometry"],
         )
     profile_id = transformation.get("geometry_profile_id")
     if profile_id is not None and str(profile_id) != profile.profile_id:
-        raise ValueError(
-            "weighted transformation profile id does not match registered "
-            f"profile: expected={profile.profile_id}, actual={profile_id}"
+        raise WeightedTriangleGeometryContractError(
+            "geometry_profile_id",
+            profile.profile_id,
+            profile_id,
         )
     construction = transformation.get("construction")
     if construction is not None and str(construction) != profile.construction:
-        raise ValueError(
-            "weighted transformation construction does not match registered "
-            f"profile: expected={profile.construction}, actual={construction}"
+        raise WeightedTriangleGeometryContractError(
+            "construction",
+            profile.construction,
+            construction,
         )
     return profile
 
@@ -122,7 +148,9 @@ def weighted_triangle_geometry_payloads() -> tuple[dict[str, Any], ...]:
 
 __all__ = [
     "WEIGHTED_TRIANGLE_GEOMETRY_PROFILES",
+    "WeightedTriangleGeometryContractError",
     "WeightedTriangleGeometryProfile",
+    "WeightedTriangleGeometryUnsupportedError",
     "weighted_triangle_geometry_for_transformation",
     "weighted_triangle_geometry_for_weight",
     "weighted_triangle_geometry_payloads",

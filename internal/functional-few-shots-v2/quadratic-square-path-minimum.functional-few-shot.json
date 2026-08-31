@@ -1,0 +1,82 @@
+{
+  "example_id": "quadratic_square_path_minimum",
+  "annotation": {
+    "purpose": "原子求解二次函数约束下正方形结构中的路径最小值。",
+    "use_when": "题目同时给出当前二次函数、正方形关系和三段路径最值目标。",
+    "key_idea": "Planner 只提交当前抛物线、路径目标和正方形；Macro 内部完成降维、轨迹、拉直、达到性，并返回最小值表达式与取等点。",
+    "do_not_use_when": [
+      "缺少二次函数、正方形或结构化路径目标。",
+      "路径是普通耦合双动点、等长射线或带权轴上路径。"
+    ]
+  },
+  "plan": {
+    "format": "functional_plan/v2",
+    "root_scope": {
+      "scope_ref": "example",
+      "goals": [
+        {
+          "goal_ref": "example.answer",
+          "steps": [
+            {
+              "step_id": "derive_parametric_curve",
+              "capability_id": "quadratic_from_constraints",
+              "args": {
+                "curve_point": "known_curve_point",
+                "free_parameters": "parameter"
+              },
+              "intent": "代入曲线点条件，把函数化成单参数形式。"
+            },
+            {
+              "step_id": "derive_square_path_minimum",
+              "capability_id": "quadratic_square_path_minimum",
+              "args": {
+                "parabola": {
+                  "step_id": "derive_parametric_curve",
+                  "return": "parabola"
+                },
+                "path_minimum_target": "path_goal",
+                "square": "square_relation"
+              },
+              "intent": "原子完成正方形路径降维、拉直和达到性验证。"
+            },
+            {
+              "step_id": "solve_main_parameter",
+              "capability_id": "parameter_from_expression_value",
+              "args": {
+                "expression": {
+                  "step_id": "derive_square_path_minimum",
+                  "return": "minimum_expression"
+                },
+                "minimum_value": "given_minimum",
+                "parameter": "parameter"
+              },
+              "intent": "由给定最小值反求主参数。"
+            },
+            {
+              "step_id": "evaluate_attainment_point",
+              "capability_id": "evaluate_point_at_parameter",
+              "args": {
+                "point": {
+                  "step_id": "derive_square_path_minimum",
+                  "return": "attainment_point"
+                },
+                "parameter_value": {
+                  "step_id": "solve_main_parameter",
+                  "return": "parameter_value"
+                }
+              },
+              "output_targets": {
+                "evaluated_point": "attainment_object"
+              },
+              "intent": "把主参数代入 Macro 返回的取等点。"
+            }
+          ],
+          "answer_from": {
+            "step_id": "evaluate_attainment_point",
+            "return": "evaluated_point"
+          }
+        }
+      ]
+    }
+  }
+}

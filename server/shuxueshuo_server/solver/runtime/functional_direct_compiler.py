@@ -10,6 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from typing import Any
 
+from shuxueshuo_server.solver.contracts import MethodInputBindingSpec
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapability,
 )
@@ -84,9 +85,10 @@ class FunctionalRuntimeArgBinding:
     math_object_id: Any | None = None
     source_call_id: str | None = None
     source_return_name: str | None = None
-    compiler_selector_id: str | None = None
     source_handle: str | None = None
     state_slot_id: str | None = None
+    runtime_input_required: bool = True
+    input_binding: MethodInputBindingSpec | None = None
 
     @property
     def step_id(self) -> str:
@@ -103,6 +105,9 @@ class FunctionalCapabilityCompileCall:
     input_handles: tuple[str, ...]
     created_entities: tuple[FunctionalCreatedEntity, ...]
     return_outputs: tuple[FunctionalReturnOutput, ...]
+    return_allocations: tuple[FunctionalReturnAllocation, ...] = ()
+    macro_method_inputs: tuple[Any, ...] = ()
+    macro_role_overrides: dict[str, str] | None = None
 
 
 class FunctionalDirectCompiler:
@@ -166,7 +171,13 @@ def _runtime_arg_bindings(
                 runtime_type=binding.runtime_type,
                 runtime_path=(
                     prepared.runtime_path
-                    if prepared.selected_state_version_id is None
+                    if (
+                        prepared.selected_state_version_id is None
+                        or (
+                            binding.input_binding is not None
+                            and binding.input_binding.derivation is not None
+                        )
+                    )
                     else None
                 ),
                 runtime_input_targets=binding.runtime_input_targets,
@@ -175,7 +186,10 @@ def _runtime_arg_bindings(
                 cardinality=binding.cardinality,
                 selection_policy=binding.selection_policy,
                 consumption_mode=binding.consumption_mode,
-                state_version_id=prepared.selected_state_version_id,
+                state_version_id=(
+                    prepared.selected_state_version_id
+                    or binding.source.state_version_id
+                ),
                 condition_id=binding.source.condition_id,
                 math_object_id=(
                     binding.source.math_object_id
@@ -183,8 +197,9 @@ def _runtime_arg_bindings(
                 ),
                 source_call_id=binding.source.source_call_id,
                 source_return_name=binding.source.source_return_name,
-                compiler_selector_id=binding.source.compiler_selector_id,
                 source_handle=prepared.source_handle,
+                runtime_input_required=binding.runtime_input_required,
+                input_binding=binding.input_binding,
             )
         )
     return tuple(result)
@@ -251,6 +266,13 @@ def _compile_call(
         input_handles=reads,
         created_entities=creates,
         return_outputs=produces,
+        return_allocations=request.return_allocations,
+        macro_method_inputs=request.prepared_call.macro_method_inputs,
+        macro_role_overrides=(
+            dict(request.prepared_call.macro_role_overrides)
+            if request.prepared_call.macro_role_overrides
+            else None
+        ),
     )
 
 

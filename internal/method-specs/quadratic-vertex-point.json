@@ -8,16 +8,48 @@
   ],
   "inputs": {
     "parabola": {
-      "type": "Parabola",
-      "required": true
+      "required": true,
+      "symbolic_basis_role": "state_anchor",
+      "domain_type": "QuadraticFunction",
+      "runtime_type": "Parabola",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "QuadraticFunction",
+        "object_kind": "function",
+        "state_kind": "expression"
+      }
     },
     "x": {
-      "type": "Symbol",
-      "required": true
+      "required": true,
+      "domain_type": "Symbol",
+      "runtime_type": "Symbol",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Symbol",
+        "object_kind": "symbol",
+        "state_kind": "value"
+      },
+      "binding": {
+        "schema_version": "method-input-binding/v1",
+        "input_name": "x",
+        "required": true,
+        "derivation": {
+          "kind": "canonical_symbol",
+          "symbol_name": "x"
+        }
+      }
     },
     "target": {
-      "type": "PointRef",
-      "required": true
+      "required": true,
+      "symbolic_basis_role": "align_to_anchor",
+      "domain_type": "Point",
+      "runtime_type": "PointRef",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     }
   },
   "outputs": {

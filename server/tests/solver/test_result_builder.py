@@ -143,6 +143,60 @@ def test_result_builder_sorts_point_list_answers_by_coordinate_value() -> None:
     assert answers == {"i": {"E": [["-1", "2 - sqrt(6)"], ["-1", "2 + sqrt(6)"]]}}
 
 
+def test_result_builder_accepts_verified_point_answer_publication() -> None:
+    """A named Point Goal may publish its final value without rewriting the entity."""
+
+    problem = load_problem_ir(NANKAI_FIXTURE)
+    context = ContextBuilder(SympyKernel()).build(problem)
+    context.write_path(
+        "$subquestion.ii_2.outputs.G",
+        TypedValue("Point", (sp.Integer(4), -sp.Rational(13, 3)), source="test"),
+        from_scope_id="ii_2",
+    )
+    goal = QuestionGoal(
+        question_id="ii_2",
+        id="ii_2.G",
+        answer_key="G",
+        target_path="$question.ii.points.G",
+        value_type="Point",
+        required=True,
+    )
+
+    answers = ResultBuilder().build(context, PlanExecutionResult(), [goal])
+
+    assert answers == {"ii_2": {"G": ["4", "-13/3"]}}
+
+
+def test_result_builder_prefers_closed_goal_publication_over_open_entity() -> None:
+    """A Goal-local answer outranks an ancestor entity's still-open state."""
+
+    problem = load_problem_ir(NANKAI_FIXTURE)
+    context = ContextBuilder(SympyKernel()).build(problem)
+    context.write_path(
+        "$question.ii.points.G",
+        TypedValue("Point", (sp.Symbol("b"), sp.Symbol("c")), source="open"),
+        from_scope_id="ii",
+        allow_overwrite=True,
+    )
+    context.write_path(
+        "$subquestion.ii_2.outputs.G",
+        TypedValue("Point", (sp.Integer(4), -sp.Rational(13, 3)), source="closed"),
+        from_scope_id="ii_2",
+    )
+    goal = QuestionGoal(
+        question_id="ii_2",
+        id="ii_2.G",
+        answer_key="G",
+        target_path="$question.ii.points.G",
+        value_type="Point",
+        required=True,
+    )
+
+    answers = ResultBuilder().build(context, PlanExecutionResult(), [goal])
+
+    assert answers == {"ii_2": {"G": ["4", "-13/3"]}}
+
+
 def test_result_builder_fails_required_point_answer_with_free_symbol() -> None:
     """最终 Point 答案不能残留动点参数，否则会误报求解成功。"""
     problem = load_problem_ir(NANKAI_FIXTURE)

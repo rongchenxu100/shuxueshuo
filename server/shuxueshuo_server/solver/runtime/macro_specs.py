@@ -11,7 +11,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Literal, Mapping
 
-from shuxueshuo_server.solver.contracts import ScalarResultFormSpec
+from shuxueshuo_server.solver.contracts import (
+    MacroExecutionMode,
+    MacroSearchSpec,
+    ScalarResultFormSpec,
+)
 from shuxueshuo_server.solver.family.models import (
     CapabilityContextResolver,
     CapabilityDependencyPolicy,
@@ -20,9 +24,11 @@ from shuxueshuo_server.solver.family.models import (
     CapabilityInputClosureRequirement,
     ConditionPattern,
     GoalEvidenceTag,
-    PathTransformationConsumerSpec,
     FunctionalReturnBindingPolicy,
+    FunctionalReturnReferenceMode,
+    FunctionalSemanticRefRole,
     RecipeExecutionSpec,
+    RecipeInputDerivationSpec,
     RecipeOutputAliasSpec,
     StateIdentityPolicy,
     StateIdentityConstraintSpec,
@@ -43,6 +49,11 @@ from shuxueshuo_server.solver.runtime.functional_compile_contract import (
 from shuxueshuo_server.solver.runtime.function_specs import FunctionSpecRegistry
 from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
+from shuxueshuo_server.solver.runtime.planner_public_types import (
+    planner_input_domain_type,
+    planner_output_value_type,
+    planner_prompt_text,
+)
 from shuxueshuo_server.solver.runtime.recipes._spec import RecipeSpec
 from shuxueshuo_server.solver.runtime.recipes.registry import RecipeSpecRegistry
 from shuxueshuo_server.solver.runtime.output_type_inference import (
@@ -51,8 +62,8 @@ from shuxueshuo_server.solver.runtime.output_type_inference import (
 from shuxueshuo_server.solver.runtime.runtime_type_declarations import (
     split_runtime_types,
 )
-from shuxueshuo_server.solver.runtime.straightening_metadata import (
-    canonical_straightening_endpoint_name,
+from shuxueshuo_server.solver.runtime.runtime_type_compatibility import (
+    runtime_type_compatible,
 )
 from shuxueshuo_server.solver.runtime.strategy_models import (
     ProducedFact,
@@ -81,10 +92,14 @@ class MacroArgSpec:
     cardinality: str = "one"
     state_kind: str | None = None
     condition_kind: str | None = None
+    accepted_condition_kinds: tuple[str, ...] = ()
     object_kind: str | None = None
     semantic_role: str | None = None
     description: str = ""
     provides_semantic_roles: tuple[str, ...] = ()
+    semantic_ref_role: FunctionalSemanticRefRole = "value"
+    allows_anonymous_result: bool = False
+    deterministic_resolver: str | None = None
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -98,6 +113,10 @@ class MacroArgSpec:
             payload["state_kind"] = self.state_kind
         if self.condition_kind is not None:
             payload["condition_kind"] = self.condition_kind
+        if self.accepted_condition_kinds:
+            payload["accepted_condition_kinds"] = list(
+                self.accepted_condition_kinds
+            )
         if self.object_kind is not None:
             payload["object_kind"] = self.object_kind
         if self.semantic_role is not None:
@@ -108,6 +127,12 @@ class MacroArgSpec:
             payload["provides_semantic_roles"] = list(
                 self.provides_semantic_roles
             )
+        if self.semantic_ref_role != "value":
+            payload["semantic_ref_role"] = self.semantic_ref_role
+        if self.allows_anonymous_result:
+            payload["allows_anonymous_result"] = True
+        if self.deterministic_resolver is not None:
+            payload["deterministic_resolver"] = self.deterministic_resolver
         return payload
 
 
@@ -135,6 +160,7 @@ class MacroReturnSpec:
     provides_semantic_roles: tuple[str, ...] = ()
     object_role_projections: tuple[StateObjectRoleProjectionSpec, ...] = ()
     return_binding: FunctionalReturnBindingPolicy = "auto"
+    reference_mode: FunctionalReturnReferenceMode = "default"
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -175,6 +201,8 @@ class MacroReturnSpec:
             ]
         if self.return_binding != "auto":
             payload["return_binding"] = self.return_binding
+        if self.reference_mode != "default":
+            payload["reference_mode"] = self.reference_mode
         return payload
 
 
@@ -204,6 +232,8 @@ class MacroAdapterSpec:
     execution_strategy: str
     creates: tuple[str, ...] = ()
     input_aliases: tuple[tuple[str, str], ...] = ()
+    input_derivations: tuple[RecipeInputDerivationSpec, ...] = ()
+    strategy_input_targets: tuple[str, ...] = ()
     intermediate_wiring: tuple[tuple[str, str], ...] = ()
     output_aliases: tuple[RecipeOutputAliasSpec, ...] = ()
 
@@ -213,6 +243,10 @@ class MacroAdapterSpec:
             "execution_strategy": self.execution_strategy,
             "creates": list(self.creates),
             "input_aliases": [list(item) for item in self.input_aliases],
+            "input_derivations": [
+                item.to_payload() for item in self.input_derivations
+            ],
+            "strategy_input_targets": list(self.strategy_input_targets),
             "intermediate_wiring": [list(item) for item in self.intermediate_wiring],
             "output_aliases": [item.to_payload() for item in self.output_aliases],
         }
@@ -229,19 +263,33 @@ class MacroSpec:
     returns: tuple[MacroReturnSpec, ...]
     internal_calls: tuple[MacroInternalCallSpec, ...]
     adapter: MacroAdapterSpec
+    execution_mode: MacroExecutionMode
+    search: MacroSearchSpec | None = None
     source: MacroSpecSource = "recipe_execution"
     exposes_to_llm: bool = True
     is_pure: bool = False
     dependency_policy: CapabilityDependencyPolicy = "explicit_args"
     context_resolvers: tuple[CapabilityContextResolver, ...] = ()
     context_role_bindings: tuple[CapabilityContextRoleBindingSpec, ...] = ()
-    path_transformation_consumer: PathTransformationConsumerSpec | None = None
     input_closure_requirements: tuple[
         CapabilityInputClosureRequirement, ...
     ] = ()
     identity_constraints: tuple[StateIdentityConstraintSpec, ...] = ()
     repair_feedback_provider_id: str | None = None
     notes: tuple[str, ...] = ()
+
+    @property
+    def code_owned_search_roles(self) -> frozenset[str]:
+        """Roles resolved by Context/preparation and never authored by the LLM."""
+
+        if self.execution_mode != "runtime_search" or self.search is None:
+            return frozenset()
+        searchable = frozenset(self.search.searchable_roles)
+        return frozenset(
+            item.semantic_role
+            for item in self.context_role_bindings
+            if item.semantic_role in searchable
+        )
 
     def to_payload(self, *, include_adapter: bool = True) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -251,6 +299,8 @@ class MacroSpec:
             "args": [item.to_payload() for item in self.args],
             "returns": [item.to_payload() for item in self.returns],
             "internal_calls": [item.to_payload() for item in self.internal_calls],
+            "execution_mode": self.execution_mode,
+            "search": self.search.to_payload() if self.search is not None else None,
             "source": self.source,
             "exposes_to_llm": self.exposes_to_llm,
             "is_pure": self.is_pure,
@@ -258,11 +308,6 @@ class MacroSpec:
             "context_role_bindings": [
                 item.to_payload() for item in self.context_role_bindings
             ],
-            "path_transformation_consumer": (
-                self.path_transformation_consumer.to_payload()
-                if self.path_transformation_consumer is not None
-                else None
-            ),
             "context_resolvers": list(self.context_resolvers),
             "input_closure_requirements": [
                 item.to_payload() for item in self.input_closure_requirements
@@ -283,9 +328,13 @@ class MacroSpec:
             "macro_id": self.macro_id,
             "recipe_id": self.recipe_id,
             "goal_types": list(self.goal_types),
-            "args": [item.to_payload() for item in self.args],
-            "returns": [item.to_payload() for item in self.returns],
-            "notes": list(self.notes),
+            "args": [
+                _macro_prompt_arg(item)
+                for item in self.args
+                if _macro_arg_public_name(item) not in self.code_owned_search_roles
+            ],
+            "returns": [_macro_prompt_return(item) for item in self.returns],
+            "notes": [_macro_prompt_text(item) for item in self.notes],
         }
 
 
@@ -312,13 +361,28 @@ class MacroSpecRegistry:
             contract = contracts.get(recipe.recipe_id)
             if contract is not None and contract.execution_status != "executable":
                 continue
-            specs[recipe.recipe_id] = macro_spec_from_recipe(
+            spec = macro_spec_from_recipe(
                 recipe,
                 execution=execution,
                 contract=contract,
                 function_specs=functions,
                 recipe_spec=recipe_specs.get(recipe.recipe_id),
             )
+            _validate_macro_lowering_contract(spec, method_specs)
+            specs[recipe.recipe_id] = spec
+        from shuxueshuo_server.solver.runtime.macro_preparation import (
+            default_macro_implementation_registry,
+        )
+
+        implementations = default_macro_implementation_registry()
+        for spec in specs.values():
+            if spec.execution_mode == "runtime_search":
+                if spec.search is None:
+                    raise ValueError(
+                        "planner.macro_contract_invalid: runtime_search Macro "
+                        f"has no search spec: {spec.macro_id}"
+                    )
+                implementations.require(spec.macro_id, spec.search)
         return cls(specs)
 
     def get(self, macro_id: str) -> MacroSpec | None:
@@ -400,6 +464,7 @@ def macro_spec_from_recipe(
     recipe_spec: RecipeSpec | None = None,
 ) -> MacroSpec:
     """Project a StepRecipeSpec and RecipeExecutionSpec into a MacroSpec."""
+    _validate_macro_execution_contract(execution)
     source: MacroSpecSource = "recipe_execution"
     notes: list[str] = []
     if contract is not None:
@@ -441,9 +506,13 @@ def macro_spec_from_recipe(
             execution_strategy=execution.execution_strategy,
             creates=execution.creates,
             input_aliases=execution.input_aliases,
+            input_derivations=execution.input_derivations,
+            strategy_input_targets=execution.strategy_input_targets,
             intermediate_wiring=execution.intermediate_wiring,
             output_aliases=execution.output_aliases,
         ),
+        execution_mode=execution.execution_mode,
+        search=execution.search,
         source=source,
         exposes_to_llm=(
             contract.exposes_to_llm if contract is not None else True
@@ -460,11 +529,6 @@ def macro_spec_from_recipe(
         context_role_bindings=(
             contract.context_role_bindings if contract is not None else ()
         ),
-        path_transformation_consumer=(
-            contract.path_transformation_consumer
-            if contract is not None
-            else None
-        ),
         input_closure_requirements=(
             contract.input_closure_requirements
             if contract is not None
@@ -476,6 +540,63 @@ def macro_spec_from_recipe(
         repair_feedback_provider_id=next(iter(provider_ids), None),
         notes=tuple(unique_ordered(notes)),
     )
+
+
+_MACRO_CANDIDATE_BUILDERS = frozenset(
+    {
+        "coupled_segment_path_role_assignments",
+        "equal_length_ray_role_assignments",
+        "quadratic_square_path_role_assignments",
+        "weighted_axis_path_role_assignments",
+        "curve_role_assignments",
+    }
+)
+_MACRO_VALIDATION_POLICIES = frozenset(
+    {
+        "method_checks_and_macro_postconditions",
+        "distance_equivalence_and_provenance",
+        "path_equivalence_and_attainment",
+        "curve_membership_and_provenance",
+    }
+)
+
+
+def _validate_macro_execution_contract(execution: RecipeExecutionSpec) -> None:
+    search = execution.search
+    if execution.execution_mode == "direct":
+        if search is not None:
+            raise ValueError(
+                "planner_configuration_error: direct Macro must not declare search: "
+                f"{execution.recipe_id}"
+            )
+        return
+    if execution.execution_mode != "runtime_search" or search is None:
+        raise ValueError(
+            "planner_configuration_error: Macro execution mode/search mismatch: "
+            f"{execution.recipe_id}"
+        )
+    if not search.searchable_roles or len(set(search.searchable_roles)) != len(
+        search.searchable_roles
+    ):
+        raise ValueError(
+            "planner_configuration_error: Macro searchable roles must be unique: "
+            f"{execution.recipe_id}"
+        )
+    if search.candidate_builder_id not in _MACRO_CANDIDATE_BUILDERS:
+        raise ValueError(
+            "planner_configuration_error: unknown Macro candidate builder: "
+            f"{execution.recipe_id}:{search.candidate_builder_id}"
+        )
+    if search.validation_policy_id not in _MACRO_VALIDATION_POLICIES:
+        raise ValueError(
+            "planner_configuration_error: unknown Macro validation policy: "
+            f"{execution.recipe_id}:{search.validation_policy_id}"
+        )
+    if not 1 <= search.max_candidates <= 32:
+        raise ValueError(
+            "planner_configuration_error: Macro search budget must be within 1..32: "
+            f"{execution.recipe_id}:{search.max_candidates}"
+        )
 
 
 def _macro_is_pure(
@@ -533,15 +654,7 @@ def assert_no_macro_adapter_failures(events: tuple[Any, ...]) -> None:
 
 
 def _execution_for_recipe(recipe: StepRecipeSpec) -> RecipeExecutionSpec | None:
-    if recipe.execution is not None:
-        return recipe.execution
-    if len(recipe.method_ids) == 1:
-        return RecipeExecutionSpec(
-            recipe_id=recipe.recipe_id,
-            method_sequence=recipe.method_ids,
-            execution_strategy="single_method",
-        )
-    return None
+    return recipe.execution
 
 
 def _args_from_contract(contract: CapabilityContractSpec | None) -> tuple[MacroArgSpec, ...]:
@@ -567,7 +680,41 @@ def _slot_arg(slot: StateSlotPattern, index: int) -> MacroArgSpec:
         semantic_role=slot.semantic_role,
         description=slot.description,
         provides_semantic_roles=slot.provides_semantic_roles,
+        semantic_ref_role=slot.semantic_ref_role,
+        allows_anonymous_result=slot.allows_anonymous_result,
     )
+
+
+def _macro_prompt_arg(item: MacroArgSpec) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "name": _macro_arg_public_name(item),
+        "domain_type": planner_input_domain_type(item.runtime_type),
+        "required": item.required,
+        "cardinality": item.cardinality,
+    }
+    if item.description:
+        payload["role"] = planner_prompt_text(item.description)
+    return payload
+
+
+def _macro_prompt_return(item: MacroReturnSpec) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "name": item.name,
+        "type": planner_output_value_type(item.runtime_type),
+    }
+    if not item.required:
+        payload["required"] = False
+    if item.cardinality != "one":
+        payload["cardinality"] = item.cardinality
+    if item.description:
+        payload["desc"] = planner_prompt_text(item.description)
+    if item.reference_mode != "default":
+        payload["reference_mode"] = item.reference_mode
+    return payload
+
+
+def _macro_prompt_text(value: str) -> str:
+    return planner_prompt_text(value)
 
 
 def _condition_arg(condition: ConditionPattern, index: int) -> MacroArgSpec:
@@ -578,6 +725,12 @@ def _condition_arg(condition: ConditionPattern, index: int) -> MacroArgSpec:
         required=condition.required,
         cardinality=condition.cardinality,
         condition_kind=condition.condition_kind,
+        accepted_condition_kinds=(
+            condition.accepted_condition_kinds
+            or (condition.condition_kind,)
+        ),
+        semantic_role=condition.semantic_role,
+        deterministic_resolver=condition.deterministic_resolver,
         description=condition.description,
     )
 
@@ -623,6 +776,7 @@ def _returns_from_output_aliases(
                 provides_semantic_roles=output.provides_semantic_roles,
                 object_role_projections=output.object_role_projections,
                 return_binding=output.return_binding,
+                reference_mode=output.reference_mode,
             )
         )
     return tuple(returns)
@@ -854,10 +1008,6 @@ def _semantic_role_matches(
         return False
     name = produced_semantic_role(produced).lower()
     role = semantic_role.lower()
-    canonical_name = canonical_straightening_endpoint_name(name)
-    canonical_role = canonical_straightening_endpoint_name(role)
-    if canonical_name is not None or canonical_role is not None:
-        return canonical_name == canonical_role
     if " return " in produced.description:
         return name == role
     return name == role or name.endswith(f"_{role}") or role.endswith(f"_{name}")
@@ -869,6 +1019,192 @@ def _contract_errors(spec: MacroSpec) -> tuple[str, ...]:
         for note in spec.notes
         if note.startswith("macro_contract_mismatch:required:")
     )
+
+
+def _validate_macro_lowering_contract(
+    spec: MacroSpec,
+    method_specs: MethodSpecRegistry,
+) -> None:
+    """Audit every public-to-internal Macro edge before it reaches runtime."""
+
+    public_args = {_macro_arg_public_name(item): item for item in spec.args}
+    internal_methods = {
+        item.capability_id
+        for item in spec.internal_calls
+    }
+    errors: list[str] = []
+
+    def target_input(target: str) -> tuple[str, str, Any] | None:
+        method_id, separator, input_name = target.partition(".")
+        if not separator or not method_id or not input_name:
+            errors.append(f"invalid target {target!r}")
+            return None
+        if method_id not in internal_methods:
+            errors.append(f"target method is outside sequence: {target}")
+            return None
+        method = method_specs.specs.get(method_id)
+        if method is None:
+            errors.append(f"target method is unknown: {method_id}")
+            return None
+        input_spec = method.inputs.get(input_name)
+        if input_spec is None:
+            errors.append(f"target input is unknown: {target}")
+            return None
+        return method_id, input_name, input_spec
+
+    target_sources: dict[str, str] = {}
+    for source_arg, target in spec.adapter.input_aliases:
+        source = public_args.get(source_arg)
+        if source is None:
+            errors.append(f"input alias source is not public: {source_arg}")
+            continue
+        resolved = target_input(target)
+        if resolved is None:
+            continue
+        _method_id, _input_name, input_spec = resolved
+        if not runtime_type_compatible(input_spec.type, source.runtime_type):
+            errors.append(
+                "input alias type mismatch: "
+                f"{source_arg}:{source.runtime_type}->{target}:{input_spec.type}"
+            )
+        previous = target_sources.setdefault(target, source_arg)
+        if previous != source_arg:
+            errors.append(
+                f"input target has multiple public sources: {target}"
+            )
+
+    for derivation in spec.adapter.input_derivations:
+        source = public_args.get(derivation.source_arg)
+        if source is None:
+            errors.append(
+                "input derivation source is not public: "
+                f"{derivation.source_arg}"
+            )
+            continue
+        resolved = target_input(derivation.target)
+        if resolved is None:
+            continue
+        _method_id, _input_name, input_spec = resolved
+        if derivation.kind != "source_object_identity":
+            errors.append(
+                f"unsupported input derivation: {derivation.kind}"
+            )
+            continue
+        source_kind = object_kind_for_runtime_type(source.runtime_type)
+        target_kinds = {
+            object_kind_for_runtime_type(runtime_type)
+            for runtime_type in split_runtime_types(input_spec.type)
+        }
+        if source_kind is None or source_kind not in target_kinds:
+            errors.append(
+                "input derivation object identity mismatch: "
+                f"{derivation.source_arg}:{source.runtime_type}->"
+                f"{derivation.target}:{input_spec.type}"
+            )
+        previous = target_sources.setdefault(
+            derivation.target,
+            derivation.source_arg,
+        )
+        if previous != derivation.source_arg:
+            errors.append(
+                "derived input target has multiple public sources: "
+                f"{derivation.target}"
+            )
+
+    for target in spec.adapter.strategy_input_targets:
+        if target_input(target) is None:
+            continue
+        previous = target_sources.setdefault(target, "<strategy>")
+        if previous != "<strategy>":
+            errors.append(
+                "strategy input duplicates another lowering edge: "
+                f"{target}"
+            )
+
+    for source, target in spec.adapter.intermediate_wiring:
+        source_method, separator, output_name = source.partition(".")
+        if not separator or source_method not in internal_methods:
+            errors.append(f"invalid intermediate source: {source}")
+            continue
+        source_spec = method_specs.specs.get(source_method)
+        output_type = (
+            source_spec.outputs.get(output_name)
+            if source_spec is not None
+            else None
+        )
+        resolved = target_input(target)
+        if output_type is None:
+            errors.append(f"intermediate output is unknown: {source}")
+        elif resolved is not None and not runtime_type_compatible(
+            resolved[2].type,
+            output_type,
+        ):
+            errors.append(
+                "intermediate type mismatch: "
+                f"{source}:{output_type}->{target}:{resolved[2].type}"
+            )
+        elif resolved is not None:
+            previous = target_sources.setdefault(target, source)
+            if previous != source:
+                errors.append(
+                    "intermediate input duplicates another lowering edge: "
+                    f"{target}"
+                )
+
+    for method_id in sorted(internal_methods):
+        method = method_specs.specs.get(method_id)
+        if method is None:
+            errors.append(f"internal method is unknown: {method_id}")
+            continue
+        for input_name, input_spec in method.inputs.items():
+            target = f"{method_id}.{input_name}"
+            if input_spec.required and target not in target_sources:
+                errors.append(
+                    "required internal input has no lowering edge: "
+                    f"{target}"
+                )
+
+    for output in spec.adapter.output_aliases:
+        method_id, separator, output_name = output.output_key.partition(".")
+        method = method_specs.specs.get(method_id)
+        actual_type = method.outputs.get(output_name) if method is not None else None
+        if not separator or method_id not in internal_methods or actual_type is None:
+            errors.append(f"output alias target is unknown: {output.output_key}")
+        elif not runtime_type_compatible(output.runtime_type, actual_type):
+            errors.append(
+                "output alias type mismatch: "
+                f"{output.output_key}:{actual_type}->{output.runtime_type}"
+            )
+        elif method is not None:
+            activation = method.output_activation.get(output_name)
+            if activation is not None and activation.kind == "requires_inputs":
+                missing_activation_inputs = tuple(
+                    input_name
+                    for input_name in activation.required_inputs
+                    if f"{method_id}.{input_name}" not in target_sources
+                )
+                if missing_activation_inputs:
+                    errors.append(
+                        "optional output has no public activation lowering: "
+                        f"{output.output_key} requires "
+                        f"{missing_activation_inputs}"
+                    )
+
+    if errors:
+        raise ValueError(
+            "planner_configuration_error: macro lowering contract invalid: "
+            f"macro={spec.macro_id}; " + "; ".join(errors)
+        )
+
+
+def _macro_arg_public_name(item: MacroArgSpec) -> str:
+    if item.semantic_role:
+        return item.semantic_role
+    if item.condition_kind:
+        return item.condition_kind
+    if item.state_kind:
+        return item.state_kind
+    return item.name
 
 
 def _macro_is_prompt_executable(spec: MacroSpec) -> bool:

@@ -1,0 +1,122 @@
+"""Private straightening-candidate selector for atomic path kernels.
+
+No ``SPEC`` is defined here; this implementation cannot be registered as a
+Planner-facing Method without crossing the tested internal boundary.
+"""
+
+from __future__ import annotations
+
+from ..._common import *
+
+
+class SelectStraighteningCandidateMethod:
+    """从折线拉直候选中选择更适合后续计算的一种。
+
+    首版选择策略非常朴素：比较反射点坐标的符号复杂度，唯一最简单的候选胜出。
+    这对应人工解题中“选择 D 的对称点，因为它正好是正方形顶点，坐标更干净”的
+    思路。后续可以把策略扩展成多指标 rank：坐标复杂度、是否已有构造、是否利于
+    求交点、是否利于参数消元等。
+    """
+
+    method_id = "select_straightening_candidate"
+
+    def run(self, inputs: dict[str, Any], kernel: SympyKernel) -> StatelessMethodResult:
+        candidates = list(inputs["candidates"])
+        target: PointRef = inputs["target"]
+        if not candidates:
+            raise method_result_empty(
+                "straightening selection requires at least one candidate",
+                arg_name="candidates",
+                role="straightening_candidates",
+                expected={"candidate_count_min": 1},
+                observed={"candidate_count": 0},
+            )
+        scores = [
+            (candidate["complexity_score"], candidate["id"], candidate)
+            for candidate in candidates
+        ]
+        scores.sort(key=lambda item: (item[0], item[1]))
+        if len(scores) > 1 and scores[0][0] == scores[1][0]:
+            raise method_result_ambiguous(
+                "straightening candidates have the same minimum complexity",
+                arg_name="candidates",
+                role="straightening_candidates",
+                expected={"unique_minimum": True},
+                observed={
+                    "candidate_count": len(scores),
+                    "minimum_score": scores[0][0],
+                },
+            )
+        selected = dict(scores[0][2])
+        selected["auxiliary_point_name"] = target.name
+        point: Point = selected["reflected_point"]
+        minimum_point_1, minimum_point_2 = selected["minimum_endpoints"]
+        score_text = "；".join(
+            (
+                f"{candidate['reflected_point_name']} 坐标复杂度"
+                f"={candidate['complexity_score']}"
+            )
+            for _, _, candidate in scores
+        )
+        # LLM Planner 可能只声明“一个拉直辅助点”，例如 Aux，而不是提前知道它
+        # 最终会是哪个点的对称点。此时只要 target 的定义说明它是折线拉直辅助点，
+        # 就允许由候选选择结果来决定具体几何身份；固定命名的 deterministic planner
+        # 仍然会走严格名称匹配。
+        target_is_generic_auxiliary = (
+            target.definition.get("definition") == "straightening_auxiliary_point"
+            or target.name.lower() in {"aux", "auxiliary"}
+        )
+        target_matches = (
+            selected["reflected_point_name"] == target.name
+            or target_is_generic_auxiliary
+        )
+        return StatelessMethodResult(
+            method_id=self.method_id,
+            outputs={
+                "selected_candidate": TypedValue(
+                    "StraighteningCandidate",
+                    selected,
+                    source=self.method_id,
+                ),
+                "auxiliary_point": TypedValue(
+                    "Point",
+                    point,
+                    source=self.method_id,
+                ),
+                "minimum_point_1": TypedValue(
+                    "Point",
+                    minimum_point_1,
+                    source=self.method_id,
+                ),
+                "minimum_point_2": TypedValue(
+                    "Point",
+                    minimum_point_2,
+                    source=self.method_id,
+                ),
+            },
+            checks=[
+                _check("straightening_candidate_unique_minimum_score", True, "存在唯一最低复杂度候选"),
+                _check(
+                    "selected_candidate_matches_target_name",
+                    target_matches,
+                    f"选择结果对应目标辅助点 {target.name}",
+                ),
+            ],
+            trace_fragments=[
+                _step(
+                    self.method_id,
+                    "选择折线拉直候选",
+                    f"确定使用哪个对称点构造 {target.name}",
+                    "比较候选反射点坐标复杂度，优先选择后续距离和交点计算更简单的候选。",
+                    score_text,
+                    (
+                        f"选择 {selected['reflected_point_name']}"
+                        f"({_fmt_point(point, kernel)})，最小路径转化为"
+                        f" {selected['minimum_segment']}"
+                    ),
+                )
+            ],
+        )
+
+
+__all__ = ["SelectStraighteningCandidateMethod"]

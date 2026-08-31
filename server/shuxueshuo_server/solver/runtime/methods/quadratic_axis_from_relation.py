@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, declare_input_views
 
 
 class QuadraticAxisFromRelationMethod:
@@ -24,20 +24,48 @@ class QuadraticAxisFromRelationMethod:
         if a not in free_symbols or b not in free_symbols:
             # 这个 method 解决的是“由 a、b 的比例关系确定对称轴”。如果题设只给
             # a、c 关系，或者只给 b 的常数值，都无法推出稳定的 -b/(2a)。
-            raise ValueError(
-                "quadratic_axis_from_relation requires a coefficient relation involving both a and b"
+            raise method_precondition_failed(
+                "coefficient relation is invalid without a relation involving both a and b",
+                arg_name="coefficient_relation",
+                role="axis_coefficient_relation",
+                expected={"required_symbols": [a.name, b.name]},
+                observed={"free_symbols": sorted(item.name for item in free_symbols)},
             )
-        b_solutions = sp.solve(relation, b)
+        b_solutions = tuple(
+            dict.fromkeys(sp.simplify(value) for value in sp.solve(relation, b))
+        )
         if not b_solutions:
-            raise ValueError(
-                "quadratic_axis_from_relation requires relation to be solvable for b"
+            raise method_result_empty(
+                "coefficient relation has no solution for the linear coefficient",
+                arg_name="coefficient_relation",
+                role="axis_coefficient_relation",
+                expected={"solution_for": b.name},
+                observed={"solution_count": 0},
             )
-        axis_x = sp.simplify((-b / (2 * a)).subs(b, b_solutions[0]))
+        axis_candidates = tuple(
+            dict.fromkeys(
+                sp.simplify((-b / (2 * a)).subs(b, value))
+                for value in b_solutions
+            )
+        )
+        if len(axis_candidates) != 1:
+            raise method_result_ambiguous(
+                "function.constraints_ambiguous: coefficient relation produces "
+                "multiple symmetry-axis branches",
+                role="axis_x_coordinate",
+                expected={"candidate_count": 1},
+                observed={"candidate_count": len(axis_candidates), "candidates": axis_candidates},
+            )
+        axis_x = axis_candidates[0]
         if axis_x.has(a) or axis_x.has(b):
             # 即便能解出 b，如果代回后对称轴仍依赖 a 或 b，说明关系没有确定 b/a。
             # 例如 b+c=0 会得到 x=c/(2a)，仍然不是一个可落地的对称轴结论。
-            raise ValueError(
-                "quadratic_axis_from_relation requires relation to determine b/a ratio"
+            raise method_precondition_failed(
+                "coefficient relation does not determine b/a ratio",
+                arg_name="coefficient_relation",
+                role="axis_coefficient_relation",
+                expected={"axis_free_symbols": []},
+                observed={"axis_free_symbols": sorted(item.name for item in axis_x.free_symbols)},
             )
         point = (axis_x, sp.Integer(0))
         return StatelessMethodResult(
@@ -82,6 +110,10 @@ SPEC = MethodSpecSource(
         "required": True
     }
 },
+    input_views=declare_input_views(
+        identity=("a", "b", "target"),
+        immutable_value=("coefficient_relation",),
+    ),
     outputs={
     "axis_point": "Point"
 },

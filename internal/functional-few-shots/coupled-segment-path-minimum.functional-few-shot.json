@@ -1,0 +1,42 @@
+{
+  "format": "functional_plan/v1",
+  "annotation": {
+    "purpose": "用题设线段关系原子求解耦合双动点路径最值。",
+    "use_when": "目标路径中的两个动点由一条题设线段关系耦合，且该关系能证明已有固定端点替换。",
+    "key_idea": "Planner 只选择路径目标和负责耦合的线段关系；由中点等题面构造定义的固定端点先在其所属 Scope 物化，多个子问共享的 Macro 放在最近公共父 Scope 且只调用一次；成员关系、端点角色、内部反射与取等恢复均由 Macro 验证。",
+    "do_not_use_when": [
+      "原路径已经是单动点路径。",
+      "题设缺少证明路径等价变换所需的关系。",
+      "关系要求创建新的公开辅助构造或处理非单位权重。",
+      "路径与线段关系不能唯一确定一个连通端点替换结构。"
+    ]
+  },
+  "scopes": [
+    {
+      "scope_id": "example",
+      "label": "机制示例",
+      "calls": [
+        {
+          "call_id": "derive_path_minimum",
+          "capability_id": "coupled_segment_endpoint_replacement_path_minimum",
+          "args": {
+            "path_minimum_target": {
+              "kind": "fact",
+              "ref": "path_goal"
+            },
+            "segment_binding_relation": {
+              "kind": "fact",
+              "ref": "segment_relation"
+            }
+          },
+          "return_bindings": {},
+          "strategy": "利用题设线段关系原子完成端点替换、折线拉直和最小值推导。",
+          "reason": "内部几何构造不暴露给 Planner；同一 Macro 还可返回原题动点的取等状态。",
+          "return_expectations": {
+            "minimum_expression": "open_expression"
+          }
+        }
+      ]
+    }
+  ]
+}

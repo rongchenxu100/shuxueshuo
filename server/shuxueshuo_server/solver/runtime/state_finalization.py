@@ -16,9 +16,6 @@ from shuxueshuo_server.solver.runtime.functional_debug_aliases import (
 )
 
 from shuxueshuo_server.solver.problem_models import QuestionGoal
-from shuxueshuo_server.solver.runtime.binding_selector_semantics import (
-    selector_semantics,
-)
 from shuxueshuo_server.solver.runtime.handle_alias_index import (
     visible_from_valid_scope,
 )
@@ -31,6 +28,7 @@ from shuxueshuo_server.solver.runtime.state_identity import (
     LogicalStateKey,
     RuntimeDestinationKey,
     StateAllocationAction,
+    StateRuntimeEquivalenceProbe,
     StateVersionId,
 )
 from shuxueshuo_server.solver.runtime.strategy_models import (
@@ -173,6 +171,9 @@ class StateFinalizationResult:
     decisions: tuple[StateFinalizationDecision, ...] = ()
     mismatches: tuple[StateFinalizationMismatch, ...] = ()
     runtime_destinations: tuple[CompiledStateDestination, ...] = ()
+    runtime_equivalence_probes: tuple[
+        StateRuntimeEquivalenceProbe, ...
+    ] = ()
 
     @property
     def ok(self) -> bool:
@@ -188,6 +189,9 @@ class StateFinalizationResult:
             "mismatches": [item.to_payload() for item in self.mismatches],
             "runtime_destinations": [
                 item.to_payload() for item in self.runtime_destinations
+            ],
+            "runtime_equivalence_probes": [
+                item.to_payload() for item in self.runtime_equivalence_probes
             ],
         }
 
@@ -248,9 +252,16 @@ class StateFinalizationService:
         ] = {}
         finalized: list[FinalizedStateWrite] = []
         decisions: list[StateFinalizationDecision] = []
+        runtime_equivalence_probes: list[
+            StateRuntimeEquivalenceProbe
+        ] = []
+        runtime_probe_keys: set[
+            tuple[StateVersionId, StateVersionId]
+        ] = set()
 
         for write in typed_writes:
             mismatch_count = len(mismatches)
+            probe_count = len(runtime_equivalence_probes)
             _validate_typed_write_shape(write, mismatches)
             version_id = write.selected_version_id
             logical_key = write.logical_state_key
@@ -379,15 +390,31 @@ class StateFinalizationService:
                         step_scopes=step_scopes,
                         handle_registry=handle_registry,
                     ):
-                        mismatches.append(
-                            _mismatch(
-                                "state.logical_duplicate_writer",
-                                "unrelated creates overlap for one logical state",
-                                write,
-                                details={"previous_call_id": prior.step_id},
-                            )
+                        probe = _scope_comparable_create_probe(
+                            prior,
+                            write,
+                            step_scopes=step_scopes,
+                            handle_registry=handle_registry,
                         )
-                        break
+                        if probe is None:
+                            mismatches.append(
+                                _mismatch(
+                                    "state.logical_duplicate_writer",
+                                    "unrelated creates overlap for one logical state",
+                                    write,
+                                    details={
+                                        "previous_call_id": prior.step_id
+                                    },
+                                )
+                            )
+                            break
+                        probe_key = (
+                            probe.ancestor_version_id,
+                            probe.descendant_version_id,
+                        )
+                        if probe_key not in runtime_probe_keys:
+                            runtime_probe_keys.add(probe_key)
+                            runtime_equivalence_probes.append(probe)
             elif action == "isolated":
                 for prior in first_writer_by_logical.get(logical_key, ()):
                     prior_version = prior.selected_version_id
@@ -447,6 +474,9 @@ class StateFinalizationService:
                         "reused"
                         if action == "reuse"
                         and len(mismatches) == mismatch_count
+                        else "runtime_probe_required"
+                        if len(runtime_equivalence_probes) > probe_count
+                        and len(mismatches) == mismatch_count
                         else "valid"
                         if len(mismatches) == mismatch_count
                         else "invalid"
@@ -469,6 +499,7 @@ class StateFinalizationService:
             finalized_writes=tuple(finalized),
             decisions=tuple(decisions),
             mismatches=tuple(mismatches),
+            runtime_equivalence_probes=tuple(runtime_equivalence_probes),
         )
         if mode == "authoritative":
             result.raise_for_mismatches()
@@ -840,22 +871,6 @@ def build_functional_state_dependencies(
         public_by_name = {item.name: item for item in capability.args}
         auto_by_name = {item.name: item for item in capability.auto_args}
         for arg_name, values in call.resolved_args.items():
-            auto_arg = auto_by_name.get(arg_name)
-            if (
-                auto_arg is not None
-                and auto_arg.binding_authority == "compiler"
-                and selector_semantics(auto_arg.selector).mechanical
-                and all(
-                    value.state_version_id is None
-                    for value in values
-                )
-            ):
-                # Compiler-owned target/reference arguments establish identity;
-                # they are not materialized state reads. A mechanical role
-                # that resolved to an actual StateVersion is different: the
-                # compiler must consume that exact version rather than infer a
-                # same-object state again from the flattened reads list.
-                continue
             if arg_name in functional_call.args:
                 source: Literal["wire", "resolver", "context"] = "wire"
             elif (
@@ -1504,14 +1519,37 @@ def _validate_compiled_identity(
     )
     drift = [name for name, expected, observed in fields if expected != observed]
     if drift:
+        expected_values = {
+            name: _diagnostic_identity_payload(expected)
+            for name, expected, _observed in fields
+            if name in drift
+        }
+        observed_values = {
+            name: _diagnostic_identity_payload(observed)
+            for name, _expected, observed in fields
+            if name in drift
+        }
         mismatches.append(
             _mismatch(
                 "planner.contract_runtime_destination_drift",
                 "compiler state provenance differs from the B2 projection",
                 projected,
-                details={"fields": drift},
+                details={
+                    "fields": drift,
+                    "expected": expected_values,
+                    "observed": observed_values,
+                },
             )
         )
+
+
+def _diagnostic_identity_payload(value: Any) -> Any:
+    if value is None or isinstance(value, (str, int, float, bool)):
+        return value
+    to_payload = getattr(value, "to_payload", None)
+    if callable(to_payload):
+        return to_payload()
+    return repr(value)
 
 
 def _compiled_source_output_path(
@@ -1660,6 +1698,69 @@ def _writes_overlap(
         right,
         left_scope,
         handle_registry=handle_registry,
+    )
+
+
+def _scope_comparable_create_probe(
+    left: ProjectedStateWrite,
+    right: ProjectedStateWrite,
+    *,
+    step_scopes: Mapping[str, str],
+    handle_registry: CanonicalHandleRegistry,
+) -> StateRuntimeEquivalenceProbe | None:
+    """Describe a deferred runtime comparison without changing either write."""
+
+    left_version = left.selected_version_id
+    right_version = right.selected_version_id
+    logical_key = left.logical_state_key
+    if (
+        left_version is None
+        or right_version is None
+        or logical_key is None
+        or right.logical_state_key != logical_key
+        or left.return_name is None
+        or right.return_name is None
+    ):
+        return None
+    left_scope = step_scopes.get(left.step_id, left.step_id)
+    right_scope = step_scopes.get(right.step_id, right.step_id)
+    left_visible_from_right = _write_visible_from(
+        left,
+        right_scope,
+        handle_registry=handle_registry,
+    )
+    right_visible_from_left = _write_visible_from(
+        right,
+        left_scope,
+        handle_registry=handle_registry,
+    )
+    if not (left_visible_from_right or right_visible_from_left):
+        return None
+    if left_visible_from_right:
+        ancestor = left
+        ancestor_version = left_version
+        ancestor_scope = left_scope
+        descendant = right
+        descendant_version = right_version
+        descendant_scope = right_scope
+    else:
+        ancestor = right
+        ancestor_version = right_version
+        ancestor_scope = right_scope
+        descendant = left
+        descendant_version = left_version
+        descendant_scope = left_scope
+    return StateRuntimeEquivalenceProbe(
+        logical_state_key=logical_key,
+        ancestor_call_id=ancestor.step_id,
+        ancestor_return_name=str(ancestor.return_name),
+        ancestor_version_id=ancestor_version,
+        ancestor_scope_id=ancestor_scope,
+        descendant_call_id=descendant.step_id,
+        descendant_return_name=str(descendant.return_name),
+        descendant_version_id=descendant_version,
+        descendant_scope_id=descendant_scope,
+        comparison_scope_id=descendant_scope,
     )
 
 

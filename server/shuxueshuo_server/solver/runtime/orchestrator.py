@@ -20,6 +20,16 @@ from pathlib import Path
 import time
 from typing import Any
 
+from shuxueshuo_server.solver.extraction.problem_planner_authority import (
+    VerifiedPlannerProblemAuthority,
+)
+from shuxueshuo_server.solver.extraction.problem_planning_binding import (
+    ProblemPlanningBindingCatalog,
+)
+from shuxueshuo_server.solver.extraction.problem_solver_bundle import (
+    VerifiedSolverProblemBundle,
+)
+
 from shuxueshuo_server.solver.family import (
     DEFAULT_FAMILY_REGISTRY,
     QUADRATIC_PATH_MINIMUM_FAMILY,
@@ -33,21 +43,34 @@ from shuxueshuo_server.solver.question_goals import extract_question_goals
 from shuxueshuo_server.solver.result_models import DerivationTrace, SolverResult
 from shuxueshuo_server.solver.runtime.context import RuntimeContext, ContextBuilder
 from shuxueshuo_server.solver.runtime.context_inventory import ContextInventoryBuilder
+from shuxueshuo_server.solver.runtime.functional_goal_execution import (
+    FUNCTIONAL_GOAL_EXECUTION_CHECKPOINT_CONTRACT,
+    VerifiedFunctionalPlanExecution,
+)
+from shuxueshuo_server.solver.runtime.functional_plan_content import (
+    FUNCTIONAL_PLAN_CONTENT_CONTRACT,
+)
 from shuxueshuo_server.solver.runtime.executor import (
     DeclarationValidator,
     InvocationExecutor,
 )
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.methods import default_stateless_registry
-from shuxueshuo_server.solver.runtime.models import PlanExecutionResult, PlannerOutput
+from shuxueshuo_server.solver.runtime.models import (
+    PlanExecutionResult,
+    PlannerOutput,
+    StepExecutionResult,
+)
 from shuxueshuo_server.solver.runtime.planner import (
     GenericPlanner,
     Nankai25DeterministicPlannerAdapter,
     PlannerInputs,
 )
 from shuxueshuo_server.solver.runtime.result_builder import ResultBuilder
+from shuxueshuo_server.solver.runtime.planner_state_context import PlannerStateContext
 from shuxueshuo_server.solver.runtime.session import (
     LLMCallRecord,
+    PlannerExecutionError,
     SolveAttemptRecord,
     SolveSession,
     StructuredSolveError,
@@ -58,7 +81,7 @@ from shuxueshuo_server.solver.runtime.strategy_runtime_planner import (
 )
 
 
-PlannerProvider = Callable[[RuntimeContext], GenericPlanner]
+PlannerProvider = Callable[..., GenericPlanner]
 
 
 @dataclass(frozen=True)
@@ -73,6 +96,10 @@ class RuntimeSuccessArtifacts:
     execution: PlanExecutionResult
     question_goals: tuple[QuestionGoal, ...]
     solver_result: SolverResult
+    problem_authority: VerifiedPlannerProblemAuthority | None = None
+    problem_binding_catalog: ProblemPlanningBindingCatalog | None = None
+    planner_state_context: PlannerStateContext | None = None
+    verified_functional_execution: VerifiedFunctionalPlanExecution | None = None
 
 
 def _nankai25_planner_provider(context: RuntimeContext) -> GenericPlanner:
@@ -139,7 +166,290 @@ class RuntimeOrchestrator:
         self.last_success_artifacts: RuntimeSuccessArtifacts | None = None
 
     def solve(self, problem: ProblemIR) -> SolverResult:
-        """求解 ProblemIR，并返回统一 SolverResult。"""
+        """运行显式配置的deterministic/debug ProblemIR链路。
+
+        该低层方法没有Problem Bundle authority，不能用于Strategy生产求解。使用
+        默认Strategy provider调用时会稳定失败；生产调用方必须使用
+        ``solve_verified()``，公开API则使用``engine.solve_problem()``。
+        """
+        return self._solve(problem, problem_authority=None)
+
+    def solve_verified(
+        self,
+        bundle: VerifiedSolverProblemBundle,
+    ) -> SolverResult:
+        """从authenticated Bundle运行唯一的Strategy cold path。"""
+        authority = VerifiedPlannerProblemAuthority.from_bundle(bundle)
+        return self._solve_verified_scope_native(bundle, authority=authority)
+
+    def _solve_verified_scope_native(
+        self,
+        bundle: VerifiedSolverProblemBundle,
+        *,
+        authority: VerifiedPlannerProblemAuthority,
+    ) -> SolverResult:
+        """Execute the public Bundle entry through content/v2 and Goal retry.
+
+        The scoped service already owns semantic retries, transactions, and
+        checkpoint restore.  This boundary only turns its verified final
+        transaction into the public ``SolverResult``; it must never execute
+        the derived v1 ``PlannerOutput`` a second time.
+        """
+
+        self.last_success_artifacts = None
+        problem = bundle.build_solver_problem()
+        family = self.family_registry.match(problem)
+        if family is None:
+            return SolverResult(
+                problem_id=problem.problem_id,
+                status="unsupported",
+                solver_family=None,
+                errors=[
+                    f"no solver for pattern={problem.pattern}, type={problem.problem_type}"
+                ],
+            )
+        if family.family_id != bundle.verified_problem.family_id:
+            from shuxueshuo_server.solver.extraction.problem_solver_bundle import (
+                ProblemBundleAuthorityError,
+            )
+
+            raise ProblemBundleAuthorityError(
+                "planner.problem_revision_drift",
+                "$.family_id",
+                "runtime family differs from the authenticated problem bundle",
+            )
+        provider = (
+            self.planner_providers.get(problem.problem_id)
+            or self.planner_providers.get(family.family_id)
+            or self.default_planner_provider
+        )
+        if provider is None:
+            return SolverResult(
+                problem_id=problem.problem_id,
+                status="failed",
+                solver_family=family.family_id,
+                errors=[
+                    f"planner provider not found for family_id={family.family_id}"
+                ],
+            )
+
+        started = time.perf_counter()
+        session = SolveSession(
+            problem_id=problem.problem_id,
+            family_id=family.family_id,
+            max_attempts=self.max_attempts,
+        )
+        self.last_session = session
+        stage = "context"
+        planner: GenericPlanner | None = None
+        scoped_result: Any | None = None
+        try:
+            kernel = self.kernel or SympyKernel()
+            context = ContextBuilder(kernel).build(problem)
+            specs = MethodSpecRegistry.load_from_code()
+            question_goals = extract_question_goals(problem)
+            planner = provider(context, problem_authority=authority)
+            run_scoped = getattr(planner, "run_scoped", None)
+            if not callable(run_scoped):
+                raise TypeError(
+                    "planner.scope_native_entry_required: verified Bundle "
+                    "providers must implement run_scoped()"
+                )
+            planner_inputs = PlannerInputs(
+                problem_id=problem.problem_id,
+                family_spec=family,
+                question_goals=question_goals,
+                context_inventory=ContextInventoryBuilder().build(
+                    context,
+                    specs,
+                ),
+                method_specs=specs,
+                problem=problem,
+                original_text=dict(problem.original_text),
+                previous_errors=[],
+            )
+            stage = "scoped_planner"
+            scoped_result = run_scoped(
+                planner_inputs,
+                max_attempts=self.max_attempts,
+            )
+            llm_call = _llm_call_from_planner(planner)
+            _write_scoped_debug_attempts(
+                self.debug_dir,
+                planner,
+                scoped_result,
+            )
+            if scoped_result.status != "accepted":
+                raise PlannerExecutionError(
+                    _scoped_run_failure(scoped_result),
+                )
+            final_execution = scoped_result.final_execution
+            if final_execution is None or final_execution.replay is None:
+                raise ValueError(
+                    "planner.scope_native_final_execution_missing"
+                )
+            checkpoint = final_execution.checkpoint
+            if (
+                checkpoint is None
+                or checkpoint.schema_version
+                != FUNCTIONAL_GOAL_EXECUTION_CHECKPOINT_CONTRACT
+                or not checkpoint.all_required_goals_verified
+            ):
+                raise ValueError(
+                    "planner.goal_checkpoint_v3_required: accepted scoped "
+                    "execution has no verified checkpoint v3"
+                )
+            verified_execution = scoped_result.verified_execution
+            if verified_execution is None:
+                raise ValueError(
+                    "planner.verified_functional_execution_missing"
+                )
+            transaction = final_execution.replay.transactional_attempt_result
+            if (
+                transaction is None
+                or transaction.failed_call_ids
+                or transaction.blocked_call_ids
+                or transaction.root_issues
+            ):
+                raise ValueError(
+                    "planner.scope_native_transaction_incomplete"
+                )
+            report = transaction.execution_report
+            final_context = report.runtime_context
+            if final_context is None:
+                raise ValueError(
+                    "planner.scope_native_runtime_context_missing"
+                )
+            planner_output = final_execution.replay.output
+            if planner_output is None:
+                planner_output = transaction.compiled_output
+            planner_output = PlannerOutput.from_legacy(planner_output)
+            execution = _plan_execution_from_transaction(report)
+            failed_checks = [check for check in execution.checks if not check.ok]
+            if failed_checks:
+                raise PlannerExecutionError(
+                    _structured_error_from_failed_checks(failed_checks)
+                )
+            stage = "result_builder"
+            answers = ResultBuilder().build_from_verified_goal_results(
+                final_context,
+                question_goals,
+                _verified_goal_runtime_results(
+                    scoped_result,
+                    report,
+                ),
+            )
+        except Exception as exc:
+            error = structured_error_from_exception(stage=stage, exc=exc)
+            scoped_attempts = tuple(
+                getattr(scoped_result, "attempts", ())
+                if scoped_result is not None
+                else ()
+            )
+            attempt_index = (
+                int(scoped_attempts[-1].semantic_attempt)
+                if scoped_attempts
+                else 1
+            )
+            if scoped_attempts:
+                _write_debug_attempt(
+                    self.debug_dir,
+                    attempt_index,
+                    planner,
+                    None,
+                    error,
+                    scoped_attempt=scoped_attempts[-1],
+                )
+            else:
+                _write_debug_attempt(
+                    self.debug_dir,
+                    attempt_index,
+                    planner,
+                    None,
+                    error,
+                )
+            session.add_attempt(
+                _attempt_record(
+                    attempt_index,
+                    "failed",
+                    stage,
+                    started,
+                    [],
+                    error,
+                    _llm_call_from_planner(planner),
+                )
+            )
+            session.final_status = "failed"
+            return SolverResult(
+                problem_id=problem.problem_id,
+                status="failed",
+                solver_family=family.family_id,
+                errors=[error.message],
+                run_log=_run_log(session),
+            )
+
+        session.add_attempt(
+            _attempt_record(
+                max(1, len(scoped_result.attempts)),
+                "ok",
+                stage,
+                started,
+                [],
+                None,
+                llm_call,
+            )
+        )
+        session.final_status = "ok"
+        trace = DerivationTrace(
+            problem_id=problem.problem_id,
+            pattern=problem.pattern,
+            methods=execution.methods_used,
+            steps=execution.trace_fragments,
+        )
+        result = SolverResult(
+            problem_id=problem.problem_id,
+            status="ok",
+            solver_family=family.family_id,
+            methods_used=execution.methods_used,
+            facts=[],
+            trace=trace,
+            answers=answers,
+            checks=execution.checks,
+            errors=[],
+            run_log=_run_log(session),
+        )
+        planner_artifacts = getattr(planner, "artifacts", None)
+        self.last_success_artifacts = RuntimeSuccessArtifacts(
+            problem=problem,
+            family=family,
+            planner=planner,
+            planner_output=planner_output,
+            context=final_context,
+            execution=execution,
+            question_goals=tuple(question_goals),
+            solver_result=result,
+            problem_authority=authority,
+            problem_binding_catalog=getattr(
+                planner_artifacts,
+                "problem_binding_catalog",
+                None,
+            ),
+            planner_state_context=getattr(
+                planner_artifacts,
+                "initial_planner_state_context",
+                None,
+            ),
+            verified_functional_execution=verified_execution,
+        )
+        return result
+
+    def _solve(
+        self,
+        problem: ProblemIR,
+        *,
+        problem_authority: VerifiedPlannerProblemAuthority | None,
+    ) -> SolverResult:
+        """运行共享runtime循环；Strategy调用必须携带Problem authority。"""
         self.last_success_artifacts = None
         family = self.family_registry.match(problem)
         if family is None:
@@ -150,6 +460,19 @@ class RuntimeOrchestrator:
                 errors=[
                     f"no solver for pattern={problem.pattern}, type={problem.problem_type}"
                 ],
+            )
+        if (
+            problem_authority is not None
+            and family.family_id != problem_authority.bundle.verified_problem.family_id
+        ):
+            from shuxueshuo_server.solver.extraction.problem_solver_bundle import (
+                ProblemBundleAuthorityError,
+            )
+
+            raise ProblemBundleAuthorityError(
+                "planner.problem_revision_drift",
+                "$.family_id",
+                "runtime family differs from the authenticated problem bundle",
             )
         provider = (
             self.planner_providers.get(problem.problem_id)
@@ -175,29 +498,38 @@ class RuntimeOrchestrator:
         previous_errors: list[object] = []
 
         for attempt_index in range(1, self.max_attempts + 1):
+            attempt_problem = (
+                problem_authority.bundle.build_solver_problem()
+                if problem_authority is not None
+                else problem
+            )
             attempt_started = time.perf_counter()
             stage = "context"
             planner: GenericPlanner | None = None
             llm_call: LLMCallRecord | None = None
             try:
                 # Repair 采用整体重生成 plan，因此每轮都从干净 RuntimeContext 开始。
-                context = ContextBuilder(kernel).build(problem)
+                context = ContextBuilder(kernel).build(attempt_problem)
                 specs = MethodSpecRegistry.load_from_code()
                 context_inventory = ContextInventoryBuilder().build(context, specs)
-                question_goals = extract_question_goals(problem)
-                planner = provider(context)
+                question_goals = extract_question_goals(attempt_problem)
+                planner = (
+                    provider(context, problem_authority=problem_authority)
+                    if problem_authority is not None
+                    else provider(context)
+                )
                 if not isinstance(planner, GenericPlanner):
                     raise TypeError(
                         f"planner provider for family_id={family.family_id} returned invalid planner"
                     )
                 planner_inputs = PlannerInputs(
-                    problem_id=problem.problem_id,
+                    problem_id=attempt_problem.problem_id,
                     family_spec=family,
                     question_goals=question_goals,
                     context_inventory=context_inventory,
                     method_specs=specs,
-                    problem=problem,
-                    original_text=dict(problem.original_text),
+                    problem=attempt_problem,
+                    original_text=dict(attempt_problem.original_text),
                     previous_errors=list(previous_errors),
                 )
                 stage = "planner"
@@ -256,7 +588,7 @@ class RuntimeOrchestrator:
                         continue
                     session.final_status = "failed"
                     return _failed_result_from_execution(
-                        problem,
+                        attempt_problem,
                         family.family_id,
                         execution,
                         [error.message],
@@ -296,7 +628,7 @@ class RuntimeOrchestrator:
                     continue
                 session.final_status = "failed"
                 return SolverResult(
-                    problem_id=problem.problem_id,
+                    problem_id=attempt_problem.problem_id,
                     status="failed",
                     solver_family=family.family_id,
                     errors=[error.message],
@@ -316,13 +648,13 @@ class RuntimeOrchestrator:
             )
             session.final_status = "ok"
             trace = DerivationTrace(
-                problem_id=problem.problem_id,
-                pattern=problem.pattern,
+                problem_id=attempt_problem.problem_id,
+                pattern=attempt_problem.pattern,
                 methods=execution.methods_used,
                 steps=execution.trace_fragments,
             )
             result = SolverResult(
-                problem_id=problem.problem_id,
+                problem_id=attempt_problem.problem_id,
                 status="ok",
                 solver_family=family.family_id,
                 methods_used=execution.methods_used,
@@ -334,7 +666,7 @@ class RuntimeOrchestrator:
                 run_log=_run_log(session),
             )
             self.last_success_artifacts = RuntimeSuccessArtifacts(
-                problem=problem,
+                problem=attempt_problem,
                 family=family,
                 planner=planner,
                 planner_output=planner_output,
@@ -342,6 +674,26 @@ class RuntimeOrchestrator:
                 execution=execution,
                 question_goals=tuple(question_goals),
                 solver_result=result,
+                problem_authority=problem_authority,
+                problem_binding_catalog=getattr(
+                    getattr(planner, "artifacts", None),
+                    "problem_binding_catalog",
+                    None,
+                ),
+                planner_state_context=getattr(
+                    getattr(
+                        getattr(planner, "artifacts", None),
+                        "retry_replay_result",
+                        None,
+                    ),
+                    "planner_state_context",
+                    None,
+                ),
+                verified_functional_execution=getattr(
+                    getattr(planner, "artifacts", None),
+                    "verified_execution",
+                    None,
+                ),
             )
             return result
 
@@ -353,6 +705,141 @@ class RuntimeOrchestrator:
             errors=["solver attempts exhausted"],
             run_log=_run_log(session),
         )
+
+
+def _plan_execution_from_transaction(report: object) -> PlanExecutionResult:
+    """Project the already executed transaction into public result artifacts."""
+
+    step_results: list[StepExecutionResult] = []
+    for call_result in getattr(report, "call_results", ()):
+        if getattr(call_result, "status", None) != "verified":
+            continue
+        invocation_steps = tuple(getattr(call_result, "step_results", ()))
+        step_results.append(
+            StepExecutionResult(
+                step_id=str(call_result.call_id),
+                method_results=[
+                    method_result
+                    for item in invocation_steps
+                    for method_result in item.method_results
+                ],
+                checks=[
+                    check
+                    for item in invocation_steps
+                    for check in item.checks
+                ],
+                trace_fragments=[
+                    fragment
+                    for item in invocation_steps
+                    for fragment in item.trace_fragments
+                ],
+            )
+        )
+    return PlanExecutionResult(
+        step_results=step_results,
+        checks=[
+            check
+            for step_result in step_results
+            for check in step_result.checks
+        ],
+        trace_fragments=[
+            fragment
+            for step_result in step_results
+            for fragment in step_result.trace_fragments
+        ],
+    )
+
+
+def _verified_goal_runtime_results(
+    scoped_result: object,
+    report: object,
+) -> dict[str, Any]:
+    """Resolve each canonical Goal answer from the exact transaction return."""
+
+    final_execution = getattr(scoped_result, "final_execution", None)
+    plan = (
+        getattr(final_execution, "canonical_plan", None)
+        or getattr(scoped_result, "final_plan", None)
+    )
+    if plan is None:
+        raise ValueError("planner.scope_native_final_plan_missing")
+    runtime_values = getattr(report, "runtime_result_values", {})
+    compiled_by_call = {
+        item.call_id: item
+        for item in getattr(report, "compiled_calls", ())
+    }
+    results: dict[str, Any] = {}
+
+    def visit(scope: object) -> None:
+        for goal in getattr(scope, "goals", ()):
+            answer_from = goal.answer_from
+            compiled = compiled_by_call.get(answer_from.step_id)
+            public_return = next(
+                (
+                    item
+                    for item in getattr(compiled, "public_returns", ())
+                    if item.return_name == answer_from.return_name
+                ),
+                None,
+            )
+            output_key = (
+                public_return.expected_write.output_key
+                if public_return is not None
+                and public_return.expected_write is not None
+                else answer_from.return_name
+            )
+            key = (answer_from.step_id, output_key)
+            typed_value = runtime_values.get(key)
+            if typed_value is None:
+                raise ValueError(
+                    "planner.scope_native_answer_result_missing: "
+                    f"goal={goal.goal_ref}, producer="
+                    f"{answer_from.step_id}.{answer_from.return_name}, "
+                    f"runtime_output={output_key}"
+                )
+            results[goal.goal_ref] = typed_value
+        for child in getattr(scope, "children", ()):
+            visit(child)
+
+    visit(plan.root_scope)
+    return results
+
+
+def _scoped_run_failure(scoped_result: object) -> StructuredSolveError:
+    """Select the prompt-safe blocker from a completed scoped retry run."""
+
+    attempts = tuple(getattr(scoped_result, "attempts", ()))
+    if attempts:
+        error = getattr(attempts[-1], "error", None)
+        if error is not None:
+            return StructuredSolveError(
+                stage="scoped_planner",
+                code=str(getattr(error, "code", "planner.scope_retry_failed")),
+                message=str(getattr(error, "message", error)),
+                retryable=bool(getattr(error, "retryable", False)),
+                path=getattr(error, "path", None),
+                details=dict(getattr(error, "details", {}) or {}),
+            )
+    execution = getattr(scoped_result, "final_execution", None)
+    checkpoint = getattr(execution, "checkpoint", None)
+    root_issues = tuple(getattr(checkpoint, "root_issues", ()))
+    if root_issues:
+        issue = dict(root_issues[0])
+        return StructuredSolveError(
+            stage=str(issue.get("layer") or issue.get("stage") or "scoped_planner"),
+            code=str(issue.get("code") or "planner.scope_retry_failed"),
+            message=str(issue.get("message") or "scope-native Scope retry failed"),
+            retryable=False,
+            step_id=(str(issue["step_id"]) if issue.get("step_id") else None),
+            details={"root_issues": [dict(item) for item in root_issues]},
+        )
+    return StructuredSolveError(
+        stage="scoped_planner",
+        code="planner.scope_retry_exhausted",
+        message="scope-native Scope retry exhausted without a verified execution",
+        retryable=False,
+        details={"no_progress": bool(getattr(scoped_result, "no_progress", False))},
+    )
 
 
 def _attempt_record(
@@ -501,6 +988,8 @@ def _write_debug_attempt(
     planner: GenericPlanner | None,
     planner_output: PlannerOutput | None,
     error: StructuredSolveError | None,
+    *,
+    scoped_attempt: Any | None = None,
 ) -> None:
     """按 attempt 写出 prompt、raw response、draft、compiled output 和错误。
 
@@ -510,8 +999,16 @@ def _write_debug_attempt(
         return
     debug_dir.mkdir(parents=True, exist_ok=True)
     prefix = f"attempt-{attempt_index}"
-    prompt = getattr(planner, "last_prompt", None)
-    payload = getattr(planner, "last_payload", None)
+    prompt = (
+        getattr(scoped_attempt, "prompt", None)
+        if scoped_attempt is not None
+        else getattr(planner, "last_prompt", None)
+    )
+    payload = (
+        getattr(scoped_attempt, "payload", None)
+        if scoped_attempt is not None
+        else getattr(planner, "last_payload", None)
+    )
     if prompt is not None:
         messages = (
             prompt.as_messages()
@@ -533,13 +1030,45 @@ def _write_debug_attempt(
             str(getattr(prompt, "user", "")),
             encoding="utf-8",
         )
-    if isinstance(payload, dict):
+    if isinstance(payload, Mapping):
         for key, value in payload.items():
             _write_json(
                 debug_dir / f"{prefix}.payload.{key}.json",
                 value,
             )
-    raw_response = getattr(planner, "last_raw_response", None)
+    scope_authority = getattr(scoped_attempt, "scope_authority", None)
+    if scope_authority is not None:
+        debug_payload = getattr(scope_authority, "debug_payload", None)
+        _write_json(
+            debug_dir / f"{prefix}.scope-retry-authority.json",
+            (
+                debug_payload()
+                if callable(debug_payload)
+                else _safe_json(scope_authority)
+            ),
+        )
+    planner_artifacts = getattr(planner, "artifacts", None)
+    problem_authority = getattr(planner_artifacts, "problem_authority", None)
+    problem_binding_catalog = getattr(
+        planner_artifacts,
+        "problem_binding_catalog",
+        None,
+    )
+    if problem_authority is not None:
+        _write_json(
+            debug_dir / f"{prefix}.problem-bundle-authority.json",
+            problem_authority.authority_payload(),
+        )
+    if problem_binding_catalog is not None:
+        _write_json(
+            debug_dir / f"{prefix}.problem-planning-binding-catalog.json",
+            problem_binding_catalog.authority_payload(),
+        )
+    raw_response = (
+        getattr(scoped_attempt, "raw_response", None)
+        if scoped_attempt is not None
+        else getattr(planner, "last_raw_response", None)
+    )
     if raw_response is not None:
         (debug_dir / f"{prefix}.raw-response.txt").write_text(
             str(raw_response),
@@ -554,7 +1083,33 @@ def _write_debug_attempt(
             functional_payload,
         )
     client = getattr(planner, "client", None)
-    if client is not None:
+    llm_metadata = (
+        getattr(scoped_attempt, "llm_metadata", None)
+        if scoped_attempt is not None
+        else None
+    )
+    if llm_metadata is not None:
+        _write_json(
+            debug_dir / f"{prefix}.llm-metadata.json",
+            llm_metadata,
+        )
+    elif client is not None:
+        scoped_attempts = tuple(
+            getattr(
+                getattr(
+                    getattr(planner, "artifacts", None),
+                    "scoped_retry_result",
+                    None,
+                ),
+                "attempts",
+                (),
+            )
+        )
+        planner_protocol = (
+            str(scoped_attempts[-1].planner_protocol)
+            if scoped_attempts
+            else FUNCTIONAL_PLAN_CONTENT_CONTRACT
+        )
         _write_json(
             debug_dir / f"{prefix}.llm-metadata.json",
             {
@@ -575,25 +1130,37 @@ def _write_debug_attempt(
                     "last_provider_attempts",
                     None,
                 ),
-                "planner_protocol": "functional_plan/v1",
+                "planner_protocol": planner_protocol,
             },
         )
-    validation_report = getattr(planner, "last_validation_report", None)
+    validation_report = (
+        getattr(scoped_attempt, "content_validation_report", None)
+        if scoped_attempt is not None
+        else getattr(planner, "last_validation_report", None)
+    )
     if validation_report is not None:
         _write_json(
             debug_dir / f"{prefix}.validation-report.json",
             _safe_json(validation_report),
         )
-    diagnostic = getattr(planner, "last_execution_diagnostic", None)
+    diagnostic = (
+        None
+        if scoped_attempt is not None
+        else getattr(planner, "last_execution_diagnostic", None)
+    )
     if diagnostic is not None:
         _write_json(
             debug_dir / f"{prefix}.execution-diagnostic.json",
             _safe_json(diagnostic),
         )
-    replay = getattr(
-        getattr(planner, "artifacts", None),
-        "retry_replay_result",
-        None,
+    replay = (
+        getattr(getattr(scoped_attempt, "execution", None), "replay", None)
+        if scoped_attempt is not None
+        else getattr(
+            getattr(planner, "artifacts", None),
+            "retry_replay_result",
+            None,
+        )
     )
     if replay is not None:
         replay_artifacts = {
@@ -635,17 +1202,29 @@ def _write_debug_attempt(
                     debug_dir / f"{prefix}.{artifact_name}.json",
                     _safe_json(artifact_payload),
                 )
-    repair_payload = _planner_repair_attempt_payload(
-        planner,
-        attempt_index,
-        [error.message] if error is not None else [],
+    repair_payload = (
+        None
+        if scoped_attempt is not None
+        else _planner_repair_attempt_payload(
+            planner,
+            attempt_index,
+            [error.message] if error is not None else [],
+        )
     )
     if repair_payload is not None:
         _write_json(
             debug_dir / f"{prefix}.previous-attempt-payload.json",
             repair_payload,
         )
-    output = planner_output or getattr(planner, "last_output", None)
+    output = (
+        planner_output
+        or getattr(replay, "output", None)
+        or (
+            None
+            if scoped_attempt is not None
+            else getattr(planner, "last_output", None)
+        )
+    )
     if output is not None:
         _write_json(
             debug_dir / f"{prefix}.compiled-planner-output.json",
@@ -655,6 +1234,31 @@ def _write_debug_attempt(
         _write_json(
             debug_dir / f"{prefix}.structured-error.json",
             error.to_payload(),
+        )
+    scoped_error = getattr(scoped_attempt, "error", None)
+    if scoped_error is not None:
+        to_payload = getattr(scoped_error, "to_prompt_payload", None)
+        _write_json(
+            debug_dir / f"{prefix}.scope-retry-error.json",
+            to_payload() if callable(to_payload) else _safe_json(scoped_error),
+        )
+
+
+def _write_scoped_debug_attempts(
+    debug_dir: Path | None,
+    planner: GenericPlanner | None,
+    scoped_result: Any,
+) -> None:
+    """Persist each scoped retry from its own immutable attempt snapshot."""
+
+    for attempt in tuple(getattr(scoped_result, "attempts", ())):
+        _write_debug_attempt(
+            debug_dir,
+            int(attempt.semantic_attempt),
+            planner,
+            None,
+            None,
+            scoped_attempt=attempt,
         )
 
 

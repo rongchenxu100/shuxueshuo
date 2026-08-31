@@ -1,0 +1,92 @@
+{
+  "format": "functional_plan/v1",
+  "scopes": [
+    {
+      "scope_id": "example",
+      "label": "机制示例",
+      "calls": [
+        {
+          "call_id": "derive_parametric_curve",
+          "capability_id": "quadratic_from_constraints",
+          "args": {
+            "curve_point": {
+              "ref": "known_curve_point",
+              "kind": "point"
+            },
+            "free_parameters": {
+              "ref": "parameter",
+              "kind": "symbol"
+            }
+          },
+          "return_bindings": {},
+          "strategy": "代入曲线点条件，把函数化成单参数形式。",
+          "reason": "路径最值 Macro 读取当前二次函数状态。"
+        },
+        {
+          "call_id": "derive_square_path_minimum",
+          "capability_id": "quadratic_square_path_minimum",
+          "args": {
+            "parabola": {
+              "from_call": "derive_parametric_curve",
+              "return": "parabola"
+            },
+            "path_minimum_target": {
+              "ref": "path_goal",
+              "kind": "fact"
+            },
+            "square": {
+              "ref": "square_relation",
+              "kind": "fact"
+            }
+          },
+          "return_bindings": {},
+          "strategy": "原子完成正方形路径降维、轨迹、拉直和达到性。",
+          "reason": "Planner 只提供当前抛物线、路径目标和正方形；达到点身份由代码绑定，后续直接引用本 call 的 attainment_point。"
+        },
+        {
+          "call_id": "solve_main_parameter",
+          "capability_id": "parameter_from_expression_value",
+          "args": {
+            "expression": {
+              "from_call": "derive_square_path_minimum",
+              "return": "minimum_expression"
+            },
+            "minimum_value": {
+              "ref": "given_minimum",
+              "kind": "fact"
+            },
+            "parameter": {
+              "ref": "parameter",
+              "kind": "symbol"
+            }
+          },
+          "return_bindings": {},
+          "strategy": "令最小值表达式等于给定值并求主参数。",
+          "reason": "取等点的坐标需要先闭合主参数。"
+        },
+        {
+          "call_id": "evaluate_attainment_point",
+          "capability_id": "evaluate_point_at_parameter",
+          "args": {
+            "point": {
+              "from_call": "derive_square_path_minimum",
+              "return": "attainment_point"
+            },
+            "parameter_value": {
+              "from_call": "solve_main_parameter",
+              "return": "parameter_value"
+            }
+          },
+          "return_bindings": {
+            "evaluated_point": {
+              "ref": "attainment_object",
+              "kind": "point"
+            }
+          },
+          "strategy": "把已求主参数代入 Macro 的精确 attainment_point。",
+          "reason": "通过 StepResultRef 保留 Macro 到下游的精确依赖。"
+        }
+      ]
+    }
+  ]
+}

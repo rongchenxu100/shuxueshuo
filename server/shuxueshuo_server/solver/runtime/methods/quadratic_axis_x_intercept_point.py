@@ -9,7 +9,7 @@ from shuxueshuo_server.solver.contracts import MethodExplanationSpec, MethodVisu
 from shuxueshuo_server.solver.math_ops import vertex_of_quadratic
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, canonical_symbol_input, declare_input_views
 
 
 class QuadraticAxisXInterceptPointMethod:
@@ -58,10 +58,22 @@ SPEC = MethodSpecSource(
     ),
     solves=("derive_axis_x_intercept_point",),
     inputs={
-        "parabola": {"type": "Parabola", "required": True},
-        "x": {"type": "Symbol", "required": True},
-        "target": {"type": "PointRef", "required": True},
+        "parabola": {
+            "type": "Parabola",
+            "required": True,
+            "symbolic_basis_role": "state_anchor",
+        },
+        "x": canonical_symbol_input("x"),
+        "target": {
+            "type": "PointRef",
+            "required": True,
+            "symbolic_basis_role": "align_to_anchor",
+        },
     },
+    input_views=declare_input_views(
+        identity=("x", "target"),
+        latest_state=("parabola",),
+    ),
     outputs={"axis_point": "Point"},
     preconditions=("parabola 必须是关于 x 的二次函数",),
     postconditions=("输出点位于 x 轴，横坐标为抛物线对称轴横坐标",),

@@ -191,7 +191,7 @@ Catalog：只有两张 catalog 都没有对应能力时才允许 null。null 表
   - 其次从 Method Catalog 的 `method_id` 选择；
   - 如果都不匹配，才填 `null` 或省略。
   - `recipe_hint: null` 是最后兜底，不是常规步骤。使用它前必须确认已有 recipe/method 都不能表达本步。
-  - 若你想输出的 step 会 `creates` 新辅助点、produces `PathTransformation`、`MinimumExpression`、`Point` 等需要代码执行的产物，但 catalog 没有对应 recipe/method，请不要自造该能力；改用 catalog 中已有路线，或把这一步作为明确的能力缺口。
+  - 若你想输出的 step 会 `creates` 新辅助点或 produces `MinimumExpression`、`Point` 等需要代码执行的产物，但 catalog 没有对应 recipe/method，请不要自造该能力；改用 catalog 中已有路线，或把这一步作为明确的能力缺口。
 - `step_id` 仍然必须是可读的语义名称，不要直接用 recipe_id 或 method_id 充当 step_id。
 - 每个 step 的 `produces` 必须落在 `recipe_hint` 对应 recipe/method 的能力范围内：
   - 参数求解类能力只产生参数或数值 fact，不要同时产生抛物线、点坐标或无关最终答案；
@@ -231,7 +231,7 @@ Catalog：只有两张 catalog 都没有对应能力时才允许 null。null 表
   - `handle`：`fact:<scope>:<semantic_name>` 或 `answer:<goal.id>`；
   - `valid_scope`：事实在哪个 scope 及其子 scope 可用；
   - `description`：这条事实或答案的自然语言说明，并说明它的可见范围，例如“后续全题可用”“后续第（Ⅱ）①②可用”“仅第（Ⅱ）①问使用”。
-  - `output_type`：可选；能确定时请填写 schema enum 中的类型，例如 `Point`、`PointList`、`Parabola`、`ParameterValue`、`MinimumExpression`、`PathTransformation`、`StraighteningCandidate`。不要写 enum 之外的类型。
+  - `output_type`：可选；能确定时请填写 schema enum 中的类型，例如 `Point`、`PointList`、`Parabola`、`ParameterValue`、`MinimumExpression`。不要写 enum 之外的类型。
 - 新建 handle 必须是稳定语义名，不能包含 `?`、`??`、`unknown`、`todo` 等占位符。
   如果角度 recipe 的具体等角名称不想展开，使用 `fact:<scope>:angle_equality_result` 这类通用但确定的名字，不要写 `equal_angle_*_??`。
 - 如果后续 step 用到已产生的实体或事实，直接把该 `handle` 放进 `reads`，不要再生成一个重复求解或“复用结论”的 step。

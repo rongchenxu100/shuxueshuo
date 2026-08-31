@@ -10,7 +10,14 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Literal
 
-from shuxueshuo_server.solver.contracts import ScalarResultFormSpec
+from shuxueshuo_server.solver.contracts import (
+    FunctionalArgBindingAuthority,
+    MacroExecutionMode,
+    MacroSearchSpec,
+    MethodInputBindingSpec,
+    ScalarResultFormSpec,
+    SourceObjectIdentityDerivationSpec,
+)
 from shuxueshuo_server.solver.problem_models import ProblemIR
 from shuxueshuo_server.solver.state_semantics import state_kind_for_runtime_type
 from shuxueshuo_server.solver.utils import unique_ordered
@@ -22,6 +29,7 @@ StateIdentityPolicy = Literal[
     "value_only",
 ]
 StateWriteMode = Literal["create", "transition", "value"]
+FunctionalReturnReferenceMode = Literal["default", "exact_result"]
 GoalEvidenceTag = Literal[
     "path_minimum_witness",
     "path_minimum_expression",
@@ -30,8 +38,6 @@ GoalEvidenceTag = Literal[
 ]
 FamilySourcePrimitiveKind = Literal["entity_type", "fact_type"]
 FamilySourceEvidenceAuthority = Literal["candidate_structure", "printed_source"]
-
-
 @dataclass(frozen=True)
 class FamilySourceRequirementSpec:
     """Machine-checkable source primitive required for family admission."""
@@ -95,6 +101,8 @@ class FamilyRuntimePreflightSpec:
     required_fact_types: tuple[str, ...] = ()
     source_trigger_fact_types: tuple[str, ...] = ()
     source_required_fact_types: tuple[str, ...] = ()
+    execution_mode: Literal["method", "source_structure_only"] = "method"
+    planner_authored_roles: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
         for field_name, values in (
@@ -133,6 +141,27 @@ class FamilyRuntimePreflightSpec:
             raise ValueError(
                 "source-visible preflight guidance requires both trigger and required fact types"
             )
+        if self.execution_mode not in {"method", "source_structure_only"}:
+            raise ValueError("family runtime preflight execution mode is invalid")
+        if (
+            any(not item.strip() for item in self.planner_authored_roles)
+            or len(set(self.planner_authored_roles))
+            != len(self.planner_authored_roles)
+        ):
+            raise ValueError(
+                "family runtime preflight planner-authored roles must be unique"
+            )
+        if (
+            self.execution_mode == "source_structure_only"
+            and not self.planner_authored_roles
+        ):
+            raise ValueError(
+                "source-structure preflight must name its planner-authored roles"
+            )
+        if self.execution_mode == "method" and self.planner_authored_roles:
+            raise ValueError(
+                "method preflight cannot defer planner-authored roles"
+            )
         if (
             not self.method_id.strip()
             or not self.description.strip()
@@ -148,6 +177,8 @@ class FamilyRuntimePreflightSpec:
             "required_fact_types": list(self.required_fact_types),
             "source_input_names": list(self.source_input_names),
             "description": self.description,
+            "execution_mode": self.execution_mode,
+            "planner_authored_roles": list(self.planner_authored_roles),
         }
 
     def source_authoring_payload(self) -> dict[str, object] | None:
@@ -362,6 +393,7 @@ class RecipeOutputAliasSpec:
     object_role_projections: tuple[StateObjectRoleProjectionSpec, ...] = ()
     return_binding: FunctionalReturnBindingPolicy = "auto"
     result_form: ScalarResultFormSpec | None = None
+    reference_mode: FunctionalReturnReferenceMode = "default"
 
     def to_payload(self) -> dict[str, object]:
         payload: dict[str, object] = {
@@ -392,6 +424,8 @@ class RecipeOutputAliasSpec:
             payload["return_binding"] = self.return_binding
         if self.result_form is not None:
             payload["result_form"] = self.result_form.to_payload()
+        if self.reference_mode != "default":
+            payload["reference_mode"] = self.reference_mode
         return payload
 
 
@@ -412,6 +446,7 @@ def recipe_output_alias(
     object_role_projections: tuple[StateObjectRoleProjectionSpec, ...] = (),
     return_binding: FunctionalReturnBindingPolicy = "auto",
     result_form: ScalarResultFormSpec | None = None,
+    reference_mode: FunctionalReturnReferenceMode = "default",
 ) -> RecipeOutputAliasSpec:
     """Build a structured recipe return without duplicating state-kind rules."""
     return RecipeOutputAliasSpec(
@@ -435,7 +470,38 @@ def recipe_output_alias(
         object_role_projections=object_role_projections,
         return_binding=return_binding,
         result_form=result_form,
+        reference_mode=reference_mode,
     )
+
+
+@dataclass(frozen=True)
+class RecipeInputDerivationSpec:
+    """Derive one hidden Method input from an explicit public Macro input.
+
+    A derivation is compiler wiring, not another Planner argument.  The first
+    supported rule preserves the object identity carried by a state value;
+    for example a ``ParameterValue`` for symbol ``m`` supplies both the value
+    input and the hidden ``Symbol`` input required by an internal Method.
+    """
+
+    target: str
+    derivation: SourceObjectIdentityDerivationSpec
+
+    @property
+    def source_arg(self) -> str:
+        return self.derivation.source_input
+
+    @property
+    def kind(self) -> Literal["source_object_identity"]:
+        return self.derivation.kind
+
+    def to_payload(self) -> dict[str, str]:
+        return {
+            "source_arg": self.source_arg,
+            "target": self.target,
+            "kind": self.kind,
+        }
+
 
 @dataclass(frozen=True)
 class RecipeExecutionSpec:
@@ -448,6 +514,8 @@ class RecipeExecutionSpec:
 
     recipe_id: str
     method_sequence: tuple[str, ...]
+    execution_mode: MacroExecutionMode
+    search: MacroSearchSpec | None = None
     # 执行策略名只选择通用编译器分支，例如“单 method”“构造候选后筛选”。
     # 它不是题号模板名，也不应该包含 D/M/N/F/G 这类具体点名。
     execution_strategy: str = "single_method"
@@ -457,24 +525,16 @@ class RecipeExecutionSpec:
     # method call. Custom compiler strategies must consume these aliases before
     # considering legacy read-based selectors.
     input_aliases: tuple[tuple[str, str], ...] = ()
+    # Hidden Method inputs derived from one declared public Macro input.  This
+    # keeps public-to-internal lowering auditable and prevents compiler branches
+    # from independently guessing companion identities.
+    input_derivations: tuple[RecipeInputDerivationSpec, ...] = ()
+    # Required Method inputs supplied by the named compiler strategy from
+    # context closure, target identity, or an internal role resolver.  Listing
+    # them closes the static lowering graph without exposing them to Planner.
+    strategy_input_targets: tuple[str, ...] = ()
     intermediate_wiring: tuple[tuple[str, str], ...] = ()
     output_aliases: tuple[RecipeOutputAliasSpec, ...] = ()
-
-
-@dataclass(frozen=True)
-class MethodInputBindingSpec:
-    """单个 method input slot 的语义选择规则。
-
-    ``selector`` 指向 runtime 中的一类通用选择器，例如“读取系数关系 fact”或“读取
-    当前 step 输出点的 PointRef”。method 专属的输入名留在 spec 中，避免在 runtime
-    主流程里写一串 method_id 分支。
-    """
-
-    input_name: str
-    selector: str
-    required: bool = True
-    functional_authority: FunctionalArgBindingAuthority | None = None
-    functional_resolver: str | None = None
 
 
 @dataclass(frozen=True)
@@ -502,55 +562,112 @@ class MethodScalarAggregateLoweringSpec:
 
 
 @dataclass(frozen=True)
-class MethodCompanionOutputSpec:
-    """method 固有伴随输出的 promote/register 规则。
-
-    伴随输出不是 LLM 独立规划出来的结论，而是某个 method 调用稳定返回、后续
-    runtime 常需要读取的输出。例如 ``quadratic_from_constraints`` 总会返回
-    ``coefficients``，weighted path 三角形转化总会返回辅助点和辅助点轨迹。
-    """
-
-    output_name: str
-    target_selector: str
-    registration_selector: str | None = None
-
-
-@dataclass(frozen=True)
 class MethodPrepInvocationSpec:
     """method 前置补位 invocation 的声明式规则。
 
     有些 method 的教学 step 会把“先生成可读前置对象”和“使用前置对象求目标”
-    合并表达。prep 规则只处理这类可确定补位：满足 ``trigger_selector`` 时，
-    先执行 ``method_id``，把 ``output_aliases`` promote 到当前 scope 的临时输出，
-    再通过 ``local_output_aliases`` 暴露给主 method 的 binding selector 使用。
+    合并表达。prep 只检查父调用已经 finalize 的 ``source_input`` authority；
+    当该输入尚不是 ``produced_runtime_type`` 时执行 ``method_id``，再把结果作为
+    当前调用的本地 typed input。它不得扫描 Context 选择新的数学 source。
     """
 
-    trigger_selector: str
     method_id: str
+    source_input: str
+    produced_runtime_type: str
     output_aliases: tuple[tuple[str, str], ...] = ()
     local_output_aliases: tuple[tuple[str, str], ...] = ()
-    include_expansion_selectors: bool = True
-    expansion_selectors: tuple[str, ...] | None = None
+
+
+@dataclass(frozen=True)
+class FunctionalOutputTargetSelectorSpec:
+    """Select one existing Problem object from visible source facts.
+
+    The selector is deliberately structural: it names a fact kind and fields,
+    never a capability id, object label, or runtime handle.  It may only be
+    used when the visible facts identify one target object.
+    """
+
+    output_name: str
+    selector_id: Literal["unique_visible_fact_target"]
+    fact_kind: str
+    target_field: str
+    prompt_fact_kind: str | None = None
+    related_arg: str | None = None
+    related_field: str | None = None
+    required_field_values: tuple[tuple[str, str], ...] = ()
+    description: str = ""
+
+    def __post_init__(self) -> None:
+        required = (
+            self.output_name,
+            self.selector_id,
+            self.fact_kind,
+            self.target_field,
+            self.description,
+        )
+        if any(not item.strip() for item in required):
+            raise ValueError("functional output target selector must be described")
+        if (self.related_arg is None) != (self.related_field is None):
+            raise ValueError(
+                "functional output target selector related arg/field must be paired"
+            )
+        if self.prompt_fact_kind is not None and not self.prompt_fact_kind.strip():
+            raise ValueError(
+                "functional output target selector prompt fact kind is empty"
+            )
+        keys = [key for key, _value in self.required_field_values]
+        if (
+            any(not key.strip() or not value.strip() for key, value in self.required_field_values)
+            or len(keys) != len(set(keys))
+        ):
+            raise ValueError(
+                "functional output target selector field constraints must be unique"
+            )
+
+    def to_payload(self) -> dict[str, object]:
+        payload: dict[str, object] = {
+            "selector": self.selector_id,
+            "fact_kind": self.prompt_fact_kind or self.fact_kind,
+            "target_field": self.target_field,
+            "description": self.description,
+        }
+        if self.related_arg is not None:
+            payload["related_arg"] = self.related_arg
+            payload["related_field"] = self.related_field
+        if self.required_field_values:
+            payload["required_fields"] = {
+                key: value for key, value in self.required_field_values
+            }
+        return payload
+
+    def to_prompt_payload(self) -> dict[str, object]:
+        payload = self.to_payload()
+        payload["policy"] = payload.pop("selector")
+        return payload
 
 
 @dataclass(frozen=True)
 class MethodBindingRuleSpec:
     """一个 method 的 declarative binding 规则。
 
-    ``input_bindings`` 负责固定 slot；``expansion_selectors`` 用于一次性补充一组
-    可选输入，例如 quadratic_from_constraints 的已知系数、参数值和曲线点。
+    ``input_bindings`` 负责typed source/derivation；aggregate lowerings负责把公开
+    集合按声明映射到runtime slots，不允许再通过字符串selector扩展输入。
     """
 
     method_id: str
+    # Planner-facing names may be clearer than legacy method slot/output keys.
+    # Each tuple is ``(runtime_name, functional_name)`` and must be bijective.
+    functional_input_names: tuple[tuple[str, str], ...] = ()
+    functional_output_names: tuple[tuple[str, str], ...] = ()
+    functional_output_target_selectors: tuple[
+        FunctionalOutputTargetSelectorSpec, ...
+    ] = ()
     input_bindings: tuple[MethodInputBindingSpec, ...] = ()
     aggregate_input_bindings: tuple[MethodAggregateInputBindingSpec, ...] = ()
     scalar_aggregate_lowerings: tuple[
         MethodScalarAggregateLoweringSpec, ...
     ] = ()
-    expansion_selectors: tuple[str, ...] = ()
     prep_invocations: tuple[MethodPrepInvocationSpec, ...] = ()
-    always_emit_outputs: tuple[str, ...] = ()
-    companion_outputs: tuple[MethodCompanionOutputSpec, ...] = ()
     constraint_analyzer: str | None = None
 
 
@@ -582,7 +699,7 @@ CapabilityContractSource = Literal["explicit", "projected"]
 CapabilityScopePolicy = Literal["current", "current_or_visible", "problem", "same_as_target"]
 CapabilityCardinality = Literal["one", "optional", "many"]
 CapabilityDependencyPolicy = Literal["explicit_args", "context_closure"]
-FunctionalArgBindingAuthority = Literal["wire", "resolver", "compiler"]
+FunctionalSemanticRefRole = Literal["value", "object_identity"]
 FunctionalReturnBindingPolicy = Literal[
     "auto",
     "internal_only",
@@ -597,25 +714,25 @@ CapabilityStateClosurePolicy = Literal[
 ]
 CapabilityContextResolver = Literal[
     "condition_object_roles",
+    "coupled_segment_path_roles",
     "equal_length_ray_path_roles",
-    "path_reduction_roles",
-    "square_path_transformation_roles",
-    "weighted_path_transformation_roles",
+    "quadratic_square_path_roles",
+    "weighted_axis_path_minimum_roles",
 ]
 CONDITION_OBJECT_ROLES_RESOLVER: CapabilityContextResolver = (
     "condition_object_roles"
 )
+COUPLED_SEGMENT_PATH_ROLES_RESOLVER: CapabilityContextResolver = (
+    "coupled_segment_path_roles"
+)
 EQUAL_LENGTH_RAY_PATH_ROLES_RESOLVER: CapabilityContextResolver = (
     "equal_length_ray_path_roles"
 )
-PATH_REDUCTION_ROLES_RESOLVER: CapabilityContextResolver = (
-    "path_reduction_roles"
+QUADRATIC_SQUARE_PATH_ROLES_RESOLVER: CapabilityContextResolver = (
+    "quadratic_square_path_roles"
 )
-SQUARE_PATH_TRANSFORMATION_ROLES_RESOLVER: CapabilityContextResolver = (
-    "square_path_transformation_roles"
-)
-WEIGHTED_PATH_TRANSFORMATION_ROLES_RESOLVER: CapabilityContextResolver = (
-    "weighted_path_transformation_roles"
+WEIGHTED_AXIS_PATH_MINIMUM_ROLES_RESOLVER: CapabilityContextResolver = (
+    "weighted_axis_path_minimum_roles"
 )
 
 
@@ -646,6 +763,8 @@ class StateSlotPattern:
     lineage_closures: tuple[StateLineageClosureSpec, ...] = ()
     input_closure_policy: CapabilityStateClosurePolicy = "any"
     return_binding: FunctionalReturnBindingPolicy = "auto"
+    semantic_ref_role: FunctionalSemanticRefRole = "value"
+    allows_anonymous_result: bool = False
 
     def to_payload(self) -> dict[str, object]:
         payload: dict[str, object] = {
@@ -666,6 +785,10 @@ class StateSlotPattern:
             payload["identity_arg"] = self.identity_arg
         if self.semantic_role is not None:
             payload["semantic_role"] = self.semantic_role
+        if self.semantic_ref_role != "value":
+            payload["semantic_ref_role"] = self.semantic_ref_role
+        if self.allows_anonymous_result:
+            payload["allows_anonymous_result"] = True
         if self.output_key is not None:
             payload["output_key"] = self.output_key
         if self.description:
@@ -700,6 +823,9 @@ class ConditionPattern:
     scope_policy: CapabilityScopePolicy = "current_or_visible"
     cardinality: CapabilityCardinality = "one"
     required: bool = True
+    deterministic_resolver: str | None = None
+    semantic_role: str | None = None
+    accepted_condition_kinds: tuple[str, ...] = ()
     description: str = ""
 
     def to_payload(self) -> dict[str, object]:
@@ -712,6 +838,14 @@ class ConditionPattern:
         }
         if self.description:
             payload["description"] = self.description
+        if self.semantic_role is not None:
+            payload["semantic_role"] = self.semantic_role
+        if self.accepted_condition_kinds:
+            payload["accepted_condition_kinds"] = list(
+                self.accepted_condition_kinds
+            )
+        if self.deterministic_resolver is not None:
+            payload["deterministic_resolver"] = self.deterministic_resolver
         return payload
 
 
@@ -741,22 +875,6 @@ class CapabilityInputClosureRequirement:
 
 
 @dataclass(frozen=True)
-class PathTransformationConsumerSpec:
-    """Declare the semantic role profile consumed from a transformation."""
-
-    transformation_arg: str
-    required_roles: tuple[str, ...]
-    profile: Literal["standard_broken_path", "linked_auxiliary"]
-
-    def to_payload(self) -> dict[str, object]:
-        return {
-            "transformation_arg": self.transformation_arg,
-            "required_roles": list(self.required_roles),
-            "profile": self.profile,
-        }
-
-
-@dataclass(frozen=True)
 class CapabilityContractSpec:
     """Declarative semantic contract for a method or recipe capability.
 
@@ -783,7 +901,6 @@ class CapabilityContractSpec:
         CapabilityInputClosureRequirement, ...
     ] = ()
     identity_constraints: tuple[StateIdentityConstraintSpec, ...] = ()
-    path_transformation_consumer: PathTransformationConsumerSpec | None = None
 
     @property
     def is_complete(self) -> bool:
@@ -817,11 +934,6 @@ class CapabilityContractSpec:
             "identity_constraints": [
                 item.to_payload() for item in self.identity_constraints
             ],
-            "path_transformation_consumer": (
-                self.path_transformation_consumer.to_payload()
-                if self.path_transformation_consumer is not None
-                else None
-            ),
         }
 
 

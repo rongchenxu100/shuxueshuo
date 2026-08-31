@@ -30,24 +30,27 @@ from shuxueshuo_server.solver.runtime.strategy_payload import (
     build_strategy_probe_inputs,
 )
 
+from _problem_planning_support import cached_planning_binding_fixture
+
 
 def _logical_graph_case(case_id: str = "nankai"):
     case = FUNCTIONAL_BATCH_CASES[case_id]
-    problem = load_problem_ir(case.problem_fixture_path)
-    inputs = build_strategy_probe_inputs(problem)
-    problem_payload = problem_to_llm_payload(problem)
-    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    (
+        _bundle,
+        _planning_context,
+        _problem,
+        inputs,
+        _problem_payload,
+        registry,
+        context,
+        problem_binding_catalog,
+    ) = cached_planning_binding_fixture(case.problem_id)
     plan, validation = FunctionalPlanValidator().validate_payload_with_report(
         json.loads(case.functional_fixture_path.read_text(encoding="utf-8")),
         handle_registry=registry,
         question_goals=inputs.question_goals,
     )
     assert validation.ok and plan is not None
-    context = initial_planner_state_context(
-        inputs,
-        problem_payload=problem_payload,
-        handle_registry=registry,
-    )
     reconciliation = FunctionalPlanReconciler().reconcile(
         plan,
         planner_state_context=context,
@@ -55,6 +58,7 @@ def _logical_graph_case(case_id: str = "nankai"):
         method_specs=inputs.method_specs,
         handle_registry=registry,
         question_goals=inputs.question_goals,
+        problem_binding_catalog=problem_binding_catalog,
     )
     assert reconciliation.ok
     return plan, reconciliation, registry

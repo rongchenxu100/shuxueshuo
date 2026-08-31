@@ -94,6 +94,29 @@ def parse_legacy_path_expression(
 
 
 def _structured_path_term(value: Any, *, index: int) -> ParsedPathTerm:
+    if isinstance(value, Mapping):
+        segment = value.get("segment")
+        scale = value.get("scale", "1")
+        if (
+            not isinstance(segment, Sequence)
+            or isinstance(segment, (str, bytes))
+            or len(segment) != 2
+            or not all(_is_point_handle(item) for item in segment)
+            or not isinstance(scale, (str, int, float))
+        ):
+            raise PathTermParseError(
+                "path_terms.structured_term_invalid",
+                (
+                    f"structured weighted path term {index} must contain "
+                    "one scale and two point handles"
+                ),
+                details={"index": index},
+            )
+        return ParsedPathTerm(
+            str(scale),
+            str(segment[0]),
+            str(segment[1]),
+        )
     if (
         not isinstance(value, Sequence)
         or isinstance(value, (str, bytes))

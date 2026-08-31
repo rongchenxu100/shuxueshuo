@@ -7,22 +7,34 @@
 from __future__ import annotations
 
 from shuxueshuo_server.solver.family.models import (
+    MethodAggregateInputBindingSpec,
+    CapabilityContextRoleBindingSpec,
+    CapabilityContractSpec,
+    ConditionPattern,
+    CONDITION_OBJECT_ROLES_RESOLVER,
     FamilyMatchRule,
     FamilySourceRequirementSpec,
     GoalEvidencePolicySpec,
     MethodBindingRuleSpec,
-    MethodCompanionOutputSpec,
-    MethodInputBindingSpec,
-    RecipeExecutionSpec,
-    recipe_output_alias,
     SolverFamilySpec,
-    StepRecipeSpec,
+    StateSlotPattern,
     expand_family_spec,
 )
 from shuxueshuo_server.solver.family.capability_packs import (
     DEFAULT_CAPABILITY_PACK_REGISTRY,
-    EQUAL_LENGTH_RAY_PATH_REDUCTION_DESCRIPTION,
-    EQUAL_LENGTH_RAY_PATH_REDUCTION_DO_NOT_USE_WHEN,
+)
+from shuxueshuo_server.solver.family.common_binding_rules import (
+    canonical_x_binding,
+    condition_arg_binding,
+    entity_identity_binding,
+    exact_call_result_binding,
+    latest_state_binding,
+    macro_prepared_role_binding,
+    previous_output_identity_binding,
+    producer_linked_binding,
+    public_arg_binding,
+    quadratic_coefficients_binding,
+    quadratic_latest_state_binding,
 )
 
 
@@ -85,8 +97,38 @@ _QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         "由定义可直接求出的基础点坐标也要用独立 method step 表达，例如 y 轴交点和平移点；不要让后续函数求解 step 隐式解析这些点。",
         "本 family 的路径最值优先使用初中生能理解的几何构造法，而不是把两个动点全部参数化后做复杂解析几何最值。",
         "等长射线路径最值的标准路线是：优先使用 equal_length_ray_path_reduction recipe，把“两动点线段距离和”转化为“单动点/单线段距离”的最小值表达式；辅助点由 recipe 内部构造，FunctionalPlan 不声明内部辅助点。",
+        "每个子问的参数闭合链必须留在该子问：路径最值问从本问 minimum_target/minimum_value 求出的 ParameterValue 只能服务本问，不能代入 sibling 子问的抛物线或点；同名参数在不同子问中也要分别由各自事实求值。",
+        "公共 scope 只保存所有相关子问从一开始就共享的题面函数模板或开放状态；只要某次求值读取了子问私有 Fact，它的结果就不是公共状态，不能通过 CallResultRef 跨 sibling 复用。",
         "不要单独 produces M_coordinate_expr、N_coordinate_expr、OM_distance_expr、BN_distance_expr 这类参数化/分段距离 utility fact；这些不是初中生优先的解题步骤，也不是本 family 的可执行标准路线。",
         "不要把含参系数缓存、纯文字全等说明或最终讲解段落作为独立 produces；这些可以放在 strategy/reason 中。",
+    ),
+    capability_contracts=(
+        CapabilityContractSpec(
+            capability_id="angle_sum_equal_angle_candidates",
+            kind="method",
+            condition_reads=(ConditionPattern("angle_sum"),),
+            slot_writes=(
+                StateSlotPattern(
+                    "angle_relation",
+                    "AngleEquality",
+                    output_key="angle_equality",
+                ),
+            ),
+            context_resolvers=(CONDITION_OBJECT_ROLES_RESOLVER,),
+            context_role_bindings=tuple(
+                CapabilityContextRoleBindingSpec(
+                    CONDITION_OBJECT_ROLES_RESOLVER,
+                    role,
+                    role,
+                )
+                for role in (
+                    "x_axis_point",
+                    "y_axis_point",
+                    "reference_x_axis_point",
+                    "origin",
+                )
+            ),
+        ),
     ),
     base_packs=(
         "quadratic_core",
@@ -118,95 +160,78 @@ _QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         "distance_between_points",
         "parameter_from_expression_value",
     ),
-    step_recipes=(
-        StepRecipeSpec(
-            recipe_id="equal_length_ray_path_reduction",
-            goal_type="derive_path_minimum_expression",
-            title="等长射线路径降维为单距离最值",
-            description=EQUAL_LENGTH_RAY_PATH_REDUCTION_DESCRIPTION,
-            method_ids=("equal_length_ray_point", "distance_between_points"),
-            execution=RecipeExecutionSpec(
-                recipe_id="equal_length_ray_path_reduction",
-                method_sequence=("equal_length_ray_point", "distance_between_points"),
-                execution_strategy="equal_length_ray_path_reduction",
-                creates=("point",),
-                output_aliases=(
-                    recipe_output_alias(
-                        "distance_between_points.distance",
-                        "MinimumExpression",
-                        "path_minimum_expression",
-                        goal_evidence_tags=("path_minimum_expression",),
-                    ),
-                    recipe_output_alias(
-                        "distance_between_points.evaluated_distance",
-                        "MinimumExpression",
-                        "evaluated_path_minimum_expression",
-                        required=False,
-                        cardinality="optional",
-                        goal_evidence_tags=("path_minimum_expression",),
-                    ),
-                ),
-            ),
-            priority="preferred",
-            do_not_use_when=EQUAL_LENGTH_RAY_PATH_REDUCTION_DO_NOT_USE_WHEN,
-        ),
-    ),
     method_binding_rules=(
         MethodBindingRuleSpec(
             method_id="quadratic_from_constraints",
             input_bindings=(
-                MethodInputBindingSpec("quadratic", "function:parabola"),
-                MethodInputBindingSpec("x", "symbol:x"),
-                MethodInputBindingSpec("all_coefficients", "quadratic_coefficients"),
-                MethodInputBindingSpec(
-                    "free_parameter",
-                    "free_parameter:a_if_single_curve_point",
-                    required=False,
+                quadratic_latest_state_binding("quadratic"),
+                canonical_x_binding(),
+                quadratic_coefficients_binding(),
+            ),
+            aggregate_input_bindings=(
+                MethodAggregateInputBindingSpec(
+                    source_input="curve_points",
+                    item_inputs=(),
+                    singleton_input="curve_point",
                 ),
-            ),
-            expansion_selectors=(
-                "known_coefficients_if_read",
-                "curve_point_if_read",
-                "parameter_value_if_read",
-            ),
-            always_emit_outputs=("coefficients",),
-            companion_outputs=(
-                MethodCompanionOutputSpec(
-                    "coefficients",
-                    "answer_scope_output:coefficients",
-                    "runtime_step_output:coefficients",
+                MethodAggregateInputBindingSpec(
+                    source_input="free_parameters",
+                    item_inputs=(),
+                    singleton_input="free_parameter",
                 ),
             ),
         ),
         MethodBindingRuleSpec(
             method_id="angle_sum_equal_angle_candidates",
             input_bindings=(
-                MethodInputBindingSpec("condition", "angle_sum:condition"),
-                MethodInputBindingSpec("x_axis_point", "angle_sum:x_axis_point"),
-                MethodInputBindingSpec("y_axis_point", "angle_sum:y_axis_point"),
-                MethodInputBindingSpec("reference_x_axis_point", "angle_sum:reference_x_axis_point"),
-                MethodInputBindingSpec("origin", "angle_sum:origin"),
-                MethodInputBindingSpec("target", "angle_sum:target"),
+                condition_arg_binding("condition"),
+                latest_state_binding("x_axis_point"),
+                latest_state_binding("y_axis_point"),
+                latest_state_binding("reference_x_axis_point"),
+                latest_state_binding("origin"),
+                entity_identity_binding("target"),
             ),
         ),
         MethodBindingRuleSpec(
             method_id="axis_intercept_from_equal_acute_angles",
             input_bindings=(
-                MethodInputBindingSpec("angle_equality", "angle_equality:fact"),
-                MethodInputBindingSpec("x_axis_point", "angle_equality:x_axis_point"),
-                MethodInputBindingSpec("y_axis_point", "angle_equality:y_axis_point"),
-                MethodInputBindingSpec("reference_x_axis_point", "angle_equality:reference_x_axis_point"),
-                MethodInputBindingSpec("origin", "angle_equality:origin"),
-                MethodInputBindingSpec("target", "angle_equality:target"),
+                exact_call_result_binding("angle_equality"),
+                producer_linked_binding(
+                    "angle_equality",
+                    input_name="x_axis_point",
+                    producer_input="x_axis_point",
+                ),
+                producer_linked_binding(
+                    "angle_equality",
+                    input_name="y_axis_point",
+                    producer_input="y_axis_point",
+                ),
+                producer_linked_binding(
+                    "angle_equality",
+                    input_name="reference_x_axis_point",
+                    producer_input="reference_x_axis_point",
+                ),
+                producer_linked_binding(
+                    "angle_equality",
+                    input_name="origin",
+                    producer_input="origin",
+                ),
+                previous_output_identity_binding(
+                    "target",
+                    output_name="point",
+                ),
             ),
         ),
         MethodBindingRuleSpec(
             method_id="equal_length_ray_point",
             input_bindings=(
-                MethodInputBindingSpec("anchor", "equal_length_ray:anchor"),
-                MethodInputBindingSpec("reference_point", "equal_length_ray:reference_point"),
-                MethodInputBindingSpec("ray_point", "equal_length_ray:ray_point"),
-                MethodInputBindingSpec("target", "equal_length_ray:target"),
+                macro_prepared_role_binding("anchor"),
+                macro_prepared_role_binding("reference_point"),
+                macro_prepared_role_binding("ray_point"),
+                previous_output_identity_binding(
+                    "target",
+                    output_name="point",
+                ),
             ),
         ),
     ),

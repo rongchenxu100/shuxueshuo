@@ -174,16 +174,10 @@ def default_component_registry() -> ComponentTypeSpecRegistry:
                 optional_roles=("target", "target_display", "vertex_displays", "coordinate_triangles"),
             ),
             ComponentTypeSpec(
-                visual_type="SquarePathDimensionMarker",
+                visual_type="AtomicSquarePathReductionMarker",
                 compiles_to=("outlineRegion", "coloredLine", "point", "rightAngle"),
                 required_roles=("square_outline", "triangles", "segments"),
                 optional_roles=("relations", "point_labels"),
-            ),
-            ComponentTypeSpec(
-                visual_type="LocusLineMarker",
-                compiles_to=("dashedLine", "coordinateLabel"),
-                required_roles=("from", "to"),
-                optional_roles=("label", "label_anchor", "label_dx", "label_dy"),
             ),
         ]
     )

@@ -2,8 +2,8 @@
   "format": "functional_plan/v1",
   "scopes": [
     {
-      "scope_id": "i_1",
-      "label": "第（Ⅰ）①问",
+      "scope_id": "problem",
+      "label": "题目公共步骤",
       "calls": [
         {
           "call_id": "derive_y_intercept_C_i",
@@ -40,7 +40,13 @@
           },
           "strategy": "按题面平移定义由源点得到目标点。",
           "reason": "目标点在曲线上的条件用于确定函数系数。"
-        },
+        }
+      ]
+    },
+    {
+      "scope_id": "i",
+      "label": "第（Ⅰ）问公共步骤",
+      "calls": [
         {
           "call_id": "derive_parabola_i",
           "capability_id": "quadratic_from_constraints",
@@ -75,13 +81,13 @@
           "call_id": "derive_x_intercept_B_i",
           "capability_id": "quadratic_x_axis_intercept_point",
           "args": {
-            "quadratic": {
-              "from_call": "derive_parabola_i",
-              "return": "parabola"
-            },
             "known_point": {
               "ref": "A",
               "kind": "point"
+            },
+            "parabola": {
+              "from_call": "derive_parabola_i",
+              "return": "parabola"
             }
           },
           "return_bindings": {
@@ -176,13 +182,13 @@
           "call_id": "derive_x_intercept_B_ii",
           "capability_id": "quadratic_x_axis_intercept_point",
           "args": {
-            "quadratic": {
-              "from_call": "derive_parametric_parabola_ii",
-              "return": "parabola"
-            },
             "known_point": {
               "ref": "A",
               "kind": "point"
+            },
+            "parabola": {
+              "from_call": "derive_parametric_parabola_ii",
+              "return": "parabola"
             }
           },
           "return_bindings": {
@@ -217,7 +223,7 @@
           },
           "return_bindings": {},
           "return_expectations": {
-            "path_minimum_expression": "open_expression"
+            "minimum_expression": "open_expression"
           },
           "strategy": "用等长关系把双动点距离和降维成单距离最值。",
           "reason": "该机制直接产生关于主参数的最小值表达式。"
@@ -228,7 +234,7 @@
           "args": {
             "expression": {
               "from_call": "reduce_equal_length_ray_path_ii",
-              "return": "path_minimum_expression"
+              "return": "minimum_expression"
             },
             "minimum_value": {
               "ref": "minimum_value",

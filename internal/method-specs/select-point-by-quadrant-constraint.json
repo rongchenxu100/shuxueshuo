@@ -8,34 +8,63 @@
   ],
   "inputs": {
     "candidates": {
-      "type": "PointList",
       "role": "candidates",
       "required": true,
-      "description": "上一步得到的候选点列表。"
+      "description": "上一步得到的候选点列表。",
+      "domain_type": "PointList",
+      "runtime_type": "PointList",
+      "view": {
+        "mode": "exact_result",
+        "domain_type": "PointList"
+      }
     },
     "target": {
-      "type": "PointRef",
       "role": "target",
       "required": true,
-      "description": "待筛选的目标点引用。"
+      "description": "待筛选的目标点引用。",
+      "domain_type": "Point",
+      "runtime_type": "PointRef",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "quadrant": {
-      "type": "OrientationHint",
       "role": "orientation",
       "required": true,
-      "description": "目标点所在象限，例如第四象限。"
+      "description": "目标点所在象限，例如第四象限。",
+      "domain_type": "Fact",
+      "runtime_type": "OrientationHint",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "Fact"
+      }
     },
     "parameter": {
-      "type": "Symbol",
       "role": "parameter",
       "required": true,
-      "description": "候选点中出现的动态参数，例如 m。"
+      "description": "候选点中出现的动态参数，例如 m。",
+      "domain_type": "Symbol",
+      "runtime_type": "Symbol",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Symbol",
+        "object_kind": "symbol",
+        "state_kind": "value"
+      }
     },
     "parameter_constraint": {
-      "type": "Constraint",
       "role": "parameter_constraint",
       "required": true,
-      "description": "参数范围约束，例如 m > 2。"
+      "description": "参数范围约束，例如 m > 2。",
+      "domain_type": "Fact",
+      "runtime_type": "Constraint",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "Fact"
+      }
     }
   },
   "outputs": {

@@ -12,12 +12,11 @@ from shuxueshuo_server.solver.runtime.quadratic_constraint_solver import (
 )
 from shuxueshuo_server.solver.runtime.symbolic_closure_execution import (
     materialize_symbolic_closure_outputs,
-    require_unique_symbolic_closure,
     solve_symbolic_closure_math,
 )
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, declare_input_views
 
 
 class ParameterFromSegmentLengthMethod:
@@ -43,7 +42,11 @@ class ParameterFromSegmentLengthMethod:
             args=inputs,
             kernel=kernel,
         )
-        closure = require_unique_symbolic_closure(math_result)
+        closure = _require_unique_symbolic_closure(
+            math_result,
+            arg_name="condition",
+            role="segment_length_equation",
+        )
         outputs, closure_checks = materialize_symbolic_closure_outputs(
             {
                 "parameter_value": TypedValue(
@@ -142,6 +145,11 @@ SPEC = MethodSpecSource(
         "required": False
     }
 },
+    input_views=declare_input_views(
+        identity=("parameter",),
+        latest_state=("p1", "p2", "reference_p1", "reference_p2"),
+        immutable_value=("condition", "constraint"),
+    ),
     outputs={
     "parameter_value": "ParameterValue"
 },
@@ -152,5 +160,9 @@ SPEC = MethodSpecSource(
     ),
     postconditions=("求得参数满足长度方程；若有参数范围约束，按范围筛选唯一解",),
     trace_template=(),
+    interchangeable_arg_groups=(
+        ("p1", "p2"),
+        ("reference_p1", "reference_p2"),
+    ),
     symbolic_closure=_SYMBOLIC_CLOSURE_SPEC,
 )

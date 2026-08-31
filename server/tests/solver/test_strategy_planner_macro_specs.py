@@ -24,12 +24,17 @@ from shuxueshuo_server.solver.runtime.macro_specs import (
 )
 from shuxueshuo_server.solver.family.models import (
     CONDITION_OBJECT_ROLES_RESOLVER,
-    PATH_REDUCTION_ROLES_RESOLVER,
+    COUPLED_SEGMENT_PATH_ROLES_RESOLVER,
 )
+from shuxueshuo_server.solver.family import DEFAULT_FAMILY_REGISTRY
+from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.projection import problem_to_llm_payload
 from shuxueshuo_server.solver.runtime.functional_direct_compiler import (
     FunctionalCapabilityCompileCall,
     FunctionalReturnOutput,
+)
+from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
+    FunctionalCapabilityCatalog,
 )
 from shuxueshuo_server.solver.runtime.strategy_planner import (
     CanonicalHandleRegistry,
@@ -83,8 +88,8 @@ def test_macro_context_closure_resolvers_come_from_contracts() -> None:
         "right_angle_equal_length_construct_and_select"
     ).context_resolvers == (CONDITION_OBJECT_ROLES_RESOLVER,)
     assert registry.require(
-        "two_moving_points_path_reduction"
-    ).context_resolvers == (PATH_REDUCTION_ROLES_RESOLVER,)
+        "coupled_segment_endpoint_replacement_path_minimum"
+    ).context_resolvers == (COUPLED_SEGMENT_PATH_ROLES_RESOLVER,)
 
 
 def test_context_closure_specs_and_handlers_are_complete() -> None:
@@ -133,7 +138,10 @@ def test_path_minimum_goal_evidence_is_projected_from_recipe_outputs() -> None:
         for tag in item.goal_evidence_tags
     }
 
-    assert tags >= {"path_minimum_witness", "path_minimum_expression"}
+    assert tags >= {
+        "path_minimum_expression",
+        "path_minimum_extremal_point",
+    }
 
 
 def test_macro_result_forms_are_projected_from_internal_functions() -> None:
@@ -144,28 +152,18 @@ def test_macro_result_forms_are_projected_from_internal_functions() -> None:
         inputs.method_specs,
     )
 
-    macro = registry.require("broken_path_straightening_minimum_expression")
+    macro = registry.require(
+        "coupled_segment_endpoint_replacement_path_minimum"
+    )
     returns = {item.name: item for item in macro.returns}
-    assert returns["path_minimum_expression"].scalar_result_form is not None
+    assert returns["minimum_expression"].scalar_result_form is not None
     assert returns[
-        "path_minimum_expression"
+        "minimum_expression"
     ].scalar_result_form.possible_forms == (
         "open_expression",
         "closed_value",
     )
-    assert returns["straightened_endpoint_1"].scalar_result_form is not None
-    assert returns[
-        "straightened_endpoint_1"
-    ].scalar_result_form.possible_forms == (
-        "open_state",
-        "closed_state",
-    )
-    assert returns[
-        "straightened_endpoint_1"
-    ].scalar_result_form.ignored_symbol_input_args == ("parameter_value",)
-    assert returns[
-        "straightened_endpoint_2"
-    ].scalar_result_form.ignored_symbol_input_args == ("parameter_value",)
+    assert returns["attainment_point"].reference_mode == "exact_result"
 
 
 def test_shareable_macro_purity_is_derived_from_internal_functions() -> None:
@@ -177,8 +175,9 @@ def test_shareable_macro_purity_is_derived_from_internal_functions() -> None:
     )
 
     assert registry.require("right_angle_equal_length_construct_and_select").is_pure
-    assert registry.require("two_moving_points_path_reduction").is_pure
-    assert registry.require("broken_path_straightening_and_select").exposes_to_llm is False
+    assert registry.require(
+        "coupled_segment_endpoint_replacement_path_minimum"
+    ).is_pure
 
 
 def test_macro_catalog_prompt_payload_hides_runtime_wiring_details() -> None:
@@ -189,7 +188,8 @@ def test_macro_catalog_prompt_payload_hides_runtime_wiring_details() -> None:
 
     assert catalog["item_count"] > 0
     macro_ids = {item["macro_id"] for item in catalog["items"]}
-    assert "broken_path_straightening_minimum_expression" in macro_ids
+    assert "coupled_segment_endpoint_replacement_path_minimum" in macro_ids
+    assert "broken_path_straightening_minimum_expression" not in macro_ids
     assert "broken_path_straightening_and_select" not in macro_ids
     encoded = json.dumps(catalog, ensure_ascii=False)
     assert "runtime_path" not in encoded
@@ -216,6 +216,67 @@ def test_migrated_macro_specs_have_no_required_contract_return_mismatch() -> Non
             assert required_mismatches == []
 
 
+def test_every_registered_macro_has_an_audited_lowering_contract() -> None:
+    method_specs = MethodSpecRegistry.load_from_code()
+    macros = {}
+
+    for family in DEFAULT_FAMILY_REGISTRY.families:
+        registry = MacroSpecRegistry.from_family_spec(family, method_specs)
+        for macro_id, spec in registry.specs.items():
+            macros.setdefault(macro_id, []).append(spec.to_payload())
+
+    assert set(macros) == {
+        "curve_candidate_parameter_solve",
+        "coupled_segment_endpoint_replacement_path_minimum",
+        "equal_length_ray_path_reduction",
+        "quadratic_square_path_minimum",
+        "right_angle_equal_length_construct_and_select",
+        "weighted_axis_path_minimum",
+    }
+
+    for payload in macros["equal_length_ray_path_reduction"]:
+        equal_length_returns = {
+            item["semantic_role"]
+            for item in payload["adapter"]["output_aliases"]
+        }
+        assert equal_length_returns == {"minimum_expression"}
+
+
+def test_no_family_exposes_internal_path_transformation_to_planner() -> None:
+    """Atomic path Macros keep every PathTransformation inside the kernel."""
+
+    method_specs = MethodSpecRegistry.load_from_code()
+    producers = []
+    for family in DEFAULT_FAMILY_REGISTRY.families:
+        catalog = FunctionalCapabilityCatalog.from_family_spec(
+            family,
+            method_specs,
+        )
+        for capability in catalog.items.values():
+            for returned in capability.returns:
+                if returned.runtime_type != "PathTransformation":
+                    continue
+                moving = tuple(
+                    item
+                    for item in returned.object_role_projections
+                    if item.role == "moving_object"
+                )
+                assert len(moving) == 1
+                assert moving[0].source_arg == "moving_point"
+                assert moving[0].source_object_role is None
+                arg = next(
+                    item
+                    for item in capability.args
+                    if item.name == "moving_point"
+                )
+                assert arg.binding_authority == "wire"
+                producers.append(capability.capability_id)
+
+    assert producers == []
+    assert "two_moving_points_path_reduction" not in producers
+    assert "square_path_dimension_reduction" not in producers
+
+
 def test_macro_adapter_reports_typed_return_failure() -> None:
     registry = MacroAdapterRegistry(
         MacroSpecRegistry(
@@ -237,6 +298,7 @@ def test_macro_adapter_reports_typed_return_failure() -> None:
                         adapter_id="broken_macro",
                         execution_strategy="single_method",
                     ),
+                    execution_mode="direct",
                 )
             }
         )
@@ -277,8 +339,11 @@ def test_macro_rejects_point_output_without_declared_identity_role() -> None:
         scope_id="ii_1",
         goal_type="derive_path_minimum_expression",
         target="fact:ii:path_minimum_expression",
-        capability_id="broken_path_straightening_minimum_expression",
-        inputs=("fact:ii:path_minimum_target",),
+        capability_id="coupled_segment_endpoint_replacement_path_minimum",
+        inputs=(
+            "fact:ii:path_minimum_target",
+            "fact:ii:segment_DE_eq_sqrt2_NG",
+        ),
         returns=(
             FunctionalReturnOutput(
                 "fact:ii:path_minimum_expression",
@@ -300,55 +365,25 @@ def test_macro_rejects_point_output_without_declared_identity_role() -> None:
         match="macro.return_(unresolved|ambiguous)",
     ):
         registry.validate(
-            "broken_path_straightening_minimum_expression",
+            "coupled_segment_endpoint_replacement_path_minimum",
             step,
         )
 
 
-def test_macro_exact_return_metadata_disambiguates_prefixed_roles() -> None:
+def test_coupled_macro_exact_return_metadata_names_original_moving_role() -> None:
     problem = load_problem_ir(str(FUNCTIONAL_FIXTURES[0]))
     inputs = build_strategy_probe_inputs(problem)
-    handles = CanonicalHandleRegistry.from_problem_payload(
-        problem_to_llm_payload(problem)
+    registry = MacroSpecRegistry.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
     )
-    registry = MacroAdapterRegistry(
-        MacroSpecRegistry.from_family_spec(inputs.family_spec, inputs.method_specs),
-        handle_registry=handles,
-    )
-    step = _call(
-        step_id="derive_and_evaluate_path_state",
-        scope_id="ii_1",
-        goal_type="derive_path_minimum_expression",
-        target="fact:ii_1:evaluated_path_minimum_expression",
-        capability_id="broken_path_straightening_minimum_expression",
-        inputs=(
-            "point:ii:E",
-            "point:ii:F",
-            "fact:ii:path_minimum_target",
-        ),
-        returns=(
-            FunctionalReturnOutput(
-                "fact:ii_1:path_minimum_expression",
-                "ii_1",
-                description=(
-                    "broken_path_straightening_minimum_expression "
-                    "return path_minimum_expression"
-                ),
-                output_type="MinimumExpression",
-            ),
-            FunctionalReturnOutput(
-                "fact:ii_1:evaluated_path_minimum_expression",
-                "ii_1",
-                description=(
-                    "broken_path_straightening_minimum_expression "
-                    "return evaluated_path_minimum_expression"
-                ),
-                output_type="MinimumExpression",
-            ),
-        ),
-    )
+    returned = {
+        item.name: item
+        for item in registry.require(
+            "coupled_segment_endpoint_replacement_path_minimum"
+        ).returns
+    }["attainment_point"]
 
-    registry.validate(
-        "broken_path_straightening_minimum_expression",
-        step,
-    )
+    assert returned.identity_policy == "target_object"
+    assert returned.identity_arg == "moving_point"
+    assert returned.reference_mode == "exact_result"

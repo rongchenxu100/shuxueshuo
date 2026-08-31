@@ -2,17 +2,20 @@
 
 ## 1. 总览
 
-Method Solver 将 canonical `ProblemIR` 转换为经过验证的 `SolverResult`。唯一 LLM 规划协议是 `functional_plan/v1`：
+Method Solver 将 authenticated Bundle 转换为经过验证的 `SolverResult`。LLM 首轮使用
+`functional-plan-content/v2`，需要修复时使用 `functional-scope-repair/v1`；代码组装的
+canonical 执行计划是 `functional_plan/v2`：
 
 ```text
-ProblemIR
-→ structural FamilyRegistry match
-→ FunctionalPlan provider
+VerifiedSolverProblemBundle
+→ ProblemPlanningContext + structural FamilyRegistry match
+→ FunctionalPlan content provider
+→ authority-bound canonical Plan assembly
 → typed reconciliation / binding
 → direct Function/Macro compiler
 → transactional execution
 → StateVersion commit
-→ typed goal verification / retry
+→ typed Goal verification / Scope Retry
 → goal-reachable PlannerOutput
 → InvocationExecutor
 → SolverResult
@@ -37,7 +40,7 @@ ProblemIR
 生产 family admission 只使用结构化 `pattern/problem_type`。多 family 匹配必须 fail loud；精确 problem-id 路由只用于 deterministic debug provider。
 
 - recorded provider 加载 authored FunctionalPlan，并走完整生产链；
-- DeepSeek provider 输出 `functional_plan/v1`，后续路径完全相同；
+- DeepSeek provider 输出 `functional-plan-content/v2`；Retry 输出完整 Scope replacement；
 - planner 失败不回落其他 LLM 协议。
 
 ## 4. Typed reconciliation
@@ -58,7 +61,7 @@ handle、StateSlot 字符串和 runtime path 不参与数学身份。
 Direct compiler 只消费 prepared typed call：
 
 - Function 通过 `FunctionSpec.adapter` 映射 method inputs；
-- Macro 编译声明式 invocation graph、aliases、selectors 和 public returns；
+- Macro 以一个 canonical step 进入 compiler，内部执行图与 public returns 由 Registry 和 typed preparation 持有；
 - exact/latest state 在编译前选定；
 - return allocation 决定 output promotion；
 -不搜索替代 capability，不按 reads 顺序或名称重选输入。
@@ -85,11 +88,14 @@ canonical calls 按 typed DAG 执行。每个 call fork 当前 RuntimeContext：
 
 只有 `unique` 且 runtime validated 的结果可提交。closure provenance 进入 Context、checkpoint、retry 和 Explanation。
 
-## 8. Context 与 retry
+## 8. Context 与 Retry
 
 `planner-state-context/v2` 保存 typed runtime observations 和 committed checkpoints，不复用上一轮 RuntimeContext 数值。
 
-Retry 会重放 committed calls，并验证：
+Retry 输入使用 `functional-annotated-plan/v1`，在原 Plan 树上就地展示三态执行结果、完整
+实际 runtime outputs、根诊断和 Scope 编辑权。LLM 对每个开放 Scope 返回完整
+`scope_steps + direct Goals + answer_from`。Runtime 只恢复开放 Scope 外签名仍兼容的
+verified calls，并验证：
 
 - computation/state-effect identity；
 - binding signature；
@@ -140,4 +146,5 @@ uv run python -m shuxueshuo_server.solver.deepseek_functional_batch \
   --case all --samples-per-case 3 --concurrency 3 --max-attempts 3
 ```
 
-summary 必须报告 FunctionalPlan v1、transactional Context authority、authoritative closure 和 direct compiler。
+summary 必须按 semantic attempt 报告 Pass 1/Scope Retry 协议、transactional Context
+authority、authoritative closure、direct compiler、耗时和 token。

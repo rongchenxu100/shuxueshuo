@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, declare_input_views
 
 
 class LineIntersectionPointMethod:
@@ -21,8 +21,14 @@ class LineIntersectionPointMethod:
         p3: Point = inputs["line2_p1"]
         p4: Point = inputs["line2_p2"]
         target: PointRef = inputs["target"]
-        if "parameter" in inputs and "parameter_value" in inputs:
-            substitutions = {inputs["parameter"]: inputs["parameter_value"]}
+        substitutions = _optional_parameter_substitution(
+            inputs,
+            p1,
+            p2,
+            p3,
+            p4,
+        )
+        if substitutions:
             p1, p2, p3, p4 = (
                 _subs_point(point, substitutions)
                 for point in (p1, p2, p3, p4)
@@ -56,19 +62,23 @@ SPEC = MethodSpecSource(
     inputs={
     "line1_p1": {
         "type": "Point",
-        "required": True
+        "required": True,
+        "allows_anonymous_result": True
     },
     "line1_p2": {
         "type": "Point",
-        "required": True
+        "required": True,
+        "allows_anonymous_result": True
     },
     "line2_p1": {
         "type": "Point",
-        "required": True
+        "required": True,
+        "allows_anonymous_result": True
     },
     "line2_p2": {
         "type": "Point",
-        "required": True
+        "required": True,
+        "allows_anonymous_result": True
     },
     "target": {
         "type": "PointRef",
@@ -83,6 +93,16 @@ SPEC = MethodSpecSource(
         "required": False
     }
 },
+    input_views=declare_input_views(
+        identity=("target", "parameter"),
+        latest_state=(
+            "line1_p1",
+            "line1_p2",
+            "line2_p1",
+            "line2_p2",
+            "parameter_value",
+        ),
+    ),
     outputs={
     "intersection": "Point"
 },
@@ -91,6 +111,10 @@ SPEC = MethodSpecSource(
     postconditions=(),
     trace_template=(),
     distinct_arg_groups=(
+        ("line1_p1", "line1_p2"),
+        ("line2_p1", "line2_p2"),
+    ),
+    interchangeable_arg_groups=(
         ("line1_p1", "line1_p2"),
         ("line2_p1", "line2_p2"),
     ),

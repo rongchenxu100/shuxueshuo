@@ -117,15 +117,6 @@ class LessonMergeRule:
     reason: str
 
 
-@dataclass(frozen=True)
-class DuplicateLessonStepMergeRule:
-    """同一 recipe 连续产出重复讲解步骤时的合并规则。"""
-
-    capability_ids: tuple[str, ...]
-    title: str
-    nav_title: str
-
-
 LESSON_MERGE_RULES: tuple[LessonMergeRule, ...] = (
     LessonMergeRule(
         rule_id="simple_quadratic_foundation",
@@ -149,17 +140,6 @@ LESSON_MERGE_RULES: tuple[LessonMergeRule, ...] = (
         reason="对称轴与 x 轴交点是由当前抛物线直接读出的短结论，通常应和解析式步骤合并。",
     ),
     LessonMergeRule(
-        rule_id="axis_parameter_square_adjacent_locus",
-        sequence=(
-            "quadratic_axis_parameterized_point",
-            "square_adjacent_vertex_from_side",
-            "parameterized_point_locus_line",
-        ),
-        title_hint="正方形求顶点轨迹",
-        nav_title_hint="正方形求顶点轨迹",
-        reason="设参数点、用正方形表示相邻顶点、读出该点轨迹直线是连续的短推导，合并后学生更容易看出参数如何消去。",
-    ),
-    LessonMergeRule(
         rule_id="axis_parameter_square_adjacent",
         sequence=(
             "quadratic_axis_parameterized_point",
@@ -168,17 +148,6 @@ LESSON_MERGE_RULES: tuple[LessonMergeRule, ...] = (
         title_hint="设对称轴上的参数点，并由正方形边求相邻顶点",
         nav_title_hint="参数点与正方形顶点",
         reason="设参数点本身较短，通常应和紧随其后的正方形相邻顶点表达合并。",
-    ),
-    LessonMergeRule(
-        rule_id="parameter_value_point_evaluation_minimum_point",
-        sequence=(
-            "parameter_from_expression_value",
-            "evaluate_point_at_parameter",
-            "line_locus_minimum_point",
-        ),
-        title_hint="由最小值反求参数，并求点坐标",
-        nav_title_hint="反求参数求点",
-        reason="反求参数、代入含参点、再由轨迹确定最短状态动点是同一个最值收束动作，合并后标题需要点明求出的点。",
     ),
     LessonMergeRule(
         rule_id="parameter_value_point_evaluation",
@@ -192,17 +161,12 @@ LESSON_MERGE_RULES: tuple[LessonMergeRule, ...] = (
     ),
 )
 
-
-DUPLICATE_LESSON_STEP_MERGE_RULES: tuple[DuplicateLessonStepMergeRule, ...] = (
-    DuplicateLessonStepMergeRule(
-        capability_ids=("broken_path_straightening_minimum_expression",),
-        title="将军饮马计算最小值表达式",
-        nav_title="将军饮马算最小值",
-    ),
-)
-
-_DUPLICATE_LESSON_STEP_MERGE_RULE_BY_CAPABILITIES = {
-    rule.capability_ids: rule for rule in DUPLICATE_LESSON_STEP_MERGE_RULES
+LESSON_MERGE_SEQUENCE_ALIASES: dict[tuple[str, ...], str] = {
+    (
+        "quadratic_from_constraints",
+        "quadratic_x_axis_intercept_point",
+        "quadratic_vertex_point",
+    ): "simple_quadratic_foundation",
 }
 
 
@@ -523,6 +487,15 @@ def lesson_merge_cluster_at(
         selected = _capability_sequence_cluster(groups, start, rule.sequence)
         if selected:
             return rule, selected
+    for sequence, rule_id in LESSON_MERGE_SEQUENCE_ALIASES.items():
+        selected = _capability_sequence_cluster(
+            groups,
+            start,
+            sequence,
+            allow_leading_shared_scope=True,
+        )
+        if selected:
+            return _lesson_merge_rule_by_id(rule_id), selected
     return None, ()
 
 
@@ -530,6 +503,8 @@ def _capability_sequence_cluster(
     groups: tuple[LessonCandidateGroup, ...],
     start: int,
     sequence: tuple[str, ...],
+    *,
+    allow_leading_shared_scope: bool = False,
 ) -> tuple[LessonCandidateGroup, ...]:
     end = start + len(sequence)
     if end > len(groups):
@@ -539,9 +514,24 @@ def _capability_sequence_cluster(
         return ()
     if any(group.teaching_substep_id for group in selected):
         return ()
-    if len({group.scope_id for group in selected}) != 1:
-        return ()
+    scopes = {group.scope_id for group in selected}
+    if len(scopes) != 1:
+        trailing_scopes = {group.scope_id for group in selected[1:]}
+        if (
+            not allow_leading_shared_scope
+            or len(trailing_scopes) != 1
+            or _group_publishes_answer(selected[0])
+        ):
+            return ()
     return tuple(selected)
+
+
+def _group_publishes_answer(group: LessonCandidateGroup) -> bool:
+    return any(
+        isinstance(item, dict)
+        and str(item.get("handle") or "").startswith("answer:")
+        for item in group.step.get("produces", ())
+    )
 
 
 def _split_lesson_group(group: LessonCandidateGroup) -> tuple[LessonCandidateGroup, ...]:
@@ -598,7 +588,7 @@ def _lesson_step_from_source_groups(
     step_id = _lesson_step_id_for_source_groups(source_groups)
     return LessonStep(
         id=step_id,
-        scope_id=source_groups[0].scope_id,
+        scope_id=lesson_merge_scope(source_groups),
         source_step_ids=tuple(dict.fromkeys(group.step_id for group in source_groups)),
         capability_ids=tuple(dict.fromkeys(group.capability_id for group in source_groups)),
         trace_refs=tuple(
@@ -650,7 +640,30 @@ def _lesson_merge_rule_for_capabilities(
     for rule in LESSON_MERGE_RULES:
         if capabilities == rule.sequence:
             return rule
+    rule_id = LESSON_MERGE_SEQUENCE_ALIASES.get(capabilities)
+    if rule_id is not None:
+        return _lesson_merge_rule_by_id(rule_id)
     return None
+
+
+def _lesson_merge_rule_by_id(rule_id: str) -> LessonMergeRule:
+    return next(rule for rule in LESSON_MERGE_RULES if rule.rule_id == rule_id)
+
+
+def lesson_merge_scope(
+    source_groups: tuple[LessonCandidateGroup, ...],
+) -> str:
+    scopes = {group.scope_id for group in source_groups}
+    if len(scopes) == 1:
+        return source_groups[0].scope_id
+    answer_scopes = {
+        group.scope_id
+        for group in source_groups
+        if _group_publishes_answer(group)
+    }
+    if len(answer_scopes) == 1:
+        return next(iter(answer_scopes))
+    return source_groups[-1].scope_id
 
 
 def _deterministic_merged_text(
@@ -717,47 +730,6 @@ def _deterministic_quadratic_foundation_axis_point_text(
     }
 
 
-def _deterministic_axis_parameter_square_adjacent_locus_text(
-    source_groups: tuple[LessonCandidateGroup, ...],
-    snapshot: ExplanationSnapshot,
-) -> dict[str, Any]:
-    pieces = [
-        DeterministicLessonTextPlanner().plan_text(group=group, snapshot=snapshot)
-        for group in source_groups[:2]
-    ]
-    derive: list[tuple[str, str]] = []
-    boxes: list[str] = []
-    for piece in pieces:
-        derive.extend(_derive_items(piece.get("derive", ())))
-        boxes.extend(str(item) for item in piece.get("box", ()) if str(item))
-    line_display = _locus_line_display_for_group(source_groups[2], snapshot)
-    point_label = _locus_point_label_for_group(source_groups[2])
-    if line_display and point_label:
-        derive.append(("∴", f"{point_label} 始终在直线 {line_display} 上"))
-        boxes.append(line_display)
-    else:
-        fallback_piece = DeterministicLessonTextPlanner().plan_text(
-            group=source_groups[2],
-            snapshot=snapshot,
-        )
-        derive.extend(_derive_items(fallback_piece.get("derive", ())))
-        boxes.extend(str(item) for item in fallback_piece.get("box", ()) if str(item))
-        pieces.append(fallback_piece)
-    target_label = (
-        point_label
-        or _target_point_label_for_group(source_groups[1])
-        or _last_target_point_label_for_groups(source_groups, pieces)
-    )
-    title = f"正方形求顶点{target_label}轨迹" if target_label else "正方形求顶点轨迹"
-    return {
-        "title": title,
-        "nav_title": title,
-        "goal": "先用参数表示对称轴上的点，再由正方形关系表示顶点，并确定该顶点的轨迹直线。",
-        "derive": tuple(derive),
-        "box": tuple(dict.fromkeys(boxes)),
-    }
-
-
 def _deterministic_axis_parameter_square_adjacent_text(
     source_groups: tuple[LessonCandidateGroup, ...],
     snapshot: ExplanationSnapshot,
@@ -800,32 +772,6 @@ def _deterministic_axis_parameter_square_adjacent_text(
     }
 
 
-def _deterministic_parameter_value_point_evaluation_minimum_point_text(
-    source_groups: tuple[LessonCandidateGroup, ...],
-    snapshot: ExplanationSnapshot,
-) -> dict[str, Any]:
-    pieces = [
-        DeterministicLessonTextPlanner().plan_text(group=group, snapshot=snapshot)
-        for group in source_groups
-    ]
-    derive: list[tuple[str, str]] = []
-    boxes: list[str] = []
-    for piece in pieces:
-        derive.extend(_derive_items(piece.get("derive", ())))
-        boxes.extend(str(item) for item in piece.get("box", ()) if str(item))
-    labels = _target_point_labels_for_groups(source_groups, pieces)
-    labels_text = "、".join(labels)
-    title = f"由最小值反求参数，并求{labels_text}坐标" if labels_text else "由最小值反求参数，并求点坐标"
-    nav_title = f"反求参数求{labels_text}" if labels_text else "反求参数求点"
-    return {
-        "title": title,
-        "nav_title": nav_title,
-        "goal": "先由最小值条件反求参数，再把参数代入含参点坐标，并确定最短状态下的动点。",
-        "derive": tuple(derive),
-        "box": _dedupe_visible_texts(boxes),
-    }
-
-
 def _deterministic_parameter_value_point_evaluation_text(
     source_groups: tuple[LessonCandidateGroup, ...],
     snapshot: ExplanationSnapshot,
@@ -853,9 +799,7 @@ def _deterministic_parameter_value_point_evaluation_text(
 _DETERMINISTIC_MERGE_TEXT_BUILDERS = {
     "simple_quadratic_foundation": _deterministic_simple_quadratic_foundation_text,
     "quadratic_foundation_axis_point": _deterministic_quadratic_foundation_axis_point_text,
-    "axis_parameter_square_adjacent_locus": _deterministic_axis_parameter_square_adjacent_locus_text,
     "axis_parameter_square_adjacent": _deterministic_axis_parameter_square_adjacent_text,
-    "parameter_value_point_evaluation_minimum_point": _deterministic_parameter_value_point_evaluation_minimum_point_text,
     "parameter_value_point_evaluation": _deterministic_parameter_value_point_evaluation_text,
 }
 
@@ -871,76 +815,33 @@ def _piece_for_capability(
     return pieces[-1] if pieces else {}
 
 
-def _locus_line_display_for_group(
-    group: LessonCandidateGroup,
-    snapshot: ExplanationSnapshot,
-) -> str:
-    for handle, fact in snapshot.fact_index.items():
-        if not str(handle).startswith("runtime:"):
-            continue
-        if not isinstance(fact, dict) or fact.get("type") != "Line":
-            continue
-        if str(fact.get("scope_id") or "") != str(group.step_id):
-            continue
-        line = fact.get("value")
-        if isinstance(line, dict):
-            return _line_equation_display(line)
-    return ""
-
-
-def _line_equation_display(line: dict[str, Any]) -> str:
-    equation = str(line.get("equation") or "")
-    if "=" not in equation:
-        return student_math_display(equation, fullwidth_operators=True)
-    left, right = equation.split("=", 1)
-    try:
-        expr = sp.factor(sp.sympify(right.strip(), locals={"sqrt": sp.sqrt, "Abs": sp.Abs, "abs": sp.Abs}))
-        right_text = student_math_display(str(expr), fullwidth_operators=True)
-    except Exception:
-        right_text = student_math_display(right.strip(), fullwidth_operators=True)
-    return f"{left.strip()}＝{right_text}"
-
-
-def _locus_point_label_for_group(group: LessonCandidateGroup) -> str:
-    for handle in group.step.get("reads", ()):
-        if not isinstance(handle, str) or not handle.startswith("fact:"):
-            continue
-        name = handle.rsplit(":", 1)[-1]
-        for suffix in (
-            "_parametric_coordinate",
-            "_parameterized_point",
-            "_square_adjacent_vertex",
-            "_coordinate",
-        ):
-            if name.endswith(suffix):
-                name = name[: -len(suffix)]
-                break
-        if re.fullmatch(r"[A-Z][A-Za-z0-9_]*", name):
-            return name
-    target = str(group.step.get("target") or "").rsplit(":", 1)[-1]
-    for suffix in ("_locus_line", "_line", "_locus"):
-        if target.endswith(suffix):
-            target = target[: -len(suffix)]
-            break
-    return target if re.fullmatch(r"[A-Z][A-Za-z0-9_]*", target) else ""
-
-
-def _last_target_point_label_for_groups(
-    groups: tuple[LessonCandidateGroup, ...],
-    pieces: list[dict[str, Any]],
-) -> str:
-    labels = _target_point_labels_for_groups(groups, pieces)
-    return labels[-1] if labels else ""
-
-
 def _answer_boxes_for_groups(
     source_groups: tuple[LessonCandidateGroup, ...],
     answers: dict[str, Any],
 ) -> tuple[str, ...]:
-    boxes: list[str] = []
+    boxes_by_answer: dict[tuple[str, str], str] = {}
     for group in source_groups:
-        boxes.extend(_answer_boxes_for_step(group.step, answers))
-    return tuple(dict.fromkeys(boxes))
+        for produced in group.step.get("produces", ()):
+            if not isinstance(produced, dict):
+                continue
+            handle = str(produced.get("handle") or "")
+            if not handle.startswith("answer:"):
+                continue
+            resolved = _answer_for_handle(handle, answers)
+            if resolved is None:
+                continue
+            scope_id, key, value = resolved
+            boxes_by_answer.setdefault(
+                (scope_id, key),
+                _student_answer_box(key, value),
+            )
+    return tuple(
+        boxes_by_answer[(scope_id, key)]
+        for scope_id, values in answers.items()
+        if isinstance(values, dict)
+        for key in values
+        if (scope_id, key) in boxes_by_answer
+    )
 
 
 def _lesson_from_llm_draft(
@@ -1144,45 +1045,8 @@ def _merge_adjacent_lesson_steps(
     current = list(steps)
     while previous != current:
         previous = current
-        current = _merge_adjacent_duplicate_recipe_steps(current)
         current = _merge_adjacent_capability_sequence_steps(current)
     return current
-
-
-def _merge_adjacent_duplicate_recipe_steps(
-    steps: list[LessonStep],
-) -> list[LessonStep]:
-    merged: list[LessonStep] = []
-    index = 0
-    while index < len(steps):
-        current = steps[index]
-        duplicates = [current]
-        cursor = index + 1
-        while cursor < len(steps) and _should_merge_duplicate_recipe_steps(current, steps[cursor]):
-            duplicates.append(steps[cursor])
-            cursor += 1
-        if len(duplicates) == 1:
-            merged.append(current)
-        else:
-            merged.append(_merge_duplicate_recipe_steps(duplicates))
-        index = cursor
-    return merged
-
-
-def _should_merge_duplicate_recipe_steps(left: LessonStep, right: LessonStep) -> bool:
-    if left.scope_id != right.scope_id:
-        return False
-    if left.source_step_ids != right.source_step_ids:
-        return False
-    if left.capability_ids != right.capability_ids:
-        return False
-    if left.teaching_substep_ids or right.teaching_substep_ids:
-        return False
-    return _duplicate_lesson_step_merge_rule(left) is not None
-
-
-def _duplicate_lesson_step_merge_rule(step: LessonStep) -> DuplicateLessonStepMergeRule | None:
-    return _DUPLICATE_LESSON_STEP_MERGE_RULE_BY_CAPABILITIES.get(step.capability_ids)
 
 
 def _merge_adjacent_capability_sequence_steps(
@@ -1271,16 +1135,6 @@ def _merge_axis_square_steps(steps: list[LessonStep]) -> LessonStep:
     )
 
 
-def _merge_axis_square_locus_steps(steps: list[LessonStep]) -> LessonStep:
-    label = _axis_square_locus_target_label_from_lesson_steps(steps)
-    title = f"正方形求顶点{label}轨迹" if label else "正方形求顶点轨迹"
-    return _merge_lesson_step_sequence(
-        steps,
-        title=title,
-        nav_title=title,
-    )
-
-
 def _merge_parameter_point_evaluation_steps(steps: list[LessonStep]) -> LessonStep:
     labels = _point_labels_from_lesson_steps(steps)
     labels_text = "、".join(labels)
@@ -1291,22 +1145,10 @@ def _merge_parameter_point_evaluation_steps(steps: list[LessonStep]) -> LessonSt
     )
 
 
-def _merge_parameter_point_minimum_steps(steps: list[LessonStep]) -> LessonStep:
-    labels = _point_labels_from_lesson_steps(steps)
-    labels_text = "、".join(labels)
-    return _merge_lesson_step_sequence(
-        steps,
-        title=f"由最小值反求参数，并求{labels_text}坐标" if labels_text else "由最小值反求参数，并求点坐标",
-        nav_title=f"反求参数求{labels_text}" if labels_text else "反求参数求点",
-    )
-
-
 _LESSON_STEP_MERGE_BUILDERS = {
     "simple_quadratic_foundation": _merge_simple_quadratic_foundation_steps,
     "quadratic_foundation_axis_point": _merge_quadratic_foundation_axis_point_steps,
-    "axis_parameter_square_adjacent_locus": _merge_axis_square_locus_steps,
     "axis_parameter_square_adjacent": _merge_axis_square_steps,
-    "parameter_value_point_evaluation_minimum_point": _merge_parameter_point_minimum_steps,
     "parameter_value_point_evaluation": _merge_parameter_point_evaluation_steps,
 }
 
@@ -1356,27 +1198,9 @@ def _point_labels_from_lesson_steps(steps: list[LessonStep]) -> tuple[str, ...]:
     return tuple(dict.fromkeys(label for label in labels if label))
 
 
-def _axis_square_locus_target_label_from_lesson_steps(steps: list[LessonStep]) -> str:
-    for step in reversed(steps):
-        label = _locus_label_from_texts((*step.box, step.title, step.nav_title or ""))
-        if label:
-            return label
-    return _last_point_label_from_lesson_steps(steps)
-
-
 def _last_point_label_from_lesson_steps(steps: list[LessonStep]) -> str:
     labels = _point_labels_from_lesson_steps(steps)
     return labels[-1] if labels else ""
-
-
-def _locus_label_from_texts(texts: tuple[str, ...]) -> str:
-    for text in texts:
-        raw = str(text)
-        for match in re.finditer(r"(?:点|顶点|动点)?([A-Z][A-Za-z0-9_′]*)\s*(?:的)?轨迹", raw):
-            return match.group(1)
-        for match in re.finditer(r"([A-Z][A-Za-z0-9_′]*)\s*始终在", raw):
-            return match.group(1)
-    return ""
 
 
 def _point_labels_from_texts(texts: tuple[str, ...]) -> list[str]:
@@ -1391,34 +1215,6 @@ def _point_labels_from_texts(texts: tuple[str, ...]) -> list[str]:
             if label not in labels:
                 labels.append(label)
     return labels
-
-
-def _merge_duplicate_recipe_steps(steps: list[LessonStep]) -> LessonStep:
-    first = steps[0]
-    rule = _duplicate_lesson_step_merge_rule(first)
-    derive: list[tuple[str, str]] = []
-    box: list[str] = []
-    gaps: list[str] = []
-    trace_refs: list[str] = []
-    for step in steps:
-        derive.extend(step.derive)
-        box.extend(step.box)
-        gaps.extend(step.gaps)
-        trace_refs.extend(step.trace_refs)
-    return LessonStep(
-        id=first.id,
-        scope_id=first.scope_id,
-        source_step_ids=first.source_step_ids,
-        capability_ids=first.capability_ids,
-        trace_refs=tuple(dict.fromkeys(trace_refs)),
-        title=rule.title if rule is not None else first.title,
-        goal=first.goal,
-        nav_title=rule.nav_title if rule is not None else first.nav_title,
-        derive=tuple(dict.fromkeys(derive)),
-        box=tuple(dict.fromkeys(item for item in box if str(item))),
-        gaps=tuple(dict.fromkeys(item for item in gaps if str(item))),
-        teaching_substep_ids=(),
-    )
 
 
 def _lesson_draft_failure(

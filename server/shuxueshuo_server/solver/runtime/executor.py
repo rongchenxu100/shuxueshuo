@@ -15,11 +15,32 @@ method，再把 method output 写回 RuntimeContext。
 
 from __future__ import annotations
 
-import re
+from dataclasses import replace
 
+import sympy as sp
+
+from shuxueshuo_server.solver.contracts import (
+    CheckResult,
+    MethodInputSpec,
+    MethodInputViewSpec,
+    MethodSpec,
+    TypedValue,
+)
 from shuxueshuo_server.solver.math_kernel import SympyKernel
 from shuxueshuo_server.solver.runtime.context import RuntimeContext
-from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
+from shuxueshuo_server.solver.runtime.method_specs import (
+    MethodSpecRegistry,
+    method_output_activity,
+)
+from shuxueshuo_server.solver.runtime.method_input_views import (
+    MethodInputViewResolver,
+    expected_runtime_type_for_view,
+)
+from shuxueshuo_server.solver.runtime.method_input_read_authority import (
+    DerivedInputReadSource,
+    MethodInputReadAuthority,
+    StateVersionReadSource,
+)
 from shuxueshuo_server.solver.runtime.methods import (
     StatelessMethodRegistry,
     default_stateless_registry,
@@ -34,8 +55,19 @@ from shuxueshuo_server.solver.runtime.models import (
     StepPlan,
     runtime_type_matches,
 )
-from shuxueshuo_server.solver.runtime.runtime_type_declarations import (
-    split_runtime_types,
+from shuxueshuo_server.solver.runtime.functional_diagnostics import (
+    StatelessMethodError,
+    method_input_invalid,
+    method_input_missing,
+    method_input_state_unavailable,
+    method_result_ambiguous,
+    method_result_empty,
+    unexpected_method_error,
+)
+from shuxueshuo_server.solver.runtime.symbolic_state_representation import (
+    SymbolicStateRepresentationError,
+    polynomial_state_relations,
+    project_symbolic_input_view,
 )
 
 
@@ -161,8 +193,15 @@ class PlanValidator:
     只校验计划是否引用了合法上下文、是否越权写入、是否试图传裸值。
     """
 
-    def __init__(self, specs: MethodSpecRegistry) -> None:
+    def __init__(
+        self,
+        specs: MethodSpecRegistry,
+        *,
+        require_input_read_authority: bool = False,
+    ) -> None:
         self.specs = specs
+        self.require_input_read_authority = require_input_read_authority
+        self.view_resolver = MethodInputViewResolver()
 
     def validate_step(self, context: RuntimeContext, plan: StepPlan) -> None:
         """校验整个 StepPlan。
@@ -234,24 +273,41 @@ class PlanValidator:
                     raise ValueError(
                         f"aggregate input {input_name} must not be empty"
                     )
-                for item_path in raw_path:
+                authorities = invocation.input_read_authorities.get(
+                    input_name,
+                    (),
+                )
+                if authorities and len(authorities) != len(raw_path):
+                    raise ValueError(
+                        "planner.method_input_view_authority_drift: "
+                        f"input={input_name}, paths={len(raw_path)}, "
+                        f"authorities={len(authorities)}"
+                    )
+                item_spec = replace(input_spec, runtime_type=item_type)
+                for item_index, item_path in enumerate(raw_path):
                     if not isinstance(item_path, str) or not item_path.startswith("$"):
                         raise ValueError(
                             f"input {input_name} must contain only ContextPaths"
                         )
-                    context.read_path(
-                        item_path,
-                        from_scope_id=invocation.scope,
-                        expected_type=item_type,
+                    self.view_resolver.resolve(
+                        context,
+                        method_id=invocation.method_id,
+                        invocation_id=invocation.invocation_id,
+                        scope_id=invocation.scope,
+                        input_name=input_name,
+                        input_spec=item_spec,
+                        raw_path=item_path,
+                        item_index=item_index,
+                        authority=(
+                            authorities[item_index] if authorities else None
+                        ),
+                        require_authority=self.require_input_read_authority,
                     )
                 continue
             if not isinstance(raw_path, str) or not raw_path.startswith("$"):
                 # 这条规则防止 Planner 把坐标答案直接塞进 invocation。
                 raise ValueError(f"input {input_name} must be a ContextPath")
-            expected_type = _identity_compatible_input_type(
-                input_name,
-                input_spec.type,
-            )
+            expected_type = expected_runtime_type_for_view(input_spec)
             if raw_path in produced_types:
                 if not runtime_type_matches(expected_type, produced_types[raw_path]):
                     raise TypeError(
@@ -263,10 +319,25 @@ class PlanValidator:
                         f"produced input must come from same step scope: {raw_path}"
                     )
             else:
-                context.read_path(
-                    raw_path,
-                    from_scope_id=invocation.scope,
-                    expected_type=expected_type,
+                authorities = invocation.input_read_authorities.get(
+                    input_name,
+                    (),
+                )
+                if len(authorities) > 1:
+                    raise ValueError(
+                        "planner.method_input_view_authority_drift: "
+                        f"input={input_name}, authorities={len(authorities)}"
+                    )
+                self.view_resolver.resolve(
+                    context,
+                    method_id=invocation.method_id,
+                    invocation_id=invocation.invocation_id,
+                    scope_id=invocation.scope,
+                    input_name=input_name,
+                    input_spec=input_spec,
+                    raw_path=raw_path,
+                    authority=(authorities[0] if authorities else None),
+                    require_authority=self.require_input_read_authority,
                 )
         unknown_outputs = sorted(set(invocation.outputs) - set(spec.outputs))
         if unknown_outputs:
@@ -302,11 +373,17 @@ class InvocationExecutor:
         specs: MethodSpecRegistry,
         methods: StatelessMethodRegistry | None = None,
         kernel: SympyKernel | None = None,
+        *,
+        require_input_read_authority: bool = False,
     ) -> None:
         self.specs = specs
         self.methods = methods or default_stateless_registry()
         self.kernel = kernel or SympyKernel()
-        self.validator = PlanValidator(specs)
+        self.validator = PlanValidator(
+            specs,
+            require_input_read_authority=require_input_read_authority,
+        )
+        self.require_input_read_authority = require_input_read_authority
 
     def execute_step(
         self,
@@ -355,7 +432,86 @@ class InvocationExecutor:
         """解析 invocation 输入，运行 method，并写回 invocation 输出。"""
         method = self.methods.require(invocation.method_id)
         inputs = self.resolve_inputs(context, invocation)
-        result = method.run(inputs, self.kernel)
+        spec = self.specs.require(invocation.method_id)
+        provided_input_names = frozenset(
+            name for name in inputs if not name.startswith("__")
+        )
+        input_runtime_types = inputs.get("__input_types__", {})
+        for output_name in invocation.outputs:
+            activity = method_output_activity(
+                spec,
+                output_name,
+                provided_input_names=provided_input_names,
+                input_runtime_types=input_runtime_types,
+            )
+            if activity != "inactive":
+                continue
+            activation = spec.output_activation.get(output_name)
+            if activation is not None and activation.kind == "requires_inputs":
+                missing_inputs = tuple(
+                    name
+                    for name in activation.required_inputs
+                    if name not in provided_input_names
+                )
+                raise method_input_missing(
+                    "compiled invocation requested an output whose activating "
+                    "inputs are absent",
+                    method_id=invocation.method_id,
+                    scope_id=invocation.scope,
+                    step_id=invocation.invocation_id,
+                    expected={
+                        "output": output_name,
+                        "required_inputs": list(activation.required_inputs),
+                    },
+                    observed={
+                        "provided_inputs": sorted(provided_input_names),
+                        "missing_inputs": list(missing_inputs),
+                    },
+                    repair_action="provide_required_input",
+                )
+            raise method_input_invalid(
+                "compiled invocation requested an output incompatible with "
+                "the active input runtime type",
+                method_id=invocation.method_id,
+                scope_id=invocation.scope,
+                step_id=invocation.invocation_id,
+                expected={
+                    "output": output_name,
+                    "input_name": activation.input_name if activation else None,
+                    "input_types": list(activation.input_types) if activation else [],
+                },
+                observed={"input_runtime_types": dict(input_runtime_types)},
+                repair_action="repair_input_binding",
+            )
+        try:
+            result = method.run(inputs, self.kernel)
+        except StatelessMethodError as exc:
+            input_authorities = {
+                **invocation.supporting_input_read_authorities,
+                **invocation.input_read_authorities,
+            }
+            raise exc.with_input_read_authorities(
+                input_authorities
+            ).with_context(
+                method_id=invocation.method_id,
+                scope_id=invocation.scope,
+                step_id=invocation.invocation_id,
+            ) from exc
+        except Exception as exc:
+            raise unexpected_method_error(
+                exc,
+                method_id=invocation.method_id,
+                scope_id=invocation.scope,
+                step_id=invocation.invocation_id,
+            ) from exc
+        result.checks = [
+            (
+                replace(check, method_id=check.method_id or invocation.method_id)
+                if isinstance(check, CheckResult)
+                else check
+            )
+            for check in result.checks
+        ]
         missing_outputs = tuple(
             output_name
             for output_name in invocation.outputs
@@ -365,11 +521,62 @@ class InvocationExecutor:
             failed_checks = tuple(
                 check.name for check in result.checks if not check.ok
             )
-            raise ValueError(
+            conditional_missing = tuple(
+                output_name
+                for output_name in missing_outputs
+                if method_output_activity(
+                    spec,
+                    output_name,
+                    provided_input_names=provided_input_names,
+                    input_runtime_types=input_runtime_types,
+                )
+                == "runtime_conditional"
+            )
+            if len(conditional_missing) == len(missing_outputs):
+                error_factory = (
+                    method_result_ambiguous
+                    if any("ambiguous" in name for name in failed_checks)
+                    else method_result_empty
+                )
+                raise error_factory(
+                    "runtime condition did not produce the requested output",
+                    method_id=invocation.method_id,
+                    scope_id=invocation.scope,
+                    step_id=invocation.invocation_id,
+                    expected={
+                        "outputs": list(invocation.outputs),
+                        "runtime_conditions": {
+                            name: spec.output_activation[name].runtime_condition
+                            for name in conditional_missing
+                        },
+                    },
+                    observed={
+                        "missing_outputs": list(missing_outputs),
+                        "failed_checks": list(failed_checks),
+                    },
+                    repair_action=(
+                        "supply_disambiguating_constraint"
+                        if error_factory is method_result_ambiguous
+                        else "repair_failed_step"
+                    ),
+                )
+            raise StatelessMethodError(
+                "planner.method_contract_invalid",
                 "method_output_unavailable: "
-                f"method={invocation.method_id}, "
-                f"outputs={','.join(missing_outputs)}, "
-                f"failed_checks={','.join(failed_checks) or 'none'}"
+                f"missing_outputs={','.join(missing_outputs)}; "
+                f"failed_checks={','.join(failed_checks) or 'none'}; "
+                "method omitted outputs declared by the compiled invocation",
+                category="configuration",
+                retryability="configuration",
+                method_id=invocation.method_id,
+                scope_id=invocation.scope,
+                step_id=invocation.invocation_id,
+                expected={"outputs": list(invocation.outputs)},
+                observed={
+                    "missing_outputs": list(missing_outputs),
+                    "failed_checks": list(failed_checks),
+                },
+                repair_action="fix_runtime_contract",
             )
         for output_name, raw_path in invocation.outputs.items():
             # 输出先写入 step scope；如需成为上层 fact，必须走 promote_outputs。
@@ -389,119 +596,400 @@ class InvocationExecutor:
         spec = self.specs.require(invocation.method_id)
         inputs = {}
         input_types = {}
+        typed_inputs: dict[str, TypedValue] = {}
+        supporting_typed_inputs: dict[str, TypedValue] = {}
+        view_resolver = MethodInputViewResolver()
         for input_name, input_spec in spec.inputs.items():
             raw_path = invocation.inputs.get(input_name)
             if raw_path is None:
                 continue
+            authorities = invocation.input_read_authorities.get(input_name, ())
             if isinstance(raw_path, tuple):
                 item_type = _aggregate_item_type(input_spec.type)
                 if item_type is None:
                     raise TypeError(
                         f"input {input_name} does not accept multiple ContextPaths"
                     )
-                values = [
-                    context.read_path(
-                        item_path,
-                        from_scope_id=invocation.scope,
-                        expected_type=item_type,
+                if authorities and len(authorities) != len(raw_path):
+                    raise StatelessMethodError(
+                        "planner.method_input_view_authority_drift",
+                        "aggregate Method input authority count differs from its paths",
+                        category="configuration",
+                        retryability="configuration",
+                        method_id=invocation.method_id,
+                        scope_id=invocation.scope,
+                        step_id=invocation.invocation_id,
+                        arg_name=input_name,
+                        expected={"item_count": len(raw_path)},
+                        observed={"authority_count": len(authorities)},
+                        repair_action="fix_runtime_contract",
                     )
-                    for item_path in raw_path
+                item_spec = replace(input_spec, runtime_type=item_type)
+                values = [
+                    view_resolver.resolve(
+                        context,
+                        method_id=invocation.method_id,
+                        invocation_id=invocation.invocation_id,
+                        scope_id=invocation.scope,
+                        input_name=input_name,
+                        input_spec=item_spec,
+                        raw_path=item_path,
+                        item_index=index,
+                        authority=(
+                            authorities[index] if authorities else None
+                        ),
+                        require_authority=self.require_input_read_authority,
+                    )
+                    for index, item_path in enumerate(raw_path)
                 ]
                 input_types[input_name] = input_spec.type
-                inputs[input_name] = [item.value for item in values]
+                if input_spec.type == "Coefficients":
+                    inputs[input_name] = _coefficient_mapping_from_authorities(
+                        values,
+                        authorities=authorities,
+                        invocation=invocation,
+                        input_name=input_name,
+                        canonical_symbols=inputs.get("all_coefficients"),
+                    )
+                else:
+                    inputs[input_name] = [item.value for item in values]
                 continue
-            expected_type = _identity_compatible_input_type(
-                input_name,
-                input_spec.type,
-            )
-            # read_path 会同时做 scope 可见性校验和 expected_type 校验。
-            typed_value = context.read_path(
-                raw_path,
-                from_scope_id=invocation.scope,
-                expected_type=expected_type,
-            )
-            input_types[input_name] = typed_value.type
-            inputs[input_name] = _method_input_value(
+            if len(authorities) > 1:
+                raise StatelessMethodError(
+                    "planner.method_input_view_authority_drift",
+                    "scalar Method input has multiple read authorities",
+                    category="configuration",
+                    retryability="configuration",
+                    method_id=invocation.method_id,
+                    scope_id=invocation.scope,
+                    step_id=invocation.invocation_id,
+                    arg_name=input_name,
+                    observed={"authority_count": len(authorities)},
+                    repair_action="fix_runtime_contract",
+                )
+            resolved = view_resolver.resolve(
+                context,
+                method_id=invocation.method_id,
+                invocation_id=invocation.invocation_id,
+                scope_id=invocation.scope,
                 input_name=input_name,
-                input_type=input_spec.type,
+                input_spec=input_spec,
                 raw_path=raw_path,
-                typed_value=typed_value,
+                authority=(authorities[0] if authorities else None),
+                require_authority=self.require_input_read_authority,
             )
+            typed_value = resolved.typed_value
+            input_types[input_name] = typed_value.type
+            typed_inputs[input_name] = typed_value
+            inputs[input_name] = resolved.value
+        for input_name, authorities in (
+            invocation.supporting_input_read_authorities.items()
+        ):
+            if len(authorities) != 1:
+                raise StatelessMethodError(
+                    "planner.method_input_view_authority_drift",
+                    "supporting Method input must have exactly one authority",
+                    category="configuration",
+                    retryability="configuration",
+                    method_id=invocation.method_id,
+                    scope_id=invocation.scope,
+                    step_id=invocation.invocation_id,
+                    arg_name=input_name,
+                    observed={"authority_count": len(authorities)},
+                    repair_action="fix_runtime_contract",
+                )
+            authority = authorities[0]
+            supporting_spec = MethodInputSpec(
+                name=input_name,
+                domain_type=authority.domain_type,
+                runtime_type=authority.runtime_type,
+                view=MethodInputViewSpec(
+                    mode=authority.view_mode,
+                    domain_type=authority.domain_type,
+                ),
+                required=True,
+                functional_exposed=False,
+            )
+            supporting_typed_inputs[input_name] = view_resolver.resolve(
+                context,
+                method_id=invocation.method_id,
+                invocation_id=invocation.invocation_id,
+                scope_id=invocation.scope,
+                input_name=input_name,
+                input_spec=supporting_spec,
+                raw_path=authority.runtime_path,
+                authority=authority,
+                require_authority=True,
+            ).typed_value
+        inputs = _materialize_symbolic_method_input_views(
+            spec,
+            inputs,
+            typed_inputs=typed_inputs,
+            context=context,
+            invocation=invocation,
+            supporting_typed_inputs=supporting_typed_inputs,
+            require_authority=self.require_input_read_authority,
+        )
         if input_types:
             inputs["__input_types__"] = input_types
         return inputs
 
 
+def _materialize_symbolic_method_input_views(
+    spec: MethodSpec,
+    inputs: dict[str, object],
+    *,
+    typed_inputs: dict[str, TypedValue],
+    context: RuntimeContext,
+    invocation: MethodInvocation,
+    supporting_typed_inputs: dict[str, TypedValue],
+    require_authority: bool,
+) -> dict[str, object]:
+    """Align structured inputs to one canonical function state's basis.
+
+    Method specs opt in explicitly. The conversion is an ephemeral invocation
+    view: neither source Problem data nor committed runtime state is mutated.
+    """
+
+    anchor_names = tuple(
+        name
+        for name, input_spec in spec.inputs.items()
+        if input_spec.symbolic_basis_role == "state_anchor" and name in inputs
+    )
+    aligned_names = tuple(
+        name
+        for name, input_spec in spec.inputs.items()
+        if input_spec.symbolic_basis_role == "align_to_anchor" and name in inputs
+    )
+    if not anchor_names and not aligned_names:
+        return inputs
+    if len(anchor_names) != 1:
+        raise method_input_state_unavailable(
+            "symbolic input view requires exactly one active state anchor",
+            method_id=spec.method_id,
+            scope_id=invocation.scope,
+            step_id=invocation.invocation_id,
+            expected={"state_anchor_count": 1},
+            observed={"state_anchor_inputs": list(anchor_names)},
+            repair_action="align_symbolic_state_basis",
+        )
+    anchor_name = anchor_names[0]
+    anchor = typed_inputs.get(anchor_name)
+    independent = inputs.get("x")
+    if (
+        anchor is None
+        or not isinstance(anchor.value, sp.Basic)
+        or not isinstance(independent, sp.Symbol)
+    ):
+        raise method_input_state_unavailable(
+            "symbolic input view is missing a polynomial state or independent symbol",
+            method_id=spec.method_id,
+            scope_id=invocation.scope,
+            step_id=invocation.invocation_id,
+            arg_name=anchor_name,
+            expected={"state": "polynomial", "independent_symbol": "x"},
+            observed={
+                "anchor_type": anchor.type if anchor is not None else None,
+                "independent_type": type(independent).__name__,
+            },
+            repair_action="align_symbolic_state_basis",
+        )
+    try:
+        source_typed = supporting_typed_inputs.get("symbolic_basis_source")
+        if source_typed is None:
+            if require_authority:
+                raise StatelessMethodError(
+                    "planner.method_input_view_authority_missing",
+                    "symbolic basis conversion has no exact source authority",
+                    category="configuration",
+                    retryability="configuration",
+                    method_id=spec.method_id,
+                    scope_id=invocation.scope,
+                    step_id=invocation.invocation_id,
+                    arg_name="symbolic_basis_source",
+                    repair_action="fix_runtime_contract",
+                )
+            source_typed = context.read_path(
+                "$problem.expressions.quadratic",
+                from_scope_id=invocation.scope,
+                expected_type="Expression",
+            )
+        source = source_typed.value
+        relations = polynomial_state_relations(
+            source,
+            anchor.value,
+            independent_symbol=independent,
+        )
+        representable = tuple(
+            sorted(
+                set(sp.sympify(source).free_symbols) - {independent},
+                key=lambda symbol: symbol.name,
+            )
+        )
+        allowed = tuple(
+            sorted(
+                (set(anchor.value.free_symbols) & set(representable)),
+                key=lambda symbol: symbol.name,
+            )
+        )
+        materialized = dict(inputs)
+        for name in aligned_names:
+            materialized[name] = project_symbolic_input_view(
+                inputs[name],
+                allowed_symbols=allowed,
+                representable_symbols=representable,
+                relations=relations,
+                excluded_symbols=(independent,),
+            ).value
+        return materialized
+    except (KeyError, PermissionError, TypeError) as exc:
+        raise method_input_state_unavailable(
+            "canonical function authority is unavailable for symbolic input alignment",
+            method_id=spec.method_id,
+            scope_id=invocation.scope,
+            step_id=invocation.invocation_id,
+            arg_name=anchor_name,
+            expected={"source_function": "visible"},
+            observed={"error": type(exc).__name__},
+            repair_action="align_symbolic_state_basis",
+        ) from exc
+    except SymbolicStateRepresentationError as exc:
+        raise method_input_state_unavailable(
+            str(exc),
+            method_id=spec.method_id,
+            scope_id=invocation.scope,
+            step_id=invocation.invocation_id,
+            arg_name=anchor_name,
+            role="symbolic_state_basis",
+            expected={
+                "allowed_symbols": [
+                    symbol.name for symbol in exc.requested_symbols
+                ],
+                "unique_representation": True,
+            },
+            observed={
+                "current_symbols": [
+                    symbol.name for symbol in exc.current_symbols
+                ],
+                "branch_count": exc.branch_count,
+            },
+            repair_action="align_symbolic_state_basis",
+        ) from exc
+
+
 def _aggregate_item_type(runtime_type: str) -> str | None:
     return {
+        "Coefficients": "ParameterValue",
         "PointList": "Point",
         "SymbolList": "Symbol",
     }.get(runtime_type)
 
 
-def _method_input_value(
+def _coefficient_mapping_from_authorities(
+    values: list[object],
     *,
+    authorities: tuple[MethodInputReadAuthority, ...],
+    invocation: MethodInvocation,
     input_name: str,
-    input_type: str,
-    raw_path: str,
-    typed_value,
-):
-    """把 RuntimeContext value 转成无状态 method 期望的 Python 输入。
+    canonical_symbols: object,
+) -> dict[sp.Symbol, object]:
+    """Materialize coefficient values from their exact Symbol state lineage."""
 
-    ``PointRef|Point`` 主要用于 target/``*_ref`` 槽位：点实体可能已经在前序步骤中被
-    写成 Point，但 method 仍只需要该点的学生可见名称。此时从 points path
-    派生一个 PointRef，比要求 LLM 重新声明同名点更稳定。
-    """
-    if (
-        (input_name == "target" or input_name.endswith("_ref"))
-        and "PointRef" in split_runtime_types(input_type)
-        and typed_value.type == "Point"
+    if len(authorities) != len(values):
+        raise StatelessMethodError(
+            "planner.method_input_view_authority_missing",
+            "coefficient aggregate requires one exact authority per item",
+            category="configuration",
+            retryability="configuration",
+            method_id=invocation.method_id,
+            scope_id=invocation.scope,
+            step_id=invocation.invocation_id,
+            arg_name=input_name,
+            expected={"authority_count": len(values)},
+            observed={"authority_count": len(authorities)},
+            repair_action="fix_runtime_contract",
+        )
+    result: dict[sp.Symbol, object] = {}
+    for index, (resolved, authority) in enumerate(
+        zip(values, authorities, strict=True)
     ):
-        point_ref = _point_ref_from_point_value_path(raw_path)
-        if point_ref is not None:
-            return point_ref
-    return typed_value.value
-
-
-def _identity_compatible_input_type(
-    input_name: str,
-    input_type: str,
-) -> str:
-    """Allow identity slots to recover PointRef from an existing Point path."""
-    if (
-        (input_name == "target" or input_name.endswith("_ref"))
-        and "PointRef" in split_runtime_types(input_type)
-    ):
-        return "PointRef|Point"
-    return input_type
-
-
-def _point_ref_from_point_value_path(raw_path: str) -> PointRef | None:
-    """从 Point runtime path 恢复学生可见点名。"""
-    path = ContextPath.parse(raw_path)
-    name = path.key if path.container == "points" else None
-    if name is None:
-        name = _point_name_from_runtime_key(path.key)
-    if name is None and path.scope_type == "step":
-        name = _point_name_from_runtime_key(path.scope_id)
-    if name is None:
-        return None
-    return PointRef(
-        name=name,
-        path=raw_path,
-        scope_id=path.scope_id,
-    )
-
-
-def _point_name_from_runtime_key(value: str) -> str | None:
-    """从 G_coordinate / optimal_G_coordinate / derive_G_coordinate 等 key 取点名。"""
-    patterns = (
-        r"optimal_(?P<name>[A-Z][A-Za-z0-9_]*?)_coordinate(?:_expr|_value)?",
-        r"(?P<name>[A-Z][A-Za-z0-9_]*?)_(?:parametric_coordinate|numeric_coordinate|coordinate_expr|coordinate_value|coordinate|point_at_minimum)",
-        r"(?:derive|compute|evaluate)_(?:optimal_|minimum_)?(?P<name>[A-Z][A-Za-z0-9_]*?)_(?:parametric_coordinate|numeric_coordinate|coordinate_expr|coordinate_value|coordinate|point)",
-    )
-    for pattern in patterns:
-        match = re.fullmatch(pattern, value)
-        if match:
-            return match.group("name")
-    return None
+        source = authority.source
+        if isinstance(source, DerivedInputReadSource):
+            source = source.upstream
+        if not isinstance(source, StateVersionReadSource):
+            raise StatelessMethodError(
+                "planner.method_input_view_authority_drift",
+                "coefficient aggregate item is not pinned to a ParameterValue state",
+                category="configuration",
+                retryability="configuration",
+                method_id=invocation.method_id,
+                scope_id=invocation.scope,
+                step_id=invocation.invocation_id,
+                arg_name=input_name,
+                expected={"source_kind": "state_version"},
+                observed={"item_index": index, "source_kind": source.kind},
+                repair_action="fix_runtime_contract",
+            )
+        object_id = source.state_version_id.slot_id.logical_key.object_id
+        if object_id.kind != "symbol" or not object_id.value.startswith("symbol:"):
+            raise StatelessMethodError(
+                "planner.method_input_view_authority_drift",
+                "coefficient aggregate item does not belong to a Symbol object",
+                category="configuration",
+                retryability="configuration",
+                method_id=invocation.method_id,
+                scope_id=invocation.scope,
+                step_id=invocation.invocation_id,
+                arg_name=input_name,
+                expected={"object_kind": "symbol"},
+                observed={
+                    "item_index": index,
+                    "object_kind": object_id.kind,
+                },
+                repair_action="fix_runtime_contract",
+            )
+        symbol_identity = object_id.value.removeprefix("symbol:")
+        symbol_name = (
+            symbol_identity.split("@", 1)[0]
+            if "@" in symbol_identity
+            else symbol_identity.rsplit(":", 1)[-1]
+        )
+        symbol_candidates = tuple(
+            symbol
+            for symbol in (
+                canonical_symbols
+                if isinstance(canonical_symbols, (list, tuple))
+                else ()
+            )
+            if isinstance(symbol, sp.Symbol) and symbol.name == symbol_name
+        )
+        if len(symbol_candidates) != 1:
+            raise StatelessMethodError(
+                "planner.method_input_view_authority_drift",
+                "coefficient Symbol identity is not unique in the canonical basis",
+                category="configuration",
+                retryability="configuration",
+                method_id=invocation.method_id,
+                scope_id=invocation.scope,
+                step_id=invocation.invocation_id,
+                arg_name=input_name,
+                expected={"symbol": symbol_name, "candidate_count": 1},
+                observed={"candidate_count": len(symbol_candidates)},
+                repair_action="fix_runtime_contract",
+            )
+        symbol = symbol_candidates[0]
+        if symbol in result:
+            raise StatelessMethodError(
+                "planner.method_input_view_authority_drift",
+                "coefficient aggregate contains duplicate Symbol identities",
+                category="configuration",
+                retryability="configuration",
+                method_id=invocation.method_id,
+                scope_id=invocation.scope,
+                step_id=invocation.invocation_id,
+                arg_name=input_name,
+                observed={"duplicate_symbol": symbol_name},
+                repair_action="fix_runtime_contract",
+            )
+        result[symbol] = resolved.value
+    return result

@@ -9,6 +9,10 @@ import sympy as sp
 
 from shuxueshuo_server.solver.contracts import PointRef, TypedValue
 from shuxueshuo_server.solver.runtime.context import RuntimeContext
+from shuxueshuo_server.solver.runtime.functional_execution_authority import (
+    PathMinimumPromptWitnessProjector,
+    PathMinimumWitness,
+)
 from shuxueshuo_server.solver.runtime.models import PlanExecutionResult, PlannerOutput, StepPlan
 from shuxueshuo_server.solver.runtime.projection import RuntimeProjection
 from shuxueshuo_server.solver.runtime.strategy_models import (
@@ -83,9 +87,75 @@ class ExplanationSnapshotBuilder:
             answers=_clean_value(result.answers, artifacts.context),
             checks=tuple(_check_payload(check) for check in result.checks),
             symbolic_closures=_build_symbolic_closure_teaching(replay),
+            macro_evidence=_build_macro_evidence(artifacts),
         )
         _assert_safe_snapshot(snapshot)
         return snapshot
+
+
+def _build_macro_evidence(artifacts: Any) -> tuple[dict[str, Any], ...]:
+    """Project authenticated Macro witnesses into the student-safe snapshot."""
+
+    execution = getattr(artifacts, "verified_functional_execution", None)
+    problem_authority = getattr(artifacts, "problem_authority", None)
+    planning_context = getattr(problem_authority, "planning_context", None)
+    if planning_context is None:
+        return ()
+    projector = PathMinimumPromptWitnessProjector()
+    witnesses: list[PathMinimumWitness] = []
+    if execution is not None:
+        for scope in _execution_scopes(execution.root_scope):
+            steps = [*scope.scope_steps]
+            for goal in scope.goals:
+                steps.extend(goal.steps)
+            for step in steps:
+                witnesses.extend(
+                    item
+                    for item in step.evidence
+                    if isinstance(item, PathMinimumWitness)
+                )
+    else:
+        # The transitional RuntimeOrchestrator replay does not yet expose the
+        # v2 execution envelope. It does expose the same typed witness on the
+        # final transactional call result, so no teaching fact is reconstructed
+        # from trace text.
+        planner_artifacts = getattr(getattr(artifacts, "planner", None), "artifacts", None)
+        replay = getattr(planner_artifacts, "retry_replay_result", None)
+        attempt = getattr(replay, "transactional_attempt_result", None)
+        report = getattr(attempt, "execution_report", None)
+        for call_result in getattr(report, "call_results", ()):
+            witness = getattr(call_result, "path_minimum_witness", None)
+            if isinstance(witness, PathMinimumWitness):
+                witnesses.append(witness)
+
+    evidence: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for witness in witnesses:
+        if witness.witness_id in seen:
+            continue
+        seen.add(witness.witness_id)
+        evidence.append(projector.project(witness, planning_context).to_payload())
+    return tuple(
+        sorted(
+            evidence,
+            key=lambda item: (
+                str(item.get("step_id", "")),
+                str(item.get("schema_version", "")),
+            ),
+        )
+    )
+
+
+def _execution_scopes(root: Any) -> tuple[Any, ...]:
+    result: list[Any] = []
+
+    def visit(scope: Any) -> None:
+        result.append(scope)
+        for child in scope.children:
+            visit(child)
+
+    visit(root)
+    return tuple(result)
 
 
 def _build_teaching_trace(

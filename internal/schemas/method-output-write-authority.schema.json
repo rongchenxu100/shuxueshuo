@@ -1,0 +1,171 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "method-output-write-authority.schema.json",
+  "title": "MethodOutputWriteAuthority",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "call_id",
+    "invocation_id",
+    "method_id",
+    "output_name",
+    "function_return_name",
+    "runtime_type",
+    "valid_scope",
+    "allocation_signature",
+    "destination",
+    "registration_aliases",
+    "authority_signature"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "method-output-write-authority/v1"
+    },
+    "call_id": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "invocation_id": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "method_id": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "output_name": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "function_return_name": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "runtime_type": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "valid_scope": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "allocation_signature": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "destination": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/stateDestination"
+        },
+        {
+          "$ref": "#/$defs/callResultDestination"
+        }
+      ]
+    },
+    "registration_aliases": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/registrationAlias"
+      }
+    },
+    "authority_signature": {
+      "$ref": "#/$defs/nonEmptyString"
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": ".*\\S.*"
+    },
+    "typedIdentity": {
+      "type": "object",
+      "minProperties": 1
+    },
+    "stateDestination": {
+      "type": "object",
+      "required": [
+        "kind",
+        "logical_state_key",
+        "selected_version_id",
+        "previous_version_id",
+        "runtime_destination",
+        "allocation_action"
+      ],
+      "properties": {
+        "kind": {
+          "const": "state"
+        },
+        "logical_state_key": {
+          "$ref": "#/$defs/typedIdentity"
+        },
+        "selected_version_id": {
+          "$ref": "#/$defs/typedIdentity"
+        },
+        "previous_version_id": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/typedIdentity"
+            }
+          ]
+        },
+        "runtime_destination": {
+          "$ref": "#/$defs/typedIdentity"
+        },
+        "allocation_action": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      },
+      "additionalProperties": false
+    },
+    "callResultDestination": {
+      "type": "object",
+      "required": [
+        "kind",
+        "call_id",
+        "return_name",
+        "runtime_path"
+      ],
+      "properties": {
+        "kind": {
+          "const": "call_result"
+        },
+        "call_id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "return_name": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "runtime_path": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      },
+      "additionalProperties": false
+    },
+    "registrationAlias": {
+      "type": "object",
+      "required": [
+        "handle",
+        "runtime_path",
+        "runtime_type",
+        "basis"
+      ],
+      "properties": {
+        "handle": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "runtime_path": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "runtime_type": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "basis": {
+          "enum": [
+            "allocation_handle",
+            "state_handle",
+            "exact_call_result"
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

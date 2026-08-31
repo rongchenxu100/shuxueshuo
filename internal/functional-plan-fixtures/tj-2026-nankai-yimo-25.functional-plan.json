@@ -92,6 +92,12 @@
                 "kind": "point",
                 "ref": "N"
               }
+            ],
+            "free_parameters": [
+              {
+                "kind": "symbol",
+                "ref": "m"
+              }
             ]
           },
           "return_bindings": {
@@ -122,33 +128,24 @@
           "reason": "路径变换发布的固定端点角色必须引用已计算的 Point 状态。"
         },
         {
-          "call_id": "ii_reduce_path",
-          "capability_id": "two_moving_points_path_reduction",
+          "call_id": "ii_path_minimum",
+          "capability_id": "coupled_segment_endpoint_replacement_path_minimum",
           "args": {
             "path_minimum_target": {
               "kind": "fact",
               "ref": "path_minimum_target"
-            }
-          },
-          "return_bindings": {},
-          "strategy": "利用线段位置关系和长度关系，把双动点路径化为单动点折线路径。",
-          "reason": "建立两个子问共同使用的路径等价变换。"
-        },
-        {
-          "call_id": "ii_derive_path_model",
-          "capability_id": "broken_path_straightening_minimum_expression",
-          "args": {
-            "path_transformation": {
-              "from_call": "ii_reduce_path",
-              "return": "path_transformation"
+            },
+            "segment_binding_relation": {
+              "kind": "fact",
+              "ref": "segment_DE_eq_sqrt2_NG"
             }
           },
           "return_bindings": {},
           "return_expectations": {
-            "path_minimum_expression": "open_expression"
+            "minimum_expression": "open_expression"
           },
-          "strategy": "将折线路径拉直，得到含参最小值表达式。",
-          "reason": "最小值表达式供两个子问求值或反求参数。"
+          "strategy": "利用题设线段关系原子完成端点替换和折线拉直。",
+          "reason": "同一 Macro 返回最小值表达式与动点 G 的取等状态。"
         }
       ]
     },
@@ -209,8 +206,8 @@
           "capability_id": "evaluate_expression_at_parameter",
           "args": {
             "expression": {
-              "from_call": "ii_derive_path_model",
-              "return": "path_minimum_expression"
+              "from_call": "ii_path_minimum",
+              "return": "minimum_expression"
             },
             "parameter_value": {
               "from_call": "ii_1_solve_m",
@@ -240,8 +237,8 @@
           "capability_id": "parameter_from_minimum_value",
           "args": {
             "minimum_expression": {
-              "from_call": "ii_derive_path_model",
-              "return": "path_minimum_expression"
+              "from_call": "ii_path_minimum",
+              "return": "minimum_expression"
             },
             "minimum_value": {
               "kind": "fact",
@@ -280,24 +277,12 @@
           "reason": "得到第（Ⅱ）②问的抛物线解析式。"
         },
         {
-          "call_id": "ii_2_derive_G",
-          "capability_id": "line_intersection_point",
+          "call_id": "ii_2_evaluate_G",
+          "capability_id": "evaluate_point_at_parameter",
           "args": {
-            "line1_p1": {
-              "from_call": "ii_derive_path_model",
-              "return": "straightened_endpoint_1"
-            },
-            "line1_p2": {
-              "from_call": "ii_derive_path_model",
-              "return": "straightened_endpoint_2"
-            },
-            "line2_p1": {
-              "kind": "point",
-              "ref": "M"
-            },
-            "line2_p2": {
-              "kind": "point",
-              "ref": "N"
+            "point": {
+              "from_call": "ii_path_minimum",
+              "return": "attainment_point"
             },
             "parameter_value": {
               "from_call": "ii_2_solve_m",
@@ -305,13 +290,13 @@
             }
           },
           "return_bindings": {
-            "intersection": {
+            "evaluated_point": {
               "kind": "answer",
               "ref": "ii_2.intersection"
             }
           },
-          "strategy": "求拉直方案确定的辅助直线与 MN 所在直线的交点。",
-          "reason": "该交点才是原路径取得最小值时的点 G。"
+          "strategy": "把反求的参数值代入 Macro 返回的动点 G 取等状态。",
+          "reason": "得到第（Ⅱ）②问中点 G 的具体坐标。"
         }
       ]
     }

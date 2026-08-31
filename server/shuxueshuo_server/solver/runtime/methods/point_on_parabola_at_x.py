@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, canonical_symbol_input, declare_input_views
 
 
 class PointOnParabolaAtXMethod:
@@ -21,9 +21,29 @@ class PointOnParabolaAtXMethod:
         target: PointRef = inputs["target"]
         raw_x = target.definition.get("x") or target.definition.get("x_coordinate")
         if raw_x is None:
-            raise ValueError("point_on_parabola_at_x requires target.definition.x")
-        locals_ = {symbol.name: symbol for symbol in parabola.free_symbols | {x}}
-        x_value = kernel.expr(raw_x, locals_)
+            raise method_precondition_failed(
+                "point_on_parabola_at_x requires a structured target x-coordinate",
+                arg_name="target",
+                role="curve_point_at_known_x",
+                internal_ref=target.name,
+                expected={
+                    "type": "Point",
+                    "state": "structured_x_coordinate",
+                    "definition_keys": ["x", "x_coordinate"],
+                },
+                observed={
+                    "state": "x_coordinate_missing",
+                    "construction": target.definition.get("definition", "unspecified"),
+                    "definition_keys": sorted(target.definition),
+                },
+                repair_action="choose_applicable_point_construction_capability",
+            )
+        x_value = _require_canonical_runtime_expression(
+            raw_x,
+            kernel,
+            arg_name="target",
+            role="curve_point_at_known_x",
+        )
         point = (sp.simplify(x_value), sp.simplify(parabola.subs(x, x_value)))
         return StatelessMethodResult(
             method_id=self.method_id,
@@ -60,10 +80,22 @@ SPEC = MethodSpecSource(
     ),
     solves=("derive_point_on_parabola_at_x",),
     inputs={
-        "parabola": {"type": "Parabola", "required": True},
-        "x": {"type": "Symbol", "required": True},
-        "target": {"type": "PointRef", "required": True},
+        "parabola": {
+            "type": "Parabola",
+            "required": True,
+            "symbolic_basis_role": "state_anchor",
+        },
+        "x": canonical_symbol_input("x"),
+        "target": {
+            "type": "PointRef",
+            "required": True,
+            "symbolic_basis_role": "align_to_anchor",
+        },
     },
+    input_views=declare_input_views(
+        identity=("x", "target"),
+        latest_state=("parabola",),
+    ),
     outputs={"point": "Point"},
     do_not_use_when=(
         "目标点没有题面结构化横坐标定义时禁止使用；仅知道点在抛物线上、只有"

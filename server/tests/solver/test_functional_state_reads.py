@@ -21,12 +21,8 @@ from shuxueshuo_server.solver.runtime.functional_state_reads import (
     FunctionalStateReadIndex,
     RuntimeStateVersionBinding,
 )
-from shuxueshuo_server.solver.runtime.path_transformation_state import (
-    ResolvedPathTransformationRole,
-)
 from shuxueshuo_server.solver.runtime.recipe_compiler import (
     _midpoint_target_identity_path,
-    _required_path_role_point_input,
 )
 from shuxueshuo_server.solver.runtime.state_identity import (
     LogicalStateKey,
@@ -644,62 +640,6 @@ def test_shadow_read_index_incomplete_identity_counts_fallback_once() -> None:
 
     assert read_index.legacy_identity_fallback_count == 1
     assert binding_index.legacy_runtime_identity_fallback_count == 1
-
-
-def test_path_role_consumer_keeps_exact_version_runtime_path() -> None:
-    object_id = MathObjectId(
-        "point:problem:P",
-        "point",
-        "problem",
-    )
-    logical_key = LogicalStateKey(
-        object_id,
-        "coordinate",
-        "Point",
-    )
-    version_id = StateVersionId(
-        StateSlotId(logical_key, "problem"),
-        1,
-    )
-    role = ResolvedPathTransformationRole(
-        role="fixed_endpoint_1",
-        object_ref=object_id.value,
-        state_handle="fact:problem:P_rebound",
-        source_state_slot_ids=(),
-        source_handles=(),
-        state_requirement="materialized",
-        object_id=object_id,
-        state_version_id=version_id,
-        runtime_path="$problem.facts.P_v1",
-    )
-    index = SimpleNamespace(
-        functional_consumer_identity_mode="authoritative",
-        runtime_path_for_state_version=lambda selected, **_kwargs: (
-            "$problem.facts.P_v1"
-            if selected == version_id
-            else pytest.fail("unexpected version")
-        ),
-        path_for=lambda *_args, **_kwargs: pytest.fail(
-            "role state_handle must not be rebound through path_for"
-        ),
-    )
-    step = FunctionalCompileStep(
-        step_id="consume_path",
-        scope_id="ii",
-        recipe_hint="",
-        goal_type="",
-        target="",
-        strategy="",
-    )
-
-    path, preparation = _required_path_role_point_input(
-        role,
-        step=step,
-        index=index,
-    )
-
-    assert path == "$problem.facts.P_v1"
-    assert preparation == ((), {})
 
 
 def test_latest_point_state_uses_version_ordinal_not_insertion_order() -> None:

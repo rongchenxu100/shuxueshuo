@@ -115,6 +115,15 @@ def infer_future_return_object_hints(
                     semantic_index=semantic_index,
                 ),
             )
+            graph.attach(
+                (return_node,),
+                _condition_return_role_objects(
+                    call,
+                    returned,
+                    scope_id=scope_id,
+                    semantic_index=semantic_index,
+                ),
+            )
             if returned.identity_arg:
                 source_nodes, source_constants = _arg_selection(
                     call,
@@ -273,6 +282,46 @@ def _structured_return_role_objects(
         )
     )
     return candidates if len(candidates) == 1 else ()
+
+
+def _condition_return_role_objects(
+    call: object,
+    returned: object,
+    *,
+    scope_id: str,
+    semantic_index: object,
+) -> tuple[str, ...]:
+    """Project target identity from a selected Condition role.
+
+    Authored return bindings and structured Conditions are independent
+    identity claims. Both enter the same graph so a disagreement suppresses
+    producer hints and is diagnosed during return reconciliation instead of
+    creating a false upstream dependency.
+    """
+
+    if getattr(returned, "identity_policy", None) != "target_object":
+        return ()
+    semantic_role = str(getattr(returned, "semantic_role", "") or "")
+    object_kind = object_kind_for_runtime_type(
+        str(getattr(returned, "runtime_type", ""))
+    )
+    if not semantic_role or object_kind is None:
+        return ()
+    registry = semantic_index.handle_registry
+    return unique_ordered(
+        object_ref
+        for refs in call.args.values()
+        for ref in refs
+        if isinstance(ref, SemanticRef)
+        for object_ref in _semantic_constants(
+            ref,
+            field=f"object_role:{semantic_role}",
+            scope_id=scope_id,
+            semantic_index=semantic_index,
+        )
+        if registry.entity_payloads.get(object_ref, {}).get("entity_type")
+        == object_kind
+    )
 
 
 def _semantic_role_key(value: str) -> str:

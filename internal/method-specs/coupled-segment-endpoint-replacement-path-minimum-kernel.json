@@ -1,0 +1,143 @@
+{
+  "method_id": "coupled_segment_endpoint_replacement_path_minimum_kernel",
+  "title": "耦合线段端点替换路径最值内核",
+  "description": "Reduce a coupled path, straighten it and recover its attainment point.",
+  "summary": "Given a two-moving-point path and one segment binding relation, prove an existing-endpoint replacement, straighten the resulting single-moving-point path, and return its minimum and attainment point.",
+  "solves": [
+    "derive_coupled_segment_path_minimum"
+  ],
+  "inputs": {
+    "path_condition": {
+      "required": true,
+      "domain_type": "Fact",
+      "runtime_type": "Condition",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "Fact"
+      }
+    },
+    "first_membership": {
+      "required": true,
+      "domain_type": "Fact",
+      "runtime_type": "Condition",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "Fact"
+      }
+    },
+    "second_membership": {
+      "required": true,
+      "domain_type": "Fact",
+      "runtime_type": "Condition",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "Fact"
+      }
+    },
+    "segment_binding_relation": {
+      "required": true,
+      "domain_type": "Fact",
+      "runtime_type": "Condition",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "Fact"
+      }
+    },
+    "first_segment_start": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    },
+    "joint_point": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    },
+    "second_segment_end": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    },
+    "transformed_fixed_endpoint": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    },
+    "moving_point": {
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "PointRef",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
+    }
+  },
+  "outputs": {
+    "minimum_expression": "MinimumExpression",
+    "attainment_point": "Point",
+    "evidence": "PathWitness"
+  },
+  "is_pure": true,
+  "internal_outputs": [
+    "evidence"
+  ],
+  "preconditions": [
+    "the selected path and relation determine one connected two-moving-point graph",
+    "the coupling proves an existing fixed-endpoint replacement",
+    "the reduced moving point has one non-degenerate line locus"
+  ],
+  "postconditions": [
+    "minimum_expression equals the source path minimum",
+    "attainment_point is the original reduced moving point at equality"
+  ],
+  "explanation": {
+    "role_schema": {
+      "original_path": "题设两动点路径。",
+      "reduced_path": "等长替换后的单动点折线路径。",
+      "minimum_expression": "拉直后得到的最小值表达式。",
+      "attainment_point": "路径取得最小值时的原题动点。"
+    },
+    "student_goal_template": "利用耦合线段关系降维并求路径最小值。",
+    "student_title_template": "端点替换后的路径最值",
+    "student_title_templates_by_goal": {},
+    "derive_templates": [
+      "把 {original_path} 等价化为 {reduced_path}。",
+      "拉直单动点路径得到 {minimum_expression}。",
+      "确定最短状态下的 {attainment_point}。"
+    ],
+    "box_templates": [
+      "{minimum_expression}",
+      "{attainment_point}"
+    ],
+    "explanation_level": "template",
+    "role_binding_strategy": "role_name_registry",
+    "role_binder_id": "coupled_segment_path_minimum"
+  }
+}

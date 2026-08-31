@@ -203,21 +203,19 @@ class GeometrySpecBuilder:
             point_meta=point_meta,
             parameter_name=parameter_name,
         )
+        _add_quadratic_square_macro_points(
+            snapshot=snapshot,
+            fixed=fixed_points,
+            moving=moving_points,
+            point_meta=point_meta,
+            parameter_name=parameter_name,
+        )
         domain = _domain_from_geometry_points(
             fixed_points,
             moving_points,
             curves,
             parameter_name,
             default_t,
-        )
-        _add_locus_line_endpoint_points(
-            snapshot=snapshot,
-            lesson=lesson,
-            fixed=fixed_points,
-            moving=moving_points,
-            point_meta=point_meta,
-            parameter_name=parameter_name,
-            domain=domain,
         )
         fixed_points = dict(sorted(fixed_points.items()))
         moving_points = dict(sorted(moving_points.items()))
@@ -845,57 +843,77 @@ def _add_axis_parameter_candidate_points(
                 )
 
 
-def _add_locus_line_endpoint_points(
+def _add_quadratic_square_macro_points(
     *,
     snapshot: ExplanationSnapshot,
-    lesson: LessonIR,
     fixed: dict[str, list[str]],
     moving: dict[str, list[str]],
     point_meta: dict[str, JsonObject],
     parameter_name: str,
-    domain: JsonObject,
 ) -> None:
-    source_ids = {
-        source_id
-        for step in lesson.steps
-        for source_id in step.source_step_ids
-        if "parameterized_point_locus_line" in step.capability_ids
-    }
-    if not source_ids:
-        return
-    effective_steps = {
-        str(step.get("step_id")): step
-        for step in snapshot.effective_steps
-        if isinstance(step, dict) and step.get("step_id")
-    }
     all_points = {**fixed, **moving}
-    for source_id in sorted(source_ids):
-        step = effective_steps.get(source_id)
-        if not step:
+    steps = {
+        str(step.get("step_id") or ""): step
+        for step in snapshot.effective_steps
+        if isinstance(step, dict)
+    }
+    for witness in snapshot.macro_evidence:
+        if witness.get("macro_id") != "quadratic_square_path_minimum":
             continue
-        line = _runtime_line_for_locus_step(step, snapshot)
-        if not isinstance(line, dict):
-            continue
-        label = _locus_point_label_for_step(step) or _label_from_locus_target(str(step.get("target") or ""))
-        if not label:
-            continue
-        endpoints = _locus_line_endpoint_pairs(line, domain)
-        if endpoints is None:
-            continue
-        scope_id = str(step.get("scope_id") or "")
-        for side, pair in zip(("start", "end"), endpoints, strict=True):
-            point_id = locus_line_endpoint_id(label, scope_id, side)
+        scope_id = str(
+            steps.get(str(witness.get("step_id") or ""), {}).get(
+                "scope_id", ""
+            )
+        )
+        fixed_label = next(
+            (
+                str(item.get("chosen_ref") or "")
+                for item in witness.get("role_resolutions", ())
+                if isinstance(item, dict)
+                and item.get("role") == "fixed_endpoint"
+            ),
+            "",
+        )
+        fixed_pair = all_points.get(fixed_label)
+        if fixed_label and fixed_pair is not None:
             _add_structural_visual_point(
                 fixed=fixed,
                 moving=moving,
                 all_points=all_points,
                 point_meta=point_meta,
-                point_id=point_id,
-                label="",
+                point_id=axis_parameter_point_id(fixed_label, scope_id),
+                label=fixed_label,
                 scope_id=scope_id,
-                pair=pair,
+                pair=list(fixed_pair),
                 parameter_name=parameter_name,
             )
+        construction = next(
+            (
+                item
+                for item in witness.get("constructions", ())
+                if isinstance(item, dict)
+                and item.get("kind") == "line_reflection"
+            ),
+            None,
+        )
+        if construction is None:
+            continue
+        label = str(construction.get("reflected_point_name") or "")
+        pair = construction.get("reflected_point")
+        if not label or not isinstance(pair, list | tuple) or len(pair) != 2:
+            continue
+        point_id = label.replace("′", "_prime")
+        _add_structural_visual_point(
+            fixed=fixed,
+            moving=moving,
+            all_points=all_points,
+            point_meta=point_meta,
+            point_id=point_id,
+            label=_student_point_label(point_id),
+            scope_id=scope_id,
+            pair=[str(item) for item in pair],
+            parameter_name=parameter_name,
+        )
 
 
 def _runtime_line_for_locus_step(step: dict[str, Any], snapshot: ExplanationSnapshot) -> dict[str, Any] | None:
@@ -1481,10 +1499,6 @@ class GeometryPointNamer:
             )
             if auxiliary:
                 return auxiliary
-        if str(item.get("source") or "") == "select_straightening_candidate":
-            reflected = self._reflected_label_from_straightening_candidate(item)
-            if reflected:
-                return reflected
         source_step_id = self._source_step_id_for_fact(item)
         label = _label_from_effective_step(source_step_id, self.snapshot)
         if label:
@@ -1631,33 +1645,6 @@ class GeometryPointNamer:
     def _point_label_from_entity_handle(self, handle: str) -> str:
         entity = self.entities_by_handle.get(handle) or {}
         return str(entity.get("name") or _handle_tail(handle))
-
-    def _reflected_label_from_straightening_candidate(self, item: dict[str, Any]) -> str:
-        source_step_id = self._source_step_id_for_fact(item)
-        item_pair = _sympy_pair_value(item.get("value"))
-        fallback = ""
-        for fact in self.snapshot.fact_index.values():
-            if not isinstance(fact, dict) or fact.get("type") != "StraighteningCandidate":
-                continue
-            value = fact.get("value")
-            if not isinstance(value, dict):
-                continue
-            label = str(value.get("reflected_point_name") or "")
-            if not label:
-                continue
-            if not fallback:
-                fallback = label
-            fact_step_id = self._source_step_id_for_fact(fact)
-            if source_step_id and fact_step_id and fact_step_id != source_step_id:
-                continue
-            reflected_pair = _sympy_pair_value(value.get("reflected_point"))
-            if item_pair is not None and reflected_pair is not None and not _same_point_pair_value(item_pair, reflected_pair):
-                continue
-            return label
-        if item_pair is not None:
-            return ""
-        return fallback
-
 
 def _student_point_label(label: str) -> str:
     return str(label).replace("_prime", "′")
@@ -3259,160 +3246,7 @@ def _curve_point_candidate_marker_items(
     return items
 
 
-def _locus_line_marker_items(
-    template: dict[str, Any],
-    bindings: VisualRoleBindings,
-) -> list[JsonObject]:
-    items: list[JsonObject] = []
-    color = str(template.get("color") or COLOR_CONSTRAINT)
-    persistence = str(template.get("persistence") or "carry_forward")
-    for marker in bindings.locus_lines:
-        start = str(marker.get("from") or "")
-        end = str(marker.get("to") or "")
-        if not start or not end:
-            continue
-        handle = f"line:locus:{marker.get('source_step_id') or start + '-' + end}"
-        items.append(
-            {
-                "component": "DashedLine",
-                "handle": handle,
-                "from": start,
-                "to": end,
-                "color": color,
-                "width": float(template.get("width") or 2.0),
-                "dash": str(template.get("dash") or "7 5"),
-                "persistence": persistence,
-                "decay_state": "muted",
-                "metadata": {"low_level_type": "dashedLine"},
-            }
-        )
-        equation = str(marker.get("equation") or "")
-        label_point = _locus_line_label_point(template, marker, start, end)
-        if equation and label_point:
-            items.append(
-                {
-                    "component": "CoordinateLabel",
-                    "at": label_point,
-                    "text": equation,
-                    "dx": int(template.get("label_dx") or 18),
-                    "dy": int(template.get("label_dy") or 36),
-                    "metadata": {"low_level_type": "coordinateLabel"},
-                }
-            )
-    return items
-
-
-def _line_locus_minimum_point_marker_items(
-    template: dict[str, Any],
-    bindings: VisualRoleBindings,
-) -> list[JsonObject]:
-    items: list[JsonObject] = []
-    persistence = str(template.get("persistence") or "carry_forward")
-    locus_color = str(template.get("locus_color") or COLOR_CONSTRAINT)
-    minimum_line_color = str(template.get("minimum_line_color") or COLOR_RESULT)
-    target_color = str(template.get("target_color") or COLOR_RESULT)
-    show_locus_label = bool(template.get("show_locus_label", False))
-    for marker in bindings.line_locus_minimum_markers:
-        source_step_id = str(marker.get("source_step_id") or "line-locus-minimum")
-        locus_line = marker.get("locus_line") if isinstance(marker.get("locus_line"), dict) else {}
-        locus_start = str(locus_line.get("from") or "")
-        locus_end = str(locus_line.get("to") or "")
-        if locus_start and locus_end:
-            items.append(
-                {
-                    "component": "DashedLine",
-                    "handle": f"line:line-locus-minimum:{source_step_id}:locus",
-                    "from": locus_start,
-                    "to": locus_end,
-                    "color": locus_color,
-                    "width": 2.0,
-                    "dash": "7 5",
-                    "persistence": persistence,
-                    "decay_state": "muted",
-                    "metadata": {"low_level_type": "dashedLine"},
-                }
-            )
-            equation = str(locus_line.get("equation") or "")
-            if show_locus_label and equation:
-                items.append(
-                    {
-                        "component": "CoordinateLabel",
-                        "at": locus_end,
-                        "text": equation,
-                        "dx": -170,
-                        "dy": -14,
-                        "metadata": {"low_level_type": "coordinateLabel"},
-                    }
-                )
-
-        minimum_segment = (
-            marker.get("minimum_segment")
-            if isinstance(marker.get("minimum_segment"), dict)
-            else {}
-        )
-        minimum_start = str(minimum_segment.get("from") or "")
-        minimum_end = str(minimum_segment.get("to") or "")
-        minimum_label = str(minimum_segment.get("label") or "")
-        if minimum_start and minimum_end:
-            items.append(
-                {
-                    "component": "ColoredLine",
-                    "handle": f"line:line-locus-minimum:{source_step_id}:minimum",
-                    "from": minimum_start,
-                    "to": minimum_end,
-                    "color": minimum_line_color,
-                    "width": 2.8,
-                    "persistence": persistence,
-                    "decay_state": "muted",
-                    "metadata": {"low_level_type": "coloredLine"},
-                }
-            )
-            if minimum_label:
-                items.append(
-                    {
-                        "component": "Segment",
-                        "handle": f"segment:line-locus-minimum:{source_step_id}:minimum",
-                        "from": minimum_start,
-                        "to": minimum_end,
-                        "label": minimum_label,
-                        "color": minimum_line_color,
-                        "width": 2.8,
-                        "offsetPx": 16,
-                        "persistence": "step_only",
-                        "metadata": {"low_level_type": "segment"},
-                    }
-                )
-
-        target_point = str(marker.get("target_point") or "")
-        if target_point:
-            items.extend(
-                _point_with_optional_label_items(
-                    point=target_point,
-                    label=str(marker.get("target_label") or ""),
-                    display=str(marker.get("target_display") or ""),
-                    color=target_color,
-                    persistence=persistence,
-                    label_dy=34,
-                )
-            )
-    return items
-
-
-def _locus_line_label_point(
-    template: dict[str, Any],
-    marker: dict[str, Any],
-    start: str,
-    end: str,
-) -> str:
-    anchor = str(template.get("label_anchor") or "moving_point")
-    if anchor in {"start", "line_start"}:
-        return start
-    if anchor in {"end", "line_end"}:
-        return end
-    return str(marker.get("moving_point") or "")
-
-
-def _square_path_dimension_marker_items(
+def _atomic_square_path_reduction_marker_items(
     template: dict[str, Any],
     bindings: VisualRoleBindings,
 ) -> list[JsonObject]:
@@ -3426,7 +3260,7 @@ def _square_path_dimension_marker_items(
     path_color = str(template.get("path_segment_color") or COLOR_ACCENT)
     replacement_color = str(template.get("replacement_color") or COLOR_RESULT)
     show_half_segment_labels = bool(template.get("show_half_segment_labels", False))
-    for marker in bindings.square_path_dimension_markers:
+    for marker in bindings.atomic_square_reduction_markers:
         square_outline = [
             str(point)
             for point in marker.get("square_outline") or ()
@@ -3867,7 +3701,7 @@ def _auxiliary_ray_guide_marker_items(
     return items
 
 
-def _broken_path_straightening_marker_items(
+def _atomic_path_minimum_marker_items(
     template: dict[str, Any],
     bindings: VisualRoleBindings,
 ) -> list[JsonObject]:
@@ -3877,7 +3711,7 @@ def _broken_path_straightening_marker_items(
     reflected_color = str(template.get("reflected_color") or COLOR_RESULT)
     path_color = str(template.get("path_color") or COLOR_PATH)
     triangle_fill = str(template.get("triangle_fill") or COLOR_RESULT_REGION_FILL)
-    for marker in bindings.broken_path_minimum_markers:
+    for marker in bindings.atomic_path_minimum_markers:
         locus = marker.get("locus_line") if isinstance(marker.get("locus_line"), dict) else {}
         locus_from = str(locus.get("from") or "")
         locus_to = str(locus.get("to") or "")
@@ -4498,23 +4332,21 @@ _METHOD_VISUAL_TEMPLATE_RENDERERS: dict[str, _VisualTemplateRenderer] = {
     "CurvePointCandidateMarker": _curve_point_candidate_marker_items,
     "EqualAcuteAngleInterceptMarker": _equal_acute_angle_intercept_marker_items,
     "EvaluatedPointMarker": _evaluated_point_marker_items,
-    "LineLocusMinimumPointMarker": _line_locus_minimum_point_marker_items,
-    "LocusLineMarker": _locus_line_marker_items,
     "QuadraticAxisXInterceptMarker": _quadratic_axis_x_intercept_marker_items,
     "QuadraticVertexMarker": _quadratic_vertex_marker_items,
     "QuadraticXAxisInterceptMarker": _quadratic_x_axis_intercept_marker_items,
     "SquareAdjacentVertexMarker": _square_adjacent_vertex_marker_items,
-    "SquarePathDimensionMarker": _square_path_dimension_marker_items,
     "TranslationAnimation": _empty_visual_template_items,
     "TranslationMarker": _translation_marker_items,
 }
 
 _RECIPE_VISUAL_TEMPLATE_RENDERERS: dict[str, _VisualTemplateRenderer] = {
     "AuxiliaryRayGuideMarker": _auxiliary_ray_guide_marker_items,
-    "BrokenPathStraighteningMarker": _broken_path_straightening_marker_items,
+    "AtomicPathMinimumMarker": _atomic_path_minimum_marker_items,
     "CongruentTriangleMarker": _congruent_triangle_marker_items,
     "EquivalentSegmentMarker": _equivalent_segment_marker_items,
     "PathMinimumTriangleMarker": _path_minimum_triangle_marker_items,
+    "AtomicSquarePathReductionMarker": _atomic_square_path_reduction_marker_items,
 }
 
 

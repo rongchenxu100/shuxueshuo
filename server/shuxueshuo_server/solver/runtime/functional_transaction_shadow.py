@@ -107,7 +107,66 @@ class WorkingPlannerState:
         StateVersionId,
         dict[Any, MathObjectId],
     ] = field(default_factory=dict)
+    runtime_equivalent_version_aliases: dict[
+        StateVersionId,
+        StateVersionId,
+    ] = field(default_factory=dict)
     events: list[FunctionalTransactionEvent] = field(default_factory=list)
+
+    def fork(self) -> "WorkingPlannerState":
+        """Return an isolated branch for Macro candidate evaluation."""
+
+        return WorkingPlannerState(
+            parent_context_id=self.parent_context_id,
+            identity_index=self.identity_index.clone(),
+            call_states=dict(self.call_states),
+            committed_versions=dict(self.committed_versions),
+            runtime_version_values=dict(self.runtime_version_values),
+            runtime_version_symbol_bindings={
+                version_id: dict(bindings)
+                for version_id, bindings in (
+                    self.runtime_version_symbol_bindings.items()
+                )
+            },
+            runtime_equivalent_version_aliases=dict(
+                self.runtime_equivalent_version_aliases
+            ),
+            events=list(self.events),
+        )
+
+    def resolve_runtime_version_id(
+        self,
+        version_id: StateVersionId,
+    ) -> StateVersionId:
+        current = version_id
+        visited: set[StateVersionId] = set()
+        while current in self.runtime_equivalent_version_aliases:
+            if current in visited:
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.runtime_equivalent_version_alias_cycle"
+                )
+            visited.add(current)
+            current = self.runtime_equivalent_version_aliases[current]
+        return current
+
+    def register_runtime_equivalent_version_alias(
+        self,
+        candidate_version_id: StateVersionId,
+        canonical_version_id: StateVersionId,
+    ) -> None:
+        canonical = self.resolve_runtime_version_id(canonical_version_id)
+        if candidate_version_id == canonical:
+            return
+        existing = self.runtime_equivalent_version_aliases.get(
+            candidate_version_id
+        )
+        if existing is not None and existing != canonical:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.runtime_equivalent_version_alias_drift"
+            )
+        self.runtime_equivalent_version_aliases[candidate_version_id] = canonical
 
     def emit(
         self,

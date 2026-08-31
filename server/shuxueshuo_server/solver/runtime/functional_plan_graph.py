@@ -40,11 +40,23 @@ def functional_call_dependencies(
     return {
         call.call_id: tuple(
             dict.fromkeys(
-                value.from_call
-                for values in call.args.values()
-                for value in values
-                if isinstance(value, CallResultRef)
-                and value.from_call in known_call_ids
+                (
+                    *(
+                        value.from_call
+                        for values in call.args.values()
+                        for value in values
+                        if isinstance(value, CallResultRef)
+                        and value.from_call in known_call_ids
+                    ),
+                    *(
+                        dependency
+                        for dependency in plan.typed_dependency_graph.get(
+                            call.call_id,
+                            (),
+                        )
+                        if dependency in known_call_ids
+                    ),
+                )
             )
         )
         for call in plan.calls

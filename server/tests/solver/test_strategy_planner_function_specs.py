@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import replace
+from dataclasses import asdict, replace
 import json
 from pathlib import Path
 from types import SimpleNamespace
@@ -8,7 +8,14 @@ from types import SimpleNamespace
 import pytest
 import sympy as sp
 
-from shuxueshuo_server.solver.contracts import MethodInputSpec, MethodSpec
+from shuxueshuo_server.solver.contracts import (
+    CoefficientExtractionDerivationSpec,
+    MethodInputBindingSpec,
+    MethodInputSpec,
+    MethodInputViewSpec,
+    MethodSpec,
+    PublicArgSourceSpec,
+)
 from shuxueshuo_server.solver.family.models import (
     CapabilityContractSpec,
     StateSlotPattern,
@@ -18,10 +25,16 @@ from shuxueshuo_server.solver.runtime.function_specs import (
     GENERIC_FUNCTION_ADAPTERS,
     GENERIC_FUNCTION_BINDING_RULES,
     GENERIC_FUNCTION_METHOD_IDS,
+    FunctionAdapterRegistry,
+    FunctionAdapterSpec,
     FunctionSpec,
     FunctionSpecRegistry,
+    _analyze_quadratic_coefficient_inputs,
     function_spec_from_method,
     function_catalog_payload,
+)
+from shuxueshuo_server.solver.runtime.functional_diagnostics import (
+    StatelessMethodError,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
@@ -29,6 +42,9 @@ from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.methods.quadratic_from_constraints import (
     analyze_quadratic_constraints,
+)
+from shuxueshuo_server.solver.runtime.symbolic_state_representation import (
+    SymbolicStateRepresentationError,
 )
 from shuxueshuo_server.solver.runtime.recipe_compiler import _preserved_object_ref
 from shuxueshuo_server.solver.runtime.strategy_planner import (
@@ -104,11 +120,36 @@ def test_function_spec_registry_models_non_adapter_point_identity() -> None:
     assert returns["parameter"].runtime_type == "Symbol"
     assert returns["parameter"].identity_policy == "derived_role"
 
-    locus_minimum = registry.require("line_locus_minimum_point")
-    assert locus_minimum.returns[0].write_mode == "transition"
     assert candidates.returns[0].runtime_type == "PointList"
     assert candidates.returns[0].identity_policy == "preserve_input_object"
     assert candidates.returns[0].identity_arg == "target_point"
+    assert "line_locus_minimum_point" not in registry.specs
+    kernel = registry.require("quadratic_square_path_minimum_kernel")
+    assert {item.output_key for item in kernel.returns} >= {
+        "minimum_expression",
+        "attainment_point",
+    }
+
+
+def test_optional_parameter_value_requires_explicit_wire_authority() -> None:
+    problem = load_problem_ir(str(FUNCTIONAL_FIXTURES[4]))
+    inputs = build_strategy_probe_inputs(problem)
+    catalog = FunctionalCapabilityCatalog.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
+    )
+
+    for capability_id in (
+        "square_adjacent_vertex_from_side",
+        "distance_between_points",
+    ):
+        capability = catalog.items[capability_id]
+        parameter_value = next(
+            item for item in capability.args if item.name == "parameter_value"
+        )
+        assert parameter_value.required is False
+        assert parameter_value.binding_authority == "wire"
+        assert parameter_value.deterministic_resolver is None
 
 
 def test_quadratic_constraint_analyzer_declarations_are_consistent() -> None:
@@ -133,6 +174,129 @@ def test_quadratic_constraint_analyzer_declarations_are_consistent() -> None:
     assert function.adapter.constraint_analyzer == "quadratic_coefficients"
 
 
+def _run_quadratic_input_analyzer(runtime_inputs: dict[str, object]):
+    class _Context:
+        def read_path(self, path, **_kwargs):
+            return SimpleNamespace(value=runtime_inputs[path])
+
+    return _analyze_quadratic_coefficient_inputs(
+        {name: name for name in runtime_inputs},
+        SimpleNamespace(scope_id="ii", step_id="derive_parabola_ii"),
+        SimpleNamespace(context=_Context()),
+    )
+
+
+@pytest.mark.parametrize("authored_empty", [False, True])
+def test_open_quadratic_state_requires_nonempty_free_parameter_basis(
+    authored_empty: bool,
+) -> None:
+    x, b, c = sp.symbols("x b c")
+    runtime_inputs: dict[str, object] = {
+        "quadratic": x**2 - b * x + c,
+        "x": x,
+        "all_coefficients": (b, c),
+        "coefficient_relation": sp.Eq(b + c, -1),
+    }
+    if authored_empty:
+        runtime_inputs["free_parameters"] = []
+
+    with pytest.raises(StatelessMethodError) as captured:
+        _run_quadratic_input_analyzer(runtime_inputs)
+
+    diagnostic = captured.value.authority.to_payload()
+    assert diagnostic["code"] == "functional.method_input_state_unavailable"
+    assert diagnostic["retryability"] == "planner_repairable"
+    assert diagnostic["repair_action"] == (
+        "provide_or_align_symbolic_state_basis"
+    )
+    assert diagnostic["expected"] == {
+        "allowed_free_parameter_bases": [["b"], ["c"]],
+        "basis_cardinality": 1,
+    }
+    assert diagnostic["observed"] == {"declared_free_parameters": []}
+    assert "requires an explicit non-empty" in diagnostic["original_message"]
+
+
+@pytest.mark.parametrize("authored_empty", [False, True])
+def test_closed_quadratic_state_accepts_omitted_or_empty_free_parameters(
+    authored_empty: bool,
+) -> None:
+    x, b, c = sp.symbols("x b c")
+    runtime_inputs: dict[str, object] = {
+        "quadratic": x**2 - b * x + c,
+        "x": x,
+        "all_coefficients": (b, c),
+        "known_coefficients": {b: 2, c: 3},
+    }
+    if authored_empty:
+        runtime_inputs["free_parameters"] = []
+
+    result = _run_quadratic_input_analyzer(runtime_inputs)
+
+    assert result.inputs == {name: name for name in runtime_inputs}
+
+
+@pytest.mark.parametrize("basis_name", ["b", "c"])
+def test_open_quadratic_state_accepts_runtime_equivalent_authored_basis(
+    basis_name: str,
+) -> None:
+    x, b, c = sp.symbols("x b c")
+    symbols = {"b": b, "c": c}
+    runtime_inputs: dict[str, object] = {
+        "quadratic": x**2 - b * x + c,
+        "x": x,
+        "all_coefficients": (b, c),
+        "coefficient_relation": sp.Eq(b + c, -1),
+        "free_parameters": [symbols[basis_name]],
+    }
+
+    result = _run_quadratic_input_analyzer(runtime_inputs)
+
+    assert result.inputs == {name: name for name in runtime_inputs}
+
+
+def test_open_quadratic_state_rejects_dependent_or_overspecified_basis() -> None:
+    x, b, c = sp.symbols("x b c")
+    runtime_inputs: dict[str, object] = {
+        "quadratic": x**2 - b * x + c,
+        "x": x,
+        "all_coefficients": (b, c),
+        "coefficient_relation": sp.Eq(b + c, -1),
+        "free_parameters": [b, c],
+    }
+
+    with pytest.raises(StatelessMethodError) as captured:
+        _run_quadratic_input_analyzer(runtime_inputs)
+
+    diagnostic = captured.value.authority.to_payload()
+    assert diagnostic["code"] == "functional.method_input_state_unavailable"
+    assert diagnostic["expected"]["allowed_free_parameter_bases"] == [
+        ["b"],
+        ["c"],
+    ]
+    assert diagnostic["observed"]["declared_free_parameters"] == ["b", "c"]
+
+
+def test_closed_quadratic_state_rejects_nonempty_free_parameter_basis() -> None:
+    x, b, c = sp.symbols("x b c")
+    runtime_inputs: dict[str, object] = {
+        "quadratic": x**2 - b * x + c,
+        "x": x,
+        "all_coefficients": (b, c),
+        "known_coefficients": {b: 2, c: 3},
+        "free_parameters": [b],
+    }
+
+    with pytest.raises(StatelessMethodError) as captured:
+        _run_quadratic_input_analyzer(runtime_inputs)
+
+    diagnostic = captured.value.authority.to_payload()
+    assert diagnostic["code"] == "functional.method_input_invalid"
+    assert diagnostic["expected"] == {"free_parameters": []}
+    assert diagnostic["observed"] == {"declared_free_parameters": ["b"]}
+    assert diagnostic["repair_action"] == "remove_redundant_free_parameters"
+
+
 def test_quadratic_constraint_analyzer_preserves_only_valid_parameterization_basis() -> None:
     x, a, b, c, m = sp.symbols("x a b c m")
     base = {
@@ -144,10 +308,14 @@ def test_quadratic_constraint_analyzer_preserves_only_valid_parameterization_bas
         "p2": (2, 1 - m),
     }
 
-    invalid = analyze_quadratic_constraints(
-        base,
-        preferred_free_parameters=(a,),
-    )
+    with pytest.raises(
+        SymbolicStateRepresentationError,
+        match="function.state_representation_unresolved",
+    ):
+        analyze_quadratic_constraints(
+            base,
+            preferred_free_parameters=(a,),
+        )
     valid = analyze_quadratic_constraints(
         {
             "quadratic": a * x**2 + b * x + c,
@@ -159,8 +327,6 @@ def test_quadratic_constraint_analyzer_preserves_only_valid_parameterization_bas
         preferred_free_parameters=(b,),
     )
 
-    assert invalid.status == "determined"
-    assert invalid.free_parameters == ()
     assert valid.status == "single_free"
     assert valid.free_parameters == (b,)
 
@@ -207,6 +373,12 @@ def test_functional_catalog_hides_legacy_curve_parameter_primitive() -> None:
     assert {item.name for item in unified.args}.isdisjoint(
         {"p1", "p2", "p3"}
     )
+    free_parameters = next(
+        item for item in unified.args if item.name == "free_parameters"
+    )
+    assert free_parameters.allows_empty_collection
+    assert "开放状态必须填写非空基底" in free_parameters.description
+    assert "闭合状态可填写[]或省略" in free_parameters.description
     parameter_return = next(
         item for item in unified.returns if item.name == "parameter_value"
     )
@@ -358,7 +530,7 @@ def test_internal_method_outputs_are_not_functional_returns() -> None:
     problem = load_problem_ir(str(FUNCTIONAL_FIXTURES[2]))
     inputs = build_strategy_probe_inputs(problem)
     method = inputs.method_specs.require(
-        "linked_broken_path_minimum_expression"
+        "weighted_axis_path_minimum_kernel"
     )
     functions = FunctionSpecRegistry.from_family_spec(
         inputs.family_spec,
@@ -371,24 +543,21 @@ def test_internal_method_outputs_are_not_functional_returns() -> None:
 
     assert set(method.outputs) == {
         "minimum_expression",
-        "dynamic_parameter_expression",
-        "dynamic_point_expression",
+        "evidence",
     }
-    assert method.internal_outputs == (
-        "dynamic_parameter_expression",
-        "dynamic_point_expression",
-    )
+    assert method.internal_outputs == ("evidence",)
     assert tuple(
         item.name
         for item in functions.require(
-            "linked_broken_path_minimum_expression"
+            "weighted_axis_path_minimum_kernel"
         ).returns
     ) == ("minimum_expression",)
-    capability = catalog.get("linked_broken_path_minimum_expression")
+    capability = catalog.get("weighted_axis_path_minimum")
     assert capability is not None
     assert tuple(item.name for item in capability.returns) == (
         "minimum_expression",
     )
+    assert catalog.get("weighted_axis_path_minimum_kernel") is None
 
 
 def test_internal_method_output_cannot_be_a_contract_state_write() -> None:
@@ -433,7 +602,15 @@ def test_function_spec_notes_contract_return_mismatch() -> None:
             title="Synthetic",
             solves=("derive_synthetic",),
             inputs={
-                "value": MethodInputSpec("value", "Expression"),
+                "value": MethodInputSpec(
+                    name="value",
+                    domain_type="Expression",
+                    runtime_type="Expression",
+                    view=MethodInputViewSpec(
+                        mode="immutable_value",
+                        domain_type="Expression",
+                    ),
+                ),
             },
             outputs={"expression": "Expression"},
         ),
@@ -470,7 +647,7 @@ def test_migrated_function_specs_have_no_required_contract_return_mismatch() -> 
 
 
 def test_generic_function_adapters_are_projected_from_common_binding_rules() -> None:
-    """Generic adapter selector truth lives in common binding rules."""
+    """Generic adapter input truth lives in common binding rules."""
     assert set(GENERIC_FUNCTION_ADAPTERS) == set(GENERIC_FUNCTION_METHOD_IDS)
     assert {rule.method_id for rule in GENERIC_FUNCTION_BINDING_RULES} == set(
         GENERIC_FUNCTION_METHOD_IDS
@@ -478,14 +655,15 @@ def test_generic_function_adapters_are_projected_from_common_binding_rules() -> 
     for rule in GENERIC_FUNCTION_BINDING_RULES:
         adapter = GENERIC_FUNCTION_ADAPTERS[rule.method_id]
         assert adapter.adapter_id == rule.method_id
-        assert [
-            (item.input_name, item.selector, item.required)
-            for item in adapter.input_bindings
-        ] == [
-            (item.input_name, item.selector, item.required)
-            for item in rule.input_bindings
+        assert [item.to_payload() for item in adapter.input_bindings] == [
+            item.to_payload() for item in rule.input_bindings
         ]
-        assert adapter.expansion_selectors == rule.expansion_selectors
+        assert [asdict(item) for item in adapter.aggregate_input_bindings] == [
+            asdict(item) for item in rule.aggregate_input_bindings
+        ]
+        assert [asdict(item) for item in adapter.scalar_aggregate_lowerings] == [
+            asdict(item) for item in rule.scalar_aggregate_lowerings
+        ]
 
 
 def test_migrated_function_adapter_failure_does_not_fallback_to_legacy_rule() -> None:
@@ -494,20 +672,8 @@ def test_migrated_function_adapter_failure_does_not_fallback_to_legacy_rule() ->
         if rule.method_id == "distance_between_points"
     )
 
-    def failing_selector(_step, _index, _local_outputs):
-        raise StrategyDraftValidationError("forced_missing_distance_endpoint")
-
     registry = MethodBindingRuleRegistry(
         rules=(distance_rule,),
-        selectors={
-            "distance:p1": failing_selector,
-            "distance:p2": lambda _step, _index, _local_outputs: "$fake.p2",
-        },
-        expansion_selectors={
-            "distance_parameter_value_if_read": (
-                lambda _step, _index, _local_outputs: {}
-            ),
-        },
     )
     step = FunctionalCapabilityCompileCall(
         scope_id="problem",
@@ -527,14 +693,117 @@ def test_migrated_function_adapter_failure_does_not_fallback_to_legacy_rule() ->
         ),
     )
 
-    with pytest.raises(
-        StrategyDraftValidationError,
-        match="function.arg_missing: method=distance_between_points, arg=p1",
-    ):
+    with pytest.raises(StatelessMethodError) as error:
         registry.bind("distance_between_points", step, object())
 
-    assert [event.status for event in registry.function_binding_events] == ["failure"]
-    assert registry.function_binding_events[0].errors
+    assert error.value.code == "planner.method_input_binding_lowerer_missing"
+    assert registry.function_binding_events == []
+
+
+def test_production_adapter_requires_typed_authority_for_every_entity_input() -> None:
+    adapter = FunctionAdapterSpec(
+        adapter_id="synthetic_entity_consumer",
+        input_bindings=(
+            MethodInputBindingSpec(
+                input_name="anchor",
+                source=PublicArgSourceSpec("anchor"),
+            ),
+        ),
+    )
+    registry = FunctionAdapterRegistry(
+        adapters={"synthetic_entity_consumer": adapter},
+    )
+    step = SimpleNamespace(step_id="consume_anchor")
+    index = SimpleNamespace(problem_binding_authority=True)
+    entity_input = MethodInputSpec(
+        name="anchor",
+        domain_type="Point",
+        runtime_type="Point",
+        view=MethodInputViewSpec(
+            mode="latest_state",
+            domain_type="Point",
+            object_kind="point",
+            state_kind="coordinate",
+        ),
+    )
+
+    with pytest.raises(StatelessMethodError) as error:
+        registry.bind(
+            "synthetic_entity_consumer",
+            step,
+            index,
+            method_input_specs={"anchor": entity_input},
+        )
+
+    assert error.value.authority.code == "planner.method_input_binding_lowerer_missing"
+    assert error.value.authority.subjects[0].arg_name == "anchor"
+    assert error.value.authority.observed["binding"] == (
+        adapter.input_bindings[0].to_payload()
+    )
+
+    optional_registry = FunctionAdapterRegistry(
+        adapters={
+            "synthetic_entity_consumer": replace(
+                adapter,
+                input_bindings=(
+                    replace(adapter.input_bindings[0], required=False),
+                ),
+            )
+        },
+    )
+    optional_inputs = optional_registry.bind(
+        "synthetic_entity_consumer",
+        step,
+        index,
+        method_input_specs={
+            "anchor": replace(entity_input, required=False),
+        },
+    )
+
+    assert optional_inputs == {}
+
+
+def test_production_adapter_requires_typed_lowering_for_mechanical_values() -> None:
+    adapter = FunctionAdapterSpec(
+        adapter_id="synthetic_mechanical_consumer",
+        input_bindings=(
+            MethodInputBindingSpec(
+                input_name="coefficients",
+                derivation=CoefficientExtractionDerivationSpec("quadratic"),
+            ),
+        ),
+    )
+    registry = FunctionAdapterRegistry(
+        adapters={"synthetic_mechanical_consumer": adapter},
+    )
+    mechanical_input = MethodInputSpec(
+        name="coefficients",
+        domain_type="Coefficients",
+        runtime_type="Coefficients",
+        view=MethodInputViewSpec(
+            mode="exact_result",
+            domain_type="Coefficients",
+        ),
+    )
+
+    step = SimpleNamespace(step_id="consume_coefficients")
+    with pytest.raises(StatelessMethodError) as error:
+        registry.bind(
+            "synthetic_mechanical_consumer",
+            step,
+            SimpleNamespace(problem_binding_authority=True),
+            method_input_specs={"coefficients": mechanical_input},
+        )
+    assert error.value.code == "planner.method_input_binding_lowerer_missing"
+
+    inputs = registry.bind(
+        "synthetic_mechanical_consumer",
+        step,
+        SimpleNamespace(problem_binding_authority=True),
+        exact_inputs={"coefficients": "$runtime.coefficient_tuple"},
+        method_input_specs={"coefficients": mechanical_input},
+    )
+    assert inputs == {"coefficients": "$runtime.coefficient_tuple"}
 
 
 def _diagnostic_payload(value: Any) -> dict[str, Any]:

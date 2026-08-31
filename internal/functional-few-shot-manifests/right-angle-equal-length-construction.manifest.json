@@ -43,6 +43,11 @@
       "ref": "curve",
       "kind": "function",
       "description": "需要更新状态的二次函数对象"
+    },
+    {
+      "ref": "free_parameter",
+      "kind": "symbol",
+      "description": "开放函数状态保留的独立参数基底"
     }
   ],
   "neutralization_map": {
@@ -55,6 +60,7 @@
       "N": "constructed_point",
       "coefficient_relation": "coefficient_relation",
       "M": "known_curve_point",
+      "m": "free_parameter",
       "parabola": "curve"
     },
     "text_replacements": {

@@ -1,0 +1,236 @@
+{
+  "format": "functional_plan/v2",
+  "root_scope": {
+    "scope_ref": "problem",
+    "steps": [
+      {
+        "step_id": "i_derive_D",
+        "capability_id": "quadratic_axis_from_relation",
+        "args": {
+          "coefficient_relation": "coefficient_relation_a_b"
+        },
+        "intent": "由系数关系确定对称轴与 x 轴的交点。"
+      }
+    ],
+    "children": [
+      {
+        "scope_ref": "i",
+        "goals": [
+          {
+            "goal_ref": "i.D",
+            "answer_from": {
+              "step_id": "i_derive_D",
+              "return": "axis_point"
+            }
+          },
+          {
+            "goal_ref": "i.parabola",
+            "answer_from": {
+              "step_id": "i_derive_parabola",
+              "return": "parabola"
+            },
+            "steps": [
+              {
+                "step_id": "i_derive_parabola",
+                "capability_id": "quadratic_from_constraints",
+                "args": {
+                  "coefficient_relation": "coefficient_relation_a_b",
+                  "known_coefficients": [
+                    "symbol_value_a",
+                    "symbol_value_c"
+                  ]
+                },
+                "intent": "代入已知系数并利用系数关系确定二次函数解析式。"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "scope_ref": "ii",
+        "steps": [
+          {
+            "step_id": "ii_construct_N",
+            "capability_id": "right_angle_equal_length_construct_and_select",
+            "args": {
+              "right_angle_equal_length": "right_angle_equal_length_m_d_n_dm_dn"
+            },
+            "output_targets": {
+              "selected_target_point": "N"
+            },
+            "intent": "利用直角、等长和象限条件确定点 N 的含参坐标。"
+          },
+          {
+            "step_id": "ii_derive_parabola",
+            "capability_id": "quadratic_from_constraints",
+            "args": {
+              "coefficient_relation": "coefficient_relation_a_b",
+              "curve_points": [
+                "M",
+                "N"
+              ],
+              "free_parameters": [
+                "m"
+              ]
+            },
+            "output_targets": {
+              "parabola": "parabola"
+            },
+            "intent": "利用 M、N 在抛物线上及系数关系，建立关于参数 m 的抛物线。"
+          },
+          {
+            "step_id": "ii_compute_F",
+            "capability_id": "midpoint_point",
+            "args": {
+              "midpoint_definition": "midpoint_definition_d_n_f"
+            },
+            "output_targets": {
+              "midpoint": "F"
+            },
+            "intent": "由中点定义计算路径变换所需固定端点的坐标。"
+          },
+          {
+            "step_id": "ii_path_minimum",
+            "capability_id": "coupled_segment_endpoint_replacement_path_minimum",
+            "args": {
+              "path_minimum_target": "path_minimum_target_e_g_f",
+              "segment_binding_relation": "segment_length_relation_de_ng"
+            },
+            "return_expectations": {
+              "minimum_expression": "open_expression"
+            },
+            "intent": "利用题设线段关系原子完成端点替换和折线拉直，得到最小值表达式与动点 G 的取等状态。"
+          }
+        ],
+        "children": [
+          {
+            "scope_ref": "ii_1",
+            "steps": [
+              {
+                "step_id": "ii_1_solve_m",
+                "capability_id": "parameter_from_segment_length",
+                "args": {
+                  "length_squared": "length_squared_mn",
+                  "p1": "M",
+                  "p2": "N"
+                },
+                "output_targets": {
+                  "parameter_value": "m"
+                },
+                "intent": "由 MN 的长度条件求参数 m。"
+              }
+            ],
+            "goals": [
+              {
+                "goal_ref": "ii_1.min_value",
+                "answer_from": {
+                  "step_id": "ii_1_evaluate_minimum",
+                  "return": "evaluated_minimum_expression"
+                },
+                "steps": [
+                  {
+                    "step_id": "ii_1_evaluate_minimum",
+                    "capability_id": "evaluate_expression_at_parameter",
+                    "args": {
+                      "expression": {
+                        "step_id": "ii_path_minimum",
+                        "return": "minimum_expression"
+                      },
+                      "parameter_value": "m"
+                    },
+                    "return_expectations": {
+                      "evaluated_minimum_expression": "closed_value"
+                    },
+                    "intent": "把参数值代入共享的路径最小值表达式。"
+                  }
+                ]
+              },
+              {
+                "goal_ref": "ii_1.parabola",
+                "answer_from": {
+                  "step_id": "ii_1_specialize_parabola",
+                  "return": "evaluated_parabola"
+                },
+                "steps": [
+                  {
+                    "step_id": "ii_1_specialize_parabola",
+                    "capability_id": "evaluate_expression_at_parameter",
+                    "args": {
+                      "expression": "parabola",
+                      "parameter_value": "m"
+                    },
+                    "intent": "把本小问求得的 m 代入共享含参抛物线。"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "scope_ref": "ii_2",
+            "steps": [
+              {
+                "step_id": "ii_2_solve_m",
+                "capability_id": "parameter_from_minimum_value",
+                "args": {
+                  "minimum_expression": {
+                    "step_id": "ii_path_minimum",
+                    "return": "minimum_expression"
+                  },
+                  "minimum_value": "minimum_value"
+                },
+                "output_targets": {
+                  "parameter_value": "m"
+                },
+                "intent": "由给定最小值和共享最小值表达式反求参数 m。"
+              }
+            ],
+            "goals": [
+              {
+                "goal_ref": "ii_2.G",
+                "answer_from": {
+                  "step_id": "ii_2_evaluate_G",
+                  "return": "evaluated_point"
+                },
+                "steps": [
+                  {
+                    "step_id": "ii_2_evaluate_G",
+                    "capability_id": "evaluate_point_at_parameter",
+                    "args": {
+                      "point": {
+                        "step_id": "ii_path_minimum",
+                        "return": "attainment_point"
+                      },
+                      "parameter_value": "m"
+                    },
+                    "output_targets": {
+                      "evaluated_point": "G"
+                    },
+                    "intent": "把反求的参数值代入 Macro 返回的动点 G 取等状态。"
+                  }
+                ]
+              },
+              {
+                "goal_ref": "ii_2.parabola",
+                "answer_from": {
+                  "step_id": "ii_2_specialize_parabola",
+                  "return": "evaluated_parabola"
+                },
+                "steps": [
+                  {
+                    "step_id": "ii_2_specialize_parabola",
+                    "capability_id": "evaluate_expression_at_parameter",
+                    "args": {
+                      "expression": "parabola",
+                      "parameter_value": "m"
+                    },
+                    "intent": "把本小问求得的 m 代入共享含参抛物线。"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

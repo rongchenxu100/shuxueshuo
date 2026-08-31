@@ -46,7 +46,7 @@
           "call_id": "derive_x_intercept_A_i",
           "capability_id": "quadratic_x_axis_intercept_point",
           "args": {
-            "quadratic": {
+            "parabola": {
               "from_call": "derive_parabola_i",
               "return": "parabola"
             }
@@ -102,7 +102,7 @@
             }
           },
           "return_bindings": {
-            "point": {
+            "adjacent_vertex": {
               "ref": "G",
               "kind": "point"
             }
@@ -120,11 +120,15 @@
             },
             "curve_point": {
               "from_call": "derive_square_vertex_G_i",
-              "return": "point"
+              "return": "adjacent_vertex"
             },
             "parabola": {
               "from_call": "derive_parabola_i",
               "return": "parabola"
+            },
+            "parameter": {
+              "from_call": "parameterize_axis_point_E_i",
+              "return": "parameter"
             }
           },
           "return_bindings": {
@@ -160,27 +164,13 @@
           "reason": "后续轴点、正方形顶点和最值表达式都依赖该函数。"
         },
         {
-          "call_id": "derive_axis_point_M_ii",
-          "capability_id": "quadratic_axis_x_intercept_point",
+          "call_id": "derive_path_minimum_ii",
+          "capability_id": "quadratic_square_path_minimum",
           "args": {
             "parabola": {
               "from_call": "derive_parametric_parabola_ii",
               "return": "parabola"
-            }
-          },
-          "return_bindings": {
-            "axis_point": {
-              "ref": "M",
-              "kind": "point"
-            }
-          },
-          "strategy": "求对称轴与横轴交点。",
-          "reason": "路径降维后的折线包含该固定端点。"
-        },
-        {
-          "call_id": "reduce_square_path_ii",
-          "capability_id": "square_path_dimension_reduction",
-          "args": {
+            },
             "path_minimum_target": {
               "ref": "path_minimum_target_h_f_m_g",
               "kind": "fact"
@@ -188,96 +178,11 @@
             "square": {
               "ref": "square_ae_a_e_k_g",
               "kind": "fact"
-            },
-            "midpoint_definition": {
-              "ref": "midpoint_definition_a_e_f",
-              "kind": "fact"
-            },
-            "square_center": {
-              "ref": "square_center_h_square_ae_a_e_k_g",
-              "kind": "fact"
             }
           },
           "return_bindings": {},
-          "strategy": "利用正方形中点和中心关系把三段路径降为单动点折线。",
-          "reason": "折线拉直前先确定等价路径结构。"
-        },
-        {
-          "call_id": "parameterize_axis_point_E_ii",
-          "capability_id": "quadratic_axis_parameterized_point",
-          "args": {
-            "parabola": {
-              "from_call": "derive_parametric_parabola_ii",
-              "return": "parabola"
-            }
-          },
-          "return_bindings": {
-            "point": {
-              "ref": "E",
-              "kind": "point"
-            }
-          },
-          "strategy": "把对称轴上的目标点表示为单参数点。",
-          "reason": "正方形顶点坐标和最终恢复都需要该对象身份。"
-        },
-        {
-          "call_id": "derive_square_vertex_G_ii",
-          "capability_id": "square_adjacent_vertex_from_side",
-          "args": {
-            "side_start": {
-              "ref": "A",
-              "kind": "point"
-            },
-            "side_end": {
-              "from_call": "parameterize_axis_point_E_ii",
-              "return": "point"
-            },
-            "square": {
-              "ref": "square_ae_a_e_k_g",
-              "kind": "fact"
-            }
-          },
-          "return_bindings": {
-            "point": {
-              "ref": "G",
-              "kind": "point"
-            }
-          },
-          "strategy": "由正方形边构造参数化顶点。",
-          "reason": "路径最值中的动点正是该顶点。"
-        },
-        {
-          "call_id": "derive_locus_G_ii",
-          "capability_id": "parameterized_point_locus_line",
-          "args": {
-            "point": {
-              "from_call": "derive_square_vertex_G_ii",
-              "return": "point"
-            }
-          },
-          "return_bindings": {},
-          "strategy": "消去点坐标中的线性参数得到轨迹直线。",
-          "reason": "将军饮马最短状态必须同时落在该轨迹上。"
-        },
-        {
-          "call_id": "derive_path_minimum_ii",
-          "capability_id": "broken_path_straightening_minimum_expression",
-          "args": {
-            "path_transformation": {
-              "from_call": "reduce_square_path_ii",
-              "return": "path_transformation"
-            },
-            "moving_locus": {
-              "from_call": "derive_locus_G_ii",
-              "return": "line"
-            }
-          },
-          "return_bindings": {},
-          "return_expectations": {
-            "path_minimum_expression": "open_expression"
-          },
-          "strategy": "沿动点轨迹拉直折线并得到最小值表达式和最短线段端点。",
-          "reason": "参数值和最短状态动点都由这些结果继续推导。"
+          "strategy": "原子完成正方形路径降维、轨迹、拉直和达到性。",
+          "reason": "只公开最小值表达式与取等号时的降维后动点；动点身份由代码绑定。"
         },
         {
           "call_id": "solve_parameter_c_ii",
@@ -285,7 +190,7 @@
           "args": {
             "expression": {
               "from_call": "derive_path_minimum_ii",
-              "return": "path_minimum_expression"
+              "return": "minimum_expression"
             },
             "minimum_value": {
               "ref": "minimum_value",
@@ -323,20 +228,12 @@
           "reason": "最终正方形恢复使用定值端点。"
         },
         {
-          "call_id": "derive_minimum_point_G_ii",
-          "capability_id": "line_locus_minimum_point",
+          "call_id": "evaluate_minimum_point_G_ii",
+          "capability_id": "evaluate_point_at_parameter",
           "args": {
-            "moving_locus": {
-              "from_call": "derive_locus_G_ii",
-              "return": "line"
-            },
-            "minimum_point_1": {
+            "point": {
               "from_call": "derive_path_minimum_ii",
-              "return": "straightened_endpoint_1"
-            },
-            "minimum_point_2": {
-              "from_call": "derive_path_minimum_ii",
-              "return": "straightened_endpoint_2"
+              "return": "attainment_point"
             },
             "parameter_value": {
               "from_call": "solve_parameter_c_ii",
@@ -344,13 +241,13 @@
             }
           },
           "return_bindings": {
-            "point": {
+            "evaluated_point": {
               "ref": "G",
               "kind": "point"
             }
           },
-          "strategy": "求最短线段与动点轨迹的交点并代入主参数。",
-          "reason": "该点是路径取得最小值时的正方形顶点。"
+          "strategy": "把已求出的二次函数参数代入 Macro 返回的 G。",
+          "reason": "恢复最终点 E 前先得到定值 G。"
         },
         {
           "call_id": "recover_target_point_E_ii",
@@ -361,8 +258,8 @@
               "return": "evaluated_point"
             },
             "side_end": {
-              "from_call": "derive_minimum_point_G_ii",
-              "return": "point"
+              "from_call": "evaluate_minimum_point_G_ii",
+              "return": "evaluated_point"
             },
             "square": {
               "ref": "square_ae_a_e_k_g",
@@ -374,7 +271,7 @@
             }
           },
           "return_bindings": {
-            "point": {
+            "adjacent_vertex": {
               "ref": "ii.E",
               "kind": "answer"
             }

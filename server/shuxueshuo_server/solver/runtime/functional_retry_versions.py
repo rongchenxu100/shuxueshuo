@@ -19,6 +19,268 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     SymbolicClosureProvenance,
     StrategyDraftValidationError,
 )
+from shuxueshuo_server.solver.runtime.problem_source_provenance import (
+    ProblemCallSourceProvenance,
+    problem_call_source_provenance_schema,
+)
+
+
+FUNCTIONAL_RETRY_GRAPH_CHECKPOINT_CONTRACT = (
+    "functional-retry-graph-checkpoint/v2"
+)
+
+
+def functional_retry_graph_checkpoint_schema() -> dict[str, Any]:
+    nonempty = {"type": "string", "minLength": 1}
+    nullable_object = {
+        "anyOf": [{"type": "object"}, {"type": "null"}],
+    }
+    problem_source = problem_call_source_provenance_schema()
+    problem_source.pop("$schema", None)
+    problem_source.pop("$id", None)
+    problem_authority = {
+        "type": "object",
+        "required": [
+            "planning_context_id",
+            "problem_revision_id",
+            "problem_semantic_hash",
+            "functional_problem_binding_signature",
+        ],
+        "properties": {
+            "planning_context_id": nonempty,
+            "problem_revision_id": nonempty,
+            "problem_semantic_hash": nonempty,
+            "functional_problem_binding_signature": nonempty,
+        },
+        "additionalProperties": False,
+    }
+    version_record = _checkpoint_record_schema(
+        required=(
+            "return_name",
+            "version_id",
+            "logical_state_key",
+            "canonical_producer_call_id",
+            "computation_key",
+            "state_effect_key",
+            "previous_version_id",
+            "source_version_ids",
+            "valid_scope_id",
+            "result_form",
+            "free_symbol_refs",
+            "free_symbol_ids",
+            "runtime_destination",
+            "status",
+            "symbolic_closure_provenance",
+            "problem_source_provenance",
+        ),
+        properties={
+            "return_name": nonempty,
+            "version_id": {"type": "object"},
+            "logical_state_key": {"type": "object"},
+            "canonical_producer_call_id": nonempty,
+            "computation_key": {"type": "object"},
+            "state_effect_key": {"type": "object"},
+            "previous_version_id": nullable_object,
+            "source_version_ids": {
+                "type": "array",
+                "items": {"type": "object"},
+            },
+            "valid_scope_id": nonempty,
+            "result_form": {
+                "anyOf": [nonempty, {"type": "null"}],
+            },
+            "free_symbol_refs": {
+                "type": "array",
+                "items": {"type": "string"},
+            },
+            "free_symbol_ids": {
+                "type": "array",
+                "items": {"type": "object"},
+            },
+            "runtime_destination": nullable_object,
+            "status": {
+                "enum": ["runtime_verified", "goal_committed"],
+            },
+            "symbolic_closure_provenance": nullable_object,
+            "problem_source_provenance": {
+                "anyOf": [
+                    {"$ref": "#/$defs/problem_source"},
+                    {"type": "null"},
+                ],
+            },
+        },
+    )
+    result_record = _checkpoint_record_schema(
+        required=(
+            "return_name",
+            "result_id",
+            "canonical_producer_call_id",
+            "computation_key",
+            "state_effect_key",
+            "valid_scope_id",
+            "value_type",
+            "result_form",
+            "free_symbol_refs",
+            "status",
+            "problem_source_provenance",
+        ),
+        properties={
+            "return_name": nonempty,
+            "result_id": nonempty,
+            "canonical_producer_call_id": nonempty,
+            "computation_key": {"type": "object"},
+            "state_effect_key": {"type": "object"},
+            "valid_scope_id": nonempty,
+            "value_type": nonempty,
+            "result_form": {
+                "anyOf": [nonempty, {"type": "null"}],
+            },
+            "free_symbol_refs": {
+                "type": "array",
+                "items": {"type": "string"},
+            },
+            "status": {
+                "enum": ["runtime_verified", "goal_committed"],
+            },
+            "problem_source_provenance": {
+                "anyOf": [
+                    {"$ref": "#/$defs/problem_source"},
+                    {"type": "null"},
+                ],
+            },
+        },
+    )
+    committed_call = _checkpoint_record_schema(
+        required=(
+            "canonical_call_id",
+            "declared_scope_id",
+            "call_payload",
+            "identity_key",
+            "output_version_ids",
+            "output_result_ids",
+            "committed_goal_handles",
+            "execution_scope_id",
+            "return_scope_ids",
+            "binding_signature",
+            "resolver_bound_arg_names",
+            "problem_source_provenance",
+        ),
+        properties={
+            "canonical_call_id": nonempty,
+            "declared_scope_id": nonempty,
+            "call_payload": {"type": "object"},
+            "identity_key": {"type": "object"},
+            "output_version_ids": {
+                "type": "array",
+                "items": {"type": "object"},
+            },
+            "output_result_ids": {
+                "type": "array",
+                "items": nonempty,
+            },
+            "committed_goal_handles": {
+                "type": "array",
+                "items": nonempty,
+            },
+            "execution_scope_id": {
+                "anyOf": [nonempty, {"type": "null"}],
+            },
+            "return_scope_ids": {
+                "type": "object",
+                "additionalProperties": nonempty,
+            },
+            "binding_signature": {
+                "anyOf": [nonempty, {"type": "null"}],
+            },
+            "resolver_bound_arg_names": {
+                "type": "array",
+                "items": nonempty,
+            },
+            "problem_source_provenance": {
+                "anyOf": [
+                    {"$ref": "#/$defs/problem_source"},
+                    {"type": "null"},
+                ],
+            },
+        },
+    )
+    return {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "functional-retry-graph-checkpoint.schema.json",
+        "title": "FunctionalRetryGraphCheckpoint",
+        "type": "object",
+        "required": [
+            "schema_version",
+            "source_context_id",
+            "problem_id",
+            "family_id",
+            "family_spec_hash",
+            "capability_pack_hash",
+            "committed_calls",
+            "verified_versions",
+            "verified_results",
+            "compatibility_events",
+            "problem_authority",
+            "problem_call_authorities",
+        ],
+        "properties": {
+            "schema_version": {
+                "const": FUNCTIONAL_RETRY_GRAPH_CHECKPOINT_CONTRACT,
+            },
+            "source_context_id": nonempty,
+            "problem_id": nonempty,
+            "family_id": nonempty,
+            "family_spec_hash": nonempty,
+            "capability_pack_hash": nonempty,
+            "committed_calls": {
+                "type": "array",
+                "items": {"$ref": "#/$defs/committed_call"},
+            },
+            "verified_versions": {
+                "type": "array",
+                "items": {"$ref": "#/$defs/version_record"},
+            },
+            "verified_results": {
+                "type": "array",
+                "items": {"$ref": "#/$defs/result_record"},
+            },
+            "compatibility_events": {
+                "type": "array",
+                "items": {"type": "string"},
+            },
+            "problem_authority": {
+                "anyOf": [
+                    {"$ref": "#/$defs/problem_authority"},
+                    {"type": "null"},
+                ],
+            },
+            "problem_call_authorities": {
+                "type": "array",
+                "items": {"$ref": "#/$defs/problem_source"},
+            },
+        },
+        "additionalProperties": False,
+        "$defs": {
+            "problem_source": problem_source,
+            "problem_authority": problem_authority,
+            "committed_call": committed_call,
+            "version_record": version_record,
+            "result_record": result_record,
+        },
+    }
+
+
+def _checkpoint_record_schema(
+    *,
+    required: Sequence[str],
+    properties: Mapping[str, Any],
+) -> dict[str, Any]:
+    return {
+        "type": "object",
+        "required": list(required),
+        "properties": dict(properties),
+        "additionalProperties": False,
+    }
 
 
 FunctionalRetryVersionStatus = Literal[
@@ -53,6 +315,7 @@ class FunctionalRetryVersionRecord:
     runtime_destination: RuntimeDestinationKey | None
     status: FunctionalRetryVersionStatus
     symbolic_closure_provenance: SymbolicClosureProvenance | None = None
+    problem_source_provenance: ProblemCallSourceProvenance | None = None
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -85,6 +348,11 @@ class FunctionalRetryVersionRecord:
             "symbolic_closure_provenance": (
                 self.symbolic_closure_provenance.to_payload()
                 if self.symbolic_closure_provenance is not None
+                else None
+            ),
+            "problem_source_provenance": (
+                self.problem_source_provenance.to_payload()
+                if self.problem_source_provenance is not None
                 else None
             ),
         }
@@ -155,6 +423,9 @@ class FunctionalRetryVersionRecord:
                 )
                 else None
             ),
+            problem_source_provenance=_problem_source_provenance(
+                payload.get("problem_source_provenance")
+            ),
         )
 
 
@@ -172,6 +443,7 @@ class FunctionalRetryResultRecord:
     result_form: str | None
     free_symbol_refs: tuple[str, ...]
     status: FunctionalRetryResultStatus
+    problem_source_provenance: ProblemCallSourceProvenance | None = None
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -185,6 +457,11 @@ class FunctionalRetryResultRecord:
             "result_form": self.result_form,
             "free_symbol_refs": list(self.free_symbol_refs),
             "status": self.status,
+            "problem_source_provenance": (
+                self.problem_source_provenance.to_payload()
+                if self.problem_source_provenance is not None
+                else None
+            ),
         }
 
     @classmethod
@@ -215,6 +492,51 @@ class FunctionalRetryResultRecord:
                 str(item) for item in payload.get("free_symbol_refs", ())
             ),
             status=_version_status(payload.get("status")),
+            problem_source_provenance=_problem_source_provenance(
+                payload.get("problem_source_provenance")
+            ),
+        )
+
+
+@dataclass(frozen=True)
+class FunctionalRetryProblemAuthority:
+    planning_context_id: str
+    problem_revision_id: str
+    problem_semantic_hash: str
+    functional_problem_binding_signature: str
+
+    def to_payload(self) -> dict[str, str]:
+        return {
+            "planning_context_id": self.planning_context_id,
+            "problem_revision_id": self.problem_revision_id,
+            "problem_semantic_hash": self.problem_semantic_hash,
+            "functional_problem_binding_signature": (
+                self.functional_problem_binding_signature
+            ),
+        }
+
+    @classmethod
+    def from_payload(
+        cls,
+        payload: Mapping[str, Any],
+    ) -> "FunctionalRetryProblemAuthority":
+        return cls(
+            planning_context_id=_required_string(
+                payload,
+                "planning_context_id",
+            ),
+            problem_revision_id=_required_string(
+                payload,
+                "problem_revision_id",
+            ),
+            problem_semantic_hash=_required_string(
+                payload,
+                "problem_semantic_hash",
+            ),
+            functional_problem_binding_signature=_required_string(
+                payload,
+                "functional_problem_binding_signature",
+            ),
         )
 
 
@@ -231,6 +553,7 @@ class FunctionalCommittedCallCheckpoint:
     return_scope_ids: tuple[tuple[str, str], ...] = ()
     binding_signature: str | None = None
     resolver_bound_arg_names: tuple[str, ...] = ()
+    problem_source_provenance: ProblemCallSourceProvenance | None = None
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -248,6 +571,11 @@ class FunctionalCommittedCallCheckpoint:
             "binding_signature": self.binding_signature,
             "resolver_bound_arg_names": list(
                 self.resolver_bound_arg_names
+            ),
+            "problem_source_provenance": (
+                self.problem_source_provenance.to_payload()
+                if self.problem_source_provenance is not None
+                else None
             ),
         }
 
@@ -302,6 +630,9 @@ class FunctionalCommittedCallCheckpoint:
                 str(item)
                 for item in payload.get("resolver_bound_arg_names", ())
             ),
+            problem_source_provenance=_problem_source_provenance(
+                payload.get("problem_source_provenance")
+            ),
         )
 
 
@@ -316,6 +647,9 @@ class FunctionalRetryGraphCheckpoint:
     verified_versions: tuple[FunctionalRetryVersionRecord, ...] = ()
     verified_results: tuple[FunctionalRetryResultRecord, ...] = ()
     compatibility_events: tuple[str, ...] = ()
+    problem_authority: FunctionalRetryProblemAuthority | None = None
+    problem_call_authorities: tuple[ProblemCallSourceProvenance, ...] = ()
+    schema_version: str = FUNCTIONAL_RETRY_GRAPH_CHECKPOINT_CONTRACT
 
     @property
     def committed_call_ids(self) -> tuple[str, ...]:
@@ -363,6 +697,7 @@ class FunctionalRetryGraphCheckpoint:
 
     def to_payload(self) -> dict[str, Any]:
         return {
+            "schema_version": self.schema_version,
             "source_context_id": self.source_context_id,
             "problem_id": self.problem_id,
             "family_id": self.family_id,
@@ -378,6 +713,14 @@ class FunctionalRetryGraphCheckpoint:
                 item.to_payload() for item in self.verified_results
             ],
             "compatibility_events": list(self.compatibility_events),
+            "problem_authority": (
+                self.problem_authority.to_payload()
+                if self.problem_authority is not None
+                else None
+            ),
+            "problem_call_authorities": [
+                item.to_payload() for item in self.problem_call_authorities
+            ],
         }
 
     @classmethod
@@ -386,6 +729,13 @@ class FunctionalRetryGraphCheckpoint:
         payload: Mapping[str, Any],
     ) -> "FunctionalRetryGraphCheckpoint":
         try:
+            if payload.get("schema_version") != (
+                FUNCTIONAL_RETRY_GRAPH_CHECKPOINT_CONTRACT
+            ):
+                raise ValueError(
+                    "unsupported Functional retry checkpoint contract"
+                )
+            problem_authority_payload = payload.get("problem_authority")
             checkpoint = cls(
                 source_context_id=str(payload["source_context_id"]),
                 problem_id=str(payload["problem_id"]),
@@ -414,7 +764,22 @@ class FunctionalRetryGraphCheckpoint:
                     str(item)
                     for item in payload.get("compatibility_events", ())
                 ),
+                problem_authority=(
+                    FunctionalRetryProblemAuthority.from_payload(
+                        _mapping(problem_authority_payload)
+                    )
+                    if problem_authority_payload is not None
+                    else None
+                ),
+                problem_call_authorities=tuple(
+                    ProblemCallSourceProvenance.from_payload(item)
+                    for item in _mapping_items(
+                        payload.get("problem_call_authorities")
+                    )
+                ),
+                schema_version=str(payload["schema_version"]),
             )
+            _validate_problem_checkpoint_authority(checkpoint)
             if any(
                 item.binding_signature is None
                 for item in checkpoint.committed_calls
@@ -440,6 +805,8 @@ class FunctionalRetryGraphCheckpoint:
                     ),
                 )
             return checkpoint
+        except FunctionalRetryCheckpointError:
+            raise
         except (KeyError, TypeError, ValueError) as exc:
             raise FunctionalRetryCheckpointError(
                 "planner.retry_version_checkpoint_invalid",
@@ -496,6 +863,27 @@ def preserve_committed_retry_checkpoint(
             "cannot preserve committed retry state across mismatched "
             f"{', '.join(mismatches)}",
         )
+    _verify_problem_authority_identity(
+        committed.problem_authority,
+        observed.problem_authority,
+    )
+    observed_problem_calls = {
+        item.canonical_call_id: item
+        for item in observed.problem_call_authorities
+    }
+    for call in committed.committed_calls:
+        expected = call.problem_source_provenance
+        if expected is None:
+            continue
+        actual = observed_problem_calls.get(call.canonical_call_id)
+        if (
+            actual is None
+            or actual.semantic_signature() != expected.semantic_signature()
+        ):
+            raise FunctionalRetryCheckpointError(
+                "planner.retry_problem_source_binding_drift",
+                f"locked call {call.canonical_call_id} authority changed",
+            )
 
     committed_versions = tuple(
         item
@@ -691,6 +1079,55 @@ def build_functional_retry_graph_checkpoint(
         "functional_binding_context",
         None,
     )
+    problem_binding_context = getattr(
+        reconciliation,
+        "functional_problem_binding_context",
+        None,
+    )
+    problem_authority = None
+    problem_call_authorities: tuple[ProblemCallSourceProvenance, ...] = ()
+    problem_authority_by_call: dict[str, ProblemCallSourceProvenance] = {}
+    if problem_binding_context is not None:
+        problem_authority = FunctionalRetryProblemAuthority(
+            planning_context_id=problem_binding_context.planning_context_id,
+            problem_revision_id=problem_binding_context.problem_revision_id,
+            problem_semantic_hash=(
+                problem_binding_context.problem_semantic_hash
+            ),
+            functional_problem_binding_signature=(
+                problem_binding_context.binding_signature
+            ),
+        )
+        runtime_authorities: dict[str, ProblemCallSourceProvenance] = {}
+        for item in provenance:
+            authority = getattr(item, "problem_source_provenance", None)
+            if authority is None:
+                continue
+            previous = runtime_authorities.get(authority.canonical_call_id)
+            if (
+                previous is not None
+                and previous.semantic_signature()
+                != authority.semantic_signature()
+            ):
+                raise FunctionalRetryCheckpointError(
+                    "planner.retry_problem_source_binding_drift",
+                    "runtime Macro/source authority differs across returns for "
+                    f"{authority.canonical_call_id}",
+                )
+            runtime_authorities[authority.canonical_call_id] = authority
+        problem_call_authorities = tuple(
+            runtime_authorities.get(
+                call.call_id,
+                problem_binding_context.source_provenance_for_call(
+                    call.call_id
+                ),
+            )
+            for call in reconciliation.plan.calls
+        )
+        problem_authority_by_call = {
+            item.canonical_call_id: item
+            for item in problem_call_authorities
+        }
     if committed_ids and binding_context is None:
         raise FunctionalRetryCheckpointError(
             "planner.retry_binding_checkpoint_invalid",
@@ -720,7 +1157,6 @@ def build_functional_retry_graph_checkpoint(
         if (
             call_id in verified_ids
             and isinstance(return_name, str)
-            and write.selected_version_id is not None
         ):
             provenance_by_return[(call_id, return_name)] = write
 
@@ -751,6 +1187,17 @@ def build_functional_retry_graph_checkpoint(
                 producer_call_id = (
                     allocation.canonical_producer_call_id or call_id
                 )
+                result_problem_provenance = getattr(
+                    write,
+                    "problem_source_provenance",
+                    None,
+                )
+                _require_problem_source_provenance(
+                    expected=problem_authority_by_call.get(call_id),
+                    observed=result_problem_provenance,
+                    call_id=call_id,
+                    return_name=allocation.return_name,
+                )
                 result_records.append(
                     FunctionalRetryResultRecord(
                         return_name=allocation.return_name,
@@ -776,6 +1223,9 @@ def build_functional_retry_graph_checkpoint(
                             if (call_id, allocation.return_name)
                             in committed_return_keys
                             else "runtime_verified"
+                        ),
+                        problem_source_provenance=(
+                            result_problem_provenance
                         ),
                     )
                 )
@@ -837,7 +1287,22 @@ def build_functional_retry_graph_checkpoint(
                         "symbolic_closure_provenance",
                         None,
                     ),
+                    problem_source_provenance=getattr(
+                        write,
+                        "problem_source_provenance",
+                        None,
+                    ),
                 )
+            )
+            _require_problem_source_provenance(
+                expected=problem_authority_by_call.get(call_id),
+                observed=getattr(
+                    write,
+                    "problem_source_provenance",
+                    None,
+                ),
+                call_id=call_id,
+                return_name=allocation.return_name,
             )
 
     records_by_call: dict[str, list[FunctionalRetryVersionRecord]] = {}
@@ -1011,6 +1476,9 @@ def build_functional_retry_graph_checkpoint(
                         }
                     )
                 ),
+                problem_source_provenance=(
+                    problem_authority_by_call.get(call_id)
+                ),
             )
         )
 
@@ -1075,6 +1543,8 @@ def build_functional_retry_graph_checkpoint(
         committed_calls=tuple(committed_calls),
         verified_versions=tuple(records),
         verified_results=tuple(result_records),
+        problem_authority=problem_authority,
+        problem_call_authorities=problem_call_authorities,
     )
 
 
@@ -1238,6 +1708,8 @@ def verify_restored_checkpoint(
 ) -> None:
     """Verify checkpoint integrity and, when complete, its reconciled graph."""
 
+    _validate_problem_checkpoint_authority(checkpoint)
+
     expected_records = {
         (item.canonical_producer_call_id, item.return_name): item
         for item in checkpoint.verified_versions
@@ -1314,6 +1786,29 @@ def verify_restored_checkpoint(
             "planner.retry_binding_checkpoint_invalid",
             "restored reconciliation has no binding context",
         )
+    problem_binding_context = getattr(
+        reconciliation,
+        "functional_problem_binding_context",
+        None,
+    )
+    actual_problem_authority = (
+        FunctionalRetryProblemAuthority(
+            planning_context_id=problem_binding_context.planning_context_id,
+            problem_revision_id=problem_binding_context.problem_revision_id,
+            problem_semantic_hash=(
+                problem_binding_context.problem_semantic_hash
+            ),
+            functional_problem_binding_signature=(
+                problem_binding_context.binding_signature
+            ),
+        )
+        if problem_binding_context is not None
+        else None
+    )
+    _verify_problem_authority_identity(
+        checkpoint.problem_authority,
+        actual_problem_authority,
+    )
     restored_call_ids: dict[str, str] = {}
     for committed in checkpoint.committed_calls:
         actual_call_id = _canonical_restored_call_id(
@@ -1335,6 +1830,30 @@ def verify_restored_checkpoint(
                 "planner.functional_arg_role_drift",
                 f"binding changed for {committed.canonical_call_id}",
             )
+        expected_problem_provenance = committed.problem_source_provenance
+        if expected_problem_provenance is not None:
+            if problem_binding_context is None:
+                raise FunctionalRetryCheckpointError(
+                    "planner.retry_problem_source_binding_drift",
+                    "restored reconciliation has no Problem binding context",
+                )
+            actual_problem_provenance = (
+                problem_binding_context.source_provenance_for_call(
+                    actual_call_id
+                )
+            )
+            comparable_expected = replace(
+                expected_problem_provenance,
+                canonical_call_id=actual_call_id,
+            )
+            if (
+                comparable_expected.semantic_signature()
+                != actual_problem_provenance.semantic_signature()
+            ):
+                raise FunctionalRetryCheckpointError(
+                    "planner.retry_problem_source_binding_drift",
+                    f"binding changed for {committed.canonical_call_id}",
+                )
         actual_key = placement_keys.get(actual_call_id)
         if not _restored_identity_key_compatible(
             committed.identity_key,
@@ -1347,6 +1866,39 @@ def verify_restored_checkpoint(
                 "planner.retry_canonical_producer_drift",
                 f"identity changed for {committed.canonical_call_id}",
             )
+
+    if checkpoint.problem_authority is not None:
+        if problem_binding_context is None:
+            raise FunctionalRetryCheckpointError(
+                "planner.retry_problem_source_binding_drift",
+                "restored reconciliation has no Problem binding context",
+            )
+        committed_call_ids = {
+            item.canonical_call_id for item in checkpoint.committed_calls
+        }
+        original_repair_goal_ids = {
+            goal_id
+            for authority in checkpoint.problem_call_authorities
+            if authority.canonical_call_id not in committed_call_ids
+            for goal_id in authority.goal_unit_ids
+        }
+        restored_locked_call_ids = set(restored_call_ids.values())
+        for actual_call_id in calls:
+            if actual_call_id in restored_locked_call_ids:
+                continue
+            actual_provenance = (
+                problem_binding_context.source_provenance_for_call(
+                    actual_call_id
+                )
+            )
+            if not set(actual_provenance.goal_unit_ids) <= (
+                original_repair_goal_ids
+            ):
+                raise FunctionalRetryCheckpointError(
+                    "planner.retry_problem_source_binding_drift",
+                    "repair call moved outside its authenticated Goal set: "
+                    f"{actual_call_id}",
+                )
 
     actual_allocations: dict[tuple[str, str], Any] = {}
     for call in reconciliation.calls:
@@ -1507,6 +2059,13 @@ def verify_restored_runtime_checkpoint(
     results.
     """
 
+    _validate_problem_checkpoint_authority(expected)
+    _validate_problem_checkpoint_authority(actual)
+    _verify_problem_authority_identity(
+        expected.problem_authority,
+        actual.problem_authority,
+    )
+
     actual_calls = {
         item.canonical_call_id: item for item in actual.committed_calls
     }
@@ -1532,6 +2091,15 @@ def verify_restored_runtime_checkpoint(
             raise FunctionalRetryCheckpointError(
                 "planner.functional_arg_role_drift",
                 "runtime binding changed for "
+                f"{expected_call.canonical_call_id}",
+            )
+        if not _problem_provenance_retry_compatible(
+            expected_call.problem_source_provenance,
+            actual_call.problem_source_provenance,
+        ):
+            raise FunctionalRetryCheckpointError(
+                "planner.retry_problem_source_binding_drift",
+                "runtime Problem source binding changed for "
                 f"{expected_call.canonical_call_id}",
             )
 
@@ -1584,6 +2152,14 @@ def verify_restored_runtime_checkpoint(
                 "planner.retry_symbolic_closure_drift",
                 f"runtime closure changed for {key[0]}.{key[1]}",
             )
+        if not _problem_provenance_retry_compatible(
+            expected_record.problem_source_provenance,
+            actual_record.problem_source_provenance,
+        ):
+            raise FunctionalRetryCheckpointError(
+                "planner.retry_problem_source_binding_drift",
+                f"runtime source binding changed for {key[0]}.{key[1]}",
+            )
     expected_results = {
         (item.canonical_producer_call_id, item.return_name): item
         for item in expected.verified_results
@@ -1616,6 +2192,23 @@ def verify_restored_runtime_checkpoint(
                 "planner.retry_state_version_drift",
                 f"runtime result changed for {key[0]}.{key[1]}",
             )
+        if not _problem_provenance_retry_compatible(
+            expected_result.problem_source_provenance,
+            actual_result.problem_source_provenance,
+        ):
+            raise FunctionalRetryCheckpointError(
+                "planner.retry_problem_source_binding_drift",
+                f"runtime source binding changed for {key[0]}.{key[1]}",
+            )
+
+
+def _problem_provenance_retry_compatible(
+    expected: ProblemCallSourceProvenance | None,
+    actual: ProblemCallSourceProvenance | None,
+) -> bool:
+    if expected is None or actual is None:
+        return expected is actual
+    return expected.semantic_signature() == actual.semantic_signature()
 
 
 def _closure_retry_compatible(
@@ -1831,6 +2424,139 @@ def _nested_checkpoint(value: Any) -> Any:
     return None
 
 
+def _problem_source_provenance(
+    value: Any,
+) -> ProblemCallSourceProvenance | None:
+    if value is None:
+        return None
+    return ProblemCallSourceProvenance.from_payload(_mapping(value))
+
+
+def _require_problem_source_provenance(
+    *,
+    expected: ProblemCallSourceProvenance | None,
+    observed: ProblemCallSourceProvenance | None,
+    call_id: str,
+    return_name: str,
+) -> None:
+    if expected is None:
+        if observed is not None:
+            raise FunctionalRetryCheckpointError(
+                "planner.retry_problem_source_binding_drift",
+                f"{call_id}.{return_name} has unexpected Problem authority",
+            )
+        return
+    if observed is None:
+        raise FunctionalRetryCheckpointError(
+            "planner.runtime_problem_provenance_missing",
+            f"{call_id}.{return_name} has no Problem source provenance",
+        )
+    if expected.semantic_signature() != observed.semantic_signature():
+        raise FunctionalRetryCheckpointError(
+            "planner.retry_problem_source_binding_drift",
+            f"{call_id}.{return_name} Problem source provenance drifted",
+        )
+
+
+def _required_string(payload: Mapping[str, Any], name: str) -> str:
+    value = payload.get(name)
+    if not isinstance(value, str) or not value:
+        raise ValueError(f"{name} must be a non-empty string")
+    return value
+
+
+def _validate_problem_checkpoint_authority(
+    checkpoint: FunctionalRetryGraphCheckpoint,
+) -> None:
+    records = (
+        *checkpoint.verified_versions,
+        *checkpoint.verified_results,
+        *checkpoint.committed_calls,
+    )
+    if checkpoint.problem_authority is None:
+        if checkpoint.problem_call_authorities or any(
+            item.problem_source_provenance is not None for item in records
+        ):
+            raise FunctionalRetryCheckpointError(
+                "planner.retry_problem_source_binding_drift",
+                "Problem call authority exists without checkpoint authority",
+            )
+        return
+    call_authorities = {
+        item.canonical_call_id: item
+        for item in checkpoint.problem_call_authorities
+    }
+    if len(call_authorities) != len(checkpoint.problem_call_authorities):
+        raise FunctionalRetryCheckpointError(
+            "planner.retry_problem_source_binding_drift",
+            "duplicate Problem call authority",
+        )
+    authority = checkpoint.problem_authority
+    for item in call_authorities.values():
+        if (
+            item.planning_context_id != authority.planning_context_id
+            or item.problem_revision_id != authority.problem_revision_id
+            or item.problem_semantic_hash
+            != authority.problem_semantic_hash
+        ):
+            raise FunctionalRetryCheckpointError(
+                "planner.retry_problem_revision_drift",
+                "Problem call authority revision drift for "
+                f"{item.canonical_call_id}",
+            )
+    for record in records:
+        provenance = record.problem_source_provenance
+        if provenance is None:
+            raise FunctionalRetryCheckpointError(
+                "planner.retry_problem_source_binding_drift",
+                "authoritative checkpoint record is missing Problem source "
+                "provenance",
+            )
+        expected = call_authorities.get(provenance.canonical_call_id)
+        if expected is None:
+            raise FunctionalRetryCheckpointError(
+                "planner.retry_problem_source_binding_drift",
+                "checkpoint record refers to an unknown Problem call",
+            )
+        if (
+            provenance.planning_context_id != authority.planning_context_id
+            or provenance.problem_revision_id != authority.problem_revision_id
+            or provenance.problem_semantic_hash
+            != authority.problem_semantic_hash
+        ):
+            raise FunctionalRetryCheckpointError(
+                "planner.retry_problem_revision_drift",
+                "checkpoint record Problem revision has drifted",
+            )
+        if expected.semantic_signature() != provenance.semantic_signature():
+            raise FunctionalRetryCheckpointError(
+                "planner.retry_problem_source_binding_drift",
+                "checkpoint record Problem source provenance has drifted",
+            )
+
+
+def _verify_problem_authority_identity(
+    expected: FunctionalRetryProblemAuthority | None,
+    actual: FunctionalRetryProblemAuthority | None,
+) -> None:
+    if expected is None and actual is None:
+        return
+    if expected is None or actual is None:
+        raise FunctionalRetryCheckpointError(
+            "planner.retry_problem_source_binding_drift",
+            "Problem authority was added or removed across retry",
+        )
+    if (
+        expected.planning_context_id != actual.planning_context_id
+        or expected.problem_revision_id != actual.problem_revision_id
+        or expected.problem_semantic_hash != actual.problem_semantic_hash
+    ):
+        raise FunctionalRetryCheckpointError(
+            "planner.retry_problem_revision_drift",
+            "Problem planning authority changed across retry",
+        )
+
+
 def _mapping(value: Any) -> Mapping[str, Any]:
     if not isinstance(value, Mapping):
         raise TypeError(f"expected mapping, got {type(value).__name__}")
@@ -1855,15 +2581,18 @@ def _version_status(value: Any) -> FunctionalRetryVersionStatus:
 
 
 __all__ = [
+    "FUNCTIONAL_RETRY_GRAPH_CHECKPOINT_CONTRACT",
     "FunctionalCommittedCallCheckpoint",
     "FunctionalRetryCheckpointError",
     "FunctionalRetryGraphCheckpoint",
+    "FunctionalRetryProblemAuthority",
     "FunctionalRetryResultRecord",
     "FunctionalRetryResultStatus",
     "FunctionalRetryVersionRecord",
     "FunctionalRetryVersionStatus",
     "build_functional_retry_graph_checkpoint",
     "expand_retry_dependency_graph_with_versions",
+    "functional_retry_graph_checkpoint_schema",
     "latest_functional_retry_graph_checkpoint",
     "preserve_committed_retry_checkpoint",
     "restore_committed_calls",

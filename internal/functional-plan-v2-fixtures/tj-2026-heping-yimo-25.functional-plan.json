@@ -1,0 +1,183 @@
+{
+  "format": "functional_plan/v2",
+  "root_scope": {
+    "scope_ref": "problem",
+    "steps": [
+      {
+        "step_id": "derive_y_intercept_C_i",
+        "capability_id": "quadratic_y_axis_intercept_point",
+        "args": {
+          "quadratic": "parabola"
+        },
+        "output_targets": {
+          "point": "C"
+        },
+        "intent": "令横坐标为零求题设抛物线的纵轴交点。"
+      },
+      {
+        "step_id": "derive_translated_D_i",
+        "capability_id": "translated_point",
+        "args": {
+          "source": "C"
+        },
+        "output_targets": {
+          "point": "D"
+        },
+        "intent": "按题面平移定义由源点得到目标点。"
+      }
+    ],
+    "children": [
+      {
+        "scope_ref": "i",
+        "steps": [
+          {
+            "step_id": "derive_parabola_i",
+            "capability_id": "quadratic_from_constraints",
+            "args": {
+              "curve_points": [
+                "A",
+                "D"
+              ]
+            },
+            "intent": "把两个已知曲线点代入题设函数求完整解析式。"
+          }
+        ],
+        "children": [
+          {
+            "scope_ref": "i_1",
+            "goals": [
+              {
+                "goal_ref": "i_1.parabola",
+                "answer_from": {
+                  "step_id": "derive_parabola_i",
+                  "return": "parabola"
+                }
+              }
+            ]
+          },
+          {
+            "scope_ref": "i_2",
+            "goals": [
+              {
+                "goal_ref": "i_2.E",
+                "answer_from": {
+                  "step_id": "derive_curve_intersection_E_i",
+                  "return": "point"
+                },
+                "steps": [
+                  {
+                    "step_id": "derive_x_intercept_B_i",
+                    "capability_id": "quadratic_x_axis_intercept_point",
+                    "args": {
+                      "parabola": "parabola",
+                      "known_point": "A"
+                    },
+                    "output_targets": {
+                      "point": "B"
+                    },
+                    "intent": "求横轴上的另一个曲线交点。"
+                  },
+                  {
+                    "step_id": "derive_equal_angle_i",
+                    "capability_id": "angle_sum_equal_angle_candidates",
+                    "args": {
+                      "condition": "angle_sum"
+                    },
+                    "intent": "把角和条件化为可直接使用的等锐角关系。"
+                  },
+              {
+                "step_id": "derive_axis_intercept_F_i",
+                "capability_id": "axis_intercept_from_equal_acute_angles",
+                "args": {
+                      "angle_equality": {
+                        "step_id": "derive_equal_angle_i",
+                    "return": "angle_equality"
+                  }
+                },
+                "intent": "利用等锐角对应的正切比求纵轴截点。"
+              },
+                  {
+                    "step_id": "derive_curve_intersection_E_i",
+                    "capability_id": "line_parabola_second_intersection_point",
+                    "args": {
+                      "parabola": "parabola",
+                      "line_p1": "B",
+                  "line_p2": {
+                    "step_id": "derive_axis_intercept_F_i",
+                    "return": "point"
+                  },
+                      "known_point": "B"
+                    },
+                    "intent": "联立目标直线与抛物线并排除已知交点。"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "scope_ref": "ii",
+        "goals": [
+          {
+            "goal_ref": "ii.a",
+            "answer_from": {
+              "step_id": "solve_parameter_from_minimum_ii",
+              "return": "parameter_value"
+            },
+            "steps": [
+              {
+                "step_id": "derive_parametric_parabola_ii",
+                "capability_id": "quadratic_from_constraints",
+                "args": {
+                  "curve_point": "A",
+                  "free_parameters": "a"
+                },
+                "intent": "由已知曲线点把函数化为单参数形式。"
+              },
+              {
+                "step_id": "derive_x_intercept_B_ii",
+                "capability_id": "quadratic_x_axis_intercept_point",
+                "args": {
+                  "parabola": "parabola",
+                  "known_point": "A"
+                },
+                "output_targets": {
+                  "point": "B"
+                },
+                "intent": "求含参抛物线的另一个横轴交点。"
+              },
+              {
+                "step_id": "reduce_equal_length_ray_path_ii",
+                "capability_id": "equal_length_ray_path_reduction",
+                "args": {
+                  "path_minimum_target": "path_minimum_target_o_m_b_n",
+                  "equal_length_condition": "equal_length_condition",
+                  "point_on_segment": "point_on_segment_m_bc",
+                  "point_on_ray": "point_on_ray_n_cd"
+                },
+                "return_expectations": {
+                  "minimum_expression": "open_expression"
+                },
+                "intent": "用等长关系把双动点距离和降维成单距离最值。"
+              },
+              {
+                "step_id": "solve_parameter_from_minimum_ii",
+                "capability_id": "parameter_from_expression_value",
+                "args": {
+                  "expression": {
+                    "step_id": "reduce_equal_length_ray_path_ii",
+                    "return": "minimum_expression"
+                  },
+                  "minimum_value": "minimum_value",
+                  "parameter": "a"
+                },
+                "intent": "令最小值表达式等于题设值并按参数范围取解。"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

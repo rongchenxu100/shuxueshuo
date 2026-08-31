@@ -12,12 +12,11 @@ from shuxueshuo_server.solver.runtime.quadratic_constraint_solver import (
 )
 from shuxueshuo_server.solver.runtime.symbolic_closure_execution import (
     materialize_symbolic_closure_outputs,
-    require_unique_symbolic_closure,
     solve_symbolic_closure_math,
 )
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, declare_input_views
 
 
 class ParameterFromMinimumValueMethod:
@@ -30,13 +29,20 @@ class ParameterFromMinimumValueMethod:
         condition = inputs["condition"]
         parameter = inputs["parameter"]
         constraint = inputs.get("constraint")
-        target = kernel.expr(condition["value"])
-        closure = require_unique_symbolic_closure(
+        target = _require_canonical_runtime_expression(
+            condition["value"],
+            kernel,
+            arg_name="condition",
+            role="minimum_target_value",
+        )
+        closure = _require_unique_symbolic_closure(
             solve_symbolic_closure_math(
                 _SYMBOLIC_CLOSURE_SPEC,
                 args=inputs,
                 kernel=kernel,
-            )
+            ),
+            arg_name="condition",
+            role="minimum_value_equation",
         )
         outputs, closure_checks = materialize_symbolic_closure_outputs(
             {
@@ -116,6 +122,11 @@ SPEC = MethodSpecSource(
         "required": False
     }
 },
+    input_views=declare_input_views(
+        identity=("parameter",),
+        immutable_value=("condition", "constraint"),
+        exact_result=("minimum_expression",),
+    ),
     outputs={
     "parameter_value": "ParameterValue"
 },

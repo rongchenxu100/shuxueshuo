@@ -6,12 +6,19 @@ from dataclasses import dataclass, field
 import re
 from typing import Any, Literal, Mapping
 
-from shuxueshuo_server.solver.contracts import FunctionalResultForm
+from shuxueshuo_server.solver.contracts import (
+    FunctionalResultForm,
+    MethodInputBindingSpec,
+    MethodInputViewMode,
+)
 from shuxueshuo_server.solver.family.models import (
     CapabilityContextResolver,
     CapabilityDependencyPolicy,
     CapabilityStateClosurePolicy,
     FunctionalArgBindingAuthority,
+    FunctionalSemanticRefRole,
+    FunctionalOutputTargetSelectorSpec,
+    FunctionalReturnReferenceMode,
     StateIdentityConstraintSpec,
     StateLineageClosureSpec,
     StateObjectRoleProjectionSpec,
@@ -20,12 +27,17 @@ from shuxueshuo_server.solver.runtime.condition_roles import ConditionObjectRole
 from shuxueshuo_server.solver.runtime.function_specs import FunctionSpec
 from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
 from shuxueshuo_server.solver.runtime.macro_specs import MacroSpec
+from shuxueshuo_server.solver.runtime.planner_public_types import (
+    planner_output_value_type,
+    planner_prompt_text,
+)
 from shuxueshuo_server.solver.runtime.semantic_reads import SemanticReadCatalogItem
 from shuxueshuo_server.solver.runtime.state_identity import (
     ComputationKey,
     LogicalStateKey,
     MathObjectId,
     StateAllocationAction,
+    StateRuntimeEquivalenceProbe,
     StateSlotId,
     StateVersionId,
 )
@@ -50,6 +62,7 @@ FunctionalIssueLayer = Literal[
     "functional_reconciliation",
 ]
 FunctionalArgMode = Literal["explicit", "optional", "auto"]
+FunctionalReturnExpectationPolicy = Literal["selectable", "omit"]
 FunctionalAggregation = Literal[
     "none",
     "coefficients_by_symbol",
@@ -125,9 +138,38 @@ class FunctionalScope:
 
 
 @dataclass(frozen=True)
+class FunctionalTypedInputSourcePin:
+    """Internal v2 authority for one named-entity latest-state read.
+
+    The canonical wire remains a SemanticRef.  This sidecar records which
+    typed producer the scoped authority selected, so the derived v1 runtime
+    never has to infer the producer again from incidental execution order.
+    """
+
+    consumer_call_id: str
+    arg_name: str
+    item_index: int
+    semantic_ref: str
+    producer_call_id: str
+    return_name: str
+
+
+@dataclass(frozen=True)
 class FunctionalPlan:
     scopes: tuple[FunctionalScope, ...]
     format: str = "functional_plan/v1"
+    typed_dependency_graph: Mapping[str, tuple[str, ...]] = field(
+        default_factory=dict,
+        repr=False,
+        compare=False,
+    )
+    typed_input_source_pins: Mapping[
+        tuple[str, str, int], FunctionalTypedInputSourcePin
+    ] = field(
+        default_factory=dict,
+        repr=False,
+        compare=False,
+    )
 
     @property
     def calls(self) -> tuple[FunctionalCall, ...]:
@@ -190,10 +232,15 @@ class FunctionalCapabilityArg:
     required: bool
     cardinality: str
     kind: str
+    domain_type: str | None = None
+    input_view_mode: MethodInputViewMode | None = field(default=None, repr=False)
+    allows_anonymous_result: bool = field(default=False, repr=False)
+    allows_empty_collection: bool = field(default=False, repr=False)
     semantic_role: str | None = None
     llm_mode: FunctionalArgMode = "explicit"
     accepted_item_types: tuple[str, ...] = ()
     accepted_condition_kinds: tuple[str, ...] = ()
+    prompt_fact_types: tuple[str, ...] = field(default=(), repr=False)
     accepted_semantic_roles: tuple[str, ...] = ()
     requires_materialized_state: bool = False
     aggregation: FunctionalAggregation = "none"
@@ -208,42 +255,40 @@ class FunctionalCapabilityArg:
         repr=False,
     )
     consumption_mode: str = field(default="runtime_input", repr=False)
+    semantic_ref_role: FunctionalSemanticRefRole = "value"
+    allowed_refs: tuple[str, ...] = field(default=(), repr=False)
 
     def to_prompt_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
             "name": self.name,
-            "accepts": list(
-                self.accepted_item_types or (self.runtime_type,)
-            ),
+            "domain_type": self.domain_type or self.runtime_type,
             "required": self.required,
             "cardinality": self.cardinality,
         }
-        if self.accepted_condition_kinds:
+        public_fact_types = (
+            self.prompt_fact_types or self.accepted_condition_kinds
+        )
+        if public_fact_types:
             payload["fact_types"] = list(
-                self.accepted_condition_kinds
+                public_fact_types
             )
         if self.accepted_semantic_roles:
             payload["roles"] = list(
                 self.accepted_semantic_roles
             )
-        if self.requires_materialized_state:
-            payload["requires_computed_value"] = True
-        if self.description:
-            payload["desc"] = self.description
-        if self.input_closure_policy == "closed_only":
-            payload["accepted_forms"] = ["closed_state"]
-            payload["max_independent_free_parameters"] = 0
-        elif self.input_closure_policy == "closed_or_single_free":
-            payload["accepted_forms"] = ["closed_state", "open_state"]
-            payload["max_independent_free_parameters"] = 1
+        if self.allowed_refs:
+            payload["allowed_refs"] = list(self.allowed_refs)
+        description = self.description
+        if description:
+            payload["role"] = description
         return payload
 
 
 @dataclass(frozen=True)
 class FunctionalAutoArg:
     name: str
-    selector: str
     required: bool
+    input_binding: MethodInputBindingSpec
     binding_authority: FunctionalArgBindingAuthority = "compiler"
     semantic_role: str | None = None
     runtime_input: str | None = None
@@ -251,10 +296,10 @@ class FunctionalAutoArg:
     def to_payload(self) -> dict[str, Any]:
         return {
             "name": self.name,
-            "selector": self.selector,
             "required": self.required,
             "semantic_role": self.semantic_role or self.name,
             "runtime_input": self.runtime_input or self.name,
+            "input_binding": self.input_binding.to_payload(),
         }
 
 
@@ -281,18 +326,41 @@ class FunctionalCapabilityReturn:
     return_binding: str = "auto"
     result_form_ignored_input_args: tuple[str, ...] = ()
     free_symbol_return_names: tuple[str, ...] = ()
+    output_target_selector: FunctionalOutputTargetSelectorSpec | None = None
+    materialization_policy: Literal["on_demand", "always"] = "on_demand"
+    reference_mode: FunctionalReturnReferenceMode = "default"
 
     @property
     def binding_mode(self) -> str:
         """Return the wire-level destination policy exposed to the planner."""
         return _prompt_return_binding(self)
 
-    def to_prompt_payload(self) -> dict[str, Any]:
+    @property
+    def return_expectation_policy(self) -> FunctionalReturnExpectationPolicy:
+        """Declare whether the planner may author an open/closed form hint."""
+        return "selectable" if self.possible_forms else "omit"
+
+    def to_prompt_payload(
+        self,
+        *,
+        exposed_arg_names: frozenset[str] | None = None,
+    ) -> dict[str, Any]:
+        binding_mode = self.binding_mode
+        compiler_selected_identity = (
+            exposed_arg_names is not None
+            and self.identity_policy == "preserve_input_object"
+            and self.identity_arg is not None
+            and self.identity_arg not in exposed_arg_names
+        )
+        if compiler_selected_identity:
+            binding_mode = "same_compiler_selected_object"
         payload: dict[str, Any] = {
             "name": self.name,
-            "type": self.runtime_type,
-            "binding": self.binding_mode,
+            "type": planner_output_value_type(self.runtime_type),
+            "binding": binding_mode,
         }
+        if self.reference_mode != "default":
+            payload["reference_mode"] = self.reference_mode
         if _is_aggregate_return_type(self.runtime_type):
             payload["value_cardinality"] = "aggregate"
         if not self.required:
@@ -303,10 +371,17 @@ class FunctionalCapabilityReturn:
             self.description,
             self.result_form_description,
             _aggregate_return_binding_description(self),
+            (
+                "对象身份由编译器从当前scope的题面权威中选择；"
+                "不要为此添加catalog未声明的输入参数。"
+                if compiler_selected_identity
+                else ""
+            ),
         )
         if description:
             payload["desc"] = description
         if self.possible_forms:
+            payload["return_expectation_policy"] = "selectable"
             payload["possible_forms"] = list(self.possible_forms)
         if self.max_independent_free_parameters is not None:
             payload["max_independent_free_parameters"] = (
@@ -316,6 +391,10 @@ class FunctionalCapabilityReturn:
             payload["same_state_as"] = self.equivalent_to
         if self.provides_semantic_roles:
             payload["provides"] = list(self.provides_semantic_roles)
+        if self.output_target_selector is not None:
+            payload["target_selection"] = (
+                self.output_target_selector.to_prompt_payload()
+            )
         return payload
 
 
@@ -343,6 +422,7 @@ class FunctionalContextArgBinding:
     semantic_role: str
     arg_name: str
     consumption_mode: str = "runtime_input"
+    input_binding: MethodInputBindingSpec | None = None
 
 
 def _joined_description(*parts: str) -> str:
@@ -368,6 +448,10 @@ class FunctionalCapability:
         default=(),
         repr=False,
     )
+    interchangeable_arg_groups: tuple[tuple[str, ...], ...] = field(
+        default=(),
+        repr=False,
+    )
     context_resolvers: tuple[CapabilityContextResolver, ...] = field(
         default=(),
         repr=False,
@@ -376,11 +460,11 @@ class FunctionalCapability:
         default=(),
         repr=False,
     )
-    auto_args: tuple[FunctionalAutoArg, ...] = field(default=(), repr=False)
-    context_preflight_selectors: tuple[str, ...] = field(
+    input_bindings: tuple[MethodInputBindingSpec, ...] = field(
         default=(),
         repr=False,
     )
+    auto_args: tuple[FunctionalAutoArg, ...] = field(default=(), repr=False)
     input_closure_requirements: tuple[
         FunctionalInputClosureRequirement, ...
     ] = ()
@@ -407,12 +491,18 @@ class FunctionalCapability:
         return None
 
     def to_prompt_payload(self) -> dict[str, Any]:
+        exposed_arg_names = frozenset(item.name for item in self.args)
         payload: dict[str, Any] = {
             "capability_id": self.capability_id,
             "title": self.title,
             "use_when": self.use_when,
             "args": [item.to_prompt_payload() for item in self.args],
-            "returns": [item.to_prompt_payload() for item in self.returns],
+            "returns": [
+                item.to_prompt_payload(
+                    exposed_arg_names=exposed_arg_names,
+                )
+                for item in self.returns
+            ],
         }
         if self.do_not_use_when:
             payload["do_not_use_when"] = list(self.do_not_use_when)
@@ -441,12 +531,23 @@ class FunctionalCapability:
             for group in self.distinct_arg_groups
             if len(group) > 1 and set(group) <= exposed_arg_names
         )
+        requirements.extend(
+            {
+                "requirement": (
+                    f"{'、'.join(group)} 表示无序的等价输入槽位；交换它们不改变数学结果。"
+                )
+            }
+            for group in self.interchangeable_arg_groups
+            if len(group) > 1 and set(group) <= exposed_arg_names
+        )
         if requirements:
             payload["input_requirements"] = requirements
-        return payload
+        return _planner_safe_payload(payload)
 
 
 def _prompt_return_binding(result: FunctionalCapabilityReturn) -> str:
+    if result.reference_mode == "exact_result":
+        return "exact_call_result_or_answer"
     if result.return_binding == "internal_only":
         return "internal_only"
     if result.return_binding == "external_allowed":
@@ -469,7 +570,28 @@ def _prompt_return_binding(result: FunctionalCapabilityReturn) -> str:
             if result.identity_arg
             else "same_input_object"
         )
-    return "answer_or_existing_object"
+    # Identity-neutral returns are values first. They can be consumed directly
+    # as exact call results, or optionally published to an answer/existing
+    # object. Capabilities that require an external destination must opt in via
+    # ``explicit_external_required``.
+    return "call_result_or_answer_or_existing_object"
+
+
+def _planner_safe_payload(value: Any) -> Any:
+    """Remove runtime representation vocabulary at the LLM boundary."""
+
+    if isinstance(value, dict):
+        return {
+            key: _planner_safe_payload(child)
+            for key, child in value.items()
+        }
+    if isinstance(value, list):
+        return [_planner_safe_payload(item) for item in value]
+    if isinstance(value, tuple):
+        return [_planner_safe_payload(item) for item in value]
+    if not isinstance(value, str):
+        return value
+    return planner_prompt_text(value)
 
 
 def _is_aggregate_return_type(runtime_type: str) -> bool:
@@ -677,6 +799,54 @@ class FunctionalReturnAllocation:
 
 
 @dataclass(frozen=True)
+class FunctionalMethodRelationBinding:
+    """Exact Condition authority consumed by one Method entity relation."""
+
+    call_id: str
+    method_id: str
+    relation_kind: str
+    point_arg_name: str
+    point_item_index: int
+    curve_arg_name: str
+    condition_id: str
+    condition_ref: str
+    condition_ref_kind: str
+    condition_kind: str
+    owner_scope_id: str
+    point_object_ref: str
+    curve_object_ref: str
+    point_math_object_id: MathObjectId | None = None
+    curve_math_object_id: MathObjectId | None = None
+
+    def to_payload(self) -> dict[str, Any]:
+        return {
+            "call_id": self.call_id,
+            "method_id": self.method_id,
+            "relation_kind": self.relation_kind,
+            "point_arg_name": self.point_arg_name,
+            "point_item_index": self.point_item_index,
+            "curve_arg_name": self.curve_arg_name,
+            "condition_id": self.condition_id,
+            "condition_ref": self.condition_ref,
+            "condition_ref_kind": self.condition_ref_kind,
+            "condition_kind": self.condition_kind,
+            "owner_scope_id": self.owner_scope_id,
+            "point_object_ref": self.point_object_ref,
+            "curve_object_ref": self.curve_object_ref,
+            "point_math_object_id": (
+                self.point_math_object_id.to_payload()
+                if self.point_math_object_id is not None
+                else None
+            ),
+            "curve_math_object_id": (
+                self.curve_math_object_id.to_payload()
+                if self.curve_math_object_id is not None
+                else None
+            ),
+        }
+
+
+@dataclass(frozen=True)
 class FunctionalCallReconciliation:
     call_id: str
     scope_id: str
@@ -684,6 +854,8 @@ class FunctionalCallReconciliation:
     resolved_args: dict[str, tuple[ResolvedFunctionalValue, ...]]
     returns: tuple[FunctionalReturnAllocation, ...]
     reads_closed: bool = False
+    authored_macro_roles: tuple[tuple[str, str], ...] = ()
+    relation_bindings: tuple[FunctionalMethodRelationBinding, ...] = ()
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -696,6 +868,13 @@ class FunctionalCallReconciliation:
             },
             "returns": [item.to_payload() for item in self.returns],
             "reads_closed": self.reads_closed,
+            "authored_macro_roles": {
+                role: object_ref
+                for role, object_ref in self.authored_macro_roles
+            },
+            "relation_bindings": [
+                item.to_payload() for item in self.relation_bindings
+            ],
         }
 
 
@@ -790,6 +969,7 @@ class FunctionalCallExecutionEntry:
 @dataclass(frozen=True)
 class FunctionalPlanReconciliationResult:
     plan: FunctionalPlan
+    canonical_plan_id: str | None = None
     calls: tuple[FunctionalCallReconciliation, ...] = ()
     issues: tuple[FunctionalPlanIssue, ...] = ()
     execution_entries: tuple[FunctionalCallExecutionEntry, ...] = ()
@@ -809,12 +989,17 @@ class FunctionalPlanReconciliationResult:
     placement_mismatches: tuple[dict[str, Any], ...] = ()
     state_finalization_decisions: tuple[dict[str, Any], ...] = ()
     state_finalization_mismatches: tuple[dict[str, Any], ...] = ()
+    state_runtime_equivalence_probes: tuple[
+        StateRuntimeEquivalenceProbe, ...
+    ] = ()
     runtime_destination_decisions: tuple[dict[str, Any], ...] = ()
     state_dependencies: tuple[ProjectedStateDependency, ...] = ()
     typed_identity_completeness: dict[str, Any] = field(default_factory=dict)
     legacy_identity_fallback_count: int = 0
     functional_binding_context: Any | None = None
     functional_problem_binding_context: Any | None = None
+    functional_problem_binding_ledger: Any | None = None
+    condition_binding_authority_index: Any | None = None
     functional_binding_decisions: tuple[dict[str, Any], ...] = ()
     functional_binding_mismatches: tuple[dict[str, Any], ...] = ()
     legacy_binding_role_fallback_count: int = 0
@@ -873,6 +1058,10 @@ class FunctionalPlanReconciliationResult:
             "state_finalization_mismatches": [
                 dict(item) for item in self.state_finalization_mismatches
             ],
+            "state_runtime_equivalence_probes": [
+                item.to_payload()
+                for item in self.state_runtime_equivalence_probes
+            ],
             "runtime_destination_decisions": [
                 dict(item) for item in self.runtime_destination_decisions
             ],
@@ -894,6 +1083,28 @@ class FunctionalPlanReconciliationResult:
             "functional_problem_binding_context": (
                 self.functional_problem_binding_context.to_payload()
                 if self.functional_problem_binding_context is not None
+                else None
+            ),
+            "functional_problem_binding_ledger": (
+                {
+                    "schema_version": (
+                        self.functional_problem_binding_ledger.schema_version
+                    ),
+                    "draft_signature": (
+                        self.functional_problem_binding_ledger
+                        .draft.draft_signature
+                    ),
+                    "ledger_signature": (
+                        self.functional_problem_binding_ledger.ledger_signature
+                    ),
+                    "calls": {
+                        call_id: binding.authority_payload()
+                        for call_id, binding in (
+                            self.functional_problem_binding_ledger.calls.items()
+                        )
+                    },
+                }
+                if self.functional_problem_binding_ledger is not None
                 else None
             ),
             "functional_binding_decisions": [

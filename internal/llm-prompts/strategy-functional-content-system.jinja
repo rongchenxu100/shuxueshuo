@@ -1,0 +1,51 @@
+请使用给定数学能力，为全部必答目标填写一份FunctionalPlan内容。
+只输出一个`functional-plan-content/v2` JSON object，不要输出Markdown、解释或答案。
+
+必须遵守：
+
+1. Scope树与Goal归属完全由Plan Authority Frame拥有。输出不得包含`root_scope`、`children`、
+   `scope_ref`或重复的`goal_ref`。`scope_steps`的key只能是Frame中的scope；`goal_plans`的key必须
+   恰好覆盖Frame中的全部Goal。
+2. `scope_steps`与`goal_plans.*.steps`是互斥的step所有权容器，不是同一Plan的两个展示视图。
+   每个step完整对象只能出现一次，禁止把同一个step同时复制进scope和Goal。
+   `scope_steps[scope]`放“属于该scope上下文”的步骤：例如建立供多个后代Goal共同使用的producer，或其数学意义
+   独立于某一个答案的scope前提。`goal_plans[goal].steps`放只为该Goal答案服务的局部推导。
+   判断标准是步骤的数学归属和消费者，不是step名称：多个Goal消费的共同producer放它们的共同祖先scope；只被
+   一个Goal消费且只为该答案存在的producer放该Goal。后代可读取祖先scope step，祖先不能读取后代或兄弟Goal step。
+   真正共享的producer只在共同祖先scope写一次，Goal通过`answer_from`或后续输入引用它，不要再复制一份。
+   共享题面数学实体不等于共享当前数学状态：同一个题面对象可以在多个兄弟scope中由不同局部条件得到不同结果。
+   若兄弟scope使用不同局部条件、参数值或自由参数基，必须分别在各自scope生成局部状态；只有producer所需的
+   全部条件在共同祖先可见，且后代确实消费同一个状态时，才把该producer放在共同祖先。
+3. 每个Goal必须输出`answer_from={step_id, return}`，明确指出你计划中产生该Goal最终答案的return。
+   Plan Authority Frame的`goal_answers`和Goal专属JSON Schema会重复给出权威`target_ref/answer_type`；它们
+   优先于题面措辞中的单复数直觉。Capability Catalog输入的`domain_type`是可选择的数学实体类型，return的
+   `type`是产生值的canonical类型，两者不是同一概念。return必须来自该Goal本地步骤或可见祖先scope步骤，
+   public return `type`必须与该Goal的`answer_type`逐字一致，并对应`target_ref`。代码会独立验证候选集合：
+   合法指针用于消歧；指定step正确且其中只有一个active return满足target/type时，代码只规范化写错的public
+   return名称。代码不会改选另一个step；producer为零个、多个或数学步骤不对时，整个失败Goal进入replacement retry。
+   Goal没有本地step时省略`steps`，但仍必须输出`answer_from`。
+   空的scope step数组与Goal step数组必须省略。
+4. `step_id`全题唯一，且对应step只能属于一个scope或一个Goal，并按依赖顺序输出。题面中有名的Point、Function、
+   Symbol、Line等Entity默认使用字符串SourceRef；代码会按capability需求自动取它的身份或当前scope最近可见状态，
+   并自动建立producer依赖。候选集、匿名表达式等没有题面身份的中间结果，以及catalog明确声明
+   `reference_mode=exact_result`的producer return，使用`{"step_id":"...","return":"..."}`。exact-result即使携带
+   已有Entity身份也不得改写成SourceRef；严格authority会校验producer return与consumer类型、scope和view兼容。
+   禁止forward reference和循环。
+5. 字符串参数只能逐字复制Problem View中当前scope或祖先可见的Entity/Fact `ref`及Goal `target_ref`。
+   `goal_ref`不是step输入，禁止scope前缀、参数名、Fact kind或自造ref。
+6. `capability_id`、args、return role、结果类型和`return_expectations`必须服从Capability Catalog。
+   `binding=same_compiler_selected_object`不允许增加catalog未声明的arg或target。
+   只有return明确展示`possible_forms`时才可为它填写`return_expectations`；固定形态return必须省略。
+   `free_parameters`必须表示应用本步骤当前scope可见约束后仍然未确定的一组完整独立参数基底。结果仍为开放状态时
+   必须填写非空基底；结果已闭合时可以填写`[]`或省略。数学等价的基底均可填写，代码会用runtime约束验证；
+   不能根据下游Goal希望求哪个参数来提前删除、替换或收窄基底。
+7. 每个catalog声明的public return都会自然存在；允许匿名结果的下游arg，或类型兼容的下游arg消费
+   `reference_mode=exact_result` return时，可直接用`{"step_id":"...","return":"..."}`读取它。
+   `output_targets`不是声明return，而只是把return写入当前scope
+   可见的题面已有具名对象；没有这种对象时必须省略。Goal最终答案用`answer_from`选择producer，代码再根据
+   Goal authority验证其对象身份。`reference_mode=exact_result`或`binding=exact_call_result_or_answer`的return
+   即使表示题面已有Entity，也禁止填写`output_targets`；后续step必须直接使用它的StepResultRef。
+   不要为答案增加`output_targets`，也不要自造target名称或其他绑定字段。
+8. `intent`可选，只用于简短说明数学目的。所有step必须通向至少一个必答Goal。
+
+当前题的严格、authority-bound JSON Schema位于user message末尾。

@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, declare_input_views
 
 
 class EqualLengthRayPointMethod:
@@ -27,7 +27,28 @@ class EqualLengthRayPointMethod:
         )
         direction_length = kernel.distance(anchor, ray_point)
         if sp.simplify(direction_length) == 0:
-            raise ValueError("ray direction requires two distinct points")
+            raise method_precondition_failed(
+                "ray direction requires two distinct points",
+                subjects=(
+                    FunctionalDiagnosticSubject(
+                        role="ray_anchor",
+                        arg_name="anchor",
+                        expected_type="Point",
+                        expected_state="distinct_from_ray_point",
+                        observed_state="coincident",
+                    ),
+                    FunctionalDiagnosticSubject(
+                        role="ray_direction_point",
+                        arg_name="ray_point",
+                        expected_type="Point",
+                        expected_state="distinct_from_anchor",
+                        observed_state="coincident",
+                    ),
+                ),
+                expected={"direction_length": "nonzero"},
+                observed={"direction_length": "0"},
+                repair_action="provide_distinct_ray_points",
+            )
         reference_length = kernel.distance(anchor, reference_point)
         unit_scale = sp.simplify(reference_length / direction_length)
         point = (
@@ -88,6 +109,10 @@ SPEC = MethodSpecSource(
         "ray_point": {"type": "Point", "required": True},
         "target": {"type": "PointRef", "required": True},
     },
+    input_views=declare_input_views(
+        identity=("target",),
+        latest_state=("anchor", "reference_point", "ray_point"),
+    ),
     outputs={"point": "Point"},
     preconditions=("anchor 与 ray_point 必须确定一条非零射线方向",),
     postconditions=("输出点在指定射线所在直线上，且到 anchor 的距离等于 anchor-reference",),

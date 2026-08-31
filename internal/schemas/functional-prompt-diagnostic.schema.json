@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "functional-prompt-diagnostic.schema.json",
+  "title": "Functional Prompt Diagnostic v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "code",
+    "category",
+    "stage",
+    "retryability",
+    "subjects",
+    "expected",
+    "observed",
+    "repair_action",
+    "repair_call_ids",
+    "message"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "functional-prompt-diagnostic/v1"
+    },
+    "code": {
+      "type": "string",
+      "minLength": 1
+    },
+    "category": {
+      "enum": [
+        "input",
+        "precondition",
+        "result",
+        "ambiguity",
+        "inconsistency",
+        "check",
+        "binding",
+        "configuration"
+      ]
+    },
+    "stage": {
+      "type": "string",
+      "minLength": 1
+    },
+    "retryability": {
+      "enum": [
+        "planner_repairable",
+        "problem_semantics",
+        "configuration"
+      ]
+    },
+    "method_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "capability_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "scope_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "step_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "subjects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "type": "string",
+            "minLength": 1
+          },
+          "arg_name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "item_index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expected_type": {
+            "type": "string",
+            "minLength": 1
+          },
+          "expected_state": {
+            "type": "string",
+            "minLength": 1
+          },
+          "observed_type": {
+            "type": "string",
+            "minLength": 1
+          },
+          "observed_state": {
+            "type": "string",
+            "minLength": 1
+          },
+          "ref": {
+            "oneOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "object",
+                "required": [
+                  "step_id",
+                  "return"
+                ],
+                "properties": {
+                  "step_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "return": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "additionalProperties": false
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "expected": {
+      "type": "object"
+    },
+    "observed": {
+      "type": "object"
+    },
+    "repair_action": {
+      "type": "string",
+      "minLength": 1
+    },
+    "repair_call_ids": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "message": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

@@ -4,6 +4,8 @@ family 包只承载题型级 spec 和 registry，不执行求解。通用 Runtim
 这里的 FamilySpec 作为 planner 上下文。
 """
 
+from shuxueshuo_server.solver.contracts import MethodInputBindingSpec
+
 from shuxueshuo_server.solver.family.models import (
     CapabilityCardinality,
     CapabilityContractSource,
@@ -20,18 +22,16 @@ from shuxueshuo_server.solver.family.models import (
     FamilySourceGoalContractSpec,
     FamilySourceRequirementSpec,
     MethodBindingRuleSpec,
-    MethodCompanionOutputSpec,
-    MethodInputBindingSpec,
     MethodPrepInvocationSpec,
-    PathTransformationConsumerSpec,
     RecipeExecutionSpec,
+    RecipeInputDerivationSpec,
     SolverFamilySpec,
     StateIdentityConstraintSpec,
     StateObjectRoleProjectionSpec,
     StateSlotPattern,
     StateWriteMode,
-    SQUARE_PATH_TRANSFORMATION_ROLES_RESOLVER,
-    WEIGHTED_PATH_TRANSFORMATION_ROLES_RESOLVER,
+    QUADRATIC_SQUARE_PATH_ROLES_RESOLVER,
+    WEIGHTED_AXIS_PATH_MINIMUM_ROLES_RESOLVER,
     StepRecipeSpec,
     expand_family_spec,
 )
@@ -76,22 +76,21 @@ __all__ = [
     "FamilySourceGoalContractSpec",
     "FamilySourceRequirementSpec",
     "MethodBindingRuleSpec",
-    "MethodCompanionOutputSpec",
     "MethodInputBindingSpec",
     "MethodPrepInvocationSpec",
-    "PathTransformationConsumerSpec",
     "QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY",
     "QUADRATIC_PATH_MINIMUM_FAMILY",
     "QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY",
     "QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY",
     "RecipeExecutionSpec",
+    "RecipeInputDerivationSpec",
     "SolverFamilySpec",
     "StateIdentityConstraintSpec",
     "StateObjectRoleProjectionSpec",
     "StateSlotPattern",
     "StateWriteMode",
-    "SQUARE_PATH_TRANSFORMATION_ROLES_RESOLVER",
-    "WEIGHTED_PATH_TRANSFORMATION_ROLES_RESOLVER",
+    "QUADRATIC_SQUARE_PATH_ROLES_RESOLVER",
+    "WEIGHTED_AXIS_PATH_MINIMUM_ROLES_RESOLVER",
     "StepRecipeSpec",
     "expand_family_spec",
 ]

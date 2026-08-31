@@ -9,7 +9,6 @@ from __future__ import annotations
 
 from shuxueshuo_server.solver.runtime.context import RuntimeContext
 from shuxueshuo_server.solver.runtime._planner_helpers import (
-    question_point_declaration as _point_declaration,
     single_invocation_step as _single_invocation_step,
 )
 from shuxueshuo_server.solver.runtime.models import (
@@ -36,9 +35,7 @@ class Hexi25WeightedPathPlannerV15:
         """
         _ = inputs
         return PlannerOutput(
-            context_declarations=[
-                _point_declaration("iii", "Q", "weighted_path_auxiliary_point")
-            ],
+            context_declarations=[],
             step_plans=[
                 self._derive_part_i_parabola(),
                 self._derive_part_i_vertex(),
@@ -251,9 +248,10 @@ class Hexi25WeightedPathPlannerV15:
 
     def _derive_part_iii_weighted_minimum(self) -> StepPlan:
         step_id = "hexi_iii_weighted_minimum"
-        # 河西第（Ⅲ）问采用网页讲解里的几何转化：
-        # 先构造等腰直角三角形 AQN，把 sqrt(2)*MN+AN 转成 sqrt(2)*(MN+QN)；
-        # 再用“将军饮马/折线拉直”的最短状态反求 b 和 N。
+        minimum_path = f"$step.{step_id}.temp.minimum_expression"
+        parameter_path = f"$step.{step_id}.temp.b"
+        # 辅助三角形、内部 PointRef、路径变换和定义域取等验证均由原子
+        # kernel 完成；确定性 planner 与 LLM planner 共享同一公开边界。
         return StepPlan(
             step_id=step_id,
             goal=StepGoal(
@@ -266,57 +264,37 @@ class Hexi25WeightedPathPlannerV15:
             scope="iii",
             invocations=[
                 MethodInvocation(
-                    invocation_id=f"{step_id}.weighted_axis_path_triangle_transform",
-                    method_id="weighted_axis_path_triangle_transform",
+                    invocation_id=f"{step_id}.weighted_axis_path_minimum_kernel",
+                    method_id="weighted_axis_path_minimum_kernel",
                     scope=step_id,
                     inputs={
-                        "condition": "$question.iii.conditions.minimum_value",
-                        "fixed_point": "$problem.points.A",
-                        "moving_point": "$question.iii.points.N",
-                        "dynamic_parameter": "$problem.symbols.n",
-                        "auxiliary_point_ref": "$question.iii.points.Q",
-                    },
-                    outputs={
-                        "auxiliary_point": f"$step.{step_id}.temp.Q",
-                        "path_transformation": f"$step.{step_id}.temp.path_transformation",
-                        "auxiliary_locus": f"$step.{step_id}.temp.auxiliary_locus",
-                    },
-                ),
-                MethodInvocation(
-                    invocation_id=f"{step_id}.linked_broken_path_geometric_minimum",
-                    method_id="linked_broken_path_geometric_minimum",
-                    scope=step_id,
-                    inputs={
-                        "condition": "$question.iii.conditions.minimum_value",
-                        "path_transformation": f"$step.{step_id}.temp.path_transformation",
-                        "auxiliary_locus": f"$step.{step_id}.temp.auxiliary_locus",
+                        "path_condition": "$question.iii.conditions.minimum_value",
                         "fixed_point": "$problem.points.A",
                         "curve_point": "$question.iii.points.M",
                         "moving_point": "$question.iii.points.N",
-                        "auxiliary_point": f"$step.{step_id}.temp.Q",
+                        "moving_point_ref": "$question.iii.points.N",
                         "parameter": "$problem.symbols.b",
                         "dynamic_parameter": "$problem.symbols.n",
                         "parameter_constraint": "$problem.constraints.b",
                         "dynamic_constraint": "$problem.constraints.n",
                     },
-                    outputs={
-                        "parameter_value": f"$step.{step_id}.temp.b",
-                        "dynamic_parameter_value": f"$step.{step_id}.temp.n",
-                        "minimum_value": f"$step.{step_id}.temp.min_value",
-                        "dynamic_point": f"$step.{step_id}.temp.N",
+                    outputs={"minimum_expression": minimum_path},
+                ),
+                MethodInvocation(
+                    invocation_id=f"{step_id}.parameter_from_expression_value",
+                    method_id="parameter_from_expression_value",
+                    scope=step_id,
+                    inputs={
+                        "expression": minimum_path,
+                        "condition": "$question.iii.conditions.minimum_value",
+                        "parameter": "$problem.symbols.b",
+                        "constraint": "$problem.constraints.b",
                     },
+                    outputs={"parameter_value": parameter_path},
                 ),
             ],
-            expected_outputs=[
-                "$question.iii.outputs.b",
-                "$question.iii.outputs.n",
-                "$question.iii.outputs.min_value",
-                "$question.iii.outputs.N",
-            ],
+            expected_outputs=["$question.iii.outputs.b"],
             promote_outputs={
-                f"$step.{step_id}.temp.b": "$question.iii.outputs.b",
-                f"$step.{step_id}.temp.n": "$question.iii.outputs.n",
-                f"$step.{step_id}.temp.min_value": "$question.iii.outputs.min_value",
-                f"$step.{step_id}.temp.N": "$question.iii.outputs.N",
+                parameter_path: "$question.iii.outputs.b",
             },
         )

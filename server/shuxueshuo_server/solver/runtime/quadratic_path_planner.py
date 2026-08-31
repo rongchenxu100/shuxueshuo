@@ -28,15 +28,15 @@ class QuadraticPathMinimumPlannerV15:
     def plan(self, context: RuntimeContext) -> PlannerOutput:
         """生成南开 25 的声明式 planner 输出。
 
-        G 和 D_prime 都不是题设已知点：G 是最终交点答案，D_prime 是“将军饮马”
-        拉直过程中选择出来的辅助点。Phase B 起 planner 只返回声明，不再直接写
+        G 不是题设已知坐标，而是原子路径 Macro 返回的取等状态。内部反射点和
+        拉直候选只存在于 kernel 内，不再成为 StepPlan 或 RuntimeContext 中的
+        公开对象。Phase B 起 planner 只返回声明，不再直接写
         RuntimeContext；Orchestrator 会统一校验并 apply。
         """
         _ = context
         return PlannerOutput(
             context_declarations=[
                 _point_declaration("ii", "G", "line_intersection"),
-                _point_declaration("ii", "D_prime", "straightening_auxiliary_point"),
             ],
             step_plans=[
                 self._derive_axis_point(),
@@ -45,13 +45,11 @@ class QuadraticPathMinimumPlannerV15:
                 self._derive_q1_parameter(),
                 self._derive_q1_parabola(),
                 self._derive_midpoint(),
-                self._derive_path_reduction(),
-                self._derive_straightening_candidates(),
-                self._select_straightening_candidate(),
-                self._derive_minimum_expression(),
+                self._derive_atomic_path_minimum(),
+                self._evaluate_q1_minimum(),
                 self._derive_q2_parameter(),
                 self._derive_q2_parabola(),
-                self._derive_q2_intersection(),
+                self._evaluate_q2_attainment_point(),
             ],
         )
 
@@ -196,91 +194,66 @@ class QuadraticPathMinimumPlannerV15:
             target_path="$subquestion.ii_1.outputs.parabola",
         )
 
-    def _derive_straightening_candidates(self) -> StepPlan:
+    def _derive_atomic_path_minimum(self) -> StepPlan:
         return _single_invocation_step(
-            step_id="derive_straightening_candidates",
+            step_id="derive_path_minimum",
             parent_scope="ii",
-            method_id="broken_path_straightening_candidates",
+            method_id=(
+                "coupled_segment_endpoint_replacement_path_minimum_kernel"
+            ),
             inputs={
-                "path_transformation": "$question.ii.outputs.path_transformation",
-                "moving_point_membership": "$problem.conditions.segment_membership_G",
-                "fixed_point_1": "$problem.points.D",
-                "fixed_point_2": "$question.ii.points.F",
-                "line_point_1": "$question.ii.points.M",
-                "line_point_2": "$question.ii.points.N",
-            },
-            outputs={"candidates": "$step.derive_straightening_candidates.temp.candidates"},
-            promote={
-                "$step.derive_straightening_candidates.temp.candidates": "$question.ii.outputs.straightening_candidates"
-            },
-            goal_type="derive_broken_path_straightening_candidates",
-            target_path="$question.ii.outputs.straightening_candidates",
-        )
-
-    def _select_straightening_candidate(self) -> StepPlan:
-        return _single_invocation_step(
-            step_id="select_straightening_candidate",
-            parent_scope="ii",
-            method_id="select_straightening_candidate",
-            inputs={
-                "candidates": "$question.ii.outputs.straightening_candidates",
-                "target": "$question.ii.points.D_prime",
-            },
-            outputs={
-                "selected_candidate": "$step.select_straightening_candidate.temp.selected_candidate",
-                "auxiliary_point": "$step.select_straightening_candidate.temp.auxiliary_point",
-            },
-            promote={
-                "$step.select_straightening_candidate.temp.selected_candidate": "$question.ii.outputs.straightening_candidate",
-                "$step.select_straightening_candidate.temp.auxiliary_point": "$question.ii.points.D_prime",
-            },
-            goal_type="select_broken_path_straightening_candidate",
-            target_path="$question.ii.points.D_prime",
-        )
-
-    def _derive_path_reduction(self) -> StepPlan:
-        return _single_invocation_step(
-            step_id="reduce_path",
-            parent_scope="ii",
-            method_id="two_moving_points_path_reduction",
-            inputs={
-                "original_path": "$problem.conditions.path_minimum",
-                "first_moving_membership": "$problem.conditions.segment_membership_E",
-                "second_moving_membership": "$problem.conditions.segment_membership_G",
-                "binding_relation": "$problem.conditions.segment_relation_DE_NG",
+                "path_condition": "$problem.conditions.path_minimum",
+                "first_membership": "$problem.conditions.segment_membership_E",
+                "second_membership": "$problem.conditions.segment_membership_G",
+                "segment_binding_relation": "$problem.conditions.segment_relation_DE_NG",
                 "first_segment_start": "$problem.points.D",
                 "joint_point": "$question.ii.points.M",
                 "second_segment_end": "$question.ii.points.N",
+                "transformed_fixed_endpoint": "$question.ii.points.F",
+                "moving_point": "$question.ii.points.G",
             },
-            outputs={"path_transformation": "$step.reduce_path.temp.path_transformation"},
+            outputs={
+                "minimum_expression": (
+                    "$step.derive_path_minimum.temp.minimum_expression"
+                ),
+                "attainment_point": (
+                    "$step.derive_path_minimum.temp.attainment_point"
+                ),
+            },
             promote={
-                "$step.reduce_path.temp.path_transformation": "$question.ii.outputs.path_transformation"
+                "$step.derive_path_minimum.temp.minimum_expression": (
+                    "$question.ii.outputs.minimum_expression"
+                ),
+                "$step.derive_path_minimum.temp.attainment_point": (
+                    "$question.ii.points.G"
+                ),
             },
-            goal_type="reduce_two_moving_point_path",
-            target_path="$question.ii.outputs.path_transformation",
+            goal_type="derive_coupled_segment_path_minimum",
+            target_path="$question.ii.outputs.minimum_expression",
         )
 
-    def _derive_minimum_expression(self) -> StepPlan:
+    def _evaluate_q1_minimum(self) -> StepPlan:
         return _single_invocation_step(
-            step_id="derive_minimum_expression",
+            step_id="evaluate_q1_minimum",
             parent_scope="ii_1",
-            method_id="distance_between_points",
+            method_id="evaluate_expression_at_parameter",
             inputs={
-                "p1": "$question.ii.points.D_prime",
-                "p2": "$question.ii.points.F",
+                "expression": "$question.ii.outputs.minimum_expression",
                 "parameter": "$problem.symbols.m",
                 "parameter_value": "$subquestion.ii_1.outputs.m",
             },
             outputs={
-                "distance": "$step.derive_minimum_expression.temp.distance",
-                "evaluated_distance": "$step.derive_minimum_expression.temp.evaluated_distance",
+                "evaluated_minimum_expression": (
+                    "$step.evaluate_q1_minimum.temp.minimum_value"
+                ),
             },
             promote={
-                "$step.derive_minimum_expression.temp.distance": "$question.ii.outputs.minimum_expression",
-                "$step.derive_minimum_expression.temp.evaluated_distance": "$subquestion.ii_1.outputs.min_value",
+                "$step.evaluate_q1_minimum.temp.minimum_value": (
+                    "$subquestion.ii_1.outputs.min_value"
+                ),
             },
-            goal_type="derive_minimum_expression",
-            target_path="$question.ii.outputs.minimum_expression",
+            goal_type="evaluate_path_minimum",
+            target_path="$subquestion.ii_1.outputs.min_value",
         )
 
     def _derive_q2_parameter(self) -> StepPlan:
@@ -327,22 +300,20 @@ class QuadraticPathMinimumPlannerV15:
             target_path="$subquestion.ii_2.outputs.parabola",
         )
 
-    def _derive_q2_intersection(self) -> StepPlan:
+    def _evaluate_q2_attainment_point(self) -> StepPlan:
         return _single_invocation_step(
             step_id="derive_G",
             parent_scope="ii_2",
-            method_id="line_intersection_point",
+            method_id="evaluate_point_at_parameter",
             inputs={
-                "line1_p1": "$question.ii.points.M",
-                "line1_p2": "$question.ii.points.N",
-                "line2_p1": "$question.ii.points.D_prime",
-                "line2_p2": "$question.ii.points.F",
-                "target": "$question.ii.points.G",
+                "point": "$question.ii.points.G",
                 "parameter": "$problem.symbols.m",
                 "parameter_value": "$subquestion.ii_2.outputs.m",
             },
-            outputs={"intersection": "$step.derive_G.temp.intersection"},
-            promote={"$step.derive_G.temp.intersection": "$question.ii.points.G"},
-            goal_type="derive_q2_intersection",
+            outputs={"evaluated_point": "$step.derive_G.temp.evaluated_point"},
+            promote={
+                "$step.derive_G.temp.evaluated_point": "$question.ii.points.G"
+            },
+            goal_type="evaluate_q2_attainment_point",
             target_path="$question.ii.points.G",
         )

@@ -8,11 +8,12 @@ from __future__ import annotations
 
 from shuxueshuo_server.solver.contracts import (
     MethodExplanationSpec,
+    MethodOutputActivationSpec,
     ScalarResultFormSpec,
 )
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, declare_input_views
 
 
 class DistanceBetweenPointsMethod:
@@ -27,8 +28,9 @@ class DistanceBetweenPointsMethod:
         outputs = {"distance": TypedValue("MinimumExpression", distance, source=self.method_id)}
         checks = [_check("distance_is_nonzero", distance != 0, "距离表达式非零")]
         conclusion = f"最小值表达式为 {kernel.sstr(distance)}"
-        if "parameter" in inputs and "parameter_value" in inputs:
-            value = sp.simplify(distance.subs(inputs["parameter"], inputs["parameter_value"]))
+        substitution = _optional_parameter_substitution(inputs, distance)
+        if substitution:
+            value = sp.simplify(distance.subs(substitution))
             outputs["evaluated_distance"] = TypedValue("MinimumExpression", value, source=self.method_id)
             checks.append(_check("evaluated_distance_positive", value > 0, "代入后的最小值为正"))
             conclusion = f"最小值表达式为 {kernel.sstr(distance)}，代入后为 {kernel.sstr(value)}"
@@ -75,10 +77,20 @@ SPEC = MethodSpecSource(
         "required": False
     }
 },
+    input_views=declare_input_views(
+        identity=("parameter",),
+        latest_state=("p1", "p2", "parameter_value"),
+    ),
     outputs={
     "distance": "MinimumExpression",
     "evaluated_distance": "MinimumExpression"
 },
+    output_activation={
+        "evaluated_distance": MethodOutputActivationSpec(
+            kind="requires_inputs",
+            required_inputs=("parameter", "parameter_value"),
+        ),
+    },
     scalar_result_forms={
         "distance": ScalarResultFormSpec(
             possible_forms=("open_expression", "closed_value"),
@@ -93,11 +105,13 @@ SPEC = MethodSpecSource(
                 "代入指定参数后若仍含其他未确定参数则为 open_expression；不存在自由参数时为 "
                 "closed_value。"
             ),
+            applied_substitutions=(("parameter", "parameter_value"),),
         ),
     },
     preconditions=(),
     postconditions=(),
     trace_template=(),
+    interchangeable_arg_groups=(("p1", "p2"),),
     explanation=MethodExplanationSpec(
         role_schema={
             "p1": "第一个点或线段端点。",

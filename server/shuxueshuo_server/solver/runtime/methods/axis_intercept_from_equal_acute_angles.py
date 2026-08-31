@@ -9,7 +9,7 @@ from __future__ import annotations
 from shuxueshuo_server.solver.contracts import MethodExplanationSpec, MethodVisualSpec
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, declare_input_views
 
 
 class AxisInterceptFromEqualAcuteAnglesMethod:
@@ -26,32 +26,63 @@ class AxisInterceptFromEqualAcuteAnglesMethod:
         target: PointRef = inputs["target"]
 
         if sp.simplify(x_axis_point[1] - origin[1]) != 0:
-            raise ValueError("x_axis_point must lie on the horizontal axis through origin")
+            raise method_precondition_failed(
+                "x-axis point is not horizontal with the origin",
+                arg_name="x_axis_point",
+                role="x_axis_point",
+                expected={"y": origin[1]},
+                observed={"y": x_axis_point[1]},
+            )
         if sp.simplify(y_axis_point[0] - origin[0]) != 0:
-            raise ValueError("y_axis_point must lie on the vertical axis through origin")
+            raise method_precondition_failed(
+                "y-axis point is not vertical with the origin",
+                arg_name="y_axis_point",
+                role="y_axis_point",
+                expected={"x": origin[0]},
+                observed={"x": y_axis_point[0]},
+            )
         if sp.simplify(reference_x_axis_point[1] - origin[1]) != 0:
-            raise ValueError("reference_x_axis_point must lie on the horizontal axis through origin")
+            raise method_precondition_failed(
+                "reference point is not horizontal with the origin",
+                arg_name="reference_x_axis_point",
+                role="reference_x_axis_point",
+                expected={"y": origin[1]},
+                observed={"y": reference_x_axis_point[1]},
+            )
 
         ob = kernel.distance(origin, x_axis_point)
         ao = kernel.distance(origin, reference_x_axis_point)
         co = kernel.distance(origin, y_axis_point)
         if sp.simplify(ob) == 0:
-            raise ValueError(
-                "angle_role_degenerate: x_axis_point must differ from origin"
+            raise method_precondition_failed(
+                "angle_role_degenerate: x-axis point coincides with the origin",
+                arg_name="x_axis_point",
+                role="x_axis_point",
+                expected={"distance_from_origin": "nonzero"},
+                observed={"distance_from_origin": ob},
             )
         if sp.simplify(ao) == 0:
-            raise ValueError(
-                "angle_role_degenerate: reference_x_axis_point must differ "
-                "from origin"
+            raise method_precondition_failed(
+                "angle_role_degenerate: reference x-axis point coincides with the origin",
+                arg_name="reference_x_axis_point",
+                role="reference_x_axis_point",
+                expected={"distance_from_origin": "nonzero"},
+                observed={"distance_from_origin": ao},
             )
         if sp.simplify(co) == 0:
-            raise ValueError(
-                "angle_role_degenerate: y_axis_point must differ from origin"
+            raise method_precondition_failed(
+                "angle_role_degenerate: y-axis point coincides with the origin",
+                arg_name="y_axis_point",
+                role="y_axis_point",
+                expected={"distance_from_origin": "nonzero"},
+                observed={"distance_from_origin": co},
             )
         if _same_point(x_axis_point, reference_x_axis_point):
-            raise ValueError(
-                "angle_role_degenerate: x_axis_point and "
-                "reference_x_axis_point must be distinct"
+            raise method_precondition_failed(
+                "angle_role_degenerate: x-axis point and reference point must be distinct",
+                role="reference_axis_triangle",
+                expected={"distinct_points": True},
+                observed={"x_axis_point": x_axis_point, "reference_point": reference_x_axis_point},
             )
 
         vertical_direction = sp.simplify((y_axis_point[1] - origin[1]) / co)
@@ -105,6 +136,7 @@ SPEC = MethodSpecSource(
         "消费前序 AngleEquality，通过两个非退化直角三角形的正切比相等，"
         "求目标直线与竖直轴的辅助交点。只需提供等角事实；目标水平轴点、参考"
         "水平轴点、竖直轴点和原点由代码从等角两边的点顺序恢复。"
+        "这些点可以携带符号坐标，输出也可以是待后续约束闭合的参数化 Point。"
         "本能力只计算轴截点，不证明该点在抛物线上，也不返回直线与抛物线的"
         "另一个交点；若最终目标是曲线点，还必须继续使用直线与抛物线交点能力。"
     ),
@@ -123,6 +155,16 @@ SPEC = MethodSpecSource(
         "origin": {"type": "Point", "required": True},
         "target": {"type": "PointRef", "required": True},
     },
+    input_views=declare_input_views(
+        identity=("target",),
+        latest_state=(
+            "x_axis_point",
+            "y_axis_point",
+            "reference_x_axis_point",
+            "origin",
+        ),
+        exact_result=("angle_equality",),
+    ),
     outputs={"point": "Point"},
     preconditions=(
         "angle_equality 表示目标直角三角形锐角等于参考直角三角形锐角",

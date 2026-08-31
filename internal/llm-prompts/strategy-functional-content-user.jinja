@@ -1,0 +1,61 @@
+请根据以下数据输出完整的`functional-plan-content/v2` JSON；协议规则以system message为准。
+
+## Problem Planning Context
+
+Entity和Fact的`ref`以及Goal的`target_ref`是题面输入。Fact属于它所在的嵌套scope，只在该scope及其子孙scope可见；“可用”始终指对当前step的写入scope可见，不是全局可见。例如全局Entity `D`的存在，不会把子scope中的`D∈parabola` Fact提升到根scope。
+
+{{ payload.problem_planning_context | compact_json }}
+
+## Plan Authority Frame
+
+代码将把你的内容装入这棵固定Scope/Goal树；不要在响应中复制该树。
+
+{{ payload.plan_authority_frame | compact_json }}
+
+## Strategy Principles
+
+{{ payload.strategy_principles | compact_json }}
+
+## Functional Capability Catalog
+
+{{ payload.functional_capability_catalog | compact_json }}
+
+{% if payload.few_shot_examples %}
+## FunctionalPlan Content Mechanism Example
+
+示例只用于理解step粒度与依赖，不得复制示例对象名或调用数量。
+
+{% for example in payload.few_shot_examples %}
+### 机制说明
+
+- 用途：{{ example.annotation.purpose }}
+- 适用条件：{{ example.annotation.use_when }}
+- 关键思路：{{ example.annotation.key_idea }}
+- 不适用情况：
+{% for item in example.annotation.do_not_use_when %}
+  - {{ item }}
+{% endfor %}
+
+### 内容示例
+
+{{ example | scoped_functional_few_shot_content | compact_json }}
+{% endfor %}
+{% endif %}
+
+## Full-plan Validation Feedback
+
+该数组非空时，上一份内容尚未形成可执行Plan。修复后仍输出完整content JSON，不要输出repair。
+
+{{ payload.authoring_feedback | compact_json }}
+
+{% if payload.get("previous_invalid_content") %}
+## Previous Invalid Content Candidate
+
+保留正确思路并修复全部反馈；不要输出nested Plan或patch。
+
+{{ payload.previous_invalid_content | compact_json }}
+{% endif %}
+
+## Authority-bound Output JSON Schema
+
+{{ payload.output_json_schema | compact_json }}

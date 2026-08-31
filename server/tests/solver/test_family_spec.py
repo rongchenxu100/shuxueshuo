@@ -14,7 +14,6 @@ from shuxueshuo_server.solver.family import (
     QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY,
     QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY,
     MethodBindingRuleSpec,
-    MethodInputBindingSpec,
     RecipeExecutionSpec,
     SolverFamilySpec,
     StateSlotPattern,
@@ -27,7 +26,14 @@ from shuxueshuo_server.solver.family import (
     quadratic_square_reflection_path_minimum as square_family_module,
     quadratic_weighted_path_minimum as weighted_family_module,
 )
-from shuxueshuo_server.solver.contracts import MethodSpec
+from shuxueshuo_server.solver.contracts import (
+    CanonicalSymbolDerivationSpec,
+    ConditionSourceSpec,
+    MethodInputBindingSpec,
+    MethodSpec,
+    PreviousOutputIdentityDerivationSpec,
+    PublicArgSourceSpec,
+)
 from shuxueshuo_server.solver.fixtures import load_problem_ir
 from shuxueshuo_server.solver.runtime.binding_rules import MethodBindingRuleRegistry
 from shuxueshuo_server.solver.runtime.capability_contracts import (
@@ -35,11 +41,12 @@ from shuxueshuo_server.solver.runtime.capability_contracts import (
     effective_contract_by_id,
     project_method_contract,
 )
-from shuxueshuo_server.solver.runtime.projection import problem_to_llm_payload
 from shuxueshuo_server.solver.runtime.strategy_planner import (
     StrategyPayloadBuilder,
     build_strategy_probe_inputs,
 )
+
+from _problem_planning_support import cached_scope_native_payload_args
 
 
 NANKAI_FIXTURE = "../internal/solver-fixtures/tj-2026-nankai-yimo-25.json"
@@ -129,7 +136,8 @@ def test_family_spec_contains_only_family_level_context() -> None:
     assert "quadratic_from_constraints" in spec.method_ids
     recipe_ids = {recipe.recipe_id for recipe in spec.step_recipes}
     assert "right_angle_equal_length_construct_and_select" in recipe_ids
-    assert "two_moving_points_path_reduction" in recipe_ids
+    assert "coupled_segment_endpoint_replacement_path_minimum" in recipe_ids
+    assert "two_moving_points_path_reduction" not in recipe_ids
     assert any(recipe.priority == "preferred" for recipe in spec.step_recipes)
     assert spec.method_binding_rules
 
@@ -151,11 +159,13 @@ def test_path_family_recipes_include_execution_specs() -> None:
     assert right_angle.do_not_use_when
     assert any("单个条件" in item for item in right_angle.do_not_use_when)
 
-    straightening = recipes["broken_path_straightening_and_select"]
-    assert straightening.execution is not None
-    assert straightening.execution.execution_strategy == "straightening_candidates_select"
-    assert straightening.do_not_use_when
-    assert any("原路径动点坐标" in item for item in straightening.do_not_use_when)
+    coupled = recipes["coupled_segment_endpoint_replacement_path_minimum"]
+    assert coupled.execution is not None
+    assert coupled.execution.execution_mode == "runtime_search"
+    assert coupled.execution.method_sequence == (
+        "coupled_segment_endpoint_replacement_path_minimum_kernel",
+    )
+    assert coupled.do_not_use_when
 
 
 def test_path_family_binding_rules_are_declared_in_spec() -> None:
@@ -166,13 +176,22 @@ def test_path_family_binding_rules_are_declared_in_spec() -> None:
     }
 
     assert "quadratic_axis_from_relation" in rules
-    assert "two_moving_points_path_reduction" in rules
-    axis_selectors = {
-        binding.input_name: binding.selector
+    assert "two_moving_points_path_reduction" not in rules
+    axis_bindings = {
+        binding.input_name: binding
         for binding in rules["quadratic_axis_from_relation"].input_bindings
     }
-    assert axis_selectors["target"] == "point_output_ref"
-    assert axis_selectors["coefficient_relation"] == "fact:coefficient_relation:Equation"
+    assert isinstance(axis_bindings["target"], MethodInputBindingSpec)
+    assert axis_bindings["target"].derivation == (
+        PreviousOutputIdentityDerivationSpec("axis_point")
+    )
+    relation = axis_bindings["coefficient_relation"]
+    assert isinstance(relation, MethodInputBindingSpec)
+    assert relation.source == ConditionSourceSpec(
+        arg_name="coefficient_relation"
+    )
+    assert axis_bindings["a"].derivation == CanonicalSymbolDerivationSpec("a")
+    assert axis_bindings["b"].derivation == CanonicalSymbolDerivationSpec("b")
 
 
 def test_family_registry_matches_supported_problem_only() -> None:
@@ -225,6 +244,7 @@ def test_capability_pack_expansion_deduplicates_methods_and_overrides_recipes() 
         execution=RecipeExecutionSpec(
             recipe_id="shared_recipe",
             method_sequence=("method_a",),
+            execution_mode="direct",
         ),
         do_not_use_when=("base misuse",),
     )
@@ -237,6 +257,7 @@ def test_capability_pack_expansion_deduplicates_methods_and_overrides_recipes() 
         execution=RecipeExecutionSpec(
             recipe_id="shared_recipe",
             method_sequence=("method_local",),
+            execution_mode="direct",
         ),
         do_not_use_when=("local misuse",),
     )
@@ -249,6 +270,7 @@ def test_capability_pack_expansion_deduplicates_methods_and_overrides_recipes() 
         execution=RecipeExecutionSpec(
             recipe_id="mechanism_recipe",
             method_sequence=("method_c",),
+            execution_mode="direct",
         ),
     )
     registry = CapabilityPackRegistry((
@@ -302,11 +324,21 @@ def test_capability_pack_expansion_deduplicates_methods_and_overrides_recipes() 
 def test_capability_pack_expansion_merges_binding_rules_and_family_override() -> None:
     pack_rule = MethodBindingRuleSpec(
         method_id="method_a",
-        input_bindings=(MethodInputBindingSpec("value", "pack_selector"),),
+        input_bindings=(
+            MethodInputBindingSpec(
+                input_name="value",
+                source=PublicArgSourceSpec("pack_value"),
+            ),
+        ),
     )
     family_rule = MethodBindingRuleSpec(
         method_id="method_a",
-        input_bindings=(MethodInputBindingSpec("value", "family_selector"),),
+        input_bindings=(
+            MethodInputBindingSpec(
+                input_name="value",
+                source=PublicArgSourceSpec("family_value"),
+            ),
+        ),
     )
     registry = CapabilityPackRegistry((
         CapabilityPackSpec(
@@ -341,7 +373,12 @@ def test_capability_pack_expansion_rejects_conflicting_pack_binding_rules() -> N
             method_binding_rules=(
                 MethodBindingRuleSpec(
                     method_id="method_a",
-                    input_bindings=(MethodInputBindingSpec("value", "base_selector"),),
+                    input_bindings=(
+                        MethodInputBindingSpec(
+                            input_name="value",
+                            source=PublicArgSourceSpec("base_value"),
+                        ),
+                    ),
                 ),
             ),
         ),
@@ -351,7 +388,12 @@ def test_capability_pack_expansion_rejects_conflicting_pack_binding_rules() -> N
             method_binding_rules=(
                 MethodBindingRuleSpec(
                     method_id="method_a",
-                    input_bindings=(MethodInputBindingSpec("value", "mechanism_selector"),),
+                    input_bindings=(
+                        MethodInputBindingSpec(
+                            input_name="value",
+                            source=PublicArgSourceSpec("mechanism_value"),
+                        ),
+                    ),
                 ),
             ),
         ),
@@ -373,7 +415,12 @@ def test_capability_pack_expansion_rejects_conflicting_pack_binding_rules() -> N
 def test_capability_pack_expansion_allows_identical_pack_binding_rules() -> None:
     rule = MethodBindingRuleSpec(
         method_id="method_a",
-        input_bindings=(MethodInputBindingSpec("value", "selector"),),
+        input_bindings=(
+            MethodInputBindingSpec(
+                input_name="value",
+                source=PublicArgSourceSpec("value"),
+            ),
+        ),
     )
     registry = CapabilityPackRegistry((
         CapabilityPackSpec(
@@ -494,10 +541,11 @@ def test_expanded_family_catalogs_keep_pack_and_local_capabilities() -> None:
                 "quadratic_from_constraints",
                 "quadratic_vertex_point",
                 "right_angle_equal_length_candidates",
+                "coupled_segment_endpoint_replacement_path_minimum_kernel",
             },
             {
                 "right_angle_equal_length_construct_and_select",
-                "path_minimum_by_straightened_distance",
+                "coupled_segment_endpoint_replacement_path_minimum",
             },
         ),
         QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY.family_id: (
@@ -505,11 +553,12 @@ def test_expanded_family_catalogs_keep_pack_and_local_capabilities() -> None:
             {
                 "quadratic_axis_from_relation",
                 "filter_point_candidates_by_quadratic_curve",
-                "linked_broken_path_minimum_expression",
+                "weighted_axis_path_minimum_kernel",
             },
             {
                 "right_angle_equal_length_construct_and_select",
                 "curve_candidate_parameter_solve",
+                "weighted_axis_path_minimum",
             },
         ),
         QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY.family_id: (
@@ -524,14 +573,11 @@ def test_expanded_family_catalogs_keep_pack_and_local_capabilities() -> None:
         QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY.family_id: (
             QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY,
             {
-                "two_moving_points_path_reduction",
-                "square_path_dimension_reduction",
-                "line_locus_minimum_point",
+                "quadratic_square_path_minimum_kernel",
+                "quadratic_axis_parameterized_point",
+                "square_adjacent_vertex_from_side",
             },
-            {
-                "broken_path_straightening_and_select",
-                "broken_path_straightening_minimum_expression",
-            },
+            {"quadratic_square_path_minimum"},
         ),
     }
 
@@ -547,7 +593,7 @@ def test_pack_bound_methods_enter_functional_capability_catalog() -> None:
     inputs = build_strategy_probe_inputs(problem)
     payload = StrategyPayloadBuilder().build(
         inputs,
-        problem_payload=problem_to_llm_payload(problem),
+        **cached_scope_native_payload_args(problem.problem_id),
     )
     capability_ids = {
         capability["capability_id"]
@@ -559,6 +605,8 @@ def test_pack_bound_methods_enter_functional_capability_catalog() -> None:
     assert rules.rule_for("quadratic_vertex_point") is not None
     assert "quadratic_vertex_point" in capability_ids
     assert "quadratic_from_constraints" in capability_ids
+    assert "coupled_segment_endpoint_replacement_path_minimum" in capability_ids
+    assert "two_moving_points_path_reduction" not in capability_ids
 
 
 def test_functional_catalog_only_exposes_executable_contracts_for_real_families() -> None:
@@ -572,7 +620,7 @@ def test_functional_catalog_only_exposes_executable_contracts_for_real_families(
         inputs = build_strategy_probe_inputs(problem)
         payload = StrategyPayloadBuilder().build(
             inputs,
-            problem_payload=problem_to_llm_payload(problem),
+            **cached_scope_native_payload_args(problem.problem_id),
         )
         capability_ids = {
             capability["capability_id"]
@@ -611,6 +659,35 @@ def test_single_method_recipes_have_runtime_binding_rules_for_real_families() ->
         assert not missing, (inputs.family_spec.family_id, sorted(missing))
 
 
+def test_polynomial_templates_are_hidden_from_family_compiler_bindings() -> None:
+    """Only MethodInputReadAuthority may inject coefficient identity."""
+
+    for fixture in (
+        NANKAI_FIXTURE,
+        HEXI_FIXTURE,
+        HEPING_FIXTURE,
+        HEPING_ERMO_FIXTURE,
+    ):
+        inputs = build_strategy_probe_inputs(load_problem_ir(fixture))
+        for rule in inputs.family_spec.method_binding_rules:
+            method = inputs.method_specs.require(rule.method_id)
+            closure = method.symbolic_closure
+            if (
+                closure is None
+                or closure.representation_mapper
+                != "polynomial_coefficient_template"
+            ):
+                continue
+            bindings = {item.input_name for item in rule.input_bindings}
+            assert "quadratic_template" not in bindings, (
+                inputs.family_spec.family_id,
+                rule.method_id,
+            )
+            template = method.inputs["quadratic_template"]
+            assert template.required is False
+            assert template.functional_exposed is False
+
+
 def test_functional_catalog_hides_catalog_only_contracts() -> None:
     problem = load_problem_ir(NANKAI_FIXTURE)
     inputs = build_strategy_probe_inputs(problem)
@@ -628,7 +705,7 @@ def test_functional_catalog_hides_catalog_only_contracts() -> None:
     )
     payload = StrategyPayloadBuilder().build(
         replace(inputs, family_spec=family),
-        problem_payload=problem_to_llm_payload(problem),
+        **cached_scope_native_payload_args(problem.problem_id),
     )
     capability_ids = {
         capability["capability_id"]

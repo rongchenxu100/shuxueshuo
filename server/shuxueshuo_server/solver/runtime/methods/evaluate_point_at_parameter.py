@@ -8,11 +8,10 @@ from __future__ import annotations
 from shuxueshuo_server.solver.contracts import (
     MethodExplanationSpec,
     MethodVisualSpec,
-    TrialErrorHintSpec,
 )
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, declare_input_views
 
 
 class EvaluatePointAtParameterMethod:
@@ -22,9 +21,30 @@ class EvaluatePointAtParameterMethod:
 
     def run(self, inputs: dict[str, Any], kernel: SympyKernel) -> StatelessMethodResult:
         point: Point = inputs["point"]
-        parameter = inputs["parameter"]
         parameter_value = sp.sympify(inputs["parameter_value"])
-        evaluated = _subs_point(point, {parameter: parameter_value})
+        # Re-applying a solved parameter to an already closed state is an
+        # idempotent runtime operation.  The transaction layer still compares
+        # the actual output with the prior StateVersion before suppressing a
+        # duplicate writer.
+        free_symbols = _free_symbols_in(point)
+        parameter = inputs.get("parameter")
+        if free_symbols:
+            if parameter is None:
+                raise method_input_missing(
+                    "point evaluation requires the Symbol whose value is being substituted",
+                    arg_name="parameter",
+                    role="substitution_parameter",
+                    expected={"type": "Symbol", "state": "visible_dependency"},
+                    observed={
+                        "free_symbols": sorted(symbol.name for symbol in free_symbols),
+                        "provided_args": sorted(inputs),
+                    },
+                    repair_action="provide_substitution_parameter",
+                )
+            _require_substitution_symbol(point, parameter)
+            evaluated = _subs_point(point, {parameter: parameter_value})
+        else:
+            evaluated = point
         return StatelessMethodResult(
             method_id=self.method_id,
             outputs={
@@ -47,7 +67,11 @@ class EvaluatePointAtParameterMethod:
                     "代入参数求点坐标",
                     "求点在参数取值下的坐标",
                     "前序步骤已经确定参数值，因此直接代入点坐标并化简。",
-                    f"{parameter.name}={kernel.sstr(parameter_value)}",
+                    (
+                        f"{parameter.name}={kernel.sstr(parameter_value)}"
+                        if parameter is not None
+                        else "坐标已由当前参数状态闭合"
+                    ),
                     f"({_fmt_point(evaluated, kernel)})",
                 )
             ],
@@ -63,13 +87,19 @@ SPEC = MethodSpecSource(
     ),
     do_not_use_when=(
         "目标是构造另一个几何点；本能力只把参数值代入同一 Point 的已有坐标状态，不改变对象身份。",
+        "ParameterValue 对应的 Symbol 不是该 Point 坐标中的未定参数；例如曲线系数 c 不能代替轴上动点自己的位置参数。",
+        "最终答案点需要先由路径极值点经过正方形、旋转、中点或其它几何关系恢复；应先求极值状态，再做几何状态转移。",
     ),
     solves=("evaluate_point_at_parameter",),
     inputs={
         "point": {"type": "Point", "required": True},
-        "parameter": {"type": "Symbol", "required": True},
+        "parameter": {"type": "Symbol", "required": False},
         "parameter_value": {"type": "ParameterValue", "required": True},
     },
+    input_views=declare_input_views(
+        identity=("parameter",),
+        latest_state=("point", "parameter_value"),
+    ),
     outputs={"evaluated_point": "Point"},
     plan_transformer="substitute_read_point_parameters",
     reconciliation_validators=("companion_symbol_coverage",),
@@ -114,19 +144,12 @@ SPEC = MethodSpecSource(
             "message": "最终答案点不能由当前参数代入直接得到；缺少从极值状态动点恢复目标点的几何状态转移。",
             "next_actions": (
                 "先产生极值状态 moving point，再读取题设几何条件把该状态转移到最终目标点。",
+                "核对 ParameterValue 的 Symbol 身份；它必须与输入 Point 坐标中本次要消去的自由符号相同。",
                 "从当前 catalog 中选择返回角色、对象身份和 scope 均满足这些缺失状态的能力。",
             ),
             "do_not": (
                 "不要用 `evaluate_point_at_parameter` 直接 produces 最终 Point answer。",
             ),
         },
-    ),
-    trial_error_hints=(
-        TrialErrorHintSpec(
-            error_contains="missing required input: parameter",
-            code="final_point_requires_square_recovery",
-            requires_point_answer=True,
-            requires_planner_output_types=("PathTransformation",),
-        ),
     ),
 )

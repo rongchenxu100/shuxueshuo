@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from shuxueshuo_server.solver.contracts import (
+    MethodCompanionOutputSpec,
     MethodExplanationSpec,
     MethodVisualSpec,
     ScalarResultFormSpec,
@@ -13,7 +14,7 @@ from shuxueshuo_server.solver.contracts import (
 from shuxueshuo_server.solver.math_ops import vertex_of_quadratic
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, canonical_symbol_input, declare_input_views
 
 
 class QuadraticAxisParameterizedPointMethod:
@@ -72,11 +73,24 @@ SPEC = MethodSpecSource(
     ),
     solves=("parameterize_point_on_quadratic_axis",),
     inputs={
-        "parabola": {"type": "Parabola", "required": True},
-        "x": {"type": "Symbol", "required": True},
-        "target": {"type": "PointRef", "required": True},
+        "parabola": {
+            "type": "Parabola",
+            "required": True,
+            "symbolic_basis_role": "state_anchor",
+        },
+        "x": canonical_symbol_input("x"),
+        "target": {
+            "type": "PointRef",
+            "required": True,
+            "symbolic_basis_role": "align_to_anchor",
+        },
     },
+    input_views=declare_input_views(
+        identity=("x", "target"),
+        latest_state=("parabola",),
+    ),
     outputs={"point": "Point", "parameter": "Symbol"},
+    companion_outputs=(MethodCompanionOutputSpec("parameter"),),
     scalar_result_forms={
         "point": ScalarResultFormSpec(
             possible_forms=("open_state", "closed_state"),

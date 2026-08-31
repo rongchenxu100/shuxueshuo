@@ -11,11 +11,18 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any, cast
+from typing import Any, Literal, Mapping, cast
 
 from shuxueshuo_server.solver.contracts import (
     MethodExplanationSpec,
+    MethodInputRelationSpec,
     MethodInputSpec,
+    MethodInputBindingSpec,
+    MethodInputViewSpec,
+    MethodCompanionOutputSpec,
+    validate_method_input_binding_view,
+    MethodOutputActivationKind,
+    MethodOutputActivationSpec,
     MethodSpec,
     MethodVisualSpec,
     PlanTransformerScope,
@@ -26,6 +33,9 @@ from shuxueshuo_server.solver.contracts import (
 from shuxueshuo_server.solver.runtime.runtime_type_declarations import (
     runtime_type_union_is_well_formed,
     split_runtime_types,
+)
+from shuxueshuo_server.solver.runtime.method_input_contracts import (
+    validate_interchangeable_input_groups,
 )
 
 
@@ -83,6 +93,54 @@ class MethodSpecRegistry:
         ]
 
 
+MethodOutputActivity = Literal["active", "inactive", "runtime_conditional"]
+
+
+def method_output_activity(
+    spec: MethodSpec,
+    output_name: str,
+    *,
+    provided_input_names: frozenset[str],
+    input_runtime_types: Mapping[str, str] | None = None,
+) -> MethodOutputActivity:
+    """Classify one output using the code-owned MethodSpec contract."""
+    if output_name not in spec.outputs:
+        raise ValueError(f"unknown Method output: {spec.method_id}.{output_name}")
+    activation = spec.output_activation.get(output_name)
+    if activation is None:
+        return "active"
+    if activation.kind == "requires_inputs":
+        return (
+            "active"
+            if set(activation.required_inputs).issubset(provided_input_names)
+            else "inactive"
+        )
+    if activation.kind == "input_type":
+        actual_type = (input_runtime_types or {}).get(activation.input_name or "")
+        return "active" if actual_type in activation.input_types else "inactive"
+    return "runtime_conditional"
+
+
+def active_method_output_names(
+    spec: MethodSpec,
+    *,
+    provided_input_names: frozenset[str],
+    input_runtime_types: Mapping[str, str] | None = None,
+) -> tuple[str, ...]:
+    """Return statically active and runtime-conditional outputs in spec order."""
+    return tuple(
+        name
+        for name in spec.outputs
+        if method_output_activity(
+            spec,
+            name,
+            provided_input_names=provided_input_names,
+            input_runtime_types=input_runtime_types,
+        )
+        != "inactive"
+    )
+
+
 def load_method_spec(path: str | Path) -> MethodSpec:
     """加载单个 JSON 文件并解析成 MethodSpec。"""
     raw = json.loads(Path(path).read_text(encoding="utf-8"))
@@ -102,7 +160,18 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
     if not isinstance(raw["solves"], list) or not raw["solves"]:
         raise ValueError("MethodSpec.solves must be a non-empty list")
     inputs = _parse_inputs(raw["inputs"])
+    input_relations = _parse_input_relations(
+        raw.get("input_relations", ()),
+        input_names=frozenset(inputs),
+    )
     outputs = _parse_outputs(raw["outputs"])
+    companion_outputs = _parse_companion_outputs(
+        raw.get("companion_outputs", ()),
+        output_names=frozenset(outputs),
+        activated_output_names=frozenset(
+            str(name) for name in dict(raw.get("output_activation", {}))
+        ),
+    )
     internal_outputs = _parse_identifier_list(
         raw.get("internal_outputs", ()),
         field_name="MethodSpec.internal_outputs",
@@ -119,6 +188,11 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
         raw.get("scalar_result_forms", {}),
         output_names=set(outputs),
     )
+    output_activation = _parse_output_activation(
+        raw.get("output_activation", {}),
+        inputs=inputs,
+        output_names=frozenset(outputs),
+    )
     is_pure = raw.get("is_pure", False)
     if not isinstance(is_pure, bool):
         raise ValueError("MethodSpec.is_pure must be a boolean")
@@ -131,7 +205,10 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
         solves=tuple(str(item) for item in raw["solves"]),
         inputs=inputs,
         outputs=outputs,
+        companion_outputs=companion_outputs,
+        input_relations=input_relations,
         internal_outputs=internal_outputs,
+        output_activation=output_activation,
         scalar_result_forms=scalar_result_forms,
         summary=str(raw.get("summary", "")),
         do_not_use_when=_parse_do_not_use_when(raw.get("do_not_use_when", ())),
@@ -171,6 +248,10 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
             raw.get("distinct_arg_groups", ()),
             input_names=frozenset(inputs),
         ),
+        interchangeable_arg_groups=_parse_interchangeable_arg_groups(
+            raw.get("interchangeable_arg_groups", ()),
+            inputs=inputs,
+        ),
         symbolic_closure=_parse_symbolic_closure(
             raw.get("symbolic_closure"),
             input_names=frozenset(inputs),
@@ -178,6 +259,215 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
         ),
         is_pure=is_pure,
     )
+
+
+def _parse_companion_outputs(
+    raw: object,
+    *,
+    output_names: frozenset[str],
+    activated_output_names: frozenset[str],
+) -> tuple[MethodCompanionOutputSpec, ...]:
+    if raw in (None, (), []):
+        return ()
+    if not isinstance(raw, list | tuple):
+        raise ValueError("MethodSpec.companion_outputs must be a list")
+    result: list[MethodCompanionOutputSpec] = []
+    for item in raw:
+        if not isinstance(item, dict):
+            raise ValueError(
+                "planner.method_output_binding_contract_invalid: companion "
+                "output declaration must be an object"
+            )
+        allowed = {"output_name", "emission", "authority"}
+        unknown_fields = sorted(set(item) - allowed)
+        if unknown_fields:
+            raise ValueError(
+                "planner.method_output_binding_contract_invalid: companion "
+                "output contains unsupported fields: "
+                + ", ".join(unknown_fields)
+            )
+        result.append(
+            MethodCompanionOutputSpec(
+                output_name=str(item.get("output_name", "")),
+                emission=str(item.get("emission", "always")),  # type: ignore[arg-type]
+                authority=str(  # type: ignore[arg-type]
+                    item.get("authority", "return_allocation")
+                ),
+            )
+        )
+    names = tuple(item.output_name for item in result)
+    if len(names) != len(set(names)):
+        raise ValueError(
+            "planner.method_output_binding_contract_invalid: duplicate "
+            "companion output"
+        )
+    unknown_outputs = sorted(set(names) - output_names)
+    if unknown_outputs:
+        raise ValueError(
+            "planner.method_output_binding_contract_invalid: companion "
+            "outputs reference unknown Method outputs: "
+            + ", ".join(unknown_outputs)
+        )
+    conditional = sorted(set(names) & activated_output_names)
+    if conditional:
+        raise ValueError(
+            "planner.method_output_binding_contract_invalid: always-emitted "
+            "companion outputs cannot be conditionally activated: "
+            + ", ".join(conditional)
+        )
+    return tuple(result)
+
+
+def _parse_input_relations(
+    raw: object,
+    *,
+    input_names: frozenset[str],
+) -> tuple[MethodInputRelationSpec, ...]:
+    if raw in (None, ()):
+        return ()
+    if not isinstance(raw, list):
+        raise ValueError("MethodSpec.input_relations must be an array")
+    result: list[MethodInputRelationSpec] = []
+    seen: set[tuple[str, str, str]] = set()
+    for index, item in enumerate(raw):
+        if not isinstance(item, dict):
+            raise ValueError(
+                f"MethodSpec.input_relations[{index}] must be an object"
+            )
+        relation_kind = str(item.get("relation_kind", ""))
+        point_arg = str(item.get("point_arg", ""))
+        curve_arg = str(item.get("curve_arg", ""))
+        cardinality = str(item.get("cardinality", ""))
+        accepted_raw = item.get("accepted_condition_kinds")
+        if relation_kind != "point_on_curve":
+            raise ValueError(
+                "MethodSpec.input_relations has unsupported relation_kind: "
+                f"{relation_kind or '<missing>'}"
+            )
+        if cardinality not in {"one", "for_each"}:
+            raise ValueError(
+                "MethodSpec.input_relations cardinality must be one or for_each"
+            )
+        if point_arg not in input_names or curve_arg not in input_names:
+            raise ValueError(
+                "MethodSpec.input_relations references unknown input: "
+                f"point_arg={point_arg!r}, curve_arg={curve_arg!r}"
+            )
+        if not isinstance(accepted_raw, list) or not accepted_raw:
+            raise ValueError(
+                "MethodSpec.input_relations accepted_condition_kinds must "
+                "be a non-empty array"
+            )
+        accepted = tuple(str(value) for value in accepted_raw)
+        if len(set(accepted)) != len(accepted) or not set(accepted) <= {
+            "point_on_curve",
+            "point_on_curve_with_x_coordinate",
+        }:
+            raise ValueError(
+                "MethodSpec.input_relations contains duplicate or unsupported "
+                "accepted_condition_kinds"
+            )
+        key = (relation_kind, point_arg, curve_arg)
+        if key in seen:
+            raise ValueError(
+                f"duplicate MethodSpec.input_relations declaration: {key}"
+            )
+        seen.add(key)
+        result.append(
+            MethodInputRelationSpec(
+                relation_kind=relation_kind,
+                point_arg=point_arg,
+                curve_arg=curve_arg,
+                cardinality=cardinality,  # type: ignore[arg-type]
+                accepted_condition_kinds=accepted,
+            )
+        )
+    return tuple(result)
+
+
+def _parse_output_activation(
+    raw: object,
+    *,
+    inputs: dict[str, MethodInputSpec],
+    output_names: frozenset[str],
+) -> dict[str, MethodOutputActivationSpec]:
+    if raw in (None, {}):
+        return {}
+    if not isinstance(raw, dict):
+        raise ValueError("MethodSpec.output_activation must be an object")
+    input_names = frozenset(inputs)
+    result: dict[str, MethodOutputActivationSpec] = {}
+    for output_name, item in raw.items():
+        name = str(output_name)
+        if name not in output_names:
+            raise ValueError(
+                "MethodSpec.output_activation references unknown output: " + name
+            )
+        if not isinstance(item, dict):
+            raise ValueError(
+                f"MethodSpec.output_activation.{name} must be an object"
+            )
+        kind = str(item.get("kind", ""))
+        if kind not in {"requires_inputs", "input_type", "runtime_condition"}:
+            raise ValueError(
+                f"MethodSpec.output_activation.{name}.kind is invalid"
+            )
+        required_inputs = tuple(
+            str(value) for value in item.get("required_inputs", ())
+        )
+        input_name = (
+            str(item["input_name"])
+            if item.get("input_name") is not None
+            else None
+        )
+        input_types = tuple(str(value) for value in item.get("input_types", ()))
+        runtime_condition = (
+            str(item["runtime_condition"])
+            if item.get("runtime_condition") is not None
+            else None
+        )
+        if kind == "requires_inputs":
+            if not required_inputs or any(
+                value not in input_names for value in required_inputs
+            ):
+                raise ValueError(
+                    f"MethodSpec.output_activation.{name} requires known inputs"
+                )
+            if input_name is not None or input_types or runtime_condition is not None:
+                raise ValueError(
+                    f"MethodSpec.output_activation.{name} mixes activation forms"
+                )
+        elif kind == "input_type":
+            if input_name not in input_names or not input_types:
+                raise ValueError(
+                    f"MethodSpec.output_activation.{name} requires input_name/input_types"
+                )
+            if required_inputs or runtime_condition is not None:
+                raise ValueError(
+                    f"MethodSpec.output_activation.{name} mixes activation forms"
+                )
+            declared_types = set(split_runtime_types(inputs[input_name].type))
+            if not set(input_types).issubset(declared_types):
+                raise ValueError(
+                    f"MethodSpec.output_activation.{name} references undeclared input types"
+                )
+        else:
+            if not runtime_condition:
+                raise ValueError(
+                    f"MethodSpec.output_activation.{name} requires runtime_condition"
+                )
+            if required_inputs or input_name is not None or input_types:
+                raise ValueError(
+                    f"MethodSpec.output_activation.{name} mixes activation forms"
+                )
+        result[name] = MethodOutputActivationSpec(
+            kind=cast(MethodOutputActivationKind, kind),
+            required_inputs=required_inputs,
+            input_name=input_name,
+            input_types=input_types,
+            runtime_condition=runtime_condition,
+        )
+    return result
 
 
 def _parse_plan_transformer_scope(raw: object) -> PlanTransformerScope:
@@ -234,6 +524,55 @@ def _parse_distinct_arg_groups(
             raise ValueError(
                 "MethodSpec.distinct_arg_groups references unknown inputs: "
                 + ", ".join(unknown)
+            )
+        if group not in groups:
+            groups.append(group)
+    return tuple(groups)
+
+
+def _parse_interchangeable_arg_groups(
+    raw: object,
+    *,
+    inputs: Mapping[str, MethodInputSpec],
+) -> tuple[tuple[str, ...], ...]:
+    """Parse input slots whose mathematical meaning is permutation invariant."""
+
+    groups = _parse_arg_groups(
+        raw,
+        field_name="MethodSpec.interchangeable_arg_groups",
+        input_names=frozenset(inputs),
+    )
+    validate_interchangeable_input_groups(
+        groups,
+        inputs=inputs,
+        field_name="MethodSpec.interchangeable_arg_groups",
+    )
+    return groups
+
+
+def _parse_arg_groups(
+    raw: object,
+    *,
+    field_name: str,
+    input_names: frozenset[str],
+) -> tuple[tuple[str, ...], ...]:
+    if raw in (None, ()):
+        return ()
+    if not isinstance(raw, list | tuple):
+        raise ValueError(f"{field_name} must be a list")
+    groups: list[tuple[str, ...]] = []
+    for item in raw:
+        if not isinstance(item, list | tuple):
+            raise ValueError(f"{field_name} items must be lists")
+        group = tuple(str(name).strip() for name in item)
+        if len(group) < 2 or any(not name for name in group):
+            raise ValueError(f"{field_name} items require at least two names")
+        if len(set(group)) != len(group):
+            raise ValueError(f"{field_name} cannot repeat an argument")
+        unknown = tuple(name for name in group if name not in input_names)
+        if unknown:
+            raise ValueError(
+                f"{field_name} references unknown inputs: " + ", ".join(unknown)
             )
         if group not in groups:
             groups.append(group)
@@ -378,35 +717,101 @@ def _parse_symbolic_closure(
 def _parse_inputs(raw_inputs: object) -> dict[str, MethodInputSpec]:
     """解析 MethodSpec.inputs。
 
-    输入支持两种写法：简单字符串类型，或带 role/required 的对象。首版 JSON 使用
-    对象写法，让 planner 能根据 role 理解 anchor/reference/target 的语义。
+    新契约只接受展开后的对象写法；旧 ``type`` 和缺失view均直接拒绝。
     """
     if not isinstance(raw_inputs, dict) or not raw_inputs:
         raise ValueError("MethodSpec.inputs must be a non-empty object")
     inputs: dict[str, MethodInputSpec] = {}
     for name, raw in raw_inputs.items():
-        if isinstance(raw, str):
-            input_type = raw
-            role = ""
-            required = True
-            functional_exposed = True
-        elif isinstance(raw, dict):
-            input_type = str(raw.get("type", ""))
+        if isinstance(raw, dict):
+            if "type" in raw:
+                raise ValueError(f"legacy Method input type field is unsupported: {name}")
+            input_type = str(raw.get("runtime_type", ""))
+            domain_type = str(raw.get("domain_type", ""))
+            view = _parse_input_view(name, raw.get("view"), domain_type=domain_type)
             role = str(raw.get("role", ""))
             required = bool(raw.get("required", True))
             functional_exposed = bool(raw.get("functional_exposed", True))
+            allows_anonymous_result = bool(
+                raw.get("allows_anonymous_result", False)
+            )
+            allows_empty_collection = bool(
+                raw.get("allows_empty_collection", False)
+            )
+            symbolic_basis_role = raw.get("symbolic_basis_role")
+            if symbolic_basis_role not in {
+                None,
+                "state_anchor",
+                "align_to_anchor",
+            }:
+                raise ValueError(
+                    f"invalid symbolic_basis_role for {name}: "
+                    f"{symbolic_basis_role}"
+                )
+            binding_payload = raw.get("binding")
+            binding = (
+                MethodInputBindingSpec.from_payload(binding_payload)
+                if isinstance(binding_payload, dict)
+                else None
+            )
+            if binding is not None:
+                if binding.input_name != str(name):
+                    raise ValueError(
+                        "Method input binding name mismatch: "
+                        f"{binding.input_name} != {name}"
+                    )
         else:
             raise ValueError(f"invalid input spec for {name}")
         if not _input_type_is_known(input_type):
             raise ValueError(f"unknown input type for {name}: {input_type}")
-        inputs[str(name)] = MethodInputSpec(
+        input_spec = MethodInputSpec(
             name=str(name),
-            type=input_type,
+            domain_type=domain_type,
+            runtime_type=input_type,
+            view=view,
             role=role,
             required=required,
             functional_exposed=functional_exposed,
+            allows_anonymous_result=allows_anonymous_result,
+            allows_empty_collection=allows_empty_collection,
+            symbolic_basis_role=symbolic_basis_role,
+            binding=binding,
         )
+        if binding is not None:
+            validate_method_input_binding_view(binding, input_spec)
+        inputs[str(name)] = input_spec
     return inputs
+
+
+def _parse_input_view(
+    name: object,
+    raw: object,
+    *,
+    domain_type: str,
+) -> MethodInputViewSpec:
+    if not domain_type:
+        raise ValueError(f"Method input domain_type is required: {name}")
+    if not isinstance(raw, dict):
+        raise ValueError(f"Method input view is required: {name}")
+    mode = str(raw.get("mode", ""))
+    if mode not in {"identity", "latest_state", "immutable_value", "exact_result"}:
+        raise ValueError(f"invalid Method input view mode for {name}: {mode}")
+    view_domain_type = str(raw.get("domain_type", ""))
+    if view_domain_type != domain_type:
+        raise ValueError(
+            f"Method input view domain_type mismatch for {name}: "
+            f"{view_domain_type} != {domain_type}"
+        )
+    object_kind = raw.get("object_kind")
+    state_kind = raw.get("state_kind")
+    if mode == "latest_state" and not state_kind:
+        raise ValueError(f"latest_state input requires state_kind: {name}")
+    return MethodInputViewSpec(
+        mode=mode,  # type: ignore[arg-type]
+        domain_type=domain_type,
+        object_kind=str(object_kind) if object_kind is not None else None,
+        state_kind=str(state_kind) if state_kind is not None else None,
+    )
 
 
 def _parse_outputs(raw_outputs: object) -> dict[str, str]:
@@ -491,6 +896,26 @@ def _parse_scalar_result_forms(
                 f"unknown outputs for {name}: "
                 + ", ".join(unknown_symbol_outputs)
             )
+        applied_substitutions_raw = raw.get("applied_substitutions", ())
+        if not isinstance(applied_substitutions_raw, (list, tuple)):
+            raise ValueError(
+                "scalar result form applied_substitutions must be a list "
+                f"for {name}"
+            )
+        applied_substitutions: list[tuple[str, str]] = []
+        for item in applied_substitutions_raw:
+            if (
+                not isinstance(item, (list, tuple))
+                or len(item) != 2
+                or not all(isinstance(value, str) and value for value in item)
+            ):
+                raise ValueError(
+                    "scalar result form applied_substitutions entries must "
+                    f"be [symbol_input, value_input] pairs for {name}"
+                )
+            pair = (item[0], item[1])
+            if pair not in applied_substitutions:
+                applied_substitutions.append(pair)
         max_independent_free_parameters = raw.get(
             "max_independent_free_parameters"
         )
@@ -525,6 +950,7 @@ def _parse_scalar_result_forms(
                     if str(item)
                 )
             ),
+            applied_substitutions=tuple(applied_substitutions),
         )
     return result
 
@@ -706,7 +1132,7 @@ _KNOWN_TYPES = {
     "OrientationHint",
     "Parabola",
     "ParameterValue",
-    "PathTransformation",
+    "PathWitness",
     "Point",
     "PointList",
     "PointRef",
@@ -714,8 +1140,6 @@ _KNOWN_TYPES = {
     "Segment",
     "Symbol",
     "SymbolList",
-    "StraighteningCandidate",
-    "StraighteningCandidateList",
 }
 
 

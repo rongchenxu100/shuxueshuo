@@ -99,22 +99,8 @@ def output_type_inference_from_text(
         return OutputTypeInference("MinimumExpression", "semantic_name")
     if any(value in name for value in ("distance", "expr", "expression")):
         return OutputTypeInference("Expression", "semantic_name")
-    if any(value in name for value in ("straightened", "straightening", "choice")):
-        return OutputTypeInference("StraighteningCandidate", "semantic_name")
-    if any(value in name for value in ("path", "equivalence", "reduction")):
-        return OutputTypeInference("PathTransformation", "semantic_name")
     if any(value in text for value in ("parabola", "抛物线", "解析式")):
         return OutputTypeInference("Parabola", "description")
-    if any(
-        value in text
-        for value in ("straightened", "straightening", "choice", "拉直", "方案")
-    ):
-        return OutputTypeInference("StraighteningCandidate", "description")
-    if any(
-        value in text
-        for value in ("path", "equivalence", "reduction", "路径", "等价", "降维")
-    ):
-        return OutputTypeInference("PathTransformation", "description")
     if any(
         value in text
         for value in ("locus", "ray", "line", "轨迹", "射线", "直线")
@@ -206,16 +192,6 @@ def semantic_name_output_type_candidates(
         for value in ("minimum", "min_value", "path_minimum", "最小值")
     ):
         candidates.append("MinimumExpression")
-    if any(
-        value in text
-        for value in ("straightened", "straightening", "choice", "拉直", "方案")
-    ):
-        candidates.append("StraighteningCandidate")
-    if any(
-        value in text
-        for value in ("path", "equivalence", "reduction", "路径", "等价", "降维")
-    ):
-        candidates.append("PathTransformation")
     if any(
         value in text
         for value in ("distance", "expr", "expression", "距离", "表达式")

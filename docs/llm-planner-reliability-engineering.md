@@ -91,7 +91,7 @@ LLM 只选择能力和公开语义参数。身份、版本、scope、binding、c
 
 ### 生成式测试
 
-C0.5 oracle 系统覆盖：
+C0–C5 oracle覆盖：
 
 - scope topology；
 - create/reuse/transition；
@@ -100,6 +100,24 @@ C0.5 oracle 系统覆盖：
 - alias、placement 和 destination；
 - committed/provisional retry；
 - role/binding 与 closure checkpoint。
+
+Scope-native authority gate 与 Scope Retry gate 使用独立 reference model 和 production
+adapter。Production adapter 真实经过 Bundle、PlanningContext、F5-C binding、content/v2、
+Goal execution checkpoint、Annotated Plan、Scope-only authority、完整 replacement、restore
+与 transaction。门禁覆盖唯一前序 producer、显式 CallResult、多个 producer 歧义、
+sibling 拒绝、Scope 一成一败、ancestor producer、开放 Scope restore leak、no-progress 和
+provisional write 零提交。Reference model 不导入生产 placement、binding、retry 或
+closure helper。
+
+F5-F1.1进一步把LLM可见Function facade与Method runtime contract分离：prompt只出现稳定语义名，例如`parabola`和`adjacent_vertex`，compiler再映射到`quadratic`和`point`。确定性修复只能处理显式alias，或唯一未知输入与唯一缺失required参数之间可证明的一对一类型映射；optional参数、多个同类型参数和多对象候选不得参与猜测。输出对象也只能由显式target、Goal answer，或capability声明的source-fact selector唯一确定；selector必须同时通过scope可见性、F5-C对象authority和runtime type检查，零候选或多候选不得按名称兜底。pure scope step的提升同样必须由consumer Goal依赖、LCA可见性、对象authority和exact state共同证明。authority诊断应聚合相互独立的参数、输出身份、scope与DAG root issues，但任何issue存在时都不能产生部分lowered authority。
+
+Source-fact selector同时区分内部Domain fact kind与Planner Problem View公开kind。例如参数化对称轴点内部匹配`point_on_axis`，Prompt只展示实际可引用的`axis_membership`；两者由Function facade显式映射，避免让模型学习内部命名。真实批次若provider在请求超时窗口后仍悬挂且没有sample artifact，必须终止并记录为transport failure，不能把其余样本汇总成完整验收，也不能静默补跑后覆盖原批次。
+
+C5 symbolic closure门禁仍然有效，它验证的是参数闭合、分支数、残余自由元和 checkpoint
+语义，不依赖 LLM 是否输出 scope。F5-F4.3 已补齐原子 Macro 的 Goal/source provenance、
+内部 `PathTransformation` 零 wire 投影，以及 method 产生结果但 closure 失败时的真实残余
+自由元诊断；独立 Goal 的 closure checkpoint 仍可恢复。原有 unique/ambiguous/
+inconsistent/underdetermined 场景继续保留，不能用新 Macro 替换或删减。
 
 生成式门禁必须覆盖真实维度，不能只统计场景数量。比较器必须 fail closed，缺字段、缺 owner、多余边和错误 issue 都应失败。
 
@@ -121,6 +139,13 @@ C0.5 oracle 系统覆盖：
 - retry feedback 是否有效；
 - token 与延迟成本。
 
+`scoped_functional_plan_smoke`是严格生产authority smoke：每个样本都从accepted Bundle
+构建`ProblemPlanningBindingCatalog`，并把同一catalog传给payload builder与Scope Retry
+execution。直接调用底层reconciler且省略catalog的测试属于deterministic/debug软模式，
+允许typed source暂缺，不能用于宣称F5-C、exact StateVersion或restore authority通过。
+smoke报告中的`reconciliation_ok`也不单独代表可执行；最终仍必须通过compile后的
+binding consumption、transaction、Goal与completion gate。
+
 标准批次至少报告：
 
 - 每题 raw pass 与 executable-plan pass；
@@ -140,15 +165,24 @@ C0.5 oracle 系统覆盖：
 → 再跑 smoke
 ```
 
+逐个sample的证据读取顺序、输出超长诊断、semantic/provider attempt区分、逐轮
+Plan执行图和retry authority图统一遵循
+`docs/llm-sample-failure-review-guide.md`。真实失败审查不得只引用最终error；每个
+semantic attempt都必须按scope/Goal画出Plan依赖，标注实际runtime结果或明确说明
+未执行。
+
 ## 8. Retry 设计
 
-- committed goal closure 使用 B4 checkpoint hard-lock；
-- provisional runtime result 可进入精简反馈，但不冻结；
-- blocked dependents 不生成次生 root issue；
-- repair cone 沿 typed version dependencies 计算；
-- runtime actual value/form/free symbols 优先于静态预测；
-- closure feedback说明 target、status、branch count、剩余自由元和来源；
-- prompt 不暴露 typed ids、runtime path 或 expected answer。
+- 输入是与 canonical Plan 同构的 `functional-annotated-plan/v1`；每个 Goal/Step 就地携带三态 status、实际 runtime outputs 和根诊断；
+- 权限只在 Scope 上表达为 `retry_editable=true/false`，不向 LLM 暴露 Goal/Step 权限；
+- 同一 Scope 只要存在直接失败，该 Scope 的 `scope_steps` 和全部直属 Goal body 一起开放并重算；
+- blocked dependents 不生成次生 root issue，独立 sibling Scope 保持关闭；
+- runtime actual value、form 和 free symbols 优先于静态预测；validation 失败不得伪造输出；
+- LLM 对每个开放 Scope 返回完整 `scope_steps + direct Goals + answer_from`；代码整块替换并原子应用；
+- 跨 Goal 只允许读取 producer Goal 当前 `answer_from` 指向的公开 StepResultRef；
+- prompt 不暴露 typed IDs、runtime path、checkpoint、authority ID 或 expected answer。
+
+完整合同见 [FunctionalPlan Scope Retry](functional-scope-retry-design.md)。
 
 ## 9. Prompt 成本策略
 
@@ -177,7 +211,7 @@ Track E 在 F/G 完成后进行。它可以：
 ## 11. 发布门禁
 
 - 全量 solver tests 通过；
-- C0.5 generated gate 零 mismatch；
+- scope-native C0-C5与Scope Retry generated gate零mismatch；
 - 五题真实 smoke 达到当前 acceptance；
 - configuration/unclassified error 为零；
 -所有 authority drift 为零；
@@ -187,6 +221,6 @@ Track E 在 F/G 完成后进行。它可以：
 ## 12. 相关文档
 
 - `docs/functional-planner-next-stage-roadmap.md`
-- `docs/cross-scope-version-executable-oracle-design.md`
+- `docs/scope-native-c0-c5-executable-gate.md`
 - `docs/capability-authoring-guide.md`
 - `docs/llm-context-model-design.md`

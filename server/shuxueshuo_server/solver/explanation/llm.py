@@ -17,6 +17,7 @@ from .builder import (
     LessonDraftBlocker,
     LessonDraftDiagnostic,
     LessonDraftValidationResult,
+    lesson_merge_scope,
     lesson_merge_cluster_at,
     validate_lesson_draft,
 )
@@ -275,7 +276,7 @@ def _merge_suggestions(groups: tuple[LessonCandidateGroup, ...]) -> list[dict[st
             suggestions.append(
                 {
                     "candidate_group_ids": [group.candidate_group_id for group in selected],
-                    "scope_id": selected[0].scope_id,
+                    "scope_id": lesson_merge_scope(selected),
                     "title_hint": title,
                     "nav_title_hint": nav_title,
                     "reason": rule.reason,
@@ -298,22 +299,6 @@ def _quadratic_foundation_axis_point_title_hint(
     return f"化简函数解析式，求对称轴与X轴交点{label}" if label else rule.title_hint
 
 
-def _axis_parameter_square_adjacent_locus_title_hint(
-    rule: LessonMergeRule,
-    selected: tuple[LessonCandidateGroup, ...],
-) -> str:
-    label = _target_point_label_for_group(selected[2]) or _target_point_label_for_group(selected[1])
-    return f"正方形求顶点{label}轨迹" if label else rule.title_hint
-
-
-def _parameter_value_point_evaluation_minimum_title_hint(
-    rule: LessonMergeRule,
-    selected: tuple[LessonCandidateGroup, ...],
-) -> str:
-    labels = _target_point_labels_for_groups(selected)
-    return f"由最小值反求参数，并求{'、'.join(labels)}坐标" if labels else rule.title_hint
-
-
 def _parameter_value_point_evaluation_title_hint(
     rule: LessonMergeRule,
     selected: tuple[LessonCandidateGroup, ...],
@@ -330,14 +315,6 @@ def _quadratic_foundation_axis_point_nav_title_hint(
     return f"化简解析式求{label}" if label else rule.nav_title_hint
 
 
-def _axis_parameter_square_adjacent_locus_nav_title_hint(
-    rule: LessonMergeRule,
-    selected: tuple[LessonCandidateGroup, ...],
-) -> str:
-    label = _target_point_label_for_group(selected[2]) or _target_point_label_for_group(selected[1])
-    return f"正方形求顶点{label}轨迹" if label else rule.nav_title_hint
-
-
 def _parameter_value_point_evaluation_nav_title_hint(
     rule: LessonMergeRule,
     selected: tuple[LessonCandidateGroup, ...],
@@ -348,15 +325,11 @@ def _parameter_value_point_evaluation_nav_title_hint(
 
 _MERGE_TITLE_HINT_BUILDERS: dict[str, _MergeHintBuilder] = {
     "quadratic_foundation_axis_point": _quadratic_foundation_axis_point_title_hint,
-    "axis_parameter_square_adjacent_locus": _axis_parameter_square_adjacent_locus_title_hint,
-    "parameter_value_point_evaluation_minimum_point": _parameter_value_point_evaluation_minimum_title_hint,
     "parameter_value_point_evaluation": _parameter_value_point_evaluation_title_hint,
 }
 
 _MERGE_NAV_TITLE_HINT_BUILDERS: dict[str, _MergeHintBuilder] = {
     "quadratic_foundation_axis_point": _quadratic_foundation_axis_point_nav_title_hint,
-    "axis_parameter_square_adjacent_locus": _axis_parameter_square_adjacent_locus_nav_title_hint,
-    "parameter_value_point_evaluation_minimum_point": _parameter_value_point_evaluation_nav_title_hint,
     "parameter_value_point_evaluation": _parameter_value_point_evaluation_nav_title_hint,
 }
 

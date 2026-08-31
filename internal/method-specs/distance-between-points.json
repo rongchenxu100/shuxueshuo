@@ -8,20 +8,48 @@
   ],
   "inputs": {
     "p1": {
-      "type": "Point",
-      "required": true
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "p2": {
-      "type": "Point",
-      "required": true
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "parameter": {
-      "type": "Symbol",
-      "required": false
+      "required": false,
+      "domain_type": "Symbol",
+      "runtime_type": "Symbol",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Symbol",
+        "object_kind": "symbol",
+        "state_kind": "value"
+      }
     },
     "parameter_value": {
-      "type": "ParameterValue",
-      "required": false
+      "required": false,
+      "domain_type": "Symbol",
+      "runtime_type": "ParameterValue",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Symbol",
+        "object_kind": "symbol",
+        "state_kind": "value"
+      }
     }
   },
   "outputs": {
@@ -29,6 +57,15 @@
     "evaluated_distance": "MinimumExpression"
   },
   "is_pure": true,
+  "output_activation": {
+    "evaluated_distance": {
+      "kind": "requires_inputs",
+      "required_inputs": [
+        "parameter",
+        "parameter_value"
+      ]
+    }
+  },
   "scalar_result_forms": {
     "distance": {
       "possible_forms": [
@@ -44,7 +81,13 @@
         "closed_value"
       ],
       "description": "代入指定参数后若仍含其他未确定参数则为 open_expression；不存在自由参数时为 closed_value。",
-      "closure_policy": "no_free_symbols"
+      "closure_policy": "no_free_symbols",
+      "applied_substitutions": [
+        [
+          "parameter",
+          "parameter_value"
+        ]
+      ]
     }
   },
   "explanation": {
@@ -66,5 +109,11 @@
     "explanation_level": "template",
     "role_binding_strategy": "role_name_registry",
     "role_binder_id": "distance_between_points"
-  }
+  },
+  "interchangeable_arg_groups": [
+    [
+      "p1",
+      "p2"
+    ]
+  ]
 }

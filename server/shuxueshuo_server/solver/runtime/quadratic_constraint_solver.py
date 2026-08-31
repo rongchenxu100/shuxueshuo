@@ -12,6 +12,10 @@ from shuxueshuo_server.solver.math_kernel import SympyKernel
 from shuxueshuo_server.solver.runtime.symbolic_target_closure import (
     solve_target_symbol_closure,
 )
+from shuxueshuo_server.solver.runtime.symbolic_state_representation import (
+    SymbolicStateRepresentationProof,
+    project_symbolic_state_representation,
+)
 
 
 QuadraticConstraintStatus = Literal[
@@ -51,6 +55,7 @@ class QuadraticConstraintSolveResult:
     dependency_symbols: tuple[sp.Symbol, ...] = ()
     branch_count: int = 0
     equations: tuple[sp.Equality, ...] = ()
+    representation_proof: SymbolicStateRepresentationProof | None = None
 
 
 @dataclass(frozen=True)
@@ -80,32 +85,36 @@ def build_quadratic_constraint_system(
         _materialized_coefficient_substitutions(request),
         parameter_substitutions,
     )
-    explicit_coefficients = {
+    explicit_coefficients = _resolve_substitution_values({
         **known_coefficients,
         **parameter_substitutions,
-    }
+    })
+    resolved_materialized_coefficients = _substitute_mapping_values(
+        materialized_coefficients,
+        explicit_coefficients,
+    )
     materialized_consistency = tuple(
         sp.Eq(materialized_value, explicit_coefficients[symbol])
-        for symbol, materialized_value in materialized_coefficients.items()
+        for symbol, materialized_value in resolved_materialized_coefficients.items()
         if symbol in explicit_coefficients
         and sp.simplify(
             materialized_value - explicit_coefficients[symbol]
         )
         != 0
     )
-    substitutions = {
+    substitutions = _resolve_substitution_values({
         **materialized_coefficients,
         **known_coefficients,
         **parameter_substitutions,
-    }
+    })
     expression = sp.expand(request.base_expression.subs(substitutions))
     points = tuple(
         (
             sp.simplify(
-                sp.sympify(point[0]).subs(request.parameter_substitutions)
+                sp.sympify(point[0]).subs(substitutions)
             ),
             sp.simplify(
-                sp.sympify(point[1]).subs(request.parameter_substitutions)
+                sp.sympify(point[1]).subs(substitutions)
             ),
         )
         for point in request.curve_points
@@ -155,6 +164,42 @@ def solve_quadratic_constraint_system(
             equations=tuple(normalized),
         )
 
+    representation_proof = (
+        project_symbolic_state_representation(
+            expression,
+            requested_symbols=preserve,
+            representable_symbols=tuple(
+                dict.fromkeys((*request.coefficient_symbols, *preserve))
+            ),
+            relations=(
+                *(
+                    sp.Eq(symbol, value)
+                    for symbol, value in substitutions.items()
+                ),
+                *normalized,
+            ),
+            excluded_symbols=(request.independent_symbol,),
+        )
+        if request.target_symbol is None
+        else None
+    )
+    if representation_proof is not None:
+        projection = representation_proof.substitution_map
+        expression = representation_proof.projected_expression
+        substitutions = _project_substitution_mapping(
+            substitutions,
+            projection,
+        )
+        normalized, contradictory = _normalize_equations(
+            [_substitute_equation(equation, projection) for equation in normalized]
+        )
+        if contradictory:
+            return QuadraticConstraintSolveResult(
+                "inconsistent",
+                equations=tuple(normalized),
+                representation_proof=representation_proof,
+            )
+
     # A target supplied by known coefficients or a ParameterValue is already
     # closed.  Continue solving the remaining coefficient system instead of
     # asking target closure to recover a Symbol that substitutions removed
@@ -194,23 +239,28 @@ def solve_quadratic_constraint_system(
                 parabola=expression,
                 free_symbols=free_symbols,
                 equations=tuple(normalized),
+                representation_proof=representation_proof,
             )
         branches = sp.solve(normalized, unknowns, dict=True)
         if not branches:
             return QuadraticConstraintSolveResult(
                 "inconsistent",
                 equations=tuple(normalized),
+                representation_proof=representation_proof,
             )
         if len(branches) != 1:
             return QuadraticConstraintSolveResult(
                 "ambiguous",
                 branch_count=len(branches),
                 equations=tuple(normalized),
+                representation_proof=representation_proof,
             )
         branch = branches[0]
         if any(symbol not in branch for symbol in unknowns):
             unresolved = tuple(symbol for symbol in unknowns if symbol not in branch)
-            partial_substitutions = {**substitutions, **branch}
+            partial_substitutions = _resolve_substitution_values(
+                {**substitutions, **branch}
+            )
             free_symbols = tuple(
                 dict.fromkeys((*unresolved, *preserve))
             )
@@ -228,9 +278,16 @@ def solve_quadratic_constraint_system(
                 ),
                 branch_count=1,
                 equations=tuple(normalized),
+                representation_proof=representation_proof,
             )
-        substitutions.update(
-            {symbol: sp.simplify(value) for symbol, value in branch.items()}
+        substitutions = _resolve_substitution_values(
+            {
+                **substitutions,
+                **{
+                    symbol: sp.simplify(value)
+                    for symbol, value in branch.items()
+                },
+            }
         )
     elif any(sp.simplify(item.lhs - item.rhs) != 0 for item in normalized):
         return QuadraticConstraintSolveResult(
@@ -238,6 +295,7 @@ def solve_quadratic_constraint_system(
             equations=tuple(normalized),
         )
 
+    substitutions = _resolve_substitution_values(substitutions)
     parabola = sp.expand(request.base_expression.subs(substitutions))
     free = tuple(
         sorted(
@@ -283,7 +341,45 @@ def solve_quadratic_constraint_system(
         dependency_symbols=dependencies,
         branch_count=1,
         equations=tuple(normalized),
+        representation_proof=representation_proof,
     )
+
+
+def _project_substitution_mapping(
+    substitutions: dict[sp.Symbol, sp.Expr],
+    projection: dict[sp.Symbol, sp.Expr],
+) -> dict[sp.Symbol, sp.Expr]:
+    result: dict[sp.Symbol, sp.Expr] = {}
+    for symbol, value in substitutions.items():
+        projected = sp.simplify(sp.sympify(value).subs(projection))
+        if projected != symbol:
+            result[symbol] = projected
+    for symbol, value in projection.items():
+        projected = sp.simplify(value)
+        if projected != symbol:
+            result[symbol] = projected
+    return _resolve_substitution_values(result)
+
+
+def _resolve_substitution_values(
+    substitutions: dict[sp.Symbol, sp.Expr],
+) -> dict[sp.Symbol, sp.Expr]:
+    result = dict(substitutions)
+    for _ in range(len(result) + 1):
+        changed = False
+        for symbol, value in tuple(result.items()):
+            others = {
+                key: item
+                for key, item in result.items()
+                if key != symbol
+            }
+            resolved = sp.simplify(sp.sympify(value).subs(others))
+            if resolved != value:
+                result[symbol] = resolved
+                changed = True
+        if not changed:
+            break
+    return result
 
 
 def _materialized_coefficient_substitutions(
@@ -300,11 +396,11 @@ def _materialized_coefficient_substitutions(
     applied afterwards and remain authoritative.
     """
     if request.coefficient_template is not None:
-        projected = _coefficient_substitutions_from_template(request)
-        if projected:
-            return projected
-    if len(request.coefficient_symbols) != 3:
-        return {}
+        # An explicit template is the coefficient-role authority even when
+        # the current expression still matches it exactly. Falling through to
+        # conventional a/b/c positions would misread sparse templates such as
+        # ``a*x**2 + b``, where ``b`` is the constant coefficient.
+        return _coefficient_substitutions_from_template(request)
     try:
         polynomial = sp.Poly(
             sp.expand(request.base_expression),
@@ -314,11 +410,27 @@ def _materialized_coefficient_substitutions(
         return {}
     if polynomial.degree() > 2:
         return {}
-    values = (
-        polynomial.coeff_monomial(request.independent_symbol**2),
-        polynomial.coeff_monomial(request.independent_symbol),
-        polynomial.coeff_monomial(1),
-    )
+    conventional_monomials = {
+        "a": request.independent_symbol**2,
+        "b": request.independent_symbol,
+        "c": sp.Integer(1),
+    }
+    if all(
+        symbol.name in conventional_monomials
+        for symbol in request.coefficient_symbols
+    ):
+        values = tuple(
+            polynomial.coeff_monomial(conventional_monomials[symbol.name])
+            for symbol in request.coefficient_symbols
+        )
+    elif len(request.coefficient_symbols) == 3:
+        values = (
+            polynomial.coeff_monomial(request.independent_symbol**2),
+            polynomial.coeff_monomial(request.independent_symbol),
+            polynomial.coeff_monomial(1),
+        )
+    else:
+        return {}
     result: dict[sp.Symbol, sp.Expr] = {}
     for symbol, value in zip(request.coefficient_symbols, values, strict=True):
         value = sp.simplify(value)

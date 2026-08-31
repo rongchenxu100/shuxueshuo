@@ -82,6 +82,7 @@ from shuxueshuo_server.solver.extraction.problem_solver_bundle import (
     VerifiedSolverProblemBundleLoader,
 )
 from shuxueshuo_server.solver.extraction.problem_planning_context import (
+    PLANNER_PROBLEM_VIEW_CONTRACT,
     PROBLEM_PLANNING_CONTEXT_CONTRACT,
     PlanningReadAuthority,
     ProblemPlanningContext,
@@ -89,7 +90,19 @@ from shuxueshuo_server.solver.extraction.problem_planning_context import (
     ProblemPlanningContextProjector,
     ProblemPlanningGoalView,
     ProblemPlanningScope,
-    problem_planning_context_prompt_schema,
+    planner_problem_view_schema,
+)
+from shuxueshuo_server.solver.extraction.problem_planning_retry import (
+    ProblemPlanningRetryError,
+    ProblemPlanningRetryProjection,
+    ProblemPlanningRetryProjector,
+)
+from shuxueshuo_server.solver.extraction.problem_planner_authority import (
+    VerifiedPlannerProblemAuthority,
+)
+from shuxueshuo_server.solver.extraction.problem_cold_path import (
+    ProblemColdPathRunResult,
+    ProblemColdPathService,
 )
 from shuxueshuo_server.solver.extraction.problem_domain_service import (
     ProblemDomainExtractionAttemptResult,
@@ -147,8 +160,15 @@ __all__ = [
     "ProblemPlanningContextProjector",
     "ProblemPlanningGoalView",
     "ProblemPlanningScope",
-    "problem_planning_context_prompt_schema",
+    "ProblemPlanningRetryError",
+    "ProblemPlanningRetryProjection",
+    "ProblemPlanningRetryProjector",
+    "planner_problem_view_schema",
+    "VerifiedPlannerProblemAuthority",
+    "ProblemColdPathRunResult",
+    "ProblemColdPathService",
     "PlanningReadAuthority",
+    "PLANNER_PROBLEM_VIEW_CONTRACT",
     "PROBLEM_PLANNING_CONTEXT_CONTRACT",
     "ProblemRepairPatch",
     "ProblemRepairService",

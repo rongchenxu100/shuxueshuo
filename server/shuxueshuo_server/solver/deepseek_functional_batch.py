@@ -30,7 +30,8 @@ DEFAULT_OUTPUT_ROOT = (
     / "strategy-planner-deepseek-functional-parity"
     / "batches"
 )
-PLANNER_PROTOCOL = "functional_plan/v1"
+PLANNER_PROTOCOL = "functional-plan-content/v2"
+RETRY_PLANNER_PROTOCOL = "functional-scope-repair/v1"
 TRANSACTION_AUTHORITY = "context_authoritative"
 SYMBOLIC_CLOSURE_AUTHORITY = "authoritative"
 FUNCTIONAL_COMPILER = "direct"
@@ -66,7 +67,7 @@ class FunctionalBatchCase:
         return (
             REPO_ROOT
             / "internal"
-            / "functional-plan-fixtures"
+            / "functional-plan-scope-native-fixtures"
             / f"{self.problem_id}.functional-plan.json"
         )
 
@@ -160,6 +161,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         "concurrency": min(args.concurrency, len(samples)),
         "max_attempts": args.max_attempts,
         "planner_protocol": PLANNER_PROTOCOL,
+        "retry_planner_protocol": RETRY_PLANNER_PROTOCOL,
         "transaction_authority": TRANSACTION_AUTHORITY,
         "symbolic_closure_authority": SYMBOLIC_CLOSURE_AUTHORITY,
         "compiler": FUNCTIONAL_COMPILER,
@@ -905,6 +907,7 @@ def _sample_fingerprints(
         "fixture_sha256": _hash_files(fixture_paths),
         "models": list(models),
         "planner_protocol": PLANNER_PROTOCOL,
+        "retry_planner_protocol": RETRY_PLANNER_PROTOCOL,
         "transaction_authority": TRANSACTION_AUTHORITY,
         "symbolic_closure_authority": SYMBOLIC_CLOSURE_AUTHORITY,
         "compiler": FUNCTIONAL_COMPILER,

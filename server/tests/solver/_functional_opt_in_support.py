@@ -15,13 +15,18 @@ from shuxueshuo_server.solver.deepseek_functional_batch import (
     FUNCTIONAL_BATCH_CASES,
     FunctionalBatchCase,
 )
-from shuxueshuo_server.solver.fixtures import load_problem_ir
 from shuxueshuo_server.solver.functional_parity import (
     provenance_parity_signature,
 )
 from shuxueshuo_server.solver.runtime.config import SolverRuntimeConfig
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
+)
+from shuxueshuo_server.solver.runtime.functional_plan_content import (
+    FUNCTIONAL_PLAN_CONTENT_CONTRACT,
+)
+from shuxueshuo_server.solver.runtime.functional_scope_retry import (
+    FUNCTIONAL_SCOPE_REPAIR_CONTRACT,
 )
 from shuxueshuo_server.solver.runtime.orchestrator import RuntimeOrchestrator
 from shuxueshuo_server.solver.runtime.strategy_payload import (
@@ -30,6 +35,8 @@ from shuxueshuo_server.solver.runtime.strategy_payload import (
 from shuxueshuo_server.solver.runtime.strategy_runtime_planner import (
     strategy_planner_provider,
 )
+
+from _problem_planning_support import planning_binding_fixture
 
 
 RUN_FUNCTIONAL = (
@@ -52,7 +59,10 @@ def run_deepseek_functional_opt_in(case: FunctionalOptInCase) -> None:
     if not config.deepseek_api_key:
         pytest.skip("DEEPSEEK_API_KEY is not configured")
     client = config.build_llm_client()
-    problem = load_problem_ir(case.problem_fixture_path)
+    bundle, *_ = planning_binding_fixture(
+        debug_dir / "_bundle-authority",
+        case=case.problem_id,
+    )
     expected = load_expected_answers(case.expected_path)
     orchestrator = RuntimeOrchestrator(
         planner_providers={},
@@ -65,13 +75,12 @@ def run_deepseek_functional_opt_in(case: FunctionalOptInCase) -> None:
         debug_dir=debug_dir,
     )
 
-    result = orchestrator.solve(problem)
+    result = orchestrator.solve_verified(bundle)
     answer_mismatch = _answer_mismatch(result.answers, expected)
-    attempt_count = (
-        len(orchestrator.last_session.attempts)
-        if orchestrator.last_session is not None
-        else 0
-    )
+    # A scoped solve is represented by one outer SolveSession record, while
+    # every semantic planner attempt is persisted independently.  The debug
+    # artifacts are therefore the authority for live-harness attempt counts.
+    attempt_count = len(_attempt_metadata_paths(debug_dir))
     gate_checks: list[dict[str, Any]] = []
     (
         closure_execution_count,
@@ -110,14 +119,19 @@ def run_deepseek_functional_opt_in(case: FunctionalOptInCase) -> None:
     _capture_assertion_gate(
         gate_checks,
         "attempt_protocol",
-        lambda: _assert_attempt_protocol(
-            debug_dir,
-            attempt_count=attempt_count,
-        ),
+        lambda: _assert_attempt_protocol(debug_dir),
     )
     if success is not None:
         artifacts = success.planner.artifacts
         replay = artifacts.retry_replay_result
+        _record_gate(
+            gate_checks,
+            "problem_authority",
+            success.problem_authority is not None
+            and success.problem_binding_catalog is not None
+            and success.planner_state_context is not None,
+            "missing Bundle, PlanningContext, BindingCatalog, or PlannerStateContext",
+        )
         if replay is not None:
             transaction_report = replay.transactional_execution_report
             if (
@@ -152,13 +166,15 @@ def run_deepseek_functional_opt_in(case: FunctionalOptInCase) -> None:
                 planner_state_context=replay.planner_state_context,
                 functional_plan=replay.functional_plan,
                 functional_reconciliation=replay.functional_reconciliation,
+                problem_authority=success.problem_authority,
+                problem_binding_catalog=success.problem_binding_catalog,
                 llm_metadata={
                     "provider": "deepseek",
                     "request_model": getattr(client, "model", None),
                     "response_model": getattr(client, "last_response_model", None),
                     "usage": getattr(client, "last_usage", None),
                     "attempts": attempt_count,
-                    "planner_protocol": "functional_plan/v1",
+                    "planner_protocol": _last_attempt_protocol(debug_dir),
                 },
             )
         expected_closure_mode = "authoritative"
@@ -258,7 +274,6 @@ def run_deepseek_functional_opt_in(case: FunctionalOptInCase) -> None:
             "llm_usage",
             _attempt_llm_usage_is_recorded(
                 debug_dir,
-                attempt_count=attempt_count,
             ),
             "one or more attempts have no LLM usage artifact",
         )
@@ -404,39 +419,71 @@ def _answer_mismatch(actual: Any, expected: Any) -> str | None:
     return None
 
 
-def _assert_attempt_protocol(debug_dir: Path, *, attempt_count: int) -> None:
+def _assert_attempt_protocol(debug_dir: Path) -> None:
     selections: list[dict[str, Any]] = []
     examples: list[Any] = []
-    assert attempt_count > 0
-    for attempt in range(1, attempt_count + 1):
+    attempts = _semantic_attempt_metadata(debug_dir)
+    assert attempts
+    for attempt, metadata in attempts:
         prefix = debug_dir / f"attempt-{attempt}"
-        metadata = _read_json(prefix.with_suffix(".llm-metadata.json"))
-        assert metadata.get("planner_protocol") == "functional_plan/v1"
+        protocol = metadata.get("planner_protocol")
+        if attempt == 1:
+            assert protocol == FUNCTIONAL_PLAN_CONTENT_CONTRACT
+        else:
+            assert protocol in {
+                FUNCTIONAL_PLAN_CONTENT_CONTRACT,
+                FUNCTIONAL_SCOPE_REPAIR_CONTRACT,
+            }
         raw_response = prefix.with_suffix(".raw-response.txt").read_text(encoding="utf-8")
         assert '"format":"step_intent"' not in "".join(raw_response.split())
-        selection = _read_json(
-            prefix.with_suffix(".payload.functional_few_shot_selection.json")
+        attempt_payload = _attempt_payload(prefix)
+        planner_protocol = attempt_payload.get("planner_protocol")
+        assert planner_protocol == protocol, (
+            f"attempt-{attempt}: metadata protocol={protocol!r}, "
+            f"payload protocol={planner_protocol!r}"
         )
-        assert selection.get("mode") == "strict_test"
-        planner_protocol = _read_json_value(
-            prefix.with_suffix(".payload.planner_protocol.json")
-        )
-        few_shot_examples = _read_json_value(
-            prefix.with_suffix(".payload.few_shot_examples.json")
+        problem_planning_context = attempt_payload.get(
+            "problem_planning_context"
         )
         user_prompt = prefix.with_suffix(".prompt.user.md").read_text(
             encoding="utf-8"
         )
+        payload = {
+            "planner_protocol": planner_protocol,
+            "problem_planning_context": problem_planning_context,
+        }
+        if protocol == FUNCTIONAL_PLAN_CONTENT_CONTRACT:
+            selection = attempt_payload.get("functional_few_shot_selection")
+            assert isinstance(selection, dict)
+            assert selection.get("mode") == "strict_test"
+            few_shot_examples = attempt_payload.get("few_shot_examples")
+            payload.update(
+                {
+                    "functional_few_shot_selection": selection,
+                    "few_shot_examples": few_shot_examples,
+                }
+            )
+            if attempt > 1:
+                previous_invalid = attempt_payload.get(
+                    "previous_invalid_content"
+                )
+                assert isinstance(previous_invalid, dict)
+                assert previous_invalid, (
+                    "a later Pass 1 attempt must explain why no canonical "
+                    "Plan was available for Scope Repair"
+                )
+            selections.append(selection)
+            examples.append(few_shot_examples)
+        else:
+            assert "functional_few_shot_selection" not in attempt_payload
+            assert "few_shot_examples" not in attempt_payload
+            annotated = attempt_payload.get("annotated_previous_plan")
+            assert isinstance(annotated, dict)
+            payload["annotated_previous_plan"] = annotated
         _assert_prompt_is_functional_and_safe(
-            {
-                "planner_protocol": planner_protocol,
-                "functional_few_shot_selection": selection,
-                "few_shot_examples": few_shot_examples,
-            },
+            payload,
             type("_Prompt", (), {"user": user_prompt})(),
         )
-        selections.append(selection)
-        examples.append(few_shot_examples)
     assert selections, "no FunctionalPlan attempts were recorded"
     assert all(item == selections[0] for item in selections[1:]), (
         "retry changed the locked Functional few-shot selection"
@@ -447,15 +494,25 @@ def _assert_attempt_protocol(debug_dir: Path, *, attempt_count: int) -> None:
 
 
 def _assert_prompt_is_functional_and_safe(payload: dict[str, Any], prompt: Any) -> None:
-    assert payload.get("planner_protocol") == "functional_plan/v1", (
-        "planner_protocol is not functional_plan/v1"
-    )
+    protocol = payload.get("planner_protocol")
+    assert protocol in {
+        FUNCTIONAL_PLAN_CONTENT_CONTRACT,
+        FUNCTIONAL_SCOPE_REPAIR_CONTRACT,
+    }, f"unexpected planner_protocol={protocol!r}"
+    assert "problem_ir" not in payload, "flat ProblemIR leaked into planner payload"
+    problem_context = payload.get("problem_planning_context")
+    assert isinstance(problem_context, dict), "scope-native planning context is missing"
+    assert problem_context.get("schema_version") == "planner-problem-view/v2"
     assert "expected_answers" not in json.dumps(payload, ensure_ascii=False), (
         "expected answers leaked into the planner payload"
     )
     _assert_no_few_shot_retrieval_metadata(
         payload.get("few_shot_examples", ())
     )
+    if protocol == FUNCTIONAL_SCOPE_REPAIR_CONTRACT:
+        assert "annotated_previous_plan" in payload
+        assert "few_shot_examples" not in payload
+        assert "functional_few_shot_selection" not in payload
     user_prompt = str(getattr(prompt, "user", ""))
     serialized = user_prompt.lower()
     for forbidden in (
@@ -463,6 +520,10 @@ def _assert_prompt_is_functional_and_safe(payload: dict[str, Any], prompt: Any) 
         '"creates"',
         '"produces"',
         '"format": "step_intent"',
+        '"problem_ir"',
+        '"example_id"',
+        '"source_problem_id"',
+        '"selection_tier"',
     ):
         assert forbidden not in serialized, (
             f"Functional prompt leaked forbidden token: {forbidden}"
@@ -474,14 +535,6 @@ def _assert_prompt_is_functional_and_safe(payload: dict[str, Any], prompt: Any) 
     assert canonical_handle.search(serialized) is None, (
         "Functional prompt leaked a canonical handle"
     )
-    selection = payload.get("functional_few_shot_selection")
-    if isinstance(selection, dict):
-        for key in ("source_problem_id", "family_id", "selection_tier"):
-            value = selection.get(key)
-            if isinstance(value, str) and value:
-                assert json.dumps(value, ensure_ascii=False) not in user_prompt, (
-                    f"Functional prompt leaked few-shot retrieval metadata: {key}"
-                )
 
 
 def _assert_no_few_shot_retrieval_metadata(value: Any) -> None:
@@ -510,21 +563,78 @@ def _max_attempts() -> int:
 
 def _attempt_llm_usage_is_recorded(
     debug_dir: Path,
-    *,
-    attempt_count: int,
 ) -> bool:
-    if attempt_count < 1:
+    paths = _attempt_metadata_paths(debug_dir)
+    if not paths:
         return False
-    for attempt in range(1, attempt_count + 1):
-        metadata = _read_json(
-            debug_dir / f"attempt-{attempt}.llm-metadata.json"
-        )
+    try:
+        attempts = _semantic_attempt_metadata(debug_dir)
+    except (AssertionError, OSError, json.JSONDecodeError, ValueError):
+        return False
+    for _, metadata in attempts:
         usage = metadata.get("usage")
         if not isinstance(usage, dict):
             return False
         if not any(isinstance(value, int) for value in usage.values()):
             return False
     return True
+
+
+_ATTEMPT_METADATA_PATTERN = re.compile(r"attempt-(\d+)\.llm-metadata\.json")
+
+
+def _attempt_metadata_paths(debug_dir: Path) -> tuple[Path, ...]:
+    def attempt_number(path: Path) -> int:
+        match = _ATTEMPT_METADATA_PATTERN.fullmatch(path.name)
+        assert match is not None, path
+        return int(match.group(1))
+
+    return tuple(
+        sorted(
+            debug_dir.glob("attempt-*.llm-metadata.json"),
+            key=attempt_number,
+        )
+    )
+
+
+def _semantic_attempt_metadata(
+    debug_dir: Path,
+) -> tuple[tuple[int, dict[str, Any]], ...]:
+    result: list[tuple[int, dict[str, Any]]] = []
+    for path in _attempt_metadata_paths(debug_dir):
+        match = _ATTEMPT_METADATA_PATTERN.fullmatch(path.name)
+        assert match is not None, path
+        file_attempt = int(match.group(1))
+        metadata = _read_json(path)
+        semantic_attempt = int(metadata.get("semantic_attempt", 0) or 0)
+        assert semantic_attempt == file_attempt, (
+            f"{path.name}: semantic_attempt={semantic_attempt}, "
+            f"expected={file_attempt}"
+        )
+        result.append((semantic_attempt, metadata))
+    observed = [attempt for attempt, _ in result]
+    assert observed == list(range(1, len(result) + 1)), (
+        f"semantic attempt artifacts are not contiguous: {observed}"
+    )
+    return tuple(result)
+
+
+def _last_attempt_protocol(debug_dir: Path) -> str | None:
+    attempts = _semantic_attempt_metadata(debug_dir)
+    return str(attempts[-1][1].get("planner_protocol")) if attempts else None
+
+
+def _attempt_payload(prefix: Path) -> dict[str, Any]:
+    combined = prefix.with_suffix(".payload.json")
+    if combined.exists():
+        return _read_json(combined)
+    result: dict[str, Any] = {}
+    marker = f"{prefix.name}.payload."
+    for path in sorted(prefix.parent.glob(f"{prefix.name}.payload.*.json")):
+        key = path.name.removeprefix(marker).removesuffix(".json")
+        result[key] = _read_json_value(path)
+    assert result, f"no payload artifact found for {prefix.name}"
+    return result
 
 
 def _debug_dir(case: FunctionalOptInCase) -> Path:

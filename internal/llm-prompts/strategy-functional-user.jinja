@@ -1,8 +1,10 @@
 请根据以下数据输出完整 FunctionalPlan JSON；协议规则以 system message 为准。
 
-## ProblemIR
+## Planner Problem View
 
-{{ payload.problem_ir | compact_json }}
+scope 采用嵌套结构。每个 Goal 只能使用其所属 scope 及祖先 scope 中展示的 Entity/Fact `ref`。
+
+{{ payload.problem_planning_context | compact_json }}
 
 ## Strategy Principles
 

@@ -19,11 +19,12 @@ def test_functional_reconciliation_does_not_restore_static_state_authority() -> 
 
 
 def test_functional_compiler_excludes_legacy_free_parameter_selector() -> None:
-    source = inspect.getsource(
-        recipe_compiler._RecipePlanCompiler._projected_expansion_selectors
-    )
+    compiler = recipe_compiler._RecipePlanCompiler
+    source = inspect.getsource(compiler)
 
-    assert 'selector != "free_quadratic_parameter_if_read"' in source
+    assert not hasattr(compiler, "_projected_expansion_selectors")
+    assert "free_quadratic_parameter_if_read" not in source
+    assert "free_parameter:a_if_single_curve_point" not in source
 
 
 def test_sibling_dependency_projection_marks_free_symbols_as_provisional() -> None:

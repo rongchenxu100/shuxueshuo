@@ -70,9 +70,9 @@ def test_deepseek_client_uses_openai_compatible_arguments() -> None:
         "type": "json_object"
     }
     assert fake_client.create_kwargs["extra_body"] == {
-        "thinking": {"type": "enabled"}
+        "thinking": {"type": "disabled"}
     }
-    assert fake_client.create_kwargs["reasoning_effort"] == "low"
+    assert "reasoning_effort" not in fake_client.create_kwargs
     assert "temperature" not in fake_client.create_kwargs
     assert fake_client.create_kwargs["messages"][0]["role"] == "system"
     assert "QuadraticPathMinimumSolver" in fake_client.create_kwargs["messages"][1]["content"]
@@ -92,9 +92,11 @@ def test_deepseek_client_uses_openai_compatible_arguments() -> None:
         },
         "finish_reason": None,
         "visible_content": True,
+        "reasoning_content_available": False,
+        "reasoning_content_chars": 0,
         "response_format": "json_object",
-        "thinking_mode": "enabled",
-        "reasoning_effort": "low",
+        "thinking_mode": "disabled",
+        "reasoning_effort": None,
     }
 
 
@@ -188,8 +190,14 @@ def test_openai_compatible_client_wraps_legacy_payload_without_messages() -> Non
 
 
 class _SequentialOpenAIClient:
-    def __init__(self, contents: list[str | None]) -> None:
+    def __init__(
+        self,
+        contents: list[str | None],
+        *,
+        reasonings: list[str | None] | None = None,
+    ) -> None:
         self.contents = list(contents)
+        self.reasonings = list(reasonings or [None] * len(contents))
         self.requests: list[dict[str, Any]] = []
         self.chat = SimpleNamespace(
             completions=SimpleNamespace(create=self._create)
@@ -198,10 +206,14 @@ class _SequentialOpenAIClient:
     def _create(self, **kwargs: Any) -> Any:
         self.requests.append(kwargs)
         content = self.contents.pop(0)
+        reasoning_content = self.reasonings.pop(0)
         return SimpleNamespace(
             choices=[
                 SimpleNamespace(
-                    message=SimpleNamespace(content=content),
+                    message=SimpleNamespace(
+                        content=content,
+                        reasoning_content=reasoning_content,
+                    ),
                     finish_reason="length",
                 )
             ],
@@ -231,13 +243,10 @@ def test_reasoning_only_empty_response_retries_inside_one_provider_call() -> Non
     assert len(fake_client.requests) == 2
     assert "立即输出严格 JSON" in fake_client.requests[1]["messages"][-1]["content"]
     assert all(
-        request["extra_body"] == {"thinking": {"type": "enabled"}}
+        request["extra_body"] == {"thinking": {"type": "disabled"}}
         for request in fake_client.requests
     )
-    assert all(
-        request["reasoning_effort"] == "low"
-        for request in fake_client.requests
-    )
+    assert all("reasoning_effort" not in request for request in fake_client.requests)
     assert all(
         request["response_format"] == {"type": "json_object"}
         for request in fake_client.requests
@@ -252,6 +261,39 @@ def test_reasoning_only_empty_response_retries_inside_one_provider_call() -> Non
         False,
         True,
     ]
+
+
+def test_reasoning_content_is_captured_for_each_provider_attempt() -> None:
+    fake_client = _SequentialOpenAIClient(
+        [None, '{"format":"functional_plan/v1"}'],
+        reasonings=["first internal reasoning", "second internal reasoning"],
+    )
+    client = DeepSeekPlannerClient(
+        api_key="test-key",
+        base_url="https://api.deepseek.com",
+        model="deepseek-v4-flash",
+        client_factory=lambda **_: fake_client,
+    )
+
+    client.complete({"messages": [{"role": "user", "content": "return JSON"}]})
+
+    assert client.last_provider_reasoning == (
+        {
+            "provider_attempt": 1,
+            "reasoning_content": "first internal reasoning",
+        },
+        {
+            "provider_attempt": 2,
+            "reasoning_content": "second internal reasoning",
+        },
+    )
+    assert [
+        item["reasoning_content_available"]
+        for item in client.last_provider_attempts
+    ] == [True, True]
+    assert [
+        item["reasoning_content_chars"] for item in client.last_provider_attempts
+    ] == [24, 25]
 
 
 def test_two_reasoning_only_empty_responses_raise_typed_provider_error() -> None:

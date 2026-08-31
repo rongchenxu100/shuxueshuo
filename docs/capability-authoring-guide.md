@@ -2,18 +2,21 @@
 
 本文说明如何为 FunctionalPlan 增加可复用的数学能力。它描述当前约束，不记录历史迁移过程。
 
+本文重点是公开 Function/Macro、binding 与 return contract。底层 Python Method 作为 DSL runtime primitive 的实现规范，统一见 `docs/functional-method-dsl-authoring-guide.md`。
+
 ## 1. 基本原则
 
 FunctionalPlan 中，LLM 只负责：
 
 - 选择合适的 capability；
-- 提供题目明确给出的公开参数；
+- 引用题目中的数学实体和 Fact；
 - 表达调用之间的数学依赖；
 - 将公开 return 绑定到对象或答案。
 
 代码负责：
 
 - 参数角色、隐藏参数和编译映射；
+- 按 Method input view 选择实体身份、最新状态、不可变值或匿名精确结果；
 - `MathObjectId`、`StateVersionId` 和 scope 可见性；
 - method/Macro 编译与事务执行；
 - output contract、symbolic closure、状态提交和 provenance。
@@ -52,11 +55,33 @@ MethodSpecSource
 - 中间输出不应暴露给 LLM；
 - public return 需要从内部 `output_key` 映射。
 
+Macro 对 LLM 与 canonical FunctionalPlan 必须是原子能力：一个 authored Macro
+调用始终对应一个 Plan step。内部 invocation、candidate、winner、witness 和 debug
+step 不得物化为 Planner step，也不得成为 retry 的 editable/frozen step。Macro
+失败只投影一个公开根诊断；完整内部执行记录只进入 debug、checkpoint 与 verified
+evidence。
+
+LLM-facing Macro catalog 与 Function 使用相同的普通 capability 外壳，只公开
+`capability_id/title/use_when/do_not_use_when/args/returns`。不得公开内部 Method、
+execution mode、candidate provider、semantic blueprint、expansion dependency、runtime
+slot 或 checkpoint 信息。不要为 Macro 新增 Plan/Retry schema、derived name 或
+scope-local return binding。
+
+每个 Macro 必须声明 `execution_mode=direct|runtime_search`。`runtime_search`还必须
+声明 `searchable_roles`、`candidate_builder_id`、`validation_policy_id`和不超过32的
+候选预算。Method 永远不能搜索；Macro 的每个候选必须在 disposable branch 中
+compile/run/check，winner 再从干净 Context 重放后提交。
+
 不要用 Macro 固定某一道题的完整路线。Macro 应表达稳定的数学机制。
+
+Macro 参数必须在定义时固定为始终公开的 LLM-owned arg，或始终隐藏的 code-owned
+arg。不得因为当前候选只有一个就从 catalog 删除公开参数，也不得在候选变多时动态恢复。
+hidden arg 不得成为 public return identity 的未公开来源。可选 role hint 一旦公开，
+在同一 capability 的所有 contextual catalog 中必须保持相同名称和可见性。
 
 ## 4. 参数契约
 
-每个公开参数必须明确：
+内部 Function/Macro contract 的每个参数必须明确：
 
 | 字段 | 含义 |
 |---|---|
@@ -65,7 +90,7 @@ MethodSpecSource
 | `binding_authority` | `wire`、`resolver` 或 `compiler` |
 | `runtime_type` | method 实际接收的类型 |
 | `cardinality` | 单值、可选值或有序集合 |
-| `selection_policy` | `exact`、`latest`、`identity_only` 或 `compiler` |
+| `selection_policy` | 内部binding阶段策略；`latest`仅表示F5-C解析意图，严格finalization后必须成为`exact`；identity使用`identity_only` |
 | `runtime_input_targets` | 对应的 method/Macro 输入 |
 
 同类型参数必须靠 `semantic_role` 区分。例如：
@@ -75,6 +100,35 @@ MethodSpecSource
 - `free_parameter` 与 `target_parameter`。
 
 不得根据 `reads` 顺序、handle 名称、scope 字符串或实际值猜角色。
+
+LLM-facing catalog 只投影：
+
+```text
+name / domain_type / required / cardinality / role
+```
+
+不得投影 `PointRef`、`ParameterValue`、`Parabola`、`PathTransformation`、
+`semantic_ref_role`、state kind、version 或 runtime path。Point、Function、Line、
+Symbol 等具名对象始终使用数学实体 ref。只有真正公开、没有题面身份的候选集和
+中间表达式，以及producer public return显式声明`reference_mode="exact_result"`的
+deferred-identity结果，才使用`StepResultRef`。Macro内部witness不是public return，
+不能进入Planner wire。
+
+Method input view只控制代码如何读取一个具名ref，不控制Planner wire是否能写
+`StepResultRef`。普通匿名上游return仍要求公开参数声明`allows_anonymous_result`；
+producer return声明`reference_mode="exact_result"`时，由中央authority按类型/view
+兼容性接受，不要求consumer逐个声明。普通具名return仍要求对应数学实体ref。
+
+### 策略角色权威
+
+动点、映射点、反射对象、候选分支和拉直方向属于数学策略。LLM 提供数学实体
+作为首选提示；resolver 可以恢复证明所需的中点、固定端点、所属关系和 canonical
+identity，但不能用 `vertex_4`、数组位置或点名规则直接创造策略权威。
+
+`runtime_search` Macro 可以在声明的有限候选集合上隔离试跑：先验证 LLM 提示，
+提示失败时验证剩余候选。唯一 runtime-valid 替代项可以自动纠正；多个成功结果
+只有 runtime 输出等价时才能确定性选取；非等价歧义必须反馈给 Planner。最终
+authority 同时记录 authored ref、chosen ref、candidate checks 和选择原因。
 
 ### Binding authority
 

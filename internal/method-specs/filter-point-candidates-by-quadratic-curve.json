@@ -8,33 +8,112 @@
   ],
   "inputs": {
     "candidates": {
-      "type": "PointList",
-      "required": true
+      "required": true,
+      "symbolic_basis_role": "align_to_anchor",
+      "domain_type": "PointList",
+      "runtime_type": "PointList",
+      "view": {
+        "mode": "exact_result",
+        "domain_type": "PointList"
+      }
     },
     "target": {
-      "type": "PointRef",
-      "required": true
+      "required": true,
+      "symbolic_basis_role": "align_to_anchor",
+      "domain_type": "Point",
+      "runtime_type": "PointRef",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "parabola": {
-      "type": "Parabola",
-      "required": true
+      "required": true,
+      "symbolic_basis_role": "state_anchor",
+      "domain_type": "QuadraticFunction",
+      "runtime_type": "Parabola",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "QuadraticFunction",
+        "object_kind": "function",
+        "state_kind": "expression"
+      }
     },
     "x": {
-      "type": "Symbol",
-      "required": true
+      "required": true,
+      "domain_type": "Symbol",
+      "runtime_type": "Symbol",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Symbol",
+        "object_kind": "symbol",
+        "state_kind": "value"
+      },
+      "binding": {
+        "schema_version": "method-input-binding/v1",
+        "input_name": "x",
+        "required": true,
+        "derivation": {
+          "kind": "canonical_symbol",
+          "symbol_name": "x"
+        }
+      }
     },
     "parameter": {
-      "type": "Symbol",
-      "required": true
+      "required": true,
+      "domain_type": "Symbol",
+      "runtime_type": "Symbol",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Symbol",
+        "object_kind": "symbol",
+        "state_kind": "value"
+      },
+      "binding": {
+        "schema_version": "method-input-binding/v1",
+        "input_name": "parameter",
+        "required": true,
+        "derivation": {
+          "kind": "free_symbol_basis",
+          "source_inputs": [
+            "parabola",
+            "parameter_constraint"
+          ]
+        }
+      }
     },
     "parameter_constraint": {
-      "type": "Constraint",
-      "required": false
+      "required": false,
+      "symbolic_basis_role": "align_to_anchor",
+      "domain_type": "Fact",
+      "runtime_type": "Constraint",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "Fact"
+      }
     },
     "quadratic_template": {
-      "type": "Expression",
       "required": false,
-      "functional_exposed": false
+      "functional_exposed": false,
+      "domain_type": "QuadraticFunction",
+      "runtime_type": "Expression",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "QuadraticFunction",
+        "object_kind": "function",
+        "state_kind": "expression"
+      },
+      "binding": {
+        "schema_version": "method-input-binding/v1",
+        "input_name": "quadratic_template",
+        "required": false,
+        "derivation": {
+          "kind": "ordinal_zero_template",
+          "source_input": "parabola"
+        }
+      }
     }
   },
   "outputs": {
@@ -43,6 +122,12 @@
     "selected_candidate": "Point"
   },
   "is_pure": true,
+  "output_activation": {
+    "selected_candidate": {
+      "kind": "runtime_condition",
+      "runtime_condition": "exactly_one_candidate"
+    }
+  },
   "preconditions": [
     "parabola 已代入当前问能确定的已知条件",
     "candidates 来自几何构造"

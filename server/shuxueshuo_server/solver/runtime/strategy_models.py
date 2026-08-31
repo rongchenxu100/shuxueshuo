@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Literal, Protocol
+from typing import Any, Literal, Mapping, Protocol
 
 import sympy as sp
 from sympy.parsing.sympy_parser import parse_expr
 
-from shuxueshuo_server.solver.contracts import FunctionalResultForm
+from shuxueshuo_server.solver.contracts import (
+    FunctionalResultForm,
+    MethodInputBindingSpec,
+)
 from shuxueshuo_server.solver.runtime.state_identity import (
     ComputationKey,
     LogicalStateKey,
@@ -19,7 +22,11 @@ from shuxueshuo_server.solver.runtime.state_identity import (
     StateSlotId,
     StateVersionId,
 )
+from shuxueshuo_server.solver.runtime.problem_source_provenance import (
+    ProblemCallSourceProvenance,
+)
 from shuxueshuo_server.solver.state_semantics import StateSemanticLineage
+
 
 @dataclass(frozen=True)
 class SymbolicClosureProvenance:
@@ -482,10 +489,13 @@ class ProjectedFunctionArgBinding:
     semantic_role: str | None = None
     cardinality: str = "one"
     item_index: int = 0
-    selection_policy: Literal[
-        "exact", "latest", "identity_only", "compiler"
-    ] = "exact"
+    selection_policy: Literal["exact", "latest", "identity_only"] = "exact"
+    consumption_mode: Literal[
+        "runtime_input", "resolver_evidence", "typed_binding"
+    ] = "runtime_input"
     runtime_input_targets: tuple[str, ...] = ()
+    runtime_input_required: bool = True
+    input_binding: MethodInputBindingSpec | None = None
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -497,7 +507,9 @@ class ProjectedFunctionArgBinding:
             "cardinality": self.cardinality,
             "item_index": self.item_index,
             "selection_policy": self.selection_policy,
+            "consumption_mode": self.consumption_mode,
             "runtime_input_targets": list(self.runtime_input_targets),
+            "runtime_input_required": self.runtime_input_required,
         }
         if self.runtime_type is not None:
             payload["runtime_type"] = self.runtime_type
@@ -511,12 +523,89 @@ class ProjectedFunctionArgBinding:
             payload["state_version_id"] = self.state_version_id.to_payload()
         if self.condition_id is not None:
             payload["condition_id"] = self.condition_id
+        if self.input_binding is not None:
+            payload["input_binding"] = self.input_binding.to_payload()
         if self.source_call_id is not None:
             payload["source_call_id"] = self.source_call_id
         if self.source_return_name is not None:
             payload["source_return_name"] = self.source_return_name
         payload["binding_authority"] = self.binding_authority
         return payload
+
+    @classmethod
+    def from_payload(
+        cls,
+        payload: Mapping[str, Any],
+    ) -> "ProjectedFunctionArgBinding":
+        math_object = payload.get("math_object_id")
+        state_version = payload.get("state_version_id")
+        input_binding = payload.get("input_binding")
+        return cls(
+            step_id=str(payload["step_id"]),
+            arg_name=str(payload["arg_name"]),
+            source_handle=str(payload["source_handle"]),
+            runtime_type=(
+                str(payload["runtime_type"])
+                if payload.get("runtime_type") is not None
+                else None
+            ),
+            state_slot_id=(
+                str(payload["state_slot_id"])
+                if payload.get("state_slot_id") is not None
+                else None
+            ),
+            object_ref=(
+                str(payload["object_ref"])
+                if payload.get("object_ref") is not None
+                else None
+            ),
+            math_object_id=(
+                MathObjectId.from_payload(math_object)
+                if isinstance(math_object, Mapping)
+                else None
+            ),
+            state_version_id=(
+                StateVersionId.from_payload(state_version)
+                if isinstance(state_version, Mapping)
+                else None
+            ),
+            condition_id=(
+                str(payload["condition_id"])
+                if payload.get("condition_id") is not None
+                else None
+            ),
+            source_call_id=(
+                str(payload["source_call_id"])
+                if payload.get("source_call_id") is not None
+                else None
+            ),
+            source_return_name=(
+                str(payload["source_return_name"])
+                if payload.get("source_return_name") is not None
+                else None
+            ),
+            binding_authority=str(payload.get("binding_authority", "wire")),  # type: ignore[arg-type]
+            semantic_role=(
+                str(payload["semantic_role"])
+                if payload.get("semantic_role") is not None
+                else None
+            ),
+            cardinality=str(payload.get("cardinality", "one")),
+            item_index=int(payload.get("item_index", 0)),
+            selection_policy=str(payload.get("selection_policy", "exact")),  # type: ignore[arg-type]
+            consumption_mode=str(payload.get("consumption_mode", "runtime_input")),  # type: ignore[arg-type]
+            runtime_input_targets=tuple(
+                str(item) for item in payload.get("runtime_input_targets", ())
+            ),
+            runtime_input_required=bool(
+                payload.get("runtime_input_required", True)
+            ),
+            input_binding=(
+                MethodInputBindingSpec.from_payload(input_binding)
+                if isinstance(input_binding, Mapping)
+                else None
+            ),
+        )
 
 
 @dataclass(frozen=True)
@@ -996,6 +1085,7 @@ class StateWriteProvenance:
     valid_scope_id: str | None = None
     result_form: str | None = None
     symbolic_closure_provenance: SymbolicClosureProvenance | None = None
+    problem_source_provenance: ProblemCallSourceProvenance | None = None
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -1078,6 +1168,11 @@ class StateWriteProvenance:
                 if self.symbolic_closure_provenance is not None
                 else None
             ),
+            "problem_source_provenance": (
+                self.problem_source_provenance.to_payload()
+                if self.problem_source_provenance is not None
+                else None
+            ),
         }
 
 
@@ -1093,6 +1188,7 @@ class FunctionalRuntimeResult:
     runtime_type: str
     value: Any | None = None
     value_omitted_reason: str | None = None
+    problem_source_provenance: ProblemCallSourceProvenance | None = None
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -1107,6 +1203,17 @@ class FunctionalRuntimeResult:
             payload["value"] = self.value
         if self.value_omitted_reason is not None:
             payload["value_omitted_reason"] = self.value_omitted_reason
+        return payload
+
+    def authority_payload(self) -> dict[str, Any]:
+        """Return debug/checkpoint data without changing prompt-safe payloads."""
+
+        payload = self.to_payload()
+        payload["problem_source_provenance"] = (
+            self.problem_source_provenance.to_payload()
+            if self.problem_source_provenance is not None
+            else None
+        )
         return payload
 
 
@@ -1300,9 +1407,10 @@ class PlannerRetryIssue:
     hints: tuple[str, ...] = ()
     related_handles: tuple[str, ...] = ()
     details: dict[str, Any] | None = None
+    diagnostic_authority: dict[str, Any] | None = None
 
-    def to_payload(self) -> dict[str, Any]:
-        """转成 prompt/debug JSON。"""
+    def to_authority_payload(self) -> dict[str, Any]:
+        """Serialize internal retry authority; this payload is not prompt-safe."""
         payload: dict[str, Any] = {
             "layer": self.layer,
             "code": self.code,
@@ -1316,7 +1424,14 @@ class PlannerRetryIssue:
         }
         if self.details is not None:
             payload["details"] = self.details
+        if self.diagnostic_authority is not None:
+            payload["diagnostic_authority"] = self.diagnostic_authority
         return payload
+
+    def to_payload(self) -> dict[str, Any]:
+        """Compatibility alias for internal/debug serialization only."""
+
+        return self.to_authority_payload()
 
 
 @dataclass(frozen=True)

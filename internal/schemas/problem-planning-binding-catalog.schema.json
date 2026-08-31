@@ -1,8 +1,522 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "binding": {
+      "additionalProperties": false,
+      "properties": {
+        "owner_scope_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "runtime_node_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "semantic_ref": {
+          "$ref": "#/$defs/semantic_ref"
+        },
+        "source_unit_ids": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "typed_sources": {
+          "items": {
+            "$ref": "#/$defs/problem_typed_source"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "usage": {
+          "enum": [
+            "input",
+            "answer"
+          ]
+        },
+        "visible_goal_unit_ids": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "semantic_ref",
+        "runtime_node_id",
+        "source_unit_ids",
+        "owner_scope_id",
+        "visible_goal_unit_ids",
+        "usage",
+        "typed_sources"
+      ],
+      "type": "object"
+    },
+    "functional_source": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "state_version"
+            },
+            "state_version_id": {
+              "$ref": "#/$defs/state_version_id"
+            }
+          },
+          "required": [
+            "kind",
+            "state_version_id"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "condition_id": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "kind": {
+              "const": "condition"
+            }
+          },
+          "required": [
+            "kind",
+            "condition_id"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "math_object"
+            },
+            "math_object_id": {
+              "$ref": "#/$defs/math_object_id"
+            }
+          },
+          "required": [
+            "kind",
+            "math_object_id"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "call_result"
+            },
+            "source_call_id": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "source_return_name": {
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "source_call_id",
+            "source_return_name"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "logical_state_key": {
+      "additionalProperties": false,
+      "properties": {
+        "object_id": {
+          "$ref": "#/$defs/math_object_id"
+        },
+        "runtime_type": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "state_kind": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "object_id",
+        "state_kind",
+        "runtime_type"
+      ],
+      "type": "object"
+    },
+    "math_object_id": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "origin_scope_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "value": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "value",
+        "kind",
+        "origin_scope_id"
+      ],
+      "type": "object"
+    },
+    "problem_typed_source": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "math_object"
+            },
+            "math_object_id": {
+              "$ref": "#/$defs/math_object_id"
+            },
+            "runtime_type": {
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "math_object_id"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "answer_target"
+            },
+            "math_object_id": {
+              "$ref": "#/$defs/math_object_id"
+            },
+            "runtime_type": {
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "math_object_id"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "state_version"
+            },
+            "math_object_id": {
+              "$ref": "#/$defs/math_object_id"
+            },
+            "runtime_type": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "state_slot_id": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "state_version_id": {
+              "$ref": "#/$defs/state_version_id"
+            }
+          },
+          "required": [
+            "kind",
+            "state_version_id",
+            "state_slot_id"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "condition_id": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "kind": {
+              "const": "condition"
+            },
+            "runtime_type": {
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "condition_id"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "scoped_source_ref_key": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "local_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "owner_scope_id": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "owner_scope_id",
+        "local_ref",
+        "kind"
+      ],
+      "type": "object"
+    },
+    "semantic_ref": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "value_type": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "ref",
+        "kind"
+      ],
+      "type": "object"
+    },
+    "state_slot_id": {
+      "additionalProperties": false,
+      "properties": {
+        "logical_key": {
+          "$ref": "#/$defs/logical_state_key"
+        },
+        "storage_scope_id": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "logical_key",
+        "storage_scope_id"
+      ],
+      "type": "object"
+    },
+    "state_version_id": {
+      "additionalProperties": false,
+      "properties": {
+        "ordinal": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "slot_id": {
+          "$ref": "#/$defs/state_slot_id"
+        }
+      },
+      "required": [
+        "slot_id",
+        "ordinal"
+      ],
+      "type": "object"
+    }
+  },
   "$id": "problem-planning-binding-catalog.schema.json",
-  "title": "ProblemPlanningBindingCatalog authority payload",
-  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "binding_signature": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "bindings": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "owner_scope_id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "runtime_node_id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "semantic_ref": {
+            "$ref": "#/$defs/semantic_ref"
+          },
+          "source_unit_ids": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "minItems": 1,
+            "type": "array",
+            "uniqueItems": true
+          },
+          "typed_sources": {
+            "items": {
+              "$ref": "#/$defs/problem_typed_source"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "usage": {
+            "enum": [
+              "input",
+              "answer"
+            ]
+          },
+          "visible_goal_unit_ids": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "minItems": 1,
+            "type": "array",
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "semantic_ref",
+          "runtime_node_id",
+          "source_unit_ids",
+          "owner_scope_id",
+          "visible_goal_unit_ids",
+          "usage",
+          "typed_sources"
+        ],
+        "type": "object"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "bundle_authority_token": {
+      "additionalProperties": false,
+      "properties": {
+        "bundle_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "dependency_hash": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "extraction_context_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "problem_revision_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "problem_semantic_hash": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "extraction_context_id",
+        "dependency_hash",
+        "problem_revision_id",
+        "problem_semantic_hash",
+        "bundle_id"
+      ],
+      "type": "object"
+    },
+    "family_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "goal_answer_refs": {
+      "additionalProperties": {
+        "$ref": "#/$defs/scoped_source_ref_key"
+      },
+      "minProperties": 1,
+      "type": "object"
+    },
+    "goal_input_refs": {
+      "additionalProperties": {
+        "items": {
+          "$ref": "#/$defs/scoped_source_ref_key"
+        },
+        "type": "array"
+      },
+      "minProperties": 1,
+      "type": "object"
+    },
+    "goal_visible_scope_ids": {
+      "additionalProperties": {
+        "items": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "minItems": 1,
+        "type": "array",
+        "uniqueItems": true
+      },
+      "minProperties": 1,
+      "type": "object"
+    },
+    "planner_state_context_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "planning_context_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "problem_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "problem-planning-binding-catalog/v1"
+    },
+    "scope_parent_ids": {
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "minLength": 1,
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "minProperties": 1,
+      "type": "object"
+    }
+  },
   "required": [
     "schema_version",
     "planning_context_id",
@@ -14,515 +528,9 @@
     "goal_input_refs",
     "goal_answer_refs",
     "goal_visible_scope_ids",
+    "scope_parent_ids",
     "binding_signature"
   ],
-  "properties": {
-    "schema_version": {
-      "const": "problem-planning-binding-catalog/v1"
-    },
-    "planning_context_id": {
-      "type": "string",
-      "minLength": 1
-    },
-    "bundle_authority_token": {
-      "type": "object",
-      "required": [
-        "extraction_context_id",
-        "dependency_hash",
-        "problem_revision_id",
-        "problem_semantic_hash",
-        "bundle_id"
-      ],
-      "properties": {
-        "extraction_context_id": {
-          "type": "string",
-          "minLength": 1
-        },
-        "dependency_hash": {
-          "type": "string",
-          "minLength": 1
-        },
-        "problem_revision_id": {
-          "type": "string",
-          "minLength": 1
-        },
-        "problem_semantic_hash": {
-          "type": "string",
-          "minLength": 1
-        },
-        "bundle_id": {
-          "type": "string",
-          "minLength": 1
-        }
-      },
-      "additionalProperties": false
-    },
-    "planner_state_context_id": {
-      "type": "string",
-      "minLength": 1
-    },
-    "problem_id": {
-      "type": "string",
-      "minLength": 1
-    },
-    "family_id": {
-      "type": "string",
-      "minLength": 1
-    },
-    "bindings": {
-      "type": "object",
-      "minProperties": 1,
-      "additionalProperties": {
-        "type": "object",
-        "required": [
-          "semantic_ref",
-          "runtime_node_id",
-          "source_unit_ids",
-          "owner_scope_id",
-          "visible_goal_unit_ids",
-          "usage",
-          "typed_sources"
-        ],
-        "properties": {
-          "semantic_ref": {
-            "$ref": "#/$defs/semantic_ref"
-          },
-          "runtime_node_id": {
-            "type": "string",
-            "minLength": 1
-          },
-          "source_unit_ids": {
-            "type": "array",
-            "minItems": 1,
-            "uniqueItems": true,
-            "items": {
-              "type": "string",
-              "minLength": 1
-            }
-          },
-          "owner_scope_id": {
-            "type": "string",
-            "minLength": 1
-          },
-          "visible_goal_unit_ids": {
-            "type": "array",
-            "minItems": 1,
-            "uniqueItems": true,
-            "items": {
-              "type": "string",
-              "minLength": 1
-            }
-          },
-          "usage": {
-            "enum": [
-              "input",
-              "answer"
-            ]
-          },
-          "typed_sources": {
-            "type": "array",
-            "minItems": 1,
-            "items": {
-              "$ref": "#/$defs/problem_typed_source"
-            }
-          }
-        },
-        "additionalProperties": false
-      }
-    },
-    "goal_input_refs": {
-      "type": "object",
-      "minProperties": 1,
-      "additionalProperties": {
-        "type": "array",
-        "items": {
-          "$ref": "#/$defs/semantic_ref_key"
-        }
-      }
-    },
-    "goal_answer_refs": {
-      "type": "object",
-      "minProperties": 1,
-      "additionalProperties": {
-        "$ref": "#/$defs/semantic_ref_key"
-      }
-    },
-    "goal_visible_scope_ids": {
-      "type": "object",
-      "minProperties": 1,
-      "additionalProperties": {
-        "type": "array",
-        "minItems": 1,
-        "uniqueItems": true,
-        "items": {
-          "type": "string",
-          "minLength": 1
-        }
-      }
-    },
-    "binding_signature": {
-      "type": "string",
-      "pattern": "^[0-9a-f]{64}$"
-    }
-  },
-  "$defs": {
-    "math_object_id": {
-      "type": "object",
-      "required": [
-        "value",
-        "kind",
-        "origin_scope_id"
-      ],
-      "properties": {
-        "value": {
-          "type": "string",
-          "minLength": 1
-        },
-        "kind": {
-          "type": "string",
-          "minLength": 1
-        },
-        "origin_scope_id": {
-          "type": "string",
-          "minLength": 1
-        }
-      },
-      "additionalProperties": false
-    },
-    "logical_state_key": {
-      "type": "object",
-      "required": [
-        "object_id",
-        "state_kind",
-        "runtime_type"
-      ],
-      "properties": {
-        "object_id": {
-          "$ref": "#/$defs/math_object_id"
-        },
-        "state_kind": {
-          "type": "string",
-          "minLength": 1
-        },
-        "runtime_type": {
-          "type": "string",
-          "minLength": 1
-        }
-      },
-      "additionalProperties": false
-    },
-    "state_slot_id": {
-      "type": "object",
-      "required": [
-        "logical_key",
-        "storage_scope_id"
-      ],
-      "properties": {
-        "logical_key": {
-          "$ref": "#/$defs/logical_state_key"
-        },
-        "storage_scope_id": {
-          "type": "string",
-          "minLength": 1
-        }
-      },
-      "additionalProperties": false
-    },
-    "state_version_id": {
-      "type": "object",
-      "required": [
-        "slot_id",
-        "ordinal"
-      ],
-      "properties": {
-        "slot_id": {
-          "$ref": "#/$defs/state_slot_id"
-        },
-        "ordinal": {
-          "type": "integer",
-          "minimum": 0
-        }
-      },
-      "additionalProperties": false
-    },
-    "semantic_ref": {
-      "type": "object",
-      "required": [
-        "ref",
-        "kind"
-      ],
-      "properties": {
-        "ref": {
-          "type": "string",
-          "minLength": 1
-        },
-        "kind": {
-          "type": "string",
-          "minLength": 1
-        },
-        "value_type": {
-          "type": "string",
-          "minLength": 1
-        }
-      },
-      "additionalProperties": false
-    },
-    "problem_typed_source": {
-      "oneOf": [
-        {
-          "type": "object",
-          "required": [
-            "kind",
-            "math_object_id"
-          ],
-          "properties": {
-            "kind": {
-              "const": "math_object"
-            },
-            "runtime_type": {
-              "type": "string",
-              "minLength": 1
-            },
-            "math_object_id": {
-              "$ref": "#/$defs/math_object_id"
-            }
-          },
-          "additionalProperties": false
-        },
-        {
-          "type": "object",
-          "required": [
-            "kind",
-            "math_object_id"
-          ],
-          "properties": {
-            "kind": {
-              "const": "answer_target"
-            },
-            "runtime_type": {
-              "type": "string",
-              "minLength": 1
-            },
-            "math_object_id": {
-              "$ref": "#/$defs/math_object_id"
-            }
-          },
-          "additionalProperties": false
-        },
-        {
-          "type": "object",
-          "required": [
-            "kind",
-            "state_version_id",
-            "state_slot_id"
-          ],
-          "properties": {
-            "kind": {
-              "const": "state_version"
-            },
-            "runtime_type": {
-              "type": "string",
-              "minLength": 1
-            },
-            "math_object_id": {
-              "$ref": "#/$defs/math_object_id"
-            },
-            "state_version_id": {
-              "$ref": "#/$defs/state_version_id"
-            },
-            "state_slot_id": {
-              "type": "string",
-              "minLength": 1
-            }
-          },
-          "additionalProperties": false
-        },
-        {
-          "type": "object",
-          "required": [
-            "kind",
-            "condition_id"
-          ],
-          "properties": {
-            "kind": {
-              "const": "condition"
-            },
-            "runtime_type": {
-              "type": "string",
-              "minLength": 1
-            },
-            "condition_id": {
-              "type": "string",
-              "minLength": 1
-            }
-          },
-          "additionalProperties": false
-        }
-      ]
-    },
-    "functional_source": {
-      "oneOf": [
-        {
-          "type": "object",
-          "required": [
-            "kind",
-            "state_version_id"
-          ],
-          "properties": {
-            "kind": {
-              "const": "state_version"
-            },
-            "state_version_id": {
-              "$ref": "#/$defs/state_version_id"
-            }
-          },
-          "additionalProperties": false
-        },
-        {
-          "type": "object",
-          "required": [
-            "kind",
-            "condition_id"
-          ],
-          "properties": {
-            "kind": {
-              "const": "condition"
-            },
-            "condition_id": {
-              "type": "string",
-              "minLength": 1
-            }
-          },
-          "additionalProperties": false
-        },
-        {
-          "type": "object",
-          "required": [
-            "kind",
-            "math_object_id"
-          ],
-          "properties": {
-            "kind": {
-              "const": "math_object"
-            },
-            "math_object_id": {
-              "$ref": "#/$defs/math_object_id"
-            }
-          },
-          "additionalProperties": false
-        },
-        {
-          "type": "object",
-          "required": [
-            "kind",
-            "compiler_selector_id"
-          ],
-          "properties": {
-            "kind": {
-              "const": "compiler_selector"
-            },
-            "compiler_selector_id": {
-              "type": "string",
-              "minLength": 1
-            }
-          },
-          "additionalProperties": false
-        },
-        {
-          "type": "object",
-          "required": [
-            "kind",
-            "source_call_id",
-            "source_return_name"
-          ],
-          "properties": {
-            "kind": {
-              "const": "call_result"
-            },
-            "source_call_id": {
-              "type": "string",
-              "minLength": 1
-            },
-            "source_return_name": {
-              "type": "string",
-              "minLength": 1
-            }
-          },
-          "additionalProperties": false
-        }
-      ]
-    },
-    "semantic_ref_key": {
-      "type": "array",
-      "prefixItems": [
-        {
-          "type": "string",
-          "minLength": 1
-        },
-        {
-          "type": "string",
-          "minLength": 1
-        }
-      ],
-      "items": false
-    },
-    "binding": {
-      "type": "object",
-      "required": [
-        "semantic_ref",
-        "runtime_node_id",
-        "source_unit_ids",
-        "owner_scope_id",
-        "visible_goal_unit_ids",
-        "usage",
-        "typed_sources"
-      ],
-      "properties": {
-        "semantic_ref": {
-          "$ref": "#/$defs/semantic_ref"
-        },
-        "runtime_node_id": {
-          "type": "string",
-          "minLength": 1
-        },
-        "source_unit_ids": {
-          "type": "array",
-          "minItems": 1,
-          "uniqueItems": true,
-          "items": {
-            "type": "string",
-            "minLength": 1
-          }
-        },
-        "owner_scope_id": {
-          "type": "string",
-          "minLength": 1
-        },
-        "visible_goal_unit_ids": {
-          "type": "array",
-          "minItems": 1,
-          "uniqueItems": true,
-          "items": {
-            "type": "string",
-            "minLength": 1
-          }
-        },
-        "usage": {
-          "enum": [
-            "input",
-            "answer"
-          ]
-        },
-        "typed_sources": {
-          "type": "array",
-          "minItems": 1,
-          "items": {
-            "$ref": "#/$defs/problem_typed_source"
-          }
-        }
-      },
-      "additionalProperties": false
-    }
-  },
-  "additionalProperties": false
+  "title": "ProblemPlanningBindingCatalog authority payload",
+  "type": "object"
 }

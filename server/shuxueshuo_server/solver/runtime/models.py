@@ -144,6 +144,13 @@ class MethodInvocation:
     scope: str
     inputs: dict[str, str | tuple[str, ...]] = field(default_factory=dict)
     outputs: dict[str, str] = field(default_factory=dict)
+    input_read_authorities: dict[str, tuple[Any, ...]] = field(
+        default_factory=dict
+    )
+    supporting_input_read_authorities: dict[str, tuple[Any, ...]] = field(
+        default_factory=dict
+    )
+    output_write_authorities: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass

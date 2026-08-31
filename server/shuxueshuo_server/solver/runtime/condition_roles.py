@@ -14,6 +14,7 @@ from typing import Any, Mapping, Protocol, Sequence
 from shuxueshuo_server.solver.runtime.functional_compile_contract import (
     compile_input_handles,
 )
+from shuxueshuo_server.solver.runtime.models import ContextPath
 from shuxueshuo_server.solver.runtime.strategy_models import (
     FunctionalCompileStepView,
     StrategyDraftValidationError,
@@ -84,9 +85,84 @@ def _midpoint_definition_roles(
             "midpoint_definition requires one midpoint and two Point endpoints",
             details={"fields": ["point", "of"]},
         )
+    endpoint_refs = tuple(str(item) for item in endpoints)
     return (
         ("midpoint", (str(midpoint),)),
-        ("endpoint", tuple(str(item) for item in endpoints)),
+        ("endpoint", endpoint_refs),
+        ("p1", (endpoint_refs[0],)),
+        ("p2", (endpoint_refs[1],)),
+    )
+
+
+def _point_on_curve_roles(
+    payload: Mapping[str, Any],
+) -> ConditionObjectRoles:
+    point = payload.get("point")
+    curve = payload.get("curve")
+    if not _is_point_handle(point) or not is_object_handle(curve):
+        raise ConditionRoleResolutionError(
+            "condition.roles_invalid",
+            "point_on_curve requires structured Point and curve entities",
+            details={"fields": ["point", "curve"]},
+        )
+    result: list[tuple[str, tuple[str, ...]]] = [
+        ("point", (str(point),)),
+        ("curve", (str(curve),)),
+    ]
+    x_symbol = payload.get("x_symbol")
+    if x_symbol is not None:
+        if not is_object_handle(x_symbol):
+            raise ConditionRoleResolutionError(
+                "condition.roles_invalid",
+                "point_on_curve x_symbol must be a structured Symbol entity",
+                details={"field": "x_symbol"},
+            )
+        result.append(("x_symbol", (str(x_symbol),)))
+    return tuple(result)
+
+
+def _angle_sum_roles(
+    payload: Mapping[str, Any],
+    *,
+    entity_payloads: Mapping[str, Mapping[str, Any]] | None,
+) -> ConditionObjectRoles:
+    terms = payload.get("angle_terms")
+    if (
+        not isinstance(terms, list | tuple)
+        or len(terms) != 2
+        or any(not isinstance(item, str) or len(item) != 3 for item in terms)
+        or entity_payloads is None
+    ):
+        raise ConditionRoleResolutionError(
+            "condition.roles_invalid",
+            "angle_sum requires two structured three-point angle terms",
+            details={"field": "angle_terms"},
+        )
+
+    def point_ref(name: str) -> str:
+        matches = tuple(
+            handle
+            for handle, entity in entity_payloads.items()
+            if handle.startswith("point:")
+            and (
+                entity.get("name") == name
+                or handle.rsplit(":", 1)[-1] == name
+            )
+        )
+        if len(matches) != 1:
+            raise ConditionRoleResolutionError(
+                "condition.roles_invalid",
+                "angle_sum point name must resolve to one Point entity",
+                details={"point_name": name, "candidates": list(matches)},
+            )
+        return matches[0]
+
+    left, right = terms
+    return (
+        ("x_axis_point", (point_ref(left[1]),)),
+        ("y_axis_point", (point_ref(left[0]),)),
+        ("reference_x_axis_point", (point_ref(right[0]),)),
+        ("origin", (point_ref(right[2]),)),
     )
 
 
@@ -103,6 +179,8 @@ def _structured_subject_refs(
 
 _CONDITION_ROLE_EXTRACTORS: Mapping[str, ConditionRoleExtractor] = {
     "midpoint_definition": _midpoint_definition_roles,
+    "point_on_curve": _point_on_curve_roles,
+    "point_on_curve_with_x_coordinate": _point_on_curve_roles,
     "right_angle_equal_length": _right_angle_equal_length_roles,
     "square": _square_roles,
 }
@@ -230,7 +308,10 @@ class ConditionRoleResolver:
 
     @classmethod
     def supports(cls, condition_kind: str) -> bool:
-        return condition_kind in _CONDITION_ROLE_EXTRACTORS
+        return (
+            condition_kind in _CONDITION_ROLE_EXTRACTORS
+            or condition_kind == "angle_sum"
+        )
 
     @classmethod
     def object_roles(
@@ -241,8 +322,13 @@ class ConditionRoleResolver:
         entity_payloads: Mapping[str, Mapping[str, Any]] | None = None,
     ) -> ConditionObjectRoles:
         extractor = _CONDITION_ROLE_EXTRACTORS.get(condition_kind)
+        extracted = (
+            _angle_sum_roles(payload, entity_payloads=entity_payloads)
+            if condition_kind == "angle_sum"
+            else (extractor(payload) if extractor is not None else ())
+        )
         declared = (
-            *((extractor(payload) if extractor is not None else ())),
+            *extracted,
             *_segment_condition_roles(
                 condition_kind,
                 payload,
@@ -376,6 +462,7 @@ def resolve_read_closed_constructed_point_roles(
             index.fact_payload(relation),
         )
         endpoint_handles = dict(object_roles).get("endpoint", ())
+        compiled_target = getattr(step, "target_handle", None)
         materialized = tuple(
             handle
             for handle in endpoint_handles
@@ -388,15 +475,26 @@ def resolve_read_closed_constructed_point_roles(
             is not None
         )
         target_hints = tuple(
-            handle
-            for handle in endpoint_handles
-            if _read_handle_for_object(
-                handle,
-                expected_type="PointRef",
-                step=step,
-                index=index,
+            unique_ordered(
+                (
+                    *(
+                        (compiled_target,)
+                        if compiled_target in endpoint_handles
+                        else ()
+                    ),
+                    *(
+                        handle
+                        for handle in endpoint_handles
+                        if _read_handle_for_object(
+                            handle,
+                            expected_type="PointRef",
+                            step=step,
+                            index=index,
+                        )
+                        is not None
+                    ),
+                )
             )
-            is not None
         )
         roles = ConditionRoleResolver.resolve_constructed_point_roles(
             object_roles,
@@ -419,11 +517,18 @@ def resolve_read_closed_constructed_point_roles(
             roles.reference,
             "Point",
         ),
-        target=_require_read_object_type(
-            step,
-            index,
-            roles.target,
-            "PointRef",
+        target=(
+            # B1/F5-C already selected the destination MathObject. Keep that
+            # identity even when another branch has materialized a Point state
+            # for the same object; the compiler resolves its immutable path.
+            roles.target
+            if compiled_target == roles.target
+            else _require_read_object_type(
+                step,
+                index,
+                roles.target,
+                "PointRef",
+            )
         ),
     )
 
@@ -493,6 +598,14 @@ def _read_handle_for_object(
             binding = index.binding_for(handle)
         except StrategyDraftValidationError:
             continue
+        context = getattr(index, "context", None)
+        if context is not None:
+            try:
+                binding_scope = ContextPath.parse(str(binding.path)).scope_id
+                if not context.is_visible(step.scope_id, binding_scope):
+                    continue
+            except (KeyError, ValueError):
+                continue
         if str(binding.value_type) != expected_type:
             continue
         identity_matches = handle == object_handle

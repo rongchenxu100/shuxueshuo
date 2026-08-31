@@ -92,7 +92,6 @@
     "Parabola": "solved or simplified quadratic function expression",
     "ParameterValue": "a solved parameter value",
     "MinimumExpression": "an expression for a path or distance minimum",
-    "PathTransformation": "equivalent path or dimension-reduction result",
     "Line": "line or locus line"
   },
   "bad_patterns": [

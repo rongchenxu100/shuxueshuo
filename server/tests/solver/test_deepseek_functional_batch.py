@@ -80,7 +80,11 @@ def test_symbolic_closure_counts_include_failed_attempt_artifacts(
 
 def test_prompt_metadata_guard_allows_capability_prefixed_by_example_id() -> None:
     payload = {
-        "planner_protocol": "functional_plan/v1",
+        "planner_protocol": "functional-plan-content/v2",
+        "problem_planning_context": {
+            "schema_version": "planner-problem-view/v2",
+            "root_scope": {"id": "problem", "text": ["x"]},
+        },
         "functional_few_shot_selection": {
             "example_id": "broken_path_straightening",
             "source_problem_id": "synthetic-source",
@@ -181,7 +185,8 @@ def test_batch_dry_run_records_fixed_authorities(
     ) == 0
 
     payload = json.loads(capsys.readouterr().out)
-    assert payload["planner_protocol"] == "functional_plan/v1"
+    assert payload["planner_protocol"] == "functional-plan-content/v2"
+    assert payload["retry_planner_protocol"] == "functional-scope-repair/v1"
     assert payload["transaction_authority"] == "context_authoritative"
     assert payload["symbolic_closure_authority"] == "authoritative"
     assert payload["compiler"] == "direct"

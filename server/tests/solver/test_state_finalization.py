@@ -48,11 +48,14 @@ def _registry() -> CanonicalHandleRegistry:
 def _identity(
     object_ref: str = "point:problem:D",
     *,
+    object_kind: str = "point",
+    state_kind: str = "coordinate",
+    runtime_type: str = "Point",
     storage_scope: str = "problem",
     ordinal: int = 1,
 ) -> tuple[MathObjectId, LogicalStateKey, StateSlotId, StateVersionId]:
-    object_id = MathObjectId(object_ref, "point", "problem")
-    logical_key = LogicalStateKey(object_id, "coordinate", "Point")
+    object_id = MathObjectId(object_ref, object_kind, "problem")
+    logical_key = LogicalStateKey(object_id, state_kind, runtime_type)
     slot_id = StateSlotId(logical_key, storage_scope)
     return object_id, logical_key, slot_id, StateVersionId(slot_id, ordinal)
 
@@ -62,6 +65,9 @@ def _write(
     produced_handle: str,
     *,
     object_ref: str = "point:problem:D",
+    object_kind: str = "point",
+    state_kind: str = "coordinate",
+    runtime_type: str = "Point",
     storage_scope: str = "problem",
     ordinal: int = 1,
     action: str = "create",
@@ -70,6 +76,9 @@ def _write(
 ) -> ProjectedStateWrite:
     object_id, logical_key, slot_id, version_id = _identity(
         object_ref,
+        object_kind=object_kind,
+        state_kind=state_kind,
+        runtime_type=runtime_type,
         storage_scope=storage_scope,
         ordinal=ordinal,
     )
@@ -77,10 +86,10 @@ def _write(
         step_id=step_id,
         produced_handle=produced_handle,
         state_slot_id=(
-            f"{object_ref}.coordinate@{storage_scope}:Point"
+            f"{object_ref}.{state_kind}@{storage_scope}:{runtime_type}"
         ),
         write_mode="transition" if action == "transition" else "create",
-        runtime_type="Point",
+        runtime_type=runtime_type,
         object_ref=object_ref,
         return_name="point",
         math_object_id=object_id,
@@ -199,6 +208,89 @@ def test_logical_finalizer_accepts_transition_and_rejects_stale_read() -> None:
             step_scopes={"create_d": "problem", "close_d": "problem"},
             handle_registry=_registry(),
         )
+
+
+def test_heping_scope_comparable_creates_require_runtime_equivalence_probe() -> None:
+    """An ancestor open state and child closed state are compared at runtime."""
+
+    ancestor = _write(
+        "solve_parabola_common",
+        "function:problem:parabola",
+        object_ref="function:problem:parabola",
+        object_kind="function",
+        state_kind="expression",
+        runtime_type="Parabola",
+        storage_scope="problem",
+    )
+    descendant = _write(
+        "solve_parabola_i",
+        "function:i:parabola",
+        object_ref="function:problem:parabola",
+        object_kind="function",
+        state_kind="expression",
+        runtime_type="Parabola",
+        storage_scope="i",
+    )
+
+    result = StateFinalizationService().finalize_logical_graph(
+        (ancestor, descendant),
+        step_scopes={
+            "solve_parabola_common": "problem",
+            "solve_parabola_i": "i",
+        },
+        handle_registry=_registry(),
+    )
+
+    assert result.ok
+    assert not result.mismatches
+    assert len(result.runtime_equivalence_probes) == 1
+    probe = result.runtime_equivalence_probes[0]
+    assert probe.ancestor_call_id == "solve_parabola_common"
+    assert probe.descendant_call_id == "solve_parabola_i"
+    assert probe.comparison_scope_id == "i"
+    assert any(
+        item.logical_writer_status == "runtime_probe_required"
+        for item in result.decisions
+    )
+
+
+def test_nested_create_writers_probe_every_comparable_state_pair() -> None:
+    writes = tuple(
+        _write(
+            step_id,
+            f"function:{scope}:parabola",
+            object_ref="function:problem:parabola",
+            object_kind="function",
+            state_kind="expression",
+            runtime_type="Parabola",
+            storage_scope=scope,
+        )
+        for step_id, scope in (
+            ("root_writer", "problem"),
+            ("child_writer", "ii"),
+            ("grandchild_writer", "ii_1"),
+        )
+    )
+
+    result = StateFinalizationService().finalize_logical_graph(
+        writes,
+        step_scopes={
+            "root_writer": "problem",
+            "child_writer": "ii",
+            "grandchild_writer": "ii_1",
+        },
+        handle_registry=_registry(),
+    )
+
+    assert result.ok
+    assert {
+        (item.ancestor_call_id, item.descendant_call_id)
+        for item in result.runtime_equivalence_probes
+    } == {
+        ("root_writer", "child_writer"),
+        ("root_writer", "grandchild_writer"),
+        ("child_writer", "grandchild_writer"),
+    }
 
 
 def test_compiled_finalizer_accepts_transition_on_one_destination() -> None:

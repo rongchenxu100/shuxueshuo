@@ -2,34 +2,74 @@
   "method_id": "axis_intercept_from_equal_acute_angles",
   "title": "由等锐角求轴上截点",
   "description": "由两个锐角相等推出正切比相等，并求竖直轴截点。",
-  "summary": "消费前序 AngleEquality，通过两个非退化直角三角形的正切比相等，求目标直线与竖直轴的辅助交点。只需提供等角事实；目标水平轴点、参考水平轴点、竖直轴点和原点由代码从等角两边的点顺序恢复。本能力只计算轴截点，不证明该点在抛物线上，也不返回直线与抛物线的另一个交点；若最终目标是曲线点，还必须继续使用直线与抛物线交点能力。",
+  "summary": "消费前序 AngleEquality，通过两个非退化直角三角形的正切比相等，求目标直线与竖直轴的辅助交点。只需提供等角事实；目标水平轴点、参考水平轴点、竖直轴点和原点由代码从等角两边的点顺序恢复。这些点可以携带符号坐标，输出也可以是待后续约束闭合的参数化 Point。本能力只计算轴截点，不证明该点在抛物线上，也不返回直线与抛物线的另一个交点；若最终目标是曲线点，还必须继续使用直线与抛物线交点能力。",
   "solves": [
     "derive_axis_intercept_from_equal_acute_angles"
   ],
   "inputs": {
     "angle_equality": {
-      "type": "AngleEquality",
-      "required": true
+      "required": true,
+      "domain_type": "Fact",
+      "runtime_type": "AngleEquality",
+      "view": {
+        "mode": "exact_result",
+        "domain_type": "Fact"
+      }
     },
     "x_axis_point": {
-      "type": "Point",
-      "required": true
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "y_axis_point": {
-      "type": "Point",
-      "required": true
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "reference_x_axis_point": {
-      "type": "Point",
-      "required": true
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "origin": {
-      "type": "Point",
-      "required": true
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "target": {
-      "type": "PointRef",
-      "required": true
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "PointRef",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     }
   },
   "outputs": {

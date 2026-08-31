@@ -1,6 +1,6 @@
 """Method Solver public interface."""
 
-from shuxueshuo_server.solver.engine import solve_problem
+from shuxueshuo_server.solver.engine import solve_problem, solve_problem_ir_debug
 from shuxueshuo_server.solver.fixtures import load_expected_answers, load_problem_ir
 from shuxueshuo_server.solver.contracts import CheckResult, DerivationStep
 from shuxueshuo_server.solver.problem_models import ProblemIR, QuestionGoal
@@ -31,4 +31,5 @@ __all__ = [
     "load_expected_answers",
     "load_problem_ir",
     "solve_problem",
+    "solve_problem_ir_debug",
 ]

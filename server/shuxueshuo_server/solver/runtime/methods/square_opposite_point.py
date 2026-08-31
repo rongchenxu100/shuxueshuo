@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, declare_input_views
 
 
 class SquareOppositePointMethod:
@@ -79,10 +79,15 @@ SPEC = MethodSpecSource(
         "required": True
     }
 },
+    input_views=declare_input_views(
+        identity=("target",),
+        latest_state=("vertex", "adjacent1", "adjacent2"),
+    ),
     outputs={
     "point": "Point"
 },
     preconditions=(),
     postconditions=(),
     trace_template=(),
+    interchangeable_arg_groups=(("adjacent1", "adjacent2"),),
 )

@@ -8,16 +8,37 @@
   ],
   "inputs": {
     "point": {
-      "type": "Point",
-      "required": true
+      "required": true,
+      "domain_type": "Point",
+      "runtime_type": "Point",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Point",
+        "object_kind": "point",
+        "state_kind": "coordinate"
+      }
     },
     "parameter": {
-      "type": "Symbol",
-      "required": true
+      "required": false,
+      "domain_type": "Symbol",
+      "runtime_type": "Symbol",
+      "view": {
+        "mode": "identity",
+        "domain_type": "Symbol",
+        "object_kind": "symbol",
+        "state_kind": "value"
+      }
     },
     "parameter_value": {
-      "type": "ParameterValue",
-      "required": true
+      "required": true,
+      "domain_type": "Symbol",
+      "runtime_type": "ParameterValue",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Symbol",
+        "object_kind": "symbol",
+        "state_kind": "value"
+      }
     }
   },
   "outputs": {
@@ -28,7 +49,9 @@
     "point 坐标可以包含 parameter"
   ],
   "do_not_use_when": [
-    "目标是构造另一个几何点；本能力只把参数值代入同一 Point 的已有坐标状态，不改变对象身份。"
+    "目标是构造另一个几何点；本能力只把参数值代入同一 Point 的已有坐标状态，不改变对象身份。",
+    "ParameterValue 对应的 Symbol 不是该 Point 坐标中的未定参数；例如曲线系数 c 不能代替轴上动点自己的位置参数。",
+    "最终答案点需要先由路径极值点经过正方形、旋转、中点或其它几何关系恢复；应先求极值状态，再做几何状态转移。"
   ],
   "postconditions": [
     "输出点坐标不再含本次代入的 parameter；其他自由符号可以保留"
@@ -42,20 +65,11 @@
       "message": "最终答案点不能由当前参数代入直接得到；缺少从极值状态动点恢复目标点的几何状态转移。",
       "next_actions": [
         "先产生极值状态 moving point，再读取题设几何条件把该状态转移到最终目标点。",
+        "核对 ParameterValue 的 Symbol 身份；它必须与输入 Point 坐标中本次要消去的自由符号相同。",
         "从当前 catalog 中选择返回角色、对象身份和 scope 均满足这些缺失状态的能力。"
       ],
       "do_not": [
         "不要用 `evaluate_point_at_parameter` 直接 produces 最终 Point answer。"
-      ]
-    }
-  ],
-  "trial_error_hints": [
-    {
-      "error_contains": "missing required input: parameter",
-      "code": "final_point_requires_square_recovery",
-      "requires_point_answer": true,
-      "requires_planner_output_types": [
-        "PathTransformation"
       ]
     }
   ],

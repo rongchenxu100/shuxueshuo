@@ -28,6 +28,10 @@ from shuxueshuo_server.solver.runtime.functional_few_shots import (
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
 )
+from shuxueshuo_server.solver.runtime.functional_plan_content import (
+    FunctionalPlanAuthorityFrame,
+    functional_plan_content_from_plan,
+)
 from shuxueshuo_server.solver.runtime.functional_plan_validation import (
     FUNCTIONAL_PLAN_JSON_SCHEMA,
 )
@@ -40,12 +44,21 @@ from shuxueshuo_server.solver.runtime.strategy_payload import (
 from shuxueshuo_server.solver.runtime.strategy_runtime_planner import (
     strategy_planner_provider,
 )
+from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
+    ScopedFunctionalPlanValidator,
+)
+
+from _problem_planning_support import (
+    cached_planning_binding_fixture,
+    cached_scope_native_payload_args,
+)
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 PROBLEM_DIR = REPO_ROOT / "internal" / "solver-fixtures"
 EXPECTED_DIR = Path(__file__).resolve().parent / "expected"
 FUNCTIONAL_FEW_SHOT_DIR = REPO_ROOT / "internal" / "functional-few-shots"
+SCOPED_FUNCTIONAL_PLAN_DIR = REPO_ROOT / "internal" / "functional-plan-v2-fixtures"
 PROBLEM_IDS = (
     "tj-2026-nankai-yimo-25",
     "tj-2026-hexi-yimo-25",
@@ -53,6 +66,16 @@ PROBLEM_IDS = (
     "tj-2026-heping-yimo-25",
     "tj-2026-heping-ermo-25",
 )
+
+
+def _build_scope_native_payload(
+    builder: StrategyPayloadBuilder,
+    inputs,
+) -> dict[str, Any]:
+    return builder.build(
+        inputs,
+        **cached_scope_native_payload_args(inputs.problem_id),
+    )
 
 
 def test_five_problem_catalogs_project_supported_result_form_domains() -> None:
@@ -104,12 +127,27 @@ class _FixtureFunctionalClient:
 def test_complete_functional_plan_fixture_replays_to_expected_answers(
     problem_id: str,
 ) -> None:
-    plan = load_functional_plan_fixture(problem_id)
-    problem = load_problem_ir(PROBLEM_DIR / f"{problem_id}.json")
+    plan_payload = json.loads(
+        (SCOPED_FUNCTIONAL_PLAN_DIR / f"{problem_id}.functional-plan.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    plan, validation = ScopedFunctionalPlanValidator().validate_payload_with_report(
+        plan_payload
+    )
+    assert plan is not None, validation.to_payload()
+    assert validation.ok, validation.to_payload()
+    bundle, planning_context, problem, *_ = cached_planning_binding_fixture(
+        problem_id
+    )
     expected = load_expected_answers(
         EXPECTED_DIR / f"{problem_id}.expected.json"
     )
-    client = _FixtureFunctionalClient(plan)
+    content = functional_plan_content_from_plan(
+        plan,
+        frame=FunctionalPlanAuthorityFrame.from_planning_context(planning_context),
+    )
+    client = _FixtureFunctionalClient(content.to_payload())
     orchestrator = RuntimeOrchestrator(
         planner_providers={},
         default_planner_provider=strategy_planner_provider(
@@ -119,15 +157,21 @@ def test_complete_functional_plan_fixture_replays_to_expected_answers(
         max_attempts=1,
     )
 
-    result = orchestrator.solve(problem)
+    result = orchestrator.solve_verified(bundle)
 
     assert result.status == "ok", result.errors
     assert result.answers == expected
     assert client.request is not None
-    assert client.request["planner_protocol"] == "functional_plan/v1"
+    assert client.request["planner_protocol"] == "functional-plan-content/v2"
     success = orchestrator.last_success_artifacts
     assert success is not None
     artifacts = success.planner.artifacts
+    assert artifacts.scoped_retry_result is not None
+    assert artifacts.scoped_retry_result.verified_execution is not None
+    assert (
+        artifacts.scoped_retry_result.final_execution.checkpoint.schema_version
+        == "functional-goal-execution-checkpoint/v3"
+    )
     replay = artifacts.retry_replay_result
     assert replay is not None
     assert replay.functional_plan is not None
@@ -202,7 +246,7 @@ def test_stored_functional_few_shots_use_only_functional_plan_protocol() -> None
             ensure_ascii=False,
         )
     assert annotated_paths == [
-        "broken-path-straightening.functional-few-shot.json",
+        "coupled-segment-path-minimum.functional-few-shot.json",
         "quadratic-constraints-vertex.functional-few-shot.json",
         "right-angle-equal-length-construction.functional-few-shot.json",
     ]
@@ -216,12 +260,12 @@ def test_nankai_functional_few_shot_annotations_are_safe_and_complete() -> None:
     }
 
     assert set(entries) == {
-        "broken_path_straightening",
+        "coupled_segment_path_minimum",
         "right_angle_equal_length_construction",
     }
-    assert entries["broken_path_straightening"].selection_role == "core"
+    assert entries["coupled_segment_path_minimum"].selection_role == "core"
     assert (
-        entries["broken_path_straightening"].family_id
+        entries["coupled_segment_path_minimum"].family_id
         == "QuadraticPathMinimumSolver"
     )
     assert (
@@ -271,13 +315,17 @@ def test_explicit_functional_mode_wins_over_legacy_boolean() -> None:
     )
     inputs = build_strategy_probe_inputs(problem)
 
-    legacy = StrategyPayloadBuilder(
-        allow_same_problem_few_shot=False,
-    ).build(inputs)
-    explicit = StrategyPayloadBuilder(
-        allow_same_problem_few_shot=False,
-        functional_few_shot_mode="new_problem",
-    ).build(inputs)
+    legacy = _build_scope_native_payload(
+        StrategyPayloadBuilder(allow_same_problem_few_shot=False),
+        inputs,
+    )
+    explicit = _build_scope_native_payload(
+        StrategyPayloadBuilder(
+            allow_same_problem_few_shot=False,
+            functional_few_shot_mode="new_problem",
+        ),
+        inputs,
+    )
 
     assert legacy["functional_few_shot_selection"]["mode"] == "strict_test"
     assert legacy["functional_few_shot_selection"]["example_id"] == (
@@ -285,7 +333,7 @@ def test_explicit_functional_mode_wins_over_legacy_boolean() -> None:
     )
     assert explicit["functional_few_shot_selection"]["mode"] == "new_problem"
     assert explicit["functional_few_shot_selection"]["example_id"] == (
-        "broken_path_straightening"
+        "coupled_segment_path_minimum"
     )
 
 
@@ -308,7 +356,8 @@ def test_retry_restores_locked_example_without_prompting_selection_metadata() ->
         ],
     )
 
-    payload = StrategyPayloadBuilder().build(
+    payload = _build_scope_native_payload(
+        StrategyPayloadBuilder(),
         retry_inputs,
     )
     prompt = StrategyPromptRenderer().render(payload).user
@@ -318,13 +367,11 @@ def test_retry_restores_locked_example_without_prompting_selection_metadata() ->
         "right_angle_equal_length_construct_and_select",
         "quadratic_from_constraints",
     ]
-    for hidden in (
-        locked.example_id,
-        locked.source_problem_id,
-        locked.family_id,
-        locked.selection_tier,
-    ):
-        assert hidden not in prompt
+    assert locked.example_id not in prompt
+    assert locked.selection_tier not in prompt
+    assert '"functional_few_shot_selection"' not in prompt
+    assert '"source_problem_id"' not in prompt
+    assert '"selection_tier"' not in prompt
 
 
 def test_functional_few_shot_annotation_rejects_duplicate_exclusions() -> None:
@@ -360,7 +407,7 @@ def test_mechanism_subgraphs_are_closed_neutralized_projections() -> None:
             if call["call_id"] in entry.source_call_ids
         }
 
-        assert 2 <= len(calls) <= 5
+        assert 1 <= len(calls) <= 5
         assert [call["capability_id"] for call in calls] == [
             source_calls[call_id]["capability_id"]
             for call_id in entry.source_call_ids
@@ -385,11 +432,11 @@ def test_mechanism_subgraphs_are_closed_neutralized_projections() -> None:
 
 
 def test_selection_is_catalog_gated_cross_family_and_stable() -> None:
-    entry = _entry("weighted_path_transform")
+    entry = _entry("weighted_axis_path_minimum")
     kwargs = {
         "capability_ids": entry.capability_ids,
         "base_pack_ids": ("quadratic_core",),
-        "mechanism_pack_ids": ("weighted_path_transform_core",),
+        "mechanism_pack_ids": ("weighted_axis_path_minimum_core",),
         "answer_value_types": ("ParameterValue",),
         "problem_id": "synthetic-cross-family-problem",
         "allow_same_problem": False,
@@ -424,8 +471,8 @@ def test_selection_is_catalog_gated_cross_family_and_stable() -> None:
         ),
         (
             "tj-2026-heping-ermo-25",
-            "broken_path_straightening",
-            "cross_family",
+            "quadratic_constraints_vertex",
+            "fallback",
         ),
     ),
 )
@@ -435,9 +482,8 @@ def test_same_problem_uses_neutralized_mechanism_example(
     expected_tier: str,
 ) -> None:
     problem = load_problem_ir(PROBLEM_DIR / f"{problem_id}.json")
-    payload = StrategyPayloadBuilder(
-        allow_same_problem_few_shot=False
-    ).build(
+    payload = _build_scope_native_payload(
+        StrategyPayloadBuilder(allow_same_problem_few_shot=False),
         build_strategy_probe_inputs(problem),
     )
 
@@ -458,26 +504,49 @@ def test_nankai_core_annotation_is_rendered_before_strict_plan() -> None:
     problem = load_problem_ir(
         PROBLEM_DIR / "tj-2026-nankai-yimo-25.json"
     )
-    payload = StrategyPayloadBuilder().build(
+    payload = _build_scope_native_payload(
+        StrategyPayloadBuilder(),
         build_strategy_probe_inputs(problem),
     )
 
     example = payload["few_shot_examples"][0]
-    assert example["annotation"]["purpose"] == "双动点路径降维与折线拉直。"
+    assert example["annotation"]["purpose"] == (
+        "用题设线段关系原子求解耦合双动点路径最值。"
+    )
     prompt = StrategyPromptRenderer().render(payload).user
     assert "### 机制说明" in prompt
-    assert "双动点路径降维与折线拉直" in prompt
-    assert "先建立显式路径等价变换" in prompt
-    assert "本例的变换已携带动点轨迹证据" in prompt
-    assert "必须先根据变换发布的动点身份求出同一对象的轨迹" in prompt
-    assert "变换发布的动点身份" in prompt
-    assert "不能使用最终答案对象或任意可见直线" in prompt
+    assert "用题设线段关系原子求解耦合双动点路径最值" in prompt
+    assert "Planner 只选择路径目标和负责耦合的线段关系" in prompt
+    assert "成员关系、端点角色、内部反射与取等恢复均由 Macro 验证" in prompt
+    assert "同时返回最小值表达式与原题动点的取等状态" in prompt
+    assert "先在该构造所属 Scope 用普通 Function 物化端点坐标" in prompt
+    assert "把该 Macro 放在它们最近公共父 Scope，只调用一次" in prompt
+    assert '"capability_id":"coupled_segment_endpoint_replacement_path_minimum"' in prompt
     assert "### FunctionalPlan 示例" in prompt
     assert '"format":"functional_plan/v1"' in prompt
     assert '"annotation"' not in prompt
     assert "selection_role" not in prompt
     assert FUNCTIONAL_PLAN_JSON_SCHEMA["additionalProperties"] is False
     assert "annotation" not in FUNCTIONAL_PLAN_JSON_SCHEMA["properties"]
+
+
+def test_scoped_nankai_prompt_selects_atomic_macro_few_shot() -> None:
+    problem = load_problem_ir(
+        PROBLEM_DIR / "tj-2026-nankai-yimo-25.json"
+    )
+    inputs = build_strategy_probe_inputs(problem)
+    payload = StrategyPayloadBuilder().build_scoped(
+        inputs,
+        **cached_scope_native_payload_args(inputs.problem_id),
+    )
+
+    selection = payload["functional_few_shot_selection"]
+    assert selection["example_id"] == "coupled_segment_path_minimum"
+    assert selection["mode"] == "v2_capability_subset"
+    assert len(selection["asset_sha256"]) == 64
+    assert payload["few_shot_examples"][0]["annotation"]["purpose"] == (
+        "用题设线段关系原子求解耦合双动点路径最值。"
+    )
 
 
 def test_nankai_family_new_problem_prefers_core_path_fragment() -> None:
@@ -503,8 +572,7 @@ def test_nankai_family_new_problem_prefers_core_path_fragment() -> None:
 
     assert len(selected) == 1
     assert _capability_ids(selected[0]) == [
-        "two_moving_points_path_reduction",
-        "broken_path_straightening_minimum_expression",
+        "coupled_segment_endpoint_replacement_path_minimum",
     ]
 
 
@@ -518,9 +586,8 @@ def test_missing_functional_selection_fails_before_prompt_render(
         ValueError,
         match="planner_configuration_error: no compatible functional few-shot",
     ):
-        StrategyPayloadBuilder(
-            functional_few_shot_dir=tmp_path,
-        ).build(
+        _build_scope_native_payload(
+            StrategyPayloadBuilder(functional_few_shot_dir=tmp_path),
             build_strategy_probe_inputs(problem),
         )
 
@@ -541,9 +608,8 @@ def test_explicit_functional_examples_take_precedence() -> None:
             ],
         }
     ]
-    payload = StrategyPayloadBuilder(
-        functional_few_shot_examples=explicit,
-    ).build(
+    payload = _build_scope_native_payload(
+        StrategyPayloadBuilder(functional_few_shot_examples=explicit),
         build_strategy_probe_inputs(problem),
     )
 

@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, declare_input_views
 
 
 class RightAngleEqualLengthCandidatesMethod:
@@ -108,6 +108,10 @@ SPEC = MethodSpecSource(
         "description": "待求坐标的点引用，例如南开题中的 N。"
     }
 },
+    input_views=declare_input_views(
+        identity=("target",),
+        latest_state=("anchor", "reference"),
+    ),
     outputs={
     "candidates": "PointList"
 },

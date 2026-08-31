@@ -318,6 +318,25 @@ def test_trial_blocker_is_primary_and_configuration_root_disables_retry() -> Non
     assert error.details["root_issues"] == [configuration.to_payload()]
 
 
+def test_functional_authoring_blocker_remains_retryable() -> None:
+    replay = PlannerRetryReplayResult(attempt=1)
+    blocker = SimpleNamespace(
+        stage="functional_reconciliation",
+        code="functional.return_scope_incompatible",
+        message="return cannot be written to sibling scope",
+        retryable=False,
+        step_id="bad_return",
+        capability_id="synthetic",
+        details={},
+    )
+
+    exc = _functional_planner_execution_error(replay, blocker=blocker)
+    error = structured_error_from_exception(stage="planner", exc=exc)
+
+    assert error.code == "functional.return_scope_incompatible"
+    assert error.retryable is True
+
+
 def test_transactional_configuration_issue_disables_llm_retry() -> None:
     configuration = PlannerRetryIssue(
         layer="planner",

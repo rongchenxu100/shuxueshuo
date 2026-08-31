@@ -6,18 +6,23 @@
 
 from __future__ import annotations
 
-from shuxueshuo_server.solver.contracts import SymbolicClosureSpec
+from shuxueshuo_server.solver.contracts import (
+    FreeSymbolBasisDerivationSpec,
+    MethodInputBindingSpec,
+    MethodInputRelationSpec,
+    OrdinalZeroTemplateDerivationSpec,
+    SymbolicClosureSpec,
+)
 from shuxueshuo_server.solver.runtime.quadratic_constraint_solver import (
     value_satisfies_constraint,
 )
 from shuxueshuo_server.solver.runtime.symbolic_closure_execution import (
     materialize_symbolic_closure_outputs,
-    require_unique_symbolic_closure,
     solve_symbolic_closure_math,
 )
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, canonical_symbol_input, declare_input_views
 
 
 class ParameterFromCurvePointOnQuadraticMethod:
@@ -40,16 +45,37 @@ class ParameterFromCurvePointOnQuadraticMethod:
         known_parameter = inputs.get("known_parameter")
         known_parameter_value = inputs.get("known_parameter_value")
         if (known_parameter is None) != (known_parameter_value is None):
-            raise ValueError(
-                "function.arg_missing: known_parameter and "
-                "known_parameter_value must be provided together"
+            missing_arg = (
+                "known_parameter"
+                if known_parameter is None
+                else "known_parameter_value"
+            )
+            provided_arg = (
+                "known_parameter_value"
+                if known_parameter is None
+                else "known_parameter"
+            )
+            raise method_input_missing(
+                "known_parameter and known_parameter_value must be provided together",
+                arg_name=missing_arg,
+                role="known_parameter_substitution",
+                expected={"paired_arg": provided_arg},
+                observed={
+                    "missing_inputs": [missing_arg],
+                    "provided_inputs": [provided_arg],
+                },
+                repair_action="provide_substitution_pair",
             )
         math_result = solve_symbolic_closure_math(
             _SYMBOLIC_CLOSURE_SPEC,
             args=inputs,
             kernel=kernel,
         )
-        closure = require_unique_symbolic_closure(math_result)
+        closure = _require_unique_symbolic_closure(
+            math_result,
+            arg_name="parameter_constraint",
+            role="curve_point_parameter_equation",
+        )
         outputs, closure_checks = materialize_symbolic_closure_outputs(
             {
                 "parameter_value": TypedValue(
@@ -127,15 +153,71 @@ SPEC = MethodSpecSource(
     ),
     solves=("derive_parameter_from_curve_point_on_quadratic",),
     inputs={
-        "quadratic": {"type": "Parabola", "required": True},
-        "x": {"type": "Symbol", "required": True},
-        "point": {"type": "Point", "required": True},
-        "parameter": {"type": "Symbol", "required": True},
-        "parameter_constraint": {"type": "Constraint", "required": False},
+        "quadratic": {
+            "type": "Parabola",
+            "required": True,
+            "symbolic_basis_role": "state_anchor",
+        },
+        "x": canonical_symbol_input("x"),
+        "point": {
+            "type": "Point",
+            "required": True,
+            "symbolic_basis_role": "align_to_anchor",
+        },
+        "parameter": {
+            "type": "Symbol",
+            "required": True,
+            "binding": MethodInputBindingSpec(
+                input_name="parameter",
+                derivation=FreeSymbolBasisDerivationSpec(
+                    (
+                        "quadratic",
+                        "point",
+                        "parameter_constraint",
+                        "known_parameter_value",
+                    )
+                ),
+            ),
+        },
+        "parameter_constraint": {
+            "type": "Constraint",
+            "required": False,
+            "symbolic_basis_role": "align_to_anchor",
+        },
         "known_parameter": {"type": "Symbol", "required": False},
         "known_parameter_value": {"type": "ParameterValue", "required": False},
-        "quadratic_template": {"type": "Expression", "required": False},
+        "quadratic_template": {
+            "type": "Expression",
+            "required": False,
+            "functional_exposed": False,
+            "binding": MethodInputBindingSpec(
+                input_name="quadratic_template",
+                required=False,
+                derivation=OrdinalZeroTemplateDerivationSpec("quadratic"),
+            ),
+            "description": (
+                "由MethodInputReadAuthority注入同一二次函数对象的"
+                "ordinal-0原始系数模板；不得使用已消元的latest state代替。"
+            ),
+        },
     },
+    input_views=declare_input_views(
+        identity=("x", "parameter", "known_parameter"),
+        latest_state=("quadratic", "point", "known_parameter_value"),
+        immutable_value=("parameter_constraint", "quadratic_template"),
+    ),
+    input_relations=(
+        MethodInputRelationSpec(
+            relation_kind="point_on_curve",
+            point_arg="point",
+            curve_arg="quadratic",
+            cardinality="one",
+            accepted_condition_kinds=(
+                "point_on_curve",
+                "point_on_curve_with_x_coordinate",
+            ),
+        ),
+    ),
     outputs={
         "parameter_value": "ParameterValue",
         "point": "Point",

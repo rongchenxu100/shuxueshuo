@@ -353,6 +353,15 @@
         ]
       },
       {
+        "handle": "fact:ii:A_on_parabola",
+        "type": "point_on_curve",
+        "scope_id": "ii",
+        "valid_scope": "ii",
+        "description": "第（Ⅱ）问中的 A 仍是当前抛物线的横轴交点",
+        "point": "point:ii:A",
+        "curve": "function:problem:parabola"
+      },
+      {
         "handle": "fact:ii:E_on_axis",
         "type": "axis_membership",
         "scope_id": "ii",

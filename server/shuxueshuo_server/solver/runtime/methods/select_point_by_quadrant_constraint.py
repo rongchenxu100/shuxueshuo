@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 from ._common import *
-from ._spec import MethodSpecSource
+from ._spec import MethodSpecSource, declare_input_views
 
 
 class SelectPointByQuadrantConstraintMethod:
@@ -24,8 +24,19 @@ class SelectPointByQuadrantConstraintMethod:
         quadrant_text = str(quadrant.get("quadrant", quadrant)) if isinstance(quadrant, dict) else str(quadrant)
         operator = str(parameter_constraint.get("operator", ""))
         if operator != ">":
-            raise ValueError("select_point_by_quadrant_constraint currently requires a > parameter constraint")
-        lower_bound = sp.sympify(parameter_constraint["value"])
+            raise method_precondition_failed(
+                "quadrant selection requires a strict lower-bound constraint",
+                arg_name="parameter_constraint",
+                role="parameter_constraint",
+                expected={"operator": ">"},
+                observed={"operator": operator},
+            )
+        lower_bound = _require_canonical_runtime_expression(
+            parameter_constraint["value"],
+            kernel,
+            arg_name="parameter_constraint",
+            role="parameter_lower_bound",
+        )
         matching = [
             point for point in candidates
             if _point_matches_quadrant_under_lower_bound(
@@ -36,8 +47,15 @@ class SelectPointByQuadrantConstraintMethod:
             )
         ]
         if len(matching) != 1:
-            raise ValueError(
-                f"quadrant constraint should select exactly one candidate, got {len(matching)}"
+            raise method_result_ambiguous(
+                "quadrant and parameter constraints do not select exactly one point",
+                arg_name="candidates",
+                role="point_candidates",
+                expected={"matching_count": 1},
+                observed={
+                    "candidate_count": len(candidates),
+                    "matching_count": len(matching),
+                },
             )
         selected = matching[0]
         condition_text = f"{target.name} 在{quadrant_text}，且 {parameter.name}>{kernel.sstr(lower_bound)}"
@@ -105,6 +123,11 @@ SPEC = MethodSpecSource(
         "description": "参数范围约束，例如 m > 2。"
     }
 },
+    input_views=declare_input_views(
+        identity=("target", "parameter"),
+        immutable_value=("quadrant", "parameter_constraint"),
+        exact_result=("candidates",),
+    ),
     outputs={
     "selected_point": "Point"
 },
