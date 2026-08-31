@@ -1,0 +1,216 @@
+{
+  "meta": {
+    "id": "inequality-basic-q31",
+    "outputPath": "site/problems/senior-high/inequalities/inequality-relations/inequality-basic-q31.html",
+    "pageTitle": "配齐次后两次估计求最小值",
+    "pageDescription": "配齐次后两次估计求最小值的逐步解析。",
+    "breadcrumbTitle": "基本不等式 · 多次应用变式 2",
+    "breadcrumbLabel": "解不等式与基本不等式",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=inequalities&section=inequality-relations&module=basic-inequalities"
+  },
+  "problem": {
+    "source": "",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "先提取两个分母中的共同整体 \\(1+c^2\\)；括号内的常数 \\(1\\) 与分母 \\(ab\\) 次数不一致，利用 \\(a+b=1\\) 配成 \\(1=(a+b)^2\\)。第1次基本不等式消去 \\(a，b\\)，再整理只含 \\(c\\) 的新式并第2次应用基本不等式。",
+      "items": [
+        "整理目标：把两个分母分别写成 \\(b(1+c^2)\\) 与 \\(ab(1+c^2)\\)，提取共同因式。",
+        "配齐次式：由 \\(a+b=1\\) 得 \\(1=(a+b)^2\\)，从而 \\(\\frac{3a}{b}+\\frac{1}{ab}=\\frac{4a}{b}+\\frac{b}{a}+2\\)。",
+        "第1次估计：\\(\\frac{4a}{b}+\\frac{b}{a}\\ge4\\)，消去 \\(a，b\\)，原式不小于 \\(\\frac{6}{1+c^2}+2c^2\\)。",
+        "第2次估计：把 \\(2c^2\\) 写成 \\(2(1+c^2)-2\\)，再对 \\(2(1+c^2)\\) 与 \\(\\frac{6}{1+c^2}\\) 应用基本不等式。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "已知正数 \\(a，b\\) 满足 \\(a+b=1\\)，\\(c\\in\\mathbb R\\)，则 \\(\\frac{3a}{bc^2+b}+\\frac{1}{abc^2+ab}+2c^2\\) 的最小值为　　　　。"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "多次应用基本不等式",
+      "title": "配齐次后分两轮消去变量并联立取等",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "repeated-basic-inequality-flow",
+        "title": "先配齐次式，再分两轮消去 a、b 与 c",
+        "methodTag": "多次应用基本不等式｜配齐次后逐层消元",
+        "count": {
+          "variableLabel": "正量",
+          "variables": [
+            "\\(a\\)",
+            "\\(b\\)",
+            "\\(1+c^2\\)"
+          ],
+          "conditions": [
+            "\\(a+b=1\\)"
+          ],
+          "estimatedRelations": 2,
+          "estimatedRounds": 2,
+          "relationSources": [
+            "基本不等式 ×2"
+          ],
+          "note": "三个正量、已有一条有效等式条件，预计还缺两条取等关系；整理后依次消去 a、b 与 c。"
+        },
+        "preparations": [
+          {
+            "stepNumber": "02",
+            "stageLabel": "整理目标",
+            "label": "提取两个分母中的共同整体 1+c²",
+            "current": "\\(\\frac{3a}{bc^2+b}+\\frac{1}{abc^2+ab}+2c^2\\)",
+            "flow": [
+              "\\(bc^2+b=b(1+c^2)\\)",
+              "\\(abc^2+ab=ab(1+c^2)\\)"
+            ],
+            "result": "\\(\\frac{1}{1+c^2}\\left(\\frac{3a}{b}+\\frac{1}{ab}\\right)+2c^2\\)",
+            "insight": "共同整体已经显形；先处理括号内的 a、b，外面的 1/(1+c²) 暂时保留。"
+          },
+          {
+            "stepNumber": "03",
+            "stageLabel": "配齐次式",
+            "label": "用定和条件把常数 1 配成二次式",
+            "currentLabel": "括号内",
+            "current": "\\(\\frac{3a}{b}+\\frac{1}{ab}\\)",
+            "flow": [
+              "\\(a+b=1\\Rightarrow1=(a+b)^2\\)",
+              "\\(\\frac{1}{ab}=\\frac{(a+b)^2}{ab}\\)",
+              "\\(\\frac{3a}{b}+\\frac{1}{ab}=\\frac{4a}{b}+\\frac{b}{a}+2\\)"
+            ],
+            "resultLabel": "配齐次结果",
+            "result": "\\(\\frac{1}{1+c^2}\\left(\\frac{4a}{b}+\\frac{b}{a}+2\\right)+2c^2\\)",
+            "insight": "配齐次式只负责让乘积固定的两个正项显形；下一步才应用基本不等式。"
+          }
+        ],
+        "rounds": [
+          {
+            "stepNumber": "04",
+            "question": "怎样消去括号内的 a、b？",
+            "current": "\\(\\frac{1}{1+c^2}\\left(\\frac{4a}{b}+\\frac{b}{a}+2\\right)+2c^2\\)",
+            "terms": [
+              "\\(\\frac{4a}{b}\\)",
+              "\\(\\frac{b}{a}\\)"
+            ],
+            "reason": "两个正项的乘积恒为 4，估计后括号整体变成常数 6。",
+            "relation": "\\(\\frac{4a}{b}\\cdot\\frac{b}{a}=4\\)",
+            "inequality": "\\(\\frac{4a}{b}+\\frac{b}{a}\\ge2\\sqrt4=4\\)",
+            "result": "原式不小于 \\(\\frac{6}{1+c^2}+2c^2\\)",
+            "insight": "a、b 已从下界中消失；现在只需处理 c。",
+            "equality": "\\(\\frac{4a}{b}=\\frac{b}{a}\\Rightarrow b=2a\\)",
+            "afterward": {
+              "stepNumber": "05",
+              "label": "把 2c² 改写成含有同一整体 1+c²",
+              "current": "原式不小于 \\(\\frac{6}{1+c^2}+2c^2\\)",
+              "observation": "一个正项的分母是 1+c²；为了构造定积，另一项也要出现同一个整体。",
+              "flow": [
+                "\\(2c^2=2(1+c^2)-2\\)",
+                "\\(\\frac{6}{1+c^2}+2c^2=2(1+c^2)+\\frac{6}{1+c^2}-2\\)"
+              ],
+              "result": "原式不小于 \\(2(1+c^2)+\\frac{6}{1+c^2}-2\\)",
+              "insight": "两个正项的乘积已经固定为 12，可以进行第2次估计。"
+            }
+          },
+          {
+            "stepNumber": "06",
+            "question": "只剩 c 后，怎样得到常数下界？",
+            "current": "原式不小于 \\(2(1+c^2)+\\frac{6}{1+c^2}-2\\)",
+            "terms": [
+              "\\(2(1+c^2)\\)",
+              "\\(\\frac{6}{1+c^2}\\)"
+            ],
+            "reason": "两个正项的乘积恒为 12，括号外的 −2 保持不动。",
+            "relation": "\\(2(1+c^2)\\cdot\\frac{6}{1+c^2}=12\\)",
+            "inequality": "\\(2(1+c^2)+\\frac{6}{1+c^2}\\ge2\\sqrt{12}=4\\sqrt3\\)",
+            "result": "原式不小于 \\(4\\sqrt3-2\\)",
+            "insight": "得到常数下界；最后把两轮取等关系与原条件联立。",
+            "equality": "\\(2(1+c^2)=\\frac{6}{1+c^2}\\Rightarrow c^2=\\sqrt3-1\\)"
+          }
+        ],
+        "equality": {
+          "stepNumber": "07",
+          "label": "联立两轮取等关系与原条件",
+          "conditions": [
+            {
+              "label": "第1次基本不等式",
+              "expression": "\\(b=2a\\)"
+            },
+            {
+              "label": "第2次基本不等式",
+              "expression": "\\(c^2=\\sqrt3-1\\)"
+            }
+          ],
+          "solved": "\\(a=\\frac{1}{3}，b=\\frac{2}{3}，c=\\pm\\sqrt{\\sqrt3-1}\\)",
+          "verification": "\\(a+b=1，a>0，b>0，c\\in\\mathbb R\\)，且代入原式等于 \\(4\\sqrt3-2\\)"
+        },
+        "conclusion": "\\(\\frac{3a}{bc^2+b}+\\frac{1}{abc^2+ab}+2c^2\\) 的最小值为 \\(4\\sqrt3-2\\)",
+        "caption": "先提取共同整体并利用 a+b=1 配齐次式；第1次基本不等式消去 a、b，再把 2c² 改写成含 1+c² 的式子，第2次基本不等式消去 c，最后联立两轮取等关系。"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "\\(a>0，b>0，1+c^2>0\\)，且 \\(a+b=1\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(\\frac{3a}{bc^2+b}+\\frac{1}{abc^2+ab}+2c^2=\\frac{1}{1+c^2}\\left(\\frac{3a}{b}+\\frac{1}{ab}\\right)+2c^2\\)"
+        },
+        {
+          "kind": "because",
+          "text": "\\(a+b=1\\Rightarrow1=(a+b)^2\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(\\frac{3a}{b}+\\frac{1}{ab}=\\frac{3a}{b}+\\frac{(a+b)^2}{ab}=\\frac{4a}{b}+\\frac{b}{a}+2\\)"
+        },
+        {
+          "kind": "because",
+          "text": "\\(\\frac{4a}{b}\\cdot\\frac{b}{a}=4\\Rightarrow\\frac{4a}{b}+\\frac{b}{a}\\ge4\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "原式不小于 \\(\\frac{6}{1+c^2}+2c^2\\)"
+        },
+        {
+          "kind": "because",
+          "text": "\\(2c^2=2(1+c^2)-2\\)，且 \\(2(1+c^2)\\cdot\\frac{6}{1+c^2}=12\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "原式不小于 \\(2(1+c^2)+\\frac{6}{1+c^2}-2\\ge4\\sqrt3-2\\)"
+        },
+        {
+          "kind": "because",
+          "text": "取等要求 \\(b=2a\\) 且 \\(2(1+c^2)=\\frac{6}{1+c^2}\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(a=\\frac{1}{3}，b=\\frac{2}{3}，c=\\pm\\sqrt{\\sqrt3-1}\\)，均满足题设，故最小值为 \\(4\\sqrt3-2\\)"
+        }
+      ],
+      "derive": [
+        [
+          "最小值",
+          "4√3−2"
+        ],
+        [
+          "取等",
+          "a=1/3，b=2/3，c=±√(√3−1)"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 配齐次后分两轮消去变量并联立取等"
+  }
+}

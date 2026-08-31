@@ -1,0 +1,171 @@
+{
+  "meta": {
+    "id": "inequality-basic-q19",
+    "outputPath": "site/problems/senior-high/inequalities/inequality-relations/inequality-basic-q19.html",
+    "pageTitle": "先配成对称结构求线性和的最小值",
+    "pageDescription": "先配成对称结构求线性和的最小值的逐步解析。",
+    "breadcrumbTitle": "基本不等式 · 对称结构变式",
+    "breadcrumbLabel": "解不等式与基本不等式",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=inequalities&section=inequality-relations&module=basic-inequalities"
+  },
+  "problem": {
+    "source": "",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "原式中的 \\(a\\) 与 \\(2b\\) 反复成组出现。先令 \\(u=a，v=2b\\)，把目标与条件同步改写为 \\(u+v\\) 和 \\(uv=u+v+3\\)；这时再校验 \\(u，v\\) 的对称性，并用和与积消元。",
+      "items": [
+        "观察变形：圈出反复出现的两个整体 \\(a\\) 与 \\(2b\\)，令 \\(u=a，v=2b\\)，且 \\(u>0，v>0\\)。",
+        "同步改写：目标变为 \\(u+v\\)，条件变为 \\(uv=u+v+3\\)。",
+        "再验对称：目标与条件交换 \\(u，v\\) 后都不变，这时才令 \\(s=u+v，p=uv\\)。",
+        "基本不等式消元：由条件得 \\(p=s+3\\)，代入 \\(s^2\\ge4p\\)，得到 \\(s^2-4s-12\\ge0\\)。又 \\(s>0\\)，所以 \\(s\\ge6\\)。",
+        "验取等：当 \\(s=6\\) 时基本不等式取等，所以 \\(u=v=3\\)，还原得 \\(a=3，b=\\frac{3}{2}\\)，满足原条件。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "已知 \\(a>0，b>0\\)，且 \\(2ab=a+2b+3\\)，求 \\(a+2b\\) 的最小值。"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "找对称结构",
+      "title": "先观察整体并变形，再校验对称结构",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "symmetric-reduction-flow",
+        "variant": "normalize-before-symmetry",
+        "symmetryVariables": "u、v",
+        "title": "先圈出两个整体，再进入对称消元",
+        "methodTag": "找对称结构｜先变形后校验",
+        "goal": {
+          "expression": "\\(a+2b\\)",
+          "task": "求最小值"
+        },
+        "preparation": {
+          "observation": "原式反复出现两个整体 \\(a\\) 与 \\(2b\\)",
+          "substitution": "\\(u=a，v=2b\\)",
+          "target": "\\(a+2b=u+v\\)",
+          "conditionFlow": [
+            "\\(2ab=a+2b+3\\)",
+            "\\(uv=u+v+3\\)"
+          ],
+          "conclusion": "现在目标与条件都关于 \\(u，v\\) 对称"
+        },
+        "symmetryChecks": [
+          {
+            "label": "变形后的目标",
+            "original": "\\(u+v\\)",
+            "swapped": "\\(v+u\\)",
+            "verdict": "交换后不变"
+          },
+          {
+            "label": "变形后的条件",
+            "original": "\\(uv=u+v+3\\)",
+            "swapped": "\\(vu=v+u+3\\)",
+            "verdict": "交换后不变"
+          }
+        ],
+        "substitution": {
+          "definitions": [
+            "\\(s=u+v\\)",
+            "\\(p=uv\\)"
+          ],
+          "identity": "\\(u+v=s，uv=p\\)",
+          "condition": "\\(uv=(u+v)+3\\)",
+          "solved": "\\(p=s+3\\)"
+        },
+        "elimination": {
+          "label": "应用基本不等式消元",
+          "relationLabel": "由 \\(u>0，v>0\\)，建立 \\(p\\) 与 \\(s\\) 的关系",
+          "relation": "\\(s^2\\ge4p\\)",
+          "basis": "\\(s^2-4p=(u-v)^2\\ge0\\)，并且 \\(s=u+v>0\\)",
+          "substitutionLabel": "再代入原条件给出的 \\(p=s+3\\)",
+          "substituted": "\\(s^2\\ge4(s+3)\\)",
+          "expanded": "\\(s^2-4s-12\\ge0\\)",
+          "simplified": "\\((s-6)(s+2)\\ge0\\)",
+          "range": "\\(s\\ge6\\)"
+        },
+        "closure": {
+          "label": "验取等",
+          "question": "下界能否取到？看基本不等式的取等条件",
+          "equalityLabel": "基本不等式取等",
+          "equalityCondition": "\\(s^2=4p\\iff(u-v)^2=0\\iff u=v\\)",
+          "endpoints": [
+            {
+              "value": "\\(s=6\\)",
+              "boundaryCondition": "\\(u+v=6，u=v\\)",
+              "witness": "\\(u=v=3\\Rightarrow a=3，b=\\frac{3}{2}\\)",
+              "verification": "\\(2ab=9=a+2b+3\\)"
+            }
+          ],
+          "conclusion": "\\(a+2b\\) 的最小值是 \\(6\\)"
+        },
+        "caption": "先把 \\(a\\) 与 \\(2b\\) 看成两个完整变量，使目标和条件同时成为对称结构；完成交换校验后，再用和与积及基本不等式求最小值。"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "原式中 \\(a\\) 与 \\(2b\\) 反复作为两个整体出现，目标正是这两个整体的和"
+        },
+        {
+          "kind": "therefore",
+          "text": "令 \\(u=a，v=2b\\)，由 \\(a>0，b>0\\) 得 \\(u>0，v>0\\)"
+        },
+        {
+          "kind": "because",
+          "text": "代入后，目标为 \\(u+v\\)，条件为 \\(uv=u+v+3\\)"
+        },
+        {
+          "kind": "because",
+          "text": "交换 \\(u、v\\) 后，\\(u+v=v+u\\)，且 \\(uv=u+v+3\\) 变为 \\(vu=v+u+3\\)，所以此时成为对称结构"
+        },
+        {
+          "kind": "therefore",
+          "text": "令 \\(s=u+v，p=uv\\)，原条件化为 \\(p=s+3\\)"
+        },
+        {
+          "kind": "because",
+          "text": "因为 \\(u>0，v>0\\)，所以 \\(s>0\\)，且基本不等式给出 \\(s^2\\ge4p\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "代入 \\(p=s+3\\)：\\(s^2\\ge4(s+3)\\Rightarrow s^2-4s-12\\ge0\\Rightarrow(s-6)(s+2)\\ge0\\)；结合 \\(s>0\\)，得 \\(s\\ge6\\)"
+        },
+        {
+          "kind": "because",
+          "text": "当 \\(s=6\\) 时，\\(s^2=4p\\)，基本不等式取等，所以 \\(u=v\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "由 \\(u+v=6\\) 与 \\(u=v\\) 得 \\(u=v=3\\)，还原得 \\(a=3，b=\\frac{3}{2}\\)，因此最小值为 \\(6\\)"
+        }
+      ],
+      "derive": [
+        [
+          "最小值",
+          "6"
+        ],
+        [
+          "取等",
+          "a=3，b=3/2"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 先观察整体并变形，再校验对称结构"
+  }
+}

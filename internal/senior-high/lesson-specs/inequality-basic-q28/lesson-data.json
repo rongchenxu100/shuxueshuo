@@ -1,0 +1,133 @@
+{
+  "meta": {
+    "id": "inequality-basic-q28",
+    "outputPath": "site/problems/senior-high/inequalities/inequality-relations/inequality-basic-q28.html",
+    "pageTitle": "整理条件与目标后直接应用基本不等式",
+    "pageDescription": "整理条件与目标后直接应用基本不等式的逐步解析。",
+    "breadcrumbTitle": "基本不等式 · 直接应用变式 2",
+    "breadcrumbLabel": "解不等式与基本不等式",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=inequalities&section=inequality-relations&module=basic-inequalities"
+  },
+  "problem": {
+    "source": "",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "先把条件因式分解为 \\(x(x+y)=3\\)，找到乘积固定的两个正项整体；再把目标重组为 \\(4x+y=3x+(x+y)\\)，使条件中的整体直接进入基本不等式。",
+      "items": [
+        "整理条件：\\(x^2+xy=3\\Rightarrow x(x+y)=3\\)。",
+        "重组目标：\\(4x+y=3x+(x+y)\\)。",
+        "确认正性：由 \\(x，y>0\\)，得 \\(3x>0，x+y>0\\)。",
+        "寻找定积：\\(3x(x+y)=3\\cdot3=9\\)。",
+        "应用基本不等式：\\(3x+(x+y)\\ge2\\sqrt{3x(x+y)}=6\\)。",
+        "验等号：\\(3x=x+y\\Rightarrow y=2x\\)，代入原条件得 \\(x=1，y=2\\)。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "若正数 \\(x，y\\) 满足 \\(x^2+xy-3=0\\)，则 \\(4x+y\\) 的最小值是________。"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "直接应用基本不等式",
+      "title": "从条件找定积，再重组目标完成配对",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-mapping",
+        "title": "先从条件找定积，再重组目标完成配对",
+        "methodTag": "直接应用｜整理条件与目标",
+        "conditionFlowLabel": "条件和目标各整理一次，让同一组正项显形",
+        "conditionFlow": [
+          "\\(x^2+xy=3\\Rightarrow x(x+y)=3\\)",
+          "\\(4x+y=3x+(x+y)\\)",
+          "\\(3x>0，x+y>0\\)"
+        ],
+        "template": "彩色方槽与彩色圆槽表示两个完整正项",
+        "mappings": [
+          {
+            "slot": "第一个正项",
+            "shape": "square",
+            "value": "\\(3x\\)",
+            "condition": "\\(3x>0\\)"
+          },
+          {
+            "slot": "第二个正项",
+            "shape": "circle",
+            "value": "\\(x+y\\)",
+            "condition": "\\(x+y>0\\)"
+          }
+        ],
+        "mappedSum": "\\(3x+(x+y)\\)",
+        "mappedProduct": "\\(9\\)",
+        "mapped": "\\(\\frac{3x+(x+y)}{2}\\ge\\sqrt{3x(x+y)}\\)",
+        "stageLabel": "代入两个正项",
+        "fixedSourceLabel": "由条件得到定积",
+        "fixedSourceTarget": "product",
+        "fixedCondition": "\\(x(x+y)=3\\Rightarrow3x(x+y)=9\\)",
+        "replacementText": "代入定积 9",
+        "replaced": "\\(3x+(x+y)\\ge2\\sqrt{9}=6\\)",
+        "simplifyLabel": "还原原目标",
+        "substituted": "\\(4x+y\\ge6\\)",
+        "conclusionLabel": "最值结论",
+        "conclusion": "最小值为 \\(6\\)",
+        "equalityTemplate": "两个槽位相等",
+        "equalityMapped": "\\(3x=x+y\\Rightarrow y=2x\\)",
+        "equalityContextLabel": "代回原条件",
+        "equalityResult": "\\(x=1，y=2\\)",
+        "caption": "先把条件因式分解，识别出 x 与 x+y 的定积；再重组目标，使 3x 与 x+y 成为可以直接配对的两个正项。"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "由 \\(x^2+xy-3=0\\)，整理并因式分解得 \\(x(x+y)=3\\)"
+        },
+        {
+          "kind": "because",
+          "text": "目标可以重组为 \\(4x+y=3x+(x+y)\\)"
+        },
+        {
+          "kind": "because",
+          "text": "\\(x，y>0\\)，所以两个完整正项 \\(3x>0，x+y>0\\)，且 \\(3x(x+y)=9\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "由基本不等式，\\(4x+y=3x+(x+y)\\ge2\\sqrt{3x(x+y)}=6\\)"
+        },
+        {
+          "kind": "because",
+          "text": "等号要求 \\(3x=x+y\\)，即 \\(y=2x\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "代入原条件得 \\(3x^2=3\\)；由 \\(x>0\\) 得 \\(x=1\\)，进而 \\(y=2\\)，所以最小值为 \\(6\\)"
+        }
+      ],
+      "derive": [
+        [
+          "最小值",
+          "6"
+        ],
+        [
+          "取等",
+          "x=1，y=2"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 从条件找定积，再重组目标完成配对"
+  }
+}

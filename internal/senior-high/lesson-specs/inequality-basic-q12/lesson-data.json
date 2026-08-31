@@ -1,0 +1,117 @@
+{
+  "meta": {
+    "id": "inequality-basic-q12",
+    "outputPath": "site/problems/senior-high/inequalities/inequality-relations/inequality-basic-q12.html",
+    "pageTitle": "平方换元消元求最小值",
+    "pageDescription": "平方换元消元求最小值的逐步解析。",
+    "breadcrumbTitle": "基本不等式 · 练习 8-12",
+    "breadcrumbLabel": "解不等式与基本不等式",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=inequalities&section=inequality-relations&module=basic-inequalities"
+  },
+  "problem": {
+    "source": "2020 江苏高考",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "条件和目标只含平方，先令 u=x²、v=y²。由条件消去 u 后，目标化为两个乘积固定的正项之和。",
+      "items": [
+        "令 u=x²≥0，v=y²；原条件迫使 0<v≤1。",
+        "由 5uv+v²=1 得 u+v=1/(5v)+4v/5。",
+        "等号 v=1/2 时 u=3/10，满足原条件。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "已知 \\(5x^2y^2+y^4=1\\)（\\(x，y\\in\\mathbb R\\)），则 \\(x^2+y^2\\) 的最小值是　　　　。"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "平方换元与消元",
+      "title": "把二元约束降成关于 v 的正项和",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-mapping",
+        "title": "平方换元后，条件直接消去一个变量",
+        "methodTag": "换元降维｜平方约束",
+        "conditionFlowLabel": "先整理条件与目标",
+        "conditionFlow": [
+          "\\(u=x^2，v=y^2>0\\)",
+          "\\(5uv+v^2=1\\)",
+          "\\(u+v=\\frac{1}{5v}+\\frac{4v}{5}\\)"
+        ],
+        "template": "\\(\\frac{u+v}{2}\\ge\\sqrt{uv}\\)",
+        "mappings": [
+          {
+            "slot": "u",
+            "value": "1/(5v)",
+            "condition": "\\(v>0\\)"
+          },
+          {
+            "slot": "v",
+            "value": "4v/5",
+            "condition": "\\(\\frac{4v}{5}>0\\)"
+          }
+        ],
+        "mapped": "\\(\\frac{\\frac{1}{5v}+\\frac{4v}{5}}{2}\\ge\\sqrt{\\frac{4}{25}}\\)",
+        "stageLabel": "代入正项",
+        "fixedSourceLabel": "已知或已证",
+        "fixedCondition": "\\(\\frac{1}{5v}\\cdot\\frac{4v}{5}=\\frac{4}{25}\\)",
+        "replacementText": "代入已知关系",
+        "replaced": "\\(\\frac{1}{5v}+\\frac{4v}{5}\\ge\\frac{4}{5}\\)",
+        "simplifyLabel": "化简并得到界",
+        "substituted": "\\(x^2+y^2=u+v\\ge\\frac{4}{5}\\)",
+        "conclusionLabel": "最值结论",
+        "conclusion": "最小值为 \\(\\frac{4}{5}\\)",
+        "equalityTemplate": "\\(u=v\\)",
+        "equalityMapped": "\\(\\frac{1}{5v}=\\frac{4v}{5}\\)",
+        "equalityContextLabel": "结合原条件",
+        "equalityResult": "\\(x^2=\\frac{3}{10}，y^2=\\frac{1}{2}\\)",
+        "caption": "把每次使用基本不等式的两个正项、定值关系与等号条件逐一对应。"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "令 \\(u=x^2\\ge0，v=y^2\\ge0\\)；若 \\(v=0\\)，原条件左边为 \\(0\\)，故 \\(v>0\\)；又因 \\(5uv\\ge0\\)，由 \\(5uv+v^2=1\\) 得 \\(v^2\\le1\\)，所以 \\(0<v\\le1\\)"
+        },
+        {
+          "kind": "because",
+          "text": "由 \\(5uv+v^2=1\\) 得 \\(u=\\frac{1-v^2}{5v}\\)，所以 \\(u+v=\\frac{1}{5v}+\\frac{4v}{5}\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "两项为正且乘积为 \\(\\frac{4}{25}\\)，故 \\(u+v\\ge2\\sqrt{\\frac{4}{25}}=\\frac{4}{5}\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "等号要求 \\(\\frac{1}{5v}=\\frac{4v}{5}\\)，得 \\(v=\\frac{1}{2}\\)，再由条件得 \\(u=\\frac{3}{10}\\)；因此最小值可以取得"
+        }
+      ],
+      "derive": [
+        [
+          "最小值",
+          "4/5"
+        ],
+        [
+          "等号条件",
+          "x²=3/10，y²=1/2"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 把二元约束降成关于 v 的正项和"
+  }
+}

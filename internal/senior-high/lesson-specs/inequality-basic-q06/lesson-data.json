@@ -2,9 +2,9 @@
   "meta": {
     "id": "inequality-basic-q06",
     "outputPath": "site/problems/senior-high/inequalities/inequality-relations/inequality-basic-q06.html",
-    "pageTitle": "换元求含一次项和倒数项的最小值",
-    "pageDescription": "换元求含一次项和倒数项的最小值的逐步解析。",
-    "breadcrumbTitle": "基本不等式 · 练习 8-6",
+    "pageTitle": "整理目标代数式后直接定积求和",
+    "pageDescription": "整理目标代数式后直接定积求和的逐步解析。",
+    "breadcrumbTitle": "基本不等式 · 练习 8-8",
     "breadcrumbLabel": "解不等式与基本不等式",
     "breadcrumbPath": "site/senior-high/index.html",
     "breadcrumbSearch": "?chapter=inequalities&section=inequality-relations&module=basic-inequalities"
@@ -13,10 +13,12 @@
     "source": "高一暑假目标班 · 第4讲",
     "keyPoints": {
       "title": "解题要点",
-      "lead": "先检查各项为正，再使用基本不等式，并单独核对等号条件。",
+      "lead": "先整理目标代数式：把 2x 写成 2(x+3)-6，让正项 2(x+3) 与 1/(x+3) 同时显形；两个完整正项乘积固定，可以直接使用基本不等式。",
       "items": [
-        "令 t=x+3>0。",
-        "把原式写成 2t+1/t-6。"
+        "观察目标代数式：由 x>-3 可知 x+3>0，分母提示需要让 2(x+3) 出现。",
+        "整理显形：2x=2(x+3)-6，原式=[2(x+3)+1/(x+3)]-6。",
+        "识别基本型：括号内两个正项的乘积恒为 2，括号外的 -6 最后处理。",
+        "验等号：令两个槽位相等，所得最小值对应选项 B。"
       ]
     },
     "lines": [
@@ -31,22 +33,70 @@
   "steps": [
     {
       "id": "s1",
-      "section": "基本不等式",
-      "title": "换元后应用基本不等式",
+      "section": "直接应用基本不等式",
+      "title": "整理目标代数式，让定积结构显形",
       "t": 0,
       "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-mapping",
+        "title": "整理目标代数式，再让两个完整正项入槽",
+        "methodTag": "直接应用｜定积求和",
+        "conditionFlowLabel": "整理目标代数式，让正项结构显形",
+        "conditionFlow": [
+          "\\(2x=2(x+3)-6\\)",
+          "\\(2x+\\frac{1}{x+3}=\\left[2(x+3)+\\frac{1}{x+3}\\right]-6\\)",
+          "\\(x+3>0\\)"
+        ],
+        "template": "彩色方槽与彩色圆槽表示两个完整正项",
+        "mappings": [
+          {
+            "slot": "第一个正项",
+            "shape": "square",
+            "value": "\\(2(x+3)\\)",
+            "condition": "\\(2(x+3)>0\\)"
+          },
+          {
+            "slot": "第二个正项",
+            "shape": "circle",
+            "value": "\\(\\frac{1}{x+3}\\)",
+            "condition": "\\(\\frac{1}{x+3}>0\\)"
+          }
+        ],
+        "mappedSum": "\\(2(x+3)+\\frac{1}{x+3}\\)",
+        "mappedProduct": "\\(2\\)",
+        "mapped": "\\(\\frac{2(x+3)+\\frac{1}{x+3}}{2}\\ge\\sqrt2\\)",
+        "stageLabel": "代入两个正项",
+        "fixedSourceLabel": "两项定积",
+        "fixedSourceTarget": "product",
+        "fixedCondition": "\\(2(x+3)\\cdot\\frac{1}{x+3}=2\\)",
+        "replacementText": "代入定积 2",
+        "replaced": "\\(2(x+3)+\\frac{1}{x+3}\\ge2\\sqrt2\\)",
+        "simplifyLabel": "减去括号外的 6",
+        "substituted": "\\(2x+\\frac{1}{x+3}\\ge2\\sqrt2-6\\)",
+        "conclusionLabel": "最值结论",
+        "conclusion": "最小值为 \\(2\\sqrt2-6\\)，选 B",
+        "equalityTemplate": "两个槽位相等",
+        "equalityMapped": "\\(2(x+3)=\\frac{1}{x+3}\\)",
+        "equalityContextLabel": "结合 x+3>0",
+        "equalityResult": "\\(x=\\frac{\\sqrt2}{2}-3\\)",
+        "caption": "补 6、减 6 是整理目标代数式的具体操作；整理后括号内已有两个乘积固定的正项，可以直接使用基本不等式。"
+      },
       "reasoning": [
         {
           "kind": "because",
-          "text": "令 \\(t=x+3>0\\)，则原式 \\(=2t+\\frac{1}{t}-6\\)"
+          "text": "整理目标代数式：由 \\(x>-3\\) 得 \\(x+3>0\\)，并把 \\(2x\\) 写成 \\(2(x+3)-6\\)"
         },
         {
           "kind": "because",
-          "text": "\\(2t+\\frac{1}{t}\\ge2\\sqrt{2t\\cdot\\frac{1}{t}}=2\\sqrt2\\)"
+          "text": "原式 \\(=2(x+3)+\\frac{1}{x+3}-6\\)，其中 \\(2(x+3)\\cdot\\frac{1}{x+3}=2\\)"
         },
         {
           "kind": "therefore",
-          "text": "最小值为 \\(2\\sqrt2-6\\)，选择 B"
+          "text": "\\(2(x+3)+\\frac{1}{x+3}\\ge2\\sqrt2\\)，所以原式不小于 \\(2\\sqrt2-6\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "当 \\(2(x+3)=\\frac{1}{x+3}\\) 时取等号，最小值为 \\(2\\sqrt2-6\\)，选择 B"
         }
       ],
       "derive": [
@@ -71,6 +121,6 @@
     }
   },
   "stepLabels": {
-    "s1": "1 换元后应用基本不等式"
+    "s1": "1 整理目标代数式，让定积结构显形"
   }
 }

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>根号整体换元后应用基本不等式求最大值 | 数学说</title>
+  <meta name="description" content="根号整体换元后应用基本不等式求最大值的逐步解析。" />
+  <meta property="og:title" content="根号整体换元后应用基本不等式求最大值 | 数学说" />
+  <meta property="og:description" content="根号整体换元后应用基本不等式求最大值的逐步解析。" />
+  <meta property="og:image" content="../../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css?v=39" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../../senior-high/index.html?chapter=inequalities&section=inequality-relations&module=basic-inequalities">解不等式与基本不等式</a>
+    <span class="lesson-title">基本不等式 · 换元法 5</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          <div class="problem-full">
+            <div class="problem-line"><span>已知正实数 <span class="inline-math">x，y</span> 满足 <span class="inline-math">x<sup>2</sup>+<span class="math-fraction"><span class="math-numerator">y<sup>2</sup></span><span class="math-denominator">16</span></span>=1</span>，则 <span class="inline-math">x<span class="math-radical"><span class="math-radical-symbol">√</span><span class="math-radicand">2+y<sup>2</sup></span></span></span> 的最大值为________。</span><span class="answer-chip" id="answerI">答案：<span class="inline-math">9/4</span></span></div>
+          </div>
+        </section>
+
+        <aside class="lesson-key-points" aria-label="解题要点"><div class="lesson-key-points-title">解题要点</div><div class="lesson-key-points-content"><p class="lesson-key-points-lead">目标中的根号整体 <span class="inline-math"><span class="math-radical"><span class="math-radical-symbol">√</span><span class="math-radicand">2+y<sup>2</sup></span></span></span> 遮住了它与条件的联系，令 <span class="inline-math">t=<span class="math-radical"><span class="math-radical-symbol">√</span><span class="math-radicand">2+y<sup>2</sup></span></span></span>；换元后条件成为两个正项的平方和定值，目标成为乘积 <span class="inline-math">xt</span>，可以直接应用基本不等式求上界。</p><ol><li>根号整体换元：令 <span class="inline-math">t=<span class="math-radical"><span class="math-radical-symbol">√</span><span class="math-radicand">2+y<sup>2</sup></span></span>&gt;<span class="math-radical"><span class="math-radical-symbol">√</span><span class="math-radicand">2</span></span></span>，并保留 <span class="inline-math">t<sup>2</sup>=2+y<sup>2</sup></span>。</li><li>整理新条件：<span class="inline-math">x<sup>2</sup>+<span class="math-fraction"><span class="math-numerator">t<sup>2</sup>-2</span><span class="math-denominator">16</span></span>=1⇒16x<sup>2</sup>+t<sup>2</sup>=18⇒(4x)<sup>2</sup>+t<sup>2</sup>=18</span>。</li><li>整理新目标：<span class="inline-math">x<span class="math-radical"><span class="math-radical-symbol">√</span><span class="math-radicand">2+y<sup>2</sup></span></span>=xt</span>。</li><li>应用基本不等式：<span class="inline-math">(4x)<sup>2</sup>+t<sup>2</sup>≥2·4x· t=8xt</span>，所以 <span class="inline-math">xt≤<span class="math-fraction"><span class="math-numerator">9</span><span class="math-denominator">4</span></span></span>。</li><li>还原取等：等号要求 <span class="inline-math">4x=t</span>，联立新条件得 <span class="inline-math">x=<span class="math-fraction"><span class="math-numerator">3</span><span class="math-denominator">4</span></span>，t=3</span>，再由 <span class="inline-math">t=<span class="math-radical"><span class="math-radical-symbol">√</span><span class="math-radicand">2+y<sup>2</sup></span></span></span> 得 <span class="inline-math">y=<span class="math-radical"><span class="math-radical-symbol">√</span><span class="math-radicand">7</span></span></span>。</li></ol></div></aside>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../../assets/js/lesson-page-runtime.js?v=48"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"s1","section":"换元法","title":"根号整体换元并整理目标，再应用基本不等式","t":0,"showDiagram":false,"visual":{"kind":"substitution-basic-inequality-lifecycle","title":"换元（根号换元 → 整理目标）→ 应用基本不等式 → 还原等号","methodTag":"换元法｜根号整体换元","substitution":{"label":"对根号整体换元并整理新条件、目标","observation":"只替换复杂的根号整体，同时把原条件与原目标改写成新变量","mappingActionLabel":"把根号整体换成新变量","mappings":[{"sourceLabel":"原根号整体","source":"\\(\\sqrt{2+y^2}\\)","target":"\\(t=\\sqrt{2+y^2}>\\sqrt2\\)","reverse":"\\(t^2=2+y^2\\)"}],"rearrangement":{"label":"整理换元后的条件与目标","conditionFlow":["\\(x^2+\\frac{t^2-2}{16}=1\\)","\\(16x^2+t^2=18\\)","\\((4x)^2+t^2=18\\)"],"before":"\\(x\\sqrt{2+y^2}\\)","identities":["\\(\\sqrt{2+y^2}=t\\)","\\(x\\sqrt{2+y^2}=x\\cdot t\\)"],"result":"\\(xt\\)"},"condition":"\\((4x)^2+t^2=18\\)","target":"\\(xt\\)","handoffLabel":"整理后发现：两个正项的和固定"},"basicInequality":{"label":"应用基本不等式求最大值","methodTag":"发现结构｜两正项和固定","observation":"条件固定了两个正项的和，而它们乘积的平方根正好是目标的 4 倍","positiveTerms":[{"value":"\\((4x)^2\\)","condition":"\\((4x)^2>0\\)"},{"value":"\\(t^2\\)","condition":"\\(t^2>0\\)"}],"relationLabel":"根积对应目标","product":"\\(\\sqrt{(4x)^2\\cdot t^2}=4xt\\)","inequality":"\\((4x)^2+t^2\\ge2\\cdot4x\\cdot t=8xt\\)","bound":"\\(18\\ge8xt\\Rightarrow xt\\le\\frac{9}{4}\\)","equality":"\\((4x)^2=t^2\\Rightarrow4x=t\\)","equalitySolved":"\\(x=\\frac{3}{4}，t=3\\)"},"restoration":{"label":"求解等号成立条件","variableLabel":"x、y","transformedEquality":"\\(4x=t\\)","solved":"\\(x=\\frac{3}{4}，t=3\\)","reverse":"\\(t=\\sqrt{2+y^2}\\)","result":"\\(x=\\frac{3}{4}，y=\\sqrt7\\)","verification":"\\(x^2+\\frac{y^2}{16}=\\frac{9}{16}+\\frac{7}{16}=1\\)"},"conclusion":"\\(x\\sqrt{2+y^2}\\) 的最大值是 \\(\\frac{9}{4}\\)","caption":"三步相连：先把根号整体换元并整理条件、目标；当平方和定值结构显现后应用基本不等式，最后把取等条件还原到原变量。"},"reasoning":[{"kind":"because","text":"目标中完整出现根号 \\(\\sqrt{2+y^2}\\)，令 \\(t=\\sqrt{2+y^2}>\\sqrt2\\)，则 \\(t^2=2+y^2\\)"},{"kind":"therefore","text":"把 \\(y^2=t^2-2\\) 代入条件，得 \\(x^2+\\frac{t^2-2}{16}=1\\)，整理为 \\((4x)^2+t^2=18\\)"},{"kind":"therefore","text":"目标同步改写为 \\(x\\sqrt{2+y^2}=xt\\)"},{"kind":"because","text":"\\((4x)^2>0，t^2>0\\)，对这两个正项应用基本不等式"},{"kind":"therefore","text":"\\((4x)^2+t^2\\ge2\\sqrt{(4x)^2t^2}=8xt\\)，结合平方和等于 \\(18\\)，得 \\(xt\\le\\frac{9}{4}\\)"},{"kind":"because","text":"等号要求 \\((4x)^2=t^2\\)；由 \\(x，t>0\\) 得 \\(4x=t\\)"},{"kind":"therefore","text":"联立 \\((4x)^2+t^2=18\\)，得 \\(x=\\frac{3}{4}，t=3\\)；还原 \\(t=\\sqrt{2+y^2}\\)，得 \\(y=\\sqrt7\\)，故最大值为 \\(\\frac{9}{4}\\)"}],"derive":[["最大值","9/4"],["取等","x=3/4，y=√7"]]}];
+    var STEP_LABELS = {"s1":"1 根号整体换元并整理目标，再应用基本不等式"};
+    var POLICIES   = {"s1":{"movable":false,"range":[0,0]}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 滑块主参数与派生参数的联动文案格式化器 */
+    var __LESSON_PARAM_LABEL_FORMATTER__;
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script>
+  function diagramMarkupFor() { return ''; }
+  function diagramMarkupForFrame() { return ''; }
+  function drawMini() { return ''; }
+  function groupTitle(section) { return section; }
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      diagramMarkupForFrame: typeof diagramMarkupForFrame === "function" ? diagramMarkupForFrame : undefined,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "参数",
+      paramLabelPrefix: "",
+      paramLabelFormatter: typeof __LESSON_PARAM_LABEL_FORMATTER__ === "function" ? __LESSON_PARAM_LABEL_FORMATTER__ : undefined,
+      goToProblemMode: "doubleScroll"
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,154 @@
+{
+  "meta": {
+    "id": "inequality-basic-q29",
+    "outputPath": "site/problems/senior-high/inequalities/inequality-relations/inequality-basic-q29.html",
+    "pageTitle": "利用定和条件消元后求分式最大值",
+    "pageDescription": "利用定和条件消元后求分式最大值的逐步解析。",
+    "breadcrumbTitle": "基本不等式 · 条件消元法 2",
+    "breadcrumbLabel": "解不等式与基本不等式",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=inequalities&section=inequality-relations&module=basic-inequalities"
+  },
+  "problem": {
+    "source": "",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "条件可以直接给出 \\(b=1-a\\)。把它代入目标后，两个分母自动变成同一个一元二次式；再利用原式为正，把求最大值转化为求倒数的最小值，基本不等式结构随之显形。",
+      "items": [
+        "条件消元：由 \\(a+b=1\\)，得 \\(b=1-a\\)，且 \\(0<a<1\\)。",
+        "代入目标：两个分母均为 \\(a^2-a+1\\)，所以原式化为 \\(E=\\frac{a+1}{a^2-a+1}\\)。",
+        "整理目标：因为 \\(E>0\\)，求 \\(E\\) 的最大值等价于求 \\(\\frac{1}{E}\\) 的最小值。",
+        "显露结构：\\(\\frac{1}{E}=\\frac{a^2-a+1}{a+1}=(a+1)+\\frac{3}{a+1}-3\\)。",
+        "应用基本不等式：\\((a+1)+\\frac{3}{a+1}\\ge2\\sqrt3\\)，故 \\(E\\le\\frac{1}{2\\sqrt3-3}=\\frac{3+2\\sqrt3}{3}\\)。",
+        "回代等号：\\(a+1=\\frac{3}{a+1}\\Rightarrow a=\\sqrt3-1\\)，进而 \\(b=2-\\sqrt3\\)。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "若 \\(a，b\\in\\mathbb R^+\\)，且 \\(a+b=1\\)，则 \\(\\frac{2a}{a^2+b}+\\frac{b}{a+b^2}\\) 的最大值是________。"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "条件消元法",
+      "title": "用 b=1-a 消元，整理倒数后应用基本不等式",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "elimination-basic-inequality-lifecycle",
+        "title": "消元（表示变量 → 代入并整理目标）→ 应用基本不等式 → 回代等号",
+        "methodTag": "条件消元法｜用定和消去一个变量",
+        "elimination": {
+          "label": "由 b=1-a 消去 b，再整理目标",
+          "observation": "条件能直接表示 b，先代入目标；两个分母会自动合并为同一个一元式",
+          "conditionFlow": [
+            "\\(a+b=1\\)",
+            "\\(b=1-a\\)",
+            "\\(0<a<1\\)"
+          ],
+          "isolateFlow": [
+            "\\(a^2+b=a^2-a+1\\)",
+            "\\(a+b^2=a^2-a+1\\)"
+          ],
+          "targetFlow": [
+            "\\(E=\\frac{2a}{a^2+b}+\\frac{b}{a+b^2}\\)",
+            "\\(E=\\frac{2a+1-a}{a^2-a+1}\\)",
+            "\\(E=\\frac{a+1}{a^2-a+1}>0\\)"
+          ],
+          "condition": "\\(0<a<1\\)",
+          "target": "\\(\\frac{1}{E}=(a+1)+\\frac{3}{a+1}-3\\)",
+          "handoffLabel": "整理倒数后发现：两个正项的乘积固定"
+        },
+        "basicInequality": {
+          "label": "应用基本不等式求倒数的最小值",
+          "methodTag": "发现结构｜正数目标取倒数",
+          "observation": "常数 −3 保留不动，对 a+1 与 3/(a+1) 应用基本不等式",
+          "positiveTerms": [
+            {
+              "value": "\\(a+1\\)",
+              "condition": "\\(a+1>0\\)"
+            },
+            {
+              "value": "\\(\\frac{3}{a+1}\\)",
+              "condition": "\\(\\frac{3}{a+1}>0\\)"
+            }
+          ],
+          "product": "\\((a+1)\\cdot\\frac{3}{a+1}=3\\)",
+          "inequality": "\\((a+1)+\\frac{3}{a+1}\\ge2\\sqrt3\\)",
+          "bound": "\\(\\frac{1}{E}\\ge2\\sqrt3-3\\Rightarrow E\\le\\frac{3+2\\sqrt3}{3}\\)",
+          "equality": "\\(a+1=\\frac{3}{a+1}\\)",
+          "equalitySolved": "\\(a=\\sqrt3-1\\)"
+        },
+        "restoration": {
+          "label": "求解等号成立条件",
+          "variableLabel": "a、b",
+          "transformedEquality": "\\(a+1=\\frac{3}{a+1}\\)",
+          "solved": "\\(a=\\sqrt3-1\\)",
+          "reverse": "\\(b=1-a\\)",
+          "result": "\\(a=\\sqrt3-1，b=2-\\sqrt3\\)",
+          "verification": "\\((\\sqrt3-1)+(2-\\sqrt3)=1\\)"
+        },
+        "conclusion": "原式的最大值是 \\(\\frac{3+2\\sqrt3}{3}\\)",
+        "caption": "三步相连：先由定和条件直接表示 b 并代入目标；把一元正数目标取倒数，显露两个乘积固定的正项，再应用基本不等式；最后回代求出完整取等条件。"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "由 \\(a+b=1\\)，可直接用 \\(a\\) 表示 \\(b\\)：\\(b=1-a\\)；又因 \\(a，b>0\\)，所以 \\(0<a<1\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "代入目标后，\\(a^2+b=a^2-a+1\\)，\\(a+b^2=a^2-a+1\\)，两个分母相同"
+        },
+        {
+          "kind": "therefore",
+          "text": "设原式为 \\(E\\)，则 \\(E=\\frac{2a+1-a}{a^2-a+1}=\\frac{a+1}{a^2-a+1}>0\\)"
+        },
+        {
+          "kind": "because",
+          "text": "求正数 \\(E\\) 的最大值，等价于求 \\(\\frac{1}{E}\\) 的最小值；而 \\(\\frac{1}{E}=(a+1)+\\frac{3}{a+1}-3\\)"
+        },
+        {
+          "kind": "because",
+          "text": "\\(a+1>0，\\frac{3}{a+1}>0\\)，且二者乘积固定为 \\(3\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "由基本不等式，\\(\\frac{1}{E}\\ge2\\sqrt3-3\\)，所以 \\(E\\le\\frac{1}{2\\sqrt3-3}=\\frac{3+2\\sqrt3}{3}\\)"
+        },
+        {
+          "kind": "because",
+          "text": "等号要求 \\(a+1=\\frac{3}{a+1}\\)，结合 \\(a+1>0\\)，得 \\(a=\\sqrt3-1\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "回代 \\(b=1-a\\)，得 \\(b=2-\\sqrt3>0\\)，满足原条件，所以最大值为 \\(\\frac{3+2\\sqrt3}{3}\\)"
+        }
+      ],
+      "derive": [
+        [
+          "最大值",
+          "(3+2√3)/3"
+        ],
+        [
+          "取等",
+          "a=√3−1，b=2−√3"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 用 b=1-a 消元，整理倒数后应用基本不等式"
+  }
+}

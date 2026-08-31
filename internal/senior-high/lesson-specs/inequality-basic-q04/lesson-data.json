@@ -13,12 +13,12 @@
     "source": "高一暑假目标班 · 第4讲",
     "keyPoints": {
       "title": "解题要点",
-      "lead": "求倒数和的最小值时，若原两项乘积不固定，就把定和条件乘入目标式，通过展开寻找乘积固定的交叉项。",
+      "lead": "目标 \\(\\frac{3}{a}+\\frac{4}{b}\\) 是负一次式，定和条件 \\(a+3b=2\\) 是正一次式；两者相乘可配成 0 次齐次式，使所有变量同步放大或缩小时式子的值保持不变；展开后只剩常数项和“一个变量是另一个的几倍”。",
       "items": [
-        "看目标：正项和求最小值，先检查两项乘积是否固定。",
-        "乘定和：a+3b=2 是定值，乘入目标式会把分母约成比值。",
-        "找定积：展开后检查两个交叉项，它们的乘积恒为 36。",
-        "验等号：构造出的两个正项相等，并且满足原条件。"
+        "看次数：目标 \\(\\frac{3}{a}+\\frac{4}{b}\\) 为负一次，条件 \\(a+3b\\) 为正一次。",
+        "配齐次：两者相乘总次数变为 0；由于 \\(a+3b=2\\)，乘积等于原目标的 \\(2\\) 倍。",
+        "看倍数：展开后出现 \\(\\frac{9b}{a}\\) 与 \\(\\frac{4a}{b}\\)，两个正项表达式的乘积恒为 \\(36\\)。",
+        "验等号：构造出的两个正项表达式相等，并且满足原条件。"
       ]
     },
     "lines": [
@@ -30,19 +30,20 @@
   "steps": [
     {
       "id": "s1",
-      "section": "基本不等式",
-      "title": "从定和出发构造固定乘积",
+      "section": "配齐次式",
+      "title": "配成 0 次齐次式，再从两个正项表达式中找定积",
       "t": 0,
       "showDiagram": false,
       "visual": {
         "kind": "fixed-product-construction-flow",
-        "title": "原两项没有定积，如何借助定和构造？",
-        "methodTag": "构造型｜乘入定和",
+        "variant": "homogeneous-reduction",
+        "title": "负一次与正一次相乘，同步放缩后数值不变",
+        "methodTag": "配齐次式｜负一次 × 正一次",
         "goal": {
           "expression": "\\(\\frac{3}{a}+\\frac{4}{b}\\)",
           "task": "求正项和的最小值"
         },
-        "strategy": "想办法构造定积",
+        "strategy": "目标与条件次数相反，相乘配成 0 次齐次式",
         "initialCheck": {
           "terms": [
             "\\(\\frac{3}{a}\\)",
@@ -52,45 +53,53 @@
           "verdict": "乘积不固定，不能直接使用"
         },
         "clue": {
-          "question": "题设中哪个定值能约去分母？",
+          "question": "题设中有没有次数相反的定值式？",
           "condition": "\\(a+3b=2\\)",
-          "observation": "条件是含有 \\(a、b\\) 的定和。把它乘入目标式，可约出常数项与交叉比值。"
+          "observation": "目标为负一次，定和为正一次；两者相乘总次数为 0。题设定和等于 2，因此齐次化后的乘积是原目标的 2 倍。"
+        },
+        "degreeBalance": {
+          "target": {
+            "label": "目标表达式",
+            "expression": "\\(\\frac{3}{a}+\\frac{4}{b}\\)",
+            "degree": "−1",
+            "scale": "\\(\\frac{3}{a}+\\frac{4}{b}\\) → \\(\\frac{1}{k}(\\frac{3}{a}+\\frac{4}{b})\\)",
+            "note": "变量同步放大 k 倍，目标缩小为原来的 1/k"
+          },
+          "condition": {
+            "label": "题设条件式",
+            "expression": "\\(a+3b\\)",
+            "degree": "+1",
+            "scale": "\\(a+3b\\) → \\(k(a+3b)\\)",
+            "note": "变量同步放大 k 倍，条件式也放大 k 倍"
+          },
+          "result": {
+            "label": "相乘后的总次数",
+            "expression": "\\((\\frac{3}{a}+\\frac{4}{b})(a+3b)\\)",
+            "degree": "0",
+            "scale": "\\(\\frac{1}{k}\\cdot k=1\\)",
+            "note": "共同放大或缩小被抵消，只剩变量间的倍数关系"
+          }
         },
         "construction": {
-          "label": "乘入定和 a+3b=2",
-          "identity": "\\(2(\\frac{3}{a}+\\frac{4}{b})=(\\frac{3}{a}+\\frac{4}{b})(a+3b)\\)",
-          "expanded": "\\(=3+\\frac{9b}{a}+\\frac{4a}{b}+12=15+\\frac{9b}{a}+\\frac{4a}{b}\\)",
-          "rows": [
-            "\\(\\frac{3}{a}\\)",
-            "\\(\\frac{4}{b}\\)"
+          "kind": "homogeneous",
+          "label": "乘入正一次条件，配成零次齐次式",
+          "identity": "\\((\\frac{3}{a}+\\frac{4}{b})(a+3b)=2(\\frac{3}{a}+\\frac{4}{b})\\)",
+          "identityNote": "题设条件式等于 2，因此左边是原目标表达式的 2 倍。",
+          "expanded": "\\((\\frac{3}{a}+\\frac{4}{b})(a+3b)=15+\\frac{9b}{a}+\\frac{4a}{b}\\)",
+          "constant": "\\(15\\)",
+          "positiveTerms": [
+            {
+              "shape": "square",
+              "value": "\\(\\frac{9b}{a}\\)",
+              "condition": "\\(\\frac{9b}{a}>0\\)"
+            },
+            {
+              "shape": "circle",
+              "value": "\\(\\frac{4a}{b}\\)",
+              "condition": "\\(\\frac{4a}{b}>0\\)"
+            }
           ],
-          "columns": [
-            "\\(a\\)",
-            "\\(3b\\)"
-          ],
-          "cells": [
-            [
-              {
-                "text": "\\(3\\)",
-                "role": "constant"
-              },
-              {
-                "text": "\\(\\frac{9b}{a}\\)",
-                "role": "constructed"
-              }
-            ],
-            [
-              {
-                "text": "\\(\\frac{4a}{b}\\)",
-                "role": "constructed"
-              },
-              {
-                "text": "\\(12\\)",
-                "role": "constant"
-              }
-            ]
-          ],
-          "constantSum": "常数项：\\(3+12=15\\)"
+          "ratio": "令 \\(t=\\frac{a}{b}>0\\)，则 \\(\\frac{9b}{a}=\\frac{9}{t}\\)、\\(\\frac{4a}{b}=4t\\)：两个变量被压缩成一个倍数 \\(t\\)。"
         },
         "fixedPair": {
           "question": "观察展开后的式子，是否可以找到定积？",
@@ -98,19 +107,23 @@
             "\\(\\frac{9b}{a}\\)",
             "\\(\\frac{4a}{b}\\)"
           ],
-          "product": "\\(\\frac{9b}{a}\\cdot\\frac{4a}{b}=36\\cdot\\frac{a}{a}\\cdot\\frac{b}{b}=36\\)",
+          "product": "\\(\\frac{9b}{a}\\cdot\\frac{4a}{b}=36\\)",
           "verdict": "定积构造成功"
         },
         "application": {
-          "template": "\\(u+v\\ge2\\sqrt{uv}\\)",
+          "template": "两个彩色槽位表示两个完整的正项表达式",
           "mappings": [
             {
-              "slot": "\\(u\\)",
-              "value": "\\(\\frac{9b}{a}\\)"
+              "slot": "第一个槽位",
+              "shape": "square",
+              "value": "\\(\\frac{9b}{a}\\)",
+              "condition": "\\(\\frac{9b}{a}>0\\)"
             },
             {
-              "slot": "\\(v\\)",
-              "value": "\\(\\frac{4a}{b}\\)"
+              "slot": "第二个槽位",
+              "shape": "circle",
+              "value": "\\(\\frac{4a}{b}\\)",
+              "condition": "\\(\\frac{4a}{b}>0\\)"
             }
           ],
           "inequality": "\\(\\frac{9b}{a}+\\frac{4a}{b}\\ge2\\sqrt{36}=12\\)",
@@ -122,7 +135,7 @@
           "relation": "\\(3b=2a\\)",
           "result": "\\(a=\\frac{2}{3}，b=\\frac{4}{9}\\)"
         },
-        "caption": "先把定和乘入目标式，再从展开后的交叉项中发现固定乘积。"
+        "caption": "配成 0 次齐次式后，所有变量同步放大或缩小都不改变式子的值；展开式只剩常数，以及“一个变量是另一个的几倍”。本题条件等于 2，因此展开得到的是原目标的 2 倍，最后要除以 2。"
       },
       "reasoning": [
         {
@@ -164,6 +177,6 @@
     }
   },
   "stepLabels": {
-    "s1": "1 从定和出发构造固定乘积"
+    "s1": "1 配成 0 次齐次式，再从两个正项表达式中找定积"
   }
 }

@@ -1,0 +1,193 @@
+{
+  "meta": {
+    "id": "inequality-basic-q16",
+    "outputPath": "site/problems/senior-high/inequalities/inequality-relations/inequality-basic-q16.html",
+    "pageTitle": "局部配齐两个括号求最小值",
+    "pageDescription": "局部配齐两个括号求最小值的逐步解析。",
+    "breadcrumbTitle": "基本不等式 · 练习 8-16",
+    "breadcrumbLabel": "解不等式与基本不等式",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=inequalities&section=inequality-relations&module=basic-inequalities"
+  },
+  "problem": {
+    "source": "",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "直接展开也能求解：原式可化为 \\(1+\\frac{2}{xy}\\)，再由定和求积得到 \\(xy\\le\\frac{1}{4}\\)，经过取倒数传界即可求出最小值。局部配齐更直接：分别修补两个括号，把它们配成 0 次齐次式，展开后立即得到两个乘积固定的正项表达式。",
+      "items": [
+        "对照路线：直接展开可化为 \\(1+\\frac{2}{xy}\\)，再由 \\(x+y=1\\) 得 \\(xy\\le\\frac{1}{4}\\)，对正数取倒数传界也能求解，但步骤稍多。",
+        "局部配齐：先通分，再由 \\(x+y=1\\) 替换分子里的常数 \\(1\\)，得 \\(\\frac{1}{x}+1=\\frac{1+x}{x}=\\frac{2x+y}{x}\\)，\\(\\frac{1}{y}+1=\\frac{1+y}{y}=\\frac{x+2y}{y}\\)。",
+        "展开圈项：原式化为 \\(5+\\frac{2x}{y}+\\frac{2y}{x}\\)，后两个正项表达式的乘积恒为 \\(4\\)。",
+        "验等号：\\(\\frac{2x}{y}=\\frac{2y}{x}\\) 与 \\(x+y=1\\) 联立得 \\(x=y=\\frac{1}{2}\\)。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "设 \\(x，y>0\\)，且 \\(x+y=1\\)，求 \\((\\frac{1}{x}+1)(\\frac{1}{y}+1)\\) 的最小值。"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "配齐次式",
+      "title": "局部配齐两个括号，再展开找定积",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "fixed-product-construction-flow",
+        "variant": "homogeneous-reduction",
+        "title": "局部配齐两个括号，再展开找定积",
+        "methodTag": "配齐次式｜局部配齐",
+        "goal": {
+          "expression": "\\((\\frac{1}{x}+1)(\\frac{1}{y}+1)\\)",
+          "task": "求乘积式的最小值"
+        },
+        "strategy": "先逐个通分，再局部补齐两个分子的常数项",
+        "initialCheck": {
+          "label": "02 另一条可行路线",
+          "status": "viable",
+          "operator": "=",
+          "terms": [
+            "\\((\\frac{1}{x}+1)(\\frac{1}{y}+1)\\)",
+            "\\(1+\\frac{1}{x}+\\frac{1}{y}+\\frac{1}{xy}\\)",
+            "\\(1+\\frac{2}{xy}\\)"
+          ],
+          "product": "\\(x+y=1\\Rightarrow xy\\le\\frac{1}{4}\\Rightarrow (\\frac{1}{x}+1)(\\frac{1}{y}+1)\\ge9\\)",
+          "verdict": "直接展开也能求解，但要先由定和求出 xy 的上界，再对正数取倒数传界；比局部配齐多一步。"
+        },
+        "clue": {
+          "question": "每个括号中哪一项破坏了齐次性？",
+          "condition": "\\(x+y=1\\)",
+          "observation": "1/x、1/y 为负一次，常数 1 为零次；先通分，再用题设把分子中的常数 1 换成一次式 x+y。"
+        },
+        "degreeBalance": {
+          "connectors": [
+            "→",
+            "→"
+          ],
+          "target": {
+            "label": "原来的两个括号",
+            "expression": "\\((\\frac{1}{x}+1)，(\\frac{1}{y}+1)\\)",
+            "degree": "混合",
+            "degreeText": "负一次项 ＋ 零次项",
+            "scale": "同步放大时，括号内两项变化次数不同",
+            "note": "每个括号都不能提取同一个倍数"
+          },
+          "condition": {
+            "label": "通分后补齐分子",
+            "expression": "\\(1=x+y\\)",
+            "degree": "+1",
+            "degreeText": "把常数换成一次式",
+            "scale": "\\(1+x=2x+y，1+y=x+2y\\)",
+            "note": "先得到 1+x、1+y，再用 x+y=1 替换其中的常数 1"
+          },
+          "result": {
+            "label": "齐次后的两个括号",
+            "expression": "\\((\\frac{2x+y}{x})，(\\frac{x+2y}{y})\\)",
+            "degree": "0",
+            "degreeText": "一次 ÷ 一次",
+            "scale": "每个括号均为 0 次",
+            "note": "同步放大或缩小时，两个括号的值都不变"
+          }
+        },
+        "construction": {
+          "kind": "homogeneous",
+          "label": "每个括号先通分，再补齐分子中的常数项",
+          "identity": "\\(\\frac{1}{x}+1=\\frac{1+x}{x}=\\frac{2x+y}{x}，\\frac{1}{y}+1=\\frac{1+y}{y}=\\frac{x+2y}{y}\\)",
+          "identityNote": "先通分得到分子 1+x、1+y，再由 x+y=1 把分子中的常数 1 替换为 x+y。",
+          "expanded": "\\((\\frac{1}{x}+1)(\\frac{1}{y}+1)=5+\\frac{2x}{y}+\\frac{2y}{x}\\)",
+          "constant": "\\(5\\)",
+          "positiveTerms": [
+            {
+              "shape": "square",
+              "value": "\\(\\frac{2x}{y}\\)",
+              "condition": "\\(\\frac{2x}{y}>0\\)"
+            },
+            {
+              "shape": "circle",
+              "value": "\\(\\frac{2y}{x}\\)",
+              "condition": "\\(\\frac{2y}{x}>0\\)"
+            }
+          ],
+          "ratio": "令 \\(t=\\frac{x}{y}>0\\)，则 \\(\\frac{2x}{y}=2t\\)，\\(\\frac{2y}{x}=\\frac{2}{t}\\)：两个变量被压缩成一个倍数 \\(t\\)。"
+        },
+        "fixedPair": {
+          "question": "展开后圈出的两个正项表达式，乘积固定吗？",
+          "terms": [
+            "\\(\\frac{2x}{y}\\)",
+            "\\(\\frac{2y}{x}\\)"
+          ],
+          "product": "\\(\\frac{2x}{y}\\cdot\\frac{2y}{x}=4\\)",
+          "verdict": "定积构造成功"
+        },
+        "application": {
+          "template": "两个彩色槽位表示两个完整的正项表达式",
+          "mappings": [
+            {
+              "slot": "第一个槽位",
+              "shape": "square",
+              "value": "\\(\\frac{2x}{y}\\)",
+              "condition": "\\(\\frac{2x}{y}>0\\)"
+            },
+            {
+              "slot": "第二个槽位",
+              "shape": "circle",
+              "value": "\\(\\frac{2y}{x}\\)",
+              "condition": "\\(\\frac{2y}{x}>0\\)"
+            }
+          ],
+          "inequality": "\\(\\frac{2x}{y}+\\frac{2y}{x}\\ge4\\)",
+          "combine": "\\((\\frac{1}{x}+1)(\\frac{1}{y}+1)=5+\\frac{2x}{y}+\\frac{2y}{x}\\ge9\\)",
+          "conclusion": "最小值为 \\(9\\)"
+        },
+        "equality": {
+          "condition": "\\(\\frac{2x}{y}=\\frac{2y}{x}\\)",
+          "relation": "\\(x=y\\)",
+          "result": "\\(x=y=\\frac{1}{2}\\)"
+        },
+        "caption": "直接展开也能通过定和求积与取倒数传界完成；局部配齐则只修补两个括号中的常数项，展开后直接出现一对定积正项表达式。"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "两个括号分别含负一次项与零次常数项，同步放大变量时括号内两项变化不同，不能直接消元"
+        },
+        {
+          "kind": "because",
+          "text": "先把两个括号分别通成单个分式，再由 \\(x+y=1\\) 替换分子里的常数 \\(1\\)，得到 \\(\\frac{1}{x}+1=\\frac{1+x}{x}=\\frac{2x+y}{x}\\)，\\(\\frac{1}{y}+1=\\frac{1+y}{y}=\\frac{x+2y}{y}\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "原式 \\(=\\frac{(2x+y)(x+2y)}{xy}=5+\\frac{2x}{y}+\\frac{2y}{x}\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "由 \\(\\frac{2x}{y}+\\frac{2y}{x}\\ge4\\)，原式最小值为 \\(9\\)；等号在 \\(x=y=\\frac{1}{2}\\) 时取得"
+        }
+      ],
+      "derive": [
+        [
+          "最小值",
+          "9"
+        ],
+        [
+          "等号条件",
+          "x=y=1/2"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 局部配齐两个括号，再展开找定积"
+  }
+}

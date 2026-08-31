@@ -618,7 +618,7 @@ export function validateLearningTopics(catalog, topicSource, root = repoRoot) {
             if (block.ordered !== undefined && typeof block.ordered !== "boolean") {
               throw new Error(`${context}.ordered 必须是布尔值`);
             }
-            for (const flag of ["basicInequalityVisual", "basicInequalityConditions", "fixedProductConditionVisual", "fixedProductCompletionVisual"]) {
+            for (const flag of ["basicInequalityVisual", "basicInequalityConditions", "basicInequalitySlotVisual", "basicInequalityHomogenizationVisual", "basicInequalitySymmetryVisual", "basicInequalityRepeatedVisual", "basicInequalitySubstitutionVisual", "basicInequalityEliminationVisual", "fixedProductConditionVisual", "fixedProductCompletionVisual"]) {
               if (block[flag] !== undefined && block[flag] !== true) {
                 throw new Error(`${context}.${flag} 只能设为 true`);
               }
@@ -813,6 +813,12 @@ export function validateLearningTopics(catalog, topicSource, root = repoRoot) {
               ...(absoluteInequalityTable ? { absoluteInequalityTable } : {}),
               ...(block.basicInequalityVisual ? { basicInequalityVisual: true } : {}),
               ...(block.basicInequalityConditions ? { basicInequalityConditions: true } : {}),
+              ...(block.basicInequalitySlotVisual ? { basicInequalitySlotVisual: true } : {}),
+              ...(block.basicInequalityHomogenizationVisual ? { basicInequalityHomogenizationVisual: true } : {}),
+              ...(block.basicInequalitySymmetryVisual ? { basicInequalitySymmetryVisual: true } : {}),
+              ...(block.basicInequalityRepeatedVisual ? { basicInequalityRepeatedVisual: true } : {}),
+              ...(block.basicInequalitySubstitutionVisual ? { basicInequalitySubstitutionVisual: true } : {}),
+              ...(block.basicInequalityEliminationVisual ? { basicInequalityEliminationVisual: true } : {}),
               ...(block.fixedProductConditionVisual ? { fixedProductConditionVisual: true } : {}),
               ...(block.fixedProductCompletionVisual ? { fixedProductCompletionVisual: true } : {}),
             };

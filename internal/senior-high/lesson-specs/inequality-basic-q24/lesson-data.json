@@ -1,0 +1,181 @@
+{
+  "meta": {
+    "id": "inequality-basic-q24",
+    "outputPath": "site/problems/senior-high/inequalities/inequality-relations/inequality-basic-q24.html",
+    "pageTitle": "复杂分母换元后整理目标求最小值",
+    "pageDescription": "复杂分母换元后整理目标求最小值的逐步解析。",
+    "breadcrumbTitle": "基本不等式 · 换元法 3",
+    "breadcrumbLabel": "解不等式与基本不等式",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=inequalities&section=inequality-relations&module=basic-inequalities"
+  },
+  "problem": {
+    "source": "",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "分母 \\(a+1，b+1\\) 与题设中的 \\(a+b\\) 有共同结构，先把两个完整分母换元。换元后分子仍较复杂，因此在换元这一步内继续整理目标，露出定和与倒数和，再进入配齐次式。",
+      "items": [
+        "整体换元：令 \\(u=a+1>1，v=b+1>1\\)，则 \\(u+v=3\\)，并保留 \\(a=u-1，b=v-1\\)。",
+        "整理新目标：\\(\\frac{(u-1)^2}{u}=u-2+\\frac{1}{u}\\)，另一项同理，所以原目标等于 \\(-1+\\frac{1}{u}+\\frac{1}{v}\\)。",
+        "配齐次式：\\(3\\left(\\frac{1}{u}+\\frac{1}{v}\\right)=(u+v)\\left(\\frac{1}{u}+\\frac{1}{v}\\right)=2+\\frac{u}{v}+\\frac{v}{u}\\ge4\\)。",
+        "得到界值：\\(\\frac{1}{u}+\\frac{1}{v}\\ge\\frac{4}{3}\\)，故原目标不小于 \\(-1+\\frac{4}{3}=\\frac{1}{3}\\)。",
+        "还原取等：等号要求 \\(u=v=\\frac{3}{2}\\)，对应 \\(a=b=\\frac{1}{2}\\)，满足原条件。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "已知 \\(a>0，b>0，a+b=1\\)，求 \\(\\frac{a^2}{a+1}+\\frac{b^2}{b+1}\\) 的最小值。"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "换元法",
+      "title": "整体换元后整理新目标，再配齐次式",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "substitution-homogeneous-lifecycle",
+        "title": "换元（整体换元 → 整理目标）→ 配齐次 → 还原等号",
+        "methodTag": "换元法｜复杂分母换元",
+        "substitution": {
+          "label": "把复杂分母换元并整理新目标",
+          "observation": "换元不只改名：还要继续整理，直到新的解题结构显现",
+          "mappings": [
+            {
+              "source": "\\(a+1\\)",
+              "target": "\\(u=a+1>1\\)",
+              "reverse": "\\(a=u-1\\)"
+            },
+            {
+              "source": "\\(b+1\\)",
+              "target": "\\(v=b+1>1\\)",
+              "reverse": "\\(b=v-1\\)"
+            }
+          ],
+          "rearrangement": {
+            "label": "整理换元后的目标",
+            "before": "\\(\\frac{(u-1)^2}{u}+\\frac{(v-1)^2}{v}\\)",
+            "identities": [
+              "\\(\\frac{(u-1)^2}{u}=u-2+\\frac{1}{u}\\)",
+              "\\(\\frac{(v-1)^2}{v}=v-2+\\frac{1}{v}\\)"
+            ],
+            "result": "\\(-1+\\frac{1}{u}+\\frac{1}{v}\\)"
+          },
+          "condition": "\\(u+v=3\\)",
+          "target": "\\(-1+\\frac{1}{u}+\\frac{1}{v}\\)",
+          "handoffLabel": "整理后发现：倒数和可以配齐次式"
+        },
+        "homogeneous": {
+          "label": "配齐次式用定和求最值",
+          "methodTag": "发现结构｜定和＋倒数和",
+          "degrees": [
+            {
+              "label": "正一次条件",
+              "expression": "\\(u+v=3\\)",
+              "degree": "+1"
+            },
+            {
+              "label": "负一次部分",
+              "expression": "\\(\\frac{1}{u}+\\frac{1}{v}\\)",
+              "degree": "−1"
+            },
+            {
+              "label": "相乘后",
+              "expression": "\\(3\\left(\\frac{1}{u}+\\frac{1}{v}\\right)\\)",
+              "degree": "0"
+            }
+          ],
+          "identity": "\\(3\\left(\\frac{1}{u}+\\frac{1}{v}\\right)=(u+v)\\left(\\frac{1}{u}+\\frac{1}{v}\\right)=2+\\frac{u}{v}+\\frac{v}{u}\\)",
+          "positiveTerms": [
+            {
+              "value": "\\(\\frac{u}{v}\\)",
+              "condition": "\\(\\frac{u}{v}>0\\)"
+            },
+            {
+              "value": "\\(\\frac{v}{u}\\)",
+              "condition": "\\(\\frac{v}{u}>0\\)"
+            }
+          ],
+          "product": "\\(\\frac{u}{v}\\cdot\\frac{v}{u}=1\\)",
+          "inequality": "\\(\\frac{u}{v}+\\frac{v}{u}\\ge2\\)",
+          "bound": "\\(\\frac{1}{u}+\\frac{1}{v}\\ge\\frac{4}{3}\\Rightarrow -1+\\frac{1}{u}+\\frac{1}{v}\\ge\\frac{1}{3}\\)",
+          "equality": "\\(\\frac{u}{v}=\\frac{v}{u}\\Rightarrow u=v\\)",
+          "equalitySolved": "\\(u=v=\\frac{3}{2}\\)"
+        },
+        "restoration": {
+          "label": "求解等号成立条件",
+          "variableLabel": "a、b",
+          "transformedEquality": "\\(u=v\\)",
+          "solved": "\\(u=v=\\frac{3}{2}\\)",
+          "reverse": "\\(a=u-1，b=v-1\\)",
+          "result": "\\(a=b=\\frac{1}{2}\\)",
+          "verification": "\\(a+b=1，a>0，b>0\\)"
+        },
+        "conclusion": "\\(\\frac{a^2}{a+1}+\\frac{b^2}{b+1}\\) 的最小值是 \\(\\frac{1}{3}\\)",
+        "caption": "三步相连：换元这一步包含两个小动作——先把完整分母换成新变量，再整理换元后的目标；当定和与倒数和显现后，进入配齐次式，最后还原等号条件。"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "分母 \\(a+1，b+1\\) 反复出现，且由 \\(a>0，b>0\\) 可知它们都大于 \\(1\\)；令 \\(u=a+1>1，v=b+1>1\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "因为 \\(a=u-1，b=v-1\\)，所以 \\(a+b=1\\) 等价于 \\(u+v=3\\)"
+        },
+        {
+          "kind": "because",
+          "text": "换元后的分子仍含平方，先用整式除法整理：\\(\\frac{(u-1)^2}{u}=u-2+\\frac{1}{u}\\)，\\(\\frac{(v-1)^2}{v}=v-2+\\frac{1}{v}\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "原目标化为 \\(u+v-4+\\frac{1}{u}+\\frac{1}{v}=-1+\\frac{1}{u}+\\frac{1}{v}\\)"
+        },
+        {
+          "kind": "because",
+          "text": "倒数和 \\(\\frac{1}{u}+\\frac{1}{v}\\) 是负一次式，而定和 \\(u+v=3\\) 是正一次式，二者相乘可配成 0 次齐次式"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(3\\left(\\frac{1}{u}+\\frac{1}{v}\\right)=(u+v)\\left(\\frac{1}{u}+\\frac{1}{v}\\right)=2+\\frac{u}{v}+\\frac{v}{u}\\ge4\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(-1+\\frac{1}{u}+\\frac{1}{v}\\ge-1+\\frac{4}{3}=\\frac{1}{3}\\)"
+        },
+        {
+          "kind": "because",
+          "text": "等号要求 \\(\\frac{u}{v}=\\frac{v}{u}\\)，由 \\(u，v>0\\) 得 \\(u=v\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "联立 \\(u+v=3\\)，得 \\(u=v=\\frac{3}{2}\\)；还原为 \\(a=b=\\frac{1}{2}\\)，故最小值为 \\(\\frac{1}{3}\\)"
+        }
+      ],
+      "derive": [
+        [
+          "最小值",
+          "1/3"
+        ],
+        [
+          "取等",
+          "a=b=1/2"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 整体换元后整理新目标，再配齐次式"
+  }
+}

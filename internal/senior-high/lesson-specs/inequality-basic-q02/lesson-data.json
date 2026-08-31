@@ -13,11 +13,11 @@
     "source": "高一暑假目标班 · 第4讲",
     "keyPoints": {
       "title": "解题要点",
-      "lead": "原条件不能直接代入基本不等式，先把倒数和转成和积关系，再代入并核对等号条件。",
+      "lead": "题设给出的两个正项就是 1/x 与 1/y：先直接使用基本不等式求出 1/√xy 的上界，再利用正数取倒数时方向反转求出 xy 的下界。",
       "items": [
-        "一正：参与基本不等式的各项必须为正。",
-        "二定：和或积中必须有一个是定值。",
-        "三相等：只有各项相等时才能取得等号。"
+        "一正：x>0、y>0，所以 1/x>0、1/y>0。",
+        "二定：两个槽位之和 1/x+1/y=1 是定值。",
+        "三相等：1/x=1/y，即 x=y，并与原条件联立。"
       ]
     },
     "lines": [
@@ -30,64 +30,62 @@
     {
       "id": "s1",
       "section": "基本不等式",
-      "title": "把倒数条件转成和积关系",
+      "title": "直接比较两个倒数正项",
       "t": 0,
       "showDiagram": false,
       "visual": {
         "kind": "basic-inequality-mapping",
-        "title": "把题目中的正数放进基本不等式",
-        "methodTag": "转化型｜倒数和转和积关系",
-        "conditionFlowLabel": "先把倒数和转成和积关系",
-        "conditionFlow": [
-          "\\(\\frac{1}{x}+\\frac{1}{y}=1\\)",
-          "\\(\\frac{x+y}{xy}=1\\)",
-          "\\(x+y=xy\\)"
-        ],
-        "template": "\\(\\frac{a+b}{2}\\ge\\sqrt{ab}\\)",
+        "title": "把两个倒数正项直接放进彩色槽位",
+        "methodTag": "直接应用｜定和求积",
+        "template": "彩色方槽与彩色圆槽表示两个完整正项",
         "mappings": [
           {
-            "slot": "a",
-            "value": "x",
-            "condition": "\\(x>0\\)"
+            "slot": "第一个正项",
+            "shape": "square",
+            "value": "\\(\\frac{1}{x}\\)",
+            "condition": "\\(\\frac{1}{x}>0\\)"
           },
           {
-            "slot": "b",
-            "value": "y",
-            "condition": "\\(y>0\\)"
+            "slot": "第二个正项",
+            "shape": "circle",
+            "value": "\\(\\frac{1}{y}\\)",
+            "condition": "\\(\\frac{1}{y}>0\\)"
           }
         ],
-        "mapped": "\\(\\frac{x+y}{2}\\ge\\sqrt{xy}\\)",
-        "stageLabel": "代入和积关系",
-        "fixedSourceLabel": "等价条件",
-        "fixedCondition": "\\(x+y=xy\\)",
-        "replacementText": "把 \\(x+y\\) 换成 \\(xy\\)",
-        "replaced": "\\(\\frac{xy}{2}\\ge\\sqrt{xy}\\)",
-        "simplifyLabel": "同除以正数 \\(\\sqrt{xy}\\)",
+        "mappedSum": "\\(\\frac{1}{x}+\\frac{1}{y}\\)",
+        "mappedProduct": "\\(\\frac{1}{xy}\\)",
+        "mapped": "\\(\\frac{\\frac{1}{x}+\\frac{1}{y}}{2}\\ge\\sqrt{\\frac{1}{xy}}\\)",
+        "stageLabel": "代入倒数和",
+        "fixedSourceLabel": "已知",
+        "fixedCondition": "\\(\\frac{1}{x}+\\frac{1}{y}=1\\)",
+        "replacementText": "把倒数和换成 1",
+        "replaced": "\\(\\frac{1}{2}\\ge\\frac{1}{\\sqrt{xy}}\\)",
+        "simplifyLabel": "正数取倒数，方向反转",
         "substituted": "\\(\\sqrt{xy}\\ge2\\)",
-        "conclusionLabel": "平方后得到下界",
+        "conclusionLabel": "正数平方，方向不变",
         "conclusion": "\\(xy\\ge4\\)",
-        "equalityTemplate": "\\(a=b\\)",
-        "equalityMapped": "\\(x=y\\)",
+        "equalityTemplate": "两个槽位相等",
+        "equalityMapped": "\\(\\frac{1}{x}=\\frac{1}{y}\\iff x=y\\)",
         "equalityContextLabel": "结合原条件",
         "equalityResult": "\\(x=y=2\\)",
-        "caption": "先把倒数条件化为 \\(x+y=xy\\)，再将题目变量与公式槽位对应，最后核对等号条件。"
+        "caption": "先对题设中的两个倒数正项直接使用基本不等式，再用不等式性质把倒数的上界转成 xy 的下界。"
       },
       "reasoning": [
         {
           "kind": "because",
-          "text": "\\(x>0，y>0\\)，且 \\(\\frac{x+y}{xy}=1\\)，所以 \\(x+y=xy\\)"
+          "text": "\\(x>0，y>0\\)，所以 \\(\\frac{1}{x}>0，\\frac{1}{y}>0\\)"
         },
         {
           "kind": "because",
-          "text": "基本不等式给出 \\(x+y\\ge2\\sqrt{xy}\\)，故 \\(xy\\ge2\\sqrt{xy}\\)"
+          "text": "由基本不等式，\\(\\frac{\\frac{1}{x}+\\frac{1}{y}}{2}\\ge\\sqrt{\\frac{1}{xy}}=\\frac{1}{\\sqrt{xy}}\\)"
         },
         {
           "kind": "therefore",
-          "text": "除以正数 \\(\\sqrt{xy}\\) 得 \\(\\sqrt{xy}\\ge2\\)，所以 \\(xy\\ge4\\)"
+          "text": "代入 \\(\\frac{1}{x}+\\frac{1}{y}=1\\)，得 \\(\\frac{1}{2}\\ge\\frac{1}{\\sqrt{xy}}\\)；两边均为正数，取倒数时方向反转，所以 \\(\\sqrt{xy}\\ge2\\)"
         },
         {
           "kind": "therefore",
-          "text": "当 \\(x=y=2\\) 时条件成立并取等号，最小值为 \\(4\\)"
+          "text": "两边平方得 \\(xy\\ge4\\)；当 \\(x=y=2\\) 时原条件成立并取等号，所以最小值为 \\(4\\)"
         }
       ],
       "derive": [
@@ -112,6 +110,6 @@
     }
   },
   "stepLabels": {
-    "s1": "1 把倒数条件转成和积关系"
+    "s1": "1 直接比较两个倒数正项"
   }
 }

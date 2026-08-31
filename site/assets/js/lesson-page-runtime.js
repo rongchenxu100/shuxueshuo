@@ -629,6 +629,82 @@
       if (!visual || !visual.kind) return "";
       const ariaLabel = esc(visual.ariaLabel || "解题示意图");
 
+      if (visual.kind === "symmetric-reduction-flow") {
+        const goal = visual.goal || {};
+        const checks = Array.isArray(visual.symmetryChecks) ? visual.symmetryChecks : [];
+        const substitution = visual.substitution || {};
+        const elimination = visual.elimination || {};
+        const closure = visual.closure || {};
+        const preparation = visual.preparation || {};
+        const hasPreparation = visual.variant === "normalize-before-symmetry";
+        const checkIndex = hasPreparation ? "03" : "02";
+        const substitutionIndex = hasPreparation ? "04" : "03";
+        const eliminationIndex = hasPreparation ? "05" : "04";
+        const closureIndex = hasPreparation ? "06" : "05";
+        const definitions = Array.isArray(substitution.definitions) ? substitution.definitions : [];
+        const endpoints = Array.isArray(closure.endpoints) ? closure.endpoints : [];
+        const conditionFlow = Array.isArray(preparation.conditionFlow) ? preparation.conditionFlow : [];
+        return (
+          '<figure class="lesson-step-visual lesson-step-symmetric-reduction" role="group" aria-label="' + ariaLabel + '">' +
+            '<div class="symmetric-reduction-heading"><h3>' + renderFormulaText(visual.title || "用对称结构消元") + '</h3>' +
+              (visual.methodTag ? '<span>' + esc(visual.methodTag) + '</span>' : '') +
+            '</div>' +
+            '<section class="symmetric-reduction-goal"><small>01 看目标</small><strong>' + renderFormulaText(goal.expression || "") + '</strong><p>' + esc(goal.task || "") + '</p></section>' +
+            (hasPreparation ? '<div class="symmetric-reduction-down" aria-hidden="true">↓</div><section class="symmetric-reduction-preparation"><header><small>02 观察变形</small><strong>先把不对称系数配成统一结构</strong></header><div class="symmetric-reduction-preparation-observation"><p>' + renderFormulaText(preparation.observation || "") + '</p><strong>' + renderFormulaText(preparation.substitution || "") + '</strong><b>' + renderFormulaText(preparation.target || "") + '</b></div><div class="symmetric-reduction-preparation-chain">' + conditionFlow.map(function (item) { return '<span>' + renderFormulaText(item) + '</span>'; }).join('<i aria-hidden="true">→</i>') + '</div><p class="symmetric-reduction-preparation-conclusion">✓ ' + renderFormulaText(preparation.conclusion || "") + '</p></section><div class="symmetric-reduction-down" aria-hidden="true">↓</div>' : '') +
+            '<section class="symmetric-reduction-check"><header><small>' + checkIndex + ' 验对称</small><strong>目标与条件要分别交换 ' + esc(hasPreparation ? (visual.symmetryVariables || '两个新变量') : 'x、y') + ' 检查</strong></header><div>' +
+              checks.map(function (item) {
+                return '<article><span>' + esc(item.label || "") + '</span><div><b>' + renderFormulaText(item.original || "") + '</b><i aria-hidden="true">x ↔ y</i><b>' + renderFormulaText(item.swapped || "") + '</b></div><strong>✓ ' + esc(item.verdict || "") + '</strong></article>';
+              }).join("") +
+            '</div></section>' +
+            '<div class="symmetric-reduction-down" aria-hidden="true">↓</div>' +
+            '<section class="symmetric-reduction-substitution"><header><small>' + substitutionIndex + ' 换元</small><strong>把两个变量换元成和与积</strong></header>' +
+              '<div class="symmetric-reduction-definitions">' + definitions.map(function (item) { return '<b>' + renderFormulaText(item) + '</b>'; }).join('<i aria-hidden="true">＋</i>') + '</div>' +
+              '<div class="symmetric-reduction-chain"><span>' + renderFormulaText(substitution.identity || "") + '</span><i aria-hidden="true">→</i><span>' + renderFormulaText(substitution.condition || "") + '</span><i aria-hidden="true">→</i><strong>' + renderFormulaText(substitution.solved || "") + '</strong></div>' +
+            '</section>' +
+            '<div class="symmetric-reduction-down" aria-hidden="true">↓</div>' +
+            '<section class="symmetric-reduction-elimination"><header><small>' + eliminationIndex + ' 消元</small><strong>' + esc(elimination.label || "应用基本不等式消元") + '</strong></header>' +
+              '<div class="symmetric-reduction-relation"><small>' + renderFormulaText(elimination.relationLabel || "先建立和与积的关系") + '</small><strong>' + renderFormulaText(elimination.relation || "") + '</strong><p>' + renderFormulaText(elimination.basis || "") + '</p></div>' +
+              '<div class="symmetric-reduction-substitute"><small>' + renderFormulaText(elimination.substitutionLabel || "再代入上一步结果") + '</small><div><span>' + renderFormulaText(elimination.substituted || "") + '</span><i aria-hidden="true">→</i><span>' + renderFormulaText(elimination.expanded || "") + '</span><i aria-hidden="true">→</i><span>' + renderFormulaText(elimination.simplified || "") + '</span><i aria-hidden="true">→</i><strong>' + renderFormulaText(elimination.range || "") + '</strong></div></div>' +
+            '</section>' +
+            '<div class="symmetric-reduction-down" aria-hidden="true">↓</div>' +
+            '<section class="symmetric-reduction-closure"><header><small>' + closureIndex + ' ' + esc(closure.label || '验端点') + '</small><strong>' + renderFormulaText(closure.question || "") + '</strong></header>' +
+              '<div class="symmetric-reduction-equality-condition"><small>' + esc(closure.equalityLabel || "基本不等式取等") + '</small><strong>' + renderFormulaText(closure.equalityCondition || "") + '</strong></div>' +
+              '<div class="symmetric-reduction-endpoints' + (endpoints.length === 1 ? ' is-single' : '') + '">' + endpoints.map(function (item) {
+                return '<article><span>' + renderFormulaText(item.value || "") + '</span><p>' + renderFormulaText(item.boundaryCondition || "") + '</p><i aria-hidden="true">↓</i><strong>' + renderFormulaText(item.witness || "") + '</strong><small>' + renderFormulaText(item.verification || "") + '</small></article>';
+              }).join("") + '</div>' +
+              '<p class="symmetric-reduction-conclusion">' + renderFormulaText(closure.conclusion || "") + '</p>' +
+            '</section>' +
+            (visual.caption ? '<figcaption>' + renderFormulaText(visual.caption) + '</figcaption>' : '') +
+          '</figure>'
+        );
+      }
+
+      if (visual.kind === "symmetric-objective-reduction") {
+        const goal = visual.goal || {};
+        const symmetry = visual.symmetryCheck || {};
+        const pairing = visual.pairing || {};
+        const reduction = visual.reduction || {};
+        const equality = visual.equality || {};
+        const terms = Array.isArray(pairing.terms) ? pairing.terms : [];
+        return (
+          '<figure class="lesson-step-visual lesson-step-symmetric-objective" role="group" aria-label="' + ariaLabel + '">' +
+            '<div class="symmetric-objective-heading"><h3>' + renderFormulaText(visual.title || "对称目标降维") + '</h3>' +
+              (visual.methodTag ? '<span>' + esc(visual.methodTag) + '</span>' : '') +
+            '</div>' +
+            '<section class="symmetric-objective-goal"><small>01 看目标</small><strong>' + renderFormulaText(goal.expression || "") + '</strong><p>' + esc(goal.task || "") + '</p></section>' +
+            '<div class="symmetric-objective-down" aria-hidden="true">↓</div>' +
+            '<section class="symmetric-objective-check"><header><small>02 验对称</small><strong>交换 a、b，检查目标是否保持不变</strong></header><div><b>' + renderFormulaText(symmetry.original || "") + '</b><i aria-hidden="true">a ↔ b</i><b>' + renderFormulaText(symmetry.swapped || "") + '</b></div><p>✓ ' + esc(symmetry.verdict || "") + '</p></section>' +
+            '<div class="symmetric-objective-down" aria-hidden="true">↓</div>' +
+            '<section class="symmetric-objective-pairing"><header><small>03 对称配对</small><strong>' + esc(pairing.label || "") + '</strong></header><div class="symmetric-objective-terms">' + terms.map(function (term, index) { return '<b class="is-' + (index ? 'second' : 'first') + '">' + renderFormulaText(term) + '</b>'; }).join('<span class="symmetric-objective-term-plus"><i aria-hidden="true">+</i><small>相加</small></span>') + '</div><p>' + renderFormulaText(pairing.inequality || "") + '</p><div class="symmetric-objective-product-reduction"><span>' + renderFormulaText(pairing.productVariable || "") + '</span><i aria-hidden="true">→</i><strong>' + renderFormulaText(pairing.reduced || "") + '</strong></div></section>' +
+            '<div class="symmetric-objective-down" aria-hidden="true">↓</div>' +
+            '<section class="symmetric-objective-reduction"><header><small>04 降维配方</small><strong>把二元目标压成关于 p 的一元式</strong></header><div><span>' + renderFormulaText(reduction.original || "") + '</span><i aria-hidden="true">→</i><span>' + renderFormulaText(reduction.lowerBound || "") + '</span><i aria-hidden="true">→</i><span>' + renderFormulaText(reduction.completion || "") + '</span><i aria-hidden="true">→</i><strong>' + renderFormulaText(reduction.conclusion || "") + '</strong></div></section>' +
+            '<div class="symmetric-objective-down" aria-hidden="true">↓</div>' +
+            '<section class="symmetric-objective-equality"><header><small>05 验等号</small><strong>两个取等条件必须同时成立</strong></header><div class="symmetric-objective-equality-conditions"><p><span>对称配对取等</span><b>' + renderFormulaText(equality.pairingCondition || "") + '</b></p><i class="symmetric-objective-logical-and">且</i><p><span>一元配方取等</span><b>' + renderFormulaText(equality.completionCondition || "") + '</b></p></div><div class="symmetric-objective-equality-result"><span>联立</span><strong>' + renderFormulaText(equality.result || "") + '</strong><i aria-hidden="true">→</i><b>' + renderFormulaText(equality.verification || "") + '</b></div><p class="symmetric-objective-conclusion">' + renderFormulaText(visual.conclusion || "") + '</p></section>' +
+            (visual.caption ? '<figcaption>' + renderFormulaText(visual.caption) + '</figcaption>' : '') +
+          '</figure>'
+        );
+      }
+
       if (visual.kind === "fixed-product-construction-flow") {
         const goal = visual.goal || {};
         const initialCheck = visual.initialCheck || {};
@@ -637,6 +713,79 @@
         const fixedPair = visual.fixedPair || {};
         const application = visual.application || {};
         const equality = visual.equality || {};
+        if (visual.variant === "homogeneous-reduction") {
+          const degreeBalance = visual.degreeBalance || {};
+          const constructionTerms = Array.isArray(construction.positiveTerms) ? construction.positiveTerms : [];
+          const mappings = Array.isArray(application.mappings) ? application.mappings : [];
+          const degreeConnectors = Array.isArray(degreeBalance.connectors) && degreeBalance.connectors.length === 2
+            ? degreeBalance.connectors
+            : ["×", "→"];
+          const slot = function (shape, compact) {
+            const safeShape = shape === "circle" ? "circle" : "square";
+            return '<span class="homogeneous-detail-slot is-' + safeShape + (compact ? ' is-compact' : '') + '"></span>';
+          };
+          const markedTerm = function (item, index) {
+            const shape = item?.shape === "circle" || index === 1 ? "circle" : "square";
+            return '<mark class="homogeneous-detail-term is-' + shape + '">' + renderFormulaText(item?.value || "") + '</mark>';
+          };
+          const degreeCard = function (item, className) {
+            return '<article class="' + className + '"><span>' + esc(item?.label || "") + '</span><strong>' + renderFormulaText(item?.expression || "") + '</strong>' +
+              '<b>' + esc(item?.degreeText || ((item?.degree || "") + " 次")) + '</b><p>' + renderFormulaText(item?.scale || "") + '</p><small>' + esc(item?.note || "") + '</small></article>';
+          };
+          const fixedTermsColored = constructionTerms.map(function (item, index) { return markedTerm(item, index); }).join('<i aria-hidden="true">×</i>');
+          const initialCheckClass = initialCheck.status === "viable" ? "is-alternative" : "is-obstacle";
+          const initialCheckOperator = initialCheck.operator || "×";
+          const mappedSlots = mappings.map(function (mapping, index) {
+            const shape = mapping.shape === "circle" || index === 1 ? "circle" : "square";
+            return '<div>' + slot(shape, false) + '<i aria-hidden="true">←</i><strong>' + renderFormulaText(mapping.value || "") + '</strong><small>' + renderFormulaText(mapping.condition || "") + ' ✓</small></div>';
+          }).join("");
+          return (
+            '<figure class="lesson-step-visual lesson-step-homogeneous-flow" role="group" aria-label="' + ariaLabel + '">' +
+              '<div class="fixed-flow-heading"><h3>' + renderFormulaText(visual.title || "配齐次式") + '</h3>' +
+                (visual.methodTag ? '<span>' + esc(visual.methodTag) + '</span>' : '') +
+              '</div>' +
+              '<div class="homogeneous-detail-intro">' +
+                '<section><small>01 看目标</small><strong>' + renderFormulaText(goal.expression || "") + '</strong><p>' + esc(goal.task || "") + '</p></section>' +
+                '<i aria-hidden="true">→</i>' +
+                '<section class="' + initialCheckClass + '"><small>' + esc(initialCheck.label || "02 试直接应用") + '</small><div class="fixed-flow-term-product">' +
+                  (Array.isArray(initialCheck.terms) ? initialCheck.terms.map(function (term) { return '<b>' + renderFormulaText(term) + '</b>'; }).join('<span aria-hidden="true">' + esc(initialCheckOperator) + '</span>') : '') +
+                  '</div><strong>' + renderFormulaText(initialCheck.product || "") + '</strong><p>' + esc(initialCheck.verdict || "") + '</p></section>' +
+              '</div>' +
+              '<div class="fixed-flow-down" aria-hidden="true">↓</div>' +
+              '<section class="homogeneous-degree-panel"><header><small>03 看次数</small><strong>' + esc(clue.question || "判断目标与条件的齐次次数") + '</strong></header>' +
+                '<div class="homogeneous-degree-cards">' + degreeCard(degreeBalance.target, "is-target") + '<i aria-hidden="true">' + esc(degreeConnectors[0]) + '</i>' +
+                  degreeCard(degreeBalance.condition, "is-condition") + '<i aria-hidden="true">' + esc(degreeConnectors[1]) + '</i>' + degreeCard(degreeBalance.result, "is-zero") + '</div>' +
+                '<p class="homogeneous-degree-note"><b>' + renderFormulaText(clue.condition || "") + '</b><span>' + renderFormulaText(clue.observation || "") + '</span></p>' +
+              '</section>' +
+              '<div class="fixed-flow-down" aria-hidden="true">↓</div>' +
+              '<section class="homogeneous-construction-panel"><header><small>04 配齐次</small><strong>' + esc(visual.strategy || construction.label || "") + '</strong></header>' +
+                '<div class="homogeneous-construction-identity"><strong>' + renderFormulaText(construction.identity || "") + '</strong><p>' + renderFormulaText(construction.identityNote || "") + '</p></div>' +
+                '<div class="homogeneous-expansion-board"><header><small>05 展开圈项</small><strong>常数项与准备应用基本不等式的正项表达式分开</strong></header>' +
+                  '<div class="homogeneous-expanded-formula"><span class="is-constant">' + renderFormulaText(construction.constant || "") + '</span><i>＋</i>' +
+                    constructionTerms.map(function (item, index) { return (index ? '<i>＋</i>' : '') + markedTerm(item, index); }).join("") + '</div>' +
+                  '<p>' + renderFormulaText(construction.ratio || "") + '</p>' +
+                '</div>' +
+              '</section>' +
+              '<div class="fixed-flow-down" aria-hidden="true">↓</div>' +
+              '<section class="homogeneous-fixed-pair"><header><small>06 找定积</small><strong>' + esc(fixedPair.question || "") + '</strong></header>' +
+                '<div>' + fixedTermsColored + '</div><p>' + renderFormulaText(fixedPair.product || "") + '</p><b>' + esc(fixedPair.verdict || "定积构造成功") + '</b>' +
+              '</section>' +
+              '<div class="fixed-flow-down" aria-hidden="true">↓</div>' +
+              '<div class="fixed-flow-finish homogeneous-finish">' +
+                '<section><small>07 用基本不等式</small>' +
+                  '<div class="homogeneous-amgm-template"><div>' + slot("square", false) + '<i>＋</i>' + slot("circle", false) + '<b>≥</b><strong>2√</strong><span class="is-radicand">' + slot("square", true) + '<em>·</em>' + slot("circle", true) + '</span></div><p>两个彩色槽位表示两个完整的正项表达式</p></div>' +
+                  '<div class="homogeneous-amgm-mappings">' + mappedSlots + '</div>' +
+                  '<p>' + renderFormulaText(application.inequality || "") + '</p><p>' + renderFormulaText(application.combine || "") + '</p><strong>' + renderFormulaText(application.conclusion || "") + '</strong></section>' +
+                '<section class="is-equality"><small>08 验等号</small>' +
+                  '<div><span>两个槽位相等</span><p>' + renderFormulaText(equality.condition || "") + '</p></div>' +
+                  '<i aria-hidden="true">↓</i><div><span>化简</span><p>' + renderFormulaText(equality.relation || "") + '</p></div>' +
+                  '<i aria-hidden="true">↓</i><div><span>联立题设</span><strong>' + renderFormulaText(equality.result || "") + '</strong></div>' +
+                '</section>' +
+              '</div>' +
+              (visual.caption ? '<figcaption>' + renderFormulaText(visual.caption) + '</figcaption>' : '') +
+            '</figure>'
+          );
+        }
         const rows = Array.isArray(construction.rows) ? construction.rows : [];
         const columns = Array.isArray(construction.columns) ? construction.columns : [];
         const cells = Array.isArray(construction.cells) ? construction.cells : [];
@@ -656,6 +805,14 @@
               '<div class="fixed-flow-substitution-focus"><span>乘积固定的正项和</span><b>' + renderFormulaText(construction.focus || "") + '</b><i aria-hidden="true">+</i><span>保留常数</span><strong>' + renderFormulaText(construction.constant || "") + '</strong></div>' +
               (construction.simplification ? '<p class="fixed-flow-completion-note"><span>换元只做简写</span>' + renderFormulaText(construction.simplification) + '</p>' : '') +
             '</div>'
+          : construction.kind === "grouping"
+            ? '<div class="fixed-flow-substitution-board fixed-flow-grouping-board">' +
+              '<div class="fixed-flow-substitution-maps">' +
+                '<div><b>前两项</b><span aria-hidden="true">→</span><strong>' + renderFormulaText(construction.identity || "") + '</strong><small>先通分，主动制造 ab</small></div>' +
+                '<div><b>' + renderFormulaText(construction.identity || "") + '</b><span aria-hidden="true">→</span><strong>' + renderFormulaText(construction.expanded || "") + '</strong><small>再代入题设 ab=1</small></div>' +
+              '</div>' +
+              '<div class="fixed-flow-substitution-focus"><span>原式重新分组</span><b>' + renderFormulaText(construction.focus || "") + '</b><i aria-hidden="true">✓</i><span>正项条件</span><strong>' + renderFormulaText(construction.positive || "") + '</strong></div>' +
+              '</div>'
           : construction.kind === "substitution"
             ? '<div class="fixed-flow-substitution-board">' +
               '<div class="fixed-flow-substitution-maps">' + substitutions.map(function (item) {
@@ -709,8 +866,194 @@
                   return '<div><b>' + renderFormulaText(mapping.slot || "") + '</b><span aria-hidden="true">←</span><strong>' + renderFormulaText(mapping.value || "") + '</strong></div>';
                 }).join("") + '</div>' : '') +
                 '<p>' + renderFormulaText(application.inequality || "") + '</p><p>' + renderFormulaText(application.combine || "") + '</p><strong>' + renderFormulaText(application.conclusion || "") + '</strong></section>' +
-              '<section class="is-equality"><small>08 验等号</small><p>' + renderFormulaText(equality.condition || "") + '</p><span aria-hidden="true">→</span><p>' + renderFormulaText(equality.relation || "") + '</p><span aria-hidden="true">→</span><strong>' + renderFormulaText(equality.result || "") + '</strong></section>' +
+              '<section class="is-equality"><small>08 验等号</small>' +
+                '<div><span>等号要求</span><p>' + renderFormulaText(equality.condition || "") + '</p></div>' +
+                '<i aria-hidden="true">↓</i>' +
+                '<div><span>化简</span><p>' + renderFormulaText(equality.relation || "") + '</p></div>' +
+                '<i aria-hidden="true">↓</i>' +
+                '<div><span>联立题设</span><strong>' + renderFormulaText(equality.result || "") + '</strong></div>' +
+              '</section>' +
             '</div>' +
+            (visual.caption ? '<figcaption>' + renderFormulaText(visual.caption) + '</figcaption>' : '') +
+          '</figure>'
+        );
+      }
+
+      if (visual.kind === "substitution-homogeneous-lifecycle" || visual.kind === "substitution-basic-inequality-lifecycle" || visual.kind === "elimination-basic-inequality-lifecycle") {
+        const substitution = visual.substitution || {};
+        const elimination = visual.elimination || {};
+        const homogeneous = visual.homogeneous || {};
+        const basicInequality = visual.basicInequality || {};
+        const restoration = visual.restoration || {};
+        const usesElimination = visual.kind === "elimination-basic-inequality-lifecycle";
+        const usesBasicInequality = visual.kind !== "substitution-homogeneous-lifecycle";
+        const inequalityMethod = usesBasicInequality ? basicInequality : homogeneous;
+        const mappings = Array.isArray(substitution.mappings) ? substitution.mappings : [];
+        const rearrangement = substitution.rearrangement || null;
+        const degrees = Array.isArray(homogeneous.degrees) ? homogeneous.degrees : [];
+        const positiveTerms = Array.isArray(inequalityMethod.positiveTerms) ? inequalityMethod.positiveTerms : [];
+        const mappingCards = mappings.map(function (mapping) {
+          return '<article><small>' + esc(mapping.sourceLabel || "原分母整体") + '</small><strong>' + renderFormulaText(mapping.source || "") + '</strong><i aria-hidden="true">→</i><b>' + renderFormulaText(mapping.target || "") + '</b><p><span>保留逆关系</span>' + renderFormulaText(mapping.reverse || "") + '</p></article>';
+        }).join('<span class="substitution-lifecycle-pair-and">且</span>');
+        const mappingGridClass = mappings.length === 1 ? " substitution-lifecycle-mappings is-single" : " substitution-lifecycle-mappings";
+        const conditionFlow = Array.isArray(rearrangement?.conditionFlow) ? rearrangement.conditionFlow : [];
+        const conditionFlowBlock = conditionFlow.length ? (
+          '<div class="substitution-lifecycle-condition-flow"><span>整理条件</span><div>' + conditionFlow.map(function (formula, index) {
+            return (index ? '<i aria-hidden="true">→</i>' : '') + '<strong>' + renderFormulaText(formula) + '</strong>';
+          }).join("") + '</div></div>'
+        ) : "";
+        const rearrangementBlock = rearrangement ? (
+          '<div class="substitution-lifecycle-rearrangement">' +
+            '<div><span>②</span><strong>' + esc(rearrangement.label || "整理换元后的目标") + '</strong></div>' +
+            conditionFlowBlock +
+            '<p class="substitution-lifecycle-rearrangement-before"><small>换元后</small><strong>' + renderFormulaText(rearrangement.before || "") + '</strong></p>' +
+            '<div class="substitution-lifecycle-rearrangement-identities"><p>' + renderFormulaText((rearrangement.identities || [])[0] || "") + '</p><i aria-hidden="true">且</i><p>' + renderFormulaText((rearrangement.identities || [])[1] || "") + '</p></div>' +
+            '<p class="substitution-lifecycle-rearrangement-result"><small>整理得</small><strong>' + renderFormulaText(rearrangement.result || "") + '</strong></p>' +
+          '</div>'
+        ) : "";
+        const degreeCards = degrees.map(function (item, index) {
+          const className = index === degrees.length - 1 ? " is-result" : "";
+          return (index ? '<i aria-hidden="true">' + (index === 1 ? "×" : "→") + '</i>' : '') + '<article class="' + className.trim() + '"><span>' + esc(item.label || "") + '</span><strong>' + renderFormulaText(item.expression || "") + '</strong><b>' + esc(item.degree || "") + ' 次</b></article>';
+        }).join("");
+        const termCards = positiveTerms.map(function (item) {
+          return '<article><strong>' + renderFormulaText(item.value || "") + '</strong><small>' + renderFormulaText(item.condition || "") + ' ✓</small></article>';
+        }).join('<i aria-hidden="true">＋</i>');
+        const solutionBlock = usesBasicInequality ? (
+          '<section class="substitution-lifecycle-inner is-basic-inequality"><header><div><small>02 基本不等式</small><strong>' + esc(basicInequality.label || "应用基本不等式求最值") + '</strong></div><span>' + esc(basicInequality.methodTag || "发现结构｜两正项乘积固定") + '</span></header>' +
+            (basicInequality.observation ? '<p class="substitution-lifecycle-basic-observation">' + esc(basicInequality.observation) + '</p>' : '') +
+            '<div class="substitution-lifecycle-amgm"><div class="substitution-lifecycle-positive-terms">' + termCards + '</div><p><span>' + esc(basicInequality.relationLabel || "乘积固定") + '</span>' + renderFormulaText(basicInequality.product || "") + '</p><strong>' + renderFormulaText(basicInequality.inequality || "") + '</strong><b>' + renderFormulaText(basicInequality.bound || "") + '</b></div>' +
+            '<div class="substitution-lifecycle-inner-equality"><span>等号什么时候成立？</span><p>' + renderFormulaText(basicInequality.equality || "") + '</p><strong>' + renderFormulaText(basicInequality.equalitySolved || "") + '</strong></div>' +
+          '</section>'
+        ) : (
+          '<section class="substitution-lifecycle-inner"><header><div><small>02 配齐次式</small><strong>' + esc(homogeneous.label || "配齐次式用定和求最值") + '</strong></div><span>' + esc(homogeneous.methodTag || "发现结构｜可以配齐次式") + '</span></header>' +
+            '<div class="substitution-lifecycle-degrees">' + degreeCards + '</div>' +
+            '<div class="substitution-lifecycle-identity"><span>乘入定和，配成 0 次齐次式</span><strong>' + renderFormulaText(homogeneous.identity || "") + '</strong></div>' +
+            '<div class="substitution-lifecycle-amgm"><div class="substitution-lifecycle-positive-terms">' + termCards + '</div><p><span>乘积固定</span>' + renderFormulaText(homogeneous.product || "") + '</p><strong>' + renderFormulaText(homogeneous.inequality || "") + '</strong><b>' + renderFormulaText(homogeneous.bound || "") + '</b></div>' +
+            '<div class="substitution-lifecycle-inner-equality"><span>等号什么时候成立？</span><p>' + renderFormulaText(homogeneous.equality || "") + '</p><strong>' + renderFormulaText(homogeneous.equalitySolved || "") + '</strong></div>' +
+          '</section>'
+        );
+        const eliminationFlow = function (items) {
+          return '<div>' + (Array.isArray(items) ? items : []).map(function (formula, index) {
+            return (index ? '<i aria-hidden="true">→</i>' : '') + '<strong>' + renderFormulaText(formula) + '</strong>';
+          }).join("") + '</div>';
+        };
+        const entryBlock = usesElimination ? (
+          '<section class="substitution-lifecycle-forward elimination-lifecycle-forward"><header><small>01 消元</small><strong>' + esc(elimination.label || "利用条件消去一个变量") + '</strong><p>' + esc(elimination.observation || "") + '</p></header>' +
+            '<div class="elimination-lifecycle-stages">' +
+              '<article><header><span>①</span><strong>整理条件</strong></header>' + eliminationFlow(elimination.conditionFlow) + '<p>通分、展开并因式分解，让变量关系显形</p></article>' +
+              '<article><header><span>②</span><strong>表示变量</strong></header>' + eliminationFlow(elimination.isolateFlow) + '<p>用一个原变量表示另一个原变量</p></article>' +
+              '<article><header><span>③</span><strong>代入目标</strong></header>' + eliminationFlow(elimination.targetFlow) + '<p>把二元目标降成一元表达式</p></article>' +
+            '</div>' +
+            '<div class="substitution-lifecycle-transformed"><span>' + esc(elimination.handoffLabel || "消元后发现：可以应用基本不等式") + '</span><p><small>范围</small><strong>' + renderFormulaText(elimination.condition || "") + '</strong></p><p><small>一元目标</small><strong>' + renderFormulaText(elimination.target || "") + '</strong></p></div>' +
+          '</section>'
+        ) : (
+          '<section class="substitution-lifecycle-forward"><header><small>01 换元</small><strong>' + esc(substitution.label || "把复杂分母进行换元") + '</strong><p>' + esc(substitution.observation || "") + '</p></header>' +
+            (rearrangement ? '<div class="substitution-lifecycle-substep"><span>①</span><strong>' + esc(substitution.mappingActionLabel || "把完整分母换成新变量") + '</strong></div>' : '') +
+            '<div class="' + mappingGridClass.trim() + '">' + mappingCards + '</div>' +
+            rearrangementBlock +
+            '<div class="substitution-lifecycle-transformed"><span>' + esc(substitution.handoffLabel || "换元后发现：可以配齐次式") + '</span><p><small>条件</small><strong>' + renderFormulaText(substitution.condition || "") + '</strong></p><p><small>目标</small><strong>' + renderFormulaText(substitution.target || "") + '</strong></p></div>' +
+          '</section>'
+        );
+        return (
+          '<figure class="lesson-step-visual lesson-step-substitution-lifecycle' + (usesElimination ? ' lesson-step-elimination-lifecycle' : '') + '" role="group" aria-label="' + ariaLabel + '">' +
+            '<div class="substitution-lifecycle-heading"><div><span>方法路线</span><h3>' + renderFormulaText(visual.title || "换元、配齐次、还原等号") + '</h3></div><strong>' + esc(visual.methodTag || "换元法｜复杂分母换元") + '</strong></div>' +
+            '<div class="substitution-lifecycle-shell">' +
+              entryBlock +
+              '<div class="substitution-lifecycle-handoff"><span>' + (usesElimination ? '接着解决消元后的一元最值问题' : '接着解决换元后的最值问题') + '</span><i aria-hidden="true">↓</i></div>' +
+              solutionBlock +
+              '<div class="substitution-lifecycle-handoff is-return"><span>' + (usesElimination ? '最后求出等号对应的 ' : '最后把取等条件还原成 ') + esc(restoration.variableLabel || "x、y") + '</span><i aria-hidden="true">↓</i></div>' +
+              '<section class="substitution-lifecycle-restore"><header><small>03 ' + (usesElimination ? '回代等号' : '还原等号') + '</small><strong>' + esc(restoration.label || "求解等号成立条件") + '</strong></header>' +
+                '<div class="substitution-lifecycle-restore-chain"><article><span>取等条件</span><strong>' + renderFormulaText(restoration.transformedEquality || "") + '</strong></article><i aria-hidden="true">→</i><article><span>联立新条件</span><strong>' + renderFormulaText(restoration.solved || "") + '</strong></article><i aria-hidden="true">→</i><article><span>使用逆关系</span><strong>' + renderFormulaText(restoration.reverse || "") + '</strong></article><i aria-hidden="true">→</i><article class="is-result"><span>还原结果</span><strong>' + renderFormulaText(restoration.result || "") + '</strong></article></div>' +
+                '<p class="substitution-lifecycle-verification"><span>代回原题检验</span>' + renderFormulaText(restoration.verification || "") + ' ✓</p>' +
+              '</section>' +
+              '<p class="substitution-lifecycle-conclusion">' + renderFormulaText(visual.conclusion || "") + '</p>' +
+            '</div>' +
+            (visual.caption ? '<figcaption>' + renderFormulaText(visual.caption) + '</figcaption>' : '') +
+          '</figure>'
+        );
+      }
+
+      if (visual.kind === "repeated-basic-inequality-flow") {
+        const count = visual.count || {};
+        const variables = Array.isArray(count.variables) ? count.variables : [];
+        const conditions = Array.isArray(count.conditions) ? count.conditions : [];
+        const relationSources = Array.isArray(count.relationSources) ? count.relationSources : [];
+        const relationCount = Number.isInteger(count.estimatedRelations) ? count.estimatedRelations : Number(count.estimatedRounds || 0);
+        const preparations = Array.isArray(visual.preparations)
+          ? visual.preparations
+          : (visual.preparation ? [visual.preparation] : []);
+        const rounds = Array.isArray(visual.rounds) ? visual.rounds : [];
+        const equality = visual.equality || {};
+        const equalityConditions = Array.isArray(equality.conditions) ? equality.conditions : [];
+        const countList = function (items, emptyText) {
+          return items.length
+            ? items.map(function (item) { return '<b>' + renderFormulaText(item) + '</b>'; }).join("")
+            : '<b class="is-empty">' + esc(emptyText) + '</b>';
+        };
+        const formulaFlow = function (items) {
+          return (Array.isArray(items) ? items : []).map(function (item, index) {
+            return (index ? '<i aria-hidden="true">→</i>' : '') + '<strong>' + renderFormulaText(item) + '</strong>';
+          }).join("");
+        };
+        const preparationMarkup = preparations.map(function (preparation, index) {
+          return (
+            '<div class="repeated-basic-next is-start"><span>' + esc(preparation.handoffLabel || (index ? "继续整理，让配对结构显形" : "先把原式整理到便于观察")) + '</span><i aria-hidden="true">↓</i></div>' +
+            '<section class="repeated-basic-preparation"><header><small>' + esc(preparation.stepNumber || String(index + 2).padStart(2, "0")) + ' ' + esc(preparation.stageLabel || "整理目标") + '</small><strong>' + esc(preparation.label || "先整理目标表达式") + '</strong></header>' +
+              '<div class="repeated-basic-current"><span>' + esc(preparation.currentLabel || "原式") + '</span><strong>' + renderFormulaText(preparation.current || "") + '</strong></div>' +
+              '<div class="repeated-basic-preparation-flow">' + formulaFlow(preparation.flow) + '</div>' +
+              '<div class="repeated-basic-result"><span>' + esc(preparation.resultLabel || "整理结果") + '</span><strong>' + renderFormulaText(preparation.result || "") + '</strong><p>' + esc(preparation.insight || "") + '</p></div>' +
+            '</section>'
+          );
+        }).join("");
+        const roundMarkup = rounds.map(function (round, index) {
+          const terms = Array.isArray(round.terms) ? round.terms : [];
+          const afterward = round.afterward || null;
+          const afterwardMarkup = afterward ? (
+            '<div class="repeated-basic-next"><span>根据新式继续整理</span><i aria-hidden="true">↓</i></div>' +
+            '<section class="repeated-basic-restructure"><header><small>' + esc(afterward.stepNumber || "") + ' 整理新式</small><strong>' + esc(afterward.label || "根据新结构重新分组") + '</strong></header>' +
+              '<div class="repeated-basic-current"><span>当前式</span><strong>' + renderFormulaText(afterward.current || "") + '</strong></div>' +
+              '<p class="repeated-basic-restructure-observation">' + esc(afterward.observation || "") + '</p>' +
+              '<div class="repeated-basic-preparation-flow">' + formulaFlow(afterward.flow) + '</div>' +
+              '<div class="repeated-basic-result"><span>整理结果</span><strong>' + renderFormulaText(afterward.result || "") + '</strong><p>' + esc(afterward.insight || "") + '</p></div>' +
+              (afterward.equality ? '<div class="repeated-basic-equality-ticket"><span>' + esc(afterward.equalityLabel || "记录平方取零") + '</span><strong>' + renderFormulaText(afterward.equality) + '</strong></div>' : '') +
+            '</section>'
+          ) : '';
+          return (
+            '<section class="repeated-basic-round">' +
+              '<header><small>' + esc(round.stepNumber || String(index + 2).padStart(2, "0")) + ' 第 ' + (index + 1) + ' 次</small><strong>' + esc(round.question || "这一次配哪两个正项？") + '</strong></header>' +
+              '<div class="repeated-basic-current"><span>当前式</span><strong>' + renderFormulaText(round.current || "") + '</strong></div>' +
+              '<div class="repeated-basic-pairing"><div>' +
+                '<article><small>第一个正项</small><strong>' + renderFormulaText(terms[0] || "") + '</strong></article>' +
+                '<i aria-hidden="true">＋</i>' +
+                '<article><small>第二个正项</small><strong>' + renderFormulaText(terms[1] || "") + '</strong></article>' +
+              '</div><p><span>为什么这样配？</span>' + esc(round.reason || "") + '</p></div>' +
+              '<div class="repeated-basic-relation"><p><span>两项关系</span><strong>' + renderFormulaText(round.relation || "") + '</strong></p><i aria-hidden="true">→</i><p><span>应用基本不等式</span><strong>' + renderFormulaText(round.inequality || "") + '</strong></p></div>' +
+              '<div class="repeated-basic-result"><span>代回原式</span><strong>' + renderFormulaText(round.result || "") + '</strong><p>' + esc(round.insight || "") + '</p></div>' +
+              '<div class="repeated-basic-equality-ticket"><span>记录等号 ' + (index + 1) + '</span><strong>' + renderFormulaText(round.equality || "") + '</strong></div>' +
+            '</section>' + afterwardMarkup +
+            (index < rounds.length - 1 ? '<div class="repeated-basic-next"><span>继续观察新式</span><i aria-hidden="true">↓</i></div>' : '')
+          );
+        }).join("");
+        return (
+          '<figure class="lesson-step-visual lesson-step-repeated-basic" role="group" aria-label="' + ariaLabel + '">' +
+            '<div class="repeated-basic-heading"><div><span>方法路线</span><h3>' + renderFormulaText(visual.title || "多次应用基本不等式") + '</h3></div><strong>' + esc(visual.methodTag || "多次应用基本不等式") + '</strong></div>' +
+            '<section class="repeated-basic-count"><header><small>01 判断关系缺口</small><strong>题目还缺几条取等关系？</strong></header><div>' +
+              '<article><span>' + variables.length + '</span><small>' + esc(count.variableLabel || "正变量") + '</small><div>' + countList(variables, "无") + '</div></article>' +
+              '<i aria-hidden="true">−</i>' +
+              '<article><span>' + conditions.length + '</span><small>有效等式条件</small><div>' + countList(conditions, "无") + '</div></article>' +
+              '<i aria-hidden="true">＝</i>' +
+              '<article class="is-result"><span>' + relationCount + '</span><small>待补取等关系</small><div>' + (relationSources.length ? countList(relationSources, "") : '<b>基本不等式 ×' + Number(count.estimatedRounds || rounds.length) + '</b>') + '</div></article>' +
+            '</div><p>' + esc(count.note || "每次对两个正项应用基本不等式，通常补一条新的取等关系。") + '</p></section>' +
+            preparationMarkup +
+            '<div class="repeated-basic-next is-start"><span>开始逐层估计</span><i aria-hidden="true">↓</i></div>' +
+            '<div class="repeated-basic-rounds">' + roundMarkup + '</div>' +
+            '<div class="repeated-basic-next is-equality"><span>最后检查所有等号能否同时成立</span><i aria-hidden="true">↓</i></div>' +
+            '<section class="repeated-basic-equality"><header><small>' + esc(equality.stepNumber || String(rounds.length + 2).padStart(2, "0")) + ' 求等条件</small><strong>' + esc(equality.label || "求解等号成立条件") + '</strong></header>' +
+              '<div class="repeated-basic-equality-list">' + equalityConditions.map(function (item) { return '<article><span>' + esc(item.label || "条件") + '</span><strong>' + renderFormulaText(item.expression || "") + '</strong></article>'; }).join('<i aria-hidden="true">且</i>') + '</div>' +
+              '<div class="repeated-basic-equality-solved"><span>联立求解</span><strong>' + renderFormulaText(equality.solved || "") + '</strong></div>' +
+              '<p><span>代回原题检验</span>' + renderFormulaText(equality.verification || "") + ' ✓</p>' +
+            '</section>' +
+            '<p class="repeated-basic-conclusion">' + renderFormulaText(visual.conclusion || "") + '</p>' +
             (visual.caption ? '<figcaption>' + renderFormulaText(visual.caption) + '</figcaption>' : '') +
           '</figure>'
         );
@@ -720,18 +1063,38 @@
         const mappings = Array.isArray(visual.mappings) ? visual.mappings : [];
         const firstMapping = mappings[0] || { slot: "a", value: "m", condition: "\\(m>0\\)" };
         const secondMapping = mappings[1] || { slot: "b", value: "n", condition: "\\(n>0\\)" };
-        const firstSlot = esc(firstMapping.slot || "a");
-        const secondSlot = esc(secondMapping.slot || "b");
-        const firstValue = esc(firstMapping.value || "m");
-        const secondValue = esc(secondMapping.value || "n");
+        const firstValue = renderFormulaText(firstMapping.value || "m");
+        const secondValue = renderFormulaText(secondMapping.value || "n");
+        const mappedSum = visual.mappedSum
+          ? renderFormulaText(visual.mappedSum)
+          : firstValue + "+" + secondValue;
+        const mappedProduct = visual.mappedProduct
+          ? renderFormulaText(visual.mappedProduct)
+          : firstValue + '<span class="basic-map-product-dot">·</span>' + secondValue;
+        const mappedFractionClass = visual.mappedSum ? " is-wide" : "";
+        const fixedSourceMarkup =
+          '<div class="basic-map-fixed-source"><span class="basic-map-short-arrow">↑</span><small>' +
+          esc(visual.fixedSourceLabel || "已知") + '</small><strong>' +
+          renderFormulaText(visual.fixedCondition || "") + '</strong></div>';
+        const fixedSourceTargetsProduct = visual.fixedSourceTarget === "product";
+        const fixedLayoutClass = fixedSourceTargetsProduct ? " is-product-fixed" : "";
+        const mappingSlot = function (mapping, order, compact) {
+          const shape = mapping.shape === "square" || mapping.shape === "circle" ? mapping.shape : "";
+          const classes = "basic-map-variable is-" + order + (shape ? " is-shape is-slot-" + shape : "") + (compact ? " is-compact" : "");
+          return '<span class="' + classes + '">' + (shape ? "" : esc(mapping.slot || (order === "first" ? "a" : "b"))) + '</span>';
+        };
+        const firstSlotHtml = mappingSlot(firstMapping, "first", false);
+        const secondSlotHtml = mappingSlot(secondMapping, "second", false);
+        const firstCompactSlotHtml = mappingSlot(firstMapping, "first", true);
+        const secondCompactSlotHtml = mappingSlot(secondMapping, "second", true);
         const conditionFlow = Array.isArray(visual.conditionFlow) ? visual.conditionFlow : [];
         const templateFormula =
           '<div class="basic-map-formula-layout" aria-hidden="true">' +
             '<div class="basic-map-fraction-cluster">' +
               '<div class="basic-map-numerator-grid">' +
-                '<span class="basic-map-variable is-first is-target">' + firstSlot + '</span>' +
+                firstSlotHtml +
                 '<span class="basic-map-operator">+</span>' +
-                '<span class="basic-map-variable is-second is-target">' + secondSlot + '</span>' +
+                secondSlotHtml +
               '</div>' +
               '<span class="basic-map-fraction-line"></span><span class="basic-map-denominator">2</span>' +
               '<div class="basic-map-source-grid">' +
@@ -741,20 +1104,21 @@
               '</div>' +
             '</div>' +
             '<span class="basic-map-formula-tail"><span class="basic-map-relation">≥</span><span class="math-radical"><span class="math-radical-symbol">√</span><span class="math-radicand">' +
-              '<span class="basic-map-variable is-first">' + firstSlot + '</span>' +
-              '<span class="basic-map-variable is-second">' + secondSlot + '</span>' +
+              firstCompactSlotHtml +
+              secondCompactSlotHtml +
             '</span></span></span>' +
           '</div>';
         const mappedFormula =
-          '<div class="basic-map-formula-layout basic-map-formula-layout-fixed" aria-hidden="true">' +
-            '<div class="basic-map-fixed-fraction">' +
-              '<span class="basic-map-sum-target">' + firstValue + '+' + secondValue + '</span>' +
+          '<div class="basic-map-formula-layout basic-map-formula-layout-fixed' + fixedLayoutClass + '" aria-hidden="true">' +
+            '<div class="basic-map-fixed-fraction' + mappedFractionClass + '">' +
+              '<span class="basic-map-sum-target">' + mappedSum + '</span>' +
               '<span class="basic-map-fraction-line"></span><span class="basic-map-denominator">2</span>' +
-              '<div class="basic-map-fixed-source"><span class="basic-map-short-arrow">↑</span><small>' + esc(visual.fixedSourceLabel || "已知") + '</small><strong>' + renderFormulaText(visual.fixedCondition || "") + '</strong></div>' +
+              (fixedSourceTargetsProduct ? '' : fixedSourceMarkup) +
             '</div>' +
-            '<span class="basic-map-formula-tail"><span class="basic-map-relation">≥</span><span class="math-radical"><span class="math-radical-symbol">√</span><span class="math-radicand">' +
-              firstValue + secondValue +
-            '</span></span></span>' +
+            '<span class="basic-map-formula-tail"><span class="basic-map-relation">≥</span><span class="basic-map-product-cluster"><span class="math-radical"><span class="math-radical-symbol">√</span><span class="math-radicand">' +
+              mappedProduct +
+            '</span></span></span></span>' +
+            (fixedSourceTargetsProduct ? fixedSourceMarkup : '') +
           '</div>';
         return (
           '<figure class="lesson-step-visual lesson-step-basic-inequality-map" role="group" aria-label="' + ariaLabel + '">' +

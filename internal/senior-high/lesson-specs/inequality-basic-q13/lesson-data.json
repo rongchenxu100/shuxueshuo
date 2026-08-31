@@ -1,0 +1,122 @@
+{
+  "meta": {
+    "id": "inequality-basic-q13",
+    "outputPath": "site/problems/senior-high/inequalities/inequality-relations/inequality-basic-q13.html",
+    "pageTitle": "整理目标表达式后直接定积求和",
+    "pageDescription": "整理目标表达式后直接定积求和的逐步解析。",
+    "breadcrumbTitle": "基本不等式 · 练习 8-13",
+    "breadcrumbLabel": "解不等式与基本不等式",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=inequalities&section=inequality-relations&module=basic-inequalities"
+  },
+  "problem": {
+    "source": "",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "先整理目标表达式：把 a+b 写成 (a+1)+(b+2)-3，让题设中乘积固定的两个完整正项同时显形，再直接应用基本不等式。",
+      "items": [
+        "整理目标表达式：a+b=(a+1)+(b+2)-3。",
+        "找定积：两个正项 a+1、b+2 的乘积为 16。",
+        "验等号：a+1=b+2=4，对应 a=3、b=2，满足正数条件。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "已知正实数 \\(a，b\\) 满足 \\((a+1)(b+2)=16\\)，求 \\(a+b\\) 的最小值。"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "直接应用基本不等式",
+      "title": "整理目标表达式，让定积结构显形",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-mapping",
+        "title": "整理目标表达式，再让两个完整正项入槽",
+        "methodTag": "直接应用｜定积求和",
+        "conditionFlowLabel": "整理目标表达式，让题设中的正项显形",
+        "conditionFlow": [
+          "\\(a+b=(a+1)+(b+2)-3\\)",
+          "\\(a+1>0，b+2>0\\)",
+          "\\((a+1)(b+2)=16\\)"
+        ],
+        "template": "彩色方槽与彩色圆槽表示两个完整正项",
+        "mappings": [
+          {
+            "slot": "第一个正项",
+            "shape": "square",
+            "value": "\\(a+1\\)",
+            "condition": "\\(a+1>0\\)"
+          },
+          {
+            "slot": "第二个正项",
+            "shape": "circle",
+            "value": "\\(b+2\\)",
+            "condition": "\\(b+2>0\\)"
+          }
+        ],
+        "mappedSum": "\\((a+1)+(b+2)\\)",
+        "mappedProduct": "\\(16\\)",
+        "mapped": "\\(\\frac{(a+1)+(b+2)}{2}\\ge\\sqrt{(a+1)(b+2)}\\)",
+        "stageLabel": "代入两个正项",
+        "fixedSourceLabel": "两项定积",
+        "fixedSourceTarget": "product",
+        "fixedCondition": "\\((a+1)(b+2)=16\\)",
+        "replacementText": "代入定积 16",
+        "replaced": "\\((a+1)+(b+2)\\ge2\\sqrt{16}=8\\)",
+        "simplifyLabel": "减去整理时补出的 3",
+        "substituted": "\\(a+b\\ge8-3=5\\)",
+        "conclusionLabel": "最值结论",
+        "conclusion": "最小值为 \\(5\\)",
+        "equalityTemplate": "两个槽位相等",
+        "equalityMapped": "\\(a+1=b+2\\)",
+        "equalityContextLabel": "结合定积 16",
+        "equalityResult": "\\(a=3，b=2\\)",
+        "caption": "加 1、加 2、再减 3 是整理目标表达式的具体操作；整理后两个完整正项的乘积正好由题设固定。"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "整理目标表达式：\\(a+b=(a+1)+(b+2)-3\\)；又因为 \\(a，b\\) 为正实数，所以 \\(a+1>0，b+2>0\\)"
+        },
+        {
+          "kind": "because",
+          "text": "题设给出两个完整正项的乘积 \\((a+1)(b+2)=16\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "由基本不等式，\\((a+1)+(b+2)\\ge2\\sqrt{(a+1)(b+2)}=8\\)，所以 \\(a+b\\ge5\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "等号要求 \\(a+1=b+2\\)；结合乘积为 \\(16\\)，得 \\(a+1=b+2=4\\)，即 \\(a=3，b=2\\)，满足原题条件"
+        }
+      ],
+      "derive": [
+        [
+          "最小值",
+          "5"
+        ],
+        [
+          "等号条件",
+          "a=3，b=2"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 整理目标表达式，让定积结构显形"
+  }
+}

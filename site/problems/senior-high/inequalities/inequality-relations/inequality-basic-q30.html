@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>连续估计逐层消元求最小值 | 数学说</title>
+  <meta name="description" content="连续估计逐层消元求最小值的逐步解析。" />
+  <meta property="og:title" content="连续估计逐层消元求最小值 | 数学说" />
+  <meta property="og:description" content="连续估计逐层消元求最小值的逐步解析。" />
+  <meta property="og:image" content="../../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css?v=40" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../../senior-high/index.html?chapter=inequalities&section=inequality-relations&module=basic-inequalities">解不等式与基本不等式</a>
+    <span class="lesson-title">基本不等式 · 多次应用变式 1</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          <div class="problem-full">
+            <div class="problem-line"><span>若 <span class="inline-math">a&gt;b&gt;c&gt;0</span>，则 <span class="inline-math">2a<sup>2</sup>+<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">ab</span></span>+<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">a(a-b)</span></span>-10ac+25c<sup>2</sup></span> 的最小值是（　　）。</span><span class="answer-chip" id="answerI">答案：<span class="inline-math">4</span></span></div>
+          </div>
+        </section>
+
+        <aside class="lesson-key-points" aria-label="解题要点"><div class="lesson-key-points-title">解题要点</div><div class="lesson-key-points-content"><p class="lesson-key-points-lead">先合并两个分式，让 <span class="inline-math">b</span> 只留在一个整体中；第1次应用基本不等式消去 <span class="inline-math">b</span> 后，看到含 <span class="inline-math">c</span> 的部分有负项，必须从 <span class="inline-math">2a<sup>2</sup></span> 中留出一个 <span class="inline-math">a<sup>2</sup></span> 配成完全平方；最后对剩余的 <span class="inline-math">a<sup>2</sup></span> 与 <span class="inline-math"><span class="math-fraction"><span class="math-numerator">4</span><span class="math-denominator">a<sup>2</sup></span></span></span> 第2次应用基本不等式。</p><ol><li>合并分式：<span class="inline-math"><span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">ab</span></span>+<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">a(a-b)</span></span>=<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">b(a-b)</span></span></span>。</li><li>消去 <span class="inline-math">b</span>：由 <span class="inline-math">b+(a-b)=a</span>，得 <span class="inline-math">b(a-b)≤<span class="math-fraction"><span class="math-numerator">a<sup>2</sup></span><span class="math-denominator">4</span></span></span>，从而 <span class="inline-math"><span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">b(a-b)</span></span>≥<span class="math-fraction"><span class="math-numerator">4</span><span class="math-denominator">a<sup>2</sup></span></span></span>。</li><li>整理新式：<span class="inline-math">25c<sup>2</sup>-10ac</span> 含有负项，必须补一个 <span class="inline-math">a<sup>2</sup></span> 才能得到 <span class="inline-math">(a-5c)<sup>2</sup>≥0</span>。</li><li>再次估计：<span class="inline-math">a<sup>2</sup>+<span class="math-fraction"><span class="math-numerator">4</span><span class="math-denominator">a<sup>2</sup></span></span>≥4</span>，联立三条取等关系求出 <span class="inline-math">a，b，c</span>。</li></ol></div></aside>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../../assets/js/lesson-page-runtime.js?v=50"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"s1","section":"多次应用基本不等式","title":"逐层消去 b、c、a，并联立取等条件","t":0,"showDiagram":false,"visual":{"kind":"repeated-basic-inequality-flow","title":"合并分式后逐层消元，再联立三条取等关系","methodTag":"多次应用基本不等式｜逐层消元","count":{"variables":["\\(a\\)","\\(b\\)","\\(c\\)"],"conditions":[],"estimatedRelations":3,"estimatedRounds":2,"relationSources":["基本不等式 ×2","平方非负 ×1"],"note":"三个变量、没有等式条件，预计还缺三条取等关系；整理过程中再逐步判断它们分别来自哪里。"},"preparation":{"stepNumber":"02","label":"合并两个分式，让 b 的位置清楚","current":"\\(2a^2+\\frac{1}{ab}+\\frac{1}{a(a-b)}-10ac+25c^2\\)","flow":["\\(\\frac{1}{ab}+\\frac{1}{a(a-b)}=\\frac{a-b+b}{ab(a-b)}\\)","\\(\\frac{a}{ab(a-b)}=\\frac{1}{b(a-b)}\\)"],"result":"\\(2a^2-10ac+25c^2+\\frac{1}{b(a-b)}\\)","insight":"整理后，b 只出现在分母整体中；下一步先利用 b 与 a-b 的定和消去 b。"},"rounds":[{"stepNumber":"03","question":"怎样利用 b+(a-b)=a 消去 b？","current":"\\(2a^2-10ac+25c^2+\\frac{1}{b(a-b)}\\)","terms":["\\(b\\)","\\(a-b\\)"],"reason":"两项均为正且和为 a；先求积的上界，再取倒数，就能把含 b 的整体换成只含 a 的下界。","relation":"\\(b+(a-b)=a\\)","inequality":"\\(b(a-b)\\le\\frac{a^2}{4}\\Rightarrow\\frac{1}{b(a-b)}\\ge\\frac{4}{a^2}\\)","result":"原式不小于 \\(2a^2-10ac+25c^2+\\frac{4}{a^2}\\)","insight":"变量 b 已消去；新出现的 4/a² 需要一个 a² 与它配对。","equality":"\\(b=a-b\\)","afterward":{"stepNumber":"04","label":"留出一个 a²，处理含 c 的负项","current":"原式不小于 \\(2a^2-10ac+25c^2+\\frac{4}{a^2}\\)","observation":"25c²−10ac 含有负项，不能单独留下；必须从 2a² 中补给它一个 a²，才能组成恒非负的完全平方。","flow":["\\(2a^2=a^2+a^2\\)","\\(a^2-10ac+25c^2=(a-5c)^2\\ge0\\)"],"result":"原式不小于 \\(\\left(a^2+\\frac{4}{a^2}\\right)+(a-5c)^2\\)","insight":"一个 a² 处理含 c 的负项，另一个 a² 留给第2次基本不等式。","equalityLabel":"记录平方取零","equality":"\\(a=5c\\)"}},{"stepNumber":"05","question":"只剩 a 后，怎样得到常数下界？","current":"原式不小于 \\(\\left(a^2+\\frac{4}{a^2}\\right)+(a-5c)^2\\)","terms":["\\(a^2\\)","\\(\\frac{4}{a^2}\\)"],"reason":"两个正项的乘积恒为 4，而完全平方恒不小于 0。","relation":"\\(a^2\\cdot\\frac{4}{a^2}=4，(a-5c)^2\\ge0\\)","inequality":"\\(a^2+\\frac{4}{a^2}\\ge2\\sqrt{4}=4\\)","result":"原式不小于 \\(4\\)","insight":"a、b、c 已依次消去，得到常数下界；最后检查三条取等关系能否同时成立。","equality":"\\(a^2=\\frac{4}{a^2}\\Rightarrow a=\\sqrt{2}\\)"}],"equality":{"stepNumber":"06","label":"联立三条取等关系","conditions":[{"label":"第1次基本不等式","expression":"\\(b=a-b\\)"},{"label":"平方取零","expression":"\\(a=5c\\)"},{"label":"第2次基本不等式","expression":"\\(a^2=\\frac{4}{a^2}\\)"}],"solved":"\\(a=\\sqrt{2}，b=\\frac{\\sqrt{2}}{2}，c=\\frac{\\sqrt{2}}{5}\\)","verification":"\\(\\sqrt{2}>\\frac{\\sqrt{2}}{2}>\\frac{\\sqrt{2}}{5}>0\\)，且代入原式等于 \\(4\\)"},"conclusion":"\\(2a^2+\\frac{1}{ab}+\\frac{1}{a(a-b)}-10ac+25c^2\\) 的最小值为 \\(4\\)","caption":"先合并分式并用第1次基本不等式消去 b；新出现 4/a² 后，含 c 的负项迫使我们留出一个 a² 配成平方；再用第2次基本不等式消去 a，最后联立三条取等关系。"},"reasoning":[{"kind":"because","text":"\\(a>b>c>0\\Rightarrow b>0，a-b>0\\)"},{"kind":"therefore","text":"\\(\\frac{1}{ab}+\\frac{1}{a(a-b)}=\\frac{a-b+b}{ab(a-b)}=\\frac{1}{b(a-b)}\\)"},{"kind":"because","text":"\\(b+(a-b)=a\\Rightarrow b(a-b)\\le\\left(\\frac{a}{2}\\right)^2=\\frac{a^2}{4}\\)"},{"kind":"therefore","text":"\\(\\frac{1}{b(a-b)}\\ge\\frac{4}{a^2}\\)，所以原式不小于 \\(2a^2-10ac+25c^2+\\frac{4}{a^2}\\)"},{"kind":"because","text":"\\(25c^2-10ac\\) 含有负项，不能单独舍去；必须补上一个 \\(a^2\\)，才能形成 \\(a^2-10ac+25c^2=(a-5c)^2\\ge0\\)"},{"kind":"therefore","text":"原式不小于 \\(\\left(a^2+\\frac{4}{a^2}\\right)+(a-5c)^2\\ge2\\sqrt{a^2\\cdot\\frac{4}{a^2}}+0=4\\)"},{"kind":"because","text":"取等要求 \\(b=a-b，a=5c，a^2=\\frac{4}{a^2}\\)"},{"kind":"therefore","text":"\\(a=\\sqrt{2}，b=\\frac{\\sqrt{2}}{2}，c=\\frac{\\sqrt{2}}{5}\\)，且 \\(a>b>c>0\\)，故最小值为 \\(4\\)"}],"derive":[["最小值","4"],["取等","a=√2，b=√2/2，c=√2/5"]]}];
+    var STEP_LABELS = {"s1":"1 逐层消去 b、c、a，并联立取等条件"};
+    var POLICIES   = {"s1":{"movable":false,"range":[0,0]}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 滑块主参数与派生参数的联动文案格式化器 */
+    var __LESSON_PARAM_LABEL_FORMATTER__;
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script>
+  function diagramMarkupFor() { return ''; }
+  function diagramMarkupForFrame() { return ''; }
+  function drawMini() { return ''; }
+  function groupTitle(section) { return section; }
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      diagramMarkupForFrame: typeof diagramMarkupForFrame === "function" ? diagramMarkupForFrame : undefined,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "参数",
+      paramLabelPrefix: "",
+      paramLabelFormatter: typeof __LESSON_PARAM_LABEL_FORMATTER__ === "function" ? __LESSON_PARAM_LABEL_FORMATTER__ : undefined,
+      goToProblemMode: "doubleScroll"
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>局部配齐两个括号求最小值 | 数学说</title>
+  <meta name="description" content="局部配齐两个括号求最小值的逐步解析。" />
+  <meta property="og:title" content="局部配齐两个括号求最小值 | 数学说" />
+  <meta property="og:description" content="局部配齐两个括号求最小值的逐步解析。" />
+  <meta property="og:image" content="../../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css?v=39" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../../senior-high/index.html?chapter=inequalities&section=inequality-relations&module=basic-inequalities">解不等式与基本不等式</a>
+    <span class="lesson-title">基本不等式 · 练习 8-16</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          <div class="problem-full">
+            <div class="problem-line"><span>设 <span class="inline-math">x，y&gt;0</span>，且 <span class="inline-math">x+y=1</span>，求 <span class="inline-math">(<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">x</span></span>+1)(<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">y</span></span>+1)</span> 的最小值。</span><span class="answer-chip" id="answerI">答案：<span class="inline-math">9</span></span></div>
+          </div>
+        </section>
+
+        <aside class="lesson-key-points" aria-label="解题要点"><div class="lesson-key-points-title">解题要点</div><div class="lesson-key-points-content"><p class="lesson-key-points-lead">直接展开也能求解：原式可化为 <span class="inline-math">1+<span class="math-fraction"><span class="math-numerator">2</span><span class="math-denominator">xy</span></span></span>，再由定和求积得到 <span class="inline-math">xy≤<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">4</span></span></span>，经过取倒数传界即可求出最小值。局部配齐更直接：分别修补两个括号，把它们配成 0 次齐次式，展开后立即得到两个乘积固定的正项表达式。</p><ol><li>对照路线：直接展开可化为 <span class="inline-math">1+<span class="math-fraction"><span class="math-numerator">2</span><span class="math-denominator">xy</span></span></span>，再由 <span class="inline-math">x+y=1</span> 得 <span class="inline-math">xy≤<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">4</span></span></span>，对正数取倒数传界也能求解，但步骤稍多。</li><li>局部配齐：先通分，再由 <span class="inline-math">x+y=1</span> 替换分子里的常数 <span class="inline-math">1</span>，得 <span class="inline-math"><span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">x</span></span>+1=<span class="math-fraction"><span class="math-numerator">1+x</span><span class="math-denominator">x</span></span>=<span class="math-fraction"><span class="math-numerator">2x+y</span><span class="math-denominator">x</span></span></span>，<span class="inline-math"><span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">y</span></span>+1=<span class="math-fraction"><span class="math-numerator">1+y</span><span class="math-denominator">y</span></span>=<span class="math-fraction"><span class="math-numerator">x+2y</span><span class="math-denominator">y</span></span></span>。</li><li>展开圈项：原式化为 <span class="inline-math">5+<span class="math-fraction"><span class="math-numerator">2x</span><span class="math-denominator">y</span></span>+<span class="math-fraction"><span class="math-numerator">2y</span><span class="math-denominator">x</span></span></span>，后两个正项表达式的乘积恒为 <span class="inline-math">4</span>。</li><li>验等号：<span class="inline-math"><span class="math-fraction"><span class="math-numerator">2x</span><span class="math-denominator">y</span></span>=<span class="math-fraction"><span class="math-numerator">2y</span><span class="math-denominator">x</span></span></span> 与 <span class="inline-math">x+y=1</span> 联立得 <span class="inline-math">x=y=<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">2</span></span></span>。</li></ol></div></aside>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../../assets/js/lesson-page-runtime.js?v=48"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"s1","section":"配齐次式","title":"局部配齐两个括号，再展开找定积","t":0,"showDiagram":false,"visual":{"kind":"fixed-product-construction-flow","variant":"homogeneous-reduction","title":"局部配齐两个括号，再展开找定积","methodTag":"配齐次式｜局部配齐","goal":{"expression":"\\((\\frac{1}{x}+1)(\\frac{1}{y}+1)\\)","task":"求乘积式的最小值"},"strategy":"先逐个通分，再局部补齐两个分子的常数项","initialCheck":{"label":"02 另一条可行路线","status":"viable","operator":"=","terms":["\\((\\frac{1}{x}+1)(\\frac{1}{y}+1)\\)","\\(1+\\frac{1}{x}+\\frac{1}{y}+\\frac{1}{xy}\\)","\\(1+\\frac{2}{xy}\\)"],"product":"\\(x+y=1\\Rightarrow xy\\le\\frac{1}{4}\\Rightarrow (\\frac{1}{x}+1)(\\frac{1}{y}+1)\\ge9\\)","verdict":"直接展开也能求解，但要先由定和求出 xy 的上界，再对正数取倒数传界；比局部配齐多一步。"},"clue":{"question":"每个括号中哪一项破坏了齐次性？","condition":"\\(x+y=1\\)","observation":"1/x、1/y 为负一次，常数 1 为零次；先通分，再用题设把分子中的常数 1 换成一次式 x+y。"},"degreeBalance":{"connectors":["→","→"],"target":{"label":"原来的两个括号","expression":"\\((\\frac{1}{x}+1)，(\\frac{1}{y}+1)\\)","degree":"混合","degreeText":"负一次项 ＋ 零次项","scale":"同步放大时，括号内两项变化次数不同","note":"每个括号都不能提取同一个倍数"},"condition":{"label":"通分后补齐分子","expression":"\\(1=x+y\\)","degree":"+1","degreeText":"把常数换成一次式","scale":"\\(1+x=2x+y，1+y=x+2y\\)","note":"先得到 1+x、1+y，再用 x+y=1 替换其中的常数 1"},"result":{"label":"齐次后的两个括号","expression":"\\((\\frac{2x+y}{x})，(\\frac{x+2y}{y})\\)","degree":"0","degreeText":"一次 ÷ 一次","scale":"每个括号均为 0 次","note":"同步放大或缩小时，两个括号的值都不变"}},"construction":{"kind":"homogeneous","label":"每个括号先通分，再补齐分子中的常数项","identity":"\\(\\frac{1}{x}+1=\\frac{1+x}{x}=\\frac{2x+y}{x}，\\frac{1}{y}+1=\\frac{1+y}{y}=\\frac{x+2y}{y}\\)","identityNote":"先通分得到分子 1+x、1+y，再由 x+y=1 把分子中的常数 1 替换为 x+y。","expanded":"\\((\\frac{1}{x}+1)(\\frac{1}{y}+1)=5+\\frac{2x}{y}+\\frac{2y}{x}\\)","constant":"\\(5\\)","positiveTerms":[{"shape":"square","value":"\\(\\frac{2x}{y}\\)","condition":"\\(\\frac{2x}{y}>0\\)"},{"shape":"circle","value":"\\(\\frac{2y}{x}\\)","condition":"\\(\\frac{2y}{x}>0\\)"}],"ratio":"令 \\(t=\\frac{x}{y}>0\\)，则 \\(\\frac{2x}{y}=2t\\)，\\(\\frac{2y}{x}=\\frac{2}{t}\\)：两个变量被压缩成一个倍数 \\(t\\)。"},"fixedPair":{"question":"展开后圈出的两个正项表达式，乘积固定吗？","terms":["\\(\\frac{2x}{y}\\)","\\(\\frac{2y}{x}\\)"],"product":"\\(\\frac{2x}{y}\\cdot\\frac{2y}{x}=4\\)","verdict":"定积构造成功"},"application":{"template":"两个彩色槽位表示两个完整的正项表达式","mappings":[{"slot":"第一个槽位","shape":"square","value":"\\(\\frac{2x}{y}\\)","condition":"\\(\\frac{2x}{y}>0\\)"},{"slot":"第二个槽位","shape":"circle","value":"\\(\\frac{2y}{x}\\)","condition":"\\(\\frac{2y}{x}>0\\)"}],"inequality":"\\(\\frac{2x}{y}+\\frac{2y}{x}\\ge4\\)","combine":"\\((\\frac{1}{x}+1)(\\frac{1}{y}+1)=5+\\frac{2x}{y}+\\frac{2y}{x}\\ge9\\)","conclusion":"最小值为 \\(9\\)"},"equality":{"condition":"\\(\\frac{2x}{y}=\\frac{2y}{x}\\)","relation":"\\(x=y\\)","result":"\\(x=y=\\frac{1}{2}\\)"},"caption":"直接展开也能通过定和求积与取倒数传界完成；局部配齐则只修补两个括号中的常数项，展开后直接出现一对定积正项表达式。"},"reasoning":[{"kind":"because","text":"两个括号分别含负一次项与零次常数项，同步放大变量时括号内两项变化不同，不能直接消元"},{"kind":"because","text":"先把两个括号分别通成单个分式，再由 \\(x+y=1\\) 替换分子里的常数 \\(1\\)，得到 \\(\\frac{1}{x}+1=\\frac{1+x}{x}=\\frac{2x+y}{x}\\)，\\(\\frac{1}{y}+1=\\frac{1+y}{y}=\\frac{x+2y}{y}\\)"},{"kind":"therefore","text":"原式 \\(=\\frac{(2x+y)(x+2y)}{xy}=5+\\frac{2x}{y}+\\frac{2y}{x}\\)"},{"kind":"therefore","text":"由 \\(\\frac{2x}{y}+\\frac{2y}{x}\\ge4\\)，原式最小值为 \\(9\\)；等号在 \\(x=y=\\frac{1}{2}\\) 时取得"}],"derive":[["最小值","9"],["等号条件","x=y=1/2"]]}];
+    var STEP_LABELS = {"s1":"1 局部配齐两个括号，再展开找定积"};
+    var POLICIES   = {"s1":{"movable":false,"range":[0,0]}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 滑块主参数与派生参数的联动文案格式化器 */
+    var __LESSON_PARAM_LABEL_FORMATTER__;
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script>
+  function diagramMarkupFor() { return ''; }
+  function diagramMarkupForFrame() { return ''; }
+  function drawMini() { return ''; }
+  function groupTitle(section) { return section; }
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      diagramMarkupForFrame: typeof diagramMarkupForFrame === "function" ? diagramMarkupForFrame : undefined,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "参数",
+      paramLabelPrefix: "",
+      paramLabelFormatter: typeof __LESSON_PARAM_LABEL_FORMATTER__ === "function" ? __LESSON_PARAM_LABEL_FORMATTER__ : undefined,
+      goToProblemMode: "doubleScroll"
+    });
+  </script>
+</body>
+</html>

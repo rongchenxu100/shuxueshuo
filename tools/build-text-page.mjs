@@ -270,8 +270,201 @@ export function validateTextLesson(lesson, inputDir = "") {
           throw new Error(`${meta.id} 的步骤 ${step.id}.visual.mappings[${index}] 缺少槽位、题目变量或正数条件`);
         }
       });
+      for (const field of ["mappedSum", "mappedProduct"]) {
+        if (visual[field] !== undefined && (typeof visual[field] !== "string" || !visual[field].trim())) {
+          throw new Error(`${meta.id} 的步骤 ${step.id}.visual.${field} 必须是非空公式`);
+        }
+      }
+      if (visual.fixedSourceTarget !== undefined && !new Set(["sum", "product"]).has(visual.fixedSourceTarget)) {
+        throw new Error(`${meta.id} 的步骤 ${step.id}.visual.fixedSourceTarget 只能是 sum 或 product`);
+      }
       if (visual.conditionFlow && (!Array.isArray(visual.conditionFlow) || visual.conditionFlow.length < 2 || visual.conditionFlow.some((item) => typeof item !== "string" || !item.trim()))) {
         throw new Error(`${meta.id} 的步骤 ${step.id}.visual.conditionFlow 必须包含至少两个有效公式`);
+      }
+    }
+    if (step.visual?.kind === "repeated-basic-inequality-flow") {
+      const visual = step.visual;
+      if ([visual.title, visual.methodTag, visual.conclusion].some((value) => typeof value !== "string" || !value.trim())) {
+        throw new Error(`${meta.id} 的步骤 ${step.id}.visual 连续估计缺少标题、方法标签或结论`);
+      }
+      const count = visual.count;
+      if (!count || !Array.isArray(count.variables) || count.variables.length < 1 || !Array.isArray(count.conditions) || !Number.isInteger(count.estimatedRounds) || count.estimatedRounds < 1) {
+        throw new Error(`${meta.id} 的步骤 ${step.id}.visual.count 必须包含变量、有效条件与预计轮数`);
+      }
+      if (count.estimatedRelations !== undefined && (!Number.isInteger(count.estimatedRelations) || count.estimatedRelations < count.estimatedRounds)) {
+        throw new Error(`${meta.id} 的步骤 ${step.id}.visual.count.estimatedRelations 必须是不小于基本不等式轮数的正整数`);
+      }
+      if (count.relationSources !== undefined && (!Array.isArray(count.relationSources) || count.relationSources.length < 1 || count.relationSources.some((value) => typeof value !== "string" || !value.trim()))) {
+        throw new Error(`${meta.id} 的步骤 ${step.id}.visual.count.relationSources 必须列出取等关系的来源`);
+      }
+      if (visual.preparation) {
+        const preparation = visual.preparation;
+        if ([preparation.label, preparation.current, preparation.result, preparation.insight].some((value) => typeof value !== "string" || !value.trim()) || !Array.isArray(preparation.flow) || preparation.flow.length < 1 || preparation.flow.some((value) => typeof value !== "string" || !value.trim())) {
+          throw new Error(`${meta.id} 的步骤 ${step.id}.visual.preparation 缺少整理过程、结果或观察结论`);
+        }
+      }
+      if (!Array.isArray(visual.rounds) || visual.rounds.length !== count.estimatedRounds) {
+        throw new Error(`${meta.id} 的步骤 ${step.id}.visual.rounds 必须与预计轮数一致`);
+      }
+      visual.rounds.forEach((round, index) => {
+        if ([round?.current, round?.reason, round?.relation, round?.inequality, round?.result, round?.insight, round?.equality].some((value) => typeof value !== "string" || !value.trim())) {
+          throw new Error(`${meta.id} 的步骤 ${step.id}.visual.rounds[${index}] 缺少当前式、配对理由、推导、结果或取等条件`);
+        }
+        if (!Array.isArray(round.terms) || round.terms.length !== 2 || round.terms.some((value) => typeof value !== "string" || !value.trim())) {
+          throw new Error(`${meta.id} 的步骤 ${step.id}.visual.rounds[${index}].terms 必须包含两个正项`);
+        }
+        if (round.afterward) {
+          const afterward = round.afterward;
+          if ([afterward.label, afterward.current, afterward.observation, afterward.result, afterward.insight].some((value) => typeof value !== "string" || !value.trim()) || !Array.isArray(afterward.flow) || afterward.flow.length < 1 || afterward.flow.some((value) => typeof value !== "string" || !value.trim())) {
+            throw new Error(`${meta.id} 的步骤 ${step.id}.visual.rounds[${index}].afterward 缺少新式整理过程或平方取等条件`);
+          }
+        }
+      });
+      const equality = visual.equality;
+      const requiredEqualityCount = Number.isInteger(count.estimatedRelations) ? count.estimatedRelations : visual.rounds.length;
+      if (!equality || !Array.isArray(equality.conditions) || equality.conditions.length < requiredEqualityCount || [equality.solved, equality.verification].some((value) => typeof value !== "string" || !value.trim())) {
+        throw new Error(`${meta.id} 的步骤 ${step.id}.visual.equality 缺少取等条件、联立结果或检验`);
+      }
+    }
+    if (["substitution-homogeneous-lifecycle", "substitution-basic-inequality-lifecycle", "elimination-basic-inequality-lifecycle"].includes(step.visual?.kind)) {
+      const visual = step.visual;
+      const substitution = visual.substitution;
+      const elimination = visual.elimination;
+      const homogeneous = visual.homogeneous;
+      const basicInequality = visual.basicInequality;
+      const restoration = visual.restoration;
+      const usesElimination = visual.kind === "elimination-basic-inequality-lifecycle";
+      const usesBasicInequality = visual.kind !== "substitution-homogeneous-lifecycle";
+      if ([visual.title, visual.methodTag, visual.conclusion].some((value) => typeof value !== "string" || !value.trim())) {
+        throw new Error(`${meta.id} 的步骤 ${step.id}.visual 换元闭环缺少标题、方法标签或结论`);
+      }
+      if ((!usesElimination && !substitution) || (usesElimination && !elimination) || !restoration || (usesBasicInequality ? !basicInequality : !homogeneous)) {
+        throw new Error(`${meta.id} 的步骤 ${step.id}.visual 降维流程缺少入口步骤、求值方法或 restoration`);
+      }
+      if (usesElimination) {
+        if ([elimination.label, elimination.observation, elimination.condition, elimination.target].some((value) => typeof value !== "string" || !value.trim())) {
+          throw new Error(`${meta.id} 的步骤 ${step.id}.visual.elimination 缺少标题、观察、条件或一元目标`);
+        }
+        for (const field of ["conditionFlow", "isolateFlow", "targetFlow"]) {
+          if (!Array.isArray(elimination[field]) || elimination[field].length < 2 || elimination[field].some((value) => typeof value !== "string" || !value.trim())) {
+            throw new Error(`${meta.id} 的步骤 ${step.id}.visual.elimination.${field} 必须包含至少两个有效公式`);
+          }
+        }
+      } else {
+        if (!Array.isArray(substitution.mappings) || substitution.mappings.length < 1 || substitution.mappings.length > 2) {
+          throw new Error(`${meta.id} 的步骤 ${step.id}.visual.substitution.mappings 必须包含一至两个完整换元映射`);
+        }
+        substitution.mappings.forEach((mapping, index) => {
+          if ([mapping?.source, mapping?.target, mapping?.reverse].some((value) => typeof value !== "string" || !value.trim())) {
+            throw new Error(`${meta.id} 的步骤 ${step.id}.visual.substitution.mappings[${index}] 缺少原整体、新变量或反向关系`);
+          }
+        });
+        if ([substitution.condition, substitution.target].some((value) => typeof value !== "string" || !value.trim())) {
+          throw new Error(`${meta.id} 的步骤 ${step.id}.visual.substitution 缺少换元后的条件或目标`);
+        }
+        if (substitution.rearrangement !== undefined) {
+          const rearrangement = substitution.rearrangement;
+          if ([rearrangement?.label, rearrangement?.before, rearrangement?.result].some((value) => typeof value !== "string" || !value.trim())) {
+            throw new Error(`${meta.id} 的步骤 ${step.id}.visual.substitution.rearrangement 缺少标题、整理前目标或整理结果`);
+          }
+          if (!Array.isArray(rearrangement.identities) || rearrangement.identities.length !== 2 || rearrangement.identities.some((value) => typeof value !== "string" || !value.trim())) {
+            throw new Error(`${meta.id} 的步骤 ${step.id}.visual.substitution.rearrangement.identities 必须包含两个有效的分式整理公式`);
+          }
+          if (rearrangement.conditionFlow !== undefined && (!Array.isArray(rearrangement.conditionFlow) || rearrangement.conditionFlow.length < 2 || rearrangement.conditionFlow.some((value) => typeof value !== "string" || !value.trim()))) {
+            throw new Error(`${meta.id} 的步骤 ${step.id}.visual.substitution.rearrangement.conditionFlow 必须包含至少两个有效的条件整理公式`);
+          }
+        }
+      }
+      const inequalityMethod = usesBasicInequality ? basicInequality : homogeneous;
+      if (!usesBasicInequality) {
+        if (!Array.isArray(homogeneous.degrees) || homogeneous.degrees.length !== 3) {
+          throw new Error(`${meta.id} 的步骤 ${step.id}.visual.homogeneous.degrees 必须展示正一次、负一次与零次结果`);
+        }
+        homogeneous.degrees.forEach((item, index) => {
+          if ([item?.label, item?.expression, item?.degree].some((value) => typeof value !== "string" || !value.trim())) {
+            throw new Error(`${meta.id} 的步骤 ${step.id}.visual.homogeneous.degrees[${index}] 缺少次数信息`);
+          }
+        });
+        if (typeof homogeneous.identity !== "string" || !homogeneous.identity.trim()) {
+          throw new Error(`${meta.id} 的步骤 ${step.id}.visual.homogeneous 缺少配齐次恒等式`);
+        }
+      }
+      if (!Array.isArray(inequalityMethod.positiveTerms) || inequalityMethod.positiveTerms.length !== 2) {
+        throw new Error(`${meta.id} 的步骤 ${step.id}.visual 求值方法必须包含两个正项`);
+      }
+      inequalityMethod.positiveTerms.forEach((item, index) => {
+        if ([item?.value, item?.condition].some((value) => typeof value !== "string" || !value.trim())) {
+          throw new Error(`${meta.id} 的步骤 ${step.id}.visual 求值方法的 positiveTerms[${index}] 缺少公式或正数条件`);
+        }
+      });
+      if ([inequalityMethod.label, inequalityMethod.methodTag, inequalityMethod.product, inequalityMethod.inequality, inequalityMethod.bound, inequalityMethod.equality, inequalityMethod.equalitySolved].some((value) => typeof value !== "string" || !value.trim())) {
+        throw new Error(`${meta.id} 的步骤 ${step.id}.visual 求值方法缺少标题、基本不等式或取等结论`);
+      }
+      if (inequalityMethod.relationLabel !== undefined && (typeof inequalityMethod.relationLabel !== "string" || !inequalityMethod.relationLabel.trim())) {
+        throw new Error(`${meta.id} 的步骤 ${step.id}.visual 求值方法的 relationLabel 必须是非空说明`);
+      }
+      if ([restoration.transformedEquality, restoration.solved, restoration.reverse, restoration.result, restoration.verification].some((value) => typeof value !== "string" || !value.trim())) {
+        throw new Error(`${meta.id} 的步骤 ${step.id}.visual.restoration 缺少反向还原链条`);
+      }
+      if (restoration.variableLabel !== undefined && (typeof restoration.variableLabel !== "string" || !restoration.variableLabel.trim())) {
+        throw new Error(`${meta.id} 的步骤 ${step.id}.visual.restoration.variableLabel 必须是非空原变量名称`);
+      }
+    }
+    if (step.visual?.kind === "symmetric-reduction-flow") {
+      const visual = step.visual;
+      if (!visual.title || !visual.goal?.expression || !visual.goal?.task) {
+        throw new Error(`${meta.id} 的步骤 ${step.id}.visual 对称消元流程缺少标题或目标`);
+      }
+      if (visual.variant === "normalize-before-symmetry") {
+        const preparation = visual.preparation;
+        if (!visual.symmetryVariables || !preparation || ["observation", "substitution", "target", "conclusion"].some((field) => !preparation[field])
+          || !Array.isArray(preparation.conditionFlow) || preparation.conditionFlow.length < 2
+          || preparation.conditionFlow.some((item) => typeof item !== "string" || !item.trim())) {
+          throw new Error(`${meta.id} 的步骤 ${step.id}.visual.preparation 必须先完整展示观察、缩放换元与条件变形，再校验对称`);
+        }
+      } else if (visual.preparation !== undefined) {
+        throw new Error(`${meta.id} 的步骤 ${step.id}.visual 只有 normalize-before-symmetry 变式可以提供 preparation`);
+      }
+      if (!Array.isArray(visual.symmetryChecks) || visual.symmetryChecks.length !== 2
+        || visual.symmetryChecks.some((item) => (
+          !item?.label || !item?.original || !item?.swapped || !item?.verdict
+        ))) {
+        throw new Error(`${meta.id} 的步骤 ${step.id}.visual.symmetryChecks 必须分别检查目标与条件`);
+      }
+      const requiredObjects = ["substitution", "elimination", "closure"];
+      if (requiredObjects.some((field) => !visual[field] || typeof visual[field] !== "object" || Array.isArray(visual[field]))) {
+        throw new Error(`${meta.id} 的步骤 ${step.id}.visual 对称消元流程缺少换元、基本不等式消元或范围闭包`);
+      }
+      if (!Array.isArray(visual.substitution.definitions) || visual.substitution.definitions.length !== 2
+        || visual.substitution.definitions.some((item) => typeof item !== "string" || !item.trim())
+        || ["identity", "condition", "solved"].some((field) => !visual.substitution[field])) {
+        throw new Error(`${meta.id} 的步骤 ${step.id}.visual.substitution 必须完整定义 s、p 并改写条件`);
+      }
+      if (["label", "relationLabel", "relation", "basis", "substitutionLabel", "substituted", "expanded", "simplified", "range"].some((field) => !visual.elimination[field])) {
+        throw new Error(`${meta.id} 的步骤 ${step.id}.visual.elimination 必须分行展示基本不等式关系与代入消元过程`);
+      }
+      if (["question", "equalityLabel", "equalityCondition", "conclusion"].some((field) => !visual.closure[field])
+        || !Array.isArray(visual.closure.endpoints) || visual.closure.endpoints.length < 1 || visual.closure.endpoints.length > 2
+        || visual.closure.endpoints.some((item) => !item?.value || !item?.boundaryCondition || !item?.witness || !item?.verification)) {
+        throw new Error(`${meta.id} 的步骤 ${step.id}.visual.closure 必须给出基本不等式的取等条件，并分别验证上下边界`);
+      }
+    }
+    if (step.visual?.kind === "symmetric-objective-reduction") {
+      const visual = step.visual;
+      if (!visual.title || !visual.goal?.expression || !visual.goal?.task
+        || !visual.symmetryCheck?.original || !visual.symmetryCheck?.swapped || !visual.symmetryCheck?.verdict) {
+        throw new Error(`${meta.id} 的步骤 ${step.id}.visual 对称目标降维流程缺少目标或交换校验`);
+      }
+      if (!Array.isArray(visual.pairing?.terms) || visual.pairing.terms.length !== 2
+        || visual.pairing.terms.some((item) => typeof item !== "string" || !item.trim())
+        || ["label", "inequality", "productVariable", "reduced"].some((field) => !visual.pairing?.[field])) {
+        throw new Error(`${meta.id} 的步骤 ${step.id}.visual.pairing 必须完整展示对称项配对与积换元`);
+      }
+      if (["original", "lowerBound", "completion", "conclusion"].some((field) => !visual.reduction?.[field])) {
+        throw new Error(`${meta.id} 的步骤 ${step.id}.visual.reduction 必须完整展示一元降维与配方`);
+      }
+      if (["pairingCondition", "completionCondition", "result", "verification"].some((field) => !visual.equality?.[field]) || !visual.conclusion) {
+        throw new Error(`${meta.id} 的步骤 ${step.id}.visual.equality 必须联立配对与配方的取等条件`);
       }
     }
     if (step.visual?.kind === "fixed-product-construction-flow") {
@@ -287,9 +480,30 @@ export function validateTextLesson(lesson, inputDir = "") {
       if (typeof construction.expanded !== "string" || !construction.expanded.trim()) {
         throw new Error(`${meta.id} 的步骤 ${step.id}.visual.construction.expanded 必须展示完整展开式`);
       }
-      if (construction.kind === "completion") {
+      if (construction.kind === "homogeneous") {
+        if (visual.variant !== "homogeneous-reduction") {
+          throw new Error(`${meta.id} 的步骤 ${step.id}.visual 齐次构造必须使用 homogeneous-reduction 变体`);
+        }
+        const degreeBalance = visual.degreeBalance;
+        if (!degreeBalance || ["target", "condition", "result"].some((field) => {
+          const item = degreeBalance[field];
+          return !item || !item.label || !item.expression || !item.degree || !item.scale || !item.note;
+        })) {
+          throw new Error(`${meta.id} 的步骤 ${step.id}.visual.degreeBalance 必须完整描述目标、条件与零次结果`);
+        }
+        if (!construction.identity || !construction.identityNote || !construction.constant || !construction.ratio) {
+          throw new Error(`${meta.id} 的步骤 ${step.id}.visual.construction 齐次构造缺少恒等式、数值说明、常数项或消元说明`);
+        }
+        if (!Array.isArray(construction.positiveTerms) || construction.positiveTerms.length !== 2 || construction.positiveTerms.some((item) => !item?.value || !item?.condition || !new Set(["square", "circle"]).has(item.shape))) {
+          throw new Error(`${meta.id} 的步骤 ${step.id}.visual.construction.positiveTerms 必须提供方槽和圆槽两个正项表达式`);
+        }
+      } else if (construction.kind === "completion") {
         if (!construction.givenTerm || !construction.matchingTerm || !construction.identity || !construction.focus || !construction.constant || !construction.simplification) {
           throw new Error(`${meta.id} 的步骤 ${step.id}.visual.construction 补项构造缺少配对项、补项式、正项和、常数或换元简写`);
+        }
+      } else if (construction.kind === "grouping") {
+        if (!construction.identity || !construction.focus || !construction.positive) {
+          throw new Error(`${meta.id} 的步骤 ${step.id}.visual.construction 分组构造缺少通分式、重组结果或正项条件`);
         }
       } else if (construction.kind === "substitution") {
         if (!Array.isArray(construction.substitutions) || construction.substitutions.length !== 2 || construction.substitutions.some((item) => !item?.source || !item?.target || !item?.note)) {
@@ -320,6 +534,9 @@ export function validateTextLesson(lesson, inputDir = "") {
       visual.application.mappings.forEach((mapping, index) => {
         if (!mapping?.slot || !mapping?.value) {
           throw new Error(`${meta.id} 的步骤 ${step.id}.visual.application.mappings[${index}] 缺少槽位或构造项`);
+        }
+        if (visual.variant === "homogeneous-reduction" && (!mapping.condition || !new Set(["square", "circle"]).has(mapping.shape))) {
+          throw new Error(`${meta.id} 的步骤 ${step.id}.visual.application.mappings[${index}] 必须提供彩色槽位形状和正数条件`);
         }
       });
     }

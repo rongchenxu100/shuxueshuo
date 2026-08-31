@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>不同系数分母整体换元后求最小值 | 数学说</title>
+  <meta name="description" content="不同系数分母整体换元后求最小值的逐步解析。" />
+  <meta property="og:title" content="不同系数分母整体换元后求最小值 | 数学说" />
+  <meta property="og:description" content="不同系数分母整体换元后求最小值的逐步解析。" />
+  <meta property="og:image" content="../../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css?v=39" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../../senior-high/index.html?chapter=inequalities&section=inequality-relations&module=basic-inequalities">解不等式与基本不等式</a>
+    <span class="lesson-title">基本不等式 · 换元法 2</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          <div class="problem-full">
+            <div class="problem-line"><span>已知 <span class="inline-math">x，y∈<span class="math-blackboard">ℝ</span>，x+y=2</span>，且 <span class="inline-math">x&gt;-1，y&gt;-<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">2</span></span></span>，求 <span class="inline-math"><span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">x+1</span></span>+<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">2y+1</span></span></span> 的最小值。</span><span class="answer-chip" id="answerI">答案：<span class="inline-math">(3+2√2)/7</span></span></div>
+          </div>
+        </section>
+
+        <aside class="lesson-key-points" aria-label="解题要点"><div class="lesson-key-points-title">解题要点</div><div class="lesson-key-points-content"><p class="lesson-key-points-lead">两个分母的系数不同，更应把完整分母分别看成新变量。换元后条件成为带权定和 <span class="inline-math">2u+v=7</span>；再把这个定和乘入目标，展开成乘积固定的两个正项。</p><ol><li>整体换元：令 <span class="inline-math">u=x+1&gt;0，v=2y+1&gt;0</span>。</li><li>同步改写：由 <span class="inline-math">x+y=2</span> 得 <span class="inline-math">2u+v=7</span>，目标变为 <span class="inline-math"><span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">u</span></span>+<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">v</span></span></span>。</li><li>配齐次式：<span class="inline-math">7(<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">u</span></span>+<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">v</span></span>)=(2u+v)(<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">u</span></span>+<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">v</span></span>)=3+<span class="math-fraction"><span class="math-numerator">2u</span><span class="math-denominator">v</span></span>+<span class="math-fraction"><span class="math-numerator">v</span><span class="math-denominator">u</span></span></span>。</li><li>应用基本不等式：<span class="inline-math"><span class="math-fraction"><span class="math-numerator">2u</span><span class="math-denominator">v</span></span>·<span class="math-fraction"><span class="math-numerator">v</span><span class="math-denominator">u</span></span>=2</span>，所以 <span class="inline-math"><span class="math-fraction"><span class="math-numerator">2u</span><span class="math-denominator">v</span></span>+<span class="math-fraction"><span class="math-numerator">v</span><span class="math-denominator">u</span></span>≥2<span class="math-radical"><span class="math-radical-symbol">√</span><span class="math-radicand">2</span></span></span>。</li><li>还原取等：取等时 <span class="inline-math">v=<span class="math-radical"><span class="math-radical-symbol">√</span><span class="math-radicand">2</span></span>u</span>，再与 <span class="inline-math">2u+v=7</span> 联立并还原到 <span class="inline-math">x，y</span>。</li></ol></div></aside>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../../assets/js/lesson-page-runtime.js?v=48"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"s1","section":"换元法","title":"把不同系数的分母整体换元，再配齐次式","t":0,"showDiagram":false,"visual":{"kind":"substitution-homogeneous-lifecycle","title":"换元 → 配齐次 → 还原等号","methodTag":"换元法｜复杂分母换元","substitution":{"label":"把复杂分母进行换元","observation":"分母形式虽然不同，仍把各自完整的分母作为一个整体","mappings":[{"source":"\\(x+1\\)","target":"\\(u=x+1>0\\)","reverse":"\\(x=u-1\\)"},{"source":"\\(2y+1\\)","target":"\\(v=2y+1>0\\)","reverse":"\\(y=\\frac{v-1}{2}\\)"}],"condition":"\\(2u+v=7\\)","target":"\\(\\frac{1}{u}+\\frac{1}{v}\\)","handoffLabel":"换元后发现：可以配齐次式"},"homogeneous":{"label":"配齐次式用定和求最值","methodTag":"发现结构｜可以配齐次式","degrees":[{"label":"正一次条件","expression":"\\(2u+v=7\\)","degree":"+1"},{"label":"负一次目标","expression":"\\(\\frac{1}{u}+\\frac{1}{v}\\)","degree":"−1"},{"label":"相乘后","expression":"\\(7\\left(\\frac{1}{u}+\\frac{1}{v}\\right)\\)","degree":"0"}],"identity":"\\(7\\left(\\frac{1}{u}+\\frac{1}{v}\\right)=(2u+v)\\left(\\frac{1}{u}+\\frac{1}{v}\\right)=3+\\frac{2u}{v}+\\frac{v}{u}\\)","positiveTerms":[{"value":"\\(\\frac{2u}{v}\\)","condition":"\\(\\frac{2u}{v}>0\\)"},{"value":"\\(\\frac{v}{u}\\)","condition":"\\(\\frac{v}{u}>0\\)"}],"product":"\\(\\frac{2u}{v}\\cdot\\frac{v}{u}=2\\)","inequality":"\\(\\frac{2u}{v}+\\frac{v}{u}\\ge2\\sqrt2\\)","bound":"\\(\\frac{1}{u}+\\frac{1}{v}\\ge\\frac{3+2\\sqrt2}{7}\\)","equality":"\\(\\frac{2u}{v}=\\frac{v}{u}\\Rightarrow v=\\sqrt2u\\)","equalitySolved":"\\(u=7-\\frac{7\\sqrt2}{2}，v=7\\sqrt2-7\\)"},"restoration":{"label":"求解等号成立条件","transformedEquality":"\\(v=\\sqrt2u\\)","solved":"\\(u=7-\\frac{7\\sqrt2}{2}，v=7\\sqrt2-7\\)","reverse":"\\(x=u-1，y=\\frac{v-1}{2}\\)","result":"\\(x=6-\\frac{7\\sqrt2}{2}，y=\\frac{7\\sqrt2-8}{2}\\)","verification":"\\(x+y=2，x>-1，y>-\\frac{1}{2}\\)"},"conclusion":"\\(\\frac{1}{x+1}+\\frac{1}{2y+1}\\) 的最小值是 \\(\\frac{3+2\\sqrt2}{7}\\)","caption":"三步要连起来：先换元看清带权定和，再配齐次式求出界值与取等条件，最后用逆关系还原 x、y，完成等号检验。"},"reasoning":[{"kind":"because","text":"由 \\(x>-1，y>-\\frac{1}{2}\\)，可知 \\(x+1>0，2y+1>0\\)；令 \\(u=x+1>0，v=2y+1>0\\)"},{"kind":"therefore","text":"因为 \\(x=u-1，y=\\frac{v-1}{2}\\)，所以 \\(x+y=2\\) 等价于 \\(2u+v=7\\)；目标同步改写为 \\(\\frac{1}{u}+\\frac{1}{v}\\)"},{"kind":"because","text":"目标 \\(\\frac{1}{u}+\\frac{1}{v}\\) 是负一次式，而带权定和 \\(2u+v=7\\) 是一次式；把二者相乘可配成 0 次齐次式"},{"kind":"therefore","text":"\\(7\\left(\\frac{1}{u}+\\frac{1}{v}\\right)=(2u+v)\\left(\\frac{1}{u}+\\frac{1}{v}\\right)=3+\\frac{2u}{v}+\\frac{v}{u}\\)"},{"kind":"because","text":"\\(\\frac{2u}{v}>0，\\frac{v}{u}>0\\)，且两项乘积为 \\(2\\)，所以 \\(\\frac{2u}{v}+\\frac{v}{u}\\ge2\\sqrt2\\)"},{"kind":"therefore","text":"\\(7\\left(\\frac{1}{u}+\\frac{1}{v}\\right)\\ge3+2\\sqrt2\\)，即 \\(\\frac{1}{u}+\\frac{1}{v}\\ge\\frac{3+2\\sqrt2}{7}\\)"},{"kind":"because","text":"等号要求 \\(\\frac{2u}{v}=\\frac{v}{u}\\)，由 \\(u，v>0\\) 得 \\(v=\\sqrt2u\\)"},{"kind":"therefore","text":"联立 \\(2u+v=7\\) 并还原，得 \\(x=6-\\frac{7\\sqrt2}{2}，y=\\frac{7\\sqrt2-8}{2}\\)；此时满足原条件，故最小值为 \\(\\frac{3+2\\sqrt2}{7}\\)"}],"derive":[["最小值","(3+2√2)/7"],["取等","x=6-7√2/2，y=(7√2-8)/2"]]}];
+    var STEP_LABELS = {"s1":"1 把不同系数的分母整体换元，再配齐次式"};
+    var POLICIES   = {"s1":{"movable":false,"range":[0,0]}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 滑块主参数与派生参数的联动文案格式化器 */
+    var __LESSON_PARAM_LABEL_FORMATTER__;
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script>
+  function diagramMarkupFor() { return ''; }
+  function diagramMarkupForFrame() { return ''; }
+  function drawMini() { return ''; }
+  function groupTitle(section) { return section; }
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      diagramMarkupForFrame: typeof diagramMarkupForFrame === "function" ? diagramMarkupForFrame : undefined,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "参数",
+      paramLabelPrefix: "",
+      paramLabelFormatter: typeof __LESSON_PARAM_LABEL_FORMATTER__ === "function" ? __LESSON_PARAM_LABEL_FORMATTER__ : undefined,
+      goToProblemMode: "doubleScroll"
+    });
+  </script>
+</body>
+</html>
