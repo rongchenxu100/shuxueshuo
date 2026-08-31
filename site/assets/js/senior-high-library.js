@@ -47,7 +47,7 @@
 
   async function loadCatalog() {
     try {
-      const response = await fetch("../data/senior-high-catalog.json?v=14");
+      const response = await fetch("../data/senior-high-catalog.json?v=24");
       if (!response.ok) {
         throw new Error("高中题库目录加载失败");
       }
@@ -591,8 +591,10 @@
       "set-braces": { label: "{ }", insert: "{}", cursorBack: 1 },
       "set-minus": { label: "∖", insert: "∖" },
       comma: { label: "，", insert: "," },
+      plus: { label: "+", insert: "+" },
       negative: { label: "−", insert: "-" },
       fraction: { label: "分数", insert: "/" },
+      radical: { label: "√", insert: "√" },
       interval: { label: "( )", insert: "()", cursorBack: 1 },
       brackets: { label: "[ ]", insert: "[]", cursorBack: 1 },
       infinity: { label: "∞", insert: "∞" },
@@ -1548,21 +1550,99 @@
             </tbody>
           </table>
         </div>
+        <section class="basic-inequality-forms-map" aria-label="基本不等式的等价形式">
+          <header>
+            <div><span>FORM MAP</span><strong>一个基本式，四种等价表达</strong></div>
+            <p>移项、平方或展开，只改变公式的外形，不改变它表达的大小关系。</p>
+          </header>
+          <div class="basic-inequality-equivalent-track" aria-label="基本不等式的等价改写">
+            <span>基本式</span>
+            <strong>${inlineMath(`${mathFraction("a+b", "2")}≥${mathRadical("ab")}`)}</strong>
+            <i aria-hidden="true">⇔</i>
+            <strong>${inlineMath(`a+b≥2${mathRadical("ab")}`)}</strong>
+            <i aria-hidden="true">⇔</i>
+            <strong>${inlineMath("(a+b)<sup>2</sup>≥4ab")}</strong>
+            <i aria-hidden="true">⇔</i>
+            <strong>${inlineMath("a<sup>2</sup>+b<sup>2</sup>≥2ab")}</strong>
+            <small>${inlineMath("a&gt;0，b&gt;0")}</small>
+          </div>
+          <p class="basic-inequality-forms-note"><span>同源关系</span>四种写法都可以化为同一个非负平方，因此等号条件始终是 ${inlineMath("a=b")}。</p>
+        </section>
       </div>
     ` : "";
     const renderBasicInequalityConditions = (block) => {
       if (!block?.basicInequalityConditions) return "";
       const meta = [
-        { number: "一", title: "一正", note: "先确认参与配凑的每一项都是正数" },
-        { number: "二", title: "二定", note: "再确认和或积中存在可确定的定值" },
-        { number: "三", title: "三相等", note: "最后验证等号条件能在原题中取得" },
+        {
+          number: "一",
+          title: "一正",
+          question: "选出的两个量都为正吗？",
+          visual: `<div class="basic-condition-positive"><b>${inlineMath("a&gt;0")}</b><span>且</span><b>${inlineMath("b&gt;0")}</b><em>✓</em></div>`,
+        },
+        {
+          number: "二",
+          title: "二定",
+          question: "和或积中有可确定的量吗？",
+          visual: `<div class="basic-condition-fixed"><b>${inlineMath("ab=P")}</b><span>或</span><b>${inlineMath("a+b=S")}</b></div>`,
+        },
+        {
+          number: "三",
+          title: "三相等",
+          question: "取等条件与原题条件相容吗？",
+          visual: `<div class="basic-condition-equality"><b>${inlineMath("a=b")}</b><i aria-hidden="true">+</i><b>原题条件</b><i aria-hidden="true">→</i><em>有解 ✓</em></div>`,
+        },
       ];
-      return `<div class="basic-inequality-conditions">
-        ${meta.map((item, index) => `<article>
-          <span>${item.number}</span><div><strong>${item.title}</strong><p>${item.note}</p><small>${(block.bodyHtml[index] || "").replace(/^[^：]+：/, "")}</small></div>
-        </article>`).join("")}
+      return `<div class="basic-inequality-conditions-visual">
+        <header>
+          <div><span>CHECK FLOW</span><strong>从“能不能用”检查到“最值能不能取到”</strong></div>
+          <p>使用条件和等号条件是一条完整判断链；“三相等”就是最后的取等验证。</p>
+        </header>
+        <div class="basic-inequality-conditions">
+          ${meta.map((item, index) => `<article>
+            <div class="basic-condition-heading"><span>${item.number}</span><div><strong>${item.title}</strong><p>${item.question}</p></div></div>
+            ${item.visual}
+            <small>${block.bodyHtml[index] || ""}</small>
+          </article>${index < meta.length - 1 ? `<i class="basic-condition-arrow" aria-hidden="true">→</i>` : ""}`).join("")}
+        </div>
+        <div class="basic-condition-closure">
+          <span>结论闭环</span>
+          <p><b>一正、二定</b>保证不等式能给出一个界；<b>三相等</b>保证这个界确实能够取到，才能称为最大值或最小值。</p>
+        </div>
       </div>`;
     };
+    const basicSlot = (kind, label = "") => `<span class="basic-positive-slot is-${kind}"${label ? ` aria-label="${escapeHtml(label)}"` : ""}></span>`;
+    const renderBasicInequalitySlotVisual = (block) => block?.basicInequalitySlotVisual ? `
+      <div class="basic-inequality-slot-method">
+        <header>
+          <span>核心意义</span>
+          <strong>比较的不是两个特定字母，而是两个完整的正项表达式</strong>
+          <p>先找出准备配对的两个正项表达式，再放入两个彩色槽位应用基本不等式。</p>
+        </header>
+        <div class="basic-slot-template" aria-label="两个正项表达式的基本不等式槽位模板">
+          <div class="basic-slot-formula">
+            ${basicSlot("square", "第一个正项")}<i>＋</i>${basicSlot("circle", "第二个正项")}
+            <b>≥</b><strong>2${mathRadical(`${basicSlot("square")}<em>·</em>${basicSlot("circle")}`)}</strong>
+          </div>
+          <div class="basic-slot-rules">
+            <span>${basicSlot("square")} &gt; 0</span><span>${basicSlot("circle")} &gt; 0</span>
+            <b>等号成立 ⇔ 两个槽位相等</b>
+          </div>
+        </div>
+        <div class="basic-slot-example-heading"><span>槽位里可以放什么？</span><p>只要它是一个完整的正项表达式，也就是整个表达式的值大于 0，就可以放入槽位参与比较。</p></div>
+        <div class="basic-slot-examples">
+          <article><span>正变量</span><strong>${inlineMath("m")}</strong><small>${inlineMath("m&gt;0")}</small></article>
+          <article><span>正常数</span><strong>${inlineMath("3")}</strong><small>本身就是正数</small></article>
+          <article><span>完整表达式</span><strong>${inlineMath("x+1")}</strong><small>${inlineMath("x&gt;−1")} 时整体为正</small></article>
+          <article><span>函数值</span><strong>${inlineMath("f(x)")}</strong><small>当前定义域内 ${inlineMath("f(x)&gt;0")}</small></article>
+        </div>
+        <div class="basic-slot-mapping-example">
+          <span>代入示范</span>
+          <div><b>${inlineMath("m")}</b><i>→</i>${basicSlot("square")}</div>
+          <div><b>${inlineMath("n")}</b><i>→</i>${basicSlot("circle")}</div>
+          <strong>${inlineMath(`m+n≥2${mathRadical("mn")}`)}</strong>
+        </div>
+        <p class="basic-slot-warning"><span>注意</span>“整个正项表达式的值大于 0”是前提：整式、分式或函数不能只看形式，必须结合定义域判断它在当前问题中是否为正。</p>
+      </div>` : "";
     const renderFixedProductGoal = () => `
       <div class="fixed-product-goal" aria-label="基本不等式应用的共同目标">
         <span>共同目标</span><strong>构造两个正项 ${inlineMath("U，V")}</strong><i aria-hidden="true">→</i>
@@ -1579,6 +1659,457 @@
         </div>
         <p class="fixed-product-found"><span>交叉项定积</span><strong>${product}</strong></p>
       </article>`;
+    const homogeneousPositiveTerm = (kind, value) => `<mark class="homogeneous-positive-term is-${kind}">${value}</mark>`;
+    const homogeneousCompletionTerm = (value) => `<mark class="homogeneous-completion-term">${value}</mark>`;
+    const renderHomogeneousExpansion = ({ label, title, problem, identity, constant, first, second, product, bound, transition = "→", conclusion }) => `
+      <article class="homogeneous-example">
+        <header><span>${label}</span><strong>${title}</strong></header>
+        <div class="homogeneous-example-problem"><span>题目</span><p>${problem}</p></div>
+        <div class="homogeneous-example-expansion">
+          <small>配成 0 次并展开</small>
+          <div>${identity}<i>＝</i><b>${constant}</b><i>＋</i>${homogeneousPositiveTerm("square", first)}<i>＋</i>${homogeneousPositiveTerm("circle", second)}</div>
+        </div>
+        <div class="homogeneous-example-pair">
+          <span>圈出的两个正项表达式</span>
+          <strong>${homogeneousPositiveTerm("square", first)}<i>×</i>${homogeneousPositiveTerm("circle", second)}<i>＝</i>${product}</strong>
+        </div>
+        <div class="homogeneous-example-result"><span>${bound}</span><i>${transition}</i><strong>${conclusion}</strong></div>
+      </article>`;
+    const renderBasicInequalityHomogenizationVisual = (block) => block?.basicInequalityHomogenizationVisual ? `
+      <div class="basic-homogeneous-method">
+        <header class="homogeneous-method-intro">
+          <span>WHY</span>
+          <strong>配齐次式，是为了让同步放大或缩小不再改变式子的值</strong>
+          <p>把所有变量同时乘同一个正数：正一次式会跟着变大，负一次式会反向变小；配成 0 次齐次式后，两种变化正好抵消。</p>
+        </header>
+        <section class="homogeneous-scale-flow" aria-label="从同步放缩会改变式子到零次齐次式保持不变的变化">
+          <article class="is-growing">
+            <span>目标表达式：正一次</span>
+            <strong>${inlineMath("x+4y")}</strong>
+            <p>${inlineMath("(x，y)→(λx，λy)")}</p>
+            <b>${inlineMath("x+4y→λ(x+4y)")}</b>
+            <small>变量同步放大，目标也放大</small>
+          </article>
+          <i aria-hidden="true">＋</i>
+          <article class="is-shrinking">
+            <span>条件表达式：负一次</span>
+            <strong>${inlineMath(`${mathFraction("1", "x")}+${mathFraction("1", "y")}=1`)}</strong>
+            <p>${inlineMath("(x，y)→(λx，λy)")}</p>
+            <b>${inlineMath(`(${mathFraction("1", "x")}+${mathFraction("1", "y")})→λ⁻¹(${mathFraction("1", "x")}+${mathFraction("1", "y")})`)}</b>
+            <small>变量同步放大，倒数式缩小</small>
+          </article>
+          <i aria-hidden="true">＝</i>
+          <article class="is-invariant">
+            <span>相乘后的表达式：零次</span>
+            <strong>${inlineMath(`(x+4y)(${mathFraction("1", "x")}+${mathFraction("1", "y")})`)}</strong>
+            <p>${inlineMath("λ·λ⁻¹=1")}</p>
+            <b>同步缩放后数值不变</b>
+            <small>不再受变量共同大小影响</small>
+          </article>
+        </section>
+        <div class="homogeneous-degree-balance" aria-label="齐次次数配平">
+          <article><span>目标次数</span><strong>＋1</strong><small>${inlineMath("x+4y")}</small></article>
+          <i aria-hidden="true">＋</i>
+          <article><span>条件次数</span><strong>−1</strong><small>${inlineMath(`${mathFraction("1", "x")}+${mathFraction("1", "y")}`)}</small></article>
+          <i aria-hidden="true">＝</i>
+          <article class="is-zero"><span>总次数</span><strong>0</strong><small>只看一个变量是另一个的几倍</small></article>
+        </div>
+        <div class="homogeneous-why-chain">
+          <span>为什么能消元？</span>
+          <b>0 次齐次</b><i>→</i><b>只看 ${inlineMath("x")} 是 ${inlineMath("y")} 的几倍</b><i>→</i><b>${inlineMath(`t=${mathFraction("x", "y")}`)} 与 ${inlineMath(mathFraction("1", "t"))}</b><i>→</i><strong>两项乘积固定</strong>
+        </div>
+        <section class="homogeneous-method-how">
+          <header><span>HOW</span><strong>先配次数，再展开找定积</strong></header>
+          <div class="homogeneous-examples">
+            ${renderHomogeneousExpansion({
+              label: "练习 8-3",
+              title: "正一次 × 负一次＝零次",
+              problem: `已知正实数 ${inlineMath("x，y")} 满足 ${inlineMath(`${mathFraction("1", "x")}+${mathFraction("1", "y")}=1`)}，求 ${inlineMath("x+4y")} 的最小值。`,
+              identity: inlineMath(`x+4y=(x+4y)(${mathFraction("1", "x")}+${mathFraction("1", "y")})`),
+              constant: inlineMath("5"),
+              first: inlineMath(mathFraction("x", "y")),
+              second: inlineMath(mathFraction("4y", "x")),
+              product: inlineMath("4"),
+              bound: inlineMath(`${mathFraction("x", "y")}+${mathFraction("4y", "x")}≥4`),
+              conclusion: inlineMath("x+4y≥9"),
+            })}
+            ${renderHomogeneousExpansion({
+              label: "练习 8-15",
+              title: "补齐低次项，分子二次 ÷ 分母二次＝零次",
+              problem: `已知 ${inlineMath("a&gt;0，b&gt;0")}，且 ${inlineMath("a+b=2")}，求 ${inlineMath(mathFraction("a²+2b", "ab"))} 的最小值。`,
+              identity: inlineMath(`${mathFraction("a²+2b", "ab")}= ${mathFraction(`a²+${homogeneousCompletionTerm("b(a+b)")}`, "ab")}= ${mathFraction("a²+ab+b²", "ab")}`),
+              constant: inlineMath("1"),
+              first: inlineMath(mathFraction("a", "b")),
+              second: inlineMath(mathFraction("b", "a")),
+              product: inlineMath("1"),
+              bound: inlineMath(`${mathFraction("a", "b")}+${mathFraction("b", "a")}≥2`),
+              conclusion: inlineMath(`${mathFraction("a²+2b", "ab")}≥3`),
+            })}
+          </div>
+          <div class="homogeneous-variation-grid" aria-label="配齐次式的两类方法">
+            <article>
+              <span>类别一｜整体配齐</span>
+              <p>整个目标都有确定次数，题设又给出次数相反的定值式；将条件整体乘入目标。</p>
+              <strong>${inlineMath(`x+4y=(x+4y)(${mathFraction("1", "x")}+${mathFraction("1", "y")})`)}</strong>
+              <small>练习 8-3、8-4、8-14</small>
+            </article>
+            <article class="is-local">
+              <span>类别二｜局部配齐</span>
+              <p>目标整体不动，只修补内部不齐次的部分；局部可以是一项，也可以是多个括号。</p>
+              <div class="homogeneous-local-routes">
+                <section>
+                  <b>补齐一个低次项</b>
+                  <strong>${inlineMath("2b=b(a+b)=ab+b²")}</strong>
+                  <small>练习 8-15</small>
+                </section>
+                <section>
+                  <b>逐个补齐括号</b>
+                  <strong>${inlineMath(`${mathFraction("1+x", "x")}→${mathFraction("2x+y", "x")}，${mathFraction("1+y", "y")}→${mathFraction("x+2y", "y")}`)}</strong>
+                  <small>练习 8-16</small>
+                </section>
+              </div>
+            </article>
+          </div>
+          <div class="homogeneous-operation-flow"><span>操作路径</span><b>判断不齐次发生在整体还是局部</b><i>→</i><b>选择整体配齐或局部配齐</b><i>→</i><b>展开并圈出两个正项表达式</b><i>→</i><strong>找定积并应用基本不等式</strong></div>
+        </section>
+        <p class="homogeneous-method-closure"><span>一句话</span>“配”让同步放大或缩小不再影响式子的值；配成 0 次齐次式后，只需研究“一个变量是另一个的几倍”，再用基本不等式把这个倍数消去。</p>
+      </div>` : "";
+    const renderBasicInequalitySymmetryVisual = (block) => block?.basicInequalitySymmetryVisual ? `
+      <div class="basic-symmetric-method">
+        <header class="symmetric-method-intro">
+          <span>WHY</span>
+          <strong>找对称结构，是为了把两个变量压缩成“和”与“积”</strong>
+          <p>对一个二元表达式，交换 ${inlineMath("x，y")} 后仍保持不变，就说明它具有对称结构；此时真正需要记录的，是两个变量共同的和与积。</p>
+        </header>
+        <section class="symmetric-swap-test" aria-label="交换变量理解表达式的对称结构">
+          <header><span>结构定义</span><strong>交换 ${inlineMath("x，y")} 后，表达式保持不变，就是对称结构</strong></header>
+          <div class="symmetric-swap-equation">
+            <article><small>原表达式</small><strong>${inlineMath("F(x，y)=x²+y²+3xy")}</strong></article>
+            <i aria-hidden="true">交换 ${inlineMath("x↔y")}</i>
+            <article><small>交换后</small><strong>${inlineMath("F(y，x)=y²+x²+3yx")}</strong></article>
+            <b aria-hidden="true">＝</b>
+            <article class="is-same"><small>结构不变</small><strong>${inlineMath("F(y，x)=F(x，y)")}</strong></article>
+          </div>
+          <div class="symmetric-compression">
+            <span>不再分别记录 ${inlineMath("x，y")}</span><i aria-hidden="true">→</i>
+            <strong>${inlineMath("s=x+y")}</strong><b>与</b><strong>${inlineMath("p=xy")}</strong>
+          </div>
+        </section>
+        <section class="symmetric-method-how">
+          <header><span>HOW</span><strong>分别检查目标与条件，再改写成 ${inlineMath("s，p")} 并用基本不等式消元</strong></header>
+          <div class="symmetric-step-flow">
+            <article><span>01</span><strong>验对称</strong><p>交换 ${inlineMath("x，y")}，确认目标与所有条件都不变；必要时先展开、通分或因式分解。</p></article>
+            <i aria-hidden="true">→</i>
+            <article><span>02</span><strong>换语言</strong><p>令 ${inlineMath("s=x+y，p=xy")}，把目标与条件都改写成只含 ${inlineMath("s，p")} 的式子。</p></article>
+            <i aria-hidden="true">→</i>
+            <article><span>03</span><strong>代条件</strong><p>题设固定 ${inlineMath("s")} 或 ${inlineMath("p")} 后，目标只剩另一个核心量。</p></article>
+            <i aria-hidden="true">→</i>
+            <article><span>04</span><strong>消去它</strong><p>用 ${inlineMath("s²≥4p")} 求界，并检查 ${inlineMath("x=y")} 是否满足原条件。</p></article>
+          </div>
+          <div class="symmetric-formula-bank">
+            <header><span>常用改写</span><p>这些不是新公式，而是在把对称式翻译成 ${inlineMath("s=x+y，p=xy")}。</p></header>
+            <div>
+              <article><small>平方和</small><strong>${inlineMath("x²+y²=s²−2p")}</strong></article>
+              <article><small>倒数和</small><strong>${inlineMath(`${mathFraction("1", "x")}+${mathFraction("1", "y")}=${mathFraction("s", "p")}`)}</strong></article>
+              <article><small>比值和</small><strong>${inlineMath(`${mathFraction("x", "y")}+${mathFraction("y", "x")}=${mathFraction("s²−2p", "p")}`)}</strong></article>
+              <article><small>同加一项的乘积</small><strong>${inlineMath("(x+a)(y+a)=p+as+a²")}</strong></article>
+            </div>
+          </div>
+          <div class="symmetric-worked-map" aria-label="固定和时利用对称结构求平方和最小值">
+            <header><span>示例</span><strong>已知 ${inlineMath("x&gt;0，y&gt;0，x+y=4")}，求 ${inlineMath("x²+y²")} 的最小值</strong></header>
+            <div class="symmetric-worked-inputs">
+              <article><small>目标表达式对称</small><strong>${inlineMath("x²+y²")}</strong><p>交换 ${inlineMath("x，y")} 后不变</p></article>
+              <i aria-hidden="true">＋</i>
+              <article><small>条件表达式也对称</small><strong>${inlineMath("s=x+y=4")}</strong><p>交换 ${inlineMath("x，y")} 后仍不变</p></article>
+            </div>
+            <div class="symmetric-worked-chain">
+              <span>${inlineMath("x²+y²=s²−2p=16−2p")}</span>
+              <i aria-hidden="true">→</i><span>${inlineMath("s²≥4p⇒p≤4")}</span>
+              <i aria-hidden="true">→</i><strong>${inlineMath("x²+y²≥16−2×4=8")}</strong>
+            </div>
+            <p><span>等号闭包</span>${inlineMath("p=4⇔x=y=2")}，满足原条件，所以最小值为 ${inlineMath("8")}。</p>
+          </div>
+        </section>
+        <p class="symmetric-method-closure"><span>一句话</span>先确认目标与条件在交换 ${inlineMath("x，y")} 后都不变，再用 ${inlineMath("s=x+y，p=xy")} 压缩变量，最后用 ${inlineMath("s²≥4p")} 消去剩余核心量。</p>
+      </div>` : "";
+    const renderRepeatedInequalityExample = ({ label, meta, problem, variables, conditions, pairing, chain, equalities, closure, result }) => `
+      <article class="basic-repeated-example">
+        <header><span>${label}</span><div><small>${meta}</small><strong>${problem}</strong></div></header>
+        <div class="basic-repeated-count" aria-label="预计还缺的取等关系数">
+          <span><b>${variables.count}</b><small>正变量</small><em>${variables.value}</em></span><i>−</i>
+          <span><b>${conditions.count}</b><small>有效条件</small><em>${conditions.value}</em></span><i>＝</i>
+          <strong><b>${variables.count - conditions.count}</b><small>待补取等关系</small><em>${variables.count - conditions.count} 条</em></strong>
+        </div>
+        <div class="basic-repeated-pairing">
+          <header><span>选择第一对</span><strong>${pairing.reason}</strong></header>
+          <div><mark>${pairing.first}</mark><i>＋</i><mark>${pairing.second}</mark><b>→</b><p><small>乘积</small>${pairing.product}</p><em>${pairing.effect}</em></div>
+        </div>
+        <div class="basic-repeated-chain">
+          <header><span>逐次应用</span><strong>每次把得到的界代回原式，再观察剩余结构</strong></header>
+          <div>
+            ${chain.stages.map((stage, index) => `${index ? `<i><span>${chain.arrows[index - 1]}</span>→</i>` : ""}<section><small>${stage.label}</small><strong>${stage.expression}</strong></section>`).join("")}
+          </div>
+        </div>
+        <div class="basic-repeated-equalities">
+          <header><span>等号记录</span><strong>每应用一次，就记下一条取等关系</strong></header>
+          <div>${equalities.map((item) => `<p><small>${item.label}</small><strong>${item.expression}</strong></p>`).join("")}</div>
+        </div>
+        <div class="basic-repeated-closure"><span>联立全部关系</span><p>${closure}</p><strong>${result}</strong></div>
+      </article>`;
+    const renderBasicInequalityRepeatedVisual = (block) => block?.basicInequalityRepeatedVisual ? `
+      <div class="basic-repeated-method">
+        <header class="basic-repeated-intro">
+          <span>WHY</span>
+          <strong>先判断还缺几条取等关系，再逐步确认它们从哪里来</strong>
+          <p>要确定几个正变量，就需要几条有效关系。题目已有的等式条件先算进去；整理后的基本不等式取等、平方取零等步骤都可能补出新关系。</p>
+        </header>
+        <section class="basic-repeated-rule" aria-label="预计待补取等关系数的常用估算公式">
+          <header><span>常用估算公式</span><strong>先计算关系缺口，再根据整理后的结构选择估计方法</strong></header>
+          <div>
+            <article><span>先数</span><strong>正变量个数</strong></article>
+            <i aria-hidden="true">−</i>
+            <article><span>再数</span><strong>已有的有效等式条件数</strong></article>
+            <i aria-hidden="true">＝</i>
+            <article class="is-result"><span>估算</span><strong>还需要补出的取等关系数</strong></article>
+          </div>
+          <p><span>什么是有效条件？</span>能够提供一条新变量关系的等式条件；重复或等价的条件不能重复计算。</p>
+        </section>
+        <div class="basic-repeated-planning-flow" aria-label="多次应用基本不等式的规划步骤">
+          <article><span>01</span><strong>判断关系缺口</strong><p>列出具体变量与有效条件，估算还缺几条取等关系</p></article><i>→</i>
+          <article><span>02</span><strong>整理并观察</strong><p>先让正项、负项与变量位置清楚，不提前宣布后续结构</p></article><i>→</i>
+          <article><span>03</span><strong>逐层消元</strong><p>每次估计都优先消去变量，再观察得到的新式</p></article><i>→</i>
+          <article class="is-result"><span>04</span><strong>联立等号</strong><p>把每次取等关系与原题条件一起求解</p></article>
+        </div>
+        <section class="basic-repeated-examples" aria-label="用三个例子理解待补取等关系的估算公式">
+          ${renderRepeatedInequalityExample({
+            label: "例 1",
+            meta: "2 个变量 · 0 个条件",
+            problem: `已知 ${inlineMath("a，b&gt;0")}，求 ${inlineMath(`${mathFraction("1", "a")}+${mathFraction("a", "b²")}+b`)} 的最小值`,
+            variables: { count: 2, value: inlineMath("a，b") },
+            conditions: { count: 0, value: "无" },
+            pairing: {
+              reason: "先让变量 a 消失，为第二次配对创造结构",
+              first: inlineMath(mathFraction("1", "a")),
+              second: inlineMath(mathFraction("a", "b²")),
+              product: inlineMath(mathFraction("1", "b²")),
+              effect: `得到 ${inlineMath(mathFraction("2", "b"))}，消去 ${inlineMath("a")}`,
+            },
+            chain: {
+              stages: [
+                { label: "原式", expression: inlineMath(`F=${mathFraction("1", "a")}+${mathFraction("a", "b²")}+b`) },
+                { label: "第一次后", expression: inlineMath(`F≥${mathFraction("2", "b")}+b`) },
+                { label: "第二次后", expression: inlineMath(`F≥2${mathRadical("2")}`) },
+              ],
+              arrows: ["第 1 次：消去 a", "第 2 次：得到常数"],
+            },
+            equalities: [
+              { label: "第 1 次取等", expression: inlineMath(`${mathFraction("1", "a")}=${mathFraction("a", "b²")}⇒a=b`) },
+              { label: "第 2 次取等", expression: inlineMath(`${mathFraction("2", "b")}=b⇒b=${mathRadical("2")}`) },
+            ],
+            closure: `由 ${inlineMath(`a=b，b=${mathRadical("2")}`)}，得 ${inlineMath(`a=b=${mathRadical("2")}`)}`,
+            result: `最小值为 ${inlineMath(`2${mathRadical("2")}`)}`,
+          })}
+          ${renderRepeatedInequalityExample({
+            label: "例 2",
+            meta: "2 个变量 · 1 个条件",
+            problem: `已知 ${inlineMath("x，y&gt;0，xy=4")}，求 ${inlineMath("x+y")} 的最小值`,
+            variables: { count: 2, value: inlineMath("x，y") },
+            conditions: { count: 1, value: inlineMath("xy=4") },
+            pairing: {
+              reason: "题设已经固定 x、y 的乘积，直接把它们配成一对",
+              first: inlineMath("x"),
+              second: inlineMath("y"),
+              product: inlineMath("xy=4"),
+              effect: "一次就能得到常数下界",
+            },
+            chain: {
+              stages: [
+                { label: "原式", expression: inlineMath("F=x+y") },
+                { label: "第一次后", expression: inlineMath(`F≥2${mathRadical("xy")}=4`) },
+              ],
+              arrows: ["第 1 次：代入定积"],
+            },
+            equalities: [
+              { label: "第 1 次取等", expression: inlineMath("x=y") },
+            ],
+            closure: `${inlineMath("xy=4")} 与 ${inlineMath("x=y")} 联立，得 ${inlineMath("x=y=2")}`,
+            result: "最小值为 4",
+          })}
+          ${renderRepeatedInequalityExample({
+            label: "例 3",
+            meta: "3 个变量 · 1 个条件",
+            problem: `已知 ${inlineMath("x，y，z&gt;0，xy=1")}，求 ${inlineMath(`x+y+z+${mathFraction("1", "z")}`)} 的最小值`,
+            variables: { count: 3, value: inlineMath("x，y，z") },
+            conditions: { count: 1, value: inlineMath("xy=1") },
+            pairing: {
+              reason: "先使用题设给出的定积，让 x、y 变成常数",
+              first: inlineMath("x"),
+              second: inlineMath("y"),
+              product: inlineMath("xy=1"),
+              effect: `得到 ${inlineMath("2")}，剩下 ${inlineMath(`z+${mathFraction("1", "z")}`)}`,
+            },
+            chain: {
+              stages: [
+                { label: "原式", expression: inlineMath(`F=x+y+z+${mathFraction("1", "z")}`) },
+                { label: "第一次后", expression: inlineMath(`F≥2+z+${mathFraction("1", "z")}`) },
+                { label: "第二次后", expression: inlineMath("F≥4") },
+              ],
+              arrows: ["第 1 次：用掉条件 xy=1", "第 2 次：处理剩余正项"],
+            },
+            equalities: [
+              { label: "第 1 次取等", expression: inlineMath("x=y") },
+              { label: "第 2 次取等", expression: inlineMath("z=1") },
+            ],
+            closure: `${inlineMath("xy=1，x=y，z=1")} 联立，得 ${inlineMath("x=y=z=1")}`,
+            result: "最小值为 4",
+          })}
+        </section>
+        <p class="basic-repeated-note"><span>注意</span>变量数减条件数估计的是“关系缺口”，不是机械规定基本不等式次数。待补关系还可能来自平方非负取零；基本不等式实际用几次，要在逐步整理后决定。</p>
+      </div>` : "";
+    const renderSubstitutionDiscoveryRoute = ({ label, title, problem, firstDenominator, secondDenominator, substitution, condition, target }) => `
+      <article class="substitution-discovery-route">
+        <header><span>${label}</span><strong>${title}</strong></header>
+        <div class="substitution-strategy-problem">
+          <span>完整题目</span>
+          <p>${problem}</p>
+        </div>
+        <div class="substitution-discovery-stages">
+          <section class="is-recognize">
+            <small>01 整体识别</small>
+            <div><strong>${firstDenominator}</strong><b>与</b><strong>${secondDenominator}</strong></div>
+            <p>把反复出现的完整分母看成整体</p>
+          </section>
+          <i aria-hidden="true">→</i>
+          <section class="is-substitute">
+            <small>02 同步换元</small>
+            <strong>${substitution}</strong>
+            <div><span>条件</span>${condition}</div>
+            <div><span>目标</span>${target}</div>
+          </section>
+          <i aria-hidden="true">→</i>
+          <section class="is-discover">
+            <small>03 后续方法显形</small>
+            <div><span>正一次</span>${condition}</div>
+            <b aria-hidden="true">×</b>
+            <div><span>负一次</span>${target}</div>
+            <em>→ 0 次齐次</em>
+            <strong>发现可以配齐次</strong>
+          </section>
+        </div>
+      </article>`;
+    const renderRadicalSubstitutionDiscoveryRoute = () => `
+      <article class="substitution-discovery-route is-radical">
+        <header><span>常用策略 2</span><strong>根号整体换元</strong></header>
+        <div class="substitution-strategy-problem">
+          <span>完整题目</span>
+          <p>已知正实数 ${inlineMath("x，y")} 满足 ${inlineMath(`x²+${mathFraction("y²", "16")}=1`)}，求 ${inlineMath(`x${mathRadical("2+y²")}`)} 的最大值。</p>
+        </div>
+        <div class="substitution-discovery-stages">
+          <section class="is-recognize">
+            <small>01 整体识别</small>
+            <div><strong>${inlineMath(mathRadical("2+y²"))}</strong></div>
+            <p>只把完整根号看成一个整体</p>
+          </section>
+          <i aria-hidden="true">→</i>
+          <section class="is-substitute">
+            <small>02 同步换元</small>
+            <strong>${inlineMath(`t=${mathRadical("2+y²")}&gt;${mathRadical("2")}`)}</strong>
+            <div><span>条件</span>${inlineMath("(4x)²+t²=18")}</div>
+            <div><span>目标</span>${inlineMath("xt")}</div>
+          </section>
+          <i aria-hidden="true">→</i>
+          <section class="is-discover">
+            <small>03 后续方法显形</small>
+            <div><span>定平方和</span>${inlineMath("(4x)²+t²=18")}</div>
+            <b aria-hidden="true">⇒</b>
+            <div><span>求乘积</span>${inlineMath("xt")}</div>
+            <em>→ 乘积有上界</em>
+            <strong>发现可以应用基本不等式</strong>
+          </section>
+        </div>
+      </article>`;
+    const renderBasicInequalitySubstitutionVisual = (block) => block?.basicInequalitySubstitutionVisual ? `
+      <div class="basic-substitution-method">
+        <header class="substitution-method-intro">
+          <span>WHY</span>
+          <strong>换元不是终点，而是让下一步解法清晰可见</strong>
+          <p>先把复杂整体翻译成简单变量；当条件与目标的新结构显露出来，就停止换元，并把问题交给已经识别出的后续方法。</p>
+        </header>
+        <section class="substitution-method-conditions" aria-label="判断是否值得进行整体换元">
+          <article><span>识别整体</span><strong>整体反复出现或遮住结构</strong><p>可以是一次式、二次式、根式等完整结构。</p></article>
+          <article><span>检查收益</span><strong>条件与目标一起变简单</strong><p>换元应当显露新结构，而不只是缩短记号。</p></article>
+          <article><span>守住范围</span><strong>范围可控、取等可还原</strong><p>写清新变量范围，并确认关键取值能回到原变量。</p></article>
+        </section>
+        <div class="substitution-purpose-flow" aria-label="换元法从整体识别到后续方法显形的三步流程">
+          <article><span>01</span><strong>整体识别</strong><p>圈出反复出现或遮住联系的完整表达式</p></article>
+          <i aria-hidden="true">→</i>
+          <article><span>02</span><strong>同步换元</strong><p>定义域、条件、目标一起改写</p></article>
+          <i aria-hidden="true">→</i>
+          <article class="is-result"><span>03</span><strong>后续方法显形</strong><p>根据新结构选择下一种解法</p></article>
+        </div>
+        <section class="substitution-discovery-examples" aria-label="整体换元的常用策略">
+          ${renderSubstitutionDiscoveryRoute({
+            label: "常用策略 1",
+            title: "复杂分母整体换元",
+            problem: `已知 ${inlineMath("x，y∈ℝ，x+y=2")}，且 ${inlineMath("x&gt;−1，y&gt;−2")}，求 ${inlineMath(`${mathFraction("1", "x+1")}+${mathFraction("1", "y+2")}`)} 的最小值。`,
+            firstDenominator: inlineMath("x+1"),
+            secondDenominator: inlineMath("y+2"),
+            substitution: inlineMath("u=x+1&gt;0，v=y+2&gt;0"),
+            condition: inlineMath("u+v=5"),
+            target: inlineMath(`T=${mathFraction("1", "u")}+${mathFraction("1", "v")}`),
+          })}
+          ${renderRadicalSubstitutionDiscoveryRoute()}
+        </section>
+        <p class="substitution-method-closure"><span>停在这里</span>换元已经完成它的任务：复杂分母换元后显露出齐次结构，根号整体换元后显露出平方和定值；再分别转入<strong>配齐次式</strong>或<strong>基本不等式</strong>。</p>
+      </div>` : "";
+    const renderBasicInequalityEliminationVisual = (block) => block?.basicInequalityEliminationVisual ? `
+      <div class="basic-substitution-method basic-elimination-method">
+        <header class="substitution-method-intro">
+          <span>WHY</span>
+          <strong>条件消元，是把二元问题降成一元问题</strong>
+          <p>先整理题设条件；一旦能用一个原变量表示另一个原变量，就把它代入目标。这里不引入新变量，目标是直接消去一个变量。</p>
+        </header>
+        <div class="substitution-purpose-flow" aria-label="条件消元法从整理条件到得到一元目标的三步流程">
+          <article><span>01</span><strong>整理条件</strong><p>通分、展开或因式分解，让变量关系显形</p></article>
+          <i aria-hidden="true">→</i>
+          <article><span>02</span><strong>表示变量</strong><p>用一个原变量表示另一个原变量</p></article>
+          <i aria-hidden="true">→</i>
+          <article class="is-result"><span>03</span><strong>代入目标</strong><p>消去一个变量，得到一元最值问题</p></article>
+        </div>
+        <section class="substitution-discovery-examples" aria-label="条件消元法示例">
+          <article class="substitution-discovery-route elimination-discovery-route">
+            <header><span>常用策略</span><strong>整理分式条件后消元</strong></header>
+            <div class="substitution-strategy-problem">
+              <span>完整题目</span>
+              <p>若 ${inlineMath("x&gt;0，y&gt;0")}，且 ${inlineMath(`${mathFraction("1", "x+1")}+${mathFraction("1", "x+2y")}=1`)}，求 ${inlineMath("2x+y")} 的最小值。</p>
+            </div>
+            <div class="substitution-discovery-stages">
+              <section class="is-recognize">
+                <small>01 整理条件</small>
+                <div><strong>${inlineMath(`(x+2y)+(x+1)=(x+1)(x+2y)`)}</strong></div>
+                <p>${inlineMath("x(x+2y−1)=1")}</p>
+              </section>
+              <i aria-hidden="true">→</i>
+              <section class="is-substitute">
+                <small>02 表示变量</small>
+                <strong>${inlineMath(`y=${mathFraction("1", "2")}(1+${mathFraction("1", "x")}−x)`)}</strong>
+                <div><span>范围</span>${inlineMath("x&gt;0")}</div>
+                <div><span>不引入新变量</span>直接消去 ${inlineMath("y")}</div>
+              </section>
+              <i aria-hidden="true">→</i>
+              <section class="is-discover">
+                <small>03 代入目标</small>
+                <div><span>二元目标</span>${inlineMath("2x+y")}</div>
+                <b aria-hidden="true">⇒</b>
+                <div><span>一元目标</span>${inlineMath(`${mathFraction("1", "2")}(3x+${mathFraction("1", "x")}+1)`)}</div>
+                <em>→ 两正项乘积固定</em>
+                <strong>发现可以应用基本不等式</strong>
+              </section>
+            </div>
+          </article>
+        </section>
+        <p class="substitution-method-closure"><span>停在这里</span>消元已经完成它的任务：二元目标变成只含 ${inlineMath("x")} 的一元目标；接下来对 ${inlineMath("3x")} 与 ${inlineMath(mathFraction("1", "x"))} 应用<strong>基本不等式</strong>。</p>
+      </div>` : "";
     const renderFixedProductConditionVisual = (block) => block?.fixedProductConditionVisual ? `
       <div class="fixed-product-knowledge is-condition">
         ${renderFixedProductGoal()}
@@ -1624,15 +2155,15 @@
           <b>${inlineMath(`[p(x+c)+${mathFraction("k", "x+c")}]−pc`)}</b>
         </div>
         <div class="fixed-product-completion-examples">
-          <article><span>练习 8-5</span><p>${inlineMath(`x+${mathFraction("4", "x+1")}`)}</p><i aria-hidden="true">→</i><strong>${inlineMath(`[(x+1)+${mathFraction("4", "x+1")}]−1`)}</strong><small>框内两项乘积为 4</small></article>
-          <article><span>练习 8-6</span><p>${inlineMath(`2x+${mathFraction("1", "x+3")}`)}</p><i aria-hidden="true">→</i><strong>${inlineMath(`[2(x+3)+${mathFraction("1", "x+3")}]−6`)}</strong><small>框内两项乘积为 2</small></article>
+          <article><span>练习 8-7</span><p>${inlineMath(`x+${mathFraction("4", "x+1")}`)}</p><i aria-hidden="true">→</i><strong>${inlineMath(`[(x+1)+${mathFraction("4", "x+1")}]−1`)}</strong><small>框内两项乘积为 4</small></article>
+          <article><span>练习 8-8</span><p>${inlineMath(`2x+${mathFraction("1", "x+3")}`)}</p><i aria-hidden="true">→</i><strong>${inlineMath(`[2(x+3)+${mathFraction("1", "x+3")}]−6`)}</strong><small>框内两项乘积为 2</small></article>
         </div>
         <p class="fixed-product-tool-note"><span>换元只做简写</span>令 ${inlineMath("t=x+c>0")}，可把配对结构写成 ${inlineMath(`pt+${mathFraction("k", "t")}`)}。</p>
       </div>` : "";
     const renderKnowledgeItems = (blocks) => blocks.map((block) => `
-      <article class="senior-learning-knowledge-item${block.table || block.quadraticInequalityTables || block.threadingLineTable || block.rationalThreadingTable || block.absoluteInequalityTable || block.basicInequalityVisual || block.basicInequalityConditions || block.fixedProductConditionVisual || block.fixedProductCompletionVisual ? " has-table" : ""}${block.basicInequalityVisual ? " is-basic-inequality-visual" : ""}${block.basicInequalityConditions ? " is-basic-inequality-conditions" : ""}${block.fixedProductConditionVisual || block.fixedProductCompletionVisual ? " is-fixed-product-visual" : ""}">
+      <article class="senior-learning-knowledge-item${block.table || block.quadraticInequalityTables || block.threadingLineTable || block.rationalThreadingTable || block.absoluteInequalityTable || block.basicInequalityVisual || block.basicInequalityConditions || block.basicInequalitySlotVisual || block.basicInequalityHomogenizationVisual || block.basicInequalitySymmetryVisual || block.basicInequalityRepeatedVisual || block.basicInequalitySubstitutionVisual || block.basicInequalityEliminationVisual || block.fixedProductConditionVisual || block.fixedProductCompletionVisual ? " has-table" : ""}${block.basicInequalityVisual ? " is-basic-inequality-visual" : ""}${block.basicInequalityConditions ? " is-basic-inequality-conditions" : ""}${block.basicInequalitySlotVisual ? " is-basic-inequality-slot-method" : ""}${block.basicInequalityHomogenizationVisual ? " is-basic-homogeneous-method" : ""}${block.basicInequalitySymmetryVisual ? " is-basic-symmetry-method" : ""}${block.basicInequalityRepeatedVisual ? " is-basic-repeated-method" : ""}${block.basicInequalitySubstitutionVisual ? " is-basic-substitution-method" : ""}${block.basicInequalityEliminationVisual ? " is-basic-elimination-method" : ""}${block.fixedProductConditionVisual || block.fixedProductCompletionVisual ? " is-fixed-product-visual" : ""}">
         <h4>${escapeHtml(block.title)}</h4>
-        ${block.basicInequalityVisual || block.basicInequalityConditions || block.fixedProductConditionVisual || block.fixedProductCompletionVisual ? "" : renderKnowledgeBody(block)}
+        ${block.basicInequalityVisual || block.basicInequalityConditions || block.basicInequalitySlotVisual || block.basicInequalityHomogenizationVisual || block.basicInequalitySymmetryVisual || block.basicInequalityRepeatedVisual || block.basicInequalitySubstitutionVisual || block.basicInequalityEliminationVisual || block.fixedProductConditionVisual || block.fixedProductCompletionVisual ? "" : renderKnowledgeBody(block)}
         ${renderKnowledgeTable(block.table)}
         ${renderQuadraticInequalityTables(block.quadraticInequalityTables)}
         ${renderThreadingLineTable(block.threadingLineTable)}
@@ -1640,6 +2171,12 @@
         ${renderAbsoluteInequalityTable(block.absoluteInequalityTable)}
         ${renderBasicInequalityVisual(block)}
         ${renderBasicInequalityConditions(block)}
+        ${renderBasicInequalitySlotVisual(block)}
+        ${renderBasicInequalityHomogenizationVisual(block)}
+        ${renderBasicInequalitySymmetryVisual(block)}
+        ${renderBasicInequalityRepeatedVisual(block)}
+        ${renderBasicInequalitySubstitutionVisual(block)}
+        ${renderBasicInequalityEliminationVisual(block)}
         ${renderFixedProductConditionVisual(block)}
         ${renderFixedProductCompletionVisual(block)}
       </article>
@@ -1706,7 +2243,9 @@
       (example) => learningExampleCategory(example) === category,
     );
     const examplesForKnowledgeGroup = (group) => {
-      const exactGroupExamples = module.examples.filter((example) => example.group === group.title);
+      if (group.showExercises === false) return [];
+      const expectedGroup = group.exampleGroup || group.title;
+      const exactGroupExamples = module.examples.filter((example) => example.group === expectedGroup);
       return exactGroupExamples.length ? exactGroupExamples : examplesForCategory(group.category);
     };
     const exerciseHrefForKnowledgeGroup = (group) => {
@@ -1721,6 +2260,32 @@
         ? explicitlyGrouped
         : module.knowledgeBlocks.filter((block) => !block.groupId && block.category === group.category);
     };
+    const knowledgeAnchorId = (group) => `knowledge-${group.id || group.category}`;
+    const knowledgeGroupForExample = (example) => (
+      (module.knowledgeGroups || []).find((group) => (group.exampleGroup || group.title) === example.group)
+      || (module.knowledgeGroups || []).find((group) => group.category === learningExampleCategory(example))
+    );
+    const renderKnowledgeGroup = (group) => `
+      <article id="${escapeHtml(knowledgeAnchorId(group))}" class="senior-learning-knowledge-group is-${escapeHtml(group.category)} has-${knowledgeBlocksForGroup(group).length}-items${knowledgeBlocksForGroup(group).some((block) => block.table || block.quadraticInequalityTables || block.threadingLineTable || block.rationalThreadingTable || block.absoluteInequalityTable || block.basicInequalityVisual || block.basicInequalityConditions || block.basicInequalitySlotVisual || block.basicInequalityHomogenizationVisual || block.basicInequalitySymmetryVisual || block.basicInequalityRepeatedVisual || block.basicInequalitySubstitutionVisual || block.basicInequalityEliminationVisual || block.fixedProductConditionVisual || block.fixedProductCompletionVisual) ? " has-table" : ""}">
+        <div class="senior-learning-knowledge-group-heading">
+          <span>${escapeHtml(group.number)}</span>
+          <div>
+            <p>${escapeHtml(group.eyebrow)}</p>
+            <h3>${escapeHtml(group.title)}</h3>
+            ${examplesForKnowledgeGroup(group).length ? `<a class="senior-learning-exercise-anchor" href="${escapeHtml(exerciseHrefForKnowledgeGroup(group))}">
+              <span>对应练习</span>
+              <strong>${group.lessonCount || examplesForKnowledgeGroup(group).length} 题</strong>
+              <span aria-hidden="true">↓</span>
+            </a>` : ""}
+          </div>
+        </div>
+        <div class="senior-learning-knowledge-items">
+          ${renderKnowledgeItems(knowledgeBlocksForGroup(group))}
+        </div>
+        ${renderKnowledgeVisual(group)}
+      </article>`;
+    const coreKnowledgeGroups = (module.knowledgeGroups || []).filter((group) => group.section !== "method");
+    const methodKnowledgeGroups = (module.knowledgeGroups || []).filter((group) => group.section === "method");
     return `
       <article class="senior-learning-topic">
         <header class="senior-learning-module-hero">
@@ -1734,28 +2299,18 @@
             <h2 id="core-knowledge-heading">核心知识</h2>
           </div>
           <div class="senior-learning-knowledge-groups">
-            ${(module.knowledgeGroups || []).map((group) => `
-              <article id="knowledge-${escapeHtml(group.category)}" class="senior-learning-knowledge-group is-${escapeHtml(group.category)} has-${knowledgeBlocksForGroup(group).length}-items${knowledgeBlocksForGroup(group).some((block) => block.table || block.quadraticInequalityTables || block.threadingLineTable || block.rationalThreadingTable || block.absoluteInequalityTable || block.basicInequalityVisual || block.basicInequalityConditions || block.fixedProductConditionVisual || block.fixedProductCompletionVisual) ? " has-table" : ""}">
-                <div class="senior-learning-knowledge-group-heading">
-                  <span>${escapeHtml(group.number)}</span>
-                  <div>
-                    <p>${escapeHtml(group.eyebrow)}</p>
-                    <h3>${escapeHtml(group.title)}</h3>
-                    ${examplesForKnowledgeGroup(group).length ? `<a class="senior-learning-exercise-anchor" href="${escapeHtml(exerciseHrefForKnowledgeGroup(group))}">
-                      <span>对应练习</span>
-                      <strong>${group.lessonCount || examplesForKnowledgeGroup(group).length} 题</strong>
-                      <span aria-hidden="true">↓</span>
-                    </a>` : ""}
-                  </div>
-                </div>
-                <div class="senior-learning-knowledge-items">
-                  ${renderKnowledgeItems(knowledgeBlocksForGroup(group))}
-                </div>
-                ${renderKnowledgeVisual(group)}
-              </article>
-            `).join("")}
+            ${coreKnowledgeGroups.map(renderKnowledgeGroup).join("")}
           </div>
         </section>
+        ${methodKnowledgeGroups.length ? `<section class="senior-learning-section senior-learning-methods-section" aria-labelledby="solving-methods-heading">
+          <div class="senior-learning-section-heading">
+            <p>METHODS</p>
+            <h2 id="solving-methods-heading">解题方法</h2>
+          </div>
+          <div class="senior-learning-knowledge-groups">
+            ${methodKnowledgeGroups.map(renderKnowledgeGroup).join("")}
+          </div>
+        </section>` : ""}
         <section class="senior-learning-section" aria-labelledby="worked-examples-heading">
           <div class="senior-learning-section-heading">
             <h2 id="worked-examples-heading">例题精讲</h2>
@@ -1767,7 +2322,7 @@
                 <div class="senior-learning-example-list">
                   ${entries.map(({ example, index }) => renderInteractiveLearningExample(example, index)).join("")}
                 </div>
-                <a class="senior-learning-return-anchor" href="#knowledge-${escapeHtml(learningExampleCategory(entries[0].example))}">↑ 返回对应知识点</a>
+                <a class="senior-learning-return-anchor" href="#${escapeHtml(knowledgeAnchorId(knowledgeGroupForExample(entries[0].example) || { category: learningExampleCategory(entries[0].example) }))}">↑ 返回对应知识点</a>
               </section>
             `).join("")}
           </div>

@@ -1,0 +1,125 @@
+{
+  "meta": {
+    "id": "inequality-basic-q09",
+    "outputPath": "site/problems/senior-high/inequalities/inequality-relations/inequality-basic-q09.html",
+    "pageTitle": "整理目标代数式后直接定和求积",
+    "pageDescription": "整理目标代数式后直接定和求积的逐步解析。",
+    "breadcrumbTitle": "基本不等式 · 练习 8-6",
+    "breadcrumbLabel": "解不等式与基本不等式",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=inequalities&section=inequality-relations&module=basic-inequalities"
+  },
+  "problem": {
+    "source": "2019 天津高考（文科）",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "先整理目标代数式，让题设中的 x+2y 显形；代入后原式化为 2+5/(xy)，再对两个完整正项 x 与 2y 直接使用基本不等式。",
+      "items": [
+        "展开：(x+1)(2y+1)=2xy+x+2y+1。",
+        "代入 x+2y=4，原式化为 2+5/(xy)。",
+        "对正项 x、2y 使用基本不等式得 xy≤2；正数取倒数时方向反转。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "5. 设 \\(x>0，y>0，x+2y=4\\)，则 \\(\\frac{(x+1)(2y+1)}{xy}\\) 的最小值为　　　　。"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "直接应用基本不等式",
+      "title": "整理目标代数式，让定和条件显形",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-mapping",
+        "title": "整理目标代数式，再让两个完整正项入槽",
+        "methodTag": "直接应用｜定和求积",
+        "conditionFlowLabel": "展开目标代数式，让题设条件显形",
+        "conditionFlow": [
+          "\\(E=\\frac{2xy+x+2y+1}{xy}\\)",
+          "\\(x+2y=4\\)",
+          "\\(E=2+\\frac{5}{xy}\\)"
+        ],
+        "template": "彩色方槽与彩色圆槽表示两个完整正项",
+        "mappings": [
+          {
+            "slot": "第一个正项",
+            "shape": "square",
+            "value": "\\(x\\)",
+            "condition": "\\(x>0\\)"
+          },
+          {
+            "slot": "第二个正项",
+            "shape": "circle",
+            "value": "\\(2y\\)",
+            "condition": "\\(2y>0\\)"
+          }
+        ],
+        "mappedSum": "\\(x+2y\\)",
+        "mappedProduct": "\\(2xy\\)",
+        "mapped": "\\(\\frac{x+2y}{2}\\ge\\sqrt{2xy}\\)",
+        "stageLabel": "代入定和",
+        "fixedSourceLabel": "已知",
+        "fixedCondition": "\\(x+2y=4\\)",
+        "replacementText": "把定和换成 4",
+        "replaced": "\\(2\\ge\\sqrt{2xy}\\)",
+        "simplifyLabel": "平方并化简",
+        "substituted": "\\(xy\\le2\\)",
+        "conclusionLabel": "正数取倒数，方向反转",
+        "conclusion": "\\(E=2+\\frac{5}{xy}\\ge2+\\frac{5}{2}=\\frac{9}{2}\\)",
+        "equalityTemplate": "两个槽位相等",
+        "equalityMapped": "\\(x=2y\\)",
+        "equalityContextLabel": "结合原条件",
+        "equalityResult": "\\(x=2，y=1\\)",
+        "caption": "整理目标代数式是为了让条件显形并找到核心量 xy；真正应用基本不等式时，直接比较正项 x 与 2y。"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "整理目标代数式，先展开分子：\\((x+1)(2y+1)=2xy+x+2y+1\\)"
+        },
+        {
+          "kind": "because",
+          "text": "代入 \\(x+2y=4\\)，原式 \\(E=\\frac{2xy+5}{xy}=2+\\frac{5}{xy}\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "对正项 \\(x\\) 与 \\(2y\\) 使用基本不等式：\\(\\frac{x+2y}{2}\\ge\\sqrt{2xy}\\)，由 \\(x+2y=4\\) 得 \\(xy\\le2\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "因 \\(xy>0\\)，由 \\(xy\\le2\\) 得 \\(\\frac{5}{xy}\\ge\\frac{5}{2}\\)，所以 \\(E\\ge\\frac{9}{2}\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "当 \\(x=2y\\)，结合 \\(x+2y=4\\) 得 \\(x=2，y=1\\)，可以取等号"
+        }
+      ],
+      "derive": [
+        [
+          "最小值",
+          "9/2"
+        ],
+        [
+          "等号条件",
+          "x=2，y=1"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 整理目标代数式，让定和条件显形"
+  }
+}

@@ -1,0 +1,167 @@
+{
+  "meta": {
+    "id": "inequality-basic-q22",
+    "outputPath": "site/problems/senior-high/inequalities/inequality-relations/inequality-basic-q22.html",
+    "pageTitle": "分母整体换元后配齐次式求最小值",
+    "pageDescription": "分母整体换元后配齐次式求最小值的逐步解析。",
+    "breadcrumbTitle": "基本不等式 · 换元法 1",
+    "breadcrumbLabel": "解不等式与基本不等式",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=inequalities&section=inequality-relations&module=basic-inequalities"
+  },
+  "problem": {
+    "source": "",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "分母中反复出现 \\(x+1\\) 与 \\(y+2\\)，先把这两个整体换成正变量。换元要同时改写定义域、条件和目标；得到定和后，再乘入定和条件配成 0 次齐次式。",
+      "items": [
+        "整体换元：令 \\(u=x+1>0，v=y+2>0\\)。",
+        "同步改写：由 \\(x+y=2\\) 得 \\(u+v=5\\)，目标变为 \\(\\frac{1}{u}+\\frac{1}{v}\\)。",
+        "配齐次式：把目标乘以定值 \\(5=u+v\\)，展开为 \\(5\\left(\\frac{1}{u}+\\frac{1}{v}\\right)=2+\\frac{u}{v}+\\frac{v}{u}\\)。",
+        "应用基本不等式：\\(\\frac{u}{v}+\\frac{v}{u}\\ge2\\)，所以 \\(\\frac{1}{u}+\\frac{1}{v}\\ge\\frac{4}{5}\\)。",
+        "还原取等：当 \\(u=v=\\frac{5}{2}\\) 时取等，对应 \\(x=\\frac{3}{2}，y=\\frac{1}{2}\\)。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "已知 \\(x，y\\in\\mathbb R，x+y=2\\)，且 \\(x>-1，y>-2\\)，求 \\(\\frac{1}{x+1}+\\frac{1}{y+2}\\) 的最小值。"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "换元法",
+      "title": "把两个分母整体换元，再乘入定和配齐次式",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "substitution-homogeneous-lifecycle",
+        "title": "换元 → 配齐次 → 还原等号",
+        "methodTag": "换元法｜复杂分母换元",
+        "substitution": {
+          "label": "把复杂分母进行换元",
+          "observation": "把反复出现的完整分母看成整体，同时写清新变量的正数范围",
+          "mappings": [
+            {
+              "source": "\\(x+1\\)",
+              "target": "\\(u=x+1>0\\)",
+              "reverse": "\\(x=u-1\\)"
+            },
+            {
+              "source": "\\(y+2\\)",
+              "target": "\\(v=y+2>0\\)",
+              "reverse": "\\(y=v-2\\)"
+            }
+          ],
+          "condition": "\\(u+v=5\\)",
+          "target": "\\(\\frac{1}{u}+\\frac{1}{v}\\)",
+          "handoffLabel": "换元后发现：可以配齐次式"
+        },
+        "homogeneous": {
+          "label": "配齐次式用定和求最值",
+          "methodTag": "发现结构｜可以配齐次式",
+          "degrees": [
+            {
+              "label": "正一次条件",
+              "expression": "\\(u+v=5\\)",
+              "degree": "+1"
+            },
+            {
+              "label": "负一次目标",
+              "expression": "\\(\\frac{1}{u}+\\frac{1}{v}\\)",
+              "degree": "−1"
+            },
+            {
+              "label": "相乘后",
+              "expression": "\\(5\\left(\\frac{1}{u}+\\frac{1}{v}\\right)\\)",
+              "degree": "0"
+            }
+          ],
+          "identity": "\\(5\\left(\\frac{1}{u}+\\frac{1}{v}\\right)=(u+v)\\left(\\frac{1}{u}+\\frac{1}{v}\\right)=2+\\frac{u}{v}+\\frac{v}{u}\\)",
+          "positiveTerms": [
+            {
+              "value": "\\(\\frac{u}{v}\\)",
+              "condition": "\\(\\frac{u}{v}>0\\)"
+            },
+            {
+              "value": "\\(\\frac{v}{u}\\)",
+              "condition": "\\(\\frac{v}{u}>0\\)"
+            }
+          ],
+          "product": "\\(\\frac{u}{v}\\cdot\\frac{v}{u}=1\\)",
+          "inequality": "\\(\\frac{u}{v}+\\frac{v}{u}\\ge2\\)",
+          "bound": "\\(\\frac{1}{u}+\\frac{1}{v}\\ge\\frac{4}{5}\\)",
+          "equality": "\\(\\frac{u}{v}=\\frac{v}{u}\\Rightarrow u=v\\)",
+          "equalitySolved": "\\(u=v=\\frac{5}{2}\\)"
+        },
+        "restoration": {
+          "label": "求解等号成立条件",
+          "transformedEquality": "\\(u=v\\)",
+          "solved": "\\(u=v=\\frac{5}{2}\\)",
+          "reverse": "\\(x=u-1，y=v-2\\)",
+          "result": "\\(x=\\frac{3}{2}，y=\\frac{1}{2}\\)",
+          "verification": "\\(x+y=2，x>-1，y>-2\\)"
+        },
+        "conclusion": "\\(\\frac{1}{x+1}+\\frac{1}{y+2}\\) 的最小值是 \\(\\frac{4}{5}\\)",
+        "caption": "三步要连起来：先换元看清结构，再配齐次式求出界值与取等条件，最后用逆关系还原 x、y，确认最小值确实能取到。"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "由 \\(x>-1，y>-2\\)，分母整体 \\(x+1，y+2\\) 都为正；令 \\(u=x+1>0，v=y+2>0\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "因为 \\(x=u-1，y=v-2\\)，所以 \\(x+y=2\\) 等价于 \\(u+v=5\\)；目标同步改写为 \\(\\frac{1}{u}+\\frac{1}{v}\\)"
+        },
+        {
+          "kind": "because",
+          "text": "目标 \\(\\frac{1}{u}+\\frac{1}{v}\\) 是负一次式，而定和 \\(u+v=5\\) 是一次式；把二者相乘可配成 0 次齐次式"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(5\\left(\\frac{1}{u}+\\frac{1}{v}\\right)=(u+v)\\left(\\frac{1}{u}+\\frac{1}{v}\\right)=2+\\frac{u}{v}+\\frac{v}{u}\\)"
+        },
+        {
+          "kind": "because",
+          "text": "\\(\\frac{u}{v}>0，\\frac{v}{u}>0\\)，且两项乘积为 \\(1\\)，所以 \\(\\frac{u}{v}+\\frac{v}{u}\\ge2\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(5\\left(\\frac{1}{u}+\\frac{1}{v}\\right)\\ge4\\)，即 \\(\\frac{1}{u}+\\frac{1}{v}\\ge\\frac{4}{5}\\)"
+        },
+        {
+          "kind": "because",
+          "text": "等号要求 \\(\\frac{u}{v}=\\frac{v}{u}\\)，由 \\(u，v>0\\) 得 \\(u=v\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "联立 \\(u+v=5\\)，得 \\(u=v=\\frac{5}{2}\\)，还原为 \\(x=\\frac{3}{2}，y=\\frac{1}{2}\\)，故最小值为 \\(\\frac{4}{5}\\)"
+        }
+      ],
+      "derive": [
+        [
+          "最小值",
+          "4/5"
+        ],
+        [
+          "取等",
+          "x=3/2，y=1/2"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 把两个分母整体换元，再乘入定和配齐次式"
+  }
+}

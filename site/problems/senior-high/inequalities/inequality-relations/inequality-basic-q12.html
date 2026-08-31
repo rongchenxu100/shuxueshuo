@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>平方换元消元求最小值 | 数学说</title>
+  <meta name="description" content="平方换元消元求最小值的逐步解析。" />
+  <meta property="og:title" content="平方换元消元求最小值 | 数学说" />
+  <meta property="og:description" content="平方换元消元求最小值的逐步解析。" />
+  <meta property="og:image" content="../../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css?v=31" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../../senior-high/index.html?chapter=inequalities&section=inequality-relations&module=basic-inequalities">解不等式与基本不等式</a>
+    <span class="lesson-title">基本不等式 · 练习 8-12</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          <div class="problem-full">
+            <div class="problem-line"><span><span class="problem-source-inline">（2020 江苏高考）</span>已知 <span class="inline-math">5x<sup>2</sup>y<sup>2</sup>+y<sup>4</sup>=1</span>（<span class="inline-math">x，y∈<span class="math-blackboard">ℝ</span></span>），则 <span class="inline-math">x<sup>2</sup>+y<sup>2</sup></span> 的最小值是　　　　。</span><span class="answer-chip" id="answerI">答案：<span class="inline-math">4/5</span></span></div>
+          </div>
+        </section>
+
+        <aside class="lesson-key-points" aria-label="解题要点"><div class="lesson-key-points-title">解题要点</div><div class="lesson-key-points-content"><p class="lesson-key-points-lead">条件和目标只含平方，先令 u=x²、v=y²。由条件消去 u 后，目标化为两个乘积固定的正项之和。</p><ol><li>令 u=x²≥0，v=y²；原条件迫使 0&lt;v≤1。</li><li>由 5uv+v²=1 得 u+v=1/(5v)+4v/5。</li><li>等号 v=1/2 时 u=3/10，满足原条件。</li></ol></div></aside>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../../assets/js/lesson-page-runtime.js?v=42"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"s1","section":"平方换元与消元","title":"把二元约束降成关于 v 的正项和","t":0,"showDiagram":false,"visual":{"kind":"basic-inequality-mapping","title":"平方换元后，条件直接消去一个变量","methodTag":"换元降维｜平方约束","conditionFlowLabel":"先整理条件与目标","conditionFlow":["\\(u=x^2，v=y^2>0\\)","\\(5uv+v^2=1\\)","\\(u+v=\\frac{1}{5v}+\\frac{4v}{5}\\)"],"template":"\\(\\frac{u+v}{2}\\ge\\sqrt{uv}\\)","mappings":[{"slot":"u","value":"1/(5v)","condition":"\\(v>0\\)"},{"slot":"v","value":"4v/5","condition":"\\(\\frac{4v}{5}>0\\)"}],"mapped":"\\(\\frac{\\frac{1}{5v}+\\frac{4v}{5}}{2}\\ge\\sqrt{\\frac{4}{25}}\\)","stageLabel":"代入正项","fixedSourceLabel":"已知或已证","fixedCondition":"\\(\\frac{1}{5v}\\cdot\\frac{4v}{5}=\\frac{4}{25}\\)","replacementText":"代入已知关系","replaced":"\\(\\frac{1}{5v}+\\frac{4v}{5}\\ge\\frac{4}{5}\\)","simplifyLabel":"化简并得到界","substituted":"\\(x^2+y^2=u+v\\ge\\frac{4}{5}\\)","conclusionLabel":"最值结论","conclusion":"最小值为 \\(\\frac{4}{5}\\)","equalityTemplate":"\\(u=v\\)","equalityMapped":"\\(\\frac{1}{5v}=\\frac{4v}{5}\\)","equalityContextLabel":"结合原条件","equalityResult":"\\(x^2=\\frac{3}{10}，y^2=\\frac{1}{2}\\)","caption":"把每次使用基本不等式的两个正项、定值关系与等号条件逐一对应。"},"reasoning":[{"kind":"because","text":"令 \\(u=x^2\\ge0，v=y^2\\ge0\\)；若 \\(v=0\\)，原条件左边为 \\(0\\)，故 \\(v>0\\)；又因 \\(5uv\\ge0\\)，由 \\(5uv+v^2=1\\) 得 \\(v^2\\le1\\)，所以 \\(0<v\\le1\\)"},{"kind":"because","text":"由 \\(5uv+v^2=1\\) 得 \\(u=\\frac{1-v^2}{5v}\\)，所以 \\(u+v=\\frac{1}{5v}+\\frac{4v}{5}\\)"},{"kind":"therefore","text":"两项为正且乘积为 \\(\\frac{4}{25}\\)，故 \\(u+v\\ge2\\sqrt{\\frac{4}{25}}=\\frac{4}{5}\\)"},{"kind":"therefore","text":"等号要求 \\(\\frac{1}{5v}=\\frac{4v}{5}\\)，得 \\(v=\\frac{1}{2}\\)，再由条件得 \\(u=\\frac{3}{10}\\)；因此最小值可以取得"}],"derive":[["最小值","4/5"],["等号条件","x²=3/10，y²=1/2"]]}];
+    var STEP_LABELS = {"s1":"1 把二元约束降成关于 v 的正项和"};
+    var POLICIES   = {"s1":{"movable":false,"range":[0,0]}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 滑块主参数与派生参数的联动文案格式化器 */
+    var __LESSON_PARAM_LABEL_FORMATTER__;
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script>
+  function diagramMarkupFor() { return ''; }
+  function diagramMarkupForFrame() { return ''; }
+  function drawMini() { return ''; }
+  function groupTitle(section) { return section; }
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      diagramMarkupForFrame: typeof diagramMarkupForFrame === "function" ? diagramMarkupForFrame : undefined,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "参数",
+      paramLabelPrefix: "",
+      paramLabelFormatter: typeof __LESSON_PARAM_LABEL_FORMATTER__ === "function" ? __LESSON_PARAM_LABEL_FORMATTER__ : undefined,
+      goToProblemMode: "doubleScroll"
+    });
+  </script>
+</body>
+</html>

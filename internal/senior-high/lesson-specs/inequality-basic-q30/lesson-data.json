@@ -1,0 +1,194 @@
+{
+  "meta": {
+    "id": "inequality-basic-q30",
+    "outputPath": "site/problems/senior-high/inequalities/inequality-relations/inequality-basic-q30.html",
+    "pageTitle": "连续估计逐层消元求最小值",
+    "pageDescription": "连续估计逐层消元求最小值的逐步解析。",
+    "breadcrumbTitle": "基本不等式 · 多次应用变式 1",
+    "breadcrumbLabel": "解不等式与基本不等式",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=inequalities&section=inequality-relations&module=basic-inequalities"
+  },
+  "problem": {
+    "source": "",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "先合并两个分式，让 \\(b\\) 只留在一个整体中；第1次应用基本不等式消去 \\(b\\) 后，看到含 \\(c\\) 的部分有负项，必须从 \\(2a^2\\) 中留出一个 \\(a^2\\) 配成完全平方；最后对剩余的 \\(a^2\\) 与 \\(\\frac{4}{a^2}\\) 第2次应用基本不等式。",
+      "items": [
+        "合并分式：\\(\\frac{1}{ab}+\\frac{1}{a(a-b)}=\\frac{1}{b(a-b)}\\)。",
+        "消去 \\(b\\)：由 \\(b+(a-b)=a\\)，得 \\(b(a-b)\\le\\frac{a^2}{4}\\)，从而 \\(\\frac{1}{b(a-b)}\\ge\\frac{4}{a^2}\\)。",
+        "整理新式：\\(25c^2-10ac\\) 含有负项，必须补一个 \\(a^2\\) 才能得到 \\((a-5c)^2\\ge0\\)。",
+        "再次估计：\\(a^2+\\frac{4}{a^2}\\ge4\\)，联立三条取等关系求出 \\(a，b，c\\)。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "若 \\(a>b>c>0\\)，则 \\(2a^2+\\frac{1}{ab}+\\frac{1}{a(a-b)}-10ac+25c^2\\) 的最小值是（　　）。"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "多次应用基本不等式",
+      "title": "逐层消去 b、c、a，并联立取等条件",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "repeated-basic-inequality-flow",
+        "title": "合并分式后逐层消元，再联立三条取等关系",
+        "methodTag": "多次应用基本不等式｜逐层消元",
+        "count": {
+          "variables": [
+            "\\(a\\)",
+            "\\(b\\)",
+            "\\(c\\)"
+          ],
+          "conditions": [],
+          "estimatedRelations": 3,
+          "estimatedRounds": 2,
+          "relationSources": [
+            "基本不等式 ×2",
+            "平方非负 ×1"
+          ],
+          "note": "三个变量、没有等式条件，预计还缺三条取等关系；整理过程中再逐步判断它们分别来自哪里。"
+        },
+        "preparation": {
+          "stepNumber": "02",
+          "label": "合并两个分式，让 b 的位置清楚",
+          "current": "\\(2a^2+\\frac{1}{ab}+\\frac{1}{a(a-b)}-10ac+25c^2\\)",
+          "flow": [
+            "\\(\\frac{1}{ab}+\\frac{1}{a(a-b)}=\\frac{a-b+b}{ab(a-b)}\\)",
+            "\\(\\frac{a}{ab(a-b)}=\\frac{1}{b(a-b)}\\)"
+          ],
+          "result": "\\(2a^2-10ac+25c^2+\\frac{1}{b(a-b)}\\)",
+          "insight": "整理后，b 只出现在分母整体中；下一步先利用 b 与 a-b 的定和消去 b。"
+        },
+        "rounds": [
+          {
+            "stepNumber": "03",
+            "question": "怎样利用 b+(a-b)=a 消去 b？",
+            "current": "\\(2a^2-10ac+25c^2+\\frac{1}{b(a-b)}\\)",
+            "terms": [
+              "\\(b\\)",
+              "\\(a-b\\)"
+            ],
+            "reason": "两项均为正且和为 a；先求积的上界，再取倒数，就能把含 b 的整体换成只含 a 的下界。",
+            "relation": "\\(b+(a-b)=a\\)",
+            "inequality": "\\(b(a-b)\\le\\frac{a^2}{4}\\Rightarrow\\frac{1}{b(a-b)}\\ge\\frac{4}{a^2}\\)",
+            "result": "原式不小于 \\(2a^2-10ac+25c^2+\\frac{4}{a^2}\\)",
+            "insight": "变量 b 已消去；新出现的 4/a² 需要一个 a² 与它配对。",
+            "equality": "\\(b=a-b\\)",
+            "afterward": {
+              "stepNumber": "04",
+              "label": "留出一个 a²，处理含 c 的负项",
+              "current": "原式不小于 \\(2a^2-10ac+25c^2+\\frac{4}{a^2}\\)",
+              "observation": "25c²−10ac 含有负项，不能单独留下；必须从 2a² 中补给它一个 a²，才能组成恒非负的完全平方。",
+              "flow": [
+                "\\(2a^2=a^2+a^2\\)",
+                "\\(a^2-10ac+25c^2=(a-5c)^2\\ge0\\)"
+              ],
+              "result": "原式不小于 \\(\\left(a^2+\\frac{4}{a^2}\\right)+(a-5c)^2\\)",
+              "insight": "一个 a² 处理含 c 的负项，另一个 a² 留给第2次基本不等式。",
+              "equalityLabel": "记录平方取零",
+              "equality": "\\(a=5c\\)"
+            }
+          },
+          {
+            "stepNumber": "05",
+            "question": "只剩 a 后，怎样得到常数下界？",
+            "current": "原式不小于 \\(\\left(a^2+\\frac{4}{a^2}\\right)+(a-5c)^2\\)",
+            "terms": [
+              "\\(a^2\\)",
+              "\\(\\frac{4}{a^2}\\)"
+            ],
+            "reason": "两个正项的乘积恒为 4，而完全平方恒不小于 0。",
+            "relation": "\\(a^2\\cdot\\frac{4}{a^2}=4，(a-5c)^2\\ge0\\)",
+            "inequality": "\\(a^2+\\frac{4}{a^2}\\ge2\\sqrt{4}=4\\)",
+            "result": "原式不小于 \\(4\\)",
+            "insight": "a、b、c 已依次消去，得到常数下界；最后检查三条取等关系能否同时成立。",
+            "equality": "\\(a^2=\\frac{4}{a^2}\\Rightarrow a=\\sqrt{2}\\)"
+          }
+        ],
+        "equality": {
+          "stepNumber": "06",
+          "label": "联立三条取等关系",
+          "conditions": [
+            {
+              "label": "第1次基本不等式",
+              "expression": "\\(b=a-b\\)"
+            },
+            {
+              "label": "平方取零",
+              "expression": "\\(a=5c\\)"
+            },
+            {
+              "label": "第2次基本不等式",
+              "expression": "\\(a^2=\\frac{4}{a^2}\\)"
+            }
+          ],
+          "solved": "\\(a=\\sqrt{2}，b=\\frac{\\sqrt{2}}{2}，c=\\frac{\\sqrt{2}}{5}\\)",
+          "verification": "\\(\\sqrt{2}>\\frac{\\sqrt{2}}{2}>\\frac{\\sqrt{2}}{5}>0\\)，且代入原式等于 \\(4\\)"
+        },
+        "conclusion": "\\(2a^2+\\frac{1}{ab}+\\frac{1}{a(a-b)}-10ac+25c^2\\) 的最小值为 \\(4\\)",
+        "caption": "先合并分式并用第1次基本不等式消去 b；新出现 4/a² 后，含 c 的负项迫使我们留出一个 a² 配成平方；再用第2次基本不等式消去 a，最后联立三条取等关系。"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "\\(a>b>c>0\\Rightarrow b>0，a-b>0\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(\\frac{1}{ab}+\\frac{1}{a(a-b)}=\\frac{a-b+b}{ab(a-b)}=\\frac{1}{b(a-b)}\\)"
+        },
+        {
+          "kind": "because",
+          "text": "\\(b+(a-b)=a\\Rightarrow b(a-b)\\le\\left(\\frac{a}{2}\\right)^2=\\frac{a^2}{4}\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(\\frac{1}{b(a-b)}\\ge\\frac{4}{a^2}\\)，所以原式不小于 \\(2a^2-10ac+25c^2+\\frac{4}{a^2}\\)"
+        },
+        {
+          "kind": "because",
+          "text": "\\(25c^2-10ac\\) 含有负项，不能单独舍去；必须补上一个 \\(a^2\\)，才能形成 \\(a^2-10ac+25c^2=(a-5c)^2\\ge0\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "原式不小于 \\(\\left(a^2+\\frac{4}{a^2}\\right)+(a-5c)^2\\ge2\\sqrt{a^2\\cdot\\frac{4}{a^2}}+0=4\\)"
+        },
+        {
+          "kind": "because",
+          "text": "取等要求 \\(b=a-b，a=5c，a^2=\\frac{4}{a^2}\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(a=\\sqrt{2}，b=\\frac{\\sqrt{2}}{2}，c=\\frac{\\sqrt{2}}{5}\\)，且 \\(a>b>c>0\\)，故最小值为 \\(4\\)"
+        }
+      ],
+      "derive": [
+        [
+          "最小值",
+          "4"
+        ],
+        [
+          "取等",
+          "a=√2，b=√2/2，c=√2/5"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 逐层消去 b、c、a，并联立取等条件"
+  }
+}

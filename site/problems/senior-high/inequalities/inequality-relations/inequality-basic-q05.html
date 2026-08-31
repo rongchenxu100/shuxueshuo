@@ -3,20 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>补项构造定积求最小值 | 数学说</title>
-  <meta name="description" content="围绕分母补项构造固定乘积，并用基本不等式求最小值。" />
-  <meta property="og:title" content="补项构造定积求最小值 | 数学说" />
-  <meta property="og:description" content="围绕分母补项构造固定乘积，并用基本不等式求最小值。" />
+  <title>整理目标代数式后直接定积求和 | 数学说</title>
+  <meta name="description" content="整理目标代数式、让正项定积结构显形后直接应用基本不等式的逐步解析。" />
+  <meta property="og:title" content="整理目标代数式后直接定积求和 | 数学说" />
+  <meta property="og:description" content="整理目标代数式、让正项定积结构显形后直接应用基本不等式的逐步解析。" />
   <meta property="og:image" content="../../../../assets/images/share-default.png" />
   <meta property="og:type" content="article" />
-  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css?v=23" />
+  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css?v=37" />
 </head>
 <body>
   <header class="lesson-topbar" role="navigation" aria-label="页面导航">
     <a href="../../../../index.html">首页</a>
     <span aria-hidden="true">·</span>
     <a href="../../../../senior-high/index.html?chapter=inequalities&section=inequality-relations&module=basic-inequalities">解不等式与基本不等式</a>
-    <span class="lesson-title">基本不等式 · 练习 8-5</span>
+    <span class="lesson-title">基本不等式 · 练习 8-7</span>
   </header>
 
   <main class="page page-with-rail" id="main">
@@ -29,7 +29,7 @@
           </div>
         </section>
 
-        <aside class="lesson-key-points" aria-label="解题要点"><div class="lesson-key-points-title">解题要点</div><div class="lesson-key-points-content"><p class="lesson-key-points-lead">原式中的 x 未必为正，不能直接使用基本不等式；核心是由分母 x+1 反推配对正项，再用补 1、减 1 构造固定乘积，换元只负责简化书写。</p><ol><li>看目标：求和的最小值，寻找两个乘积固定的正项。</li><li>逆看分母：4/(x+1) 应与正项 x+1 配对，二者乘积恒为 4。</li><li>补项构造：把 x 写成 (x+1)-1，补出的 1 在括号外减回。</li><li>验等号：先令两个配对正项相等，再求出原变量 x。</li></ol></div></aside>
+        <aside class="lesson-key-points" aria-label="解题要点"><div class="lesson-key-points-title">解题要点</div><div class="lesson-key-points-content"><p class="lesson-key-points-lead">先整理目标代数式：把 x 写成 (x+1)-1，让正项 x+1 与 4/(x+1) 同时显形；两个完整正项乘积固定，可以直接使用基本不等式。</p><ol><li>观察目标代数式：由 x&gt;-1 可知 x+1&gt;0，分母提示需要让完整正项 x+1 出现。</li><li>整理显形：x=(x+1)-1，原式=[(x+1)+4/(x+1)]-1。</li><li>识别基本型：括号内两个正项的乘积恒为 4，括号外的 -1 最后处理。</li><li>验等号：令两个槽位相等，再还原得到 x=1。</li></ol></div></aside>
 
         <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
       </div>
@@ -68,12 +68,12 @@
   <script src="../../../../assets/js/baidu-stats.js"></script>
   <script src="../../../../assets/js/geometry-label-layout.js"></script>
   <script src="../../../../assets/js/interactive-lesson-ui.js"></script>
-  <script src="../../../../assets/js/lesson-page-runtime.js?v=33"></script>
+  <script src="../../../../assets/js/lesson-page-runtime.js?v=46"></script>
 
   <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
   <script>
-    var STEPS      = [{"id":"s1","section":"基本不等式","title":"围绕分母补项构造固定乘积","t":0,"showDiagram":false,"reasoning":[{"kind":"because","text":"由 \\(x>-1\\) 得 \\(x+1>0\\)，而 \\(x=(x+1)-1\\)"},{"kind":"because","text":"原式 \\(=(x+1)+\\frac4{x+1}-1\\)，其中 \\((x+1)\\cdot\\frac4{x+1}=4\\)"},{"kind":"therefore","text":"\\((x+1)+\\frac4{x+1}\\ge4\\)，所以原式不小于 \\(3\\)"},{"kind":"therefore","text":"当 \\(x+1=\\frac4{x+1}\\)，即 \\(x+1=2\\) 时取等号，因此 \\(x=1\\)"}],"derive":[["最小值","3"],["x","1"]],"visual":{"kind":"fixed-product-construction-flow","title":"分母已经给出线索，如何补出它的配对项？","methodTag":"构造型｜补项凑定积","goal":{"expression":"\\(x+\\frac4{x+1}\\)","task":"求含一次项与倒数项的最小值"},"strategy":"围绕分母凑出定积","initialCheck":{"terms":["\\(x\\)","\\(\\frac4{x+1}\\)"],"product":"\\(x\\cdot\\frac4{x+1}=\\frac{4x}{x+1}\\)","verdict":"乘积不固定，且 x 未必为正"},"clue":{"question":"分母 x+1 应与哪个正项配对？","condition":"\\(x>-1\\Rightarrow x+1>0\\)","observation":"\\(x+1\\) 是正项，并且与 \\(\\frac4{x+1}\\) 相乘时分母正好约掉，乘积恒为 \\(4\\)。"},"construction":{"kind":"completion","label":"补 1、减 1，补出配对正项","givenTerm":"\\(\\frac4{x+1}\\)","matchingTerm":"\\(x+1\\)","identity":"\\(x=(x+1)-1\\)","expanded":"\\(x+\\frac4{x+1}=\\left[(x+1)+\\frac4{x+1}\\right]-1\\)","focus":"\\((x+1)+\\frac4{x+1}\\)","constant":"\\(-1\\)","simplification":"令 \\(t=x+1>0\\)，可简写为 \\(t+\\frac4t-1\\)"},"fixedPair":{"question":"补出的两个正项，其乘积是否固定？","terms":["\\(x+1\\)","\\(\\frac4{x+1}\\)"],"product":"\\((x+1)\\cdot\\frac4{x+1}=4\\)，且两项均为正","verdict":"定积构造成功"},"application":{"template":"\\(u+v\\ge2\\sqrt{uv}\\)","mappings":[{"slot":"\\(u\\)","value":"\\(x+1\\)"},{"slot":"\\(v\\)","value":"\\(\\frac4{x+1}\\)"}],"inequality":"\\((x+1)+\\frac4{x+1}\\ge2\\sqrt4=4\\)","combine":"\\(x+\\frac4{x+1}=\\left[(x+1)+\\frac4{x+1}\\right]-1\\ge3\\)","conclusion":"最小值为 \\(3\\)"},"equality":{"condition":"\\(x+1=\\frac4{x+1}\\)","relation":"\\(x+1=2\\)","result":"\\(x=1\\)"},"caption":"先由分母反推配对正项，再用补 1、减 1 构造定积；换元只用于简化书写。"}}];
-    var STEP_LABELS = {"s1":"1 围绕分母补项构造固定乘积"};
+    var STEPS      = [{"id":"s1","section":"直接应用基本不等式","title":"整理目标代数式，让定积结构显形","t":0,"showDiagram":false,"visual":{"kind":"basic-inequality-mapping","title":"整理目标代数式，再让两个完整正项入槽","methodTag":"直接应用｜定积求和","conditionFlowLabel":"整理目标代数式，让正项结构显形","conditionFlow":["\\(x=(x+1)-1\\)","\\(x+\\frac{4}{x+1}=\\left[(x+1)+\\frac{4}{x+1}\\right]-1\\)","\\(x+1>0\\)"],"template":"彩色方槽与彩色圆槽表示两个完整正项","mappings":[{"slot":"第一个正项","shape":"square","value":"\\(x+1\\)","condition":"\\(x+1>0\\)"},{"slot":"第二个正项","shape":"circle","value":"\\(\\frac{4}{x+1}\\)","condition":"\\(\\frac{4}{x+1}>0\\)"}],"mappedSum":"\\((x+1)+\\frac{4}{x+1}\\)","mappedProduct":"\\(4\\)","mapped":"\\(\\frac{(x+1)+\\frac{4}{x+1}}{2}\\ge\\sqrt4\\)","stageLabel":"代入两个正项","fixedSourceLabel":"两项定积","fixedSourceTarget":"product","fixedCondition":"\\((x+1)\\cdot\\frac{4}{x+1}=4\\)","replacementText":"代入定积 4","replaced":"\\((x+1)+\\frac{4}{x+1}\\ge4\\)","simplifyLabel":"减去括号外的 1","substituted":"\\(x+\\frac{4}{x+1}\\ge3\\)","conclusionLabel":"最值结论","conclusion":"最小值为 \\(3\\)","equalityTemplate":"两个槽位相等","equalityMapped":"\\(x+1=\\frac{4}{x+1}\\iff x+1=2\\)","equalityContextLabel":"还原原变量","equalityResult":"\\(x=1\\)","caption":"补 1、减 1 是整理目标代数式的具体操作；整理后括号内已有两个乘积固定的正项，可以直接使用基本不等式。"},"reasoning":[{"kind":"because","text":"整理目标代数式：由 \\(x>-1\\) 得 \\(x+1>0\\)，并把 \\(x\\) 写成 \\(x=(x+1)-1\\)"},{"kind":"because","text":"原式 \\(=(x+1)+\\frac{4}{x+1}-1\\)，其中 \\((x+1)\\cdot\\frac{4}{x+1}=4\\)"},{"kind":"therefore","text":"\\((x+1)+\\frac{4}{x+1}\\ge4\\)，所以原式不小于 \\(3\\)"},{"kind":"therefore","text":"当 \\(x+1=\\frac{4}{x+1}\\)，即 \\(x+1=2\\) 时取等号，因此 \\(x=1\\)"}],"derive":[["最小值","3"],["x","1"]]}];
+    var STEP_LABELS = {"s1":"1 整理目标代数式，让定积结构显形"};
     var POLICIES   = {"s1":{"movable":false,"range":[0,0]}};
     /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
     var __LESSON_LEGEND_HTML__ = "";

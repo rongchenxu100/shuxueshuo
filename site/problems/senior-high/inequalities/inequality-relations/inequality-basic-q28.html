@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>整理条件与目标后直接应用基本不等式 | 数学说</title>
+  <meta name="description" content="整理条件与目标后直接应用基本不等式的逐步解析。" />
+  <meta property="og:title" content="整理条件与目标后直接应用基本不等式 | 数学说" />
+  <meta property="og:description" content="整理条件与目标后直接应用基本不等式的逐步解析。" />
+  <meta property="og:image" content="../../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css?v=39" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../../senior-high/index.html?chapter=inequalities&section=inequality-relations&module=basic-inequalities">解不等式与基本不等式</a>
+    <span class="lesson-title">基本不等式 · 直接应用变式 2</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          <div class="problem-full">
+            <div class="problem-line"><span>若正数 <span class="inline-math">x，y</span> 满足 <span class="inline-math">x<sup>2</sup>+xy-3=0</span>，则 <span class="inline-math">4x+y</span> 的最小值是________。</span><span class="answer-chip" id="answerI">答案：<span class="inline-math">6</span></span></div>
+          </div>
+        </section>
+
+        <aside class="lesson-key-points" aria-label="解题要点"><div class="lesson-key-points-title">解题要点</div><div class="lesson-key-points-content"><p class="lesson-key-points-lead">先把条件因式分解为 <span class="inline-math">x(x+y)=3</span>，找到乘积固定的两个正项整体；再把目标重组为 <span class="inline-math">4x+y=3x+(x+y)</span>，使条件中的整体直接进入基本不等式。</p><ol><li>整理条件：<span class="inline-math">x<sup>2</sup>+xy=3⇒ x(x+y)=3</span>。</li><li>重组目标：<span class="inline-math">4x+y=3x+(x+y)</span>。</li><li>确认正性：由 <span class="inline-math">x，y&gt;0</span>，得 <span class="inline-math">3x&gt;0，x+y&gt;0</span>。</li><li>寻找定积：<span class="inline-math">3x(x+y)=3·3=9</span>。</li><li>应用基本不等式：<span class="inline-math">3x+(x+y)≥2<span class="math-radical"><span class="math-radical-symbol">√</span><span class="math-radicand">3x(x+y)</span></span>=6</span>。</li><li>验等号：<span class="inline-math">3x=x+y⇒ y=2x</span>，代入原条件得 <span class="inline-math">x=1，y=2</span>。</li></ol></div></aside>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../../assets/js/lesson-page-runtime.js?v=48"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"s1","section":"直接应用基本不等式","title":"从条件找定积，再重组目标完成配对","t":0,"showDiagram":false,"visual":{"kind":"basic-inequality-mapping","title":"先从条件找定积，再重组目标完成配对","methodTag":"直接应用｜整理条件与目标","conditionFlowLabel":"条件和目标各整理一次，让同一组正项显形","conditionFlow":["\\(x^2+xy=3\\Rightarrow x(x+y)=3\\)","\\(4x+y=3x+(x+y)\\)","\\(3x>0，x+y>0\\)"],"template":"彩色方槽与彩色圆槽表示两个完整正项","mappings":[{"slot":"第一个正项","shape":"square","value":"\\(3x\\)","condition":"\\(3x>0\\)"},{"slot":"第二个正项","shape":"circle","value":"\\(x+y\\)","condition":"\\(x+y>0\\)"}],"mappedSum":"\\(3x+(x+y)\\)","mappedProduct":"\\(9\\)","mapped":"\\(\\frac{3x+(x+y)}{2}\\ge\\sqrt{3x(x+y)}\\)","stageLabel":"代入两个正项","fixedSourceLabel":"由条件得到定积","fixedSourceTarget":"product","fixedCondition":"\\(x(x+y)=3\\Rightarrow3x(x+y)=9\\)","replacementText":"代入定积 9","replaced":"\\(3x+(x+y)\\ge2\\sqrt{9}=6\\)","simplifyLabel":"还原原目标","substituted":"\\(4x+y\\ge6\\)","conclusionLabel":"最值结论","conclusion":"最小值为 \\(6\\)","equalityTemplate":"两个槽位相等","equalityMapped":"\\(3x=x+y\\Rightarrow y=2x\\)","equalityContextLabel":"代回原条件","equalityResult":"\\(x=1，y=2\\)","caption":"先把条件因式分解，识别出 x 与 x+y 的定积；再重组目标，使 3x 与 x+y 成为可以直接配对的两个正项。"},"reasoning":[{"kind":"because","text":"由 \\(x^2+xy-3=0\\)，整理并因式分解得 \\(x(x+y)=3\\)"},{"kind":"because","text":"目标可以重组为 \\(4x+y=3x+(x+y)\\)"},{"kind":"because","text":"\\(x，y>0\\)，所以两个完整正项 \\(3x>0，x+y>0\\)，且 \\(3x(x+y)=9\\)"},{"kind":"therefore","text":"由基本不等式，\\(4x+y=3x+(x+y)\\ge2\\sqrt{3x(x+y)}=6\\)"},{"kind":"because","text":"等号要求 \\(3x=x+y\\)，即 \\(y=2x\\)"},{"kind":"therefore","text":"代入原条件得 \\(3x^2=3\\)；由 \\(x>0\\) 得 \\(x=1\\)，进而 \\(y=2\\)，所以最小值为 \\(6\\)"}],"derive":[["最小值","6"],["取等","x=1，y=2"]]}];
+    var STEP_LABELS = {"s1":"1 从条件找定积，再重组目标完成配对"};
+    var POLICIES   = {"s1":{"movable":false,"range":[0,0]}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 滑块主参数与派生参数的联动文案格式化器 */
+    var __LESSON_PARAM_LABEL_FORMATTER__;
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script>
+  function diagramMarkupFor() { return ''; }
+  function diagramMarkupForFrame() { return ''; }
+  function drawMini() { return ''; }
+  function groupTitle(section) { return section; }
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      diagramMarkupForFrame: typeof diagramMarkupForFrame === "function" ? diagramMarkupForFrame : undefined,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "参数",
+      paramLabelPrefix: "",
+      paramLabelFormatter: typeof __LESSON_PARAM_LABEL_FORMATTER__ === "function" ? __LESSON_PARAM_LABEL_FORMATTER__ : undefined,
+      goToProblemMode: "doubleScroll"
+    });
+  </script>
+</body>
+</html>

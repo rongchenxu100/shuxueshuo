@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>利用条件消元后应用基本不等式求最小值 | 数学说</title>
+  <meta name="description" content="利用条件消元后应用基本不等式求最小值的逐步解析。" />
+  <meta property="og:title" content="利用条件消元后应用基本不等式求最小值 | 数学说" />
+  <meta property="og:description" content="利用条件消元后应用基本不等式求最小值的逐步解析。" />
+  <meta property="og:image" content="../../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css?v=39" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../../senior-high/index.html?chapter=inequalities&section=inequality-relations&module=basic-inequalities">解不等式与基本不等式</a>
+    <span class="lesson-title">基本不等式 · 条件消元法 1</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          <div class="problem-full">
+            <div class="problem-line"><span>若 <span class="inline-math">x&gt;0，y&gt;0</span>，且 <span class="inline-math"><span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">x+1</span></span>+<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">x+2y</span></span>=1</span>，则 <span class="inline-math">2x+y</span> 的最小值为（　　）。</span><span class="answer-chip" id="answerI">答案：<span class="inline-math">√3+1/2</span></span></div>
+          </div>
+        </section>
+
+        <aside class="lesson-key-points" aria-label="解题要点"><div class="lesson-key-points-title">解题要点</div><div class="lesson-key-points-content"><p class="lesson-key-points-lead">这道题不必新增变量。先通分整理条件，让 <span class="inline-math">x、y</span> 的关系显形；再用 <span class="inline-math">x</span> 表示 <span class="inline-math">y</span> 并代入目标，二元目标便降成一元表达式，随后应用基本不等式。</p><ol><li>整理条件：<span class="inline-math">(x+2y)+(x+1)=(x+1)(x+2y)</span>，化简得 <span class="inline-math">x(x+2y-1)=1</span>。</li><li>表示变量：由 <span class="inline-math">x&gt;0</span>，得 <span class="inline-math">x+2y-1=<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">x</span></span></span>，所以 <span class="inline-math">y=<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">2</span></span>(1+<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">x</span></span>-x)</span>。</li><li>代入目标：<span class="inline-math">2x+y=<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">2</span></span>(3x+<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">x</span></span>+1)</span>。</li><li>应用基本不等式：<span class="inline-math">3x+<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">x</span></span>≥2<span class="math-radical"><span class="math-radical-symbol">√</span><span class="math-radicand">3</span></span></span>，所以 <span class="inline-math">2x+y≥<span class="math-radical"><span class="math-radical-symbol">√</span><span class="math-radicand">3</span></span>+<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">2</span></span></span>。</li><li>回代等号：<span class="inline-math">3x=<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">x</span></span>⇒ x=<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator"><span class="math-radical"><span class="math-radical-symbol">√</span><span class="math-radicand">3</span></span></span></span></span>，再代入 <span class="inline-math">y=<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">2</span></span>(1+<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">x</span></span>-x)</span>，得 <span class="inline-math">y=<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">2</span></span>+<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator"><span class="math-radical"><span class="math-radical-symbol">√</span><span class="math-radicand">3</span></span></span></span></span>。</li></ol></div></aside>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../../assets/js/lesson-page-runtime.js?v=48"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"s1","section":"条件消元法","title":"整理条件消去 y，再应用基本不等式","t":0,"showDiagram":false,"visual":{"kind":"elimination-basic-inequality-lifecycle","title":"消元（整理条件 → 表示变量 → 代入目标）→ 应用基本不等式 → 回代等号","methodTag":"条件消元法｜利用条件消去一个变量","elimination":{"label":"整理条件并用 x 表示 y","observation":"不引入新变量，先让条件中的变量关系显形，再把 y 消去","conditionFlow":["\\(\\frac{1}{x+1}+\\frac{1}{x+2y}=1\\)","\\((x+2y)+(x+1)=(x+1)(x+2y)\\)","\\(x(x+2y-1)=1\\)"],"isolateFlow":["\\(x+2y-1=\\frac{1}{x}\\)","\\(y=\\frac{1}{2}(1+\\frac{1}{x}-x)\\)"],"targetFlow":["\\(2x+y\\)","\\(2x+\\frac{1}{2}(1+\\frac{1}{x}-x)\\)","\\(\\frac{1}{2}(3x+\\frac{1}{x}+1)\\)"],"condition":"\\(x>0\\)","target":"\\(\\frac{1}{2}(3x+\\frac{1}{x}+1)\\)","handoffLabel":"消元后发现：两个正项的乘积固定"},"basicInequality":{"label":"应用基本不等式求最小值","methodTag":"发现结构｜两正项乘积固定","observation":"常数 1 保留不动，对 3x 与 1/x 应用基本不等式","positiveTerms":[{"value":"\\(3x\\)","condition":"\\(3x>0\\)"},{"value":"\\(\\frac{1}{x}\\)","condition":"\\(\\frac{1}{x}>0\\)"}],"product":"\\(3x\\cdot\\frac{1}{x}=3\\)","inequality":"\\(3x+\\frac{1}{x}\\ge2\\sqrt{3}\\)","bound":"\\(2x+y\\ge\\frac{1}{2}(2\\sqrt{3}+1)=\\sqrt{3}+\\frac{1}{2}\\)","equality":"\\(3x=\\frac{1}{x}\\)","equalitySolved":"\\(x=\\frac{1}{\\sqrt{3}}\\)"},"restoration":{"label":"求解等号成立条件","variableLabel":"x、y","transformedEquality":"\\(3x=\\frac{1}{x}\\)","solved":"\\(x=\\frac{1}{\\sqrt{3}}\\)","reverse":"\\(y=\\frac{1}{2}(1+\\frac{1}{x}-x)\\)","result":"\\(x=\\frac{1}{\\sqrt{3}}，y=\\frac{1}{2}+\\frac{1}{\\sqrt{3}}\\)","verification":"\\(\\frac{\\sqrt{3}}{\\sqrt{3}+1}+\\frac{1}{\\sqrt{3}+1}=1\\)"},"conclusion":"\\(2x+y\\) 的最小值是 \\(\\sqrt{3}+\\frac{1}{2}\\)","caption":"三步相连：先整理条件，用一个原变量表示另一个原变量并代入目标；得到一元目标后应用基本不等式，最后回代求出完整取等条件。"},"reasoning":[{"kind":"because","text":"原条件含两个分式，先通分去分母：\\((x+2y)+(x+1)=(x+1)(x+2y)\\)"},{"kind":"therefore","text":"展开并整理得 \\(x^2+2xy-x-1=0\\)，即 \\(x(x+2y-1)=1\\)"},{"kind":"because","text":"由 \\(x>0\\)，可除以 \\(x\\)，得到 \\(x+2y-1=\\frac{1}{x}\\)"},{"kind":"therefore","text":"用 \\(x\\) 表示 \\(y\\)：\\(y=\\frac{1}{2}(1+\\frac{1}{x}-x)\\)"},{"kind":"therefore","text":"代入目标，\\(2x+y=\\frac{1}{2}(3x+\\frac{1}{x}+1)\\)"},{"kind":"because","text":"\\(3x>0，\\frac{1}{x}>0\\)，且 \\(3x\\cdot\\frac{1}{x}=3\\)"},{"kind":"therefore","text":"由基本不等式，\\(3x+\\frac{1}{x}\\ge2\\sqrt{3}\\)，故 \\(2x+y\\ge\\sqrt{3}+\\frac{1}{2}\\)"},{"kind":"because","text":"等号要求 \\(3x=\\frac{1}{x}\\)，结合 \\(x>0\\)，得 \\(x=\\frac{1}{\\sqrt{3}}\\)"},{"kind":"therefore","text":"回代得 \\(y=\\frac{1}{2}+\\frac{1}{\\sqrt{3}}>0\\)，且满足原条件，所以最小值为 \\(\\sqrt{3}+\\frac{1}{2}\\)"}],"derive":[["最小值","√3+1/2"],["取等","x=1/√3，y=1/2+1/√3"]]}];
+    var STEP_LABELS = {"s1":"1 整理条件消去 y，再应用基本不等式"};
+    var POLICIES   = {"s1":{"movable":false,"range":[0,0]}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 滑块主参数与派生参数的联动文案格式化器 */
+    var __LESSON_PARAM_LABEL_FORMATTER__;
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script>
+  function diagramMarkupFor() { return ''; }
+  function diagramMarkupForFrame() { return ''; }
+  function drawMini() { return ''; }
+  function groupTitle(section) { return section; }
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      diagramMarkupForFrame: typeof diagramMarkupForFrame === "function" ? diagramMarkupForFrame : undefined,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "参数",
+      paramLabelPrefix: "",
+      paramLabelFormatter: typeof __LESSON_PARAM_LABEL_FORMATTER__ === "function" ? __LESSON_PARAM_LABEL_FORMATTER__ : undefined,
+      goToProblemMode: "doubleScroll"
+    });
+  </script>
+</body>
+</html>

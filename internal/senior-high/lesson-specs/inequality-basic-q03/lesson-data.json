@@ -13,12 +13,12 @@
     "source": "高一暑假目标班 · 第4讲",
     "keyPoints": {
       "title": "解题要点",
-      "lead": "求正项和的最小值时，先检查原两项是否定积；若不固定，就从题设中寻找能消去变量的因子构造定积。",
+      "lead": "目标 \\(x+4y\\) 是正一次式，倒数条件 \\(\\frac{1}{x}+\\frac{1}{y}=1\\) 是负一次式；两者相乘可配成 0 次齐次式，使所有变量同步放大或缩小时式子的值保持不变；展开后只剩常数项和“一个变量是另一个的几倍”。",
       "items": [
-        "看目标：正项和求最小值，先寻找固定乘积。",
-        "查定积：x·4y=4xy 不固定，原两项不能直接使用基本不等式。",
-        "找线索：条件整体等于 1 且含倒数，可以乘入并消去变量。",
-        "验等号：构造出的两个正项相等，并且满足原条件。"
+        "看次数：目标 \\(x+4y\\) 为正一次，条件 \\(\\frac{1}{x}+\\frac{1}{y}\\) 为负一次。",
+        "配齐次：乘入等于 1 的条件，总次数变为 0，目标值保持不变。",
+        "看倍数：展开后出现 \\(\\frac{x}{y}\\) 与 \\(\\frac{4y}{x}\\)，两个正项表达式的乘积恒为 \\(4\\)。",
+        "验等号：构造出的两个正项表达式相等，并且满足原条件。"
       ]
     },
     "lines": [
@@ -30,19 +30,20 @@
   "steps": [
     {
       "id": "s1",
-      "section": "基本不等式",
-      "title": "从目标出发构造固定乘积",
+      "section": "配齐次式",
+      "title": "配成 0 次齐次式，再从两个正项表达式中找定积",
       "t": 0,
       "showDiagram": false,
       "visual": {
         "kind": "fixed-product-construction-flow",
-        "title": "原两项没有定积，如何构造出定积？",
-        "methodTag": "构造型｜寻找固定乘积",
+        "variant": "homogeneous-reduction",
+        "title": "正一次与负一次相乘，同步放缩后数值不变",
+        "methodTag": "配齐次式｜正一次 × 负一次",
         "goal": {
           "expression": "\\(x+4y\\)",
           "task": "求正项和的最小值"
         },
-        "strategy": "想办法构造定积",
+        "strategy": "目标与条件次数相反，相乘配成 0 次齐次式",
         "initialCheck": {
           "terms": [
             "\\(x\\)",
@@ -52,45 +53,53 @@
           "verdict": "乘积不固定，不能直接使用"
         },
         "clue": {
-          "question": "题设中有什么能让变量相消？",
+          "question": "题设中有没有次数相反的定值式？",
           "condition": "\\(\\frac{1}{x}+\\frac{1}{y}=1\\)",
-          "observation": "条件含有 \\(x、y\\) 的倒数，并且整体等于 \\(1\\)：乘入它不会改变目标式。"
+          "observation": "目标为正一次，倒数和为负一次；两者相乘总次数为 0。条件整体等于 1，所以乘入后目标值不变。"
+        },
+        "degreeBalance": {
+          "target": {
+            "label": "目标表达式",
+            "expression": "\\(x+4y\\)",
+            "degree": "+1",
+            "scale": "\\(x+4y\\) → \\(k(x+4y)\\)",
+            "note": "变量同步放大 k 倍，目标也放大 k 倍"
+          },
+          "condition": {
+            "label": "题设条件式",
+            "expression": "\\(\\frac{1}{x}+\\frac{1}{y}\\)",
+            "degree": "−1",
+            "scale": "\\(\\frac{1}{x}+\\frac{1}{y}\\) → \\(\\frac{1}{k}(\\frac{1}{x}+\\frac{1}{y})\\)",
+            "note": "变量同步放大 k 倍，倒数和缩小为原来的 1/k"
+          },
+          "result": {
+            "label": "相乘后的总次数",
+            "expression": "\\((x+4y)(\\frac{1}{x}+\\frac{1}{y})\\)",
+            "degree": "0",
+            "scale": "\\(k\\cdot\\frac{1}{k}=1\\)",
+            "note": "共同放大或缩小被抵消，只剩变量间的倍数关系"
+          }
         },
         "construction": {
-          "label": "乘入等于 1 的条件",
+          "kind": "homogeneous",
+          "label": "乘入负一次条件，配成零次齐次式",
           "identity": "\\(x+4y=(x+4y)(\\frac{1}{x}+\\frac{1}{y})\\)",
-          "expanded": "\\(=1+\\frac{x}{y}+\\frac{4y}{x}+4=5+\\frac{x}{y}+\\frac{4y}{x}\\)",
-          "rows": [
-            "\\(x\\)",
-            "\\(4y\\)"
+          "identityNote": "题设条件式等于 1，所以乘入后目标表达式的值不变。",
+          "expanded": "\\(x+4y=5+\\frac{x}{y}+\\frac{4y}{x}\\)",
+          "constant": "\\(5\\)",
+          "positiveTerms": [
+            {
+              "shape": "square",
+              "value": "\\(\\frac{x}{y}\\)",
+              "condition": "\\(\\frac{x}{y}>0\\)"
+            },
+            {
+              "shape": "circle",
+              "value": "\\(\\frac{4y}{x}\\)",
+              "condition": "\\(\\frac{4y}{x}>0\\)"
+            }
           ],
-          "columns": [
-            "\\(\\frac{1}{x}\\)",
-            "\\(\\frac{1}{y}\\)"
-          ],
-          "cells": [
-            [
-              {
-                "text": "\\(1\\)",
-                "role": "constant"
-              },
-              {
-                "text": "\\(\\frac{x}{y}\\)",
-                "role": "constructed"
-              }
-            ],
-            [
-              {
-                "text": "\\(\\frac{4y}{x}\\)",
-                "role": "constructed"
-              },
-              {
-                "text": "\\(4\\)",
-                "role": "constant"
-              }
-            ]
-          ],
-          "constantSum": "常数项：\\(1+4=5\\)"
+          "ratio": "令 \\(t=\\frac{x}{y}>0\\)，则 \\(\\frac{4y}{x}=\\frac{4}{t}\\)：两个变量被压缩成一个倍数 \\(t\\)。"
         },
         "fixedPair": {
           "question": "观察展开后的式子，是否可以找到定积？",
@@ -98,19 +107,23 @@
             "\\(\\frac{x}{y}\\)",
             "\\(\\frac{4y}{x}\\)"
           ],
-          "product": "\\(\\frac{x}{y}\\cdot\\frac{4y}{x}=4\\cdot\\frac{x}{x}\\cdot\\frac{y}{y}=4\\)",
+          "product": "\\(\\frac{x}{y}\\cdot\\frac{4y}{x}=4\\)",
           "verdict": "定积构造成功"
         },
         "application": {
-          "template": "\\(a+b\\ge2\\sqrt{ab}\\)",
+          "template": "两个彩色槽位表示两个完整的正项表达式",
           "mappings": [
             {
-              "slot": "\\(a\\)",
-              "value": "\\(\\frac{x}{y}\\)"
+              "slot": "第一个槽位",
+              "shape": "square",
+              "value": "\\(\\frac{x}{y}\\)",
+              "condition": "\\(\\frac{x}{y}>0\\)"
             },
             {
-              "slot": "\\(b\\)",
-              "value": "\\(\\frac{4y}{x}\\)"
+              "slot": "第二个槽位",
+              "shape": "circle",
+              "value": "\\(\\frac{4y}{x}\\)",
+              "condition": "\\(\\frac{4y}{x}>0\\)"
             }
           ],
           "inequality": "\\(\\frac{x}{y}+\\frac{4y}{x}\\ge2\\sqrt4=4\\)",
@@ -122,7 +135,7 @@
           "relation": "\\(x=2y\\)",
           "result": "\\(x=3，y=\\frac{3}{2}\\)"
         },
-        "caption": "先以“构造定积”为目标寻找倒数，再通过展开后的交叉项发现固定乘积。"
+        "caption": "配成 0 次齐次式后，所有变量同步放大或缩小都不改变式子的值；展开式只剩常数，以及“一个变量是另一个的几倍”，再由两个正项表达式得到定积。"
       },
       "reasoning": [
         {
@@ -164,6 +177,6 @@
     }
   },
   "stepLabels": {
-    "s1": "1 从目标出发构造固定乘积"
+    "s1": "1 配成 0 次齐次式，再从两个正项表达式中找定积"
   }
 }

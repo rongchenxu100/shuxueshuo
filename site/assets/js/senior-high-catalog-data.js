@@ -7468,7 +7468,9 @@ window.__SENIOR_HIGH_CATALOG__ = {
           "children": [
             "均值不等式",
             "一正、二定、三相等",
-            "配凑与换元"
+            "配齐次式",
+            "连续构造定积",
+            "换元降维"
           ]
         },
         {
@@ -8895,7 +8897,7 @@ window.__SENIOR_HIGH_CATALOG__ = {
           "label": "基本不等式",
           "type": "knowledge",
           "status": "published",
-          "description": "掌握两个正数的基本不等式，围绕“一正、二定、三相等”判断能否求得最值，并学会通过条件参与或目标重构，构造两个乘积固定的正项。",
+          "description": "掌握两个正数的基本不等式，围绕“一正、二定、三相等”判断能否求得最值，并学会整理目标表达式、配齐次式、寻找对称结构、连续构造与整体换元，得到两个定和或定积的正项表达式。",
           "knowledgeGroups": [
             {
               "id": "basic-theorem",
@@ -8903,22 +8905,62 @@ window.__SENIOR_HIGH_CATALOG__ = {
               "eyebrow": "均值关系",
               "title": "基本不等式与等号条件",
               "category": "property",
-              "lessonCount": 2
+              "showExercises": false,
+              "lessonCount": 0
             },
             {
-              "id": "fixed-transform",
+              "id": "basic-application",
+              "number": "01",
+              "eyebrow": "基本型",
+              "title": "直接应用基本不等式",
+              "category": "property",
+              "section": "method",
+              "exampleGroup": "直接应用基本不等式",
+              "lessonCount": 10
+            },
+            {
+              "id": "homogeneous-form",
               "number": "02",
-              "eyebrow": "条件参与型",
-              "title": "乘入条件，展开找定积",
+              "eyebrow": "齐次消元型",
+              "title": "配齐次式",
               "category": "description",
-              "lessonCount": 2
+              "section": "method",
+              "lessonCount": 5
             },
             {
-              "id": "substitution",
+              "id": "symmetric-structure",
               "number": "03",
-              "eyebrow": "目标重构型",
-              "title": "围绕分母补项凑定积",
-              "category": "enumeration",
+              "eyebrow": "对称消元型",
+              "title": "找对称结构",
+              "category": "description",
+              "section": "method",
+              "lessonCount": 4
+            },
+            {
+              "id": "iterated-product",
+              "number": "04",
+              "eyebrow": "连续配对型",
+              "title": "多次应用基本不等式",
+              "category": "description",
+              "section": "method",
+              "lessonCount": 4
+            },
+            {
+              "id": "substitution-method",
+              "number": "05",
+              "eyebrow": "整体代换型",
+              "title": "换元法",
+              "category": "description",
+              "section": "method",
+              "lessonCount": 5
+            },
+            {
+              "id": "conditional-elimination",
+              "number": "06",
+              "eyebrow": "条件降维型",
+              "title": "条件消元法",
+              "category": "description",
+              "section": "method",
               "lessonCount": 2
             }
           ],
@@ -8958,50 +9000,132 @@ window.__SENIOR_HIGH_CATALOG__ = {
               "basicInequalityConditions": true
             },
             {
-              "groupId": "fixed-transform",
-              "category": "description",
-              "title": "条件参与型：乘入条件，展开找定积",
+              "groupId": "basic-application",
+              "category": "property",
+              "title": "识别并整理出两个完整的正项表达式，应用基本不等式",
               "ordered": false,
               "body": [
-                "当目标中的原两项乘积不固定时，先检查题设是否给出了可以参与运算的定值条件。",
-                "将目标式与条件相乘并完整展开，常数项先合并，重点观察两个交叉正项的乘积能否消去变量。",
-                "找到定积后使用基本不等式，最后由两个交叉正项相等反求变量并核对原条件。"
+                "基本不等式比较的不是两个特定字母，而是两个完整的正项表达式。",
+                "原式没有直接显露两个正项表达式时，先整理目标表达式，让题设条件或正项结构显形；展开、通分与补项只是具体的整理操作。",
+                "蓝色方槽与橙色圆槽都可以放入正变量、正常数、完整表达式或函数值，但必须验证放入槽位的整个表达式大于 0。",
+                "把两个正项表达式分别装入槽位后，同时替换和、积以及等号条件；两个槽位相等时才能取等号。"
               ],
               "bodyHtml": [
-                "当目标中的原两项乘积不固定时，先检查题设是否给出了可以参与运算的定值条件。",
-                "将目标式与条件相乘并完整展开，常数项先合并，重点观察两个交叉正项的乘积能否消去变量。",
-                "找到定积后使用基本不等式，最后由两个交叉正项相等反求变量并核对原条件。"
+                "基本不等式比较的不是两个特定字母，而是两个完整的正项表达式。",
+                "原式没有直接显露两个正项表达式时，先整理目标表达式，让题设条件或正项结构显形；展开、通分与补项只是具体的整理操作。",
+                "蓝色方槽与橙色圆槽都可以放入正变量、正常数、完整表达式或函数值，但必须验证放入槽位的整个表达式大于 0。",
+                "把两个正项表达式分别装入槽位后，同时替换和、积以及等号条件；两个槽位相等时才能取等号。"
               ],
-              "fixedProductConditionVisual": true
+              "basicInequalitySlotVisual": true
             },
             {
-              "groupId": "substitution",
-              "category": "enumeration",
-              "title": "目标重构型：围绕分母补项凑定积",
+              "groupId": "homogeneous-form",
+              "category": "description",
+              "title": "将目标表达式配成 0 次齐次式，消元求解",
               "ordered": false,
               "body": [
-                "看到 \\(\\frac{k}{x+c}\\) 时，先反推它需要与正项 \\(p(x+c)\\) 配对，而不是先机械换元。",
-                "利用 \\(px=p(x+c)-pc\\) 补出配对正项，并把多补的常数减回；此时两项乘积恒为 \\(pk\\)。",
-                "换元 \\(t=x+c>0\\) 只用于简化书写，核心仍是围绕分母补项构造定积。"
+                "齐次次数描述的是：把所有变量同时乘同一个正数后，整个式子会按几次方变化。",
+                "配齐次式的目的不是让形式整齐，而是把总次数配成 0；这时所有变量同步放大或缩小，式子的值保持不变。",
+                "0 次齐次式只需研究“一个变量是另一个的几倍”；展开后常出现 x/y、y/x，它们可分别看成 t、1/t，从而把两个变量化成一个倍数。",
+                "配齐次式可以先分成两类：整体配齐，是把整个目标与次数相反的定值条件相乘；局部配齐，是只修补目标内部不齐次的部分，例如补齐一个低次项，或逐个补齐多个括号。最后都要展开或约分，圈出两个乘积固定的正项表达式。"
               ],
               "bodyHtml": [
-                "看到 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">k</span><span class=\"math-denominator\">x+c</span></span></span> 时，先反推它需要与正项 <span class=\"inline-math\">p(x+c)</span> 配对，而不是先机械换元。",
-                "利用 <span class=\"inline-math\">px=p(x+c)-pc</span> 补出配对正项，并把多补的常数减回；此时两项乘积恒为 <span class=\"inline-math\">pk</span>。",
-                "换元 <span class=\"inline-math\">t=x+c&gt;0</span> 只用于简化书写，核心仍是围绕分母补项构造定积。"
+                "齐次次数描述的是：把所有变量同时乘同一个正数后，整个式子会按几次方变化。",
+                "配齐次式的目的不是让形式整齐，而是把总次数配成 0；这时所有变量同步放大或缩小，式子的值保持不变。",
+                "0 次齐次式只需研究“一个变量是另一个的几倍”；展开后常出现 x/y、y/x，它们可分别看成 t、1/t，从而把两个变量化成一个倍数。",
+                "配齐次式可以先分成两类：整体配齐，是把整个目标与次数相反的定值条件相乘；局部配齐，是只修补目标内部不齐次的部分，例如补齐一个低次项，或逐个补齐多个括号。最后都要展开或约分，圈出两个乘积固定的正项表达式。"
               ],
-              "fixedProductCompletionVisual": true
+              "basicInequalityHomogenizationVisual": true
+            },
+            {
+              "groupId": "symmetric-structure",
+              "category": "description",
+              "title": "把对称式改写成和与积，消元求解",
+              "ordered": false,
+              "body": [
+                "对一个二元表达式，交换 x、y 后表达式保持不变，就称它具有对称结构。",
+                "实际解题时，需要分别检查目标表达式与条件表达式；二者都具有对称结构，才能统一改写为基本对称量 s=x+y 与 p=xy。",
+                "若原目标与条件的系数暂时不对称，先观察目标中的整体组合或系数关系，通过缩放换元把二者同步改写；只有变形后出现对称结构，才进入交换校验。",
+                "题设往往会固定 s 或 p；再利用基本不等式 s²≥4p 控制另一个量，就能把二元问题压缩成一元问题。",
+                "常用改写有 x²+y²=s²−2p、1/x+1/y=s/p、x/y+y/x=(s²−2p)/p；展开、通分、缩放换元和因式分解都是让对称结构显形的工具。"
+              ],
+              "bodyHtml": [
+                "对一个二元表达式，交换 x、y 后表达式保持不变，就称它具有对称结构。",
+                "实际解题时，需要分别检查目标表达式与条件表达式；二者都具有对称结构，才能统一改写为基本对称量 s=x+y 与 p=xy。",
+                "若原目标与条件的系数暂时不对称，先观察目标中的整体组合或系数关系，通过缩放换元把二者同步改写；只有变形后出现对称结构，才进入交换校验。",
+                "题设往往会固定 s 或 p；再利用基本不等式 s²≥4p 控制另一个量，就能把二元问题压缩成一元问题。",
+                "常用改写有 x²+y²=s²−2p、1/x+1/y=s/p、x/y+y/x=(s²−2p)/p；展开、通分、缩放换元和因式分解都是让对称结构显形的工具。"
+              ],
+              "basicInequalitySymmetryVisual": true
+            },
+            {
+              "groupId": "iterated-product",
+              "category": "description",
+              "title": "多次应用基本不等式：逐次配对并联立等号",
+              "ordered": false,
+              "body": [
+                "要确定几个正变量，就需要几条有效关系。题目已有的等式条件先算进去，剩下的是还需要补出的取等关系。",
+                "常用估算公式：待补取等关系数＝正变量个数−题目已有的有效等式条件数。这里的有效条件，是能够提供一条新变量关系的等式条件。",
+                "待补关系不一定全部来自基本不等式：平方非负取零等步骤也能提供取等关系；因此基本不等式的实际应用次数要在整理结构后逐步判断。",
+                "每次估计都应当消去一个变量或让剩余结构更简单，最后把基本不等式、平方取零与原题条件提供的全部关系联立核对。"
+              ],
+              "bodyHtml": [
+                "要确定几个正变量，就需要几条有效关系。题目已有的等式条件先算进去，剩下的是还需要补出的取等关系。",
+                "常用估算公式：待补取等关系数＝正变量个数−题目已有的有效等式条件数。这里的有效条件，是能够提供一条新变量关系的等式条件。",
+                "待补关系不一定全部来自基本不等式：平方非负取零等步骤也能提供取等关系；因此基本不等式的实际应用次数要在整理结构后逐步判断。",
+                "每次估计都应当消去一个变量或让剩余结构更简单，最后把基本不等式、平方取零与原题条件提供的全部关系联立核对。"
+              ],
+              "basicInequalityRepeatedVisual": true
+            },
+            {
+              "groupId": "substitution-method",
+              "category": "description",
+              "title": "换元法：把复杂整体换成简单变量",
+              "ordered": false,
+              "body": [
+                "换元法的核心是把遮住结构的复杂整体翻译成简单变量。常见入口包括复杂分母整体换元与根号整体换元；被换的整体不要求是一次式。",
+                "是否值得换元，关键看结构收益：定义域、条件和目标能否同步变简单，而不只是把原式换成更短的记号。",
+                "换元后必须写清新变量的范围与符号，并保留还原关系；换元不必一一对应，但取等值必须能由原变量实际取得。",
+                "换元的任务只到结构显形：分母换元后可能出现齐次结构，根号换元后可能出现平方和定值；再根据新结构选择后续方法。"
+              ],
+              "bodyHtml": [
+                "换元法的核心是把遮住结构的复杂整体翻译成简单变量。常见入口包括复杂分母整体换元与根号整体换元；被换的整体不要求是一次式。",
+                "是否值得换元，关键看结构收益：定义域、条件和目标能否同步变简单，而不只是把原式换成更短的记号。",
+                "换元后必须写清新变量的范围与符号，并保留还原关系；换元不必一一对应，但取等值必须能由原变量实际取得。",
+                "换元的任务只到结构显形：分母换元后可能出现齐次结构，根号换元后可能出现平方和定值；再根据新结构选择后续方法。"
+              ],
+              "basicInequalitySubstitutionVisual": true
+            },
+            {
+              "groupId": "conditional-elimination",
+              "category": "description",
+              "title": "条件消元法：利用条件消去一个变量",
+              "ordered": false,
+              "body": [
+                "当题设条件经过通分、展开或因式分解后，能够把一个变量表示成另一个变量的式子时，可将它代入目标消去一个变量，把二元最值降成一元最值。",
+                "消元包含三个连续动作：整理条件、表示变量、代入目标；全程使用原变量，不额外引入新变量。",
+                "得到一元目标后，再根据结构选择基本不等式、配方、二次函数或单调性。",
+                "求出取等变量后，必须回代条件求出另一个变量，并检查定义域与原条件。"
+              ],
+              "bodyHtml": [
+                "当题设条件经过通分、展开或因式分解后，能够把一个变量表示成另一个变量的式子时，可将它代入目标消去一个变量，把二元最值降成一元最值。",
+                "消元包含三个连续动作：整理条件、表示变量、代入目标；全程使用原变量，不额外引入新变量。",
+                "得到一元目标后，再根据结构选择基本不等式、配方、二次函数或单调性。",
+                "求出取等变量后，必须回代条件求出另一个变量，并检查定义域与原条件。"
+              ],
+              "basicInequalityEliminationVisual": true
             }
           ],
           "examples": [
             {
-              "group": "基本不等式",
+              "group": "直接应用基本不等式",
               "knowledgeCategory": "property",
               "title": "定和求积的最大值",
               "numberLabel": "练习 8 · 1",
               "display": "featured",
               "hints": [
-                "m、n 都是正数，可以直接应用基本不等式。",
-                "检查 m=n 时是否满足 m+n=2。"
+                "把正项表达式 m、n 分别放进彩色槽位。",
+                "检查两个槽位相等，即 m=n 时，是否满足 m+n=2。"
               ],
               "answerSchema": {
                 "type": "exact-expression",
@@ -9031,14 +9155,14 @@ window.__SENIOR_HIGH_CATALOG__ = {
               }
             },
             {
-              "group": "基本不等式",
+              "group": "直接应用基本不等式",
               "knowledgeCategory": "property",
               "title": "倒数和定值求积的最小值",
               "numberLabel": "练习 8 · 2",
               "display": "featured",
               "hints": [
-                "把倒数和通分为 (x+y)/(xy)。",
-                "用 x+y≥2√xy 建立关于 √xy 的不等式。"
+                "把正项表达式 1/x、1/y 分别放进彩色槽位。",
+                "先得到 1/√xy≤1/2，再利用正数取倒数反向求出 xy 的下界。"
               ],
               "answerSchema": {
                 "type": "exact-expression",
@@ -9059,7 +9183,7 @@ window.__SENIOR_HIGH_CATALOG__ = {
                 "problem": {
                   "lines": [
                     {
-                      "text": "2. 已知正实数 \\(x，y\\) 满足 \\(\\frac1x+\\frac1y=1\\)，则 \\(xy\\) 最小值为　　　　。",
+                      "text": "2. 已知正实数 \\(x，y\\) 满足 \\(\\frac{1}{x}+\\frac{1}{y}=1\\)，则 \\(xy\\) 最小值为　　　　。",
                       "html": "2. 已知正实数 <span class=\"inline-math\">x，y</span> 满足 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">x</span></span>+<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">y</span></span>=1</span>，则 <span class=\"inline-math\">xy</span> 最小值为　　　　。"
                     }
                   ]
@@ -9068,19 +9192,19 @@ window.__SENIOR_HIGH_CATALOG__ = {
               }
             },
             {
-              "group": "乘入条件，展开找定积",
-              "knowledgeCategory": "description",
-              "title": "倒数和定值求线性式的最小值",
-              "numberLabel": "练习 8 · 3",
+              "group": "直接应用基本不等式",
+              "knowledgeCategory": "property",
+              "title": "整理目标代数式后直接定积求和",
+              "numberLabel": "练习 8 · 5",
               "display": "featured",
               "hints": [
-                "把 x+4y 乘以已知的倒数和 1。",
-                "展开后检查 x/y 与 4y/x 的乘积。"
+                "合并前两项并通分，让题设中的 ab 显形后代入 ab=1。",
+                "把所得正项 (a+b)/2、8/(a+b) 放进彩色槽位，检查两项定积。"
               ],
               "answerSchema": {
                 "type": "exact-expression",
                 "expected": [
-                  "9"
+                  "4"
                 ],
                 "input": {
                   "mode": "math-expression",
@@ -9091,68 +9215,70 @@ window.__SENIOR_HIGH_CATALOG__ = {
                 }
               },
               "lesson": {
-                "id": "inequality-basic-q03",
-                "title": "倒数和定值求线性式的最小值",
+                "id": "inequality-basic-q08",
+                "title": "整理目标代数式后直接定积求和",
+                "source": "2020 天津高考",
                 "problem": {
                   "lines": [
                     {
-                      "text": "3. 已知正实数 \\(x，y\\) 满足 \\(\\frac1x+\\frac1y=1\\)，则 \\(x+4y\\) 最小值为　　　　。",
-                      "html": "3. 已知正实数 <span class=\"inline-math\">x，y</span> 满足 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">x</span></span>+<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">y</span></span>=1</span>，则 <span class=\"inline-math\">x+4y</span> 最小值为　　　　。"
+                      "text": "4. 已知 \\(a>0，b>0\\)，且 \\(ab=1\\)，则 \\(\\frac{1}{2a}+\\frac{1}{2b}+\\frac{8}{a+b}\\) 的最小值为　　　　。",
+                      "html": "4. 已知 <span class=\"inline-math\">a&gt;0，b&gt;0</span>，且 <span class=\"inline-math\">ab=1</span>，则 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">2a</span></span>+<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">2b</span></span>+<span class=\"math-fraction\"><span class=\"math-numerator\">8</span><span class=\"math-denominator\">a+b</span></span></span> 的最小值为　　　　。"
                     }
                   ]
                 },
-                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-basic-q03.html"
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-basic-q08.html"
               }
             },
             {
-              "group": "乘入条件，展开找定积",
-              "knowledgeCategory": "description",
-              "title": "线性约束下求倒数和的最小值",
-              "numberLabel": "练习 8 · 4",
+              "group": "直接应用基本不等式",
+              "knowledgeCategory": "property",
+              "title": "整理目标表达式后直接定和求积",
+              "numberLabel": "练习 8 · 6",
               "display": "featured",
               "hints": [
-                "把目标式乘以定和 a+3b。",
-                "展开后检查 9b/a 与 4a/b 的乘积。"
+                "整理目标表达式：展开分子，让题设中的 x+2y 显形并代入 4。",
+                "把正项表达式 x、2y 放进彩色槽位，由定和求出 xy 的上界。"
               ],
               "answerSchema": {
                 "type": "exact-expression",
                 "expected": [
-                  "27/2",
-                  "13.5"
+                  "9/2",
+                  "4.5"
                 ],
                 "input": {
                   "mode": "math-expression",
                   "placeholder": "填写最小值",
                   "keyboard": [
                     "fraction",
-                    "digits",
-                    "decimal"
+                    "decimal",
+                    "digits"
                   ]
                 }
               },
               "lesson": {
-                "id": "inequality-basic-q04",
-                "title": "线性约束下求倒数和的最小值",
+                "id": "inequality-basic-q09",
+                "title": "整理目标代数式后直接定和求积",
+                "source": "2019 天津高考（文科）",
                 "problem": {
                   "lines": [
                     {
-                      "text": "4. 已知 \\(a>0，b>0\\)，且 \\(a+3b=2\\)，则 \\(\\frac3a+\\frac4b\\) 的最小值是　　　　。",
-                      "html": "4. 已知 <span class=\"inline-math\">a&gt;0，b&gt;0</span>，且 <span class=\"inline-math\">a+3b=2</span>，则 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">3</span><span class=\"math-denominator\">a</span></span>+<span class=\"math-fraction\"><span class=\"math-numerator\">4</span><span class=\"math-denominator\">b</span></span></span> 的最小值是　　　　。"
+                      "text": "5. 设 \\(x>0，y>0，x+2y=4\\)，则 \\(\\frac{(x+1)(2y+1)}{xy}\\) 的最小值为　　　　。",
+                      "html": "5. 设 <span class=\"inline-math\">x&gt;0，y&gt;0，x+2y=4</span>，则 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">(x+1)(2y+1)</span><span class=\"math-denominator\">xy</span></span></span> 的最小值为　　　　。"
                     }
                   ]
                 },
-                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-basic-q04.html"
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-basic-q09.html"
               }
             },
             {
-              "group": "围绕分母补项凑定积",
-              "knowledgeCategory": "enumeration",
-              "title": "补项构造定积求最小值",
-              "numberLabel": "练习 8 · 5",
+              "group": "直接应用基本不等式",
+              "knowledgeCategory": "property",
+              "title": "整理目标表达式后直接定积求和",
+              "numberLabel": "练习 8 · 7",
               "display": "featured",
               "hints": [
-                "由分母 x+1 反推配对正项。",
-                "把 x 写成 (x+1)-1，补出的常数在括号外减回。"
+                "把 x 写成 (x+1)-1，让正项表达式 x+1 显形。",
+                "把 x+1、4/(x+1) 放进彩色槽位，处理括号外的 -1。"
               ],
               "answerSchema": {
                 "type": "multipart-exact",
@@ -9186,11 +9312,11 @@ window.__SENIOR_HIGH_CATALOG__ = {
               },
               "lesson": {
                 "id": "inequality-basic-q05",
-                "title": "补项构造定积求最小值",
+                "title": "整理目标代数式后直接定积求和",
                 "problem": {
                   "lines": [
                     {
-                      "text": "5. 已知 \\(x>-1\\)，则 \\(x+\\frac4{x+1}\\) 的最小值为　　　　，此时 \\(x\\) 的值是　　　　。",
+                      "text": "5. 已知 \\(x>-1\\)，则 \\(x+\\frac{4}{x+1}\\) 的最小值为　　　　，此时 \\(x\\) 的值是　　　　。",
                       "html": "5. 已知 <span class=\"inline-math\">x&gt;-1</span>，则 <span class=\"inline-math\">x+<span class=\"math-fraction\"><span class=\"math-numerator\">4</span><span class=\"math-denominator\">x+1</span></span></span> 的最小值为　　　　，此时 <span class=\"inline-math\">x</span> 的值是　　　　。"
                     }
                   ]
@@ -9199,14 +9325,14 @@ window.__SENIOR_HIGH_CATALOG__ = {
               }
             },
             {
-              "group": "围绕分母补项凑定积",
-              "knowledgeCategory": "enumeration",
-              "title": "补项构造一次项与倒数项的定积",
-              "numberLabel": "练习 8 · 6",
+              "group": "直接应用基本不等式",
+              "knowledgeCategory": "property",
+              "title": "整理目标表达式后直接定积求和",
+              "numberLabel": "练习 8 · 8",
               "display": "featured",
               "hints": [
-                "由分母 x+3 反推配对正项 2(x+3)。",
-                "把 2x 写成 2(x+3)-6。"
+                "把 2x 写成 2(x+3)-6，让正项表达式 2(x+3) 显形。",
+                "把 2(x+3)、1/(x+3) 放进彩色槽位，处理括号外的 -6。"
               ],
               "answerSchema": {
                 "type": "single-choice",
@@ -9214,11 +9340,11 @@ window.__SENIOR_HIGH_CATALOG__ = {
               },
               "lesson": {
                 "id": "inequality-basic-q06",
-                "title": "换元求含一次项和倒数项的最小值",
+                "title": "整理目标代数式后直接定积求和",
                 "problem": {
                   "lines": [
                     {
-                      "text": "6. 若 \\(x>-3\\)，则 \\(2x+\\frac1{x+3}\\) 的最小值是（　　）",
+                      "text": "6. 若 \\(x>-3\\)，则 \\(2x+\\frac{1}{x+3}\\) 的最小值是（　　）",
                       "html": "6. 若 <span class=\"inline-math\">x&gt;-3</span>，则 <span class=\"inline-math\">2x+<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">x+3</span></span></span> 的最小值是（　　）"
                     },
                     {
@@ -9229,10 +9355,950 @@ window.__SENIOR_HIGH_CATALOG__ = {
                 },
                 "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-basic-q06.html"
               }
+            },
+            {
+              "group": "直接应用基本不等式",
+              "knowledgeCategory": "property",
+              "title": "整理目标表达式后直接定积求和",
+              "numberLabel": "练习 8 · 11",
+              "display": "featured",
+              "hints": [
+                "把 1/8^b 写成 2^(-3b)，让两个正项表达式统一底数。",
+                "两项相乘后指数为 a-3b，直接代入题设给出的定值。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "1/4",
+                  "0.25"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写最小值",
+                  "keyboard": [
+                    "fraction",
+                    "decimal",
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-basic-q10",
+                "title": "整理目标表达式后直接定积求和",
+                "source": "2018 天津高考（理科）",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "6. 已知 \\(a，b\\in\\mathbb R\\)，且 \\(a-3b+6=0\\)，则 \\(2^a+\\frac{1}{8^b}\\) 的最小值为　　　　。",
+                      "html": "6. 已知 <span class=\"inline-math\">a，b∈<span class=\"math-blackboard\">ℝ</span></span>，且 <span class=\"inline-math\">a-3b+6=0</span>，则 <span class=\"inline-math\">2<sup>a</sup>+<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">8<sup>b</sup></span></span></span> 的最小值为　　　　。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-basic-q10.html"
+              }
+            },
+            {
+              "group": "直接应用基本不等式",
+              "knowledgeCategory": "property",
+              "title": "整理目标表达式后直接定积求和",
+              "numberLabel": "练习 8 · 13",
+              "display": "featured",
+              "hints": [
+                "把 a+b 写成 (a+1)+(b+2)-3，让题设中的两个正项表达式显形。",
+                "对 a+1、b+2 使用基本不等式，并检查两个槽位相等时能否满足原条件。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "5"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写最小值",
+                  "keyboard": [
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-basic-q13",
+                "title": "整理目标表达式后直接定积求和",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知正实数 \\(a，b\\) 满足 \\((a+1)(b+2)=16\\)，求 \\(a+b\\) 的最小值。",
+                      "html": "已知正实数 <span class=\"inline-math\">a，b</span> 满足 <span class=\"inline-math\">(a+1)(b+2)=16</span>，求 <span class=\"inline-math\">a+b</span> 的最小值。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-basic-q13.html"
+              }
+            },
+            {
+              "group": "直接应用基本不等式",
+              "knowledgeCategory": "property",
+              "title": "先平方整理目标再定积求和",
+              "numberLabel": "直接应用 · 变式 1",
+              "display": "featured",
+              "hints": [
+                "目标中的两个倒数直接相乘不是定值，先平方并利用 (x+y)²=(x−y)²+4xy 引入题设条件。",
+                "令 t=xy>0，目标平方化为 t+4/t；这两个正项乘积固定为 4，可直接应用基本不等式。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "2"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写最小值",
+                  "keyboard": [
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-basic-q20",
+                "title": "先平方整理目标再应用基本不等式",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知 \\(x>0，y>0\\)，且 \\((x-y)^2=(xy)^3\\)，求 \\(\\frac{1}{x}+\\frac{1}{y}\\) 的最小值。",
+                      "html": "已知 <span class=\"inline-math\">x&gt;0，y&gt;0</span>，且 <span class=\"inline-math\">(x-y)<sup>2</sup>=(xy)<sup>3</sup></span>，求 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">x</span></span>+<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">y</span></span></span> 的最小值。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-basic-q20.html"
+              }
+            },
+            {
+              "group": "直接应用基本不等式",
+              "knowledgeCategory": "property",
+              "title": "整理条件与目标后直接定积求和",
+              "numberLabel": "直接应用 · 变式 2",
+              "display": "featured",
+              "hints": [
+                "把条件因式分解为 x(x+y)=3，先识别乘积固定的整体 x 与 x+y。",
+                "把目标重组为 4x+y=3x+(x+y)；两个正项 3x 与 x+y 的乘积固定为 9，再核对等号条件。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "6"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写最小值",
+                  "keyboard": [
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-basic-q28",
+                "title": "整理条件与目标后直接应用基本不等式",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "若正数 \\(x，y\\) 满足 \\(x^2+xy-3=0\\)，则 \\(4x+y\\) 的最小值是________。",
+                      "html": "若正数 <span class=\"inline-math\">x，y</span> 满足 <span class=\"inline-math\">x<sup>2</sup>+xy-3=0</span>，则 <span class=\"inline-math\">4x+y</span> 的最小值是________。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-basic-q28.html"
+              }
+            },
+            {
+              "group": "配齐次式",
+              "knowledgeCategory": "description",
+              "title": "用倒数条件配成 0 次齐次式",
+              "numberLabel": "练习 8 · 3",
+              "display": "featured",
+              "hints": [
+                "目标 x+4y 是一次式，题设中的倒数和是负一次式；两者相乘后总次数为 0。",
+                "展开后圈出正项表达式 x/y、4y/x，再检查两项的乘积是否固定。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "9"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写最小值",
+                  "keyboard": [
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-basic-q03",
+                "title": "倒数和定值求线性式的最小值",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "3. 已知正实数 \\(x，y\\) 满足 \\(\\frac{1}{x}+\\frac{1}{y}=1\\)，则 \\(x+4y\\) 最小值为　　　　。",
+                      "html": "3. 已知正实数 <span class=\"inline-math\">x，y</span> 满足 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">x</span></span>+<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">y</span></span>=1</span>，则 <span class=\"inline-math\">x+4y</span> 最小值为　　　　。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-basic-q03.html"
+              }
+            },
+            {
+              "group": "配齐次式",
+              "knowledgeCategory": "description",
+              "title": "用定和条件配成 0 次齐次式",
+              "numberLabel": "练习 8 · 4",
+              "display": "featured",
+              "hints": [
+                "目标 3/a+4/b 是负一次式，题设中的 a+3b 是一次式；两者相乘后总次数为 0。",
+                "注意 a+3b=2，所以展开所得是目标的 2 倍；最后再除以 2。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "27/2",
+                  "13.5"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写最小值",
+                  "keyboard": [
+                    "fraction",
+                    "digits",
+                    "decimal"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-basic-q04",
+                "title": "线性约束下求倒数和的最小值",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "4. 已知 \\(a>0，b>0\\)，且 \\(a+3b=2\\)，则 \\(\\frac{3}{a}+\\frac{4}{b}\\) 的最小值是　　　　。",
+                      "html": "4. 已知 <span class=\"inline-math\">a&gt;0，b&gt;0</span>，且 <span class=\"inline-math\">a+3b=2</span>，则 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">3</span><span class=\"math-denominator\">a</span></span>+<span class=\"math-fraction\"><span class=\"math-numerator\">4</span><span class=\"math-denominator\">b</span></span></span> 的最小值是　　　　。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-basic-q04.html"
+              }
+            },
+            {
+              "group": "配齐次式",
+              "knowledgeCategory": "description",
+              "title": "乘入定和条件配成 0 次齐次式",
+              "numberLabel": "练习 8 · 14",
+              "display": "featured",
+              "hints": [
+                "先把目标拆成 1/b 与 2/a，直接检查发现乘积仍含 ab。",
+                "目标为负一次、条件 a+b=1 为正一次；相乘展开后圈出 a/b 与 2b/a。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "3+2√2",
+                  "3+2sqrt(2)",
+                  "3+sqrt(8)"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写最小值",
+                  "keyboard": [
+                    "radical",
+                    "digits",
+                    "plus"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-basic-q14",
+                "title": "定和条件配齐次求分式最小值",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "设 \\(a，b>0\\)，且 \\(a+b=1\\)，求 \\(\\frac{a+2b}{ab}\\) 的最小值。",
+                      "html": "设 <span class=\"inline-math\">a，b&gt;0</span>，且 <span class=\"inline-math\">a+b=1</span>，求 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">a+2b</span><span class=\"math-denominator\">ab</span></span></span> 的最小值。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-basic-q14.html"
+              }
+            },
+            {
+              "group": "配齐次式",
+              "knowledgeCategory": "description",
+              "title": "局部配齐：补齐分子中的低次项",
+              "numberLabel": "练习 8 · 15",
+              "display": "featured",
+              "hints": [
+                "目标整体不动，只局部修补分子中的 2b；由 a+b=2 把它改写为 b(a+b)。",
+                "分子补成 a²+ab+b² 后与 ab 同次，约分得到 1+a/b+b/a。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "3"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写最小值",
+                  "keyboard": [
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-basic-q15",
+                "title": "局部配齐分子后求分式最小值",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "设 \\(a，b>0\\)，且 \\(a+b=2\\)，求 \\(\\frac{a^2+2b}{ab}\\) 的最小值。",
+                      "html": "设 <span class=\"inline-math\">a，b&gt;0</span>，且 <span class=\"inline-math\">a+b=2</span>，求 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">a<sup>2</sup>+2b</span><span class=\"math-denominator\">ab</span></span></span> 的最小值。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-basic-q15.html"
+              }
+            },
+            {
+              "group": "配齐次式",
+              "knowledgeCategory": "description",
+              "title": "局部配齐：逐个补齐两个括号",
+              "numberLabel": "练习 8 · 16",
+              "display": "featured",
+              "hints": [
+                "直接展开也能化为 1+2/(xy)，再由定和求积与取倒数传界求解，只是步骤稍多。",
+                "局部配齐时先通分，再由 x+y=1 补齐两个分子中的常数 1；展开后直接圈出 2x/y、2y/x。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "9"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写最小值",
+                  "keyboard": [
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-basic-q16",
+                "title": "局部配齐两个括号求最小值",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "设 \\(x，y>0\\)，且 \\(x+y=1\\)，求 \\((\\frac{1}{x}+1)(\\frac{1}{y}+1)\\) 的最小值。",
+                      "html": "设 <span class=\"inline-math\">x，y&gt;0</span>，且 <span class=\"inline-math\">x+y=1</span>，求 <span class=\"inline-math\">(<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">x</span></span>+1)(<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">y</span></span>+1)</span> 的最小值。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-basic-q16.html"
+              }
+            },
+            {
+              "group": "找对称结构",
+              "knowledgeCategory": "description",
+              "title": "用对称结构求和的取值范围",
+              "numberLabel": "练习 8 · 17",
+              "display": "featured",
+              "hints": [
+                "目标与条件交换 x、y 后都不变，令 s=x+y、p=xy，用和与积替换原有变量。",
+                "把条件改写为 p=(s²−1)/3；再用基本不等式的变式 s²≥4p 建立和与积的关系，代入 p 消元。最后利用取等条件 x=y 验证 s=2 与 s=−2 都能取到。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "[-2,2]"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写取值范围",
+                  "keyboard": [
+                    "interval",
+                    "brackets",
+                    "comma",
+                    "negative",
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-basic-q17",
+                "title": "用对称结构求和的取值范围",
+                "source": "2022 新高考Ⅱ卷",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "若实数 \\(x，y\\) 满足 \\(x^2+y^2-xy=1\\)，求 \\(x+y\\) 的取值范围。",
+                      "html": "若实数 <span class=\"inline-math\">x，y</span> 满足 <span class=\"inline-math\">x<sup>2</sup>+y<sup>2</sup>-xy=1</span>，求 <span class=\"inline-math\">x+y</span> 的取值范围。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-basic-q17.html"
+              }
+            },
+            {
+              "group": "找对称结构",
+              "knowledgeCategory": "description",
+              "title": "先变形再找对称结构求范围",
+              "numberLabel": "对称结构 · 变式",
+              "display": "featured",
+              "hints": [
+                "原式关于 x、y 不对称，先观察目标中的 x/2，令 u=x/2（即 x=2u），把目标和条件同步改写。",
+                "改写后目标为 u+y，条件为 u²+y²−uy=1/4，此时再校验 u、y 的对称性，并令 s=u+y、p=uy 消元。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "[-1,1]"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写取值范围",
+                  "keyboard": [
+                    "interval",
+                    "brackets",
+                    "comma",
+                    "negative",
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-basic-q18",
+                "title": "先变形再找对称结构求和的取值范围",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "若实数 \\(x，y\\) 满足 \\(x^2+4y^2-2xy=1\\)，求 \\(\\frac{x}{2}+y\\) 的取值范围。",
+                      "html": "若实数 <span class=\"inline-math\">x，y</span> 满足 <span class=\"inline-math\">x<sup>2</sup>+4y<sup>2</sup>-2xy=1</span>，求 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">x</span><span class=\"math-denominator\">2</span></span>+y</span> 的取值范围。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-basic-q18.html"
+              }
+            },
+            {
+              "group": "找对称结构",
+              "knowledgeCategory": "description",
+              "title": "把两个整体配成对称结构求最小值",
+              "numberLabel": "对称结构 · 变式 2",
+              "display": "featured",
+              "hints": [
+                "观察目标和条件中反复出现的整体 a 与 2b，令 u=a、v=2b，把目标和条件同步改写。",
+                "改写后目标为 u+v，条件为 uv=u+v+3；再校验 u、v 的对称性，令 s=u+v、p=uv，用 s²≥4p 消元。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "6"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写最小值",
+                  "keyboard": [
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-basic-q19",
+                "title": "先配成对称结构求线性和的最小值",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知 \\(a>0，b>0\\)，且 \\(2ab=a+2b+3\\)，求 \\(a+2b\\) 的最小值。",
+                      "html": "已知 <span class=\"inline-math\">a&gt;0，b&gt;0</span>，且 <span class=\"inline-math\">2ab=a+2b+3</span>，求 <span class=\"inline-math\">a+2b</span> 的最小值。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-basic-q19.html"
+              }
+            },
+            {
+              "group": "找对称结构",
+              "knowledgeCategory": "description",
+              "title": "对称四次项配对后用积换元降维",
+              "numberLabel": "对称结构 · 变式 3",
+              "display": "featured",
+              "hints": [
+                "目标交换 a、b 后保持不变；把对称的四次项 a⁴、b⁴ 配对，由基本不等式得到 a⁴+b⁴≥2a²b²。",
+                "令 p=ab>0，原目标不小于 2p²−8p；配方后联立 a=b 与 p=2 两个取等条件。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "-8"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写最小值",
+                  "keyboard": [
+                    "negative",
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-basic-q21",
+                "title": "用对称配对降维求四次式最小值",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知 \\(a>0，b>0\\)，求 \\(a^4+b^4-8ab\\) 的最小值。",
+                      "html": "已知 <span class=\"inline-math\">a&gt;0，b&gt;0</span>，求 <span class=\"inline-math\">a<sup>4</sup>+b<sup>4</sup>-8ab</span> 的最小值。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-basic-q21.html"
+              }
+            },
+            {
+              "group": "多次应用基本不等式",
+              "knowledgeCategory": "description",
+              "title": "连续两次构造定积求最小值",
+              "numberLabel": "练习 8 · 9",
+              "display": "featured",
+              "hints": [
+                "先对 1/a 与 a/b² 使用基本不等式，消去 a。",
+                "再对 2/b 与 b 使用基本不等式，并联立两次等号条件。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "2√2",
+                  "2sqrt(2)"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写最小值",
+                  "keyboard": [
+                    "radical",
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-basic-q07",
+                "title": "连续两次构造定积求最小值",
+                "source": "2021 天津高考",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "3. 若 \\(a>0，b>0\\)，则 \\(\\frac{1}{a}+\\frac{a}{b^2}+b\\) 的最小值为　　　　。",
+                      "html": "3. 若 <span class=\"inline-math\">a&gt;0，b&gt;0</span>，则 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">a</span></span>+<span class=\"math-fraction\"><span class=\"math-numerator\">a</span><span class=\"math-denominator\">b<sup>2</sup></span></span>+b</span> 的最小值为　　　　。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-basic-q07.html"
+              }
+            },
+            {
+              "group": "多次应用基本不等式",
+              "knowledgeCategory": "description",
+              "title": "两层估计含四次式的分式",
+              "numberLabel": "练习 8 · 10",
+              "display": "featured",
+              "hints": [
+                "先对 a⁴ 与 4b⁴ 应用基本不等式，再把下界代回原分式。",
+                "代回后直接对 4ab 与 1/(ab) 应用基本不等式，并检查两次等号能否同时成立。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "4"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写最小值",
+                  "keyboard": [
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-basic-q11",
+                "title": "两层估计含四次式的分式",
+                "source": "2017 天津高考（理科、文科）",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "7. 若 \\(a，b\\in\\mathbb R，ab>0\\)，则 \\(\\frac{a^4+4b^4+1}{ab}\\) 的最小值为　　　　。",
+                      "html": "7. 若 <span class=\"inline-math\">a，b∈<span class=\"math-blackboard\">ℝ</span>，ab&gt;0</span>，则 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">a<sup>4</sup>+4b<sup>4</sup>+1</span><span class=\"math-denominator\">ab</span></span></span> 的最小值为　　　　。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-basic-q11.html"
+              }
+            },
+            {
+              "group": "多次应用基本不等式",
+              "knowledgeCategory": "description",
+              "title": "合并分式后逐层消元求最小值",
+              "numberLabel": "多次应用 · 变式 1",
+              "display": "featured",
+              "hints": [
+                "先合并 1/(ab) 与 1/[a(a−b)]；由 b+(a−b)=a 应用第1次基本不等式，用 4/a² 替换含 b 的整体，从下界中消去 b。",
+                "25c²−10ac 含有负项，不能单独留下；从 2a² 中留一个 a² 配成 (a−5c)²，另一个 a² 与 4/a² 第2次应用基本不等式。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "4"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写最小值",
+                  "keyboard": [
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-basic-q30",
+                "title": "连续估计逐层消元求最小值",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "若 \\(a>b>c>0\\)，则 \\(2a^2+\\frac{1}{ab}+\\frac{1}{a(a-b)}-10ac+25c^2\\) 的最小值是（　　）。",
+                      "html": "若 <span class=\"inline-math\">a&gt;b&gt;c&gt;0</span>，则 <span class=\"inline-math\">2a<sup>2</sup>+<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">ab</span></span>+<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">a(a-b)</span></span>-10ac+25c<sup>2</sup></span> 的最小值是（　　）。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-basic-q30.html"
+              }
+            },
+            {
+              "group": "多次应用基本不等式",
+              "knowledgeCategory": "description",
+              "title": "配齐次后两次估计求最小值",
+              "numberLabel": "多次应用 · 变式 2",
+              "display": "featured",
+              "hints": [
+                "先提取两个分母中的共同整体 1+c²；利用 a+b=1 将 1 配成 (a+b)²，使括号内化为 4a/b+b/a+2。",
+                "第1次基本不等式消去 a、b；再把 2c² 写成 2(1+c²)−2，第2次基本不等式消去 c，最后联立两轮取等关系。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "4√3-2",
+                  "4sqrt(3)-2"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写最小值",
+                  "keyboard": [
+                    "radical",
+                    "negative",
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-basic-q31",
+                "title": "配齐次后两次估计求最小值",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知正数 \\(a，b\\) 满足 \\(a+b=1\\)，\\(c\\in\\mathbb R\\)，则 \\(\\frac{3a}{bc^2+b}+\\frac{1}{abc^2+ab}+2c^2\\) 的最小值为　　　　。",
+                      "html": "已知正数 <span class=\"inline-math\">a，b</span> 满足 <span class=\"inline-math\">a+b=1</span>，<span class=\"inline-math\">c∈<span class=\"math-blackboard\">ℝ</span></span>，则 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">3a</span><span class=\"math-denominator\">bc<sup>2</sup>+b</span></span>+<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">abc<sup>2</sup>+ab</span></span>+2c<sup>2</sup></span> 的最小值为　　　　。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-basic-q31.html"
+              }
+            },
+            {
+              "group": "换元法",
+              "knowledgeCategory": "description",
+              "title": "两个一次式分母整体换元",
+              "numberLabel": "换元法 · 例 1",
+              "display": "featured",
+              "hints": [
+                "令 u=x+1>0、v=y+2>0，把定义域、条件和目标同步改写为 u+v=5、1/u+1/v。",
+                "乘入定和：5(1/u+1/v)=(u+v)(1/u+1/v)=2+u/v+v/u，再应用基本不等式。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "4/5",
+                  "0.8"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写最小值",
+                  "keyboard": [
+                    "fraction",
+                    "decimal",
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-basic-q22",
+                "title": "分母整体换元后配齐次式求最小值",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知 \\(x，y\\in\\mathbb R，x+y=2\\)，且 \\(x>-1，y>-2\\)，求 \\(\\frac{1}{x+1}+\\frac{1}{y+2}\\) 的最小值。",
+                      "html": "已知 <span class=\"inline-math\">x，y∈<span class=\"math-blackboard\">ℝ</span>，x+y=2</span>，且 <span class=\"inline-math\">x&gt;-1，y&gt;-2</span>，求 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">x+1</span></span>+<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">y+2</span></span></span> 的最小值。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-basic-q22.html"
+              }
+            },
+            {
+              "group": "换元法",
+              "knowledgeCategory": "description",
+              "title": "不同系数分母整体换元",
+              "numberLabel": "换元法 · 例 2",
+              "display": "featured",
+              "hints": [
+                "令 u=x+1>0、v=2y+1>0，把定义域、条件和目标同步改写为 2u+v=7、1/u+1/v。",
+                "乘入带权定和：7(1/u+1/v)=(2u+v)(1/u+1/v)=3+2u/v+v/u，再应用基本不等式。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "(3+2√2)/7",
+                  "(3+2sqrt(2))/7",
+                  "(3+sqrt(8))/7"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写最小值",
+                  "keyboard": [
+                    "fraction",
+                    "radical",
+                    "plus",
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-basic-q23",
+                "title": "不同系数分母整体换元后求最小值",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知 \\(x，y\\in\\mathbb R，x+y=2\\)，且 \\(x>-1，y>-\\frac{1}{2}\\)，求 \\(\\frac{1}{x+1}+\\frac{1}{2y+1}\\) 的最小值。",
+                      "html": "已知 <span class=\"inline-math\">x，y∈<span class=\"math-blackboard\">ℝ</span>，x+y=2</span>，且 <span class=\"inline-math\">x&gt;-1，y&gt;-<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">2</span></span></span>，求 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">x+1</span></span>+<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">2y+1</span></span></span> 的最小值。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-basic-q23.html"
+              }
+            },
+            {
+              "group": "换元法",
+              "knowledgeCategory": "description",
+              "title": "复杂分母换元后整理新目标",
+              "numberLabel": "换元法 · 变式 3",
+              "display": "featured",
+              "hints": [
+                "令 u=a+1>1、v=b+1>1，则 u+v=3；换元后继续整理 (u−1)²/u=u−2+1/u。",
+                "原目标化为 −1+1/u+1/v；把定和乘入倒数和配成 0 次齐次式，最后还原等号条件。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "1/3"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写最小值",
+                  "keyboard": [
+                    "fraction",
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-basic-q24",
+                "title": "复杂分母换元后整理目标求最小值",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知 \\(a>0，b>0，a+b=1\\)，求 \\(\\frac{a^2}{a+1}+\\frac{b^2}{b+1}\\) 的最小值。",
+                      "html": "已知 <span class=\"inline-math\">a&gt;0，b&gt;0，a+b=1</span>，求 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">a<sup>2</sup></span><span class=\"math-denominator\">a+1</span></span>+<span class=\"math-fraction\"><span class=\"math-numerator\">b<sup>2</sup></span><span class=\"math-denominator\">b+1</span></span></span> 的最小值。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-basic-q24.html"
+              }
+            },
+            {
+              "group": "换元法",
+              "knowledgeCategory": "description",
+              "title": "分母换元后直接应用基本不等式",
+              "numberLabel": "换元法 · 变式 4",
+              "display": "featured",
+              "hints": [
+                "看到完整分母 a−1、b−1，令 x=a−1>0、y=b−1>0；把原条件代入整理为 xy=1。",
+                "原目标化为 13+4/x+9/y，后两项乘积固定为 36，可直接应用基本不等式，再还原等号条件。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "25"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写最小值",
+                  "keyboard": [
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-basic-q25",
+                "title": "分母换元后应用基本不等式求最小值",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知 \\(a>0，b>0\\)，且 \\(\\frac{1}{a}+\\frac{1}{b}=1\\)，求 \\(\\frac{4a}{a-1}+\\frac{9b}{b-1}\\) 的最小值。",
+                      "html": "已知 <span class=\"inline-math\">a&gt;0，b&gt;0</span>，且 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">a</span></span>+<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">b</span></span>=1</span>，求 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">4a</span><span class=\"math-denominator\">a-1</span></span>+<span class=\"math-fraction\"><span class=\"math-numerator\">9b</span><span class=\"math-denominator\">b-1</span></span></span> 的最小值。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-basic-q25.html"
+              }
+            },
+            {
+              "group": "换元法",
+              "knowledgeCategory": "description",
+              "title": "根号整体换元后应用基本不等式",
+              "numberLabel": "换元法 · 变式 5",
+              "display": "featured",
+              "hints": [
+                "只对根号整体换元：令 t=√(2+y²)>√2，原条件整理为 (4x)²+t²=18，目标变为 xt。",
+                "对正项 (4x)² 与 t² 应用基本不等式，得到 18≥8xt；再由取等条件 4x=t 还原 x、y。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "9/4",
+                  "2.25"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写最大值",
+                  "keyboard": [
+                    "fraction",
+                    "decimal",
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-basic-q26",
+                "title": "根号整体换元后应用基本不等式求最大值",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知正实数 \\(x，y\\) 满足 \\(x^2+\\frac{y^2}{16}=1\\)，则 \\(x\\sqrt{2+y^2}\\) 的最大值为________。",
+                      "html": "已知正实数 <span class=\"inline-math\">x，y</span> 满足 <span class=\"inline-math\">x<sup>2</sup>+<span class=\"math-fraction\"><span class=\"math-numerator\">y<sup>2</sup></span><span class=\"math-denominator\">16</span></span>=1</span>，则 <span class=\"inline-math\">x<span class=\"math-radical\"><span class=\"math-radical-symbol\">√</span><span class=\"math-radicand\">2+y<sup>2</sup></span></span></span> 的最大值为________。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-basic-q26.html"
+              }
+            },
+            {
+              "group": "条件消元法",
+              "knowledgeCategory": "description",
+              "title": "整理分式条件后消元求最小值",
+              "numberLabel": "条件消元法 · 例 1",
+              "display": "featured",
+              "hints": [
+                "先通分整理条件，得到 x(x+2y−1)=1；由 x>0 可用 x 表示 y，再代入目标消去 y。",
+                "一元目标化为 (3x+1/x+1)/2；对正项 3x 与 1/x 应用基本不等式，最后回代求出 y。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "√3+1/2",
+                  "sqrt(3)+1/2",
+                  "(1+2√3)/2",
+                  "(1+2sqrt(3))/2"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写最小值",
+                  "keyboard": [
+                    "fraction",
+                    "radical",
+                    "plus",
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-basic-q27",
+                "title": "利用条件消元后应用基本不等式求最小值",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "若 \\(x>0，y>0\\)，且 \\(\\frac{1}{x+1}+\\frac{1}{x+2y}=1\\)，则 \\(2x+y\\) 的最小值为（　　）。",
+                      "html": "若 <span class=\"inline-math\">x&gt;0，y&gt;0</span>，且 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">x+1</span></span>+<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">x+2y</span></span>=1</span>，则 <span class=\"inline-math\">2x+y</span> 的最小值为（　　）。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-basic-q27.html"
+              }
+            },
+            {
+              "group": "条件消元法",
+              "knowledgeCategory": "description",
+              "title": "定和条件消元后整理倒数求最大值",
+              "numberLabel": "条件消元法 · 例 2",
+              "display": "featured",
+              "hints": [
+                "由 a+b=1 直接写出 b=1−a，代入后两个分母都化为 a²−a+1，原目标降成一元正分式。",
+                "求正数目标的最大值可转化为求倒数的最小值；把 1/E 整理成 (a+1)+3/(a+1)−3，再应用基本不等式并回代 b。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "(3+2√3)/3",
+                  "(3+2sqrt(3))/3",
+                  "1+2√3/3",
+                  "1+2sqrt(3)/3"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写最大值",
+                  "keyboard": [
+                    "fraction",
+                    "radical",
+                    "plus",
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "inequality-basic-q29",
+                "title": "利用定和条件消元后求分式最大值",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "若 \\(a，b\\in\\mathbb R^+\\)，且 \\(a+b=1\\)，则 \\(\\frac{2a}{a^2+b}+\\frac{b}{a+b^2}\\) 的最大值是________。",
+                      "html": "若 <span class=\"inline-math\">a，b∈<span class=\"math-blackboard\">ℝ</span>^+</span>，且 <span class=\"inline-math\">a+b=1</span>，则 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">2a</span><span class=\"math-denominator\">a<sup>2</sup>+b</span></span>+<span class=\"math-fraction\"><span class=\"math-numerator\">b</span><span class=\"math-denominator\">a+b<sup>2</sup></span></span></span> 的最大值是________。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/inequalities/inequality-relations/inequality-basic-q29.html"
+              }
             }
           ],
-          "summary": "基本不等式不是见到正数就直接套用：先确认正项，再以构造定积为目标。原目标缺少定积时，可以让题设条件参与运算，也可以围绕分母补出配对正项；最后必须验证等号能否在原条件下取得。",
-          "summaryHtml": "基本不等式不是见到正数就直接套用：先确认正项，再以构造定积为目标。原目标缺少定积时，可以让题设条件参与运算，也可以围绕分母补出配对正项；最后必须验证等号能否在原条件下取得。"
+          "summary": "基本不等式不是见到正数就直接套用：先确认两个正项表达式，再整理目标表达式，让定和或定积结构显形。若复杂整体遮住结构，可先换元并同步改写定义域、条件和目标；若条件能够直接表示变量，则整理条件、表示变量并代入目标完成消元。降维后再按结构选择基本不等式、配齐次式或其他工具，最后还原或回代等号条件。",
+          "summaryHtml": "基本不等式不是见到正数就直接套用：先确认两个正项表达式，再整理目标表达式，让定和或定积结构显形。若复杂整体遮住结构，可先换元并同步改写定义域、条件和目标；若条件能够直接表示变量，则整理条件、表示变量并代入目标完成消元。降维后再按结构选择基本不等式、配齐次式或其他工具，最后还原或回代等号条件。"
         },
         {
           "id": "inequality-practice",
@@ -9263,8 +10329,8 @@ window.__SENIOR_HIGH_CATALOG__ = {
                       "html": "1. 若 <span class=\"inline-math\">a，b，c</span> 为实数，下列结论正确的是（　　）"
                     },
                     {
-                      "text": "A. 若 \\(|a|>b\\)，则 \\(a^2>b^2\\)　　B. 若 \\(a<b<0\\)，则 \\(\\frac ba>\\frac ab\\)　　C. 若 \\(a>b\\)，则 \\(ac^2>bc^2\\)　　D. 若 \\(a>b>0\\)，则 \\(a^2>ab>b^2\\)",
-                      "html": "A. 若 <span class=\"inline-math\">|a|&gt;b</span>，则 <span class=\"inline-math\">a<sup>2</sup>&gt;b<sup>2</sup></span>　　B. 若 <span class=\"inline-math\">a&lt;b&lt;0</span>，则 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\"> </span><span class=\"math-denominator\">b</span></span>a&gt;<span class=\"math-fraction\"><span class=\"math-numerator\"> </span><span class=\"math-denominator\">a</span></span>b</span>　　C. 若 <span class=\"inline-math\">a&gt;b</span>，则 <span class=\"inline-math\">ac<sup>2</sup>&gt;bc<sup>2</sup></span>　　D. 若 <span class=\"inline-math\">a&gt;b&gt;0</span>，则 <span class=\"inline-math\">a<sup>2</sup>&gt;ab&gt;b<sup>2</sup></span>"
+                      "text": "A. 若 \\(|a|>b\\)，则 \\(a^2>b^2\\)　　B. 若 \\(a<b<0\\)，则 \\(\\frac{b}{a}>\\frac{a}{b}\\)　　C. 若 \\(a>b\\)，则 \\(ac^2>bc^2\\)　　D. 若 \\(a>b>0\\)，则 \\(a^2>ab>b^2\\)",
+                      "html": "A. 若 <span class=\"inline-math\">|a|&gt;b</span>，则 <span class=\"inline-math\">a<sup>2</sup>&gt;b<sup>2</sup></span>　　B. 若 <span class=\"inline-math\">a&lt;b&lt;0</span>，则 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">b</span><span class=\"math-denominator\">a</span></span>&gt;<span class=\"math-fraction\"><span class=\"math-numerator\">a</span><span class=\"math-denominator\">b</span></span></span>　　C. 若 <span class=\"inline-math\">a&gt;b</span>，则 <span class=\"inline-math\">ac<sup>2</sup>&gt;bc<sup>2</sup></span>　　D. 若 <span class=\"inline-math\">a&gt;b&gt;0</span>，则 <span class=\"inline-math\">a<sup>2</sup>&gt;ab&gt;b<sup>2</sup></span>"
                     }
                   ]
                 },
@@ -9293,7 +10359,7 @@ window.__SENIOR_HIGH_CATALOG__ = {
                       "html": "2. 如果 <span class=\"inline-math\">a，b，c，d∈<span class=\"math-blackboard\">ℝ</span></span>，则正确的是（　　）"
                     },
                     {
-                      "text": "A. 若 \\(a>b\\)，则 \\(\\frac1a<\\frac1b\\)　　B. 若 \\(a>b，c>d\\)，则 \\(a-c>b-d\\)　　C. 若 \\(ac^2>bc^2\\)，则 \\(a>b\\)　　D. 若 \\(a>b，c>d\\)，则 \\(ac>bd\\)",
+                      "text": "A. 若 \\(a>b\\)，则 \\(\\frac{1}{a}<\\frac{1}{b}\\)　　B. 若 \\(a>b，c>d\\)，则 \\(a-c>b-d\\)　　C. 若 \\(ac^2>bc^2\\)，则 \\(a>b\\)　　D. 若 \\(a>b，c>d\\)，则 \\(ac>bd\\)",
                       "html": "A. 若 <span class=\"inline-math\">a&gt;b</span>，则 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">a</span></span>&lt;<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">b</span></span></span>　　B. 若 <span class=\"inline-math\">a&gt;b，c&gt;d</span>，则 <span class=\"inline-math\">a-c&gt;b-d</span>　　C. 若 <span class=\"inline-math\">ac<sup>2</sup>&gt;bc<sup>2</sup></span>，则 <span class=\"inline-math\">a&gt;b</span>　　D. 若 <span class=\"inline-math\">a&gt;b，c&gt;d</span>，则 <span class=\"inline-math\">ac&gt;bd</span>"
                     }
                   ]
@@ -9463,7 +10529,7 @@ window.__SENIOR_HIGH_CATALOG__ = {
                 "problem": {
                   "lines": [
                     {
-                      "text": "7. 不等式 \\(\\frac3{x-2}\\ge1\\) 的解集为　　　　（用区间表示）。",
+                      "text": "7. 不等式 \\(\\frac{3}{x-2}\\ge1\\) 的解集为　　　　（用区间表示）。",
                       "html": "7. 不等式 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">3</span><span class=\"math-denominator\">x-2</span></span>≥1</span> 的解集为　　　　（用区间表示）。"
                     }
                   ]

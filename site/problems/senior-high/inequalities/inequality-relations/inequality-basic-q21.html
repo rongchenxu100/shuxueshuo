@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>用对称配对降维求四次式最小值 | 数学说</title>
+  <meta name="description" content="用对称配对降维求四次式最小值的逐步解析。" />
+  <meta property="og:title" content="用对称配对降维求四次式最小值 | 数学说" />
+  <meta property="og:description" content="用对称配对降维求四次式最小值的逐步解析。" />
+  <meta property="og:image" content="../../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css?v=39" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../../senior-high/index.html?chapter=inequalities&section=inequality-relations&module=basic-inequalities">解不等式与基本不等式</a>
+    <span class="lesson-title">基本不等式 · 对称结构变式</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          <div class="problem-full">
+            <div class="problem-line"><span>已知 <span class="inline-math">a&gt;0，b&gt;0</span>，求 <span class="inline-math">a<sup>4</sup>+b<sup>4</sup>-8ab</span> 的最小值。</span><span class="answer-chip" id="answerI">答案：<span class="inline-math">-8</span></span></div>
+          </div>
+        </section>
+
+        <aside class="lesson-key-points" aria-label="解题要点"><div class="lesson-key-points-title">解题要点</div><div class="lesson-key-points-content"><p class="lesson-key-points-lead">目标交换 <span class="inline-math">a，b</span> 后保持不变，先确认它是对称式。对称的四次项 <span class="inline-math">a<sup>4</sup>，b<sup>4</sup></span> 可直接配对，由基本不等式压成 <span class="inline-math">2a<sup>2</sup>b<sup>2</sup></span>；再令 <span class="inline-math">p=ab&gt;0</span>，把二元目标降成关于 <span class="inline-math">p</span> 的一元二次式并配方。</p><ol><li>验对称：<span class="inline-math">a<sup>4</sup>+b<sup>4</sup>-8ab</span> 交换 <span class="inline-math">a，b</span> 后仍为 <span class="inline-math">b<sup>4</sup>+a<sup>4</sup>-8ba</span>，目标不变。</li><li>对称配对：<span class="inline-math">a<sup>4</sup>+b<sup>4</sup>≥2<span class="math-radical"><span class="math-radical-symbol">√</span><span class="math-radicand">a<sup>4</sup>b<sup>4</sup></span></span>=2a<sup>2</sup>b<sup>2</sup></span>。</li><li>积换元降维：令 <span class="inline-math">p=ab&gt;0</span>，则原式不小于 <span class="inline-math">2p<sup>2</sup>-8p</span>。</li><li>一元配方：<span class="inline-math">2p<sup>2</sup>-8p=2(p-2)<sup>2</sup>-8≥-8</span>。</li><li>验等号：四次项配对取等要求 <span class="inline-math">a=b</span>，配方取等要求 <span class="inline-math">p=ab=2</span>，联立得 <span class="inline-math">a=b=<span class="math-radical"><span class="math-radical-symbol">√</span><span class="math-radicand">2</span></span></span>。</li></ol></div></aside>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../../assets/js/lesson-page-runtime.js?v=48"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"s1","section":"找对称结构","title":"对称四次项先配对，再用积换元降维","t":0,"showDiagram":false,"visual":{"kind":"symmetric-objective-reduction","title":"对称四次项先配对，再压缩成一个积变量","methodTag":"找对称结构｜对称配对降维","goal":{"expression":"\\(a^4+b^4-8ab\\)","task":"求最小值"},"symmetryCheck":{"original":"\\(a^4+b^4-8ab\\)","swapped":"\\(b^4+a^4-8ba\\)","verdict":"交换后不变"},"pairing":{"label":"把两个对称四次项配对","terms":["\\(a^4\\)","\\(b^4\\)"],"inequality":"\\(a^4+b^4\\ge2\\sqrt{a^4b^4}=2a^2b^2\\)","productVariable":"\\(p=ab>0\\)","reduced":"\\(a^4+b^4\\ge2p^2\\)"},"reduction":{"original":"\\(a^4+b^4-8ab\\)","lowerBound":"\\(\\ge2p^2-8p\\)","completion":"\\(=2(p-2)^2-8\\)","conclusion":"\\(\\ge-8\\)"},"equality":{"pairingCondition":"\\(a^4=b^4\\Rightarrow a=b\\)","completionCondition":"\\(p=ab=2\\)","result":"\\(a=b=\\sqrt{2}\\)","verification":"\\(2(\\sqrt{2})^4-8(\\sqrt{2})^2=-8\\)"},"conclusion":"\\(a^4+b^4-8ab\\) 的最小值是 \\(-8\\)","caption":"对称结构的作用是把成对出现的 \\(a^4，b^4\\) 一起估计，并让结果只含基本对称量 \\(p=ab\\)；降成一元式后再配方。"},"reasoning":[{"kind":"because","text":"交换 \\(a、b\\) 后，\\(a^4+b^4-8ab=b^4+a^4-8ba\\)，所以目标具有对称结构"},{"kind":"because","text":"由 \\(a>0，b>0\\)，对两个正项 \\(a^4，b^4\\) 使用基本不等式，得 \\(a^4+b^4\\ge2a^2b^2\\)"},{"kind":"therefore","text":"令 \\(p=ab>0\\)，则 \\(a^4+b^4-8ab\\ge2p^2-8p\\)"},{"kind":"therefore","text":"\\(2p^2-8p=2(p-2)^2-8\\ge-8\\)，所以原式的下界为 \\(-8\\)"},{"kind":"because","text":"第一步取等要求 \\(a^4=b^4\\)，由 \\(a，b>0\\) 得 \\(a=b\\)；配方取等要求 \\(p=ab=2\\)"},{"kind":"therefore","text":"联立得到 \\(a=b=\\sqrt{2}\\)，此时原式等于 \\(-8\\)，所以最小值为 \\(-8\\)"}],"derive":[["最小值","-8"],["取等","a=b=√2"]]}];
+    var STEP_LABELS = {"s1":"1 对称四次项先配对，再用积换元降维"};
+    var POLICIES   = {"s1":{"movable":false,"range":[0,0]}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 滑块主参数与派生参数的联动文案格式化器 */
+    var __LESSON_PARAM_LABEL_FORMATTER__;
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script>
+  function diagramMarkupFor() { return ''; }
+  function diagramMarkupForFrame() { return ''; }
+  function drawMini() { return ''; }
+  function groupTitle(section) { return section; }
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      diagramMarkupForFrame: typeof diagramMarkupForFrame === "function" ? diagramMarkupForFrame : undefined,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "参数",
+      paramLabelPrefix: "",
+      paramLabelFormatter: typeof __LESSON_PARAM_LABEL_FORMATTER__ === "function" ? __LESSON_PARAM_LABEL_FORMATTER__ : undefined,
+      goToProblemMode: "doubleScroll"
+    });
+  </script>
+</body>
+</html>

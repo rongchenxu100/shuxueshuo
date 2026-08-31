@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>定和条件配齐次求分式最小值 | 数学说</title>
+  <meta name="description" content="定和条件配齐次求分式最小值的逐步解析。" />
+  <meta property="og:title" content="定和条件配齐次求分式最小值 | 数学说" />
+  <meta property="og:description" content="定和条件配齐次求分式最小值的逐步解析。" />
+  <meta property="og:image" content="../../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css?v=38" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../../senior-high/index.html?chapter=inequalities&section=inequality-relations&module=basic-inequalities">解不等式与基本不等式</a>
+    <span class="lesson-title">基本不等式 · 练习 8-14</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          <div class="problem-full">
+            <div class="problem-line"><span>设 <span class="inline-math">a，b&gt;0</span>，且 <span class="inline-math">a+b=1</span>，求 <span class="inline-math"><span class="math-fraction"><span class="math-numerator">a+2b</span><span class="math-denominator">ab</span></span></span> 的最小值。</span><span class="answer-chip" id="answerI">答案：<span class="inline-math">3+2√2</span></span></div>
+          </div>
+        </section>
+
+        <aside class="lesson-key-points" aria-label="解题要点"><div class="lesson-key-points-title">解题要点</div><div class="lesson-key-points-content"><p class="lesson-key-points-lead">先把目标表达式拆成两个正项，直接检查发现乘积仍含 <span class="inline-math">ab</span>；再看次数：目标是负一次式，条件 <span class="inline-math">a+b=1</span> 是正一次式，相乘后配成 0 次齐次式，只剩 <span class="inline-math"><span class="math-fraction"><span class="math-numerator">a</span><span class="math-denominator">b</span></span></span> 与 <span class="inline-math"><span class="math-fraction"><span class="math-numerator">b</span><span class="math-denominator">a</span></span></span>。</p><ol><li>试直接应用：目标可拆成 <span class="inline-math"><span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">b</span></span>+<span class="math-fraction"><span class="math-numerator">2</span><span class="math-denominator">a</span></span></span>，但两项乘积 <span class="inline-math"><span class="math-fraction"><span class="math-numerator">2</span><span class="math-denominator">ab</span></span></span> 不固定。</li><li>看次数：目标为负一次，条件 <span class="inline-math">a+b</span> 为正一次；相乘后总次数为 0，且条件等于 <span class="inline-math">1</span>，不改变目标值。</li><li>展开圈项：得到 <span class="inline-math">3+<span class="math-fraction"><span class="math-numerator">a</span><span class="math-denominator">b</span></span>+<span class="math-fraction"><span class="math-numerator">2b</span><span class="math-denominator">a</span></span></span>，后两个正项表达式的乘积恒为 <span class="inline-math">2</span>。</li><li>验等号：<span class="inline-math"><span class="math-fraction"><span class="math-numerator">a</span><span class="math-denominator">b</span></span>=<span class="math-fraction"><span class="math-numerator">2b</span><span class="math-denominator">a</span></span></span> 与 <span class="inline-math">a+b=1</span> 可以同时成立。</li></ol></div></aside>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../../assets/js/lesson-page-runtime.js?v=47"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"s1","section":"配齐次式","title":"乘入定和条件，配成 0 次齐次式","t":0,"showDiagram":false,"visual":{"kind":"fixed-product-construction-flow","variant":"homogeneous-reduction","title":"负一次目标乘入正一次条件，配成 0 次齐次式","methodTag":"配齐次式｜整体乘入条件","goal":{"expression":"\\(\\frac{a+2b}{ab}\\)","task":"求分式的最小值"},"strategy":"目标与条件次数相反，相乘配成 0 次齐次式","initialCheck":{"terms":["\\(\\frac{1}{b}\\)","\\(\\frac{2}{a}\\)"],"product":"\\(\\frac{1}{b}\\cdot\\frac{2}{a}=\\frac{2}{ab}\\)","verdict":"乘积仍含 ab，不能直接使用"},"clue":{"question":"题设中有没有次数相反且等于 1 的条件式？","condition":"\\(a+b=1\\)","observation":"目标为负一次，定和为正一次；两者相乘总次数为 0。条件整体等于 1，所以乘入后目标值不变。"},"degreeBalance":{"target":{"label":"目标表达式","expression":"\\(\\frac{a+2b}{ab}\\)","degree":"−1","scale":"\\(E\\) → \\(\\frac{1}{k}E\\)","note":"变量同步放大 k 倍，目标缩小为原来的 1/k"},"condition":{"label":"题设条件式","expression":"\\(a+b\\)","degree":"+1","scale":"\\(a+b\\) → \\(k(a+b)\\)","note":"变量同步放大 k 倍，条件式也放大 k 倍"},"result":{"label":"相乘后的总次数","expression":"\\(\\frac{a+2b}{ab}(a+b)\\)","degree":"0","scale":"\\(\\frac{1}{k}\\cdot k=1\\)","note":"共同放大或缩小被抵消，只剩变量间的倍数关系"}},"construction":{"kind":"homogeneous","label":"乘入等于 1 的定和，配成 0 次齐次式","identity":"\\(\\frac{a+2b}{ab}=\\frac{a+2b}{ab}(a+b)\\)","identityNote":"题设条件式 a+b 等于 1，所以乘入后目标表达式的值不变。","expanded":"\\(\\frac{a+2b}{ab}=3+\\frac{a}{b}+\\frac{2b}{a}\\)","constant":"\\(3\\)","positiveTerms":[{"shape":"square","value":"\\(\\frac{a}{b}\\)","condition":"\\(\\frac{a}{b}>0\\)"},{"shape":"circle","value":"\\(\\frac{2b}{a}\\)","condition":"\\(\\frac{2b}{a}>0\\)"}],"ratio":"令 \\(t=\\frac{a}{b}>0\\)，则 \\(\\frac{2b}{a}=\\frac{2}{t}\\)：两个变量被压缩成一个倍数 \\(t\\)。"},"fixedPair":{"question":"观察展开后的两个正项表达式，乘积固定吗？","terms":["\\(\\frac{a}{b}\\)","\\(\\frac{2b}{a}\\)"],"product":"\\(\\frac{a}{b}\\cdot\\frac{2b}{a}=2\\)","verdict":"定积构造成功"},"application":{"template":"两个彩色槽位表示两个完整的正项表达式","mappings":[{"slot":"第一个槽位","shape":"square","value":"\\(\\frac{a}{b}\\)","condition":"\\(\\frac{a}{b}>0\\)"},{"slot":"第二个槽位","shape":"circle","value":"\\(\\frac{2b}{a}\\)","condition":"\\(\\frac{2b}{a}>0\\)"}],"inequality":"\\(\\frac{a}{b}+\\frac{2b}{a}\\ge2\\sqrt2\\)","combine":"\\(\\frac{a+2b}{ab}=3+\\frac{a}{b}+\\frac{2b}{a}\\ge3+2\\sqrt2\\)","conclusion":"最小值为 \\(3+2\\sqrt2\\)"},"equality":{"condition":"\\(\\frac{a}{b}=\\frac{2b}{a}\\)","relation":"\\(a=\\sqrt2b\\)","result":"\\(a=2-\\sqrt2，b=\\sqrt2-1\\)"},"caption":"这题先拆分目标，发现直接定积失败；再利用目标与条件次数相反，把整个目标配成 0 次齐次式。"},"reasoning":[{"kind":"because","text":"\\(\\frac{a+2b}{ab}=\\frac{1}{b}+\\frac{2}{a}\\)，但 \\(\\frac{1}{b}\\cdot\\frac{2}{a}=\\frac{2}{ab}\\) 不是定值"},{"kind":"because","text":"目标为负一次式，条件 \\(a+b=1\\) 为正一次式；相乘后总次数为 0，且条件等于 1，所以目标值不变"},{"kind":"therefore","text":"\\(\\frac{a+2b}{ab}=\\frac{a+2b}{ab}(a+b)=3+\\frac{a}{b}+\\frac{2b}{a}\\)，其中后两项乘积为 \\(2\\)"},{"kind":"therefore","text":"由基本不等式，目标不小于 \\(3+2\\sqrt2\\)；当 \\(a=\\sqrt2b\\) 时取等号"}],"derive":[["最小值","3+2√2"],["等号条件","a=2−√2，b=√2−1"]]}];
+    var STEP_LABELS = {"s1":"1 乘入定和条件，配成 0 次齐次式"};
+    var POLICIES   = {"s1":{"movable":false,"range":[0,0]}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 滑块主参数与派生参数的联动文案格式化器 */
+    var __LESSON_PARAM_LABEL_FORMATTER__;
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script>
+  function diagramMarkupFor() { return ''; }
+  function diagramMarkupForFrame() { return ''; }
+  function drawMini() { return ''; }
+  function groupTitle(section) { return section; }
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      diagramMarkupForFrame: typeof diagramMarkupForFrame === "function" ? diagramMarkupForFrame : undefined,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "参数",
+      paramLabelPrefix: "",
+      paramLabelFormatter: typeof __LESSON_PARAM_LABEL_FORMATTER__ === "function" ? __LESSON_PARAM_LABEL_FORMATTER__ : undefined,
+      goToProblemMode: "doubleScroll"
+    });
+  </script>
+</body>
+</html>

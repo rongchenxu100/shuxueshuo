@@ -9,7 +9,7 @@
   <meta property="og:description" content="定和求积的最大值的逐步解析。" />
   <meta property="og:image" content="../../../../assets/images/share-default.png" />
   <meta property="og:type" content="article" />
-  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css?v=23" />
+  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css?v=32" />
 </head>
 <body>
   <header class="lesson-topbar" role="navigation" aria-label="页面导航">
@@ -68,11 +68,11 @@
   <script src="../../../../assets/js/baidu-stats.js"></script>
   <script src="../../../../assets/js/geometry-label-layout.js"></script>
   <script src="../../../../assets/js/interactive-lesson-ui.js"></script>
-  <script src="../../../../assets/js/lesson-page-runtime.js?v=33"></script>
+  <script src="../../../../assets/js/lesson-page-runtime.js?v=43"></script>
 
   <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
   <script>
-    var STEPS      = [{"id":"s1","section":"基本不等式","title":"验证条件并求上界","t":0,"showDiagram":false,"reasoning":[{"kind":"because","text":"\\(m>0，n>0\\)，所以 \\(\\frac{m+n}{2}\\ge\\sqrt{mn}\\)"},{"kind":"therefore","text":"由 \\(m+n=2\\) 得 \\(1\\ge\\sqrt{mn}\\)，即 \\(mn\\le1\\)"},{"kind":"therefore","text":"当且仅当 \\(m=n=1\\) 时取等号，所以最大值为 \\(1\\)"}],"derive":[["最大值","1"],["等号条件","m=n=1"]],"visual":{"kind":"basic-inequality-mapping","title":"把题目中的正数放进基本不等式","methodTag":"直接型｜定和求积","template":"\\(\\frac{a+b}{2}\\ge\\sqrt{ab}\\)","mappings":[{"slot":"a","value":"m","condition":"\\(m>0\\)"},{"slot":"b","value":"n","condition":"\\(n>0\\)"}],"mapped":"\\(\\frac{m+n}{2}\\ge\\sqrt{mn}\\)","stageLabel":"代入定和","fixedSourceLabel":"已知","fixedCondition":"\\(m+n=2\\)","replacementText":"把 \\(m+n\\) 换成 \\(2\\)","replaced":"\\(\\frac{2}{2}\\ge\\sqrt{mn}\\)","simplifyLabel":"化简","substituted":"\\(1\\ge\\sqrt{mn}\\)","conclusionLabel":"平方后得到上界","conclusion":"\\(mn\\le1\\)","equalityTemplate":"\\(a=b\\)","equalityMapped":"\\(m=n\\)","equalityContextLabel":"结合定和","equalityResult":"\\(m=n=1\\)","caption":"先把题目变量与公式槽位对号入座，再代入定值并核对等号条件。"}}];
+    var STEPS      = [{"id":"s1","section":"基本不等式","title":"验证条件并求上界","t":0,"showDiagram":false,"visual":{"kind":"basic-inequality-mapping","title":"把两个完整正项放进彩色槽位","methodTag":"直接应用｜定和求积","template":"彩色方槽与彩色圆槽表示两个完整正项","mappings":[{"slot":"第一个正项","shape":"square","value":"m","condition":"\\(m>0\\)"},{"slot":"第二个正项","shape":"circle","value":"n","condition":"\\(n>0\\)"}],"mapped":"\\(\\frac{m+n}{2}\\ge\\sqrt{mn}\\)","stageLabel":"代入定和","fixedSourceLabel":"已知","fixedCondition":"\\(m+n=2\\)","replacementText":"把 \\(m+n\\) 换成 \\(2\\)","replaced":"\\(\\frac{2}{2}\\ge\\sqrt{mn}\\)","simplifyLabel":"化简","substituted":"\\(1\\ge\\sqrt{mn}\\)","conclusionLabel":"平方后得到上界","conclusion":"\\(mn\\le1\\)","equalityTemplate":"两个槽位相等","equalityMapped":"\\(m=n\\)","equalityContextLabel":"结合定和","equalityResult":"\\(m=n=1\\)","caption":"槽位中放入的是两个完整正项；本题把 m、n 直接装入彩色槽位，再代入定和并核对等号条件。"},"reasoning":[{"kind":"because","text":"\\(m>0，n>0\\)，所以 \\(\\frac{m+n}{2}\\ge\\sqrt{mn}\\)"},{"kind":"therefore","text":"由 \\(m+n=2\\) 得 \\(1\\ge\\sqrt{mn}\\)，即 \\(mn\\le1\\)"},{"kind":"therefore","text":"当且仅当 \\(m=n=1\\) 时取等号，所以最大值为 \\(1\\)"}],"derive":[["最大值","1"],["等号条件","m=n=1"]]}];
     var STEP_LABELS = {"s1":"1 验证条件并求上界"};
     var POLICIES   = {"s1":{"movable":false,"range":[0,0]}};
     /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
