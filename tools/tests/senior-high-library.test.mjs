@@ -251,7 +251,7 @@ test("builds the complete inequality topic with four published modules", () => {
     topic.modules[2].knowledgeGroups.find((group) => group.id === "iterated-product")?.eyebrow,
     "连续配对型",
   );
-  assert.match(repeatedKnowledge?.body.join(""), /待补取等关系数.*正变量个数.*有效等式条件数.*平方非负取零.*实际应用次数.*联立/);
+  assert.match(repeatedKnowledge?.body.join(""), /变量数.*已有取等条件数.*待补取等关系数.*整理等式.*配对应用基本不等式.*消元/);
   assert.notEqual(
     topic.modules[2].knowledgeGroups.find((group) => group.id === "symmetric-structure")?.showExercises,
     false,
@@ -267,7 +267,7 @@ test("builds the complete inequality topic with four published modules", () => {
     (block) => block.groupId === "substitution-method",
   );
   assert.equal(substitutionKnowledge?.basicInequalitySubstitutionVisual, true);
-  assert.match(substitutionKnowledge?.body.join(""), /复杂分母整体换元.*根号整体换元.*不要求是一次式.*结构收益.*范围与符号.*不必一一对应.*取等值.*平方和定值/);
+  assert.match(substitutionKnowledge?.body.join(""), /完整分母.*根号整体.*整体换元.*条件整式.*目标整式.*同步改写/);
   const eliminationKnowledge = topic.modules[2].knowledgeBlocks.find(
     (block) => block.groupId === "conditional-elimination",
   );
@@ -275,49 +275,53 @@ test("builds the complete inequality topic with four published modules", () => {
   assert.match(eliminationKnowledge?.body.join(""), /整理条件.*表示.*变量.*代入目标.*不额外引入新变量.*一元目标.*回代条件/);
   const libraryRuntime = fs.readFileSync(path.join(repoRoot, "site/assets/js/senior-high-library.js"), "utf8");
   const libraryStyles = fs.readFileSync(path.join(repoRoot, "site/assets/css/senior-high-library.css"), "utf8");
-  const substitutionRenderer = libraryRuntime.match(/const renderBasicInequalitySubstitutionVisual[\s\S]*?const renderFixedProductConditionVisual/)?.[0] || "";
-  const repeatedRenderer = libraryRuntime.match(/const renderBasicInequalityRepeatedVisual[\s\S]*?const renderSubstitutionDiscoveryRoute/)?.[0] || "";
+  const substitutionRenderer = libraryRuntime.match(/const renderBasicInequalitySubstitutionVisual[\s\S]*?const renderBasicInequalityEliminationVisual/)?.[0] || "";
+  const eliminationRenderer = libraryRuntime.match(/const renderBasicInequalityEliminationVisual[\s\S]*?const renderFixedProductConditionVisual/)?.[0] || "";
+  const repeatedRenderer = libraryRuntime.match(/const renderBasicInequalityRepeatedVisual[\s\S]*?const renderBasicInequalitySubstitutionVisual/)?.[0] || "";
+  const homogenizationRenderer = libraryRuntime.match(/const renderBasicInequalityHomogenizationVisual[\s\S]*?const renderBasicInequalitySymmetryVisual/)?.[0] || "";
   assert.match(libraryRuntime, /renderBasicInequalitySubstitutionVisual/);
-  assert.match(libraryRuntime, /整体识别.*同步换元.*后续方法显形/s);
-  assert.match(libraryRuntime, /换元不是终点.*下一步解法清晰可见/);
-  assert.match(substitutionRenderer, /整体反复出现或遮住结构.*根式等完整结构.*条件与目标一起变简单.*范围可控、取等可还原/s);
-  assert.match(libraryRuntime, /substitution-strategy-problem[\s\S]*完整题目/);
-  assert.match(substitutionRenderer, /常用策略.*复杂分母整体换元.*x，y∈ℝ，x\+y=2.*x&gt;−1，y&gt;−2/s);
-  assert.match(libraryRuntime, /正一次.*×.*负一次.*0 次齐次.*发现可以配齐次/s);
-  assert.match(libraryRuntime, /常用策略 2.*根号整体换元.*x².*y².*16.*mathRadical\("2\+y²"\).*\(4x\)²\+t²=18.*发现可以应用基本不等式/s);
-  assert.match(libraryRuntime, /renderBasicInequalityEliminationVisual.*整理条件.*表示变量.*代入目标.*不引入新变量.*发现可以应用基本不等式/s);
+  assert.match(libraryRuntime, /learningMethodHref/);
+  assert.match(libraryRuntime, /按第一解题入口选择方法/);
+  assert.match(libraryRuntime, /senior-learning-method-card-grid/);
+  assert.match(libraryRuntime, /data-learning-method/);
+  assert.match(libraryRuntime, /basic-positive-intake[\s\S]*正变量[\s\S]*正常数[\s\S]*完整表达式[\s\S]*函数值/);
+  assert.match(libraryRuntime, /basic-positive-routing[\s\S]*basic-slot-formula-lhs[\s\S]*取等/);
+  assert.doesNotMatch(libraryRuntime.match(/const renderBasicInequalitySlotVisual[\s\S]*?const renderFixedProductGoal/)?.[0] || "", /槽位/);
+  assert.match(libraryStyles, /\.basic-positive-examples[\s\S]*grid-template-columns: repeat\(2/);
+  assert.match(libraryStyles, /\.basic-positive-routing[\s\S]*\.basic-slot-formula-lhs/);
+  assert.match(homogenizationRenderer, /homogeneous-slot-template[\s\S]*原有整式[\s\S]*乘入定值/s);
+  assert.match(homogenizationRenderer, /m 次式[\s\S]*n 次式[\s\S]*0 次式[\s\S]*m\+n=0/s);
+  assert.doesNotMatch(homogenizationRenderer, /1\+\(−1\)=0/);
+  assert.match(libraryStyles, /\.homogeneous-degree-slot[\s\S]*aspect-ratio: 2\.05 \/ 1/);
+  assert.match(libraryStyles, /\.homogeneous-degree-slot > sup[\s\S]*top: -25px[\s\S]*right: -13px[\s\S]*font-size: 1\.5rem/);
+  assert.match(substitutionRenderer, /完整分母[\s\S]*substitution-fraction/);
+  assert.doesNotMatch(substitutionRenderer, /可以放入方框/);
+  assert.match(substitutionRenderer, /x\+1[\s\S]*根号整体[\s\S]*mathRadical\("2\+y²"\)/);
+  assert.match(substitutionRenderer, /substitution-slot-formula[\s\S]*放入完整结构的方框/);
+  assert.match(substitutionRenderer, /条件整式[\s\S]*目标整式[\s\S]*全部替换[\s\S]*u/);
+  assert.doesNotMatch(substitutionRenderer, /新条件整式|新目标整式|完整分母整体换元|根号整体换元/);
+  assert.doesNotMatch(substitutionRenderer, /后续方法显形|配齐次|应用基本不等式|完整题目|常用策略/);
+  assert.match(eliminationRenderer, /由条件表示变量[\s\S]*只含 x 的式子[\s\S]*目标整式[\s\S]*代入[\s\S]*一元式/);
+  assert.match(eliminationRenderer, /elimination-expression-slot[\s\S]*elimination-variable-slot[\s\S]*elimination-expression-slot/);
+  assert.doesNotMatch(eliminationRenderer, /elimination-result|elimination-no-new-variable|不引入新变量/);
+  assert.doesNotMatch(eliminationRenderer, /完整题目|常用策略|发现可以应用基本不等式|整理条件后消元/);
   assert.match(libraryRuntime, /renderBasicInequalityRepeatedVisual/);
-  assert.match(repeatedRenderer, /正变量个数/);
-  assert.match(repeatedRenderer, /已有的有效等式条件数/);
-  assert.match(repeatedRenderer, /还需要补出的取等关系数/);
-  assert.match(repeatedRenderer, /2 个变量 · 0 个条件/);
-  assert.match(repeatedRenderer, /2 个变量 · 1 个条件/);
-  assert.match(repeatedRenderer, /3 个变量 · 1 个条件/);
-  assert.match(repeatedRenderer, /判断关系缺口/);
-  assert.match(repeatedRenderer, /整理并观察/);
-  assert.match(repeatedRenderer, /逐层消元/);
-  assert.match(repeatedRenderer, /联立等号/);
-  assert.match(repeatedRenderer, /value: inlineMath\("a，b"\)/);
-  assert.match(repeatedRenderer, /conditions: \{ count: 0, value: "无" \}/);
-  assert.match(repeatedRenderer, /value: inlineMath\("x，y，z"\)/);
-  assert.match(repeatedRenderer, /先让变量 a 消失/);
-  assert.match(repeatedRenderer, /第一次后/);
-  assert.match(repeatedRenderer, /第二次后/);
-  assert.match(repeatedRenderer, /a=b=.*mathRadical\("2"\)/);
-  assert.match(repeatedRenderer, /xy=4/);
-  assert.match(repeatedRenderer, /xy=1/);
-  assert.doesNotMatch(substitutionRenderer, /label: "例 2"|2u\+v=7|还原取等/);
+  assert.match(repeatedRenderer, /先判断还缺几条取等关系/);
+  assert.match(repeatedRenderer, /变量数[\s\S]*已有取等条件数[\s\S]*待补取等关系数[\s\S]*n−k/);
+  assert.match(repeatedRenderer, /预计应用[\s\S]*n−k[\s\S]*次基本不等式/);
+  assert.match(repeatedRenderer, /整理等式[\s\S]*配对应用基本不等式[\s\S]*消元/);
+  assert.doesNotMatch(repeatedRenderer, /正变量|有效条件|平方非负|例 1|例 2|例 3|联立/);
   assert.match(libraryStyles, /\.basic-substitution-method/);
-  assert.match(libraryStyles, /\.substitution-method-conditions/);
-  assert.match(libraryStyles, /\.substitution-strategy-problem/);
-  assert.match(libraryStyles, /\.substitution-discovery-stages/);
+  assert.match(libraryStyles, /\.substitution-overview-examples/);
+  assert.match(libraryStyles, /\.substitution-fraction/);
+  assert.match(libraryStyles, /\.substitution-sync-rewrite/);
   assert.match(libraryStyles, /\.basic-repeated-method/);
-  assert.match(libraryStyles, /\.basic-repeated-count/);
-  assert.match(libraryStyles, /\.basic-repeated-pairing/);
-  assert.match(libraryStyles, /\.basic-repeated-chain/);
-  assert.match(libraryStyles, /\.basic-repeated-equalities/);
-  assert.match(libraryStyles, /@media \(max-width: 720px\)[\s\S]*\.basic-repeated-rule[\s\S]*\.basic-repeated-example/);
-  assert.match(libraryStyles, /@media \(max-width: 720px\)[\s\S]*\.substitution-method-conditions,[\s\S]*\.substitution-purpose-flow,[\s\S]*\.substitution-discovery-stages/);
+  assert.match(libraryStyles, /\.basic-repeated-count-formula/);
+  assert.match(libraryStyles, /\.basic-repeated-estimate/);
+  assert.match(libraryStyles, /\.basic-repeated-loop/);
+  assert.match(libraryStyles, /@media \(max-width: 720px\)[\s\S]*\.basic-repeated-core[\s\S]*\.basic-repeated-count-formula[\s\S]*\.basic-repeated-loop/);
+  assert.match(libraryStyles, /@media \(max-width: 720px\)[\s\S]*\.substitution-overview[\s\S]*\.substitution-sync-rewrite/);
+  assert.match(libraryStyles, /\.elimination-slot-overview[\s\S]*\.elimination-expression-slot[\s\S]*\.elimination-variable-slot[\s\S]*\.elimination-substitute-action/);
   assert.match(homogenizationKnowledge.body.join(""), /整体配齐.*局部配齐/);
   assert.equal(topic.modules[2].knowledgeBlocks.some((block) => block.fixedProductConditionVisual), false);
   assert.equal(topic.modules[2].knowledgeBlocks.some((block) => block.fixedProductCompletionVisual), false);
@@ -379,12 +383,14 @@ test("builds the complete inequality topic with four published modules", () => {
   assert.match(learningClient, /补齐一个低次项/);
   assert.match(learningClient, /逐个补齐括号/);
   assert.match(learningClient, /renderBasicInequalitySymmetryVisual/);
-  assert.match(learningClient, /找对称结构，是为了把两个变量压缩成“和”与“积”/);
-  assert.match(learningClient, /表达式保持不变，就是对称结构/);
-  assert.match(learningClient, /分别检查目标与条件/);
-  assert.match(learningClient, /s²≥4p/);
-  assert.match(learningClient, /目标表达式：正一次/);
-  assert.match(learningClient, /条件表达式：负一次/);
+  assert.match(learningClient, /交换.*x，y.*后原式不变，就是对称结构/);
+  assert.match(learningClient, /symmetric-memory-flow[\s\S]*交换变量[\s\S]*原式[\s\S]*交换后的式子[\s\S]*对称结构/);
+  assert.match(learningClient, /分别检查一次[\s\S]*目标式[\s\S]*条件式/);
+  assert.match(learningClient, /再用和与积换元[\s\S]*s=x\+y[\s\S]*p=xy/);
+  assert.doesNotMatch(learningClient.match(/const renderBasicInequalitySymmetryVisual[\s\S]*?const renderBasicInequalityRepeatedVisual/)?.[0] || "", /F\(x，y\)|symmetric-worked-map|symmetric-step-flow/);
+  assert.match(learningClient, /配齐次式的核心，是把目标整式总次数配成 0/);
+  assert.doesNotMatch(learningClient, /具体整式从方框外输入/);
+  assert.match(learningClient, /简化为只研究变量之间的比值\(变量比值乘积是定值\)/);
   assert.match(learningClient, /homogeneousCompletionTerm\("b\(a\+b\)"\)/);
   assert.match(learningClient, /2b=b\(a\+b\)=ab\+b²/);
   assert.doesNotMatch(learningClient, /加上常数项 1/);
@@ -1023,6 +1029,20 @@ test("normalizes direct learning-topic URLs and preserves worksheet URLs", () =>
     "?chapter=sets&section=set-concepts-and-representation&module=missing",
   );
   assert.equal(invalidModule.module, "overview");
+
+  const basicMethodState = model.parseSearch(
+    catalog,
+    "?chapter=inequalities&section=inequality-relations&module=basic-inequalities&method=substitution-method",
+  );
+  assert.equal(basicMethodState.module, "basic-inequalities");
+  assert.equal(basicMethodState.method, "substitution-method");
+  assert.match(model.stateToSearch(basicMethodState), /method=substitution-method/);
+
+  const invalidBasicMethod = model.parseSearch(
+    catalog,
+    "?chapter=inequalities&section=inequality-relations&module=basic-inequalities&method=missing",
+  );
+  assert.equal(invalidBasicMethod.method, "all");
 
   const worksheetState = model.parseSearch(
     catalog,
