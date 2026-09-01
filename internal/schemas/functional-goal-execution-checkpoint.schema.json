@@ -342,6 +342,9 @@
               "source": {
                 "$ref": "#/$defs/functional_ref"
               },
+              "resolved_ref": {
+                "$ref": "#/$defs/step_result_ref"
+              },
               "resolution": {
                 "enum": [
                   "source_snapshot",
@@ -800,6 +803,113 @@
                 }
               },
               "additionalProperties": false
+            },
+            "evidence_id": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "title": "SymbolicClosureExecutionEvidence",
+          "type": "object",
+          "required": [
+            "schema_version",
+            "step_id",
+            "target",
+            "target_value",
+            "equations",
+            "equation_sources",
+            "substitutions",
+            "branch_count",
+            "residual_symbols",
+            "affected_returns",
+            "constraint_summary",
+            "evidence_id"
+          ],
+          "properties": {
+            "schema_version": {
+              "const": "symbolic-closure-execution-evidence/v1"
+            },
+            "step_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "target": {
+              "type": "string",
+              "minLength": 1
+            },
+            "target_value": {
+              "type": "string",
+              "minLength": 1
+            },
+            "equations": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "equation_sources": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "substitutions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "symbol",
+                  "value"
+                ],
+                "properties": {
+                  "symbol": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "value": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "branch_count": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "residual_symbols": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "affected_returns": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "constraint_summary": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1
+                },
+                {
+                  "type": "null"
+                }
+              ]
             },
             "evidence_id": {
               "type": "string",

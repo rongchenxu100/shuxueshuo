@@ -25,6 +25,9 @@ PATH_MINIMUM_PROMPT_WITNESS_CONTRACT = "path-minimum-prompt-witness/v1"
 MACRO_SEARCH_EXECUTION_EVIDENCE_CONTRACT = (
     "macro-search-execution-evidence/v1"
 )
+SYMBOLIC_CLOSURE_EXECUTION_EVIDENCE_CONTRACT = (
+    "symbolic-closure-execution-evidence/v1"
+)
 VERIFIED_FUNCTIONAL_PLAN_EXECUTION_CONTRACT = (
     "verified-functional-plan-execution/v2"
 )
@@ -480,8 +483,154 @@ class MacroSearchExecutionEvidence:
         return evidence
 
 
+@dataclass(frozen=True)
+class SymbolicClosureExecutionEvidence:
+    """Public, identity-free evidence for one verified symbolic closure."""
+
+    step_id: str
+    target: str
+    target_value: str
+    equations: tuple[str, ...]
+    equation_sources: tuple[str, ...]
+    substitutions: tuple[tuple[str, str], ...]
+    branch_count: int
+    residual_symbols: tuple[str, ...]
+    affected_returns: tuple[str, ...]
+    constraint_summary: str | None = None
+    schema_version: str = SYMBOLIC_CLOSURE_EXECUTION_EVIDENCE_CONTRACT
+    evidence_id: str = field(init=False)
+
+    def __post_init__(self) -> None:
+        if self.schema_version != SYMBOLIC_CLOSURE_EXECUTION_EVIDENCE_CONTRACT:
+            raise ValueError("unsupported symbolic closure execution evidence")
+        for name in ("step_id", "target", "target_value"):
+            _nonempty(getattr(self, name), name)
+        if self.branch_count < 1:
+            raise ValueError("symbolic closure evidence requires a solved branch")
+        if not self.equations or not self.affected_returns:
+            raise ValueError(
+                "symbolic closure evidence requires equations and affected returns"
+            )
+        if len(self.affected_returns) != len(set(self.affected_returns)):
+            raise ValueError("symbolic closure affected returns must be unique")
+        object.__setattr__(self, "equations", tuple(self.equations))
+        object.__setattr__(self, "equation_sources", tuple(self.equation_sources))
+        object.__setattr__(self, "substitutions", tuple(self.substitutions))
+        object.__setattr__(self, "residual_symbols", tuple(self.residual_symbols))
+        object.__setattr__(self, "affected_returns", tuple(self.affected_returns))
+        object.__setattr__(
+            self,
+            "evidence_id",
+            stable_hash(self._payload(include_evidence_id=False)),
+        )
+
+    def _payload(self, *, include_evidence_id: bool) -> dict[str, Any]:
+        payload: dict[str, Any] = {
+            "schema_version": self.schema_version,
+            "step_id": self.step_id,
+            "target": self.target,
+            "target_value": self.target_value,
+            "equations": list(self.equations),
+            "equation_sources": list(self.equation_sources),
+            "substitutions": [
+                {"symbol": symbol, "value": value}
+                for symbol, value in self.substitutions
+            ],
+            "branch_count": self.branch_count,
+            "residual_symbols": list(self.residual_symbols),
+            "affected_returns": list(self.affected_returns),
+            "constraint_summary": self.constraint_summary,
+        }
+        if include_evidence_id:
+            payload["evidence_id"] = self.evidence_id
+        return payload
+
+    def authority_payload(self) -> dict[str, Any]:
+        return self._payload(include_evidence_id=True)
+
+    def to_payload(self) -> dict[str, Any]:
+        return self.authority_payload()
+
+    @classmethod
+    def from_payload(
+        cls,
+        payload: Mapping[str, Any],
+    ) -> "SymbolicClosureExecutionEvidence":
+        expected = {
+            "schema_version",
+            "step_id",
+            "target",
+            "target_value",
+            "equations",
+            "equation_sources",
+            "substitutions",
+            "branch_count",
+            "residual_symbols",
+            "affected_returns",
+            "constraint_summary",
+            "evidence_id",
+        }
+        if set(payload) != expected:
+            raise ValueError(
+                "Symbolic closure evidence payload fields do not match contract"
+            )
+        substitutions = _mapping_sequence(
+            payload.get("substitutions"),
+            "substitutions",
+        )
+        evidence = cls(
+            schema_version=_nonempty(payload.get("schema_version"), "schema_version"),
+            step_id=_nonempty(payload.get("step_id"), "step_id"),
+            target=_nonempty(payload.get("target"), "target"),
+            target_value=_nonempty(payload.get("target_value"), "target_value"),
+            equations=tuple(
+                _nonempty(item, "equations item")
+                for item in _sequence(payload.get("equations"), "equations")
+            ),
+            equation_sources=tuple(
+                _nonempty(item, "equation_sources item")
+                for item in _sequence(
+                    payload.get("equation_sources"),
+                    "equation_sources",
+                )
+            ),
+            substitutions=tuple(
+                (
+                    _nonempty(item.get("symbol"), "substitution symbol"),
+                    _nonempty(item.get("value"), "substitution value"),
+                )
+                for item in substitutions
+            ),
+            branch_count=int(payload.get("branch_count") or 0),
+            residual_symbols=tuple(
+                _nonempty(item, "residual_symbols item")
+                for item in _sequence(
+                    payload.get("residual_symbols"),
+                    "residual_symbols",
+                )
+            ),
+            affected_returns=tuple(
+                _nonempty(item, "affected_returns item")
+                for item in _sequence(
+                    payload.get("affected_returns"),
+                    "affected_returns",
+                )
+            ),
+            constraint_summary=(
+                str(payload["constraint_summary"])
+                if payload.get("constraint_summary") is not None
+                else None
+            ),
+        )
+        if payload.get("evidence_id") != evidence.evidence_id:
+            raise ValueError("Symbolic closure execution evidence hash drift")
+        return evidence
+
+
 FunctionalExecutionEvidence: TypeAlias = (
-    PathMinimumWitness | MacroSearchExecutionEvidence
+    PathMinimumWitness
+    | MacroSearchExecutionEvidence
+    | SymbolicClosureExecutionEvidence
 )
 
 
@@ -493,6 +642,8 @@ def functional_execution_evidence_from_payload(
         return PathMinimumWitness.from_payload(payload)
     if schema_version == MACRO_SEARCH_EXECUTION_EVIDENCE_CONTRACT:
         return MacroSearchExecutionEvidence.from_payload(payload)
+    if schema_version == SYMBOLIC_CLOSURE_EXECUTION_EVIDENCE_CONTRACT:
+        return SymbolicClosureExecutionEvidence.from_payload(payload)
     raise ValueError("unsupported Functional execution evidence contract")
 
 
@@ -501,6 +652,9 @@ def functional_execution_evidence_schema() -> dict[str, Any]:
         "oneOf": [
             path_minimum_witness_schema(include_document_header=False),
             macro_search_execution_evidence_schema(include_document_header=False),
+            symbolic_closure_execution_evidence_schema(
+                include_document_header=False
+            ),
         ]
     }
 
@@ -698,6 +852,73 @@ def macro_search_execution_evidence_schema(
     return schema
 
 
+def symbolic_closure_execution_evidence_schema(
+    *, include_document_header: bool = True
+) -> dict[str, Any]:
+    nonempty = {"type": "string", "minLength": 1}
+    schema: dict[str, Any] = {
+        "title": "SymbolicClosureExecutionEvidence",
+        "type": "object",
+        "required": [
+            "schema_version",
+            "step_id",
+            "target",
+            "target_value",
+            "equations",
+            "equation_sources",
+            "substitutions",
+            "branch_count",
+            "residual_symbols",
+            "affected_returns",
+            "constraint_summary",
+            "evidence_id",
+        ],
+        "properties": {
+            "schema_version": {
+                "const": SYMBOLIC_CLOSURE_EXECUTION_EVIDENCE_CONTRACT
+            },
+            "step_id": nonempty,
+            "target": nonempty,
+            "target_value": nonempty,
+            "equations": {
+                "type": "array",
+                "minItems": 1,
+                "items": nonempty,
+            },
+            "equation_sources": {"type": "array", "items": nonempty},
+            "substitutions": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "required": ["symbol", "value"],
+                    "properties": {"symbol": nonempty, "value": nonempty},
+                    "additionalProperties": False,
+                },
+            },
+            "branch_count": {"type": "integer", "minimum": 1},
+            "residual_symbols": {"type": "array", "items": nonempty},
+            "affected_returns": {
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": True,
+                "items": nonempty,
+            },
+            "constraint_summary": {
+                "anyOf": [nonempty, {"type": "null"}]
+            },
+            "evidence_id": nonempty,
+        },
+        "additionalProperties": False,
+    }
+    if include_document_header:
+        schema = {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "$id": "symbolic-closure-execution-evidence.schema.json",
+            **schema,
+        }
+    return schema
+
+
 def _embedded_report_schema() -> dict[str, Any]:
     report = dict(macro_runtime_search_report_schema())
     for key in ("$schema", "$id", "title"):
@@ -768,9 +989,11 @@ __all__ = [
     "MacroSearchExecutionEvidence",
     "PATH_MINIMUM_PROMPT_WITNESS_CONTRACT",
     "PATH_MINIMUM_WITNESS_CONTRACT",
+    "SYMBOLIC_CLOSURE_EXECUTION_EVIDENCE_CONTRACT",
     "PathMinimumPromptWitness",
     "PathMinimumPromptWitnessProjector",
     "PathMinimumWitness",
+    "SymbolicClosureExecutionEvidence",
     "VERIFIED_FUNCTIONAL_PLAN_EXECUTION_CONTRACT",
     "canonical_json",
     "functional_execution_evidence_from_payload",
@@ -778,5 +1001,6 @@ __all__ = [
     "macro_search_execution_evidence_schema",
     "path_minimum_prompt_witness_schema",
     "path_minimum_witness_schema",
+    "symbolic_closure_execution_evidence_schema",
     "thaw_json",
 ]

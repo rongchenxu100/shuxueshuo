@@ -9,7 +9,61 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-from shuxueshuo_server.solver.contracts import TeachingSubstepSpec
+from shuxueshuo_server.solver.contracts import TeachingSubstepSpec, TeachingUnitSpec
+
+
+@dataclass(frozen=True)
+class TeachingVariantSpec:
+    """A verified-evidence-selected teaching path for one Macro."""
+
+    variant_key: str
+    evidence_match: dict[str, Any]
+    teaching_units: tuple[TeachingUnitSpec, ...]
+
+    def __post_init__(self) -> None:
+        if not self.variant_key or not self.evidence_match or not self.teaching_units:
+            raise ValueError("TeachingVariantSpec fields must be non-empty")
+
+    def to_payload(self) -> dict[str, Any]:
+        return {
+            "variant_key": self.variant_key,
+            "evidence_match": dict(self.evidence_match),
+            "teaching_units": [item.to_payload() for item in self.teaching_units],
+        }
+
+
+@dataclass(frozen=True)
+class MacroTeachingSpec:
+    """One fixed unit path or a set of evidence-selected paths, never both."""
+
+    teaching_units: tuple[TeachingUnitSpec, ...] = ()
+    teaching_variants: tuple[TeachingVariantSpec, ...] = ()
+
+    def __post_init__(self) -> None:
+        if bool(self.teaching_units) == bool(self.teaching_variants):
+            raise ValueError(
+                "MacroTeachingSpec requires exactly one of teaching_units or "
+                "teaching_variants"
+            )
+        keys = tuple(
+            item.unit_key
+            for item in self.teaching_units
+            or tuple(
+                unit
+                for variant in self.teaching_variants
+                for unit in variant.teaching_units
+            )
+        )
+        if len(keys) != len(set(keys)):
+            raise ValueError("MacroTeachingSpec unit keys must be unique")
+
+    def to_payload(self) -> dict[str, Any]:
+        return {
+            "teaching_units": [item.to_payload() for item in self.teaching_units],
+            "teaching_variants": [
+                item.to_payload() for item in self.teaching_variants
+            ],
+        }
 
 
 @dataclass(frozen=True)
@@ -87,6 +141,7 @@ class RecipeSpecSource:
     execution_strategy: str
     outputs: dict[str, str]
     explanation: RecipeExplanationSpec | None = None
+    teaching: MacroTeachingSpec | None = None
     visual: RecipeVisualSpec | None = None
     repair_hints: tuple[dict[str, Any], ...] = ()
     repair_feedback_provider_id: str | None = None
@@ -102,6 +157,8 @@ class RecipeSpecSource:
         }
         if self.explanation is not None:
             payload["explanation"] = self.explanation.to_payload()
+        if self.teaching is not None:
+            payload["teaching"] = self.teaching.to_payload()
         if self.visual is not None:
             payload["visual"] = self.visual.to_payload()
         if self.repair_hints:
@@ -126,6 +183,7 @@ class RecipeSpec:
     execution_strategy: str
     outputs: dict[str, str]
     explanation: RecipeExplanationSpec | None = None
+    teaching: MacroTeachingSpec | None = None
     visual: RecipeVisualSpec | None = None
     repair_hints: tuple[dict[str, Any], ...] = ()
     repair_feedback_provider_id: str | None = None
@@ -140,6 +198,7 @@ def recipe_spec_from_source(source: RecipeSpecSource) -> RecipeSpec:
         execution_strategy=source.execution_strategy,
         outputs=dict(source.outputs),
         explanation=source.explanation,
+        teaching=source.teaching,
         visual=source.visual,
         repair_hints=source.repair_hints,
         repair_feedback_provider_id=source.repair_feedback_provider_id,

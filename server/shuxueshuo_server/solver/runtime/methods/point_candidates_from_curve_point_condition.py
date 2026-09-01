@@ -9,6 +9,7 @@ from shuxueshuo_server.solver.contracts import (
     MethodExplanationSpec,
     MethodInputRelationSpec,
     MethodVisualSpec,
+    TeachingUnitSpec,
 )
 
 from ._common import *
@@ -195,6 +196,31 @@ SPEC = MethodSpecSource(
             "∴{target_candidates}",
         ),
         box_templates=("{target_candidates}",),
+        role_binder_id="point_candidates_from_curve_point_condition",
+    ),
+    teaching_unit=TeachingUnitSpec(
+        unit_key="point_candidates_from_curve_point_condition/solve_candidates",
+        title_template="代入{curve_kind}求点{target_label}候选",
+        nav_title_template="求点{target_label}候选",
+        goal_template="把同参数曲线点代入已知曲线，解参数并回代目标点。",
+        derive_templates=(
+            ("∵", "{curve_point} 在 {curve_equation} 上"),
+            ("∴", "{substitution_equation}"),
+            ("计算", "{parameter_equation}"),
+            ("∴", "{parameter_solutions}"),
+            ("∴", "{target_candidates}"),
+        ),
+        box_templates=("{target_candidates}",),
+        role_schema={
+            "target_label": "目标点点名。",
+            "curve_kind": "曲线类型的学生化名称。",
+            "curve_point": "带参数的曲线点。",
+            "curve_equation": "已确定的曲线方程。",
+            "substitution_equation": "曲线点代入后的方程。",
+            "parameter_equation": "整理后的参数方程。",
+            "parameter_solutions": "原参数的解。",
+            "target_candidates": "目标点候选列表。",
+        },
         role_binder_id="point_candidates_from_curve_point_condition",
     ),
     visual=MethodVisualSpec(

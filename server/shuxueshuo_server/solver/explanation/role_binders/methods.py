@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import Any, Protocol
+from typing import Any, Mapping, Protocol
 
 import sympy as sp
 
@@ -194,7 +194,68 @@ class QuadraticXAxisInterceptPointRoleBinder(RoleNameRegistryMethodRoleBinder):
             point = _verified_point_display_for_step(group, snapshot)
         if point:
             roles["target_point"] = point
+        roots = _quadratic_x_axis_roots(expression)
+        if roots:
+            roles["root_candidates"] = " 或 ".join(
+                f"x＝{_student_square_expr(root)}" for root in roots
+            )
+        selection_reason = _x_axis_intercept_selection_reason(
+            point=point,
+            roots=roots,
+            snapshot=snapshot,
+        )
+        if selection_reason:
+            roles["selection_reason"] = selection_reason
         return roles
+
+
+def _quadratic_x_axis_roots(expression: str) -> list[sp.Expr]:
+    if not expression:
+        return []
+    try:
+        x = sp.Symbol("x")
+        roots = [
+            sp.simplify(root)
+            for root in sp.solve(sp.Eq(sp.sympify(str(expression)), 0), x)
+        ]
+    except Exception:
+        return []
+    return sorted(roots, key=sp.default_sort_key)
+
+
+def _x_axis_intercept_selection_reason(
+    *,
+    point: str,
+    roots: list[sp.Expr],
+    snapshot: ExplanationSnapshot,
+) -> str:
+    label = _point_label_from_display(point)
+    selected_x = ""
+    if "(" in point and point.endswith(")"):
+        coordinates = [
+            part.strip()
+            for part in point[point.find("(") + 1 : -1].split(",")
+        ]
+        if len(coordinates) == 2:
+            selected_x = coordinates[0]
+    side = ""
+    for entity in (snapshot.problem or {}).get("entities") or ():
+        if not isinstance(entity, dict) or str(entity.get("name") or "") != label:
+            continue
+        candidate = str(entity.get("side") or "").strip().lower()
+        if candidate in {"left", "right"}:
+            side = candidate
+            break
+    if side:
+        direction = "左侧" if side == "left" else "右侧"
+        ordering = "较小根" if side == "left" else "较大根"
+        suffix = f" x＝{selected_x}" if selected_x else ""
+        return f"{label or '目标点'} 定义为{direction}交点，取{ordering}{suffix}"
+    if len(roots) == 1:
+        return "方程只有一个交点横坐标"
+    if selected_x:
+        return f"结合{label or '目标点'}的定义，取 x＝{selected_x}"
+    return ""
 
 
 class QuadraticAxisParameterizedPointRoleBinder(RoleNameRegistryMethodRoleBinder):
@@ -325,6 +386,14 @@ class QuadraticFromConstraintsRoleBinder(RoleNameRegistryMethodRoleBinder):
         )
         if curve_point_derivation:
             roles["derive_items"] = curve_point_derivation
+            roles["constraint_origin"] = curve_point_derivation[0].removeprefix("∵")
+            roles["constraint_derivation"] = "；".join(
+                item.removeprefix("∵").removeprefix("∴")
+                for item in curve_point_derivation[1:-1]
+            )
+        else:
+            roles["constraint_origin"] = "题设给出当前二次函数的系数条件"
+            roles["constraint_derivation"] = str(roles["constraints"])
         return roles
 
 
@@ -561,9 +630,16 @@ def _quadratic_curve_point_derivation(
     calculation: str,
     result_parabola: str,
     completed_square_suffix: str,
+    use_verified_source: bool = False,
 ) -> list[str]:
     step = group.step
-    curve_point = _curve_point_constraint_read(step, snapshot)
+    curve_point = (
+        _curve_point_constraint_from_verified_source(group, snapshot)
+        if use_verified_source
+        else None
+    )
+    if curve_point is None:
+        curve_point = _curve_point_constraint_read(step, snapshot)
     if curve_point is None:
         return []
     label, point_pair, parabola = curve_point
@@ -576,6 +652,10 @@ def _quadratic_curve_point_derivation(
     except Exception:
         return []
     relation = _coefficient_substitution_text(calculation)
+    if not relation and len(group.sources) == 1:
+        coefficients = group.sources[0].outputs.get("coefficients")
+        if isinstance(coefficients, Mapping):
+            relation = _coefficient_mapping_display(coefficients.get("value"))
     if not relation:
         return []
     items = [
@@ -593,6 +673,64 @@ def _quadratic_curve_point_derivation(
     if result_parabola:
         items.append(f"∴y＝{result_parabola}{completed_square_suffix}")
     return items
+
+
+def _curve_point_constraint_from_verified_source(
+    group: LessonCandidateGroup,
+    snapshot: ExplanationSnapshot,
+) -> tuple[str, tuple[sp.Expr, sp.Expr], sp.Expr] | None:
+    """Resolve a curve-point equation from exact v3 inputs and ProblemIR roles."""
+
+    if len(group.sources) != 1:
+        return None
+    source = group.sources[0]
+    curve_points = source.inputs.get("curve_point", ())
+    if len(curve_points) != 1:
+        return None
+    item = curve_points[0]
+    ref = item.get("ref")
+    value = item.get("value")
+    if not isinstance(ref, Mapping) or ref.get("kind") != "source":
+        return None
+    label = str(ref.get("ref") or "")
+    point_pair = _sympy_point_pair(value)
+    if not label or point_pair is None:
+        return None
+
+    entities = tuple(
+        entity
+        for entity in (snapshot.problem or {}).get("entities") or ()
+        if isinstance(entity, Mapping)
+    )
+    point = next(
+        (
+            entity
+            for entity in entities
+            if str(entity.get("name") or "") == label
+            and str(entity.get("entity_type") or "") == "point"
+        ),
+        None,
+    )
+    curve_handle = str(point.get("of") or "") if point is not None else ""
+    curve = next(
+        (
+            entity
+            for entity in entities
+            if str(entity.get("handle") or "") == curve_handle
+            and entity.get("expression") not in (None, "")
+        ),
+        None,
+    )
+    if curve is None:
+        return None
+    try:
+        parabola = sp.sympify(
+            str(curve["expression"]),
+            locals={"sqrt": sp.sqrt, "Abs": sp.Abs, "abs": sp.Abs},
+        )
+    except Exception:
+        return None
+    return label, point_pair, parabola
 
 
 def _factored_residual_display(factored: sp.Expr, calculation: str) -> str:
@@ -1508,7 +1646,6 @@ def _square_adjacent_detail(
             step,
             snapshot,
             used_labels,
-            preferred=("Q", "R", "S"),
         )
         used_labels.add(side_projection_label)
         target_projection_label = _projection_label_for_pair(
@@ -1516,7 +1653,6 @@ def _square_adjacent_detail(
             step,
             snapshot,
             used_labels,
-            preferred=("Q", "R", "S"),
         )
         reference_line = _square_projection_reference_line(base, side_projection, target_projection)
         roles.update(
@@ -1571,16 +1707,52 @@ def _projection_label_for_pair(
     step: dict[str, Any],
     snapshot: ExplanationSnapshot,
     used_labels: set[str],
-    *,
-    preferred: tuple[str, ...],
 ) -> str:
     existing = _existing_projection_point_label(pair, step, snapshot, used_labels)
     if existing:
         return existing
-    for label in (*preferred, "Q", "R", "S", "T", "U", "V", "W"):
+    return _next_auxiliary_point_label(
+        {*_point_labels_in_snapshot(snapshot), *used_labels}
+    )
+
+
+def _point_labels_in_snapshot(snapshot: ExplanationSnapshot) -> set[str]:
+    labels = {
+        str(entity.get("name") or "")
+        for entity in (snapshot.problem or {}).get("entities") or ()
+        if isinstance(entity, dict) and entity.get("entity_type") == "point"
+    }
+    labels.update(
+        _semantic_point_label(
+            str(item.get("name") or handle_name(str(item.get("handle") or "")))
+        )
+        for item in snapshot.fact_index.values()
+        if isinstance(item, dict) and item.get("type") == "Point"
+    )
+    return {label for label in labels if label}
+
+
+def _next_auxiliary_point_label(used_labels: set[str]) -> str:
+    """Allocate a fresh point name from the current mathematical namespace."""
+
+    alphabet = tuple(chr(code) for code in range(ord("A"), ord("Z") + 1))
+    occupied_single = [
+        alphabet.index(label)
+        for label in used_labels
+        if label in alphabet
+    ]
+    start = max(occupied_single, default=-1) + 1
+    ordered = (*alphabet[start:], *alphabet[:start])
+    for label in ordered:
         if label not in used_labels:
             return label
-    return "Q"
+    suffix = 1
+    while True:
+        for label in alphabet:
+            candidate = f"{label}{suffix}"
+            if candidate not in used_labels:
+                return candidate
+        suffix += 1
 
 
 def _existing_projection_point_label(

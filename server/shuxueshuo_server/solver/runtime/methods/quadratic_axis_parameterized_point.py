@@ -10,6 +10,7 @@ from shuxueshuo_server.solver.contracts import (
     MethodExplanationSpec,
     MethodVisualSpec,
     ScalarResultFormSpec,
+    TeachingUnitSpec,
 )
 from shuxueshuo_server.solver.math_ops import vertex_of_quadratic
 
@@ -122,6 +123,23 @@ SPEC = MethodSpecSource(
             "∴设 {parameterized_point}",
         ),
         box_templates=("{parameterized_point}",),
+        role_binder_id="quadratic_axis_parameterized_point",
+    ),
+    teaching_unit=TeachingUnitSpec(
+        unit_key="quadratic_axis_parameterized_point/parameterize_axis_point",
+        title_template="设对称轴上的参数点",
+        nav_title_template="设参数点",
+        goal_template="由对称轴方程，用一个参数表示轴上的目标点。",
+        derive_templates=(
+            ("∵", "{target} 在对称轴 {axis_equation} 上"),
+            ("设", "{parameterized_point}"),
+        ),
+        box_templates=("{parameterized_point}",),
+        role_schema={
+            "target": "对称轴上的目标点。",
+            "axis_equation": "当前抛物线的对称轴方程。",
+            "parameterized_point": "目标点的参数化坐标。",
+        },
         role_binder_id="quadratic_axis_parameterized_point",
     ),
     visual=MethodVisualSpec(

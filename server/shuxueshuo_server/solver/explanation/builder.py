@@ -21,8 +21,9 @@ from .models import (
     LessonIR,
     LessonSection,
     LessonStep,
-    TeachingCrossScopeReference,
-    TeachingTraceEntry,
+    TeachingSource,
+    iter_teaching_sources,
+    teaching_source_owners,
 )
 from .target_labels import (
     target_point_label_for_group as _target_point_label_for_group,
@@ -329,7 +330,9 @@ class LessonIRValidator:
             if forbidden in text:
                 raise LessonIRValidationError(f"LessonIR contains forbidden content: {forbidden}")
         source_ids = {step["step_id"] for step in snapshot.effective_steps}
-        trace_ids = {entry.trace_id for entry in snapshot.teaching_trace}
+        trace_ids = {
+            source.trace_id for source in iter_teaching_sources(snapshot.root_scope)
+        }
         allowed_handles = _allowed_handles(snapshot)
         for step in lesson.steps:
             unknown_sources = sorted(set(step.source_step_ids) - source_ids)
@@ -346,29 +349,29 @@ class LessonIRValidator:
 
 
 def _build_lesson_groups(snapshot: ExplanationSnapshot) -> list[LessonCandidateGroup]:
-    traces_by_step: dict[str, list[TeachingTraceEntry]] = defaultdict(list)
-    for entry in snapshot.teaching_trace:
-        traces_by_step[entry.source_step_id].append(entry)
+    sources_by_step = {
+        source.source_step_id: source
+        for source in iter_teaching_sources(snapshot.root_scope)
+    }
     steps_by_id = {
         str(step["step_id"]): step for step in snapshot.effective_steps
     }
-    references_by_step: dict[str, list[Any]] = defaultdict(list)
-    for reference in snapshot.cross_scope_references:
-        references_by_step[reference.target_step_id].append(reference)
+    reference_lines_by_step = _cross_scope_reference_lines(snapshot)
     groups = []
     for step_id in steps_by_id:
         step = steps_by_id[step_id]
-        traces = tuple(traces_by_step.get(str(step["step_id"]), ()))
-        if traces and all(entry.hidden_reason for entry in traces):
-            continue
+        source = sources_by_step.get(str(step["step_id"]))
+        if source is None:
+            raise LessonIRValidationError(
+                f"missing TeachingSource for canonical step: {step_id}"
+            )
         groups.extend(
             _split_lesson_group(
                 LessonCandidateGroup(
                     step,
-                    traces,
-                    required_reference_lines=tuple(
-                        _student_reference_line(reference, snapshot)
-                        for reference in references_by_step.get(step_id, ())
+                    (source,),
+                    required_reference_lines=reference_lines_by_step.get(
+                        step_id, ()
                     ),
                 )
             )
@@ -376,8 +379,46 @@ def _build_lesson_groups(snapshot: ExplanationSnapshot) -> list[LessonCandidateG
     return groups
 
 
+def _cross_scope_reference_lines(
+    snapshot: ExplanationSnapshot,
+) -> dict[str, tuple[str, ...]]:
+    owners = teaching_source_owners(snapshot.root_scope)
+    sources = {
+        source.source_step_id: source
+        for source in iter_teaching_sources(snapshot.root_scope)
+    }
+    result: dict[str, list[str]] = defaultdict(list)
+    for target in sources.values():
+        target_scope = owners[target.source_step_id][0]
+        for values in target.inputs.values():
+            for value in values:
+                ref = value.get("resolved_from") or value.get("ref")
+                if not isinstance(ref, dict) or ref.get("kind") != "step_result":
+                    continue
+                source_id = str(ref.get("step_id") or "")
+                return_name = str(ref.get("return") or "")
+                source = sources.get(source_id)
+                if source is None or return_name not in source.outputs:
+                    raise LessonIRValidationError(
+                        "invalid exact cross-scope TeachingSource reference"
+                    )
+                source_scope = owners[source_id][0]
+                if source_scope == target_scope:
+                    continue
+                line = _student_reference_line(
+                    source_step_id=source_id,
+                    source_scope_id=source_scope,
+                    snapshot=snapshot,
+                )
+                if line not in result[target.source_step_id]:
+                    result[target.source_step_id].append(line)
+    return {key: tuple(values) for key, values in result.items()}
+
+
 def _student_reference_line(
-    reference: TeachingCrossScopeReference,
+    *,
+    source_step_id: str,
+    source_scope_id: str,
     snapshot: ExplanationSnapshot,
 ) -> str:
     scope_label = next(
@@ -385,16 +426,16 @@ def _student_reference_line(
             str(item.get("label"))
             for item in snapshot.problem.get("scopes", ())
             if isinstance(item, dict)
-            and str(item.get("scope_id")) == reference.source_scope_id
+            and str(item.get("scope_id")) == source_scope_id
             and item.get("label")
         ),
-        _section_title(reference.source_scope_id),
+        _section_title(source_scope_id),
     )
     source_step = next(
         (
             step
             for step in snapshot.effective_steps
-            if str(step.get("step_id")) == reference.source_step_id
+            if str(step.get("step_id")) == source_step_id
         ),
         None,
     )
@@ -537,7 +578,7 @@ def _split_lesson_group(group: LessonCandidateGroup) -> tuple[LessonCandidateGro
     return tuple(
         LessonCandidateGroup(
             group.step,
-            group.traces,
+            group.sources,
             teaching_substep_id=substep.substep_id,
             teaching_substep_title=substep.title,
             teaching_substep_nav_title=substep.nav_title,

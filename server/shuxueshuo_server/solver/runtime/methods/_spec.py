@@ -23,6 +23,7 @@ from shuxueshuo_server.solver.contracts import (
     PlanTransformerScope,
     ScalarResultFormSpec,
     SymbolicClosureSpec,
+    TeachingUnitSpec,
     TrialErrorHintSpec,
 )
 from shuxueshuo_server.solver.runtime.method_input_contracts import (
@@ -101,6 +102,7 @@ class MethodSpecSource:
     repair_feedback_provider_id: str | None = None
     geometry_profiles: tuple[dict[str, Any], ...] = ()
     explanation: MethodExplanationSpec | None = None
+    teaching_unit: TeachingUnitSpec | None = None
     visual: MethodVisualSpec | None = None
     description: str = ""
     summary: str = ""
@@ -188,6 +190,8 @@ class MethodSpecSource:
             ]
         if self.explanation is not None:
             payload["explanation"] = _json_ready_explanation(self.explanation)
+        if self.teaching_unit is not None:
+            payload["teaching_unit"] = self.teaching_unit.to_payload()
         if self.visual is not None:
             payload["visual"] = _json_ready_visual(self.visual)
         if self.constraint_analyzer is not None:

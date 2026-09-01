@@ -24,16 +24,16 @@ def _snapshot() -> ExplanationSnapshot:
     )
 
 
-def test_snapshot_v2_does_not_project_transactional_symbolic_closure() -> None:
+def test_snapshot_v3_without_closure_has_no_symbolic_evidence() -> None:
     snapshot = _snapshot()
 
     assert snapshot.symbolic_closures == ()
     assert "symbolic_closures" not in snapshot.to_payload()
 
 
-def test_snapshot_v2_rejects_legacy_symbolic_closure_payload() -> None:
+def test_snapshot_v3_rejects_legacy_top_level_symbolic_closure_payload() -> None:
     payload = _snapshot().to_payload()
     payload["symbolic_closures"] = []
 
-    with pytest.raises(ValueError, match="fields do not match v2 contract"):
+    with pytest.raises(ValueError, match="fields do not match v3 contract"):
         explanation_snapshot_from_payload(payload)

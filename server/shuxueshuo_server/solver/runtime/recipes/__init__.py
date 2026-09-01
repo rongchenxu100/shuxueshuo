@@ -7,7 +7,14 @@ during the migration.
 
 from __future__ import annotations
 
-from ._spec import RecipeExplanationSpec, RecipeSpec, RecipeSpecSource, TeachingSubstepSpec
+from ._spec import (
+    MacroTeachingSpec,
+    RecipeExplanationSpec,
+    RecipeSpec,
+    RecipeSpecSource,
+    TeachingSubstepSpec,
+    TeachingVariantSpec,
+)
 from .coupled_segment_path_minimum import (
     SPEC as COUPLED_SEGMENT_PATH_MINIMUM_SPEC,
 )
@@ -31,10 +38,12 @@ __all__ = [
     "EQUAL_LENGTH_RAY_PATH_REDUCTION_SPEC",
     "QUADRATIC_SQUARE_PATH_MINIMUM_SPEC",
     "WEIGHTED_AXIS_PATH_MINIMUM_SPEC",
+    "MacroTeachingSpec",
     "RecipeExplanationSpec",
     "RecipeSpec",
     "RecipeSpecRegistry",
     "RecipeSpecSource",
     "TeachingSubstepSpec",
+    "TeachingVariantSpec",
     "recipe_spec_payloads",
 ]

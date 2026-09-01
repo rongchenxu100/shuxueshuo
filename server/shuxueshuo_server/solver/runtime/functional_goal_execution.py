@@ -8,6 +8,7 @@ from types import MappingProxyType
 from typing import Any, Literal, Mapping, Sequence
 
 from jsonschema import Draft202012Validator
+import sympy as sp
 
 from shuxueshuo_server.solver.extraction.problem_planning_binding import (
     FunctionalProblemBindingContext,
@@ -34,6 +35,7 @@ from shuxueshuo_server.solver.runtime.functional_execution_authority import (
     MacroSearchExecutionEvidence,
     PathMinimumPromptWitnessProjector,
     PathMinimumWitness,
+    SymbolicClosureExecutionEvidence,
     VERIFIED_FUNCTIONAL_PLAN_EXECUTION_CONTRACT,
     functional_execution_evidence_from_payload,
     functional_execution_evidence_schema,
@@ -141,6 +143,7 @@ def functional_goal_execution_checkpoint_schema() -> dict[str, Any]:
                         "arg": nonempty,
                         "index": {"type": "integer", "minimum": 0},
                         "source": {"$ref": "#/$defs/functional_ref"},
+                        "resolved_ref": {"$ref": "#/$defs/step_result_ref"},
                         "resolution": {
                             "enum": [
                                 "source_snapshot",
@@ -2907,24 +2910,70 @@ def _transaction_call_result_prompt_refs(
 def _transaction_execution_evidence(
     transaction: Any | None,
 ) -> dict[str, tuple[FunctionalExecutionEvidence, ...]]:
-    """Collect generic Macro evidence from the exact transactional attempt."""
+    """Collect public evidence from the exact transactional attempt."""
 
     if transaction is None:
         return {}
+    call_results = {
+        item.call_id: item
+        for item in transaction.execution_report.call_results
+    }
     evidence: dict[str, tuple[FunctionalExecutionEvidence, ...]] = {}
     for compiled in transaction.execution_report.compiled_calls:
+        items: list[FunctionalExecutionEvidence] = []
         if compiled.path_minimum_witness is not None:
-            evidence[compiled.call_id] = (compiled.path_minimum_witness,)
-            continue
-        report = compiled.macro_search_report
-        if report is None:
-            continue
-        evidence[compiled.call_id] = (
-            MacroSearchExecutionEvidence(
-                step_id=compiled.call_id,
-                report=report,
-            ),
-        )
+            items.append(compiled.path_minimum_witness)
+        elif compiled.macro_search_report is not None:
+            items.append(
+                MacroSearchExecutionEvidence(
+                    step_id=compiled.call_id,
+                    report=compiled.macro_search_report,
+                )
+            )
+        result = call_results.get(compiled.call_id)
+        closure = result.symbolic_closure if result is not None else None
+        if (
+            result is not None
+            and result.status == "verified"
+            and closure is not None
+            and closure.status == "unique"
+            and closure.target is not None
+            and closure.target_value is not None
+            and closure.validation_build is not None
+        ):
+            items.append(
+                SymbolicClosureExecutionEvidence(
+                    step_id=compiled.call_id,
+                    target=sp.sstr(closure.target),
+                    target_value=sp.sstr(closure.target_value),
+                    equations=tuple(
+                        sp.sstr(item)
+                        for item in closure.validation_build.equations
+                    ),
+                    equation_sources=tuple(
+                        closure.provenance.equation_sources
+                        if closure.provenance is not None
+                        else ()
+                    ),
+                    substitutions=tuple(
+                        (sp.sstr(symbol), sp.sstr(value))
+                        for symbol, value in closure.substitutions
+                    ),
+                    branch_count=closure.branch_count,
+                    residual_symbols=tuple(
+                        sp.sstr(symbol) for symbol in closure.residual_symbols
+                    ),
+                    affected_returns=tuple(closure.affected_returns),
+                    constraint_summary=(
+                        "题设约束已用于筛选唯一合法分支"
+                        if closure.provenance is not None
+                        and closure.provenance.constraint_filter is not None
+                        else None
+                    ),
+                )
+            )
+        if items:
+            evidence[compiled.call_id] = tuple(items)
     return evidence
 
 
@@ -2945,6 +2994,14 @@ def _build_checkpoint(
 ) -> FunctionalGoalExecutionCheckpoint:
     invalid_issues = dict(step_issues)
     transaction = replay.transactional_attempt_result if replay is not None else None
+    reconciliation = (
+        replay.functional_reconciliation if replay is not None else None
+    )
+    binding_context = (
+        reconciliation.functional_problem_binding_context
+        if reconciliation is not None
+        else None
+    )
     execution_evidence = _transaction_execution_evidence(transaction)
     exact_result_refs = _transaction_call_result_prompt_refs(transaction)
     call_states = {
@@ -3072,6 +3129,8 @@ def _build_checkpoint(
                 binding_catalog=binding_catalog,
                 scope_id=step_scopes[step.step_id],
                 call_results=call_results,
+                binding_context=binding_context,
+                transaction=transaction,
                 forbidden_values=forbidden_prompt_values,
             ),
             actual_outputs=outputs,
@@ -3110,15 +3169,7 @@ def _build_checkpoint(
         )
 
     root_scope = scope_item(canonical_plan.root_scope)
-    sidecar = (
-        replay.functional_reconciliation.functional_problem_binding_context
-        if replay is not None
-        and replay.functional_reconciliation is not None
-        else None
-    )
-    reconciliation = (
-        replay.functional_reconciliation if replay is not None else None
-    )
+    sidecar = binding_context
     step_signatures = {
         step_id: item.binding_signature
         for step_id, item in (
@@ -3213,6 +3264,8 @@ def _prompt_safe_inputs(
     binding_catalog: ProblemPlanningBindingCatalog,
     scope_id: str,
     call_results: Mapping[str, Any],
+    binding_context: FunctionalProblemBindingContext | None,
+    transaction: Any | None,
     forbidden_values: frozenset[str],
 ) -> tuple[Mapping[str, Any], ...]:
     result: list[Mapping[str, Any]] = []
@@ -3259,6 +3312,20 @@ def _prompt_safe_inputs(
                             runtime_result.value_omitted_reason
                         )
             else:
+                functional_binding = (
+                    binding_context.input_binding_for(
+                        step.step_id,
+                        arg_name,
+                        index,
+                    )
+                    if binding_context is not None
+                    else None
+                )
+                typed_source = (
+                    functional_binding.typed_source
+                    if functional_binding is not None
+                    else None
+                )
                 try:
                     binding = binding_catalog.resolve_input_binding(
                         scope_id=scope_id,
@@ -3266,9 +3333,57 @@ def _prompt_safe_inputs(
                     )
                 except ProblemPlanningBindingError:
                     binding = None
-                item["resolution"] = (
-                    "source_snapshot" if binding is not None else "unresolved"
-                )
+                item["resolution"] = "source_snapshot"
+                resolved_value = None
+                if typed_source is not None and typed_source.kind == "call_result":
+                    producer = call_results.get(typed_source.source_call_id or "")
+                    runtime_result = _runtime_result_for_return(
+                        producer,
+                        typed_source.source_return_name or "",
+                    )
+                    if runtime_result is not None:
+                        item["resolution"] = "step_result"
+                        item["resolved_ref"] = {
+                            "step_id": typed_source.source_call_id,
+                            "return": typed_source.source_return_name,
+                        }
+                        resolved_value = runtime_result
+                elif (
+                    typed_source is not None
+                    and typed_source.kind == "state_version"
+                    and typed_source.state_version_id is not None
+                    and transaction is not None
+                ):
+                    report = transaction.execution_report
+                    resolved_version = report.resolve_runtime_version_id(
+                        typed_source.state_version_id
+                    )
+                    resolved_value = report.runtime_version_values.get(
+                        resolved_version
+                    )
+                    resolved_ref = _public_return_ref_for_state_version(
+                        report,
+                        resolved_version,
+                    )
+                    if resolved_ref is not None:
+                        item["resolved_ref"] = resolved_ref
+                if resolved_value is not None:
+                    runtime_type = str(
+                        getattr(
+                            resolved_value,
+                            "runtime_type",
+                            getattr(resolved_value, "type", ""),
+                        )
+                        or ""
+                    )
+                    if runtime_type:
+                        item["runtime_type"] = runtime_type
+                    raw_value = getattr(resolved_value, "value", None)
+                    if raw_value is not None:
+                        item["value"] = _prompt_safe_value(
+                            raw_value,
+                            forbidden_values=forbidden_values,
+                        )
                 runtime_types = tuple(
                     sorted(
                         {
@@ -3282,9 +3397,10 @@ def _prompt_safe_inputs(
                         }
                     )
                 )
-                if len(runtime_types) == 1:
+                if len(runtime_types) == 1 and "runtime_type" not in item:
                     item["runtime_type"] = runtime_types[0]
-                if binding is None:
+                if binding is None and functional_binding is None:
+                    item["resolution"] = "unresolved"
                     item["value_omitted_reason"] = (
                         "source_authority_not_resolved"
                     )
@@ -3292,6 +3408,29 @@ def _prompt_safe_inputs(
                 item
             )
     return tuple(result)
+
+
+def _public_return_ref_for_state_version(
+    report: Any,
+    version_id: Any,
+) -> dict[str, str] | None:
+    matches: list[tuple[str, str]] = []
+    for compiled in report.compiled_calls:
+        for public_return in compiled.public_returns:
+            selected = public_return.allocation.selected_version_id
+            if selected is None:
+                continue
+            if report.resolve_runtime_version_id(selected) == version_id:
+                matches.append((compiled.call_id, public_return.return_name))
+    unique = tuple(dict.fromkeys(matches))
+    if len(unique) > 1:
+        raise FunctionalGoalExecutionCheckpointError(
+            "functional.retry_input_public_producer_ambiguous: "
+            f"version={version_id}"
+        )
+    if not unique:
+        return None
+    return {"step_id": unique[0][0], "return": unique[0][1]}
 
 
 def _public_runtime_output_name(output_key: str) -> str:

@@ -1,6 +1,7 @@
 # F5-F5B/G1 Lesson Scope LLM Authoring 与视觉选择 vNext 设计
 
-状态：`IMPLEMENTATION`。`F5-F5B0 COMPLETE`；`F5-F5B1 NEXT`。
+状态：`IMPLEMENTATION`。`F5-F5B0 COMPLETE`；`F5-F5B1 COMPLETE`；
+`F5-F5B2 NEXT`（Annotated Teaching Plan 与实际 Prompt 必须经过独立人工审阅）。
 
 日期：2026-09-01。
 
@@ -24,8 +25,10 @@ interaction formula 或 animation beat。本文同时定义 F5-F5B 学生步骤�
 - [FunctionalPlan Scope Retry 设计](functional-scope-retry-design.md)。
 
 F5-F5B0 的只读基线、rubric、coverage inventory 与 recorded/live harness 已实现；它们没有
-改变生产协议。F5-F5B1 及之后的新 Snapshot、TeachingUnitSpec、LLM wire 与 recursive
-LessonIR 仍是待实现设计，不能把 B0 的 legacy coverage 标签解释为新协议已经落地。
+改变生产协议。F5-F5B1 的 Snapshot v3、Evidence Projector、TeachingUnitSpec 与只读 Review
+artifact 已完成人工审阅并收口；B2 及之后的 LLM wire 与 recursive LessonIR 仍是待实现设计。
+不能把 B0 的 legacy coverage 标签解释为新协议已经落地，也不能绕过 B2 的 Annotated Plan
+与实际 Prompt 人工门禁直接进入 B3。
 
 ## 1. 结论
 
@@ -81,7 +84,7 @@ F5-F5B vNext 采用以下边界：
 ```text
 root_scope
 ├── scope_ref
-├── scope_steps[]
+├── steps[]
 │   └── TeachingSource
 ├── goals{goal_ref}
 │   ├── steps[]
@@ -91,17 +94,17 @@ root_scope
 TeachingSource
 ├── source_step_id
 ├── capability_id
-├── args
-├── public_results
-├── checks
-├── evidence_refs
-└── closure_refs
+├── inputs{}              # 精确 ref + 已验证 runtime value/display
+├── outputs{}             # 全部实际公开结果
+├── calculations[]        # evidence projector 生成的学生可读计算
+└── checks[]              # 学生可读校验结论
 ```
 
 Scope/Goal owner 来自 Canonical Plan 容器，不从 runtime placement、标题、点名或依赖关系
-猜测。当前 `explanation-snapshot/v2` 代码仍有独立 `cross_scope_references`，但它不是 vNext
-输入的一部分；F5-F5B1 首先物理删除该字段、模型和 builder，并把精确依赖内联到 consumer
-input ref。没有保留期或兼容解析器。
+猜测。当前 `explanation-snapshot/v3` 已物理删除 `cross_scope_references`、stub trace 和
+Step 侧 `evidence_refs`；精确依赖内联到 consumer input ref。Evidence 的数学内容已经投影为
+就地 `calculations/checks`，不透明 evidence key 只在代码内部按 Canonical `step_id` 归属，
+不进入 Annotated Teaching Plan 或 LLM 输入。
 
 ### 2.2 当前代码中的 Lesson retry
 
@@ -332,8 +335,7 @@ AnnotatedTeachingStep
 ├── execution
 │   ├── outputs{}
 │   ├── calculations[]
-│   ├── checks[]
-│   └── evidence_refs[]
+│   └── checks[]
 └── teaching_materials[]
     ├── suggested_title
     ├── suggested_nav_title
@@ -1107,8 +1109,9 @@ outputs 和 verified intermediate calculations，它执行的是受材料约束�
 因此：
 
 - `derive` 和 `box` 是 presentation text，不是新的数学事实源；
-- LessonIR 保存由代码注入的 `source_step_ids/capability_ids/teaching_substep_ids/evidence_refs`，
-  以及经过校验的 visual selections；
+- LessonIR 保存由代码注入的 `source_step_ids/capability_ids/teaching_substep_ids`，以及经过
+  校验的 visual selections；opaque evidence key 留在内部 authority envelope，不进入 LLM
+  request/response 或公开 LessonIR；
 - 最终答案继续来自 Snapshot `answer_from`；
 - Visual renderer 继续从内部 bound candidate 与 Snapshot/evidence 读取坐标、公式、轨迹和
   对象 identity；只从 LessonIR 读取“选择了哪个 visual_id/mode”；
@@ -1788,7 +1791,7 @@ report 能明确指出 B1 需要补齐的通用 Spec/projector 缺口。
 - 专项 7 模块并行回归为 `401 passed, 5 skipped`；全部非 serial、非 live Solver 回归为
   `2297 passed`。当前 Solver 测试集中没有 serial、非 live 用例。
 
-### 18.4 F5-F5B1：Evidence Projector 与 teaching units（NEXT）
+### 18.4 F5-F5B1：Evidence Projector 与 teaching units（COMPLETE）
 
 实现：
 
@@ -1827,7 +1830,41 @@ Variant synthetic 门禁：同一 Macro 的 `interior_attainment`、`boundary_mi
 public derivation 时仍共用一套 units；零匹配和多匹配均产生
 `teaching_variant_selection_invalid`，不静默选路。
 
-### 18.5 F5-F5B2：Annotated Teaching Plan 输入投影
+B1.3 实现记录（2026-09-01）：
+
+- `explanation-snapshot/v3` 已落地，和平二模 recorded execution 精确投影 `12` 个 Canonical
+  Step occurrence；Scope/Goal 均序列化为 `steps[]`，dependency 只通过 input 的精确
+  `SourceRef` / `StepResultRef` 表达；旧 cross-scope wire 与 stub trace 已删除；
+- Evidence Projector Registry 已覆盖 `PathMinimumWitness` 与公开只读
+  `SymbolicClosureExecutionEvidence`；未知 evidence、私有 identity 和无法公开表示的值继续
+  fail loud；
+- 和平二模实际使用的 `8` 个 Method 均有显式通用 `TeachingUnitSpec`，
+  `quadratic_square_path_minimum` 有两个有序教学单元；同一 capability 的多个 occurrence 使用
+  同一 Spec、分别绑定本题真实输入与运行结果；
+- Review artifact 包含 `12` 张 Step 卡片、`13` 份教学材料，Macro rubric 为 `5/5`；页面逐项
+  展示 B0 Previous Plan Step、B1 Verified Runtime、Generic Spec 与 Bound Suggestion；
+- 第一轮人工审阅反馈已收口：v3 与 Review 不再投影 Plan-only `return_expectations`；普通
+  Function 的公开 runtime checks 就地进入 `TeachingSource.checks`，横轴交点材料同时展示全部
+  方程根、ProblemIR 的 `side=left/right` 选择依据和已通过的 side check；正方形相邻顶点材料
+  保留初中几何的垂足、直角三角形全等证明，垂足坐标由已验证点坐标计算，先匹配已有
+  ProblemIR 点名（本题为 `M`），否则由当前点名命名空间分配新名称（本题为 `Q`），Spec
+  不含固定 `M/Q`；曲线点候选材料直接求原参数，不再硬编码辅助换元 `u`；匿名 runtime
+  参数只以学生局部名 `t` 出现在 v3 wire 中；
+- 第二轮人工审阅反馈已收口：`quadratic_from_constraints` 在收到 verified `curve_point` 时，
+  从 ProblemIR 的点—曲线关系和本轮实际坐标生成“点在曲线上→代入坐标→化简系数→写出
+  解析式”的逐行推导，通用 Spec 不保存具体点名、坐标或答案；路径化简单元删除重复的完整
+  implication chain，只保留基础等长事实、局部路径等式和最终目标等价三行；Step wire 删除
+  `evidence_refs`，LLM 只看到已经投影完成的 `calculations/checks`；
+- 专项目标集为 `97 passed, 3 skipped`，全部非 serial、非 live Solver 回归为
+  `2328 passed, 12 skipped`；当前没有 serial Solver
+  用例；
+- B1 不调用 Lesson LLM，当前 deterministic LessonIR、VisualStepIR 与 B0 页面行为保持不变。
+
+B1.4 人工门禁已于 2026-09-01 通过：`12` 张 Step 卡片与 `13` 份教学材料均已逐项审阅，
+两轮反馈全部通过通用 Spec、projector 或 binder 收口，未手改 fixture 或生成 HTML。
+`F5-F5B1 COMPLETE`，下一阶段为 B2。
+
+### 18.5 F5-F5B2：Annotated Teaching Plan 输入投影（NEXT）
 
 实现：
 
@@ -1846,8 +1883,10 @@ public derivation 时仍共用一套 units；零匹配和多匹配均产生
 - `available_visuals` 字段先固定为空集合，视觉尚不启用；
 - 生成 prompt/schema snapshot 和 private identity audit。
 
-和平门禁：人工 review `annotated-teaching-plan.json + prompt.user.md`，确认 LLM 已经获得完整
-推导材料和数学语言 suggested draft，却没有未绑定模板、expected answer、private
+和平硬门禁：必须同时人工 review `annotated-teaching-plan.json` 与实际 `prompt.user.md`，
+缺少任一 artifact、任一 artifact 尚未确认或审阅反馈尚未收口时，B2 不得标记 COMPLETE，
+也不得进入 B3。审阅需确认 LLM 已经获得完整推导材料和数学语言 suggested draft，却没有
+未绑定模板、expected answer、private
 PathTransformation、synthetic PointRef、teaching_case、variant_key、未选择 Variant 或本题
 专用 few-shot；Schema/prompt 静态 gate 禁止
 `cross_scope_references`、`teaching_guides`、

@@ -8,6 +8,7 @@ from __future__ import annotations
 from shuxueshuo_server.solver.contracts import (
     MethodExplanationSpec,
     MethodVisualSpec,
+    TeachingUnitSpec,
 )
 
 from ._common import *
@@ -120,6 +121,24 @@ SPEC = MethodSpecSource(
             "∴{evaluated_point}",
         ),
         box_templates=("{evaluated_point}",),
+        role_binder_id="evaluate_point_at_parameter",
+    ),
+    teaching_unit=TeachingUnitSpec(
+        unit_key="evaluate_point_at_parameter/substitute_point_parameter",
+        title_template="代入参数求点坐标",
+        nav_title_template="代入求点",
+        goal_template="把已求出的参数值代入含参点坐标，得到具体点。",
+        derive_templates=(
+            ("∵", "{source_point}，{parameter}＝{parameter_value}"),
+            ("∴", "{evaluated_point}"),
+        ),
+        box_templates=("{evaluated_point}",),
+        role_schema={
+            "source_point": "代入前的含参点坐标。",
+            "parameter": "已求出的参数名。",
+            "parameter_value": "已求出的参数值。",
+            "evaluated_point": "代入参数后的点坐标。",
+        },
         role_binder_id="evaluate_point_at_parameter",
     ),
     visual=MethodVisualSpec(

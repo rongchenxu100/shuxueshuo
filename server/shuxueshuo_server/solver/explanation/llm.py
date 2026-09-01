@@ -26,7 +26,12 @@ from .few_shots import (
     generic_lesson_mock_few_shot,
     select_lesson_few_shot_examples,
 )
-from .models import ExplanationSnapshot, LessonCandidateGroup, LessonIR
+from .models import (
+    ExplanationSnapshot,
+    LessonCandidateGroup,
+    LessonIR,
+    iter_teaching_sources,
+)
 from .target_labels import (
     target_point_label_for_group as _target_point_label_for_group,
     target_point_labels_for_groups as _target_point_labels_for_groups,
@@ -655,10 +660,13 @@ def _teaching_step_policy(groups: tuple[LessonCandidateGroup, ...]) -> dict[str,
 
 
 def _trace_summaries(group: LessonCandidateGroup, snapshot: ExplanationSnapshot) -> list[dict[str, Any]]:
-    traces = {entry.trace_id: entry for entry in snapshot.teaching_trace}
+    sources = {
+        source.trace_id: source
+        for source in iter_teaching_sources(snapshot.root_scope)
+    }
     result = []
     for trace_id in group.trace_refs:
-        entry = traces.get(trace_id)
+        entry = sources.get(trace_id)
         if entry is None:
             continue
         result.append(

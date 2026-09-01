@@ -28,6 +28,7 @@ from shuxueshuo_server.solver.contracts import (
     PlanTransformerScope,
     ScalarResultFormSpec,
     SymbolicClosureSpec,
+    TeachingUnitSpec,
     TrialErrorHintSpec,
 )
 from shuxueshuo_server.solver.runtime.runtime_type_declarations import (
@@ -228,6 +229,7 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
             raw.get("geometry_profiles", [])
         ),
         explanation=_parse_explanation(raw.get("explanation")),
+        teaching_unit=_parse_teaching_unit(raw.get("teaching_unit")),
         visual=_parse_visual(raw.get("visual")),
         constraint_analyzer=(
             str(raw["constraint_analyzer"])
@@ -1079,6 +1081,48 @@ def _parse_explanation(raw: object) -> MethodExplanationSpec | None:
         explanation_level=str(raw.get("explanation_level", "template")),
         role_binding_strategy=str(raw.get("role_binding_strategy", "role_name_registry")),
         role_binder_id=str(raw.get("role_binder_id", "generic_trace")),
+    )
+
+
+def _parse_teaching_unit(raw: object) -> TeachingUnitSpec | None:
+    if raw in (None, ()):
+        return None
+    if not isinstance(raw, dict):
+        raise ValueError("MethodSpec.teaching_unit must be an object")
+    expected = {
+        "unit_key",
+        "title_template",
+        "nav_title_template",
+        "goal_template",
+        "derive_templates",
+        "box_templates",
+        "role_schema",
+        "role_binder_id",
+    }
+    if set(raw) != expected:
+        raise ValueError("MethodSpec.teaching_unit fields do not match contract")
+    derive = raw.get("derive_templates")
+    if not isinstance(derive, list | tuple):
+        raise ValueError("MethodSpec.teaching_unit.derive_templates must be a list")
+    pairs: list[tuple[str, str]] = []
+    for item in derive:
+        if not isinstance(item, list | tuple) or len(item) != 2:
+            raise ValueError(
+                "MethodSpec.teaching_unit derive items must be marker/template pairs"
+            )
+        pairs.append((str(item[0]), str(item[1])))
+    role_schema = raw.get("role_schema")
+    if not isinstance(role_schema, dict):
+        raise ValueError("MethodSpec.teaching_unit.role_schema must be an object")
+    return TeachingUnitSpec(
+        unit_key=str(raw.get("unit_key") or ""),
+        title_template=str(raw.get("title_template") or ""),
+        nav_title_template=str(raw.get("nav_title_template") or ""),
+        goal_template=str(raw.get("goal_template") or ""),
+        derive_templates=tuple(pairs),
+        box_templates=tuple(str(item) for item in raw.get("box_templates", ())),
+        role_schema={str(key): str(value) for key, value in role_schema.items()},
+        role_binder_id=str(raw.get("role_binder_id") or ""),
     )
 
 

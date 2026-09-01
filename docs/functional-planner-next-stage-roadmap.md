@@ -29,7 +29,7 @@
 | F5-F4.3D：南开耦合路径 Macro | `COMPLETE` | 两公开输入、两公开输出；共享 Scope、构造点诊断、few-shot hash 与最终 live `1x3` 通过 |
 | F5-F4.3E：加权路径原子 Macro | `COMPLETE` | 单路径 Fact 输入、单表达式输出；河西/西青最终 live 各 `1x3` 均首轮通过 |
 | F5-F4.3F：旧能力清理与全量验收 | `COMPLETE` | 公开 Path 内部类型与兼容链已删除，compiler 原子门禁及完整投影门禁已落地 |
-| F5-F5：Teaching scope | `IN PROGRESS` | F5-F5A 与 F5-F5B0 基线/harness 已完成；F5-F5B1 Evidence Projector/teaching units 下一步 |
+| F5-F5：Teaching scope | `IN PROGRESS` | F5-F5A、F5-F5B0、F5-F5B1 已完成；F5-F5B2 Annotated Teaching Plan 输入投影 NEXT |
 | G：Post-solver Context | `AFTER F5` | Explanation、Diagram、Voiceover、Animation Context |
 | E：端到端优化 | `AFTER F/G` | cache、最小失效、并发去重、条件式 Best-of-N |
 
@@ -141,10 +141,12 @@ F5-F5B 的 LLM wire、无 semantic retry、同次调用视觉选择和和平二�
    recorded batch 为 `f5-f5b0-recorded`；live batch `f5-f5b0-live-1x3` 为 `3/3` provider/page
    completion，旧 semantic retry 轮数 `2/3/3`，两份接受 LLM、一份 deterministic fallback。
    B0 未修改生产 Snapshot、Builder、Prompt 或 Method/Macro Spec。
-3. `F5-F5B1 NEXT`：实现 `TeachingEvidenceProjector` 与 TeachingUnitSpec，并随后按 B2–B4 完成
-   Annotated Teaching Plan、一次 Scope Lesson LLM/evaluator 与 recursive LessonIR 生产切换；直接升级
-   `explanation-snapshot/v3` 并删除独立 cross-Scope reference collection，consumer input
-   内联精确 ref；依据 B0 的只读 coverage 缺口补通用能力；
+3. `F5-F5B1 COMPLETE`：`TeachingEvidenceProjector`、TeachingUnitSpec、
+   `explanation-snapshot/v3` 和和平二模只读 Spec Review artifact 已实现；v3 已删除独立
+   cross-Scope reference collection，consumer input 内联精确 ref；Review 共 `12` 张 Step
+   卡片、`13` 份教学材料，Macro rubric `5/5`。人工审阅已通过，反馈全部通过通用 Spec、
+   projector 或 binder 收口。下一阶段按 B2–B4 完成
+   Annotated Teaching Plan、一次 Scope Lesson LLM/evaluator 与 recursive LessonIR 生产切换；
    普通 Method 可选声明一个 `TeachingUnitSpec`，未声明时生成 default unit；
    单一学生推导的原子 Macro 可声明有序 `TeachingUnitSpec[]`。代码先用 verified runtime data
    绑定建议的 title/nav_title/goal/derive/box，再按顺序内联给 LLM；unit key/ID 只保留在内部 authority，
@@ -152,9 +154,12 @@ F5-F5B 的 LLM wire、无 semantic retry、同次调用视觉选择和和平二�
    `TeachingVariantSpec[]`，由 typed verified evidence 唯一选中；内部候选和其他 Variant 不
    进入 LLM。不增加 guide registry、重要性标记或 merge policy，也不迁移旧 Lesson repair
    loop。
-4. `F5-F5C`：先用和平二模 `1×3` 评测真实输入输出、token/耗时和教学质量，稳定后扩到五题
+4. `F5-F5B2 NEXT`：生成递归 Annotated Teaching Plan 与实际 Prompt；
+   `annotated-teaching-plan.json` 和 `prompt.user.md` 必须同时通过人工审阅，缺一不可，未确认前
+   不得进入 B3。
+5. `F5-F5C`：先用和平二模 `1×3` 评测真实输入输出、token/耗时和教学质量，稳定后扩到五题
    teaching-only `5×3`。
-5. `G1`：作为最后一个新增实现阶段，打开 Method/Macro `available_visuals`，由同一次 Lesson
+6. `G1`：作为最后一个新增实现阶段，打开 Method/Macro `available_visuals`，由同一次 Lesson
    LLM 只选择 `visual_id/mode`，代码绑定并确定性渲染 VisualStepIR 与课程页。
 
 ## Track G：解题后 Context

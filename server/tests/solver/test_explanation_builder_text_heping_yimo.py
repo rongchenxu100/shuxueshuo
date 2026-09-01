@@ -22,7 +22,6 @@ from shuxueshuo_server.solver.explanation import (
 )
 from shuxueshuo_server.solver.explanation import builder as explanation_builder
 from shuxueshuo_server.solver.explanation import llm as explanation_llm
-from shuxueshuo_server.solver.explanation import snapshot as explanation_snapshot
 from shuxueshuo_server.solver.explanation.builder import LessonIRValidationError
 from shuxueshuo_server.solver.explanation.few_shots import (
     select_lesson_few_shot_examples,
@@ -32,11 +31,10 @@ from shuxueshuo_server.solver.explanation.llm import build_lesson_planner_payloa
 from shuxueshuo_server.solver.explanation.models import (
     LessonCandidateGroup,
     LessonStep,
-    TeachingCrossScopeReference,
     TeachingScope,
     TeachingSource,
-    TeachingTraceEntry,
     explanation_snapshot_from_payload,
+    iter_teaching_sources,
     teaching_source_owners,
 )
 from shuxueshuo_server.solver.explanation.snapshot import ExplanationSnapshotError
@@ -127,21 +125,18 @@ def test_required_cross_scope_reference_is_restored_when_llm_omits_it() -> None:
         },
         effective_steps=(source_step,),
     )
-    reference = TeachingCrossScopeReference(
+    line = explanation_builder._student_reference_line(
         source_step_id="derive_D",
-        target_step_id="consume_D",
-        source_scope_ref="i",
-        target_scope_ref="ii",
-        public_result_ref={"step_id": "derive_D", "return": "axis_point"},
+        source_scope_id="i",
+        snapshot=snapshot,
     )
-    line = explanation_builder._student_reference_line(reference, snapshot)
     group = LessonCandidateGroup(
         step={
             "step_id": "consume_D",
             "scope_id": "ii",
             "recipe_hint": "distance_between_points",
         },
-        traces=(),
+        sources=(),
         required_reference_lines=(line,),
     )
 
@@ -342,7 +337,8 @@ def test_explanation_snapshot_from_recorded_heping_is_safe_and_invocation_level(
 
     assert snapshot.problem_id == "tj-2026-heping-yimo-25"
     assert snapshot.effective_steps
-    assert snapshot.teaching_trace
+    sources = tuple(iter_teaching_sources(snapshot.root_scope))
+    assert sources
     assert snapshot.fact_index
     assert len(snapshot.macro_evidence) == 1
     witness = snapshot.macro_evidence[0]
@@ -368,13 +364,13 @@ def test_explanation_snapshot_from_recorded_heping_is_safe_and_invocation_level(
     assert "expected" not in serialized
     assert "<html" not in serialized.lower()
 
-    method_ids = [entry.method_id for entry in snapshot.teaching_trace]
+    method_ids = [entry.capability_id for entry in sources]
     duplicate_methods = {method_id for method_id in method_ids if method_ids.count(method_id) > 1}
     assert duplicate_methods
-    assert len({entry.trace_id for entry in snapshot.teaching_trace}) == len(snapshot.teaching_trace)
+    assert len({entry.trace_id for entry in sources}) == len(sources)
 
 
-def test_explanation_snapshot_v2_is_canonical_owner_tree_and_round_trips() -> None:
+def test_explanation_snapshot_v3_is_canonical_owner_tree_and_round_trips() -> None:
     orchestrator, _ = _solve_recorded_heping()
     artifacts = orchestrator.last_success_artifacts
     assert artifacts is not None
@@ -398,7 +394,7 @@ def test_explanation_snapshot_v2_is_canonical_owner_tree_and_round_trips() -> No
     def teaching_shape(scope):
         return {
             "scope_ref": scope.scope_ref,
-            "scope_steps": [item.source_step_id for item in scope.scope_steps],
+            "scope_steps": [item.source_step_id for item in scope.steps],
             "goals": {
                 goal.goal_ref: [item.source_step_id for item in goal.steps]
                 for goal in scope.goals
@@ -422,7 +418,6 @@ def test_explanation_snapshot_v2_is_canonical_owner_tree_and_round_trips() -> No
         "verified_execution_hash",
         "problem",
         "root_scope",
-        "cross_scope_references",
         "evidence",
         "answers",
     }
@@ -430,6 +425,8 @@ def test_explanation_snapshot_v2_is_canonical_owner_tree_and_round_trips() -> No
         "effective_steps",
         "fact_index",
         "teaching_trace",
+        "cross_scope_references",
+        "scope_steps",
         "student_step_placements",
         "student_scope_references",
         "execution_scope_id",
@@ -449,28 +446,37 @@ def test_explanation_snapshot_v2_is_canonical_owner_tree_and_round_trips() -> No
         explanation_snapshot_from_payload(with_flat_owner)
 
     with_extra_result_field = json.loads(json.dumps(payload, ensure_ascii=False))
-    first_source = with_extra_result_field["root_scope"]["scope_steps"][0]
-    first_result = next(iter(first_source["public_results"].values()))
+    first_source = with_extra_result_field["root_scope"]["children"][0]["steps"][0]
+    first_result = next(iter(first_source["outputs"].values()))
     first_result["runtime_path"] = "forbidden"
-    with pytest.raises(ValueError, match="public_results"):
+    with pytest.raises(ValueError, match="outputs"):
         explanation_snapshot_from_payload(with_extra_result_field)
 
 
-def test_explanation_snapshot_v2_uses_exact_cross_scope_result_edges() -> None:
+def test_explanation_snapshot_v3_embeds_exact_cross_scope_result_refs() -> None:
     orchestrator, _ = _solve_recorded_heping()
     snapshot = ExplanationSnapshotBuilder().build(
         orchestrator.last_success_artifacts
     )
-    edges = {
-        (
-            item.source_step_id,
-            item.target_step_id,
-            item.source_scope_ref,
-            item.target_scope_ref,
-            item.public_result_ref["return"],
-        )
-        for item in snapshot.cross_scope_references
-    }
+    owners = teaching_source_owners(snapshot.root_scope)
+    edges = set()
+    for target in iter_teaching_sources(snapshot.root_scope):
+        for values in target.inputs.values():
+            for value in values:
+                ref = value.get("resolved_from") or value.get("ref")
+                if not isinstance(ref, dict) or ref.get("kind") != "step_result":
+                    continue
+                source_id = str(ref["step_id"])
+                if owners[source_id][0] != owners[target.source_step_id][0]:
+                    edges.add(
+                        (
+                            source_id,
+                            target.source_step_id,
+                            owners[source_id][0],
+                            owners[target.source_step_id][0],
+                            str(ref["return"]),
+                        )
+                    )
 
     assert (
         "derive_translated_D_i",
@@ -489,84 +495,85 @@ def test_explanation_snapshot_v2_uses_exact_cross_scope_result_edges() -> None:
     assert all(source_scope != target_scope for _, _, source_scope, target_scope, _ in edges)
 
 
-def test_cross_scope_projection_does_not_guess_from_colliding_channels() -> None:
+def test_cross_scope_projection_uses_only_exact_embedded_refs() -> None:
     exact_producer = TeachingSource(
         source_step_id="exact_producer",
         capability_id="exact_producer_capability",
-        args={},
+        inputs={},
         output_targets={"value": "shared"},
-        public_results={
-            "value": {"runtime_type": "Expression", "value": "x + 1"}
+        outputs={
+            "value": {"runtime_type": "Expression", "value": "x + 1", "display": "x+1"}
         },
     )
     unrelated_collision = TeachingSource(
         source_step_id="unrelated_collision",
         capability_id="unrelated_capability",
-        args={},
+        inputs={},
         output_targets={"value": "shared"},
-        public_results={
-            "value": {"runtime_type": "Expression", "value": "x + 2"}
+        outputs={
+            "value": {"runtime_type": "Expression", "value": "x + 2", "display": "x+2"}
         },
     )
     consumer = TeachingSource(
         source_step_id="consumer",
         capability_id="consumer_capability",
-        args={"expression": "shared"},
-        public_results={
-            "result": {"runtime_type": "Expression", "value": "x + 1"}
+        inputs={
+            "expression": (
+                {
+                    "ref": {"kind": "source", "ref": "shared"},
+                    "runtime_type": "Expression",
+                    "value": "x + 1",
+                    "display": "x+1",
+                },
+            )
+        },
+        outputs={
+            "result": {"runtime_type": "Expression", "value": "x + 1", "display": "x+1"}
         },
     )
     root = TeachingScope(
         scope_ref="problem",
-        scope_steps=(exact_producer, unrelated_collision),
+        steps=(exact_producer, unrelated_collision),
         children=(
-            TeachingScope(scope_ref="ii", scope_steps=(consumer,)),
+            TeachingScope(scope_ref="ii", steps=(consumer,)),
         ),
     )
-
-    references = explanation_snapshot._cross_scope_references(
-        root,
-        dependency_graph={
-            "exact_producer": (),
-            "unrelated_collision": (),
-            "consumer": ("exact_producer",),
-        },
-        public_result_dependencies={
-            "exact_producer": (),
-            "unrelated_collision": (),
-            "consumer": (("exact_producer", "value"),),
-        },
+    snapshot = SimpleNamespace(
+        root_scope=root,
+        problem={"scopes": []},
+        effective_steps=(
+            {"step_id": "exact_producer", "produces": []},
+            {"step_id": "unrelated_collision", "produces": []},
+            {"step_id": "consumer", "produces": []},
+        ),
     )
+    assert explanation_builder._cross_scope_reference_lines(snapshot) == {}
 
-    assert tuple(
-        (
-            item.source_step_id,
-            item.target_step_id,
-            item.public_result_ref["return"],
-        )
-        for item in references
-    ) == (("exact_producer", "consumer", "value"),)
-
-    with pytest.raises(
-        ExplanationSnapshotError,
-        match="dependency_public_result_unresolved",
-    ):
-        explanation_snapshot._cross_scope_references(
-            root,
-            dependency_graph={
-                "exact_producer": (),
-                "unrelated_collision": (),
-                "consumer": ("exact_producer",),
-            },
-            public_result_dependencies={
-                "exact_producer": (),
-                "unrelated_collision": (),
-                "consumer": (),
-            },
-        )
+    exact_input = dict(consumer.inputs["expression"][0])
+    exact_input["resolved_from"] = {
+        "kind": "step_result",
+        "step_id": "exact_producer",
+        "return": "value",
+    }
+    exact_consumer = replace(
+        consumer,
+        inputs={"expression": (exact_input,)},
+    )
+    exact_root = replace(
+        root,
+        children=(TeachingScope(scope_ref="ii", steps=(exact_consumer,)),),
+    )
+    exact_snapshot = SimpleNamespace(
+        root_scope=exact_root,
+        problem=snapshot.problem,
+        effective_steps=snapshot.effective_steps,
+    )
+    lines = explanation_builder._cross_scope_reference_lines(exact_snapshot)
+    assert tuple(lines) == ("consumer",)
+    assert len(lines["consumer"]) == 1
 
 
-def test_explanation_snapshot_v2_does_not_fallback_to_transactional_replay() -> None:
+def test_explanation_snapshot_v3_does_not_fallback_to_transactional_replay() -> None:
     orchestrator, _ = _solve_recorded_heping()
     artifacts = orchestrator.last_success_artifacts
     assert artifacts is not None
@@ -582,7 +589,7 @@ def test_explanation_snapshot_v2_does_not_fallback_to_transactional_replay() -> 
         ExplanationSnapshotBuilder().build(without_verified_execution)
 
 
-def test_explanation_snapshot_v2_rejects_nonverified_canonical_step() -> None:
+def test_explanation_snapshot_v3_rejects_nonverified_canonical_step() -> None:
     orchestrator, _ = _solve_recorded_heping()
     artifacts = orchestrator.last_success_artifacts
     assert artifacts is not None
@@ -1063,26 +1070,24 @@ def test_method_explanation_templates_support_placeholders() -> None:
     assert "{distance}" in "\n".join(spec.explanation.derive_templates)
 
 
-def test_lesson_candidate_group_public_model_filters_preferred_traces() -> None:
-    traces = (
-        TeachingTraceEntry(
-            trace_id="trace:one",
+def test_lesson_candidate_group_public_model_filters_preferred_sources() -> None:
+    sources = (
+        TeachingSource(
             source_step_id="step_one",
-            scope_id="ii",
-            capability_id="demo_capability",
-            method_id="method_one",
+            capability_id="method_one",
+            inputs={},
+            outputs={},
         ),
-        TeachingTraceEntry(
-            trace_id="trace:two",
+        TeachingSource(
             source_step_id="step_one",
-            scope_id="ii",
-            capability_id="demo_capability",
-            method_id="method_two",
+            capability_id="method_two",
+            inputs={},
+            outputs={},
         ),
     )
     group = LessonCandidateGroup(
         {"step_id": "step_one", "scope_id": "ii", "recipe_hint": "demo_capability"},
-        traces,
+        sources,
         teaching_substep_id="substep",
         preferred_method_ids=("method_two",),
     )
@@ -1092,7 +1097,7 @@ def test_lesson_candidate_group_public_model_filters_preferred_traces() -> None:
     assert group.scope_id == "ii"
     assert group.capability_id == "demo_capability"
     assert group.method_ids == ("method_two",)
-    assert group.trace_refs == ("trace:two",)
+    assert group.trace_refs == ("trace:step_one:0:method_two",)
 
 
 def test_role_binder_registry_hits_registered_binders_and_fails_fast() -> None:

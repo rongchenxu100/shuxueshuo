@@ -6,7 +6,11 @@
 
 from __future__ import annotations
 
-from shuxueshuo_server.solver.contracts import MethodExplanationSpec, MethodVisualSpec
+from shuxueshuo_server.solver.contracts import (
+    MethodExplanationSpec,
+    MethodVisualSpec,
+    TeachingUnitSpec,
+)
 
 from ._common import *
 from ._spec import MethodSpecSource, canonical_symbol_input, declare_input_views
@@ -242,6 +246,28 @@ SPEC = MethodSpecSource(
             "∵x 轴交点满足 y＝0，即 {intercept_equation}",
             "∴{target_point}",
         ),
+        role_binder_id="quadratic_x_axis_intercept_point",
+    ),
+    teaching_unit=TeachingUnitSpec(
+        unit_key="quadratic_x_axis_intercept_point/solve_intercept",
+        title_template="求抛物线与 x 轴交点",
+        nav_title_template="求 x 轴交点",
+        goal_template="令 y＝0，求出指定的 x 轴交点。",
+        derive_templates=(
+            ("∵", "x 轴交点满足 y＝0，即 {intercept_equation}"),
+            ("计算", "{root_candidates}"),
+            ("∵", "{selection_reason}"),
+            ("∴", "{target_point}"),
+        ),
+        box_templates=("{target_point}",),
+        role_schema={
+            "parabola": "当前抛物线解析式。",
+            "intercept_equation": "令 y＝0 后得到的一元二次方程。",
+            "root_candidates": "方程求出的全部 x 轴交点横坐标。",
+            "selection_reason": "由目标点定义选择指定交点的依据。",
+            "target_point": "需要求出的指定 x 轴交点。",
+            "known_point": "可选的已知 x 轴交点。",
+        },
         role_binder_id="quadratic_x_axis_intercept_point",
     ),
     visual=MethodVisualSpec(

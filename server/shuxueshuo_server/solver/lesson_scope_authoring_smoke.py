@@ -333,22 +333,17 @@ def build_teaching_spec_coverage(
     by_capability: dict[str, list[dict[str, Any]]] = {}
     for source in iter_teaching_sources(snapshot.root_scope):
         owner_scope, owner_goal = owners[source.source_step_id]
-        evidence_schemas = []
-        for evidence_ref in source.evidence_refs:
-            evidence = snapshot.evidence.get(evidence_ref)
-            if evidence is None:
-                raise LessonAuthoringSmokeError(
-                    "lesson_teaching_coverage_invalid: missing evidence "
-                    f"{evidence_ref} for {source.source_step_id}"
-                )
-            evidence_schemas.append(str(evidence.get("schema_version") or "unknown"))
+        source_evidence = snapshot.evidence_for_step(source.source_step_id)
+        evidence_schemas = [
+            str(item.get("schema_version") or "unknown")
+            for item in source_evidence
+        ]
         by_capability.setdefault(source.capability_id, []).append(
             {
                 "step_id": source.source_step_id,
                 "owner_scope_ref": owner_scope,
                 "owner_goal_ref": owner_goal,
                 "public_returns": list(source.public_results),
-                "evidence_refs": list(source.evidence_refs),
                 "evidence_schemas": evidence_schemas,
             }
         )

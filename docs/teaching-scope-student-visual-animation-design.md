@@ -1,6 +1,7 @@
 # F5-F5 Teaching Scope、学生步骤、可视化与动画设计
 
-状态：`IMPLEMENTATION`。`F5-F5A COMPLETE`；`F5-F5B0 COMPLETE`；`F5-F5B1 NEXT`。
+状态：`IMPLEMENTATION`。`F5-F5A COMPLETE`；`F5-F5B0 COMPLETE`；`F5-F5B1 COMPLETE`；
+`F5-F5B2 NEXT`（Annotated Teaching Plan 与实际 Prompt 双 artifact 人工门禁）。
 
 本文是 F5-F5 以及后续 Track G 教学链的统一规范入口。它定义：如何从
 `VerifiedFunctionalPlanExecution` 生成学生可见步骤，如何继续生成 `VisualStepIR` 与动画
@@ -193,15 +194,12 @@ ExplanationSnapshot
 TeachingSource
 ├── source_step_id
 ├── capability_id
-├── args{}
-├── input_refs{}                       # 每个消费参数的精确 SourceRef/StepResultRef
+├── inputs{}                           # 精确 ref + verified runtime value/display
 ├── output_targets{}
-├── return_expectations{}
 ├── intent?
-├── public_results{}
-├── checks[]
-├── evidence_refs[]
-└── closure_refs[]
+├── outputs{}
+├── calculations[]                    # projector 生成的学生可读 evidence 内容
+└── checks[]
 ```
 
 该 `root_scope` 不是第二份 authority：构建时从 Canonical Plan 机械复制，并保存
@@ -297,7 +295,6 @@ LessonIR
 LessonStep
 ├── lesson_step_id
 ├── source_step_ids[]
-├── evidence_refs[]
 ├── teaching_substep_ids[]
 ├── title / goal / derive / box
 └── visuals[]                           # validated visual_id + supported mode
@@ -715,7 +712,7 @@ Gap 必须包含稳定 source ID、owner Scope/Goal、缺失 role/action、已�
 
 门禁：Snapshot Scope/Goal/step owner 与 Canonical Plan 完全同构。
 
-### F5-F5B：学生步骤（B0 COMPLETE；B1 NEXT）
+### F5-F5B：学生步骤（B0/B1 COMPLETE；B2 NEXT）
 
 - 直接升级到 `explanation-snapshot/v3`，物理删除 `TeachingCrossScopeReference` 与顶层
   `cross_scope_references`；consumer input 内联精确 ref，不保留 v2 reader/双写；
@@ -724,9 +721,14 @@ Gap 必须包含稳定 source ID、owner Scope/Goal、缺失 role/action、已�
 - B0 已固化和平二模 successful Snapshot、旧 Prompt、deterministic LessonIR/Visual/page，
   并实现独立 rubric、coverage inventory 与 recorded/live harness；live `1×3` 的 provider/page
   completion 为 `3/3`，旧 semantic retry 轮数 `2/3/3`。B0 不改生产 Spec/Builder/Prompt；
-- 下一步按 vNext 详细计划实施 B1–B4：Evidence Projector、TeachingUnitSpec、Annotated
-  Teaching Plan、一次 Scope Lesson LLM 与 evaluator、recursive LessonIR 生产切换；B1 依据
-  B0 coverage 缺口补充可复用 Method/Macro TeachingUnitSpec 和 projector；
+- B1.1–B1.3 已落地 Snapshot v3、Evidence Projector Registry、和平二模 `8` 个 Method 的
+  显式 TeachingUnitSpec、Macro 两个有序教学单元和只读 Review artifact；页面包含 `12` 张
+  Canonical Step 卡片与 `13` 份绑定后教学材料，Macro rubric 达到 `5/5`；
+- B1.4 人工门禁已通过；审阅反馈只修改通用 Spec、projector 或 binder，并由代码重新生成
+  Review 页面，未手改生成 artifact；
+- B2 生成 `annotated-teaching-plan.json` 与实际 `prompt.user.md` 后，必须同时完成人工审阅；
+  任一 artifact 未确认时不得进入 B3。通过后才继续一次 Scope Lesson LLM 与 evaluator、
+  recursive LessonIR 生产切换；
 - LLM 获得绑定完成的 suggested `title/nav_title/goal/derive/box` 与完整 student-safe
   inputs/outputs/calculations，直接输出最终五类字段；
 - Scope/Goal 容器、teaching material 顺序、source/evidence provenance 与 answer producer

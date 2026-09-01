@@ -12,7 +12,12 @@ import re
 
 import sympy as sp
 
-from shuxueshuo_server.solver.explanation.models import ExplanationSnapshot, LessonIR, LessonStep
+from shuxueshuo_server.solver.explanation.models import (
+    ExplanationSnapshot,
+    LessonIR,
+    LessonStep,
+    iter_teaching_sources,
+)
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.recipes import RecipeSpecRegistry
 
@@ -1560,8 +1565,9 @@ class GeometryPointNamer:
                 step_id
                 for step_id, step in self.steps_by_id.items()
                 if any(
-                    trace.method_id == source_method and trace.source_step_id == step_id
-                    for trace in self.snapshot.teaching_trace
+                    source.capability_id == source_method
+                    and source.source_step_id == step_id
+                    for source in iter_teaching_sources(self.snapshot.root_scope)
                 )
             ]
             matches = [

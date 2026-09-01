@@ -2,39 +2,11 @@
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 from typing import Any, Iterator, Mapping
 
 
-EXPLANATION_SNAPSHOT_CONTRACT = "explanation-snapshot/v2"
-
-
-@dataclass(frozen=True)
-class TeachingTraceEntry:
-    """一次 method invocation 的讲解级 trace。
-
-    这里刻意不暴露 ContextPath。输入输出只保留槽位名，具体值通过 fact_index 或
-    Lesson step 的已绑定文本展示。
-    """
-
-    trace_id: str
-    source_step_id: str
-    scope_id: str
-    capability_id: str
-    method_id: str
-    input_slots: tuple[str, ...] = ()
-    output_slots: tuple[str, ...] = ()
-    checks: tuple[str, ...] = ()
-    trace_fragments: tuple[dict[str, Any], ...] = ()
-    hidden_reason: str | None = None
-
-    def to_payload(self) -> dict[str, Any]:
-        payload = asdict(self)
-        payload["input_slots"] = list(self.input_slots)
-        payload["output_slots"] = list(self.output_slots)
-        payload["checks"] = list(self.checks)
-        payload["trace_fragments"] = list(self.trace_fragments)
-        return payload
+EXPLANATION_SNAPSHOT_CONTRACT = "explanation-snapshot/v3"
 
 
 @dataclass(frozen=True)
@@ -76,14 +48,81 @@ class TeachingSource:
 
     source_step_id: str
     capability_id: str
-    args: Mapping[str, Any]
-    public_results: Mapping[str, Mapping[str, Any]]
+    inputs: Mapping[str, tuple[Mapping[str, Any], ...]]
+    outputs: Mapping[str, Mapping[str, Any]]
     output_targets: Mapping[str, str] = field(default_factory=dict)
-    return_expectations: Mapping[str, str] = field(default_factory=dict)
     intent: str | None = None
+    calculations: tuple[Mapping[str, Any], ...] = ()
     checks: tuple[Mapping[str, Any], ...] = ()
-    evidence_refs: tuple[str, ...] = ()
-    closure_refs: tuple[str, ...] = ()
+    # Temporary, non-serialized B1 compatibility view for the legacy
+    # Lesson/Visual builders.  Snapshot v3 exposes only student-safe outputs;
+    # B4 removes this sidecar together with those builders.
+    compatibility_outputs: Mapping[str, Mapping[str, Any]] | None = field(
+        default=None,
+        repr=False,
+        compare=False,
+    )
+
+    @property
+    def args(self) -> dict[str, Any]:
+        """Derived authored args for the pre-B4 Lesson/Visual compatibility path."""
+
+        result: dict[str, Any] = {}
+        for name, items in self.inputs.items():
+            authored = [_authored_ref_value(item.get("ref")) for item in items]
+            result[name] = authored[0] if len(authored) == 1 else authored
+        return result
+
+    @property
+    def public_results(self) -> Mapping[str, Mapping[str, Any]]:
+        """Pre-B4 spelling; v3 serializes this collection as ``outputs``."""
+
+        if self.compatibility_outputs is not None:
+            return self.compatibility_outputs
+        return self.outputs
+
+    @property
+    def closure_refs(self) -> tuple[str, ...]:
+        """Symbolic closures are ordinary evidence in v3."""
+
+        return ()
+
+    @property
+    def method_id(self) -> str:
+        """Compatibility spelling for the pre-B4 Lesson builder."""
+
+        return self.capability_id
+
+    @property
+    def trace_id(self) -> str:
+        """Stable derived reference; Snapshot v3 stores no replay trace."""
+
+        return f"trace:{self.source_step_id}:0:{self.capability_id}"
+
+    @property
+    def trace_fragments(self) -> tuple[dict[str, Any], ...]:
+        """Public-result-only compatibility view for legacy role binders."""
+
+        return tuple(
+            {
+                "return": return_name,
+                "runtime_type": result.get("runtime_type"),
+                "value": _thaw(result.get("value")),
+            }
+            for return_name, result in self.public_results.items()
+        )
+
+    @property
+    def input_slots(self) -> tuple[str, ...]:
+        return tuple(self.inputs)
+
+    @property
+    def output_slots(self) -> tuple[str, ...]:
+        return tuple(self.outputs)
+
+    @property
+    def hidden_reason(self) -> None:
+        return None
 
     def authored_step_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -93,30 +132,27 @@ class TeachingSource:
         }
         if self.output_targets:
             payload["output_targets"] = dict(self.output_targets)
-        if self.return_expectations:
-            payload["return_expectations"] = dict(self.return_expectations)
         if self.intent:
             payload["intent"] = self.intent
         return payload
 
     def to_payload(self) -> dict[str, Any]:
-        payload = {
-            "source_step_id": self.source_step_id,
+        return {
+            "step_id": self.source_step_id,
             "capability_id": self.capability_id,
-            "args": _thaw(self.args),
-            "output_targets": dict(self.output_targets),
-            "return_expectations": dict(self.return_expectations),
-            "public_results": {
-                name: _thaw(result)
-                for name, result in self.public_results.items()
+            "intent": self.intent,
+            "inputs": {
+                name: [_thaw(item) for item in items]
+                for name, items in self.inputs.items()
             },
+            "output_targets": dict(self.output_targets),
+            "outputs": {
+                name: _thaw(result)
+                for name, result in self.outputs.items()
+            },
+            "calculations": [_thaw(item) for item in self.calculations],
             "checks": [_thaw(item) for item in self.checks],
-            "evidence_refs": list(self.evidence_refs),
-            "closure_refs": list(self.closure_refs),
         }
-        if self.intent:
-            payload["intent"] = self.intent
-        return payload
 
 
 @dataclass(frozen=True)
@@ -139,55 +175,25 @@ class TeachingScope:
     """Recursive, owner-preserving projection of one Canonical Plan Scope."""
 
     scope_ref: str
-    scope_steps: tuple[TeachingSource, ...] = ()
+    steps: tuple[TeachingSource, ...] = ()
     goals: tuple[TeachingGoal, ...] = ()
     children: tuple["TeachingScope", ...] = ()
+
+    @property
+    def scope_steps(self) -> tuple[TeachingSource, ...]:
+        """Pre-B4 in-memory spelling; v3 has one recursive ``steps`` concept."""
+
+        return self.steps
 
     def to_payload(self) -> dict[str, Any]:
         return {
             "scope_ref": self.scope_ref,
-            "scope_steps": [item.to_payload() for item in self.scope_steps],
+            "steps": [item.to_payload() for item in self.steps],
             "goals": {
                 goal.goal_ref: goal.to_payload()
                 for goal in self.goals
             },
             "children": [item.to_payload() for item in self.children],
-        }
-
-
-@dataclass(frozen=True)
-class TeachingCrossScopeReference:
-    """A dependency edge; it never moves or copies the producer source."""
-
-    source_step_id: str
-    target_step_id: str
-    source_scope_ref: str
-    target_scope_ref: str
-    public_result_ref: Mapping[str, str]
-
-    @property
-    def source_scope_id(self) -> str:
-        """Temporary read-only spelling used by the flat LessonIR builder."""
-
-        return self.source_scope_ref
-
-    @property
-    def target_scope_id(self) -> str:
-        """Temporary read-only spelling used by the flat LessonIR builder."""
-
-        return self.target_scope_ref
-
-    @property
-    def semantic_roles(self) -> tuple[str, ...]:
-        return (str(self.public_result_ref.get("return") or "result"),)
-
-    def to_payload(self) -> dict[str, Any]:
-        return {
-            "source_step_id": self.source_step_id,
-            "target_step_id": self.target_step_id,
-            "source_scope_ref": self.source_scope_ref,
-            "target_scope_ref": self.target_scope_ref,
-            "public_result_ref": dict(self.public_result_ref),
         }
 
 
@@ -203,7 +209,6 @@ class ExplanationSnapshot:
     verified_execution_hash: str
     problem: dict[str, Any]
     root_scope: TeachingScope
-    cross_scope_references: tuple[TeachingCrossScopeReference, ...] = ()
     evidence: Mapping[str, Mapping[str, Any]] = field(default_factory=dict)
     answers: dict[str, Any] = field(default_factory=dict)
     schema_version: str = EXPLANATION_SNAPSHOT_CONTRACT
@@ -288,37 +293,6 @@ class ExplanationSnapshot:
         return tuple(result)
 
     @property
-    def teaching_trace(self) -> tuple[TeachingTraceEntry, ...]:
-        """One deterministic trace per verified atomic Functional step."""
-
-        owners = teaching_source_owners(self.root_scope)
-        return tuple(
-            TeachingTraceEntry(
-                trace_id=(
-                    f"trace:{source.source_step_id}:0:{source.capability_id}"
-                ),
-                source_step_id=source.source_step_id,
-                scope_id=owners[source.source_step_id][0],
-                capability_id=source.capability_id,
-                method_id=source.capability_id,
-                input_slots=tuple(source.args),
-                output_slots=tuple(source.public_results),
-                checks=tuple(
-                    str(item.get("name") or "verified_check")
-                    for item in source.checks
-                ),
-                trace_fragments=tuple(
-                    {
-                        "return": return_name,
-                        **_thaw(runtime_result),
-                    }
-                    for return_name, runtime_result in source.public_results.items()
-                ),
-            )
-            for source in iter_teaching_sources(self.root_scope)
-        )
-
-    @property
     def fact_index(self) -> dict[str, dict[str, Any]]:
         """Derived verified-result/problem-fact index for pre-F5-F5B consumers."""
 
@@ -369,15 +343,23 @@ class ExplanationSnapshot:
 
     @property
     def macro_evidence(self) -> tuple[dict[str, Any], ...]:
-        ordered_refs = tuple(
-            ref
-            for source in iter_teaching_sources(self.root_scope)
-            for ref in source.evidence_refs
-        )
         return tuple(
-            _thaw(self.evidence[ref])
-            for ref in dict.fromkeys(ordered_refs)
-            if self.evidence.get(ref, {}).get("macro_id")
+            _thaw(payload)
+            for source in iter_teaching_sources(self.root_scope)
+            for payload in self.evidence_for_step(source.source_step_id)
+            if payload.get("macro_id")
+        )
+
+    def evidence_for_step(
+        self,
+        source_step_id: str,
+    ) -> tuple[Mapping[str, Any], ...]:
+        """Return verified evidence by its canonical owner, without public refs."""
+
+        return tuple(
+            payload
+            for payload in self.evidence.values()
+            if str(payload.get("step_id") or "") == source_step_id
         )
 
     @property
@@ -396,9 +378,39 @@ class ExplanationSnapshot:
 
     @property
     def symbolic_closures(self) -> tuple[SymbolicClosureTeachingTrace, ...]:
-        """Closure teaching awaits a verified public evidence projector."""
+        """Derived compatibility view over v3 symbolic-closure evidence."""
 
-        return ()
+        return tuple(
+            SymbolicClosureTeachingTrace(
+                source_call_id=str(payload.get("step_id") or ""),
+                target=str(payload.get("target") or ""),
+                target_value=(
+                    str(payload["target_value"])
+                    if payload.get("target_value") is not None
+                    else None
+                ),
+                equation_sources=tuple(payload.get("equation_sources") or ()),
+                known_substitutions=tuple(
+                    (
+                        str(item.get("symbol") or ""),
+                        str(item.get("value") or ""),
+                    )
+                    for item in payload.get("substitutions") or ()
+                    if isinstance(item, Mapping)
+                ),
+                constraint_summary=(
+                    str(payload["constraint_summary"])
+                    if payload.get("constraint_summary") is not None
+                    else None
+                ),
+                branch_count=int(payload.get("branch_count") or 0),
+                residual_symbols=tuple(payload.get("residual_symbols") or ()),
+                affected_returns=tuple(payload.get("affected_returns") or ()),
+            )
+            for payload in self.evidence.values()
+            if payload.get("schema_version")
+            == "symbolic-closure-teaching-evidence/v1"
+        )
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -411,9 +423,6 @@ class ExplanationSnapshot:
             "verified_execution_hash": self.verified_execution_hash,
             "problem": _thaw(self.problem),
             "root_scope": self.root_scope.to_payload(),
-            "cross_scope_references": [
-                item.to_payload() for item in self.cross_scope_references
-            ],
             "evidence": {
                 key: _thaw(value) for key, value in self.evidence.items()
             },
@@ -429,7 +438,7 @@ def iter_teaching_scopes(root: TeachingScope) -> Iterator[TeachingScope]:
 
 def iter_teaching_sources(root: TeachingScope) -> Iterator[TeachingSource]:
     for scope in iter_teaching_scopes(root):
-        yield from scope.scope_steps
+        yield from scope.steps
         for goal in scope.goals:
             yield from goal.steps
 
@@ -439,7 +448,7 @@ def teaching_source_owners(
 ) -> dict[str, tuple[str, str | None]]:
     result: dict[str, tuple[str, str | None]] = {}
     for scope in iter_teaching_scopes(root):
-        for source in scope.scope_steps:
+        for source in scope.steps:
             result[source.source_step_id] = (scope.scope_ref, None)
         for goal in scope.goals:
             for source in goal.steps:
@@ -474,15 +483,13 @@ def explanation_snapshot_from_payload(payload: Mapping[str, Any]) -> Explanation
         "verified_execution_hash",
         "problem",
         "root_scope",
-        "cross_scope_references",
         "evidence",
         "answers",
     }
     if set(payload) != expected:
-        raise ValueError("ExplanationSnapshot payload fields do not match v2 contract")
-    references = payload["cross_scope_references"]
+        raise ValueError("ExplanationSnapshot payload fields do not match v3 contract")
     evidence = payload["evidence"]
-    if not isinstance(references, list) or not isinstance(evidence, Mapping):
+    if not isinstance(evidence, Mapping):
         raise ValueError("ExplanationSnapshot collections have invalid types")
     return ExplanationSnapshot(
         schema_version=str(payload["schema_version"]),
@@ -494,10 +501,6 @@ def explanation_snapshot_from_payload(payload: Mapping[str, Any]) -> Explanation
         verified_execution_hash=str(payload["verified_execution_hash"]),
         problem=dict(_mapping(payload["problem"])),
         root_scope=_teaching_scope_from_payload(_mapping(payload["root_scope"])),
-        cross_scope_references=tuple(
-            _teaching_reference_from_payload(_mapping(item))
-            for item in references
-        ),
         evidence={str(key): dict(_mapping(value)) for key, value in evidence.items()},
         answers=dict(_mapping(payload["answers"])),
     )
@@ -506,15 +509,15 @@ def explanation_snapshot_from_payload(payload: Mapping[str, Any]) -> Explanation
 def _teaching_scope_from_payload(payload: Mapping[str, Any]) -> TeachingScope:
     _require_exact_fields(
         payload,
-        {"scope_ref", "scope_steps", "goals", "children"},
+        {"scope_ref", "steps", "goals", "children"},
         label="TeachingScope",
     )
     goals = _mapping(payload.get("goals", {}))
     return TeachingScope(
         scope_ref=str(payload["scope_ref"]),
-        scope_steps=tuple(
+        steps=tuple(
             _teaching_source_from_payload(_mapping(item))
-            for item in _sequence(payload.get("scope_steps", []))
+            for item in _sequence(payload.get("steps", []))
         ),
         goals=tuple(
             TeachingGoal(
@@ -542,80 +545,98 @@ def _teaching_scope_from_payload(payload: Mapping[str, Any]) -> TeachingScope:
 
 def _teaching_source_from_payload(payload: Mapping[str, Any]) -> TeachingSource:
     required = {
-        "source_step_id",
+        "step_id",
         "capability_id",
-        "args",
+        "intent",
+        "inputs",
         "output_targets",
-        "return_expectations",
-        "public_results",
+        "outputs",
+        "calculations",
         "checks",
-        "evidence_refs",
-        "closure_refs",
     }
-    _require_exact_fields(
-        payload,
-        required | ({"intent"} if "intent" in payload else set()),
-        label="TeachingSource",
-    )
-    public_results = _mapping(payload["public_results"])
-    for return_name, result in public_results.items():
+    _require_exact_fields(payload, required, label="TeachingSource")
+    inputs = _mapping(payload["inputs"])
+    checked_inputs: dict[str, tuple[dict[str, Any], ...]] = {}
+    for arg_name, raw_items in inputs.items():
+        items = tuple(_mapping(item) for item in _sequence(raw_items))
+        if not items:
+            raise ValueError("TeachingSource input arrays must be non-empty")
+        checked_inputs[str(arg_name)] = tuple(
+            _checked_teaching_input(item) for item in items
+        )
+    outputs = _mapping(payload["outputs"])
+    for return_name, result in outputs.items():
         result_payload = _mapping(result)
         _require_exact_fields(
             result_payload,
-            {"runtime_type", "value"},
-            label=f"TeachingSource.public_results.{return_name}",
+            {"runtime_type", "value", "display"},
+            label=f"TeachingSource.outputs.{return_name}",
         )
-        if not str(result_payload["runtime_type"]):
-            raise ValueError("TeachingSource runtime_type must be non-empty")
+        if not str(result_payload["runtime_type"]) or not str(
+            result_payload["display"]
+        ):
+            raise ValueError("TeachingSource output type/display must be non-empty")
     return TeachingSource(
-        source_step_id=str(payload["source_step_id"]),
+        source_step_id=str(payload["step_id"]),
         capability_id=str(payload["capability_id"]),
-        args=dict(_mapping(payload["args"])),
+        inputs=checked_inputs,
         output_targets={
             str(key): str(value)
             for key, value in _mapping(payload["output_targets"]).items()
         },
-        return_expectations={
-            str(key): str(value)
-            for key, value in _mapping(payload["return_expectations"]).items()
-        },
         intent=str(payload["intent"]) if payload.get("intent") else None,
-        public_results={
+        outputs={
             str(key): dict(_mapping(value))
-            for key, value in public_results.items()
+            for key, value in outputs.items()
         },
+        calculations=tuple(
+            dict(_mapping(item)) for item in _sequence(payload["calculations"])
+        ),
         checks=tuple(
             dict(_mapping(item)) for item in _sequence(payload["checks"])
         ),
-        evidence_refs=tuple(str(item) for item in _sequence(payload["evidence_refs"])),
-        closure_refs=tuple(str(item) for item in _sequence(payload["closure_refs"])),
     )
 
 
-def _teaching_reference_from_payload(
+def _checked_teaching_input(payload: Mapping[str, Any]) -> dict[str, Any]:
+    expected = {"ref", "runtime_type", "value", "display"}
+    if "resolved_from" in payload:
+        expected.add("resolved_from")
+    _require_exact_fields(payload, expected, label="TeachingSource input")
+    _checked_teaching_ref(_mapping(payload["ref"]), allow_source=True)
+    if "resolved_from" in payload:
+        _checked_teaching_ref(
+            _mapping(payload["resolved_from"]),
+            allow_source=False,
+        )
+    if not str(payload["runtime_type"]) or not str(payload["display"]):
+        raise ValueError("TeachingSource input type/display must be non-empty")
+    return dict(payload)
+
+
+def _checked_teaching_ref(
     payload: Mapping[str, Any],
-) -> TeachingCrossScopeReference:
-    _require_exact_fields(
-        payload,
-        {
-            "source_step_id",
-            "target_step_id",
-            "source_scope_ref",
-            "target_scope_ref",
-            "public_result_ref",
-        },
-        label="TeachingCrossScopeReference",
-    )
-    public_result_ref = _checked_answer_from(
-        _mapping(payload["public_result_ref"])
-    )
-    return TeachingCrossScopeReference(
-        source_step_id=str(payload["source_step_id"]),
-        target_step_id=str(payload["target_step_id"]),
-        source_scope_ref=str(payload["source_scope_ref"]),
-        target_scope_ref=str(payload["target_scope_ref"]),
-        public_result_ref=dict(public_result_ref),
-    )
+    *,
+    allow_source: bool,
+) -> None:
+    kind = str(payload.get("kind") or "")
+    if kind == "source" and allow_source:
+        _require_exact_fields(payload, {"kind", "ref"}, label="SourceRef")
+        if not str(payload.get("ref") or ""):
+            raise ValueError("SourceRef ref must be non-empty")
+        return
+    if kind == "step_result":
+        _require_exact_fields(
+            payload,
+            {"kind", "step_id", "return"},
+            label="StepResultRef",
+        )
+        if not str(payload.get("step_id") or "") or not str(
+            payload.get("return") or ""
+        ):
+            raise ValueError("StepResultRef fields must be non-empty")
+        return
+    raise ValueError("TeachingSource ref has an unsupported kind")
 
 
 def _checked_goal_payload(payload: Mapping[str, Any]) -> Mapping[str, Any]:
@@ -643,7 +664,7 @@ def _require_exact_fields(
     label: str,
 ) -> None:
     if set(payload) != expected:
-        raise ValueError(f"{label} payload fields do not match v2 contract")
+        raise ValueError(f"{label} payload fields do not match v3 contract")
 
 
 def _validate_explanation_snapshot(snapshot: ExplanationSnapshot) -> None:
@@ -670,39 +691,48 @@ def _validate_explanation_snapshot(snapshot: ExplanationSnapshot) -> None:
     goal_refs = tuple(goal.goal_ref for scope in scopes for goal in scope.goals)
     if len(goal_refs) != len(set(goal_refs)):
         raise ValueError("TeachingGoal refs must be globally unique")
+    source_by_id = {source.source_step_id: source for source in sources}
+    for evidence_id, payload in snapshot.evidence.items():
+        evidence_step_id = str(payload.get("step_id") or "")
+        if not evidence_step_id or evidence_step_id not in source_by_id:
+            raise ValueError(
+                "ExplanationSnapshot evidence has no canonical Step owner: "
+                f"{evidence_id}"
+            )
     for source in sources:
-        for ref in (*source.evidence_refs, *source.closure_refs):
-            if ref not in snapshot.evidence:
-                raise ValueError(f"TeachingSource references unknown evidence: {ref}")
-    computed_plan_hash = canonical_plan_hash_for_teaching_scope(snapshot.root_scope)
-    if computed_plan_hash != snapshot.canonical_plan_hash:
-        raise ValueError("ExplanationSnapshot canonical Plan hash drift")
-    owners = teaching_source_owners(snapshot.root_scope)
-    for reference in snapshot.cross_scope_references:
-        if reference.source_step_id not in owners or reference.target_step_id not in owners:
-            raise ValueError("cross-Scope reference contains an unknown step")
-        if owners[reference.source_step_id][0] != reference.source_scope_ref:
-            raise ValueError("cross-Scope reference source owner drift")
-        if owners[reference.target_step_id][0] != reference.target_scope_ref:
-            raise ValueError("cross-Scope reference target owner drift")
-        if reference.source_scope_ref == reference.target_scope_ref:
-            raise ValueError("cross-Scope reference must cross an owner boundary")
-        if reference.public_result_ref.get("step_id") != reference.source_step_id:
-            raise ValueError("cross-Scope public result producer drift")
-        return_name = str(reference.public_result_ref.get("return") or "")
-        source = next(
-            item for item in sources if item.source_step_id == reference.source_step_id
+        calculation_ids = tuple(
+            str(item.get("calculation_id") or "")
+            for item in source.calculations
         )
-        if return_name not in source.public_results:
-            raise ValueError("cross-Scope reference names an unknown public result")
+        if any(not item for item in calculation_ids) or len(calculation_ids) != len(
+            set(calculation_ids)
+        ):
+            raise ValueError("TeachingSource calculation ids must be non-empty and unique")
+    # Snapshot v3 deliberately omits Plan-only controls such as
+    # return_expectations, so the serialized teaching tree is not a reversible
+    # Canonical Plan encoding.  The builder verifies the authoritative Plan
+    # hash before projection; a parsed Snapshot preserves that verified hash.
+    for consumer in sources:
+        for items in consumer.inputs.values():
+            for item in items:
+                ref = item.get("resolved_from") or item.get("ref")
+                if not isinstance(ref, Mapping) or ref.get("kind") != "step_result":
+                    continue
+                producer_id = str(ref.get("step_id") or "")
+                return_name = str(ref.get("return") or "")
+                producer = source_by_id.get(producer_id)
+                if producer is None or return_name not in producer.outputs:
+                    raise ValueError(
+                        "TeachingSource input references an unknown public result"
+                    )
 
 
 def _canonical_plan_payload(root: TeachingScope) -> dict[str, Any]:
     def scope_payload(scope: TeachingScope) -> dict[str, Any]:
         payload: dict[str, Any] = {"scope_ref": scope.scope_ref}
-        if scope.scope_steps:
+        if scope.steps:
             payload["steps"] = [
-                item.authored_step_payload() for item in scope.scope_steps
+                item.authored_step_payload() for item in scope.steps
             ]
         if scope.goals:
             payload["goals"] = [
@@ -961,15 +991,29 @@ def _thaw(value: Any) -> Any:
     return value
 
 
+def _authored_ref_value(value: Any) -> Any:
+    if not isinstance(value, Mapping):
+        raise ValueError("TeachingSource input ref must be an object")
+    kind = str(value.get("kind") or "")
+    if kind == "source":
+        return str(value.get("ref") or "")
+    if kind == "step_result":
+        return {
+            "step_id": str(value.get("step_id") or ""),
+            "return": str(value.get("return") or ""),
+        }
+    raise ValueError("TeachingSource input ref has an unsupported kind")
+
+
 @dataclass(frozen=True)
 class LessonCandidateGroup:
     """LessonIR LLM 可选择的讲解候选组。
 
-    它连接 canonical Functional call、method invocation trace 和讲解层拆分后的认知子步骤。
+    它连接 canonical Functional call、verified TeachingSource 和讲解层拆分后的认知子步骤。
     """
 
     step: dict[str, Any]
-    traces: tuple[TeachingTraceEntry, ...]
+    sources: tuple[TeachingSource, ...]
     teaching_substep_id: str | None = None
     teaching_substep_title: str | None = None
     teaching_substep_nav_title: str | None = None
@@ -1000,20 +1044,29 @@ class LessonCandidateGroup:
 
     @property
     def method_ids(self) -> tuple[str, ...]:
-        return tuple(entry.method_id for entry in self._visible_traces)
+        return tuple(entry.capability_id for entry in self._visible_sources)
 
     @property
     def trace_refs(self) -> tuple[str, ...]:
-        return tuple(entry.trace_id for entry in self._visible_traces)
+        # LessonIR keeps its legacy field name until the B4 atomic cutover.
+        return tuple(entry.trace_id for entry in self._visible_sources)
 
     @property
-    def _visible_traces(self) -> tuple[TeachingTraceEntry, ...]:
-        traces = tuple(entry for entry in self.traces if entry.hidden_reason is None)
+    def _visible_sources(self) -> tuple[TeachingSource, ...]:
+        sources = tuple(self.sources)
         if not self.preferred_method_ids:
-            return traces
+            return sources
         preferred = set(self.preferred_method_ids)
-        filtered = tuple(entry for entry in traces if entry.method_id in preferred)
-        return filtered or traces
+        filtered = tuple(
+            entry for entry in sources if entry.capability_id in preferred
+        )
+        return filtered or sources
+
+    @property
+    def traces(self) -> tuple[TeachingSource, ...]:
+        """Pre-B4 binder compatibility; values are sources, not replay traces."""
+
+        return self.sources
 
 
 @dataclass(frozen=True)
