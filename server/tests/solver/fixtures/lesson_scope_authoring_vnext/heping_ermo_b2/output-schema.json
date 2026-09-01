@@ -4,177 +4,101 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
-    "schema_version",
-    "scope_bodies"
+    "i",
+    "i_1",
+    "i_2",
+    "ii"
   ],
   "properties": {
-    "schema_version": {
-      "const": "lesson-scope-content/v1"
-    },
-    "scope_bodies": {
+    "i": {
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "i",
-        "i_1",
-        "i_2",
-        "ii"
+        "steps"
       ],
       "properties": {
-        "i": {
+        "steps": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 2,
+          "items": {
+            "$ref": "#/$defs/lesson_step"
+          }
+        }
+      }
+    },
+    "i_1": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "goals"
+      ],
+      "properties": {
+        "goals": {
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "steps",
-            "goals"
+            "i_1.P"
           ],
           "properties": {
-            "steps": {
+            "i_1.P": {
               "type": "array",
               "minItems": 1,
-              "maxItems": 2,
+              "maxItems": 1,
               "items": {
                 "$ref": "#/$defs/lesson_step"
               }
-            },
-            "goals": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": [],
-              "properties": {}
             }
           }
-        },
-        "i_1": {
+        }
+      }
+    },
+    "i_2": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "goals"
+      ],
+      "properties": {
+        "goals": {
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "steps",
-            "goals"
+            "i_2.E"
           ],
           "properties": {
-            "steps": {
+            "i_2.E": {
               "type": "array",
-              "maxItems": 0
-            },
-            "goals": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": [
-                "i_1.A",
-                "i_1.P"
-              ],
-              "properties": {
-                "i_1.A": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "steps"
-                  ],
-                  "properties": {
-                    "steps": {
-                      "type": "array",
-                      "maxItems": 0
-                    }
-                  }
-                },
-                "i_1.P": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "steps"
-                  ],
-                  "properties": {
-                    "steps": {
-                      "type": "array",
-                      "minItems": 1,
-                      "maxItems": 1,
-                      "items": {
-                        "$ref": "#/$defs/lesson_step"
-                      }
-                    }
-                  }
-                }
+              "minItems": 1,
+              "maxItems": 3,
+              "items": {
+                "$ref": "#/$defs/lesson_step"
               }
             }
           }
-        },
-        "i_2": {
+        }
+      }
+    },
+    "ii": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "goals"
+      ],
+      "properties": {
+        "goals": {
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "steps",
-            "goals"
+            "ii.E"
           ],
           "properties": {
-            "steps": {
+            "ii.E": {
               "type": "array",
-              "maxItems": 0
-            },
-            "goals": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": [
-                "i_2.E"
-              ],
-              "properties": {
-                "i_2.E": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "steps"
-                  ],
-                  "properties": {
-                    "steps": {
-                      "type": "array",
-                      "minItems": 1,
-                      "maxItems": 3,
-                      "items": {
-                        "$ref": "#/$defs/lesson_step"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "ii": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "steps",
-            "goals"
-          ],
-          "properties": {
-            "steps": {
-              "type": "array",
-              "maxItems": 0
-            },
-            "goals": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": [
-                "ii.E"
-              ],
-              "properties": {
-                "ii.E": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "steps"
-                  ],
-                  "properties": {
-                    "steps": {
-                      "type": "array",
-                      "minItems": 1,
-                      "maxItems": 7,
-                      "items": {
-                        "$ref": "#/$defs/lesson_step"
-                      }
-                    }
-                  }
-                }
+              "minItems": 1,
+              "maxItems": 7,
+              "items": {
+                "$ref": "#/$defs/lesson_step"
               }
             }
           }
@@ -187,18 +111,21 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "material_count",
+        "source_steps",
         "title",
         "nav_title",
         "goal",
-        "derive",
-        "box",
-        "visuals"
+        "derive"
       ],
       "properties": {
-        "material_count": {
-          "type": "integer",
-          "minimum": 1
+        "source_steps": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^s[1-9][0-9]*$"
+          }
         },
         "title": {
           "type": "string",
@@ -216,37 +143,9 @@
           "type": "array",
           "minItems": 1,
           "items": {
-            "type": "array",
-            "prefixItems": [
-              {
-                "enum": [
-                  "作",
-                  "设",
-                  "∵",
-                  "∴",
-                  "计算"
-                ]
-              },
-              {
-                "type": "string",
-                "minLength": 1
-              }
-            ],
-            "items": false,
-            "minItems": 2,
-            "maxItems": 2
-          }
-        },
-        "box": {
-          "type": "array",
-          "items": {
             "type": "string",
-            "minLength": 1
+            "pattern": "^(作|设|∵|∴|计算)\\s+\\S"
           }
-        },
-        "visuals": {
-          "type": "array",
-          "maxItems": 0
         }
       }
     }

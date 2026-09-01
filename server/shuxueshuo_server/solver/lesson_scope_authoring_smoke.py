@@ -228,6 +228,32 @@ def evaluate_lesson_teaching(
             "lesson_teaching_evaluation_invalid: LessonIR.steps must be a list"
         )
 
+    return evaluate_teaching_rows(
+        raw_steps,
+        rubric_payload,
+        problem_id=str(lesson_payload["problem_id"]),
+    )
+
+
+def evaluate_teaching_rows(
+    rows: Sequence[Mapping[str, Any]],
+    rubric: Mapping[str, Any],
+    *,
+    problem_id: str,
+) -> dict[str, Any]:
+    """Evaluate student text rows carrying code-owned ``source_step_ids``.
+
+    B0 passes flat LessonIR steps.  B3 passes Scope-owned draft rows whose
+    provenance was reconstructed from material authority.  The rubric remains
+    evaluation-only and never enters either generator payload.
+    """
+
+    rubric_payload = validate_teaching_rubric(rubric)
+    if problem_id != rubric_payload["problem_id"]:
+        raise LessonAuthoringSmokeError(
+            "lesson_teaching_evaluation_problem_mismatch: rows and rubric differ"
+        )
+
     covered: list[str] = []
     missing: list[str] = []
     evidence_by_point: dict[str, Any] = {}
@@ -235,7 +261,7 @@ def evaluate_lesson_teaching(
         source_step_id = point["source_step_id"]
         selected = [
             step
-            for step in raw_steps
+            for step in rows
             if isinstance(step, Mapping)
             and source_step_id in tuple(step.get("source_step_ids") or ())
         ]
@@ -259,7 +285,9 @@ def evaluate_lesson_teaching(
         (covered if is_covered else missing).append(point_id)
         evidence_by_point[point_id] = {
             "source_step_id": source_step_id,
-            "lesson_step_ids": [str(step.get("id") or "") for step in selected],
+            "lesson_step_ids": [
+                str(step.get("id") or "") for step in selected
+            ],
             "matched_patterns": matched_groups,
         }
     total = len(rubric_payload["points"])

@@ -63,6 +63,8 @@ class OpenAICompatiblePlannerClient:
     client_factory: OpenAIClientFactory = _default_openai_client_factory
     temperature: float = 0.0
     request_timeout: float = 120.0
+    sdk_max_retries: int | None = None
+    reasoning_only_empty_response_retry: bool = True
     last_usage: dict[str, Any] | None = field(default=None, init=False)
     last_response_model: str | None = field(default=None, init=False)
     last_provider_attempts: tuple[dict[str, Any], ...] = field(
@@ -89,10 +91,15 @@ class OpenAICompatiblePlannerClient:
             raise LLMClientConfigurationError(
                 f"LLM provider requires {self.provider_name.upper()}_MODEL"
             )
+        client_options: dict[str, Any] = {
+            "api_key": self.api_key,
+            "base_url": self.base_url,
+            "timeout": self.request_timeout,
+        }
+        if self.sdk_max_retries is not None:
+            client_options["max_retries"] = self.sdk_max_retries
         self._client = self.client_factory(
-            api_key=self.api_key,
-            base_url=self.base_url,
-            timeout=self.request_timeout,
+            **client_options,
         )
 
     def complete(self, payload: dict[str, Any]) -> str:
@@ -105,6 +112,12 @@ class OpenAICompatiblePlannerClient:
         messages = _messages_from_payload(payload, self.system_prompt)
         request_options = self._completion_request_options(payload)
         request_audit = _completion_request_audit(request_options)
+        retry_reasoning_only = bool(
+            payload.get(
+                "reasoning_only_empty_response_retry",
+                self.reasoning_only_empty_response_retry,
+            )
+        )
         attempts: list[dict[str, Any]] = []
         reasoning_records: list[dict[str, Any]] = []
         self.last_provider_reasoning = ()
@@ -160,7 +173,7 @@ class OpenAICompatiblePlannerClient:
                 return text
             if not _usage_consumed_output_tokens(usage):
                 return text
-            if provider_attempt == 1:
+            if provider_attempt == 1 and retry_reasoning_only:
                 request_messages = [
                     *messages,
                     {
@@ -198,6 +211,8 @@ class DeepSeekPlannerClient(OpenAICompatiblePlannerClient):
         model: str,
         client_factory: OpenAIClientFactory = _default_openai_client_factory,
         request_timeout: float = 120.0,
+        sdk_max_retries: int | None = None,
+        reasoning_only_empty_response_retry: bool = True,
     ) -> None:
         super().__init__(
             api_key=api_key,
@@ -206,6 +221,10 @@ class DeepSeekPlannerClient(OpenAICompatiblePlannerClient):
             provider_name="deepseek",
             client_factory=client_factory,
             request_timeout=request_timeout,
+            sdk_max_retries=sdk_max_retries,
+            reasoning_only_empty_response_retry=(
+                reasoning_only_empty_response_retry
+            ),
         )
 
     def _completion_request_options(
@@ -214,11 +233,20 @@ class DeepSeekPlannerClient(OpenAICompatiblePlannerClient):
     ) -> dict[str, Any]:
         """Use direct JSON on pass 1 and low thinking only for semantic repair."""
         planner_attempt = payload.get("planner_attempt", 1)
+        explicit_effort = payload.get("thinking_effort")
+        if explicit_effort not in {None, "disabled", "low"}:
+            raise LLMClientConfigurationError(
+                "DEEPSEEK thinking_effort must be 'disabled' or 'low'"
+            )
         options: dict[str, Any] = {
             "response_format": {"type": "json_object"},
             "extra_body": {"thinking": {"type": "disabled"}},
         }
-        if isinstance(planner_attempt, int) and planner_attempt > 1:
+        if explicit_effort == "low" or (
+            explicit_effort is None
+            and isinstance(planner_attempt, int)
+            and planner_attempt > 1
+        ):
             options.update(
                 {
                     "reasoning_effort": "low",
@@ -243,6 +271,8 @@ class DoubaoPlannerClient(OpenAICompatiblePlannerClient):
         model: str,
         client_factory: OpenAIClientFactory = _default_openai_client_factory,
         request_timeout: float = 120.0,
+        sdk_max_retries: int | None = None,
+        reasoning_only_empty_response_retry: bool = True,
     ) -> None:
         super().__init__(
             api_key=api_key,
@@ -251,6 +281,10 @@ class DoubaoPlannerClient(OpenAICompatiblePlannerClient):
             provider_name="doubao",
             client_factory=client_factory,
             request_timeout=request_timeout,
+            sdk_max_retries=sdk_max_retries,
+            reasoning_only_empty_response_retry=(
+                reasoning_only_empty_response_retry
+            ),
         )
 
 

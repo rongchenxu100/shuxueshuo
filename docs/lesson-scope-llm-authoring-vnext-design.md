@@ -1,7 +1,7 @@
 # F5-F5B/G1 Lesson Scope LLM Authoring 与视觉选择 vNext 设计
 
 状态：`IMPLEMENTATION`。`F5-F5B0 COMPLETE`；`F5-F5B1 COMPLETE`；
-`F5-F5B2 COMPLETE`；`F5-F5B3 NEXT`（一次 Scope Lesson 调用、校验、fallback 与评测）。
+`F5-F5B2 COMPLETE`；`F5-F5B3 COMPLETE`；`F5-F5B4 NEXT`。
 
 日期：2026-09-01。
 
@@ -10,9 +10,9 @@
 ```text
 Verified FunctionalPlan execution
 → ExplanationSnapshot
-→ 同一次 Lesson LLM 学生化编排 + 视觉组件选择
+→ 一次 Lesson LLM 学生化编排
 → recursive LessonIR
-→ 代码确定性生成 VisualStepIR
+→ 后续独立视觉选择与代码确定性 VisualStepIR
 ```
 
 本文不改变 FunctionalPlan、Scope Retry 或 Method runtime 合同；也不允许 LLM 生成几何、
@@ -27,8 +27,8 @@ interaction formula 或 animation beat。本文同时定义 F5-F5B 学生步骤�
 F5-F5B0 的只读基线、rubric、coverage inventory 与 recorded/live harness 已实现；它们没有
 改变生产协议。F5-F5B1 的 Snapshot v3、Evidence Projector、TeachingUnitSpec 与只读 Review
 artifact 已完成人工审阅并收口；F5-F5B2 的 Annotated Teaching Plan、动态输出 Schema、最终
-Prompt 与双 artifact Review 也已通过人工门禁。B3 及之后的一次 LLM 调用、输出解析、fallback
-与 recursive LessonIR 仍是待实现设计。
+Prompt 与双 artifact Review 也已通过人工门禁。B3 的调用、解析、fallback 与评测已实现，
+精简协议后的 live 输出与人工门禁均已通过；recursive LessonIR 生产切换属于 B4。
 
 ## 1. 结论
 
@@ -44,11 +44,12 @@ F5-F5B vNext 采用以下边界：
    `TeachingVariantSpec[]`，由 verified evidence 唯一选择实际 Variant。内部候选搜索或等价
    实现路径不建立 Variant。稳定 variant/unit key 只属于代码内部 authority；代码先用
    verified runtime 数据绑定实际 Variant 的 unit 模板，再按 Canonical 顺序向 LLM 直接内联建议的
-   `title/nav_title/goal/derive/box`、完整计算材料和可用视觉，不存在 guide/unit registry 或
-   unit ID。
+   `title/nav_title/goal/derive/conclusions` 和完整计算材料，不存在 guide/unit registry、
+   unit ID 或视觉字段。
 4. LLM 根据绑定完成的建议草稿和当前题真实输入、输出、中间计算结果，直接输出学生化
-   `title/nav_title/goal/derive/box`，并自行决定同一 Scope/Goal 中 canonical-contiguous
-   teaching materials 的合并；不回显 `fact_ids/uses`，也不使用 locked math spans。
+   `title/nav_title/goal/derive`，并自行决定同一 Scope/Goal 中 canonical-contiguous
+   teaching materials 的合并；verified conclusions/box 由代码注入，不回显
+   `fact_ids/uses`，也不使用 locked math spans。
 5. LLM 在代码固定的 Scope/Goal 容器中填写完整 Lesson body；不输出 owner，不移动步骤。
 6. 原子 Macro 在 FunctionalPlan 中始终是一个 Step；教学层只展开 verified public
    teaching units。该 Step 必须同时向 LLM 提供支撑所有 units 的 student-safe verified public
@@ -59,11 +60,10 @@ F5-F5B vNext 采用以下边界：
    不证明 LLM 每一行推导的数学语义；结构校验失败则回退确定性教学草稿。网络超时、
    限流等 provider transport retry 不属于 Lesson 协议。
 8. 最终 LessonIR 由代码按原 Scope/Goal topology 原子组装为递归树。
-9. 普通 Method 的 MethodVisualSpec、Macro outline unit 的视觉声明提供可用语义组件；代码
-   先用 verified evidence 绑定为当前题的安全视觉候选，同一个 Lesson LLM 只选择
-   `visual_id` 和受限 `mode`，不能填写坐标、点线角色、样式或动画结构。
-10. Visual selection 不增加第二次 LLM 调用，也不增加 semantic retry。选择非法时只对该
-    Lesson Step 使用确定性视觉默认值，保留已经合法的讲解正文。
+9. B3 不包含视觉字段；Method/Macro 的视觉候选在后续独立阶段提供，不能增加当前教学
+   文本合同复杂度。
+10. 后续 Visual selection 只能选择代码绑定的 `visual_id/mode`，不能填写坐标、点线角色、
+    样式或动画结构，也不反向修改 B3 教学正文。
 11. 视觉组件选择与渲染放在本计划最后一个实现阶段；前面的 Snapshot、输入投影、Lesson
     output、评测和 recursive LessonIR 必须先独立通过。
 
@@ -167,10 +167,9 @@ vNext 把 Scope/Goal 容器、可用 teaching units、事实集合和数学结�
 - 所有公式、数值、对象、构造和取等条件可追溯至 runtime output 或 verified evidence。
 - 一次 Lesson 语义生成失败不影响页面生成：连接超时、网络错误、provider 5xx 或限流先按
   通用 LLM client 的有限 transport retry 策略重试；重试耗尽后才使用确定性 fallback。
-  已收到但 JSON/结构校验不通过的响应不做语义 repair，直接按 Scope 粒度 fallback。
-- 同一次 Lesson LLM 调用可以根据自己刚生成的学生步骤，从当前 unit 的安全候选中选择最
-  合适的视觉组件和展示模式。
-- Method/Macro 只声明可用语义组件与默认推荐，不绑定题号、点名或底层页面样式。
+  已收到响应仅允许安全补齐 EOF 缺失的 JSON 闭合符；其他 JSON/结构错误不做语义 repair，
+  直接按整题或 Scope 粒度 fallback。
+- 视觉选择留给最后的独立阶段，不进入 B2/B3 输入输出。
 
 ### 3.2 非目标
 
@@ -178,9 +177,8 @@ vNext 把 Scope/Goal 容器、可用 teaching units、事实集合和数学结�
 - 不把 Macro 内部 Method chain 重新变成 Planner/Lesson wire。
 - 不让 LLM 生成 runtime handle、checkpoint、search candidate 或内部 synthetic object。
 - 不让 LLM 修改 Scope/Goal topology、answer producer 或依赖图。
-- 不让 Lesson LLM 发明视觉组件、填写几何 role binding、坐标布局、颜色偏移、interaction
-  formula 或 animation timeline；它只能选择代码在本轮输入中明确暴露的 `visual_id` 和
-  supported mode。
+- 不让 Lesson LLM 发明或选择视觉组件、填写几何 role binding、坐标布局、颜色偏移、
+  interaction formula 或 animation timeline。
 - 不在 v1 增加第二个 Visual LLM 调用或让 LLM 直接输出底层 `Point/ColoredLine/SVG`。
 - 不在 F5-F5B v1 建立另一套复杂 retry/patch/merge 协议。
 
@@ -200,9 +198,7 @@ vNext 把 Scope/Goal 容器、可用 teaching units、事实集合和数学结�
 - Method 声明或代码兜底生成的单个教学单元，以及原子 Macro 当前 verified 学生推导所选中的
   有序教学单元；
 - runtime value 的 student-safe `value/display` 投影；
-- 组件 registry、Method/Macro 可用视觉组件、verified role binding 和本轮
-  `available_visuals`；
-- 每个视觉组件的默认选择、supported modes、兼容性、数量上限与 deterministic fallback；
+- 后续视觉阶段的组件 registry、Method/Macro 候选与 verified role binding；
 - 最终答案、Visual geometry、interaction 和 animation 的数学权威；
 - 输出 Schema、校验、fallback 和 LessonIR 组装。
 
@@ -214,8 +210,6 @@ vNext 把 Scope/Goal 容器、可用 teaching units、事实集合和数学结�
 - 哪些可选计算值得展开；
 - 同一 Scope/Goal 中哪些 canonical-contiguous teaching materials 值得合并；
 - 学生讲解应该强调哪一个已验证机制。
-- 当前学生步骤在已绑定候选中最适合展示哪一个视觉组件，以及使用该组件已支持的哪一种
-  展示模式。
 
 ### 4.2 LLM 负责
 
@@ -224,21 +218,17 @@ LLM 根据绑定完成的 suggested draft 与完整计算现场负责：
 - 润色每个学生步骤的 title、nav_title 和 goal；
 - 以 suggested derive 为可信底稿，结合 verified calculations 调整为完整的
   `∵ / ∴ / 作 / 设 / 计算` 推导；
-- 参考 suggested box 输出学生可读的关键结论；
+- 不回显关键结论；代码从所消费材料的 verified `conclusions` 生成 box；
 - 为关键跳步补充少量学生能理解的解释；
 - 选择必讲事实之外的可选细节；
 - 在同一 Scope/Goal 中自行判断 canonical-contiguous teaching materials 的讲解粒度与合并；
 - 决定一个 Macro 的 public outline units 是保持分开，还是合并成一个较长步骤；
 - 删除重复但不影响证明闭合的表述；
 - 形成学生友好的导航标题。
-- 从当前步骤覆盖的 teaching units 的 `available_visuals` 中选择零个或少量视觉选项；
-- 在组件声明的 `supported_modes` 中选择 `static`、`highlight` 或
-  `progressive_reveal` 等展示方式。
 
 LLM 不负责产生新的数学量。TeachingUnitSpec 保存通用讲解模板，但不保存当前题答案；代码
 必须先用 verified runtime 数据把模板绑定成含具体公式、对象和结论的 suggested draft，再交给
-LLM。LLM 也不负责把视觉组件绑定到本题对象；它选择的是已经绑定成功的 `visual_id`，不是
-组件参数。
+LLM。LLM 也不负责把视觉组件绑定到本题对象或选择组件。
 
 ### 4.3 运行时 role 与讲解 role
 
@@ -280,23 +270,17 @@ functional-annotated-teaching-plan/v1
 
 ```text
 AnnotatedTeachingPlan
-├── schema_version
 ├── problem
 ├── answers
 ├── root_scope
 │   ├── scope_ref
-│   ├── steps[]
-│   │   └── AnnotatedTeachingStep
-│   ├── goals{goal_ref}
-│   │   ├── required_answer
-│   │   ├── steps[]
-│   │   └── answer_from
-│   └── children[]
+│   ├── steps[]?                    # 仅非空时
+│   ├── goals{goal_ref}: steps[]?   # 仅含有材料的 Goal
+│   └── children[]?                 # 仅非空时
 ```
 
-`steps[]` 与 `goals{}` 始终显式存在，允许为空；`children[]` 只在当前 Scope 确实有
-child Scope 时出现。叶子 Scope 省略 `children`，代码将缺省值确定性解释为空数组，避免给
-LLM 重复发送没有语义信息的 `children: []`。
+LLM-facing Plan 不回显 `schema_version`，并省略所有空集合。Scope/Goal topology 与顺序仍由
+树和容器表达；完整 Canonical topology、owner 与 hash 保存在代码内部 authority。
 
 教学层不再区分 `scope_steps` 和 `lesson_steps` 两种字段。Scope 与 Goal 容器都使用
 `steps[]`；在同一 artifact 内，两处数组的元素类型完全相同，只有 owner 不同。所在容器
@@ -310,10 +294,8 @@ Canonical Goal.steps         -> Teaching Goal.steps
 这只是教学投影时的字段名归一，不要求 FunctionalPlan 修改已有的 `scope_steps`
 公开合同。
 
-不再保存单独的 `cross_scope_references[]`。Scope 树确定 owner/visibility，每个 consumer
-`inputs.*.ref` 精确指出它读取的 SourceRef 或 producer Step public return；依赖边由代码从
-这两者确定性派生。该字段从 Snapshot、Annotated Teaching Plan 和 LessonIR 合同直接删除，
-不提供旧字段兼容读取、双写或 debug sidecar。
+不再保存单独的 `cross_scope_references[]`。Projector 在发送前仍按 Snapshot 的精确
+SourceRef/StepResultRef 验证依赖；LLM 只接收已经解析出的实际输入值，不接收 ref。
 
 同样不保存 `teaching_guides{}`。普通 Method 可以声明一个最小 `TeachingUnitSpec`，未声明
 时由代码生成默认值；单一学生推导的原子 Macro 可以声明有序的 `TeachingUnitSpec[]`，多种
@@ -323,63 +305,45 @@ Canonical Goal.steps         -> Teaching Goal.steps
 ID。
 
 多数学分支 Macro 在投影前必须已由 verified `teaching_case` 唯一选择
-`TeachingVariantSpec`；`teaching_materials[]` 只包含实际 Variant 的 units。未选择 Variant、
+`TeachingVariantSpec`；`materials[]` 只包含实际 Variant 的 units。未选择 Variant、
 其他候选及 Variant key 不属于 LLM 输入合同。
 
 ### 5.2 Step 结构
 
 ```text
 AnnotatedTeachingStep
-├── step_id
-├── capability_id
-├── intent?
-├── inputs{}
-│   └── ref + runtime_type + display/value
-├── execution
-│   ├── outputs{}
-│   └── calculations[]
-└── teaching_materials[]
-    ├── suggested_title
-    ├── suggested_nav_title
-    ├── suggested_goal
-    ├── suggested_derive[]
-    ├── suggested_box[]
-    └── available_visuals[]
+├── inputs{}?                 # type + value + display
+├── outputs{}?                # type + value + display
+├── calculations[]?
+└── materials[]
+    ├── title
+    ├── nav_title
+    ├── goal
+    ├── derive[]              # "∵ ..." 等完整字符串
+    └── conclusions[]         # verified，代码最终生成 box
 ```
 
-这些建议字段在 LLM 输入中始终存在：显式 TeachingUnitSpec 先用当前 Step 的 verified
-student-safe runtime values 完成模板绑定；未声明字段由代码根据 Method intent/capability、
-有序 calculations 和 materialized public outputs 确定性兜底。每个 verified Step 至少投影
-一个 teaching material；LLM 无需判断“字段缺失还是没有教学草稿”。
+每个 verified Step 至少投影一份 material。`step_id/capability_id/intent/ref/execution` 不进入
+LLM wire；它们与 source/unit/evidence provenance 保留在同步 authority 中，代码用容器内
+材料位置完成响应绑定。
 
-`suggested_derive` 是已经套入本题 runtime 数据的学生数学语言，使用结构化
-`[作|设|∵|∴|计算, text]`，不是“代入、求解、写出结果”这类空泛动作清单。删除
+`derive` 是已经套入本题 runtime 数据的学生数学语言，每行是以
+`作/设/∵/∴/计算` 加空格开头的字符串，不是“代入、求解、写出结果”这类空泛动作清单。删除
 `important_calculation_ids`、unit calculation/check mapping、`merge_policy` 与 `must_separate`。
 每个 Step 的完整 calculations 只出现一次；建议草稿引用其公开数学内容，但不取代 verified
 facts。runtime checks 属于 Snapshot、authority 与 debug，不进入 LLM-facing 合同；如果某项
 check 含有学生理解推导所必需且尚未出现的数学事实，projector 必须先把该事实提升为
 calculation 或绑定后的 teaching material，不能依赖 `checks` 字段传达。LLM 自行判断详略以及
-如何组织最终学生步骤。`teaching_materials[]` 的数组位置
+如何组织最终学生步骤。`materials[]` 的数组位置
 就是 Canonical 顺序；稳定 key、source Step、owner、evidence 和 bound visual ownership 只
 保存在代码内部 sidecar。代码只校验材料覆盖、owner、canonical order 与 contiguous grouping，
 不判断教学上应不应该合并。
 
-输入必须同时提供引用和当前值。只给：
-
-```json
-{"step_id": "derive_parabola", "return": "parabola"}
-```
-
-不足以让 Lesson LLM 讲解。应该投影为类似：
+LLM 只需要当前题实际值，不需要理解 Planner 引用。例如：
 
 ```json
 {
-  "ref": {
-    "kind": "step_result",
-    "step_id": "derive_parabola",
-    "return": "parabola"
-  },
-  "runtime_type": "Parabola",
+  "type": "Parabola",
   "value": "-x**2 + (1-c)*x + c",
   "display": "y＝－x²＋(1－c)x＋c"
 }
@@ -388,7 +352,10 @@ calculation 或绑定后的 teaching material，不能依赖 `checks` 字段传�
 `value` 用于精确审计，`display` 用于学生文本。Prompt 中不得要求 LLM 自己把 SymPy 字符串
 翻译成数学排版。
 
-### 5.3 已绑定视觉候选
+### 5.3 已绑定视觉候选（后续阶段）
+
+B2/B3 不投影任何视觉候选。以下设计仅供最后的视觉阶段使用，不能反向修改已经审阅的
+Annotated Teaching Plan 或 Scope Lesson 合同。
 
 普通 Method 的 visual spec 和 Macro outline unit 可以声明“哪些语义组件可以表达这个数学
 动作”。它们不声明当前题点名，也不写底层页面元素。组件 registry 声明 required roles、
@@ -509,21 +476,16 @@ TeachingVariantSpec 选择。它不是学生数学事实，不进入 calculation
 
 ```json
 {
-  "fact_id": "derive_path_minimum_ii.path_equivalence",
-  "kind": "equivalence",
-  "premise_fact_ids": [
-    "derive_path_minimum_ii.fm_half_ae",
-    "derive_path_minimum_ii.hf_half_ag",
-    "derive_path_minimum_ii.ae_equals_ag"
-  ],
-  "display": "HF＋FM＋MG＝AG＋MG",
-  "value": "HF+FM+MG=AG+MG",
-  "required": true,
-  "evidence_ref": "evidence:derive_path_minimum_ii:path-minimum"
+  "kind": "equivalence_chain",
+  "value": {
+    "statements": ["FM=AE/2", "HF=AG/2", "AE=AG"],
+    "result": "HF+FM+MG=AG+MG"
+  },
+  "display": ["FM＝AE/2", "HF＝AG/2", "AE＝AG", "HF＋FM＋MG＝AG＋MG"]
 }
 ```
 
-`fact_id` 是 Lesson wire 的稳定引用；它不是 runtime handle，也不要求 LLM 回显 provenance。
+calculation/evidence ID 只在内部 authority/debug 中存在，不进入 Lesson LLM wire。
 
 ## 7. TeachingUnitSpec、默认兜底与 few-shot
 
@@ -569,7 +531,7 @@ TeachingUnitSpec（代码侧）
 └── box_templates[]             # 建议框出的结论
 ```
 
-除 `unit_key` 外均允许省略；投影器必须用 verified 数据补齐为 LLM-facing 五类 suggested 字段。
+除 `unit_key` 外均允许省略；投影器必须用 verified 数据补齐为 LLM-facing material 字段。
 模板变量只允许引用该 Step 的 student-safe verified binding namespace。
 
 ```python
@@ -591,13 +553,13 @@ teaching_unit=TeachingUnitSpec(
 如果声明存在，代码使用该声明；如果未声明，代码确定性兜底生成：
 
 ```text
-suggested_title/nav_title/goal
+title/nav_title/goal
     ← Method intent/capability title
 
-suggested_derive
+derive
     ← student-safe calculations 的 dependency order
 
-suggested_box
+conclusions
     ← materialized public outputs / answer producer
 ```
 
@@ -607,19 +569,18 @@ suggested_box
 
 ```json
 {
-  "teaching_materials": [
+  "materials": [
     {
-      "suggested_title": "代入已知点求函数解析式",
-      "suggested_nav_title": "求函数解析式",
-      "suggested_goal": "把 A、D 的坐标代入二次函数，求出待定系数。",
-      "suggested_derive": [
-        ["∵", "A(-1,0)、D(2,-3)在 y=ax²+bx-3 上"],
-        ["∴", "分别代入得 a-b=3，2a+b=0"],
-        ["∴", "解得 a=1，b=-2"],
-        ["∴", "抛物线解析式为 y=x²-2x-3"]
+      "title": "代入已知点求函数解析式",
+      "nav_title": "求函数解析式",
+      "goal": "把 A、D 的坐标代入二次函数，求出待定系数。",
+      "derive": [
+        "∵ A(-1,0)、D(2,-3)在 y=ax²+bx-3 上",
+        "∴ 分别代入得 a-b=3，2a+b=0",
+        "∴ 解得 a=1，b=-2",
+        "∴ 抛物线解析式为 y=x²-2x-3"
       ],
-      "suggested_box": ["y=x²-2x-3"],
-      "available_visuals": []
+      "conclusions": ["y=x²-2x-3"]
     }
   ]
 }
@@ -628,7 +589,8 @@ suggested_box
 因此 suggested derive 已经是“因为哪些具体条件，所以推出哪些具体等式和结论”的数学语言，
 不是让 LLM 根据“代入、解方程、写答案”等动作词重新补数学内容。LLM 读取 Step 的完整
 `inputs + outputs + calculations` 审核上下文，并把 suggested
-`title/nav_title/goal/derive/box` 作为可信参考进行润色、详略调整与相邻材料合并。
+`title/nav_title/goal/derive/conclusions` 作为可信参考进行润色、详略调整与相邻材料合并；
+其中 conclusions 只供代码生成 box，LLM 不回显。
 
 vNext 不继续读取旧 `MethodExplanationSpec` 对象，但不会丢弃其中有价值的标题、导航标题、
 目标、推导和结论模板；这些字段迁入可选 `TeachingUnitSpec`。旧 role schema/binder 中若有
@@ -684,34 +646,32 @@ LLM 不需要知道 `path_reduction`、`reflection_minimum` 或拼接后的 unit
 
 ```json
 {
-  "teaching_materials": [
+  "materials": [
     {
-      "suggested_title": "利用正方形关系化简路径",
-      "suggested_nav_title": "路径降维",
-      "suggested_goal": "证明 HF＋FM＋MG 等价于 AG＋MG。",
-      "suggested_derive": [
-        ["∵", "F 是 AE 的中点，所以 FM＝AE/2"],
-        ["∵", "H 是正方形中心，所以 HF＝AG/2"],
-        ["∵", "AE＝AG"],
-        ["∴", "HF＋FM＝AG"],
-        ["∴", "HF＋FM＋MG＝AG＋MG"]
+      "title": "利用正方形关系化简路径",
+      "nav_title": "路径降维",
+      "goal": "证明 HF＋FM＋MG 等价于 AG＋MG。",
+      "derive": [
+        "∵ F 是 AE 的中点，所以 FM＝AE/2",
+        "∵ H 是正方形中心，所以 HF＝AG/2",
+        "∵ AE＝AG",
+        "∴ HF＋FM＝AG",
+        "∴ HF＋FM＋MG＝AG＋MG"
       ],
-      "suggested_box": ["HF＋FM＋MG＝AG＋MG"],
-      "available_visuals": []
+      "conclusions": ["HF＋FM＋MG＝AG＋MG"]
     },
     {
-      "suggested_title": "利用反射求路径最小值",
-      "suggested_nav_title": "反射求最值",
-      "suggested_goal": "确定 G 的轨迹，利用反射拉直 AG＋MG 并求取等点。",
-      "suggested_derive": [
-        ["∵", "G 在直线 y=-c/2-1/2 上运动"],
-        ["作", "作 A 关于该直线的对称点 A′"],
-        ["∴", "AG＋MG＝A′G＋MG≥A′M"],
-        ["∴", "A′、G、M 共线时取得最小值"],
-        ["∴", "最小值为 sqrt(5)|c+1|/2，并得到对应点 G"]
+      "title": "利用反射求路径最小值",
+      "nav_title": "反射求最值",
+      "goal": "确定 G 的轨迹，利用反射拉直 AG＋MG 并求取等点。",
+      "derive": [
+        "∵ G 在直线 y=-c/2-1/2 上运动",
+        "作 A 关于该直线的对称点 A′",
+        "∴ AG＋MG＝A′G＋MG≥A′M",
+        "∴ A′、G、M 共线时取得最小值",
+        "∴ 最小值为 sqrt(5)|c+1|/2，并得到对应点 G"
       ],
-      "suggested_box": ["最小值为 sqrt(5)|c+1|/2"],
-      "available_visuals": []
+      "conclusions": ["最小值为 sqrt(5)|c+1|/2"]
     }
   ]
 }
@@ -719,7 +679,7 @@ LLM 不需要知道 `path_reduction`、`reflection_minimum` 或拼接后的 unit
 
 完整 calculations 仍只在 Step execution 中出现一次。runtime checks 只保留在内部
 Snapshot/debug；教学必要信息必须已经进入 calculation 或 suggested material。LLM 自行选择详略、把数学材料
-分配到学生步骤，并决定两个 teaching materials 是分开还是合并；但建议草稿中的公式、对象
+分配到学生步骤，并决定两个 materials 是分开还是合并；但建议草稿中的公式、对象
 和结论必须已经由 runtime/evidence 验证。内部 unit key 仅供代码在组装 LessonIR 时注入
 source/evidence provenance。
 
@@ -821,7 +781,7 @@ candidate 各写一份 Spec。每个 Variant 自己可以包含一个或多个 T
 
 ```text
 TeachingUnitSpec（Method 可选一个；单一推导 Macro 或已选 Variant 使用有序数组）
-    保存建议的 title/nav_title/goal/derive/box 模板
+    保存建议的 title/nav_title/goal/derive/conclusion 模板
     未声明时由代码生成一个 default unit
     unit_key 仅供内部 authority，不投影给 LLM
     不规定 importance、calculation mapping 或 merge policy
@@ -834,7 +794,7 @@ TeachingEvidenceProjector
 
 TeachingMaterialProjector
     用 verified bindings 填充 TeachingUnitSpec
-    只把绑定后的 suggested title/nav_title/goal/derive/box 给 LLM
+    只把绑定后的 title/nav_title/goal/derive/conclusions 给 LLM
 
 few-shot
     展示完整输入如何被组织成学生 Lesson body
@@ -1012,15 +972,9 @@ lesson-scope-content/v1
 
 ```json
 {
-  "schema_version": "lesson-scope-content/v1",
-  "scope_bodies": {
-    "ii": {
-      "steps": [],
-      "goals": {
-        "ii.E": {
-          "steps": []
-        }
-      }
+  "ii": {
+    "goals": {
+      "ii.E": []
     }
   }
 }
@@ -1028,62 +982,61 @@ lesson-scope-content/v1
 
 规则：
 
-- `scope_bodies` keys 由代码动态 Schema 精确给定；
-- 每个 body 包含该 Scope 的 `steps` 和全部直属 Goals；
+- 顶层直接使用代码动态 Schema 给定的非空 Scope keys，不再回显
+  `schema_version/scope_bodies`；
+- body 只在有 Scope-owned 材料时包含 `steps`，只在有非空直属 Goal 时包含 `goals`；
+- `goals[goal_ref]` 直接是 `LessonStepDraft[]`，不再包一层 `{steps: ...}`；
 - Scope body 与 Goal body 中的 `steps` 都是同一个 `LessonStepDraft[]` 类型；
-- `scope_bodies[scope_ref].steps` 的 owner 是该 Scope，
-  `scope_bodies[scope_ref].goals[goal_ref].steps` 的 owner 是该 Goal；
+- 顶层 `scope_ref.steps` 的 owner 是该 Scope，`scope_ref.goals[goal_ref]` 的 owner 是该 Goal；
 - child Scope 不嵌套在 parent body 中；
 - LLM 不填写 `scope_ref`、`owner_scope_ref` 或 `owner_goal_ref`；
-- 首次生成时 keys 是全部需要教学内容的 Scope；
+- 空 Scope、空 `steps`、空 `goals` 和没有材料的 Goal 均不发送、不回显；
 - 最终递归 topology 由代码从 Snapshot 复制。
 
 ### 9.2 LessonStepDraft
 
 为了同时支持 Method 合并和 Macro 拆分，代码先把当前 Scope/Goal 内的 teaching materials
-按 Canonical 顺序展平。LLM 不看到 unit ID，也不回显 provenance；每个 LessonStepDraft 只用
-一个整数说明它连续消费接下来的几个材料：
+按 Canonical 顺序展平，并为它们分配只在当前容器内有效的学生步骤编号 `s1/s2/...`。
+该编号不是 FunctionalPlan `step_id`：一个 Macro 的多个 public teaching units 会得到多个编号，
+内部 authority 再把它们映射回同一个 Canonical Macro Step。LLM 不看到 unit ID，也不回显
+provenance；每个 LessonStepDraft 直接列出它合并的相邻教学步骤编号：
 
-每个被消费材料都已经包含绑定完成的 suggested `title/nav_title/goal/derive/box`。LLM 必须
-参考这些建议，但仍完整输出最终五个字段；合并多个材料时，负责把多份建议整合为一份连贯
-的学生步骤，而不是简单拼接标题或重复结论。
+每个被消费材料都已经包含绑定完成的 `title/nav_title/goal/derive/conclusions`。LLM 参考
+这些建议，完整输出最终四类正文；`conclusions` 是代码拥有的 verified 结论，LLM 不回显。
+合并多个材料时，LLM 负责把多份建议整合为一份连贯的学生步骤，而不是简单拼接标题。
 
 ```json
 {
-  "material_count": 1,
+  "source_steps": ["s1"],
   "title": "把三段路径化为单动点路径",
   "nav_title": "正方形路径降维",
   "goal": "利用中点和正方形关系证明原路径与 AG＋MG 等价。",
   "derive": [
-    ["∵", "F 是 AE 的中点，所以 FM＝AE/2"],
-    ["∵", "H 是正方形中心，所以 HF＝AG/2"],
-    ["∵", "AE＝AG"],
-    ["∴", "HF＋FM＝AG"],
-    ["∴", "HF＋FM＋MG＝AG＋MG"]
-  ],
-  "box": [
-    "HF＋FM＋MG＝AG＋MG"
-  ],
-  "visuals": [
-    {
-      "visual_id": "derive_path_minimum_ii:square_reduction",
-      "mode": "progressive_reveal"
-    }
+    "∵ F 是 AE 的中点，所以 FM＝AE/2",
+    "∵ H 是正方形中心，所以 HF＝AG/2",
+    "∵ AE＝AG",
+    "∴ HF＋FM＝AG",
+    "∴ HF＋FM＋MG＝AG＋MG"
   ]
 }
 ```
 
-`material_count` 必须大于零。代码从 Canonical 序列头部依次消费；该 Scope/Goal 内所有
-LessonStepDraft 的 count 总和必须精确等于输入材料数。因此顺序、连续性和完整覆盖都无需
-LLM 操作 opaque ID：`1` 表示单独讲当前材料，`2` 表示把当前材料与紧随其后的一个材料合并。
-LLM 直接输出完整 `title/nav_title/goal/derive/box`，不返回 calculation/fact/unit ID。
-`visuals` 集合始终显式存在；没有适合图形的代数步骤允许返回空集合。一个材料需要更详细
+例如，合并前两步应返回 `"source_steps":["s1","s2"]`。代码要求每组编号非空、相邻且
+保持原顺序，并要求当前 Scope/Goal 的 `s1...sN` 恰好各出现一次。因此无法跨 Scope/Goal
+合并，也不能跳项、逆序、遗漏或重复。编号只表达“合并哪些教学步骤”，不承担 Canonical
+身份或数学引用职责。
+LLM 只输出 `source_steps/title/nav_title/goal/derive`，不返回 conclusion、box、visual、
+calculation/fact/unit ID。代码按被消费材料确定性合并 `conclusions` 并生成最终 Lesson box。
+一个材料需要更详细
 时，在同一个 LessonStepDraft 的 `derive` 中展开更多行；若某个原子 Macro 当前实际推导必须
 形成多个学生阶段，应由已选中 Variant 的 `TeachingUnitSpec[]` 预先提供相应材料边界。
 
-### 9.3 VisualSelection
+### 9.3 VisualSelection（B3 不启用）
 
-每个 LessonStepDraft 的可选视觉集合是其 `material_count` 连续消费材料的
+B3 的请求与响应中完全不存在 `available_visuals/visuals`。视觉选择作为后续独立阶段实现，
+不能为了未来视觉功能增加当前讲解协议复杂度。以下候选约束只适用于后续视觉阶段：
+
+每个 LessonStepDraft 的可选视觉集合是其 `source_steps` 对应材料的
 `available_visuals` 并集。LLM 只能返回：
 
 ```text
@@ -1115,7 +1068,8 @@ outputs 和 verified intermediate calculations，它执行的是受材料约束�
 
 因此：
 
-- `derive` 和 `box` 是 presentation text，不是新的数学事实源；
+- `derive` 是 presentation text，不是新的数学事实源；最终 box 由代码从 verified
+  `conclusions` 注入；
 - LessonIR 保存由代码注入的 `source_step_ids/capability_ids/teaching_substep_ids`，以及经过
   校验的 visual selections；opaque evidence key 留在内部 authority envelope，不进入 LLM
   request/response 或公开 LessonIR；
@@ -1132,8 +1086,7 @@ outputs 和 verified intermediate calculations，它执行的是受材料约束�
 flowchart TB
   SNAP["ExplanationSnapshot<br/>verified 数学事实"]
   INPUT["完整计算现场"]
-  CAND["代码<br/>绑定 available_visuals"]
-  LLM["一次 Lesson LLM<br/>完整 derive/box + visual selection"]
+  LLM["一次 Lesson LLM<br/>合并与润色 derive"]
   STRUCT["结构、安全、coverage 校验"]
   LESSON["LessonIR<br/>presentation text"]
   ANSWER["最终答案"]
@@ -1141,13 +1094,11 @@ flowchart TB
   IA["Interaction / Animation"]
 
   SNAP --> INPUT
-  SNAP --> CAND
   INPUT --> LLM
-  CAND --> LLM --> STRUCT --> LESSON
+  LLM --> STRUCT --> LESSON
   SNAP --> ANSWER
   SNAP --> VISUAL
-  CAND --> VISUAL
-  LESSON -. "只传已校验 visual_id/mode" .-> VISUAL
+  LESSON -. "B4 后单独选择视觉" .-> VISUAL
   SNAP --> IA
 ```
 
@@ -1160,49 +1111,46 @@ flowchart TB
 
 ### 10.1 Schema 与容器
 
-- 顶层对象和 `schema_version` 正确；
+- 顶层直接是动态枚举的 Scope keys，不存在 LLM 回显的协议版本或包装层；
 - Scope keys 精确，无缺失和新增；
 - 每个 Scope 的直属 Goal keys 精确；
-- Scope 与 Goal body 的 `steps`、`goals` 等集合显式存在；
+- 空 Scope、空 `steps/goals` 和空 Goal 不出现在 wire；
 - LLM-facing Schema 不存在 `scope_steps` 或 `lesson_steps`；
 - 不允许 execution、owner、answer producer 或 child Scope 字段出现在响应。
 
 ### 10.2 teaching material 覆盖
 
-- 每个 `material_count` 必须为正整数；
-- 每个 Scope/Goal body 的 count 总和必须精确等于其 Canonical teaching material 数；
-- 代码只从当前容器的下一项开始顺序消费，因此天然不能跳项、逆序或选择不连续材料；
+- 每个 `source_steps` 必须是非空、无重复的局部 `sN` 数组；
+- 每个 Scope/Goal body 的编号拼接必须精确等于其 Canonical `s1...sN`；
+- 代码要求每组从当前容器的下一项开始，因此不能跳项、逆序或选择不连续步骤；
 - Scope/Goal body 分开计算，天然不能跨 Scope、Goal 合并；
 - Macro 声明的材料不得遗漏；代码不校验它应独立成步还是与相邻材料合并。
 
 ### 10.3 visual selection
 
-- 每个 `visual_id` 必须属于当前 Lesson Step 连续消费 materials 的 bound candidate 集合；
-- `mode` 必须由候选明确支持；
-- 不接受 LLM-authored component、role binding、geometry ref、style、interaction 或 beat；
-- primary/supporting 数量与组件兼容性由代码检查；
-- `visual_required` unit 必须经 LLM selection 或 deterministic default 获得一个合法组件；
-- visual selection 失败只 fallback 当前 Lesson Step 的 visuals，不丢弃已合法的讲解正文；
-- renderer 必须重新用内部 authority envelope 校验 Snapshot hash 和 source evidence refs。
+B3 不接受任何 visual 字段。后续视觉阶段必须重新用内部 authority envelope 校验 Snapshot
+hash、source evidence 和 Method/Macro 声明的候选，不从 B3 自由文本推断几何状态。
 
 ### 10.4 provenance 与答案边界
 
 - LessonStep 的 source/evidence provenance 由内部 teaching-material authority 与
-  `material_count` 确定性注入；
+  `source_steps` 确定性注入；
 - LLM 不填写或修改 source/evidence refs；
-- downstream Step 结果不进入上游 Step 的 prompt projection；
+- 当前教学步骤只能使用其 source material、实际输入以及已经可见的 verified 结果；代码对
+  全树 verified conclusion 建立 fingerprint 索引，父 Scope 提前写入 child Goal 结果、或
+  sibling/无依赖结果时 fail closed 并只回退该 Scope；
 - partial、failed、shadow、provisional evidence 永远不进入 Lesson LLM 输入；
 - 最终答案仍由 Snapshot `answer_from` 提供，代码可做规范化 answer coverage 检查；
 - 代码不尝试证明每条自由 `derive` 与 source evidence 语义等价。
 
 ### 10.5 自然语言安全
 
-- title、goal、derive、box 非空并受长度预算约束；
-- derive item 必须是 `[∵|∴|作|设|计算, text]`；
+- title、nav_title、goal、derive 非空并受长度预算约束；
+- derive item 是一个以 `∵/∴/作/设/计算` 和空格开头的字符串；
 - 不允许 runtime handle、hash、checkpoint、Python repr 或内部路径；
 - 可以对明显不存在的新对象名做保守审计，但不能把它伪装成完整数学验证；
 - 不允许在自然语言字段中写 HTML、CSS、JavaScript、raw Visual component、geometry 参数或
-  animation 指令；合法视觉选择只能出现在结构化 `visuals[]` 中；
+  animation 指令；B3 没有视觉字段；
 - 不从自由 `derive` 中提取数学 state、几何坐标或下游 runtime 参数。
 
 这些校验用于决定“接受 LLM body 还是 fallback”，不用于构造下一轮 LLM repair prompt。
@@ -1233,10 +1181,10 @@ flowchart TD
   RETRYABLE{"属于可重试的 transport 错误<br/>且仍有 retry budget？"}
   BACKOFF["backoff 后重发<br/>不修改 prompt/authority"]
   PARSE{"JSON 可解析？"}
+  REPAIR{"仅缺少 EOF 闭合符？"}
+  CLOSE["代码补齐 } / ]<br/>重新完整解析与校验"]
   VALIDATE{"Scope/unit/正文结构校验通过？"}
-  VVALIDATE{"visual selection 合法？"}
   USE["采用 LLM Lesson body"]
-  VDEFAULT["仅替换非法 visuals<br/>正文保留"]
   FALLBACK["使用确定性 teaching draft"]
   COMMIT["原子组装 recursive LessonIR"]
 
@@ -1245,27 +1193,25 @@ flowchart TD
   TRANSPORT -- "否" --> RETRYABLE
   RETRYABLE -- "是" --> BACKOFF --> CALL
   RETRYABLE -- "否/预算耗尽" --> FALLBACK
-  PARSE -- "否" --> FALLBACK
+  PARSE -- "否" --> REPAIR
+  REPAIR -- "是" --> CLOSE --> VALIDATE
+  REPAIR -- "否" --> FALLBACK
   PARSE -- "是" --> VALIDATE
-  VALIDATE -- "是" --> USE
+  VALIDATE -- "是" --> USE --> COMMIT
   VALIDATE -- "否" --> FALLBACK
-  USE --> VVALIDATE
-  VVALIDATE -- "是" --> COMMIT
-  VVALIDATE -- "否" --> VDEFAULT --> COMMIT
   FALLBACK --> COMMIT
 ```
 
 原因：
 
 1. Scope/Goal keys 由 Schema 固定，不需要反馈 owner 错误；
-2. LLM 不接触 teaching unit ID，只按顺序读取材料并返回 `material_count`；
+2. LLM 不接触 Canonical step/unit ID，只使用每个容器内的局部 `sN` 编号声明合并组；
 3. LLM 已收到完整计算现场，讲解生成是一次受材料约束的改写任务；
-4. teaching-material coverage 可由 `material_count` 和确定性 fallback 完成；
+4. teaching-step coverage 可由 `source_steps` 的精确有序分区和确定性 fallback 完成；
 5. 代码不做逐句数学语义验证，因此也没有可靠的 semantic repair diagnostic；
 6. Lesson 讲解失败不应阻断已经成功的 Solver；
 7. 多轮 repair 增加耗时、token、debug 和状态机复杂性，但不增加数学权威。
-8. Visual selection 是有限枚举选择，非法时已有 Method/Macro default，不值得为它增加 LLM
-   repair。
+8. B3 不包含视觉选择，视觉不会扩大当前协议与 retry 状态机。
 
 ### 11.2 transport retry
 
@@ -1290,7 +1236,13 @@ timeout / network / 5xx / rate limit
     → 有 transport retry budget：backoff 后重发同一请求
     → budget 耗尽：deterministic fallback
 
-收到 response，但 JSON / Scope body / derive 结构非法
+收到 response，仅在 EOF 缺少一个或多个 `}`/`]`
+    → 字符串感知扫描器按未闭合栈补齐
+    → 重新执行严格 JSON、动态 Schema、coverage 和 authority 校验
+    → 记录 raw、repaired text、added suffix 与 syntax_repaired=true
+
+收到 response，但属于缺逗号、缺引号、错序括号、缺值、Markdown fence、尾随垃圾，
+或 Scope body / derive 结构非法
     → 不做 transport retry
     → 不做 Lesson semantic retry
     → 按 §11.3 deterministic fallback
@@ -1304,9 +1256,16 @@ timeout / network / 5xx / rate limit
 建议行为：
 
 - 顶层 JSON 无法解析：整题 deterministic fallback；
+- 仅 EOF 闭合符缺失且满足安全扫描条件：先补齐闭合符，不算 semantic retry，也不 fallback；
+- 已知容器中至少保留一个合法 LLM Lesson Step、全部已返回 `source_steps` 均严格有序且不重叠，
+  并且全容器恰好只遗漏一个局部 `sN` 时：代码在该 `sN` 的 Canonical 位置插入对应的
+  deterministic teaching material，其余 LLM 正文原样保留；记录
+  `lesson_scope_single_source_step_completed` warning 与
+  `source_step_completion_repaired=true`，不进行 Scope fallback；
+- 空容器、遗漏两个及以上 `sN`、重复/逆序/非连续引用，或同时存在正文、Scope、authority
+  错误时，不适用上述窄兜底，仍按下一条回退；
 - 顶层可解析，单个 Scope body 校验失败：该 Scope deterministic fallback；
 - 其他 Scope 的合法 LLM body 可以保留；
-- 单个 Lesson Step 只有 visual selection 非法：保留正文，只替换该步骤的 visuals；
 - 所有 Scope body 准备完成后一次性组装和提交 LessonIR，不产生半成品 artifact。
 
 这个策略没有 LLM retry，也没有 ghost write。
@@ -1334,7 +1293,7 @@ ordered teaching materials
   dependency order 兜底生成；
 - box 直接使用 `suggested_box`；若显式模板缺失，该字段已经由 required public result/answer
   fact 兜底生成；
-- visual 使用成功绑定的 recommended default；没有候选的普通步骤显式为 `none`；
+- B3 不生成 visual 选择；视觉由后续独立阶段处理；
 - 未声明 TeachingUnitSpec 的普通 Method 始终由 generic projector 生成单一默认 unit，并
   使用 capability intent/title + verified outputs，而不是 runtime method 名。
 
@@ -1357,9 +1316,9 @@ LessonIR
 │   └── children[]
 ```
 
-`scope_bodies[scope_ref]` 只填充该 Scope 的本地 body。代码不从 LessonStep 的 source ID
+顶层 `[scope_ref]` 只填充该 Scope 的本地 body。代码不从 LessonStep 的 source ID
 反查 owner，也不允许 LLM 移动 owner。每个 body 的 Canonical teaching-material authority
-保存在同步 orchestrator envelope 中，按 `material_count` 顺序消费。
+保存在同步 orchestrator envelope 中，由局部 `source_steps` 精确映射。
 
 `root_scope.steps` 与 `root_scope.goals[*].steps` 都存放同一 `LessonStep` 类型。前者是
 Scope-owned 的共享教学步骤，后者是 Goal-owned 的局部教学步骤；差别只来自容器
@@ -1403,13 +1362,12 @@ lesson_step_by_id
   `TeachingUnitSpec[]`，或按学生推导分组的 `TeachingVariantSpec[]`；二者均不携带 merge
   policy 或 calculation importance；
 - flat `LessonCandidateGroup` 输入迁为递归 Annotated Teaching Plan；
-- 全局 `steps[]` 输出迁为 `scope_bodies`；
-- LLM 参考绑定后的 suggested draft，直接输出完整 `title/nav_title/goal/derive/box`；代码只
-  注入 source/evidence provenance 和 canonical answer authority；
+- 全局 `steps[]` 输出迁为顶层精确 Scope keys；
+- LLM 参考绑定后的 material，输出 `source_steps/title/nav_title/goal/derive`；代码注入
+  verified conclusions/box、source/evidence provenance 和 canonical answer authority；
 - Method/Recipe visual spec 从“固定为当前 Lesson Step 全部渲染”调整为“声明 teaching material
   可用组件、binding contract 与 deterministic default”；
-- 同一次 Lesson LLM 输出受限 `visual_id/mode`，VisualStepBuilder 只消费校验后的选择和内部
-  bound candidate envelope。
+- 视觉选择从 B2/B3 移到后续独立阶段。
 
 ### 14.3 删除或退役
 
@@ -1430,13 +1388,13 @@ lesson_step_by_id
 
 ### 15.1 输入投影
 
-- Annotated Teaching Plan 与 Snapshot Scope/Goal/Step 树同构；
-- Teaching Scope 与 Teaching Goal 都只有 `steps[]`，且元素均为同一
-  `AnnotatedTeachingStep` Schema；不出现 `scope_steps`/`lesson_steps`；
+- Annotated Teaching Plan 保留 Snapshot Scope/Goal 顺序与非空教学容器；空集合省略；
+- Teaching Scope 与 Teaching Goal 的非空 Step 数组使用同一 compact Step Schema；不出现
+  `scope_steps`/`lesson_steps`；
 - 每个 Step 的全部实际 public outputs 均出现；
 - 普通 Method 的关键中间计算可见；
-- Method 显式 TeachingUnitSpec 的模板先绑定为完整 suggested
-  title/nav_title/goal/derive/box；未声明 Method 确定性生成全部五类建议字段；
+- Method 显式 TeachingUnitSpec 的模板先绑定为完整
+  title/nav_title/goal/derive/conclusions；未声明 Method 确定性生成完整 material；
 - 单一推导 Macro 的 `TeachingUnitSpec[]`，或多分支 Macro 当前选中 Variant 的 units，均按
   声明顺序投影为多个 materials；
 - 多分支 Macro 由 typed verified `teaching_case` 精确选择唯一 TeachingVariantSpec；单一分支、
@@ -1450,25 +1408,23 @@ lesson_step_by_id
   prompt 中不存在半绑定字符串；
 - Macro 的 public proof/construction/attainment facts 完整；
 - symbolic closure 的方程、代入、解和分支结果完整；
-- 每个投影给 LLM 的 teaching material 只包含 role binding 成功的 `available_visuals`，不含
-  internal unit key/ID；
-- available visual 的 description/shows 是 student-safe 投影，不含 renderer internal args；
+- LLM-facing teaching material 不含 visual、internal unit key/ID；
 - 不含 private runtime identity、shadow candidate 或 internal Method chain。
 
 ### 15.2 输出和校验
 
 - Scope/Goal key 缺失或新增 fail closed；
-- Scope body 和 Goal body 都只允许 `steps[]: LessonStepDraft[]`；
-- `material_count` 非正、总和不足或越界被拒绝；
+- Scope body 只允许非空 `steps/goals`；Goal key 直接对应 `LessonStepDraft[]`；
+- `source_steps` 为空、未知、重复、跳项、逆序或覆盖不完整均被拒绝；
 - LLM 不回显 `fact_ids/uses`；
-- derive 使用合法二维数学语言格式；
+- derive 使用合法 marker-prefixed string 格式；
+- response 不允许 box/visual；代码从 consumed conclusions 确定性生成 box；
+- 仅 EOF 缺少闭合符时允许安全补齐，并保存完整审计；
 - 结构 validator 不宣称验证逐句数学语义；
 - LLM body 不得修改 answer producer；
-- 同一 Scope/Goal 中 canonical-contiguous Method/Macro materials 由 LLM 通过 `material_count`
+- 同一 Scope/Goal 中 canonical-contiguous Method/Macro materials 由 LLM 通过 `source_steps`
   自行决定是否合并；
 - Macro 一个 source step 可生成多个 Lesson steps。
-- visual selection 只能引用本步骤覆盖 units 的动态枚举；
-- visual mode、数量和兼容性校验生效；
 - LLM 无法填写 component args、geometry refs、interaction 或 animation。
 
 ### 15.3 无 retry 与 fallback
@@ -1517,19 +1473,14 @@ lesson_step_by_id
 7. `important_calculation_ids`、calculation importance 和 merge policy 全部删除；LLM 负责讲解
    组织、事实详略以及同 owner 连续 units 的合并。
 8. variant/unit key 与 teaching_case 只属于内部 authority；LLM 只看到按 Canonical 顺序内联的教学信息，并用
-   `material_count` 表达连续材料合并。Macro 只展开 public teaching units，不展开内部
+   当前容器内的 `sN` 编号表达连续材料合并。Macro 只展开 public teaching units，不展开内部
    Method chain。
 9. F5-F5B v1 不做 Lesson 语义 retry，失败使用 deterministic fallback。
-10. LLM 参考 suggested draft，直接输出完整 `title/nav_title/goal/derive/box`，不返回
-   `fact_ids/uses`，代码不做逐句数学语义验证。
+10. LLM 参考 material，直接输出 `source_steps/title/nav_title/goal/derive`，不返回
+   box、visual 或 `fact_ids/uses`；代码不做逐句数学语义验证。
 11. LessonIR presentation text 不成为答案、geometry、interaction 或 animation 的数学权威。
-12. MethodVisualSpec 与 TeachingUnitSpec 对应的 visual metadata 声明可用语义视觉组件与
-    默认项；代码先绑定，LLM 后选择。
-13. Visual selection 与完整 Lesson body 在同一次 Lesson LLM 调用中返回，不增加第二个
-    Visual LLM。
-14. LLM 只返回 `visual_id/mode`；role binding、layout、interaction 和 animation 仍由代码
-    确定性完成。
-15. Visual selection 无 semantic retry；局部非法只回退该步骤的视觉默认值。
+12. MethodVisualSpec 与视觉选择保留到独立后续阶段，不进入 B2/B3 wire。
+13. 仅 EOF missing closers 可由代码安全补齐；其他 JSON 错误不做语义 repair。
 
 ### 16.2 待继续讨论
 
@@ -1731,6 +1682,7 @@ sample-01/
 ├── prompt.system.md
 ├── prompt.user.md
 ├── llm-metadata.json
+├── transport-attempt-NN.reasoning.json # debug-only provider reasoning；不进入 Review/课程链
 ├── raw-response.txt
 ├── parsed-scope-content.json
 ├── lesson-evaluation.json
@@ -1746,6 +1698,11 @@ sample-01/
 
 `llm-metadata.json` 必须记录真实 provider/model、prompt hash、semantic attempt、input/output
 tokens、总 token、首 token/总耗时和 fallback source。不同 sample/attempt 不能覆盖。
+若 provider 返回 reasoning 正文，harness 必须按真实 transport attempt 单独保存到
+`transport-attempt-NN.reasoning.json`，并记录正文 hash、字符数和 capture completeness；
+该文件只用于本地 debug，禁止进入 Annotated Teaching Plan、Prompt、response validator、
+rubric、Review HTML、LessonIR 或页面产物。thinking 关闭时仍生成同合同的空记录，避免
+“未返回”和“未捕获”混淆。
 `teaching-authority.json` 可记录 `step_id -> teaching_case -> variant_key` 的唯一选择证据，供
 测试和 debug 审计；该文件不是 LLM 输入或公开 LessonIR 合同。
 
@@ -1882,14 +1839,17 @@ B1.4 人工门禁已于 2026-09-01 通过：`12` 张 Step 卡片与 `13` 份教�
   把残缺模板发送给 LLM；缺省模板字段按 intent/calculations/public outputs 确定性补齐；
 - 对多分支 Macro 先按 verified teaching case 唯一选择 TeachingVariantSpec，再绑定其 units；
   零匹配/多匹配使用 typed diagnostic + generic draft，非 winner variants 不进入 projection；
-- 内联 resolved inputs、完整 materialized outputs、calculations 与按 Canonical 顺序
-  排列的 `teaching_materials[]`；每项都包含绑定/兜底后的 suggested
-  title/nav_title/goal/derive/box，不向 LLM 投影 unit key/ID 或未解析模板；
+- 内联实际 input values、完整 materialized outputs、calculations 与按 Canonical 顺序
+  排列的 `materials[]`；每项只包含绑定/兜底后的
+  `step_ref/title/nav_title/goal/derive/conclusions`。`step_ref` 是每个 Scope/Goal 内从 `s1`
+  开始的局部教学编号，不是 Canonical Step ID；不向 LLM 投影 unit key/ID 或未解析模板；
+- LLM-facing Step 删除 `step_id/capability_id/intent/ref/execution`，结果类型字段压缩为 `type`；
+  精确引用、owner 和 provenance 留在 Snapshot 与同步 authority，投影时仍逐项校验；
 - 不生成 `teaching_guides`/`guide_id`、`important_calculation_ids`、calculation-to-unit mapping
   或 merge policy；
 - `checks` 只保留在 Snapshot/authority/debug；如果包含教学必要事实，先提升为 calculation 或
   teaching material；叶子 Scope 省略空 `children`，非叶子 Scope 才发送该字段；
-- `available_visuals` 字段先固定为空集合，视觉尚不启用；
+- 删除 `available_visuals`；视觉尚不启用且不占用 B2/B3 wire；
 - 生成 prompt/schema snapshot 和 private identity audit。
 
 Prompt 将角色定义为“中学数学讲解编排器”，以同时覆盖初中与高中内容；明确目标是把当前题
@@ -1913,38 +1873,51 @@ B2 实现与人工门禁记录（2026-09-01）：
 
 - `functional-annotated-teaching-plan/v1` 已落地；和平二模投影 `5` 个 Scope、`4` 个 Goal、
   `12` 个 Canonical Step、`13` 份 teaching material 和 `4` 个 verified answer；
-- 所有 produced dependency 使用精确 `StepResultRef`，实际 materialized outputs 与
-  calculations 完整保留；`checks`、evidence/unit/variant ID、Plan-only 字段和 private runtime
-  identity 均未进入 LLM wire；叶子 Scope 省略无语义的空 `children`；
+- 所有 produced dependency 在投影前使用精确 `StepResultRef` 校验，LLM 只接收解析后的实际值；
+  materialized outputs 与 calculations 完整保留；`checks`、ref、step/capability ID、
+  evidence/unit/variant ID、Plan-only 字段和 private runtime identity 均未进入 LLM wire；
+  空 Scope 集合、空 Goal 和叶子 `children` 均省略；
 - 最终 Prompt 角色为“中学数学讲解编排器”，明确只在能提高连贯性且不遗漏关键理由时合并
   相邻材料，没有必要时保持独立，并完善标题、目标、推导与少量必要说明，使学生理解当前题；
+  同时明确递归 `root_scope` 只展示真实上下文，输出 Scope 已由 Schema 展开并固定，LLM
+  只按同名 `scope_ref/goal_ref` 填写正文，不重建 `children` 或返回未列出的上下文 Scope；
 - 全题型共享 few-shot 为与当前题题面、对象和数值均不同的勾股定理示例，同题 few-shot 禁用；
-- 人工审阅 batch 为 `f5-f5b2-heping-annotated-review`，Annotated Plan 与实际 Prompt 均已确认；
-  Prompt 为 system `434` 字符、user `18,653` 字符、合计 `19,087` 字符，低于 B0 的
+- 局部 source-step 编号合同重新生成后的 Review batch 为
+  `f5-f5b2-heping-annotated-review-scope-note`；Prompt 为 system `753` 字符、user
+  `11,706` 字符、合计 `12,459` 字符，仍显著低于 B0 的
   `54,707`；projection diagnostic 与 forbidden-field hit 均为 `0`，且本阶段未调用 LLM；
-- 和平 rubric 保持 `5/5`；最终专项为 `107 passed, 3 skipped`，全部非 serial、非 live Solver
-  回归为 `2348 passed`，当前无 serial Solver 用例；旧 deterministic LessonIR、VisualStepIR
+- 和平 rubric 保持 `5/5`；精简合同专项为 `134 passed, 3 skipped`，全部 Solver 回归为
+  `2379 passed, 12 skipped`，当前无 serial Solver 用例；旧 deterministic LessonIR、VisualStepIR
   与编译页面保持不变；
-- 人工 Review 门禁已通过；B2 未修改生产 Lesson/Visual 入口，下一阶段为 B3。
+- B2 人工 Review 与 scope-note Prompt 复审均已通过；递归输入与展开输出的对应说明没有修改
+  Schema、Annotated Plan 或 authority。B2 未修改生产 Lesson/Visual 入口。
 
-### 18.6 F5-F5B3：Scope Lesson output、一次调用与评测器（NEXT）
+### 18.6 F5-F5B3：Scope Lesson output、一次调用与评测器（COMPLETE）
 
 实现：
 
 - 新增 `lesson-scope-content/v1` 动态 Schema；
-- LLM 在固定 Scope/Goal 容器中输出完整 `title/nav_title/goal/derive/box/visuals`；
-- Scope 与 Goal body 统一使用 `steps[]: LessonStepDraft[]`；动态 Schema 禁止
-  `scope_steps` 和 `lesson_steps`；
-- 本阶段 `available_visuals=[]`，所以 `visuals` 必须显式为空；
-- 实现 `material_count` 正数/总和/越界校验、自然语言安全、answer boundary 和 atomic
-  fallback；owner、连续性与 canonical order 由容器和顺序消费保证，不实现语义 merge policy；
+- 顶层直接使用非空 Scope keys；Scope-owned body 使用 `steps[]`，Goal key 直接映射
+  `LessonStepDraft[]`，不再回显 `schema_version/scope_bodies` 或 Goal `steps` 包装；
+- LLM 每步只输出 `source_steps/title/nav_title/goal/derive`；`source_steps` 是同容器内相邻
+  `sN` 的显式列表，derive 为带数学标记前缀的字符串；
+- box 由代码按连续消费的 verified `conclusions` 确定性生成；B3 wire 不含 box 或 visual；
+- 实现 `source_steps` 非空/精确覆盖/相邻/顺序校验、自然语言安全、answer boundary 和 atomic
+  fallback；owner 与 Canonical 映射由容器及内部 authority 保证，不实现语义 merge policy；
+- 对“合法容器恰好漏掉一个 `source_steps` 材料”的窄错误，按 Canonical 位置补回该材料的
+  deterministic body，保留其余 LLM 步骤；该行为单独计入 debug/smoke repair 指标，不增加
+  LLM-facing 字段，也不放宽多遗漏、乱序、重复、正文或 authority 错误；
+- 对全树 verified conclusions 建立代码侧索引；输出若在当前 source steps/input 中没有依据，
+  却提前使用 child/sibling/其他 Goal 的精确结果，则只回退该 Scope；
+- 严格允许一种 JSON 语法兜底：只有 parse error 位于 EOF、字符串已闭合、括号无错序且末尾
+  不是逗号/冒号时，代码按未闭合栈补齐 `}`/`]`，随后仍执行全部 Schema/authority 校验；
 - 不实现 previous-attempt/repair prompt。
 
 `lesson-evaluation.json` 分三层：
 
 ```text
 contract
-    JSON/Schema、Scope keys、material_count coverage、owner 与 Canonical 顺序
+    JSON/Schema、Scope keys、source_steps coverage、owner 与 Canonical 顺序
 
 authority
     无未知对象、内部 handle、下游提前结果或 answer producer 修改
@@ -1978,10 +1951,29 @@ teaching_quality（smoke-only rubric）
 人工抽样共同评测；如后续增加 evaluator LLM，它只用于聚类和对比，不作为数学正确性或
 发布的唯一 authority。
 
-和平 live 首轮运行 `1×3`，报告每份：是否一次成功、fallback、缺失 teaching point、异常新增
-对象、步骤数、输入/输出/总 token 与耗时。三份 raw response 必须分别可审计。
+和平 source-steps 合同分别以 DeepSeek `thinking=low` 与 `thinking=disabled` 运行 live
+`1×3`；两批均为 `3/3` 一次 semantic attempt、一次 transport request、直接接受，且
+contract/authority/rubric 全部通过，无 fallback、JSON 修复、未知对象或跨容器结果泄漏。
+low 批总 completion 为 `18,973` token，其中 reasoning 为 `13,957`；provider 聚合耗时
+`125.110s`。disabled 批总 completion 为 `5,116` token，provider 聚合耗时 `30.716s`，
+三份分别输出 `12/13/12` 个步骤。两批可见正文规模相当，因此默认保持
+`thinking=disabled`；`thinking=low` 仅保留为显式诊断实验。batch 分别为
+`f5-f5b3-heping-source-steps-thinking-low-live-1x3` 与
+`f5-f5b3-heping-source-steps-thinking-disabled-live-1x3`。横向人工审阅已经通过，默认保持
+`thinking=disabled`。
 
-### 18.7 F5-F5B4：recursive LessonIR 生产切换
+后续 scope-note disabled `1×2` 的 sample-01 曾只返回 `scope:i` 的 `s1`、遗漏 `s2`。加入上述
+窄兜底后用原始 provider response 离线回放，结果为四个 Scope 全部保留 LLM body、只在
+`scope:i` 的 Canonical 位置 2 补回 `s2`，contract/authority/rubric 均通过且无 Scope fallback。
+
+B3 人工批准回归 fixture 保存于 `heping_ermo_b3/`：包含当前 Prompt hash 下的 normalized
+Scope Content、evaluation 与 review summary。它只供 B4 及后续回归，不允许进入 generator
+Prompt 或 few-shot。
+
+测试记录：B0–B3/Visual 专项 `159 passed, 3 skipped`；全部非 serial、非 live Solver 测试
+`2384 passed, 12 skipped`；当前无 serial Solver 用例（`2396 deselected`）。
+
+### 18.7 F5-F5B4：recursive LessonIR 生产切换（NEXT）
 
 实现：
 

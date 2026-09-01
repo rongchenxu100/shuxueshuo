@@ -149,8 +149,9 @@ LLM 不可：
 
 代码先用 verified runtime bindings 把模板填成学生数学语言 suggested
 title/nav_title/goal/derive/box，再按顺序直接内联为 teaching materials。LLM 不看到或回显
-unit ID；每个 Lesson Step 用 `material_count` 表示连续消费几个材料。source/evidence
-provenance 由代码根据内部 authority 与该 count 注入。代码校验 Scope/材料覆盖/结构与安全
+unit ID；代码给每个 Scope/Goal 内的材料分配局部 `sN`，每个 Lesson Step 用
+`source_steps` 明确列出合并的相邻编号。source/evidence provenance 由代码根据内部 authority
+与这些编号注入。代码校验 Scope/材料覆盖/结构与安全
 边界，但不宣称逐句证明自由 `derive` 的数学语义。完整合同见
 [Lesson Scope LLM Authoring 与视觉选择 vNext](lesson-scope-llm-authoring-vnext-design.md)。
 

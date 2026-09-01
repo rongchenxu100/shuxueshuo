@@ -1,0 +1,51 @@
+{
+  "schema_version": "lesson-scope-human-review/v1",
+  "problem_id": "tj-2026-heping-ermo-25",
+  "review_status": "approved",
+  "reviewed_at": "2026-09-01",
+  "source": {
+    "batch_id": "f5-f5b3-heping-scope-note-thinking-disabled-live-1x2",
+    "sample_id": "sample-02",
+    "mode": "live",
+    "thinking_effort": "disabled",
+    "prompt_hash": "9dc0460c588b4a4e20229a9c5091a4c38271f026182aa43edbdca8a5a840f446"
+  },
+  "validation": {
+    "direct_acceptance": true,
+    "contract_pass": true,
+    "authority_pass": true,
+    "fallback_used": false,
+    "syntax_repaired": false,
+    "source_step_completion_repaired": false,
+    "rubric_coverage": "5/5"
+  },
+  "content": {
+    "scope_count": 4,
+    "lesson_step_count": 11,
+    "merged_source_steps": [
+      {
+        "container_ref": "scope:i",
+        "source_steps": [
+          "s1",
+          "s2"
+        ]
+      },
+      {
+        "container_ref": "goal:ii.E",
+        "source_steps": [
+          "s2",
+          "s3"
+        ]
+      }
+    ]
+  },
+  "fixture_policy": {
+    "regression_only": true,
+    "generator_input_allowed": false,
+    "few_shot_allowed": false
+  },
+  "review_notes": [
+    "Scope、Goal、材料合并、数学推导与代码注入结论已完成人工审阅。",
+    "该 fixture 只用于 B4 及后续回归，不得进入 Lesson LLM Prompt 或 few-shot。"
+  ]
+}

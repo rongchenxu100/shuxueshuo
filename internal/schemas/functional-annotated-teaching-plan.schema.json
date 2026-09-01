@@ -5,15 +5,11 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
-    "schema_version",
     "problem",
     "answers",
     "root_scope"
   ],
   "properties": {
-    "schema_version": {
-      "const": "functional-annotated-teaching-plan/v1"
-    },
     "problem": {
       "type": "object",
       "additionalProperties": false,
@@ -47,12 +43,12 @@
         "type": "object",
         "additionalProperties": false,
         "required": [
-          "runtime_type",
+          "type",
           "value",
           "display"
         ],
         "properties": {
-          "runtime_type": {
+          "type": {
             "type": "string",
             "minLength": 1
           },
@@ -73,9 +69,7 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "scope_ref",
-        "steps",
-        "goals"
+        "scope_ref"
       ],
       "properties": {
         "scope_ref": {
@@ -84,39 +78,17 @@
         },
         "steps": {
           "type": "array",
+          "minItems": 1,
           "items": {
             "type": "object",
             "additionalProperties": false,
             "required": [
-              "step_id",
-              "capability_id",
-              "intent",
-              "inputs",
-              "execution",
-              "teaching_materials"
+              "materials"
             ],
             "properties": {
-              "step_id": {
-                "type": "string",
-                "minLength": 1
-              },
-              "capability_id": {
-                "type": "string",
-                "minLength": 1
-              },
-              "intent": {
-                "oneOf": [
-                  {
-                    "type": "string",
-                    "minLength": 1
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
-              },
               "inputs": {
                 "type": "object",
+                "minProperties": 1,
                 "additionalProperties": {
                   "type": "array",
                   "minItems": 1,
@@ -124,56 +96,12 @@
                     "type": "object",
                     "additionalProperties": false,
                     "required": [
-                      "ref",
-                      "runtime_type",
+                      "type",
                       "value",
                       "display"
                     ],
                     "properties": {
-                      "ref": {
-                        "oneOf": [
-                          {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "required": [
-                              "kind",
-                              "ref"
-                            ],
-                            "properties": {
-                              "kind": {
-                                "const": "source"
-                              },
-                              "ref": {
-                                "type": "string",
-                                "minLength": 1
-                              }
-                            }
-                          },
-                          {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "required": [
-                              "kind",
-                              "step_id",
-                              "return"
-                            ],
-                            "properties": {
-                              "kind": {
-                                "const": "step_result"
-                              },
-                              "step_id": {
-                                "type": "string",
-                                "minLength": 1
-                              },
-                              "return": {
-                                "type": "string",
-                                "minLength": 1
-                              }
-                            }
-                          }
-                        ]
-                      },
-                      "runtime_type": {
+                      "type": {
                         "type": "string",
                         "minLength": 1
                       },
@@ -186,128 +114,103 @@
                   }
                 }
               },
-              "execution": {
+              "outputs": {
                 "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "outputs",
-                  "calculations"
-                ],
-                "properties": {
-                  "outputs": {
-                    "type": "object",
-                    "additionalProperties": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "runtime_type",
-                        "value",
-                        "display"
-                      ],
-                      "properties": {
-                        "runtime_type": {
-                          "type": "string",
-                          "minLength": 1
-                        },
-                        "value": {},
-                        "display": {
-                          "type": "string",
-                          "minLength": 1
-                        }
-                      }
-                    }
-                  },
-                  "calculations": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "kind",
-                        "value",
-                        "display"
-                      ],
-                      "properties": {
-                        "kind": {
-                          "type": "string",
-                          "minLength": 1
-                        },
-                        "value": {},
-                        "display": {
-                          "type": "array",
-                          "minItems": 1,
-                          "items": {
-                            "type": "string",
-                            "minLength": 1
-                          }
-                        }
-                      }
+                "minProperties": 1,
+                "additionalProperties": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "type",
+                    "value",
+                    "display"
+                  ],
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "value": {},
+                    "display": {
+                      "type": "string",
+                      "minLength": 1
                     }
                   }
                 }
               },
-              "teaching_materials": {
+              "calculations": {
                 "type": "array",
                 "minItems": 1,
                 "items": {
                   "type": "object",
                   "additionalProperties": false,
                   "required": [
-                    "suggested_title",
-                    "suggested_nav_title",
-                    "suggested_goal",
-                    "suggested_derive",
-                    "suggested_box",
-                    "available_visuals"
+                    "kind",
+                    "value",
+                    "display"
                   ],
                   "properties": {
-                    "suggested_title": {
+                    "kind": {
                       "type": "string",
                       "minLength": 1
                     },
-                    "suggested_nav_title": {
-                      "type": "string",
-                      "minLength": 1
-                    },
-                    "suggested_goal": {
-                      "type": "string",
-                      "minLength": 1
-                    },
-                    "suggested_derive": {
+                    "value": {},
+                    "display": {
                       "type": "array",
                       "minItems": 1,
                       "items": {
-                        "type": "array",
-                        "prefixItems": [
-                          {
-                            "enum": [
-                              "作",
-                              "设",
-                              "∵",
-                              "∴",
-                              "计算"
-                            ]
-                          },
-                          {
-                            "type": "string",
-                            "minLength": 1
-                          }
-                        ],
-                        "items": false,
-                        "minItems": 2,
-                        "maxItems": 2
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                }
+              },
+              "materials": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "step_ref",
+                    "title",
+                    "nav_title",
+                    "goal",
+                    "derive",
+                    "conclusions"
+                  ],
+                  "properties": {
+                    "step_ref": {
+                      "type": "string",
+                      "pattern": "^s[1-9][0-9]*$"
+                    },
+                    "title": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "nav_title": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "goal": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "derive": {
+                      "type": "array",
+                      "minItems": 1,
+                      "items": {
+                        "type": "string",
+                        "pattern": "^(作|设|∵|∴|计算)\\s+\\S"
                       }
                     },
-                    "suggested_box": {
+                    "conclusions": {
                       "type": "array",
                       "items": {
                         "type": "string",
                         "minLength": 1
                       }
-                    },
-                    "available_visuals": {
-                      "type": "array",
-                      "maxItems": 0
                     }
                   }
                 }
@@ -317,281 +220,144 @@
         },
         "goals": {
           "type": "object",
+          "minProperties": 1,
           "additionalProperties": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "required_answer",
-              "steps",
-              "answer_from"
-            ],
-            "properties": {
-              "required_answer": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "answer_key",
-                  "runtime_type"
-                ],
-                "properties": {
-                  "answer_key": {
-                    "type": "string",
-                    "minLength": 1
-                  },
-                  "runtime_type": {
-                    "type": "string",
-                    "minLength": 1
-                  }
-                }
-              },
-              "steps": {
-                "type": "array",
-                "items": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "materials"
+              ],
+              "properties": {
+                "inputs": {
                   "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "step_id",
-                    "capability_id",
-                    "intent",
-                    "inputs",
-                    "execution",
-                    "teaching_materials"
-                  ],
-                  "properties": {
-                    "step_id": {
-                      "type": "string",
-                      "minLength": 1
-                    },
-                    "capability_id": {
-                      "type": "string",
-                      "minLength": 1
-                    },
-                    "intent": {
-                      "oneOf": [
-                        {
-                          "type": "string",
-                          "minLength": 1
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    },
-                    "inputs": {
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "array",
-                        "minItems": 1,
-                        "items": {
-                          "type": "object",
-                          "additionalProperties": false,
-                          "required": [
-                            "ref",
-                            "runtime_type",
-                            "value",
-                            "display"
-                          ],
-                          "properties": {
-                            "ref": {
-                              "oneOf": [
-                                {
-                                  "type": "object",
-                                  "additionalProperties": false,
-                                  "required": [
-                                    "kind",
-                                    "ref"
-                                  ],
-                                  "properties": {
-                                    "kind": {
-                                      "const": "source"
-                                    },
-                                    "ref": {
-                                      "type": "string",
-                                      "minLength": 1
-                                    }
-                                  }
-                                },
-                                {
-                                  "type": "object",
-                                  "additionalProperties": false,
-                                  "required": [
-                                    "kind",
-                                    "step_id",
-                                    "return"
-                                  ],
-                                  "properties": {
-                                    "kind": {
-                                      "const": "step_result"
-                                    },
-                                    "step_id": {
-                                      "type": "string",
-                                      "minLength": 1
-                                    },
-                                    "return": {
-                                      "type": "string",
-                                      "minLength": 1
-                                    }
-                                  }
-                                }
-                              ]
-                            },
-                            "runtime_type": {
-                              "type": "string",
-                              "minLength": 1
-                            },
-                            "value": {},
-                            "display": {
-                              "type": "string",
-                              "minLength": 1
-                            }
-                          }
-                        }
-                      }
-                    },
-                    "execution": {
+                  "minProperties": 1,
+                  "additionalProperties": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
                       "type": "object",
                       "additionalProperties": false,
                       "required": [
-                        "outputs",
-                        "calculations"
+                        "type",
+                        "value",
+                        "display"
                       ],
                       "properties": {
-                        "outputs": {
-                          "type": "object",
-                          "additionalProperties": {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "required": [
-                              "runtime_type",
-                              "value",
-                              "display"
-                            ],
-                            "properties": {
-                              "runtime_type": {
-                                "type": "string",
-                                "minLength": 1
-                              },
-                              "value": {},
-                              "display": {
-                                "type": "string",
-                                "minLength": 1
-                              }
-                            }
-                          }
+                        "type": {
+                          "type": "string",
+                          "minLength": 1
                         },
-                        "calculations": {
-                          "type": "array",
-                          "items": {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "required": [
-                              "kind",
-                              "value",
-                              "display"
-                            ],
-                            "properties": {
-                              "kind": {
-                                "type": "string",
-                                "minLength": 1
-                              },
-                              "value": {},
-                              "display": {
-                                "type": "array",
-                                "minItems": 1,
-                                "items": {
-                                  "type": "string",
-                                  "minLength": 1
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    "teaching_materials": {
-                      "type": "array",
-                      "minItems": 1,
-                      "items": {
-                        "type": "object",
-                        "additionalProperties": false,
-                        "required": [
-                          "suggested_title",
-                          "suggested_nav_title",
-                          "suggested_goal",
-                          "suggested_derive",
-                          "suggested_box",
-                          "available_visuals"
-                        ],
-                        "properties": {
-                          "suggested_title": {
-                            "type": "string",
-                            "minLength": 1
-                          },
-                          "suggested_nav_title": {
-                            "type": "string",
-                            "minLength": 1
-                          },
-                          "suggested_goal": {
-                            "type": "string",
-                            "minLength": 1
-                          },
-                          "suggested_derive": {
-                            "type": "array",
-                            "minItems": 1,
-                            "items": {
-                              "type": "array",
-                              "prefixItems": [
-                                {
-                                  "enum": [
-                                    "作",
-                                    "设",
-                                    "∵",
-                                    "∴",
-                                    "计算"
-                                  ]
-                                },
-                                {
-                                  "type": "string",
-                                  "minLength": 1
-                                }
-                              ],
-                              "items": false,
-                              "minItems": 2,
-                              "maxItems": 2
-                            }
-                          },
-                          "suggested_box": {
-                            "type": "array",
-                            "items": {
-                              "type": "string",
-                              "minLength": 1
-                            }
-                          },
-                          "available_visuals": {
-                            "type": "array",
-                            "maxItems": 0
-                          }
+                        "value": {},
+                        "display": {
+                          "type": "string",
+                          "minLength": 1
                         }
                       }
                     }
                   }
-                }
-              },
-              "answer_from": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "step_id",
-                  "return"
-                ],
-                "properties": {
-                  "step_id": {
-                    "type": "string",
-                    "minLength": 1
-                  },
-                  "return": {
-                    "type": "string",
-                    "minLength": 1
+                },
+                "outputs": {
+                  "type": "object",
+                  "minProperties": 1,
+                  "additionalProperties": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "type",
+                      "value",
+                      "display"
+                    ],
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "value": {},
+                      "display": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                },
+                "calculations": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "kind",
+                      "value",
+                      "display"
+                    ],
+                    "properties": {
+                      "kind": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "value": {},
+                      "display": {
+                        "type": "array",
+                        "minItems": 1,
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      }
+                    }
+                  }
+                },
+                "materials": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "step_ref",
+                      "title",
+                      "nav_title",
+                      "goal",
+                      "derive",
+                      "conclusions"
+                    ],
+                    "properties": {
+                      "step_ref": {
+                        "type": "string",
+                        "pattern": "^s[1-9][0-9]*$"
+                      },
+                      "title": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "nav_title": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "goal": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "derive": {
+                        "type": "array",
+                        "minItems": 1,
+                        "items": {
+                          "type": "string",
+                          "pattern": "^(作|设|∵|∴|计算)\\s+\\S"
+                        }
+                      },
+                      "conclusions": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      }
+                    }
                   }
                 }
               }
@@ -600,6 +366,7 @@
         },
         "children": {
           "type": "array",
+          "minItems": 1,
           "items": {
             "$ref": "#/$defs/scope"
           }

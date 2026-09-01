@@ -9,7 +9,6 @@ import pytest
 
 from shuxueshuo_server.solver.explanation.annotated_teaching import (
     ANNOTATED_TEACHING_PLAN_CONTRACT,
-    LESSON_SCOPE_CONTENT_CONTRACT,
     AnnotatedTeachingPlanProjector,
     AnnotatedTeachingProjectionError,
     TeachingMaterialProjector,
@@ -128,14 +127,20 @@ def test_inputs_use_one_exact_ref_and_preserve_all_verified_values(
                 projected.inputs[arg_name],
                 strict=True,
             ):
-                expected_ref = original.get("resolved_from") or original["ref"]
-                assert observed["ref"] == expected_ref
+                assert "ref" not in observed
                 assert "resolved_from" not in observed
-                assert observed["runtime_type"] == original["runtime_type"]
+                assert observed["type"] == original["runtime_type"]
                 assert observed["value"] == original["value"]
                 assert observed["display"] == original["display"]
 
-        assert projected.outputs == source.outputs
+        assert {
+            name: {
+                "type": value["runtime_type"],
+                "value": value["value"],
+                "display": value["display"],
+            }
+            for name, value in source.outputs.items()
+        } == projected.outputs
 
 
 def test_calculations_and_materials_are_student_safe(projection) -> None:
@@ -160,7 +165,8 @@ def test_calculations_and_materials_are_student_safe(projection) -> None:
     for step in _plan_steps(projection.plan.root_scope):
         assert step.teaching_materials
         assert all(
-            material.to_payload()["available_visuals"] == []
+            set(material.to_payload())
+            == {"title", "nav_title", "goal", "derive", "conclusions"}
             for material in step.teaching_materials
         )
         for calculation in step.calculations:
@@ -204,7 +210,7 @@ def test_verified_answers_match_each_goal_answer_from(projection) -> None:
         producer = steps[goal.answer_from["step_id"]]
         output = producer.outputs[goal.answer_from["return"]]
         assert projection.plan.answers[goal_ref] == output
-        assert goal.required_answer["runtime_type"] == output["runtime_type"]
+        assert goal.required_answer["runtime_type"] == output["type"]
 
 
 def test_leaf_scopes_omit_empty_children_from_llm_wire(projection) -> None:
@@ -221,27 +227,50 @@ def test_leaf_scopes_omit_empty_children_from_llm_wire(projection) -> None:
     visit(root)
 
 
+def test_teaching_step_refs_are_local_ordered_and_cover_each_container(
+    projection,
+) -> None:
+    root = projection.plan.to_payload()["root_scope"]
+
+    def assert_container(steps):
+        refs = [
+            material["step_ref"]
+            for step in steps
+            for material in step["materials"]
+        ]
+        assert refs == [f"s{index}" for index in range(1, len(refs) + 1)]
+
+    def visit(scope):
+        assert_container(scope.get("steps", []))
+        for steps in scope.get("goals", {}).values():
+            assert_container(steps)
+        for child in scope.get("children", []):
+            visit(child)
+
+    visit(root)
+
+
 def test_dynamic_output_schema_uses_fixed_scope_and_goal_owners(projection) -> None:
     schema = lesson_scope_content_schema(projection.plan)
-    bodies = schema["properties"]["scope_bodies"]
-
-    assert schema["properties"]["schema_version"]["const"] == (
-        LESSON_SCOPE_CONTENT_CONTRACT
-    )
-    assert bodies["required"] == ["i", "i_1", "i_2", "ii"]
-    assert bodies["additionalProperties"] is False
-    assert bodies["properties"]["i"]["properties"]["steps"]["maxItems"] == 2
-    i_1_goals = bodies["properties"]["i_1"]["properties"]["goals"]
-    assert i_1_goals["required"] == ["i_1.A", "i_1.P"]
+    assert schema["required"] == ["i", "i_1", "i_2", "ii"]
+    assert schema["additionalProperties"] is False
+    assert schema["properties"]["i"]["properties"]["steps"]["maxItems"] == 2
+    i_1_goals = schema["properties"]["i_1"]["properties"]["goals"]
+    assert i_1_goals["required"] == ["i_1.P"]
+    assert "i_1.A" not in i_1_goals["properties"]
     assert (
-        i_1_goals["properties"]["i_1.A"]["properties"]["steps"]["maxItems"]
-        == 0
-    )
-    assert (
-        bodies["properties"]["ii"]["properties"]["goals"]["properties"]
-        ["ii.E"]["properties"]["steps"]["maxItems"]
+        schema["properties"]["ii"]["properties"]["goals"]["properties"]
+        ["ii.E"]["maxItems"]
         == 7
     )
+    lesson_step = schema["$defs"]["lesson_step"]
+    assert lesson_step["required"] == [
+        "source_steps",
+        "title",
+        "nav_title",
+        "goal",
+        "derive",
+    ]
 
 
 def test_final_prompt_is_compact_shared_and_contains_exact_plan_once(projection) -> None:
@@ -260,8 +289,11 @@ def test_final_prompt_is_compact_shared_and_contains_exact_plan_once(projection)
     assert prompt.user.count("△XYZ") >= 1
     assert "中学数学讲解编排器" in prompt.system
     assert "只有在合并能让推导更连贯且不遗漏关键理由时才合并" in prompt.system
-    assert "没有必要时保持为独立步骤" in prompt.system
-    assert "让学生清楚每一步的依据、结论以及它与下一步的联系" in prompt.system
+    assert "没有必要时保持独立步骤" in prompt.system
+    assert "让学生清楚每一步为什么成立、得到什么以及如何衔接下一步" in prompt.system
+    assert "你不需要返回 conclusions 或 box" in prompt.system
+    assert "root_scope 仅按真实父子关系递归展示上下文" in prompt.system
+    assert "只按同名 scope_ref/goal_ref 填写正文，不要重建 children" in prompt.system
     assert "初中数学讲解编排器" not in prompt.system
     assert "tj-2026-heping-ermo-25" not in prompt.user
     assert "expected_answers" not in prompt.user
@@ -273,6 +305,7 @@ def test_final_prompt_is_compact_shared_and_contains_exact_plan_once(projection)
         "mechanism": "right_triangle_pythagorean",
     }
     assert audit["llm_invoked"] is False
+    assert audit["prompt_chars"]["total"] < 12_500
     plan_json = prompt.user.split("## Annotated Teaching Plan\n\n", 1)[1]
     assert json.loads(plan_json) == projection.plan.to_payload()
 

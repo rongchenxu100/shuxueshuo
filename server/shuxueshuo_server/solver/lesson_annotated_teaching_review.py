@@ -11,9 +11,12 @@ import tempfile
 from typing import Any, Mapping, Sequence
 
 from shuxueshuo_server.solver.explanation.annotated_teaching import (
+    AnnotatedTeachingPlan,
     AnnotatedTeachingPlanProjector,
     AnnotatedTeachingProjection,
     AnnotatedTeachingPrompt,
+    AnnotatedTeachingScope,
+    AnnotatedTeachingStep,
     build_projection_audit,
     lesson_scope_content_schema,
     render_annotated_teaching_prompt,
@@ -73,7 +76,7 @@ def build_annotated_teaching_review(
             + json.dumps(audit, ensure_ascii=False)
         )
     plan_payload = projection.plan.to_payload()
-    cards = _review_cards(plan_payload["root_scope"])
+    cards = _review_cards(projection.plan.root_scope)
     rubric_evaluation = evaluate_lesson_teaching(
         _pseudo_lesson_for_rubric(
             problem_id=snapshot.problem_id,
@@ -89,8 +92,8 @@ def build_annotated_teaching_review(
             "prompt_chars": dict(audit["prompt_chars"]),
             "review_status": "awaiting_human_review",
         },
-        "scope_tree": _scope_tree(plan_payload["root_scope"]),
-        "answers": _answer_review_rows(plan_payload),
+        "scope_tree": _scope_tree(projection.plan.root_scope),
+        "answers": _answer_review_rows(projection.plan),
         "cards": cards,
         "raw_artifacts": {
             "annotated_plan": "sample-01/annotated-teaching-plan.json",
@@ -119,87 +122,86 @@ def build_annotated_teaching_review(
     )
 
 
-def _review_cards(root_scope: Mapping[str, Any]) -> list[dict[str, Any]]:
+def _review_cards(root_scope: AnnotatedTeachingScope) -> list[dict[str, Any]]:
     cards: list[dict[str, Any]] = []
 
     def append_step(
-        step: Mapping[str, Any],
+        step: AnnotatedTeachingStep,
         *,
         scope_ref: str,
         goal_ref: str | None,
     ) -> None:
-        materials = list(step.get("teaching_materials") or ())
+        materials = [item.to_payload() for item in step.teaching_materials]
         cards.append(
             {
-                "anchor": f"step-{step['step_id']}",
-                "step_id": str(step["step_id"]),
-                "capability_id": str(step["capability_id"]),
+                "anchor": f"step-{step.step_id}",
+                "step_id": step.step_id,
+                "capability_id": step.capability_id,
                 "owner": {
                     "scope_ref": scope_ref,
                     "goal_ref": goal_ref,
                 },
-                "intent": step.get("intent"),
-                "inputs": dict(step.get("inputs") or {}),
-                "execution": dict(step.get("execution") or {}),
+                "intent": step.intent,
+                "inputs": {
+                    name: [dict(item) for item in items]
+                    for name, items in step.inputs.items()
+                },
+                "execution": {
+                    "outputs": dict(step.outputs),
+                    "calculations": list(step.calculations),
+                },
                 "teaching_materials": materials,
                 "material_count": len(materials),
             }
         )
 
-    def visit(scope: Mapping[str, Any]) -> None:
-        scope_ref = str(scope["scope_ref"])
-        for step in scope.get("steps", ()):
+    def visit(scope: AnnotatedTeachingScope) -> None:
+        scope_ref = scope.scope_ref
+        for step in scope.steps:
             append_step(step, scope_ref=scope_ref, goal_ref=None)
-        for goal_ref, goal in (scope.get("goals") or {}).items():
-            for step in goal.get("steps", ()):
+        for goal in scope.goals:
+            for step in goal.steps:
                 append_step(
                     step,
                     scope_ref=scope_ref,
-                    goal_ref=str(goal_ref),
+                    goal_ref=goal.goal_ref,
                 )
-        for child in scope.get("children", ()):
+        for child in scope.children:
             visit(child)
 
     visit(root_scope)
     return cards
 
 
-def _scope_tree(scope: Mapping[str, Any]) -> dict[str, Any]:
+def _scope_tree(scope: AnnotatedTeachingScope) -> dict[str, Any]:
     return {
-        "scope_ref": str(scope["scope_ref"]),
-        "step_ids": [str(item["step_id"]) for item in scope.get("steps", ())],
+        "scope_ref": scope.scope_ref,
+        "step_ids": [item.step_id for item in scope.steps],
         "goals": {
-            str(goal_ref): [
-                str(item["step_id"]) for item in goal.get("steps", ())
-            ]
-            for goal_ref, goal in (scope.get("goals") or {}).items()
+            goal.goal_ref: [item.step_id for item in goal.steps]
+            for goal in scope.goals
         },
-        "children": [_scope_tree(child) for child in scope.get("children", ())],
+        "children": [_scope_tree(child) for child in scope.children],
     }
 
 
-def _answer_review_rows(plan: Mapping[str, Any]) -> list[dict[str, Any]]:
-    goal_by_ref: dict[str, Mapping[str, Any]] = {}
+def _answer_review_rows(plan: AnnotatedTeachingPlan) -> list[dict[str, Any]]:
+    goal_by_ref = {}
 
-    def visit(scope: Mapping[str, Any]) -> None:
-        goal_by_ref.update(
-            {
-                str(goal_ref): goal
-                for goal_ref, goal in (scope.get("goals") or {}).items()
-            }
-        )
-        for child in scope.get("children", ()):
+    def visit(scope: AnnotatedTeachingScope) -> None:
+        goal_by_ref.update({goal.goal_ref: goal for goal in scope.goals})
+        for child in scope.children:
             visit(child)
 
-    visit(plan["root_scope"])
+    visit(plan.root_scope)
     return [
         {
             "goal_ref": goal_ref,
-            "required_answer": dict(goal_by_ref[goal_ref]["required_answer"]),
-            "answer_from": dict(goal_by_ref[goal_ref]["answer_from"]),
+            "required_answer": dict(goal_by_ref[goal_ref].required_answer),
+            "answer_from": dict(goal_by_ref[goal_ref].answer_from),
             "verified_answer": dict(answer),
         }
-        for goal_ref, answer in plan["answers"].items()
+        for goal_ref, answer in plan.answers.items()
     ]
 
 
@@ -215,11 +217,14 @@ def _pseudo_lesson_for_rubric(
                 {
                     "id": f"b2-{card['step_id']}-{index + 1}",
                     "source_step_ids": [card["step_id"]],
-                    "title": material["suggested_title"],
-                    "nav_title": material["suggested_nav_title"],
-                    "goal": material["suggested_goal"],
-                    "derive": material["suggested_derive"],
-                    "box": material["suggested_box"],
+                    "title": material["title"],
+                    "nav_title": material["nav_title"],
+                    "goal": material["goal"],
+                    "derive": [
+                        list(_split_derive_line(line))
+                        for line in material["derive"]
+                    ],
+                    "box": material["conclusions"],
                 }
             )
     return {"problem_id": problem_id, "steps": steps}
@@ -293,14 +298,22 @@ def _render_card(card: Mapping[str, Any]) -> str:
 
 def _render_material(material: Mapping[str, Any], *, index: int) -> str:
     derive = "".join(
-        f"<li><strong>{escape(str(item[0]))}</strong> {escape(str(item[1]))}</li>"
-        for item in material["suggested_derive"]
+        f"<li>{escape(str(item))}</li>" for item in material["derive"]
     )
     boxes = "".join(
         f'<div class="box">{escape(str(item))}</div>'
-        for item in material["suggested_box"]
+        for item in material["conclusions"]
     )
-    return f"""<div class="material"><div class="nav">Material {index} · {escape(str(material['suggested_nav_title']))}</div><h4>{escape(str(material['suggested_title']))}</h4><p>{escape(str(material['suggested_goal']))}</p><ol>{derive}</ol>{boxes}</div>"""
+    return f"""<div class="material"><div class="nav">Material {index} · {escape(str(material['nav_title']))}</div><h4>{escape(str(material['title']))}</h4><p>{escape(str(material['goal']))}</p><ol>{derive}</ol>{boxes}</div>"""
+
+
+def _split_derive_line(value: str) -> tuple[str, str]:
+    marker, separator, text = str(value).partition(" ")
+    if not separator or not marker or not text:
+        raise LessonAnnotatedTeachingReviewError(
+            f"lesson_annotated_teaching_derive_invalid: {value!r}"
+        )
+    return marker, text
 
 
 def _json_text(value: Any) -> str:

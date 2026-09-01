@@ -28,6 +28,17 @@ from .models import (
     lesson_ir_from_payload,
 )
 from .snapshot import ExplanationSnapshotBuilder
+from .scope_lesson import (
+    BoundLessonStep,
+    LessonScopeContentValidator,
+    ScopeLessonAuthoringService,
+    ScopeLessonConfigurationError,
+    ScopeLessonDiagnostic,
+    ScopeLessonGenerationResult,
+    ScopeLessonValidationResult,
+    build_deterministic_scope_content,
+    evaluate_scope_lesson_content,
+)
 
 __all__ = [
     "ANNOTATED_TEACHING_PLAN_CONTRACT",
@@ -36,6 +47,7 @@ __all__ = [
     "AnnotatedTeachingProjection",
     "AnnotatedTeachingProjectionError",
     "AnnotatedTeachingPrompt",
+    "BoundLessonStep",
     "ExplanationBuilder",
     "EXPLANATION_SNAPSHOT_CONTRACT",
     "ExplanationSnapshot",
@@ -44,13 +56,21 @@ __all__ = [
     "LessonIR",
     "LessonIRValidator",
     "LessonSection",
+    "LessonScopeContentValidator",
     "LessonStep",
     "TeachingGoal",
     "TeachingMaterialProjector",
     "TeachingScope",
     "TeachingSource",
+    "ScopeLessonAuthoringService",
+    "ScopeLessonConfigurationError",
+    "ScopeLessonDiagnostic",
+    "ScopeLessonGenerationResult",
+    "ScopeLessonValidationResult",
     "annotated_teaching_plan_schema",
     "build_projection_audit",
+    "build_deterministic_scope_content",
+    "evaluate_scope_lesson_content",
     "explanation_snapshot_from_payload",
     "lesson_scope_content_schema",
     "lesson_ir_from_payload",

@@ -102,7 +102,7 @@ def test_b2_answers_are_reviewed_against_answer_from(snapshot_and_artifacts) -> 
     assert all(item["verified_answer"]["display"] for item in rows)
     assert all(
         item["required_answer"]["runtime_type"]
-        == item["verified_answer"]["runtime_type"]
+        == item["verified_answer"]["type"]
         for item in rows
     )
 
@@ -122,6 +122,10 @@ def test_b2_prompt_and_audit_are_ready_for_manual_review(snapshot_and_artifacts)
     assert "## Annotated Teaching Plan" in artifacts.prompt.user
     assert "## 输出 JSON Schema" in artifacts.prompt.user
     assert "## 全题型共享示例" in artifacts.prompt.user
+    assert "你不需要返回 conclusions 或 box" in artifacts.prompt.system
+    assert "每个输出步骤用 source_steps" in artifacts.prompt.system
+    assert "root_scope 仅按真实父子关系递归展示上下文" in artifacts.prompt.system
+    assert "material_count" not in artifacts.prompt.system
 
 
 def test_b2_review_html_is_self_contained_and_exposes_raw_prompt_tabs(

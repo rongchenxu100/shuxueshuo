@@ -29,7 +29,7 @@
 | F5-F4.3D：南开耦合路径 Macro | `COMPLETE` | 两公开输入、两公开输出；共享 Scope、构造点诊断、few-shot hash 与最终 live `1x3` 通过 |
 | F5-F4.3E：加权路径原子 Macro | `COMPLETE` | 单路径 Fact 输入、单表达式输出；河西/西青最终 live 各 `1x3` 均首轮通过 |
 | F5-F4.3F：旧能力清理与全量验收 | `COMPLETE` | 公开 Path 内部类型与兼容链已删除，compiler 原子门禁及完整投影门禁已落地 |
-| F5-F5：Teaching scope | `IN PROGRESS` | F5-F5A、F5-F5B0、F5-F5B1、F5-F5B2 已完成；F5-F5B3 Scope Lesson 调用、校验与评测 NEXT |
+| F5-F5：Teaching scope | `IN PROGRESS` | F5-F5A、F5-F5B0–B3 已完成；F5-F5B4 recursive LessonIR 生产切换 NEXT |
 | G：Post-solver Context | `AFTER F5` | Explanation、Diagram、Voiceover、Animation Context |
 | E：端到端优化 | `AFTER F/G` | cache、最小失效、并发去重、条件式 Best-of-N |
 
@@ -150,7 +150,8 @@ F5-F5B 的 LLM wire、无 semantic retry、同次调用视觉选择和和平二�
    普通 Method 可选声明一个 `TeachingUnitSpec`，未声明时生成 default unit；
    单一学生推导的原子 Macro 可声明有序 `TeachingUnitSpec[]`。代码先用 verified runtime data
    绑定建议的 title/nav_title/goal/derive/box，再按顺序内联给 LLM；unit key/ID 只保留在内部 authority，
-   LLM 用 `material_count` 表达连续合并。学生推导真正不同的 Macro 分支使用内部
+   每个 Scope/Goal 内由代码分配局部 `sN`，LLM 用 `source_steps:["s1","s2"]` 表达连续
+   合并。学生推导真正不同的 Macro 分支使用内部
    `TeachingVariantSpec[]`，由 typed verified evidence 唯一选中；内部候选和其他 Variant 不
    进入 LLM。不增加 guide registry、重要性标记或 merge policy，也不迁移旧 Lesson repair
    loop。
@@ -159,13 +160,22 @@ F5-F5B 的 LLM wire、无 semantic retry、同次调用视觉选择和和平二�
    Step、`13` 份材料、`4` 个 verified answer，Macro rubric `5/5`。LLM wire 不含 checks、
    evidence/unit/variant ID 或 private identity，叶子 Scope 省略空 `children`；Prompt 使用
    “中学数学讲解编排器”，明确必要时才合并并以学生理解当前题为目标。双 artifact 人工门禁
-   已通过，最终 Prompt `19,087` 字符，全部离线 Solver `2348 passed`，本阶段未调用 LLM。
-5. `F5-F5B3 NEXT`：复用已经审阅的 B2 request builder，完成一次 Scope Lesson 调用、严格
-   response 校验、Scope/整题 deterministic fallback、evaluation 与真实 raw/debug artifact；
-   不另写 Prompt，不增加 Lesson semantic retry。
-6. `F5-F5C`：先用和平二模 `1×3` 评测真实输入输出、token/耗时和教学质量，稳定后扩到五题
+   已通过；局部 `source_steps` 合并合同保持不变。Prompt 现明确递归 `root_scope` 仅用于
+   上下文、输出 Scope 已由 Schema 固定展开，LLM 不重建 `children`；更新后 Prompt 为
+   `12,459` 字符，本阶段未调用 LLM；更新后的 Prompt 已完成人工复审。
+5. `F5-F5B3 COMPLETE`：一次 Scope Lesson 调用、严格 response 校验、Scope/整题
+   deterministic fallback、evaluation 与真实 raw/debug artifact 已实现；DeepSeek
+   `thinking=low` 与 `thinking=disabled` 两批和平 live `1×3` 均达到 `3/3` 直接接受、
+   Rubric `5/5 × 3`、零 fallback。disabled 批在可见正文规模相当的情况下把 provider
+   聚合耗时从 `125.110s` 降到 `30.716s`，因此作为默认候选；provider reasoning 仅按
+   transport attempt 保存到独立 debug artifact，不进入教学链或 Review。横向人工审阅已经
+   通过；单个合法遗漏材料由代码按 Canonical 位置补齐，其他错误保持 Scope fallback，不增加
+   Lesson semantic retry。批准的 Scope Content/evaluation/review summary 仅作为回归 fixture。
+6. `F5-F5B4 NEXT`：把 accepted Scope Content 原子组装成递归 LessonIR，并一次性切换生产
+   Lesson 路径；source/capability/unit/evidence provenance 由代码注入。
+7. `F5-F5C`：先用和平二模 `1×3` 评测真实输入输出、token/耗时和教学质量，稳定后扩到五题
    teaching-only `5×3`。
-7. `G1`：作为最后一个新增实现阶段，打开 Method/Macro `available_visuals`，由同一次 Lesson
+8. `G1`：作为最后一个新增实现阶段，打开 Method/Macro `available_visuals`，由同一次 Lesson
    LLM 只选择 `visual_id/mode`，代码绑定并确定性渲染 VisualStepIR 与课程页。
 
 ## Track G：解题后 Context

@@ -81,6 +81,25 @@ FORBIDDEN_LLM_TOKENS = (
     '"must_separate"',
     '"scope_steps"',
     '"lesson_steps"',
+    '"schema_version"',
+    '"step_id"',
+    '"capability_id"',
+    '"intent"',
+    '"ref"',
+    '"required_answer"',
+    '"answer_from"',
+    '"runtime_type"',
+    '"execution"',
+    '"teaching_materials"',
+    '"suggested_title"',
+    '"suggested_nav_title"',
+    '"suggested_goal"',
+    '"suggested_derive"',
+    '"suggested_box"',
+    '"available_visuals"',
+    '"material_count"',
+    '"box"',
+    '"visuals"',
 )
 
 
@@ -126,12 +145,13 @@ class AnnotatedTeachingMaterial:
 
     def to_payload(self) -> dict[str, Any]:
         return {
-            "suggested_title": self.suggested_title,
-            "suggested_nav_title": self.suggested_nav_title,
-            "suggested_goal": self.suggested_goal,
-            "suggested_derive": [list(item) for item in self.suggested_derive],
-            "suggested_box": list(self.suggested_box),
-            "available_visuals": [],
+            "title": self.suggested_title,
+            "nav_title": self.suggested_nav_title,
+            "goal": self.suggested_goal,
+            "derive": [
+                f"{marker} {text}" for marker, text in self.suggested_derive
+            ],
+            "conclusions": list(self.suggested_box),
         }
 
 
@@ -146,27 +166,24 @@ class AnnotatedTeachingStep:
     teaching_materials: tuple[AnnotatedTeachingMaterial, ...]
 
     def to_payload(self) -> dict[str, Any]:
-        return {
-            "step_id": self.step_id,
-            "capability_id": self.capability_id,
-            "intent": self.intent,
-            "inputs": {
+        payload: dict[str, Any] = {}
+        if self.inputs:
+            payload["inputs"] = {
                 name: [_json_clone(item) for item in items]
                 for name, items in self.inputs.items()
-            },
-            "execution": {
-                "outputs": {
-                    name: _json_clone(value)
-                    for name, value in self.outputs.items()
-                },
-                "calculations": [
-                    _json_clone(item) for item in self.calculations
-                ],
-            },
-            "teaching_materials": [
-                item.to_payload() for item in self.teaching_materials
-            ],
-        }
+            }
+        if self.outputs:
+            payload["outputs"] = {
+                name: _json_clone(value) for name, value in self.outputs.items()
+            }
+        if self.calculations:
+            payload["calculations"] = [
+                _json_clone(item) for item in self.calculations
+            ]
+        payload["materials"] = [
+            item.to_payload() for item in self.teaching_materials
+        ]
+        return payload
 
 
 @dataclass(frozen=True)
@@ -176,12 +193,8 @@ class AnnotatedTeachingGoal:
     steps: tuple[AnnotatedTeachingStep, ...]
     answer_from: Mapping[str, str]
 
-    def to_payload(self) -> dict[str, Any]:
-        return {
-            "required_answer": dict(self.required_answer),
-            "steps": [item.to_payload() for item in self.steps],
-            "answer_from": dict(self.answer_from),
-        }
+    def to_payload(self) -> list[dict[str, Any]]:
+        return _container_steps_payload(self.steps)
 
 
 @dataclass(frozen=True)
@@ -192,16 +205,53 @@ class AnnotatedTeachingScope:
     children: tuple["AnnotatedTeachingScope", ...]
 
     def to_payload(self) -> dict[str, Any]:
-        payload = {
-            "scope_ref": self.scope_ref,
-            "steps": [item.to_payload() for item in self.steps],
-            "goals": {
-                goal.goal_ref: goal.to_payload() for goal in self.goals
-            },
+        payload: dict[str, Any] = {"scope_ref": self.scope_ref}
+        steps = _container_steps_payload(self.steps)
+        if steps:
+            payload["steps"] = steps
+        goals = {
+            goal.goal_ref: _container_steps_payload(goal.steps)
+            for goal in self.goals
+            if goal.steps
         }
-        if self.children:
-            payload["children"] = [item.to_payload() for item in self.children]
+        if goals:
+            payload["goals"] = goals
+        children = [
+            item.to_payload()
+            for item in self.children
+            if _scope_has_materials(item)
+        ]
+        if children:
+            payload["children"] = children
         return payload
+
+
+def _container_steps_payload(
+    steps: Sequence[AnnotatedTeachingStep],
+) -> list[dict[str, Any]]:
+    """Project local teaching-step refs without exposing canonical Step IDs.
+
+    Refs restart inside every Scope/Goal container because grouping is only
+    legal within that container.  A Macro may contribute more than one ref;
+    the internal authority keeps both refs mapped to its one canonical Step.
+    """
+
+    result: list[dict[str, Any]] = []
+    next_number = 1
+    for step in steps:
+        payload = step.to_payload()
+        materials = []
+        for material in payload["materials"]:
+            materials.append(
+                {
+                    "step_ref": f"s{next_number}",
+                    **material,
+                }
+            )
+            next_number += 1
+        payload["materials"] = materials
+        result.append(payload)
+    return result
 
 
 @dataclass(frozen=True)
@@ -213,7 +263,6 @@ class AnnotatedTeachingPlan:
 
     def to_payload(self) -> dict[str, Any]:
         return {
-            "schema_version": self.schema_version,
             "problem": _json_clone(self.problem),
             "answers": {
                 goal_ref: _json_clone(answer)
@@ -418,9 +467,11 @@ class AnnotatedTeachingPlanProjector:
                 projected_materials.unit_keys,
                 strict=True,
             ):
+                teaching_step_ref = f"s{len(records) + 1}"
                 records.append(
                     {
                         "position": len(records),
+                        "teaching_step_ref": teaching_step_ref,
                         "source_step_id": source.source_step_id,
                         "capability_id": source.capability_id,
                         "capability_kind": projected_materials.kind,
@@ -465,7 +516,7 @@ class AnnotatedTeachingPlanProjector:
                         goal_ref=goal.goal_ref,
                         required_answer={
                             "answer_key": str(question_goal["answer_key"]),
-                            "runtime_type": str(answer["runtime_type"]),
+                            "runtime_type": str(answer["type"]),
                         },
                         steps=goal_steps,
                         answer_from=dict(goal.answer_from),
@@ -514,43 +565,19 @@ def annotated_teaching_plan_schema() -> dict[str, Any]:
     runtime_result = {
         "type": "object",
         "additionalProperties": False,
-        "required": ["runtime_type", "value", "display"],
+        "required": ["type", "value", "display"],
         "properties": {
-            "runtime_type": {"type": "string", "minLength": 1},
+            "type": {"type": "string", "minLength": 1},
             "value": {},
             "display": {"type": "string", "minLength": 1},
         },
     }
-    reference = {
-        "oneOf": [
-            {
-                "type": "object",
-                "additionalProperties": False,
-                "required": ["kind", "ref"],
-                "properties": {
-                    "kind": {"const": "source"},
-                    "ref": {"type": "string", "minLength": 1},
-                },
-            },
-            {
-                "type": "object",
-                "additionalProperties": False,
-                "required": ["kind", "step_id", "return"],
-                "properties": {
-                    "kind": {"const": "step_result"},
-                    "step_id": {"type": "string", "minLength": 1},
-                    "return": {"type": "string", "minLength": 1},
-                },
-            },
-        ]
-    }
     input_value = {
         "type": "object",
         "additionalProperties": False,
-        "required": ["ref", "runtime_type", "value", "display"],
+        "required": ["type", "value", "display"],
         "properties": {
-            "ref": reference,
-            "runtime_type": {"type": "string", "minLength": 1},
+            "type": {"type": "string", "minLength": 1},
             "value": {},
             "display": {"type": "string", "minLength": 1},
         },
@@ -570,135 +597,89 @@ def annotated_teaching_plan_schema() -> dict[str, Any]:
         },
     }
     derive_item = {
-        "type": "array",
-        "prefixItems": [
-            {"enum": list(DERIVE_MARKERS)},
-            {"type": "string", "minLength": 1},
-        ],
-        "items": False,
-        "minItems": 2,
-        "maxItems": 2,
+        "type": "string",
+        "pattern": r"^(作|设|∵|∴|计算)\s+\S",
     }
     material = {
         "type": "object",
         "additionalProperties": False,
         "required": [
-            "suggested_title",
-            "suggested_nav_title",
-            "suggested_goal",
-            "suggested_derive",
-            "suggested_box",
-            "available_visuals",
+            "step_ref",
+            "title",
+            "nav_title",
+            "goal",
+            "derive",
+            "conclusions",
         ],
         "properties": {
-            "suggested_title": {"type": "string", "minLength": 1},
-            "suggested_nav_title": {"type": "string", "minLength": 1},
-            "suggested_goal": {"type": "string", "minLength": 1},
-            "suggested_derive": {
+            "step_ref": {
+                "type": "string",
+                "pattern": r"^s[1-9][0-9]*$",
+            },
+            "title": {"type": "string", "minLength": 1},
+            "nav_title": {"type": "string", "minLength": 1},
+            "goal": {"type": "string", "minLength": 1},
+            "derive": {
                 "type": "array",
                 "minItems": 1,
                 "items": derive_item,
             },
-            "suggested_box": {
+            "conclusions": {
                 "type": "array",
                 "items": {"type": "string", "minLength": 1},
-            },
-            "available_visuals": {
-                "type": "array",
-                "maxItems": 0,
             },
         },
     }
     step = {
         "type": "object",
         "additionalProperties": False,
-        "required": [
-            "step_id",
-            "capability_id",
-            "intent",
-            "inputs",
-            "execution",
-            "teaching_materials",
-        ],
+        "required": ["materials"],
         "properties": {
-            "step_id": {"type": "string", "minLength": 1},
-            "capability_id": {"type": "string", "minLength": 1},
-            "intent": {
-                "oneOf": [
-                    {"type": "string", "minLength": 1},
-                    {"type": "null"},
-                ]
-            },
             "inputs": {
                 "type": "object",
+                "minProperties": 1,
                 "additionalProperties": {
                     "type": "array",
                     "minItems": 1,
                     "items": input_value,
                 },
             },
-            "execution": {
+            "outputs": {
                 "type": "object",
-                "additionalProperties": False,
-                "required": ["outputs", "calculations"],
-                "properties": {
-                    "outputs": {
-                        "type": "object",
-                        "additionalProperties": runtime_result,
-                    },
-                    "calculations": {
-                        "type": "array",
-                        "items": calculation,
-                    },
-                },
+                "minProperties": 1,
+                "additionalProperties": runtime_result,
             },
-            "teaching_materials": {
+            "calculations": {
+                "type": "array",
+                "minItems": 1,
+                "items": calculation,
+            },
+            "materials": {
                 "type": "array",
                 "minItems": 1,
                 "items": material,
             },
         },
     }
-    answer_from = {
-        "type": "object",
-        "additionalProperties": False,
-        "required": ["step_id", "return"],
-        "properties": {
-            "step_id": {"type": "string", "minLength": 1},
-            "return": {"type": "string", "minLength": 1},
-        },
-    }
-    goal = {
-        "type": "object",
-        "additionalProperties": False,
-        "required": ["required_answer", "steps", "answer_from"],
-        "properties": {
-            "required_answer": {
-                "type": "object",
-                "additionalProperties": False,
-                "required": ["answer_key", "runtime_type"],
-                "properties": {
-                    "answer_key": {"type": "string", "minLength": 1},
-                    "runtime_type": {"type": "string", "minLength": 1},
-                },
-            },
-            "steps": {"type": "array", "items": step},
-            "answer_from": answer_from,
-        },
-    }
     scope: dict[str, Any] = {
         "type": "object",
         "additionalProperties": False,
-        "required": ["scope_ref", "steps", "goals"],
+        "required": ["scope_ref"],
         "properties": {
             "scope_ref": {"type": "string", "minLength": 1},
-            "steps": {"type": "array", "items": step},
+            "steps": {"type": "array", "minItems": 1, "items": step},
             "goals": {
                 "type": "object",
-                "additionalProperties": goal,
+                "minProperties": 1,
+                "additionalProperties": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": step,
+                },
             },
             "children": {
                 "type": "array",
+                "minItems": 1,
                 "items": {"$ref": "#/$defs/scope"},
             },
         },
@@ -712,9 +693,8 @@ def annotated_teaching_plan_schema() -> dict[str, Any]:
         "title": "Functional Annotated Teaching Plan v1",
         "type": "object",
         "additionalProperties": False,
-        "required": ["schema_version", "problem", "answers", "root_scope"],
+        "required": ["problem", "answers", "root_scope"],
         "properties": {
-            "schema_version": {"const": ANNOTATED_TEACHING_PLAN_CONTRACT},
             "problem": {
                 "type": "object",
                 "additionalProperties": False,
@@ -753,16 +733,22 @@ def lesson_scope_content_schema(plan: AnnotatedTeachingPlan) -> dict[str, Any]:
         "type": "object",
         "additionalProperties": False,
         "required": [
-            "material_count",
+            "source_steps",
             "title",
             "nav_title",
             "goal",
             "derive",
-            "box",
-            "visuals",
         ],
         "properties": {
-            "material_count": {"type": "integer", "minimum": 1},
+            "source_steps": {
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": True,
+                "items": {
+                    "type": "string",
+                    "pattern": r"^s[1-9][0-9]*$",
+                },
+            },
             "title": {"type": "string", "minLength": 1},
             "nav_title": {"type": "string", "minLength": 1},
             "goal": {"type": "string", "minLength": 1},
@@ -770,21 +756,10 @@ def lesson_scope_content_schema(plan: AnnotatedTeachingPlan) -> dict[str, Any]:
                 "type": "array",
                 "minItems": 1,
                 "items": {
-                    "type": "array",
-                    "prefixItems": [
-                        {"enum": list(DERIVE_MARKERS)},
-                        {"type": "string", "minLength": 1},
-                    ],
-                    "items": False,
-                    "minItems": 2,
-                    "maxItems": 2,
+                    "type": "string",
+                    "pattern": r"^(作|设|∵|∴|计算)\s+\S",
                 },
             },
-            "box": {
-                "type": "array",
-                "items": {"type": "string", "minLength": 1},
-            },
-            "visuals": {"type": "array", "maxItems": 0},
         },
     }
 
@@ -804,31 +779,30 @@ def lesson_scope_content_schema(plan: AnnotatedTeachingPlan) -> dict[str, Any]:
             continue
         required_scopes.append(scope.scope_ref)
         goal_properties = {
-            goal.goal_ref: {
+            goal.goal_ref: _lesson_step_array_schema(goal_counts[goal.goal_ref])
+            for goal in scope.goals
+            if goal_counts[goal.goal_ref]
+        }
+        required_fields: list[str] = []
+        properties: dict[str, Any] = {}
+        if scope_material_count:
+            required_fields.append("steps")
+            properties["steps"] = _lesson_step_array_schema(
+                scope_material_count
+            )
+        if goal_properties:
+            required_fields.append("goals")
+            properties["goals"] = {
                 "type": "object",
                 "additionalProperties": False,
-                "required": ["steps"],
-                "properties": {
-                    "steps": _lesson_step_array_schema(
-                        goal_counts[goal.goal_ref],
-                    )
-                },
+                "required": list(goal_properties),
+                "properties": goal_properties,
             }
-            for goal in scope.goals
-        }
         scope_properties[scope.scope_ref] = {
             "type": "object",
             "additionalProperties": False,
-            "required": ["steps", "goals"],
-            "properties": {
-                "steps": _lesson_step_array_schema(scope_material_count),
-                "goals": {
-                    "type": "object",
-                    "additionalProperties": False,
-                    "required": list(goal_properties),
-                    "properties": goal_properties,
-                },
-            },
+            "required": required_fields,
+            "properties": properties,
         }
 
     if not required_scopes:
@@ -844,16 +818,8 @@ def lesson_scope_content_schema(plan: AnnotatedTeachingPlan) -> dict[str, Any]:
         "title": "Lesson Scope Content v1",
         "type": "object",
         "additionalProperties": False,
-        "required": ["schema_version", "scope_bodies"],
-        "properties": {
-            "schema_version": {"const": LESSON_SCOPE_CONTENT_CONTRACT},
-            "scope_bodies": {
-                "type": "object",
-                "additionalProperties": False,
-                "required": required_scopes,
-                "properties": scope_properties,
-            },
-        },
+        "required": required_scopes,
+        "properties": scope_properties,
         "$defs": {"lesson_step": lesson_step},
     }
     Draft202012Validator.check_schema(schema)
@@ -869,12 +835,14 @@ def render_annotated_teaching_prompt(
 
     schema = dict(output_schema or lesson_scope_content_schema(plan))
     system = """你是中学数学讲解编排器。
-你的目标是把当前题已经验证的推导材料整理成学生容易理解的完整讲解。
-逐项审视同一 Scope/Goal 内相邻的 teaching_materials：只有在合并能让推导更连贯且不遗漏关键理由时才合并；没有必要时保持为独立步骤。
-完善并润色 title、nav_title、goal、数学推导和少量必要说明，让学生清楚每一步的依据、结论以及它与下一步的联系。
-输入中的数学事实、计算结果和最终答案已经由解题器验证；不要重新解题或修改答案。
+你的目标是把已经验证的解题材料整理成学生容易理解的完整讲解。
+逐项审视同一 Scope/Goal 内相邻的 materials：只有在合并能让推导更连贯且不遗漏关键理由时才合并；没有必要时保持独立步骤。
+完善并润色 title、nav_title、goal 和 derive，让学生清楚每一步为什么成立、得到什么以及如何衔接下一步。数学语言为主，只补充少量必要的自然语言。
+输入中的数学事实、计算结果、conclusions 和最终 answers 已经由解题器验证；不要重新解题或修改它们。结论由代码写入课程，你不需要返回 conclusions 或 box。
 必须在输出 Schema 固定的 Scope/Goal 中返回完整教学正文，不能移动材料所属容器。
-每个输出步骤用 material_count 从当前容器的材料序列头部连续消费；所有材料必须恰好使用一次。
+输入的 root_scope 仅按真实父子关系递归展示上下文；输出 Schema 已由代码把本轮需要填写的 Scope 展开为固定顶层 key。只按同名 scope_ref/goal_ref 填写正文，不要重建 children；未出现在输出 Schema 中的上下文 Scope 不返回。
+每份 material 都有当前 Scope/Goal 内的局部 step_ref。每个输出步骤用 source_steps 列出它合并的 step_ref；只能合并同一容器内相邻步骤，编号必须保持原顺序，所有编号必须恰好使用一次。
+derive 的每一行必须是一个字符串，并以“作 ”“设 ”“∵ ”“∴ ”或“计算 ”开头。
 只能使用输入已经给出的对象、数值、关系和结论，不得编造数学事实或内部标识。
 返回严格符合给定 JSON Schema 的单个 JSON 对象，不要输出 Markdown、HTML 或解释性前言。"""
     user = "\n\n".join(
@@ -1125,7 +1093,7 @@ def _project_answers(
             if not _answer_values_equal(
                 observed,
                 projected["value"],
-                runtime_type=str(projected["runtime_type"]),
+                runtime_type=str(projected["type"]),
             ):
                 raise AnnotatedTeachingProjectionError(
                     "teaching_answer_value_mismatch",
@@ -1133,7 +1101,7 @@ def _project_answers(
                     "verified Solver answer differs from answer_from output",
                 )
             expected_type = str(authority["runtime_type"])
-            if expected_type not in {"", "Unknown", projected["runtime_type"]}:
+            if expected_type not in {"", "Unknown", projected["type"]}:
                 raise AnnotatedTeachingProjectionError(
                     "teaching_answer_type_mismatch",
                     f"$.answers[{goal.goal_ref!r}]",
@@ -1176,7 +1144,7 @@ def _project_inputs(
         projected: list[Mapping[str, Any]] = []
         for index, item in enumerate(items):
             ref = item.get("resolved_from") or item.get("ref")
-            checked_ref = _project_reference(
+            _project_reference(
                 ref,
                 source_by_id=source_by_id,
                 path=(
@@ -1212,8 +1180,7 @@ def _project_inputs(
             )
             projected.append(
                 {
-                    "ref": checked_ref,
-                    "runtime_type": runtime_type,
+                    "type": runtime_type,
                     "value": value,
                     "display": display,
                 }
@@ -1283,7 +1250,7 @@ def _project_runtime_result(
     _assert_public_value(public_value, path=f"{path}.value")
     _assert_public_value(display, path=f"{path}.display")
     return {
-        "runtime_type": runtime_type,
+        "type": runtime_type,
         "value": public_value,
         "display": display,
     }
@@ -1608,53 +1575,45 @@ def _lesson_step_array_schema(material_count: int) -> dict[str, Any]:
 
 def _shared_scope_lesson_few_shot() -> dict[str, Any]:
     return {
-        "input_materials": [
+        "input": {"materials": [
             {
-                "suggested_title": "利用勾股定理建立边长关系",
-                "suggested_nav_title": "建立边长关系",
-                "suggested_goal": "由直角三角形三边关系建立方程。",
-                "suggested_derive": [
-                    ["∵", "△XYZ 在 Y 点为直角，YX＝6，YZ＝8"],
-                    ["∴", "XZ²＝YX²＋YZ²＝6²＋8²"],
+                "step_ref": "s1",
+                "title": "利用勾股定理建立边长关系",
+                "nav_title": "建立边长关系",
+                "goal": "由直角三角形三边关系建立方程。",
+                "derive": [
+                    "∵ △XYZ 在 Y 点为直角，YX＝6，YZ＝8",
+                    "∴ XZ²＝YX²＋YZ²＝6²＋8²",
                 ],
-                "suggested_box": [],
-                "available_visuals": [],
+                "conclusions": [],
             },
             {
-                "suggested_title": "计算斜边长度",
-                "suggested_nav_title": "求斜边",
-                "suggested_goal": "计算并写出斜边长度。",
-                "suggested_derive": [["∴", "XZ＝10"]],
-                "suggested_box": ["XZ＝10"],
-                "available_visuals": [],
+                "step_ref": "s2",
+                "title": "计算斜边长度",
+                "nav_title": "求斜边",
+                "goal": "计算并写出斜边长度。",
+                "derive": ["∴ XZ＝10"],
+                "conclusions": ["XZ＝10"],
             },
-        ],
+        ]},
         "output": {
-            "schema_version": LESSON_SCOPE_CONTENT_CONTRACT,
-            "scope_bodies": {
-                "example": {
-                    "steps": [],
-                    "goals": {
-                        "example.XZ": {
-                            "steps": [
-                                {
-                                    "material_count": 2,
-                                    "title": "利用勾股定理求斜边",
-                                    "nav_title": "勾股定理",
-                                    "goal": "建立边长关系并计算斜边长度。",
-                                    "derive": [
-                                        ["∵", "△XYZ 在 Y 点为直角，YX＝6，YZ＝8"],
-                                        ["∴", "XZ²＝6²＋8²＝100"],
-                                        ["∴", "XZ＝10"],
-                                    ],
-                                    "box": ["XZ＝10"],
-                                    "visuals": [],
-                                }
-                            ]
+            "example": {
+                "goals": {
+                    "example.XZ": [
+                        {
+                            "source_steps": ["s1", "s2"],
+                            "title": "利用勾股定理求斜边",
+                            "nav_title": "勾股定理",
+                            "goal": "建立边长关系并计算斜边长度。",
+                            "derive": [
+                                "∵ △XYZ 在 Y 点为直角，YX＝6，YZ＝8",
+                                "∴ XZ²＝6²＋8²＝100",
+                                "∴ XZ＝10",
+                            ],
                         }
-                    },
+                    ]
                 }
-            },
+            }
         },
     }
 
@@ -1671,6 +1630,14 @@ def _iter_annotated_scopes(
 
     visit(root)
     return tuple(result)
+
+
+def _scope_has_materials(scope: AnnotatedTeachingScope) -> bool:
+    return bool(
+        scope.steps
+        or any(goal.steps for goal in scope.goals)
+        or any(_scope_has_materials(child) for child in scope.children)
+    )
 
 
 def _iter_annotated_steps(

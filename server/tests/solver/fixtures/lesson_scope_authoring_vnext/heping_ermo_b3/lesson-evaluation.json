@@ -1,0 +1,92 @@
+{
+  "schema_version": "lesson-scope-evaluation/v1",
+  "problem_id": "tj-2026-heping-ermo-25",
+  "contract": {
+    "pass": true,
+    "diagnostics": []
+  },
+  "authority": {
+    "pass": true,
+    "diagnostics": [],
+    "unexpected_objects": [],
+    "future_result_leaks": [],
+    "answer_coverage": {
+      "pass": true,
+      "diagnostics": []
+    }
+  },
+  "teaching_quality": {
+    "required_points": {
+      "covered": [
+        "path_reduction_equivalence",
+        "moving_point_locus",
+        "reflection_construction",
+        "reflection_segment_equality",
+        "minimum_and_parameterized_attainment"
+      ],
+      "missing": [],
+      "evidence_by_point": {
+        "path_reduction_equivalence": {
+          "source_step_id": "derive_path_minimum_ii",
+          "lesson_step_ids": [
+            "goal:ii.E:1"
+          ],
+          "matched_patterns": [
+            "HF+FM+MG=AG+MG"
+          ]
+        },
+        "moving_point_locus": {
+          "source_step_id": "derive_path_minimum_ii",
+          "lesson_step_ids": [
+            "goal:ii.E:1"
+          ],
+          "matched_patterns": [
+            "轨迹",
+            "y=-c/2-1/2"
+          ]
+        },
+        "reflection_construction": {
+          "source_step_id": "derive_path_minimum_ii",
+          "lesson_step_ids": [
+            "goal:ii.E:1"
+          ],
+          "matched_patterns": [
+            "A′",
+            "对称"
+          ]
+        },
+        "reflection_segment_equality": {
+          "source_step_id": "derive_path_minimum_ii",
+          "lesson_step_ids": [
+            "goal:ii.E:1"
+          ],
+          "matched_patterns": [
+            "AG=A′G"
+          ]
+        },
+        "minimum_and_parameterized_attainment": {
+          "source_step_id": "derive_path_minimum_ii",
+          "lesson_step_ids": [
+            "goal:ii.E:1"
+          ],
+          "matched_patterns": [
+            "√5|c+1|/2",
+            "G(1/4-3c/4,-c/2-1/2)"
+          ]
+        }
+      }
+    },
+    "coverage_rate": 1.0,
+    "presentation_review": {
+      "derivation_order": "pass",
+      "box_completeness": "pass",
+      "conciseness": "review",
+      "repeated_lines": [
+        "四边形 AEKG 是正方形"
+      ]
+    }
+  },
+  "fallback_used": false,
+  "syntax_repaired": false,
+  "source_step_completion_repaired": false
+}

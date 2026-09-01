@@ -6,6 +6,7 @@ from typing import Any
 from shuxueshuo_server.solver.runtime.llm_clients import (
     DeepSeekPlannerClient,
     DoubaoPlannerClient,
+    LLMClientConfigurationError,
     LLMProviderResponseError,
 )
 import pytest
@@ -148,6 +149,44 @@ def test_deepseek_repair_passes_use_low_effort_thinking(
     }
     assert fake_client.create_kwargs["reasoning_effort"] == "low"
     assert "temperature" not in fake_client.create_kwargs
+
+
+def test_deepseek_explicit_low_thinking_does_not_fake_a_repair_attempt() -> None:
+    fake_client = _FakeOpenAIClient()
+    client = DeepSeekPlannerClient(
+        api_key="test-key",
+        base_url="https://api.deepseek.com",
+        model="deepseek-v4-flash",
+        client_factory=lambda **_: fake_client,
+    )
+
+    client.complete(
+        {
+            "planner_attempt": 1,
+            "thinking_effort": "low",
+            "messages": [{"role": "user", "content": "return JSON"}],
+        }
+    )
+
+    assert fake_client.create_kwargs is not None
+    assert fake_client.create_kwargs["extra_body"] == {
+        "thinking": {"type": "enabled"}
+    }
+    assert fake_client.create_kwargs["reasoning_effort"] == "low"
+    assert client.last_provider_attempts[0]["thinking_mode"] == "enabled"
+    assert client.last_provider_attempts[0]["reasoning_effort"] == "low"
+
+
+def test_deepseek_rejects_unknown_explicit_thinking_effort() -> None:
+    client = DeepSeekPlannerClient(
+        api_key="test-key",
+        base_url="https://api.deepseek.com",
+        model="deepseek-v4-flash",
+        client_factory=lambda **_: _FakeOpenAIClient(),
+    )
+
+    with pytest.raises(LLMClientConfigurationError, match="thinking_effort"):
+        client.complete({"thinking_effort": "medium"})
 
 
 def test_openai_compatible_client_uses_rendered_messages_when_present() -> None:
@@ -314,3 +353,45 @@ def test_two_reasoning_only_empty_responses_raise_typed_provider_error() -> None
         )
 
     assert len(fake_client.requests) == 2
+
+
+def test_scope_lesson_can_disable_reasoning_only_reprompt() -> None:
+    fake_client = _SequentialOpenAIClient(
+        [None, '{"schema_version":"lesson-scope-content/v1"}']
+    )
+    client = DeepSeekPlannerClient(
+        api_key="test-key",
+        base_url="https://api.deepseek.com",
+        model="deepseek-v4-flash",
+        client_factory=lambda **_: fake_client,
+    )
+
+    with pytest.raises(
+        LLMProviderResponseError,
+        match="provider.reasoning_only_empty_response",
+    ):
+        client.complete(
+            {
+                "messages": [{"role": "user", "content": "return JSON"}],
+                "reasoning_only_empty_response_retry": False,
+            }
+        )
+
+    assert len(fake_client.requests) == 1
+
+
+def test_scope_lesson_can_disable_hidden_sdk_retries() -> None:
+    factory_calls: list[dict[str, Any]] = []
+    fake_client = _FakeOpenAIClient()
+
+    DeepSeekPlannerClient(
+        api_key="test-key",
+        base_url="https://api.deepseek.com",
+        model="deepseek-v4-flash",
+        client_factory=lambda **kwargs: (
+            factory_calls.append(kwargs) or fake_client
+        ),
+        sdk_max_retries=0,
+    )
+
+    assert factory_calls[0]["max_retries"] == 0

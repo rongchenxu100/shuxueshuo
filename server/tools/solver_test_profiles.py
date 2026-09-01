@@ -175,6 +175,8 @@ OWNERSHIP_RULES = (
             "tests/solver/test_explanation_builder_text_heping_yimo.py",
             "tests/solver/test_explanation_snapshot_v3.py",
             "tests/solver/test_lesson_scope_authoring_b2.py",
+            "tests/solver/test_lesson_scope_authoring_b3.py",
+            "tests/solver/test_lesson_scope_content.py",
             "tests/solver/test_lesson_teaching_spec_review.py",
             "tests/solver/test_teaching_evidence_projectors.py",
             "tests/solver/test_teaching_unit_specs.py",
@@ -187,6 +189,25 @@ OWNERSHIP_RULES = (
         (
             "tests/solver/test_annotated_teaching_plan.py",
             "tests/solver/test_lesson_scope_authoring_b2.py",
+        ),
+    ),
+    OwnershipRule(
+        (
+            "server/shuxueshuo_server/solver/lesson_scope_content_smoke.py",
+            "server/shuxueshuo_server/solver/lesson_scope_authoring_smoke.py",
+        ),
+        (
+            "tests/solver/test_lesson_scope_authoring_b0.py",
+            "tests/solver/test_lesson_scope_authoring_b3.py",
+            "tests/solver/test_lesson_scope_content.py",
+        ),
+    ),
+    OwnershipRule(
+        ("server/shuxueshuo_server/solver/runtime/llm_clients.py",),
+        (
+            "tests/solver/test_llm_clients.py",
+            "tests/solver/test_lesson_scope_authoring_b3.py",
+            "tests/solver/test_lesson_scope_content.py",
         ),
     ),
     OwnershipRule(

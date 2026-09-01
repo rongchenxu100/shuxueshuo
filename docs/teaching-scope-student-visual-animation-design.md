@@ -1,7 +1,7 @@
 # F5-F5 Teaching Scope、学生步骤、可视化与动画设计
 
 状态：`IMPLEMENTATION`。`F5-F5A COMPLETE`；`F5-F5B0 COMPLETE`；`F5-F5B1 COMPLETE`；
-`F5-F5B2 COMPLETE`；`F5-F5B3 NEXT`（一次 Scope Lesson 调用、校验、fallback 与评测）。
+`F5-F5B2 COMPLETE`；`F5-F5B3 COMPLETE`；`F5-F5B4 NEXT`（递归 LessonIR 生产切换）。
 
 本文是 F5-F5 以及后续 Track G 教学链的统一规范入口。它定义：如何从
 `VerifiedFunctionalPlanExecution` 生成学生可见步骤，如何继续生成 `VisualStepIR` 与动画
@@ -167,6 +167,11 @@ F5-F5A 不再读取 transaction replay、StateVersion write 或 method trace fra
 
 缺少任一必需 authority 时必须 fail loud，不从 transitional replay 或旧 SolverResult debug
 字段补数据。
+
+这里的“禁止输入”约束不禁止本地 harness 保存 provider 原样返回的 reasoning debug。
+reasoning 只能按 transport attempt 写入独立、ignored 的 debug artifact，并记录 hash 与
+capture completeness；任何教学 projector、Prompt、validator、rubric、LessonIR、VisualIR
+和页面编译器都不得读取该文件。
 
 ## 5. ExplanationSnapshot vNext
 
@@ -367,17 +372,16 @@ Macro 材料步骤：teach:{source_step_id}:{internal_unit_key}
 
 显示标题、导航标题和措辞变化不改变 ID。ID 的输入必须包含 source refs，以及从容器读取
 的 owner Scope/Goal，不包含 LLM 文本。这些 ID 全部由代码注入，不进入 LLM prompt 或
-response；LLM 只返回 `material_count`。
+response；LLM 只返回同容器局部 `source_steps` 编号。
 
 ### 6.5 LLM 权限
 
 LLM 可以：
 
 -在代码给定的 teaching candidates 中选择粒度；
--参考已经绑定本题 runtime 数据的 suggested title/nav_title/goal/derive/box，并结合完整
+-参考已经绑定本题 runtime 数据的 title/nav_title/goal/derive/conclusions，并结合完整
   verified calculations 输出最终学生文案；
 -自行合并同一 Scope/Goal 中 canonical-contiguous teaching materials；
--从代码已经绑定的 `available_visuals` 中选择 `visual_id/mode`。
 
 LLM 不可以：
 
@@ -385,10 +389,10 @@ LLM 不可以：
 -发明未出现在 verified inputs/outputs/calculations 中的公式、数值或对象 identity；
 -修改 answer producer；
 -增加不存在的推导、条件或 equality witness；
--让 `material_count` 遗漏或越过当前 Scope/Goal 的 teaching materials；
+-让 `source_steps` 重复、逆序、越界或遗漏多个 teaching materials；单个遗漏只由代码窄兜底；
 -生成坐标、runtime handle、HTML、CSS 或 JavaScript；
 -改变 source/evidence refs；
--填写 visual role binding、geometry ref、interaction formula 或 animation beat。
+-填写 visual selection、role binding、geometry ref、interaction formula 或 animation beat。
 
 ## 7. 原子 Macro 的教学展开
 
@@ -712,7 +716,7 @@ Gap 必须包含稳定 source ID、owner Scope/Goal、缺失 role/action、已�
 
 门禁：Snapshot Scope/Goal/step owner 与 Canonical Plan 完全同构。
 
-### F5-F5B：学生步骤（B0/B1/B2 COMPLETE；B3 NEXT）
+### F5-F5B：学生步骤（B0/B1/B2/B3 COMPLETE；B4 NEXT）
 
 - 直接升级到 `explanation-snapshot/v3`，物理删除 `TeachingCrossScopeReference` 与顶层
   `cross_scope_references`；consumer input 内联精确 ref，不保留 v2 reader/双写；
@@ -730,10 +734,11 @@ Gap 必须包含稳定 source ID、owner Scope/Goal、缺失 role/action、已�
   `5` 个 Scope、`4` 个 Goal、`12` 个 Step、`13` 份材料和 `4` 个 verified answer；LLM wire
   删除 checks 与内部 ID，叶子 Scope 省略空 `children`，Prompt 使用“中学数学讲解编排器”并
   明确只有必要时才合并、以学生理解当前题为目标；
-- B3 复用已审阅的 B2 request builder，继续一次 Scope Lesson LLM、严格输出校验、
+- B3 复用已审阅的 B2 request builder，完成一次 Scope Lesson LLM、严格输出校验、
   deterministic fallback 与 evaluator；任何 LLM-facing 输入合同变化都必须重新触发人工审阅；
-- LLM 获得绑定完成的 suggested `title/nav_title/goal/derive/box` 与完整 student-safe
-  inputs/outputs/calculations，直接输出最终五类字段；
+- LLM 获得绑定完成的 `title/nav_title/goal/derive/conclusions` 与完整 student-safe
+  inputs/outputs/calculations，只输出 `source_steps/title/nav_title/goal/derive`；box 由代码从
+  verified conclusions 注入；
 - Scope/Goal 容器、teaching material 顺序、source/evidence provenance 与 answer producer
   由代码控制；
 - 普通 Method 可选声明一个 `TeachingUnitSpec`，未声明时生成 default unit；单一推导的原子
@@ -743,8 +748,12 @@ Gap 必须包含稳定 source ID、owner Scope/Goal、缺失 role/action、已�
   `teaching_guides`、`guide_id`、`important_calculation_ids` 或 merge policy；
 - 多数学分支 Macro 使用内部 `TeachingVariantSpec[]`；typed evidence 唯一选中 winner 后才
   投影 units，teaching_case/variant key/其他分支不进入 LLM wire；
-- 无 Lesson semantic retry，invalid body 使用 deterministic fallback；
-- 本阶段 `available_visuals=[]`，先独立稳定教学输入、输出和评测链；
+- 无 Lesson semantic retry；单个合法遗漏材料按 Canonical 位置补齐，其他 invalid body 使用
+  deterministic fallback；
+- B3 wire 不包含 visual 字段，先独立稳定教学输入、输出和评测链；
+- 和平 `thinking=low/disabled` live `1×3` 均为 `3/3` 直接接受、Rubric `5/5 × 3`、零
+  fallback；输出人工审阅已通过，并保存 regression-only B3 fixture；
+- B4 将 accepted Scope Content 组装为递归 LessonIR 并切换生产入口；
 - 退役 stub trace、flat candidate placement、多轮 repair 与 LLM-authored source refs。
 
 纵向门禁统一使用和平二模 `tj-2026-heping-ermo-25`，逐阶段保存 Snapshot、实际 LLM 输入、
@@ -809,8 +818,8 @@ prompt/raw response、evaluation 与 recursive LessonIR。详细合同与各阶�
 -一 Function 一步骤；
 - closure companion 去重；
 - Macro 一 source step 多 teaching substeps；
-- Macro teaching materials 可分开或合并；每个 `material_count` 为正且各 body 总和必须精确
-  覆盖全部材料；
+- Macro teaching materials 可分开或合并；各 body 的 `source_steps` 必须构成 `s1...sN`
+  的相邻、有序、完整分组；恰好一个遗漏可由代码按 Canonical 位置补齐并单独审计；
 - 多分支 Macro 只投影 typed evidence 选中的 Teaching Variant；interior、boundary、Piecewise、
   零匹配和多匹配均有确定性回归；
 -跨 Scope/Goal 合并拒绝；
