@@ -1,0 +1,1782 @@
+"""F5-F5B2 annotated teaching input and final request projection.
+
+This module is intentionally disconnected from the production Lesson builder.
+It turns one verified ``ExplanationSnapshot`` into the exact student-safe input
+that the B3 Lesson LLM will consume, plus an internal provenance authority used
+only by validators and debug artifacts.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from hashlib import sha256
+import json
+from typing import Any, Iterable, Mapping, Sequence
+
+from jsonschema import Draft202012Validator
+
+from shuxueshuo_server.solver.contracts import TeachingUnitSpec
+from shuxueshuo_server.solver.runtime.macro_atomicity import (
+    contains_private_path_projection_marker,
+)
+from shuxueshuo_server.solver.student_display import student_math_display
+
+from .models import (
+    ExplanationSnapshot,
+    TeachingScope,
+    TeachingSource,
+    iter_teaching_scopes,
+    iter_teaching_sources,
+)
+from .teaching_specs import (
+    BoundTeachingSelection,
+    BoundTeachingUnit,
+    TeachingSpecBinder,
+    TeachingSpecBindingError,
+)
+
+
+ANNOTATED_TEACHING_PLAN_CONTRACT = "functional-annotated-teaching-plan/v1"
+TEACHING_AUTHORITY_CONTRACT = "lesson-teaching-authority/v1"
+LESSON_SCOPE_CONTENT_CONTRACT = "lesson-scope-content/v1"
+PROJECTION_AUDIT_CONTRACT = "lesson-annotated-teaching-audit/v1"
+
+DERIVE_MARKERS = ("作", "设", "∵", "∴", "计算")
+
+FORBIDDEN_LLM_TOKENS = (
+    "expected_answers",
+    "ContextPath",
+    "point:problem:",
+    "segment:problem:",
+    "function:problem:",
+    "symbol:problem:",
+    "fact:",
+    "#quadratic-square-reflection",
+    "PathTransformation",
+    "StateVersion",
+    "checkpoint",
+    "replay trace",
+    "symbolic closure",
+    "_axis_param_",
+    '"handle"',
+    '"resolved_from"',
+    '"output_targets"',
+    '"return_expectations"',
+    '"calculation_id"',
+    '"check_id"',
+    '"checks"',
+    '"fact_id"',
+    '"evidence_ref"',
+    '"evidence_refs"',
+    '"unit_key"',
+    '"unit_id"',
+    '"guide_id"',
+    '"teaching_case"',
+    '"variant_key"',
+    '"teaching_variants"',
+    '"cross_scope_references"',
+    '"teaching_guides"',
+    '"important_calculation_ids"',
+    '"merge_policy"',
+    '"must_separate"',
+    '"scope_steps"',
+    '"lesson_steps"',
+)
+
+
+class AnnotatedTeachingProjectionError(ValueError):
+    """A complete student-safe teaching request cannot be constructed."""
+
+    def __init__(self, code: str, path: str, message: str) -> None:
+        self.code = code
+        self.path = path
+        self.message = message
+        super().__init__(f"{code} at {path}: {message}")
+
+
+@dataclass(frozen=True)
+class TeachingProjectionDiagnostic:
+    code: str
+    step_id: str
+    capability_id: str
+    message: str
+    fallback: str
+    unit_key: str | None = None
+
+    def to_payload(self) -> dict[str, Any]:
+        payload: dict[str, Any] = {
+            "code": self.code,
+            "step_id": self.step_id,
+            "capability_id": self.capability_id,
+            "message": self.message,
+            "fallback": self.fallback,
+        }
+        if self.unit_key is not None:
+            payload["unit_key"] = self.unit_key
+        return payload
+
+
+@dataclass(frozen=True)
+class AnnotatedTeachingMaterial:
+    suggested_title: str
+    suggested_nav_title: str
+    suggested_goal: str
+    suggested_derive: tuple[tuple[str, str], ...]
+    suggested_box: tuple[str, ...]
+
+    def to_payload(self) -> dict[str, Any]:
+        return {
+            "suggested_title": self.suggested_title,
+            "suggested_nav_title": self.suggested_nav_title,
+            "suggested_goal": self.suggested_goal,
+            "suggested_derive": [list(item) for item in self.suggested_derive],
+            "suggested_box": list(self.suggested_box),
+            "available_visuals": [],
+        }
+
+
+@dataclass(frozen=True)
+class AnnotatedTeachingStep:
+    step_id: str
+    capability_id: str
+    intent: str | None
+    inputs: Mapping[str, tuple[Mapping[str, Any], ...]]
+    outputs: Mapping[str, Mapping[str, Any]]
+    calculations: tuple[Mapping[str, Any], ...]
+    teaching_materials: tuple[AnnotatedTeachingMaterial, ...]
+
+    def to_payload(self) -> dict[str, Any]:
+        return {
+            "step_id": self.step_id,
+            "capability_id": self.capability_id,
+            "intent": self.intent,
+            "inputs": {
+                name: [_json_clone(item) for item in items]
+                for name, items in self.inputs.items()
+            },
+            "execution": {
+                "outputs": {
+                    name: _json_clone(value)
+                    for name, value in self.outputs.items()
+                },
+                "calculations": [
+                    _json_clone(item) for item in self.calculations
+                ],
+            },
+            "teaching_materials": [
+                item.to_payload() for item in self.teaching_materials
+            ],
+        }
+
+
+@dataclass(frozen=True)
+class AnnotatedTeachingGoal:
+    goal_ref: str
+    required_answer: Mapping[str, str]
+    steps: tuple[AnnotatedTeachingStep, ...]
+    answer_from: Mapping[str, str]
+
+    def to_payload(self) -> dict[str, Any]:
+        return {
+            "required_answer": dict(self.required_answer),
+            "steps": [item.to_payload() for item in self.steps],
+            "answer_from": dict(self.answer_from),
+        }
+
+
+@dataclass(frozen=True)
+class AnnotatedTeachingScope:
+    scope_ref: str
+    steps: tuple[AnnotatedTeachingStep, ...]
+    goals: tuple[AnnotatedTeachingGoal, ...]
+    children: tuple["AnnotatedTeachingScope", ...]
+
+    def to_payload(self) -> dict[str, Any]:
+        payload = {
+            "scope_ref": self.scope_ref,
+            "steps": [item.to_payload() for item in self.steps],
+            "goals": {
+                goal.goal_ref: goal.to_payload() for goal in self.goals
+            },
+        }
+        if self.children:
+            payload["children"] = [item.to_payload() for item in self.children]
+        return payload
+
+
+@dataclass(frozen=True)
+class AnnotatedTeachingPlan:
+    problem: Mapping[str, Any]
+    answers: Mapping[str, Mapping[str, Any]]
+    root_scope: AnnotatedTeachingScope
+    schema_version: str = ANNOTATED_TEACHING_PLAN_CONTRACT
+
+    def to_payload(self) -> dict[str, Any]:
+        return {
+            "schema_version": self.schema_version,
+            "problem": _json_clone(self.problem),
+            "answers": {
+                goal_ref: _json_clone(answer)
+                for goal_ref, answer in self.answers.items()
+            },
+            "root_scope": self.root_scope.to_payload(),
+        }
+
+
+@dataclass(frozen=True)
+class AnnotatedTeachingPrompt:
+    system: str
+    user: str
+
+    @property
+    def messages(self) -> list[dict[str, str]]:
+        return [
+            {"role": "system", "content": self.system},
+            {"role": "user", "content": self.user},
+        ]
+
+
+@dataclass(frozen=True)
+class AnnotatedTeachingProjection:
+    plan: AnnotatedTeachingPlan
+    authority: Mapping[str, Any]
+    diagnostics: tuple[TeachingProjectionDiagnostic, ...]
+
+
+@dataclass(frozen=True)
+class _ProjectedMaterialSet:
+    materials: tuple[AnnotatedTeachingMaterial, ...]
+    kind: str
+    unit_keys: tuple[str, ...]
+    variant_key: str | None
+    evidence_match: Mapping[str, Any] | None
+    diagnostics: tuple[TeachingProjectionDiagnostic, ...]
+
+
+class TeachingMaterialProjector:
+    """Bind B1 specs and expose only complete LLM-facing suggestions."""
+
+    def __init__(self, *, binder: TeachingSpecBinder | None = None) -> None:
+        self._binder = binder or TeachingSpecBinder()
+
+    def project(
+        self,
+        source: TeachingSource,
+        *,
+        snapshot: ExplanationSnapshot,
+        calculations: tuple[Mapping[str, Any], ...],
+        checks: tuple[Mapping[str, Any], ...],
+    ) -> _ProjectedMaterialSet:
+        # Classification is an authority invariant.  Unlike an incomplete
+        # template, an unknown/double-registered capability cannot be hidden by
+        # a generic teaching fallback.
+        generic_spec = self._binder.generic_spec_payload(source)
+        kind = str(generic_spec["kind"])
+        diagnostics: list[TeachingProjectionDiagnostic] = []
+
+        def fallback(
+            unit: TeachingUnitSpec,
+            error: TeachingSpecBindingError,
+        ) -> BoundTeachingUnit:
+            diagnostics.append(
+                _binding_diagnostic(
+                    source,
+                    error,
+                    unit_key=unit.unit_key,
+                )
+            )
+            return _generic_bound_unit(
+                source,
+                unit_key=unit.unit_key,
+                calculations=calculations,
+                checks=checks,
+            )
+
+        try:
+            selection = self._binder.bind_source_selection(
+                source,
+                snapshot=snapshot,
+                on_unit_error=fallback,
+            )
+        except TeachingSpecBindingError as exc:
+            diagnostics.append(_binding_diagnostic(source, exc))
+            generic = _generic_bound_unit(
+                source,
+                unit_key=f"{source.capability_id}/generic",
+                calculations=calculations,
+                checks=checks,
+            )
+            selection = BoundTeachingSelection(
+                kind=kind,
+                units=(generic,),
+            )
+
+        if not selection.units:
+            raise AnnotatedTeachingProjectionError(
+                "teaching_material_projection_empty",
+                f"$.steps[{source.source_step_id!r}]",
+                "every verified Step must expose at least one teaching material",
+            )
+        materials = tuple(_public_material(item) for item in selection.units)
+        return _ProjectedMaterialSet(
+            materials=materials,
+            kind=selection.kind,
+            unit_keys=tuple(item.unit_key for item in selection.units),
+            variant_key=selection.variant_key,
+            evidence_match=selection.evidence_match,
+            diagnostics=tuple(diagnostics),
+        )
+
+
+class AnnotatedTeachingPlanProjector:
+    """Project one verified Snapshot into the strict B2 LLM input contract."""
+
+    def __init__(
+        self,
+        *,
+        material_projector: TeachingMaterialProjector | None = None,
+    ) -> None:
+        self._materials = material_projector or TeachingMaterialProjector()
+
+    def project(
+        self,
+        snapshot: ExplanationSnapshot,
+    ) -> AnnotatedTeachingProjection:
+        problem = _project_problem(snapshot)
+        sources = tuple(iter_teaching_sources(snapshot.root_scope))
+        source_by_id = {item.source_step_id: item for item in sources}
+        if len(source_by_id) != len(sources):
+            raise AnnotatedTeachingProjectionError(
+                "teaching_source_step_id_duplicated",
+                "$.root_scope",
+                "Canonical teaching Step IDs must be globally unique",
+            )
+        question_goals = _question_goal_authority(snapshot)
+        _validate_question_goal_owners(
+            snapshot.root_scope,
+            question_goals=question_goals,
+        )
+        answers = _project_answers(
+            snapshot,
+            source_by_id=source_by_id,
+            question_goals=question_goals,
+        )
+        authority_containers: dict[str, list[dict[str, Any]]] = {}
+        diagnostics: list[TeachingProjectionDiagnostic] = []
+
+        def project_step(
+            source: TeachingSource,
+            *,
+            container_ref: str,
+        ) -> AnnotatedTeachingStep:
+            inputs = _project_inputs(source, source_by_id=source_by_id)
+            outputs = {
+                name: _project_runtime_result(
+                    value,
+                    path=(
+                        f"$.root_scope.steps[{source.source_step_id!r}]"
+                        f".execution.outputs[{name!r}]"
+                    ),
+                )
+                for name, value in source.outputs.items()
+            }
+            calculations = tuple(
+                _project_calculation(
+                    item,
+                    path=(
+                        f"$.root_scope.steps[{source.source_step_id!r}]"
+                        f".execution.calculations[{index}]"
+                    ),
+                )
+                for index, item in enumerate(source.calculations)
+            )
+            checks = tuple(
+                _project_check(
+                    item,
+                    path=(
+                        f"$.root_scope.steps[{source.source_step_id!r}]"
+                        f".execution.checks[{index}]"
+                    ),
+                )
+                for index, item in enumerate(source.checks)
+            )
+            projected_materials = self._materials.project(
+                source,
+                snapshot=snapshot,
+                calculations=calculations,
+                checks=checks,
+            )
+            diagnostics.extend(projected_materials.diagnostics)
+            evidence_refs = sorted(
+                str(key)
+                for key, payload in snapshot.evidence.items()
+                if str(payload.get("step_id") or "") == source.source_step_id
+            )
+            records = authority_containers.setdefault(container_ref, [])
+            for material, unit_key in zip(
+                projected_materials.materials,
+                projected_materials.unit_keys,
+                strict=True,
+            ):
+                records.append(
+                    {
+                        "position": len(records),
+                        "source_step_id": source.source_step_id,
+                        "capability_id": source.capability_id,
+                        "capability_kind": projected_materials.kind,
+                        "unit_key": unit_key,
+                        "variant_key": projected_materials.variant_key,
+                        "variant_evidence_match": _json_clone(
+                            projected_materials.evidence_match
+                        ),
+                        "evidence_refs": evidence_refs,
+                        "suggestion_hash": _stable_hash(material.to_payload()),
+                    }
+                )
+            return AnnotatedTeachingStep(
+                step_id=source.source_step_id,
+                capability_id=source.capability_id,
+                intent=source.intent,
+                inputs=inputs,
+                outputs=outputs,
+                calculations=calculations,
+                teaching_materials=projected_materials.materials,
+            )
+
+        def project_scope(scope: TeachingScope) -> AnnotatedTeachingScope:
+            scope_container = f"scope:{scope.scope_ref}"
+            steps = tuple(
+                project_step(source, container_ref=scope_container)
+                for source in scope.steps
+            )
+            goals: list[AnnotatedTeachingGoal] = []
+            for goal in scope.goals:
+                question_goal = question_goals[goal.goal_ref]
+                goal_steps = tuple(
+                    project_step(
+                        source,
+                        container_ref=f"goal:{goal.goal_ref}",
+                    )
+                    for source in goal.steps
+                )
+                answer = answers[goal.goal_ref]
+                goals.append(
+                    AnnotatedTeachingGoal(
+                        goal_ref=goal.goal_ref,
+                        required_answer={
+                            "answer_key": str(question_goal["answer_key"]),
+                            "runtime_type": str(answer["runtime_type"]),
+                        },
+                        steps=goal_steps,
+                        answer_from=dict(goal.answer_from),
+                    )
+                )
+            return AnnotatedTeachingScope(
+                scope_ref=scope.scope_ref,
+                steps=steps,
+                goals=tuple(goals),
+                children=tuple(project_scope(child) for child in scope.children),
+            )
+
+        root_scope = project_scope(snapshot.root_scope)
+        plan = AnnotatedTeachingPlan(
+            problem=problem,
+            answers=answers,
+            root_scope=root_scope,
+        )
+        plan_payload = plan.to_payload()
+        _validate_json_schema(
+            plan_payload,
+            annotated_teaching_plan_schema(),
+            code="annotated_teaching_plan_schema_invalid",
+        )
+        _assert_llm_safe(
+            plan_payload,
+            path="$.annotated_teaching_plan",
+        )
+        authority = {
+            "schema_version": TEACHING_AUTHORITY_CONTRACT,
+            "canonical_plan_hash": snapshot.canonical_plan_hash,
+            "verified_execution_hash": snapshot.verified_execution_hash,
+            "snapshot_hash": _stable_hash(snapshot.to_payload()),
+            "annotated_plan_hash": _stable_hash(plan_payload),
+            "containers": authority_containers,
+            "diagnostics": [item.to_payload() for item in diagnostics],
+        }
+        return AnnotatedTeachingProjection(
+            plan=plan,
+            authority=authority,
+            diagnostics=tuple(diagnostics),
+        )
+
+
+def annotated_teaching_plan_schema() -> dict[str, Any]:
+    runtime_result = {
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["runtime_type", "value", "display"],
+        "properties": {
+            "runtime_type": {"type": "string", "minLength": 1},
+            "value": {},
+            "display": {"type": "string", "minLength": 1},
+        },
+    }
+    reference = {
+        "oneOf": [
+            {
+                "type": "object",
+                "additionalProperties": False,
+                "required": ["kind", "ref"],
+                "properties": {
+                    "kind": {"const": "source"},
+                    "ref": {"type": "string", "minLength": 1},
+                },
+            },
+            {
+                "type": "object",
+                "additionalProperties": False,
+                "required": ["kind", "step_id", "return"],
+                "properties": {
+                    "kind": {"const": "step_result"},
+                    "step_id": {"type": "string", "minLength": 1},
+                    "return": {"type": "string", "minLength": 1},
+                },
+            },
+        ]
+    }
+    input_value = {
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["ref", "runtime_type", "value", "display"],
+        "properties": {
+            "ref": reference,
+            "runtime_type": {"type": "string", "minLength": 1},
+            "value": {},
+            "display": {"type": "string", "minLength": 1},
+        },
+    }
+    calculation = {
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["kind", "value", "display"],
+        "properties": {
+            "kind": {"type": "string", "minLength": 1},
+            "value": {},
+            "display": {
+                "type": "array",
+                "minItems": 1,
+                "items": {"type": "string", "minLength": 1},
+            },
+        },
+    }
+    derive_item = {
+        "type": "array",
+        "prefixItems": [
+            {"enum": list(DERIVE_MARKERS)},
+            {"type": "string", "minLength": 1},
+        ],
+        "items": False,
+        "minItems": 2,
+        "maxItems": 2,
+    }
+    material = {
+        "type": "object",
+        "additionalProperties": False,
+        "required": [
+            "suggested_title",
+            "suggested_nav_title",
+            "suggested_goal",
+            "suggested_derive",
+            "suggested_box",
+            "available_visuals",
+        ],
+        "properties": {
+            "suggested_title": {"type": "string", "minLength": 1},
+            "suggested_nav_title": {"type": "string", "minLength": 1},
+            "suggested_goal": {"type": "string", "minLength": 1},
+            "suggested_derive": {
+                "type": "array",
+                "minItems": 1,
+                "items": derive_item,
+            },
+            "suggested_box": {
+                "type": "array",
+                "items": {"type": "string", "minLength": 1},
+            },
+            "available_visuals": {
+                "type": "array",
+                "maxItems": 0,
+            },
+        },
+    }
+    step = {
+        "type": "object",
+        "additionalProperties": False,
+        "required": [
+            "step_id",
+            "capability_id",
+            "intent",
+            "inputs",
+            "execution",
+            "teaching_materials",
+        ],
+        "properties": {
+            "step_id": {"type": "string", "minLength": 1},
+            "capability_id": {"type": "string", "minLength": 1},
+            "intent": {
+                "oneOf": [
+                    {"type": "string", "minLength": 1},
+                    {"type": "null"},
+                ]
+            },
+            "inputs": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": input_value,
+                },
+            },
+            "execution": {
+                "type": "object",
+                "additionalProperties": False,
+                "required": ["outputs", "calculations"],
+                "properties": {
+                    "outputs": {
+                        "type": "object",
+                        "additionalProperties": runtime_result,
+                    },
+                    "calculations": {
+                        "type": "array",
+                        "items": calculation,
+                    },
+                },
+            },
+            "teaching_materials": {
+                "type": "array",
+                "minItems": 1,
+                "items": material,
+            },
+        },
+    }
+    answer_from = {
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["step_id", "return"],
+        "properties": {
+            "step_id": {"type": "string", "minLength": 1},
+            "return": {"type": "string", "minLength": 1},
+        },
+    }
+    goal = {
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["required_answer", "steps", "answer_from"],
+        "properties": {
+            "required_answer": {
+                "type": "object",
+                "additionalProperties": False,
+                "required": ["answer_key", "runtime_type"],
+                "properties": {
+                    "answer_key": {"type": "string", "minLength": 1},
+                    "runtime_type": {"type": "string", "minLength": 1},
+                },
+            },
+            "steps": {"type": "array", "items": step},
+            "answer_from": answer_from,
+        },
+    }
+    scope: dict[str, Any] = {
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["scope_ref", "steps", "goals"],
+        "properties": {
+            "scope_ref": {"type": "string", "minLength": 1},
+            "steps": {"type": "array", "items": step},
+            "goals": {
+                "type": "object",
+                "additionalProperties": goal,
+            },
+            "children": {
+                "type": "array",
+                "items": {"$ref": "#/$defs/scope"},
+            },
+        },
+    }
+    return {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": (
+            "https://shuxueshuo.local/schemas/"
+            "functional-annotated-teaching-plan.schema.json"
+        ),
+        "title": "Functional Annotated Teaching Plan v1",
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["schema_version", "problem", "answers", "root_scope"],
+        "properties": {
+            "schema_version": {"const": ANNOTATED_TEACHING_PLAN_CONTRACT},
+            "problem": {
+                "type": "object",
+                "additionalProperties": False,
+                "required": ["original_text", "scope_labels"],
+                "properties": {
+                    "original_text": {
+                        "type": "array",
+                        "minItems": 1,
+                        "items": {"type": "string", "minLength": 1},
+                    },
+                    "scope_labels": {
+                        "type": "object",
+                        "minProperties": 1,
+                        "additionalProperties": {
+                            "type": "string",
+                            "minLength": 1,
+                        },
+                    },
+                },
+            },
+            "answers": {
+                "type": "object",
+                "minProperties": 1,
+                "additionalProperties": runtime_result,
+            },
+            "root_scope": {"$ref": "#/$defs/scope"},
+        },
+        "$defs": {"scope": scope},
+    }
+
+
+def lesson_scope_content_schema(plan: AnnotatedTeachingPlan) -> dict[str, Any]:
+    """Build the final B3 response Schema without invoking an LLM."""
+
+    lesson_step = {
+        "type": "object",
+        "additionalProperties": False,
+        "required": [
+            "material_count",
+            "title",
+            "nav_title",
+            "goal",
+            "derive",
+            "box",
+            "visuals",
+        ],
+        "properties": {
+            "material_count": {"type": "integer", "minimum": 1},
+            "title": {"type": "string", "minLength": 1},
+            "nav_title": {"type": "string", "minLength": 1},
+            "goal": {"type": "string", "minLength": 1},
+            "derive": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                    "type": "array",
+                    "prefixItems": [
+                        {"enum": list(DERIVE_MARKERS)},
+                        {"type": "string", "minLength": 1},
+                    ],
+                    "items": False,
+                    "minItems": 2,
+                    "maxItems": 2,
+                },
+            },
+            "box": {
+                "type": "array",
+                "items": {"type": "string", "minLength": 1},
+            },
+            "visuals": {"type": "array", "maxItems": 0},
+        },
+    }
+
+    scope_properties: dict[str, Any] = {}
+    required_scopes: list[str] = []
+    for scope in _iter_annotated_scopes(plan.root_scope):
+        scope_material_count = sum(
+            len(step.teaching_materials) for step in scope.steps
+        )
+        goal_counts = {
+            goal.goal_ref: sum(
+                len(step.teaching_materials) for step in goal.steps
+            )
+            for goal in scope.goals
+        }
+        if scope_material_count + sum(goal_counts.values()) == 0:
+            continue
+        required_scopes.append(scope.scope_ref)
+        goal_properties = {
+            goal.goal_ref: {
+                "type": "object",
+                "additionalProperties": False,
+                "required": ["steps"],
+                "properties": {
+                    "steps": _lesson_step_array_schema(
+                        goal_counts[goal.goal_ref],
+                    )
+                },
+            }
+            for goal in scope.goals
+        }
+        scope_properties[scope.scope_ref] = {
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["steps", "goals"],
+            "properties": {
+                "steps": _lesson_step_array_schema(scope_material_count),
+                "goals": {
+                    "type": "object",
+                    "additionalProperties": False,
+                    "required": list(goal_properties),
+                    "properties": goal_properties,
+                },
+            },
+        }
+
+    if not required_scopes:
+        raise AnnotatedTeachingProjectionError(
+            "lesson_scope_output_schema_empty",
+            "$.root_scope",
+            "no Scope contains teaching materials",
+        )
+    # Inject the shared item definition after container construction so every
+    # array uses the same final LessonStepDraft contract.
+    schema = {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "Lesson Scope Content v1",
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["schema_version", "scope_bodies"],
+        "properties": {
+            "schema_version": {"const": LESSON_SCOPE_CONTENT_CONTRACT},
+            "scope_bodies": {
+                "type": "object",
+                "additionalProperties": False,
+                "required": required_scopes,
+                "properties": scope_properties,
+            },
+        },
+        "$defs": {"lesson_step": lesson_step},
+    }
+    Draft202012Validator.check_schema(schema)
+    return schema
+
+
+def render_annotated_teaching_prompt(
+    plan: AnnotatedTeachingPlan,
+    *,
+    output_schema: Mapping[str, Any] | None = None,
+) -> AnnotatedTeachingPrompt:
+    """Render the exact B3 request without making a provider call."""
+
+    schema = dict(output_schema or lesson_scope_content_schema(plan))
+    system = """你是中学数学讲解编排器。
+你的目标是把当前题已经验证的推导材料整理成学生容易理解的完整讲解。
+逐项审视同一 Scope/Goal 内相邻的 teaching_materials：只有在合并能让推导更连贯且不遗漏关键理由时才合并；没有必要时保持为独立步骤。
+完善并润色 title、nav_title、goal、数学推导和少量必要说明，让学生清楚每一步的依据、结论以及它与下一步的联系。
+输入中的数学事实、计算结果和最终答案已经由解题器验证；不要重新解题或修改答案。
+必须在输出 Schema 固定的 Scope/Goal 中返回完整教学正文，不能移动材料所属容器。
+每个输出步骤用 material_count 从当前容器的材料序列头部连续消费；所有材料必须恰好使用一次。
+只能使用输入已经给出的对象、数值、关系和结论，不得编造数学事实或内部标识。
+返回严格符合给定 JSON Schema 的单个 JSON 对象，不要输出 Markdown、HTML 或解释性前言。"""
+    user = "\n\n".join(
+        (
+            "## 输出 JSON Schema\n\n"
+            + _compact_json(schema),
+            "## 全题型共享示例\n\n"
+            "示例中的两份相邻材料共同完成一个认知动作，因此被合并；"
+            "当前题仍须判断是否确有必要合并。示例不是当前题条件。\n\n"
+            + _compact_json(_shared_scope_lesson_few_shot()),
+            "## Annotated Teaching Plan\n\n"
+            + _compact_json(plan.to_payload()),
+        )
+    )
+    prompt = AnnotatedTeachingPrompt(system=system, user=user)
+    _assert_llm_safe(
+        {"system": prompt.system, "user": prompt.user},
+        path="$.prompt",
+    )
+    return prompt
+
+
+def build_projection_audit(
+    projection: AnnotatedTeachingProjection,
+    *,
+    prompt: AnnotatedTeachingPrompt,
+    output_schema: Mapping[str, Any],
+) -> dict[str, Any]:
+    plan_payload = projection.plan.to_payload()
+    plan_hits = find_forbidden_llm_tokens(plan_payload)
+    prompt_hits = find_forbidden_llm_tokens(
+        {"system": prompt.system, "user": prompt.user}
+    )
+    scopes = tuple(_iter_annotated_scopes(projection.plan.root_scope))
+    steps = tuple(_iter_annotated_steps(projection.plan.root_scope))
+    goals = tuple(goal for scope in scopes for goal in scope.goals)
+    material_count = sum(len(step.teaching_materials) for step in steps)
+    status = (
+        "ready_for_human_review"
+        if not plan_hits and not prompt_hits and not projection.diagnostics
+        else "invalid"
+    )
+    return {
+        "schema_version": PROJECTION_AUDIT_CONTRACT,
+        "status": status,
+        "counts": {
+            "scope_count": len(scopes),
+            "goal_count": len(goals),
+            "step_count": len(steps),
+            "teaching_material_count": material_count,
+            "verified_answer_count": len(projection.plan.answers),
+        },
+        "hashes": {
+            "annotated_plan": _stable_hash(plan_payload),
+            "output_schema": _stable_hash(output_schema),
+            "prompt": _stable_hash(prompt.messages),
+        },
+        "prompt_chars": {
+            "system": len(prompt.system),
+            "user": len(prompt.user),
+            "total": len(prompt.system) + len(prompt.user),
+            "b0_total": 54_707,
+            "smaller_than_b0": (
+                len(prompt.system) + len(prompt.user) < 54_707
+            ),
+        },
+        "forbidden_hits": {
+            "annotated_plan": plan_hits,
+            "prompt": prompt_hits,
+        },
+        "projection_diagnostics": [
+            item.to_payload() for item in projection.diagnostics
+        ],
+        "shared_few_shot": {
+            "count": 1,
+            "same_problem": False,
+            "mechanism": "right_triangle_pythagorean",
+        },
+        "llm_invoked": False,
+    }
+
+
+def find_forbidden_llm_tokens(value: Any) -> list[str]:
+    serialized = json.dumps(value, ensure_ascii=False, sort_keys=True)
+    lowered = serialized.lower()
+    return sorted(
+        token
+        for token in FORBIDDEN_LLM_TOKENS
+        if token.lower() in lowered
+    )
+
+
+def _project_problem(snapshot: ExplanationSnapshot) -> dict[str, Any]:
+    original_text = snapshot.problem.get("original_text")
+    if not isinstance(original_text, Sequence) or isinstance(
+        original_text,
+        str | bytes,
+    ):
+        raise AnnotatedTeachingProjectionError(
+            "teaching_problem_text_invalid",
+            "$.problem.original_text",
+            "expected a non-empty sequence of problem statements",
+        )
+    text = [str(item).strip() for item in original_text]
+    if not text or any(not item for item in text):
+        raise AnnotatedTeachingProjectionError(
+            "teaching_problem_text_invalid",
+            "$.problem.original_text",
+            "problem statements must be non-empty strings",
+        )
+    raw_scopes = snapshot.problem.get("scopes")
+    if not isinstance(raw_scopes, Sequence) or isinstance(raw_scopes, str | bytes):
+        raise AnnotatedTeachingProjectionError(
+            "teaching_problem_scope_labels_invalid",
+            "$.problem.scopes",
+            "scope labels are required",
+        )
+    labels: dict[str, str] = {}
+    for index, item in enumerate(raw_scopes):
+        if not isinstance(item, Mapping):
+            raise AnnotatedTeachingProjectionError(
+                "teaching_problem_scope_labels_invalid",
+                f"$.problem.scopes[{index}]",
+                "scope label entry must be an object",
+            )
+        scope_ref = str(item.get("scope_id") or "")
+        label = str(item.get("label") or "")
+        if not scope_ref or not label or scope_ref in labels:
+            raise AnnotatedTeachingProjectionError(
+                "teaching_problem_scope_labels_invalid",
+                f"$.problem.scopes[{index}]",
+                "scope refs and labels must be non-empty and unique",
+            )
+        labels[scope_ref] = label
+    canonical_scope_refs = {
+        scope.scope_ref for scope in iter_teaching_scopes(snapshot.root_scope)
+    }
+    if set(labels) != canonical_scope_refs:
+        raise AnnotatedTeachingProjectionError(
+            "teaching_problem_scope_labels_mismatch",
+            "$.problem.scope_labels",
+            "problem scope labels must match the Canonical Scope tree",
+        )
+    result = {"original_text": text, "scope_labels": labels}
+    _assert_llm_safe(result, path="$.problem")
+    return result
+
+
+def _question_goal_authority(
+    snapshot: ExplanationSnapshot,
+) -> dict[str, Mapping[str, Any]]:
+    raw = snapshot.problem.get("question_goals")
+    if not isinstance(raw, Sequence) or isinstance(raw, str | bytes):
+        raise AnnotatedTeachingProjectionError(
+            "teaching_question_goals_invalid",
+            "$.problem.question_goals",
+            "question goal authority is missing",
+        )
+    result: dict[str, Mapping[str, Any]] = {}
+    for index, item in enumerate(raw):
+        if not isinstance(item, Mapping):
+            raise AnnotatedTeachingProjectionError(
+                "teaching_question_goals_invalid",
+                f"$.problem.question_goals[{index}]",
+                "question goal must be an object",
+            )
+        handle = str(item.get("handle") or "")
+        scope_ref = str(item.get("scope_id") or "")
+        answer_key = str(item.get("answer_key") or "")
+        goal_ref = (
+            handle.removeprefix("answer:")
+            if handle.startswith("answer:")
+            else f"{scope_ref}.{answer_key}"
+        )
+        if not goal_ref or not scope_ref or not answer_key or goal_ref in result:
+            raise AnnotatedTeachingProjectionError(
+                "teaching_question_goals_invalid",
+                f"$.problem.question_goals[{index}]",
+                "goal identity is empty or duplicated",
+            )
+        result[goal_ref] = {
+            "scope_ref": scope_ref,
+            "answer_key": answer_key,
+            "runtime_type": str(item.get("value_type") or "Unknown"),
+        }
+    canonical_goal_refs = {
+        goal.goal_ref
+        for scope in iter_teaching_scopes(snapshot.root_scope)
+        for goal in scope.goals
+    }
+    if set(result) != canonical_goal_refs:
+        raise AnnotatedTeachingProjectionError(
+            "teaching_question_goals_mismatch",
+            "$.problem.question_goals",
+            "question goals must match the Canonical Goal tree",
+        )
+    return result
+
+
+def _validate_question_goal_owners(
+    root_scope: TeachingScope,
+    *,
+    question_goals: Mapping[str, Mapping[str, Any]],
+) -> None:
+    for scope in iter_teaching_scopes(root_scope):
+        for goal in scope.goals:
+            authority = question_goals[goal.goal_ref]
+            if str(authority["scope_ref"]) != scope.scope_ref:
+                raise AnnotatedTeachingProjectionError(
+                    "teaching_goal_owner_mismatch",
+                    f"$.root_scope.goals[{goal.goal_ref!r}]",
+                    "question Goal owner differs from the Canonical Scope tree",
+                )
+
+
+def _project_answers(
+    snapshot: ExplanationSnapshot,
+    *,
+    source_by_id: Mapping[str, TeachingSource],
+    question_goals: Mapping[str, Mapping[str, Any]],
+) -> dict[str, Mapping[str, Any]]:
+    result: dict[str, Mapping[str, Any]] = {}
+    for scope in iter_teaching_scopes(snapshot.root_scope):
+        for goal in scope.goals:
+            producer_id = str(goal.answer_from.get("step_id") or "")
+            return_name = str(goal.answer_from.get("return") or "")
+            producer = source_by_id.get(producer_id)
+            output = producer.outputs.get(return_name) if producer is not None else None
+            if output is None:
+                raise AnnotatedTeachingProjectionError(
+                    "teaching_answer_source_missing",
+                    f"$.root_scope.goals[{goal.goal_ref!r}].answer_from",
+                    "answer_from must resolve to one materialized public output",
+                )
+            authority = question_goals[goal.goal_ref]
+            question_id = str(authority["scope_ref"])
+            answer_key = str(authority["answer_key"])
+            observed_group = snapshot.answers.get(question_id)
+            observed = (
+                observed_group.get(answer_key)
+                if isinstance(observed_group, Mapping)
+                else None
+            )
+            projected = _project_runtime_result(
+                output,
+                path=f"$.answers[{goal.goal_ref!r}]",
+            )
+            if not _answer_values_equal(
+                observed,
+                projected["value"],
+                runtime_type=str(projected["runtime_type"]),
+            ):
+                raise AnnotatedTeachingProjectionError(
+                    "teaching_answer_value_mismatch",
+                    f"$.answers[{goal.goal_ref!r}]",
+                    "verified Solver answer differs from answer_from output",
+                )
+            expected_type = str(authority["runtime_type"])
+            if expected_type not in {"", "Unknown", projected["runtime_type"]}:
+                raise AnnotatedTeachingProjectionError(
+                    "teaching_answer_type_mismatch",
+                    f"$.answers[{goal.goal_ref!r}]",
+                    "question goal type differs from answer_from output type",
+                )
+            result[goal.goal_ref] = projected
+    return result
+
+
+def _answer_values_equal(
+    observed: Any,
+    produced: Any,
+    *,
+    runtime_type: str,
+) -> bool:
+    observed_value = _json_clone(observed)
+    produced_value = _json_clone(produced)
+    if runtime_type != "PointList":
+        return observed_value == produced_value
+    if not isinstance(observed_value, list) or not isinstance(produced_value, list):
+        return False
+    canonical = lambda item: json.dumps(
+        item,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    return sorted(map(canonical, observed_value)) == sorted(
+        map(canonical, produced_value)
+    )
+
+
+def _project_inputs(
+    source: TeachingSource,
+    *,
+    source_by_id: Mapping[str, TeachingSource],
+) -> dict[str, tuple[Mapping[str, Any], ...]]:
+    result: dict[str, tuple[Mapping[str, Any], ...]] = {}
+    for arg_name, items in source.inputs.items():
+        projected: list[Mapping[str, Any]] = []
+        for index, item in enumerate(items):
+            ref = item.get("resolved_from") or item.get("ref")
+            checked_ref = _project_reference(
+                ref,
+                source_by_id=source_by_id,
+                path=(
+                    f"$.steps[{source.source_step_id!r}]"
+                    f".inputs[{arg_name!r}][{index}].ref"
+                ),
+            )
+            runtime_type = str(item.get("runtime_type") or "")
+            display = str(item.get("display") or "")
+            if not runtime_type or not display or "value" not in item:
+                raise AnnotatedTeachingProjectionError(
+                    "teaching_input_projection_incomplete",
+                    (
+                        f"$.steps[{source.source_step_id!r}]"
+                        f".inputs[{arg_name!r}][{index}]"
+                    ),
+                    "ref/runtime_type/value/display must all be present",
+                )
+            value = _json_clone(item["value"])
+            _assert_public_value(
+                value,
+                path=(
+                    f"$.steps[{source.source_step_id!r}]"
+                    f".inputs[{arg_name!r}][{index}].value"
+                ),
+            )
+            _assert_public_value(
+                display,
+                path=(
+                    f"$.steps[{source.source_step_id!r}]"
+                    f".inputs[{arg_name!r}][{index}].display"
+                ),
+            )
+            projected.append(
+                {
+                    "ref": checked_ref,
+                    "runtime_type": runtime_type,
+                    "value": value,
+                    "display": display,
+                }
+            )
+        result[str(arg_name)] = tuple(projected)
+    return result
+
+
+def _project_reference(
+    value: Any,
+    *,
+    source_by_id: Mapping[str, TeachingSource],
+    path: str,
+) -> dict[str, str]:
+    if not isinstance(value, Mapping):
+        raise AnnotatedTeachingProjectionError(
+            "teaching_input_reference_invalid",
+            path,
+            "input ref must be SourceRef or StepResultRef",
+        )
+    kind = str(value.get("kind") or "")
+    if kind == "source":
+        ref = str(value.get("ref") or "")
+        if not ref:
+            raise AnnotatedTeachingProjectionError(
+                "teaching_input_reference_invalid",
+                path,
+                "SourceRef is empty",
+            )
+        return {"kind": "source", "ref": ref}
+    if kind == "step_result":
+        step_id = str(value.get("step_id") or "")
+        return_name = str(value.get("return") or "")
+        producer = source_by_id.get(step_id)
+        if producer is None or return_name not in producer.outputs:
+            raise AnnotatedTeachingProjectionError(
+                "teaching_input_reference_unknown",
+                path,
+                "StepResultRef does not resolve to a public producer output",
+            )
+        return {
+            "kind": "step_result",
+            "step_id": step_id,
+            "return": return_name,
+        }
+    raise AnnotatedTeachingProjectionError(
+        "teaching_input_reference_invalid",
+        path,
+        f"unsupported input ref kind {kind!r}",
+    )
+
+
+def _project_runtime_result(
+    value: Mapping[str, Any],
+    *,
+    path: str,
+) -> dict[str, Any]:
+    runtime_type = str(value.get("runtime_type") or "")
+    display = str(value.get("display") or "")
+    if not runtime_type or not display or "value" not in value:
+        raise AnnotatedTeachingProjectionError(
+            "teaching_runtime_result_incomplete",
+            path,
+            "runtime_type/value/display must all be present",
+        )
+    public_value = _json_clone(value["value"])
+    _assert_public_value(public_value, path=f"{path}.value")
+    _assert_public_value(display, path=f"{path}.display")
+    return {
+        "runtime_type": runtime_type,
+        "value": public_value,
+        "display": display,
+    }
+
+
+def _project_calculation(
+    item: Mapping[str, Any],
+    *,
+    path: str,
+) -> dict[str, Any]:
+    kind = str(item.get("kind") or "")
+    if not kind:
+        raise AnnotatedTeachingProjectionError(
+            "teaching_calculation_kind_missing",
+            path,
+            "calculation kind must be non-empty",
+        )
+    value = {
+        str(key): _json_clone(child)
+        for key, child in item.items()
+        if key not in {"calculation_id", "kind", "evidence_ref", "evidence_refs"}
+    }
+    display = _calculation_display(kind, value)
+    if not display:
+        raise AnnotatedTeachingProjectionError(
+            "teaching_calculation_display_missing",
+            path,
+            "calculation has no complete student-safe display",
+        )
+    _assert_public_value(value, path=f"{path}.value")
+    _assert_public_value(display, path=f"{path}.display")
+    return {"kind": kind, "value": value, "display": display}
+
+
+def _project_check(
+    item: Mapping[str, Any],
+    *,
+    path: str,
+) -> dict[str, Any]:
+    internal_kind = str(item.get("kind") or "")
+    if not internal_kind or "passed" not in item:
+        raise AnnotatedTeachingProjectionError(
+            "teaching_check_projection_incomplete",
+            path,
+            "check kind and passed status are required",
+        )
+    kind = _public_check_kind(internal_kind, item)
+    display = _check_display(kind, item)
+    _assert_public_value(display, path=f"{path}.display")
+    return {
+        "kind": kind,
+        "passed": bool(item["passed"]),
+        "display": display,
+    }
+
+
+def _calculation_display(
+    kind: str,
+    value: Mapping[str, Any],
+) -> list[str]:
+    if kind == "equivalence_chain":
+        statements = [_display_math(item) for item in value.get("statements", ())]
+        result = _display_math(value.get("result"))
+        return _unique_nonempty((*statements, result))
+    if kind == "equation_system":
+        return _unique_nonempty(
+            _display_math(item) for item in value.get("equations", ())
+        )
+    if kind == "substitution":
+        return _unique_nonempty(
+            f"{_display_math(item.get('symbol'))}＝{_display_math(item.get('value'))}"
+            for item in value.get("values", ())
+            if isinstance(item, Mapping)
+        )
+    if kind == "solution":
+        return _unique_nonempty(
+            (
+                f"{_display_math(value.get('target'))}＝"
+                f"{_display_math(value.get('value'))}",
+            )
+        )
+    if kind == "minimum":
+        return _unique_nonempty(
+            (f"最小值为{_display_math(value.get('expression'))}",)
+        )
+    if kind == "attainment":
+        points = value.get("points")
+        if isinstance(points, Mapping):
+            return _unique_nonempty(
+                f"取等点为{name}{_display_point(coords)}"
+                for name, coords in points.items()
+            )
+    if kind == "line_reflection":
+        facts = value.get("facts")
+        if isinstance(facts, Mapping):
+            reflected_name = _display_math(
+                facts.get("reflected_point_name") or "对称点"
+            )
+            reflected_point = _display_point(facts.get("reflected_point"))
+            lines = [
+                f"构造{reflected_name}{reflected_point}",
+                _display_math(facts.get("segment_equality")),
+                (
+                    f"{_display_math(facts.get('transformed_path'))}＝"
+                    f"{_display_math(facts.get('straightened_path'))}"
+                ),
+                (
+                    f"最短线段为{_display_math(facts.get('minimum_segment'))}"
+                ),
+            ]
+            return _unique_nonempty(lines)
+    facts = value.get("facts")
+    if isinstance(facts, Mapping) and facts.get("moving_locus") is not None:
+        return _unique_nonempty(
+            (f"动点轨迹为{_display_math(facts['moving_locus'])}",)
+        )
+    return _unique_nonempty(
+        (json.dumps(value, ensure_ascii=False, separators=(",", ":")),)
+    )
+
+
+def _check_display(kind: str, item: Mapping[str, Any]) -> str:
+    for field in ("detail", "summary"):
+        if item.get(field):
+            return _student_safe_check_text(str(item[field]))
+    messages = {
+        "point_on_moving_locus": "取等点位于动点轨迹上",
+        "point_on_minimum_segment": "取等点位于最短线段上",
+        "unique_solution_branch": "方程与题设约束筛选出唯一合法分支",
+        "constraint_filter": "题设约束已用于筛选合法分支",
+    }
+    message = messages.get(kind)
+    if message is not None:
+        return message
+    return f"{kind.replace('_', ' ')}校验{'通过' if item.get('passed') else '未通过'}"
+
+
+def _public_check_kind(
+    internal_kind: str,
+    item: Mapping[str, Any],
+) -> str:
+    if internal_kind != "runtime_method_check":
+        return internal_kind
+    check_id = str(item.get("check_id") or "")
+    exact = {
+        "known_coefficients_preserved": "coefficient_preservation",
+        "x_axis_y_is_zero": "coordinate_condition",
+        "point_on_parabola": "curve_membership",
+        "left_x_axis_intercept": "target_selection",
+        "vertex_x_derivative_zero": "vertex_condition",
+        "axis_x_derivative_zero": "axis_condition",
+        "square_adjacent_side_perpendicular": "perpendicularity",
+        "square_adjacent_side_equal_length": "equal_length",
+        "candidate_count_positive": "candidate_nonempty",
+        "parameter_domain": "parameter_domain",
+        "expression_value_matches": "expression_value_match",
+        "closure_parameter_value_matches": "solution_consistency",
+        "closure_equation_0_satisfied": "equation_satisfaction",
+        "point_parameter_substituted": "parameter_substitution",
+    }
+    if check_id in exact:
+        return exact[check_id]
+    if check_id.startswith("curve_point_") and check_id.endswith(
+        ("_on_curve", "_on_parabola")
+    ):
+        return "curve_membership"
+    return "verified_condition"
+
+
+def _student_safe_check_text(value: str) -> str:
+    replacements = {
+        "顶点横坐标使一阶导数为 0": "所求点是抛物线的顶点",
+        "参数值输出与 symbolic closure 一致": "参数值与已验证方程的解一致",
+        "参数值满足 symbolic closure 方程": "参数值满足已验证方程",
+    }
+    result = replacements.get(value, value)
+    return result.replace("symbolic closure", "已验证方程")
+
+
+def _display_math(value: Any) -> str:
+    if value is None:
+        return ""
+    text = str(value).replace("A_prime", "A′").replace("_prime", "′")
+    equation = _unwrap_equation(text)
+    if equation is not None:
+        left, right = equation
+        return f"{_display_math(left)}＝{_display_math(right)}"
+    if any("\u4e00" <= char <= "\u9fff" for char in text):
+        return text
+    return student_math_display(text).replace("=", "＝")
+
+
+def _unwrap_equation(value: str) -> tuple[str, str] | None:
+    if not value.startswith("Eq(") or not value.endswith(")"):
+        return None
+    body = value[3:-1]
+    depth = 0
+    for index, character in enumerate(body):
+        if character == "(":
+            depth += 1
+        elif character == ")":
+            depth -= 1
+        elif character == "," and depth == 0:
+            left = body[:index].strip()
+            right = body[index + 1 :].strip()
+            if left and right:
+                return left, right
+            return None
+    return None
+
+
+def _display_point(value: Any) -> str:
+    if not isinstance(value, Sequence) or isinstance(value, str | bytes):
+        return ""
+    return "(" + ",".join(_display_math(item) for item in value) + ")"
+
+
+def _unique_nonempty(values: Iterable[Any]) -> list[str]:
+    result: list[str] = []
+    for raw in values:
+        value = str(raw).strip()
+        if value and value not in result:
+            result.append(value)
+    return result
+
+
+def _binding_diagnostic(
+    source: TeachingSource,
+    error: Exception,
+    *,
+    unit_key: str | None = None,
+) -> TeachingProjectionDiagnostic:
+    message = str(error)
+    prefix = message.split(":", 1)[0].strip()
+    code = prefix if prefix.startswith("teaching_") else "teaching_material_binding_invalid"
+    return TeachingProjectionDiagnostic(
+        code=code,
+        step_id=source.source_step_id,
+        capability_id=source.capability_id,
+        unit_key=unit_key,
+        message=message,
+        fallback="complete_generic_material",
+    )
+
+
+def _generic_bound_unit(
+    source: TeachingSource,
+    *,
+    unit_key: str,
+    calculations: tuple[Mapping[str, Any], ...],
+    checks: tuple[Mapping[str, Any], ...],
+) -> BoundTeachingUnit:
+    title = str(source.intent or source.capability_id).strip()
+    nav_title = title.rstrip("。")
+    derive: list[tuple[str, str]] = []
+    for calculation in calculations:
+        marker = "作" if "construction" in str(calculation.get("kind")) else "计算"
+        for display in calculation.get("display", ()):
+            derive.append((marker, str(display)))
+    if not derive:
+        for output in source.outputs.values():
+            display = str(output.get("display") or "").strip()
+            if display:
+                derive.append(("∴", f"得到{display}"))
+    if not derive:
+        for check in checks:
+            display = str(check.get("display") or "").strip()
+            if display:
+                derive.append(("∵", display))
+    if not derive:
+        derive.append(("计算", "完成本步已经验证的计算"))
+    box = tuple(
+        dict.fromkeys(
+            str(output.get("display") or "").strip()
+            for output in source.outputs.values()
+            if str(output.get("display") or "").strip()
+        )
+    )
+    return BoundTeachingUnit(
+        source_step_id=source.source_step_id,
+        unit_key=unit_key,
+        nav_title=nav_title,
+        title=title,
+        goal=title,
+        derive=tuple(derive),
+        box=box,
+    )
+
+
+def _public_material(unit: BoundTeachingUnit) -> AnnotatedTeachingMaterial:
+    derive = tuple((str(marker), str(text)) for marker, text in unit.derive)
+    if not derive or any(marker not in DERIVE_MARKERS or not text for marker, text in derive):
+        raise AnnotatedTeachingProjectionError(
+            "teaching_material_derive_invalid",
+            f"$.teaching_materials[{unit.source_step_id!r}]",
+            "derive must contain non-empty student math lines",
+        )
+    material = AnnotatedTeachingMaterial(
+        suggested_title=unit.title,
+        suggested_nav_title=unit.nav_title,
+        suggested_goal=unit.goal,
+        suggested_derive=derive,
+        suggested_box=tuple(unit.box),
+    )
+    _assert_llm_safe(
+        material.to_payload(),
+        path=f"$.teaching_materials[{unit.source_step_id!r}]",
+    )
+    return material
+
+
+def _lesson_step_array_schema(material_count: int) -> dict[str, Any]:
+    if material_count == 0:
+        return {"type": "array", "maxItems": 0}
+    return {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": material_count,
+        "items": {"$ref": "#/$defs/lesson_step"},
+    }
+
+
+def _shared_scope_lesson_few_shot() -> dict[str, Any]:
+    return {
+        "input_materials": [
+            {
+                "suggested_title": "利用勾股定理建立边长关系",
+                "suggested_nav_title": "建立边长关系",
+                "suggested_goal": "由直角三角形三边关系建立方程。",
+                "suggested_derive": [
+                    ["∵", "△XYZ 在 Y 点为直角，YX＝6，YZ＝8"],
+                    ["∴", "XZ²＝YX²＋YZ²＝6²＋8²"],
+                ],
+                "suggested_box": [],
+                "available_visuals": [],
+            },
+            {
+                "suggested_title": "计算斜边长度",
+                "suggested_nav_title": "求斜边",
+                "suggested_goal": "计算并写出斜边长度。",
+                "suggested_derive": [["∴", "XZ＝10"]],
+                "suggested_box": ["XZ＝10"],
+                "available_visuals": [],
+            },
+        ],
+        "output": {
+            "schema_version": LESSON_SCOPE_CONTENT_CONTRACT,
+            "scope_bodies": {
+                "example": {
+                    "steps": [],
+                    "goals": {
+                        "example.XZ": {
+                            "steps": [
+                                {
+                                    "material_count": 2,
+                                    "title": "利用勾股定理求斜边",
+                                    "nav_title": "勾股定理",
+                                    "goal": "建立边长关系并计算斜边长度。",
+                                    "derive": [
+                                        ["∵", "△XYZ 在 Y 点为直角，YX＝6，YZ＝8"],
+                                        ["∴", "XZ²＝6²＋8²＝100"],
+                                        ["∴", "XZ＝10"],
+                                    ],
+                                    "box": ["XZ＝10"],
+                                    "visuals": [],
+                                }
+                            ]
+                        }
+                    },
+                }
+            },
+        },
+    }
+
+
+def _iter_annotated_scopes(
+    root: AnnotatedTeachingScope,
+) -> Sequence[AnnotatedTeachingScope]:
+    result: list[AnnotatedTeachingScope] = []
+
+    def visit(scope: AnnotatedTeachingScope) -> None:
+        result.append(scope)
+        for child in scope.children:
+            visit(child)
+
+    visit(root)
+    return tuple(result)
+
+
+def _iter_annotated_steps(
+    root: AnnotatedTeachingScope,
+) -> Sequence[AnnotatedTeachingStep]:
+    return tuple(
+        step
+        for scope in _iter_annotated_scopes(root)
+        for step in (
+            *scope.steps,
+            *(item for goal in scope.goals for item in goal.steps),
+        )
+    )
+
+
+def _assert_public_value(value: Any, *, path: str) -> None:
+    try:
+        json.dumps(value, ensure_ascii=False, allow_nan=False)
+    except (TypeError, ValueError) as exc:
+        raise AnnotatedTeachingProjectionError(
+            "teaching_public_value_invalid",
+            path,
+            str(exc),
+        ) from exc
+    if contains_private_path_projection_marker(value):
+        raise AnnotatedTeachingProjectionError(
+            "teaching_private_identity_leak",
+            path,
+            "private runtime identity cannot enter the Lesson prompt",
+        )
+    hits = find_forbidden_llm_tokens(value)
+    if hits:
+        raise AnnotatedTeachingProjectionError(
+            "teaching_private_identity_leak",
+            path,
+            f"forbidden values: {hits}",
+        )
+
+
+def _assert_llm_safe(value: Any, *, path: str) -> None:
+    _assert_public_value(value, path=path)
+
+
+def _validate_json_schema(
+    payload: Mapping[str, Any],
+    schema: Mapping[str, Any],
+    *,
+    code: str,
+) -> None:
+    validator = Draft202012Validator(schema)
+    errors = sorted(validator.iter_errors(payload), key=lambda item: list(item.path))
+    if not errors:
+        return
+    first = errors[0]
+    location = "$" + "".join(f"[{part!r}]" for part in first.path)
+    raise AnnotatedTeachingProjectionError(code, location, first.message)
+
+
+def _json_clone(value: Any) -> Any:
+    if value is None:
+        return None
+    return json.loads(
+        json.dumps(value, ensure_ascii=False, allow_nan=False)
+    )
+
+
+def _stable_hash(value: Any) -> str:
+    return sha256(
+        json.dumps(
+            value,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        ).encode("utf-8")
+    ).hexdigest()
+
+
+def _compact_json(value: Any) -> str:
+    return json.dumps(
+        value,
+        ensure_ascii=False,
+        sort_keys=False,
+        separators=(",", ":"),
+    )
+
+
+__all__ = [
+    "ANNOTATED_TEACHING_PLAN_CONTRACT",
+    "AnnotatedTeachingMaterial",
+    "AnnotatedTeachingPlan",
+    "AnnotatedTeachingPlanProjector",
+    "AnnotatedTeachingProjection",
+    "AnnotatedTeachingProjectionError",
+    "AnnotatedTeachingPrompt",
+    "AnnotatedTeachingScope",
+    "AnnotatedTeachingStep",
+    "FORBIDDEN_LLM_TOKENS",
+    "LESSON_SCOPE_CONTENT_CONTRACT",
+    "PROJECTION_AUDIT_CONTRACT",
+    "TEACHING_AUTHORITY_CONTRACT",
+    "TeachingMaterialProjector",
+    "TeachingProjectionDiagnostic",
+    "annotated_teaching_plan_schema",
+    "build_projection_audit",
+    "find_forbidden_llm_tokens",
+    "lesson_scope_content_schema",
+    "render_annotated_teaching_prompt",
+]

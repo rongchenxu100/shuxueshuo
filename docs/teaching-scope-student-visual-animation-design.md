@@ -1,7 +1,7 @@
 # F5-F5 Teaching Scope、学生步骤、可视化与动画设计
 
 状态：`IMPLEMENTATION`。`F5-F5A COMPLETE`；`F5-F5B0 COMPLETE`；`F5-F5B1 COMPLETE`；
-`F5-F5B2 NEXT`（Annotated Teaching Plan 与实际 Prompt 双 artifact 人工门禁）。
+`F5-F5B2 COMPLETE`；`F5-F5B3 NEXT`（一次 Scope Lesson 调用、校验、fallback 与评测）。
 
 本文是 F5-F5 以及后续 Track G 教学链的统一规范入口。它定义：如何从
 `VerifiedFunctionalPlanExecution` 生成学生可见步骤，如何继续生成 `VisualStepIR` 与动画
@@ -712,7 +712,7 @@ Gap 必须包含稳定 source ID、owner Scope/Goal、缺失 role/action、已�
 
 门禁：Snapshot Scope/Goal/step owner 与 Canonical Plan 完全同构。
 
-### F5-F5B：学生步骤（B0/B1 COMPLETE；B2 NEXT）
+### F5-F5B：学生步骤（B0/B1/B2 COMPLETE；B3 NEXT）
 
 - 直接升级到 `explanation-snapshot/v3`，物理删除 `TeachingCrossScopeReference` 与顶层
   `cross_scope_references`；consumer input 内联精确 ref，不保留 v2 reader/双写；
@@ -726,9 +726,12 @@ Gap 必须包含稳定 source ID、owner Scope/Goal、缺失 role/action、已�
   Canonical Step 卡片与 `13` 份绑定后教学材料，Macro rubric 达到 `5/5`；
 - B1.4 人工门禁已通过；审阅反馈只修改通用 Spec、projector 或 binder，并由代码重新生成
   Review 页面，未手改生成 artifact；
-- B2 生成 `annotated-teaching-plan.json` 与实际 `prompt.user.md` 后，必须同时完成人工审阅；
-  任一 artifact 未确认时不得进入 B3。通过后才继续一次 Scope Lesson LLM 与 evaluator、
-  recursive LessonIR 生产切换；
+- B2 已生成并人工确认 `annotated-teaching-plan.json` 与实际 `prompt.user.md`：和平二模为
+  `5` 个 Scope、`4` 个 Goal、`12` 个 Step、`13` 份材料和 `4` 个 verified answer；LLM wire
+  删除 checks 与内部 ID，叶子 Scope 省略空 `children`，Prompt 使用“中学数学讲解编排器”并
+  明确只有必要时才合并、以学生理解当前题为目标；
+- B3 复用已审阅的 B2 request builder，继续一次 Scope Lesson LLM、严格输出校验、
+  deterministic fallback 与 evaluator；任何 LLM-facing 输入合同变化都必须重新触发人工审阅；
 - LLM 获得绑定完成的 suggested `title/nav_title/goal/derive/box` 与完整 student-safe
   inputs/outputs/calculations，直接输出最终五类字段；
 - Scope/Goal 容器、teaching material 顺序、source/evidence provenance 与 answer producer

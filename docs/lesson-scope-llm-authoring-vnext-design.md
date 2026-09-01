@@ -1,7 +1,7 @@
 # F5-F5B/G1 Lesson Scope LLM Authoring 与视觉选择 vNext 设计
 
 状态：`IMPLEMENTATION`。`F5-F5B0 COMPLETE`；`F5-F5B1 COMPLETE`；
-`F5-F5B2 NEXT`（Annotated Teaching Plan 与实际 Prompt 必须经过独立人工审阅）。
+`F5-F5B2 COMPLETE`；`F5-F5B3 NEXT`（一次 Scope Lesson 调用、校验、fallback 与评测）。
 
 日期：2026-09-01。
 
@@ -26,17 +26,18 @@ interaction formula 或 animation beat。本文同时定义 F5-F5B 学生步骤�
 
 F5-F5B0 的只读基线、rubric、coverage inventory 与 recorded/live harness 已实现；它们没有
 改变生产协议。F5-F5B1 的 Snapshot v3、Evidence Projector、TeachingUnitSpec 与只读 Review
-artifact 已完成人工审阅并收口；B2 及之后的 LLM wire 与 recursive LessonIR 仍是待实现设计。
-不能把 B0 的 legacy coverage 标签解释为新协议已经落地，也不能绕过 B2 的 Annotated Plan
-与实际 Prompt 人工门禁直接进入 B3。
+artifact 已完成人工审阅并收口；F5-F5B2 的 Annotated Teaching Plan、动态输出 Schema、最终
+Prompt 与双 artifact Review 也已通过人工门禁。B3 及之后的一次 LLM 调用、输出解析、fallback
+与 recursive LessonIR 仍是待实现设计。
 
 ## 1. 结论
 
 F5-F5B vNext 采用以下边界：
 
 1. 输入是与 Canonical Plan 同构的递归 Scope/Goal/Step 树。
-2. 每个 Step 都携带完整的 student-safe 输入、实际 runtime outputs、中间计算结果、
-   verified evidence 和 checks。
+2. 每个 Step 都携带完整的 student-safe 输入、实际 runtime outputs，以及从 verified evidence
+   投影出的中间计算结果。runtime checks 只保留在 Snapshot/authority/debug；教学必要事实先
+   提升为 calculation 或 teaching material，不直接进入 LLM wire。
 3. Method 保留声明一个最小 `TeachingUnitSpec` 的能力：声明了就使用，未声明时由代码根据
    Method intent/capability 生成一个默认 unit。原子 Macro 隐藏多个认知动作时，声明有序的
    `TeachingUnitSpec[]`；若 Macro 存在多种学生推导真正不同的数学分支，则声明内部
@@ -293,7 +294,9 @@ AnnotatedTeachingPlan
 │   └── children[]
 ```
 
-所有集合显式存在，允许为空。
+`steps[]` 与 `goals{}` 始终显式存在，允许为空；`children[]` 只在当前 Scope 确实有
+child Scope 时出现。叶子 Scope 省略 `children`，代码将缺省值确定性解释为空数组，避免给
+LLM 重复发送没有语义信息的 `children: []`。
 
 教学层不再区分 `scope_steps` 和 `lesson_steps` 两种字段。Scope 与 Goal 容器都使用
 `steps[]`；在同一 artifact 内，两处数组的元素类型完全相同，只有 owner 不同。所在容器
@@ -334,8 +337,7 @@ AnnotatedTeachingStep
 │   └── ref + runtime_type + display/value
 ├── execution
 │   ├── outputs{}
-│   ├── calculations[]
-│   └── checks[]
+│   └── calculations[]
 └── teaching_materials[]
     ├── suggested_title
     ├── suggested_nav_title
@@ -353,8 +355,11 @@ student-safe runtime values 完成模板绑定；未声明字段由代码根据 
 `suggested_derive` 是已经套入本题 runtime 数据的学生数学语言，使用结构化
 `[作|设|∵|∴|计算, text]`，不是“代入、求解、写出结果”这类空泛动作清单。删除
 `important_calculation_ids`、unit calculation/check mapping、`merge_policy` 与 `must_separate`。
-每个 Step 的完整 calculations/checks 只出现一次；建议草稿引用其公开数学内容，但不取代
-verified facts。LLM 自行判断详略以及如何组织最终学生步骤。`teaching_materials[]` 的数组位置
+每个 Step 的完整 calculations 只出现一次；建议草稿引用其公开数学内容，但不取代 verified
+facts。runtime checks 属于 Snapshot、authority 与 debug，不进入 LLM-facing 合同；如果某项
+check 含有学生理解推导所必需且尚未出现的数学事实，projector 必须先把该事实提升为
+calculation 或绑定后的 teaching material，不能依赖 `checks` 字段传达。LLM 自行判断详略以及
+如何组织最终学生步骤。`teaching_materials[]` 的数组位置
 就是 Canonical 顺序；稳定 key、source Step、owner、evidence 和 bound visual ownership 只
 保存在代码内部 sidecar。代码只校验材料覆盖、owner、canonical order 与 contiguous grouping，
 不判断教学上应不应该合并。
@@ -622,7 +627,7 @@ suggested_box
 
 因此 suggested derive 已经是“因为哪些具体条件，所以推出哪些具体等式和结论”的数学语言，
 不是让 LLM 根据“代入、解方程、写答案”等动作词重新补数学内容。LLM 读取 Step 的完整
-`inputs + outputs + calculations + checks` 审核上下文，并把 suggested
+`inputs + outputs + calculations` 审核上下文，并把 suggested
 `title/nav_title/goal/derive/box` 作为可信参考进行润色、详略调整与相邻材料合并。
 
 vNext 不继续读取旧 `MethodExplanationSpec` 对象，但不会丢弃其中有价值的标题、导航标题、
@@ -712,7 +717,8 @@ LLM 不需要知道 `path_reduction`、`reflection_minimum` 或拼接后的 unit
 }
 ```
 
-完整 calculations/checks 仍只在 Step execution 中出现一次。LLM 自行选择详略、把数学材料
+完整 calculations 仍只在 Step execution 中出现一次。runtime checks 只保留在内部
+Snapshot/debug；教学必要信息必须已经进入 calculation 或 suggested material。LLM 自行选择详略、把数学材料
 分配到学生步骤，并决定两个 teaching materials 是分开还是合并；但建议草稿中的公式、对象
 和结论必须已经由 runtime/evidence 验证。内部 unit key 仅供代码在组装 LessonIR 时注入
 source/evidence provenance。
@@ -821,7 +827,8 @@ TeachingUnitSpec（Method 可选一个；单一推导 Macro 或已选 Variant �
     不规定 importance、calculation mapping 或 merge policy
 
 TeachingEvidenceProjector
-    投影真实 verified outputs/calculations/checks
+    投影真实 verified outputs/calculations
+    runtime checks 仅作为内部验证来源；必要数学事实先提升，不直接进入 LLM wire
     提供模板所需的 student-safe runtime bindings
     是当前题数学事实来源
 
@@ -1312,7 +1319,7 @@ fallback 不是旧 flat LessonIR fixture，也不是硬编码某道题答案。
 
 ```text
 ordered teaching materials
-+ complete verified calculations/checks
++ complete verified calculations
 + runtime student display
 → deterministic Lesson body
 ```
@@ -1854,7 +1861,7 @@ B1.3 实现记录（2026-09-01）：
   从 ProblemIR 的点—曲线关系和本轮实际坐标生成“点在曲线上→代入坐标→化简系数→写出
   解析式”的逐行推导，通用 Spec 不保存具体点名、坐标或答案；路径化简单元删除重复的完整
   implication chain，只保留基础等长事实、局部路径等式和最终目标等价三行；Step wire 删除
-  `evidence_refs`，LLM 只看到已经投影完成的 `calculations/checks`；
+  `evidence_refs`；Snapshot 仍保存 runtime checks 供内部验证，B2 LLM wire 不直接投影 checks；
 - 专项目标集为 `97 passed, 3 skipped`，全部非 serial、非 live Solver 回归为
   `2328 passed, 12 skipped`；当前没有 serial Solver
   用例；
@@ -1864,7 +1871,7 @@ B1.4 人工门禁已于 2026-09-01 通过：`12` 张 Step 卡片与 `13` 份教�
 两轮反馈全部通过通用 Spec、projector 或 binder 收口，未手改 fixture 或生成 HTML。
 `F5-F5B1 COMPLETE`，下一阶段为 B2。
 
-### 18.5 F5-F5B2：Annotated Teaching Plan 输入投影（NEXT）
+### 18.5 F5-F5B2：Annotated Teaching Plan 输入投影（COMPLETE）
 
 实现：
 
@@ -1875,13 +1882,20 @@ B1.4 人工门禁已于 2026-09-01 通过：`12` 张 Step 卡片与 `13` 份教�
   把残缺模板发送给 LLM；缺省模板字段按 intent/calculations/public outputs 确定性补齐；
 - 对多分支 Macro 先按 verified teaching case 唯一选择 TeachingVariantSpec，再绑定其 units；
   零匹配/多匹配使用 typed diagnostic + generic draft，非 winner variants 不进入 projection；
-- 内联 resolved inputs、完整 materialized outputs、calculations、checks 与按 Canonical 顺序
+- 内联 resolved inputs、完整 materialized outputs、calculations 与按 Canonical 顺序
   排列的 `teaching_materials[]`；每项都包含绑定/兜底后的 suggested
   title/nav_title/goal/derive/box，不向 LLM 投影 unit key/ID 或未解析模板；
 - 不生成 `teaching_guides`/`guide_id`、`important_calculation_ids`、calculation-to-unit mapping
   或 merge policy；
+- `checks` 只保留在 Snapshot/authority/debug；如果包含教学必要事实，先提升为 calculation 或
+  teaching material；叶子 Scope 省略空 `children`，非叶子 Scope 才发送该字段；
 - `available_visuals` 字段先固定为空集合，视觉尚不启用；
 - 生成 prompt/schema snapshot 和 private identity audit。
+
+Prompt 将角色定义为“中学数学讲解编排器”，以同时覆盖初中与高中内容；明确目标是把当前题
+已经验证的推导整理成学生容易理解的完整讲解。LLM 逐项审视同一 Scope/Goal 内相邻材料，
+只有合并能提高连贯性且不遗漏关键理由时才合并，没有必要时保持独立，并负责完善或润色
+标题、讲解目标、数学推导和少量必要说明。
 
 和平硬门禁：必须同时人工 review `annotated-teaching-plan.json` 与实际 `prompt.user.md`，
 缺少任一 artifact、任一 artifact 尚未确认或审阅反馈尚未收口时，B2 不得标记 COMPLETE，
@@ -1895,7 +1909,25 @@ PathTransformation、synthetic PointRef、teaching_case、variant_key、未选�
 LLM-facing Schema 或 prompt payload 中；教学容器不得使用 `scope_steps` 或
 `lesson_steps`。
 
-### 18.6 F5-F5B3：Scope Lesson output、一次调用与评测器
+B2 实现与人工门禁记录（2026-09-01）：
+
+- `functional-annotated-teaching-plan/v1` 已落地；和平二模投影 `5` 个 Scope、`4` 个 Goal、
+  `12` 个 Canonical Step、`13` 份 teaching material 和 `4` 个 verified answer；
+- 所有 produced dependency 使用精确 `StepResultRef`，实际 materialized outputs 与
+  calculations 完整保留；`checks`、evidence/unit/variant ID、Plan-only 字段和 private runtime
+  identity 均未进入 LLM wire；叶子 Scope 省略无语义的空 `children`；
+- 最终 Prompt 角色为“中学数学讲解编排器”，明确只在能提高连贯性且不遗漏关键理由时合并
+  相邻材料，没有必要时保持独立，并完善标题、目标、推导与少量必要说明，使学生理解当前题；
+- 全题型共享 few-shot 为与当前题题面、对象和数值均不同的勾股定理示例，同题 few-shot 禁用；
+- 人工审阅 batch 为 `f5-f5b2-heping-annotated-review`，Annotated Plan 与实际 Prompt 均已确认；
+  Prompt 为 system `434` 字符、user `18,653` 字符、合计 `19,087` 字符，低于 B0 的
+  `54,707`；projection diagnostic 与 forbidden-field hit 均为 `0`，且本阶段未调用 LLM；
+- 和平 rubric 保持 `5/5`；最终专项为 `107 passed, 3 skipped`，全部非 serial、非 live Solver
+  回归为 `2348 passed`，当前无 serial Solver 用例；旧 deterministic LessonIR、VisualStepIR
+  与编译页面保持不变；
+- 人工 Review 门禁已通过；B2 未修改生产 Lesson/Visual 入口，下一阶段为 B3。
+
+### 18.6 F5-F5B3：Scope Lesson output、一次调用与评测器（NEXT）
 
 实现：
 

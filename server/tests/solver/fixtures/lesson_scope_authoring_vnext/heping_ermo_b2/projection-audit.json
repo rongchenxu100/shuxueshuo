@@ -1,0 +1,34 @@
+{
+  "schema_version": "lesson-annotated-teaching-audit/v1",
+  "status": "ready_for_human_review",
+  "counts": {
+    "scope_count": 5,
+    "goal_count": 4,
+    "step_count": 12,
+    "teaching_material_count": 13,
+    "verified_answer_count": 4
+  },
+  "hashes": {
+    "annotated_plan": "ad833de32bf3dbfabb2ce320cdc03937b93f11bb175441f4481b8102a2c3ebec",
+    "output_schema": "a4e68a181514b1e9024ce538e3c296769357bab45401e3b096de85d1d3131f95",
+    "prompt": "514143ee3fb6c3c4989257d8a3e861851a47e2d0165beba2e80da0b4b3553538"
+  },
+  "prompt_chars": {
+    "system": 434,
+    "user": 18653,
+    "total": 19087,
+    "b0_total": 54707,
+    "smaller_than_b0": true
+  },
+  "forbidden_hits": {
+    "annotated_plan": [],
+    "prompt": []
+  },
+  "projection_diagnostics": [],
+  "shared_few_shot": {
+    "count": 1,
+    "same_problem": false,
+    "mechanism": "right_triangle_pythagorean"
+  },
+  "llm_invoked": false
+}

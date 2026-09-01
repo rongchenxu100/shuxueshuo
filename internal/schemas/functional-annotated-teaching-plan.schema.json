@@ -1,0 +1,610 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://shuxueshuo.local/schemas/functional-annotated-teaching-plan.schema.json",
+  "title": "Functional Annotated Teaching Plan v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "problem",
+    "answers",
+    "root_scope"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "functional-annotated-teaching-plan/v1"
+    },
+    "problem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "original_text",
+        "scope_labels"
+      ],
+      "properties": {
+        "original_text": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "scope_labels": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "answers": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "runtime_type",
+          "value",
+          "display"
+        ],
+        "properties": {
+          "runtime_type": {
+            "type": "string",
+            "minLength": 1
+          },
+          "value": {},
+          "display": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "root_scope": {
+      "$ref": "#/$defs/scope"
+    }
+  },
+  "$defs": {
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scope_ref",
+        "steps",
+        "goals"
+      ],
+      "properties": {
+        "scope_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "step_id",
+              "capability_id",
+              "intent",
+              "inputs",
+              "execution",
+              "teaching_materials"
+            ],
+            "properties": {
+              "step_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "capability_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "intent": {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "inputs": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "ref",
+                      "runtime_type",
+                      "value",
+                      "display"
+                    ],
+                    "properties": {
+                      "ref": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "kind",
+                              "ref"
+                            ],
+                            "properties": {
+                              "kind": {
+                                "const": "source"
+                              },
+                              "ref": {
+                                "type": "string",
+                                "minLength": 1
+                              }
+                            }
+                          },
+                          {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "kind",
+                              "step_id",
+                              "return"
+                            ],
+                            "properties": {
+                              "kind": {
+                                "const": "step_result"
+                              },
+                              "step_id": {
+                                "type": "string",
+                                "minLength": 1
+                              },
+                              "return": {
+                                "type": "string",
+                                "minLength": 1
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "runtime_type": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "value": {},
+                      "display": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                }
+              },
+              "execution": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "outputs",
+                  "calculations"
+                ],
+                "properties": {
+                  "outputs": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "runtime_type",
+                        "value",
+                        "display"
+                      ],
+                      "properties": {
+                        "runtime_type": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "value": {},
+                        "display": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      }
+                    }
+                  },
+                  "calculations": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "kind",
+                        "value",
+                        "display"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "value": {},
+                        "display": {
+                          "type": "array",
+                          "minItems": 1,
+                          "items": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "teaching_materials": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "suggested_title",
+                    "suggested_nav_title",
+                    "suggested_goal",
+                    "suggested_derive",
+                    "suggested_box",
+                    "available_visuals"
+                  ],
+                  "properties": {
+                    "suggested_title": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "suggested_nav_title": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "suggested_goal": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "suggested_derive": {
+                      "type": "array",
+                      "minItems": 1,
+                      "items": {
+                        "type": "array",
+                        "prefixItems": [
+                          {
+                            "enum": [
+                              "作",
+                              "设",
+                              "∵",
+                              "∴",
+                              "计算"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        ],
+                        "items": false,
+                        "minItems": 2,
+                        "maxItems": 2
+                      }
+                    },
+                    "suggested_box": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "available_visuals": {
+                      "type": "array",
+                      "maxItems": 0
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "goals": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "required_answer",
+              "steps",
+              "answer_from"
+            ],
+            "properties": {
+              "required_answer": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "answer_key",
+                  "runtime_type"
+                ],
+                "properties": {
+                  "answer_key": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "runtime_type": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              },
+              "steps": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "step_id",
+                    "capability_id",
+                    "intent",
+                    "inputs",
+                    "execution",
+                    "teaching_materials"
+                  ],
+                  "properties": {
+                    "step_id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "capability_id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "intent": {
+                      "oneOf": [
+                        {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "inputs": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "array",
+                        "minItems": 1,
+                        "items": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "ref",
+                            "runtime_type",
+                            "value",
+                            "display"
+                          ],
+                          "properties": {
+                            "ref": {
+                              "oneOf": [
+                                {
+                                  "type": "object",
+                                  "additionalProperties": false,
+                                  "required": [
+                                    "kind",
+                                    "ref"
+                                  ],
+                                  "properties": {
+                                    "kind": {
+                                      "const": "source"
+                                    },
+                                    "ref": {
+                                      "type": "string",
+                                      "minLength": 1
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "object",
+                                  "additionalProperties": false,
+                                  "required": [
+                                    "kind",
+                                    "step_id",
+                                    "return"
+                                  ],
+                                  "properties": {
+                                    "kind": {
+                                      "const": "step_result"
+                                    },
+                                    "step_id": {
+                                      "type": "string",
+                                      "minLength": 1
+                                    },
+                                    "return": {
+                                      "type": "string",
+                                      "minLength": 1
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            "runtime_type": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "value": {},
+                            "display": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "execution": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "outputs",
+                        "calculations"
+                      ],
+                      "properties": {
+                        "outputs": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "runtime_type",
+                              "value",
+                              "display"
+                            ],
+                            "properties": {
+                              "runtime_type": {
+                                "type": "string",
+                                "minLength": 1
+                              },
+                              "value": {},
+                              "display": {
+                                "type": "string",
+                                "minLength": 1
+                              }
+                            }
+                          }
+                        },
+                        "calculations": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "kind",
+                              "value",
+                              "display"
+                            ],
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "minLength": 1
+                              },
+                              "value": {},
+                              "display": {
+                                "type": "array",
+                                "minItems": 1,
+                                "items": {
+                                  "type": "string",
+                                  "minLength": 1
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "teaching_materials": {
+                      "type": "array",
+                      "minItems": 1,
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "suggested_title",
+                          "suggested_nav_title",
+                          "suggested_goal",
+                          "suggested_derive",
+                          "suggested_box",
+                          "available_visuals"
+                        ],
+                        "properties": {
+                          "suggested_title": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "suggested_nav_title": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "suggested_goal": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "suggested_derive": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                              "type": "array",
+                              "prefixItems": [
+                                {
+                                  "enum": [
+                                    "作",
+                                    "设",
+                                    "∵",
+                                    "∴",
+                                    "计算"
+                                  ]
+                                },
+                                {
+                                  "type": "string",
+                                  "minLength": 1
+                                }
+                              ],
+                              "items": false,
+                              "minItems": 2,
+                              "maxItems": 2
+                            }
+                          },
+                          "suggested_box": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "available_visuals": {
+                            "type": "array",
+                            "maxItems": 0
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "answer_from": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "step_id",
+                  "return"
+                ],
+                "properties": {
+                  "step_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "return": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/scope"
+          }
+        }
+      }
+    }
+  }
+}

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import re
-from typing import Any, Mapping, Sequence
+from typing import Any, Callable, Mapping, Sequence
 
 from shuxueshuo_server.solver.contracts import (
     MethodExplanationSpec,
@@ -49,6 +49,22 @@ class BoundTeachingUnit:
         if include_unit_key:
             payload["unit_key"] = self.unit_key
         return payload
+
+
+@dataclass(frozen=True)
+class BoundTeachingSelection:
+    """Internal selection authority for one verified teaching source."""
+
+    kind: str
+    units: tuple[BoundTeachingUnit, ...]
+    variant_key: str | None = None
+    evidence_match: Mapping[str, Any] | None = None
+
+
+TeachingUnitFallback = Callable[
+    [TeachingUnitSpec, TeachingSpecBindingError],
+    BoundTeachingUnit,
+]
 
 
 class TeachingSpecBinder:
@@ -97,6 +113,27 @@ class TeachingSpecBinder:
         *,
         snapshot: ExplanationSnapshot,
     ) -> tuple[BoundTeachingUnit, ...]:
+        return self.bind_source_selection(
+            source,
+            snapshot=snapshot,
+        ).units
+
+    def bind_source_selection(
+        self,
+        source: TeachingSource,
+        *,
+        snapshot: ExplanationSnapshot,
+        on_unit_error: TeachingUnitFallback | None = None,
+    ) -> BoundTeachingSelection:
+        """Bind the selected public teaching path and retain internal authority.
+
+        ``on_unit_error`` is deliberately unit-local.  It lets the B2 teaching
+        projector replace one incomplete template with a complete verified
+        generic material without discarding successfully bound sibling units.
+        Variant selection and role binding remain fail-loud because no unit
+        boundary is authoritative before those operations succeed.
+        """
+
         method = self._methods.specs.get(source.capability_id)
         recipe = self._recipes.get(source.capability_id)
         if (method is None) == (recipe is None):
@@ -126,15 +163,38 @@ class TeachingSpecBinder:
                 group=group,
                 snapshot=snapshot,
             )
-            return (_bind_unit(source, unit, roles),)
+            return BoundTeachingSelection(
+                kind="function",
+                units=(
+                    _bind_unit_or_fallback(
+                        source,
+                        unit,
+                        roles,
+                        on_unit_error=on_unit_error,
+                    ),
+                ),
+            )
         assert recipe is not None and recipe.teaching is not None
-        units = _select_macro_units(
+        units, variant_key, evidence_match = _select_macro_units(
             recipe.teaching,
             source=source,
             snapshot=snapshot,
         )
         roles = _macro_roles(source, snapshot=snapshot)
-        return tuple(_bind_unit(source, unit, roles) for unit in units)
+        return BoundTeachingSelection(
+            kind="macro",
+            units=tuple(
+                _bind_unit_or_fallback(
+                    source,
+                    unit,
+                    roles,
+                    on_unit_error=on_unit_error,
+                )
+                for unit in units
+            ),
+            variant_key=variant_key,
+            evidence_match=evidence_match,
+        )
 
 
 def _group_for_source(
@@ -223,9 +283,13 @@ def _select_macro_units(
     *,
     source: TeachingSource,
     snapshot: ExplanationSnapshot,
-) -> tuple[TeachingUnitSpec, ...]:
+) -> tuple[
+    tuple[TeachingUnitSpec, ...],
+    str | None,
+    Mapping[str, Any] | None,
+]:
     if spec.teaching_units:
-        return spec.teaching_units
+        return spec.teaching_units, None, None
     evidence_values = snapshot.evidence_for_step(source.source_step_id)
     matches = [
         variant
@@ -240,7 +304,12 @@ def _select_macro_units(
             "teaching_spec_macro_variant_match_invalid: "
             f"step={source.source_step_id}, matches={len(matches)}"
         )
-    return matches[0].teaching_units
+    selected = matches[0]
+    return (
+        selected.teaching_units,
+        selected.variant_key,
+        dict(selected.evidence_match),
+    )
 
 
 def _mapping_contains(value: Mapping[str, Any], expected: Mapping[str, Any]) -> bool:
@@ -397,6 +466,21 @@ def _bind_unit(
     )
 
 
+def _bind_unit_or_fallback(
+    source: TeachingSource,
+    unit: TeachingUnitSpec,
+    roles: Mapping[str, Any],
+    *,
+    on_unit_error: TeachingUnitFallback | None,
+) -> BoundTeachingUnit:
+    try:
+        return _bind_unit(source, unit, roles)
+    except TeachingSpecBindingError as exc:
+        if on_unit_error is None:
+            raise
+        return on_unit_error(unit, exc)
+
+
 def _bound_derive(
     unit: TeachingUnitSpec,
     roles: Mapping[str, Any],
@@ -428,7 +512,9 @@ def _bound_derive(
 
 
 __all__ = [
+    "BoundTeachingSelection",
     "BoundTeachingUnit",
     "TeachingSpecBinder",
     "TeachingSpecBindingError",
+    "TeachingUnitFallback",
 ]

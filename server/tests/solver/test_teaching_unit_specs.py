@@ -15,7 +15,11 @@ from shuxueshuo_server.solver.explanation.models import (
 from shuxueshuo_server.solver.explanation.role_binders.methods import (
     _next_auxiliary_point_label,
 )
-from shuxueshuo_server.solver.explanation.teaching_specs import TeachingSpecBinder
+from shuxueshuo_server.solver.explanation.teaching_specs import (
+    BoundTeachingUnit,
+    TeachingSpecBinder,
+    TeachingSpecBindingError,
+)
 from shuxueshuo_server.solver.lesson_scope_authoring_smoke import CASE_ID
 from shuxueshuo_server.solver.runtime.config import SolverRuntimeConfig
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
@@ -293,3 +297,52 @@ def test_method_without_explicit_unit_still_has_default_candidate() -> None:
 def test_macro_teaching_contract_rejects_zero_or_two_paths() -> None:
     with pytest.raises(ValueError, match="exactly one"):
         MacroTeachingSpec()
+
+
+def test_b2_unit_local_fallback_keeps_successful_macro_sibling(
+    snapshot,
+    monkeypatch,
+) -> None:
+    import shuxueshuo_server.solver.explanation.teaching_specs as module
+
+    source = next(
+        item
+        for item in iter_teaching_sources(snapshot.root_scope)
+        if item.source_step_id == "derive_path_minimum_ii"
+    )
+    original_bind = module._bind_unit
+    fallback_keys: list[str] = []
+
+    def fail_first(source_value, unit, roles):
+        if unit.unit_key.endswith("/path_reduction"):
+            raise TeachingSpecBindingError(
+                "teaching_spec_placeholder_unresolved: injected"
+            )
+        return original_bind(source_value, unit, roles)
+
+    def fallback(unit, _error):
+        fallback_keys.append(unit.unit_key)
+        return BoundTeachingUnit(
+            source_step_id=source.source_step_id,
+            unit_key=unit.unit_key,
+            nav_title="通用路径化简",
+            title="使用已验证关系化简路径",
+            goal="根据本步的完整计算结果化简路径。",
+            derive=(("计算", "使用本步全部已验证计算"),),
+            box=(),
+        )
+
+    monkeypatch.setattr(module, "_bind_unit", fail_first)
+    selection = TeachingSpecBinder().bind_source_selection(
+        source,
+        snapshot=snapshot,
+        on_unit_error=fallback,
+    )
+
+    assert selection.kind == "macro"
+    assert len(selection.units) == 2
+    assert fallback_keys == [
+        "quadratic_square_path_minimum/path_reduction"
+    ]
+    assert selection.units[0].title == "使用已验证关系化简路径"
+    assert selection.units[1].unit_key.endswith("/reflection_minimum")
