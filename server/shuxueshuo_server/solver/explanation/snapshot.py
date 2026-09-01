@@ -1,441 +1,617 @@
-"""从成功 runtime run 构建 ExplanationSnapshot。"""
+"""Build the student-safe, canonical-owner ExplanationSnapshot."""
 
 from __future__ import annotations
 
-from dataclasses import asdict, is_dataclass
+from collections.abc import Mapping, Sequence
+import json
 from typing import Any
 
-import sympy as sp
-
-from shuxueshuo_server.solver.contracts import PointRef, TypedValue
-from shuxueshuo_server.solver.runtime.context import RuntimeContext
 from shuxueshuo_server.solver.runtime.functional_execution_authority import (
     PathMinimumPromptWitnessProjector,
     PathMinimumWitness,
 )
-from shuxueshuo_server.solver.runtime.models import PlanExecutionResult, PlannerOutput, StepPlan
+from shuxueshuo_server.solver.runtime.macro_atomicity import (
+    contains_private_path_projection_marker,
+)
 from shuxueshuo_server.solver.runtime.projection import RuntimeProjection
-from shuxueshuo_server.solver.runtime.strategy_models import (
-    canonical_symbolic_expression,
+from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
+    ScopedFunctionalGoalPlan,
+    ScopedFunctionalScope,
+    ScopedFunctionalStep,
+    ScopedStepResultRef,
+    scoped_functional_plan_id,
 )
 
 from .models import (
     ExplanationSnapshot,
-    SymbolicClosureTeachingTrace,
-    TeachingTraceEntry,
-)
-from .presentation import (
-    StudentNarrativePlacementProjector,
-    transactional_functional_steps,
+    TeachingCrossScopeReference,
+    TeachingGoal,
+    TeachingScope,
+    TeachingSource,
+    iter_teaching_scopes,
+    iter_teaching_sources,
+    teaching_source_owners,
 )
 
 
 class ExplanationSnapshotError(RuntimeError):
-    """ExplanationSnapshot 构建失败。"""
+    """The verified teaching projection is incomplete or inconsistent."""
 
 
 class ExplanationSnapshotBuilder:
-    """把 RuntimeOrchestrator 的成功产物转成讲解层 snapshot。"""
+    """Project one successful verified execution into the teaching boundary."""
 
     def build(self, artifacts: Any) -> ExplanationSnapshot:
-        """从 ``RuntimeSuccessArtifacts`` 构建 snapshot。"""
         result = artifacts.solver_result
         if getattr(result, "status", None) != "ok":
-            raise ExplanationSnapshotError("explanation snapshot requires ok SolverResult")
-        planner_artifacts = getattr(artifacts.planner, "artifacts", None)
-        problem_payload = RuntimeProjection(artifacts.problem).to_llm_problem_payload()
-        replay = getattr(planner_artifacts, "retry_replay_result", None)
-        functional_reconciliation = getattr(replay, "functional_reconciliation", None)
-        effective_steps = transactional_functional_steps(
-            replay,
-            artifacts.planner_output,
-        )
-        effective_fact_steps: tuple[Any, ...] = effective_steps
-        if not effective_steps:
             raise ExplanationSnapshotError(
-                "strategy planner verified execution steps are required"
+                "explanation snapshot requires ok SolverResult"
             )
-        narrative = StudentNarrativePlacementProjector().project(
-            effective_steps=effective_steps,
-            problem=problem_payload,
-            functional_reconciliation=functional_reconciliation,
-            raw_functional_plan=getattr(replay, "functional_plan", None),
+        execution = getattr(artifacts, "verified_functional_execution", None)
+        if execution is None:
+            raise ExplanationSnapshotError(
+                "teaching_projection_verified_execution_missing: "
+                "ExplanationSnapshot requires VerifiedFunctionalPlanExecution"
+            )
+        canonical_plan = execution.canonical_plan
+        computed_plan_hash = scoped_functional_plan_id(canonical_plan)
+        if computed_plan_hash != execution.plan_id:
+            raise ExplanationSnapshotError(
+                "teaching_projection_plan_hash_drift: verified Plan identity mismatch"
+            )
+
+        problem_payload = RuntimeProjection(artifacts.problem).to_llm_problem_payload()
+        problem_authority = getattr(artifacts, "problem_authority", None)
+        planning_context = getattr(problem_authority, "planning_context", None)
+        evidence: dict[str, dict[str, Any]] = {}
+        root_scope = _project_scope(
+            canonical_plan.root_scope,
+            execution.root_scope,
+            planning_context=planning_context,
+            evidence=evidence,
         )
-        step_capabilities = {
-            str(step["step_id"]): str(
-                step.get("recipe_hint") or step.get("goal_type")
+        answers = _verified_answers(
+            root_scope,
+            question_goals=tuple(getattr(artifacts, "question_goals", ())),
+        )
+        observed_answers = _json_value(getattr(result, "answers", {}))
+        answer_runtime_types = _answer_runtime_types(
+            root_scope,
+            question_goals=tuple(getattr(artifacts, "question_goals", ())),
+        )
+        if not _answer_payloads_equivalent(
+            answers,
+            observed_answers,
+            runtime_types=answer_runtime_types,
+        ):
+            raise ExplanationSnapshotError(
+                "teaching_projection_answer_mismatch: SolverResult answers do not "
+                "match canonical answer_from public results"
             )
-            for step in effective_steps
-        }
+        # SolverResult has already passed answer verification and preserves the
+        # authored display order for set-like answers.  Public runtime results
+        # remain unchanged in each TeachingSource.
+        answers = observed_answers
+
         snapshot = ExplanationSnapshot(
-            problem_id=artifacts.problem.problem_id,
+            problem_id=str(artifacts.problem.problem_id),
             family_id=str(getattr(artifacts.family, "family_id", "")),
+            problem_revision=execution.problem_revision_id,
+            problem_semantic_hash=execution.problem_semantic_hash,
+            canonical_plan_hash=execution.plan_id,
+            verified_execution_hash=execution.execution_signature,
             problem=problem_payload,
-            effective_steps=effective_steps,
-            teaching_trace=_build_teaching_trace(
-                artifacts.planner_output,
-                artifacts.execution,
-                step_capabilities,
+            root_scope=root_scope,
+            cross_scope_references=_cross_scope_references(
+                root_scope,
+                dependency_graph=execution.dependency_graph,
+                public_result_dependencies=(
+                    execution.public_result_dependencies
+                ),
             ),
-            fact_index=_build_fact_index(
-                artifacts.context,
-                effective_fact_steps,
-            ),
-            student_step_placements=narrative.placements,
-            student_scope_references=narrative.references,
-            planner_insights=_planner_insights(planner_artifacts),
-            answers=_clean_value(result.answers, artifacts.context),
-            checks=tuple(_check_payload(check) for check in result.checks),
-            symbolic_closures=_build_symbolic_closure_teaching(replay),
-            macro_evidence=_build_macro_evidence(artifacts),
+            evidence=evidence,
+            answers=answers,
         )
         _assert_safe_snapshot(snapshot)
         return snapshot
 
 
-def _build_macro_evidence(artifacts: Any) -> tuple[dict[str, Any], ...]:
-    """Project authenticated Macro witnesses into the student-safe snapshot."""
-
-    execution = getattr(artifacts, "verified_functional_execution", None)
-    problem_authority = getattr(artifacts, "problem_authority", None)
-    planning_context = getattr(problem_authority, "planning_context", None)
-    if planning_context is None:
-        return ()
-    projector = PathMinimumPromptWitnessProjector()
-    witnesses: list[PathMinimumWitness] = []
-    if execution is not None:
-        for scope in _execution_scopes(execution.root_scope):
-            steps = [*scope.scope_steps]
-            for goal in scope.goals:
-                steps.extend(goal.steps)
-            for step in steps:
-                witnesses.extend(
-                    item
-                    for item in step.evidence
-                    if isinstance(item, PathMinimumWitness)
-                )
-    else:
-        # The transitional RuntimeOrchestrator replay does not yet expose the
-        # v2 execution envelope. It does expose the same typed witness on the
-        # final transactional call result, so no teaching fact is reconstructed
-        # from trace text.
-        planner_artifacts = getattr(getattr(artifacts, "planner", None), "artifacts", None)
-        replay = getattr(planner_artifacts, "retry_replay_result", None)
-        attempt = getattr(replay, "transactional_attempt_result", None)
-        report = getattr(attempt, "execution_report", None)
-        for call_result in getattr(report, "call_results", ()):
-            witness = getattr(call_result, "path_minimum_witness", None)
-            if isinstance(witness, PathMinimumWitness):
-                witnesses.append(witness)
-
-    evidence: list[dict[str, Any]] = []
-    seen: set[str] = set()
-    for witness in witnesses:
-        if witness.witness_id in seen:
-            continue
-        seen.add(witness.witness_id)
-        evidence.append(projector.project(witness, planning_context).to_payload())
-    return tuple(
-        sorted(
-            evidence,
-            key=lambda item: (
-                str(item.get("step_id", "")),
-                str(item.get("schema_version", "")),
-            ),
+def _project_scope(
+    canonical: ScopedFunctionalScope,
+    executed: Any,
+    *,
+    planning_context: Any | None,
+    evidence: dict[str, dict[str, Any]],
+) -> TeachingScope:
+    if canonical.scope_ref != executed.scope_ref:
+        raise ExplanationSnapshotError(
+            "teaching_projection_scope_owner_mismatch: "
+            f"canonical={canonical.scope_ref}, execution={executed.scope_ref}"
         )
+    if len(canonical.steps) != len(executed.scope_steps):
+        raise ExplanationSnapshotError(
+            f"teaching_projection_scope_step_shape_mismatch: {canonical.scope_ref}"
+        )
+    if len(canonical.goals) != len(executed.goals):
+        raise ExplanationSnapshotError(
+            f"teaching_projection_goal_shape_mismatch: {canonical.scope_ref}"
+        )
+    if len(canonical.children) != len(executed.children):
+        raise ExplanationSnapshotError(
+            f"teaching_projection_child_shape_mismatch: {canonical.scope_ref}"
+        )
+
+    scope_steps = tuple(
+        _project_source(
+            authored,
+            runtime,
+            planning_context=planning_context,
+            evidence=evidence,
+        )
+        for authored, runtime in zip(
+            canonical.steps,
+            executed.scope_steps,
+            strict=True,
+        )
+    )
+    goals: list[TeachingGoal] = []
+    for authored_goal, runtime_goal in zip(
+        canonical.goals,
+        executed.goals,
+        strict=True,
+    ):
+        _assert_goal_shape(authored_goal, runtime_goal, canonical.scope_ref)
+        goals.append(
+            TeachingGoal(
+                goal_ref=authored_goal.goal_ref,
+                steps=tuple(
+                    _project_source(
+                        authored,
+                        runtime,
+                        planning_context=planning_context,
+                        evidence=evidence,
+                    )
+                    for authored, runtime in zip(
+                        authored_goal.steps,
+                        runtime_goal.steps,
+                        strict=True,
+                    )
+                ),
+                answer_from=authored_goal.answer_from.to_payload(),
+            )
+        )
+    return TeachingScope(
+        scope_ref=canonical.scope_ref,
+        scope_steps=scope_steps,
+        goals=tuple(goals),
+        children=tuple(
+            _project_scope(
+                authored,
+                runtime,
+                planning_context=planning_context,
+                evidence=evidence,
+            )
+            for authored, runtime in zip(
+                canonical.children,
+                executed.children,
+                strict=True,
+            )
+        ),
     )
 
 
-def _execution_scopes(root: Any) -> tuple[Any, ...]:
-    result: list[Any] = []
+def _assert_goal_shape(
+    authored: ScopedFunctionalGoalPlan,
+    runtime: Any,
+    scope_ref: str,
+) -> None:
+    if authored.goal_ref != runtime.goal_ref:
+        raise ExplanationSnapshotError(
+            "teaching_projection_goal_owner_mismatch: "
+            f"scope={scope_ref}, canonical={authored.goal_ref}, "
+            f"execution={runtime.goal_ref}"
+        )
+    if runtime.status != "provisionally_solved":
+        raise ExplanationSnapshotError(
+            f"teaching_projection_goal_not_verified: {runtime.goal_ref}"
+        )
+    if len(authored.steps) != len(runtime.steps):
+        raise ExplanationSnapshotError(
+            f"teaching_projection_goal_step_shape_mismatch: {runtime.goal_ref}"
+        )
 
-    def visit(scope: Any) -> None:
-        result.append(scope)
-        for child in scope.children:
-            visit(child)
 
-    visit(root)
-    return tuple(result)
-
-
-def _build_teaching_trace(
-    planner_output: PlannerOutput,
-    execution: PlanExecutionResult,
-    step_capabilities: dict[str, str],
-) -> tuple[TeachingTraceEntry, ...]:
-    """按 invocation 建立 trace，避免同 method 多次调用被合并。"""
-    entries: list[TeachingTraceEntry] = []
-    step_results = {item.step_id: item for item in execution.step_results}
-    for plan in planner_output.step_plans:
-        step_result = step_results.get(plan.step_id)
-        method_results = list(step_result.method_results) if step_result else []
-        for index, invocation in enumerate(plan.invocations):
-            method_result = method_results[index] if index < len(method_results) else None
-            trace_id = f"trace:{plan.step_id}:{index}:{invocation.method_id}"
-            entries.append(
-                TeachingTraceEntry(
-                    trace_id=trace_id,
-                    source_step_id=plan.step_id,
-                    scope_id=plan.scope,
-                    capability_id=step_capabilities.get(plan.step_id, invocation.method_id),
-                    method_id=invocation.method_id,
-                    input_slots=tuple(invocation.inputs),
-                    output_slots=tuple(invocation.outputs),
-                    checks=tuple(
-                        str(getattr(check, "name", check))
-                        for check in getattr(method_result, "checks", [])
-                    ),
-                    trace_fragments=tuple(
-                        _trace_fragment_payload(fragment)
-                        for fragment in getattr(method_result, "trace_fragments", [])
-                    ),
-                    hidden_reason=_hidden_reason(plan, index),
-                )
+def _project_source(
+    authored: ScopedFunctionalStep,
+    runtime: Any,
+    *,
+    planning_context: Any | None,
+    evidence: dict[str, dict[str, Any]],
+) -> TeachingSource:
+    if authored.step_id != runtime.step_id:
+        raise ExplanationSnapshotError(
+            "teaching_projection_step_owner_mismatch: "
+            f"canonical={authored.step_id}, execution={runtime.step_id}"
+        )
+    if dict(runtime.authored_step) != authored.to_payload():
+        raise ExplanationSnapshotError(
+            f"teaching_projection_authored_step_drift: {authored.step_id}"
+        )
+    if runtime.status != "runtime_verified":
+        raise ExplanationSnapshotError(
+            "teaching_projection_unverified_step_forbidden: "
+            f"step={authored.step_id}, status={runtime.status}"
+        )
+    public_results = _public_results(
+        runtime.actual_outputs,
+        step_id=authored.step_id,
+    )
+    evidence_refs: list[str] = []
+    checks: list[dict[str, Any]] = []
+    for item in runtime.evidence:
+        if not isinstance(item, PathMinimumWitness):
+            raise ExplanationSnapshotError(
+                "teaching_projection_evidence_projector_missing: "
+                f"step={authored.step_id}, evidence={type(item).__name__}"
             )
-    return tuple(entries)
-
-
-def _hidden_reason(plan: StepPlan, invocation_index: int) -> str | None:
-    """EB1 只隐藏明显的 prep/cache invocation。"""
-    invocation = plan.invocations[invocation_index]
-    text = f"{invocation.invocation_id} {invocation.method_id}".lower()
-    if "prep" in text or "prepared" in text or "cache" in text:
-        return "prep_or_cache"
-    return None
-
-
-def _build_symbolic_closure_teaching(
-    replay: Any | None,
-) -> tuple[SymbolicClosureTeachingTrace, ...]:
-    attempt = getattr(replay, "transactional_attempt_result", None)
-    reconciliation = getattr(replay, "functional_reconciliation", None)
-    if attempt is None or reconciliation is None:
-        return ()
-    goal_calls = set(getattr(attempt, "goal_reachable_call_ids", ()))
-    call_by_step = {
-        item.call_id: item.canonical_call_id
-        for item in getattr(reconciliation, "execution_entries", ())
-    }
-    grouped: dict[tuple[Any, ...], list[Any]] = {}
-    call_by_signature: dict[tuple[Any, ...], str] = {}
-    for write in getattr(attempt, "state_writes", ()):
-        provenance = getattr(
-            write,
-            "symbolic_closure_provenance",
-            None,
-        )
-        if provenance is None or provenance.status != "unique":
-            continue
-        call_id = (
-            write.canonical_producer_call_id
-            or call_by_step.get(write.step_id)
-        )
-        if call_id is None:
-            raise ValueError(
-                "planner_configuration_error: "
-                "planner.symbolic_closure_explanation_projection_missing: "
-                f"step={write.step_id}, return={write.return_name}"
+        if planning_context is None:
+            raise ExplanationSnapshotError(
+                "teaching_projection_planning_context_missing: "
+                f"step={authored.step_id}"
             )
-        if call_id not in goal_calls:
-            continue
-        signature = provenance.semantic_signature()
-        grouped.setdefault(signature, []).append(write)
-        call_by_signature.setdefault(signature, call_id)
-    result: list[SymbolicClosureTeachingTrace] = []
-    for signature, writes in grouped.items():
-        provenance = writes[0].symbolic_closure_provenance
-        assert provenance is not None
-        target = (
-            _student_semantic_ref(provenance.target_object_id.value)
-            if provenance.target_object_id is not None
-            else "parameter"
-        )
-        result.append(
-            SymbolicClosureTeachingTrace(
-                source_call_id=call_by_signature[signature],
-                target=target,
-                target_value=canonical_symbolic_expression(
-                    provenance.target_value
-                ),
-                equation_sources=tuple(provenance.equation_sources),
-                known_substitutions=tuple(
-                    (
-                        _student_semantic_ref(symbol_id.value),
-                        value,
-                    )
-                    for symbol_id, value in provenance.substitutions
-                    if symbol_id != provenance.target_object_id
-                ),
-                constraint_summary=(
-                    "structured_constraint_applied"
-                    if provenance.constraint_filter is not None
-                    else None
-                ),
-                branch_count=provenance.branch_count,
-                residual_symbols=tuple(
-                    _student_semantic_ref(item.value)
-                    for item in provenance.residual_symbol_ids
-                ),
-                affected_returns=tuple(provenance.affected_returns),
-                state_updates=tuple(
-                    {
-                        "return": write.return_name,
-                        "type": write.runtime_type,
-                        "form": write.result_form,
-                        "free": [
-                            _student_semantic_ref(item.value)
-                            for item in write.free_symbol_ids
-                        ],
-                    }
-                    for write in writes
-                    if write.return_name is not None
-                ),
+        projected = PathMinimumPromptWitnessProjector().project(
+            item,
+            planning_context,
+        ).to_payload()
+        evidence_ref = f"path-minimum:{item.witness_id}"
+        previous = evidence.get(evidence_ref)
+        if previous is not None and previous != projected:
+            raise ExplanationSnapshotError(
+                f"teaching_projection_evidence_id_collision: {evidence_ref}"
             )
-        )
-    return tuple(result)
+        evidence[evidence_ref] = projected
+        evidence_refs.append(evidence_ref)
+        checks.extend(_witness_checks(projected))
+    return TeachingSource(
+        source_step_id=authored.step_id,
+        capability_id=authored.capability_id,
+        args={
+            name: _authored_arg_payload(values)
+            for name, values in authored.args.items()
+        },
+        output_targets=dict(authored.output_targets),
+        return_expectations=dict(authored.return_expectations),
+        intent=authored.intent,
+        public_results=public_results,
+        checks=tuple(checks),
+        evidence_refs=tuple(evidence_refs),
+    )
 
 
-def _student_semantic_ref(value: str) -> str:
-    return value.rsplit(":", 1)[-1]
+def _authored_arg_payload(values: Sequence[Any]) -> Any:
+    projected = [
+        item.to_payload() if isinstance(item, ScopedStepResultRef) else item
+        for item in values
+    ]
+    return projected[0] if len(projected) == 1 else projected
 
 
-def _build_fact_index(
-    context: RuntimeContext,
-    effective_steps: tuple[Any, ...],
+def _public_results(
+    outputs: Sequence[Mapping[str, Any]],
+    *,
+    step_id: str,
 ) -> dict[str, dict[str, Any]]:
-    """建立讲解可用 fact index，不输出 ContextPath。"""
-    index: dict[str, dict[str, Any]] = {}
-    for step in effective_steps:
-        step_id = (
-            str(step.get("step_id"))
-            if isinstance(step, dict)
-            else step.step_id
-        )
-        produced_items = (
-            step.get("produces", ())
-            if isinstance(step, dict)
-            else step.produces
-        )
-        for produced in produced_items:
-            handle = (
-                str(produced.get("handle"))
-                if isinstance(produced, dict)
-                else produced.handle
+    result: dict[str, dict[str, Any]] = {}
+    for index, output in enumerate(outputs):
+        return_name = str(output.get("return") or "")
+        if not return_name or return_name in result:
+            raise ExplanationSnapshotError(
+                "teaching_projection_runtime_output_invalid: "
+                f"step={step_id}, index={index}, missing_or_duplicate_return"
             )
-            index[handle] = {
-                "handle": handle,
-                "scope_id": (
-                    produced.get("valid_scope")
-                    if isinstance(produced, dict)
-                    else produced.valid_scope
-                ),
-                "type": (
-                    produced.get("output_type")
-                    if isinstance(produced, dict)
-                    else produced.output_type
-                ),
-                "description": (
-                    produced.get("description", "")
-                    if isinstance(produced, dict)
-                    else produced.description
-                ),
-                "source_step_id": step_id,
-                "source": "effective_step",
-            }
-    for scope_id, scope in sorted(context.scopes.items()):
-        for container_name, container in _scope_containers(scope).items():
-            for key, typed in sorted(container.items()):
-                handle = f"runtime:{scope_id}:{container_name}:{key}"
-                index[handle] = {
-                    "handle": handle,
-                    "scope_id": scope_id,
-                    "container": container_name,
-                    "name": key,
-                    "type": typed.type,
-                    "value": _typed_value_payload(typed, context),
-                    "locked": typed.locked,
-                    "source": typed.source,
+        runtime_type = str(output.get("runtime_type") or "")
+        if not runtime_type or "value" not in output or "value_omitted_reason" in output:
+            raise ExplanationSnapshotError(
+                "teaching_projection_runtime_output_incomplete: "
+                f"step={step_id}, return={return_name}"
+            )
+        value = _json_value(output["value"])
+        _assert_public_value(
+            value,
+            path=f"step={step_id}.public_results.{return_name}.value",
+        )
+        result[return_name] = {
+            "runtime_type": runtime_type,
+            "value": value,
+        }
+    return result
+
+
+def _witness_checks(payload: Mapping[str, Any]) -> list[dict[str, Any]]:
+    checks: list[dict[str, Any]] = []
+    for attainment in payload.get("attainment_checks", ()):
+        if not isinstance(attainment, Mapping):
+            continue
+        for item in attainment.get("checks", ()):
+            if not isinstance(item, Mapping):
+                continue
+            checks.append(
+                {
+                    "name": str(item.get("check") or "attainment_check"),
+                    "status": "passed" if item.get("passed") else "failed",
                 }
-    return index
+            )
+    return checks
 
 
-def _scope_containers(scope: Any) -> dict[str, dict[str, TypedValue]]:
-    containers: dict[str, dict[str, TypedValue]] = {}
-    containers.update(scope.facts)
-    if scope.constraints:
-        containers["constraints"] = scope.constraints
-    if scope.outputs:
-        containers["outputs"] = scope.outputs
-    if scope.temp_values:
-        containers["temp"] = scope.temp_values
-    return containers
-
-
-def _typed_value_payload(typed: TypedValue, context: RuntimeContext) -> Any:
-    if typed.type == "PointRef":
-        point_ref: PointRef = typed.value
-        return {
-            "name": point_ref.name,
-            "scope_id": point_ref.scope_id,
-            "definition": _clean_value(point_ref.definition, context),
-        }
-    return _clean_value(typed.value, context)
-
-
-def _planner_insights(planner_artifacts: Any) -> tuple[dict[str, Any], ...]:
-    diagnostic = getattr(planner_artifacts, "execution_diagnostic", None)
-    if diagnostic is None:
-        return ()
-    return tuple(item.to_payload() for item in diagnostic.planner_insights)
-
-
-def _trace_fragment_payload(fragment: Any) -> dict[str, Any]:
-    if is_dataclass(fragment):
-        return _clean_value(asdict(fragment), None)
-    if isinstance(fragment, dict):
-        return _clean_value(fragment, None)
-    return {"text": str(fragment)}
-
-
-def _check_payload(check: Any) -> dict[str, Any]:
-    return {
-        "name": str(getattr(check, "name", "")),
-        "status": str(getattr(check, "status", "")),
-        "detail": str(getattr(check, "detail", "")),
+def _verified_answers(
+    root: TeachingScope,
+    *,
+    question_goals: tuple[Any, ...],
+) -> dict[str, Any]:
+    sources = {
+        source.source_step_id: source
+        for source in iter_teaching_sources(root)
     }
+    goal_authority = {
+        str(getattr(goal, "id", "")): goal
+        for goal in question_goals
+    }
+    answers: dict[str, dict[str, Any]] = {}
+    seen_goal_refs: set[str] = set()
+    for scope in iter_teaching_scopes(root):
+        for goal in scope.goals:
+            authority = goal_authority.get(goal.goal_ref)
+            if authority is None:
+                raise ExplanationSnapshotError(
+                    f"teaching_projection_question_goal_missing: {goal.goal_ref}"
+                )
+            source = sources.get(str(goal.answer_from.get("step_id") or ""))
+            return_name = str(goal.answer_from.get("return") or "")
+            runtime_result = (
+                source.public_results.get(return_name)
+                if source is not None
+                else None
+            )
+            if runtime_result is None:
+                raise ExplanationSnapshotError(
+                    "teaching_projection_answer_source_missing: "
+                    f"goal={goal.goal_ref}, answer_from={dict(goal.answer_from)}"
+                )
+            question_id = str(getattr(authority, "question_id", ""))
+            answer_key = str(getattr(authority, "answer_key", ""))
+            if not question_id or not answer_key:
+                raise ExplanationSnapshotError(
+                    f"teaching_projection_question_goal_invalid: {goal.goal_ref}"
+                )
+            answers.setdefault(question_id, {})[answer_key] = _json_value(
+                runtime_result["value"]
+            )
+            seen_goal_refs.add(goal.goal_ref)
+    missing = sorted(set(goal_authority) - seen_goal_refs)
+    if missing:
+        raise ExplanationSnapshotError(
+            f"teaching_projection_canonical_goals_missing: {missing}"
+        )
+    return answers
 
 
-def _clean_value(value: Any, context: RuntimeContext | None) -> Any:
-    """转成 JSON 友好值，并避免泄露 runtime path。"""
-    if isinstance(value, dict):
-        return {
-            str(k): _clean_value(v, context)
-            for k, v in value.items()
-            if str(k) not in {"path", "target_path"}
-        }
-    if isinstance(value, list | tuple):
-        return [_clean_value(item, context) for item in value]
-    if isinstance(value, sp.Basic):
-        return context.to_answer_value(value) if context is not None else sp.sstr(value)
-    if is_dataclass(value):
-        return _clean_value(asdict(value), context)
-    if isinstance(value, str):
-        return value
-    if value is None or isinstance(value, bool | int | float):
-        return value
+def _answer_runtime_types(
+    root: TeachingScope,
+    *,
+    question_goals: tuple[Any, ...],
+) -> dict[tuple[str, str], str]:
+    sources = {
+        source.source_step_id: source
+        for source in iter_teaching_sources(root)
+    }
+    goal_authority = {
+        str(getattr(goal, "id", "")): goal
+        for goal in question_goals
+    }
+    result: dict[tuple[str, str], str] = {}
+    for scope in iter_teaching_scopes(root):
+        for goal in scope.goals:
+            authority = goal_authority.get(goal.goal_ref)
+            source = sources.get(str(goal.answer_from.get("step_id") or ""))
+            return_name = str(goal.answer_from.get("return") or "")
+            runtime_result = (
+                source.public_results.get(return_name)
+                if source is not None
+                else None
+            )
+            if authority is None or runtime_result is None:
+                continue
+            result[
+                (
+                    str(getattr(authority, "question_id", "")),
+                    str(getattr(authority, "answer_key", "")),
+                )
+            ] = str(runtime_result.get("runtime_type") or "")
+    return result
+
+
+def _answer_payloads_equivalent(
+    derived: Mapping[str, Any],
+    observed: Mapping[str, Any],
+    *,
+    runtime_types: Mapping[tuple[str, str], str],
+) -> bool:
+    if set(derived) != set(observed):
+        return False
+    for question_id, expected_answers in derived.items():
+        actual_answers = observed.get(question_id)
+        if not isinstance(expected_answers, Mapping) or not isinstance(
+            actual_answers,
+            Mapping,
+        ):
+            return False
+        if set(expected_answers) != set(actual_answers):
+            return False
+        for answer_key, expected in expected_answers.items():
+            actual = actual_answers[answer_key]
+            runtime_type = runtime_types.get((str(question_id), str(answer_key)), "")
+            if runtime_type == "PointList":
+                if not _unordered_json_sequence_equal(expected, actual):
+                    return False
+            elif expected != actual:
+                return False
+    return True
+
+
+def _unordered_json_sequence_equal(left: Any, right: Any) -> bool:
+    if not isinstance(left, list) or not isinstance(right, list):
+        return False
+    return sorted(
+        json.dumps(item, ensure_ascii=False, sort_keys=True)
+        for item in left
+    ) == sorted(
+        json.dumps(item, ensure_ascii=False, sort_keys=True)
+        for item in right
+    )
+
+
+def _cross_scope_references(
+    root: TeachingScope,
+    *,
+    dependency_graph: Mapping[str, Sequence[str]],
+    public_result_dependencies: Mapping[
+        str, Sequence[tuple[str, str]]
+    ],
+) -> tuple[TeachingCrossScopeReference, ...]:
+    owners = teaching_source_owners(root)
+    sources = tuple(iter_teaching_sources(root))
+    source_by_id = {item.source_step_id: item for item in sources}
+
+    references: list[TeachingCrossScopeReference] = []
+    seen: set[tuple[str, str, str]] = set()
+
+    def add(source_id: str, return_name: str, target_id: str) -> None:
+        source_owner = owners.get(source_id)
+        target_owner = owners.get(target_id)
+        source = source_by_id.get(source_id)
+        if source_owner is None or target_owner is None or source is None:
+            raise ExplanationSnapshotError(
+                "teaching_projection_dependency_step_missing: "
+                f"source={source_id}, target={target_id}"
+            )
+        if return_name not in source.public_results:
+            raise ExplanationSnapshotError(
+                "teaching_projection_dependency_result_missing: "
+                f"source={source_id}, return={return_name}"
+            )
+        if source_owner[0] == target_owner[0]:
+            return
+        key = (source_id, return_name, target_id)
+        if key in seen:
+            return
+        seen.add(key)
+        references.append(
+            TeachingCrossScopeReference(
+                source_step_id=source_id,
+                target_step_id=target_id,
+                source_scope_ref=source_owner[0],
+                target_scope_ref=target_owner[0],
+                public_result_ref={
+                    "step_id": source_id,
+                    "return": return_name,
+                },
+            )
+        )
+
+    for target in sources:
+        target_id = target.source_step_id
+        cross_scope_dependencies = tuple(
+            str(source_id)
+            for source_id in dependency_graph.get(target_id, ())
+            if owners.get(str(source_id), (None, None))[0]
+            != owners[target_id][0]
+        )
+        projected_sources: set[str] = set()
+        for source_id, return_name in public_result_dependencies.get(
+            target_id,
+            (),
+        ):
+            source = source_by_id.get(str(source_id))
+            if source is None:
+                raise ExplanationSnapshotError(
+                    "teaching_projection_dependency_step_missing: "
+                    f"source={source_id}, target={target_id}"
+                )
+            if owners[source.source_step_id][0] == owners[target_id][0]:
+                continue
+            add(source.source_step_id, str(return_name), target_id)
+            projected_sources.add(source.source_step_id)
+        missing_sources = sorted(
+            set(cross_scope_dependencies) - projected_sources
+        )
+        if missing_sources:
+            raise ExplanationSnapshotError(
+                "teaching_projection_dependency_public_result_unresolved: "
+                f"target={target_id}, sources={missing_sources}"
+            )
+    return tuple(references)
+
+
+def _assert_public_value(value: Any, *, path: str) -> None:
+    internal_keys = {
+        "state_version",
+        "state_version_id",
+        "checkpoint_id",
+        "transaction_id",
+        "runtime_path",
+        "target_path",
+        "provenance_signature",
+    }
+    if isinstance(value, Mapping):
+        hit = next((str(key) for key in value if str(key) in internal_keys), None)
+        if hit is not None:
+            raise ExplanationSnapshotError(
+                f"teaching_projection_internal_identity_forbidden: {path}.{hit}"
+            )
+        for key, item in value.items():
+            _assert_public_value(item, path=f"{path}.{key}")
+    elif isinstance(value, Sequence) and not isinstance(value, (str, bytes)):
+        for index, item in enumerate(value):
+            _assert_public_value(item, path=f"{path}[{index}]")
+    if contains_private_path_projection_marker(value):
+        raise ExplanationSnapshotError(
+            f"teaching_projection_private_macro_value_forbidden: {path}"
+        )
+
+
+def _json_value(value: Any) -> Any:
     try:
-        import json
-
-        json.dumps(value)
-        return value
-    except TypeError:
-        return str(value)
+        return json.loads(json.dumps(value, ensure_ascii=False))
+    except (TypeError, ValueError) as exc:
+        raise ExplanationSnapshotError(
+            "teaching_projection_value_not_json_safe"
+        ) from exc
 
 
 def _assert_safe_snapshot(snapshot: ExplanationSnapshot) -> None:
     payload = snapshot.to_payload()
-    text = str(payload)
-    forbidden = ("$problem.", "$question.", "$subquestion.", "<html", "<svg", "<script")
+    text = json.dumps(payload, ensure_ascii=False)
+    forbidden = (
+        "$problem.",
+        "$question.",
+        "$subquestion.",
+        "<html",
+        "<svg",
+        "<script",
+        "execution_scope_id",
+        "presentation_scope_id",
+        "student_step_placements",
+        "student_scope_references",
+        "raw_response",
+        "expected_answer",
+    )
     hit = next((item for item in forbidden if item in text), None)
     if hit:
-        raise ExplanationSnapshotError(f"unsafe explanation snapshot contains {hit}")
+        raise ExplanationSnapshotError(
+            f"unsafe explanation snapshot contains {hit}"
+        )
+    if contains_private_path_projection_marker(payload):
+        raise ExplanationSnapshotError(
+            "unsafe explanation snapshot contains private Macro projection"
+        )

@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import inspect
 import shutil
+from dataclasses import replace
 from types import SimpleNamespace
 
 import pytest
@@ -21,6 +22,7 @@ from shuxueshuo_server.solver.explanation import (
 )
 from shuxueshuo_server.solver.explanation import builder as explanation_builder
 from shuxueshuo_server.solver.explanation import llm as explanation_llm
+from shuxueshuo_server.solver.explanation import snapshot as explanation_snapshot
 from shuxueshuo_server.solver.explanation.builder import LessonIRValidationError
 from shuxueshuo_server.solver.explanation.few_shots import (
     select_lesson_few_shot_examples,
@@ -28,12 +30,16 @@ from shuxueshuo_server.solver.explanation.few_shots import (
 )
 from shuxueshuo_server.solver.explanation.llm import build_lesson_planner_payload
 from shuxueshuo_server.solver.explanation.models import (
-    ExplanationSnapshot,
     LessonCandidateGroup,
     LessonStep,
+    TeachingCrossScopeReference,
+    TeachingScope,
+    TeachingSource,
     TeachingTraceEntry,
+    explanation_snapshot_from_payload,
+    teaching_source_owners,
 )
-from shuxueshuo_server.solver.explanation.presentation import StudentScopeReference
+from shuxueshuo_server.solver.explanation.snapshot import ExplanationSnapshotError
 from shuxueshuo_server.solver.explanation.role_binders import RoleBinderRegistry, RoleBindingError
 from shuxueshuo_server.solver.explanation.role_binders import methods as method_role_binder_methods
 from shuxueshuo_server.solver.explanation.teaching_expansion import (
@@ -103,9 +109,7 @@ def test_required_cross_scope_reference_is_restored_when_llm_omits_it() -> None:
         "recipe_hint": "quadratic_axis_from_relation",
         "produces": [{"handle": "answer:i.axis_point"}],
     }
-    snapshot = ExplanationSnapshot(
-        problem_id="synthetic",
-        family_id="SyntheticFamily",
+    snapshot = SimpleNamespace(
         problem={
             "scopes": [
                 {"scope_id": "problem", "label": "整题", "parent": None},
@@ -122,25 +126,22 @@ def test_required_cross_scope_reference_is_restored_when_llm_omits_it() -> None:
             ],
         },
         effective_steps=(source_step,),
-        teaching_trace=(),
-        fact_index={},
     )
-    reference = StudentScopeReference(
+    reference = TeachingCrossScopeReference(
         source_step_id="derive_D",
         target_step_id="consume_D",
-        source_scope_id="i",
-        target_scope_id="ii",
-        semantic_roles=("axis_point",),
+        source_scope_ref="i",
+        target_scope_ref="ii",
+        public_result_ref={"step_id": "derive_D", "return": "axis_point"},
     )
     line = explanation_builder._student_reference_line(reference, snapshot)
     group = LessonCandidateGroup(
         step={
             "step_id": "consume_D",
-            "scope_id": "problem",
+            "scope_id": "ii",
             "recipe_hint": "distance_between_points",
         },
         traces=(),
-        presentation_scope_id="ii",
         required_reference_lines=(line,),
     )
 
@@ -371,6 +372,243 @@ def test_explanation_snapshot_from_recorded_heping_is_safe_and_invocation_level(
     duplicate_methods = {method_id for method_id in method_ids if method_ids.count(method_id) > 1}
     assert duplicate_methods
     assert len({entry.trace_id for entry in snapshot.teaching_trace}) == len(snapshot.teaching_trace)
+
+
+def test_explanation_snapshot_v2_is_canonical_owner_tree_and_round_trips() -> None:
+    orchestrator, _ = _solve_recorded_heping()
+    artifacts = orchestrator.last_success_artifacts
+    assert artifacts is not None
+    verified = artifacts.verified_functional_execution
+    assert verified is not None
+
+    snapshot = ExplanationSnapshotBuilder().build(artifacts)
+    payload = snapshot.to_payload()
+
+    def canonical_shape(scope):
+        return {
+            "scope_ref": scope.scope_ref,
+            "scope_steps": [item.step_id for item in scope.steps],
+            "goals": {
+                goal.goal_ref: [item.step_id for item in goal.steps]
+                for goal in scope.goals
+            },
+            "children": [canonical_shape(item) for item in scope.children],
+        }
+
+    def teaching_shape(scope):
+        return {
+            "scope_ref": scope.scope_ref,
+            "scope_steps": [item.source_step_id for item in scope.scope_steps],
+            "goals": {
+                goal.goal_ref: [item.source_step_id for item in goal.steps]
+                for goal in scope.goals
+            },
+            "children": [teaching_shape(item) for item in scope.children],
+        }
+
+    assert teaching_shape(snapshot.root_scope) == canonical_shape(
+        verified.canonical_plan.root_scope
+    )
+    assert snapshot.problem_revision == verified.problem_revision_id
+    assert snapshot.canonical_plan_hash == verified.plan_id
+    assert snapshot.verified_execution_hash == verified.execution_signature
+    assert set(payload) == {
+        "schema_version",
+        "problem_id",
+        "family_id",
+        "problem_revision",
+        "problem_semantic_hash",
+        "canonical_plan_hash",
+        "verified_execution_hash",
+        "problem",
+        "root_scope",
+        "cross_scope_references",
+        "evidence",
+        "answers",
+    }
+    for retired in (
+        "effective_steps",
+        "fact_index",
+        "teaching_trace",
+        "student_step_placements",
+        "student_scope_references",
+        "execution_scope_id",
+        "presentation_scope_id",
+    ):
+        assert retired not in json.dumps(payload, ensure_ascii=False)
+
+    hydrated = explanation_snapshot_from_payload(payload)
+    assert hydrated.to_payload() == payload
+    assert teaching_source_owners(hydrated.root_scope) == teaching_source_owners(
+        snapshot.root_scope
+    )
+
+    with_flat_owner = json.loads(json.dumps(payload, ensure_ascii=False))
+    with_flat_owner["root_scope"]["flat_steps"] = []
+    with pytest.raises(ValueError, match="TeachingScope payload fields"):
+        explanation_snapshot_from_payload(with_flat_owner)
+
+    with_extra_result_field = json.loads(json.dumps(payload, ensure_ascii=False))
+    first_source = with_extra_result_field["root_scope"]["scope_steps"][0]
+    first_result = next(iter(first_source["public_results"].values()))
+    first_result["runtime_path"] = "forbidden"
+    with pytest.raises(ValueError, match="public_results"):
+        explanation_snapshot_from_payload(with_extra_result_field)
+
+
+def test_explanation_snapshot_v2_uses_exact_cross_scope_result_edges() -> None:
+    orchestrator, _ = _solve_recorded_heping()
+    snapshot = ExplanationSnapshotBuilder().build(
+        orchestrator.last_success_artifacts
+    )
+    edges = {
+        (
+            item.source_step_id,
+            item.target_step_id,
+            item.source_scope_ref,
+            item.target_scope_ref,
+            item.public_result_ref["return"],
+        )
+        for item in snapshot.cross_scope_references
+    }
+
+    assert (
+        "derive_translated_D_i",
+        "derive_parabola_i",
+        "problem",
+        "i",
+        "point",
+    ) in edges
+    assert (
+        "derive_parabola_i",
+        "derive_x_intercept_B_i",
+        "i",
+        "i_2",
+        "parabola",
+    ) in edges
+    assert all(source_scope != target_scope for _, _, source_scope, target_scope, _ in edges)
+
+
+def test_cross_scope_projection_does_not_guess_from_colliding_channels() -> None:
+    exact_producer = TeachingSource(
+        source_step_id="exact_producer",
+        capability_id="exact_producer_capability",
+        args={},
+        output_targets={"value": "shared"},
+        public_results={
+            "value": {"runtime_type": "Expression", "value": "x + 1"}
+        },
+    )
+    unrelated_collision = TeachingSource(
+        source_step_id="unrelated_collision",
+        capability_id="unrelated_capability",
+        args={},
+        output_targets={"value": "shared"},
+        public_results={
+            "value": {"runtime_type": "Expression", "value": "x + 2"}
+        },
+    )
+    consumer = TeachingSource(
+        source_step_id="consumer",
+        capability_id="consumer_capability",
+        args={"expression": "shared"},
+        public_results={
+            "result": {"runtime_type": "Expression", "value": "x + 1"}
+        },
+    )
+    root = TeachingScope(
+        scope_ref="problem",
+        scope_steps=(exact_producer, unrelated_collision),
+        children=(
+            TeachingScope(scope_ref="ii", scope_steps=(consumer,)),
+        ),
+    )
+
+    references = explanation_snapshot._cross_scope_references(
+        root,
+        dependency_graph={
+            "exact_producer": (),
+            "unrelated_collision": (),
+            "consumer": ("exact_producer",),
+        },
+        public_result_dependencies={
+            "exact_producer": (),
+            "unrelated_collision": (),
+            "consumer": (("exact_producer", "value"),),
+        },
+    )
+
+    assert tuple(
+        (
+            item.source_step_id,
+            item.target_step_id,
+            item.public_result_ref["return"],
+        )
+        for item in references
+    ) == (("exact_producer", "consumer", "value"),)
+
+    with pytest.raises(
+        ExplanationSnapshotError,
+        match="dependency_public_result_unresolved",
+    ):
+        explanation_snapshot._cross_scope_references(
+            root,
+            dependency_graph={
+                "exact_producer": (),
+                "unrelated_collision": (),
+                "consumer": ("exact_producer",),
+            },
+            public_result_dependencies={
+                "exact_producer": (),
+                "unrelated_collision": (),
+                "consumer": (),
+            },
+        )
+
+
+def test_explanation_snapshot_v2_does_not_fallback_to_transactional_replay() -> None:
+    orchestrator, _ = _solve_recorded_heping()
+    artifacts = orchestrator.last_success_artifacts
+    assert artifacts is not None
+    without_verified_execution = replace(
+        artifacts,
+        verified_functional_execution=None,
+    )
+
+    with pytest.raises(
+        ExplanationSnapshotError,
+        match="teaching_projection_verified_execution_missing",
+    ):
+        ExplanationSnapshotBuilder().build(without_verified_execution)
+
+
+def test_explanation_snapshot_v2_rejects_nonverified_canonical_step() -> None:
+    orchestrator, _ = _solve_recorded_heping()
+    artifacts = orchestrator.last_success_artifacts
+    assert artifacts is not None
+    verified = artifacts.verified_functional_execution
+    assert verified is not None
+    root = verified.root_scope
+    first = root.scope_steps[0]
+    drifted_root = replace(
+        root,
+        scope_steps=(
+            replace(first, status="pruned_dead"),
+            *root.scope_steps[1:],
+        ),
+    )
+    drifted_execution = replace(verified, root_scope=drifted_root)
+
+    with pytest.raises(
+        ExplanationSnapshotError,
+        match="teaching_projection_unverified_step_forbidden",
+    ):
+        ExplanationSnapshotBuilder().build(
+            replace(
+                artifacts,
+                verified_functional_execution=drifted_execution,
+            )
+        )
 
 
 def test_lesson_ir_from_recorded_heping_contains_answers_and_trace_refs() -> None:

@@ -212,7 +212,6 @@ def build_lesson_planner_payload(
             "question_goals": snapshot.problem.get("question_goals", []),
         },
         "answers": snapshot.answers,
-        "planner_insights": list(snapshot.planner_insights),
         "previous_attempts": list(previous_attempts or ()),
         "teaching_step_policy": _teaching_step_policy(groups),
         "merge_suggestions": _merge_suggestions(groups),

@@ -210,6 +210,7 @@ class GeometrySpecBuilder:
             point_meta=point_meta,
             parameter_name=parameter_name,
         )
+        _move_duplicate_dynamic_points(fixed_points, moving_points, parameter_name)
         domain = _domain_from_geometry_points(
             fixed_points,
             moving_points,
@@ -1398,14 +1399,20 @@ def _numeric_x_axis_roots_for_curve(curve: JsonObject) -> list[Any]:
         c = sp.sympify(str(curve.get("c") or "0"))
     except Exception:
         return []
-    if any(expr.free_symbols for expr in (a, b, c)):
-        return []
     if sp.simplify(a) == 0:
         return []
     x = sp.Symbol("x")
     roots = [sp.simplify(root) for root in sp.solve(sp.Eq(a * x * x + b * x + c, 0), x)]
     real_roots = [root for root in roots if root.is_real is not False]
-    return sorted(real_roots, key=lambda item: float(sp.N(item)))
+
+    def representative_value(item: Any) -> tuple[int, float, str]:
+        try:
+            sample = item.subs({symbol: 1 for symbol in item.free_symbols})
+            return (0, float(sp.N(sample)), str(item))
+        except Exception:
+            return (1, 0.0, str(item))
+
+    return sorted(real_roots, key=representative_value)
 
 
 def _select_x_axis_root_for_entity(entity: JsonObject, roots: list[Any]) -> Any | None:
@@ -1499,6 +1506,8 @@ class GeometryPointNamer:
             )
             if auxiliary:
                 return auxiliary
+        if re.fullmatch(r"[A-Z][A-Za-z0-9]*(?:_prime)?", name):
+            return name
         source_step_id = self._source_step_id_for_fact(item)
         label = _label_from_effective_step(source_step_id, self.snapshot)
         if label:

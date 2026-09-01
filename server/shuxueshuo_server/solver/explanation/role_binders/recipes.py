@@ -341,9 +341,11 @@ def _apply_verified_path_witness(
                 "explanation_only_label": True,
             }
         coordinate = construction.get("coordinate")
-        if auxiliary and isinstance(coordinate, dict):
-            roles["auxiliary_coordinate"] = (
-                f"{auxiliary}=({coordinate.get('x')},{coordinate.get('y')})"
+        coordinate_pair = _point_pair_from_value(coordinate)
+        if auxiliary and coordinate_pair is not None:
+            roles["auxiliary_coordinate"] = _point_text(
+                auxiliary,
+                coordinate_pair,
             )
     roles["original_path"] = str(witness.get("original_objective") or "")
     roles["reduced_path"] = str(witness.get("reduced_objective") or "")
@@ -619,7 +621,10 @@ def _point_pair_for_auxiliary(
     for item in snapshot.fact_index.values():
         if not isinstance(item, dict) or item.get("type") != "Point":
             continue
-        if str(item.get("source") or "") != "equal_length_ray_point":
+        if str(item.get("source") or "") not in {
+            "equal_length_ray_point",
+            "equal_length_ray_path_reduction",
+        }:
             continue
         pair = _point_pair_from_value(item.get("value"))
         if pair is None:

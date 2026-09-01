@@ -15,8 +15,15 @@ from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.recipes import RecipeSpecRegistry
 from shuxueshuo_server.solver.student_display import student_math_display
 
-from .models import ExplanationSnapshot, LessonCandidateGroup, LessonIR, LessonSection, LessonStep, TeachingTraceEntry
-from .presentation import StudentScopeReference
+from .models import (
+    ExplanationSnapshot,
+    LessonCandidateGroup,
+    LessonIR,
+    LessonSection,
+    LessonStep,
+    TeachingCrossScopeReference,
+    TeachingTraceEntry,
+)
 from .target_labels import (
     target_point_label_for_group as _target_point_label_for_group,
     target_point_labels_from_groups_and_pieces as _target_point_labels_for_groups,
@@ -345,37 +352,20 @@ def _build_lesson_groups(snapshot: ExplanationSnapshot) -> list[LessonCandidateG
     steps_by_id = {
         str(step["step_id"]): step for step in snapshot.effective_steps
     }
-    placement_by_step = {
-        item.step_id: item for item in snapshot.student_step_placements
-    }
     references_by_step: dict[str, list[Any]] = defaultdict(list)
-    for reference in snapshot.student_scope_references:
+    for reference in snapshot.cross_scope_references:
         references_by_step[reference.target_step_id].append(reference)
-    ordered_step_ids = [
-        item.step_id
-        for item in snapshot.student_step_placements
-        if item.step_id in steps_by_id
-    ]
-    ordered_step_ids.extend(
-        step_id for step_id in steps_by_id if step_id not in ordered_step_ids
-    )
     groups = []
-    for step_id in ordered_step_ids:
+    for step_id in steps_by_id:
         step = steps_by_id[step_id]
         traces = tuple(traces_by_step.get(str(step["step_id"]), ()))
         if traces and all(entry.hidden_reason for entry in traces):
             continue
-        placement = placement_by_step.get(step_id)
         groups.extend(
             _split_lesson_group(
                 LessonCandidateGroup(
                     step,
                     traces,
-                    presentation_scope_id=(
-                        placement.presentation_scope_id
-                        if placement is not None
-                        else str(step.get("scope_id") or "problem")
-                    ),
                     required_reference_lines=tuple(
                         _student_reference_line(reference, snapshot)
                         for reference in references_by_step.get(step_id, ())
@@ -387,7 +377,7 @@ def _build_lesson_groups(snapshot: ExplanationSnapshot) -> list[LessonCandidateG
 
 
 def _student_reference_line(
-    reference: StudentScopeReference,
+    reference: TeachingCrossScopeReference,
     snapshot: ExplanationSnapshot,
 ) -> str:
     scope_label = next(
@@ -556,7 +546,6 @@ def _split_lesson_group(group: LessonCandidateGroup) -> tuple[LessonCandidateGro
             teaching_focus=substep.focus,
             preferred_method_ids=substep.preferred_method_ids,
             forbid_merge_with_sibling_substeps=substep.forbid_merge_with_sibling_substeps,
-            presentation_scope_id=group.presentation_scope_id,
             required_reference_lines=(
                 group.required_reference_lines if index == 0 else ()
             ),
@@ -1877,8 +1866,15 @@ def _produced_boxes(step: dict[str, Any]) -> tuple[str, ...]:
         description = str(produced.get("description", ""))
         handle = str(produced.get("handle", ""))
         if description:
-            boxes.append(description)
-        elif handle:
+            if not re.fullmatch(
+                r"[a-z0-9_]+ return [a-z0-9_]+",
+                description,
+            ):
+                boxes.append(description)
+            continue
+        if handle and not handle.startswith(
+            ("answer:", "fact:", "runtime:", "step-result:")
+        ):
             boxes.append(handle)
     return tuple(boxes)
 

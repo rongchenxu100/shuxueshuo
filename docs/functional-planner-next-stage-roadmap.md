@@ -29,7 +29,7 @@
 | F5-F4.3D：南开耦合路径 Macro | `COMPLETE` | 两公开输入、两公开输出；共享 Scope、构造点诊断、few-shot hash 与最终 live `1x3` 通过 |
 | F5-F4.3E：加权路径原子 Macro | `COMPLETE` | 单路径 Fact 输入、单表达式输出；河西/西青最终 live 各 `1x3` 均首轮通过 |
 | F5-F4.3F：旧能力清理与全量验收 | `COMPLETE` | 公开 Path 内部类型与兼容链已删除，compiler 原子门禁及完整投影门禁已落地 |
-| F5-F5：Teaching scope | `NEXT` | 从 verified execution 派生教学归属并退役剩余兼容入口 |
+| F5-F5：Teaching scope | `IN PROGRESS` | F5-F5A Canonical owner Snapshot 已完成；F5-F5B 递归 LessonIR 下一步 |
 | G：Post-solver Context | `AFTER F5` | Explanation、Diagram、Voiceover、Animation Context |
 | E：端到端优化 | `AFTER F/G` | cache、最小失效、并发去重、条件式 Best-of-N |
 
@@ -114,10 +114,42 @@ VerifiedSolverProblemBundle
 
 原子路径 Macro 完成后，教学链只消费已验证的执行证据：
 
-- 教学归属使用 `plan_scope_id` / `semantic_owner_scope_id`，不从物理 `execution_scope_id` 反推；
+- 教学归属直接使用 Canonical Plan 中 step 所在的 Scope/Goal 容器，不新增第二套 owner
+  authority，也不从物理 `execution_scope_id` 反推；
+- ExplanationSnapshot、LessonIR、VisualStepIR 与 AnimationContext 都保存同一递归
+  `root_scope → steps/goals/children` topology；Scope 和 Goal 容器统一使用 `steps[]`，
+  flat map 只作内存派生索引；
 - failed、provisional、dead-pruned 和 shadow candidate 不进入学生内容；
 - Macro 内部 evidence 可投影为讲解步骤，但不会反向变成 Planner-authored steps；
 - Explanation、Visual 和 animation 使用同一 problem revision 与 provenance。
+
+统一合同与分阶段实施见
+[Teaching Scope、学生步骤、可视化与动画设计](teaching-scope-student-visual-animation-design.md)。
+F5-F5B 的 LLM wire、无 semantic retry、同次调用视觉选择和和平二模纵向验收细节见
+[Lesson Scope LLM Authoring vNext](lesson-scope-llm-authoring-vnext-design.md)。
+
+当前分段状态：
+
+1. `F5-F5A COMPLETE`：`explanation-snapshot/v2` 已按 Canonical Plan 原树保存 Scope、Goal、
+   step owner；只接收 verified public execution，持久化 revision/plan/execution hash，并删除
+   presentation/execution Scope 推断和 replay witness fallback；
+   `VerifiedFunctionalPlanExecution/v2` 进一步保存认证后的 dependency graph 与精确 public-result
+   dependencies，Snapshot 不再猜测字符串 channel。
+2. `F5-F5B NEXT`：按 B0–B4 依次完成基线/harness、`TeachingEvidenceProjector`、Annotated
+   Teaching Plan、一次 Scope Lesson LLM/evaluator 与 recursive LessonIR 生产切换；直接升级
+   `explanation-snapshot/v3` 并删除独立 cross-Scope reference collection，consumer input
+   内联精确 ref；B0 只读盘点和平二模 Spec/projector 缺口，B1 才补通用能力；
+   普通 Method 可选声明一个 `TeachingUnitSpec`，未声明时生成 default unit；
+   单一学生推导的原子 Macro 可声明有序 `TeachingUnitSpec[]`。代码先用 verified runtime data
+   绑定建议的 title/nav_title/goal/derive/box，再按顺序内联给 LLM；unit key/ID 只保留在内部 authority，
+   LLM 用 `material_count` 表达连续合并。学生推导真正不同的 Macro 分支使用内部
+   `TeachingVariantSpec[]`，由 typed verified evidence 唯一选中；内部候选和其他 Variant 不
+   进入 LLM。不增加 guide registry、重要性标记或 merge policy，也不迁移旧 Lesson repair
+   loop。
+3. `F5-F5C`：先用和平二模 `1×3` 评测真实输入输出、token/耗时和教学质量，稳定后扩到五题
+   teaching-only `5×3`。
+4. `G1`：作为最后一个新增实现阶段，打开 Method/Macro `available_visuals`，由同一次 Lesson
+   LLM 只选择 `visual_id/mode`，代码绑定并确定性渲染 VisualStepIR 与课程页。
 
 ## Track G：解题后 Context
 

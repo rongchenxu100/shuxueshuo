@@ -1216,6 +1216,8 @@ def verified_functional_plan_execution_schema() -> dict[str, Any]:
             "problem_revision_id",
             "problem_semantic_hash",
             "checkpoint_id",
+            "dependency_graph",
+            "public_result_dependencies",
             "root_scope",
             "execution_signature",
             "execution_id",
@@ -1230,6 +1232,32 @@ def verified_functional_plan_execution_schema() -> dict[str, Any]:
             "problem_revision_id": nonempty,
             "problem_semantic_hash": nonempty,
             "checkpoint_id": nonempty,
+            "dependency_graph": {
+                "type": "object",
+                "minProperties": 1,
+                "additionalProperties": {
+                    "type": "array",
+                    "items": nonempty,
+                    "uniqueItems": True,
+                },
+            },
+            "public_result_dependencies": {
+                "type": "object",
+                "minProperties": 1,
+                "additionalProperties": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "required": ["step_id", "return"],
+                        "properties": {
+                            "step_id": nonempty,
+                            "return": nonempty,
+                        },
+                        "additionalProperties": False,
+                    },
+                    "uniqueItems": True,
+                },
+            },
             "root_scope": {"$ref": "#/$defs/execution_scope_0"},
             "execution_signature": nonempty,
             "execution_id": nonempty,
@@ -1252,6 +1280,10 @@ class VerifiedFunctionalPlanExecution:
     problem_revision_id: str
     problem_semantic_hash: str
     checkpoint_id: str
+    dependency_graph: Mapping[str, tuple[str, ...]]
+    public_result_dependencies: Mapping[
+        str, tuple[tuple[str, str], ...]
+    ]
     root_scope: FunctionalGoalExecutionScope
     schema_version: str = VERIFIED_FUNCTIONAL_PLAN_EXECUTION_CONTRACT
     execution_signature: str = field(init=False)
@@ -1294,6 +1326,96 @@ class VerifiedFunctionalPlanExecution:
             raise ValueError(
                 "Verified execution tree and canonical Plan contain different steps"
             )
+        dependency_graph = _normalized_execution_dependency_graph(
+            self.dependency_graph
+        )
+        graph_ids = set(dependency_graph)
+        unknown_graph_steps = sorted(graph_ids - authored_ids)
+        if unknown_graph_steps:
+            raise ValueError(
+                "Verified execution dependency graph contains unknown steps: "
+                f"{unknown_graph_steps}"
+            )
+        execution_steps = {
+            step.step_id: step
+            for scope in _iter_execution_scopes(self.root_scope)
+            for step in (
+                *scope.scope_steps,
+                *(step for goal in scope.goals for step in goal.steps),
+            )
+        }
+        missing_verified_steps = sorted(
+            step_id
+            for step_id, step in execution_steps.items()
+            if step.status == "runtime_verified" and step_id not in graph_ids
+        )
+        if missing_verified_steps:
+            raise ValueError(
+                "Verified execution dependency graph omits runtime-verified "
+                f"steps: {missing_verified_steps}"
+            )
+        unknown_dependencies = sorted(
+            {
+                dependency_id
+                for dependencies in dependency_graph.values()
+                for dependency_id in dependencies
+                if dependency_id not in graph_ids
+            }
+        )
+        if unknown_dependencies:
+            raise ValueError(
+                "Verified execution dependency graph contains unknown steps: "
+                f"{unknown_dependencies}"
+            )
+        cyclic_self_edges = sorted(
+            step_id
+            for step_id, dependencies in dependency_graph.items()
+            if step_id in dependencies
+        )
+        if cyclic_self_edges:
+            raise ValueError(
+                "Verified execution dependency graph contains self edges: "
+                f"{cyclic_self_edges}"
+            )
+        object.__setattr__(
+            self,
+            "dependency_graph",
+            MappingProxyType(dependency_graph),
+        )
+        public_result_dependencies = (
+            _normalized_public_result_dependencies(
+                self.public_result_dependencies
+            )
+        )
+        if set(public_result_dependencies) != graph_ids:
+            raise ValueError(
+                "Verified public-result dependencies must contain every "
+                "execution graph step exactly once"
+            )
+        actual_returns = {
+            step_id: {
+                str(output.get("return") or "")
+                for output in step.actual_outputs
+            }
+            for step_id, step in execution_steps.items()
+        }
+        for target_id, references in public_result_dependencies.items():
+            for source_id, return_name in references:
+                if source_id not in dependency_graph[target_id]:
+                    raise ValueError(
+                        "Verified public-result dependency is absent from the "
+                        f"execution graph: {source_id} -> {target_id}"
+                    )
+                if return_name not in actual_returns.get(source_id, set()):
+                    raise ValueError(
+                        "Verified public-result dependency names an unknown "
+                        f"runtime result: {source_id}.{return_name}"
+                    )
+        object.__setattr__(
+            self,
+            "public_result_dependencies",
+            MappingProxyType(public_result_dependencies),
+        )
         signature = stable_hash(self._payload(include_identity=False))
         object.__setattr__(self, "execution_signature", signature)
         object.__setattr__(self, "execution_id", f"execution:{signature}")
@@ -1307,6 +1429,19 @@ class VerifiedFunctionalPlanExecution:
             "problem_revision_id": self.problem_revision_id,
             "problem_semantic_hash": self.problem_semantic_hash,
             "checkpoint_id": self.checkpoint_id,
+            "dependency_graph": {
+                step_id: list(dependencies)
+                for step_id, dependencies in self.dependency_graph.items()
+            },
+            "public_result_dependencies": {
+                target_id: [
+                    {"step_id": source_id, "return": return_name}
+                    for source_id, return_name in references
+                ]
+                for target_id, references in (
+                    self.public_result_dependencies.items()
+                )
+            },
             "root_scope": self.root_scope.authority_payload(),
         }
         if include_identity:
@@ -1326,6 +1461,7 @@ class VerifiedFunctionalPlanExecution:
         *,
         canonical_plan: ScopedFunctionalPlan,
         checkpoint: FunctionalGoalExecutionCheckpoint,
+        reconciliation: Any,
     ) -> "VerifiedFunctionalPlanExecution":
         if (
             not checkpoint.transaction_attempted
@@ -1336,6 +1472,21 @@ class VerifiedFunctionalPlanExecution:
             raise ValueError(
                 "cannot verify FunctionalPlan execution from an incomplete checkpoint"
             )
+        if reconciliation is None:
+            raise ValueError(
+                "cannot verify FunctionalPlan execution without reconciliation "
+                "authority"
+            )
+        normalized_graph = _normalized_execution_dependency_graph(
+            reconciliation.dependency_graph
+        )
+        if _execution_graph_signature(normalized_graph) != (
+            checkpoint.execution_graph_signature
+        ):
+            raise ValueError(
+                "cannot verify FunctionalPlan execution from a dependency graph "
+                "whose authority signature does not match the checkpoint"
+            )
         return cls(
             canonical_plan=canonical_plan,
             plan_id=checkpoint.plan_id,
@@ -1343,6 +1494,12 @@ class VerifiedFunctionalPlanExecution:
             problem_revision_id=checkpoint.problem_revision_id,
             problem_semantic_hash=checkpoint.problem_semantic_hash,
             checkpoint_id=checkpoint.checkpoint_id,
+            dependency_graph=normalized_graph,
+            public_result_dependencies=(
+                _public_result_dependencies_from_reconciliation(
+                    reconciliation
+                )
+            ),
             root_scope=checkpoint.root_scope,
         )
 
@@ -1381,6 +1538,24 @@ class VerifiedFunctionalPlanExecution:
             problem_revision_id=str(candidate["problem_revision_id"]),
             problem_semantic_hash=str(candidate["problem_semantic_hash"]),
             checkpoint_id=str(candidate["checkpoint_id"]),
+            dependency_graph={
+                str(step_id): tuple(str(item) for item in dependencies)
+                for step_id, dependencies in _mapping(
+                    candidate["dependency_graph"]
+                ).items()
+            },
+            public_result_dependencies={
+                str(target_id): tuple(
+                    (
+                        str(_mapping(item)["step_id"]),
+                        str(_mapping(item)["return"]),
+                    )
+                    for item in _sequence(references)
+                )
+                for target_id, references in _mapping(
+                    candidate["public_result_dependencies"]
+                ).items()
+            },
             root_scope=_scope_from_payload(_mapping(candidate["root_scope"])),
         )
         if candidate.get("execution_signature") != execution.execution_signature:
@@ -1648,6 +1823,67 @@ def _execution_graph_signature(
             for step_id, dependencies in sorted(dependency_graph.items())
         }
     )
+
+
+def _normalized_execution_dependency_graph(
+    dependency_graph: Mapping[str, Sequence[str]],
+) -> dict[str, tuple[str, ...]]:
+    return {
+        str(step_id): tuple(
+            sorted({str(dependency_id) for dependency_id in dependencies})
+        )
+        for step_id, dependencies in sorted(dependency_graph.items())
+    }
+
+
+def _normalized_public_result_dependencies(
+    dependencies: Mapping[str, Sequence[tuple[str, str]]],
+) -> dict[str, tuple[tuple[str, str], ...]]:
+    return {
+        str(target_id): tuple(
+            sorted(
+                {
+                    (str(source_id), str(return_name))
+                    for source_id, return_name in references
+                }
+            )
+        )
+        for target_id, references in sorted(dependencies.items())
+    }
+
+
+def _public_result_dependencies_from_reconciliation(
+    reconciliation: Any,
+) -> dict[str, tuple[tuple[str, str], ...]]:
+    dependency_graph = reconciliation.dependency_graph
+    result: dict[str, list[tuple[str, str]]] = {
+        str(step_id): [] for step_id in dependency_graph
+    }
+    for dependency in reconciliation.state_dependencies:
+        source_id = getattr(dependency, "source_step_id", None)
+        return_name = getattr(dependency, "source_return_name", None)
+        target_id = str(getattr(dependency, "step_id", ""))
+        if source_id and return_name and target_id in result:
+            result[target_id].append((str(source_id), str(return_name)))
+    binding_context = reconciliation.functional_problem_binding_context
+    for binding in (
+        binding_context.input_bindings
+        if binding_context is not None
+        else ()
+    ):
+        source = binding.typed_source
+        if (
+            source is None
+            or source.kind != "call_result"
+            or source.source_call_id is None
+            or source.source_return_name is None
+            or binding.call_id not in result
+        ):
+            continue
+        result[binding.call_id].append(
+            (source.source_call_id, source.source_return_name)
+        )
+    return _normalized_public_result_dependencies(result)
 
 
 def _scope_from_payload(
@@ -2234,6 +2470,11 @@ class ScopedFunctionalGoalExecutionService:
             VerifiedFunctionalPlanExecution.from_checkpoint(
                 canonical_plan=canonical_plan,
                 checkpoint=checkpoint,
+                reconciliation=(
+                    replay.functional_reconciliation
+                    if replay is not None
+                    else None
+                ),
             )
             if checkpoint.transaction_attempted
             and checkpoint.transaction_ok

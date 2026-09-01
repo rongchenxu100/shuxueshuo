@@ -1229,26 +1229,6 @@ def write_strategy_debug_artifacts(
     )
     context_payload = _planner_state_context_payload(planner_state_context)
     functional_reconciliation_payload = _to_jsonable(functional_reconciliation)
-    context_state = (
-        context_payload.get("state")
-        if isinstance(context_payload, dict)
-        else None
-    )
-    if isinstance(functional_reconciliation_payload, dict) and isinstance(
-        context_state,
-        dict,
-    ):
-        functional_reconciliation_payload = {
-            **functional_reconciliation_payload,
-            "student_step_placements": context_state.get(
-                "student_step_placements",
-                [],
-            ),
-            "student_scope_references": context_state.get(
-                "student_scope_references",
-                [],
-            ),
-        }
     _write_json(
         target / "functional-reconciliation-report.json",
         functional_reconciliation_payload,

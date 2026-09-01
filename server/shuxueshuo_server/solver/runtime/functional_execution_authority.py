@@ -26,7 +26,7 @@ MACRO_SEARCH_EXECUTION_EVIDENCE_CONTRACT = (
     "macro-search-execution-evidence/v1"
 )
 VERIFIED_FUNCTIONAL_PLAN_EXECUTION_CONTRACT = (
-    "verified-functional-plan-execution/v1"
+    "verified-functional-plan-execution/v2"
 )
 
 

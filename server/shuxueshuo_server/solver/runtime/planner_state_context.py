@@ -548,8 +548,6 @@ class PlannerState:
     raw_functional_plan_snapshot: dict[str, Any] | None = None
     functional_plan_snapshot: dict[str, Any] | None = None
     functional_call_timeline: tuple[dict[str, Any], ...] = ()
-    student_step_placements: tuple[dict[str, Any], ...] = ()
-    student_scope_references: tuple[dict[str, Any], ...] = ()
     state_identity_decisions: tuple[dict[str, Any], ...] = ()
     identity_mismatches: tuple[dict[str, Any], ...] = ()
     state_placement_decisions: tuple[dict[str, Any], ...] = ()
@@ -592,12 +590,6 @@ class PlannerState:
             "functional_plan_snapshot": self.functional_plan_snapshot,
             "functional_call_timeline": [
                 dict(item) for item in self.functional_call_timeline
-            ],
-            "student_step_placements": [
-                dict(item) for item in self.student_step_placements
-            ],
-            "student_scope_references": [
-                dict(item) for item in self.student_scope_references
             ],
             "state_identity_decisions": [
                 dict(item) for item in self.state_identity_decisions
@@ -788,8 +780,6 @@ class _MutableState:
     raw_functional_plan_snapshot: dict[str, Any] | None = None
     functional_plan_snapshot: dict[str, Any] | None = None
     functional_call_timeline: list[dict[str, Any]] = field(default_factory=list)
-    student_step_placements: list[dict[str, Any]] = field(default_factory=list)
-    student_scope_references: list[dict[str, Any]] = field(default_factory=list)
     state_identity_decisions: list[dict[str, Any]] = field(default_factory=list)
     identity_mismatches: list[dict[str, Any]] = field(default_factory=list)
     state_placement_decisions: list[dict[str, Any]] = field(default_factory=list)
@@ -847,8 +837,6 @@ class _MutableState:
                 raw_functional_plan_snapshot=self.raw_functional_plan_snapshot,
                 functional_plan_snapshot=self.functional_plan_snapshot,
                 functional_call_timeline=tuple(self.functional_call_timeline),
-                student_step_placements=tuple(self.student_step_placements),
-                student_scope_references=tuple(self.student_scope_references),
                 state_identity_decisions=tuple(self.state_identity_decisions),
                 identity_mismatches=tuple(self.identity_mismatches),
                 state_placement_decisions=tuple(
@@ -1165,40 +1153,6 @@ class PlannerStateContextBuilder:
                 0,
             )
         )
-        observation_authority = getattr(
-            replay,
-            "state_observation_authority",
-            "transactional",
-        )
-        effective_step_payloads: tuple[dict[str, Any], ...] = ()
-        if observation_authority == "transactional":
-            from shuxueshuo_server.solver.explanation.presentation import (
-                transactional_functional_steps,
-            )
-
-            effective_step_payloads = transactional_functional_steps(
-                replay,
-                getattr(replay, "output", None),
-            )
-        if effective_step_payloads:
-            # Local import keeps the runtime state model independent from the
-            # explanation package at module-import time.
-            from shuxueshuo_server.solver.explanation.presentation import (
-                StudentNarrativePlacementProjector,
-            )
-
-            narrative = StudentNarrativePlacementProjector().project(
-                effective_steps=effective_step_payloads,
-                problem=state.problem_ir,
-                functional_reconciliation=reconciliation,
-                raw_functional_plan=plan,
-            )
-            state.student_step_placements.extend(
-                item.to_payload() for item in narrative.placements
-            )
-            state.student_scope_references.extend(
-                item.to_payload() for item in narrative.references
-            )
         for issue in getattr(reconciliation, "issues", ()):
             state.issues.append(issue.to_payload())
         state.context_events.append(

@@ -101,14 +101,37 @@ class LineParabolaSecondIntersectionRoleBinder(RoleNameRegistryMethodRoleBinder)
             snapshot=snapshot,
         )
         trace_roles = roles_from_trace(group)
+        verified_line_points = _verified_line_point_pairs(group, snapshot)
         line_points = str(roles.get("line_points") or "两个已知点")
-        parabola = _student_parabola_text(str(roles.get("parabola") or "抛物线"))
+        if len(verified_line_points) >= 2:
+            line_points = "两个已知点"
+        roles["line_points"] = line_points
+        parabola_raw = str(roles.get("parabola") or "抛物线")
+        if parabola_raw == "抛物线":
+            parabola_raw = _verified_parabola_for_scope(group.scope_id, snapshot) or parabola_raw
+        parabola = _student_parabola_text(parabola_raw)
+        roles["parabola"] = parabola
         known_point = str(roles.get("known_point") or "已知交点")
-        target_point = _compact_point_text(str(roles.get("target_point") or trace_roles.get("conclusion", "")))
+        target_point = _compact_point_text(
+            str(roles.get("target_point") or trace_roles.get("conclusion", ""))
+        )
+        verified_target = _verified_point_result_for_step(
+            group.step_id,
+            snapshot,
+        )
+        if not target_point and verified_target is not None:
+            target_label, target_pair = verified_target
+            target_point = _plain_point_display(target_label, target_pair)
         if target_point:
             roles["target_point"] = target_point
         line_name = _line_name(known_point, target_point)
         line_expression = _line_expression_from_trace(trace_roles.get("calculation", ""), line_name)
+        if not line_expression and len(verified_line_points) >= 2:
+            line_expression = _line_expression_from_points(
+                verified_line_points[0],
+                verified_line_points[1],
+                line_name=line_name,
+            )
         if line_expression:
             roles["line_expression"] = line_expression
         return roles
@@ -138,6 +161,8 @@ class QuadraticVertexPointRoleBinder(RoleNameRegistryMethodRoleBinder):
         elif expression:
             roles["parabola_vertex_form"] = f"y＝{_quadratic_expression_display(expression)}"
         point = _point_conclusion_display(roles_from_trace(group).get("conclusion", ""))
+        if not point:
+            point = _verified_point_display_for_step(group, snapshot)
         if point:
             roles["vertex_point"] = point
         return roles
@@ -165,6 +190,8 @@ class QuadraticXAxisInterceptPointRoleBinder(RoleNameRegistryMethodRoleBinder):
             roles["parabola"] = f"y＝{_quadratic_expression_display(expression)}"
             roles["intercept_equation"] = f"{_quadratic_expression_display(expression)}＝0"
         point = _point_conclusion_display(roles_from_trace(group).get("conclusion", ""))
+        if not point:
+            point = _verified_point_display_for_step(group, snapshot)
         if point:
             roles["target_point"] = point
         return roles
@@ -188,6 +215,13 @@ class QuadraticAxisParameterizedPointRoleBinder(RoleNameRegistryMethodRoleBinder
             snapshot=snapshot,
         )
         point = _axis_parameterized_point_from_trace(roles_from_trace(group).get("conclusion", ""))
+        if point is None:
+            pair = _runtime_point_for_step(group.step_id, snapshot)
+            target = _verified_output_label_for_step(group, snapshot)
+            if pair is not None and target:
+                axis_x = _student_square_expr(pair[0])
+                parameter = _student_axis_parameter(str(pair[1]))
+                point = (target, axis_x, f"{target}({axis_x},{parameter})")
         if point:
             target, axis_x, display = point
             roles["target"] = target
@@ -254,6 +288,12 @@ class QuadraticFromConstraintsRoleBinder(RoleNameRegistryMethodRoleBinder):
         if constraints:
             roles["constraints"] = constraints
         expression = _parabola_expression_from_conclusion(conclusion)
+        if not expression:
+            expression = _verified_value_for_step(
+                group.step_id,
+                snapshot,
+                "Parabola",
+            )
         if expression:
             roles["result_parabola"] = _quadratic_expression_display(expression)
             roles["parabola_title_action"] = _quadratic_title_action(expression)
@@ -266,6 +306,16 @@ class QuadraticFromConstraintsRoleBinder(RoleNameRegistryMethodRoleBinder):
         else:
             roles.setdefault("completed_square_suffix", "")
             roles.setdefault("parabola_title_action", "求")
+        if not roles.get("constraints"):
+            coefficients = _verified_value_for_step(
+                group.step_id,
+                snapshot,
+                "Coefficients",
+            )
+            roles["constraints"] = (
+                _coefficient_mapping_display(coefficients)
+                or "代入题设给出的点坐标与系数条件"
+            )
         curve_point_derivation = _quadratic_curve_point_derivation(
             group=group,
             snapshot=snapshot,
@@ -344,6 +394,22 @@ class EvaluatePointAtParameterRoleBinder(RoleNameRegistryMethodRoleBinder):
             roles["parameter"] = parameter
         if parameter_value:
             roles["parameter_value"] = _student_expr(parameter_value, fullwidth_operators=True)
+        if not roles.get("parameter_value"):
+            parameter_fact = _visible_fact_by_type(
+                group.step,
+                snapshot,
+                "ParameterValue",
+            )
+            if parameter_fact is not None:
+                value = parameter_fact.get("value")
+                if value not in (None, ""):
+                    roles["parameter_value"] = _student_expr(
+                        str(value),
+                        fullwidth_operators=True,
+                    )
+                name = str(parameter_fact.get("name") or "")
+                if name and name != "parameter_value":
+                    roles.setdefault("parameter", name)
         return roles
 
 
@@ -864,7 +930,126 @@ def _read_value_by_type(
         text = _value_from_fact_description(fact)
         if text:
             return text
+    visible = _visible_fact_by_type(step, snapshot, value_type)
+    if visible is not None and visible.get("value") not in (None, ""):
+        return str(visible["value"])
     return ""
+
+
+def _visible_fact_by_type(
+    step: dict[str, Any],
+    snapshot: ExplanationSnapshot,
+    value_type: str,
+) -> dict[str, Any] | None:
+    step_id = str(step.get("step_id") or "")
+    step_scope = str(step.get("scope_id") or "")
+    order = {
+        str(item.get("step_id") or ""): index
+        for index, item in enumerate(snapshot.effective_steps)
+        if isinstance(item, dict)
+    }
+    current_order = order.get(step_id, len(order))
+    candidates: list[tuple[int, int, dict[str, Any]]] = []
+    for fact in snapshot.fact_index.values():
+        if not isinstance(fact, dict) or fact.get("type") != value_type:
+            continue
+        if fact.get("value") in (None, ""):
+            continue
+        source_step_id = str(fact.get("source_step_id") or "")
+        source_order = order.get(source_step_id, -1)
+        if source_step_id and source_order >= current_order:
+            continue
+        scope_rank = _snapshot_scope_visibility_rank(
+            snapshot,
+            source_scope=str(fact.get("scope_id") or "problem"),
+            target_scope=step_scope,
+        )
+        if scope_rank < 0:
+            continue
+        candidates.append((scope_rank, source_order, fact))
+    if not candidates:
+        return None
+    candidates.sort(key=lambda item: (item[0], item[1]), reverse=True)
+    return candidates[0][2]
+
+
+def _snapshot_scope_visibility_rank(
+    snapshot: ExplanationSnapshot,
+    *,
+    source_scope: str,
+    target_scope: str,
+) -> int:
+    parents: dict[str, str | None] = {snapshot.root_scope.scope_ref: None}
+
+    def visit(scope: Any) -> None:
+        for child in scope.children:
+            parents[child.scope_ref] = scope.scope_ref
+            visit(child)
+
+    visit(snapshot.root_scope)
+    distance = 0
+    current: str | None = target_scope
+    while current is not None:
+        if current == source_scope:
+            return 100 - distance
+        current = parents.get(current)
+        distance += 1
+    return -1
+
+
+def _verified_value_for_step(
+    step_id: str,
+    snapshot: ExplanationSnapshot,
+    value_type: str,
+) -> Any:
+    for fact in snapshot.fact_index.values():
+        if not isinstance(fact, dict) or fact.get("type") != value_type:
+            continue
+        if str(fact.get("source_step_id") or "") != step_id:
+            continue
+        if fact.get("value") not in (None, ""):
+            return fact["value"]
+    return ""
+
+
+def _verified_output_label_for_step(
+    group: LessonCandidateGroup,
+    snapshot: ExplanationSnapshot,
+) -> str:
+    candidates: list[tuple[int, str]] = []
+    for handle, fact in snapshot.fact_index.items():
+        if not isinstance(fact, dict) or fact.get("type") != "Point":
+            continue
+        if str(fact.get("source_step_id") or "") != group.step_id:
+            continue
+        label = _semantic_point_label(str(fact.get("name") or ""))
+        if not re.fullmatch(r"[A-Z][A-Za-z0-9]*", label):
+            continue
+        candidates.append((10 if str(handle).startswith("answer:") else 1, label))
+    if candidates:
+        candidates.sort(key=lambda item: item[0], reverse=True)
+        return candidates[0][1]
+    return _point_label_from_step_target(group.step)
+
+
+def _verified_point_display_for_step(
+    group: LessonCandidateGroup,
+    snapshot: ExplanationSnapshot,
+) -> str:
+    pair = _runtime_point_for_step(group.step_id, snapshot)
+    label = _verified_output_label_for_step(group, snapshot)
+    if pair is None or not label:
+        return ""
+    return _student_point_display(label, pair)
+
+
+def _coefficient_mapping_display(value: Any) -> str:
+    if not isinstance(value, dict):
+        return ""
+    return "，".join(
+        f"{name}＝{_student_expr(str(raw), fullwidth_operators=True)}"
+        for name, raw in value.items()
+    )
 
 
 def _read_direct_value_by_type(
@@ -1039,12 +1224,16 @@ def _curve_point_read_for_candidate_step(
         if not isinstance(handle, str):
             continue
         fact = snapshot.fact_index.get(handle)
-        if not isinstance(fact, dict) or fact.get("type") != "Point":
-            continue
-        label = _semantic_point_label(str(fact.get("name") or handle_name(handle)))
+        label = _point_label_from_handle_or_problem(handle, snapshot)
+        if isinstance(fact, dict) and fact.get("type") == "Point":
+            label = _semantic_point_label(
+                str(fact.get("name") or handle_name(handle))
+            )
         if not label or label == target_label:
             continue
         pair = _point_pair_for_handle(handle, snapshot)
+        if pair is None:
+            pair = _point_pair_for_label(label, step, snapshot)
         if pair is None:
             continue
         score = 1
@@ -1631,6 +1820,9 @@ def _square_target_label(step: dict[str, Any], labels: list[str]) -> str:
         str(step.get("target") or ""),
         *(str(item.get("handle") or "") for item in step.get("produces") or () if isinstance(item, dict)),
     ):
+        answer_label = _answer_tail_name(raw)
+        if answer_label in labels:
+            return answer_label
         label = _semantic_point_label(handle_name(raw))
         if label in labels:
             return label
@@ -1947,6 +2139,11 @@ def _bind_parameter(
     snapshot: ExplanationSnapshot,
 ) -> str:
     parameter, _ = parameter_assignment(trace_roles.get("conclusion", "") or trace_roles.get("calculation", ""))
+    if parameter:
+        return parameter
+    for handle in group.step.get("reads", ()):
+        if isinstance(handle, str) and handle.startswith("symbol:"):
+            return handle_name(handle)
     return parameter
 
 
@@ -1957,6 +2154,17 @@ def _bind_parameter_value(
     snapshot: ExplanationSnapshot,
 ) -> str:
     _, value = parameter_assignment(trace_roles.get("conclusion", "") or trace_roles.get("calculation", ""))
+    if value:
+        return value
+    for fact in snapshot.fact_index.values():
+        if not isinstance(fact, dict):
+            continue
+        if str(fact.get("source_step_id") or "") != group.step_id:
+            continue
+        if fact.get("type") != "ParameterValue":
+            continue
+        if fact.get("value") not in (None, ""):
+            return _student_expr(str(fact["value"]))
     return value
 
 
@@ -1967,7 +2175,10 @@ _METHOD_ROLE_BINDERS = {
     "known_conditions": _bind_known_conditions,
     "result_parabola": _bind_result_parabola,
     "expression": lambda method_id, trace_roles, group, snapshot: _expression_from_previous(group, snapshot),
-    "target_value": lambda method_id, trace_roles, group, snapshot: _target_value_from_step(group.step),
+    "target_value": lambda method_id, trace_roles, group, snapshot: _target_value_from_step(
+        group.step,
+        snapshot,
+    ),
     "parameter": _bind_parameter,
     "parameter_value": _bind_parameter_value,
     "angle_sum_condition": lambda method_id, trace_roles, group, snapshot: _condition_description(group.step, snapshot),
@@ -1992,11 +2203,10 @@ def _distance_points_from_group(
 ) -> tuple[str, str]:
     draft = group.step.get("target") or ""
     if group.capability_id == "equal_length_ray_path_reduction":
-        for insight in snapshot.planner_insights:
-            facts = insight.get("facts") if isinstance(insight, dict) else None
-            if not isinstance(facts, dict):
+        for witness in snapshot.macro_evidence:
+            if witness.get("step_id") != group.step_id:
                 continue
-            transformed_path = str(facts.get("transformed_path") or "")
+            transformed_path = str(witness.get("reduced_objective") or "")
             match = re.search(r"([A-Z][A-Z])$", transformed_path)
             if match:
                 return match.group(1)[0], match.group(1)[1]
@@ -2025,10 +2235,17 @@ def _expression_from_previous(group: LessonCandidateGroup, snapshot: Explanation
     return "前面得到的表达式"
 
 
-def _target_value_from_step(step: dict[str, Any]) -> str:
+def _target_value_from_step(
+    step: dict[str, Any],
+    snapshot: ExplanationSnapshot,
+) -> str:
     for handle in step.get("reads", []):
         if isinstance(handle, str) and ("value_given" in handle or "minimum_value" in handle):
-            return handle
+            fact = snapshot.fact_index.get(handle)
+            if isinstance(fact, dict) and fact.get("value") not in (None, ""):
+                return _student_expr(str(fact["value"]))
+            if ":" not in handle:
+                return handle
     return "题设给定值"
 
 
@@ -2091,6 +2308,135 @@ def _line_expression_from_trace(text: str, line_name: str) -> str:
     display = _linear_expr_display(rhs)
     prefix = f"{line_name}: " if line_name else ""
     return f"{prefix}{display}" if display else f"{prefix}y={rhs}"
+
+
+def _verified_line_point_pairs(
+    group: LessonCandidateGroup,
+    snapshot: ExplanationSnapshot,
+) -> list[tuple[sp.Expr, sp.Expr]]:
+    pairs: list[tuple[sp.Expr, sp.Expr]] = []
+    for handle in group.step.get("reads", ()):
+        if not isinstance(handle, str):
+            continue
+        fact = snapshot.fact_index.get(handle)
+        pair = _sympy_point_pair((fact or {}).get("value"))
+        if pair is None and handle.startswith("point:"):
+            pair = _verified_point_pair_for_label(
+                handle_name(handle),
+                scope_id=group.scope_id,
+                snapshot=snapshot,
+            )
+        if pair is not None and pair not in pairs:
+            pairs.append(pair)
+    return pairs
+
+
+def _verified_point_pair_for_label(
+    label: str,
+    *,
+    scope_id: str,
+    snapshot: ExplanationSnapshot,
+) -> tuple[sp.Expr, sp.Expr] | None:
+    candidates: list[tuple[int, tuple[sp.Expr, sp.Expr]]] = []
+    for fact in snapshot.fact_index.values():
+        if not isinstance(fact, dict) or fact.get("type") != "Point":
+            continue
+        if str(fact.get("name") or "") != label:
+            continue
+        pair = _sympy_point_pair(fact.get("value"))
+        if pair is None:
+            continue
+        rank = _teaching_scope_visibility_rank(
+            str(fact.get("scope_id") or "problem"),
+            scope_id,
+        )
+        if rank >= 0:
+            candidates.append((rank, pair))
+    if not candidates:
+        return None
+    candidates.sort(key=lambda item: item[0], reverse=True)
+    return candidates[0][1]
+
+
+def _verified_point_result_for_step(
+    step_id: str,
+    snapshot: ExplanationSnapshot,
+) -> tuple[str, tuple[sp.Expr, sp.Expr]] | None:
+    candidates: list[tuple[int, str, tuple[sp.Expr, sp.Expr]]] = []
+    for handle, fact in snapshot.fact_index.items():
+        if not isinstance(fact, dict) or fact.get("type") != "Point":
+            continue
+        if str(fact.get("source_step_id") or "") != step_id:
+            continue
+        pair = _sympy_point_pair(fact.get("value"))
+        if pair is None:
+            continue
+        label = str(fact.get("name") or "")
+        score = 10 if str(handle).startswith("answer:") else 0
+        if label and label != "point":
+            score += 2
+        candidates.append((score, label, pair))
+    if not candidates:
+        return None
+    candidates.sort(key=lambda item: item[0], reverse=True)
+    _, label, pair = candidates[0]
+    return (label if label and label != "point" else "交点", pair)
+
+
+def _verified_parabola_for_scope(
+    scope_id: str,
+    snapshot: ExplanationSnapshot,
+) -> str:
+    candidates: list[tuple[int, str]] = []
+    for fact in snapshot.fact_index.values():
+        if not isinstance(fact, dict) or fact.get("type") != "Parabola":
+            continue
+        value = fact.get("value")
+        if value in (None, ""):
+            continue
+        rank = _teaching_scope_visibility_rank(
+            str(fact.get("scope_id") or "problem"),
+            scope_id,
+        )
+        if rank >= 0:
+            candidates.append((rank, str(value)))
+    if not candidates:
+        return ""
+    candidates.sort(key=lambda item: item[0], reverse=True)
+    return candidates[0][1]
+
+
+def _teaching_scope_visibility_rank(source_scope: str, target_scope: str) -> int:
+    if source_scope == target_scope:
+        return 10
+    if source_scope == "problem":
+        return 1
+    if target_scope.startswith(f"{source_scope}_"):
+        return 5
+    return -1
+
+
+def _plain_point_display(
+    label: str,
+    pair: tuple[sp.Expr, sp.Expr],
+) -> str:
+    return f"{label}({sp.sstr(pair[0])},{sp.sstr(pair[1])})"
+
+
+def _line_expression_from_points(
+    first: tuple[sp.Expr, sp.Expr],
+    second: tuple[sp.Expr, sp.Expr],
+    *,
+    line_name: str,
+) -> str:
+    if sp.simplify(first[0] - second[0]) == 0:
+        return ""
+    x = sp.Symbol("x")
+    slope = sp.simplify((second[1] - first[1]) / (second[0] - first[0]))
+    rhs = sp.expand(first[1] + slope * (x - first[0]))
+    display = _linear_expr_display(sp.sstr(rhs))
+    prefix = f"{line_name}: " if line_name else ""
+    return f"{prefix}{display}"
 
 
 def _line_name(known_point: str, target_point: str) -> str:

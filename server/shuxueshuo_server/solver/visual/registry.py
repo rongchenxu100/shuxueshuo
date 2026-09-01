@@ -188,6 +188,7 @@ def default_layer_registry() -> LayerRegistry:
     return LayerRegistry(
         {
             "global": "global",
+            "section:problem": "problem",
             "section:i": "partI",
             "section:ii": "partII",
         }

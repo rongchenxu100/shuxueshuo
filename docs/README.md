@@ -4,7 +4,8 @@
 
 ## 当前路线
 
-- `functional-planner-next-stage-roadmap.md`：唯一总路线图，当前顺序为 F5-F4.3 → F5-F5/G → E。
+- `functional-planner-next-stage-roadmap.md`：唯一总路线图；F5-F5A 已完成，当前顺序为
+  F5-F5B → F5-F5C → G → E。
 - `problem-extraction-context-design.md`：当前图片提取、验证、投影与 Solver 接线边界。
 - `online-service-development-plan.md`：在线服务和对象图边界。
 
@@ -25,6 +26,8 @@
 
 ## 课程页与交互
 
+- `teaching-scope-student-visual-animation-design.md`：F5-F5 Canonical Scope 教学投影、学生步骤、VisualStepIR 与动画 timeline 的统一规范。
+- `lesson-scope-llm-authoring-vnext-design.md`：F5-F5B 一次 Scope Lesson LLM、完整计算输入、recursive LessonIR、组件选择，以及和平二模纵向冒烟的分阶段实现计划。
 - `explanation-builder-design.md`：verified solver artifact 到 LessonIR。
 - `visual-step-ir-design.md`：LessonIR 到声明式视觉状态。
 - `inequality-visual-component-refactor-design.md`：不等式 KnowledgePoint、Family、Problem 知识图谱以及 Method/Recipe 与共享视觉组件的确定性绑定协议。

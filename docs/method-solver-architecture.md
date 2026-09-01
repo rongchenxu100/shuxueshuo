@@ -117,7 +117,9 @@ transaction artifacts
 → lesson page
 ```
 
-presentation scope 可与 execution scope 不同；跨 scope 复用展示引用，不重复计算。
+学生步骤的 owner Scope/Goal 直接继承 Canonical Plan 容器；`execution_scope_id` 只描述物理
+执行位置，不能用于重新安置教学步骤。跨 Scope 复用只展示引用，不重复计算。统一合同见
+[Teaching Scope、学生步骤、可视化与动画设计](teaching-scope-student-visual-animation-design.md)。
 
 ## 10. 新增 capability
 

@@ -91,20 +91,17 @@ def test_vs1_heping_ermo_lesson_steps_are_grouped_by_reusable_capabilities(
 ) -> None:
     lesson = heping_ermo_page.lesson
 
-    first_step = lesson.steps[0]
-    assert first_step.source_step_ids == (
-        "derive_parabola_i",
-        "derive_x_intercept_A_i",
-        "derive_vertex_P_i",
-    )
-    assert first_step.capability_ids == (
-        "quadratic_from_constraints",
-        "quadratic_x_axis_intercept_point",
-        "quadratic_vertex_point",
-    )
-    assert first_step.title == "代入已知条件，求解析式、顶点和 x 轴交点"
-    assert first_step.nav_title == "求解析式、顶点和交点"
-    assert first_step.box == ("y＝－x²－2x＋3", "P(-1,4)", "A(-3,0)")
+    parabola_step, intercept_step, vertex_step = lesson.steps[:3]
+    assert parabola_step.scope_id == "i"
+    assert parabola_step.source_step_ids == ("derive_parabola_i",)
+    assert parabola_step.capability_ids == ("quadratic_from_constraints",)
+    assert parabola_step.box == ("y＝－x²－2x＋3",)
+    assert intercept_step.scope_id == "i"
+    assert intercept_step.source_step_ids == ("derive_x_intercept_A_i",)
+    assert intercept_step.box == ("A(-3,0)",)
+    assert vertex_step.scope_id == "i_1"
+    assert vertex_step.source_step_ids == ("derive_vertex_P_i",)
+    assert vertex_step.box == ("P(-1,4)",)
 
     axis_square_step = _lesson_step(
         lesson,
@@ -162,8 +159,10 @@ def test_vs1_heping_ermo_geometry_shell_has_scope_safe_points_and_answers(
     assert group_titles["i_1"] == "第（Ⅰ）①问：求点 P 和点 A 的坐标"
     assert group_titles["i_2"] == "第（Ⅰ）②问：求点 E 的坐标"
     assert group_titles["ii"] == "第（Ⅱ）问：求点 E 的坐标"
-    assert lesson_data["steps"][0]["section"] == group_titles["i_1"]
-    assert lesson_data["steps"][1]["section"] == group_titles["i_2"]
+    assert lesson_data["steps"][0]["section"] == group_titles["i"]
+    assert lesson_data["steps"][1]["section"] == group_titles["i"]
+    assert lesson_data["steps"][2]["section"] == group_titles["i_1"]
+    assert lesson_data["steps"][3]["section"] == group_titles["i_2"]
 
     assert geometry["id"] == page.snapshot.problem_id
     assert geometry["domain"]["maxX"] > 1
@@ -175,7 +174,7 @@ def test_vs1_heping_ermo_geometry_shell_has_scope_safe_points_and_answers(
     assert geometry["movingPoints"]["A"] == ["-c", "0"]
     assert geometry["movingPoints"]["G"] == ["1/4-3*c/4", "-c/2-1/2"]
     assert geometry["movingPoints"]["M_axis_ii"] == ["1/2-c/2", "0"]
-    assert geometry["movingPoints"]["A_prime"] == ["-c", "-c - 1"]
+    assert geometry["movingPoints"]["A_prime"] == ["-c", "-c-1"]
     assert geometry["pointMeta"]["A_prime"]["label"] == "A′"
 
     problem_lines = lesson_data["problem"]["lines"]
@@ -220,7 +219,11 @@ def test_vs1_heping_ermo_square_candidate_and_path_decorations_are_bound(
         and item.get("vertices") == ["A1", "E_axis_i_2", "K_axis_i_2", "G_axis_i_2"]
         for item in candidate_decorations
     )
-    assert not any(item.get("type") == "outlineRegion" for item in candidate_decorations)
+    assert any(
+        item.get("type") == "outlineRegion"
+        and item.get("vertices") == ["A1", "E_axis_i_2", "K", "G_axis_i_2"]
+        for item in candidate_decorations
+    )
     assert {
         "type": "coordinateLabel",
         "at": "E_axis_i_2_candidate_1",

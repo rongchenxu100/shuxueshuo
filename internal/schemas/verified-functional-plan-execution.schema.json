@@ -11,13 +11,15 @@
     "problem_revision_id",
     "problem_semantic_hash",
     "checkpoint_id",
+    "dependency_graph",
+    "public_result_dependencies",
     "root_scope",
     "execution_signature",
     "execution_id"
   ],
   "properties": {
     "schema_version": {
-      "const": "verified-functional-plan-execution/v1"
+      "const": "verified-functional-plan-execution/v2"
     },
     "canonical_plan": {
       "type": "object",
@@ -54,6 +56,44 @@
     "checkpoint_id": {
       "type": "string",
       "minLength": 1
+    },
+    "dependency_graph": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        },
+        "uniqueItems": true
+      }
+    },
+    "public_result_dependencies": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "step_id",
+            "return"
+          ],
+          "properties": {
+            "step_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "return": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        },
+        "uniqueItems": true
+      }
     },
     "root_scope": {
       "$ref": "#/$defs/execution_scope_0"

@@ -24,7 +24,14 @@ from shuxueshuo_server.solver.explanation import (
     lesson_ir_from_payload,
     write_explanation_debug_artifacts,
 )
-from shuxueshuo_server.solver.explanation.models import ExplanationSnapshot, LessonIR, LessonSection, LessonStep
+from shuxueshuo_server.solver.explanation.models import (
+    ExplanationSnapshot,
+    LessonIR,
+    LessonSection,
+    LessonStep,
+    TeachingScope,
+    canonical_plan_hash_for_teaching_scope,
+)
 from shuxueshuo_server.solver.runtime.config import SolverRuntimeConfig
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.orchestrator import RuntimeOrchestrator
@@ -61,6 +68,25 @@ RUN_DEEPSEEK_HEPING_VISUAL = (
     and os.getenv("RUN_DEEPSEEK_VISUAL_BUILDER") == "1"
     and os.getenv("RUN_DEEPSEEK_HEPING_VISUAL") == "1"
 )
+
+
+def _empty_snapshot(
+    problem_id: str,
+    *,
+    problem: dict[str, Any],
+    family_id: str = "demo",
+) -> ExplanationSnapshot:
+    root_scope = TeachingScope(scope_ref="problem")
+    return ExplanationSnapshot(
+        problem_id=problem_id,
+        family_id=family_id,
+        problem_revision=f"problem-revision:{problem_id}",
+        problem_semantic_hash=f"problem-semantics:{problem_id}",
+        canonical_plan_hash=canonical_plan_hash_for_teaching_scope(root_scope),
+        verified_execution_hash=f"verified-execution:{problem_id}",
+        problem=problem,
+        root_scope=root_scope,
+    )
 
 
 def test_visual_sympy_pair_uses_shared_axis_parameter_and_power_normalization() -> None:
@@ -172,15 +198,13 @@ def test_geometry_spec_builder_extracts_points_curves_and_domain() -> None:
     }
 
     curves_by_root = {curve["scopeRoot"]: curve for curve in geometry["curves"]}
-    assert curves_by_root["i"]["sourceHandle"] == "runtime:i:outputs:parabola"
+    assert curves_by_root["i"]["sourceHandle"] == "fact:i:derive_parabola_i_parabola"
     assert {
         key: curves_by_root["i"][key]
         for key in ("a", "b", "c")
     } == {"a": "1", "b": "-2", "c": "-3"}
-    assert (
-        curves_by_root["ii"]["sourceHandle"]
-        == "runtime:ii:outputs:parabola_expression"
-    )
+    assert curves_by_root["ii"]["sourceHandle"].startswith("fact:ii:")
+    assert not curves_by_root["ii"]["sourceHandle"].startswith("runtime:")
     assert {
         key: curves_by_root["ii"][key]
         for key in ("a", "b", "c")
@@ -925,7 +949,7 @@ def test_vs1_axis_intercept_step_reuses_be_visual_handle_and_adds_f() -> None:
     }
     assert coordinate_labels["A"] == "A(-1,0)"
     assert coordinate_labels["B1"] == "B(3, 0)"
-    assert coordinate_labels["C"] == "C(0,-3)"
+    assert coordinate_labels["C"] == "C(0, -3)"
     assert coordinate_labels["F1"] == "F(0, -1)"
     assert "E1" not in coordinate_labels
     assert any(
@@ -959,13 +983,9 @@ def test_vs1_axis_intercept_step_reuses_be_visual_handle_and_adds_f() -> None:
 
 
 def test_vs1_missing_roles_generate_visual_gap() -> None:
-    snapshot = ExplanationSnapshot(
-        problem_id="gap-case",
-        family_id="demo",
+    snapshot = _empty_snapshot(
+        "gap-case",
         problem={"entities": [], "facts": []},
-        effective_steps=(),
-        teaching_trace=(),
-        fact_index={},
     )
     lesson = LessonIR(
         problem_id="gap-case",
@@ -1005,7 +1025,10 @@ def test_vs1_annotation_text_source_is_checked() -> None:
     VisualStepIRValidator().validate(visual_ir)
 
     payload = visual_ir.to_payload()
-    payload["steps"][0]["scene"]["annotations"][0]["text"] = "wrong"
+    annotated_step = next(
+        step for step in payload["steps"] if step["scene"]["annotations"]
+    )
+    annotated_step["scene"]["annotations"][0]["text"] = "wrong"
     bad = visual_step_ir_from_payload(payload)
 
     with pytest.raises(VisualStepIRValidationError, match="conflicts with lesson_step.box"):
@@ -1101,7 +1124,10 @@ def test_vs1_lesson_data_uses_student_titles_and_distributed_answer_boxes() -> N
     assert problem["lines"][3]["answerId"] == "answer_ii_a"
     assert problem["lines"][3]["answer"] == "a＝3/4"
     assert all(not title.startswith(("fact:", "answer:")) for title in titles)
-    assert any(section.startswith("第（Ⅰ）①问") for section in sections)
+    # F5-F5A keeps the canonical owner: this source belongs to Scope i and
+    # Goal i_1.  The temporary flat LessonIR view must not recreate the retired
+    # presentation placement by pretending that i_1 is a Scope.
+    assert any(section.startswith("第（Ⅰ）问") for section in sections)
     assert any(section.startswith("第（Ⅰ）②问") for section in sections)
     assert any(section.startswith("第（Ⅱ）问") for section in sections)
     serialized_boxes = json.dumps(boxes_by_id, ensure_ascii=False)
@@ -1209,17 +1235,13 @@ def test_vs1_problem_summary_prefers_problem_ir_summary_over_keyword_fallback() 
         sections=(),
         steps=(),
     )
-    snapshot = ExplanationSnapshot(
-        problem_id="summary-case",
-        family_id="demo",
+    snapshot = _empty_snapshot(
+        "summary-case",
         problem={
             "title": "Demo 第 1 题",
             "summary": "结构化 ProblemIR 摘要。",
             "original_text": ["求解析式，并求路径最小值。"],
         },
-        effective_steps=(),
-        teaching_trace=(),
-        fact_index={},
     )
 
     shell = visual_builder._generated_lesson_shell(
@@ -1553,9 +1575,8 @@ def test_vs1_geometry_point_scope_namer_is_shared_by_builder_and_role_index() ->
 
 
 def test_vs1_geometry_point_namer_uses_scope_rules_not_specific_runtime_keys() -> None:
-    snapshot = ExplanationSnapshot(
-        problem_id="scope-point-naming",
-        family_id="demo",
+    snapshot = _empty_snapshot(
+        "scope-point-naming",
         problem={
             "entities": [
                 {
@@ -1565,38 +1586,36 @@ def test_vs1_geometry_point_namer_uses_scope_rules_not_specific_runtime_keys() -
                     "name": "C",
                 }
             ],
-        },
-        effective_steps=(),
-        teaching_trace=(),
-        fact_index={
-            "runtime:i:outputs:Q_coordinate_value": {
+            "facts": [
+                {
                 "handle": "runtime:i:outputs:Q_coordinate_value",
                 "scope_id": "i",
                 "name": "Q_coordinate_value",
                 "type": "Point",
                 "value": ["1", "0"],
-            },
-            "runtime:ii:outputs:Q_coordinate_expr": {
+                },
+                {
                 "handle": "runtime:ii:outputs:Q_coordinate_expr",
                 "scope_id": "ii",
                 "name": "Q_coordinate_expr",
                 "type": "Point",
                 "value": ["t", "0"],
-            },
-            "runtime:i:outputs:C_coordinate": {
+                },
+                {
                 "handle": "runtime:i:outputs:C_coordinate",
                 "scope_id": "i",
                 "name": "C_coordinate",
                 "type": "Point",
                 "value": ["0", "-3"],
-            },
-            "runtime:i_2:points:R": {
+                },
+                {
                 "handle": "runtime:i_2:points:R",
                 "scope_id": "i_2",
                 "name": "R",
                 "type": "Point",
                 "value": ["2", "1"],
-            },
+                },
+            ],
         },
     )
     lesson = LessonIR(problem_id="scope-point-naming", family_id="demo", sections=(), steps=())
@@ -1610,29 +1629,20 @@ def test_vs1_geometry_point_namer_uses_scope_rules_not_specific_runtime_keys() -
     assert geometry["fixedPoints"]["R1"] == ["2", "1"]
 
 
-def test_vs1_equal_length_auxiliary_point_label_comes_from_lesson_role_text() -> None:
-    snapshot = ExplanationSnapshot(
-        problem_id="auxiliary-point-naming",
-        family_id="demo",
-        problem={},
-        effective_steps=(
-            {
-                "step_id": "reduce_alpha",
-                "scope_id": "ii",
-                "recipe_hint": "equal_length_ray_path_reduction",
-                "goal_type": "derive_path_minimum_expression",
-            },
-        ),
-        teaching_trace=(),
-        fact_index={
-            "runtime:reduce_alpha:temp:equal_length_auxiliary_point": {
+def test_vs1_internal_runtime_auxiliary_fact_is_not_projected() -> None:
+    snapshot = _empty_snapshot(
+        "auxiliary-point-naming",
+        problem={
+            "facts": [
+                {
                 "handle": "runtime:reduce_alpha:temp:equal_length_auxiliary_point",
                 "scope_id": "reduce_alpha",
                 "name": "equal_length_auxiliary_point",
                 "type": "Point",
                 "value": ["t", "0"],
                 "source": "equal_length_ray_point",
-            },
+                },
+            ],
         },
     )
     lesson = LessonIR(
@@ -1655,7 +1665,7 @@ def test_vs1_equal_length_auxiliary_point_label_comes_from_lesson_role_text() ->
 
     geometry = GeometrySpecBuilder().build(snapshot=snapshot, lesson=lesson)
 
-    assert geometry["movingPoints"]["P"] == ["t", "0"]
+    assert "P" not in geometry["movingPoints"]
     assert "G" not in geometry["movingPoints"]
 
 

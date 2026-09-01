@@ -337,6 +337,20 @@ class VisualRoleBinderRegistry:
                 if not source_step:
                     continue
                 labels.update(_point_labels_from_step(source_step))
+                witness = next(
+                    (
+                        item
+                        for item in snapshot.macro_evidence
+                        if str(item.get("step_id") or "") == source_step_id
+                    ),
+                    None,
+                )
+                if witness is not None:
+                    labels.update(
+                        _point_labels_from_equal_length_roles(
+                            _equal_length_roles_from_witness(witness)
+                        )
+                    )
                 labels.update(
                     self._auxiliary_labels_from_method_output(
                         source_step_id,
@@ -983,6 +997,24 @@ class VisualRoleBinderRegistry:
         if isinstance(direct, dict) and direct.get("type") == "Point":
             items.append(direct)
         tail = handle.rsplit(":", 1)[-1]
+        read_entity = self.index.entities_by_handle.get(handle) or {}
+        read_label = str(read_entity.get("name") or "")
+        step_order = {
+            str(step.get("step_id") or ""): index
+            for index, step in enumerate(snapshot.effective_steps)
+            if isinstance(step, dict)
+        }
+        current_order = step_order.get(source_step_id, len(step_order))
+        current_step = next(
+            (
+                step
+                for step in snapshot.effective_steps
+                if isinstance(step, dict)
+                and str(step.get("step_id") or "") == source_step_id
+            ),
+            {},
+        )
+        current_scope = str(current_step.get("scope_id") or "")
         for item in snapshot.fact_index.values():
             if not isinstance(item, dict) or item.get("type") != "Point":
                 continue
@@ -993,6 +1025,19 @@ class VisualRoleBinderRegistry:
                 items.append(item)
                 continue
             if str(item.get("source_step_id") or "") == source_step_id and tail in item_handle:
+                items.append(item)
+                continue
+            item_source = str(item.get("source_step_id") or "")
+            item_scope = str(item.get("scope_id") or "")
+            if (
+                read_label
+                and str(item.get("name") or "") == read_label
+                and step_order.get(item_source, -1) < current_order
+                and (
+                    item_scope in {current_scope, "problem"}
+                    or current_scope.startswith(f"{item_scope}_")
+                )
+            ):
                 items.append(item)
         return items
 
@@ -2188,6 +2233,14 @@ def _equal_length_roles_from_step(
     entities: dict[str, dict[str, Any]],
     witness: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    # The Macro is an atomic teaching source.  Its verified public witness is
+    # therefore the canonical source of visual roles; do not require the
+    # renderer to reconstruct those roles from runtime-private facts.
+    if witness is not None:
+        witness_roles = _equal_length_roles_from_witness(witness)
+        if witness_roles:
+            return witness_roles
+
     segment_fact: dict[str, Any] | None = None
     ray_fact: dict[str, Any] | None = None
     equal_fact: dict[str, Any] | None = None
@@ -2311,6 +2364,89 @@ def _equal_length_roles_from_step(
             if witness is not None
             else {}
         ),
+    }
+
+
+def _equal_length_roles_from_witness(witness: dict[str, Any]) -> dict[str, Any]:
+    resolved = {
+        str(item.get("role") or ""): str(item.get("chosen_ref") or "").rsplit(".", 1)[-1]
+        for item in witness.get("role_resolutions", ())
+        if isinstance(item, dict)
+    }
+    original_path = str(witness.get("original_objective") or "")
+    reduced_path = str(witness.get("reduced_objective") or "")
+    original_terms = _segment_terms(original_path)
+    reduced_terms = _segment_terms(reduced_path)
+    common_path = _common_path_term(original_terms, reduced_terms)
+
+    constructions = [
+        item for item in witness.get("constructions", ()) if isinstance(item, dict)
+    ]
+    construction = next(
+        (
+            item
+            for item in constructions
+            if item.get("kind") == "equal_length_point_on_ray"
+        ),
+        constructions[0] if constructions else None,
+    )
+    auxiliary = str((construction or {}).get("label") or "")
+    segment_reference = resolved.get("reference_point", "")
+
+    original_replace = _segment_containing_label(
+        original_terms,
+        segment_reference,
+        exclude={common_path},
+    )
+    if not original_replace:
+        original_replace = next(
+            (term for term in original_terms if term not in set(reduced_terms)),
+            "",
+        )
+    replacement = _segment_containing_label(
+        reduced_terms,
+        auxiliary,
+        exclude={common_path},
+    )
+    if not replacement:
+        replacement = next(
+            (term for term in reduced_terms if term not in set(original_terms)),
+            "",
+        )
+
+    segment_moving = _other_endpoint(replacement, auxiliary)
+    ray_moving = _other_endpoint(original_replace, segment_reference)
+    fixed = resolved.get("fixed_point", "")
+    if not segment_moving and fixed:
+        segment_moving = _other_endpoint(common_path, fixed)
+    if not fixed and segment_moving:
+        fixed = _other_endpoint(common_path, segment_moving)
+
+    required = (
+        resolved.get("anchor"),
+        segment_moving,
+        ray_moving,
+        segment_reference,
+        auxiliary,
+    )
+    if not all(required):
+        return {}
+
+    return {
+        "anchor": resolved["anchor"],
+        "segment_moving_point": segment_moving,
+        "ray_moving_point": ray_moving,
+        "segment_reference_point": segment_reference,
+        "ray_direction_point": resolved.get("ray_point", ""),
+        "fixed_point": fixed,
+        "auxiliary_point": auxiliary,
+        "original_replace_segment": original_replace,
+        "replacement_segment": replacement,
+        "common_path_segment": common_path,
+        "original_path": original_path,
+        "reduced_path": reduced_path,
+        "minimum_expression": str(witness.get("minimum_expression") or ""),
+        "minimizing_points": dict(witness.get("minimizing_points") or {}),
     }
 
 

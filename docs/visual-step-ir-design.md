@@ -19,23 +19,35 @@ ProblemIR + ExplanationSnapshot + LessonIR
 -对象使用稳定 identity/role，不按 label 文本猜测；
 -每个视觉变化可追溯到教学步骤和 source fact；
 -静态场景、交互和动画共享同一对象模型；
--LLM 声明视觉意图，代码负责几何计算、布局和 runtime safety；
+- Method/Macro 声明可用语义组件，代码先完成 verified role binding；同一次 Lesson LLM 只
+  从当前步骤的 `available_visuals` 中选择 `visual_id/mode`，代码负责几何计算、布局和
+  runtime safety；
 -无法表达的视觉需求产生结构化 gap，不拼接任意前端代码。
 
 ## 3. 核心结构
 
+目标 VisualStepIR 使用与 LessonIR 同构的递归
+`root_scope → steps/goals/children`；Scope 与 Goal 容器都使用同一 `steps[]`，
+VisualStep 所在容器就是其教学 owner。当前 flat
+`steps[]` 是 VS0/VS1 compatibility view，G1 迁移后只允许作为内存派生 index。
+
 ```text
 VisualStepIR
-  lesson_step_id
-  scene_id
-  source_refs[]
-  objects[]
-  role_bindings[]
-  camera
-  visibility[]
-  annotations[]
-  interactions[]
-  beats[]
+  root_scope
+    scope_ref
+    steps[]
+      lesson_step_id
+      scene_id
+      source_refs[]
+      objects[]
+      role_bindings[]
+      camera
+      visibility[]
+      annotations[]
+      interactions[]
+      beats[]
+    goals{goal_ref}.steps[]
+    children[]
 ```
 
 ### Scene object
@@ -169,10 +181,14 @@ AnimationContext 将 beat 与 voiceover units 对齐：
 
 LLM 可决定：
 
--采用哪类视觉机制；
+-从代码已绑定且动态枚举的候选中采用哪类视觉机制；
 -哪些对象需要强调；
--步骤如何分镜；
+-在组件支持的 mode 中选择静态、高亮或逐步展示；
 -讲解与交互的顺序。
+
+LLM 不填写组件角色、坐标、geometry ref、scene item、interaction formula 或 animation beat；
+选择非法时只回退该 Lesson Step 的 deterministic visual default，不进行第二次 Visual LLM
+调用或 semantic retry。
 
 代码决定：
 
@@ -206,6 +222,8 @@ Track G 中：
 
 ## 14. 相关文档
 
+- `docs/teaching-scope-student-visual-animation-design.md`
+- `docs/lesson-scope-llm-authoring-vnext-design.md`
 - `docs/explanation-builder-design.md`
 - `docs/llm-context-model-design.md`
 - `docs/frontend-parallel-development-with-mock-api-plan.md`
