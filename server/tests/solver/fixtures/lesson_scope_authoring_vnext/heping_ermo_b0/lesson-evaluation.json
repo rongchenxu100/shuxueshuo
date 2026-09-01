@@ -1,0 +1,64 @@
+{
+  "schema_version": "lesson-teaching-evaluation/v1",
+  "problem_id": "tj-2026-heping-ermo-25",
+  "covered": [
+    "path_reduction_equivalence",
+    "minimum_and_parameterized_attainment"
+  ],
+  "missing": [
+    "moving_point_locus",
+    "reflection_construction",
+    "reflection_segment_equality"
+  ],
+  "evidence_by_point": {
+    "path_reduction_equivalence": {
+      "source_step_id": "derive_path_minimum_ii",
+      "lesson_step_ids": [
+        "explain_derive_path_minimum_ii"
+      ],
+      "matched_patterns": [
+        "HF+FM+MG=AG+MG"
+      ]
+    },
+    "moving_point_locus": {
+      "source_step_id": "derive_path_minimum_ii",
+      "lesson_step_ids": [
+        "explain_derive_path_minimum_ii"
+      ],
+      "matched_patterns": [
+        null,
+        null
+      ]
+    },
+    "reflection_construction": {
+      "source_step_id": "derive_path_minimum_ii",
+      "lesson_step_ids": [
+        "explain_derive_path_minimum_ii"
+      ],
+      "matched_patterns": [
+        null,
+        null
+      ]
+    },
+    "reflection_segment_equality": {
+      "source_step_id": "derive_path_minimum_ii",
+      "lesson_step_ids": [
+        "explain_derive_path_minimum_ii"
+      ],
+      "matched_patterns": [
+        null
+      ]
+    },
+    "minimum_and_parameterized_attainment": {
+      "source_step_id": "derive_path_minimum_ii",
+      "lesson_step_ids": [
+        "explain_derive_path_minimum_ii"
+      ],
+      "matched_patterns": [
+        "√5|c+1|/2",
+        "G(1/4-3c/4,-c/2-1/2)"
+      ]
+    }
+  },
+  "coverage_rate": 0.4
+}

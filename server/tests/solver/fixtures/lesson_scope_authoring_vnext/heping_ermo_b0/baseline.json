@@ -1,0 +1,100 @@
+{
+  "schema_version": "lesson-authoring-b0-baseline/v1",
+  "source_revision": "b42f0e2",
+  "problem_id": "tj-2026-heping-ermo-25",
+  "contracts": {
+    "snapshot": "explanation-snapshot/v2",
+    "rubric": "lesson-teaching-rubric/v1",
+    "coverage": "lesson-teaching-spec-coverage/v1"
+  },
+  "authority": {
+    "canonical_plan_hash": "9160942486db66fe06b1c29baa129047690fa8a0495e2da72b32dcbaec7add97",
+    "observed_verified_execution_hash": "80bbcaea9e89aa6d43e9a1a85b89e6fb8f357a4f90b2df9f50369e9760cbff7e",
+    "verified_execution_hash_golden_policy": "record_only_not_compared_across_equivalent_recorded_runs"
+  },
+  "counts": {
+    "canonical_source_steps": 12,
+    "unique_capabilities": 9,
+    "function_capabilities": 8,
+    "macro_capabilities": 1,
+    "macro_evidence": 1,
+    "candidate_groups": 12,
+    "deterministic_lesson_steps": 10,
+    "visual_steps": 10,
+    "nonempty_visual_scenes": 10,
+    "compiled_lesson_steps": 10
+  },
+  "prompt": {
+    "allow_same_problem_few_shot": false,
+    "few_shot_count": 1,
+    "system_chars": 947,
+    "user_chars": 53760,
+    "total_chars": 54707,
+    "prompt_hash": "8b2d81ab74584a5a12823867d8aeece888b9ff686d34a0098c36571b47a4893f"
+  },
+  "artifact_hashes": {
+    "snapshot": "4880171d2a4d8c8735d8763e72c80c20bf420ff3a4532897dbc27c54c190f7d1",
+    "macro_evidence": "7e3f0b13e92a1f07b2bd34ce61e9c99d3e7531de7365f8bec2cbb1de1c2c06e1",
+    "lesson_ir": "18cd0f6d92d723e2eb115a90b9112933d98bb76c1c92aa4c650f36bc725d7750",
+    "visual_step_ir": "edac8bc5838440b7022797c00e202ced0bed5537b4764fe3ee947708fba4106d",
+    "compiled": "2ff5fa909df2e45e45af1c3a160d5be37a1f6fac22315d3344a71d042e7c15ed",
+    "coverage": "b004e0aa40153f96a4a5d86292604931898e4c213adcc35f1fe80c2694f1e3ec"
+  },
+  "live_observation": {
+    "recorded_batch_id": "f5-f5b0-recorded",
+    "live_batch_id": "f5-f5b0-live-1x3",
+    "observed_on": "2026-09-01",
+    "provider": "deepseek",
+    "response_model": "deepseek-v4-flash",
+    "threshold_policy": "historical_observation_only",
+    "sample_count": 3,
+    "provider_response_count": 3,
+    "compiled_page_count": 3,
+    "llm_accepted_count": 2,
+    "fallback_count": 1,
+    "semantic_attempts": 8,
+    "semantic_attempts_by_sample": [
+      2,
+      3,
+      3
+    ],
+    "usage": {
+      "prompt_tokens": 161043,
+      "completion_tokens": 17114,
+      "total_tokens": 178157
+    },
+    "average_usage": {
+      "prompt_tokens": 53681.0,
+      "completion_tokens": 5704.667,
+      "total_tokens": 59385.667
+    },
+    "sample_duration_seconds": {
+      "total": 106.762309,
+      "average": 35.587436,
+      "p50": 40.039873,
+      "p95": 41.997073
+    },
+    "max_sample_duration_seconds": 41.997073,
+    "lesson_steps_by_sample": [
+      9,
+      10,
+      10
+    ],
+    "visual_steps_by_sample": [
+      9,
+      10,
+      10
+    ],
+    "nonempty_scene_counts_by_sample": [
+      9,
+      10,
+      10
+    ],
+    "teaching_coverage_rate_by_sample": [
+      0.4,
+      0.4,
+      0.4
+    ],
+    "observed_validation_blocker": "cross_scope_merge_not_allowed"
+  }
+}

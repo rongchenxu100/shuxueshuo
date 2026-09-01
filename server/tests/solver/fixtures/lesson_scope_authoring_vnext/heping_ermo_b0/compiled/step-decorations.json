@@ -1,0 +1,976 @@
+{
+  "layers": {
+    "global": {
+      "elements": [
+        {
+          "type": "grid"
+        }
+      ]
+    },
+    "partI": {
+      "elements": [
+        {
+          "type": "parabola",
+          "curveId": "curve_i_parabola",
+          "color": "#2563eb",
+          "width": 2.2
+        },
+        {
+          "type": "point",
+          "at": "A1",
+          "labelText": "A",
+          "color": "#1f2937",
+          "dx": 10,
+          "dy": -12
+        },
+        {
+          "type": "point",
+          "at": "B",
+          "labelText": "B",
+          "color": "#1f2937",
+          "dx": 10,
+          "dy": -12
+        },
+        {
+          "type": "point",
+          "at": "M",
+          "labelText": "M",
+          "color": "#64748b",
+          "dx": 10,
+          "dy": -12
+        },
+        {
+          "type": "point",
+          "at": "P",
+          "labelText": "P",
+          "color": "#1f2937",
+          "dx": 10,
+          "dy": -12
+        },
+        {
+          "type": "point",
+          "at": "K",
+          "labelText": "K",
+          "color": "#64748b",
+          "dx": 10,
+          "dy": -12
+        }
+      ],
+      "stepIds": [
+        "explain_derive_parabola_i",
+        "explain_derive_x_intercept_A_i",
+        "explain_derive_vertex_P_i",
+        "explain_parameterize_axis_point_E_i_derive_square_vertex_G_i",
+        "explain_solve_axis_point_candidates_i"
+      ],
+      "stepStartsWith": [
+        "explain_derive_parabola_i",
+        "explain_derive_x_intercept_A_i",
+        "explain_derive_vertex_P_i",
+        "explain_parameterize_axis_point_E_i_derive_square_vertex_G_i",
+        "explain_solve_axis_point_candidates_i"
+      ]
+    },
+    "partII": {
+      "elements": [
+        {
+          "type": "parabola",
+          "curveId": "curve_ii_parabola",
+          "color": "#2563eb",
+          "width": 2.2
+        },
+        {
+          "type": "coloredLine",
+          "from": "A",
+          "to": "E",
+          "color": "#64748b",
+          "width": 1.6
+        },
+        {
+          "type": "coloredLine",
+          "from": "A",
+          "to": "K",
+          "color": "#64748b",
+          "width": 1.6
+        },
+        {
+          "type": "coloredLine",
+          "from": "E",
+          "to": "G",
+          "color": "#64748b",
+          "width": 1.6
+        },
+        {
+          "type": "point",
+          "at": "A",
+          "labelText": "A",
+          "color": "#64748b",
+          "dx": 10,
+          "dy": -12
+        },
+        {
+          "type": "point",
+          "at": "P",
+          "labelText": "P",
+          "color": "#1f2937",
+          "dx": 10,
+          "dy": -12
+        },
+        {
+          "type": "point",
+          "at": "E",
+          "labelText": "E",
+          "color": "#1f2937",
+          "dx": 10,
+          "dy": -12
+        },
+        {
+          "type": "point",
+          "at": "G",
+          "labelText": "G",
+          "color": "#64748b",
+          "dx": 10,
+          "dy": -12
+        },
+        {
+          "type": "point",
+          "at": "K",
+          "labelText": "K",
+          "color": "#64748b",
+          "dx": 10,
+          "dy": -12
+        }
+      ],
+      "stepIds": [
+        "explain_derive_parametric_parabola_ii",
+        "explain_derive_path_minimum_ii",
+        "explain_solve_parameter_c_ii_evaluate_point_A_ii",
+        "explain_evaluate_minimum_point_G_ii",
+        "explain_recover_target_point_E_ii"
+      ],
+      "stepStartsWith": [
+        "explain_derive_parametric_parabola_ii",
+        "explain_derive_path_minimum_ii",
+        "explain_solve_parameter_c_ii_evaluate_point_A_ii",
+        "explain_evaluate_minimum_point_G_ii",
+        "explain_recover_target_point_E_ii"
+      ]
+    }
+  },
+  "steps": {
+    "explain_derive_parabola_i": {
+      "add": [
+        {
+          "curveId": "curve_i_parabola",
+          "color": "#2563eb",
+          "width": 2.4,
+          "type": "parabola"
+        }
+      ]
+    },
+    "explain_derive_x_intercept_A_i": {
+      "add": [
+        {
+          "at": "A1",
+          "labelText": "A",
+          "color": "#b45309",
+          "dx": 14,
+          "dy": -18,
+          "type": "point"
+        },
+        {
+          "at": "A1",
+          "text": "A(-3,0)",
+          "dx": 14,
+          "dy": -24,
+          "type": "coordinateLabel"
+        },
+        {
+          "at": "B",
+          "labelText": "B",
+          "color": "#1f2937",
+          "dx": 14,
+          "dy": -18,
+          "type": "point"
+        },
+        {
+          "at": "B",
+          "text": "B(1,0)",
+          "dx": 14,
+          "dy": -24,
+          "type": "coordinateLabel"
+        }
+      ],
+      "hideLayers": [
+        "point:A"
+      ]
+    },
+    "explain_derive_vertex_P_i": {
+      "add": [
+        {
+          "at": "A1",
+          "labelText": "A",
+          "color": "#64748b",
+          "dx": 14,
+          "dy": -18,
+          "type": "point"
+        },
+        {
+          "at": "B",
+          "labelText": "B",
+          "color": "#64748b",
+          "dx": 14,
+          "dy": -18,
+          "type": "point"
+        },
+        {
+          "curveId": "curve_i_parabola",
+          "color": "#64748b",
+          "width": 1.5,
+          "dash": "7 6",
+          "type": "axisOfSymmetry"
+        },
+        {
+          "at": "P",
+          "labelText": "P",
+          "color": "#b45309",
+          "dx": 14,
+          "dy": -18,
+          "type": "point"
+        },
+        {
+          "at": "P",
+          "text": "P(-1,4)",
+          "dx": 14,
+          "dy": -34,
+          "type": "coordinateLabel"
+        }
+      ]
+    },
+    "explain_parameterize_axis_point_E_i_derive_square_vertex_G_i": {
+      "add": [
+        {
+          "at": "B",
+          "labelText": "B",
+          "color": "#64748b",
+          "dx": 14,
+          "dy": -18,
+          "type": "point"
+        },
+        {
+          "curveId": "curve_i_parabola",
+          "color": "#64748b",
+          "width": 1.5,
+          "dash": "7 6",
+          "type": "axisOfSymmetry"
+        },
+        {
+          "at": "E_axis_i_2",
+          "labelText": "E",
+          "color": "#dc2626",
+          "dx": 14,
+          "dy": -18,
+          "type": "point"
+        },
+        {
+          "at": "E_axis_i_2",
+          "text": "E(-1,t)",
+          "dx": 14,
+          "dy": -28,
+          "type": "coordinateLabel"
+        },
+        {
+          "vertices": [
+            "A1",
+            "E_axis_i_2",
+            "K",
+            "G_axis_i_2"
+          ],
+          "fill": "rgba(14, 165, 233, 0.12)",
+          "color": "#0284c7",
+          "width": 1.2,
+          "dash": "",
+          "type": "outlineRegion"
+        },
+        {
+          "from": "A1",
+          "to": "E_axis_i_2",
+          "color": "#0f766e",
+          "width": 2.0,
+          "type": "coloredLine"
+        },
+        {
+          "from": "E_axis_i_2",
+          "to": "K",
+          "color": "#0f766e",
+          "width": 2.0,
+          "type": "coloredLine"
+        },
+        {
+          "from": "K",
+          "to": "G_axis_i_2",
+          "color": "#0f766e",
+          "width": 2.0,
+          "type": "coloredLine"
+        },
+        {
+          "from": "G_axis_i_2",
+          "to": "A1",
+          "color": "#0f766e",
+          "width": 2.0,
+          "type": "coloredLine"
+        },
+        {
+          "at": "A1",
+          "labelText": "A",
+          "color": "#1f2937",
+          "dx": 14,
+          "dy": -18,
+          "type": "point"
+        },
+        {
+          "at": "K",
+          "labelText": "K",
+          "color": "#1f2937",
+          "dx": 14,
+          "dy": -18,
+          "type": "point"
+        },
+        {
+          "at": "G_axis_i_2",
+          "labelText": "G",
+          "color": "#b45309",
+          "dx": 14,
+          "dy": 18,
+          "type": "point"
+        },
+        {
+          "at": "G_axis_i_2",
+          "text": "G(t-3,-2)",
+          "dx": 14,
+          "dy": 34,
+          "type": "coordinateLabel"
+        },
+        {
+          "vertex": "A1",
+          "rayA": "E_axis_i_2",
+          "rayB": "G_axis_i_2",
+          "size": 10,
+          "color": "#0f766e",
+          "type": "rightAngle"
+        },
+        {
+          "vertex": "E_axis_i_2",
+          "rayA": "A1",
+          "rayB": "K",
+          "size": 10,
+          "color": "#0f766e",
+          "type": "rightAngle"
+        }
+      ],
+      "hideLayers": [
+        "point:E",
+        "point:E_axis_i_2_candidate_1",
+        "point:E_axis_i_2_candidate_2",
+        "point:A",
+        "point:G"
+      ]
+    },
+    "explain_solve_axis_point_candidates_i": {
+      "add": [
+        {
+          "at": "A1",
+          "labelText": "A",
+          "color": "#64748b",
+          "dx": 14,
+          "dy": -18,
+          "type": "point"
+        },
+        {
+          "at": "B",
+          "labelText": "B",
+          "color": "#64748b",
+          "dx": 14,
+          "dy": -18,
+          "type": "point"
+        },
+        {
+          "curveId": "curve_i_parabola",
+          "color": "#64748b",
+          "width": 1.5,
+          "dash": "7 6",
+          "type": "axisOfSymmetry"
+        },
+        {
+          "vertices": [
+            "A1",
+            "E_axis_i_2",
+            "K",
+            "G_axis_i_2"
+          ],
+          "fill": "rgba(14, 165, 233, 0.12)",
+          "color": "#0284c7",
+          "width": 1.2,
+          "dash": "",
+          "type": "outlineRegion"
+        },
+        {
+          "from": "A1",
+          "to": "E_axis_i_2",
+          "color": "#64748b",
+          "width": 2.0,
+          "type": "coloredLine"
+        },
+        {
+          "from": "E_axis_i_2",
+          "to": "K",
+          "color": "#64748b",
+          "width": 2.0,
+          "type": "coloredLine"
+        },
+        {
+          "from": "K",
+          "to": "G_axis_i_2",
+          "color": "#64748b",
+          "width": 2.0,
+          "type": "coloredLine"
+        },
+        {
+          "from": "G_axis_i_2",
+          "to": "A1",
+          "color": "#64748b",
+          "width": 2.0,
+          "type": "coloredLine"
+        },
+        {
+          "at": "K",
+          "labelText": "K",
+          "color": "#64748b",
+          "dx": 14,
+          "dy": -18,
+          "type": "point"
+        },
+        {
+          "at": "G_axis_i_2",
+          "labelText": "G",
+          "color": "#64748b",
+          "dx": 14,
+          "dy": 18,
+          "type": "point"
+        },
+        {
+          "at": "E_axis_i_2_candidate_1",
+          "labelText": "E",
+          "color": "#b45309",
+          "dx": 14,
+          "dy": 18,
+          "type": "point"
+        },
+        {
+          "at": "E_axis_i_2_candidate_1",
+          "text": "E(-1,2+√6)",
+          "dx": 14,
+          "dy": 34,
+          "type": "coordinateLabel"
+        },
+        {
+          "at": "E_axis_i_2_candidate_2",
+          "labelText": "E",
+          "color": "#b45309",
+          "dx": 14,
+          "dy": 18,
+          "type": "point"
+        },
+        {
+          "at": "E_axis_i_2_candidate_2",
+          "text": "E(-1,2-√6)",
+          "dx": 14,
+          "dy": 34,
+          "type": "coordinateLabel"
+        }
+      ],
+      "hideLayers": [
+        "point:E_axis_i_2_candidate_1",
+        "point:E",
+        "point:E_axis_i_2"
+      ]
+    },
+    "explain_derive_parametric_parabola_ii": {
+      "add": [
+        {
+          "curveId": "curve_ii_parabola",
+          "color": "#2563eb",
+          "width": 2.4,
+          "type": "parabola"
+        },
+        {
+          "at": "A",
+          "text": "A(-c,0)",
+          "dx": 14,
+          "dy": -24,
+          "type": "coordinateLabel"
+        }
+      ]
+    },
+    "explain_derive_path_minimum_ii": {
+      "add": [
+        {
+          "vertices": [
+            "A",
+            "E",
+            "K",
+            "G"
+          ],
+          "fill": "rgba(15, 118, 110, 0.055)",
+          "color": "rgba(15, 118, 110, 0.50)",
+          "width": 1.5,
+          "dash": "",
+          "type": "outlineRegion"
+        },
+        {
+          "vertices": [
+            "A",
+            "M_axis_ii",
+            "E"
+          ],
+          "fill": "rgba(14, 165, 233, 0.12)",
+          "color": "rgba(2, 132, 199, 0.40)",
+          "width": 1.2,
+          "dash": "",
+          "type": "outlineRegion"
+        },
+        {
+          "vertices": [
+            "A",
+            "E",
+            "G"
+          ],
+          "fill": "rgba(180, 83, 9, 0.10)",
+          "color": "rgba(180, 83, 9, 0.42)",
+          "width": 1.2,
+          "dash": "",
+          "type": "outlineRegion"
+        },
+        {
+          "from": "H",
+          "to": "F",
+          "color": "#7c3aed",
+          "width": 2.0,
+          "type": "coloredLine"
+        },
+        {
+          "from": "F",
+          "to": "M_axis_ii",
+          "color": "#7c3aed",
+          "width": 2.0,
+          "type": "coloredLine"
+        },
+        {
+          "from": "M_axis_ii",
+          "to": "G",
+          "color": "#dc2626",
+          "width": 2.0,
+          "type": "coloredLine"
+        },
+        {
+          "from": "A",
+          "to": "G",
+          "color": "#b45309",
+          "width": 2.4,
+          "type": "coloredLine"
+        },
+        {
+          "vertex": "M_axis_ii",
+          "rayA": "A",
+          "rayB": "E",
+          "size": 10,
+          "color": "#0f766e",
+          "type": "rightAngle"
+        },
+        {
+          "at": "F",
+          "labelText": "F",
+          "color": "#1f2937",
+          "dx": 14,
+          "dy": -18,
+          "type": "point"
+        },
+        {
+          "at": "H",
+          "labelText": "H",
+          "color": "#1f2937",
+          "dx": 14,
+          "dy": -18,
+          "type": "point"
+        },
+        {
+          "at": "E",
+          "labelText": "E",
+          "color": "#1f2937",
+          "dx": 14,
+          "dy": -18,
+          "type": "point"
+        },
+        {
+          "at": "K",
+          "labelText": "K",
+          "color": "#1f2937",
+          "dx": 14,
+          "dy": -18,
+          "type": "point"
+        },
+        {
+          "at": "G",
+          "labelText": "G",
+          "color": "#b45309",
+          "dx": 14,
+          "dy": 18,
+          "type": "point"
+        },
+        {
+          "vertices": [
+            "M_axis_ii",
+            "A_prime",
+            "G"
+          ],
+          "fill": "rgba(180, 83, 9, 0.10)",
+          "color": "#b45309",
+          "width": 1.0,
+          "type": "outlineRegion"
+        },
+        {
+          "from": "A_prime",
+          "to": "G",
+          "color": "#b45309",
+          "width": 2.2,
+          "dash": "5 6",
+          "type": "dashedLine"
+        },
+        {
+          "type": "segment",
+          "from": "A_prime",
+          "to": "G",
+          "label": "AG=A′G",
+          "color": "#b45309",
+          "width": 2.2,
+          "offsetPx": -18
+        },
+        {
+          "from": "A_prime",
+          "to": "M_axis_ii",
+          "color": "#b45309",
+          "width": 2.8,
+          "type": "coloredLine"
+        },
+        {
+          "type": "segment",
+          "from": "A_prime",
+          "to": "M_axis_ii",
+          "label": "A′M",
+          "color": "#b45309",
+          "width": 2.8,
+          "offsetPx": 16
+        },
+        {
+          "at": "A_prime",
+          "labelText": "A′",
+          "color": "#b45309",
+          "dx": 14,
+          "dy": 18,
+          "type": "point"
+        },
+        {
+          "at": "A_prime",
+          "text": "A′(-c,-c-1)",
+          "dx": 14,
+          "dy": 34,
+          "type": "coordinateLabel"
+        }
+      ],
+      "hideLayers": [
+        "point:E_axis_i_2",
+        "point:E_axis_i_2_candidate_1",
+        "point:E_axis_i_2_candidate_2",
+        "point:G_axis_i_2"
+      ]
+    },
+    "explain_solve_parameter_c_ii_evaluate_point_A_ii": {
+      "add": [
+        {
+          "from": "M_axis_ii",
+          "to": "G",
+          "color": "#64748b",
+          "width": 2.0,
+          "type": "coloredLine"
+        },
+        {
+          "from": "A",
+          "to": "G",
+          "color": "#64748b",
+          "width": 2.4,
+          "type": "coloredLine"
+        },
+        {
+          "at": "G",
+          "labelText": "G",
+          "color": "#64748b",
+          "dx": 14,
+          "dy": 18,
+          "type": "point"
+        },
+        {
+          "from": "A_prime",
+          "to": "G",
+          "color": "#64748b",
+          "width": 2.2,
+          "dash": "5 6",
+          "type": "dashedLine"
+        },
+        {
+          "from": "A_prime",
+          "to": "M_axis_ii",
+          "color": "#64748b",
+          "width": 2.8,
+          "type": "coloredLine"
+        },
+        {
+          "at": "A_prime",
+          "labelText": "A′",
+          "color": "#64748b",
+          "dx": 14,
+          "dy": 18,
+          "type": "point"
+        },
+        {
+          "at": "A",
+          "labelText": "A",
+          "color": "#b45309",
+          "dx": 14,
+          "dy": -18,
+          "type": "point"
+        },
+        {
+          "at": "A",
+          "text": "A(－5,0)",
+          "dx": 14,
+          "dy": -28,
+          "type": "coordinateLabel"
+        }
+      ],
+      "hideLayers": [
+        "point:A1"
+      ]
+    },
+    "explain_evaluate_minimum_point_G_ii": {
+      "add": [
+        {
+          "from": "M_axis_ii",
+          "to": "G",
+          "color": "#64748b",
+          "width": 2.0,
+          "type": "coloredLine"
+        },
+        {
+          "from": "A",
+          "to": "G",
+          "color": "#64748b",
+          "width": 2.4,
+          "type": "coloredLine"
+        },
+        {
+          "from": "A_prime",
+          "to": "G",
+          "color": "#64748b",
+          "width": 2.2,
+          "dash": "5 6",
+          "type": "dashedLine"
+        },
+        {
+          "from": "A_prime",
+          "to": "M_axis_ii",
+          "color": "#64748b",
+          "width": 2.8,
+          "type": "coloredLine"
+        },
+        {
+          "at": "A_prime",
+          "labelText": "A′",
+          "color": "#64748b",
+          "dx": 14,
+          "dy": 18,
+          "type": "point"
+        },
+        {
+          "at": "A",
+          "labelText": "A",
+          "color": "#64748b",
+          "dx": 14,
+          "dy": -18,
+          "type": "point"
+        },
+        {
+          "at": "G",
+          "labelText": "G",
+          "color": "#b45309",
+          "dx": 14,
+          "dy": -18,
+          "type": "point"
+        },
+        {
+          "at": "G",
+          "text": "G(－7/2,－3)",
+          "dx": 14,
+          "dy": -28,
+          "type": "coordinateLabel"
+        }
+      ],
+      "hideLayers": [
+        "point:G_axis_i_2"
+      ]
+    },
+    "explain_recover_target_point_E_ii": {
+      "add": [
+        {
+          "from": "M_axis_ii",
+          "to": "G",
+          "color": "#64748b",
+          "width": 2.0,
+          "type": "coloredLine"
+        },
+        {
+          "from": "A",
+          "to": "G",
+          "color": "#64748b",
+          "width": 2.4,
+          "type": "coloredLine"
+        },
+        {
+          "from": "A_prime",
+          "to": "G",
+          "color": "#64748b",
+          "width": 2.2,
+          "dash": "5 6",
+          "type": "dashedLine"
+        },
+        {
+          "from": "A_prime",
+          "to": "M_axis_ii",
+          "color": "#64748b",
+          "width": 2.8,
+          "type": "coloredLine"
+        },
+        {
+          "at": "A_prime",
+          "labelText": "A′",
+          "color": "#64748b",
+          "dx": 14,
+          "dy": 18,
+          "type": "point"
+        },
+        {
+          "vertices": [
+            "A",
+            "E",
+            "K",
+            "G"
+          ],
+          "fill": "rgba(14, 165, 233, 0.12)",
+          "color": "#0284c7",
+          "width": 1.2,
+          "dash": "",
+          "type": "outlineRegion"
+        },
+        {
+          "from": "A",
+          "to": "E",
+          "color": "#0f766e",
+          "width": 2.0,
+          "type": "coloredLine"
+        },
+        {
+          "from": "E",
+          "to": "K",
+          "color": "#0f766e",
+          "width": 2.0,
+          "type": "coloredLine"
+        },
+        {
+          "from": "K",
+          "to": "G",
+          "color": "#0f766e",
+          "width": 2.0,
+          "type": "coloredLine"
+        },
+        {
+          "from": "G",
+          "to": "A",
+          "color": "#0f766e",
+          "width": 2.0,
+          "type": "coloredLine"
+        },
+        {
+          "at": "A",
+          "labelText": "A",
+          "color": "#1f2937",
+          "dx": 14,
+          "dy": -18,
+          "type": "point"
+        },
+        {
+          "at": "E",
+          "labelText": "E",
+          "color": "#b45309",
+          "dx": 14,
+          "dy": 18,
+          "type": "point"
+        },
+        {
+          "at": "E",
+          "text": "E(-2,3/2)",
+          "dx": 14,
+          "dy": 34,
+          "type": "coordinateLabel"
+        },
+        {
+          "at": "K",
+          "labelText": "K",
+          "color": "#1f2937",
+          "dx": 14,
+          "dy": -18,
+          "type": "point"
+        },
+        {
+          "at": "G",
+          "labelText": "G",
+          "color": "#1f2937",
+          "dx": 14,
+          "dy": -18,
+          "type": "point"
+        },
+        {
+          "vertex": "A",
+          "rayA": "E",
+          "rayB": "G",
+          "size": 10,
+          "color": "#0f766e",
+          "type": "rightAngle"
+        },
+        {
+          "vertex": "E",
+          "rayA": "A",
+          "rayB": "K",
+          "size": 10,
+          "color": "#0f766e",
+          "type": "rightAngle"
+        }
+      ],
+      "hideLayers": [
+        "point:A1",
+        "point:E_axis_i_2",
+        "point:E_axis_i_2_candidate_1",
+        "point:E_axis_i_2_candidate_2",
+        "point:G_axis_i_2"
+      ]
+    }
+  }
+}

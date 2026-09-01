@@ -1,0 +1,2232 @@
+{
+  "version": 1,
+  "problem_id": "tj-2026-heping-ermo-25",
+  "geometry_spec": {
+    "version": 1,
+    "id": "tj-2026-heping-ermo-25",
+    "domain": {
+      "minX": -6.8,
+      "maxX": 3.249,
+      "minY": -7.8,
+      "maxY": 10.8
+    },
+    "movingParam": "c",
+    "expressionEnv": [],
+    "fixedPoints": {
+      "A1": [
+        "-3",
+        "0"
+      ],
+      "AE_proj_problem": [
+        "-2",
+        "0"
+      ],
+      "B": [
+        "1",
+        "0"
+      ],
+      "E": [
+        "-2",
+        "3/2"
+      ],
+      "E_axis_i_2": [
+        "-1",
+        "2+sqrt(6)"
+      ],
+      "E_axis_i_2_candidate_1": [
+        "-1",
+        "2+sqrt(6)"
+      ],
+      "E_axis_i_2_candidate_2": [
+        "-1",
+        "2-sqrt(6)"
+      ],
+      "G_axis_i_2": [
+        "-1+sqrt(6)",
+        "-2"
+      ],
+      "P": [
+        "-1",
+        "4"
+      ]
+    },
+    "movingPoints": {
+      "A": [
+        "-c",
+        "0"
+      ],
+      "AG_proj_problem": [
+        "1/4-3*c/4",
+        "0"
+      ],
+      "A_prime": [
+        "-c",
+        "-c-1"
+      ],
+      "F": [
+        "-c/2-1",
+        "3/4"
+      ],
+      "G": [
+        "1/4-3*c/4",
+        "-c/2-1/2"
+      ],
+      "H": [
+        "-3*c/8-7/8",
+        "1/2-c/4"
+      ],
+      "K": [
+        "c/4-7/4",
+        "1-c/2"
+      ],
+      "M": [
+        "1/2-c/2",
+        "0"
+      ],
+      "M_axis_ii": [
+        "1/2-c/2",
+        "0"
+      ]
+    },
+    "pointMeta": {
+      "A": {
+        "label": "A",
+        "scopeId": "ii",
+        "scopeRoot": "ii"
+      },
+      "A1": {
+        "label": "A",
+        "scopeId": "i",
+        "scopeRoot": "i"
+      },
+      "AE_proj_problem": {
+        "label": "AE_projection",
+        "scopeId": "problem",
+        "scopeRoot": "problem",
+        "visualOnly": true
+      },
+      "AG_proj_problem": {
+        "label": "AG_projection",
+        "scopeId": "problem",
+        "scopeRoot": "problem",
+        "visualOnly": true
+      },
+      "A_prime": {
+        "label": "A′",
+        "scopeId": "ii",
+        "scopeRoot": "ii"
+      },
+      "B": {
+        "label": "B",
+        "scopeId": "i",
+        "scopeRoot": "i"
+      },
+      "E": {
+        "label": "E",
+        "scopeId": "ii",
+        "scopeRoot": "ii"
+      },
+      "E_axis_i_2": {
+        "label": "E",
+        "scopeId": "i_2",
+        "scopeRoot": "i"
+      },
+      "E_axis_i_2_candidate_1": {
+        "label": "E",
+        "scopeId": "i_2",
+        "scopeRoot": "i",
+        "candidateIndex": 1,
+        "visualOnly": true
+      },
+      "E_axis_i_2_candidate_2": {
+        "label": "E",
+        "scopeId": "i_2",
+        "scopeRoot": "i",
+        "candidateIndex": 2,
+        "visualOnly": true
+      },
+      "F": {
+        "label": "F",
+        "scopeId": "ii",
+        "scopeRoot": "ii",
+        "visualOnly": true
+      },
+      "G": {
+        "label": "G",
+        "scopeId": "ii",
+        "scopeRoot": "ii"
+      },
+      "G_axis_i_2": {
+        "label": "G",
+        "scopeId": "i_2",
+        "scopeRoot": "i"
+      },
+      "H": {
+        "label": "H",
+        "scopeId": "ii",
+        "scopeRoot": "ii",
+        "visualOnly": true
+      },
+      "K": {
+        "label": "K",
+        "scopeId": "problem",
+        "scopeRoot": "problem"
+      },
+      "M": {
+        "label": "M",
+        "scopeId": "i",
+        "scopeRoot": "i"
+      },
+      "M_axis_ii": {
+        "label": "M",
+        "scopeId": "ii",
+        "scopeRoot": "ii",
+        "visualOnly": true
+      },
+      "P": {
+        "label": "P",
+        "scopeId": "problem",
+        "scopeRoot": "problem"
+      }
+    },
+    "curves": [
+      {
+        "id": "curve_i_parabola",
+        "type": "parabola",
+        "scopeId": "i",
+        "scopeRoot": "i",
+        "sourceHandle": "fact:i:derive_parabola_i_parabola",
+        "a": "-1",
+        "b": "-2",
+        "c": "3"
+      },
+      {
+        "id": "curve_ii_parabola",
+        "type": "parabola",
+        "scopeId": "ii",
+        "scopeRoot": "ii",
+        "sourceHandle": "fact:ii:derive_parametric_parabola_ii_parabola",
+        "a": "-1",
+        "b": "1-c",
+        "c": "c"
+      }
+    ],
+    "derivedIntersections": []
+  },
+  "lesson_data": {
+    "meta": {
+      "id": "tj-2026-heping-ermo-25",
+      "outputPath": "internal/solver-runs/tj-2026-heping-ermo-25.html",
+      "pageTitle": "第 25 题（二次函数综合）",
+      "pageDescription": "第 25 题二次函数综合：角度条件与HF+FM 路径最值。",
+      "breadcrumbTitle": "第 25 题",
+      "defaultT": 5.0,
+      "classification": {
+        "pattern": "path-minimum",
+        "methods": [
+          "evaluate_point_at_parameter",
+          "parameter_from_expression_value",
+          "point_candidates_from_curve_point_condition",
+          "quadratic_axis_parameterized_point",
+          "quadratic_from_constraints",
+          "quadratic_square_path_minimum",
+          "quadratic_vertex_point",
+          "quadratic_x_axis_intercept_point",
+          "square_adjacent_vertex_from_side"
+        ]
+      }
+    },
+    "problem": {
+      "summary": "第 25 题二次函数综合：角度条件与HF+FM 路径最值。",
+      "lines": [
+        {
+          "text": "（25）（本小题 10 分）已知抛物线 y=-x²+bx+c（b，c 为常数，c>1）的顶点为 P，与 x 轴相交于 A，B 两点（点 A 在点 B 的左侧），与 y 轴相交于点 C，对称轴与 x 轴相交于点 M。点 E 在对称轴上，以 AE 为边的正方形 AEKG 的顶点 G 在 x 轴下方。"
+        },
+        {
+          "text": "（Ⅰ）若 b=-2，c=3，① 求点 P 和点 A 的坐标；",
+          "answerId": "answer_i_1",
+          "answer": "P(－1, 4)，A(－3, 0)"
+        },
+        {
+          "text": "② 当点 G 在抛物线上时，求点 E 的坐标；",
+          "answerId": "answer_i_2_E",
+          "answer": "E(－1, 2＋√6) 或 E(－1, 2－√6)"
+        },
+        {
+          "text": "（Ⅱ）若点 A 的坐标为（-c，0），点 F 是 AE 的中点，对角线 AK 和 EG 相交于点 H，当 HF+FM+MG 取得最小值为 3√5 时，求点 E 的坐标。",
+          "answerId": "answer_ii_E",
+          "answer": "E(－2, 3/2)"
+        }
+      ]
+    },
+    "ui": {
+      "sliderLabel": "参数",
+      "paramLabelPrefix": "c=",
+      "goToProblemMode": "doubleScroll",
+      "groupTitles": {
+        "i": "第（Ⅰ）问：求点 P 和点 A 的坐标",
+        "i_1": "第（Ⅰ）①问：求点 P 和点 A 的坐标",
+        "i_2": "第（Ⅰ）②问：求点 E 的坐标",
+        "ii": "第（Ⅱ）问：求点 E 的坐标",
+        "第（Ⅰ）问：求点 P 和点 A 的坐标": "第（Ⅰ）问：求点 P 和点 A 的坐标",
+        "第（Ⅰ）①问：求点 P 和点 A 的坐标": "第（Ⅰ）①问：求点 P 和点 A 的坐标",
+        "第（Ⅰ）②问：求点 E 的坐标": "第（Ⅰ）②问：求点 E 的坐标",
+        "第（Ⅱ）问：求点 E 的坐标": "第（Ⅱ）问：求点 E 的坐标"
+      },
+      "defaultT": 5.0
+    },
+    "steps": [
+      {
+        "id": "explain_derive_parabola_i",
+        "section": "第（Ⅰ）问：求点 P 和点 A 的坐标",
+        "title": "第1步：求函数解析式",
+        "t": 5.0,
+        "derive": [
+          [
+            "∵",
+            "b＝－2，c＝3"
+          ],
+          [
+            "∴",
+            "y＝－x²－2x＋3＝－(x＋1)²＋4"
+          ]
+        ],
+        "box": [
+          "y＝－x²－2x＋3"
+        ]
+      },
+      {
+        "id": "explain_derive_x_intercept_A_i",
+        "section": "第（Ⅰ）问：求点 P 和点 A 的坐标",
+        "title": "第2步：求抛物线与 x 轴交点",
+        "t": 5.0,
+        "derive": [
+          [
+            "∵",
+            "x 轴交点满足 y＝0，即 －x²－2x＋3＝0"
+          ],
+          [
+            "∴",
+            "A(－3,0)"
+          ]
+        ],
+        "box": [
+          "A(-3,0)"
+        ]
+      },
+      {
+        "id": "explain_derive_vertex_P_i",
+        "section": "第（Ⅰ）①问：求点 P 和点 A 的坐标",
+        "title": "第1步：求二次函数顶点",
+        "t": 5.0,
+        "derive": [
+          [
+            "由",
+            "第（Ⅰ）问已得相关结论，继续计算"
+          ],
+          [
+            "∵",
+            "y＝－(x＋1)²＋4"
+          ],
+          [
+            "∴",
+            "P(－1,4)"
+          ]
+        ],
+        "box": [
+          "P(-1,4)"
+        ]
+      },
+      {
+        "id": "explain_parameterize_axis_point_E_i_derive_square_vertex_G_i",
+        "section": "第（Ⅰ）②问：求点 E 的坐标",
+        "title": "第1步：由正方形求相邻顶点G",
+        "t": 5.0,
+        "derive": [
+          [
+            "由",
+            "第（Ⅰ）问已得相关结论，继续计算"
+          ],
+          [
+            "由",
+            "第（Ⅰ）问已得点 A，继续计算"
+          ],
+          [
+            "∵",
+            "E 在对称轴 x＝－1 上"
+          ],
+          [
+            "∴",
+            "设 E(－1,t)"
+          ],
+          [
+            "作",
+            "GQ⊥x轴于 Q"
+          ],
+          [
+            "∵",
+            "四边形 AEKG 是正方形"
+          ],
+          [
+            "∴",
+            "AE＝AG，∠EAG＝90°"
+          ],
+          [
+            "∵",
+            "∠EMA＝∠GQA＝90°"
+          ],
+          [
+            "∴",
+            "∠EAM＝∠AGQ"
+          ],
+          [
+            "∴",
+            "Rt△AEM≌Rt△GAQ"
+          ],
+          [
+            "∴",
+            "AQ＝ME＝t，GQ＝AM＝2"
+          ],
+          [
+            "∵",
+            "G 在 x 轴下方"
+          ],
+          [
+            "∴",
+            "G(t－3,－2)"
+          ]
+        ],
+        "box": [
+          "E(－1,t)",
+          "G(t－3,－2)"
+        ]
+      },
+      {
+        "id": "explain_solve_axis_point_candidates_i",
+        "section": "第（Ⅰ）②问：求点 E 的坐标",
+        "title": "第2步：代入抛物线求点E候选",
+        "t": 5.0,
+        "derive": [
+          [
+            "由",
+            "第（Ⅰ）问已得相关结论，继续计算"
+          ],
+          [
+            "∵",
+            "G(t－3,－2) 在 y＝－x²－2x＋3 上"
+          ],
+          [
+            "∴",
+            "－2＝－(t－3)²－2(t－3)＋3"
+          ],
+          [
+            "∴",
+            "(t－3)²＋2(t－3)－5＝0"
+          ],
+          [
+            "设",
+            "u＝t－3"
+          ],
+          [
+            "∴",
+            "u²＋2u－5＝0"
+          ],
+          [
+            "∴",
+            "u＝－1±√6"
+          ],
+          [
+            "∴",
+            "t＝2±√6"
+          ],
+          [
+            "∴",
+            "E(－1,2＋√6) 或 E(－1,2－√6)"
+          ]
+        ],
+        "box": [
+          "E(－1,2＋√6) 或 E(－1,2－√6)"
+        ]
+      },
+      {
+        "id": "explain_derive_parametric_parabola_ii",
+        "section": "第（Ⅱ）问：求点 E 的坐标",
+        "title": "第1步：化简函数解析式",
+        "t": 5.0,
+        "derive": [
+          [
+            "∵",
+            "b＝1－c"
+          ],
+          [
+            "∴",
+            "y＝－x²＋(1－c)x＋c"
+          ]
+        ],
+        "box": [
+          "y＝－x²＋(1－c)x＋c"
+        ]
+      },
+      {
+        "id": "explain_derive_path_minimum_ii",
+        "section": "第（Ⅱ）问：求点 E 的坐标",
+        "title": "第2步：正方形关系降维，再用将军饮马求最短路径",
+        "t": 5.0,
+        "derive": [
+          [
+            "说明",
+            "FM=AE/2"
+          ],
+          [
+            "说明",
+            "HF=AG/2"
+          ],
+          [
+            "说明",
+            "AE=AG"
+          ],
+          [
+            "说明",
+            "HF+FM=AG"
+          ],
+          [
+            "说明",
+            "HF+FM+MG=AG+MG"
+          ],
+          [
+            "说明",
+            "经过验证的折线拉直策略为：reflection"
+          ],
+          [
+            "说明",
+            "因此最小值为 √5|c+1|/2，在 ['1/4 - 3*c/4', '-c/2 - 1/2'] 处取得"
+          ]
+        ],
+        "box": [
+          "最小值＝√5|c+1|/2",
+          "G(1/4-3c/4,-c/2-1/2)"
+        ]
+      },
+      {
+        "id": "explain_solve_parameter_c_ii_evaluate_point_A_ii",
+        "section": "第（Ⅱ）问：求点 E 的坐标",
+        "title": "第3步：由表达式取值反求参数，并求A坐标",
+        "t": 5.0,
+        "derive": [
+          [
+            "∵",
+            "√5|c＋1|/2＝3√5"
+          ],
+          [
+            "∴",
+            "c＝5"
+          ],
+          [
+            "∵",
+            "A(－5,0)，c＝5"
+          ],
+          [
+            "∴",
+            "A(－5,0)"
+          ]
+        ],
+        "box": [
+          "c＝5",
+          "A(－5,0)"
+        ]
+      },
+      {
+        "id": "explain_evaluate_minimum_point_G_ii",
+        "section": "第（Ⅱ）问：求点 E 的坐标",
+        "title": "第4步：代入参数求点坐标",
+        "t": 5.0,
+        "derive": [
+          [
+            "∵",
+            "G(－7/2,－3)，c＝5"
+          ],
+          [
+            "∴",
+            "G(－7/2,－3)"
+          ]
+        ],
+        "box": [
+          "G(－7/2,－3)"
+        ]
+      },
+      {
+        "id": "explain_recover_target_point_E_ii",
+        "section": "第（Ⅱ）问：求点 E 的坐标",
+        "title": "第5步：由正方形求相邻顶点E",
+        "t": 5.0,
+        "derive": [
+          [
+            "作",
+            "GQ⊥x轴于 Q，ER⊥x轴于 R"
+          ],
+          [
+            "∵",
+            "四边形 AEKG 是正方形"
+          ],
+          [
+            "∴",
+            "AG＝AE，∠GAE＝90°"
+          ],
+          [
+            "∵",
+            "∠GQA＝∠ERA＝90°"
+          ],
+          [
+            "∴",
+            "∠GAQ＝∠AER"
+          ],
+          [
+            "∴",
+            "Rt△AGQ≌Rt△EAR"
+          ],
+          [
+            "∴",
+            "AR＝QG＝3，ER＝AQ＝3/2"
+          ],
+          [
+            "∵",
+            "按正方形顶点顺序选取 E"
+          ],
+          [
+            "∴",
+            "E(－2,3/2)"
+          ]
+        ],
+        "box": [
+          "E(－2,3/2)"
+        ]
+      }
+    ],
+    "policies": {
+      "explain_derive_parabola_i": {
+        "movable": false,
+        "range": [
+          5.0,
+          5.0
+        ]
+      },
+      "explain_derive_x_intercept_A_i": {
+        "movable": false,
+        "range": [
+          5.0,
+          5.0
+        ]
+      },
+      "explain_derive_vertex_P_i": {
+        "movable": false,
+        "range": [
+          5.0,
+          5.0
+        ]
+      },
+      "explain_parameterize_axis_point_E_i_derive_square_vertex_G_i": {
+        "movable": false,
+        "range": [
+          5.0,
+          5.0
+        ]
+      },
+      "explain_solve_axis_point_candidates_i": {
+        "movable": false,
+        "range": [
+          5.0,
+          5.0
+        ]
+      },
+      "explain_derive_parametric_parabola_ii": {
+        "movable": false,
+        "range": [
+          5.0,
+          5.0
+        ]
+      },
+      "explain_derive_path_minimum_ii": {
+        "movable": false,
+        "range": [
+          5.0,
+          5.0
+        ]
+      },
+      "explain_solve_parameter_c_ii_evaluate_point_A_ii": {
+        "movable": false,
+        "range": [
+          5.0,
+          5.0
+        ]
+      },
+      "explain_evaluate_minimum_point_G_ii": {
+        "movable": false,
+        "range": [
+          5.0,
+          5.0
+        ]
+      },
+      "explain_recover_target_point_E_ii": {
+        "movable": false,
+        "range": [
+          5.0,
+          5.0
+        ]
+      }
+    },
+    "stepLabels": {
+      "explain_derive_parabola_i": "1 求解析式",
+      "explain_derive_x_intercept_A_i": "2 求抛物线与 x 轴交点",
+      "explain_derive_vertex_P_i": "1 求二次函数顶点",
+      "explain_parameterize_axis_point_E_i_derive_square_vertex_G_i": "1 正方形求顶点G",
+      "explain_solve_axis_point_candidates_i": "2 求点E候选",
+      "explain_derive_parametric_parabola_ii": "1 化简解析式",
+      "explain_derive_path_minimum_ii": "2 正方形路径最值",
+      "explain_solve_parameter_c_ii_evaluate_point_A_ii": "3 反求参数求A",
+      "explain_evaluate_minimum_point_G_ii": "4 代入参数求点坐标",
+      "explain_recover_target_point_E_ii": "5 正方形求顶点E"
+    }
+  },
+  "layers": {
+    "global": {
+      "elements": [
+        {
+          "type": "grid"
+        }
+      ]
+    },
+    "section:i": {
+      "elements": [
+        {
+          "type": "parabola",
+          "curveId": "curve_i_parabola",
+          "color": "#2563eb",
+          "width": 2.2
+        },
+        {
+          "type": "point",
+          "at": "A1",
+          "labelText": "A",
+          "color": "#1f2937",
+          "dx": 10,
+          "dy": -12
+        },
+        {
+          "type": "point",
+          "at": "B",
+          "labelText": "B",
+          "color": "#1f2937",
+          "dx": 10,
+          "dy": -12
+        },
+        {
+          "type": "point",
+          "at": "M",
+          "labelText": "M",
+          "color": "#64748b",
+          "dx": 10,
+          "dy": -12
+        },
+        {
+          "type": "point",
+          "at": "P",
+          "labelText": "P",
+          "color": "#1f2937",
+          "dx": 10,
+          "dy": -12
+        },
+        {
+          "type": "point",
+          "at": "K",
+          "labelText": "K",
+          "color": "#64748b",
+          "dx": 10,
+          "dy": -12
+        }
+      ],
+      "stepIds": [
+        "explain_derive_parabola_i",
+        "explain_derive_x_intercept_A_i",
+        "explain_derive_vertex_P_i",
+        "explain_parameterize_axis_point_E_i_derive_square_vertex_G_i",
+        "explain_solve_axis_point_candidates_i"
+      ],
+      "stepStartsWith": [
+        "explain_derive_parabola_i",
+        "explain_derive_x_intercept_A_i",
+        "explain_derive_vertex_P_i",
+        "explain_parameterize_axis_point_E_i_derive_square_vertex_G_i",
+        "explain_solve_axis_point_candidates_i"
+      ]
+    },
+    "section:ii": {
+      "elements": [
+        {
+          "type": "parabola",
+          "curveId": "curve_ii_parabola",
+          "color": "#2563eb",
+          "width": 2.2
+        },
+        {
+          "type": "coloredLine",
+          "from": "A",
+          "to": "E",
+          "color": "#64748b",
+          "width": 1.6
+        },
+        {
+          "type": "coloredLine",
+          "from": "A",
+          "to": "K",
+          "color": "#64748b",
+          "width": 1.6
+        },
+        {
+          "type": "coloredLine",
+          "from": "E",
+          "to": "G",
+          "color": "#64748b",
+          "width": 1.6
+        },
+        {
+          "type": "point",
+          "at": "A",
+          "labelText": "A",
+          "color": "#64748b",
+          "dx": 10,
+          "dy": -12
+        },
+        {
+          "type": "point",
+          "at": "P",
+          "labelText": "P",
+          "color": "#1f2937",
+          "dx": 10,
+          "dy": -12
+        },
+        {
+          "type": "point",
+          "at": "E",
+          "labelText": "E",
+          "color": "#1f2937",
+          "dx": 10,
+          "dy": -12
+        },
+        {
+          "type": "point",
+          "at": "G",
+          "labelText": "G",
+          "color": "#64748b",
+          "dx": 10,
+          "dy": -12
+        },
+        {
+          "type": "point",
+          "at": "K",
+          "labelText": "K",
+          "color": "#64748b",
+          "dx": 10,
+          "dy": -12
+        }
+      ],
+      "stepIds": [
+        "explain_derive_parametric_parabola_ii",
+        "explain_derive_path_minimum_ii",
+        "explain_solve_parameter_c_ii_evaluate_point_A_ii",
+        "explain_evaluate_minimum_point_G_ii",
+        "explain_recover_target_point_E_ii"
+      ],
+      "stepStartsWith": [
+        "explain_derive_parametric_parabola_ii",
+        "explain_derive_path_minimum_ii",
+        "explain_solve_parameter_c_ii_evaluate_point_A_ii",
+        "explain_evaluate_minimum_point_G_ii",
+        "explain_recover_target_point_E_ii"
+      ]
+    }
+  },
+  "layer_registry": {
+    "global": "global",
+    "section:problem": "problem",
+    "section:i": "partI",
+    "section:ii": "partII"
+  },
+  "steps": [
+    {
+      "visual_step_id": "visual:explain_derive_parabola_i",
+      "lesson_step_id": "explain_derive_parabola_i",
+      "scope_id": "i",
+      "geometry_context": {
+        "coordinate_system": "cartesian_2d",
+        "domain": {
+          "minX": -6.8,
+          "maxX": 3.249,
+          "minY": -7.8,
+          "maxY": 10.8
+        },
+        "domain_override": null,
+        "moving_param": "c",
+        "expression_env_handles": [],
+        "panels": []
+      },
+      "scene": {
+        "inherits_from": "section:i",
+        "add": [
+          {
+            "component": "Parabola",
+            "curveId": "curve_i_parabola",
+            "color": "#2563eb",
+            "width": 2.4,
+            "metadata": {
+              "low_level_type": "parabola"
+            }
+          }
+        ],
+        "state_overrides": [],
+        "hide": [],
+        "focus": {
+          "primary": [],
+          "dim": []
+        },
+        "annotations": [
+          {
+            "type": "label",
+            "target": "explain_derive_parabola_i",
+            "text_source": "lesson_step.box",
+            "index": 0
+          }
+        ]
+      },
+      "interactions": [],
+      "timeline": {
+        "mode": "none"
+      },
+      "metadata": {
+        "step_extra": {}
+      }
+    },
+    {
+      "visual_step_id": "visual:explain_derive_x_intercept_A_i",
+      "lesson_step_id": "explain_derive_x_intercept_A_i",
+      "scope_id": "i",
+      "geometry_context": {
+        "coordinate_system": "cartesian_2d",
+        "domain": {
+          "minX": -6.8,
+          "maxX": 3.249,
+          "minY": -7.8,
+          "maxY": 10.8
+        },
+        "domain_override": null,
+        "moving_param": "c",
+        "expression_env_handles": [],
+        "panels": []
+      },
+      "scene": {
+        "inherits_from": "section:i",
+        "add": [
+          {
+            "component": "Point",
+            "handle": "point:A1",
+            "at": "A1",
+            "labelText": "A",
+            "color": "#b45309",
+            "dx": 14,
+            "dy": -18,
+            "persistence": "carry_forward",
+            "decay_state": "muted",
+            "metadata": {
+              "low_level_type": "point"
+            }
+          },
+          {
+            "component": "CoordinateLabel",
+            "at": "A1",
+            "text": "A(-3,0)",
+            "dx": 14,
+            "dy": -24,
+            "metadata": {
+              "low_level_type": "coordinateLabel"
+            }
+          },
+          {
+            "component": "Point",
+            "handle": "point:B",
+            "at": "B",
+            "labelText": "B",
+            "color": "#1f2937",
+            "dx": 14,
+            "dy": -18,
+            "persistence": "carry_forward",
+            "decay_state": "muted",
+            "metadata": {
+              "low_level_type": "point"
+            }
+          },
+          {
+            "component": "CoordinateLabel",
+            "at": "B",
+            "text": "B(1,0)",
+            "dx": 14,
+            "dy": -24,
+            "metadata": {
+              "low_level_type": "coordinateLabel"
+            }
+          }
+        ],
+        "state_overrides": [],
+        "hide": [
+          "point:A"
+        ],
+        "focus": {
+          "primary": [
+            "point:A1",
+            "point:B"
+          ],
+          "dim": []
+        },
+        "annotations": [
+          {
+            "type": "label",
+            "target": "explain_derive_x_intercept_A_i",
+            "text_source": "lesson_step.box",
+            "index": 0
+          }
+        ]
+      },
+      "interactions": [],
+      "timeline": {
+        "mode": "none"
+      },
+      "metadata": {
+        "step_extra": {}
+      }
+    },
+    {
+      "visual_step_id": "visual:explain_derive_vertex_P_i",
+      "lesson_step_id": "explain_derive_vertex_P_i",
+      "scope_id": "i_1",
+      "geometry_context": {
+        "coordinate_system": "cartesian_2d",
+        "domain": {
+          "minX": -6.8,
+          "maxX": 3.249,
+          "minY": -7.8,
+          "maxY": 10.8
+        },
+        "domain_override": null,
+        "moving_param": "c",
+        "expression_env_handles": [],
+        "panels": []
+      },
+      "scene": {
+        "inherits_from": "section:i",
+        "add": [
+          {
+            "component": "AxisOfSymmetry",
+            "handle": "axis:curve_i_parabola",
+            "curveId": "curve_i_parabola",
+            "color": "#64748b",
+            "width": 1.5,
+            "dash": "7 6",
+            "persistence": "carry_forward",
+            "decay_state": "muted",
+            "metadata": {
+              "low_level_type": "axisOfSymmetry"
+            }
+          },
+          {
+            "component": "Point",
+            "handle": "point:P",
+            "at": "P",
+            "labelText": "P",
+            "color": "#b45309",
+            "dx": 14,
+            "dy": -18,
+            "persistence": "step_only",
+            "decay_state": "muted",
+            "metadata": {
+              "low_level_type": "point"
+            }
+          },
+          {
+            "component": "CoordinateLabel",
+            "at": "P",
+            "text": "P(-1,4)",
+            "dx": 14,
+            "dy": -34,
+            "metadata": {
+              "low_level_type": "coordinateLabel"
+            }
+          }
+        ],
+        "state_overrides": [],
+        "hide": [],
+        "focus": {
+          "primary": [
+            "point:P"
+          ],
+          "dim": []
+        },
+        "annotations": [
+          {
+            "type": "label",
+            "target": "explain_derive_vertex_P_i",
+            "text_source": "lesson_step.box",
+            "index": 0
+          }
+        ]
+      },
+      "interactions": [],
+      "timeline": {
+        "mode": "none"
+      },
+      "metadata": {
+        "step_extra": {}
+      }
+    },
+    {
+      "visual_step_id": "visual:explain_parameterize_axis_point_E_i_derive_square_vertex_G_i",
+      "lesson_step_id": "explain_parameterize_axis_point_E_i_derive_square_vertex_G_i",
+      "scope_id": "i_2",
+      "geometry_context": {
+        "coordinate_system": "cartesian_2d",
+        "domain": {
+          "minX": -6.8,
+          "maxX": 3.249,
+          "minY": -7.8,
+          "maxY": 10.8
+        },
+        "domain_override": null,
+        "moving_param": "c",
+        "expression_env_handles": [],
+        "panels": []
+      },
+      "scene": {
+        "inherits_from": "section:i",
+        "add": [
+          {
+            "component": "AxisOfSymmetry",
+            "handle": "axis:curve_i_parabola",
+            "curveId": "curve_i_parabola",
+            "color": "#64748b",
+            "width": 1.5,
+            "dash": "7 6",
+            "persistence": "carry_forward",
+            "decay_state": "muted",
+            "metadata": {
+              "low_level_type": "axisOfSymmetry"
+            }
+          },
+          {
+            "component": "Point",
+            "handle": "point:E_axis_i_2",
+            "at": "E_axis_i_2",
+            "labelText": "E",
+            "color": "#dc2626",
+            "dx": 14,
+            "dy": -18,
+            "persistence": "carry_forward",
+            "decay_state": "muted",
+            "metadata": {
+              "low_level_type": "point"
+            }
+          },
+          {
+            "component": "CoordinateLabel",
+            "at": "E_axis_i_2",
+            "text": "E(-1,t)",
+            "dx": 14,
+            "dy": -28,
+            "metadata": {
+              "low_level_type": "coordinateLabel"
+            }
+          },
+          {
+            "component": "OutlineRegion",
+            "handle": "visual:square:derive_square_vertex_G_i:region",
+            "vertices": [
+              "A1",
+              "E_axis_i_2",
+              "K",
+              "G_axis_i_2"
+            ],
+            "fill": "rgba(14, 165, 233, 0.12)",
+            "color": "#0284c7",
+            "width": 1.2,
+            "dash": "",
+            "persistence": "carry_forward",
+            "decay_state": "muted",
+            "metadata": {
+              "low_level_type": "outlineRegion"
+            }
+          },
+          {
+            "component": "ColoredLine",
+            "handle": "line:derive_square_vertex_G_i:A1-E_axis_i_2",
+            "from": "A1",
+            "to": "E_axis_i_2",
+            "color": "#0f766e",
+            "width": 2.0,
+            "persistence": "carry_forward",
+            "decay_state": "muted",
+            "metadata": {
+              "low_level_type": "coloredLine"
+            }
+          },
+          {
+            "component": "ColoredLine",
+            "handle": "line:derive_square_vertex_G_i:E_axis_i_2-K",
+            "from": "E_axis_i_2",
+            "to": "K",
+            "color": "#0f766e",
+            "width": 2.0,
+            "persistence": "carry_forward",
+            "decay_state": "muted",
+            "metadata": {
+              "low_level_type": "coloredLine"
+            }
+          },
+          {
+            "component": "ColoredLine",
+            "handle": "line:derive_square_vertex_G_i:K-G_axis_i_2",
+            "from": "K",
+            "to": "G_axis_i_2",
+            "color": "#0f766e",
+            "width": 2.0,
+            "persistence": "carry_forward",
+            "decay_state": "muted",
+            "metadata": {
+              "low_level_type": "coloredLine"
+            }
+          },
+          {
+            "component": "ColoredLine",
+            "handle": "line:derive_square_vertex_G_i:G_axis_i_2-A1",
+            "from": "G_axis_i_2",
+            "to": "A1",
+            "color": "#0f766e",
+            "width": 2.0,
+            "persistence": "carry_forward",
+            "decay_state": "muted",
+            "metadata": {
+              "low_level_type": "coloredLine"
+            }
+          },
+          {
+            "component": "Point",
+            "handle": "point:A1",
+            "at": "A1",
+            "labelText": "A",
+            "color": "#1f2937",
+            "dx": 14,
+            "dy": -18,
+            "persistence": "carry_forward",
+            "decay_state": "muted",
+            "metadata": {
+              "low_level_type": "point"
+            }
+          },
+          {
+            "component": "Point",
+            "handle": "point:E_axis_i_2",
+            "at": "E_axis_i_2",
+            "labelText": "E",
+            "color": "#1f2937",
+            "dx": 14,
+            "dy": -18,
+            "persistence": "carry_forward",
+            "decay_state": "muted",
+            "metadata": {
+              "low_level_type": "point"
+            }
+          },
+          {
+            "component": "Point",
+            "handle": "point:K",
+            "at": "K",
+            "labelText": "K",
+            "color": "#1f2937",
+            "dx": 14,
+            "dy": -18,
+            "persistence": "carry_forward",
+            "decay_state": "muted",
+            "metadata": {
+              "low_level_type": "point"
+            }
+          },
+          {
+            "component": "Point",
+            "handle": "point:G_axis_i_2",
+            "at": "G_axis_i_2",
+            "labelText": "G",
+            "color": "#b45309",
+            "dx": 14,
+            "dy": 18,
+            "persistence": "carry_forward",
+            "decay_state": "muted",
+            "metadata": {
+              "low_level_type": "point"
+            }
+          },
+          {
+            "component": "CoordinateLabel",
+            "at": "G_axis_i_2",
+            "text": "G(t-3,-2)",
+            "dx": 14,
+            "dy": 34,
+            "metadata": {
+              "low_level_type": "coordinateLabel"
+            }
+          },
+          {
+            "component": "RightAngle",
+            "handle": "right-angle:derive_square_vertex_G_i:A1",
+            "vertex": "A1",
+            "rayA": "E_axis_i_2",
+            "rayB": "G_axis_i_2",
+            "size": 10,
+            "color": "#0f766e",
+            "persistence": "step_only",
+            "metadata": {
+              "low_level_type": "rightAngle"
+            }
+          },
+          {
+            "component": "RightAngle",
+            "handle": "right-angle:derive_square_vertex_G_i:E_axis_i_2",
+            "vertex": "E_axis_i_2",
+            "rayA": "A1",
+            "rayB": "K",
+            "size": 10,
+            "color": "#0f766e",
+            "persistence": "step_only",
+            "metadata": {
+              "low_level_type": "rightAngle"
+            }
+          }
+        ],
+        "state_overrides": [],
+        "hide": [
+          "point:E",
+          "point:E_axis_i_2_candidate_1",
+          "point:E_axis_i_2_candidate_2",
+          "point:A",
+          "point:G"
+        ],
+        "focus": {
+          "primary": [
+            "point:E_axis_i_2",
+            "point:A1",
+            "point:K",
+            "point:G_axis_i_2"
+          ],
+          "dim": []
+        },
+        "annotations": [
+          {
+            "type": "label",
+            "target": "explain_parameterize_axis_point_E_i_derive_square_vertex_G_i",
+            "text_source": "lesson_step.box",
+            "index": 0
+          }
+        ]
+      },
+      "interactions": [],
+      "timeline": {
+        "mode": "none"
+      },
+      "metadata": {
+        "step_extra": {}
+      }
+    },
+    {
+      "visual_step_id": "visual:explain_solve_axis_point_candidates_i",
+      "lesson_step_id": "explain_solve_axis_point_candidates_i",
+      "scope_id": "i_2",
+      "geometry_context": {
+        "coordinate_system": "cartesian_2d",
+        "domain": {
+          "minX": -6.8,
+          "maxX": 3.249,
+          "minY": -7.8,
+          "maxY": 10.8
+        },
+        "domain_override": null,
+        "moving_param": "c",
+        "expression_env_handles": [],
+        "panels": []
+      },
+      "scene": {
+        "inherits_from": "section:i",
+        "add": [
+          {
+            "component": "Point",
+            "handle": "point:E_axis_i_2_candidate_1",
+            "at": "E_axis_i_2_candidate_1",
+            "labelText": "E",
+            "color": "#b45309",
+            "dx": 14,
+            "dy": 18,
+            "persistence": "carry_forward",
+            "decay_state": "muted",
+            "metadata": {
+              "low_level_type": "point"
+            }
+          },
+          {
+            "component": "CoordinateLabel",
+            "at": "E_axis_i_2_candidate_1",
+            "text": "E(-1,2+√6)",
+            "dx": 14,
+            "dy": 34,
+            "metadata": {
+              "low_level_type": "coordinateLabel"
+            }
+          },
+          {
+            "component": "Point",
+            "handle": "point:E_axis_i_2_candidate_2",
+            "at": "E_axis_i_2_candidate_2",
+            "labelText": "E",
+            "color": "#b45309",
+            "dx": 14,
+            "dy": 18,
+            "persistence": "carry_forward",
+            "decay_state": "muted",
+            "metadata": {
+              "low_level_type": "point"
+            }
+          },
+          {
+            "component": "CoordinateLabel",
+            "at": "E_axis_i_2_candidate_2",
+            "text": "E(-1,2-√6)",
+            "dx": 14,
+            "dy": 34,
+            "metadata": {
+              "low_level_type": "coordinateLabel"
+            }
+          }
+        ],
+        "state_overrides": [],
+        "hide": [
+          "point:E_axis_i_2_candidate_1",
+          "point:E",
+          "point:E_axis_i_2"
+        ],
+        "focus": {
+          "primary": [
+            "point:E_axis_i_2_candidate_1",
+            "point:E_axis_i_2_candidate_2"
+          ],
+          "dim": []
+        },
+        "annotations": [
+          {
+            "type": "label",
+            "target": "explain_solve_axis_point_candidates_i",
+            "text_source": "lesson_step.box",
+            "index": 0
+          }
+        ]
+      },
+      "interactions": [],
+      "timeline": {
+        "mode": "none"
+      },
+      "metadata": {
+        "step_extra": {}
+      }
+    },
+    {
+      "visual_step_id": "visual:explain_derive_parametric_parabola_ii",
+      "lesson_step_id": "explain_derive_parametric_parabola_ii",
+      "scope_id": "ii",
+      "geometry_context": {
+        "coordinate_system": "cartesian_2d",
+        "domain": {
+          "minX": -6.8,
+          "maxX": 3.249,
+          "minY": -7.8,
+          "maxY": 10.8
+        },
+        "domain_override": null,
+        "moving_param": "c",
+        "expression_env_handles": [],
+        "panels": []
+      },
+      "scene": {
+        "inherits_from": "section:ii",
+        "add": [
+          {
+            "component": "Parabola",
+            "curveId": "curve_ii_parabola",
+            "color": "#2563eb",
+            "width": 2.4,
+            "metadata": {
+              "low_level_type": "parabola"
+            }
+          },
+          {
+            "component": "CoordinateLabel",
+            "at": "A",
+            "text": "A(-c,0)",
+            "dx": 14,
+            "dy": -24,
+            "metadata": {
+              "low_level_type": "coordinateLabel"
+            }
+          }
+        ],
+        "state_overrides": [],
+        "hide": [],
+        "focus": {
+          "primary": [
+            "point:A"
+          ],
+          "dim": []
+        },
+        "annotations": [
+          {
+            "type": "label",
+            "target": "explain_derive_parametric_parabola_ii",
+            "text_source": "lesson_step.box",
+            "index": 0
+          }
+        ]
+      },
+      "interactions": [],
+      "timeline": {
+        "mode": "none"
+      },
+      "metadata": {
+        "step_extra": {}
+      }
+    },
+    {
+      "visual_step_id": "visual:explain_derive_path_minimum_ii",
+      "lesson_step_id": "explain_derive_path_minimum_ii",
+      "scope_id": "ii",
+      "geometry_context": {
+        "coordinate_system": "cartesian_2d",
+        "domain": {
+          "minX": -6.8,
+          "maxX": 3.249,
+          "minY": -7.8,
+          "maxY": 10.8
+        },
+        "domain_override": null,
+        "moving_param": "c",
+        "expression_env_handles": [],
+        "panels": []
+      },
+      "scene": {
+        "inherits_from": "section:ii",
+        "add": [
+          {
+            "component": "OutlineRegion",
+            "handle": "visual:square-path:square-outline:A-E-K-G",
+            "vertices": [
+              "A",
+              "E",
+              "K",
+              "G"
+            ],
+            "fill": "rgba(15, 118, 110, 0.055)",
+            "color": "rgba(15, 118, 110, 0.50)",
+            "width": 1.5,
+            "dash": "",
+            "persistence": "step_only",
+            "decay_state": "muted",
+            "metadata": {
+              "low_level_type": "outlineRegion"
+            }
+          },
+          {
+            "component": "OutlineRegion",
+            "handle": "visual:square-path:right_triangle:A-M_axis_ii-E",
+            "vertices": [
+              "A",
+              "M_axis_ii",
+              "E"
+            ],
+            "fill": "rgba(14, 165, 233, 0.12)",
+            "color": "rgba(2, 132, 199, 0.40)",
+            "width": 1.2,
+            "dash": "",
+            "persistence": "step_only",
+            "metadata": {
+              "low_level_type": "outlineRegion"
+            }
+          },
+          {
+            "component": "OutlineRegion",
+            "handle": "visual:square-path:midline_triangle:A-E-G",
+            "vertices": [
+              "A",
+              "E",
+              "G"
+            ],
+            "fill": "rgba(180, 83, 9, 0.10)",
+            "color": "rgba(180, 83, 9, 0.42)",
+            "width": 1.2,
+            "dash": "",
+            "persistence": "step_only",
+            "metadata": {
+              "low_level_type": "outlineRegion"
+            }
+          },
+          {
+            "component": "ColoredLine",
+            "handle": "line:HF",
+            "from": "H",
+            "to": "F",
+            "color": "#7c3aed",
+            "width": 2.0,
+            "persistence": "step_only",
+            "decay_state": "muted",
+            "metadata": {
+              "low_level_type": "coloredLine"
+            }
+          },
+          {
+            "component": "ColoredLine",
+            "handle": "line:FM",
+            "from": "F",
+            "to": "M_axis_ii",
+            "color": "#7c3aed",
+            "width": 2.0,
+            "persistence": "step_only",
+            "decay_state": "muted",
+            "metadata": {
+              "low_level_type": "coloredLine"
+            }
+          },
+          {
+            "component": "ColoredLine",
+            "handle": "line:MG",
+            "from": "M_axis_ii",
+            "to": "G",
+            "color": "#dc2626",
+            "width": 2.0,
+            "persistence": "carry_forward",
+            "decay_state": "muted",
+            "metadata": {
+              "low_level_type": "coloredLine"
+            }
+          },
+          {
+            "component": "ColoredLine",
+            "handle": "line:AG",
+            "from": "A",
+            "to": "G",
+            "color": "#b45309",
+            "width": 2.4,
+            "persistence": "carry_forward",
+            "decay_state": "muted",
+            "metadata": {
+              "low_level_type": "coloredLine"
+            }
+          },
+          {
+            "component": "RightAngle",
+            "handle": "right-angle:square-path:M_axis_ii",
+            "vertex": "M_axis_ii",
+            "rayA": "A",
+            "rayB": "E",
+            "size": 10,
+            "color": "#0f766e",
+            "persistence": "step_only",
+            "metadata": {
+              "low_level_type": "rightAngle"
+            }
+          },
+          {
+            "component": "Point",
+            "handle": "point:F",
+            "at": "F",
+            "labelText": "F",
+            "color": "#1f2937",
+            "dx": 14,
+            "dy": -18,
+            "persistence": "step_only",
+            "decay_state": "muted",
+            "metadata": {
+              "low_level_type": "point"
+            }
+          },
+          {
+            "component": "Point",
+            "handle": "point:H",
+            "at": "H",
+            "labelText": "H",
+            "color": "#1f2937",
+            "dx": 14,
+            "dy": -18,
+            "persistence": "step_only",
+            "decay_state": "muted",
+            "metadata": {
+              "low_level_type": "point"
+            }
+          },
+          {
+            "component": "Point",
+            "handle": "point:E",
+            "at": "E",
+            "labelText": "E",
+            "color": "#1f2937",
+            "dx": 14,
+            "dy": -18,
+            "persistence": "step_only",
+            "decay_state": "muted",
+            "metadata": {
+              "low_level_type": "point"
+            }
+          },
+          {
+            "component": "Point",
+            "handle": "point:K",
+            "at": "K",
+            "labelText": "K",
+            "color": "#1f2937",
+            "dx": 14,
+            "dy": -18,
+            "persistence": "step_only",
+            "decay_state": "muted",
+            "metadata": {
+              "low_level_type": "point"
+            }
+          },
+          {
+            "component": "Point",
+            "handle": "point:G",
+            "at": "G",
+            "labelText": "G",
+            "color": "#b45309",
+            "dx": 14,
+            "dy": 18,
+            "persistence": "carry_forward",
+            "decay_state": "muted",
+            "metadata": {
+              "low_level_type": "point"
+            }
+          },
+          {
+            "component": "OutlineRegion",
+            "handle": "region:broken-path:M_axis_ii-A_prime-G",
+            "vertices": [
+              "M_axis_ii",
+              "A_prime",
+              "G"
+            ],
+            "fill": "rgba(180, 83, 9, 0.10)",
+            "color": "#b45309",
+            "width": 1.0,
+            "persistence": "step_only",
+            "metadata": {
+              "low_level_type": "outlineRegion"
+            }
+          },
+          {
+            "component": "ColoredLine",
+            "handle": "line:AG",
+            "from": "A",
+            "to": "G",
+            "color": "#7c3aed",
+            "width": 2.0,
+            "persistence": "carry_forward",
+            "decay_state": "muted",
+            "metadata": {
+              "low_level_type": "coloredLine"
+            }
+          },
+          {
+            "component": "ColoredLine",
+            "handle": "line:MG",
+            "from": "M_axis_ii",
+            "to": "G",
+            "color": "#7c3aed",
+            "width": 2.0,
+            "persistence": "carry_forward",
+            "decay_state": "muted",
+            "metadata": {
+              "low_level_type": "coloredLine"
+            }
+          },
+          {
+            "component": "DashedLine",
+            "handle": "line:A′G",
+            "from": "A_prime",
+            "to": "G",
+            "color": "#b45309",
+            "width": 2.2,
+            "dash": "5 6",
+            "persistence": "carry_forward",
+            "decay_state": "muted",
+            "metadata": {
+              "low_level_type": "dashedLine"
+            }
+          },
+          {
+            "component": "DistanceMarker",
+            "handle": "distance:A_prime:G:AG=A′G",
+            "from": "A_prime",
+            "to": "G",
+            "label": "AG=A′G",
+            "color": "#b45309",
+            "width": 2.2,
+            "offsetPx": -18,
+            "persistence": "step_only"
+          },
+          {
+            "component": "ColoredLine",
+            "handle": "line:A′M",
+            "from": "A_prime",
+            "to": "M_axis_ii",
+            "color": "#b45309",
+            "width": 2.8,
+            "persistence": "carry_forward",
+            "decay_state": "muted",
+            "metadata": {
+              "low_level_type": "coloredLine"
+            }
+          },
+          {
+            "component": "DistanceMarker",
+            "handle": "distance:A_prime:M_axis_ii:A′M",
+            "from": "A_prime",
+            "to": "M_axis_ii",
+            "label": "A′M",
+            "color": "#b45309",
+            "width": 2.8,
+            "offsetPx": 16,
+            "persistence": "step_only"
+          },
+          {
+            "component": "Point",
+            "handle": "point:A_prime",
+            "at": "A_prime",
+            "labelText": "A′",
+            "color": "#b45309",
+            "dx": 14,
+            "dy": 18,
+            "persistence": "carry_forward",
+            "decay_state": "muted",
+            "metadata": {
+              "low_level_type": "point"
+            }
+          },
+          {
+            "component": "CoordinateLabel",
+            "at": "A_prime",
+            "text": "A′(-c,-c-1)",
+            "dx": 14,
+            "dy": 34,
+            "metadata": {
+              "low_level_type": "coordinateLabel"
+            }
+          }
+        ],
+        "state_overrides": [],
+        "hide": [
+          "point:E_axis_i_2",
+          "point:E_axis_i_2_candidate_1",
+          "point:E_axis_i_2_candidate_2",
+          "point:G_axis_i_2"
+        ],
+        "focus": {
+          "primary": [
+            "point:H",
+            "point:F",
+            "point:M_axis_ii",
+            "point:G"
+          ],
+          "dim": []
+        },
+        "annotations": [
+          {
+            "type": "label",
+            "target": "explain_derive_path_minimum_ii",
+            "text_source": "lesson_step.box",
+            "index": 0
+          }
+        ]
+      },
+      "interactions": [],
+      "timeline": {
+        "mode": "none"
+      },
+      "metadata": {
+        "step_extra": {}
+      }
+    },
+    {
+      "visual_step_id": "visual:explain_solve_parameter_c_ii_evaluate_point_A_ii",
+      "lesson_step_id": "explain_solve_parameter_c_ii_evaluate_point_A_ii",
+      "scope_id": "ii",
+      "geometry_context": {
+        "coordinate_system": "cartesian_2d",
+        "domain": {
+          "minX": -6.8,
+          "maxX": 3.249,
+          "minY": -7.8,
+          "maxY": 10.8
+        },
+        "domain_override": null,
+        "moving_param": "c",
+        "expression_env_handles": [],
+        "panels": []
+      },
+      "scene": {
+        "inherits_from": "section:ii",
+        "add": [
+          {
+            "component": "Point",
+            "handle": "point:A",
+            "at": "A",
+            "labelText": "A",
+            "color": "#b45309",
+            "dx": 14,
+            "dy": -18,
+            "persistence": "carry_forward",
+            "decay_state": "muted",
+            "metadata": {
+              "low_level_type": "point"
+            }
+          },
+          {
+            "component": "CoordinateLabel",
+            "at": "A",
+            "text": "A(－5,0)",
+            "dx": 14,
+            "dy": -28,
+            "metadata": {
+              "low_level_type": "coordinateLabel"
+            }
+          }
+        ],
+        "state_overrides": [],
+        "hide": [
+          "point:A1"
+        ],
+        "focus": {
+          "primary": [
+            "point:A"
+          ],
+          "dim": []
+        },
+        "annotations": [
+          {
+            "type": "label",
+            "target": "explain_solve_parameter_c_ii_evaluate_point_A_ii",
+            "text_source": "lesson_step.box",
+            "index": 0
+          }
+        ]
+      },
+      "interactions": [],
+      "timeline": {
+        "mode": "none"
+      },
+      "metadata": {
+        "step_extra": {}
+      }
+    },
+    {
+      "visual_step_id": "visual:explain_evaluate_minimum_point_G_ii",
+      "lesson_step_id": "explain_evaluate_minimum_point_G_ii",
+      "scope_id": "ii",
+      "geometry_context": {
+        "coordinate_system": "cartesian_2d",
+        "domain": {
+          "minX": -6.8,
+          "maxX": 3.249,
+          "minY": -7.8,
+          "maxY": 10.8
+        },
+        "domain_override": null,
+        "moving_param": "c",
+        "expression_env_handles": [],
+        "panels": []
+      },
+      "scene": {
+        "inherits_from": "section:ii",
+        "add": [
+          {
+            "component": "Point",
+            "handle": "point:G",
+            "at": "G",
+            "labelText": "G",
+            "color": "#b45309",
+            "dx": 14,
+            "dy": -18,
+            "persistence": "carry_forward",
+            "decay_state": "muted",
+            "metadata": {
+              "low_level_type": "point"
+            }
+          },
+          {
+            "component": "CoordinateLabel",
+            "at": "G",
+            "text": "G(－7/2,－3)",
+            "dx": 14,
+            "dy": -28,
+            "metadata": {
+              "low_level_type": "coordinateLabel"
+            }
+          }
+        ],
+        "state_overrides": [],
+        "hide": [
+          "point:G_axis_i_2"
+        ],
+        "focus": {
+          "primary": [
+            "point:G"
+          ],
+          "dim": []
+        },
+        "annotations": [
+          {
+            "type": "label",
+            "target": "explain_evaluate_minimum_point_G_ii",
+            "text_source": "lesson_step.box",
+            "index": 0
+          }
+        ]
+      },
+      "interactions": [],
+      "timeline": {
+        "mode": "none"
+      },
+      "metadata": {
+        "step_extra": {}
+      }
+    },
+    {
+      "visual_step_id": "visual:explain_recover_target_point_E_ii",
+      "lesson_step_id": "explain_recover_target_point_E_ii",
+      "scope_id": "ii",
+      "geometry_context": {
+        "coordinate_system": "cartesian_2d",
+        "domain": {
+          "minX": -6.8,
+          "maxX": 3.249,
+          "minY": -7.8,
+          "maxY": 10.8
+        },
+        "domain_override": null,
+        "moving_param": "c",
+        "expression_env_handles": [],
+        "panels": []
+      },
+      "scene": {
+        "inherits_from": "section:ii",
+        "add": [
+          {
+            "component": "OutlineRegion",
+            "handle": "visual:square:recover_target_point_E_ii:region",
+            "vertices": [
+              "A",
+              "E",
+              "K",
+              "G"
+            ],
+            "fill": "rgba(14, 165, 233, 0.12)",
+            "color": "#0284c7",
+            "width": 1.2,
+            "dash": "",
+            "persistence": "carry_forward",
+            "decay_state": "muted",
+            "metadata": {
+              "low_level_type": "outlineRegion"
+            }
+          },
+          {
+            "component": "ColoredLine",
+            "handle": "line:recover_target_point_E_ii:A-E",
+            "from": "A",
+            "to": "E",
+            "color": "#0f766e",
+            "width": 2.0,
+            "persistence": "carry_forward",
+            "decay_state": "muted",
+            "metadata": {
+              "low_level_type": "coloredLine"
+            }
+          },
+          {
+            "component": "ColoredLine",
+            "handle": "line:recover_target_point_E_ii:E-K",
+            "from": "E",
+            "to": "K",
+            "color": "#0f766e",
+            "width": 2.0,
+            "persistence": "carry_forward",
+            "decay_state": "muted",
+            "metadata": {
+              "low_level_type": "coloredLine"
+            }
+          },
+          {
+            "component": "ColoredLine",
+            "handle": "line:recover_target_point_E_ii:K-G",
+            "from": "K",
+            "to": "G",
+            "color": "#0f766e",
+            "width": 2.0,
+            "persistence": "carry_forward",
+            "decay_state": "muted",
+            "metadata": {
+              "low_level_type": "coloredLine"
+            }
+          },
+          {
+            "component": "ColoredLine",
+            "handle": "line:recover_target_point_E_ii:G-A",
+            "from": "G",
+            "to": "A",
+            "color": "#0f766e",
+            "width": 2.0,
+            "persistence": "carry_forward",
+            "decay_state": "muted",
+            "metadata": {
+              "low_level_type": "coloredLine"
+            }
+          },
+          {
+            "component": "Point",
+            "handle": "point:A",
+            "at": "A",
+            "labelText": "A",
+            "color": "#1f2937",
+            "dx": 14,
+            "dy": -18,
+            "persistence": "carry_forward",
+            "decay_state": "muted",
+            "metadata": {
+              "low_level_type": "point"
+            }
+          },
+          {
+            "component": "Point",
+            "handle": "point:E",
+            "at": "E",
+            "labelText": "E",
+            "color": "#b45309",
+            "dx": 14,
+            "dy": 18,
+            "persistence": "carry_forward",
+            "decay_state": "muted",
+            "metadata": {
+              "low_level_type": "point"
+            }
+          },
+          {
+            "component": "CoordinateLabel",
+            "at": "E",
+            "text": "E(-2,3/2)",
+            "dx": 14,
+            "dy": 34,
+            "metadata": {
+              "low_level_type": "coordinateLabel"
+            }
+          },
+          {
+            "component": "Point",
+            "handle": "point:K",
+            "at": "K",
+            "labelText": "K",
+            "color": "#1f2937",
+            "dx": 14,
+            "dy": -18,
+            "persistence": "carry_forward",
+            "decay_state": "muted",
+            "metadata": {
+              "low_level_type": "point"
+            }
+          },
+          {
+            "component": "Point",
+            "handle": "point:G",
+            "at": "G",
+            "labelText": "G",
+            "color": "#1f2937",
+            "dx": 14,
+            "dy": -18,
+            "persistence": "carry_forward",
+            "decay_state": "muted",
+            "metadata": {
+              "low_level_type": "point"
+            }
+          },
+          {
+            "component": "RightAngle",
+            "handle": "right-angle:recover_target_point_E_ii:A",
+            "vertex": "A",
+            "rayA": "E",
+            "rayB": "G",
+            "size": 10,
+            "color": "#0f766e",
+            "persistence": "step_only",
+            "metadata": {
+              "low_level_type": "rightAngle"
+            }
+          },
+          {
+            "component": "RightAngle",
+            "handle": "right-angle:recover_target_point_E_ii:E",
+            "vertex": "E",
+            "rayA": "A",
+            "rayB": "K",
+            "size": 10,
+            "color": "#0f766e",
+            "persistence": "step_only",
+            "metadata": {
+              "low_level_type": "rightAngle"
+            }
+          }
+        ],
+        "state_overrides": [],
+        "hide": [
+          "point:A1",
+          "point:E_axis_i_2",
+          "point:E_axis_i_2_candidate_1",
+          "point:E_axis_i_2_candidate_2",
+          "point:G_axis_i_2"
+        ],
+        "focus": {
+          "primary": [
+            "point:A",
+            "point:E",
+            "point:K",
+            "point:G"
+          ],
+          "dim": []
+        },
+        "annotations": [
+          {
+            "type": "label",
+            "target": "explain_recover_target_point_E_ii",
+            "text_source": "lesson_step.box",
+            "index": 0
+          }
+        ]
+      },
+      "interactions": [],
+      "timeline": {
+        "mode": "none"
+      },
+      "metadata": {
+        "step_extra": {}
+      }
+    }
+  ],
+  "metadata": {
+    "source": "vs1_visual_step_builder",
+    "base_source": "generated",
+    "scene_model": "section_accumulator"
+  }
+}

@@ -1,6 +1,6 @@
 # F5-F5 Teaching Scope、学生步骤、可视化与动画设计
 
-状态：`IMPLEMENTATION`。`F5-F5A COMPLETE`；`F5-F5B NEXT`。
+状态：`IMPLEMENTATION`。`F5-F5A COMPLETE`；`F5-F5B0 COMPLETE`；`F5-F5B1 NEXT`。
 
 本文是 F5-F5 以及后续 Track G 教学链的统一规范入口。它定义：如何从
 `VerifiedFunctionalPlanExecution` 生成学生可见步骤，如何继续生成 `VisualStepIR` 与动画
@@ -715,16 +715,18 @@ Gap 必须包含稳定 source ID、owner Scope/Goal、缺失 role/action、已�
 
 门禁：Snapshot Scope/Goal/step owner 与 Canonical Plan 完全同构。
 
-### F5-F5B：学生步骤（NEXT）
+### F5-F5B：学生步骤（B0 COMPLETE；B1 NEXT）
 
 - 直接升级到 `explanation-snapshot/v3`，物理删除 `TeachingCrossScopeReference` 与顶层
   `cross_scope_references`；consumer input 内联精确 ref，不保留 v2 reader/双写；
 - v3 起教学层的 Scope/Goal 容器统一使用 `steps[]`，元素类型由当前
   artifact 决定；`scope_steps` 只保留为 FunctionalPlan 输入边界的原字段名；
-- 按 vNext 详细计划依次实施 B0–B4：基线/harness、Evidence Projector、Annotated Teaching
-  Plan、一次 Scope Lesson LLM 与 evaluator、recursive LessonIR 生产切换；
-- B0 只盘点和平二模所用 capabilities 的 Spec/projector 覆盖并固化基线，不改
-  生产 Spec；B1 才按缺口补充可复用 Method/Macro TeachingUnitSpec 和 projector；
+- B0 已固化和平二模 successful Snapshot、旧 Prompt、deterministic LessonIR/Visual/page，
+  并实现独立 rubric、coverage inventory 与 recorded/live harness；live `1×3` 的 provider/page
+  completion 为 `3/3`，旧 semantic retry 轮数 `2/3/3`。B0 不改生产 Spec/Builder/Prompt；
+- 下一步按 vNext 详细计划实施 B1–B4：Evidence Projector、TeachingUnitSpec、Annotated
+  Teaching Plan、一次 Scope Lesson LLM 与 evaluator、recursive LessonIR 生产切换；B1 依据
+  B0 coverage 缺口补充可复用 Method/Macro TeachingUnitSpec 和 projector；
 - LLM 获得绑定完成的 suggested `title/nav_title/goal/derive/box` 与完整 student-safe
   inputs/outputs/calculations，直接输出最终五类字段；
 - Scope/Goal 容器、teaching material 顺序、source/evidence provenance 与 answer producer

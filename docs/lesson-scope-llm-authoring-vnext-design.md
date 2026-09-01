@@ -1,8 +1,8 @@
 # F5-F5B/G1 Lesson Scope LLM Authoring 与视觉选择 vNext 设计
 
-状态：`DISCUSSION DRAFT`。
+状态：`IMPLEMENTATION`。`F5-F5B0 COMPLETE`；`F5-F5B1 NEXT`。
 
-日期：2026-08-31。
+日期：2026-09-01。
 
 本文只设计：
 
@@ -23,7 +23,9 @@ interaction formula 或 animation beat。本文同时定义 F5-F5B 学生步骤�
 - [Explanation Builder 设计](explanation-builder-design.md)；
 - [FunctionalPlan Scope Retry 设计](functional-scope-retry-design.md)。
 
-在本设计完成 review 前，已有文档和代码仍是当前实现事实；本文不宣称新协议已经实现。
+F5-F5B0 的只读基线、rubric、coverage inventory 与 recorded/live harness 已实现；它们没有
+改变生产协议。F5-F5B1 及之后的新 Snapshot、TeachingUnitSpec、LLM wire 与 recursive
+LessonIR 仍是待实现设计，不能把 B0 的 legacy coverage 标签解释为新协议已经落地。
 
 ## 1. 结论
 
@@ -1737,7 +1739,7 @@ tokens、总 token、首 token/总耗时和 fallback source。不同 sample/atte
 `teaching-authority.json` 可记录 `step_id -> teaching_case -> variant_key` 的唯一选择证据，供
 测试和 debug 审计；该文件不是 LLM 输入或公开 LessonIR 合同。
 
-### 18.3 F5-F5B0：基线、rubric 与 harness
+### 18.3 F5-F5B0：基线、rubric 与 harness（COMPLETE）
 
 实现：
 
@@ -1756,7 +1758,37 @@ tokens、总 token、首 token/总耗时和 fallback source。不同 sample/atte
 门禁：现有 Solver/Lesson/Visual recorded tests 全通过，生产行为零变化；coverage
 report 能明确指出 B1 需要补齐的通用 Spec/projector 缺口。
 
-### 18.4 F5-F5B1：Evidence Projector 与 teaching units
+完成记录（2026-09-01）：
+
+- checked-in 基线位于
+  `server/tests/solver/fixtures/lesson_scope_authoring_vnext/heping_ermo_b0/`；`source_revision`
+  固定记录 B0 前基线 `b42f0e2`，只作 provenance；
+- recorded batch 为 `f5-f5b0-recorded`：`explanation-snapshot/v2`，Canonical source Step
+  `12` 个，唯一 capability `9` 个（Function `8`、Macro `1`），Macro evidence `1` 个，
+  candidate group `12` 个；deterministic LessonIR `10` 步，VisualStepIR `10` 步且
+  `10` 个 scene 非空；
+- 初始旧 Prompt 为 system `947` 字符、user `53,760` 字符、合计 `54,707` 字符，统一
+  few-shot 数量为 `1`，同题 few-shot 关闭；
+- deterministic rubric 覆盖 `2/5`：已有路径等价、最小值与参数化取等点；缺少 `G` 的
+  轨迹、`A′` 反射构造和 `AG=A′G`；这些 expected teaching points 只存在测试 rubric，未进入
+  Prompt、payload 或 few-shot；
+- coverage inventory 从 successful Snapshot 递归枚举得到 `12` 个 occurrence，不依赖题号或
+  手写 capability 清单。报告中的 `legacy explanation/visual explicit/default` 只描述当前旧
+  Spec；所有 capability 的 vNext `TeachingUnitSpec` 均明确标记 `not_implemented_in_b0`；
+- live batch `f5-f5b0-live-1x3` 使用 `deepseek-v4-flash` 并行运行，`3/3` 均收到真实 provider
+  响应、保存逐轮 metadata/diagnostic 并编译 HTML。旧 semantic retry 轮数为 `2/3/3`，其中
+  `2` 份接受 LLM Lesson，`1` 份三轮均触发 `cross_scope_merge_not_allowed` 后使用确定性
+  fallback；总 token `178,157`（prompt `161,043`、completion `17,114`），每份平均
+  `59,385.667` token；sample 耗时为 `24.725/40.040/41.997` 秒，三份 rubric 均为 `2/5`；
+- 上述 live token、耗时、fallback 和质量数据只是历史观测值，不是稳定阈值。同步 client
+  无首 token 时间，artifact 明确记录 `first_token_seconds: null` 及原因；
+- `verified_execution_hash` 当前含 run-local execution identity。fixture 保存本次观测值，
+  但 golden 稳定性只比较 Canonical Plan、公开结果、evidence 与教学树的规范化投影，不把该
+  run-local 签名伪装成跨等价 recorded run 的稳定语义 hash；
+- 专项 7 模块并行回归为 `401 passed, 5 skipped`；全部非 serial、非 live Solver 回归为
+  `2297 passed`。当前 Solver 测试集中没有 serial、非 live 用例。
+
+### 18.4 F5-F5B1：Evidence Projector 与 teaching units（NEXT）
 
 实现：
 
