@@ -1647,7 +1647,7 @@
             {
               "groupId":"substitution-method","category":"description","title":"整体换元，并同步改写条件整式与目标整式",
               "basicInequalitySubstitutionVisual":true,
-              "body":["发现反复出现的完整分母或根号整体，直接整体换元。","换元后，条件整式和目标整式必须同步改写。"]
+              "body":["出现完整分母或根号整体时，可令 u 等于该结构整体换元，使条件整式与目标整式更容易观察。","换元后必须同步改写条件整式与目标整式，再回到定和、对称或齐次等结构判断。"]
             },
             {
               "groupId":"conditional-elimination","category":"description","title":"条件消元法：利用条件消去一个变量",
@@ -1673,7 +1673,7 @@
             {"lessonId":"inequality-basic-q16","group":"配齐次式","knowledgeCategory":"description","numberLabel":"练习 8 · 16","title":"局部配齐：逐个补齐两个括号","hints":["直接展开也能化为 1+2/(xy)，再由定和求积与取倒数传界求解，只是步骤稍多。","局部配齐时先通分，再由 x+y=1 补齐两个分子中的常数 1；展开后直接圈出 2x/y、2y/x。"],"answerSchema":{"type":"exact-expression","expected":["9"],"input":{"mode":"math-expression","placeholder":"填写最小值","keyboard":["digits"]}}},
             {"lessonId":"inequality-basic-q17","group":"找对称结构","knowledgeCategory":"description","numberLabel":"练习 8 · 17","title":"用对称结构求和的取值范围","hints":["目标与条件交换 x、y 后都不变，令 s=x+y、p=xy，用和与积替换原有变量。","把条件改写为 p=(s²−1)/3；再用基本不等式的变式 s²≥4p 建立和与积的关系，代入 p 消元。最后利用取等条件 x=y 验证 s=2 与 s=−2 都能取到。"],"answerSchema":{"type":"exact-expression","expected":["[-2,2]"],"input":{"mode":"math-expression","placeholder":"填写取值范围","keyboard":["interval","brackets","comma","negative","digits"]}}},
             {"lessonId":"inequality-basic-q18","group":"找对称结构","knowledgeCategory":"description","numberLabel":"对称结构 · 变式","title":"先变形再找对称结构求范围","hints":["原式关于 x、y 不对称，先观察目标中的 x/2，令 u=x/2（即 x=2u），把目标和条件同步改写。","改写后目标为 u+y，条件为 u²+y²−uy=1/4，此时再校验 u、y 的对称性，并令 s=u+y、p=uy 消元。"],"answerSchema":{"type":"exact-expression","expected":["[-1,1]"],"input":{"mode":"math-expression","placeholder":"填写取值范围","keyboard":["interval","brackets","comma","negative","digits"]}}},
-            {"lessonId":"inequality-basic-q19","group":"找对称结构","knowledgeCategory":"description","numberLabel":"对称结构 · 变式 2","title":"把两个整体配成对称结构求最小值","hints":["观察目标和条件中反复出现的整体 a 与 2b，令 u=a、v=2b，把目标和条件同步改写。","改写后目标为 u+v，条件为 uv=u+v+3；再校验 u、v 的对称性，令 s=u+v、p=uv，用 s²≥4p 消元。"],"answerSchema":{"type":"exact-expression","expected":["6"],"input":{"mode":"math-expression","placeholder":"填写最小值","keyboard":["digits"]}}},
+            {"lessonId":"inequality-basic-q19","group":"找对称结构","knowledgeCategory":"description","numberLabel":"对称结构 · 变式 2","title":"把两个整体配成对称结构求最小值","hints":["观察目标和条件中的整体 a 与 2b，令 u=a、v=2b，把目标和条件同步改写。","改写后目标为 u+v，条件为 uv=u+v+3；再校验 u、v 的对称性，令 s=u+v、p=uv，用 s²≥4p 消元。"],"answerSchema":{"type":"exact-expression","expected":["6"],"input":{"mode":"math-expression","placeholder":"填写最小值","keyboard":["digits"]}}},
             {"lessonId":"inequality-basic-q21","group":"找对称结构","knowledgeCategory":"description","numberLabel":"对称结构 · 变式 3","title":"对称四次项配对后用积换元降维","hints":["目标交换 a、b 后保持不变；把对称的四次项 a⁴、b⁴ 配对，由基本不等式得到 a⁴+b⁴≥2a²b²。","令 p=ab>0，原目标不小于 2p²−8p；配方后联立 a=b 与 p=2 两个取等条件。"],"answerSchema":{"type":"exact-expression","expected":["-8"],"input":{"mode":"math-expression","placeholder":"填写最小值","keyboard":["negative","digits"]}}},
             {"lessonId":"inequality-basic-q07","group":"多次应用基本不等式","knowledgeCategory":"description","numberLabel":"练习 8 · 9","title":"连续两次构造定积求最小值","hints":["先对 1/a 与 a/b² 使用基本不等式，消去 a。","再对 2/b 与 b 使用基本不等式，并联立两次等号条件。"],"answerSchema":{"type":"exact-expression","expected":["2√2","2sqrt(2)"],"input":{"mode":"math-expression","placeholder":"填写最小值","keyboard":["radical","digits"]}}},
             {"lessonId":"inequality-basic-q11","group":"多次应用基本不等式","knowledgeCategory":"description","numberLabel":"练习 8 · 10","title":"两层估计含四次式的分式","hints":["先对 a⁴ 与 4b⁴ 应用基本不等式，再把下界代回原分式。","代回后直接对 4ab 与 1/(ab) 应用基本不等式，并检查两次等号能否同时成立。"],"answerSchema":{"type":"exact-expression","expected":["4"],"input":{"mode":"math-expression","placeholder":"填写最小值","keyboard":["digits"]}}},
@@ -1687,7 +1687,7 @@
             {"lessonId":"inequality-basic-q27","group":"条件消元法","knowledgeCategory":"description","numberLabel":"条件消元法 · 例 1","title":"整理分式条件后消元求最小值","hints":["先通分整理条件，得到 x(x+2y−1)=1；由 x>0 可用 x 表示 y，再代入目标消去 y。","一元目标化为 (3x+1/x+1)/2；对正项 3x 与 1/x 应用基本不等式，最后回代求出 y。"],"answerSchema":{"type":"exact-expression","expected":["√3+1/2","sqrt(3)+1/2","(1+2√3)/2","(1+2sqrt(3))/2"],"input":{"mode":"math-expression","placeholder":"填写最小值","keyboard":["fraction","radical","plus","digits"]}}},
             {"lessonId":"inequality-basic-q29","group":"条件消元法","knowledgeCategory":"description","numberLabel":"条件消元法 · 例 2","title":"定和条件消元后整理倒数求最大值","hints":["由 a+b=1 直接写出 b=1−a，代入后两个分母都化为 a²−a+1，原目标降成一元正分式。","求正数目标的最大值可转化为求倒数的最小值；把 1/E 整理成 (a+1)+3/(a+1)−3，再应用基本不等式并回代 b。"],"answerSchema":{"type":"exact-expression","expected":["(3+2√3)/3","(3+2sqrt(3))/3","1+2√3/3","1+2sqrt(3)/3"],"input":{"mode":"math-expression","placeholder":"填写最大值","keyboard":["fraction","radical","plus","digits"]}}}
           ],
-          "summary":"基本不等式不是见到正数就直接套用：先确认两个正项表达式，再整理目标表达式，让定和或定积结构显形。若复杂整体遮住结构，可先换元并同步改写定义域、条件和目标；若条件能够直接表示变量，则整理条件、表示变量并代入目标完成消元。降维后再按结构选择基本不等式、配齐次式或其他工具，最后还原或回代等号条件。"
+          "summary":"基本不等式不是见到正数就直接套用：先观察条件整式与目标整式的结构（定和/定积、对称、齐次、多变量多轮）；结构被分母或根式挡住时换元后再观察；仍不行才整理条件、表示变量并代入目标完成消元。最后都要验证取等。"
         },
         {
           "id":"inequality-practice",
