@@ -7,7 +7,17 @@ const specsRoot = path.join(repoRoot, "internal/senior-high/lesson-specs");
 
 const source = "高一暑假目标班 · 第4讲";
 
+const methodByLessonId = new Map([
+  [["q01", "q02", "q05", "q06", "q08", "q09", "q10", "q13", "q20", "q28"], "basic-application"],
+  [["q03", "q04", "q14", "q15", "q16"], "homogeneous-form"],
+  [["q17", "q18", "q19", "q21"], "symmetric-structure"],
+  [["q07", "q11", "q30", "q31"], "iterated-product"],
+  [["q22", "q23", "q24", "q25", "q26"], "substitution-method"],
+  [["q27", "q29"], "conditional-elimination"],
+].flatMap(([suffixes, method]) => suffixes.map((suffix) => [`inequality-basic-${suffix}`, method])));
+
 function meta(id, title, breadcrumbTitle, moduleId) {
+  const method = moduleId === "basic-inequalities" ? methodByLessonId.get(id) : null;
   return {
     id,
     outputPath: `site/problems/senior-high/inequalities/inequality-relations/${id}.html`,
@@ -16,7 +26,7 @@ function meta(id, title, breadcrumbTitle, moduleId) {
     breadcrumbTitle,
     breadcrumbLabel: "解不等式与基本不等式",
     breadcrumbPath: "site/senior-high/index.html",
-    breadcrumbSearch: `?chapter=inequalities&section=inequality-relations&module=${moduleId}`,
+    breadcrumbSearch: `?chapter=inequalities&section=inequality-relations&module=${moduleId}${method ? `&method=${method}` : ""}`,
   };
 }
 

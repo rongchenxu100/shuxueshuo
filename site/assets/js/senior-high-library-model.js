@@ -10,6 +10,7 @@
     section: "all",
     collection: "all",
     module: "all",
+    method: "all",
     difficulty: "all",
     source: "all",
     sort: "updated-desc",
@@ -70,6 +71,13 @@
     const module = learningTopic
       ? (moduleIds.has(input.module) ? input.module : "overview")
       : "all";
+    const selectedModule = learningTopic?.modules?.find((item) => item.id === module);
+    const methodIds = new Set(
+      (selectedModule?.knowledgeGroups || [])
+        .filter((group) => group.section === "method")
+        .map((group) => group.id),
+    );
+    const method = methodIds.has(input.method) ? input.method : "all";
     const difficulty = /^[1-5]$/.test(String(input.difficulty || ""))
       ? String(input.difficulty)
       : "all";
@@ -77,7 +85,7 @@
     const sort = SORTS.has(input.sort) ? input.sort : DEFAULT_STATE.sort;
     const parsedPage = Number.parseInt(input.page, 10);
     const page = Number.isInteger(parsedPage) && parsedPage > 0 ? parsedPage : 1;
-    return { chapter, section, collection, module, difficulty, source, sort, page };
+    return { chapter, section, collection, module, method, difficulty, source, sort, page };
   }
 
   function parseSearch(catalog, search) {
@@ -120,7 +128,7 @@
   function stateToSearch(inputState) {
     const state = { ...DEFAULT_STATE, ...inputState };
     const params = new URLSearchParams();
-    for (const key of ["chapter", "section", "collection", "module", "difficulty", "source", "sort"]) {
+    for (const key of ["chapter", "section", "collection", "module", "method", "difficulty", "source", "sort"]) {
       if (state[key] !== DEFAULT_STATE[key]) {
         params.set(key, state[key]);
       }
