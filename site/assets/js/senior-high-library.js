@@ -2217,17 +2217,11 @@
     };
     const exerciseHrefForKnowledgeGroup = (group) => {
       const firstExample = examplesForKnowledgeGroup(group)[0];
-      const exerciseHash = firstExample
+      return firstExample
         ? `#exercises-${learningGroupSlug(firstExample.group)}`
         : "#worked-examples-heading";
-      if (selectedMethodGroup && group.id === selectedMethodGroup.id) {
-        return `${learningMethodHref(topic, module.id, group.id)}${exerciseHash}`;
-      }
-      return exerciseHash;
     };
-    const showMethodExercises = typeof window !== "undefined"
-      && window.location.hash.startsWith("#exercises-");
-    const showExercisesSection = !isMethodCollection || !selectedMethodGroup || showMethodExercises;
+    const showExercisesSection = !isMethodCollection || selectedMethodGroup;
     const knowledgeBlocksForGroup = (group) => {
       const explicitlyGrouped = module.knowledgeBlocks.filter((block) => block.groupId === group.id);
       return explicitlyGrouped.length
@@ -3089,16 +3083,6 @@
   window.addEventListener("popstate", () => {
     state = model.parseSearch(catalog, window.location.search);
     render();
-  });
-  window.addEventListener("hashchange", () => {
-    if (model.learningTopicForState(catalog, state)) {
-      render();
-      if (window.location.hash.startsWith("#exercises-")) {
-        requestAnimationFrame(() => {
-          document.querySelector(window.location.hash)?.scrollIntoView({ behavior: "smooth", block: "start" });
-        });
-      }
-    }
   });
 
   loadCatalog().then((loadedCatalog) => {

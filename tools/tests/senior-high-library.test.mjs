@@ -300,7 +300,7 @@ test("builds the complete inequality topic with four published modules", () => {
   assert.match(routeRenderer, /basic-method-route-core[\s\S]*basic-method-route-lens[\s\S]*观察[\s\S]*结构/);
   assert.match(routeRenderer, /basic-method-route-zero-meaning[\s\S]*观察结构[\s\S]*定和 \/ 对称 \/ 齐次 \/ 多轮/);
   assert.match(libraryRuntime, /learningMethodGuideHref[\s\S]*selected-method-heading/);
-  assert.match(libraryRuntime, /showExercisesSection[\s\S]*showMethodExercises/);
+  assert.match(libraryRuntime, /showExercisesSection = !isMethodCollection \|\| selectedMethodGroup/);
   assert.match(routeRenderer, /交换不变/);
   assert.match(routeRenderer, /次数配成 0/);
   assert.match(routeRenderer, /多轮配对/);
