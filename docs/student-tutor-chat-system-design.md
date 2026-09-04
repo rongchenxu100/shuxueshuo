@@ -1,425 +1,332 @@
-# 学生助教对话系统设计
+# 学生交互与个性化教学系统设计
 
-## 1. 产品定义
+## 1. 产品使命
 
-学生助教不是一个根据标准答案讲题的聊天机器人，而是一个可验证的互动解题环境：
+我们的目标不是做一个能够自由讲题的聊天机器人，而是让每个学生都获得适合自己当前认知位置的讲解：
 
-> 学生负责提出观察、猜想、变形和解题路线；系统负责理解、计算、验证并给出适量反馈；学生在不断修正中完成解题，系统从全过程判断其真正掌握了哪些知识点。
+> **让每个学生的成绩，配得上他的能力。**
 
-产品闭环为：
+现有教学通常提供同一份讲解，再要求所有学生进入这套讲解。我们的方向相反：
 
-```text
-学生表达
-→ 机器理解
-→ 数学验证
-→ 教学反馈
-→ 学生修正
-→ 完成解题
-→ 知识抽象与迁移
-→ 更新掌握证据
-```
+> **看见学生在哪里，把讲解送到那里。**
 
-核心产品判断是：**LLM 解题循环与学生学习循环共用同一套数学验证内核，但采用不同的输入协议、反馈策略和完成标准。**
+产品由两个核心系统组成：
 
-## 2. LLM 解题循环与学生学习循环
+1. **题目教学状态图**：规定每道题应该怎样讲、先讲什么、学生不同反应对应怎样推进。
+2. **学生长期知识图谱**：记录学生已经理解什么、在哪些环节需要提示、有哪些稳定误区。
 
-当前 Functional Solver 的循环是：
+两者在每次讲题时进行差分计算：
 
 ```text
-ProblemPlanningContext
-→ LLM 提交 FunctionalPlan
-→ schema / scope / binding / compiler 校验
-→ Function 或 Macro lowering
-→ Method runtime
-→ typed diagnostic
-→ LLM repair
-→ verified execution
+题目所需知识与步骤
+− 学生已经稳定掌握的部分
+= 本次真正需要讲解的内容
 ```
 
-学生学习循环与之同构：
+因此，个性化不是让 LLM 即兴生成不同答案，而是在经过教学设计的路径中，为不同学生选择不同的进入位置、展开深度、提示强度和表达方式。
 
-```text
-StudentTutorContext
-→ 学生提出自然语言、公式、草图或局部思路
-→ 解析为 StudentAction / StudentClaim / StudentPlanDelta
-→ 绑定题目实体、Fact、KnowledgePoint 与公开 Capability
-→ 在学生尝试分支中进行数学验证
-→ pedagogical diagnostic
-→ 分级追问、提示、反例、可视化或局部纠错
-→ 学生继续修改
-→ verified StudentAttemptGraph
-```
-
-两者的对应关系如下：
-
-| Functional Solver | 学生助教 |
-| --- | --- |
-| LLM 输出 FunctionalPlan | 学生说出一步思路或写出一步公式 |
-| capability 与 typed binding | 系统理解学生想对哪些数学对象做什么 |
-| Method 执行 | 系统验算学生当前一步 |
-| typed diagnostic | 教学诊断：正确、缺条件、错误、绕远或表达不清 |
-| retry prompt | 追问、提示、反例或局部纠错 |
-| LLM 修改 Plan | 学生修改自己的思路 |
-| verified execution | 学生自己的已验证解题图 |
-| Goal complete | 解出题目并完成等号、定义域和答案检查 |
-| — | 反思方法、迁移练习和 KnowledgePoint 掌握更新 |
-
-## 3. 相同的验证内核，不同的反馈目标
-
-对 Solver，首要目标是尽快得到一个合法、完整、可执行的 Plan。
-
-对学生，首要目标是让学生在自己能够完成的范围内继续思考，并留下能够证明其掌握程度的学习证据。系统不能为了快速得到答案而静默替学生修复思路。
-
-同一个内部诊断应投影成不同反馈。例如缺少正数条件时：
-
-```text
-Planner diagnostic：
-参数 u、v 缺少 positivity proof，请修改 Plan。
-
-Student feedback：
-你准备对哪两个量使用基本不等式？它们一定都是正数吗？
-```
-
-因此需要独立的教学投影：
-
-```text
-FunctionalDiagnosticAuthority
-→ PedagogicalDiagnosticProjector
-→ HintPolicy
-→ 学生可理解、符合 reveal boundary 的反馈
-```
-
-## 4. 核心原则
-
-1. **学生拥有解题权**：系统验证和引导，不默认替学生生成完整解法。
-2. **数学事实有唯一权威**：题面事实来自 ProblemIR；计算正确性来自 deterministic Method 和 verified execution；教学内容来自 KnowledgePoint 与教学投影。
-3. **保留学生原意**：始终区分 `student_authored`、`system_interpreted` 和 `verified_meaning`。
-4. **不静默修正歧义**：学生表达存在多种合理解释时先确认，不把错误或含混输入自动补成正确解法。
-5. **反馈最小充分**：优先给能推动下一次独立思考的最小提示，不直接跨过尚未到达的 Goal。
-6. **正确不等于最优**：合法但绕远的方法应被认可；系统可以比较认知成本和结构清晰度，但不能把非首选路线判错。
-7. **解出不等于掌握**：最终答案只是证据之一；识别、前提、执行、解释、等号和迁移能力分别记录。
-8. **对话不污染 Solver 权威**：学生尝试在独立 branch/context 中验证，不修改 canonical PlannerStateContext 或已发布课程事实。
-9. **页面来自学生的可信路径**：只把学生已提出且通过验证的步骤编入个人解题页；系统补充内容必须标明为提示或讲解。
-10. **所有反馈可追溯**：引用能够回到题面 Fact、KnowledgePoint、verified call、Lesson step 或 Visual role。
-
-## 5. 总体架构
+## 2. 核心产品模型
 
 ```mermaid
-flowchart TD
-    P["ProblemIR / Facts / Goals"]
-    K["KnowledgePoint Graph"]
-    C["Capability Catalog"]
-    M["Function / Macro / Method Runtime"]
-    U["学生消息、公式、图片与 UI 操作"]
-    A["StudentAction Parser"]
-    G["StudentAttemptGraph"]
-    V["Attempt Verification Branch"]
-    D["Pedagogical Diagnostic"]
-    H["Hint Policy"]
-    R["Tutor Response / UI Action"]
-    E["Mastery Evidence"]
-    L["个人可视化解题页"]
+flowchart LR
+    P["题目教学状态图<br/>这道题应该怎样讲"]
+    K["学生知识图谱<br/>这个学生已经会什么"]
+    D["知识差分<br/>这一次需要补什么"]
+    C["确定性教学控制器<br/>现在进入哪个状态"]
+    I["LLM 输入理解<br/>学生表达了什么"]
+    U["学生看到的讲解与交互"]
 
-    U --> A
-    P --> A
-    K --> A
-    A --> G
-    G --> V
-    C --> V
-    M --> V
-    P --> V
-    V --> D
+    P --> D
     K --> D
-    D --> H
-    G --> H
-    E --> H
-    H --> R
-    R --> U
-    V --> G
-    G --> E
-    G --> L
-    K --> L
+    D --> C
+    I --> C
+    C --> U
+    U --> I
+    U --> K
 ```
 
-验证内核可以复用现有 Capability、compiler、Method 和 transaction 能力，但学生输入不应被强制直接书写为严格 `functional_plan/v2`。学生侧需要接受局部、自然和不完整表达的中间层。
+这里真正的主控是确定性的教学控制器，不是一个不断自行计划和调用工具的主 LLM。
 
-## 6. StudentTutorContext
+运行循环为：
 
-`StudentTutorContext` 是 Problem、Lesson、KnowledgePoint、verified execution 与会话状态的受限 projection。
+```text
+进入教学状态
+→ 展示该状态允许的内容
+→ 接收学生输入
+→ LLM 解析为结构化事件与参数
+→ 校验事件
+→ 状态机决定下一状态
+→ 记录学习证据
+```
 
-至少包含：
+## 3. 设计认知发生了什么变化
 
-- problem id、revision 与题目摘要；
-- 当前 Goal 与允许推进的 Goal boundary；
-- 当前可见 Entity、Fact 和 Condition；
-- 已验证的学生步骤和当前开放分支；
-- 已完成与尚未完成的 equality/domain obligations；
-- 允许引用的 KnowledgePoint；
-- 当前 Lesson/Visual roles 与 UI 状态；
-- 学生最近消息与必要会话摘要；
-- 已使用 hint level；
-- 与本题相关的 mastery evidence 摘要；
-- 用户偏好，例如“只提示不讲答案”。
+### 3.1 从模型主导变为教学设计主导
 
-不包含：
+```mermaid
+flowchart TB
+    subgraph OLD["过去：开放式 Tutor Loop"]
+        O1["学生自由提出一步"] --> O2["LLM 理解并尝试规划"]
+        O2 --> O3["数学验证"]
+        O3 --> O4["LLM 决定怎样继续讲"]
+        O4 --> O1
+    end
 
-- 面向模型直接暴露的 expected answer 隐藏副本；
-- 完整 Solver debug、内部 runtime path 或 typed identity；
-- 不可见 sibling scope 的私有事实；
-- 无关题目或其他学生数据；
-- 可从 source refs 重建的完整历史 prompt；
-- 未经过 reveal policy 的未来完整步骤。
+    subgraph NEW["现在：受控教学状态图"]
+        N1["预先设计题目路径"] --> N2["展示当前教学状态"]
+        N2 --> N3["LLM 只解析学生输入"]
+        N3 --> N4["确定性规则校验参数并转移状态"]
+        N4 --> N2
+    end
+```
 
-课程、题目或 KnowledgePoint 版本变化时，旧会话不得静默绑定新事实。系统应校验 revision，迁移兼容摘要或开启新 session。
+### 3.2 关键变化对照
 
-## 7. StudentAction 与学生表达 IR
+| 过去的设计 | 现在的设计 | 改变的原因 |
+| --- | --- | --- |
+| LLM 与学生共同探索解题路线 | 每道题预先拥有清晰的教学状态图 | 保证讲解内容稳定、正确、可测试 |
+| 主 LLM 维持 agent loop 并决定下一步 | 状态机维持教学 loop 并决定下一步 | 模型不再拥有教学决策权 |
+| 学生或 LLM 可以临场创造主路线 | 学生在已设计的主路径和合法分支中推进 | 避免讲解漂移，也保留合理的多解法 |
+| 依靠聊天上下文判断学生会什么 | 依靠长期知识图谱和可追溯证据 | 个性化能够跨题目、跨会话持续 |
+| 用统一提示阶梯临时生成反馈 | 每个状态绑定具体问题、提示和揭示边界 | 提示与本题当前认知任务严格一致 |
+| 从学生尝试临时生成一份讲解页 | 将学生行为映射回稳定的教学节点和组件 | 页面结构可预测、可复用、可验证 |
+| 个性化主要靠给 LLM 更多上下文 | 先做题目图与学生图的差分，再给出参数 | 个性化从“生成风格”变为“教学内容选择” |
 
-学生输入不只是一条问句，可能是：
+保留下来的能力包括：数学验证、定义域与等号条件检查、错误证据、提示强度记录、长期掌握更新。变化的是它们不再驱动一条自由生成的路线，而是服务于已设计的教学状态。
 
-- 一个观察；
-- 一个策略选择；
-- 一步代数变形；
-- 一条不等式或方程；
-- 一个答案；
-- 一个等号条件；
-- 一张手写图；
-- 对系统提示的质疑；
-- 请求解释、比较方法或直接提示。
+## 4. 题目教学状态图
 
-统一建模为 `StudentAction`：
+### 4.1 每道题必须有自己的教学程序
+
+一道题不能只有题面、答案和一篇静态解析。它至少需要定义：
+
+- 主解题路径；
+- 合法的替代路径；
+- 每一步希望学生发现的数学对象；
+- 该步允许展示的内容；
+- 学生可能产生的正确、错误和不完整反应；
+- 每类反应对应的状态转移；
+- 当前步骤的提示阶梯；
+- 定义域、取等、边界和可达性等未完成任务；
+- 本状态能够产生哪些掌握证据。
+
+它不是一段由 LLM 阅读后自由发挥的文字，而是一份可以执行、测试和版本化的教学程序。
+
+### 4.2 状态图而不只是线性步骤
+
+每道题应有一条明确主路径，但学生的反应并不完全线性，所以实现形式应是状态图：
+
+```mermaid
+stateDiagram-v2
+    [*] --> 观察结构
+    观察结构 --> 识别方法: 正确识别
+    观察结构 --> 观察提示: 未识别或答非所问
+    观察提示 --> 观察结构: 学生再次作答
+    识别方法 --> 执行变形: 参数映射正确
+    识别方法 --> 前提检查: 漏掉使用条件
+    前提检查 --> 执行变形: 补全条件
+    执行变形 --> 局部纠错: 计算或变形错误
+    局部纠错 --> 执行变形
+    执行变形 --> 验证取等: 得到界
+    验证取等 --> 方法归纳: 等号条件可同时成立
+    方法归纳 --> [*]
+```
+
+分支仍然由教学设计者声明。LLM 可以识别学生落在哪个分支，但不能自行新增一个未经审核的教学状态。
+
+### 4.3 状态定义
 
 ```yaml
-action_id: action-17
-kind: propose_step
+state_id: identify_symmetric_structure
+teaching_goal: 学生能通过交换变量判断目标与条件是否对称
+
+visible_content_refs:
+  - problem.goal
+  - problem.conditions
+  - visual.swap_slots
+
+expected_events:
+  - kind: classify_structure
+    params:
+      target_symmetric: boolean
+      condition_symmetric: boolean
+
+transitions:
+  - when: target_symmetric && condition_symmetric
+    to: substitute_sum_and_product
+  - when: interpretation_ambiguous
+    to: clarify_student_input
+  - otherwise: show_swap_comparison_hint
+
+hints:
+  - level: 1
+    content_ref: hint.swap_variables
+  - level: 2
+    content_ref: visual.compare_before_after
+
+evidence_rules:
+  - knowledge_point: recognize_symmetric_structure
+    dimension: recognition
+```
+
+状态中引用的讲解、公式和可视化组件都来自已审核内容。状态只决定何时展示，不把内容生成权交给模型。
+
+### 4.4 可复用模板与题目实例
+
+不需要为每道题从零编程。系统可以先建设方法级状态模板：
+
+- 直接应用基本不等式；
+- 配齐次式；
+- 找对称结构；
+- 多次应用基本不等式；
+- 换元法；
+- 条件消元法。
+
+具体题目将自己的数学对象、公式角色、视觉槽位和转移条件绑定到模板，形成题目专属状态图。
+
+```text
+方法状态模板
++ 题目实体与参数绑定
++ 题目特有观察和误区
+= 题目教学状态图
+```
+
+因此既能保证每道题有明确路径，也能避免大量重复实现。
+
+## 5. LLM 的职责边界
+
+### 5.1 LLM 是输入理解器，不是教学主控
+
+LLM 的首要职责是把学生的自然表达转换为状态机能够处理的结构化事件：
+
+```text
+“我觉得可以把 2y 看成一个整体”
+                  ↓
+kind: propose_grouping
+params:
+  left_object: x
+  right_object: 2y
+confidence: 0.96
+```
+
+状态机随后判断：
+
+- 当前状态是否接受 `propose_grouping`；
+- `x` 和 `2y` 是否绑定到题目中的合法对象；
+- 该分组是否满足已设计的后续路径；
+- 应进入“换元后检查对称”还是“补充观察提示”。
+
+### 5.2 LLM 可以做什么
+
+- 理解自然语言、公式、手写识别结果和 UI 操作；
+- 识别学生在回答哪个问题；
+- 提取变量、表达式、关系、方法名称和理由；
+- 判断一句话可能对应的少量候选事件；
+- 在内容已经由状态确定后，做受约束的口语化表达；
+- 将数学诊断翻译为学生能理解的语言。
+
+### 5.3 LLM 不可以做什么
+
+- 自行决定本题下一步应该讲什么；
+- 跳过状态图中的教学目标；
+- 自行创造新的主解法并替换已审核路径；
+- 根据标准答案反向猜测学生意图；
+- 在解释不确定时自动选择“最接近正确答案”的含义；
+- 绕过状态的揭示边界，提前给出未来步骤；
+- 把生成的自然语言当作数学事实或掌握证据。
+
+### 5.4 结构化学生事件
+
+```yaml
+event_id: event-1024
+session_id: session-88
+state_id: identify_symmetric_structure
 
 student_authored:
-  text: "因为 x+2y=4，所以 xy 最大是 2"
+  text: "把 2y 看成一个整体行不行"
 
-system_interpreted:
-  claim_kind: bound
-  target: xy
-  relation: "<="
-  value: 2
-  justification:
-    capability_hint: fixed_sum_product_upper_bound
-    operands: [x, 2y]
-    fact_refs: [condition-x-plus-2y-equals-4]
+interpreted:
+  kind: propose_grouping
+  params:
+    groups: [x, 2y]
+  confidence: 0.96
+  entity_refs: [entity-x, expression-2y]
 
-verification:
-  status: verified
-  verified_meaning: "xy <= 2"
-  evidence_refs: []
+validation:
+  schema: passed
+  binding: passed
+  math_status: pending
 ```
 
-关键字段为：
+必须永久区分：
 
-- `student_authored`：学生真实表达，不可被覆盖；
-- `system_interpreted`：系统对数学意图的结构化理解；
-- `interpretation_confidence`：是否需要学生确认；
-- `verification`：数学验证结果；
-- `knowledge_point_refs`：这一步涉及的知识点；
-- `pedagogical_status`：这一步在当前路线中的教学意义。
+- `student_authored`：学生原话；
+- `interpreted`：模型理解出的事件与参数；
+- `validated`：经过规则和数学内核确认的含义。
 
-如果存在两个非等价解释，系统不得选择“最接近正确答案”的一个，而应先提问确认。
+当存在多个非等价解释或置信度不足时，只能进入澄清状态。
 
-## 8. StudentAttemptGraph
+## 6. 学生长期知识图谱
 
-对话不能只保存线性聊天记录。系统需要维护一个可分支、可撤回、可验证的 `StudentAttemptGraph`。
+### 6.1 长期记忆不是聊天记录
 
-节点可以是：
+聊天记录说明学生说过什么，但不能直接说明学生会什么。长期记忆应保存经过证据支持的认知状态：
 
-- 题设 Fact；
-- 学生观察；
-- 学生猜想；
-- 代数变形；
-- Capability 调用意图；
-- verified conclusion；
-- 被反驳或撤回的 claim；
-- 等号条件；
-- 最终答案；
-- 方法反思与迁移结论。
+```mermaid
+flowchart LR
+    A["学生行为<br/>回答、计算、提问、纠错"]
+    V["证据校验<br/>正确性、提示强度、独立程度"]
+    E["学习证据"]
+    K["学生知识图谱"]
 
-边表示：
+    A --> V --> E --> K
+```
 
-- `depends_on`：数学依赖；
-- `justified_by`：知识点或 verified evidence；
-- `revises`：修改之前的学生步骤；
-- `contradicts`：与题面或已验证结论冲突；
-- `alternative_to`：另一条合法路线；
-- `generalizes_to`：从本题抽象出的通用方法。
+原始对话可以按隐私政策短期保存，但不能把模型对对话的总结直接当成长期掌握结论。
 
-每个节点至少保存：
+### 6.2 图谱节点
+
+节点可以包括：
+
+- 知识概念：基本不等式、韦达定理；
+- 方法：换元法、条件消元法、配齐次式；
+- 操作：通分、因式分解、配方；
+- 结构识别：定和、定积、对称结构、齐次结构；
+- 必要检查：正数、非零、定义域、等号可达；
+- 表征能力：能否从代数式映射到图形槽位；
+- 误区：忽略前提、方向判断错误、只求出界而未验证取等。
+
+### 6.3 图谱关系
+
+- `prerequisite_of`：前置知识；
+- `part_of`：属于某种方法；
+- `used_by`：被题目或状态使用；
+- `transfers_to`：可迁移到另一结构；
+- `confused_with`：容易混淆；
+- `evidenced_by`：由哪次学生行为提供证据；
+- `remediated_by`：由哪个讲解状态修复。
+
+### 6.4 掌握不是布尔值
+
+每个知识节点至少记录：
 
 ```yaml
-student_text:
-interpreted_claim:
-scope_ref:
-verification_status:
-verified_outputs:
-knowledge_point_refs:
-diagnostic:
-feedback_given:
-hint_level:
-domain_obligations:
-equality_obligations:
-source_refs:
+knowledge_point: symmetric_sum_product_substitution
+mastery:
+  recognition: 0.82
+  prerequisite_check: 0.65
+  mapping: 0.78
+  execution: 0.74
+  explanation: 0.48
+  equality_check: 0.51
+  transfer: 0.36
+confidence: 0.77
+last_evidence_at: 2026-09-04
+stable_misconceptions:
+  - only_checks_goal_not_condition
 ```
 
-错误节点不能被删除。它们是误区诊断和学习进步的重要证据，但不能进入最终已验证解题链。
-
-## 9. 数学验证
-
-### 9.1 验证边界
-
-系统可以：
-
-- 将学生明确提出的数学动作绑定到公开 Capability；
-- 调用 deterministic evaluator 或 Method 验算等式、不等式、定义域和候选；
-- 在隔离分支中执行学生提出的局部路线；
-- 使用 typed diagnostic 定位失败角色和前提；
-- 检查等号条件能否与题设同时成立；
-- 比较两条已提出路线的数学等价性。
-
-系统不可以：
-
-- 为了判定当前步骤，静默求完整道题并把未来路线泄露给 Tutor LLM；
-- 未经学生表达就把一个错误步骤改写成正确步骤；
-- 使用 expected answer 反向猜学生意图；
-- 根据字符串、对象名称或顺序猜 typed binding；
-- 把学生的 provisional claim 提交为 canonical Solver StateVersion；
-- 用自然语言 trace 代替 runtime authority。
-
-### 9.2 尝试分支
-
-每次需要执行数学能力时，从当前已验证学生图构造 disposable attempt branch：
-
-```text
-verified StudentAttemptGraph frontier
-→ resolve student-authored refs
-→ compile local capability call
-→ run/check in isolated branch
-→ project result or diagnostic
-→ commit only to StudentAttemptGraph
-```
-
-“commit”只表示这一步成为学生解题图中的 verified node，不表示写入 canonical Solver Context。
-
-### 9.3 等号与定义域账本
-
-每次不等式、开方、除法、取倒数、平方或参数分支都会产生 obligation：
-
-- 定义域条件；
-- 正负条件；
-- 非零条件；
-- 放缩方向；
-- 等号条件；
-- 可达性条件。
-
-这些 obligation 必须进入学生图。学生得到最终界但尚未关闭等号 obligation 时，状态应为“下界已证，极值未完成”，不能直接判定整题完成。
-
-## 10. 教学诊断分类
-
-学生的一步至少分为以下类型：
-
-| 类型 | 含义 | 推荐反馈 |
-| --- | --- | --- |
-| `verified_progress` | 正确且推进当前 Goal | 简短确认，并把思考权交回学生 |
-| `verified_incomplete` | 主要结论正确，但缺定义域、理由或等号条件 | 追问缺失 obligation |
-| `verified_detour` | 数学正确但认知负担较高或暂时绕远 | 认可正确性，再邀请比较更直接结构 |
-| `verified_irrelevant` | 正确但与当前 Goal 暂无有效依赖 | 说明其正确性，追问它如何服务目标 |
-| `arithmetic_error` | 局部计算错误 | 定位第一个错误，不重做整段 |
-| `algebraic_error` | 恒等变形、因式分解、通分等错误 | 指向失效变换并给最小反例或检查点 |
-| `missing_precondition` | 未证明正数、非零、定义域或可见关系 | 追问使用公式需要哪些前提 |
-| `bound_direction_error` | 倒数、负数乘除或单调传界方向错误 | 让学生比较简单数值或回忆符号规则 |
-| `strategy_mismatch` | 方法不能控制当前目标量 | 引导识别目标依赖的核心量 |
-| `equality_incompatible` | 多次放缩等号条件无法同时成立 | 展示冲突条件，但保留学生重新分组的机会 |
-| `unsupported_claim` | 当前证据无法推出该结论 | 区分猜想与已证明结论 |
-| `ambiguous_expression` | 无法唯一理解学生输入 | 明确列出少量解释并请求确认 |
-
-教学诊断不是简单的正确/错误分类。一个正确但绕远的换元不能被标记为错误；一个数值正确但理由错误的步骤也不能被标记为完全掌握。
-
-## 11. Hint Policy 与 reveal boundary
-
-默认提示阶梯：
-
-1. **状态确认**：复述学生已经正确得到的内容；
-2. **观察性追问**：指向题目中的条件、图形或目标结构；
-3. **方法性提示**：提醒相关 KnowledgePoint 或可用方法；
-4. **关系框架**：给出带空位的关键关系；
-5. **局部完整步骤**：展示当前卡点的完整推导；
-6. **完整解法**：仅在学生明确请求、教学策略允许或多次尝试仍无法推进时提供。
-
-示例：目标已化为 (2+5/(xy))。
-
-```text
-Level 1：要使这个式子最小，xy 应该变大还是变小？
-
-Level 2：题设中的 x+2y=4 能否给出 xy 的范围？
-
-Level 3：把 x 和 2y 看作基本不等式中的两个正项。
-
-Level 4：(x+2y)/2 ≥ √(2xy)。
-
-Level 5：4 ≥ 2√(2xy)，所以 xy≤2。
-```
-
-HintPolicy 应考虑：
-
-- 学生当前 claim 与失败类型；
-- 同一误区的尝试次数；
-- 当前 KnowledgePoint 掌握状态；
-- 学生是否明确请求更强提示；
-- 年级、课程模式和教师配置；
-- 是否即将跨越当前 Goal boundary；
-- 之前的提示是否已经泄露某个关系。
-
-## 12. KnowledgePoint 与掌握证据
-
-KnowledgePoint 独立建模，作为数学语义和教学语义的事实源。它不等同于 Method，但与 Capability、Method、Recipe、Explanation 和 Visual 建立显式关联。
-
-每个 KnowledgePoint 应支持三种 projection：
-
-### Solver projection
-
-- 适用前提；
-- 目标类型；
-- 可识别结构；
-- 禁用条件；
-- 关联公开 Capability。
-
-### Lesson projection
-
-- 公式与推导依据；
-- 关键观察；
-- 等号条件；
-- 常见错误；
-- 视觉角色和推荐组件。
-
-### Tutor projection
-
-- 诊断问题；
-- hint ladder；
-- 反例；
-- 苏格拉底式追问；
-- 掌握判据；
-- 迁移问题。
-
-### 掌握维度
-
-同一知识点分别记录：
-
-| 维度 | 证据示例 |
-| --- | --- |
-| 识别 | 主动发现题目中可以使用该知识点的结构 |
-| 前提 | 主动检查定义域、正数、非零或实体关系 |
-| 映射 | 正确把公式角色对应到本题对象 |
-| 执行 | 独立完成变形和计算 |
-| 解释 | 能说明为什么该方法成立 |
-| 等号 | 能写出并联立等号条件 |
-| 纠错 | 能根据反馈修正自己的错误 |
-| 迁移 | 在不同表面结构的新题中独立使用 |
-
-掌握状态不是一次作答后的布尔值，推荐使用：
+推荐的可解释阶段是：
 
 ```text
 未观察到
@@ -431,270 +338,370 @@ KnowledgePoint 独立建模，作为数学语义和教学语义的事实源。�
 → 能迁移
 ```
 
-系统必须保存证据来源、题目难度、提示强度和时间。接受 Level 5 提示后做对，不能记为“独立掌握”。
+每条更新必须保留题目难度、状态节点、提示等级、学生独立程度、验证结果和时间。学生在完整提示后答对，不能记录为独立掌握。
 
-## 13. 从学生解题图生成可视化页面
+## 7. 题目图与学生图的差分
 
-学生完成或暂时结束题目后，可以从 verified StudentAttemptGraph 生成个人解题页：
+### 7.1 不是简单的会与不会相减
 
-```text
-verified student nodes
-→ pedagogical grouping
-→ ExplanationSnapshot projection
-→ LessonIR / VisualStepIR
-→ personalized lesson page
-```
-
-页面应区分：
-
-- 学生独立完成的步骤；
-- 在提示后完成的步骤；
-- 系统提供的补充解释；
-- 学生尝试但被验证为错误的分支；
-- 与学生路线等价的更简洁方法；
-- 尚未掌握、建议复习的 KnowledgePoint。
-
-默认主线只展示学生最终认可且通过验证的解法。错误分支可以在“我的尝试”中回顾，但不能混入正式证明。
-
-可视化不由 Tutor LLM 自由编写前端代码，而应由 KnowledgePoint/Method/Recipe 的稳定角色和 verified execution evidence 确定性生成。
-
-## 14. 完题后的反思与迁移
-
-Goal verified 后不立即结束会话。系统应进入 consolidation：
-
-1. 让学生说明本题的关键观察；
-2. 区分具体操作与可迁移方法；
-3. 回顾等号、定义域和方向；
-4. 比较学生路线与其他合法路线；
-5. 给出一个表面不同、结构相同的迁移问题；
-6. 根据迁移表现更新掌握证据。
-
-例如基本不等式题可以追问：
+设当前题目路径需要的知识节点集合为 `R`，学生知识图谱为 `K`。教学差分可以表示为：
 
 ```text
-为什么先展开分子？
-展开后出现了题设中的哪个结构？
-为什么需要让 xy 最大？
-公式中的两个正项分别是谁？
-如果 x+2y=4 改成 x+3y=6，你会怎样处理？
+Gap(problem, student)
+= 当前路径需要、但学生掌握度或证据置信度不足的节点
++ 这些节点尚未掌握的必要前置节点
 ```
 
-## 15. 回答类型
+差分结果不能只输出“缺少哪些知识点”，还要生成教学参数：
+
+- 从哪个状态进入；
+- 哪些状态可以略过；
+- 哪些观察必须展开；
+- 默认从第几级提示开始；
+- 优先使用公式、图形还是语言说明；
+- 哪些误区需要主动检查；
+- 完题后需要哪一道迁移题确认掌握。
+
+### 7.2 同一道题的不同讲解
+
+题目路径需要：
 
 ```text
-clarify_interpretation
-acknowledge_progress
-concept_explanation
-observation_question
-step_hint
-error_diagnosis
-counterexample
-method_comparison
-equality_check
-evidence_reference
-interaction_guidance
-reflection_prompt
-transfer_question
-cannot_verify
-cannot_answer
+识别对称结构
+→ 用和与积换元
+→ 应用基本不等式消元
+→ 验证取等
 ```
 
-回答类型决定：
+三名学生可以得到不同的路径投影：
 
-- 允许读取哪些事实；
-- 最大 reveal level；
-- 是否需要运行数学验证；
-- 是否产生 UI action；
-- 是否产生 mastery evidence。
+| 学生状态 | 本次路径 |
+| --- | --- |
+| 不会识别对称 | 从交换变量开始，完整展示结构识别 |
+| 已会识别但不会和积换元 | 略过交换演示，从 `s=x+y, p=xy` 的映射开始 |
+| 能独立求界但常漏等号 | 前两段压缩，只展开边界与取等验证 |
 
-## 16. 会话状态
+题目的数学主路径没有改变，改变的是学生进入路径的位置和每个状态的展开程度。
 
-会话至少保存：
+### 7.3 差分计算的更新时机
 
-- stable session id；
-- problem/lesson/knowledge revision；
-- 当前 Goal 与 reveal boundary；
-- StudentAttemptGraph 引用；
-- 当前 verified frontier；
-- 开放的 domain/equality obligations；
-- 消息摘要；
-- 已使用 hint level；
-- 误区与修正历史；
-- 与本题相关的 mastery evidence；
-- 显式用户偏好与教师策略。
+- 开始一道新题时；
+- 学生在关键诊断状态产生新证据时；
+- 学生明确要求更详细或更简洁时；
+- 长时间间隔后重新学习同一知识点时；
+- 课程或知识图谱版本发生变化时。
 
-完整原始消息可按隐私政策短期保存，但运行时 Context 应优先使用结构化状态与有界摘要，不能无限增长 prompt。
+同一题内不应在每句话后完全重规划路径，只更新受当前证据影响的局部教学参数，避免讲解来回跳动。
 
-## 17. API
+## 8. 数学事实与教学内容的权威来源
+
+系统需要明确分离四类权威：
+
+| 权威 | 决定什么 |
+| --- | --- |
+| ProblemIR / Facts / Goals | 题面事实、条件和目标 |
+| Method / Capability Runtime | 数学变形与结论是否正确 |
+| TeachingStateGraph | 当前应该讲什么、允许展示什么 |
+| StudentKnowledgeGraph | 对这个学生应该展开到什么程度 |
+
+LLM 输出不是权威。模型解析的学生事件必须经过 schema、实体绑定、当前状态许可和必要的数学验证，才能参与状态转移或写入长期证据。
+
+## 9. 数学验证与任务账本
+
+状态图预先知道推荐路径，但学生输入中的具体公式仍然需要验证。系统可以：
+
+- 验算学生提交的等式、不等式和数值；
+- 检查当前步骤所需的正数、非零和定义域条件；
+- 检查多次放缩的等号条件能否同时成立；
+- 将错误定位到第一个失效的局部操作；
+- 判断学生提出的表达是否与当前状态目标等价。
+
+每次开方、除法、取倒数、平方、放缩或参数分支都可能产生未完成任务：
+
+- 定义域条件；
+- 正负条件；
+- 非零条件；
+- 放缩方向；
+- 等号条件；
+- 边界可达性。
+
+这些任务进入状态机的 obligation ledger。例如学生已经证明下界，但尚未验证等号能否取得时，系统只能进入“界已得到、极值未完成”状态。
+
+## 10. 学生行为、诊断与学习证据
+
+学生每次行为至少分为：
+
+| 类型 | 状态机处理 |
+| --- | --- |
+| `expected_correct` | 进入主路径下一状态并生成正向证据 |
+| `correct_incomplete` | 保留当前状态，追问缺失参数或任务 |
+| `known_misconception` | 进入该状态预设的误区修复分支 |
+| `calculation_error` | 定位局部错误，进入计算纠错状态 |
+| `missing_precondition` | 进入前提检查状态 |
+| `alternative_authored_route` | 切换到已设计的替代路径 |
+| `valid_but_unmodeled_route` | 认可其可能性，记录待扩展案例；不让 LLM 临场编写主讲解 |
+| `irrelevant` | 说明与当前问题的距离，回到当前状态目标 |
+| `ambiguous` | 进入澄清状态，不执行数学动作 |
+
+错误行为不能被删除，但它只作为学习证据和误区记录，不能进入正式证明链。
+
+## 11. 状态内提示设计
+
+提示仍然分级，但每一级由当前教学状态预先绑定：
+
+1. **确认当前进度**：指出学生已经完成的部分；
+2. **观察性问题**：让学生注意本状态的目标对象；
+3. **方法性提示**：点出相关方法或结构；
+4. **关系槽位**：展示允许学生填入的公式或视觉槽位；
+5. **当前步骤讲解**：完整展示当前状态的推导；
+6. **后续路径**：仅在学生明确请求且策略允许时逐状态展开。
+
+“提示等级”只控制同一个状态内揭示多少，不赋予 LLM 跨越未来状态的权力。
+
+系统选择提示等级时考虑：
+
+- 本状态已经尝试的次数；
+- 对应知识节点的掌握度和证据置信度；
+- 学生是否明确要求更强提示；
+- 教师设置和课程模式；
+- 当前状态已经展示过哪些内容。
+
+## 12. 会话状态与长期记忆的边界
+
+会话状态负责“这道题现在讲到哪里”，至少包含：
+
+- problem、lesson、teaching graph revision；
+- 当前 state id 与已访问状态；
+- 本题个性化路径参数；
+- 最近的结构化学生事件；
+- 当前提示等级；
+- 未完成任务账本；
+- 本题新产生但尚未汇总的学习证据；
+- 显式偏好，例如“先不要给答案”。
+
+学生知识图谱负责“这个学生长期会什么”，不保存无界聊天历史。会话结束后，只把经过验证、带来源和置信度的证据汇总进长期图谱。
+
+## 13. 页面与交互组件
+
+页面不是由 Tutor LLM 自由生成，而由当前教学状态引用稳定组件：
+
+- 题面对象高亮；
+- 公式槽位；
+- 变量交换；
+- 配齐次式；
+- 换元与同步改写；
+- 条件消元；
+- 多次取等关系；
+- 定义域与等号任务；
+- 方法归纳与迁移。
+
+状态机可以控制组件中的参数、显隐、焦点和动画 beat。客户端只执行白名单 UI action：
+
+- 跳到当前步骤；
+- 高亮指定条件或目标；
+- 展示当前状态允许的公式；
+- 播放局部变化；
+- 打开定义域或等号任务；
+- 在已设计路径之间切换。
+
+模型不能生成或执行任意前端代码。
+
+## 14. 最小运行架构
+
+```mermaid
+flowchart TD
+    U["学生消息、公式、图片、UI 操作"]
+    L["LLM StudentEvent Parser"]
+    S["Schema / Binding / Confidence Validator"]
+    T["Teaching State Controller"]
+    P["Problem Teaching State Graph"]
+    G["Student Knowledge Graph"]
+    D["Knowledge Gap Projector"]
+    M["Deterministic Math Runtime"]
+    R["Authored Content / Visual Renderer"]
+    E["Evidence Recorder"]
+
+    U --> L --> S --> T
+    P --> T
+    G --> D
+    P --> D
+    D --> T
+    T --> M
+    M --> T
+    T --> R
+    R --> U
+    T --> E --> G
+```
+
+关键约束：
+
+- `Teaching State Controller` 是唯一状态转移权威；
+- `LLM StudentEvent Parser` 不持有教学循环；
+- `Knowledge Gap Projector` 只在状态图允许的范围内调整路径参数；
+- `Math Runtime` 判断数学正确性，不决定教学顺序；
+- `Renderer` 只消费已审核内容与合法参数。
+
+## 15. API 与数据对象
 
 最小接口：
 
 ```text
 POST /tutor/sessions
 GET  /tutor/sessions/{id}
-POST /tutor/sessions/{id}/messages
-POST /tutor/sessions/{id}/actions
-GET  /tutor/sessions/{id}/attempt-graph
-GET  /tutor/sessions/{id}/mastery-evidence
-POST /tutor/sessions/{id}/feedback
+POST /tutor/sessions/{id}/events
+GET  /tutor/sessions/{id}/state
+GET  /tutor/sessions/{id}/obligations
+GET  /students/{id}/knowledge-graph
+GET  /students/{id}/mastery-evidence
+POST /students/{id}/evidence
 ```
 
-消息响应至少包括：
+一次事件响应至少包括：
 
-- response type；
-- 文本与结构化数学内容；
-- 对学生表达的解释摘要；
-- verification status；
-- source/evidence citations；
-- 当前 Goal 与 reveal level；
-- 可选 UI action；
-- 可选 mastery evidence delta；
-- safety/policy metadata。
+- interpreted event 与参数；
+- interpretation confidence；
+- validation status；
+- previous state 与 next state；
+- 当前状态允许的 content refs；
+- personalized presentation parameters；
+- 未完成任务变化；
+- mastery evidence delta；
+- source refs 与版本信息。
 
-当系统解释置信度不足时，响应必须是 `clarify_interpretation`，不能直接执行可能错误的学生意图。
+当解释置信度不足时，`next_state` 必须是澄清状态，不能直接执行可能错误的学生意图。
 
-## 18. UI actions
+## 16. 隐私、安全与教育边界
 
-助教可建议受限动作：
+- 只保存完成教学所需的数据；
+- 原始个人信息与结构化学习证据分开存储；
+- 不把模型推断直接写成学生长期能力标签；
+- 不根据一次错误形成永久结论；
+- 掌握状态可解释、可撤销，并允许教师复核；
+- 学生、家长和教师能够看到主要证据来源；
+- 学生文本不能被解释为系统指令；
+- 不向其他学生暴露个人错误、路径或掌握状态；
+- 课程、题目、状态图和知识图谱都必须带 revision；
+- 版本不兼容时不能静默迁移旧会话。
 
-- 跳到某 lesson 或学生步骤；
-- 高亮某个题面条件或 visual role；
-- 展示两个表达式的等价变形；
-- 播放当前局部推导 beat；
-- 展开定义域或等号 obligation；
-- 对比两条已验证方法；
-- 标记并回到某个错误分支；
-- 重置局部互动；
-- 打开个人可视化解题页。
+## 17. 产品与教学质量指标
 
-客户端只执行白名单 action，不能执行模型生成的任意脚本。
+### 路径质量
 
-## 19. 隐私、安全与教学边界
+- 题目状态图覆盖率；
+- 学生输入能够映射到已设计状态的比例；
+- `valid_but_unmodeled_route` 出现率；
+- 状态转移准确率；
+- 提前泄露未来步骤的比例；
+- 在错误状态间反复跳转的比例。
 
-- 只保存完成教学服务所需的数据；
-- 日志中避免原始个人信息；
-- 学生表达、系统解释和 verified facts 分区保存；
-- 不把一个学生的尝试、误区或掌握状态暴露给其他学生；
-- 模型输出经过 schema、citation、math 和 UI-action validation；
-- 防止学生文本被当作内部 prompt 指令；
-- 对危险、不适当或无关请求提供课程内安全替代；
-- 教师可配置 reveal policy，但不能降低数学验证要求；
-- 系统不根据单次错误给学生贴永久能力标签；
-- 自动掌握判断应可解释、可撤销并允许教师复核。
+### 学习质量
 
-## 20. 质量指标
-
-产品指标不能只看“是否得到最终答案”。至少包括：
-
-### 数学质量
-
-- 学生步骤解释准确率；
-- verification precision/recall；
-- typed evidence coverage；
-- 错误定位到首个失效步骤的比例；
-- 等号与定义域遗漏率；
-- 错误步骤被误判为正确的比例。
-
-### 教学质量
-
-- hint appropriateness；
-- 过早泄露答案比例；
-- 学生在下一轮自行修正的成功率；
-- 平均提示强度；
-- 正确但非首选方法被错误否定的比例；
-- 完题后方法复述成功率；
-- 近迁移与远迁移成功率。
+- 学生在下一次尝试中自行修正的比例；
+- 独立识别与独立应用的增长；
+- 等号、定义域和前提遗漏率；
+- 近迁移与远迁移成功率；
+- 同类题所需提示等级的下降；
+- 知识图谱预测与真实表现的一致性。
 
 ### 产品质量
 
-- 有效对话轮数；
-- 学生主动表达数学思路的比例；
-- 中途放弃率；
-- 个人解题页回看率；
-- 延迟与 token 成本；
-- 教师复核修改率；
-- 学生对系统解释的纠正率。
+- 学生有效表达数学思路的比例；
+- 完题率与中途放弃率；
+- 个性化路径相对统一路径的学习收益；
+- 家长和教师对诊断解释的认可度；
+- 延迟、模型成本和确定性组件命中率。
 
-## 21. 测试门禁
+产品不能只以最终答案正确率评价。真正重要的是：系统是否找到了学生的具体认知位置，并通过适量讲解让他完成下一步。
 
-### 解析与绑定
+## 18. 测试门禁
 
-- 同一学生表达的唯一解释；
-- 多解释时必须澄清；
-- 公式、自然语言与手写输入的一致 claim；
-- 同名实体 role binding；
-- sibling scope 不可见事实不泄漏；
-- 不使用 expected answer 反推学生意图。
+### 状态图
 
-### 数学验证
+- 每道题存在完整主路径；
+- 所有状态可达且存在终止条件；
+- 转移条件互斥或具有明确优先级；
+- 每个提示都受当前 state 和 reveal boundary 限制；
+- 每个数学结论引用可验证事实；
+- 替代路径不能绕过定义域和等号任务。
 
-- 正确步骤通过并生成 evidence；
-- 局部错误定位到首个失效变换；
-- 缺少正数、非零和定义域条件；
-- 倒数与负数乘除方向；
-- 多次不等式等号冲突；
-- 下界已证但等号未闭合时不得完题；
-- failed attempt 无 canonical state write。
+### LLM 解析
 
-### 教学策略
+- 同一表达的稳定事件类型；
+- 多解释时必须进入澄清状态；
+- 不根据 expected answer 反推学生意图；
+- 不创造不存在的实体或状态；
+- prompt injection 不改变控制器规则；
+- 解析失败不能触发状态前进。
 
-- 当前与未来 Goal reveal boundary；
-- 多轮 hint progression；
-- 正确但绕远路线的认可；
-- 学生明确请求完整解答；
-- 同一误区的递进反馈；
-- 无证据时 `cannot_verify`；
-- 完题后的反思与迁移。
+### 个性化与长期记忆
 
-### 状态、页面与安全
+- 相同学生状态得到稳定的路径参数；
+- 掌握证据与提示等级一致；
+- 没有验证的自然语言不能更新图谱；
+- 旧证据随时间和新证据合理衰减或增强；
+- 知识差分包含必要前置闭包；
+- 不同学生不会读到彼此的图谱。
 
-- session/problem/lesson/knowledge revision；
-- StudentAttemptGraph 分支、撤回与恢复；
-- mastery evidence 与 hint level 一致；
-- 页面只消费 verified student nodes；
-- citation 指向有效 source；
-- UI action 白名单；
-- prompt injection；
-- 移动端上下文切换。
+### 数学与页面
 
-## 22. 分阶段落地
+- 错误定位到首个失效步骤；
+- 下界已证但取等未闭合时不能完题；
+- 页面只展示当前状态允许的组件和内容；
+- UI action 全部来自白名单；
+- 桌面端和移动端保持相同的教学语义。
 
-### Phase 1：已发布课程上的受控 Tutor
+## 19. 分阶段落地
 
-- 复用 Problem、Lesson、Explanation 和 Visual facts；
-- 支持概念解释、逐级提示和局部 deterministic evaluator；
-- 建立 reveal boundary、source citation 和基础会话状态。
+### Phase 1：题目教学状态图
 
-### Phase 2：学生步骤验证
+- 为已发布题目定义主路径、状态、转移和提示；
+- 将现有讲解与可视化组件绑定到状态；
+- 建立确定性控制器与会话状态；
+- LLM 只输出结构化 StudentEvent。
 
-- 引入 StudentAction、StudentClaim 与 StudentAttemptGraph；
-- 允许学生提交自然语言和公式步骤；
-- 复用 Capability/Method 在隔离 branch 中验算；
-- 上线 pedagogical diagnostic 与最小充分提示。
+### Phase 2：学习证据
 
-### Phase 3：学生路线驱动页面
+- 在状态转移中记录识别、映射、执行、解释和取等证据；
+- 建立题内未完成任务账本；
+- 支持常见误区分支和局部纠错；
+- 上线教师可复核的证据视图。
 
-- 从 verified StudentAttemptGraph 生成个人 Explanation/Lesson/Visual；
-- 支持合法多方法、错误分支回顾和方法比较；
-- 页面标记独立完成与提示后完成的步骤。
+### Phase 3：学生知识图谱
 
-### Phase 4：掌握与迁移
+- 建设知识点、方法、操作、误区和前置关系；
+- 汇总跨题目、跨会话的长期证据；
+- 建立掌握置信度与时间更新模型；
+- 只以验证证据更新长期记忆。
 
-- 建立 KnowledgePoint 多维 mastery evidence；
-- 完题后自动生成反思与迁移任务；
-- 支持教师复核、班级视图和长期学习路径。
+### Phase 4：知识差分与个性化路径
 
-## 23. Context 与现有系统集成
+- 为题目状态图标注所需知识子图；
+- 计算题目图与学生图的差分；
+- 自动决定进入状态、展开程度和初始提示等级；
+- 用迁移题验证个性化讲解是否真正形成掌握。
 
-- `StudentTutorContext` 是 Problem/Lesson/Knowledge/Execution 的受限 projection，不复制完整 Planner Context。
-- 学生尝试使用独立 attempt branch，不改变 canonical PlannerStateContext。
-- 具名数学对象继续使用 canonical Entity/Fact identity；学生输入不创造新的权威题面事实。
-- 数学验证复用 Function/Macro/Method typed contract；教学层不根据 trace 文本猜结论。
-- `FunctionalDiagnosticAuthority` 可作为原始错误证据，但必须经过 `PedagogicalDiagnosticProjector` 才能面向学生。
-- Explanation 和 Visual 只消费 verified、student-reachable attempt nodes 与稳定 KnowledgePoint 角色。
-- Mastery evidence 引用 attempt/evidence/knowledge revision，不能只保存模型生成的自然语言评价。
+## 20. 产品表达
 
-## 24. 相关文档
+技术结构可以概括为：
+
+```text
+题目教学状态图
++ 学生长期知识图谱
++ 受约束的语言理解
+= 每个学生自己的讲解路径
+```
+
+面向用户的核心表达是：
+
+> **每个孩子，都不止于现在的成绩。**
+
+> **让每个学生的成绩，配得上他的能力。**
+
+产品承诺不是“AI 什么题都会讲”，而是：
+
+> **我们知道这道题应该怎样一步步讲，也知道这个孩子应该从哪一步开始。**
+
+## 21. 相关文档
 
 - `docs/method-solver-architecture.md`
 - `docs/functional-method-dsl-authoring-guide.md`
