@@ -9416,7 +9416,7 @@
               },
               "lesson": {
                 "id": "inequality-basic-q13",
-                "title": "整理目标表达式后直接定积求和",
+                "title": "整理目标代数式后直接定积求和",
                 "problem": {
                   "lines": [
                     {
@@ -9665,7 +9665,7 @@
               "display": "featured",
               "hints": [
                 "直接展开也能化为 1+2/(xy)，再由定和求积与取倒数传界求解，只是步骤稍多。",
-                "局部配齐时先通分，再由 x+y=1 补齐两个分子中的常数 1；展开后直接圈出 2x/y、2y/x。"
+                "局部配齐时先圈出负一次项，用 x+y=1 分别乘入配成零次，零次常数不动；展开后直接圈出 2x/y、2y/x。"
               ],
               "answerSchema": {
                 "type": "exact-expression",

@@ -814,29 +814,46 @@ test("second basic inequality exercise reuses observe / apply / equality steps f
   }
 });
 
-test("third basic inequality exercise separates structure observation, AM-GM, and equality checking", () => {
+test("third basic inequality exercise separates observation, homogenization, AM-GM, and equality checking", () => {
   const lesson = readLesson("inequality-basic-q03");
   assert.equal(lesson.problem.keyPoints.lead, "");
   assert.deepEqual(
     lesson.steps.map((step) => [step.id, step.title]),
     [
       ["s1", "观察结构"],
-      ["s2", "应用基本不等式"],
-      ["s3", "验证取等"],
+      ["s2", "配齐次式"],
+      ["s3", "应用基本不等式"],
+      ["s4", "验证取等"],
     ],
   );
 
-  const visual = lesson.steps[0].visual;
+  const observation = lesson.steps[0].visual;
   assert.equal(lesson.steps[0].section, "配齐次式");
-  assert.equal(visual.kind, "basic-inequality-structure-scan");
-  assert.match(visual.condition.expression, /\\frac\{1\}\{x\}\+\\frac\{1\}\{y\}=1/);
-  assert.match(visual.target.expression, /x\+4y/);
-  assert.match(visual.organization.steps.join(""), /x\+4y.*\\frac\{1\}\{x\}.*5\+\\frac\{x\}\{y\}\+\\frac\{4y\}\{x\}/);
-  assert.equal(visual.pattern.condition.tag, "定积 4");
-  assert.equal(visual.pattern.target.tag, "求最小值");
-  assert.equal(visual.reading, "定积求和");
+  assert.equal(observation.kind, "basic-inequality-structure-scan");
+  assert.match(observation.condition.expression, /\\frac\{1\}\{x\}\+\\frac\{1\}\{y\}=1/);
+  assert.match(observation.target.expression, /x\+4y/);
+  assert.equal(observation.reading, "次数配成 0");
+  assert.equal(observation.route, "配齐次式");
+  const homogenizationHint = observation.organization.homogenizationHint;
+  assert.deepEqual(
+    [homogenizationHint.originalDegree, homogenizationHint.conditionDegree, homogenizationHint.resultDegree],
+    ["+1", "−1", "0"],
+  );
+  assert.match(homogenizationHint.result, /5\+\\frac\{x\}\{y\}\+\\frac\{4y\}\{x\}/);
+  assert.equal(homogenizationHint.balance, "\\((+1)+(-1)=0\\)");
 
-  const mapping = lesson.steps[1].visual;
+  const construction = lesson.steps[1].visual;
+  assert.equal(construction.kind, "basic-inequality-structure-scan");
+  assert.equal(construction.showFocus, false);
+  assert.equal(construction.organization.label, "配齐次式：乘入条件并展开");
+  assert.match(construction.organization.steps.join(""), /x\+4y.*\\frac\{1\}\{x\}.*5\+\\frac\{x\}\{y\}\+\\frac\{4y\}\{x\}/);
+  assert.deepEqual(
+    [construction.pattern.first, construction.pattern.second].map((item) => [item.shape, item.value]),
+    [["square", "\\(\\frac{x}{y}\\)"], ["circle", "\\(\\frac{4y}{x}\\)"]],
+  );
+  assert.equal(construction.pattern.condition.tag, "定积 4");
+
+  const mapping = lesson.steps[2].visual;
   assert.equal(mapping.kind, "basic-inequality-mapping");
   assert.equal(mapping.methodTag, "配齐次式｜定积求和");
   assert.deepEqual(
@@ -846,7 +863,7 @@ test("third basic inequality exercise separates structure observation, AM-GM, an
   assert.match(mapping.fixedCondition, /=4/);
   assert.match(mapping.conclusion, /x\+4y\\ge9/);
 
-  const equality = lesson.steps[2].visual;
+  const equality = lesson.steps[3].visual;
   assert.equal(equality.kind, "basic-inequality-equality-check");
   assert.match(equality.solved, /x=3/);
   assert.match(equality.verification, /x\+4y=9/);
@@ -855,88 +872,242 @@ test("third basic inequality exercise separates structure observation, AM-GM, an
     path.join(repoRoot, "site/assets/js/lesson-page-runtime.js"),
     "utf8",
   );
-  assert.match(runtime, /lesson-step-basic-structure-scan/);
+  assert.match(runtime, /basic-structure-homogenization-hint/);
+  assert.match(runtime, /homogeneous-slot-equation/);
   assert.match(runtime, /lesson-step-basic-inequality-map/);
   assert.match(runtime, /lesson-step-basic-equality-check/);
 });
 
 test("fourth basic inequality exercise constructs a fixed product from the fixed sum", () => {
   const lesson = readLesson("inequality-basic-q04");
-  const visual = lesson.steps[0].visual;
-  assert.equal(lesson.steps[0].section, "配齐次式");
-  assert.equal(visual.methodTag, "配齐次式｜负一次 × 正一次");
-  assert.match(lesson.problem.keyPoints.lead, /负一次式.*正一次式.*0 次齐次式/);
-  assert.equal(visual.kind, "fixed-product-construction-flow");
-  assert.equal(visual.variant, "homogeneous-reduction");
-  assert.match(visual.initialCheck.product, /12.*ab/);
-  assert.equal(visual.clue.condition, "\\(a+3b=2\\)");
+  assert.equal(lesson.problem.keyPoints.lead, "");
   assert.deepEqual(
-    [visual.degreeBalance.target.degree, visual.degreeBalance.condition.degree, visual.degreeBalance.result.degree],
+    lesson.steps.map((step) => [step.id, step.title]),
+    [
+      ["s1", "观察结构"],
+      ["s2", "配齐次式"],
+      ["s3", "应用基本不等式"],
+      ["s4", "验证取等"],
+    ],
+  );
+
+  const observation = lesson.steps[0].visual;
+  assert.equal(lesson.steps[0].section, "配齐次式");
+  assert.equal(observation.kind, "basic-inequality-structure-scan");
+  assert.equal(observation.condition.tag, "正一次");
+  assert.equal(observation.target.tag, "负一次");
+  const homogenizationHint = observation.organization.homogenizationHint;
+  assert.deepEqual(
+    [homogenizationHint.originalDegree, homogenizationHint.conditionDegree, homogenizationHint.resultDegree],
     ["−1", "+1", "0"],
   );
-  assert.equal(visual.construction.kind, "homogeneous");
-  assert.equal(visual.construction.cells, undefined);
-  assert.doesNotMatch(visual.construction.identity, /2E/);
-  assert.match(visual.construction.identity, /=2\(/);
-  assert.match(visual.construction.expanded, /=15\+/);
-  assert.match(visual.fixedPair.product, /=36/);
+  assert.match(homogenizationHint.result, /15\+\\frac\{9b\}\{a\}\+\\frac\{4a\}\{b\}/);
+
+  const construction = lesson.steps[1].visual;
+  assert.equal(construction.kind, "basic-inequality-structure-scan");
+  assert.equal(construction.showFocus, false);
+  assert.match(construction.organization.steps.join(""), /2.*\\frac\{3\}\{a\}.*a\+3b.*15/);
+  assert.equal(construction.pattern.condition.tag, "定积 36");
+
+  const application = lesson.steps[2].visual;
+  assert.equal(application.kind, "basic-inequality-mapping");
   assert.deepEqual(
-    visual.application.mappings.map((mapping) => [mapping.shape, mapping.value]),
+    application.mappings.map((mapping) => [mapping.shape, mapping.value]),
     [["square", "\\(\\frac{9b}{a}\\)"], ["circle", "\\(\\frac{4a}{b}\\)"]],
   );
-  assert.match(visual.application.conclusion, /27.*2/);
-  assert.match(visual.equality.result, /a=\\frac\{2\}\{3\}/);
+  assert.match(application.fixedCondition, /=36/);
+  assert.match(application.conclusion, /27.*2/);
+
+  const equality = lesson.steps[3].visual;
+  assert.equal(equality.kind, "basic-inequality-equality-check");
+  assert.match(equality.solved, /a=\\frac\{2\}\{3\}/);
+  assert.match(equality.verification, /27.*2/);
 });
 
-test("new homogeneous exercises distinguish whole-target multiplication from low-degree completion", () => {
+test("fourteenth basic inequality exercise follows the four-step homogenization lesson", () => {
   const wholeTarget = readLesson("inequality-basic-q14");
+  assert.equal(wholeTarget.problem.keyPoints.lead, "");
+  assert.deepEqual(
+    wholeTarget.steps.map((step) => [step.id, step.title]),
+    [
+      ["s1", "观察结构"],
+      ["s2", "配齐次式"],
+      ["s3", "应用基本不等式"],
+      ["s4", "验证取等"],
+    ],
+  );
+
   const wholeVisual = wholeTarget.steps[0].visual;
   assert.equal(wholeTarget.steps[0].section, "配齐次式");
-  assert.equal(wholeVisual.variant, "homogeneous-reduction");
+  assert.equal(wholeVisual.kind, "basic-inequality-structure-scan");
+  assert.equal(wholeVisual.condition.tag, "正一次");
+  assert.equal(wholeVisual.target.tag, "负一次");
+  assert.equal(wholeVisual.reading, "次数配成 0");
+  assert.equal(wholeVisual.route, "配齐次式");
+  const homogenizationHint = wholeVisual.organization.homogenizationHint;
   assert.deepEqual(
-    [wholeVisual.degreeBalance.target.degree, wholeVisual.degreeBalance.condition.degree, wholeVisual.degreeBalance.result.degree],
+    [homogenizationHint.originalDegree, homogenizationHint.conditionDegree, homogenizationHint.resultDegree],
     ["−1", "+1", "0"],
   );
-  assert.match(wholeVisual.initialCheck.product, /2.*ab/);
-  assert.match(wholeVisual.construction.identity, /a\+b/);
+  assert.equal(homogenizationHint.balance, "\\((-1)+(+1)=0\\)");
+  assert.match(homogenizationHint.result, /3\+\\frac\{a\}\{b\}\+\\frac\{2b\}\{a\}/);
+
+  const construction = wholeTarget.steps[1].visual;
+  assert.equal(construction.kind, "basic-inequality-structure-scan");
+  assert.equal(construction.showFocus, false);
+  assert.equal(construction.organization.label, "配齐次式：乘入条件并展开");
+  assert.match(construction.organization.steps.join(""), /a\+b.*3\+\\frac\{a\}\{b\}\+\\frac\{2b\}\{a\}/);
   assert.deepEqual(
-    wholeVisual.construction.positiveTerms.map((item) => [item.shape, item.value]),
+    [construction.pattern.first, construction.pattern.second].map((item) => [item.shape, item.value]),
     [["square", "\\(\\frac{a}{b}\\)"], ["circle", "\\(\\frac{2b}{a}\\)"]],
   );
-  assert.match(wholeVisual.application.conclusion, /3\+2\\sqrt2/);
-  assert.match(wholeVisual.equality.result, /2-\\sqrt2/);
+  assert.equal(construction.pattern.condition.tag, "定积 2");
 
+  const application = wholeTarget.steps[2].visual;
+  assert.equal(application.kind, "basic-inequality-mapping");
+  assert.equal(application.methodTag, "配齐次式｜定积求和");
+  assert.deepEqual(
+    application.mappings.map((item) => [item.shape, item.value]),
+    [["square", "\\(\\frac{a}{b}\\)"], ["circle", "\\(\\frac{2b}{a}\\)"]],
+  );
+  assert.match(application.fixedCondition, /=2/);
+  assert.match(application.conclusion, /3\+2\\sqrt2/);
+
+  const equality = wholeTarget.steps[3].visual;
+  assert.equal(equality.kind, "basic-inequality-equality-check");
+  assert.match(equality.solved, /2-\\sqrt2/);
+  assert.match(equality.verification, /3\+2\\sqrt2/);
+});
+
+test("later homogeneous exercises distinguish whole-target multiplication from low-degree completion", () => {
   const completedTerm = readLesson("inequality-basic-q15");
+  assert.deepEqual(
+    completedTerm.steps.map((step) => [step.id, step.title]),
+    [
+      ["s1", "观察结构"],
+      ["s2", "局部配齐次式"],
+      ["s3", "应用基本不等式"],
+      ["s4", "验证取等"],
+    ],
+  );
   const completedVisual = completedTerm.steps[0].visual;
   assert.equal(completedTerm.steps[0].section, "配齐次式");
-  assert.equal(completedVisual.variant, "homogeneous-reduction");
-  assert.deepEqual(completedVisual.degreeBalance.connectors, ["→", "→"]);
-  assert.equal(completedVisual.degreeBalance.target.degreeText, "二次项 ＋ 一次项");
-  assert.match(completedVisual.construction.identity, /2b=b\(a\+b\)=ab\+b\^2/);
-  assert.match(completedVisual.construction.identityNote, /不是把整个目标乘条件/);
-  assert.match(completedVisual.construction.expanded, /=1\+\\frac\{a\}\{b\}\+\\frac\{b\}\{a\}/);
-  assert.match(completedVisual.fixedPair.product, /=1/);
-  assert.match(completedVisual.application.conclusion, /3/);
-  assert.match(completedVisual.equality.result, /a=b=1/);
+  assert.equal(completedVisual.kind, "basic-inequality-structure-scan");
+  assert.equal(completedVisual.reading, "局部次数不齐");
+  assert.equal(completedVisual.route, "局部配齐次式");
+  assert.equal(completedVisual.organization.label, "局部配齐次：先圈待配项，再局部配齐");
+  assert.equal(completedVisual.organization.steps, undefined);
+  assert.equal(completedVisual.organization.motive, undefined);
+  assert.equal(completedVisual.organization.note, undefined);
+  const completedSpot = completedVisual.organization.termSpot;
+  assert.deepEqual(
+    completedSpot.factors[0].terms.map((term) => [term.value, term.role, term.mark]),
+    [
+      ["\\(\\frac{a^2}{ab}\\)", "keep", "0 次不动"],
+      ["\\(\\frac{2b}{ab}\\)", "spot", "−1 次待配齐"],
+    ],
+  );
+  const completedCore = completedVisual.organization.localHomogenizationHint;
+  assert.equal(completedCore.method, "局部乘入定值");
+  assert.deepEqual(
+    [completedCore.originalDegree, completedCore.conditionDegree, completedCore.resultDegree],
+    ["−1", "+1", "0"],
+  );
+  assert.equal(completedCore.original, "\\(\\frac{2}{a}\\)");
+  assert.equal(completedCore.condition, "\\(\\frac{a+b}{2}=1\\)");
+  assert.equal(completedCore.result, "\\(\\frac{a+b}{a}\\)");
+  assert.equal(completedCore.balance, "\\((-1)+(+1)=0\\)");
+  assert.equal(completedCore.scopes[0].expression, "\\(\\frac{2b}{ab}=\\frac{2}{a}\\)");
+  assert.equal(completedCore.scopeNote, "只配这一项");
+
+  const completion = completedTerm.steps[1].visual;
+  assert.equal(completion.kind, "basic-inequality-structure-scan");
+  assert.equal(completion.organization.label, "局部配齐：只配负一次项");
+  assert.match(completion.organization.steps[0].expression, /\\frac\{2\}\{a\}=\\frac\{2\}\{a\}\\cdot\\frac\{a\+b\}\{2\}/);
+  assert.match(completion.organization.steps[2].expression, /=1\+\\frac\{a\}\{b\}\+\\frac\{b\}\{a\}/);
+  assert.equal(completion.pattern.condition.tag, "定积 1");
+
+  const completedMapping = completedTerm.steps[2].visual;
+  assert.equal(completedMapping.kind, "basic-inequality-mapping");
+  assert.equal(completedMapping.methodTag, "局部配齐｜定积求和");
+  assert.equal(completedMapping.mappedProduct, "\\(1\\)");
+  assert.match(completedMapping.conclusion, /\\ge3/);
+
+  const completedEquality = completedTerm.steps[3].visual;
+  assert.equal(completedEquality.kind, "basic-inequality-equality-check");
+  assert.match(completedEquality.solved, /a=b=1/);
+  assert.doesNotMatch(JSON.stringify(completedTerm), /fixed-product-construction-flow|t=\\frac\{a\}\{b\}/);
 
   const bracketCompletion = readLesson("inequality-basic-q16");
+  assert.deepEqual(
+    bracketCompletion.steps.map((step) => [step.id, step.title]),
+    [
+      ["s1", "观察结构"],
+      ["s2", "局部配齐次式"],
+      ["s3", "应用基本不等式"],
+      ["s4", "验证取等"],
+    ],
+  );
   const bracketVisual = bracketCompletion.steps[0].visual;
   assert.equal(bracketCompletion.steps[0].section, "配齐次式");
-  assert.equal(bracketVisual.variant, "homogeneous-reduction");
-  assert.equal(bracketVisual.methodTag, "配齐次式｜局部配齐");
-  assert.equal(bracketVisual.initialCheck.status, "viable");
-  assert.equal(bracketVisual.initialCheck.label, "02 另一条可行路线");
-  assert.equal(bracketVisual.initialCheck.operator, "=");
-  assert.match(bracketVisual.initialCheck.terms.join(""), /\\frac\{1\}\{x\}\+\\frac\{1\}\{y\}\+\\frac\{1\}\{xy\}.*1\+\\frac\{2\}\{xy\}/);
-  assert.match(bracketVisual.initialCheck.product, /xy\\le\\frac\{1\}\{4\}.*\\frac\{1\}\{x\}\+1.*\\ge9/);
-  assert.match(bracketVisual.initialCheck.verdict, /直接展开.*取倒数传界/);
-  assert.equal(bracketVisual.degreeBalance.target.degree, "混合");
-  assert.equal(bracketVisual.degreeBalance.result.degree, "0");
-  assert.match(bracketVisual.construction.identity, /2x\+y.*x\+2y/);
-  assert.match(bracketVisual.construction.expanded, /5\+\\frac\{2x\}\{y\}\+\\frac\{2y\}\{x\}/);
-  assert.match(bracketVisual.fixedPair.product, /=4/);
-  assert.match(bracketVisual.application.conclusion, /9/);
-  assert.match(bracketVisual.equality.result, /\\frac\{1\}\{2\}/);
+  assert.equal(bracketVisual.kind, "basic-inequality-structure-scan");
+  assert.equal(bracketVisual.reading, "局部次数不齐");
+  assert.equal(bracketVisual.route, "局部配齐次式");
+  assert.match(bracketVisual.target.tag, /括号内次数混合/);
+  assert.equal(bracketVisual.organization.label, "局部配齐次：先圈待配项，再局部配齐");
+  assert.equal(bracketVisual.organization.steps, undefined);
+  assert.equal(bracketVisual.organization.motive, undefined);
+  assert.equal(bracketVisual.organization.homogenizationHint, undefined);
+  assert.equal(bracketVisual.organization.note, undefined);
+  const bracketSpot = bracketVisual.organization.termSpot;
+  assert.equal(bracketSpot.label, undefined);
+  assert.deepEqual(
+    bracketSpot.factors.map((factor) => factor.terms.map((term) => [term.value, term.role, term.mark])),
+    [
+      [["\\(\\frac{1}{x}\\)", "spot", "负一次待配齐"], ["\\(1\\)", "keep", "零次不动"]],
+      [["\\(\\frac{1}{y}\\)", "spot", "负一次待配齐"], ["\\(1\\)", "keep", "零次不动"]],
+    ],
+  );
+  const bracketCore = bracketVisual.organization.localHomogenizationHint;
+  assert.equal(bracketCore.method, "局部乘入定值");
+  assert.deepEqual(
+    [bracketCore.originalDegree, bracketCore.conditionDegree, bracketCore.resultDegree],
+    ["−1", "+1", "0"],
+  );
+  assert.equal(bracketCore.original, "\\(\\frac{1}{x}\\)");
+  assert.equal(bracketCore.condition, "\\(x+y=1\\)");
+  assert.equal(bracketCore.result, "\\(\\frac{x+y}{x}\\)");
+  assert.equal(bracketCore.balance, "\\((-1)+(+1)=0\\)");
+  assert.deepEqual(
+    bracketCore.scopes.map((item) => item.label),
+    ["左括号", "右括号"],
+  );
+  assert.equal(bracketCore.scopeNote, "各配一次");
+  const runtime = fs.readFileSync(path.join(repoRoot, "site/assets/js/lesson-page-runtime.js"), "utf8");
+  assert.match(runtime, /basic-structure-term-spot/);
+  assert.match(runtime, /basic-structure-local-homo-hint/);
+  assert.match(runtime, /localHomogenizationHint/);
+  assert.match(runtime, /basic-structure-homogenization-hint/);
+
+  const bracketConstruction = bracketCompletion.steps[1].visual;
+  assert.equal(bracketConstruction.kind, "basic-inequality-structure-scan");
+  assert.equal(bracketConstruction.showFocus, false);
+  assert.equal(bracketConstruction.organization.label, "局部配齐：只配负一次项，零次不动");
+  assert.match(bracketConstruction.organization.steps.join(""), /5\+\\frac\{2x\}\{y\}\+\\frac\{2y\}\{x\}/);
+  assert.match(bracketConstruction.organization.steps.join(""), /\\frac\{1\}\{x\}\\cdot\(x\+y\)/);
+  assert.equal(bracketConstruction.pattern.condition.tag, "定积 4");
+
+  const bracketMapping = bracketCompletion.steps[2].visual;
+  assert.equal(bracketMapping.kind, "basic-inequality-mapping");
+  assert.equal(bracketMapping.methodTag, "局部配齐｜定积求和");
+  assert.equal(bracketMapping.mappedProduct, "\\(4\\)");
+  assert.match(bracketMapping.conclusion, /\\ge9/);
+
+  const bracketEquality = bracketCompletion.steps[3].visual;
+  assert.equal(bracketEquality.kind, "basic-inequality-equality-check");
+  assert.match(bracketEquality.solved, /x=y=\\frac\{1\}\{2\}/);
+  assert.match(bracketEquality.verification, /=9/);
+  assert.doesNotMatch(JSON.stringify(bracketCompletion), /fixed-product-construction-flow|另一条可行路线|取倒数传界/);
 });
 
 test("seventeenth basic inequality exercise closes the symmetric range in both directions", () => {

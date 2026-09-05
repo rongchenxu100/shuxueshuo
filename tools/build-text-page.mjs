@@ -253,6 +253,9 @@ export function validateTextLesson(lesson, inputDir = "") {
       if (visual.title !== undefined && (typeof visual.title !== "string" || !visual.title.trim())) {
         throw new Error(`${meta.id} 的步骤 ${step.id}.visual.title 必须是非空字符串`);
       }
+      if (visual.showFocus !== undefined && typeof visual.showFocus !== "boolean") {
+        throw new Error(`${meta.id} 的步骤 ${step.id}.visual.showFocus 必须是布尔值`);
+      }
       for (const field of ["condition", "target"]) {
         const panel = visual[field];
         if (!panel || typeof panel !== "object" || typeof panel.expression !== "string" || !panel.expression.trim()) {
@@ -291,13 +294,25 @@ export function validateTextLesson(lesson, inputDir = "") {
         if (!organization || typeof organization !== "object") {
           throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization 必须是整理对象`);
         }
-        if (typeof organization.label !== "string" || !organization.label.trim()) {
+        if (organization.label !== undefined && (typeof organization.label !== "string" || !organization.label.trim())) {
           throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization.label 必须是非空字符串`);
         }
-        if (!Array.isArray(organization.steps) || organization.steps.length < 1) {
-          throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization.steps 必须包含至少一个有效公式`);
+        const organizationSteps = Array.isArray(organization.steps) ? organization.steps : [];
+        if (
+          !organizationSteps.length
+          && organization.homogenizationHint === undefined
+          && organization.localHomogenizationHint === undefined
+          && organization.termSpot === undefined
+          && organization.slotHint === undefined
+          && organization.expandHint === undefined
+          && organization.combineHint === undefined
+          && organization.squareHint === undefined
+          && organization.baseHint === undefined
+          && organization.alignmentHint === undefined
+        ) {
+          throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization 必须包含整理公式或规则图`);
         }
-        organization.steps.forEach((item, index) => {
+        organizationSteps.forEach((item, index) => {
           if (typeof item === "string") {
             if (!item.trim()) {
               throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization.steps[${index}] 必须是非空公式`);
@@ -395,6 +410,73 @@ export function validateTextLesson(lesson, inputDir = "") {
           if (alignmentHint.ariaLabel !== undefined && (typeof alignmentHint.ariaLabel !== "string" || !alignmentHint.ariaLabel.trim())) {
             throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization.alignmentHint.ariaLabel 必须是非空字符串`);
           }
+        }
+        if (organization.homogenizationHint !== undefined) {
+          const hint = organization.homogenizationHint;
+          const requiredFields = [
+            "originalLabel", "original", "originalDegree",
+            "conditionLabel", "condition", "conditionDegree",
+            "resultDegree", "resultLabel", "result", "balance",
+          ];
+          if (!hint || typeof hint !== "object" || requiredFields.some((field) => typeof hint[field] !== "string" || !hint[field].trim())) {
+            throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization.homogenizationHint 必须完整复用配齐次式结构图`);
+          }
+          if (hint.ariaLabel !== undefined && (typeof hint.ariaLabel !== "string" || !hint.ariaLabel.trim())) {
+            throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization.homogenizationHint.ariaLabel 必须是非空字符串`);
+          }
+        }
+        if (organization.localHomogenizationHint !== undefined) {
+          const hint = organization.localHomogenizationHint;
+          const requiredFields = [
+            "originalLabel", "original", "originalDegree",
+            "conditionLabel", "condition", "conditionDegree",
+            "resultDegree", "resultLabel", "result", "balance",
+          ];
+          if (!hint || typeof hint !== "object" || requiredFields.some((field) => typeof hint[field] !== "string" || !hint[field].trim())) {
+            throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization.localHomogenizationHint 必须完整复用配齐次式核心公式图`);
+          }
+          for (const field of ["method", "scopeNote", "ariaLabel"]) {
+            if (hint[field] !== undefined && (typeof hint[field] !== "string" || !hint[field].trim())) {
+              throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization.localHomogenizationHint.${field} 必须是非空字符串`);
+            }
+          }
+          if (hint.scopes !== undefined) {
+            if (!Array.isArray(hint.scopes) || !hint.scopes.length) {
+              throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization.localHomogenizationHint.scopes 必须是非空数组`);
+            }
+            hint.scopes.forEach((scope, index) => {
+              if (!scope || typeof scope !== "object" || typeof scope.label !== "string" || !scope.label.trim() || typeof scope.expression !== "string" || !scope.expression.trim()) {
+                throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization.localHomogenizationHint.scopes[${index}] 必须包含非空 label 与 expression`);
+              }
+            });
+          }
+        }
+        if (organization.termSpot !== undefined) {
+          const termSpot = organization.termSpot;
+          if (!termSpot || typeof termSpot !== "object" || !Array.isArray(termSpot.factors) || !termSpot.factors.length) {
+            throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization.termSpot 必须包含非空 factors`);
+          }
+          for (const field of ["label", "join", "ariaLabel"]) {
+            if (termSpot[field] !== undefined && (typeof termSpot[field] !== "string" || !termSpot[field].trim())) {
+              throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization.termSpot.${field} 必须是非空字符串`);
+            }
+          }
+          termSpot.factors.forEach((factor, factorIndex) => {
+            if (!factor || typeof factor !== "object" || !Array.isArray(factor.terms) || !factor.terms.length) {
+              throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization.termSpot.factors[${factorIndex}] 必须包含非空 terms`);
+            }
+            factor.terms.forEach((term, termIndex) => {
+              if (!term || typeof term !== "object" || typeof term.value !== "string" || !term.value.trim()) {
+                throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization.termSpot.factors[${factorIndex}].terms[${termIndex}] 必须包含非空 value`);
+              }
+              if (term.role !== undefined && !new Set(["spot", "keep", "plain"]).has(term.role)) {
+                throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization.termSpot.factors[${factorIndex}].terms[${termIndex}].role 必须是 spot、keep 或 plain`);
+              }
+              if (term.mark !== undefined && (typeof term.mark !== "string" || !term.mark.trim())) {
+                throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization.termSpot.factors[${factorIndex}].terms[${termIndex}].mark 必须是非空字符串`);
+              }
+            });
+          });
         }
       }
     }

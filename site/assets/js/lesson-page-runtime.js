@@ -1234,6 +1234,94 @@
               '<p class="basic-structure-alignment-product"><span>' + esc(alignmentHint.productLabel || "检查新定积") + '</span><strong>' + renderFormulaText(alignmentHint.product || "") + '</strong></p>' +
             '</section>'
           : '';
+        const homogenizationHint = organization.homogenizationHint || {};
+        const organizationHomogenizationHintMarkup = homogenizationHint.original && homogenizationHint.condition && homogenizationHint.result
+          ? '<section class="homogeneous-slot-template method-core basic-structure-homogenization-hint" role="img" aria-label="' + esc(homogenizationHint.ariaLabel || "把目标整式与次数相反的定值式相乘，配成零次齐次式") + '">' +
+              '<div class="homogeneous-slot-equation">' +
+                '<article class="homogeneous-degree-source is-original">' +
+                  '<div class="homogeneous-source-expression"><span>' + esc(homogenizationHint.originalLabel || "原有整式") + '</span><strong>' + renderFormulaText(homogenizationHint.original) + '</strong></div>' +
+                  '<i class="homogeneous-source-arrow" aria-hidden="true"></i>' +
+                  '<div class="homogeneous-degree-slot" aria-label="' + esc(homogenizationHint.originalDegree) + ' 次式"><sup>' + esc(homogenizationHint.originalDegree) + '</sup></div>' +
+                '</article>' +
+                '<b class="homogeneous-slot-operator is-product" aria-hidden="true">·</b>' +
+                '<article class="homogeneous-degree-source is-condition">' +
+                  '<div class="homogeneous-source-expression"><span>' + esc(homogenizationHint.conditionLabel || "乘入定值") + '</span><strong>' + renderFormulaText(homogenizationHint.condition) + '</strong></div>' +
+                  '<i class="homogeneous-source-arrow" aria-hidden="true"></i>' +
+                  '<div class="homogeneous-degree-slot" aria-label="' + esc(homogenizationHint.conditionDegree) + ' 次式"><sup>' + esc(homogenizationHint.conditionDegree) + '</sup></div>' +
+                '</article>' +
+                '<b class="homogeneous-slot-operator is-equals" aria-hidden="true">＝</b>' +
+                '<article class="homogeneous-degree-result"><div class="homogeneous-degree-slot" aria-label="' + esc(homogenizationHint.resultDegree) + ' 次式"><sup>' + esc(homogenizationHint.resultDegree) + '</sup></div></article>' +
+                '<i class="homogeneous-output-arrow" aria-hidden="true">→</i>' +
+                '<article class="homogeneous-ratio-result"><span>' + esc(homogenizationHint.resultLabel || "0 次式") + '</span><strong>' + renderFormulaText(homogenizationHint.result) + '</strong></article>' +
+                '<div class="homogeneous-general-balance">' + renderFormulaText(homogenizationHint.balance) + '</div>' +
+              '</div>' +
+            '</section>'
+          : '';
+        const localHomogenizationHint = organization.localHomogenizationHint || {};
+        const localHomoScopes = Array.isArray(localHomogenizationHint.scopes) ? localHomogenizationHint.scopes : [];
+        const organizationLocalHomogenizationHintMarkup = localHomogenizationHint.original && localHomogenizationHint.condition && localHomogenizationHint.result
+          ? '<section class="basic-structure-local-homo-hint" role="img" aria-label="' + esc(localHomogenizationHint.ariaLabel || "局部乘入定值：只对被圈项使用配齐次核心公式") + '">' +
+              '<header><strong>' + esc(localHomogenizationHint.method || "局部乘入定值") + '</strong></header>' +
+              '<div class="homogeneous-slot-template method-core basic-structure-homogenization-hint">' +
+                '<div class="homogeneous-slot-equation">' +
+                  '<article class="homogeneous-degree-source is-original">' +
+                    '<div class="homogeneous-source-expression"><span>' + esc(localHomogenizationHint.originalLabel || "圈出的项") + '</span><strong>' + renderFormulaText(localHomogenizationHint.original) + '</strong></div>' +
+                    '<i class="homogeneous-source-arrow" aria-hidden="true"></i>' +
+                    '<div class="homogeneous-degree-slot" aria-label="' + esc(localHomogenizationHint.originalDegree) + ' 次式"><sup>' + esc(localHomogenizationHint.originalDegree) + '</sup></div>' +
+                  '</article>' +
+                  '<b class="homogeneous-slot-operator is-product" aria-hidden="true">·</b>' +
+                  '<article class="homogeneous-degree-source is-condition">' +
+                    '<div class="homogeneous-source-expression"><span>' + esc(localHomogenizationHint.conditionLabel || "乘入定值") + '</span><strong>' + renderFormulaText(localHomogenizationHint.condition) + '</strong></div>' +
+                    '<i class="homogeneous-source-arrow" aria-hidden="true"></i>' +
+                    '<div class="homogeneous-degree-slot" aria-label="' + esc(localHomogenizationHint.conditionDegree) + ' 次式"><sup>' + esc(localHomogenizationHint.conditionDegree) + '</sup></div>' +
+                  '</article>' +
+                  '<b class="homogeneous-slot-operator is-equals" aria-hidden="true">＝</b>' +
+                  '<article class="homogeneous-degree-result"><div class="homogeneous-degree-slot" aria-label="' + esc(localHomogenizationHint.resultDegree) + ' 次式"><sup>' + esc(localHomogenizationHint.resultDegree) + '</sup></div></article>' +
+                  '<i class="homogeneous-output-arrow" aria-hidden="true">→</i>' +
+                  '<article class="homogeneous-ratio-result"><span>' + esc(localHomogenizationHint.resultLabel || "0 次式") + '</span><strong>' + renderFormulaText(localHomogenizationHint.result) + '</strong></article>' +
+                  '<div class="homogeneous-general-balance">' + renderFormulaText(localHomogenizationHint.balance) + '</div>' +
+                '</div>' +
+              '</div>' +
+              (localHomoScopes.length
+                ? '<div class="basic-structure-local-homo-scopes">' +
+                    localHomoScopes.map(function (scope, index) {
+                      return (index ? '<b aria-hidden="true">·</b>' : '') +
+                        '<article><small>' + esc(scope.label || "") + '</small><strong>' + renderFormulaText(scope.expression || "") + '</strong></article>';
+                    }).join("") +
+                    (localHomogenizationHint.scopeNote ? '<em>' + esc(localHomogenizationHint.scopeNote) + '</em>' : '') +
+                  '</div>'
+                : '') +
+            '</section>'
+          : '';
+        const termSpot = organization.termSpot || {};
+        const termSpotFactors = Array.isArray(termSpot.factors) ? termSpot.factors : [];
+        const renderTermSpotTerm = function (term) {
+          const role = term?.role === "spot" ? "spot" : (term?.role === "keep" ? "keep" : "plain");
+          return '<span class="basic-structure-term-spot-term is-' + role + '">' +
+            '<strong>' + renderFormulaText(term?.value || "") + '</strong>' +
+            (term?.mark ? '<em>' + esc(term.mark) + '</em>' : '') +
+          '</span>';
+        };
+        const organizationTermSpotMarkup = termSpotFactors.length
+          ? '<section class="basic-structure-term-spot" role="img" aria-label="' + esc(termSpot.ariaLabel || "在目标整式中圈出次数不齐的项") + '">' +
+              (termSpot.label ? '<span>' + esc(termSpot.label) + '</span>' : '') +
+              '<div class="basic-structure-term-spot-formula">' +
+                termSpotFactors.map(function (factor, index) {
+                  const terms = Array.isArray(factor?.terms) ? factor.terms : [];
+                  return (index
+                    ? '<b class="basic-structure-term-spot-join" aria-hidden="true">' + esc(termSpot.join || "·") + '</b>'
+                    : '') +
+                    '<article class="basic-structure-term-spot-factor">' +
+                      '<i aria-hidden="true">(</i>' +
+                      terms.map(function (term, termIndex) {
+                        return (termIndex ? '<b aria-hidden="true">＋</b>' : '') + renderTermSpotTerm(term);
+                      }).join("") +
+                      '<i aria-hidden="true">)</i>' +
+                    '</article>';
+                }).join("") +
+              '</div>' +
+            '</section>'
+          : '';
         const organizationStepMarkup = organizationSteps.map(function (item, index) {
           const stepItem = typeof item === "string" ? { expression: item } : (item || {});
           const expression = stepItem.expression || "";
@@ -1250,10 +1338,26 @@
                 : '') +
             '</div>';
         }).join("");
-        const organizationMarkup = organizationSteps.length || organizationSlotHintMarkup || organizationExpandHintMarkup || organizationCombineHintMarkup || organizationSquareHintMarkup || organizationBaseHintMarkup || organizationAlignmentHintMarkup
-          ? '<section class="basic-structure-organization">' +
-              '<span>' + esc(organization.label || "整理") + '</span>' +
+        const isHomogenizationOnly = Boolean(
+          organizationHomogenizationHintMarkup &&
+          !organizationSteps.length &&
+          !organizationSlotHintMarkup &&
+          !organizationExpandHintMarkup &&
+          !organizationCombineHintMarkup &&
+          !organizationSquareHintMarkup &&
+          !organizationBaseHintMarkup &&
+          !organizationAlignmentHintMarkup &&
+          !organizationLocalHomogenizationHintMarkup &&
+          !organizationTermSpotMarkup &&
+          !organization.label &&
+          !organization.motive &&
+          !organization.note
+        );
+        const organizationMarkup = organizationSteps.length || organizationSlotHintMarkup || organizationExpandHintMarkup || organizationCombineHintMarkup || organizationSquareHintMarkup || organizationBaseHintMarkup || organizationAlignmentHintMarkup || organizationHomogenizationHintMarkup || organizationLocalHomogenizationHintMarkup || organizationTermSpotMarkup
+          ? '<section class="basic-structure-organization' + (isHomogenizationOnly ? ' is-homogenization-only' : '') + '">' +
+              (organization.label ? '<span>' + esc(organization.label) + '</span>' : '') +
               (organization.motive ? '<p class="basic-structure-organization-motive">' + renderFormulaText(organization.motive) + '</p>' : '') +
+              organizationTermSpotMarkup +
               organizationSlotHintMarkup +
               organizationExpandHintMarkup +
               organizationCombineHintMarkup +
@@ -1261,21 +1365,26 @@
               organizationBaseHintMarkup +
               organizationAlignmentHintMarkup +
               (organizationSteps.length ? '<div class="basic-structure-org-steps">' + organizationStepMarkup + '</div>' : '') +
+              organizationLocalHomogenizationHintMarkup +
+              organizationHomogenizationHintMarkup +
               (organization.note ? '<p>' + renderFormulaText(organization.note) + '</p>' : '') +
             '</section>'
           : '';
         const structureHeading = visual.title
           ? '<div class="basic-structure-heading"><h3>' + renderFormulaText(visual.title) + '</h3></div>'
           : '';
-        return (
-          '<figure class="lesson-step-visual lesson-step-basic-structure-scan" role="group" aria-label="' + esc(visual.ariaLabel || "观察结构") + '">' +
-            structureHeading +
-            '<div class="basic-structure-focus">' +
+        const focusMarkup = visual.showFocus === false
+          ? ''
+          : '<div class="basic-structure-focus">' +
               renderPanel(condition, "条件整式") +
               '<div class="basic-structure-lens" aria-hidden="true"><span>观察</span><strong>结构</strong></div>' +
               renderPanel(target, "目标整式") +
             '</div>' +
-            '<i class="basic-structure-arrow" aria-hidden="true">↓</i>' +
+            '<i class="basic-structure-arrow" aria-hidden="true">↓</i>';
+        return (
+          '<figure class="lesson-step-visual lesson-step-basic-structure-scan" role="group" aria-label="' + esc(visual.ariaLabel || "观察结构") + '">' +
+            structureHeading +
+            focusMarkup +
             organizationMarkup +
             (organizationMarkup ? '<i class="basic-structure-arrow" aria-hidden="true">↓</i>' : '') +
             patternMarkup +

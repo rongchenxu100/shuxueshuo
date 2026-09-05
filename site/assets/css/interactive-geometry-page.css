@@ -27,6 +27,256 @@
   --accent-2: #2563eb;
 }
 
+/* Reuse the established “配齐次式” core graphic from senior-high-library.css. */
+.basic-structure-homogenization-hint.homogeneous-slot-template {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 22px 18px 15px;
+  border: 1px solid rgba(15, 107, 104, 0.16);
+  border-radius: 13px;
+  background-color: rgba(250, 252, 251, 0.92);
+  background-image: none;
+}
+
+.basic-structure-organization.is-homogenization-only {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.basic-structure-homogenization-hint .homogeneous-slot-equation {
+  display: grid;
+  grid-template-columns:
+    minmax(105px, 1fr) auto minmax(105px, 1fr) auto
+    minmax(105px, 1fr) auto minmax(118px, 1.06fr);
+  grid-template-rows: auto auto;
+  align-items: end;
+  gap: 10px;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.basic-structure-homogenization-hint .homogeneous-degree-source,
+.basic-structure-homogenization-hint .homogeneous-degree-result,
+.basic-structure-homogenization-hint .homogeneous-ratio-result {
+  display: grid;
+  min-width: 0;
+  justify-items: center;
+}
+
+.basic-structure-homogenization-hint .homogeneous-degree-source {
+  align-self: stretch;
+  grid-template-rows: minmax(47px, auto) 23px auto;
+}
+
+.basic-structure-homogenization-hint .homogeneous-source-expression {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  color: #173e43;
+  white-space: nowrap;
+}
+
+.basic-structure-homogenization-hint .homogeneous-source-expression > span {
+  color: #0f828c;
+  font-size: 0.65rem;
+  font-weight: 900;
+}
+
+.basic-structure-homogenization-hint .homogeneous-degree-source.is-condition .homogeneous-source-expression > span {
+  color: #c56c14;
+}
+
+.basic-structure-homogenization-hint .homogeneous-source-expression > strong,
+.basic-structure-homogenization-hint .homogeneous-ratio-result > strong,
+.basic-structure-homogenization-hint .homogeneous-general-balance {
+  color: #173e43;
+  font-family: "Times New Roman", "Songti SC", serif;
+  font-size: 0.88rem;
+}
+
+.basic-structure-homogenization-hint .homogeneous-source-arrow {
+  position: relative;
+  width: 2px;
+  height: 17px;
+  align-self: start;
+  background: #20a7c2;
+}
+
+.basic-structure-homogenization-hint .homogeneous-degree-source.is-condition .homogeneous-source-arrow {
+  background: #e58d00;
+}
+
+.basic-structure-homogenization-hint .homogeneous-source-arrow::after {
+  position: absolute;
+  bottom: -1px;
+  left: -4px;
+  width: 0;
+  height: 0;
+  border-top: 7px solid #20a7c2;
+  border-right: 5px solid transparent;
+  border-left: 5px solid transparent;
+  content: "";
+}
+
+.basic-structure-homogenization-hint .homogeneous-degree-source.is-condition .homogeneous-source-arrow::after {
+  border-top-color: #e58d00;
+}
+
+.basic-structure-homogenization-hint .homogeneous-degree-slot {
+  position: relative;
+  width: min(100%, 142px);
+  aspect-ratio: 2.05 / 1;
+  box-sizing: border-box;
+  border: 3px solid #20a7c2;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.62);
+  box-shadow: 0 4px 10px rgba(32, 167, 194, 0.055);
+}
+
+.basic-structure-homogenization-hint .homogeneous-degree-source.is-condition .homogeneous-degree-slot {
+  border-color: #e58d00;
+  box-shadow: 0 4px 10px rgba(229, 141, 0, 0.055);
+}
+
+.basic-structure-homogenization-hint .homogeneous-degree-result .homogeneous-degree-slot {
+  border-color: #0f6b68;
+  background: rgba(48, 158, 139, 0.055);
+  box-shadow: 0 4px 10px rgba(15, 107, 104, 0.06);
+}
+
+.basic-structure-homogenization-hint .homogeneous-degree-slot > sup {
+  position: absolute;
+  z-index: 2;
+  top: -25px;
+  right: -13px;
+  color: #0f828c;
+  font-family: "Times New Roman", "Songti SC", serif;
+  font-size: 1.5rem;
+  font-style: italic;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.basic-structure-homogenization-hint .homogeneous-degree-source.is-condition .homogeneous-degree-slot > sup {
+  color: #c56c14;
+}
+
+.basic-structure-homogenization-hint .homogeneous-degree-result .homogeneous-degree-slot > sup {
+  color: #0f6b68;
+  font-style: normal;
+}
+
+.basic-structure-homogenization-hint .homogeneous-slot-operator,
+.basic-structure-homogenization-hint .homogeneous-output-arrow {
+  align-self: end;
+  margin-bottom: 22px;
+  color: #24494c;
+  font-family: "Times New Roman", "Songti SC", serif;
+  font-size: 1.45rem;
+  font-style: normal;
+  line-height: 1;
+}
+
+.basic-structure-homogenization-hint .homogeneous-output-arrow {
+  color: #0f6b68;
+  font-size: 1.2rem;
+}
+
+.basic-structure-homogenization-hint .homogeneous-ratio-result {
+  align-self: end;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.basic-structure-homogenization-hint .homogeneous-ratio-result > span {
+  color: #0f6b68;
+  font-size: 0.67rem;
+  font-weight: 900;
+}
+
+.basic-structure-homogenization-hint .homogeneous-ratio-result > strong {
+  font-size: 0.96rem;
+  white-space: nowrap;
+}
+
+.basic-structure-homogenization-hint .homogeneous-general-balance {
+  grid-column: 1 / 4;
+  grid-row: 2;
+  justify-self: center;
+  padding-top: 8px;
+  color: #173e43;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+@media (max-width: 720px) {
+  .basic-structure-homogenization-hint.homogeneous-slot-template {
+    padding: 17px 10px 13px;
+  }
+
+  .basic-structure-homogenization-hint .homogeneous-slot-equation {
+    grid-template-columns: minmax(95px, 1fr) auto minmax(95px, 1fr);
+    grid-template-rows: auto auto auto auto;
+    gap: 9px;
+    max-width: 430px;
+  }
+
+  .basic-structure-homogenization-hint .homogeneous-degree-source.is-original {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .basic-structure-homogenization-hint .homogeneous-slot-operator.is-product {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .basic-structure-homogenization-hint .homogeneous-degree-source.is-condition {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  .basic-structure-homogenization-hint .homogeneous-general-balance {
+    grid-column: 1 / 4;
+    grid-row: 2;
+  }
+
+  .basic-structure-homogenization-hint .homogeneous-slot-operator.is-equals {
+    grid-column: 2;
+    grid-row: 3;
+    justify-self: center;
+    margin: 3px 0;
+  }
+
+  .basic-structure-homogenization-hint .homogeneous-degree-result {
+    grid-column: 1;
+    grid-row: 4;
+  }
+
+  .basic-structure-homogenization-hint .homogeneous-output-arrow {
+    grid-column: 2;
+    grid-row: 4;
+  }
+
+  .basic-structure-homogenization-hint .homogeneous-ratio-result {
+    grid-column: 3;
+    grid-row: 4;
+  }
+
+  .basic-structure-homogenization-hint .homogeneous-degree-slot {
+    width: min(100%, 132px);
+  }
+
+  .basic-structure-homogenization-hint .homogeneous-slot-operator,
+  .basic-structure-homogenization-hint .homogeneous-output-arrow {
+    margin-bottom: 20px;
+  }
+
+}
+
 .step-animation-button {
   justify-self: start;
   width: max-content;
@@ -4201,6 +4451,178 @@ svg {
   color: #0f6b68;
   font-family: "Times New Roman", "Songti SC", serif;
   font-size: 0.76rem;
+}
+
+.basic-structure-term-spot {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  width: min(100%, 520px);
+  padding: 8px 10px;
+  border: 1px solid rgba(214, 164, 67, 0.28);
+  border-radius: 11px;
+  background: rgba(255, 252, 245, 0.92);
+}
+
+.basic-structure-term-spot > span {
+  color: #80551d;
+  font-size: 0.62rem;
+  font-weight: 900;
+}
+
+.basic-structure-term-spot-formula {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 6px 8px;
+}
+
+.basic-structure-term-spot-factor {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 5px;
+}
+
+.basic-structure-term-spot-factor > i {
+  color: #173e43;
+  font-family: "Times New Roman", "Songti SC", serif;
+  font-size: 1.15rem;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.basic-structure-term-spot-factor > b {
+  align-self: center;
+  color: #173e43;
+  font-size: 0.9rem;
+  font-weight: 900;
+}
+
+.basic-structure-term-spot-join {
+  align-self: center;
+  color: #173e43;
+  font-size: 0.95rem;
+  font-weight: 900;
+}
+
+.basic-structure-term-spot-term {
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  min-width: 42px;
+}
+
+.basic-structure-term-spot-term > strong {
+  display: grid;
+  place-items: center;
+  min-width: 36px;
+  min-height: 34px;
+  padding: 2px 7px;
+  color: #173e43;
+  font-family: "Times New Roman", "Songti SC", serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.basic-structure-term-spot-term.is-spot > strong {
+  border: 2px solid #d16a4a;
+  border-radius: 999px;
+  background: rgba(209, 106, 74, 0.1);
+  box-shadow: 0 0 0 3px rgba(209, 106, 74, 0.08);
+}
+
+.basic-structure-term-spot-term.is-keep > strong {
+  border: 1.5px dashed rgba(15, 107, 104, 0.35);
+  border-radius: 8px;
+  background: rgba(15, 107, 104, 0.05);
+}
+
+.basic-structure-term-spot-term > em {
+  font-size: 0.52rem;
+  font-style: normal;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.basic-structure-term-spot-term.is-spot > em {
+  color: #d16a4a;
+}
+
+.basic-structure-term-spot-term.is-keep > em {
+  color: #0f6b68;
+}
+
+.basic-structure-local-homo-hint {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  width: min(100%, 560px);
+  padding: 9px 12px;
+  border: 1px dashed rgba(32, 167, 194, 0.34);
+  border-radius: 11px;
+  background: rgba(244, 252, 252, 0.84);
+}
+
+.basic-structure-local-homo-hint > header,
+.basic-structure-local-homo-scopes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 7px 10px;
+  width: 100%;
+}
+
+.basic-structure-local-homo-hint > header > strong {
+  color: #173e43;
+  font-family: "Songti SC", "Noto Serif SC", serif;
+  font-size: 0.74rem;
+  font-weight: 900;
+}
+
+.basic-structure-local-homo-hint > .basic-structure-homogenization-hint {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.basic-structure-local-homo-scopes > article {
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  min-width: 72px;
+  padding: 6px 9px;
+  border: 1px solid rgba(15, 107, 104, 0.14);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.basic-structure-local-homo-scopes > article > small {
+  color: #6f8183;
+  font-size: 0.54rem;
+  font-weight: 850;
+}
+
+.basic-structure-local-homo-scopes > article > strong {
+  color: #173e43;
+  font-family: "Times New Roman", "Songti SC", serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.basic-structure-local-homo-scopes > b {
+  color: #173e43;
+  font-weight: 900;
+}
+
+.basic-structure-local-homo-scopes > em {
+  color: #0f6b68;
+  font-size: 0.58rem;
+  font-style: normal;
+  font-weight: 850;
 }
 
 @media (max-width: 560px) {

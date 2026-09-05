@@ -13,12 +13,12 @@
     "source": "",
     "keyPoints": {
       "title": "解题要点",
-      "lead": "这是一道局部配齐题：目标整体不需要再乘条件，只需修补分子中次数较低的 \\(2b\\)。利用题设 \\(a+b=2\\)，将它改写成 \\(b(a+b)=ab+b^2\\)，使分子各项同为二次，再与二次分母 \\(ab\\) 相除得到 0 次齐次式。",
+      "lead": "",
       "items": [
-        "发现问题：分子 \\(a^2\\) 是二次项，\\(2b\\) 是一次项，原目标不是齐次式。",
-        "用条件配次：由 \\(a+b=2\\)，得 \\(2b=b(a+b)=ab+b^2\\)，把一次项补成二次项。",
-        "约成倍数：目标化为 \\(1+\\frac{a}{b}+\\frac{b}{a}\\)，后两个正项表达式的乘积恒为 \\(1\\)。",
-        "验等号：\\(\\frac{a}{b}=\\frac{b}{a}\\) 与 \\(a+b=2\\) 联立得 \\(a=b=1\\)。"
+        "观察结构：把共同分母计入次数，\\(\\frac{a^2}{ab}=\\frac{a}{b}\\) 是 0 次项，\\(\\frac{2b}{ab}=\\frac{2}{a}\\) 是负一次项；只需圈出负一次项局部配齐",
+        "局部配齐：由 \\(\\frac{a+b}{2}=1\\)，只对 \\(\\frac{2}{a}\\) 乘入这个一次定值，得到 \\(\\frac{a+b}{a}=1+\\frac{b}{a}\\)，0 次项 \\(\\frac{a}{b}\\) 不动",
+        "应用基本不等式：整理得 \\(1+\\frac{a}{b}+\\frac{b}{a}\\)，其中两个正项的乘积恒为 \\(1\\)，所以原式不小于 \\(3\\)",
+        "验证取等：两个正项相等且满足原条件 → \\(a=b=1\\)"
       ]
     },
     "lines": [
@@ -31,135 +31,291 @@
     {
       "id": "s1",
       "section": "配齐次式",
-      "title": "局部补齐分子中的低次项，再约成 0 次齐次式",
+      "title": "观察结构",
       "t": 0,
       "showDiagram": false,
       "visual": {
-        "kind": "fixed-product-construction-flow",
-        "variant": "homogeneous-reduction",
-        "title": "局部补齐分子中的低次项，再约成 0 次齐次式",
-        "methodTag": "配齐次式｜局部配齐",
-        "goal": {
+        "kind": "basic-inequality-structure-scan",
+        "condition": {
+          "label": "条件整式",
+          "expression": "\\(a+b=2\\)",
+          "tag": "可替换常数 2"
+        },
+        "target": {
+          "label": "目标整式",
           "expression": "\\(\\frac{a^2+2b}{ab}\\)",
-          "task": "求分式的最小值"
+          "tag": "分子次数不齐"
         },
-        "strategy": "用题设把低次项配到与其余项同次",
-        "initialCheck": {
-          "terms": [
-            "\\(\\frac{a}{b}\\)",
-            "\\(\\frac{2}{a}\\)"
-          ],
-          "product": "\\(\\frac{a}{b}\\cdot\\frac{2}{a}=\\frac{2}{b}\\)",
-          "verdict": "乘积仍含 b，不能直接使用"
-        },
-        "clue": {
-          "question": "分子中的各项次数相同吗？",
-          "condition": "\\(a+b=2\\)",
-          "observation": "a² 是二次项，2b 是一次项；可用题设把常数 2 换成 a+b，将低一次项配成二次项。"
-        },
-        "degreeBalance": {
-          "connectors": [
-            "→",
-            "→"
-          ],
-          "target": {
-            "label": "原分子",
-            "expression": "\\(a^2+2b\\)",
-            "degree": "混合",
-            "degreeText": "二次项 ＋ 一次项",
-            "scale": "\\(a^2\\) 与 \\(2b\\) 变化次数不同",
-            "note": "同步放大后，两项不能提取同一个倍数"
+        "organization": {
+          "label": "局部配齐次：先圈待配项，再局部配齐",
+          "termSpot": {
+            "factors": [
+              {
+                "terms": [
+                  {
+                    "value": "\\(\\frac{a^2}{ab}\\)",
+                    "role": "keep",
+                    "mark": "0 次不动"
+                  },
+                  {
+                    "value": "\\(\\frac{2b}{ab}\\)",
+                    "role": "spot",
+                    "mark": "−1 次待配齐"
+                  }
+                ]
+              }
+            ],
+            "ariaLabel": "把共同分母 ab 计入次数后，a 平方除以 ab 是零次项，保持不动；2b 除以 ab 是负一次项，圈出等待局部配齐"
           },
-          "condition": {
-            "label": "用题设配项",
-            "expression": "\\(2b=b(a+b)\\)",
-            "degree": "+2",
-            "degreeText": "把一次项配成二次项",
-            "scale": "\\(2b=ab+b^2\\)",
-            "note": "用 a+b=2 替换常数 2"
-          },
-          "result": {
-            "label": "齐次后的分子",
-            "expression": "\\(a^2+ab+b^2\\)",
-            "degree": "+2",
-            "degreeText": "每一项均为二次",
-            "scale": "\\(\\frac{a^2+ab+b^2}{ab}\\) 为 0 次",
-            "note": "分子分母同为二次，相除后只剩变量间的倍数关系"
+          "localHomogenizationHint": {
+            "method": "局部乘入定值",
+            "originalLabel": "圈出的负一次项",
+            "original": "\\(\\frac{2}{a}\\)",
+            "originalDegree": "−1",
+            "conditionLabel": "乘入定值",
+            "condition": "\\(\\frac{a+b}{2}=1\\)",
+            "conditionDegree": "+1",
+            "resultDegree": "0",
+            "resultLabel": "0 次式",
+            "result": "\\(\\frac{a+b}{a}\\)",
+            "balance": "\\((-1)+(+1)=0\\)",
+            "scopes": [
+              {
+                "label": "原目标中的局部",
+                "expression": "\\(\\frac{2b}{ab}=\\frac{2}{a}\\)"
+              }
+            ],
+            "scopeNote": "只配这一项",
+            "ariaLabel": "局部乘入定值：负一次项二除以 a，乘以一次定值二分之 a 加 b，配成零次式 a 加 b 除以 a"
           }
         },
-        "construction": {
-          "kind": "homogeneous",
-          "label": "用题设替换常数 2，把低次项补成二次项",
-          "identity": "\\(2b=b(a+b)=ab+b^2\\)",
-          "identityNote": "这里不是把整个目标乘条件，而是用 a+b=2 替换低次项中的常数 2。",
-          "expanded": "\\(\\frac{a^2+2b}{ab}=1+\\frac{a}{b}+\\frac{b}{a}\\)",
-          "constant": "\\(1\\)",
-          "positiveTerms": [
-            {
-              "shape": "square",
-              "value": "\\(\\frac{a}{b}\\)",
-              "condition": "\\(\\frac{a}{b}>0\\)"
-            },
-            {
-              "shape": "circle",
-              "value": "\\(\\frac{b}{a}\\)",
-              "condition": "\\(\\frac{b}{a}>0\\)"
-            }
-          ],
-          "ratio": "令 \\(t=\\frac{a}{b}>0\\)，则 \\(\\frac{b}{a}=\\frac{1}{t}\\)：补齐次数后，两个变量被压缩成一个倍数 \\(t\\)。"
-        },
-        "fixedPair": {
-          "question": "约分后圈出的两个正项表达式，乘积固定吗？",
-          "terms": [
-            "\\(\\frac{a}{b}\\)",
-            "\\(\\frac{b}{a}\\)"
-          ],
-          "product": "\\(\\frac{a}{b}\\cdot\\frac{b}{a}=1\\)",
-          "verdict": "定积构造成功"
-        },
-        "application": {
-          "template": "两个彩色槽位表示两个完整的正项表达式",
-          "mappings": [
-            {
-              "slot": "第一个槽位",
-              "shape": "square",
-              "value": "\\(\\frac{a}{b}\\)",
-              "condition": "\\(\\frac{a}{b}>0\\)"
-            },
-            {
-              "slot": "第二个槽位",
-              "shape": "circle",
-              "value": "\\(\\frac{b}{a}\\)",
-              "condition": "\\(\\frac{b}{a}>0\\)"
-            }
-          ],
-          "inequality": "\\(\\frac{a}{b}+\\frac{b}{a}\\ge2\\)",
-          "combine": "\\(\\frac{a^2+2b}{ab}=1+\\frac{a}{b}+\\frac{b}{a}\\ge3\\)",
-          "conclusion": "最小值为 \\(3\\)"
-        },
-        "equality": {
-          "condition": "\\(\\frac{a}{b}=\\frac{b}{a}\\)",
-          "relation": "\\(a=b\\)",
-          "result": "\\(a=b=1\\)"
-        },
-        "caption": "局部配齐不是改造整个目标，而是只修补分子中次数较低的 2b；补到同次后，再约分得到只含倍数的 0 次齐次式。"
+        "reading": "局部次数不齐",
+        "route": "局部配齐次式"
       },
       "reasoning": [
         {
           "kind": "because",
-          "text": "原式 \\(=\\frac{a}{b}+\\frac{2}{a}\\)，两项乘积为 \\(\\frac{2}{b}\\)，不是定值；同时分子 \\(a^2+2b\\) 含二次项与一次项"
+          "text": "\\(\\frac{a^2+2b}{ab}=\\frac{a^2}{ab}+\\frac{2b}{ab}=\\frac{a}{b}+\\frac{2}{a}\\)"
         },
         {
           "kind": "because",
-          "text": "由 \\(a+b=2\\)，可把 \\(2b\\) 改写为 \\(b(a+b)=ab+b^2\\)，于是分子各项都变成二次项"
+          "text": "计入共同分母后，\\(\\frac{a}{b}\\) 是 0 次项，\\(\\frac{2}{a}\\) 是负一次项"
         },
         {
           "kind": "therefore",
-          "text": "\\(\\frac{a^2+2b}{ab}=\\frac{a^2+ab+b^2}{ab}=1+\\frac{a}{b}+\\frac{b}{a}\\)"
+          "text": "保留 0 次项，只利用 \\(\\frac{a+b}{2}=1\\) 局部配齐负一次项 \\(\\frac{2}{a}\\)"
+        }
+      ],
+      "derive": [
+        [
+          "路线判断",
+          "局部配齐次式"
+        ]
+      ]
+    },
+    {
+      "id": "s2",
+      "section": "配齐次式",
+      "title": "局部配齐次式",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-structure-scan",
+        "showFocus": false,
+        "condition": {
+          "label": "乘入的定值式",
+          "expression": "\\(\\frac{a+b}{2}=1\\)",
+          "tag": "正一次"
+        },
+        "target": {
+          "label": "原目标",
+          "expression": "\\(\\frac{a}{b}+\\frac{2}{a}\\)",
+          "tag": "0 次 ＋ 负一次"
+        },
+        "organization": {
+          "label": "局部配齐：只配负一次项",
+          "motive": "0 次项 \\(\\frac{a}{b}\\) 不动，只对 \\(\\frac{2}{a}\\) 乘入等于 1 的一次条件",
+          "steps": [
+            {
+              "label": "乘入定值",
+              "expression": "\\(\\frac{2}{a}=\\frac{2}{a}\\cdot\\frac{a+b}{2}\\)"
+            },
+            {
+              "label": "配成 0 次",
+              "expression": "\\(\\frac{2}{a}=\\frac{a+b}{a}=1+\\frac{b}{a}\\)"
+            },
+            {
+              "label": "约成 0 次",
+              "expression": "\\(\\frac{a^2+2b}{ab}=1+\\frac{a}{b}+\\frac{b}{a}\\)"
+            }
+          ],
+          "note": "局部配齐只处理负一次项，原有 0 次项保持不动"
+        },
+        "pattern": {
+          "first": {
+            "value": "\\(\\frac{a}{b}\\)",
+            "shape": "square"
+          },
+          "second": {
+            "value": "\\(\\frac{b}{a}\\)",
+            "shape": "circle"
+          },
+          "condition": {
+            "operator": "·",
+            "tag": "定积 1"
+          },
+          "target": {
+            "operator": "+",
+            "tag": "求最小值"
+          },
+          "ariaLabel": "局部配齐后，正项 a 除以 b 与 b 除以 a 的积固定，求和的最小值"
+        },
+        "reading": "定积求和",
+        "route": "应用基本不等式"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "由 \\(a+b=2\\)，有 \\(\\frac{a+b}{2}=1\\)"
         },
         {
           "kind": "therefore",
-          "text": "由 \\(\\frac{a}{b}+\\frac{b}{a}\\ge2\\)，原式最小值为 \\(3\\)；等号在 \\(a=b=1\\) 时取得"
+          "text": "只对负一次项乘入定值：\\(\\frac{2}{a}=\\frac{2}{a}\\cdot\\frac{a+b}{2}=\\frac{a+b}{a}=1+\\frac{b}{a}\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(\\frac{a^2+2b}{ab}=\\frac{a}{b}+\\frac{2}{a}=1+\\frac{a}{b}+\\frac{b}{a}\\)"
+        },
+        {
+          "kind": "because",
+          "text": "\\(\\frac{a}{b}>0，\\frac{b}{a}>0\\)，且二者乘积恒为 \\(1\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "局部配齐后得到「定积求和」结构"
+        }
+      ],
+      "derive": [
+        [
+          "配齐结果",
+          "1＋两个定积正项"
+        ]
+      ]
+    },
+    {
+      "id": "s3",
+      "section": "配齐次式",
+      "title": "应用基本不等式",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-mapping",
+        "methodTag": "局部配齐｜定积求和",
+        "templateLabel": "代入基本不等式",
+        "template": "\\(u+v\\ge2\\sqrt{uv}\\)",
+        "formulaStyle": "sum-geometric",
+        "showPositiveStep": true,
+        "mappings": [
+          {
+            "slot": "第一个正项",
+            "shape": "square",
+            "value": "\\(\\frac{a}{b}\\)",
+            "condition": "\\(\\frac{a}{b}>0\\)"
+          },
+          {
+            "slot": "第二个正项",
+            "shape": "circle",
+            "value": "\\(\\frac{b}{a}\\)",
+            "condition": "\\(\\frac{b}{a}>0\\)"
+          }
+        ],
+        "stageLabel": "代入定积",
+        "mapped": "\\(\\frac{a}{b}+\\frac{b}{a}\\ge2\\sqrt1\\)",
+        "mappedSum": "\\(\\frac{a}{b}+\\frac{b}{a}\\)",
+        "mappedProduct": "\\(1\\)",
+        "fixedSourceTarget": "product",
+        "fixedSourceLabel": "已知",
+        "fixedCondition": "\\(\\frac{a}{b}\\cdot\\frac{b}{a}=1\\)",
+        "replacementText": "应用基本不等式",
+        "replaced": "\\(\\frac{a}{b}+\\frac{b}{a}\\ge2\\)",
+        "simplifyLabel": "代回整理式",
+        "substituted": "\\(\\frac{a^2+2b}{ab}\\ge1+2\\)",
+        "conclusionLabel": "得到下界",
+        "conclusion": "\\(\\frac{a^2+2b}{ab}\\ge3\\)"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "\\(a，b>0\\)，所以 \\(\\frac{a}{b}>0，\\frac{b}{a}>0\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(\\frac{a}{b}+\\frac{b}{a}\\ge2\\sqrt{\\frac{a}{b}\\cdot\\frac{b}{a}}=2\\)"
+        },
+        {
+          "kind": "because",
+          "text": "\\(\\frac{a^2+2b}{ab}=1+\\frac{a}{b}+\\frac{b}{a}\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(\\frac{a^2+2b}{ab}\\ge3\\)"
+        }
+      ],
+      "derive": [
+        [
+          "下界",
+          "3"
+        ]
+      ]
+    },
+    {
+      "id": "s4",
+      "section": "配齐次式",
+      "title": "验证取等",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-equality-check",
+        "templateLabel": "基本不等式取等",
+        "first": {
+          "value": "\\(\\frac{a}{b}\\)",
+          "shape": "square"
+        },
+        "second": {
+          "value": "\\(\\frac{b}{a}\\)",
+          "shape": "circle"
+        },
+        "conditionLabel": "结合原条件",
+        "condition": "\\(a+b=2\\)",
+        "solved": "\\(a=b=1\\)",
+        "verificationLabel": "代回目标",
+        "verification": "\\(\\frac{a^2+2b}{ab}=3\\)",
+        "conclusion": "原式的最小值为 \\(3\\)"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "基本不等式取等 ⇔ 两个正项相等"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(\\frac{a}{b}=\\frac{b}{a}\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(a=b\\)"
+        },
+        {
+          "kind": "because",
+          "text": "\\(a+b=2\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(a=b=1\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(\\frac{a^2+2b}{ab}=3\\)，最小值为 \\(3\\)"
         }
       ],
       "derive": [
@@ -181,9 +337,33 @@
         0,
         0
       ]
+    },
+    "s2": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    },
+    "s3": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    },
+    "s4": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
     }
   },
   "stepLabels": {
-    "s1": "1 局部补齐分子中的低次项，再约成 0 次齐次式"
+    "s1": "1 观察结构",
+    "s2": "2 局部配齐次式",
+    "s3": "3 应用基本不等式",
+    "s4": "4 验证取等"
   }
 }
