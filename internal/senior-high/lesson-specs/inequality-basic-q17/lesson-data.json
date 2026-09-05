@@ -13,12 +13,12 @@
     "source": "2022 新高考Ⅱ卷",
     "keyPoints": {
       "title": "解题要点",
-      "lead": "目标与条件交换 \\(x，y\\) 后都不变，因此令 \\(s=x+y，p=xy\\)，用和与积替换原有变量。先由条件求出 \\(p\\)，再用基本不等式的变式 \\(s^2\\ge4p\\) 消去 \\(p\\)；最后结合基本不等式的取等条件，验证 \\(s=2\\) 与 \\(s=-2\\) 两个边界都能取到。",
+      "lead": "",
       "items": [
-        "验对称：目标 \\(x+y\\) 与条件 \\(x^2+y^2-xy=1\\) 在交换 \\(x，y\\) 后都不变。",
-        "换元：令 \\(s=x+y，p=xy\\)，由 \\(x^2+y^2=s^2-2p\\) 把原条件改写为 \\(s^2-3p=1\\)，得到 \\(p=\\frac{s^2-1}{3}\\)。",
-        "基本不等式消元：先由基本不等式的变式 \\(s^2\\ge4p\\) 建立和与积的关系，再代入上一步求出的 \\(p\\)，依次得到 \\(3s^2\\ge4s^2-4\\)、\\(s^2\\le4\\)。",
-        "验端点：当 \\(s=\\pm2\\) 时，消元过程中使用的基本不等式取等，所以 \\(x=y\\)。结合 \\(x+y=s\\)，分别得到 \\(x=y=1\\) 与 \\(x=y=-1\\)，两个边界都能取到。"
+        "观察结构：分别交换 \\(x，y\\)，目标 \\(x+y\\) 与条件 \\(x^2+y^2-xy=1\\) 均保持不变，因此确认是对称结构",
+        "和积换元：令 \\(s=x+y，p=xy\\)，由 \\(x^2+y^2=s^2-2p\\) 将条件化为 \\(s^2-3p=1\\)，解得 \\(p=\\frac{s^2-1}{3}\\)",
+        "应用基本不等式消元：由 \\(x^2+y^2\\ge2xy\\) 得 \\(s^2\\ge4p\\)，代入条件消去 \\(p\\)，得到 \\(s^2\\le4\\)，即 \\(-2\\le s\\le2\\)",
+        "验证取等：基本不等式取等要求 \\(x=y\\)；结合 \\(s=2\\) 或 \\(s=-2\\)，得到 \\(x=y=1\\) 或 \\(x=y=-1\\)，两个端点均能取得"
       ]
     },
     "lines": [
@@ -31,97 +31,246 @@
     {
       "id": "s1",
       "section": "找对称结构",
-      "title": "用和与积替换变量，再用基本不等式消元（消去和或积）",
+      "title": "观察结构",
       "t": 0,
       "showDiagram": false,
       "visual": {
-        "kind": "symmetric-reduction-flow",
-        "title": "对称校验后，用 \\(x+y\\)、\\(xy\\) 替换原有变量",
-        "methodTag": "找对称结构｜基本不等式消元",
-        "goal": {
+        "kind": "basic-inequality-structure-scan",
+        "condition": {
+          "label": "条件整式",
+          "expression": "\\(x^2+y^2-xy=1\\)",
+          "tag": "交换后不变"
+        },
+        "target": {
+          "label": "目标整式",
           "expression": "\\(x+y\\)",
-          "task": "求取值范围"
+          "tag": "交换后不变"
         },
-        "symmetryChecks": [
-          {
-            "label": "目标表达式",
-            "original": "\\(x+y\\)",
-            "swapped": "\\(y+x\\)",
-            "verdict": "交换后不变"
-          },
-          {
-            "label": "条件表达式",
-            "original": "\\(x^2+y^2-xy\\)",
-            "swapped": "\\(y^2+x^2-yx\\)",
-            "verdict": "交换后不变"
+        "organization": {
+          "label": "校验对称结构：分别交换 x、y",
+          "symmetryHint": {
+            "label": "交换检验",
+            "instruction": "目标与条件要分别交换 x、y 检查",
+            "swap": "x ↔ y",
+            "checks": [
+              {
+                "label": "目标整式",
+                "original": "\\(x+y\\)",
+                "swapped": "\\(y+x\\)",
+                "verdict": "交换后不变"
+              },
+              {
+                "label": "条件整式",
+                "original": "\\(x^2+y^2-xy\\)",
+                "swapped": "\\(y^2+x^2-yx\\)",
+                "verdict": "交换后不变"
+              }
+            ],
+            "conclusion": "目标与条件均对称，可以用和与积替换原有变量",
+            "ariaLabel": "分别交换 x 与 y，目标 x 加 y 和条件 x 平方加 y 平方减 xy 都保持不变，因此确认对称结构"
           }
-        ],
-        "substitution": {
-          "definitions": [
-            "\\(s=x+y\\)",
-            "\\(p=xy\\)"
-          ],
-          "identity": "\\(x^2+y^2=s^2-2p\\)",
-          "condition": "\\(s^2-2p-p=1\\)",
-          "solved": "\\(p=\\frac{s^2-1}{3}\\)"
         },
-        "elimination": {
-          "label": "应用基本不等式消元",
-          "relationLabel": "先建立 \\(p\\) 与 \\(s\\) 的关系",
-          "relation": "\\(s^2\\ge4p\\)",
-          "basis": "基本不等式的变式；也可由 \\(s^2-4p=(x-y)^2\\ge0\\) 得到",
-          "substitutionLabel": "再代入上一步求出的 \\(p=\\frac{s^2-1}{3}\\)",
-          "substituted": "\\(s^2\\ge4\\cdot\\frac{s^2-1}{3}\\)",
-          "expanded": "\\(3s^2\\ge4s^2-4\\)",
-          "simplified": "\\(s^2\\le4\\)",
-          "range": "\\(-2\\le s\\le2\\)"
-        },
-        "closure": {
-          "question": "两个边界能否取到？看基本不等式的取等条件",
-          "equalityLabel": "基本不等式取等",
-          "equalityCondition": "\\(s^2=4p\\iff(x-y)^2=0\\iff x=y\\)",
-          "endpoints": [
-            {
-              "value": "\\(s=2\\)",
-              "boundaryCondition": "\\(x+y=2，x=y\\)",
-              "witness": "\\(x=y=1\\)",
-              "verification": "\\(1^2+1^2-1=1\\)"
-            },
-            {
-              "value": "\\(s=-2\\)",
-              "boundaryCondition": "\\(x+y=-2，x=y\\)",
-              "witness": "\\(x=y=-1\\)",
-              "verification": "\\((-1)^2+(-1)^2-1=1\\)"
-            }
-          ],
-          "conclusion": "\\(x+y\\) 的取值范围是 \\([-2,2]\\)"
-        },
-        "caption": "先用 \\(x+y\\)、\\(xy\\) 替换原有变量，再用基本不等式的变式 \\(s^2\\ge4p\\) 消去 \\(p\\)；最后利用取等条件 \\(x=y\\) 分别验证上下边界。"
+        "reading": "对称结构",
+        "route": "和积换元"
       },
       "reasoning": [
         {
           "kind": "because",
-          "text": "交换 \\(x、y\\) 后，\\(x+y=y+x\\)，且 \\(x^2+y^2-xy=y^2+x^2-yx\\)，因此令 \\(s=x+y，p=xy\\)"
+          "text": "交换 \\(x，y\\) 后，目标变为 \\(y+x=x+y\\)"
         },
         {
           "kind": "because",
-          "text": "由 \\(x^2+y^2=s^2-2p\\)，原条件化为 \\(s^2-3p=1\\)，所以 \\(p=\\frac{s^2-1}{3}\\)"
-        },
-        {
-          "kind": "because",
-          "text": "因为 \\(s^2-4p=(x-y)^2\\ge0\\)，所以基本不等式的变式给出 \\(s^2\\ge4p\\)"
+          "text": "交换 \\(x，y\\) 后，条件左边变为 \\(y^2+x^2-yx=x^2+y^2-xy\\)"
         },
         {
           "kind": "therefore",
-          "text": "代入 \\(p=\\frac{s^2-1}{3}\\)：\\(s^2\\ge\\frac{4(s^2-1)}{3}\\Rightarrow3s^2\\ge4s^2-4\\Rightarrow s^2\\le4\\Rightarrow s\\in[-2,2]\\)"
+          "text": "目标与条件交换后都不变，确认是关于 \\(x，y\\) 的对称结构"
+        }
+      ],
+      "derive": [
+        [
+          "结构判断",
+          "对称结构｜和积换元"
+        ]
+      ]
+    },
+    {
+      "id": "s2",
+      "section": "找对称结构",
+      "title": "和积换元",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-structure-scan",
+        "showFocus": false,
+        "condition": {
+          "label": "原条件",
+          "expression": "\\(x^2+y^2-xy=1\\)",
+          "tag": "对称二次式"
+        },
+        "target": {
+          "label": "目标",
+          "expression": "\\(x+y\\)",
+          "tag": "就是 s"
+        },
+        "organization": {
+          "label": "和积换元：用 s、p 替换 x、y",
+          "steps": [
+            {
+              "label": "定义",
+              "expression": "\\(s=x+y，p=xy\\)"
+            },
+            {
+              "label": "恒等变形",
+              "expression": "\\(x^2+y^2=s^2-2p\\)"
+            },
+            {
+              "label": "代入条件",
+              "expression": "\\(s^2-3p=1\\)"
+            },
+            {
+              "label": "解出 p",
+              "expression": "\\(p=\\frac{s^2-1}{3}\\)"
+            }
+          ]
+        },
+        "reading": "和积换元",
+        "route": "应用基本不等式消元"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "对称式可用和与积表示，令 \\(s=x+y，p=xy\\)"
         },
         {
           "kind": "because",
-          "text": "当 \\(s=\\pm2\\) 时，\\(s^2=4p\\)，基本不等式取等，所以 \\(x=y\\)"
+          "text": "\\(x^2+y^2=(x+y)^2-2xy=s^2-2p\\)"
         },
         {
           "kind": "therefore",
-          "text": "若 \\(s=2\\)，由 \\(x+y=2\\) 与 \\(x=y\\) 得 \\(x=y=1\\)；若 \\(s=-2\\)，同理得 \\(x=y=-1\\)，两个边界都能取到"
+          "text": "原条件化为 \\(s^2-2p-p=1\\)，即 \\(s^2-3p=1\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "解得 \\(p=\\frac{s^2-1}{3}\\)，条件中只需保留目标量 \\(s\\)"
+        }
+      ],
+      "derive": [
+        [
+          "换元结果",
+          "p=(s²−1)/3"
+        ]
+      ]
+    },
+    {
+      "id": "s3",
+      "section": "找对称结构",
+      "title": "应用基本不等式消元",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-mapping",
+        "methodTag": "对称结构｜平方型基本不等式",
+        "templateLabel": "代入基本不等式",
+        "template": "\\(u^2+v^2\\ge2uv\\)",
+        "formulaStyle": "square-sum",
+        "showPositiveStep": false,
+        "mappings": [
+          {
+            "slot": "u",
+            "shape": "square",
+            "value": "\\(x\\)",
+            "condition": "\\(x\\in\\mathbb R\\)"
+          },
+          {
+            "slot": "v",
+            "shape": "circle",
+            "value": "\\(y\\)",
+            "condition": "\\(y\\in\\mathbb R\\)"
+          }
+        ],
+        "stageLabel": "代入 x、y",
+        "mapped": "\\(x^2+y^2\\ge2xy\\)",
+        "replacementText": "移项配成和平方",
+        "replaced": "\\((x+y)^2\\ge4xy\\)",
+        "simplifyLabel": "换成 s、p",
+        "substituted": "\\(s^2\\ge4p\\)",
+        "conclusionLabel": "代入条件消元",
+        "conclusion": "\\(s^2\\ge\\frac{4(s^2-1)}{3}\\)"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "由基本不等式 \\(x^2+y^2\\ge2xy\\)，得 \\((x+y)^2\\ge4xy\\)，即 \\(s^2\\ge4p\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "代入 \\(p=\\frac{s^2-1}{3}\\)，得 \\(s^2\\ge\\frac{4(s^2-1)}{3}\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(3s^2\\ge4s^2-4\\Rightarrow s^2\\le4\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(-2\\le s\\le2\\)，所以 \\(x+y\\) 的取值范围不超过 \\([-2,2]\\)"
+        }
+      ],
+      "derive": [
+        [
+          "范围约束",
+          "−2≤s≤2"
+        ]
+      ]
+    },
+    {
+      "id": "s4",
+      "section": "找对称结构",
+      "title": "验证取等",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-equality-check",
+        "templateLabel": "基本不等式取等",
+        "first": {
+          "value": "\\(x\\)",
+          "shape": "square"
+        },
+        "second": {
+          "value": "\\(y\\)",
+          "shape": "circle"
+        },
+        "conditionLabel": "结合两个边界",
+        "condition": "\\(s=x+y=2\\) 或 \\(s=x+y=-2\\)",
+        "solved": "\\(x=y=1\\) 或 \\(x=y=-1\\)",
+        "verificationLabel": "代回原条件",
+        "verification": "\\(1^2+1^2-1=1\\)，\\((-1)^2+(-1)^2-1=1\\)",
+        "conclusion": "\\(x+y\\) 的取值范围为 \\([-2,2]\\)"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "基本不等式 \\(x^2+y^2\\ge2xy\\) 取等 ⇔ \\(x=y\\)"
+        },
+        {
+          "kind": "because",
+          "text": "当 \\(s=2\\) 时，\\(x+y=2\\) 且 \\(x=y\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(x=y=1\\)，代回原条件成立"
+        },
+        {
+          "kind": "because",
+          "text": "当 \\(s=-2\\) 时，\\(x+y=-2\\) 且 \\(x=y\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(x=y=-1\\)，代回原条件成立"
+        },
+        {
+          "kind": "therefore",
+          "text": "两个端点都能取得，\\(x+y\\) 的取值范围为 \\([-2,2]\\)"
         }
       ],
       "derive": [
@@ -143,9 +292,33 @@
         0,
         0
       ]
+    },
+    "s2": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    },
+    "s3": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    },
+    "s4": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
     }
   },
   "stepLabels": {
-    "s1": "1 用和与积替换变量，再用基本不等式消元（消去和或积）"
+    "s1": "1 观察结构",
+    "s2": "2 和积换元",
+    "s3": "3 应用基本不等式消元",
+    "s4": "4 验证取等"
   }
 }

@@ -13,13 +13,13 @@
     "source": "",
     "keyPoints": {
       "title": "解题要点",
-      "lead": "目标中反复出现完整分母 \\(a-1，b-1\\)，第一直觉是对分母整体换元。换元后同步整理条件与目标，条件变成定积 \\(xy=1\\)，目标露出两个乘积固定的正项，于是直接应用基本不等式。",
+      "lead": "",
       "items": [
-        "确认正性：由 \\(\\frac{1}{a}<1，\\frac{1}{b}<1\\)，得 \\(a>1，b>1\\)，所以两个分母都为正。",
-        "整体换元：令 \\(x=a-1>0，y=b-1>0\\)，并保留 \\(a=x+1，b=y+1\\)。",
-        "整理新条件：\\(\\frac{1}{x+1}+\\frac{1}{y+1}=1\\Rightarrow x+y+2=xy+x+y+1\\Rightarrow xy=1\\)。",
-        "整理新目标：原式化为 \\(13+\\frac{4}{x}+\\frac{9}{y}\\)；其中 \\(\\frac{4}{x}\\cdot\\frac{9}{y}=36\\)。",
-        "应用基本不等式并还原：\\(\\frac{4}{x}+\\frac{9}{y}\\ge12\\)，等号对应 \\(x=\\frac{2}{3}，y=\\frac{3}{2}\\)，故 \\(a=\\frac{5}{3}，b=\\frac{5}{2}\\)。"
+        "观察原式结构：由条件确认 \\(a-1，b-1\\) 为正，并识别目标中的两个完整分母",
+        "整体换元：令 \\(x=a-1>0，y=b-1>0\\)，同步改写条件与目标，得到 \\(xy=1\\) 和 \\(13+\\frac{4}{x}+\\frac{9}{y}\\)",
+        "观察换元后的结构：常数 \\(13\\) 不动；两个正项 \\(\\frac{4}{x}\\)、\\(\\frac{9}{y}\\) 的乘积固定为 \\(36\\)",
+        "应用基本不等式：\\(\\frac{4}{x}+\\frac{9}{y}\\ge12\\)，所以原目标不小于 \\(25\\)",
+        "验证取等并还原：\\(x=\\frac{2}{3}，y=\\frac{3}{2}\\)，对应 \\(a=\\frac{5}{3}，b=\\frac{5}{2}\\)"
       ]
     },
     "lines": [
@@ -32,114 +32,301 @@
     {
       "id": "s1",
       "section": "换元法",
-      "title": "整体换元并整理目标，再应用基本不等式",
+      "title": "观察原式结构",
       "t": 0,
       "showDiagram": false,
       "visual": {
-        "kind": "substitution-basic-inequality-lifecycle",
-        "title": "换元（整体换元 → 整理目标）→ 应用基本不等式 → 还原等号",
-        "methodTag": "换元法｜复杂分母换元",
-        "substitution": {
-          "label": "把复杂分母换元并整理新条件、目标",
-          "observation": "先换完整分母，再把原条件与原目标同步翻译成新变量",
-          "mappings": [
-            {
-              "source": "\\(a-1\\)",
-              "target": "\\(x=a-1>0\\)",
-              "reverse": "\\(a=x+1\\)"
-            },
-            {
-              "source": "\\(b-1\\)",
-              "target": "\\(y=b-1>0\\)",
-              "reverse": "\\(b=y+1\\)"
-            }
-          ],
-          "rearrangement": {
-            "label": "整理换元后的条件与目标",
-            "conditionFlow": [
-              "\\(\\frac{1}{x+1}+\\frac{1}{y+1}=1\\)",
-              "\\(x+y+2=xy+x+y+1\\)",
-              "\\(xy=1\\)"
+        "kind": "basic-inequality-structure-scan",
+        "condition": {
+          "label": "条件整式",
+          "expression": "\\(a>0，b>0，\\frac{1}{a}+\\frac{1}{b}=1\\)",
+          "tag": "可推出 a−1>0，b−1>0"
+        },
+        "target": {
+          "label": "目标整式",
+          "expression": "\\(\\frac{4a}{a-1}+\\frac{9b}{b-1}\\)",
+          "tag": "两个完整分母"
+        },
+        "organization": {
+          "substitutionHint": {
+            "mappings": [
+              {
+                "numerator": "\\(4a\\)",
+                "denominator": "\\(a-1\\)",
+                "variable": "\\(x\\)",
+                "assignment": "\\(a-1>0\\)"
+              },
+              {
+                "numerator": "\\(9b\\)",
+                "denominator": "\\(b-1\\)",
+                "variable": "\\(y\\)",
+                "assignment": "\\(b-1>0\\)"
+              }
             ],
-            "before": "\\(\\frac{4(x+1)}{x}+\\frac{9(y+1)}{y}\\)",
-            "identities": [
-              "\\(\\frac{4(x+1)}{x}=4+\\frac{4}{x}\\)",
-              "\\(\\frac{9(y+1)}{y}=9+\\frac{9}{y}\\)"
-            ],
-            "result": "\\(13+\\frac{4}{x}+\\frac{9}{y}\\)"
-          },
-          "condition": "\\(xy=1\\)",
-          "target": "\\(13+\\frac{4}{x}+\\frac{9}{y}\\)",
-          "handoffLabel": "整理后发现：两个正项的乘积固定"
+            "ariaLabel": "识别目标中的两个完整分母 a 减 1 与 b 减 1，分别令 x 与 y 整体换元"
+          }
         },
-        "basicInequality": {
-          "label": "应用基本不等式求最值",
-          "methodTag": "发现结构｜两正项乘积固定",
-          "observation": "常数 13 保留不动，对两个正项直接使用基本不等式",
-          "positiveTerms": [
-            {
-              "value": "\\(\\frac{4}{x}\\)",
-              "condition": "\\(\\frac{4}{x}>0\\)"
-            },
-            {
-              "value": "\\(\\frac{9}{y}\\)",
-              "condition": "\\(\\frac{9}{y}>0\\)"
-            }
-          ],
-          "product": "\\(\\frac{4}{x}\\cdot\\frac{9}{y}=\\frac{36}{xy}=36\\)",
-          "inequality": "\\(\\frac{4}{x}+\\frac{9}{y}\\ge2\\sqrt{36}=12\\)",
-          "bound": "\\(13+\\frac{4}{x}+\\frac{9}{y}\\ge25\\)",
-          "equality": "\\(\\frac{4}{x}=\\frac{9}{y}\\)",
-          "equalitySolved": "\\(x=\\frac{2}{3}，y=\\frac{3}{2}\\)"
-        },
-        "restoration": {
-          "label": "求解等号成立条件",
-          "variableLabel": "a、b",
-          "transformedEquality": "\\(\\frac{4}{x}=\\frac{9}{y}\\)",
-          "solved": "\\(x=\\frac{2}{3}，y=\\frac{3}{2}\\)",
-          "reverse": "\\(a=x+1，b=y+1\\)",
-          "result": "\\(a=\\frac{5}{3}，b=\\frac{5}{2}\\)",
-          "verification": "\\(\\frac{1}{a}+\\frac{1}{b}=\\frac{3}{5}+\\frac{2}{5}=1\\)"
-        },
-        "conclusion": "\\(\\frac{4a}{a-1}+\\frac{9b}{b-1}\\) 的最小值是 \\(25\\)",
-        "caption": "三步相连：先把复杂分母整体换元并整理条件、目标；当定积结构显现后直接应用基本不等式，最后利用逆关系还原等号条件。"
+        "reading": "完整分母",
+        "route": "整体换元"
       },
       "reasoning": [
         {
           "kind": "because",
-          "text": "由 \\(\\frac{1}{a}+\\frac{1}{b}=1\\) 且 \\(a，b>0\\)，可知 \\(\\frac{1}{a}<1，\\frac{1}{b}<1\\)，所以 \\(a>1，b>1\\)"
+          "text": "由 \\(\\frac{1}{a}+\\frac{1}{b}=1\\) 且 \\(a，b>0\\)，得 \\(a>1，b>1\\)"
         },
         {
           "kind": "therefore",
-          "text": "目标的两个分母均为正；令 \\(x=a-1>0，y=b-1>0\\)，则 \\(a=x+1，b=y+1\\)"
+          "text": "\\(a-1>0，b-1>0\\)"
         },
         {
           "kind": "because",
-          "text": "换元后必须同步改写原条件：\\(\\frac{1}{x+1}+\\frac{1}{y+1}=1\\)"
+          "text": "目标的两个分母分别是完整整式 \\(a-1\\)、\\(b-1\\)"
         },
         {
           "kind": "therefore",
-          "text": "通分整理得 \\(x+y+2=xy+x+y+1\\)，所以 \\(xy=1\\)"
+          "text": "可对两个完整分母分别整体换元"
+        }
+      ],
+      "derive": [
+        [
+          "路线判断",
+          "完整分母整体换元"
+        ]
+      ]
+    },
+    {
+      "id": "s2",
+      "section": "换元法",
+      "title": "整体换元",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-structure-scan",
+        "showFocus": false,
+        "condition": {
+          "label": "原条件",
+          "expression": "\\(\\frac{1}{a}+\\frac{1}{b}=1\\)"
+        },
+        "target": {
+          "label": "原目标",
+          "expression": "\\(\\frac{4a}{a-1}+\\frac{9b}{b-1}\\)"
+        },
+        "organization": {
+          "label": "整体换元：定义域、条件与目标同步改写",
+          "steps": [
+            {
+              "label": "定义与逆关系",
+              "expression": "\\(x=a-1>0，y=b-1>0；a=x+1，b=y+1\\)"
+            },
+            {
+              "label": "改写条件",
+              "expression": "\\(\\frac{1}{x+1}+\\frac{1}{y+1}=1\\Rightarrow xy=1\\)"
+            },
+            {
+              "label": "整理两项",
+              "expression": "\\(\\frac{4(x+1)}{x}=4+\\frac{4}{x}，\\frac{9(y+1)}{y}=9+\\frac{9}{y}\\)"
+            },
+            {
+              "label": "改写目标",
+              "expression": "\\(13+\\frac{4}{x}+\\frac{9}{y}\\)"
+            }
+          ]
+        },
+        "reading": "完成换元与整理",
+        "route": "重新观察结构"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "令 \\(x=a-1>0，y=b-1>0\\)，则 \\(a=x+1，b=y+1\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "原条件改写为 \\(\\frac{1}{x+1}+\\frac{1}{y+1}=1\\)，整理得 \\(xy=1\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "原目标改写为 \\(\\frac{4(x+1)}{x}+\\frac{9(y+1)}{y}=13+\\frac{4}{x}+\\frac{9}{y}\\)"
+        }
+      ],
+      "derive": [
+        [
+          "换元结果",
+          "xy=1｜目标为 13+4/x+9/y"
+        ]
+      ]
+    },
+    {
+      "id": "s3",
+      "section": "换元法",
+      "title": "观察换元后的结构",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-structure-scan",
+        "condition": {
+          "label": "条件整式",
+          "expression": "\\(xy=1\\)",
+          "tag": "定积"
+        },
+        "target": {
+          "label": "目标整式",
+          "expression": "\\(13+\\frac{4}{x}+\\frac{9}{y}\\)",
+          "tag": "常数 13 不动"
+        },
+        "pattern": {
+          "first": {
+            "value": "\\(\\frac{4}{x}\\)",
+            "shape": "square"
+          },
+          "second": {
+            "value": "\\(\\frac{9}{y}\\)",
+            "shape": "circle"
+          },
+          "condition": {
+            "operator": "·",
+            "tag": "定积 36"
+          },
+          "target": {
+            "operator": "+",
+            "tag": "求最小值"
+          },
+          "ariaLabel": "换元后，同一组正项 4 比 x 与 9 比 y 的积固定为 36，求和的最小值"
+        },
+        "reading": "定积求和",
+        "route": "直接应用基本不等式"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "常数 \\(13\\) 不影响最小值的位置，只需研究两个正项 \\(\\frac{4}{x}\\)、\\(\\frac{9}{y}\\)"
         },
         {
           "kind": "because",
-          "text": "目标同步改写为 \\(\\frac{4(x+1)}{x}+\\frac{9(y+1)}{y}=13+\\frac{4}{x}+\\frac{9}{y}\\)"
+          "text": "由 \\(xy=1\\)，得 \\(\\frac{4}{x}\\cdot\\frac{9}{y}=\\frac{36}{xy}=36\\)"
         },
         {
           "kind": "therefore",
-          "text": "两个正项的乘积为 \\(\\frac{4}{x}\\cdot\\frac{9}{y}=\\frac{36}{xy}=36\\)"
+          "text": "这是「定积求和」，直接应用基本不等式"
+        }
+      ],
+      "derive": [
+        [
+          "结构判断",
+          "定积求和｜直接应用"
+        ]
+      ]
+    },
+    {
+      "id": "s4",
+      "section": "换元法",
+      "title": "应用基本不等式",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-mapping",
+        "methodTag": "直接应用｜定积求和",
+        "templateLabel": "代入基本不等式",
+        "template": "\\(u+v\\ge2\\sqrt{uv}\\)",
+        "formulaStyle": "sum-geometric",
+        "showPositiveStep": true,
+        "mappings": [
+          {
+            "slot": "第一个正项",
+            "shape": "square",
+            "value": "\\(\\frac{4}{x}\\)",
+            "condition": "\\(\\frac{4}{x}>0\\)"
+          },
+          {
+            "slot": "第二个正项",
+            "shape": "circle",
+            "value": "\\(\\frac{9}{y}\\)",
+            "condition": "\\(\\frac{9}{y}>0\\)"
+          }
+        ],
+        "mappedSum": "\\(\\frac{4}{x}+\\frac{9}{y}\\)",
+        "mappedProduct": "\\(36\\)",
+        "mapped": "\\(\\frac{4}{x}+\\frac{9}{y}\\ge2\\sqrt{36}\\)",
+        "stageLabel": "代入定积",
+        "fixedSourceLabel": "已知",
+        "fixedSourceTarget": "product",
+        "fixedCondition": "\\(\\frac{4}{x}\\cdot\\frac{9}{y}=36\\)",
+        "replacementText": "把乘积换成 36",
+        "replaced": "\\(\\frac{4}{x}+\\frac{9}{y}\\ge12\\)",
+        "simplifyLabel": "加上保留的常数 13",
+        "substituted": "\\(13+\\frac{4}{x}+\\frac{9}{y}\\ge25\\)",
+        "conclusionLabel": "得到原目标下界",
+        "conclusion": "\\(\\frac{4a}{a-1}+\\frac{9b}{b-1}\\ge25\\)"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "\\(\\frac{4}{x}>0，\\frac{9}{y}>0\\)"
         },
         {
           "kind": "therefore",
-          "text": "由基本不等式，\\(\\frac{4}{x}+\\frac{9}{y}\\ge2\\sqrt{36}=12\\)，故原式不小于 \\(25\\)"
+          "text": "\\(\\frac{4}{x}+\\frac{9}{y}\\ge2\\sqrt{\\frac{4}{x}\\cdot\\frac{9}{y}}=12\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(13+\\frac{4}{x}+\\frac{9}{y}\\ge25\\)"
+        }
+      ],
+      "derive": [
+        [
+          "下界",
+          "25"
+        ]
+      ]
+    },
+    {
+      "id": "s5",
+      "section": "换元法",
+      "title": "验证取等并还原",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-equality-check",
+        "templateLabel": "基本不等式取等",
+        "first": {
+          "value": "\\(\\frac{4}{x}\\)",
+          "shape": "square"
+        },
+        "second": {
+          "value": "\\(\\frac{9}{y}\\)",
+          "shape": "circle"
+        },
+        "conditionLabel": "结合新条件并还原",
+        "condition": "\\(xy=1，a=x+1，b=y+1\\)",
+        "solved": "\\(x=\\frac{2}{3}，y=\\frac{3}{2}\\Rightarrow a=\\frac{5}{3}，b=\\frac{5}{2}\\)",
+        "verificationLabel": "代回原目标",
+        "verification": "\\(\\frac{4a}{a-1}+\\frac{9b}{b-1}=25\\)",
+        "conclusion": "原式的最小值为 \\(25\\)"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "基本不等式取等 ⇔ 两个正项相等"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(\\frac{4}{x}=\\frac{9}{y}\\)"
         },
         {
           "kind": "because",
-          "text": "等号要求 \\(\\frac{4}{x}=\\frac{9}{y}\\)，再与 \\(xy=1\\) 联立"
+          "text": "\\(xy=1，x>0，y>0\\)"
         },
         {
           "kind": "therefore",
-          "text": "解得 \\(x=\\frac{2}{3}，y=\\frac{3}{2}\\)，还原为 \\(a=\\frac{5}{3}，b=\\frac{5}{2}\\)，故最小值为 \\(25\\)"
+          "text": "\\(x=\\frac{2}{3}，y=\\frac{3}{2}\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "由 \\(a=x+1，b=y+1\\)，得 \\(a=\\frac{5}{3}，b=\\frac{5}{2}\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "代回原式得 \\(25\\)，故最小值可以取得"
         }
       ],
       "derive": [
@@ -161,9 +348,41 @@
         0,
         0
       ]
+    },
+    "s2": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    },
+    "s3": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    },
+    "s4": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    },
+    "s5": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
     }
   },
   "stepLabels": {
-    "s1": "1 整体换元并整理目标，再应用基本不等式"
+    "s1": "1 观察原式结构",
+    "s2": "2 整体换元",
+    "s3": "3 观察换元后的结构",
+    "s4": "4 应用基本不等式",
+    "s5": "5 验证取等并还原"
   }
 }

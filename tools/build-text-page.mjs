@@ -300,6 +300,8 @@ export function validateTextLesson(lesson, inputDir = "") {
         const organizationSteps = Array.isArray(organization.steps) ? organization.steps : [];
         if (
           !organizationSteps.length
+          && organization.substitutionHint === undefined
+          && organization.eliminationHint === undefined
           && organization.homogenizationHint === undefined
           && organization.localHomogenizationHint === undefined
           && organization.termSpot === undefined
@@ -309,6 +311,8 @@ export function validateTextLesson(lesson, inputDir = "") {
           && organization.squareHint === undefined
           && organization.baseHint === undefined
           && organization.alignmentHint === undefined
+          && organization.relationCountHint === undefined
+          && organization.symmetryHint === undefined
         ) {
           throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization 必须包含整理公式或规则图`);
         }
@@ -411,6 +415,39 @@ export function validateTextLesson(lesson, inputDir = "") {
             throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization.alignmentHint.ariaLabel 必须是非空字符串`);
           }
         }
+        if (organization.substitutionHint !== undefined) {
+          const hint = organization.substitutionHint;
+          if (!hint || typeof hint !== "object" || !Array.isArray(hint.mappings) || !hint.mappings.length) {
+            throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization.substitutionHint 必须包含非空 mappings`);
+          }
+          hint.mappings.forEach((mapping, index) => {
+            const kind = mapping?.kind === "radical" ? "radical" : "denominator";
+            const requiredFields = kind === "radical"
+              ? ["source", "variable", "assignment"]
+              : ["numerator", "denominator", "variable", "assignment"];
+            for (const field of requiredFields) {
+              if (!mapping || typeof mapping[field] !== "string" || !mapping[field].trim()) {
+                throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization.substitutionHint.mappings[${index}].${field} 必须是非空字符串`);
+              }
+            }
+            if (mapping?.kind !== undefined && !new Set(["denominator", "radical"]).has(mapping.kind)) {
+              throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization.substitutionHint.mappings[${index}].kind 必须是 denominator 或 radical`);
+            }
+          });
+          if (hint.ariaLabel !== undefined && (typeof hint.ariaLabel !== "string" || !hint.ariaLabel.trim())) {
+            throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization.substitutionHint.ariaLabel 必须是非空字符串`);
+          }
+        }
+        if (organization.eliminationHint !== undefined) {
+          const hint = organization.eliminationHint;
+          const requiredFields = ["variable", "isolated", "independentVariable", "targetBefore", "targetAfter"];
+          if (!hint || typeof hint !== "object" || requiredFields.some((field) => typeof hint[field] !== "string" || !hint[field].trim())) {
+            throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization.eliminationHint 必须完整复用条件消元结构图`);
+          }
+          if (hint.ariaLabel !== undefined && (typeof hint.ariaLabel !== "string" || !hint.ariaLabel.trim())) {
+            throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization.eliminationHint.ariaLabel 必须是非空字符串`);
+          }
+        }
         if (organization.homogenizationHint !== undefined) {
           const hint = organization.homogenizationHint;
           const requiredFields = [
@@ -478,6 +515,37 @@ export function validateTextLesson(lesson, inputDir = "") {
             });
           });
         }
+        if (organization.relationCountHint !== undefined) {
+          const hint = organization.relationCountHint;
+          if (!hint || typeof hint !== "object") {
+            throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization.relationCountHint 必须是关系缺口判断图`);
+          }
+          for (const field of ["ariaLabel"]) {
+            if (typeof hint[field] !== "string" || !hint[field].trim()) {
+              throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization.relationCountHint.${field} 必须是非空字符串`);
+            }
+          }
+          if (hint.substitution !== undefined) {
+            throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization.relationCountHint 已直接使用本题数值，不应再显示代入行`);
+          }
+          if (hint.conclusion !== undefined) {
+            throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization.relationCountHint 不应重复显示应用次数结论`);
+          }
+          for (const field of ["variable", "condition", "result"]) {
+            const item = hint[field];
+            if (!item || typeof item !== "object" || [item.label, item.value].some((value) => typeof value !== "string" || !value.trim())) {
+              throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization.relationCountHint.${field} 必须包含标签与数值`);
+            }
+            if (item.symbol !== undefined) {
+              throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization.relationCountHint.${field} 应直接使用数值，不引入抽象符号`);
+            }
+            for (const optionalField of ["detail"]) {
+              if (item[optionalField] !== undefined && (typeof item[optionalField] !== "string" || !item[optionalField].trim())) {
+                throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization.relationCountHint.${field}.${optionalField} 必须是非空字符串`);
+              }
+            }
+          }
+        }
       }
     }
     if (step.visual?.kind === "basic-inequality-mapping") {
@@ -485,11 +553,13 @@ export function validateTextLesson(lesson, inputDir = "") {
       const requiredFields = [
         "template",
         "mapped",
-        "fixedCondition",
         "replaced",
         "substituted",
         "conclusion",
       ];
+      if (visual.formulaStyle !== "square-sum") {
+        requiredFields.push("fixedCondition");
+      }
       if (requiredFields.some((field) => typeof visual[field] !== "string" || !visual[field].trim())) {
         throw new Error(`${meta.id} 的步骤 ${step.id}.visual 基本不等式映射缺少公式或结论`);
       }
@@ -498,7 +568,7 @@ export function validateTextLesson(lesson, inputDir = "") {
           throw new Error(`${meta.id} 的步骤 ${step.id}.visual.${field} 必须是非空字符串`);
         }
       }
-      if (visual.formulaStyle !== undefined && !new Set(["fraction-geometric", "sum-geometric"]).has(visual.formulaStyle)) {
+      if (visual.formulaStyle !== undefined && !new Set(["fraction-geometric", "sum-geometric", "square-sum"]).has(visual.formulaStyle)) {
         throw new Error(`${meta.id} 的步骤 ${step.id}.visual.formulaStyle 不是受支持的公式样式`);
       }
       if (visual.showPositiveStep !== undefined && typeof visual.showPositiveStep !== "boolean") {
@@ -531,19 +601,40 @@ export function validateTextLesson(lesson, inputDir = "") {
     }
     if (step.visual?.kind === "basic-inequality-equality-check") {
       const visual = step.visual;
-      const requiredFields = ["templateLabel", "conditionLabel", "condition", "solved", "verificationLabel", "verification", "conclusion"];
+      const equalities = Array.isArray(visual.equalities) ? visual.equalities : [];
+      const requiredFields = equalities.length
+        ? ["templateLabel", "solved", "verificationLabel", "verification", "conclusion"]
+        : ["templateLabel", "conditionLabel", "condition", "solved", "verificationLabel", "verification", "conclusion"];
       if (requiredFields.some((field) => typeof visual[field] !== "string" || !visual[field].trim())) {
         throw new Error(`${meta.id} 的步骤 ${step.id}.visual 验证取等缺少条件、结果或结论`);
       }
-      for (const field of ["first", "second"]) {
-        const term = visual[field];
+      const validateEqualityTerm = (term, fieldPath) => {
         if (!term || typeof term.value !== "string" || !term.value.trim() || !new Set(["square", "circle"]).has(term.shape)) {
-          throw new Error(`${meta.id} 的步骤 ${step.id}.visual.${field} 必须包含正项与方框或圆框`);
+          throw new Error(`${meta.id} 的步骤 ${step.id}.visual.${fieldPath} 必须包含正项与方框或圆框`);
         }
+      };
+      if (equalities.length) {
+        if (equalities.length < 2) {
+          throw new Error(`${meta.id} 的步骤 ${step.id}.visual.equalities 至少包含两组待联立的取等条件`);
+        }
+        equalities.forEach((item, index) => {
+          if (!item || [item.label, item.result].some((value) => typeof value !== "string" || !value.trim())) {
+            throw new Error(`${meta.id} 的步骤 ${step.id}.visual.equalities[${index}] 缺少标签或单组求解结果`);
+          }
+          validateEqualityTerm(item.first, `equalities[${index}].first`);
+          validateEqualityTerm(item.second, `equalities[${index}].second`);
+        });
+      } else {
+        validateEqualityTerm(visual.first, "first");
+        validateEqualityTerm(visual.second, "second");
       }
     }
     if (step.visual?.kind === "repeated-basic-inequality-flow") {
       const visual = step.visual;
+      const mode = visual.mode || "full";
+      if (mode !== "full") {
+        throw new Error(`${meta.id} 的步骤 ${step.id}.visual.mode 不是受支持的连续估计模式`);
+      }
       if ([visual.title, visual.methodTag, visual.conclusion].some((value) => typeof value !== "string" || !value.trim())) {
         throw new Error(`${meta.id} 的步骤 ${step.id}.visual 连续估计缺少标题、方法标签或结论`);
       }
@@ -563,7 +654,8 @@ export function validateTextLesson(lesson, inputDir = "") {
           throw new Error(`${meta.id} 的步骤 ${step.id}.visual.preparation 缺少整理过程、结果或观察结论`);
         }
       }
-      if (!Array.isArray(visual.rounds) || visual.rounds.length !== count.estimatedRounds) {
+      const expectedRounds = count.estimatedRounds;
+      if (!Array.isArray(visual.rounds) || visual.rounds.length !== expectedRounds) {
         throw new Error(`${meta.id} 的步骤 ${step.id}.visual.rounds 必须与预计轮数一致`);
       }
       visual.rounds.forEach((round, index) => {

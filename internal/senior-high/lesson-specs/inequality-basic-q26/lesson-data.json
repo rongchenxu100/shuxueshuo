@@ -13,13 +13,13 @@
     "source": "",
     "keyPoints": {
       "title": "解题要点",
-      "lead": "目标中的根号整体 \\(\\sqrt{2+y^2}\\) 遮住了它与条件的联系，令 \\(t=\\sqrt{2+y^2}\\)；换元后条件成为两个正项的平方和定值，目标成为乘积 \\(xt\\)，可以直接应用基本不等式求上界。",
+      "lead": "",
       "items": [
-        "根号整体换元：令 \\(t=\\sqrt{2+y^2}>\\sqrt2\\)，并保留 \\(t^2=2+y^2\\)。",
-        "整理新条件：\\(x^2+\\frac{t^2-2}{16}=1\\Rightarrow16x^2+t^2=18\\Rightarrow(4x)^2+t^2=18\\)。",
-        "整理新目标：\\(x\\sqrt{2+y^2}=xt\\)。",
-        "应用基本不等式：\\((4x)^2+t^2\\ge2\\cdot4x\\cdot t=8xt\\)，所以 \\(xt\\le\\frac{9}{4}\\)。",
-        "还原取等：等号要求 \\(4x=t\\)，联立新条件得 \\(x=\\frac{3}{4}，t=3\\)，再由 \\(t=\\sqrt{2+y^2}\\) 得 \\(y=\\sqrt7\\)。"
+        "观察原式结构：目标中完整出现根号 \\(\\sqrt{2+y^2}\\)，适合把根号整体换成新变量",
+        "整体换元：令 \\(t=\\sqrt{2+y^2}>\\sqrt2\\)，同步改写条件与目标，得到 \\((4x)^2+t^2=18\\) 和 \\(xt\\)",
+        "观察换元后的结构：两个正项 \\((4x)^2\\)、\\(t^2\\) 的和固定，而其乘积的平方根为 \\(4xt\\)",
+        "应用基本不等式：\\((4x)^2+t^2\\ge8xt\\)，所以 \\(xt\\le\\frac{9}{4}\\)",
+        "验证取等并还原：\\(4x=t\\)，结合定和得 \\(x=\\frac{3}{4}，t=3\\)，再还原 \\(y=\\sqrt7\\)"
       ]
     },
     "lines": [
@@ -32,104 +32,294 @@
     {
       "id": "s1",
       "section": "换元法",
-      "title": "根号整体换元并整理目标，再应用基本不等式",
+      "title": "观察原式结构",
       "t": 0,
       "showDiagram": false,
       "visual": {
-        "kind": "substitution-basic-inequality-lifecycle",
-        "title": "换元（根号换元 → 整理目标）→ 应用基本不等式 → 还原等号",
-        "methodTag": "换元法｜根号整体换元",
-        "substitution": {
-          "label": "对根号整体换元并整理新条件、目标",
-          "observation": "只替换复杂的根号整体，同时把原条件与原目标改写成新变量",
-          "mappingActionLabel": "把根号整体换成新变量",
-          "mappings": [
-            {
-              "sourceLabel": "原根号整体",
-              "source": "\\(\\sqrt{2+y^2}\\)",
-              "target": "\\(t=\\sqrt{2+y^2}>\\sqrt2\\)",
-              "reverse": "\\(t^2=2+y^2\\)"
-            }
-          ],
-          "rearrangement": {
-            "label": "整理换元后的条件与目标",
-            "conditionFlow": [
-              "\\(x^2+\\frac{t^2-2}{16}=1\\)",
-              "\\(16x^2+t^2=18\\)",
-              "\\((4x)^2+t^2=18\\)"
+        "kind": "basic-inequality-structure-scan",
+        "condition": {
+          "label": "条件整式",
+          "expression": "\\(x>0，y>0，x^2+\\frac{y^2}{16}=1\\)",
+          "tag": "含根号内部的 y²"
+        },
+        "target": {
+          "label": "目标整式",
+          "expression": "\\(x\\sqrt{2+y^2}\\)",
+          "tag": "完整根号整体"
+        },
+        "organization": {
+          "substitutionHint": {
+            "mappings": [
+              {
+                "kind": "radical",
+                "source": "\\(\\sqrt{2+y^2}\\)",
+                "variable": "\\(t\\)",
+                "assignment": "\\(\\sqrt{2+y^2}>\\sqrt2\\)"
+              }
             ],
-            "before": "\\(x\\sqrt{2+y^2}\\)",
-            "identities": [
-              "\\(\\sqrt{2+y^2}=t\\)",
-              "\\(x\\sqrt{2+y^2}=x\\cdot t\\)"
-            ],
-            "result": "\\(xt\\)"
-          },
-          "condition": "\\((4x)^2+t^2=18\\)",
-          "target": "\\(xt\\)",
-          "handoffLabel": "整理后发现：两个正项的和固定"
+            "ariaLabel": "识别目标中的完整根号二加 y 平方，令 t 对根号整体换元"
+          }
         },
-        "basicInequality": {
-          "label": "应用基本不等式求最大值",
-          "methodTag": "发现结构｜两正项和固定",
-          "observation": "条件固定了两个正项的和，而它们乘积的平方根正好是目标的 4 倍",
-          "positiveTerms": [
-            {
-              "value": "\\((4x)^2\\)",
-              "condition": "\\((4x)^2>0\\)"
-            },
-            {
-              "value": "\\(t^2\\)",
-              "condition": "\\(t^2>0\\)"
-            }
-          ],
-          "relationLabel": "根积对应目标",
-          "product": "\\(\\sqrt{(4x)^2\\cdot t^2}=4xt\\)",
-          "inequality": "\\((4x)^2+t^2\\ge2\\cdot4x\\cdot t=8xt\\)",
-          "bound": "\\(18\\ge8xt\\Rightarrow xt\\le\\frac{9}{4}\\)",
-          "equality": "\\((4x)^2=t^2\\Rightarrow4x=t\\)",
-          "equalitySolved": "\\(x=\\frac{3}{4}，t=3\\)"
-        },
-        "restoration": {
-          "label": "求解等号成立条件",
-          "variableLabel": "x、y",
-          "transformedEquality": "\\(4x=t\\)",
-          "solved": "\\(x=\\frac{3}{4}，t=3\\)",
-          "reverse": "\\(t=\\sqrt{2+y^2}\\)",
-          "result": "\\(x=\\frac{3}{4}，y=\\sqrt7\\)",
-          "verification": "\\(x^2+\\frac{y^2}{16}=\\frac{9}{16}+\\frac{7}{16}=1\\)"
-        },
-        "conclusion": "\\(x\\sqrt{2+y^2}\\) 的最大值是 \\(\\frac{9}{4}\\)",
-        "caption": "三步相连：先把根号整体换元并整理条件、目标；当平方和定值结构显现后应用基本不等式，最后把取等条件还原到原变量。"
+        "reading": "根号整体",
+        "route": "整体换元"
       },
       "reasoning": [
         {
           "kind": "because",
-          "text": "目标中完整出现根号 \\(\\sqrt{2+y^2}\\)，令 \\(t=\\sqrt{2+y^2}>\\sqrt2\\)，则 \\(t^2=2+y^2\\)"
+          "text": "目标中完整出现根号 \\(\\sqrt{2+y^2}\\)"
+        },
+        {
+          "kind": "because",
+          "text": "由 \\(y>0\\)，得 \\(\\sqrt{2+y^2}>\\sqrt2\\)"
         },
         {
           "kind": "therefore",
-          "text": "把 \\(y^2=t^2-2\\) 代入条件，得 \\(x^2+\\frac{t^2-2}{16}=1\\)，整理为 \\((4x)^2+t^2=18\\)"
+          "text": "可把根号整体换成一个新的正变量"
+        }
+      ],
+      "derive": [
+        [
+          "路线判断",
+          "根号整体换元"
+        ]
+      ]
+    },
+    {
+      "id": "s2",
+      "section": "换元法",
+      "title": "整体换元",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-structure-scan",
+        "showFocus": false,
+        "condition": {
+          "label": "原条件",
+          "expression": "\\(x^2+\\frac{y^2}{16}=1\\)"
+        },
+        "target": {
+          "label": "原目标",
+          "expression": "\\(x\\sqrt{2+y^2}\\)"
+        },
+        "organization": {
+          "label": "整体换元：定义域、条件与目标同步改写",
+          "steps": [
+            {
+              "label": "定义",
+              "expression": "\\(t=\\sqrt{2+y^2}>\\sqrt2\\)"
+            },
+            {
+              "label": "逆关系",
+              "expression": "\\(y^2=t^2-2\\)"
+            },
+            {
+              "label": "改写条件",
+              "expression": "\\(x^2+\\frac{t^2-2}{16}=1\\Rightarrow(4x)^2+t^2=18\\)"
+            },
+            {
+              "label": "改写目标",
+              "expression": "\\(x\\sqrt{2+y^2}=xt\\)"
+            }
+          ]
+        },
+        "reading": "完成换元与整理",
+        "route": "重新观察结构"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "令 \\(t=\\sqrt{2+y^2}>\\sqrt2\\)，则 \\(y^2=t^2-2\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "条件改写为 \\(x^2+\\frac{t^2-2}{16}=1\\Rightarrow(4x)^2+t^2=18\\)"
         },
         {
           "kind": "therefore",
           "text": "目标同步改写为 \\(x\\sqrt{2+y^2}=xt\\)"
+        }
+      ],
+      "derive": [
+        [
+          "换元结果",
+          "(4x)²+t²=18｜目标为 xt"
+        ]
+      ]
+    },
+    {
+      "id": "s3",
+      "section": "换元法",
+      "title": "观察换元后的结构",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-structure-scan",
+        "condition": {
+          "label": "条件整式",
+          "expression": "\\((4x)^2+t^2=18\\)",
+          "tag": "定和"
+        },
+        "target": {
+          "label": "目标整式",
+          "expression": "\\(xt=\\frac{1}{4}\\sqrt{(4x)^2t^2}\\)",
+          "tag": "对应两正项之积"
+        },
+        "pattern": {
+          "first": {
+            "value": "\\((4x)^2\\)",
+            "shape": "square"
+          },
+          "second": {
+            "value": "\\(t^2\\)",
+            "shape": "circle"
+          },
+          "condition": {
+            "operator": "+",
+            "tag": "定和 18"
+          },
+          "target": {
+            "operator": "·",
+            "tag": "求最大值"
+          },
+          "ariaLabel": "换元后，同一组正项 4x 的平方与 t 的平方之和固定为 18，求乘积的最大值"
+        },
+        "reading": "定和求积",
+        "route": "直接应用基本不等式"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "\\((4x)^2>0，t^2>0\\)，且两项的和固定为 \\(18\\)"
         },
         {
           "kind": "because",
-          "text": "\\((4x)^2>0，t^2>0\\)，对这两个正项应用基本不等式"
+          "text": "两项乘积的平方根为 \\(\\sqrt{(4x)^2t^2}=4xt\\)，与目标只差常数倍"
         },
         {
           "kind": "therefore",
-          "text": "\\((4x)^2+t^2\\ge2\\sqrt{(4x)^2t^2}=8xt\\)，结合平方和等于 \\(18\\)，得 \\(xt\\le\\frac{9}{4}\\)"
+          "text": "这是「定和求积」，直接应用基本不等式"
+        }
+      ],
+      "derive": [
+        [
+          "结构判断",
+          "定和求积｜直接应用"
+        ]
+      ]
+    },
+    {
+      "id": "s4",
+      "section": "换元法",
+      "title": "应用基本不等式",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-mapping",
+        "methodTag": "直接应用｜定和求积",
+        "templateLabel": "代入基本不等式",
+        "template": "\\(u+v\\ge2\\sqrt{uv}\\)",
+        "formulaStyle": "sum-geometric",
+        "showPositiveStep": true,
+        "mappings": [
+          {
+            "slot": "第一个正项",
+            "shape": "square",
+            "value": "\\((4x)^2\\)",
+            "condition": "\\((4x)^2>0\\)"
+          },
+          {
+            "slot": "第二个正项",
+            "shape": "circle",
+            "value": "\\(t^2\\)",
+            "condition": "\\(t^2>0\\)"
+          }
+        ],
+        "mappedSum": "\\((4x)^2+t^2\\)",
+        "mappedProduct": "\\((4x)^2t^2\\)",
+        "mapped": "\\((4x)^2+t^2\\ge2\\sqrt{(4x)^2t^2}=8xt\\)",
+        "stageLabel": "代入定和",
+        "fixedSourceLabel": "已知",
+        "fixedCondition": "\\((4x)^2+t^2=18\\)",
+        "replacementText": "把两正项之和换成 18",
+        "replaced": "\\(18\\ge8xt\\)",
+        "simplifyLabel": "两边除以 8",
+        "substituted": "\\(xt\\le\\frac{9}{4}\\)",
+        "conclusionLabel": "得到原目标上界",
+        "conclusion": "\\(x\\sqrt{2+y^2}\\le\\frac{9}{4}\\)"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "\\((4x)^2>0，t^2>0\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\((4x)^2+t^2\\ge2\\sqrt{(4x)^2t^2}=8xt\\)"
         },
         {
           "kind": "because",
-          "text": "等号要求 \\((4x)^2=t^2\\)；由 \\(x，t>0\\) 得 \\(4x=t\\)"
+          "text": "\\((4x)^2+t^2=18\\)"
         },
         {
           "kind": "therefore",
-          "text": "联立 \\((4x)^2+t^2=18\\)，得 \\(x=\\frac{3}{4}，t=3\\)；还原 \\(t=\\sqrt{2+y^2}\\)，得 \\(y=\\sqrt7\\)，故最大值为 \\(\\frac{9}{4}\\)"
+          "text": "\\(18\\ge8xt\\Rightarrow xt\\le\\frac{9}{4}\\)"
+        }
+      ],
+      "derive": [
+        [
+          "上界",
+          "9/4"
+        ]
+      ]
+    },
+    {
+      "id": "s5",
+      "section": "换元法",
+      "title": "验证取等并还原",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-equality-check",
+        "templateLabel": "基本不等式取等",
+        "first": {
+          "value": "\\((4x)^2\\)",
+          "shape": "square"
+        },
+        "second": {
+          "value": "\\(t^2\\)",
+          "shape": "circle"
+        },
+        "conditionLabel": "结合新条件并还原",
+        "condition": "\\((4x)^2+t^2=18，t^2=2+y^2\\)",
+        "solved": "\\(4x=t\\Rightarrow x=\\frac{3}{4}，t=3，y=\\sqrt7\\)",
+        "verificationLabel": "代回原目标",
+        "verification": "\\(x\\sqrt{2+y^2}=\\frac{3}{4}\\cdot3=\\frac{9}{4}\\)",
+        "conclusion": "原式的最大值为 \\(\\frac{9}{4}\\)"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "基本不等式取等 ⇔ 两个正项相等"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\((4x)^2=t^2\\Rightarrow4x=t\\)"
+        },
+        {
+          "kind": "because",
+          "text": "\\((4x)^2+t^2=18，x>0，t>0\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(x=\\frac{3}{4}，t=3\\)"
+        },
+        {
+          "kind": "because",
+          "text": "\\(t^2=2+y^2，y>0\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(y=\\sqrt7\\)，代回原式得 \\(\\frac{9}{4}\\)，故最大值可以取得"
         }
       ],
       "derive": [
@@ -151,9 +341,41 @@
         0,
         0
       ]
+    },
+    "s2": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    },
+    "s3": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    },
+    "s4": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    },
+    "s5": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
     }
   },
   "stepLabels": {
-    "s1": "1 根号整体换元并整理目标，再应用基本不等式"
+    "s1": "1 观察原式结构",
+    "s2": "2 整体换元",
+    "s3": "3 观察换元后的结构",
+    "s4": "4 应用基本不等式",
+    "s5": "5 验证取等并还原"
   }
 }
