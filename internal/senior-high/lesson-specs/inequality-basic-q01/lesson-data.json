@@ -13,11 +13,11 @@
     "source": "高一暑假目标班 · 第4讲",
     "keyPoints": {
       "title": "解题要点",
-      "lead": "先检查各项为正，再使用基本不等式，并单独核对等号条件。",
+      "lead": "",
       "items": [
-        "一正：参与基本不等式的各项必须为正。",
-        "二定：和或积中必须有一个是定值。",
-        "三相等：只有各项相等时才能取得等号。"
+        "观察结构：条件 \\(m+n=2\\) 是定和，目标 \\(mn\\) 是积 → 定和求积，直接应用。",
+        "应用基本不等式：识别 \\(m\\)、\\(n\\) 为两个正项，代入基本不等式公式与定和，得到 \\(mn\\le1\\)。",
+        "验证取等：两个正项相等且满足定和 → \\(m=n=1\\)。"
       ]
     },
     "lines": [
@@ -30,14 +30,73 @@
     {
       "id": "s1",
       "section": "基本不等式",
-      "title": "验证条件并求上界",
+      "title": "观察结构",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-structure-scan",
+        "condition": {
+          "label": "条件整式",
+          "expression": "\\(m+n=2\\)",
+          "tag": "定和"
+        },
+        "target": {
+          "label": "目标整式",
+          "expression": "\\(mn\\)",
+          "tag": "积"
+        },
+        "pattern": {
+          "first": {
+            "value": "m",
+            "shape": "square"
+          },
+          "second": {
+            "value": "n",
+            "shape": "circle"
+          },
+          "condition": {
+            "operator": "+",
+            "tag": "定和"
+          },
+          "target": {
+            "operator": "·",
+            "tag": "求最大值"
+          },
+          "ariaLabel": "同一组正项 m、n：和固定，求积的最大值"
+        },
+        "reading": "定和求积",
+        "route": "直接应用基本不等式"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "\\(m,n>0\\)，且 \\(m+n=2\\) 为定和，\\(mn\\) 为积"
+        },
+        {
+          "kind": "therefore",
+          "text": "本题是「定和求积」，直接应用基本不等式"
+        }
+      ],
+      "derive": [
+        [
+          "结构判断",
+          "定和求积｜直接应用"
+        ]
+      ]
+    },
+    {
+      "id": "s2",
+      "section": "基本不等式",
+      "title": "应用基本不等式",
       "t": 0,
       "showDiagram": false,
       "visual": {
         "kind": "basic-inequality-mapping",
-        "title": "把两个完整正项放进彩色槽位",
         "methodTag": "直接应用｜定和求积",
-        "template": "彩色方槽与彩色圆槽表示两个完整正项",
+        "templateLabel": "代入基本不等式",
+        "template": "\\(u+v\\ge2\\sqrt{uv}\\)",
+        "formulaStyle": "sum-geometric",
+        "showPositiveStep": true,
         "mappings": [
           {
             "slot": "第一个正项",
@@ -52,34 +111,90 @@
             "condition": "\\(n>0\\)"
           }
         ],
-        "mapped": "\\(\\frac{m+n}{2}\\ge\\sqrt{mn}\\)",
+        "mapped": "\\(m+n\\ge2\\sqrt{mn}\\)",
         "stageLabel": "代入定和",
         "fixedSourceLabel": "已知",
         "fixedCondition": "\\(m+n=2\\)",
         "replacementText": "把 \\(m+n\\) 换成 \\(2\\)",
-        "replaced": "\\(\\frac{2}{2}\\ge\\sqrt{mn}\\)",
+        "replaced": "\\(2\\ge2\\sqrt{mn}\\)",
         "simplifyLabel": "化简",
         "substituted": "\\(1\\ge\\sqrt{mn}\\)",
         "conclusionLabel": "平方后得到上界",
-        "conclusion": "\\(mn\\le1\\)",
-        "equalityTemplate": "两个槽位相等",
-        "equalityMapped": "\\(m=n\\)",
-        "equalityContextLabel": "结合定和",
-        "equalityResult": "\\(m=n=1\\)",
-        "caption": "槽位中放入的是两个完整正项；本题把 m、n 直接装入彩色槽位，再代入定和并核对等号条件。"
+        "conclusion": "\\(mn\\le1\\)"
       },
       "reasoning": [
         {
           "kind": "because",
-          "text": "\\(m>0，n>0\\)，所以 \\(\\frac{m+n}{2}\\ge\\sqrt{mn}\\)"
+          "text": "\\(m>0，n>0\\)"
         },
         {
           "kind": "therefore",
-          "text": "由 \\(m+n=2\\) 得 \\(1\\ge\\sqrt{mn}\\)，即 \\(mn\\le1\\)"
+          "text": "\\(m+n\\ge2\\sqrt{mn}\\)"
+        },
+        {
+          "kind": "because",
+          "text": "\\(m+n=2\\)"
         },
         {
           "kind": "therefore",
-          "text": "当且仅当 \\(m=n=1\\) 时取等号，所以最大值为 \\(1\\)"
+          "text": "\\(2\\ge2\\sqrt{mn}\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(mn\\le1\\)"
+        }
+      ],
+      "derive": [
+        [
+          "上界",
+          "mn≤1"
+        ]
+      ]
+    },
+    {
+      "id": "s3",
+      "section": "基本不等式",
+      "title": "验证取等",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-equality-check",
+        "templateLabel": "基本不等式取等",
+        "first": {
+          "value": "m",
+          "shape": "square"
+        },
+        "second": {
+          "value": "n",
+          "shape": "circle"
+        },
+        "conditionLabel": "结合定和",
+        "condition": "\\(m+n=2\\)",
+        "solved": "\\(m=n=1\\)",
+        "verificationLabel": "代回目标",
+        "verification": "\\(mn=1\\)",
+        "conclusion": "\\(mn\\) 的最大值为 \\(1\\)"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "基本不等式取等 ⇔ 两个正项相等"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(m=n\\)"
+        },
+        {
+          "kind": "because",
+          "text": "\\(m+n=2\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(m=n=1\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(mn=1\\)，最大值为 \\(1\\)"
         }
       ],
       "derive": [
@@ -101,9 +216,25 @@
         0,
         0
       ]
+    },
+    "s2": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    },
+    "s3": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
     }
   },
   "stepLabels": {
-    "s1": "1 验证条件并求上界"
+    "s1": "1 观察结构",
+    "s2": "2 应用基本不等式",
+    "s3": "3 验证取等"
   }
 }

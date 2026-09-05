@@ -1630,46 +1630,86 @@
     const renderBasicInequalityMethodRoute = (topic, moduleId, methodGroups) => {
       const groupById = Object.fromEntries(methodGroups.map((group) => [group.id, group]));
       const structureClues = [
-        {
-          id: "basic-application",
-          label: "定和 / 定积？",
-          note: "整理后露出两个正项",
-        },
-        {
-          id: "symmetric-structure",
-          label: "交换不变？",
-          note: "目标与条件分别检验",
-        },
-        {
-          id: "homogeneous-form",
-          label: "次数配成 0？",
-          note: "一正一负或局部不齐",
-        },
-        {
-          id: "iterated-product",
-          label: "多轮配对？",
-          note: "预计缺多条取等",
-        },
+        { id: "basic-application", probe: "定和 / 定积" },
+        { id: "symmetric-structure", probe: "交换不变" },
+        { id: "homogeneous-form", probe: "次数配成 0" },
+        { id: "iterated-product", probe: "多轮配对" },
       ];
       const renderExpressionBars = () => `
         <div class="basic-method-route-expression" aria-hidden="true">
           <i></i><i></i><i class="is-short"></i>
         </div>`;
-      const renderClueLink = ({ id, label, note }) => {
+      const renderStructureGlyph = (id) => {
+        if (id === "basic-application") return `
+          <div class="basic-method-structure-glyph is-basic" aria-hidden="true">
+            <div class="basic-method-paired-row">
+              <span class="basic-method-mini-slot is-square"></span><i>＋</i><span class="basic-method-mini-slot is-circle"></span><b>定</b>
+            </div>
+            <em>⇅</em>
+            <div class="basic-method-paired-row is-product">
+              <span class="basic-method-mini-slot is-square"></span><i>·</i><span class="basic-method-mini-slot is-circle"></span><b>最值</b>
+            </div>
+          </div>`;
+        if (id === "symmetric-structure") return `
+          <div class="basic-method-structure-glyph is-symmetric" aria-hidden="true">
+            <div class="basic-method-swap-symbol"><b>x</b><i>↔</i><b>y</b></div>
+            <div class="basic-method-swap-equation">
+              <span><small>原式</small></span><b>＝</b><span class="is-swapped"><small>交换后</small></span>
+            </div>
+          </div>`;
+        if (id === "homogeneous-form") return `
+          <div class="basic-method-structure-glyph is-homogeneous" aria-hidden="true">
+            <div class="basic-method-degree-sources">
+              <span class="basic-method-degree-box"><sup>m</sup></span>
+              <b>×</b>
+              <span class="basic-method-degree-box is-condition"><sup>n</sup></span>
+              <b class="is-arrow">→</b>
+              <span class="basic-method-degree-box is-zero"><sup>0</sup></span>
+            </div>
+            <p class="basic-method-round-probe"><b>m+n=0</b></p>
+          </div>`;
+        return `
+          <div class="basic-method-structure-glyph is-repeated" aria-hidden="true">
+            <div class="basic-method-count-glyph">
+              <span><small>变量数</small><b>n</b></span><i>−</i>
+              <span><small>已有取等</small><b>k</b></span><i>＝</i>
+              <strong><small>预计</small><b>n−k 次</b></strong>
+            </div>
+            <p class="basic-method-round-probe"><b>n−k&gt;1</b></p>
+          </div>`;
+      };
+      const renderClueLink = ({ id, probe }) => {
         const group = groupById[id];
         if (!group) return "";
         return `
-          <a class="basic-method-route-clue" href="${escapeHtml(learningMethodGuideHref(topic, moduleId, id))}" data-learning-method="${escapeHtml(id)}">
-            <span>${label}</span>
+          <a class="basic-method-route-clue is-${escapeHtml(id)}" href="${escapeHtml(learningMethodGuideHref(topic, moduleId, id))}" data-learning-method="${escapeHtml(id)}" aria-label="${escapeHtml(`${probe}：${group.title}`)}">
+            ${renderStructureGlyph(id)}
+            <small class="basic-method-route-probe">${probe}</small>
             <strong>${escapeHtml(group.title)}</strong>
-            ${note ? `<small>${note}</small>` : ""}
           </a>`;
+      };
+      const renderSecondaryGlyph = (id) => {
+        if (id === "substitution-method") return `
+          <div class="basic-method-secondary-glyph is-substitution" aria-hidden="true">
+            <span class="is-fraction"><sup>1</sup><i>/</i><b></b></span>
+            <i>或</i>
+            <span class="is-radical"><b>√</b><em></em></span>
+            <i>→</i>
+            <strong>u</strong>
+          </div>`;
+        return `
+          <div class="basic-method-secondary-glyph is-elimination" aria-hidden="true">
+            <span>y<i>=</i><b></b></span>
+            <i>→</i>
+            <strong>一元式</strong>
+          </div>`;
       };
       const renderSecondaryLink = (id, { question, note, isFallback = false }) => {
         const group = groupById[id];
         if (!group) return "";
         return `
           <a class="basic-method-route-secondary-link${isFallback ? " is-fallback" : ""}" href="${escapeHtml(learningMethodGuideHref(topic, moduleId, id))}" data-learning-method="${escapeHtml(id)}">
+            ${renderSecondaryGlyph(id)}
             <strong>${escapeHtml(group.title)}</strong>
             <span>${question}</span>
             ${note ? `<small>${note}</small>` : ""}
@@ -1701,7 +1741,7 @@
               ${structureClues.map((clue) => renderClueLink(clue)).join("")}
             </div>
             <p class="basic-method-route-zero-meaning">
-              <strong>观察结构</strong><b>⇔</b><span>定和 / 对称 / 齐次 / 多轮 决定第一入口</span>
+              <strong>观察结构</strong><b>→</b><span>题目中的式子能放进哪张结构图？</span>
             </p>
           </section>
           <section class="basic-method-route-secondary" aria-label="改写与兜底">
@@ -1755,11 +1795,11 @@
           </div>
         </div>
         <section class="basic-slot-how method-how">
-          <header><span>HOW</span><strong>先识别正项，再代入槽位验证取等</strong></header>
+          <header><span>HOW</span><strong>先识别正项，再代入基本不等式验证取等</strong></header>
           <div class="basic-slot-pipeline" aria-label="直接应用基本不等式操作步骤">
             <article><span>①</span><strong>识别正项</strong><small>正变量、正常数、完整表达式或函数值，整体 &gt; 0</small></article>
             <i aria-hidden="true">→</i>
-            <article><span>②</span><strong>代入槽位</strong><small>□ 与 ○ 同步替换</small></article>
+            <article><span>②</span><strong>代入基本不等式</strong><small>□ 与 ○ 同步替换</small></article>
             <i aria-hidden="true">→</i>
             <article><span>③</span><strong>验证取等</strong><small>□=○ 能否成立</small></article>
           </div>
@@ -1768,7 +1808,7 @@
               <header><span>直接代入</span><strong>目标已露出两个正项</strong></header>
               ${renderBasicSlotRouteProblem("练习 8·1", `正实数 ${inlineMath("m，n")} 满足 ${inlineMath("m+n=2")}，求 ${inlineMath("mn")} 的最大值。`)}
               ${renderBasicSlotRouteStep("识别正项", `${inlineMath("m&gt;0")}，${inlineMath("n&gt;0")}`)}
-              ${renderBasicSlotRouteStep("代入槽位", `${basicSlot("square")}<i>←</i>${inlineMath("m")}<i>，</i>${basicSlot("circle")}<i>←</i>${inlineMath("n")}<i> → </i>${inlineMath(`${mathFraction("m+n", "2")}≥${mathRadical("mn")}`)}`)}
+              ${renderBasicSlotRouteStep("代入基本不等式", `${basicSlot("square")}<i>←</i>${inlineMath("m")}<i>，</i>${basicSlot("circle")}<i>←</i>${inlineMath("n")}<i> → </i>${inlineMath(`${mathFraction("m+n", "2")}≥${mathRadical("mn")}`)}`)}
               ${renderBasicSlotRouteStep("代入定和", `${inlineMath("m+n=2")}<i> → </i>${inlineMath(`1≥${mathRadical("mn")}`)}<i> → </i>${inlineMath("mn≤1")}`)}
               <p class="basic-slot-route-result"><span>验证取等</span><strong>${inlineMath("m=n=1")} 时取等，最大值为 ${inlineMath("1")}</strong></p>
               <small class="basic-slot-route-lessons">同类：练习 8·2</small>
@@ -1777,7 +1817,7 @@
               <header><span>整理后代入</span><strong>先改写目标，让正项显形</strong></header>
               ${renderBasicSlotRouteProblem("练习 8·7", `已知 ${inlineMath("x&gt;-1")}，求 ${inlineMath(`x+${mathFraction("4", "x+1")}`)} 的最小值。`)}
               ${renderBasicSlotRouteStep("整理目标", `${inlineMath("x=(x+1)−1")}<i> → </i>${inlineMath(`x+${mathFraction("4", "x+1")}=[(x+1)+${mathFraction("4", "x+1")}]−1`)}`)}
-              ${renderBasicSlotRouteStep("代入槽位", `${basicSlot("square")}<i>←</i>${inlineMath("x+1")}<i>，</i>${basicSlot("circle")}<i>←</i>${inlineMath(mathFraction("4", "x+1"))}`)}
+              ${renderBasicSlotRouteStep("代入基本不等式", `${basicSlot("square")}<i>←</i>${inlineMath("x+1")}<i>，</i>${basicSlot("circle")}<i>←</i>${inlineMath(mathFraction("4", "x+1"))}`)}
               ${renderBasicSlotRouteStep("括号内定积", `${inlineMath(`(x+1)·${mathFraction("4", "x+1")}=4`)}<i> → </i>${inlineMath(`(x+1)+${mathFraction("4", "x+1")}≥4`)}<i> → </i>${inlineMath(`x+${mathFraction("4", "x+1")}≥3`)}`)}
               <p class="basic-slot-route-result"><span>验证取等</span><strong>${inlineMath("x+1=2")} 即 ${inlineMath("x=1")} 时取等，最小值为 ${inlineMath("3")}</strong></p>
               <small class="basic-slot-route-lessons">同类：练习 8·5 · 8·8</small>
@@ -1920,12 +1960,67 @@
             <mark class="symmetric-structure-term is-product">${inlineMath("p=xy")}</mark>
           </p>
         </section>
+        <section class="symmetric-why" aria-label="为什么可以用和与积换元">
+          <header>
+            <span>WHY</span>
+            <strong>为什么要找对称结构</strong>
+          </header>
+          <div class="symmetric-why-path">
+            <article class="symmetric-why-stage is-invariants">
+              <header><span>①</span><strong>和与积是最基本的对称结构</strong></header>
+              <div class="symmetric-invariant-exchange"><small>交换变量</small><strong><em>x</em><i>↔</i><em>y</em></strong></div>
+              <div class="symmetric-invariant-cards">
+                <section class="is-sum">
+                  <small>和不变</small>
+                  <strong>${inlineMath("x+y=y+x")}</strong>
+                  <mark class="symmetric-structure-term is-sum">${inlineMath("s=x+y")}</mark>
+                </section>
+                <section class="is-product">
+                  <small>积不变</small>
+                  <strong>${inlineMath("xy=yx")}</strong>
+                  <mark class="symmetric-structure-term is-product">${inlineMath("p=xy")}</mark>
+                </section>
+              </div>
+            </article>
+            <i class="symmetric-why-path-arrow" aria-hidden="true">↓</i>
+            <article class="symmetric-why-stage is-elimination">
+              <header><span>②</span><strong>和与积可以应用基本不等式消元</strong></header>
+              <div class="symmetric-sum-product-relation">
+                <small>基本不等式的变式</small>
+                <strong>${inlineMath("s²−4p=(x−y)²≥0")}</strong>
+                <i aria-hidden="true">⇒</i>
+                <mark>${inlineMath("s²≥4p")}</mark>
+              </div>
+              <div class="symmetric-elimination-inputs">
+                <section>
+                  <small>改写后的题目条件</small>
+                  <strong>${inlineMath("…s…p…=…")}</strong>
+                </section>
+                <b aria-label="加上">＋</b>
+                <section class="is-relation">
+                  <small>和积关系</small>
+                  <strong>${inlineMath("s²≥4p")}</strong>
+                </section>
+              </div>
+              <div class="symmetric-elimination-outcome">
+                <strong>消去 ${inlineMath("p")} 或 ${inlineMath("s")}</strong>
+                <i aria-hidden="true">→</i>
+                <mark>只剩一个变量</mark>
+              </div>
+            </article>
+          </div>
+          <p class="symmetric-why-meaning">
+            <strong>对称结构</strong><b>→</b>
+            <span>和积换元</span><b>→</b>
+            <span>基本不等式消元</span>
+          </p>
+        </section>
         <section class="symmetric-method-how method-how basic-slot-how">
           <header><span>HOW</span><strong>先交换检验，再用和与积改写</strong></header>
           <div class="basic-slot-pipeline" aria-label="找对称结构操作步骤">
             <article><span>①</span><strong>交换检验</strong><small>目标整式、条件整式分别交换</small></article>
             <i aria-hidden="true">→</i>
-            <article><span>②</span><strong>和与积换元</strong><small>令 s,p 改写</small></article>
+            <article><span>②</span><strong>和与积换元</strong><small>用 s=x+y，p=xy 改写</small></article>
             <i aria-hidden="true">→</i>
             <article><span>③</span><strong>验证取等</strong><small>取等时 x=y 能否成立</small></article>
           </div>

@@ -13,14 +13,11 @@
     "source": "",
     "keyPoints": {
       "title": "解题要点",
-      "lead": "先把条件因式分解为 \\(x(x+y)=3\\)，找到乘积固定的两个正项整体；再把目标重组为 \\(4x+y=3x+(x+y)\\)，使条件中的整体直接进入基本不等式。",
+      "lead": "",
       "items": [
-        "整理条件：\\(x^2+xy=3\\Rightarrow x(x+y)=3\\)。",
-        "重组目标：\\(4x+y=3x+(x+y)\\)。",
-        "确认正性：由 \\(x，y>0\\)，得 \\(3x>0，x+y>0\\)。",
-        "寻找定积：\\(3x(x+y)=3\\cdot3=9\\)。",
-        "应用基本不等式：\\(3x+(x+y)\\ge2\\sqrt{3x(x+y)}=6\\)。",
-        "验等号：\\(3x=x+y\\Rightarrow y=2x\\)，代入原条件得 \\(x=1，y=2\\)。"
+        "观察结构：条件提取公因式得到定积整块 \\(x\\)、\\(x+y\\)，再把目标重组为同一组整块之和 \\(3x+(x+y)\\)",
+        "应用基本不等式：识别 \\(3x\\)、\\(x+y\\) 为两个正项，代入基本不等式公式与定积，得到 \\(4x+y\\ge6\\)",
+        "验证取等：两个正项相等且满足原条件 → \\(x=1，y=2\\)"
       ]
     },
     "lines": [
@@ -32,21 +29,150 @@
   "steps": [
     {
       "id": "s1",
-      "section": "直接应用基本不等式",
-      "title": "从条件找定积，再重组目标完成配对",
+      "section": "基本不等式",
+      "title": "观察结构",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-structure-scan",
+        "condition": {
+          "label": "条件整式",
+          "expression": "\\(x^2+xy=3\\)",
+          "tag": "可提取 x"
+        },
+        "target": {
+          "label": "目标整式",
+          "expression": "\\(4x+y\\)",
+          "tag": "整块未对齐"
+        },
+        "organization": {
+          "label": "整理条件与目标：对照条件配凑正项",
+          "motive": "从条件提取两个完整正项，再让目标对齐同一组正项",
+          "alignmentHint": {
+            "kind": "condition-positive-term-alignment",
+            "method": "对照条件配凑正项",
+            "conditionLabel": "条件中提取完整正项",
+            "condition": {
+              "first": {
+                "value": "\\(P\\)",
+                "shape": "square"
+              },
+              "second": {
+                "value": "\\(Q\\)",
+                "shape": "circle"
+              },
+              "fixed": "\\(K\\)"
+            },
+            "linkLabel": "沿用同一组完整正项",
+            "targetLabel": "目标配凑",
+            "target": {
+              "first": {
+                "coefficient": "\\(r\\)",
+                "value": "\\(P\\)",
+                "shape": "square"
+              },
+              "second": {
+                "coefficient": "\\(s\\)",
+                "value": "\\(Q\\)",
+                "shape": "circle"
+              },
+              "constant": "\\(C\\)",
+              "constantLabel": "常数旁置"
+            },
+            "productLabel": "检查新定积",
+            "product": "\\((rP)(sQ)=rsK\\)",
+            "ariaLabel": "对照条件配凑正项的一般方法：P、Q、r、s 均为正数，条件给出 P 与 Q 的乘积为 K；目标对齐为 rP 加 sQ 加常数 C，其中常数旁置；两个参与基本不等式的新正项乘积为 rsK"
+          },
+          "steps": [
+            {
+              "label": "提取整块",
+              "expression": "\\(x^2+xy=x(x+y)=3\\)",
+              "marks": {
+                "bracket": "定积整块 x 与 x+y"
+              }
+            },
+            {
+              "label": "对齐目标",
+              "expression": "\\(4x+y=3x+(x+y)\\)",
+              "marks": {
+                "bracket": "同一组整块"
+              }
+            },
+            {
+              "label": "确定新定积",
+              "expression": "\\((3x)(x+y)=3x(x+y)=9\\)"
+            }
+          ],
+          "note": "条件确定乘积，目标使用同一组整块"
+        },
+        "pattern": {
+          "first": {
+            "value": "\\(3x\\)",
+            "shape": "square"
+          },
+          "second": {
+            "value": "\\(x+y\\)",
+            "shape": "circle"
+          },
+          "condition": {
+            "operator": "·",
+            "tag": "定积 9"
+          },
+          "target": {
+            "operator": "+",
+            "tag": "求最小值"
+          },
+          "ariaLabel": "对齐同一组整块后，正项 3x 与 x 加 y 的积固定为 9，求和的最小值"
+        },
+        "reading": "定积求和",
+        "route": "直接应用基本不等式"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "\\(x^2+xy=3\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(x(x+y)=3\\)"
+        },
+        {
+          "kind": "because",
+          "text": "目标 \\(4x+y\\) 可以拆出条件中的整块 \\(x+y\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(4x+y=3x+(x+y)\\)"
+        },
+        {
+          "kind": "because",
+          "text": "\\((3x)(x+y)=3x(x+y)=9\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "整理后是「定积求和」，直接应用基本不等式"
+        }
+      ],
+      "derive": [
+        [
+          "结构判断",
+          "对照条件配凑正项｜定积求和"
+        ]
+      ]
+    },
+    {
+      "id": "s2",
+      "section": "基本不等式",
+      "title": "应用基本不等式",
       "t": 0,
       "showDiagram": false,
       "visual": {
         "kind": "basic-inequality-mapping",
-        "title": "先从条件找定积，再重组目标完成配对",
-        "methodTag": "直接应用｜整理条件与目标",
-        "conditionFlowLabel": "条件和目标各整理一次，让同一组正项显形",
-        "conditionFlow": [
-          "\\(x^2+xy=3\\Rightarrow x(x+y)=3\\)",
-          "\\(4x+y=3x+(x+y)\\)",
-          "\\(3x>0，x+y>0\\)"
-        ],
-        "template": "彩色方槽与彩色圆槽表示两个完整正项",
+        "methodTag": "直接应用｜定积求和",
+        "templateLabel": "代入基本不等式",
+        "template": "\\(u+v\\ge2\\sqrt{uv}\\)",
+        "formulaStyle": "sum-geometric",
+        "showPositiveStep": true,
         "mappings": [
           {
             "slot": "第一个正项",
@@ -63,47 +189,95 @@
         ],
         "mappedSum": "\\(3x+(x+y)\\)",
         "mappedProduct": "\\(9\\)",
-        "mapped": "\\(\\frac{3x+(x+y)}{2}\\ge\\sqrt{3x(x+y)}\\)",
-        "stageLabel": "代入两个正项",
-        "fixedSourceLabel": "由条件得到定积",
+        "mapped": "\\(3x+(x+y)\\ge2\\sqrt9\\)",
+        "stageLabel": "代入定积",
+        "fixedSourceLabel": "已知",
         "fixedSourceTarget": "product",
-        "fixedCondition": "\\(x(x+y)=3\\Rightarrow3x(x+y)=9\\)",
-        "replacementText": "代入定积 9",
-        "replaced": "\\(3x+(x+y)\\ge2\\sqrt{9}=6\\)",
-        "simplifyLabel": "还原原目标",
+        "fixedCondition": "\\((3x)(x+y)=3x(x+y)=9\\)",
+        "replacementText": "把乘积换成 9",
+        "replaced": "\\(3x+(x+y)\\ge2\\sqrt9=6\\)",
+        "simplifyLabel": "还原原目标式",
         "substituted": "\\(4x+y\\ge6\\)",
-        "conclusionLabel": "最值结论",
-        "conclusion": "最小值为 \\(6\\)",
-        "equalityTemplate": "两个槽位相等",
-        "equalityMapped": "\\(3x=x+y\\Rightarrow y=2x\\)",
-        "equalityContextLabel": "代回原条件",
-        "equalityResult": "\\(x=1，y=2\\)",
-        "caption": "先把条件因式分解，识别出 x 与 x+y 的定积；再重组目标，使 3x 与 x+y 成为可以直接配对的两个正项。"
+        "conclusionLabel": "得到下界",
+        "conclusion": "\\(4x+y\\ge6\\)"
       },
       "reasoning": [
         {
           "kind": "because",
-          "text": "由 \\(x^2+xy-3=0\\)，整理并因式分解得 \\(x(x+y)=3\\)"
-        },
-        {
-          "kind": "because",
-          "text": "目标可以重组为 \\(4x+y=3x+(x+y)\\)"
-        },
-        {
-          "kind": "because",
-          "text": "\\(x，y>0\\)，所以两个完整正项 \\(3x>0，x+y>0\\)，且 \\(3x(x+y)=9\\)"
+          "text": "\\(3x>0，x+y>0\\)"
         },
         {
           "kind": "therefore",
-          "text": "由基本不等式，\\(4x+y=3x+(x+y)\\ge2\\sqrt{3x(x+y)}=6\\)"
+          "text": "\\(3x+(x+y)\\ge2\\sqrt{(3x)(x+y)}\\)"
         },
         {
           "kind": "because",
-          "text": "等号要求 \\(3x=x+y\\)，即 \\(y=2x\\)"
+          "text": "\\((3x)(x+y)=9\\)"
         },
         {
           "kind": "therefore",
-          "text": "代入原条件得 \\(3x^2=3\\)；由 \\(x>0\\) 得 \\(x=1\\)，进而 \\(y=2\\)，所以最小值为 \\(6\\)"
+          "text": "\\(3x+(x+y)\\ge2\\sqrt9=6\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(4x+y\\ge6\\)"
+        }
+      ],
+      "derive": [
+        [
+          "下界",
+          "6"
+        ]
+      ]
+    },
+    {
+      "id": "s3",
+      "section": "基本不等式",
+      "title": "验证取等",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-equality-check",
+        "templateLabel": "基本不等式取等",
+        "first": {
+          "value": "\\(3x\\)",
+          "shape": "square"
+        },
+        "second": {
+          "value": "\\(x+y\\)",
+          "shape": "circle"
+        },
+        "conditionLabel": "结合原条件",
+        "condition": "\\(x(x+y)=3\\)",
+        "solved": "\\(x=1，y=2\\)",
+        "verificationLabel": "代回目标",
+        "verification": "\\(4x+y=6\\)",
+        "conclusion": "\\(4x+y\\) 的最小值为 \\(6\\)"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "基本不等式取等 ⇔ 两个正项相等"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(3x=x+y\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(y=2x\\)"
+        },
+        {
+          "kind": "because",
+          "text": "\\(x(x+y)=3，x>0\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(x=1，y=2\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(4x+y=6\\)，最小值为 \\(6\\)"
         }
       ],
       "derive": [
@@ -112,7 +286,7 @@
           "6"
         ],
         [
-          "取等",
+          "等号条件",
           "x=1，y=2"
         ]
       ]
@@ -125,9 +299,25 @@
         0,
         0
       ]
+    },
+    "s2": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    },
+    "s3": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
     }
   },
   "stepLabels": {
-    "s1": "1 从条件找定积，再重组目标完成配对"
+    "s1": "1 观察结构",
+    "s2": "2 应用基本不等式",
+    "s3": "3 验证取等"
   }
 }
