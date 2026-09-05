@@ -13,12 +13,11 @@
     "source": "高一暑假目标班 · 第4讲",
     "keyPoints": {
       "title": "解题要点",
-      "lead": "先整理目标代数式：把 x 写成 (x+1)-1，让正项 x+1 与 4/(x+1) 同时显形；两个完整正项乘积固定，可以直接使用基本不等式。",
+      "lead": "",
       "items": [
-        "观察目标代数式：由 x>-1 可知 x+1>0，分母提示需要让完整正项 x+1 出现。",
-        "整理显形：x=(x+1)-1，原式=[(x+1)+4/(x+1)]-1。",
-        "识别基本型：括号内两个正项的乘积恒为 4，括号外的 -1 最后处理。",
-        "验等号：令两个槽位相等，再还原得到 x=1。"
+        "观察结构：由 \\(\\frac{4}{x+1}\\) 联想到与分母配对的正项 \\(x+1\\)，整理后括号内是定积求和",
+        "应用基本不等式：识别 \\(x+1\\)、\\(\\frac{4}{x+1}\\) 为两个正项，代入基本不等式公式与定积，得到原式不小于 \\(3\\)",
+        "验证取等：两个正项相等且满足 \\(x+1>0\\) → \\(x=1\\)"
       ]
     },
     "lines": [
@@ -30,21 +29,108 @@
   "steps": [
     {
       "id": "s1",
-      "section": "直接应用基本不等式",
-      "title": "整理目标代数式，让定积结构显形",
+      "section": "基本不等式",
+      "title": "观察结构",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-structure-scan",
+        "condition": {
+          "label": "条件整式",
+          "expression": "\\(x>-1\\)",
+          "tag": "x+1>0"
+        },
+        "target": {
+          "label": "目标整式",
+          "expression": "\\(x+\\frac{4}{x+1}\\)",
+          "tag": "暂未显形"
+        },
+        "organization": {
+          "label": "整理目标整式：补出与分母配对的正项",
+          "motive": "看分母：\\(□=x+1\\)",
+          "slotHint": {
+            "numerator": "常数",
+            "action": "补出",
+            "value": "\\(x+1\\)",
+            "rewrite": {
+              "source": "x"
+            },
+            "ariaLabel": "看到常数除以方框，就补出与分母配对的正项；本题方框表示 x 加 1，x 等于方框减 1"
+          },
+          "steps": [
+            "\\(x=(x+1)-1\\)",
+            "\\(x+\\frac{4}{x+1}=\\left[(x+1)+\\frac{4}{x+1}\\right]-1\\)"
+          ],
+          "note": "括号内出现定积"
+        },
+        "pattern": {
+          "first": {
+            "value": "\\(x+1\\)",
+            "shape": "square"
+          },
+          "second": {
+            "value": "\\(\\frac{4}{x+1}\\)",
+            "shape": "circle"
+          },
+          "condition": {
+            "operator": "·",
+            "tag": "定积 4"
+          },
+          "target": {
+            "operator": "+",
+            "tag": "求最小值"
+          },
+          "ariaLabel": "补出与分母配对的正项后，同一组正项的积固定，求和的最小值"
+        },
+        "reading": "定积求和",
+        "route": "直接应用基本不等式"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "\\(x>-1\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(x+1>0\\)"
+        },
+        {
+          "kind": "because",
+          "text": "\\(\\frac{4}{x+1}\\) 提示补出与分母配对的正项 \\(x+1\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(x+\\frac{4}{x+1}=\\left[(x+1)+\\frac{4}{x+1}\\right]-1\\)"
+        },
+        {
+          "kind": "because",
+          "text": "\\((x+1)\\cdot\\frac{4}{x+1}=4\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "整理后是「定积求和」，直接应用基本不等式"
+        }
+      ],
+      "derive": [
+        [
+          "结构判断",
+          "补出分母配对正项｜定积求和"
+        ]
+      ]
+    },
+    {
+      "id": "s2",
+      "section": "基本不等式",
+      "title": "应用基本不等式",
       "t": 0,
       "showDiagram": false,
       "visual": {
         "kind": "basic-inequality-mapping",
-        "title": "整理目标代数式，再让两个完整正项入槽",
         "methodTag": "直接应用｜定积求和",
-        "conditionFlowLabel": "整理目标代数式，让正项结构显形",
-        "conditionFlow": [
-          "\\(x=(x+1)-1\\)",
-          "\\(x+\\frac{4}{x+1}=\\left[(x+1)+\\frac{4}{x+1}\\right]-1\\)",
-          "\\(x+1>0\\)"
-        ],
-        "template": "彩色方槽与彩色圆槽表示两个完整正项",
+        "templateLabel": "代入基本不等式",
+        "template": "\\(u+v\\ge2\\sqrt{uv}\\)",
+        "formulaStyle": "sum-geometric",
+        "showPositiveStep": true,
         "mappings": [
           {
             "slot": "第一个正项",
@@ -61,39 +147,95 @@
         ],
         "mappedSum": "\\((x+1)+\\frac{4}{x+1}\\)",
         "mappedProduct": "\\(4\\)",
-        "mapped": "\\(\\frac{(x+1)+\\frac{4}{x+1}}{2}\\ge\\sqrt4\\)",
-        "stageLabel": "代入两个正项",
-        "fixedSourceLabel": "两项定积",
+        "mapped": "\\((x+1)+\\frac{4}{x+1}\\ge2\\sqrt4\\)",
+        "stageLabel": "代入定积",
+        "fixedSourceLabel": "已知",
         "fixedSourceTarget": "product",
         "fixedCondition": "\\((x+1)\\cdot\\frac{4}{x+1}=4\\)",
-        "replacementText": "代入定积 4",
+        "replacementText": "把乘积换成 4",
         "replaced": "\\((x+1)+\\frac{4}{x+1}\\ge4\\)",
         "simplifyLabel": "减去括号外的 1",
         "substituted": "\\(x+\\frac{4}{x+1}\\ge3\\)",
-        "conclusionLabel": "最值结论",
-        "conclusion": "最小值为 \\(3\\)",
-        "equalityTemplate": "两个槽位相等",
-        "equalityMapped": "\\(x+1=\\frac{4}{x+1}\\iff x+1=2\\)",
-        "equalityContextLabel": "还原原变量",
-        "equalityResult": "\\(x=1\\)",
-        "caption": "补 1、减 1 是整理目标代数式的具体操作；整理后括号内已有两个乘积固定的正项，可以直接使用基本不等式。"
+        "conclusionLabel": "得到下界",
+        "conclusion": "\\(x+\\frac{4}{x+1}\\ge3\\)"
       },
       "reasoning": [
         {
           "kind": "because",
-          "text": "整理目标代数式：由 \\(x>-1\\) 得 \\(x+1>0\\)，并把 \\(x\\) 写成 \\(x=(x+1)-1\\)"
+          "text": "\\(x+1>0，\\frac{4}{x+1}>0\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\((x+1)+\\frac{4}{x+1}\\ge2\\sqrt{(x+1)\\cdot\\frac{4}{x+1}}\\)"
         },
         {
           "kind": "because",
-          "text": "原式 \\(=(x+1)+\\frac{4}{x+1}-1\\)，其中 \\((x+1)\\cdot\\frac{4}{x+1}=4\\)"
+          "text": "\\((x+1)\\cdot\\frac{4}{x+1}=4\\)"
         },
         {
           "kind": "therefore",
-          "text": "\\((x+1)+\\frac{4}{x+1}\\ge4\\)，所以原式不小于 \\(3\\)"
+          "text": "\\((x+1)+\\frac{4}{x+1}\\ge4\\)"
         },
         {
           "kind": "therefore",
-          "text": "当 \\(x+1=\\frac{4}{x+1}\\)，即 \\(x+1=2\\) 时取等号，因此 \\(x=1\\)"
+          "text": "\\(x+\\frac{4}{x+1}\\ge3\\)"
+        }
+      ],
+      "derive": [
+        [
+          "下界",
+          "3"
+        ]
+      ]
+    },
+    {
+      "id": "s3",
+      "section": "基本不等式",
+      "title": "验证取等",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-equality-check",
+        "templateLabel": "基本不等式取等",
+        "first": {
+          "value": "\\(x+1\\)",
+          "shape": "square"
+        },
+        "second": {
+          "value": "\\(\\frac{4}{x+1}\\)",
+          "shape": "circle"
+        },
+        "conditionLabel": "结合正数范围",
+        "condition": "\\(x+1>0\\)",
+        "solved": "\\(x=1\\)",
+        "verificationLabel": "代回目标",
+        "verification": "\\(x+\\frac{4}{x+1}=3\\)",
+        "conclusion": "\\(x+\\frac{4}{x+1}\\) 的最小值为 \\(3\\)"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "基本不等式取等 ⇔ 两个正项相等"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(x+1=\\frac{4}{x+1}\\)"
+        },
+        {
+          "kind": "because",
+          "text": "\\(x+1>0\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(x+1=2\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(x=1\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(x+\\frac{4}{x+1}=3\\)，最小值为 \\(3\\)"
         }
       ],
       "derive": [
@@ -102,8 +244,8 @@
           "3"
         ],
         [
-          "x",
-          "1"
+          "等号条件",
+          "x=1"
         ]
       ]
     }
@@ -115,9 +257,25 @@
         0,
         0
       ]
+    },
+    "s2": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    },
+    "s3": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
     }
   },
   "stepLabels": {
-    "s1": "1 整理目标代数式，让定积结构显形"
+    "s1": "1 观察结构",
+    "s2": "2 应用基本不等式",
+    "s3": "3 验证取等"
   }
 }

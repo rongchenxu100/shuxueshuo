@@ -1059,6 +1059,236 @@
         );
       }
 
+      if (visual.kind === "basic-inequality-structure-scan") {
+        const condition = visual.condition || {};
+        const target = visual.target || {};
+        const organization = visual.organization || {};
+        const pattern = visual.pattern || {};
+        const renderPanel = function (panel, fallbackLabel) {
+          return (
+            '<article class="basic-structure-panel">' +
+              '<span>' + esc(panel.label || fallbackLabel) + '</span>' +
+              '<strong>' + renderFormulaText(panel.expression || "") + '</strong>' +
+              (panel.tag ? '<em>' + esc(panel.tag) + '</em>' : '') +
+            '</article>'
+          );
+        };
+        const renderPatternTerm = function (term, fallbackShape) {
+          const shape = term && term.shape === "circle" ? "circle" : fallbackShape;
+          return '<span class="basic-structure-pattern-term is-' + shape + '">' + renderFormulaText(term?.value || "") + '</span>';
+        };
+        const renderPatternRow = function (row, fallbackTag) {
+          return (
+            '<div class="basic-structure-pattern-row">' +
+              renderPatternTerm(pattern.first, "square") +
+              '<i aria-hidden="true">' + esc(row?.operator || "") + '</i>' +
+              renderPatternTerm(pattern.second, "circle") +
+              '<em>' + esc(row?.tag || fallbackTag) + '</em>' +
+            '</div>'
+          );
+        };
+        const patternMarkup = pattern.first && pattern.second && pattern.condition && pattern.target
+          ? '<section class="basic-structure-pattern" role="img" aria-label="' + esc(pattern.ariaLabel || "观察条件与目标的共同结构") + '">' +
+              renderPatternRow(pattern.condition, "已知关系") +
+              '<span class="basic-structure-pattern-link" aria-hidden="true">⇅</span>' +
+              renderPatternRow(pattern.target, "求最值") +
+            '</section>'
+          : '';
+        const organizationSteps = Array.isArray(organization.steps) ? organization.steps : [];
+        const slotHint = organization.slotHint || {};
+        const slotBox = '<span class="basic-structure-slot-box" aria-hidden="true"></span>';
+        const scaledSlotBox = function (coefficient) {
+          return (coefficient ? '<b class="basic-structure-slot-coefficient">' + renderFormulaText(coefficient) + '</b>' : '') + slotBox;
+        };
+        const organizationSlotHintMarkup = slotHint.numerator && slotHint.value
+          ? '<section class="basic-structure-slot-hint" role="img" aria-label="' + esc(slotHint.ariaLabel || "看到常数除以方框，就尝试补出与分母配对的正项") + '">' +
+              '<div class="basic-structure-slot-hint-main">' +
+                '<div class="basic-structure-slot-rule">' +
+                  '<span class="basic-structure-slot-fraction"><b>' + esc(slotHint.numerator) + '</b>' + slotBox + '</span>' +
+                  '<i aria-hidden="true">→</i>' +
+                  '<span class="basic-structure-slot-action">' + esc(slotHint.action || "补出") + scaledSlotBox(slotHint.actionCoefficient) + '</span>' +
+                '</div>' +
+                '<p>' + slotBox + '<span>＝</span><strong>' + renderFormulaText(slotHint.value) + '</strong></p>' +
+              '</div>' +
+              (slotHint.rewrite && slotHint.rewrite.source
+                ? '<div class="basic-structure-slot-rewrite">' +
+                    '<strong>' + esc(slotHint.rewrite.source) + '</strong>' +
+                    '<i aria-hidden="true">＝</i>' +
+                    scaledSlotBox(slotHint.rewrite.coefficient) +
+                    '<span>' + renderFormulaText(slotHint.rewrite.remainder || "− 1") + '</span>' +
+                    (slotHint.rewrite.note ? '<em>' + esc(slotHint.rewrite.note) + '</em>' : '') +
+                  '</div>'
+                : '') +
+            '</section>'
+          : '';
+        const expandHint = organization.expandHint || {};
+        const organizationExpandHintMarkup = expandHint.action
+          ? '<section class="basic-structure-expand-hint" role="img" aria-label="' + esc(expandHint.ariaLabel || "分子是乘积时，先展开并圈出条件块") + '">' +
+              '<div class="basic-structure-expand-rule">' +
+                '<span class="basic-structure-expand-product" aria-hidden="true">' +
+                  '(<span class="basic-structure-slot-box is-square"></span>+…)' +
+                  '(<span class="basic-structure-slot-box is-circle"></span>+…)' +
+                '</span>' +
+                '<i aria-hidden="true">→</i>' +
+                '<strong>' + esc(expandHint.action) + '</strong>' +
+              '</div>' +
+              (expandHint.note ? '<p>' + esc(expandHint.note) + '</p>' : '') +
+            '</section>'
+          : '';
+        const combineHint = organization.combineHint || {};
+        const organizationCombineHintMarkup = combineHint.action
+          ? '<section class="basic-structure-combine-hint" role="img" aria-label="' + esc(combineHint.ariaLabel || "两项分居不同变量时先通分，让条件量出现在分母") + '">' +
+              '<div class="basic-structure-combine-rule">' +
+                '<span class="basic-structure-combine-sum" aria-hidden="true">' +
+                  '<span class="basic-structure-slot-fraction is-compact"><b>1</b><span class="basic-structure-combine-denom"><span class="basic-structure-slot-box is-square"></span><i>a</i></span></span>' +
+                  '<em>＋</em>' +
+                  '<span class="basic-structure-slot-fraction is-compact"><b>1</b><span class="basic-structure-combine-denom"><span class="basic-structure-slot-box is-circle"></span><i>b</i></span></span>' +
+                '</span>' +
+                '<i aria-hidden="true">→</i>' +
+                '<strong>' + esc(combineHint.action) + '</strong>' +
+              '</div>' +
+              '<p>' +
+                (combineHint.mark ? '<em>' + esc(combineHint.mark) + '</em>' : '') +
+                (combineHint.note ? '<span>' + esc(combineHint.note) + '</span>' : '') +
+              '</p>' +
+            '</section>'
+          : '';
+        const squareHint = organization.squareHint || {};
+        const organizationSquareHintMarkup = squareHint.action && squareHint.result
+          ? '<section class="basic-structure-square-hint" role="img" aria-label="' + esc(squareHint.ariaLabel || "目标与条件次数不齐时，先平方配次，再代入条件消元") + '">' +
+              '<div class="basic-structure-square-rule">' +
+                '<span>' + renderFormulaText(squareHint.source || "目标与条件次数不齐") + '</span>' +
+                '<i aria-hidden="true">→</i>' +
+                '<strong>' + esc(squareHint.action) + '</strong>' +
+              '</div>' +
+              '<p>' +
+                '<strong>' + renderFormulaText(squareHint.result) + '</strong>' +
+                (squareHint.note ? '<span>' + esc(squareHint.note) + '</span>' : '') +
+              '</p>' +
+            '</section>'
+          : '';
+        const baseHint = organization.baseHint || {};
+        const baseRelations = Array.isArray(baseHint.relations) ? baseHint.relations : [];
+        const organizationBaseHintMarkup = baseHint.kind === "common-base" && baseHint.source && baseHint.result
+          ? '<section class="basic-structure-base-hint" role="img" aria-label="' + esc(baseHint.ariaLabel || "指数式底数不同时，先统一底数") + '">' +
+              '<div class="basic-structure-base-model">' +
+                '<article class="basic-structure-base-stage is-source">' +
+                  '<span>' + esc(baseHint.sourceLabel || "底数不同") + '</span>' +
+                  '<strong>' + renderFormulaText(baseHint.source) + '</strong>' +
+                '</article>' +
+                '<i aria-hidden="true">→</i>' +
+                '<article class="basic-structure-base-stage is-relation">' +
+                  '<span>' + esc(baseHint.relationLabel || "寻找共同底数") + '</span>' +
+                  '<div>' + baseRelations.map(function (item) { return '<strong>' + renderFormulaText(item) + '</strong>'; }).join('<b aria-hidden="true">，</b>') + '</div>' +
+                '</article>' +
+                '<i aria-hidden="true">→</i>' +
+                '<article class="basic-structure-base-stage is-result">' +
+                  '<span>' + esc(baseHint.resultLabel || "统一底数") + '</span>' +
+                  '<strong>' + renderFormulaText(baseHint.result) + '</strong>' +
+                '</article>' +
+              '</div>' +
+              (baseHint.productExponent
+                ? '<p class="basic-structure-base-insight">' +
+                    '<span>' + esc(baseHint.productLabel || "乘积指数") + '</span>' +
+                    '<strong>' + renderFormulaText(baseHint.productExponent) + '</strong>' +
+                    '<i aria-hidden="true">↔</i>' +
+                    '<b>' + esc(baseHint.targetLabel || "对照条件量") + '</b>' +
+                  '</p>'
+                : '') +
+            '</section>'
+          : '';
+        const alignmentHint = organization.alignmentHint || {};
+        const alignmentCondition = alignmentHint.condition || {};
+        const alignmentTarget = alignmentHint.target || {};
+        const renderAlignmentTerm = function (term, includeCoefficient) {
+          const shape = term?.shape === "circle" ? "circle" : "square";
+          return '<span class="basic-structure-alignment-composed-term">' +
+            (includeCoefficient ? '<b>' + renderFormulaText(term?.coefficient || "") + '</b>' : '') +
+            '<strong class="basic-structure-alignment-term is-' + shape + '">' + renderFormulaText(term?.value || "") + '</strong>' +
+          '</span>';
+        };
+        const organizationAlignmentHintMarkup = alignmentHint.kind === "condition-positive-term-alignment" && alignmentCondition.first && alignmentCondition.second && alignmentTarget.first && alignmentTarget.second
+          ? '<section class="basic-structure-alignment-hint" role="img" aria-label="' + esc(alignmentHint.ariaLabel || "对照条件中的完整正项配凑目标") + '">' +
+              '<header><span>通用方法</span><strong>' + esc(alignmentHint.method || "对照条件配凑正项") + '</strong></header>' +
+              '<div class="basic-structure-alignment-row is-condition">' +
+                '<small>' + esc(alignmentHint.conditionLabel || "条件中提取完整正项") + '</small>' +
+                '<div>' +
+                  renderAlignmentTerm(alignmentCondition.first, false) +
+                  '<i aria-hidden="true">·</i>' +
+                  renderAlignmentTerm(alignmentCondition.second, false) +
+                  '<i aria-hidden="true">＝</i>' +
+                  '<strong class="basic-structure-alignment-fixed">' + renderFormulaText(alignmentCondition.fixed || "") + '</strong>' +
+                '</div>' +
+              '</div>' +
+              '<div class="basic-structure-alignment-link"><i aria-hidden="true">↓</i><span>' + esc(alignmentHint.linkLabel || "沿用同一组完整正项") + '</span></div>' +
+              '<div class="basic-structure-alignment-row is-target">' +
+                '<small>' + esc(alignmentHint.targetLabel || "目标配凑") + '</small>' +
+                '<div>' +
+                  renderAlignmentTerm(alignmentTarget.first, true) +
+                  '<i aria-hidden="true">＋</i>' +
+                  renderAlignmentTerm(alignmentTarget.second, true) +
+                  '<i aria-hidden="true">＋</i>' +
+                  '<span class="basic-structure-alignment-constant"><b>' + renderFormulaText(alignmentTarget.constant || "") + '</b><em>' + esc(alignmentTarget.constantLabel || "常数旁置") + '</em></span>' +
+                '</div>' +
+              '</div>' +
+              '<p class="basic-structure-alignment-product"><span>' + esc(alignmentHint.productLabel || "检查新定积") + '</span><strong>' + renderFormulaText(alignmentHint.product || "") + '</strong></p>' +
+            '</section>'
+          : '';
+        const organizationStepMarkup = organizationSteps.map(function (item, index) {
+          const stepItem = typeof item === "string" ? { expression: item } : (item || {});
+          const expression = stepItem.expression || "";
+          const marks = stepItem.marks || {};
+          return (index ? '<i aria-hidden="true">→</i>' : '') +
+            '<div class="basic-structure-org-step">' +
+              (stepItem.label ? '<small>' + esc(stepItem.label) + '</small>' : '') +
+              '<strong>' + renderFormulaText(expression) + '</strong>' +
+              (marks.bracket || marks.bypass
+                ? '<span class="basic-structure-org-marks">' +
+                    (marks.bracket ? '<em>' + esc(marks.bracket) + '</em>' : '') +
+                    (marks.bypass ? '<b>' + esc(marks.bypass) + '</b>' : '') +
+                  '</span>'
+                : '') +
+            '</div>';
+        }).join("");
+        const organizationMarkup = organizationSteps.length || organizationSlotHintMarkup || organizationExpandHintMarkup || organizationCombineHintMarkup || organizationSquareHintMarkup || organizationBaseHintMarkup || organizationAlignmentHintMarkup
+          ? '<section class="basic-structure-organization">' +
+              '<span>' + esc(organization.label || "整理") + '</span>' +
+              (organization.motive ? '<p class="basic-structure-organization-motive">' + renderFormulaText(organization.motive) + '</p>' : '') +
+              organizationSlotHintMarkup +
+              organizationExpandHintMarkup +
+              organizationCombineHintMarkup +
+              organizationSquareHintMarkup +
+              organizationBaseHintMarkup +
+              organizationAlignmentHintMarkup +
+              (organizationSteps.length ? '<div class="basic-structure-org-steps">' + organizationStepMarkup + '</div>' : '') +
+              (organization.note ? '<p>' + renderFormulaText(organization.note) + '</p>' : '') +
+            '</section>'
+          : '';
+        const structureHeading = visual.title
+          ? '<div class="basic-structure-heading"><h3>' + renderFormulaText(visual.title) + '</h3></div>'
+          : '';
+        return (
+          '<figure class="lesson-step-visual lesson-step-basic-structure-scan" role="group" aria-label="' + esc(visual.ariaLabel || "观察结构") + '">' +
+            structureHeading +
+            '<div class="basic-structure-focus">' +
+              renderPanel(condition, "条件整式") +
+              '<div class="basic-structure-lens" aria-hidden="true"><span>观察</span><strong>结构</strong></div>' +
+              renderPanel(target, "目标整式") +
+            '</div>' +
+            '<i class="basic-structure-arrow" aria-hidden="true">↓</i>' +
+            organizationMarkup +
+            (organizationMarkup ? '<i class="basic-structure-arrow" aria-hidden="true">↓</i>' : '') +
+            patternMarkup +
+            '<p class="basic-structure-route">' +
+              '<strong>' + esc(visual.reading || "") + '</strong>' +
+              '<b>→</b>' +
+              '<span>' + esc(visual.route || "") + '</span>' +
+            '</p>' +
+            (visual.caption ? '<figcaption>' + renderFormulaText(visual.caption) + '</figcaption>' : '') +
+          '</figure>'
+        );
+      }
+
       if (visual.kind === "basic-inequality-mapping") {
         const mappings = Array.isArray(visual.mappings) ? visual.mappings : [];
         const firstMapping = mappings[0] || { slot: "a", value: "m", condition: "\\(m>0\\)" };
@@ -1077,7 +1307,13 @@
           esc(visual.fixedSourceLabel || "已知") + '</small><strong>' +
           renderFormulaText(visual.fixedCondition || "") + '</strong></div>';
         const fixedSourceTargetsProduct = visual.fixedSourceTarget === "product";
-        const fixedLayoutClass = fixedSourceTargetsProduct ? " is-product-fixed" : "";
+        const usesSumGeometricFormula = visual.formulaStyle === "sum-geometric";
+        const fixedFormulaClass = fixedSourceTargetsProduct ? " has-product-fixed-source" : "";
+        const fixedProductClusterClass = fixedSourceTargetsProduct ? " has-fixed-source" : "";
+        const fixedSumClass = fixedSourceTargetsProduct ? "" : " is-fixed";
+        const fixedProductMarkup = fixedSourceTargetsProduct
+          ? '<span class="basic-map-product-target">' + mappedProduct + '</span>'
+          : mappedProduct;
         const mappingSlot = function (mapping, order, compact) {
           const shape = mapping.shape === "square" || mapping.shape === "circle" ? mapping.shape : "";
           const classes = "basic-map-variable is-" + order + (shape ? " is-shape is-slot-" + shape : "") + (compact ? " is-compact" : "");
@@ -1088,7 +1324,13 @@
         const firstCompactSlotHtml = mappingSlot(firstMapping, "first", true);
         const secondCompactSlotHtml = mappingSlot(secondMapping, "second", true);
         const conditionFlow = Array.isArray(visual.conditionFlow) ? visual.conditionFlow : [];
-        const templateFormula =
+        const sourceGrid = visual.showPositiveStep ? '' :
+          '<div class="basic-map-source-grid">' +
+            '<div class="basic-map-source is-first"><span class="basic-map-short-arrow">↑</span><strong>' + firstValue + '</strong><em>' + renderFormulaText(firstMapping.condition) + ' ✓</em></div>' +
+            '<span aria-hidden="true"></span>' +
+            '<div class="basic-map-source is-second"><span class="basic-map-short-arrow">↑</span><strong>' + secondValue + '</strong><em>' + renderFormulaText(secondMapping.condition) + ' ✓</em></div>' +
+          '</div>';
+        const fractionTemplateFormula =
           '<div class="basic-map-formula-layout" aria-hidden="true">' +
             '<div class="basic-map-fraction-cluster">' +
               '<div class="basic-map-numerator-grid">' +
@@ -1097,42 +1339,71 @@
                 secondSlotHtml +
               '</div>' +
               '<span class="basic-map-fraction-line"></span><span class="basic-map-denominator">2</span>' +
-              '<div class="basic-map-source-grid">' +
-                '<div class="basic-map-source is-first"><span class="basic-map-short-arrow">↑</span><strong>' + firstValue + '</strong><em>' + renderFormulaText(firstMapping.condition) + ' ✓</em></div>' +
-                '<span aria-hidden="true"></span>' +
-                '<div class="basic-map-source is-second"><span class="basic-map-short-arrow">↑</span><strong>' + secondValue + '</strong><em>' + renderFormulaText(secondMapping.condition) + ' ✓</em></div>' +
-              '</div>' +
+              sourceGrid +
             '</div>' +
             '<span class="basic-map-formula-tail"><span class="basic-map-relation">≥</span><span class="math-radical"><span class="math-radical-symbol">√</span><span class="math-radicand">' +
               firstCompactSlotHtml +
               secondCompactSlotHtml +
             '</span></span></span>' +
           '</div>';
-        const mappedFormula =
-          '<div class="basic-map-formula-layout basic-map-formula-layout-fixed' + fixedLayoutClass + '" aria-hidden="true">' +
+        const sumTemplateSource = function (mapping, order, value) {
+          const shape = mapping.shape === "square" || mapping.shape === "circle" ? mapping.shape : "";
+          return '<div class="basic-map-source is-' + order + (shape ? ' is-slot-' + shape : '') + '">' +
+            '<span class="basic-map-short-arrow">↑</span>' +
+            '<strong>' + value + '</strong>' +
+            '<em>' + renderFormulaText(mapping.condition) + ' ✓</em>' +
+          '</div>';
+        };
+        const sumTemplateFormula =
+          '<div class="basic-map-formula-layout is-sum-geometric has-source-actions" aria-hidden="true">' +
+            '<div class="basic-map-formula-slot-stack">' + firstSlotHtml + sumTemplateSource(firstMapping, "first", firstValue) + '</div>' +
+            '<span class="basic-map-operator">+</span>' +
+            '<div class="basic-map-formula-slot-stack">' + secondSlotHtml + sumTemplateSource(secondMapping, "second", secondValue) + '</div>' +
+            '<span class="basic-map-relation">≥</span><span>2</span>' +
+            '<span class="math-radical"><span class="math-radical-symbol">√</span><span class="math-radicand">' +
+              firstCompactSlotHtml + '<span class="basic-map-product-dot">·</span>' + secondCompactSlotHtml +
+            '</span></span>' +
+          '</div>';
+        const templateFormula = usesSumGeometricFormula ? sumTemplateFormula : fractionTemplateFormula;
+        const fractionMappedFormula =
+          '<div class="basic-map-formula-layout basic-map-formula-layout-fixed' + fixedFormulaClass + '" aria-hidden="true">' +
             '<div class="basic-map-fixed-fraction' + mappedFractionClass + '">' +
-              '<span class="basic-map-sum-target">' + mappedSum + '</span>' +
+              '<span class="basic-map-sum-target' + fixedSumClass + '">' + mappedSum + '</span>' +
               '<span class="basic-map-fraction-line"></span><span class="basic-map-denominator">2</span>' +
               (fixedSourceTargetsProduct ? '' : fixedSourceMarkup) +
             '</div>' +
-            '<span class="basic-map-formula-tail"><span class="basic-map-relation">≥</span><span class="basic-map-product-cluster"><span class="math-radical"><span class="math-radical-symbol">√</span><span class="math-radicand">' +
-              mappedProduct +
-            '</span></span></span></span>' +
-            (fixedSourceTargetsProduct ? fixedSourceMarkup : '') +
+            '<span class="basic-map-formula-tail"><span class="basic-map-relation">≥</span><span class="basic-map-product-cluster' + fixedProductClusterClass + '"><span class="math-radical"><span class="math-radical-symbol">√</span><span class="math-radicand">' +
+              fixedProductMarkup +
+            '</span></span>' + (fixedSourceTargetsProduct ? fixedSourceMarkup : '') + '</span></span>' +
           '</div>';
+        const sumMappedFormula =
+          '<div class="basic-map-formula-layout basic-map-formula-layout-fixed is-sum-geometric' + fixedFormulaClass + '" aria-hidden="true">' +
+            '<div class="basic-map-fixed-sum-group"><span class="basic-map-sum-target' + fixedSumClass + '">' + mappedSum + '</span>' + (fixedSourceTargetsProduct ? '' : fixedSourceMarkup) + '</div>' +
+            '<span class="basic-map-formula-tail"><span class="basic-map-relation">≥</span><span>2</span><span class="basic-map-product-cluster' + fixedProductClusterClass + '"><span class="math-radical"><span class="math-radical-symbol">√</span><span class="math-radicand">' + fixedProductMarkup + '</span></span>' + (fixedSourceTargetsProduct ? fixedSourceMarkup : '') + '</span></span>' +
+          '</div>';
+        const mappedFormula = usesSumGeometricFormula ? sumMappedFormula : fractionMappedFormula;
+        const positiveStepMarkup = visual.showPositiveStep
+          ? '<div class="basic-map-positive-board"><div class="basic-map-board-heading"><span>识别正项</span></div><div class="basic-map-positive-items">' +
+              '<article class="is-first"><strong>' + firstValue + '</strong><span>' + renderFormulaText(firstMapping.condition) + ' ✓</span></article>' +
+              '<i aria-hidden="true">＋</i>' +
+              '<article class="is-second"><strong>' + secondValue + '</strong><span>' + renderFormulaText(secondMapping.condition) + ' ✓</span></article>' +
+            '</div></div>'
+          : '';
+        const mappingHeading = visual.title || visual.methodTag
+          ? '<div class="basic-map-heading">' + (visual.title ? '<h3>' + renderFormulaText(visual.title) + '</h3>' : '') + (visual.methodTag ? '<span>' + esc(visual.methodTag) + '</span>' : '') + '</div>'
+          : '';
         return (
           '<figure class="lesson-step-visual lesson-step-basic-inequality-map" role="group" aria-label="' + ariaLabel + '">' +
-          '<div class="basic-map-heading"><h3>' + renderFormulaText(visual.title || "基本不等式映射") + '</h3>' +
-            (visual.methodTag ? '<span>' + esc(visual.methodTag) + '</span>' : '') +
-          '</div>' +
+          mappingHeading +
           (conditionFlow.length ? '<div class="basic-map-condition-flow">' +
             '<strong>' + esc(visual.conditionFlowLabel || "先整理条件") + '</strong>' +
             '<div>' + conditionFlow.map(function (item, index) {
               return (index ? '<span aria-hidden="true">→</span>' : '') + '<b>' + renderFormulaText(item) + '</b>';
             }).join("") + '</div>' +
           '</div>' : '') +
+          positiveStepMarkup +
           '<div class="basic-map-variable-board">' +
-            '<div class="basic-map-board-heading"><span>公式模板</span><span class="basic-map-screen-reader">' + renderFormulaText(visual.template || "") + '</span></div>' +
+            '<div class="basic-map-board-heading"><span>' + esc(visual.templateLabel || "公式模板") + '</span><span class="basic-map-screen-reader">' + renderFormulaText(visual.template || "") + '</span></div>' +
             '<div class="basic-map-template-formula">' + templateFormula + '</div>' +
           '</div>' +
           '<div class="basic-map-fixed-board">' +
@@ -1146,8 +1417,28 @@
             '<span aria-hidden="true">→</span>' +
             '<div class="is-result"><small>' + renderFormulaText(visual.conclusionLabel || "得到界值") + '</small><strong>' + renderFormulaText(visual.conclusion || "") + '</strong></div>' +
           '</div>' +
-          '<div class="basic-map-equality"><span>等号条件</span><div><strong>' + renderFormulaText(visual.equalityTemplate || "") + '</strong><i>映射为</i><strong>' + renderFormulaText(visual.equalityMapped || "") + '</strong><i>' + esc(visual.equalityContextLabel || "结合条件") + '</i><b>' + renderFormulaText(visual.equalityResult || "") + '</b></div></div>' +
+          (visual.equalityTemplate && visual.equalityMapped && visual.equalityResult
+            ? '<div class="basic-map-equality"><span>等号条件</span><div><strong>' + renderFormulaText(visual.equalityTemplate) + '</strong><i>映射为</i><strong>' + renderFormulaText(visual.equalityMapped) + '</strong><i>' + esc(visual.equalityContextLabel || "结合条件") + '</i><b>' + renderFormulaText(visual.equalityResult) + '</b></div></div>'
+            : '') +
           (visual.caption ? '<figcaption>' + renderFormulaText(visual.caption) + '</figcaption>' : '') +
+          '</figure>'
+        );
+      }
+
+      if (visual.kind === "basic-inequality-equality-check") {
+        const first = visual.first || {};
+        const second = visual.second || {};
+        const equalityTerm = function (term, fallbackShape) {
+          const shape = term.shape === "circle" ? "circle" : fallbackShape;
+          return '<span class="basic-equality-term is-' + shape + '">' + renderFormulaText(term.value || "") + '</span>';
+        };
+        return (
+          '<figure class="lesson-step-visual lesson-step-basic-equality-check" role="group" aria-label="' + esc(visual.ariaLabel || "验证取等") + '">' +
+            '<section class="basic-equality-template"><span>' + esc(visual.templateLabel || "基本不等式取等") + '</span><div>' + equalityTerm(first, "square") + '<i aria-hidden="true">＝</i>' + equalityTerm(second, "circle") + '</div></section>' +
+            '<i class="basic-equality-down" aria-hidden="true">↓</i>' +
+            '<section class="basic-equality-solve"><article><span>' + esc(visual.conditionLabel || "结合条件") + '</span><strong>' + renderFormulaText(visual.condition || "") + '</strong></article><i aria-hidden="true">＋</i><article><span>' + esc(visual.equalityLabel || "正项相等") + '</span><strong>' + renderFormulaText((first.value || "") + "=" + (second.value || "")) + '</strong></article><i aria-hidden="true">→</i><b>' + renderFormulaText(visual.solved || "") + '</b></section>' +
+            '<section class="basic-equality-verify"><span>' + esc(visual.verificationLabel || "代回目标") + '</span><strong>' + renderFormulaText(visual.verification || "") + '</strong><i aria-hidden="true">✓</i></section>' +
+            '<p class="basic-equality-conclusion">' + renderFormulaText(visual.conclusion || "") + '</p>' +
           '</figure>'
         );
       }

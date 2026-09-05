@@ -1795,11 +1795,11 @@
           </div>
         </div>
         <section class="basic-slot-how method-how">
-          <header><span>HOW</span><strong>先识别正项，再代入槽位验证取等</strong></header>
+          <header><span>HOW</span><strong>先识别正项，再代入基本不等式验证取等</strong></header>
           <div class="basic-slot-pipeline" aria-label="直接应用基本不等式操作步骤">
             <article><span>①</span><strong>识别正项</strong><small>正变量、正常数、完整表达式或函数值，整体 &gt; 0</small></article>
             <i aria-hidden="true">→</i>
-            <article><span>②</span><strong>代入槽位</strong><small>□ 与 ○ 同步替换</small></article>
+            <article><span>②</span><strong>代入基本不等式</strong><small>□ 与 ○ 同步替换</small></article>
             <i aria-hidden="true">→</i>
             <article><span>③</span><strong>验证取等</strong><small>□=○ 能否成立</small></article>
           </div>
@@ -1808,7 +1808,7 @@
               <header><span>直接代入</span><strong>目标已露出两个正项</strong></header>
               ${renderBasicSlotRouteProblem("练习 8·1", `正实数 ${inlineMath("m，n")} 满足 ${inlineMath("m+n=2")}，求 ${inlineMath("mn")} 的最大值。`)}
               ${renderBasicSlotRouteStep("识别正项", `${inlineMath("m&gt;0")}，${inlineMath("n&gt;0")}`)}
-              ${renderBasicSlotRouteStep("代入槽位", `${basicSlot("square")}<i>←</i>${inlineMath("m")}<i>，</i>${basicSlot("circle")}<i>←</i>${inlineMath("n")}<i> → </i>${inlineMath(`${mathFraction("m+n", "2")}≥${mathRadical("mn")}`)}`)}
+              ${renderBasicSlotRouteStep("代入基本不等式", `${basicSlot("square")}<i>←</i>${inlineMath("m")}<i>，</i>${basicSlot("circle")}<i>←</i>${inlineMath("n")}<i> → </i>${inlineMath(`${mathFraction("m+n", "2")}≥${mathRadical("mn")}`)}`)}
               ${renderBasicSlotRouteStep("代入定和", `${inlineMath("m+n=2")}<i> → </i>${inlineMath(`1≥${mathRadical("mn")}`)}<i> → </i>${inlineMath("mn≤1")}`)}
               <p class="basic-slot-route-result"><span>验证取等</span><strong>${inlineMath("m=n=1")} 时取等，最大值为 ${inlineMath("1")}</strong></p>
               <small class="basic-slot-route-lessons">同类：练习 8·2</small>
@@ -1817,7 +1817,7 @@
               <header><span>整理后代入</span><strong>先改写目标，让正项显形</strong></header>
               ${renderBasicSlotRouteProblem("练习 8·7", `已知 ${inlineMath("x&gt;-1")}，求 ${inlineMath(`x+${mathFraction("4", "x+1")}`)} 的最小值。`)}
               ${renderBasicSlotRouteStep("整理目标", `${inlineMath("x=(x+1)−1")}<i> → </i>${inlineMath(`x+${mathFraction("4", "x+1")}=[(x+1)+${mathFraction("4", "x+1")}]−1`)}`)}
-              ${renderBasicSlotRouteStep("代入槽位", `${basicSlot("square")}<i>←</i>${inlineMath("x+1")}<i>，</i>${basicSlot("circle")}<i>←</i>${inlineMath(mathFraction("4", "x+1"))}`)}
+              ${renderBasicSlotRouteStep("代入基本不等式", `${basicSlot("square")}<i>←</i>${inlineMath("x+1")}<i>，</i>${basicSlot("circle")}<i>←</i>${inlineMath(mathFraction("4", "x+1"))}`)}
               ${renderBasicSlotRouteStep("括号内定积", `${inlineMath(`(x+1)·${mathFraction("4", "x+1")}=4`)}<i> → </i>${inlineMath(`(x+1)+${mathFraction("4", "x+1")}≥4`)}<i> → </i>${inlineMath(`x+${mathFraction("4", "x+1")}≥3`)}`)}
               <p class="basic-slot-route-result"><span>验证取等</span><strong>${inlineMath("x+1=2")} 即 ${inlineMath("x=1")} 时取等，最小值为 ${inlineMath("3")}</strong></p>
               <small class="basic-slot-route-lessons">同类：练习 8·5 · 8·8</small>

@@ -43,6 +43,14 @@ test("all senior-high text lessons validate and compile to published HTML", () =
     const outputPath = path.join(repoRoot, lesson.meta.outputPath);
     assert.ok(fs.existsSync(outputPath), `${id} should have a compiled page`);
     const html = fs.readFileSync(outputPath, "utf8");
+    assert.ok(
+      html.includes(`var STEPS      = ${JSON.stringify(lesson.steps)};`),
+      `${id} published HTML should embed the latest lesson steps`,
+    );
+    assert.ok(
+      html.includes(`var STEP_LABELS = ${JSON.stringify(lesson.stepLabels ?? {})};`),
+      `${id} published HTML should embed the latest step labels`,
+    );
     assert.match(html, /"showDiagram":false/);
     assert.doesNotMatch(html, /id="functionSpec"/);
     assert.doesNotMatch(html, /培训教材/);
@@ -673,36 +681,112 @@ test("second inequality range lesson reuses the same three-step map and full der
   assert.deepEqual(lesson.steps[2].derive[0], ["取值范围", "[-1,20]"]);
 });
 
-test("first basic inequality exercise maps problem variables into the formula template", () => {
+test("first basic inequality exercise splits observe / apply / equality steps", () => {
   const lesson = readLesson("inequality-basic-q01");
-  const visual = lesson.steps[0].visual;
+  assert.equal(lesson.problem.keyPoints.lead, "");
+  assert.match(lesson.problem.keyPoints.items[1], /代入基本不等式公式与定和/);
+  assert.doesNotMatch(lesson.problem.keyPoints.items[1], /代入槽位/);
+  assert.deepEqual(
+    lesson.steps.map((step) => [step.id, step.title]),
+    [
+      ["s1", "观察结构"],
+      ["s2", "应用基本不等式"],
+      ["s3", "验证取等"],
+    ],
+  );
+  assert.equal(lesson.steps[0].visual.kind, "basic-inequality-structure-scan");
+  assert.match(lesson.steps[0].visual.condition.expression, /m\+n=2/);
+  assert.match(lesson.steps[0].visual.target.expression, /mn/);
+  assert.equal(lesson.steps[0].visual.condition.tag, "定和");
+  assert.equal(lesson.steps[0].visual.target.tag, "积");
+  assert.deepEqual(lesson.steps[0].visual.pattern, {
+    first: { value: "m", shape: "square" },
+    second: { value: "n", shape: "circle" },
+    condition: { operator: "+", tag: "定和" },
+    target: { operator: "·", tag: "求最大值" },
+    ariaLabel: "同一组正项 m、n：和固定，求积的最大值",
+  });
+  assert.equal(lesson.steps[0].visual.reading, "定和求积");
+  assert.equal(lesson.steps[0].visual.route, "直接应用基本不等式");
+  assert.equal(lesson.steps[0].visual.title, undefined);
+  assert.equal(lesson.steps[0].visual.caption, undefined);
+  assert.deepEqual(lesson.steps[0].derive[0], ["结构判断", "定和求积｜直接应用"]);
+
+  const visual = lesson.steps[1].visual;
   assert.equal(visual.kind, "basic-inequality-mapping");
   assert.deepEqual(
     visual.mappings.map((mapping) => [mapping.slot, mapping.shape, mapping.value]),
     [["第一个正项", "square", "m"], ["第二个正项", "circle", "n"]],
   );
   assert.match(visual.fixedCondition, /m\+n=2/);
-  assert.match(visual.replaced, /\\frac\{2\}\{2\}/);
+  assert.match(visual.replaced, /2\\ge2\\sqrt\{mn\}/);
   assert.match(visual.conclusion, /mn\\le1/);
-  assert.match(visual.equalityResult, /m=n=1/);
+  assert.equal(visual.templateLabel, "代入基本不等式");
+  assert.equal(visual.formulaStyle, "sum-geometric");
+  assert.equal(visual.showPositiveStep, true);
+  assert.equal(visual.title, undefined);
+  assert.equal(visual.caption, undefined);
+  assert.equal(visual.equalityResult, undefined);
   assert.equal(visual.methodTag, "直接应用｜定和求积");
+  assert.deepEqual(lesson.steps[1].reasoning.map((item) => item.kind), ["because", "therefore", "because", "therefore", "therefore"]);
+  for (const item of lesson.steps.flatMap((step) => step.reasoning)) {
+    assert.doesNotMatch(item.text, /\\Rightarrow|因为|所以|。$/);
+  }
+  assert.equal(lesson.steps[2].visual.kind, "basic-inequality-equality-check");
+  assert.match(lesson.steps[2].visual.condition, /m\+n=2/);
+  assert.match(lesson.steps[2].visual.conclusion, /最大值为/);
+  assert.match(lesson.steps[2].reasoning[0].text, /两个正项相等/);
+  assert.doesNotMatch(lesson.steps[2].reasoning[0].text, /槽位/);
+  assert.deepEqual(lesson.steps[2].derive, [["最大值", "1"], ["等号条件", "m=n=1"]]);
 
   const html = fs.readFileSync(path.join(repoRoot, lesson.meta.outputPath), "utf8");
+  assert.match(html, /basic-inequality-structure-scan/);
   assert.match(html, /basic-inequality-mapping/);
+  assert.match(html, /basic-inequality-equality-check/);
+  assert.match(html, /观察结构/);
+  assert.match(html, /应用基本不等式/);
+  assert.match(html, /验证取等/);
   const runtime = fs.readFileSync(
     path.join(repoRoot, "site/assets/js/lesson-page-runtime.js"),
     "utf8",
   );
+  assert.match(runtime, /lesson-step-basic-structure-scan/);
+  assert.match(runtime, /basic-structure-focus/);
+  assert.match(runtime, /basic-structure-pattern/);
   assert.match(runtime, /lesson-step-basic-inequality-map/);
   assert.match(runtime, /basic-map-source-grid/);
+  assert.match(runtime, /basic-map-positive-board/);
+  assert.match(runtime, /basic-map-formula-slot-stack/);
+  assert.match(runtime, /is-sum-geometric/);
+  assert.match(runtime, /lesson-step-basic-equality-check/);
   assert.match(runtime, /basic-map-sum-target/);
+  assert.match(runtime, /basic-map-product-target/);
+  assert.match(runtime, /has-product-fixed-source/);
+  assert.match(runtime, /has-fixed-source/);
   assert.match(runtime, /mapping\.shape === "square" \|\| mapping\.shape === "circle"/);
   assert.match(runtime, /" is-shape is-slot-" \+ shape/);
 });
 
-test("second basic inequality exercise puts reciprocal terms directly into the mapping component", () => {
+test("second basic inequality exercise reuses observe / apply / equality steps for reciprocal terms", () => {
   const lesson = readLesson("inequality-basic-q02");
-  const visual = lesson.steps[0].visual;
+  assert.equal(lesson.problem.keyPoints.lead, "");
+  assert.match(lesson.problem.keyPoints.items[1], /代入基本不等式公式与定和/);
+  assert.doesNotMatch(lesson.problem.keyPoints.items[1], /方框|圆框|槽位/);
+  assert.deepEqual(
+    lesson.steps.map((step) => [step.id, step.title]),
+    [
+      ["s1", "观察结构"],
+      ["s2", "应用基本不等式"],
+      ["s3", "验证取等"],
+    ],
+  );
+  assert.equal(lesson.steps[0].visual.kind, "basic-inequality-structure-scan");
+  assert.match(lesson.steps[0].visual.condition.expression, /\\frac\{1\}\{x\}\+\\frac\{1\}\{y\}=1/);
+  assert.match(lesson.steps[0].visual.target.expression, /xy/);
+  assert.equal(lesson.steps[0].visual.pattern.condition.tag, "定和");
+  assert.equal(lesson.steps[0].visual.pattern.target.tag, "先求最大值");
+
+  const visual = lesson.steps[1].visual;
   assert.equal(visual.kind, "basic-inequality-mapping");
   assert.deepEqual(
     visual.mappings.map((mapping) => [mapping.slot, mapping.shape, mapping.value]),
@@ -713,55 +797,67 @@ test("second basic inequality exercise puts reciprocal terms directly into the m
   );
   assert.match(visual.fixedCondition, /\\frac\{1\}\{x\}\+\\frac\{1\}\{y\}=1/);
   assert.match(visual.mappedProduct, /\\frac\{1\}\{xy\}/);
-  assert.match(visual.replaced, /\\frac\{1\}\{2\}\\ge\\frac\{1\}\{\\sqrt\{xy\}\}/);
+  assert.match(visual.replaced, /1\\ge\\frac\{2\}\{\\sqrt\{xy\}\}/);
   assert.match(visual.substituted, /\\sqrt\{xy\}\\ge2/);
   assert.match(visual.conclusion, /xy\\ge4/);
-  assert.match(visual.equalityResult, /x=y=2/);
   assert.equal(visual.methodTag, "直接应用｜定和求积");
-  assert.equal(visual.stageLabel, "代入倒数和");
+  assert.equal(visual.stageLabel, "代入定和");
+  assert.equal(visual.formulaStyle, "sum-geometric");
+  assert.equal(visual.showPositiveStep, true);
   assert.equal(visual.conditionFlow, undefined);
   assert.match(visual.simplifyLabel, /取倒数，方向反转/);
+  assert.equal(lesson.steps[2].visual.kind, "basic-inequality-equality-check");
+  assert.match(lesson.steps[2].visual.solved, /x=y=2/);
+  assert.match(lesson.steps[2].visual.verification, /xy=4/);
+  for (const item of lesson.steps.flatMap((step) => step.reasoning)) {
+    assert.doesNotMatch(item.text, /\\Rightarrow|因为|所以|。$/);
+  }
 });
 
-test("third basic inequality exercise visualizes the fixed-product construction thought process", () => {
+test("third basic inequality exercise separates structure observation, AM-GM, and equality checking", () => {
   const lesson = readLesson("inequality-basic-q03");
+  assert.equal(lesson.problem.keyPoints.lead, "");
+  assert.deepEqual(
+    lesson.steps.map((step) => [step.id, step.title]),
+    [
+      ["s1", "观察结构"],
+      ["s2", "应用基本不等式"],
+      ["s3", "验证取等"],
+    ],
+  );
+
   const visual = lesson.steps[0].visual;
   assert.equal(lesson.steps[0].section, "配齐次式");
-  assert.equal(visual.methodTag, "配齐次式｜正一次 × 负一次");
-  assert.match(lesson.problem.keyPoints.lead, /正一次式.*负一次式.*0 次齐次式.*同步放大或缩小/);
-  assert.equal(visual.kind, "fixed-product-construction-flow");
-  assert.equal(visual.variant, "homogeneous-reduction");
-  assert.match(visual.initialCheck.product, /4xy/);
-  assert.match(visual.clue.condition, /\\frac\{1\}\{x\}\+\\frac\{1\}\{y\}=1/);
+  assert.equal(visual.kind, "basic-inequality-structure-scan");
+  assert.match(visual.condition.expression, /\\frac\{1\}\{x\}\+\\frac\{1\}\{y\}=1/);
+  assert.match(visual.target.expression, /x\+4y/);
+  assert.match(visual.organization.steps.join(""), /x\+4y.*\\frac\{1\}\{x\}.*5\+\\frac\{x\}\{y\}\+\\frac\{4y\}\{x\}/);
+  assert.equal(visual.pattern.condition.tag, "定积 4");
+  assert.equal(visual.pattern.target.tag, "求最小值");
+  assert.equal(visual.reading, "定积求和");
+
+  const mapping = lesson.steps[1].visual;
+  assert.equal(mapping.kind, "basic-inequality-mapping");
+  assert.equal(mapping.methodTag, "配齐次式｜定积求和");
   assert.deepEqual(
-    [visual.degreeBalance.target.degree, visual.degreeBalance.condition.degree, visual.degreeBalance.result.degree],
-    ["+1", "−1", "0"],
-  );
-  assert.equal(visual.construction.kind, "homogeneous");
-  assert.equal(visual.construction.rows, undefined);
-  assert.match(visual.construction.expanded, /x\+4y=5\+/);
-  assert.deepEqual(
-    visual.construction.positiveTerms.map((item) => [item.shape, item.value]),
+    mapping.mappings.map((item) => [item.shape, item.value]),
     [["square", "\\(\\frac{x}{y}\\)"], ["circle", "\\(\\frac{4y}{x}\\)"]],
   );
-  assert.match(visual.construction.ratio, /t=\\frac\{x\}\{y\}/);
-  assert.equal(visual.fixedPair.question, "观察展开后的式子，是否可以找到定积？");
-  assert.match(visual.fixedPair.product, /\\frac\{x\}\{y\}.*\\frac\{4y\}\{x\}.*=4/);
-  assert.match(visual.application.template, /两个完整的正项表达式/);
-  assert.deepEqual(
-    visual.application.mappings.map((mapping) => [mapping.shape, mapping.value]),
-    [["square", "\\(\\frac{x}{y}\\)"], ["circle", "\\(\\frac{4y}{x}\\)"]],
-  );
-  assert.match(visual.application.conclusion, /9/);
-  assert.match(visual.equality.result, /x=3/);
+  assert.match(mapping.fixedCondition, /=4/);
+  assert.match(mapping.conclusion, /x\+4y\\ge9/);
+
+  const equality = lesson.steps[2].visual;
+  assert.equal(equality.kind, "basic-inequality-equality-check");
+  assert.match(equality.solved, /x=3/);
+  assert.match(equality.verification, /x\+4y=9/);
 
   const runtime = fs.readFileSync(
     path.join(repoRoot, "site/assets/js/lesson-page-runtime.js"),
     "utf8",
   );
-  assert.match(runtime, /lesson-step-homogeneous-flow/);
-  assert.match(runtime, /homogeneous-degree-cards/);
-  assert.match(runtime, /homogeneous-amgm-template/);
+  assert.match(runtime, /lesson-step-basic-structure-scan/);
+  assert.match(runtime, /lesson-step-basic-inequality-map/);
+  assert.match(runtime, /lesson-step-basic-equality-check/);
 });
 
 test("fourth basic inequality exercise constructs a fixed product from the fixed sum", () => {
@@ -950,22 +1046,56 @@ test("nineteenth basic inequality variant groups repeated expressions before che
 
 test("twentieth basic inequality variant squares the target before direct AM-GM", () => {
   const lesson = readLesson("inequality-basic-q20");
-  const step = lesson.steps[0];
-  const visual = step.visual;
-  assert.equal(step.section, "直接应用基本不等式");
-  assert.equal(step.title, "先平方整理目标，让定积结构显形");
-  assert.equal(visual.kind, "basic-inequality-mapping");
-  assert.equal(visual.methodTag, "直接应用｜平方整理后定积求和");
-  assert.match(visual.conditionFlow.join(""), /\(x-y\)\^2\+4xy.*xy\+\\frac\{4\}\{xy\}.*t=xy>0/);
-  assert.deepEqual(visual.mappings.map((item) => item.value), ["\\(t\\)", "\\(\\frac{4}{t}\\)"]);
-  assert.equal(visual.mappedProduct, "\\(4\\)");
-  assert.equal(visual.fixedCondition, "\\(t\\cdot\\frac{4}{t}=4\\)");
-  assert.equal(visual.conclusion, "\\(\\frac{1}{x}+\\frac{1}{y}\\ge2\\)");
-  assert.match(visual.equalityMapped, /t=\\frac\{4\}\{t\}\\iff t=2/);
-  assert.match(visual.equalityResult, /2\+\\sqrt\{2\}.*2-\\sqrt\{2\}/);
-  assert.match(visual.caption, /没有.*配成 0 次齐次式.*先平方整理目标.*基本不等式/);
-  assert.deepEqual(step.derive[0], ["最小值", "2"]);
-  assert.match(step.reasoning.map((line) => line.text).join(" "), /先求目标平方.*t=xy>0.*乘积恒为.*4.*最小值为.*2/);
+  assert.equal(lesson.problem.keyPoints.lead, "");
+  assert.deepEqual(
+    lesson.steps.map((step) => [step.id, step.title]),
+    [
+      ["s1", "观察结构"],
+      ["s2", "应用基本不等式"],
+      ["s3", "验证取等"],
+    ],
+  );
+
+  const structure = lesson.steps[0].visual;
+  assert.equal(lesson.steps[0].section, "基本不等式");
+  assert.equal(structure.kind, "basic-inequality-structure-scan");
+  assert.equal(structure.organization.label, "整理目标整式：配次显条件");
+  assert.deepEqual(structure.organization.squareHint, {
+    source: "目标与条件次数不齐",
+    action: "平方配次",
+    result: "条件量显形",
+    note: "再代入条件消元",
+    ariaLabel: "目标与条件次数不齐时，先平方配次，再代入条件消元",
+  });
+  assert.deepEqual(
+    structure.organization.steps.map((item) => item.label),
+    ["平方配次", "恒等变形", "代入消元"],
+  );
+  assert.match(structure.organization.steps[1].expression, /\(x\+y\)\^2=\(x-y\)\^2\+4xy/);
+  assert.match(structure.organization.steps[2].expression, /xy\+\\frac\{4\}\{xy\}/);
+  assert.equal(structure.organization.steps[2].marks.bracket, "只剩 xy");
+  assert.equal(structure.pattern.condition.tag, "定积 4");
+  assert.deepEqual(lesson.steps[0].derive[0], ["结构判断", "配次显条件｜定积求和"]);
+
+  const mapping = lesson.steps[1].visual;
+  assert.equal(mapping.kind, "basic-inequality-mapping");
+  assert.equal(mapping.methodTag, "直接应用｜定积求和");
+  assert.deepEqual(mapping.mappings.map((item) => item.value), ["\\(xy\\)", "\\(\\frac{4}{xy}\\)"]);
+  assert.equal(mapping.mappedProduct, "\\(4\\)");
+  assert.equal(mapping.fixedCondition, "\\(xy\\cdot\\frac{4}{xy}=4\\)");
+  assert.equal(mapping.conclusion, "\\(\\frac{1}{x}+\\frac{1}{y}\\ge2\\)");
+
+  const equality = lesson.steps[2].visual;
+  assert.equal(equality.kind, "basic-inequality-equality-check");
+  assert.match(equality.solved, /2\+\\sqrt2.*2-\\sqrt2/);
+  assert.match(equality.verification, /\\frac\{x\+y\}\{xy\}=2/);
+  assert.deepEqual(lesson.steps[2].derive[0], ["最小值", "2"]);
+  assert.doesNotMatch(JSON.stringify(lesson), /t=xy|\\\(t\\\)/);
+  assert.doesNotMatch(JSON.stringify(lesson), /E(?:=|\^|&gt;|\\ge)/);
+
+  const runtime = fs.readFileSync(path.join(repoRoot, "site/assets/js/lesson-page-runtime.js"), "utf8");
+  assert.match(runtime, /basic-structure-square-hint/);
+  assert.match(runtime, /basic-structure-square-rule/);
 });
 
 test("twenty-first basic inequality variant reduces a symmetric quartic through p=ab", () => {
@@ -1317,23 +1447,112 @@ test("basic inequality lessons use fully braced fractions and math-delimited key
 
 test("direct applications organize the target before mapping positive terms", () => {
   const lesson = readLesson("inequality-basic-q05");
-  const visual = lesson.steps[0].visual;
-  assert.equal(lesson.steps[0].section, "直接应用基本不等式");
+  assert.equal(lesson.problem.keyPoints.lead, "");
+  assert.deepEqual(
+    lesson.steps.map((step) => [step.id, step.title]),
+    [
+      ["s1", "观察结构"],
+      ["s2", "应用基本不等式"],
+      ["s3", "验证取等"],
+    ],
+  );
+
+  const structure = lesson.steps[0].visual;
+  assert.equal(lesson.steps[0].section, "基本不等式");
+  assert.equal(structure.kind, "basic-inequality-structure-scan");
+  assert.match(structure.target.expression, /x\+\\frac\{4\}\{x\+1\}/);
+  assert.equal(structure.organization.label, "整理目标整式：补出与分母配对的正项");
+  assert.match(structure.organization.motive, /看分母.*□=x\+1/);
+  assert.deepEqual(structure.organization.slotHint, {
+    numerator: "常数",
+    action: "补出",
+    value: "\\(x+1\\)",
+    rewrite: {
+      source: "x",
+    },
+    ariaLabel: "看到常数除以方框，就补出与分母配对的正项；本题方框表示 x 加 1，x 等于方框减 1",
+  });
+  assert.deepEqual(structure.organization.steps, [
+    "\\(x=(x+1)-1\\)",
+    "\\(x+\\frac{4}{x+1}=\\left[(x+1)+\\frac{4}{x+1}\\right]-1\\)",
+  ]);
+  assert.equal(structure.organization.note, "括号内出现定积");
+  assert.equal(structure.pattern.condition.tag, "定积 4");
+  assert.equal(structure.pattern.target.tag, "求最小值");
+  assert.equal(structure.reading, "定积求和");
+  assert.equal(structure.route, "直接应用基本不等式");
+  assert.deepEqual(lesson.steps[0].derive[0], ["结构判断", "补出分母配对正项｜定积求和"]);
+
+  const html = fs.readFileSync(path.join(repoRoot, lesson.meta.outputPath), "utf8");
+  assert.match(html, /整理目标整式：补出与分母配对的正项/);
+  assert.match(html, /□=x\+1/);
+  assert.doesNotMatch(html, /对旁边的一次项动手|待装槽|旁路/);
+  assert.match(html, /括号内出现定积/);
+  const runtime = fs.readFileSync(path.join(repoRoot, "site/assets/js/lesson-page-runtime.js"), "utf8");
+  assert.match(runtime, /basic-structure-organization-motive/);
+  assert.match(runtime, /basic-structure-slot-hint/);
+  assert.match(runtime, /basic-structure-slot-rewrite/);
+  assert.match(runtime, /basic-structure-org-step/);
+  assert.match(runtime, /basic-structure-slot-box/);
+
+  const visual = lesson.steps[1].visual;
   assert.equal(visual.kind, "basic-inequality-mapping");
   assert.equal(visual.methodTag, "直接应用｜定积求和");
   assert.equal(visual.fixedSourceTarget, "product");
-  assert.match(visual.conditionFlow.join(""), /x=\(x\+1\)-1.*x\+1.*\\frac\{4\}\{x\+1\}.*-1/);
+  assert.equal(visual.conditionFlow, undefined);
   assert.match(visual.fixedCondition, /\(x\+1\).*\\frac\{4\}\{x\+1\}=4/);
   assert.deepEqual(
     visual.mappings.map((mapping) => [mapping.value, mapping.shape]),
     [["\\(x+1\\)", "square"], ["\\(\\frac{4}{x+1}\\)", "circle"]],
   );
   assert.match(visual.conclusion, /3/);
-  assert.equal(visual.equalityResult, "\\(x=1\\)");
+  assert.equal(visual.templateLabel, "代入基本不等式");
+  assert.equal(visual.formulaStyle, "sum-geometric");
+  assert.equal(visual.showPositiveStep, true);
+  assert.equal(visual.equalityResult, undefined);
+  assert.equal(lesson.steps[2].visual.kind, "basic-inequality-equality-check");
+  assert.equal(lesson.steps[2].visual.solved, "\\(x=1\\)");
+  assert.match(lesson.steps[2].visual.verification, /x\+\\frac\{4\}\{x\+1\}=3/);
+  for (const item of lesson.steps.flatMap((step) => step.reasoning)) {
+    assert.doesNotMatch(item.text, /\\Rightarrow|因为|所以|。$/);
+  }
 
   const eighth = readLesson("inequality-basic-q06");
-  const eighthVisual = eighth.steps[0].visual;
-  assert.equal(eighth.steps[0].section, "直接应用基本不等式");
+  assert.equal(eighth.problem.keyPoints.lead, "");
+  assert.deepEqual(
+    eighth.steps.map((step) => [step.id, step.title]),
+    [
+      ["s1", "观察结构"],
+      ["s2", "应用基本不等式"],
+      ["s3", "验证取等"],
+    ],
+  );
+  const eighthStructure = eighth.steps[0].visual;
+  assert.equal(eighth.steps[0].section, "基本不等式");
+  assert.equal(eighthStructure.kind, "basic-inequality-structure-scan");
+  assert.equal(eighthStructure.organization.label, "整理目标整式：补出与分母配对的正项");
+  assert.match(eighthStructure.organization.motive, /看分母.*x\+3/);
+  assert.deepEqual(eighthStructure.organization.slotHint, {
+    numerator: "常数",
+    action: "补出",
+    actionCoefficient: "2",
+    value: "\\(x+3\\)",
+    rewrite: {
+      source: "2x",
+      coefficient: "2",
+      remainder: "− 6",
+    },
+    ariaLabel: "看到常数除以方框，先令方框等于分母 x 加 3；按一次项系数补出两个方框，并把 2x 改写成两个方框减 6",
+  });
+  assert.deepEqual(eighthStructure.organization.steps, [
+    "\\(2x=2(x+3)-6\\)",
+    "\\(2x+\\frac{1}{x+3}=\\left[2(x+3)+\\frac{1}{x+3}\\right]-6\\)",
+  ]);
+  assert.equal(eighthStructure.organization.note, "括号内出现定积");
+  assert.equal(eighthStructure.pattern.condition.tag, "定积 2");
+  assert.deepEqual(eighth.steps[0].derive[0], ["结构判断", "补出分母配对正项｜定积求和"]);
+
+  const eighthVisual = eighth.steps[1].visual;
   assert.equal(eighthVisual.kind, "basic-inequality-mapping");
   assert.equal(eighthVisual.fixedSourceTarget, "product");
   assert.deepEqual(
@@ -1341,53 +1560,239 @@ test("direct applications organize the target before mapping positive terms", ()
     [["\\(2(x+3)\\)", "square"], ["\\(\\frac{1}{x+3}\\)", "circle"]],
   );
   assert.match(eighthVisual.fixedCondition, /=2/);
-  assert.match(eighthVisual.conclusion, /2\\sqrt2-6.*B/);
+  assert.match(eighthVisual.conclusion, /2\\sqrt2-6/);
+  assert.equal(eighth.steps[2].visual.kind, "basic-inequality-equality-check");
+  assert.equal(eighth.steps[2].visual.solved, "\\(x=\\frac{\\sqrt2}{2}-3\\)");
+  assert.match(eighth.steps[2].visual.conclusion, /2\\sqrt2-6.*B/);
+  assert.match(runtime, /slotHint\.rewrite\.remainder/);
+  assert.match(runtime, /slotHint\.rewrite\.coefficient/);
+  assert.match(runtime, /slotHint\.actionCoefficient/);
+  const pageStyles = fs.readFileSync(
+    path.join(repoRoot, "site/assets/css/interactive-geometry-page.css"),
+    "utf8",
+  );
+  assert.match(pageStyles, /\.basic-structure-pattern-term\s*\{[^}]*min-width:\s*50px;/s);
+  assert.match(pageStyles, /\.basic-structure-pattern-link\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*2;/s);
+  assert.doesNotMatch(pageStyles, /\.basic-structure-pattern-link\s*\{[^}]*transform:/s);
+  assert.match(pageStyles, /\.basic-map-source\.is-slot-circle strong/);
+  assert.match(pageStyles, /\.basic-equality-term\s*\{[^}]*min-width:\s*58px;/s);
+
+  const tianjin2020 = readLesson("inequality-basic-q08");
+  assert.equal(tianjin2020.problem.keyPoints.lead, "");
+  assert.deepEqual(
+    tianjin2020.steps.map((step) => [step.id, step.title]),
+    [
+      ["s1", "观察结构"],
+      ["s2", "应用基本不等式"],
+      ["s3", "验证取等"],
+    ],
+  );
+  const tianjinStructure = tianjin2020.steps[0].visual;
+  assert.equal(tianjinStructure.kind, "basic-inequality-structure-scan");
+  assert.equal(tianjinStructure.organization.label, "整理目标整式：通分显条件");
+  assert.match(tianjinStructure.organization.motive, /前两项分母分别含/);
+  assert.equal(tianjinStructure.organization.combineHint.action, "通分后分母出现条件量");
+  assert.equal(tianjinStructure.organization.method, undefined);
+  assert.deepEqual(
+    tianjinStructure.organization.steps.map((item) => item.label),
+    ["通分", "代入", "消元剩（a+b）"],
+  );
+  assert.match(tianjinStructure.organization.steps[0].expression, /\\frac\{1\}\{2a\}.*\\frac\{a\+b\}\{2ab\}/);
+  assert.match(tianjinStructure.organization.steps[1].expression, /ab=1.*\\frac\{a\+b\}\{2\}/);
+  assert.equal(tianjinStructure.organization.steps[2].marks, undefined);
+  assert.equal(tianjinStructure.pattern.condition.tag, "定积 4");
+  assert.deepEqual(tianjin2020.steps[0].derive[0], ["结构判断", "通分显条件｜定积求和"]);
+
+  const tianjinMapping = tianjin2020.steps[1].visual;
+  assert.equal(tianjinMapping.kind, "basic-inequality-mapping");
+  assert.deepEqual(
+    tianjinMapping.mappings.map((mapping) => [mapping.value, mapping.shape]),
+    [["\\(\\frac{a+b}{2}\\)", "square"], ["\\(\\frac{8}{a+b}\\)", "circle"]],
+  );
+  assert.equal(tianjinMapping.fixedCondition, "\\(\\frac{a+b}{2}\\cdot\\frac{8}{a+b}=4\\)");
+  assert.equal(tianjin2020.steps[2].visual.kind, "basic-inequality-equality-check");
+  assert.equal(tianjin2020.steps[2].visual.solved, "\\(\\{a,b\\}=\\{2-\\sqrt3，2+\\sqrt3\\}\\)");
 
   const eleventh = readLesson("inequality-basic-q10");
-  const eleventhVisual = eleventh.steps[0].visual;
-  assert.equal(eleventh.steps[0].section, "直接应用基本不等式");
+  assert.equal(eleventh.problem.keyPoints.lead, "");
+  assert.deepEqual(
+    eleventh.steps.map((step) => [step.id, step.title]),
+    [
+      ["s1", "观察结构"],
+      ["s2", "应用基本不等式"],
+      ["s3", "验证取等"],
+    ],
+  );
+  const eleventhStructure = eleventh.steps[0].visual;
+  assert.equal(eleventh.steps[0].section, "基本不等式");
+  assert.equal(eleventhStructure.kind, "basic-inequality-structure-scan");
+  assert.equal(eleventhStructure.organization.label, "整理目标整式：统一底数显条件");
+  assert.match(eleventhStructure.organization.motive, /看底数.*8=2\^3/);
+  assert.deepEqual(eleventhStructure.organization.baseHint, {
+    kind: "common-base",
+    sourceLabel: "底数不同",
+    source: "\\(A^u+B^v\\)",
+    relationLabel: "寻找共同底数",
+    relations: ["\\(A=c^m\\)", "\\(B=c^n\\)"],
+    resultLabel: "统一底数",
+    result: "\\(c^{mu}+c^{nv}\\)",
+    productLabel: "乘积指数",
+    productExponent: "\\(mu+nv\\)",
+    targetLabel: "对照条件量",
+    ariaLabel: "统一底数的一般方法：把底数 A 和 B 都表示为共同底数 c 的幂，目标改写为 c 的 mu 次方加 c 的 nv 次方，乘积指数 mu 加 nv 再与条件量对照",
+  });
+  assert.doesNotMatch(
+    [
+      eleventhStructure.organization.baseHint.source,
+      ...eleventhStructure.organization.baseHint.relations,
+      eleventhStructure.organization.baseHint.result,
+      eleventhStructure.organization.baseHint.productExponent,
+    ].join(""),
+    /2|8|-3b/,
+  );
+  assert.deepEqual(
+    eleventhStructure.organization.steps.map((item) => item.label),
+    ["化倒数", "统一底数", "重写目标"],
+  );
+  assert.equal(eleventhStructure.organization.steps[1].marks.bracket, "指数 −3b");
+  assert.match(eleventhStructure.organization.note, /乘积指数出现条件量.*a-3b/);
+  assert.equal(eleventhStructure.pattern.condition.tag, "定积 1/64");
+  assert.deepEqual(eleventh.steps[0].derive[0], ["结构判断", "统一底数显条件｜定积求和"]);
+
+  const eleventhVisual = eleventh.steps[1].visual;
   assert.equal(eleventhVisual.methodTag, "直接应用｜定积求和");
   assert.equal(eleventhVisual.fixedSourceTarget, "product");
   assert.deepEqual(
     eleventhVisual.mappings.map((mapping) => [mapping.value, mapping.shape]),
     [["\\(2^a\\)", "square"], ["\\(2^{-3b}\\)", "circle"]],
   );
-  assert.match(eleventhVisual.conditionFlow.join(""), /目标表达式|2\^a.*2\^\{-3b\}/);
+  assert.equal(eleventhVisual.conditionFlow, undefined);
   assert.match(eleventhVisual.fixedCondition, /2\^\{a-3b\}=2\^\{-6\}=\\frac\{1\}\{64\}/);
+  assert.equal(eleventh.steps[2].visual.kind, "basic-inequality-equality-check");
+  assert.equal(eleventh.steps[2].visual.solved, "\\(a=-3，b=1\\)");
+  assert.match(eleventh.steps[2].visual.verification, /2\^a\+\\frac\{1\}\{8\^b\}=\\frac\{1\}\{4\}/);
   assert.doesNotMatch(JSON.stringify(eleventh), /t=8\^b|换元/);
+  assert.match(runtime, /organization\.baseHint/);
+  assert.match(runtime, /basic-structure-base-hint/);
+  assert.match(runtime, /baseHint\.kind === "common-base"/);
+  assert.match(runtime, /basic-structure-base-insight/);
+  assert.match(pageStyles, /\.basic-structure-base-hint/);
 
   const thirteenth = readLesson("inequality-basic-q13");
-  const thirteenthVisual = thirteenth.steps[0].visual;
-  assert.equal(thirteenth.steps[0].section, "直接应用基本不等式");
+  assert.equal(thirteenth.problem.keyPoints.lead, "");
+  assert.deepEqual(
+    thirteenth.steps.map((step) => [step.id, step.title]),
+    [
+      ["s1", "观察结构"],
+      ["s2", "应用基本不等式"],
+      ["s3", "验证取等"],
+    ],
+  );
+  const thirteenthStructure = thirteenth.steps[0].visual;
+  assert.equal(thirteenth.steps[0].section, "基本不等式");
+  assert.equal(thirteenthStructure.kind, "basic-inequality-structure-scan");
+  assert.equal(thirteenthStructure.organization.label, "整理条件与目标：对照条件配凑正项");
+  assert.match(thirteenthStructure.organization.motive, /条件提取两个完整正项.*目标对齐同一组正项/);
+  const sharedAlignmentHint = {
+    kind: "condition-positive-term-alignment",
+    method: "对照条件配凑正项",
+    conditionLabel: "条件中提取完整正项",
+    condition: {
+      first: { value: "\\(P\\)", shape: "square" },
+      second: { value: "\\(Q\\)", shape: "circle" },
+      fixed: "\\(K\\)",
+    },
+    linkLabel: "沿用同一组完整正项",
+    targetLabel: "目标配凑",
+    target: {
+      first: { coefficient: "\\(r\\)", value: "\\(P\\)", shape: "square" },
+      second: { coefficient: "\\(s\\)", value: "\\(Q\\)", shape: "circle" },
+      constant: "\\(C\\)",
+      constantLabel: "常数旁置",
+    },
+    productLabel: "检查新定积",
+    product: "\\((rP)(sQ)=rsK\\)",
+    ariaLabel: "对照条件配凑正项的一般方法：P、Q、r、s 均为正数，条件给出 P 与 Q 的乘积为 K；目标对齐为 rP 加 sQ 加常数 C，其中常数旁置；两个参与基本不等式的新正项乘积为 rsK",
+  };
+  assert.deepEqual(thirteenthStructure.organization.alignmentHint, sharedAlignmentHint);
+  assert.equal(thirteenthStructure.organization.shiftHint, undefined);
+  assert.doesNotMatch(JSON.stringify(thirteenthStructure.organization.alignmentHint), /a\+1|b\+2|16|x\+y|3x/);
+  assert.deepEqual(
+    thirteenthStructure.organization.steps.map((item) => [item.label, item.expression]),
+    [
+      ["逐项补齐", "\\(a=(a+1)-1，b=(b+2)-2\\)"],
+      ["重写目标", "\\(a+b=\\left[(a+1)+(b+2)\\right]-3\\)"],
+    ],
+  );
+  assert.equal(thirteenthStructure.organization.note, "括号内出现定积两项之和");
+  assert.equal(thirteenthStructure.pattern.condition.tag, "定积 16");
+  assert.deepEqual(thirteenth.steps[0].derive[0], ["结构判断", "对照条件配凑正项｜定积求和"]);
+
+  const thirteenthVisual = thirteenth.steps[1].visual;
   assert.equal(thirteenthVisual.methodTag, "直接应用｜定积求和");
   assert.equal(thirteenthVisual.fixedSourceTarget, "product");
   assert.deepEqual(
     thirteenthVisual.mappings.map((mapping) => [mapping.value, mapping.shape]),
     [["\\(a+1\\)", "square"], ["\\(b+2\\)", "circle"]],
   );
-  assert.match(thirteenthVisual.conditionFlow.join(""), /a\+b=\(a\+1\)\+\(b\+2\)-3/);
+  assert.equal(thirteenthVisual.conditionFlow, undefined);
   assert.equal(thirteenthVisual.fixedCondition, "\\((a+1)(b+2)=16\\)");
   assert.match(thirteenthVisual.conclusion, /5/);
-  assert.equal(thirteenthVisual.equalityResult, "\\(a=3，b=2\\)");
+  assert.equal(thirteenthVisual.equalityResult, undefined);
+  assert.equal(thirteenth.steps[2].visual.kind, "basic-inequality-equality-check");
+  assert.equal(thirteenth.steps[2].visual.solved, "\\(a=3，b=2\\)");
+  assert.match(thirteenth.steps[2].visual.verification, /a\+b=5/);
+  assert.match(runtime, /organization\.alignmentHint/);
+  assert.match(runtime, /basic-structure-alignment-hint/);
+  assert.doesNotMatch(runtime, /alignmentHint\.assumption|alignmentHint\.principle/);
+  assert.match(pageStyles, /\.basic-structure-alignment-hint/);
+  assert.doesNotMatch(pageStyles, /\.basic-structure-alignment-hint\s*>\s*footer/);
 
   const paired = readLesson("inequality-basic-q28");
-  const pairedVisual = paired.steps[0].visual;
-  assert.equal(paired.steps[0].section, "直接应用基本不等式");
+  assert.equal(paired.problem.keyPoints.lead, "");
+  assert.deepEqual(
+    paired.steps.map((step) => [step.id, step.title]),
+    [
+      ["s1", "观察结构"],
+      ["s2", "应用基本不等式"],
+      ["s3", "验证取等"],
+    ],
+  );
+  const pairedStructure = paired.steps[0].visual;
+  assert.equal(paired.steps[0].section, "基本不等式");
+  assert.equal(pairedStructure.kind, "basic-inequality-structure-scan");
+  assert.equal(pairedStructure.organization.label, "整理条件与目标：对照条件配凑正项");
+  assert.match(pairedStructure.organization.motive, /条件提取两个完整正项.*目标对齐同一组正项/);
+  assert.deepEqual(pairedStructure.organization.alignmentHint, sharedAlignmentHint);
+  assert.equal(pairedStructure.organization.pairHint, undefined);
+  assert.deepEqual(
+    pairedStructure.organization.steps.map((item) => item.label),
+    ["提取整块", "对齐目标", "确定新定积"],
+  );
+  assert.equal(pairedStructure.organization.steps[0].marks.bracket, "定积整块 x 与 x+y");
+  assert.equal(pairedStructure.organization.steps[1].marks.bracket, "同一组整块");
+  assert.equal(pairedStructure.organization.note, "条件确定乘积，目标使用同一组整块");
+  assert.equal(pairedStructure.pattern.condition.tag, "定积 9");
+  assert.deepEqual(paired.steps[0].derive[0], ["结构判断", "对照条件配凑正项｜定积求和"]);
+
+  const pairedVisual = paired.steps[1].visual;
   assert.equal(pairedVisual.kind, "basic-inequality-mapping");
-  assert.equal(pairedVisual.methodTag, "直接应用｜整理条件与目标");
-  assert.deepEqual(pairedVisual.conditionFlow, [
-    "\\(x^2+xy=3\\Rightarrow x(x+y)=3\\)",
-    "\\(4x+y=3x+(x+y)\\)",
-    "\\(3x>0，x+y>0\\)",
-  ]);
+  assert.equal(pairedVisual.methodTag, "直接应用｜定积求和");
+  assert.equal(pairedVisual.conditionFlow, undefined);
   assert.deepEqual(
     pairedVisual.mappings.map((mapping) => [mapping.value, mapping.shape]),
     [["\\(3x\\)", "square"], ["\\(x+y\\)", "circle"]],
   );
-  assert.equal(pairedVisual.fixedCondition, "\\(x(x+y)=3\\Rightarrow3x(x+y)=9\\)");
+  assert.equal(pairedVisual.fixedCondition, "\\((3x)(x+y)=3x(x+y)=9\\)");
   assert.equal(pairedVisual.substituted, "\\(4x+y\\ge6\\)");
-  assert.equal(pairedVisual.equalityResult, "\\(x=1，y=2\\)");
-  assert.deepEqual(paired.steps[0].derive[0], ["最小值", "6"]);
+  assert.equal(pairedVisual.equalityResult, undefined);
+  assert.equal(paired.steps[2].visual.kind, "basic-inequality-equality-check");
+  assert.equal(paired.steps[2].visual.solved, "\\(x=1，y=2\\)");
+  assert.equal(paired.steps[2].visual.verification, "\\(4x+y=6\\)");
+  assert.equal(
+    JSON.stringify(thirteenthStructure.organization.alignmentHint),
+    JSON.stringify(pairedStructure.organization.alignmentHint),
+  );
   assert.doesNotMatch(JSON.stringify(paired), /换元法|条件消元法|配齐次式|T=/);
 });
 
@@ -1422,14 +1827,14 @@ test("checked Gaokao basic-inequality exercises keep their source order and exac
       ["最小值", "4/5"],
     ],
   );
-  assert.deepEqual(lessons.map((lesson) => lesson.steps.length), [1, 1, 1, 1, 1, 1]);
+  assert.deepEqual(lessons.map((lesson) => lesson.steps.length), [1, 3, 3, 3, 1, 1]);
   assert.deepEqual(
     lessons.map((lesson) => lesson.steps.map((item) => item.visual?.kind)),
     [
       ["repeated-basic-inequality-flow"],
-      ["basic-inequality-mapping"],
-      ["basic-inequality-mapping"],
-      ["basic-inequality-mapping"],
+      ["basic-inequality-structure-scan", "basic-inequality-mapping", "basic-inequality-equality-check"],
+      ["basic-inequality-structure-scan", "basic-inequality-mapping", "basic-inequality-equality-check"],
+      ["basic-inequality-structure-scan", "basic-inequality-mapping", "basic-inequality-equality-check"],
       ["repeated-basic-inequality-flow"],
       ["basic-inequality-mapping"],
     ],
@@ -1444,27 +1849,73 @@ test("checked Gaokao basic-inequality exercises keep their source order and exac
     lessons[0].steps[0].reasoning.map((item) => item.text).join(" "),
     /\\frac\{1\}\{a\}\+\\frac\{a\}\{b\^2\}.*\\frac\{2\}\{b\}\+b.*2\\sqrt\{2\}/,
   );
-  assert.equal(lessons[1].steps[0].section, "直接应用基本不等式");
-  assert.equal(lessons[1].steps[0].visual.methodTag, "直接应用｜定积求和");
-  assert.equal(lessons[1].steps[0].visual.fixedSourceTarget, "product");
+  assert.equal(lessons[1].steps[0].section, "基本不等式");
+  assert.equal(lessons[1].steps[0].visual.kind, "basic-inequality-structure-scan");
+  assert.equal(lessons[1].steps[1].visual.methodTag, "直接应用｜定积求和");
+  assert.equal(lessons[1].steps[1].visual.fixedSourceTarget, "product");
   assert.deepEqual(
-    lessons[1].steps[0].visual.mappings.map((mapping) => [mapping.value, mapping.shape]),
+    lessons[1].steps[1].visual.mappings.map((mapping) => [mapping.value, mapping.shape]),
     [["\\(\\frac{a+b}{2}\\)", "square"], ["\\(\\frac{8}{a+b}\\)", "circle"]],
   );
-  assert.match(lessons[1].steps[0].visual.conditionFlow[0], /\\frac\{1\}\{2a\}.*\\frac\{a\+b\}\{2ab\}/);
-  assert.match(lessons[1].steps[0].visual.fixedCondition, /=4/);
+  assert.match(lessons[1].steps[0].visual.organization.steps[0].expression, /\\frac\{1\}\{2a\}.*\\frac\{a\+b\}\{2ab\}/);
+  assert.equal(lessons[1].steps[0].visual.organization.label, "整理目标整式：通分显条件");
+  assert.equal(lessons[1].steps[0].visual.organization.combineHint.action, "通分后分母出现条件量");
+  assert.equal(lessons[1].steps[0].visual.organization.combineHint.mark, "ab");
+  assert.deepEqual(
+    lessons[1].steps[0].visual.organization.steps.map((item) => item.label),
+    ["通分", "代入", "消元剩（a+b）"],
+  );
+  assert.equal(lessons[1].steps[0].visual.organization.steps[0].marks.bracket, "显出 ab");
+  assert.equal(lessons[1].steps[0].visual.organization.steps[2].marks, undefined);
+  assert.equal(lessons[1].steps[0].visual.organization.note, "消元只剩 \\((a+b)\\)，目标显形");
+  assert.deepEqual(lessons[1].steps[0].derive[0], ["结构判断", "通分显条件｜定积求和"]);
+  assert.match(lessons[1].steps[1].visual.fixedCondition, /=4/);
+  const q08Runtime = fs.readFileSync(path.join(repoRoot, "site/assets/js/lesson-page-runtime.js"), "utf8");
+  assert.match(q08Runtime, /basic-structure-combine-hint/);
+  assert.match(q08Runtime, /basic-structure-combine-sum/);
   assert.doesNotMatch(JSON.stringify(lessons[1]), /s=a\+b/);
   assert.doesNotMatch(JSON.stringify(lessons[1]), /练习 8-4/);
   assert.match(JSON.stringify(lessons[1]), /a\+b=4.*ab=1/);
   assert.match(JSON.stringify(lessons[2]), /xy\\\\le2.*\\\\frac\{9\}\{2\}/);
-  assert.equal(lessons[2].steps[0].section, "直接应用基本不等式");
-  assert.equal(lessons[2].steps[0].visual.methodTag, "直接应用｜定和求积");
+  assert.equal(lessons[2].steps[0].section, "基本不等式");
+  assert.equal(lessons[2].steps[0].visual.kind, "basic-inequality-structure-scan");
+  assert.equal(lessons[2].steps[0].visual.organization.label, "整理目标整式：展开显条件");
+  assert.equal(lessons[2].steps[0].visual.organization.expandHint.action, "展开后出现条件量");
   assert.deepEqual(
-    lessons[2].steps[0].visual.mappings.map((mapping) => [mapping.value, mapping.shape]),
+    lessons[2].steps[0].visual.organization.steps.map((item) => item.label),
+    ["展开", "代入", "消元只剩 xy"],
+  );
+  assert.equal(lessons[2].steps[0].visual.organization.steps[0].marks.bracket, "条件量 x+2y");
+  assert.equal(lessons[2].steps[0].visual.organization.steps[2].marks.bracket, "只剩 xy");
+  assert.match(lessons[2].steps[0].visual.organization.note, /消元只剩.*xy.*显形/);
+  assert.match(lessons[2].steps[0].visual.organization.steps[0].expression, /2xy\+\(x\+2y\)\+1/);
+  assert.match(lessons[2].steps[0].visual.organization.steps[1].expression, /x\+2y=4.*2xy\+5/);
+  assert.deepEqual(lessons[2].steps[0].derive[0], ["结构判断", "展开显条件｜定和求积"]);
+  const q09Runtime = fs.readFileSync(path.join(repoRoot, "site/assets/js/lesson-page-runtime.js"), "utf8");
+  assert.match(q09Runtime, /basic-structure-expand-hint/);
+  assert.match(q09Runtime, /basic-structure-expand-product/);
+  assert.equal(lessons[2].steps[1].visual.methodTag, "直接应用｜定和求积");
+  assert.deepEqual(
+    lessons[2].steps[1].visual.mappings.map((mapping) => [mapping.value, mapping.shape]),
     [["\\(x\\)", "square"], ["\\(2y\\)", "circle"]],
   );
-  assert.doesNotMatch(JSON.stringify(lessons[2]), /u=x|v=2y|uv/);
+  assert.equal(lessons[2].steps[1].visual.fixedCondition, "\\(x+2y=4\\)");
+  assert.equal(lessons[2].steps[2].visual.solved, "\\(x=2，y=1\\)");
+  assert.doesNotMatch(JSON.stringify(lessons[2]), /u=x|v=2y/);
   assert.match(JSON.stringify(lessons[3]), /a=-3，b=1/);
+  assert.equal(lessons[3].steps[0].section, "基本不等式");
+  assert.equal(lessons[3].steps[0].visual.organization.label, "整理目标整式：统一底数显条件");
+  assert.equal(lessons[3].steps[0].visual.organization.baseHint.kind, "common-base");
+  assert.equal(lessons[3].steps[0].visual.organization.baseHint.result, "\\(c^{mu}+c^{nv}\\)");
+  assert.deepEqual(
+    lessons[3].steps[0].visual.organization.steps.map((item) => item.label),
+    ["化倒数", "统一底数", "重写目标"],
+  );
+  assert.deepEqual(
+    lessons[3].steps[1].visual.mappings.map((mapping) => [mapping.value, mapping.shape]),
+    [["\\(2^a\\)", "square"], ["\\(2^{-3b}\\)", "circle"]],
+  );
+  assert.equal(lessons[3].steps[2].visual.solved, "\\(a=-3，b=1\\)");
   assert.match(JSON.stringify(lessons[4]), /a\^2=2b\^2/);
   assert.match(JSON.stringify(lessons[4]), /ab=\\\\frac\{1\}\{2\}/);
   assert.equal(lessons[4].steps[0].visual.count.estimatedRounds, 2);

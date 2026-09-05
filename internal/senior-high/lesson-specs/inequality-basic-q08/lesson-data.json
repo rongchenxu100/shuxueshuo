@@ -13,12 +13,11 @@
     "source": "2020 天津高考",
     "keyPoints": {
       "title": "解题要点",
-      "lead": "先整理目标代数式：合并前两项并通分，让题设中的 ab 显形；代入 ab=1 后，原式露出两个乘积固定的完整正项，可以直接使用基本不等式。",
+      "lead": "",
       "items": [
-        "观察目标代数式：前两项的分母分别含 a、b，合并后可以让 ab 出现。",
-        "整理显形：1/(2a)+1/(2b)=(a+b)/(2ab)，再代入 ab=1。",
-        "识别基本型：原式=(a+b)/2+8/(a+b)，两个正项的乘积恒为 4。",
-        "验等号：(a+b)/2=8/(a+b) 与 ab=1 可以同时满足。"
+        "观察结构：前两项分母分别含 \\(a、b\\)，通分使分母出现条件量 \\(ab\\)；代入 \\(ab=1\\) 后原式化为定积求和",
+        "应用基本不等式：识别 \\(\\frac{a+b}{2}\\)、\\(\\frac{8}{a+b}\\) 为两个正项，二者乘积恒为 \\(4\\)，得到原式不小于 \\(4\\)",
+        "验证取等：两个正项相等给出 \\(a+b=4\\)，再与 \\(ab=1\\) 联立，得到正数解 \\(\\{a,b\\}=\\{2-\\sqrt3，2+\\sqrt3\\}\\)"
       ]
     },
     "lines": [
@@ -30,21 +29,118 @@
   "steps": [
     {
       "id": "s1",
-      "section": "直接应用基本不等式",
-      "title": "整理目标代数式，让定积结构显形",
+      "section": "基本不等式",
+      "title": "观察结构",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-structure-scan",
+        "condition": {
+          "label": "条件整式",
+          "expression": "\\(a>0，b>0，ab=1\\)",
+          "tag": "定积 ab=1"
+        },
+        "target": {
+          "label": "目标整式",
+          "expression": "\\(\\frac{1}{2a}+\\frac{1}{2b}+\\frac{8}{a+b}\\)",
+          "tag": "暂未显形"
+        },
+        "organization": {
+          "label": "整理目标整式：通分显条件",
+          "motive": "前两项分母分别含 \\(a、b\\)，通分后分母可出现条件量 \\(ab\\)",
+          "combineHint": {
+            "action": "通分后分母出现条件量",
+            "note": "再代入定值",
+            "mark": "ab",
+            "ariaLabel": "前两项分母分别含 a、b 时先通分，让条件量 ab 出现在分母里，再代入定值"
+          },
+          "steps": [
+            {
+              "label": "通分",
+              "expression": "\\(\\frac{1}{2a}+\\frac{1}{2b}=\\frac{a+b}{2ab}\\)",
+              "marks": {
+                "bracket": "显出 ab"
+              }
+            },
+            {
+              "label": "代入",
+              "expression": "\\(ab=1\\Rightarrow\\frac{a+b}{2ab}=\\frac{a+b}{2}\\)"
+            },
+            {
+              "label": "消元剩（a+b）",
+              "expression": "\\(\\frac{1}{2a}+\\frac{1}{2b}+\\frac{8}{a+b}=\\frac{a+b}{2}+\\frac{8}{a+b}\\)"
+            }
+          ],
+          "note": "消元只剩 \\((a+b)\\)，目标显形"
+        },
+        "pattern": {
+          "first": {
+            "value": "\\(\\frac{a+b}{2}\\)",
+            "shape": "square"
+          },
+          "second": {
+            "value": "\\(\\frac{8}{a+b}\\)",
+            "shape": "circle"
+          },
+          "condition": {
+            "operator": "·",
+            "tag": "定积 4"
+          },
+          "target": {
+            "operator": "+",
+            "tag": "求最小值"
+          },
+          "ariaLabel": "通分显条件后，同一组正项的积固定，求和的最小值"
+        },
+        "reading": "定积求和",
+        "route": "直接应用基本不等式"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "\\(a>0，b>0，ab=1\\)"
+        },
+        {
+          "kind": "because",
+          "text": "前两项分母分别含 \\(a、b\\)，通分合并得 \\(\\frac{1}{2a}+\\frac{1}{2b}=\\frac{a+b}{2ab}\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "代入 \\(ab=1\\)，得 \\(\\frac{a+b}{2ab}=\\frac{a+b}{2}\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "原式 \\(=\\frac{a+b}{2}+\\frac{8}{a+b}\\)"
+        },
+        {
+          "kind": "because",
+          "text": "\\(\\frac{a+b}{2}\\cdot\\frac{8}{a+b}=4\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "整理后是「定积求和」，直接应用基本不等式"
+        }
+      ],
+      "derive": [
+        [
+          "结构判断",
+          "通分显条件｜定积求和"
+        ]
+      ]
+    },
+    {
+      "id": "s2",
+      "section": "基本不等式",
+      "title": "应用基本不等式",
       "t": 0,
       "showDiagram": false,
       "visual": {
         "kind": "basic-inequality-mapping",
-        "title": "整理目标代数式，再让两个完整正项入槽",
         "methodTag": "直接应用｜定积求和",
-        "conditionFlowLabel": "整理目标代数式，让题设条件显形",
-        "conditionFlow": [
-          "\\(\\frac{1}{2a}+\\frac{1}{2b}=\\frac{a+b}{2ab}\\)",
-          "\\(ab=1\\)",
-          "\\(E=\\frac{a+b}{2}+\\frac{8}{a+b}\\)"
-        ],
-        "template": "彩色方槽与彩色圆槽表示两个完整正项",
+        "templateLabel": "代入基本不等式",
+        "template": "\\(u+v\\ge2\\sqrt{uv}\\)",
+        "formulaStyle": "sum-geometric",
+        "showPositiveStep": true,
         "mappings": [
           {
             "slot": "第一个正项",
@@ -61,43 +157,99 @@
         ],
         "mappedSum": "\\(\\frac{a+b}{2}+\\frac{8}{a+b}\\)",
         "mappedProduct": "\\(4\\)",
-        "mapped": "\\(\\frac{E}{2}\\ge\\sqrt4\\)",
-        "stageLabel": "代入两个正项",
-        "fixedSourceLabel": "两项定积",
+        "mapped": "\\(\\frac{a+b}{2}+\\frac{8}{a+b}\\ge2\\sqrt4\\)",
+        "stageLabel": "代入定积",
+        "fixedSourceLabel": "已证",
         "fixedSourceTarget": "product",
         "fixedCondition": "\\(\\frac{a+b}{2}\\cdot\\frac{8}{a+b}=4\\)",
-        "replacementText": "代入定积 4",
-        "replaced": "\\(\\frac{E}{2}\\ge\\sqrt4=2\\)",
-        "simplifyLabel": "两边乘以 2",
-        "substituted": "\\(E\\ge4\\)",
-        "conclusionLabel": "最值结论",
-        "conclusion": "最小值为 \\(4\\)",
-        "equalityTemplate": "两个槽位相等",
-        "equalityMapped": "\\(\\frac{a+b}{2}=\\frac{8}{a+b}\\iff a+b=4\\)",
-        "equalityContextLabel": "结合 ab=1",
-        "equalityResult": "\\(\\{a,b\\}=\\{2-\\sqrt3，2+\\sqrt3\\}\\)",
-        "caption": "整理目标代数式是为了让条件显形；整理后原式已有两个乘积固定的正项，可以直接使用基本不等式。"
+        "replacementText": "把乘积换成 4",
+        "replaced": "\\(\\frac{a+b}{2}+\\frac{8}{a+b}\\ge4\\)",
+        "simplifyLabel": "对应原式",
+        "substituted": "\\(\\frac{1}{2a}+\\frac{1}{2b}+\\frac{8}{a+b}\\ge4\\)",
+        "conclusionLabel": "得到下界",
+        "conclusion": "原式不小于 \\(4\\)"
       },
       "reasoning": [
         {
           "kind": "because",
-          "text": "观察并整理目标代数式，合并前两项：\\(\\frac{1}{2a}+\\frac{1}{2b}=\\frac{a+b}{2ab}\\)"
-        },
-        {
-          "kind": "because",
-          "text": "把 \\(ab=1\\) 代入通分结果，得 \\(\\frac{a+b}{2ab}=\\frac{a+b}{2}\\)，故原式 \\(=\\frac{a+b}{2}+\\frac{8}{a+b}\\)"
-        },
-        {
-          "kind": "because",
-          "text": "\\(\\frac{a+b}{2}>0，\\frac{8}{a+b}>0\\)，且两项乘积恒为 \\(4\\)"
+          "text": "\\(a>0，b>0\\)，所以 \\(\\frac{a+b}{2}>0，\\frac{8}{a+b}>0\\)"
         },
         {
           "kind": "therefore",
-          "text": "由基本不等式，\\(\\frac{a+b}{2}+\\frac{8}{a+b}\\ge2\\sqrt4=4\\)"
+          "text": "\\(\\frac{a+b}{2}+\\frac{8}{a+b}\\ge2\\sqrt{\\frac{a+b}{2}\\cdot\\frac{8}{a+b}}\\)"
+        },
+        {
+          "kind": "because",
+          "text": "\\(\\frac{a+b}{2}\\cdot\\frac{8}{a+b}=4\\)"
         },
         {
           "kind": "therefore",
-          "text": "\\(a+b=4，ab=1\\) 有正数解 \\(a，b=2\\pm\\sqrt3\\)，所以最小值 \\(4\\) 能取得"
+          "text": "\\(\\frac{a+b}{2}+\\frac{8}{a+b}\\ge4\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "原式不小于 \\(4\\)"
+        }
+      ],
+      "derive": [
+        [
+          "下界",
+          "4"
+        ]
+      ]
+    },
+    {
+      "id": "s3",
+      "section": "基本不等式",
+      "title": "验证取等",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-equality-check",
+        "templateLabel": "基本不等式取等",
+        "first": {
+          "value": "\\(\\frac{a+b}{2}\\)",
+          "shape": "square"
+        },
+        "second": {
+          "value": "\\(\\frac{8}{a+b}\\)",
+          "shape": "circle"
+        },
+        "conditionLabel": "结合题设条件",
+        "condition": "\\(a>0，b>0，ab=1\\)",
+        "solved": "\\(\\{a,b\\}=\\{2-\\sqrt3，2+\\sqrt3\\}\\)",
+        "verificationLabel": "代回目标",
+        "verification": "\\(\\frac{1}{2a}+\\frac{1}{2b}+\\frac{8}{a+b}=4\\)",
+        "conclusion": "原式的最小值为 \\(4\\)"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "基本不等式取等 ⇔ 两个正项相等"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(\\frac{a+b}{2}=\\frac{8}{a+b}\\)"
+        },
+        {
+          "kind": "because",
+          "text": "\\(a+b>0\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\((a+b)^2=16\\Rightarrow a+b=4\\)"
+        },
+        {
+          "kind": "because",
+          "text": "\\(ab=1\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(a、b\\) 是方程 \\(t^2-4t+1=0\\) 的两个正根"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(\\{a,b\\}=\\{2-\\sqrt3，2+\\sqrt3\\}\\)，此时原式等于 \\(4\\)"
         }
       ],
       "derive": [
@@ -119,9 +271,25 @@
         0,
         0
       ]
+    },
+    "s2": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    },
+    "s3": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
     }
   },
   "stepLabels": {
-    "s1": "1 整理目标代数式，让定积结构显形"
+    "s1": "1 观察结构",
+    "s2": "2 应用基本不等式",
+    "s3": "3 验证取等"
   }
 }

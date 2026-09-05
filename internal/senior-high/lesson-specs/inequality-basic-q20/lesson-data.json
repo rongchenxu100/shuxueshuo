@@ -13,13 +13,11 @@
     "source": "",
     "keyPoints": {
       "title": "解题要点",
-      "lead": "目标中的两个倒数直接相乘并不是定值，因此不要立刻套基本不等式。先把目标平方，用 \\((x+y)^2=(x-y)^2+4xy\\) 引入题设，再令 \\(t=xy>0\\)，把目标平方化成 \\(t+\\frac{4}{t}\\)，此时两项乘积固定，可直接应用基本不等式。",
+      "lead": "",
       "items": [
-        "先整理目标：因为 \\(x>0，y>0\\)，所以目标为正，可以先研究它的平方。",
-        "利用恒等式：\\(\\left(\\frac{1}{x}+\\frac{1}{y}\\right)^2=\\frac{(x+y)^2}{x^2y^2}=\\frac{(x-y)^2+4xy}{(xy)^2}\\)。",
-        "代入条件并换元：由 \\((x-y)^2=(xy)^3\\)，令 \\(t=xy>0\\)，得到目标平方等于 \\(t+\\frac{4}{t}\\)。",
-        "应用基本不等式：\\(t+\\frac{4}{t}\\ge4\\)，所以 \\(\\frac{1}{x}+\\frac{1}{y}\\ge2\\)。",
-        "验等号：当 \\(t=2\\) 时取等；此时 \\(xy=2，(x-y)^2=8\\)，可取 \\(x=2+\\sqrt{2}，y=2-\\sqrt{2}\\)。"
+        "观察结构：目标与条件次数不齐，先配次显出条件量，再代入条件消元，目标平方化为定积求和",
+        "应用基本不等式：识别 \\(xy\\)、\\(\\frac{4}{xy}\\) 为两个正项，二者乘积恒为 \\(4\\)，得到目标平方不小于 \\(4\\)，从而原目标不小于 \\(2\\)",
+        "验证取等：两个正项相等给出 \\(xy=2\\)，再与题设条件联立，得到取等值 \\((x,y)=(2+\\sqrt2，2-\\sqrt2)\\) 或 \\((2-\\sqrt2，2+\\sqrt2)\\)"
       ]
     },
     "lines": [
@@ -31,82 +29,231 @@
   "steps": [
     {
       "id": "s1",
-      "section": "直接应用基本不等式",
-      "title": "先平方整理目标，让定积结构显形",
+      "section": "基本不等式",
+      "title": "观察结构",
       "t": 0,
       "showDiagram": false,
       "visual": {
-        "kind": "basic-inequality-mapping",
-        "title": "先平方整理目标，再让两个定积正项入槽",
-        "methodTag": "直接应用｜平方整理后定积求和",
-        "conditionFlowLabel": "先平方整理目标并代入题设",
-        "conditionFlow": [
-          "\\(\\left(\\frac{1}{x}+\\frac{1}{y}\\right)^2=\\frac{(x-y)^2+4xy}{(xy)^2}\\)",
-          "\\(=xy+\\frac{4}{xy}\\)",
-          "\\(t=xy>0\\Rightarrow\\left(\\frac{1}{x}+\\frac{1}{y}\\right)^2=t+\\frac{4}{t}\\)"
-        ],
-        "template": "彩色方槽与彩色圆槽表示两个完整正项",
-        "mappings": [
-          {
-            "slot": "第一个正项",
-            "shape": "square",
-            "value": "\\(t\\)",
-            "condition": "\\(t>0\\)"
+        "kind": "basic-inequality-structure-scan",
+        "condition": {
+          "label": "条件整式",
+          "expression": "\\(x>0，y>0，(x-y)^2=(xy)^3\\)",
+          "tag": "含 (x−y)²"
+        },
+        "target": {
+          "label": "目标整式",
+          "expression": "\\(\\frac{1}{x}+\\frac{1}{y}\\)",
+          "tag": "正数｜暂未显形"
+        },
+        "organization": {
+          "label": "整理目标整式：配次显条件",
+          "motive": "目标中的 \\(x+y\\) 为一次，条件中的 \\((x-y)^2\\) 为二次；先平方配次，再用恒等式衔接条件",
+          "squareHint": {
+            "source": "目标与条件次数不齐",
+            "action": "平方配次",
+            "result": "条件量显形",
+            "note": "再代入条件消元",
+            "ariaLabel": "目标与条件次数不齐时，先平方配次，再代入条件消元"
           },
-          {
-            "slot": "第二个正项",
-            "shape": "circle",
-            "value": "\\(\\frac{4}{t}\\)",
-            "condition": "\\(\\frac{4}{t}>0\\)"
-          }
-        ],
-        "mappedSum": "\\(t+\\frac{4}{t}\\)",
-        "mappedProduct": "\\(4\\)",
-        "mapped": "\\(\\frac{t+\\frac{4}{t}}{2}\\ge\\sqrt{4}\\)",
-        "stageLabel": "代入两个正项",
-        "fixedSourceLabel": "两项定积",
-        "fixedSourceTarget": "product",
-        "fixedCondition": "\\(t\\cdot\\frac{4}{t}=4\\)",
-        "replacementText": "代入定积 4",
-        "replaced": "\\(t+\\frac{4}{t}\\ge4\\)",
-        "simplifyLabel": "还原目标平方",
-        "substituted": "\\(\\left(\\frac{1}{x}+\\frac{1}{y}\\right)^2\\ge4\\)",
-        "conclusionLabel": "目标为正",
-        "conclusion": "\\(\\frac{1}{x}+\\frac{1}{y}\\ge2\\)",
-        "equalityTemplate": "两个槽位相等",
-        "equalityMapped": "\\(t=\\frac{4}{t}\\iff t=2\\)",
-        "equalityContextLabel": "还原并验证",
-        "equalityResult": "\\(x=2+\\sqrt{2}，y=2-\\sqrt{2}\\)",
-        "caption": "本题没有通过乘入条件配成 0 次齐次式；而是先平方整理目标，再把所得的两个定积正项直接放入基本不等式槽位。"
+          "steps": [
+            {
+              "label": "平方配次",
+              "expression": "\\(\\frac{1}{x}+\\frac{1}{y}>0\\Rightarrow\\left(\\frac{1}{x}+\\frac{1}{y}\\right)^2=\\frac{(x+y)^2}{(xy)^2}\\)"
+            },
+            {
+              "label": "恒等变形",
+              "expression": "\\((x+y)^2=(x-y)^2+4xy\\)",
+              "marks": {
+                "bracket": "出现条件量 (x−y)²"
+              }
+            },
+            {
+              "label": "代入消元",
+              "expression": "\\(\\left(\\frac{1}{x}+\\frac{1}{y}\\right)^2=\\frac{(xy)^3+4xy}{(xy)^2}=xy+\\frac{4}{xy}\\)",
+              "marks": {
+                "bracket": "只剩 xy"
+              }
+            }
+          ],
+          "note": "消元只剩 \\(xy\\)，目标平方显形"
+        },
+        "pattern": {
+          "first": {
+            "value": "\\(xy\\)",
+            "shape": "square"
+          },
+          "second": {
+            "value": "\\(\\frac{4}{xy}\\)",
+            "shape": "circle"
+          },
+          "condition": {
+            "operator": "·",
+            "tag": "定积 4"
+          },
+          "target": {
+            "operator": "+",
+            "tag": "求最小值"
+          },
+          "ariaLabel": "平方并代入条件后，正项 xy 与 4 除以 xy 的积固定，求和的最小值"
+        },
+        "reading": "定积求和",
+        "route": "先求目标平方的最小值，再还原目标"
       },
       "reasoning": [
         {
           "kind": "because",
-          "text": "由 \\(x>0，y>0\\) 知 \\(\\frac{1}{x}+\\frac{1}{y}>0\\)，可以先求目标平方的下界"
+          "text": "\\(x>0，y>0\\)，所以 \\(\\frac{1}{x}+\\frac{1}{y}>0\\)；目标与条件次数不齐，可以先平方配次"
         },
         {
-          "kind": "because",
+          "kind": "therefore",
           "text": "\\(\\left(\\frac{1}{x}+\\frac{1}{y}\\right)^2=\\frac{(x+y)^2}{(xy)^2}=\\frac{(x-y)^2+4xy}{(xy)^2}\\)"
         },
         {
+          "kind": "because",
+          "text": "题设给出 \\((x-y)^2=(xy)^3\\)"
+        },
+        {
           "kind": "therefore",
-          "text": "代入 \\((x-y)^2=(xy)^3\\)，并令 \\(t=xy>0\\)，得到 \\(\\left(\\frac{1}{x}+\\frac{1}{y}\\right)^2=t+\\frac{4}{t}\\)"
+          "text": "代入消元得 \\(\\left(\\frac{1}{x}+\\frac{1}{y}\\right)^2=xy+\\frac{4}{xy}\\)"
         },
         {
           "kind": "because",
-          "text": "两个正项 \\(t\\) 与 \\(\\frac{4}{t}\\) 的乘积恒为 \\(4\\)，所以 \\(t+\\frac{4}{t}\\ge4\\)"
+          "text": "\\(xy\\cdot\\frac{4}{xy}=4\\)"
         },
         {
           "kind": "therefore",
-          "text": "\\(\\left(\\frac{1}{x}+\\frac{1}{y}\\right)^2\\ge4\\)，又目标为正，所以 \\(\\frac{1}{x}+\\frac{1}{y}\\ge2\\)"
+          "text": "整理后是「定积求和」，直接应用基本不等式"
+        }
+      ],
+      "derive": [
+        [
+          "结构判断",
+          "配次显条件｜定积求和"
+        ]
+      ]
+    },
+    {
+      "id": "s2",
+      "section": "基本不等式",
+      "title": "应用基本不等式",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-mapping",
+        "methodTag": "直接应用｜定积求和",
+        "templateLabel": "代入基本不等式",
+        "template": "\\(u+v\\ge2\\sqrt{uv}\\)",
+        "formulaStyle": "sum-geometric",
+        "showPositiveStep": true,
+        "mappings": [
+          {
+            "slot": "第一个正项",
+            "shape": "square",
+            "value": "\\(xy\\)",
+            "condition": "\\(xy>0\\)"
+          },
+          {
+            "slot": "第二个正项",
+            "shape": "circle",
+            "value": "\\(\\frac{4}{xy}\\)",
+            "condition": "\\(\\frac{4}{xy}>0\\)"
+          }
+        ],
+        "mappedSum": "\\(xy+\\frac{4}{xy}\\)",
+        "mappedProduct": "\\(4\\)",
+        "mapped": "\\(xy+\\frac{4}{xy}\\ge2\\sqrt4\\)",
+        "stageLabel": "代入定积",
+        "fixedSourceLabel": "已证",
+        "fixedSourceTarget": "product",
+        "fixedCondition": "\\(xy\\cdot\\frac{4}{xy}=4\\)",
+        "replacementText": "把乘积换成 4",
+        "replaced": "\\(xy+\\frac{4}{xy}\\ge4\\)",
+        "simplifyLabel": "对应目标平方",
+        "substituted": "\\(\\left(\\frac{1}{x}+\\frac{1}{y}\\right)^2\\ge4\\)",
+        "conclusionLabel": "目标为正，开平方",
+        "conclusion": "\\(\\frac{1}{x}+\\frac{1}{y}\\ge2\\)"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "\\(xy>0，\\frac{4}{xy}>0\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(xy+\\frac{4}{xy}\\ge2\\sqrt{xy\\cdot\\frac{4}{xy}}\\)"
         },
         {
           "kind": "because",
-          "text": "取等要求 \\(t=\\frac{4}{t}\\)，即 \\(xy=2\\)"
+          "text": "\\(xy\\cdot\\frac{4}{xy}=4\\)"
         },
         {
           "kind": "therefore",
-          "text": "此时 \\((x-y)^2=8\\)，且 \\((x+y)^2=8+4xy=16\\)，可取 \\(x=2+\\sqrt{2}，y=2-\\sqrt{2}\\)，所以最小值为 \\(2\\)"
+          "text": "\\(xy+\\frac{4}{xy}\\ge4\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(\\left(\\frac{1}{x}+\\frac{1}{y}\\right)^2\\ge4\\)，又 \\(\\frac{1}{x}+\\frac{1}{y}>0\\)，所以 \\(\\frac{1}{x}+\\frac{1}{y}\\ge2\\)"
+        }
+      ],
+      "derive": [
+        [
+          "下界",
+          "2"
+        ]
+      ]
+    },
+    {
+      "id": "s3",
+      "section": "基本不等式",
+      "title": "验证取等",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-equality-check",
+        "templateLabel": "基本不等式取等",
+        "first": {
+          "value": "\\(xy\\)",
+          "shape": "square"
+        },
+        "second": {
+          "value": "\\(\\frac{4}{xy}\\)",
+          "shape": "circle"
+        },
+        "conditionLabel": "结合题设条件",
+        "condition": "\\(x>0，y>0，(x-y)^2=(xy)^3\\)",
+        "solved": "\\((x,y)=(2+\\sqrt2，2-\\sqrt2)\\) 或 \\((2-\\sqrt2，2+\\sqrt2)\\)",
+        "verificationLabel": "代回目标",
+        "verification": "\\(\\frac{1}{x}+\\frac{1}{y}=\\frac{x+y}{xy}=2\\)",
+        "conclusion": "\\(\\frac{1}{x}+\\frac{1}{y}\\) 的最小值为 \\(2\\)"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "基本不等式取等 ⇔ 两个正项相等"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(xy=\\frac{4}{xy}\\)"
+        },
+        {
+          "kind": "because",
+          "text": "\\(xy>0\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(xy=2\\)"
+        },
+        {
+          "kind": "because",
+          "text": "\\((x-y)^2=(xy)^3=8\\)，且 \\((x+y)^2=(x-y)^2+4xy=16\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(x+y=4\\)，解得 \\((x,y)=(2+\\sqrt2，2-\\sqrt2)\\) 或 \\((2-\\sqrt2，2+\\sqrt2)\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "此时原目标等于 \\(2\\)，可以取等号"
         }
       ],
       "derive": [
@@ -115,8 +262,8 @@
           "2"
         ],
         [
-          "一组取等值",
-          "x=2+√2，y=2-√2"
+          "等号条件",
+          "(x,y)=(2+√2,2−√2) 或 (2−√2,2+√2)"
         ]
       ]
     }
@@ -128,9 +275,25 @@
         0,
         0
       ]
+    },
+    "s2": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    },
+    "s3": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
     }
   },
   "stepLabels": {
-    "s1": "1 先平方整理目标，让定积结构显形"
+    "s1": "1 观察结构",
+    "s2": "2 应用基本不等式",
+    "s3": "3 验证取等"
   }
 }

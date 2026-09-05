@@ -290,9 +290,9 @@ test("builds the complete inequality topic with four published modules", () => {
   assert.match(libraryRuntime, /basic-positive-bridge[\s\S]*完整正项[\s\S]*代入方框/);
   assert.match(libraryRuntime, /basic-slot-route-problem[\s\S]*练习 8·1[\s\S]*m\+n=2[\s\S]*mn/);
   assert.match(libraryRuntime, /basic-slot-route-problem[\s\S]*练习 8·7[\s\S]*x&gt;-1/);
-  assert.match(libraryRuntime, /renderBasicSlotRouteStep\("代入槽位"[\s\S]*basicSlot\("square"\)/);
+  assert.match(libraryRuntime, /renderBasicSlotRouteStep\("代入基本不等式"[\s\S]*basicSlot\("square"\)/);
   assert.doesNotMatch(libraryRuntime, /basic-positive-instance|basic-slot-warning|槽外常数项/);
-  assert.match(libraryRuntime, /basic-slot-pipeline[\s\S]*识别正项[\s\S]*代入槽位[\s\S]*验证取等/);
+  assert.match(libraryRuntime, /basic-slot-pipeline[\s\S]*识别正项[\s\S]*代入基本不等式[\s\S]*验证取等/);
   assert.match(libraryRuntime, /识别正项[\s\S]*正变量、正常数、完整表达式或函数值，整体 &gt; 0/);
   assert.doesNotMatch(libraryRuntime.match(/basic-inequality-slot-method[\s\S]*?basic-slot-how/)?.[0] || "", /正变量、正常数、完整表达式或函数值，只要整体大于 0/);
   assert.doesNotMatch(libraryRuntime, /senior-learning-method-index-intro/);
