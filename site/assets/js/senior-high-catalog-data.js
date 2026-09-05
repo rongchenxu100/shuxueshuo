@@ -8952,7 +8952,7 @@ window.__SENIOR_HIGH_CATALOG__ = {
               "title": "换元法",
               "category": "description",
               "section": "method",
-              "lessonCount": 5
+              "lessonCount": 6
             },
             {
               "id": "conditional-elimination",
@@ -8961,7 +8961,7 @@ window.__SENIOR_HIGH_CATALOG__ = {
               "title": "条件消元法",
               "category": "description",
               "section": "method",
-              "lessonCount": 2
+              "lessonCount": 1
             }
           ],
           "knowledgeBlocks": [
@@ -9416,7 +9416,7 @@ window.__SENIOR_HIGH_CATALOG__ = {
               },
               "lesson": {
                 "id": "inequality-basic-q13",
-                "title": "整理目标表达式后直接定积求和",
+                "title": "整理目标代数式后直接定积求和",
                 "problem": {
                   "lines": [
                     {
@@ -9665,7 +9665,7 @@ window.__SENIOR_HIGH_CATALOG__ = {
               "display": "featured",
               "hints": [
                 "直接展开也能化为 1+2/(xy)，再由定和求积与取倒数传界求解，只是步骤稍多。",
-                "局部配齐时先通分，再由 x+y=1 补齐两个分子中的常数 1；展开后直接圈出 2x/y、2y/x。"
+                "局部配齐时先圈出负一次项，用 x+y=1 分别乘入配成零次，零次常数不动；展开后直接圈出 2x/y、2y/x。"
               ],
               "answerSchema": {
                 "type": "exact-expression",
@@ -9840,7 +9840,7 @@ window.__SENIOR_HIGH_CATALOG__ = {
               },
               "lesson": {
                 "id": "inequality-basic-q21",
-                "title": "用对称配对降维求四次式最小值",
+                "title": "用基本不等式消元与积换元求四次式最小值",
                 "problem": {
                   "lines": [
                     {
@@ -10205,14 +10205,14 @@ window.__SENIOR_HIGH_CATALOG__ = {
               }
             },
             {
-              "group": "条件消元法",
+              "group": "换元法",
               "knowledgeCategory": "description",
-              "title": "整理分式条件后消元求最小值",
-              "numberLabel": "条件消元法 · 例 1",
+              "title": "分母整体换元后配齐次式",
+              "numberLabel": "换元法 · 变式 6",
               "display": "featured",
               "hints": [
-                "先通分整理条件，得到 x(x+2y−1)=1；由 x>0 可用 x 表示 y，再代入目标消去 y。",
-                "一元目标化为 (3x+1/x+1)/2；对正项 3x 与 1/x 应用基本不等式，最后回代求出 y。"
+                "令 u=x+1>0、v=x+2y>0，把条件与目标同步改写为 1/u+1/v=1、(3u+v−3)/2。",
+                "只需研究 3u+v；乘入倒数和配成 0 次齐次式，得到 3u+v=4+3u/v+v/u，再应用基本不等式。"
               ],
               "answerSchema": {
                 "type": "exact-expression",
@@ -10235,7 +10235,7 @@ window.__SENIOR_HIGH_CATALOG__ = {
               },
               "lesson": {
                 "id": "inequality-basic-q27",
-                "title": "利用条件消元后应用基本不等式求最小值",
+                "title": "分母整体换元后配齐次式求最小值",
                 "problem": {
                   "lines": [
                     {
@@ -10251,7 +10251,7 @@ window.__SENIOR_HIGH_CATALOG__ = {
               "group": "条件消元法",
               "knowledgeCategory": "description",
               "title": "定和条件消元后整理倒数求最大值",
-              "numberLabel": "条件消元法 · 例 2",
+              "numberLabel": "条件消元法 · 例 1",
               "display": "featured",
               "hints": [
                 "由 a+b=1 直接写出 b=1−a，代入后两个分母都化为 a²−a+1，原目标降成一元正分式。",

@@ -4,7 +4,7 @@
     "outputPath": "site/problems/senior-high/inequalities/inequality-relations/inequality-basic-q29.html",
     "pageTitle": "利用定和条件消元后求分式最大值",
     "pageDescription": "利用定和条件消元后求分式最大值的逐步解析。",
-    "breadcrumbTitle": "基本不等式 · 条件消元法 2",
+    "breadcrumbTitle": "基本不等式 · 条件消元法 1",
     "breadcrumbLabel": "解不等式与基本不等式",
     "breadcrumbPath": "site/senior-high/index.html",
     "breadcrumbSearch": "?chapter=inequalities&section=inequality-relations&module=basic-inequalities&method=conditional-elimination"
@@ -13,14 +13,14 @@
     "source": "",
     "keyPoints": {
       "title": "解题要点",
-      "lead": "条件可以直接给出 \\(b=1-a\\)。把它代入目标后，两个分母自动变成同一个一元二次式；再利用原式为正，把求最大值转化为求倒数的最小值，基本不等式结构随之显形。",
+      "lead": "",
       "items": [
-        "条件消元：由 \\(a+b=1\\)，得 \\(b=1-a\\)，且 \\(0<a<1\\)。",
-        "代入目标：两个分母均为 \\(a^2-a+1\\)，所以原式化为 \\(E=\\frac{a+1}{a^2-a+1}\\)。",
-        "整理目标：因为 \\(E>0\\)，求 \\(E\\) 的最大值等价于求 \\(\\frac{1}{E}\\) 的最小值。",
-        "显露结构：\\(\\frac{1}{E}=\\frac{a^2-a+1}{a+1}=(a+1)+\\frac{3}{a+1}-3\\)。",
-        "应用基本不等式：\\((a+1)+\\frac{3}{a+1}\\ge2\\sqrt3\\)，故 \\(E\\le\\frac{1}{2\\sqrt3-3}=\\frac{3+2\\sqrt3}{3}\\)。",
-        "回代等号：\\(a+1=\\frac{3}{a+1}\\Rightarrow a=\\sqrt3-1\\)，进而 \\(b=2-\\sqrt3\\)。"
+        "观察结构与筛选方法：原目标不能直接定和或定积，交换变量后改变，分母内部次数混合，整体换元也不能消去原变量；而条件可直接写成 \\(b=1-a\\)，因此选择条件消元法。",
+        "条件消元：把 \\(b=1-a\\) 代入，两个分母都化为 \\(a^2-a+1\\)，原式合并为 \\(\\frac{a+1}{a^2-a+1}\\)。",
+        "取倒数并整理一元目标：原式为正，求其最大值等价于求其倒数 \\(\\frac{a^2-a+1}{a+1}\\) 的最小值；整理得 \\((a+1)+\\frac{3}{a+1}-3\\)。",
+        "观察整理后的结构：常数 \\(-3\\) 不动，两个正项 \\(a+1\\)、\\(\\frac{3}{a+1}\\) 的乘积恒为 \\(3\\)，属于定积求和。",
+        "应用基本不等式：\\((a+1)+\\frac{3}{a+1}\\ge2\\sqrt{3}\\)，所以原式不大于 \\(\\frac{1}{2\\sqrt{3}-3}=\\frac{3+2\\sqrt{3}}{3}\\)。",
+        "验证取等并回代：由 \\(a+1=\\frac{3}{a+1}\\) 得 \\(a=\\sqrt{3}-1\\)，再由 \\(b=1-a\\) 得 \\(b=2-\\sqrt{3}\\)。"
       ]
     },
     "lines": [
@@ -33,98 +33,354 @@
     {
       "id": "s1",
       "section": "条件消元法",
-      "title": "用 b=1-a 消元，整理倒数后应用基本不等式",
+      "title": "观察结构与筛选方法",
       "t": 0,
       "showDiagram": false,
       "visual": {
-        "kind": "elimination-basic-inequality-lifecycle",
-        "title": "消元（表示变量 → 代入并整理目标）→ 应用基本不等式 → 回代等号",
-        "methodTag": "条件消元法｜用定和消去一个变量",
-        "elimination": {
-          "label": "由 b=1-a 消去 b，再整理目标",
-          "observation": "条件能直接表示 b，先代入目标；两个分母会自动合并为同一个一元式",
-          "conditionFlow": [
-            "\\(a+b=1\\)",
-            "\\(b=1-a\\)",
-            "\\(0<a<1\\)"
-          ],
-          "isolateFlow": [
-            "\\(a^2+b=a^2-a+1\\)",
-            "\\(a+b^2=a^2-a+1\\)"
-          ],
-          "targetFlow": [
-            "\\(E=\\frac{2a}{a^2+b}+\\frac{b}{a+b^2}\\)",
-            "\\(E=\\frac{2a+1-a}{a^2-a+1}\\)",
-            "\\(E=\\frac{a+1}{a^2-a+1}>0\\)"
-          ],
-          "condition": "\\(0<a<1\\)",
-          "target": "\\(\\frac{1}{E}=(a+1)+\\frac{3}{a+1}-3\\)",
-          "handoffLabel": "整理倒数后发现：两个正项的乘积固定"
+        "kind": "basic-inequality-structure-scan",
+        "condition": {
+          "label": "条件整式",
+          "expression": "\\(a+b=1\\)",
+          "tag": "可直接表示变量"
         },
-        "basicInequality": {
-          "label": "应用基本不等式求倒数的最小值",
-          "methodTag": "发现结构｜正数目标取倒数",
-          "observation": "常数 −3 保留不动，对 a+1 与 3/(a+1) 应用基本不等式",
-          "positiveTerms": [
+        "target": {
+          "label": "目标整式",
+          "expression": "\\(\\frac{2a}{a^2+b}+\\frac{b}{a+b^2}\\)",
+          "tag": "二元分式"
+        },
+        "organization": {
+          "label": "筛选已有结构",
+          "steps": [
             {
-              "value": "\\(a+1\\)",
-              "condition": "\\(a+1>0\\)"
+              "label": "直接应用",
+              "expression": "两正分式的乘积不是定值"
             },
             {
-              "value": "\\(\\frac{3}{a+1}\\)",
-              "condition": "\\(\\frac{3}{a+1}>0\\)"
+              "label": "找对称",
+              "expression": "交换 a、b 后题设改变"
+            },
+            {
+              "label": "配齐次式",
+              "expression": "分母内部次数混合"
+            },
+            {
+              "label": "整体换元",
+              "expression": "换分母后仍保留 a、b"
             }
           ],
-          "product": "\\((a+1)\\cdot\\frac{3}{a+1}=3\\)",
-          "inequality": "\\((a+1)+\\frac{3}{a+1}\\ge2\\sqrt3\\)",
-          "bound": "\\(\\frac{1}{E}\\ge2\\sqrt3-3\\Rightarrow E\\le\\frac{3+2\\sqrt3}{3}\\)",
-          "equality": "\\(a+1=\\frac{3}{a+1}\\)",
-          "equalitySolved": "\\(a=\\sqrt3-1\\)"
+          "note": "条件可直接写成 \\(b=1-a\\) → 条件消元法"
         },
-        "restoration": {
-          "label": "求解等号成立条件",
-          "variableLabel": "a、b",
-          "transformedEquality": "\\(a+1=\\frac{3}{a+1}\\)",
-          "solved": "\\(a=\\sqrt3-1\\)",
-          "reverse": "\\(b=1-a\\)",
-          "result": "\\(a=\\sqrt3-1，b=2-\\sqrt3\\)",
-          "verification": "\\((\\sqrt3-1)+(2-\\sqrt3)=1\\)"
-        },
-        "conclusion": "原式的最大值是 \\(\\frac{3+2\\sqrt3}{3}\\)",
-        "caption": "三步相连：先由定和条件直接表示 b 并代入目标；把一元正数目标取倒数，显露两个乘积固定的正项，再应用基本不等式；最后回代求出完整取等条件。"
+        "reading": "条件可直接表示变量",
+        "route": "条件消元法",
+        "caption": "条件消元是兜底路线：先确认常用结构不直接适用，再抓住条件能够表示变量这一正向特征。"
       },
       "reasoning": [
         {
           "kind": "because",
-          "text": "由 \\(a+b=1\\)，可直接用 \\(a\\) 表示 \\(b\\)：\\(b=1-a\\)；又因 \\(a，b>0\\)，所以 \\(0<a<1\\)"
-        },
-        {
-          "kind": "therefore",
-          "text": "代入目标后，\\(a^2+b=a^2-a+1\\)，\\(a+b^2=a^2-a+1\\)，两个分母相同"
-        },
-        {
-          "kind": "therefore",
-          "text": "设原式为 \\(E\\)，则 \\(E=\\frac{2a+1-a}{a^2-a+1}=\\frac{a+1}{a^2-a+1}>0\\)"
+          "text": "原目标中两个正分式的乘积不是定值，不能直接应用基本不等式"
         },
         {
           "kind": "because",
-          "text": "求正数 \\(E\\) 的最大值，等价于求 \\(\\frac{1}{E}\\) 的最小值；而 \\(\\frac{1}{E}=(a+1)+\\frac{3}{a+1}-3\\)"
+          "text": "交换 \\(a、b\\) 后系数与分式位置改变，不是对称结构"
         },
         {
           "kind": "because",
-          "text": "\\(a+1>0，\\frac{3}{a+1}>0\\)，且二者乘积固定为 \\(3\\)"
+          "text": "两个分母内部次数混合，不能直接配齐次；若对分母整体换元，分子仍保留原变量"
         },
         {
           "kind": "therefore",
-          "text": "由基本不等式，\\(\\frac{1}{E}\\ge2\\sqrt3-3\\)，所以 \\(E\\le\\frac{1}{2\\sqrt3-3}=\\frac{3+2\\sqrt3}{3}\\)"
+          "text": "条件可直接写成 \\(b=1-a\\)，代入后能把二元目标降为一元目标，选择条件消元法"
+        }
+      ],
+      "derive": [
+        [
+          "路线判断",
+          "条件可直接表示变量｜条件消元法"
+        ]
+      ]
+    },
+    {
+      "id": "s2",
+      "section": "条件消元法",
+      "title": "条件消元",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-structure-scan",
+        "showFocus": false,
+        "condition": {
+          "label": "条件整式",
+          "expression": "\\(a+b=1\\)",
+          "tag": "表示 b"
+        },
+        "target": {
+          "label": "原目标",
+          "expression": "\\(\\frac{2a}{a^2+b}+\\frac{b}{a+b^2}\\)",
+          "tag": "消去 b"
+        },
+        "organization": {
+          "eliminationHint": {
+            "variable": "\\(b\\)",
+            "isolated": "\\(1-a\\)",
+            "independentVariable": "\\(a\\)",
+            "targetBefore": "\\(\\frac{2a}{a^2+b}+\\frac{b}{a+b^2}\\)",
+            "targetAfter": "\\(\\frac{a+1}{a^2-a+1}\\)",
+            "ariaLabel": "由条件用 a 表示 b，代入目标后两个分母统一，二元目标降为只含 a 的一元目标"
+          }
+        },
+        "reading": "二元目标降为一元目标",
+        "route": "取倒数并整理一元目标"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "由 \\(a+b=1\\)，得 \\(b=1-a\\)；又因 \\(a，b>0\\)，所以 \\(0<a<1\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(a^2+b=a^2-a+1\\)，且 \\(a+b^2=a+(1-a)^2=a^2-a+1\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "原式 \\(=\\frac{2a+1-a}{a^2-a+1}=\\frac{a+1}{a^2-a+1}>0\\)"
+        }
+      ],
+      "derive": [
+        [
+          "消元结果",
+          "二元目标降为一元正分式"
+        ]
+      ]
+    },
+    {
+      "id": "s3",
+      "section": "条件消元法",
+      "title": "取倒数并整理一元目标",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-structure-scan",
+        "showFocus": false,
+        "condition": {
+          "label": "变量范围",
+          "expression": "\\(0<a<1\\)",
+          "tag": "原式为正"
+        },
+        "target": {
+          "label": "一元目标",
+          "expression": "\\(\\frac{a+1}{a^2-a+1}\\)",
+          "tag": "求最大值"
+        },
+        "organization": {
+          "label": "整理目标：正数取倒数",
+          "steps": [
+            {
+              "label": "目标转换",
+              "expression": "原式最大 ⇔ \\(\\frac{a^2-a+1}{a+1}\\) 最小"
+            },
+            {
+              "label": "整理倒数",
+              "expression": "\\(\\frac{a^2-a+1}{a+1}=(a+1)+\\frac{3}{a+1}-3\\)"
+            }
+          ]
+        },
+        "reading": "正数取倒数",
+        "route": "重新观察结构",
+        "caption": "取倒数只改变最值方向；继续整理，才能显露可直接配对的两个正项。"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "原式 \\(=\\frac{a+1}{a^2-a+1}>0\\)，求其最大值等价于求其倒数的最小值"
+        },
+        {
+          "kind": "therefore",
+          "text": "原式的倒数为 \\(\\frac{a^2-a+1}{a+1}\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(\\frac{a^2-a+1}{a+1}=(a+1)+\\frac{3}{a+1}-3\\)"
+        }
+      ],
+      "derive": [
+        [
+          "整理结果",
+          "原式最大 ⇔ 倒数最小"
+        ]
+      ]
+    },
+    {
+      "id": "s4",
+      "section": "条件消元法",
+      "title": "观察整理后的结构",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-structure-scan",
+        "condition": {
+          "label": "变量范围",
+          "expression": "\\(0<a<1\\)",
+          "tag": "保证两个正项"
+        },
+        "target": {
+          "label": "倒数目标",
+          "expression": "\\((a+1)+\\frac{3}{a+1}-3\\)",
+          "tag": "常数 −3 不动"
+        },
+        "pattern": {
+          "first": {
+            "value": "\\(a+1\\)",
+            "shape": "square"
+          },
+          "second": {
+            "value": "\\(\\frac{3}{a+1}\\)",
+            "shape": "circle"
+          },
+          "condition": {
+            "operator": "·",
+            "tag": "定积 3"
+          },
+          "target": {
+            "operator": "+",
+            "tag": "求最小值"
+          },
+          "ariaLabel": "整理倒数后，正项 a 加 1 与 3 除以 a 加 1 的乘积固定为 3，求和的最小值"
+        },
+        "reading": "定积求和",
+        "route": "直接应用基本不等式",
+        "caption": "常数项旁置，重新使用统一的观察结构组件识别基本不等式。"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "常数 \\(-3\\) 不参与配对，只需研究 \\((a+1)+\\frac{3}{a+1}\\)"
         },
         {
           "kind": "because",
-          "text": "等号要求 \\(a+1=\\frac{3}{a+1}\\)，结合 \\(a+1>0\\)，得 \\(a=\\sqrt3-1\\)"
+          "text": "\\(0<a<1\\)，所以 \\(a+1>0，\\frac{3}{a+1}>0\\)"
         },
         {
           "kind": "therefore",
-          "text": "回代 \\(b=1-a\\)，得 \\(b=2-\\sqrt3>0\\)，满足原条件，所以最大值为 \\(\\frac{3+2\\sqrt3}{3}\\)"
+          "text": "\\((a+1)\\cdot\\frac{3}{a+1}=3\\) 为定值，属于“定积求和”结构"
+        }
+      ],
+      "derive": [
+        [
+          "结构判断",
+          "定积求和｜直接应用基本不等式"
+        ]
+      ]
+    },
+    {
+      "id": "s5",
+      "section": "条件消元法",
+      "title": "应用基本不等式",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-mapping",
+        "methodTag": "直接应用｜定积求和",
+        "templateLabel": "代入基本不等式",
+        "template": "\\(u+v\\ge2\\sqrt{uv}\\)",
+        "formulaStyle": "sum-geometric",
+        "showPositiveStep": true,
+        "mappings": [
+          {
+            "slot": "第一个正项",
+            "shape": "square",
+            "value": "\\(a+1\\)",
+            "condition": "\\(a+1>0\\)"
+          },
+          {
+            "slot": "第二个正项",
+            "shape": "circle",
+            "value": "\\(\\frac{3}{a+1}\\)",
+            "condition": "\\(\\frac{3}{a+1}>0\\)"
+          }
+        ],
+        "mappedSum": "\\((a+1)+\\frac{3}{a+1}\\)",
+        "mappedProduct": "\\(3\\)",
+        "mapped": "\\((a+1)+\\frac{3}{a+1}\\ge2\\sqrt{(a+1)\\cdot\\frac{3}{a+1}}\\)",
+        "stageLabel": "代入定积",
+        "fixedSourceLabel": "已证",
+        "fixedSourceTarget": "product",
+        "fixedCondition": "\\((a+1)\\cdot\\frac{3}{a+1}=3\\)",
+        "replacementText": "把乘积换成 3",
+        "replaced": "\\((a+1)+\\frac{3}{a+1}\\ge2\\sqrt{3}\\)",
+        "simplifyLabel": "减去常数 3",
+        "substituted": "原式的倒数 \\(\\ge2\\sqrt{3}-3\\)",
+        "conclusionLabel": "正数取倒数，方向反转",
+        "conclusion": "原式 \\(\\le\\frac{1}{2\\sqrt{3}-3}=\\frac{3+2\\sqrt{3}}{3}\\)"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "\\(a+1>0，\\frac{3}{a+1}>0\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\((a+1)+\\frac{3}{a+1}\\ge2\\sqrt{3}\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "原式的倒数不小于 \\(2\\sqrt{3}-3>0\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "原式不大于 \\(\\frac{1}{2\\sqrt{3}-3}=\\frac{3+2\\sqrt{3}}{3}\\)"
+        }
+      ],
+      "derive": [
+        [
+          "上界",
+          "(3+2√3)/3"
+        ]
+      ]
+    },
+    {
+      "id": "s6",
+      "section": "条件消元法",
+      "title": "验证取等并回代",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-equality-check",
+        "templateLabel": "基本不等式取等",
+        "first": {
+          "value": "\\(a+1\\)",
+          "shape": "square"
+        },
+        "second": {
+          "value": "\\(\\frac{3}{a+1}\\)",
+          "shape": "circle"
+        },
+        "conditionLabel": "结合消元关系并回代",
+        "condition": "\\(b=1-a\\)",
+        "solved": "\\(a=\\sqrt{3}-1，b=2-\\sqrt{3}\\)",
+        "verificationLabel": "代回原条件",
+        "verification": "\\((\\sqrt{3}-1)+(2-\\sqrt{3})=1\\)",
+        "conclusion": "原式的最大值为 \\(\\frac{3+2\\sqrt{3}}{3}\\)"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "基本不等式取等 ⇔ 两个正项相等"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(a+1=\\frac{3}{a+1}\\Rightarrow a=\\sqrt{3}-1\\)"
+        },
+        {
+          "kind": "because",
+          "text": "\\(b=1-a\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(b=2-\\sqrt{3}>0\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "代回原条件成立，所求上界能够取到"
         }
       ],
       "derive": [
@@ -146,9 +402,49 @@
         0,
         0
       ]
+    },
+    "s2": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    },
+    "s3": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    },
+    "s4": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    },
+    "s5": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    },
+    "s6": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
     }
   },
   "stepLabels": {
-    "s1": "1 用 b=1-a 消元，整理倒数后应用基本不等式"
+    "s1": "1 观察结构与筛选方法",
+    "s2": "2 条件消元",
+    "s3": "3 取倒数并整理一元目标",
+    "s4": "4 观察整理后的结构",
+    "s5": "5 应用基本不等式",
+    "s6": "6 验证取等并回代"
   }
 }

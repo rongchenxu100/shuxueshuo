@@ -13,10 +13,10 @@
     "source": "2017 天津高考（理科、文科）",
     "keyPoints": {
       "title": "解题要点",
-      "lead": "先把四次项 a⁴ 与 4b⁴ 配对，代回原分式后直接得到 4ab+1/(ab)；再对这两个正项应用基本不等式。两次等号必须同时核对。",
+      "lead": "第一次应用基本不等式，把分别出现的 a、b 合并成整体 ab，使二元目标降为只含 ab 的一元结构；再对 4ab 与 1/(ab) 应用基本不等式。两次等号必须同时核对。",
       "items": [
-        "第一层：a⁴+4b⁴≥4a²b²。",
-        "代回原式：(a⁴+4b⁴+1)/(ab)≥4ab+1/(ab)。",
+        "合并变量消元：选择 a⁴ 与 4b⁴ 配对，使乘积只含整体 (ab)⁴。",
+        "消元结果：(a⁴+4b⁴+1)/(ab)≥4ab+1/(ab)，目标只剩整体 ab。",
         "第二层：4ab 与 1/(ab) 的乘积恒为 4，再次应用基本不等式。"
       ]
     },
@@ -30,102 +30,251 @@
     {
       "id": "s1",
       "section": "多次应用基本不等式",
-      "title": "直接连续配对并联立等号",
+      "title": "观察结构",
       "t": 0,
       "showDiagram": false,
       "visual": {
-        "kind": "repeated-basic-inequality-flow",
-        "title": "不换元，直接连续应用两次基本不等式",
-        "methodTag": "多次应用基本不等式",
-        "count": {
-          "variables": [
-            "\\(a\\)",
-            "\\(b\\)"
-          ],
-          "conditions": [],
-          "estimatedRounds": 2,
-          "note": "ab>0 是正性条件，不提供等式关系；两个变量仍缺两条取等关系，所以预计应用 2 次。"
+        "kind": "basic-inequality-structure-scan",
+        "condition": {
+          "label": "条件整式",
+          "expression": "\\(ab>0\\)",
+          "tag": "已有取等条件数 0"
         },
-        "rounds": [
-          {
-            "question": "分子中的哪两个正项适合先配对？",
-            "current": "\\(\\frac{a^4+4b^4+1}{ab}\\)",
-            "terms": [
-              "\\(a^4\\)",
-              "\\(4b^4\\)"
-            ],
-            "reason": "两项相乘后出现 a²b²，除以正数 ab 后会直接形成正项 4ab。",
-            "relation": "\\(a^4\\cdot4b^4=4a^4b^4\\)",
-            "inequality": "\\(a^4+4b^4\\ge4a^2b^2\\)",
-            "result": "\\(\\frac{a^4+4b^4+1}{ab}\\ge4ab+\\frac{1}{ab}\\)",
-            "insight": "代回后已经得到两个乘积固定的正项，无需换元，可以直接进行第二次配对。",
-            "equality": "\\(a^4=4b^4\\Rightarrow a^2=2b^2\\)"
-          },
-          {
-            "question": "代回后的两个正项能否直接配对？",
-            "current": "\\(4ab+\\frac{1}{ab}\\)",
-            "terms": [
-              "\\(4ab\\)",
-              "\\(\\frac{1}{ab}\\)"
-            ],
-            "reason": "由 ab>0，两项都为正，并且乘积恒为 4。",
-            "relation": "\\(4ab\\cdot\\frac{1}{ab}=4\\)",
-            "inequality": "\\(4ab+\\frac{1}{ab}\\ge2\\sqrt{4}=4\\)",
-            "result": "\\(\\frac{a^4+4b^4+1}{ab}\\ge4\\)",
-            "insight": "第二次配对得到常数下界，接下来检查两个取等条件能否同时成立。",
-            "equality": "\\(4ab=\\frac{1}{ab}\\Rightarrow ab=\\frac{1}{2}\\)"
+        "target": {
+          "label": "目标整式",
+          "expression": "\\(\\frac{a^4+4b^4+1}{ab}\\)",
+          "tag": "含 a、b 两个变量"
+        },
+        "organization": {
+          "label": "判断应用次数",
+          "relationCountHint": {
+            "variable": {
+              "label": "变量数",
+              "value": "2",
+              "detail": "\\(a、b\\)"
+            },
+            "condition": {
+              "label": "已有取等条件数",
+              "value": "0",
+              "detail": "无"
+            },
+            "result": {
+              "label": "待补取等关系数",
+              "value": "2"
+            },
+            "ariaLabel": "变量数二减去已有取等条件数零，得到待补取等关系数二"
           }
-        ],
-        "equality": {
-          "label": "求解等号成立条件",
-          "conditions": [
-            {
-              "label": "原题正性",
-              "expression": "\\(ab>0\\)"
-            },
-            {
-              "label": "第 1 次取等",
-              "expression": "\\(a^2=2b^2\\)"
-            },
-            {
-              "label": "第 2 次取等",
-              "expression": "\\(ab=\\frac{1}{2}\\)"
-            }
-          ],
-          "solved": "\\((a，b)=(2^{-\\frac{1}{4}}，2^{-\\frac{3}{4}})\\) 或 \\((-2^{-\\frac{1}{4}}，-2^{-\\frac{3}{4}})\\)",
-          "verification": "两组解均满足 \\(ab=\\frac{1}{2}>0\\)，且两次配对同时取等"
         },
-        "conclusion": "\\(\\frac{a^4+4b^4+1}{ab}\\) 的最小值为 \\(4\\)",
-        "caption": "本题不需要换元：第一次估计代回后，两个正项 4ab 与 1/(ab) 已经可以直接应用基本不等式。"
+        "reading": "待补取等关系数 2",
+        "route": "应用基本不等式 2 次"
       },
       "reasoning": [
         {
           "kind": "because",
-          "text": "\\(ab>0\\Rightarrow a^4>0，4b^4>0\\)"
-        },
-        {
-          "kind": "therefore",
-          "text": "\\(a^4+4b^4\\ge2\\sqrt{a^4\\cdot4b^4}=4a^2b^2\\)"
-        },
-        {
-          "kind": "therefore",
-          "text": "\\(\\frac{a^4+4b^4+1}{ab}\\ge\\frac{4a^2b^2+1}{ab}=4ab+\\frac{1}{ab}\\)"
+          "text": "目标含两个变量 \\(a，b\\)，题设只给出正性条件 \\(ab>0\\)"
         },
         {
           "kind": "because",
-          "text": "\\(ab>0\\Rightarrow4ab>0，\\frac{1}{ab}>0\\)，且 \\(4ab\\cdot\\frac{1}{ab}=4\\)"
+          "text": "正性条件不提供取等关系"
         },
         {
           "kind": "therefore",
-          "text": "\\(4ab+\\frac{1}{ab}\\ge2\\sqrt{4}=4\\)"
+          "text": "还需补出两条取等关系，计划应用基本不等式 \\(2\\) 次"
+        }
+      ],
+      "derive": [
+        [
+          "应用次数",
+          "2 次"
+        ]
+      ]
+    },
+    {
+      "id": "s2",
+      "section": "多次应用基本不等式",
+      "title": "应用基本不等式消元",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-mapping",
+        "methodTag": "第 1 次｜合并变量消元",
+        "conditionFlowLabel": "判断如何消元",
+        "conditionFlow": [
+          "目标分别含 \\(a、b\\)",
+          "\\(a^4\\cdot4b^4=4(ab)^4\\)",
+          "合并变量，消元只剩整体 \\(ab\\)"
+        ],
+        "templateLabel": "代入基本不等式",
+        "template": "\\(u+v\\ge2\\sqrt{uv}\\)",
+        "formulaStyle": "sum-geometric",
+        "showPositiveStep": false,
+        "mappings": [
+          {
+            "slot": "第一个正项",
+            "shape": "square",
+            "value": "\\(a^4\\)",
+            "condition": "\\(a^4>0\\)"
+          },
+          {
+            "slot": "第二个正项",
+            "shape": "circle",
+            "value": "\\(4b^4\\)",
+            "condition": "\\(4b^4>0\\)"
+          }
+        ],
+        "mappedSum": "\\(a^4+4b^4\\)",
+        "mappedProduct": "\\(4(ab)^4\\)",
+        "mapped": "\\(a^4+4b^4\\ge2\\sqrt{4(ab)^4}\\)",
+        "stageLabel": "代入正项",
+        "fixedSourceLabel": "相乘后",
+        "fixedSourceTarget": "product",
+        "fixedCondition": "\\(a^4\\cdot4b^4=4(ab)^4\\)",
+        "replacementText": "化简根式",
+        "replaced": "\\(a^4+4b^4\\ge4(ab)^2\\)",
+        "simplifyLabel": "除以 ab，加回剩余项",
+        "substituted": "\\(\\frac{a^4+4b^4+1}{ab}\\ge4ab+\\frac{1}{ab}\\)",
+        "conclusionLabel": "消元结果",
+        "conclusion": "原式不小于 \\(4ab+\\frac{1}{ab}\\)，只剩整体 \\(ab\\)",
+        "equalityTemplate": "\\(u=v\\)",
+        "equalityMapped": "\\(a^4=4b^4\\)",
+        "equalityContextLabel": "结合 ab>0",
+        "equalityResult": "\\(a^2=2b^2\\)"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "判断如何消元：选择相乘后只含整体 \\(ab\\) 的 \\(a^4\\) 与 \\(4b^4\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(a^4+4b^4\\ge4(ab)^2\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "除以正数 \\(ab\\) 并加回剩余项，原式不小于 \\(4ab+\\frac{1}{ab}\\)，变量 \\(a、b\\) 已合并为整体 \\(ab\\)"
+        }
+      ],
+      "derive": [
+        [
+          "消元结果",
+          "只剩整体 ab"
+        ]
+      ]
+    },
+    {
+      "id": "s3",
+      "section": "多次应用基本不等式",
+      "title": "再次应用基本不等式取极值",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-mapping",
+        "methodTag": "第 2 次｜定积求和",
+        "templateLabel": "代入基本不等式",
+        "template": "\\(u+v\\ge2\\sqrt{uv}\\)",
+        "formulaStyle": "sum-geometric",
+        "showPositiveStep": true,
+        "mappings": [
+          {
+            "slot": "第一个正项",
+            "shape": "square",
+            "value": "\\(4ab\\)",
+            "condition": "\\(4ab>0\\)"
+          },
+          {
+            "slot": "第二个正项",
+            "shape": "circle",
+            "value": "\\(\\frac{1}{ab}\\)",
+            "condition": "\\(\\frac{1}{ab}>0\\)"
+          }
+        ],
+        "mappedSum": "\\(4ab+\\frac{1}{ab}\\)",
+        "mappedProduct": "\\(4\\)",
+        "mapped": "\\(4ab+\\frac{1}{ab}\\ge2\\sqrt4\\)",
+        "stageLabel": "代入定积",
+        "fixedSourceLabel": "已知",
+        "fixedSourceTarget": "product",
+        "fixedCondition": "\\(4ab\\cdot\\frac{1}{ab}=4\\)",
+        "replacementText": "把乘积换成 4",
+        "replaced": "\\(4ab+\\frac{1}{ab}\\ge4\\)",
+        "simplifyLabel": "对应原式",
+        "substituted": "\\(\\frac{a^4+4b^4+1}{ab}\\ge4\\)",
+        "conclusionLabel": "得到下界",
+        "conclusion": "原式不小于 \\(4\\)"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "\\(ab>0\\)，所以 \\(4ab>0，\\frac{1}{ab}>0\\)"
         },
         {
           "kind": "because",
-          "text": "两次取等分别要求 \\(a^4=4b^4\\) 与 \\(4ab=\\frac{1}{ab}\\)"
+          "text": "\\(4ab\\cdot\\frac{1}{ab}=4\\)"
         },
         {
           "kind": "therefore",
-          "text": "\\(a^2=2b^2，ab=\\frac{1}{2}\\)，两条件可同时成立，故最小值为 \\(4\\)"
+          "text": "\\(4ab+\\frac{1}{ab}\\ge4\\)，所以原式不小于 \\(4\\)"
+        }
+      ],
+      "derive": [
+        [
+          "下界",
+          "4"
+        ]
+      ]
+    },
+    {
+      "id": "s4",
+      "section": "多次应用基本不等式",
+      "title": "验证取等",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-equality-check",
+        "templateLabel": "联立两次取等条件",
+        "equalities": [
+          {
+            "label": "第 1 次取等",
+            "first": {
+              "value": "\\(a^4\\)",
+              "shape": "square"
+            },
+            "second": {
+              "value": "\\(4b^4\\)",
+              "shape": "circle"
+            },
+            "result": "\\(a^2=2b^2\\)"
+          },
+          {
+            "label": "第 2 次取等",
+            "first": {
+              "value": "\\(4ab\\)",
+              "shape": "square"
+            },
+            "second": {
+              "value": "\\(\\frac{1}{ab}\\)",
+              "shape": "circle"
+            },
+            "result": "\\(ab=\\frac{1}{2}\\)"
+          }
+        ],
+        "solved": "\\((a，b)=(2^{-\\frac{1}{4}}，2^{-\\frac{3}{4}})\\) 或 \\((-2^{-\\frac{1}{4}}，-2^{-\\frac{3}{4}})\\)",
+        "verificationLabel": "代回原式",
+        "verification": "\\(\\frac{a^4+4b^4+1}{ab}=4\\)",
+        "conclusion": "原式的最小值为 \\(4\\)"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "第一次取等要求 \\(a^4=4b^4\\)，即 \\(a^2=2b^2\\)"
+        },
+        {
+          "kind": "because",
+          "text": "第二次取等要求 \\(4ab=\\frac{1}{ab}\\)，结合 \\(ab>0\\) 得 \\(ab=\\frac{1}{2}\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "联立两次取等条件，可得两组同号解，代回原式均等于 \\(4\\)"
         }
       ],
       "derive": [
@@ -147,9 +296,33 @@
         0,
         0
       ]
+    },
+    "s2": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    },
+    "s3": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    },
+    "s4": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
     }
   },
   "stepLabels": {
-    "s1": "1 直接连续配对并联立等号"
+    "s1": "1 观察结构",
+    "s2": "2 应用基本不等式消元",
+    "s3": "3 再次应用基本不等式取极值",
+    "s4": "4 验证取等"
   }
 }

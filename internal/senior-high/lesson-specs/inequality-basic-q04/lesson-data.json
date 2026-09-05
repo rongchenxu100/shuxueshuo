@@ -13,12 +13,12 @@
     "source": "高一暑假目标班 · 第4讲",
     "keyPoints": {
       "title": "解题要点",
-      "lead": "目标 \\(\\frac{3}{a}+\\frac{4}{b}\\) 是负一次式，定和条件 \\(a+3b=2\\) 是正一次式；两者相乘可配成 0 次齐次式，使所有变量同步放大或缩小时式子的值保持不变；展开后只剩常数项和“一个变量是另一个的几倍”。",
+      "lead": "",
       "items": [
-        "看次数：目标 \\(\\frac{3}{a}+\\frac{4}{b}\\) 为负一次，条件 \\(a+3b\\) 为正一次。",
-        "配齐次：两者相乘总次数变为 0；由于 \\(a+3b=2\\)，乘积等于原目标的 \\(2\\) 倍。",
-        "看倍数：展开后出现 \\(\\frac{9b}{a}\\) 与 \\(\\frac{4a}{b}\\)，两个正项表达式的乘积恒为 \\(36\\)。",
-        "验等号：构造出的两个正项表达式相等，并且满足原条件。"
+        "观察结构：目标两项的乘积 \\(\\frac{12}{ab}\\) 不固定；目标为负一次式，条件左边为正一次式，相乘可配成 0 次齐次式",
+        "配齐次式：乘入等于 \\(2\\) 的条件并展开，得到 \\(15+\\frac{9b}{a}+\\frac{4a}{b}\\)；这是原目标的 \\(2\\) 倍，两个比值项的乘积恒为 \\(36\\)",
+        "应用基本不等式：\\(\\frac{9b}{a}+\\frac{4a}{b}\\ge12\\)，因此原目标不小于 \\(\\frac{27}{2}\\)",
+        "验证取等：两个正项相等且满足原条件 → \\(a=\\frac{2}{3}，b=\\frac{4}{9}\\)"
       ]
     },
     "lines": [
@@ -31,128 +31,248 @@
     {
       "id": "s1",
       "section": "配齐次式",
-      "title": "配成 0 次齐次式，再从两个正项表达式中找定积",
+      "title": "观察结构",
       "t": 0,
       "showDiagram": false,
       "visual": {
-        "kind": "fixed-product-construction-flow",
-        "variant": "homogeneous-reduction",
-        "title": "负一次与正一次相乘，同步放缩后数值不变",
-        "methodTag": "配齐次式｜负一次 × 正一次",
-        "goal": {
+        "kind": "basic-inequality-structure-scan",
+        "condition": {
+          "label": "条件整式",
+          "expression": "\\(a+3b=2\\)",
+          "tag": "正一次"
+        },
+        "target": {
+          "label": "目标整式",
           "expression": "\\(\\frac{3}{a}+\\frac{4}{b}\\)",
-          "task": "求正项和的最小值"
+          "tag": "负一次"
         },
-        "strategy": "目标与条件次数相反，相乘配成 0 次齐次式",
-        "initialCheck": {
-          "terms": [
-            "\\(\\frac{3}{a}\\)",
-            "\\(\\frac{4}{b}\\)"
-          ],
-          "product": "\\(\\frac{3}{a}\\cdot\\frac{4}{b}=\\frac{12}{ab}\\)",
-          "verdict": "乘积不固定，不能直接使用"
-        },
-        "clue": {
-          "question": "题设中有没有次数相反的定值式？",
-          "condition": "\\(a+3b=2\\)",
-          "observation": "目标为负一次，定和为正一次；两者相乘总次数为 0。题设定和等于 2，因此齐次化后的乘积是原目标的 2 倍。"
-        },
-        "degreeBalance": {
-          "target": {
-            "label": "目标表达式",
-            "expression": "\\(\\frac{3}{a}+\\frac{4}{b}\\)",
-            "degree": "−1",
-            "scale": "\\(\\frac{3}{a}+\\frac{4}{b}\\) → \\(\\frac{1}{k}(\\frac{3}{a}+\\frac{4}{b})\\)",
-            "note": "变量同步放大 k 倍，目标缩小为原来的 1/k"
-          },
-          "condition": {
-            "label": "题设条件式",
-            "expression": "\\(a+3b\\)",
-            "degree": "+1",
-            "scale": "\\(a+3b\\) → \\(k(a+3b)\\)",
-            "note": "变量同步放大 k 倍，条件式也放大 k 倍"
-          },
-          "result": {
-            "label": "相乘后的总次数",
-            "expression": "\\((\\frac{3}{a}+\\frac{4}{b})(a+3b)\\)",
-            "degree": "0",
-            "scale": "\\(\\frac{1}{k}\\cdot k=1\\)",
-            "note": "共同放大或缩小被抵消，只剩变量间的倍数关系"
+        "organization": {
+          "homogenizationHint": {
+            "originalLabel": "原有整式",
+            "original": "\\(\\frac{3}{a}+\\frac{4}{b}\\)",
+            "originalDegree": "−1",
+            "conditionLabel": "乘入定值",
+            "condition": "\\(a+3b=2\\)",
+            "conditionDegree": "+1",
+            "resultDegree": "0",
+            "resultLabel": "0 次式",
+            "result": "\\(15+\\frac{9b}{a}+\\frac{4a}{b}\\)",
+            "balance": "\\((-1)+(+1)=0\\)",
+            "ariaLabel": "目标负一次式与条件正一次式相乘配成零次齐次式，展开后只含变量比值"
           }
         },
-        "construction": {
-          "kind": "homogeneous",
-          "label": "乘入正一次条件，配成零次齐次式",
-          "identity": "\\((\\frac{3}{a}+\\frac{4}{b})(a+3b)=2(\\frac{3}{a}+\\frac{4}{b})\\)",
-          "identityNote": "题设条件式等于 2，因此左边是原目标表达式的 2 倍。",
-          "expanded": "\\((\\frac{3}{a}+\\frac{4}{b})(a+3b)=15+\\frac{9b}{a}+\\frac{4a}{b}\\)",
-          "constant": "\\(15\\)",
-          "positiveTerms": [
-            {
-              "shape": "square",
-              "value": "\\(\\frac{9b}{a}\\)",
-              "condition": "\\(\\frac{9b}{a}>0\\)"
-            },
-            {
-              "shape": "circle",
-              "value": "\\(\\frac{4a}{b}\\)",
-              "condition": "\\(\\frac{4a}{b}>0\\)"
-            }
-          ],
-          "ratio": "令 \\(t=\\frac{a}{b}>0\\)，则 \\(\\frac{9b}{a}=\\frac{9}{t}\\)、\\(\\frac{4a}{b}=4t\\)：两个变量被压缩成一个倍数 \\(t\\)。"
-        },
-        "fixedPair": {
-          "question": "观察展开后的式子，是否可以找到定积？",
-          "terms": [
-            "\\(\\frac{9b}{a}\\)",
-            "\\(\\frac{4a}{b}\\)"
-          ],
-          "product": "\\(\\frac{9b}{a}\\cdot\\frac{4a}{b}=36\\)",
-          "verdict": "定积构造成功"
-        },
-        "application": {
-          "template": "两个彩色槽位表示两个完整的正项表达式",
-          "mappings": [
-            {
-              "slot": "第一个槽位",
-              "shape": "square",
-              "value": "\\(\\frac{9b}{a}\\)",
-              "condition": "\\(\\frac{9b}{a}>0\\)"
-            },
-            {
-              "slot": "第二个槽位",
-              "shape": "circle",
-              "value": "\\(\\frac{4a}{b}\\)",
-              "condition": "\\(\\frac{4a}{b}>0\\)"
-            }
-          ],
-          "inequality": "\\(\\frac{9b}{a}+\\frac{4a}{b}\\ge2\\sqrt{36}=12\\)",
-          "combine": "\\(2(\\frac{3}{a}+\\frac{4}{b})=15+\\frac{9b}{a}+\\frac{4a}{b}\\ge27\\)",
-          "conclusion": "最小值为 \\(\\frac{27}{2}\\)"
-        },
-        "equality": {
-          "condition": "\\(\\frac{9b}{a}=\\frac{4a}{b}\\)",
-          "relation": "\\(3b=2a\\)",
-          "result": "\\(a=\\frac{2}{3}，b=\\frac{4}{9}\\)"
-        },
-        "caption": "配成 0 次齐次式后，所有变量同步放大或缩小都不改变式子的值；展开式只剩常数，以及“一个变量是另一个的几倍”。本题条件等于 2，因此展开得到的是原目标的 2 倍，最后要除以 2。"
+        "reading": "次数配成 0",
+        "route": "配齐次式"
       },
       "reasoning": [
         {
           "kind": "because",
-          "text": "\\((\\frac{3}{a}+\\frac{4}{b})(a+3b)=15+\\frac{9b}{a}+\\frac{4a}{b}\\)"
+          "text": "\\(\\frac{3}{a}>0，\\frac{4}{b}>0\\)，但两项乘积 \\(\\frac{12}{ab}\\) 不是定值"
         },
         {
           "kind": "because",
-          "text": "\\(\\frac{9b}{a}>0，\\frac{4a}{b}>0\\)，两项乘积为 \\(36\\)，所以两项和不小于 \\(12\\)"
+          "text": "目标 \\(\\frac{3}{a}+\\frac{4}{b}\\) 是负一次式，条件左边 \\(a+3b\\) 是正一次式"
         },
         {
           "kind": "therefore",
-          "text": "\\(2(\\frac{3}{a}+\\frac{4}{b})\\ge27\\)，故 \\(\\frac{3}{a}+\\frac{4}{b}\\ge\\frac{27}{2}\\)"
+          "text": "两者相乘的总次数为 \\(0\\)，可用题设配成零次齐次式"
+        }
+      ],
+      "derive": [
+        [
+          "路线判断",
+          "配齐次式"
+        ]
+      ]
+    },
+    {
+      "id": "s2",
+      "section": "配齐次式",
+      "title": "配齐次式",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-structure-scan",
+        "showFocus": false,
+        "condition": {
+          "label": "乘入的定值式",
+          "expression": "\\(a+3b=2\\)",
+          "tag": "正一次"
+        },
+        "target": {
+          "label": "原有整式",
+          "expression": "\\(\\frac{3}{a}+\\frac{4}{b}\\)",
+          "tag": "负一次"
+        },
+        "organization": {
+          "label": "配齐次式：乘入条件并展开",
+          "steps": [
+            "\\(2(\\frac{3}{a}+\\frac{4}{b})=(\\frac{3}{a}+\\frac{4}{b})(a+3b)\\)",
+            "\\(2(\\frac{3}{a}+\\frac{4}{b})=15+\\frac{9b}{a}+\\frac{4a}{b}\\)"
+          ],
+          "note": "条件整式等于 2，展开式是原目标的 2 倍"
+        },
+        "pattern": {
+          "first": {
+            "value": "\\(\\frac{9b}{a}\\)",
+            "shape": "square"
+          },
+          "second": {
+            "value": "\\(\\frac{4a}{b}\\)",
+            "shape": "circle"
+          },
+          "condition": {
+            "operator": "·",
+            "tag": "定积 36"
+          },
+          "target": {
+            "operator": "+",
+            "tag": "求最小值"
+          },
+          "ariaLabel": "配齐次后，同一组正项表达式的积固定，求和的最小值"
+        },
+        "reading": "定积求和",
+        "route": "应用基本不等式"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "\\(a+3b=2\\)，乘入条件左边后得到原目标的 \\(2\\) 倍"
         },
         {
           "kind": "therefore",
-          "text": "等号要求 \\(\\frac{9b}{a}=\\frac{4a}{b}\\)，结合 \\(a+3b=2\\) 得 \\(a=\\frac{2}{3}，b=\\frac{4}{9}\\)"
+          "text": "\\(2(\\frac{3}{a}+\\frac{4}{b})=(\\frac{3}{a}+\\frac{4}{b})(a+3b)=15+\\frac{9b}{a}+\\frac{4a}{b}\\)"
+        },
+        {
+          "kind": "because",
+          "text": "\\(\\frac{9b}{a}>0，\\frac{4a}{b}>0\\)，且 \\(\\frac{9b}{a}\\cdot\\frac{4a}{b}=36\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "配齐后得到「定积求和」结构"
+        }
+      ],
+      "derive": [
+        [
+          "配齐结果",
+          "2 倍目标＝15＋两个定积正项"
+        ]
+      ]
+    },
+    {
+      "id": "s3",
+      "section": "配齐次式",
+      "title": "应用基本不等式",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-mapping",
+        "methodTag": "配齐次式｜定积求和",
+        "templateLabel": "代入基本不等式",
+        "template": "\\(u+v\\ge2\\sqrt{uv}\\)",
+        "formulaStyle": "sum-geometric",
+        "showPositiveStep": true,
+        "mappings": [
+          {
+            "slot": "第一个正项",
+            "shape": "square",
+            "value": "\\(\\frac{9b}{a}\\)",
+            "condition": "\\(\\frac{9b}{a}>0\\)"
+          },
+          {
+            "slot": "第二个正项",
+            "shape": "circle",
+            "value": "\\(\\frac{4a}{b}\\)",
+            "condition": "\\(\\frac{4a}{b}>0\\)"
+          }
+        ],
+        "mappedSum": "\\(\\frac{9b}{a}+\\frac{4a}{b}\\)",
+        "mappedProduct": "\\(36\\)",
+        "mapped": "\\(\\frac{9b}{a}+\\frac{4a}{b}\\ge2\\sqrt{36}\\)",
+        "stageLabel": "代入定积",
+        "fixedSourceTarget": "product",
+        "fixedSourceLabel": "已知",
+        "fixedCondition": "\\(\\frac{9b}{a}\\cdot\\frac{4a}{b}=36\\)",
+        "replacementText": "应用基本不等式",
+        "replaced": "\\(\\frac{9b}{a}+\\frac{4a}{b}\\ge12\\)",
+        "simplifyLabel": "代回配齐式",
+        "substituted": "\\(2(\\frac{3}{a}+\\frac{4}{b})\\ge15+12=27\\)",
+        "conclusionLabel": "两边除以 2",
+        "conclusion": "\\(\\frac{3}{a}+\\frac{4}{b}\\ge\\frac{27}{2}\\)"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "\\(\\frac{9b}{a}>0，\\frac{4a}{b}>0\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(\\frac{9b}{a}+\\frac{4a}{b}\\ge2\\sqrt{36}=12\\)"
+        },
+        {
+          "kind": "because",
+          "text": "\\(2(\\frac{3}{a}+\\frac{4}{b})=15+\\frac{9b}{a}+\\frac{4a}{b}\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(2(\\frac{3}{a}+\\frac{4}{b})\\ge27\\)，即 \\(\\frac{3}{a}+\\frac{4}{b}\\ge\\frac{27}{2}\\)"
+        }
+      ],
+      "derive": [
+        [
+          "下界",
+          "27/2"
+        ]
+      ]
+    },
+    {
+      "id": "s4",
+      "section": "配齐次式",
+      "title": "验证取等",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-equality-check",
+        "templateLabel": "基本不等式取等",
+        "first": {
+          "value": "\\(\\frac{9b}{a}\\)",
+          "shape": "square"
+        },
+        "second": {
+          "value": "\\(\\frac{4a}{b}\\)",
+          "shape": "circle"
+        },
+        "conditionLabel": "结合原条件",
+        "condition": "\\(a+3b=2\\)",
+        "solved": "\\(a=\\frac{2}{3}，b=\\frac{4}{9}\\)",
+        "verificationLabel": "代回目标",
+        "verification": "\\(\\frac{3}{a}+\\frac{4}{b}=\\frac{27}{2}\\)",
+        "conclusion": "\\(\\frac{3}{a}+\\frac{4}{b}\\) 的最小值为 \\(\\frac{27}{2}\\)"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "基本不等式取等 ⇔ 两个正项相等"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(\\frac{9b}{a}=\\frac{4a}{b}\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(3b=2a\\)"
+        },
+        {
+          "kind": "because",
+          "text": "\\(a+3b=2\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(a=\\frac{2}{3}，b=\\frac{4}{9}\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(\\frac{3}{a}+\\frac{4}{b}=\\frac{27}{2}\\)，最小值为 \\(\\frac{27}{2}\\)"
         }
       ],
       "derive": [
@@ -174,9 +294,33 @@
         0,
         0
       ]
+    },
+    "s2": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    },
+    "s3": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    },
+    "s4": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
     }
   },
   "stepLabels": {
-    "s1": "1 配成 0 次齐次式，再从两个正项表达式中找定积"
+    "s1": "1 观察结构",
+    "s2": "2 配齐次式",
+    "s3": "3 应用基本不等式",
+    "s4": "4 验证取等"
   }
 }

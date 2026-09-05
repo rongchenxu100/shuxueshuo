@@ -13,13 +13,12 @@
     "source": "",
     "keyPoints": {
       "title": "解题要点",
-      "lead": "原目标与条件关于 \\(x，y\\) 并不对称，不能直接换成和与积。先观察目标中的 \\(\\frac{x}{2}\\) 与条件中的系数，令 \\(u=\\frac{x}{2}\\)，把目标和条件同时改写；变形后再校验 \\(u，y\\) 的对称性，并用和与积消元。",
+      "lead": "",
       "items": [
-        "观察变形：目标含 \\(\\frac{x}{2}\\)，令 \\(u=\\frac{x}{2}\\)，即 \\(x=2u\\)。",
-        "同步改写：目标变为 \\(u+y\\)，条件变为 \\(4u^2+4y^2-4uy=1\\)，即 \\(u^2+y^2-uy=\\frac{1}{4}\\)。",
-        "再验对称：变形后的目标与条件在交换 \\(u，y\\) 后都不变，这时才令 \\(s=u+y，p=uy\\)。",
-        "基本不等式消元：由条件得 \\(p=\\frac{4s^2-1}{12}\\)，再由 \\(s^2\\ge4p\\) 得 \\(s^2\\le1\\)。",
-        "验端点：当 \\(s=\\pm1\\) 时基本不等式取等，所以 \\(u=y\\)；分别得到 \\(u=y=\\frac{1}{2}\\) 与 \\(u=y=-\\frac{1}{2}\\)，还原为 \\(x=1\\) 与 \\(x=-1\\)。"
+        "观察结构：原目标与条件关于 \\(x，y\\) 不对称；令 \\(u=\\frac{x}{2}\\)，同步改写为 \\(u+y\\) 与 \\(u^2+y^2-uy=\\frac{1}{4}\\)，交换 \\(u，y\\) 后均不变",
+        "和积换元：令 \\(s=u+y，p=uy\\)，由 \\(u^2+y^2=s^2-2p\\) 将条件化为 \\(s^2-3p=\\frac{1}{4}\\)，解得 \\(p=\\frac{4s^2-1}{12}\\)",
+        "应用基本不等式消元：由 \\(u^2+y^2\\ge2uy\\) 得 \\(s^2\\ge4p\\)，代入条件消去 \\(p\\)，得到 \\(s^2\\le1\\)，即 \\(-1\\le s\\le1\\)",
+        "验证取等：基本不等式取等要求 \\(u=y\\)；结合 \\(s=1\\) 或 \\(s=-1\\)，还原得到 \\((x,y)=(1,\\frac{1}{2})\\) 或 \\((-1,-\\frac{1}{2})\\)，两个端点均能取得"
       ]
     },
     "lines": [
@@ -32,85 +31,62 @@
     {
       "id": "s1",
       "section": "找对称结构",
-      "title": "先观察并变形，再校验对称结构",
+      "title": "观察结构",
       "t": 0,
       "showDiagram": false,
       "visual": {
-        "kind": "symmetric-reduction-flow",
-        "variant": "normalize-before-symmetry",
-        "symmetryVariables": "u、y",
-        "title": "先把不对称系数配齐，再进入对称消元",
-        "methodTag": "找对称结构｜先变形后校验",
-        "goal": {
+        "kind": "basic-inequality-structure-scan",
+        "condition": {
+          "label": "条件整式",
+          "expression": "\\(x^2+4y^2-2xy=1\\)",
+          "tag": "系数不对称"
+        },
+        "target": {
+          "label": "目标整式",
           "expression": "\\(\\frac{x}{2}+y\\)",
-          "task": "求取值范围"
+          "tag": "含 x/2"
         },
-        "preparation": {
-          "observation": "目标中的 \\(\\frac{x}{2}\\) 提示把 \\(x\\) 缩放",
-          "substitution": "\\(u=\\frac{x}{2}\\iff x=2u\\)",
-          "target": "\\(\\frac{x}{2}+y=u+y\\)",
-          "conditionFlow": [
-            "\\(x^2+4y^2-2xy=1\\)",
-            "\\(4u^2+4y^2-4uy=1\\)",
-            "\\(u^2+y^2-uy=\\frac{1}{4}\\)"
-          ],
-          "conclusion": "现在目标与条件都关于 \\(u，y\\) 对称"
-        },
-        "symmetryChecks": [
-          {
-            "label": "变形后的目标",
-            "original": "\\(u+y\\)",
-            "swapped": "\\(y+u\\)",
-            "verdict": "交换后不变"
-          },
-          {
-            "label": "变形后的条件",
-            "original": "\\(u^2+y^2-uy\\)",
-            "swapped": "\\(y^2+u^2-yu\\)",
-            "verdict": "交换后不变"
-          }
-        ],
-        "substitution": {
-          "definitions": [
-            "\\(s=u+y\\)",
-            "\\(p=uy\\)"
-          ],
-          "identity": "\\(u^2+y^2=s^2-2p\\)",
-          "condition": "\\(s^2-2p-p=\\frac{1}{4}\\)",
-          "solved": "\\(p=\\frac{4s^2-1}{12}\\)"
-        },
-        "elimination": {
-          "label": "应用基本不等式消元",
-          "relationLabel": "先建立 \\(p\\) 与 \\(s\\) 的关系",
-          "relation": "\\(s^2\\ge4p\\)",
-          "basis": "基本不等式的变式；也可由 \\(s^2-4p=(u-y)^2\\ge0\\) 得到",
-          "substitutionLabel": "再代入上一步求出的 \\(p=\\frac{4s^2-1}{12}\\)",
-          "substituted": "\\(s^2\\ge\\frac{4s^2-1}{3}\\)",
-          "expanded": "\\(3s^2\\ge4s^2-1\\)",
-          "simplified": "\\(s^2\\le1\\)",
-          "range": "\\(-1\\le s\\le1\\)"
-        },
-        "closure": {
-          "question": "两个边界能否取到？看基本不等式的取等条件",
-          "equalityLabel": "基本不等式取等",
-          "equalityCondition": "\\(s^2=4p\\iff(u-y)^2=0\\iff u=y\\)",
-          "endpoints": [
+        "organization": {
+          "label": "先缩放变量，再校验对称结构",
+          "stepGroupLabel": "缩放变量：同步改写目标与条件",
+          "steps": [
             {
-              "value": "\\(s=1\\)",
-              "boundaryCondition": "\\(u+y=1，u=y\\)",
-              "witness": "\\(u=y=\\frac{1}{2}\\Rightarrow x=1\\)",
-              "verification": "\\(1^2+4\\cdot(\\frac{1}{2})^2-2\\cdot1\\cdot\\frac{1}{2}=1\\)"
+              "label": "定义新变量",
+              "expression": "\\(u=\\frac{x}{2}\\iff x=2u\\)"
             },
             {
-              "value": "\\(s=-1\\)",
-              "boundaryCondition": "\\(u+y=-1，u=y\\)",
-              "witness": "\\(u=y=-\\frac{1}{2}\\Rightarrow x=-1\\)",
-              "verification": "\\((-1)^2+4\\cdot(-\\frac{1}{2})^2-2\\cdot(-1)\\cdot(-\\frac{1}{2})=1\\)"
+              "label": "改写目标",
+              "expression": "\\(\\frac{x}{2}+y=u+y\\)"
+            },
+            {
+              "label": "改写条件",
+              "expression": "\\(u^2+y^2-uy=\\frac{1}{4}\\)"
             }
           ],
-          "conclusion": "\\(\\frac{x}{2}+y\\) 的取值范围是 \\([-1,1]\\)"
+          "symmetryHint": {
+            "label": "交换检验",
+            "instruction": "目标与条件要分别交换 u、y 检查",
+            "swap": "u ↔ y",
+            "checks": [
+              {
+                "label": "目标整式",
+                "original": "\\(u+y\\)",
+                "swapped": "\\(y+u\\)",
+                "verdict": "交换后不变"
+              },
+              {
+                "label": "条件整式",
+                "original": "\\(u^2+y^2-uy\\)",
+                "swapped": "\\(y^2+u^2-yu\\)",
+                "verdict": "交换后不变"
+              }
+            ],
+            "conclusion": "缩放后，目标与条件均关于 u、y 对称",
+            "ariaLabel": "令 u 等于二分之 x，同步改写目标与条件；分别交换 u 与 y 后均保持不变，因此确认对称结构"
+          }
         },
-        "caption": "先根据目标中的 \\(\\frac{x}{2}\\) 缩放变量，把原式配成关于 \\(u，y\\) 的对称结构；完成对称校验后，再用和与积与基本不等式消元。"
+        "reading": "对称结构",
+        "route": "和积换元"
       },
       "reasoning": [
         {
@@ -126,28 +102,194 @@
           "text": "代入后，目标为 \\(u+y\\)，条件为 \\(4u^2+4y^2-4uy=1\\)，即 \\(u^2+y^2-uy=\\frac{1}{4}\\)"
         },
         {
+          "kind": "therefore",
+          "text": "分别交换 \\(u，y\\)，目标与条件均保持不变，确认得到关于 \\(u，y\\) 的对称结构"
+        }
+      ],
+      "derive": [
+        [
+          "结构判断",
+          "缩放变量｜对称结构"
+        ]
+      ]
+    },
+    {
+      "id": "s2",
+      "section": "找对称结构",
+      "title": "和积换元",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-structure-scan",
+        "showFocus": false,
+        "condition": {
+          "label": "变形后条件",
+          "expression": "\\(u^2+y^2-uy=\\frac{1}{4}\\)",
+          "tag": "对称二次式"
+        },
+        "target": {
+          "label": "变形后目标",
+          "expression": "\\(u+y\\)",
+          "tag": "就是 s"
+        },
+        "organization": {
+          "label": "和积换元：用 s、p 替换 u、y",
+          "steps": [
+            {
+              "label": "定义",
+              "expression": "\\(s=u+y，p=uy\\)"
+            },
+            {
+              "label": "恒等变形",
+              "expression": "\\(u^2+y^2=s^2-2p\\)"
+            },
+            {
+              "label": "代入条件",
+              "expression": "\\(s^2-3p=\\frac{1}{4}\\)"
+            },
+            {
+              "label": "解出 p",
+              "expression": "\\(p=\\frac{4s^2-1}{12}\\)"
+            }
+          ]
+        },
+        "reading": "和积换元",
+        "route": "应用基本不等式消元"
+      },
+      "reasoning": [
+        {
           "kind": "because",
-          "text": "交换 \\(u、y\\) 后，\\(u+y=y+u\\)，且 \\(u^2+y^2-uy=y^2+u^2-yu\\)，所以此时成为对称结构"
+          "text": "对称式可用和与积表示，令 \\(s=u+y，p=uy\\)"
+        },
+        {
+          "kind": "because",
+          "text": "\\(u^2+y^2=(u+y)^2-2uy=s^2-2p\\)"
         },
         {
           "kind": "therefore",
-          "text": "令 \\(s=u+y，p=uy\\)，由 \\(u^2+y^2=s^2-2p\\) 得 \\(s^2-3p=\\frac{1}{4}\\)，所以 \\(p=\\frac{4s^2-1}{12}\\)"
-        },
-        {
-          "kind": "because",
-          "text": "因为 \\(s^2-4p=(u-y)^2\\ge0\\)，所以 \\(s^2\\ge4p\\)"
+          "text": "条件化为 \\(s^2-2p-p=\\frac{1}{4}\\)，即 \\(s^2-3p=\\frac{1}{4}\\)"
         },
         {
           "kind": "therefore",
-          "text": "代入 \\(p=\\frac{4s^2-1}{12}\\)：\\(s^2\\ge\\frac{4s^2-1}{3}\\Rightarrow3s^2\\ge4s^2-1\\Rightarrow s^2\\le1\\Rightarrow s\\in[-1,1]\\)"
-        },
+          "text": "解得 \\(p=\\frac{4s^2-1}{12}\\)"
+        }
+      ],
+      "derive": [
+        [
+          "换元结果",
+          "p=(4s²−1)/12"
+        ]
+      ]
+    },
+    {
+      "id": "s3",
+      "section": "找对称结构",
+      "title": "应用基本不等式消元",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-mapping",
+        "methodTag": "对称结构｜平方型基本不等式",
+        "templateLabel": "代入基本不等式",
+        "template": "\\(a^2+b^2\\ge2ab\\)",
+        "formulaStyle": "square-sum",
+        "showPositiveStep": false,
+        "mappings": [
+          {
+            "slot": "a",
+            "shape": "square",
+            "value": "\\(u\\)",
+            "condition": "\\(u\\in\\mathbb R\\)"
+          },
+          {
+            "slot": "b",
+            "shape": "circle",
+            "value": "\\(y\\)",
+            "condition": "\\(y\\in\\mathbb R\\)"
+          }
+        ],
+        "stageLabel": "代入 u、y",
+        "mapped": "\\(u^2+y^2\\ge2uy\\)",
+        "replacementText": "移项配成和平方",
+        "replaced": "\\((u+y)^2\\ge4uy\\)",
+        "simplifyLabel": "换成 s、p",
+        "substituted": "\\(s^2\\ge4p\\)",
+        "conclusionLabel": "代入条件消元",
+        "conclusion": "\\(s^2\\ge\\frac{4s^2-1}{3}\\)"
+      },
+      "reasoning": [
         {
           "kind": "because",
-          "text": "当 \\(s=\\pm1\\) 时，\\(s^2=4p\\)，基本不等式取等，所以 \\(u=y\\)"
+          "text": "由基本不等式 \\(u^2+y^2\\ge2uy\\)，得 \\((u+y)^2\\ge4uy\\)，即 \\(s^2\\ge4p\\)"
         },
         {
           "kind": "therefore",
-          "text": "若 \\(s=1\\)，则 \\(u=y=\\frac{1}{2}\\)，还原得 \\(x=1\\)；若 \\(s=-1\\)，则 \\(u=y=-\\frac{1}{2}\\)，还原得 \\(x=-1\\)"
+          "text": "代入 \\(p=\\frac{4s^2-1}{12}\\)，得 \\(s^2\\ge\\frac{4s^2-1}{3}\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(3s^2\\ge4s^2-1\\Rightarrow s^2\\le1\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(-1\\le s\\le1\\)，所以 \\(\\frac{x}{2}+y\\) 的取值范围不超过 \\([-1,1]\\)"
+        }
+      ],
+      "derive": [
+        [
+          "范围约束",
+          "−1≤s≤1"
+        ]
+      ]
+    },
+    {
+      "id": "s4",
+      "section": "找对称结构",
+      "title": "验证取等",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-equality-check",
+        "templateLabel": "基本不等式取等",
+        "first": {
+          "value": "\\(u\\)",
+          "shape": "square"
+        },
+        "second": {
+          "value": "\\(y\\)",
+          "shape": "circle"
+        },
+        "conditionLabel": "结合两个边界",
+        "condition": "\\(s=u+y=1\\) 或 \\(s=u+y=-1\\)",
+        "solved": "\\(u=y=\\frac{1}{2}\\) 或 \\(u=y=-\\frac{1}{2}\\)",
+        "verificationLabel": "还原 x 并代回原条件",
+        "verification": "\\((x,y)=(1,\\frac{1}{2})\\) 或 \\((-1,-\\frac{1}{2})\\)，均满足原条件",
+        "conclusion": "\\(\\frac{x}{2}+y\\) 的取值范围为 \\([-1,1]\\)"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "基本不等式 \\(u^2+y^2\\ge2uy\\) 取等 ⇔ \\(u=y\\)"
+        },
+        {
+          "kind": "because",
+          "text": "当 \\(s=1\\) 时，\\(u+y=1\\) 且 \\(u=y\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(u=y=\\frac{1}{2}\\)，由 \\(x=2u\\) 得 \\((x,y)=(1,\\frac{1}{2})\\)，代回原条件成立"
+        },
+        {
+          "kind": "because",
+          "text": "当 \\(s=-1\\) 时，\\(u+y=-1\\) 且 \\(u=y\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(u=y=-\\frac{1}{2}\\)，由 \\(x=2u\\) 得 \\((x,y)=(-1,-\\frac{1}{2})\\)，代回原条件成立"
+        },
+        {
+          "kind": "therefore",
+          "text": "两个端点都能取得，\\(\\frac{x}{2}+y\\) 的取值范围为 \\([-1,1]\\)"
         }
       ],
       "derive": [
@@ -169,9 +311,33 @@
         0,
         0
       ]
+    },
+    "s2": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    },
+    "s3": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    },
+    "s4": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
     }
   },
   "stepLabels": {
-    "s1": "1 先观察并变形，再校验对称结构"
+    "s1": "1 观察结构",
+    "s2": "2 和积换元",
+    "s3": "3 应用基本不等式消元",
+    "s4": "4 验证取等"
   }
 }

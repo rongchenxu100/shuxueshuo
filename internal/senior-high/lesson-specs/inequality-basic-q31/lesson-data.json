@@ -13,10 +13,11 @@
     "source": "",
     "keyPoints": {
       "title": "解题要点",
-      "lead": "先提取两个分母中的共同整体 \\(1+c^2\\)；括号内的常数 \\(1\\) 与分母 \\(ab\\) 次数不一致，利用 \\(a+b=1\\) 配成 \\(1=(a+b)^2\\)。第1次基本不等式消去 \\(a，b\\)，再整理只含 \\(c\\) 的新式并第2次应用基本不等式。",
+      "lead": "先观察消元结构，提取两个分母中的共同整体 \\(1+c^2\\)，明确先消去 \\(a、b\\)；再单独观察括号内的次数结构，圈出负二次项，随后进行局部配齐。第1次基本不等式消去 \\(a、b\\)，再整理只含 \\(c\\) 的新式并第2次应用基本不等式。",
       "items": [
-        "整理目标：把两个分母分别写成 \\(b(1+c^2)\\) 与 \\(ab(1+c^2)\\)，提取共同因式。",
-        "配齐次式：由 \\(a+b=1\\) 得 \\(1=(a+b)^2\\)，从而 \\(\\frac{3a}{b}+\\frac{1}{ab}=\\frac{4a}{b}+\\frac{b}{a}+2\\)。",
+        "观察消元结构：把两个分母分别写成 \\(b(1+c^2)\\) 与 \\(ab(1+c^2)\\)，提取共同整体，使 \\(a、b\\) 集中在同一个括号内。",
+        "观察配齐次结构：括号内 \\(\\frac{3a}{b}\\) 为零次项，保持不动；\\(\\frac{1}{ab}\\) 为负二次项，需要局部配齐。",
+        "局部配齐次式：外层结构不动；由 \\(a+b=1\\) 得 \\(1=(a+b)^2\\)，只改写括号内的 \\(\\frac{1}{ab}\\)。",
         "第1次估计：\\(\\frac{4a}{b}+\\frac{b}{a}\\ge4\\)，消去 \\(a，b\\)，原式不小于 \\(\\frac{6}{1+c^2}+2c^2\\)。",
         "第2次估计：把 \\(2c^2\\) 写成 \\(2(1+c^2)-2\\)，再对 \\(2(1+c^2)\\) 与 \\(\\frac{6}{1+c^2}\\) 应用基本不等式。"
       ]
@@ -31,162 +32,486 @@
     {
       "id": "s1",
       "section": "多次应用基本不等式",
-      "title": "配齐次后分两轮消去变量并联立取等",
+      "title": "观察结构",
       "t": 0,
       "showDiagram": false,
       "visual": {
-        "kind": "repeated-basic-inequality-flow",
-        "title": "先配齐次式，再分两轮消去 a、b 与 c",
-        "methodTag": "多次应用基本不等式｜配齐次后逐层消元",
-        "count": {
-          "variableLabel": "正量",
-          "variables": [
-            "\\(a\\)",
-            "\\(b\\)",
-            "\\(1+c^2\\)"
-          ],
-          "conditions": [
-            "\\(a+b=1\\)"
-          ],
-          "estimatedRelations": 2,
-          "estimatedRounds": 2,
-          "relationSources": [
-            "基本不等式 ×2"
-          ],
-          "note": "三个正量、已有一条有效等式条件，预计还缺两条取等关系；整理后依次消去 a、b 与 c。"
+        "kind": "basic-inequality-structure-scan",
+        "condition": {
+          "label": "条件整式",
+          "expression": "\\(a>0，b>0，a+b=1，c\\in\\mathbb R\\)",
+          "tag": "已有取等条件数 1"
         },
-        "preparations": [
-          {
-            "stepNumber": "02",
-            "stageLabel": "整理目标",
-            "label": "提取两个分母中的共同整体 1+c²",
-            "current": "\\(\\frac{3a}{bc^2+b}+\\frac{1}{abc^2+ab}+2c^2\\)",
-            "flow": [
-              "\\(bc^2+b=b(1+c^2)\\)",
-              "\\(abc^2+ab=ab(1+c^2)\\)"
-            ],
-            "result": "\\(\\frac{1}{1+c^2}\\left(\\frac{3a}{b}+\\frac{1}{ab}\\right)+2c^2\\)",
-            "insight": "共同整体已经显形；先处理括号内的 a、b，外面的 1/(1+c²) 暂时保留。"
-          },
-          {
-            "stepNumber": "03",
-            "stageLabel": "配齐次式",
-            "label": "用定和条件把常数 1 配成二次式",
-            "currentLabel": "括号内",
-            "current": "\\(\\frac{3a}{b}+\\frac{1}{ab}\\)",
-            "flow": [
-              "\\(a+b=1\\Rightarrow1=(a+b)^2\\)",
-              "\\(\\frac{1}{ab}=\\frac{(a+b)^2}{ab}\\)",
-              "\\(\\frac{3a}{b}+\\frac{1}{ab}=\\frac{4a}{b}+\\frac{b}{a}+2\\)"
-            ],
-            "resultLabel": "配齐次结果",
-            "result": "\\(\\frac{1}{1+c^2}\\left(\\frac{4a}{b}+\\frac{b}{a}+2\\right)+2c^2\\)",
-            "insight": "配齐次式只负责让乘积固定的两个正项显形；下一步才应用基本不等式。"
-          }
-        ],
-        "rounds": [
-          {
-            "stepNumber": "04",
-            "question": "怎样消去括号内的 a、b？",
-            "current": "\\(\\frac{1}{1+c^2}\\left(\\frac{4a}{b}+\\frac{b}{a}+2\\right)+2c^2\\)",
-            "terms": [
-              "\\(\\frac{4a}{b}\\)",
-              "\\(\\frac{b}{a}\\)"
-            ],
-            "reason": "两个正项的乘积恒为 4，估计后括号整体变成常数 6。",
-            "relation": "\\(\\frac{4a}{b}\\cdot\\frac{b}{a}=4\\)",
-            "inequality": "\\(\\frac{4a}{b}+\\frac{b}{a}\\ge2\\sqrt4=4\\)",
-            "result": "原式不小于 \\(\\frac{6}{1+c^2}+2c^2\\)",
-            "insight": "a、b 已从下界中消失；现在只需处理 c。",
-            "equality": "\\(\\frac{4a}{b}=\\frac{b}{a}\\Rightarrow b=2a\\)",
-            "afterward": {
-              "stepNumber": "05",
-              "label": "把 2c² 改写成含有同一整体 1+c²",
-              "current": "原式不小于 \\(\\frac{6}{1+c^2}+2c^2\\)",
-              "observation": "一个正项的分母是 1+c²；为了构造定积，另一项也要出现同一个整体。",
-              "flow": [
-                "\\(2c^2=2(1+c^2)-2\\)",
-                "\\(\\frac{6}{1+c^2}+2c^2=2(1+c^2)+\\frac{6}{1+c^2}-2\\)"
-              ],
-              "result": "原式不小于 \\(2(1+c^2)+\\frac{6}{1+c^2}-2\\)",
-              "insight": "两个正项的乘积已经固定为 12，可以进行第2次估计。"
-            }
-          },
-          {
-            "stepNumber": "06",
-            "question": "只剩 c 后，怎样得到常数下界？",
-            "current": "原式不小于 \\(2(1+c^2)+\\frac{6}{1+c^2}-2\\)",
-            "terms": [
-              "\\(2(1+c^2)\\)",
-              "\\(\\frac{6}{1+c^2}\\)"
-            ],
-            "reason": "两个正项的乘积恒为 12，括号外的 −2 保持不动。",
-            "relation": "\\(2(1+c^2)\\cdot\\frac{6}{1+c^2}=12\\)",
-            "inequality": "\\(2(1+c^2)+\\frac{6}{1+c^2}\\ge2\\sqrt{12}=4\\sqrt3\\)",
-            "result": "原式不小于 \\(4\\sqrt3-2\\)",
-            "insight": "得到常数下界；最后把两轮取等关系与原条件联立。",
-            "equality": "\\(2(1+c^2)=\\frac{6}{1+c^2}\\Rightarrow c^2=\\sqrt3-1\\)"
-          }
-        ],
-        "equality": {
-          "stepNumber": "07",
-          "label": "联立两轮取等关系与原条件",
-          "conditions": [
-            {
-              "label": "第1次基本不等式",
-              "expression": "\\(b=2a\\)"
+        "target": {
+          "label": "目标整式",
+          "expression": "\\(\\frac{3a}{bc^2+b}+\\frac{1}{abc^2+ab}+2c^2\\)",
+          "tag": "含 a、b、c 三个变量"
+        },
+        "organization": {
+          "label": "判断应用次数",
+          "relationCountHint": {
+            "variable": {
+              "label": "变量数",
+              "value": "3",
+              "detail": "\\(a、b、c\\)"
             },
-            {
-              "label": "第2次基本不等式",
-              "expression": "\\(c^2=\\sqrt3-1\\)"
-            }
-          ],
-          "solved": "\\(a=\\frac{1}{3}，b=\\frac{2}{3}，c=\\pm\\sqrt{\\sqrt3-1}\\)",
-          "verification": "\\(a+b=1，a>0，b>0，c\\in\\mathbb R\\)，且代入原式等于 \\(4\\sqrt3-2\\)"
+            "condition": {
+              "label": "已有取等条件数",
+              "value": "1",
+              "detail": "\\(a+b=1\\)"
+            },
+            "result": {
+              "label": "待补取等关系数",
+              "value": "2"
+            },
+            "ariaLabel": "变量数三减去已有取等条件数一，得到待补取等关系数二"
+          }
         },
-        "conclusion": "\\(\\frac{3a}{bc^2+b}+\\frac{1}{abc^2+ab}+2c^2\\) 的最小值为 \\(4\\sqrt3-2\\)",
-        "caption": "先提取共同整体并利用 a+b=1 配齐次式；第1次基本不等式消去 a、b，再把 2c² 改写成含 1+c² 的式子，第2次基本不等式消去 c，最后联立两轮取等关系。"
+        "reading": "待补取等关系数 2",
+        "route": "应用基本不等式 2 次"
       },
       "reasoning": [
         {
           "kind": "because",
-          "text": "\\(a>0，b>0，1+c^2>0\\)，且 \\(a+b=1\\)"
-        },
-        {
-          "kind": "therefore",
-          "text": "\\(\\frac{3a}{bc^2+b}+\\frac{1}{abc^2+ab}+2c^2=\\frac{1}{1+c^2}\\left(\\frac{3a}{b}+\\frac{1}{ab}\\right)+2c^2\\)"
+          "text": "目标含三个变量 \\(a，b，c\\)，题设给出一条等式条件 \\(a+b=1\\)"
         },
         {
           "kind": "because",
-          "text": "\\(a+b=1\\Rightarrow1=(a+b)^2\\)"
+          "text": "还需补出两条取等关系"
         },
         {
           "kind": "therefore",
-          "text": "\\(\\frac{3a}{b}+\\frac{1}{ab}=\\frac{3a}{b}+\\frac{(a+b)^2}{ab}=\\frac{4a}{b}+\\frac{b}{a}+2\\)"
+          "text": "计划应用基本不等式 \\(2\\) 次"
+        }
+      ],
+      "derive": [
+        [
+          "应用次数",
+          "2 次"
+        ]
+      ]
+    },
+    {
+      "id": "s2",
+      "section": "多次应用基本不等式",
+      "title": "观察消元结构",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-structure-scan",
+        "condition": {
+          "label": "条件整式",
+          "expression": "\\(a+b=1\\)",
+          "tag": "已有等式条件"
+        },
+        "target": {
+          "label": "目标整式",
+          "expression": "\\(\\frac{3a}{bc^2+b}+\\frac{1}{abc^2+ab}+2c^2\\)",
+          "tag": "共同整体未显形"
+        },
+        "organization": {
+          "label": "观察消元结构：提取共同整体",
+          "motive": "两个分母都含 \\(1+c^2\\)，提取后，\\(a、b\\) 集中在同一个括号内",
+          "steps": [
+            {
+              "label": "提取分母",
+              "expression": "\\(bc^2+b=b(1+c^2)\\)"
+            },
+            {
+              "label": "提取分母",
+              "expression": "\\(abc^2+ab=ab(1+c^2)\\)"
+            },
+            {
+              "label": "重写目标",
+              "expression": "\\(\\frac{1}{1+c^2}\\left(\\frac{3a}{b}+\\frac{1}{ab}\\right)+2c^2\\)"
+            }
+          ],
+          "note": "提取共同整体后，\\(a、b\\) 集中出现，可以先作为一组消去"
+        },
+        "reading": "消元顺序",
+        "route": "先消去 a、b"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "两个分母都含共同整体 \\(1+c^2\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "提取后，含 \\(a、b\\) 的部分集中在同一个括号内"
+        },
+        {
+          "kind": "therefore",
+          "text": "消元顺序确定为：先消去 \\(a、b\\)"
+        }
+      ],
+      "derive": [
+        [
+          "消元顺序",
+          "先消去 a、b"
+        ]
+      ]
+    },
+    {
+      "id": "s3",
+      "section": "多次应用基本不等式",
+      "title": "观察配齐次结构",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-structure-scan",
+        "condition": {
+          "label": "条件整式",
+          "expression": "\\(a+b=1\\)",
+          "tag": "可提供正二次定值"
+        },
+        "target": {
+          "label": "括号内整式",
+          "expression": "\\(\\frac{3a}{b}+\\frac{1}{ab}\\)",
+          "tag": "局部次数不齐"
+        },
+        "organization": {
+          "label": "局部配齐次：先圈待配项，再局部配齐",
+          "termSpot": {
+            "factors": [
+              {
+                "terms": [
+                  {
+                    "value": "\\(\\frac{3a}{b}\\)",
+                    "role": "keep",
+                    "mark": "0 次不动"
+                  },
+                  {
+                    "value": "\\(\\frac{1}{ab}\\)",
+                    "role": "spot",
+                    "mark": "−2 次待配齐"
+                  }
+                ]
+              }
+            ],
+            "ariaLabel": "在括号内，三 a 除以 b 是零次项，保持不动；一除以 ab 是负二次项，圈出等待局部配齐"
+          },
+          "localHomogenizationHint": {
+            "method": "局部乘入定值",
+            "originalLabel": "圈出的负二次项",
+            "original": "\\(\\frac{1}{ab}\\)",
+            "originalDegree": "−2",
+            "conditionLabel": "乘入定值",
+            "condition": "\\((a+b)^2=1\\)",
+            "conditionDegree": "+2",
+            "resultDegree": "0",
+            "resultLabel": "0 次式",
+            "result": "\\(\\frac{(a+b)^2}{ab}\\)",
+            "balance": "\\((-2)+(+2)=0\\)",
+            "scopes": [
+              {
+                "label": "括号内局部",
+                "expression": "\\(\\frac{3a}{b}+\\frac{1}{ab}\\)"
+              }
+            ],
+            "scopeNote": "只配这一项",
+            "ariaLabel": "局部乘入定值：负二次项一除以 ab，乘以正二次定值 a 加 b 的平方，配成零次式"
+          }
+        },
+        "reading": "局部次数不齐",
+        "route": "局部配齐次式"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "提取共同整体后，只需观察括号内 \\(\\frac{3a}{b}+\\frac{1}{ab}\\) 的次数"
         },
         {
           "kind": "because",
-          "text": "\\(\\frac{4a}{b}\\cdot\\frac{b}{a}=4\\Rightarrow\\frac{4a}{b}+\\frac{b}{a}\\ge4\\)"
+          "text": "\\(\\frac{3a}{b}\\) 是零次项，\\(\\frac{1}{ab}\\) 是负二次项"
         },
         {
           "kind": "therefore",
-          "text": "原式不小于 \\(\\frac{6}{1+c^2}+2c^2\\)"
+          "text": "零次项保持不动，只圈出负二次项 \\(\\frac{1}{ab}\\) 等待局部配齐"
+        }
+      ],
+      "derive": [
+        [
+          "路线判断",
+          "局部配齐次式"
+        ]
+      ]
+    },
+    {
+      "id": "s4",
+      "section": "多次应用基本不等式",
+      "title": "局部配齐次式",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-structure-scan",
+        "showFocus": false,
+        "condition": {
+          "label": "可乘入的条件",
+          "expression": "\\(1=(a+b)^2\\)",
+          "tag": "正二次"
+        },
+        "target": {
+          "label": "括号内整式",
+          "expression": "\\(\\frac{3a}{b}+\\frac{1}{ab}\\)",
+          "tag": "零次＋负二次"
+        },
+        "organization": {
+          "label": "局部配齐：只配括号内的负二次项",
+          "motive": "零次项 \\(\\frac{3a}{b}\\) 不动，只对 \\(\\frac{1}{ab}\\) 乘入等于 \\(1\\) 的二次条件",
+          "steps": [
+            {
+              "label": "乘入定值",
+              "expression": "\\(\\frac{1}{ab}=\\frac{1}{ab}\\cdot(a+b)^2\\)"
+            },
+            {
+              "label": "配成零次",
+              "expression": "\\(\\frac{(a+b)^2}{ab}=\\frac{a}{b}+2+\\frac{b}{a}\\)"
+            },
+            {
+              "label": "拼回括号",
+              "expression": "\\(\\frac{3a}{b}+\\frac{1}{ab}=\\frac{4a}{b}+\\frac{b}{a}+2\\)"
+            }
+          ],
+          "note": "局部配齐只处理括号内的负二次项，外层结构保持不动"
+        },
+        "pattern": {
+          "first": {
+            "value": "\\(\\frac{4a}{b}\\)",
+            "shape": "square"
+          },
+          "second": {
+            "value": "\\(\\frac{b}{a}\\)",
+            "shape": "circle"
+          },
+          "condition": {
+            "operator": "·",
+            "tag": "定积 4"
+          },
+          "target": {
+            "operator": "+",
+            "tag": "先消去 a、b"
+          },
+          "ariaLabel": "配齐次数后，两个正项的积固定为四，先消去变量 a、b"
+        },
+        "reading": "定积求和",
+        "route": "应用基本不等式消元"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "括号内 \\(\\frac{3a}{b}\\) 是零次式，而 \\(\\frac{1}{ab}\\) 是负二次式"
         },
         {
           "kind": "because",
-          "text": "\\(2c^2=2(1+c^2)-2\\)，且 \\(2(1+c^2)\\cdot\\frac{6}{1+c^2}=12\\)"
+          "text": "由 \\(a+b=1\\) 得到可乘入的正二次式 \\((a+b)^2=1\\)"
         },
         {
           "kind": "therefore",
-          "text": "原式不小于 \\(2(1+c^2)+\\frac{6}{1+c^2}-2\\ge4\\sqrt3-2\\)"
+          "text": "只改写 \\(\\frac{1}{ab}\\)，把括号内各项配成零次式"
+        }
+      ],
+      "derive": [
+        [
+          "配齐范围",
+          "只处理括号内部"
+        ]
+      ]
+    },
+    {
+      "id": "s5",
+      "section": "多次应用基本不等式",
+      "title": "应用基本不等式消元",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-mapping",
+        "methodTag": "第 1 次｜应用基本不等式消元",
+        "conditionFlowLabel": "判断消去谁",
+        "conditionFlow": [
+          "目标含 \\(a、b、c\\)",
+          "\\(\\frac{4a}{b}\\cdot\\frac{b}{a}=4\\)",
+          "先消去 \\(a、b\\)"
+        ],
+        "templateLabel": "代入基本不等式",
+        "template": "\\(u+v\\ge2\\sqrt{uv}\\)",
+        "formulaStyle": "sum-geometric",
+        "showPositiveStep": true,
+        "mappings": [
+          {
+            "slot": "第一个正项",
+            "shape": "square",
+            "value": "\\(\\frac{4a}{b}\\)",
+            "condition": "\\(\\frac{4a}{b}>0\\)"
+          },
+          {
+            "slot": "第二个正项",
+            "shape": "circle",
+            "value": "\\(\\frac{b}{a}\\)",
+            "condition": "\\(\\frac{b}{a}>0\\)"
+          }
+        ],
+        "mappedSum": "\\(\\frac{4a}{b}+\\frac{b}{a}\\)",
+        "mappedProduct": "\\(4\\)",
+        "mapped": "\\(\\frac{4a}{b}+\\frac{b}{a}\\ge2\\sqrt4\\)",
+        "stageLabel": "代入定积",
+        "fixedSourceLabel": "已知",
+        "fixedSourceTarget": "product",
+        "fixedCondition": "\\(\\frac{4a}{b}\\cdot\\frac{b}{a}=4\\)",
+        "replacementText": "把乘积换成 4",
+        "replaced": "\\(\\frac{4a}{b}+\\frac{b}{a}\\ge4\\)",
+        "simplifyLabel": "代回目标",
+        "substituted": "原式\\(\\ge\\frac{6}{1+c^2}+2c^2\\)",
+        "conclusionLabel": "消元结果",
+        "conclusion": "变量 \\(a、b\\) 已消去，只剩 \\(c\\)",
+        "equalityTemplate": "\\(u=v\\)",
+        "equalityMapped": "\\(\\frac{4a}{b}=\\frac{b}{a}\\)",
+        "equalityContextLabel": "结合 \\(a>0，b>0\\)",
+        "equalityResult": "\\(b=2a\\)"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "\\(\\frac{4a}{b}\\cdot\\frac{b}{a}=4\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(\\frac{4a}{b}+\\frac{b}{a}\\ge4\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "原式不小于 \\(\\frac{6}{1+c^2}+2c^2\\)，变量 \\(a、b\\) 已消去"
+        }
+      ],
+      "derive": [
+        [
+          "消元结果",
+          "6/(1+c²)+2c²"
+        ]
+      ]
+    },
+    {
+      "id": "s6",
+      "section": "多次应用基本不等式",
+      "title": "再次应用基本不等式取极值",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-mapping",
+        "methodTag": "第 2 次｜定积求和",
+        "conditionFlowLabel": "整理剩余目标",
+        "conditionFlow": [
+          "只剩 \\(\\frac{6}{1+c^2}+2c^2\\)",
+          "\\(2c^2=2(1+c^2)-2\\)",
+          "配出同一整体 \\(1+c^2\\)"
+        ],
+        "templateLabel": "代入基本不等式",
+        "template": "\\(u+v\\ge2\\sqrt{uv}\\)",
+        "formulaStyle": "sum-geometric",
+        "showPositiveStep": true,
+        "mappings": [
+          {
+            "slot": "第一个正项",
+            "shape": "square",
+            "value": "\\(2(1+c^2)\\)",
+            "condition": "\\(2(1+c^2)>0\\)"
+          },
+          {
+            "slot": "第二个正项",
+            "shape": "circle",
+            "value": "\\(\\frac{6}{1+c^2}\\)",
+            "condition": "\\(\\frac{6}{1+c^2}>0\\)"
+          }
+        ],
+        "mappedSum": "\\(2(1+c^2)+\\frac{6}{1+c^2}\\)",
+        "mappedProduct": "\\(12\\)",
+        "mapped": "\\(2(1+c^2)+\\frac{6}{1+c^2}\\ge2\\sqrt{12}\\)",
+        "stageLabel": "代入定积",
+        "fixedSourceLabel": "已知",
+        "fixedSourceTarget": "product",
+        "fixedCondition": "\\(2(1+c^2)\\cdot\\frac{6}{1+c^2}=12\\)",
+        "replacementText": "化简根式",
+        "replaced": "\\(2(1+c^2)+\\frac{6}{1+c^2}\\ge4\\sqrt3\\)",
+        "simplifyLabel": "减去括号外的 2",
+        "substituted": "原式\\(\\ge4\\sqrt3-2\\)",
+        "conclusionLabel": "得到下界",
+        "conclusion": "原式不小于 \\(4\\sqrt3-2\\)"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "\\(2c^2=2(1+c^2)-2\\)"
         },
         {
           "kind": "because",
-          "text": "取等要求 \\(b=2a\\) 且 \\(2(1+c^2)=\\frac{6}{1+c^2}\\)"
+          "text": "\\(2(1+c^2)\\cdot\\frac{6}{1+c^2}=12\\)"
         },
         {
           "kind": "therefore",
-          "text": "\\(a=\\frac{1}{3}，b=\\frac{2}{3}，c=\\pm\\sqrt{\\sqrt3-1}\\)，均满足题设，故最小值为 \\(4\\sqrt3-2\\)"
+          "text": "原式\\(\\ge2(1+c^2)+\\frac{6}{1+c^2}-2\\ge4\\sqrt3-2\\)"
+        }
+      ],
+      "derive": [
+        [
+          "下界",
+          "4√3−2"
+        ]
+      ]
+    },
+    {
+      "id": "s7",
+      "section": "多次应用基本不等式",
+      "title": "验证取等",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-equality-check",
+        "templateLabel": "联立两次取等条件",
+        "equalities": [
+          {
+            "label": "第 1 次取等",
+            "first": {
+              "value": "\\(\\frac{4a}{b}\\)",
+              "shape": "square"
+            },
+            "second": {
+              "value": "\\(\\frac{b}{a}\\)",
+              "shape": "circle"
+            },
+            "result": "\\(b=2a\\)"
+          },
+          {
+            "label": "第 2 次取等",
+            "first": {
+              "value": "\\(2(1+c^2)\\)",
+              "shape": "square"
+            },
+            "second": {
+              "value": "\\(\\frac{6}{1+c^2}\\)",
+              "shape": "circle"
+            },
+            "result": "\\(c^2=\\sqrt3-1\\)"
+          }
+        ],
+        "conditionLabel": "结合原条件",
+        "condition": "\\(a+b=1\\)",
+        "solved": "\\(a=\\frac{1}{3}，b=\\frac{2}{3}，c=\\pm\\sqrt{\\sqrt3-1}\\)",
+        "verificationLabel": "代回原式",
+        "verification": "\\(\\frac{3a}{bc^2+b}+\\frac{1}{abc^2+ab}+2c^2=4\\sqrt3-2\\)",
+        "conclusion": "原式的最小值为 \\(4\\sqrt3-2\\)"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "第一次取等要求 \\(b=2a\\)，第二次取等要求 \\(c^2=\\sqrt3-1\\)"
+        },
+        {
+          "kind": "because",
+          "text": "结合原条件 \\(a+b=1\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "联立得 \\(a=\\frac{1}{3}，b=\\frac{2}{3}，c=\\pm\\sqrt{\\sqrt3-1}\\)，代回原式等于 \\(4\\sqrt3-2\\)"
         }
       ],
       "derive": [
@@ -208,9 +533,57 @@
         0,
         0
       ]
+    },
+    "s2": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    },
+    "s3": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    },
+    "s4": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    },
+    "s5": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    },
+    "s6": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    },
+    "s7": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
     }
   },
   "stepLabels": {
-    "s1": "1 配齐次后分两轮消去变量并联立取等"
+    "s1": "1 观察结构",
+    "s2": "2 观察消元结构",
+    "s3": "3 观察配齐次结构",
+    "s4": "4 局部配齐次式",
+    "s5": "5 应用基本不等式消元",
+    "s6": "6 再次应用基本不等式取极值",
+    "s7": "7 验证取等"
   }
 }

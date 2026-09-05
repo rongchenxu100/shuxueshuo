@@ -565,7 +565,7 @@ test("builds the complete inequality topic with four published modules", () => {
   ));
   assert.deepEqual(
     topic.modules[2].knowledgeGroups.map((group) => group.lessonCount),
-    [0, 10, 5, 4, 4, 5, 2],
+    [0, 10, 5, 4, 4, 6, 1],
   );
   assert.deepEqual(
     topic.modules[2].examples.map((example) => example.lesson.id),
@@ -582,6 +582,9 @@ test("builds the complete inequality topic with four published modules", () => {
   const symmetryExample = topic.modules[2].examples.find((example) => example.lesson.id === "inequality-basic-q17");
   assert.equal(symmetryExample.group, "找对称结构");
   assert.equal(symmetryExample.answerSchema.expected[0], "[-2,2]");
+  const sixthSubstitutionExample = topic.modules[2].examples.find((example) => example.lesson.id === "inequality-basic-q27");
+  assert.equal(sixthSubstitutionExample.group, "换元法");
+  assert.equal(sixthSubstitutionExample.numberLabel, "换元法 · 变式 6");
   const normalizedSymmetryExample = topic.modules[2].examples.find((example) => example.lesson.id === "inequality-basic-q18");
   assert.equal(normalizedSymmetryExample.group, "找对称结构");
   assert.equal(normalizedSymmetryExample.answerSchema.expected[0], "[-1,1]");
@@ -605,17 +608,14 @@ test("builds the complete inequality topic with four published modules", () => {
   const substitutionExamples = topic.modules[2].examples.filter((example) => example.group === "换元法");
   assert.deepEqual(
     substitutionExamples.map((example) => [example.lesson.id, example.answerSchema.expected[0]]),
-    [["inequality-basic-q22", "4/5"], ["inequality-basic-q23", "(3+2√2)/7"], ["inequality-basic-q24", "1/3"], ["inequality-basic-q25", "25"], ["inequality-basic-q26", "9/4"]],
+    [["inequality-basic-q22", "4/5"], ["inequality-basic-q23", "(3+2√2)/7"], ["inequality-basic-q24", "1/3"], ["inequality-basic-q25", "25"], ["inequality-basic-q26", "9/4"], ["inequality-basic-q27", "√3+1/2"]],
   );
   assert.match(substitutionExamples[0].hints.join(""), /u=x\+1>0.*v=y\+2>0.*u\+v=5.*乘入定和/);
   assert.match(substitutionExamples[1].hints.join(""), /v=2y\+1>0.*2u\+v=7.*乘入带权定和/);
   assert.match(substitutionExamples[2].hints.join(""), /u=a\+1>1.*v=b\+1>1.*整理.*倒数和.*还原/);
   assert.match(substitutionExamples[3].hints.join(""), /x=a−1>0.*y=b−1>0.*xy=1.*乘积固定.*基本不等式.*还原/);
   assert.match(substitutionExamples[4].hints.join(""), /t=√\(2\+y²\)>√2.*\(4x\)²\+t²=18.*目标变为 xt.*18≥8xt.*4x=t.*还原/);
-  const eliminationExample = topic.modules[2].examples.find((example) => example.lesson.id === "inequality-basic-q27");
-  assert.equal(eliminationExample.group, "条件消元法");
-  assert.equal(eliminationExample.answerSchema.expected[0], "√3+1/2");
-  assert.match(eliminationExample.hints.join(""), /通分整理条件.*用 x 表示 y.*代入目标.*3x.*1\/x.*基本不等式.*回代/);
+  assert.match(substitutionExamples[5].hints.join(""), /u=x\+1>0.*v=x\+2y>0.*3u\+v.*配成 0 次齐次式.*3u\/v.*v\/u.*基本不等式/);
   const reciprocalEliminationExample = topic.modules[2].examples.find((example) => example.lesson.id === "inequality-basic-q29");
   assert.equal(reciprocalEliminationExample.group, "条件消元法");
   assert.equal(reciprocalEliminationExample.answerSchema.expected[0], "(3+2√3)/3");

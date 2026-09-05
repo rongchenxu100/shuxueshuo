@@ -13,11 +13,12 @@
     "source": "2021 天津高考",
     "keyPoints": {
       "title": "解题要点",
-      "lead": "三个正项的乘积并不固定；先把前两项配对消去 a，再把所得的 2/b 与 b 配对。两次等号必须能同时成立。",
+      "lead": "",
       "items": [
-        "第一层：1/a 与 a/b² 的乘积为 1/b²，先得到 2/b。",
-        "第二层：2/b 与 b 的乘积恒为 2，再次使用基本不等式。",
-        "等号联立：a=b 且 b=√2。"
+        "观察结构：有两个正变量且没有等式条件，需要补出两条取等关系，因此计划应用两次基本不等式",
+        "应用基本不等式消元：先判断消去 \\(a\\)，选择 \\(\\frac{1}{a}\\)、\\(\\frac{a}{b^2}\\) 配对，得到只含 \\(b\\) 的 \\(\\frac{2}{b}+b\\)",
+        "再次应用基本不等式取极值：\\(\\frac{2}{b}\\) 与 \\(b\\) 的乘积恒为 \\(2\\)，得到原式不小于 \\(2\\sqrt2\\)",
+        "验证取等：联立两次取等条件 \\(a=b\\)、\\(b=\\sqrt2\\)，得到 \\(a=b=\\sqrt2\\)"
       ]
     },
     "lines": [
@@ -30,90 +31,263 @@
     {
       "id": "s1",
       "section": "多次应用基本不等式",
-      "title": "判断两次配对并联立等号",
+      "title": "观察结构",
       "t": 0,
       "showDiagram": false,
       "visual": {
-        "kind": "repeated-basic-inequality-flow",
-        "title": "判断两次配对，再逐轮求界",
-        "methodTag": "多次应用基本不等式",
-        "count": {
-          "variables": [
-            "\\(a\\)",
-            "\\(b\\)"
-          ],
-          "conditions": [],
-          "estimatedRounds": 2,
-          "note": "a、b 是两个正变量，题目没有提供等式关系；每次配对通常补一条取等关系，所以预计应用 2 次。"
+        "kind": "basic-inequality-structure-scan",
+        "condition": {
+          "label": "条件整式",
+          "expression": "\\(a>0，b>0\\)",
+          "tag": "已有取等条件数 0"
         },
-        "rounds": [
-          {
-            "question": "先配哪两个正项，才能让式子变简单？",
-            "current": "\\(\\frac{1}{a}+\\frac{a}{b^2}+b\\)",
-            "terms": [
-              "\\(\\frac{1}{a}\\)",
-              "\\(\\frac{a}{b^2}\\)"
-            ],
-            "reason": "两项相乘后 a 消失，可以把二元三项式压成只含 b 的两项式。",
-            "relation": "\\(\\frac{1}{a}\\cdot\\frac{a}{b^2}=\\frac{1}{b^2}\\)",
-            "inequality": "\\(\\frac{1}{a}+\\frac{a}{b^2}\\ge\\frac{2}{b}\\)",
-            "result": "\\(\\frac{1}{a}+\\frac{a}{b^2}+b\\ge\\frac{2}{b}+b\\)",
-            "insight": "变量 a 已消去，剩下两个乘积固定的正项。",
-            "equality": "\\(\\frac{1}{a}=\\frac{a}{b^2}\\Rightarrow a=b\\)"
-          },
-          {
-            "question": "新式中的两个正项能否直接配对？",
-            "current": "\\(\\frac{2}{b}+b\\)",
-            "terms": [
-              "\\(\\frac{2}{b}\\)",
-              "\\(b\\)"
-            ],
-            "reason": "两个正项的乘积恒为 2，可以直接得到常数下界。",
-            "relation": "\\(\\frac{2}{b}\\cdot b=2\\)",
-            "inequality": "\\(\\frac{2}{b}+b\\ge2\\sqrt{2}\\)",
-            "result": "\\(\\frac{1}{a}+\\frac{a}{b^2}+b\\ge2\\sqrt{2}\\)",
-            "insight": "第二次配对已经得到常数下界，接下来只需检查两次等号能否同时成立。",
-            "equality": "\\(\\frac{2}{b}=b\\Rightarrow b=\\sqrt{2}\\)"
-          }
-        ],
-        "equality": {
-          "label": "求解等号成立条件",
-          "conditions": [
-            {
-              "label": "第 1 次取等",
-              "expression": "\\(a=b\\)"
+        "target": {
+          "label": "目标整式",
+          "expression": "\\(\\frac{1}{a}+\\frac{a}{b^2}+b\\)",
+          "tag": "含 a、b 两个变量"
+        },
+        "organization": {
+          "label": "判断应用次数",
+          "relationCountHint": {
+            "variable": {
+              "label": "变量数",
+              "value": "2",
+              "detail": "\\(a、b\\)"
             },
-            {
-              "label": "第 2 次取等",
-              "expression": "\\(b=\\sqrt{2}\\)"
-            }
-          ],
-          "solved": "\\(a=b=\\sqrt{2}\\)",
-          "verification": "\\(a>0，b>0\\)，且代入原式等于 \\(2\\sqrt{2}\\)"
+            "condition": {
+              "label": "已有取等条件数",
+              "value": "0",
+              "detail": "无"
+            },
+            "result": {
+              "label": "待补取等关系数",
+              "value": "2"
+            },
+            "ariaLabel": "变量数二减去已有取等条件数零，得到待补取等关系数二"
+          }
         },
-        "conclusion": "\\(\\frac{1}{a}+\\frac{a}{b^2}+b\\) 的最小值为 \\(2\\sqrt{2}\\)",
-        "caption": "判断轮数只负责规划；真正求解时，每一轮都要完成选项配对、得到新式并记录取等条件，最后统一联立。"
+        "reading": "待补取等关系数 2",
+        "route": "应用基本不等式 2 次"
       },
       "reasoning": [
         {
           "kind": "because",
-          "text": "\\(a>0，b>0\\)，所以 \\(\\frac{1}{a}>0，\\frac{a}{b^2}>0\\)"
-        },
-        {
-          "kind": "therefore",
-          "text": "\\(\\frac{1}{a}+\\frac{a}{b^2}\\ge 2\\sqrt{\\frac{1}{a}\\cdot\\frac{a}{b^2}}=\\frac{2}{b}\\)"
-        },
-        {
-          "kind": "therefore",
-          "text": "\\(\\frac{1}{a}+\\frac{a}{b^2}+b\\ge\\frac{2}{b}+b\\ge2\\sqrt{\\frac{2}{b}\\cdot b}=2\\sqrt{2}\\)"
+          "text": "题目含两个正变量 \\(a，b\\)，没有提供等式条件"
         },
         {
           "kind": "because",
-          "text": "两次取等分别要求 \\(\\frac{1}{a}=\\frac{a}{b^2}\\) 与 \\(\\frac{2}{b}=b\\)"
+          "text": "每次应用基本不等式通常补出一条新的取等关系"
         },
         {
           "kind": "therefore",
-          "text": "\\(a=b，b=\\sqrt{2}\\Rightarrow a=b=\\sqrt{2}\\)，故最小值为 \\(2\\sqrt{2}\\)"
+          "text": "需要补出两条取等关系，计划应用基本不等式 \\(2\\) 次"
+        }
+      ],
+      "derive": [
+        [
+          "应用次数",
+          "2 次"
+        ]
+      ]
+    },
+    {
+      "id": "s2",
+      "section": "多次应用基本不等式",
+      "title": "应用基本不等式消元",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-mapping",
+        "methodTag": "第 1 次｜应用基本不等式消元",
+        "conditionFlowLabel": "判断消去谁",
+        "conditionFlow": [
+          "目标含 \\(a、b\\)",
+          "\\(\\frac{1}{a}\\cdot\\frac{a}{b^2}=\\frac{1}{b^2}\\)",
+          "先消去 \\(a\\)"
+        ],
+        "templateLabel": "代入基本不等式",
+        "template": "\\(u+v\\ge2\\sqrt{uv}\\)",
+        "formulaStyle": "sum-geometric",
+        "showPositiveStep": false,
+        "mappings": [
+          {
+            "slot": "第一个正项",
+            "shape": "square",
+            "value": "\\(\\frac{1}{a}\\)",
+            "condition": "\\(\\frac{1}{a}>0\\)"
+          },
+          {
+            "slot": "第二个正项",
+            "shape": "circle",
+            "value": "\\(\\frac{a}{b^2}\\)",
+            "condition": "\\(\\frac{a}{b^2}>0\\)"
+          }
+        ],
+        "mappedSum": "\\(\\frac{1}{a}+\\frac{a}{b^2}\\)",
+        "mappedProduct": "\\(\\frac{1}{b^2}\\)",
+        "mapped": "\\(\\frac{1}{a}+\\frac{a}{b^2}\\ge2\\sqrt{\\frac{1}{b^2}}\\)",
+        "stageLabel": "代入正项",
+        "fixedSourceLabel": "相乘后",
+        "fixedSourceTarget": "product",
+        "fixedCondition": "\\(\\frac{1}{a}\\cdot\\frac{a}{b^2}=\\frac{1}{b^2}\\)",
+        "replacementText": "化简根式",
+        "replaced": "\\(\\frac{1}{a}+\\frac{a}{b^2}\\ge\\frac{2}{b}\\)",
+        "simplifyLabel": "加回剩余项 b",
+        "substituted": "\\(\\frac{1}{a}+\\frac{a}{b^2}+b\\ge\\frac{2}{b}+b\\)",
+        "conclusionLabel": "消元结果",
+        "conclusion": "原式不小于 \\(\\frac{2}{b}+b\\)，只剩变量 \\(b\\)",
+        "equalityTemplate": "\\(u=v\\)",
+        "equalityMapped": "\\(\\frac{1}{a}=\\frac{a}{b^2}\\)",
+        "equalityContextLabel": "结合 a>0，b>0",
+        "equalityResult": "\\(a=b\\)"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "原式含 \\(a，b\\)，先选择能让 \\(a\\) 在乘积中约去的两个正项"
+        },
+        {
+          "kind": "because",
+          "text": "\\(\\frac{1}{a}\\cdot\\frac{a}{b^2}=\\frac{1}{b^2}\\)，所以配对 \\(\\frac{1}{a}\\) 与 \\(\\frac{a}{b^2}\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(\\frac{1}{a}+\\frac{a}{b^2}\\ge2\\sqrt{\\frac{1}{b^2}}=\\frac{2}{b}\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "原式不小于 \\(\\frac{2}{b}+b\\)，变量 \\(a\\) 已消去"
+        }
+      ],
+      "derive": [
+        [
+          "消元结果",
+          "2/b+b"
+        ]
+      ]
+    },
+    {
+      "id": "s3",
+      "section": "多次应用基本不等式",
+      "title": "再次应用基本不等式取极值",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-mapping",
+        "methodTag": "第 2 次｜定积求和",
+        "templateLabel": "代入基本不等式",
+        "template": "\\(u+v\\ge2\\sqrt{uv}\\)",
+        "formulaStyle": "sum-geometric",
+        "showPositiveStep": true,
+        "mappings": [
+          {
+            "slot": "第一个正项",
+            "shape": "square",
+            "value": "\\(\\frac{2}{b}\\)",
+            "condition": "\\(\\frac{2}{b}>0\\)"
+          },
+          {
+            "slot": "第二个正项",
+            "shape": "circle",
+            "value": "\\(b\\)",
+            "condition": "\\(b>0\\)"
+          }
+        ],
+        "mappedSum": "\\(\\frac{2}{b}+b\\)",
+        "mappedProduct": "\\(2\\)",
+        "mapped": "\\(\\frac{2}{b}+b\\ge2\\sqrt2\\)",
+        "stageLabel": "代入定积",
+        "fixedSourceLabel": "已知",
+        "fixedSourceTarget": "product",
+        "fixedCondition": "\\(\\frac{2}{b}\\cdot b=2\\)",
+        "replacementText": "把乘积换成 2",
+        "replaced": "\\(\\frac{2}{b}+b\\ge2\\sqrt2\\)",
+        "simplifyLabel": "对应原式",
+        "substituted": "\\(\\frac{1}{a}+\\frac{a}{b^2}+b\\ge2\\sqrt2\\)",
+        "conclusionLabel": "得到下界",
+        "conclusion": "原式不小于 \\(2\\sqrt2\\)"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "\\(b>0\\)，所以 \\(\\frac{2}{b}>0，b>0\\)"
+        },
+        {
+          "kind": "because",
+          "text": "\\(\\frac{2}{b}\\cdot b=2\\)，两个正项的乘积固定"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(\\frac{2}{b}+b\\ge2\\sqrt{\\frac{2}{b}\\cdot b}=2\\sqrt2\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "原式不小于 \\(2\\sqrt2\\)"
+        }
+      ],
+      "derive": [
+        [
+          "下界",
+          "2√2"
+        ]
+      ]
+    },
+    {
+      "id": "s4",
+      "section": "多次应用基本不等式",
+      "title": "验证取等",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "basic-inequality-equality-check",
+        "templateLabel": "联立两次取等条件",
+        "equalities": [
+          {
+            "label": "第 1 次取等",
+            "first": {
+              "value": "\\(\\frac{1}{a}\\)",
+              "shape": "square"
+            },
+            "second": {
+              "value": "\\(\\frac{a}{b^2}\\)",
+              "shape": "circle"
+            },
+            "result": "\\(a=b\\)"
+          },
+          {
+            "label": "第 2 次取等",
+            "first": {
+              "value": "\\(\\frac{2}{b}\\)",
+              "shape": "square"
+            },
+            "second": {
+              "value": "\\(b\\)",
+              "shape": "circle"
+            },
+            "result": "\\(b=\\sqrt2\\)"
+          }
+        ],
+        "solved": "\\(a=b=\\sqrt2\\)",
+        "verificationLabel": "代回原式",
+        "verification": "\\(\\frac{1}{a}+\\frac{a}{b^2}+b=2\\sqrt2\\)",
+        "conclusion": "原式的最小值为 \\(2\\sqrt2\\)"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "第一次取等要求 \\(\\frac{1}{a}=\\frac{a}{b^2}\\)，由 \\(a>0，b>0\\) 得 \\(a=b\\)"
+        },
+        {
+          "kind": "because",
+          "text": "第二次取等要求 \\(\\frac{2}{b}=b\\)，由 \\(b>0\\) 得 \\(b=\\sqrt2\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "联立两次取等条件，得到 \\(a=b=\\sqrt2\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "代回原式等于 \\(2\\sqrt2\\)，所以最小值可以取得"
         }
       ],
       "derive": [
@@ -135,9 +309,33 @@
         0,
         0
       ]
+    },
+    "s2": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    },
+    "s3": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    },
+    "s4": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
     }
   },
   "stepLabels": {
-    "s1": "1 判断两次配对并联立等号"
+    "s1": "1 观察结构",
+    "s2": "2 应用基本不等式消元",
+    "s3": "3 再次应用基本不等式取极值",
+    "s4": "4 验证取等"
   }
 }
