@@ -6,16 +6,29 @@ from typing import Any
 import copy
 import re
 
-from shuxueshuo_server.solver.explanation.models import ExplanationSnapshot, LessonIR, LessonStep
+from shuxueshuo_server.solver.explanation.lesson_ir import (
+    LessonIR,
+    OwnedLessonStep as LessonStep,
+)
+from shuxueshuo_server.solver.explanation.models import ExplanationSnapshot
 from shuxueshuo_server.solver.student_display import student_math_display
 
 from .geometry_naming import scope_root as _scope_root
 from .models import JsonObject
 
 
-def lesson_data_from_lesson_ir(lesson: LessonIR, base_lesson_data: JsonObject) -> JsonObject:
+def lesson_data_from_lesson_ir(
+    lesson: LessonIR,
+    base_lesson_data: JsonObject,
+    *,
+    snapshot: ExplanationSnapshot | None = None,
+) -> JsonObject:
     out = copy.deepcopy(base_lesson_data)
-    section_titles = _section_titles_for_lesson(lesson, base_lesson_data)
+    section_titles = _section_titles_for_lesson(
+        lesson,
+        base_lesson_data,
+        snapshot=snapshot,
+    )
     out.setdefault("meta", {})
     out["meta"]["id"] = lesson.problem_id
     ui = out.setdefault("ui", {})
@@ -72,6 +85,7 @@ def generated_lesson_shell(
     section_titles = _section_titles_for_lesson(
         lesson,
         {"problem": {"lines": problem_lines}},
+        snapshot=snapshot,
     )
     summary = (
         str(display.get("summary") or "").strip()
@@ -156,11 +170,20 @@ def parameter_name(snapshot: ExplanationSnapshot) -> str:
     return "t"
 
 
-def _section_titles_for_lesson(lesson: LessonIR, lesson_data: JsonObject) -> dict[str, str]:
+def _section_titles_for_lesson(
+    lesson: LessonIR,
+    lesson_data: JsonObject,
+    *,
+    snapshot: ExplanationSnapshot | None = None,
+) -> dict[str, str]:
     problem_lines = _lesson_problem_line_texts(lesson_data)
+    scope_labels = _snapshot_scope_labels(snapshot)
     out: dict[str, str] = {}
     for section in lesson.sections:
-        title = str(section.title or section.scope_id)
+        title = scope_labels.get(
+            section.scope_id,
+            str(section.title or section.scope_id),
+        )
         goal = _question_target_for_section(
             title=title,
             scope_id=section.scope_id,
@@ -172,6 +195,22 @@ def _section_titles_for_lesson(lesson: LessonIR, lesson_data: JsonObject) -> dic
             title = f"{title}：{goal}"
         out[section.scope_id] = title
     return out
+
+
+def _snapshot_scope_labels(
+    snapshot: ExplanationSnapshot | None,
+) -> dict[str, str]:
+    if snapshot is None:
+        return {}
+    result: dict[str, str] = {}
+    for raw in snapshot.problem.get("scopes", ()):
+        if not isinstance(raw, dict):
+            continue
+        scope_ref = str(raw.get("scope_id") or "")
+        label = str(raw.get("label") or "")
+        if scope_ref and label:
+            result[scope_ref] = label
+    return result
 
 
 def _runtime_group_titles(section_titles: dict[str, str]) -> dict[str, str]:

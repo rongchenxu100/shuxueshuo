@@ -177,6 +177,8 @@ const geometryScript = [
   "  }",
   "  var diagramMarkupFor = renderer.diagramMarkupFor;",
   "  var diagramMarkupForFrame = renderer.diagramMarkupForFrame;",
+  "  var diagramMarkupForVisualFrame = renderer.diagramMarkupForVisualFrame;",
+  "  var visualFramesFor = renderer.visualFramesFor;",
   "  var drawMini = renderer.drawMini;",
   "  var __LESSON_LEGEND_HTML__ = " + JSON.stringify(legendHtmlStr) + ";",
   "  // 原题图形渲染：由 renderer 负责（可选）",

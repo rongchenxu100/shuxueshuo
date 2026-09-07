@@ -882,13 +882,13 @@
                   "nav_title": "正方形求顶点E",
                   "goal": "利用正方形相邻边垂直且等长，求相邻顶点坐标。",
                   "derive": [
-                    "作 GQ⊥x轴于 Q，ER⊥x轴于 R",
+                    "作 GQ⊥x轴于 Q",
                     "∵ 四边形 AEKG 是正方形",
                     "∴ AG＝AE，∠GAE＝90°",
-                    "∵ ∠GQA＝∠ERA＝90°",
-                    "∴ ∠GAQ＝∠AER",
-                    "∴ Rt△AGQ≌Rt△EAR",
-                    "∴ AR＝QG＝3，ER＝AQ＝3/2",
+                    "∵ ∠GQA＝∠EMA＝90°",
+                    "∴ ∠GAQ＝∠AEM",
+                    "∴ Rt△AGQ≌Rt△EAM",
+                    "∴ AM＝QG＝3，EM＝AQ＝3/2",
                     "∵ 按正方形顶点顺序选取 E",
                     "∴ E(－2,3/2)"
                   ],

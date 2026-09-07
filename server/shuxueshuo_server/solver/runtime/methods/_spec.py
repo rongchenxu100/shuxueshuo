@@ -14,7 +14,6 @@ import inspect
 from shuxueshuo_server.solver.contracts import (
     CanonicalSymbolDerivationSpec,
     MethodInputBindingSpec,
-    MethodExplanationSpec,
     MethodInputRelationSpec,
     MethodInputViewMode,
     MethodCompanionOutputSpec,
@@ -101,7 +100,6 @@ class MethodSpecSource:
     trial_error_hints: tuple[TrialErrorHintSpec, ...] = ()
     repair_feedback_provider_id: str | None = None
     geometry_profiles: tuple[dict[str, Any], ...] = ()
-    explanation: MethodExplanationSpec | None = None
     teaching_unit: TeachingUnitSpec | None = None
     visual: MethodVisualSpec | None = None
     description: str = ""
@@ -188,8 +186,6 @@ class MethodSpecSource:
             payload["geometry_profiles"] = [
                 _json_ready_hint(item) for item in self.geometry_profiles
             ]
-        if self.explanation is not None:
-            payload["explanation"] = _json_ready_explanation(self.explanation)
         if self.teaching_unit is not None:
             payload["teaching_unit"] = self.teaching_unit.to_payload()
         if self.visual is not None:
@@ -422,23 +418,6 @@ def _json_ready_hint(raw: dict[str, Any]) -> dict[str, Any]:
         key: list(value) if isinstance(value, tuple) else value
         for key, value in raw.items()
     }
-
-
-def _json_ready_explanation(explanation: MethodExplanationSpec) -> dict[str, Any]:
-    payload = {
-        "role_schema": dict(explanation.role_schema),
-        "student_goal_template": explanation.student_goal_template,
-        "student_title_template": explanation.student_title_template,
-        "student_title_templates_by_goal": dict(explanation.student_title_templates_by_goal),
-        "derive_templates": list(explanation.derive_templates),
-        "box_templates": list(explanation.box_templates),
-        "explanation_level": explanation.explanation_level,
-        "role_binding_strategy": explanation.role_binding_strategy,
-        "role_binder_id": explanation.role_binder_id,
-    }
-    if explanation.student_nav_title_template:
-        payload["student_nav_title_template"] = explanation.student_nav_title_template
-    return payload
 
 
 def _json_ready_visual(visual: MethodVisualSpec) -> dict[str, Any]:

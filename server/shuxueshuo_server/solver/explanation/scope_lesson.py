@@ -5,8 +5,8 @@ keeps the LLM response deliberately small: the model writes student-facing
 Scope bodies, while material provenance, answers, and runtime authority remain
 code-owned.
 
-This module is not connected to the production ``LessonIR`` builder.  B4 owns
-that switch.
+The B4 ``LessonAuthoringPipeline`` consumes its accepted/fallback result and
+assembles the recursive production ``LessonIR`` without a second LLM contract.
 """
 
 from __future__ import annotations
@@ -162,7 +162,7 @@ class ScopeLessonValidationResult:
 
     @property
     def fallback_used(self) -> bool:
-        return any(
+        return self.independent_material_merge_repaired or any(
             source == "deterministic_fallback"
             for source in self.scope_sources.values()
         )
@@ -177,6 +177,15 @@ class ScopeLessonValidationResult:
 
         return any(
             item.code == "lesson_scope_single_source_step_completed"
+            for item in self.diagnostics
+        )
+
+    @property
+    def independent_material_merge_repaired(self) -> bool:
+        """Whether an LLM row crossed a code-owned visual teaching boundary."""
+
+        return any(
+            item.code == "lesson_scope_independent_material_merge_repaired"
             for item in self.diagnostics
         )
 
@@ -206,6 +215,9 @@ class ScopeLessonValidationResult:
             "syntax_repaired": self.syntax_repaired,
             "source_step_completion_repaired": (
                 self.source_step_completion_repaired
+            ),
+            "independent_material_merge_repaired": (
+                self.independent_material_merge_repaired
             ),
             "appended_suffix": self.appended_suffix,
             "repaired_response_hash": (
@@ -346,6 +358,9 @@ class ScopeLessonGenerationResult:
             "source_step_completion_repaired": (
                 self.validation.source_step_completion_repaired
             ),
+            "independent_material_merge_repaired": (
+                self.validation.independent_material_merge_repaired
+            ),
             "appended_suffix": self.validation.appended_suffix,
             "scope_sources": dict(self.validation.scope_sources),
             "hashes": dict(self.projection_audit["hashes"]),
@@ -407,6 +422,7 @@ class LessonScopeContentValidator:
         self._allowed_objects = _student_object_tokens(plan.to_payload())
         self._answer_obligations = _answer_obligations(plan)
         self._verified_result_owners = _verified_result_owners(self._contracts)
+        self._scope_lineage_refs = _scope_lineage_refs(plan.root_scope)
         self._verify_authority_binding()
 
     @property
@@ -723,6 +739,7 @@ class LessonScopeContentValidator:
             )
         accepted_rows: list[tuple[int, dict[str, Any], BoundLessonStep]] = []
         consumed_positions: list[int] = []
+        warnings: list[ScopeLessonDiagnostic] = []
         next_position = 0
         for index, raw_step in enumerate(raw_steps):
             step_path = f"{path}[{index}]"
@@ -788,6 +805,70 @@ class LessonScopeContentValidator:
                         ),
                     )
                 )
+            independent_refs = tuple(
+                _teaching_step_ref(position)
+                for position in positions
+                if contract.authority[position].get(
+                    "requires_independent_lesson_step"
+                )
+                is True
+            )
+            if len(positions) > 1 and independent_refs and not fallback_mode:
+                # The row's prose cannot be split safely: its sentences no
+                # longer have an authoritative one-to-one relationship with
+                # the covered materials.  Replace only this row with the
+                # complete deterministic material bodies and preserve every
+                # other valid LLM row in the container.
+                for position in positions:
+                    teaching_step_ref = _teaching_step_ref(position)
+                    fallback_raw = _fallback_step(
+                        contract.materials[position],
+                        teaching_step_ref=teaching_step_ref,
+                    )
+                    fallback_normalized, fallback_refs = _validate_step_shape(
+                        fallback_raw,
+                        path=(
+                            f"{step_path}[deterministic:{teaching_step_ref}]"
+                        ),
+                        scope_ref=scope_ref,
+                    )
+                    fallback_bound = self._bind_container_step(
+                        contract,
+                        normalized=fallback_normalized,
+                        teaching_step_refs=fallback_refs,
+                        positions=(position,),
+                        path=(
+                            f"{step_path}[deterministic:{teaching_step_ref}]"
+                        ),
+                    )
+                    accepted_rows.append(
+                        (
+                            position,
+                            fallback_bound.content_payload(),
+                            fallback_bound,
+                        )
+                    )
+                consumed_positions.extend(positions)
+                next_position = positions[-1] + 1
+                warnings.append(
+                    ScopeLessonDiagnostic(
+                        code=(
+                            "lesson_scope_independent_material_merge_repaired"
+                        ),
+                        stage="coverage",
+                        path=f"{step_path}.source_steps",
+                        message=(
+                            f"{contract.container_ref} merged "
+                            f"{list(teaching_step_refs)} across independent "
+                            f"teaching material(s) {list(independent_refs)}; "
+                            "replaced only that row with one deterministic "
+                            "Lesson Step per covered material"
+                        ),
+                        scope_ref=scope_ref,
+                        severity="warning",
+                    )
+                )
+                continue
             bound_step = self._bind_container_step(
                 contract,
                 normalized=normalized,
@@ -806,7 +887,6 @@ class LessonScopeContentValidator:
             for position in range(len(contract.materials))
             if position not in set(consumed_positions)
         )
-        warnings: list[ScopeLessonDiagnostic] = []
         if missing_positions:
             can_complete_one = (
                 not fallback_mode
@@ -1001,6 +1081,7 @@ class LessonScopeContentValidator:
                     container,
                     steps,
                     verified_result_owners=self._verified_result_owners,
+                    scope_lineage_refs=self._scope_lineage_refs,
                 )
             )
         errors.extend(self._answer_coverage_errors(contract, bound))
@@ -1029,7 +1110,7 @@ class LessonScopeContentValidator:
             ]
             target = candidates[-1]
             for goal_ref, display in self._answer_obligations[producer]:
-                if not display or not _answer_display_is_covered(
+                if not display or not answer_display_is_covered(
                     display,
                     "\n".join(target.box),
                 ):
@@ -1053,6 +1134,19 @@ class LessonScopeContentValidator:
         if self.authority.get("annotated_plan_hash") != plan_hash:
             raise ScopeLessonConfigurationError(
                 "lesson_scope_authority_drift: annotated Plan hash mismatch"
+            )
+        raw_independent = self.authority.get("independent_step_refs")
+        if not isinstance(raw_independent, Mapping):
+            raise ScopeLessonConfigurationError(
+                "lesson_scope_authority_drift: independent_step_refs must be an object"
+            )
+        raw_containers = self.authority.get("containers")
+        if not isinstance(raw_containers, Mapping) or set(raw_independent) != set(
+            raw_containers
+        ):
+            raise ScopeLessonConfigurationError(
+                "lesson_scope_authority_drift: independent_step_refs container keys "
+                "do not match the teaching material containers"
             )
         for contract in self._contracts:
             for container in (
@@ -1082,6 +1176,30 @@ class LessonScopeContentValidator:
                             "lesson_scope_authority_drift: material signature "
                             f"mismatch for {container.container_ref}[{position}]"
                         )
+                    if not isinstance(
+                        record.get("requires_independent_lesson_step"), bool
+                    ):
+                        raise ScopeLessonConfigurationError(
+                            "lesson_scope_authority_drift: independent boundary must "
+                            f"be boolean for {container.container_ref}[{position}]"
+                        )
+                expected_independent = [
+                    str(record["teaching_step_ref"])
+                    for record in container.authority
+                    if record["requires_independent_lesson_step"]
+                ]
+                observed_independent = raw_independent.get(
+                    container.container_ref,
+                    [],
+                )
+                if (
+                    not isinstance(observed_independent, list)
+                    or observed_independent != expected_independent
+                ):
+                    raise ScopeLessonConfigurationError(
+                        "lesson_scope_authority_drift: independent boundary refs "
+                        f"mismatch for {container.container_ref}"
+                    )
 
 
 class ScopeLessonAuthoringService:
@@ -1116,6 +1234,7 @@ class ScopeLessonAuthoringService:
         output_schema = lesson_scope_content_schema(projection.plan)
         prompt = render_annotated_teaching_prompt(
             projection.plan,
+            authority=projection.authority,
             output_schema=output_schema,
         )
         audit = build_projection_audit(
@@ -1257,7 +1376,7 @@ def evaluate_scope_lesson_content(
 ) -> dict[str, Any]:
     """Evaluate B3 content without converting it into the old flat LessonIR."""
 
-    from shuxueshuo_server.solver.lesson_scope_authoring_smoke import (
+    from shuxueshuo_server.solver.lesson_authoring_support import (
         evaluate_teaching_rows,
         validate_teaching_rubric,
     )
@@ -1603,16 +1722,23 @@ def _cross_container_result_errors(
         str,
         tuple[tuple[str, int, str], ...],
     ],
+    scope_lineage_refs: Mapping[str, tuple[str, ...]],
 ) -> tuple[ScopeLessonDiagnostic, ...]:
     """Reject exact results imported from another Scope/Goal without an input.
 
     The LLM sees the whole recursive teaching Plan for coherence, but it may
     only write verified results available to the current container.  A result
-    from an ancestor is legal when it appears in this container's projected
-    inputs; a child/sibling result such as ``P(-1,4)`` in its parent is not.
+    from an ancestor Scope is legal because recursive Scope execution inherits
+    its ancestor state. A child/sibling result such as ``P(-1,4)`` in its
+    parent is not. Explicit cross-Goal inputs remain covered by the material's
+    verified local context.
     """
 
     errors: list[ScopeLessonDiagnostic] = []
+    visible_scope_owners = {
+        f"scope:{scope_ref}"
+        for scope_ref in scope_lineage_refs.get(contract.scope_ref, ())
+    }
     for step_index, step in enumerate(steps):
         end = step.material_positions[-1] if step.material_positions else -1
         allowed_text = _normalize_math_text(
@@ -1626,6 +1752,8 @@ def _cross_container_result_errors(
                 item for item in owners if item[0] != contract.container_ref
             )
             if not foreign:
+                continue
+            if any(item[0] in visible_scope_owners for item in foreign):
                 continue
             owner_refs = sorted({item[0] for item in foreign})
             display = foreign[0][2]
@@ -1878,7 +2006,14 @@ def _normalize_math_text(value: str) -> str:
     return text.translate(str.maketrans("", "", removable))
 
 
-def _answer_display_is_covered(display: str, student_box: str) -> bool:
+def answer_display_is_covered(display: str, student_box: str) -> bool:
+    """Return whether student text contains the verified answer losslessly.
+
+    This is shared by the B3 authority validator and the B4 recursive
+    assembler.  Keeping one matcher prevents an accepted Scope body from
+    acquiring a weaker answer check when it is committed to LessonIR.
+    """
+
     expected = _normalize_math_text(display)
     observed = _normalize_math_text(student_box)
     if expected in observed:
@@ -1949,6 +2084,23 @@ def _iter_scopes(root: AnnotatedTeachingScope) -> tuple[AnnotatedTeachingScope, 
 
     visit(root)
     return tuple(result)
+
+
+def _scope_lineage_refs(
+    root: AnnotatedTeachingScope,
+) -> Mapping[str, tuple[str, ...]]:
+    """Return each Scope's visible ancestor chain, including itself."""
+
+    result: dict[str, tuple[str, ...]] = {}
+
+    def visit(scope: AnnotatedTeachingScope, ancestors: tuple[str, ...]) -> None:
+        lineage = (*ancestors, scope.scope_ref)
+        result[scope.scope_ref] = lineage
+        for child in scope.children:
+            visit(child, lineage)
+
+    visit(root, ())
+    return result
 
 
 def _answer_obligations(
@@ -2033,6 +2185,7 @@ __all__ = [
     "ScopeLessonGenerationResult",
     "ScopeLessonTransportAttempt",
     "ScopeLessonValidationResult",
+    "answer_display_is_covered",
     "build_deterministic_scope_content",
     "evaluate_scope_lesson_content",
 ]

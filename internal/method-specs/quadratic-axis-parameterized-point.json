@@ -87,26 +87,6 @@
   "postconditions": [
     "输出点的横坐标等于抛物线对称轴横坐标，纵坐标为绑定到该点的待定参数"
   ],
-  "explanation": {
-    "role_schema": {
-      "target": "对称轴上的目标点。",
-      "axis_equation": "当前抛物线的对称轴方程。",
-      "parameterized_point": "目标点的参数化坐标。"
-    },
-    "student_goal_template": "把对称轴上的点设成一个参数点。",
-    "student_title_template": "设对称轴上的参数点",
-    "student_title_templates_by_goal": {},
-    "derive_templates": [
-      "∵{target} 在对称轴 {axis_equation} 上",
-      "∴设 {parameterized_point}"
-    ],
-    "box_templates": [
-      "{parameterized_point}"
-    ],
-    "explanation_level": "template",
-    "role_binding_strategy": "role_name_registry",
-    "role_binder_id": "quadratic_axis_parameterized_point"
-  },
   "teaching_unit": {
     "unit_key": "quadratic_axis_parameterized_point/parameterize_axis_point",
     "title_template": "设对称轴上的参数点",
@@ -140,6 +120,7 @@
     "scene_templates": [
       {
         "component": "AxisParameterizedPointMarker",
+        "requires_independent_lesson_step": true,
         "axis_color": "#64748b",
         "point_color": "#dc2626",
         "persistence": "carry_forward"

@@ -6,7 +6,6 @@
 from __future__ import annotations
 
 from shuxueshuo_server.solver.contracts import (
-    MethodExplanationSpec,
     MethodVisualSpec,
     TeachingUnitSpec,
 )
@@ -106,23 +105,6 @@ SPEC = MethodSpecSource(
     reconciliation_validators=("companion_symbol_coverage",),
     preconditions=("point 坐标可以包含 parameter",),
     postconditions=("输出点坐标不再含本次代入的 parameter；其他自由符号可以保留",),
-    explanation=MethodExplanationSpec(
-        role_schema={
-            "source_point": "代入前的含参点坐标。",
-            "parameter": "已求出的参数名。",
-            "parameter_value": "已求出的参数值。",
-            "evaluated_point": "代入参数后的点坐标。",
-        },
-        student_goal_template="把已求出的参数代入含参点坐标，得到定点坐标。",
-        student_title_template="代入参数求点坐标",
-        student_nav_title_template="代入参数求点坐标",
-        derive_templates=(
-            "∵{source_point}，{parameter}＝{parameter_value}",
-            "∴{evaluated_point}",
-        ),
-        box_templates=("{evaluated_point}",),
-        role_binder_id="evaluate_point_at_parameter",
-    ),
     teaching_unit=TeachingUnitSpec(
         unit_key="evaluate_point_at_parameter/substitute_point_parameter",
         title_template="代入参数求点坐标",

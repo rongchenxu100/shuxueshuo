@@ -193,7 +193,20 @@
                     "scale": { "type": "number" },
                     "prefix": { "type": "string" },
                     "suffix": { "type": "string" },
-                    "precision": { "type": "number" }
+                    "precision": { "type": "number" },
+                    "landmarks": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": ["value", "display", "epsilon"],
+                        "properties": {
+                          "value": { "type": "number" },
+                          "display": { "type": "string" },
+                          "epsilon": { "type": "number", "exclusiveMinimum": 0 }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
                   },
                   "additionalProperties": false
                 }

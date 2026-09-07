@@ -11,7 +11,7 @@ from shuxueshuo_server.solver.extraction.problem_domain_smoke import (
     _repo_root,
     _resolve_repo_path,
 )
-from shuxueshuo_server.solver.lesson_scope_authoring_smoke import (
+from shuxueshuo_server.solver.lesson_authoring_support import (
     CASE_ID,
     build_recorded_snapshot,
     load_teaching_rubric,

@@ -1,18 +1,15 @@
 """Runtime recipe specs.
 
 Recipe specs are the code source for composite capability metadata, including
-teaching/explanation templates. Execution still uses the existing recipe compiler
-during the migration.
+public TeachingUnitSpec paths and visual templates.
 """
 
 from __future__ import annotations
 
 from ._spec import (
     MacroTeachingSpec,
-    RecipeExplanationSpec,
     RecipeSpec,
     RecipeSpecSource,
-    TeachingSubstepSpec,
     TeachingVariantSpec,
 )
 from .coupled_segment_path_minimum import (
@@ -39,11 +36,9 @@ __all__ = [
     "QUADRATIC_SQUARE_PATH_MINIMUM_SPEC",
     "WEIGHTED_AXIS_PATH_MINIMUM_SPEC",
     "MacroTeachingSpec",
-    "RecipeExplanationSpec",
     "RecipeSpec",
     "RecipeSpecRegistry",
     "RecipeSpecSource",
-    "TeachingSubstepSpec",
     "TeachingVariantSpec",
     "recipe_spec_payloads",
 ]

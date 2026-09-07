@@ -5,7 +5,10 @@
 
 from __future__ import annotations
 
-from shuxueshuo_server.solver.contracts import MethodExplanationSpec, MethodVisualSpec
+from shuxueshuo_server.solver.contracts import (
+    MethodVisualSpec,
+    TeachingUnitSpec,
+)
 from shuxueshuo_server.solver.math_ops import vertex_of_quadratic
 
 from ._common import *
@@ -77,20 +80,21 @@ SPEC = MethodSpecSource(
     outputs={"axis_point": "Point"},
     preconditions=("parabola 必须是关于 x 的二次函数",),
     postconditions=("输出点位于 x 轴，横坐标为抛物线对称轴横坐标",),
-    explanation=MethodExplanationSpec(
-        role_schema={
-            "axis_equation": "当前抛物线的对称轴方程。",
-            "axis_point": "对称轴与 x 轴的交点。",
-            "target_label": "对称轴与 x 轴交点的学生可见点名。",
-        },
-        student_goal_template="求抛物线对称轴与 x 轴的交点。",
-        student_title_template="求对称轴与X轴交点{target_label}",
-        student_nav_title_template="求对称轴交点{target_label}",
+    teaching_unit=TeachingUnitSpec(
+        unit_key="quadratic_axis_x_intercept_point/read_axis_intercept",
+        title_template="求对称轴与 x 轴交点{target_label}",
+        nav_title_template="求对称轴交点{target_label}",
+        goal_template="求抛物线对称轴与 x 轴的交点。",
         derive_templates=(
-            "∵对称轴为 {axis_equation}",
-            "∴{axis_point}",
+            ("∵", "对称轴为 {axis_equation}"),
+            ("∴", "{axis_point}"),
         ),
         box_templates=("{axis_point}",),
+        role_schema={
+            "axis_equation": "由当前抛物线确定的对称轴。",
+            "axis_point": "对称轴与 x 轴交点。",
+            "target_label": "交点点名。",
+        },
         role_binder_id="quadratic_axis_x_intercept_point",
     ),
     visual=MethodVisualSpec(

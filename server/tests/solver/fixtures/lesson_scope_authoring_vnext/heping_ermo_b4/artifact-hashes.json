@@ -1,0 +1,28 @@
+{
+  "schema_version": "lesson-b4-artifact-hashes/v1",
+  "problem_id": "tj-2026-heping-ermo-25",
+  "source_batches": {
+    "lesson_ir": "f5-f5b4-heping-recursive-lesson-review-cognitive-boundary-r12",
+    "visual": "f5-f5b4v-heping-recursive-visual-review-cognitive-boundary-r12"
+  },
+  "semantic_hashes": {
+    "snapshot": "b8222c8263523b25070879462ae5e4a860f34aa35d2bd605490c6f8617a2f6e4",
+    "prompt": "acb02b69c5ec6bc38a45e52717774743399ef884362e28de874ab845374bd3f6",
+    "annotated_plan": "38508730e5d0f0d7211e707653487ce6acaede185e63b85bc8f452e59345cf57",
+    "approved_lesson_ir": "ade5cdafe23ab9e621e4b9e28cd2422f9fde89339ec4b3ca626d57dfe3628af5",
+    "deterministic_lesson_ir": "9dcc09a2e6c2923b2450d8739929ae0ddbfdaf5597a1c90de51d52045b1c16f4"
+  },
+  "fixture_file_hashes": {
+    "approved-lesson-ir.json": "0d5388f3a7b310ddfc3304820026ff27a29d9311362ae9c39019ae2d529fd273",
+    "deterministic-lesson-ir.json": "e622b6e3feeb3137f500a56450eea9af8266c4c3c3818226c7347830acbdb8c3",
+    "lesson-assembly-authority.json": "a1421d4004a93229be68200ecaf9f3bdf848a455fcac6fb428916f409fe9328f",
+    "visual-step-ir.json": "cf05cc24379c4a2f0c4aaccb76bc705c0b601f14323d3efff27133604387cbf0",
+    "visual-state-authority.json": "bf35e90e53763d4290266a819d8548fe48b18da4b4e0ca4d9a131e61fb69f532"
+  },
+  "compiled_artifact_hashes": {
+    "geometry-spec.json": "e48f83cc9c69e17b088f37161468d5fd0d8e2c500686c42297e42a84feee3233",
+    "step-decorations.json": "8351a248573b4da3ad6b43c40663be91587d98caf41bd8ca6cbe44888d812494",
+    "lesson-data.json": "af70174d0d87dc85b2a5947ec1d0aaa504f490c7de9b5c797bea31ae6b8f42cc",
+    "lesson.html": "9ecab153bd14eb71bac4a7071fa1a446b27021fd46cc2c7e3264726e8e7ec98d"
+  }
+}

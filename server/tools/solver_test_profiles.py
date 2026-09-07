@@ -168,16 +168,19 @@ OWNERSHIP_RULES = (
             "server/shuxueshuo_server/solver/explanation/*.py",
             "server/shuxueshuo_server/solver/explanation/**/*.py",
             "internal/schemas/functional-annotated-teaching-plan.schema.json",
+            "internal/schemas/lesson-ir.schema.json",
         ),
         (
             "tests/solver/test_annotated_teaching_plan.py",
             "tests/solver/test_explanation_snapshot_symbolic_closure.py",
-            "tests/solver/test_explanation_builder_text_heping_yimo.py",
             "tests/solver/test_explanation_snapshot_v3.py",
             "tests/solver/test_lesson_scope_authoring_b2.py",
             "tests/solver/test_lesson_scope_authoring_b3.py",
             "tests/solver/test_lesson_scope_content.py",
+            "tests/solver/test_lesson_recursive_ir_review.py",
             "tests/solver/test_lesson_teaching_spec_review.py",
+            "tests/solver/test_recursive_lesson_ir.py",
+            "tests/solver/test_scope_lesson_assembly.py",
             "tests/solver/test_teaching_evidence_projectors.py",
             "tests/solver/test_teaching_unit_specs.py",
         ),
@@ -194,12 +197,14 @@ OWNERSHIP_RULES = (
     OwnershipRule(
         (
             "server/shuxueshuo_server/solver/lesson_scope_content_smoke.py",
-            "server/shuxueshuo_server/solver/lesson_scope_authoring_smoke.py",
+            "server/shuxueshuo_server/solver/lesson_recursive_ir_review.py",
         ),
         (
-            "tests/solver/test_lesson_scope_authoring_b0.py",
             "tests/solver/test_lesson_scope_authoring_b3.py",
             "tests/solver/test_lesson_scope_content.py",
+            "tests/solver/test_lesson_recursive_ir_review.py",
+            "tests/solver/test_recursive_lesson_ir.py",
+            "tests/solver/test_scope_lesson_assembly.py",
         ),
     ),
     OwnershipRule(
@@ -287,9 +292,11 @@ OWNERSHIP_RULES = (
             "lesson_scope_authoring_vnext/**/*",
         ),
         (
-            "tests/solver/test_lesson_scope_authoring_b0.py",
             "tests/solver/test_lesson_scope_authoring_b2.py",
+            "tests/solver/test_lesson_scope_authoring_b3.py",
             "tests/solver/test_lesson_teaching_spec_review.py",
+            "tests/solver/test_recursive_lesson_ir.py",
+            "tests/solver/test_scope_lesson_assembly.py",
         ),
     ),
 )

@@ -13,7 +13,7 @@ from shuxueshuo_server.solver.explanation.evidence_projectors import (
     default_teaching_evidence_projector_registry,
 )
 from shuxueshuo_server.solver.explanation.models import iter_teaching_sources
-from shuxueshuo_server.solver.lesson_scope_authoring_smoke import CASE_ID
+from shuxueshuo_server.solver.lesson_authoring_support import CASE_ID
 from shuxueshuo_server.solver.runtime.config import SolverRuntimeConfig
 from shuxueshuo_server.solver.runtime.functional_execution_authority import (
     SymbolicClosureExecutionEvidence,

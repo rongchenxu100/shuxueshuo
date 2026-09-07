@@ -138,42 +138,6 @@
       ]
     }
   ],
-  "explanation": {
-    "role_schema": {
-      "target_label": "学生可见的目标顶点点名。",
-      "projection_construction": "为目标顶点作坐标辅助线的构造说明。",
-      "square_name": "学生可见的正方形名称。",
-      "side_equal_statement": "正方形相邻边相等的结论。",
-      "square_right_angle_statement": "正方形公共顶点处的直角结论。",
-      "projection_right_angles": "坐标辅助线形成的直角关系。",
-      "matching_angle_statement": "对应的非直角锐角关系。",
-      "triangle_congruence": "学生可见的全等直角三角形。",
-      "length_correspondence": "全等后对应的坐标长度关系。",
-      "target_position_condition": "用于选择目标点的方位条件。",
-      "target_point": "学生可见的目标顶点坐标。"
-    },
-    "student_goal_template": "利用正方形相邻边垂直且等长，求相邻顶点坐标。",
-    "student_title_template": "由正方形求相邻顶点{target_label}",
-    "student_title_templates_by_goal": {},
-    "derive_templates": [
-      "作{projection_construction}",
-      "∵四边形 {square_name} 是正方形",
-      "∴{side_equal_statement}，{square_right_angle_statement}",
-      "∵{projection_right_angles}",
-      "∴{matching_angle_statement}",
-      "∴{triangle_congruence}",
-      "∴{length_correspondence}",
-      "∵{target_position_condition}",
-      "∴{target_point}"
-    ],
-    "box_templates": [
-      "{target_point}"
-    ],
-    "explanation_level": "template",
-    "role_binding_strategy": "role_name_registry",
-    "role_binder_id": "square_adjacent_vertex_from_side",
-    "student_nav_title_template": "正方形求顶点{target_label}"
-  },
   "teaching_unit": {
     "unit_key": "square_adjacent_vertex_from_side/derive_adjacent_vertex",
     "title_template": "由正方形求相邻顶点{target_label}",
@@ -245,6 +209,7 @@
     "scene_templates": [
       {
         "component": "SquareAdjacentVertexMarker",
+        "requires_independent_lesson_step": true,
         "persistence": "carry_forward",
         "fill": "rgba(14, 165, 233, 0.12)",
         "color": "#0284c7",

@@ -7,9 +7,9 @@
 from __future__ import annotations
 
 from shuxueshuo_server.solver.contracts import (
-    MethodExplanationSpec,
     MethodOutputActivationSpec,
     ScalarResultFormSpec,
+    TeachingUnitSpec,
 )
 
 from ._common import *
@@ -112,18 +112,21 @@ SPEC = MethodSpecSource(
     postconditions=(),
     trace_template=(),
     interchangeable_arg_groups=(("p1", "p2"),),
-    explanation=MethodExplanationSpec(
-        role_schema={
-            "p1": "第一个点或线段端点。",
-            "p2": "第二个点或线段端点。",
-            "distance": "两点距离表达式。",
-        },
-        student_goal_template="计算 {p1} 与 {p2} 的距离，作为当前路径最值表达式。",
+    teaching_unit=TeachingUnitSpec(
+        unit_key="distance_between_points/compute_distance",
+        title_template="用距离公式计算线段长度",
+        nav_title_template="计算距离",
+        goal_template="计算两点之间的距离，得到当前需要的长度表达式。",
         derive_templates=(
-            "由距离公式，{p1}{p2} = {distance}。",
-            "化简得到当前需要的距离或最小值表达式。",
+            ("∵", "两端点为 {p1} 与 {p2}"),
+            ("计算", "由两点距离公式得到 {distance}"),
         ),
-        box_templates=("{p1}{p2} = {distance}",),
-        role_binder_id="distance_between_points",
+        box_templates=("{distance}",),
+        role_schema={
+            "p1": "第一个端点。",
+            "p2": "第二个端点。",
+            "distance": "实际物化的距离结果。",
+        },
+        role_binder_id="generic_source",
     ),
 )

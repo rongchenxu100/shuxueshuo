@@ -29,7 +29,8 @@
         "path_reduction_equivalence": {
           "source_step_id": "derive_path_minimum_ii",
           "lesson_step_ids": [
-            "goal:ii.E:1"
+            "goal:ii.E:1",
+            "goal:ii.E:2"
           ],
           "matched_patterns": [
             "HF+FM+MG=AG+MG"
@@ -38,7 +39,8 @@
         "moving_point_locus": {
           "source_step_id": "derive_path_minimum_ii",
           "lesson_step_ids": [
-            "goal:ii.E:1"
+            "goal:ii.E:1",
+            "goal:ii.E:2"
           ],
           "matched_patterns": [
             "轨迹",
@@ -48,7 +50,8 @@
         "reflection_construction": {
           "source_step_id": "derive_path_minimum_ii",
           "lesson_step_ids": [
-            "goal:ii.E:1"
+            "goal:ii.E:1",
+            "goal:ii.E:2"
           ],
           "matched_patterns": [
             "A′",
@@ -58,7 +61,8 @@
         "reflection_segment_equality": {
           "source_step_id": "derive_path_minimum_ii",
           "lesson_step_ids": [
-            "goal:ii.E:1"
+            "goal:ii.E:1",
+            "goal:ii.E:2"
           ],
           "matched_patterns": [
             "AG=A′G"
@@ -67,7 +71,8 @@
         "minimum_and_parameterized_attainment": {
           "source_step_id": "derive_path_minimum_ii",
           "lesson_step_ids": [
-            "goal:ii.E:1"
+            "goal:ii.E:1",
+            "goal:ii.E:2"
           ],
           "matched_patterns": [
             "√5|c+1|/2",
@@ -82,6 +87,7 @@
       "box_completeness": "pass",
       "conciseness": "review",
       "repeated_lines": [
+        "GQ⊥x轴于 Q",
         "四边形 AEKG 是正方形"
       ]
     }

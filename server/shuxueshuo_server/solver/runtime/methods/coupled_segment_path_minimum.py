@@ -6,7 +6,7 @@ synthetic reflection points and witness details stay private to this Method.
 
 from __future__ import annotations
 
-from shuxueshuo_server.solver.contracts import MethodExplanationSpec, PointRef
+from shuxueshuo_server.solver.contracts import PointRef
 
 from ._common import *
 from ._common import is_definitely_nonnegative
@@ -273,23 +273,6 @@ SPEC = MethodSpecSource(
     postconditions=(
         "minimum_expression equals the source path minimum",
         "attainment_point is the original reduced moving point at equality",
-    ),
-    explanation=MethodExplanationSpec(
-        role_schema={
-            "original_path": "题设两动点路径。",
-            "reduced_path": "等长替换后的单动点折线路径。",
-            "minimum_expression": "拉直后得到的最小值表达式。",
-            "attainment_point": "路径取得最小值时的原题动点。",
-        },
-        student_goal_template="利用耦合线段关系降维并求路径最小值。",
-        student_title_template="端点替换后的路径最值",
-        derive_templates=(
-            "把 {original_path} 等价化为 {reduced_path}。",
-            "拉直单动点路径得到 {minimum_expression}。",
-            "确定最短状态下的 {attainment_point}。",
-        ),
-        box_templates=("{minimum_expression}", "{attainment_point}"),
-        role_binder_id="coupled_segment_path_minimum",
     ),
 )
 

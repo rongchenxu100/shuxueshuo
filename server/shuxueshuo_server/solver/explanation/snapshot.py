@@ -365,13 +365,6 @@ def _project_source(
         resolved_output_labels=output_labels,
         student_safe=True,
     )
-    compatibility_results = _public_results(
-        runtime.actual_outputs,
-        step_id=authored.step_id,
-        output_targets=authored.output_targets,
-        resolved_output_labels={},
-        student_safe=False,
-    )
     calculations: list[dict[str, Any]] = []
     checks: list[dict[str, Any]] = []
     for item in runtime.evidence:
@@ -417,7 +410,6 @@ def _project_source(
         outputs=public_results,
         calculations=tuple(calculations),
         checks=(*method_checks, *checks),
-        compatibility_outputs=compatibility_results,
     )
 
 

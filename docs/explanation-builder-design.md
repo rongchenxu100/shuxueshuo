@@ -112,9 +112,9 @@ write 不进入 Snapshot。
 
 LessonIR 使用与 Canonical Plan/ExplanationSnapshot 同构的递归
 `root_scope → steps/goals/children`。Scope 和 Goal 容器都使用同一 `steps[]`
-字段与同一 LessonStep Schema，owner 由所在容器唯一表达；当前
-flat `sections + steps` 仅作为待迁移 compatibility view，不能继续作为目标合同或 hydrate
-authority。需要按 ID 查询时，从树机械派生内存 index。
+字段与同一 LessonStep Schema，owner 由所在容器唯一表达。生产 `lesson-ir/v2` 不持久化或
+读取 flat `sections + steps`；页面与 Visual builder 如需 preorder/owner 查询，只能从递归树
+机械派生只读内存 index。
 
 每个 Lesson step 至少保留：
 
@@ -192,7 +192,8 @@ Track G 将 ExplanationSnapshot 作为 `ExplanationContext` 的 state：
 ```bash
 cd server
 uv run pytest -n auto --dist=loadscope -q \
-  tests/solver/test_explanation_builder_text_heping_yimo.py \
+  tests/solver/test_recursive_lesson_ir.py \
+  tests/solver/test_scope_lesson_assembly.py \
   tests/solver/test_visual_step_ir_vs1.py \
   tests/solver/test_visual_step_ir_heping_ermo.py \
   tests/solver/test_strategy_planner_functional_plan.py \

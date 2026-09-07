@@ -1,4 +1,4 @@
-"""ExplanationBuilder EB1：从成功求解产物生成文字讲解 IR。"""
+"""Verified Snapshot, Scope authoring, and recursive LessonIR contracts."""
 
 from .annotated_teaching import (
     ANNOTATED_TEACHING_PLAN_CONTRACT,
@@ -13,19 +13,29 @@ from .annotated_teaching import (
     lesson_scope_content_schema,
     render_annotated_teaching_prompt,
 )
-from .builder import ExplanationBuilder, LessonIRValidator
-from .llm import LLMLessonPlanner, write_explanation_debug_artifacts
+from .lesson_ir import (
+    LESSON_ASSEMBLY_AUTHORITY_CONTRACT,
+    LESSON_IR_CONTRACT,
+    LessonAuthoringPipeline,
+    LessonGoal,
+    LessonIR,
+    LessonIRValidationError,
+    LessonScope,
+    LessonStep,
+    LessonTraversalIndex,
+    OwnedLessonStep,
+    RecursiveLessonBuildResult,
+    RecursiveLessonIRAssembler,
+    RecursiveLessonIRValidator,
+    lesson_ir_from_payload,
+)
 from .models import (
     EXPLANATION_SNAPSHOT_CONTRACT,
     ExplanationSnapshot,
-    LessonIR,
-    LessonSection,
-    LessonStep,
     TeachingGoal,
     TeachingScope,
     TeachingSource,
     explanation_snapshot_from_payload,
-    lesson_ir_from_payload,
 )
 from .snapshot import ExplanationSnapshotBuilder
 from .scope_lesson import (
@@ -48,16 +58,23 @@ __all__ = [
     "AnnotatedTeachingProjectionError",
     "AnnotatedTeachingPrompt",
     "BoundLessonStep",
-    "ExplanationBuilder",
     "EXPLANATION_SNAPSHOT_CONTRACT",
     "ExplanationSnapshot",
     "ExplanationSnapshotBuilder",
-    "LLMLessonPlanner",
+    "LESSON_ASSEMBLY_AUTHORITY_CONTRACT",
+    "LESSON_IR_CONTRACT",
+    "LessonAuthoringPipeline",
+    "LessonGoal",
     "LessonIR",
-    "LessonIRValidator",
-    "LessonSection",
+    "LessonIRValidationError",
+    "LessonScope",
     "LessonScopeContentValidator",
     "LessonStep",
+    "LessonTraversalIndex",
+    "OwnedLessonStep",
+    "RecursiveLessonBuildResult",
+    "RecursiveLessonIRAssembler",
+    "RecursiveLessonIRValidator",
     "TeachingGoal",
     "TeachingMaterialProjector",
     "TeachingScope",
@@ -75,5 +92,4 @@ __all__ = [
     "lesson_scope_content_schema",
     "lesson_ir_from_payload",
     "render_annotated_teaching_prompt",
-    "write_explanation_debug_artifacts",
 ]

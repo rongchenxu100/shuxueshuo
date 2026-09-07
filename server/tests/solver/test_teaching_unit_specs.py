@@ -12,15 +12,16 @@ from shuxueshuo_server.solver.explanation.models import (
     TeachingSource,
     iter_teaching_sources,
 )
-from shuxueshuo_server.solver.explanation.role_binders.methods import (
-    _next_auxiliary_point_label,
+from shuxueshuo_server.solver.explanation.teaching_role_bindings import (
+    _next_point_label,
 )
 from shuxueshuo_server.solver.explanation.teaching_specs import (
     BoundTeachingUnit,
+    TeachingSeparationBoundaryResolver,
     TeachingSpecBinder,
     TeachingSpecBindingError,
 )
-from shuxueshuo_server.solver.lesson_scope_authoring_smoke import CASE_ID
+from shuxueshuo_server.solver.lesson_authoring_support import CASE_ID
 from shuxueshuo_server.solver.runtime.config import SolverRuntimeConfig
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.orchestrator import RuntimeOrchestrator
@@ -71,6 +72,121 @@ def test_heping_methods_and_macro_have_explicit_generic_specs() -> None:
         "quadratic_square_path_minimum/path_reduction",
         "quadratic_square_path_minimum/reflection_minimum",
     ]
+
+
+def test_visual_separation_boundaries_use_one_method_macro_rule(snapshot) -> None:
+    resolver = TeachingSeparationBoundaryResolver()
+    sources = {
+        source.source_step_id: source
+        for source in iter_teaching_sources(snapshot.root_scope)
+    }
+    expected = {
+        "derive_parabola_i": ("quadratic_from_constraints/derive_function", False),
+        "derive_x_intercept_A_i": (
+            "quadratic_x_axis_intercept_point/solve_intercept",
+            False,
+        ),
+        "derive_vertex_P_i": (
+            "quadratic_vertex_point/read_vertex",
+            False,
+        ),
+        "parameterize_axis_point_E_i": (
+            "quadratic_axis_parameterized_point/parameterize_axis_point",
+            True,
+        ),
+        "derive_square_vertex_G_i": (
+            "square_adjacent_vertex_from_side/derive_adjacent_vertex",
+            True,
+        ),
+        "solve_axis_point_candidates_i": (
+            "point_candidates_from_curve_point_condition/solve_candidates",
+            True,
+        ),
+        "solve_parameter_c_ii": (
+            "parameter_from_expression_value/solve_parameter",
+            False,
+        ),
+        "derive_parametric_parabola_ii": (
+            "quadratic_from_constraints/derive_function",
+            False,
+        ),
+        "evaluate_point_A_ii": (
+            "evaluate_point_at_parameter/substitute_point_parameter",
+            False,
+        ),
+        "evaluate_minimum_point_G_ii": (
+            "evaluate_point_at_parameter/substitute_point_parameter",
+            False,
+        ),
+        "recover_target_point_E_ii": (
+            "square_adjacent_vertex_from_side/derive_adjacent_vertex",
+            True,
+        ),
+    }
+    for step_id, (unit_key, independent) in expected.items():
+        assert resolver.requires_independent_lesson_step(
+            sources[step_id],
+            capability_kind="function",
+            unit_key=unit_key,
+        ) is independent
+
+    macro_source = sources["derive_path_minimum_ii"]
+    for unit_key in (
+        "quadratic_square_path_minimum/path_reduction",
+        "quadratic_square_path_minimum/reflection_minimum",
+    ):
+        assert resolver.requires_independent_lesson_step(
+            macro_source,
+            capability_kind="macro",
+            unit_key=unit_key,
+        ) is True
+
+
+@pytest.mark.parametrize(
+    ("capability_id", "unit_keys"),
+    [
+        (
+            "equal_length_ray_path_reduction",
+            (
+                "equal_length_ray_path_reduction/path_reduction",
+                "equal_length_ray_path_reduction/minimum_by_segment",
+            ),
+        ),
+        (
+            "coupled_segment_endpoint_replacement_path_minimum",
+            (
+                "coupled_segment_endpoint_replacement_path_minimum/endpoint_replacement",
+                "coupled_segment_endpoint_replacement_path_minimum/reflection_minimum",
+            ),
+        ),
+        (
+            "weighted_axis_path_minimum",
+            (
+                "weighted_axis_path_minimum/weighted_reduction",
+                "weighted_axis_path_minimum/domain_minimum",
+            ),
+        ),
+    ],
+)
+def test_other_public_path_macro_units_have_visual_boundaries(
+    capability_id,
+    unit_keys,
+) -> None:
+    source = TeachingSource(
+        source_step_id="macro",
+        capability_id=capability_id,
+        inputs={},
+        outputs={},
+    )
+    resolver = TeachingSeparationBoundaryResolver()
+    assert all(
+        resolver.requires_independent_lesson_step(
+            source,
+            capability_kind="macro",
+            unit_key=unit_key,
+        )
+        for unit_key in unit_keys
+    )
 
 
 def test_all_heping_occurrences_bind_to_13_complete_materials(snapshot) -> None:
@@ -181,11 +297,104 @@ def test_square_spec_uses_computed_projection_points_and_junior_geometry(
     assert "向量" not in text and "坐标差" not in text
 
 
+def test_square_spec_reuses_existing_target_projection_point(snapshot) -> None:
+    source = next(
+        item
+        for item in iter_teaching_sources(snapshot.root_scope)
+        if item.source_step_id == "recover_target_point_E_ii"
+    )
+    unit = TeachingSpecBinder().bind_source(source, snapshot=snapshot)[0]
+    text = json.dumps(unit.to_payload(), ensure_ascii=False)
+
+    assert "GQ⊥x轴于 Q" in text
+    assert "ER⊥x轴于 R" not in text
+    assert "∠GQA＝∠EMA＝90°" in text
+    assert "Rt△AGQ≌Rt△EAM" in text
+    assert "AM＝QG＝3，EM＝AQ＝3/2" in text
+
+
+def test_square_projection_reuse_is_driven_by_semantic_relations_not_letters(
+    snapshot,
+) -> None:
+    source = next(
+        item
+        for item in iter_teaching_sources(snapshot.root_scope)
+        if item.source_step_id == "recover_target_point_E_ii"
+    )
+    inputs = {name: tuple(dict(item) for item in items) for name, items in source.inputs.items()}
+    square_item = dict(inputs["square"][0])
+    square_value = dict(square_item["value"])
+    square_value["vertices"] = ["A", "D", "K", "G"]
+    square_value["side"] = "AD"
+    square_item["value"] = square_value
+    square_item["display"] = "正方形 ADKG"
+    inputs["square"] = (square_item,)
+    adjacent = dict(source.outputs["adjacent_vertex"])
+    adjacent["display"] = "D(-2,3/2)"
+    renamed_source = replace(
+        source,
+        inputs=inputs,
+        outputs={**source.outputs, "adjacent_vertex": adjacent},
+        output_targets={"adjacent_vertex": "D"},
+    )
+
+    problem = dict(snapshot.problem)
+    renamed_entities = []
+    for entity in problem.get("entities", ()):
+        renamed = dict(entity)
+        if renamed.get("name") == "E":
+            renamed["name"] = "D"
+            renamed["description"] = "D"
+        elif renamed.get("name") == "M":
+            renamed["name"] = "J"
+            renamed["description"] = "J"
+        renamed_entities.append(renamed)
+    problem["entities"] = renamed_entities
+    renamed_snapshot = replace(snapshot, problem=problem)
+
+    unit = TeachingSpecBinder().bind_source(
+        renamed_source,
+        snapshot=renamed_snapshot,
+    )[0]
+    text = json.dumps(unit.to_payload(), ensure_ascii=False)
+    assert "GQ⊥x轴于 Q" in text
+    assert "∠GQA＝∠DJA＝90°" in text
+    assert "Rt△AGQ≌Rt△DAJ" in text
+    assert "AJ＝QG＝3，DJ＝AQ＝3/2" in text
+
+
+def test_square_projection_semantic_identity_ambiguity_fails_loud(snapshot) -> None:
+    source = next(
+        item
+        for item in iter_teaching_sources(snapshot.root_scope)
+        if item.source_step_id == "recover_target_point_E_ii"
+    )
+    problem = dict(snapshot.problem)
+    problem["entities"] = [
+        *problem.get("entities", ()),
+        {
+            "entity_type": "point",
+            "name": "N",
+            "handle": "point:problem:N",
+            "scope_id": "problem",
+            "definition": "axis_x_intercept",
+            "of": "function:problem:parabola",
+        },
+    ]
+    ambiguous_snapshot = replace(snapshot, problem=problem)
+
+    with pytest.raises(
+        TeachingSpecBindingError,
+        match="teaching_projection_existing_object_ambiguous",
+    ):
+        TeachingSpecBinder().bind_source(source, snapshot=ambiguous_snapshot)
+
+
 def test_square_projection_auxiliary_label_is_allocated_from_namespace(snapshot) -> None:
-    assert _next_auxiliary_point_label(
+    assert _next_point_label(
         {"A", "B", "C", "E", "F", "G", "H", "K", "M", "P"}
     ) == "Q"
-    assert _next_auxiliary_point_label(
+    assert _next_point_label(
         {"A", "B", "C", "E", "F", "G", "H", "K", "M", "P", "Q"}
     ) == "R"
 
@@ -277,7 +486,7 @@ def test_snapshot_step_wire_omits_internal_evidence_refs(snapshot) -> None:
 def test_method_without_explicit_unit_still_has_default_candidate() -> None:
     source = TeachingSource(
         source_step_id="distance",
-        capability_id="distance_between_points",
+        capability_id="midpoint_point",
         inputs={},
         outputs={
             "distance": {
@@ -286,7 +495,7 @@ def test_method_without_explicit_unit_still_has_default_candidate() -> None:
                 "display": "5",
             }
         },
-        intent="计算两点间距离。",
+        intent="求线段中点。",
     )
     payload = TeachingSpecBinder().generic_spec_payload(source)
     assert payload["kind"] == "function"

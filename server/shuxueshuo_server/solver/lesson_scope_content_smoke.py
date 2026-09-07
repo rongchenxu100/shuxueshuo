@@ -31,7 +31,7 @@ from shuxueshuo_server.solver.extraction.problem_domain_smoke import (
     _repo_root,
     _resolve_repo_path,
 )
-from shuxueshuo_server.solver.lesson_scope_authoring_smoke import (
+from shuxueshuo_server.solver.lesson_authoring_support import (
     CASE_ID,
     DEFAULT_OUTPUT_ROOT,
     build_recorded_snapshot,
@@ -238,6 +238,9 @@ def _run_sample(
         "source_step_completion_repaired": (
             generation.validation.source_step_completion_repaired
         ),
+        "independent_material_merge_repaired": (
+            generation.validation.independent_material_merge_repaired
+        ),
         "appended_suffix": generation.validation.appended_suffix,
         "scope_sources": dict(generation.validation.scope_sources),
         "semantic_attempt_count": generation.semantic_attempt_count,
@@ -396,6 +399,10 @@ def _batch_summary(
         ),
         "source_step_completion_repair_count": sum(
             bool(run.result["source_step_completion_repaired"])
+            for run in runs
+        ),
+        "independent_material_merge_repair_count": sum(
+            bool(run.result["independent_material_merge_repaired"])
             for run in runs
         ),
         "semantic_attempt_count": sum(

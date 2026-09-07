@@ -1,12 +1,37 @@
-"""ExplanationBuilder 的轻量数据模型。"""
+"""Verified ExplanationSnapshot v3 teaching-source models."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from hashlib import sha256
+import json
 from typing import Any, Iterator, Mapping
 
 
 EXPLANATION_SNAPSHOT_CONTRACT = "explanation-snapshot/v3"
+
+
+def explanation_snapshot_content_hash(snapshot: "ExplanationSnapshot") -> str:
+    """Hash the stable public teaching content of a Snapshot.
+
+    ``verified_execution_hash`` authenticates one concrete runtime/checkpoint
+    instance.  Equivalent recorded runs intentionally receive different
+    values, so it cannot be part of the cross-process Lesson/Visual source
+    identity.  Every public input, output, calculation, check and evidence
+    remains covered by this content hash.
+    """
+
+    payload = snapshot.to_payload()
+    payload.pop("verified_execution_hash", None)
+    return sha256(
+        json.dumps(
+            payload,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        ).encode("utf-8")
+    ).hexdigest()
 
 
 @dataclass(frozen=True)
@@ -54,14 +79,6 @@ class TeachingSource:
     intent: str | None = None
     calculations: tuple[Mapping[str, Any], ...] = ()
     checks: tuple[Mapping[str, Any], ...] = ()
-    # Temporary, non-serialized B1 compatibility view for the legacy
-    # Lesson/Visual builders.  Snapshot v3 exposes only student-safe outputs;
-    # B4 removes this sidecar together with those builders.
-    compatibility_outputs: Mapping[str, Mapping[str, Any]] | None = field(
-        default=None,
-        repr=False,
-        compare=False,
-    )
 
     @property
     def args(self) -> dict[str, Any]:
@@ -77,8 +94,6 @@ class TeachingSource:
     def public_results(self) -> Mapping[str, Mapping[str, Any]]:
         """Pre-B4 spelling; v3 serializes this collection as ``outputs``."""
 
-        if self.compatibility_outputs is not None:
-            return self.compatibility_outputs
         return self.outputs
 
     @property
@@ -1003,178 +1018,3 @@ def _authored_ref_value(value: Any) -> Any:
             "return": str(value.get("return") or ""),
         }
     raise ValueError("TeachingSource input ref has an unsupported kind")
-
-
-@dataclass(frozen=True)
-class LessonCandidateGroup:
-    """LessonIR LLM 可选择的讲解候选组。
-
-    它连接 canonical Functional call、verified TeachingSource 和讲解层拆分后的认知子步骤。
-    """
-
-    step: dict[str, Any]
-    sources: tuple[TeachingSource, ...]
-    teaching_substep_id: str | None = None
-    teaching_substep_title: str | None = None
-    teaching_substep_nav_title: str | None = None
-    teaching_substep_title_required_terms: tuple[str, ...] = ()
-    teaching_substep_nav_title_required_terms: tuple[str, ...] = ()
-    teaching_focus: str | None = None
-    preferred_method_ids: tuple[str, ...] = ()
-    forbid_merge_with_sibling_substeps: bool = True
-    required_reference_lines: tuple[str, ...] = ()
-
-    @property
-    def step_id(self) -> str:
-        return str(self.step["step_id"])
-
-    @property
-    def candidate_group_id(self) -> str:
-        if not self.teaching_substep_id:
-            return self.step_id
-        return f"{self.step_id}.{self.teaching_substep_id}"
-
-    @property
-    def scope_id(self) -> str:
-        return str(self.step["scope_id"])
-
-    @property
-    def capability_id(self) -> str:
-        return str(self.step.get("recipe_hint") or self.step.get("goal_type") or "unknown")
-
-    @property
-    def method_ids(self) -> tuple[str, ...]:
-        return tuple(entry.capability_id for entry in self._visible_sources)
-
-    @property
-    def trace_refs(self) -> tuple[str, ...]:
-        # LessonIR keeps its legacy field name until the B4 atomic cutover.
-        return tuple(entry.trace_id for entry in self._visible_sources)
-
-    @property
-    def _visible_sources(self) -> tuple[TeachingSource, ...]:
-        sources = tuple(self.sources)
-        if not self.preferred_method_ids:
-            return sources
-        preferred = set(self.preferred_method_ids)
-        filtered = tuple(
-            entry for entry in sources if entry.capability_id in preferred
-        )
-        return filtered or sources
-
-    @property
-    def traces(self) -> tuple[TeachingSource, ...]:
-        """Pre-B4 binder compatibility; values are sources, not replay traces."""
-
-        return self.sources
-
-
-@dataclass(frozen=True)
-class LessonStep:
-    """面向学生讲解的一步。"""
-
-    id: str
-    scope_id: str
-    source_step_ids: tuple[str, ...]
-    capability_ids: tuple[str, ...]
-    trace_refs: tuple[str, ...]
-    title: str
-    goal: str
-    nav_title: str | None = None
-    derive: tuple[tuple[str, str], ...] = ()
-    box: tuple[str, ...] = ()
-    gaps: tuple[str, ...] = ()
-    teaching_substep_ids: tuple[str, ...] = ()
-
-    def to_payload(self) -> dict[str, Any]:
-        payload = {
-            "id": self.id,
-            "scope_id": self.scope_id,
-            "source_step_ids": list(self.source_step_ids),
-            "capability_ids": list(self.capability_ids),
-            "trace_refs": list(self.trace_refs),
-            "title": self.title,
-            "goal": self.goal,
-            "derive": [list(item) for item in self.derive],
-            "box": list(self.box),
-            "gaps": list(self.gaps),
-            "teaching_substep_ids": list(self.teaching_substep_ids),
-        }
-        if self.nav_title:
-            payload["nav_title"] = self.nav_title
-        return payload
-
-
-@dataclass(frozen=True)
-class LessonSection:
-    """一个 question/subquestion 的讲解 section。"""
-
-    scope_id: str
-    title: str
-    steps: tuple[str, ...]
-
-    def to_payload(self) -> dict[str, Any]:
-        return {
-            "scope_id": self.scope_id,
-            "title": self.title,
-            "steps": list(self.steps),
-        }
-
-
-@dataclass(frozen=True)
-class LessonIR:
-    """文字版教学 IR。"""
-
-    problem_id: str
-    family_id: str
-    sections: tuple[LessonSection, ...]
-    steps: tuple[LessonStep, ...]
-
-    def to_payload(self) -> dict[str, Any]:
-        return {
-            "problem_id": self.problem_id,
-            "family_id": self.family_id,
-            "sections": [section.to_payload() for section in self.sections],
-            "steps": [step.to_payload() for step in self.steps],
-        }
-
-
-def lesson_ir_from_payload(payload: dict[str, Any]) -> LessonIR:
-    """Restore LessonIR from a JSON payload."""
-    return LessonIR(
-        problem_id=str(payload["problem_id"]),
-        family_id=str(payload["family_id"]),
-        sections=tuple(
-            LessonSection(
-                scope_id=str(item["scope_id"]),
-                title=str(item["title"]),
-                steps=tuple(str(step_id) for step_id in item.get("steps", ())),
-            )
-            for item in payload.get("sections", ())
-            if isinstance(item, dict)
-        ),
-        steps=tuple(
-            LessonStep(
-                id=str(item["id"]),
-                scope_id=str(item["scope_id"]),
-                source_step_ids=tuple(str(value) for value in item.get("source_step_ids", ())),
-                capability_ids=tuple(str(value) for value in item.get("capability_ids", ())),
-                trace_refs=tuple(str(value) for value in item.get("trace_refs", ())),
-                title=str(item.get("title") or ""),
-                goal=str(item.get("goal") or ""),
-                nav_title=str(item["nav_title"]) if item.get("nav_title") else None,
-                derive=tuple(
-                    (str(pair[0]), str(pair[1]))
-                    for pair in item.get("derive", ())
-                    if isinstance(pair, list | tuple) and len(pair) == 2
-                ),
-                box=tuple(str(value) for value in item.get("box", ()) if str(value)),
-                gaps=tuple(str(value) for value in item.get("gaps", ()) if str(value)),
-                teaching_substep_ids=tuple(
-                    str(value) for value in item.get("teaching_substep_ids", ())
-                ),
-            )
-            for item in payload.get("steps", ())
-            if isinstance(item, dict)
-        ),
-    )

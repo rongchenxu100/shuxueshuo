@@ -8,6 +8,9 @@ import pytest
 
 from shuxueshuo_server.solver.explanation.annotated_teaching import (
     AnnotatedTeachingPlanProjector,
+    build_projection_audit,
+    lesson_scope_content_schema,
+    render_annotated_teaching_prompt,
 )
 from shuxueshuo_server.solver.explanation.models import (
     explanation_snapshot_from_payload,
@@ -18,7 +21,7 @@ from shuxueshuo_server.solver.explanation.scope_lesson import (
     ScopeLessonConfigurationError,
     evaluate_scope_lesson_content,
 )
-from shuxueshuo_server.solver.lesson_scope_authoring_smoke import (
+from shuxueshuo_server.solver.lesson_authoring_support import (
     load_teaching_rubric,
 )
 
@@ -99,6 +102,32 @@ def test_adjacent_materials_can_merge_without_authored_provenance(validator) -> 
     assert bound[0].source_step_ids == (
         "derive_parabola_i",
         "derive_x_intercept_A_i",
+    )
+
+
+def test_independent_material_merge_is_repaired_locally(validator) -> None:
+    payload = copy.deepcopy(validator.deterministic_fallback)
+    expected = validator.validate_payload(
+        copy.deepcopy(validator.deterministic_fallback)
+    ).accepted_content
+    steps = payload["ii"]["goals"]["ii.E"]
+    steps[0]["title"] = "保留模型撰写的含参解析式"
+    steps[1:3] = [_merge_steps(steps[1], steps[2])]
+
+    result = validator.validate_payload(payload)
+
+    repaired = result.accepted_content["ii"]["goals"]["ii.E"]
+    assert len(repaired) == 7
+    assert repaired[0]["title"] == "保留模型撰写的含参解析式"
+    assert repaired[1:3] == expected["ii"]["goals"]["ii.E"][1:3]
+    assert result.scope_sources["ii"] == "llm"
+    assert result.direct_acceptance is False
+    assert result.fallback_used is True
+    assert result.independent_material_merge_repaired is True
+    assert any(
+        item.code == "lesson_scope_independent_material_merge_repaired"
+        and item.severity == "warning"
+        for item in result.diagnostics
     )
 
 
@@ -338,6 +367,22 @@ def test_child_scope_result_cannot_leak_into_parent_scope(validator) -> None:
     )
 
 
+def test_ancestor_scope_result_is_visible_in_child_goal(validator) -> None:
+    payload = copy.deepcopy(validator.deterministic_fallback)
+    payload["i_2"]["goals"]["i_2.E"][0]["derive"][0] = (
+        "∵ 抛物线 y＝－x²－2x＋3 的对称轴为 x＝－1，且 E 在该轴上"
+    )
+
+    result = validator.validate_payload(payload)
+
+    assert result.scope_sources["i_2"] == "llm"
+    assert result.authority_pass is True
+    assert not any(
+        item.code == "lesson_scope_cross_container_result_leak"
+        for item in result.diagnostics
+    )
+
+
 def test_code_owned_box_covers_child_goal_answer_at_ancestor_producer(validator) -> None:
     result = validator.validate_payload(validator.deterministic_fallback)
     producer = next(
@@ -400,6 +445,30 @@ def test_service_uses_one_semantic_attempt_and_reviewed_prompt(snapshot, project
     reviewed_hash = json.loads(
         (B2 / "projection-audit.json").read_text(encoding="utf-8")
     )["hashes"]["prompt"]
+    with pytest.raises(
+        ScopeLessonConfigurationError,
+        match="lesson_scope_reviewed_prompt_drift",
+    ):
+        ScopeLessonAuthoringService(
+            client=_ResponseClient([_valid_response(projection)]),
+            reviewed_prompt_hash=(
+                "9dc0460c588b4a4e20229a9c5091a4c38271f026182aa43edbdca8a5a840f446"
+            ),
+            sleep_fn=lambda _: None,
+        ).generate(snapshot)
+
+    schema = lesson_scope_content_schema(projection.plan)
+    prompt = render_annotated_teaching_prompt(
+        projection.plan,
+        authority=projection.authority,
+        output_schema=schema,
+    )
+    rendered_hash = build_projection_audit(
+        projection,
+        prompt=prompt,
+        output_schema=schema,
+    )["hashes"]["prompt"]
+    assert rendered_hash == reviewed_hash
     client = _ResponseClient([_valid_response(projection)])
     service = ScopeLessonAuthoringService(
         client=client,

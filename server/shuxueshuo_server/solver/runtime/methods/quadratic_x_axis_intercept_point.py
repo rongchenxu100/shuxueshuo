@@ -7,7 +7,6 @@
 from __future__ import annotations
 
 from shuxueshuo_server.solver.contracts import (
-    MethodExplanationSpec,
     MethodVisualSpec,
     TeachingUnitSpec,
 )
@@ -233,21 +232,6 @@ SPEC = MethodSpecSource(
     outputs={"point": "Point"},
     preconditions=("quadratic 是关于 x 的函数表达式，可以含未定系数",),
     postconditions=("输出点纵坐标为 0 且在曲线上；若给定 known_point，则输出另一个 x 轴交点；若目标 PointRef 声明 side=left/right，则输出对应左右交点",),
-    explanation=MethodExplanationSpec(
-        role_schema={
-            "parabola": "当前抛物线解析式。",
-            "intercept_equation": "令 y=0 后得到的一元二次方程。",
-            "target_point": "需要求出的 x 轴交点。",
-            "known_point": "可选的已知 x 轴交点。",
-        },
-        student_goal_template="令 y=0，求抛物线与 x 轴的交点。",
-        student_title_template="求抛物线与 x 轴交点",
-        derive_templates=(
-            "∵x 轴交点满足 y＝0，即 {intercept_equation}",
-            "∴{target_point}",
-        ),
-        role_binder_id="quadratic_x_axis_intercept_point",
-    ),
     teaching_unit=TeachingUnitSpec(
         unit_key="quadratic_x_axis_intercept_point/solve_intercept",
         title_template="求抛物线与 x 轴交点",

@@ -3,15 +3,22 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Mapping, Sequence
 import math
 import re
 
 import sympy as sp
 
-from shuxueshuo_server.solver.explanation.models import LessonStep
+from shuxueshuo_server.solver.explanation.lesson_ir import (
+    OwnedLessonStep as LessonStep,
+)
+from shuxueshuo_server.solver.explanation.models import (
+    ExplanationSnapshot,
+    TeachingSource,
+    iter_teaching_sources,
+)
 
-from .models import JsonObject
+from .models import JsonObject, VisualObject
 from .role_binders import VisualRoleBindings
 from .sympy_helpers import sympy_pair as _shared_sympy_pair
 
@@ -28,14 +35,189 @@ class ParametricExpressionResolver:
         self,
         lesson_step: LessonStep,
         bindings: VisualRoleBindings,
+        *,
+        interaction_specs: Sequence[Mapping[str, Any]] = (),
     ) -> tuple[JsonObject, ...]:
-        if "equal_length_ray_path_reduction" not in lesson_step.capability_ids:
-            return ()
-        marker = _first_equal_length_marker(bindings)
+        result: list[JsonObject] = []
+        if "equal_length_ray_path_reduction" in lesson_step.capability_ids:
+            marker = _first_equal_length_marker(bindings)
+            if marker is not None:
+                interaction = self._equal_length_interaction(lesson_step, marker)
+                if interaction:
+                    result.append(interaction)
+        for spec in interaction_specs:
+            kind = str(spec.get("kind") or "")
+            if kind != "square_axis_motion":
+                raise ValueError(
+                    f"visual_local_interaction_kind_unknown: {kind or '<empty>'}"
+                )
+            interaction = self._square_axis_motion_interaction(
+                lesson_step,
+                bindings,
+            )
+            if interaction is None:
+                raise ValueError(
+                    "visual_square_axis_motion_unresolved: "
+                    f"{lesson_step.lesson_step_id}"
+                )
+            result.append(interaction)
+        return tuple(_unique_interactions(result))
+
+    def _square_axis_motion_interaction(
+        self,
+        lesson_step: LessonStep,
+        bindings: VisualRoleBindings,
+    ) -> JsonObject | None:
+        """Derive a square's moving vertex from verified semantic roles.
+
+        The axis-side endpoint moves on the line through ``other_fixed``.  The
+        square orientation is recovered from the verified current geometry;
+        no problem id, student-facing point name or attainment value selects
+        the formulas.  The local parameter is a normalized signed displacement
+        along that axis, so its finite slider window is only a demonstration
+        window while the mathematical domain remains real.
+        """
+
+        marker = _first_square_axis_motion_marker(bindings)
         if marker is None:
-            return ()
-        interaction = self._equal_length_interaction(lesson_step, marker)
-        return (interaction,) if interaction else ()
+            return None
+        roles = marker.get("roles") if isinstance(marker.get("roles"), dict) else {}
+        refs = (
+            marker.get("role_point_refs")
+            if isinstance(marker.get("role_point_refs"), dict)
+            else {}
+        )
+        anchor_label = str(roles.get("side_start") or "")
+        axis_label = str(roles.get("side_end") or "")
+        moving_label = str(roles.get("moving_vertex") or "")
+        fixed_label = str(roles.get("other_fixed") or "")
+        midpoint_label = str(roles.get("midpoint") or "")
+        center_label = str(roles.get("center") or "")
+        anchor = str(refs.get(anchor_label) or "")
+        axis_point = str(refs.get(axis_label) or "")
+        moving = str(refs.get(moving_label) or "")
+        fixed = str(refs.get(fixed_label) or "")
+        midpoint = str(refs.get(midpoint_label) or "")
+        center = str(refs.get(center_label) or "")
+        square_vertices = tuple(
+            str(item) for item in marker.get("square_outline") or () if str(item)
+        )
+        if not all((anchor, axis_point, moving, fixed)) or len(square_vertices) != 4:
+            return None
+        curve_ids = tuple(dict.fromkeys(str(item) for item in bindings.curve_ids if item))
+        if len(curve_ids) != 1:
+            raise ValueError(
+                "visual_square_axis_motion_constraint_carrier_ambiguous: "
+                f"{lesson_step.lesson_step_id}: {curve_ids!r}"
+            )
+
+        anchor_expr = self._point_expr(anchor)
+        axis_expr = self._point_expr(axis_point)
+        moving_expr = self._point_expr(moving)
+        fixed_expr = self._point_expr(fixed)
+        if None in (anchor_expr, axis_expr, moving_expr, fixed_expr):
+            return None
+        assert anchor_expr is not None
+        assert axis_expr is not None
+        assert moving_expr is not None
+        assert fixed_expr is not None
+
+        parameter_name = _fresh_local_parameter_name(self.geometry_spec)
+        parameter = sp.Symbol(parameter_name)
+        dynamic_axis = _axis_motion_point(
+            anchor=anchor_expr,
+            current=axis_expr,
+            axis_foot=fixed_expr,
+            parameter=parameter,
+        )
+        if dynamic_axis is None:
+            return None
+        orientation = _square_rotation_orientation(
+            anchor=anchor_expr,
+            adjacent=axis_expr,
+            moving=moving_expr,
+        )
+        if orientation == 0:
+            return None
+        side = (
+            sp.simplify(dynamic_axis[0] - anchor_expr[0]),
+            sp.simplify(dynamic_axis[1] - anchor_expr[1]),
+        )
+        rotated = (
+            (side[1], -side[0])
+            if orientation < 0
+            else (-side[1], side[0])
+        )
+        dynamic_moving = (
+            sp.simplify(anchor_expr[0] + rotated[0]),
+            sp.simplify(anchor_expr[1] + rotated[1]),
+        )
+        opposite_refs = tuple(
+            ref
+            for ref in square_vertices
+            if ref not in {anchor, axis_point, moving}
+        )
+        if len(opposite_refs) != 1:
+            return None
+        opposite = opposite_refs[0]
+        dynamic_opposite = (
+            sp.simplify(dynamic_axis[0] + dynamic_moving[0] - anchor_expr[0]),
+            sp.simplify(dynamic_axis[1] + dynamic_moving[1] - anchor_expr[1]),
+        )
+        parameterized_points: dict[str, JsonObject] = {
+            axis_point: _interaction_point(dynamic_axis, "axis_side_endpoint"),
+            moving: _interaction_point(dynamic_moving, "moving_square_vertex"),
+            opposite: _interaction_point(dynamic_opposite, "opposite_square_vertex"),
+        }
+        if midpoint:
+            parameterized_points[midpoint] = _interaction_point(
+                _midpoint(anchor_expr, dynamic_axis),
+                "side_midpoint",
+            )
+        if center:
+            parameterized_points[center] = _interaction_point(
+                _midpoint(dynamic_axis, dynamic_moving),
+                "square_center",
+            )
+
+        return {
+            "id": f"{lesson_step.id}:square_axis_motion",
+            "component": "LocalSlider",
+            "parameter": parameter_name,
+            "mathematical_domain": {"kind": "real"},
+            "domain": {
+                "min": -1.25,
+                "max": 1.25,
+                "step": 0.01,
+                "default": 0.35,
+            },
+            "controls": [
+                {
+                    "var": parameter_name,
+                    "label": _square_motion_control_label(
+                        moving=moving_label,
+                        axis_point=axis_label,
+                        axis_foot=fixed_label,
+                        anchor=anchor_label,
+                    ),
+                    "min": -1.25,
+                    "max": 1.25,
+                    "step": 0.01,
+                    "scale": 1,
+                    "precision": 2,
+                }
+            ],
+            "note": _square_motion_note(axis_point=axis_label, moving=moving_label),
+            "parameterized_points": parameterized_points,
+            # Internal visual-authority metadata.  The public local-parameter
+            # contract intentionally does not serialize this field.
+            "constraint_carriers": [
+                {
+                    "kind": "curve_axis",
+                    "curve_id": curve_ids[0],
+                }
+            ],
+        }
 
     def _equal_length_interaction(
         self,
@@ -68,7 +250,7 @@ class ParametricExpressionResolver:
             auxiliary=auxiliary,
             fixed=fixed,
         )
-        substeps = set(lesson_step.teaching_substep_ids)
+        substeps = set(lesson_step.visual_unit_ids)
         is_minimum = "minimum_by_segment" in substeps
         controls = [
             _control(
@@ -190,11 +372,248 @@ class ParametricExpressionResolver:
         return (x, y)
 
 
+@dataclass(frozen=True)
+class CandidateHitResolver:
+    """Derive parameter landmarks from verified candidate-point results.
+
+    A Method only opts into its ordinary candidate visual component.  This
+    resolver discovers the parameter/candidate correspondence from public
+    runtime values and exact geometry; no point letter, problem id, or answer
+    value is authored in a visual spec.
+    """
+
+    geometry_spec: JsonObject
+
+    def landmarks_for_parameter(
+        self,
+        *,
+        lesson_step: LessonStep,
+        snapshot: ExplanationSnapshot,
+        parameter: str,
+        parameterized_points: Mapping[str, Any],
+        objects: tuple[VisualObject, ...],
+        parameter_values: Mapping[str, str],
+    ) -> tuple[JsonObject, ...]:
+        if not parameter or not parameterized_points:
+            return ()
+        source_ids = set(lesson_step.source_step_ids)
+        # Candidate semantics are discovered from the verified public values:
+        # one parametric Point input plus one finite Point collection output.
+        # A capability id, point label, problem id, or fixed answer must never
+        # be the switch that enables this behavior.
+        sources = tuple(
+            source
+            for source in iter_teaching_sources(snapshot.root_scope)
+            if source.source_step_id in source_ids
+        )
+        if not sources:
+            return ()
+
+        visible_refs = {
+            ref
+            for item in objects
+            for ref in item.geometry_refs
+        }
+        highlight_refs = tuple(
+            sorted(str(ref) for ref in parameterized_points if str(ref) in visible_refs)
+        )
+        landmarks: list[JsonObject] = []
+        for source in sources:
+            projection = _candidate_parameter_projection(
+                source,
+                parameter=parameter,
+                parameter_values=parameter_values,
+            )
+            for candidate_index, (candidate, exact_value) in enumerate(projection, start=1):
+                numeric = _numeric_expr(exact_value)
+                if numeric is None:
+                    continue
+                candidate_refs = _matching_candidate_geometry_refs(
+                    self.geometry_spec,
+                    candidate,
+                    visible_refs=visible_refs,
+                    candidate_index=candidate_index,
+                )
+                landmarks.append(
+                    {
+                        "value": numeric,
+                        "exact_value": _page_expr(exact_value),
+                        "display": _student_expr(exact_value),
+                        "epsilon": 1e-6,
+                        "candidate_geometry_refs": list(candidate_refs),
+                        "highlight_geometry_refs": list(
+                            dict.fromkeys((*highlight_refs, *candidate_refs))
+                        ),
+                    }
+                )
+        return tuple(landmarks)
+
+
 def _first_equal_length_marker(bindings: VisualRoleBindings) -> JsonObject | None:
     for marker in bindings.equal_length_path_markers:
         if isinstance(marker, dict) and isinstance(marker.get("roles"), dict):
             return marker
     return None
+
+
+def _first_square_axis_motion_marker(
+    bindings: VisualRoleBindings,
+) -> JsonObject | None:
+    for marker in bindings.atomic_square_reduction_markers:
+        if (
+            isinstance(marker, dict)
+            and isinstance(marker.get("roles"), dict)
+            and isinstance(marker.get("role_point_refs"), dict)
+        ):
+            return marker
+    return None
+
+
+def _axis_motion_point(
+    *,
+    anchor: tuple[sp.Expr, sp.Expr],
+    current: tuple[sp.Expr, sp.Expr],
+    axis_foot: tuple[sp.Expr, sp.Expr],
+    parameter: sp.Symbol,
+) -> tuple[sp.Expr, sp.Expr] | None:
+    """Parameterize the point on its verified axis without using its answer.
+
+    For a vertical (respectively horizontal) axis, one side-scale from the
+    anchor to the axis foot supplies a dimensionless demonstration parameter.
+    The current point is used only to identify the axis direction.
+    """
+
+    dx = sp.simplify(current[0] - axis_foot[0])
+    dy = sp.simplify(current[1] - axis_foot[1])
+    if dx == 0 and dy != 0:
+        scale = sp.simplify(axis_foot[0] - anchor[0])
+        if scale == 0:
+            scale = dy
+        return (
+            sp.simplify(axis_foot[0]),
+            sp.simplify(axis_foot[1] + parameter * scale),
+        )
+    if dy == 0 and dx != 0:
+        scale = sp.simplify(axis_foot[1] - anchor[1])
+        if scale == 0:
+            scale = dx
+        return (
+            sp.simplify(axis_foot[0] + parameter * scale),
+            sp.simplify(axis_foot[1]),
+        )
+    return None
+
+
+def _square_rotation_orientation(
+    *,
+    anchor: tuple[sp.Expr, sp.Expr],
+    adjacent: tuple[sp.Expr, sp.Expr],
+    moving: tuple[sp.Expr, sp.Expr],
+) -> int:
+    side = (
+        sp.simplify(adjacent[0] - anchor[0]),
+        sp.simplify(adjacent[1] - anchor[1]),
+    )
+    clockwise = (
+        sp.simplify(anchor[0] + side[1]),
+        sp.simplify(anchor[1] - side[0]),
+    )
+    counterclockwise = (
+        sp.simplify(anchor[0] - side[1]),
+        sp.simplify(anchor[1] + side[0]),
+    )
+    if _symbolic_pair_equal(moving, clockwise):
+        return -1
+    if _symbolic_pair_equal(moving, counterclockwise):
+        return 1
+    return 0
+
+
+def _symbolic_pair_equal(
+    left: tuple[sp.Expr, sp.Expr],
+    right: tuple[sp.Expr, sp.Expr],
+) -> bool:
+    return all(sp.simplify(a - b) == 0 for a, b in zip(left, right, strict=True))
+
+
+def _midpoint(
+    left: tuple[sp.Expr, sp.Expr],
+    right: tuple[sp.Expr, sp.Expr],
+) -> tuple[sp.Expr, sp.Expr]:
+    return (
+        sp.simplify((left[0] + right[0]) / 2),
+        sp.simplify((left[1] + right[1]) / 2),
+    )
+
+
+def _interaction_point(
+    expression: tuple[sp.Expr, sp.Expr],
+    role: str,
+) -> JsonObject:
+    return {
+        "expression": _format_pair(expression),
+        "source": {
+            "type": "square_axis_motion",
+            "role": role,
+        },
+    }
+
+
+def _fresh_local_parameter_name(geometry_spec: Mapping[str, Any]) -> str:
+    occupied: set[str] = {"x"}
+    for collection in ("fixedPoints", "movingPoints"):
+        for pair in (geometry_spec.get(collection) or {}).values():
+            if not isinstance(pair, list | tuple):
+                continue
+            for expression in pair:
+                try:
+                    occupied.update(
+                        str(symbol) for symbol in sp.sympify(expression).free_symbols
+                    )
+                except Exception:
+                    continue
+    for candidate in ("u", "v", "w", "s", "r"):
+        if candidate not in occupied:
+            return candidate
+    index = 1
+    while f"u{index}" in occupied:
+        index += 1
+    return f"u{index}"
+
+
+def _square_motion_control_label(
+    *,
+    moving: str,
+    axis_point: str,
+    axis_foot: str,
+    anchor: str,
+) -> str:
+    if all((moving, axis_point, axis_foot, anchor)):
+        return f"动点 {moving}：{axis_foot}{axis_point}/{anchor}{axis_foot}"
+    return f"动点 {moving}" if moving else "正方形动点"
+
+
+def _square_motion_note(*, axis_point: str, moving: str) -> str:
+    if axis_point and moving:
+        return f"拖动 {axis_point}，观察正方形与动点 {moving} 的联动关系。"
+    return "拖动轴上点，观察正方形动点的联动关系。"
+
+
+def _unique_interactions(items: Sequence[JsonObject]) -> list[JsonObject]:
+    result: list[JsonObject] = []
+    by_id: dict[str, JsonObject] = {}
+    for item in items:
+        interaction_id = str(item.get("id") or "")
+        previous = by_id.get(interaction_id)
+        if previous is not None:
+            if previous != item:
+                raise ValueError(
+                    f"visual_local_interaction_identity_conflict: {interaction_id}"
+                )
+            continue
+        by_id[interaction_id] = item
+        result.append(item)
+    return result
 
 
 def _point_ref(roles: dict[str, Any], point_refs: dict[str, Any], role: str) -> str | None:
@@ -302,6 +721,134 @@ def _substitute_parameter_pair(
         sp.simplify(pair[0].subs(symbol, replacement)),
         sp.simplify(pair[1].subs(symbol, replacement)),
     )
+
+
+def _candidate_parameter_projection(
+    source: TeachingSource,
+    *,
+    parameter: str,
+    parameter_values: Mapping[str, str],
+) -> tuple[tuple[tuple[sp.Expr, sp.Expr], sp.Expr], ...]:
+    candidates = _candidate_output_pairs(source)
+    if not candidates:
+        return ()
+    substitutions = {
+        sp.Symbol(name): sp.sympify(str(value))
+        for name, value in parameter_values.items()
+        if name != parameter
+    }
+    mappings: list[tuple[tuple[sp.Expr, sp.Expr], tuple[sp.Expr, ...]]] = []
+    for values in source.inputs.values():
+        for item in values:
+            pair = _sympy_pair(item.get("value")) if isinstance(item, Mapping) else None
+            if pair is None or sp.Symbol(parameter) not in set().union(
+                *(value.free_symbols for value in pair)
+            ):
+                continue
+            prepared = tuple(sp.simplify(value.subs(substitutions)) for value in pair)
+            solutions: list[sp.Expr] = []
+            for candidate in candidates:
+                solution = _unique_pair_parameter_solution(
+                    prepared,
+                    candidate,
+                    parameter,
+                )
+                if solution is None:
+                    break
+                solutions.append(solution)
+            if len(solutions) == len(candidates):
+                mappings.append((prepared, tuple(solutions)))
+    if len(mappings) != 1:
+        return ()
+    return tuple(zip(candidates, mappings[0][1], strict=True))
+
+
+def _candidate_output_pairs(source: TeachingSource) -> tuple[tuple[sp.Expr, sp.Expr], ...]:
+    collections: list[tuple[tuple[sp.Expr, sp.Expr], ...]] = []
+    for output in source.outputs.values():
+        value = output.get("value") if isinstance(output, Mapping) else None
+        if not isinstance(value, (list, tuple)) or not value:
+            continue
+        pairs = tuple(pair for item in value if (pair := _sympy_pair(item)) is not None)
+        if len(pairs) == len(value):
+            collections.append(pairs)
+    return collections[0] if len(collections) == 1 else ()
+
+
+def _unique_pair_parameter_solution(
+    source: tuple[sp.Expr, sp.Expr],
+    target: tuple[sp.Expr, sp.Expr],
+    parameter: str,
+) -> sp.Expr | None:
+    symbol = sp.Symbol(parameter)
+    possible: set[sp.Expr] = set()
+    for source_value, target_value in zip(source, target, strict=True):
+        if symbol not in source_value.free_symbols:
+            if sp.simplify(source_value - target_value) != 0:
+                return None
+            continue
+        try:
+            possible.update(
+                sp.simplify(value)
+                for value in sp.solve(sp.Eq(source_value, target_value), symbol)
+            )
+        except Exception:
+            return None
+    valid = [
+        value
+        for value in possible
+        if all(
+            sp.simplify(source_value.subs(symbol, value) - target_value) == 0
+            for source_value, target_value in zip(source, target, strict=True)
+        )
+    ]
+    return valid[0] if len(valid) == 1 else None
+
+
+def _matching_candidate_geometry_refs(
+    geometry_spec: JsonObject,
+    candidate: tuple[sp.Expr, sp.Expr],
+    *,
+    visible_refs: set[str],
+    candidate_index: int,
+) -> tuple[str, ...]:
+    result: list[str] = []
+    point_meta = geometry_spec.get("pointMeta") or {}
+    points = {
+        **(geometry_spec.get("fixedPoints") or {}),
+        **(geometry_spec.get("movingPoints") or {}),
+    }
+    for ref, raw in points.items():
+        ref = str(ref)
+        if ref not in visible_refs:
+            continue
+        meta = point_meta.get(ref) if isinstance(point_meta, dict) else None
+        if not isinstance(meta, dict) or meta.get("candidateIndex") != candidate_index:
+            continue
+        pair = _sympy_pair(raw)
+        if pair is None:
+            continue
+        if all(
+            sp.simplify(observed - expected) == 0
+            for observed, expected in zip(pair, candidate, strict=True)
+        ):
+            result.append(ref)
+    return tuple(sorted(result))
+
+
+def _numeric_expr(value: sp.Expr) -> float | None:
+    if value.free_symbols:
+        return None
+    try:
+        numeric = float(sp.N(value))
+    except Exception:
+        return None
+    return numeric if math.isfinite(numeric) else None
+
+
+def _student_expr(value: sp.Expr) -> str:
+    text = _page_expr(value)
+    return re.sub(r"sqrt\(([^()]+)\)", r"√\1", text)
 
 
 def _sympy_pair(value: Any) -> tuple[sp.Expr, sp.Expr] | None:

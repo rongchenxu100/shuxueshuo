@@ -1,7 +1,7 @@
 # F5-F5 Teaching Scope、学生步骤、可视化与动画设计
 
 状态：`IMPLEMENTATION`。`F5-F5A COMPLETE`；`F5-F5B0 COMPLETE`；`F5-F5B1 COMPLETE`；
-`F5-F5B2 COMPLETE`；`F5-F5B3 COMPLETE`；`F5-F5B4 NEXT`（递归 LessonIR 生产切换）。
+`F5-F5B2 COMPLETE`；`F5-F5B3 COMPLETE`；`F5-F5B4/B4V COMPLETE`；`F5-F5C NEXT`。
 
 本文是 F5-F5 以及后续 Track G 教学链的统一规范入口。它定义：如何从
 `VerifiedFunctionalPlanExecution` 生成学生可见步骤，如何继续生成 `VisualStepIR` 与动画
@@ -716,7 +716,7 @@ Gap 必须包含稳定 source ID、owner Scope/Goal、缺失 role/action、已�
 
 门禁：Snapshot Scope/Goal/step owner 与 Canonical Plan 完全同构。
 
-### F5-F5B：学生步骤（B0/B1/B2/B3 COMPLETE；B4 NEXT）
+### F5-F5B：学生步骤（B0–B4/B4V COMPLETE）
 
 - 直接升级到 `explanation-snapshot/v3`，物理删除 `TeachingCrossScopeReference` 与顶层
   `cross_scope_references`；consumer input 内联精确 ref，不保留 v2 reader/双写；
@@ -753,7 +753,8 @@ Gap 必须包含稳定 source ID、owner Scope/Goal、缺失 role/action、已�
 - B3 wire 不包含 visual 字段，先独立稳定教学输入、输出和评测链；
 - 和平 `thinking=low/disabled` live `1×3` 均为 `3/3` 直接接受、Rubric `5/5 × 3`、零
   fallback；输出人工审阅已通过，并保存 regression-only B3 fixture；
-- B4 将 accepted Scope Content 组装为递归 LessonIR 并切换生产入口；
+- B4 已将 accepted Scope Content 组装为递归 LessonIR 并切换生产入口；B4V 已将图形链切换为
+  与 LessonIR 同构的 recursive VisualStepIR v2，每个 Frame 是独立完整场景；
 - 退役 stub trace、flat candidate placement、多轮 repair 与 LLM-authored source refs。
 
 纵向门禁统一使用和平二模 `tj-2026-heping-ermo-25`，逐阶段保存 Snapshot、实际 LLM 输入、

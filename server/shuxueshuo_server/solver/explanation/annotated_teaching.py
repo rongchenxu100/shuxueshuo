@@ -11,6 +11,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from hashlib import sha256
 import json
+import re
 from typing import Any, Iterable, Mapping, Sequence
 
 from jsonschema import Draft202012Validator
@@ -25,12 +26,14 @@ from .models import (
     ExplanationSnapshot,
     TeachingScope,
     TeachingSource,
+    explanation_snapshot_content_hash,
     iter_teaching_scopes,
     iter_teaching_sources,
 )
 from .teaching_specs import (
     BoundTeachingSelection,
     BoundTeachingUnit,
+    TeachingSeparationBoundaryResolver,
     TeachingSpecBinder,
     TeachingSpecBindingError,
 )
@@ -297,6 +300,7 @@ class _ProjectedMaterialSet:
     materials: tuple[AnnotatedTeachingMaterial, ...]
     kind: str
     unit_keys: tuple[str, ...]
+    requires_independent_lesson_steps: tuple[bool, ...]
     variant_key: str | None
     evidence_match: Mapping[str, Any] | None
     diagnostics: tuple[TeachingProjectionDiagnostic, ...]
@@ -305,8 +309,16 @@ class _ProjectedMaterialSet:
 class TeachingMaterialProjector:
     """Bind B1 specs and expose only complete LLM-facing suggestions."""
 
-    def __init__(self, *, binder: TeachingSpecBinder | None = None) -> None:
+    def __init__(
+        self,
+        *,
+        binder: TeachingSpecBinder | None = None,
+        separation_resolver: TeachingSeparationBoundaryResolver | None = None,
+    ) -> None:
         self._binder = binder or TeachingSpecBinder()
+        self._separation = (
+            separation_resolver or TeachingSeparationBoundaryResolver()
+        )
 
     def project(
         self,
@@ -367,10 +379,19 @@ class TeachingMaterialProjector:
                 "every verified Step must expose at least one teaching material",
             )
         materials = tuple(_public_material(item) for item in selection.units)
+        unit_keys = tuple(item.unit_key for item in selection.units)
         return _ProjectedMaterialSet(
             materials=materials,
             kind=selection.kind,
-            unit_keys=tuple(item.unit_key for item in selection.units),
+            unit_keys=unit_keys,
+            requires_independent_lesson_steps=tuple(
+                self._separation.requires_independent_lesson_step(
+                    source,
+                    capability_kind=selection.kind,
+                    unit_key=unit_key,
+                )
+                for unit_key in unit_keys
+            ),
             variant_key=selection.variant_key,
             evidence_match=selection.evidence_match,
             diagnostics=tuple(diagnostics),
@@ -462,9 +483,10 @@ class AnnotatedTeachingPlanProjector:
                 if str(payload.get("step_id") or "") == source.source_step_id
             )
             records = authority_containers.setdefault(container_ref, [])
-            for material, unit_key in zip(
+            for material, unit_key, requires_independent in zip(
                 projected_materials.materials,
                 projected_materials.unit_keys,
+                projected_materials.requires_independent_lesson_steps,
                 strict=True,
             ):
                 teaching_step_ref = f"s{len(records) + 1}"
@@ -476,6 +498,9 @@ class AnnotatedTeachingPlanProjector:
                         "capability_id": source.capability_id,
                         "capability_kind": projected_materials.kind,
                         "unit_key": unit_key,
+                        "requires_independent_lesson_step": (
+                            requires_independent
+                        ),
                         "variant_key": projected_materials.variant_key,
                         "variant_evidence_match": _json_clone(
                             projected_materials.evidence_match
@@ -549,9 +574,17 @@ class AnnotatedTeachingPlanProjector:
             "schema_version": TEACHING_AUTHORITY_CONTRACT,
             "canonical_plan_hash": snapshot.canonical_plan_hash,
             "verified_execution_hash": snapshot.verified_execution_hash,
-            "snapshot_hash": _stable_hash(snapshot.to_payload()),
+            "snapshot_hash": explanation_snapshot_content_hash(snapshot),
             "annotated_plan_hash": _stable_hash(plan_payload),
             "containers": authority_containers,
+            "independent_step_refs": {
+                container_ref: [
+                    str(record["teaching_step_ref"])
+                    for record in records
+                    if record["requires_independent_lesson_step"]
+                ]
+                for container_ref, records in authority_containers.items()
+            },
             "diagnostics": [item.to_payload() for item in diagnostics],
         }
         return AnnotatedTeachingProjection(
@@ -829,40 +862,126 @@ def lesson_scope_content_schema(plan: AnnotatedTeachingPlan) -> dict[str, Any]:
 def render_annotated_teaching_prompt(
     plan: AnnotatedTeachingPlan,
     *,
+    authority: Mapping[str, Any],
     output_schema: Mapping[str, Any] | None = None,
 ) -> AnnotatedTeachingPrompt:
     """Render the exact B3 request without making a provider call."""
 
     schema = dict(output_schema or lesson_scope_content_schema(plan))
+    if authority.get("annotated_plan_hash") != _stable_hash(plan.to_payload()):
+        raise AnnotatedTeachingProjectionError(
+            "teaching_prompt_authority_drift",
+            "$.authority",
+            "authority is not bound to the rendered Annotated Teaching Plan",
+        )
+    independent_materials = _independent_material_prompt_section(authority)
     system = """你是中学数学讲解编排器。
 你的目标是把已经验证的解题材料整理成学生容易理解的完整讲解。
-逐项审视同一 Scope/Goal 内相邻的 materials：只有在合并能让推导更连贯且不遗漏关键理由时才合并；没有必要时保持独立步骤。
+学生步骤的边界应对应一次需要理解的新数学思考，而不是一次代码调用。逐项审视同一 Scope/Goal 内相邻的 materials，判断学生在其间是否需要转换思路。
+若后续 material 引入新的解题策略、定理、几何构造、证明、候选分支判断或题目单独要求的结果，应另起一步。若后续 material 只是把刚得到的结论代入已有表达式、坐标或对象，或完成同一推理下的直接计算、化简和结果展开，不需要新的选择或理由，则应与产生该结论的 material 合为一个学生步骤。
+输入输出依赖可以帮助识别同一认知动作，但“相邻”“较短”或“存在依赖”本身都不是合并理由。合并的目的是减少没有新教学意义的步骤切换，而不是压缩数学内容；合并后必须完整保留关键依据、计算和每个必要结果。
+列为“必须独立”的 step_ref 必须各自单独输出，不得合并。
 完善并润色 title、nav_title、goal 和 derive，让学生清楚每一步为什么成立、得到什么以及如何衔接下一步。数学语言为主，只补充少量必要的自然语言。
+derive 可以改写已有推导的措辞、合并重复表达，并补充不产生新数学事实的自然语言衔接；只能使用当前 materials 的 derive、calculations 和 conclusions 中已经明确给出的计算，不得自行新增代入、化简、方程、坐标计算或数值运算。
 输入中的数学事实、计算结果、conclusions 和最终 answers 已经由解题器验证；不要重新解题或修改它们。结论由代码写入课程，你不需要返回 conclusions 或 box。
 必须在输出 Schema 固定的 Scope/Goal 中返回完整教学正文，不能移动材料所属容器。
 输入的 root_scope 仅按真实父子关系递归展示上下文；输出 Schema 已由代码把本轮需要填写的 Scope 展开为固定顶层 key。只按同名 scope_ref/goal_ref 填写正文，不要重建 children；未出现在输出 Schema 中的上下文 Scope 不返回。
+每个 Scope/Goal 只能改写自己 materials 中已有的数学内容。父 Scope 的结果可以作为 child Scope 的既有上下文；child Scope 或 sibling Scope 的结果绝不能提前写回父 Scope或其他容器。
 每份 material 都有当前 Scope/Goal 内的局部 step_ref。每个输出步骤用 source_steps 列出它合并的 step_ref；只能合并同一容器内相邻步骤，编号必须保持原顺序，所有编号必须恰好使用一次。
 derive 的每一行必须是一个字符串，并以“作 ”“设 ”“∵ ”“∴ ”或“计算 ”开头。
 只能使用输入已经给出的对象、数值、关系和结论，不得编造数学事实或内部标识。
 返回严格符合给定 JSON Schema 的单个 JSON 对象，不要输出 Markdown、HTML 或解释性前言。"""
-    user = "\n\n".join(
-        (
+    sections = [
             "## 输出 JSON Schema\n\n"
             + _compact_json(schema),
             "## 全题型共享示例\n\n"
-            "示例中的两份相邻材料共同完成一个认知动作，因此被合并；"
-            "当前题仍须判断是否确有必要合并。示例不是当前题条件。\n\n"
+            "示例的学生认知分析：s1 需要理解的新思考是根据周长建立方程并求参数；"
+            "s2、s3 只是把刚得到的参数代入两个已有对象，没有引入新策略、定理或判断。"
+            "因此三份材料属于同一次“求参数并应用”的认知动作，应在不省略计算和结果的前提下合为一步。"
+            "如果后续材料需要新的几何构造、证明或分支选择，就应另起一步。"
+            "示例不是当前题条件。\n\n"
             + _compact_json(_shared_scope_lesson_few_shot()),
-            "## Annotated Teaching Plan\n\n"
-            + _compact_json(plan.to_payload()),
-        )
+    ]
+    if independent_materials:
+        sections.append(independent_materials)
+    sections.append(
+        "## Annotated Teaching Plan\n\n"
+        + _compact_json(plan.to_payload())
     )
+    user = "\n\n".join(sections)
     prompt = AnnotatedTeachingPrompt(system=system, user=user)
     _assert_llm_safe(
         {"system": prompt.system, "user": prompt.user},
         path="$.prompt",
     )
     return prompt
+
+
+def _independent_material_prompt_section(
+    authority: Mapping[str, Any],
+) -> str:
+    raw = authority.get("independent_step_refs")
+    containers = authority.get("containers")
+    if not isinstance(raw, Mapping) or not isinstance(containers, Mapping):
+        raise AnnotatedTeachingProjectionError(
+            "teaching_prompt_separation_authority_invalid",
+            "$.authority.independent_step_refs",
+            "independent material authority must be an object",
+        )
+    rows: list[str] = []
+    for container_ref, records in containers.items():
+        if not isinstance(records, Sequence) or isinstance(records, str | bytes):
+            raise AnnotatedTeachingProjectionError(
+                "teaching_prompt_separation_authority_invalid",
+                f"$.authority.containers[{container_ref!r}]",
+                "container authority must be an array",
+            )
+        expected = [
+            str(record.get("teaching_step_ref") or "")
+            for record in records
+            if isinstance(record, Mapping)
+            and record.get("requires_independent_lesson_step") is True
+        ]
+        observed = raw.get(container_ref)
+        if not isinstance(observed, Sequence) or isinstance(
+            observed, str | bytes
+        ):
+            raise AnnotatedTeachingProjectionError(
+                "teaching_prompt_separation_authority_invalid",
+                f"$.authority.independent_step_refs[{container_ref!r}]",
+                "every material container must provide an array",
+            )
+        observed_refs = [str(item) for item in observed]
+        if observed_refs != expected or any(
+            re.fullmatch(r"s[1-9][0-9]*", item) is None
+            for item in observed_refs
+        ):
+            raise AnnotatedTeachingProjectionError(
+                "teaching_prompt_separation_authority_drift",
+                f"$.authority.independent_step_refs[{container_ref!r}]",
+                f"expected {expected}, observed {observed_refs}",
+            )
+        if observed_refs:
+            owner_kind, _, owner_ref = str(container_ref).partition(":")
+            label = "Scope" if owner_kind == "scope" else "Goal"
+            rows.append(f"- {label} {owner_ref}：{'、'.join(observed_refs)}")
+    unknown = sorted(set(raw) - set(containers))
+    if unknown:
+        raise AnnotatedTeachingProjectionError(
+            "teaching_prompt_separation_authority_drift",
+            "$.authority.independent_step_refs",
+            f"unknown material containers: {unknown}",
+        )
+    if not rows:
+        return ""
+    return "\n".join(
+        (
+            "## 必须独立的教学材料",
+            "",
+            "以下 step_ref 必须各自单独成步，不得合并：",
+            *rows,
+        )
+    )
 
 
 def build_projection_audit(
@@ -880,6 +999,13 @@ def build_projection_audit(
     steps = tuple(_iter_annotated_steps(projection.plan.root_scope))
     goals = tuple(goal for scope in scopes for goal in scope.goals)
     material_count = sum(len(step.teaching_materials) for step in steps)
+    independent_step_refs = {
+        str(container_ref): [str(item) for item in refs]
+        for container_ref, refs in (
+            projection.authority.get("independent_step_refs") or {}
+        ).items()
+        if refs
+    }
     status = (
         "ready_for_human_review"
         if not plan_hits and not prompt_hits and not projection.diagnostics
@@ -893,6 +1019,9 @@ def build_projection_audit(
             "goal_count": len(goals),
             "step_count": len(steps),
             "teaching_material_count": material_count,
+            "independent_teaching_material_count": sum(
+                len(refs) for refs in independent_step_refs.values()
+            ),
             "verified_answer_count": len(projection.plan.answers),
         },
         "hashes": {
@@ -916,10 +1045,11 @@ def build_projection_audit(
         "projection_diagnostics": [
             item.to_payload() for item in projection.diagnostics
         ],
+        "independent_step_refs": independent_step_refs,
         "shared_few_shot": {
             "count": 1,
             "same_problem": False,
-            "mechanism": "right_triangle_pythagorean",
+            "mechanism": "student_cognitive_action_boundary",
         },
         "llm_invoked": False,
     }
@@ -1578,37 +1708,49 @@ def _shared_scope_lesson_few_shot() -> dict[str, Any]:
         "input": {"materials": [
             {
                 "step_ref": "s1",
-                "title": "利用勾股定理建立边长关系",
-                "nav_title": "建立边长关系",
-                "goal": "由直角三角形三边关系建立方程。",
+                "title": "由周长条件求参数 m",
+                "nav_title": "求参数 m",
+                "goal": "由长方形周长建立方程并求出参数。",
                 "derive": [
-                    "∵ △XYZ 在 Y 点为直角，YX＝6，YZ＝8",
-                    "∴ XZ²＝YX²＋YZ²＝6²＋8²",
+                    "∵ 长方形的长为 m＋2，宽为 m－1，周长为 18",
+                    "∴ 2[(m＋2)＋(m－1)]＝18",
+                    "计算 m＝4",
                 ],
-                "conclusions": [],
+                "conclusions": ["m＝4"],
             },
             {
                 "step_ref": "s2",
-                "title": "计算斜边长度",
-                "nav_title": "求斜边",
-                "goal": "计算并写出斜边长度。",
-                "derive": ["∴ XZ＝10"],
-                "conclusions": ["XZ＝10"],
+                "title": "代入参数求点 U",
+                "nav_title": "求点 U",
+                "goal": "把参数值代入已有含参点。",
+                "derive": ["∵ U(m,2m)，m＝4", "∴ U(4,8)"],
+                "conclusions": ["U(4,8)"],
+            },
+            {
+                "step_ref": "s3",
+                "title": "代入参数写出直线 l",
+                "nav_title": "写出直线 l",
+                "goal": "把同一参数值代入已有直线表达式。",
+                "derive": ["∵ l：y＝mx＋1，m＝4", "∴ l：y＝4x＋1"],
+                "conclusions": ["l：y＝4x＋1"],
             },
         ]},
         "output": {
             "example": {
                 "goals": {
-                    "example.XZ": [
+                    "example.result": [
                         {
-                            "source_steps": ["s1", "s2"],
-                            "title": "利用勾股定理求斜边",
-                            "nav_title": "勾股定理",
-                            "goal": "建立边长关系并计算斜边长度。",
+                            "source_steps": ["s1", "s2", "s3"],
+                            "title": "求参数并代入相关对象",
+                            "nav_title": "求参并代入",
+                            "goal": "先求出公共参数，再连续代入已有的点和直线。",
                             "derive": [
-                                "∵ △XYZ 在 Y 点为直角，YX＝6，YZ＝8",
-                                "∴ XZ²＝6²＋8²＝100",
-                                "∴ XZ＝10",
+                                "∵ 2[(m＋2)＋(m－1)]＝18",
+                                "计算 m＝4",
+                                "∵ U(m,2m)，m＝4",
+                                "∴ U(4,8)",
+                                "∵ l：y＝mx＋1，m＝4",
+                                "∴ l：y＝4x＋1",
                             ],
                         }
                     ]

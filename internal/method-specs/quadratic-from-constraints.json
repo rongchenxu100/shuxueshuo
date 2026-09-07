@@ -273,29 +273,6 @@
     "输出抛物线满足已知系数、曲线点和额外方程约束",
     "输出 coefficients/parabola 表示当前问已知约束下的最简函数表达式"
   ],
-  "explanation": {
-    "role_schema": {
-      "constraints": "用于确定当前问二次函数的系数约束。",
-      "derive_items": "若存在曲线点条件，由已验证点坐标与当前函数式逐行生成“点在曲线上、代入坐标、化简系数关系、写出解析式”的数学推导；不保存具体点名、坐标或答案。",
-      "result_parabola": "由约束得到的当前问抛物线解析式。",
-      "parabola_title_action": "标题动词；完全确定时为求，含后续参数时为化简。",
-      "completed_square_suffix": "配方形式补充说明；没有配方形式时为空。"
-    },
-    "student_goal_template": "代入当前问给出的约束，确定二次函数解析式。",
-    "student_title_template": "{parabola_title_action}函数解析式",
-    "student_title_templates_by_goal": {},
-    "derive_templates": [
-      "∵{constraints}",
-      "∴y＝{result_parabola}{completed_square_suffix}"
-    ],
-    "box_templates": [
-      "y＝{result_parabola}"
-    ],
-    "explanation_level": "template",
-    "role_binding_strategy": "role_name_registry",
-    "role_binder_id": "quadratic_from_constraints",
-    "student_nav_title_template": "{parabola_title_action}解析式"
-  },
   "teaching_unit": {
     "unit_key": "quadratic_from_constraints/derive_function",
     "title_template": "{parabola_title_action}函数解析式",
@@ -328,6 +305,20 @@
       "completed_square_suffix": "可选的配方形式说明。"
     },
     "role_binder_id": "quadratic_from_constraints"
+  },
+  "visual": {
+    "role_schema": {
+      "parabola": "本步骤由约束确定或化简后的二次函数图象。"
+    },
+    "scene_templates": [
+      {
+        "component": "QuadraticCurveMarker",
+        "persistence": "carry_forward"
+      }
+    ],
+    "annotation_templates": [],
+    "timeline_templates": [],
+    "role_binder_id": "generic_visual"
   },
   "constraint_analyzer": "quadratic_coefficients",
   "distinct_arg_groups": [

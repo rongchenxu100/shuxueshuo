@@ -1,0 +1,538 @@
+{
+  "schema_version": "lesson-ir/v2",
+  "problem_id": "tj-2026-heping-ermo-25",
+  "problem_revision": "problem-revision:9dfcc08df320f779fde2706c12f04dcdf64d3503879ef11d3f06d9de431e5698",
+  "source_snapshot_hash": "b8222c8263523b25070879462ae5e4a860f34aa35d2bd605490c6f8617a2f6e4",
+  "root_scope": {
+    "scope_ref": "problem",
+    "steps": [],
+    "goals": {},
+    "children": [
+      {
+        "scope_ref": "i",
+        "steps": [
+          {
+            "lesson_step_id": "teach:derive_parabola_i",
+            "source_step_ids": [
+              "derive_parabola_i"
+            ],
+            "capability_ids": [
+              "quadratic_from_constraints"
+            ],
+            "teaching_unit_keys": [
+              "quadratic_from_constraints/derive_function"
+            ],
+            "title": "求函数解析式",
+            "nav_title": "求解析式",
+            "goal": "代入当前问给出的约束，确定二次函数解析式。",
+            "derive": [
+              [
+                "∵",
+                "题设给出当前二次函数的系数条件"
+              ],
+              [
+                "∴",
+                "b＝－2，c＝3"
+              ],
+              [
+                "∴",
+                "y＝－x²－2x＋3＝－(x＋1)²＋4"
+              ]
+            ],
+            "box": [
+              "y＝－x²－2x＋3"
+            ]
+          },
+          {
+            "lesson_step_id": "teach:derive_x_intercept_A_i",
+            "source_step_ids": [
+              "derive_x_intercept_A_i"
+            ],
+            "capability_ids": [
+              "quadratic_x_axis_intercept_point"
+            ],
+            "teaching_unit_keys": [
+              "quadratic_x_axis_intercept_point/solve_intercept"
+            ],
+            "title": "求抛物线与 x 轴交点",
+            "nav_title": "求 x 轴交点",
+            "goal": "令 y＝0，求出指定的 x 轴交点。",
+            "derive": [
+              [
+                "∵",
+                "x 轴交点满足 y＝0，即 －x²－2x＋3＝0"
+              ],
+              [
+                "计算",
+                "x＝－3 或 x＝1"
+              ],
+              [
+                "∵",
+                "A 定义为左侧交点，取较小根 x＝－3"
+              ],
+              [
+                "∴",
+                "A(－3,0)"
+              ]
+            ],
+            "box": [
+              "A(－3,0)"
+            ]
+          }
+        ],
+        "goals": {},
+        "children": [
+          {
+            "scope_ref": "i_1",
+            "steps": [],
+            "goals": {
+              "i_1.A": {
+                "steps": []
+              },
+              "i_1.P": {
+                "steps": [
+                  {
+                    "lesson_step_id": "teach:derive_vertex_P_i",
+                    "source_step_ids": [
+                      "derive_vertex_P_i"
+                    ],
+                    "capability_ids": [
+                      "quadratic_vertex_point"
+                    ],
+                    "teaching_unit_keys": [
+                      "quadratic_vertex_point/read_vertex"
+                    ],
+                    "title": "求二次函数顶点",
+                    "nav_title": "求顶点",
+                    "goal": "把二次函数整理成顶点式，读出顶点坐标。",
+                    "derive": [
+                      [
+                        "∵",
+                        "y＝－(x＋1)²＋4"
+                      ],
+                      [
+                        "∴",
+                        "P(－1,4)"
+                      ]
+                    ],
+                    "box": [
+                      "P(－1,4)"
+                    ]
+                  }
+                ]
+              }
+            },
+            "children": []
+          },
+          {
+            "scope_ref": "i_2",
+            "steps": [],
+            "goals": {
+              "i_2.E": {
+                "steps": [
+                  {
+                    "lesson_step_id": "teach:parameterize_axis_point_E_i",
+                    "source_step_ids": [
+                      "parameterize_axis_point_E_i"
+                    ],
+                    "capability_ids": [
+                      "quadratic_axis_parameterized_point"
+                    ],
+                    "teaching_unit_keys": [
+                      "quadratic_axis_parameterized_point/parameterize_axis_point"
+                    ],
+                    "title": "设对称轴上的参数点",
+                    "nav_title": "设参数点",
+                    "goal": "由对称轴方程，用一个参数表示轴上的目标点。",
+                    "derive": [
+                      [
+                        "∵",
+                        "E 在对称轴 x＝－1 上"
+                      ],
+                      [
+                        "设",
+                        "E(－1,t)"
+                      ]
+                    ],
+                    "box": [
+                      "E(－1,t)"
+                    ]
+                  },
+                  {
+                    "lesson_step_id": "teach:derive_square_vertex_G_i",
+                    "source_step_ids": [
+                      "derive_square_vertex_G_i"
+                    ],
+                    "capability_ids": [
+                      "square_adjacent_vertex_from_side"
+                    ],
+                    "teaching_unit_keys": [
+                      "square_adjacent_vertex_from_side/derive_adjacent_vertex"
+                    ],
+                    "title": "由正方形求相邻顶点G",
+                    "nav_title": "正方形求顶点G",
+                    "goal": "利用正方形相邻边垂直且等长，求相邻顶点坐标。",
+                    "derive": [
+                      [
+                        "作",
+                        "GQ⊥x轴于 Q"
+                      ],
+                      [
+                        "∵",
+                        "四边形 AEKG 是正方形"
+                      ],
+                      [
+                        "∴",
+                        "AE＝AG，∠EAG＝90°"
+                      ],
+                      [
+                        "∵",
+                        "∠EMA＝∠GQA＝90°"
+                      ],
+                      [
+                        "∴",
+                        "∠EAM＝∠AGQ"
+                      ],
+                      [
+                        "∴",
+                        "Rt△AEM≌Rt△GAQ"
+                      ],
+                      [
+                        "∴",
+                        "AQ＝ME＝t，GQ＝AM＝2"
+                      ],
+                      [
+                        "∵",
+                        "G 在 x 轴下方"
+                      ],
+                      [
+                        "∴",
+                        "G(t－3,－2)"
+                      ]
+                    ],
+                    "box": [
+                      "G(t－3,－2)"
+                    ]
+                  },
+                  {
+                    "lesson_step_id": "teach:solve_axis_point_candidates_i",
+                    "source_step_ids": [
+                      "solve_axis_point_candidates_i"
+                    ],
+                    "capability_ids": [
+                      "point_candidates_from_curve_point_condition"
+                    ],
+                    "teaching_unit_keys": [
+                      "point_candidates_from_curve_point_condition/solve_candidates"
+                    ],
+                    "title": "代入抛物线求点E候选",
+                    "nav_title": "求点E候选",
+                    "goal": "把同参数曲线点代入已知曲线，解参数并回代目标点。",
+                    "derive": [
+                      [
+                        "∵",
+                        "G(t－3,－2) 在 y＝－x²－2x＋3 上"
+                      ],
+                      [
+                        "∴",
+                        "－2＝－(t－3)²－2(t－3)＋3"
+                      ],
+                      [
+                        "计算",
+                        "(t－3)²＋2(t－3)－5＝0"
+                      ],
+                      [
+                        "∴",
+                        "t＝2±√6"
+                      ],
+                      [
+                        "∴",
+                        "E(－1,2＋√6) 或 E(－1,2－√6)"
+                      ]
+                    ],
+                    "box": [
+                      "E(－1,2＋√6) 或 E(－1,2－√6)"
+                    ]
+                  }
+                ]
+              }
+            },
+            "children": []
+          }
+        ]
+      },
+      {
+        "scope_ref": "ii",
+        "steps": [],
+        "goals": {
+          "ii.E": {
+            "steps": [
+              {
+                "lesson_step_id": "teach:derive_parametric_parabola_ii",
+                "source_step_ids": [
+                  "derive_parametric_parabola_ii"
+                ],
+                "capability_ids": [
+                  "quadratic_from_constraints"
+                ],
+                "teaching_unit_keys": [
+                  "quadratic_from_constraints/derive_function"
+                ],
+                "title": "化简函数解析式",
+                "nav_title": "化简解析式",
+                "goal": "代入当前问给出的约束，确定二次函数解析式。",
+                "derive": [
+                  [
+                    "∵",
+                    "A(－c,0) 在 y＝－x²＋bx＋c 上"
+                  ],
+                  [
+                    "∴",
+                    "0＝－c²－bc＋c＝－c(b＋c－1)"
+                  ],
+                  [
+                    "∵",
+                    "c＞1"
+                  ],
+                  [
+                    "∴",
+                    "b＝1－c"
+                  ],
+                  [
+                    "∴",
+                    "y＝－x²＋(1－c)x＋c"
+                  ]
+                ],
+                "box": [
+                  "y＝－x²＋(1－c)x＋c"
+                ]
+              },
+              {
+                "lesson_step_id": "teach:derive_path_minimum_ii:quadratic_square_path_minimum/path_reduction",
+                "source_step_ids": [
+                  "derive_path_minimum_ii"
+                ],
+                "capability_ids": [
+                  "quadratic_square_path_minimum"
+                ],
+                "teaching_unit_keys": [
+                  "quadratic_square_path_minimum/path_reduction"
+                ],
+                "title": "利用正方形关系化简路径",
+                "nav_title": "化简路径",
+                "goal": "用中点、中心和正方形等长关系，把原路径化为单动点路径。",
+                "derive": [
+                  [
+                    "∵",
+                    "FM=AE/2，HF=AG/2，AE=AG"
+                  ],
+                  [
+                    "∴",
+                    "HF+FM=AG"
+                  ],
+                  [
+                    "∴",
+                    "HF+FM+MG＝AG+MG"
+                  ]
+                ],
+                "box": [
+                  "HF+FM+MG＝AG+MG"
+                ]
+              },
+              {
+                "lesson_step_id": "teach:derive_path_minimum_ii:quadratic_square_path_minimum/reflection_minimum",
+                "source_step_ids": [
+                  "derive_path_minimum_ii"
+                ],
+                "capability_ids": [
+                  "quadratic_square_path_minimum"
+                ],
+                "teaching_unit_keys": [
+                  "quadratic_square_path_minimum/reflection_minimum"
+                ],
+                "title": "确定G的轨迹并用反射求最短路径",
+                "nav_title": "轨迹与反射",
+                "goal": "确定动点轨迹，构造对称点拉直折线，并给出最小值与取等位置。",
+                "derive": [
+                  [
+                    "∵",
+                    "G 的轨迹为 y=-c/2-1/2"
+                  ],
+                  [
+                    "作",
+                    "关于该轨迹构造 A′(-c,-c-1)"
+                  ],
+                  [
+                    "∵",
+                    "AG=A′G"
+                  ],
+                  [
+                    "∴",
+                    "AG+MG＝A′G+MG≥A′M"
+                  ],
+                  [
+                    "∴",
+                    "最小值为 √5|c+1|/2"
+                  ],
+                  [
+                    "∴",
+                    "在 G(1/4-3c/4,-c/2-1/2) 处取得"
+                  ]
+                ],
+                "box": [
+                  "最小值为 √5|c+1|/2",
+                  "取等点为 G(1/4-3c/4,-c/2-1/2)"
+                ]
+              },
+              {
+                "lesson_step_id": "teach:solve_parameter_c_ii",
+                "source_step_ids": [
+                  "solve_parameter_c_ii"
+                ],
+                "capability_ids": [
+                  "parameter_from_expression_value"
+                ],
+                "teaching_unit_keys": [
+                  "parameter_from_expression_value/solve_parameter"
+                ],
+                "title": "由表达式取值反求参数",
+                "nav_title": "反求参数",
+                "goal": "把题设给定值代入已得到的表达式，解出参数并筛选合法分支。",
+                "derive": [
+                  [
+                    "∵",
+                    "√5|c＋1|/2＝3√5"
+                  ],
+                  [
+                    "计算",
+                    "解关于 c 的方程并按题设条件筛选"
+                  ],
+                  [
+                    "∴",
+                    "c＝5"
+                  ]
+                ],
+                "box": [
+                  "c＝5"
+                ]
+              },
+              {
+                "lesson_step_id": "teach:evaluate_point_A_ii",
+                "source_step_ids": [
+                  "evaluate_point_A_ii"
+                ],
+                "capability_ids": [
+                  "evaluate_point_at_parameter"
+                ],
+                "teaching_unit_keys": [
+                  "evaluate_point_at_parameter/substitute_point_parameter"
+                ],
+                "title": "代入参数求点坐标",
+                "nav_title": "代入求点",
+                "goal": "把已求出的参数值代入含参点坐标，得到具体点。",
+                "derive": [
+                  [
+                    "∵",
+                    "A(-c,0)，c＝5"
+                  ],
+                  [
+                    "∴",
+                    "A(-5,0)"
+                  ]
+                ],
+                "box": [
+                  "A(-5,0)"
+                ]
+              },
+              {
+                "lesson_step_id": "teach:evaluate_minimum_point_G_ii",
+                "source_step_ids": [
+                  "evaluate_minimum_point_G_ii"
+                ],
+                "capability_ids": [
+                  "evaluate_point_at_parameter"
+                ],
+                "teaching_unit_keys": [
+                  "evaluate_point_at_parameter/substitute_point_parameter"
+                ],
+                "title": "代入参数求点坐标",
+                "nav_title": "代入求点",
+                "goal": "把已求出的参数值代入含参点坐标，得到具体点。",
+                "derive": [
+                  [
+                    "∵",
+                    "G(1/4-3c/4,-c/2-1/2)，c＝5"
+                  ],
+                  [
+                    "∴",
+                    "G(-7/2,-3)"
+                  ]
+                ],
+                "box": [
+                  "G(-7/2,-3)"
+                ]
+              },
+              {
+                "lesson_step_id": "teach:recover_target_point_E_ii",
+                "source_step_ids": [
+                  "recover_target_point_E_ii"
+                ],
+                "capability_ids": [
+                  "square_adjacent_vertex_from_side"
+                ],
+                "teaching_unit_keys": [
+                  "square_adjacent_vertex_from_side/derive_adjacent_vertex"
+                ],
+                "title": "由正方形求相邻顶点E",
+                "nav_title": "正方形求顶点E",
+                "goal": "利用正方形相邻边垂直且等长，求相邻顶点坐标。",
+                "derive": [
+                  [
+                    "作",
+                    "GQ⊥x轴于 Q"
+                  ],
+                  [
+                    "∵",
+                    "四边形 AEKG 是正方形"
+                  ],
+                  [
+                    "∴",
+                    "AG＝AE，∠GAE＝90°"
+                  ],
+                  [
+                    "∵",
+                    "∠GQA＝∠EMA＝90°"
+                  ],
+                  [
+                    "∴",
+                    "∠GAQ＝∠AEM"
+                  ],
+                  [
+                    "∴",
+                    "Rt△AGQ≌Rt△EAM"
+                  ],
+                  [
+                    "∴",
+                    "AM＝QG＝3，EM＝AQ＝3/2"
+                  ],
+                  [
+                    "∵",
+                    "按正方形顶点顺序选取 E"
+                  ],
+                  [
+                    "∴",
+                    "E(－2,3/2)"
+                  ]
+                ],
+                "box": [
+                  "E(－2,3/2)"
+                ]
+              }
+            ]
+          }
+        },
+        "children": []
+      }
+    ]
+  }
+}

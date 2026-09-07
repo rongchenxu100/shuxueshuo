@@ -6,7 +6,9 @@ from dataclasses import dataclass
 from functools import lru_cache
 from typing import Any
 
-from shuxueshuo_server.solver.explanation.models import LessonStep
+from shuxueshuo_server.solver.explanation.lesson_ir import (
+    OwnedLessonStep as LessonStep,
+)
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.recipes import RecipeSpecRegistry
 
@@ -71,7 +73,7 @@ class AnimationTimelineBuilder:
         interactions: tuple[JsonObject, ...],
     ) -> list[JsonObject]:
         beats: list[JsonObject] = []
-        substeps = tuple(lesson_step.teaching_substep_ids)
+        substeps = tuple(lesson_step.visual_unit_ids)
         for capability_id in lesson_step.capability_ids:
             recipe = _recipe_spec(capability_id)
             visual = recipe.visual if recipe is not None else None
@@ -101,6 +103,8 @@ def _translation_beats(lesson_step: LessonStep, bindings: VisualRoleBindings) ->
     for index, marker in enumerate(bindings.translation_markers):
         source = str(marker.get("source_point") or "")
         target = str(marker.get("target_point") or "")
+        source_label = str(marker.get("source_label") or _point_label(source))
+        target_label = str(marker.get("target_label") or _point_label(target))
         vector = marker.get("vector")
         if not source or not target:
             continue
@@ -120,8 +124,8 @@ def _translation_beats(lesson_step: LessonStep, bindings: VisualRoleBindings) ->
                 _beat(
                     lesson_step,
                     f"translation-{index}-move",
-                    f"{_point_label(source)} → {_point_label(target)}",
-                    [["∵", f"{_point_label(target)} 是 {_point_label(source)} 平移 {label} 得到"]],
+                    f"{source_label} → {target_label}",
+                    [["∵", f"{target_label} 是 {source_label} 平移 {label} 得到"]],
                     [
                         _point(source, color=COLOR_CONSTRAINT),
                         {
@@ -352,7 +356,11 @@ def _moving_point_sweep_to_minimum_beats(
         return []
     u_left, u_right, u_default = _u_sweep_values(interactions)
     path_lines = _reduced_path_lines(marker)
-    context = _moving_context_items(marker, include_auxiliary=True)
+    context = _moving_context_items(
+        marker,
+        include_auxiliary=True,
+        include_ray_moving=False,
+    )
     hide_minimum_refs = _minimum_segment_hide_refs(marker)
     if not _has_local_parameter(interactions):
         return [
@@ -438,7 +446,11 @@ def _minimum_segment_reveal_beats(
             "minimum segment",
             [["∴", f"最小值 = {minimum_segment.get('label') or ''}".strip()]],
             [
-                *_moving_context_items(marker, include_auxiliary=True),
+                *_moving_context_items(
+                    marker,
+                    include_auxiliary=True,
+                    include_ray_moving=False,
+                ),
                 *_line_items(path_lines, color=COLOR_PATH, dashed=False),
                 _path_minimum_triangle(marker),
                 _distance_marker(minimum_segment, color=COLOR_RESULT),
@@ -486,11 +498,11 @@ def _beat(
     }
 
 
-def _point(point_id: str, *, color: str) -> JsonObject:
+def _point(point_id: str, *, color: str, label: str = "") -> JsonObject:
     return {
         "component": "Point",
         "at": point_id,
-        "labelText": _point_label(point_id),
+        "labelText": label or _point_label(point_id),
         "color": color,
         "dx": 12,
         "dy": -14,
@@ -615,16 +627,36 @@ def _keep_only_first_replace_add(beats: list[JsonObject]) -> None:
         seen = True
 
 
-def _moving_context_items(marker: JsonObject, *, include_auxiliary: bool) -> list[JsonObject]:
+def _moving_context_items(
+    marker: JsonObject,
+    *,
+    include_auxiliary: bool,
+    include_ray_moving: bool = True,
+) -> list[JsonObject]:
     items: list[JsonObject] = []
-    for role in ("segment_moving_point", "ray_moving_point"):
+    roles = ["segment_moving_point"]
+    if include_ray_moving:
+        roles.append("ray_moving_point")
+    for role in roles:
         point = _point_for_role(marker, role)
         if point:
-            items.append(_point(point, color=COLOR_ACCENT))
+            items.append(
+                _point(
+                    point,
+                    color=COLOR_ACCENT,
+                    label=_role_label(marker, role),
+                )
+            )
     if include_auxiliary:
         auxiliary = _point_for_role(marker, "auxiliary_point")
         if auxiliary:
-            items.append(_point(auxiliary, color=COLOR_RESULT))
+            items.append(
+                _point(
+                    auxiliary,
+                    color=COLOR_RESULT,
+                    label=_role_label(marker, "auxiliary_point"),
+                )
+            )
     return items
 
 

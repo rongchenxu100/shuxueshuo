@@ -1087,34 +1087,6 @@ def default_result_form_spec(runtime_type: str) -> ScalarResultFormSpec | None:
 
 
 @dataclass(frozen=True)
-class TeachingSubstepSpec:
-    """一个 executable capability 在 LessonIR 中建议拆出的认知子步骤。"""
-
-    substep_id: str
-    title: str
-    focus: str
-    nav_title: str | None = None
-    title_required_terms: tuple[str, ...] = ()
-    nav_title_required_terms: tuple[str, ...] = ()
-    preferred_method_ids: tuple[str, ...] = ()
-    forbid_merge_with_sibling_substeps: bool = True
-
-    def to_payload(self) -> dict[str, Any]:
-        payload = {
-            "substep_id": self.substep_id,
-            "title": self.title,
-            "focus": self.focus,
-            "title_required_terms": list(self.title_required_terms),
-            "nav_title_required_terms": list(self.nav_title_required_terms),
-            "preferred_method_ids": list(self.preferred_method_ids),
-            "forbid_merge_with_sibling_substeps": self.forbid_merge_with_sibling_substeps,
-        }
-        if self.nav_title:
-            payload["nav_title"] = self.nav_title
-        return payload
-
-
-@dataclass(frozen=True)
 class TeachingUnitSpec:
     """One reusable, role-based student teaching unit for a capability."""
 
@@ -1159,22 +1131,6 @@ class TeachingUnitSpec:
 
 
 @dataclass(frozen=True)
-class MethodExplanationSpec:
-    """Method 面向讲解层的角色化模板。"""
-
-    role_schema: dict[str, str]
-    student_goal_template: str
-    student_title_template: str = ""
-    student_nav_title_template: str = ""
-    student_title_templates_by_goal: dict[str, str] = field(default_factory=dict)
-    derive_templates: tuple[str, ...] = ()
-    box_templates: tuple[str, ...] = ()
-    explanation_level: str = "template"
-    role_binding_strategy: str = "role_name_registry"
-    role_binder_id: str = "generic_trace"
-
-
-@dataclass(frozen=True)
 class MethodVisualSpec:
     """Method 面向 VisualStepIR 的角色化视觉模板。"""
 
@@ -1215,7 +1171,6 @@ class MethodSpec:
     trial_error_hints: tuple[TrialErrorHintSpec, ...] = ()
     repair_feedback_provider_id: str | None = None
     geometry_profiles: tuple[dict[str, Any], ...] = ()
-    explanation: MethodExplanationSpec | None = None
     teaching_unit: TeachingUnitSpec | None = None
     visual: MethodVisualSpec | None = None
     constraint_analyzer: str | None = None

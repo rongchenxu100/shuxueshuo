@@ -277,6 +277,7 @@ def test_final_prompt_is_compact_shared_and_contains_exact_plan_once(projection)
     schema = lesson_scope_content_schema(projection.plan)
     prompt = render_annotated_teaching_prompt(
         projection.plan,
+        authority=projection.authority,
         output_schema=schema,
     )
     audit = build_projection_audit(
@@ -286,14 +287,27 @@ def test_final_prompt_is_compact_shared_and_contains_exact_plan_once(projection)
     )
 
     assert prompt.user.count("## 全题型共享示例") == 1
-    assert prompt.user.count("△XYZ") >= 1
+    assert "s1 需要理解的新思考是根据周长建立方程并求参数" in prompt.user
+    assert "s2、s3 只是把刚得到的参数代入两个已有对象" in prompt.user
+    assert "如果后续材料需要新的几何构造、证明或分支选择" in prompt.user
+    assert '"source_steps":["s1","s2","s3"]' in prompt.user
+    assert "U(4,8)" in prompt.user
+    assert "l：y＝4x＋1" in prompt.user
     assert "中学数学讲解编排器" in prompt.system
-    assert "只有在合并能让推导更连贯且不遗漏关键理由时才合并" in prompt.system
-    assert "没有必要时保持独立步骤" in prompt.system
+    assert "学生步骤的边界应对应一次需要理解的新数学思考" in prompt.system
+    assert "而不是一次代码调用" in prompt.system
+    assert "是否需要转换思路" in prompt.system
+    assert "新的解题策略、定理、几何构造、证明、候选分支判断" in prompt.system
+    assert "不需要新的选择或理由" in prompt.system
+    assert "存在依赖”本身都不是合并理由" in prompt.system
+    assert "而不是压缩数学内容" in prompt.system
     assert "让学生清楚每一步为什么成立、得到什么以及如何衔接下一步" in prompt.system
+    assert "只能使用当前 materials 的 derive、calculations 和 conclusions 中已经明确给出的计算" in prompt.system
+    assert "不得自行新增代入、化简、方程、坐标计算或数值运算" in prompt.system
     assert "你不需要返回 conclusions 或 box" in prompt.system
     assert "root_scope 仅按真实父子关系递归展示上下文" in prompt.system
     assert "只按同名 scope_ref/goal_ref 填写正文，不要重建 children" in prompt.system
+    assert "child Scope 或 sibling Scope 的结果绝不能提前写回" in prompt.system
     assert "初中数学讲解编排器" not in prompt.system
     assert "tj-2026-heping-ermo-25" not in prompt.user
     assert "expected_answers" not in prompt.user
@@ -302,10 +316,24 @@ def test_final_prompt_is_compact_shared_and_contains_exact_plan_once(projection)
     assert audit["shared_few_shot"] == {
         "count": 1,
         "same_problem": False,
-        "mechanism": "right_triangle_pythagorean",
+        "mechanism": "student_cognitive_action_boundary",
     }
     assert audit["llm_invoked"] is False
-    assert audit["prompt_chars"]["total"] < 12_500
+    assert audit["prompt_chars"]["total"] < 14_000
+    assert audit["independent_step_refs"] == {
+        "goal:i_2.E": ["s1", "s2", "s3"],
+        "goal:ii.E": ["s2", "s3", "s7"],
+    }
+    assert "## 必须独立的教学材料" in prompt.user
+    assert "- Goal i_2.E：s1、s2、s3" in prompt.user
+    assert "- Goal ii.E：s2、s3、s7" in prompt.user
+    assert "requires_independent_lesson_step" not in prompt.user
+    assert "AtomicPathMinimumMarker" not in prompt.user
+    assert "local_interaction" not in prompt.user
+    assert "square_axis_motion" not in prompt.user
+    assert "constraint_carriers" not in prompt.user
+    assert "show_fixed_endpoint" not in prompt.user
+    assert "show_axis_context" not in prompt.user
     plan_json = prompt.user.split("## Annotated Teaching Plan\n\n", 1)[1]
     assert json.loads(plan_json) == projection.plan.to_payload()
 

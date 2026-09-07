@@ -27,7 +27,7 @@ from shuxueshuo_server.solver.extraction.problem_domain_smoke import (
     _repo_root,
     _resolve_repo_path,
 )
-from shuxueshuo_server.solver.lesson_scope_authoring_smoke import (
+from shuxueshuo_server.solver.lesson_authoring_support import (
     CASE_ID,
     DEFAULT_OUTPUT_ROOT,
     build_recorded_snapshot,
@@ -63,6 +63,7 @@ def build_annotated_teaching_review(
     output_schema = lesson_scope_content_schema(projection.plan)
     prompt = render_annotated_teaching_prompt(
         projection.plan,
+        authority=projection.authority,
         output_schema=output_schema,
     )
     audit = build_projection_audit(
@@ -271,6 +272,7 @@ pre{{margin:0;white-space:pre-wrap;word-break:break-word;background:#f4f2ed;bord
 <header><h1>F5-F5B2 Annotated Teaching Review</h1><div class="stats">
 <div class="stat">{summary['scope_count']} 个 Scope</div><div class="stat">{summary['step_count']} 个 Step</div>
 <div class="stat">{summary['teaching_material_count']} 份材料</div><div class="stat">Rubric {len(summary['rubric_coverage']['covered'])}/5</div>
+<div class="stat">{summary['independent_teaching_material_count']} 份必须独立</div>
 <div class="stat">Prompt {summary['prompt_chars']['total']:,} chars</div></div>
 <div class="tabs"><button class="active" data-tab="cards">逐步审阅</button><button data-tab="plan">Raw Plan</button><button data-tab="prompt">Actual Prompt</button><button data-tab="schema">Schema / Audit</button></div></header>
 <div class="layout"><aside>{nav}</aside><main>

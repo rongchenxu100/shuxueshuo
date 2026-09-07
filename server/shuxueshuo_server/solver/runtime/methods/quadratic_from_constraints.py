@@ -11,11 +11,11 @@ from itertools import combinations
 from typing import Any, Literal, Mapping
 
 from shuxueshuo_server.solver.contracts import (
-    MethodExplanationSpec,
     MethodInputBindingSpec,
     MethodInputRelationSpec,
     MethodCompanionOutputSpec,
     MethodOutputActivationSpec,
+    MethodVisualSpec,
     OrdinalZeroTemplateDerivationSpec,
     ScalarResultFormSpec,
     SymbolicClosureSpec,
@@ -774,28 +774,6 @@ SPEC = MethodSpecSource(
         ),
         output_validator="quadratic_closure_outputs",
     ),
-    explanation=MethodExplanationSpec(
-        role_schema={
-            "constraints": "用于确定当前问二次函数的系数约束。",
-            "derive_items": (
-                "若存在曲线点条件，由已验证点坐标与当前函数式逐行生成"
-                "“点在曲线上、代入坐标、化简系数关系、写出解析式”的数学推导；"
-                "不保存具体点名、坐标或答案。"
-            ),
-            "result_parabola": "由约束得到的当前问抛物线解析式。",
-            "parabola_title_action": "标题动词；完全确定时为求，含后续参数时为化简。",
-            "completed_square_suffix": "配方形式补充说明；没有配方形式时为空。",
-        },
-        student_goal_template="代入当前问给出的约束，确定二次函数解析式。",
-        student_title_template="{parabola_title_action}函数解析式",
-        student_nav_title_template="{parabola_title_action}解析式",
-        derive_templates=(
-            "∵{constraints}",
-            "∴y＝{result_parabola}{completed_square_suffix}",
-        ),
-        box_templates=("y＝{result_parabola}",),
-        role_binder_id="quadratic_from_constraints",
-    ),
     teaching_unit=TeachingUnitSpec(
         unit_key="quadratic_from_constraints/derive_function",
         title_template="{parabola_title_action}函数解析式",
@@ -825,5 +803,17 @@ SPEC = MethodSpecSource(
             "completed_square_suffix": "可选的配方形式说明。",
         },
         role_binder_id="quadratic_from_constraints",
+    ),
+    visual=MethodVisualSpec(
+        role_schema={
+            "parabola": "本步骤由约束确定或化简后的二次函数图象。",
+        },
+        scene_templates=(
+            {
+                "component": "QuadraticCurveMarker",
+                "persistence": "carry_forward",
+            },
+        ),
+        role_binder_id="generic_visual",
     ),
 )

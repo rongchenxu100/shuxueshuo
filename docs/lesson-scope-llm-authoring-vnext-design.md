@@ -1,7 +1,8 @@
 # F5-F5B/G1 Lesson Scope LLM Authoring 与视觉选择 vNext 设计
 
 状态：`IMPLEMENTATION`。`F5-F5B0 COMPLETE`；`F5-F5B1 COMPLETE`；
-`F5-F5B2 COMPLETE`；`F5-F5B3 COMPLETE`；`F5-F5B4 NEXT`。
+`F5-F5B2 COMPLETE`；`F5-F5B3 COMPLETE`；`F5-F5B4 / F5-F5B4V COMPLETE`；
+`F5-F5C NEXT`。
 
 日期：2026-09-01。
 
@@ -28,7 +29,8 @@ F5-F5B0 的只读基线、rubric、coverage inventory 与 recorded/live harness 
 改变生产协议。F5-F5B1 的 Snapshot v3、Evidence Projector、TeachingUnitSpec 与只读 Review
 artifact 已完成人工审阅并收口；F5-F5B2 的 Annotated Teaching Plan、动态输出 Schema、最终
 Prompt 与双 artifact Review 也已通过人工门禁。B3 的调用、解析、fallback 与评测已实现，
-精简协议后的 live 输出与人工门禁均已通过；recursive LessonIR 生产切换属于 B4。
+精简协议后的 live 输出与人工门禁均已通过。recursive LessonIR、递归 VisualStepIR v2、
+完整 Frame 页面与图形状态审计也已完成人工审阅；下一阶段进入五题教学质量扩展。
 
 ## 1. 结论
 
@@ -207,7 +209,7 @@ vNext 把 Scope/Goal 容器、可用 teaching units、事实集合和数学结�
 - 当前题学生标题；
 - 当前题讲解目标的完整措辞；
 - 每一行之间的自然语言过渡；
-- 哪些可选计算值得展开；
+- 输入中哪些已经验证的可选计算值得展示；
 - 同一 Scope/Goal 中哪些 canonical-contiguous teaching materials 值得合并；
 - 学生讲解应该强调哪一个已验证机制。
 
@@ -218,8 +220,11 @@ LLM 根据绑定完成的 suggested draft 与完整计算现场负责：
 - 润色每个学生步骤的 title、nav_title 和 goal；
 - 以 suggested derive 为可信底稿，结合 verified calculations 调整为完整的
   `∵ / ∴ / 作 / 设 / 计算` 推导；
+- 可以改写已有推导的措辞、合并重复表达，并补充不产生新数学事实的自然语言衔接；只能
+  使用当前 materials 的 `derive/calculations/conclusions` 中已经明确给出的计算，不能自行
+  新增代入、化简、方程、坐标计算或数值运算；
 - 不回显关键结论；代码从所消费材料的 verified `conclusions` 生成 box；
-- 为关键跳步补充少量学生能理解的解释；
+- 为关键跳步补充少量不引入新数学事实、学生能理解的自然语言解释；
 - 选择必讲事实之外的可选细节；
 - 在同一 Scope/Goal 中自行判断 canonical-contiguous teaching materials 的讲解粒度与合并；
 - 决定一个 Macro 的 public outline units 是保持分开，还是合并成一个较长步骤；
@@ -1027,8 +1032,8 @@ provenance；每个 LessonStepDraft 直接列出它合并的相邻教学步骤�
 身份或数学引用职责。
 LLM 只输出 `source_steps/title/nav_title/goal/derive`，不返回 conclusion、box、visual、
 calculation/fact/unit ID。代码按被消费材料确定性合并 `conclusions` 并生成最终 Lesson box。
-一个材料需要更详细
-时，在同一个 LessonStepDraft 的 `derive` 中展开更多行；若某个原子 Macro 当前实际推导必须
+一个材料需要更详细时，只能选用其输入中已有的 verified calculations，并在同一个
+LessonStepDraft 的 `derive` 中展开更多行，不能由 LLM 自行补算；若某个原子 Macro 当前实际推导必须
 形成多个学生阶段，应由已选中 Variant 的 `TeachingUnitSpec[]` 预先提供相应材料边界。
 
 ### 9.3 VisualSelection（B3 不启用）
@@ -1070,6 +1075,9 @@ outputs 和 verified intermediate calculations，它执行的是受材料约束�
 
 - `derive` 是 presentation text，不是新的数学事实源；最终 box 由代码从 verified
   `conclusions` 注入；
+- LLM 可以润色已有数学语言，但输出中的每项计算必须已经明确存在于所消费 materials 的
+  `derive/calculations/conclusions`；允许补充不产生新事实的自然语言衔接，不允许自行完成
+  新的代入、化简、解方程、坐标或数值计算；
 - LessonIR 保存由代码注入的 `source_step_ids/capability_ids/teaching_substep_ids`，以及经过
   校验的 visual selections；opaque evidence key 留在内部 authority envelope，不进入 LLM
   request/response 或公开 LessonIR；
@@ -1855,7 +1863,8 @@ B1.4 人工门禁已于 2026-09-01 通过：`12` 张 Step 卡片与 `13` 份教�
 Prompt 将角色定义为“中学数学讲解编排器”，以同时覆盖初中与高中内容；明确目标是把当前题
 已经验证的推导整理成学生容易理解的完整讲解。LLM 逐项审视同一 Scope/Goal 内相邻材料，
 只有合并能提高连贯性且不遗漏关键理由时才合并，没有必要时保持独立，并负责完善或润色
-标题、讲解目标、数学推导和少量必要说明。
+标题、讲解目标、数学推导和少量必要说明；derive 只能改写已有内容或采用输入中已经明确
+给出的 verified calculations，不得自行新增任何计算。
 
 和平硬门禁：必须同时人工 review `annotated-teaching-plan.json` 与实际 `prompt.user.md`，
 缺少任一 artifact、任一 artifact 尚未确认或审阅反馈尚未收口时，B2 不得标记 COMPLETE，
@@ -1869,7 +1878,7 @@ PathTransformation、synthetic PointRef、teaching_case、variant_key、未选�
 LLM-facing Schema 或 prompt payload 中；教学容器不得使用 `scope_steps` 或
 `lesson_steps`。
 
-B2 实现与人工门禁记录（2026-09-01）：
+B2 实现与人工门禁记录（2026-09-07）：
 
 - `functional-annotated-teaching-plan/v1` 已落地；和平二模投影 `5` 个 Scope、`4` 个 Goal、
   `12` 个 Canonical Step、`13` 份 teaching material 和 `4` 个 verified answer；
@@ -1882,9 +1891,9 @@ B2 实现与人工门禁记录（2026-09-01）：
   同时明确递归 `root_scope` 只展示真实上下文，输出 Scope 已由 Schema 展开并固定，LLM
   只按同名 `scope_ref/goal_ref` 填写正文，不重建 `children` 或返回未列出的上下文 Scope；
 - 全题型共享 few-shot 为与当前题题面、对象和数值均不同的勾股定理示例，同题 few-shot 禁用；
-- 局部 source-step 编号合同重新生成后的 Review batch 为
-  `f5-f5b2-heping-annotated-review-scope-note`；Prompt 为 system `753` 字符、user
-  `11,706` 字符、合计 `12,459` 字符，仍显著低于 B0 的
+- 当前人工批准的 Review batch 为
+  `f5-f5b2-heping-annotated-review-cognitive-boundary-r12`；Prompt 为 system `1,316` 字符、user
+  `12,126` 字符、合计 `13,442` 字符，仍显著低于 B0 的
   `54,707`；projection diagnostic 与 forbidden-field hit 均为 `0`，且本阶段未调用 LLM；
 - 和平 rubric 保持 `5/5`；精简合同专项为 `134 passed, 3 skipped`，全部 Solver 回归为
   `2379 passed, 12 skipped`，当前无 serial Solver 用例；旧 deterministic LessonIR、VisualStepIR
@@ -1966,6 +1975,26 @@ low 批总 completion 为 `18,973` token，其中 reasoning 为 `13,957`；provi
 窄兜底后用原始 provider response 离线回放，结果为四个 Scope 全部保留 LLM body、只在
 `scope:i` 的 Canonical 位置 2 补回 `s2`，contract/authority/rubric 均通过且无 Scope fallback。
 
+最终在“derive 可润色既有推导、但不得增加新的数学计算”规则下运行 disabled live `1×3`，
+batch 为 `f5-f5b3-heping-no-new-calculation-thinking-disabled-live-1x3-r8`。三份均为 `13`
+个独立教学步骤、一次 semantic/transport request、直接接受，contract/authority/rubric
+全部通过，且无 fallback、JSON/材料补全/独立边界修复。合计 prompt/completion/total token
+为 `15,894 / 5,388 / 21,282`，provider 聚合耗时 `24.631s`。人工审阅接受 sample-01 在
+最后正方形步骤中补充的正确坐标衔接，不再进一步收紧该规则；该 sample 已冻结为 B3 fixture。
+
+随后将合并原则改写为学生认知边界：一个教学步骤对应一次新的数学思考；直接代入、展开与
+结果落点在没有引入新策略时可与其来源合并，而新构造、新定理、新证明或分支选择必须独立。
+通用 few-shot 同样解释原因，不机械指定某几个步骤必须合并。最终 Prompt hash 为
+`acb02b69c5ec6bc38a45e52717774743399ef884362e28de874ab845374bd3f6`。
+
+最终 disabled live `1×3` batch 为
+`f5-f5b3-heping-cognitive-boundary-thinking-disabled-live-1x3-r12`：三份均直接接受，
+contract/authority/rubric 均通过，无 fallback 或代码修复；三份分别为 `12/12/13` 个教学步骤，
+合计 prompt/completion/total token 为 `17,046 / 5,216 / 22,262`，provider 聚合耗时
+`26.341s`。thinking-low 对照批同样 `3/3` 通过，但 total token 为 `44,358`、provider 聚合
+耗时 `181.058s`，故生产默认继续使用 disabled。人工确认“符合认知边界时最好合并，但不合并
+也可接受”；disabled sample-02（12 步）已冻结为 B3 fixture。
+
 B3 人工批准回归 fixture 保存于 `heping_ermo_b3/`：包含当前 Prompt hash 下的 normalized
 Scope Content、evaluation 与 review summary。它只供 B4 及后续回归，不允许进入 generator
 Prompt 或 few-shot。
@@ -1973,7 +2002,7 @@ Prompt 或 few-shot。
 测试记录：B0–B3/Visual 专项 `159 passed, 3 skipped`；全部非 serial、非 live Solver 测试
 `2384 passed, 12 skipped`；当前无 serial Solver 用例（`2396 deselected`）。
 
-### 18.7 F5-F5B4：recursive LessonIR 生产切换（NEXT）
+### 18.7 F5-F5B4：recursive LessonIR 生产切换（COMPLETE）
 
 实现：
 
@@ -1991,6 +2020,62 @@ Prompt 或 few-shot。
 
 和平门禁：LLM body 与 fallback 两条路径均生成相同 owner/topology；最终答案继续来自
 Snapshot；相同 Snapshot 下 recorded 输出稳定。
+
+#### F5-F5B4V：递归 Scope 图形状态模型（COMPLETE）
+
+B4 首版页面暴露了旧 section accumulator 的真实错误：早期步骤提前显示 M/K，`scope i` 的
+M 被 `scope ii` 的含参/最终状态覆盖，Macro 多个教学阶段挤在同一幅累积图中。B4V 因此在
+B4 完成前直接切换到 `visual-step-ir/v2`：
+
+```mermaid
+flowchart LR
+  S["Snapshot v3"] --> R["recursive branch state"]
+  L["LessonIR v2"] --> R
+  V["Method/Macro VisualSpec"] --> R
+  R --> F["complete Frame objects<br/>focus/context"]
+  F --> P["deterministic page compiler"]
+```
+
+实现边界：
+
+- Visual Scope/Goal 树与 LessonIR 同构，owner 不重复序列化；
+- 每个 Frame 是完整场景，未列入 `objects[]` 即不可见；
+- Goal/child 从 parent end state 分别 clone；Goal 第一帧继承直接 Scope 场景，同一 Goal 后续帧
+  继承上一完整场景，并把当前增量标为 focus；禁止 sibling/parent 回流；
+- 精确跨容器依赖只导入引用对象；已验证的同曲线标志点可按曲线表达式与 public Point identity
+  精确导入后续 sibling，但都不复制整幅 producer 场景；
+- geometry identity 包含 branch 与公开来源，同名 `M_i/M_ii` 不复用；
+- 参数只在产生它的分支和时间点生效；只有 verified 含参动点的专属参数使用 Frame-local
+  slider，曲线族系数等普通自由符号只提供无控件示意求值；
+- viewport 只由有限教学焦点、相连构型及当前 verified candidate landmarks 决定；抛物线、
+  对称轴、轨迹和射线不扩大范围；动点 slider 会采样演示区间两端，保证有限联动构型全程完整；
+- 当前 Step 若公开产生有限点候选集，代码从参数化点表达式反解 candidate landmarks，使滑杆
+  覆盖并可精确跳到每个候选；命中时按 geometry identity 强调对应候选与联动构型，不按
+  capability、题号、点名、显示字符串或固定答案写条件；
+- VisualSpec 只选择高层组件；renderer 根据 verified `roles + role_point_refs + segments` 自动
+  完成语义图形闭包，补齐结构化线段端点，并校验必要点线没有遗漏；局部动点交互根据 exact
+  curve provenance 自动补充对称轴等约束载体，不解析 LLM 的自由讲解文本；
+- 带独立视觉边界的 Macro TeachingUnit 分成独立 LessonStep，每步一幅完整 Frame；
+- Frame caption 只保留为多 Frame 的内部审计/无障碍名称，不再在 Lesson 卡片中重复显示；
+- compiler/page 不再读取 section layers、carry-forward SVG 或 DOM 状态；
+- 第二个 `LLMVisualStepOptimizer` 与 `VisualGap` 退出生产路径，G1 只允许同一次 Lesson LLM
+  从代码绑定的候选组件中选择。
+
+持久化合同、状态语义与逐 Frame 门禁详见
+[VisualStepIR v2 递归 Scope 图形状态设计](visual-step-ir-design.md)。和平二模人工 Review 预期为
+`5 Scope / 4 Goal / 12 LessonStep / 12 Visual Frame`；approved 路径使用最终 B3 sample-02，
+其中 scope i 的解析式与左交点两份相邻材料合并；deterministic fallback 仍为
+`13 LessonStep / 13 Visual Frame`。两条路径均已通过递归 owner、answer producer、geometry
+validator 与页面编译门禁。
+
+当前递归 LessonIR Review batch：
+`f5-f5b4-heping-recursive-lesson-review-cognitive-boundary-r12`；当前递归视觉 Review batch：
+`f5-f5b4v-heping-recursive-visual-review-cognitive-boundary-r12`。B2–B4/Visual 定向专项
+`80 passed`，全部非 serial、非 live Solver 回归 `2308 passed, 7 skipped`；geometry
+validator 与 HTML compiler 通过，人工页面已确认。批准的 recursive
+LessonIR、VisualStepIR、assembly/state authority 与 artifact hashes 保存于 `heping_ermo_b4/`，
+只用于回归，不进入 Prompt 或 few-shot。Snapshot v3 的序列化往返会重建逐字一致的
+VisualStepIR，图形身份不再依赖非序列化 runtime sidecar。
 
 ### 18.8 F5-F5C：LLM 输出质量迭代与五题扩展
 

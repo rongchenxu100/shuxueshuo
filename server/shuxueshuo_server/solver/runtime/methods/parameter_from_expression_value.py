@@ -7,7 +7,6 @@
 from __future__ import annotations
 
 from shuxueshuo_server.solver.contracts import (
-    MethodExplanationSpec,
     SymbolicClosureSpec,
     TeachingUnitSpec,
 )
@@ -137,22 +136,6 @@ SPEC = MethodSpecSource(
         "若方程有多个分支，constraint 必须唯一筛选一个合法分支",
     ),
     postconditions=("输出参数值满足表达式取值条件",),
-    explanation=MethodExplanationSpec(
-        role_schema={
-            "expression": "前序步骤得到的含参表达式。",
-            "target_value": "题设给出的表达式取值。",
-            "parameter": "需要反求的参数。",
-            "parameter_value": "解出的参数值。",
-        },
-        student_goal_template="把题设给定值代入已得到的表达式，解出参数。",
-        student_title_template="由表达式取值反求参数",
-        derive_templates=(
-            "∵{expression}＝{target_value}",
-            "∴{parameter}＝{parameter_value}",
-        ),
-        box_templates=("{parameter}＝{parameter_value}",),
-        role_binder_id="parameter_from_expression_value",
-    ),
     teaching_unit=TeachingUnitSpec(
         unit_key="parameter_from_expression_value/solve_parameter",
         title_template="由表达式取值反求参数",

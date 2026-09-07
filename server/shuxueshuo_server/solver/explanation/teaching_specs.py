@@ -6,10 +6,7 @@ from dataclasses import dataclass
 import re
 from typing import Any, Callable, Mapping, Sequence
 
-from shuxueshuo_server.solver.contracts import (
-    MethodExplanationSpec,
-    TeachingUnitSpec,
-)
+from shuxueshuo_server.solver.contracts import TeachingUnitSpec
 from shuxueshuo_server.solver.runtime.macro_atomicity import (
     contains_private_path_projection_marker,
 )
@@ -18,10 +15,12 @@ from shuxueshuo_server.solver.runtime.recipes import RecipeSpecRegistry
 from shuxueshuo_server.solver.runtime.recipes._spec import MacroTeachingSpec
 from shuxueshuo_server.solver.student_display import student_math_display
 
-from .models import ExplanationSnapshot, LessonCandidateGroup, TeachingSource
-from .role_binders import RoleBinderRegistry
-from .role_binders.common import format_template
-from .role_binders.methods import _quadratic_curve_point_derivation
+from .models import ExplanationSnapshot, TeachingSource
+from .teaching_role_bindings import (
+    TeachingRoleBindingError,
+    bind_teaching_roles,
+    format_teaching_template,
+)
 
 
 class TeachingSpecBindingError(ValueError):
@@ -67,6 +66,145 @@ TeachingUnitFallback = Callable[
 ]
 
 
+INDEPENDENT_LESSON_STEP_TEMPLATE_KEY = (
+    "requires_independent_lesson_step"
+)
+
+
+class TeachingSeparationBoundaryResolver:
+    """Resolve code-owned teaching boundaries from Method/Macro VisualSpec.
+
+    The result is deliberately material-local.  A visual capability existing
+    is not itself a boundary: only an explicitly marked scene template makes
+    its corresponding teaching material occupy one LessonStep.  This keeps
+    compatible Method visuals composable while giving Method and Macro units
+    exactly the same rule.
+    """
+
+    def __init__(
+        self,
+        *,
+        methods: MethodSpecRegistry | None = None,
+        recipes: RecipeSpecRegistry | None = None,
+    ) -> None:
+        self._methods = methods or MethodSpecRegistry.load_from_code()
+        self._recipes = recipes or RecipeSpecRegistry.load_from_code()
+
+    def requires_independent_lesson_step(
+        self,
+        source: TeachingSource,
+        *,
+        capability_kind: str,
+        unit_key: str,
+    ) -> bool:
+        return self.requires_independent_lesson_step_for_unit(
+            capability_id=source.capability_id,
+            capability_kind=capability_kind,
+            unit_key=unit_key,
+        )
+
+    def requires_independent_lesson_step_for_unit(
+        self,
+        *,
+        capability_id: str,
+        capability_kind: str,
+        unit_key: str,
+    ) -> bool:
+        """Resolve one material without requiring a serialized source object."""
+
+        method = self._methods.specs.get(capability_id)
+        recipe = self._recipes.get(capability_id)
+        if (method is None) == (recipe is None):
+            raise TeachingSpecBindingError(
+                "teaching_separation_capability_classification_invalid: "
+                f"{capability_id}"
+            )
+        if method is not None:
+            if capability_kind != "function":
+                raise TeachingSpecBindingError(
+                    "teaching_separation_capability_kind_mismatch: "
+                    f"{capability_id}: {capability_kind}"
+                )
+            expected_key = (
+                method.teaching_unit.unit_key
+                if method.teaching_unit is not None
+                else f"{capability_id}/default"
+            )
+            if unit_key != expected_key and not unit_key.endswith("/generic"):
+                raise TeachingSpecBindingError(
+                    "teaching_separation_unit_unknown: "
+                    f"{capability_id}: {unit_key}"
+                )
+            templates = (
+                method.visual.scene_templates
+                if method.visual is not None
+                else ()
+            )
+            return _templates_require_independent_lesson_step(
+                templates,
+                capability_id=capability_id,
+                unit_key=unit_key,
+            )
+
+        assert recipe is not None
+        if capability_kind != "macro":
+            raise TeachingSpecBindingError(
+                "teaching_separation_capability_kind_mismatch: "
+                f"{capability_id}: {capability_kind}"
+            )
+        known_unit_keys = _macro_teaching_unit_keys(recipe.teaching)
+        if unit_key not in known_unit_keys:
+            if unit_key.endswith("/generic"):
+                return False
+            raise TeachingSpecBindingError(
+                "teaching_separation_unit_unknown: "
+                f"{capability_id}: {unit_key}"
+            )
+        unit_tail = unit_key.rsplit("/", 1)[-1]
+        templates = (
+            recipe.visual.teaching_substep_templates.get(unit_tail, ())
+            if recipe.visual is not None
+            else ()
+        )
+        return _templates_require_independent_lesson_step(
+            templates,
+            capability_id=capability_id,
+            unit_key=unit_key,
+        )
+
+
+def _macro_teaching_unit_keys(
+    teaching: MacroTeachingSpec | None,
+) -> frozenset[str]:
+    if teaching is None:
+        return frozenset()
+    if teaching.teaching_units:
+        return frozenset(unit.unit_key for unit in teaching.teaching_units)
+    return frozenset(
+        unit.unit_key
+        for variant in teaching.teaching_variants
+        for unit in variant.teaching_units
+    )
+
+
+def _templates_require_independent_lesson_step(
+    templates: Sequence[Mapping[str, Any]],
+    *,
+    capability_id: str,
+    unit_key: str,
+) -> bool:
+    values: list[bool] = []
+    for index, template in enumerate(templates):
+        raw = template.get(INDEPENDENT_LESSON_STEP_TEMPLATE_KEY, False)
+        if not isinstance(raw, bool):
+            raise TeachingSpecBindingError(
+                "teaching_separation_template_flag_invalid: "
+                f"{capability_id}/{unit_key}[{index}]"
+            )
+        values.append(raw)
+    return any(values)
+
+
 class TeachingSpecBinder:
     """Resolve one capability spec and bind it using verified Snapshot data."""
 
@@ -75,11 +213,9 @@ class TeachingSpecBinder:
         *,
         methods: MethodSpecRegistry | None = None,
         recipes: RecipeSpecRegistry | None = None,
-        role_binders: RoleBinderRegistry | None = None,
     ) -> None:
         self._methods = methods or MethodSpecRegistry.load_from_code()
         self._recipes = recipes or RecipeSpecRegistry.load_from_code()
-        self._role_binders = role_binders or RoleBinderRegistry.default()
 
     def generic_spec_payload(self, source: TeachingSource) -> dict[str, Any]:
         method = self._methods.specs.get(source.capability_id)
@@ -141,28 +277,16 @@ class TeachingSpecBinder:
                 "teaching_spec_capability_classification_invalid: "
                 f"{source.capability_id}"
             )
-        group = _group_for_source(source, snapshot)
         if method is not None:
             unit = method.teaching_unit or _default_teaching_unit(source)
-            explanation = MethodExplanationSpec(
-                role_schema=dict(unit.role_schema),
-                student_goal_template=unit.goal_template,
-                student_title_template=unit.title_template,
-                student_nav_title_template=unit.nav_title_template,
-                role_binder_id=unit.role_binder_id,
-            )
-            roles = self._role_binders.require_method(unit.role_binder_id).bind(
-                method_id=method.method_id,
-                explanation=explanation,
-                group=group,
-                snapshot=snapshot,
-            )
-            roles = _enrich_method_roles(
-                source,
-                roles,
-                group=group,
-                snapshot=snapshot,
-            )
+            try:
+                roles = bind_teaching_roles(
+                    source,
+                    unit,
+                    snapshot=snapshot,
+                )
+            except TeachingRoleBindingError as exc:
+                raise TeachingSpecBindingError(str(exc)) from exc
             return BoundTeachingSelection(
                 kind="function",
                 units=(
@@ -197,25 +321,6 @@ class TeachingSpecBinder:
         )
 
 
-def _group_for_source(
-    source: TeachingSource,
-    snapshot: ExplanationSnapshot,
-) -> LessonCandidateGroup:
-    step = next(
-        (
-            item
-            for item in snapshot.effective_steps
-            if str(item.get("step_id") or "") == source.source_step_id
-        ),
-        None,
-    )
-    if step is None:
-        raise TeachingSpecBindingError(
-            f"teaching_spec_source_step_missing: {source.source_step_id}"
-        )
-    return LessonCandidateGroup(step=step, sources=(source,))
-
-
 def _default_teaching_unit(source: TeachingSource) -> TeachingUnitSpec:
     outputs = "，".join(
         str(item.get("display") or name)
@@ -230,52 +335,6 @@ def _default_teaching_unit(source: TeachingSource) -> TeachingUnitSpec:
         box_templates=((outputs,) if outputs else ()),
         role_binder_id="generic_trace",
     )
-
-
-def _enrich_method_roles(
-    source: TeachingSource,
-    roles: Mapping[str, Any],
-    *,
-    group: LessonCandidateGroup,
-    snapshot: ExplanationSnapshot,
-) -> dict[str, Any]:
-    result = dict(roles)
-    if source.capability_id == "quadratic_from_constraints":
-        dynamic = _quadratic_curve_point_derivation(
-            group=group,
-            snapshot=snapshot,
-            calculation="",
-            result_parabola=str(result.get("result_parabola") or ""),
-            completed_square_suffix=str(result.get("completed_square_suffix") or ""),
-            use_verified_source=True,
-        )
-        if dynamic:
-            result["derive_items"] = dynamic
-            result["constraint_origin"] = dynamic[0].removeprefix("∵")
-            result["constraint_derivation"] = "；".join(
-                item.removeprefix("∵").removeprefix("∴")
-                for item in dynamic[1:-1]
-            )
-    if source.capability_id != "evaluate_point_at_parameter":
-        return result
-    point_inputs = source.inputs.get("point", ())
-    parameter_inputs = source.inputs.get("parameter_value", ())
-    evaluated = source.outputs.get("evaluated_point")
-    if len(point_inputs) == 1:
-        source_display = str(point_inputs[0].get("display") or "")
-        target = source.output_targets.get("evaluated_point")
-        if target and source_display.startswith("("):
-            source_display = f"{target}{source_display}"
-        result["source_point"] = source_display
-    if len(parameter_inputs) == 1:
-        item = parameter_inputs[0]
-        ref = item.get("ref")
-        if isinstance(ref, Mapping) and ref.get("kind") == "source":
-            result["parameter"] = str(ref.get("ref") or "")
-        result["parameter_value"] = str(item.get("display") or "")
-    if evaluated is not None:
-        result["evaluated_point"] = str(evaluated.get("display") or "")
-    return result
 
 
 def _select_macro_units(
@@ -321,6 +380,28 @@ def _macro_roles(
     *,
     snapshot: ExplanationSnapshot,
 ) -> dict[str, Any]:
+    witness = _single_macro_witness(source, snapshot=snapshot)
+    if source.capability_id == "quadratic_square_path_minimum":
+        return _quadratic_square_macro_roles(source, witness=witness)
+    if source.capability_id == "equal_length_ray_path_reduction":
+        return _equal_length_ray_macro_roles(source, witness=witness)
+    if source.capability_id == (
+        "coupled_segment_endpoint_replacement_path_minimum"
+    ):
+        return _coupled_segment_macro_roles(source, witness=witness)
+    if source.capability_id == "weighted_axis_path_minimum":
+        return _weighted_axis_macro_roles(source, witness=witness)
+    raise TeachingSpecBindingError(
+        "teaching_spec_macro_role_binder_missing: "
+        f"{source.capability_id}"
+    )
+
+
+def _single_macro_witness(
+    source: TeachingSource,
+    *,
+    snapshot: ExplanationSnapshot,
+) -> Mapping[str, Any]:
     witnesses = [
         payload
         for payload in snapshot.evidence_for_step(source.source_step_id)
@@ -331,7 +412,14 @@ def _macro_roles(
             "teaching_spec_macro_evidence_invalid: "
             f"step={source.source_step_id}, matches={len(witnesses)}"
         )
-    witness = witnesses[0]
+    return witnesses[0]
+
+
+def _quadratic_square_macro_roles(
+    source: TeachingSource,
+    *,
+    witness: Mapping[str, Any],
+) -> dict[str, Any]:
     proof = tuple(str(item) for item in witness.get("equivalence_proof", ()))
     if not proof:
         raise TeachingSpecBindingError(
@@ -407,6 +495,204 @@ def _macro_roles(
     }
 
 
+def _equal_length_ray_macro_roles(
+    source: TeachingSource,
+    *,
+    witness: Mapping[str, Any],
+) -> dict[str, Any]:
+    proof = _macro_equivalence_proof(source, witness)
+    construction = _macro_construction(
+        source,
+        witness,
+        kind="equal_length_point_on_ray",
+    )
+    label = str(construction.get("label") or "辅助点")
+    anchor = str(construction.get("anchor") or "公共端点")
+    reference = str(construction.get("reference_point") or "参考点")
+    ray_point = str(construction.get("ray_direction_point") or "射线方向点")
+    coordinate = construction.get("coordinate")
+    coordinate_text = ""
+    if isinstance(coordinate, Sequence) and not isinstance(
+        coordinate, str | bytes
+    ):
+        coordinate_text = _point_coordinates(coordinate)
+    auxiliary_construction = (
+        f"在射线{anchor}{ray_point}上构造{label}{coordinate_text}，"
+        f"使{anchor}{label}＝{anchor}{reference}"
+    )
+    return {
+        "auxiliary_construction": auxiliary_construction,
+        "congruence_facts": "；".join(proof[:-2] or proof[:-1]),
+        "replacement_equality": proof[-2] if len(proof) >= 2 else proof[-1],
+        "original_objective": str(witness.get("original_objective") or ""),
+        "reduced_objective": str(witness.get("reduced_objective") or ""),
+        "minimum_reason": "化简后的折线路径不短于两端点间的直线距离",
+        "minimum_expression": student_math_display(
+            str(witness.get("minimum_expression") or "")
+        ),
+    }
+
+
+def _coupled_segment_macro_roles(
+    source: TeachingSource,
+    *,
+    witness: Mapping[str, Any],
+) -> dict[str, Any]:
+    proof = _macro_equivalence_proof(source, witness)
+    replacement = _macro_construction(
+        source,
+        witness,
+        kind="existing_fixed_endpoint_replacement",
+    )
+    reflection = _macro_construction(
+        source,
+        witness,
+        kind="line_reflection",
+    )
+    moving_point, point_value = _single_minimizing_point(source, witness)
+    reflected_name = _student_point_name(
+        str(reflection.get("reflected_point_name") or "对称点")
+    )
+    reflected_value = reflection.get("reflected_point")
+    reflected_point = reflected_name
+    if isinstance(reflected_value, Sequence) and not isinstance(
+        reflected_value, str | bytes
+    ):
+        reflected_point += _point_coordinates(reflected_value)
+    reflect_source = str(reflection.get("reflect_source") or "固定点")
+    transformed = _student_prime_text(
+        str(reflection.get("transformed_path") or witness.get("reduced_objective") or "")
+    )
+    straightened = _student_prime_text(
+        str(reflection.get("straightened_path") or "")
+    )
+    minimum_segment = _student_prime_text(
+        str(reflection.get("minimum_segment") or "")
+    )
+    straightened_path = f"{transformed}＝{straightened}"
+    if minimum_segment:
+        straightened_path += f"≥{minimum_segment}"
+    return {
+        "replacement_equality": str(
+            replacement.get("segment_equality") or proof[0]
+        ),
+        "original_objective": str(witness.get("original_objective") or ""),
+        "reduced_objective": str(witness.get("reduced_objective") or ""),
+        "moving_point": str(moving_point),
+        "moving_locus": student_math_display(
+            str(replacement.get("moving_locus") or "")
+        ),
+        "reflection_construction": (
+            f"关于{moving_point}的轨迹作{reflect_source}的对称点"
+            f"{reflected_point}"
+        ),
+        "straightened_path": straightened_path,
+        "minimum_expression": student_math_display(
+            str(witness.get("minimum_expression") or "")
+        ),
+        "attainment_point": f"{moving_point}{_point_coordinates(point_value)}",
+    }
+
+
+def _weighted_axis_macro_roles(
+    source: TeachingSource,
+    *,
+    witness: Mapping[str, Any],
+) -> dict[str, Any]:
+    proof = _macro_equivalence_proof(source, witness)
+    construction = _macro_construction(
+        source,
+        witness,
+        kind="weighted_right_triangle",
+    )
+    formula = construction.get("auxiliary_point_formula")
+    formula_text = ""
+    if isinstance(formula, Sequence) and not isinstance(formula, str | bytes):
+        formula_text = f"，辅助点坐标为{_point_coordinates(formula)}"
+    weight = student_math_display(str(construction.get("weight") or ""))
+    legal_domain = tuple(str(item) for item in witness.get("legal_domain", ()))
+    domain_parts: list[str] = []
+    for item in legal_domain[1:]:
+        if item.startswith("attainment condition: "):
+            domain_parts.append(
+                "取等条件为 "
+                + student_math_display(item.removeprefix("attainment condition: "))
+            )
+        elif item.startswith("boundary branch: "):
+            domain_parts.append(
+                "边界分支为 "
+                + student_math_display(item.removeprefix("boundary branch: "))
+            )
+        else:
+            domain_parts.append(item)
+    return {
+        "weighted_construction": (
+            f"根据权重 {weight} 构造对应的辅助直角三角形{formula_text}"
+        ),
+        "weighted_equivalence_reason": proof[0],
+        "original_objective": str(witness.get("original_objective") or ""),
+        "reduced_objective": str(witness.get("reduced_objective") or ""),
+        "auxiliary_locus": student_math_display(
+            str(construction.get("auxiliary_locus") or "")
+        ),
+        "minimum_reason": "把等价的普通折线拉直，得到内部最短距离",
+        "domain_condition": "；".join(domain_parts) or "取等状态位于合法定义域内",
+        "minimum_expression": student_math_display(
+            str(witness.get("minimum_expression") or "")
+        ),
+    }
+
+
+def _macro_equivalence_proof(
+    source: TeachingSource,
+    witness: Mapping[str, Any],
+) -> tuple[str, ...]:
+    proof = tuple(str(item) for item in witness.get("equivalence_proof", ()))
+    if not proof:
+        raise TeachingSpecBindingError(
+            f"teaching_spec_macro_equivalence_proof_missing: {source.source_step_id}"
+        )
+    return proof
+
+
+def _macro_construction(
+    source: TeachingSource,
+    witness: Mapping[str, Any],
+    *,
+    kind: str,
+) -> Mapping[str, Any]:
+    matches = tuple(
+        item
+        for item in witness.get("constructions", ())
+        if isinstance(item, Mapping) and item.get("kind") == kind
+    )
+    if len(matches) != 1:
+        raise TeachingSpecBindingError(
+            "teaching_spec_macro_construction_invalid: "
+            f"step={source.source_step_id}, kind={kind}, matches={len(matches)}"
+        )
+    return matches[0]
+
+
+def _single_minimizing_point(
+    source: TeachingSource,
+    witness: Mapping[str, Any],
+) -> tuple[str, Sequence[Any]]:
+    minimizing = witness.get("minimizing_points")
+    if not isinstance(minimizing, Mapping) or len(minimizing) != 1:
+        raise TeachingSpecBindingError(
+            f"teaching_spec_macro_attainment_invalid: {source.source_step_id}"
+        )
+    moving_point, point_value = next(iter(minimizing.items()))
+    if not isinstance(point_value, Sequence) or isinstance(
+        point_value, str | bytes
+    ):
+        raise TeachingSpecBindingError(
+            f"teaching_spec_macro_attainment_invalid: {source.source_step_id}"
+        )
+    return str(moving_point), point_value
+
+
 def _student_point_name(value: str) -> str:
     return _student_prime_text(value)
 
@@ -425,13 +711,13 @@ def _bind_unit(
     roles: Mapping[str, Any],
 ) -> BoundTeachingUnit:
     fields = {
-        "nav_title": format_template(unit.nav_title_template, dict(roles)).strip(),
-        "title": format_template(unit.title_template, dict(roles)).strip(),
-        "goal": format_template(unit.goal_template, dict(roles)).strip(),
+        "nav_title": format_teaching_template(unit.nav_title_template, roles).strip(),
+        "title": format_teaching_template(unit.title_template, roles).strip(),
+        "goal": format_teaching_template(unit.goal_template, roles).strip(),
     }
     derive = _bound_derive(unit, roles)
     box = tuple(
-        format_template(template, dict(roles)).strip()
+        format_teaching_template(template, roles).strip()
         for template in unit.box_templates
     )
     all_text = [*fields.values(), *(item[1] for item in derive), *box]
@@ -491,7 +777,7 @@ def _bound_derive(
     if isinstance(dynamic, Sequence) and not isinstance(dynamic, str | bytes):
         result: list[tuple[str, str]] = []
         for raw in dynamic:
-            text = format_template(str(raw), dict(roles)).strip()
+            text = format_teaching_template(str(raw), roles).strip()
             marker = next(
                 (item for item in ("∵", "∴", "作", "设", "计算") if text.startswith(item)),
                 "计算",
@@ -506,7 +792,7 @@ def _bound_derive(
         if result:
             return tuple(result)
     return tuple(
-        (str(marker), format_template(template, dict(roles)).strip())
+        (str(marker), format_teaching_template(template, roles).strip())
         for marker, template in unit.derive_templates
     )
 
@@ -514,6 +800,8 @@ def _bound_derive(
 __all__ = [
     "BoundTeachingSelection",
     "BoundTeachingUnit",
+    "INDEPENDENT_LESSON_STEP_TEMPLATE_KEY",
+    "TeachingSeparationBoundaryResolver",
     "TeachingSpecBinder",
     "TeachingSpecBindingError",
     "TeachingUnitFallback",

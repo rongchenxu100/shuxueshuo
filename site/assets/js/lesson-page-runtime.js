@@ -300,6 +300,10 @@
     const diagramMarkupForFrame = config.diagramMarkupForFrame || function (index, frame, activeT, localVars) {
       return diagramMarkupFor(index, activeT, Object.assign({}, localVars || {}));
     };
+    const diagramMarkupForVisualFrame = config.diagramMarkupForVisualFrame || function (index, _frameIndex, activeT, localVars) {
+      return diagramMarkupFor(index, activeT, Object.assign({}, localVars || {}));
+    };
+    const visualFramesFor = config.visualFramesFor || function () { return []; };
     const drawMini = config.drawMini;
     const groupTitle = typeof config.groupTitle === "function" ? config.groupTitle : null;
     const legendHtml = config.legendHtml ?? config.legendHTML ?? "";
@@ -485,7 +489,15 @@
 
     function formatControlValue(v, control) {
       const precision = control.precision == null ? 3 : Number(control.precision);
-      return (control.prefix || "") + defaultFmt(v, precision) + (control.suffix || "");
+      const scale = control.scale == null ? 1 : Number(control.scale);
+      const landmark = (control.landmarks || []).find(function (item) {
+        const epsilon = Number(item.epsilon || 0.000001) * Math.abs(scale || 1);
+        return Math.abs(Number(v) - Number(item.value) * scale) <= epsilon;
+      });
+      const display = landmark && scale === 1
+        ? String(landmark.display)
+        : defaultFmt(v, precision);
+      return (control.prefix || "") + display + (control.suffix || "");
     }
 
     function renderLocalControlsMarkup(step, index) {
@@ -498,7 +510,23 @@
           const value = controlValue(source, control);
           const stepAttr = control.step == null ? "0.001" : String(control.step);
           const id = "localControl-" + index + "-" + controlIndex;
+          const scale = control.scale == null ? 1 : Number(control.scale);
+          const landmarks = (control.landmarks || []).map(function (landmark) {
+            const landmarkValue = Number(landmark.value) * scale;
+            const epsilon = Number(landmark.epsilon || 0.000001) * Math.abs(scale || 1);
+            const active = Math.abs(value - landmarkValue) <= epsilon;
+            return (
+              '<button type="button" class="step-local-landmark' + (active ? " active" : "") +
+              '" data-local-landmark-step="' + index +
+              '" data-local-landmark-control="' + controlIndex +
+              '" data-local-landmark-value="' + esc(String(landmarkValue)) +
+              '" aria-pressed="' + (active ? "true" : "false") + '">' +
+              esc(String(control.var) + "=" + String(landmark.display)) +
+              "</button>"
+            );
+          }).join("");
           return (
+            '<div class="step-local-control-group">' +
             '<div class="step-slider-row step-point-control">' +
             '<label for="' +
             esc(id) +
@@ -530,7 +558,9 @@
             controlIndex +
             '">' +
             esc(formatControlValue(value, control)) +
-            "</span></div>"
+            "</span></div>" +
+            (landmarks ? '<div class="step-local-landmarks"><span>候选位置</span>' + landmarks + "</div>" : "") +
+            "</div>"
           );
         })
         .join("");
@@ -2943,16 +2973,33 @@
             "</div></div>"
           : "";
         const hasDiagram = stepHasDiagram(step);
+        const visualFrames = visualFramesFor(index);
+        const frameMarkup = visualFrames.length
+          ? visualFrames.map(function (frame, frameIndex) {
+              const caption = String((frame && frame.caption) || "");
+              return (
+                '<figure class="lesson-visual-frame" data-visual-frame="' +
+                frameIndex +
+                '">' +
+                '<div class="svg-wrap"><svg data-visual-frame-index="' +
+                frameIndex +
+                '" viewBox="0 0 ' +
+                viewBoxW +
+                " " +
+                viewBoxH +
+                '" aria-label="' +
+                esc(withoutStepWords(step.title) + (caption ? " · " + caption : "")) +
+                '">' +
+                diagramMarkupForVisualFrame(index, frameIndex, activeT, localVars) +
+                '</svg></div></figure>'
+              );
+            }).join("")
+          : '<div class="svg-wrap"><svg viewBox="0 0 ' +
+            viewBoxW + " " + viewBoxH + '" aria-label="' +
+            esc(withoutStepWords(step.title)) + '">' +
+            diagramMarkupFor(index, activeT, localVars) + '</svg></div>';
         const diagram = hasDiagram
-          ? '<div class="step-card-diagram"><div class="svg-wrap"><svg viewBox="0 0 ' +
-            viewBoxW +
-            " " +
-            viewBoxH +
-            '" aria-label="' +
-            esc(withoutStepWords(step.title)) +
-            '">' +
-            diagramMarkupFor(index, activeT, localVars) +
-            '</svg></div>' +
+          ? '<div class="step-card-diagram">' + frameMarkup +
             (step.hideLegend ? "" : '<div class="legend">' + legendHtml + "</div>") +
             animationButton +
             tools +
@@ -3089,10 +3136,9 @@
       if (!policy || (!policy.movable && !allowFixedState)) return;
       const nextT = clamp(Number(value), policy.range[0], policy.range[1]);
       const card = document.querySelector('.lesson-step-card[data-step-index="' + index + '"]');
-      const svgEl = card ? card.querySelector("svg") : null;
       const labelEl = card ? card.querySelector('[data-step-t-label="' + index + '"]') : null;
       const rangeEl = card ? card.querySelector('[data-step-range="' + index + '"]') : null;
-      if (svgEl) svgEl.innerHTML = diagramMarkupFor(index, nextT, localVarsByStep[index]);
+      updateInlineVisualFrames(index, card, nextT, localVarsByStep[index]);
       if (labelEl) labelEl.textContent = paramLabelFor(index, nextT, localVarsByStep[index]);
       if (rangeEl && Number(rangeEl.value) !== nextT) rangeEl.value = String(nextT);
       syncMiniActiveClasses(card, nextT);
@@ -3121,9 +3167,34 @@
         const label = card.querySelector('[data-local-control-label="' + index + "-" + i + '"]');
         if (input && Number(input.value) !== v) input.value = String(v);
         if (label) label.textContent = formatControlValue(v, item);
+        card.querySelectorAll('[data-local-landmark-control="' + i + '"]').forEach(function (button) {
+          const landmarkValue = Number(button.dataset.localLandmarkValue);
+          const landmark = (item.landmarks || []).find(function (entry) {
+            const scale = item.scale == null ? 1 : Number(item.scale);
+            return Math.abs(Number(entry.value) * scale - landmarkValue) <= 1e-9;
+          });
+          const epsilon = Number((landmark && landmark.epsilon) || 0.000001) * Math.abs(item.scale == null ? 1 : Number(item.scale));
+          const active = Math.abs(v - landmarkValue) <= epsilon;
+          button.classList.toggle("active", active);
+          button.setAttribute("aria-pressed", active ? "true" : "false");
+        });
       });
+      updateInlineVisualFrames(index, card, currentStepT(card, index), vars);
+    }
+
+    function updateInlineVisualFrames(index, card, activeT, localVars) {
+      if (!card) return;
+      const frames = visualFramesFor(index);
+      const frameSvgs = card.querySelectorAll("svg[data-visual-frame-index]");
+      if (frames.length && frameSvgs.length) {
+        frameSvgs.forEach(function (svgEl) {
+          const frameIndex = Number(svgEl.getAttribute("data-visual-frame-index") || 0);
+          svgEl.innerHTML = diagramMarkupForVisualFrame(index, frameIndex, activeT, localVars);
+        });
+        return;
+      }
       const svgEl = card.querySelector("svg");
-      if (svgEl) svgEl.innerHTML = diagramMarkupFor(index, currentStepT(card, index), vars);
+      if (svgEl) svgEl.innerHTML = diagramMarkupFor(index, activeT, localVars);
     }
 
     function ensureAnimationModal() {
@@ -3541,6 +3612,15 @@
       if (target) updateStepDiagram(Number(target.dataset.stepRange), target.value);
     });
     stepCards.addEventListener("click", function (event) {
+      const landmarkTarget = event.target.closest("[data-local-landmark-step]");
+      if (landmarkTarget) {
+        updateLocalControl(
+          Number(landmarkTarget.dataset.localLandmarkStep),
+          Number(landmarkTarget.dataset.localLandmarkControl),
+          landmarkTarget.dataset.localLandmarkValue
+        );
+        return;
+      }
       const animationTarget = event.target.closest("[data-animation-open]");
       if (animationTarget) {
         openAnimationModal(Number(animationTarget.dataset.animationOpen));

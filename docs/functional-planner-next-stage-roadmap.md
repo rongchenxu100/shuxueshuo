@@ -29,7 +29,7 @@
 | F5-F4.3D：南开耦合路径 Macro | `COMPLETE` | 两公开输入、两公开输出；共享 Scope、构造点诊断、few-shot hash 与最终 live `1x3` 通过 |
 | F5-F4.3E：加权路径原子 Macro | `COMPLETE` | 单路径 Fact 输入、单表达式输出；河西/西青最终 live 各 `1x3` 均首轮通过 |
 | F5-F4.3F：旧能力清理与全量验收 | `COMPLETE` | 公开 Path 内部类型与兼容链已删除，compiler 原子门禁及完整投影门禁已落地 |
-| F5-F5：Teaching scope | `IN PROGRESS` | F5-F5A、F5-F5B0–B3 已完成；F5-F5B4 recursive LessonIR 生产切换 NEXT |
+| F5-F5：Teaching scope | `IN PROGRESS` | F5-F5A、F5-F5B0–B4/B4V 已完成；F5-F5C 五题教学验收 NEXT |
 | G：Post-solver Context | `AFTER F5` | Explanation、Diagram、Voiceover、Animation Context |
 | E：端到端优化 | `AFTER F/G` | cache、最小失效、并发去重、条件式 Best-of-N |
 
@@ -171,8 +171,10 @@ F5-F5B 的 LLM wire、无 semantic retry、同次调用视觉选择和和平二�
    transport attempt 保存到独立 debug artifact，不进入教学链或 Review。横向人工审阅已经
    通过；单个合法遗漏材料由代码按 Canonical 位置补齐，其他错误保持 Scope fallback，不增加
    Lesson semantic retry。批准的 Scope Content/evaluation/review summary 仅作为回归 fixture。
-6. `F5-F5B4 NEXT`：把 accepted Scope Content 原子组装成递归 LessonIR，并一次性切换生产
-   Lesson 路径；source/capability/unit/evidence provenance 由代码注入。
+6. `F5-F5B4/B4V COMPLETE`：accepted Scope Content 已原子组装成递归 LessonIR，生产 Lesson
+   与 Visual 路径已切换到递归 v2；source/capability/unit/evidence provenance、分支图形状态、
+   几何身份与完整 Frame 均由代码确定。和平二模的递归 LessonIR、12 幅图和最终页面已经人工
+   审阅通过，approved/fallback fixtures 只用于回归。
 7. `F5-F5C`：先用和平二模 `1×3` 评测真实输入输出、token/耗时和教学质量，稳定后扩到五题
    teaching-only `5×3`。
 8. `G1`：作为最后一个新增实现阶段，打开 Method/Macro `available_visuals`，由同一次 Lesson

@@ -14,7 +14,6 @@ from pathlib import Path
 from typing import Any, Literal, Mapping, cast
 
 from shuxueshuo_server.solver.contracts import (
-    MethodExplanationSpec,
     MethodInputRelationSpec,
     MethodInputSpec,
     MethodInputBindingSpec,
@@ -228,7 +227,6 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
         geometry_profiles=_parse_geometry_profiles(
             raw.get("geometry_profiles", [])
         ),
-        explanation=_parse_explanation(raw.get("explanation")),
         teaching_unit=_parse_teaching_unit(raw.get("teaching_unit")),
         visual=_parse_visual(raw.get("visual")),
         constraint_analyzer=(
@@ -1054,34 +1052,6 @@ def _parse_geometry_profiles(
         profile_ids.add(profile_id)
         profiles.append(profile)
     return tuple(profiles)
-
-
-def _parse_explanation(raw: object) -> MethodExplanationSpec | None:
-    if raw in (None, ()):
-        return None
-    if not isinstance(raw, dict):
-        raise ValueError("MethodSpec.explanation must be an object")
-    role_schema = raw.get("role_schema", {})
-    if not isinstance(role_schema, dict):
-        raise ValueError("MethodSpec.explanation.role_schema must be an object")
-    title_by_goal = raw.get("student_title_templates_by_goal", {})
-    if not isinstance(title_by_goal, dict):
-        raise ValueError("MethodSpec.explanation.student_title_templates_by_goal must be an object")
-    return MethodExplanationSpec(
-        role_schema={str(key): str(value) for key, value in role_schema.items()},
-        student_goal_template=str(raw.get("student_goal_template", "")),
-        student_title_template=str(raw.get("student_title_template", "")),
-        student_nav_title_template=str(raw.get("student_nav_title_template", "")),
-        student_title_templates_by_goal={
-            str(key): str(value)
-            for key, value in title_by_goal.items()
-        },
-        derive_templates=tuple(str(item) for item in raw.get("derive_templates", ())),
-        box_templates=tuple(str(item) for item in raw.get("box_templates", ())),
-        explanation_level=str(raw.get("explanation_level", "template")),
-        role_binding_strategy=str(raw.get("role_binding_strategy", "role_name_registry")),
-        role_binder_id=str(raw.get("role_binder_id", "generic_trace")),
-    )
 
 
 def _parse_teaching_unit(raw: object) -> TeachingUnitSpec | None:

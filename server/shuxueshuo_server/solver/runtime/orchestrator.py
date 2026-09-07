@@ -86,7 +86,7 @@ PlannerProvider = Callable[..., GenericPlanner]
 
 @dataclass(frozen=True)
 class RuntimeSuccessArtifacts:
-    """ExplanationBuilder 使用的内存成功产物。"""
+    """Snapshot and Lesson authoring use this authenticated success artifact."""
 
     problem: ProblemIR
     family: SolverFamilySpec

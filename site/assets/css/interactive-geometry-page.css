@@ -8620,6 +8620,18 @@ button:disabled {
   gap: 10px;
 }
 
+.lesson-visual-frame {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.lesson-visual-frame + .lesson-visual-frame {
+  margin-top: 8px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(15, 23, 42, 0.1);
+}
+
 .step-card-panel {
   padding: 12px;
   border: 1px solid rgba(15, 23, 42, 0.08);
@@ -8643,6 +8655,41 @@ button:disabled {
   border: 1px solid rgba(15, 118, 110, 0.14);
   border-radius: 14px;
   background: rgba(238, 247, 242, 0.72);
+}
+
+.step-local-control-group {
+  display: grid;
+  gap: 7px;
+}
+
+.step-local-landmarks {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.step-local-landmark {
+  appearance: none;
+  border: 1px solid rgba(15, 118, 110, 0.24);
+  border-radius: 999px;
+  padding: 4px 9px;
+  background: rgba(255, 255, 255, 0.86);
+  color: #0f766e;
+  font: inherit;
+  cursor: pointer;
+}
+
+.step-local-landmark:hover,
+.step-local-landmark:focus-visible,
+.step-local-landmark.active {
+  border-color: #dc2626;
+  background: rgba(254, 226, 226, 0.92);
+  color: #b91c1c;
+  outline: none;
 }
 
 .step-slider-row {

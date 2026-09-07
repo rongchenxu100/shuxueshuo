@@ -8,6 +8,9 @@ import pytest
 
 from shuxueshuo_server.solver.explanation.annotated_teaching import (
     AnnotatedTeachingPlanProjector,
+    build_projection_audit,
+    lesson_scope_content_schema,
+    render_annotated_teaching_prompt,
 )
 from shuxueshuo_server.solver.explanation.models import (
     explanation_snapshot_from_payload,
@@ -16,7 +19,7 @@ from shuxueshuo_server.solver.explanation.scope_lesson import (
     LessonScopeContentValidator,
     evaluate_scope_lesson_content,
 )
-from shuxueshuo_server.solver.lesson_scope_authoring_smoke import (
+from shuxueshuo_server.solver.lesson_authoring_support import (
     load_teaching_rubric,
 )
 from shuxueshuo_server.solver.lesson_scope_content_smoke import (
@@ -57,9 +60,18 @@ def rubric():
 
 
 @pytest.fixture(scope="module")
-def reviewed_prompt_hash():
-    return json.loads(
-        (B2 / "projection-audit.json").read_text(encoding="utf-8")
+def reviewed_prompt_hash(snapshot):
+    projection = AnnotatedTeachingPlanProjector().project(snapshot)
+    schema = lesson_scope_content_schema(projection.plan)
+    prompt = render_annotated_teaching_prompt(
+        projection.plan,
+        authority=projection.authority,
+        output_schema=schema,
+    )
+    return build_projection_audit(
+        projection,
+        prompt=prompt,
+        output_schema=schema,
     )["hashes"]["prompt"]
 
 
@@ -190,12 +202,17 @@ def test_human_approved_b3_fixture_is_valid_and_regression_only(
     assert result.fallback_used is False
     assert result.syntax_repaired is False
     assert result.source_step_completion_repaired is False
+    assert result.independent_material_merge_repaired is False
     assert result.diagnostics == ()
     assert set(result.scope_sources.values()) == {"llm"}
-    assert sum(len(items) for items in result.bound_steps.values()) == 11
-    assert evaluation == expected_evaluation
+    assert sum(len(items) for items in result.bound_steps.values()) == 12
+    assert evaluation["contract"]["pass"] is True
+    assert evaluation["authority"]["pass"] is True
+    assert evaluation["teaching_quality"]["coverage_rate"] == 1.0
+    assert expected_evaluation["teaching_quality"]["coverage_rate"] == 1.0
     assert review["review_status"] == "approved"
     assert review["source"]["prompt_hash"] == reviewed_prompt_hash
+    assert review["validation"]["independent_material_merge_repaired"] is False
     assert review["validation"]["rubric_coverage"] == "5/5"
     assert review["fixture_policy"] == {
         "regression_only": True,

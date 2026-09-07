@@ -12,7 +12,6 @@ from enum import Enum
 from typing import Any
 
 from shuxueshuo_server.solver.contracts import (
-    MethodExplanationSpec,
     PointRef,
     ScalarResultFormSpec,
 )
@@ -793,23 +792,6 @@ SPEC = MethodSpecSource(
     postconditions=(
         "minimum_expression equals the source weighted path minimum",
         "the selected auxiliary-ray foot and original moving point make equality reachable",
-    ),
-    explanation=MethodExplanationSpec(
-        role_schema={
-            "original_path": "题设加权路径。",
-            "weighted_triangle": "把普通轴上线段换成同倍率辅助线段的直角三角形。",
-            "auxiliary_locus": "辅助点的合法射线轨迹。",
-            "minimum_expression": "在合法取等状态下得到的路径最小值表达式。",
-        },
-        student_goal_template="用辅助三角形把加权路径化为可拉直折线并求最小值。",
-        student_title_template="辅助三角形转化加权路径",
-        derive_templates=(
-            "构造 {weighted_triangle}，把 {original_path} 化为同倍率普通折线。",
-            "沿 {auxiliary_locus} 拉直折线并验证取等状态合法。",
-            "得到最小值表达式 {minimum_expression}。",
-        ),
-        box_templates=("{minimum_expression}",),
-        role_binder_id="weighted_axis_path_minimum",
     ),
 )
 

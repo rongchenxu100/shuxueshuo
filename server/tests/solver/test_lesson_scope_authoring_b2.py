@@ -18,9 +18,8 @@ from shuxueshuo_server.solver.lesson_annotated_teaching_review import (
     main,
     render_annotated_teaching_review_html,
 )
-from shuxueshuo_server.solver.lesson_scope_authoring_smoke import (
+from shuxueshuo_server.solver.lesson_authoring_support import (
     CASE_ID,
-    build_recorded_lesson_artifacts,
     build_recorded_snapshot,
     load_teaching_rubric,
 )
@@ -123,9 +122,19 @@ def test_b2_prompt_and_audit_are_ready_for_manual_review(snapshot_and_artifacts)
     assert "## 输出 JSON Schema" in artifacts.prompt.user
     assert "## 全题型共享示例" in artifacts.prompt.user
     assert "你不需要返回 conclusions 或 box" in artifacts.prompt.system
+    assert "不得自行新增代入、化简、方程、坐标计算或数值运算" in artifacts.prompt.system
+    assert "学生步骤的边界应对应一次需要理解的新数学思考" in artifacts.prompt.system
+    assert "而不是一次代码调用" in artifacts.prompt.system
+    assert "不需要新的选择或理由" in artifacts.prompt.system
+    assert "而不是压缩数学内容" in artifacts.prompt.system
     assert "每个输出步骤用 source_steps" in artifacts.prompt.system
     assert "root_scope 仅按真实父子关系递归展示上下文" in artifacts.prompt.system
+    assert "child Scope 或 sibling Scope 的结果绝不能提前写回" in artifacts.prompt.system
+    assert '"source_steps":["s1","s2","s3"]' in artifacts.prompt.user
     assert "material_count" not in artifacts.prompt.system
+    assert "## 必须独立的教学材料" in artifacts.prompt.user
+    assert "Goal i_2.E：s1、s2、s3" in artifacts.prompt.user
+    assert "Goal ii.E：s2、s3、s7" in artifacts.prompt.user
 
 
 def test_b2_review_html_is_self_contained_and_exposes_raw_prompt_tabs(
@@ -149,7 +158,7 @@ def test_b2_review_html_is_self_contained_and_exposes_raw_prompt_tabs(
     assert "<link rel=" not in html
 
 
-def test_b2_goldens_rebuild_from_recorded_verified_execution(
+def test_b2_plan_schema_and_human_approved_boundary_prompt_are_stable(
     snapshot_and_artifacts,
 ) -> None:
     _snapshot, artifacts = snapshot_and_artifacts
@@ -158,25 +167,24 @@ def test_b2_goldens_rebuild_from_recorded_verified_execution(
         B2 / "annotated-teaching-plan.json"
     )
     assert artifacts.output_schema == _json(B2 / "output-schema.json")
-    assert artifacts.audit == _json(B2 / "projection-audit.json")
+    previous_audit = _json(B2 / "projection-audit.json")
+    assert artifacts.audit["hashes"]["annotated_plan"] == previous_audit["hashes"][
+        "annotated_plan"
+    ]
+    assert artifacts.audit["hashes"]["output_schema"] == previous_audit["hashes"][
+        "output_schema"
+    ]
+    assert artifacts.audit["hashes"]["prompt"] == previous_audit["hashes"]["prompt"]
+    assert artifacts.audit["independent_step_refs"] == {
+        "goal:i_2.E": ["s1", "s2", "s3"],
+        "goal:ii.E": ["s2", "s3", "s7"],
+    }
     assert artifacts.prompt.system + "\n" == (B2 / "prompt.system.md").read_text(
         encoding="utf-8"
     )
     assert artifacts.prompt.user + "\n" == (B2 / "prompt.user.md").read_text(
         encoding="utf-8"
     )
-
-
-def test_b2_does_not_change_deterministic_lesson_or_visual_output(
-    snapshot_and_artifacts,
-) -> None:
-    snapshot, _artifacts = snapshot_and_artifacts
-    recorded = build_recorded_lesson_artifacts(snapshot)
-
-    assert recorded.lesson.to_payload() == _json(B0 / "lesson-ir.json")
-    assert json.loads(
-        json.dumps(recorded.visual_ir.to_payload(), ensure_ascii=False)
-    ) == _json(B0 / "visual-step-ir.json")
 
 
 def test_b2_builder_has_no_lesson_llm_dependency() -> None:

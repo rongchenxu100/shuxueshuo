@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import replace
 import json
 import re
 
@@ -9,11 +10,12 @@ from _problem_planning_support import cached_planning_binding_fixture
 
 from shuxueshuo_server.solver.explanation import ExplanationSnapshotBuilder
 from shuxueshuo_server.solver.explanation.models import (
+    explanation_snapshot_content_hash,
     explanation_snapshot_from_payload,
     iter_teaching_sources,
     teaching_source_owners,
 )
-from shuxueshuo_server.solver.lesson_scope_authoring_smoke import CASE_ID
+from shuxueshuo_server.solver.lesson_authoring_support import CASE_ID
 from shuxueshuo_server.solver.runtime.config import SolverRuntimeConfig
 from shuxueshuo_server.solver.runtime.orchestrator import RuntimeOrchestrator
 
@@ -79,6 +81,21 @@ def test_snapshot_v3_is_recursive_and_has_no_retired_wire(snapshot_and_execution
     ):
         assert retired not in text
     assert explanation_snapshot_from_payload(payload).to_payload() == payload
+
+
+def test_snapshot_content_hash_ignores_only_run_local_execution_identity(
+    snapshot_and_execution,
+) -> None:
+    snapshot, _execution = snapshot_and_execution
+    replay = replace(snapshot, verified_execution_hash="another-runtime-instance")
+
+    assert explanation_snapshot_content_hash(replay) == (
+        explanation_snapshot_content_hash(snapshot)
+    )
+    changed_answer = replace(snapshot, answers={**snapshot.answers, "audit": "changed"})
+    assert explanation_snapshot_content_hash(changed_answer) != (
+        explanation_snapshot_content_hash(snapshot)
+    )
 
 
 def test_snapshot_v3_projects_every_materialized_output_without_loss(

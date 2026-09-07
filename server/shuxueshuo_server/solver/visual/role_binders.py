@@ -8,7 +8,13 @@ import re
 
 import sympy as sp
 
-from shuxueshuo_server.solver.explanation.models import ExplanationSnapshot, LessonStep
+from shuxueshuo_server.solver.explanation.lesson_ir import (
+    OwnedLessonStep as LessonStep,
+)
+from shuxueshuo_server.solver.explanation.models import (
+    ExplanationSnapshot,
+    iter_teaching_sources,
+)
 from shuxueshuo_server.solver.student_display import student_math_display
 
 from .geometry_naming import (
@@ -20,6 +26,10 @@ from .geometry_naming import (
     square_projection_point_id,
 )
 from .models import JsonObject
+from .parameter_identity import (
+    axis_parameter_contexts_by_step,
+    value_depends_on_symbol,
+)
 from .sympy_helpers import sympify_visual_expr, sympy_pair as _shared_sympy_pair
 
 
@@ -137,12 +147,7 @@ class VisualGeometryIndex:
 
 
 class VisualRoleBinderRegistry:
-    """Bind canonical handles to existing authored geometry names.
-
-    VS1 intentionally uses the authored geometry base as the source of drawable
-    point ids.  If a runtime handle cannot be mapped to that base, the builder
-    should emit a VisualGap instead of inventing a point.
-    """
+    """Bind verified public geometry roles to branch-scoped geometry ids."""
 
     def __init__(self, geometry_spec: JsonObject, problem: JsonObject | None = None) -> None:
         self.geometry_spec = geometry_spec
@@ -503,12 +508,20 @@ class VisualRoleBinderRegistry:
                         {
                             "source_point": source,
                             "target_point": target,
+                            "source_label": self._student_label_for_geometry(source),
+                            "target_label": self._student_label_for_geometry(target),
                             "source_display": _point_display_from_geometry(source, self.geometry_spec),
                             "target_display": _point_display_from_geometry(target, self.geometry_spec),
                             "vector": [str(vector[0]), str(vector[1])],
                         }
                     )
         return markers
+
+    def _student_label_for_geometry(self, point_id: str) -> str:
+        meta = (self.geometry_spec.get("pointMeta") or {}).get(point_id)
+        if isinstance(meta, dict) and str(meta.get("label") or "").strip():
+            return str(meta["label"])
+        return str(point_id)
 
     def _square_adjacent_markers(
         self,
@@ -536,12 +549,14 @@ class VisualRoleBinderRegistry:
             labels = [_label_from_point_handle_or_entity(handle, self.index) for handle in vertices[:4]]
             if any(not label for label in labels):
                 continue
-            axis_labels = self._axis_parameter_labels_for_step(step, snapshot)
             target_label = _label_from_effective_step(step_id, snapshot)
-            if self._target_output_has_axis_parameter(step_id, snapshot):
-                axis_labels.add(target_label)
-            if axis_labels.intersection(labels):
-                axis_labels.add(labels[2])
+            axis_labels = self._dynamic_square_labels(
+                source_step_id=str(step_id),
+                labels=labels,
+                target_label=target_label,
+                scope_id=lesson_step.scope_id,
+                snapshot=snapshot,
+            )
             points = [
                 self._square_vertex_geometry_ref(label, lesson_step.scope_id, use_axis=label in axis_labels)
                 for label in labels
@@ -576,6 +591,65 @@ class VisualRoleBinderRegistry:
             }
             markers.append(marker)
         return markers
+
+    def _dynamic_square_labels(
+        self,
+        *,
+        source_step_id: str,
+        labels: list[str],
+        target_label: str,
+        scope_id: str,
+        snapshot: ExplanationSnapshot,
+    ) -> set[str]:
+        """Resolve dynamic square vertices from public refs and values."""
+
+        sources = {
+            source.source_step_id: source
+            for source in iter_teaching_sources(snapshot.root_scope)
+        }
+        source = sources.get(source_step_id)
+        if source is None:
+            return set()
+        contexts = axis_parameter_contexts_by_step(snapshot)
+        dynamic: set[str] = set()
+
+        for items in source.inputs.values():
+            for item in items:
+                if not isinstance(item, dict) or item.get("runtime_type") != "Point":
+                    continue
+                ref = item.get("resolved_from") or item.get("ref")
+                if not isinstance(ref, dict) or ref.get("kind") != "step_result":
+                    continue
+                producer_id = str(ref.get("step_id") or "")
+                value = item.get("value")
+                if not any(
+                    owner == scope_id and value_depends_on_symbol(value, symbol)
+                    for owner, symbol in contexts.get(producer_id, ())
+                ):
+                    continue
+                authored_ref = item.get("ref")
+                label = ""
+                if isinstance(authored_ref, dict) and authored_ref.get("kind") == "source":
+                    label = _label_from_semantic_name(str(authored_ref.get("ref") or ""))
+                if label in labels:
+                    dynamic.add(label)
+
+        target_value = None
+        for result in source.outputs.values():
+            if isinstance(result, dict) and result.get("runtime_type") == "Point":
+                target_value = result.get("value")
+                break
+        if target_label in labels and any(
+            owner == scope_id and value_depends_on_symbol(target_value, symbol)
+            for owner, symbol in contexts.get(source_step_id, ())
+        ):
+            dynamic.add(target_label)
+
+        # In the ordered square [start, side-end, opposite, adjacent], the
+        # opposite vertex varies whenever either adjacent side endpoint does.
+        if dynamic and len(labels) >= 3:
+            dynamic.add(labels[2])
+        return dynamic
 
     def _linked_square_labels_for_atomic_path(
         self,
@@ -626,7 +700,12 @@ class VisualRoleBinderRegistry:
             labels = [_label_from_point_handle_or_entity(handle, self.index) for handle in vertices[:4]]
             if target_label not in labels or any(not label for label in labels):
                 continue
-            axis_labels = self._axis_parameter_labels_for_step(step, snapshot)
+            axis_labels = {
+                label
+                for label in labels
+                if axis_parameter_point_id(label, lesson_step.scope_id)
+                in self._known_points
+            }
             axis_label = next(
                 (label for label in labels if label in axis_labels and label != target_label),
                 "",
@@ -642,16 +721,11 @@ class VisualRoleBinderRegistry:
             )
             if not axis_label or not axis_value or not target_value:
                 continue
-            linked_axis_labels = set(axis_labels)
-            if self._target_output_has_axis_parameter(str(step_id), snapshot):
-                linked_axis_labels.add(target_label)
-            if linked_axis_labels.intersection(labels):
-                linked_axis_labels.add(labels[2])
             points = [
                 self._square_vertex_geometry_ref(
                     label,
                     lesson_step.scope_id,
-                    use_axis=label in linked_axis_labels,
+                    use_axis=label in axis_labels,
                 )
                 for label in labels
             ]
@@ -678,70 +752,12 @@ class VisualRoleBinderRegistry:
     ) -> list[str]:
         if not label:
             return []
-        source_step_id = str(step.get("step_id") or "")
         step_scope_id = str(step.get("scope_id") or "")
-        candidates: list[tuple[int, int, list[str]]] = []
-        for read_index, handle in enumerate(step.get("reads") or ()):
-            if not isinstance(handle, str):
-                continue
-            read_scope_id = _canonical_scope_from_handle(handle)
-            for item in self._point_items_for_read_handle(handle, snapshot, source_step_id):
-                if not isinstance(item, dict) or item.get("type") != "Point":
-                    continue
-                item_label = _label_from_semantic_name(str(item.get("name") or ""))
-                if not item_label:
-                    item_label = _label_from_runtime_point_handle(str(item.get("handle") or handle))
-                if item_label != label or not _has_axis_parameter(item.get("value")):
-                    continue
-                value = item.get("value")
-                if isinstance(value, (list, tuple)) and len(value) >= 2:
-                    candidates.append(
-                        (
-                            self._axis_parameter_value_candidate_score(
-                                item,
-                                handle=handle,
-                                read_scope_id=read_scope_id,
-                                source_step_id=source_step_id,
-                                step_scope_id=step_scope_id,
-                            ),
-                            read_index,
-                            [str(value[0]), str(value[1])],
-                        )
-                    )
-        if not candidates:
+        point_id = axis_parameter_point_id(label, step_scope_id)
+        pair = self._geometry_point_pair(point_id)
+        if pair is None:
             return []
-        candidates.sort(key=lambda candidate: (-candidate[0], candidate[1]))
-        return candidates[0][2]
-
-    def _axis_parameter_value_candidate_score(
-        self,
-        item: dict[str, Any],
-        *,
-        handle: str,
-        read_scope_id: str,
-        source_step_id: str,
-        step_scope_id: str,
-    ) -> int:
-        item_scope_id = str(item.get("scope_id") or "")
-        item_handle = str(item.get("handle") or "")
-        score = 0
-        if item_handle == handle:
-            score += 100
-        if read_scope_id and item_scope_id == read_scope_id:
-            score += 80
-        if step_scope_id and item_scope_id == step_scope_id:
-            score += 60
-        if source_step_id and _fact_step_id(item) == source_step_id:
-            score += 50
-        if source_step_id and item_handle.startswith(f"runtime:{source_step_id}:"):
-            score += 50
-        if read_scope_id and item_handle.startswith(f"runtime:{read_scope_id}:"):
-            score += 40
-        if read_scope_id and scope_root(item_scope_id) == scope_root(read_scope_id):
-            score += 20
-        if step_scope_id and scope_root(item_scope_id) == scope_root(step_scope_id):
-            score += 10
-        return score
+        return [str(pair[0]), str(pair[1])]
 
     def _curve_point_candidate_markers(
         self,
@@ -967,25 +983,6 @@ class VisualRoleBinderRegistry:
                 return fact
         return None
 
-    def _axis_parameter_labels_for_step(
-        self,
-        step: dict[str, Any],
-        snapshot: ExplanationSnapshot,
-    ) -> set[str]:
-        labels: set[str] = set()
-        source_step_id = str(step.get("step_id") or "")
-        for handle in step.get("reads") or ():
-            if not isinstance(handle, str):
-                continue
-            for item in self._point_items_for_read_handle(handle, snapshot, source_step_id):
-                if _has_axis_parameter(item.get("value")):
-                    label = _label_from_semantic_name(str(item.get("name") or ""))
-                    if not label:
-                        label = _label_from_runtime_point_handle(str(item.get("handle") or handle))
-                    if label:
-                        labels.add(label)
-        return labels
-
     def _point_items_for_read_handle(
         self,
         handle: str,
@@ -1041,22 +1038,6 @@ class VisualRoleBinderRegistry:
                 items.append(item)
         return items
 
-    def _target_output_has_axis_parameter(
-        self,
-        source_step_id: str,
-        snapshot: ExplanationSnapshot,
-    ) -> bool:
-        for item in snapshot.fact_index.values():
-            if not isinstance(item, dict):
-                continue
-            if item.get("type") != "Point":
-                continue
-            if str(item.get("source_step_id") or item.get("scope_id") or "") != source_step_id:
-                continue
-            if _has_axis_parameter(item.get("value")):
-                return True
-        return False
-
     def _square_vertex_geometry_ref(
         self,
         label: str,
@@ -1078,39 +1059,41 @@ class VisualRoleBinderRegistry:
         if "quadratic_axis_parameterized_point" not in lesson_step.capability_ids:
             return []
         markers: list[dict[str, Any]] = []
-        seen: set[str] = set()
-        source_ids = set(lesson_step.source_step_ids)
-        for item in snapshot.fact_index.values():
-            if not isinstance(item, dict):
+        sources = {
+            source.source_step_id: source
+            for source in iter_teaching_sources(snapshot.root_scope)
+        }
+        for source_step_id in lesson_step.source_step_ids:
+            source = sources.get(source_step_id)
+            if source is None or source.capability_id != "quadratic_axis_parameterized_point":
                 continue
-            if item.get("type") != "Point" or item.get("source") != "quadratic_axis_parameterized_point":
-                continue
-            producer_step_id = str(
-                item.get("source_step_id") or _fact_step_id(item) or ""
+            point = source.outputs.get("point")
+            parameter_output = source.outputs.get("parameter")
+            value = point.get("value") if isinstance(point, dict) else None
+            parameter = (
+                str(parameter_output.get("value") or "")
+                if isinstance(parameter_output, dict)
+                else ""
             )
-            if producer_step_id not in source_ids:
+            if (
+                not isinstance(value, (list, tuple))
+                or len(value) != 2
+                or not parameter
+                or not _value_depends_on_symbol(value, parameter)
+            ):
                 continue
-            value = item.get("value")
-            if not _is_axis_parameter_point_value(value):
-                continue
-            label = _label_from_semantic_name(str(item.get("name") or ""))
+            label = str(source.output_targets.get("point") or "")
             if not label:
-                label = _label_from_runtime_point_handle(str(item.get("handle") or ""))
+                label = _label_from_effective_step(source_step_id, snapshot)
             point_id = axis_parameter_point_id(label, lesson_step.scope_id) if label else ""
-            if point_id not in self._known_points:
-                label = _label_from_effective_step(_fact_step_id(item), snapshot)
-            if not label:
+            if not label or point_id not in self._known_points:
                 continue
-            point_id = axis_parameter_point_id(label, lesson_step.scope_id)
-            if point_id not in self._known_points or point_id in seen:
-                continue
-            seen.add(point_id)
             markers.append(
                 {
                     "label": label,
                     "point": point_id,
                     "display": _axis_parameterized_point_display(label, value),
-                    "value": [str(value[0]), str(value[1])] if isinstance(value, (list, tuple)) and len(value) == 2 else [],
+                    "value": [str(value[0]), str(value[1])],
                 }
             )
         return markers
@@ -1631,18 +1614,14 @@ class VisualRoleBinderRegistry:
         if not all((side_start, side_end, midpoint, center, other_fixed, moving_vertex)):
             return []
 
-        axis_labels = {
-            side_end,
-            moving_vertex,
-            other_fixed,
-            *square_vertices,
-        }
-
         def geom(label: str) -> str | None:
-            if label in axis_labels:
-                axis_id = axis_parameter_point_id(label, lesson_step.scope_id)
-                if axis_id in self._known_points:
-                    return axis_id
+            # Macro-local derived square points use a scoped parametric
+            # geometry definition.  Prefer it for every role, including
+            # midpoint/center, rather than falling back to a later exact point
+            # with the same student-facing label.
+            axis_id = axis_parameter_point_id(label, lesson_step.scope_id)
+            if axis_id in self._known_points:
+                return axis_id
             return point_handles.get(label) or self.index.geometry_point_name(label, lesson_step.scope_id)
 
         refs = {
@@ -1938,10 +1917,10 @@ class VisualRoleBinderRegistry:
     ) -> dict[str, Any]:
         if "equal_length_ray_path_reduction" not in lesson_step.capability_ids:
             return {}
-        if lesson_step.teaching_substep_ids and not {
+        if lesson_step.visual_unit_ids and not {
             "path_reduction",
             "minimum_by_segment",
-        }.intersection(lesson_step.teaching_substep_ids):
+        }.intersection(lesson_step.visual_unit_ids):
             return {}
         witness = _path_minimum_witness_for_lesson_step(snapshot, lesson_step)
         facts = _facts_by_handle(snapshot.problem)
@@ -2642,8 +2621,14 @@ def _coordinate_text_from_boxes(label: str, boxes: tuple[str, ...]) -> str:
 
 
 def _point_display_from_geometry(point_id: str, geometry_spec: JsonObject) -> str:
+    meta = (geometry_spec.get("pointMeta") or {}).get(point_id)
+    label = (
+        str(meta.get("label") or "")
+        if isinstance(meta, dict)
+        else ""
+    )
     return _point_display_from_geometry_with_label(
-        str(point_id).rstrip("0123456789") or str(point_id),
+        label or str(point_id),
         point_id,
         geometry_spec,
     )
@@ -2667,7 +2652,7 @@ def _axis_parameterized_point_display(label: str, value: Any) -> str:
     pair = _sympy_pair(value)
     if pair is None:
         return f"{label}(t)"
-    return f"{label}({_student_coord(pair[0])},t)"
+    return _point_display_from_pair(label, pair)
 
 
 def _square_target_display_from_runtime(
@@ -2711,14 +2696,8 @@ def _point_display_from_pair(label: str, pair: tuple[sp.Expr, sp.Expr]) -> str:
     return f"{label}({_student_coord(pair[0])},{_student_coord(pair[1])})"
 
 
-def _is_axis_parameter_point_value(value: Any) -> bool:
-    if not isinstance(value, list | tuple) or len(value) != 2:
-        return False
-    return any(_has_axis_parameter(part) for part in value)
-
-
-def _has_axis_parameter(value: Any) -> bool:
-    return bool(re.search(r"(?<![A-Za-z0-9_])_axis_param_[A-Za-z0-9_]+", str(value)))
+def _value_depends_on_symbol(value: Any, symbol: str) -> bool:
+    return value_depends_on_symbol(value, symbol)
 
 
 def _runtime_line_for_step(step: dict[str, Any], snapshot: ExplanationSnapshot) -> dict[str, Any] | None:
@@ -3066,7 +3045,24 @@ def _axis_intercept_equality(
     display_line: str,
     result_label: str,
 ) -> tuple[str, str]:
-    if not result_label or len(display_line) != 2:
+    if not result_label:
+        return equality
+    if len(display_line) != 2:
+        shared = set(equality[0]) & set(equality[1])
+        if len(shared) == 1:
+            origin = next(iter(shared))
+            candidate = next(
+                (
+                    angle
+                    for angle in equality
+                    if len(angle) == 3 and origin in {angle[0], angle[2]}
+                ),
+                "",
+            )
+            display_line = "".join(
+                label for label in candidate if label != origin
+            )
+    if len(display_line) != 2:
         return equality
     out: list[str] = []
     for angle in equality:
@@ -3167,7 +3163,10 @@ def _angle_equalities_from_texts(text_parts: list[str]) -> list[tuple[str, str]]
     out: list[tuple[str, str]] = []
     seen: set[tuple[str, str]] = set()
     for text in text_parts:
-        for left, right in re.findall(r"∠\s*([A-Z]{3})\s*=\s*∠\s*([A-Z]{3})", text):
+        for left, right in re.findall(
+            r"∠\s*([A-Z]{3})\s*[=＝]\s*∠\s*([A-Z]{3})",
+            text,
+        ):
             item = (left, right)
             if item in seen:
                 continue

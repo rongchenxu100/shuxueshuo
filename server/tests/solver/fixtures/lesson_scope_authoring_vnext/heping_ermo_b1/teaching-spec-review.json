@@ -2412,7 +2412,7 @@
           "derive": [
             [
               "作",
-              "GQ⊥x轴于 Q，ER⊥x轴于 R"
+              "GQ⊥x轴于 Q"
             ],
             [
               "∵",
@@ -2424,19 +2424,19 @@
             ],
             [
               "∵",
-              "∠GQA＝∠ERA＝90°"
+              "∠GQA＝∠EMA＝90°"
             ],
             [
               "∴",
-              "∠GAQ＝∠AER"
+              "∠GAQ＝∠AEM"
             ],
             [
               "∴",
-              "Rt△AGQ≌Rt△EAR"
+              "Rt△AGQ≌Rt△EAM"
             ],
             [
               "∴",
-              "AR＝QG＝3，ER＝AQ＝3/2"
+              "AM＝QG＝3，EM＝AQ＝3/2"
             ],
             [
               "∵",

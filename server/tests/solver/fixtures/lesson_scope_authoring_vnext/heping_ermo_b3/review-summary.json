@@ -2,13 +2,13 @@
   "schema_version": "lesson-scope-human-review/v1",
   "problem_id": "tj-2026-heping-ermo-25",
   "review_status": "approved",
-  "reviewed_at": "2026-09-01",
+  "reviewed_at": "2026-09-07",
   "source": {
-    "batch_id": "f5-f5b3-heping-scope-note-thinking-disabled-live-1x2",
+    "batch_id": "f5-f5b3-heping-cognitive-boundary-thinking-disabled-live-1x3-r12",
     "sample_id": "sample-02",
     "mode": "live",
     "thinking_effort": "disabled",
-    "prompt_hash": "9dc0460c588b4a4e20229a9c5091a4c38271f026182aa43edbdca8a5a840f446"
+    "prompt_hash": "acb02b69c5ec6bc38a45e52717774743399ef884362e28de874ab845374bd3f6"
   },
   "validation": {
     "direct_acceptance": true,
@@ -17,24 +17,18 @@
     "fallback_used": false,
     "syntax_repaired": false,
     "source_step_completion_repaired": false,
+    "independent_material_merge_repaired": false,
     "rubric_coverage": "5/5"
   },
   "content": {
     "scope_count": 4,
-    "lesson_step_count": 11,
+    "lesson_step_count": 12,
     "merged_source_steps": [
       {
         "container_ref": "scope:i",
         "source_steps": [
           "s1",
           "s2"
-        ]
-      },
-      {
-        "container_ref": "goal:ii.E",
-        "source_steps": [
-          "s2",
-          "s3"
         ]
       }
     ]
@@ -45,7 +39,10 @@
     "few_shot_allowed": false
   },
   "review_notes": [
-    "Scope、Goal、材料合并、数学推导与代码注入结论已完成人工审阅。",
+    "基于学生认知边界的 r12 Prompt 与三份 thinking-disabled live 输出均已完成人工审阅；三份均直接通过。",
+    "批准样本把 scope i 中连续的求解析式与求左交点材料合并为一个教学步骤；所有独立视觉材料仍保持独立。",
+    "第二问由参数反求到坐标回代的三份材料未合并，人工确认该差异可接受：合并是教学优化项，不是正确性门禁。",
+    "生产默认保持 thinking disabled；thinking-low 运行只用于比较，不作为回归正文来源。",
     "该 fixture 只用于 B4 及后续回归，不得进入 Lesson LLM Prompt 或 few-shot。"
   ]
 }
