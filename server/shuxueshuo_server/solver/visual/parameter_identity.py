@@ -12,7 +12,7 @@ from shuxueshuo_server.solver.explanation.models import (
 )
 
 
-AxisParameterContext = tuple[str, str]
+ParameterizedPointContext = tuple[str, str]
 
 
 def value_depends_on_symbol(value: Any, symbol: str) -> bool:
@@ -28,21 +28,23 @@ def value_depends_on_symbol(value: Any, symbol: str) -> bool:
     return bool(pattern.search(str(value)))
 
 
-def axis_parameter_contexts_by_step(
+def parameterized_point_contexts_by_step(
     snapshot: ExplanationSnapshot,
-) -> dict[str, frozenset[AxisParameterContext]]:
-    """Propagate public axis-parameter identities through exact dependencies.
+) -> dict[str, frozenset[ParameterizedPointContext]]:
+    """Propagate public parameterized-point identities through exact dependencies.
 
-    The seed is a typed ``quadratic_axis_parameterized_point`` producer.  A
-    downstream step inherits the identity only through a precise StepResultRef
-    (including a SourceRef's verified ``resolved_from``).  No private runtime
-    symbol, point label, problem id, or answer value participates.
+    A seed is recognized from public result types: one ``Symbol`` result and
+    one ``Point`` result whose coordinates depend on that symbol.  A
+    downstream step inherits the identity only through a precise
+    StepResultRef (including a SourceRef's verified ``resolved_from``).  No
+    capability id, private runtime symbol, point label, problem id, or answer
+    value participates.
     """
 
     owners = teaching_source_owners(snapshot.root_scope)
-    contexts: dict[str, frozenset[AxisParameterContext]] = {}
+    contexts: dict[str, frozenset[ParameterizedPointContext]] = {}
     for source in iter_teaching_sources(snapshot.root_scope):
-        inherited: set[AxisParameterContext] = set()
+        inherited: set[ParameterizedPointContext] = set()
         for items in source.inputs.values():
             for item in items:
                 if not isinstance(item, Mapping):
@@ -52,30 +54,46 @@ def axis_parameter_contexts_by_step(
                     continue
                 inherited.update(contexts.get(str(ref.get("step_id") or ""), ()))
 
-        if source.capability_id == "quadratic_axis_parameterized_point":
-            point = source.outputs.get("point")
-            parameter_output = source.outputs.get("parameter")
-            parameter = (
-                str(parameter_output.get("value") or "")
-                if isinstance(parameter_output, Mapping)
-                else ""
+        owner = owners.get(source.source_step_id, ("", None))[0]
+        parameters = {
+            str(output.get("value") or "")
+            for output in source.outputs.values()
+            if isinstance(output, Mapping)
+            and str(output.get("runtime_type") or "") == "Symbol"
+            and re.fullmatch(
+                r"[A-Za-z][A-Za-z0-9_]*",
+                str(output.get("value") or ""),
             )
-            point_value = point.get("value") if isinstance(point, Mapping) else None
-            owner = owners.get(source.source_step_id, ("", None))[0]
-            if (
-                owner
-                and isinstance(point_value, (list, tuple))
+        }
+        point_values = [
+            output.get("value")
+            for output in source.outputs.values()
+            if isinstance(output, Mapping)
+            and str(output.get("runtime_type") or "") == "Point"
+        ]
+        produced = {
+            (owner, parameter)
+            for parameter in parameters
+            if owner
+            and any(
+                isinstance(point_value, (list, tuple))
                 and len(point_value) == 2
-                and re.fullmatch(r"[A-Za-z][A-Za-z0-9_]*", parameter)
                 and value_depends_on_symbol(point_value, parameter)
-            ):
-                inherited.add((owner, parameter))
+                for point_value in point_values
+            )
+        }
+        if len(produced) > 1:
+            raise ValueError(
+                "visual_parameterized_point_context_ambiguous: "
+                f"step={source.source_step_id}, contexts={sorted(produced)}"
+            )
+        inherited.update(produced)
 
         contexts[source.source_step_id] = frozenset(inherited)
     return contexts
 
 
-def step_value_uses_axis_parameter(
+def step_value_uses_parameterized_point_symbol(
     snapshot: ExplanationSnapshot,
     *,
     step_id: str,
@@ -86,12 +104,12 @@ def step_value_uses_axis_parameter(
 
     matches = {
         context
-        for context in axis_parameter_contexts_by_step(snapshot).get(step_id, ())
+        for context in parameterized_point_contexts_by_step(snapshot).get(step_id, ())
         if context[0] == scope_ref and value_depends_on_symbol(value, context[1])
     }
     if len(matches) > 1:
         raise ValueError(
-            "visual_axis_parameter_context_ambiguous: "
+            "visual_parameterized_point_context_ambiguous: "
             f"step={step_id}, scope={scope_ref}, contexts={sorted(matches)}"
         )
     return bool(matches)

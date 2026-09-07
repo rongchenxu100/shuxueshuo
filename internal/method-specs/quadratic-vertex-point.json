@@ -95,6 +95,12 @@
     "scene_templates": [
       {
         "component": "QuadraticVertexMarker",
+        "context_roles": [
+          "input_curve",
+          "x_axis_points",
+          "curve_x_intercepts",
+          "curve_axis"
+        ],
         "axis_color": "#64748b",
         "vertex_color": "#b45309",
         "persistence": "carry_forward",

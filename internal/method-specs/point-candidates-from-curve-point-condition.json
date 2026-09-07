@@ -153,6 +153,20 @@
     "scene_templates": [
       {
         "component": "CurvePointCandidateMarker",
+        "context_roles": [
+          "input_curve",
+          "curve_axis",
+          {
+            "kind": "square_predecessor",
+            "target_input": "target_point",
+            "co_vertex_input": "curve_point"
+          },
+          "prior_curve_vertex"
+        ],
+        "dependency_components": [
+          "Parabola",
+          "AxisOfSymmetry"
+        ],
         "requires_independent_lesson_step": true,
         "persistence": "carry_forward",
         "fill": "rgba(14, 165, 233, 0.08)",

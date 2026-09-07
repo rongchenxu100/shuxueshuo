@@ -76,12 +76,14 @@ SPEC = RecipeSpecSource(
             "weighted_reduction": (
                 {
                     "component": "AtomicPathMinimumMarker",
+                    "context_roles": ["input_curve"],
                     "requires_independent_lesson_step": True,
                 },
             ),
             "domain_minimum": (
                 {
                     "component": "AtomicPathMinimumMarker",
+                    "context_roles": ["input_curve"],
                     "requires_independent_lesson_step": True,
                 },
             ),

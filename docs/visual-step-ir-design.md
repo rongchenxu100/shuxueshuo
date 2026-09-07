@@ -224,6 +224,17 @@ Method/Macro VisualSpec 声明通用组件、focus roles、context roles 与 Mac
 verified public inputs/results 绑定 geometry identity、坐标和角色。Spec 不包含题号、固定点名或
 固定坐标。
 
+`context_roles` 是组件以外的上下文选择唯一配置源；Visual builder 不再按 capability ID 维护
+第二张分支表。`input_curve`、`curve_axis`、`curve_x_intercepts`、`prior_curve_vertex`、
+`square_predecessor`、`connected_dependency_geometry` 等角色都通过当前 Step 的精确
+`SourceRef/StepResultRef`、Goal `answer_from` 和 ProblemIR entity/fact identity 绑定，不能从
+单字母标签或显示字符串猜测。Macro 的正方形也必须由 witness 的实际顶点角色唯一匹配，不能
+取题面中的第一个 square fact。
+
+参数化点身份同样从公开返回合同推导：一个 Step 同时公开 `Symbol` 与依赖该符号的 `Point`，
+即可成为动点参数来源；后续只沿精确 StepResultRef 传播。它不依赖某个固定 Method ID。Frame
+标题直接使用绑定后的 Lesson `nav_title`，不再针对 unit key 维护重复文案映射。
+
 当前 B4V 不增加视觉 LLM。G1 中，同一次 Lesson LLM 可以从代码已成功绑定的
 `available_visuals` 中选择 `visual_id/mode`；非法选择只回退该 LessonStep 的 deterministic
 default，不启动第二个视觉 LLM，也不允许 LLM 填写 roles、geometry refs、公式或 scene item。

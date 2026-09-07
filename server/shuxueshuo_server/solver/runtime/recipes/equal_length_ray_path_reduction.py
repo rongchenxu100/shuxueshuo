@@ -79,6 +79,7 @@ SPEC = RecipeSpecSource(
             "path_reduction": (
                 {
                     "component": "CongruentTriangleMarker",
+                    "context_roles": ["input_curve"],
                     "requires_independent_lesson_step": True,
                 },
                 {"component": "EquivalentSegmentMarker"},
@@ -86,6 +87,7 @@ SPEC = RecipeSpecSource(
             "minimum_by_segment": (
                 {
                     "component": "PathMinimumTriangleMarker",
+                    "context_roles": ["input_curve"],
                     "requires_independent_lesson_step": True,
                 },
                 {"component": "AuxiliaryRayGuideMarker"},

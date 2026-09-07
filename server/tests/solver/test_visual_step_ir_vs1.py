@@ -3,7 +3,7 @@ from __future__ import annotations
 import copy
 import inspect
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from functools import cache
 from pathlib import Path
 import re
@@ -20,7 +20,11 @@ from shuxueshuo_server.solver.explanation import (
     LessonAuthoringPipeline,
     LessonIR,
 )
-from shuxueshuo_server.solver.explanation.models import ExplanationSnapshot
+from shuxueshuo_server.solver.explanation.models import (
+    ExplanationSnapshot,
+    TeachingScope,
+    TeachingSource,
+)
 from shuxueshuo_server.solver.runtime.config import SolverRuntimeConfig
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.orchestrator import RuntimeOrchestrator
@@ -37,7 +41,13 @@ from shuxueshuo_server.solver.visual import builder as visual_builder
 from shuxueshuo_server.solver.visual import parametric as visual_parametric
 from shuxueshuo_server.solver.visual import role_binders as visual_role_binders
 from shuxueshuo_server.solver.visual.geometry_naming import scope_root
-from shuxueshuo_server.solver.visual.role_binders import VisualRoleBinderRegistry
+from shuxueshuo_server.solver.visual.parameter_identity import (
+    parameterized_point_contexts_by_step,
+)
+from shuxueshuo_server.solver.visual.role_binders import (
+    VisualRoleBinderRegistry,
+    VisualRoleBindings,
+)
 from shuxueshuo_server.solver.visual.sympy_helpers import sympy_pair
 
 
@@ -99,6 +109,7 @@ def test_visual_specs_dispatch_only_through_component_registries() -> None:
     assert method_components <= set(visual_builder._METHOD_VISUAL_TEMPLATE_RENDERERS)
     assert recipe_components <= set(visual_builder._RECIPE_VISUAL_TEMPLATE_RENDERERS)
     assert "CurvePointCandidateMarker" in visual_builder._METHOD_VISUAL_TEMPLATE_RENDERERS
+    assert "LineParabolaIntersectionMarker" in visual_builder._METHOD_VISUAL_TEMPLATE_RENDERERS
     assert "AtomicPathMinimumMarker" in visual_builder._RECIPE_VISUAL_TEMPLATE_RENDERERS
     assert "BrokenPathStraighteningMarker" not in visual_builder._RECIPE_VISUAL_TEMPLATE_RENDERERS
     for recipe_id in (
@@ -108,6 +119,207 @@ def test_visual_specs_dispatch_only_through_component_registries() -> None:
         "weighted_axis_path_minimum",
     ):
         assert recipes.specs[recipe_id].visual is not None
+
+
+def test_visual_context_is_spec_driven_not_capability_switched() -> None:
+    source = inspect.getsource(visual_builder._visual_context_for_step)
+
+    for capability_id in (
+        "quadratic_vertex_point",
+        "square_adjacent_vertex_from_side",
+        "evaluate_point_at_parameter",
+    ):
+        assert capability_id not in source
+
+
+def test_parameterized_point_identity_is_inferred_from_public_result_types(
+    heping_yimo_page: HepingYimoPage,
+) -> None:
+    producer = TeachingSource(
+        source_step_id="produce_moving_point",
+        capability_id="renamed_or_new_capability",
+        inputs={},
+        outputs={
+            "parameter": {
+                "runtime_type": "Symbol",
+                "value": "u",
+                "display": "u",
+            },
+            "point": {
+                "runtime_type": "Point",
+                "value": ["2*u+1", "u-3"],
+                "display": "动点(u)",
+            },
+        },
+    )
+    consumer = TeachingSource(
+        source_step_id="consume_moving_point",
+        capability_id="consumer_capability",
+        inputs={
+            "point": (
+                {
+                    "ref": {
+                        "kind": "step_result",
+                        "step_id": "produce_moving_point",
+                        "return": "point",
+                    },
+                    "runtime_type": "Point",
+                    "value": ["2*u+1", "u-3"],
+                    "display": "动点(u)",
+                },
+            )
+        },
+        outputs={},
+    )
+    snapshot = replace(
+        heping_yimo_page.snapshot,
+        root_scope=TeachingScope(
+            scope_ref="ii",
+            steps=(producer, consumer),
+        ),
+        evidence={},
+        answers={},
+    )
+
+    assert parameterized_point_contexts_by_step(snapshot) == {
+        "produce_moving_point": frozenset({("ii", "u")}),
+        "consume_moving_point": frozenset({("ii", "u")}),
+    }
+
+
+def test_dynamic_point_choice_uses_typed_provenance_not_internal_id_text() -> None:
+    geometry = {
+        "fixedPoints": {},
+        "movingPoints": {
+            "looks_like_axis_locus": ["u", "0"],
+            "semantic_result": ["u", "0"],
+        },
+        "pointMeta": {
+            "looks_like_axis_locus": {
+                "label": "动点",
+                "scopeId": "ii",
+                "scopeRoot": "ii",
+                "visualOnly": True,
+            },
+            "semantic_result": {
+                "label": "动点",
+                "scopeId": "ii",
+                "scopeRoot": "ii",
+                "definition": "parameterized_point",
+                "semanticRoles": ["path_attainment_point"],
+                "sourceStepIds": ["produce_moving_point"],
+            },
+        },
+        "curves": [],
+    }
+    binder = VisualRoleBinderRegistry.default(geometry, {"entities": [], "facts": []})
+
+    assert (
+        binder._dynamic_point_ref_for_label("动点", "ii", "y=0")
+        == "semantic_result"
+    )
+
+
+def test_square_context_resolves_non_latin_point_by_exact_source_ref(
+    heping_yimo_page: HepingYimoPage,
+) -> None:
+    problem = copy.deepcopy(heping_yimo_page.snapshot.problem)
+    problem["entities"].append(
+        {
+            "entity_type": "point",
+            "handle": "point:problem:交点甲",
+            "name": "交点甲",
+            "scope_id": "problem",
+        }
+    )
+    snapshot = replace(heping_yimo_page.snapshot, problem=problem)
+    source = TeachingSource(
+        source_step_id="use_named_point",
+        capability_id="synthetic",
+        inputs={
+            "target": (
+                {
+                    "ref": {"kind": "source", "ref": "point:problem:交点甲"},
+                    "runtime_type": "Point",
+                    "value": ["1", "2"],
+                    "display": "交点甲(1,2)",
+                },
+            )
+        },
+        outputs={},
+    )
+
+    assert visual_builder._problem_point_handles_for_input(
+        source,
+        "target",
+        sources={},
+        snapshot=snapshot,
+        scope_id="i",
+    ) == {"point:problem:交点甲"}
+
+
+def test_goal_answer_output_identity_uses_problem_target_handle(
+    heping_yimo_page: HepingYimoPage,
+) -> None:
+    source = next(
+        item
+        for item in visual_builder.iter_teaching_sources(
+            heping_yimo_page.snapshot.root_scope
+        )
+        if item.source_step_id == "derive_curve_intersection_E_i"
+    )
+
+    assert visual_role_binders._public_point_semantic_ref(
+        heping_yimo_page.snapshot,
+        source,
+        "point",
+    ) == "point:i_2:E"
+
+
+def test_line_parabola_renderer_uses_bound_roles_not_fixed_point_names() -> None:
+    template = {
+        "persistence": "carry_forward",
+        "line_color": "#123456",
+        "target_color": "#654321",
+    }
+    bindings = VisualRoleBindings(
+        line_parabola_intersections=(
+            {
+                "source_step_id": "intersection_step",
+                "line_p1": "geometry_alpha",
+                "line_p1_label": "交点甲",
+                "line_p2": "geometry_beta",
+                "line_p2_label": "交点乙",
+                "known_point": "geometry_alpha",
+                "known_label": "交点甲",
+                "target_point": "geometry_gamma",
+                "target_label": "交点丙",
+                "target_display": "交点丙(3,4)",
+            },
+        )
+    )
+
+    items = visual_builder._line_parabola_intersection_marker_items(
+        template,
+        bindings,
+    )
+
+    assert any(
+        item.get("component") == "ColoredLine"
+        and item.get("from") == "geometry_alpha"
+        and item.get("to") == "geometry_gamma"
+        for item in items
+    )
+    assert any(
+        item.get("component") == "CoordinateLabel"
+        and item.get("at") == "geometry_gamma"
+        and item.get("text") == "交点丙(3,4)"
+        for item in items
+    )
+    renderer_source = inspect.getsource(
+        visual_builder._line_parabola_intersection_marker_items
+    )
+    assert all(token not in renderer_source for token in ('"B"', '"E"', '"F"'))
 
 
 def test_visual_v2_has_no_public_flat_or_second_llm_api() -> None:

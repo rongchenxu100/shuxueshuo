@@ -19,6 +19,7 @@ from shuxueshuo_server.solver.explanation.lesson_ir import (
 )
 from shuxueshuo_server.solver.explanation.models import (
     ExplanationSnapshot,
+    iter_teaching_scopes,
     iter_teaching_sources,
 )
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
@@ -72,7 +73,7 @@ from .palette import (
 )
 from .parametric import CandidateHitResolver, ParametricExpressionResolver
 from .parameter_identity import (
-    axis_parameter_contexts_by_step,
+    parameterized_point_contexts_by_step,
     value_depends_on_symbol,
 )
 from .viewport import SemanticViewportResolver
@@ -128,6 +129,16 @@ class _SceneBuildContext:
     @property
     def points(self) -> dict[str, str]:
         return self.bindings.point_handles
+
+
+@dataclass(frozen=True)
+class _VisualContextPolicy:
+    """Internal context intent projected from selected VisualSpec templates."""
+
+    roles: tuple[tuple[str, JsonObject], ...] = ()
+    include_exact_dependencies: bool = True
+    dependency_components: frozenset[str] | None = None
+    suppress_point_definitions_when_exact: frozenset[str] = frozenset()
 
 
 @dataclass(frozen=True)
@@ -297,7 +308,7 @@ def _geometry_points_from_snapshot(
     parameter_name = _parameter_name(snapshot)
     parameter_scope = _parameter_scope_id(snapshot)
     namer = GeometryPointNamer(snapshot=snapshot, lesson=lesson)
-    axis_parameter_contexts = axis_parameter_contexts_by_step(snapshot)
+    parameterized_point_contexts = parameterized_point_contexts_by_step(snapshot)
     fixed: dict[str, list[str]] = {}
     moving: dict[str, list[str]] = {}
     point_meta: dict[str, JsonObject] = {}
@@ -339,13 +350,25 @@ def _geometry_points_from_snapshot(
             record_point_definition(geometry_id, pair)
             point_meta.setdefault(
                 geometry_id,
-                {"label": label, "scopeId": scope_id, "scopeRoot": _scope_root(scope_id)},
+                {
+                    "label": label,
+                    "scopeId": scope_id,
+                    "scopeRoot": _scope_root(scope_id),
+                    "definition": definition or "given_point",
+                    "sourceRef": str(entity.get("handle") or ""),
+                },
             )
         elif definition == "coordinate_origin":
             fixed.setdefault(label or "O", ["0", "0"])
             point_meta.setdefault(
                 label or "O",
-                {"label": label or "O", "scopeId": str(entity.get("scope_id") or "problem"), "scopeRoot": "problem"},
+                {
+                    "label": label or "O",
+                    "scopeId": str(entity.get("scope_id") or "problem"),
+                    "scopeRoot": "problem",
+                    "definition": "coordinate_origin",
+                    "sourceRef": str(entity.get("handle") or ""),
+                },
             )
 
     for item in snapshot.fact_index.values():
@@ -360,24 +383,35 @@ def _geometry_points_from_snapshot(
         pair = _page_point_pair(value)
         scope_id = namer._visual_scope_for_fact(item)
         source_step_id = namer._source_step_id_for_fact(item)
-        matching_axis_contexts = {
+        matching_parameter_contexts = {
             context
-            for context in axis_parameter_contexts.get(source_step_id, frozenset())
+            for context in parameterized_point_contexts.get(source_step_id, frozenset())
             if context[0] == scope_id
             and value_depends_on_symbol(pair, context[1])
         }
-        if len(matching_axis_contexts) > 1:
+        if len(matching_parameter_contexts) > 1:
             raise ValueError(
-                "visual_axis_parameter_context_ambiguous: "
-                f"step={source_step_id}, scope={scope_id}, contexts={sorted(matching_axis_contexts)}"
+                "visual_parameterized_point_context_ambiguous: "
+                f"step={source_step_id}, scope={scope_id}, "
+                f"contexts={sorted(matching_parameter_contexts)}"
             )
-        if matching_axis_contexts:
+        if matching_parameter_contexts:
             raw_label = namer._raw_label_for_fact(item)
             geometry_id = axis_parameter_point_id(raw_label or label, scope_id)
-            point_meta[geometry_id] = namer.scope_namer.point_meta(raw_label or label, scope_id)
+            parameter = next(iter(matching_parameter_contexts))[1]
+            point_meta[geometry_id] = {
+                **namer.scope_namer.point_meta(raw_label or label, scope_id),
+                "definition": "parameterized_point",
+                "parameterSymbol": parameter,
+                "sourceStepIds": [source_step_id],
+            }
             record_point_definition(geometry_id, pair)
             continue
-        point_meta[label] = namer.point_meta_for_fact(item)
+        point_meta[label] = {
+            **namer.point_meta_for_fact(item),
+            "definition": "runtime_point_output",
+            "sourceStepIds": [source_step_id] if source_step_id else [],
+        }
         record_point_definition(label, pair)
 
     return dict(sorted(fixed.items())), dict(sorted(moving.items())), dict(sorted(point_meta.items()))
@@ -800,13 +834,10 @@ def _add_quadratic_square_macro_points(
             for item in witness.get("role_resolutions", ())
             if isinstance(item, dict)
         }
-        square_fact = next(
-            (
-                fact
-                for fact in (snapshot.problem or {}).get("facts") or ()
-                if isinstance(fact, dict) and fact.get("type") == "square"
-            ),
-            None,
+        square_fact = _square_fact_for_witness_roles(
+            snapshot,
+            role_values=role_values,
+            scope_id=scope_id,
         )
         if isinstance(square_fact, dict):
             square_labels = [
@@ -872,10 +903,14 @@ def _add_quadratic_square_macro_points(
                         midpoint_label = _point_label_for_relation(
                             snapshot,
                             relation_type="midpoint_definition",
+                            relation_ref=role_values.get("midpoint_definition", ""),
+                            scope_id=scope_id,
                         )
                         center_label = _point_label_for_relation(
                             snapshot,
                             relation_type="square_center",
+                            relation_ref=role_values.get("square_center", ""),
+                            scope_id=scope_id,
                         )
                         if midpoint_label:
                             _add_structural_visual_point(
@@ -957,6 +992,44 @@ def _add_quadratic_square_macro_points(
             prefer_axis=False,
         )
         moving_pair = all_points.get(moving_id)
+        if moving_id and moving_id in point_meta:
+            meta = dict(point_meta[moving_id])
+            raw_semantic_roles = meta.get("semanticRoles", ())
+            semantic_roles = (
+                (raw_semantic_roles,)
+                if isinstance(raw_semantic_roles, str)
+                else tuple(raw_semantic_roles)
+            )
+            meta["semanticRoles"] = sorted(
+                {
+                    *(
+                        str(item)
+                        for item in semantic_roles
+                        if str(item)
+                    ),
+                    "path_attainment_point",
+                }
+            )
+            source_step_id = str(witness.get("step_id") or "")
+            raw_source_steps = meta.get("sourceStepIds", ())
+            source_steps = (
+                (raw_source_steps,)
+                if isinstance(raw_source_steps, str)
+                else tuple(raw_source_steps)
+            )
+            meta["sourceStepIds"] = list(
+                dict.fromkeys(
+                    [
+                        *(
+                            str(item)
+                            for item in source_steps
+                            if str(item)
+                        ),
+                        *(item for item in (source_step_id,) if item),
+                    ]
+                )
+            )
+            point_meta[moving_id] = meta
         locus_y = _horizontal_locus_y(
             str((locus or {}).get("moving_locus") or "")
         )
@@ -1030,18 +1103,122 @@ def _ordered_square_pairs_from_adjacent(
         return None, None
 
 
+def _square_fact_for_witness_roles(
+    snapshot: ExplanationSnapshot,
+    *,
+    role_values: dict[str, str],
+    scope_id: str,
+) -> dict[str, Any] | None:
+    required_handles = {
+        _resolve_problem_point_handle(snapshot, role_values.get(role, ""), scope_id)
+        for role in ("side_start", "axis_point", "moving_point")
+    }
+    required_handles.discard("")
+    if len(required_handles) != 3:
+        raise ValueError(
+            "visual_quadratic_square_witness_roles_invalid: "
+            f"scope={scope_id}, roles={role_values}"
+        )
+    matches: list[dict[str, Any]] = []
+    for fact in (snapshot.problem or {}).get("facts") or ():
+        if not isinstance(fact, dict) or fact.get("type") != "square":
+            continue
+        vertices = {
+            _resolve_problem_point_handle(snapshot, str(item), scope_id)
+            for item in fact.get("vertices") or ()
+        }
+        vertices.discard("")
+        if required_handles <= vertices:
+            matches.append(fact)
+    if len(matches) > 1:
+        raise ValueError(
+            "visual_quadratic_square_witness_square_ambiguous: "
+            f"scope={scope_id}, matches={[item.get('handle') for item in matches]}"
+        )
+    if not matches:
+        raise ValueError(
+            "visual_quadratic_square_witness_square_missing: "
+            f"scope={scope_id}, roles={sorted(required_handles)}"
+        )
+    return matches[0]
+
+
+def _resolve_problem_point_handle(
+    snapshot: ExplanationSnapshot,
+    semantic_ref: str,
+    scope_id: str,
+) -> str:
+    item = _resolve_problem_semantic_item(
+        snapshot,
+        semantic_ref=semantic_ref,
+        scope_id=scope_id,
+        collection="entities",
+        expected_type="point",
+    )
+    return str(item.get("handle") or "") if item is not None else ""
+
+
+def _resolve_problem_semantic_item(
+    snapshot: ExplanationSnapshot,
+    *,
+    semantic_ref: str,
+    scope_id: str,
+    collection: str,
+    expected_type: str,
+) -> dict[str, Any] | None:
+    ref = str(semantic_ref or "")
+    if not ref:
+        return None
+    lineage = scope_lineage(scope_id)
+    scored: list[tuple[int, dict[str, Any]]] = []
+    for raw in (snapshot.problem or {}).get(collection) or ():
+        if not isinstance(raw, dict):
+            continue
+        item_type = str(raw.get("entity_type") or raw.get("type") or "")
+        if item_type != expected_type:
+            continue
+        handle = str(raw.get("handle") or "")
+        name = str(raw.get("name") or "")
+        handle_tail = handle.rsplit(":", 1)[-1] if handle else ""
+        if ref == handle:
+            semantic_score = 300
+        elif ref == name:
+            semantic_score = 200
+        elif ref == handle_tail:
+            semantic_score = 100
+        else:
+            continue
+        item_scope = str(raw.get("scope_id") or "problem")
+        if item_scope not in lineage:
+            continue
+        scope_score = len(lineage) - lineage.index(item_scope)
+        scored.append((semantic_score + scope_score, raw))
+    if not scored:
+        return None
+    best_score = max(score for score, _ in scored)
+    winners = [item for score, item in scored if score == best_score]
+    if len(winners) != 1:
+        raise ValueError(
+            "visual_problem_semantic_ref_ambiguous: "
+            f"ref={ref}, scope={scope_id}, "
+            f"matches={sorted(str(item.get('handle') or '') for item in winners)}"
+        )
+    return winners[0]
+
+
 def _point_label_for_relation(
     snapshot: ExplanationSnapshot,
     *,
     relation_type: str,
+    relation_ref: str,
+    scope_id: str,
 ) -> str:
-    fact = next(
-        (
-            item
-            for item in (snapshot.problem or {}).get("facts") or ()
-            if isinstance(item, dict) and item.get("type") == relation_type
-        ),
-        None,
+    fact = _resolve_problem_semantic_item(
+        snapshot,
+        semantic_ref=relation_ref,
+        scope_id=scope_id,
+        collection="facts",
+        expected_type=relation_type,
     )
     if not isinstance(fact, dict):
         return ""
@@ -2250,20 +2427,16 @@ def _visual_step_resolution(
             owner_scope_ref=lesson_step.scope_id,
             source_step_ids=tuple(lesson_step.source_step_ids),
         )
-        if (
-            "square_adjacent_vertex_from_side" in frame_step.capability_ids
-            and _lesson_step_has_exact_point_output(frame_step, snapshot)
-        ):
-            axis_refs = {
-                str(point_id)
-                for point_id, meta in (geometry_spec.get("pointMeta") or {}).items()
-                if isinstance(meta, dict)
-                and meta.get("definition") == "axis_x_intercept"
-            }
+        suppressed_point_refs = _suppressed_current_point_refs(
+            frame_step,
+            snapshot=snapshot,
+            geometry_spec=geometry_spec,
+        )
+        if suppressed_point_refs:
             current = tuple(
                 item
                 for item in current
-                if not set(item.geometry_refs).intersection(axis_refs)
+                if not set(item.geometry_refs).intersection(suppressed_point_refs)
             )
         # Resolve the new frame as an increment over the immediately preceding
         # complete frame in this exact branch.  At Goal entry that frame is
@@ -2323,14 +2496,11 @@ def _visual_step_resolution(
             owner_scope_ref=lesson_step.scope_id,
             source_step_ids=tuple(lesson_step.source_step_ids),
         )
-        if (
-            "square_adjacent_vertex_from_side" in frame_step.capability_ids
-            and _lesson_step_has_exact_point_output(frame_step, snapshot)
-        ):
+        if suppressed_point_refs:
             persistent_current = tuple(
                 item
                 for item in persistent_current
-                if not set(item.geometry_refs).intersection(axis_refs)
+                if not set(item.geometry_refs).intersection(suppressed_point_refs)
             )
         published = _merge_frame_objects(context, persistent_current)
         local_parameters = _local_parameters_for_frame(
@@ -2636,6 +2806,27 @@ def _lesson_step_has_exact_point_output(
     return False
 
 
+def _suppressed_current_point_refs(
+    lesson_step: LessonStep,
+    *,
+    snapshot: ExplanationSnapshot,
+    geometry_spec: JsonObject,
+) -> frozenset[str]:
+    policy = _visual_context_policy_for_lesson_step(lesson_step)
+    if (
+        not policy.suppress_point_definitions_when_exact
+        or not _lesson_step_has_exact_point_output(lesson_step, snapshot)
+    ):
+        return frozenset()
+    return frozenset(
+        str(point_id)
+        for point_id, meta in (geometry_spec.get("pointMeta") or {}).items()
+        if isinstance(meta, dict)
+        and str(meta.get("definition") or "")
+        in policy.suppress_point_definitions_when_exact
+    )
+
+
 def _visual_step_for_lesson_step(
     lesson_step: LessonStep,
     *,
@@ -2741,7 +2932,7 @@ def _visual_context_for_step(
     snapshot: ExplanationSnapshot,
     geometry_spec: JsonObject,
 ) -> tuple[VisualObject, ...]:
-    capabilities = set(lesson_step.capability_ids)
+    policy = _visual_context_policy_for_lesson_step(lesson_step)
     current_ids = {item.visual_object_id for item in current}
     selected: list[VisualObject] = []
 
@@ -2753,146 +2944,92 @@ def _visual_context_for_step(
         selected.append(context_copy(item))
 
     dependency_steps = _input_dependency_step_ids(lesson_step, snapshot)
-    for item in state.available.values():
-        source_steps = {
-            str(ref.get("step_id") or "")
-            for ref in item.source_refs
-            if isinstance(ref, dict)
-        }
-        if source_steps.intersection(dependency_steps):
-            add(item)
-
-    if "quadratic_vertex_point" in capabilities:
-        for item in state.available.values():
-            if item.component == "Parabola" or _visual_point_is_on_x_axis(
-                item,
-                geometry_spec,
-            ):
-                add(item)
-        for item in _curve_x_intercept_context_objects(
-            lesson_step,
-            geometry_spec=geometry_spec,
-        ):
-            add(item)
-        for item in _axis_intercept_context_objects(
-            lesson_step,
-            geometry_spec=geometry_spec,
-        ):
-            add(item)
-
-    if "quadratic_axis_parameterized_point" in capabilities:
-        selected = [item for item in selected if item.component == "Parabola"]
-        for item in _square_anchor_context(
-            lesson_step,
-            state=state,
-            snapshot=snapshot,
-            geometry_spec=geometry_spec,
-        ):
-            add(item)
-        for item in _axis_intercept_context_objects(
-            lesson_step,
-            geometry_spec=geometry_spec,
-        ):
-            add(item)
-
-    if "square_adjacent_vertex_from_side" in capabilities:
-        for item in state.available.values():
-            if item.component in {"Parabola", "AxisOfSymmetry"}:
-                add(item)
-
-    if "point_candidates_from_curve_point_condition" in capabilities:
-        selected = [
-            item
-            for item in selected
-            if item.component in {"Parabola", "AxisOfSymmetry"}
-        ]
-        for item in state.available.values():
-            if item.component == "Point" and _student_geometry_label(
-                item,
-                geometry_spec,
-            ) in _candidate_context_point_labels(lesson_step, snapshot):
-                add(item)
-        for item in _axis_intercept_context_objects(
-            lesson_step,
-            geometry_spec=geometry_spec,
-        ):
-            add(item)
-
-    if "evaluate_point_at_parameter" in capabilities:
-        selected = []
-        target_refs = {
-            geometry_ref
-            for item in current
-            if item.component == "Point"
-            for geometry_ref in item.geometry_refs
-        }
-        path_context: list[VisualObject] = []
-        for item in state.available.values():
-            if item.component in {"Parabola", "AxisOfSymmetry"}:
-                add(item)
-            elif (
-                item.component
-                in {
-                    "ColoredLine",
-                    "DashedLine",
-                    "DistanceMarker",
-                    "LocusLine",
-                    "OutlineRegion",
-                }
-                and set(item.geometry_refs).intersection(target_refs)
-                and any(
-                    isinstance(ref, dict)
-                    and str(ref.get("step_id") or "") in dependency_steps
-                    for ref in item.source_refs
-                )
-            ):
-                add(item)
-                path_context.append(item)
-        # Bring in only the point endpoints required by the selected path
-        # components.  This is geometry-ref based; no student point letter is
-        # special-cased.
-        required_point_refs = {
-            geometry_ref
-            for item in path_context
-            for geometry_ref in item.geometry_refs
-        }
+    if policy.include_exact_dependencies:
         for item in state.available.values():
             if (
-                item.component == "Point"
-                and set(item.geometry_refs).intersection(required_point_refs)
+                policy.dependency_components is not None
+                and item.component not in policy.dependency_components
+            ):
+                continue
+            source_steps = {
+                str(ref.get("step_id") or "")
+                for ref in item.source_refs
+                if isinstance(ref, dict)
+            }
+            if source_steps.intersection(dependency_steps):
+                add(item)
+
+    for role, options in policy.roles:
+        if role == "input_curve":
+            curve_ids = _context_curve_geometry_ids(
+                lesson_step,
+                state=state,
+                snapshot=snapshot,
+                geometry_spec=geometry_spec,
+            )
+            for item in state.available.values():
+                if item.component == "Parabola" and set(item.geometry_refs).intersection(
+                    curve_ids
+                ):
+                    add(item)
+            continue
+        if role == "x_axis_points":
+            for item in state.available.values():
+                if _visual_point_is_on_x_axis(item, geometry_spec):
+                    add(item)
+            continue
+        if role == "curve_x_intercepts":
+            for item in _curve_x_intercept_context_objects(
+                lesson_step,
+                state=state,
+                snapshot=snapshot,
+                geometry_spec=geometry_spec,
             ):
                 add(item)
-        for item in _axis_intercept_context_objects(
-            lesson_step,
-            geometry_spec=geometry_spec,
-        ):
-            add(item)
-
-    if capabilities.intersection(
-        {
-            "quadratic_square_path_minimum",
-            "coupled_segment_path_minimum",
-            "weighted_axis_path_minimum",
-            "equal_length_ray_path_reduction",
-        }
-    ):
-        for item in state.available.values():
-            if item.component == "Parabola":
+            continue
+        if role == "curve_axis":
+            for item in _axis_intercept_context_objects(
+                lesson_step,
+                state=state,
+                snapshot=snapshot,
+                geometry_spec=geometry_spec,
+            ):
                 add(item)
-
-    # A previously verified landmark of the *same mathematical curve* may be
-    # reused as teaching context without importing the producer Goal's whole
-    # scene.  This is an exact public-result + curve-identity join, so an
-    # earlier vertex can accompany a later construction while unrelated
-    # sibling objects remain isolated.
-    for item in _prior_verified_curve_vertex_context_objects(
-        lesson_step,
-        state=state,
-        current=current,
-        snapshot=snapshot,
-        geometry_spec=geometry_spec,
-    ):
-        add(item)
+            continue
+        if role == "square_predecessor":
+            for item in _square_predecessor_context(
+                lesson_step,
+                state=state,
+                snapshot=snapshot,
+                geometry_spec=geometry_spec,
+                options=options,
+            ):
+                add(item)
+            continue
+        if role == "connected_dependency_geometry":
+            for item in _connected_dependency_context_objects(
+                state=state,
+                current=current,
+                dependency_steps=dependency_steps,
+            ):
+                add(item)
+            continue
+        if role == "prior_curve_vertex":
+            # A previously verified landmark of the same mathematical curve
+            # may be reused without importing the producer Goal's whole scene.
+            for item in _prior_verified_curve_vertex_context_objects(
+                lesson_step,
+                state=state,
+                current=current,
+                snapshot=snapshot,
+                geometry_spec=geometry_spec,
+            ):
+                add(item)
+            continue
+        raise ValueError(
+            "visual_context_role_unknown: "
+            f"role={role}, capabilities={list(lesson_step.capability_ids)}"
+        )
 
     return tuple(selected)
 
@@ -2969,10 +3106,32 @@ def _prior_verified_curve_vertex_context_objects(
             output_pair = _sympy_pair_value(output.get("value"))
             if output_pair is None or not _same_point_pair_value(output_pair, vertex_pair):
                 continue
-            label = str(source.output_targets.get(return_name) or "")
-            if not label:
-                label = _point_label_from_public_display(str(output.get("display") or ""))
-            point_ref = geometry_index.geometry_point_name(label, lesson_step.scope_id)
+            target_handles = _problem_point_handles_for_output(
+                source,
+                return_name,
+                snapshot=snapshot,
+                scope_id=source_scope,
+            )
+            if len(target_handles) != 1:
+                continue
+            target_handle = next(iter(target_handles))
+            entity = _resolve_problem_semantic_item(
+                snapshot,
+                semantic_ref=target_handle,
+                scope_id=source_scope,
+                collection="entities",
+                expected_type="point",
+            )
+            if entity is None:
+                continue
+            label = str(
+                entity.get("name")
+                or _handle_tail(str(entity.get("handle") or ""))
+            )
+            point_ref = geometry_index.point_for_handle(
+                target_handle,
+                lesson_step.scope_id,
+            )
             if not point_ref or point_ref in seen_refs:
                 continue
             geometry_pair = known_pairs.get(point_ref)
@@ -3059,11 +3218,6 @@ def _curve_vertex_pair(curve: JsonObject) -> tuple[sp.Expr, sp.Expr] | None:
         return x_value, sp.simplify(a * x_value**2 + b * x_value + c)
     except Exception:
         return None
-
-
-def _point_label_from_public_display(display: str) -> str:
-    match = re.match(r"\s*([A-Za-z](?:′|')?)\s*\(", display)
-    return match.group(1).replace("'", "′") if match else ""
 
 
 def _input_dependency_step_ids(
@@ -3210,139 +3364,327 @@ def _visual_point_is_on_x_axis(
         return False
 
 
-def _student_geometry_label(
-    item: VisualObject,
+def _context_curve_geometry_ids(
+    lesson_step: LessonStep,
+    *,
+    state: BranchVisualState,
+    snapshot: ExplanationSnapshot,
     geometry_spec: JsonObject,
-) -> str:
-    if item.component != "Point" or not item.geometry_refs:
-        return ""
-    meta = (geometry_spec.get("pointMeta") or {}).get(item.geometry_refs[0])
-    return str((meta or {}).get("label") or item.display_label or "")
+) -> frozenset[str]:
+    """Resolve the current mathematical curve without a capability switch.
+
+    A typed curve input is authoritative.  A construction Method that does
+    not consume the curve directly may reuse the sole curve already visible
+    in its exact branch.  Multiple matches are an authority error rather than
+    a cue to pick the first registry entry.
+    """
+
+    input_expressions: list[sp.Expr] = []
+    source_by_id = {
+        source.source_step_id: source
+        for source in iter_teaching_sources(snapshot.root_scope)
+    }
+    for step_id in lesson_step.source_step_ids:
+        source = source_by_id.get(step_id)
+        if source is None:
+            continue
+        for values in source.inputs.values():
+            for value in values:
+                if str(value.get("runtime_type") or "") not in {
+                    "Parabola",
+                    "QuadraticCurve",
+                    "QuadraticFunction",
+                }:
+                    continue
+                expression = _public_curve_expression(value.get("value"))
+                if expression is not None:
+                    input_expressions.append(expression)
+
+    visible_curve_ids = {
+        geometry_ref
+        for item in state.available.values()
+        if item.component == "Parabola"
+        for geometry_ref in item.geometry_refs
+    }
+    visible_scopes = set(scope_lineage(lesson_step.scope_id))
+    matches = {
+        str(curve.get("id") or "")
+        for curve in geometry_spec.get("curves") or ()
+        if isinstance(curve, dict)
+        and (
+            str(curve.get("id") or "") in visible_curve_ids
+            or str(curve.get("scopeId") or "problem") in visible_scopes
+        )
+        and any(
+            _same_curve_expression(expression, curve)
+            for expression in input_expressions
+        )
+    }
+    matches.discard("")
+    if input_expressions and not matches:
+        raise ValueError(
+            "visual_context_input_curve_missing: "
+            f"steps={list(lesson_step.source_step_ids)}"
+        )
+    if len(matches) > 1:
+        raise ValueError(
+            "visual_context_input_curve_ambiguous: "
+            f"steps={list(lesson_step.source_step_ids)}, curves={sorted(matches)}"
+        )
+    if matches:
+        return frozenset(matches)
+
+    if len(visible_curve_ids) > 1:
+        raise ValueError(
+            "visual_context_branch_curve_ambiguous: "
+            f"steps={list(lesson_step.source_step_ids)}, "
+            f"curves={sorted(visible_curve_ids)}"
+        )
+    return frozenset(visible_curve_ids)
 
 
-def _object_mentions_label(
-    item: VisualObject,
-    label: str,
+def _public_curve_expression(value: Any) -> sp.Expr | None:
+    if isinstance(value, dict):
+        value = value.get("expression") or value.get("equation")
+    try:
+        return sp.simplify(sp.sympify(str(value)))
+    except Exception:
+        return None
+
+
+def _same_curve_expression(expression: sp.Expr, curve: JsonObject) -> bool:
+    candidate = _curve_expression(curve)
+    return candidate is not None and sp.simplify(expression - candidate) == 0
+
+
+def _square_predecessor_context(
+    lesson_step: LessonStep,
+    *,
+    state: BranchVisualState,
+    snapshot: ExplanationSnapshot,
     geometry_spec: JsonObject,
-) -> bool:
-    for geometry_ref in item.geometry_refs:
-        meta = (geometry_spec.get("pointMeta") or {}).get(geometry_ref)
-        if str((meta or {}).get("label") or "") == label:
-            return True
-    return False
+    options: JsonObject,
+) -> tuple[VisualObject, ...]:
+    """Select a square anchor through exact entity refs and vertex order."""
+
+    source_by_id = {
+        source.source_step_id: source
+        for source in iter_teaching_sources(snapshot.root_scope)
+    }
+    target_handles: set[str] = set()
+    co_vertex_handles: set[str] = set()
+    for step_id in lesson_step.source_step_ids:
+        source = source_by_id.get(step_id)
+        if source is None:
+            continue
+        target_output = str(options.get("target_output") or "")
+        if target_output:
+            target_handles.update(
+                _problem_point_handles_for_output(
+                    source,
+                    target_output,
+                    snapshot=snapshot,
+                    scope_id=lesson_step.scope_id,
+                )
+            )
+        target_input = str(options.get("target_input") or "")
+        if target_input:
+            target_handles.update(
+                _problem_point_handles_for_input(
+                    source,
+                    target_input,
+                    sources=source_by_id,
+                    snapshot=snapshot,
+                    scope_id=lesson_step.scope_id,
+                )
+            )
+        co_vertex_input = str(options.get("co_vertex_input") or "")
+        if co_vertex_input:
+            co_vertex_handles.update(
+                _problem_point_handles_for_input(
+                    source,
+                    co_vertex_input,
+                    sources=source_by_id,
+                    snapshot=snapshot,
+                    scope_id=lesson_step.scope_id,
+                )
+            )
+    if len(target_handles) != 1:
+        if not target_handles:
+            return ()
+        raise ValueError(
+            "visual_square_predecessor_target_ambiguous: "
+            f"steps={list(lesson_step.source_step_ids)}, targets={sorted(target_handles)}"
+        )
+
+    target_handle = next(iter(target_handles))
+    matches: list[tuple[dict[str, Any], tuple[str, ...]]] = []
+    for fact in (snapshot.problem or {}).get("facts") or ():
+        if not isinstance(fact, dict) or fact.get("type") != "square":
+            continue
+        vertices = tuple(
+            _resolve_problem_point_handle(snapshot, str(item), lesson_step.scope_id)
+            for item in fact.get("vertices") or ()
+        )
+        if target_handle not in vertices:
+            continue
+        if co_vertex_handles and not co_vertex_handles.intersection(vertices):
+            continue
+        matches.append((fact, vertices))
+    if len(matches) > 1:
+        raise ValueError(
+            "visual_square_predecessor_square_ambiguous: "
+            f"target={target_handle}, squares="
+            f"{sorted(str(fact.get('handle') or '') for fact, _ in matches)}"
+        )
+    if not matches:
+        return ()
+
+    _, vertices = matches[0]
+    predecessor_handle = vertices[(vertices.index(target_handle) - 1) % len(vertices)]
+    geometry_id = VisualGeometryIndex(
+        geometry_spec,
+        snapshot.problem,
+    ).point_for_handle(predecessor_handle, lesson_step.scope_id)
+    if not geometry_id:
+        return ()
+    return tuple(
+        context_copy(item)
+        for item in state.available.values()
+        if item.component == "Point" and geometry_id in item.geometry_refs
+    )
 
 
-def _square_anchor_context(
+def _problem_point_handles_for_input(
+    source: Any,
+    input_name: str,
+    *,
+    sources: dict[str, Any],
+    snapshot: ExplanationSnapshot,
+    scope_id: str,
+) -> set[str]:
+    handles: set[str] = set()
+    for value in source.inputs.get(input_name, ()):
+        ref = value.get("ref")
+        semantic_ref = ""
+        if isinstance(ref, dict) and ref.get("kind") == "source":
+            semantic_ref = str(ref.get("ref") or "")
+        elif isinstance(ref, dict) and ref.get("kind") == "step_result":
+            producer = sources.get(str(ref.get("step_id") or ""))
+            if producer is not None:
+                semantic_ref = str(
+                    producer.output_targets.get(str(ref.get("return") or "")) or ""
+                )
+        if not semantic_ref:
+            continue
+        handle = _resolve_problem_point_handle(snapshot, semantic_ref, scope_id)
+        if handle:
+            handles.add(handle)
+    return handles
+
+
+def _problem_point_handles_for_output(
+    source: Any,
+    return_name: str,
+    *,
+    snapshot: ExplanationSnapshot,
+    scope_id: str,
+) -> set[str]:
+    semantic_ref = str(source.output_targets.get(return_name) or "")
+    if semantic_ref:
+        handle = _resolve_problem_point_handle(snapshot, semantic_ref, scope_id)
+        return {handle} if handle else set()
+
+    goal_refs = {
+        goal.goal_ref
+        for scope in iter_teaching_scopes(snapshot.root_scope)
+        for goal in scope.goals
+        if str(goal.answer_from.get("step_id") or "") == source.source_step_id
+        and str(goal.answer_from.get("return") or "") == return_name
+    }
+    target_handles = {
+        str(goal.get("target_handle") or "")
+        for goal in (snapshot.problem or {}).get("question_goals") or ()
+        if isinstance(goal, dict)
+        and str(goal.get("handle") or "")
+        in {f"answer:{goal_ref}" for goal_ref in goal_refs}
+    }
+    target_handles.discard("")
+    return target_handles
+
+
+def _connected_dependency_context_objects(
+    *,
+    state: BranchVisualState,
+    current: tuple[VisualObject, ...],
+    dependency_steps: set[str],
+) -> tuple[VisualObject, ...]:
+    target_refs = {
+        geometry_ref
+        for item in current
+        if item.component == "Point"
+        for geometry_ref in item.geometry_refs
+    }
+    connected: list[VisualObject] = []
+    for item in state.available.values():
+        if item.component not in {
+            "ColoredLine",
+            "DashedLine",
+            "DistanceMarker",
+            "LocusLine",
+            "OutlineRegion",
+        }:
+            continue
+        if not set(item.geometry_refs).intersection(target_refs):
+            continue
+        if not any(
+            isinstance(ref, dict)
+            and str(ref.get("step_id") or "") in dependency_steps
+            for ref in item.source_refs
+        ):
+            continue
+        connected.append(item)
+    endpoint_refs = {
+        geometry_ref
+        for item in connected
+        for geometry_ref in item.geometry_refs
+    }
+    return tuple(
+        context_copy(item)
+        for item in state.available.values()
+        if item in connected
+        or (
+            item.component == "Point"
+            and bool(set(item.geometry_refs).intersection(endpoint_refs))
+        )
+    )
+
+
+def _axis_intercept_context_objects(
     lesson_step: LessonStep,
     *,
     state: BranchVisualState,
     snapshot: ExplanationSnapshot,
     geometry_spec: JsonObject,
 ) -> tuple[VisualObject, ...]:
-    targets: set[str] = set()
-    source_by_id = {
-        source.source_step_id: source
-        for source in iter_teaching_sources(snapshot.root_scope)
-    }
-    for step_id in lesson_step.source_step_ids:
-        source = source_by_id.get(step_id)
-        if source is not None:
-            targets.update(str(value) for value in source.output_targets.values())
-    anchors: set[str] = set()
-    for fact in (snapshot.problem or {}).get("facts") or ():
-        if not isinstance(fact, dict) or fact.get("type") != "square":
-            continue
-        labels = [
-            _handle_tail(str(handle))
-            for handle in fact.get("vertices") or ()
-        ]
-        for target in targets:
-            if target in labels:
-                index = labels.index(target)
-                anchors.add(labels[(index - 1) % len(labels)])
-    return tuple(
-        context_copy(item)
-        for item in state.available.values()
-        if item.component == "Point"
-        and _student_geometry_label(item, geometry_spec) in anchors
+    curve_ids = _context_curve_geometry_ids(
+        lesson_step,
+        state=state,
+        snapshot=snapshot,
+        geometry_spec=geometry_spec,
     )
-
-
-def _candidate_context_point_labels(
-    lesson_step: LessonStep,
-    snapshot: ExplanationSnapshot,
-) -> set[str]:
-    labels: set[str] = set()
-    source_by_id = {
-        source.source_step_id: source
-        for source in iter_teaching_sources(snapshot.root_scope)
-    }
-    target_labels: set[str] = set()
-    curve_point_labels: set[str] = set()
-    for step_id in lesson_step.source_step_ids:
-        source = source_by_id.get(step_id)
-        if source is None:
-            continue
-        target_labels.update(_point_labels_from_teaching_inputs(source, "target_point"))
-        curve_point_labels.update(_point_labels_from_teaching_inputs(source, "curve_point"))
-    # The known side anchor of the square is useful coordinate context.  The
-    # parameterized target and curve point are deliberately excluded because
-    # the focus objects for this step are their resolved candidates.
-    for fact in (snapshot.problem or {}).get("facts") or ():
-        if not isinstance(fact, dict) or fact.get("type") != "square":
-            continue
-        vertices = [_handle_tail(str(item)) for item in fact.get("vertices") or ()]
-        if not target_labels.intersection(vertices):
-            continue
-        if curve_point_labels and not curve_point_labels.intersection(vertices):
-            continue
-        for target_label in target_labels.intersection(vertices):
-            index = vertices.index(target_label)
-            labels.add(vertices[(index - 1) % len(vertices)])
-    return labels
-
-
-def _point_labels_from_teaching_inputs(source: Any, input_name: str) -> set[str]:
-    labels: set[str] = set()
-    for value in source.inputs.get(input_name, ()):
-        display = str(value.get("display") or "")
-        match = re.match(r"\s*([A-Z](?:′|')?)\s*\(", display)
-        if match:
-            labels.add(match.group(1).replace("'", "′"))
-            continue
-        ref = value.get("ref")
-        if isinstance(ref, dict) and ref.get("kind") == "source":
-            candidate = str(ref.get("ref") or "")
-            if re.fullmatch(r"[A-Z](?:′|')?", candidate):
-                labels.add(candidate.replace("'", "′"))
-    return labels
-
-
-def _axis_intercept_context_objects(
-    lesson_step: LessonStep,
-    *,
-    geometry_spec: JsonObject,
-) -> tuple[VisualObject, ...]:
+    if not curve_ids:
+        return ()
+    curve_id = next(iter(curve_ids))
     curve = next(
         (
             item
             for item in geometry_spec.get("curves") or ()
             if isinstance(item, dict)
-            and str(item.get("scopeId") or "") == lesson_step.scope_id
+            and str(item.get("id") or "") == curve_id
         ),
         None,
     )
-    if curve is None:
-        root = _scope_root(lesson_step.scope_id)
-        curve = next(
-            (
-                item
-                for item in geometry_spec.get("curves") or ()
-                if isinstance(item, dict)
-                and str(item.get("scopeRoot") or "") == root
-            ),
-            None,
-        )
     if curve is None:
         return ()
     scope_ref = str(curve.get("scopeId") or lesson_step.scope_id)
@@ -3403,6 +3745,8 @@ def _axis_intercept_context_objects(
 def _curve_x_intercept_context_objects(
     lesson_step: LessonStep,
     *,
+    state: BranchVisualState,
+    snapshot: ExplanationSnapshot,
     geometry_spec: JsonObject,
 ) -> tuple[VisualObject, ...]:
     """Expose already determined x-intercepts required by a vertex diagram.
@@ -3412,65 +3756,57 @@ def _curve_x_intercept_context_objects(
     in the vertex frame without publishing it into sibling/descendant state.
     """
 
+    curve_ids = _context_curve_geometry_ids(
+        lesson_step,
+        state=state,
+        snapshot=snapshot,
+        geometry_spec=geometry_spec,
+    )
+    if not curve_ids:
+        return ()
+    curve_id = next(iter(curve_ids))
     curve = next(
         (
             item
             for item in geometry_spec.get("curves") or ()
             if isinstance(item, dict)
-            and str(item.get("scopeId") or "") == lesson_step.scope_id
+            and str(item.get("id") or "") == curve_id
         ),
         None,
     )
     if curve is None:
-        root = _scope_root(lesson_step.scope_id)
-        curve = next(
-            (
-                item
-                for item in geometry_spec.get("curves") or ()
-                if isinstance(item, dict)
-                and str(item.get("scopeRoot") or "") == root
-            ),
-            None,
-        )
-    if curve is None:
         return ()
-    curve_id = str(curve.get("id") or "")
-    scope_ref = str(curve.get("scopeId") or lesson_step.scope_id)
-    raw: list[JsonObject] = []
-    for point_id, meta in (geometry_spec.get("pointMeta") or {}).items():
-        if not isinstance(meta, dict):
-            continue
-        if meta.get("definition") != "x_axis_intercept":
-            continue
-        if str(meta.get("sourceCurveId") or "") != curve_id:
-            continue
-        if str(meta.get("scopeId") or "") != scope_ref:
-            continue
-        label = str(meta.get("label") or "")
-        if not label or _geometry_point_pair(geometry_spec, str(point_id)) is None:
-            continue
-        raw.append(
-            {
-                "component": "Point",
-                "handle": f"point:{point_id}",
-                "at": str(point_id),
-                "labelText": label,
-                "color": COLOR_MUTED,
-                "dx": 14,
-                "dy": -18,
-                "role": "curve_x_intercept",
-                "_source_step_ids": list(lesson_step.source_step_ids),
-            }
-        )
+    expression = _curve_expression(curve)
+    if expression is None:
+        return ()
     return tuple(
         context_copy(item)
-        for item in visual_objects_from_scene_items(
-            raw,
-            owner_scope_ref=scope_ref,
-            source_step_ids=tuple(lesson_step.source_step_ids),
-            focus=False,
+        for item in state.available.values()
+        if item.component == "Point"
+        and any(
+            _point_pair_is_x_intercept_of_curve(
+                _geometry_point_pair(geometry_spec, geometry_ref),
+                expression,
+            )
+            for geometry_ref in item.geometry_refs
         )
     )
+
+
+def _point_pair_is_x_intercept_of_curve(
+    pair: list[str] | None,
+    curve: sp.Expr,
+) -> bool:
+    if pair is None:
+        return False
+    try:
+        x_value = sp.sympify(str(pair[0]))
+        y_value = sp.sympify(str(pair[1]))
+        return sp.simplify(y_value) == 0 and sp.simplify(
+            curve.subs(sp.Symbol("x"), x_value)
+        ) == 0
+    except Exception:
+        return False
 
 
 def _local_parameters_for_frame(
@@ -3843,15 +4179,7 @@ def _visual_frame_caption(
     unit_keys: tuple[str, ...],
     frame_index: int,
 ) -> str:
-    if len(lesson_step.teaching_unit_keys) == 1 and len(unit_keys) == 1:
-        tail = unit_keys[0].rsplit("/", 1)[-1]
-        captions = {
-            "path_reduction": "正方形关系化简路径",
-            "reflection_minimum": "轨迹与反射求最短路径",
-            "minimum_by_segment": "拉直路径并确定最小值",
-        }
-        if tail in captions:
-            return captions[tail]
+    del unit_keys
     return lesson_step.nav_title if frame_index == 1 else f"{lesson_step.nav_title}·阶段{frame_index}"
 
 
@@ -3966,23 +4294,6 @@ def _axis_intercept_visual_items(context: _SceneBuildContext) -> list[JsonObject
     ]
 
 
-def _line_parabola_intersection_visual_items(context: _SceneBuildContext) -> list[JsonObject]:
-    return [
-        *_line_if_points(
-            context.points,
-            "B",
-            "E",
-            color=COLOR_ACCENT,
-            width=2.2,
-            handle=_angle_arm_handle(context.lesson_step.scope_id, "BE"),
-            state="highlight",
-        ),
-        *_point_items(context.points, ("E",), style=POINT_RESULT),
-        *_point_items(context.points, ("F",), style=POINT_ACTIVE),
-        *_coordinate_labels(context.points, context.lesson_step.box, context.coordinate_texts),
-    ]
-
-
 def _equal_length_reduction_visual_items(context: _SceneBuildContext) -> list[JsonObject]:
     return []
 
@@ -4010,10 +4321,6 @@ def _scene_visual_rules() -> tuple[_SceneVisualRule, ...]:
             handler=_axis_intercept_visual_items,
         ),
         _SceneVisualRule(
-            capability_ids=("line_parabola_second_intersection_point",),
-            handler=_line_parabola_intersection_visual_items,
-        ),
-        _SceneVisualRule(
             substep_ids=("path_reduction",),
             recipe_without_substeps=("equal_length_ray_path_reduction",),
             handler=_equal_length_reduction_visual_items,
@@ -4025,243 +4332,6 @@ def _scene_visual_rules() -> tuple[_SceneVisualRule, ...]:
             handler=_minimum_distance_visual_items,
         ),
     )
-
-
-def _hide_handles_for_lesson_step(
-    lesson_step: LessonStep,
-    snapshot: ExplanationSnapshot,
-    geometry_spec: JsonObject,
-    *,
-    scene_add: list[JsonObject] | None = None,
-) -> list[str]:
-    hide: list[str] = []
-    hide.extend(
-        _same_label_point_current_hides(
-            scene_add or [],
-            lesson_step,
-            geometry_spec,
-        )
-    )
-    hide.extend(_same_label_point_carry_hides(scene_add or [], geometry_spec))
-    if "point_candidates_from_curve_point_condition" not in lesson_step.capability_ids:
-        return list(dict.fromkeys(hide))
-    source_steps = {
-        str(step.get("step_id")): step
-        for step in snapshot.effective_steps
-        if isinstance(step, dict) and step.get("step_id")
-    }
-    namer = GeometryPointScopeNamer.from_geometry_spec(geometry_spec, snapshot.problem)
-    known_points = set((geometry_spec.get("fixedPoints") or {}).keys())
-    known_points.update((geometry_spec.get("movingPoints") or {}).keys())
-    for step_id in lesson_step.source_step_ids:
-        step = source_steps.get(step_id)
-        if not step:
-            continue
-        for handle in step.get("reads") or ():
-            if not isinstance(handle, str):
-                continue
-            fact = snapshot.fact_index.get(handle)
-            square_source = str((fact or {}).get("source_step_id") or "") if isinstance(fact, dict) else ""
-            square_step = source_steps.get(square_source)
-            if not square_step or square_step.get("recipe_hint") != "square_adjacent_vertex_from_side":
-                continue
-            square = _square_fact_for_step_handles(square_step, snapshot)
-            if square is None:
-                continue
-            labels = [_label_from_square_vertex_handle(str(item), snapshot) for item in square.get("vertices", ())[:4]]
-            if len(labels) != 4 or any(not label for label in labels):
-                continue
-            vertices = [
-                _primary_square_vertex_id(label, lesson_step.scope_id, known_points, namer)
-                for label in labels
-            ]
-            if any(not point for point in vertices):
-                continue
-            hide.append(f"visual:square:{square_source}:region")
-            hide.extend(f"point:{point}" for point in vertices)
-            hide.extend(
-                f"line:{square_source}:{start}-{end}"
-                for start, end in zip(vertices, (*vertices[1:], vertices[0]), strict=True)
-            )
-    return list(dict.fromkeys(hide))
-
-
-def _same_label_point_current_hides(
-    scene_add: list[JsonObject],
-    lesson_step: LessonStep,
-    geometry_spec: JsonObject,
-) -> list[str]:
-    """Hide same-step point variants that share a student-facing label.
-
-    Merged teaching steps can legitimately mention a parameterized point and a
-    later evaluated point with the same name.  The diagram should show the one
-    supported by the current step's visible derive/box text, not both.
-    """
-
-    points_by_label: dict[str, set[str]] = {}
-    label_texts_by_point: dict[str, list[str]] = {}
-    for item in scene_add:
-        if not isinstance(item, dict):
-            continue
-        component = str(item.get("component") or item.get("type") or "")
-        if component == "Point":
-            point_id = str(item.get("at") or "")
-            label = str(item.get("labelText") or _point_label_from_geometry(point_id, geometry_spec) or "")
-            if point_id and label:
-                points_by_label.setdefault(label, set()).add(point_id)
-            continue
-        if component == "CoordinateLabel":
-            point_id = str(item.get("at") or "")
-            text = str(item.get("text") or "")
-            if point_id and text:
-                label_texts_by_point.setdefault(point_id, []).append(text)
-
-    visible_texts = {
-        _normalize_visual_text(text)
-        for text in (
-            *lesson_step.box,
-            *(body for _, body in lesson_step.derive),
-        )
-        if str(text)
-    }
-    hides: list[str] = []
-    for _, point_ids in points_by_label.items():
-        if len(point_ids) <= 1:
-            continue
-        keep = max(
-            sorted(point_ids),
-            key=lambda point_id: _same_label_point_score(
-                point_id,
-                label_texts_by_point.get(point_id, ()),
-                visible_texts,
-            ),
-        )
-        hides.extend(f"point:{point_id}" for point_id in sorted(point_ids) if point_id != keep)
-    return hides
-
-
-def _same_label_point_score(
-    point_id: str,
-    label_texts: list[str] | tuple[str, ...],
-    visible_texts: set[str],
-) -> tuple[int, int, int, str]:
-    score = 0
-    symbolic = 0
-    for text in label_texts:
-        normalized = _normalize_visual_text(text)
-        if any(normalized and (normalized in visible or visible in normalized) for visible in visible_texts):
-            score += 100
-        if _looks_parameterized_coordinate(text):
-            symbolic = 1
-    if "axis" in point_id:
-        score += 2
-    return (score, symbolic, len(label_texts), point_id)
-
-
-def _looks_parameterized_coordinate(text: str) -> bool:
-    normalized = _normalize_visual_text(text)
-    return any(token in normalized for token in ("t", "c", "a", "b", "u"))
-
-
-def _normalize_visual_text(text: Any) -> str:
-    return (
-        str(text)
-        .replace(" ", "")
-        .replace("，", ",")
-        .replace("（", "(")
-        .replace("）", ")")
-        .replace("－", "-")
-        .replace("＋", "+")
-        .replace("＝", "=")
-        .replace("²", "^2")
-    )
-
-
-def _same_label_point_carry_hides(
-    scene_add: list[JsonObject],
-    geometry_spec: JsonObject,
-) -> list[str]:
-    """Hide carried point variants when the current step draws the same label.
-
-    A later step can replace a parameterized point with its evaluated point, or
-    the other way around for a construction proof.  The visible label is the
-    student-facing identity, while geometry ids may differ.  Hiding same-label
-    carry variants keeps the diagram from showing two ``E`` or two ``G`` marks
-    at almost the same place without hard-coding the letters.
-    """
-
-    current_by_label: dict[str, set[str]] = {}
-    for item in scene_add:
-        if not isinstance(item, dict):
-            continue
-        component = str(item.get("component") or item.get("type") or "")
-        if component != "Point":
-            continue
-        point_id = str(item.get("at") or "")
-        label = str(item.get("labelText") or _point_label_from_geometry(point_id, geometry_spec) or "")
-        if not point_id or not label:
-            continue
-        current_by_label.setdefault(label, set()).add(point_id)
-    if not current_by_label:
-        return []
-
-    known_by_label: dict[str, set[str]] = {}
-    point_ids = set((geometry_spec.get("fixedPoints") or {}).keys())
-    point_ids.update((geometry_spec.get("movingPoints") or {}).keys())
-    for point_id in point_ids:
-        label = _point_label_from_geometry(str(point_id), geometry_spec)
-        if label:
-            known_by_label.setdefault(label, set()).add(str(point_id))
-
-    hides: list[str] = []
-    for label, current_ids in current_by_label.items():
-        for point_id in sorted(known_by_label.get(label, set()) - current_ids):
-            hides.append(f"point:{point_id}")
-    return hides
-
-
-def _point_label_from_geometry(point_id: str, geometry_spec: JsonObject) -> str:
-    meta = (geometry_spec.get("pointMeta") or {}).get(point_id) or {}
-    label = str(meta.get("label") or "")
-    if label:
-        return label
-    match = re.match(r"([A-Z][A-Za-z0-9_′]*)", point_id)
-    return match.group(1) if match else ""
-
-
-def _square_fact_for_step_handles(
-    step: dict[str, Any],
-    snapshot: ExplanationSnapshot,
-) -> dict[str, Any] | None:
-    for handle in step.get("reads") or ():
-        if not isinstance(handle, str):
-            continue
-        fact = snapshot.fact_index.get(handle)
-        if isinstance(fact, dict) and fact.get("type") == "square":
-            return fact
-        for problem_fact in (snapshot.problem or {}).get("facts") or ():
-            if (
-                isinstance(problem_fact, dict)
-                and str(problem_fact.get("handle") or "") == handle
-                and problem_fact.get("type") == "square"
-            ):
-                return problem_fact
-    return None
-
-
-def _primary_square_vertex_id(
-    label: str,
-    scope_id: str,
-    known_points: set[str],
-    namer: GeometryPointScopeNamer,
-) -> str:
-    axis_id = axis_parameter_point_id(label, scope_id)
-    if axis_id in known_points:
-        return axis_id
-    geometry_id = namer.geometry_id(label, scope_id)
-    if geometry_id in known_points:
-        return geometry_id
-    return label if label in known_points else ""
 
 
 def _method_visual_template_items(
@@ -4314,36 +4384,134 @@ def _visual_interaction_specs_for_lesson_step(
     """
 
     result: list[JsonObject] = []
+    for capability_id, template in _selected_visual_templates(lesson_step):
+        raw = template.get("local_interaction")
+        if raw is None:
+            continue
+        if not isinstance(raw, dict) or not str(raw.get("kind") or ""):
+            raise ValueError(
+                "visual_local_interaction_spec_invalid: "
+                f"{capability_id}: {raw!r}"
+            )
+        record = copy.deepcopy(raw)
+        record["source_component"] = str(template.get("component") or "")
+        if record not in result:
+            result.append(record)
+    return tuple(result)
+
+
+def _selected_visual_templates(
+    lesson_step: LessonStep,
+) -> tuple[tuple[str, dict[str, Any]], ...]:
+    """Return the exact Method/Recipe templates selected by a Lesson step."""
+
+    result: list[tuple[str, dict[str, Any]]] = []
     for capability_id in sorted(set(lesson_step.capability_ids)):
         method = _method_visual_spec(capability_id)
-        templates: tuple[dict[str, Any], ...] = ()
         if method is not None:
-            templates = tuple(method.scene_templates)
-        else:
-            recipe = _recipe_visual_spec(capability_id)
-            visual = recipe.visual if recipe is not None else None
-            if visual is not None:
-                unit_ids = tuple(lesson_step.visual_unit_ids)
-                keys = unit_ids or tuple(sorted(visual.teaching_substep_templates))
-                templates = tuple(
-                    template
-                    for key in keys
-                    for template in visual.teaching_substep_templates.get(key, ())
-                )
-        for template in templates:
-            raw = template.get("local_interaction")
-            if raw is None:
-                continue
-            if not isinstance(raw, dict) or not str(raw.get("kind") or ""):
-                raise ValueError(
-                    "visual_local_interaction_spec_invalid: "
-                    f"{capability_id}: {raw!r}"
-                )
-            record = copy.deepcopy(raw)
-            record["source_component"] = str(template.get("component") or "")
-            if record not in result:
-                result.append(record)
+            result.extend(
+                (capability_id, template)
+                for template in method.scene_templates
+            )
+            continue
+        recipe = _recipe_visual_spec(capability_id)
+        visual = recipe.visual if recipe is not None else None
+        if visual is None:
+            continue
+        unit_ids = tuple(lesson_step.visual_unit_ids)
+        keys = unit_ids or tuple(sorted(visual.teaching_substep_templates))
+        result.extend(
+            (capability_id, template)
+            for key in keys
+            for template in visual.teaching_substep_templates.get(key, ())
+        )
     return tuple(result)
+
+
+def _visual_context_policy_for_lesson_step(
+    lesson_step: LessonStep,
+) -> _VisualContextPolicy:
+    roles: list[tuple[str, JsonObject]] = []
+    seen_roles: set[str] = set()
+    include_exact_dependencies = False
+    dependency_components: set[str] = set()
+    all_templates_filter_dependencies = True
+    has_template = False
+    suppressed_definitions: set[str] = set()
+
+    for capability_id, template in _selected_visual_templates(lesson_step):
+        has_template = True
+        if template.get("include_exact_dependencies") is not False:
+            include_exact_dependencies = True
+
+        raw_components = template.get("dependency_components")
+        if raw_components is None:
+            all_templates_filter_dependencies = False
+        elif not isinstance(raw_components, (list, tuple)):
+            raise ValueError(
+                "visual_context_dependency_components_invalid: "
+                f"{capability_id}: {raw_components!r}"
+            )
+        else:
+            dependency_components.update(str(item) for item in raw_components if str(item))
+
+        raw_suppressed = template.get("suppress_point_definitions_when_exact", ())
+        if not isinstance(raw_suppressed, (list, tuple)):
+            raise ValueError(
+                "visual_context_suppressed_definitions_invalid: "
+                f"{capability_id}: {raw_suppressed!r}"
+            )
+        suppressed_definitions.update(str(item) for item in raw_suppressed if str(item))
+
+        raw_roles = template.get("context_roles", ())
+        if not isinstance(raw_roles, (list, tuple)):
+            raise ValueError(
+                "visual_context_roles_invalid: "
+                f"{capability_id}: {raw_roles!r}"
+            )
+        for raw_role in raw_roles:
+            if isinstance(raw_role, str):
+                kind = raw_role
+                options: JsonObject = {}
+            elif isinstance(raw_role, dict):
+                kind = str(raw_role.get("kind") or "")
+                options = {
+                    str(key): copy.deepcopy(value)
+                    for key, value in raw_role.items()
+                    if key != "kind"
+                }
+            else:
+                raise ValueError(
+                    "visual_context_role_invalid: "
+                    f"{capability_id}: {raw_role!r}"
+                )
+            if not kind:
+                raise ValueError(
+                    "visual_context_role_kind_missing: "
+                    f"{capability_id}: {raw_role!r}"
+                )
+            signature = json.dumps(
+                {"kind": kind, **options},
+                ensure_ascii=False,
+                sort_keys=True,
+            )
+            if signature in seen_roles:
+                continue
+            seen_roles.add(signature)
+            roles.append((kind, options))
+
+    return _VisualContextPolicy(
+        roles=tuple(roles),
+        include_exact_dependencies=(
+            include_exact_dependencies if has_template else True
+        ),
+        dependency_components=(
+            frozenset(dependency_components)
+            if has_template and all_templates_filter_dependencies
+            else None
+        ),
+        suppress_point_definitions_when_exact=frozenset(suppressed_definitions),
+    )
 
 
 def _interaction_constraint_carrier_items(
@@ -6164,6 +6332,65 @@ def _evaluated_point_marker_items(
     return items
 
 
+def _line_parabola_intersection_marker_items(
+    template: dict[str, Any],
+    bindings: VisualRoleBindings,
+) -> list[JsonObject]:
+    """Render a line/curve intersection from typed role bindings."""
+
+    items: list[JsonObject] = []
+    persistence = str(template.get("persistence") or "carry_forward")
+    line_color = str(template.get("line_color") or COLOR_ACCENT)
+    target_color = str(template.get("target_color") or COLOR_RESULT)
+    for marker in bindings.line_parabola_intersections:
+        known = str(marker.get("known_point") or "")
+        target = str(marker.get("target_point") or "")
+        if not known or not target:
+            continue
+        source_step_id = str(marker.get("source_step_id") or "intersection")
+        items.append(
+            {
+                "component": "ColoredLine",
+                "handle": f"line:intersection:{source_step_id}",
+                "from": known,
+                "to": target,
+                "color": line_color,
+                "width": 2.2,
+                "state": "highlight",
+                "persistence": persistence,
+                "decay_state": "muted",
+                "metadata": {"low_level_type": "coloredLine"},
+            }
+        )
+        construction_points = {
+            str(marker.get(role) or ""): str(marker.get(f"{role}_label") or "")
+            for role in ("line_p1", "line_p2")
+            if str(marker.get(role) or "") not in {"", known, target}
+        }
+        for point, label in construction_points.items():
+            items.extend(
+                _point_with_optional_label_items(
+                    point=point,
+                    label=label,
+                    display="",
+                    color=COLOR_ACCENT,
+                    persistence=persistence,
+                    label_dy=-28,
+                )
+            )
+        items.extend(
+            _point_with_optional_label_items(
+                point=target,
+                label=str(marker.get("target_label") or ""),
+                display=str(marker.get("target_display") or ""),
+                color=target_color,
+                persistence=persistence,
+                label_dy=-28,
+            )
+        )
+    return items
+
+
 def _empty_visual_template_items(
     template: dict[str, Any],
     bindings: VisualRoleBindings,
@@ -6179,6 +6406,7 @@ _METHOD_VISUAL_TEMPLATE_RENDERERS: dict[str, _VisualTemplateRenderer] = {
     "CurvePointCandidateMarker": _curve_point_candidate_marker_items,
     "EqualAcuteAngleInterceptMarker": _equal_acute_angle_intercept_marker_items,
     "EvaluatedPointMarker": _evaluated_point_marker_items,
+    "LineParabolaIntersectionMarker": _line_parabola_intersection_marker_items,
     "QuadraticCurveMarker": _quadratic_curve_marker_items,
     "QuadraticAxisXInterceptMarker": _quadratic_axis_x_intercept_marker_items,
     "QuadraticVertexMarker": _quadratic_vertex_marker_items,
@@ -6374,21 +6602,6 @@ def _annotations_for_lesson_step(lesson_step: LessonStep) -> list[JsonObject]:
             "index": 0,
         }
     ]
-
-
-def _state_overrides_for_lesson_step(lesson_step: LessonStep) -> list[JsonObject]:
-    if "axis_intercept_from_equal_acute_angles" not in lesson_step.capability_ids:
-        return []
-    return [
-        {
-            "handle": _angle_arm_handle(lesson_step.scope_id, "BE"),
-            "state": "highlight",
-        }
-    ]
-
-
-def _angle_arm_handle(scope_id: str, name: str) -> str:
-    return f"line:{scope_id}:{name}"
 
 
 def _coordinate_for_label(label: str, text: str) -> str:

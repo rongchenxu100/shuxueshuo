@@ -81,10 +81,6 @@
         "1/2-c/2",
         "c/4+1/4"
       ],
-      "F_axis_ii": [
-        "1/4-3*c/4",
-        "c/8+1/8"
-      ],
       "G_locus_ii_end": [
         "17/4-3*c/4",
         "-c/2-1/2"
@@ -92,10 +88,6 @@
       "G_locus_ii_start": [
         "-3*c/4-15/4",
         "-c/2-1/2"
-      ],
-      "H_axis_ii": [
-        "3/8-5*c/8",
-        "-c/8-1/8"
       ],
       "K_axis_ii": [
         "3/4-c/4",
@@ -154,7 +146,12 @@
       "E_axis_i_2": {
         "label": "E",
         "scopeId": "i_2",
-        "scopeRoot": "i"
+        "scopeRoot": "i",
+        "definition": "parameterized_point",
+        "parameterSymbol": "t",
+        "sourceStepIds": [
+          "parameterize_axis_point_E_i"
+        ]
       },
       "E_axis_i_2_candidate_1": {
         "label": "E",
@@ -176,16 +173,15 @@
         "scopeRoot": "ii",
         "visualOnly": true
       },
-      "F_axis_ii": {
-        "label": "F",
-        "scopeId": "ii",
-        "scopeRoot": "ii",
-        "visualOnly": true
-      },
       "G_axis_i_2": {
         "label": "G",
         "scopeId": "i_2",
-        "scopeRoot": "i"
+        "scopeRoot": "i",
+        "definition": "parameterized_point",
+        "parameterSymbol": "t",
+        "sourceStepIds": [
+          "derive_square_vertex_G_i"
+        ]
       },
       "G_locus_ii_end": {
         "label": "G_locus_end",
@@ -195,12 +191,6 @@
       },
       "G_locus_ii_start": {
         "label": "G_locus_start",
-        "scopeId": "ii",
-        "scopeRoot": "ii",
-        "visualOnly": true
-      },
-      "H_axis_ii": {
-        "label": "H",
         "scopeId": "ii",
         "scopeRoot": "ii",
         "visualOnly": true
@@ -235,17 +225,29 @@
       "point_A_i": {
         "label": "A",
         "scopeId": "i",
-        "scopeRoot": "i"
+        "scopeRoot": "i",
+        "definition": "runtime_point_output",
+        "sourceStepIds": [
+          "derive_x_intercept_A_i"
+        ]
       },
       "point_A_ii": {
         "label": "A",
         "scopeId": "ii",
-        "scopeRoot": "ii"
+        "scopeRoot": "ii",
+        "definition": "runtime_point_output",
+        "sourceStepIds": [
+          "evaluate_point_A_ii"
+        ]
       },
       "point_A_prime_ii": {
         "label": "A′",
         "scopeId": "ii",
-        "scopeRoot": "ii"
+        "scopeRoot": "ii",
+        "definition": "runtime_point_output",
+        "sourceStepIds": [
+          "derive_path_minimum_ii"
+        ]
       },
       "point_B_i": {
         "label": "B",
@@ -266,7 +268,11 @@
       "point_E_ii": {
         "label": "E",
         "scopeId": "ii",
-        "scopeRoot": "ii"
+        "scopeRoot": "ii",
+        "definition": "runtime_point_output",
+        "sourceStepIds": [
+          "recover_target_point_E_ii"
+        ]
       },
       "point_F_ii": {
         "label": "F",
@@ -277,7 +283,14 @@
       "point_G_ii": {
         "label": "G",
         "scopeId": "ii",
-        "scopeRoot": "ii"
+        "scopeRoot": "ii",
+        "definition": "runtime_point_output",
+        "sourceStepIds": [
+          "derive_path_minimum_ii"
+        ],
+        "semanticRoles": [
+          "path_attainment_point"
+        ]
       },
       "point_H_ii": {
         "label": "H",
@@ -288,7 +301,11 @@
       "point_P_problem": {
         "label": "P",
         "scopeId": "problem",
-        "scopeRoot": "problem"
+        "scopeRoot": "problem",
+        "definition": "runtime_point_output",
+        "sourceStepIds": [
+          "derive_vertex_P_i"
+        ]
       }
     },
     "curves": [
@@ -603,30 +620,6 @@
                               "dy": -24
                             },
                             "display_label": "B(1,0)"
-                          },
-                          {
-                            "visual_object_id": "visual:point:9b5c99e50a5e889c",
-                            "component": "Point",
-                            "role": "curve_x_intercept",
-                            "source_refs": [
-                              {
-                                "kind": "functional_step",
-                                "step_id": "derive_vertex_P_i"
-                              }
-                            ],
-                            "geometry_refs": [
-                              "point_B_i"
-                            ],
-                            "state": "context",
-                            "component_payload": {
-                              "at": "point_B_i",
-                              "labelText": "B",
-                              "color": "#64748b",
-                              "dx": 14,
-                              "dy": -18,
-                              "role": "curve_x_intercept"
-                            },
-                            "display_label": "B"
                           },
                           {
                             "visual_object_id": "visual:point:fef6497f273d0196",
@@ -2645,7 +2638,7 @@
                         }
                       },
                       {
-                        "visual_object_id": "visual:coloredline:5935851865ee3630",
+                        "visual_object_id": "visual:coloredline:144e2c68e86fbc40",
                         "component": "ColoredLine",
                         "role": "coloredline",
                         "source_refs": [
@@ -2655,19 +2648,19 @@
                           }
                         ],
                         "geometry_refs": [
-                          "H_axis_ii",
-                          "F_axis_ii"
+                          "point_H_ii",
+                          "point_F_ii"
                         ],
                         "state": "focus",
                         "component_payload": {
-                          "from": "H_axis_ii",
-                          "to": "F_axis_ii",
+                          "from": "point_H_ii",
+                          "to": "point_F_ii",
                           "color": "#7c3aed",
                           "width": 2.0
                         }
                       },
                       {
-                        "visual_object_id": "visual:coloredline:ff8e2ee264a9bd17",
+                        "visual_object_id": "visual:coloredline:2ca72e20b85ac53e",
                         "component": "ColoredLine",
                         "role": "coloredline",
                         "source_refs": [
@@ -2677,12 +2670,12 @@
                           }
                         ],
                         "geometry_refs": [
-                          "F_axis_ii",
+                          "point_F_ii",
                           "M_axis_ii"
                         ],
                         "state": "focus",
                         "component_payload": {
-                          "from": "F_axis_ii",
+                          "from": "point_F_ii",
                           "to": "M_axis_ii",
                           "color": "#7c3aed",
                           "width": 2.0
@@ -2757,7 +2750,7 @@
                         }
                       },
                       {
-                        "visual_object_id": "visual:point:3239647144b72867",
+                        "visual_object_id": "visual:point:8b6c53828d03c232",
                         "component": "Point",
                         "role": "point:F",
                         "source_refs": [
@@ -2767,11 +2760,11 @@
                           }
                         ],
                         "geometry_refs": [
-                          "F_axis_ii"
+                          "point_F_ii"
                         ],
                         "state": "context",
                         "component_payload": {
-                          "at": "F_axis_ii",
+                          "at": "point_F_ii",
                           "labelText": "F",
                           "color": "#1f2937",
                           "dx": 14,
@@ -2780,7 +2773,7 @@
                         "display_label": "F"
                       },
                       {
-                        "visual_object_id": "visual:point:5e4f1fdfbd01e3b9",
+                        "visual_object_id": "visual:point:a37ad0da5aefcd6c",
                         "component": "Point",
                         "role": "point:H",
                         "source_refs": [
@@ -2790,11 +2783,11 @@
                           }
                         ],
                         "geometry_refs": [
-                          "H_axis_ii"
+                          "point_H_ii"
                         ],
                         "state": "context",
                         "component_payload": {
-                          "at": "H_axis_ii",
+                          "at": "point_H_ii",
                           "labelText": "H",
                           "color": "#1f2937",
                           "dx": 14,
@@ -2987,24 +2980,24 @@
                               "geometry_ref": "M_axis_ii"
                             }
                           },
-                          "H_axis_ii": {
+                          "point_H_ii": {
                             "expression": [
                               "3/8-5*c/8",
                               "-c/8-1/8"
                             ],
                             "source": {
                               "kind": "visible_geometry",
-                              "geometry_ref": "H_axis_ii"
+                              "geometry_ref": "point_H_ii"
                             }
                           },
-                          "F_axis_ii": {
+                          "point_F_ii": {
                             "expression": [
                               "1/4-3*c/4",
                               "c/8+1/8"
                             ],
                             "source": {
                               "kind": "visible_geometry",
-                              "geometry_ref": "F_axis_ii"
+                              "geometry_ref": "point_F_ii"
                             }
                           }
                         },
@@ -3070,7 +3063,7 @@
                               "role": "opposite_square_vertex"
                             }
                           },
-                          "F_axis_ii": {
+                          "point_F_ii": {
                             "expression": [
                               "1/4-3*c/4",
                               "u*(c+1)/4"
@@ -3080,7 +3073,7 @@
                               "role": "side_midpoint"
                             }
                           },
-                          "H_axis_ii": {
+                          "point_H_ii": {
                             "expression": [
                               "-3*c/4+u*(c+1)/4+1/4",
                               "-c/4+u*(c+1)/4-1/4"
@@ -3095,7 +3088,7 @@
                         "note": "拖动 E，观察正方形与动点 G 的联动关系。"
                       }
                     ],
-                    "caption": "正方形关系化简路径"
+                    "caption": "化简路径"
                   }
                 ]
               },
@@ -3614,7 +3607,7 @@
                         "note": "拖动 E，观察正方形与动点 G 的联动关系。"
                       }
                     ],
-                    "caption": "轨迹与反射求最短路径"
+                    "caption": "轨迹与反射"
                   }
                 ]
               },

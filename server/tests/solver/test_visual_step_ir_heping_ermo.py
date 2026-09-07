@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import copy
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from functools import cache
 from pathlib import Path
 import re
@@ -38,6 +38,7 @@ from shuxueshuo_server.solver.visual import (
     VisualStepIRValidator,
     forward_compile,
 )
+from shuxueshuo_server.solver.visual import builder as visual_builder
 from shuxueshuo_server.solver.visual.viewport import SemanticViewportResolver
 
 
@@ -156,6 +157,51 @@ def test_b4v_s2_uses_branch_correct_axis_foot_and_never_shows_k(
     assert geometry["pointMeta"]["M_axis_ii"]["scopeId"] == "ii"
     assert "A1" not in geometry["fixedPoints"]
     assert "A1" not in geometry["movingPoints"]
+
+
+def test_b4v_quadratic_square_macro_selects_square_by_witness_roles(
+    heping_ermo_page: HepingErmoPage,
+) -> None:
+    snapshot = heping_ermo_page.snapshot
+    witness = next(
+        item
+        for item in snapshot.macro_evidence
+        if item.get("macro_id") == "quadratic_square_path_minimum"
+    )
+    role_values = {
+        str(item.get("role") or ""): str(item.get("chosen_ref") or "")
+        for item in witness.get("role_resolutions") or ()
+        if isinstance(item, dict)
+    }
+    expected = next(
+        fact
+        for fact in snapshot.problem["facts"]
+        if fact.get("type") == "square"
+    )
+    problem = copy.deepcopy(snapshot.problem)
+    problem["facts"].insert(
+        0,
+        {
+            "type": "square",
+            "handle": "fact:problem:decoy_square",
+            "scope_id": "problem",
+            "vertices": [
+                "point:problem:A",
+                "point:problem:B",
+                "point:problem:C",
+                "point:problem:P",
+            ],
+        },
+    )
+
+    selected = visual_builder._square_fact_for_witness_roles(
+        replace(snapshot, problem=problem),
+        role_values=role_values,
+        scope_id="ii",
+    )
+
+    assert selected is not None
+    assert selected["handle"] == expected["handle"]
 
 
 def test_b4v_parameter_frames_use_local_time_correct_controls(
@@ -427,8 +473,8 @@ def test_b4v_macro_units_are_two_lesson_steps_with_one_complete_frame_each(
     assert [len(step.frames) for step in steps] == [1, 1]
     reduction, reflection = (step.frames[0] for step in steps)
 
-    assert reduction.caption == "正方形关系化简路径"
-    assert reflection.caption == "轨迹与反射求最短路径"
+    assert reduction.caption == "化简路径"
+    assert reflection.caption == "轨迹与反射"
     assert reduction.teaching_unit_keys == (
         "quadratic_square_path_minimum/path_reduction",
     )
@@ -442,8 +488,8 @@ def test_b4v_macro_units_are_two_lesson_steps_with_one_complete_frame_each(
         "E_axis_ii",
         "K_axis_ii",
         "point_G_ii",
-        "F_axis_ii",
-        "H_axis_ii",
+        "point_F_ii",
+        "point_H_ii",
         "M_axis_ii",
     } <= reduction_refs
     assert {
@@ -454,7 +500,7 @@ def test_b4v_macro_units_are_two_lesson_steps_with_one_complete_frame_each(
         "M_axis_ii",
     } <= reflection_refs
     assert not reflection_refs.intersection(
-        {"E_axis_ii", "K_axis_ii", "F_axis_ii", "H_axis_ii"}
+        {"E_axis_ii", "K_axis_ii", "point_F_ii", "point_H_ii"}
     )
     assert any(
         item.component == "Point" and item.geometry_refs == ("M_axis_ii",)
@@ -496,8 +542,8 @@ def test_b4v_macro_units_are_two_lesson_steps_with_one_complete_frame_each(
         "E_axis_ii",
         "K_axis_ii",
         "point_G_ii",
-        "F_axis_ii",
-        "H_axis_ii",
+        "point_F_ii",
+        "point_H_ii",
     } <= set(reduction_motion["parameterized_points"])
     assert "point_G_ii" in reflection_motion["parameterized_points"]
 
@@ -624,8 +670,8 @@ def test_b4v_compiler_emits_only_complete_visual_frames(
         check=True,
     )
     html = html_path.read_text(encoding="utf-8")
-    assert "正方形关系化简路径" in html
-    assert "轨迹与反射求最短路径" in html
+    assert "化简路径" in html
+    assert "轨迹与反射" in html
     assert "visualFrames" in html
     assert '<figcaption class="lesson-visual-frame-caption">' not in html
 

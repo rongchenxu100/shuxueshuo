@@ -477,6 +477,14 @@ SPEC = MethodSpecSource(
         scene_templates=(
             {
                 "component": "SquareAdjacentVertexMarker",
+                "context_roles": [
+                    "input_curve",
+                    "curve_axis",
+                    "prior_curve_vertex",
+                ],
+                "suppress_point_definitions_when_exact": [
+                    "axis_x_intercept",
+                ],
                 "requires_independent_lesson_step": True,
                 "persistence": "carry_forward",
                 "fill": "rgba(14, 165, 233, 0.12)",

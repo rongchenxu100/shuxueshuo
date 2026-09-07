@@ -88,6 +88,7 @@ SPEC = RecipeSpecSource(
             "path_reduction": (
                 {
                     "component": "AtomicSquarePathReductionMarker",
+                    "context_roles": ["input_curve"],
                     "requires_independent_lesson_step": True,
                     "local_interaction": {
                         "kind": "square_axis_motion",
@@ -97,6 +98,7 @@ SPEC = RecipeSpecSource(
             "reflection_minimum": (
                 {
                     "component": "AtomicPathMinimumMarker",
+                    "context_roles": ["input_curve"],
                     "requires_independent_lesson_step": True,
                     "local_interaction": {
                         "kind": "square_axis_motion",

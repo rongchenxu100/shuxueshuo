@@ -131,6 +131,13 @@ SPEC = MethodSpecSource(
         scene_templates=(
             {
                 "component": "EvaluatedPointMarker",
+                "context_roles": [
+                    "input_curve",
+                    "curve_axis",
+                    "connected_dependency_geometry",
+                    "prior_curve_vertex",
+                ],
+                "include_exact_dependencies": False,
                 "point_role": "evaluated_point",
                 "point_color": "#b45309",
                 "persistence": "carry_forward",

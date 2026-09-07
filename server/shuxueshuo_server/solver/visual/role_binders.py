@@ -13,6 +13,7 @@ from shuxueshuo_server.solver.explanation.lesson_ir import (
 )
 from shuxueshuo_server.solver.explanation.models import (
     ExplanationSnapshot,
+    iter_teaching_scopes,
     iter_teaching_sources,
 )
 from shuxueshuo_server.solver.student_display import student_math_display
@@ -27,7 +28,7 @@ from .geometry_naming import (
 )
 from .models import JsonObject
 from .parameter_identity import (
-    axis_parameter_contexts_by_step,
+    parameterized_point_contexts_by_step,
     value_depends_on_symbol,
 )
 from .sympy_helpers import sympify_visual_expr, sympy_pair as _shared_sympy_pair
@@ -57,6 +58,7 @@ class VisualRoleBindings:
     atomic_path_minimum_markers: tuple[dict[str, Any], ...] = ()
     curve_point_candidate_markers: tuple[dict[str, Any], ...] = ()
     evaluated_points: tuple[dict[str, Any], ...] = ()
+    line_parabola_intersections: tuple[dict[str, Any], ...] = ()
     source_step_ids: tuple[str, ...] = ()
     capability_ids: tuple[str, ...] = ()
 
@@ -144,6 +146,42 @@ class VisualGeometryIndex:
         if value in self.entities_by_handle:
             return self.entities_by_handle[value]
         return self.entities_by_name.get(value)
+
+
+def _public_point_semantic_ref(
+    snapshot: ExplanationSnapshot,
+    source: Any,
+    return_name: str,
+) -> str:
+    """Return a public point identity without parsing presentation text."""
+
+    target = str(source.output_targets.get(return_name) or "")
+    if target:
+        return target
+
+    goal_refs = {
+        goal.goal_ref
+        for scope in iter_teaching_scopes(snapshot.root_scope)
+        for goal in scope.goals
+        if str(goal.answer_from.get("step_id") or "") == source.source_step_id
+        and str(goal.answer_from.get("return") or "") == return_name
+    }
+    answer_handles = {f"answer:{goal_ref}" for goal_ref in goal_refs}
+    targets = {
+        str(goal.get("target_handle") or "")
+        for goal in (snapshot.problem or {}).get("question_goals") or ()
+        if isinstance(goal, dict)
+        and str(goal.get("handle") or "") in answer_handles
+        and str(goal.get("value_type") or "") == "Point"
+    }
+    targets.discard("")
+    if len(targets) > 1:
+        raise ValueError(
+            "visual_public_point_output_identity_ambiguous: "
+            f"step={source.source_step_id}, return={return_name}, "
+            f"targets={sorted(targets)}"
+        )
+    return next(iter(targets), "")
 
 
 class VisualRoleBinderRegistry:
@@ -286,6 +324,12 @@ class VisualRoleBinderRegistry:
                     point_handles,
                 )
             ),
+            line_parabola_intersections=tuple(
+                self._line_parabola_intersections(
+                    lesson_step,
+                    snapshot,
+                )
+            ),
             source_step_ids=tuple(lesson_step.source_step_ids),
             capability_ids=tuple(lesson_step.capability_ids),
         )
@@ -412,6 +456,124 @@ class VisualRoleBinderRegistry:
                     }
                 )
         return markers
+
+    def _line_parabola_intersections(
+        self,
+        lesson_step: LessonStep,
+        snapshot: ExplanationSnapshot,
+    ) -> list[dict[str, Any]]:
+        """Bind the intersection diagram from verified refs and point values.
+
+        Student-facing point names are presentation only.  Geometry selection
+        uses each TeachingSource's SourceRef/StepResultRef identity plus its
+        verified value, so this binder works for arbitrary point names.
+        """
+
+        sources = {
+            source.source_step_id: source
+            for source in iter_teaching_sources(snapshot.root_scope)
+        }
+        markers: list[dict[str, Any]] = []
+        for source_step_id in lesson_step.source_step_ids:
+            source = sources.get(source_step_id)
+            if (
+                source is None
+                or source.capability_id
+                != "line_parabola_second_intersection_point"
+            ):
+                continue
+            roles = {
+                name: self._teaching_input_point_role(
+                    source,
+                    name,
+                    sources=sources,
+                    snapshot=snapshot,
+                    scope_id=lesson_step.scope_id,
+                )
+                for name in ("line_p1", "line_p2", "known_point")
+            }
+            output = source.outputs.get("point")
+            output_ref = _public_point_semantic_ref(
+                snapshot,
+                source,
+                "point",
+            )
+            output_label = self._semantic_label_for_ref(output_ref)
+            output_value = output.get("value") if isinstance(output, dict) else None
+            target_point = self._geometry_point_for_value(
+                output_label,
+                output_value,
+                lesson_step.scope_id,
+            )
+            if any(not role.get("point") for role in roles.values()) or not target_point:
+                raise ValueError(
+                    "visual_line_parabola_role_binding_missing: "
+                    f"step={source_step_id}, roles={roles}, target={target_point}"
+                )
+            markers.append(
+                {
+                    "source_step_id": source_step_id,
+                    "line_p1": roles["line_p1"]["point"],
+                    "line_p1_label": roles["line_p1"]["label"],
+                    "line_p2": roles["line_p2"]["point"],
+                    "line_p2_label": roles["line_p2"]["label"],
+                    "known_point": roles["known_point"]["point"],
+                    "known_label": roles["known_point"]["label"],
+                    "target_point": target_point,
+                    "target_label": output_label
+                    or self._student_label_for_geometry(target_point),
+                    "target_display": _point_display_from_geometry_with_label(
+                        output_label or self._student_label_for_geometry(target_point),
+                        target_point,
+                        self.geometry_spec,
+                    ),
+                }
+            )
+        return markers
+
+    def _teaching_input_point_role(
+        self,
+        source: Any,
+        input_name: str,
+        *,
+        sources: dict[str, Any],
+        snapshot: ExplanationSnapshot,
+        scope_id: str,
+    ) -> dict[str, str]:
+        values = tuple(source.inputs.get(input_name, ()))
+        if len(values) != 1:
+            return {}
+        item = values[0]
+        ref = item.get("ref")
+        semantic_ref = ""
+        if isinstance(ref, dict) and ref.get("kind") == "source":
+            semantic_ref = str(ref.get("ref") or "")
+        elif isinstance(ref, dict) and ref.get("kind") == "step_result":
+            producer = sources.get(str(ref.get("step_id") or ""))
+            if producer is not None:
+                semantic_ref = _public_point_semantic_ref(
+                    snapshot,
+                    producer,
+                    str(ref.get("return") or ""),
+                )
+        label = self._semantic_label_for_ref(semantic_ref)
+        point = self._geometry_point_for_value(
+            label,
+            item.get("value"),
+            scope_id,
+        )
+        return {"point": point, "label": label} if point else {}
+
+    def _semantic_label_for_ref(self, semantic_ref: str) -> str:
+        if not semantic_ref:
+            return ""
+        entity = self.index.point_entity_for_name_or_handle(semantic_ref)
+        if entity is None:
+            return ""
+        return str(
+            entity.get("name")
+            or _handle_tail(str(entity.get("handle") or ""))
+        )
 
     def _geometry_point_for_value(
         self,
@@ -610,7 +772,7 @@ class VisualRoleBinderRegistry:
         source = sources.get(source_step_id)
         if source is None:
             return set()
-        contexts = axis_parameter_contexts_by_step(snapshot)
+        contexts = parameterized_point_contexts_by_step(snapshot)
         dynamic: set[str] = set()
 
         for items in source.inputs.values():
@@ -1901,13 +2063,36 @@ class VisualRoleBinderRegistry:
             score = 1
             if _point_pair_satisfies_line(pair, locus_equation):
                 score += 5
-            if "axis" in point_id or "locus" in point_id:
+            definition = str(meta.get("definition") or "")
+            if definition in {
+                "parameterized_point",
+                "runtime_point_output",
+                "path_attainment_point",
+            }:
+                score += 2
+            raw_semantic_roles = meta.get("semanticRoles", ())
+            semantic_roles = (
+                {raw_semantic_roles}
+                if isinstance(raw_semantic_roles, str)
+                else {str(item) for item in raw_semantic_roles}
+            )
+            if "path_attainment_point" in semantic_roles:
+                score += 3
+            if meta.get("sourceStepIds"):
+                score += 1
+            if not meta.get("visualOnly"):
                 score += 1
             scored.append((score, point_id))
         if not scored:
             return ""
-        scored.sort(key=lambda item: (item[0], item[1]), reverse=True)
-        return scored[0][1]
+        best_score = max(score for score, _ in scored)
+        winners = sorted(point_id for score, point_id in scored if score == best_score)
+        if len(winners) != 1:
+            raise ValueError(
+                "visual_dynamic_point_provenance_ambiguous: "
+                f"label={label}, scope={scope_id}, candidates={winners}"
+            )
+        return winners[0]
 
     def _equal_length_reduction_roles(
         self,

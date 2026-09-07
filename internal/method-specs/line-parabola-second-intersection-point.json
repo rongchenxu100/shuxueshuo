@@ -140,6 +140,27 @@
     },
     "role_binder_id": "line_parabola_second_intersection_point"
   },
+  "visual": {
+    "role_schema": {
+      "line_points": "精确确定目标直线的两个已验证点。",
+      "known_intersection": "需要从联立结果中排除的已知交点。",
+      "target_intersection": "本步骤求得的另一交点。"
+    },
+    "scene_templates": [
+      {
+        "component": "LineParabolaIntersectionMarker",
+        "context_roles": [
+          "input_curve"
+        ],
+        "persistence": "carry_forward",
+        "line_color": "#0f766e",
+        "target_color": "#b45309"
+      }
+    ],
+    "annotation_templates": [],
+    "timeline_templates": [],
+    "role_binder_id": "line_parabola_second_intersection_point"
+  },
   "distinct_arg_groups": [
     [
       "line_p1",

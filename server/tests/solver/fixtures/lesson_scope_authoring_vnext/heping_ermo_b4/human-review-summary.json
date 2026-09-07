@@ -4,8 +4,8 @@
   "review_status": "approved",
   "reviewed_at": "2026-09-07",
   "source_batches": {
-    "lesson_ir": "f5-f5b4-heping-recursive-lesson-review-cognitive-boundary-r12",
-    "visual": "f5-f5b4v-heping-recursive-visual-review-cognitive-boundary-r12"
+    "lesson_ir": "f5-f5b4-heping-visual-spec-generic-r13",
+    "visual": "f5-f5b4v-heping-visual-spec-generic-r13"
   },
   "counts": {
     "scope_count": 5,
@@ -36,6 +36,7 @@
     "Scope i merges the curve and left-intercept materials into one cognitive step; grouping remains optional rather than a correctness gate.",
     "The two quadratic-square path Macro teaching units remain separate LessonSteps and separate visual stages.",
     "Recursive visual state, semantic geometry identity, moving-point controls, viewport focus, and final compiled page were reviewed and approved.",
+    "Visual context is now selected by Method/Macro VisualSpec and bound through exact public object identity; square selection, candidate context, parameter lineage, and line-parabola roles no longer depend on first-match, point-letter, internal-id, or capability-branch heuristics.",
     "Generated HTML remains rebuildable output and is intentionally not stored as a fixture."
   ]
 }

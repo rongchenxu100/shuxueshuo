@@ -134,6 +134,16 @@ SPEC = MethodSpecSource(
         scene_templates=(
             {
                 "component": "AxisParameterizedPointMarker",
+                "context_roles": [
+                    "input_curve",
+                    {
+                        "kind": "square_predecessor",
+                        "target_output": "point",
+                    },
+                    "curve_axis",
+                    "prior_curve_vertex",
+                ],
+                "dependency_components": ["Parabola"],
                 "requires_independent_lesson_step": True,
                 "axis_color": "#64748b",
                 "point_color": "#dc2626",

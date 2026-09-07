@@ -34,7 +34,6 @@
         "visual:parabola:b572fc18d01339ff",
         "visual:point:4f40a1617d26bf77",
         "visual:point:98039193da992b37",
-        "visual:point:9b5c99e50a5e889c",
         "visual:point:fef6497f273d0196"
       ],
       "parameter_values": {}
@@ -369,20 +368,6 @@
           ]
         },
         {
-          "visual_object_id": "visual:point:9b5c99e50a5e889c",
-          "state": "context",
-          "reason": "current_component_input",
-          "source_refs": [
-            {
-              "kind": "functional_step",
-              "step_id": "derive_vertex_P_i"
-            }
-          ],
-          "geometry_refs": [
-            "point_B_i"
-          ]
-        },
-        {
           "visual_object_id": "visual:point:fef6497f273d0196",
           "state": "context",
           "reason": "current_component_input",
@@ -441,7 +426,6 @@
       ],
       "introduced": [
         "visual:axisofsymmetry:c45efc4ebd9e5dbd",
-        "visual:point:9b5c99e50a5e889c",
         "visual:point:fef6497f273d0196"
       ],
       "retained": [
@@ -459,7 +443,6 @@
         "visual:parabola:b572fc18d01339ff",
         "visual:point:4f40a1617d26bf77",
         "visual:point:98039193da992b37",
-        "visual:point:9b5c99e50a5e889c",
         "visual:point:fef6497f273d0196"
       ],
       "parameter_values_before": {},
@@ -1643,7 +1626,7 @@
           ]
         },
         {
-          "visual_object_id": "visual:coloredline:5935851865ee3630",
+          "visual_object_id": "visual:coloredline:144e2c68e86fbc40",
           "state": "focus",
           "reason": "current_visual_spec_result_or_requirement",
           "source_refs": [
@@ -1653,12 +1636,12 @@
             }
           ],
           "geometry_refs": [
-            "H_axis_ii",
-            "F_axis_ii"
+            "point_H_ii",
+            "point_F_ii"
           ]
         },
         {
-          "visual_object_id": "visual:coloredline:ff8e2ee264a9bd17",
+          "visual_object_id": "visual:coloredline:2ca72e20b85ac53e",
           "state": "focus",
           "reason": "current_visual_spec_result_or_requirement",
           "source_refs": [
@@ -1668,7 +1651,7 @@
             }
           ],
           "geometry_refs": [
-            "F_axis_ii",
+            "point_F_ii",
             "M_axis_ii"
           ]
         },
@@ -1719,7 +1702,7 @@
           ]
         },
         {
-          "visual_object_id": "visual:point:3239647144b72867",
+          "visual_object_id": "visual:point:8b6c53828d03c232",
           "state": "context",
           "reason": "current_visual_spec_result_or_requirement",
           "source_refs": [
@@ -1729,11 +1712,11 @@
             }
           ],
           "geometry_refs": [
-            "F_axis_ii"
+            "point_F_ii"
           ]
         },
         {
-          "visual_object_id": "visual:point:5e4f1fdfbd01e3b9",
+          "visual_object_id": "visual:point:a37ad0da5aefcd6c",
           "state": "context",
           "reason": "current_visual_spec_result_or_requirement",
           "source_refs": [
@@ -1743,7 +1726,7 @@
             }
           ],
           "geometry_refs": [
-            "H_axis_ii"
+            "point_H_ii"
           ]
         },
         {

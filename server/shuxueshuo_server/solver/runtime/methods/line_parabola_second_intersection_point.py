@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from shuxueshuo_server.solver.contracts import TeachingUnitSpec
+from shuxueshuo_server.solver.contracts import MethodVisualSpec, TeachingUnitSpec
 
 from ._common import *
 from ._spec import MethodSpecSource, canonical_symbol_input, declare_input_views
@@ -258,6 +258,23 @@ SPEC = MethodSpecSource(
             "known_point": "需要排除的已知交点。",
             "point": "求得的另一交点。",
         },
+        role_binder_id="line_parabola_second_intersection_point",
+    ),
+    visual=MethodVisualSpec(
+        role_schema={
+            "line_points": "精确确定目标直线的两个已验证点。",
+            "known_intersection": "需要从联立结果中排除的已知交点。",
+            "target_intersection": "本步骤求得的另一交点。",
+        },
+        scene_templates=(
+            {
+                "component": "LineParabolaIntersectionMarker",
+                "context_roles": ["input_curve"],
+                "persistence": "carry_forward",
+                "line_color": "#0f766e",
+                "target_color": "#b45309",
+            },
+        ),
         role_binder_id="line_parabola_second_intersection_point",
     ),
 )

@@ -91,12 +91,14 @@ SPEC = RecipeSpecSource(
             "endpoint_replacement": (
                 {
                     "component": "EquivalentSegmentMarker",
+                    "context_roles": ["input_curve"],
                     "requires_independent_lesson_step": True,
                 },
             ),
             "reflection_minimum": (
                 {
                     "component": "AtomicPathMinimumMarker",
+                    "context_roles": ["input_curve"],
                     "requires_independent_lesson_step": True,
                 },
             ),

@@ -2069,9 +2069,10 @@ flowchart LR
 validator 与页面编译门禁。
 
 当前递归 LessonIR Review batch：
-`f5-f5b4-heping-recursive-lesson-review-cognitive-boundary-r12`；当前递归视觉 Review batch：
-`f5-f5b4v-heping-recursive-visual-review-cognitive-boundary-r12`。B2–B4/Visual 定向专项
-`80 passed`，全部非 serial、非 live Solver 回归 `2308 passed, 7 skipped`；geometry
+`f5-f5b4-heping-visual-spec-generic-r13`；当前递归视觉 Review batch：
+`f5-f5b4v-heping-visual-spec-generic-r13`。本轮进一步把 square、候选上下文、参数身份和
+直线-抛物线交点统一改为 VisualSpec + 精确 public identity 驱动，并通过人工页面审阅。B2–B4/Visual
+定向专项 `109 passed`，全部非 serial、非 live Solver 回归 `2315 passed, 7 skipped`；geometry
 validator 与 HTML compiler 通过，人工页面已确认。批准的 recursive
 LessonIR、VisualStepIR、assembly/state authority 与 artifact hashes 保存于 `heping_ermo_b4/`，
 只用于回归，不进入 Prompt 或 few-shot。Snapshot v3 的序列化往返会重建逐字一致的
