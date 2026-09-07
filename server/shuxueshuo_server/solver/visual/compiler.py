@@ -297,13 +297,16 @@ def _compile_scene_items(item: JsonObject) -> list[JsonObject]:
             raise ValueError(f"cannot compile component without low-level type: {component}")
         raw["type"] = low_level_type
         compiled = [raw]
-    # A context distance marker keeps its mathematical segment available but
-    # no longer repeats the relation being taught by an earlier focus frame.
-    # This is driven by semantic component/state, never by label text.  When a
-    # base line with the same endpoint identities is also present, the normal
-    # endpoint-based compiled-item dedupe collapses the now-unlabelled marker.
+    # A context distance marker keeps only its geometric support line.  It no
+    # longer claims that the segment is being measured, so its relation label
+    # is removed and the low-level type is downgraded from ``segment`` (whose
+    # contract requires a label) to an ordinary line.  This transition is
+    # driven by the typed component/state rather than by inspecting label text.
+    # Endpoint-based compiled-item dedupe can then collapse it with an existing
+    # support line when the current frame already renders one.
     if component == "DistanceMarker" and visual_state == "context":
         for item in compiled:
+            item["type"] = "coloredLine"
             item.pop("label", None)
     return _apply_visual_state(compiled, visual_state)
 

@@ -1172,7 +1172,16 @@ class MethodSpec:
     repair_feedback_provider_id: str | None = None
     geometry_profiles: tuple[dict[str, Any], ...] = ()
     teaching_unit: TeachingUnitSpec | None = None
+    # An explicit code-owned approval for the deterministic verified-input /
+    # output teaching draft.  ``None`` is intentionally different from an
+    # empty string: public-capability coverage treats an omitted declaration
+    # as an unaudited teaching gap.
+    generic_teaching_reason: str | None = None
     visual: MethodVisualSpec | None = None
+    # A public Function that intentionally creates no new visual state must
+    # say why.  This keeps ``visual is None`` from silently meaning either
+    # "not implemented" or "not useful".
+    no_new_visual_reason: str | None = None
     constraint_analyzer: str | None = None
     plan_transformer: str | None = None
     plan_transformer_scope: PlanTransformerScope = "single_invocation"

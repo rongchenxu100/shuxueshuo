@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from shuxueshuo_server.solver.contracts import (
+    MethodVisualSpec,
     ScalarResultFormSpec,
     TeachingUnitSpec,
 )
@@ -109,5 +110,21 @@ SPEC = MethodSpecSource(
             "point": "求得的 y 轴交点。",
         },
         role_binder_id="quadratic_y_axis_intercept_point",
+    ),
+    visual=MethodVisualSpec(
+        role_schema={
+            "quadratic": "当前抛物线。",
+            "point": "与 y 轴的交点。",
+        },
+        scene_templates=(
+            {
+                "component": "QuadraticYAxisInterceptMarker",
+                "input_curve_role": "quadratic",
+                "output_role": "point",
+                "context_roles": ["input_curve"],
+                "persistence": "carry_forward",
+            },
+        ),
+        role_binder_id="generic_visual",
     ),
 )

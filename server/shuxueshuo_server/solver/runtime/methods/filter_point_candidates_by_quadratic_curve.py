@@ -53,8 +53,13 @@ class FilterPointCandidatesByQuadraticCurveMethod:
         kept: list[Point] = []
         rejected: list[Point] = []
         details: list[str] = []
+        evaluation_checks: list[CheckResult] = []
         for index, candidate in enumerate(candidates, start=1):
-            equation = sp.Eq(parabola.subs(x, candidate[0]), candidate[1])
+            equation = sp.Eq(
+                parabola.subs(x, candidate[0]),
+                candidate[1],
+                evaluate=False,
+            )
             closure = solve_target_symbol_closure(
                 [equation],
                 target=parameter,
@@ -79,6 +84,23 @@ class FilterPointCandidatesByQuadraticCurveMethod:
             else:
                 rejected.append(candidate)
                 details.append(f"{target.name}{index}: 无满足 {_constraint_text(parameter, constraint, kernel)} 的解")
+            decision = "保留" if closure.status in {"unique", "ambiguous"} else "排除"
+            evaluation_checks.append(
+                _check(
+                    f"candidate_evaluation_{index}",
+                    True,
+                    f"{target.name} 候选 {kernel.sstr(candidate)}："
+                    f"{kernel.sstr(equation)}；{decision}",
+                    observed={
+                        "candidate": [
+                            kernel.sstr(candidate[0]),
+                            kernel.sstr(candidate[1]),
+                        ],
+                        "equation": kernel.sstr(equation),
+                        "decision": decision,
+                    },
+                )
+            )
 
         outputs = {
             "filtered_candidates": TypedValue("PointList", kept, source=self.method_id),
@@ -118,6 +140,7 @@ class FilterPointCandidatesByQuadraticCurveMethod:
             method_id=self.method_id,
             outputs=outputs,
             checks=[
+                *evaluation_checks,
                 _check("at_least_one_candidate_kept", bool(kept), "至少有一个候选点能满足曲线条件"),
                 _check(
                     "candidate_filter_completed",

@@ -391,6 +391,16 @@ def _macro_roles(
         return _coupled_segment_macro_roles(source, witness=witness)
     if source.capability_id == "weighted_axis_path_minimum":
         return _weighted_axis_macro_roles(source, witness=witness)
+    if source.capability_id == "right_angle_equal_length_construct_and_select":
+        return _right_angle_construct_select_macro_roles(
+            source,
+            witness=witness,
+        )
+    if source.capability_id == "curve_candidate_parameter_solve":
+        return _curve_candidate_parameter_macro_roles(
+            source,
+            witness=witness,
+        )
     raise TeachingSpecBindingError(
         "teaching_spec_macro_role_binder_missing: "
         f"{source.capability_id}"
@@ -493,6 +503,104 @@ def _quadratic_square_macro_roles(
             f"{moving_point}{_point_coordinates(point_value)}"
         ),
     }
+
+
+def _right_angle_construct_select_macro_roles(
+    source: TeachingSource,
+    *,
+    witness: Mapping[str, Any],
+) -> dict[str, Any]:
+    candidates = _macro_point_list(
+        source,
+        witness.get("candidates"),
+        role="candidates",
+    )
+    selected = _macro_point(
+        source,
+        witness.get("selected_point"),
+        role="selected_point",
+    )
+    checks = tuple(str(item) for item in witness.get("construction_checks", ()))
+    decisions = tuple(str(item) for item in witness.get("candidate_decisions", ()))
+    if not checks or len(decisions) != len(candidates):
+        raise TeachingSpecBindingError(
+            "teaching_spec_macro_construct_select_evidence_incomplete: "
+            f"{source.source_step_id}"
+        )
+    return {
+        "construction_condition": "；".join(checks),
+        "candidate_points": "，".join(_point_coordinates(item) for item in candidates),
+        "selection_condition": str(witness.get("selection_condition") or ""),
+        "candidate_decisions": "；".join(decisions),
+        "selected_point": _point_coordinates(selected),
+    }
+
+
+def _curve_candidate_parameter_macro_roles(
+    source: TeachingSource,
+    *,
+    witness: Mapping[str, Any],
+) -> dict[str, Any]:
+    candidates = _macro_point_list(
+        source,
+        witness.get("candidates"),
+        role="candidates",
+    )
+    selected = _macro_point(
+        source,
+        witness.get("selected_point"),
+        role="selected_point",
+    )
+    equations = tuple(str(item) for item in witness.get("candidate_equations", ()))
+    decisions = tuple(str(item) for item in witness.get("candidate_decisions", ()))
+    if len(equations) != len(candidates) or len(decisions) != len(candidates):
+        raise TeachingSpecBindingError(
+            "teaching_spec_macro_curve_candidate_evidence_incomplete: "
+            f"{source.source_step_id}"
+        )
+    parameter_name = str(witness.get("parameter_name") or "参数")
+    parameter_value = str(witness.get("parameter_value") or "")
+    return {
+        "candidate_points": "，".join(_point_coordinates(item) for item in candidates),
+        "candidate_substitutions": "；".join(equations),
+        "candidate_decisions": "；".join(decisions),
+        "selected_point": _point_coordinates(selected),
+        "parameter_equation": str(witness.get("parameter_equation") or ""),
+        "parameter_result": f"{parameter_name}＝{parameter_value}",
+        "solved_curve": student_math_display(
+            str(witness.get("solved_curve") or "")
+        ),
+    }
+
+
+def _macro_point_list(
+    source: TeachingSource,
+    value: Any,
+    *,
+    role: str,
+) -> tuple[tuple[str, str], ...]:
+    if not isinstance(value, Sequence) or isinstance(value, str | bytes):
+        raise TeachingSpecBindingError(
+            f"teaching_spec_macro_{role}_invalid: {source.source_step_id}"
+        )
+    return tuple(_macro_point(source, item, role=role) for item in value)
+
+
+def _macro_point(
+    source: TeachingSource,
+    value: Any,
+    *,
+    role: str,
+) -> tuple[str, str]:
+    if (
+        not isinstance(value, Sequence)
+        or isinstance(value, str | bytes)
+        or len(value) != 2
+    ):
+        raise TeachingSpecBindingError(
+            f"teaching_spec_macro_{role}_invalid: {source.source_step_id}"
+        )
+    return (str(value[0]), str(value[1]))
 
 
 def _equal_length_ray_macro_roles(

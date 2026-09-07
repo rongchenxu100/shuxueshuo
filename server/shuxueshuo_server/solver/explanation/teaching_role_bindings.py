@@ -96,7 +96,12 @@ def _generic_roles(source: TeachingSource) -> dict[str, Any]:
             roles[name] = "，".join(_item_display(item) for item in items)
     for name, item in source.outputs.items():
         roles[name] = _item_display(item)
-    roles.update(source.output_targets)
+    # A material role named after a public return must describe the verified
+    # value, not its binding handle.  Output targets are only a fallback for
+    # templates that explicitly ask for a target identity and have no value
+    # role with the same name.
+    for name, target in source.output_targets.items():
+        roles.setdefault(name, target.rsplit(":", 1)[-1])
     return roles
 
 
@@ -214,6 +219,96 @@ def _quadratic_y_axis_intercept(
     return {
         "quadratic": f"y＝{_quadratic_expression_display(quadratic)}",
         "point": _point_display(label, point),
+    }
+
+
+def _right_angle_equal_length_candidates(
+    source: TeachingSource,
+    snapshot: ExplanationSnapshot,
+) -> Mapping[str, Any]:
+    del snapshot
+    relation = _one_input(source, "right_angle_equal_length")
+    target_item = _one_input(source, "target")
+    assert relation is not None and target_item is not None
+    value = relation.get("value")
+    if not isinstance(value, Mapping):
+        raise TeachingRoleBindingError(
+            "teaching_right_angle_equal_length_relation_invalid"
+        )
+    angle = tuple(str(item) for item in value.get("angle") or ())
+    target = _point_label(target_item)
+    if len(angle) != 3 or not target or target not in {angle[0], angle[2]}:
+        raise TeachingRoleBindingError(
+            "teaching_right_angle_equal_length_roles_invalid"
+        )
+    anchor = angle[1]
+    reference = angle[2] if target == angle[0] else angle[0]
+    return {
+        "anchor": anchor,
+        "reference": reference,
+        "target": target,
+        "candidates": _item_display(source.outputs["candidates"]),
+    }
+
+
+def _midpoint_from_definition(
+    source: TeachingSource,
+    snapshot: ExplanationSnapshot,
+) -> Mapping[str, Any]:
+    definition = _one_input(source, "midpoint_definition")
+    assert definition is not None
+    value = definition.get("value")
+    endpoints = (
+        tuple(str(item) for item in value.get("of") or ())
+        if isinstance(value, Mapping)
+        else ()
+    )
+    if len(endpoints) != 2:
+        raise TeachingRoleBindingError(
+            "teaching_midpoint_definition_endpoints_invalid"
+        )
+    return {
+        "p1": _snapshot_point_display(endpoints[0], snapshot),
+        "p2": _snapshot_point_display(endpoints[1], snapshot),
+        "midpoint": _item_display(source.outputs["midpoint"]),
+    }
+
+
+def _parameter_from_segment_length(
+    source: TeachingSource,
+    snapshot: ExplanationSnapshot,
+) -> Mapping[str, Any]:
+    return {
+        "p1": _input_point_display(source, "p1", snapshot),
+        "p2": _input_point_display(source, "p2", snapshot),
+        "condition": _first_input_display(
+            source,
+            "condition",
+            "length_squared",
+            "segment_length_relation",
+        ),
+        "parameter": _parameter_output_target(source),
+        "parameter_value": _item_display(source.outputs["parameter_value"]),
+    }
+
+
+def _parameter_from_minimum_value(
+    source: TeachingSource,
+    snapshot: ExplanationSnapshot,
+) -> Mapping[str, Any]:
+    del snapshot
+    return {
+        "minimum_expression": _first_input_display(
+            source,
+            "minimum_expression",
+        ),
+        "condition": _first_input_display(
+            source,
+            "condition",
+            "minimum_value",
+        ),
+        "parameter": _parameter_output_target(source),
+        "parameter_value": _item_display(source.outputs["parameter_value"]),
     }
 
 
@@ -568,6 +663,69 @@ def _one_input(
     raise TeachingRoleBindingError(
         f"teaching_input_cardinality_invalid: {source.source_step_id}.{name}"
     )
+
+
+def _first_input_display(source: TeachingSource, *names: str) -> str:
+    matches = [
+        _item_display(item)
+        for name in names
+        for item in source.inputs.get(name, ())
+    ]
+    if len(matches) != 1:
+        raise TeachingRoleBindingError(
+            "teaching_input_alias_cardinality_invalid: "
+            f"{source.source_step_id}:{names}"
+        )
+    return matches[0]
+
+
+def _parameter_output_target(source: TeachingSource) -> str:
+    target = str(source.output_targets.get("parameter_value") or "")
+    if target:
+        return target.rsplit(":", 1)[-1]
+    for calculation in source.calculations:
+        if str(calculation.get("kind") or "") != "solution":
+            continue
+        target = str(calculation.get("target") or "")
+        if target:
+            return target
+    raise TeachingRoleBindingError(
+        f"teaching_parameter_identity_missing: {source.source_step_id}"
+    )
+
+
+def _snapshot_point_display(
+    label: str,
+    snapshot: ExplanationSnapshot,
+) -> str:
+    pairs: set[tuple[sp.Expr, sp.Expr]] = set()
+    for entity in (snapshot.problem or {}).get("entities") or ():
+        if not isinstance(entity, Mapping) or str(entity.get("name") or "") != label:
+            continue
+        pair = _point_pair(entity.get("coordinate"))
+        if pair is not None:
+            pairs.add(pair)
+    for candidate in iter_teaching_sources(snapshot.root_scope):
+        for name, result in candidate.outputs.items():
+            target = str(candidate.output_targets.get(name) or "").rsplit(":", 1)[-1]
+            if target != label and _point_label(result) != label:
+                continue
+            pair = _point_pair(result.get("value"))
+            if pair is not None:
+                pairs.add(pair)
+        for items in candidate.inputs.values():
+            for item in items:
+                if _point_label(item) != label:
+                    continue
+                pair = _point_pair(item.get("value"))
+                if pair is not None:
+                    pairs.add(pair)
+    if len(pairs) != 1:
+        raise TeachingRoleBindingError(
+            "teaching_point_identity_value_ambiguous: "
+            f"label={label}, count={len(pairs)}"
+        )
+    return _point_display(label, next(iter(pairs)))
 
 
 def _output_value(source: TeachingSource, name: str) -> Any:
@@ -1168,6 +1326,12 @@ _ROLE_BINDERS: dict[str, RoleBinder] = {
     "quadratic_from_constraints": _quadratic_from_constraints,
     "quadratic_x_axis_intercept_point": _quadratic_x_axis_intercept,
     "quadratic_y_axis_intercept_point": _quadratic_y_axis_intercept,
+    "right_angle_equal_length_candidates": (
+        _right_angle_equal_length_candidates
+    ),
+    "midpoint_point": _midpoint_from_definition,
+    "parameter_from_segment_length": _parameter_from_segment_length,
+    "parameter_from_minimum_value": _parameter_from_minimum_value,
     "quadratic_vertex_point": _quadratic_vertex,
     "quadratic_axis_parameterized_point": _quadratic_axis_point,
     "square_adjacent_vertex_from_side": _square_adjacent_vertex,

@@ -155,5 +155,6 @@ SPEC = MethodSpecSource(
         },
         role_binder_id="parameter_from_expression_value",
     ),
+    no_new_visual_reason="本步骤只由已有表达式反求参数，不产生新的几何对象。",
     symbolic_closure=_SYMBOLIC_CLOSURE_SPEC,
 )

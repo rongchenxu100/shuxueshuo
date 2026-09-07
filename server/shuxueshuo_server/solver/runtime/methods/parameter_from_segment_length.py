@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from shuxueshuo_server.solver.contracts import MethodVisualSpec, TeachingUnitSpec
+
 from shuxueshuo_server.solver.contracts import SymbolicClosureSpec
 from shuxueshuo_server.solver.runtime.quadratic_constraint_solver import (
     value_satisfies_constraint,
@@ -163,6 +165,43 @@ SPEC = MethodSpecSource(
     interchangeable_arg_groups=(
         ("p1", "p2"),
         ("reference_p1", "reference_p2"),
+    ),
+    teaching_unit=TeachingUnitSpec(
+        unit_key="parameter_from_segment_length/solve_parameter",
+        title_template="由线段长度关系求参数",
+        nav_title_template="由长度求参数",
+        goal_template="把端点坐标代入长度关系，解参数并按题设条件筛选。",
+        derive_templates=(
+            ("∵", "目标线段端点为 {p1}、{p2}"),
+            ("∵", "题设长度条件为 {condition}"),
+            ("计算", "建立关于 {parameter} 的长度方程并筛选合法分支"),
+            ("∴", "{parameter}＝{parameter_value}"),
+        ),
+        box_templates=("{parameter}＝{parameter_value}",),
+        role_schema={
+            "p1": "目标线段端点一。",
+            "p2": "目标线段端点二。",
+            "condition": "题设长度或长度比例条件。",
+            "parameter": "待求参数。",
+            "parameter_value": "筛选后的参数值。",
+        },
+        role_binder_id="parameter_from_segment_length",
+    ),
+    visual=MethodVisualSpec(
+        role_schema={
+            "segment": "参与长度方程的目标线段。",
+            "reference_segment": "可选参照线段。",
+            "condition": "长度关系。",
+        },
+        scene_templates=(
+            {
+                "component": "SegmentParameterMarker",
+                "segment_roles": ["p1", "p2"],
+                "reference_segment_roles": ["reference_p1", "reference_p2"],
+                "persistence": "step_only",
+            },
+        ),
+        role_binder_id="generic_visual",
     ),
     symbolic_closure=_SYMBOLIC_CLOSURE_SPEC,
 )

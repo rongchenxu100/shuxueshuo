@@ -94,6 +94,7 @@
     },
     "role_binder_id": "parameter_from_expression_value"
   },
+  "no_new_visual_reason": "本步骤只由已有表达式反求参数，不产生新的几何对象。",
   "plan_transformer": "validate_student_single_degree_of_freedom",
   "plan_transformer_scope": "all_invocations",
   "symbolic_closure": {

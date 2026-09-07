@@ -100,5 +100,25 @@
       "point": "求得的 y 轴交点。"
     },
     "role_binder_id": "quadratic_y_axis_intercept_point"
+  },
+  "visual": {
+    "role_schema": {
+      "quadratic": "当前抛物线。",
+      "point": "与 y 轴的交点。"
+    },
+    "scene_templates": [
+      {
+        "component": "QuadraticYAxisInterceptMarker",
+        "input_curve_role": "quadratic",
+        "output_role": "point",
+        "context_roles": [
+          "input_curve"
+        ],
+        "persistence": "carry_forward"
+      }
+    ],
+    "annotation_templates": [],
+    "timeline_templates": [],
+    "role_binder_id": "generic_visual"
   }
 }

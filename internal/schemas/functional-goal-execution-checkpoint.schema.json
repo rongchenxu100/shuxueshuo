@@ -917,6 +917,199 @@
             }
           },
           "additionalProperties": false
+        },
+        {
+          "title": "RightAngleConstructSelectExecutionEvidence",
+          "type": "object",
+          "required": [
+            "schema_version",
+            "step_id",
+            "macro_id",
+            "candidates",
+            "selected_point",
+            "candidate_decisions",
+            "evidence_id",
+            "construction_checks",
+            "selection_condition"
+          ],
+          "properties": {
+            "schema_version": {
+              "const": "right-angle-construct-select-evidence/v1"
+            },
+            "step_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "macro_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "candidates": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "array",
+                "prefixItems": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                ],
+                "items": false,
+                "minItems": 2,
+                "maxItems": 2
+              }
+            },
+            "selected_point": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "string",
+                  "minLength": 1
+                },
+                {
+                  "type": "string",
+                  "minLength": 1
+                }
+              ],
+              "items": false,
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "candidate_decisions": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "evidence_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "construction_checks": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "selection_condition": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "title": "CurveCandidateParameterExecutionEvidence",
+          "type": "object",
+          "required": [
+            "schema_version",
+            "step_id",
+            "macro_id",
+            "candidates",
+            "selected_point",
+            "candidate_decisions",
+            "evidence_id",
+            "candidate_equations",
+            "parameter_name",
+            "parameter_equation",
+            "parameter_value",
+            "solved_curve"
+          ],
+          "properties": {
+            "schema_version": {
+              "const": "curve-candidate-parameter-evidence/v1"
+            },
+            "step_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "macro_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "candidates": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "array",
+                "prefixItems": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                ],
+                "items": false,
+                "minItems": 2,
+                "maxItems": 2
+              }
+            },
+            "selected_point": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "string",
+                  "minLength": 1
+                },
+                {
+                  "type": "string",
+                  "minLength": 1
+                }
+              ],
+              "items": false,
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "candidate_decisions": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "evidence_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "candidate_equations": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "parameter_name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "parameter_equation": {
+              "type": "string",
+              "minLength": 1
+            },
+            "parameter_value": {
+              "type": "string",
+              "minLength": 1
+            },
+            "solved_curve": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
         }
       ]
     },

@@ -1,7 +1,8 @@
 # F5-F5 Teaching Scope、学生步骤、可视化与动画设计
 
 状态：`IMPLEMENTATION`。`F5-F5A COMPLETE`；`F5-F5B0 COMPLETE`；`F5-F5B1 COMPLETE`；
-`F5-F5B2 COMPLETE`；`F5-F5B3 COMPLETE`；`F5-F5B4/B4V COMPLETE`；`F5-F5C NEXT`。
+`F5-F5B2 COMPLETE`；`F5-F5B3 COMPLETE`；`F5-F5B4/B4V COMPLETE`；
+`F5-F5C0 COMPLETE`；`F5-F5C1 NEXT`。
 
 本文是 F5-F5 以及后续 Track G 教学链的统一规范入口。它定义：如何从
 `VerifiedFunctionalPlanExecution` 生成学生可见步骤，如何继续生成 `VisualStepIR` 与动画
@@ -761,9 +762,19 @@ Gap 必须包含稳定 source ID、owner Scope/Goal、缺失 role/action、已�
 prompt/raw response、evaluation 与 recursive LessonIR。详细合同与各阶段门禁见 vNext 设计第
 18 节。
 
-### F5-F5C：五题教学验收
+### F5-F5C0：全部公开能力覆盖（COMPLETE）
 
--先用和平 live `1×3` 对真实 LLM 输出做结构、authority 与教学质量评测，按错误簇优化
+- 从五个 Family Catalog 动态推导 `23 Function + 6 Macro`，不使用手写 allowlist；
+- 五道 recorded 题覆盖 26 项，三个 typed synthetic execution 补齐全部 29 项；
+- 每个公开 Function 的 TeachingSpec/generic teaching 与 VisualSpec/no-new-visual disposition
+  均恰有一个；六个公开 Macro 的 Recipe、teaching units、visual units 完整对齐；
+- 统一 batch `f5-f5c0-public-capability-review` 的 29 张卡片与八个页面已经人工审阅通过；
+- coverage、occurrence、synthetic scenario、semantic hashes 与人工结论作为 regression-only
+  fixture 保存，不进入 LLM 输入。
+
+### F5-F5C1：五题教学 LLM 验收（NEXT）
+
+- 先用和平 live `1×3` 对真实 LLM 输出做结构、authority 与教学质量评测，按错误簇优化
   projector、Macro outline（仅 Macro）、prompt/schema 或通用 few-shot；
 - smoke evaluator 的本题 expected teaching points 只用于测试，不进入 generator prompt 或
   few-shot；

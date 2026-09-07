@@ -2,7 +2,7 @@
 
 状态：`IMPLEMENTATION`。`F5-F5B0 COMPLETE`；`F5-F5B1 COMPLETE`；
 `F5-F5B2 COMPLETE`；`F5-F5B3 COMPLETE`；`F5-F5B4 / F5-F5B4V COMPLETE`；
-`F5-F5C NEXT`。
+`F5-F5C0 COMPLETE`；`F5-F5C1 NEXT`。
 
 日期：2026-09-01。
 
@@ -31,6 +31,9 @@ artifact 已完成人工审阅并收口；F5-F5B2 的 Annotated Teaching Plan、
 Prompt 与双 artifact Review 也已通过人工门禁。B3 的调用、解析、fallback 与评测已实现，
 精简协议后的 live 输出与人工门禁均已通过。recursive LessonIR、递归 VisualStepIR v2、
 完整 Frame 页面与图形状态审计也已完成人工审阅；下一阶段进入五题教学质量扩展。
+F5-F5C0 已进一步从五个 Family Catalog 动态推导全部 Planner 公开能力，补齐并人工审阅
+`23 Function + 6 Macro` 的 TeachingSpec/VisualSpec 覆盖；五题 recorded 覆盖 26 项，三个
+typed synthetic execution 补齐剩余 3 项。下一阶段只评测 Lesson LLM 的跨题润色与合并质量。
 
 ## 1. 结论
 
@@ -2078,7 +2081,35 @@ LessonIR、VisualStepIR、assembly/state authority 与 artifact hashes 保存于
 只用于回归，不进入 Prompt 或 few-shot。Snapshot v3 的序列化往返会重建逐字一致的
 VisualStepIR，图形身份不再依赖非序列化 runtime sidecar。
 
-### 18.8 F5-F5C：LLM 输出质量迭代与五题扩展
+### 18.8 F5-F5C0：全部公开能力教学与视觉覆盖（COMPLETE）
+
+公开能力集合只能通过以下权威链动态推导：
+
+```text
+DEFAULT_FAMILY_REGISTRY
+→ expand all Family specs
+→ FunctionalCapabilityCatalog
+→ Planner-public Function / Macro union
+```
+
+当前基线为 `29 = 23 Function + 6 Macro`。五道 recorded 题覆盖 26 项；
+`distance_between_points`、`equal_length_ray_point`、`line_intersection_point` 使用正常 typed
+runtime object、TeachingSource、binder 与 Visual resolver 的 synthetic execution 补齐，禁止直接
+构造期望 HTML。
+
+每个公开 Function 的教学与视觉维度都必须各自恰有一种 disposition：显式 Spec，或显式批准
+generic teaching / no-new-visual。六个公开 Macro 都必须具有 RecipeSpec、MacroTeachingSpec 与按
+teaching unit 对齐的 VisualSpec。`right_angle_equal_length_construct_and_select` 和
+`curve_candidate_parameter_solve` 已从误分类 Function 修正为原子 Macro，各自投影两个有序、
+独立视觉阶段；public evidence 只含学生可读 typed witness，不读取 replay trace。
+
+统一 Review batch 为 `f5-f5c0-public-capability-review`，包含 29 张能力卡片、五题确定性页面与
+三个 synthetic 页面，人工审阅已通过。规范化 coverage、occurrence、synthetic scenario、
+semantic artifact hash 与 human review summary 固化在 `public_capability_c0/` fixture；它们只用于
+回归，不进入 Prompt、few-shot 或生成输入。C0 专项 `112 passed`；最终全部非 serial、非 live
+Solver 回归 `2326 passed, 7 skipped`；当前没有 serial 用例。
+
+### 18.9 F5-F5C1：LLM 输出质量迭代与五题扩展（NEXT）
 
 先只用和平 `1×3` 做优化闭环：
 
@@ -2111,7 +2142,7 @@ point coverage、平均 token 和 P50/P95 latency。禁止把和平点名、等�
 和平达到 `3/3` 后，再运行 equal-length、和平、南开、河西、西青五题 teaching-only `5×3`；
 此时仍不实现 visual selection，先稳定 Lesson 质量。
 
-### 18.9 G1：视觉组件选择与确定性渲染（最后实现）
+### 18.10 G1：视觉组件选择与确定性渲染（最后实现）
 
 前述阶段全部通过后才实现：
 

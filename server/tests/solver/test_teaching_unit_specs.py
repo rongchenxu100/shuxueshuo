@@ -483,19 +483,19 @@ def test_snapshot_step_wire_omits_internal_evidence_refs(snapshot) -> None:
     assert source.checks
 
 
-def test_method_without_explicit_unit_still_has_default_candidate() -> None:
+def test_method_with_approved_generic_unit_still_has_default_candidate() -> None:
     source = TeachingSource(
         source_step_id="distance",
-        capability_id="midpoint_point",
+        capability_id="evaluate_expression_at_parameter",
         inputs={},
         outputs={
-            "distance": {
-                "runtime_type": "Distance",
+            "evaluated_expression": {
+                "runtime_type": "ExactValue",
                 "value": "5",
                 "display": "5",
             }
         },
-        intent="求线段中点。",
+        intent="代入参数求表达式的值。",
     )
     payload = TeachingSpecBinder().generic_spec_payload(source)
     assert payload["kind"] == "function"

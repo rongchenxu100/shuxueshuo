@@ -108,10 +108,7 @@
       {
         "component": "EvaluatedPointMarker",
         "context_roles": [
-          "input_curve",
-          "curve_axis",
-          "connected_dependency_geometry",
-          "prior_curve_vertex"
+          "connected_dependency_geometry"
         ],
         "include_exact_dependencies": false,
         "point_role": "evaluated_point",

@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from shuxueshuo_server.solver.contracts import TeachingUnitSpec
+
 from shuxueshuo_server.solver.contracts import SymbolicClosureSpec
 from shuxueshuo_server.solver.runtime.quadratic_constraint_solver import (
     value_satisfies_constraint,
@@ -138,5 +140,25 @@ SPEC = MethodSpecSource(
     ),
     postconditions=("输出参数值满足最小值方程与声明的参数范围",),
     trace_template=(),
+    teaching_unit=TeachingUnitSpec(
+        unit_key="parameter_from_minimum_value/solve_parameter",
+        title_template="由最小值反求参数",
+        nav_title_template="反求参数",
+        goal_template="令已得到的最小值表达式等于题设值，解参数并筛选合法分支。",
+        derive_templates=(
+            ("∵", "{minimum_expression}＝{condition}"),
+            ("计算", "解关于 {parameter} 的方程并按定义域筛选"),
+            ("∴", "{parameter}＝{parameter_value}"),
+        ),
+        box_templates=("{parameter}＝{parameter_value}",),
+        role_schema={
+            "minimum_expression": "前序步骤得到的最小值表达式。",
+            "condition": "题设给出的最小值条件。",
+            "parameter": "待求参数。",
+            "parameter_value": "合法参数值。",
+        },
+        role_binder_id="parameter_from_minimum_value",
+    ),
+    no_new_visual_reason="本步骤只在已验证的最小值表达式上求参数，不产生新的几何对象。",
     symbolic_closure=_SYMBOLIC_CLOSURE_SPEC,
 )

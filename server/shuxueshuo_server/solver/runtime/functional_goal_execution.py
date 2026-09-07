@@ -2931,6 +2931,12 @@ def _transaction_execution_evidence(
                 )
             )
         result = call_results.get(compiled.call_id)
+        if (
+            result is not None
+            and result.status == "verified"
+            and compiled.direct_macro_teaching_evidence is not None
+        ):
+            items.append(compiled.direct_macro_teaching_evidence)
         closure = result.symbolic_closure if result is not None else None
         if (
             result is not None

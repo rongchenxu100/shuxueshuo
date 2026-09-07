@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from shuxueshuo_server.solver.contracts import (
     MethodOutputActivationSpec,
+    MethodVisualSpec,
     ScalarResultFormSpec,
     TeachingUnitSpec,
 )
@@ -128,5 +129,21 @@ SPEC = MethodSpecSource(
             "distance": "实际物化的距离结果。",
         },
         role_binder_id="generic_source",
+    ),
+    visual=MethodVisualSpec(
+        role_schema={
+            "p1": "第一个端点。",
+            "p2": "第二个端点。",
+            "distance": "两点距离。",
+        },
+        scene_templates=(
+            {
+                "component": "DistanceBetweenPointsMarker",
+                "endpoint_roles": ["p1", "p2"],
+                "output_role": "distance",
+                "persistence": "step_only",
+            },
+        ),
+        role_binder_id="generic_visual",
     ),
 )

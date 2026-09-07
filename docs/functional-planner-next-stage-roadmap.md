@@ -29,7 +29,7 @@
 | F5-F4.3D：南开耦合路径 Macro | `COMPLETE` | 两公开输入、两公开输出；共享 Scope、构造点诊断、few-shot hash 与最终 live `1x3` 通过 |
 | F5-F4.3E：加权路径原子 Macro | `COMPLETE` | 单路径 Fact 输入、单表达式输出；河西/西青最终 live 各 `1x3` 均首轮通过 |
 | F5-F4.3F：旧能力清理与全量验收 | `COMPLETE` | 公开 Path 内部类型与兼容链已删除，compiler 原子门禁及完整投影门禁已落地 |
-| F5-F5：Teaching scope | `IN PROGRESS` | F5-F5A、F5-F5B0–B4/B4V 已完成；F5-F5C 五题教学验收 NEXT |
+| F5-F5：Teaching scope | `IN PROGRESS` | F5-F5A、F5-F5B0–B4/B4V、F5-F5C0 全能力覆盖已完成；F5-F5C1 五题 teaching-only 验收 NEXT |
 | G：Post-solver Context | `AFTER F5` | Explanation、Diagram、Voiceover、Animation Context |
 | E：端到端优化 | `AFTER F/G` | cache、最小失效、并发去重、条件式 Best-of-N |
 
@@ -175,9 +175,11 @@ F5-F5B 的 LLM wire、无 semantic retry、同次调用视觉选择和和平二�
    与 Visual 路径已切换到递归 v2；source/capability/unit/evidence provenance、分支图形状态、
    几何身份与完整 Frame 均由代码确定。和平二模的递归 LessonIR、12 幅图和最终页面已经人工
    审阅通过，approved/fallback fixtures 只用于回归。
-7. `F5-F5C`：先用和平二模 `1×3` 评测真实输入输出、token/耗时和教学质量，稳定后扩到五题
-   teaching-only `5×3`。
-8. `G1`：作为最后一个新增实现阶段，打开 Method/Macro `available_visuals`，由同一次 Lesson
+7. `F5-F5C0 COMPLETE`：从 Family Catalog 动态推导并人工审阅全部 `23 Function + 6 Macro`
+   的教学/视觉覆盖；五题 recorded 覆盖 26 项，3 个 typed synthetic execution 补齐 29 项。
+8. `F5-F5C1 NEXT`：运行五题 teaching-only `5×3`，评测真实输入输出、token/耗时、步骤合并与
+   教学质量。
+9. `G1`：作为最后一个新增实现阶段，打开 Method/Macro `available_visuals`，由同一次 Lesson
    LLM 只选择 `visual_id/mode`，代码绑定并确定性渲染 VisualStepIR 与课程页。
 
 ## Track G：解题后 Context

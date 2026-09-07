@@ -101,7 +101,9 @@ class MethodSpecSource:
     repair_feedback_provider_id: str | None = None
     geometry_profiles: tuple[dict[str, Any], ...] = ()
     teaching_unit: TeachingUnitSpec | None = None
+    generic_teaching_reason: str | None = None
     visual: MethodVisualSpec | None = None
+    no_new_visual_reason: str | None = None
     description: str = ""
     summary: str = ""
     do_not_use_when: tuple[str, ...] = ()
@@ -115,6 +117,16 @@ class MethodSpecSource:
     # This source type is reserved for runtime/stateless methods. Stateful
     # implementations must opt out so liveness analysis cannot delete them.
     is_pure: bool = True
+
+    def __post_init__(self) -> None:
+        if self.teaching_unit is not None and self.generic_teaching_reason is not None:
+            raise MethodSpecContractError(
+                "MethodSpec teaching declaration must choose explicit or generic"
+            )
+        if self.visual is not None and self.no_new_visual_reason is not None:
+            raise MethodSpecContractError(
+                "MethodSpec visual declaration must choose visual or no-new-visual"
+            )
 
     @property
     def method_id(self) -> str:
@@ -188,8 +200,22 @@ class MethodSpecSource:
             ]
         if self.teaching_unit is not None:
             payload["teaching_unit"] = self.teaching_unit.to_payload()
+        if self.generic_teaching_reason is not None:
+            reason = self.generic_teaching_reason.strip()
+            if not reason:
+                raise MethodSpecContractError(
+                    "MethodSpec.generic_teaching_reason must be non-empty"
+                )
+            payload["generic_teaching_reason"] = reason
         if self.visual is not None:
             payload["visual"] = _json_ready_visual(self.visual)
+        if self.no_new_visual_reason is not None:
+            reason = self.no_new_visual_reason.strip()
+            if not reason:
+                raise MethodSpecContractError(
+                    "MethodSpec.no_new_visual_reason must be non-empty"
+                )
+            payload["no_new_visual_reason"] = reason
         if self.constraint_analyzer is not None:
             payload["constraint_analyzer"] = self.constraint_analyzer
         if self.plan_transformer is not None:

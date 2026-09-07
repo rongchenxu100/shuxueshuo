@@ -277,6 +277,42 @@ def test_geometry_registry_never_implies_visibility() -> None:
     ]
 
 
+def test_context_distance_marker_becomes_an_unlabelled_support_line() -> None:
+    visual_ir = _visual_ir()
+    first_scope = visual_ir.root_scope.children[0]
+    source_step = first_scope.steps[0]
+    distance = VisualObject(
+        visual_object_id="visual:distance:A:unused",
+        component="DistanceMarker",
+        role="distance:equal-halves",
+        source_refs=({"kind": "source", "ref": "midpoint-relation"},),
+        geometry_refs=("A", "unused"),
+        state="context",
+        component_payload={"from": "A", "to": "unused", "label": "="},
+        display_label="=",
+    )
+    revised_step = replace(
+        source_step,
+        frames=(replace(source_step.frames[0], objects=(distance,)),),
+    )
+    revised_ir = replace(
+        visual_ir,
+        root_scope=replace(
+            visual_ir.root_scope,
+            children=(replace(first_scope, steps=(revised_step,)),),
+        ),
+    )
+
+    additions = forward_compile(revised_ir).step_decorations["steps"]["shared"][
+        "visualFrames"
+    ][0]["add"]
+    support_line = next(item for item in additions if item["type"] == "coloredLine")
+
+    assert support_line["from"] == "A"
+    assert support_line["to"] == "unused"
+    assert "label" not in support_line
+
+
 def test_point_yields_its_name_to_coordinate_label_by_geometry_identity() -> None:
     visual_ir = _visual_ir()
     first_scope = visual_ir.root_scope.children[0]

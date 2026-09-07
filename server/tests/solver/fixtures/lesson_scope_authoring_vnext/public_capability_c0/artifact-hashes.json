@@ -1,0 +1,98 @@
+{
+  "schema_version": "lesson-capability-artifact-hashes/v1",
+  "source_batch": "f5-f5c0-public-capability-review",
+  "registry_fingerprint": "44600713a8028f9c2e39251642a2e0135886f6fdfa030d8141db0a6c1b746dc6",
+  "summary": {
+    "public_capability_count": 29,
+    "public_function_count": 23,
+    "public_macro_count": 6,
+    "recorded_coverage_count": 26,
+    "synthetic_coverage_count": 3,
+    "complete_coverage_count": 29,
+    "diagnostic_count": 0
+  },
+  "recorded_cases": [
+    {
+      "problem_id": "tj-2026-heping-ermo-25",
+      "snapshot_hash": "b8222c8263523b25070879462ae5e4a860f34aa35d2bd605490c6f8617a2f6e4",
+      "annotated_plan_hash": "38508730e5d0f0d7211e707653487ce6acaede185e63b85bc8f452e59345cf57",
+      "lesson_ir_hash": "9dcc09a2e6c2923b2450d8739929ae0ddbfdaf5597a1c90de51d52045b1c16f4",
+      "visual_step_ir_hash": "ad67849b103a92d7f000cc555835385f536da8b63da95d48aa3daaeaadd60c84",
+      "source_step_count": 12,
+      "lesson_step_count": 13,
+      "visual_frame_count": 13
+    },
+    {
+      "problem_id": "tj-2026-heping-yimo-25",
+      "snapshot_hash": "6d15d07fb075ac07fb4bed53838098d5bbd90199fd77cc0e2687f8d981b559cb",
+      "annotated_plan_hash": "ffee77698d1abbef77337551706bc442f7a9e9c9ef7a543a1079bb9be5f07b15",
+      "lesson_ir_hash": "79ba5243268dfb59c39f05b58ca1e00d36f9cdecf7f15b9edf9001de85e4436b",
+      "visual_step_ir_hash": "4cfea9d8fc6a5f0bc7df224089cf250ddd01e54ff932c9e593d3eeaa9c18076c",
+      "source_step_count": 11,
+      "lesson_step_count": 12,
+      "visual_frame_count": 12
+    },
+    {
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "snapshot_hash": "4e14612d148c22925428cbd318a5b0d785e287305e2b3007b353786a4c09a787",
+      "annotated_plan_hash": "51d23d9908cf818a7f6582bc74f6f446f471faeac4c682b76dd2179b922b1032",
+      "lesson_ir_hash": "75213afcdd8023e42f712fe07e5447905bace2208cfa9462b729fdda9b58b2f5",
+      "visual_step_ir_hash": "8541bb7e917e67249f2dd3b0c607a5158339da7d5f691920d501fcb66170b3a0",
+      "source_step_count": 10,
+      "lesson_step_count": 12,
+      "visual_frame_count": 12
+    },
+    {
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "snapshot_hash": "b2adbdfd14b9399690437e86d5e36a0501b4fd87d9ae5bd41e3418474a51ee69",
+      "annotated_plan_hash": "55939be09c0b5106e50afde85e28c4e8a13b1dfd5a610118dd6a6b9828fc1872",
+      "lesson_ir_hash": "1ac935b10cd704c574b5a75c527f8ab6e78822e4ab7d8e1d42dc2d70a895b689",
+      "visual_step_ir_hash": "d452ed8f4cc888b613c27174a6c8eef83567f59bd32cc15ae404b0274acfb8e1",
+      "source_step_count": 12,
+      "lesson_step_count": 14,
+      "visual_frame_count": 14
+    },
+    {
+      "problem_id": "tj-2026-xiqing-yimo-25",
+      "snapshot_hash": "06f0c9807f38afc0cf58443d070593613451ca003d25dfa5ad9af5405c58ebb9",
+      "annotated_plan_hash": "ab3bd149fd90f437cf2f6ce35bec744ff7ef86e61803f035c3bdb62235ec3af4",
+      "lesson_ir_hash": "c0b8aced1828305d2b6a364f4fae68c1a6053fc72ee20b71f52b8ea5f4cea712",
+      "visual_step_ir_hash": "d7dc7c54588611bee9a02a3bb39eb589498e8dcbf276f51414d600cccff7bfb2",
+      "source_step_count": 9,
+      "lesson_step_count": 10,
+      "visual_frame_count": 10
+    }
+  ],
+  "synthetic_cases": [
+    {
+      "problem_id": "synthetic-distance_between_points",
+      "snapshot_hash": "dc7eaca3a67b24fef3a1f252fd04b14b185da082ef8c5a2ec0e333d2dd2aa560",
+      "annotated_plan_hash": "4c08ef0b5685c61cb69e19a605187d78b1f33b9b6b21647d67bae2cd7c2ec85a",
+      "lesson_ir_hash": "dbbe0d6dae2a005c91eab11330f7e06c563eeda5af4dfdbb96e4f96924026400",
+      "visual_step_ir_hash": "305a1f1c36340e4a794d1a76cd2e5efe817a3df2f8e81ab506a2aca7834e950f",
+      "source_step_count": 1,
+      "lesson_step_count": 1,
+      "visual_frame_count": 1
+    },
+    {
+      "problem_id": "synthetic-equal_length_ray_point",
+      "snapshot_hash": "cced031fbfe90289b1a2063f2799fbd603b93660ccd667fe401796522507986e",
+      "annotated_plan_hash": "43810239223b64f949d6d27cb5923f98a5df996986dc55ec6e5e0622fd503bb2",
+      "lesson_ir_hash": "c06a4423c5b94ca708a17e800bda91eb71c39b7627ae3cebccca0c5514178671",
+      "visual_step_ir_hash": "aadf2ae067c4a6197a744323e59b31a0afae263ec399cf7da69c3cad5ab6bc92",
+      "source_step_count": 1,
+      "lesson_step_count": 1,
+      "visual_frame_count": 1
+    },
+    {
+      "problem_id": "synthetic-line_intersection_point",
+      "snapshot_hash": "7cb1cc72d436ada218de0dddac971feb98b38d7ad6869d9286f0b9dd8b369734",
+      "annotated_plan_hash": "970070915d43491aae40366ef38845d20953ecb4deadf8576028f417e1984d88",
+      "lesson_ir_hash": "fc048dc763a64db80338c84871096583c63c9d02df47e5ff88b796b80910cb33",
+      "visual_step_ir_hash": "da370d999c7d0c1b8b720dc476f30d441b82399e76a2d89c6e126ccb0b155542",
+      "source_step_count": 1,
+      "lesson_step_count": 1,
+      "visual_frame_count": 1
+    }
+  ]
+}

@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from shuxueshuo_server.solver.contracts import MethodVisualSpec, TeachingUnitSpec
+
 from ._common import *
 from ._spec import MethodSpecSource, declare_input_views
 
@@ -118,4 +120,39 @@ SPEC = MethodSpecSource(
     preconditions=('anchor.coordinate is known, can be symbolic', 'reference.coordinate is known, can be symbolic', 'target is an unresolved point reference'),
     postconditions=('每个候选点都满足 distance(anchor, candidate) == distance(anchor, reference)', '每个候选点都满足 dot(anchor->reference, anchor->candidate) == 0'),
     trace_template=('由直角等腰条件，将 {reference} 绕 {anchor} 顺/逆时针旋转 90°，得到 {target} 的两个候选点。',),
+    teaching_unit=TeachingUnitSpec(
+        unit_key="right_angle_equal_length_candidates/construct_candidates",
+        title_template="由直角等腰关系构造候选点",
+        nav_title_template="构造候选点",
+        goal_template="把已知直角边顺、逆时针旋转 90°，列出所有等长候选点。",
+        derive_templates=(
+            ("∵", "以 {anchor} 为直角顶点，已知边端点为 {reference}"),
+            ("作", "将已知边顺、逆时针旋转 90°"),
+            ("∴", "得到候选点 {candidates}"),
+        ),
+        box_templates=("{candidates}",),
+        role_schema={
+            "anchor": "直角顶点。",
+            "reference": "已知直角边的另一个端点。",
+            "candidates": "顺、逆时针旋转所得候选点。",
+        },
+        role_binder_id="right_angle_equal_length_candidates",
+    ),
+    visual=MethodVisualSpec(
+        role_schema={
+            "anchor": "直角顶点。",
+            "reference": "已知边端点。",
+            "candidates": "两个旋转候选点。",
+        },
+        scene_templates=(
+            {
+                "component": "RightAngleEqualLengthCandidatesMarker",
+                "input_roles": ["anchor", "reference"],
+                "output_role": "candidates",
+                "requires_independent_lesson_step": True,
+                "persistence": "carry_forward",
+            },
+        ),
+        role_binder_id="generic_visual",
+    ),
 )

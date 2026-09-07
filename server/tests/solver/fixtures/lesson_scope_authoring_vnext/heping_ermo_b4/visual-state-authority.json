@@ -2587,34 +2587,6 @@
           ]
         },
         {
-          "visual_object_id": "visual:axisofsymmetry:0dd720106694c5ba",
-          "state": "context",
-          "reason": "current_component_input",
-          "source_refs": [
-            {
-              "kind": "functional_step",
-              "step_id": "evaluate_point_A_ii"
-            }
-          ],
-          "geometry_refs": [
-            "curve_ii_parabola"
-          ]
-        },
-        {
-          "visual_object_id": "visual:point:e54a8537872a4177",
-          "state": "context",
-          "reason": "current_component_input",
-          "source_refs": [
-            {
-              "kind": "functional_step",
-              "step_id": "evaluate_point_A_ii"
-            }
-          ],
-          "geometry_refs": [
-            "M_axis_ii"
-          ]
-        },
-        {
           "visual_object_id": "visual:coordinatelabel:756bb0e7383c2b35",
           "state": "focus",
           "reason": "current_visual_spec_result_or_requirement",
@@ -2630,9 +2602,7 @@
         }
       ],
       "introduced": [
-        "visual:axisofsymmetry:0dd720106694c5ba",
-        "visual:coordinatelabel:756bb0e7383c2b35",
-        "visual:point:e54a8537872a4177"
+        "visual:coordinatelabel:756bb0e7383c2b35"
       ],
       "retained": [
         "visual:coloredline:2e28b7da0178223c",
@@ -2652,7 +2622,6 @@
       ],
       "removed": [],
       "available_after": [
-        "visual:axisofsymmetry:0dd720106694c5ba",
         "visual:coloredline:2e28b7da0178223c",
         "visual:coloredline:712fe9afa1e6e34a",
         "visual:coloredline:becec7d74d6fc696",
@@ -2667,8 +2636,7 @@
         "visual:point:5cc9748a8eb2f1c0",
         "visual:point:666c8358ace7b232",
         "visual:point:a5ee650ba7c2097d",
-        "visual:point:df5b759f9b3fbd6b",
-        "visual:point:e54a8537872a4177"
+        "visual:point:df5b759f9b3fbd6b"
       ],
       "parameter_values_before": {
         "c": "5"
@@ -2680,7 +2648,6 @@
     "teach:evaluate_minimum_point_G_ii": {
       "container_ref": "goal:ii.E",
       "available_before": [
-        "visual:axisofsymmetry:0dd720106694c5ba",
         "visual:coloredline:2e28b7da0178223c",
         "visual:coloredline:712fe9afa1e6e34a",
         "visual:coloredline:becec7d74d6fc696",
@@ -2695,8 +2662,7 @@
         "visual:point:5cc9748a8eb2f1c0",
         "visual:point:666c8358ace7b232",
         "visual:point:a5ee650ba7c2097d",
-        "visual:point:df5b759f9b3fbd6b",
-        "visual:point:e54a8537872a4177"
+        "visual:point:df5b759f9b3fbd6b"
       ],
       "visible": [
         {
@@ -2903,34 +2869,6 @@
           ]
         },
         {
-          "visual_object_id": "visual:axisofsymmetry:0dd720106694c5ba",
-          "state": "context",
-          "reason": "previous_step_in_same_goal",
-          "source_refs": [
-            {
-              "kind": "functional_step",
-              "step_id": "evaluate_point_A_ii"
-            }
-          ],
-          "geometry_refs": [
-            "curve_ii_parabola"
-          ]
-        },
-        {
-          "visual_object_id": "visual:point:e54a8537872a4177",
-          "state": "context",
-          "reason": "previous_step_in_same_goal",
-          "source_refs": [
-            {
-              "kind": "functional_step",
-              "step_id": "evaluate_point_A_ii"
-            }
-          ],
-          "geometry_refs": [
-            "M_axis_ii"
-          ]
-        },
-        {
           "visual_object_id": "visual:coordinatelabel:756bb0e7383c2b35",
           "state": "context",
           "reason": "previous_step_in_same_goal",
@@ -2963,7 +2901,6 @@
         "visual:coordinatelabel:fad3477b175e5cd0"
       ],
       "retained": [
-        "visual:axisofsymmetry:0dd720106694c5ba",
         "visual:coloredline:2e28b7da0178223c",
         "visual:coloredline:712fe9afa1e6e34a",
         "visual:coloredline:becec7d74d6fc696",
@@ -2978,12 +2915,10 @@
         "visual:point:5cc9748a8eb2f1c0",
         "visual:point:666c8358ace7b232",
         "visual:point:a5ee650ba7c2097d",
-        "visual:point:df5b759f9b3fbd6b",
-        "visual:point:e54a8537872a4177"
+        "visual:point:df5b759f9b3fbd6b"
       ],
       "removed": [],
       "available_after": [
-        "visual:axisofsymmetry:0dd720106694c5ba",
         "visual:coloredline:2e28b7da0178223c",
         "visual:coloredline:712fe9afa1e6e34a",
         "visual:coloredline:becec7d74d6fc696",
@@ -2999,8 +2934,7 @@
         "visual:point:5cc9748a8eb2f1c0",
         "visual:point:666c8358ace7b232",
         "visual:point:a5ee650ba7c2097d",
-        "visual:point:df5b759f9b3fbd6b",
-        "visual:point:e54a8537872a4177"
+        "visual:point:df5b759f9b3fbd6b"
       ],
       "parameter_values_before": {
         "c": "5"
@@ -3012,7 +2946,6 @@
     "teach:recover_target_point_E_ii": {
       "container_ref": "goal:ii.E",
       "available_before": [
-        "visual:axisofsymmetry:0dd720106694c5ba",
         "visual:coloredline:2e28b7da0178223c",
         "visual:coloredline:712fe9afa1e6e34a",
         "visual:coloredline:becec7d74d6fc696",
@@ -3028,8 +2961,7 @@
         "visual:point:5cc9748a8eb2f1c0",
         "visual:point:666c8358ace7b232",
         "visual:point:a5ee650ba7c2097d",
-        "visual:point:df5b759f9b3fbd6b",
-        "visual:point:e54a8537872a4177"
+        "visual:point:df5b759f9b3fbd6b"
       ],
       "visible": [
         {
@@ -3236,34 +3168,6 @@
           ]
         },
         {
-          "visual_object_id": "visual:axisofsymmetry:0dd720106694c5ba",
-          "state": "context",
-          "reason": "previous_step_in_same_goal",
-          "source_refs": [
-            {
-              "kind": "functional_step",
-              "step_id": "evaluate_point_A_ii"
-            }
-          ],
-          "geometry_refs": [
-            "curve_ii_parabola"
-          ]
-        },
-        {
-          "visual_object_id": "visual:point:e54a8537872a4177",
-          "state": "context",
-          "reason": "previous_step_in_same_goal",
-          "source_refs": [
-            {
-              "kind": "functional_step",
-              "step_id": "evaluate_point_A_ii"
-            }
-          ],
-          "geometry_refs": [
-            "M_axis_ii"
-          ]
-        },
-        {
           "visual_object_id": "visual:coordinatelabel:756bb0e7383c2b35",
           "state": "context",
           "reason": "previous_step_in_same_goal",
@@ -3289,6 +3193,34 @@
           ],
           "geometry_refs": [
             "point_G_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:axisofsymmetry:0dd720106694c5ba",
+          "state": "context",
+          "reason": "current_component_input",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "recover_target_point_E_ii"
+            }
+          ],
+          "geometry_refs": [
+            "curve_ii_parabola"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:e54a8537872a4177",
+          "state": "context",
+          "reason": "current_component_input",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "recover_target_point_E_ii"
+            }
+          ],
+          "geometry_refs": [
+            "M_axis_ii"
           ]
         },
         {
@@ -3490,16 +3422,17 @@
         }
       ],
       "introduced": [
+        "visual:axisofsymmetry:0dd720106694c5ba",
         "visual:coloredline:2c0f0aefd0b081dd",
         "visual:coloredline:481879a34d886715",
         "visual:coloredline:e348ace1722f0f9e",
         "visual:coordinatelabel:718347500a4031a9",
         "visual:outlineregion:e4c259dfb05663ed",
         "visual:point:4ddd2f2411e251dd",
-        "visual:point:ca81c03f1965a0c7"
+        "visual:point:ca81c03f1965a0c7",
+        "visual:point:e54a8537872a4177"
       ],
       "retained": [
-        "visual:axisofsymmetry:0dd720106694c5ba",
         "visual:coloredline:2e28b7da0178223c",
         "visual:coloredline:712fe9afa1e6e34a",
         "visual:coloredline:becec7d74d6fc696",
@@ -3515,8 +3448,7 @@
         "visual:point:5cc9748a8eb2f1c0",
         "visual:point:666c8358ace7b232",
         "visual:point:a5ee650ba7c2097d",
-        "visual:point:df5b759f9b3fbd6b",
-        "visual:point:e54a8537872a4177"
+        "visual:point:df5b759f9b3fbd6b"
       ],
       "removed": [],
       "available_after": [

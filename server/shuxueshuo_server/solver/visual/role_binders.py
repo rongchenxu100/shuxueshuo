@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Mapping
 import re
 
 import sympy as sp
@@ -59,6 +59,10 @@ class VisualRoleBindings:
     curve_point_candidate_markers: tuple[dict[str, Any], ...] = ()
     evaluated_points: tuple[dict[str, Any], ...] = ()
     line_parabola_intersections: tuple[dict[str, Any], ...] = ()
+    # Exact source-local roles used by declarative generic components.  Each
+    # record is projected from one TeachingSource's verified refs and values;
+    # component renderers never rediscover roles from capability names.
+    source_roles: tuple[dict[str, Any], ...] = ()
     source_step_ids: tuple[str, ...] = ()
     capability_ids: tuple[str, ...] = ()
 
@@ -330,9 +334,412 @@ class VisualRoleBinderRegistry:
                     snapshot,
                 )
             ),
+            source_roles=self._generic_source_roles(
+                lesson_step,
+                snapshot,
+            ),
             source_step_ids=tuple(lesson_step.source_step_ids),
             capability_ids=tuple(lesson_step.capability_ids),
         )
+
+    def _generic_source_roles(
+        self,
+        lesson_step: LessonStep,
+        snapshot: ExplanationSnapshot,
+    ) -> tuple[dict[str, Any], ...]:
+        """Project exact public inputs/outputs for component-owned role binding."""
+
+        sources = {
+            source.source_step_id: source
+            for source in iter_teaching_sources(snapshot.root_scope)
+        }
+        result: list[dict[str, Any]] = []
+        for source_step_id in lesson_step.source_step_ids:
+            source = sources.get(source_step_id)
+            if source is None:
+                raise ValueError(
+                    f"visual_source_role_step_missing: {source_step_id}"
+                )
+            inputs = {
+                name: [
+                    self._generic_role_item(
+                        item,
+                        source=source,
+                        input_name=name,
+                        sources=sources,
+                        snapshot=snapshot,
+                        scope_id=lesson_step.scope_id,
+                    )
+                    for item in items
+                ]
+                for name, items in source.inputs.items()
+            }
+            inputs.update(
+                self._typed_relation_input_roles(
+                    inputs,
+                    source=source,
+                    scope_id=lesson_step.scope_id,
+                )
+            )
+            outputs = {
+                name: self._generic_output_role_item(
+                    item,
+                    source=source,
+                    output_name=name,
+                    snapshot=snapshot,
+                    scope_id=lesson_step.scope_id,
+                )
+                for name, item in source.outputs.items()
+            }
+            result.append(
+                {
+                    "source_step_id": source.source_step_id,
+                    "capability_id": source.capability_id,
+                    "inputs": inputs,
+                    "outputs": outputs,
+                    "calculations": [
+                        self._generic_calculation_role(
+                            calculation,
+                            scope_id=lesson_step.scope_id,
+                            source_step_id=source.source_step_id,
+                        )
+                        for calculation in source.calculations
+                    ],
+                    "checks": [dict(check) for check in source.checks],
+                }
+            )
+        return tuple(result)
+
+    def _typed_relation_input_roles(
+        self,
+        inputs: Mapping[str, list[dict[str, Any]]],
+        *,
+        source: Any,
+        scope_id: str,
+    ) -> dict[str, list[dict[str, Any]]]:
+        """Expose semantic roles declared inside typed public relations.
+
+        Some authored Function calls bind a relation object rather than
+        repeating its component points as separate inputs.  Components still
+        consume ``anchor``/``reference`` roles, so derive those aliases from
+        the typed relation payload and exact target identity—not from the
+        capability id, displayed prose, or point-name conventions.
+        """
+
+        relations = [
+            item
+            for items in inputs.values()
+            for item in items
+            if str(item.get("runtime_type") or "")
+            in {"right_angle_equal_length", "midpoint_definition"}
+        ]
+        if not relations:
+            return {}
+        if len(relations) != 1:
+            raise ValueError("visual_typed_relation_role_ambiguous")
+        value = relations[0].get("value")
+        if not isinstance(value, Mapping):
+            raise ValueError("visual_typed_relation_value_invalid")
+        relation_type = str(relations[0].get("runtime_type") or "")
+
+        def point_role(label: str) -> list[dict[str, Any]]:
+            geometry_ref = self.index.geometry_point_name(label, scope_id)
+            if not geometry_ref:
+                same_branch = [
+                    str(point_id)
+                    for point_id, meta in (
+                        self.geometry_spec.get("pointMeta") or {}
+                    ).items()
+                    if isinstance(meta, Mapping)
+                    and str(meta.get("label") or "") == label
+                    and scope_root(str(meta.get("scopeId") or ""))
+                    == scope_root(scope_id)
+                ]
+                if len(same_branch) == 1:
+                    geometry_ref = same_branch[0]
+                elif len(same_branch) > 1:
+                    raise ValueError(
+                        "visual_typed_relation_point_ambiguous: "
+                        f"label={label}, scope={scope_id}, refs={same_branch}"
+                    )
+            if not geometry_ref:
+                raise ValueError(
+                    "visual_typed_relation_point_missing: "
+                    f"label={label}, scope={scope_id}"
+                )
+            return [{
+                "runtime_type": "Point",
+                "label": label,
+                "display": label,
+                "geometry_ref": geometry_ref,
+            }]
+
+        if relation_type == "midpoint_definition":
+            endpoints = tuple(str(item) for item in value.get("of") or ())
+            if len(endpoints) != 2:
+                raise ValueError("visual_midpoint_definition_roles_invalid")
+            return {
+                "p1": point_role(endpoints[0]),
+                "p2": point_role(endpoints[1]),
+            }
+
+        angle = tuple(str(item) for item in value.get("angle") or ())
+        targets = [
+            item
+            for name, items in inputs.items()
+            if name == "target"
+            for item in items
+            if str(item.get("label") or "")
+        ]
+        if not targets:
+            output_targets = {
+                str(value).rsplit(":", 1)[-1]
+                for name, value in source.output_targets.items()
+                if name in source.outputs and str(value)
+            }
+            if len(output_targets) == 1:
+                targets = [{"label": next(iter(output_targets))}]
+        if len(angle) != 3 or len(targets) != 1:
+            raise ValueError("visual_right_angle_equal_length_roles_invalid")
+        target = str(targets[0]["label"])
+        if target not in {angle[0], angle[2]}:
+            raise ValueError("visual_right_angle_equal_length_target_invalid")
+        anchor = angle[1]
+        reference = angle[2] if target == angle[0] else angle[0]
+
+        return {
+            "anchor": point_role(anchor),
+            "reference": point_role(reference),
+        }
+
+    def _generic_calculation_role(
+        self,
+        calculation: Any,
+        *,
+        scope_id: str,
+        source_step_id: str,
+    ) -> dict[str, Any]:
+        """Attach geometry identities to student-safe evidence coordinates.
+
+        Evidence projectors already decide which calculation fields are
+        public.  This method only resolves coordinate values against the
+        geometry registry; it neither parses display text nor branches on a
+        capability id.
+        """
+
+        result = dict(calculation) if isinstance(calculation, dict) else {
+            "value": calculation
+        }
+        for key in ("candidates", "points"):
+            values = result.get(key)
+            if not isinstance(values, (list, tuple)):
+                continue
+            result[f"{key}_geometry"] = self._geometry_refs_for_point_list(
+                values,
+                scope_id=scope_id,
+                source_step_id=source_step_id,
+            )
+        for key in ("point", "result", "selected_point"):
+            value = result.get(key)
+            if _sympy_pair(value) is None:
+                continue
+            result[f"{key}_geometry_ref"] = self._geometry_point_for_value(
+                "",
+                value,
+                scope_id,
+            )
+        return result
+
+    def _generic_role_item(
+        self,
+        item: Any,
+        *,
+        source: Any,
+        input_name: str,
+        sources: dict[str, Any],
+        snapshot: ExplanationSnapshot,
+        scope_id: str,
+    ) -> dict[str, Any]:
+        role = dict(item) if isinstance(item, dict) else {"value": item}
+        runtime_type = str(role.get("runtime_type") or "")
+        if runtime_type == "Point":
+            ref = role.get("ref")
+            semantic_ref = ""
+            if isinstance(ref, dict) and ref.get("kind") == "source":
+                semantic_ref = str(ref.get("ref") or "")
+            elif isinstance(ref, dict) and ref.get("kind") == "step_result":
+                producer = sources.get(str(ref.get("step_id") or ""))
+                if producer is not None:
+                    semantic_ref = _public_point_semantic_ref(
+                        snapshot,
+                        producer,
+                        str(ref.get("return") or ""),
+                    )
+            label = self._semantic_label_for_ref(semantic_ref)
+            point_role = {
+                "point": self._geometry_point_for_value(
+                    label,
+                    role.get("value"),
+                    scope_id,
+                ),
+                "label": label,
+            }
+            role.update(
+                {
+                    "geometry_ref": point_role.get("point", ""),
+                    "label": point_role.get("label", ""),
+                }
+            )
+        elif runtime_type == "PointList":
+            producer_step_id = ""
+            ref = role.get("ref")
+            if isinstance(ref, dict) and ref.get("kind") == "step_result":
+                producer_step_id = str(ref.get("step_id") or "")
+            role["geometry_refs"] = self._geometry_refs_for_point_list(
+                role.get("value"),
+                scope_id=scope_id,
+                source_step_id=producer_step_id,
+            )
+        elif runtime_type in {"Parabola", "QuadraticCurve"}:
+            role["curve_id"] = self._curve_id_for_value(
+                role.get("value"),
+                scope_id=scope_id,
+            )
+        return role
+
+    def _generic_output_role_item(
+        self,
+        item: Any,
+        *,
+        source: Any,
+        output_name: str,
+        snapshot: ExplanationSnapshot,
+        scope_id: str,
+    ) -> dict[str, Any]:
+        role = dict(item) if isinstance(item, dict) else {"value": item}
+        runtime_type = str(role.get("runtime_type") or "")
+        if runtime_type == "Point":
+            semantic_ref = _public_point_semantic_ref(
+                snapshot,
+                source,
+                output_name,
+            )
+            label = self._semantic_label_for_ref(semantic_ref)
+            geometry_ref = self._geometry_point_for_value(
+                label,
+                role.get("value"),
+                scope_id,
+            )
+            role.update({"geometry_ref": geometry_ref, "label": label})
+        elif runtime_type == "PointList":
+            role["geometry_refs"] = self._geometry_refs_for_point_list(
+                role.get("value"),
+                scope_id=scope_id,
+                source_step_id=source.source_step_id,
+            )
+        elif runtime_type in {"Parabola", "QuadraticCurve"}:
+            role["curve_id"] = self._curve_id_for_value(
+                role.get("value"),
+                scope_id=scope_id,
+            )
+        return role
+
+    def _geometry_refs_for_point_list(
+        self,
+        value: Any,
+        *,
+        scope_id: str,
+        source_step_id: str = "",
+    ) -> list[dict[str, str]]:
+        if not isinstance(value, (list, tuple)):
+            return []
+        result: list[dict[str, str]] = []
+        for index, point_value in enumerate(value, start=1):
+            geometry_ref = self._candidate_geometry_ref(
+                point_value,
+                scope_id=scope_id,
+                source_step_id=source_step_id,
+                candidate_index=index,
+            )
+            if not geometry_ref:
+                continue
+            result.append(
+                {
+                    "geometry_ref": geometry_ref,
+                    "label": self._student_label_for_geometry(geometry_ref),
+                }
+            )
+        return result
+
+    def _candidate_geometry_ref(
+        self,
+        value: Any,
+        *,
+        scope_id: str,
+        source_step_id: str,
+        candidate_index: int,
+    ) -> str:
+        target = _sympy_pair(value)
+        if target is None:
+            return ""
+        exact: list[str] = []
+        for point_id, raw_meta in (self.geometry_spec.get("pointMeta") or {}).items():
+            if not isinstance(raw_meta, dict):
+                continue
+            if source_step_id and str(raw_meta.get("sourceStepId") or "") != source_step_id:
+                continue
+            if int(raw_meta.get("candidateIndex") or 0) != candidate_index:
+                continue
+            raw_pair = (self.geometry_spec.get("fixedPoints") or {}).get(point_id)
+            if raw_pair is None:
+                raw_pair = (self.geometry_spec.get("movingPoints") or {}).get(point_id)
+            pair = _sympy_pair(raw_pair)
+            if pair is None or not _same_point_pair(target, pair):
+                continue
+            if self.index._candidate_visible_in_scope(str(point_id), scope_id):
+                exact.append(str(point_id))
+        if len(exact) > 1:
+            raise ValueError(
+                "visual_candidate_role_identity_ambiguous: "
+                f"source={source_step_id}, index={candidate_index}, refs={sorted(exact)}"
+            )
+        if exact:
+            return exact[0]
+        return self._geometry_point_for_value("", value, scope_id)
+
+    def _curve_id_for_value(self, value: Any, *, scope_id: str) -> str:
+        try:
+            expression = sp.expand(sp.sympify(value))
+        except Exception:
+            return ""
+        x = sp.Symbol("x")
+        matches: list[str] = []
+        for curve in self._curves:
+            curve_id = str(curve.get("id") or "")
+            if not curve_id:
+                continue
+            curve_root = str(
+                curve.get("scopeRoot")
+                or scope_root(str(curve.get("scopeId") or ""))
+            )
+            if curve_root != scope_root(scope_id):
+                continue
+            try:
+                candidate = sp.expand(
+                    sp.sympify(curve.get("a", 0)) * x**2
+                    + sp.sympify(curve.get("b", 0)) * x
+                    + sp.sympify(curve.get("c", 0))
+                )
+            except Exception:
+                continue
+            if sp.simplify(candidate - expression) == 0:
+                matches.append(curve_id)
+        if len(matches) > 1:
+            raise ValueError(
+                "visual_curve_role_identity_ambiguous: "
+                f"scope={scope_id}, curves={sorted(matches)}"
+            )
+        return matches[0] if matches else ""
 
     def geometry_point_name(self, label: str, scope_id: str | None) -> str | None:
         return self.index.geometry_point_name(label, scope_id)

@@ -3,7 +3,8 @@
   "problem_id": "tj-2026-heping-ermo-25",
   "source_batches": {
     "lesson_ir": "f5-f5b4-heping-visual-spec-generic-r13",
-    "visual": "f5-f5b4v-heping-visual-spec-generic-r13"
+    "visual": "f5-f5c0-heping-b4-golden-refresh",
+    "capability_review": "f5-f5c0-public-capability-review"
   },
   "semantic_hashes": {
     "snapshot": "b8222c8263523b25070879462ae5e4a860f34aa35d2bd605490c6f8617a2f6e4",
@@ -16,13 +17,13 @@
     "approved-lesson-ir.json": "0d5388f3a7b310ddfc3304820026ff27a29d9311362ae9c39019ae2d529fd273",
     "deterministic-lesson-ir.json": "e622b6e3feeb3137f500a56450eea9af8266c4c3c3818226c7347830acbdb8c3",
     "lesson-assembly-authority.json": "a1421d4004a93229be68200ecaf9f3bdf848a455fcac6fb428916f409fe9328f",
-    "visual-step-ir.json": "b06d015b5ad9be0c0aefbc3d1fd8c9624cdcd2a3c018e73044cbcc0f22dd134c",
-    "visual-state-authority.json": "0ed4639fa98f31ab9be805fc37bd7a0bffc3d7987ceeecdf34b80a45c1cb0920"
+    "visual-step-ir.json": "0fc8c3de7e744da95e80bb30116980d70debf8504affaf48ca2c2aeadf80a737",
+    "visual-state-authority.json": "52e84ad38520b5153a4f99039ab0f06b716090f4c48ad6de418567af0b73987e"
   },
   "compiled_artifact_hashes": {
-    "geometry-spec.json": "8945ab9f8a0e8ef3141fca9d751dfebec06b0fd632504c9a049d73581a349753",
-    "step-decorations.json": "e74d298f6c303dea930c80b11ae2333e7a96f734c99b0d5441c91bfc9066ae15",
-    "lesson-data.json": "deaea24a8b756b8ae8f910fa4715667051135e443e6e7c6c64ebdb1b38078c41",
-    "lesson.html": "9c98b7225151d732854e2e71ec6c1de2fa790adbb00840b3d2caa40fd8ae826e"
+    "geometry-spec.json": "821764394d06f2545a80034b8bdb30a009b9590f897128f79214056427e939ad",
+    "step-decorations.json": "160f7cbc9a3e9bc95f09a0a6d143fe0e2654e7a1e0a29fba81d80cfdebd7be30",
+    "lesson-data.json": "04a164ab2be1d56112cceeb0437610c81e6c6e6cc276ac9648d7b6b900eb0dae",
+    "lesson.html": "0b9576573b9d3316efe8155eb61d405035b11d531fa2dbb1f943fd83df21c712"
   }
 }

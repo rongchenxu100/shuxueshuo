@@ -199,6 +199,18 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
     plan_transformer_scope = _parse_plan_transformer_scope(
         raw.get("plan_transformer_scope", "single_invocation")
     )
+    if raw.get("teaching_unit") is not None and raw.get(
+        "generic_teaching_reason"
+    ) is not None:
+        raise ValueError(
+            "MethodSpec teaching declaration must choose explicit or generic"
+        )
+    if raw.get("visual") is not None and raw.get(
+        "no_new_visual_reason"
+    ) is not None:
+        raise ValueError(
+            "MethodSpec visual declaration must choose visual or no-new-visual"
+        )
     return MethodSpec(
         method_id=str(raw["method_id"]),
         title=str(raw["title"]),
@@ -228,7 +240,15 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
             raw.get("geometry_profiles", [])
         ),
         teaching_unit=_parse_teaching_unit(raw.get("teaching_unit")),
+        generic_teaching_reason=_parse_optional_nonempty_string(
+            raw.get("generic_teaching_reason"),
+            field_name="MethodSpec.generic_teaching_reason",
+        ),
         visual=_parse_visual(raw.get("visual")),
+        no_new_visual_reason=_parse_optional_nonempty_string(
+            raw.get("no_new_visual_reason"),
+            field_name="MethodSpec.no_new_visual_reason",
+        ),
         constraint_analyzer=(
             str(raw["constraint_analyzer"])
             if raw.get("constraint_analyzer") is not None
@@ -259,6 +279,18 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
         ),
         is_pure=is_pure,
     )
+
+
+def _parse_optional_nonempty_string(
+    raw: object,
+    *,
+    field_name: str,
+) -> str | None:
+    if raw is None:
+        return None
+    if not isinstance(raw, str) or not raw.strip():
+        raise ValueError(f"{field_name} must be a non-empty string")
+    return raw.strip()
 
 
 def _parse_companion_outputs(

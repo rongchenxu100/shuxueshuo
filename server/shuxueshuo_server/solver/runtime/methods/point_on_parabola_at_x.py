@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from shuxueshuo_server.solver.contracts import MethodVisualSpec, TeachingUnitSpec
+
 from ._common import *
 from ._spec import MethodSpecSource, canonical_symbol_input, declare_input_views
 
@@ -106,4 +108,37 @@ SPEC = MethodSpecSource(
     ),
     preconditions=("target.definition.x 或 target.definition.x_coordinate 必须存在",),
     postconditions=("输出点在给定抛物线上",),
+    teaching_unit=TeachingUnitSpec(
+        unit_key="point_on_parabola_at_x/substitute_x",
+        title_template="由横坐标求抛物线上点",
+        nav_title_template="代入横坐标",
+        goal_template="把指定横坐标代入抛物线解析式，求出对应点坐标。",
+        derive_templates=(
+            ("∵", "目标点在 {parabola} 上"),
+            ("计算", "把目标点的已知横坐标代入解析式"),
+            ("∴", "得到 {point}"),
+        ),
+        box_templates=("{point}",),
+        role_schema={
+            "parabola": "当前抛物线解析式。",
+            "point": "指定横坐标对应的曲线上点。",
+        },
+        role_binder_id="generic_source",
+    ),
+    visual=MethodVisualSpec(
+        role_schema={
+            "parabola": "当前抛物线。",
+            "point": "指定横坐标对应的点。",
+        },
+        scene_templates=(
+            {
+                "component": "PointOnParabolaMarker",
+                "input_curve_role": "parabola",
+                "output_role": "point",
+                "context_roles": ["input_curve", "curve_axis"],
+                "persistence": "carry_forward",
+            },
+        ),
+        role_binder_id="generic_visual",
+    ),
 )

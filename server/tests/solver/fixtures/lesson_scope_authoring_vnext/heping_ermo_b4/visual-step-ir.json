@@ -66,6 +66,14 @@
       "point_P_problem": [
         "-1",
         "4"
+      ],
+      "point_candidate_solve_axis_point_candidates_i_1_1_i_2": [
+        "-1",
+        "2+sqrt(6)"
+      ],
+      "point_candidate_solve_axis_point_candidates_i_1_2_i_2": [
+        "-1",
+        "2-sqrt(6)"
       ]
     },
     "movingPoints": {
@@ -306,6 +314,26 @@
         "sourceStepIds": [
           "derive_vertex_P_i"
         ]
+      },
+      "point_candidate_solve_axis_point_candidates_i_1_1_i_2": {
+        "label": "候选1",
+        "scopeId": "i_2",
+        "scopeRoot": "i",
+        "definition": "public_candidate",
+        "sourceStepId": "solve_axis_point_candidates_i",
+        "candidateGroup": 1,
+        "candidateIndex": 1,
+        "visualOnly": true
+      },
+      "point_candidate_solve_axis_point_candidates_i_1_2_i_2": {
+        "label": "候选2",
+        "scopeId": "i_2",
+        "scopeRoot": "i",
+        "definition": "public_candidate",
+        "sourceStepId": "solve_axis_point_candidates_i",
+        "candidateGroup": 1,
+        "candidateIndex": 2,
+        "visualOnly": true
       }
     },
     "curves": [
@@ -4316,52 +4344,6 @@
                         "display_label": "M"
                       },
                       {
-                        "visual_object_id": "visual:axisofsymmetry:0dd720106694c5ba",
-                        "component": "AxisOfSymmetry",
-                        "role": "curve:axis",
-                        "source_refs": [
-                          {
-                            "kind": "functional_step",
-                            "step_id": "evaluate_point_A_ii"
-                          }
-                        ],
-                        "geometry_refs": [
-                          "curve_ii_parabola"
-                        ],
-                        "state": "context",
-                        "component_payload": {
-                          "curveId": "curve_ii_parabola",
-                          "color": "#64748b",
-                          "width": 1.5,
-                          "dash": "7 6",
-                          "role": "curve:axis"
-                        }
-                      },
-                      {
-                        "visual_object_id": "visual:point:e54a8537872a4177",
-                        "component": "Point",
-                        "role": "axis_x_intercept",
-                        "source_refs": [
-                          {
-                            "kind": "functional_step",
-                            "step_id": "evaluate_point_A_ii"
-                          }
-                        ],
-                        "geometry_refs": [
-                          "M_axis_ii"
-                        ],
-                        "state": "context",
-                        "component_payload": {
-                          "at": "M_axis_ii",
-                          "labelText": "M",
-                          "color": "#64748b",
-                          "dx": 14,
-                          "dy": -18,
-                          "role": "axis_x_intercept"
-                        },
-                        "display_label": "M"
-                      },
-                      {
                         "visual_object_id": "visual:coordinatelabel:756bb0e7383c2b35",
                         "component": "CoordinateLabel",
                         "role": "coordinate:point_A_ii",
@@ -4747,52 +4729,6 @@
                           "color": "#dc2626",
                           "dx": 14,
                           "dy": -18
-                        },
-                        "display_label": "M"
-                      },
-                      {
-                        "visual_object_id": "visual:axisofsymmetry:0dd720106694c5ba",
-                        "component": "AxisOfSymmetry",
-                        "role": "curve:axis",
-                        "source_refs": [
-                          {
-                            "kind": "functional_step",
-                            "step_id": "evaluate_point_A_ii"
-                          }
-                        ],
-                        "geometry_refs": [
-                          "curve_ii_parabola"
-                        ],
-                        "state": "context",
-                        "component_payload": {
-                          "curveId": "curve_ii_parabola",
-                          "color": "#64748b",
-                          "width": 1.5,
-                          "dash": "7 6",
-                          "role": "curve:axis"
-                        }
-                      },
-                      {
-                        "visual_object_id": "visual:point:e54a8537872a4177",
-                        "component": "Point",
-                        "role": "axis_x_intercept",
-                        "source_refs": [
-                          {
-                            "kind": "functional_step",
-                            "step_id": "evaluate_point_A_ii"
-                          }
-                        ],
-                        "geometry_refs": [
-                          "M_axis_ii"
-                        ],
-                        "state": "context",
-                        "component_payload": {
-                          "at": "M_axis_ii",
-                          "labelText": "M",
-                          "color": "#64748b",
-                          "dx": 14,
-                          "dy": -18,
-                          "role": "axis_x_intercept"
                         },
                         "display_label": "M"
                       },
@@ -5208,52 +5144,6 @@
                         "display_label": "M"
                       },
                       {
-                        "visual_object_id": "visual:axisofsymmetry:0dd720106694c5ba",
-                        "component": "AxisOfSymmetry",
-                        "role": "curve:axis",
-                        "source_refs": [
-                          {
-                            "kind": "functional_step",
-                            "step_id": "evaluate_point_A_ii"
-                          }
-                        ],
-                        "geometry_refs": [
-                          "curve_ii_parabola"
-                        ],
-                        "state": "context",
-                        "component_payload": {
-                          "curveId": "curve_ii_parabola",
-                          "color": "#64748b",
-                          "width": 1.5,
-                          "dash": "7 6",
-                          "role": "curve:axis"
-                        }
-                      },
-                      {
-                        "visual_object_id": "visual:point:e54a8537872a4177",
-                        "component": "Point",
-                        "role": "axis_x_intercept",
-                        "source_refs": [
-                          {
-                            "kind": "functional_step",
-                            "step_id": "evaluate_point_A_ii"
-                          }
-                        ],
-                        "geometry_refs": [
-                          "M_axis_ii"
-                        ],
-                        "state": "context",
-                        "component_payload": {
-                          "at": "M_axis_ii",
-                          "labelText": "M",
-                          "color": "#64748b",
-                          "dx": 14,
-                          "dy": -18,
-                          "role": "axis_x_intercept"
-                        },
-                        "display_label": "M"
-                      },
-                      {
                         "visual_object_id": "visual:coordinatelabel:756bb0e7383c2b35",
                         "component": "CoordinateLabel",
                         "role": "coordinate:point_A_ii",
@@ -5296,6 +5186,52 @@
                           "dy": -28
                         },
                         "display_label": "G(-7/2,-3)"
+                      },
+                      {
+                        "visual_object_id": "visual:axisofsymmetry:0dd720106694c5ba",
+                        "component": "AxisOfSymmetry",
+                        "role": "curve:axis",
+                        "source_refs": [
+                          {
+                            "kind": "functional_step",
+                            "step_id": "recover_target_point_E_ii"
+                          }
+                        ],
+                        "geometry_refs": [
+                          "curve_ii_parabola"
+                        ],
+                        "state": "context",
+                        "component_payload": {
+                          "curveId": "curve_ii_parabola",
+                          "color": "#64748b",
+                          "width": 1.5,
+                          "dash": "7 6",
+                          "role": "curve:axis"
+                        }
+                      },
+                      {
+                        "visual_object_id": "visual:point:e54a8537872a4177",
+                        "component": "Point",
+                        "role": "axis_x_intercept",
+                        "source_refs": [
+                          {
+                            "kind": "functional_step",
+                            "step_id": "recover_target_point_E_ii"
+                          }
+                        ],
+                        "geometry_refs": [
+                          "M_axis_ii"
+                        ],
+                        "state": "context",
+                        "component_payload": {
+                          "at": "M_axis_ii",
+                          "labelText": "M",
+                          "color": "#64748b",
+                          "dx": 14,
+                          "dy": -18,
+                          "role": "axis_x_intercept"
+                        },
+                        "display_label": "M"
                       },
                       {
                         "visual_object_id": "visual:outlineregion:1879b5f28c5a09e1",

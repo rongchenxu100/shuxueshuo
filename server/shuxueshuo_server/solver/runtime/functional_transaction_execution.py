@@ -77,7 +77,9 @@ from shuxueshuo_server.solver.runtime.functional_diagnostics import (
     normalize_macro_diagnostic_authority,
 )
 from shuxueshuo_server.solver.runtime.functional_execution_authority import (
+    CurveCandidateParameterExecutionEvidence,
     PathMinimumWitness,
+    RightAngleConstructSelectExecutionEvidence,
 )
 from shuxueshuo_server.solver.runtime.equal_length_ray_path_search import (
     EqualLengthRayPathSearchError,
@@ -320,6 +322,11 @@ class CompiledFunctionalCall:
     macro_preparation_authority: Any | None = None
     macro_search_report: MacroRuntimeSearchReport | None = None
     path_minimum_witness: PathMinimumWitness | None = None
+    direct_macro_teaching_evidence: (
+        RightAngleConstructSelectExecutionEvidence
+        | CurveCandidateParameterExecutionEvidence
+        | None
+    ) = None
     materialized_state_sources: tuple[tuple[str, StateVersionId], ...] = ()
     output_write_authorities: tuple[MethodOutputWriteAuthority, ...] = ()
 
@@ -5514,6 +5521,166 @@ def _with_prepared_macro_evidence(
     return replace(compiled, path_minimum_witness=evidence)
 
 
+def _with_direct_macro_teaching_evidence(
+    compiled: CompiledFunctionalCall,
+    *,
+    prepared: PreparedFunctionalCall,
+    method_results: Sequence[Any],
+) -> CompiledFunctionalCall:
+    """Attach student-safe evidence for direct, non-search Macro recipes."""
+
+    by_method = {str(item.method_id): item for item in method_results}
+    if prepared.capability_id == "right_angle_equal_length_construct_and_select":
+        constructed = by_method.get("right_angle_equal_length_candidates")
+        selected = by_method.get("select_point_by_quadrant_constraint")
+        if constructed is None or selected is None:
+            raise ValueError(
+                "planner.macro_contract_invalid: direct construct/select Macro "
+                "did not execute its complete verified composition"
+            )
+        candidates = _teaching_point_sequence(
+            _required_method_output_value(constructed, "candidates")
+        )
+        selected_point = _teaching_point_pair(
+            _required_method_output_value(selected, "selected_point")
+        )
+        construction_checks = tuple(
+            str(check.detail)
+            for check in constructed.checks
+            if bool(getattr(check, "ok", False)) and str(getattr(check, "detail", ""))
+        )
+        selection_condition = next(
+            (
+                str(check.detail)
+                for check in selected.checks
+                if getattr(check, "name", "") == "parameter_constraint_used"
+                and bool(getattr(check, "ok", False))
+            ),
+            "题设位置与参数约束筛选唯一候选点",
+        )
+        decisions = tuple(
+            f"候选点 ({x}, {y})："
+            + ("保留" if (x, y) == selected_point else "排除")
+            for x, y in candidates
+        )
+        evidence = RightAngleConstructSelectExecutionEvidence(
+            step_id=compiled.call_id,
+            candidates=candidates,
+            selected_point=selected_point,
+            construction_checks=construction_checks,
+            selection_condition=selection_condition,
+            candidate_decisions=decisions,
+        )
+        return replace(compiled, direct_macro_teaching_evidence=evidence)
+
+    if prepared.capability_id == "curve_candidate_parameter_solve":
+        filtered = by_method.get("filter_point_candidates_by_quadratic_curve")
+        solved = by_method.get("parameter_from_curve_point_on_quadratic")
+        if filtered is None or solved is None:
+            raise ValueError(
+                "planner.macro_contract_invalid: direct curve-candidate Macro "
+                "did not execute its complete verified composition"
+            )
+        evaluations = _curve_candidate_evaluations(filtered)
+        candidates = tuple(item[0] for item in evaluations)
+        selected_point = _teaching_point_pair(
+            _required_method_output_value(solved, "point")
+        )
+        parameter_value = _required_method_output_value(solved, "parameter_value")
+        solved_curve = sp.expand(
+            _required_method_output_value(solved, "parabola")
+        )
+        candidate_equations = tuple(item[1] for item in evaluations)
+        candidate_decisions = tuple(
+            f"候选点 ({point[0]}, {point[1]})：{decision}"
+            for point, _, decision in evaluations
+        )
+        parameter_equation = next(
+            (
+                str(check.detail)
+                for check in solved.checks
+                if getattr(check, "name", "") == "parameter_equation_formed"
+                and bool(getattr(check, "ok", False))
+            ),
+            "",
+        )
+        parameter_symbols = tuple(
+            sorted(
+                {
+                    symbol.name
+                    for point in candidates
+                    for coordinate in point
+                    for symbol in sp.sympify(coordinate).free_symbols
+                }
+            )
+        )
+        parameter_name = parameter_symbols[0] if len(parameter_symbols) == 1 else "参数"
+        evidence = CurveCandidateParameterExecutionEvidence(
+            step_id=compiled.call_id,
+            candidates=candidates,
+            candidate_equations=candidate_equations,
+            candidate_decisions=candidate_decisions,
+            selected_point=selected_point,
+            parameter_name=parameter_name,
+            parameter_equation=parameter_equation,
+            parameter_value=sp.sstr(parameter_value),
+            solved_curve=sp.sstr(solved_curve),
+        )
+        return replace(compiled, direct_macro_teaching_evidence=evidence)
+
+    return compiled
+
+
+def _required_method_output_value(method_result: Any, output_name: str) -> Any:
+    output = method_result.outputs.get(output_name)
+    if output is None:
+        raise ValueError(
+            "planner.macro_contract_invalid: direct Macro teaching evidence "
+            f"is missing method output {method_result.method_id}.{output_name}"
+        )
+    return output.value
+
+
+def _curve_candidate_evaluations(
+    method_result: Any,
+) -> tuple[tuple[tuple[str, str], str, str], ...]:
+    evaluations: list[tuple[tuple[str, str], str, str]] = []
+    for check in method_result.checks:
+        if not str(getattr(check, "name", "")).startswith("candidate_evaluation_"):
+            continue
+        observed = getattr(check, "observed", None)
+        if not isinstance(observed, Mapping):
+            raise ValueError(
+                "planner.macro_contract_invalid: candidate evaluation lost "
+                "its typed observation"
+            )
+        candidate = _teaching_point_pair(observed.get("candidate"))
+        equation = str(observed.get("equation") or "")
+        decision = str(observed.get("decision") or "")
+        if not equation or decision not in {"保留", "排除"}:
+            raise ValueError(
+                "planner.macro_contract_invalid: candidate evaluation is incomplete"
+            )
+        evaluations.append((candidate, equation, decision))
+    if not evaluations:
+        raise ValueError(
+            "planner.macro_contract_invalid: curve candidate evidence is missing"
+        )
+    return tuple(evaluations)
+
+
+def _teaching_point_sequence(value: Any) -> tuple[tuple[str, str], ...]:
+    return tuple(_teaching_point_pair(item) for item in value)
+
+
+def _teaching_point_pair(value: Any) -> tuple[str, str]:
+    if not isinstance(value, (tuple, list)) or len(value) != 2:
+        raise ValueError(
+            "planner.macro_contract_invalid: teaching evidence expected a Point"
+        )
+    return (sp.sstr(value[0]), sp.sstr(value[1]))
+
+
 def _authored_macro_roles(
     prepared: PreparedFunctionalCall,
     macro: MacroSpec,
@@ -6207,6 +6374,11 @@ class FunctionalTransactionalInterpreter:
                     capability=capability,
                     method_results=method_results,
                     handle_registry=handle_registry,
+                )
+                compiled = _with_direct_macro_teaching_evidence(
+                    compiled,
+                    prepared=prepared,
+                    method_results=method_results,
                 )
                 (
                     runtime_results,

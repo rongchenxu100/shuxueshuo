@@ -6,15 +6,23 @@ from dataclasses import dataclass
 from typing import Any, Mapping, Protocol, TypeVar
 
 from shuxueshuo_server.solver.runtime.functional_execution_authority import (
+    CurveCandidateParameterExecutionEvidence,
     FunctionalExecutionEvidence,
     PathMinimumPromptWitnessProjector,
     PathMinimumWitness,
+    RightAngleConstructSelectExecutionEvidence,
     SymbolicClosureExecutionEvidence,
 )
 
 
 SYMBOLIC_CLOSURE_TEACHING_EVIDENCE_CONTRACT = (
     "symbolic-closure-teaching-evidence/v1"
+)
+RIGHT_ANGLE_CONSTRUCT_SELECT_TEACHING_EVIDENCE_CONTRACT = (
+    "right-angle-construct-select-teaching-evidence/v1"
+)
+CURVE_CANDIDATE_PARAMETER_TEACHING_EVIDENCE_CONTRACT = (
+    "curve-candidate-parameter-teaching-evidence/v1"
 )
 
 
@@ -212,6 +220,118 @@ class SymbolicClosureTeachingEvidenceProjector:
         )
 
 
+class RightAngleConstructSelectTeachingEvidenceProjector:
+    """Expose candidate construction and the verified branch selection."""
+
+    def project(
+        self,
+        evidence: RightAngleConstructSelectExecutionEvidence,
+        *,
+        planning_context: Any | None,
+    ) -> ProjectedTeachingEvidence:
+        del planning_context
+        candidates = [list(item) for item in evidence.candidates]
+        payload = {
+            "schema_version": (
+                RIGHT_ANGLE_CONSTRUCT_SELECT_TEACHING_EVIDENCE_CONTRACT
+            ),
+            "step_id": evidence.step_id,
+            "macro_id": evidence.macro_id,
+            "candidates": candidates,
+            "selected_point": list(evidence.selected_point),
+            "construction_checks": list(evidence.construction_checks),
+            "selection_condition": evidence.selection_condition,
+            "candidate_decisions": list(evidence.candidate_decisions),
+        }
+        return ProjectedTeachingEvidence(
+            evidence_ref=f"right-angle-construct-select:{evidence.evidence_id}",
+            payload=payload,
+            calculations=(
+                {
+                    "calculation_id": "right_angle_rotation_candidates",
+                    "kind": "candidate_construction",
+                    "candidates": candidates,
+                    # ``checks`` is reserved for the separate runtime-check
+                    # channel in the LLM-facing projection.  These are the
+                    # student-readable geometric relations used to construct
+                    # the candidates, not internal verification records.
+                    "verified_relations": list(evidence.construction_checks),
+                },
+                {
+                    "calculation_id": "right_angle_candidate_selection",
+                    "kind": "candidate_selection",
+                    "condition": evidence.selection_condition,
+                    "decisions": list(evidence.candidate_decisions),
+                    "result": list(evidence.selected_point),
+                },
+            ),
+            checks=(
+                {
+                    "check_id": "right_angle_selection_unique",
+                    "kind": "unique_candidate",
+                    "passed": True,
+                    "display": "题设条件筛选出唯一合法候选点",
+                },
+            ),
+        )
+
+
+class CurveCandidateParameterTeachingEvidenceProjector:
+    """Expose candidate substitution, branch filtering and curve closure."""
+
+    def project(
+        self,
+        evidence: CurveCandidateParameterExecutionEvidence,
+        *,
+        planning_context: Any | None,
+    ) -> ProjectedTeachingEvidence:
+        del planning_context
+        candidates = [list(item) for item in evidence.candidates]
+        payload = {
+            "schema_version": CURVE_CANDIDATE_PARAMETER_TEACHING_EVIDENCE_CONTRACT,
+            "step_id": evidence.step_id,
+            "macro_id": evidence.macro_id,
+            "candidates": candidates,
+            "candidate_equations": list(evidence.candidate_equations),
+            "candidate_decisions": list(evidence.candidate_decisions),
+            "selected_point": list(evidence.selected_point),
+            "parameter_name": evidence.parameter_name,
+            "parameter_equation": evidence.parameter_equation,
+            "parameter_value": evidence.parameter_value,
+            "solved_curve": evidence.solved_curve,
+        }
+        return ProjectedTeachingEvidence(
+            evidence_ref=f"curve-candidate-parameter:{evidence.evidence_id}",
+            payload=payload,
+            calculations=(
+                {
+                    "calculation_id": "curve_candidate_filter",
+                    "kind": "candidate_filter",
+                    "candidates": candidates,
+                    "equations": list(evidence.candidate_equations),
+                    "decisions": list(evidence.candidate_decisions),
+                },
+                {
+                    "calculation_id": "curve_parameter_solution",
+                    "kind": "parameter_solution",
+                    "equation": evidence.parameter_equation,
+                    "parameter": evidence.parameter_name,
+                    "value": evidence.parameter_value,
+                    "point": list(evidence.selected_point),
+                    "curve": evidence.solved_curve,
+                },
+            ),
+            checks=(
+                {
+                    "check_id": "curve_candidate_unique",
+                    "kind": "unique_candidate",
+                    "passed": True,
+                    "display": "曲线条件与参数约束筛选出唯一合法候选点",
+                },
+            ),
+        )
+
+
 class TeachingEvidenceProjectorRegistry:
     """Exact-type registry; unknown verified evidence fails loudly."""
 
@@ -256,12 +376,24 @@ def default_teaching_evidence_projector_registry(
         SymbolicClosureExecutionEvidence,
         SymbolicClosureTeachingEvidenceProjector(),
     )
+    registry.register(
+        RightAngleConstructSelectExecutionEvidence,
+        RightAngleConstructSelectTeachingEvidenceProjector(),
+    )
+    registry.register(
+        CurveCandidateParameterExecutionEvidence,
+        CurveCandidateParameterTeachingEvidenceProjector(),
+    )
     return registry
 
 
 __all__ = [
+    "CURVE_CANDIDATE_PARAMETER_TEACHING_EVIDENCE_CONTRACT",
+    "CurveCandidateParameterTeachingEvidenceProjector",
     "PathMinimumTeachingEvidenceProjector",
     "ProjectedTeachingEvidence",
+    "RIGHT_ANGLE_CONSTRUCT_SELECT_TEACHING_EVIDENCE_CONTRACT",
+    "RightAngleConstructSelectTeachingEvidenceProjector",
     "SYMBOLIC_CLOSURE_TEACHING_EVIDENCE_CONTRACT",
     "SymbolicClosureTeachingEvidenceProjector",
     "TeachingEvidenceProjectionError",

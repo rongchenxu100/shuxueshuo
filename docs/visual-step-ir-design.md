@@ -1,6 +1,6 @@
 # VisualStepIR v2：递归 Scope 图形状态设计
 
-状态：`F5-F5B4V COMPLETE`；`F5-F5C NEXT`。
+状态：`F5-F5B4V COMPLETE`；`F5-F5C0 COMPLETE`；`F5-F5C1 NEXT`。
 
 ## 1. 目标与边界
 

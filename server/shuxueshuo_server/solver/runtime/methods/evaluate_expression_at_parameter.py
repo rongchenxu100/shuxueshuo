@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from shuxueshuo_server.solver.contracts import (
     MethodOutputActivationSpec,
+    MethodVisualSpec,
     ScalarResultFormSpec,
 )
 
@@ -196,4 +197,19 @@ SPEC = MethodSpecSource(
     },
     preconditions=("expression 可以包含 parameter",),
     postconditions=("输出表达式不再含 parameter，且保持输入表达式的 runtime 语义类型",),
+    generic_teaching_reason="单次代入求值可由统一 verified-input/output 教学模板完整表达",
+    visual=MethodVisualSpec(
+        role_schema={
+            "evaluated_parabola": "代入参数后得到的抛物线状态。",
+        },
+        scene_templates=(
+            {
+                "component": "EvaluatedParabolaMarker",
+                "when": {"output_present": "evaluated_parabola"},
+                "output_role": "evaluated_parabola",
+                "persistence": "carry_forward",
+            },
+        ),
+        role_binder_id="generic_visual",
+    ),
 )
